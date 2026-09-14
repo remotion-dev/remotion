@@ -62,8 +62,8 @@ export const InlineDropdown = ({
 		(e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			const invocationValues = getItems?.() ?? null;
-			if (invocationValues?.length === 0) {
+			const invocationValues = getItems?.() ?? values ?? [];
+			if (invocationValues.length === 0) {
 				return;
 			}
 
@@ -75,7 +75,7 @@ export const InlineDropdown = ({
 			});
 			onOpenChange?.(true);
 		},
-		[getItems, onOpenChange],
+		[getItems, onOpenChange, values],
 	);
 
 	const spaceToBottom = useMemo(() => {

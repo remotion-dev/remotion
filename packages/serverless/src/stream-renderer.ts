@@ -5,6 +5,7 @@ import type {EmittedArtifact, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudProvider,
+	GetBinaryPayloadSink,
 	OnMessage,
 	ProviderSpecifics,
 	ServerlessPayload,
@@ -16,6 +17,7 @@ import {
 	ServerlessRoutines,
 	streamToString,
 } from '@remotion/serverless-client';
+import type {OnArtifactFromRenderer} from './artifact-registry';
 import type {OverallProgressHelper} from './overall-render-progress';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 import {artifactFromS3} from './s3-renderer-output';
@@ -48,17 +50,46 @@ const streamRenderer = <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 }) => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
 	}
 
 	return new Promise<StreamRendererResponse>((resolve) => {
+		const chunkFilename = (type: 'video' | 'audio') =>
+			join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
+
+		// Stream the chunks to disk as they arrive instead of buffering them
+		// in memory. With many chunks arriving concurrently, buffering can
+		// exhaust the memory of the main function.
+		const getBinaryPayloadSink: GetBinaryPayloadSink = ({messageType}) => {
+			const filename = chunkFilename(
+				messageType === 'video-chunk-rendered' ? 'video' : 'audio',
+			);
+			const writeStream = createWriteStream(filename);
+			return {
+				write: (data) =>
+					new Promise<void>((resolve_, reject) => {
+						writeStream.write(data, (err) => {
+							if (err) {
+								reject(err);
+							} else {
+								resolve_();
+							}
+						});
+					}),
+				end: () =>
+					new Promise<void>((resolve_) => {
+						writeStream.end(resolve_);
+					}),
+			};
+		};
+
 		const receivedStreamingPayload: OnMessage<Provider> = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				overallProgress.setLambdaInvoked(payload.chunk);
@@ -75,11 +106,12 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'video-chunk-rendered') {
-				const filename = join(
-					outdir,
-					`chunk:${String(payload.chunk).padStart(8, '0')}:video`,
-				);
-				writeFileSync(filename, new Uint8Array(message.payload));
+				const filename = chunkFilename('video');
+				// An empty payload means the chunk was already streamed to disk
+				if (message.payload.length > 0) {
+					writeFileSync(filename, message.payload);
+				}
+
 				files.push(filename);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
@@ -90,12 +122,12 @@ const streamRenderer = <Provider extends CloudProvider>({
 			}
 
 			if (message.type === 'audio-chunk-rendered') {
-				const filename = join(
-					outdir,
-					`chunk:${String(payload.chunk).padStart(8, '0')}:audio`,
-				);
+				const filename = chunkFilename('audio');
+				// An empty payload means the chunk was already streamed to disk
+				if (message.payload.length > 0) {
+					writeFileSync(filename, message.payload);
+				}
 
-				writeFileSync(filename, new Uint8Array(message.payload));
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
 					`Received audio chunk for chunk ${payload.chunk}`,
@@ -125,13 +157,24 @@ const streamRenderer = <Provider extends CloudProvider>({
 					artifact.filename,
 					artifact.content.length + 'bytes.',
 				);
-				const {alreadyExisted} = onArtifact(artifact);
-				if (alreadyExisted) {
+				const artifactRegistration = onArtifact({
+					artifact,
+					chunk: payload.chunk,
+					attempt: payload.attempt,
+				});
+				if (artifactRegistration.type === 'conflict') {
 					return resolve({
 						type: 'error',
 						error: `Chunk ${payload.chunk} emitted an asset filename ${message.payload.artifact.filename} at frame ${message.payload.artifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
 						shouldRetry: false,
 					});
+				}
+
+				if (artifactRegistration.type === 'retry-replay') {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						`Ignoring artifact ${artifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+					);
 				}
 
 				return;
@@ -181,6 +224,7 @@ const streamRenderer = <Provider extends CloudProvider>({
 				type: ServerlessRoutines.renderer,
 				receivedStreamingPayload,
 				requestHandler,
+				getBinaryPayloadSink,
 			})
 			.then(() => {
 				resolve({
@@ -259,11 +303,11 @@ const s3Renderer = async <Provider extends CloudProvider>({
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 }): Promise<StreamRendererResponse> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');
@@ -428,13 +472,24 @@ const s3Renderer = async <Provider extends CloudProvider>({
 				}
 
 				for (const emittedArtifact of emittedArtifacts) {
-					const {alreadyExisted} = onArtifact(emittedArtifact);
-					if (alreadyExisted) {
+					const artifactRegistration = onArtifact({
+						artifact: emittedArtifact,
+						chunk: payload.chunk,
+						attempt: payload.attempt,
+					});
+					if (artifactRegistration.type === 'conflict') {
 						return {
 							type: 'error',
 							error: `Chunk ${payload.chunk} emitted an asset filename ${emittedArtifact.filename} at frame ${emittedArtifact.frame} but there is already another artifact with the same name. https://remotion.dev/docs/artifacts`,
 							shouldRetry: false,
 						};
+					}
+
+					if (artifactRegistration.type === 'retry-replay') {
+						RenderInternals.Log.info(
+							{indent: false, logLevel},
+							`Ignoring artifact ${emittedArtifact.filename} replayed by attempt ${payload.attempt} of chunk ${payload.chunk}`,
+						);
 					}
 				}
 
@@ -518,11 +573,11 @@ export const renderRendererFunctionWithRetry = async <
 	overallProgress: OverallProgressHelper<Provider>;
 	files: string[];
 	logLevel: LogLevel;
-	onArtifact: (asset: EmittedArtifact) => {alreadyExisted: boolean};
+	onArtifact: OnArtifactFromRenderer;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	requestHandler: Provider['requestHandler'] | null;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 }): Promise<unknown> => {
 	if (payload.type !== ServerlessRoutines.renderer) {
 		throw new Error('Expected renderer type');

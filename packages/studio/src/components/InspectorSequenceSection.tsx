@@ -4,6 +4,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
@@ -29,13 +30,13 @@ import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
+import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSection} from './InspectorPanel/common';
 import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
-import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -59,8 +60,10 @@ import {
 } from './Timeline/TimelineRowLayoutContext';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	TimelineSelectionOrderProvider,
+	useTimelineSelection,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
@@ -84,14 +87,14 @@ const emptyState: React.CSSProperties = {
 	padding: '0 12px',
 };
 
-const effectsHeaderTitle: React.CSSProperties = {
-	...sectionHeaderTitle,
-	flexShrink: 1,
-};
-
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const effectsHeaderTitle: React.CSSProperties = {
+	...sectionHeaderTitle,
+	flexShrink: 1,
 };
 
 const borderRadiusToggleIcon: React.CSSProperties = {
@@ -104,61 +107,6 @@ const transform3DToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 14,
 	width: 14,
-};
-
-const collapsibleSectionHeaderButton: React.CSSProperties = {
-	appearance: 'none',
-	backgroundColor: 'transparent',
-	border: 'none',
-	borderRadius: 3,
-	cursor: 'default',
-	display: 'block',
-	flex: 1,
-	fontFamily: 'Arial, Helvetica, sans-serif',
-	fontSize: 12,
-	fontWeight: 'bold',
-	lineHeight: '16px',
-	margin: 0,
-	minWidth: 0,
-	overflow: 'hidden',
-	padding: '4px 0',
-	textAlign: 'left',
-	textOverflow: 'ellipsis',
-	userSelect: 'none',
-	whiteSpace: 'nowrap',
-};
-
-const CollapsibleInspectorSectionHeader: React.FC<{
-	readonly action: React.ReactNode;
-	readonly expanded: boolean;
-	readonly label: string;
-	readonly onToggle: () => void;
-}> = ({action, expanded, label, onToggle}) => {
-	const [hovered, setHovered] = useState(false);
-	const style = useMemo<React.CSSProperties>(() => {
-		return {
-			...collapsibleSectionHeaderButton,
-			color: hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered]);
-
-	return (
-		<div style={sectionHeaderRow}>
-			<button
-				type="button"
-				aria-expanded={expanded}
-				aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
-				className="__remotion-inspector-section-title"
-				onClick={onToggle}
-				onPointerEnter={() => setHovered(true)}
-				onPointerLeave={() => setHovered(false)}
-				style={style}
-			>
-				{label}
-			</button>
-			{action}
-		</div>
-	);
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -261,6 +209,7 @@ const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
 };
 
 type InspectorSectionExpansionOverrides = Readonly<Record<string, boolean>>;
+type AdditionalInspectorSectionId = 'captions';
 
 const loadInspectorSectionExpansionOverrides =
 	(): InspectorSectionExpansionOverrides => {
@@ -314,16 +263,16 @@ const persistInspectorSectionExpansionOverrides = (
 
 const getInspectorSectionExpansionKey = ({
 	nodePathInfo,
-	groupId,
+	sectionId,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly groupId: SchemaFieldGroupInfo['id'];
+	readonly sectionId: SchemaFieldGroupInfo['id'] | AdditionalInspectorSectionId;
 }) => {
 	return JSON.stringify([
 		nodePathInfo.sequenceSubscriptionKey.absolutePath,
 		nodePathInfo.sequenceSubscriptionKey.nodePath,
 		nodePathInfo.index,
-		groupId,
+		sectionId,
 	]);
 };
 
@@ -382,6 +331,17 @@ export const InspectorSequenceSection: React.FC<{
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
+	const {selectedItems} = useTimelineSelection();
+	const selectedEffect =
+		selectedItems.length === 1 &&
+		(selectedItems[0].type === 'sequence-effect' ||
+			selectedItems[0].type === 'sequence-effect-prop')
+			? selectedItems[0]
+			: null;
+	const selectedEffectKey =
+		selectedEffect === null ? null : getTimelineSelectionKey(selectedEffect);
+	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
+	const scrolledEffectKey = useRef<string | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
 	);
@@ -407,9 +367,6 @@ export const InspectorSequenceSection: React.FC<{
 	const mediaSrc = getTimelineAssetSrcFromSchema(
 		sequence.controls,
 		runtimeValues,
-	);
-	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
-		sequence.controls.componentIdentity,
 	);
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
@@ -459,10 +416,9 @@ export const InspectorSequenceSection: React.FC<{
 	const assetSelectionContextValue = useMemo(
 		() => ({
 			getSourceAction,
-			initialQuery: assetSelectionInitialQuery,
 			sourceAction,
 		}),
-		[assetSelectionInitialQuery, getSourceAction, sourceAction],
+		[getSourceAction, sourceAction],
 	);
 
 	const getIsExpanded = useCallback(
@@ -513,6 +469,70 @@ export const InspectorSequenceSection: React.FC<{
 						}),
 		};
 	}, [getIsExpanded, tree]);
+
+	useEffect(() => {
+		if (
+			selectedEffectKey === null ||
+			scrolledEffectKey.current === selectedEffectKey
+		) {
+			return;
+		}
+
+		const rows = flattenVisibleTreeNodes({
+			nodes: tree,
+			getIsExpanded: () => true,
+		});
+		const targetIndex = rows.findIndex(({node}) => {
+			const selection = getTimelineSelectionFromNodePathInfo(node.nodePathInfo);
+			return (
+				selection !== null &&
+				getTimelineSelectionKey(selection) === selectedEffectKey
+			);
+		});
+		if (targetIndex === -1) {
+			return;
+		}
+
+		const parentKeys: string[] = [];
+		let {depth} = rows[targetIndex];
+		for (let i = targetIndex - 1; i >= 0 && depth > 0; i--) {
+			if (rows[i].depth < depth) {
+				parentKeys.push(getInspectorExpansionKey(rows[i].node.nodePathInfo));
+				depth = rows[i].depth;
+			}
+		}
+
+		setCollapsedKeys((previous) => {
+			if (!parentKeys.some((key) => previous.has(key))) {
+				return previous;
+			}
+
+			const next = new Set(previous);
+			for (const key of parentKeys) {
+				next.delete(key);
+			}
+
+			persistInspectorCollapsedKeys(next);
+			return next;
+		});
+	}, [selectedEffectKey, tree]);
+
+	useEffect(() => {
+		if (selectedEffectKey === null) {
+			scrolledEffectKey.current = null;
+			return;
+		}
+
+		if (
+			scrolledEffectKey.current === selectedEffectKey ||
+			selectedEffectRowRef.current === null
+		) {
+			return;
+		}
+
+		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
+		scrolledEffectKey.current = selectedEffectKey;
+	}, [effectRows, selectedEffectKey]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
@@ -575,7 +595,7 @@ export const InspectorSequenceSection: React.FC<{
 
 				const expansionKey = getInspectorSectionExpansionKey({
 					nodePathInfo,
-					groupId: group.id,
+					sectionId: group.id,
 				});
 				const activity = getControlGroupActivity(group);
 				if (activity === 'active' && next[expansionKey] !== true) {
@@ -595,17 +615,17 @@ export const InspectorSequenceSection: React.FC<{
 	}, [controlGroups, getControlGroupActivity, nodePathInfo]);
 	const isControlGroupExpanded = useCallback(
 		(group: InspectorControlGroup): boolean => {
-			if (!isSmartCollapsibleInspectorGroup(group.id)) {
-				return true;
-			}
-
 			const expansionKey = getInspectorSectionExpansionKey({
 				nodePathInfo,
-				groupId: group.id,
+				sectionId: group.id,
 			});
 			const override = sectionExpansionOverrides[expansionKey];
 			if (override !== undefined) {
 				return override;
+			}
+
+			if (!isSmartCollapsibleInspectorGroup(group.id)) {
+				return true;
 			}
 
 			const automaticExpansion = automaticSectionExpansion[expansionKey];
@@ -626,7 +646,7 @@ export const InspectorSequenceSection: React.FC<{
 		(group: InspectorControlGroup) => {
 			const expansionKey = getInspectorSectionExpansionKey({
 				nodePathInfo,
-				groupId: group.id,
+				sectionId: group.id,
 			});
 			const nextExpanded = !isControlGroupExpanded(group);
 			setSectionExpansionOverrides((previous) => {
@@ -637,6 +657,32 @@ export const InspectorSequenceSection: React.FC<{
 		},
 		[isControlGroupExpanded, nodePathInfo],
 	);
+	const isAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId): boolean => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			return sectionExpansionOverrides[expansionKey] ?? true;
+		},
+		[nodePathInfo, sectionExpansionOverrides],
+	);
+	const toggleAdditionalSection = useCallback(
+		(sectionId: AdditionalInspectorSectionId) => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			const nextExpanded = !isAdditionalSectionExpanded(sectionId);
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: nextExpanded};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[isAdditionalSectionExpanded, nodePathInfo],
+	);
+	const captionsExpanded = isAdditionalSectionExpanded('captions');
 	const visibleControlRows = controlGroups.flatMap((group) => {
 		return isControlGroupExpanded(group) ? group.rows : [];
 	});
@@ -661,12 +707,11 @@ export const InspectorSequenceSection: React.FC<{
 		sequencePropStatuses,
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
-	const inlineCaptionValue =
-		schema.captions?.type === 'remotion-captions'
-			? runtimeValues.captions
-			: null;
-	const inlineCaptions = Array.isArray(inlineCaptionValue)
-		? (inlineCaptionValue as Caption[])
+	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const inlineCaptions = hasCaptionsSchema
+		? Array.isArray(runtimeValues.captions)
+			? (runtimeValues.captions as Caption[])
+			: []
 		: null;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
@@ -815,26 +860,22 @@ export const InspectorSequenceSection: React.FC<{
 	};
 
 	const renderControlGroupHeader = (group: InspectorControlGroup) => {
-		const collapsible = isSmartCollapsibleInspectorGroup(group.id);
 		const expanded = isControlGroupExpanded(group);
-		if (collapsible) {
-			return (
-				<CollapsibleInspectorSectionHeader
-					action={
-						group.id === 'border-radius' && expanded ? borderRadiusAction : null
-					}
-					expanded={expanded}
-					label={group.label}
-					onToggle={() => toggleControlGroup(group)}
-				/>
-			);
-		}
-
 		return (
-			<div style={sectionHeaderRow}>
-				<div style={effectsHeaderTitle}>{group.label}</div>
-				{group.id === 'transforms' ? transform3DAction : null}
-			</div>
+			<CollapsibleInspectorSectionHeader
+				action={
+					expanded
+						? group.id === 'border-radius'
+							? borderRadiusAction
+							: group.id === 'transforms'
+								? transform3DAction
+								: null
+						: null
+				}
+				expanded={expanded}
+				label={group.label}
+				onToggle={() => toggleControlGroup(group)}
+			/>
 		);
 	};
 
@@ -882,7 +923,9 @@ export const InspectorSequenceSection: React.FC<{
 					<InlineCaptionInspector
 						captions={inlineCaptions}
 						controls={sequence.controls}
+						expanded={captionsExpanded}
 						nodePath={nodePathInfo.sequenceSubscriptionKey}
+						onToggle={() => toggleAdditionalSection('captions')}
 						readOnlyStudio={readOnlyStudio}
 						validatedLocation={validatedLocation}
 					/>
@@ -891,7 +934,22 @@ export const InspectorSequenceSection: React.FC<{
 					<InspectorSection header={effectsHeader}>
 						{effectRows.length > 0 ? (
 							<TimelineSelectionOrderProvider items={effectSelectableItems}>
-								{effectRows.map(renderRow)}
+								{effectRows.map((row) => {
+									const selection = getTimelineSelectionFromNodePathInfo(
+										row.node.nodePathInfo,
+									);
+									const selected =
+										selection !== null &&
+										getTimelineSelectionKey(selection) === selectedEffectKey;
+									return (
+										<div
+											key={getInspectorExpansionKey(row.node.nodePathInfo)}
+											ref={selected ? selectedEffectRowRef : null}
+										>
+											{renderRow(row)}
+										</div>
+									);
+								})}
 							</TimelineSelectionOrderProvider>
 						) : null}
 					</InspectorSection>

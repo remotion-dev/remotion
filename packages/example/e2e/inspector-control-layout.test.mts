@@ -11,7 +11,6 @@ const getBox = async (locator: Locator) => {
 };
 
 const expectInspectorControlsToUseAvailableWidth = async (
-	controlsHeader: Locator,
 	origin: Locator,
 	destination: Locator,
 	label: Locator,
@@ -21,7 +20,6 @@ const expectInspectorControlsToUseAvailableWidth = async (
 	colorButton: Locator,
 ) => {
 	const [
-		headerBox,
 		originBox,
 		destinationBox,
 		labelBox,
@@ -30,7 +28,6 @@ const expectInspectorControlsToUseAvailableWidth = async (
 		keyframeButtonBox,
 		colorButtonBox,
 	] = await Promise.all([
-		getBox(controlsHeader),
 		getBox(origin),
 		getBox(destination),
 		getBox(label),
@@ -41,19 +38,18 @@ const expectInspectorControlsToUseAvailableWidth = async (
 	]);
 
 	for (const fieldBox of [
-		originBox,
 		destinationBox,
 		labelBox,
 		labelInputBox,
 		routeColorBox,
 	]) {
-		expect(Math.abs(fieldBox.x - headerBox.x)).toBeLessThanOrEqual(2);
+		expect(Math.abs(fieldBox.x - originBox.x)).toBeLessThanOrEqual(2);
 	}
 
-	expect(keyframeButtonBox.x).toBeGreaterThan(
-		routeColorBox.x + routeColorBox.width,
+	expect(keyframeButtonBox.x + keyframeButtonBox.width).toBeLessThanOrEqual(
+		routeColorBox.x,
 	);
-	expect(keyframeButtonBox.x).toBeLessThan(colorButtonBox.x);
+	expect(routeColorBox.x + routeColorBox.width).toBeLessThan(colorButtonBox.x);
 };
 
 test.describe('Inspector control layout', () => {
@@ -65,7 +61,7 @@ test.describe('Inspector control layout', () => {
 		await stopStudio();
 	});
 
-	test('does not indent controls after array fields', async ({page}) => {
+	test('keeps inspector controls aligned', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/inspector-control-layout-e2e`);
 		await expect(page).toHaveURL(/inspector-control-layout-e2e/, {
 			timeout: 15_000,
@@ -86,7 +82,6 @@ test.describe('Inspector control layout', () => {
 			await expect(origin).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
 
-		const controlsHeader = page.getByText('Controls', {exact: true});
 		const destination = page.getByText('Destination [longitude, latitude]', {
 			exact: true,
 		});
@@ -97,9 +92,20 @@ test.describe('Inspector control layout', () => {
 			.getByRole('button', {name: 'Add keyframe'})
 			.first();
 		const colorButton = page.getByRole('button', {name: '#ff5c4d'});
+		const sourceAction = page.getByRole('button', {name: 'tablet.mp4'});
+		const duplicateAction = page.getByRole('button', {
+			name: 'Duplicate',
+			exact: true,
+		});
+		const [sourceActionBox, duplicateActionBox] = await Promise.all([
+			getBox(sourceAction),
+			getBox(duplicateAction),
+		]);
+		expect(
+			Math.abs(sourceActionBox.x - duplicateActionBox.x),
+		).toBeLessThanOrEqual(1);
 
 		await expectInspectorControlsToUseAvailableWidth(
-			controlsHeader,
 			origin,
 			destination,
 			label,
@@ -112,7 +118,6 @@ test.describe('Inspector control layout', () => {
 		await page.getByRole('button', {name: '-0.1276', exact: true}).click();
 		await page.keyboard.press('Escape');
 		await expectInspectorControlsToUseAvailableWidth(
-			controlsHeader,
 			origin,
 			destination,
 			label,
@@ -133,7 +138,6 @@ test.describe('Inspector control layout', () => {
 		await page.mouse.up();
 
 		await expectInspectorControlsToUseAvailableWidth(
-			controlsHeader,
 			origin,
 			destination,
 			label,

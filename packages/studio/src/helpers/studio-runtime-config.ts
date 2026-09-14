@@ -1,5 +1,4 @@
 import type {StudioRuntimeConfig} from '@remotion/studio-shared';
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 
 export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
@@ -12,6 +11,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	keyboardShortcutsEnabled: true,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
+	configFileStudioSettings: null,
 };
 
 const getStudioRuntimeConfig = (): StudioRuntimeConfig => {
@@ -34,8 +34,12 @@ export const getStudioKeyboardShortcutsEnabled = () => {
 	return getStudioRuntimeConfig().keyboardShortcutsEnabled;
 };
 
+export const getStudioKeyboardShortcuts = () => {
+	return getStudioRuntimeConfig().keyboardShortcuts ?? null;
+};
+
 export const getStudioMaxTimelineTracks = () => {
-	return getStudioRuntimeConfig().maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS;
+	return getStudioRuntimeConfig().maxTimelineTracks;
 };
 
 export const getStudioBufferStateDelayInMilliseconds = () => {

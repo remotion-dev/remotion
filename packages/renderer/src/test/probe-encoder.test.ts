@@ -38,6 +38,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				onLog: null,
 			}),
 		).toBe('disable');
 	});
@@ -53,6 +54,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				onLog: null,
 			}),
 		).toBe('if-possible');
 	});
@@ -68,6 +70,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				onLog: null,
 			}),
 		).toBe('required');
 	});
@@ -83,6 +86,7 @@ describe('resolveHardwareAcceleration', () => {
 				crf: null,
 				encodingMaxRate: null,
 				encodingBufferSize: null,
+				onLog: null,
 			}),
 		).toBe('if-possible');
 	});
@@ -90,8 +94,9 @@ describe('resolveHardwareAcceleration', () => {
 	describe('software encoder passthrough', () => {
 		afterEach(restorePlatform);
 
-		test('returns original value when getCodecName returns software (CRF set on linux)', () => {
-			setPlatform('linux');
+		test('reports why CRF disables hardware acceleration on Windows', () => {
+			setPlatform('win32');
+			const onLog = mock(() => undefined);
 			expect(
 				resolveHardwareAcceleration({
 					codec: 'h264',
@@ -102,8 +107,16 @@ describe('resolveHardwareAcceleration', () => {
 					crf: 20,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					onLog,
 				}),
-			).toBe('if-possible');
+			).toBe('disable');
+			expect(onLog).toHaveBeenCalledTimes(1);
+			expect(onLog).toHaveBeenCalledWith({
+				logLevel: 'warn',
+				previewString:
+					'Hardware accelerated encoding disabled - "crf" option is not supported with hardware acceleration',
+				tag: '',
+			});
 		});
 
 		test('returns original value when codec has no hw encoder (vp8)', () => {
@@ -118,6 +131,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					onLog: null,
 				}),
 			).toBe('if-possible');
 		});
@@ -134,6 +148,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					onLog: null,
 				}),
 			).toBe('if-possible');
 		});
@@ -150,6 +165,7 @@ describe('resolveHardwareAcceleration', () => {
 					crf: null,
 					encodingMaxRate: null,
 					encodingBufferSize: null,
+					onLog: null,
 				}),
 			).toBe('disable');
 		});

@@ -8,6 +8,7 @@ import {parseAst} from './parse-ast';
 export type CapturedJsxNodePath = {
 	node: JSXOpeningElement;
 	nodePath: SequenceNodePath;
+	signature: string;
 };
 
 export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
@@ -17,6 +18,7 @@ export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 			captured.push({
 				node: path.node as JSXOpeningElement,
 				nodePath: getNodePathForRecastPath(path, ast),
+				signature: recast.prettyPrint(path.node as JSXOpeningElement).code,
 			});
 			return this.traverse(path);
 		},
@@ -63,17 +65,34 @@ export const getNodePathRemappings = ({
 		finalNodePathByNode.set(nodesAfterMutation[i], finalNodePaths[i]);
 	}
 
-	const nodePathRemappings = captured.flatMap(({node, nodePath}) => {
-		const newNodePath = finalNodePathByNode.get(node) ?? null;
-		if (
-			newNodePath !== null &&
-			JSON.stringify(nodePath) === JSON.stringify(newNodePath)
-		) {
-			return [];
+	const capturedNodes = new Set(captured.map(({node}) => node));
+	const nodePathRemappings: SequenceNodePathRemapping[] = captured.flatMap(
+		({node, nodePath, signature}) => {
+			const newNodePath = finalNodePathByNode.get(node) ?? null;
+			if (
+				newNodePath !== null &&
+				JSON.stringify(nodePath) === JSON.stringify(newNodePath) &&
+				recast.prettyPrint(node).code === signature
+			) {
+				return [];
+			}
+
+			return [{oldNodePath: nodePath, newNodePath}];
+		},
+	);
+
+	for (const node of nodesAfterMutation) {
+		if (capturedNodes.has(node)) {
+			continue;
 		}
 
-		return [{oldNodePath: nodePath, newNodePath}];
-	});
+		const newNodePath = finalNodePathByNode.get(node);
+		if (!newNodePath) {
+			throw new Error('Could not map inserted JSX node path');
+		}
+
+		nodePathRemappings.push({oldNodePath: null, newNodePath});
+	}
 
 	return {finalNodePathByNode, nodePathRemappings};
 };

@@ -8,6 +8,7 @@ import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
 import {injectCSS} from './helpers/inject-css';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
+import {CompositionListProvider} from './state/composition-list';
 
 declare global {
 	interface Window {
@@ -45,7 +46,9 @@ const StudioInner: React.FC<{
 				<StaticFilesProvider>
 					<ResolveCompositionConfigInStudio>
 						<EditorContexts>
-							<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+							<CompositionListProvider>
+								<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+							</CompositionListProvider>
 							{readOnly
 								? null
 								: createPortal(

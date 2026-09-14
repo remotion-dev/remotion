@@ -27,7 +27,6 @@ import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
-import {handleInstallPackage} from './routes/install-dependency';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
@@ -39,6 +38,8 @@ import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
+import {getReleaseNotesHandler} from './routes/release-notes';
+import {remotionSkillsInfoHandler} from './routes/remotion-skills-info';
 import {handleRemoveRender} from './routes/remove-render';
 import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
@@ -47,7 +48,9 @@ import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {handleShutdownStudio} from './routes/shutdown-studio';
 import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
+import {splitVideoFromAudioHandler} from './routes/split-video-from-audio';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {subscribeToSequenceProps} from './routes/subscribe-to-sequence-props';
@@ -57,14 +60,19 @@ import {unsubscribeFromDefaultProps} from './routes/unsubscribe-from-default-pro
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
 import {handleUpdate} from './routes/update-available';
-import {updateConfigHandler} from './routes/update-config';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
+import {handleUpgradeRemotion} from './routes/upgrade-remotion';
+
+type StandardApiRoute = Exclude<
+	keyof ApiRoutes,
+	'/api/install-package' | '/api/update-config'
+>;
 
 export const allApiRoutes: {
-	[key in keyof ApiRoutes]: ApiHandler<
+	[key in StandardApiRoute]: ApiHandler<
 		ApiRoutes[key]['Request'],
 		ApiRoutes[key]['Response']
 	>;
@@ -113,15 +121,18 @@ export const allApiRoutes: {
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
+	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/update-available': handleUpdate,
+	'/api/release-notes': getReleaseNotesHandler,
+	'/api/remotion-skills-info': remotionSkillsInfoHandler,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,
+	'/api/upgrade-remotion': handleUpgradeRemotion,
+	'/api/shutdown-studio': handleShutdownStudio,
 	'/api/restart-studio': handleRestartStudio,
-	'/api/update-config': updateConfigHandler,
 	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
 	'/api/default-editor-info': getDefaultEditorInfoHandler,
-	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/prepare-element-install': prepareElementInstallHandler,

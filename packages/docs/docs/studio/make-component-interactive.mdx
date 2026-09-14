@@ -169,8 +169,6 @@ Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="non
 
 ## Wrap the component
 
-Set `componentIdentity` to `null` for a component defined in your project.
-
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {
@@ -259,7 +257,6 @@ const BadgeInner = forwardRef<
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,
   componentName: '<Badge>',
-  componentIdentity: null,
   schema: badgeSchema,
   supportsEffects: false,
 });

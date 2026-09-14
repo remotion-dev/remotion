@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import type {RspackConfiguration, WebpackConfiguration} from '../config';
 import {Config, ConfigInternals} from '../config';
 import {getRenderDefaults} from '../get-render-defaults';
@@ -11,6 +10,42 @@ test('Studio render defaults keep the startup log level', () => {
 	Config.setLogLevel('verbose');
 
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
+});
+
+test('Element library configuration must be valid', () => {
+	ConfigInternals.resetConfigOptions();
+
+	expect(() => Config.addElementLibrary({url: '/elements'})).toThrow(
+		'Config.addElementLibrary() expects an absolute URL',
+	);
+	expect(() => Config.addElementLibrary({url: 'file:///tmp/elements'})).toThrow(
+		'Config.addElementLibrary() only supports HTTP and HTTPS URLs',
+	);
+	expect(() =>
+		Config.addElementLibrary(null as unknown as {url: string}),
+	).toThrow('Config.addElementLibrary() expects an object');
+	expect(() =>
+		Config.addElementLibrary([] as unknown as {url: string}),
+	).toThrow('Config.addElementLibrary() expects an object, got an array');
+	expect(() =>
+		Config.addElementLibrary({url: null as unknown as string}),
+	).toThrow('Config.addElementLibrary() expects "url" to be a string');
+	expect(() =>
+		Config.addElementLibrary({
+			url: 'https://example.com/elements',
+			displayName: 123 as unknown as string,
+		}),
+	).toThrow(
+		'Config.addElementLibrary() expects the display name to be a string',
+	);
+	expect(() =>
+		Config.addElementLibrary({
+			url: 'https://example.com/elements',
+			displayName: ' ',
+		}),
+	).toThrow(
+		'Config.addElementLibrary() expects the display name to not be empty',
+	);
 });
 
 test('Rspack can be configured using the current and deprecated APIs', () => {
@@ -36,10 +71,28 @@ test('reset config options restores defaults before reloading config', async () 
 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
+	Config.addElementLibrary({
+		url: 'https://example.com/elements',
+		displayName: 'Example Elements',
+	});
 	Config.setChromiumOpenGlRenderer('angle');
+	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
+	Config.setAskAIEnabled(false);
+	Config.setAudioLatencyHint('interactive');
+	Config.setBeepOnFinish(true);
+	Config.setEnableCrossSiteIsolation(true);
+	Config.setInteractivityEnabled(false);
+	Config.setKeyboardShortcutsEnabled(false);
+	Config.setKeyboardShortcuts({
+		playPause: {key: 'p'},
+		quickSwitcher: null,
+	});
+	Config.setLogLevel('verbose');
+	Config.setNumberOfSharedAudioTags(2);
+	Config.setRspack(true);
 	Config.setExperimentalKeepAudioContextAlive(true);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
 		...config,
@@ -60,9 +113,20 @@ test('reset config options restores defaults before reloading config', async () 
 
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 	expect(StudioServerInternals.getMaxTimelineTracks()).toBe(123);
+	expect(ConfigInternals.getElementLibraries()).toEqual([
+		{
+			displayName: 'Example Elements',
+			url: 'https://example.com/elements',
+		},
+	]);
+	expect(ConfigInternals.getKeyboardShortcuts()).toEqual({
+		playPause: {key: 'p'},
+		quickSwitcher: null,
+	});
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
+	expect(getRenderDefaults('info').crf).toBe(12);
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},
@@ -73,6 +137,30 @@ test('reset config options restores defaults before reloading config', async () 
 			.value,
 	).toBe('cursor');
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBe(200);
+	expect(BrowserSafeApis.options.askAIOption.getConfigValue()).toBe(false);
+	expect(BrowserSafeApis.options.audioLatencyHintOption.getConfigValue()).toBe(
+		'interactive',
+	);
+	expect(BrowserSafeApis.options.beepOnFinishOption.getConfigValue()).toBe(
+		true,
+	);
+	expect(
+		BrowserSafeApis.options.enableCrossSiteIsolationOption.getConfigValue(),
+	).toBe(true);
+	expect(BrowserSafeApis.options.interactivityOption.getConfigValue()).toBe(
+		false,
+	);
+	expect(BrowserSafeApis.options.keyboardShortcutsOption.getConfigValue()).toBe(
+		false,
+	);
+	expect(BrowserSafeApis.options.logLevelOption.getConfigValue()).toBe(
+		'verbose',
+	);
+	expect(
+		BrowserSafeApis.options.numberOfSharedAudioTagsOption.getConfigValue(),
+	).toBe(2);
+	expect(BrowserSafeApis.options.rspackOption.getConfigValue()).toBe(true);
+	expect(StudioServerInternals.getConfiguredMaxTimelineTracks()).toBe(123);
 	expect(
 		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({
 			commandLine: {},
@@ -107,12 +195,12 @@ test('reset config options restores defaults before reloading config', async () 
 	ConfigInternals.resetConfigOptions();
 
 	expect(ConfigInternals.getStudioPort()).toBeUndefined();
-	expect(StudioServerInternals.getMaxTimelineTracks()).toBe(
-		DEFAULT_TIMELINE_TRACKS,
-	);
+	expect(StudioServerInternals.getMaxTimelineTracks()).toBeNull();
+	expect(ConfigInternals.getElementLibraries()).toEqual([]);
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();
+	expect(getRenderDefaults('info').crf).toBeNull();
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},
@@ -123,6 +211,29 @@ test('reset config options restores defaults before reloading config', async () 
 			.value,
 	).toBeNull();
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
+	expect(BrowserSafeApis.options.askAIOption.getConfigValue()).toBeNull();
+	expect(
+		BrowserSafeApis.options.audioLatencyHintOption.getConfigValue(),
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.beepOnFinishOption.getConfigValue(),
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.enableCrossSiteIsolationOption.getConfigValue(),
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.interactivityOption.getConfigValue(),
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.keyboardShortcutsOption.getConfigValue(),
+	).toBeNull();
+	expect(ConfigInternals.getKeyboardShortcuts()).toBeNull();
+	expect(BrowserSafeApis.options.logLevelOption.getConfigValue()).toBeNull();
+	expect(
+		BrowserSafeApis.options.numberOfSharedAudioTagsOption.getConfigValue(),
+	).toBeNull();
+	expect(BrowserSafeApis.options.rspackOption.getConfigValue()).toBeNull();
+	expect(StudioServerInternals.getConfiguredMaxTimelineTracks()).toBeNull();
 	expect(
 		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({
 			commandLine: {},

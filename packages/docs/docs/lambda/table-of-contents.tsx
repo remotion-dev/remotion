@@ -58,6 +58,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>downloadMedia()</strong>
 					<div>Download a render artifact from S3</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/cancelrenderonlambda">
+					<strong>cancelRenderOnLambda()</strong>
+					<div>Cancel an in-progress render</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/getuserpolicy">
 					<strong>getUserPolicy()</strong>
 					<div>Get the policy JSON for your AWS user</div>

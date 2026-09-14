@@ -11,6 +11,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		trimBefore: undefined,
 		trimAfter: undefined,
 		playbackRate: 1,
+		toneFrequency: 1,
 		globalPlaybackRate: 1,
 		audioStreamIndex: 0,
 		fps: 30,
@@ -29,7 +30,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		getEffectChainState: () => null,
 	});
 
-	await player.initialize(0, false);
+	await player.initialize(0, false, 1);
 
 	const initialFrames = player.videoIteratorManager!.getFramesRendered();
 	await player.setTrimBefore(30, 0);

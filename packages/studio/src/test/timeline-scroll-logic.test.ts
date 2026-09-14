@@ -1,11 +1,42 @@
 import {expect, test} from 'bun:test';
 import {
+	scrollableRef,
+	sliderAreaRef,
+	timelineVerticalScroll,
+} from '../components/Timeline/timeline-refs';
+import {
 	getFrameFromX,
 	getFrameFromTimelineDrop,
 	getFrameIncrementFromWidth,
 	getScrollLeftToKeepCursorInPlace,
+	getTimelineContentWidth,
+	startTimelineEdgeAutoScroll,
 } from '../components/Timeline/timeline-scroll-logic';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
+
+test('vertical top offset accounts for the covered timeline header', () => {
+	timelineVerticalScroll.current = {
+		clientHeight: 500,
+		getBoundingClientRect: () => ({bottom: 600, top: 100}),
+		scrollHeight: 1000,
+		scrollTop: 100,
+	} as HTMLDivElement;
+	const directions: Array<'up' | 'down' | null> = [];
+	const autoScroll = startTimelineEdgeAutoScroll({
+		includeHorizontal: false,
+		includeVertical: true,
+		verticalTopOffset: 39,
+		onTick: (nextDirections) => {
+			directions.push(nextDirections.y);
+		},
+	});
+
+	autoScroll.update({clientX: 200, clientY: 145});
+	autoScroll.stop();
+	timelineVerticalScroll.current = null;
+
+	expect(directions).toEqual(['up']);
+});
 
 test('getFrameFromX handles collapsed timeline widths', () => {
 	expect(
@@ -32,6 +63,16 @@ test('gets a timeline drop frame from viewport coordinates and scroll position',
 
 test('getFrameIncrementFromWidth never returns a negative increment', () => {
 	expect(getFrameIncrementFromWidth(100, 0)).toBe(0.01);
+});
+
+test('uses the timeline content width when it is narrower than the viewport', () => {
+	scrollableRef.current = {scrollWidth: 1200} as HTMLDivElement;
+	sliderAreaRef.current = {clientWidth: 332} as HTMLDivElement;
+
+	expect(getTimelineContentWidth()).toBe(332);
+
+	scrollableRef.current = null;
+	sliderAreaRef.current = null;
 });
 
 test('keeps the same timeline position under the cursor after zooming', () => {

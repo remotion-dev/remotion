@@ -198,74 +198,6 @@ test('should not increase page scroll dimensions while rendering', async (t) => 
 	);
 });
 
-test('should throttle onProgress callback to 250ms', {retry: 2}, async (t) => {
-	if (t.task.file.projectName === 'webkit') {
-		t.skip();
-		return;
-	}
-
-	const Component: React.FC = () => {
-		const frame = useCurrentFrame();
-		return (
-			<svg viewBox="0 0 100 100" style={{width: 400, height: 400}}>
-				<circle
-					cx="50"
-					cy="50"
-					r="50"
-					fill={interpolateColors(frame, [0, 30], ['red', 'blue'])}
-				/>
-			</svg>
-		);
-	};
-
-	const progressCalls: Array<{
-		time: number;
-		progress: RenderMediaOnWebProgress;
-	}> = [];
-	const startTime = Date.now();
-
-	await renderMediaOnWeb({
-		composition: {
-			component: Component,
-			id: 'throttle-test',
-			width: 400,
-			height: 400,
-			fps: 30,
-			durationInFrames: 30,
-		},
-		inputProps: {},
-		onProgress: (progress) => {
-			progressCalls.push({
-				time: Date.now() - startTime,
-				progress: {...progress},
-			});
-		},
-	});
-
-	// Should have at least one progress call
-	expect(progressCalls.length).toBeGreaterThan(0);
-
-	// Final call should have all frames rendered and encoded
-	const finalCall = progressCalls[progressCalls.length - 1];
-	expect(finalCall.progress).toEqual({
-		renderedFrames: 30,
-		encodedFrames: 30,
-		doneIn: expect.any(Number),
-		renderEstimatedTime: 0,
-		progress: 1,
-	});
-
-	// Check that calls are throttled (if we have multiple calls)
-	if (progressCalls.length > 1) {
-		for (let i = 1; i < progressCalls.length - 1; i++) {
-			const timeDiff = progressCalls[i].time - progressCalls[i - 1].time;
-			// Allow some variance but should be around 250ms
-			// We use 200ms as lower bound to account for timing variations
-			expect(timeDiff).toBeGreaterThanOrEqual(200);
-		}
-	}
-});
-
 test(
 	'should provide progress estimates while rendering',
 	{retry: 2},
@@ -322,7 +254,7 @@ test(
 	},
 );
 
-test('should include "Made with Remotion" metadata', async (t) => {
+test('should include custom metadata and "Made with Remotion"', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
 		return;
@@ -340,6 +272,11 @@ test('should include "Made with Remotion" metadata', async (t) => {
 			durationInFrames: 5,
 		},
 		inputProps: {},
+		metadata: {
+			title: 'My video',
+			artist: 'Remotion user',
+			comment: 'My comment',
+		},
 	});
 
 	const blob = await result.getBlob();
@@ -350,7 +287,9 @@ test('should include "Made with Remotion" metadata', async (t) => {
 	});
 
 	const tags = await input.getMetadataTags();
-	expect(tags.comment).toBe(`Made with Remotion ${VERSION}`);
+	expect(tags.title).toBe('My video');
+	expect(tags.artist).toBe('Remotion user');
+	expect(tags.comment).toBe(`Made with Remotion ${VERSION}; My comment`);
 });
 
 test('should not fire stale progress callbacks after render completes', async (t) => {

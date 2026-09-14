@@ -63,6 +63,13 @@ import {
 	HlsMediaVideoTrimmed,
 } from './Hls/HlsMediaVideo';
 import {
+	HOUR_LONG_TIMELINE_DURATION_IN_FRAMES,
+	HOUR_LONG_TIMELINE_FPS,
+	HourLongTimelineTestbed,
+} from './HourLongTimelineTestbed';
+import {
+	BlurSlideTransitionDoc,
+	BlurSlideTransitionDocThumb,
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 	CrossZoomTransitionDoc,
@@ -82,7 +89,6 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
-	HtmlInCanvasNestedEffects,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -176,6 +182,7 @@ import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
 	PushCutDemo,
 } from './Transitions/PushCutDemo';
+import {VariableGoogleFont} from './VariableGoogleFont/VariableGoogleFont';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -204,11 +211,22 @@ import {AnimatedImageEffects} from './AnimatedImage/Effects';
 import {AudioSmoothnessBufferInterruptionComp} from './AudioSmoothness/BufferInterruption';
 import {AudioSmoothnessLoopedAudioComp} from './AudioSmoothness/LoopedAudio';
 import {AudioSmoothnessNewVideoComp} from './AudioSmoothness/NewVideo';
+import {AudioSmoothnessShortAudioLoopComp} from './AudioSmoothness/ShortAudioLoop';
 import {AudioSmoothnessSlicedVideoComp} from './AudioSmoothness/SlicedVideo';
 import {AudioSmoothnessTrimAfterLoopComp} from './AudioSmoothness/TrimAfterLoop';
 import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
+import {
+	InlineAudioStress,
+	inlineAudioStressDefaultProps,
+} from './AudioTesting/InlineAudioStress';
 import {Issue7568} from './AudioTesting/Issue7568';
+import {
+	Issue10468,
+	Issue5758,
+	issue10468DefaultProps,
+	issue5758DefaultProps,
+} from './AudioTesting/Issue10468';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -222,6 +240,7 @@ import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {
@@ -293,14 +312,19 @@ import {VideoTestingPlayback} from './VideoTesting/playback';
 import {VideoTestingTrim} from './VideoTesting/trim';
 import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
+import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {ConstantMultiplication} from './VisualModeTests/ConstantMultiplication';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
+import {FontWeightControls} from './VisualModeTests/FontWeightControls';
 import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
+import {SequenceDurationInterpolation} from './VisualModeTests/SequenceDurationInterpolation';
+import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
@@ -437,22 +461,32 @@ export const Index: React.FC = () => {
 				width={1280}
 				height={720}
 			/>
-			<Composition
-				id="switzerland-map"
-				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
-				durationInFrames={240}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
-			<Composition
-				id="zurich-to-stuttgart-map"
-				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
-				durationInFrames={270}
-				fps={30}
-				width={1080}
-				height={1080}
-			/>
+			<Folder name="maptiler">
+				<Composition
+					id="switzerland-map"
+					lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="zurich-to-stuttgart-map"
+					lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+					durationInFrames={270}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="maptiler-heatmap"
+					lazyComponent={() => import('./SwitzerlandMap/Heatmap')}
+					durationInFrames={150}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+			</Folder>
 			<Composition
 				id="captions-tester"
 				component={AnimatedCaptionsComposition}
@@ -462,6 +496,14 @@ export const Index: React.FC = () => {
 				height={CAPTIONS_HEIGHT}
 			/>
 			<Folder name="copilot-tests">
+				<Composition
+					id="interactive-div-stress-test"
+					lazyComponent={() => import('./InteractiveDivStressTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
 				<Composition
 					id="keyframed-props-test"
 					lazyComponent={() => import('./KeyframedPropsTest')}
@@ -738,6 +780,19 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="regression-testing">
+				<Composition
+					id="suspense-loading-indicator-test"
+					lazyComponent={async () => {
+						await new Promise<void>((resolve) => {
+							setTimeout(resolve, 10_000);
+						});
+						return import('./SuspenseLoadingIndicatorTest');
+					}}
+					width={100}
+					height={100}
+					fps={30}
+					durationInFrames={30}
+				/>
 				<Composition
 					id="simple-img"
 					component={SimpleImg}
@@ -1253,14 +1308,6 @@ export const Index: React.FC = () => {
 						durationInFrames={120}
 					/>
 					<Composition
-						id="html-in-canvas-nested-effects"
-						component={HtmlInCanvasNestedEffects}
-						fps={30}
-						height={1080}
-						width={1920}
-						durationInFrames={120}
-					/>
-					<Composition
 						id="book-flip-transition-doc"
 						component={BookFlipTransitionDoc}
 						fps={30}
@@ -1415,6 +1462,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="swap-transition-doc-thumb"
 						component={SwapTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="blur-slide-transition-doc"
+						component={BlurSlideTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="blur-slide-transition-doc-thumb"
+						component={BlurSlideTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
@@ -1764,6 +1827,33 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="audio-issue-10468"
+					component={Issue10468}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={issue10468DefaultProps}
+				/>
+				<Composition
+					id="audio-issue-5758"
+					component={Issue5758}
+					width={1920}
+					height={1080}
+					fps={24.87}
+					durationInFrames={120}
+					defaultProps={issue5758DefaultProps}
+				/>
+				<Composition
+					id="inline-audio-stress"
+					component={InlineAudioStress}
+					width={16}
+					height={16}
+					fps={30}
+					durationInFrames={620}
+					defaultProps={inlineAudioStressDefaultProps}
+				/>
+				<Composition
 					id="audio-issue-7568"
 					component={Issue7568}
 					width={1920}
@@ -1857,6 +1947,88 @@ export const Index: React.FC = () => {
 						phoneColor: 'black',
 						textureType: 'offthreadvideo',
 					}}
+				/>
+			</Folder>
+			<Folder name="gsap">
+				<Composition
+					id="gsap-showcase"
+					lazyComponent={() => import('./Gsap/Showcase')}
+					durationInFrames={210}
+					fps={30}
+					width={1280}
+					height={720}
+				/>
+				<Composition
+					id="gsap-fps-24"
+					lazyComponent={() => import('./Gsap/OpacityFixture')}
+					durationInFrames={48}
+					fps={24}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-fps-30"
+					lazyComponent={() => import('./Gsap/OpacityFixture')}
+					durationInFrames={60}
+					fps={30}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-fps-60"
+					lazyComponent={() => import('./Gsap/OpacityFixture')}
+					durationInFrames={120}
+					fps={60}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-sequence"
+					lazyComponent={() => import('./Gsap/Sequence')}
+					durationInFrames={90}
+					fps={30}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-nested-sequence"
+					lazyComponent={() => import('./Gsap/NestedSequence')}
+					durationInFrames={100}
+					fps={30}
+					width={100}
+					height={100}
+				/>
+				<Composition
+					id="gsap-surface"
+					lazyComponent={() => import('./Gsap/Surface')}
+					durationInFrames={75}
+					fps={30}
+					width={320}
+					height={180}
+				/>
+				<Composition
+					id="gsap-overlap"
+					lazyComponent={() => import('./Gsap/Overlap')}
+					durationInFrames={90}
+					fps={30}
+					width={320}
+					height={180}
+				/>
+				<Composition
+					id="gsap-same-property-overlap"
+					lazyComponent={() => import('./Gsap/SamePropertyOverlap')}
+					durationInFrames={60}
+					fps={30}
+					width={320}
+					height={120}
+				/>
+				<Composition
+					id="gsap-svg-root"
+					lazyComponent={() => import('./Gsap/SvgRoot')}
+					durationInFrames={60}
+					fps={30}
+					width={100}
+					height={100}
 				/>
 			</Folder>
 			<Folder name="lottie">
@@ -2116,6 +2288,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Composition
+					id="tear-test"
+					component={TearTest}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<RiveEffectsTestbed />
 				<GifEffectsTestbed />
 				<AnimatedImageEffects />
@@ -2193,6 +2373,7 @@ export const Index: React.FC = () => {
 				<AudioSmoothnessTrimButtonComp />
 				<AudioSmoothnessTrimAfterLoopComp />
 				<AudioSmoothnessLoopedAudioComp />
+				<AudioSmoothnessShortAudioLoopComp />
 			</Folder>
 			<Folder name="Postmount">
 				<Composition
@@ -2805,6 +2986,14 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="video-editing">
 				<Composition
+					id="hour-long-timeline"
+					component={HourLongTimelineTestbed}
+					width={1920}
+					height={1080}
+					fps={HOUR_LONG_TIMELINE_FPS}
+					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
+				/>
+				<Composition
 					id="video-editing-cascading"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
@@ -2839,12 +3028,36 @@ export const Index: React.FC = () => {
 			/>
 			<Folder name="VisualModeTests">
 				<Composition
+					id="constant-multiplication"
+					component={ConstantMultiplication}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="affine-frame-clock"
+					component={AffineFrameClock}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
+					id="sequence-shift-repro"
+					component={SequenceShiftRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
 					id="outline-selection-cases"
 					component={OutlineSelectionCases}
 					width={1920}
 					height={1080}
 					fps={30}
-					durationInFrames={2700}
+					durationInFrames={2340}
 				/>
 				<Composition
 					id="fast-updates"
@@ -2867,6 +3080,14 @@ export const Index: React.FC = () => {
 					component={InteractiveHtmlElements}
 					width={1080}
 					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="font-weight-controls"
+					component={FontWeightControls}
+					width={1280}
+					height={720}
 					fps={30}
 					durationInFrames={90}
 				/>
@@ -2902,6 +3123,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 				/>
+				<Composition
+					id="sequence-duration-interpolation"
+					component={SequenceDurationInterpolation}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={120}
+				/>
 			</Folder>
 			<ChangingTrimBeforeValue />
 			<Composition
@@ -2929,6 +3158,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={2 * 60 * 30}
+			/>
+			<Composition
+				id="variable-google-font"
+				component={VariableGoogleFont}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={180}
 			/>
 		</>
 	);

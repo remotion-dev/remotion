@@ -3,6 +3,7 @@ import {isValidLogLevel, logLevels} from '../log-level';
 import type {AnyRemotionOption} from './option';
 
 let logLevel: LogLevel = 'info';
+let configuredLogLevel: LogLevel | null = null;
 
 const cliFlag = 'log' as const;
 
@@ -41,6 +42,12 @@ export const logLevelOption = {
 	},
 	setConfig: (newLogLevel: LogLevel) => {
 		logLevel = newLogLevel;
+		configuredLogLevel = newLogLevel;
+	},
+	getConfigValue: () => configuredLogLevel,
+	reset: () => {
+		logLevel = 'info';
+		configuredLogLevel = null;
 	},
 	type: 'error' as LogLevel,
 	id: cliFlag,

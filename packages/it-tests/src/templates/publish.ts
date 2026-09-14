@@ -1,4 +1,11 @@
-import {cpSync, readFileSync, writeFileSync} from 'node:fs';
+import {
+	chmodSync,
+	copyFileSync,
+	cpSync,
+	readFileSync,
+	readdirSync,
+	writeFileSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {$} from 'bun';
@@ -115,7 +122,7 @@ const publishBuiltAgentPlugin = async ({
 	repoName,
 	skillsDir,
 }: AgentPluginPublishTarget) => {
-	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+	const agentPluginDir = path.join(__dirname, '..', '..', '..', 'agent-plugin');
 
 	const tmpDir = tmpdir();
 	const workingDir = path.join(tmpDir, `${repoName}-${Math.random()}`);
@@ -136,19 +143,19 @@ const publishBuiltAgentPlugin = async ({
 
 	for (const entry of filesToCopy) {
 		const src =
-			entry === 'skills' ? skillsDir : path.join(codexPluginDir, entry);
+			entry === 'skills' ? skillsDir : path.join(agentPluginDir, entry);
 		const dst = path.join(workingDir, entry);
 		cpSync(src, dst, {recursive: true});
 	}
 	if (readme) {
 		cpSync(
-			path.join(codexPluginDir, readme),
+			path.join(agentPluginDir, readme),
 			path.join(workingDir, 'README.md'),
 		);
 	}
 
 	const packageJson = JSON.parse(
-		readFileSync(path.join(codexPluginDir, 'package.json'), 'utf-8'),
+		readFileSync(path.join(agentPluginDir, 'package.json'), 'utf-8'),
 	);
 	for (const manifestPath of manifestPaths) {
 		const pluginJsonPath = path.join(workingDir, manifestPath);
@@ -167,20 +174,24 @@ const publishBuiltAgentPlugin = async ({
 	}
 
 	await $`git commit -m ${commitMessage}`.cwd(workingDir);
-	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
+	const versionTag = `v${packageJson.version}`;
+	await $`git tag ${versionTag}`.cwd(workingDir);
+	await $`git push --atomic origin ${defaultBranch.trim()} ${versionTag}`.cwd(
+		workingDir,
+	);
 };
 
 const publishAgentPlugins = async () => {
-	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+	const agentPluginDir = path.join(__dirname, '..', '..', '..', 'agent-plugin');
 	const cursorSkillsDir = path.join(
 		tmpdir(),
 		`cursor-plugin-skills-${Math.random()}`,
 	);
 
 	await Promise.all([
-		$`bun build.mts`.cwd(codexPluginDir),
+		$`bun build.mts`.cwd(agentPluginDir),
 		$`bun build.mts --client=cursor --output=${cursorSkillsDir}`.cwd(
-			codexPluginDir,
+			agentPluginDir,
 		),
 	]);
 
@@ -198,7 +209,7 @@ const publishAgentPlugins = async () => {
 			manifestPaths: ['plugin.json', '.codex-plugin/plugin.json'],
 			name: 'codex-plugin',
 			repoName: 'codex-plugin',
-			skillsDir: path.join(codexPluginDir, 'skills'),
+			skillsDir: path.join(agentPluginDir, 'skills'),
 		}),
 		publishBuiltAgentPlugin({
 			commitMessage: 'Update Cursor plugin',
@@ -210,6 +221,76 @@ const publishAgentPlugins = async () => {
 			skillsDir: cursorSkillsDir,
 		}),
 	]);
+};
+
+const publishCanvasCapture = async () => {
+	const monorepoDir = path.join(__dirname, '..', '..', '..', '..');
+	const packageDir = path.join(
+		monorepoDir,
+		'packages',
+		'canvas-capture-extension',
+	);
+	const workingDir = path.join(tmpdir(), `canvas-capture-${Math.random()}`);
+
+	await $`bun run make`.cwd(packageDir);
+	await $`git clone git@github.com:remotion-dev/canvas-capture.git ${workingDir} --depth 1`;
+
+	const defaultBranch = await $`git branch --show-current`
+		.cwd(workingDir)
+		.text();
+	const existingFilesInRepo = await $`git ls-files`.cwd(workingDir).quiet();
+	for (const file of existingFilesInRepo.stdout
+		.toString('utf-8')
+		.trim()
+		.split('\n')) {
+		if (file === '') continue;
+		await $`rm ${file}`.cwd(workingDir).quiet();
+	}
+
+	const distDir = path.join(packageDir, 'dist');
+	for (const entry of readdirSync(distDir)) {
+		cpSync(path.join(distDir, entry), path.join(workingDir, entry), {
+			recursive: true,
+		});
+	}
+	copyFileSync(
+		path.join(packageDir, 'README.public.md'),
+		path.join(workingDir, 'README.md'),
+	);
+	const installBrowserPath = path.join(workingDir, 'install-browser.sh');
+	copyFileSync(
+		path.join(
+			monorepoDir,
+			'.agents',
+			'skills',
+			'install-canvas-capture-browser',
+			'scripts',
+			'install-browser.sh',
+		),
+		installBrowserPath,
+	);
+	chmodSync(installBrowserPath, 0o755);
+	copyFileSync(
+		path.join(monorepoDir, 'LICENSE.md'),
+		path.join(workingDir, 'LICENSE.md'),
+	);
+
+	await $`git add .`.cwd(workingDir).nothrow();
+	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
+	if (!hasChanges) {
+		console.log('No changes in Canvas Capture');
+		return;
+	}
+
+	const packageJson = JSON.parse(
+		readFileSync(path.join(packageDir, 'package.json'), 'utf-8'),
+	);
+	await $`git commit -m "Update Canvas Capture"`.cwd(workingDir);
+	const versionTag = `v${packageJson.version}`;
+	await $`git tag ${versionTag}`.cwd(workingDir);
+	await $`git push --atomic origin ${defaultBranch.trim()} ${versionTag}`.cwd(
+		workingDir,
+	);
 };
 
 const publishClaudeCodePlugin = async () => {
@@ -341,6 +422,7 @@ for (let i = 0; i < templates.length; i += CONCURRENCY) {
 results.push(
 	...(await Promise.allSettled([
 		publishAgentPlugins(),
+		publishCanvasCapture(),
 		publishClaudeCodePlugin(),
 		publishKimiCodePlugin(),
 	])),

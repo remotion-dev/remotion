@@ -61,8 +61,27 @@ export const getResolveConfig = () => ({
 						'worker.mjs',
 					),
 				}),
-		// test visual controls before removing this
-		'@remotion/studio': require.resolve('@remotion/studio'),
+		// Studio entry points are also passed to the bundler as resolved CJS paths.
+		// Route both those paths and package imports through the same ESM build.
+		...Object.fromEntries(
+			[
+				'@remotion/studio',
+				'@remotion/studio/internals',
+				'@remotion/studio/previewEntry',
+				'@remotion/studio/renderEntry',
+			].flatMap((specifier) => {
+				const commonJsPath = require.resolve(specifier);
+				const esmPath = path.join(
+					path.dirname(commonJsPath),
+					'esm',
+					path.basename(commonJsPath, '.js') + '.mjs',
+				);
+				return [
+					[`${specifier}$`, esmPath],
+					[commonJsPath, esmPath],
+				];
+			}),
+		),
 		[path.join(
 			require.resolve('@remotion/timeline-utils'),
 			'..',

@@ -8,17 +8,86 @@ import type {
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
+import {resolveCompositionComponentInProject} from './resolve-composition-component-location';
 import {getNodePathForRecastPath} from './sequence-props';
 import {parseAst} from './sequence-props/parse-ast';
 
+export {applyVisualControl} from './apply-visual-control';
+export {
+	deleteJsxElementAtPath,
+	deleteJsxNode,
+	deleteJsxNodes,
+	findJsxElementPathForDeletion,
+	getJsxElementTagLabel,
+} from './delete-jsx-node';
+export {duplicateCompositionInSource} from './duplicate-composition';
+export {
+	duplicateJsxElementAtPath,
+	duplicateJsxNode,
+	duplicateJsxNodes,
+} from './duplicate-jsx-node';
+export {
+	addEffect,
+	deleteEffects,
+	duplicateEffects,
+	pasteEffects,
+	reorderEffect,
+	updateEffectProps,
+	type EffectDeletionTarget,
+	type EffectPropUpdate,
+	type EffectTarget,
+	type FormatEffectFile,
+} from './effect-operations';
+export {
+	ensureRemotionImports,
+	ensureUseCurrentFrameHook,
+	findEnclosingFunctionPath,
+} from './ensure-imports-and-frame-hook';
 export {findSearchPosition} from './find-search-position';
+export {parseAndApplyCodemod} from './parse-and-apply-codemod';
+export {
+	applyCodemod,
+	type ApplyCodeModReturnType,
+	type Change,
+} from './recast-mods';
+export {reorderSequence} from './reorder-sequence';
+export {
+	insertJsxElementIntoComposition,
+	insertJsxElementIntoProjectWithNodePathRemappings,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	resolveCompositionComponent,
+	resolveCompositionComponentWithFile,
+	type InsertJsxElementCodemodEnvironment,
+	type ResolvedCompositionComponent,
+	type ResolvedCompositionComponentWithFile,
+} from './insert-jsx-element';
 export {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 } from './sequence-props';
 export {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
+export {simpleDiff} from './simple-diff';
+export {splitJsxSequence} from './split-jsx-sequence';
+export {splitVideoFromAudio} from './split-video-from-audio';
+export {
+	formatInlineContentWithFormatter,
+	getCompositionDefaultPropsLine,
+	updateDefaultProps,
+	type FormatInline,
+} from './update-default-props';
 export {updateInlineCaptionPatches} from './update-inline-caption-patches';
+export {
+	type EffectKeyframeUpdate,
+	type FormatKeyframesFile,
+	type IntroducedKeyframeIdentifiers,
+	type KeyframeOperation,
+	type SequenceKeyframeUpdate,
+	updateEffectKeyframes,
+	updateEffectKeyframesAst,
+	updateSequenceKeyframes,
+	updateSequenceKeyframesAst,
+} from './update-keyframes';
 export {
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
@@ -42,15 +111,6 @@ type AstNode = {
 		end: {line: number; column: number};
 	} | null;
 	[key: string]: unknown;
-};
-
-type ResolvedComponent = {
-	canAddSequence: boolean;
-	declaration: AstNode;
-	exportName: string | 'default';
-	filePath: string;
-	root: AstNode;
-	source: string;
 };
 
 type TextEdit = {
@@ -300,47 +360,6 @@ const jsxAttributeString = (attribute: AstNode | null) => {
 		: null;
 };
 
-const jsxAttributeIdentifier = (attribute: AstNode | null) => {
-	const value = attribute ? getNode(attribute, 'value') : null;
-	const expression =
-		value?.type === 'JSXExpressionContainer'
-			? getNode(value, 'expression')
-			: null;
-
-	return expression?.type === 'Identifier'
-		? getString(expression, 'name')
-		: null;
-};
-
-const findDynamicImport = (attribute: AstNode | null) => {
-	let importPath: string | null = null;
-	const value = attribute ? getNode(attribute, 'value') : null;
-	visit(value, (node) => {
-		if (node.type === 'ImportExpression') {
-			const source = getNode(node, 'source');
-			if (source?.type === 'StringLiteral') {
-				importPath = getString(source, 'value');
-				return true;
-			}
-		}
-
-		if (
-			node.type === 'CallExpression' &&
-			getNode(node, 'callee')?.type === 'Import'
-		) {
-			const argument = getNodes(node, 'arguments')[0];
-			if (argument?.type === 'StringLiteral') {
-				importPath = getString(argument, 'value');
-				return true;
-			}
-		}
-
-		return false;
-	});
-
-	return importPath;
-};
-
 const findCompositionElement = ({
 	ast,
 	compositionId,
@@ -441,36 +460,6 @@ const findDefaultDeclaration = (ast: AstNode) => {
 	return null;
 };
 
-const findImport = ({ast, localName}: {ast: AstNode; localName: string}) => {
-	for (const statement of programStatements(ast)) {
-		if (statement.type !== 'ImportDeclaration') {
-			continue;
-		}
-
-		const source = getString(getNode(statement, 'source'), 'value');
-		for (const specifier of getNodes(statement, 'specifiers')) {
-			if (getString(getNode(specifier, 'local'), 'name') !== localName) {
-				continue;
-			}
-
-			if (specifier.type === 'ImportDefaultSpecifier') {
-				return {exportName: 'default' as const, importPath: source};
-			}
-
-			if (specifier.type === 'ImportSpecifier') {
-				const imported = getNode(specifier, 'imported');
-				return {
-					exportName:
-						getString(imported, 'name') ?? getString(imported, 'value'),
-					importPath: source,
-				};
-			}
-		}
-	}
-
-	return null;
-};
-
 const unwrapExpression = (node: AstNode | null): AstNode | null => {
 	let current = node;
 	while (
@@ -552,196 +541,6 @@ const canAddToRoot = (root: AstNode | null): root is AstNode => {
 		(root.type === 'JSXElement' || root.type === 'JSXFragment') &&
 		!isCanvasRoot(root)
 	);
-};
-
-const resolveReExport = ({
-	ast,
-	exportName,
-	filePath,
-	project,
-}: {
-	ast: AstNode;
-	exportName: string;
-	filePath: string;
-	project: CodemodProject;
-}): {exportName: string | 'default'; filePath: string} | null => {
-	for (const statement of programStatements(ast)) {
-		if (
-			statement.type !== 'ExportNamedDeclaration' ||
-			!getNode(statement, 'source')
-		) {
-			continue;
-		}
-
-		const importPath = getString(getNode(statement, 'source'), 'value');
-		for (const specifier of getNodes(statement, 'specifiers')) {
-			const exported =
-				getString(getNode(specifier, 'exported'), 'name') ??
-				getString(getNode(specifier, 'exported'), 'value');
-			if (exported !== exportName) {
-				continue;
-			}
-
-			const imported =
-				getString(getNode(specifier, 'local'), 'name') ??
-				getString(getNode(specifier, 'local'), 'value');
-			if (!importPath || !imported) {
-				return null;
-			}
-
-			return {
-				exportName: imported,
-				filePath: resolveImportFile({fromFile: filePath, importPath, project}),
-			};
-		}
-	}
-
-	return null;
-};
-
-const resolveComponentDeclaration = ({
-	exportName,
-	filePath,
-	project,
-	visited,
-}: {
-	exportName: string | 'default';
-	filePath: string;
-	project: CodemodProject;
-	visited: Set<string>;
-}): {
-	ast: AstNode;
-	declaration: AstNode;
-	exportName: string | 'default';
-	filePath: string;
-	source: string;
-} => {
-	const key = `${filePath}:${exportName}`;
-	if (visited.has(key)) {
-		throw new Error(
-			`Circular component export while resolving "${exportName}"`,
-		);
-	}
-
-	visited.add(key);
-	const source = project.files[filePath];
-	if (typeof source !== 'string') {
-		throw new Error(`Could not read source file "${filePath}"`);
-	}
-
-	const ast = parseSource(source);
-	const declaration =
-		exportName === 'default'
-			? findDefaultDeclaration(ast)
-			: findNamedDeclaration(ast, exportName);
-	if (declaration) {
-		return {ast, declaration, exportName, filePath, source};
-	}
-
-	if (exportName !== 'default') {
-		const reExport = resolveReExport({
-			ast,
-			exportName,
-			filePath,
-			project,
-		});
-		if (reExport) {
-			return resolveComponentDeclaration({
-				...reExport,
-				project,
-				visited,
-			});
-		}
-	}
-
-	throw new Error(`Could not find composition component "${exportName}"`);
-};
-
-const resolveCompositionComponent = ({
-	compositionFile,
-	compositionId,
-	project,
-}: {
-	compositionFile: string;
-	compositionId: string;
-	project: CodemodProject;
-}): ResolvedComponent => {
-	const registrationFile = findProjectFile({
-		filePath: compositionFile,
-		project,
-	});
-	const registrationSource = project.files[registrationFile];
-	if (typeof registrationSource !== 'string') {
-		throw new Error(`Could not read source file "${registrationFile}"`);
-	}
-
-	const registrationAst = parseSource(registrationSource);
-	const compositionElement = findCompositionElement({
-		ast: registrationAst,
-		compositionId,
-	});
-	if (!compositionElement) {
-		throw new Error(`Could not find composition "${compositionId}"`);
-	}
-
-	const lazyImportPath = findDynamicImport(
-		getJsxAttribute(compositionElement, 'lazyComponent'),
-	);
-	let componentFile = registrationFile;
-	let exportName: string | 'default';
-	if (lazyImportPath) {
-		componentFile = resolveImportFile({
-			fromFile: registrationFile,
-			importPath: lazyImportPath,
-			project,
-		});
-		exportName = 'default';
-	} else {
-		const componentName = jsxAttributeIdentifier(
-			getJsxAttribute(compositionElement, 'component'),
-		);
-		if (!componentName) {
-			throw new Error(
-				`Could not find a component prop for composition "${compositionId}"`,
-			);
-		}
-
-		const componentImport = findImport({
-			ast: registrationAst,
-			localName: componentName,
-		});
-		if (componentImport?.importPath && componentImport.exportName) {
-			componentFile = resolveImportFile({
-				fromFile: registrationFile,
-				importPath: componentImport.importPath,
-				project,
-			});
-			exportName = componentImport.exportName;
-		} else {
-			exportName = componentName;
-		}
-	}
-
-	const resolved = resolveComponentDeclaration({
-		exportName,
-		filePath: componentFile,
-		project,
-		visited: new Set(),
-	});
-	const root = getReturnedRoot(resolved.declaration);
-
-	return {
-		canAddSequence: canAddToRoot(root),
-		declaration: resolved.declaration,
-		exportName: resolved.exportName,
-		filePath: resolved.filePath,
-		root:
-			root ??
-			(() => {
-				throw new Error('Composition component does not return JSX');
-			})(),
-		source: resolved.source,
-	};
 };
 
 const collectBindings = (ast: AstNode) => {
@@ -991,39 +790,24 @@ const replaceNullRoot = ({
 const replaceJsxElementRoot = ({
 	element,
 	root,
-	sequenceLocalName,
 	source,
 	unit,
-	wrapRootInSequence,
 }: {
 	element: string;
 	root: AstNode;
-	sequenceLocalName: string | null;
 	source: string;
 	unit: string;
-	wrapRootInSequence: boolean;
 }): TextEdit => {
 	const start = getPosition(root, 'start');
 	const indent = lineIndentAt(source, start);
 	const original = source.slice(start, getPosition(root, 'end'));
-	if (wrapRootInSequence && sequenceLocalName === null) {
-		throw new Error('Expected a Sequence import for a self-closing root');
-	}
-
-	const existingRoot = wrapRootInSequence
-		? [
-				`${indent}${unit}<${sequenceLocalName}>`,
-				`${indent}${unit}${unit}${original}`,
-				`${indent}${unit}</${sequenceLocalName}>`,
-			]
-		: [`${indent}${unit}${original}`];
 
 	return {
 		start,
 		end: getPosition(root, 'end'),
 		text: [
 			'<>',
-			...existingRoot,
+			`${indent}${unit}${original}`,
 			`${indent}${unit}${element}`,
 			`${indent}</>`,
 		].join('\n'),
@@ -1083,11 +867,8 @@ export const insertSolidIntoSource = ({
 		candidates: ['Solid', 'RemotionSolid'],
 		importedName: 'Solid',
 	});
-	const openingElement =
-		root.type === 'JSXElement' ? getNode(root, 'openingElement') : null;
-	const isSelfClosing = openingElement?.selfClosing === true;
 	const sequenceImport =
-		isSelfClosing || from !== null
+		from !== null
 			? chooseLocalName({
 					ast,
 					candidates: ['Sequence', 'RemotionSequence'],
@@ -1123,10 +904,8 @@ export const insertSolidIntoSource = ({
 				? replaceJsxElementRoot({
 						element,
 						root,
-						sequenceLocalName: sequenceImport?.localName ?? null,
 						source,
 						unit,
-						wrapRootInSequence: isSelfClosing,
 					})
 				: appendToJsxRoot({
 						element,
@@ -1142,6 +921,70 @@ export const insertSolidIntoSource = ({
 			...(importEdit ? [importEdit] : []),
 		]),
 	};
+};
+
+const getNodePathRemappings = ({
+	afterSource,
+	beforeSource,
+}: {
+	afterSource: string;
+	beforeSource: string;
+}) => {
+	const astBefore = parseAst(beforeSource);
+	const astAfter = parseAst(afterSource);
+	const before: Array<{nodePath: SequenceNodePath; signature: string}> = [];
+	const after: Array<{nodePath: SequenceNodePath; signature: string}> = [];
+	recast.visit(astBefore, {
+		visitJSXOpeningElement(path) {
+			before.push({
+				nodePath: getNodePathForRecastPath(path, astBefore),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+	recast.visit(astAfter, {
+		visitJSXOpeningElement(path) {
+			after.push({
+				nodePath: getNodePathForRecastPath(path, astAfter),
+				signature: recast.print(path.node as JSXOpeningElement).code,
+			});
+			return this.traverse(path);
+		},
+	});
+
+	let nextAfterIndex = 0;
+	const matchedAfterIndexes = new Set<number>();
+	const remappings = before.flatMap(
+		({nodePath, signature}): SequenceNodePathRemapping[] => {
+			const matchedIndex = after.findIndex(
+				(item, index) =>
+					index >= nextAfterIndex && item.signature === signature,
+			);
+			if (matchedIndex === -1) {
+				throw new Error(
+					'Could not map JSX node paths after inserting an element',
+				);
+			}
+
+			nextAfterIndex = matchedIndex + 1;
+			matchedAfterIndexes.add(matchedIndex);
+			const newNodePath = after[matchedIndex].nodePath;
+			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
+				return [];
+			}
+
+			return [{oldNodePath: nodePath, newNodePath}];
+		},
+	);
+
+	for (let i = 0; i < after.length; i++) {
+		if (!matchedAfterIndexes.has(i)) {
+			remappings.push({oldNodePath: null, newNodePath: after[i].nodePath});
+		}
+	}
+
+	return remappings;
 };
 
 export const insertSolidIntoProjectWithNodePathRemappings = <
@@ -1184,7 +1027,7 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 		throw new Error('from must be a non-negative integer');
 	}
 
-	const resolved = resolveCompositionComponent({
+	const resolved = resolveCompositionComponentInProject({
 		compositionFile: request.compositionFile,
 		compositionId: request.compositionId,
 		project,
@@ -1197,55 +1040,10 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 		source: resolved.source,
 		width: request.element.width,
 	});
-	const astBefore = parseAst(resolved.source);
-	const astAfter = parseAst(output);
-	const before: Array<{
-		nodePath: SequenceNodePath;
-		signature: string;
-	}> = [];
-	const after: Array<{
-		nodePath: SequenceNodePath;
-		signature: string;
-	}> = [];
-	recast.visit(astBefore, {
-		visitJSXOpeningElement(path) {
-			before.push({
-				nodePath: getNodePathForRecastPath(path, astBefore),
-				signature: recast.print(path.node as JSXOpeningElement).code,
-			});
-			return this.traverse(path);
-		},
+	const nodePathRemappings = getNodePathRemappings({
+		afterSource: output,
+		beforeSource: resolved.source,
 	});
-	recast.visit(astAfter, {
-		visitJSXOpeningElement(path) {
-			after.push({
-				nodePath: getNodePathForRecastPath(path, astAfter),
-				signature: recast.print(path.node as JSXOpeningElement).code,
-			});
-			return this.traverse(path);
-		},
-	});
-
-	let nextAfterIndex = 0;
-	const nodePathRemappings = before.flatMap(
-		({nodePath, signature}): SequenceNodePathRemapping[] => {
-			const matchedIndex = after.findIndex(
-				(item, index) =>
-					index >= nextAfterIndex && item.signature === signature,
-			);
-			if (matchedIndex === -1) {
-				throw new Error('Could not map JSX node paths after inserting <Solid>');
-			}
-
-			nextAfterIndex = matchedIndex + 1;
-			const newNodePath = after[matchedIndex].nodePath;
-			if (JSON.stringify(nodePath) === JSON.stringify(newNodePath)) {
-				return [];
-			}
-
-			return [{oldNodePath: nodePath, newNodePath}];
-		},
-	);
 
 	return {
 		filePath: resolved.filePath,
@@ -1288,7 +1086,7 @@ export const getCompositionComponentInfo = ({
 	project: CodemodProject;
 	request: CompositionComponentInfoRequest;
 }) => {
-	const resolved = resolveCompositionComponent({
+	const resolved = resolveCompositionComponentInProject({
 		compositionFile: request.compositionFile,
 		compositionId: request.compositionId,
 		project,
@@ -1296,11 +1094,7 @@ export const getCompositionComponentInfo = ({
 
 	return {
 		canAddSequence: resolved.canAddSequence,
-		location: {
-			source: relativeToRoot(resolved.filePath, project.rootDir),
-			line: resolved.declaration.loc?.start.line ?? 1,
-			column: resolved.declaration.loc?.start.column ?? 0,
-		},
+		location: resolved.location,
 	};
 };
 
@@ -1327,6 +1121,126 @@ export const getCompositionFile = ({
 	}
 
 	return null;
+};
+
+export const getFolderFile = ({
+	folderName,
+	project,
+}: {
+	folderName: string;
+	project: CodemodProject;
+}) => {
+	for (const [filePath, source] of Object.entries(project.files)) {
+		if (typeof source !== 'string') {
+			continue;
+		}
+
+		try {
+			const ast = parseSource(source);
+			let found = false;
+			visit(ast, (node) => {
+				if (node.type !== 'JSXElement') {
+					return false;
+				}
+
+				const openingElement = getNode(node, 'openingElement');
+				if (
+					!openingElement ||
+					jsxName(getNode(openingElement, 'name')) !== 'Folder'
+				) {
+					return false;
+				}
+
+				if (
+					jsxAttributeString(getJsxAttribute(openingElement, 'name')) !==
+					folderName
+				) {
+					return false;
+				}
+
+				found = true;
+				return true;
+			});
+			if (found) {
+				return relativeToRoot(filePath, project.rootDir);
+			}
+		} catch {
+			// Ignore files that are not parseable source modules.
+		}
+	}
+
+	return null;
+};
+
+export const getRootFileForProject = ({
+	entryPoint,
+	project,
+}: {
+	entryPoint: string;
+	project: CodemodProject;
+}): string | null => {
+	let entryFile: string;
+	try {
+		entryFile = findProjectFile({filePath: entryPoint, project});
+	} catch {
+		return null;
+	}
+
+	try {
+		const ast = parseSource(project.files[entryFile]);
+		let rootComponentName: string | null = null;
+		visit(ast, (node) => {
+			if (node.type !== 'CallExpression') {
+				return false;
+			}
+
+			const callee = getNode(node, 'callee');
+			if (
+				callee?.type !== 'Identifier' ||
+				getString(callee, 'name') !== 'registerRoot'
+			) {
+				return false;
+			}
+
+			const [argument] = getNodes(node, 'arguments');
+			if (argument?.type === 'Identifier') {
+				rootComponentName = getString(argument, 'name');
+			}
+
+			return true;
+		});
+		if (rootComponentName === null) {
+			return null;
+		}
+
+		let importPath: string | null = null;
+		visit(ast, (node) => {
+			if (node.type !== 'ImportDeclaration') {
+				return false;
+			}
+
+			for (const specifier of getNodes(node, 'specifiers')) {
+				const local = getNode(specifier, 'local');
+				if (local && getString(local, 'name') === rootComponentName) {
+					importPath = getString(getNode(node, 'source'), 'value');
+					return true;
+				}
+			}
+
+			return false;
+		});
+		if (importPath === null) {
+			// The root component is defined in the entry file itself.
+			return relativeToRoot(entryFile, project.rootDir);
+		}
+
+		return relativeToRoot(
+			resolveImportFile({fromFile: entryFile, importPath, project}),
+			project.rootDir,
+		);
+	} catch {
+		return null;
+	}
 };
 
 const staticFileToken = 'remotion-file:';

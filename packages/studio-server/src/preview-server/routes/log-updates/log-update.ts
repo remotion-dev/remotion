@@ -1,5 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
+import {getCodemodTimingPrefix} from '../source-file-write-queue';
 import {formatPropChange} from './format-prop-change';
 import type {PropDelta} from './formatting';
 
@@ -66,7 +67,7 @@ export const logUpdate = ({
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		`${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${propChange}`,
+		`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${propChange}`,
 	);
 	if (!formatted) {
 		warnAboutPrettierOnce(logLevel);

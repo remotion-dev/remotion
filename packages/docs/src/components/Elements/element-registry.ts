@@ -1,21 +1,43 @@
 export const elementCategories = [
+	{category: 'audio', label: 'Audio'},
 	{category: 'backgrounds', label: 'Backgrounds'},
 	{category: 'captions', label: 'Captions'},
-	{category: 'commerce', label: 'Commerce'},
-	{category: 'data', label: 'Data'},
+	{category: 'data', label: 'Charts & Data'},
+	{category: 'commerce', label: 'Effects'},
+	{category: 'layouts', label: 'Layouts'},
 	{category: 'maps', label: 'Maps'},
 	{category: 'overlays', label: 'Overlays'},
 	{category: 'storytelling', label: 'Storytelling'},
-	{category: 'text', label: 'Text'},
+	{category: 'text', label: 'Text Effects'},
 	{category: 'youtube', label: 'YouTube'},
 ] as const;
 
 export type ElementCategory = (typeof elementCategories)[number]['category'];
 
 export const elementRegistry = {
+	'audio/oscilloscope': {
+		category: 'audio',
+		displayName: 'Oscilloscope',
+	},
+	'audio/waveform-progress': {
+		category: 'audio',
+		displayName: 'Voice Note',
+	},
+	'audio/mirrored-spectrum': {
+		category: 'audio',
+		displayName: 'Mirrored Spectrum',
+	},
 	'backgrounds/liquid-contours': {
 		category: 'backgrounds',
 		displayName: 'Liquid Contours',
+	},
+	'backgrounds/moving-waves': {
+		category: 'backgrounds',
+		displayName: 'Moving Waves',
+	},
+	'backgrounds/moving-zigzags': {
+		category: 'backgrounds',
+		displayName: 'Moving Zigzags',
 	},
 	'backgrounds/notebook-paper': {
 		category: 'backgrounds',
@@ -29,6 +51,10 @@ export const elementRegistry = {
 		category: 'backgrounds',
 		displayName: 'Rotating Starburst',
 	},
+	'captions/basic-captions': {
+		category: 'captions',
+		displayName: 'Basic Captions',
+	},
 	'captions/moving-pill-captions': {
 		category: 'captions',
 		displayName: 'Moving Pill Captions',
@@ -41,13 +67,21 @@ export const elementRegistry = {
 		category: 'captions',
 		displayName: 'Word Highlight Captions',
 	},
+	'commerce/product-collection': {
+		category: 'layouts',
+		displayName: 'Rotating Cards',
+	},
 	'commerce/product-discount-callout': {
 		category: 'commerce',
-		displayName: 'Product Discount Callout',
+		displayName: 'Wiggling Callout',
 	},
-	'commerce/product-offer': {
+	'commerce/shine': {
 		category: 'commerce',
-		displayName: 'Product Offer',
+		displayName: 'Shine',
+	},
+	'commerce/tear': {
+		category: 'commerce',
+		displayName: 'Tear apart',
 	},
 	'data/horizontal-bar-chart': {
 		category: 'data',
@@ -69,9 +103,21 @@ export const elementRegistry = {
 		category: 'data',
 		displayName: 'Vertical Bar Chart',
 	},
+	'layouts/picture-in-picture-transition': {
+		category: 'layouts',
+		displayName: 'Picture in Picture Transition',
+	},
+	'layouts/slide-to-split-screen': {
+		category: 'layouts',
+		displayName: 'Slide to Split Screen',
+	},
 	'maps/map-flyover': {
 		category: 'maps',
 		displayName: 'A-to-B Map Flyover',
+	},
+	'maps/watercolor-map': {
+		category: 'maps',
+		displayName: 'Watercolor Map',
 	},
 	'overlays/location-lower-third': {
 		category: 'overlays',
@@ -80,6 +126,18 @@ export const elementRegistry = {
 	'overlays/name-lower-third': {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
+	},
+	'overlays/social-safe-zones': {
+		category: 'overlays',
+		displayName: 'Social Safe Zones',
+	},
+	'storytelling/on-screen-messages': {
+		category: 'storytelling',
+		displayName: 'On-Screen Messages',
+	},
+	'storytelling/polaroid-pictures': {
+		category: 'storytelling',
+		displayName: 'Polaroid Pictures',
 	},
 	'text/news-article-highlight': {
 		category: 'storytelling',
@@ -105,9 +163,17 @@ export const elementRegistry = {
 		category: 'text',
 		displayName: 'Text Marker',
 	},
+	'youtube/youtube-comment-highlight': {
+		category: 'youtube',
+		displayName: 'YouTube Comment Highlight',
+	},
 	'youtube/youtube-end-card': {
 		category: 'youtube',
 		displayName: 'YouTube End Card',
+	},
+	'youtube/youtube-subscribe-nudge': {
+		category: 'youtube',
+		displayName: 'YouTube Subscribe Nudge',
 	},
 } as const satisfies Record<
 	string,

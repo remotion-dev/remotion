@@ -8,6 +8,7 @@ test('interpolates linear numeric keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -25,6 +26,7 @@ test('interpolates linear numeric keyframes', () => {
 test('holds the previous keyframe value until the segment ends', () => {
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0},
@@ -55,6 +57,7 @@ test('holds the previous keyframe value until the segment ends', () => {
 test('holds non-numeric string keyframes until the segment ends', () => {
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 'default'},
@@ -88,6 +91,7 @@ test('interpolates numeric keyframes with perceptual-scale output', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -108,6 +112,7 @@ test('interpolates linear tuple keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: [0, 0.5]},
@@ -128,6 +133,7 @@ test('sorts keyframes before interpolating numeric values', () => {
 		frame: 75,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 100, value: 100},
@@ -149,6 +155,7 @@ test('clamps when extrapolation is clamp', () => {
 		frame: 120,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -169,6 +176,7 @@ test('posterizes the frame before interpolating numeric keyframes', () => {
 		frame: 17,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -189,6 +197,7 @@ test('returns single keyframe value', () => {
 		frame: 100,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [{frame: 0, value: 7}],
 			easing: [],
@@ -206,6 +215,7 @@ test('interpolates colors', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: '#000000'},
@@ -227,6 +237,7 @@ test('interpolates color keyframes with easing', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: 'black'},
@@ -247,6 +258,7 @@ test('posterizes the frame before interpolating color keyframes', () => {
 		frame: 17,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolateColors',
 			keyframes: [
 				{frame: 0, value: 'black'},
@@ -267,6 +279,7 @@ test('interpolates translate keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0px 0px'},
@@ -289,6 +302,7 @@ test('can force spring allowTail off for timeline value previews', () => {
 
 	const status: CanUpdateSequencePropStatusKeyframed = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: '0px 1000px'},
@@ -350,6 +364,7 @@ test('interpolates rotate keyframes', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0deg'},
@@ -370,6 +385,7 @@ test('uses bezier easing', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 0},
@@ -391,6 +407,7 @@ test('interpolates scale strings component-wise', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 2},
@@ -411,6 +428,7 @@ test('interpolates 3D rotation keyframes as one property', () => {
 		frame: 30,
 		status: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: '0deg'},
@@ -422,5 +440,5 @@ test('interpolates 3D rotation keyframes as one property', () => {
 			output: undefined,
 		},
 	});
-	expect(result).toBe('0.5 0 0.5 45deg');
+	expect(result).toBe('1 0 0 45deg');
 });

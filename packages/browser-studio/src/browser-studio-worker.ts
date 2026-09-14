@@ -1,6 +1,8 @@
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type * as RspackBrowser from '@rspack/browser';
+import {makeBrowserStudioHttpClient} from './browser-studio-http-client';
+import {BROWSER_STUDIO_TRANSFORMERS_PACKAGE} from './browser-studio-import-map';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import type {
@@ -17,7 +19,7 @@ import {
 } from './virtual-files';
 import {
 	getBrowserStudioWorkspacePackageExports,
-	resolveBrowserStudioWorkspacePackage,
+	resolveBrowserStudioRemotionPackage,
 } from './workspace-package-exports';
 
 type BuiltinMemFs = typeof RspackBrowser.builtinMemFs;
@@ -31,17 +33,129 @@ type CompilerSession = {
 	project: VirtualProject;
 	queuedProject: VirtualProject | null;
 	removedFiles: ReadonlySet<string> | undefined;
+	resolvedUrls: Record<string, string>;
+	resolvedVersions: Record<string, string>;
 	running: boolean;
 };
 
 let rspackBrowserPromise: Promise<typeof RspackBrowser> | null = null;
 let compilerSession: CompilerSession | null = null;
 
+const postResponse = (response: BrowserStudioWorkerCompileResponse) => {
+	self.postMessage(response);
+};
+
 const loadRspackBrowser = () => {
 	const workerGlobal = globalThis as Record<string, unknown>;
 	workerGlobal.window ??= globalThis;
-	rspackBrowserPromise ??= import('@rspack/browser');
+	if (!rspackBrowserPromise) {
+		const originalFetch = globalThis.fetch.bind(globalThis);
+		workerGlobal.fetch = async (
+			input: RequestInfo | URL,
+			init?: RequestInit,
+		) => {
+			const response = await originalFetch(input, init);
+			const inputUrl =
+				typeof input === 'string'
+					? input
+					: input instanceof URL
+						? input.href
+						: input.url;
+			// Asset filenames may be hashed by the consumer's bundler.
+			if (!inputUrl.split(/[?#]/)[0].endsWith('.wasm')) {
+				return response;
+			}
+
+			const contentLength = Number(response.headers.get('content-length'));
+			const totalBytes =
+				Number.isFinite(contentLength) && contentLength > 0
+					? contentLength
+					: null;
+			postResponse({
+				asset: 'rspack-wasm',
+				loadedBytes: 0,
+				totalBytes,
+				type: 'load-progress',
+			});
+			if (!response.body) {
+				postResponse({
+					asset: 'rspack-wasm',
+					loadedBytes: totalBytes ?? 0,
+					totalBytes,
+					type: 'load-progress',
+				});
+				return response;
+			}
+
+			const reader = response.body.getReader();
+			let loadedBytes = 0;
+			let lastProgressUpdate = 0;
+			const body = new ReadableStream<Uint8Array>({
+				async pull(controller) {
+					try {
+						const result = await reader.read();
+						if (result.done) {
+							postResponse({
+								asset: 'rspack-wasm',
+								loadedBytes,
+								totalBytes: totalBytes ?? loadedBytes,
+								type: 'load-progress',
+							});
+							controller.close();
+							return;
+						}
+
+						loadedBytes += result.value.byteLength;
+						const now = performance.now();
+						if (now - lastProgressUpdate >= 50) {
+							lastProgressUpdate = now;
+							postResponse({
+								asset: 'rspack-wasm',
+								loadedBytes,
+								totalBytes,
+								type: 'load-progress',
+							});
+						}
+
+						controller.enqueue(result.value);
+					} catch (error) {
+						controller.error(error);
+					}
+				},
+				cancel(reason) {
+					return reader.cancel(reason);
+				},
+			});
+
+			return new Response(body, {
+				headers: response.headers,
+				status: response.status,
+				statusText: response.statusText,
+			});
+		};
+
+		rspackBrowserPromise = import('@rspack/browser').finally(() => {
+			workerGlobal.fetch = originalFetch;
+		});
+	}
+
 	return rspackBrowserPromise;
+};
+
+const browserStudioVendorExternals = {
+	react: 'globalThis.remotion_browserStudioVendor.react',
+	'react-dom': 'globalThis.remotion_browserStudioVendor.reactDom',
+	'react-dom/client': 'globalThis.remotion_browserStudioVendor.reactDomClient',
+	'react/jsx-dev-runtime':
+		'globalThis.remotion_browserStudioVendor.reactJsxDevRuntime',
+	'react/jsx-runtime':
+		'globalThis.remotion_browserStudioVendor.reactJsxRuntime',
+	'react-refresh/runtime':
+		'globalThis.remotion_browserStudioVendor.reactRefreshRuntime',
+	remotion: 'globalThis.remotion_browserStudioVendor.remotion',
+	'remotion/no-react':
+		'globalThis.remotion_browserStudioVendor.remotionNoReact',
+	'remotion/version': 'globalThis.remotion_browserStudioVendor.remotionVersion',
 };
 
 const normalizePath = (path: string) =>
@@ -77,10 +191,6 @@ const problemToString = (problem: unknown): string => {
 	}
 
 	return String(problem);
-};
-
-const postResponse = (response: BrowserStudioWorkerCompileResponse) => {
-	self.postMessage(response);
 };
 
 const applyDependencyResolution = ({
@@ -241,13 +351,22 @@ const getBrowserStudioHmrRuntimePlugin = (
 const createCompiler = async ({
 	dependencyResolutions,
 	project,
-	workspacePackageBaseUrl,
+	remotionPackageSource,
+	useVendorBundle,
 }: Extract<BrowserStudioWorkerCompileRequest, {type: 'init'}>) => {
 	const rspackBrowser = await loadRspackBrowser();
 	const {BrowserHttpImportEsmPlugin, builtinMemFs, rspack} = rspackBrowser;
 	writeInitialFiles({builtinMemFs, project});
 
 	const resolvedVersions = {...browserStudioDependencyVersions};
+	if (remotionPackageSource?.type === 'release') {
+		for (const name of Object.keys(resolvedVersions)) {
+			if (name === 'remotion' || name.startsWith('@remotion/')) {
+				resolvedVersions[name] = remotionPackageSource.version;
+			}
+		}
+	}
+
 	const workspacePackageExports = getBrowserStudioWorkspacePackageExports();
 	const resolvedUrls: Record<string, string> = {};
 	for (const [name, resolution] of Object.entries(dependencyResolutions)) {
@@ -262,9 +381,12 @@ const createCompiler = async ({
 	const entryPoints = getStudioEntryPoints({
 		environmentSetup: browserStudioVirtualFilePaths.setupEnvironment,
 		fastRefreshRuntime: browserStudioVirtualFilePaths.reactRefreshEntry,
+		reactScan: null,
 		reactShim: browserStudioVirtualFilePaths.reactShim,
 		sequenceStackTraces: browserStudioVirtualFilePaths.setupSequenceStackTraces,
-		studioRenderEntry: '@remotion/studio/previewEntry',
+		studioRenderEntry: useVendorBundle
+			? browserStudioVirtualFilePaths.studioPreviewEntry
+			: '@remotion/studio/previewEntry',
 		userDefinedComponent: normalizePath(project.entryPoint),
 	});
 	entryPoints.splice(
@@ -282,11 +404,26 @@ const createCompiler = async ({
 				allowedUris: [
 					'https://esm.sh/',
 					`${self.location.origin}/`,
-					...(workspacePackageBaseUrl ? [workspacePackageBaseUrl] : []),
+					...(remotionPackageSource ? [remotionPackageSource.baseUrl] : []),
 				],
 				cacheLocation: false,
+				httpClient: makeBrowserStudioHttpClient({
+					fetchImplementation: fetch,
+				}),
 			},
 		},
+		externals: [
+			...(useVendorBundle ? [browserStudioVendorExternals] : []),
+			({request}, callback) => {
+				if (request === BROWSER_STUDIO_TRANSFORMERS_PACKAGE) {
+					callback(undefined, request, 'import');
+					return;
+				}
+
+				callback();
+			},
+		],
+		externalsType: useVendorBundle ? 'var' : undefined,
 		mode: 'development',
 		module: {
 			rules: [
@@ -363,21 +500,19 @@ const createCompiler = async ({
 						return undefined;
 					}
 
-					if (workspacePackageBaseUrl) {
-						const workspacePackageUrl = resolveBrowserStudioWorkspacePackage({
-							baseUrl: workspacePackageBaseUrl,
-							packages: workspacePackageExports,
-							request,
-						});
-						if (workspacePackageUrl) {
-							return workspacePackageUrl;
-						}
-					}
-
 					const packageName = getPackageName(request);
 					const resolvedUrl = resolvedUrls[packageName];
 					if (resolvedUrl) {
 						return resolvedUrl;
+					}
+
+					const remotionPackageUrl = resolveBrowserStudioRemotionPackage({
+						packages: workspacePackageExports,
+						request,
+						source: remotionPackageSource,
+					});
+					if (remotionPackageUrl) {
+						return remotionPackageUrl;
 					}
 
 					const version = resolvedVersions[packageName] ?? 'latest';
@@ -399,7 +534,13 @@ const createCompiler = async ({
 		resolve: {extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']},
 	});
 
-	return {builtinMemFs, compiler, rspackBrowser};
+	return {
+		builtinMemFs,
+		compiler,
+		resolvedUrls,
+		resolvedVersions,
+		rspackBrowser,
+	};
 };
 
 const makeHmrEvent = ({
@@ -596,7 +737,8 @@ const startCompiler = async (
 		compilerSession = null;
 	}
 
-	const {builtinMemFs, compiler} = await createCompiler(request);
+	const {builtinMemFs, compiler, resolvedUrls, resolvedVersions} =
+		await createCompiler(request);
 	const session: CompilerSession = {
 		builtinMemFs,
 		compiler,
@@ -605,6 +747,8 @@ const startCompiler = async (
 		project: request.project,
 		queuedProject: null,
 		removedFiles: undefined,
+		resolvedUrls,
+		resolvedVersions,
 		running: false,
 	};
 	compilerSession = session;
@@ -616,6 +760,17 @@ const updateProject = (
 ) => {
 	if (!compilerSession) {
 		throw new Error('Cannot update Browser Studio before initializing it');
+	}
+
+	for (const [name, resolution] of Object.entries(
+		request.dependencyResolutions,
+	)) {
+		applyDependencyResolution({
+			name,
+			resolution,
+			resolvedUrls: compilerSession.resolvedUrls,
+			resolvedVersions: compilerSession.resolvedVersions,
+		});
 	}
 
 	if (compilerSession.running) {

@@ -1,4 +1,5 @@
 import type {SequenceNodePathMutation} from '@remotion/studio-shared';
+import {requestInsertedElementSelection} from './inserted-element-selection';
 
 const pendingMutations: SequenceNodePathMutation[] = [];
 const seenMutationIds = new Set<string>();
@@ -12,6 +13,16 @@ export const queueSequenceNodePathMutation = (
 
 	seenMutationIds.add(mutation.mutationId);
 	pendingMutations.push(mutation);
+	if (mutation.timelineSelection !== null) {
+		requestInsertedElementSelection({
+			compositionId: mutation.timelineSelection.compositionId,
+			nodePath: {
+				absolutePath: mutation.timelineSelection.absolutePath,
+				nodePath: mutation.timelineSelection.nodePath,
+			},
+			notification: null,
+		});
+	}
 };
 
 export const queueSequenceNodePathMutationFromApiResponse = (

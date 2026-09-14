@@ -13,6 +13,17 @@ export type ApplyVisualControlCodemod = {
 	changes: VisualControlChange[];
 };
 
+export type CompositionOrFolder =
+	| {
+			type: 'composition';
+			compositionId: string;
+	  }
+	| {
+			type: 'folder';
+			folderName: string;
+			parentName: string | null;
+	  };
+
 export type RecastCodemod =
 	| {
 			type: 'new-composition';
@@ -65,6 +76,21 @@ export type RecastCodemod =
 			idToMove: string;
 			folderName: string | null;
 			parentName: string | null;
+	  }
+	| {
+			type: 'move-composition-or-folder';
+			source: CompositionOrFolder;
+			destination:
+				| {type: 'root'}
+				| {
+						type: 'folder';
+						folderName: string;
+						parentName: string | null;
+				  }
+				| {
+						type: 'before' | 'after';
+						target: CompositionOrFolder;
+				  };
 	  }
 	| {
 			type: 'rename-folder';

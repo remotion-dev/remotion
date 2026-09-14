@@ -311,6 +311,7 @@ const sidebars: SidebarsConfig = {
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',
+				'effects/outline',
 				'effects/paper',
 				'effects/pattern',
 				'effects/pixel-dissolve',
@@ -329,7 +330,9 @@ const sidebars: SidebarsConfig = {
 				'effects/skew',
 				'effects/speckle',
 				'effects/starburst',
+				'effects/tear',
 				'effects/thermal-vision',
+				'effects/tile',
 				'effects/tint',
 				'effects/tv-signal-off',
 				'effects/uv-translate',
@@ -390,10 +393,21 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'google-fonts/load-font',
+				'google-fonts/load-variable-font',
 				'google-fonts/get-available-fonts',
 				'google-fonts/get-info',
 				'google-fonts/load-font-from-info',
+				'google-fonts/load-variable-font-from-info',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/gsap',
+			link: {
+				type: 'doc',
+				id: 'gsap/gsap-index',
+			},
+			items: ['gsap/use-gsap-timeline'],
 		},
 		{
 			type: 'category',
@@ -443,6 +457,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getrenderprogress',
 				'lambda/presignurl',
 				'lambda/rendermediaonlambda',
+				'lambda/cancelrenderonlambda',
 				'lambda/renderstillonlambda',
 				'lambda/simulatepermissions',
 				'lambda/speculatefunctionname',
@@ -491,6 +506,15 @@ const sidebars: SidebarsConfig = {
 				'lottie/lottie-remote',
 				'lottie/lottie-lottiefiles',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/mac-cursors',
+			link: {
+				type: 'doc',
+				id: 'mac-cursors/mac-cursors-api',
+			},
+			items: ['mac-cursors/mac-os-cursor'],
 		},
 		{
 			type: 'category',
@@ -780,6 +804,7 @@ const sidebars: SidebarsConfig = {
 				'studio/write-static-file',
 				'studio/delete-static-file',
 				'studio/restart-studio',
+				'studio/shut-down-studio',
 				'studio/save-default-props',
 				'studio/play',
 				'studio/pause',
@@ -800,9 +825,12 @@ const sidebars: SidebarsConfig = {
 				id: 'studio-protocol/index',
 			},
 			items: [
+				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
+				'studio-protocol/add-element-library-to-studio',
+				'studio-protocol/is-inside-studio',
 				'studio-protocol/security',
 			],
 		},
@@ -888,6 +916,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/crosswarp',
 						'transitions/presentations/cross-zoom',
 						'transitions/presentations/swap',
+						'transitions/presentations/blur-slide',
 						'transitions/presentations/none',
 						{
 							type: 'doc',
@@ -917,6 +946,23 @@ const sidebars: SidebarsConfig = {
 				'vercel/render-still-on-vercel',
 				'vercel/upload-to-vercel-blob',
 				'vercel/vercel-types',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/video-matting',
+			link: {
+				type: 'doc',
+				id: 'video-matting/index',
+			},
+			items: [
+				'video-matting/can-use-video-matting',
+				'video-matting/get-available-models',
+				'video-matting/is-video-matting-model-cached',
+				'video-matting/load-video-matting-model',
+				'video-matting/remove-video-matting-model',
+				'video-matting/separate-video-layers',
+				'video-matting/dispose-video-matting-model',
 			],
 		},
 		{
@@ -955,6 +1001,26 @@ const sidebars: SidebarsConfig = {
 				'whisper-web/get-available-models',
 				'whisper-web/get-loaded-models',
 				'whisper-web/to-captions',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/whisper-webgpu',
+			link: {
+				type: 'doc',
+				id: 'whisper-webgpu/index',
+			},
+			items: [
+				'whisper-webgpu/can-use-whisper-webgpu',
+				'whisper-webgpu/get-available-models',
+				'whisper-webgpu/clear-stale-models',
+				'whisper-webgpu/is-whisper-model-cached',
+				'whisper-webgpu/load-whisper-model',
+				'whisper-webgpu/remove-whisper-model',
+				'whisper-webgpu/transcribe',
+				'whisper-webgpu/to-captions',
+				'whisper-webgpu/resample-to-16khz',
+				'whisper-webgpu/dispose-whisper-model',
 			],
 		},
 		{
@@ -1151,6 +1217,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'passing-props',
+				'default-props-inference',
 				'schemas',
 				'visual-editing',
 				'data-fetching',
@@ -1278,6 +1345,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/custom-destination',
 				'lambda/checklist',
 				'lambda/webhooks',
+				'lambda/cancellation',
 				'lambda/cost-example',
 				'lambda/autodelete',
 				{
@@ -1443,9 +1511,11 @@ const sidebars: SidebarsConfig = {
 						'ai/claude-code-plugin',
 						'ai/codex-plugin',
 						'ai/cursor-plugin',
+						'ai/github-copilot-plugin',
 						'ai/kimi-code-plugin',
 					],
 				},
+				'ai/webmcp',
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',
@@ -1705,6 +1775,11 @@ const sidebars: SidebarsConfig = {
 			label: 'Recorder',
 		},
 		{
+			type: 'link',
+			href: '/docs/canvas-capture',
+			label: 'Canvas Capture',
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1919,6 +1994,17 @@ const sidebars: SidebarsConfig = {
 				'recorder/our-recorder',
 				'recorder/support',
 			],
+		},
+	],
+	canvasCaptureSidebar: [
+		{
+			type: 'category',
+			label: 'Canvas Capture',
+			link: {
+				type: 'doc',
+				id: 'canvas-capture/index',
+			},
+			items: ['canvas-capture/installation'],
 		},
 	],
 };

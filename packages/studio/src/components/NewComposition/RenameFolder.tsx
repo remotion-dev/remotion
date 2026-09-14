@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {getFolderId} from '../../helpers/get-folder-id';
+import {slugifyName} from '../../helpers/slugify-name';
 import {validateFolderRename} from '../../helpers/validate-folder-rename';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -20,6 +21,7 @@ import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -52,23 +54,26 @@ export const RenameFolder: React.FC<{
 		[],
 	);
 
-	const folderNameErrMessage = validateFolderRename({
-		folders,
-		newName,
-		originalName: folderName,
-		parentName,
-	});
+	const slug = slugifyName(newName);
+	const folderNameErrMessage = slug
+		? validateFolderRename({
+				folders,
+				newName: slug,
+				originalName: folderName,
+				parentName,
+			})
+		: 'Enter a name containing letters or numbers.';
 
-	const valid = folderNameErrMessage === null && folderName !== newName;
+	const valid = folderNameErrMessage === null && folderName !== slug;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'rename-folder',
 			folderName,
 			parentName,
-			newName,
+			newName: slug,
 		};
-	}, [folderName, newName, parentName]);
+	}, [folderName, slug, parentName]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -95,6 +100,12 @@ export const RenameFolder: React.FC<{
 									status="ok"
 									rightAlign
 								/>
+								<SlugPreview
+									action="rename"
+									currentName={folderName}
+									input={newName}
+									slug={slug}
+								/>
 								{folderNameErrMessage ? (
 									<>
 										<Spacing y={1} block />
@@ -113,7 +124,6 @@ export const RenameFolder: React.FC<{
 					<CodemodFooter
 						loadingNotification={'Renaming folder...'}
 						errorNotification={'Could not rename folder'}
-						successNotification={`Renamed folder to ${newName}`}
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
 						codemod={codemod}
@@ -128,6 +138,7 @@ export const RenameFolder: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

@@ -5,7 +5,10 @@ import React, {
 	type PropsWithChildren,
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
-import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	getSingleChildComponent,
+} from '../enable-sequence-stack-traces.js';
 import {Interactive} from '../Interactive.js';
 import {
 	sequenceSchemaDefaultLayoutNone,
@@ -220,6 +223,9 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}
 								{...passedProps}
+								_remotionInternalSingleChildComponent={getSingleChildComponent(
+									sequenceChildren,
+								)}
 							>
 								<IsNotInsideSeriesProvider>
 									{sequenceChildren}

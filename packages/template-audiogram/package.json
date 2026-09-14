@@ -14,17 +14,17 @@
   "dependencies": {
     "@remotion/cli": "workspace:*",
     "@remotion/media-utils": "workspace:*",
-    "@remotion/media-parser": "workspace:*",
     "@remotion/media": "workspace:*",
     "@remotion/captions": "workspace:*",
     "@remotion/zod-types": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
     "@remotion/install-whisper-cpp": "workspace:*",
+    "mediabunny": "1.56.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",

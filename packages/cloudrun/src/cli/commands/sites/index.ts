@@ -4,12 +4,13 @@ import type {Site} from '../../../api/get-sites';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {SITES_COMMAND} from '../command-names';
 import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
 import {SITES_LS_SUBCOMMAND, sitesLsSubcommand} from './ls';
 import {SITES_RM_COMMAND, sitesRmSubcommand} from './rm';
 import {SITES_RMALL_COMMAND, sitesRmallSubcommand} from './rmall';
 
-export const SITES_COMMAND = 'sites';
+export {SITES_COMMAND} from '../command-names';
 
 export const displaySiteInfo = (site: Site) => {
 	return [

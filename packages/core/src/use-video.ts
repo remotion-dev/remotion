@@ -1,6 +1,9 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
 import {useContext, useMemo} from 'react';
-import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	CompositionManager,
+	getAssetPreviewCompositionId,
+} from './CompositionManagerContext.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -12,9 +15,15 @@ type ReturnType =
 	  })
 	| null;
 
+const AssetPreviewComposition = () => null;
+
 export const useVideo = (): ReturnType => {
-	const {canvasContent, compositions, currentCompositionMetadata} =
-		useContext(CompositionManager);
+	const {
+		canvasContent,
+		compositions,
+		currentCompositionMetadata,
+		currentAssetMetadata,
+	} = useContext(CompositionManager);
 
 	const selected = compositions.find((c) => {
 		return (
@@ -25,6 +34,18 @@ export const useVideo = (): ReturnType => {
 	const resolved = useResolvedVideoConfig(selected?.id ?? null);
 
 	return useMemo((): ReturnType => {
+		if (
+			canvasContent?.type === 'asset' &&
+			currentAssetMetadata?.asset === canvasContent.asset
+		) {
+			return {
+				...currentAssetMetadata,
+				id: getAssetPreviewCompositionId(canvasContent.asset),
+				defaultProps: {},
+				component: AssetPreviewComposition,
+			};
+		}
+
 		if (!resolved) {
 			return null;
 		}
@@ -50,5 +71,11 @@ export const useVideo = (): ReturnType => {
 			...(currentCompositionMetadata ?? {}),
 			component: selected.component,
 		};
-	}, [currentCompositionMetadata, resolved, selected]);
+	}, [
+		canvasContent,
+		currentAssetMetadata,
+		currentCompositionMetadata,
+		resolved,
+		selected,
+	]);
 };

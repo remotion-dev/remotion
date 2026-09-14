@@ -1,7 +1,8 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';
+import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {
 	getCurrentDuration,
 	getCurrentFrame,
@@ -31,20 +32,17 @@ let lastTimelinePositionWhileScrolling: TimelinePosition | null = null;
 export const TimelinePlayCursorSyncer: React.FC = () => {
 	const video = Internals.useVideo();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const {playbackRate} = Internals.usePlaybackRate();
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
 
-	const compositionId =
-		canvasContent && canvasContent.type === 'composition'
-			? canvasContent.compositionId
-			: null;
-	const zoom = compositionId
-		? (zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM)
-		: null;
+	const zoom = getTimelineZoom({
+		durationInFrames: video?.durationInFrames ?? 1,
+		timelineViewportWidth: scrollableRef.current?.clientWidth ?? 0,
+		zoom: video ? (zoomMap[video.id] ?? null) : null,
+	});
 
-	if (zoom && video) {
+	if (video) {
 		setCurrentFrame(timelinePosition);
 		setCurrentZoom(zoom);
 		setCurrentDuration(video.durationInFrames);

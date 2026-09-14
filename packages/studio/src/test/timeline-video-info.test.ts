@@ -76,6 +76,7 @@ const makeSequenceControls = ({
 	componentIdentity: null,
 	componentName: 'Test',
 	runtimeValues: makeRuntimeValueStore(currentRuntimeValueDotNotation),
+	videoConfigValues: null,
 	overrideId: 'test',
 	schema,
 	supportsEffects: false,

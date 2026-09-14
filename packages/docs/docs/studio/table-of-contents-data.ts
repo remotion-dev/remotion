@@ -40,6 +40,11 @@ export const studioTableOfContents = [
 		description: 'Restart the Studio Server.',
 	},
 	{
+		link: '/docs/studio/shut-down-studio',
+		label: 'shutDownStudio()',
+		description: 'Shut down the Studio Server.',
+	},
+	{
 		link: '/docs/studio/play',
 		label: 'play()',
 		description: 'Start playback in the timeline',

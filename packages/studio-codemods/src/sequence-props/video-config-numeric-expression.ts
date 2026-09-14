@@ -178,7 +178,10 @@ export const updateVideoConfigNumericExpression = ({
 
 	if (expression.type === 'video-config-subtraction') {
 		const subtrahend = expression.minuend - value;
-		if (!Number.isFinite(subtrahend)) {
+		if (
+			!Number.isFinite(subtrahend) ||
+			expression.minuend - subtrahend !== value
+		) {
 			return numericExpression(value);
 		}
 
@@ -194,7 +197,12 @@ export const updateVideoConfigNumericExpression = ({
 	}
 
 	const multiplier = value / expression.multiplicand;
-	if (!Number.isFinite(multiplier) || multiplier === 0) {
+	// Preserve the expression only if evaluating it reproduces the requested value.
+	if (
+		!Number.isFinite(multiplier) ||
+		multiplier === 0 ||
+		multiplier * expression.multiplicand !== value
+	) {
 		return numericExpression(value);
 	}
 

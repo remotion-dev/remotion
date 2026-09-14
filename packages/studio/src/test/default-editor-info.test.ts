@@ -1,5 +1,8 @@
 import {afterEach, expect, test} from 'bun:test';
-import {getPreferredEditorId} from '../components/use-default-editor-info';
+import {
+	canOpenInEditor,
+	getPreferredEditorId,
+} from '../components/use-default-editor-info';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -39,7 +42,7 @@ test('prefers the running editor when one is detected', () => {
 	).toBe('cursor');
 });
 
-test('does not fall back if the running editor is not in the installed list', () => {
+test('falls back if the detected editor is not in the installed list', () => {
 	installTestWindow('Custom Editor');
 
 	expect(
@@ -50,11 +53,11 @@ test('does not fall back if the running editor is not in the installed list', ()
 				{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
 			],
 		}),
-	).toBe(null);
+	).toBe('zed');
 });
 
-test('prefers the configured default editor before fallback ordering', () => {
-	installTestWindow(null);
+test('prefers the configured default editor before the detected editor', () => {
+	installTestWindow('Zed');
 
 	expect(
 		getPreferredEditorId({
@@ -65,6 +68,24 @@ test('prefers the configured default editor before fallback ordering', () => {
 			],
 		}),
 	).toBe('cursor');
+});
+
+test('returns null when no editor is installed', () => {
+	installTestWindow('Custom Editor');
+
+	expect(
+		getPreferredEditorId({
+			defaultEditor: null,
+			installedEditors: [],
+		}),
+	).toBe(null);
+});
+
+test('requires a preview server connection', () => {
+	installTestWindow(null);
+
+	expect(canOpenInEditor(false)).toBe(false);
+	expect(canOpenInEditor(true)).toBe(true);
 });
 
 test('falls back to Zed, VS Code, Cursor, then alphabetical order', () => {

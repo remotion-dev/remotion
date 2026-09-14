@@ -9,6 +9,10 @@ export const parseAst = (input: string) => {
 	}) as File;
 };
 
+export const parseAstForReadOnly = (input: string) => {
+	return tsParser.parse(input) as File;
+};
+
 export const serializeAst = (ast: File) => {
 	const raw = recast.print(ast, {
 		parser: tsParser,

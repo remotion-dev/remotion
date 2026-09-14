@@ -10,6 +10,7 @@ test('Extract accuracy over 100 frames with playback rate 2', async () => {
 	for (let i = 0; i < NUM_FRAMES; i++) {
 		const timeInSeconds = i / FPS;
 		const audio = await extractAudio({
+			sampleRate: 48000,
 			audioStreamIndex: 0,
 			timeInSeconds,
 			durationInSeconds: 1 / FPS,

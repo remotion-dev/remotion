@@ -12,6 +12,7 @@ const getDefaults = (): RenderDefaults => {
 		scale: 1,
 		logLevel: 'info',
 		codec: 'h264',
+		crf: null,
 		concurrency: 4,
 		minConcurrency: 1,
 		muted: false,
@@ -50,7 +51,9 @@ const getDefaults = (): RenderDefaults => {
 		chromeMode: 'headless-shell',
 		publicLicenseKey: null,
 		outputLocation: null,
+		allowHtmlInCanvas: false,
 		sampleRate: 48000,
+		configFileRenderDefaults: null,
 	};
 };
 

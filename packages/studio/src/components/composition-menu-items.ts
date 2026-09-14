@@ -1,8 +1,14 @@
+import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {formatFileLocation} from '../helpers/format-file-location';
 import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../helpers/format-file-location';
+import {getGitSourceName, openGitSource} from '../helpers/get-git-menu-item';
+import {
+	loadCompositionComponentInfo,
 	openCompositionComponentInEditor,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
@@ -20,6 +26,8 @@ export const getCompositionMenuItems = ({
 	closeMenu,
 	readOnlyStudio,
 	includeCompositionManagementItems,
+	editorId,
+	editorName,
 }: {
 	composition: _InternalTypes['AnyComposition'] | null;
 	connectionStatus: PreviewServerConnectionState['type'];
@@ -28,16 +36,33 @@ export const getCompositionMenuItems = ({
 	closeMenu: () => void;
 	readOnlyStudio: boolean;
 	includeCompositionManagementItems: boolean;
+	editorId: EditorPickerId | null;
+	editorName: string | null;
 }): ComboboxValue[] => {
-	const editorName = window.remotion_editorName;
 	const fileLocation = formatFileLocation({
 		location: resolvedLocation,
 		root: window.remotion_cwd,
 	});
+	const contextForAgents = formatContextForAgents({
+		location: resolvedLocation,
+		name: composition?.id ?? null,
+		root: window.remotion_cwd,
+	});
 	const showInEditorDisabled =
-		!composition || connectionStatus !== 'connected' || !resolvedLocation;
+		!editorId ||
+		!composition ||
+		connectionStatus !== 'connected' ||
+		!resolvedLocation;
 	const openComponentInEditorDisabled =
 		showInEditorDisabled || !resolvedLocation?.source;
+	const gitSourceName = window.remotion_gitSource
+		? getGitSourceName(window.remotion_gitSource)
+		: null;
+	const openCompositionInGitSourceDisabled = !composition || !resolvedLocation;
+	const openComponentInGitSourceDisabled =
+		openCompositionInGitSourceDisabled ||
+		!resolvedLocation?.source ||
+		(!readOnlyStudio && connectionStatus !== 'connected');
 	const copyFileLocationDisabled = !composition || !fileLocation;
 
 	return [
@@ -49,12 +74,12 @@ export const getCompositionMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!composition || !resolvedLocation) {
+						if (!composition || !resolvedLocation || !editorId) {
 							return;
 						}
 
 						try {
-							await openOriginalPositionInEditor(resolvedLocation, null);
+							await openOriginalPositionInEditor(resolvedLocation, editorId);
 						} catch (err) {
 							showNotification((err as Error).message, 2000);
 						}
@@ -74,7 +99,7 @@ export const getCompositionMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!composition || !resolvedLocation?.source) {
+						if (!composition || !resolvedLocation?.source || !editorId) {
 							return;
 						}
 
@@ -82,6 +107,7 @@ export const getCompositionMenuItems = ({
 							await openCompositionComponentInEditor({
 								compositionFile: resolvedLocation.source,
 								compositionId: composition.id,
+								editorId,
 							});
 						} catch (err) {
 							showNotification((err as Error).message, 2000);
@@ -94,7 +120,53 @@ export const getCompositionMenuItems = ({
 					disabled: openComponentInEditorDisabled,
 				}
 			: null,
-		editorName && includeCompositionManagementItems
+		gitSourceName
+			? {
+					id: 'open-composition-in-git-source',
+					keyHint: null,
+					label: `Open composition in ${gitSourceName}`,
+					leftItem: null,
+					onClick: () => {
+						closeMenu();
+						openGitSource({folder: false, location: resolvedLocation});
+					},
+					quickSwitcherLabel: `Open composition in ${gitSourceName}`,
+					subMenu: null,
+					type: 'item' as const,
+					value: 'open-composition-in-git-source',
+					disabled: openCompositionInGitSourceDisabled,
+				}
+			: null,
+		gitSourceName
+			? {
+					id: 'open-component-in-git-source',
+					keyHint: null,
+					label: `Open component in ${gitSourceName}`,
+					leftItem: null,
+					onClick: async () => {
+						closeMenu();
+						if (!composition || !resolvedLocation?.source) {
+							return;
+						}
+
+						try {
+							const info = await loadCompositionComponentInfo({
+								compositionFile: resolvedLocation.source,
+								compositionId: composition.id,
+							});
+							openGitSource({folder: false, location: info.location});
+						} catch (err) {
+							showNotification((err as Error).message, 2000);
+						}
+					},
+					quickSwitcherLabel: `Open composition component in ${gitSourceName}`,
+					subMenu: null,
+					type: 'item' as const,
+					value: 'open-component-in-git-source',
+					disabled: openComponentInGitSourceDisabled,
+				}
+			: null,
+		(editorName || gitSourceName) && includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'show-in-editor-divider',
@@ -174,12 +246,36 @@ export const getCompositionMenuItems = ({
 					disabled: !composition || readOnlyStudio,
 				}
 			: null,
-		editorName || includeCompositionManagementItems
+		editorName || gitSourceName || includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'copy-actions-divider',
 				}
 			: null,
+		{
+			id: 'copy-context-for-agents',
+			keyHint: null,
+			label: `Copy context for agents`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!contextForAgents) {
+					return;
+				}
+
+				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						1000,
+					);
+				});
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-context-for-agents',
+			disabled: !contextForAgents,
+		},
 		{
 			id: 'copy-file-location',
 			keyHint: null,
@@ -223,7 +319,7 @@ export const getCompositionMenuItems = ({
 				navigator.clipboard
 					.writeText(composition.id)
 					.then(() => {
-						showNotification('Copied to clipboard', 1000);
+						showNotification('Copied composition name', 1000);
 					})
 					.catch((err) => {
 						showNotification(

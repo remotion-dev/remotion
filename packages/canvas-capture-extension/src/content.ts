@@ -72,22 +72,20 @@ export const startContent = () => {
 			position: fixed;
 			inset: 0;
 			display: none;
-			background: rgba(0,0,0,.08);
+			background: transparent;
 			cursor: crosshair;
 			pointer-events: auto;
 		}
 		.selection-box {
 			position: fixed;
 			display: none;
-			border: 2px solid #4d8dff;
-			background: rgba(77,141,255,.16);
-			box-shadow: 0 0 0 1px rgba(255,255,255,.65) inset;
+			border: 1px solid #0b84f3;
+			background: transparent;
 		}
 		.highlight {
 			position: fixed;
 			display: none;
-			border: 2px solid #4d8dff;
-			box-shadow: 0 0 0 1px rgba(255,255,255,.8), 0 0 0 99999px rgba(77,141,255,.035);
+			border: 1px solid #0b84f3;
 			pointer-events: none;
 		}
 	`;
@@ -103,6 +101,7 @@ export const startContent = () => {
 
 		let selectedTarget: SelectedTarget | null = null;
 		let capture: PageCapture | null = null;
+		let completedRecording: File | null = null;
 		let finalizing = false;
 		let selecting = false;
 		let scale = Math.max(1, window.devicePixelRatio);
@@ -150,7 +149,14 @@ export const startContent = () => {
 
 		const refreshEncoderSupport = async () => {
 			const checkId = ++encoderSupportCheckId;
-			if (!supported || !selectedTarget || capture || finalizing || selecting) {
+			if (
+				!supported ||
+				!selectedTarget ||
+				capture ||
+				completedRecording ||
+				finalizing ||
+				selecting
+			) {
 				if (!selectedTarget) {
 					encoderSupport = 'unavailable';
 					encoderSupportKey = null;
@@ -280,6 +286,7 @@ export const startContent = () => {
 			outputSize,
 			recording: capture !== null,
 			finalizing,
+			hasCompletedRecording: completedRecording !== null,
 			scale,
 			format,
 			status,
@@ -387,7 +394,7 @@ export const startContent = () => {
 			return true;
 		};
 
-		const finishRecording = async (destination: 'convert' | 'download') => {
+		const finishRecording = async () => {
 			if (!capture || finalizing) {
 				return;
 			}
@@ -397,23 +404,46 @@ export const startContent = () => {
 			setStatus(`Finalizing ${getContainerLabel(recordingFormat)}…`);
 			const currentCapture = capture;
 			try {
-				const file = await currentCapture.stop();
-				if (destination === 'convert') {
-					setStatus('Opening recording in Remotion Convert…');
-					await openCaptureInConvert(file);
-					setStatus('Recording opened. Ready to record again.');
-				} else {
-					downloadFile(file);
-					setStatus(
-						`${getContainerLabel(recordingFormat)} downloaded. Ready to record again.`,
-					);
-				}
+				completedRecording = await currentCapture.stop();
+				setStatus(
+					`${getContainerLabel(recordingFormat)} ready. Open it in Convert or download it.`,
+				);
 			} catch (error) {
 				setStatus(error instanceof Error ? error.message : String(error), true);
 			} finally {
 				capture = null;
 				finalizing = false;
 				updateHighlight();
+			}
+		};
+
+		const consumeCompletedRecording = async (
+			destination: 'convert' | 'download',
+		) => {
+			if (!completedRecording || finalizing) {
+				return;
+			}
+
+			const file = completedRecording;
+			finalizing = true;
+			try {
+				if (destination === 'convert') {
+					setStatus('Opening recording in Remotion Convert…');
+					await openCaptureInConvert(file);
+					completedRecording = null;
+					setStatus('Recording opened. Ready to record again.');
+					return;
+				}
+
+				downloadFile(file);
+				completedRecording = null;
+				setStatus(
+					`${getContainerLabel(format)} downloaded. Ready to record again.`,
+				);
+			} catch (error) {
+				setStatus(error instanceof Error ? error.message : String(error), true);
+			} finally {
+				finalizing = false;
 			}
 		};
 
@@ -425,7 +455,7 @@ export const startContent = () => {
 				}
 
 				if (request.command === 'set-options') {
-					if (!capture && !finalizing) {
+					if (!capture && !completedRecording && !finalizing) {
 						if (setOptions(request.scale)) {
 							await refreshEncoderSupport();
 						}
@@ -435,7 +465,7 @@ export const startContent = () => {
 				}
 
 				if (request.command === 'select-area') {
-					if (!capture && !finalizing) {
+					if (!capture && !completedRecording && !finalizing) {
 						encoderSupportCheckId++;
 						encoderSupportKey = null;
 						selecting = true;
@@ -459,7 +489,7 @@ export const startContent = () => {
 				}
 
 				if (request.command === 'select-whole-page') {
-					if (!capture && !finalizing) {
+					if (!capture && !completedRecording && !finalizing) {
 						if (selecting) {
 							cancelSelection();
 						}
@@ -474,7 +504,7 @@ export const startContent = () => {
 				}
 
 				if (request.command === 'start-recording') {
-					if (capture || finalizing || selecting) {
+					if (capture || completedRecording || finalizing || selecting) {
 						return getState();
 					}
 
@@ -516,7 +546,14 @@ export const startContent = () => {
 					return getState();
 				}
 
-				await finishRecording(request.destination);
+				if (request.command === 'stop-recording') {
+					await finishRecording();
+					return getState();
+				}
+
+				await consumeCompletedRecording(
+					request.command === 'open-in-convert' ? 'convert' : 'download',
+				);
 				return getState();
 			},
 		};

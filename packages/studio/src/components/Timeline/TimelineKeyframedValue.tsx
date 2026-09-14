@@ -52,6 +52,7 @@ export const TimelineKeyframedValue: React.FC<{
 	const fakeStatus: CanUpdateSequencePropStatusStatic = useMemo(
 		() => ({
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: computedValue,
 		}),
 		[computedValue],

@@ -1,7 +1,9 @@
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
+import {useCache as resetBoxQuadsCache} from '../helpers/get-box-quads-polyfill-internals.js';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
+import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {mixPoint} from './selected-outline-geometry';
 import type {
@@ -292,10 +294,21 @@ const getSvgSvgElementOutlinePoints = (
 const getElementOutlinePoints = (
 	element: Element,
 	containerRect: DOMRect,
+	includeOutsideContainer: boolean,
 ): SelectedOutline['points'] | null => {
 	const elementRect = element.getBoundingClientRect();
 
 	if (elementRect.width === 0 && elementRect.height === 0) {
+		return null;
+	}
+
+	if (
+		!includeOutsideContainer &&
+		(elementRect.right <= containerRect.left ||
+			elementRect.left >= containerRect.right ||
+			elementRect.bottom <= containerRect.top ||
+			elementRect.top >= containerRect.bottom)
+	) {
 		return null;
 	}
 
@@ -632,7 +645,34 @@ export const getSequencesWithSelectableOutlines = ({
 export const measureOutlines = (
 	container: SVGSVGElement,
 	targets: readonly SelectedOutlineLayoutTarget[],
+	hoveredTimelineNodePathKey: string | null,
 ): SelectedOutline[] => {
+	return measureOutlineTargets(
+		container,
+		targets.map((target) => ({
+			crop: target.crop,
+			includeOutsideContainer:
+				target.showSelectedOutline ||
+				timelineSequenceNodePathToKey(
+					target.nodePathInfo.sequenceSubscriptionKey,
+				) === hoveredTimelineNodePathKey,
+			key: target.key,
+			ref: target.ref,
+		})),
+	);
+};
+
+export const measureOutlineTargets = (
+	container: Element,
+	targets: readonly {
+		readonly crop: SelectedOutlineLayoutTarget['crop'];
+		readonly includeOutsideContainer: boolean;
+		readonly key: string;
+		readonly ref: React.RefObject<Element | null>;
+	}[],
+): SelectedOutline[] => {
+	// Reuse shared ancestor geometry within this synchronous batch only.
+	resetBoxQuadsCache();
 	const containerRect = container.getBoundingClientRect();
 	const outlines: SelectedOutline[] = [];
 
@@ -642,7 +682,11 @@ export const measureOutlines = (
 			continue;
 		}
 
-		const uncroppedPoints = getElementOutlinePoints(element, containerRect);
+		const uncroppedPoints = getElementOutlinePoints(
+			element,
+			containerRect,
+			target.includeOutsideContainer,
+		);
 		if (uncroppedPoints === null) {
 			continue;
 		}

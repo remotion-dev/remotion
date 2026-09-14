@@ -83,7 +83,10 @@ export const renderFrameAndRetryTargetClose = async ({
 	concurrencyOrFramesToRender: number;
 	lastFrame: number;
 	framesRenderedObj: {count: number};
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>)
+		| undefined;
 	onFrameUpdate:
 		| null
 		| ((

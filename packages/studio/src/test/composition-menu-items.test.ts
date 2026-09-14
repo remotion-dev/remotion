@@ -1,6 +1,6 @@
-import {afterEach, expect, test} from 'bun:test';
-import type {_InternalTypes} from 'remotion';
-import type {ResolvedStackLocation} from 'remotion';
+import {afterEach, expect, mock, test} from 'bun:test';
+import type {GitSource} from '@remotion/studio-shared';
+import type {_InternalTypes, ResolvedStackLocation} from 'remotion';
 import {
 	getCompositionContextMenuItems,
 	getCompositionMenuItems,
@@ -10,12 +10,22 @@ const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
 	'window',
 );
+const originalNavigatorDescriptor = Object.getOwnPropertyDescriptor(
+	globalThis,
+	'navigator',
+);
 
 afterEach(() => {
 	if (originalWindowDescriptor) {
 		Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
 	} else {
 		Reflect.deleteProperty(globalThis, 'window');
+	}
+
+	if (originalNavigatorDescriptor) {
+		Object.defineProperty(globalThis, 'navigator', originalNavigatorDescriptor);
+	} else {
+		Reflect.deleteProperty(globalThis, 'navigator');
 	}
 });
 
@@ -39,6 +49,36 @@ const installTestWindowWithEditor = () => {
 	});
 };
 
+const installTestWindowWithGitSource = ({
+	readOnly,
+}: {
+	readonly readOnly: boolean;
+}) => {
+	const openedUrls: string[] = [];
+	const gitSource: GitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {
+			open: (url: string) => {
+				openedUrls.push(url);
+				return null;
+			},
+			remotion_cwd: '/project',
+			remotion_editorName: readOnly ? null : 'Code',
+			remotion_gitSource: gitSource,
+			remotion_isReadOnlyStudio: readOnly,
+		},
+	});
+
+	return openedUrls;
+};
+
 const composition = {
 	id: 'ConnectedComposition',
 	durationInFrames: 100,
@@ -54,6 +94,8 @@ const commonArgs = {
 	closeMenu: () => undefined,
 	composition,
 	connectionStatus: 'connected' as const,
+	editorId: 'vscode' as const,
+	editorName: 'Code',
 	readOnlyStudio: false,
 	resolvedLocation: null,
 	setSelectedModal: () => undefined,
@@ -85,15 +127,26 @@ test('connected composition context menus omit management actions', () => {
 
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
+		editorId: null,
+		editorName: null,
 		includeCompositionManagementItems: false,
 	});
 
 	expect(ids(items)).toEqual([
 		'open-in-new-window',
 		'open-in-new-window-divider',
+		'copy-context-for-agents',
 		'copy-file-location',
 		'copy-id',
 	]);
+	const copyContext = items.find(
+		(item) => item.id === 'copy-context-for-agents',
+	);
+	if (copyContext?.type !== 'item') {
+		throw new Error('Expected copy context to be a menu item');
+	}
+
+	expect(copyContext.disabled).toBe(true);
 });
 
 test('copy actions are adjacent', () => {
@@ -103,12 +156,43 @@ test('copy actions are adjacent', () => {
 		...commonArgs,
 		includeCompositionManagementItems: true,
 	});
+	const copyContextIndex = items.findIndex(
+		(item) => item.id === 'copy-context-for-agents',
+	);
 	const copyFileLocationIndex = items.findIndex(
 		(item) => item.id === 'copy-file-location',
 	);
 	const copyIdIndex = items.findIndex((item) => item.id === 'copy-id');
 
+	expect(copyFileLocationIndex).toBe(copyContextIndex + 1);
 	expect(copyIdIndex).toBe(copyFileLocationIndex + 1);
+});
+
+test('copies composition context for agents', async () => {
+	installTestWindow();
+	const writeText = mock(() => Promise.resolve());
+	Object.defineProperty(globalThis, 'navigator', {
+		configurable: true,
+		value: {clipboard: {writeText}},
+	});
+
+	const items = getCompositionMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: false,
+		resolvedLocation,
+	});
+	const copyContext = items.find(
+		(item) => item.id === 'copy-context-for-agents',
+	);
+	if (copyContext?.type !== 'item') {
+		throw new Error('Expected copy context to be a menu item');
+	}
+
+	copyContext.onClick(copyContext.id, null);
+	await Promise.resolve();
+	expect(writeText).toHaveBeenCalledWith(
+		'ConnectedComposition in src/Composition.tsx:10',
+	);
 });
 
 test('editor actions use Open labels and are adjacent', () => {
@@ -157,9 +241,53 @@ test('read-only composition menus keep navigation and copy actions enabled', () 
 	expect(itemById('open-in-new-window').disabled).not.toBe(true);
 	expect(itemById('show-in-editor').disabled).toBe(false);
 	expect(itemById('open-component-in-editor').disabled).toBe(false);
+	expect(itemById('copy-context-for-agents').disabled).toBe(false);
 	expect(itemById('copy-file-location').disabled).toBe(false);
 	expect(itemById('copy-id').disabled).toBe(false);
 	expect(itemById('rename').disabled).toBe(true);
 	expect(itemById('duplicate').disabled).toBe(true);
 	expect(itemById('delete').disabled).toBe(true);
+});
+
+test('composition context menus can open source locations on GitHub', () => {
+	const openedUrls = installTestWindowWithGitSource({readOnly: true});
+	const items = getCompositionContextMenuItems({
+		...commonArgs,
+		editorId: null,
+		editorName: null,
+		includeCompositionManagementItems: true,
+		readOnlyStudio: true,
+		resolvedLocation,
+	});
+	const compositionItem = items.find(
+		(item) => item.id === 'open-composition-in-git-source',
+	);
+	const componentItem = items.find(
+		(item) => item.id === 'open-component-in-git-source',
+	);
+	if (compositionItem?.type !== 'item' || componentItem?.type !== 'item') {
+		throw new Error('Expected GitHub composition actions');
+	}
+
+	expect(compositionItem.label).toBe('Open composition in GitHub');
+	expect(componentItem.label).toBe('Open component in GitHub');
+	expect(compositionItem.disabled).toBe(false);
+	expect(componentItem.disabled).toBe(false);
+	compositionItem.onClick(compositionItem.id, null);
+	expect(openedUrls).toEqual([
+		'https://github.com/example/project/blob/main/src/Composition.tsx#L10',
+	]);
+});
+
+test('interactive composition context menus retain GitHub actions', () => {
+	installTestWindowWithGitSource({readOnly: false});
+	const items = getCompositionContextMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: false,
+		resolvedLocation,
+	});
+
+	expect(ids(items)).toContain('show-in-editor');
+	expect(ids(items)).toContain('open-composition-in-git-source');
+	expect(ids(items)).toContain('open-component-in-git-source');
 });

@@ -1,4 +1,4 @@
-import {loadFonts} from './base';
+import {loadFonts, loadVariableFonts} from './base';
 
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Ethiopic',
@@ -90,6 +90,48 @@ export const getInfo = () => ({
 		},
 	},
 	subsets: ['ethiopic', 'latin', 'latin-ext'],
+	variable: {
+		axes: {
+			wdth: {
+				min: 62.5,
+				max: 100,
+			},
+			wght: {
+				min: 100,
+				max: 900,
+			},
+		},
+		fontFaces: [
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'ethiopic',
+				unicodeRange:
+					'U+030E, U+1200-1399, U+2D80-2DDE, U+AB01-AB2E, U+1E7E0-1E7E6, U+1E7E8-1E7EB, U+1E7ED-1E7EE, U+1E7F0-1E7FE',
+				src: 'https://fonts.gstatic.com/s/notoserifethiopic/v32/V8mZoR7-XjwJ8_Au3Ti5tXj5Rd83frpWBrM1FwYh.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/notoserifethiopic/v32/V8mZoR7-XjwJ8_Au3Ti5tXj5Rd83frpWBqw1FwYh.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: '62.5% 100%',
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/notoserifethiopic/v32/V8mZoR7-XjwJ8_Au3Ti5tXj5Rd83frpWBqI1Fw.woff2',
+			},
+		],
+		url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Ethiopic:wdth,wght@62.5..100,100..900',
+	},
 });
 
 export const fontFamily = 'Noto Serif Ethiopic' as const;
@@ -120,4 +162,21 @@ export const loadFont = <T extends keyof Variants>(
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
+};
+
+type VariableVariants = {
+	normal: {
+		subsets: 'ethiopic' | 'latin' | 'latin-ext';
+	};
+};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+	style: T,
+	options: {
+		subsets: VariableVariants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadVariableFonts(getInfo(), style, options);
 };

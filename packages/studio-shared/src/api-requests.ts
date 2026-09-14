@@ -12,7 +12,6 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -45,6 +44,63 @@ import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 import type {TerminalId} from './terminal';
+
+export type ComponentPropValue =
+	| string
+	| number
+	| boolean
+	| null
+	| readonly ComponentPropValue[]
+	| Readonly<object>;
+
+export type ComponentProp = {
+	name: string;
+	value: ComponentPropValue;
+};
+
+export type EffectConfigValue =
+	| string
+	| number
+	| boolean
+	| null
+	| EffectConfig
+	| readonly EffectConfigValue[];
+
+export type EffectConfig = {
+	readonly [key: string]: EffectConfigValue;
+};
+
+export type EffectDefinition = {
+	readonly name: string;
+	readonly importPath: string;
+	readonly config: EffectConfig;
+};
+
+export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
+
+export type ElementDependency =
+	| {
+			readonly name: `@remotion/${string}`;
+			readonly version: null;
+	  }
+	| {
+			readonly name: string;
+			readonly version: string;
+	  };
+
+export type InstallableElement = {
+	dependencies: ElementDependency[];
+	durationInFrames: number | null;
+	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
+	installationMode: ElementInstallationMode | null;
+	slug: string;
+	displayName: string;
+	sourceCode: string;
+	dimensions: {
+		height: number;
+		width: number;
+	} | null;
+};
 
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
@@ -348,6 +404,16 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
+export type SubscribeToSequencePropsBatchRequest =
+	SubscribeToSequencePropsRequest & {
+		requests?: SubscribeToSequencePropsRequest[];
+	};
+
+export type SubscribeToSequencePropsBatchResponse =
+	SubscribeToSequencePropsResponse & {
+		results: SubscribeToSequencePropsResponse[];
+	};
+
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -400,6 +466,7 @@ export type CaptionPatch = {
 		endMs: number;
 		timestampMs: number | null;
 		confidence: number | null;
+		pageBreakAfter: boolean | null;
 	};
 	changes: Partial<{
 		text: string;
@@ -407,6 +474,7 @@ export type CaptionPatch = {
 		endMs: number;
 		timestampMs: number | null;
 		confidence: number | null;
+		pageBreakAfter: boolean;
 	}>;
 };
 
@@ -496,7 +564,7 @@ export type AddEffectRequest = {
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectName: string;
 	effectImportPath: string;
-	effectConfig: Record<string, unknown>;
+	effectConfig: EffectConfig;
 	clientId: string;
 };
 
@@ -790,9 +858,13 @@ export type DeleteJsxNodeResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequest = {
+export type DuplicateJsxNodeRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+};
+
+export type DuplicateJsxNodeRequest = {
+	nodes: DuplicateJsxNodeRequestItem[];
 };
 
 export type DuplicateJsxNodeResponse =
@@ -814,6 +886,22 @@ export type SplitJsxSequenceRequest = {
 };
 
 export type SplitJsxSequenceResponse =
+	| {
+			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type SplitVideoFromAudioRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type SplitVideoFromAudioResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -917,16 +1005,28 @@ export type ElementInstallExpectedFileState =
 			sourceHash: string;
 	  };
 
+export type ElementInstallDestination =
+	| {
+			type: 'current-composition';
+			compositionFile: string;
+			compositionId: string;
+	  }
+	| {
+			type: 'new-composition';
+			compositionFile: string | null;
+	  };
+
 export type PrepareElementInstallRequest = {
-	compositionFile: string;
-	compositionId: string;
-	element: ElementDragData['element'];
+	installationName: string | null;
+	destination: ElementInstallDestination;
+	element: InstallableElement;
 };
 
 export type PrepareElementInstallResponse =
 	| {
 			success: true;
 			plan: {
+				compositionFile: string;
 				filePath: string;
 				expectedFileState: ElementInstallExpectedFileState;
 			};
@@ -938,9 +1038,10 @@ export type PrepareElementInstallResponse =
 	  };
 
 export type InsertElementRequest = {
+	installationName: string | null;
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
@@ -976,6 +1077,10 @@ export type ElementInstallSource =
 			origin: string;
 	  }
 	| {
+			type: 'browser-studio-link';
+			origin: string | null;
+	  }
+	| {
 			type: 'drag-and-drop';
 	  };
 
@@ -985,7 +1090,7 @@ export type ElementInstallRequest = {
 	createdAt: number;
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	source: ElementInstallSource;
@@ -996,7 +1101,6 @@ export type UpdateElementInstallTargetRequest = {
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
-	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
 	studioUrl: string;
@@ -1021,15 +1125,41 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
-	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
+};
+
+export type GetReleaseNotesRequest = {
+	currentVersion: string;
+	latestVersion: string;
+};
+
+export type GetReleaseNotesResponse = {
+	hasMore: boolean;
+	releases: {
+		publishedAt: string | null;
+		releaseNotesHtml: string | null;
+		version: string;
+	}[];
+};
+
+export type GetRemotionSkillsInfoRequest = {};
+export type GetRemotionSkillsInfoResponse = {
+	remotionUpgradeSkillAvailable: boolean;
+	remotionInteractivitySkillAvailable: boolean;
+	skills: {
+		name: string;
+		installedInProject: boolean;
+		installedGlobally: boolean;
+	}[];
 };
 
 export type ProjectInfoRequest = {};
 export type ProjectInfoResponse = {
 	projectInfo: ProjectInfo;
 };
+
+export type ShutdownStudioResponse = {};
 
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
@@ -1186,8 +1316,8 @@ export type ApiRoutes = {
 		undefined
 	>;
 	'/api/subscribe-to-sequence-props': ReqAndRes<
-		SubscribeToSequencePropsRequest,
-		SubscribeToSequencePropsResponse
+		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
 	>;
 	'/api/unsubscribe-from-sequence-props': ReqAndRes<
 		UnsubscribeFromSequencePropsRequest,
@@ -1255,6 +1385,10 @@ export type ApiRoutes = {
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse
 	>;
+	'/api/split-video-from-audio': ReqAndRes<
+		SplitVideoFromAudioRequest,
+		SplitVideoFromAudioResponse
+	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
@@ -1280,6 +1414,14 @@ export type ApiRoutes = {
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
 	>;
+	'/api/release-notes': ReqAndRes<
+		GetReleaseNotesRequest,
+		GetReleaseNotesResponse
+	>;
+	'/api/remotion-skills-info': ReqAndRes<
+		GetRemotionSkillsInfoRequest,
+		GetRemotionSkillsInfoResponse
+	>;
 	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
 	'/api/delete-static-file': ReqAndRes<
@@ -1294,6 +1436,8 @@ export type ApiRoutes = {
 		CopyRenderOutputToAssetRequest,
 		CopyRenderOutputToAssetResponse
 	>;
+	'/api/upgrade-remotion': ReqAndRes<{version: string}, {}>;
+	'/api/shutdown-studio': ReqAndRes<{}, ShutdownStudioResponse>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
 	'/api/default-editor-info': ReqAndRes<

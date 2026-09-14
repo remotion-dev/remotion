@@ -1,5 +1,9 @@
-import {useCallback, useMemo, useSyncExternalStore} from 'react';
-import type {SequenceRegistrationControls} from 'remotion';
+import {useCallback, useMemo} from 'react';
+import {
+	type RuntimeValueStore,
+	type SequenceRegistrationControls,
+} from 'remotion';
+import {useSyncExternalStore} from './use-sync-external-store';
 
 const EMPTY_RUNTIME_VALUES: Readonly<Record<string, unknown>> = {};
 const EMPTY_RUNTIME_VALUE_STORE = {
@@ -22,7 +26,14 @@ export const useRuntimeValue = (
 	controls: SequenceRegistrationControls | null,
 	key: string,
 ): unknown => {
-	const store = controls?.runtimeValues ?? EMPTY_RUNTIME_VALUE_STORE;
+	return useRuntimeStoreValue(controls?.runtimeValues ?? null, key);
+};
+
+export const useRuntimeStoreValue = (
+	storeOrNull: RuntimeValueStore | null,
+	key: string,
+): unknown => {
+	const store = storeOrNull ?? EMPTY_RUNTIME_VALUE_STORE;
 	const getSnapshot = useCallback(() => store.getSnapshot()[key], [key, store]);
 
 	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);

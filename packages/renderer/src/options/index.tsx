@@ -1,3 +1,4 @@
+import {allowHtmlInCanvasOption} from './allow-html-in-canvas';
 import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
@@ -21,6 +22,7 @@ import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
 import {disableWebSecurityOption} from './disable-web-security';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
+import {enableCancellationOption} from './enable-cancellation';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -95,6 +97,7 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	allowHtmlInCanvasOption,
 	audioCodecOption,
 	benchmarkConcurrenciesOption,
 	browserExecutableOption,
@@ -116,6 +119,7 @@ export const allOptions = {
 	disableWebSecurityOption,
 	disallowParallelEncodingOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	gopSizeOption,

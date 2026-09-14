@@ -5,6 +5,7 @@ import type {
 	StitchingProgressInput,
 } from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {openInFileExplorer} from '../RenderQueue/actions';
@@ -189,6 +190,7 @@ const DownloadsProgress: React.FC<{
 const OpenFile: React.FC<{
 	readonly job: RenderJob;
 }> = ({job}) => {
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const labelStyle = useMemo(() => {
 		return {
 			...label,
@@ -209,9 +211,13 @@ const OpenFile: React.FC<{
 		<div style={progressItem}>
 			<SuccessIcon />
 			<Spacing x={1} />
-			<button style={labelStyle} type="button" onClick={onClick}>
-				{job.outName}
-			</button>
+			{isBrowserStudio ? (
+				<div style={labelStyle}>{job.outName}</div>
+			) : (
+				<button style={labelStyle} type="button" onClick={onClick}>
+					{job.outName}
+				</button>
+			)}
 			<div style={right}>
 				<RenderQueueOpenInFinderItem job={job} />
 			</div>

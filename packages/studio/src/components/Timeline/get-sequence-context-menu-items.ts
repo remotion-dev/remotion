@@ -7,10 +7,17 @@ import type {
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatContextForAgents} from '../../helpers/format-file-location';
+import {
+	getDefaultOpenInTarget,
+	getGitSourceName,
+	openGitSource,
+} from '../../helpers/get-git-menu-item';
 import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from '../RenderQueue/actions';
+import {getPreferredEditorId} from '../use-default-editor-info';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
 import {openTimelineAssetLink} from './timeline-asset-link';
 
@@ -36,6 +43,49 @@ const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 };
 
 const interactiveSvgComponentIdentity = 'dev.remotion.remotion.Interactive.Svg';
+
+export const getMultiSequenceContextMenuItems = ({
+	deleteDisabled,
+	duplicateDisabled,
+	onDeleteSelectedSequences,
+	onDuplicateSelectedSequences,
+}: {
+	readonly deleteDisabled: boolean;
+	readonly duplicateDisabled: boolean;
+	readonly onDeleteSelectedSequences: () => void;
+	readonly onDuplicateSelectedSequences: () => void;
+}): ComboboxValue[] => {
+	return [
+		{
+			type: 'item',
+			id: 'duplicate-selected-sequences',
+			keyHint: null,
+			label: 'Duplicate selected',
+			leftItem: null,
+			disabled: duplicateDisabled,
+			onClick: onDuplicateSelectedSequences,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: 'duplicate-selected-sequences',
+		},
+		{
+			type: 'divider',
+			id: 'duplicate-delete-selected-sequences-divider',
+		},
+		{
+			type: 'item',
+			id: 'delete-selected-sequences',
+			keyHint: null,
+			label: 'Delete selected',
+			leftItem: null,
+			disabled: deleteDisabled,
+			onClick: onDeleteSelectedSequences,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: 'delete-selected-sequences',
+		},
+	];
+};
 
 export const getSequenceContextMenuItems = ({
 	assetLinkInfo,
@@ -82,13 +132,20 @@ export const getSequenceContextMenuItems = ({
 	readonly sequence: TSequence;
 	readonly sourceActions?: readonly ComboboxValue[];
 }): ComboboxValue[] => {
-	const editorName = window.remotion_editorName;
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
 	const installedEditors = editorInfo?.installedEditors ?? [];
-	const defaultEditorId =
-		installedEditors.find((editor) => editor.nameWithType === editorName)?.id ??
-		null;
+	const defaultEditorId = getPreferredEditorId(editorInfo);
+	const defaultEditor = installedEditors.find(
+		(editor) => editor.id === defaultEditorId,
+	);
+	const editorName = defaultEditor?.nameWithType ?? null;
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
+	const gitSourceName = window.remotion_gitSource
+		? getGitSourceName(window.remotion_gitSource)
+		: null;
+	const defaultOpenInName =
+		defaultOpenInTarget === 'editor' ? editorName : gitSourceName;
 	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
 		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
 	);
@@ -138,18 +195,31 @@ export const getSequenceContextMenuItems = ({
 		: [];
 
 	const items = [
-		editorName
+		defaultOpenInTarget && defaultOpenInName
 			? {
 					type: 'item' as const,
-					id: 'open-in-editor',
+					id:
+						defaultOpenInTarget === 'editor'
+							? 'open-in-editor'
+							: 'open-in-git-source',
 					keyHint: null,
-					label: `Open in ${editorName}`,
+					label: `Open in ${defaultOpenInName}`,
 					leftItem: null,
-					disabled: !canOpenInEditor || !originalLocation,
-					onClick: () => openInEditor(null),
+					disabled: !originalLocation,
+					onClick: () => {
+						if (defaultOpenInTarget === 'editor') {
+							openInEditor(null);
+							return;
+						}
+
+						openGitSource({folder: false, location: originalLocation});
+					},
 					quickSwitcherLabel: null,
 					subMenu: null,
-					value: 'open-in-editor',
+					value:
+						defaultOpenInTarget === 'editor'
+							? 'open-in-editor'
+							: 'open-in-git-source',
 				}
 			: null,
 		defaultCodingAgent
@@ -188,29 +258,7 @@ export const getSequenceContextMenuItems = ({
 					value: 'open-in-another-app',
 				}
 			: null,
-		{
-			type: 'item' as const,
-			id: 'copy-context-for-agents',
-			keyHint: null,
-			label: 'Copy context for agents',
-			leftItem: null,
-			disabled: !contextForAgents,
-			onClick: () => {
-				if (!contextForAgents) {
-					return;
-				}
-
-				navigator.clipboard.writeText(contextForAgents).catch((err) => {
-					showNotification(
-						`Could not copy to clipboard: ${(err as Error).message}`,
-						1000,
-					);
-				});
-			},
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: 'copy-context-for-agents',
-		},
+		getCopyContextForAgentsMenuItem({contextForAgents}),
 		assetLinkInfo
 			? {
 					type: 'item' as const,

@@ -11,11 +11,16 @@ import {TRANSPARENT} from './colors';
 export const HOVERABLE_CLASS_NAME = '__remotion-hoverable';
 export const HOVER_GROUP_CLASS_NAME = '__remotion-hover-group';
 export const HOVER_GROUP_REVEAL_CLASS_NAME = '__remotion-hover-group-reveal';
+export const FOCUS_VISIBLE_ONLY_CLASS_NAME = '__remotion-focus-visible-only';
 
 const BG_VARIABLE = '--remotion-hoverable-bg';
 const HOVER_BG_VARIABLE = '--remotion-hoverable-hover-bg';
 const COLOR_VARIABLE = '--remotion-hoverable-color';
 const HOVER_COLOR_VARIABLE = '--remotion-hoverable-hover-color';
+
+export const NO_HOVER_BACKGROUND_STYLE = {
+	[HOVER_BG_VARIABLE]: TRANSPARENT,
+} as React.CSSProperties;
 
 // To disable the hover effect (e.g. for a disabled control), pass the idle
 // values as the hover values.
@@ -58,25 +63,38 @@ export const makeHoverableCSS = () => `
     color: var(${COLOR_VARIABLE}, inherit);
   }
 
+  ${hoverGroup} ${reveal} {
+    flex-shrink: 0;
+  }
+
   @media (hover: hover) {
-    ${hoverable}:hover,
-    ${hoverGroup}:hover ${hoverable} {
+    ${hoverable}:hover {
       background-color: var(${HOVER_BG_VARIABLE}, var(${BG_VARIABLE}, ${TRANSPARENT}));
     }
 
     ${hoverable}:hover,
-    ${hoverable}:hover *,
-    ${hoverGroup}:hover ${hoverable},
-    ${hoverGroup}:hover ${hoverable} * {
+    ${hoverable}:hover * {
       color: var(${HOVER_COLOR_VARIABLE}, var(${COLOR_VARIABLE}, inherit));
+    }
+
+    /* An outer hoverable must not put a nested inline action into its hover
+       state. The nested action should only use its hover color when the
+       pointer is over the action itself. */
+    ${hoverable}:hover ${hoverable}:not(:hover),
+    ${hoverable}:hover ${hoverable}:not(:hover) * {
+      color: var(${COLOR_VARIABLE}, inherit);
     }
 
     ${hoverGroup} ${reveal} {
       opacity: 0;
+      width: 0;
+      overflow: hidden;
     }
 
     ${hoverGroup}:hover ${reveal} {
       opacity: 1;
+      width: auto;
+      overflow: visible;
     }
   }
 `;

@@ -2,7 +2,7 @@ import {existsSync, mkdirSync, rmSync} from 'fs';
 import {type EventEmitter} from 'node:events';
 import {join} from 'path';
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {EmittedArtifact, LogOptions} from '@remotion/renderer';
+import type {LogOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {validateCodec, VERSION} from '@remotion/serverless-client';
 import type {
@@ -18,33 +18,43 @@ import {
 	CONCAT_FOLDER_TOKEN,
 	decompressInputProps,
 	DOCS_URL,
+	getCredentialsFromOutName,
 	getExpectedOutName,
 	getNeedsToUpload,
 	MAX_FUNCTIONS_PER_RENDER,
+	OutputFileAccessDeniedError,
 	rendererTransportPrefix,
 	serializeOrThrow,
 	ServerlessRoutines,
 	validateFramesPerFunction,
 	validateOutname,
 	validatePrivacy,
+	writeCancellationSignal,
 } from '@remotion/serverless-client';
+import {
+	makeArtifactRegistry,
+	type OnArtifactFromRenderer,
+} from '../artifact-registry';
 import {cleanupProps} from '../cleanup-props';
 import {findOutputFileInBucket} from '../find-output-file-in-bucket';
+import {finishRender} from '../finish-render';
 import type {LaunchedBrowser} from '../get-browser-instance';
-import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
 import {mergeChunksAndFinishRender} from '../merge-chunks';
 import type {OverallProgressHelper} from '../overall-render-progress';
 import {makeOverallRenderProgress} from '../overall-render-progress';
 import {planFrameRanges} from '../plan-frame-ranges';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {removeOutnameCredentials} from '../remove-outname-credentials';
+import {renderWithSingleFunction} from '../render-with-single-function';
 import {renderRendererFunctionWithRetry} from '../stream-renderer';
 import {validateComposition} from '../validate-composition';
+import type {RequestContext} from './renderer';
 import {sendTelemetryEvent} from './send-telemetry-event';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	getRemainingTimeInMillis: () => number;
+	requestContext: RequestContext | null;
 };
 
 const innerLaunchHandler = async <Provider extends CloudProvider>({
@@ -70,15 +80,10 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const startedDate = Date.now();
 
-	const chromiumParams = {...(params.chromiumOptions ?? {})};
-
-	if (params.chromiumOptions?.gl === 'angle') {
-		RenderInternals.Log.warn(
-			{indent: false, logLevel: params.logLevel},
-			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
-		);
-		chromiumParams.gl = 'swangle';
-	}
+	const chromiumParams = insideFunctionSpecifics.normalizeChromiumOptions?.({
+		chromiumOptions: params.chromiumOptions ?? {},
+		logLevel: params.logLevel,
+	}) ?? {...(params.chromiumOptions ?? {})};
 
 	const browserInstance = insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
@@ -264,6 +269,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: ServerlessPayload<Provider> = {
+			enableCancellation: params.enableCancellation ?? false,
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
@@ -328,17 +334,26 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const rendererFunctionName =
 		params.rendererFunctionName ??
 		insideFunctionSpecifics.getCurrentFunctionName();
+	const shouldRenderDirectly =
+		params.concurrency === 1 &&
+		params.rendererFunctionName === null &&
+		options.requestContext !== null;
 
 	const renderMetadata: RenderMetadata<Provider> = {
+		outputFileIsConditional:
+			!params.overwrite &&
+			providerSpecifics.supportsConditionalOutput({
+				customCredentials: getCredentialsFromOutName(params.outName ?? null),
+			}) &&
+			providerSpecifics.writeFileIfNotExists !== null,
 		startedDate,
 		totalChunks: chunks.length,
 		estimatedTotalLambdaInvokations: [
-			// Direct invokations
-			chunks.length,
+			shouldRenderDirectly ? 0 : chunks.length,
 			// This function
 			1,
 		].reduce((a, b) => a + b, 0),
-		estimatedRenderLambdaInvokations: chunks.length,
+		estimatedRenderLambdaInvokations: shouldRenderDirectly ? 0 : chunks.length,
 		compositionId: comp.id,
 		siteId: params.serveUrl,
 		codec: params.codec,
@@ -397,6 +412,16 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			providerSpecifics,
 			forcePathStyle: params.forcePathStyle,
 			requestHandler: null,
+		}).catch((err) => {
+			if (
+				err instanceof OutputFileAccessDeniedError &&
+				renderMetadata.outputFileIsConditional
+			) {
+				// The final conditional upload still enforces overwrite: false.
+				return null;
+			}
+
+			throw err;
 		});
 		if (output) {
 			throw new TypeError(
@@ -409,24 +434,17 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	overallProgress.setRenderMetadata(renderMetadata);
 
-	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
-	if (existsSync(outdir)) {
-		rmSync(outdir, {
-			recursive: true,
+	const artifactRegistry = makeArtifactRegistry();
+
+	const onArtifact: OnArtifactFromRenderer = ({artifact, chunk, attempt}) => {
+		const artifactRegistration = artifactRegistry.registerArtifact({
+			chunk,
+			frame: artifact.frame,
+			attempt,
+			filename: artifact.filename,
 		});
-	}
-
-	mkdirSync(outdir);
-
-	const files: string[] = [];
-
-	const onArtifact = (artifact: EmittedArtifact): {alreadyExisted: boolean} => {
-		if (
-			overallProgress
-				.getReceivedArtifacts()
-				.find((a) => a.filename === artifact.filename)
-		) {
-			return {alreadyExisted: true};
+		if (artifactRegistration.type !== 'accepted') {
+			return artifactRegistration;
 		}
 
 		const region = insideFunctionSpecifics.getCurrentRegionInFunction();
@@ -474,9 +492,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 					stack: (err as Error).stack as string,
 					tmpDir: null,
 					frame: artifact.frame,
-					chunk: null,
+					chunk,
 					isFatal: false,
-					attempt: 1,
+					attempt,
 					willRetry: false,
 					totalAttempts: 1,
 				});
@@ -487,66 +505,118 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 					err,
 				);
 			});
-		return {alreadyExisted: false};
+		return artifactRegistration;
 	};
 
-	await Promise.all(
-		lambdaPayloads.map(async (payload) => {
-			await renderRendererFunctionWithRetry({
-				files,
-				functionName: rendererFunctionName,
-				outdir,
-				overallProgress,
-				payload,
+	let postRenderData: PostRenderData<Provider>;
+	if (shouldRenderDirectly) {
+		const directRender = await renderWithSingleFunction({
+			params,
+			composition: comp,
+			serializedInputPropsWithCustomSchema,
+			frameRange: realFrameRange,
+			browserInstance: instance,
+			chromiumOptions: chromiumParams,
+			overallProgress,
+			onArtifact,
+			providerSpecifics,
+			insideFunctionSpecifics,
+		});
+		try {
+			postRenderData = await finishRender({
+				expectedBucketOwner: options.expectedBucketOwner,
+				renderBucketName,
+				customCredentials,
+				downloadBehavior: params.downloadBehavior,
+				key,
+				privacy: params.privacy,
+				inputProps: params.inputProps,
+				serializedResolvedProps,
+				renderMetadata,
 				logLevel: params.logLevel,
-				onArtifact,
+				overallProgress,
+				startTime,
 				providerSpecifics,
 				insideFunctionSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				storageClass: params.storageClass,
 				requestHandler: null,
-				expectedBucketOwner: options.expectedBucketOwner,
+				outputFile: directRender.outputFile,
+				timeToCombine: null,
 			});
-		}),
-	);
+		} finally {
+			await directRender.cleanup();
+		}
+	} else {
+		const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
+		if (existsSync(outdir)) {
+			rmSync(outdir, {
+				recursive: true,
+			});
+		}
 
-	const postRenderData = await mergeChunksAndFinishRender({
-		bucketName: params.bucketName,
-		renderId: params.renderId,
-		expectedBucketOwner: options.expectedBucketOwner,
-		numberOfFrames: comp.durationInFrames,
-		audioCodec: params.audioCodec,
-		chunkCount: chunks.length,
-		codec: params.codec,
-		customCredentials,
-		downloadBehavior: params.downloadBehavior,
-		fps,
-		key,
-		numberOfGifLoops: params.numberOfGifLoops,
-		privacy: params.privacy,
-		renderBucketName,
-		inputProps: params.inputProps,
-		serializedResolvedProps,
-		renderMetadata,
-		audioBitrate: params.audioBitrate,
-		logLevel: params.logLevel,
-		framesPerLambda,
-		binariesDirectory: null,
-		preferLossless: params.preferLossless,
-		compositionStart: realFrameRange[0],
-		outdir,
-		files: files.sort(),
-		overallProgress,
-		startTime,
-		providerSpecifics,
-		forcePathStyle: params.forcePathStyle,
-		insideFunctionSpecifics,
-		everyNthFrame: params.everyNthFrame,
-		frameRange: params.frameRange,
-		storageClass: params.storageClass,
-		requestHandler: null,
-		sampleRate: params.sampleRate,
-	});
+		mkdirSync(outdir);
+		const files: string[] = [];
+
+		await Promise.all(
+			lambdaPayloads.map(async (payload) => {
+				await renderRendererFunctionWithRetry({
+					files,
+					functionName: rendererFunctionName,
+					outdir,
+					overallProgress,
+					payload,
+					logLevel: params.logLevel,
+					onArtifact,
+					providerSpecifics,
+					insideFunctionSpecifics,
+					requestHandler: null,
+					expectedBucketOwner: options.expectedBucketOwner,
+				});
+			}),
+		);
+
+		postRenderData = await mergeChunksAndFinishRender({
+			bucketName: params.bucketName,
+			renderId: params.renderId,
+			expectedBucketOwner: options.expectedBucketOwner,
+			numberOfFrames: comp.durationInFrames,
+			audioCodec: params.audioCodec,
+			chunkCount: chunks.length,
+			codec: params.codec,
+			customCredentials,
+			downloadBehavior: params.downloadBehavior,
+			fps,
+			key,
+			numberOfGifLoops: params.numberOfGifLoops,
+			privacy: params.privacy,
+			renderBucketName,
+			inputProps: params.inputProps,
+			serializedResolvedProps,
+			renderMetadata,
+			audioBitrate: params.audioBitrate,
+			logLevel: params.logLevel,
+			framesPerLambda,
+			binariesDirectory: null,
+			preferLossless: params.preferLossless,
+			compositionStart: realFrameRange[0],
+			outdir,
+			files: files.sort(),
+			overallProgress,
+			startTime,
+			providerSpecifics,
+			forcePathStyle: params.forcePathStyle,
+			insideFunctionSpecifics,
+			everyNthFrame: params.everyNthFrame,
+			frameRange: params.frameRange,
+			storageClass: params.storageClass,
+			requestHandler: null,
+			sampleRate: params.sampleRate,
+		});
+	}
 
 	if (
+		!shouldRenderDirectly &&
 		providerSpecifics.getRendererFunctionTransport(
 			insideFunctionSpecifics.getCurrentRegionInFunction(),
 		) === 's3'
@@ -633,6 +703,30 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		return prom;
 	};
 
+	const cancelOtherRenderers = async () => {
+		if (!params.enableCancellation) {
+			return;
+		}
+
+		try {
+			await writeCancellationSignal({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				expectedBucketOwner: options.expectedBucketOwner,
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				requestHandler: null,
+			});
+		} catch (err) {
+			RenderInternals.Log.warn(
+				{indent: false, logLevel: params.logLevel},
+				'Could not signal other renderers to stop.',
+				err,
+			);
+		}
+	};
+
 	const onTimeout = async () => {
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
@@ -648,6 +742,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 		}
 
 		runCleanupTasks();
+		await cancelOtherRenderers();
 
 		if (!params.webhook) {
 			RenderInternals.Log.verbose(
@@ -741,6 +836,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 	);
 
 	const overallProgress = makeOverallRenderProgress({
+		cancellationEnabled: params.enableCancellation ?? false,
 		renderId: params.renderId,
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -833,6 +929,8 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			throw err;
 		}
 
+		await cancelOtherRenderers();
+
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
 			'Error occurred',
@@ -845,10 +943,10 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			stack: (err as Error).stack as string,
 			type: 'stitcher',
 			isFatal: true,
-			tmpDir: getTmpDirStateIfENoSp(
-				(err as Error).stack as string,
-				insideFunctionSpecifics,
-			),
+			tmpDir:
+				insideFunctionSpecifics.getTmpDirState?.(
+					(err as Error).stack as string,
+				) ?? null,
 			attempt: 1,
 			totalAttempts: 1,
 			willRetry: false,

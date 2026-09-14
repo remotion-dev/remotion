@@ -25,8 +25,11 @@ There are three exceptions when it is possible to deploy multiple functions:
 ### How many videos can I render concurrently?
 
 It depends on the [concurrency limit](/docs/lambda/limits) of your AWS account.  
-Every render uses between 3 and 200 concurrent Lambda functions, depending on the [concurrency](/docs/lambda/concurrency) of the render.  
-If you exceed the concurrency limit, you will get an `TooManyRequestsException` error from AWS Lambda.
+Normally, a render uses a launch invocation, renderer invocations, and short progress invocations. The number of renderer invocations depends on the [concurrency](/docs/lambda/concurrency) of the render.
+
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function. A progress request may briefly use another invocation.
+
+If you exceed the concurrency limit, you will get a `TooManyRequestsException` error from AWS Lambda.
 
 ### Do I need to create multiple buckets?
 

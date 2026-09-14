@@ -1,6 +1,8 @@
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
+import {duplicateJsxNode} from '../duplicate-jsx-node-api';
+import {duplicateEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -33,15 +35,7 @@ const confirmDuplicatingProgrammaticallyDuplicatedSequences = (
 	});
 };
 
-const duplicateSequence = (nodePathInfo: SequenceNodePathInfo) => {
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-	return callApi('/api/duplicate-jsx-node', {
-		fileName: nodePath.absolutePath,
-		nodePath: nodePath.nodePath,
-	});
-};
-
-export const duplicateSequencesFromSource = (
+export const duplicateSequencesFromSource = async (
 	nodePathInfos: readonly SequenceNodePathInfo[],
 	confirm: ConfirmationDialogFunction,
 ): Promise<void> => {
@@ -52,38 +46,36 @@ export const duplicateSequencesFromSource = (
 		(nodePathInfo) => nodePathInfo.numberOfSequencesWithThisNodePath <= 1,
 	);
 
-	return confirmDuplicatingProgrammaticallyDuplicatedSequences(
-		programmaticallyDuplicated,
-		confirm,
-	).then((shouldDuplicateProgrammaticSequences) => {
-		const toDuplicate = [...regular];
-		if (shouldDuplicateProgrammaticSequences) {
-			toDuplicate.push(...programmaticallyDuplicated);
-		}
+	const shouldDuplicateProgrammaticSequences =
+		await confirmDuplicatingProgrammaticallyDuplicatedSequences(
+			programmaticallyDuplicated,
+			confirm,
+		);
+	const toDuplicate = [...regular];
+	if (shouldDuplicateProgrammaticSequences) {
+		toDuplicate.push(...programmaticallyDuplicated);
+	}
 
-		if (toDuplicate.length === 0) {
-			return Promise.resolve();
-		}
-
-		return Promise.all(toDuplicate.map(duplicateSequence))
-			.then((results) => {
-				const failedResult = results.find((result) => !result.success);
-				if (failedResult && !failedResult.success) {
-					showNotification(failedResult.reason, 4000);
-					return;
-				}
-
-				showNotification(
-					toDuplicate.length === 1
-						? 'Duplicated sequence in source file'
-						: 'Duplicated sequences in source files',
-					2000,
-				);
-			})
-			.catch((err) => {
-				showNotification((err as Error).message, 4000);
-			});
+	const nodes = toDuplicate.map((nodePathInfo) => {
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		return {
+			fileName: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		};
 	});
+
+	try {
+		if (nodes.length === 0) {
+			return;
+		}
+
+		const result = await duplicateJsxNode({nodes});
+		if (!result.success) {
+			showNotification(result.reason, 4000);
+		}
+	} catch (err) {
+		showNotification((err as Error).message, 4000);
+	}
 };
 
 export const isDuplicatableSequenceRowSelection = (
@@ -101,8 +93,7 @@ export const isDuplicatableEffectSelection = (
 const duplicateEffectsFromSource = (
 	effects: readonly (TimelineSelection & {type: 'sequence-effect'})[],
 ): Promise<void> => {
-	return callApi(
-		'/api/duplicate-effect',
+	return duplicateEffects(
 		effects.map((effect) => {
 			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
 
@@ -114,14 +105,7 @@ const duplicateEffectsFromSource = (
 		}),
 	)
 		.then((result) => {
-			if (result.success) {
-				showNotification(
-					effects.length === 1
-						? 'Duplicated effect in source file'
-						: 'Duplicated effects in source files',
-					2000,
-				);
-			} else {
+			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 		})
@@ -148,7 +132,7 @@ export const duplicateSelectedTimelineItems = ({
 	}
 
 	const effectSelections = selections.filter(isDuplicatableEffectSelection);
-	if (effectSelections.length === 0) {
+	if (effectSelections.length === 0 || !canUseEffectOperations()) {
 		return null;
 	}
 

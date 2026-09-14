@@ -79,7 +79,7 @@ const cutCaptions = ({
   maxLines: number;
   fontSize: number;
 }): CaptionPage[] => {
-  const { add } = fillTextBox({ maxBoxWidth: boxWidth, maxLines });
+  let textBox = fillTextBox({ maxBoxWidth: boxWidth, maxLines });
   let captionsFitted = 0;
 
   for (const caption of captions) {
@@ -89,7 +89,7 @@ const cutCaptions = ({
       ? MONOSPACE_FONT
       : REGULAR_FONT;
 
-    const { exceedsBox } = add({
+    const { exceedsBox } = textBox.add({
       text: removeMonospaceTicks(caption).text,
       fontFamily: fontFamily as string,
       fontWeight: fontWeight as string,
@@ -103,6 +103,7 @@ const cutCaptions = ({
     } else {
       captionsFitted++;
     }
+
   }
 
   if (captionsFitted === captions.length) {
@@ -133,14 +134,26 @@ export const layoutCaptions = ({
   maxLines: number;
   fontSize: number;
 }): LayoutedCaptions => {
-  const segments = cutCaptions({
-    captions: captions,
-    boxWidth:
-      boxWidth -
-      getHorizontalPaddingForSubtitles() * 2 -
-      getBorderWidthForSubtitles() * 2,
-    maxLines,
-    fontSize,
+  const pageGroups: Caption[][] = [[]];
+
+  for (const [index, caption] of captions.entries()) {
+    pageGroups[pageGroups.length - 1]!.push(caption);
+
+    if (caption.pageBreakAfter && index < captions.length - 1) {
+      pageGroups.push([]);
+    }
+  }
+
+  const segments = pageGroups.flatMap((pageCaptions) => {
+    return cutCaptions({
+      captions: pageCaptions,
+      boxWidth:
+        boxWidth -
+        getHorizontalPaddingForSubtitles() * 2 -
+        getBorderWidthForSubtitles() * 2,
+      maxLines,
+      fontSize,
+    });
   });
 
   return {

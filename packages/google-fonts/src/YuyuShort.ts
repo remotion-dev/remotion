@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Yuyu Short',
 	importName: 'YuyuShort',
-	version: 'v1',
+	version: 'v2',
 	url: 'https://fonts.googleapis.com/css2?family=Yuyu+Short:ital,wght@0,400',
 	unicodeRanges: {
 		'latin-ext':
@@ -15,9 +15,9 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				'latin-ext':
-					'https://fonts.gstatic.com/s/yuyushort/v1/LDI3apKZLAsqA9YV6Px0A-qMXNrP.woff2',
+					'https://fonts.gstatic.com/s/yuyushort/v2/LDI3apKZLAsqA9YV6Px0A-qMXNrP.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/yuyushort/v1/LDI3apKZLAsqA9YV6Px0A-SMXA.woff2',
+					'https://fonts.gstatic.com/s/yuyushort/v2/LDI3apKZLAsqA9YV6Px0A-SMXA.woff2',
 			},
 		},
 	},

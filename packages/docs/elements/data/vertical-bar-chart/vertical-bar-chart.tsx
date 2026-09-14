@@ -123,7 +123,7 @@ const Bar: React.FC<{
 						<Interactive.Div
 							name="Bar"
 							style={{
-								backgroundColor: highlighted ? '#2858e8' : '#b9c0ca',
+								backgroundColor: highlighted ? '#2563eb' : '#b9c0ca',
 								borderRadius: '12px 12px 0 0',
 								height: '100%',
 								width: '100%',
@@ -166,71 +166,79 @@ const Bar: React.FC<{
 export const VerticalBarChart: React.FC = () => {
 	return (
 		<Interactive.Div
-			name="Chart"
+			name="Background"
 			style={{
+				alignItems: 'center',
+				backgroundColor: '#f5f6f7',
+				boxSizing: 'border-box',
 				display: 'flex',
-				flexDirection: 'column',
-				fontFamily,
-				fontVariantNumeric: 'tabular-nums',
-				gap: 42,
 				height: '100%',
 				justifyContent: 'center',
+				padding: 56,
+				width: '100%',
 			}}
 		>
-			<Interactive.H1
-				name="Title"
+			<Interactive.Div
+				name="Chart"
 				style={{
-					color: '#111827',
-					fontSize: 76,
-					fontWeight: 800,
-					letterSpacing: -3.8,
-					lineHeight: 0.95,
-					margin: 0,
-				}}
-			>
-				Browser tabs open
-			</Interactive.H1>
-			<div
-				style={{
-					alignSelf: 'center',
 					display: 'flex',
-					flex: 1,
-					justifyContent: 'space-between',
-					minHeight: 0,
-					position: 'relative',
-					width: 1080,
+					flexDirection: 'column',
+					fontFamily,
+					fontVariantNumeric: 'tabular-nums',
+					height: '100%',
+					justifyContent: 'center',
+					width: '100%',
 				}}
 			>
-				<Interactive.Div
-					name="Baseline"
+				<div
 					style={{
-						backgroundColor: '#c5cad2',
-						bottom: 68,
-						height: 3,
-						left: '50%',
-						position: 'absolute',
-						translate: '-50% 50%',
-						width: '100%',
-						zIndex: 1,
+						alignSelf: 'center',
+						display: 'flex',
+						flex: 1,
+						justifyContent: 'space-between',
+						minHeight: 0,
+						position: 'relative',
+						width: 1080,
 					}}
-				/>
-				{data.map(({highlighted, label, value}, index) => (
+				>
 					<div
-						key={label}
 						style={{
-							flex: '0 0 280px',
-							height: '100%',
+							bottom: 68,
+							left: '50%',
+							position: 'absolute',
+							transform: 'translate(-50%, 50%)',
+							width: '100%',
+							zIndex: 1,
 						}}
 					>
-						<Bar
-							animationDelay={index * 24}
-							highlighted={highlighted}
-							label={label}
-							value={value}
+						<Interactive.Div
+							name="Baseline"
+							style={{
+								backgroundColor: '#c5cad2',
+								height: 3,
+								translate: '0px 0px',
+								width: '100%',
+							}}
 						/>
 					</div>
-				))}
-			</div>
+					{data.map(({highlighted, label, value}, index) => (
+						<div
+							key={label}
+							style={{
+								flex: '0 0 280px',
+								height: '100%',
+							}}
+						>
+							<Bar
+								animationDelay={index * 24}
+								highlighted={highlighted}
+								label={label}
+								value={value}
+							/>
+						</div>
+					))}
+				</div>
+			</Interactive.Div>
 		</Interactive.Div>
 	);
 };

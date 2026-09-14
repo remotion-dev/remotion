@@ -18,10 +18,7 @@ const getForFrame = (frame: number, content: React.ReactNode) => {
 					frame: {
 						'my-comp': frame,
 					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
+					isPlaying: () => false,
 					audioAndVideoTags: {
 						current: [],
 					},
@@ -258,10 +255,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 					frame: {
 						'my-comp': 15,
 					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
+					isPlaying: () => false,
 					audioAndVideoTags: {
 						current: [],
 					},
@@ -282,10 +276,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 					frame: {
 						'my-comp': 25,
 					},
-					playing: false,
-					imperativePlaying: {
-						current: false,
-					},
+					isPlaying: () => false,
 					audioAndVideoTags: {
 						current: [],
 					},

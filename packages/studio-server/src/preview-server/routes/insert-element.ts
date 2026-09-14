@@ -16,11 +16,12 @@ import {
 } from '../undo-stack';
 import {
 	getElementInstallPlan,
-	normalizeElementSourceForComparison,
 	validateElementInstallPosition,
 } from './element-install-plan';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const hasExpectedFileState = ({
 	expected,
@@ -52,11 +53,13 @@ export const insertElementHandler: ApiHandler<
 		compositionFile,
 		compositionId,
 		element,
+		installationName,
 		expectedFileState,
 		from,
 		position,
 		overwriteExisting,
 	},
+	entryPoint,
 	remotionRoot,
 	logLevel,
 }) =>
@@ -70,9 +73,35 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('from must be a non-negative integer');
 			}
 
-			const installationMode = element.installationMode ?? 'wrapped';
+			const installationMode =
+				element.installationMode === null
+					? 'wrapped'
+					: element.installationMode;
 			const componentOwnsSequence =
 				installationMode === 'component-owned-sequence';
+			if (
+				componentOwnsSequence &&
+				element.initialProps !== null &&
+				['from', 'durationInFrames', 'name'].some((prop) =>
+					Object.hasOwn(element.initialProps ?? {}, prop),
+				)
+			) {
+				throw new Error(
+					'Component-owned Element initial props must not override from, durationInFrames, or name',
+				);
+			}
+
+			if (
+				componentOwnsSequence &&
+				element.initialProps?.style !== undefined &&
+				(element.initialProps.style === null ||
+					typeof element.initialProps.style !== 'object' ||
+					Array.isArray(element.initialProps.style))
+			) {
+				throw new Error(
+					'Component-owned Element initial style must be an object',
+				);
+			}
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
@@ -80,9 +109,14 @@ export const insertElementHandler: ApiHandler<
 			);
 
 			const plan = await getElementInstallPlan({
-				compositionFile,
-				compositionId,
+				installationName,
+				destination: {
+					type: 'current-composition',
+					compositionFile,
+					compositionId,
+				},
 				element,
+				entryPoint,
 				remotionRoot,
 			});
 			if (
@@ -110,14 +144,9 @@ export const insertElementHandler: ApiHandler<
 
 			const elementSourcesDiffer =
 				plan.existingElementSource !== null &&
-				normalizeElementSourceForComparison(plan.existingElementSource) !==
-					normalizeElementSourceForComparison(element.sourceCode);
+				plan.existingElementSource !== element.sourceCode;
 
-			if (
-				elementSourcesDiffer &&
-				!overwriteExisting &&
-				plan.existingElementSource !== null
-			) {
+			if (!overwriteExisting && plan.existingElementSource !== null) {
 				return {
 					success: false,
 					type: 'file-conflict',
@@ -140,19 +169,22 @@ export const insertElementHandler: ApiHandler<
 					componentName: plan.componentName,
 					importName: plan.componentName,
 					importPath: plan.importPath,
-					props: componentOwnsSequence
-						? [
-								...(element.durationInFrames === undefined
-									? []
-									: [
-											{
-												name: 'durationInFrames',
-												value: element.durationInFrames,
-											},
-										]),
-								{name: 'name', value: element.displayName},
-							]
-						: [],
+					props: [
+						...Object.entries(element.initialProps ?? {}).map(
+							([name, value]) => ({name, value}),
+						),
+						...(componentOwnsSequence && element.durationInFrames !== null
+							? [
+									{
+										name: 'durationInFrames',
+										value: element.durationInFrames,
+									},
+								]
+							: []),
+						...(componentOwnsSequence
+							? [{name: 'name', value: element.displayName}]
+							: []),
+					],
 					position: componentOwnsSequence ? position : null,
 				},
 				from: componentOwnsSequence ? from : null,
@@ -161,16 +193,21 @@ export const insertElementHandler: ApiHandler<
 					? null
 					: {
 							dimensions: element.dimensions,
-							durationInFrames: element.durationInFrames ?? null,
+							durationInFrames: element.durationInFrames,
 							from,
 							name: element.displayName,
 							position,
 						},
 			});
 			const finalPlan = await getElementInstallPlan({
-				compositionFile,
-				compositionId,
+				installationName,
+				destination: {
+					type: 'current-composition',
+					compositionFile,
+					compositionId,
+				},
 				element,
+				entryPoint,
 				remotionRoot,
 			});
 			if (
@@ -191,13 +228,15 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('Element source changed during installation');
 			}
 
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath: inserted.fileName,
-					remappings: inserted.nodePathRemappings,
-					restoredNodePaths: [],
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath: inserted.fileName,
+						remappings: inserted.nodePathRemappings,
+					},
+				],
+				null,
+			);
 
 			pushTransactionToUndoStack({
 				snapshots: [
@@ -268,16 +307,12 @@ export const insertElementHandler: ApiHandler<
 					: 'Created Element source';
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(compositionLocationLabel)} Added <${plan.componentName}>`,
 			);
-			if (!inserted.formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			printUndoHint(logLevel);
 
 			return {success: true, nodePathMutation};

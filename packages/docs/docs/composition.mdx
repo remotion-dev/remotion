@@ -63,6 +63,8 @@ If you use `lazyComponent`, Remotion will use React Suspense to load the compone
 
 Give your component default props. Default props can be overriden using the [Props editor](/docs/visual-editing) and with [Input Props](/docs/props-resolution).
 
+Since <AvailableFrom v="4.0.516" inline />, the Studio [infers basic Props editor controls from the values in `defaultProps`](/docs/default-props-inference). A [`schema`](#schema) is not required.
+
 Props must be an object that contains only pure JSON-serializable values.  
 Functions, classes, and other non-serializable values will be lost while rendering.  
 (This restriction does not apply to the [`<Player>`](/docs/player/player), where you are allowed to pass functions as props.)
@@ -85,9 +87,11 @@ Use a `type`, not an `interface` to type your `defaultProps`. [Learn why](/docs/
 
 See: [`calculateMetadata()`](/docs/calculate-metadata)
 
-### `schema`
+### `schema?`
 
-Pass a Zod schema which your default props must satisfy. By doing so, you enable [visual editing](/docs/visual-editing). See: [Define a schema](/docs/schemas)
+Pass a top-level [`z.object()`](https://zod.dev/?id=objects) schema which your default props must satisfy. The schema validates the props and customizes their [visual editing controls](/docs/visual-editing).
+
+If omitted, the Studio [infers basic controls from `defaultProps`](/docs/default-props-inference). An explicit schema takes precedence over the inferred controls. See: [Define a schema](/docs/schemas).
 
 ## Example using `component`
 

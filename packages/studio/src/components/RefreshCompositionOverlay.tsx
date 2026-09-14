@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {SHADOW_BLACK} from '../helpers/colors';
 import {RunningCalculateMetadata} from './RunningCalculateMetadata';
 
@@ -16,10 +16,10 @@ const shadow: React.CSSProperties = {
 
 export const RefreshCompositionOverlay: React.FC = () => {
 	return (
-		<AbsoluteFill style={container}>
+		<Internals.AbsoluteFillElement style={container}>
 			<div style={shadow}>
 				<RunningCalculateMetadata />
 			</div>
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };

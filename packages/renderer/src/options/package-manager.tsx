@@ -14,7 +14,7 @@ export const packageManagerOption = {
 				auto-detect the package manager based on your lockfile.
 				<br />
 				Acceptable values are <code>npm</code>, <code>yarn</code>,{' '}
-				<code>pnpm</code> and <code>bun</code>.
+				<code>pnpm</code>, <code>bun</code> and <code>nub</code>.
 			</>
 		);
 	},

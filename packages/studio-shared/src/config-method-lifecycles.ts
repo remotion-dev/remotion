@@ -1,6 +1,7 @@
 import type {ConfigFileChangeType} from './config-file-change';
 
 export const configMethodLifecycles = {
+	addElementLibrary: 'runtime',
 	overrideBundlerConfig: 'restart',
 	overrideDuration: 'runtime',
 	overrideFfmpegCommand: 'runtime',
@@ -40,6 +41,7 @@ export const configMethodLifecycles = {
 	setDeleteAfter: 'runtime',
 	setDisallowParallelEncoding: 'runtime',
 	setDotEnvLocation: 'restart',
+	setEnableCancellation: 'runtime',
 	setEnableCrossSiteIsolation: 'restart',
 	setEnableFolderExpiry: 'runtime',
 	setEncodingBufferSize: 'runtime',
@@ -61,6 +63,7 @@ export const configMethodLifecycles = {
 	setInteractivityEnabled: 'runtime',
 	setJpegQuality: 'runtime',
 	setKeyboardShortcutsEnabled: 'runtime',
+	setKeyboardShortcuts: 'runtime',
 	setLambdaInsights: 'runtime',
 	setLevel: 'restart',
 	setLogLevel: 'restart',

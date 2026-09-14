@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-whisper-webgpu-can-use-whisper-webgpu.png
+title: canUseWhisperWebGpu()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# canUseWhisperWebGpu()<AvailableFrom v="4.0.518" />
+
+Asynchronously checks whether WebGPU can be used in the current browser. WebGPU, a usable adapter, and a secure context (or localhost) is required.
+
+```ts twoslash title="support.ts"
+import {canUseWhisperWebGpu} from '@remotion/whisper-webgpu';
+
+const result = await canUseWhisperWebGpu();
+if (!result.supported) {
+  throw new Error(result.detailedReason);
+}
+
+console.log(result.supported);
+```
+
+## Return type
+
+A `Promise` resolving to a `CanUseWhisperWebGpuResult` object with the following properties:
+
+### `supported`
+
+_boolean_
+
+`true` if WebGPU transcription is supported, `false` otherwise.
+
+### `reason?`
+
+If `supported` is `false`, a categorized reason why WebGPU transcription is not supported:
+
+- `window-undefined`
+- `webgpu-unavailable`
+- `webgpu-requires-secure-context`
+
+### `detailedReason?`
+
+If `supported` is `false`, a human-readable explanation of why WebGPU transcription is not supported.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)

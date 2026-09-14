@@ -34,7 +34,10 @@ import {startServer} from './preview-server/start-server';
 import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
 
-export type StartStudioResult = {type: 'restarted'} | {type: 'already-running'};
+export type StartStudioResult =
+	| {type: 'restarted'}
+	| {type: 'already-running'}
+	| {type: 'shutdown'};
 
 export const startStudio = async ({
 	browserArgs,
@@ -234,6 +237,7 @@ export const startStudio = async ({
 		logLevel,
 	});
 
+	let action: 'restart' | 'shutdown';
 	try {
 		await maybeOpenBrowser({
 			browserArgs,
@@ -243,19 +247,25 @@ export const startStudio = async ({
 			logLevel,
 		});
 
-		await noOpUntilRestart();
+		action = await noOpUntilRestart();
 	} finally {
 		openBrowserShortcut.cleanup();
 	}
 
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
-		'Closing server to restart...',
+		action === 'shutdown'
+			? 'Shutting down Studio...'
+			: 'Closing server to restart...',
 	);
 
 	await liveEventsServer.closeConnections();
 	cleanupLiveEventsListener();
 	await close();
+	if (action === 'shutdown') {
+		return {type: 'shutdown'};
+	}
+
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		RenderInternals.chalk.blue('Restarting server...'),

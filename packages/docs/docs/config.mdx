@@ -193,9 +193,28 @@ Config.setLogLevel('verbose');
 
 The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
 
+## `addElementLibrary()`<AvailableFrom v="4.0.517" />
+
+Adds an externally hosted Element library to Remotion Studio.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.addElementLibrary({
+  url: 'https://example.com/elements',
+  displayName: 'Acme Elements',
+});
+```
+
+Call `addElementLibrary()` once for each external library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
+
+When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
+
+The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
+
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 
-Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are displayed in the Studio timeline at most. This does not affect your video, only the number of tracks shown while previewing. From <AvailableFrom v="4.0.514" inline />, all tracks are available by default and the timeline is virtualized.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -214,6 +233,25 @@ Config.setKeyboardShortcutsEnabled(false);
 ```
 
 The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+
+## `setKeyboardShortcuts()`<AvailableFrom v="4.0.523" />
+
+Override keyboard shortcuts for Studio commands. Shortcuts that are omitted keep their default binding. Set a command to `null` to disable its shortcut. See [Keyboard shortcuts](/docs/studio/shortcuts) for the available action IDs and defaults.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setKeyboardShortcuts({
+  playPause: {key: 'q'},
+  quickSwitcher: {key: 'p', commandOrControl: true},
+  toggleSnapping: {key: 's', shift: true},
+  render: null,
+});
+```
+
+The `commandOrControl` modifier uses Command on macOS and Control on other platforms. The `shift` and `alt` modifiers are also supported. Pass an array to assign multiple bindings to one command.
+
+Studio can also update these values from the Keyboard Shortcuts settings screen. Changes made there are written to `remotion.config.ts`.
 
 ## `setInteractivityEnabled()`<AvailableFrom v="4.0.487" />
 
@@ -247,11 +285,17 @@ Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
 
 The [`--coding-agent`](/docs/cli/studio#--coding-agent) command line flag takes precedence over this option.
 
-## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
+## `setAllowHtmlInCanvasEnabled()`<AvailableFrom v="4.0.447" />
 
-:::info Deprecated
-From Remotion v4.0.491, this method is a no-op and can be removed from your config file. [`@remotion/web-renderer`](/docs/web-renderer) automatically uses HTML-in-canvas when the browser supports nested captures.
-:::
+<Options id="allow-html-in-canvas" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setAllowHtmlInCanvasEnabled(true);
+```
+
+The [command line flag](/docs/cli/studio#--allow-html-in-canvas) `--allow-html-in-canvas` will take precedence over this option.
 
 ## `setRspack()`<AvailableFrom v="4.0.502" />
 
@@ -511,7 +555,7 @@ The [command line flag](/docs/cli/render#--disallow-parallel-encoding) `--disall
 
 ## `setEnforceAudioTrack()`<AvailableFrom v="3.2.1" />
 
-Render a silent audio track if there would be none otherwise. Default `false`.
+<Options id="enforce-audio-track" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -959,6 +1003,20 @@ import {Config} from '@remotion/cli/config';
 // ---cut---
 Config.setEnableFolderExpiry(true);
 ```
+
+## `setEnableCancellation()`<AvailableFrom v="4.0.515" />
+
+<Options id="enable-cancellation" />
+<br />
+<br />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setEnableCancellation(true);
+```
+
+The `--enable-cancellation` command line flag will take precedence over this option.
 
 ## `setLambdaInsights()`<AvailableFrom v="4.0.115" />
 

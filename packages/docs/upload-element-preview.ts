@@ -1,7 +1,23 @@
 import {execFileSync} from 'child_process';
+import {randomUUID} from 'crypto';
 import path from 'path';
 import {S3Client} from 'bun';
 import {elementDefinitions} from './src/components/Elements/element-definitions';
+
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+	console.log(`Usage:
+  bun run upload-element-preview --element=<category>/<slug> --source=render
+  bun run upload-element-preview --element=<category>/<slug> --source=submission
+
+Use render to upload files from .element-previews. Use submission to upload committed files from static/elements. The Element definition must use either its exact local /elements/... review URLs or a matching pair of its existing remotion.media URLs. Each upload gets a unique URL so previews from concurrent branches cannot overwrite each other. The command prints the hosted URLs and any cleanup required after a verified upload.`);
+	process.exit(0);
+}
+
+if (process.argv.includes('--overwrite')) {
+	throw new Error(
+		'--overwrite is no longer supported. Each upload now gets a unique URL.',
+	);
+}
 
 const elementArguments = process.argv.filter((argument) =>
 	argument.startsWith('--element='),
@@ -31,7 +47,7 @@ if (source !== 'render' && source !== 'submission') {
 }
 
 const selectedElementSlug = elementArguments[0].slice('--element='.length);
-const definition = Object.values(elementDefinitions).find(
+const definition = elementDefinitions.find(
 	(candidate) => candidate.slug === selectedElementSlug,
 );
 if (!definition) {
@@ -41,14 +57,36 @@ if (!definition) {
 const assetSlug = definition.slug.replaceAll('/', '-');
 const expectedPosterUrl = `/elements/${assetSlug}-preview.png` as const;
 const expectedVideoUrl = `/elements/${assetSlug}-preview.mp4` as const;
-if (
-	definition.preview.posterUrl !== expectedPosterUrl ||
-	definition.preview.videoUrl !== expectedVideoUrl
-) {
+const hostedPosterUrlPattern = new RegExp(
+	`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.png$`,
+);
+const hostedVideoUrlPattern = new RegExp(
+	`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.mp4$`,
+);
+const hostedPosterUrlMatch = definition.preview.posterUrl.match(
+	hostedPosterUrlPattern,
+);
+const hostedVideoUrlMatch = definition.preview.videoUrl.match(
+	hostedVideoUrlPattern,
+);
+const usesLocalReviewUrls =
+	definition.preview.posterUrl === expectedPosterUrl &&
+	definition.preview.videoUrl === expectedVideoUrl;
+const usesMatchingHostedPreviewUrls =
+	hostedPosterUrlMatch !== null &&
+	hostedVideoUrlMatch !== null &&
+	hostedPosterUrlMatch[1] === hostedVideoUrlMatch[1];
+if (!usesLocalReviewUrls && !usesMatchingHostedPreviewUrls) {
 	throw new Error(
-		`${definition.slug} must use its local review URLs before its previews can be uploaded`,
+		`${definition.slug} must use either its exact local review URLs (${expectedPosterUrl} and ${expectedVideoUrl}) or a matching pair of its existing remotion.media preview URLs.`,
 	);
 }
+
+const previewPostfix = randomUUID();
+const hostedPosterUrl =
+	`https://remotion.media/elements/${assetSlug}-preview-${previewPostfix}.png` as const;
+const hostedVideoUrl =
+	`https://remotion.media/elements/${assetSlug}-preview-${previewPostfix}.mp4` as const;
 
 const sourceDirectory =
 	source === 'render'
@@ -61,7 +99,7 @@ const assets = [
 			sourceDirectory,
 			source === 'render' ? 'preview.png' : `${assetSlug}-preview.png`,
 		),
-		localUrl: expectedPosterUrl,
+		publicUrl: hostedPosterUrl,
 	},
 	{
 		contentType: 'video/mp4',
@@ -69,7 +107,7 @@ const assets = [
 			sourceDirectory,
 			source === 'render' ? 'preview.mp4' : `${assetSlug}-preview.mp4`,
 		),
-		localUrl: expectedVideoUrl,
+		publicUrl: hostedVideoUrl,
 	},
 ] as const;
 
@@ -162,8 +200,8 @@ const client = new S3Client({
 
 for (const asset of assets) {
 	const file = Bun.file(asset.filePath, {type: asset.contentType});
-	const key = asset.localUrl.slice(1);
-	const publicUrl = `https://remotion.media${asset.localUrl}`;
+	const publicUrl = asset.publicUrl;
+	const key = new URL(publicUrl).pathname.slice(1);
 	await client.write(key, file);
 
 	const remote = await client.stat(key);
@@ -190,9 +228,9 @@ for (const asset of assets) {
 	console.log(`Uploaded ${publicUrl} (${file.size} bytes)`);
 }
 
-console.log('Upload verified. Replace the review URLs with:');
-console.log(`https://remotion.media${expectedPosterUrl}`);
-console.log(`https://remotion.media${expectedVideoUrl}`);
+console.log('Upload verified. Replace image, posterUrl, and videoUrl with:');
+console.log(hostedPosterUrl);
+console.log(hostedVideoUrl);
 if (source === 'submission') {
 	console.log('Then delete the two files from packages/docs/static/elements.');
 } else {

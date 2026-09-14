@@ -1,14 +1,14 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {
-	LIGHT_TEXT,
-	TRANSPARENT,
-	WHITE,
-	getBackgroundFromHoverState,
-} from '../helpers/colors';
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
 import {
 	openInCodingAgent,
 	openInGitClient,
@@ -17,49 +17,32 @@ import {
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
-import {SetSelectedModalContext} from '../state/modals';
-import {useZIndex} from '../state/z-index';
+import {GitHubIcon} from '../icons/github';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useConfigureDefaultApps} from './use-configure-default-apps';
 import {
-	canUseEditorPicker,
-	getPreferredEditorId,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from './use-default-editor-info';
 
-const splitButton: React.CSSProperties = {
-	alignItems: 'center',
-	borderRadius: 3,
-	display: 'inline-flex',
-	flexDirection: 'row',
-	flexShrink: 0,
-	gap: 1,
-	height: 24,
-	overflow: 'hidden',
+const mainSegmentStyle: React.CSSProperties = {
+	columnGap: 4,
+	fontSize: 11,
+	lineHeight: '14px',
+	padding: '0 2px 0 4px',
 };
 
-const mainButtonBase: React.CSSProperties = {
-	alignItems: 'center',
-	background: TRANSPARENT,
-	border: 'none',
-	borderRadius: '3px 0 0 3px',
-	color: LIGHT_TEXT,
-	columnGap: 4,
-	display: 'inline-flex',
-	fontFamily: 'sans-serif',
-	fontSize: 11,
-	height: 24,
-	lineHeight: '14px',
-	padding: '0 6px',
-	whiteSpace: 'nowrap',
+const dropdownSegmentStyle: React.CSSProperties = {
+	padding: 0,
+	width: 20,
 };
 
 const editorButtonIconSize = 18;
+const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
@@ -68,19 +51,19 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly locationType: 'file' | 'folder' | null;
 }> = ({contextForAgents = null, label, location, locationType}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {tabIndex} = useZIndex();
-	const [hovered, setHovered] = useState(false);
-	const [dropdownOpened, setDropdownOpened] = useState(false);
-	const ignorePointerEnter = useRef(false);
-	const editorPickerAvailable = canUseEditorPicker(
-		previewServerState.type === 'connected',
-	);
-	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
-	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);
+	const configureDefaultApps = useConfigureDefaultApps();
+	const {
+		canConfigureApps,
+		canOpenInEditor,
+		defaultEditorId,
+		defaultEditorName,
+		editorInfo,
+	} = useEditorOpening(previewServerState.type === 'connected');
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const openWithEditor = useCallback(
-		async (editorId: EditorPickerId | null) => {
+		async (editorId: EditorPickerId) => {
 			if (!location) {
 				return;
 			}
@@ -94,10 +77,6 @@ export const InspectorOpenInEditor: React.FC<{
 		[location],
 	);
 
-	const preferredEditorId = getPreferredEditorId(editorInfo);
-	const preferredEditor = editorInfo?.installedEditors.find(
-		(editor) => editor.id === preferredEditorId,
-	);
 	const openWithCodingAgent = useCallback(
 		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
 			try {
@@ -114,75 +93,40 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
-	const editorName =
-		window.remotion_editorName ??
-		preferredEditor?.nameWithType ??
-		'default editor';
-	const canOpenDefault =
-		location !== null &&
-		(window.remotion_editorName !== null || preferredEditorId !== null);
+	const defaultAppName =
+		defaultOpenInTarget === 'git-source'
+			? 'GitHub'
+			: (defaultEditorName ?? 'default editor');
+	const canOpenDefault = location !== null && defaultOpenInTarget !== null;
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			openWithEditor(
-				window.remotion_editorName === null ? preferredEditorId : null,
-			).catch(() => undefined);
+			if (defaultOpenInTarget === 'git-source') {
+				openGitSource({folder: locationType === 'folder', location});
+			} else if (defaultOpenInTarget === 'editor' && defaultEditorId) {
+				openWithEditor(defaultEditorId).catch(() => undefined);
+			}
 		},
-		[openWithEditor, preferredEditorId],
+		[
+			defaultEditorId,
+			defaultOpenInTarget,
+			location,
+			locationType,
+			openWithEditor,
+		],
 	);
-	const onDropdownOpenChange = useCallback((open: boolean) => {
-		setDropdownOpened(open);
-		if (!open) {
-			ignorePointerEnter.current = true;
-			setHovered(false);
-		}
-	}, []);
-	const mainHovered = hovered && !dropdownOpened;
-	const mainButtonStyle = useMemo((): React.CSSProperties => {
-		return {
-			...mainButtonBase,
-			background: getBackgroundFromHoverState({
-				hovered: mainHovered,
-				selected: false,
-			}),
-			color: mainHovered ? WHITE : LIGHT_TEXT,
-			opacity: canOpenDefault ? 1 : 0.5,
-			pointerEvents: canOpenDefault ? 'auto' : 'none',
-		};
-	}, [canOpenDefault, mainHovered]);
-	const dropdownForegroundColor =
-		hovered || dropdownOpened ? WHITE : LIGHT_TEXT;
-	const dropdownStyle = useMemo((): React.CSSProperties => {
-		return {
-			background: getBackgroundFromHoverState({
-				hovered,
-				selected: dropdownOpened,
-			}),
-			borderRadius: '0 3px 3px 0',
-			color: dropdownForegroundColor,
-		};
-	}, [dropdownForegroundColor, dropdownOpened, hovered]);
-	const renderDropdownAction: RenderInlineAction = useCallback((color) => {
-		return <CaretDown color={color} small />;
-	}, []);
 	const menuItems = useMemo((): ComboboxValue[] => {
-		return getOpenInMenuItems({
+		const items = getOpenInMenuItems({
 			codingAgentInfo,
-			editorDisabled: location === null,
+			editorDisabled: location === null || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
-			excludeEditorId: preferredEditorId,
-			fileManagerDisabled: !location?.source,
+			excludeEditorId: defaultEditorId,
+			fileManagerDisabled:
+				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
 			location,
-			onConfigureApps: () => {
-				setSelectedModal({
-					type: 'settings',
-					initialTab: 'apps',
-					initialPublicLicenseKey:
-						window.remotion_renderDefaults?.publicLicenseKey ?? null,
-				});
-			},
+			onConfigureApps: configureDefaultApps,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -233,55 +177,88 @@ export const InspectorOpenInEditor: React.FC<{
 					});
 			},
 		});
+
+		return defaultOpenInTarget === 'git-source'
+			? items.filter((item) => item.id !== 'open-in-github')
+			: items;
 	}, [
 		codingAgentInfo,
+		canOpenInEditor,
+		configureDefaultApps,
+		defaultEditorId,
+		defaultOpenInTarget,
 		editorInfo,
 		location,
 		locationType,
 		openWithCodingAgent,
 		openWithEditor,
-		preferredEditorId,
-		setSelectedModal,
+		previewServerState.type,
+	]);
+	const segments = useMemo((): SegmentedButtonSegment[] => {
+		const result: SegmentedButtonSegment[] = [
+			{
+				ariaLabel: `Open in ${defaultAppName}`,
+				buttonId: null,
+				disabled: !canOpenDefault,
+				idleColor: LIGHT_TEXT,
+				onClick: onOpenDefault,
+				onPointerDown: null,
+				renderContent: () => (
+					<>
+						{label}
+						{defaultOpenInTarget === 'git-source' ? (
+							<GitHubIcon size={githubButtonIconSize} />
+						) : (
+							<EditorIcon
+								editorId={defaultEditorId}
+								size={editorButtonIconSize}
+							/>
+						)}
+					</>
+				),
+				segmentId: 'default-editor',
+				style: mainSegmentStyle,
+				title: `Open in ${defaultAppName}`,
+				type: 'action',
+			},
+		];
+
+		if (menuItems.length > 0) {
+			result.push({
+				ariaLabel: 'Open in another app',
+				buttonId: null,
+				disabled: false,
+				idleColor: LIGHT_TEXT,
+				leaveLeftSpace: true,
+				onOpenChange: null,
+				renderContent: (color) => <CaretDown color={color} />,
+				segmentId: 'another-app',
+				selectedId: null,
+				style: dropdownSegmentStyle,
+				title: 'Open in another app',
+				type: 'menu',
+				values: menuItems,
+			});
+		}
+
+		return result;
+	}, [
+		canOpenDefault,
+		defaultAppName,
+		defaultEditorId,
+		defaultOpenInTarget,
+		label,
+		menuItems,
+		onOpenDefault,
 	]);
 
-	if (!editorPickerAvailable) {
+	if (getBrowserStudioOperations() !== null) {
 		return null;
 	}
 
-	return (
-		<div
-			style={splitButton}
-			onPointerEnter={() => {
-				if (!ignorePointerEnter.current) {
-					setHovered(true);
-				}
-			}}
-			onPointerLeave={() => {
-				ignorePointerEnter.current = false;
-				setHovered(false);
-			}}
-		>
-			<button
-				aria-label={`Open in ${editorName}`}
-				disabled={!canOpenDefault}
-				onClick={onOpenDefault}
-				style={mainButtonStyle}
-				tabIndex={tabIndex}
-				title={`Open in ${editorName}`}
-				type="button"
-			>
-				{label}
-				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
-			</button>
-			<InlineDropdown
-				onOpenChange={onDropdownOpenChange}
-				renderAction={renderDropdownAction}
-				style={dropdownStyle}
-				title="Open in another app"
-				unhoveredColor={dropdownForegroundColor}
-				values={menuItems}
-				variant="compact"
-			/>
-		</div>
-	);
+	if (previewServerState.type !== 'connected' && defaultOpenInTarget === null) {
+		return null;
+	}
+
+	return <SegmentedButton segments={segments} style={null} title={null} />;
 };

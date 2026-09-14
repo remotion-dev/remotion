@@ -444,6 +444,7 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 export const imgSchema = {
 	src: {
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

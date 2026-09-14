@@ -1,6 +1,7 @@
 import type {ComponentType, LazyExoticComponent, RefObject} from 'react';
 import React, {
 	forwardRef,
+	useCallback,
 	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -31,6 +32,8 @@ import type {PosterFillMode, RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
+import type {TimelineSequenceObserver} from './timeline-sequence-observer-context.js';
+import {TimelineSequenceObserverContext} from './timeline-sequence-observer-context.js';
 import {acknowledgeRemotionLicenseMessage} from './use-remotion-license-acknowledge.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
@@ -117,6 +120,18 @@ export const componentOrNullIfLazy = <Props,>(
 	return null;
 };
 
+const TimelineSequenceObserverComponent: React.FC<{
+	readonly onTimelineSequenceChange: TimelineSequenceObserver;
+}> = ({onTimelineSequenceChange}) => {
+	const {sequences} = React.useContext(Internals.SequenceManager);
+
+	useEffect(() => {
+		onTimelineSequenceChange(sequences);
+	}, [onTimelineSequenceChange, sequences]);
+
+	return null;
+};
+
 const PlayerFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
@@ -182,6 +197,10 @@ const PlayerFn = <
 		window.remotion_isPlayer = true;
 	}
 
+	const onTimelineSequenceChange = React.useContext(
+		TimelineSequenceObserverContext,
+	);
+
 	// @ts-expect-error
 	if (componentProps.defaultProps !== undefined) {
 		throw new Error(
@@ -224,10 +243,26 @@ const PlayerFn = <
 	const [frame, setFrame] = useState<Record<string, number>>(() => ({
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
-	const [playing, setPlaying] = useState<boolean>(false);
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const imperativePlaying = useRef(false);
+	const playingStore = useMemo(
+		() => Internals.createRuntimeValueStore({playing: false}),
+		[],
+	);
+	const bufferingStore = useMemo(
+		() => Internals.createRuntimeValueStore({buffering: false}),
+		[],
+	);
+	const readIsPlaying = useCallback(
+		() => playingStore.store.getSnapshot().playing,
+		[playingStore],
+	);
+	const readIsBuffering = useCallback(
+		() => bufferingStore.store.getSnapshot().buffering,
+		[bufferingStore],
+	);
 	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
@@ -392,11 +427,10 @@ const PlayerFn = <
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playing,
-			imperativePlaying,
+			isPlaying: readIsPlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playing]);
+	}, [frame, readIsPlaying]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -408,9 +442,33 @@ const PlayerFn = <
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
-			setPlaying,
+			setPlaying: (updater) => {
+				const current = playingStore.store.getSnapshot().playing;
+				const next = typeof updater === 'function' ? updater(current) : updater;
+				if (current !== next) {
+					playingStore.setSnapshot({playing: next});
+				}
+			},
+			setBuffering: (buffering) => {
+				if (readIsBuffering() !== buffering) {
+					bufferingStore.setSnapshot({buffering});
+				}
+			},
+			subscribePlaying: playingStore.store.subscribe,
+			subscribeBuffering: bufferingStore.store.subscribe,
+			isPlaying: readIsPlaying,
+			isBuffering: readIsBuffering,
+			frameRef,
+			audioAndVideoTags,
 		};
-	}, [setFrame]);
+	}, [
+		bufferingStore,
+		setFrame,
+		frameRef,
+		playingStore,
+		readIsBuffering,
+		readIsPlaying,
+	]);
 
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -436,28 +494,30 @@ const PlayerFn = <
 			);
 		}, [passedBrowserMediaControlsBehavior]);
 
-	return (
+	const player = (
 		<Internals.IsPlayerContextProvider>
-			<SharedPlayerContexts
-				timelineContext={timelineContextValue}
-				playbackRateContext={playbackRateContextValue}
-				component={component}
-				compositionHeight={compositionHeight}
-				compositionWidth={compositionWidth}
-				durationInFrames={durationInFrames}
-				fps={fps}
-				numberOfSharedAudioTags={numberOfSharedAudioTags}
-				initiallyMuted={initiallyMuted}
-				logLevel={logLevel}
-				audioLatencyHint={audioLatencyHint}
-				sampleRate={sampleRate}
-				_experimentalKeepAudioContextAlive={_experimentalKeepAudioContextAlive}
-				volumePersistenceKey={volumePersistenceKey}
-				initialVolume={initialVolume}
-				inputProps={actualInputProps}
-				audioEnabled
-			>
-				<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
+			<Internals.SetTimelineContext.Provider value={setTimelineContextValue}>
+				<SharedPlayerContexts
+					timelineContext={timelineContextValue}
+					playbackRateContext={playbackRateContextValue}
+					component={component}
+					compositionHeight={compositionHeight}
+					compositionWidth={compositionWidth}
+					durationInFrames={durationInFrames}
+					fps={fps}
+					numberOfSharedAudioTags={numberOfSharedAudioTags}
+					initiallyMuted={initiallyMuted}
+					logLevel={logLevel}
+					audioLatencyHint={audioLatencyHint}
+					sampleRate={sampleRate}
+					_experimentalKeepAudioContextAlive={
+						_experimentalKeepAudioContextAlive
+					}
+					volumePersistenceKey={volumePersistenceKey}
+					initialVolume={initialVolume}
+					inputProps={actualInputProps}
+					audioEnabled
+				>
 					<PlayerEmitterProvider currentPlaybackRate={currentPlaybackRate}>
 						<PlayerUI
 							ref={rootRef}
@@ -511,9 +571,24 @@ const PlayerFn = <
 							noSuspense={Boolean(noSuspense)}
 						/>
 					</PlayerEmitterProvider>
-				</Internals.SetTimelineContext.Provider>
-			</SharedPlayerContexts>
+				</SharedPlayerContexts>
+			</Internals.SetTimelineContext.Provider>
 		</Internals.IsPlayerContextProvider>
+	);
+
+	if (!onTimelineSequenceChange) {
+		return player;
+	}
+
+	return (
+		<Internals.SequenceRegistrationContext.Provider value>
+			<Internals.SequenceManagerProvider>
+				<TimelineSequenceObserverComponent
+					onTimelineSequenceChange={onTimelineSequenceChange}
+				/>
+				{player}
+			</Internals.SequenceManagerProvider>
+		</Internals.SequenceRegistrationContext.Provider>
 	);
 };
 

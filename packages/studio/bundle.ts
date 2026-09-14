@@ -3,6 +3,7 @@ import {buildPackage} from '../.monorepo/builder';
 const external = [
 	'react',
 	'remotion',
+	'@remotion/canvas',
 	'react-dom',
 	'react',
 	'@remotion/media-utils',
@@ -14,6 +15,8 @@ const external = [
 	'@remotion/renderer/client',
 	'@remotion/renderer/pure',
 	'@remotion/web-renderer',
+	'@remotion/whisper-webgpu',
+	'@remotion/video-matting',
 	'@remotion/renderer/error-handling',
 	'@jridgewell/trace-mapping',
 	'zod',
@@ -24,7 +27,8 @@ const external = [
 
 await buildPackage({
 	formats: {
-		esm: 'build',
+		// Keep visual controls and other singleton state shared across entry points.
+		esm: 'build-shared',
 		cjs: 'use-tsc',
 	},
 	external,
@@ -41,10 +45,12 @@ await buildPackage({
 		{
 			path: 'src/internals.ts',
 			target: 'browser',
+			splitting: true,
 		},
 		{
 			path: 'src/previewEntry.tsx',
 			target: 'browser',
+			splitting: true,
 		},
 	],
 });

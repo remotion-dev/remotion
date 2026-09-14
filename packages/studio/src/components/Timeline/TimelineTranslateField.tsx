@@ -12,15 +12,11 @@ import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingLeft: 0,
-	paddingTop: 2,
 };
 
 const rightDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingRight: 0,
-	paddingTop: 2,
 };
 
 const containerStyle: React.CSSProperties = {

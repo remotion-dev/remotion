@@ -6,10 +6,19 @@ import {CloseUp4Preview} from './CloseUp4';
 import {CloseUp5Preview} from './CloseUp5';
 import {CloseUp6Preview} from './CloseUp6';
 import {CloseUp7Preview} from './CloseUp7';
+import {CloseUp8Preview} from './CloseUp8';
 
 export const CloseUpsSeries = () => {
 	return (
 		<Series>
+			<Series.Sequence
+				name="CloseUp8"
+				durationInFrames={100}
+				premountFor={30}
+				trimBefore={284}
+			>
+				<CloseUp8Preview />
+			</Series.Sequence>
 			<Series.Sequence name="CloseUp1" durationInFrames={54} premountFor={30}>
 				<CloseUp1Preview />
 			</Series.Sequence>

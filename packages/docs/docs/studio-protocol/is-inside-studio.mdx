@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-studio-protocol-is-inside-studio.png
+title: 'isInsideStudio()'
+crumb: '@remotion/studio-protocol'
+---
+
+# isInsideStudio()<AvailableFrom v="4.0.518" />
+
+Returns whether the current website is loaded in the Element library modal in Remotion Studio.
+
+Use it to adapt library UI that is redundant inside Studio, such as a "Drag into Studio" handle.
+
+## Example
+
+```tsx twoslash title="ElementActions.tsx"
+import {isInsideStudio} from '@remotion/studio-protocol';
+import {useLayoutEffect, useState} from 'react';
+
+export const ElementActions = () => {
+  const [insideStudio, setInsideStudio] = useState<boolean | null>(null);
+
+  useLayoutEffect(() => {
+    setInsideStudio(isInsideStudio());
+  }, []);
+
+  return insideStudio === false ? <button>Drag into Studio</button> : null;
+};
+```
+
+Starting with `null` prevents the action from briefly appearing before the browser check runs. On a top-level website, the action appears after the check.
+
+## Return value
+
+A boolean. It is `true` when the page has Studio's URL marker or is inside an iframe. The iframe check keeps the result true if client-side navigation removes the URL marker.
+
+It returns `false` outside a browser, including during server-side rendering.
+
+The result is a UI hint, not proof of Studio identity. Do not use it as a security boundary.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [Integrating a component library with Studio](/docs/studio-protocol/component-library-integration)
+- [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
+- [Studio Protocol security](/docs/studio-protocol/security)

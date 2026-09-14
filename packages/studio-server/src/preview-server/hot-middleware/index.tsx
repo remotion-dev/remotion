@@ -8,6 +8,7 @@ import type {webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {HotMiddlewareMessage, ModuleMap} from '@remotion/studio-shared';
+import {logHmrTiming} from '../hmr-timing';
 import type {LiveEventsServer} from '../live-events';
 import type {WebpackStats} from './types';
 
@@ -130,9 +131,17 @@ export const setupWebpackHmr = (
 	};
 
 	compiler.hooks.invalid.tap('remotion', onInvalid);
+	compiler.hooks.watchRun.tap('remotion-hmr-timing', () => {
+		logHmrTiming({detail: null, logLevel, stage: 'compiler-watch-run'});
+	});
 	compiler.hooks.done.tap('remotion', onDone);
 
-	function onInvalid() {
+	function onInvalid(fileName: string | null, changeTime: number) {
+		logHmrTiming({
+			detail: `file=${fileName ?? 'manual'} changeTime=${changeTime}`,
+			logLevel,
+			stage: 'compiler-invalid',
+		});
 		latestStats = null;
 		RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
 		publishHmr({
@@ -141,9 +150,15 @@ export const setupWebpackHmr = (
 	}
 
 	function onDone(statsResult: webpack.Stats) {
+		logHmrTiming({
+			detail: `reportedBuildDuration=${statsResult.endTime - statsResult.startTime}ms`,
+			logLevel,
+			stage: 'compiler-done',
+		});
 		// Keep hold of latest stats so they can be propagated to new clients
 		latestStats = statsResult;
 		publishStats('built', latestStats, publishHmr);
+		logHmrTiming({detail: null, logLevel, stage: 'hmr-stats-published'});
 	}
 
 	liveEventsServer.addNewClientListener(() => {

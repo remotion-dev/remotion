@@ -1,10 +1,14 @@
 import {execFileSync} from 'node:child_process';
 import path from 'path';
+import type {OnLog} from './browser/BrowserPage';
 import type {Codec} from './codec';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {getExplicitEnv} from './compositor/get-explicit-env';
 import {makeFileExecutableIfItIsNot} from './compositor/make-file-executable';
-import {getCodecName} from './get-codec-name';
+import {
+	getCodecName,
+	hasSpecifiedUnsupportedHardwareQualifySettings,
+} from './get-codec-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {HardwareAccelerationOption} from './options/hardware-acceleration';
@@ -78,6 +82,7 @@ export const resolveHardwareAcceleration = ({
 	crf,
 	encodingMaxRate,
 	encodingBufferSize,
+	onLog,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -87,6 +92,7 @@ export const resolveHardwareAcceleration = ({
 	crf: unknown;
 	encodingMaxRate: string | null;
 	encodingBufferSize: string | null;
+	onLog: OnLog | null;
 }): HardwareAccelerationOption => {
 	if (hardwareAcceleration === 'disable') {
 		return 'disable';
@@ -100,6 +106,7 @@ export const resolveHardwareAcceleration = ({
 		encodingBufferSize,
 		logLevel,
 		indent,
+		onLog,
 	});
 
 	// Audio codecs return null, no probing needed
@@ -109,6 +116,17 @@ export const resolveHardwareAcceleration = ({
 
 	// Only probe if getCodecName selected a hardware-accelerated encoder
 	if (!preferred.hardwareAccelerated) {
+		if (
+			hardwareAcceleration === 'if-possible' &&
+			hasSpecifiedUnsupportedHardwareQualifySettings({
+				crf,
+				encodingMaxRate,
+				encodingBufferSize,
+			})
+		) {
+			return 'disable';
+		}
+
 		return hardwareAcceleration;
 	}
 

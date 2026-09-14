@@ -193,7 +193,9 @@ export const MyComposition = () => {
 ```
 
 :::note
-Playing a audio in reverse is not supported.
+Playing audio in reverse is not supported.
+
+Changing `playbackRate` also changes the audio pitch. Pitch-preserving speed changes are not supported by the Mediabunny and WebCodecs path. If the audio [falls back to `<Html5Audio>`](/docs/media/fallback) during preview or server-side rendering, audio pitch is preserved by default.
 :::
 
 ### `loop?`<AvailableFrom v="3.2.29" />
@@ -309,12 +311,11 @@ Accepts a number between `0.01` and `2`, where `1` represents the original pitch
 
 A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
 
-The value must stay the same across the entire time the video tag is mounted.
+The value must stay constant for each audio or video asset. Animating or keyframing `toneFrequency` is not supported.
 
-:::warning
-Only works in server-side rendering.  
-Does not currently work in preview or in [client-side rendering](/docs/client-side-rendering/).
-:::
+Works during preview and server-side rendering. [Client-side rendering](/docs/client-side-rendering/) is supported from <AvailableFrom v="4.0.523" inline />.
+
+If the component [falls back to `<Html5Audio>`](/docs/media/fallback) during preview, pitch shifting is not applied.
 
 ### `fallbackHtml5AudioProps?`
 

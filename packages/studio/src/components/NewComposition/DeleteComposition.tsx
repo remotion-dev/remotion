@@ -60,7 +60,6 @@ const DeleteCompositionLoaded: React.FC<{
 					<CodemodFooter
 						errorNotification={`Could not delete composition`}
 						loadingNotification={'Deleting'}
-						successNotification={`Deleted ${unresolved.id}`}
 						genericSubmitLabel={`Delete`}
 						submitLabel={({relativeRootPath}) =>
 							`Delete from ${relativeRootPath}`
@@ -77,6 +76,7 @@ const DeleteCompositionLoaded: React.FC<{
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

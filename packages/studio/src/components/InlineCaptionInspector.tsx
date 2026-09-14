@@ -15,7 +15,10 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CaptionInspector} from './CaptionInspector';
-import {saveInlineCaptionPatches} from './Timeline/save-sequence-prop';
+import {
+	saveInlineCaptionPatches,
+	saveSequenceProps,
+} from './Timeline/save-sequence-prop';
 
 const serializeCaptions = (captions: Caption[]): string => {
 	return JSON.stringify(captions);
@@ -39,11 +42,23 @@ const getCaptionPatches = ({
 			return null;
 		}
 
+		const changes: CaptionPatch['changes'] = {};
 		if (before.text !== after.text) {
+			changes.text = after.text;
+		}
+
+		if (Boolean(before.pageBreakAfter) !== Boolean(after.pageBreakAfter)) {
+			changes.pageBreakAfter = Boolean(after.pageBreakAfter);
+		}
+
+		if (Object.keys(changes).length > 0) {
 			patches.push({
 				index,
-				before,
-				changes: {text: after.text},
+				before: {
+					...before,
+					pageBreakAfter: before.pageBreakAfter ?? null,
+				},
+				changes,
 			});
 		}
 	}
@@ -54,10 +69,20 @@ const getCaptionPatches = ({
 export const InlineCaptionInspector: React.FC<{
 	readonly captions: Caption[];
 	readonly controls: SequenceRegistrationControls;
+	readonly expanded: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly onToggle: () => void;
 	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
-}> = ({captions, controls, nodePath, readOnlyStudio, validatedLocation}) => {
+}> = ({
+	captions,
+	controls,
+	expanded,
+	nodePath,
+	onToggle,
+	readOnlyStudio,
+	validatedLocation,
+}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
@@ -149,6 +174,51 @@ export const InlineCaptionInspector: React.FC<{
 		],
 	);
 
+	const replaceCaptions = useCallback(
+		(nextCaptions: Caption[]) => {
+			if (!canSave || clientId === null) {
+				return;
+			}
+
+			setDraftCaptions(nextCaptions);
+			setDragOverrides(
+				nodePath,
+				'captions',
+				Internals.makeStaticDragOverride(nextCaptions),
+			);
+			savedCaptions.current = nextCaptions;
+			saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: 'captions',
+						value: nextCaptions,
+						defaultValue: null,
+						schema: controls.schema,
+					},
+				],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				setPropStatuses,
+				clientId,
+				undoLabel: 'Import captions',
+				redoLabel: 'Import captions again',
+			});
+			clearDragOverrides(nodePath);
+		},
+		[
+			canSave,
+			clearDragOverrides,
+			clientId,
+			controls.schema,
+			nodePath,
+			setDragOverrides,
+			setPropStatuses,
+			validatedLocation.source,
+		],
+	);
+
 	const readOnlyTitle = readOnlyStudio
 		? 'Caption editing is unavailable in read-only Studio'
 		: clientId === null
@@ -160,11 +230,14 @@ export const InlineCaptionInspector: React.FC<{
 	return (
 		<CaptionInspector
 			captions={draftCaptions}
+			expanded={expanded}
 			onTextChange={updateCaptions}
 			onTextSave={saveCaptions}
 			onTextCancel={cancelCaptions}
+			onToggle={onToggle}
 			readOnly={!canSave}
 			readOnlyTitle={canSave ? null : readOnlyTitle}
+			onReplaceCaptions={canSave ? replaceCaptions : null}
 		/>
 	);
 };

@@ -1,10 +1,15 @@
 import type {LogStudioErrorRequest} from '@remotion/studio-shared';
 import {callApi} from '../../components/call-api';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 
 const loggedErrors = new Set<string>();
 const maxLoggedErrors = 100;
 
 export const logStudioErrorData = (data: LogStudioErrorRequest) => {
+	if (getBrowserStudioOperations() !== null) {
+		return;
+	}
+
 	const key = JSON.stringify([data.name, data.message, data.stack]);
 
 	if (loggedErrors.has(key)) {

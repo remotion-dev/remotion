@@ -1,0 +1,4 @@
+interface:
+  display_name: 'No Pointer'
+  short_description: 'Apply Studio pointerless interaction styling'
+  default_prompt: 'Use $no-pointer to make this Remotion Studio control follow the pointerless hover and keyboard-focus convention.'

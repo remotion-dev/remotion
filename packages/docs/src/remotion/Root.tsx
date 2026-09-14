@@ -51,6 +51,7 @@ import {
 	NoiseDisplacementTextSource,
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../../components/effects/effects-outline-preview';
 import {
 	EffectsPaperPreview,
 	PAPER_PREVIEW_PARAMS,
@@ -88,7 +89,9 @@ import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../../components/effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../../components/effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../../components/effects/effects-tile-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -113,6 +116,7 @@ import {
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
+import {ElementPlayground} from './element-playground/ElementPlayground';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -132,7 +136,15 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Folder name="elements">
-				{Object.values(elementDefinitions).map((definition) => {
+				<Composition
+					id="elements-install-playground"
+					component={ElementPlayground}
+					durationInFrames={300}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				{elementDefinitions.map((definition) => {
 					const dimensions = getElementPreviewDimensions(definition);
 
 					return (
@@ -285,6 +297,19 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-outline-preview"
+					component={EffectsOutlinePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						width: 8,
+						edgeSimplification: 0,
+						color: '#ffffff',
+						opacity: 1,
+						outlineOnly: false,
+					}}
+				/>
+				<Still
 					id="effects-duotone-preview"
 					component={EffectsDuotonePreview}
 					width={1280}
@@ -340,6 +365,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.8}}
+				/>
+				<Still
+					id="effects-tear-preview"
+					component={EffectsTearPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.75,
+						rotation: 20,
+						jaggedness: 20,
+						angle: 0,
+					}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"
@@ -450,6 +487,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{scale: 0.8, horizontal: true, vertical: true}}
+				/>
+				<Still
+					id="effects-tile-preview"
+					component={EffectsTilePreview}
+					width={1280}
+					height={720}
+					defaultProps={{horizontal: true, vertical: true}}
 				/>
 				<Still
 					id="effects-xy-translate-preview"

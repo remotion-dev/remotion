@@ -21,6 +21,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	getTimelineKeyframeDragKey,
@@ -231,7 +232,6 @@ const getTimelineKeyframeDragTarget = ({
 		return null;
 	}
 
-	const sourceFrame = displayFrame - (track?.keyframeDisplayOffset ?? 0);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const fileName = nodePath.absolutePath;
 	const sequenceStatus = getCodeValueForTarget({propStatuses, nodePath});
@@ -253,9 +253,16 @@ const getTimelineKeyframeDragTarget = ({
 			return null;
 		}
 
+		const effectSourceFrame =
+			displayFrame -
+			getKeyframeDisplayOffset({
+				propStatus: effectPropStatus,
+				keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+			});
+
 		if (
 			!effectPropStatus.keyframes.some(
-				(keyframe) => keyframe.frame === sourceFrame,
+				(keyframe) => keyframe.frame === effectSourceFrame,
 			)
 		) {
 			return null;
@@ -271,7 +278,7 @@ const getTimelineKeyframeDragTarget = ({
 			nodePathInfo,
 			propStatus: effectPropStatus,
 			schema: effect.schema,
-			sourceFrame,
+			sourceFrame: effectSourceFrame,
 		};
 	}
 
@@ -279,6 +286,13 @@ const getTimelineKeyframeDragTarget = ({
 	if (sequencePropStatus?.status !== 'keyframed') {
 		return null;
 	}
+
+	const sourceFrame =
+		displayFrame -
+		getKeyframeDisplayOffset({
+			propStatus: sequencePropStatus,
+			keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+		});
 
 	if (
 		!sequencePropStatus.keyframes.some(

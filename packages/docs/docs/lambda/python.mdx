@@ -82,6 +82,24 @@ if render_response:
     print("Render done!", progress_response.outputFile)
 ```
 
+## Cancelling a render<AvailableFrom v="4.0.515" />
+
+Enable cancellation before starting the render, then call `cancel_render_on_lambda()`:
+
+```python title="cancel_render.py"
+render_params = RenderMediaParams(
+    composition="react-svg",
+    enable_cancellation=True,
+)
+render_response = client.render_media_on_lambda(render_params)
+
+if render_response:
+    client.cancel_render_on_lambda(
+        render_id=render_response.render_id,
+        bucket_name=render_response.bucket_name,
+    )
+```
+
 ## Large input props _available from v4.0.315_
 
 The Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits:

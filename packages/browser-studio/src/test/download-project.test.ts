@@ -22,9 +22,11 @@ test('downloads the current Browser Studio project as a runnable archive', async
 		dependencyVersions,
 		getStaticFiles: null,
 		getProject: () => project,
+		initialElement: null,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
 		},
+		resolveDependencies: null,
 	});
 
 	const insertResult = await operations.insertSolid({
@@ -49,9 +51,8 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	>;
 
 	expect(archive.fileName).toBe('remotion-project.zip');
-	expect(strFromU8(files['src/Composition.tsx'])).toContain(
-		'<Solid width={1280}',
-	);
+	expect(strFromU8(files['src/Composition.tsx'])).toContain('<Solid');
+	expect(strFromU8(files['src/Composition.tsx'])).toContain('width={1280}');
 	expect(strFromU8(files['tsconfig.json'])).toBe(
 		project.files['/project/tsconfig.json'],
 	);
@@ -81,8 +82,8 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	);
 });
 
-test('adds a package.json if the virtual project has none', () => {
-	const {data} = makeBrowserStudioProjectArchive({
+test('adds a package.json if the virtual project has none', async () => {
+	const {data} = await makeBrowserStudioProjectArchive({
 		dependencyVersions,
 		project: {
 			rootDir: '/project',
@@ -100,7 +101,7 @@ test('adds a package.json if the virtual project has none', () => {
 	expect(packageJson.scripts.dev).toBe('remotion studio');
 });
 
-test('rejects unsafe paths and archive collisions', () => {
+test('rejects unsafe paths and archive collisions', async () => {
 	const invalidProjects: VirtualProject[] = [
 		{
 			rootDir: '/project',
@@ -121,8 +122,8 @@ test('rejects unsafe paths and archive collisions', () => {
 	];
 
 	for (const project of invalidProjects) {
-		expect(() =>
+		await expect(
 			makeBrowserStudioProjectArchive({dependencyVersions, project}),
-		).toThrow();
+		).rejects.toThrow();
 	}
 });

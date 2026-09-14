@@ -12,6 +12,7 @@ test('Should be able to convert audio that is on the verge', () => {
 	});
 
 	const spedUp = convertAudioData({
+		targetSampleRate: 48000,
 		audioData: sine,
 		trimStartInSeconds: 0.041666666666666664,
 		trimEndInSeconds: 0,
@@ -45,6 +46,7 @@ test('convert with playbackrate', () => {
 	});
 
 	const spedUp = convertAudioData({
+		targetSampleRate: 48000,
 		audioData: sine,
 		trimStartInSeconds: 0,
 		trimEndInSeconds: 0,

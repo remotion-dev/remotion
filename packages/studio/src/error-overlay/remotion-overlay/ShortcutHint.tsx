@@ -6,7 +6,7 @@ export const cmdOrCtrlCharacter = isMac ? '⌘' : 'Ctrl';
 
 const container: React.CSSProperties = {
 	display: 'inline-block',
-	marginLeft: 6,
+	marginLeft: 3,
 	opacity: 0.6,
 	verticalAlign: 'middle',
 	fontSize: 'inherit',
@@ -35,7 +35,7 @@ export const ShortcutHint: React.FC<{
 
 	return (
 		<span style={container}>
-			{cmdOrCtrl ? `${cmdOrCtrlCharacter}` : ''}
+			{cmdOrCtrl ? `${cmdOrCtrlCharacter}${isMac ? '' : '+'}` : ''}
 			<span style={style}>{keyToPress.toUpperCase()}</span>
 		</span>
 	);

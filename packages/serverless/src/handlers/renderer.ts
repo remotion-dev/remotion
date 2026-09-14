@@ -3,10 +3,11 @@ import path from 'node:path';
 import type {
 	AudioCodec,
 	BrowserLog,
+	CancelSignal,
 	Codec,
 	OnArtifact,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {makeCancelSignal, RenderInternals} from '@remotion/renderer';
 import {NoReactAPIs} from '@remotion/renderer/pure';
 import type {
 	CloudProvider,
@@ -23,22 +24,20 @@ import {
 	truthy,
 	VERSION,
 } from '@remotion/serverless-client';
+import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
-import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
-import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
-import {enableNodeIntrospection} from '../why-is-node-running';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	isWarm: boolean;
 };
 
 export type RequestContext = {
-	invokedFunctionArn: string;
+	expectedBucketOwner: string | null;
 	getRemainingTimeInMillis: () => number;
-	awsRequestId: string;
+	requestId: string;
 };
 
 const renderHandler = async <Provider extends CloudProvider>({
@@ -50,6 +49,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	insideFunctionSpecifics,
 	onBrowserInstance,
 	onMediaFiles,
+	cancelSignal,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -66,18 +66,17 @@ const renderHandler = async <Provider extends CloudProvider>({
 				completedAt: number;
 		  }) => Promise<void>)
 		| null;
+	cancelSignal: CancelSignal | null;
 }): Promise<{}> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
 
-	if (params.chromiumOptions.gl === 'angle') {
-		RenderInternals.Log.warn(
-			{indent: false, logLevel: params.logLevel},
-			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
-		);
-		params.chromiumOptions.gl = 'swangle';
-	}
+	const chromiumOptions =
+		insideFunctionSpecifics.normalizeChromiumOptions?.({
+			chromiumOptions: params.chromiumOptions,
+			logLevel: params.logLevel,
+		}) ?? params.chromiumOptions;
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
@@ -115,7 +114,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
-		chromiumOptions: params.chromiumOptions,
+		chromiumOptions,
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
@@ -326,7 +325,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			gopSize: params.gopSize ?? null,
 			onDownload: onDownloadsHelper(params.logLevel),
 			overwrite: false,
-			chromiumOptions: params.chromiumOptions,
+			chromiumOptions,
 			scale: params.scale,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			port: null,
@@ -341,7 +340,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			audioCodec,
 			preferLossless: params.preferLossless,
 			browserExecutable: providerSpecifics.getChromiumPath(),
-			cancelSignal: undefined,
+			cancelSignal: cancelSignal ?? undefined,
 			disallowParallelEncoding: false,
 			ffmpegOverride: ({args}) => args,
 			indent: false,
@@ -441,9 +440,9 @@ const renderHandler = async <Provider extends CloudProvider>({
 
 	await Promise.all(
 		[
-			fs.promises.rm(videoOutputLocation, {recursive: true}),
+			fs.promises.rm(videoOutputLocation, {recursive: true, force: true}),
 			audioOutputLocation
-				? fs.promises.rm(audioOutputLocation, {recursive: true})
+				? fs.promises.rm(audioOutputLocation, {recursive: true, force: true})
 				: null,
 			fs.promises.rm(outputPath, {recursive: true}),
 		].filter(truthy),
@@ -456,8 +455,6 @@ const renderHandler = async <Provider extends CloudProvider>({
 	return {};
 };
 
-const ENABLE_SLOW_LEAK_DETECTION = false;
-
 export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream,
 	options,
@@ -466,6 +463,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 	requestContext,
 	insideFunctionSpecifics,
 	onMediaFiles,
+	executionMode,
 }: {
 	params: ServerlessPayload<Provider>;
 	options: Options;
@@ -481,6 +479,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				completedAt: number;
 		  }) => Promise<void>)
 		| null;
+	executionMode: 'invoked' | 'direct';
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -488,9 +487,29 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 	const logs: BrowserLog[] = [];
 
-	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
+	const finishRendererDiagnostics =
+		insideFunctionSpecifics.startRendererDiagnostics?.(
+			requestContext.requestId,
+		) ?? null;
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
+	let cancellationRequested = false;
+	const {cancel, cancelSignal} = makeCancelSignal();
+	const stopCancellationPolling = params.enableCancellation
+		? startCancellationPolling({
+				bucketName: params.bucketName,
+				renderId: params.renderId,
+				region: insideFunctionSpecifics.getCurrentRegionInFunction(),
+				providerSpecifics,
+				forcePathStyle: params.forcePathStyle,
+				intervalInMilliseconds: 1000,
+				logLevel: params.logLevel,
+				onCancelled: () => {
+					cancellationRequested = true;
+					cancel();
+				},
+			})
+		: () => undefined;
 
 	try {
 		await renderHandler({
@@ -504,6 +523,7 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 				instance = browserInstance;
 			},
 			onMediaFiles,
+			cancelSignal: params.enableCancellation ? cancelSignal : null,
 		});
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
@@ -519,7 +539,8 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			shouldKeepBrowserOpen = false;
 		}
 
-		const shouldNotRetry = (err as Error).name === 'CancelledError';
+		const shouldNotRetry =
+			cancellationRequested || (err as Error).name === 'CancelledError';
 
 		const shouldRetry =
 			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
@@ -546,10 +567,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 					frame: null,
 					type: 'renderer',
 					isFatal: !shouldRetry,
-					tmpDir: getTmpDirStateIfENoSp(
-						(err as Error).stack as string,
-						insideFunctionSpecifics,
-					),
+					tmpDir:
+						insideFunctionSpecifics.getTmpDirState?.(
+							(err as Error).stack as string,
+						) ?? null,
 					attempt: params.attempt,
 					totalAttempts: params.retriesLeft + params.attempt,
 					willRetry: shouldRetry,
@@ -557,32 +578,37 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 			},
 		});
 	} finally {
-		if (shouldKeepBrowserOpen && instance) {
+		stopCancellationPolling();
+		if (!shouldKeepBrowserOpen && instance) {
+			try {
+				await insideFunctionSpecifics.closeBrowserInstance({
+					launchedBrowser: instance,
+				});
+			} catch (err) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Could not close browser instance after flaky error',
+					err,
+				);
+			}
+		} else if (
+			executionMode === 'invoked' &&
+			shouldKeepBrowserOpen &&
+			instance
+		) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});
-		} else {
+		}
+
+		if (!shouldKeepBrowserOpen) {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
 				'Function did not succeed with flaky error, not keeping browser open.',
 			);
-			RenderInternals.Log.info(
-				{indent: false, logLevel: params.logLevel},
-				'Waiting 2 seconds to allow for response to be sent',
-			);
-
-			setTimeout(() => {
-				RenderInternals.Log.info(
-					{indent: false, logLevel: params.logLevel},
-					'Quitting Function forcefully now to force not keeping the Function warm.',
-				);
-				process.exit(0);
-			}, 2000);
 		}
 
-		if (ENABLE_SLOW_LEAK_DETECTION) {
-			startLeakDetection(leakDetection, requestContext.awsRequestId);
-		}
+		finishRendererDiagnostics?.();
 	}
 };

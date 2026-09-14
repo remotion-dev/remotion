@@ -1,7 +1,9 @@
 import {afterEach, expect, test} from 'bun:test';
+import type {GitSource} from '@remotion/studio-shared';
 import type {TSequence} from 'remotion';
 import {getOpenInMenuItems} from '../components/get-open-in-menu-items';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
+import {getCopyContextForAgentsMenuItem} from '../components/Timeline/get-copy-context-for-agents-menu-item';
 import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
@@ -40,11 +42,15 @@ const installTestWindow = () => {
 		| 'remotion_cwd'
 		| 'remotion_editorName'
 		| 'remotion_fileSystemPlatform'
+		| 'remotion_gitSource'
+		| 'remotion_isReadOnlyStudio'
 	> = {
 		open: () => null,
 		remotion_cwd: '/project',
 		remotion_editorName: null,
 		remotion_fileSystemPlatform: 'darwin',
+		remotion_gitSource: null,
+		remotion_isReadOnlyStudio: false,
 	};
 
 	Object.defineProperty(globalThis, 'window', {
@@ -67,6 +73,31 @@ const renameSequenceItem: ComboboxValue = {
 };
 
 const noop = () => undefined;
+
+test('copy context menu items write their agent context to the clipboard', () => {
+	const copiedTexts: string[] = [];
+	Object.defineProperty(globalThis, 'navigator', {
+		configurable: true,
+		value: {
+			clipboard: {
+				writeText: (text: string) => {
+					copiedTexts.push(text);
+					return Promise.resolve();
+				},
+			},
+		},
+	});
+
+	const item = getCopyContextForAgentsMenuItem({
+		contextForAgents: 'Property "style.opacity" in src/Video.tsx:10',
+	});
+	if (item.type !== 'item') {
+		throw new Error('Expected a copy context menu item');
+	}
+
+	item.onClick('copy-context-for-agents', null);
+	expect(copiedTexts).toEqual(['Property "style.opacity" in src/Video.tsx:10']);
+});
 
 test('the file manager entry is only shown on macOS', () => {
 	installTestWindow();
@@ -403,6 +434,60 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 	expect(items.map((item) => item.id)).toEqual([
 		'copy-context-for-agents',
 		'copy-svg',
+	]);
+});
+
+test('read-only sequence menus open source locations on GitHub', () => {
+	installTestWindow();
+	const gitSource: GitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
+	window.remotion_gitSource = gitSource;
+	window.remotion_isReadOnlyStudio = true;
+	const openedUrls: string[] = [];
+	window.open = (url) => {
+		openedUrls.push(String(url));
+		return null;
+	};
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		codingAgentInfo: null,
+		deleteDisabled: true,
+		disableInteractivityDisabled: true,
+		duplicateDisabled: true,
+		editorInfo: null,
+		includeSourceEditItems: false,
+		isProgrammaticallyDuplicated: false,
+		onConfigureApps: null,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
+		openInEditor: noop,
+		originalLocation: {
+			column: 1,
+			line: 12,
+			source: '/project/src/Video.tsx',
+		},
+		selectAsset: noop,
+		sequence: {} as TSequence,
+	});
+
+	const openInGitHub = items.find((item) => item.id === 'open-in-git-source');
+	if (openInGitHub?.type !== 'item') {
+		throw new Error('Expected Open in GitHub menu item');
+	}
+
+	expect(openInGitHub.label).toBe('Open in GitHub');
+	openInGitHub.onClick('open-in-git-source', null);
+	expect(openedUrls).toEqual([
+		'https://github.com/example/project/blob/main/src/Video.tsx#L12',
 	]);
 });
 

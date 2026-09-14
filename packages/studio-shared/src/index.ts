@@ -27,6 +27,7 @@ export {
 	CaptionPatch,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	ComponentProp,
 	ConvertFigmaClipboardToSvgRequest,
 	ConvertFigmaClipboardToSvgResponse,
 	CopyRenderOutputToAssetRequest,
@@ -50,8 +51,11 @@ export {
 	DuplicateEffectRequestItem,
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeRequestItem,
 	DuplicateJsxNodeResponse,
 	EditorPickerId,
+	EffectDefinition,
+	ElementInstallDestination,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	ElementInstallSource,
@@ -61,6 +65,10 @@ export {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse,
+	GetRemotionSkillsInfoRequest,
+	GetRemotionSkillsInfoResponse,
+	GetReleaseNotesRequest,
+	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,
 	InsertElementFileConflict,
 	InsertElementRequest,
@@ -69,6 +77,7 @@ export {
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
+	InstallableElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
 	LogStudioErrorRequest,
@@ -105,6 +114,7 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	ShutdownStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveInlineCaptionPatchesRequest,
@@ -120,10 +130,14 @@ export {
 	SimpleDiff,
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,
+	SplitVideoFromAudioRequest,
+	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
+	SubscribeToSequencePropsBatchRequest,
+	SubscribeToSequencePropsBatchResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
 	UndoRequest,
@@ -149,7 +163,15 @@ export {
 	type ConfigValue,
 	type KeyframeSettings,
 } from './api-requests';
-export type {BrowserStudioOperations} from './browser-studio-operations';
+export type {
+	BrowserStudioKeyframeOperations,
+	BrowserStudioEffectOperations,
+	BrowserStudioInstallPackagesResponse,
+	BrowserStudioOperations,
+	BrowserStudioPackageInstallationOperations,
+	DuplicateCompositionRequest,
+	DuplicateCompositionResponse,
+} from './browser-studio-operations';
 export type {
 	CanvasCaptureData,
 	CanvasCaptureMouseMovement,
@@ -163,8 +185,11 @@ export type {
 	SequenceNodePathMutation,
 	SequenceNodePathRemapping,
 } from './sequence-node-path-mutation';
-export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
-export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
+export type {
+	ApplyVisualControlCodemod,
+	CompositionOrFolder,
+	RecastCodemod,
+} from './codemods';
 export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
 export {hasSequenceTimingTraits} from './has-sequence-timing-traits';
 export {
@@ -172,6 +197,14 @@ export {
 	type ConfigFileChangeType,
 } from './config-file-change';
 export {configMethodLifecycles} from './config-method-lifecycles';
+export {
+	studioKeyboardShortcutActions,
+	type StudioKeyboardShortcut,
+	type StudioKeyboardShortcutAction,
+	type StudioKeyboardShortcuts,
+	type StudioKeyboardShortcutValue,
+	validateStudioKeyboardShortcuts,
+} from './keyboard-shortcuts';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -180,6 +213,13 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	getRemoteAssetElement,
+	getRemoteAssetFilename,
+	maxRemoteAssetSize,
+	remoteAssetAcceptHeader,
+	remoteAssetDownloadTimeout,
+} from './remote-asset';
 export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
@@ -340,7 +380,11 @@ export {
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
-export type {StudioRuntimeConfig} from './studio-runtime-config';
+export type {
+	ConfigFileStudioSettings,
+	StudioElementLibrary,
+	StudioRuntimeConfig,
+} from './studio-runtime-config';
 export {
 	BORDER_RADIUS_LONGHAND_KEYS,
 	BORDER_RADIUS_SHORTHAND_KEY,

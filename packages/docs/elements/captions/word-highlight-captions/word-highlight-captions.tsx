@@ -26,23 +26,17 @@ import {
 type WordHighlightCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions?: Caption[];
+		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-type WordHighlightCaptionsLayerProps = Omit<
-	WordHighlightCaptionsProps,
-	'captions'
-> & {
-	readonly captions: Caption[];
-};
-
 const desiredFontSize = 80;
-const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
-const highlightColor = '#18ff0e';
+const highlightColor = '#2563eb';
 const defaultCombineTokensWithinMilliseconds = 800;
+const defaultWidth = 682;
+const defaultHeight = 252;
 
 const wordHighlightCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -114,11 +108,9 @@ const CaptionPage: React.FC<{
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
 }> = ({captionAreaWidth, currentTimeMs, page, pageIndex}) => {
+	const {width: compositionWidth} = useVideoConfig();
+	const availableWidth = captionAreaWidth ?? compositionWidth;
 	const fontSize = useMemo(() => {
-		const availableWidth = Math.min(
-			maximumTextWidth,
-			captionAreaWidth ?? maximumTextWidth,
-		);
 		const maximumTokenWidth = Math.max(1, availableWidth);
 		const tokenFontSizes = page.tokens
 			.map((token) => token.text.trim())
@@ -141,19 +133,16 @@ const CaptionPage: React.FC<{
 				fontWeight,
 				text: page.text,
 				validateFontIsLoaded: true,
-				withinWidth: maximumTextWidth,
+				withinWidth: availableWidth,
 			}).fontSize,
 			...tokenFontSizes,
 		);
-	}, [captionAreaWidth, page.text, page.tokens]);
+	}, [availableWidth, page.text, page.tokens]);
 	const activeTokenIndex = getActiveTokenIndex(page.tokens, currentTimeMs);
 	const textStrokeWidth = fontSize / 7;
 
 	return (
 		<div
-			aria-label={page.text}
-			aria-live="off"
-			role="group"
 			style={{
 				alignItems: 'center',
 				display: 'flex',
@@ -163,14 +152,12 @@ const CaptionPage: React.FC<{
 			}}
 		>
 			<div
-				aria-hidden="true"
 				style={{
 					color: textColor,
 					fontFamily,
 					fontSize,
 					fontWeight,
 					lineHeight: 1.5,
-					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
 					textAlign: 'center',
 					WebkitTextStroke: `${textStrokeWidth}px #000000`,
@@ -254,7 +241,7 @@ const WordHighlightCaptionsContent: React.FC<{
 
 const WordHighlightCaptionsInner = forwardRef<
 	HTMLDivElement,
-	WordHighlightCaptionsLayerProps & {
+	WordHighlightCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
@@ -263,10 +250,10 @@ const WordHighlightCaptionsInner = forwardRef<
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
-			height,
+			height = defaultHeight,
 			name,
 			style,
-			width,
+			width = defaultWidth,
 			...interactiveProps
 		},
 		ref,
@@ -299,8 +286,9 @@ const WordHighlightCaptionsInner = forwardRef<
 				<div
 					ref={outlineRef}
 					style={{
-						height: height ?? '100%',
-						width: width ?? '100%',
+						height,
+						marginInline: 'auto',
+						width,
 						...style,
 					}}
 				>
@@ -319,85 +307,8 @@ const WordHighlightCaptionsInner = forwardRef<
 const WordHighlightCaptionsLayer = Interactive.withSchema({
 	Component: WordHighlightCaptionsInner,
 	componentName: '<WordHighlightCaptions>',
-	componentIdentity: null,
 	schema: wordHighlightCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<WordHighlightCaptionsLayerProps>;
+}) as React.FC<WordHighlightCaptionsProps>;
 
-export const WordHighlightCaptions: React.FC<WordHighlightCaptionsProps> = ({
-	captions,
-	...props
-}) => {
-	if (captions) {
-		return <WordHighlightCaptionsLayer {...props} captions={captions} />;
-	}
-
-	return (
-		<div
-			style={{
-				alignItems: 'center',
-				display: 'flex',
-				height: 180,
-				justifyContent: 'center',
-				width: 900,
-			}}
-		>
-			<WordHighlightCaptionsLayer
-				{...props}
-				captions={[
-					{
-						text: 'Captions',
-						startMs: 0,
-						endMs: 800,
-						timestampMs: 400,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 800,
-						endMs: 1500,
-						timestampMs: 1150,
-						confidence: null,
-					},
-					{
-						text: ' move',
-						startMs: 1500,
-						endMs: 2300,
-						timestampMs: 1900,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 2300,
-						endMs: 3100,
-						timestampMs: 2700,
-						confidence: null,
-					},
-					{
-						text: ' every',
-						startMs: 3100,
-						endMs: 4000,
-						timestampMs: 3550,
-						confidence: null,
-					},
-					{
-						text: ' spoken',
-						startMs: 4000,
-						endMs: 5100,
-						timestampMs: 4550,
-						confidence: null,
-					},
-					{
-						text: ' word.',
-						startMs: 5100,
-						endMs: 6500,
-						timestampMs: 5800,
-						confidence: null,
-					},
-				]}
-				width={681}
-				height={252}
-			/>
-		</div>
-	);
-};
+export const WordHighlightCaptions = WordHighlightCaptionsLayer;

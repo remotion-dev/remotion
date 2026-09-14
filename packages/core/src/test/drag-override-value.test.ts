@@ -12,6 +12,7 @@ import {
 
 const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 2},
@@ -201,6 +202,7 @@ test('computeEffectiveSchemaValuesDotNotation resolves static file tokens for as
 		propStatus: {
 			src: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'remotion-file:folder/new%20image.png',
 			},
 		},
@@ -215,6 +217,7 @@ test('getEffectiveVisualModeValue resolves static string drag overrides', () => 
 		getEffectiveVisualModeValue({
 			propStatus: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'Old',
 			},
 			dragOverrideValue: makeStaticDragOverride('New'),
@@ -228,6 +231,7 @@ test('getEffectiveVisualModeValue resolves static string drag overrides', () => 
 		getEffectiveVisualModeValue({
 			propStatus: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'Old',
 			},
 			dragOverrideValue: makeStaticDragOverride(''),
@@ -245,6 +249,7 @@ test('getEffectiveVisualModeValue resolves keyframed drag overrides at the sourc
 		getEffectiveVisualModeValue({
 			propStatus: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 2,
 			},
 			dragOverrideValue: makeKeyframedDragOverride({

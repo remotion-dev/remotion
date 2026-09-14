@@ -36,6 +36,7 @@ import {liquidContours} from '@remotion/effects/liquid-contours';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {outline} from '@remotion/effects/outline';
 import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
@@ -54,7 +55,9 @@ import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {starburst} from '@remotion/effects/starburst';
+import {tear} from '@remotion/effects/tear';
 import {thermalVision} from '@remotion/effects/thermal-vision';
+import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
@@ -111,6 +114,7 @@ import {
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../effects/effects-outline-preview';
 import {
 	EffectsPaletteMapPreview,
 	paletteMap,
@@ -145,7 +149,9 @@ import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../effects/effects-tile-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
@@ -238,6 +244,16 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-outline',
+		effectName: 'outline',
+		effectImportPath: '@remotion/effects/outline',
+		comp: EffectsOutlinePreview,
+		schema: outline().definition.schema,
+		durationInFrames: 150,
+		autoPlay: true,
+	},
+	{
+		...defaults,
 		id: 'effects-color-correction',
 		effectName: 'colorCorrection',
 		effectImportPath: '@remotion/effects/color-correction',
@@ -283,6 +299,17 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/vibrance',
 		comp: EffectsVibrancePreview,
 		schema: vibrance().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tear',
+		effectName: 'tear',
+		effectImportPath: '@remotion/effects/tear',
+		comp: EffectsTearPreview,
+		schema: {
+			...tear().definition.schema,
+			progress: {...tear().definition.schema.progress, max: 2},
+		},
 	},
 	{
 		...defaults,
@@ -538,6 +565,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/scale',
 		comp: EffectsScalePreview,
 		schema: scale({scale: 1}).definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tile',
+		effectName: 'tile',
+		effectImportPath: '@remotion/effects/tile',
+		comp: EffectsTilePreview,
+		schema: tile().definition.schema,
 	},
 	{
 		...defaults,

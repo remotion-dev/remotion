@@ -24,14 +24,12 @@ const MuxVideoForward: React.ForwardRefRenderFunction<
 		let hls: Hls;
 		if (videoRef.current) {
 			const {current} = videoRef;
-			if (current.canPlayType('application/vnd.apple.mpegurl')) {
-				// Some browers (safari and ie edge) support HLS natively
-				current.src = vidUrl;
-			} else if (Hls.isSupported()) {
-				// This will run in all other modern browsers
+			if (Hls.isSupported()) {
 				hls = new Hls();
 				hls.loadSource(vidUrl);
 				hls.attachMedia(current);
+			} else if (current.canPlayType('application/vnd.apple.mpegurl')) {
+				current.src = vidUrl;
 			} else {
 				// eslint-disable-next-line no-console
 				console.error("This is a legacy browser that doesn't support MSE");

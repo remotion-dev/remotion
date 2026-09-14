@@ -6,8 +6,7 @@ export const copyText = (cmd: string) => {
 			.query({name: permissionName})
 			.then((result) => {
 				if (result.state === 'granted' || result.state === 'prompt') {
-					navigator.clipboard.writeText(cmd);
-					resolve();
+					navigator.clipboard.writeText(cmd).then(resolve).catch(reject);
 				} else {
 					reject(new Error('Permission to copy not granted'));
 				}

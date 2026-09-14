@@ -1,15 +1,16 @@
-import type {WhisperWebModel} from '@remotion/whisper-web';
 import {
-	downloadWhisperModel,
+	loadWhisperModel,
 	resampleTo16Khz,
 	toCaptions,
 	transcribe,
-} from '@remotion/whisper-web';
+	type WhisperWebGpuModel,
+} from '@remotion/whisper-webgpu';
 import {useCallback} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {formatBytes} from '~/lib/format-bytes';
 import {Button} from '../ui/button';
 import {Card} from '../ui/card';
+import type {WhisperLanguage} from './languages';
 import type {TranscriptionState} from './state';
 
 const sourceToBlob = (source: Source) => {
@@ -23,12 +24,14 @@ const sourceToBlob = (source: Source) => {
 export default function TranscribeAudio({
 	source,
 	selectedModel,
+	language,
 	name,
 	state,
 	setState,
 }: {
 	readonly source: Source;
-	readonly selectedModel: WhisperWebModel;
+	readonly selectedModel: WhisperWebGpuModel;
+	readonly language: WhisperLanguage | null;
 	readonly name: string;
 	readonly state: TranscriptionState;
 	readonly setState: React.Dispatch<React.SetStateAction<TranscriptionState>>;
@@ -38,66 +41,42 @@ export default function TranscribeAudio({
 			type: 'initializing',
 		}));
 
-		const waveform = await resampleTo16Khz({
-			file: await sourceToBlob(source),
-		});
-
-		await downloadWhisperModel({
-			model: selectedModel,
-			onProgress: (whisperProgress) =>
-				setState(() => ({
-					type: 'downloading-model',
-					progress: whisperProgress,
-				})),
-		});
-
-		setState(() => ({
-			type: 'transcribing',
-			result: [],
-			progress: 0,
-		}));
-
-		transcribe({
-			channelWaveform: waveform,
-			model: selectedModel,
-			threads: 9,
-			onTranscriptionChunk: (e) => {
-				setState((prevState) => ({
-					type: 'transcribing',
-					result: [
-						...(prevState.type === 'transcribing' || prevState.type === 'done'
-							? prevState.result
-							: []),
-						...toCaptions({whisperWebOutput: e}).captions,
-					],
-					progress: 0,
-				}));
-			},
-			onProgress: (p) =>
-				setState((prevState) => {
-					if (prevState.type !== 'transcribing') {
-						return prevState;
-					}
-
-					return {
-						type: 'transcribing',
-						result: prevState.result,
-						progress: p,
-					};
-				}),
-		}).then(() => {
-			setState((prevState) => {
-				if (prevState.type !== 'transcribing') {
-					return prevState;
-				}
-
-				return {
-					type: 'done',
-					result: prevState.result,
-				};
+		try {
+			const waveform = await resampleTo16Khz({
+				file: await sourceToBlob(source),
 			});
-		});
-	}, [selectedModel, source, setState]);
+
+			await loadWhisperModel({
+				model: selectedModel,
+				onProgress: (progress) =>
+					setState(() => ({
+						type: 'downloading-model',
+						progress,
+					})),
+			});
+
+			setState(() => ({
+				type: 'transcribing',
+			}));
+
+			const transcription = await transcribe({
+				channelWaveform: waveform,
+				model: selectedModel,
+				...(language === null ? {} : {language}),
+			});
+
+			setState(() => ({
+				type: 'done',
+				result: toCaptions({whisperWebGpuOutput: transcription}).captions,
+				whisperWebGpuOutput: transcription,
+			}));
+		} catch (error) {
+			setState({
+				type: 'error',
+				message: error instanceof Error ? error.message : String(error),
+			});
+		}
+	}, [language, selectedModel, source, setState]);
 
 	return (
 		<div>
@@ -108,7 +87,7 @@ export default function TranscribeAudio({
 							<div
 								className="w-[50%] h-5 bg-brand"
 								style={{
-									width: (state.progress.progress ?? 0) * 100 + '%',
+									width: `${(state.progress.progress ?? 0) * 100}%`,
 								}}
 							/>
 						</div>
@@ -121,8 +100,12 @@ export default function TranscribeAudio({
 							</div>
 							<div className="tabular-nums text-muted-foreground font-brand text-sm">
 								<span>
-									{Math.round(state.progress.progress * 100)}%{' '}
-									{formatBytes(state.progress.downloadedBytes)}
+									{state.progress.progress === null
+										? state.progress.status
+										: `${Math.round(state.progress.progress * 100)}%`}{' '}
+									{state.progress.loadedBytes === null
+										? null
+										: formatBytes(state.progress.loadedBytes)}
 								</span>
 							</div>
 						</div>
@@ -132,27 +115,41 @@ export default function TranscribeAudio({
 			{state.type === 'transcribing' ? (
 				<Card className="overflow-hidden">
 					<>
-						<div className="h-5 overflow-hidden">
-							<div
-								className="w-[50%] h-5 bg-brand"
-								style={{
-									width: (state.progress ?? 0) * 100 + '%',
-								}}
-							/>
+						<div className="h-5 overflow-hidden bg-muted">
+							<div className="h-5 w-1/2 animate-pulse bg-brand" />
 						</div>
 						<div className="border-b-2 border-black" />
 						<div className="p-2">
 							<div>
-								<strong className="font-brand ">Transcribing {name}</strong>
+								<strong className="font-brand">Transcribing {name}</strong>
 							</div>
 							<div className="tabular-nums text-muted-foreground font-brand text-sm">
-								<span>{Math.round(state.progress * 100)}%</span>
+								<span>Using WebGPU</span>
 							</div>
 						</div>
 					</>
 				</Card>
 			) : null}
-			{state.type === 'idle' || state.type === 'initializing' ? (
+			{state.type === 'done' ? (
+				<>
+					<Card className="p-3 text-sm text-muted-foreground">
+						Transcribed with WebGPU
+						{state.result.length === 0 ? ' · No speech detected' : null}
+					</Card>
+					<div className="h-4" />
+				</>
+			) : null}
+			{state.type === 'error' ? (
+				<>
+					<Card className="border-red-500 p-3 text-sm text-red-700">
+						{state.message}
+					</Card>
+					<div className="h-4" />
+				</>
+			) : null}
+			{state.type === 'idle' ||
+			state.type === 'initializing' ||
+			state.type === 'error' ? (
 				<Button
 					type="button"
 					className="block w-full disabled:opacity-50"
@@ -161,7 +158,11 @@ export default function TranscribeAudio({
 					onClick={onClick}
 					data-disabled={state.type === 'initializing'}
 				>
-					{state.type === 'initializing' ? 'Initializing...' : 'Transcribe'}
+					{state.type === 'initializing'
+						? 'Initializing...'
+						: state.type === 'error'
+							? 'Try again'
+							: 'Transcribe'}
 				</Button>
 			) : null}
 		</div>

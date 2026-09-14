@@ -58,14 +58,19 @@ You can use SRT files to add subtitles to your videos.
 
 ### `lines`
 
-An two-dimensional array of [`Caption`](/docs/captions/caption) items.
+A two-dimensional array of [`Caption`](/docs/captions/caption) items.
 
-Each top-level item represents a line in the SubRip file.
+Each top-level item represents a subtitle cue in the SubRip file.
 
-The second-level items represent the words in that line.  
-Words get concatenated together during serialization. No spaces are added between the words.  
-The start timestamp is determined from the `startMs` value of the first word in the line.  
-The end timestamp is determined from the `endMs` value of the last word in the line.
+The second-level items represent the words in that cue.
+
+Words get concatenated together during serialization. No spaces are added between the words.
+
+If a word has `pageBreakAfter: true`, the current cue ends after it and the next word starts a new cue. Use a newline in `text` to create multiple visual lines within one cue.
+
+The start timestamp is determined from the `startMs` value of the first word in the cue.
+
+The end timestamp is determined from the `endMs` value of the last word in the cue.
 
 Arrays with no items will be ignored.
 

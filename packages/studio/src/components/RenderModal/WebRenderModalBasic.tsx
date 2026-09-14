@@ -249,6 +249,8 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				</>
 			)}
 			<RenderModalOutputName
+				ariaLabel={null}
+				existingOutputPath={null}
 				existence={false}
 				inputStyle={input}
 				outName={outName}

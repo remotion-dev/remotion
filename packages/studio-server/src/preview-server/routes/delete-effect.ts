@@ -16,7 +16,10 @@ import {
 } from '../undo-stack';
 import {strikeThroughOrRemovedPrefix} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const getDeletedEffectDescription = (effectLabels: string[]): string => {
 	if (effectLabels.length === 1) {
@@ -121,7 +124,7 @@ export const deleteEffectHandler: ApiHandler<
 				});
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${strikeThroughOrRemovedPrefix(deletedEffectDescription)}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${strikeThroughOrRemovedPrefix(deletedEffectDescription)}`,
 				);
 				if (!update.formatted) {
 					warnAboutPrettierOnce(logLevel);

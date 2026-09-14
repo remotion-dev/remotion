@@ -108,10 +108,8 @@ export async function* makeLoopingIterator({
 			}
 		}
 
-		if (!yieldedInPass) {
-			throw new Error(
-				`Audio loop pass from ${passStartInSeconds} to ${segmentEndInSeconds} yielded no buffers`,
-			);
+		if (!yieldedInPass && passStartInSeconds === loopStartInSeconds) {
+			return;
 		}
 
 		passBaseTimestamp += segmentEndInSeconds - passStartInSeconds;

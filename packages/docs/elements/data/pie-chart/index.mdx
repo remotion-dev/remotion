@@ -5,8 +5,8 @@ image: https://remotion.media/elements/data-pie-chart-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Pie Chart
 
-<ElementPage definition={elementDefinitions['data/pie-chart']} sourceFile="./pie-chart.tsx" />
+<ElementPage definition={getElementDefinition('data/pie-chart')} sourceFile="./pie-chart.tsx" />

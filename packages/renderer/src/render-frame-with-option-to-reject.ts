@@ -68,7 +68,10 @@ export const renderFrameWithOptionToReject = async ({
 	indent: boolean;
 	logLevel: LogLevel;
 	outputDir: string | null;
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>)
+		| undefined;
 	imageFormat: VideoImageFormat;
 	onError: (err: Error) => void;
 	lastFrame: number;
@@ -188,7 +191,7 @@ export const renderFrameWithOptionToReject = async ({
 			throw new Error('unexpected null buffer');
 		}
 
-		onFrameBuffer(buffer, frame);
+		await onFrameBuffer(buffer, frame);
 	}
 
 	const onlyAvailableAssets = assets.filter(truthy);

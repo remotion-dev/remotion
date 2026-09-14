@@ -97,7 +97,11 @@ export const Captions: React.FC = () => {
 						<div key={page.startMs}>
 							{page.tokens.map((t) => {
 								return (
-									<Token key={t.fromMs} pageStart={page.startMs} token={t} />
+									<Token
+										key={t.fromMs}
+										pageStart={page.startMs}
+										token={t}
+									/>
 								);
 							})}
 						</div>

@@ -23,7 +23,6 @@ export const createLayer = async ({
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
 	waitForPageResponsiveness,
-	waitForRenderReady,
 }: {
 	element: HTMLElement | SVGElement;
 	scale: number;
@@ -34,7 +33,6 @@ export const createLayer = async ({
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
-	waitForRenderReady: () => Promise<void>;
 }) => {
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
@@ -52,17 +50,20 @@ export const createLayer = async ({
 					'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.',
 				shouldWarn: false,
 			});
+		} else if (containsLayoutSubtreeCanvas(element)) {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture is unsupported, so the built-in DOM composer is used.',
+				shouldWarn: false,
+			});
 		} else {
-			const hasNestedHtmlInCanvas = containsLayoutSubtreeCanvas(element);
-
 			try {
 				const offCtx = await drawWithHtmlInCanvas({
 					htmlInCanvasContext,
 					element,
 					scaledWidth,
 					scaledHeight,
-					waitForRenderReady,
-					useElementImage: hasNestedHtmlInCanvas,
 				});
 				onHtmlInCanvasLayerOutcome({native: true});
 				return offCtx;

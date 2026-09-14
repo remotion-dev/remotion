@@ -1,3 +1,4 @@
+import {sortItemsByCommitOrder} from '@remotion/canvas';
 import type {_InternalTypes, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
@@ -236,5 +237,50 @@ export const createFolderTree = (
 		list.push(toPush);
 	}
 
-	return items;
+	const sortTreeItems = (
+		treeItems: CompositionSelectorItemType[],
+	): CompositionSelectorItemType[] => {
+		return sortItemsByCommitOrder(treeItems, (item) =>
+			item.type === 'folder' ? item.folder.order : item.composition.order,
+		).map((item) => {
+			if (item.type === 'composition') {
+				return item;
+			}
+
+			return {
+				...item,
+				items: sortTreeItems(item.items),
+			};
+		});
+	};
+
+	return sortTreeItems(items);
+};
+
+/**
+ * Sorts the tree returned by createFolderTree by name, on every level.
+ * Folders stay grouped above compositions, and both groups are sorted.
+ */
+export const sortFolderTreeAlphabetically = (
+	items: CompositionSelectorItemType[],
+): CompositionSelectorItemType[] => {
+	return items
+		.map((item) => {
+			if (item.type !== 'folder') {
+				return item;
+			}
+
+			return {...item, items: sortFolderTreeAlphabetically(item.items)};
+		})
+		.sort((a, b) => {
+			if (a.type !== b.type) {
+				return a.type === 'folder' ? -1 : 1;
+			}
+
+			const aName = a.type === 'folder' ? a.folderName : a.composition.id;
+			const bName = b.type === 'folder' ? b.folderName : b.composition.id;
+
+			// `numeric` so that Scene2 comes before Scene10.
+			return aName.localeCompare(bName, undefined, {numeric: true});
+		});
 };

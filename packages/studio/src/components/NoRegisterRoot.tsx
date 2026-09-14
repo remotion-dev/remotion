@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {WHITE} from '../helpers/colors';
 
 const label: React.CSSProperties = {
@@ -41,7 +41,7 @@ export const NoRegisterRoot: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill style={container}>
+		<Internals.AbsoluteFillElement style={container}>
 			<div style={label}>Waiting for registerRoot() to get called.</div>
 			<div style={label}>
 				Learn more:{' '}
@@ -53,6 +53,6 @@ export const NoRegisterRoot: React.FC = () => {
 					remotion.dev/docs/register-root
 				</a>
 			</div>
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };

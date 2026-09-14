@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -33,9 +33,25 @@ export const InlineAction = ({
 	variant,
 	style: customStyle,
 	className,
+	onPointerDown: onPointerDownProp,
 	...buttonProps
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
+	const onPointerDown = useCallback(
+		(event: React.PointerEvent<HTMLButtonElement>) => {
+			onPointerDownProp?.(event);
+			if (event.button !== 0) {
+				return;
+			}
+
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+
+			event.preventDefault();
+		},
+		[onPointerDownProp],
+	);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -72,6 +88,7 @@ export const InlineAction = ({
 			}
 			disabled={disabled}
 			onClick={onClick}
+			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
 			title={title}

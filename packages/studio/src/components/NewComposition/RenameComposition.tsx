@@ -20,6 +20,7 @@ import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -60,6 +61,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 
 	const {
 		codemod,
+		compositionId,
 		renameComposition,
 		valid,
 		validationMessage: compNameErrMessage,
@@ -92,6 +94,12 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 									status="ok"
 									rightAlign
 								/>
+								<SlugPreview
+									action="rename"
+									currentName={resolved.result.id}
+									input={newId}
+									slug={compositionId}
+								/>
 								{compNameErrMessage ? (
 									<>
 										<Spacing y={1} block />
@@ -110,7 +118,6 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 					<CodemodFooter
 						loadingNotification={'Renaming...'}
 						errorNotification={'Could not rename composition'}
-						successNotification={`Renamed to ${newId}`}
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
 						codemod={codemod}
@@ -124,6 +131,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 								symbolicatedStack,
 							})
 						}
+						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

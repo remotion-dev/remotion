@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {
 	LIGHT_COLOR,
 	LOOPED_INDICATOR_DROP_SHADOW,
@@ -41,12 +41,12 @@ const centerContainer: React.CSSProperties = {
 export const LoopedIndicator: React.FC = () => {
 	return (
 		<div style={width}>
-			<AbsoluteFill style={centerContainer}>
+			<Internals.AbsoluteFillElement style={centerContainer}>
 				<div style={verticalLine} />
-			</AbsoluteFill>
-			<AbsoluteFill style={centerContainer}>
+			</Internals.AbsoluteFillElement>
+			<Internals.AbsoluteFillElement style={centerContainer}>
 				<Icon />
-			</AbsoluteFill>
+			</Internals.AbsoluteFillElement>
 		</div>
 	);
 };

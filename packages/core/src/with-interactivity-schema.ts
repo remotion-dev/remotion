@@ -1,4 +1,5 @@
 import React, {
+	createContext,
 	forwardRef,
 	useContext,
 	useLayoutEffect,
@@ -33,6 +34,7 @@ import {
 import {useCurrentFrame} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 
 export const getNestedValue = (
 	obj: Record<string, unknown>,
@@ -163,9 +165,22 @@ export type WithInteractivitySchemaOptions<
 		Props & {readonly controls: SequenceControls | undefined}
 	>;
 	componentName: string;
-	componentIdentity: JsxComponentIdentity | null;
+	/** @internal */
+	componentIdentity?: JsxComponentIdentity | null;
 	schema: S;
 	supportsEffects: boolean;
+};
+
+const DisableInteractivityContext = createContext(false);
+
+export const DisableInteractivityProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return React.createElement(
+		DisableInteractivityContext.Provider,
+		{value: true},
+		children,
+	);
 };
 
 export const withInteractivitySchema = <
@@ -174,7 +189,7 @@ export const withInteractivitySchema = <
 >({
 	Component,
 	componentName,
-	componentIdentity,
+	componentIdentity = null,
 	schema,
 	supportsEffects,
 }: WithInteractivitySchemaOptions<S, Props>): React.ComponentType<Props> => {
@@ -191,8 +206,14 @@ export const withInteractivitySchema = <
 		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
 		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
+		const disableInteractivity = useContext(DisableInteractivityContext);
 
-		if (!env.isStudio || env.isRendering || !canUseRemotionHooks) {
+		if (
+			!env.isStudio ||
+			env.isRendering ||
+			!canUseRemotionHooks ||
+			disableInteractivity
+		) {
 			return React.createElement(Component, {
 				...cleanProps,
 				controls: null,
@@ -211,6 +232,28 @@ export const withInteractivitySchema = <
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const frame = useCurrentFrame();
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const videoConfig = useUnsafeVideoConfig();
+		const durationInFrames = videoConfig?.durationInFrames;
+		const fps = videoConfig?.fps;
+		const height = videoConfig?.height;
+		const width = videoConfig?.width;
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const videoConfigValues = useMemo(
+			() =>
+				durationInFrames === undefined ||
+				fps === undefined ||
+				height === undefined ||
+				width === undefined
+					? null
+					: {
+							durationInFrames,
+							fps,
+							height,
+							width,
+						},
+			[durationInFrames, fps, height, width],
+		);
 
 		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
@@ -288,12 +331,18 @@ export const withInteractivitySchema = <
 				schema: schemaWithSequenceName,
 				currentRuntimeValueDotNotation,
 				runtimeValues: runtimeValueStore.store,
+				videoConfigValues,
 				overrideId,
 				supportsEffects,
 				componentIdentity,
 				componentName,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId, runtimeValueStore.store]);
+		}, [
+			currentRuntimeValueDotNotation,
+			overrideId,
+			runtimeValueStore.store,
+			videoConfigValues,
+		]);
 		setStackForControls(controls, internalStack);
 
 		// 3. Apply drag/code overrides on top of the runtime values.

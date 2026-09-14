@@ -4,6 +4,7 @@ import type {
 	CallFunctionOptions,
 	CallFunctionStreaming,
 	CallFunctionSync,
+	GetBinaryPayloadSink,
 	MessageTypeId,
 	OnMessage,
 	OrError,
@@ -12,6 +13,7 @@ import type {
 	StreamingMessage,
 } from '@remotion/serverless';
 import {
+	binaryPayloadSinkForStreamer,
 	formatMap,
 	innerHandler,
 	messageTypeIdToMessageType,
@@ -22,6 +24,7 @@ import {makeStreamer} from '@remotion/streaming';
 import {Log} from '../../cli/log';
 import {mockServerImplementation} from '../mock-implementation';
 import {mockImplementation} from './mock-implementation';
+import {trackMockInvocation} from './mock-invocations';
 
 export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	AwsProvider
@@ -29,29 +32,36 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	params: CallFunctionOptions<T, AwsProvider> & {
 		receivedStreamingPayload: OnMessage<AwsProvider>;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => {
+	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
 
-	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
-		const messageType = messageTypeIdToMessageType(
-			messageTypeId as MessageTypeId,
-		);
-		const innerPayload =
-			formatMap[messageType] === 'json'
-				? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
-				: data;
+	const {onData, clear} = makeStreamer(
+		(status, messageTypeId, data) => {
+			const messageType = messageTypeIdToMessageType(
+				messageTypeId as MessageTypeId,
+			);
+			const innerPayload =
+				formatMap[messageType] === 'json'
+					? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
+					: data;
 
-		const message: StreamingMessage<AwsProvider> = {
-			successType: status,
-			message: {
-				type: messageType,
-				payload: innerPayload,
-			},
-		};
+			const message: StreamingMessage<AwsProvider> = {
+				successType: status,
+				message: {
+					type: messageType,
+					payload: innerPayload,
+				},
+			};
 
-		params.receivedStreamingPayload(message);
-	});
+			params.receivedStreamingPayload(message);
+		},
+		params.getBinaryPayloadSink
+			? binaryPayloadSinkForStreamer(params.getBinaryPayloadSink)
+			: null,
+	);
 
 	Log.verbose(
 		{indent: false, logLevel: params.payload.logLevel},
@@ -61,9 +71,8 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 	await innerHandler<AwsProvider>({
 		params: params.payload,
 		responseWriter: {
-			write(message) {
-				onData(message);
-				return Promise.resolve();
+			async write(message) {
+				await onData(message);
 			},
 			end() {
 				clear();
@@ -71,9 +80,9 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			},
 		},
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
@@ -88,12 +97,13 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 >(
 	params: CallFunctionOptions<T, AwsProvider>,
 ) => {
+	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
@@ -113,9 +123,9 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),

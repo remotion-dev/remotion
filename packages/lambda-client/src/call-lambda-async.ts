@@ -6,6 +6,7 @@ import type {
 } from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 export const callFunctionAsyncImplementation = async <
 	T extends ServerlessRoutines,
@@ -15,6 +16,7 @@ export const callFunctionAsyncImplementation = async <
 	payload,
 	region,
 	timeoutInTest,
+	requestHandler,
 }: CallFunctionOptions<T, Provider>): Promise<void> => {
 	const stringifiedPayload = JSON.stringify(payload);
 	if (stringifiedPayload.length > 256 * 1024) {
@@ -26,7 +28,7 @@ export const callFunctionAsyncImplementation = async <
 	const result = await getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
-		null,
+		(requestHandler ?? null) as RequestHandler | null,
 	).send(
 		new InvokeCommand({
 			FunctionName: functionName,

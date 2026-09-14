@@ -92,7 +92,7 @@ export function ApplicationVideoEditor({
 									<div
 										style={{
 											bottom: 32,
-											color: '#374151',
+											color: '#000000',
 											fontSize: 30,
 											fontWeight: 700,
 											left: 25,

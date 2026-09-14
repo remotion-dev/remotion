@@ -1,4 +1,4 @@
-import { parseMedia } from "@remotion/media-parser";
+import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
 import { Composition, staticFile } from "remotion";
 import { Audiogram } from "./Audiogram/Main";
 import { audiogramSchema } from "./Audiogram/schema";
@@ -16,11 +16,8 @@ export const RemotionRoot: React.FC = () => {
         schema={audiogramSchema}
         defaultProps={{
           // audio settings
-          audioOffsetInSeconds: 0,
           audioFileUrl: staticFile("dialogue.wav"),
           // podcast data
-          coverImageUrl: staticFile("podcast-cover.jpeg"),
-          titleText: "Ep 550 - Supper Club × Remotion React",
           titleColor: "rgba(186, 186, 186, 0.93)",
           // captions settings
           captions: null,
@@ -31,7 +28,7 @@ export const RemotionRoot: React.FC = () => {
           visualizer: {
             type: "oscilloscope",
             color: "#F4B941",
-            numberOfSamples: "64" as const,
+            numberOfSamples: "64",
             windowInSeconds: 0.1,
             posterization: 3,
             amplitude: 4,
@@ -41,18 +38,16 @@ export const RemotionRoot: React.FC = () => {
         // Determine the length of the video based on the duration of the audio file
         calculateMetadata={async ({ props }) => {
           const captions = await getSubtitles(props.captionsFileName);
-          const { slowDurationInSeconds } = await parseMedia({
-            src: props.audioFileUrl,
-            acknowledgeRemotionLicense: true,
-            fields: {
-              slowDurationInSeconds: true,
-            },
+          const input = new Input({
+            source: new UrlSource(props.audioFileUrl),
+            formats: ALL_FORMATS,
           });
 
+          const durationInSeconds = await input.computeDuration();
+          input.dispose();
+
           return {
-            durationInFrames: Math.floor(
-              (slowDurationInSeconds - props.audioOffsetInSeconds) * FPS,
-            ),
+            durationInFrames: Math.floor(durationInSeconds * FPS),
             props: {
               ...props,
               captions,

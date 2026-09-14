@@ -200,6 +200,15 @@ export const makeKeyframeBank = async ({
 		fps: number,
 	) => {
 		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
+			// Windows hardware decoders can stop producing frames when too many
+			// decoded VideoFrames are still open. Free frames outside the safe
+			// window before asking the decoder for another one.
+			deleteFramesBeforeTimestamp({
+				logLevel: parentLogLevel,
+				timestampInSeconds:
+					timestampInSeconds - getSafeWindowOfMonotonicity(fps),
+			});
+
 			const sample = await sampleIterator.next();
 
 			if (sample.value) {

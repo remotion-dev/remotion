@@ -11,7 +11,6 @@ import {
 } from 'remotion';
 import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
-import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
@@ -40,6 +39,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	credentials,
 	requestInit,
 }) => {
+	const audioContext = useContext(Internals.SharedAudioContext);
+	const sampleRate = audioContext?.sampleRate ?? 48000;
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
 	const frame = useCurrentFrame();
@@ -68,6 +69,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const startInVideo = sequenceContext
+		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
+		: 0;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -119,6 +123,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		});
 
 		extractFrameViaBroadcastChannel({
+			sampleRate,
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
@@ -238,9 +243,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 							? audio.data
 							: Array.from(audio.data),
 						frame: absoluteFrame,
+						startInVideo,
 						timestamp: audio.timestamp,
-						duration:
-							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
+						duration: audio.durationInMicroSeconds,
 						toneFrequency: toneFrequency ?? 1,
 					});
 				}
@@ -260,6 +265,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			unregisterRenderAsset(id);
 		};
 	}, [
+		sampleRate,
 		absoluteFrame,
 		continueRender,
 		delayRender,
@@ -277,6 +283,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		playbackRate,
 		registerRenderAsset,
 		src,
+		startInVideo,
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,

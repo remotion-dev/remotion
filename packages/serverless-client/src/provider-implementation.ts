@@ -6,7 +6,7 @@ import type {BillingCurrency} from './format-costs-info';
 import type {RenderMetadata} from './render-metadata';
 import type {RendererFunctionTransport} from './renderer-transport';
 import type {ServerlessReturnValues} from './return-values';
-import type {OnMessage} from './streaming/streaming';
+import type {GetBinaryPayloadSink, OnMessage} from './streaming/streaming';
 import type {CallFunctionOptions, CloudProvider} from './types';
 
 export type ParseFunctionName = (functionName: string) => {
@@ -159,6 +159,7 @@ export type CallFunctionStreaming<Provider extends CloudProvider> = <
 	options: CallFunctionOptions<T, Provider> & {
 		receivedStreamingPayload: OnMessage<Provider>;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => Promise<void>;
 
@@ -247,6 +248,13 @@ export type ProviderSpecifics<Provider extends CloudProvider> = {
 	randomHash: RandomHash;
 	readFile: ReadFile<Provider>;
 	writeFile: WriteFile<Provider>;
+	// Whether this destination supports atomic create-only output uploads.
+	supportsConditionalOutput: (params: {
+		customCredentials: CustomCredentials<Provider> | null;
+	}) => boolean;
+	writeFileIfNotExists: WriteFile<Provider> | null;
+	// Normalize permission failures to OutputFileAccessDeniedError and missing files
+	// to an error named NotFound. Other errors must propagate unchanged.
 	headFile: HeadFile<Provider>;
 	convertToServeUrl: ConvertToServeUrl<Provider>;
 	printLoggingHelper: boolean;

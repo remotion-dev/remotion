@@ -9,7 +9,9 @@ Concurrency can mean different things depending on the context.
 **In local rendering,** concurrency refers to how many browser tabs are opened in parallel during a render.  
 Each Chrome tab renders web content and then screenshots it.
 
-**For rendering on Lambda,** concurrency refers to the amount of Lambda functions that are spawned for a render. You can control the Lambda concurrency using the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option.
+**For rendering on Lambda,** concurrency refers to the number of chunks that can be rendered in parallel. Normally, each chunk is handled by a separate Lambda function. You can control the Lambda concurrency using the [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda) option.
+
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function.
 
 Each Lambda function usually opens just a single tab, unless you use the [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) option to increase the amount of tabs per Lambda function.
 

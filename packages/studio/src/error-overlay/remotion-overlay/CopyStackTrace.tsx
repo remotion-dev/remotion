@@ -30,7 +30,7 @@ export const CopyStackTrace: React.FC<{
 			return 'Failed!';
 		}
 
-		return 'Copy Stacktrace';
+		return 'Copy stack';
 	}, [copyState]);
 
 	return <Button onClick={handleCopyToClipboard}>{label}</Button>;

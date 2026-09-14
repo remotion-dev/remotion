@@ -4,14 +4,17 @@ import {useCallback, useContext, useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../../helpers/get-git-menu-item';
+import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../../helpers/open-in-editor';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
-	canUseEditorPicker,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from '../use-default-editor-info';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 
@@ -22,32 +25,50 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 		sequence.getStack,
 		sequence.controls?.overrideId ?? sequence.id,
 	);
-	const editorPickerAvailable = canUseEditorPicker(previewConnected);
-	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
-	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);
-
+	const {
+		canConfigureApps,
+		canOpenInEditor: editorAvailable,
+		defaultEditorId,
+		editorInfo,
+	} = useEditorOpening(previewConnected);
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const canOpenInEditor = useMemo(
-		() =>
-			Boolean(
-				window.remotion_editorName && previewConnected && originalLocation,
-			),
-		[originalLocation, previewConnected],
+		() => Boolean(editorAvailable && originalLocation),
+		[editorAvailable, originalLocation],
 	);
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
+	const canOpenSource =
+		defaultOpenInTarget !== null && originalLocation !== null;
 
 	const openInEditor = useCallback(
 		async (editorId: EditorPickerId | null) => {
-			if (!canOpenInEditor || !originalLocation) {
+			const resolvedEditorId = editorId ?? defaultEditorId;
+			if (!canOpenInEditor || !originalLocation || !resolvedEditorId) {
 				return;
 			}
 
 			try {
-				await openOriginalPositionInEditor(originalLocation, editorId);
+				await openOriginalPositionInEditor(originalLocation, resolvedEditorId);
 			} catch (err) {
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[canOpenInEditor, originalLocation],
+		[canOpenInEditor, defaultEditorId, originalLocation],
 	);
+	const openSource = useCallback(() => {
+		if (!originalLocation) {
+			return;
+		}
+
+		if (defaultOpenInTarget === 'editor') {
+			openInEditor(null);
+			return;
+		}
+
+		if (defaultOpenInTarget === 'git-source') {
+			openGitSource({folder: false, location: originalLocation});
+		}
+	}, [defaultOpenInTarget, openInEditor, originalLocation]);
 	const openInCodingAgent = useCallback(
 		async (
 			codingAgentId: DefaultCodingAgent,
@@ -70,12 +91,14 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 	);
 
 	return {
+		canOpenSource,
 		canOpenInEditor,
-		canConfigureApps: editorPickerAvailable,
+		canConfigureApps,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	};
 };

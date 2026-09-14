@@ -1,9 +1,14 @@
 import {expect, test} from 'bun:test';
+import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {
 	updateMultipleSequenceProps,
 	updateSequenceProps,
 } from '../codemods/update-sequence-props/update-sequence-props';
+import {
+	computeSequencePropsStatusFromContent,
+	takeCachedSequencePropsStatusAst,
+} from '../preview-server/routes/can-update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
 
 const lightLeakInput = `import {LightLeak} from '@remotion/light-leaks';
@@ -580,6 +585,128 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 	expect(results[1].oldValueStrings[0]).toBe('60');
 	expect(output.split('\n')[7]).toContain('hueShift={90}');
 	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
+});
+
+test('updateMultipleSequenceProps should not format a no-op edit', async () => {
+	const unformattedInput = lightLeakInput.replace(
+		'\t\t<AbsoluteFill',
+		' <AbsoluteFill',
+	);
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input: unformattedInput,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(unformattedInput, 8),
+				updates: [{key: 'hueShift', value: 30, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(output).toBe(unformattedInput);
+	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps should only format the edited opening element', async () => {
+	const input = `const unrelated    = {keep: "double quotes"};
+
+export const Example = () => {
+	return <Interactive.Div name = "Example">Text</Interactive.Div>;
+};
+`;
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 4),
+				updates: [{key: 'hidden', value: true, defaultValue: false}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: {singleQuote: true, useTabs: true},
+	});
+
+	expect(output).toBe(`const unrelated    = {keep: "double quotes"};
+
+export const Example = () => {
+	return <Interactive.Div name="Example" hidden>Text</Interactive.Div>;
+};
+`);
+	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps formats a multiline non-self-closing opening element', async () => {
+	const input = `export const Example = () => {
+	return (
+		<Interactive.Div
+			name="Example"
+			style={{height: 8, scale: 1, width: 8}}
+		>
+			Text
+		</Interactive.Div>
+	);
+};
+`;
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 3),
+				updates: [{key: 'style.scale', value: 1.353, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: {singleQuote: true, useTabs: true},
+	});
+
+	expect(output).toBe(`export const Example = () => {
+	return (
+		<Interactive.Div name="Example" style={{ height: 8, scale: 1.353, width: 8 }}>
+			Text
+		</Interactive.Div>
+	);
+};
+`);
+	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps reuses the status AST across the shared Recast runtime', async () => {
+	const nodePath = lineColumnToNodePath(lightLeakInput, 8);
+	computeSequencePropsStatusFromContent({
+		fileContents: lightLeakInput,
+		nodePath,
+		componentIdentity: null,
+		keys: ['hueShift'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	expect(takeCachedSequencePropsStatusAst(`${lightLeakInput}\n`)).toBeNull();
+	const cachedAst = takeCachedSequencePropsStatusAst(lightLeakInput);
+	if (!cachedAst) {
+		throw new Error('Expected the status AST to be reusable');
+	}
+
+	const {ast} = await updateMultipleSequenceProps({
+		input: lightLeakInput,
+		changes: [
+			{
+				nodePath,
+				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+		ast: cachedAst,
+	});
+
+	expect(ast).toBe(cachedAst);
+	expect(() => recast.print(ast).code).not.toThrow();
+	expect(takeCachedSequencePropsStatusAst(lightLeakInput)).toBeNull();
 });
 
 test('updateSequenceProps should update JSX text children', async () => {

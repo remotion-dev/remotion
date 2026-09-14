@@ -108,7 +108,12 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	const unregisterSequence = useCallback(() => undefined, []);
 
 	const ctx: SequenceManagerContext = useMemo(
-		() => ({registerSequence, unregisterSequence, sequences: []}),
+		() => ({
+			registerSequence,
+			unregisterSequence,
+			updateSequence: registerSequence,
+			sequences: [],
+		}),
 		[registerSequence, unregisterSequence],
 	);
 
@@ -217,7 +222,7 @@ const makeMediaInTimelineData = ({
 		volumes: 1,
 		duration: 100,
 		doesVolumeChange: false,
-		nonce: {get: () => [[0, 0]]},
+		muted: false,
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
 		src: 'video.mp4',
@@ -239,6 +244,54 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	);
 
 	expect(registerCalls).toBe(1);
+});
+
+test('Sequence timing changes update its registration without changing order', async () => {
+	let getSequences = (): TSequence[] => {
+		throw new Error('Sequence manager has not mounted');
+	};
+
+	const CaptureSequences = () => {
+		const sequencesRef = React.useContext(SequenceManagerRefContext);
+		getSequences = () => sequencesRef.current;
+		return null;
+	};
+
+	const renderSequences = (firstDuration: number) => (
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: false,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<SequenceManagerProvider>
+					<CaptureSequences />
+					<Sequence name="First" durationInFrames={firstDuration} />
+					<Sequence name="Second" durationInFrames={20} />
+				</SequenceManagerProvider>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>
+	);
+
+	const rendered = render(renderSequences(10));
+	await waitFor(() => {
+		expect(getSequences()).toHaveLength(2);
+	});
+	const initialIds = getSequences().map((sequence) => sequence.id);
+
+	rendered.rerender(renderSequences(15));
+	await waitFor(() => {
+		expect(getSequences()[0]?.duration).toBe(15);
+	});
+	expect(getSequences().map((sequence) => sequence.displayName)).toEqual([
+		'First',
+		'Second',
+	]);
+	expect(getSequences().map((sequence) => sequence.id)).toEqual(initialIds);
 });
 
 test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
@@ -288,6 +341,33 @@ test('Interactive runtime values update mounted consumers without re-registering
 	expect(consumer.getByText('0.75')).toBeTruthy();
 	expect(consumerRenders).toBe(2);
 	expect(registeredSequences).toHaveLength(1);
+});
+
+test('Interactive controls capture the video config from the surrounding sequence', () => {
+	const registeredSequences: TSequence[] = [];
+	const SequenceChild: React.FC = () => {
+		return <Interactive.Div>Hello</Interactive.Div>;
+	};
+
+	render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={120}
+			currentFrame={30}
+			onRegisterSequence={(sequence) => registeredSequences.push(sequence)}
+		>
+			<Sequence from={30} durationInFrames={60}>
+				<SequenceChild />
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	const interactiveSequence = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	);
+	expect(interactiveSequence?.controls?.videoConfigValues).toMatchObject({
+		durationInFrames: 60,
+		fps: 30,
+	});
 });
 
 test('Interactive runtime values are published only after a render commits', () => {
@@ -436,6 +516,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 	const firstStack = 'Error\n    at FirstSeriesSequence';
 	const secondStack = 'Error\n    at SecondSeriesSequence';
+	const ConnectedComposition: React.FC = () => null;
 
 	render(
 		<SequenceTestWrapper
@@ -451,7 +532,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 						_remotionInternalStack: firstStack,
 					} as {readonly _remotionInternalStack: string})}
 				>
-					First
+					<ConnectedComposition />
 				</Series.Sequence>
 				<Series.Sequence
 					durationInFrames={20}
@@ -487,6 +568,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+	expect(seriesSequences[0]?.singleChildComponent).toBe(ConnectedComposition);
 });
 
 test('Interactive.withSchema preserves source stacks through controls without consuming a public stack prop', () => {
@@ -654,8 +736,16 @@ test('Series.Sequence timing overrides cascade to later sequences', async () => 
 			[subscriptionKey]: {
 				canUpdate: true as const,
 				props: {
-					durationInFrames: {status: 'static' as const, codeValue: 10},
-					trimBefore: {status: 'static' as const, codeValue: 2},
+					durationInFrames: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 10,
+					},
+					trimBefore: {
+						status: 'static' as const,
+						keyframeDisplayOffsetAdjustment: null,
+						codeValue: 2,
+					},
 				},
 				effects: [],
 			},
@@ -1475,8 +1565,40 @@ test('Loading indicator does not register an interactive sequence', () => {
 	);
 
 	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
-	expect(container.querySelector('#remotion-comp-loading')).toBeTruthy();
+	expect(getByText('Resolving <Suspense>...').style.color).toBe(
+		'rgba(255, 255, 255, 0.8)',
+	);
+	const loadingIndicator = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading',
+	);
+	expect(loadingIndicator).toBeTruthy();
+	expect(loadingIndicator?.style.backgroundColor).toBe('#1f2428');
+	expect(loadingIndicator?.style.animation).toBe('');
+	const loadingContent = container.querySelector<HTMLDivElement>(
+		'#remotion-comp-loading-content',
+	);
+	expect(loadingContent?.style.animation).toBe('anim 2s');
 	expect(registeredSequences).toHaveLength(0);
+});
+
+test('Loading indicator compensates for the canvas scale', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<Internals.CurrentScaleContext.Provider value={{type: 'scale', scale: 2}}>
+				<Loading />
+			</Internals.CurrentScaleContext.Provider>
+		</SequenceTestWrapper>,
+	);
+
+	const loadingLabel = container.querySelector<HTMLParagraphElement>(
+		'#remotion-comp-loading-content p',
+	);
+	const loadingIcon = container.querySelector<SVGElement>(
+		'#remotion-comp-loading-content svg',
+	);
+	expect(loadingLabel?.style.fontSize).toBe('7px');
+	expect(loadingIcon?.getAttribute('width')).toBe('20');
+	expect(loadingIcon?.getAttribute('height')).toBe('20');
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {

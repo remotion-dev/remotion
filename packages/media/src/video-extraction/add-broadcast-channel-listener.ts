@@ -46,6 +46,7 @@ export type MessageFromMainTab =
 
 export type ExtractFrameRequest = {
 	type: 'request';
+	sampleRate: number;
 	src: string;
 	timeInSeconds: number;
 	durationInSeconds: number;
@@ -98,6 +99,7 @@ export const addBroadcastChannelListener = () => {
 			if (data.type === 'request') {
 				try {
 					const result = await extractFrameAndAudio({
+						sampleRate: data.sampleRate,
 						src: data.src,
 						timeInSeconds: data.timeInSeconds,
 						logLevel: data.logLevel,
@@ -190,7 +192,13 @@ export const addBroadcastChannelListener = () => {
 						durationInSeconds: durationInSeconds ?? null,
 					};
 
-					window.remotion_broadcastChannel!.postMessage(response);
+					try {
+						window.remotion_broadcastChannel!.postMessage(response);
+					} finally {
+						// BroadcastChannel clones ImageBitmaps instead of transferring them.
+						// Release the sender-side GPU resource after synchronous serialization.
+						imageBitmap?.close();
+					}
 				} catch (error) {
 					const response: MessageFromMainTab = {
 						type: 'response-error',

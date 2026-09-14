@@ -1,0 +1,99 @@
+---
+image: /generated/articles-docs-studio-protocol-add-element-library-to-studio.png
+title: 'addElementLibraryToStudio()'
+crumb: '@remotion/studio-protocol'
+---
+
+# addElementLibraryToStudio()<AvailableFrom v="4.0.518" />
+
+Requests that an Element catalog is added to a recently focused Remotion Studio project.
+
+## Example
+
+```ts twoslash title="add-catalog.ts"
+import {addElementLibraryToStudio} from '@remotion/studio-protocol';
+
+const result = await addElementLibraryToStudio({
+  url: 'https://example.com/elements',
+  displayName: 'Acme Elements',
+});
+
+if (!result.success) {
+  console.error(result.code, result.message);
+} else {
+  console.log(result.status); // "awaiting-confirmation"
+}
+```
+
+Local Studio ports are probed and the most recently focused compatible writable Studio is selected. Studio shows a confirmation before changing the project.
+
+## Arguments
+
+### url
+
+An absolute HTTP or HTTPS URL for the Element catalog. The URL is normalized before it is stored.
+
+### displayName?
+
+The label shown in Browse Elements. If omitted, Studio derives a label from the URL.
+
+## Return value
+
+Returns a promise with a discriminated union.
+
+### success
+
+Indicates whether the request reached the selected Studio tab.
+
+### status
+
+On success, the value is `"awaiting-confirmation"`. This means Studio received the request, not that the config was changed. The user can still decline it.
+
+### target
+
+On success, contains the project name, Studio origin, and Studio version.
+
+### code
+
+On failure, one of:
+
+- `invalid-url`
+- `invalid-display-name`
+- `unsupported-origin`
+- `no-compatible-studio`
+- `studio-upgrade-required`
+- `no-configurable-target`
+- `unsupported-protocol`
+- `invalid-response`
+- `target-expired`
+- `no-config-file`
+- `request-rejected`
+- `request-timed-out`
+- `network-error`
+
+### message
+
+A human-readable failure message. Use `code` for application logic.
+
+## Persistence
+
+After confirmation, Studio adds an object-form [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call to the loaded `remotion.config.ts`. Existing config source and catalog entries are preserved.
+
+Catalogs are identified by their normalized URL. Requesting an already configured URL does not add another call or replace its display name.
+
+A project without a loaded `remotion.config.ts` returns `no-config-file`.
+
+## Supported origins
+
+The function supports HTTPS websites. HTTP is supported only on `localhost` and `127.0.0.1` for local development. The catalog itself must use HTTP or HTTPS.
+
+The confirmation shows the requesting website, catalog URL, and display name. The catalog is not added or loaded before confirmation. Adding a catalog does not install Element source code or dependencies; each Element installation keeps its own confirmation.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [Studio Protocol security](/docs/studio-protocol/security)
+- [`Config.addElementLibrary()`](/docs/config#addelementlibrary)

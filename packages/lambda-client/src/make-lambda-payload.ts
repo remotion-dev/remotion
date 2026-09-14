@@ -41,6 +41,7 @@ import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
 
 export type InnerRenderMediaOnLambdaInput = {
+	enableCancellation: boolean;
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
@@ -96,6 +97,7 @@ export type InnerRenderMediaOnLambdaInput = {
 >;
 
 export const makeLambdaRenderMediaPayload = async ({
+	enableCancellation,
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
@@ -183,6 +185,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		logLevel,
 	});
 	return {
+		enableCancellation,
 		rendererFunctionName,
 		framesPerLambda,
 		concurrency,

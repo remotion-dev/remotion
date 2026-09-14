@@ -1,41 +1,27 @@
 import React, {useContext} from 'react';
-import {
-	SCHEMA_FIELD_ROW_HEIGHT,
-	type SchemaFieldInfo,
-} from '../../helpers/timeline-layout';
+import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {
 	isTimelineFieldStacked,
-	timelineCompactStackedFieldValueColumnStyle,
 	timelineFieldValueColumnStyle,
 	timelineStackedFieldContentStyle,
 } from './timeline-field-row-layout';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
-import {TimelineRowKeyframeControlsColumn} from './TimelineRowChrome';
-import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
+import {TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING} from './TimelineSelection';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
-const stackedHeaderStyle: React.CSSProperties = {
-	display: 'flex',
-	flex: `0 0 ${SCHEMA_FIELD_ROW_HEIGHT}px`,
-	minWidth: 0,
-};
-
-const stackedLabelStyle: React.CSSProperties = {
-	flex: 1,
-	minWidth: 0,
+const stackedValueStyle: React.CSSProperties = {
+	...timelineFieldValueColumnStyle,
+	paddingLeft: TIMELINE_SELECTED_LABEL_HORIZONTAL_PADDING,
 };
 
 export const TimelineFieldRowContent: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly rowDepth: number;
 	readonly selected: boolean;
-	readonly keyframeControls: React.ReactNode;
 	readonly children: React.ReactNode;
-}> = ({field, rowDepth, selected, keyframeControls, children}) => {
+}> = ({field, rowDepth, selected, children}) => {
 	const transform3DMode = useContext(Transform3DModeContext);
-	const {keyframeControlsPlacement} = useContext(TimelineRowLayoutContext);
 	const stacked = isTimelineFieldStacked({field, transform3DMode});
-	const compactStacked = stacked && field.typeName !== 'text-content';
 	const label = (
 		<TimelineFieldLabel
 			rowDepth={rowDepth}
@@ -45,35 +31,15 @@ export const TimelineFieldRowContent: React.FC<{
 		/>
 	);
 	const value = (
-		<div
-			style={
-				compactStacked
-					? timelineCompactStackedFieldValueColumnStyle
-					: timelineFieldValueColumnStyle
-			}
-		>
+		<div style={stacked ? stackedValueStyle : timelineFieldValueColumnStyle}>
 			{children}
 		</div>
 	);
 
-	const controls =
-		keyframeControlsPlacement === 'after-label' ? (
-			<TimelineRowKeyframeControlsColumn depth={rowDepth}>
-				{keyframeControls}
-			</TimelineRowKeyframeControlsColumn>
-		) : null;
-
 	if (stacked) {
 		return (
 			<div style={timelineStackedFieldContentStyle}>
-				{controls ? (
-					<div style={stackedHeaderStyle}>
-						<div style={stackedLabelStyle}>{label}</div>
-						{controls}
-					</div>
-				) : (
-					label
-				)}
+				{label}
 				{value}
 			</div>
 		);
@@ -82,7 +48,6 @@ export const TimelineFieldRowContent: React.FC<{
 	return (
 		<>
 			{label}
-			{controls}
 			{value}
 		</>
 	);

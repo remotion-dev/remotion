@@ -48,9 +48,7 @@ import type {CalculateMetadataFunction} from 'remotion';
 export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(props.src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(props.src),
   });
 
   const [durationInSeconds, videoTrack] = await Promise.all([

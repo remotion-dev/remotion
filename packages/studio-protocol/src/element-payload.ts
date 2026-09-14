@@ -1,15 +1,18 @@
+import * as z from 'zod/mini';
 import type {ComponentDimensions} from './component-drag-data';
 import {makeDragData} from './drag-data';
 import {
 	assertElementDependency,
 	getElementComponentNameFromSourceCode,
+	hasValidElementInitialPropsForInstallationMode,
+	isElementInitialProps,
 	makeElementFileNameFromSlug,
 	parseElementDragData,
 	type ElementDependency,
 	type ElementDragData,
+	type ElementInitialProps,
 	type ElementInstallationMode,
 } from './element-drag-data';
-import {isRecord} from './validation';
 
 const MAX_PAYLOAD_SIZE = 250_000;
 const MAX_SOURCE_CODE_SIZE = 200_000;
@@ -22,6 +25,7 @@ export type CreateElementPayloadInput = {
 	readonly dependencies: readonly ElementDependency[];
 	readonly dimensions: ComponentDimensions | null;
 	readonly durationInFrames: number;
+	readonly initialProps?: ElementInitialProps | null;
 	readonly installationMode?: ElementInstallationMode;
 };
 
@@ -29,11 +33,16 @@ export type StudioElementPayload = ElementDragData & {
 	readonly durationInFrames: number;
 };
 
+const durationSchema = z.int().check(z.positive(), z.lte(100_000_000));
+const studioElementPayloadEnvelopeSchema = z.object({
+	type: z.literal('remotion-element'),
+	version: z.literal(1),
+	durationInFrames: durationSchema,
+	element: z.unknown(),
+});
+
 const isDuration = (value: unknown): value is number =>
-	typeof value === 'number' &&
-	Number.isInteger(value) &&
-	value >= 1 &&
-	value <= 100_000_000;
+	z.safeParse(durationSchema, value).success;
 
 const assertCreateElementPayloadInput = (
 	input: CreateElementPayloadInput,
@@ -82,6 +91,24 @@ const assertCreateElementPayloadInput = (
 			'installationMode must be "wrapped" or "component-owned-sequence"',
 		);
 	}
+
+	const initialProps = input.initialProps ?? null;
+	if (!isElementInitialProps(initialProps)) {
+		throw new TypeError(
+			'initialProps must be null or an object containing JSON-compatible values with valid JSX attribute names',
+		);
+	}
+
+	if (
+		!hasValidElementInitialPropsForInstallationMode({
+			initialProps,
+			installationMode: input.installationMode,
+		})
+	) {
+		throw new TypeError(
+			'component-owned-sequence initialProps must not define from, durationInFrames, or name, and style must be an object when provided',
+		);
+	}
 };
 
 export const createElementPayload = (
@@ -94,6 +121,7 @@ export const createElementPayload = (
 		dimensions: input.dimensions,
 		displayName: input.displayName,
 		durationInFrames: input.durationInFrames,
+		initialProps: input.initialProps ?? null,
 		slug: input.slug,
 		sourceCode: input.sourceCode,
 		installationMode: input.installationMode ?? 'wrapped',
@@ -112,29 +140,46 @@ export const createElementPayload = (
 export const parseStudioElementPayload = (
 	value: unknown,
 ): StudioElementPayload | null => {
-	if (
-		!isRecord(value) ||
-		value.type !== 'remotion-element' ||
-		value.version !== 1 ||
-		!isDuration(value.durationInFrames) ||
-		!isRecord(value.element)
-	)
+	const parsed = z.safeParse(studioElementPayloadEnvelopeSchema, value);
+	if (!parsed.success) {
 		return null;
-	const element = parseElementDragData(
-		JSON.stringify({
-			type: value.type,
-			version: value.version,
-			element: value.element,
-		}),
-	);
+	}
+
+	if (
+		typeof parsed.data.element !== 'object' ||
+		parsed.data.element === null ||
+		Array.isArray(parsed.data.element)
+	) {
+		return null;
+	}
+
+	const rawInitialProps = Object.hasOwn(parsed.data.element, 'initialProps')
+		? (parsed.data.element as {initialProps: unknown}).initialProps
+		: null;
+	if (!isElementInitialProps(rawInitialProps)) {
+		return null;
+	}
+
+	let serializedElement: string;
+	try {
+		serializedElement = JSON.stringify({
+			type: parsed.data.type,
+			version: parsed.data.version,
+			element: parsed.data.element,
+		});
+	} catch {
+		return null;
+	}
+
+	const element = parseElementDragData(serializedElement);
 	if (element === null) return null;
 	const payload: StudioElementPayload = {
 		...element,
 		element: {
 			...element.element,
-			durationInFrames: value.durationInFrames,
+			durationInFrames: parsed.data.durationInFrames,
 		},
-		durationInFrames: value.durationInFrames,
+		durationInFrames: parsed.data.durationInFrames,
 	};
 	return JSON.stringify(payload).length <= MAX_PAYLOAD_SIZE ? payload : null;
 };

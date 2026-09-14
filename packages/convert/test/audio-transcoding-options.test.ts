@@ -57,6 +57,7 @@ test('registers extension-backed audio encoders for supported containers', async
 	expect(codecs).toContain('flac');
 	expect(codecs).toContain('ac3');
 	expect(codecs).toContain('eac3');
+	expect(codecs).toContain('dts');
 });
 
 test('offers only drop for audio tracks with unknown codecs', async () => {

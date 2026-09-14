@@ -24,6 +24,7 @@ import {
 	type InteractivitySchema,
 	type TSequence,
 } from 'remotion';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
 import {hasClipboardImage} from '../../helpers/clipboard-images';
@@ -33,8 +34,8 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../../helpers/use-keybinding';
-import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {pasteEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {callAddKeyframes} from './call-add-keyframe';
 import {callDeleteKeyframes} from './call-delete-keyframe';
@@ -670,7 +671,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 		const copy = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'c',
+			action: 'copyEffectsAndValues',
 			callback: (e) => {
 				const {selectedItems} = currentSelection.current;
 				const propStatuses = propStatusesRef.current;
@@ -882,7 +883,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						);
 					});
 			},
-			commandCtrlKey: true,
 			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -890,7 +890,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 		const cut = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'x',
+			action: 'cutEffects',
 			callback: (e) => {
 				const {selectedItems, clearSelection, selectItems} =
 					currentSelection.current;
@@ -963,7 +963,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						);
 					});
 			},
-			commandCtrlKey: true,
 			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -1254,12 +1253,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 									? 'Reapply property paste onto selected sequences'
 									: 'Reapply property paste',
 						}).then(() => {
-							showNotification(
-								sequencePropTarget.targets.length > 1
-									? 'Pasted property onto selected sequences'
-									: 'Pasted property',
-								2000,
-							);
+							if (sequencePropTarget.targets.length > 1) {
+								showNotification(
+									'Pasted property onto selected sequences',
+									2000,
+								);
+							}
 						});
 					}
 
@@ -1350,12 +1349,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 									? 'Reapply effect prop paste onto selected effects'
 									: 'Reapply effect prop paste',
 						}).then(() => {
-							showNotification(
-								effectPropTarget.targets.length > 1
-									? 'Pasted effect prop onto selected effects'
-									: 'Pasted effect prop',
-								2000,
-							);
+							if (effectPropTarget.targets.length > 1) {
+								showNotification(
+									'Pasted effect prop onto selected effects',
+									2000,
+								);
+							}
 						});
 					}
 
@@ -1364,6 +1363,10 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							? parseEffectClipboardDataResult(text)
 							: {status: 'valid' as const, data: envelope.payload};
 					if (result.status === 'invalid') {
+						return;
+					}
+
+					if (!canUseEffectOperations()) {
 						return;
 					}
 
@@ -1403,7 +1406,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						envelope?.sourceIdentity === makeTargetKey(targetSequenceNodePath)
 							? envelope.originalEffectIndices
 							: null;
-					return callApi('/api/paste-effects', {
+					return pasteEffects({
 						targetFileName: targetSequenceNodePath.absolutePath,
 						targetSequenceNodePath,
 						type: payload.type,
@@ -1411,9 +1414,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						clientId,
 						insertAtIndices,
 					}).then((pasteResult) => {
-						if (pasteResult.success) {
-							showNotification('Pasted effects', 2000);
-						} else {
+						if (!pasteResult.success) {
 							showNotification(pasteResult.reason, 4000);
 						}
 					});

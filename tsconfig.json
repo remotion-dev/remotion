@@ -28,6 +28,9 @@
 			"path": "./packages/browser-studio"
 		},
 		{
+			"path": "./packages/canvas"
+		},
+		{
 			"path": "./packages/cloudrun"
 		},
 		{
@@ -59,6 +62,9 @@
 		},
 		{
 			"path": "./packages/google-fonts"
+		},
+		{
+			"path": "./packages/gsap"
 		},
 		{
 			"path": "./packages/openai-whisper"
@@ -247,6 +253,9 @@
 			"path": "./packages/example-videos"
 		},
 		{
+			"path": "./packages/jonnys-videos"
+		},
+		{
 			"path": "./packages/zod-types"
 		},
 		{
@@ -269,6 +278,15 @@
 		},
 		{
 			"path": "./packages/light-leaks"
+		},
+		{
+			"path": "./packages/whisper-webgpu"
+		},
+		{
+			"path": "./packages/video-matting"
+		},
+		{
+			"path": "./packages/maptiler"
 		},
 		{
 			"path": "./packages/mac-cursors"

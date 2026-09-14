@@ -34,6 +34,30 @@ type objectUploaderMock struct {
 	err   error
 }
 
+type cancellationObjectClientMock struct {
+	progress string
+	getInput *s3.GetObjectInput
+	putInput *s3.PutObjectInput
+}
+
+func (mock *cancellationObjectClientMock) GetObject(
+	_ context.Context,
+	input *s3.GetObjectInput,
+	_ ...func(*s3.Options),
+) (*s3.GetObjectOutput, error) {
+	mock.getInput = input
+	return &s3.GetObjectOutput{Body: io.NopCloser(strings.NewReader(mock.progress))}, nil
+}
+
+func (mock *cancellationObjectClientMock) PutObject(
+	_ context.Context,
+	input *s3.PutObjectInput,
+	_ ...func(*s3.Options),
+) (*s3.PutObjectOutput, error) {
+	mock.putInput = input
+	return &s3.PutObjectOutput{}, nil
+}
+
 func (mock *objectUploaderMock) PutObject(
 	_ context.Context,
 	input *s3.PutObjectInput,
@@ -64,6 +88,45 @@ func TestPrintVersion(t *testing.T) {
 	}
 
 	println(string(jsonData))
+}
+
+func TestCancelRenderOnLambda(t *testing.T) {
+	client := &cancellationObjectClientMock{progress: `{"cancellationEnabled":true}`}
+	input := CancelRenderOnLambdaInput{
+		Region:     "us-east-1",
+		BucketName: "remotionlambda-test",
+		RenderId:   "render-id",
+	}
+
+	if err := cancelRenderOnLambda(client, input); err != nil {
+		t.Fatalf("could not cancel render: %v", err)
+	}
+	if aws.ToString(client.getInput.Key) != "renders/render-id/progress.json" {
+		t.Fatalf("unexpected progress key: %s", aws.ToString(client.getInput.Key))
+	}
+	if aws.ToString(client.putInput.Key) != "renders/render-id/cancel.json" {
+		t.Fatalf("unexpected cancellation key: %s", aws.ToString(client.putInput.Key))
+	}
+	body, err := io.ReadAll(client.putInput.Body)
+	if err != nil {
+		t.Fatalf("could not read cancellation body: %v", err)
+	}
+	var cancellationBody map[string]int64
+	if err := json.Unmarshal(body, &cancellationBody); err != nil {
+		t.Fatalf("could not parse cancellation body: %v", err)
+	}
+	if cancellationBody["cancelledAt"] <= 0 {
+		t.Fatalf("expected cancelledAt timestamp, got %s", string(body))
+	}
+
+	disabledClient := &cancellationObjectClientMock{progress: `{}`}
+	err = cancelRenderOnLambda(disabledClient, input)
+	if err == nil || !strings.Contains(err.Error(), "enableCancellation: true") {
+		t.Fatalf("expected cancellation opt-in error, got %v", err)
+	}
+	if disabledClient.putInput != nil {
+		t.Fatal("should not write a cancellation signal for a disabled render")
+	}
 }
 
 func TestRenderPayloadNumberOfGifLoops(t *testing.T) {

@@ -17,7 +17,6 @@ import type {
 	VideoConfigWithSerializedProps,
 } from 'remotion';
 import {
-	AbsoluteFill,
 	getInputProps,
 	getRemotionEnvironment,
 	continueRender as globalContinueRender,
@@ -79,7 +78,7 @@ const DelayedSpinner: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill
+		<Internals.AbsoluteFillElement
 			style={{
 				justifyContent: 'center',
 				alignItems: 'center',
@@ -90,7 +89,7 @@ const DelayedSpinner: React.FC = () => {
 			}}
 		>
 			Loading Studio
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };
 
@@ -252,7 +251,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
-					previewSampleRate={window.remotion_previewSampleRate}
+					previewSampleRate={window.remotion_sampleRate}
 					_experimentalKeepAudioContextAlive={false}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
@@ -281,7 +280,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
-					previewSampleRate={window.remotion_previewSampleRate}
+					previewSampleRate={window.remotion_sampleRate}
 					_experimentalKeepAudioContextAlive={false}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
@@ -309,6 +308,7 @@ const renderContent = (Root: React.FC) => {
 				window.remotion_isStudio = true;
 				window.remotion_isReadOnlyStudio = true;
 				window.remotion_inputProps = '{}';
+				window.remotion_enableSequenceStackTraces?.();
 
 				renderToDOM(<StudioInternals.Studio readOnly rootComponent={Root} />);
 			})

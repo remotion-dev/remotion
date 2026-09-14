@@ -141,6 +141,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	defaultOutName,
 	useHtmlInCanvas,
 	pixelDensity,
+	sampleRate,
 }: {
 	width: number;
 	height: number;
@@ -160,6 +161,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	defaultOutName: string | null;
 	useHtmlInCanvas: boolean;
 	pixelDensity: number;
+	sampleRate: number | null;
 }): {
 	delayRenderScope: DelayRenderScope;
 	div: HTMLDivElement;
@@ -279,7 +281,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 											id,
 											// @ts-expect-error
 											component: Component,
-											nonce: [[0, 0]],
+											order: null,
 											defaultProps: {},
 											folderName: null,
 											parentFolderName: null,
@@ -295,6 +297,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 										type: 'composition',
 										compositionId: id,
 									},
+									currentAssetMetadata: null,
 									currentCompositionMetadata: {
 										props: resolvedProps,
 										durationInFrames,
@@ -317,6 +320,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 									>
 										<UpdateTime
 											audioEnabled={audioEnabled}
+											sampleRate={sampleRate}
 											videoEnabled={videoEnabled}
 											logLevel={logLevel}
 											compId={id}

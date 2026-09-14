@@ -66,6 +66,7 @@ export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
 		width,
 		height,
 		style,
+		resize,
 		frameloop,
 		onCreated,
 		FrameRenderer,
@@ -131,6 +132,7 @@ export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
 			<Canvas
 				style={actualStyle}
 				{...rest}
+				resize={{offsetSize: true, ...resize}}
 				frameloop={isRendering ? 'never' : (frameloop ?? 'always')}
 				onCreated={remotion_onCreated}
 			>

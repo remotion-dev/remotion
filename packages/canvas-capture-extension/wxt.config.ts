@@ -26,6 +26,7 @@ export default defineConfig({
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
 		action: {
 			default_title: 'Open Remotion Canvas Capture',
+			default_popup: 'recorder.html',
 		},
 	},
 	webExt: {

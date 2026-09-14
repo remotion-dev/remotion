@@ -6,7 +6,7 @@ test('Should be able to call pnpm exec remotion lambda', async () => {
 	const task = await execa('bun', ['x', 'remotion', 'lambda'], {
 		cwd: path.join(process.cwd(), '..', 'example'),
 	});
-	expect(task.stdout).toContain('Available commands');
+	expect(task.stdout).toContain('Commands:');
 });
 
 test('Should be able to get user policy without authentication', async () => {

@@ -95,7 +95,6 @@ const CircleInner = forwardRef<
 export const Circle = Interactive.withSchema({
   Component: CircleInner,
   componentName: '<Circle>',
-  componentIdentity: 'com.example.Circle',
   schema: circleSchema,
   supportsEffects: false,
 });
@@ -131,12 +130,6 @@ An [`InteractivitySchema`](/docs/interactivity-schema) that describes which prop
 
 Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls. Use [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) with `InteractiveCropProps` to opt the component into crop controls.
 For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
-
-### `componentIdentity`
-
-A stable string that identifies the component type.
-
-Use reverse-DNS style names such as `"com.example.Circle"`. Pass `null` if the component should not be identified for source updates.
 
 ### `supportsEffects`
 

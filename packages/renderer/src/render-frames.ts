@@ -85,7 +85,9 @@ type InternalRenderFramesOptions = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>);
 	onDownload: RenderMediaOnDownload | null;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -122,7 +124,9 @@ type InnerRenderFramesOptions = {
 	outputFramesInSequence: boolean;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>);
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
@@ -195,7 +199,7 @@ export type RenderFramesOptions = Prettify<
 		puppeteerInstance?: HeadlessBrowser;
 		browserExecutable?: BrowserExecutable;
 		onBrowserLog?: (log: BrowserLog) => void;
-		onFrameBuffer?: (buffer: Buffer, frame: number) => void;
+		onFrameBuffer?: (buffer: Buffer, frame: number) => void | Promise<void>;
 		onDownload?: RenderMediaOnDownload;
 		timeoutInMilliseconds?: number;
 		chromiumOptions?: ChromiumOptions;
@@ -663,7 +667,11 @@ const internalRenderFramesRaw = ({
 			}),
 		])
 			.then((res) => {
-				server?.compositor
+				if (!server || server.compositor.pid === null) {
+					return resolve(res);
+				}
+
+				server.compositor
 					.executeCommand('CloseAllVideos', {})
 					.then(() => {
 						Log.verbose(

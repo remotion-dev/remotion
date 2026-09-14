@@ -13,6 +13,7 @@ import {
 	type QueuedPeriod,
 } from './audio/audio-preview-iterator';
 import {getScheduledTime} from './audio/get-scheduled-time';
+import {pitchShiftAudioIterator} from './audio/pitch-shift';
 import {
 	processNext,
 	StaleWaiterError,
@@ -77,6 +78,8 @@ export const audioIteratorManager = ({
 	getMediaEndTimestamp,
 	getStartTime,
 	initialMuted,
+	initialVolume,
+	toneFrequency,
 	drawDebugOverlay,
 }: {
 	audioTrack: InputAudioTrack;
@@ -87,10 +90,13 @@ export const audioIteratorManager = ({
 	getMediaEndTimestamp: () => number;
 	getStartTime: () => number;
 	initialMuted: boolean;
+	initialVolume: number;
+	toneFrequency: number;
 	drawDebugOverlay: () => void;
 }) => {
 	let muted = initialMuted;
-	let currentVolume = 1;
+	let currentVolume = Math.max(0, initialVolume);
+	let currentToneFrequency = toneFrequency;
 	let currentSeek: {
 		time: number;
 		playbackRate: number;
@@ -103,6 +109,7 @@ export const audioIteratorManager = ({
 	} | null = null;
 
 	const gainNode = sharedAudioContext.audioContext.createGain();
+	gainNode.gain.value = muted ? 0 : currentVolume;
 	gainNode.connect(sharedAudioContext.gainNode);
 
 	const audioSink = new AudioBufferSink(audioTrack);
@@ -283,7 +290,10 @@ export const audioIteratorManager = ({
 		) => number | null;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
-		onScheduled: (sourceDurationInSeconds: number) => void;
+		onScheduled: (
+			sourceDurationInSeconds: number,
+			timelineTimestamp: number,
+		) => void;
 		onDone: () => void;
 		onDestroyed: () => void;
 		logLevel: LogLevel;
@@ -331,7 +341,10 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				onScheduled(result.value.sourceDurationInSeconds);
+				onScheduled(
+					result.value.sourceDurationInSeconds,
+					result.value.timelineTimestamp,
+				);
 				notifyNodeScheduled();
 
 				onAudioChunk({
@@ -422,7 +435,7 @@ export const audioIteratorManager = ({
 
 		const maximumContinuousTimestamp =
 			startFromSecond + getSequenceDurationInSeconds() * playbackRate;
-		const source = loop
+		const unshiftedSource = loop
 			? makeLoopingIterator({
 					audioSink,
 					seekTimeInSeconds: startFromSecond,
@@ -435,6 +448,10 @@ export const audioIteratorManager = ({
 					timeToSeek: startFromSecond,
 					maximumTimestamp,
 				});
+		const source = pitchShiftAudioIterator({
+			iterator: unshiftedSource,
+			toneFrequency: currentToneFrequency,
+		});
 		const iterator = makeAudioIterator({
 			startFromSecond,
 			iterator: source,
@@ -443,7 +460,7 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
-		let bufferedDuration = 0;
+		let bufferedUntil = startFromSecond;
 		let hasUnblockedPlayback = false;
 		const unblockPlayback = () => {
 			if (hasUnblockedPlayback) {
@@ -460,12 +477,17 @@ export const audioIteratorManager = ({
 			getTargetTime,
 			playbackRate,
 			scheduleAudioNode,
-			onScheduled: (sourceDurationInSeconds) => {
-				bufferedDuration += sourceDurationInSeconds;
+			onScheduled: (sourceDurationInSeconds, timelineTimestamp) => {
+				bufferedUntil = Math.max(
+					bufferedUntil,
+					timelineTimestamp + sourceDurationInSeconds,
+				);
+				const bufferedDuration = bufferedUntil - startFromSecond;
 				// Need to schedule a bit into the future to unblock the buffer state,
 				// otherwise we might be scheduling too late. This must be based on
-				// duration, not chunk count, because large PCM chunks can exceed the
-				// scheduling horizon before enough chunks are queued:
+				// timeline coverage, not audible duration or chunk count: silence is
+				// already safe to play, and large PCM chunks can exceed the scheduling
+				// horizon before enough chunks are queued:
 				// https://github.com/remotion-dev/remotion/issues/9394
 				if (hasEnoughAudioToStartPlayback(bufferedDuration)) {
 					unblockPlayback();
@@ -588,12 +610,19 @@ export const audioIteratorManager = ({
 			}
 
 			const currentIteratorTimestamp = audioBufferIterator.guessNextTimestamp();
+			const iteratorHasAdvancedThroughSilence =
+				loop &&
+				currentAnchor !== null &&
+				unloopedNewTime >= currentAnchor.unloopedStartInSeconds &&
+				currentIteratorTimestamp >= timeToCheck;
 			if (
-				currentIteratorTimestamp < timeToCheck &&
-				Math.abs(currentIteratorTimestamp - timeToCheck) < 1
+				iteratorHasAdvancedThroughSilence ||
+				(currentIteratorTimestamp < timeToCheck &&
+					Math.abs(currentIteratorTimestamp - timeToCheck) < 1)
 			) {
 				processNext();
-				// iterator is less than 1 second behind, we will just let it run
+				// The iterator has either advanced beyond the current time, meaning
+				// the gap is known silence, or is less than 1 second behind. Let it run.
 				return;
 			}
 		}
@@ -638,6 +667,9 @@ export const audioIteratorManager = ({
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);
 			gainNode.gain.value = muted ? 0 : currentVolume;
+		},
+		setToneFrequency: (newToneFrequency: number) => {
+			currentToneFrequency = newToneFrequency;
 		},
 		scheduleAudioChunk,
 		waitForNScheduledNodes,

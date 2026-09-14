@@ -81,7 +81,7 @@ const compositionContext = {
 			height: 1080,
 			width: 1920,
 			parentFolderName: null,
-			nonce: [[0, 0]],
+			order: null,
 			calculateMetadata: null,
 			schema: null,
 			stack: null,
@@ -89,6 +89,7 @@ const compositionContext = {
 	],
 	folders: [],
 	canvasContent: {type: 'composition' as const, compositionId: 'comp'},
+	currentAssetMetadata: null,
 	currentCompositionMetadata: {
 		defaultCodec: null,
 		defaultOutName: null,
@@ -106,8 +107,7 @@ const compositionContext = {
 
 const timelineContext = {
 	frame: {},
-	playing: false,
-	imperativePlaying: {current: false},
+	isPlaying: () => false,
 	audioAndVideoTags: {current: []},
 } as React.ContextType<typeof Internals.TimelineContext>;
 
@@ -138,6 +138,7 @@ const SequenceRegistrationWrapper: React.FC<{
 			({
 				registerSequence,
 				unregisterSequence,
+				updateSequence: registerSequence,
 				sequences: [],
 			}) as React.ContextType<typeof Internals.SequenceManager>,
 		[registerSequence, unregisterSequence],
@@ -200,6 +201,30 @@ afterEach(() => {
 	globalThis.Worker = OriginalWorker;
 	HTMLCanvasElement.prototype.getContext = originalGetContext;
 	manuallyManagedGifCache.clear();
+	window.origin = 'http://localhost:3000';
+});
+
+test('<Gif> resolves media sources when its origin is opaque', async () => {
+	window.origin = 'null';
+	MockWorker.instances = 0;
+	manuallyManagedGifCache.set(
+		getGifCacheKey({
+			resolvedSrc: 'http://localhost:3000/test.gif',
+			requestInit: undefined,
+		}),
+		gifState,
+	);
+
+	const {container} = render(
+		<SequenceRegistrationWrapper onRegisterSequence={() => undefined}>
+			<Gif src="/test.gif" />
+		</SequenceRegistrationWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelector('canvas')).toBeInstanceOf(HTMLCanvasElement);
+	});
+	expect(MockWorker.instances).toBe(0);
 });
 
 test('<Gif> registers its canvas as the outline ref', async () => {
@@ -226,7 +251,6 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 		.refForOutline as React.RefObject<HTMLCanvasElement | null>;
 	expect(ref.current).toBe(refForOutline.current);
 });
-
 test('<Gif> exposes non-keyframable premounting schema fields', () => {
 	expect(gifSchema.premountFor).toMatchObject({keyframable: false});
 	expect(gifSchema.postmountFor).toMatchObject({keyframable: false});

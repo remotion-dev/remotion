@@ -25,7 +25,7 @@ import {
 	DELAY_RENDER_CLEAR_TOKEN,
 	DELAY_RENDER_RETRIES_LEFT,
 	DELAY_RENDER_RETRY_TOKEN,
-} from './delay-render';
+} from './delay-render-constants';
 import {findPropsToDelete} from './find-props-to-delete';
 import {
 	deserializeJSONWithSpecialTypes,

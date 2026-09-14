@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 const output = await build({
 	entrypoints: ['src/index.ts', 'src/audio-waveform-worker.ts'],
 	naming: '[name].mjs',
-	external: ['mediabunny'],
+	external: ['mediabunny', 'remotion'],
 });
 
 for (const file of output.outputs) {

@@ -14,6 +14,7 @@ import {borderRadiusNested} from './fixtures/border-radius-nested';
 import {borderRadiusNestedOverflowHidden} from './fixtures/border-radius-nested-overflow-hidden';
 import {borderRadiusNone} from './fixtures/border-radius-none';
 import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
+import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
 import {clipPathCircle} from './fixtures/clip-path-circle';
@@ -42,13 +43,13 @@ import {issue7489Minimal} from './fixtures/issue-7489-minimal';
 import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-chars';
 import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
 import {issue9901RotatedDropShadow} from './fixtures/issue-9901-rotated-drop-shadow';
+import {issue10676SvgGradientStroke} from './fixtures/issue-10676-svg-gradient-stroke';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
-import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
 import {opacityInherited} from './fixtures/opacity-inherited';
@@ -62,6 +63,7 @@ import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
 import {parentRotatedSvg} from './fixtures/parent-rotated-svg';
 import {parentTransformOrigin} from './fixtures/parent-transform-origin';
+import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
@@ -95,6 +97,7 @@ import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {issue10441TransformShorthands} from './fixtures/transforms/issue-10441-transform-shorthands';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
 import {transformWithAxisRotate} from './fixtures/transforms/transform-with-axis-rotate';
@@ -132,7 +135,6 @@ export const Root: React.FC = () => {
 			<Composition {...hugeImageTransform} />
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
-			<Composition {...nestedHtmlInCanvas} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
@@ -174,6 +176,7 @@ export const Root: React.FC = () => {
 				<Composition {...borderRadiusPercentage} />
 				<Composition {...borderRadiusNone} />
 				<Composition {...borderRadiusClamped} />
+				<Composition {...borderRadiusPill} />
 				<Composition {...borderRadiusNested} />
 				<Composition {...borderRadiusNestedOverflowHidden} />
 				<Composition {...borderIndividualSides} />
@@ -201,10 +204,12 @@ export const Root: React.FC = () => {
 				<Composition {...filterText} />
 			</Folder>
 			<Folder name="Projects">
+				<Composition {...pitchShiftAudio} />
 				<Composition {...unwrapped} />
 				<Composition {...orthographic} />
 				<Composition {...withMargin} />
 				<Composition {...withNegativeMargin} />
+				<Composition {...issue10441TransformShorthands} />
 				<Composition {...transformWithScale} />
 				<Composition {...transformWithMultiComponentScale} />
 				<Composition {...transformWithRotate} />
@@ -221,6 +226,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue6211MaskWheel} />
 				<Composition {...issue7199ScaleAndDropShadow} />
 				<Composition {...issue9901RotatedDropShadow} />
+				<Composition {...issue10676SvgGradientStroke} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
 			</Folder>

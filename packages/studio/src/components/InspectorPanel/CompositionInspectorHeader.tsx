@@ -7,6 +7,11 @@ import {
 } from 'react';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../../helpers/get-git-menu-item';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {
 	openOriginalPositionInEditor,
@@ -20,11 +25,12 @@ import {InlineCompositionName} from '../InlineCompositionName';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
-import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
+import {useEditorOpening} from '../use-default-editor-info';
 
-const COMPOSITION_INSPECTOR_HEADER_HEIGHT = 66;
+const COMPOSITION_INSPECTOR_HEADER_HEIGHT = COMPACT_CONTROL_ROW_HEIGHT * 3;
 
 const sourceLocationIconStyle: CSSProperties = {
 	flexShrink: 0,
@@ -34,7 +40,7 @@ const sourceLocationIconStyle: CSSProperties = {
 
 const componentLocationPlaceholder: CSSProperties = {
 	flexShrink: 0,
-	height: COMPACT_INLINE_ROW_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 };
 
 const renderReactIcon = (color: string) => {
@@ -44,6 +50,11 @@ const renderReactIcon = (color: string) => {
 export const CompositionInspectorHeader = () => {
 	const video = Internals.useVideo();
 	const {compositions} = useContext(Internals.CompositionManager);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
+		previewServerState.type === 'connected',
+	);
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const currentComposition = useMemo(() => {
 		if (!video) {
@@ -91,24 +102,31 @@ export const CompositionInspectorHeader = () => {
 		});
 	}, [compositionFile, compositionId]);
 
+	const openSourceLocation = useCallback(
+		(location: OriginalPosition) => {
+			if (defaultOpenInTarget === 'editor' && defaultEditorId) {
+				openOriginalPositionInEditor(location, defaultEditorId).catch((err) => {
+					showNotification((err as Error).message, 2000);
+				});
+				return;
+			}
+
+			if (defaultOpenInTarget === 'git-source') {
+				openGitSource({folder: false, location});
+			}
+		},
+		[defaultEditorId, defaultOpenInTarget],
+	);
 	const openFileLocation = useCallback(() => {
-		if (!validatedLocation) {
-			return;
+		if (validatedLocation) {
+			openSourceLocation(validatedLocation);
 		}
-
-		openOriginalPositionInEditor(validatedLocation, null).catch((err) => {
-			showNotification((err as Error).message, 2000);
-		});
-	}, [validatedLocation]);
+	}, [openSourceLocation, validatedLocation]);
 	const openComponentLocation = useCallback(() => {
-		if (!componentLocation) {
-			return;
+		if (componentLocation) {
+			openSourceLocation(componentLocation);
 		}
-
-		openOriginalPositionInEditor(componentLocation, null).catch((err) => {
-			showNotification((err as Error).message, 2000);
-		});
-	}, [componentLocation]);
+	}, [componentLocation, openSourceLocation]);
 	const renderCompositionIcon = useCallback(
 		(color: string) => {
 			if (!video) {
@@ -143,10 +161,10 @@ export const CompositionInspectorHeader = () => {
 					/>
 					<InspectorSourceLocation
 						location={validatedLocation}
-						canOpen={validatedLocation !== null}
+						canOpen={validatedLocation !== null && defaultOpenInTarget !== null}
 						onOpen={openFileLocation}
 						renderIcon={renderCompositionIcon}
-						size="inline-action"
+						size="quick-action"
 					/>
 					{compositionComponentInfo === null &&
 					compositionFile !== null &&
@@ -155,10 +173,12 @@ export const CompositionInspectorHeader = () => {
 					) : (
 						<InspectorSourceLocation
 							location={componentLocation}
-							canOpen={componentLocation !== null}
+							canOpen={
+								componentLocation !== null && defaultOpenInTarget !== null
+							}
 							onOpen={openComponentLocation}
 							renderIcon={renderReactIcon}
-							size="inline-action"
+							size="quick-action"
 						/>
 					)}
 				</InspectorLocationCopy>

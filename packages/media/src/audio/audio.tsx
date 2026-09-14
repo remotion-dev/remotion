@@ -10,6 +10,7 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
+import {validateToneFrequency} from '../validate-tone-frequency';
 import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
@@ -19,6 +20,7 @@ const {validateMediaProps} = Internals;
 export const audioSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
+		assetType: 'audio',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,
@@ -43,6 +45,17 @@ export const audioSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	toneFrequency: {
+		type: 'number',
+		min: 0.01,
+		max: 2,
+		step: 0.01,
+		default: 1,
+		description: 'Pitch',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 } as const satisfies InteractivitySchema;
 
@@ -89,6 +102,7 @@ const AudioInner: React.FC<
 		mediaVolume,
 		mediaStartsAt,
 		loop: props.loop ?? false,
+		muted: props.muted ?? false,
 	});
 
 	// TODO: Redundant with what we do in the Studio
@@ -156,6 +170,10 @@ const AudioInner: React.FC<
 		{playbackRate: props.playbackRate, volume: props.volume},
 		'Audio',
 	);
+	validateToneFrequency({
+		toneFrequency: props.toneFrequency,
+		component: 'Audio',
+	});
 
 	if (sequenceDurationInFrames === 0) {
 		return null;

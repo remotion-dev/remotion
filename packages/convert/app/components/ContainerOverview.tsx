@@ -14,6 +14,7 @@ import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '~/lib/render-codec-label';
+import {AudioVolumeRow} from './AudioVolumeRow';
 import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
@@ -29,6 +30,7 @@ export const ContainerOverview: React.FC<{
 	readonly metadata: MetadataTags | null;
 	readonly isAudioOnly: boolean;
 	readonly sampleRate: number | null;
+	readonly audioTrack: InputAudioTrack | null;
 }> = ({
 	container,
 	dimensions,
@@ -41,6 +43,7 @@ export const ContainerOverview: React.FC<{
 	metadata,
 	isAudioOnly,
 	sampleRate,
+	audioTrack,
 }) => {
 	return (
 		<Table className="table-fixed">
@@ -155,6 +158,7 @@ export const ContainerOverview: React.FC<{
 						</TableCell>
 					</TableRow>
 				)}
+				{audioTrack ? <AudioVolumeRow track={audioTrack} /> : null}
 				{metadata ? <MetadataDisplay metadata={metadata} /> : null}
 			</TableBody>
 		</Table>

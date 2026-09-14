@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {AudioIcon} from '../../icons/audio';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
@@ -13,7 +14,8 @@ import {
 	InspectorSequenceSection,
 } from '../InspectorSequenceSection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {deleteSequencesFromSource} from '../Timeline/delete-selected-timeline-item';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {splitVideoFromAudio} from '../split-video-from-audio-api';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
 	getTimelineSequenceSplitEligibility,
@@ -24,13 +26,14 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
+import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {
-	InspectorActionSection,
-	InspectorInlineAction,
 	InspectorMessage,
-	InspectorSectionDivider,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
+	InspectorSectionHeader,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -57,7 +60,7 @@ const largeActionIconStyle: React.CSSProperties = {
 	width: 20,
 };
 
-const SplitSequenceAction: React.FC<{
+const SplitSequenceQuickAction: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
 	readonly track: TimelineTrackData;
 }> = ({selection, track}) => {
@@ -104,7 +107,7 @@ const SplitSequenceAction: React.FC<{
 				: eligibility.reason;
 
 	return (
-		<InspectorInlineAction
+		<InspectorQuickAction
 			disabled={!canSplit}
 			onClick={onSplit}
 			title={disabledReason}
@@ -113,11 +116,11 @@ const SplitSequenceAction: React.FC<{
 			)}
 		>
 			Split clip
-		</InspectorInlineAction>
+		</InspectorQuickAction>
 	);
 };
 
-const SequenceSourceActions: React.FC<{
+const SequenceSourceQuickActions: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
 	readonly track: TimelineTrackData;
 	readonly validatedSource: string;
@@ -127,6 +130,7 @@ const SequenceSourceActions: React.FC<{
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const propStatusesForOverride = useMemo(
 		() =>
 			Internals.getPropStatusesCtx(
@@ -164,15 +168,37 @@ const SequenceSourceActions: React.FC<{
 			return;
 		}
 
-		deleteSequencesFromSource([selection.nodePathInfo], confirm).catch(
-			() => undefined,
-		);
-	}, [confirm, selection.nodePathInfo, sourceActionsDisabled]);
+		deleteTimelineItems([selection]);
+	}, [deleteTimelineItems, selection, sourceActionsDisabled]);
+	const splitVideoFromAudioDisabledReason = sourceActionsDisabled
+		? 'Studio is read-only'
+		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+			? 'Programmatically duplicated sequences cannot be split from source'
+			: undefined;
+	const onSplitVideoFromAudio = useCallback(() => {
+		if (splitVideoFromAudioDisabledReason !== undefined) {
+			return;
+		}
+
+		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		splitVideoFromAudio({
+			fileName: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		})
+			.then((result) => {
+				if (!result.success) {
+					showNotification(result.reason, 4000);
+				}
+			})
+			.catch((err) => {
+				showNotification((err as Error).message, 4000);
+			});
+	}, [selection.nodePathInfo, splitVideoFromAudioDisabledReason]);
 
 	return (
 		<>
 			{freezeFrameMenuItem?.type === 'item' ? (
-				<InspectorInlineAction
+				<InspectorQuickAction
 					disabled={Boolean(freezeFrameMenuItem.disabled)}
 					onClick={() =>
 						freezeFrameMenuItem.onClick(freezeFrameMenuItem.id, null)
@@ -182,9 +208,21 @@ const SequenceSourceActions: React.FC<{
 					)}
 				>
 					{freezeFrameMenuItem.label}
-				</InspectorInlineAction>
+				</InspectorQuickAction>
 			) : null}
-			<InspectorInlineAction
+			{track.sequence.type === 'video' ? (
+				<InspectorQuickAction
+					disabled={splitVideoFromAudioDisabledReason !== undefined}
+					onClick={onSplitVideoFromAudio}
+					title={splitVideoFromAudioDisabledReason}
+					renderIcon={(color) => (
+						<AudioIcon style={actionIconStyle} color={color} />
+					)}
+				>
+					Split video from audio
+				</InspectorQuickAction>
+			) : null}
+			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
@@ -192,8 +230,8 @@ const SequenceSourceActions: React.FC<{
 				)}
 			>
 				Duplicate
-			</InspectorInlineAction>
-			<InspectorInlineAction
+			</InspectorQuickAction>
+			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				onClick={onDelete}
 				renderIcon={(color) => (
@@ -201,7 +239,7 @@ const SequenceSourceActions: React.FC<{
 				)}
 			>
 				Delete
-			</InspectorInlineAction>
+			</InspectorQuickAction>
 		</>
 	);
 };
@@ -283,12 +321,9 @@ const SequenceExpandedInspector: React.FC<{
 			/>
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
-				<>
-					<InspectorSectionDivider />
-					<ConnectedCompositionsSection
-						connectedCompositions={connectedCompositions}
-					/>
-				</>
+				<ConnectedCompositionsSection
+					connectedCompositions={connectedCompositions}
+				/>
 			) : null}
 			{validatedLocation ? (
 				<>
@@ -300,14 +335,18 @@ const SequenceExpandedInspector: React.FC<{
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
-					<InspectorActionSection>
-						<SplitSequenceAction selection={sequenceSelection} track={track} />
-						<SequenceSourceActions
+					<InspectorSectionHeader>Actions</InspectorSectionHeader>
+					<InspectorQuickActionsSection>
+						<SplitSequenceQuickAction
+							selection={sequenceSelection}
+							track={track}
+						/>
+						<SequenceSourceQuickActions
 							selection={sequenceSelection}
 							track={track}
 							validatedSource={validatedLocation.source}
 						/>
-					</InspectorActionSection>
+					</InspectorQuickActionsSection>
 				</>
 			) : (
 				<InspectorMessage>Source controls unavailable</InspectorMessage>

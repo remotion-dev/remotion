@@ -6,10 +6,6 @@ import type {
 } from '../../helpers/timeline-layout';
 import {Checkbox} from '../Checkbox';
 
-const checkboxContainer: React.CSSProperties = {
-	marginLeft: 8,
-};
-
 export const TimelineBooleanField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
@@ -26,14 +22,12 @@ export const TimelineBooleanField: React.FC<{
 	}, [propStatus, onSave, checked]);
 
 	return (
-		<div style={checkboxContainer}>
-			<Checkbox
-				checked={checked}
-				onChange={onChange}
-				name={field.key}
-				disabled={false}
-				variant="small"
-			/>
-		</div>
+		<Checkbox
+			checked={checked}
+			onChange={onChange}
+			name={field.key}
+			disabled={false}
+			variant="small"
+		/>
 	);
 };

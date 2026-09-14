@@ -124,6 +124,14 @@ jobs:
       - name: Test Example E2E
         run: |
           bun run teste2e
+      - name: Upload Example E2E results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-e2e-results-${{ github.run_attempt }}
+          path: packages/example/test-results
+          if-no-files-found: ignore
+          retention-days: 7
   webrenderer-tests:
     needs: affected
     if: ${{ needs.affected.outputs.webrenderer == 'true' }}

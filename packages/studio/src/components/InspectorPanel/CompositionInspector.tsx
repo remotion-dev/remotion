@@ -6,22 +6,29 @@ import React, {
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {BrowseElementsIcon} from '../../icons/browse-elements';
+import {CloudDownloadIcon} from '../../icons/cloud-download';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
+import {useConfirmationDialog} from '../ConfirmationDialog';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
-import {useZodIfPossible} from '../get-zod-if-possible';
+import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
+import {LicenseExplanation} from '../LicenseExplanation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
 import {
 	type DataEditorMode,
 	useDataEditorWarnings,
 	useDataEditorWarningVisibility,
 } from '../RenderModal/DataEditor';
+import {resolveCompositionSchema} from '../RenderModal/SchemaEditor/infer-zod-schema-from-value';
 import type {AnyZodSchema} from '../RenderModal/SchemaEditor/zod-schema-type';
 import {getZodSchemaType} from '../RenderModal/SchemaEditor/zod-schema-type';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
@@ -30,14 +37,14 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {
-	InspectorActionSection,
+	InspectorQuickActionsSection,
 	InspectorDefaultPropsWarnings,
-	InspectorInlineAction,
-	InspectorSectionDivider,
+	InspectorQuickAction,
 	InspectorSectionHeader,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
 import {CompositionMetadata} from './CompositionMetadata';
+import {ElementLibraryButton} from './ElementLibraryButton';
 import {
 	compositionDefaultPropsSection,
 	compositionVisualControlsSection,
@@ -56,21 +63,23 @@ const actionIconStyle: React.CSSProperties = {
 	width: 18,
 };
 
-const browseElementsIconStyle: React.CSSProperties = {
-	height: 22,
-	width: 22,
+const downloadLicenseAgreement: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	marginBottom: 0,
+	marginTop: 20,
 };
 
-const browseElementsIconContainerStyle: React.CSSProperties = {
-	height: 22,
-	marginLeft: -2,
-	marginRight: -2,
-	width: 22,
+const downloadLicenseLink: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: '21px',
 };
 
-const CompositionActions: React.FC<{
-	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
 		canInsertComposition,
@@ -82,71 +91,120 @@ const CompositionActions: React.FC<{
 		insertComposition,
 		insertSolid,
 	} = useCompositionActions();
+	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
+	const confirm = useConfirmationDialog();
 
-	const openElementsLibrary = useCallback(() => {
-		window.open(
-			'https://www.remotion.dev/elements',
-			'_blank',
-			'noopener,noreferrer',
-		);
-	}, []);
+	const onDownloadProject = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		const accepted = await confirm({
+			title: 'Download project',
+			message: (
+				<>
+					<LicenseExplanation />
+					<p style={downloadLicenseAgreement}>
+						By downloading this project, you agree to comply with the{' '}
+						<a
+							href="https://remotion.dev/license"
+							rel="noopener noreferrer"
+							style={downloadLicenseLink}
+							target="_blank"
+						>
+							license
+						</a>
+						.
+					</p>
+				</>
+			),
+			confirmLabel: 'Accept and download',
+			cancelLabel: 'Cancel',
+		});
+		if (!accepted) {
+			return;
+		}
+
+		try {
+			const {data, fileName} = await downloadProject();
+			const arrayBuffer = data.buffer.slice(
+				data.byteOffset,
+				data.byteOffset + data.byteLength,
+			) as ArrayBuffer;
+			downloadBlob(
+				new Blob([arrayBuffer], {type: 'application/zip'}),
+				fileName,
+			);
+		} catch (error) {
+			showNotification(
+				`Could not download project: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+				2000,
+			);
+		}
+	}, [confirm, downloadProject]);
 
 	if (
-		(readOnlyStudio && !canShowInsertSolid) ||
-		(!canShowInsertAsset && !canShowInsertComposition && !canShowInsertSolid)
+		!canShowInsertAsset &&
+		!canShowInsertComposition &&
+		!canShowInsertSolid &&
+		downloadProject === null
 	) {
 		return null;
 	}
 
 	return (
-		<InspectorActionSection>
-			{canShowInsertSolid ? (
-				<InspectorInlineAction
-					disabled={!canInsertSolid}
-					onClick={insertSolid}
-					renderIcon={(color) => (
-						<SolidIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Add Solid
-				</InspectorInlineAction>
-			) : null}
-			{canShowInsertAsset ? (
-				<InspectorInlineAction
-					disabled={!canInsertAsset}
-					onClick={insertAsset}
-					renderIcon={(color) => (
-						<PicIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Add asset...
-				</InspectorInlineAction>
-			) : null}
-			{canShowInsertComposition ? (
-				<InspectorInlineAction
-					disabled={!canInsertComposition}
-					onClick={insertComposition}
-					renderIcon={(color) => (
-						<FilmIcon color={color} style={actionIconStyle} />
-					)}
-				>
-					Add composition...
-				</InspectorInlineAction>
-			) : null}
-			{canShowInsertAsset ? (
-				<InspectorInlineAction
-					disabled={false}
-					iconContainerStyle={browseElementsIconContainerStyle}
-					onClick={openElementsLibrary}
-					renderIcon={(color) => (
-						<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
-					)}
-					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
-				>
-					Browse Elements...
-				</InspectorInlineAction>
-			) : null}
-		</InspectorActionSection>
+		<>
+			<InspectorSectionHeader>Actions</InspectorSectionHeader>
+			<InspectorQuickActionsSection>
+				{canShowInsertSolid ? (
+					<InspectorQuickAction
+						disabled={!canInsertSolid}
+						onClick={insertSolid}
+						renderIcon={(color) => (
+							<SolidIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add Solid
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertAsset ? (
+					<InspectorQuickAction
+						disabled={!canInsertAsset}
+						onClick={insertAsset}
+						renderIcon={(color) => (
+							<PicIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add asset...
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertComposition ? (
+					<InspectorQuickAction
+						disabled={!canInsertComposition}
+						onClick={insertComposition}
+						renderIcon={(color) => (
+							<FilmIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add composition...
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertAsset ? <ElementLibraryButton /> : null}
+				{downloadProject ? (
+					<InspectorQuickAction
+						disabled={false}
+						onClick={onDownloadProject}
+						renderIcon={(color) => (
+							<CloudDownloadIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Download project
+					</InspectorQuickAction>
+				) : null}
+			</InspectorQuickActionsSection>
+		</>
 	);
 };
 
@@ -157,6 +215,7 @@ const CompositionDefaultPropsSection: React.FC<{
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 }> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const z = useZodIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
@@ -187,22 +246,21 @@ const CompositionDefaultPropsSection: React.FC<{
 		];
 	}, [defaultPropsMode]);
 
+	const schema = useMemo(() => {
+		return resolveCompositionSchema({
+			explicitSchema: composition.schema,
+			defaultProps: composition.defaultProps ?? {},
+			z,
+			zodTypes,
+		});
+	}, [composition.defaultProps, composition.schema, z, zodTypes]);
 	const canShowDefaultPropsSection = useMemo(() => {
-		if (!z || !composition.schema || !composition.defaultProps) {
+		if (schema === 'no-schema' || schema === 'no-zod') {
 			return false;
 		}
 
-		if (
-			!(
-				typeof (composition.schema as {safeParse?: unknown}).safeParse ===
-				'function'
-			)
-		) {
-			return false;
-		}
-
-		return getZodSchemaType(composition.schema as AnyZodSchema) !== 'any';
-	}, [composition.defaultProps, composition.schema, z]);
+		return getZodSchemaType(schema as AnyZodSchema) !== 'any';
+	}, [schema]);
 	const {setShowWarning, showWarning} = useDataEditorWarningVisibility();
 	const {warnings: defaultPropsWarnings} = useDataEditorWarnings({
 		canSaveDefaultProps: canSaveDefaultProps?.canSaveDefaultProps ?? null,
@@ -217,54 +275,51 @@ const CompositionDefaultPropsSection: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={compositionDefaultPropsSection}>
-				<InspectorSectionHeader>
-					<div style={sectionHeaderRow}>
-						<div style={sectionHeaderStart}>
-							<span style={sectionHeaderTitle}>Default Props</span>
-							<SegmentedControl
-								items={defaultPropsModeItems}
-								needsWrapping={false}
+		<div style={compositionDefaultPropsSection}>
+			<InspectorSectionHeader>
+				<div style={sectionHeaderRow}>
+					<div style={sectionHeaderStart}>
+						<span style={sectionHeaderTitle}>Default Props</span>
+						<SegmentedControl
+							items={defaultPropsModeItems}
+							needsWrapping={false}
+							size="compact"
+						/>
+					</div>
+					<div style={sectionHeaderEnd}>
+						{defaultPropsWarnings.length > 0 ? (
+							<WarningIndicatorButton
+								setShowWarning={setShowWarning}
+								showWarning={showWarning}
+								warningCount={defaultPropsWarnings.length}
 								size="compact"
 							/>
-						</div>
-						<div style={sectionHeaderEnd}>
-							{defaultPropsWarnings.length > 0 ? (
-								<WarningIndicatorButton
-									setShowWarning={setShowWarning}
-									showWarning={showWarning}
-									warningCount={defaultPropsWarnings.length}
-									size="compact"
-								/>
-							) : null}
-						</div>
+						) : null}
 					</div>
-				</InspectorSectionHeader>
-				{defaultPropsWarnings.length > 0 && showWarning ? (
-					<div style={defaultPropsWarningContainer}>
-						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
-					</div>
-				) : null}
-				<DefaultPropsEditor
-					key={composition.id}
-					unresolvedComposition={composition}
-					defaultProps={currentDefaultProps}
-					setDefaultProps={setDefaultProps}
-					propsEditType="default-props"
-					schemaErrorMode="compact"
-					layout="inspector"
-					mode={defaultPropsMode}
-					onModeChange={setDefaultPropsMode}
-					hideModeControls={canShowDefaultPropsSection}
-					warnings={defaultPropsWarnings}
-					showWarning={false}
-					setShowWarning={setShowWarning}
-					hideWarningButton
-				/>
-			</div>
-		</>
+				</div>
+			</InspectorSectionHeader>
+			{defaultPropsWarnings.length > 0 && showWarning ? (
+				<div style={defaultPropsWarningContainer}>
+					<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+				</div>
+			) : null}
+			<DefaultPropsEditor
+				key={composition.id}
+				unresolvedComposition={composition}
+				defaultProps={currentDefaultProps}
+				setDefaultProps={setDefaultProps}
+				propsEditType="default-props"
+				schemaErrorMode="compact"
+				layout="inspector"
+				mode={defaultPropsMode}
+				onModeChange={setDefaultPropsMode}
+				hideModeControls={canShowDefaultPropsSection}
+				warnings={defaultPropsWarnings}
+				showWarning={false}
+				setShowWarning={setShowWarning}
+				hideWarningButton
+			/>
+		</div>
 	);
 };
 
@@ -282,13 +337,10 @@ const CompositionVisualControlsSection: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={compositionVisualControlsSection}>
-				<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
-				<VisualControlsContent />
-			</div>
-		</>
+		<div style={compositionVisualControlsSection}>
+			<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+			<VisualControlsContent />
+		</div>
 	);
 };
 
@@ -304,7 +356,7 @@ export const CompositionInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
-				<InspectorSectionDivider />
+				<InspectorSectionHeader>Metadata</InspectorSectionHeader>
 				<CompositionMetadata
 					compositionId={composition.id}
 					disabled={readOnlyStudio || previewServerState.type !== 'connected'}
@@ -318,7 +370,7 @@ export const CompositionInspector: React.FC<{
 				setDefaultProps={setDefaultProps}
 			/>
 			<CompositionVisualControlsSection readOnlyStudio={readOnlyStudio} />
-			<CompositionActions readOnlyStudio={readOnlyStudio} />
+			<CompositionActions />
 		</div>
 	);
 };

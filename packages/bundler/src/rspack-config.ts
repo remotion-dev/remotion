@@ -1,11 +1,13 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import {ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 import type {
 	BundlerOverrideFn,
 	RspackConfiguration,
 	RspackOverrideFn,
 } from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -78,8 +80,30 @@ export const rspackConfig = async ({
 		},
 	};
 
+	const sharedBaseConfig = getBaseConfig(environment, poll);
 	const baseConfig = {
-		...getBaseConfig(environment, poll),
+		...sharedBaseConfig,
+		optimization: {
+			...sharedBaseConfig.optimization,
+			// The optional dependency plugin removes expected resolution errors after
+			// compilation. Rspack must emit their throwing fallback chunks first.
+			emitOnErrors: true,
+		},
+		experiments: {
+			...sharedBaseConfig.experiments,
+			...(environment === 'development'
+				? // Makes the first HMR event faster.
+					{incremental: {buildChunkGraph: true}}
+				: {}),
+		},
+		// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
+		ignoreWarnings: [
+			{
+				module:
+					/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+				message: /Accessing import\.meta directly is unsupported/,
+			},
+		],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',
@@ -90,11 +114,9 @@ export const rspackConfig = async ({
 				environment === 'development'
 					? require.resolve('./fast-refresh/notify-on-refresh.js')
 					: null,
+			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
-			sequenceStackTraces:
-				environment === 'development'
-					? require.resolve('./setup-sequence-stack-traces')
-					: null,
+			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),
 			studioRenderEntry: entry,
@@ -105,6 +127,7 @@ export const rspackConfig = async ({
 				? [
 						new ReactRefreshPlugin({overlay: false}),
 						new rspack.HotModuleReplacementPlugin(),
+						new AllowOptionalDependenciesPlugin(),
 						...extraPlugins,
 					]
 				: [
@@ -116,12 +139,24 @@ export const rspackConfig = async ({
 								}
 							}
 						}),
+						new AllowOptionalDependenciesPlugin(),
 					],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),
 		module: {
 			rules: [
 				...getSharedModuleRules(),
+				...(environment === 'development'
+					? [
+							{
+								test: /[\\/]@rspack[\\/]plugin-react-refresh[\\/]client[\\/]refreshUtils\.js$/,
+								enforce: 'pre' as const,
+								use: [
+									require.resolve('./fast-refresh/zero-delay-rspack-refresh-loader.js'),
+								],
+							},
+						]
+					: []),
 				{
 					// Emscripten's main.js spawns Workers of itself via
 					// new Worker(new URL('./main.js', import.meta.url)).

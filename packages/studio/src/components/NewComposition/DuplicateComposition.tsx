@@ -15,11 +15,11 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {applyCodemod} from '../RenderQueue/actions';
 import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {DismissableModal} from './DismissableModal';
+import {duplicateComposition} from './duplicate-composition-api';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
@@ -370,7 +370,6 @@ const DuplicateCompositionLoaded: React.FC<{
 					<CodemodFooter
 						loadingNotification={'Duplicating...'}
 						errorNotification={'Could not duplicate composition'}
-						successNotification={`Duplicated ${unresolved.id} as ${newId}`}
 						genericSubmitLabel={'Duplicate'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
 						codemod={codemod}
@@ -378,9 +377,17 @@ const DuplicateCompositionLoaded: React.FC<{
 						valid={valid}
 						onSuccess={onDuplicateSuccess}
 						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
+							duplicateComposition({
 								codemod,
 								dryRun: false,
+								signal,
+								symbolicatedStack,
+							})
+						}
+						applyCodemodForPreview={({signal, symbolicatedStack}) =>
+							duplicateComposition({
+								codemod,
+								dryRun: true,
 								signal,
 								symbolicatedStack,
 							})

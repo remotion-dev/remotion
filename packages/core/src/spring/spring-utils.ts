@@ -139,14 +139,21 @@ export function springCalculation({
 	const frameClamped = Math.max(0, frame);
 	const unevenRest = frameClamped % 1;
 	for (let f = 0; f <= Math.floor(frameClamped); f++) {
-		if (f === Math.floor(frameClamped)) {
-			f += unevenRest;
-		}
-
 		const time = (f / fps) * 1000;
 		animation = advance({
 			animation,
 			now: time,
+			config: {
+				...defaultSpringConfig,
+				...config,
+			},
+		});
+	}
+
+	if (unevenRest > 0) {
+		animation = advance({
+			animation,
+			now: (frameClamped / fps) * 1000,
 			config: {
 				...defaultSpringConfig,
 				...config,

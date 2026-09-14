@@ -45,17 +45,24 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 			overall.renderMetadata?.estimatedRenderLambdaInvokations ?? null,
 	};
 	const {lambdasInvoked, totalLambdas} = invokeProgress;
-	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
+	const progress =
+		totalLambdas === null
+			? 0
+			: totalLambdas === 0
+				? 1
+				: lambdasInvoked / totalLambdas;
 	const topLine = [
-		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`.padEnd(
+		`${totalLambdas === 0 || progress === 0 ? 'Invoked' : 'Invoking'} lambdas`.padEnd(
 			CliInternals.LABEL_WIDTH,
 		),
 		CliInternals.makeProgressBar(progress, false),
-		progress === 1
-			? CliInternals.chalk.gray(`${lambdasInvoked}/${totalLambdas}`)
-			: totalLambdas === null
-				? null
-				: `${lambdasInvoked}/${totalLambdas}`,
+		totalLambdas === 0
+			? null
+			: progress === 1
+				? CliInternals.chalk.gray(`${lambdasInvoked}/${totalLambdas}`)
+				: totalLambdas === null
+					? null
+					: `${lambdasInvoked}/${totalLambdas}`,
 	].join(' ');
 
 	return [

@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {ModalContainer} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
 
@@ -90,7 +90,9 @@ export const AskAiModal: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill style={{display: state === 'visible' ? 'block' : 'none'}}>
+		<Internals.AbsoluteFillElement
+			style={{display: state === 'visible' ? 'block' : 'none'}}
+		>
 			<ModalContainer
 				noZIndex={state === 'hidden'}
 				onOutsideClick={onQuit}
@@ -105,6 +107,6 @@ export const AskAiModal: React.FC = () => {
 					allow="clipboard-read; clipboard-write"
 				/>
 			</ModalContainer>
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };

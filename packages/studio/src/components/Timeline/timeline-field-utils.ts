@@ -57,7 +57,5 @@ export const draggerStyle: React.CSSProperties = {
 };
 
 export const leftAlignedDraggerStyle: React.CSSProperties = {
-	paddingBottom: 2,
 	paddingLeft: 0,
-	paddingTop: 2,
 };

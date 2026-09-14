@@ -34,282 +34,212 @@ const withoutId = (asset: MediaAsset) => {
 	return others;
 };
 
-test('Should be able to collect assets', async () => {
-	const assetPositions = await getPositions(() => (
-		<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-	));
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'video',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		duration: 60,
-		startInVideo: 0,
-		trimLeft: 0,
-		volume: 1,
-		playbackRate: 1,
-		toneFrequency: 1,
-		audioStartFrame: 0,
-		audioStreamIndex: 0,
-	});
-});
+test('Should calculate asset positions for a complete media workflow', async () => {
+	const sources = {
+		basicVideo: 'https://remotion.media/video.mp4?basic-video',
+		basicAudio: 'https://remotion.media/video.mp4?basic-audio',
+		jump: 'https://remotion.media/video.mp4?jump',
+		sequence: 'https://remotion.media/video.mp4?sequence',
+		volume: 'https://remotion.media/video.mp4?volume',
+		trimmedAudio: 'https://remotion.media/video.mp4?trimmed-audio',
+		negativeOffset: 'https://remotion.media/video.mp4?negative-offset',
+		nestedNegativeOffset:
+			'https://remotion.media/video.mp4?nested-negative-offset',
+		cancelledNegativeOffset:
+			'https://remotion.media/video.mp4?cancelled-negative-offset',
+	} as const;
 
-test('Should get multiple assets', async () => {
-	const assetPositions = await getPositions(() => (
-		<div>
-			<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-			<Html5Audio src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3" />
-		</div>
-	));
-	expect(assetPositions.length).toBe(2);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'video',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		duration: 60,
-		startInVideo: 0,
-		trimLeft: 0,
-		volume: 1,
-		playbackRate: 1,
-		toneFrequency: 1,
-		audioStartFrame: 0,
-		audioStreamIndex: 0,
-	});
-	expect(withoutId(assetPositions[1])).toEqual({
-		type: 'audio',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
-		duration: 60,
-		startInVideo: 0,
-		trimLeft: 0,
-		volume: 1,
-		playbackRate: 1,
-		toneFrequency: 1,
-		audioStartFrame: 0,
-		audioStreamIndex: 0,
-	});
-});
-
-test('Should handle jumps inbetween', async () => {
 	const assetPositions = await getPositions(() => {
 		const frame = useCurrentFrame();
+
 		return (
 			<div>
-				{frame === 20 ? null : (
-					<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
-				)}
-			</div>
-		);
-	});
-	expect(assetPositions.length).toBe(2);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'video',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		duration: 20,
-		startInVideo: 0,
-		trimLeft: 0,
-		volume: 1,
-		playbackRate: 1,
-		toneFrequency: 1,
-		audioStartFrame: 0,
-		audioStreamIndex: 0,
-	});
-	expect(withoutId(assetPositions[1])).toEqual({
-		type: 'video',
-		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-		duration: 39,
-		startInVideo: 21,
-		trimLeft: 21,
-		volume: 1,
-		playbackRate: 1,
-		toneFrequency: 1,
-		audioStartFrame: 0,
-		audioStreamIndex: 0,
-	});
-});
-
-test('Should support sequencing', async () => {
-	const assetPositions = await getPositions(() => {
-		return (
-			<Sequence durationInFrames={30} from={-20}>
-				<Html5Video src={'https://remotion.media/video.mp4'} />
-			</Sequence>
-		);
-	});
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'video',
-		src: 'https://remotion.media/video.mp4',
-		duration: 10,
-		startInVideo: 0,
-		trimLeft: 20,
-		volume: 1,
-		playbackRate: 1,
-		toneFrequency: 1,
-		audioStartFrame: 20,
-		audioStreamIndex: 0,
-	});
-});
-
-test('Should calculate volumes correctly', async () => {
-	const assetPositions = await getPositions(() => {
-		return (
-			<Html5Video
-				volume={(f) =>
-					interpolate(f, [0, 4], [0, 1], {
-						extrapolateRight: 'clamp',
-					})
-				}
-				src={'https://remotion.media/video.mp4'}
-			/>
-		);
-	});
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'video',
-		src: 'https://remotion.media/video.mp4',
-		duration: 59,
-		startInVideo: 1,
-		trimLeft: 1,
-		playbackRate: 1,
-		volume: new Array(60)
-			.fill(true)
-			.map((_, i) =>
-				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'}),
-			)
-			.filter((f) => f > 0),
-		toneFrequency: 1,
-		audioStartFrame: 0,
-		audioStreamIndex: 0,
-	});
-});
-
-test('Should calculate startFrom correctly (Html5Audio)', async () => {
-	const assetPositions = await getPositions(() => {
-		return (
-			<Sequence from={1}>
-				<Html5Audio
-					trimBefore={100}
-					trimAfter={200}
-					src={'https://remotion.media/video.mp4'}
+				<Html5Video src={sources.basicVideo} />
+				<Html5Audio src={sources.basicAudio} />
+				{frame === 20 ? null : <Html5Video src={sources.jump} />}
+				<Sequence durationInFrames={30} from={-20}>
+					<Html5Video src={sources.sequence} />
+				</Sequence>
+				<Html5Video
 					volume={(f) =>
-						interpolate(f, [0, 50, 100], [0, 1, 0], {
-							extrapolateLeft: 'clamp',
+						interpolate(f, [0, 4], [0, 1], {
 							extrapolateRight: 'clamp',
 						})
 					}
+					src={sources.volume}
 				/>
-			</Sequence>
-		);
-	});
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
-		type: 'audio',
-		src: 'https://remotion.media/video.mp4',
-		// why duration of 58 and startInVideo of 2?
-		// 60 original duration
-		// minus 1 because of from={1}
-		// minus 1 because the first frame has volume 0 and does not get registered
-		duration: 58,
-		startInVideo: 2,
-		trimLeft: 101,
-		playbackRate: 1,
-		volume: new Array(58).fill(true).map((_, i) =>
-			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			}),
-		),
-		toneFrequency: 1,
-		audioStartFrame: 100,
-		audioStreamIndex: 0,
-	});
-});
-
-const expected: Omit<MediaAsset, 'id'> = {
-	type: 'audio',
-	src: 'https://remotion.media/video.mp4',
-	duration: 29,
-	startInVideo: 1,
-	trimLeft: 11,
-	playbackRate: 1,
-	volume: new Array(29).fill(true).map((_, i) =>
-		interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}),
-	),
-	toneFrequency: 1,
-	audioStartFrame: 10,
-	audioStreamIndex: 0,
-} as const;
-
-test('Should calculate startFrom correctly with negative offset (Html5Audio)', async () => {
-	const assetPositions = await getPositions(() => {
-		return (
-			<Sequence from={-10} durationInFrames={40}>
-				<Html5Audio
-					src={'https://remotion.media/video.mp4'}
-					volume={(f) => {
-						return interpolate(f, [0, 50, 100], [0, 1, 0], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						});
-					}}
-				/>
-			</Sequence>
-		);
-	});
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual(expected);
-});
-
-test('same as above, but with <Sequence from={0}> inbetween', async () => {
-	const assetPositions = await getPositions(() => {
-		return (
-			<Sequence from={-10} durationInFrames={40}>
-				<Sequence from={0} layout="none">
+				<Sequence from={1}>
 					<Html5Audio
-						src={'https://remotion.media/video.mp4'}
-						volume={(f) => {
-							return interpolate(f, [0, 50, 100], [0, 1, 0], {
+						trimBefore={100}
+						trimAfter={200}
+						src={sources.trimmedAudio}
+						volume={(f) =>
+							interpolate(f, [0, 50, 100], [0, 1, 0], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-							});
-						}}
+							})
+						}
 					/>
 				</Sequence>
-			</Sequence>
-		);
-	});
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual(expected);
-});
-
-test('same as above, but a positive child offset cancels part of the negative parent offset', async () => {
-	const assetPositions = await getPositions(() => {
-		return (
-			<Sequence from={-20} durationInFrames={40}>
-				<Sequence from={10} layout="none">
+				<Sequence from={-10} durationInFrames={40}>
 					<Html5Audio
-						src={'https://remotion.media/video.mp4'}
-						volume={(f) => {
-							return interpolate(f, [0, 50, 100], [0, 1, 0], {
+						src={sources.negativeOffset}
+						volume={(f) =>
+							interpolate(f, [0, 50, 100], [0, 1, 0], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
-							});
-						}}
+							})
+						}
 					/>
 				</Sequence>
-			</Sequence>
+				<Sequence from={-10} durationInFrames={40}>
+					<Sequence from={0} layout="none">
+						<Html5Audio
+							src={sources.nestedNegativeOffset}
+							volume={(f) =>
+								interpolate(f, [0, 50, 100], [0, 1, 0], {
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								})
+							}
+						/>
+					</Sequence>
+				</Sequence>
+				<Sequence from={-20} durationInFrames={40}>
+					<Sequence from={10} layout="none">
+						<Html5Audio
+							src={sources.cancelledNegativeOffset}
+							volume={(f) =>
+								interpolate(f, [0, 50, 100], [0, 1, 0], {
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								})
+							}
+						/>
+					</Sequence>
+				</Sequence>
+			</div>
 		);
 	});
-	expect(assetPositions.length).toBe(1);
-	expect(withoutId(assetPositions[0])).toEqual({
+
+	const getBySrc = (src: string) => {
+		return assetPositions.filter((asset) => asset.src === src).map(withoutId);
+	};
+
+	expect(getBySrc(sources.basicVideo)).toEqual([
+		{
+			type: 'video',
+			src: sources.basicVideo,
+			duration: 60,
+			startInVideo: 0,
+			trimLeft: 0,
+			volume: 1,
+			playbackRate: 1,
+			toneFrequency: 1,
+			audioStartFrame: 0,
+			audioStreamIndex: 0,
+		},
+	]);
+	expect(getBySrc(sources.basicAudio)).toEqual([
+		{
+			type: 'audio',
+			src: sources.basicAudio,
+			duration: 60,
+			startInVideo: 0,
+			trimLeft: 0,
+			volume: 1,
+			playbackRate: 1,
+			toneFrequency: 1,
+			audioStartFrame: 0,
+			audioStreamIndex: 0,
+		},
+	]);
+	expect(getBySrc(sources.jump)).toEqual([
+		{
+			type: 'video',
+			src: sources.jump,
+			duration: 20,
+			startInVideo: 0,
+			trimLeft: 0,
+			volume: 1,
+			playbackRate: 1,
+			toneFrequency: 1,
+			audioStartFrame: 0,
+			audioStreamIndex: 0,
+		},
+		{
+			type: 'video',
+			src: sources.jump,
+			duration: 39,
+			startInVideo: 21,
+			trimLeft: 21,
+			volume: 1,
+			playbackRate: 1,
+			toneFrequency: 1,
+			audioStartFrame: 0,
+			audioStreamIndex: 0,
+		},
+	]);
+	expect(getBySrc(sources.sequence)).toEqual([
+		{
+			type: 'video',
+			src: sources.sequence,
+			duration: 10,
+			startInVideo: 0,
+			trimLeft: 20,
+			volume: 1,
+			playbackRate: 1,
+			toneFrequency: 1,
+			audioStartFrame: 20,
+			audioStreamIndex: 0,
+		},
+	]);
+	expect(getBySrc(sources.volume)).toEqual([
+		{
+			type: 'video',
+			src: sources.volume,
+			duration: 59,
+			startInVideo: 1,
+			trimLeft: 1,
+			playbackRate: 1,
+			volume: new Array(60)
+				.fill(true)
+				.map((_, i) =>
+					interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'}),
+				)
+				.filter((f) => f > 0),
+			toneFrequency: 1,
+			audioStartFrame: 0,
+			audioStreamIndex: 0,
+		},
+	]);
+	expect(getBySrc(sources.trimmedAudio)).toEqual([
+		{
+			type: 'audio',
+			src: sources.trimmedAudio,
+			duration: 58,
+			startInVideo: 2,
+			trimLeft: 101,
+			playbackRate: 1,
+			volume: new Array(58).fill(true).map((_, i) =>
+				interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+			),
+			toneFrequency: 1,
+			audioStartFrame: 100,
+			audioStreamIndex: 0,
+		},
+	]);
+
+	const expectedNegativeOffset = {
 		type: 'audio',
-		src: 'https://remotion.media/video.mp4',
-		duration: 19,
+		duration: 29,
 		startInVideo: 1,
 		trimLeft: 11,
 		playbackRate: 1,
-		volume: new Array(19).fill(true).map((_, i) =>
+		volume: new Array(29).fill(true).map((_, i) =>
 			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
@@ -318,5 +248,31 @@ test('same as above, but a positive child offset cancels part of the negative pa
 		toneFrequency: 1,
 		audioStartFrame: 10,
 		audioStreamIndex: 0,
-	});
+	} as const;
+
+	expect(getBySrc(sources.negativeOffset)).toEqual([
+		{...expectedNegativeOffset, src: sources.negativeOffset},
+	]);
+	expect(getBySrc(sources.nestedNegativeOffset)).toEqual([
+		{...expectedNegativeOffset, src: sources.nestedNegativeOffset},
+	]);
+	expect(getBySrc(sources.cancelledNegativeOffset)).toEqual([
+		{
+			type: 'audio',
+			src: sources.cancelledNegativeOffset,
+			duration: 19,
+			startInVideo: 1,
+			trimLeft: 11,
+			playbackRate: 1,
+			volume: new Array(19).fill(true).map((_, i) =>
+				interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+			),
+			toneFrequency: 1,
+			audioStartFrame: 10,
+			audioStreamIndex: 0,
+		},
+	]);
 });

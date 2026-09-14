@@ -13,6 +13,7 @@ import type {
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {
@@ -23,8 +24,11 @@ import type {
 import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useEditorOpening} from '../use-default-editor-info';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
+import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
+import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {saveSequenceProps} from './save-sequence-prop';
 import {isTimelineFieldStacked} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -291,11 +295,15 @@ const TimelineSequenceKeyframedValueAtCurrentFrame: React.FC<
 	}
 > = ({keyframeDisplayOffset, ...props}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
+		propStatus: props.propStatus,
+		keyframeDisplayOffset,
+	});
 
 	return (
 		<TimelineSequenceKeyframedValueAtSourceFrame
 			{...props}
-			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			sourceFrame={timelinePosition - resolvedKeyframeDisplayOffset}
 		/>
 	);
 };
@@ -400,7 +408,8 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
+	readonly runtimeValue: unknown;
 }> = ({
 	field,
 	validatedLocation,
@@ -409,7 +418,8 @@ export const TimelineSequencePropItem: React.FC<{
 	nodePathInfo,
 	schema,
 	keyframeDisplayOffset,
-	keyframeControlsMode = 'timeline',
+	keyframeControlsMode,
+	runtimeValue,
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
@@ -419,6 +429,9 @@ export const TimelineSequencePropItem: React.FC<{
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
+		previewServerState.type === 'connected',
+	);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
@@ -535,6 +548,17 @@ export const TimelineSequencePropItem: React.FC<{
 		}
 
 		return [
+			getCopyContextForAgentsMenuItem({
+				contextForAgents: formatContextForAgents({
+					location: validatedLocation,
+					name: `Property "${field.key}"`,
+					root: window.remotion_cwd,
+				}),
+			}),
+			{
+				type: 'divider',
+				id: 'copy-context-for-agents-divider',
+			},
 			{
 				type: 'item',
 				id: 'reset-sequence-field',
@@ -548,26 +572,24 @@ export const TimelineSequencePropItem: React.FC<{
 				value: 'reset-sequence-field',
 			},
 		];
-	}, [canShowReset, onReset, selection]);
+	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
-			if (
-				!window.remotion_editorName ||
-				previewServerState.type !== 'connected'
-			) {
+			if (!canOpenInEditor || !defaultEditorId) {
 				return;
 			}
 
 			event.stopPropagation();
 			openOriginalPositionInEditorAtProperty({
+				editorId: defaultEditorId,
 				originalPosition: validatedLocation,
 				property: field.key.split('.').at(-1) ?? field.key,
 			}).catch(() => undefined);
 		},
-		[field.key, previewServerState.type, validatedLocation],
+		[canOpenInEditor, defaultEditorId, field.key, validatedLocation],
 	);
 
 	if (propStatus === null) {
@@ -592,7 +614,12 @@ export const TimelineSequencePropItem: React.FC<{
 			propStatus={propStatus}
 		/>
 	) : (
-		<TimelineNonEditableStatus propStatus={propStatus} />
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			validatedLocation={validatedLocation}
+		/>
 	);
 
 	if (field.typeName === 'asset' && field.key === 'src') {
@@ -618,19 +645,16 @@ export const TimelineSequencePropItem: React.FC<{
 			style={style}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
 			containsSelection={false}
-			isFieldRow
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
 				selected={selection.selected}
-				keyframeControls={keyframeControls}
 			>
 				{fieldValue}
 			</TimelineFieldRowContent>

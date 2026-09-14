@@ -52,6 +52,8 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	publicLicenseKeyOption,
+	beepOnFinishOption,
+	logLevelOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -158,9 +160,11 @@ export const studioCommand = async (
 
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			elementLibraries: ConfigInternals.getElementLibraries(),
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -177,6 +181,20 @@ export const studioCommand = async (
 			publicLicenseKey: publicLicenseKeyOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			configFileStudioSettings: {
+				askAIEnabled: askAIOption.getConfigValue(),
+				audioLatencyHint: audioLatencyHintOption.getConfigValue(),
+				beepOnFinish: beepOnFinishOption.getConfigValue(),
+				enableCrossSiteIsolation:
+					enableCrossSiteIsolationOption.getConfigValue(),
+				interactivityEnabled: interactivityOption.getConfigValue(),
+				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
+				logLevel: logLevelOption.getConfigValue(),
+				maxTimelineTracks:
+					StudioServerInternals.getConfiguredMaxTimelineTracks(),
+				numberOfSharedAudioTags: numberOfSharedAudioTagsOption.getConfigValue(),
+				rspack: rspackOption.getConfigValue(),
+			},
 		};
 	};
 
@@ -328,7 +346,7 @@ export const studioCommand = async (
 		configFile,
 	});
 
-	if (result.type === 'already-running') {
+	if (result.type !== 'restarted') {
 		return;
 	}
 

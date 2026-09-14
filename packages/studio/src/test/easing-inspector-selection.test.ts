@@ -28,6 +28,7 @@ const makeKeyframedStatus = (
 	keyframes: {readonly frame: number; readonly value: number}[],
 ): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes,
 	easing: [{type: 'linear'}, {type: 'linear'}],

@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let beepOnFinish = false;
+let configuredBeepOnFinish: boolean | null = null;
 
 const cliFlag = 'beep-on-finish' as const;
 
@@ -37,6 +38,12 @@ export const beepOnFinishOption = {
 	},
 	setConfig(value) {
 		beepOnFinish = value;
+		configuredBeepOnFinish = value;
+	},
+	getConfigValue: () => configuredBeepOnFinish,
+	reset: () => {
+		beepOnFinish = false;
+		configuredBeepOnFinish = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

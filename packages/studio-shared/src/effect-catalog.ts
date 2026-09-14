@@ -1,11 +1,11 @@
-import type {EffectDragData} from '@remotion/studio-protocol';
+import type {EffectDefinition} from './api-requests';
 
 export type EffectCatalogItem = {
 	readonly id: string;
 	readonly category: string;
 	readonly label: string;
 	readonly description: string;
-	readonly effect: EffectDragData['effect'];
+	readonly effect: EffectDefinition;
 };
 
 export type EffectCatalogCategory = {
@@ -346,6 +346,20 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-outline',
+		category: 'Blur & Shadow',
+		label: 'outline()',
+		description: 'Solid alpha outline effect',
+		effect: {
+			name: 'outline',
+			importPath: '@remotion/effects/outline',
+			config: {
+				width: 12,
+				color: '#00ffff',
+			},
+		},
+	},
+	{
 		id: 'effects-light-trail',
 		category: 'Blur & Shadow',
 		label: 'lightTrail()',
@@ -366,6 +380,13 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			importPath: '@remotion/effects/evolve',
 			config: {},
 		},
+	},
+	{
+		id: 'effects-tear',
+		category: 'Reveal',
+		label: 'tear()',
+		description: 'Progressive zigzag tear with outward rotation',
+		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
 	},
 	{
 		id: 'effects-venetian-blinds',
@@ -400,6 +421,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				scale: 1,
 			},
+		},
+	},
+	{
+		id: 'effects-tile',
+		category: 'Transform',
+		label: 'tile()',
+		description: 'Repeat the visible source bounds',
+		effect: {
+			name: 'tile',
+			importPath: '@remotion/effects/tile',
+			config: {},
 		},
 	},
 	{

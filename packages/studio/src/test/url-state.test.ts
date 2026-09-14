@@ -1,5 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
-import {replaceUrl} from '../helpers/url-state';
+import {getRoute, replaceUrl} from '../helpers/url-state';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -32,4 +32,34 @@ test('replaces the current Studio URL', () => {
 	replaceUrl('/assets/renamed.mp4');
 
 	expect(replaceStateCalls).toEqual([[{}, 'Studio', '/assets/renamed.mp4']]);
+});
+
+test('uses query-string routing in Browser Studio', () => {
+	const replaceStateCalls: unknown[][] = [];
+	const parentWindow = {
+		history: {
+			replaceState: (...args: unknown[]) => replaceStateCalls.push(args),
+		},
+		location: {
+			pathname: '/new',
+			search: '?source=release',
+		},
+	};
+
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {
+			parent: parentWindow,
+			location: {
+				pathname: 'blank',
+				search: '?source=release',
+			},
+			remotion_browserStudio: {},
+			remotion_isReadOnlyStudio: false,
+		},
+	});
+
+	expect(getRoute()).toBe('');
+	replaceUrl('/assets/other.mp4');
+	expect(replaceStateCalls).toEqual([[{}, 'Studio', '/new?/assets/other.mp4']]);
 });

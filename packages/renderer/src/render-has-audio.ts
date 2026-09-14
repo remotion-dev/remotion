@@ -29,5 +29,15 @@ export const getShouldRenderAudio = ({
 		return 'maybe';
 	}
 
-	return assetsInfo.assets.flat(1).length > 0 ? 'yes' : 'no';
+	if (!codecSupportsMedia(codec).video) {
+		return 'yes';
+	}
+
+	return assetsInfo.assets.some(
+		(frame) =>
+			frame.audioAndVideoAssets.length > 0 ||
+			frame.inlineAudioAssets.length > 0,
+	)
+		? 'yes'
+		: 'no';
 };

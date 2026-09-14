@@ -4,6 +4,7 @@ import {LIGHT_TEXT, WHITE_ALPHA_25} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {ensureFrameIsInViewport} from '../Timeline/timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from '../Timeline/TimelineKeyframeDiamondIcon';
 import {TimelineKeyframeEasingLineVisual} from '../Timeline/TimelineKeyframeEasingLine';
 import {
@@ -209,22 +210,27 @@ export const KeyframeEasingNavigator: React.FC<{
 		[selectItems],
 	);
 	const seekToItem = useCallback(
-		(item: NavigatorItem) => {
+		(item: NavigatorItem, direction: 'fit-left' | 'fit-right') => {
 			const frame = getNavigatorItemPlayheadFrame(item);
 			setFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
 			});
+			ensureFrameIsInViewport({
+				direction,
+				durationInFrames: videoConfig.durationInFrames,
+				frame,
+			});
 		},
-		[setFrame, videoConfig.id],
+		[setFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 	const selectPrevious = useCallback(() => {
 		if (previousItem === null) {
 			return;
 		}
 
-		seekToItem(previousItem);
+		seekToItem(previousItem, 'fit-left');
 		selectItem(previousItem);
 	}, [previousItem, seekToItem, selectItem]);
 	const selectNext = useCallback(() => {
@@ -232,7 +238,7 @@ export const KeyframeEasingNavigator: React.FC<{
 			return;
 		}
 
-		seekToItem(nextItem);
+		seekToItem(nextItem, 'fit-right');
 		selectItem(nextItem);
 	}, [nextItem, seekToItem, selectItem]);
 

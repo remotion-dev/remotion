@@ -13,20 +13,17 @@ If you would like to obtain metadata from a video or audio in JavaScript, such a
 
 then [Mediabunny](https://mediabunny.dev) is the ideal library for doing so.
 
-The example uses the [`getVideoFrameRate()` code snippet](/docs/mediabunny/frame-rate) to determine whether the frame rate is constant or variable.
+The example uses Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to determine whether the frame rate is constant or variable.
 
 ## Getting metadata from a URL
 
 ```tsx title="get-media-metadata.ts"
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
-import {getVideoFrameRate} from './get-video-frame-rate';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -37,13 +34,13 @@ export const getMediaMetadata = async (src: string) => {
         height: await videoTrack.getDisplayHeight(),
       }
     : null;
-  const frameRate = await getVideoFrameRate(input);
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
   const fps =
-    frameRate === null
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
       ? null
-      : frameRate.type === 'constant'
-        ? frameRate.rate
-        : frameRate.max;
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -57,7 +54,6 @@ export const getMediaMetadata = async (src: string) => {
   <summary>Explanation</summary>
   <p>We load a URL (e.g. `https://remotion.media/video.mp4`) and parse it using Mediabunny.</p>
   <p>We don't care which format, so we load all parsers using `ALL_FORMATS`.</p>
-  <p>By setting `getRetryDelay` to `() => null`, we prevent Mediabunny from infinitely retrying if the request fails.</p>
   <p>We compute the duration, dimensions, and frame rate. If the media file is an audio file, we return `null` for the dimensions and frame rate.</p>
 </details>
 
@@ -90,4 +86,4 @@ In that case, you are better off using the [`getVideoMetadata()`](/docs/get-vide
 
 ## See also
 
-- [`getVideoFrameRate()`](/docs/mediabunny/frame-rate)
+- [Getting the frame rate of a video](/docs/mediabunny/frame-rate)

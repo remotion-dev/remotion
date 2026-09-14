@@ -1,4 +1,4 @@
-import {loadFonts} from './base';
+import {loadFonts, loadVariableFonts} from './base';
 
 export const getInfo = () => ({
 	fontFamily: 'Noto Serif Malayalam',
@@ -90,6 +90,44 @@ export const getInfo = () => ({
 		},
 	},
 	subsets: ['latin', 'latin-ext', 'malayalam'],
+	variable: {
+		axes: {
+			wght: {
+				min: 100,
+				max: 900,
+			},
+		},
+		fontFaces: [
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: null,
+				subset: 'malayalam',
+				unicodeRange:
+					'U+0307, U+0323, U+0951-0952, U+0964-0965, U+0D00-0D7F, U+1CDA, U+1CF2, U+200C-200D, U+20B9, U+25CC, U+A830-A832',
+				src: 'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGMiWpSrNw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: null,
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM0WpSrNw.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 900',
+				stretch: null,
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/notoserifmalayalam/v32/JIAsUU5sdmdP_HMcVcZFcH7DeVBeGVgSMGM6WpQ.woff2',
+			},
+		],
+		url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+Malayalam:wght@100..900',
+	},
 });
 
 export const fontFamily = 'Noto Serif Malayalam' as const;
@@ -120,4 +158,21 @@ export const loadFont = <T extends keyof Variants>(
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
+};
+
+type VariableVariants = {
+	normal: {
+		subsets: 'latin' | 'latin-ext' | 'malayalam';
+	};
+};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+	style: T,
+	options: {
+		subsets: VariableVariants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadVariableFonts(getInfo(), style, options);
 };

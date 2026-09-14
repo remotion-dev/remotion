@@ -7,6 +7,7 @@ import {
 	statSync,
 } from 'node:fs';
 import path from 'node:path';
+import {removeCrossSkillLinksFromMarkdown} from '../../skills/scripts/prepare-embedded-skills';
 
 const packageRoot = path.resolve(import.meta.dir, '..');
 const canonicalSkillsRoot = path.resolve(packageRoot, '..', 'skills', 'skills');
@@ -175,6 +176,11 @@ test('generated skills match the canonical skills', () => {
 					);
 				}
 			}
+			expectedContents = removeCrossSkillLinksFromMarkdown({
+				contents: expectedContents,
+				file: generatedFile,
+				skillRoot: path.join(generatedSkillsRoot, pathParts[0] as string),
+			});
 			expect(readFileSync(generatedFile, 'utf-8')).toBe(expectedContents);
 		} else {
 			expect(readFileSync(generatedFile)).toEqual(readFileSync(canonicalFile));

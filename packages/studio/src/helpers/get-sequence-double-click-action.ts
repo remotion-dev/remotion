@@ -2,17 +2,26 @@ import type {TSequence} from 'remotion';
 
 export type SequenceDoubleClickAction =
 	| 'open-connected-composition'
-	| 'open-in-editor';
+	| 'open-source';
 
 export const getSequenceDoubleClickAction = ({
 	button,
-	canOpenInEditor,
+	canOpenSource,
 	numberOfConnectedCompositions,
+	sequenceWasDragged,
 }: {
 	readonly button: number;
-	readonly canOpenInEditor: boolean;
+	readonly canOpenSource: boolean;
 	readonly numberOfConnectedCompositions: number;
+	readonly sequenceWasDragged: boolean;
 }): SequenceDoubleClickAction | null => {
+	// The browser still fires `dblclick` when the second press of a
+	// double-click turned into a drag. That gesture is a drag, not a
+	// double-click.
+	if (sequenceWasDragged) {
+		return null;
+	}
+
 	if (button !== 0) {
 		return null;
 	}
@@ -21,7 +30,7 @@ export const getSequenceDoubleClickAction = ({
 		return 'open-connected-composition';
 	}
 
-	return canOpenInEditor ? 'open-in-editor' : null;
+	return canOpenSource ? 'open-source' : null;
 };
 
 export const getConnectedCompositionFrame = ({

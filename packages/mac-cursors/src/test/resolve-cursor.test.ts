@@ -93,7 +93,7 @@ test('<MacOSCursor> renders the default cursor when the cursor prop is omitted',
 				height: 1080,
 				width: 1920,
 				parentFolderName: null,
-				nonce: [[0, 0]],
+				order: null,
 				calculateMetadata: null,
 				schema: null,
 				stack: null,
@@ -101,12 +101,12 @@ test('<MacOSCursor> renders the default cursor when the cursor prop is omitted',
 		],
 		folders: [],
 		canvasContent: {type: 'composition' as const, compositionId: 'comp'},
+		currentAssetMetadata: null,
 		currentCompositionMetadata: compositionMetadata,
 	} as React.ContextType<typeof Internals.CompositionManager>;
 	const timeline = {
 		frame: {comp: 0},
-		playing: false,
-		imperativePlaying: {current: false},
+		isPlaying: () => false,
 		audioAndVideoTags: {current: []},
 	} as React.ContextType<typeof Internals.TimelineContext>;
 	const markup = renderToString(

@@ -1,14 +1,9 @@
+import {sortItemsByCommitOrder} from '@remotion/canvas';
 import {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useRef} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -24,8 +19,10 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
-import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
+import {
+	startCapturedPointerSession,
+	startDeferredCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
@@ -42,18 +39,129 @@ import {
 } from './save-sequence-prop';
 import {
 	getTimelineSequenceSelectionKey,
+	shouldSelectTimelineRowOnPointerDown,
 	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
+	type TimelineSelectionInteraction,
 } from './TimelineSelection';
 
-const HANDLE_WIDTH = 6;
+const HANDLE_INSET = 6;
+const HANDLE_OUTSET = 8;
+const timelineSequenceEdgeDragThresholdPx = 4;
 export const timelineSequenceFromDragSnapThresholdPx = 10;
+
+export type TimelineSequenceMediaDurationDragLimits = {
+	readonly initialDuration: number;
+	readonly maximumDuration: number;
+};
+
+export const TimelineSequenceMediaDurationDragLimitsContext =
+	React.createContext<React.RefObject<
+		Map<string, TimelineSequenceMediaDurationDragLimits | null>
+	> | null>(null);
+
+export const TimelineSequenceMediaDurationDragLimitsProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const limits = useRef(
+		new Map<string, TimelineSequenceMediaDurationDragLimits | null>(),
+	);
+
+	return (
+		<TimelineSequenceMediaDurationDragLimitsContext.Provider value={limits}>
+			{children}
+		</TimelineSequenceMediaDurationDragLimitsContext.Provider>
+	);
+};
+
+export const getTimelineSequenceMediaDurationDragLimits = ({
+	cascadedStart,
+	displayDurationInFrames,
+	displayStart,
+	effectiveMaxMediaDuration,
+	explicitDurationInFrames,
+	hasImplicitDuration,
+	naturalMediaDuration,
+	timelineDurationInFrames,
+}: {
+	readonly cascadedStart: number;
+	readonly displayDurationInFrames: number;
+	readonly displayStart: number;
+	readonly effectiveMaxMediaDuration: number | null;
+	readonly explicitDurationInFrames: number | null;
+	readonly hasImplicitDuration: boolean;
+	readonly naturalMediaDuration: number | null;
+	readonly timelineDurationInFrames: number;
+}): TimelineSequenceMediaDurationDragLimits | null => {
+	if (
+		naturalMediaDuration === null ||
+		!Number.isFinite(naturalMediaDuration) ||
+		naturalMediaDuration <= 0
+	) {
+		return null;
+	}
+
+	const initialDuration =
+		explicitDurationInFrames ??
+		Math.ceil(
+			displayStart +
+				Math.max(
+					0,
+					Math.min(
+						displayDurationInFrames,
+						timelineDurationInFrames - displayStart,
+						effectiveMaxMediaDuration ?? Infinity,
+					),
+				) -
+				cascadedStart,
+		);
+	const maximumDuration =
+		// Keeping duration omitted represents the media's natural end. An
+		// explicit duration is only useful once its edge is before that end.
+		Math.ceil(displayStart + naturalMediaDuration - cascadedStart) -
+		(hasImplicitDuration ? 1 : 0);
+
+	if (hasImplicitDuration && initialDuration > maximumDuration) {
+		return null;
+	}
+
+	return {initialDuration, maximumDuration};
+};
+
+const getTimelineSequenceEdgeSelectionInteraction = ({
+	button,
+	selected,
+	shiftKey,
+	metaKey,
+	ctrlKey,
+}: {
+	readonly button: number;
+	readonly selected: boolean;
+	readonly shiftKey: boolean;
+	readonly metaKey: boolean;
+	readonly ctrlKey: boolean;
+}): TimelineSelectionInteraction | null => {
+	if (
+		button !== 0 ||
+		!shouldSelectTimelineRowOnPointerDown({
+			selected,
+			shiftKey,
+			metaKey,
+			ctrlKey,
+		})
+	) {
+		return null;
+	}
+
+	return {shiftKey, toggleKey: metaKey || ctrlKey};
+};
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	bottom: 0,
-	width: HANDLE_WIDTH,
+	// Keep the middle half of narrow layers available for moving.
+	width: `calc(${HANDLE_OUTSET}px + min(${HANDLE_INSET}px, 25%))`,
 	cursor: 'ew-resize',
 	zIndex: 1,
 	touchAction: 'none',
@@ -62,6 +170,7 @@ const baseStyle: React.CSSProperties = {
 export type TimelineSequenceDurationDragTarget = {
 	readonly fileName: string;
 	readonly initialDuration: number;
+	readonly maximumDuration: number;
 	readonly minimumDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
@@ -81,6 +190,8 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 
 export type TimelineSequenceFromDragTarget = {
 	readonly canSnapToTimelineStart: boolean;
+	readonly minimumDeltaFrames: number;
+	readonly initialTimelineStart: number;
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly fileName: string;
 	readonly initialFrom: number;
@@ -89,7 +200,10 @@ export type TimelineSequenceFromDragTarget = {
 };
 
 type TimelineSequenceKeyframeDragTarget = {
+	readonly fileName: string;
 	readonly fieldKey: string;
+	readonly isDescendant: boolean;
+	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly status: CanUpdateSequencePropStatusKeyframed;
 };
@@ -103,10 +217,12 @@ const getKeyframedSequenceDragTargets = ({
 	nodePath,
 	sequence,
 	propStatuses,
+	isDescendant,
 }: {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly sequence: TSequence;
 	readonly propStatuses: PropStatuses;
+	readonly isDescendant: boolean;
 }): {
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
@@ -122,8 +238,18 @@ const getKeyframedSequenceDragTargets = ({
 		sequenceSchema === undefined
 			? []
 			: Object.entries(status.props).flatMap(([fieldKey, propStatus]) =>
-					propStatus.status === 'keyframed'
-						? [{fieldKey, schema: sequenceSchema, status: propStatus}]
+					propStatus.status === 'keyframed' &&
+					(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
+						? [
+								{
+									fileName: nodePath.absolutePath,
+									fieldKey,
+									isDescendant,
+									nodePath,
+									schema: sequenceSchema,
+									status: propStatus,
+								},
+							]
 						: [],
 				);
 
@@ -139,11 +265,15 @@ const getKeyframedSequenceDragTargets = ({
 
 		return Object.entries(effectStatus.props).flatMap(
 			([fieldKey, propStatus]) =>
-				propStatus.status === 'keyframed'
+				propStatus.status === 'keyframed' &&
+				(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
 					? [
 							{
 								effectIndex: effectStatus.effectIndex,
+								fileName: nodePath.absolutePath,
 								fieldKey,
+								isDescendant,
+								nodePath,
 								schema: effectSchema,
 								status: propStatus,
 							},
@@ -158,10 +288,30 @@ const getKeyframedSequenceDragTargets = ({
 const shiftKeyframedStatus = ({
 	status,
 	deltaFrames,
+	isDescendant,
 }: {
 	readonly status: CanUpdateSequencePropStatusKeyframed;
 	readonly deltaFrames: number;
+	readonly isDescendant: boolean;
 }): CanUpdateSequencePropStatusKeyframed => {
+	if (isDescendant) {
+		const adjustment = status.keyframeDisplayOffsetAdjustment;
+		if (adjustment === null) {
+			throw new Error(
+				'Expected descendant keyframes to use an outer frame clock',
+			);
+		}
+
+		return {
+			...status,
+			keyframeDisplayOffsetAdjustment: null,
+			keyframes: status.keyframes.map((keyframe) => ({
+				...keyframe,
+				frame: keyframe.frame + adjustment,
+			})),
+		};
+	}
+
 	return {
 		...status,
 		keyframes: status.keyframes.map((keyframe) => ({
@@ -236,13 +386,14 @@ const getMinimumSequenceDuration = ({
 		return 1;
 	}
 
-	const siblings = sortItemsByNonceHistory(
+	const siblings = sortItemsByCommitOrder(
 		sequences.filter(
 			(candidate) =>
 				candidate.parent === sequence.parent &&
 				(isTransitionSeriesSequence(candidate) ||
 					isTransitionSeriesTransition(candidate)),
 		),
+		(candidate) => candidate.timelineOrder,
 	);
 	const sequenceIndex = siblings.findIndex(
 		(candidate) => candidate.id === sequence.id,
@@ -276,21 +427,11 @@ export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 };
 
 export const canResizeTimelineSequenceDuration = ({
-	sequence,
 	status,
 }: {
-	readonly sequence: TSequence;
 	readonly status: CanUpdateSequencePropStatus | undefined;
 }) => {
-	if (status?.status !== 'static') {
-		return false;
-	}
-
-	if (sequence.type === 'audio' || sequence.type === 'video') {
-		return status.codeValue !== undefined;
-	}
-
-	return true;
+	return status?.status === 'static';
 };
 
 export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
@@ -337,12 +478,18 @@ const isFromDraggableSequence = (sequence: TSequence) => {
 export const getTimelineSequenceDurationDragValue = ({
 	initialDuration,
 	deltaFrames,
+	maximumDuration,
 	minimumDuration = 1,
 }: {
 	readonly initialDuration: number;
 	readonly deltaFrames: number;
+	readonly maximumDuration: number;
 	readonly minimumDuration?: number;
-}) => Math.max(minimumDuration, initialDuration + deltaFrames);
+}) =>
+	Math.min(
+		maximumDuration,
+		Math.max(minimumDuration, initialDuration + deltaFrames),
+	);
 
 export const getTimelineSequenceLeftEdgeDragDelta = ({
 	initialDuration,
@@ -389,7 +536,11 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	return {
 		durationInFrames: initialDuration - clampedDeltaFrames,
 		from: initialFrom + clampedDeltaFrames,
-		trimBefore: initialTrimBefore + clampedDeltaFrames * playbackRate,
+		// Division and multiplication by playbackRate may not cancel exactly.
+		trimBefore:
+			clampedDeltaFrames === -initialTrimBefore / playbackRate
+				? 0
+				: initialTrimBefore + clampedDeltaFrames * playbackRate,
 	};
 };
 
@@ -462,6 +613,7 @@ export const getTimelineSequenceDurationDragChanges = ({
 		const nextValue = getTimelineSequenceDurationDragValue({
 			initialDuration: target.initialDuration,
 			deltaFrames,
+			maximumDuration: target.maximumDuration,
 			minimumDuration: target.minimumDuration,
 		});
 
@@ -492,19 +644,17 @@ export const getTimelineSequenceFromDragValue = ({
 
 export const getTimelineSequenceFromDragDelta = ({
 	deltaFrames,
+	timelineDurationInFrames,
 	pxPerFrame,
 	snappingEnabled,
 	targets,
 }: {
 	readonly deltaFrames: number;
+	readonly timelineDurationInFrames: number;
 	readonly pxPerFrame: number;
 	readonly snappingEnabled: boolean;
 	readonly targets: readonly TimelineSequenceFromDragTarget[];
 }) => {
-	if (!snappingEnabled) {
-		return deltaFrames;
-	}
-
 	let closestSnap:
 		| {
 				readonly deltaFrames: number;
@@ -512,7 +662,7 @@ export const getTimelineSequenceFromDragDelta = ({
 		  }
 		| undefined;
 	for (const target of targets) {
-		if (!target.canSnapToTimelineStart) {
+		if (!snappingEnabled || !target.canSnapToTimelineStart) {
 			continue;
 		}
 
@@ -534,7 +684,19 @@ export const getTimelineSequenceFromDragDelta = ({
 		};
 	}
 
-	return closestSnap?.deltaFrames ?? deltaFrames;
+	const minimumDelta = Math.max(
+		...targets.map((target) => target.minimumDeltaFrames),
+	);
+	const maximumDelta = Math.min(
+		...targets.map(
+			(target) => timelineDurationInFrames - 1 - target.initialTimelineStart,
+		),
+	);
+	// Clamp the shared delta after snapping so every selected track retains a frame.
+	return Math.max(
+		minimumDelta,
+		Math.min(maximumDelta, closestSnap?.deltaFrames ?? deltaFrames),
+	);
 };
 
 export const getTimelineSequenceFromDragChanges = ({
@@ -585,25 +747,31 @@ export const getTimelineSequenceFromDragKeyframeMoves = ({
 		sequenceKeyframes: targets.flatMap((target) =>
 			target.sequenceKeyframes.flatMap((keyframeTarget) =>
 				keyframeTarget.status.keyframes.map((keyframe) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
+					fileName: keyframeTarget.fileName,
+					nodePath: keyframeTarget.nodePath,
 					fieldKey: keyframeTarget.fieldKey,
 					fromFrame: keyframe.frame,
 					toFrame: keyframe.frame + deltaFrames,
 					schema: keyframeTarget.schema,
+					keyframeDisplayOffsetAdjustmentDelta: keyframeTarget.isDescendant
+						? -deltaFrames
+						: undefined,
 				})),
 			),
 		),
 		effectKeyframes: targets.flatMap((target) =>
 			target.effectKeyframes.flatMap((keyframeTarget) =>
 				keyframeTarget.status.keyframes.map((keyframe) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
+					fileName: keyframeTarget.fileName,
+					nodePath: keyframeTarget.nodePath,
 					effectIndex: keyframeTarget.effectIndex,
 					fieldKey: keyframeTarget.fieldKey,
 					fromFrame: keyframe.frame,
 					toFrame: keyframe.frame + deltaFrames,
 					schema: keyframeTarget.schema,
+					keyframeDisplayOffsetAdjustmentDelta: keyframeTarget.isDescendant
+						? -deltaFrames
+						: undefined,
 				})),
 			),
 		),
@@ -636,16 +804,25 @@ const findSequenceTrack = ({
 
 export const getTimelineSequenceDurationDragTargets = ({
 	draggedNodePathInfo,
+	draggedSequenceMediaDurationDragLimits,
+	selectedSequenceMediaDurationDragLimits,
 	selectedItems,
 	sequences,
 	overrideIdsToNodePaths,
 	propStatuses,
+	timelineDurationInFrames,
 }: {
 	readonly draggedNodePathInfo: SequenceNodePathInfo;
+	readonly draggedSequenceMediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
+	readonly selectedSequenceMediaDurationDragLimits: ReadonlyMap<
+		string,
+		TimelineSequenceMediaDurationDragLimits | null
+	> | null;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
+	readonly timelineDurationInFrames: number;
 }): TimelineSequenceDurationDragTarget[] | null => {
 	const draggedSelectionKey =
 		getTimelineSequenceSelectionKey(draggedNodePathInfo);
@@ -694,7 +871,6 @@ export const getTimelineSequenceDurationDragTargets = ({
 		)?.durationInFrames;
 		if (
 			!canResizeTimelineSequenceDuration({
-				sequence: originalSequence,
 				status: durationStatus,
 			})
 		) {
@@ -708,13 +884,39 @@ export const getTimelineSequenceDurationDragTargets = ({
 
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
+			const selectionKey = getTimelineSequenceSelectionKey(nodePathInfo);
+			const isMedia =
+				originalSequence.type === 'audio' || originalSequence.type === 'video';
+			const isDraggedSequence = selectionKey === draggedSelectionKey;
+			const mediaDurationDragLimits = isMedia
+				? isDraggedSequence
+					? draggedSequenceMediaDurationDragLimits
+					: (selectedSequenceMediaDurationDragLimits?.get(selectionKey) ?? null)
+				: null;
+			if (isMedia && mediaDurationDragLimits === null) {
+				return null;
+			}
+
+			const minimumDuration = Math.max(
+				1 - originalSequence.from,
+				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
+			);
+			const initialDuration =
+				mediaDurationDragLimits?.initialDuration ?? originalSequence.duration;
+			const constrainedMaximumDuration = Math.min(
+				mediaDurationDragLimits?.maximumDuration ?? Infinity,
+				timelineDurationInFrames - track.cascadedStart,
+			);
+			const maximumDuration = isMedia
+				? Math.max(minimumDuration, initialDuration, constrainedMaximumDuration)
+				: Math.max(minimumDuration, constrainedMaximumDuration);
+
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
-				initialDuration: originalSequence.duration,
-				minimumDuration: getMinimumSequenceDuration({
-					sequence: originalSequence,
-					sequences,
-				}),
+				initialDuration,
+				maximumDuration,
+				// A negative start needs enough duration to retain one visible frame.
+				minimumDuration,
 				nodePath,
 				schema: controls.schema,
 			});
@@ -856,37 +1058,113 @@ export const getTimelineSequenceFromDragTargets = ({
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
 	const tracks = calculateTimeline({sequences, overrideIdsToNodePaths});
-	const targets = new Map<string, TimelineSequenceFromDragTarget>();
-
-	for (const nodePathInfo of targetNodePathInfos) {
+	const sequencesById = new Map(
+		sequences.map((sequence) => [sequence.id, sequence]),
+	);
+	const selectedSequences = targetNodePathInfos.flatMap((nodePathInfo) => {
 		const track = findSequenceTrack({tracks, nodePathInfo});
 		const originalSequence = track
-			? sequences.find((sequence) => sequence.id === track.sequence.id)
-			: null;
-		if (
-			!track ||
-			!track.nodePathInfo ||
-			!originalSequence ||
-			!isFromDraggableSequence(originalSequence)
-		) {
+			? sequencesById.get(track.sequence.id)
+			: undefined;
+		if (!track?.nodePathInfo || !originalSequence) {
+			return [];
+		}
+
+		return [
+			{
+				nodePath: track.nodePathInfo.sequenceSubscriptionKey,
+				originalSequence,
+				initialTimelineStart: track.cascadedStart,
+			},
+		];
+	});
+	if (selectedSequences.length !== targetNodePathInfos.length) {
+		return null;
+	}
+
+	const selectedSequenceIds = new Set(
+		selectedSequences.map(({originalSequence}) => originalSequence.id),
+	);
+	const sequencesWithoutSelectedAncestors = selectedSequences.filter(
+		({originalSequence}) => {
+			let parentId = originalSequence.parent;
+			while (parentId !== null) {
+				if (selectedSequenceIds.has(parentId)) {
+					return false;
+				}
+
+				parentId = sequencesById.get(parentId)?.parent ?? null;
+			}
+
+			return true;
+		},
+	);
+	const targets = new Map<string, TimelineSequenceFromDragTarget>();
+	const includedKeyframeNodePaths = new Set<string>();
+
+	for (const {
+		nodePath,
+		originalSequence,
+		initialTimelineStart,
+	} of sequencesWithoutSelectedAncestors) {
+		if (!isFromDraggableSequence(originalSequence)) {
 			return null;
 		}
 
-		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		if (!canUpdateFrom({propStatuses, nodePath})) {
 			return null;
 		}
 
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
-			const {effectKeyframes, sequenceKeyframes} =
-				getKeyframedSequenceDragTargets({
-					nodePath,
-					sequence: originalSequence,
-					propStatuses,
-				});
+			const descendants = sequences.filter((candidate) => {
+				let parentId: string | null = candidate.id;
+				while (parentId !== null) {
+					if (parentId === originalSequence.id) {
+						return true;
+					}
+
+					parentId = sequencesById.get(parentId)?.parent ?? null;
+				}
+
+				return false;
+			});
+			const descendantKeyframes = descendants.flatMap((sequence) => {
+				const overrideId = sequence.controls?.overrideId;
+				const descendantNodePath = overrideId
+					? overrideIdsToNodePaths[overrideId]
+					: undefined;
+				if (descendantNodePath === undefined) {
+					return [];
+				}
+
+				const descendantNodePathKey =
+					stringifySequenceSubscriptionKey(descendantNodePath);
+				if (includedKeyframeNodePaths.has(descendantNodePathKey)) {
+					return [];
+				}
+
+				includedKeyframeNodePaths.add(descendantNodePathKey);
+				return [
+					getKeyframedSequenceDragTargets({
+						nodePath: descendantNodePath,
+						sequence,
+						propStatuses,
+						isDescendant: sequence.id !== originalSequence.id,
+					}),
+				];
+			});
+			const effectKeyframes = descendantKeyframes.flatMap(
+				(descendant) => descendant.effectKeyframes,
+			);
+			const sequenceKeyframes = descendantKeyframes.flatMap(
+				(descendant) => descendant.sequenceKeyframes,
+			);
 			targets.set(key, {
 				canSnapToTimelineStart: originalSequence.parent === null,
+				minimumDeltaFrames:
+					1 - originalSequence.duration - originalSequence.from,
+				initialTimelineStart,
 				effectKeyframes,
 				fileName: nodePath.absolutePath,
 				initialFrom: originalSequence.from,
@@ -937,11 +1215,22 @@ const clearFromDragOverrides = ({
 }) => {
 	for (const target of targets) {
 		clearDragOverrides(target.nodePath);
-		const effectIndexes = new Set(
-			target.effectKeyframes.map((keyframe) => keyframe.effectIndex),
-		);
-		for (const effectIndex of effectIndexes) {
-			clearEffectDragOverrides(target.nodePath, effectIndex);
+		for (const keyframeTarget of target.sequenceKeyframes) {
+			clearDragOverrides(keyframeTarget.nodePath);
+		}
+
+		const clearedEffects = new Set<string>();
+		for (const keyframeTarget of target.effectKeyframes) {
+			const key = `${stringifySequenceSubscriptionKey(keyframeTarget.nodePath)}:${keyframeTarget.effectIndex}`;
+			if (clearedEffects.has(key)) {
+				continue;
+			}
+
+			clearedEffects.add(key);
+			clearEffectDragOverrides(
+				keyframeTarget.nodePath,
+				keyframeTarget.effectIndex,
+			);
 		}
 	}
 };
@@ -950,7 +1239,17 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly onDragEnd: (wasDragged: boolean) => void;
+	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
+	readonly selected: boolean;
+}> = ({
+	nodePathInfo,
+	windowWidth,
+	timelineDurationInFrames,
+	onDragEnd,
+	onSelect,
+	selected,
+}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -964,14 +1263,14 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
-	const [dragging, setDragging] = useState(false);
+	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
-		button: number;
-		target: HTMLDivElement;
+		selectionInteraction: TimelineSelectionInteraction | null;
 		targets: readonly TimelineSequenceLeftEdgeDragTarget[];
 	} | null>(null);
 
@@ -982,6 +1281,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
+		onSelect,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -990,6 +1291,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
+		onSelect,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -999,10 +1302,17 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
-		setDragging(false);
+		if (
+			commit &&
+			!dragState.didMove &&
+			dragState.selectionInteraction !== null
+		) {
+			latestRef.current.onSelect(dragState.selectionInteraction);
+		}
 
 		const {
 			setPropStatuses: latestSetPropStatuses,
@@ -1065,50 +1375,146 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
+			e.stopPropagation();
+			e.preventDefault();
+
+			const selectionInteraction = getTimelineSequenceEdgeSelectionInteraction({
+				button: e.button,
+				selected,
+				shiftKey: e.shiftKey,
+				metaKey: e.metaKey,
+				ctrlKey: e.ctrlKey,
+			});
 			const pxPerFrame =
 				timelineDurationInFrames > 0
 					? (windowWidth - TIMELINE_PADDING * 2) / timelineDurationInFrames
 					: 0;
-			if (pxPerFrame <= 0) {
-				return;
-			}
+			const canCalculateDelta = Number.isFinite(pxPerFrame) && pxPerFrame > 0;
 
 			const {
 				nodePathInfo: latestNodePathInfo,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
 			} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
-			const targets = getTimelineSequenceLeftEdgeDragTargets({
-				draggedNodePathInfo: latestNodePathInfo,
-				selectedItems: latestSelectedItems,
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				propStatuses: propStatusesRef.current,
-			});
-			if (targets === null || targets.length === 0) {
-				return;
-			}
+			const targets = canCalculateDelta
+				? (getTimelineSequenceLeftEdgeDragTargets({
+						draggedNodePathInfo: latestNodePathInfo,
+						selectedItems: latestSelectedItems,
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+						propStatuses: propStatusesRef.current,
+					}) ?? [])
+				: [];
 
-			e.stopPropagation();
-			e.preventDefault();
+			stopPointerSessionRef.current?.();
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
-				pxPerFrame,
+				didMove: false,
+				pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 				pointerId: e.pointerId,
-				button: e.button,
-				target: e.currentTarget,
+				selectionInteraction,
 				targets,
 			};
-			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			forceSpecificCursor('ew-resize');
-			setDragging(true);
+
+			const onMove = (pointerEvent: PointerEvent) => {
+				const dragState = dragStateRef.current;
+				if (!dragState || pointerEvent.pointerId !== dragState.pointerId) {
+					return;
+				}
+
+				const dx = pointerEvent.clientX - dragState.initialClientX;
+				const deltaFrames = Math.round(dx / dragState.pxPerFrame);
+				dragState.latestDeltaFrames = deltaFrames;
+				if (
+					Math.abs(dx) >= timelineSequenceEdgeDragThresholdPx ||
+					getTimelineSequenceLeftEdgeDragChanges({
+						targets: dragState.targets,
+						deltaFrames,
+					}).length > 0
+				) {
+					dragState.didMove = true;
+				}
+
+				for (const target of dragState.targets) {
+					const nextValues = getTimelineSequenceLeftEdgeDragValues({
+						initialDuration: target.initialDuration,
+						initialFrom: target.initialFrom,
+						initialTrimBefore: target.initialTrimBefore,
+						deltaFrames,
+						playbackRate: target.playbackRate,
+						minimumDuration: target.minimumDuration,
+					});
+					if (target.positionField !== null) {
+						latestRef.current.setDragOverrides(
+							target.nodePath,
+							target.positionField,
+							Internals.makeStaticDragOverride(nextValues.from),
+						);
+					}
+
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'durationInFrames',
+						Internals.makeStaticDragOverride(nextValues.durationInFrames),
+					);
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'trimBefore',
+						Internals.makeStaticDragOverride(nextValues.trimBefore),
+					);
+				}
+			};
+
+			const onUp = (pointerEvent: PointerEvent) => {
+				const dragState = dragStateRef.current;
+				if (!dragState || pointerEvent.pointerId !== dragState.pointerId) {
+					return;
+				}
+
+				// Include the release position even if the final pointermove was skipped.
+				onMove(pointerEvent);
+				finishDrag(true);
+			};
+
+			const onCancel = (pointerEvent: PointerEvent) => {
+				const dragState = dragStateRef.current;
+				if (!dragState || pointerEvent.pointerId !== dragState.pointerId) {
+					return;
+				}
+
+				finishDrag(false);
+			};
+
+			stopPointerSessionRef.current = startCapturedPointerSession({
+				event: e.nativeEvent,
+				captureTarget: e.currentTarget,
+				onMove,
+				onEnd: (reason, endEvent) => {
+					stopPointerSessionRef.current = null;
+					if (
+						(reason === 'pointerup' ||
+							reason === 'buttons-released' ||
+							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
+						endEvent
+					) {
+						onUp(endEvent);
+					} else if (endEvent) {
+						onCancel(endEvent);
+					} else {
+						finishDrag(false);
+					}
+				},
+			});
 		},
 		[
 			currentSelection,
+			finishDrag,
 			propStatusesRef,
+			selected,
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
@@ -1116,94 +1522,15 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	);
 
 	useEffect(() => {
-		if (!dragging) {
-			return;
-		}
-
-		const onMove = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			const dx = e.clientX - dragState.initialClientX;
-			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
-			dragState.latestDeltaFrames = deltaFrames;
-			for (const target of dragState.targets) {
-				const nextValues = getTimelineSequenceLeftEdgeDragValues({
-					initialDuration: target.initialDuration,
-					initialFrom: target.initialFrom,
-					initialTrimBefore: target.initialTrimBefore,
-					deltaFrames,
-					playbackRate: target.playbackRate,
-					minimumDuration: target.minimumDuration,
-				});
-				if (target.positionField !== null) {
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						target.positionField,
-						Internals.makeStaticDragOverride(nextValues.from),
-					);
-				}
-
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'durationInFrames',
-					Internals.makeStaticDragOverride(nextValues.durationInFrames),
-				);
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'trimBefore',
-					Internals.makeStaticDragOverride(nextValues.trimBefore),
-				);
-			}
+		return () => {
+			stopPointerSessionRef.current?.();
+			stopPointerSessionRef.current = null;
 		};
-
-		const onUp = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(true);
-		};
-
-		const onCancel = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(false);
-		};
-
-		const activeDragState = dragStateRef.current;
-		if (!activeDragState) {
-			return;
-		}
-
-		return startCapturedPointerSession({
-			event: activeDragState,
-			captureTarget: activeDragState.target,
-			onMove,
-			onEnd: (reason, endEvent) => {
-				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
-					endEvent
-				) {
-					onUp(endEvent);
-				} else if (endEvent) {
-					onCancel(endEvent);
-				} else {
-					finishDrag(false);
-				}
-			},
-		});
-	}, [dragging, finishDrag]);
+	}, []);
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		left: 0,
+		left: -HANDLE_OUTSET,
 		background: TRANSPARENT,
 	};
 
@@ -1226,10 +1553,12 @@ export const useTimelineSequenceFromDrag = ({
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
+	onDragEnd,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
+	readonly onDragEnd: (wasDragged: boolean) => void;
 }) => {
 	const {
 		setPropStatuses,
@@ -1249,14 +1578,12 @@ export const useTimelineSequenceFromDrag = ({
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {editorSnapping} = useContext(EditorSnappingContext);
 
-	const [dragging, setDragging] = useState(false);
+	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
-		pointerId: number;
-		button: number;
-		target: HTMLDivElement;
 		targets: readonly TimelineSequenceFromDragTarget[];
 	} | null>(null);
 
@@ -1270,6 +1597,7 @@ export const useTimelineSequenceFromDrag = ({
 		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
+		onDragEnd,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1281,6 +1609,7 @@ export const useTimelineSequenceFromDrag = ({
 		previewServerState,
 		overrideIdToNodePathMappings,
 		editorSnapping,
+		onDragEnd,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1290,10 +1619,9 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		dragStateRef.current = null;
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
-		setDragging(false);
-
 		const {
 			setPropStatuses: latestSetPropStatuses,
 			clearDragOverrides: latestClear,
@@ -1395,23 +1723,101 @@ export const useTimelineSequenceFromDrag = ({
 				return;
 			}
 
+			stopPointerSessionRef.current?.();
 			e.preventDefault();
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				didMove: false,
 				pxPerFrame,
-				pointerId: e.pointerId,
-				button: e.button,
-				target: e.currentTarget,
 				targets,
 			};
-			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
-			setDragging(true);
+			// Register before React commits so no pointer move can arrive before
+			// the global session listeners exist.
+			stopPointerSessionRef.current = startDeferredCapturedPointerSession({
+				event: e.nativeEvent,
+				captureTarget: e.currentTarget.ownerDocument.body,
+				onMove: (moveEvent, capturePointer) => {
+					const dragState = dragStateRef.current;
+					if (!dragState) {
+						return;
+					}
+
+					const dx = moveEvent.clientX - dragState.initialClientX;
+					const deltaFrames = getTimelineSequenceFromDragDelta({
+						timelineDurationInFrames,
+						deltaFrames: Math.round(dx / dragState.pxPerFrame),
+						pxPerFrame: dragState.pxPerFrame,
+						snappingEnabled: latestRef.current.editorSnapping,
+						targets: dragState.targets,
+					});
+					dragState.latestDeltaFrames = deltaFrames;
+					if (deltaFrames !== 0) {
+						// The bar can be removed when it leaves the visible timeline.
+						// Capture only after a real drag starts so clicks and double-clicks
+						// remain targeted at the bar.
+						capturePointer();
+						dragState.didMove = true;
+					}
+
+					for (const target of dragState.targets) {
+						const nextFrom = getTimelineSequenceFromDragValue({
+							initialFrom: target.initialFrom,
+							deltaFrames,
+						});
+						latestRef.current.setDragOverrides(
+							target.nodePath,
+							'from',
+							Internals.makeStaticDragOverride(nextFrom),
+						);
+						for (const keyframeTarget of target.sequenceKeyframes) {
+							latestRef.current.setDragOverrides(
+								keyframeTarget.nodePath,
+								keyframeTarget.fieldKey,
+								{
+									type: 'keyframed',
+									status: shiftKeyframedStatus({
+										status: keyframeTarget.status,
+										deltaFrames,
+										isDescendant: keyframeTarget.isDescendant,
+									}),
+								},
+							);
+						}
+
+						for (const keyframeTarget of target.effectKeyframes) {
+							latestRef.current.setEffectDragOverrides(
+								keyframeTarget.nodePath,
+								keyframeTarget.effectIndex,
+								keyframeTarget.fieldKey,
+								{
+									type: 'keyframed',
+									status: shiftKeyframedStatus({
+										status: keyframeTarget.status,
+										deltaFrames,
+										isDescendant: keyframeTarget.isDescendant,
+									}),
+								},
+							);
+						}
+					}
+				},
+				onEnd: (reason, endEvent) => {
+					stopPointerSessionRef.current = null;
+					finishDrag(
+						(reason === 'pointerup' ||
+							reason === 'buttons-released' ||
+							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
+							endEvent !== null,
+					);
+				},
+			});
 		},
 		[
 			currentSelection,
+			finishDrag,
 			propStatusesRef,
 			sequencesRef,
 			timelineDurationInFrames,
@@ -1420,118 +1826,34 @@ export const useTimelineSequenceFromDrag = ({
 	);
 
 	useEffect(() => {
-		if (!dragging) {
-			return;
-		}
-
-		const onMove = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			const dx = e.clientX - dragState.initialClientX;
-			const deltaFrames = getTimelineSequenceFromDragDelta({
-				deltaFrames: Math.round(dx / dragState.pxPerFrame),
-				pxPerFrame: dragState.pxPerFrame,
-				snappingEnabled: latestRef.current.editorSnapping,
-				targets: dragState.targets,
-			});
-			dragState.latestDeltaFrames = deltaFrames;
-			for (const target of dragState.targets) {
-				const nextFrom = getTimelineSequenceFromDragValue({
-					initialFrom: target.initialFrom,
-					deltaFrames,
-				});
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'from',
-					Internals.makeStaticDragOverride(nextFrom),
-				);
-				for (const keyframeTarget of target.sequenceKeyframes) {
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						keyframeTarget.fieldKey,
-						{
-							type: 'keyframed',
-							status: shiftKeyframedStatus({
-								status: keyframeTarget.status,
-								deltaFrames,
-							}),
-						},
-					);
-				}
-
-				for (const keyframeTarget of target.effectKeyframes) {
-					latestRef.current.setEffectDragOverrides(
-						target.nodePath,
-						keyframeTarget.effectIndex,
-						keyframeTarget.fieldKey,
-						{
-							type: 'keyframed',
-							status: shiftKeyframedStatus({
-								status: keyframeTarget.status,
-								deltaFrames,
-							}),
-						},
-					);
-				}
-			}
+		return () => {
+			stopPointerSessionRef.current?.();
+			stopPointerSessionRef.current = null;
 		};
-
-		const onUp = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(true);
-		};
-
-		const onCancel = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(false);
-		};
-
-		const activeDragState = dragStateRef.current;
-		if (!activeDragState) {
-			return;
-		}
-
-		return startCapturedPointerSession({
-			event: activeDragState,
-			captureTarget: activeDragState.target,
-			onMove,
-			onEnd: (reason, endEvent) => {
-				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
-					endEvent
-				) {
-					onUp(endEvent);
-				} else if (endEvent) {
-					onCancel(endEvent);
-				} else {
-					finishDrag(false);
-				}
-			},
-		});
-	}, [dragging, finishDrag]);
+	}, []);
 
 	return {
-		dragging,
 		onPointerDown,
 	};
 };
 
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
-}> = ({nodePathInfo, windowWidth, timelineDurationInFrames}) => {
+	readonly onDragEnd: (wasDragged: boolean) => void;
+	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
+	readonly selected: boolean;
+}> = ({
+	nodePathInfo,
+	mediaDurationDragLimits,
+	windowWidth,
+	timelineDurationInFrames,
+	onDragEnd,
+	onSelect,
+	selected,
+}) => {
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
@@ -1544,34 +1866,43 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const mediaDurationDragLimitsRegistry = useContext(
+		TimelineSequenceMediaDurationDragLimitsContext,
+	);
 
-	const [dragging, setDragging] = useState(false);
+	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
-		button: number;
-		target: HTMLDivElement;
+		selectionInteraction: TimelineSelectionInteraction | null;
 		targets: readonly TimelineSequenceDurationDragTarget[];
 	} | null>(null);
 
 	// Keep latest props/setters available to window listeners installed once at pointerdown.
 	const latestRef = useRef({
 		nodePathInfo,
+		mediaDurationDragLimits,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
+		onSelect,
 	});
 	latestRef.current = {
 		nodePathInfo,
+		mediaDurationDragLimits,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		onDragEnd,
+		onSelect,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1581,10 +1912,17 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
-		setDragging(false);
+		if (
+			commit &&
+			!dragState.didMove &&
+			dragState.selectionInteraction !== null
+		) {
+			latestRef.current.onSelect(dragState.selectionInteraction);
+		}
 
 		const {
 			setPropStatuses: latestSetPropStatuses,
@@ -1645,133 +1983,155 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				return;
 			}
 
+			e.stopPropagation();
+			e.preventDefault();
+
+			const selectionInteraction = getTimelineSequenceEdgeSelectionInteraction({
+				button: e.button,
+				selected,
+				shiftKey: e.shiftKey,
+				metaKey: e.metaKey,
+				ctrlKey: e.ctrlKey,
+			});
 			const pxPerFrame =
 				timelineDurationInFrames > 0
 					? (windowWidth - TIMELINE_PADDING * 2) / timelineDurationInFrames
 					: 0;
-			if (pxPerFrame <= 0) {
-				return;
-			}
+			const canCalculateDelta = Number.isFinite(pxPerFrame) && pxPerFrame > 0;
 
 			const {
 				nodePathInfo: latestNodePathInfo,
+				mediaDurationDragLimits: latestMediaDurationDragLimits,
 				overrideIdToNodePathMappings: latestOverrideIdsToNodePaths,
 			} = latestRef.current;
 			const {selectedItems: latestSelectedItems} = currentSelection.current;
-			const targets = getTimelineSequenceDurationDragTargets({
-				draggedNodePathInfo: latestNodePathInfo,
-				selectedItems: latestSelectedItems,
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
-				propStatuses: propStatusesRef.current,
-			});
-			if (targets === null || targets.length === 0) {
-				return;
-			}
+			const targets = canCalculateDelta
+				? (getTimelineSequenceDurationDragTargets({
+						draggedNodePathInfo: latestNodePathInfo,
+						draggedSequenceMediaDurationDragLimits:
+							latestMediaDurationDragLimits,
+						selectedSequenceMediaDurationDragLimits:
+							mediaDurationDragLimitsRegistry?.current ?? null,
+						selectedItems: latestSelectedItems,
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: latestOverrideIdsToNodePaths,
+						propStatuses: propStatusesRef.current,
+						timelineDurationInFrames,
+					}) ?? [])
+				: [];
 
-			e.stopPropagation();
-			e.preventDefault();
+			stopPointerSessionRef.current?.();
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
-				pxPerFrame,
+				didMove: false,
+				pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 				pointerId: e.pointerId,
-				button: e.button,
-				target: e.currentTarget,
+				selectionInteraction,
 				targets,
 			};
-			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			forceSpecificCursor('ew-resize');
-			setDragging(true);
+
+			const onMove = (pointerEvent: PointerEvent) => {
+				const dragState = dragStateRef.current;
+				if (!dragState || pointerEvent.pointerId !== dragState.pointerId) {
+					return;
+				}
+
+				const dx = pointerEvent.clientX - dragState.initialClientX;
+				const deltaFrames = Math.round(dx / dragState.pxPerFrame);
+				dragState.latestDeltaFrames = deltaFrames;
+				if (
+					Math.abs(dx) >= timelineSequenceEdgeDragThresholdPx ||
+					getTimelineSequenceDurationDragChanges({
+						targets: dragState.targets,
+						deltaFrames,
+					}).length > 0
+				) {
+					dragState.didMove = true;
+				}
+
+				for (const target of dragState.targets) {
+					const previewValue = getTimelineSequenceDurationDragValue({
+						initialDuration: target.initialDuration,
+						deltaFrames,
+						maximumDuration: target.maximumDuration,
+						minimumDuration: target.minimumDuration,
+					});
+
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'durationInFrames',
+						Internals.makeStaticDragOverride(previewValue),
+					);
+				}
+			};
+
+			const onUp = (pointerEvent: PointerEvent) => {
+				const dragState = dragStateRef.current;
+				if (!dragState || pointerEvent.pointerId !== dragState.pointerId) {
+					return;
+				}
+
+				// Include the release position even if the final pointermove was skipped.
+				onMove(pointerEvent);
+				finishDrag(true);
+			};
+
+			const onCancel = (pointerEvent: PointerEvent) => {
+				const dragState = dragStateRef.current;
+				if (!dragState || pointerEvent.pointerId !== dragState.pointerId) {
+					return;
+				}
+
+				finishDrag(false);
+			};
+
+			stopPointerSessionRef.current = startCapturedPointerSession({
+				event: e.nativeEvent,
+				captureTarget: e.currentTarget,
+				onMove,
+				onEnd: (reason, endEvent) => {
+					stopPointerSessionRef.current = null;
+					if (
+						(reason === 'pointerup' ||
+							reason === 'buttons-released' ||
+							(reason === 'lostpointercapture' && endEvent?.buttons === 0)) &&
+						endEvent
+					) {
+						onUp(endEvent);
+					} else if (endEvent) {
+						onCancel(endEvent);
+					} else {
+						finishDrag(false);
+					}
+				},
+			});
 		},
 		[
 			currentSelection,
+			finishDrag,
+			mediaDurationDragLimitsRegistry,
 			propStatusesRef,
+			selected,
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
 		],
 	);
 
-	// Install global pointer listeners while dragging. They survive parent re-renders
-	// and element remounts that would otherwise drop React's synthetic handlers or
-	// pointer capture.
 	useEffect(() => {
-		if (!dragging) {
-			return;
-		}
-
-		const onMove = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			const dx = e.clientX - dragState.initialClientX;
-			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
-			dragState.latestDeltaFrames = deltaFrames;
-			for (const target of dragState.targets) {
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					'durationInFrames',
-					Internals.makeStaticDragOverride(
-						getTimelineSequenceDurationDragValue({
-							initialDuration: target.initialDuration,
-							deltaFrames,
-							minimumDuration: target.minimumDuration,
-						}),
-					),
-				);
-			}
+		return () => {
+			stopPointerSessionRef.current?.();
+			stopPointerSessionRef.current = null;
 		};
-
-		const onUp = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(true);
-		};
-
-		const onCancel = (e: PointerEvent) => {
-			const dragState = dragStateRef.current;
-			if (!dragState || e.pointerId !== dragState.pointerId) {
-				return;
-			}
-
-			finishDrag(false);
-		};
-
-		const activeDragState = dragStateRef.current;
-		if (!activeDragState) {
-			return;
-		}
-
-		return startCapturedPointerSession({
-			event: activeDragState,
-			captureTarget: activeDragState.target,
-			onMove,
-			onEnd: (reason, endEvent) => {
-				if (
-					(reason === 'pointerup' || reason === 'buttons-released') &&
-					endEvent
-				) {
-					onUp(endEvent);
-				} else if (endEvent) {
-					onCancel(endEvent);
-				} else {
-					finishDrag(false);
-				}
-			},
-		});
-	}, [dragging, finishDrag]);
+	}, []);
 
 	const style: React.CSSProperties = {
 		...baseStyle,
-		right: 0,
+		right: -HANDLE_OUTSET,
 		background: TRANSPARENT,
 	};
 

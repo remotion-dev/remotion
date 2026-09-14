@@ -13,7 +13,8 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	CanvasCaptureData,
-	PackageManager,
+	ElementInstallExpectedFileState,
+	ElementInstallRequest,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -32,7 +33,6 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -56,6 +56,7 @@ export type WebRenderModalState = {
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
 	initialMediaCacheSizeInBytes: number | null;
+	initialAllowHtmlInCanvas: boolean;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
@@ -139,12 +140,42 @@ export type AddEffectModalState = {
 	clientId: string;
 };
 
+export type TranscriptionModalState = {
+	type: 'transcribe';
+	src: string;
+	displayName: string;
+	audioStreamIndex: number | null;
+	requestInit: Omit<RequestInit, 'signal'> | null;
+};
+
+export type VideoMattingModalState = {
+	type: 'video-matting';
+	src: string;
+	displayName: string;
+};
+
 export type CanvasCaptureImport = {
 	readonly data: CanvasCaptureData;
 	readonly durationInSeconds: number;
 	readonly file: File;
 	readonly height: number;
 	readonly width: number;
+};
+
+export type ElementInstallPlan = {
+	readonly compositionFile: string;
+	readonly expectedFileState: ElementInstallExpectedFileState;
+};
+
+export type ElementInstallModalState = {
+	readonly type: 'element-install';
+	readonly currentPlan: ElementInstallPlan | null;
+	readonly missingPackages: string[];
+	readonly newPlan: ElementInstallPlan;
+	readonly onClose: () => void;
+	readonly request: ElementInstallRequest;
+	readonly sourceIsUnverified: boolean;
+	readonly sourceLabel: string;
 };
 
 export type ModalState =
@@ -194,7 +225,16 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialTab: 'apps' | 'license';
+			initialTab:
+				| 'apps'
+				| 'rendering'
+				| 'studio'
+				| 'packages'
+				| 'models'
+				| 'shortcuts'
+				| 'skills'
+				| 'updates'
+				| 'license';
 			initialPublicLicenseKey: string | null;
 	  }
 	| RenderModalState
@@ -204,13 +244,10 @@ export type ModalState =
 			jobId: string;
 	  }
 	| {
-			type: 'update';
-			info: UpdateInfo;
-			knownBugs: Bug[];
-	  }
-	| {
-			type: 'install-packages';
-			packageManager: PackageManager;
+			type: 'fix-computed-value';
+			prop: string;
+			context: string;
+			remotionInteractivitySkillAvailable: boolean;
 	  }
 	| {
 			type: 'quick-switcher';
@@ -226,7 +263,15 @@ export type ModalState =
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
+	| {
+			type: 'element-library';
+			name: string;
+			url: string;
+	  }
+	| ElementInstallModalState
 	| AddEffectModalState
+	| TranscriptionModalState
+	| VideoMattingModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 

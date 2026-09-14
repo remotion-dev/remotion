@@ -85,10 +85,10 @@ const getStatusForSkillsDirectory = ({
 	const outdatedSkillNames = remotionSkillNames.filter((skillName) => {
 		const skill = installedSkills.get(skillName);
 		return (
-			!skill?.installed ||
-			skill.version === null ||
-			semver.valid(skill.version) === null ||
-			semver.lt(skill.version, currentVersion)
+			skill?.installed &&
+			(skill.version === null ||
+				semver.valid(skill.version) === null ||
+				semver.lt(skill.version, currentVersion))
 		);
 	});
 
@@ -97,6 +97,19 @@ const getStatusForSkillsDirectory = ({
 	}
 
 	return {type: 'up-to-date', scope, skillsDirectory};
+};
+
+export const getRemotionSkillsDirectories = ({
+	cwd,
+	homeDirectory,
+}: {
+	cwd: string;
+	homeDirectory: string;
+}) => {
+	return {
+		project: path.join(cwd, '.agents', 'skills'),
+		global: path.join(homeDirectory, '.agents', 'skills'),
+	};
 };
 
 export const detectOutdatedRemotionSkills = ({
@@ -111,19 +124,18 @@ export const detectOutdatedRemotionSkills = ({
 	project: RemotionSkillsStatus;
 	global: RemotionSkillsStatus;
 } => {
-	const projectSkillsDirectory = path.join(cwd, '.agents', 'skills');
-	const globalSkillsDirectory = path.join(homeDirectory, '.agents', 'skills');
+	const skillsDirectories = getRemotionSkillsDirectories({cwd, homeDirectory});
 
 	return {
 		project: getStatusForSkillsDirectory({
 			currentVersion,
 			scope: 'project',
-			skillsDirectory: projectSkillsDirectory,
+			skillsDirectory: skillsDirectories.project,
 		}),
 		global: getStatusForSkillsDirectory({
 			currentVersion,
 			scope: 'global',
-			skillsDirectory: globalSkillsDirectory,
+			skillsDirectory: skillsDirectories.global,
 		}),
 	};
 };

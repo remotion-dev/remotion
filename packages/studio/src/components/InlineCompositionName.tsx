@@ -62,7 +62,7 @@ export const InlineCompositionName: React.FC<{
 						return;
 					}
 
-					notification.replaceContent(`Renamed to ${newId}`, 2000);
+					notification.dismiss();
 				})
 				.catch((err) => {
 					notification.replaceContent(

@@ -15,8 +15,10 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 export const splitJsxSequenceHandler: ApiHandler<
 	SplitJsxSequenceRequest,
@@ -40,20 +42,22 @@ export const splitJsxSequenceHandler: ApiHandler<
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 
-			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
+			const {output, nodeLabel, logLine, nodePathRemappings} =
 				await splitJsxSequence({
 					input: fileContents,
 					nodePath,
 					sequenceKeys,
 					splitFrame,
 				});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath,
-					remappings: nodePathRemappings,
-					restoredNodePaths: [],
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath,
+						remappings: nodePathRemappings,
+					},
+				],
+				null,
+			);
 
 			pushToUndoStack({
 				filePath: absolutePath,
@@ -85,19 +89,13 @@ export const splitJsxSequenceHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
 					`${locationLabel}`,
 				)} Split ${nodeLabel}`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}${
-					formatted ? ' (formatted)' : ''
-				}`,
+				`[split-jsx-sequence] Wrote ${fileRelativeToRoot}`,
 			);
 
 			printUndoHint(logLevel);

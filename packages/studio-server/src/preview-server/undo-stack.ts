@@ -6,7 +6,6 @@ import type {
 	SequenceNodePathRemapping,
 	UndoResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
@@ -41,6 +40,7 @@ type UndoEntryType =
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
 	| 'split-jsx-sequence'
+	| 'split-video-from-audio'
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
@@ -48,6 +48,7 @@ type UndoEntryType =
 	| 'new-composition'
 	| 'duplicate-composition'
 	| 'move-composition-to-folder'
+	| 'move-composition-or-folder'
 	| 'new-folder'
 	| 'delete-folder'
 	| 'rename-folder';
@@ -69,33 +70,8 @@ type UndoEntry = {
 	description: UndoEntryDescription;
 	/** When true, undo/redo file restores call `suppressBundlerUpdateForFile` (skip HMR refresh). */
 	suppressHmrOnFileRestore: boolean;
-} & (
-	| {entryType: 'visual-control'}
-	| {entryType: 'default-props'}
-	| {entryType: 'sequence-props'}
-	| {entryType: 'effect-props'}
-	| {entryType: 'keyframe-add'}
-	| {entryType: 'keyframe-delete'}
-	| {entryType: 'add-effect'}
-	| {entryType: 'delete-effect'}
-	| {entryType: 'duplicate-effect'}
-	| {entryType: 'paste-effects'}
-	| {entryType: 'reorder-effect'}
-	| {entryType: 'reorder-sequence'}
-	| {entryType: 'delete-jsx-node'}
-	| {entryType: 'duplicate-jsx-node'}
-	| {entryType: 'split-jsx-sequence'}
-	| {entryType: 'insert-jsx-element'}
-	| {entryType: 'delete-composition'}
-	| {entryType: 'rename-composition'}
-	| {entryType: 'update-composition-metadata'}
-	| {entryType: 'new-composition'}
-	| {entryType: 'duplicate-composition'}
-	| {entryType: 'move-composition-to-folder'}
-	| {entryType: 'new-folder'}
-	| {entryType: 'delete-folder'}
-	| {entryType: 'rename-folder'}
-);
+	entryType: UndoEntryType;
+};
 
 const MAX_ENTRIES = 100;
 const undoStack: UndoEntry[] = [];
@@ -469,29 +445,17 @@ export function popUndo(): UndoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
-				remappings: snapshot.nodePathRemappings.flatMap(
-					(remapping): SequenceNodePathRemapping[] => {
-						if (remapping.newNodePath === null) {
-							return [];
-						}
-
-						return [
-							{
-								oldNodePath: remapping.newNodePath,
-								newNodePath: remapping.oldNodePath,
-							},
-						];
-					},
-				),
-				restoredNodePaths: snapshot.nodePathRemappings.flatMap(
-					(remapping): SequenceNodePath[] =>
-						remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+				remappings: snapshot.nodePathRemappings.map(
+					(remapping): SequenceNodePathRemapping => ({
+						oldNodePath: remapping.newNodePath,
+						newNodePath: remapping.oldNodePath,
+					}),
 				),
 			},
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files);
+		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
 
 	for (const snapshot of entry.snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
@@ -579,12 +543,11 @@ export function popRedo(): RedoResponse {
 			{
 				absolutePath: snapshot.filePath,
 				remappings: snapshot.nodePathRemappings,
-				restoredNodePaths: [],
 			},
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files);
+		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
 
 	for (const snapshot of snapshotsWithNewContents) {
 		suppressUndoStackInvalidation(snapshot.filePath);

@@ -49,6 +49,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	const toParse = output[PYTHON_OUTPUT_MARKER];
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			enableCancellation: false,
 			requestHandler: null,
 			region: 'us-east-1',
 			composition: 'react-svg',

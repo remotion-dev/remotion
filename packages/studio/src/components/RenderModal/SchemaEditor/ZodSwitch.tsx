@@ -76,7 +76,11 @@ export const ZodSwitch: React.FC<{
 			);
 		}
 
-		if ((value as string).startsWith(window.remotion_staticBase)) {
+		if (
+			(window.remotion_staticBase !== '' &&
+				(value as string).startsWith(window.remotion_staticBase)) ||
+			window.remotion_staticFiles.some((file) => file.src === value)
+		) {
 			return (
 				<ZodStaticFileEditor
 					setValue={setValue as UpdaterFunction<string>}

@@ -301,7 +301,10 @@ const LeftSide = () => {
 
 export const YouTubeEndCard = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#FAFAFA'}} name="Container">
+		<AbsoluteFill
+			style={{backgroundColor: '#FAFAFA', color: 'black'}}
+			name="Container"
+		>
 			<LeftSide />
 			<Interactive.Div
 				name="Top thumbnail"

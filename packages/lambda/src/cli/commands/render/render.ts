@@ -34,9 +34,10 @@ import {
 import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {RENDER_COMMAND} from '../command-names';
 import {makeProgressString} from './progress';
 
-export const RENDER_COMMAND = 'render';
+export {RENDER_COMMAND} from '../command-names';
 
 const {
 	x264Option,
@@ -78,6 +79,7 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	sampleRateOption,
+	enableCancellationOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -124,6 +126,9 @@ export const renderCommand = async ({
 	}
 
 	const singleFrameRange = frameRange as SingleFrameRange | null;
+	const enableCancellation = enableCancellationOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const height = overrideHeightOption.getValue({
 		commandLine: CliInternals.parsedCli,
@@ -378,10 +383,13 @@ export const renderCommand = async ({
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
+	const rendererFunctionName =
+		parsedLambdaCli['renderer-function-name'] ?? null;
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
 	const res = await LambdaClientInternals.internalRenderMediaOnLambdaRaw({
+		enableCancellation,
 		functionName,
 		serveUrl,
 		inputProps,
@@ -425,7 +433,7 @@ export const renderCommand = async ({
 					customData: webhookCustomData,
 				}
 			: null,
-		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
+		rendererFunctionName,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		audioCodec,
 		deleteAfter: deleteAfter ?? null,
@@ -449,6 +457,45 @@ export const renderCommand = async ({
 		sampleRate,
 	});
 
+	const unregisterCtrlCHandler = CliInternals.registerCtrlCHandler(async () => {
+		if (!enableCancellation) {
+			Log.info(
+				{indent: false, logLevel},
+				'Stopped waiting. The Lambda render is still running.',
+			);
+			Log.info(
+				{indent: false, logLevel},
+				'Use --enable-cancellation to allow Ctrl+C to cancel it.',
+			);
+			return 130;
+		}
+
+		Log.info({indent: false, logLevel}, 'Cancelling Lambda render...');
+		try {
+			await LambdaClientInternals.internalCancelRenderOnLambda({
+				bucketName: res.bucketName,
+				region,
+				renderId: res.renderId,
+				forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+				requestHandler: null,
+				providerSpecifics,
+			});
+		} catch (err) {
+			Log.error(
+				{indent: false, logLevel},
+				`Could not cancel the Lambda render: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			Log.info(
+				{indent: false, logLevel},
+				'The Lambda render may still be running.',
+			);
+			return 1;
+		}
+
+		Log.info({indent: false, logLevel}, 'Cancellation signal sent.');
+		return 130;
+	});
+
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
@@ -464,6 +511,12 @@ export const renderCommand = async ({
 			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: LambdaClientInternals.getS3BucketUrl({region: getAwsRegion(), bucketName: res.bucketName})})}`,
 		),
 	);
+	if (enableCancellation) {
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray('Press Ctrl+C to cancel the render.'),
+		);
+	}
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
@@ -510,11 +563,15 @@ export const renderCommand = async ({
 			url: res.cloudWatchMainLogs,
 			fallback: res.cloudWatchMainLogs,
 		}),
-		CliInternals.makeHyperlink({
-			text: `Renderer functions`,
-			url: res.cloudWatchLogs,
-			fallback: res.cloudWatchLogs,
-		}),
+		...(concurrency === 1 && rendererFunctionName === null
+			? []
+			: [
+					CliInternals.makeHyperlink({
+						text: `Renderer functions`,
+						url: res.cloudWatchLogs,
+						fallback: res.cloudWatchLogs,
+					}),
+				]),
 	);
 	Log.verbose(
 		{indent: false, logLevel},
@@ -577,6 +634,7 @@ export const renderCommand = async ({
 		);
 
 		if (newStatus.done) {
+			unregisterCtrlCHandler();
 			let downloadOrNothing;
 
 			if (downloadName) {
@@ -688,6 +746,7 @@ export const renderCommand = async ({
 		}
 
 		if (newStatus.fatalErrorEncountered) {
+			unregisterCtrlCHandler();
 			Log.error({indent: false, logLevel}, '\n');
 			const uniqueErrors: EnhancedErrorInfo[] = [];
 			for (const err of newStatus.errors) {

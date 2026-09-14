@@ -1,5 +1,10 @@
 import {strToU8, zipSync} from 'fflate';
-import type {VirtualProject} from './types';
+import {getBrowserStudioStoredPublicFile} from './opfs-public-files';
+import type {
+	BrowserStudioStoredPublicFile,
+	VirtualProject,
+	VirtualProjectPublicFile,
+} from './types';
 
 type PackageJson = {
 	dependencies?: Record<string, string>;
@@ -85,6 +90,13 @@ const getPublicFileArchivePath = (path: string) => {
 	const relativePath = path.startsWith('/') ? path.slice(1) : path;
 	return `public/${validateRelativePath(relativePath)}`;
 };
+
+const isStoredPublicFile = (
+	contents: VirtualProjectPublicFile,
+): contents is BrowserStudioStoredPublicFile =>
+	typeof contents === 'object' &&
+	!(contents instanceof Uint8Array) &&
+	contents.type === 'stored';
 
 const getPublishedVersion = ({
 	name,
@@ -209,7 +221,7 @@ const addArchiveFile = ({
 		typeof contents === 'string' ? strToU8(contents) : contents;
 };
 
-export const makeBrowserStudioProjectArchive = ({
+export const makeBrowserStudioProjectArchive = async ({
 	dependencyVersions,
 	project,
 }: {
@@ -228,9 +240,24 @@ export const makeBrowserStudioProjectArchive = ({
 	}
 
 	for (const [path, contents] of Object.entries(project.publicFiles ?? {})) {
+		let resolvedContents: Uint8Array | string;
+		if (isStoredPublicFile(contents)) {
+			if (!project.publicFileStorage) {
+				throw new Error(`Stored public file ${path} has no project storage`);
+			}
+
+			const file = await getBrowserStudioStoredPublicFile({
+				file: contents,
+				storage: project.publicFileStorage,
+			});
+			resolvedContents = new Uint8Array(await file.arrayBuffer());
+		} else {
+			resolvedContents = contents;
+		}
+
 		addArchiveFile({
 			archiveFiles,
-			contents,
+			contents: resolvedContents,
 			path: getPublicFileArchivePath(path),
 		});
 	}

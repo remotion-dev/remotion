@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let enableCrossSiteIsolation = false;
+let configuredEnableCrossSiteIsolation: boolean | null = null;
 
 const cliFlag = 'cross-site-isolation' as const;
 
@@ -32,6 +33,12 @@ export const enableCrossSiteIsolationOption = {
 	},
 	setConfig(value) {
 		enableCrossSiteIsolation = value;
+		configuredEnableCrossSiteIsolation = value;
+	},
+	getConfigValue: () => configuredEnableCrossSiteIsolation,
+	reset: () => {
+		enableCrossSiteIsolation = false;
+		configuredEnableCrossSiteIsolation = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

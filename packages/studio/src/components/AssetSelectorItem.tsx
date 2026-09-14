@@ -9,21 +9,29 @@ import React, {
 } from 'react';
 import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {deleteStaticFile} from '../api/delete-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
-	WHITE_ALPHA_06,
 	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_06,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	HOVER_GROUP_CLASS_NAME,
+	HOVER_GROUP_REVEAL_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+	hoverableStyle,
+} from '../helpers/hoverable';
+import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
@@ -34,21 +42,21 @@ import useAssetDragEvents, {
 } from '../helpers/use-asset-drag-events';
 import {getCachedImageMetadata} from '../helpers/use-image-metadata';
 import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
-import {ClipboardIcon} from '../icons/clipboard';
+import {EllipsisIcon} from '../icons/ellipsis';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
-import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {InlineDropdown} from './InlineDropdown';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
-import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
+import {useDeleteAsset} from './use-delete-asset';
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
@@ -57,7 +65,6 @@ const iconStyle: React.CSSProperties = {
 };
 
 const itemStyle: React.CSSProperties = {
-	paddingRight: 10,
 	paddingTop: 5,
 	paddingBottom: 5,
 	fontSize: 13,
@@ -67,13 +74,11 @@ const itemStyle: React.CSSProperties = {
 	alignItems: 'center',
 	marginBottom: 1,
 	marginLeft: 4,
-	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
 	borderRadius: 4,
-	width: 'calc(100% - 8px)',
+	width: 'calc(100% - 4px)',
 	textAlign: 'left',
-	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
@@ -94,6 +99,21 @@ const revealIconStyle: React.CSSProperties = {
 	color: CURRENT_COLOR,
 };
 
+const ellipsisIconStyle: React.SVGProps<SVGSVGElement> = {
+	style: {
+		height: 12,
+	},
+};
+
+const inlineActionsStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+};
+
+const renderContextMenuAction: RenderInlineAction = (color) => {
+	return <EllipsisIcon svgProps={ellipsisIconStyle} fill={color} />;
+};
+
 export const getAssetActionAvailability = ({
 	browserStudioCanMutateAssets,
 	readOnlyStudio,
@@ -110,6 +130,7 @@ export const getAssetActionAvailability = ({
 			browserStudioCanMutateAssets !== true &&
 			(readOnlyStudio || connectionStatus !== 'connected'),
 		fileExplorerDisabled:
+			browserStudioCanMutateAssets !== null ||
 			publicFolderExists === null ||
 			readOnlyStudio ||
 			connectionStatus !== 'connected',
@@ -131,9 +152,12 @@ export const getAssetContextMenuItems = ({
 	fileManagerName,
 	copyFileName,
 	copyStaticFilePath,
+	copyAbsolutePath,
+	openAssetInConvert,
 	openAssetInExplorer,
 	renameAsset,
 	deleteAsset,
+	fileExplorerAvailable,
 	fileExplorerDisabled,
 	mutationsDisabled,
 }: {
@@ -141,14 +165,33 @@ export const getAssetContextMenuItems = ({
 	fileManagerName: string;
 	copyFileName: () => void;
 	copyStaticFilePath: () => void;
+	copyAbsolutePath: (() => void) | null;
+	openAssetInConvert: () => void;
 	openAssetInExplorer: () => void;
 	renameAsset: () => void;
 	deleteAsset: () => void;
+	fileExplorerAvailable: boolean;
 	fileExplorerDisabled: boolean;
 	mutationsDisabled: boolean;
 }): ComboboxValue[] => {
-	return [
+	const previewFileType = getPreviewFileType(relativePath);
+	const canOpenInConvert =
+		previewFileType === 'audio' || previewFileType === 'video';
+	const items: (ComboboxValue | null)[] = [
 		getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+		canOpenInConvert
+			? {
+					id: 'open-asset-in-convert',
+					keyHint: null,
+					label: 'Open in Remotion Convert',
+					leftItem: null,
+					onClick: openAssetInConvert,
+					quickSwitcherLabel: 'Open asset in Remotion Convert',
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-convert',
+				}
+			: null,
 		{
 			type: 'divider',
 			id: 'open-in-new-window-divider',
@@ -175,22 +218,37 @@ export const getAssetContextMenuItems = ({
 			type: 'item',
 			value: 'copy-asset-static-file-path',
 		},
+		copyAbsolutePath
+			? {
+					id: 'copy-asset-absolute-path',
+					keyHint: null,
+					label: 'Copy absolute path',
+					leftItem: null,
+					onClick: copyAbsolutePath,
+					quickSwitcherLabel: 'Copy asset absolute path',
+					subMenu: null,
+					type: 'item',
+					value: 'copy-asset-absolute-path',
+				}
+			: null,
 		{
 			type: 'divider',
 			id: 'asset-file-actions-divider',
 		},
-		{
-			id: 'open-asset-in-explorer',
-			keyHint: null,
-			label: `Show in ${fileManagerName}`,
-			leftItem: null,
-			onClick: openAssetInExplorer,
-			quickSwitcherLabel: `Show asset in ${fileManagerName}`,
-			subMenu: null,
-			type: 'item',
-			value: 'open-asset-in-explorer',
-			disabled: fileExplorerDisabled,
-		},
+		fileExplorerAvailable
+			? {
+					id: 'open-asset-in-explorer',
+					keyHint: null,
+					label: `Show in ${fileManagerName}`,
+					leftItem: null,
+					onClick: openAssetInExplorer,
+					quickSwitcherLabel: `Show asset in ${fileManagerName}`,
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-explorer',
+					disabled: fileExplorerDisabled,
+				}
+			: null,
 		{
 			id: 'rename-asset',
 			keyHint: null,
@@ -216,6 +274,89 @@ export const getAssetContextMenuItems = ({
 			disabled: mutationsDisabled,
 		},
 	];
+
+	return items.filter(NoReactInternals.truthy);
+};
+
+export const getAssetFolderContextMenuItems = ({
+	folderPath,
+	fileManagerName,
+	copyFolderPath,
+	copyAbsolutePath,
+	openFolderInExplorer,
+	uploadAssets,
+	fileExplorerAvailable,
+	fileExplorerDisabled,
+	mutationsDisabled,
+}: {
+	folderPath: string;
+	fileManagerName: string;
+	copyFolderPath: () => void;
+	copyAbsolutePath: (() => void) | null;
+	openFolderInExplorer: () => void;
+	uploadAssets: () => void;
+	fileExplorerAvailable: boolean;
+	fileExplorerDisabled: boolean;
+	mutationsDisabled: boolean;
+}): ComboboxValue[] => {
+	const items: (ComboboxValue | null)[] = [
+		fileExplorerAvailable
+			? {
+					id: 'open-asset-folder-in-explorer',
+					keyHint: null,
+					label: `Show in ${fileManagerName}`,
+					leftItem: null,
+					onClick: openFolderInExplorer,
+					quickSwitcherLabel: `Show asset folder in ${fileManagerName}`,
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-folder-in-explorer',
+					disabled: fileExplorerDisabled,
+				}
+			: null,
+		{
+			id: 'copy-asset-folder-path',
+			keyHint: null,
+			label: 'Copy folder path',
+			leftItem: null,
+			onClick: copyFolderPath,
+			quickSwitcherLabel: 'Copy asset folder path',
+			subMenu: null,
+			type: 'item',
+			value: 'copy-asset-folder-path',
+		},
+		copyAbsolutePath
+			? {
+					id: 'copy-asset-folder-absolute-path',
+					keyHint: null,
+					label: 'Copy absolute path',
+					leftItem: null,
+					onClick: copyAbsolutePath,
+					quickSwitcherLabel: 'Copy asset folder absolute path',
+					subMenu: null,
+					type: 'item',
+					value: 'copy-asset-folder-absolute-path',
+				}
+			: null,
+		{
+			type: 'divider',
+			id: 'asset-folder-upload-divider',
+		},
+		{
+			id: 'upload-assets-to-folder',
+			keyHint: null,
+			label: 'Upload...',
+			leftItem: null,
+			onClick: uploadAssets,
+			quickSwitcherLabel: `Upload assets to ${folderPath}...`,
+			subMenu: null,
+			type: 'item',
+			value: 'upload-assets-to-folder',
+			disabled: mutationsDisabled,
+		},
+	];
+
+	return items.filter(NoReactInternals.truthy);
 };
 
 const AssetFolderItem: React.FC<{
@@ -230,6 +371,7 @@ const AssetFolderItem: React.FC<{
 	readonly dropLocation: string | null;
 	readonly setDropLocation: React.Dispatch<React.SetStateAction<string | null>>;
 	readonly readOnlyStudio: boolean;
+	readonly uploadAssets: (assetPath: string | null) => void;
 }> = ({
 	tabIndex,
 	item,
@@ -239,9 +381,17 @@ const AssetFolderItem: React.FC<{
 	dropLocation,
 	setDropLocation,
 	readOnlyStudio,
+	uploadAssets,
 }) => {
-	const [hovered, setHovered] = useState(false);
 	const openFolderTimerRef = useRef<number | null>(null);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
+	const folderPath = useMemo(() => {
+		return parentFolder ? `${parentFolder}/${item.name}` : item.name;
+	}, [item.name, parentFolder]);
 
 	const {isDropDiv, onDragEnter, onDragLeave} = useAssetDragEvents({
 		name: item.name,
@@ -250,32 +400,96 @@ const AssetFolderItem: React.FC<{
 		setDropLocation,
 	});
 
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
 			paddingLeft: 4 + level * 8,
-			backgroundColor: hovered ? WHITE_ALPHA_06 : TRANSPARENT,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 		};
-	}, [hovered, level]);
-
-	const label = useMemo(() => {
-		return {
-			...labelStyle,
-			color: hovered ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered]);
+	}, [level]);
 
 	const onClick = useCallback(() => {
 		toggleFolder(item.name, parentFolder);
 	}, [item.name, parentFolder, toggleFolder]);
+
+	const copyFolderPath = useCallback(() => {
+		copyText(folderPath)
+			.then(() => {
+				showNotification(`Copied '${folderPath}' to clipboard`, 1000);
+			})
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [folderPath]);
+
+	const copyAbsolutePath = useCallback(() => {
+		if (window.remotion_publicFolderExists === null) {
+			return;
+		}
+
+		const content = `${window.remotion_publicFolderExists}/${folderPath}`;
+		copyText(content)
+			.then(() => {
+				showNotification(`Copied '${content}' to clipboard`, 1000);
+			})
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [folderPath]);
+
+	const openFolderInExplorer = useCallback(() => {
+		if (!window.remotion_publicFolderExists) {
+			showNotification('Could not find the public folder', 2000);
+			return;
+		}
+
+		openInFileExplorer({
+			directory: `${window.remotion_publicFolderExists}/${folderPath}`,
+		}).catch((err) => {
+			showNotification(`Could not open folder: ${err.message}`, 2000);
+		});
+	}, [folderPath]);
+
+	const uploadAssetsToFolder = useCallback(() => {
+		uploadAssets(folderPath);
+	}, [folderPath, uploadAssets]);
+
+	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
+		browserStudioCanMutateAssets:
+			getBrowserStudioOperations() === null ? null : true,
+		readOnlyStudio,
+		connectionStatus,
+		publicFolderExists: window.remotion_publicFolderExists,
+	});
+
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
+		return getAssetFolderContextMenuItems({
+			folderPath,
+			fileManagerName,
+			copyFolderPath,
+			copyAbsolutePath:
+				window.remotion_publicFolderExists === null ? null : copyAbsolutePath,
+			openFolderInExplorer,
+			uploadAssets: uploadAssetsToFolder,
+			fileExplorerAvailable: getBrowserStudioOperations() === null,
+			fileExplorerDisabled,
+			mutationsDisabled,
+		});
+	}, [
+		copyAbsolutePath,
+		copyFolderPath,
+		fileExplorerDisabled,
+		fileManagerName,
+		folderPath,
+		mutationsDisabled,
+		openFolderInExplorer,
+		uploadAssetsToFolder,
+	]);
 
 	const Icon = item.expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
 
@@ -287,40 +501,55 @@ const AssetFolderItem: React.FC<{
 				backgroundColor: isDropDiv ? WHITE_ALPHA_06 : BACKGROUND,
 			}}
 		>
-			<div
-				style={folderStyle}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-				tabIndex={tabIndex}
-				title={item.name}
-				onClick={onClick}
-				onDragEnter={(event) => {
-					if (!isAssetUploadDragEvent(event)) {
-						return;
-					}
+			<ContextMenu getItems={getContextMenuItems}>
+				<Row align="center">
+					<div
+						style={folderStyle}
+						className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
+						tabIndex={tabIndex}
+						title={item.name}
+						onClick={onClick}
+						onDragEnter={(event) => {
+							if (!isAssetUploadDragEvent(event)) {
+								return;
+							}
 
-					if (!item.expanded) {
-						openFolderTimerRef.current = window.setTimeout(() => {
-							toggleFolder(item.name, parentFolder);
-						}, 1000);
-					}
-				}}
-				onDragLeave={(event) => {
-					if (!isAssetUploadDragEvent(event)) {
-						return;
-					}
+							if (!item.expanded) {
+								openFolderTimerRef.current = window.setTimeout(() => {
+									toggleFolder(item.name, parentFolder);
+								}, 1000);
+							}
+						}}
+						onDragLeave={(event) => {
+							if (!isAssetUploadDragEvent(event)) {
+								return;
+							}
 
-					if (openFolderTimerRef.current) {
-						clearTimeout(openFolderTimerRef.current);
-					}
-				}}
-			>
-				<Row>
-					<Icon style={iconStyle} color={hovered ? WHITE : LIGHT_TEXT} />
-					<Spacing x={1} />
-					<div style={label}>{item.name}</div>
+							if (openFolderTimerRef.current) {
+								clearTimeout(openFolderTimerRef.current);
+							}
+						}}
+					>
+						<Icon style={iconStyle} color={CURRENT_COLOR} />
+						<Spacing x={1} />
+						<div style={labelStyle}>{item.name}</div>
+						<div
+							className={HOVER_GROUP_REVEAL_CLASS_NAME}
+							style={inlineActionsStyle}
+						>
+							<Spacing x={0.5} />
+							<InlineDropdown
+								variant={null}
+								title="More actions"
+								renderAction={renderContextMenuAction}
+								getItems={getContextMenuItems}
+								style={NO_HOVER_BACKGROUND_STYLE}
+								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+							/>
+						</div>
+					</div>
 				</Row>
-			</div>
+			</ContextMenu>
 
 			{item.expanded ? (
 				<AssetFolderTree
@@ -334,6 +563,7 @@ const AssetFolderItem: React.FC<{
 					dropLocation={dropLocation}
 					setDropLocation={setDropLocation}
 					readOnlyStudio={readOnlyStudio}
+					uploadAssets={uploadAssets}
 				/>
 			) : null}
 		</div>
@@ -353,6 +583,7 @@ export const AssetFolderTree: React.FC<{
 	readonly dropLocation: string | null;
 	readonly setDropLocation: React.Dispatch<React.SetStateAction<string | null>>;
 	readonly readOnlyStudio: boolean;
+	readonly uploadAssets: (assetPath: string | null) => void;
 }> = ({
 	item,
 	level,
@@ -363,6 +594,7 @@ export const AssetFolderTree: React.FC<{
 	dropLocation,
 	setDropLocation,
 	readOnlyStudio,
+	uploadAssets,
 }) => {
 	const combinedParents = useMemo(() => {
 		return [parentFolder, name].filter(NoReactInternals.truthy).join('/');
@@ -381,6 +613,7 @@ export const AssetFolderTree: React.FC<{
 						dropLocation={dropLocation}
 						setDropLocation={setDropLocation}
 						readOnlyStudio={readOnlyStudio}
+						uploadAssets={uploadAssets}
 					/>
 				);
 			})}
@@ -410,16 +643,10 @@ const AssetSelectorItem: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const confirm = useConfirmationDialog();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -441,10 +668,6 @@ const AssetSelectorItem: React.FC<{
 	const canDragAsset = useMemo(() => {
 		return getCanDragAsset({readOnlyStudio, relativePath});
 	}, [readOnlyStudio, relativePath]);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const rowRef = useRef<HTMLDivElement>(null);
 	useLayoutEffect(() => {
@@ -512,25 +735,18 @@ const AssetSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			color: hovered || selected ? WHITE : LIGHT_TEXT,
-			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
+			...hoverableStyle({
+				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 			paddingLeft: 12 + level * 8,
 		};
-	}, [hovered, level, selected]);
-
-	const label = useMemo(() => {
-		return {
-			...labelStyle,
-			color: hovered || selected ? WHITE : LIGHT_TEXT,
-		};
-	}, [hovered, selected]);
+	}, [level, selected]);
 
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;
-	}, []);
-
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon style={revealIconStyle} color={color} />;
 	}, []);
 
 	const copyFileName = useCallback(() => {
@@ -554,6 +770,25 @@ const AssetSelectorItem: React.FC<{
 			});
 	}, [relativePath]);
 
+	const copyAbsolutePath = useCallback(() => {
+		if (window.remotion_publicFolderExists === null) {
+			return;
+		}
+
+		const content = `${window.remotion_publicFolderExists}/${relativePath}`;
+		copyText(content)
+			.then(() => {
+				showNotification(`Copied '${content}' to clipboard`, 1000);
+			})
+			.catch((err) => {
+				showNotification(`Could not copy: ${err.message}`, 2000);
+			});
+	}, [relativePath]);
+
+	const openAssetInConvert = useCallback(() => {
+		openInRemotionConvert({relativePath});
+	}, [relativePath]);
+
 	const openAssetInExplorer = useCallback(() => {
 		if (!window.remotion_publicFolderExists) {
 			showNotification('Could not find the public folder', 2000);
@@ -575,46 +810,7 @@ const AssetSelectorItem: React.FC<{
 		publicFolderExists: window.remotion_publicFolderExists,
 	});
 
-	const deleteAsset = useCallback(() => {
-		confirm({
-			title: 'Delete asset',
-			message: (
-				<>
-					Do you want to delete the asset{' '}
-					<code style={inlineCodeSnippet}>{relativePath}</code> from your public
-					folder?
-				</>
-			),
-			confirmLabel: 'Delete',
-		})
-			.then((confirmed) => {
-				if (!confirmed) {
-					return;
-				}
-
-				const notification = showNotification(
-					`Deleting ${relativePath}...`,
-					null,
-				);
-
-				deleteStaticFile(relativePath)
-					.then(() => {
-						notification.replaceContent(`Deleted ${relativePath}`, 2000);
-					})
-					.catch((err) => {
-						notification.replaceContent(
-							`Could not delete ${relativePath}: ${(err as Error).message}`,
-							3000,
-						);
-					});
-			})
-			.catch((err) => {
-				showNotification(
-					`Could not delete ${relativePath}: ${(err as Error).message}`,
-					3000,
-				);
-			});
-	}, [confirm, relativePath]);
+	const deleteAsset = useDeleteAsset(relativePath);
 
 	const renameAsset = useCallback(() => {
 		setSelectedModal({
@@ -629,19 +825,25 @@ const AssetSelectorItem: React.FC<{
 			fileManagerName,
 			copyFileName,
 			copyStaticFilePath,
+			copyAbsolutePath:
+				window.remotion_publicFolderExists === null ? null : copyAbsolutePath,
+			openAssetInConvert,
 			openAssetInExplorer,
 			renameAsset,
 			deleteAsset,
+			fileExplorerAvailable: getBrowserStudioOperations() === null,
 			fileExplorerDisabled,
 			mutationsDisabled,
 		});
 	}, [
 		copyFileName,
 		copyStaticFilePath,
+		copyAbsolutePath,
 		deleteAsset,
 		fileExplorerDisabled,
 		fileManagerName,
 		mutationsDisabled,
+		openAssetInConvert,
 		openAssetInExplorer,
 		renameAsset,
 		relativePath,
@@ -656,23 +858,13 @@ const AssetSelectorItem: React.FC<{
 			[openAssetInExplorer],
 		);
 
-	const copyToClipboard: React.MouseEventHandler<HTMLButtonElement> =
-		useCallback(
-			(e) => {
-				e.stopPropagation();
-				copyStaticFilePath();
-			},
-			[copyStaticFilePath],
-		);
-
 	return (
 		<ContextMenu getItems={getContextMenuItems}>
 			<Row align="center">
 				<div
 					ref={rowRef}
 					style={style}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
+					className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 					onClick={onClick}
 					draggable={canDragAsset}
 					onDragStart={onDragStart}
@@ -683,18 +875,23 @@ const AssetSelectorItem: React.FC<{
 					<AssetFileIcon
 						fileType={previewFileType}
 						style={iconStyle}
-						color={hovered || selected ? WHITE : LIGHT_TEXT}
+						color={CURRENT_COLOR}
 					/>
 					<Spacing x={1} />
-					<div style={label}>{item.name}</div>
-					{hovered && !isDragging ? (
-						<>
+					<div style={labelStyle}>{item.name}</div>
+					{!isDragging ? (
+						<div
+							className={HOVER_GROUP_REVEAL_CLASS_NAME}
+							style={inlineActionsStyle}
+						>
 							<Spacing x={0.5} />
-							<InlineAction
+							<InlineDropdown
 								variant={null}
-								title="Copy staticFile() path"
-								renderAction={renderCopyAction}
-								onClick={copyToClipboard}
+								title="More actions"
+								renderAction={renderContextMenuAction}
+								getItems={getContextMenuItems}
+								style={NO_HOVER_BACKGROUND_STYLE}
+								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 							/>
 							{fileExplorerDisabled ? null : (
 								<>
@@ -704,10 +901,12 @@ const AssetSelectorItem: React.FC<{
 										title={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}
+										style={NO_HOVER_BACKGROUND_STYLE}
+										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 									/>
 								</>
 							)}
-						</>
+						</div>
 					) : null}
 				</div>
 			</Row>

@@ -11,7 +11,8 @@ import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
-import {InspectorInlineAction} from './common';
+import {useEditorOpening} from '../use-default-editor-info';
+import {InspectorQuickAction, InspectorSectionHeader} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -48,14 +49,17 @@ export const ConnectedCompositionsSection: React.FC<{
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 }> = ({connectedCompositions}) => {
 	return (
-		<div style={compositionListStyle}>
-			{connectedCompositions.map((composition) => (
-				<ConnectedCompositionRow
-					key={composition.id}
-					composition={composition}
-				/>
-			))}
-		</div>
+		<>
+			<InspectorSectionHeader>Connected compositions</InspectorSectionHeader>
+			<div style={compositionListStyle}>
+				{connectedCompositions.map((composition) => (
+					<ConnectedCompositionRow
+						key={composition.id}
+						composition={composition}
+					/>
+				))}
+			</div>
+		</>
 	);
 };
 
@@ -66,6 +70,9 @@ const ConnectedCompositionRow: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
+	const {defaultEditorId, defaultEditorName} = useEditorOpening(
+		connectionStatus === 'connected',
+	);
 	const resolvedLocation = useResolvedStack(composition.stack);
 	const getContextMenuItems = useCallback(
 		() =>
@@ -73,12 +80,21 @@ const ConnectedCompositionRow: React.FC<{
 				closeMenu: noop,
 				composition,
 				connectionStatus,
+				editorId: defaultEditorId,
+				editorName: defaultEditorName,
 				includeCompositionManagementItems: false,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 				resolvedLocation,
 				setSelectedModal,
 			}),
-		[composition, connectionStatus, resolvedLocation, setSelectedModal],
+		[
+			composition,
+			connectionStatus,
+			defaultEditorId,
+			defaultEditorName,
+			resolvedLocation,
+			setSelectedModal,
+		],
 	);
 
 	return (
@@ -86,7 +102,7 @@ const ConnectedCompositionRow: React.FC<{
 			getItems={getContextMenuItems}
 			style={compositionContextMenuStyle}
 		>
-			<InspectorInlineAction
+			<InspectorQuickAction
 				disabled={false}
 				onClick={() => selectComposition(composition, true)}
 				renderIcon={(color) => (
@@ -98,7 +114,7 @@ const ConnectedCompositionRow: React.FC<{
 				)}
 			>
 				{composition.id}
-			</InspectorInlineAction>
+			</InspectorQuickAction>
 		</ContextMenu>
 	);
 };

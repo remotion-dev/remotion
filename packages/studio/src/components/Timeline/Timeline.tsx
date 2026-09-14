@@ -2,11 +2,10 @@ import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
-	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
-	useSyncExternalStore,
 } from 'react';
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
@@ -25,6 +24,7 @@ import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
+import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -45,6 +45,10 @@ import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
 import {TimelineInOutPointer} from './TimelineInOutPointer';
 import {TimelineKeyframeTracksProvider} from './TimelineKeyframeTracksContext';
+import {
+	TimelineLayerChildrenProvider,
+	useTimelineLayerChildren,
+} from './TimelineLayerChildren';
 import {TimelineList} from './TimelineList';
 import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
@@ -54,12 +58,15 @@ import {
 	TimelineSelectAllKeybindings,
 	useTimelineSelection,
 } from './TimelineSelection';
+import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
+import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
 import {
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
 } from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
+import {TimelineVirtualizationProvider} from './TimelineVirtualization';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
@@ -163,7 +170,6 @@ const TimelineContextMenuArea: React.FC<{
 				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
-				showNotification('Added <Solid> to source file', 2000);
 				return;
 			}
 
@@ -291,6 +297,54 @@ const TimelineInner: React.FC = () => {
 		overrideIdToNodePathMappings,
 		compositions,
 	]);
+	const durationInFrames = videoConfig?.durationInFrames ?? 0;
+
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const filtered = useMemo(() => {
+		return timeline.filter((t) => {
+			// Moving outside the composition can reduce the displayed duration to
+			// zero. Keep the drag owner mounted until its pending edit is saved.
+			if (
+				t.sequence.showInTimeline &&
+				t.nodePathInfo !== null &&
+				getDragOverrides(t.nodePathInfo.sequenceSubscriptionKey).from !==
+					undefined
+			) {
+				return true;
+			}
+
+			return shouldShowTrackInTimeline(t, durationInFrames);
+		});
+	}, [durationInFrames, getDragOverrides, timeline]);
+
+	// Keep `filtered` complete so a future toggle can show every programmatic
+	// instance without recalculating the timeline or losing its instance index.
+	const collapsed = useMemo(() => {
+		const seenNodePaths = new Set<string>();
+		return filtered.filter((track) => {
+			if (track.nodePathInfo === null) {
+				return true;
+			}
+
+			const key = timelineSequenceNodePathToKey(
+				track.nodePathInfo.sequenceSubscriptionKey,
+			);
+			if (seenNodePaths.has(key)) {
+				return false;
+			}
+
+			seenNodePaths.add(key);
+			return true;
+		});
+	}, [filtered]);
+
+	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
+		collapsed,
+		sequences,
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null,
+	);
 	const pendingInsertedElementSelection = useSyncExternalStore(
 		subscribeToInsertedElementSelection,
 		getInsertedElementSelection,
@@ -303,18 +357,19 @@ const TimelineInner: React.FC = () => {
 		existingSequenceIds: Set<string>;
 	} | null>(null);
 	const {selectItems} = useTimelineSelection();
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (pendingInsertedElementSelection === null) {
 			pendingSelectionStart.current = null;
 			return;
 		}
 
 		const matchesInsertedNodePath = (track: TimelineTrackData) =>
-			track.nodePathInfo !== null &&
-			track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
-				pendingInsertedElementSelection.nodePath.absolutePath &&
-			JSON.stringify(track.nodePathInfo.sequenceSubscriptionKey.nodePath) ===
-				JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath);
+			pendingInsertedElementSelection.nodePath === null ||
+			(track.nodePathInfo !== null &&
+				track.nodePathInfo.sequenceSubscriptionKey.absolutePath ===
+					pendingInsertedElementSelection.nodePath.absolutePath &&
+				JSON.stringify(track.nodePathInfo.sequenceSubscriptionKey.nodePath) ===
+					JSON.stringify(pendingInsertedElementSelection.nodePath.nodePath));
 
 		if (
 			pendingSelectionStart.current?.selection !==
@@ -352,7 +407,16 @@ const TimelineInner: React.FC = () => {
 					track.sequence.id,
 				),
 		);
-		if (!insertedTrack || insertedTrack.nodePathInfo === null) {
+		if (!insertedTrack) {
+			return;
+		}
+
+		const layerKey = layerChildrenValue.keys.get(insertedTrack.sequence.id);
+		if (layerKey !== undefined && !layerChildrenValue.collapsed[layerKey]) {
+			layerChildrenValue.toggle(layerKey);
+		}
+
+		if (insertedTrack.nodePathInfo === null) {
 			return;
 		}
 
@@ -361,51 +425,27 @@ const TimelineInner: React.FC = () => {
 			{reveal: true},
 		);
 		clearInsertedElementSelection(pendingInsertedElementSelection);
+		if (pendingInsertedElementSelection.notification !== null) {
+			showNotification(pendingInsertedElementSelection.notification, 3000);
+		}
 	}, [
 		canvasContent,
 		fastRefreshes,
+		layerChildrenValue,
 		pendingInsertedElementSelection,
 		selectItems,
 		timeline,
 	]);
 
-	const durationInFrames = videoConfig?.durationInFrames ?? 0;
-
-	const filtered = useMemo(() => {
-		return timeline.filter((t) =>
-			shouldShowTrackInTimeline(t, durationInFrames),
-		);
-	}, [durationInFrames, timeline]);
-
-	// Keep `filtered` complete so a future toggle can show every programmatic
-	// instance without recalculating the timeline or losing its instance index.
-	const collapsed = useMemo(() => {
-		const seenNodePaths = new Set<string>();
-		return filtered.filter((track) => {
-			if (track.nodePathInfo === null) {
-				return true;
-			}
-
-			const key = timelineSequenceNodePathToKey(
-				track.nodePathInfo.sequenceSubscriptionKey,
-			);
-			if (seenNodePaths.has(key)) {
-				return false;
-			}
-
-			seenNodePaths.add(key);
-			return true;
-		});
-	}, [filtered]);
-
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return collapsed.length > maxTimelineTracks
-			? collapsed.slice(0, maxTimelineTracks)
-			: collapsed;
-	}, [collapsed, maxTimelineTracks]);
+		return maxTimelineTracks !== null &&
+			visibleTracks.length > maxTimelineTracks
+			? visibleTracks.slice(0, maxTimelineTracks)
+			: visibleTracks;
+	}, [visibleTracks, maxTimelineTracks]);
 
-	const hasBeenCut = collapsed.length > shown.length;
+	const hasBeenCut = visibleTracks.length > shown.length;
 
 	return (
 		<TimelineContextMenuArea>
@@ -422,67 +462,89 @@ const TimelineInner: React.FC = () => {
 						schema={sequence.controls.schema}
 						getStack={sequence.getStack}
 						effects={sequence.effects}
+						videoConfigValues={sequence.controls.videoConfigValues}
 					/>
 				);
 			})}
 			{isStudioInteractivityEnabled() ? <SequencePropsObserver /> : null}
-			<TimelineKeyframeTracksProvider tracks={filtered}>
-				<TimelineSelectableItemsProvider timeline={shown}>
-					{isStudioInteractivityEnabled() ? (
-						<TimelineSelectAllKeybindings timeline={shown} />
-					) : null}
-					<TimelineHeightContainer
-						shown={shown}
-						hasBeenCut={hasBeenCut}
-						isStill={isStill}
-					>
-						{isStill ? (
-							<TimelineList timeline={shown} showTimePadding={false} />
-						) : (
-							<TimelineWidthProvider>
-								<TimelinePinchZoom />
-								<SplitterContainer
-									orientation="vertical"
-									defaultFlex={0.2}
-									id="names-to-timeline"
-									maxFlex={0.5}
-									minFlex={0.15}
-									maxFlexerSize={null}
-									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
-									maxAntiFlexerSize={null}
-									minAntiFlexerSize={null}
-								>
-									<SplitterElement
-										type="flexer"
-										sticky={<TimelineTimePlaceholders />}
-									>
-										<TimelineList timeline={shown} showTimePadding />
-									</SplitterElement>
-									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-									<SplitterElement type="anti-flexer" sticky={null}>
-										<TimelineScrollable>
-											<TimelineTracks
-												timeline={shown}
-												hasBeenCut={hasBeenCut}
+			<TimelineLayerChildrenProvider value={layerChildrenValue}>
+				<TimelineKeyframeTracksProvider tracks={filtered}>
+					<TimelineSelectableItemsProvider timeline={shown}>
+						<TimelineVirtualizationProvider
+							hasBeenCut={hasBeenCut}
+							isStill={isStill}
+							timeline={shown}
+						>
+							{isStudioInteractivityEnabled() ? (
+								<TimelineSelectAllKeybindings timeline={shown} />
+							) : null}
+							<TimelineHeightContainer>
+								{isStill ? (
+									<TimelineList />
+								) : (
+									<TimelineWidthProvider>
+										<TimelinePinchZoom />
+										<SplitterContainer
+											orientation="vertical"
+											defaultFlex={0.2}
+											id="names-to-timeline"
+											maxFlex={0.5}
+											minFlex={0.15}
+											maxFlexerSize={null}
+											minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+											maxAntiFlexerSize={null}
+											minAntiFlexerSize={null}
+										>
+											<SplitterElement
+												type="flexer"
+												sticky={<TimelineTimePlaceholders />}
+											>
+												<TimelineList />
+											</SplitterElement>
+											<SplitterHandle
+												onCollapse={noop}
+												onCollapseDuringDrag={null}
+												allowToCollapse="none"
 											/>
-											<TimelinePlayCursorSyncer />
-											<TimelineInOutPointer />
-											<TimelineTimeIndicators />
-											<TimelineDragHandler />
-											{isStudioInteractivityEnabled() ? (
-												<TimelineInOutDragHandler />
-											) : null}
-											<TimelineSlider />
-										</TimelineScrollable>
-									</SplitterElement>
-								</SplitterContainer>
-							</TimelineWidthProvider>
-						)}
-					</TimelineHeightContainer>
-				</TimelineSelectableItemsProvider>
-			</TimelineKeyframeTracksProvider>
+											<SplitterElement
+												type="anti-flexer"
+												sticky={
+													<>
+														<TimelineTimeIndicators />
+														<TimelineSlider />
+													</>
+												}
+											>
+												<TimelineScrollable>
+													<TimelineTracks hasBeenCut={hasBeenCut} />
+													<TimelinePlayCursorSyncer />
+													<TimelineInOutPointer />
+													<TimelineDragHandler />
+													{isStudioInteractivityEnabled() ? (
+														<TimelineInOutDragHandler />
+													) : null}
+												</TimelineScrollable>
+											</SplitterElement>
+										</SplitterContainer>
+									</TimelineWidthProvider>
+								)}
+							</TimelineHeightContainer>
+						</TimelineVirtualizationProvider>
+					</TimelineSelectableItemsProvider>
+				</TimelineKeyframeTracksProvider>
+			</TimelineLayerChildrenProvider>
 		</TimelineContextMenuArea>
 	);
 };
 
-export const Timeline = React.memo(TimelineInner);
+const MemoizedTimelineInner = React.memo(TimelineInner);
+
+export const Timeline: React.FC = () => {
+	return (
+		<TimelineTickFormatProvider>
+			<TimelineSequenceMediaDurationDragLimitsProvider>
+				<MemoizedTimelineInner />
+			</TimelineSequenceMediaDurationDragLimitsProvider>
+		</TimelineTickFormatProvider>
+	);
+};

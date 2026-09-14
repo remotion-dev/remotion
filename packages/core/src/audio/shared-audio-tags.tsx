@@ -79,6 +79,7 @@ export type AudioSyncAnchorEmitter = {
 };
 
 type SharedAudioContextValue = {
+	sampleRate: number;
 	audioContext: AudioContext | null;
 	getAudioContextState: () => RemotionAudioContextState | null;
 	gainNode: GainNode | null;
@@ -88,6 +89,7 @@ type SharedAudioContextValue = {
 		options: ScheduleAudioNodeOptions,
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
+	resumeAsAutoPlay: () => Promise<void>;
 	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
@@ -146,8 +148,8 @@ const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
 		!(newProp as string).startsWith('data:')
 	) {
 		return (
-			new URL(prevProp as string, window.origin).toString() !==
-			new URL(newProp as string, window.origin).toString()
+			new URL(prevProp as string, document.baseURI).toString() !==
+			new URL(newProp as string, document.baseURI).toString()
 		);
 	}
 
@@ -217,14 +219,6 @@ export const SharedAudioContextProvider: React.FC<{
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
 
-	useEffect(() => {
-		if (typeof window === 'undefined') {
-			return;
-		}
-
-		window.remotion_sampleRate = sampleRate;
-	}, [sampleRate]);
-
 	const ctxAndGain = useSingletonAudioContext({
 		logLevel,
 		latencyHint: audioLatencyHint,
@@ -247,6 +241,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const isResuming = useRef<AudioContextResumeAttempt | null>(null);
 	const nextResumeAttemptId = useRef(0);
+	const nextResumeIsAutoPlayAttempt = useRef(false);
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
@@ -393,6 +388,8 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
 
 	const resume = useCallback(() => {
+		const isAutoPlayAttempt = nextResumeIsAutoPlayAttempt.current;
+		nextResumeIsAutoPlayAttempt.current = false;
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
@@ -439,6 +436,7 @@ export const SharedAudioContextProvider: React.FC<{
 				ctxAndGain.audioContext,
 				logLevel,
 				abortController.signal,
+				isAutoPlayAttempt,
 			).then(resolve);
 			resumePromise.catch((err) => {
 				Log.warn(
@@ -465,6 +463,11 @@ export const SharedAudioContextProvider: React.FC<{
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
+
+	const resumeAsAutoPlay = useCallback(() => {
+		nextResumeIsAutoPlayAttempt.current = true;
+		return resume();
+	}, [resume]);
 
 	const getIsResumingAudioContext = useCallback(() => {
 		return isResuming.current?.promise ?? null;
@@ -549,6 +552,7 @@ export const SharedAudioContextProvider: React.FC<{
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
+			sampleRate,
 			audioContext: ctxAndGain?.audioContext ?? null,
 			getAudioContextState: () => ctxAndGain?.getState() ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
@@ -556,17 +560,20 @@ export const SharedAudioContextProvider: React.FC<{
 			audioSyncAnchorEmitter,
 			scheduleAudioNode,
 			resume,
+			resumeAsAutoPlay,
 			suspend,
 			getIsResumingAudioContext,
 			unscheduleAudioNode,
 			_experimentalKeepAudioContextAlive,
 		};
 	}, [
+		sampleRate,
 		ctxAndGain,
 		audioSyncAnchor,
 		audioSyncAnchorEmitter,
 		scheduleAudioNode,
 		resume,
+		resumeAsAutoPlay,
 		suspend,
 		getIsResumingAudioContext,
 		unscheduleAudioNode,

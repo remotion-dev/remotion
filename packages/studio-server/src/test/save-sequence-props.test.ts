@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -104,6 +104,7 @@ export const Comp = () => {
 		effectKeys: [],
 		videoConfigValues: null,
 	};
+	const consoleSpy = spyOn(console, 'log').mockImplementation(() => undefined);
 
 	try {
 		writeFileSync(filePath, input);
@@ -142,7 +143,7 @@ export const Comp = () => {
 			remotionRoot: dir,
 			request: {} as never,
 			response: {} as never,
-			logLevel: 'error',
+			logLevel: 'trace',
 			methods: {
 				addJob: () => undefined,
 				cancelJob: () => undefined,
@@ -166,6 +167,11 @@ export const Comp = () => {
 		expect(output).toContain(
 			"rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])",
 		);
+		const completionLog = consoleSpy.mock.calls
+			.map((call) => call.join(' '))
+			.find((line) => line.includes('Comp.tsx:4'));
+		expect(completionLog).toMatch(/^\[\d+ms\] /);
+		expect(completionLog).toContain('Comp.tsx:4');
 		expect(getUndoStack()).toHaveLength(1);
 		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
@@ -173,6 +179,7 @@ export const Comp = () => {
 		clearUndoStackForTests();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
+		consoleSpy.mockRestore();
 		rmSync(dir, {force: true, recursive: true});
 	}
 });
@@ -268,8 +275,9 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 									endMs: 1000,
 									timestampMs: 500,
 									confidence: null,
+									pageBreakAfter: null,
 								},
-								changes: {text: 'Updated'},
+								changes: {text: 'Updated', pageBreakAfter: true},
 							},
 						],
 					},
@@ -298,6 +306,7 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 		});
 
 		expect(readFileSync(filePath, 'utf-8')).toContain("text: 'Updated'");
+		expect(readFileSync(filePath, 'utf-8')).toContain('pageBreakAfter: true');
 		expect(getUndoStack()).toHaveLength(1);
 		expect(getUndoStack()[0]?.suppressHmrOnFileRestore).toBe(false);
 

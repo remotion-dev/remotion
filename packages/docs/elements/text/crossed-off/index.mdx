@@ -4,9 +4,9 @@ description: Animated hand-drawn crossed-off text.
 image: https://remotion.media/elements/text-crossed-off-preview.png
 ---
 
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
 
 # Crossed Off
 
-<ElementPage definition={elementDefinitions['text/crossed-off']} sourceFile="./crossed-off.tsx" />
+<ElementPage definition={getElementDefinition('text/crossed-off')} sourceFile="./crossed-off.tsx" />

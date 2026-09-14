@@ -522,8 +522,15 @@ test('Interpolates rotate strings', () => {
 		'0.5 0.5 0 50deg',
 	);
 	expect(interpolate(15, [0, 30], ['0deg', '1 0 0 100deg'])).toBe(
-		'0.5 0 0.5 50deg',
+		'1 0 0 50deg',
 	);
+	expect(
+		interpolate(
+			15,
+			[0, 30],
+			['0deg', '0.901683 0.345591 -0.259873 25.880675deg'],
+		),
+	).toBe('0.901683 0.345591 -0.259873 12.940338deg');
 });
 
 test('String interpolation supports easing, extrapolation and posterization', () => {
@@ -749,6 +756,90 @@ test('Allow tail spring keeps previous string segment settling while the next se
 	expect(yWithoutTail).toBe(0);
 	expect(yWithTail).toBeGreaterThan(0);
 	expect(yWithTail).toBeLessThan(10);
+});
+
+test('Allow tail spring stays continuous when followed by a hold segment', () => {
+	const easing = [
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+	] as const;
+	const options = {
+		easing,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+		output: 'perceptual-scale',
+	} as const;
+
+	const immediatelyBeforeHold = interpolate(
+		169.999,
+		[21, 170, 591],
+		[1.26, 6.02, 6.02],
+		options,
+	);
+	const atHold = interpolate(170, [21, 170, 591], [1.26, 6.02, 6.02], options);
+
+	expect(immediatelyBeforeHold).toBeCloseTo(atHold, 5);
+});
+
+test('Allow tail axis rotation keeps its axis while settling into a hold segment', () => {
+	const axisRotation = '0.945221 -0.227695 0.233905 45.778028deg';
+	const easing = [
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+	] as const;
+	const options = {
+		easing,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	} as const;
+	const atHold = interpolate(
+		170,
+		[21, 170, 591, 620],
+		['0deg', axisRotation, axisRotation, '0deg'],
+		options,
+	);
+	const afterHold = interpolate(
+		171,
+		[21, 170, 591, 620],
+		['0deg', axisRotation, axisRotation, '0deg'],
+		options,
+	);
+
+	expect(afterHold).toStartWith('0.945221 -0.227695 0.233905 ');
+	expect(Number(afterHold.split(' ')[3].replace('deg', ''))).toBeGreaterThan(
+		Number(atHold.split(' ')[3].replace('deg', '')),
+	);
 });
 
 test('Clamp left test', () => {

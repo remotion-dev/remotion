@@ -6,12 +6,15 @@ import React, {
 	useImperativeHandle,
 } from 'react';
 import {Internals} from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
 import {BLUE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {
 	TimelineInPointer,
 	TimelineOutPointer,
@@ -21,20 +24,16 @@ import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
 } from '../state/in-out';
+import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
-
-const getTooltipText = (pointType: string, key: string) =>
-	[
-		`Mark ${pointType}`,
-		areKeyboardShortcutsDisabled() ? null : `(${key})`,
-		'- right click to clear',
-	]
-		.filter(NoReactInternals.truthy)
-		.join(' ');
 
 const style: React.CSSProperties = {
 	width: 17,
 	height: 17,
+};
+
+const buttonStyle: React.CSSProperties = {
+	width: 18,
 };
 
 export const inOutHandles = createRef<{
@@ -46,6 +45,11 @@ export const inOutHandles = createRef<{
 export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 
 export const TimelineInOutPointToggle: React.FC = () => {
+	const inShortcut = useKeyboardShortcutLabel('setInPoint');
+	const outShortcut = useKeyboardShortcutLabel('setOutPoint');
+	const inAriaShortcut = useKeyboardShortcutAriaKeyShortcuts('setInPoint');
+	const outAriaShortcut = useKeyboardShortcutAriaKeyShortcuts('setOutPoint');
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -245,34 +249,31 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		}
 
 		const iKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'i',
+			event: 'keydown',
+			action: 'setInPoint',
 			callback: (e) => {
 				onInMark(e);
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const oKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'o',
+			event: 'keydown',
+			action: 'setOutPoint',
 			callback: (e) => {
 				onOutMark(e);
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const xKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'x',
+			event: 'keydown',
+			action: 'clearInOutPoints',
 			callback: () => {
 				onInOutClear(confId);
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -300,34 +301,58 @@ export const TimelineInOutPointToggle: React.FC = () => {
 
 	return (
 		<>
-			<ControlButton
-				title={getTooltipText('In', 'I')}
-				aria-label={getTooltipText('In', 'I')}
-				onClick={onInMark}
-				onContextMenu={clearInMark}
-				disabled={!videoConfig || isFirstFrame}
+			<ActionTooltip
+				label="In point"
+				shortcut={shortcutsDisabled ? null : inShortcut}
+				delay={800}
+				dismissOnClick
 			>
-				{(color) => (
-					<TimelineInPointer
-						color={inFrame === null ? color : BLUE}
-						style={style}
-					/>
-				)}
-			</ControlButton>
-			<ControlButton
-				title={getTooltipText('Out', 'O')}
-				aria-label={getTooltipText('Out', 'O')}
-				onClick={onOutMark}
-				onContextMenu={clearOutMark}
-				disabled={!videoConfig || isLastFrame}
+				<ControlButton
+					title=""
+					aria-label="In point"
+					aria-description="Right click to clear"
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : inAriaShortcut || undefined
+					}
+					style={buttonStyle}
+					onClick={onInMark}
+					onContextMenu={clearInMark}
+					disabled={!videoConfig || isFirstFrame}
+				>
+					{(color) => (
+						<TimelineInPointer
+							color={inFrame === null ? color : BLUE}
+							style={style}
+						/>
+					)}
+				</ControlButton>
+			</ActionTooltip>
+			<ActionTooltip
+				label="Out point"
+				shortcut={shortcutsDisabled ? null : outShortcut}
+				delay={800}
+				dismissOnClick
 			>
-				{(color) => (
-					<TimelineOutPointer
-						color={outFrame === null ? color : BLUE}
-						style={style}
-					/>
-				)}
-			</ControlButton>
+				<ControlButton
+					title=""
+					aria-label="Out point"
+					aria-description="Right click to clear"
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : outAriaShortcut || undefined
+					}
+					style={buttonStyle}
+					onClick={onOutMark}
+					onContextMenu={clearOutMark}
+					disabled={!videoConfig || isLastFrame}
+				>
+					{(color) => (
+						<TimelineOutPointer
+							color={outFrame === null ? color : BLUE}
+							style={style}
+						/>
+					)}
+				</ControlButton>
+			</ActionTooltip>
 		</>
 	);
 };

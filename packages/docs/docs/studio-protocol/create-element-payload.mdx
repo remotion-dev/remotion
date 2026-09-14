@@ -8,13 +8,21 @@ crumb: '@remotion/studio-protocol'
 
 Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
+## Example
+
 ```ts twoslash title="element-payload.ts"
 import {createElementPayload} from '@remotion/studio-protocol';
 
+const elementSourceCode = `
+export const MyElement = () => {
+  return <div>Hello world</div>;
+};
+`;
+
 const payload = createElementPayload({
-  displayName: 'Lower Third',
-  slug: 'lower-third',
-  sourceCode: 'export const LowerThird = () => null;',
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: elementSourceCode,
   dependencies: [
     {name: '@remotion/google-fonts', version: null},
     {name: 'color-namer', version: '1.4.0'},
@@ -38,7 +46,9 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 
 ### sourceCode
 
-The complete Element source code. It must contain exactly one exported named component.
+A string containing the complete Element source code. It must contain exactly one exported named component.
+
+See [Integrating a component library with Studio](/docs/studio-protocol/component-library-integration) for recommended ways to preview a component and represent it as Element source in Vite-based projects and Next.js.
 
 ### dependencies
 
@@ -58,13 +68,25 @@ Studio uses these dimensions for the drag preview, drop position, and the genera
 
 The preferred duration shown while dragging. It must be a positive integer.
 
+### initialProps?<AvailableFrom v="4.0.524" />
+
+Use `initialProps` when a `component-owned-sequence` Element needs replaceable starter content. Studio writes each property onto the installed component. The default is `null`.
+
+Use JSON-compatible values and valid JSX attribute names. For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
+
+Pass the same props to the component preview. Element dimensions are not passed as component props, so include `width` and `height` when the component needs them.
+
+In `'wrapped'` mode, Studio also passes `initialProps` to the component inside the generated Sequence. Most wrapped Elements do not need this because their editable values can stay on internal `Interactive` call sites in the copied source.
+
 ### installationMode?<AvailableFrom v="4.0.506" />
 
 Controls how Studio installs the Element. The default is `'wrapped'`.
 
-Use `'wrapped'` for a regular visual component. Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
+With `'wrapped'`, Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
 
-Use `'component-owned-sequence'` only if the component already owns the one Sequence that should appear in the timeline and be editable in Studio. The component must accept and forward `from`, `durationInFrames`, `name`, and `style` to that Sequence and its rendered outline. It must also define its own rendered dimensions. Studio places timing and absolute positioning props directly on the component call instead of generating an outer Sequence.
+With `'component-owned-sequence'`, Studio puts timing, name, and absolute positioning props on the component call without adding an outer Sequence. The component must provide its own Studio-editable Sequence and rendered dimensions.
+
+See [Design it for composition](/elements/contributing#design-it-for-composition) for guidance on choosing a mode and wiring the component.
 
 ## Return value
 

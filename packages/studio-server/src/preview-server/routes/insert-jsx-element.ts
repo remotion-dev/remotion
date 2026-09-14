@@ -18,8 +18,10 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const validateDimension = (name: string, value: number) => {
 	if (!Number.isFinite(value) || value < 1) {
@@ -245,7 +247,6 @@ export const insertJsxElementHandler: ApiHandler<
 				source,
 				oldContents,
 				output,
-				formatted,
 				insertedNodePath,
 				logLine,
 				nodePathRemappings,
@@ -257,13 +258,21 @@ export const insertJsxElementHandler: ApiHandler<
 				from,
 				prettierConfigOverride: null,
 			});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath: fileName,
-					remappings: nodePathRemappings,
-					restoredNodePaths: [],
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath: fileName,
+						remappings: nodePathRemappings,
+					},
+				],
+				insertedNodePath === null
+					? null
+					: {
+							absolutePath: fileName,
+							compositionId,
+							nodePath: insertedNodePath,
+						},
+			);
 			if (insertedNodePath === null) {
 				RenderInternals.Log.warn(
 					{indent: false, logLevel},
@@ -301,15 +310,11 @@ export const insertJsxElementHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${elementLabel}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${elementLabel}`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[insert-jsx-element] Wrote ${source}${formatted ? ' (formatted)' : ''}`,
+				`[insert-jsx-element] Wrote ${source}`,
 			);
 
 			printUndoHint(logLevel);

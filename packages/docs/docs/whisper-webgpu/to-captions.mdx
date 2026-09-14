@@ -1,0 +1,39 @@
+---
+image: /generated/articles-docs-whisper-webgpu-to-captions.png
+title: toCaptions()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# toCaptions()<AvailableFrom v="4.0.518" />
+
+Converts [`transcribe()`](/docs/whisper-webgpu/transcribe) output into [`Caption`](/docs/captions/caption) objects from `@remotion/captions`.
+
+```ts twoslash title="captions.ts"
+import {toCaptions, transcribe} from '@remotion/whisper-webgpu';
+
+const channelWaveform = new Float32Array(16_000);
+const transcription = await transcribe({
+  channelWaveform,
+  model: 'tiny.en',
+});
+
+const {captions} = toCaptions({whisperWebGpuOutput: transcription});
+console.log(captions);
+```
+
+`startMs` and `endMs` use the model's word boundaries. `timestampMs` is the midpoint of each word. `confidence` is `null` because [Transformers.js](https://huggingface.co/docs/transformers.js) does not expose calibrated word confidence values for this pipeline.
+
+## Options
+
+### whisperWebGpuOutput
+
+A complete transcription or an array of timestamped words returned by `transcribe()`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering={false} serverSideRendering player studio />
+
+## See also
+
+- [`@remotion/captions`](/docs/captions)
+- [`transcribe()`](/docs/whisper-webgpu/transcribe)

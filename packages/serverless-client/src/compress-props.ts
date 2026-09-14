@@ -149,7 +149,7 @@ export const decompressInputProps = async <Provider extends CloudProvider>({
 	serialized: SerializedInputProps;
 	region: Provider['region'];
 	bucketName: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	propsType: PropsType;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;

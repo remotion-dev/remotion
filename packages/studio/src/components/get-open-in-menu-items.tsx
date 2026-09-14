@@ -9,10 +9,7 @@ import React from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
-import {
-	getGitRefUrl,
-	getGitSourceBranchUrl,
-} from '../helpers/get-git-menu-item';
+import {openGitSource} from '../helpers/get-git-menu-item';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
 import {GitClientIcon} from '../icons/git-client';
@@ -26,6 +23,35 @@ const menuLabel: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: '16px',
+};
+
+export const getConfigureDefaultAppsMenuItems = ({
+	hasPreviousItems,
+	onConfigureApps,
+}: {
+	readonly hasPreviousItems: boolean;
+	readonly onConfigureApps: (() => void) | null;
+}): ComboboxValue[] => {
+	if (!onConfigureApps) {
+		return [];
+	}
+
+	return [
+		...(hasPreviousItems
+			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
+			: []),
+		{
+			id: 'change-default-apps',
+			keyHint: null,
+			label: <span style={menuLabel}>Configure default apps...</span>,
+			leftItem: null,
+			onClick: onConfigureApps,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'change-default-apps',
+		},
+	];
 };
 
 export const getOpenInMenuItems = ({
@@ -52,7 +78,7 @@ export const getOpenInMenuItems = ({
 	readonly fileManagerDisabled: boolean;
 	readonly folder: boolean;
 	readonly location: OriginalPosition | null;
-	readonly onConfigureApps: () => void;
+	readonly onConfigureApps: (() => void) | null;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
 		codingAgentName: string,
@@ -107,19 +133,9 @@ export const getOpenInMenuItems = ({
 				id: 'open-in-github',
 				keyHint: null,
 				label: <span style={menuLabel}>GitHub.com</span>,
-				leftItem: <GitHubIcon size={18} />,
+				leftItem: <GitHubIcon size={16} />,
 				onClick: () => {
-					const gitSource = window.remotion_gitSource;
-					if (!gitSource) {
-						return;
-					}
-
-					window.open(
-						folder || !location
-							? getGitSourceBranchUrl(gitSource)
-							: getGitRefUrl(gitSource, location, window.remotion_cwd),
-						'_blank',
-					);
+					openGitSource({folder, location});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
@@ -228,19 +244,9 @@ export const getOpenInMenuItems = ({
 					...systemApps,
 				]
 			: []),
-		...(hasCategorizedApps || systemApps.length > 0
-			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
-			: []),
-		{
-			id: 'change-default-apps',
-			keyHint: null,
-			label: <span style={menuLabel}>Change default apps...</span>,
-			leftItem: null,
-			onClick: onConfigureApps,
-			quickSwitcherLabel: null,
-			subMenu: null,
-			type: 'item' as const,
-			value: 'change-default-apps',
-		},
-	];
+		...getConfigureDefaultAppsMenuItems({
+			hasPreviousItems: hasCategorizedApps || systemApps.length > 0,
+			onConfigureApps,
+		}),
+	].filter(NoReactInternals.truthy);
 };

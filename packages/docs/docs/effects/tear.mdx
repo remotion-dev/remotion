@@ -1,0 +1,81 @@
+---
+image: /generated/articles-docs-effects-tear.png
+slug: /effects/tear
+title: tear()
+sidebar_label: tear()
+crumb: '@remotion/effects'
+---
+
+# tear()<AvailableFrom v="4.0.523" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Tears a canvas-based component along a zigzag seam in any direction. The two pieces rotate outward as the tear advances, leaving a transparent opening. The area ahead of the tear stays intact. By default, the rip travels from top to bottom.
+
+## Preview
+
+<EffectsDemo type="effects-tear" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Video} from '@remotion/media';
+import {tear} from '@remotion/effects/tear';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 60], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[tear({progress, rotation: 20, jaggedness: 20})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `tear()` without arguments.
+
+### `progress?`
+
+Non-negative tear progress. At `0`, the source is intact; at `1`, the tear reaches the opposite edge. Above `1`, the pieces keep moving apart perpendicular to the rip, each by half the width of the canvas projected onto that axis per additional unit of progress. Their rotation stays at its value at `1`. Defaults to `0.5`.
+
+### `angle?`
+
+Rip direction in degrees. Defaults to `0` (top to bottom). Use `90` for left to right, `180` for bottom to top, or `270` for right to left. Any finite angle is supported, including negative angles and angles above `360`.
+
+The image keeps its original orientation; only the rip direction changes.
+
+### `rotation?`
+
+Maximum outward rotation of each piece in degrees at full progress. Must be between `0` and `90`. Defaults to `20`. The rotation increases with `progress`, with a bend near the tear tip joining the separated pieces to the intact area. The bend is wider for larger rotations and wider canvases. At `0`, the source stays unchanged until `progress` exceeds `1`.
+
+Content that rotates outside the canvas is clipped.
+
+### `jaggedness?`
+
+Amplitude of the zigzag seam in pixels, perpendicular to the rip direction. Must be non-negative. Defaults to `20`. Use `0` for a straight tear. The amplitude is limited to 45% of the canvas width projected perpendicular to the rip.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`tear()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`roughenEdges()`](/docs/effects/roughen-edges)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/tear.ts)

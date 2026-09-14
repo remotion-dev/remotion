@@ -40,6 +40,18 @@ test('classifies runtime config changes', () => {
 			prepare('Config.setInteractivityEnabled(false);'),
 		),
 	).toBe('runtime');
+	expect(
+		classify(
+			prepare('Config.addElementLibrary({url: "https://one.example.com"});'),
+			prepare('Config.addElementLibrary({url: "https://two.example.com"});'),
+		),
+	).toBe('runtime');
+	expect(
+		classify(
+			prepare('Config.setKeyboardShortcuts({playPause: {key: "Space"}});'),
+			prepare('Config.setKeyboardShortcuts({playPause: {key: "p"}});'),
+		),
+	).toBe('runtime');
 });
 
 test('classifies changes that require a page reload', () => {

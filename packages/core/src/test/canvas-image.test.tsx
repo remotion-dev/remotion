@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
-import {BufferingContextReact} from '../buffering.js';
 import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import {CanvasImage} from '../canvas-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
@@ -129,25 +128,13 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 const BufferingEvents: React.FC<{
 	readonly events: string[];
 }> = ({events}) => {
-	const manager = React.useContext(BufferingContextReact);
+	const {subscribeBuffering} = React.useContext(Internals.SetTimelineContext);
 
 	React.useLayoutEffect(() => {
-		if (!manager) {
-			throw new Error('Expected BufferingContextReact');
-		}
-
-		const buffering = manager.listenForBuffering(() => {
-			events.push('waiting');
+		return subscribeBuffering((state) => {
+			events.push(state.buffering ? 'waiting' : 'resume');
 		});
-		const resume = manager.listenForResume(() => {
-			events.push('resume');
-		});
-
-		return () => {
-			buffering.remove();
-			resume.remove();
-		};
-	}, [events, manager]);
+	}, [events, subscribeBuffering]);
 
 	return null;
 };
@@ -193,6 +180,7 @@ const SequenceRegistrationWrapper: React.FC<{
 		() => ({
 			registerSequence,
 			unregisterSequence,
+			updateSequence: registerSequence,
 			sequences: [],
 		}),
 		[registerSequence, unregisterSequence],
@@ -279,6 +267,7 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
 	expect(canvasImageSchema.src).toEqual({
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

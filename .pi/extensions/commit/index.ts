@@ -55,9 +55,12 @@ export default function remotionCommitExtension(pi: ExtensionAPI) {
 				: [{type: 'text' as const, text: message.text}, ...message.images];
 
 		if (deliverAs) {
-			pi.sendUserMessage(content, {deliverAs});
+			pi.sendUserMessage(content, {
+				deliverAs,
+				expandPromptTemplates: true,
+			});
 		} else {
-			pi.sendUserMessage(content);
+			pi.sendUserMessage(content, {expandPromptTemplates: true});
 		}
 	};
 

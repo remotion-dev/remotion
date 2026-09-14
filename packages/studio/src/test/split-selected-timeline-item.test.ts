@@ -45,7 +45,6 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		documentationLink: null,
 		parent: null,
 		showInTimeline: true,
-		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
 		premountDisplay: null,
@@ -60,6 +59,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		},
 		refForOutline: null,
 		effects: [],
+		effectRuntimeValues: null,
 		isInsideSeries: false,
 		frozenFrame: null,
 		type: 'sequence',
@@ -68,6 +68,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 
 const staticNumber = (value: number): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue: value,
 });
 
@@ -156,6 +157,7 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 				controls: {
 					schema: {},
 					runtimeValues: makeRuntimeValueStore({}),
+					videoConfigValues: null,
 					overrideId: 'override',
 					supportsEffects: true,
 					componentIdentity: 'dev.remotion.remotion.Solid',

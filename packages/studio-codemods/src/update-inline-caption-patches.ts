@@ -10,6 +10,7 @@ const captionKeys = [
 	'endMs',
 	'timestampMs',
 	'confidence',
+	'pageBreakAfter',
 ] as const;
 
 type CaptionKey = (typeof captionKeys)[number];
@@ -27,8 +28,14 @@ const getPropertyKey = (property: ObjectProperty): string | null => {
 	return null;
 };
 
-const getStaticValue = (value: Expression): string | number | null => {
+const getStaticValue = (
+	value: Expression,
+): string | number | boolean | null => {
 	if (value.type === 'StringLiteral' || value.type === 'NumericLiteral') {
+		return value.value;
+	}
+
+	if (value.type === 'BooleanLiteral') {
 		return value.value;
 	}
 
@@ -40,7 +47,7 @@ const getStaticValue = (value: Expression): string | number | null => {
 };
 
 const getStaticCaption = (expression: ObjectExpression): StaticCaption => {
-	const values = new Map<string, string | number | null>();
+	const values = new Map<string, string | number | boolean | null>();
 	for (const property of expression.properties) {
 		if (property.type !== 'ObjectProperty' || property.computed) {
 			throw new Error(
@@ -59,19 +66,28 @@ const getStaticCaption = (expression: ObjectExpression): StaticCaption => {
 	const endMs = values.get('endMs');
 	const timestampMs = values.get('timestampMs');
 	const confidence = values.get('confidence');
+	const pageBreakAfter = values.get('pageBreakAfter');
 	if (
 		typeof text !== 'string' ||
 		typeof startMs !== 'number' ||
 		typeof endMs !== 'number' ||
 		(timestampMs !== null && typeof timestampMs !== 'number') ||
-		(confidence !== null && typeof confidence !== 'number')
+		(confidence !== null && typeof confidence !== 'number') ||
+		(pageBreakAfter !== undefined && typeof pageBreakAfter !== 'boolean')
 	) {
 		throw new Error(
 			'Captions must have the standard static caption shape to edit',
 		);
 	}
 
-	return {text, startMs, endMs, timestampMs, confidence};
+	return {
+		text,
+		startMs,
+		endMs,
+		timestampMs,
+		confidence,
+		pageBreakAfter: pageBreakAfter ?? null,
+	};
 };
 
 const isCaptionKey = (key: string): key is CaptionKey =>
@@ -81,10 +97,14 @@ const getReplacementValue = ({
 	value,
 	previous,
 }: {
-	value: string | number | null;
+	value: string | number | boolean | null;
 	previous: Expression;
 }): string => {
-	if (value === null || typeof value === 'number') {
+	if (
+		value === null ||
+		typeof value === 'number' ||
+		typeof value === 'boolean'
+	) {
 		return String(value);
 	}
 
@@ -142,6 +162,101 @@ const getSourceValueRange = ({
 	};
 };
 
+const getPropertyInsertionReplacements = ({
+	input,
+	caption,
+	key,
+	value,
+}: {
+	input: string;
+	caption: ObjectExpression;
+	key: CaptionKey;
+	value: string | number | boolean | null;
+}): SourceReplacement[] => {
+	const firstProperty = caption.properties.find(
+		(property): property is ObjectProperty =>
+			property.type === 'ObjectProperty',
+	);
+	const lastProperty = caption.properties.findLast(
+		(property): property is ObjectProperty =>
+			property.type === 'ObjectProperty',
+	);
+	if (!firstProperty || !lastProperty) {
+		throw new Error('Captions must have static object properties to be edited');
+	}
+
+	const firstPropertyKey = getPropertyKey(firstProperty);
+	const lastPropertyKey = getPropertyKey(lastProperty);
+	if (firstPropertyKey === null || lastPropertyKey === null) {
+		throw new Error('Captions must have static object properties to be edited');
+	}
+
+	const firstPropertyValue = getSourceValueRange({
+		input,
+		property: firstProperty,
+		key: firstPropertyKey,
+	});
+	const lastPropertyValue = getSourceValueRange({
+		input,
+		property: lastProperty,
+		key: lastPropertyKey,
+	});
+	const openingBrace = input.lastIndexOf('{', firstPropertyValue.start);
+	const closingBrace = input.indexOf('}', lastPropertyValue.end);
+	if (openingBrace === -1 || closingBrace === -1) {
+		throw new Error(`Could not locate caption ${key} in the source file`);
+	}
+
+	const objectSource = input.slice(openingBrace, closingBrace + 1);
+	if (!objectSource.includes('\n')) {
+		const currentProperties = input.slice(openingBrace + 1, closingBrace);
+		const separator =
+			currentProperties.trim() === ''
+				? ''
+				: currentProperties.trimEnd().endsWith(',')
+					? ' '
+					: ', ';
+		return [
+			{
+				start: closingBrace,
+				end: closingBrace,
+				value: `${separator}${key}: ${String(value)}`,
+			},
+		];
+	}
+
+	const propertyLineStart =
+		input.lastIndexOf('\n', lastPropertyValue.start - 1) + 1;
+	const propertyLine = input.slice(
+		propertyLineStart,
+		input.indexOf('\n', propertyLineStart),
+	);
+	const keyOffset = propertyLine.indexOf(lastPropertyKey);
+	if (keyOffset === -1) {
+		throw new Error(`Could not locate caption ${key} in the source file`);
+	}
+
+	const propertyIndent = propertyLine.slice(0, keyOffset);
+	const closingLineStart = input.lastIndexOf('\n', closingBrace - 1) + 1;
+	const replacements: SourceReplacement[] = [
+		{
+			start: closingLineStart,
+			end: closingLineStart,
+			value: `${propertyIndent}${key}: ${String(value)},\n`,
+		},
+	];
+
+	if (!input.slice(lastPropertyValue.end, closingBrace).includes(',')) {
+		replacements.push({
+			start: lastPropertyValue.end,
+			end: lastPropertyValue.end,
+			value: ',',
+		});
+	}
+
+	return replacements;
+};
+
 const updateCaption = ({
 	input,
 	caption,
@@ -172,7 +287,8 @@ const updateCaption = ({
 				(typeof value !== 'number' || !Number.isFinite(value))) ||
 			((key === 'timestampMs' || key === 'confidence') &&
 				value !== null &&
-				(typeof value !== 'number' || !Number.isFinite(value)))
+				(typeof value !== 'number' || !Number.isFinite(value))) ||
+			(key === 'pageBreakAfter' && typeof value !== 'boolean')
 		) {
 			throw new Error(`Caption ${key} has an invalid value`);
 		}
@@ -185,6 +301,18 @@ const updateCaption = ({
 			);
 		});
 		if (!property || property.type !== 'ObjectProperty') {
+			if (key === 'pageBreakAfter' && typeof value === 'boolean') {
+				replacements.push(
+					...getPropertyInsertionReplacements({
+						input,
+						caption,
+						key,
+						value,
+					}),
+				);
+				continue;
+			}
+
 			throw new Error(`Caption ${patch.index} is missing ${key}`);
 		}
 
@@ -193,7 +321,7 @@ const updateCaption = ({
 			start,
 			end,
 			value: getReplacementValue({
-				value: value as string | number | null,
+				value: value as string | number | boolean | null,
 				previous: property.value as Expression,
 			}),
 		});

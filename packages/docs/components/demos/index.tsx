@@ -12,6 +12,7 @@ import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
 	arrowDemo,
+	blurSlidePresentationDemo,
 	bookFlipPresentationDemo,
 	calloutDemo,
 	circleDemo,
@@ -177,6 +178,7 @@ const demos: DemoType[] = [
 	crosswarpPresentationDemo,
 	crossZoomPresentationDemo,
 	swapPresentationDemo,
+	blurSlidePresentationDemo,
 ];
 
 const shouldShowOption = (

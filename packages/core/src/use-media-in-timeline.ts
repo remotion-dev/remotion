@@ -1,12 +1,12 @@
-import {useContext, useEffect, useMemo, useState} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
-import type {LoopDisplay} from './CompositionManager.js';
+import type {LoopDisplay, TSequence} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
-import {useNonce} from './nonce.js';
 import {SequenceContext} from './SequenceContext.js';
-import {SequenceManager} from './SequenceManager.js';
+import {SequenceRegistrationContext} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
+import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
@@ -34,6 +34,7 @@ export const useBasicMediaInTimeline = ({
 	sequenceDurationInFrames,
 	mediaStartsAt,
 	loop,
+	muted,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -46,6 +47,7 @@ export const useBasicMediaInTimeline = ({
 	sequenceDurationInFrames: number;
 	mediaStartsAt: number;
 	loop: boolean;
+	muted: boolean;
 }) => {
 	if (!src) {
 		throw new Error('No src passed');
@@ -67,6 +69,14 @@ export const useBasicMediaInTimeline = ({
 	const volumes: string | number = useMemo(() => {
 		if (typeof volume === 'number') {
 			return volume;
+		}
+
+		if (typeof volume !== 'function') {
+			return evaluateVolume({
+				frame: 0,
+				volume,
+				mediaVolume,
+			});
 		}
 
 		return new Array(Math.floor(Math.max(0, duration + mediaStartsAt)))
@@ -91,7 +101,6 @@ export const useBasicMediaInTimeline = ({
 
 	const doesVolumeChange = typeof volume === 'function';
 
-	const nonce = useNonce();
 	const startMediaFrom = 0 - mediaStartsAt + (trimBefore ?? 0);
 
 	const memoizedResult = useMemo(() => {
@@ -99,21 +108,21 @@ export const useBasicMediaInTimeline = ({
 			volumes,
 			duration,
 			doesVolumeChange,
-			nonce,
 			finalDisplayName: displayName ?? getAssetDisplayName(src),
 			startMediaFrom,
 			src,
 			playbackRate,
+			muted,
 		};
 	}, [
 		volumes,
 		duration,
 		doesVolumeChange,
-		nonce,
 		displayName,
 		src,
 		startMediaFrom,
 		playbackRate,
+		muted,
 	]);
 
 	return memoizedResult;
@@ -138,6 +147,7 @@ export const useMediaInTimeline = ({
 	loopDisplay,
 	documentationLink,
 	refForOutline,
+	muted,
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
@@ -153,14 +163,15 @@ export const useMediaInTimeline = ({
 	loopDisplay: LoopDisplay | undefined;
 	documentationLink: string | null;
 	refForOutline: React.RefObject<Element | null> | null;
+	muted: boolean;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
-	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {volumes, duration, doesVolumeChange, nonce, finalDisplayName} =
+	const {volumes, duration, doesVolumeChange, finalDisplayName} =
 		useBasicMediaInTimeline({
 			volume,
 			mediaVolume,
@@ -173,24 +184,18 @@ export const useMediaInTimeline = ({
 			sequenceDurationInFrames: durationInFrames,
 			mediaStartsAt,
 			loop: false,
+			muted,
 		});
 
 	const {isStudio} = useRemotionEnvironment();
 
-	useEffect(() => {
+	const getSequenceForRegistration = useCallback((): TSequence => {
 		if (!src) {
 			throw new Error('No src passed');
 		}
 
-		if (!isStudio && window.process?.env?.NODE_ENV !== 'test') {
-			return;
-		}
-
-		if (!showInTimeline) {
-			return;
-		}
-
-		registerSequence({
+		return {
+			effectRuntimeValues: null,
 			type: mediaType,
 			src,
 			id,
@@ -201,8 +206,9 @@ export const useMediaInTimeline = ({
 			displayName: finalDisplayName,
 			documentationLink,
 			volume: volumes,
+			muted,
 			showInTimeline: true,
-			nonce: nonce.get(),
+			timelineOrder: null,
 			startMediaFrom: 0 - startsAt,
 			mediaFrameAtSequenceZero: null,
 			doesVolumeChange,
@@ -217,32 +223,33 @@ export const useMediaInTimeline = ({
 			isInsideSeries: false,
 			frozenFrame: null,
 			frozenMediaFrame: null,
-		});
-
-		return () => {
-			unregisterSequence(id);
 		};
 	}, [
 		duration,
 		id,
 		parentSequence,
 		src,
-		registerSequence,
-		unregisterSequence,
 		volumes,
 		doesVolumeChange,
-		nonce,
 		mediaType,
 		startsAt,
 		playbackRate,
 		getStack,
-		showInTimeline,
 		premountDisplay,
 		postmountDisplay,
 		loopDisplay,
 		documentationLink,
 		finalDisplayName,
-		isStudio,
 		refForOutline,
+		muted,
 	]);
+	const registrationEnabled =
+		isStudio ||
+		sequenceRegistrationEnabled ||
+		(typeof window !== 'undefined' && window.process?.env?.NODE_ENV === 'test');
+	useSequenceRegistration({
+		getSequence:
+			registrationEnabled && showInTimeline ? getSequenceForRegistration : null,
+		id,
+	});
 };

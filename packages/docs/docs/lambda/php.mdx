@@ -87,6 +87,22 @@ while (!$renderProgressResponse->done) {
 print_r("Render is done!\n");
 ```
 
+## Cancelling a render<AvailableFrom v="4.0.515" />
+
+Enable cancellation before starting the render, then call `cancelRenderOnLambda()`:
+
+```php title="cancel-render.php"
+$params = new RenderParams(enableCancellation: true);
+$params->setComposition('react-svg');
+
+$renderResponse = $client->renderMediaOnLambda($params);
+
+$client->cancelRenderOnLambda(
+  $renderResponse->renderId,
+  $renderResponse->bucketName
+);
+```
+
 ## Changelog
 
 - `v4.0.15`: The fields are now typed. `->setInputProps()` now works as intended, serializing the input props to JSON for you.

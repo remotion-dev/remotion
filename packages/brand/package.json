@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.512",
+	"version": "4.0.524",
 	"private": true,
 	"sideEffects": [
 		"*.css"
@@ -19,11 +19,14 @@
 		"@mediabunny/prores": "catalog:"
 	},
 	"devDependencies": {
+		"@code-hike/lighter": "1.0.3",
 		"@remotion/cli": "workspace:*",
 		"@remotion/effects": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
+		"@remotion/layout-utils": "workspace:*",
+		"@remotion/light-leaks": "workspace:*",
 		"@remotion/mac-cursors": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
@@ -40,6 +43,7 @@
 		"@types/opentype.js": "1.3.4",
 		"@types/styled-components": "5.1.34",
 		"@typescript/native-preview": "catalog:",
+		"codehike": "1.0.4",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",
 		"opentype.js": "1.3.4",

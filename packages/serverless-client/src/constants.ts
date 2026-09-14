@@ -111,6 +111,7 @@ export type ServerlessStatusPayload<Provider extends CloudProvider> = {
 };
 
 export type ServerlessStartPayload<Provider extends CloudProvider> = {
+	enableCancellation: boolean | null;
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;
 	serveUrl: string;
@@ -174,6 +175,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 	};
 	start: ServerlessStartPayload<Provider>;
 	launch: {
+		enableCancellation: boolean | null;
 		rendererFunctionName: string | null;
 		type: ServerlessRoutines.launch;
 		serveUrl: string;
@@ -232,6 +234,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 	};
 	status: ServerlessStatusPayload<Provider>;
 	renderer: {
+		enableCancellation: boolean | null;
 		concurrencyPerLambda: number;
 		type: ServerlessRoutines.renderer;
 		serveUrl: string;
@@ -381,6 +384,9 @@ export const customOutName = <Provider extends CloudProvider>(
 
 export const overallProgressKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/progress.json`;
+
+export const cancellationKey = (renderId: string) =>
+	`${rendersPrefix(renderId)}/cancel.json`;
 
 export const artifactName = (renderId: string, name: string) =>
 	`${rendersPrefix(renderId)}/artifacts/${name}`;

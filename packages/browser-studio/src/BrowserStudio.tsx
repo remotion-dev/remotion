@@ -1,22 +1,35 @@
+import type {RenderDefaults} from '@remotion/studio-shared';
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	createBrowserStudioHmrAssetManager,
 	type BrowserStudioHmrBridge,
 } from './browser-studio-hmr-assets';
+import {
+	BROWSER_STUDIO_TRANSFORMERS_PACKAGE,
+	getBrowserStudioTransformersUrl,
+} from './browser-studio-import-map';
 import {createBrowserStudioOperations} from './browser-studio-operations';
 import {
 	areBrowserStudioProjectsEqual,
 	createBrowserStudioPublicFileManager,
 } from './browser-studio-project-controller';
 import {browserStudioDependencyVersions} from './dependency-versions';
-import {Spinner} from './Spinner';
+import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
+import {LoadingProgress} from './LoadingProgress';
+import {deleteBrowserStudioProjectStorage} from './opfs-public-files';
 import type {
+	BrowserStudioDependencyResolution,
 	BrowserStudioProps,
 	BrowserStudioWorkerCompileRequest,
 	BrowserStudioWorkerCompileResponse,
 	CompileState,
 } from './types';
+
+declare const __BROWSER_STUDIO_ASSET_SIZES__: {
+	readonly rspackWasm: number;
+	readonly vendorBundle: number;
+};
 
 const makeInitialState = (): CompileState => ({
 	status: 'idle',
@@ -31,6 +44,17 @@ const localStudioPreviewEntry = new URL(
 	'./browser-studio-preview-entry.mjs',
 	import.meta.url,
 ).href;
+
+const localVendorEntry = new URL(
+	'./browser-studio-vendor-entry.mjs',
+	import.meta.url,
+).href;
+const localTransformersEntry = new URL(
+	'./browser-studio-transformers-entry.mjs',
+	import.meta.url,
+).href;
+const localVendorEntryWithMarker = `${localVendorEntry}?browserStudioVendor`;
+const browserStudioPointerLeaveEvent = 'remotion-browser-studio-pointerleave';
 
 type BrowserStudioContentWindow = Window & {
 	remotion_browserStudioHmr: BrowserStudioHmrBridge;
@@ -76,26 +100,91 @@ const errorStyle: React.CSSProperties = {
 	whiteSpace: 'pre-wrap',
 };
 
+const getBrowserRenderDefaults = (): RenderDefaults => {
+	const maxConcurrency = navigator.hardwareConcurrency || 1;
+
+	return {
+		allowHtmlInCanvas: false,
+		audioBitrate: null,
+		audioCodec: null,
+		beepOnFinish: false,
+		chromeMode: 'headless-shell',
+		codec: 'h264',
+		colorSpace: 'default',
+		configFileRenderDefaults: null,
+		concurrency: Math.round(Math.min(8, Math.max(1, maxConcurrency / 2))),
+		crf: null,
+		darkMode: false,
+		delayRenderTimeout: 30_000,
+		disableWebSecurity: false,
+		encodingBufferSize: null,
+		encodingMaxRate: null,
+		enforceAudioTrack: false,
+		everyNthFrame: 1,
+		forSeamlessAacConcatenation: false,
+		gopSize: null,
+		hardwareAcceleration: 'disable',
+		headless: true,
+		ignoreCertificateErrors: false,
+		jpegQuality: 80,
+		logLevel: 'info',
+		maxConcurrency,
+		mediaCacheSizeInBytes: null,
+		metadata: null,
+		minConcurrency: 1,
+		multiProcessOnLinux: true,
+		muted: false,
+		numberOfGifLoops: null,
+		offthreadVideoCacheSizeInBytes: null,
+		offthreadVideoThreads: null,
+		openGlRenderer: null,
+		outputLocation: null,
+		pixelFormat: 'yuv420p',
+		proResProfile: null,
+		publicLicenseKey: null,
+		repro: false,
+		sampleRate: 48_000,
+		scale: 1,
+		stillImageFormat: 'png',
+		userAgent: null,
+		videoBitrate: null,
+		videoImageFormat: 'jpeg',
+		x264Preset: 'medium',
+	};
+};
+
 export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	project,
 	readOnly,
+	initialElement,
 	iframeSrc,
 	dependencyResolver,
 	onCompileStateChange,
 	onProjectChange,
-	workspacePackageBaseUrl,
+	remotionPackageSource,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
+	const [loadingProgress, setLoadingProgress] = useState<number | null>(null);
+	const installedDependencyResolutionsRef = useRef<
+		Record<string, BrowserStudioDependencyResolution>
+	>({});
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const lastWrittenDocumentRef = useRef<Document | null>(null);
 	const lastWrittenHtmlRef = useRef<string | null>(null);
 	const workerRef = useRef<Worker | null>(null);
+	const initialElementRef = useRef(initialElement);
 	const lastSentProjectRef = useRef<BrowserStudioProps['project'] | null>(null);
 	const bundleUrlRef = useRef<string | null>(null);
+	const notifyStudioOfPointerLeave = useCallback(() => {
+		const contentWindow = iframeRef.current?.contentWindow;
+		contentWindow?.dispatchEvent(new Event(browserStudioPointerLeaveEvent));
+	}, []);
 	const onCompileStateChangeRef = useRef(onCompileStateChange);
 	onCompileStateChangeRef.current = onCompileStateChange;
+	const dependencyResolverRef = useRef(dependencyResolver);
+	dependencyResolverRef.current = dependencyResolver;
 	const publicFileManager = useMemo(
 		() =>
 			createBrowserStudioPublicFileManager({
@@ -104,6 +193,18 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			}),
 		[],
 	);
+
+	useEffect(() => {
+		const onBeforeUnload = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = true;
+		};
+
+		window.addEventListener('beforeunload', onBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', onBeforeUnload);
+		};
+	}, []);
 
 	useEffect(() => {
 		return () => publicFileManager.dispose();
@@ -133,6 +234,22 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			: project;
 	const activeProjectRef = useRef(activeProject);
 	activeProjectRef.current = activeProject;
+	const previousProjectStorageRef = useRef(activeProject.publicFileStorage);
+	useEffect(() => {
+		const previousStorage = previousProjectStorageRef.current;
+		const nextStorage = activeProject.publicFileStorage;
+		previousProjectStorageRef.current = nextStorage;
+		if (
+			previousStorage &&
+			previousStorage.directoryName !== nextStorage?.directoryName
+		) {
+			deleteBrowserStudioProjectStorage(previousStorage).catch((error) => {
+				setTimeout(() => {
+					throw error;
+				}, 0);
+			});
+		}
+	}, [activeProject.publicFileStorage]);
 	const incomingProjectRef = useRef(project);
 	incomingProjectRef.current = project;
 	const onProjectChangeRef = useRef(onProjectChange);
@@ -149,6 +266,59 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		},
 		[],
 	);
+	const resolveElementDependencies = useCallback(
+		(dependencies: readonly {name: string; version: string | null}[]) => {
+			const remotionVersion =
+				remotionPackageSource?.type === 'release'
+					? remotionPackageSource.version
+					: browserStudioDependencyVersions.remotion;
+			if (!remotionVersion) {
+				throw new Error('Browser Studio Remotion version is unavailable');
+			}
+
+			const versions: Record<string, string> = {};
+			const resolutions: Record<string, BrowserStudioDependencyResolution> = {};
+			for (const dependency of dependencies) {
+				const requestedVersion = dependency.name.startsWith('@remotion/')
+					? remotionVersion
+					: dependency.version;
+				const customResolution = dependencyResolverRef.current?.({
+					name: dependency.name,
+					version: requestedVersion,
+				});
+				const customVersion =
+					typeof customResolution === 'string' &&
+					!customResolution.startsWith('http')
+						? customResolution
+						: typeof customResolution === 'object'
+							? (customResolution?.version ?? null)
+							: null;
+				const version = dependency.name.startsWith('@remotion/')
+					? remotionVersion
+					: (customVersion ?? requestedVersion);
+				if (version === null) {
+					throw new Error(`Could not resolve ${dependency.name}`);
+				}
+
+				versions[dependency.name] = version;
+				resolutions[dependency.name] = dependency.name.startsWith('@remotion/')
+					? typeof customResolution === 'string' &&
+						customResolution.startsWith('http')
+						? customResolution
+						: typeof customResolution === 'object' && customResolution?.url
+							? {url: customResolution.url}
+							: version
+					: (customResolution ?? version);
+			}
+
+			installedDependencyResolutionsRef.current = {
+				...installedDependencyResolutionsRef.current,
+				...resolutions,
+			};
+			return Promise.resolve(versions);
+		},
+		[remotionPackageSource],
+	);
 
 	const browserStudioOperations = useMemo(
 		() =>
@@ -156,9 +326,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				dependencyVersions: browserStudioDependencyVersions,
 				getStaticFiles: publicFileManager.getStaticFiles,
 				getProject: () => activeProjectRef.current,
+				initialElement: initialElementRef.current,
 				onProjectChange: updateProject,
+				resolveDependencies: resolveElementDependencies,
 			}),
-		[publicFileManager, updateProject],
+		[publicFileManager, resolveElementDependencies, updateProject],
 	);
 	const previousIncomingProject = useRef(project);
 	const incomingProjectAcknowledgesEdit =
@@ -203,6 +375,177 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		setIframeHtml(null);
 		setCompileState({status: 'compiling'});
+		const configuredDependencyResolutions = Object.fromEntries(
+			Object.entries(browserStudioDependencyVersions).map(([name, version]) => [
+				name,
+				dependencyResolver?.({name, version}) ?? null,
+			]),
+		);
+		const dependencyResolutions = {
+			...configuredDependencyResolutions,
+			...installedDependencyResolutionsRef.current,
+		};
+		const transformersUrl = getBrowserStudioTransformersUrl({
+			localUrl: localTransformersEntry,
+			resolution:
+				dependencyResolutions[BROWSER_STUDIO_TRANSFORMERS_PACKAGE] ?? null,
+		});
+		const hasVendorOverride = Object.entries(dependencyResolutions).some(
+			([name, resolution]) =>
+				resolution !== null &&
+				(name.startsWith('@remotion/') ||
+					name === 'react-refresh' ||
+					studioRenderEntryExternal.includes(name)),
+		);
+		const releaseMatchesVendor =
+			remotionPackageSource?.type !== 'release' ||
+			remotionPackageSource.version ===
+				browserStudioDependencyVersions.remotion;
+		const useVendorBundle = !hasVendorOverride && releaseMatchesVendor;
+		const downloadProgress: Record<
+			'vendor-bundle' | 'rspack-wasm',
+			{loadedBytes: number; totalBytes: number | null} | null
+		> = {
+			'rspack-wasm': {
+				loadedBytes: 0,
+				totalBytes: __BROWSER_STUDIO_ASSET_SIZES__.rspackWasm,
+			},
+			'vendor-bundle': useVendorBundle
+				? {
+						loadedBytes: 0,
+						totalBytes: __BROWSER_STUDIO_ASSET_SIZES__.vendorBundle,
+					}
+				: null,
+		};
+		const updateLoadingProgress = ({
+			asset,
+			loadedBytes,
+			totalBytes,
+		}: {
+			asset: 'vendor-bundle' | 'rspack-wasm';
+			loadedBytes: number;
+			totalBytes: number | null;
+		}) => {
+			if (didCancel) {
+				return;
+			}
+
+			downloadProgress[asset] = {
+				loadedBytes,
+				totalBytes: downloadProgress[asset]?.totalBytes ?? totalBytes,
+			};
+			const assets = Object.values(downloadProgress).filter(
+				(progress) => progress !== null,
+			);
+			if (assets.some((progress) => progress.totalBytes === null)) {
+				setLoadingProgress(null);
+				return;
+			}
+
+			const total = assets.reduce(
+				(sum, progress) => sum + (progress.totalBytes ?? 0),
+				0,
+			);
+			const loaded = assets.reduce(
+				(sum, progress) =>
+					sum + Math.min(progress.loadedBytes, progress.totalBytes ?? 0),
+				0,
+			);
+			setLoadingProgress(total === 0 ? null : Math.min(0.95, loaded / total));
+		};
+
+		setLoadingProgress(0);
+		// Start the large, stable vendor download alongside the compiler. The
+		// iframe later executes these same bytes from a Blob URL, avoiding a
+		// second request after compilation finishes.
+		const vendorBundleAbortController = new AbortController();
+		const vendorBundlePromise = useVendorBundle
+			? fetch(localVendorEntryWithMarker, {
+					signal: vendorBundleAbortController.signal,
+				})
+					.then(async (response) => {
+						if (!response.ok) {
+							throw new Error(
+								`Failed to load the Browser Studio vendor bundle: ${response.status}`,
+							);
+						}
+
+						const contentLength = Number(
+							response.headers.get('content-length'),
+						);
+						const totalBytes =
+							Number.isFinite(contentLength) && contentLength > 0
+								? contentLength
+								: null;
+						updateLoadingProgress({
+							asset: 'vendor-bundle',
+							loadedBytes: 0,
+							totalBytes,
+						});
+						if (!response.body) {
+							const fallbackBlob = await response.blob();
+							updateLoadingProgress({
+								asset: 'vendor-bundle',
+								loadedBytes: fallbackBlob.size,
+								totalBytes: totalBytes ?? fallbackBlob.size,
+							});
+							return {
+								blob: fallbackBlob.slice(
+									0,
+									fallbackBlob.size,
+									'text/javascript',
+								),
+								type: 'success' as const,
+							};
+						}
+
+						const reader = response.body.getReader();
+						const chunks: BlobPart[] = [];
+						let loadedBytes = 0;
+						let lastProgressUpdate = 0;
+						while (true) {
+							const result = await reader.read();
+							if (result.done) {
+								break;
+							}
+
+							chunks.push(result.value);
+							loadedBytes += result.value.byteLength;
+							const now = performance.now();
+							if (now - lastProgressUpdate >= 50) {
+								lastProgressUpdate = now;
+								updateLoadingProgress({
+									asset: 'vendor-bundle',
+									loadedBytes,
+									totalBytes,
+								});
+							}
+						}
+
+						const vendorBlob = new Blob(chunks, {type: 'text/javascript'});
+						updateLoadingProgress({
+							asset: 'vendor-bundle',
+							loadedBytes,
+							totalBytes: totalBytes ?? loadedBytes,
+						});
+						return {
+							blob: vendorBlob,
+							type: 'success' as const,
+						};
+					})
+					.catch((error: unknown) => ({error, type: 'error' as const}))
+			: null;
+		let vendorBundleUrl: string | null = null;
+
+		if (
+			!useVendorBundle &&
+			!remotionPackageSource &&
+			dependencyResolutions['@remotion/studio'] === null
+		) {
+			dependencyResolutions['@remotion/studio'] = {
+				url: localStudioPreviewEntry,
+			};
+		}
 
 		const worker = new Worker(
 			new URL('./browser-studio-worker.mjs', import.meta.url),
@@ -211,7 +554,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		workerRef.current = worker;
 		lastSentProjectRef.current = activeProjectRef.current;
 
-		worker.onmessage = (
+		worker.onmessage = async (
 			event: MessageEvent<BrowserStudioWorkerCompileResponse>,
 		) => {
 			if (didCancel) {
@@ -222,6 +565,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 			if (response.type === 'error') {
 				setCompileState({status: 'error', error: response.error});
+				return;
+			}
+
+			if (response.type === 'load-progress') {
+				updateLoadingProgress(response);
 				return;
 			}
 
@@ -248,11 +596,48 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				new Blob([response.bundle], {type: 'text/javascript'}),
 			);
 			const currentProject = activeProjectRef.current;
+			const publicFiles = await publicFileManager.getStaticFiles({
+				lastModifiedByPath: null,
+				project: currentProject,
+			});
+			if (didCancel) {
+				return;
+			}
+
+			if (vendorBundlePromise && !vendorBundleUrl) {
+				const vendorBundleResult = await vendorBundlePromise;
+				if (didCancel) {
+					return;
+				}
+
+				if (vendorBundleResult.type === 'error') {
+					setCompileState({
+						status: 'error',
+						error: {
+							message:
+								vendorBundleResult.error instanceof Error
+									? vendorBundleResult.error.message
+									: String(vendorBundleResult.error),
+						},
+					});
+					return;
+				}
+
+				vendorBundleUrl ??= URL.createObjectURL(vendorBundleResult.blob);
+			}
+
+			const bundleScriptUrl = vendorBundleUrl
+				? `${vendorBundleUrl}#projectBundleUrl=${encodeURIComponent(bundleUrlRef.current)}`
+				: bundleUrlRef.current;
 
 			const html = studioHtml({
+				importMap: {
+					[BROWSER_STUDIO_TRANSFORMERS_PACKAGE]: transformersUrl,
+				},
 				audioLatencyHint: 'playback',
 				experimentalKeepAudioContextAlive: false,
-				bundleScriptUrl: bundleUrlRef.current,
+				bundleScriptUrl,
+				bundleScriptType: useVendorBundle ? 'module' : undefined,
 				completedClientRenders: [],
 				editorName: null,
 				envVariables: {NODE_ENV: 'development'},
@@ -265,16 +650,13 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				numberOfAudioTags: 0,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
-				publicFiles: publicFileManager.getStaticFiles({
-					lastModifiedByPath: null,
-					project: currentProject,
-				}),
+				publicFiles,
 				publicFolderExists: null,
 				fileSystemPlatform: null,
 				publicPath: '',
 				readOnlyStudio: readOnly,
 				remotionRoot: currentProject.rootDir,
-				renderDefaults: undefined,
+				renderDefaults: getBrowserRenderDefaults(),
 				renderQueue: [],
 				sampleRate: null,
 				staticHash: '',
@@ -287,12 +669,14 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,
 					publicLicenseKey: null,
+					configFileStudioSettings: null,
 				},
 				studioServerCommand: null,
 				title: 'Remotion Studio',
 			});
 
 			setIframeHtml(html);
+			setLoadingProgress(1);
 			setCompileState({status: 'compiled', warnings: response.warnings});
 		};
 
@@ -305,32 +689,21 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			});
 		};
 
-		const request: BrowserStudioWorkerCompileRequest = {
+		worker.postMessage({
 			type: 'init',
-			dependencyResolutions: Object.fromEntries(
-				Object.entries(browserStudioDependencyVersions).map(
-					([name, version]) => {
-						const customResolution = dependencyResolver?.({name, version});
-						if (customResolution) {
-							return [name, customResolution];
-						}
-
-						if (name === '@remotion/studio') {
-							return [name, {url: localStudioPreviewEntry}];
-						}
-
-						return [name, null];
-					},
-				),
-			),
+			dependencyResolutions,
 			project: activeProjectRef.current,
-			workspacePackageBaseUrl: workspacePackageBaseUrl ?? null,
-		};
-
-		worker.postMessage(request);
+			remotionPackageSource: remotionPackageSource ?? null,
+			useVendorBundle,
+		} satisfies BrowserStudioWorkerCompileRequest);
 
 		return () => {
 			didCancel = true;
+			vendorBundleAbortController.abort();
+			if (vendorBundleUrl) {
+				URL.revokeObjectURL(vendorBundleUrl);
+			}
+
 			workerRef.current = null;
 			lastSentProjectRef.current = null;
 			worker.terminate();
@@ -341,7 +714,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		hmrAssetManager,
 		publicFileManager,
 		readOnly,
-		workspacePackageBaseUrl,
+		remotionPackageSource,
 		activeProject.entryPoint,
 		activeProject.rootDir,
 	]);
@@ -359,20 +732,49 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		lastSentProjectRef.current = activeProject;
 		worker.postMessage({
+			dependencyResolutions: installedDependencyResolutionsRef.current,
 			project: activeProject,
 			type: 'update-project',
 		} satisfies BrowserStudioWorkerCompileRequest);
 	}, [activeProject]);
 
 	useEffect(() => {
-		browserStudioOperations.emitEvent({
-			files: publicFileManager.getStaticFiles({
+		let cancelled = false;
+		publicFileManager
+			.getStaticFiles({
 				lastModifiedByPath: null,
 				project: activeProject,
-			}),
-			folderExists: '/public',
-			type: 'new-public-folder',
-		});
+			})
+			.then((files) => {
+				if (cancelled) {
+					return;
+				}
+
+				browserStudioOperations.emitEvent({
+					files,
+					folderExists: '/public',
+					type: 'new-public-folder',
+				});
+			})
+			.catch((error) => {
+				if (cancelled) {
+					return;
+				}
+
+				const nextState: CompileState = {
+					status: 'error',
+					error: {
+						message: error instanceof Error ? error.message : String(error),
+						stack: error instanceof Error ? error.stack : undefined,
+					},
+				};
+				setState(nextState);
+				onCompileStateChangeRef.current?.(nextState);
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, [activeProject, browserStudioOperations, publicFileManager]);
 
 	useEffect(() => {
@@ -442,7 +844,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					ref={iframeRef}
 					allow="cross-origin-isolated"
 					onLoad={() => setIframeLoaded(true)}
-					sandbox="allow-scripts allow-same-origin allow-downloads"
+					onPointerOut={notifyStudioOfPointerLeave}
+					sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox"
 					src={iframeSrc ?? 'about:blank'}
 					style={iframeStyle}
 					title="Remotion Studio"
@@ -450,7 +853,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			) : null}
 			{state.status === 'compiling' && iframeHtml === null ? (
 				<div style={overlayStyle}>
-					<Spinner duration={0.5} size={14} />
+					<LoadingProgress progress={loadingProgress} />
 				</div>
 			) : null}
 			{state.status === 'error' ? (

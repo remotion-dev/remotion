@@ -282,6 +282,7 @@ class RenderMediaParams:
     region: Optional[str] = None
     out_name: Optional[Union[str, OutNameInputObject]] = None
     prefer_lossless: Optional[bool] = False
+    enable_cancellation: bool = False
     composition: str = ""
     serve_url: str = ""
     frames_per_lambda: Optional[int] = None
@@ -342,6 +343,7 @@ class RenderMediaParams:
         Convert instance attributes to a dictionary for serialization.
         """
         parameters = {
+            'enableCancellation': self.enable_cancellation,
             'rendererFunctionName': self.renderer_function_name,
             'framesPerLambda': self.frames_per_lambda,
             'concurrency': self.concurrency,

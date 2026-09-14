@@ -5,7 +5,12 @@ const port = Number(process.env.PORT ?? 62338);
 const outputPath = path.join(import.meta.dir, '..', 'dist', 'e2e');
 const repoDir = path.join(import.meta.dir, '..', '..', '..');
 const workspacePackagesDir = path.join(repoDir, 'packages');
-const workspacePackagePath = '/__remotion_browser_studio_workspace__/';
+const browserStudioPackageJsonArtifactFilename =
+	'__remotion_browser_studio_package.json';
+const remotionPackagePaths = [
+	'/__remotion_browser_studio_workspace__/commits/e2e/',
+	'/__remotion_browser_studio_release__/',
+];
 
 const compile = () =>
 	new Promise<void>((resolve, reject) => {
@@ -72,7 +77,7 @@ Bun.serve({
 	async fetch(request) {
 		const url = new URL(request.url);
 		const headers = {
-			'Cross-Origin-Embedder-Policy': 'credentialless',
+			'Cross-Origin-Embedder-Policy': 'require-corp',
 			'Cross-Origin-Opener-Policy': 'same-origin',
 		};
 
@@ -88,8 +93,25 @@ Bun.serve({
 			});
 		}
 
-		if (url.pathname.startsWith(workspacePackagePath)) {
-			const relativePath = url.pathname.slice(workspacePackagePath.length);
+		if (url.pathname === '/fake-transformers.mjs') {
+			return new Response('export const browserStudioOverrideMarker = 42;', {
+				headers: {...headers, 'Content-Type': 'text/javascript'},
+			});
+		}
+
+		const remotionPackagePath = remotionPackagePaths.find((prefix) =>
+			url.pathname.startsWith(prefix),
+		);
+		if (remotionPackagePath) {
+			const pathAfterSource = url.pathname.slice(remotionPackagePath.length);
+			const artifactRelativePath = remotionPackagePath.includes('_release__')
+				? pathAfterSource.slice(pathAfterSource.indexOf('/') + 1)
+				: pathAfterSource;
+			const relativePath = artifactRelativePath.endsWith(
+				`/${browserStudioPackageJsonArtifactFilename}`,
+			)
+				? `${artifactRelativePath.slice(0, -browserStudioPackageJsonArtifactFilename.length)}package.json`
+				: artifactRelativePath;
 			const workspaceFilePath = path.join(
 				repoDir,
 				path.normalize(relativePath),
@@ -116,7 +138,13 @@ Bun.serve({
 			return new Response('Not found', {status: 404});
 		}
 
-		return new Response(file, {headers});
+		const shouldStreamWithoutContentLength =
+			url.pathname.endsWith('.wasm') ||
+			url.searchParams.has('browserStudioVendor');
+		return new Response(
+			shouldStreamWithoutContentLength ? file.stream() : file,
+			{headers},
+		);
 	},
 });
 

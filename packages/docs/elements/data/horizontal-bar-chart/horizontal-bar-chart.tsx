@@ -13,7 +13,7 @@ const data = [
 	{highlighted: false, label: 'Mehmet', value: 10},
 ];
 
-const HEIGHT = Math.round(400 / data.length);
+const HEIGHT = Math.round(500 / data.length);
 
 const maxValue = Math.max(...data.map(({value}) => value));
 
@@ -34,7 +34,7 @@ const Bar: React.FC<{
 			name={'Bar'}
 			style={{
 				alignItems: 'center',
-				backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
+				backgroundColor: highlighted ? '#2563eb' : '#d1d5db',
 				borderRadius: 12,
 				boxSizing: 'border-box',
 				color: highlighted ? '#ffffff' : '#111827',
@@ -84,46 +84,48 @@ const Bar: React.FC<{
 export const HorizontalBarChart: React.FC = () => {
 	return (
 		<Interactive.Div
-			name="Chart"
+			name="Background"
 			style={{
-				fontFamily,
-				fontVariantNumeric: 'tabular-nums',
-				height: '100%',
+				alignItems: 'center',
+				backgroundColor: '#f5f6f7',
+				boxSizing: 'border-box',
 				display: 'flex',
-				flexDirection: 'column',
+				height: '100%',
 				justifyContent: 'center',
-				gap: 42,
+				padding: 56,
+				width: '100%',
 			}}
 		>
-			<Interactive.H1
-				name="Title"
+			<Interactive.Div
+				name="Chart"
 				style={{
-					fontSize: 76,
-					fontWeight: 800,
-					letterSpacing: -3.8,
-					lineHeight: 0.95,
-					margin: 0,
-					color: '#111827',
+					display: 'flex',
+					flexDirection: 'column',
+					fontFamily,
+					fontVariantNumeric: 'tabular-nums',
+					gap: 32,
+					height: '100%',
+					justifyContent: 'center',
+					width: '100%',
 				}}
 			>
-				Team member pull-ups
-			</Interactive.H1>
-			{data.map(({highlighted, label, value}, index) => (
-				<div
-					key={label}
-					style={{
-						height: HEIGHT,
-					}}
-				>
-					<Interactive.Div
-						from={8 + index * 6}
-						style={{width: `${(value / maxValue) * 100}%`, height: '100%'}}
-						showInTimeline={false}
+				{data.map(({highlighted, label, value}, index) => (
+					<div
+						key={label}
+						style={{
+							height: HEIGHT,
+						}}
 					>
-						<Bar highlighted={highlighted} label={label} value={value} />
-					</Interactive.Div>
-				</div>
-			))}
+						<Interactive.Div
+							from={8 + index * 6}
+							style={{width: `${(value / maxValue) * 100}%`, height: '100%'}}
+							showInTimeline={false}
+						>
+							<Bar highlighted={highlighted} label={label} value={value} />
+						</Interactive.Div>
+					</div>
+				))}
+			</Interactive.Div>
 		</Interactive.Div>
 	);
 };

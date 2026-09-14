@@ -1,83 +1,218 @@
 import fs from 'fs';
 import path from 'path';
-import {expect, test, type Page} from '@playwright/test';
+import {expect, test, type Locator, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
 	exampleDir,
 	lostNodePathE2eFile,
+	rootFile,
 } from './constants.mts';
-import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
+import {
+	navigateToLostNodePathE2e,
+	navigateToSchemaTest,
+	retryCanvasInteractionUntilOutlineIsVisible,
+} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const macCursorsFile = path.join(exampleDir, 'src', 'MacCursors', 'index.tsx');
+const sequenceShiftFile = path.join(
+	exampleDir,
+	'src',
+	'VisualModeTests',
+	'SequenceShiftRepro.tsx',
+);
+const outlineSelectionCasesFile = path.join(
+	exampleDir,
+	'src',
+	'VisualModeTests',
+	'OutlineSelectionCases.tsx',
+);
 
-const dropAssetOnCanvas = async ({
-	assetPath,
-	durationInSeconds,
+const dragCompositionSelectorItem = async ({
 	page,
+	sourceTitle,
+	targetTitle,
+	position,
+	dropAtPosition,
+	drop,
 }: {
-	assetPath: string;
-	durationInSeconds: number;
 	page: Page;
+	sourceTitle: string;
+	targetTitle: string;
+	position: 'before' | 'inside' | 'after';
+	dropAtPosition: 'before' | 'inside' | 'after' | null;
+	drop: boolean;
 }) => {
-	const dragData = StudioProtocolInternals.makeDragData({
-		type: 'asset',
-		assetPath,
-		durationInSeconds,
-		height: null,
-		width: null,
-	});
-	const canvas = page.locator('.remotion-studio-composition-container');
-	await expect
-		.poll(() =>
-			canvas.evaluate((element, data) => {
-				const rect = element.getBoundingClientRect();
-				const dataTransfer = new DataTransfer();
-				dataTransfer.setData(data.mimeType, data.payload);
-				const event = new DragEvent('dragover', {
+	return page.evaluate(
+		({
+			sourceTitle: source,
+			targetTitle: target,
+			position: dropPosition,
+			dropAtPosition: finalDropPosition,
+			drop: shouldDrop,
+		}) => {
+			const items = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'.__remotion-composition-selector-item',
+				),
+			);
+			const sourceElement = items.find((element) => element.title === source);
+			const targetElement = items.find((element) => element.title === target);
+			if (!sourceElement || !targetElement) {
+				throw new Error(
+					`Could not find drag source ${source} or target ${target}`,
+				);
+			}
+
+			const dataTransfer = new DataTransfer();
+			sourceElement.dispatchEvent(
+				new DragEvent('dragstart', {
 					bubbles: true,
 					cancelable: true,
-					clientX: rect.left + rect.width / 2,
-					clientY: rect.top + rect.height / 2,
 					dataTransfer,
-				});
-				element.dispatchEvent(event);
-
-				return event.defaultPrevented;
-			}, dragData),
-		)
-		.toBe(true);
-	await canvas.evaluate((element, data) => {
-		const rect = element.getBoundingClientRect();
-		const dataTransfer = new DataTransfer();
-		dataTransfer.setData(data.mimeType, data.payload);
-		element.dispatchEvent(
-			new DragEvent('drop', {
+				}),
+			);
+			const rect = targetElement.getBoundingClientRect();
+			const getClientY = (position: 'before' | 'inside' | 'after') =>
+				position === 'before'
+					? rect.top + 1
+					: position === 'after'
+						? rect.bottom - 1
+						: rect.top + rect.height / 2;
+			const clientY = getClientY(dropPosition);
+			const dragOver = new DragEvent('dragover', {
 				bubbles: true,
 				cancelable: true,
-				clientX: rect.left + rect.width / 2,
-				clientY: rect.top + rect.height / 2,
+				clientY,
 				dataTransfer,
-			}),
-		);
-	}, dragData);
+			});
+			targetElement.dispatchEvent(dragOver);
+			if (shouldDrop) {
+				const dropClientY = getClientY(finalDropPosition ?? dropPosition);
+				targetElement.dispatchEvent(
+					new DragEvent('drop', {
+						bubbles: true,
+						cancelable: true,
+						clientY: dropClientY,
+						dataTransfer,
+					}),
+				);
+				sourceElement.dispatchEvent(
+					new DragEvent('dragend', {bubbles: true, dataTransfer}),
+				);
+			}
+
+			return dragOver.defaultPrevented;
+		},
+		{sourceTitle, targetTitle, position, dropAtPosition, drop},
+	);
 };
 
-const getVideoTag = (source: string, assetPath: string) => {
-	const sourceIndex = source.indexOf(assetPath);
-	if (sourceIndex === -1) {
-		throw new Error(`Could not find ${assetPath} in source`);
-	}
+const dragCompositionSelectorItemToRoot = async ({
+	page,
+	sourceTitle,
+	drop,
+}: {
+	page: Page;
+	sourceTitle: string;
+	drop: boolean;
+}) => {
+	return page.evaluate(
+		({sourceTitle: source, drop: shouldDrop}) => {
+			const sourceElement = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'.__remotion-composition-selector-item',
+				),
+			).find((element) => element.title === source);
+			const root = Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'.__remotion-vertical-scrollbar',
+				),
+			).find((element) =>
+				element.querySelector('.__remotion-composition-selector-item'),
+			);
+			if (!sourceElement || !root) {
+				throw new Error(`Could not find drag source ${source} or root list`);
+			}
 
-	const tagStart = source.lastIndexOf('<Video', sourceIndex);
-	const tagEnd = source.indexOf('/>', sourceIndex);
-	if (tagStart === -1 || tagEnd === -1) {
-		throw new Error(`Could not find <Video> tag for ${assetPath}`);
-	}
+			const dataTransfer = new DataTransfer();
+			sourceElement.dispatchEvent(
+				new DragEvent('dragstart', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer,
+				}),
+			);
+			const rect = root.getBoundingClientRect();
+			root.scrollTop = root.scrollHeight;
+			const clientY = rect.bottom - 1;
+			const dragOver = new DragEvent('dragover', {
+				bubbles: true,
+				cancelable: true,
+				clientY,
+				dataTransfer,
+			});
+			root.dispatchEvent(dragOver);
+			if (shouldDrop) {
+				root.dispatchEvent(
+					new DragEvent('drop', {
+						bubbles: true,
+						cancelable: true,
+						clientY,
+						dataTransfer,
+					}),
+				);
+				sourceElement.dispatchEvent(
+					new DragEvent('dragend', {bubbles: true, dataTransfer}),
+				);
+			}
 
-	return source.slice(tagStart, tagEnd + 2);
+			return dragOver.defaultPrevented;
+		},
+		{sourceTitle, drop},
+	);
+};
+
+const dropFile = async ({
+	base64,
+	fileName,
+	mimeType,
+	target,
+}: {
+	base64: string;
+	fileName: string;
+	mimeType: string;
+	target: Locator;
+}) => {
+	return target.evaluate(
+		(element, file) => {
+			const bytes = Uint8Array.from(atob(file.base64), (character) =>
+				character.charCodeAt(0),
+			);
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(
+				new File([bytes], file.fileName, {type: file.mimeType}),
+			);
+			const dragOver = new DragEvent('dragover', {
+				bubbles: true,
+				cancelable: true,
+				dataTransfer,
+			});
+			element.dispatchEvent(dragOver);
+			element.dispatchEvent(
+				new DragEvent('drop', {
+					bubbles: true,
+					cancelable: true,
+					dataTransfer,
+				}),
+			);
+
+			return dragOver.defaultPrevented;
+		},
+		{base64, fileName, mimeType},
+	);
 };
 
 test.describe('visual mode', () => {
@@ -89,9 +224,577 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
-	test('should load the studio', async ({page}) => {
-		await page.goto(STUDIO_URL);
+	test('customizes playback and view shortcuts and keeps modifiers distinct', async ({
+		page,
+	}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const originalConfig = fs.readFileSync(configFile, 'utf8');
+		try {
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			const muteButton = page.getByRole('button', {
+				name: 'Mute video',
+				exact: true,
+			});
+			const unmuteButton = page.getByRole('button', {
+				name: 'Unmute video',
+				exact: true,
+			});
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('Shift+M');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(muteButton).toBeVisible();
+
+			const loopButton = page.getByRole('button', {name: 'Loop', exact: true});
+			if (
+				await page
+					.getByRole('button', {name: 'Loop', exact: true, pressed: true})
+					.count()
+			) {
+				await loopButton.click();
+			}
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: true}),
+			).toBeVisible();
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('l');
+			await expect(
+				page.getByRole('button', {name: 'Pause', exact: true}),
+			).toBeVisible();
+			await page.keyboard.press('k');
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			for (const [name, key, action] of [
+				['Mute / Unmute', 'u', 'toggleMute'],
+				['Loop', 'y', 'toggleLoop'],
+			]) {
+				const control = dialog.getByRole('button', {
+					name: `Change shortcut for ${name}`,
+					exact: true,
+				});
+				await control.click();
+				await page.keyboard.press(key);
+				await expect(control).toContainText(key.toUpperCase());
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.toContain(action);
+				await expect(
+					page.getByRole('button', {
+						name: action === 'toggleMute' ? 'Mute video' : 'Loop',
+						exact: true,
+						includeHidden: true,
+					}),
+				).toHaveAttribute('aria-keyshortcuts', key);
+			}
+			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
+			await page.reload();
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('u');
+			await expect(unmuteButton).toBeVisible();
+			await page.keyboard.press('m');
+			await expect(unmuteButton).toBeVisible();
+			await unmuteButton.hover();
+			await expect(page.getByRole('tooltip')).toContainText('U');
+
+			await page.setViewportSize({width: 600, height: 800});
+			await page.keyboard.press('y');
+			await page.setViewportSize({width: 1280, height: 800});
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+			await page.keyboard.press('y');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: true}),
+			).toBeVisible();
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await dialog
+				.getByRole('button', {name: 'Actions for Mute / Unmute', exact: true})
+				.click();
+			await page.getByText('Disable shortcut', {exact: true}).click();
+			await expect(
+				dialog.getByRole('button', {
+					name: 'Change shortcut for Mute / Unmute',
+					exact: true,
+				}),
+			).toHaveText('Unassigned');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toMatch(/toggleMute['"]?: null/);
+			await page.keyboard.press('Escape');
+			await page.keyboard.press('u');
+			await expect(unmuteButton).toBeVisible();
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			for (const name of ['Mute / Unmute', 'Loop']) {
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Reset to default', {exact: true}).click();
+			}
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('toggleMute');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('toggleLoop');
+			await page.keyboard.press('Escape');
+			await expect(dialog).toHaveCount(0);
+			await page.keyboard.press('m');
+			await expect(muteButton).toBeVisible();
+			await page.keyboard.press('Shift+L');
+			await expect(
+				page.getByRole('button', {name: 'Loop', exact: true, pressed: false}),
+			).toBeVisible();
+
+			for (const [name, pattern, defaultKey, remappedKey, action] of [
+				[
+					'Outlines',
+					/^(Show|Hide) outlines$/,
+					'Shift+O',
+					'Shift+U',
+					'toggleOutlines',
+				],
+				[
+					'Rulers and guides',
+					/^(Show|Hide) rulers and guides$/,
+					'Shift+R',
+					'Shift+Y',
+					'toggleRulersAndGuides',
+				],
+			] as const) {
+				const button = page.getByRole('button', {name: pattern});
+				if (
+					await page.getByRole('button', {name: pattern, pressed: true}).count()
+				) {
+					await button.click();
+				}
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await expect(dialog).toHaveCount(0);
+				await button.hover();
+				await expect(page.getByRole('tooltip')).toContainText(
+					defaultKey.slice(-1),
+				);
+
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				const control = dialog.getByRole('button', {
+					name: `Change shortcut for ${name}`,
+					exact: true,
+				});
+				await control.click();
+				await page.keyboard.press(remappedKey);
+				await expect(control).toContainText(remappedKey.slice(-1));
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.toContain(action);
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await page.reload();
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+				await page.setViewportSize({width: 600, height: 800});
+				await page.keyboard.press(remappedKey);
+				await page.setViewportSize({width: 1280, height: 800});
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: false}),
+				).toBeVisible();
+				await button.hover();
+				await expect(page.getByRole('tooltip')).toContainText(
+					remappedKey.slice(-1),
+				);
+
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Disable shortcut', {exact: true}).click();
+				await expect(control).toHaveText('Unassigned');
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await expect(button).not.toHaveAttribute('aria-keyshortcuts');
+				await page.keyboard.press(remappedKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: false}),
+				).toBeVisible();
+				await page.getByRole('button', {name: 'Settings', exact: true}).click();
+				await dialog
+					.getByRole('button', {name: 'Shortcuts', exact: true})
+					.click();
+				await dialog
+					.getByRole('button', {name: `Actions for ${name}`, exact: true})
+					.click();
+				await page.getByText('Reset to default', {exact: true}).click();
+				await expect
+					.poll(() => fs.readFileSync(configFile, 'utf8'))
+					.not.toContain(action);
+				await expect(control).toContainText(defaultKey.slice(-1));
+				await page.keyboard.press('Escape');
+				await expect(dialog).toHaveCount(0);
+				await expect(button).toHaveAttribute(
+					'aria-keyshortcuts',
+					`Shift+${defaultKey.slice(-1).toLowerCase()}`,
+				);
+				await page.keyboard.press(defaultKey);
+				await expect(
+					page.getByRole('button', {name: pattern, pressed: true}),
+				).toBeVisible();
+			}
+		} finally {
+			fs.writeFileSync(configFile, originalConfig);
+		}
+	});
+
+	test('should load the studio without flashing a composition error', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			const state = {compositionNotFoundWasShown: false};
+			Object.defineProperty(window, '__remotion_initial_load_test', {
+				value: state,
+			});
+
+			const observer = new MutationObserver(() => {
+				if (
+					document.body?.innerText.includes(
+						'Composition with ID AnimatedBarChart not found.',
+					)
+				) {
+					state.compositionNotFoundWasShown = true;
+				}
+			});
+			observer.observe(document, {
+				childList: true,
+				characterData: true,
+				subtree: true,
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							__remotion_initial_load_test: {
+								compositionNotFoundWasShown: boolean;
+							};
+						}
+					).__remotion_initial_load_test.compositionNotFoundWasShown,
+			),
+		).toBe(false);
+
+		await page.goto(`${STUDIO_URL}/does-not-exist`);
+		await expect(
+			page.getByText('Composition with ID does-not-exist not found.'),
+		).toBeVisible();
+	});
+
+	test('should preview media assets as a non-interactive timeline', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/assets/prores.mov`);
+
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible({
+			timeout: 15_000,
+		});
+		const checkerboardToggle = page.getByRole('button', {
+			name: /Show transparency as checkerboard/,
+		});
+		await expect(checkerboardToggle).toBeVisible();
+		const checkerboardWasPressed =
+			(await checkerboardToggle.getAttribute('aria-pressed')) === 'true';
+		await checkerboardToggle.click();
+		await expect(checkerboardToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!checkerboardWasPressed),
+		);
+		await checkerboardToggle.click();
+
+		const rulersToggle = page.getByRole('button', {
+			name: /^(Show|Hide) rulers$/,
+		});
+		const rulersWerePressed =
+			(await rulersToggle.getAttribute('aria-pressed')) === 'true';
+		await rulersToggle.click();
+		await expect(rulersToggle).toHaveAttribute(
+			'aria-pressed',
+			String(!rulersWerePressed),
+		);
+		if (rulersWerePressed) {
+			await rulersToggle.click();
+		}
+		const horizontalRuler = page.getByLabel('Horizontal ruler', {exact: true});
+		await expect(horizontalRuler).toBeVisible();
+		await expect(horizontalRuler).toHaveAttribute('aria-readonly', 'true');
+		await expect(
+			page.getByLabel('Vertical ruler', {exact: true}),
+		).toBeVisible();
+		if (!rulersWerePressed) {
+			await page
+				.getByRole('button', {name: 'Hide rulers', exact: true})
+				.click();
+		}
+
+		const timeline = page.locator('[data-timeline-scrollable]');
+		await expect(timeline).toBeVisible();
+		const mediaTrack = page.getByTitle('prores.mov').last();
+		await expect(mediaTrack).toBeVisible();
+		await expect(timeline.locator('canvas').first()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		await expect(
+			page.getByText(/Failed to execute getVideoMetadata/),
+		).toHaveCount(0);
+
+		await mediaTrack.dblclick();
+		await expect(page.getByRole('textbox')).toHaveCount(0);
+
+		await page.goto(`${STUDIO_URL}/assets/podcast.wav`);
+		await expect(
+			page.getByRole('img', {name: 'Audio asset', exact: true}),
+		).toBeVisible();
+		await expect(page.getByTestId('asset-media-preview')).not.toBeInViewport();
+		await expect(page.locator('[data-timeline-scrollable]')).toBeVisible();
+		await expect(page.getByTitle('podcast.wav').last()).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Play', exact: true}),
+		).toBeEnabled();
+		const audioTimelineZoom = page.getByTitle(/^Timeline zoom \(/);
+		await expect(audioTimelineZoom).toBeVisible();
+		const audioTimelineScrubber = page.locator('[data-timeline-scrubber]');
+		const audioTimelineWidthBeforeZoom = await audioTimelineScrubber.evaluate(
+			(element) => element.getBoundingClientRect().width,
+		);
+		await page
+			.getByRole('button', {name: 'Zoom in timeline', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				audioTimelineScrubber.evaluate(
+					(element) => element.getBoundingClientRect().width,
+				),
+			)
+			.toBeGreaterThan(audioTimelineWidthBeforeZoom);
+		await expect(checkerboardToggle).toHaveCount(0);
+		await expect(rulersToggle).toHaveCount(0);
+		await expect(horizontalRuler).toHaveCount(0);
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-image', 'none');
+		await expect(
+			page.locator('.remotion-studio-composition-container'),
+		).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+
+		await page.goto(`${STUDIO_URL}/assets/blush-2x.mp4`);
+		await expect(page.getByTestId('asset-media-preview')).toBeVisible();
+		const squarePreview = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(squarePreview).toBeVisible();
+		await expect
+			.poll(async () => {
+				const outerBox = await squarePreview.boundingBox();
+				const mediaBox = await page
+					.getByTestId('asset-media-preview')
+					.boundingBox();
+				if (outerBox === null || mediaBox === null) {
+					return null;
+				}
+
+				return Math.max(
+					Math.abs(outerBox.x - mediaBox.x),
+					Math.abs(outerBox.y - mediaBox.y),
+					Math.abs(outerBox.width - outerBox.height),
+					Math.abs(outerBox.width - mediaBox.width),
+					Math.abs(outerBox.height - mediaBox.height),
+				);
+			})
+			.toBeLessThan(1);
+	});
+
+	test('should route Canvas Capture drops by Studio target', async ({page}) => {
+		test.setTimeout(90_000);
+		const canvasCapture = fs.readFileSync(
+			path.join(
+				exampleDir,
+				'../brand/public/remotion-capture-editor-starter.mp4',
+			),
+		);
+		const publicFileName = 'canvas-capture-drop-e2e.mp4';
+		const publicAsset = path.join(exampleDir, 'public', publicFileName);
+		fs.rmSync(publicAsset, {force: true});
+		const file = {
+			base64: canvasCapture.toString('base64'),
+			fileName: publicFileName,
+			mimeType: 'video/mp4',
+		};
+		const modalTitle = page.getByText('Import Canvas Capture', {exact: true});
+
+		try {
+			await page.goto(`${STUDIO_URL}/does-not-exist`);
+			const missingComposition = page.getByText(
+				'Composition with ID does-not-exist not found.',
+			);
+			await expect(missingComposition).toBeVisible();
+			expect(await dropFile({...file, target: missingComposition})).toBe(true);
+			await expect(modalTitle).toBeVisible();
+			await expect(page.getByTitle('Folder')).toHaveText('None');
+			await page.keyboard.press('Escape');
+
+			await page.getByText('Assets', {exact: true}).click();
+			const assetSelector = page.locator('[data-asset-selector]');
+			await expect(assetSelector).toBeVisible();
+			expect(await dropFile({...file, target: assetSelector})).toBe(true);
+			await expect
+				.poll(
+					() =>
+						fs.existsSync(publicAsset) &&
+						fs.readFileSync(publicAsset).equals(canvasCapture),
+				)
+				.toBe(true);
+			await expect(page.getByText(publicFileName, {exact: true})).toBeVisible();
+			await expect(modalTitle).toBeHidden();
+
+			await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+			const timeline = page.locator('[data-timeline-scrollable]');
+			await expect(timeline).toBeVisible();
+			const timelineBox = await timeline.boundingBox();
+			if (timelineBox === null) {
+				throw new Error('Expected timeline to have a bounding box');
+			}
+
+			const dragData = StudioProtocolInternals.makeDragData({
+				type: 'asset',
+				assetPath: 'quick.mov',
+				durationInSeconds: 5.866667,
+				height: null,
+				width: null,
+			});
+			const dragAssetOver = (target: Locator) => {
+				return target.evaluate(
+					(element, {coordinates, data}) => {
+						const dataTransfer = new DataTransfer();
+						dataTransfer.setData(data.mimeType, data.payload);
+						element.dispatchEvent(
+							new DragEvent('dragover', {
+								bubbles: true,
+								cancelable: true,
+								clientX: coordinates.clientX,
+								clientY: coordinates.clientY,
+								dataTransfer,
+							}),
+						);
+					},
+					{
+						coordinates: {
+							clientX: timelineBox.x + timelineBox.width / 2,
+							clientY: timelineBox.y + timelineBox.height / 2,
+						},
+						data: dragData,
+					},
+				);
+			};
+			const dropIndicator = page.locator(
+				'[data-timeline-asset-drop-indicator]',
+			);
+			await dragAssetOver(timeline);
+			await expect(dropIndicator).toBeVisible();
+			await page.evaluate(() => {
+				document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
+			});
+			await expect(dropIndicator).toBeHidden();
+
+			await page.getByRole('button', {name: /Search\.\.\./}).click();
+			const quickSwitcher = page.getByRole('dialog');
+			await quickSwitcher.getByRole('textbox').fill('> Settings');
+			await quickSwitcher.getByText('Settings...', {exact: true}).click();
+			const settings = page.getByRole('dialog');
+			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
+			await dragAssetOver(settings);
+			await expect(dropIndicator).toBeHidden();
+			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
+			await page.keyboard.press('Escape');
+
+			expect(await dropFile({...file, target: timeline})).toBe(true);
+			await expect(modalTitle).toBeVisible();
+		} finally {
+			fs.rmSync(publicAsset, {force: true});
+		}
+	});
+
+	test('should show negative sequence timing in the frame-zero gutter', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/timeline-negative-start`);
+		await expect(page).toHaveURL(/timeline-negative-start/, {
+			timeout: 15_000,
+		});
+
+		const timelineScrollable = page.locator('[data-timeline-scrollable]');
+		const negativeSequence = page.locator(
+			'[data-timeline-marquee-item][title="Negative start"]',
+		);
+		const zeroSequence = page.locator(
+			'[data-timeline-marquee-item][title="Zero start"]',
+		);
+		await expect(negativeSequence).toBeVisible();
+		await expect(zeroSequence).toBeVisible();
+
+		const [timelineRect, negativeSequenceRect, zeroSequenceRect] =
+			await Promise.all([
+				timelineScrollable.boundingBox(),
+				negativeSequence.boundingBox(),
+				zeroSequence.boundingBox(),
+			]);
+		expect(timelineRect).not.toBeNull();
+		expect(negativeSequenceRect).not.toBeNull();
+		expect(zeroSequenceRect).not.toBeNull();
+		expect(negativeSequenceRect!.x).toBeGreaterThanOrEqual(timelineRect!.x);
+		expect(negativeSequenceRect!.x).toBeLessThan(zeroSequenceRect!.x);
+		expect(zeroSequenceRect!.x - negativeSequenceRect!.x).toBeLessThanOrEqual(
+			16,
+		);
 	});
 
 	test('should commit a color drag before the picker closes', async ({
@@ -156,7 +859,76 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should preserve the sequence inspector scroll position when adding an effect', async ({
+	test('reveals selected timeline effects and props in the inspector', async ({
+		page,
+	}) => {
+		fs.writeFileSync(
+			effectKeyframeE2eFile,
+			fs
+				.readFileSync(effectKeyframeE2eFile, 'utf-8')
+				.replace(
+					'wave({})',
+					'wave({phase: interpolate(frame, [0, 30], [0, 90])})',
+				),
+		);
+		await page.setViewportSize({width: 1280, height: 720});
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		const addEffectButton = page.getByTitle('Add effect', {exact: true});
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(addEffectButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		const inspector = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: addEffectButton});
+		const inspectorWave = inspector.getByText('wave()', {exact: true});
+		await inspectorWave.click();
+		const timelineWave = page
+			.getByText('wave()', {exact: true})
+			.filter({visible: true})
+			.last();
+		await expect(page.getByText('wave()', {exact: true})).toHaveCount(2);
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await inspector.evaluate((element) => {
+			element.scrollTop = 0;
+		});
+		await timelineWave.click();
+		await expect(inspectorWave).toBeInViewport();
+		await expect
+			.poll(() => inspector.evaluate((element) => element.scrollTop))
+			.toBeGreaterThan(0);
+
+		await inspector
+			.getByRole('button', {name: 'Collapse wave() section', exact: true})
+			.click();
+		await page
+			.getByRole('button', {name: 'Expand wave() section', exact: true})
+			.last()
+			.click();
+		await page
+			.locator('.css-reset.__remotion-vertical-scrollbar')
+			.evaluate((element) => {
+				element.scrollTop += 200;
+			});
+		const timelinePhase = page.getByText('Phase', {exact: true});
+		await expect(timelinePhase).toHaveCount(1);
+		await inspector.evaluate((element) => {
+			element.scrollTop = 0;
+		});
+		await timelinePhase.click();
+		await expect(inspector.getByText('Phase', {exact: true})).toBeInViewport();
+		await expect(
+			inspector.getByRole('button', {
+				name: 'Collapse wave() section',
+				exact: true,
+			}),
+		).toBeVisible();
+	});
+
+	test('should keep Effects expanded and preserve the inspector scroll position when adding an effect', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
@@ -170,6 +942,10 @@ test.describe('visual mode', () => {
 			await page.getByTitle('Scale precision', {exact: true}).first().click();
 			await expect(addEffectButton).toBeVisible({timeout: 1000});
 		}).toPass({timeout: 15_000});
+		await expect(page.getByText('wave()', {exact: true})).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
+		).toHaveCount(0);
 		const inspector = page
 			.locator('.__remotion-vertical-scrollbar')
 			.filter({has: addEffectButton});
@@ -289,95 +1065,181 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should not open the editor when selecting text in the inspector', async ({
+	test('should preserve property selection while dragging its outline', async ({
 		page,
 	}) => {
-		await page.addInitScript(() => {
-			window.localStorage.setItem(
-				'remotion.sidebarRightCollapsing',
-				'expanded',
+		test.setTimeout(120_000);
+		const sourceBefore = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+
+		try {
+			await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+			await page.waitForFunction(
+				() => !document.body.innerText.includes('Loading...'),
+				{timeout: 30_000},
 			);
-			Object.defineProperty(window, 'remotion_editorName', {
-				configurable: true,
-				get: () => 'Test editor',
-				set: () => undefined,
-			});
-		});
-		const openInEditorRequests: unknown[] = [];
-		await page.route('**/api/open-in-editor', async (route) => {
-			openInEditorRequests.push(route.request().postDataJSON());
-			await route.fulfill({
-				json: {success: true, data: {success: true}},
-			});
-		});
+			await page.keyboard.press('g');
+			const currentFrameInput = page.locator('input:focus');
+			await expect(currentFrameInput).toBeVisible();
+			await currentFrameInput.fill('2010');
+			await currentFrameInput.press('Enter');
 
-		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-		const eyebrow = page.getByText('Eyebrow', {exact: true}).first();
-		await expect(eyebrow).toBeVisible({timeout: 15_000});
-		const textField = page.getByRole('textbox');
-		await expect(async () => {
-			await eyebrow.click();
-			await expect(textField).toHaveValue('Performance overview', {
-				timeout: 1_000,
-			});
-		}).toPass({timeout: 30_000});
+			const canvas = page.locator('.remotion-studio-composition-container');
+			const target = canvas
+				.getByText('Select one of my properties, then drag me', {exact: true})
+				.locator('..');
+			await expect(target).toBeVisible({timeout: 15_000});
+			await expect(page.getByText('Baseline', {exact: true})).toBeVisible();
 
-		await page.getByTitle('Text', {exact: true}).dblclick();
-		await expect.poll(() => openInEditorRequests.length).toBe(1);
-		openInEditorRequests.length = 0;
+			const timelineItem = page
+				.getByTitle('Property-selected sequence', {exact: true})
+				.first();
+			const offsetProperty = page.getByTitle('Offset', {exact: true});
+			await expect(async () => {
+				await expect(timelineItem).toBeVisible({timeout: 1000});
+				await timelineItem.click();
+				await page.keyboard.press('p');
+				await expect(offsetProperty).toBeVisible({timeout: 1000});
+			}).toPass({timeout: 15_000});
+			await offsetProperty.click();
+			const offsetSelection = offsetProperty.locator('..');
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
 
-		await textField.dblclick({position: {x: 20, y: 20}});
-		await expect
-			.poll(() =>
-				textField.evaluate((element) =>
-					element.value.slice(element.selectionStart, element.selectionEnd),
-				),
-			)
-			.toBe('overview');
-		// Headless Chromium does not consistently emit dblclick after selecting text.
-		await textField.dispatchEvent('dblclick');
-		await page.waitForTimeout(100);
-		expect(openInEditorRequests).toEqual([]);
+			const outline = canvas.locator(
+				'> svg[aria-hidden="true"] polygon[data-remotion-prevent-selection-clear="true"][stroke-opacity="1"]',
+			);
+			await expect(outline).toHaveCount(1);
+
+			const targetBefore = await target.boundingBox();
+			const outlineBefore = await outline.boundingBox();
+			if (targetBefore === null || outlineBefore === null) {
+				throw new Error('Expected the selected outline to have a bounding box');
+			}
+
+			const dragStart = {
+				x: outlineBefore.x + outlineBefore.width / 2,
+				y: outlineBefore.y + outlineBefore.height / 2,
+			};
+			await page.mouse.move(dragStart.x, dragStart.y);
+			await page.mouse.down();
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+			await page.mouse.move(dragStart.x + 60, dragStart.y, {steps: 5});
+			await page.mouse.up();
+
+			await expect
+				.poll(async () => (await target.boundingBox())?.x ?? null)
+				.toBeCloseTo(targetBefore.x + 60, 0);
+			await expect(offsetSelection).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.1)',
+			);
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(outlineSelectionCasesFile, 'utf-8');
+					const targetIndex = source.indexOf(
+						'name="Property-selected sequence"',
+					);
+					return source
+						.slice(targetIndex, targetIndex + 1000)
+						.match(/translate: '([^']+)'/)?.[1];
+				})
+				.not.toBe('0px 0px');
+		} finally {
+			fs.writeFileSync(outlineSelectionCasesFile, sourceBefore);
+		}
 	});
 
-	test('should keep canvas item context menus open', async ({page}) => {
-		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-		await page.locator('[data-timeline-scrubber]').click();
-		await expect(
-			page.getByRole('button', {name: '90', exact: true}),
-		).toBeVisible();
+	test('should keep selected editing handles above overlapping outlines', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/outline-selection-cases`);
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		await page.keyboard.press('g');
+		const currentFrameInput = page.locator('input:focus');
+		await expect(currentFrameInput).toBeVisible();
+		await currentFrameInput.fill('2160');
+		await currentFrameInput.press('Enter');
 
-		const canvasItem = page.getByText('Performance overview', {exact: true});
-		const canvasItemBox = await canvasItem.boundingBox();
-		if (canvasItemBox === null) {
-			throw new Error('Canvas item has no bounding box');
+		const target = page.locator(
+			'[data-timeline-marquee-item="true"][title="Editable transform target"]',
+		);
+		await expect(target).toBeVisible();
+		await target.click();
+
+		const rightScaleEdge = page.locator(
+			'[data-remotion-studio-scale-edge="right"][data-remotion-studio-scale-edge-contains-selection="true"]',
+		);
+		await expect(rightScaleEdge).toBeVisible();
+		const scaleEdgePoint = await rightScaleEdge.evaluate((element) => {
+			if (!(element instanceof SVGLineElement)) {
+				throw new Error('Scale edge should be an SVG line');
+			}
+
+			const matrix = element.getScreenCTM();
+			if (matrix === null) {
+				throw new Error('Scale edge should have a screen transform');
+			}
+
+			const first = new DOMPoint(
+				element.x1.baseVal.value,
+				element.y1.baseVal.value,
+			).matrixTransform(matrix);
+			const second = new DOMPoint(
+				element.x2.baseVal.value,
+				element.y2.baseVal.value,
+			).matrixTransform(matrix);
+			const [top, bottom] =
+				first.y < second.y ? [first, second] : [second, first];
+
+			return {
+				x: top.x + (bottom.x - top.x) * 0.2,
+				y: top.y + (bottom.y - top.y) * 0.2,
+			};
+		});
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-scale-edge') ?? null,
+				scaleEdgePoint,
+			),
+		).toBe('right');
+
+		const topRightRotationCorner = page.locator(
+			'[data-remotion-studio-rotation-corner="top-right"][data-remotion-studio-rotation-corner-contains-selection="true"]',
+		);
+		await expect(topRightRotationCorner).toBeVisible();
+		const rotationCornerBox = await topRightRotationCorner.boundingBox();
+		if (rotationCornerBox === null) {
+			throw new Error('Rotation corner should have a visible layout');
 		}
 
-		const canvasItemCenter = {
-			x: canvasItemBox.x + canvasItemBox.width / 2,
-			y: canvasItemBox.y + canvasItemBox.height / 2,
-		};
-		await page.mouse.move(canvasItemCenter.x, canvasItemCenter.y);
-		await page.waitForTimeout(100);
-		await page.mouse.click(canvasItemCenter.x, canvasItemCenter.y, {
-			button: 'right',
-		});
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-rotation-corner') ?? null,
+				{
+					x: rotationCornerBox.x + rotationCornerBox.width / 2,
+					y: rotationCornerBox.y + rotationCornerBox.height / 2,
+				},
+			),
+		).toBe('top-right');
 
-		const duplicateButton = page.getByRole('button', {
-			name: 'Duplicate',
-			exact: true,
-		});
-		await expect(duplicateButton).toBeVisible();
-
-		await page.mouse.move(10, 10);
-		// Portals do not reliably trigger pointerleave in headless Chromium.
-		await page
-			.locator('.remotion-studio-composition-container')
-			.dispatchEvent('pointerleave');
-		await expect(duplicateButton).toBeVisible();
+		await topRightRotationCorner.click({button: 'right'});
+		await expect(
+			page.getByRole('button', {name: 'Duplicate', exact: true}),
+		).toBeVisible();
 	});
 
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
@@ -389,18 +1251,258 @@ test.describe('visual mode', () => {
 		).toHaveText('100', {timeout: 15_000});
 	});
 
-	test('should show the composition list', async ({page}) => {
+	test('should show and search the composition list', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+		const firstCompositionItems = await page
+			.locator('.__remotion-composition-selector-item')
+			.evaluateAll((items) =>
+				items.slice(0, 3).map((item) => item.getAttribute('title')),
+			);
+		expect(firstCompositionItems).toEqual([
+			'use-current-scale-on-load',
+			'Schema',
+			'AnimatedBarChart',
+		]);
+		const registeredCompositionItems = await page
+			.locator('.__remotion-composition-selector-item[data-compname]')
+			.evaluateAll((items) =>
+				items.map((item) => item.getAttribute('data-compname') ?? ''),
+			);
+		const alphabeticalCompositionItems = [...registeredCompositionItems].sort(
+			(a, b) => a.localeCompare(b, undefined, {numeric: true}),
+		);
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await expect(
+			page.getByRole('button', {name: 'New composition...', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'New folder...', exact: true}),
+		).toBeVisible();
+		await expect(page.getByText('Sort', {exact: true})).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Alphabetically', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item[data-compname]')
+					.evaluateAll((items) =>
+						items.map((item) => item.getAttribute('data-compname') ?? ''),
+					),
+			)
+			.toEqual(alphabeticalCompositionItems);
+		await page.reload();
+		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item[data-compname]')
+					.evaluateAll((items) =>
+						items.map((item) => item.getAttribute('data-compname') ?? ''),
+					),
+			)
+			.toEqual(alphabeticalCompositionItems);
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'New composition...', exact: true})
+			.click();
+		await page.getByTitle('Folder').click();
+		const rootFolderNames = [
+			'Schema',
+			'visual-controls',
+			'lost-node-path',
+			'error-overlay',
+			'hook-order-change',
+		];
+		const getVisibleRootFolderOrder = () =>
+			page
+				.locator('[data-remotion-menu-tree-id]')
+				.last()
+				.getByRole('button')
+				.allTextContents()
+				.then((items) =>
+					items
+						.map((item) => item.trim())
+						.filter((item) => rootFolderNames.includes(item)),
+				);
+		await expect
+			.poll(getVisibleRootFolderOrder)
+			.toEqual([
+				'error-overlay',
+				'hook-order-change',
+				'lost-node-path',
+				'Schema',
+				'visual-controls',
+			]);
+		await page.keyboard.press('Escape');
+		await page.keyboard.press('Escape');
+
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'As registered', exact: true})
+			.click();
+		await expect
+			.poll(() =>
+				page
+					.locator('.__remotion-composition-selector-item')
+					.evaluateAll((items) =>
+						items.slice(0, 3).map((item) => item.getAttribute('title')),
+					),
+			)
+			.toEqual(firstCompositionItems);
+
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'New composition...', exact: true})
+			.click();
+		await expect(page.getByPlaceholder('Composition ID')).toBeVisible();
+		await page.getByTitle('Folder').click();
+		await expect.poll(getVisibleRootFolderOrder).toEqual(rootFolderNames);
+		await page.keyboard.press('Escape');
+		await page.keyboard.press('Escape');
+		await page.getByRole('button', {name: 'More composition actions'}).click();
+		await page
+			.getByRole('button', {name: 'New folder...', exact: true})
+			.click();
+		await expect(page.getByPlaceholder('Folder name')).toBeVisible();
+		await page.keyboard.press('Escape');
+
+		const uploadedFileName = 'explorer-header-upload-e2e.txt';
+		const uploadedFileContents = 'Uploaded from the explorer header';
+		const uploadedFilePath = path.join(exampleDir, 'public', uploadedFileName);
+		fs.rmSync(uploadedFilePath, {force: true});
+		try {
+			await page.getByRole('button', {name: 'Assets', exact: true}).click();
+			await page.getByRole('button', {name: 'More asset actions'}).click();
+			const fileChooserPromise = page.waitForEvent('filechooser');
+			await page.getByRole('button', {name: 'Upload...', exact: true}).click();
+			const fileChooser = await fileChooserPromise;
+			await fileChooser.setFiles({
+				name: uploadedFileName,
+				mimeType: 'text/plain',
+				buffer: Buffer.from(uploadedFileContents),
+			});
+			await expect(
+				page.getByText(`Uploaded ${uploadedFileName} to public folder`, {
+					exact: true,
+				}),
+			).toBeVisible();
+			await expect
+				.poll(() =>
+					fs.existsSync(uploadedFilePath)
+						? fs.readFileSync(uploadedFilePath, 'utf8')
+						: null,
+				)
+				.toBe(uploadedFileContents);
+			await expect(
+				page.getByText(uploadedFileName, {exact: true}),
+			).toBeVisible();
+		} finally {
+			fs.rmSync(uploadedFilePath, {force: true});
+		}
+
+		await page.getByRole('button', {name: 'Compositions', exact: true}).click();
+
+		await page.keyboard.press('ControlOrMeta+k');
+		const folderSearch = page.getByRole('dialog');
+		await folderSearch
+			.getByPlaceholder('Search compositions...')
+			.fill('visual-controls');
+		await expect(
+			folderSearch.getByText('visual-controls', {exact: true}),
+		).toHaveCount(2);
+		await expect(
+			folderSearch.getByText('effect-keyframe-e2e', {exact: true}),
+		).toBeVisible();
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(/visual-controls/);
+
+		await page.keyboard.press('ControlOrMeta+k');
+		const compositionSearch = page.getByRole('dialog');
+		await compositionSearch
+			.getByPlaceholder('Search compositions...')
+			.fill('effect-keyframe-e2e');
+		await expect(
+			compositionSearch.getByText('visual-controls', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			compositionSearch.getByText('effect-keyframe-e2e', {exact: true}),
+		).toBeVisible();
+		await page.keyboard.press('Escape');
+
+		await page.keyboard.press('ControlOrMeta+k');
+		await page
+			.getByPlaceholder('Search compositions...')
+			.fill('timeline virtualization');
+		await page.keyboard.press('Enter');
+		await expect(page).toHaveURL(/timeline-virtualization-testbed/);
+	});
+
+	test('should create a subfolder from the folder context menu', async ({
+		page,
+	}) => {
+		const originalSource = fs.readFileSync(rootFile, 'utf-8');
+		const newFolderName = 'ContextMenuNested';
+
+		try {
+			await page.goto(STUDIO_URL);
+			const parentFolder = page.locator(
+				'.__remotion-composition-selector-item[role="button"][title="visual-controls"]',
+			);
+			await expect(parentFolder).toBeVisible({timeout: 15_000});
+			await expect(parentFolder).toHaveAttribute('aria-expanded', 'false');
+			await parentFolder.click({button: 'right'});
+			await page
+				.getByRole('button', {name: 'New folder...', exact: true})
+				.click();
+
+			const dialog = page.getByRole('dialog');
+			const parentName = dialog.getByText('visual-controls', {exact: true});
+			await expect(parentName).toBeVisible();
+			await expect(parentName).toHaveCSS('font-size', '13px');
+			await dialog.getByPlaceholder('Folder name').fill(newFolderName);
+			await dialog.getByRole('button', {name: /Add to .*/}).click();
+
+			await expect
+				.poll(() => {
+					const source = fs.readFileSync(rootFile, 'utf-8');
+					const parentStart = source.indexOf('<Folder name="visual-controls">');
+					const parentEnd = source.indexOf('</Folder>', parentStart);
+					const nestedFolder = source.indexOf(
+						`<Folder name="${newFolderName}" />`,
+						parentStart,
+					);
+
+					return (
+						parentStart !== -1 &&
+						parentEnd !== -1 &&
+						nestedFolder > parentStart &&
+						nestedFolder < parentEnd
+					);
+				})
+				.toBe(true);
+
+			await expect(parentFolder).toHaveAttribute('aria-expanded', 'true');
+			const newFolder = page.getByRole('button', {
+				name: newFolderName,
+				exact: true,
+			});
+			await expect(newFolder).toBeVisible();
+			await expect(newFolder).toHaveAttribute('aria-expanded', 'false');
+		} finally {
+			fs.writeFileSync(rootFile, originalSource);
+		}
 	});
 
 	test('should play when a composition in the sidebar is focused', async ({
 		page,
 	}) => {
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		await expect(page).toHaveURL(/schema-test/, {timeout: 15_000});
+		await navigateToSchemaTest(page);
 
 		const otherComposition = page.getByTitle('AnimatedBarChart', {exact: true});
 		await otherComposition.press('Space');
@@ -410,11 +1512,12 @@ test.describe('visual mode', () => {
 	});
 
 	test('should navigate to a newly created composition', async ({page}) => {
-		const compositionId = 'NewlyCreatedComposition';
+		const compositionName = 'Newly Created Composition';
+		const compositionId = 'Newly-Created-Composition';
+		const rootFile = path.join(exampleDir, 'src', 'E2eTestRoot.tsx');
 		const compositionFile = path.join(
 			exampleDir,
-			'src',
-			`${compositionId}.tsx`,
+			'src/NewlyCreatedComposition.tsx',
 		);
 
 		try {
@@ -425,9 +1528,26 @@ test.describe('visual mode', () => {
 			await page
 				.getByRole('button', {name: 'New composition...', exact: true})
 				.click();
-			await page
-				.getByRole('textbox', {name: 'Composition ID'})
-				.fill(compositionId);
+			const compositionIdInput = page.getByRole('textbox', {
+				name: 'Composition ID',
+			});
+			const slugPreview = page.getByText(`Will be created as ${compositionId}`);
+			await compositionIdInput.fill(`${compositionId} `);
+			await expect(slugPreview).toBeHidden();
+			await compositionIdInput.fill(compositionName);
+			await expect(slugPreview).toBeVisible();
+			await page.getByTitle('Folder').click();
+			const schemaFolderOption = page
+				.getByRole('button', {name: 'Schema', exact: true})
+				.last();
+			const schemaFolderLabel = schemaFolderOption.getByText('Schema', {
+				exact: true,
+			});
+			await expect(schemaFolderLabel).toHaveCSS('font-size', '13px');
+			await schemaFolderOption.hover();
+			await expect(schemaFolderLabel).toHaveCSS('font-size', '13px');
+			await schemaFolderOption.click();
+			await expect(page.getByTitle('Folder')).toHaveText('Schema');
 
 			const createButton = page.getByRole('button', {
 				name: /Add to .*/,
@@ -441,148 +1561,22 @@ test.describe('visual mode', () => {
 			await expect(page).toHaveTitle(new RegExp(compositionId), {
 				timeout: 5_000,
 			});
+			const rootContents = fs.readFileSync(rootFile, 'utf8');
+			const folderStart = rootContents.indexOf('<Folder name="Schema">');
+			const folderEnd = rootContents.indexOf('</Folder>', folderStart);
+			if (folderStart === -1 || folderEnd === -1) {
+				throw new Error('Could not find the Schema folder in the root file');
+			}
+
+			const compositionPosition = rootContents.indexOf(`id="${compositionId}"`);
+			expect(compositionPosition).toBeGreaterThan(folderStart);
+			expect(compositionPosition).toBeLessThan(folderEnd);
 		} finally {
 			const undoButton = page.getByRole('button', {name: /^Undo/});
-			if (await undoButton.isEnabled()) {
+			if ((await undoButton.count()) > 0 && (await undoButton.isEnabled())) {
 				await undoButton.click();
 				await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
 			}
-		}
-	});
-
-	test('untoggling the free license removes it from the config', async ({
-		page,
-	}) => {
-		const configFile = path.join(exampleDir, 'remotion.config.ts');
-		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
-
-		try {
-			await page.goto(STUDIO_URL);
-			const response = await fetch(`${STUDIO_URL}/api/update-config`, {
-				method: 'POST',
-				headers: {'content-type': 'application/json', origin: STUDIO_URL},
-				body: JSON.stringify({
-					clientId: 'license-settings-e2e',
-					updates: [
-						{
-							setter: 'setPublicLicenseKey',
-							type: 'set',
-							value: 'free-license',
-						},
-					],
-				}),
-			});
-			expect(await response.json()).toEqual({
-				success: true,
-				data: {success: true},
-			});
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setPublicLicenseKey('free-license');");
-
-			await page.getByRole('button', {name: /Search\.\.\./}).click();
-			const quickSwitcher = page.getByRole('dialog');
-			await quickSwitcher.getByRole('textbox').fill('> Settings');
-			await quickSwitcher.getByText('Settings...', {exact: true}).click();
-			const dialog = page.getByRole('dialog');
-			await dialog.getByText('License', {exact: true}).click();
-			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
-			await expect(freeLicenseToggle).toBeChecked();
-			await freeLicenseToggle.click();
-
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.not.toContain('Config.setPublicLicenseKey');
-		} finally {
-			fs.writeFileSync(configFile, configBeforeTest);
-		}
-	});
-
-	test('settings reuse reactive runtime config', async ({page}) => {
-		const configFile = path.join(exampleDir, 'remotion.config.ts');
-		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
-		let editorInfoRequests = 0;
-		let codingAgentInfoRequests = 0;
-		await page.route('**/api/default-editor-info', async (route) => {
-			editorInfoRequests++;
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultEditor: null,
-						installedEditors: [
-							{id: 'vscode', name: 'Code', nameWithType: 'Code'},
-							{
-								id: 'cursor',
-								name: 'Cursor',
-								nameWithType: 'Cursor Editor',
-							},
-						],
-					},
-				},
-			});
-		});
-		await page.route('**/api/default-coding-agent-info', async (route) => {
-			codingAgentInfoRequests++;
-			await route.fulfill({
-				json: {
-					success: true,
-					data: {
-						defaultCodingAgent: null,
-						installedCodingAgents: [
-							{
-								id: 'codex',
-								name: 'Codex',
-								nameWithType: 'Codex',
-							},
-						],
-						installedTerminals: [{id: 'ghostty', name: 'Ghostty'}],
-					},
-				},
-			});
-		});
-		try {
-			await page.goto(`${STUDIO_URL}/schema-test`);
-			await page.locator('[data-sidebar-toggle="right"]').click();
-			await expect(
-				page.getByRole('group', {name: 'Inspector source location'}).first(),
-			).toBeVisible({timeout: 15_000});
-			await expect
-				.poll(() => ({codingAgentInfoRequests, editorInfoRequests}))
-				.toEqual({codingAgentInfoRequests: 1, editorInfoRequests: 1});
-
-			fs.writeFileSync(
-				configFile,
-				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\nConfig.setPublicLicenseKey('free-license');\n`,
-			);
-			await expect
-				.poll(() => fs.readFileSync(configFile, 'utf8'))
-				.toContain("Config.setDefaultEditor('cursor');");
-
-			await page.getByRole('button', {name: /Search\.\.\./}).click();
-			const quickSwitcher = page.getByRole('dialog');
-			await quickSwitcher.getByRole('textbox').fill('> Settings');
-			await quickSwitcher.getByText('Settings...', {exact: true}).click();
-			const dialog = page.getByRole('dialog');
-			await expect(
-				dialog.getByTitle('Default editor', {exact: true}),
-			).toHaveText('Cursor');
-			await expect(
-				dialog.getByTitle('Default coding agent', {exact: true}),
-			).toContainText('Codex');
-			await dialog.getByText('License', {exact: true}).click();
-			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
-			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
-				codingAgentInfoRequests: 1,
-				editorInfoRequests: 1,
-			});
-			await page.mouse.move(10, 100);
-			await page.mouse.down();
-			await page.mouse.move(13, 101);
-			await page.mouse.up();
-			await expect(dialog).toBeHidden();
-		} finally {
-			fs.writeFileSync(configFile, configBeforeTest);
 		}
 	});
 
@@ -633,6 +1627,101 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should split the right-clicked clip at the playhead from either timeline surface', async ({
+		page,
+	}) => {
+		const sourceBefore = fs.readFileSync(sequenceShiftFile, 'utf-8');
+		try {
+			fs.writeFileSync(
+				sequenceShiftFile,
+				`import {Sequence} from 'remotion';
+export const SequenceShiftRepro = () => {
+  return (
+    <>
+      <Sequence name="Split first" from={10} durationInFrames={50}>
+        <div />
+      </Sequence>
+      <Sequence name="Split second" from={10} durationInFrames={50}>
+        <div />
+      </Sequence>
+    </>
+  );
+};`,
+			);
+			await page.goto(`${STUDIO_URL}/sequence-shift-repro`);
+			const first = page.getByText('Split first', {exact: true});
+			const second = page.getByText('Split second', {exact: true});
+			await expect(first).toBeVisible({timeout: 30_000});
+			const menu = page.locator('[data-remotion-menu-tree-id]').last();
+			const split = menu.getByRole('button', {name: 'Split clip', exact: true});
+			await page.keyboard.press('g');
+			await page.locator('input:focus').fill('10');
+			await page.locator('input:focus').press('Enter');
+			await expect(async () => {
+				await page.keyboard.press('Escape');
+				await first.click({button: 'right'});
+				await expect(split.locator('span[title]')).toHaveAttribute(
+					'title',
+					'Cannot split at the sequence start',
+					{timeout: 500},
+				);
+			}).toPass({timeout: 15_000});
+			await split.click();
+			await expect(split).toBeVisible();
+			await page.keyboard.press('Escape');
+			await page.keyboard.press('g');
+			await page.locator('input:focus').fill('30');
+			await page.locator('input:focus').press('Enter');
+			await first.click();
+			await second.click({modifiers: ['Meta']});
+			await second.click({button: 'right'});
+			await expect(
+				menu.getByRole('button', {name: 'Duplicate selected', exact: true}),
+			).toBeVisible();
+			await expect(split).toHaveCount(0);
+			await page.keyboard.press('Escape');
+			await first.click();
+			// Right-click an unselected label: split that clip, not the old selection.
+			await second.click({button: 'right'});
+			await expect(split.locator('span[title]')).toHaveAttribute(
+				'title',
+				'Split at the playhead',
+			);
+			await split.click();
+			await expect
+				.poll(
+					() =>
+						fs
+							.readFileSync(sequenceShiftFile, 'utf-8')
+							.match(/name="Split second"/g)?.length,
+				)
+				.toBe(2);
+			await expect(second).toHaveCount(2);
+			// The clip bar exposes the same action and timing context.
+			await page
+				.locator('[data-timeline-marquee-item][title="Split first"]')
+				.click({button: 'right'});
+			await expect(split.locator('span[title]')).toHaveAttribute(
+				'title',
+				'Split at the playhead',
+			);
+			await split.click();
+			await expect
+				.poll(
+					() =>
+						fs
+							.readFileSync(sequenceShiftFile, 'utf-8')
+							.match(/name="Split first"/g)?.length,
+				)
+				.toBe(2);
+			const source = fs.readFileSync(sequenceShiftFile, 'utf-8');
+			expect(source.match(/durationInFrames=\{20\}/g)).toHaveLength(2);
+			expect(source.match(/trimBefore=\{20\}/g)).toHaveLength(2);
+		} finally {
+			fs.writeFileSync(sequenceShiftFile, sourceBefore);
+		}
+	});
+
 	test('should keep selected canvas outlines visible outside the canvas', async ({
 		page,
 	}) => {
@@ -642,21 +1731,70 @@ test.describe('visual mode', () => {
 		await expect(firstGridline).toBeVisible({timeout: 15_000});
 
 		const canvas = page.locator('.remotion-studio-composition-container');
-		const visibleOutlines = page.locator(
-			'.remotion-studio-composition-container > svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		const visibleOutlines = canvas.locator(
+			'> svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
 		);
-		await canvas.hover();
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await retryCanvasInteractionUntilOutlineIsVisible({
+			interaction: () => canvas.hover(),
+			outline: visibleOutlines,
+			page,
+		});
 		await visibleOutlines.first().click({force: true});
 		await page.mouse.move(0, 0);
-		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await expect(visibleOutlines.first()).toBeVisible();
 	});
 
-	test('should preserve following interactive elements after deleting a sibling', async ({
+	test('should clear selection after context-menu deletion and preserve following interactive elements', async ({
 		context,
 		page,
 	}) => {
+		await context.addInitScript(() => {
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
+		});
 		await navigateToLostNodePathE2e(page);
+		const getWebMcpSelection = () =>
+			page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools?: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				if (!tools) {
+					return null;
+				}
+
+				const tool = tools.get('get_selection');
+				if (!tool) {
+					return null;
+				}
+
+				return tool.execute();
+			});
 		const otherPage = await context.newPage();
 		await navigateToLostNodePathE2e(otherPage);
 		const canvas = page.locator('.remotion-studio-composition-container');
@@ -746,8 +1884,14 @@ test.describe('visual mode', () => {
 		const eyebrow = page.locator(
 			'[data-timeline-marquee-item][title="Eyebrow"]',
 		);
-		await eyebrow.click();
-		await page.keyboard.press('Delete');
+		await eyebrow.click({button: 'right'});
+		await expect.poll(getWebMcpSelection).toEqual(
+			expect.objectContaining({
+				selectionType: 'sequence',
+				selectedSequence: expect.objectContaining({name: 'Eyebrow'}),
+			}),
+		);
+		await page.getByRole('button', {name: 'Delete', exact: true}).click();
 
 		await expect
 			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
@@ -773,6 +1917,13 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 		await expect(gridlineVisibilityToggle).toBeVisible();
 		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		await expect.poll(getWebMcpSelection).toEqual(
+			expect.objectContaining({
+				currentSelection: null,
+				selectionType: null,
+				selectedSequence: null,
+			}),
+		);
 
 		await page.getByRole('button', {name: /^Undo/}).click();
 		await expect
@@ -831,7 +1982,7 @@ test.describe('visual mode', () => {
 		).toEqual([]);
 	});
 
-	test('should fall back to the preferred installed editor if no editor is running', async ({
+	test('should use an explicit editor or fall back to an installed editor', async ({
 		page,
 	}) => {
 		await page.addInitScript(() => {
@@ -902,7 +2053,14 @@ test.describe('visual mode', () => {
 			page.getByRole('button', {name: 'Zed', exact: true}),
 		).toHaveCount(0);
 
-		await page.keyboard.press('Escape');
+		await page.getByRole('button', {name: 'Code', exact: true}).click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+			]);
 		await expect(
 			page.getByRole('button', {name: 'Cursor', exact: true}),
 		).toBeHidden();
@@ -911,9 +2069,118 @@ test.describe('visual mode', () => {
 			.poll(() => openInEditorRequests)
 			.toEqual([
 				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
 					editorId: 'zed',
 				}),
 			]);
+
+		const timelineGridline = page.locator(
+			'[data-timeline-marquee-item][title="0% gridline"]',
+		);
+		await timelineGridline.click();
+		await page.locator('[data-sidebar-toggle="right"]').click();
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		const sourceLink = sourceLocation.getByRole('button', {
+			name: /BarChart\.tsx:\d+/,
+		});
+		await expect(sourceLink).toBeEnabled();
+		await sourceLink.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+
+		await timelineGridline.click({button: 'right'});
+		const sequenceContextMenu = page
+			.locator('[data-remotion-menu-tree-id]')
+			.last();
+		const contextMenuOpenInZed = sequenceContextMenu.getByRole('button', {
+			name: 'Open in Zed',
+			exact: true,
+		});
+		await expect(contextMenuOpenInZed).toBeEnabled();
+		await contextMenuOpenInZed.click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({
+					editorId: 'vscode',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+				expect.objectContaining({
+					editorId: 'zed',
+				}),
+			]);
+	});
+
+	test('should disable opening when no editor is installed', async ({page}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'remotion_editorName', {
+				configurable: true,
+				get: () => null,
+				set: () => undefined,
+			});
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {defaultEditor: null, installedEditors: []},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [],
+						installedTerminals: [],
+					},
+				},
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		const projectLocation = page.getByTitle(exampleDir);
+		await projectLocation.hover();
+		await expect(
+			projectLocation.getByRole('button', {
+				name: 'Open in default editor',
+				exact: true,
+			}),
+		).toBeDisabled({timeout: 15_000});
+
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible();
+		await expect(
+			sourceLocation.getByRole('button', {name: /\.tsx:\d+/}).first(),
+		).toBeDisabled();
 	});
 
 	test('should use standalone and contextual app names in portaled context menus', async ({
@@ -924,6 +2191,60 @@ test.describe('visual mode', () => {
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
 		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
 			origin: STUDIO_URL,
+		});
+		await page.addInitScript(() => {
+			window.localStorage.setItem('remotion.mute', 'false');
+			window.localStorage.setItem('remotion.loop', 'true');
+			window.localStorage.setItem('remotion.editorShowGuides', 'true');
+			window.localStorage.setItem(
+				'remotion.guidesList',
+				JSON.stringify([
+					{
+						id: 'webmcp-vertical-guide',
+						orientation: 'vertical',
+						position: 320,
+						show: true,
+						compositionId: 'AnimatedBarChart',
+					},
+					{
+						id: 'webmcp-horizontal-guide',
+						orientation: 'horizontal',
+						position: 180,
+						show: true,
+						compositionId: 'AnimatedBarChart',
+					},
+					{
+						id: 'other-composition-guide',
+						orientation: 'vertical',
+						position: 100,
+						show: true,
+						compositionId: 'Shapes',
+					},
+				]),
+			);
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
 		});
 		await page.route('**/api/default-editor-info', async (route) => {
 			await route.fulfill({
@@ -1108,6 +2429,921 @@ test.describe('visual mode', () => {
 			await expect
 				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
 				.toBe(contextForAgents);
+			await page.getByRole('button', {name: 'Go to beginning'}).click();
+			for (let i = 0; i < 3; i++) {
+				await page.getByRole('button', {name: 'Go forward 1 frame'}).click();
+			}
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<string, unknown>;
+							}
+						).__remotion_webmcp_tools;
+						return (
+							tools.has('get_compositions') &&
+							tools.has('select_composition') &&
+							tools.has('get_sequences') &&
+							tools.has('select_sequence') &&
+							tools.has('get_composition') &&
+							tools.has('get_canvas_html') &&
+							tools.has('get_outlines') &&
+							tools.has('get_playback_state') &&
+							tools.has('get_selection') &&
+							tools.has('get_guides') &&
+							tools.has('set_guides_visible') &&
+							tools.has('add_guide') &&
+							tools.has('remove_guide') &&
+							tools.has('play') &&
+							tools.has('pause') &&
+							tools.has('mute') &&
+							tools.has('unmute') &&
+							tools.has('set_timeline_zoom') &&
+							tools.has('set_playback_rate') &&
+							tools.has('seek_to_frame')
+						);
+					}),
+				)
+				.toBe(true);
+			const webMcpSelection = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_selection');
+				if (!tool) {
+					throw new Error('get_selection was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpSelection).toEqual({
+				currentFrame: 3,
+				currentSelection: contextForAgents,
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				selectionType: 'sequence',
+				selectedSequence: expect.objectContaining({
+					sequenceId: expect.any(String),
+					name: '0% gridline',
+					type: 'sequence',
+					stack: expect.any(String),
+					selectable: true,
+				}),
+			});
+			const selectedSequence = (
+				webMcpSelection as {
+					readonly selectedSequence: {
+						readonly sequenceId: string;
+						readonly parentSequenceId: string | null;
+					};
+				}
+			).selectedSequence;
+			const webMcpSequences = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_sequences');
+				if (!tool) {
+					throw new Error('get_sequences was not registered');
+				}
+
+				return tool.execute();
+			});
+			const sequenceList = (
+				webMcpSequences as {
+					readonly sequences: readonly {
+						readonly sequenceId: string;
+						readonly selectable: boolean;
+					}[];
+				}
+			).sequences;
+			expect(webMcpSequences).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				sequences: expect.arrayContaining([
+					expect.objectContaining({
+						sequenceId: selectedSequence.sequenceId,
+						name: '0% gridline',
+						selectable: true,
+					}),
+				]),
+			});
+			const sequenceToSelect = sequenceList.find(
+				(sequence) =>
+					sequence.selectable &&
+					sequence.sequenceId !== selectedSequence.sequenceId,
+			);
+			expect(sequenceToSelect).toBeDefined();
+			const webMcpSelectSequenceResult = await page.evaluate(
+				async ({sequenceId}) => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{
+									readonly execute: (
+										input: Record<string, unknown>,
+									) => Promise<unknown>;
+								}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const tool = tools.get('select_sequence');
+					if (!tool) {
+						throw new Error('select_sequence was not registered');
+					}
+
+					return tool.execute({sequenceId});
+				},
+				{sequenceId: sequenceToSelect?.sequenceId ?? ''},
+			);
+			expect(webMcpSelectSequenceResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				selectedSequence: expect.objectContaining({
+					sequenceId: sequenceToSelect?.sequenceId,
+					selectable: true,
+				}),
+			});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_selection');
+						const selection = (await tool?.execute()) as {
+							readonly selectionType?: string;
+							readonly selectedSequence?: {
+								readonly sequenceId?: string;
+							};
+						};
+						return {
+							selectionType: selection.selectionType,
+							sequenceId: selection.selectedSequence?.sequenceId,
+						};
+					}),
+				)
+				.toEqual({
+					selectionType: 'sequence',
+					sequenceId: sequenceToSelect?.sequenceId,
+				});
+			const webMcpComposition = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_composition');
+				if (!tool) {
+					throw new Error('get_composition was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpComposition).toEqual({
+				compositionName: 'AnimatedBarChart',
+				stack: expect.any(String),
+				durationInFrames: 180,
+				height: 720,
+				width: 1280,
+				fps: 30,
+				currentFrame: 3,
+			});
+			const webMcpCanvasHtml = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_canvas_html');
+				if (!tool) {
+					throw new Error('get_canvas_html was not registered');
+				}
+
+				return tool.execute();
+			});
+			const canvasHtml = (
+				webMcpCanvasHtml as {
+					readonly html: string;
+					readonly htmlLength: number;
+				}
+			).html;
+			expect(webMcpCanvasHtml).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				currentFrame: 3,
+				html: expect.any(String),
+				htmlLength: canvasHtml.length,
+				truncated: false,
+			});
+			expect(canvasHtml).toContain('Performance overview');
+			expect(canvasHtml).toContain('Regional growth');
+			expect(canvasHtml).not.toContain('Playback rate');
+			const webMcpOutlines = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_outlines');
+				if (!tool) {
+					throw new Error('get_outlines was not registered');
+				}
+
+				return tool.execute();
+			});
+			const gridlineOutline = (
+				webMcpOutlines as {
+					readonly outlines: readonly {
+						readonly name: string | null;
+						readonly sequenceId: string;
+						readonly parentSequenceId: string | null;
+						readonly location: {
+							readonly filename: string;
+							readonly line: number;
+						} | null;
+						readonly geometry: {
+							readonly points: readonly {
+								readonly x: number;
+								readonly y: number;
+							}[];
+							readonly boundingBox: {
+								readonly x: number;
+								readonly y: number;
+								readonly width: number;
+								readonly height: number;
+							};
+						};
+					}[];
+				}
+			).outlines.find((outline) => outline.name === '0% gridline');
+			expect(webMcpOutlines).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				currentFrame: 3,
+				outlines: expect.any(Array),
+			});
+			expect(gridlineOutline).toEqual({
+				sequenceId: selectedSequence.sequenceId,
+				parentSequenceId: selectedSequence.parentSequenceId,
+				name: '0% gridline',
+				location: {
+					filename: 'src/BarChart.tsx',
+					line: expect.any(Number),
+				},
+				geometry: {
+					points: expect.arrayContaining([
+						expect.objectContaining({
+							x: expect.any(Number),
+							y: expect.any(Number),
+						}),
+					]),
+					boundingBox: {
+						x: expect.any(Number),
+						y: expect.any(Number),
+						width: expect.any(Number),
+						height: expect.any(Number),
+					},
+				},
+			});
+			expect(gridlineOutline?.geometry.points).toHaveLength(4);
+			expect(gridlineOutline?.geometry.boundingBox.x).toBeGreaterThan(150);
+			expect(gridlineOutline?.geometry.boundingBox.x).toBeLessThan(180);
+			expect(gridlineOutline?.geometry.boundingBox.y).toBeGreaterThan(550);
+			expect(gridlineOutline?.geometry.boundingBox.y).toBeLessThan(610);
+			expect(gridlineOutline?.geometry.boundingBox.width).toBeGreaterThan(950);
+			expect(gridlineOutline?.geometry.boundingBox.width).toBeLessThan(1030);
+			const webMcpCompositions = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_compositions');
+				if (!tool) {
+					throw new Error('get_compositions was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpCompositions).toEqual({
+				compositions: expect.arrayContaining([
+					{
+						type: 'folder',
+						folderName: 'visual-controls',
+						children: [
+							{
+								type: 'composition',
+								compositionName: 'visual-controls',
+							},
+							{
+								type: 'composition',
+								compositionName: 'effect-keyframe-e2e',
+							},
+						],
+					},
+					{
+						type: 'composition',
+						compositionName: 'AnimatedBarChart',
+					},
+				]),
+			});
+			const webMcpSelectCompositionResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('select_composition');
+				if (!tool) {
+					throw new Error('select_composition was not registered');
+				}
+
+				return tool.execute({compositionName: 'package-absolute-fill'});
+			});
+			expect(webMcpSelectCompositionResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'package-absolute-fill',
+				},
+			});
+			await expect
+				.poll(() => new URL(page.url()).pathname)
+				.toBe('/package-absolute-fill');
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_composition');
+						const result = (await tool?.execute()) as {
+							readonly compositionName?: string;
+						};
+						return result?.compositionName ?? null;
+					}),
+				)
+				.toBe('package-absolute-fill');
+			await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('select_composition');
+				if (!tool) {
+					throw new Error('select_composition was not registered');
+				}
+
+				await tool.execute({compositionName: 'AnimatedBarChart'});
+			});
+			await expect
+				.poll(() => new URL(page.url()).pathname)
+				.toBe('/AnimatedBarChart');
+			const webMcpGuides = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_guides');
+				if (!tool) {
+					throw new Error('get_guides was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpGuides).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				guidesVisible: true,
+				guides: [
+					{
+						id: 'webmcp-vertical-guide',
+						orientation: 'vertical',
+						position: 320,
+						visible: true,
+					},
+					{
+						id: 'webmcp-horizontal-guide',
+						orientation: 'horizontal',
+						position: 180,
+						visible: true,
+					},
+				],
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			const webMcpHideGuidesResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_guides_visible');
+				if (!tool) {
+					throw new Error('set_guides_visible was not registered');
+				}
+
+				return tool.execute({visible: false});
+			});
+			expect(webMcpHideGuidesResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				guidesVisible: false,
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(0);
+			await expect
+				.poll(() =>
+					page.evaluate(() =>
+						localStorage.getItem('remotion.editorShowGuides'),
+					),
+				)
+				.toBe('false');
+			const webMcpShowGuidesResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_guides_visible');
+				if (!tool) {
+					throw new Error('set_guides_visible was not registered');
+				}
+
+				return tool.execute({visible: true});
+			});
+			expect(webMcpShowGuidesResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				guidesVisible: true,
+			});
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			await expect
+				.poll(() =>
+					page.evaluate(() =>
+						localStorage.getItem('remotion.editorShowGuides'),
+					),
+				)
+				.toBe('true');
+			const webMcpAddGuideResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('add_guide');
+				if (!tool) {
+					throw new Error('add_guide was not registered');
+				}
+
+				return tool.execute({orientation: 'vertical', position: 640});
+			});
+			expect(webMcpAddGuideResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				guide: {
+					id: expect.any(String),
+					orientation: 'vertical',
+					position: 640,
+					visible: true,
+				},
+			});
+			const addedGuideId = (
+				webMcpAddGuideResult as {readonly guide: {readonly id: string}}
+			).guide.id;
+			await expect
+				.poll(() =>
+					page.evaluate(
+						({guideId}) => {
+							const guides = JSON.parse(
+								localStorage.getItem('remotion.guidesList') ?? '[]',
+							) as {readonly id: string}[];
+							return guides.some((guide) => guide.id === guideId);
+						},
+						{guideId: addedGuideId},
+					),
+				)
+				.toBe(true);
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(3);
+			const webMcpRemoveGuideResult = await page.evaluate(
+				async ({guideId}) => {
+					const tools = (
+						window as typeof window & {
+							readonly __remotion_webmcp_tools: Map<
+								string,
+								{
+									readonly execute: (
+										input: Record<string, unknown>,
+									) => Promise<unknown>;
+								}
+							>;
+						}
+					).__remotion_webmcp_tools;
+					const tool = tools.get('remove_guide');
+					if (!tool) {
+						throw new Error('remove_guide was not registered');
+					}
+
+					return tool.execute({guideId});
+				},
+				{guideId: addedGuideId},
+			);
+			expect(webMcpRemoveGuideResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				guideId: addedGuideId,
+				removed: true,
+			});
+			await expect
+				.poll(() =>
+					page.evaluate(
+						({guideId}) => {
+							const guides = JSON.parse(
+								localStorage.getItem('remotion.guidesList') ?? '[]',
+							) as {readonly id: string}[];
+							return guides.some((guide) => guide.id === guideId);
+						},
+						{guideId: addedGuideId},
+					),
+				)
+				.toBe(false);
+			await expect(page.locator('.__remotion_editor_guide')).toHaveCount(2);
+			const webMcpPlaybackRateResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_playback_rate');
+				if (!tool) {
+					throw new Error('set_playback_rate was not registered');
+				}
+
+				return tool.execute({playbackRate: 1.5});
+			});
+			expect(webMcpPlaybackRateResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				playbackRate: 1.5,
+			});
+			await expect(
+				page.getByRole('button', {
+					name: 'Playback rate',
+					exact: true,
+				}),
+			).toContainText('1.5x');
+			const webMcpTimelineZoomResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_timeline_zoom');
+				if (!tool) {
+					throw new Error('set_timeline_zoom was not registered');
+				}
+
+				return tool.execute({zoom: 0.5});
+			});
+			expect(webMcpTimelineZoomResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				timelineZoom: expect.any(Number),
+			});
+			const normalizedTimelineZoom = (
+				webMcpTimelineZoomResult as {readonly timelineZoom: number}
+			).timelineZoom;
+			expect(normalizedTimelineZoom).toBeCloseTo(0.5, 2);
+			await expect(
+				page.locator('input[type="range"][alt^="Timeline zoom"]'),
+			).toHaveValue(String(Math.round(normalizedTimelineZoom * 1000)));
+			const webMcpMaximumTimelineZoomResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('set_timeline_zoom');
+				if (!tool) {
+					throw new Error('set_timeline_zoom was not registered');
+				}
+
+				return tool.execute({zoom: 1});
+			});
+			expect(webMcpMaximumTimelineZoomResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				timelineZoom: 1,
+			});
+			await expect(
+				page.locator('input[type="range"][alt^="Timeline zoom"]'),
+			).toHaveValue('1000');
+			const maximumTimelineWidth = await page
+				.locator('[data-timeline-scrubber]')
+				.evaluate((element) => element.getBoundingClientRect().width);
+			expect((maximumTimelineWidth - 32) / 180).toBe(30);
+			const webMcpMuteResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('mute');
+				if (!tool) {
+					throw new Error('mute was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpMuteResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				muted: true,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Unmute video', exact: true}),
+			).toBeVisible();
+			const webMcpUnmuteResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('unmute');
+				if (!tool) {
+					throw new Error('unmute was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpUnmuteResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				muted: false,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Mute video', exact: true}),
+			).toBeVisible();
+			const webMcpPlayResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('play');
+				if (!tool) {
+					throw new Error('play was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpPlayResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				playing: true,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Pause', exact: true}),
+			).toBeVisible();
+			const webMcpPauseResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('pause');
+				if (!tool) {
+					throw new Error('pause was not registered');
+				}
+
+				return tool.execute({});
+			});
+			expect(webMcpPauseResult).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				playing: false,
+			});
+			await expect(
+				page.getByRole('button', {name: 'Play', exact: true}),
+			).toBeVisible();
+			const webMcpSeekResult = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{
+								readonly execute: (
+									input: Record<string, unknown>,
+								) => Promise<unknown>;
+							}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('seek_to_frame');
+				if (!tool) {
+					throw new Error('seek_to_frame was not registered');
+				}
+
+				return tool.execute({frame: 200});
+			});
+			expect(webMcpSeekResult).toEqual({
+				currentFrame: 179,
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+			});
+			await expect(
+				page.getByRole('button', {name: '179', exact: true}),
+			).toBeVisible();
+			const webMcpPlaybackState = await page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_playback_state');
+				if (!tool) {
+					throw new Error('get_playback_state was not registered');
+				}
+
+				return tool.execute();
+			});
+			expect(webMcpPlaybackState).toEqual({
+				currentContent: {
+					type: 'composition',
+					compositionId: 'AnimatedBarChart',
+				},
+				currentFrame: 179,
+				playing: false,
+				muted: false,
+				volume: 1,
+				playbackRate: 1.5,
+				looping: true,
+				timelineZoom: 1,
+			});
 
 			fs.writeFileSync(
 				configFile,
@@ -1186,11 +3422,136 @@ test.describe('visual mode', () => {
 			await timelineGridline.click({button: 'right'});
 			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			await page
-				.getByRole('button', {name: 'Change default apps...', exact: true})
+				.getByRole('button', {name: 'Configure default apps...', exact: true})
 				.click();
 
 			const settings = page.getByRole('dialog');
-			await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
+			await expect(
+				settings.getByTitle('Default editor', {exact: true}),
+			).toBeVisible();
+			await expect(
+				settings.getByText('Default codec', {exact: true}),
+			).toHaveCount(0);
+
+			await page.goto(`${STUDIO_URL}/assets/test.gif`);
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_composition');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					compositionName: null,
+					stack: null,
+					durationInFrames: null,
+					height: null,
+					width: null,
+					fps: null,
+					currentFrame: null,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_playback_state');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentContent: {type: 'asset', asset: 'test.gif'},
+					currentFrame: null,
+					playing: null,
+					muted: null,
+					volume: null,
+					playbackRate: null,
+					looping: null,
+					timelineZoom: null,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_canvas_html');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentContent: {type: 'asset', asset: 'test.gif'},
+					currentFrame: null,
+					html: null,
+					htmlLength: null,
+					truncated: false,
+				});
+			await expect
+				.poll(() =>
+					page.evaluate(async () => {
+						const tools = (
+							window as typeof window & {
+								readonly __remotion_webmcp_tools: Map<
+									string,
+									{readonly execute: () => Promise<unknown>}
+								>;
+							}
+						).__remotion_webmcp_tools;
+						const tool = tools.get('get_outlines');
+						return tool?.execute() ?? null;
+					}),
+				)
+				.toEqual({
+					currentContent: {type: 'asset', asset: 'test.gif'},
+					currentFrame: null,
+					outlines: [],
+				});
+			for (const preview of [
+				{
+					route: '/assets/test.gif',
+					content: {type: 'asset', asset: 'test.gif'},
+				},
+				{
+					route: '/outputs/public%2Ftest.gif',
+					content: {type: 'output', path: 'public/test.gif'},
+				},
+			]) {
+				await page.goto(`${STUDIO_URL}${preview.route}`);
+				await expect
+					.poll(() =>
+						page.evaluate(async () => {
+							const tools = (
+								window as typeof window & {
+									readonly __remotion_webmcp_tools: Map<
+										string,
+										{readonly execute: () => Promise<unknown>}
+									>;
+								}
+							).__remotion_webmcp_tools;
+							return tools.get('get_selection')?.execute() ?? null;
+						}),
+					)
+					.toMatchObject({currentContent: preview.content});
+			}
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
@@ -1303,29 +3664,6 @@ test.describe('visual mode', () => {
 		});
 	});
 
-	test('should clear the open-in-editor hover state when closing the menu', async ({
-		page,
-	}) => {
-		await page.goto(`${STUDIO_URL}/schema-test`);
-		const openInAnotherApp = page
-			.getByTitle(exampleDir)
-			.getByRole('button', {name: 'Open in another app'});
-		const changeDefaultApps = page.getByRole('button', {
-			name: 'Change default apps...',
-		});
-
-		await openInAnotherApp.click();
-		await expect(changeDefaultApps).toBeVisible();
-		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take.
-		await page.mouse.click(10, 100);
-		await expect(changeDefaultApps).toBeHidden();
-		await expect(openInAnotherApp).toHaveCSS(
-			'background-color',
-			'rgba(0, 0, 0, 0)',
-		);
-	});
-
 	test('should open submenus toward the side with more space', async ({
 		page,
 	}) => {
@@ -1334,9 +3672,10 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 
 		await page.locator('.__remotion-studio-menu-initiator').first().click();
-		const compositionItem = page
-			.locator('.__remotion-studio-menu-item')
-			.filter({hasText: 'Composition'});
+		const compositionItem = page.getByRole('button', {
+			name: 'Composition',
+			exact: true,
+		});
 		await compositionItem.hover();
 
 		const subMenuItem = page.getByRole('button', {name: 'Copy file location'});
@@ -1350,10 +3689,6 @@ test.describe('visual mode', () => {
 		expect(compositionBox).not.toBeNull();
 		expect(subMenuItemBox).not.toBeNull();
 		expect(subMenuItemBox!.x).toBeGreaterThan(compositionBox!.x);
-	});
-
-	test('should navigate to schema-test composition', async ({page}) => {
-		await navigateToSchemaTest(page);
 	});
 
 	test('should not subscribe to package-owned sequence props', async ({
@@ -1408,73 +3743,7 @@ test.describe('visual mode', () => {
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
 	});
 
-	test('should preview a sized Element drop on the Canvas', async ({page}) => {
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-
-		const dragData = StudioProtocolInternals.makeDragData({
-			type: 'element',
-			dependencies: [],
-			dimensions: {width: 320, height: 120},
-			displayName: 'Drop Preview',
-			durationInFrames: 30,
-			slug: 'drop-preview',
-			sourceCode: 'export const DropPreview = () => null;',
-		});
-		const canvas = page.locator('.remotion-studio-composition-container');
-		await expect
-			.poll(() =>
-				canvas.evaluate((element, data) => {
-					const rect = element.getBoundingClientRect();
-					const dataTransfer = new DataTransfer();
-					dataTransfer.setData(data.mimeType, data.payload);
-					const event = new DragEvent('dragover', {
-						bubbles: true,
-						cancelable: true,
-						clientX: rect.left + rect.width / 2,
-						clientY: rect.top + rect.height / 2,
-						dataTransfer,
-					});
-					element.dispatchEvent(event);
-
-					return event.defaultPrevented;
-				}, dragData),
-			)
-			.toBe(true);
-
-		const preview = page.getByTestId('composition-drop-preview');
-		await expect(preview).toBeVisible();
-		const canvasBox = await canvas.boundingBox();
-		const previewBox = await preview.boundingBox();
-		if (canvasBox === null || previewBox === null) {
-			throw new Error('Expected the Canvas and Element preview to have boxes');
-		}
-
-		expect(previewBox.width / previewBox.height).toBeCloseTo(320 / 120, 2);
-		expect(
-			Math.abs(
-				previewBox.x +
-					previewBox.width / 2 -
-					(canvasBox.x + canvasBox.width / 2),
-			),
-		).toBeLessThan(1);
-		expect(
-			Math.abs(
-				previewBox.y +
-					previewBox.height / 2 -
-					(canvasBox.y + canvasBox.height / 2),
-			),
-		).toBeLessThan(1);
-
-		await page.evaluate(() => {
-			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
-		});
-		await expect(preview).toBeHidden();
-	});
-
-	test('should place and select Canvas drops at the playhead', async ({
+	test('should select an added composition before the codemod response arrives', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
@@ -1485,40 +3754,43 @@ test.describe('visual mode', () => {
 			await page.locator('[data-sidebar-toggle="right"]').click();
 		}
 
-		await page.locator('[data-timeline-scrubber]').click();
-		await expect(
-			page.getByRole('button', {name: '45', exact: true}),
-		).toBeVisible();
-
-		await dropAssetOnCanvas({
-			assetPath: 'quick.mov',
-			durationInSeconds: 5.866667,
-			page,
+		let releaseResponse = () => undefined;
+		const responseCanBeReleased = new Promise<void>((resolve) => {
+			releaseResponse = resolve;
 		});
-		await expect
-			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('quick.mov');
-		await expect(
-			page.getByRole('group', {name: 'Inspector source location'}).first(),
-		).toContainText('<Video>', {timeout: 15_000});
-		const longVideoTag = getVideoTag(
-			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
-			'quick.mov',
-		);
-		expect(longVideoTag).not.toContain('from=');
-
-		await dropAssetOnCanvas({
-			assetPath: 'drums-drumsticks.mp4',
-			durationInSeconds: 0.85,
-			page,
+		let markResponseAsHeld = () => undefined;
+		const responseIsHeld = new Promise<void>((resolve) => {
+			markResponseAsHeld = resolve;
 		});
-		await expect
-			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('drums-drumsticks.mp4');
-		const shortVideoTag = getVideoTag(
-			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
-			'drums-drumsticks.mp4',
-		);
-		expect(shortVideoTag).toContain('from={45}');
+		let markResponseAsReleased = () => undefined;
+		const responseIsReleased = new Promise<void>((resolve) => {
+			markResponseAsReleased = resolve;
+		});
+		await page.route('**/api/insert-jsx-element', async (route) => {
+			const response = await route.fetch();
+			markResponseAsHeld();
+			await responseCanBeReleased;
+			await route.fulfill({response});
+			markResponseAsReleased();
+		});
+
+		try {
+			await page.getByRole('button', {name: 'Add composition...'}).click();
+			await page
+				.getByPlaceholder('Search compositions...')
+				.fill('package-absolute-fill');
+			await page.keyboard.press('Enter');
+			await responseIsHeld;
+
+			await expect(
+				page.locator(
+					'[data-timeline-marquee-item][title="package-absolute-fill"]',
+				),
+			).toHaveCSS('opacity', '1', {timeout: 30_000});
+		} finally {
+			releaseResponse();
+			await responseIsReleased;
+			await page.unroute('**/api/insert-jsx-element');
+		}
 	});
 });

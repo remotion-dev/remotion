@@ -1,6 +1,5 @@
-import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
-
-let maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
+let maxTimelineTracks: number | null = null;
+let configuredMaxTimelineTracks: number | null = null;
 
 export const setMaxTimelineTracks = (maxTracks: number) => {
 	if (typeof maxTracks !== 'number') {
@@ -28,12 +27,18 @@ export const setMaxTimelineTracks = (maxTracks: number) => {
 	}
 
 	maxTimelineTracks = maxTracks;
+	configuredMaxTimelineTracks = maxTracks;
 };
 
 export const getMaxTimelineTracks = () => {
 	return maxTimelineTracks;
 };
 
+export const getConfiguredMaxTimelineTracks = () => {
+	return configuredMaxTimelineTracks;
+};
+
 export const resetMaxTimelineTracks = () => {
-	maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
+	maxTimelineTracks = null;
+	configuredMaxTimelineTracks = null;
 };

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/studio-protocol",
-	"version": "4.0.512",
+	"version": "4.0.524",
 	"description": "Create Element payloads and request installation into Remotion Studio",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -31,6 +31,9 @@
 			"import": "./dist/esm/index.mjs"
 		},
 		"./package.json": "./package.json"
+	},
+	"dependencies": {
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",

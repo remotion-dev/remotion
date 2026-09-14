@@ -16,11 +16,13 @@ import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
+import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
@@ -134,6 +136,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
+	const {isStudio} = useRemotionEnvironment();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
 
@@ -177,6 +180,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
+		muted: muted ?? false,
 	});
 
 	// putting playback before useVolume
@@ -350,7 +354,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isClientSideRendering: false,
 	});
 
-	return (
+	const video = (
 		<video
 			{...nativeProps}
 			ref={videoRef}
@@ -363,6 +367,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			crossOrigin={crossOriginValue}
 			controls={false}
 		/>
+	);
+
+	return isStudio ? (
+		<SequenceOrderMarker sequenceId={timelineId}>{video}</SequenceOrderMarker>
+	) : (
+		video
 	);
 };
 

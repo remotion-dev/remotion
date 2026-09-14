@@ -8,11 +8,9 @@ import {createInterface} from 'readline';
 import {Glob} from 'bun';
 import {
 	createTwoslashCacheContext,
-	garbageCollectSharedTwoslashCache,
 	getTwoslashCacheKey,
 	getTwoslashLocalCachePath,
 	getTwoslashVersions,
-	publishLocalTwoslashCacheEntry,
 	readTwoslashCacheEntry,
 } from '../docusaurus-plugin/src/twoslash-cache';
 import {isTwoslashEnabled} from '../docusaurus-plugin/src/twoslash-enabled';
@@ -109,17 +107,6 @@ function computeCacheLocation(
 ): {key: string; path: string} {
 	const key = getTwoslashCacheKey({code, lang, context: cacheContext});
 	return {key, path: getTwoslashLocalCachePath(cacheContext, key)};
-}
-
-function publishLocalCacheEntries(validCachePaths: Set<string>): void {
-	for (const cachePath of validCachePaths) {
-		publishLocalTwoslashCacheEntry({
-			context: cacheContext,
-			key: basename(cachePath, '.json'),
-		});
-	}
-
-	garbageCollectSharedTwoslashCache(cacheContext);
 }
 
 function addIncludes(
@@ -421,7 +408,6 @@ async function main() {
 	const uncachedBlocks = [...uniqueBlocks.values()];
 
 	if (uncachedBlocks.length === 0) {
-		publishLocalCacheEntries(validCachePaths);
 		const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
 		console.log(`All twoslash blocks are cached (${elapsed}s to scan)`);
 		return;
@@ -603,9 +589,14 @@ async function main() {
 		if (unfinished.length > 0) {
 			const requeue: TwoslashBlock[] = [];
 			for (const item of unfinished) {
-				// Workers publish cache files using an atomic rename, so an existing
-				// final path is complete even when the completion message was lost.
-				if (existsSync(item.cachePath)) {
+				// Workers publish cache files using an atomic rename, so a valid final
+				// entry is complete even when the completion message was lost.
+				if (
+					readTwoslashCacheEntry({
+						context: cacheContext,
+						key: basename(item.cachePath, '.json'),
+					}) !== null
+				) {
 					recordResult({cachePath: item.cachePath, ms: 0});
 					continue;
 				}
@@ -792,7 +783,6 @@ async function main() {
 		process.exit(1);
 	}
 
-	publishLocalCacheEntries(validCachePaths);
 	process.exit(0);
 }
 

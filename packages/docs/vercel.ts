@@ -1,7 +1,7 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 const browserStudioIsolationHeaders = [
-	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 ];
 
@@ -15,6 +15,10 @@ export const config: VercelConfig = {
 		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
+		routes.header(
+			'/__remotion_browser_studio_workspace__/commits/(.*)',
+			browserStudioAssetHeaders,
+		),
 		routes.header('/_raw/docs/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
@@ -36,17 +40,14 @@ export const config: VercelConfig = {
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
 		]),
-		routes.header('/transcribe(.*)', [
-			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
-			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
-		]),
-		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
+		routes.header('/new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
 	],
 	redirects: [
+		routes.redirect('/experimental_new', '/new', {permanent: true}),
 		routes.redirect(
 			'/elements/guidelines',
 			'/elements/contributing#element-guidelines',
@@ -126,8 +127,11 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
+		routes.redirect('/webmcp', '/docs/ai/webmcp', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
+		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
+		routes.redirect('/mediabunny', '/docs/mediabunny', {permanent: false}),
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
@@ -307,6 +311,7 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
+		routes.redirect('/plugins', '/docs/ai/plugins', {permanent: false}),
 		routes.redirect(
 			'/codex',
 			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',
@@ -374,6 +379,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/recorder', '/docs/recorder', {permanent: false}),
+		routes.redirect('/canvas-capture', '/docs/canvas-capture', {
+			permanent: false,
+		}),
 		routes.redirect('/install-whisper-cpp', '/docs/install-whisper-cpp', {
 			permanent: false,
 		}),
@@ -384,11 +392,6 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/animated-captions/faq', '/elements/captions/', {
 			permanent: true,
 		}),
-		routes.redirect(
-			'/elements/data/product-offer',
-			'/elements/commerce/product-offer',
-			{permanent: true},
-		),
 		routes.redirect(
 			'/elements/text/news-article-headline-highlight',
 			'/elements/text/news-article-highlight',

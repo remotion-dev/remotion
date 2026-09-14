@@ -33,11 +33,14 @@ import {
 
 const staticStatus = (codeValue: unknown): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue,
 });
 
-const findEffectsAttr = (jsx: JSXOpeningElement): JSXAttribute | null => {
-	for (const attr of jsx.attributes) {
+export const findEffectsAttr = (
+	attributes: JSXOpeningElement['attributes'],
+): JSXAttribute | null => {
+	for (const attr of attributes) {
 		if (attr.type !== 'JSXAttribute') {
 			continue;
 		}
@@ -48,6 +51,37 @@ const findEffectsAttr = (jsx: JSXOpeningElement): JSXAttribute | null => {
 	}
 
 	return null;
+};
+
+export const findEffectCallExpression = ({
+	attr,
+	effectIndex,
+}: {
+	attr: JSXAttribute;
+	effectIndex: number;
+}):
+	| {kind: 'ok'; call: CallExpression; callee: string}
+	| {kind: 'error'; reason: 'not-found' | 'not-call-expression'} => {
+	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
+		return {kind: 'error', reason: 'not-call-expression'};
+	}
+
+	const expr = attr.value.expression as Expression;
+	if (expr.type !== 'ArrayExpression') {
+		return {kind: 'error', reason: 'not-call-expression'};
+	}
+
+	const elements = enumerateEffectArrayElements(expr);
+	if (effectIndex < 0 || effectIndex >= elements.length) {
+		return {kind: 'error', reason: 'not-found'};
+	}
+
+	const target = elements[effectIndex];
+	if (target.kind !== 'call') {
+		return {kind: 'error', reason: 'not-call-expression'};
+	}
+
+	return {kind: 'ok', call: target.node, callee: target.callee};
 };
 
 const getEffectsArrayElements = (
@@ -184,6 +218,7 @@ const getPropsFromObjectExpression = ({
 			out[key] = numericExpression
 				? {
 						status: 'static',
+						keyframeDisplayOffsetAdjustment: null,
 						codeValue: numericExpression.value,
 						...(numericExpression.type === 'literal'
 							? {}
@@ -195,6 +230,7 @@ const getPropsFromObjectExpression = ({
 
 		out[key] = {
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: extractStaticValue(valueExpr),
 		};
 	}
@@ -215,7 +251,7 @@ export const computeEffectPropStatus = ({
 	keys: string[];
 	videoConfigValues: VideoConfigIdentifierValues;
 }): CanUpdateEffectPropsResponse => {
-	const attr = findEffectsAttr(jsx);
+	const attr = findEffectsAttr(jsx.attributes);
 	const elements = getEffectsArrayElements(attr);
 
 	if (!elements) {

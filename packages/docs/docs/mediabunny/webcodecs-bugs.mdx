@@ -10,6 +10,8 @@ It serves as a tracker for overall progress and known issues.
 
 | Issue                                                                                                                                                     | Product | Filed by     | Status    |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ | --------- |
+| [Software AVC VideoDecoder drops initial B-frames](https://issues.chromium.org/issues/559001366)                                                           | Chrome  | @Vanilagy    | Open      |
+| [Rendering on a high-refresh-rate (144+ Hz) monitor throttles VideoDecoder by 5-10x](https://issues.chromium.org/issues/552063578)                         | Chrome  | @Vanilagy    | Open      |
 | [VideoEncoder does not respect visibleRect of VideoFrame, crops incorrectly](https://issues.chromium.org/issues/543284189)                                | Chrome  | @Vanilagy    | Open      |
 | [AudioData.copyTo with interleaved f32 handles frameOffset incorrectly](https://bugzilla.mozilla.org/show_bug.cgi?id=2017589)                             | Firefox | @JonnyBurger | Open      |
 | [H.264 packet with "Unspecified" NALU (24..31) trips up key frame validation, erroring VideoDecoder](https://issues.chromium.org/issues/470109459)        | Chrome  | @Vanilagy    | Fixed     |
@@ -18,6 +20,7 @@ It serves as a tracker for overall progress and known issues.
 | [AAC AudioEncoder produces incorrect decoder config description](https://bugs.webkit.org/show_bug.cgi?id=302253)                                          | Safari  | @Vanilagy    | Open      |
 | [ArrayBuffer-backed YUV VideoFrame with visibleRect is rendered incorrectly (chroma channels are offset)](https://bugs.webkit.org/show_bug.cgi?id=317524) | Safari  | @Vanilagy    | Fixed     |
 | [AudioData.copyTo() crashes the tab with valid conversion](https://bugs.webkit.org/show_bug.cgi?id=302521)                                                | Safari  | @JonnyBurger | Fixed     |
+| [WebM audio plays back garbled when BlockGroup instead of SimpleBlock is used](https://bugs.webkit.org/show_bug.cgi?id=297781)                            | Safari  | @Vanilagy    | Fixed     |
 | [AudioEncoder emits humorous AAC bitrate suggestions in error message](https://issues.chromium.org/issues/459832207)                                      | Chrome  | @Vanilagy    | Fixed     |
 | [VideoEncoder encodeQueueSize behaves unpredictably after calling encode()](https://issues.chromium.org/issues/459838287)                                 | Chrome  | @Vanilagy    | Won't fix |
 | [AudioEncoder queue size not accurately reflected by encodeQueueSize](https://issues.chromium.org/issues/459832204)                                       | Chrome  | @Vanilagy    | Fixed     |

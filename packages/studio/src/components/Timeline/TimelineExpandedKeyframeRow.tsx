@@ -11,6 +11,7 @@ import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
 import {
 	getTimelineSelectedTrackHighlightStyle,
+	TIMELINE_EXPANDED_SELECTED_BACKGROUND,
 	useTimelineRowHighlightBackground,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
@@ -19,6 +20,7 @@ const rowClipper: React.CSSProperties = {
 	boxSizing: 'border-box',
 	marginLeft: -TIMELINE_PADDING,
 	marginRight: -TIMELINE_PADDING,
+	minWidth: `calc(100% + ${TIMELINE_PADDING * 2}px)`,
 	overflow: 'hidden',
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,
@@ -44,8 +46,13 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<
 	TimelineExpandedKeyframeRowProps
 > = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
 	const timelineWidth = useContext(TimelineWidthContext);
-	const rowHighlightBackground =
-		useTimelineRowHighlightBackground(nodePathInfo);
+	const rowHighlightBackground = useTimelineRowHighlightBackground(
+		nodePathInfo,
+		{
+			hovered: false,
+			selectedBackground: TIMELINE_EXPANDED_SELECTED_BACKGROUND,
+		},
+	);
 	const easingSegments = canEditEasing
 		? getTimelineEasingSegments(keyframes)
 		: [];

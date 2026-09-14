@@ -56,8 +56,10 @@ export const makeInitialOverallRenderProgress = <
 	Provider extends CloudProvider,
 >(
 	timeoutTimestamp: number,
+	cancellationEnabled: boolean,
 ): OverallRenderProgress<Provider> => {
 	return {
+		cancellationEnabled,
 		chunks: [],
 		framesRendered: 0,
 		framesEncoded: 0,
@@ -89,22 +91,24 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 	logLevel,
 	providerSpecifics,
 	forcePathStyle,
+	cancellationEnabled,
 }: {
 	renderId: string;
 	bucketName: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	region: Provider['region'];
 	timeoutTimestamp: number;
 	logLevel: LogLevel;
 	providerSpecifics: ProviderSpecifics<Provider>;
 	forcePathStyle: boolean;
+	cancellationEnabled: boolean;
 }): OverallProgressHelper<Provider> => {
 	let framesRendered: number[] = [];
 	let framesEncoded: number[] = [];
 	let lambdasInvoked: boolean[] = [];
 
 	const renderProgress: OverallRenderProgress<Provider> =
-		makeInitialOverallRenderProgress(timeoutTimestamp);
+		makeInitialOverallRenderProgress(timeoutTimestamp, cancellationEnabled);
 
 	let dirty = false;
 	let dirtyReasons: string[] = [];

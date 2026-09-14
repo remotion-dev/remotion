@@ -1,6 +1,7 @@
 package lambda_go_sdk
 
 type RemotionOptions struct {
+	EnableCancellation             bool                   `json:"enableCancellation"`
 	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
 	FunctionName                   string                 `json:"functionName" validate:"required"`
 	RendererFunctionName           string                 `json:"rendererFunctionName"`
@@ -58,6 +59,7 @@ type RemotionOptions struct {
 }
 
 type renderInternalOptions struct {
+	EnableCancellation             bool                   `json:"enableCancellation"`
 	RendererFunctionName           *string                `json:"rendererFunctionName"`
 	FramesPerLambda                *string                `json:"framesPerLambda"`
 	Composition                    string                 `json:"composition" validate:"required"`
@@ -136,6 +138,13 @@ type RenderConfig struct {
 	DeleteAfter      *string     `json:"deleteAfter"`
 	S3OutputProvider interface{} `json:"s3OutputProvider"`
 	ForcePathStyle   bool        `json:"forcePathStyle"`
+}
+
+type CancelRenderOnLambdaInput struct {
+	RenderId       string `json:"renderId" validate:"required"`
+	BucketName     string `json:"bucketName" validate:"required"`
+	Region         string `json:"region" validate:"required"`
+	ForcePathStyle bool   `json:"forcePathStyle"`
 }
 
 type renderProgressInternalConfig struct {

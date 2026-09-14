@@ -5,7 +5,8 @@ import {ModalContainer} from '../ModalContainer';
 export const DismissableModal: React.FC<{
 	readonly children: React.ReactNode;
 	readonly panelStyle?: React.CSSProperties;
-}> = ({children, panelStyle}) => {
+	readonly ariaLabel?: string;
+}> = ({children, panelStyle, ariaLabel}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const onQuit = useCallback(() => {
@@ -14,6 +15,7 @@ export const DismissableModal: React.FC<{
 
 	return (
 		<ModalContainer
+			ariaLabel={ariaLabel}
 			onOutsideClick={onQuit}
 			onEscape={onQuit}
 			panelStyle={panelStyle}

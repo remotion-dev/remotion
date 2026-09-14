@@ -62,7 +62,10 @@ export const renderFrame = ({
 	stoppedSignal: {stopped: boolean};
 	timeoutInMilliseconds: number;
 	outputDir: string | null;
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void) | undefined;
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>)
+		| undefined;
 	lastFrame: number;
 	onFrameUpdate:
 		| null

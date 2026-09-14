@@ -169,7 +169,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, []);
 
 	const player = usePlayerMethods();
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const play = useCallback(
@@ -589,10 +589,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	useEffect(() => {
 		if (shouldAutoplay) {
-			play();
+			setHasPlayed(true);
+			player.playAsAutoPlay();
 			setShouldAutoPlay(false);
 		}
-	}, [play, shouldAutoplay]);
+	}, [player, shouldAutoplay]);
 
 	const loadingMarkup = useMemo(() => {
 		return renderLoading
@@ -638,15 +639,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const shouldShowPoster =
 		poster &&
 		[
-			showPosterWhenPaused && !player.isPlaying() && !seeking,
-			showPosterWhenEnded &&
-				frame === durationInFrames - 1 &&
-				!player.isPlaying(),
-			showPosterWhenUnplayed && !hasPlayed && !player.isPlaying(),
-			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
-			showPosterWhenBufferingAndPaused &&
-				showBufferIndicator &&
-				!player.isPlaying(),
+			showPosterWhenPaused && !playing && !seeking,
+			showPosterWhenEnded && frame === durationInFrames - 1 && !playing,
+			showPosterWhenUnplayed && !hasPlayed && !playing,
+			showPosterWhenBuffering && showBufferIndicator && playing,
+			showPosterWhenBufferingAndPaused && showBufferIndicator && !playing,
 		].some(Boolean);
 
 	const {left, top, width, height, ...outerWithoutScale} = outer;

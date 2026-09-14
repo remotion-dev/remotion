@@ -9,5 +9,5 @@ const menuDivider: React.CSSProperties = {
 };
 
 export const MenuDivider: React.FC = () => {
-	return <div style={menuDivider} />;
+	return <div role="separator" style={menuDivider} />;
 };

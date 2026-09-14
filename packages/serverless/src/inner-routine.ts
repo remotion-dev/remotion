@@ -20,7 +20,6 @@ import {startHandler} from './handlers/start';
 import {stillHandler} from './handlers/still';
 import {infoHandler} from './info';
 import {getWarm, setWarm} from './is-warm';
-import {setCurrentRequestId, stopLeakDetection} from './leak-detection';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import type {InsideFunctionSpecifics} from './provider-implementation';
 import {makeS3RendererOutput} from './s3-renderer-output';
@@ -39,30 +38,17 @@ export const innerHandler = async <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 }): Promise<void> => {
-	setCurrentRequestId(context.awsRequestId);
-	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: params.logLevel},
-		'AWS Request ID:',
-		context.awsRequestId,
+		'Request ID:',
+		context.requestId,
 	);
-	stopLeakDetection();
-	if (!context?.invokedFunctionArn) {
-		throw new Error(
-			'Lambda function unexpectedly does not have context.invokedFunctionArn',
-		);
-	}
 
 	await insideFunctionSpecifics.deleteTmpDir();
 	const isWarm = getWarm();
 	setWarm();
-
-	const currentUserId = context.invokedFunctionArn.split(':')[4];
-	if (!currentUserId) {
-		throw new Error('Expected current user ID');
-	}
 
 	if (params.type === ServerlessRoutines.still) {
 		providerSpecifics.validateDeleteAfter(params.deleteAfter);
@@ -120,7 +106,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 				}
 
 				stillHandler({
-					expectedBucketOwner: currentUserId,
+					expectedBucketOwner: context.expectedBucketOwner,
 					params,
 					renderId,
 					onStream,
@@ -175,7 +161,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			const response = await startHandler({
 				params,
 				options: {
-					expectedBucketOwner: currentUserId,
+					expectedBucketOwner: context.expectedBucketOwner,
 					timeoutInMilliseconds,
 					renderId,
 				},
@@ -191,11 +177,15 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		} catch (err) {
 			// eslint-disable-next-line no-console
 			console.log({err});
+			const response: OrError<0> = {
+				type: 'error',
+				message: (err as Error).message,
+				stack: (err as Error).stack as string,
+			};
 			await responseWriter.write(
-				new TextEncoder().encode(
-					JSON.stringify({type: 'error', message: (err as Error).stack}),
-				),
+				new TextEncoder().encode(JSON.stringify(response)),
 			);
+			await responseWriter.end();
 			return;
 		}
 	}
@@ -216,8 +206,9 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		await launchHandler({
 			params,
 			options: {
-				expectedBucketOwner: currentUserId,
+				expectedBucketOwner: context.expectedBucketOwner,
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+				requestContext: context,
 			},
 			providerSpecifics,
 			insideFunctionSpecifics,
@@ -243,7 +234,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		const response = await progressHandler({
 			params,
 			options: {
-				expectedBucketOwner: currentUserId,
+				expectedBucketOwner: context.expectedBucketOwner,
 				timeoutInMilliseconds,
 				retriesRemaining: 2,
 				providerSpecifics,
@@ -281,7 +272,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			transport === 's3'
 				? makeS3RendererOutput({
 						params,
-						expectedBucketOwner: currentUserId,
+						expectedBucketOwner: context.expectedBucketOwner,
 						region,
 						providerSpecifics,
 					})
@@ -292,7 +283,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 			rendererHandler({
 				params,
 				options: {
-					expectedBucketOwner: currentUserId,
+					expectedBucketOwner: context.expectedBucketOwner,
 					isWarm,
 				},
 				onStream: s3Output
@@ -316,6 +307,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 							});
 						},
 				onMediaFiles: s3Output?.uploadMediaAndComplete ?? null,
+				executionMode: 'invoked',
 				requestContext: context,
 				providerSpecifics,
 				insideFunctionSpecifics,
@@ -366,7 +358,7 @@ export const innerHandler = async <Provider extends CloudProvider>({
 		const response = await compositionsHandler({
 			params,
 			options: {
-				expectedBucketOwner: currentUserId,
+				expectedBucketOwner: context.expectedBucketOwner,
 			},
 			providerSpecifics,
 			insideFunctionSpecifics,

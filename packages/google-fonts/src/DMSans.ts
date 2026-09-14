@@ -1,4 +1,4 @@
-import {loadFonts} from './base';
+import {loadFonts, loadVariableFonts} from './base';
 
 export const getInfo = () => ({
 	fontFamily: 'DM Sans',
@@ -126,6 +126,57 @@ export const getInfo = () => ({
 		},
 	},
 	subsets: ['latin', 'latin-ext'],
+	variable: {
+		axes: {
+			opsz: {
+				min: 9,
+				max: 40,
+			},
+			wght: {
+				min: 100,
+				max: 1000,
+			},
+		},
+		fontFaces: [
+			{
+				style: 'italic',
+				weight: '100 1000',
+				stretch: null,
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/dmsans/v17/rP2Fp2ywxg089UriCZa4ET-DNl0.woff2',
+			},
+			{
+				style: 'italic',
+				weight: '100 1000',
+				stretch: null,
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/dmsans/v17/rP2Fp2ywxg089UriCZa4Hz-D.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 1000',
+				stretch: null,
+				subset: 'latin-ext',
+				unicodeRange:
+					'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+				src: 'https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZ2IHSeH.woff2',
+			},
+			{
+				style: 'normal',
+				weight: '100 1000',
+				stretch: null,
+				subset: 'latin',
+				unicodeRange:
+					'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+				src: 'https://fonts.gstatic.com/s/dmsans/v17/rP2Hp2ywxg089UriCZOIHQ.woff2',
+			},
+		],
+		url: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000',
+	},
 });
 
 export const fontFamily = 'DM Sans' as const;
@@ -169,4 +220,24 @@ export const loadFont = <T extends keyof Variants>(
 	},
 ) => {
 	return loadFonts(getInfo(), style, options);
+};
+
+type VariableVariants = {
+	italic: {
+		subsets: 'latin' | 'latin-ext';
+	};
+	normal: {
+		subsets: 'latin' | 'latin-ext';
+	};
+};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+	style: T,
+	options: {
+		subsets: VariableVariants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadVariableFonts(getInfo(), style, options);
 };

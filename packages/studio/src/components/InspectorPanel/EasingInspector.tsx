@@ -15,6 +15,7 @@ import {
 	callAddSequenceKeyframe,
 } from '../Timeline/call-add-keyframe';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
+import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -25,11 +26,10 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorActionSection,
+	InspectorQuickActionsSection,
 	InspectorBackAction,
-	InspectorInlineAction,
+	InspectorQuickAction,
 	InspectorMessage,
-	InspectorSectionDivider,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
@@ -176,6 +176,13 @@ export const EasingInspector: React.FC<{
 			segmentIndex: easingUpdate.segmentIndex,
 		});
 	}, [easingUpdate, selection.nodePathInfo, track]);
+	const easingKeyframeDisplayOffset =
+		easingUpdate === null || track === null
+			? 0
+			: getKeyframeDisplayOffset({
+					propStatus: easingUpdate.propStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+				});
 
 	const state = useMemo(() => {
 		if (initialEasing === null || currentEasingSelection === null) {
@@ -223,7 +230,7 @@ export const EasingInspector: React.FC<{
 				return;
 			}
 
-			const sourceFrame = timelinePosition - track.keyframeDisplayOffset;
+			const sourceFrame = timelinePosition - easingKeyframeDisplayOffset;
 			const value = Internals.getEffectiveVisualModeValue({
 				propStatus: easingUpdate.propStatus,
 				dragOverrideValue: easingDetails.dragOverrideValue,
@@ -274,6 +281,7 @@ export const EasingInspector: React.FC<{
 			setPropStatuses,
 			timelinePosition,
 			track,
+			easingKeyframeDisplayOffset,
 		],
 	);
 
@@ -287,14 +295,13 @@ export const EasingInspector: React.FC<{
 				>
 					{fieldLabel}
 				</InspectorBackAction>
-				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
 						currentSelection={currentEasingSelection ?? selection}
 						includeEasings
 						keyframes={easingUpdate.propStatus.keyframes.map((keyframe) => ({
 							...keyframe,
-							frame: keyframe.frame + track.keyframeDisplayOffset,
+							frame: keyframe.frame + easingKeyframeDisplayOffset,
 						}))}
 						nodePathInfo={selection.nodePathInfo}
 					/>
@@ -309,6 +316,7 @@ export const EasingInspector: React.FC<{
 			parentSelection,
 			selection,
 			track,
+			easingKeyframeDisplayOffset,
 		],
 	);
 
@@ -324,17 +332,15 @@ export const EasingInspector: React.FC<{
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<SequenceInspectorSections track={track} />
-			<InspectorSectionDivider />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
 				renderHeader={renderHeader}
 			/>
-			<InspectorSectionDivider />
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<InspectorActionSection>
-					<InspectorInlineAction
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction
 						disabled={addKeyframeDisabled}
 						onClick={onAddKeyframeAtPlayhead}
 						renderIcon={(color) => (
@@ -342,8 +348,8 @@ export const EasingInspector: React.FC<{
 						)}
 					>
 						{`Add keyframe at ${addKeyframeTime}`}
-					</InspectorInlineAction>
-				</InspectorActionSection>
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
 			) : null}
 		</div>
 	);

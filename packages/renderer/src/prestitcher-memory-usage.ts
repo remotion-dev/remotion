@@ -1,6 +1,18 @@
 import type {LogLevel} from './log-level';
 import {getAvailableMemory} from './memory/get-available-memory';
 
+const MINIMUM_MEMORY_LEFT = 2_000_000_000;
+
+export const hasEnoughMemoryForParallelEncoding = ({
+	freeMemory,
+	estimatedUsage,
+}: {
+	freeMemory: number;
+	estimatedUsage: number;
+}) => {
+	return freeMemory - estimatedUsage > MINIMUM_MEMORY_LEFT;
+};
+
 const estimateMemoryUsageForPrestitcher = ({
 	width,
 	height,
@@ -31,9 +43,10 @@ export const shouldUseParallelEncoding = ({
 		width,
 	});
 
-	const hasEnoughMemory =
-		freeMemory - estimatedUsage > 2_000_000_000 &&
-		estimatedUsage / freeMemory < 0.5;
+	const hasEnoughMemory = hasEnoughMemoryForParallelEncoding({
+		estimatedUsage,
+		freeMemory,
+	});
 
 	return {
 		hasEnoughMemory,

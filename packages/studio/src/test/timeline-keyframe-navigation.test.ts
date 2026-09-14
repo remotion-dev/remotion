@@ -73,10 +73,12 @@ test('hasKeyframeAtSourceFrame checks source frame membership', () => {
 test('timeline keyframe controls visibility follows property selection or keyframed status', () => {
 	const staticStatus: CanUpdateSequencePropStatus = {
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 1,
 	};
 	const keyframedStatus: CanUpdateSequencePropStatus = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 10, value: 1}],
 		easing: [],
@@ -84,6 +86,7 @@ test('timeline keyframe controls visibility follows property selection or keyfra
 		posterize: undefined,
 		output: undefined,
 	};
+	const computedStatus: CanUpdateSequencePropStatus = {status: 'computed'};
 
 	expect(
 		shouldShowTimelineKeyframeControls({
@@ -113,15 +116,24 @@ test('timeline keyframe controls visibility follows property selection or keyfra
 			keyframable: false,
 		}),
 	).toBe(false);
+	expect(
+		shouldShowTimelineKeyframeControls({
+			propStatus: computedStatus,
+			selected: true,
+			keyframable: true,
+		}),
+	).toBe(true);
 });
 
 test('keyframe navigation visibility follows property selection or keyframed status', () => {
 	const staticStatus: CanUpdateSequencePropStatus = {
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 1,
 	};
 	const keyframedStatus: CanUpdateSequencePropStatus = {
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [{frame: 10, value: 1}],
 		easing: [],
@@ -129,6 +141,7 @@ test('keyframe navigation visibility follows property selection or keyframed sta
 		posterize: undefined,
 		output: undefined,
 	};
+	const computedStatus: CanUpdateSequencePropStatus = {status: 'computed'};
 
 	expect(
 		shouldShowTimelineKeyframeNavigation({
@@ -148,4 +161,10 @@ test('keyframe navigation visibility follows property selection or keyframed sta
 			selected: false,
 		}),
 	).toBe(true);
+	expect(
+		shouldShowTimelineKeyframeNavigation({
+			propStatus: computedStatus,
+			selected: true,
+		}),
+	).toBe(false);
 });

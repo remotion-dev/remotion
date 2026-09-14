@@ -2,10 +2,11 @@ import type {SequenceNodePath} from 'remotion';
 
 export type PendingInsertedElementSelection = {
 	compositionId: string;
+	notification: string | null;
 	nodePath: {
 		absolutePath: string;
 		nodePath: SequenceNodePath;
-	};
+	} | null;
 };
 
 let pendingSelection: PendingInsertedElementSelection | null = null;

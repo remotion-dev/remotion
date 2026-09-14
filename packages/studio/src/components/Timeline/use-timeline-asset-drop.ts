@@ -3,28 +3,23 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
-import {isSupportedDropEvent} from '../drop-handler-data';
+import {SetSelectedModalContext} from '../../state/modals';
+import {handleCanvasCaptureDrop} from '../canvas-capture-drop';
+import {isFileDragEvent, isSupportedDropEvent} from '../drop-handler-data';
 import {getEffectDragData} from '../effect-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
 import {getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
-import {getFrameFromTimelineDrop} from './timeline-scroll-logic';
+import {
+	getFrameFromTimelineDrop,
+	getTimelineContentWidth,
+} from './timeline-scroll-logic';
 import {useResolvedStack} from './use-resolved-stack';
 
-const isEventInsideElement = (event: DragEvent, element: HTMLElement) => {
-	if (event.target instanceof Node && element.contains(event.target)) {
-		return true;
-	}
-
-	const rect = element.getBoundingClientRect();
-	return (
-		event.clientX >= rect.left &&
-		event.clientX <= rect.right &&
-		event.clientY >= rect.top &&
-		event.clientY <= rect.bottom
-	);
+const isEventTargetInsideElement = (event: DragEvent, element: HTMLElement) => {
+	return event.target instanceof Node && element.contains(event.target);
 };
 
 export const useTimelineAssetDrop = () => {
@@ -33,6 +28,7 @@ export const useTimelineAssetDrop = () => {
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const chooseSvgImportMode = useSvgImportDialog();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [assetDropFrame, setAssetDropFrame] = useState<number | null>(null);
@@ -73,13 +69,14 @@ export const useTimelineAssetDrop = () => {
 			}
 
 			const scrollable = scrollableRef.current;
-			return scrollable !== null && isEventInsideElement(event, scrollable)
+			return scrollable !== null &&
+				isEventTargetInsideElement(event, scrollable)
 				? getFrameFromTimelineDrop({
 						clientX: event.clientX,
 						durationInFrames: videoConfig.durationInFrames,
 						scrollLeft: scrollable.scrollLeft,
 						timelineLeft: scrollable.getBoundingClientRect().left,
-						timelineWidth: scrollable.scrollWidth,
+						timelineWidth: getTimelineContentWidth(),
 					})
 				: getCurrentFrame();
 		},
@@ -94,7 +91,7 @@ export const useTimelineAssetDrop = () => {
 				timeline === null ||
 				dataTransfer === null ||
 				!isSupportedDropEvent(event) ||
-				!isEventInsideElement(event, timeline)
+				!isEventTargetInsideElement(event, timeline)
 			) {
 				setAssetDropFrame(null);
 				return;
@@ -107,7 +104,7 @@ export const useTimelineAssetDrop = () => {
 			const shouldShowDropFrame =
 				canInsertAsset &&
 				scrollable !== null &&
-				isEventInsideElement(event, scrollable);
+				isEventTargetInsideElement(event, scrollable);
 			setAssetDropFrame(shouldShowDropFrame ? getDropFrame(event) : null);
 		},
 		[canInsertAsset, getDropFrame],
@@ -122,9 +119,30 @@ export const useTimelineAssetDrop = () => {
 				timeline === null ||
 				dataTransfer === null ||
 				!isSupportedDropEvent(event) ||
-				!isEventInsideElement(event, timeline)
+				!isEventTargetInsideElement(event, timeline)
 			) {
 				return;
+			}
+
+			const localFiles = isFileDragEvent(event)
+				? Array.from(dataTransfer.files)
+				: null;
+			if (localFiles !== null && !window.remotion_isReadOnlyStudio) {
+				event.preventDefault();
+				event.stopPropagation();
+				setIsAddingAsset(true);
+				try {
+					if (
+						await handleCanvasCaptureDrop({
+							files: localFiles,
+							setSelectedModal,
+						})
+					) {
+						return;
+					}
+				} finally {
+					setIsAddingAsset(false);
+				}
 			}
 
 			if (getEffectDragData(dataTransfer) !== null) {
@@ -172,6 +190,7 @@ export const useTimelineAssetDrop = () => {
 					event,
 					fps: videoConfig.fps,
 					from: frame,
+					localFiles,
 					preferCompositionStart: false,
 				});
 			} finally {
@@ -185,6 +204,7 @@ export const useTimelineAssetDrop = () => {
 			compositionFile,
 			currentCompositionId,
 			getDropFrame,
+			setSelectedModal,
 			videoConfig,
 		],
 	);

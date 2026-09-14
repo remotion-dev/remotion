@@ -33,10 +33,12 @@ The steps below provide authorization for the Lambda function to execute `render
 - Click on "Create policy"
 - Click on JSON
 - Copy the JSON policy template below:
-  <details>
-    <summary>Show full role permissions JSON file for latest Remotion Lambda version</summary>
-    <UserPolicy />
-  </details>
+
+<details>
+  <summary>Show full role permissions JSON file for latest Remotion Lambda version</summary>
+  <UserPolicy />
+</details>
+
 - Click next. On the tags page, you don't need to fill in anything. Click next again.
 - Give the policy the name `remotion-executionrole-policy`. The other fields can be left as they are.
 
@@ -88,7 +90,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 });
 ```
 
-In the example above, the `renderMediaOnLambda()` is configured to output the rendered video to `transfer-to-this-bucket-after-render` bucket. The following steps allow Lambda to move the file to another bucket.
+In the example above, `renderMediaOnLambda()` is configured to output the rendered video to the `output-bucket` bucket. The following steps grant the Remotion Lambda execution role access to this bucket.
 
 ### Steps
 
@@ -104,15 +106,15 @@ In the example above, the `renderMediaOnLambda()` is configured to output the re
   - Click "Create inline policy"
   - Click the "JSON" tab
 
-Add a policy statement similar to the one below, which is defining the bucket Lambda needs to transfer the rendered video to.
+Add the policy below to grant `s3:PutObject` on the destination bucket's objects.
 
-```json
+```json title="Destination bucket policy"
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Action": ["s3:PutObject"],
-      "Resource": ["arn:aws:s3:::{bucketname}", "arn:aws:s3:::{bucketname}/*"],
+      "Resource": ["arn:aws:s3:::{bucketname}/*"],
       "Effect": "Allow"
     }
   ]

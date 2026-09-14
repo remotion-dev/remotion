@@ -1,0 +1,77 @@
+---
+image: /generated/articles-docs-lambda-cancelrenderonlambda.png
+id: cancelrenderonlambda
+title: cancelRenderOnLambda()
+crumb: '@remotion/lambda-client'
+---
+
+# cancelRenderOnLambda()<AvailableFrom v="4.0.515" />
+
+Signals the renderer functions of an in-progress Lambda render to stop.
+
+The render must have been started with [`enableCancellation: true`](/docs/lambda/rendermediaonlambda#enablecancellation). Otherwise, this function throws an error.
+
+## Example
+
+```ts twoslash title="cancel-render.ts"
+import {
+  cancelRenderOnLambda,
+  renderMediaOnLambda,
+} from '@remotion/lambda/client';
+
+const {bucketName, renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
+  enableCancellation: true,
+});
+
+await cancelRenderOnLambda({
+  region: 'us-east-1',
+  bucketName,
+  renderId,
+});
+```
+
+Cancellation is asynchronous. Renderer functions stop after their next S3 poll, which occurs once per second.
+
+## Arguments
+
+An object with the following properties:
+
+### `region`
+
+The [AWS region](/docs/lambda/region-selection) in which the render is running.
+
+### `bucketName`
+
+The bucket name returned by [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+### `renderId`
+
+The render ID returned by [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+
+### `forcePathStyle?`
+
+Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, you probably don't need it.
+
+### `requestHandler?`
+
+An AWS SDK request handler. Use it to configure a [proxy](/docs/lambda/proxy).
+
+## Return value
+
+A promise that resolves when the cancellation signal has been written to S3.
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={true} serverlessFunctions={true} clientSideRendering={false} serverSideRendering={false} player={false} studio={false} />
+
+## See also
+
+- [Cancelling Lambda renders](/docs/lambda/cancellation)
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`getRenderProgress()`](/docs/lambda/getrenderprogress)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda-client/src/cancel-render-on-lambda.ts)

@@ -17,6 +17,7 @@ import {
 	getAwsRegionMetadata,
 } from './aws-region-metadata';
 import {parseJsonOrThrowSource} from './call-lambda-streaming';
+import {internalCancelRenderOnLambda} from './cancel-render-on-lambda';
 import {cleanItems} from './clean-items';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
@@ -73,6 +74,10 @@ export type {
 } from '@remotion/serverless-client';
 export {appRouterWebhook, NextWebhookArgs} from './app-router-webhook';
 export {AwsProvider} from './aws-provider';
+export {
+	cancelRenderOnLambda,
+	type CancelRenderOnLambdaInput,
+} from './cancel-render-on-lambda';
 export type {
 	AwsBillingCurrency,
 	AwsPartition,
@@ -142,6 +147,7 @@ export const LambdaClientInternals: {
 	makeLambdaRenderMediaPayload: typeof makeLambdaRenderMediaPayload;
 	renderMediaOnLambdaOptionalToRequired: typeof renderMediaOnLambdaOptionalToRequired;
 	internalDeleteRender: typeof internalDeleteRender;
+	internalCancelRenderOnLambda: typeof internalCancelRenderOnLambda;
 	internalGetSites: typeof internalGetSites;
 	getLifeCycleRules: typeof getLifeCycleRules;
 	awsImplementation: typeof awsImplementation;
@@ -187,6 +193,7 @@ export const LambdaClientInternals: {
 	makeLambdaRenderMediaPayload,
 	renderMediaOnLambdaOptionalToRequired,
 	internalDeleteRender,
+	internalCancelRenderOnLambda,
 	internalGetSites,
 	getLifeCycleRules,
 	awsImplementation,

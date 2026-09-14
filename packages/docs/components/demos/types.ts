@@ -13,6 +13,7 @@ import {
 	WipeDemo,
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
+import {BlurSlideDocsDemo} from './BlurSlideDemo';
 import {BookFlipDocsDemo} from './BookFlipDemo';
 import {CalloutDemo} from './Callout';
 import {CircleDemo} from './Circle';
@@ -1248,6 +1249,19 @@ export const swapPresentationDemo: DemoType = {
 	durationInFrames: 90,
 	fps: 30,
 	id: 'swap',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const blurSlidePresentationDemo: DemoType = {
+	comp: BlurSlideDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'blur-slide',
 	autoPlay: true,
 	controls: false,
 	logLevel: 'info',

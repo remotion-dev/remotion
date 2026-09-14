@@ -119,7 +119,7 @@ export const useRenameStaticFile = ({
 					replaceUrl(`/assets/${newRelativePath}`);
 				}
 
-				notification.replaceContent(`Renamed to ${newRelativePath}`, 2000);
+				notification.dismiss();
 				return true;
 			} catch (err) {
 				notification.replaceContent(

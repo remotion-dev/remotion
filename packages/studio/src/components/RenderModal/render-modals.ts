@@ -21,17 +21,21 @@ export const container: React.CSSProperties = {
 export const optionsPanel: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
+	minHeight: 0,
 	minWidth: 0,
+	overflowY: 'auto',
 };
 
 export const horizontalLayout: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	overflowY: 'auto',
 	flex: 1,
+	minHeight: 0,
+	overflow: 'hidden',
 };
 
 export const leftSidebar: React.CSSProperties = {
+	flexShrink: 0,
 	padding: 6,
 };
 

@@ -50,6 +50,7 @@ export const serializeJSONWithSpecialTypes = ({
 				if (
 					typeof item === 'string' &&
 					staticBase !== null &&
+					staticBase !== '' &&
 					item.startsWith(staticBase)
 				) {
 					customFileUsed = true;
@@ -69,6 +70,25 @@ export const serializeJSONWithSpecialTypes = ({
 	}
 };
 
+export const resolveFileTokenToUrl = (value: string) => {
+	const encodedName = value.replace(FILE_TOKEN, '');
+	let name = encodedName;
+	try {
+		name = encodedName.split('/').map(decodeURIComponent).join('/');
+	} catch {
+		// Keep the encoded name if it contains an invalid escape sequence.
+	}
+
+	const matchingStaticFile = window.remotion_staticFiles?.find(
+		(file) => file.name === name,
+	);
+	if (matchingStaticFile) {
+		return matchingStaticFile.src;
+	}
+
+	return `${window.remotion_staticBase}/${encodedName}`;
+};
+
 export const deserializeJSONWithSpecialTypes = <T = Record<string, unknown>>(
 	data: string,
 ): T => {
@@ -78,7 +98,7 @@ export const deserializeJSONWithSpecialTypes = <T = Record<string, unknown>>(
 		}
 
 		if (typeof value === 'string' && value.startsWith(FILE_TOKEN)) {
-			return `${window.remotion_staticBase}/${value.replace(FILE_TOKEN, '')}`;
+			return resolveFileTokenToUrl(value);
 		}
 
 		return value;

@@ -7,6 +7,7 @@ import type {AwsRegion, DeleteAfter, RuntimePreference} from '../client';
 const LambdaBooleanFlags = [
 	...CliInternals.BooleanFlags,
 	'force',
+	'f',
 	'disable-cloudwatch',
 	'enable-lambda-insights',
 	'yes',

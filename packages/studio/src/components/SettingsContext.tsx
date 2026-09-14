@@ -1,6 +1,9 @@
 import type {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
+	GetRemotionSkillsInfoResponse,
+	RenderDefaults,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -13,12 +16,16 @@ import React, {
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {callApi} from './call-api';
+import {UpdateStatusProvider} from './UpdateStatusContext';
 
 type SettingsContextValue = {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
 	readonly error: string | null;
 	readonly publicLicenseKey: string | null;
+	readonly remotionSkillsInfo: GetRemotionSkillsInfoResponse | null;
+	readonly renderDefaults: RenderDefaults | null;
+	readonly studioRuntimeConfig: StudioRuntimeConfig | null;
 	readonly revision: number;
 	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 };
@@ -38,6 +45,9 @@ export const SettingsProvider: React.FC<{
 		editorInfo: null,
 		error: null,
 		publicLicenseKey: window.remotion_studioConfig?.publicLicenseKey ?? null,
+		remotionSkillsInfo: null,
+		renderDefaults: window.remotion_renderDefaults ?? null,
+		studioRuntimeConfig: window.remotion_studioConfig ?? null,
 		revision: 0,
 	});
 
@@ -58,8 +68,9 @@ export const SettingsProvider: React.FC<{
 		Promise.all([
 			callApi('/api/default-editor-info', {}, controller.signal),
 			callApi('/api/default-coding-agent-info', {}, controller.signal),
+			callApi('/api/remotion-skills-info', {}, controller.signal),
 		])
-			.then(([editorInfo, codingAgentInfo]) => {
+			.then(([editorInfo, codingAgentInfo, remotionSkillsInfo]) => {
 				const runtimeConfig = window.remotion_studioConfig;
 				setSettings((currentSettings) => ({
 					...currentSettings,
@@ -75,6 +86,7 @@ export const SettingsProvider: React.FC<{
 							? runtimeConfig.defaultEditor
 							: editorInfo.defaultEditor,
 					},
+					remotionSkillsInfo,
 					error: null,
 					revision: currentSettings.revision + 1,
 				}));
@@ -115,6 +127,8 @@ export const SettingsProvider: React.FC<{
 					: null,
 				error: null,
 				publicLicenseKey: event.studioRuntimeConfig.publicLicenseKey,
+				renderDefaults: event.renderDefaults,
+				studioRuntimeConfig: event.studioRuntimeConfig,
 				revision: currentSettings.revision + 1,
 			}));
 		});
@@ -139,7 +153,7 @@ export const SettingsProvider: React.FC<{
 
 	return (
 		<SettingsContext.Provider value={value}>
-			{children}
+			<UpdateStatusProvider>{children}</UpdateStatusProvider>
 		</SettingsContext.Provider>
 	);
 };

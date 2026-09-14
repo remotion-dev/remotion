@@ -8,6 +8,7 @@ import type {
 } from '@remotion/serverless-client';
 import {getLambdaClient} from './aws-clients';
 import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 const callLambdaSyncWithoutRetry = async <
 	T extends ServerlessRoutines,
@@ -17,6 +18,7 @@ const callLambdaSyncWithoutRetry = async <
 	payload,
 	region,
 	timeoutInTest,
+	requestHandler,
 }: CallFunctionOptions<T, Provider>): Promise<
 	OrError<ServerlessReturnValues<Provider>[T]>
 > => {
@@ -24,7 +26,7 @@ const callLambdaSyncWithoutRetry = async <
 	const res = await getLambdaClient(
 		region as AwsRegion,
 		timeoutInTest,
-		null,
+		(requestHandler ?? null) as RequestHandler | null,
 	).send(
 		new InvokeCommand({
 			FunctionName: functionName,

@@ -32,6 +32,8 @@ export type StudioHtmlOptions = {
 	logLevel: LogLevel;
 	mode: 'dev' | 'bundle';
 	bundleScriptUrl?: string;
+	bundleScriptType?: 'classic' | 'module';
+	importMap: Record<string, string> | null;
 	readOnlyStudio?: boolean;
 	studioRuntimeConfig?: StudioRuntimeConfig;
 };
@@ -63,6 +65,8 @@ export const studioHtml = ({
 	logLevel,
 	mode,
 	bundleScriptUrl,
+	bundleScriptType,
+	importMap,
 	readOnlyStudio,
 	studioRuntimeConfig,
 }: StudioHtmlOptions) => {
@@ -85,6 +89,11 @@ export const studioHtml = ({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		${
+			importMap
+				? `<script type="importmap">${JSON.stringify({imports: importMap}).replaceAll('<', '\\u003c')}</script>`
+				: ''
+		}
 		${
 			includeFavicon
 				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="${publicPath}favicon.ico" />`
@@ -186,7 +195,7 @@ export const studioHtml = ({
 		<div id="menuportal-3"></div>
 		<div id="menuportal-4"></div>
 		<div id="menuportal-5"></div>
-		<script src="${scriptUrl}"></script>
+		<script${bundleScriptType === 'module' ? ' type="module"' : ''} src="${scriptUrl}"></script>
 	</body>
 </html>
 `.trim();

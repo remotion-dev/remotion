@@ -12,8 +12,8 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {pickFilesToImport} from '../import-assets';
 import {InlineAction} from '../InlineAction';
 import {
-	InspectorInlineAction,
-	type InspectorInlineActionProps,
+	InspectorQuickAction,
+	type InspectorQuickActionProps,
 } from '../InspectorPanel/common';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useStaticFiles} from '../use-static-files';
@@ -24,17 +24,37 @@ const penIcon: React.CSSProperties = {
 	width: 14,
 };
 
-export type InspectorSourceAction = Omit<InspectorInlineActionProps, 'variant'>;
+const sourceActions: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flex: 1,
+	gap: 4,
+	margin: '0 4px',
+	minWidth: 0,
+};
+
+const standaloneSourceActionStyle: React.CSSProperties = {
+	flex: 1,
+	margin: 0,
+	minWidth: 0,
+	width: 'auto',
+};
+
+const assetTypeToAccept = {
+	audio: 'audio/*',
+	video: 'video/*',
+	image: 'image/*',
+} as const;
+
+export type InspectorSourceAction = InspectorQuickActionProps;
 
 type AssetSelectionContextValue = {
-	readonly initialQuery: string;
 	readonly getSourceAction: (src: string) => InspectorSourceAction | null;
 	readonly sourceAction: InspectorSourceAction | null;
 };
 
 export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
 	getSourceAction: () => null,
-	initialQuery: '',
 	sourceAction: null,
 });
 
@@ -68,17 +88,15 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const staticFiles = useStaticFiles();
-	const {getSourceAction, initialQuery, sourceAction} = useContext(
-		AssetSelectionContext,
-	);
+	const {getSourceAction, sourceAction} = useContext(AssetSelectionContext);
+	const {assetType} = field.fieldSchema;
+	const initialQuery = assetType ? `type:${assetType} ` : '';
 	const inlineSourceAction = useMemo(() => {
-		if (field.key !== 'src') {
-			return null;
+		if (typeof effectiveValue === 'string') {
+			return getSourceAction(effectiveValue);
 		}
 
-		return typeof effectiveValue === 'string'
-			? getSourceAction(effectiveValue)
-			: sourceAction;
+		return field.key === 'src' ? sourceAction : null;
 	}, [effectiveValue, field.key, getSourceAction, sourceAction]);
 
 	const onSelect = useCallback(
@@ -97,7 +115,10 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	);
 
 	const selectFile = useCallback(async () => {
-		const [file] = await pickFilesToImport({multiple: false});
+		const [file] = await pickFilesToImport({
+			multiple: false,
+			accept: assetType ? assetTypeToAccept[assetType] : null,
+		});
 		if (!file) {
 			return;
 		}
@@ -133,7 +154,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				4000,
 			);
 		}
-	}, [onSelect, staticFiles]);
+	}, [assetType, onSelect, staticFiles]);
 
 	const openAssetSelection = useCallback(() => {
 		setSelectedModal({
@@ -166,18 +187,13 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	return (
-		<InspectorInlineAction
-			{...inlineSourceAction}
-			size="compact"
-			variant={{
-				type: 'segmented',
-				trailing: {
-					disabled: window.remotion_isReadOnlyStudio,
-					onClick: openAssetSelection,
-					renderIcon: (color) => <PenIcon color={color} style={penIcon} />,
-					title: 'Change source',
-				},
-			}}
-		/>
+		<div style={sourceActions}>
+			<InspectorQuickAction
+				{...inlineSourceAction}
+				size="compact"
+				style={standaloneSourceActionStyle}
+			/>
+			{action}
+		</div>
 	);
 };

@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let numberOfSharedAudioTags = 0;
+let configuredNumberOfSharedAudioTags: number | null = null;
 
 const cliFlag = 'number-of-shared-audio-tags' as const;
 
@@ -34,6 +35,12 @@ export const numberOfSharedAudioTagsOption = {
 	},
 	setConfig(value: number) {
 		numberOfSharedAudioTags = value;
+		configuredNumberOfSharedAudioTags = value;
+	},
+	getConfigValue: () => configuredNumberOfSharedAudioTags,
+	reset: () => {
+		numberOfSharedAudioTags = 0;
+		configuredNumberOfSharedAudioTags = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<number>;

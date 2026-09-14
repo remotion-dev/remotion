@@ -16,7 +16,10 @@ import {
 } from '../undo-stack';
 import {attrName} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 export const reorderEffectHandler: ApiHandler<
 	ReorderEffectRequest,
@@ -77,7 +80,7 @@ export const reorderEffectHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Reordered ${attrName(effectLabel)}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Reordered ${attrName(effectLabel)}`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);

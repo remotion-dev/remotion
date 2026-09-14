@@ -2,11 +2,24 @@ import {
 	cancelRenderInternal,
 	getErrorStackWithMessage,
 } from './cancel-render.js';
+import {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render-constants.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
+
+export {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render-constants.js';
 
 export type DelayRenderScope = {
 	remotion_renderReady: boolean;
@@ -31,12 +44,6 @@ if (typeof window !== 'undefined') {
 
 	window.remotion_delayRenderHandles = [];
 }
-
-export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
-export const DELAY_RENDER_RETRIES_LEFT = 'Retries left: ';
-export const DELAY_RENDER_RETRY_TOKEN =
-	'- Rendering the frame will be retried.';
-export const DELAY_RENDER_CLEAR_TOKEN = 'handle was cleared after';
 
 const defaultTimeout = 30000;
 

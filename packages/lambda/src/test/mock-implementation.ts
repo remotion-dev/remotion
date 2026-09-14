@@ -11,6 +11,7 @@ import type {
 	InvokeWebhookParams,
 } from '@remotion/serverless';
 import {Log} from '../cli/log';
+import {serverAwsImplementation} from '../functions/aws-server-implementation';
 import {mockBundleSite} from './mocks/mock-bundle-site';
 import {mockCreateFunction} from './mocks/mock-create-function';
 import {mockReadDirectory} from './mocks/mock-read-dir';
@@ -33,6 +34,7 @@ export const getBrowserInstance: GetBrowserInstance = async ({
 const paramsArray: InvokeWebhookParams[] = [];
 
 export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
+	defaultX264Preset: serverAwsImplementation.defaultX264Preset,
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
 		browsersOpen.delete(launchedBrowser.instance.id);
 
@@ -41,6 +43,10 @@ export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
 			`Closing browser instance ${launchedBrowser.instance.id}. ${browsersOpen.size} browsers open`,
 		);
 		launchedBrowser.instance.close({silent: false});
+	},
+	closeBrowserInstance: async ({launchedBrowser}) => {
+		browsersOpen.delete(launchedBrowser.instance.id);
+		await launchedBrowser.instance.close({silent: true});
 	},
 	getCurrentRegionInFunction: () => 'eu-central-1',
 	getBrowserInstance,
@@ -60,12 +66,9 @@ export const mockServerImplementation: InsideFunctionSpecifics<AwsProvider> = {
 		paramsArray.push(params);
 		return Promise.resolve();
 	},
-	getFolderFiles: () => [
-		{
-			filename: 'something',
-			size: 0,
-		},
-	],
+	normalizeChromiumOptions: serverAwsImplementation.normalizeChromiumOptions,
+	getTmpDirState: null,
+	startRendererDiagnostics: null,
 	makeArtifactWithDetails: () => ({
 		filename: 'something',
 		sizeInBytes: 0,

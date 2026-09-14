@@ -9,7 +9,7 @@ import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options<Provider extends CloudProvider> = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 	providerSpecifics: ProviderSpecifics<Provider>;

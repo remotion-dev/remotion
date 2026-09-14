@@ -25,9 +25,19 @@ export const isIosSafari = () => {
 		return false;
 	}
 
-	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
+	const {userAgent, platform, maxTouchPoints} = window.navigator;
 
-	return isIpadIPodIPhone && isSafari();
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(userAgent);
+
+	// Since iPadOS 13, Safari on iPad defaults to "Request Desktop Website"
+	// and sends a macOS user agent ("Macintosh; Intel Mac OS X 10_15_7"),
+	// so the string above never matches. A Mac platform with a touch
+	// screen is the only remaining signal — real Macs report 0 touch
+	// points. Without this, iPads get the blob + media fragment
+	// combination that Mobile Safari refuses to play (#1655).
+	const isIpadOsDesktopMode = platform === 'MacIntel' && maxTouchPoints > 1;
+
+	return (isIpadIPodIPhone || isIpadOsDesktopMode) && isSafari();
 };
 
 // https://github.com/remotion-dev/remotion/issues/1655

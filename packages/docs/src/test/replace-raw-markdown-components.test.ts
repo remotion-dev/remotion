@@ -46,7 +46,7 @@ test('expands the actual Element overview into categorized Markdown', () => {
 		expect(output).toContain(`## ${section.label}`);
 	}
 
-	for (const definition of Object.values(elementDefinitions)) {
+	for (const definition of elementDefinitions) {
 		expect(output).toContain(
 			`[${definition.displayName}](${getElementDocumentationUrl(definition)})`,
 		);
@@ -72,7 +72,7 @@ test('expands the actual Element category indexes without unrelated entries', ()
 		});
 
 		expect(output).not.toContain('ElementLibrary');
-		for (const definition of Object.values(elementDefinitions)) {
+		for (const definition of elementDefinitions) {
 			const elementLink = `[${definition.displayName}](${getElementDocumentationUrl(definition)})`;
 			if (definition.category === section.category) {
 				expect(output).toContain(elementLink);

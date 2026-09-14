@@ -40,6 +40,7 @@ const callGetCodecName = ({
 		encodingBufferSize,
 		logLevel: 'warn',
 		indent: false,
+		onLog: null,
 	});
 
 describe('getCodecName - macOS VideoToolbox (existing behavior)', () => {

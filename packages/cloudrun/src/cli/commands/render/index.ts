@@ -15,9 +15,10 @@ import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../args';
 import {displayCrashLogs} from '../../helpers/cloudrun-crash-logs';
 import {Log} from '../../log';
+import {RENDER_COMMAND} from '../command-names';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
-export const RENDER_COMMAND = 'render';
+export {RENDER_COMMAND} from '../command-names';
 
 const {
 	audioBitrateOption,

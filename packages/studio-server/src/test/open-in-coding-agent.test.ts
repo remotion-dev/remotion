@@ -318,13 +318,20 @@ test.skipIf(process.platform === 'win32')(
 			});
 			expect(success).toBe(true);
 
-			for (let attempt = 0; attempt < 100 && !existsSync(output); attempt++) {
+			const expectedOutput = 'app\n/Users/test/My Project\n';
+			let receivedOutput = '';
+			for (let attempt = 0; attempt < 100; attempt++) {
+				if (existsSync(output)) {
+					receivedOutput = readFileSync(output, 'utf8');
+					if (receivedOutput === expectedOutput) {
+						break;
+					}
+				}
+
 				await Bun.sleep(10);
 			}
 
-			expect(readFileSync(output, 'utf8')).toBe(
-				'app\n/Users/test/My Project\n',
-			);
+			expect(receivedOutput).toBe(expectedOutput);
 		} finally {
 			rmSync(directory, {force: true, recursive: true});
 		}
@@ -370,13 +377,20 @@ test.skipIf(process.platform === 'win32')(
 			});
 			expect(success).toBe(true);
 
-			for (let attempt = 0; attempt < 100 && !existsSync(output); attempt++) {
+			const expectedOutput = `${realpathSync(projectPath)}\n`;
+			let receivedOutput = '';
+			for (let attempt = 0; attempt < 100; attempt++) {
+				if (existsSync(output)) {
+					receivedOutput = readFileSync(output, 'utf8');
+					if (receivedOutput === expectedOutput) {
+						break;
+					}
+				}
+
 				await Bun.sleep(10);
 			}
 
-			expect(readFileSync(output, 'utf8')).toBe(
-				`${realpathSync(projectPath)}\n`,
-			);
+			expect(receivedOutput).toBe(expectedOutput);
 		} finally {
 			rmSync(directory, {force: true, recursive: true});
 		}

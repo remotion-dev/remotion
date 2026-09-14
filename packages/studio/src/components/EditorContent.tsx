@@ -15,6 +15,7 @@ import {
 	TimelineSelectionProvider,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
+import {WebMcp} from './WebMcp';
 
 const noop = () => undefined;
 
@@ -52,10 +53,15 @@ export const EditorContent: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly children: React.ReactNode;
 }> = ({readOnlyStudio, children}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {canvasContent, currentAssetMetadata} = useContext(
+		Internals.CompositionManager,
+	);
 
 	const showTimeline =
-		canvasContent !== null && canvasContent.type === 'composition';
+		canvasContent !== null &&
+		(canvasContent.type === 'composition' ||
+			(canvasContent.type === 'asset' &&
+				currentAssetMetadata?.asset === canvasContent.asset));
 
 	const content = (
 		<SplitterContainer
@@ -72,7 +78,11 @@ export const EditorContent: React.FC<{
 			<SplitterElement sticky={null} type="flexer">
 				{children}
 			</SplitterElement>
-			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
+			<SplitterHandle
+				allowToCollapse="none"
+				onCollapse={noop}
+				onCollapseDuringDrag={null}
+			/>
 			<SplitterElement sticky={null} type="anti-flexer">
 				{showTimeline ? <Timeline /> : <TimelineEmptyState />}
 			</SplitterElement>
@@ -81,6 +91,7 @@ export const EditorContent: React.FC<{
 
 	return (
 		<TimelineSelectionProvider>
+			<WebMcp />
 			<Transform3DModeStateProvider>
 				<StudioClearSelectionArea>
 					<InitialCompositionLoader />

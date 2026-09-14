@@ -8,6 +8,7 @@ const Mock: React.FC = () => null;
 export const makeMockCompositionManagerContext =
 	(): CompositionManagerContext => {
 		return {
+			currentAssetMetadata: null,
 			currentCompositionMetadata: {
 				durationInFrames: 500,
 				fps: 30,
@@ -30,7 +31,7 @@ export const makeMockCompositionManagerContext =
 							default: Mock as ComponentType<unknown>,
 						}),
 					),
-					nonce: [[0, 0]],
+					order: null,
 					defaultProps: undefined,
 					folderName: null,
 					parentFolderName: null,

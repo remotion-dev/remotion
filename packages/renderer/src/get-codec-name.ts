@@ -1,3 +1,4 @@
+import type {OnLog} from './browser/BrowserPage';
 import type {Codec} from './codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -40,6 +41,7 @@ export const getCodecName = ({
 	hardwareAcceleration,
 	logLevel,
 	indent,
+	onLog,
 }: {
 	codec: Codec;
 	hardwareAcceleration: HardwareAccelerationOption;
@@ -48,6 +50,7 @@ export const getCodecName = ({
 	crf: unknown;
 	logLevel: LogLevel;
 	indent: boolean;
+	onLog: OnLog | null;
 }): CodecSettings | null => {
 	const preferredHwAcceleration =
 		hardwareAcceleration === 'required' ||
@@ -68,10 +71,17 @@ export const getCodecName = ({
 
 	const warnAboutDisabledHardwareAcceleration = () => {
 		if (hardwareAcceleration === 'if-possible' && unsupportedQualityOption) {
-			Log.warn(
-				{indent, logLevel},
-				`${indent ? '' : '\n'}Hardware accelerated encoding disabled - "${unsupportedQualityOption}" option is not supported with hardware acceleration`,
-			);
+			const message = `Hardware accelerated encoding disabled - "${unsupportedQualityOption}" option is not supported with hardware acceleration`;
+			if (onLog !== null) {
+				onLog({
+					logLevel: 'warn',
+					previewString: message,
+					tag: '',
+				});
+				return;
+			}
+
+			Log.warn({indent, logLevel}, `${indent ? '' : '\n'}${message}`);
 		}
 	};
 

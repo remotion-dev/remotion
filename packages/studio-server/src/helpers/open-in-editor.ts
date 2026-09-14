@@ -277,7 +277,7 @@ function getArgumentsForLineNumber(
 	const isFolder =
 		fs.existsSync(fileName) && fs.lstatSync(fileName).isDirectory();
 	if (isZedEditor) {
-		return [fileName + ':' + lineNumber + ':' + colNumber];
+		return ['--existing', fileName + ':' + lineNumber + ':' + colNumber];
 	}
 
 	switch (editorBasename) {

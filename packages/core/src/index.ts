@@ -106,6 +106,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
 		remotion_isReadOnlyStudio: boolean;
+		remotion_enableSequenceStackTraces: (() => void) | null;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '11';
@@ -231,7 +232,6 @@ export {
 	random,
 	RandomSeed,
 } from './no-react';
-export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';

@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {WHITE} from '../../helpers/colors';
 import {getFileManagerName} from '../../helpers/get-file-manager-name';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
@@ -40,6 +41,8 @@ const outputNameInputContainer: React.CSSProperties = {
 };
 
 type Props = {
+	readonly ariaLabel: string | null;
+	readonly existingOutputPath: string | null;
 	readonly existence: boolean;
 	readonly inputStyle: React.CSSProperties;
 	readonly outName: string;
@@ -49,6 +52,8 @@ type Props = {
 };
 
 export const RenderModalOutputName = ({
+	ariaLabel,
+	existingOutputPath,
 	existence,
 	inputStyle,
 	outName,
@@ -57,10 +62,12 @@ export const RenderModalOutputName = ({
 	label: labelText,
 }: Props) => {
 	const openExistingOutput = useCallback(() => {
-		openInFileExplorer({directory: outName}).catch((err) => {
-			showNotification(`Could not open file: ${err.message}`, 2000);
-		});
-	}, [outName]);
+		openInFileExplorer({directory: existingOutputPath ?? outName}).catch(
+			(err) => {
+				showNotification(`Could not open file: ${err.message}`, 2000);
+			},
+		);
+	}, [existingOutputPath, outName]);
 
 	const renderOpenIcon: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIconSolid style={openIconStyle} color={color} />;
@@ -69,6 +76,7 @@ export const RenderModalOutputName = ({
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 
 	return (
 		<div style={outputNameRow}>
@@ -78,6 +86,7 @@ export const RenderModalOutputName = ({
 			<div style={rightRow}>
 				<div style={outputNameInputContainer}>
 					<RemotionInput
+						aria-label={ariaLabel ?? undefined}
 						status={validationMessage ? 'error' : existence ? 'warning' : 'ok'}
 						style={inputStyle}
 						type="text"
@@ -101,12 +110,14 @@ export const RenderModalOutputName = ({
 								align="flex-end"
 								message={
 									<span style={existsMessageStyle}>
-										<InlineAction
-											variant={null}
-											onClick={openExistingOutput}
-											renderAction={renderOpenIcon}
-											title={`Open in ${fileManagerName}`}
-										/>
+										{isBrowserStudio ? null : (
+											<InlineAction
+												variant={null}
+												onClick={openExistingOutput}
+												renderAction={renderOpenIcon}
+												title={`Open in ${fileManagerName}`}
+											/>
+										)}
 										Exists, will be overwritten
 									</span>
 								}

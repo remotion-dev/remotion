@@ -3,6 +3,7 @@ import React, {createRef, useRef} from 'react';
 import {Html5Audio, Internals, useCurrentFrame} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
+import {Thumbnail} from '../Thumbnail.js';
 import type {UsePlayerMethods} from '../use-player-methods.js';
 import {usePlayerMethods} from '../use-player-methods.js';
 import {act, cleanup, fireEvent, render} from './test-utils.js';
@@ -15,6 +16,26 @@ test('It should throw an error if not being used inside a RemotionRoot', () => {
 	expect(() => {
 		usePlayerMethods();
 	}).toThrow();
+});
+
+const ThumbnailPlayingProbe = () => {
+	const playing = Internals.usePlaying();
+	return React.createElement('div', null, playing ? 'playing' : 'paused');
+};
+
+test('Thumbnail supports usePlaying in its composition', () => {
+	const view = render(
+		React.createElement(Thumbnail, {
+			component: ThumbnailPlayingProbe,
+			durationInFrames: 100,
+			compositionWidth: 1920,
+			compositionHeight: 1080,
+			fps: 30,
+			frameToDisplay: 0,
+		}),
+	);
+
+	expect(view.getByText('paused')).toBeTruthy();
 });
 
 test('Seeking to the current frame does not rerender the composition', () => {
@@ -104,44 +125,6 @@ test('Imperative player methods do not rerender when the frame changes', () => {
 	expect(methodRenders).toBe(rendersAfterMount);
 });
 
-test('Player methods fall back when core has no timeline imperative context', () => {
-	const internalsWithOptionalContext = Internals as {
-		TimelineImperativeContext?: typeof Internals.TimelineImperativeContext;
-	};
-	const timelineImperativeContext =
-		internalsWithOptionalContext.TimelineImperativeContext;
-	delete internalsWithOptionalContext.TimelineImperativeContext;
-
-	try {
-		const methodsRef: {current: UsePlayerMethods | null} = {current: null};
-		const renderCustomControls = () =>
-			React.createElement(PlayerMethodsProbe, {
-				onRender: (methods) => {
-					methodsRef.current = methods;
-				},
-			});
-
-		render(
-			React.createElement(Player, {
-				component: () => null,
-				durationInFrames: 100,
-				compositionWidth: 1920,
-				compositionHeight: 1080,
-				fps: 30,
-				controls: true,
-				renderCustomControls,
-			}),
-		);
-
-		expect(methodsRef.current?.getCurrentFrame()).toBe(0);
-		act(() => methodsRef.current?.seek(20));
-		expect(methodsRef.current?.getCurrentFrame()).toBe(20);
-	} finally {
-		internalsWithOptionalContext.TimelineImperativeContext =
-			timelineImperativeContext;
-	}
-});
-
 test('Playing from the last frame resets playback and dismisses the unplayed poster', () => {
 	const playerRef = createRef<PlayerRef>();
 	const Composition = () => null;
@@ -229,12 +212,74 @@ const AudioComposition = () => {
 			value: {
 				registerSequence: () => undefined,
 				unregisterSequence: () => undefined,
+				updateSequence: null,
 				sequences: [],
 			},
 		},
 		React.createElement(Html5Audio, {src: 'audio.mp3'}),
 	);
 };
+
+test('Player.pause() pauses mounted HTML5 media synchronously', () => {
+	const originalPlay = HTMLMediaElement.prototype.play;
+	const originalPause = HTMLMediaElement.prototype.pause;
+	const originalPaused = Object.getOwnPropertyDescriptor(
+		HTMLMediaElement.prototype,
+		'paused',
+	);
+	const playerRef = createRef<PlayerRef>();
+	let pauseCalls = 0;
+	let paused = true;
+
+	Object.defineProperty(HTMLMediaElement.prototype, 'paused', {
+		configurable: true,
+		get: () => paused,
+	});
+	HTMLMediaElement.prototype.play = () => {
+		paused = false;
+		return Promise.resolve();
+	};
+
+	HTMLMediaElement.prototype.pause = () => {
+		paused = true;
+		pauseCalls++;
+	};
+
+	try {
+		render(
+			React.createElement(Player, {
+				ref: playerRef,
+				component: AudioComposition,
+				durationInFrames: 300,
+				compositionWidth: 1920,
+				compositionHeight: 1080,
+				fps: 30,
+			}),
+		);
+
+		act(() => playerRef.current?.play());
+		pauseCalls = 0;
+
+		act(() => {
+			playerRef.current?.pause();
+			expect(pauseCalls).toBe(1);
+		});
+
+		expect(pauseCalls).toBe(1);
+	} finally {
+		HTMLMediaElement.prototype.play = originalPlay;
+		HTMLMediaElement.prototype.pause = originalPause;
+		if (originalPaused) {
+			Object.defineProperty(
+				HTMLMediaElement.prototype,
+				'paused',
+				originalPaused,
+			);
+		} else {
+			delete (HTMLMediaElement.prototype as {paused?: boolean}).paused;
+		}
+	}
+});
 
 const PlayerWithMuteButton = ({
 	onError,

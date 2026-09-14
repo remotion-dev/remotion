@@ -13,3 +13,26 @@ export const getBrowserStudioOperations =
 
 		return window.remotion_browserStudio ?? null;
 	};
+
+export const getBrowserStudioKeyframeOperations = () =>
+	getBrowserStudioOperations()?.keyframes ?? null;
+
+export const getBrowserStudioEffectOperations = () =>
+	getBrowserStudioOperations()?.effects ?? null;
+
+export const canUseKeyframeOperations = () =>
+	!window.remotion_isReadOnlyStudio ||
+	getBrowserStudioKeyframeOperations() !== null;
+
+export const canUseEffectOperations = () =>
+	!window.remotion_isReadOnlyStudio ||
+	getBrowserStudioEffectOperations() !== null;
+
+export const canInstallPackages = () => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations !== null) {
+		return true;
+	}
+
+	return !window.remotion_isReadOnlyStudio;
+};

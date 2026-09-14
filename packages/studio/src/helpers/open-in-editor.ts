@@ -6,17 +6,19 @@ import type {
 	OpenInTerminalResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useEffect, useSyncExternalStore} from 'react';
+import {useEffect} from 'react';
 import {callApi} from '../components/call-api';
+import {getSourceMapFilesForSource} from '../components/Timeline/TimelineStack/get-stack';
 import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from './browser-studio-operations';
+import {useSyncExternalStore} from './use-sync-external-store';
 
 export const openInEditor = (
 	stack: SymbolicatedStackFrame,
-	editorId: EditorPickerId | null,
+	editorId: EditorPickerId,
 ) => {
 	const {
 		originalFileName,
@@ -58,7 +60,7 @@ export const openInGitClient = (gitClientId: GitClientId) => {
 
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
-	editorId: EditorPickerId | null,
+	editorId: EditorPickerId,
 ) => {
 	const response = await openInEditor(
 		{
@@ -76,9 +78,11 @@ export const openOriginalPositionInEditor = async (
 };
 
 export const openOriginalPositionInEditorAtProperty = async ({
+	editorId,
 	originalPosition,
 	property,
 }: {
+	editorId: EditorPickerId;
 	originalPosition: CodePosition;
 	property: string;
 }) => {
@@ -99,7 +103,7 @@ export const openOriginalPositionInEditorAtProperty = async ({
 			line: position.lineNumber,
 			column: position.columnNumber,
 		},
-		null,
+		editorId,
 	);
 };
 
@@ -220,7 +224,27 @@ export const loadCompositionComponentInfo = async ({
 		const browserStudioOperations = getBrowserStudioOperations();
 		const body = browserStudioOperations
 			? await browserStudioOperations.getCompositionComponentInfo(request)
-			: await callApi('/api/composition-component-info', request);
+			: typeof window !== 'undefined' && window.remotion_isReadOnlyStudio
+				? await (async () => {
+						const files = getSourceMapFilesForSource(compositionFile);
+						if (files === null) {
+							throw new Error(
+								`Could not find source map contents for ${compositionFile}`,
+							);
+						}
+
+						const {resolveCompositionComponentLocation} =
+							await import('@remotion/studio-codemods/resolve-composition-component-location');
+						return {
+							canAddSequence: false,
+							location: resolveCompositionComponentLocation({
+								compositionFile,
+								compositionId,
+								project: {files, rootDir: '.'},
+							}),
+						};
+					})()
+				: await callApi('/api/composition-component-info', request);
 
 		const result = {
 			location: body.location,
@@ -259,13 +283,15 @@ export const preloadCompositionComponentInfo = ({
 export const openCompositionComponentInEditor = async ({
 	compositionFile,
 	compositionId,
+	editorId,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	editorId: EditorPickerId;
 }) => {
 	const info = await loadCompositionComponentInfo({
 		compositionFile,
 		compositionId,
 	});
-	await openOriginalPositionInEditor(info.location, null);
+	await openOriginalPositionInEditor(info.location, editorId);
 };

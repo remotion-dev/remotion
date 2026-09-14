@@ -1,6 +1,7 @@
 import type {AnyRemotionOption} from './option';
 
 let keyboardShortcutsEnabled = true;
+let configuredKeyboardShortcutsEnabled: boolean | null = null;
 
 const cliFlag = 'disable-keyboard-shortcuts' as const;
 
@@ -29,6 +30,12 @@ export const keyboardShortcutsOption = {
 	},
 	setConfig(value) {
 		keyboardShortcutsEnabled = value;
+		configuredKeyboardShortcutsEnabled = value;
+	},
+	getConfigValue: () => configuredKeyboardShortcutsEnabled,
+	reset: () => {
+		keyboardShortcutsEnabled = true;
+		configuredKeyboardShortcutsEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

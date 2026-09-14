@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-canvas-capture-installation.png
+title: Install Canvas Capture
+sidebar_label: Installation
+---
+
+# Install Canvas Capture
+
+> Tip: Copy the URL of this page into an agent to let it install it for you.
+
+Canvas Capture currently requires an Apple Silicon Mac.
+
+## Download the extension
+
+Clone the built extension to a durable location:
+
+```bash title="Terminal"
+git clone --depth=1 https://github.com/remotion-dev/canvas-capture.git \
+  "$HOME/Applications/Remotion Canvas Capture Extension"
+```
+
+The repository contains a production build of Canvas Capture. You do not need to clone or build Remotion.
+
+## Install Chrome for Testing
+
+Canvas Capture uses Chrome for Testing `150.0.7842.0` at revision `r1631007`. This is the exact version known to support the required HTML-in-canvas API.
+
+Install the browser using the script included with Canvas Capture:
+
+```bash title="Terminal"
+"$HOME/Applications/Remotion Canvas Capture Extension/install-browser.sh"
+```
+
+This browser does not receive security updates. Only use it with websites you trust.
+
+## Launch the browser
+
+Open Google Chrome for Testing from Launchpad.
+
+Open `chrome://flags`, search for Canvas Draw Element, set it to Enabled and select Relaunch.
+
+## Load the extension
+
+Open `chrome://extensions`, enable Developer mode and select Load unpacked.
+
+In the file picker, open your home folder, then choose Applications → Remotion Canvas Capture Extension.
+
+Open a webpage and click the Remotion Canvas Capture extension icon to start recording.

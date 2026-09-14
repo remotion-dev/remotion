@@ -32,6 +32,7 @@ test('Should emit incremental progress for completed peaks', () => {
 	processor.processSampleChunk(
 		new Float32Array([0.1, 0.7, 0.5, 0.2, 0.3, 0.8, 0.4, 0.1]),
 		2,
+		48000,
 	);
 
 	expect(progressCalls).toHaveLength(1);
@@ -63,7 +64,7 @@ test('Should flush the last partial peak during finalize', () => {
 		},
 	});
 
-	processor.processSampleChunk(new Float32Array([0.2, 0.6, 0.4]), 1);
+	processor.processSampleChunk(new Float32Array([0.2, 0.6, 0.4]), 1, 48000);
 	processor.finalize();
 
 	expect(progressCalls).toHaveLength(2);
@@ -94,9 +95,9 @@ test('Should throttle intermediate progress but always emit the final update', (
 	});
 
 	now = 100;
-	processor.processSampleChunk(new Float32Array([0.2]), 1);
+	processor.processSampleChunk(new Float32Array([0.2]), 1, 48000);
 	now = 120;
-	processor.processSampleChunk(new Float32Array([0.4]), 1);
+	processor.processSampleChunk(new Float32Array([0.4]), 1, 48000);
 	now = 130;
 	processor.finalize();
 

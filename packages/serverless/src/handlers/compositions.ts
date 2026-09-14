@@ -14,7 +14,7 @@ import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 };
 
 export const compositionsHandler = async <Provider extends CloudProvider>({
