@@ -1757,9 +1757,28 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 	responsivenessProgress,
 	viewportWidth,
 }) => {
+	return (
+		<Studio
+			compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
+			compositionName="Chapter11-Outro"
+			compositionWidth={REFERENCE_COMPOSITION_WIDTH}
+			content={<Scene11 platform="youtube" />}
+			durationInFrames={742}
+			frame={655}
+			responsivenessProgress={responsivenessProgress}
+			viewportWidth={viewportWidth}
+		/>
+	);
+};
+
+export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
+	responsivenessProgress,
+	viewportWidth,
+}) => {
 	const frame = useCurrentFrame();
 	const bezelSize = 18;
 	const viewportHeight = 900;
+	const deviceViewportWidth = Math.max(1600, viewportWidth);
 	const animatedViewportWidth = interpolate(
 		frame,
 		[0, 90],
@@ -1770,7 +1789,7 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 			extrapolateRight: 'clamp',
 		},
 	);
-	const macBookWidth = animatedViewportWidth + bezelSize * 2;
+	const macBookWidth = deviceViewportWidth + bezelSize * 2;
 	const macBookHeight = viewportHeight + bezelSize * 2;
 
 	return (
@@ -1798,19 +1817,14 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 						name="Studio UI"
 						style={{
 							borderRadius: 19,
-							left: bezelSize,
+							left: '50%',
 							overflow: 'hidden',
 							top: bezelSize,
+							translate: '-50% 0px',
 						}}
 						width={animatedViewportWidth}
 					>
-						<Studio
-							compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
-							compositionName="Chapter11-Outro"
-							compositionWidth={REFERENCE_COMPOSITION_WIDTH}
-							content={<Scene11 platform="youtube" />}
-							durationInFrames={742}
-							frame={655}
+						<StudioReference
 							responsivenessProgress={responsivenessProgress}
 							viewportWidth={animatedViewportWidth}
 						/>

@@ -136,7 +136,11 @@ import {
 } from './video-elements/numbered-chapter';
 import {Prompt, PromptSchema} from './video-elements/Prompt';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
-import {StudioReference, studioReferenceSchema} from './video-elements/Studio';
+import {
+	StudioDeviceFrame,
+	StudioReference,
+	studioReferenceSchema,
+} from './video-elements/Studio';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 import {
@@ -400,6 +404,20 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="StudioUI"
 					component={StudioReference}
+					durationInFrames={742}
+					fps={30}
+					width={1600}
+					height={900}
+					schema={studioReferenceSchema}
+					defaultProps={{
+						viewportWidth: 1600,
+						responsivenessProgress: 0,
+					}}
+					calculateMetadata={({props}) => ({width: props.viewportWidth})}
+				/>
+				<Composition
+					id="StudioUIDeviceFrame"
+					component={StudioDeviceFrame}
 					durationInFrames={742}
 					fps={30}
 					width={1920}
