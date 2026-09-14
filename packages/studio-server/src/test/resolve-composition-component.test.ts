@@ -459,6 +459,7 @@ test('inserts a Solid next to a self-closing root without wrapping it', async ()
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -531,6 +532,7 @@ test('inserts an asset as a sibling of a connected composition', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		const connectedCompositionEnd = result.output.indexOf('</Sequence>');
@@ -587,6 +589,7 @@ test('inserts beside a parenthesized self-closing root without wrapping it', asy
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		const videoStart = result.output.indexOf('<Video');
@@ -788,6 +791,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.source).toBe('MyComp.tsx');
@@ -845,6 +849,7 @@ test('inserts a Solid with a translate style', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("position: 'absolute'");
@@ -895,6 +900,7 @@ test('rounds the translate style to one decimal place', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("position: 'absolute'");
@@ -944,6 +950,7 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -989,6 +996,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import { Solid } from 'remotion';");
@@ -1021,6 +1029,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 		expect(secondInsert.output.match(/<Solid/g)?.length).toBe(2);
 	} finally {
@@ -1066,6 +1075,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -1132,6 +1142,7 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -1198,6 +1209,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -1255,6 +1267,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -1318,6 +1331,7 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import {Video} from '@remotion/media';");
@@ -1381,6 +1395,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			}),
 		).rejects.toThrow('Cannot add <Video> because Video is already defined');
 	} finally {
@@ -1432,6 +1447,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import {Gif} from '@remotion/gif';");
@@ -1493,6 +1509,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import {Audio} from '@remotion/media';");
@@ -1551,6 +1568,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import {Audio} from '@remotion/media';");
@@ -1609,6 +1627,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			}),
 		).rejects.toThrow('Cannot add <Audio> because Audio is already defined');
 	} finally {
@@ -1660,6 +1679,7 @@ test('inserts a component into the resolved composition component', async () => 
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import {Circle} from '@remotion/shapes';");
@@ -1721,6 +1741,7 @@ test('adds value imports without reusing or colliding with type-only component i
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			});
 			expect(aliasedResult.output).toContain('LowerThird as LowerThird2');
 			expect(aliasedResult.output).toContain('<LowerThird2');
@@ -1753,6 +1774,7 @@ test('adds value imports without reusing or colliding with type-only component i
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 		expect(result.output).toContain(
 			"import {LowerThird} from './lower-third.element';",
@@ -1803,6 +1825,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 			wrapInSequence: {
 				dimensions: null,
 				from: 42,
@@ -1892,6 +1915,7 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import {Source} from './Source';");
@@ -2065,6 +2089,7 @@ test('inserts a default-exported composition next to an existing namespace impor
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -2141,6 +2166,7 @@ test('rejects array payloads for resolved composition props', async () => {
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			}),
 		).rejects.toThrow('Resolved composition props must be an object');
 	} finally {

@@ -9,6 +9,7 @@ import {
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
+	type InsertElementRequest,
 	type InstallableElement,
 } from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
@@ -1327,6 +1328,7 @@ export const insertElement = async ({
 	position,
 	from,
 	overwriteExisting,
+	newComposition,
 }: {
 	installationName: string | null;
 	compositionFile: string;
@@ -1336,6 +1338,7 @@ export const insertElement = async ({
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;
 	overwriteExisting: boolean;
+	newComposition: InsertElementRequest['newComposition'];
 }) => {
 	try {
 		if (getBrowserStudioOperations() === null) {
@@ -1351,6 +1354,7 @@ export const insertElement = async ({
 			from,
 			overwriteExisting,
 			position,
+			newComposition,
 		});
 
 		if (!response.success) {
