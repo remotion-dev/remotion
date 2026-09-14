@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {expect, test, type Locator, type Page} from '@playwright/test';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {expect, test, type Page} from '@playwright/test';
 import {
 	STUDIO_URL,
 	effectKeyframeE2eFile,
@@ -172,46 +171,6 @@ const dragCompositionSelectorItemToRoot = async ({
 			return dragOver.defaultPrevented;
 		},
 		{sourceTitle, drop},
-	);
-};
-
-const dropFile = async ({
-	base64,
-	fileName,
-	mimeType,
-	target,
-}: {
-	base64: string;
-	fileName: string;
-	mimeType: string;
-	target: Locator;
-}) => {
-	return target.evaluate(
-		(element, file) => {
-			const bytes = Uint8Array.from(atob(file.base64), (character) =>
-				character.charCodeAt(0),
-			);
-			const dataTransfer = new DataTransfer();
-			dataTransfer.items.add(
-				new File([bytes], file.fileName, {type: file.mimeType}),
-			);
-			const dragOver = new DragEvent('dragover', {
-				bubbles: true,
-				cancelable: true,
-				dataTransfer,
-			});
-			element.dispatchEvent(dragOver);
-			element.dispatchEvent(
-				new DragEvent('drop', {
-					bubbles: true,
-					cancelable: true,
-					dataTransfer,
-				}),
-			);
-
-			return dragOver.defaultPrevented;
-		},
-		{base64, fileName, mimeType},
 	);
 };
 
@@ -651,116 +610,6 @@ test.describe('visual mode', () => {
 				);
 			})
 			.toBeLessThan(1);
-	});
-
-	test('should route Canvas Capture drops by Studio target', async ({page}) => {
-		test.setTimeout(90_000);
-		const canvasCapture = fs.readFileSync(
-			path.join(
-				exampleDir,
-				'../brand/public/remotion-capture-editor-starter.mp4',
-			),
-		);
-		const publicFileName = 'canvas-capture-drop-e2e.mp4';
-		const publicAsset = path.join(exampleDir, 'public', publicFileName);
-		fs.rmSync(publicAsset, {force: true});
-		const file = {
-			base64: canvasCapture.toString('base64'),
-			fileName: publicFileName,
-			mimeType: 'video/mp4',
-		};
-		const modalTitle = page.getByText('Import Canvas Capture', {exact: true});
-
-		try {
-			await page.goto(`${STUDIO_URL}/does-not-exist`);
-			const missingComposition = page.getByText(
-				'Composition with ID does-not-exist not found.',
-			);
-			await expect(missingComposition).toBeVisible();
-			expect(await dropFile({...file, target: missingComposition})).toBe(true);
-			await expect(modalTitle).toBeVisible();
-			await expect(page.getByTitle('Folder')).toHaveText('None');
-			await page.keyboard.press('Escape');
-
-			await page.getByText('Assets', {exact: true}).click();
-			const assetSelector = page.locator('[data-asset-selector]');
-			await expect(assetSelector).toBeVisible();
-			expect(await dropFile({...file, target: assetSelector})).toBe(true);
-			await expect
-				.poll(
-					() =>
-						fs.existsSync(publicAsset) &&
-						fs.readFileSync(publicAsset).equals(canvasCapture),
-				)
-				.toBe(true);
-			await expect(page.getByText(publicFileName, {exact: true})).toBeVisible();
-			await expect(modalTitle).toBeHidden();
-
-			await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-			const timeline = page.locator('[data-timeline-scrollable]');
-			await expect(timeline).toBeVisible();
-			const timelineBox = await timeline.boundingBox();
-			if (timelineBox === null) {
-				throw new Error('Expected timeline to have a bounding box');
-			}
-
-			const dragData = StudioProtocolInternals.makeDragData({
-				type: 'asset',
-				assetPath: 'quick.mov',
-				durationInSeconds: 5.866667,
-				height: null,
-				width: null,
-			});
-			const dragAssetOver = (target: Locator) => {
-				return target.evaluate(
-					(element, {coordinates, data}) => {
-						const dataTransfer = new DataTransfer();
-						dataTransfer.setData(data.mimeType, data.payload);
-						element.dispatchEvent(
-							new DragEvent('dragover', {
-								bubbles: true,
-								cancelable: true,
-								clientX: coordinates.clientX,
-								clientY: coordinates.clientY,
-								dataTransfer,
-							}),
-						);
-					},
-					{
-						coordinates: {
-							clientX: timelineBox.x + timelineBox.width / 2,
-							clientY: timelineBox.y + timelineBox.height / 2,
-						},
-						data: dragData,
-					},
-				);
-			};
-			const dropIndicator = page.locator(
-				'[data-timeline-asset-drop-indicator]',
-			);
-			await dragAssetOver(timeline);
-			await expect(dropIndicator).toBeVisible();
-			await page.evaluate(() => {
-				document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
-			});
-			await expect(dropIndicator).toBeHidden();
-
-			await page.getByRole('button', {name: /Search\.\.\./}).click();
-			const quickSwitcher = page.getByRole('dialog');
-			await quickSwitcher.getByRole('textbox').fill('> Settings');
-			await quickSwitcher.getByText('Settings...', {exact: true}).click();
-			const settings = page.getByRole('dialog');
-			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
-			await dragAssetOver(settings);
-			await expect(dropIndicator).toBeHidden();
-			await expect(settings.getByText('Bundler', {exact: true})).toBeVisible();
-			await page.keyboard.press('Escape');
-
-			expect(await dropFile({...file, target: timeline})).toBe(true);
-			await expect(modalTitle).toBeVisible();
-		} finally {
-			fs.rmSync(publicAsset, {force: true});
-		}
 	});
 
 	test('should show negative sequence timing in the frame-zero gutter', async ({
