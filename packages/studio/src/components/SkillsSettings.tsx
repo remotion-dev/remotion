@@ -9,13 +9,14 @@ import {
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
+import {CloudDownloadIcon} from '../icons/cloud-download';
 import {CopyIcon} from '../icons/copy';
-import {Button} from './Button';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useSettings} from './SettingsContext';
+import {Spinner} from './Spinner';
 
 const INSTALL_COMMAND = 'npx remotion skills add';
 
@@ -104,10 +105,18 @@ const status: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const installButton: React.CSSProperties = {
-	backgroundColor: BLUE,
-	color: WHITE,
+const actionIcon: React.CSSProperties = {
+	height: 14,
+	width: 14,
+};
+
+const actionSlot: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'inline-flex',
 	flexShrink: 0,
+	height: 24,
+	justifyContent: 'center',
+	width: 24,
 };
 
 const loading: React.CSSProperties = {
@@ -152,6 +161,9 @@ export const SkillsSettings: React.FC = () => {
 		},
 		[copied],
 	);
+	const renderInstallAction: RenderInlineAction = useCallback((color) => {
+		return <CloudDownloadIcon color={color} style={actionIcon} />;
+	}, []);
 
 	return (
 		<div style={container}>
@@ -199,6 +211,7 @@ export const SkillsSettings: React.FC = () => {
 					{remotionSkillsInfo.skills.map((skill, index) => {
 						const installed =
 							skill.installedInProject || skill.installedGlobally;
+						const installingThisSkill = installingSkill === skill.name;
 						const installedLocation =
 							skill.installedInProject && skill.installedGlobally
 								? 'Project and global'
@@ -221,22 +234,26 @@ export const SkillsSettings: React.FC = () => {
 								<span style={skillName}>/{skill.name}</span>
 								{installedLocation ? (
 									<span style={status}>{installedLocation}</span>
+								) : installingThisSkill ? (
+									<span style={status}>Installing…</span>
 								) : null}
 								{installed ? (
 									<CheckCircleFilled
 										aria-hidden
 										style={{...statusIcon, fill: BLUE}}
 									/>
+								) : installingThisSkill ? (
+									<span style={actionSlot}>
+										<Spinner duration={0.5} size={14} />
+									</span>
 								) : canInstall ? (
-									<Button
-										size="compact"
-										style={installButton}
+									<InlineAction
 										title={`Install ${skill.name} in this project`}
 										disabled={installingSkill !== null}
 										onClick={() => installSkill(skill.name)}
-									>
-										{installingSkill === skill.name ? 'Installing…' : 'Install'}
-									</Button>
+										renderAction={renderInstallAction}
+										variant={null}
+									/>
 								) : null}
 							</div>
 						);

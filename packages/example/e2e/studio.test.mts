@@ -1629,7 +1629,7 @@ test.describe('visual mode', () => {
 			.getByRole('listitem')
 			.filter({hasText: '/remotion-captions'});
 		const installButton = captionsSkill.getByRole('button', {
-			name: 'Install',
+			name: 'Install remotion-captions in this project',
 			exact: true,
 		});
 		await expect(installButton).toBeVisible();
@@ -1642,8 +1642,9 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 		await installButton.click();
 		await expect(
-			captionsSkill.getByRole('button', {name: 'Installing…'}),
-		).toBeDisabled();
+			captionsSkill.getByText('Installing…', {exact: true}),
+		).toBeVisible();
+		await expect(installButton).toHaveCount(0);
 		await expect(
 			dialog
 				.getByRole('listitem')
@@ -1653,8 +1654,8 @@ test.describe('visual mode', () => {
 		await page.keyboard.press('Escape');
 		await openSkills();
 		await expect(
-			captionsSkill.getByRole('button', {name: 'Installing…'}),
-		).toBeDisabled();
+			captionsSkill.getByText('Installing…', {exact: true}),
+		).toBeVisible();
 		finishInstall();
 		await expect(
 			captionsSkill.getByText('Project', {exact: true}),
