@@ -13,6 +13,10 @@ export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
 	currentPlugin?.ignoreNextChange(absolutePath);
 };
 
+export const consumeSuppressedFilesForRebuild = (): string[] => {
+	return currentPlugin?.consumeSuppressedFilesForRebuild() ?? [];
+};
+
 // Why do we need this?
 // Consider we have a <Sequence>.
 // 1. In visual mode, we update it to layout='none'. This is reflected in the browser and in the code,
@@ -28,7 +32,7 @@ export const reloadPreviouslySuppressedFiles = async (): Promise<void> => {
 		return;
 	}
 
-	const files = currentPlugin.consumeSuppressedFilesHistory();
+	const files = currentPlugin.consumeSuppressedFilesForRebuild();
 
 	const now = new Date();
 	await Promise.all(

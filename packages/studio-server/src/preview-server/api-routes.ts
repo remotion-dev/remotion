@@ -68,7 +68,7 @@ import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
-	'/api/install-package' | '/api/update-config'
+	'/api/install-package' | '/api/invalidate-bundle' | '/api/update-config'
 >;
 
 export const allApiRoutes: {

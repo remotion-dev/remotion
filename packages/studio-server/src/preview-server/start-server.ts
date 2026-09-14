@@ -243,7 +243,37 @@ export const startServer = async (options: {
 		setWatchIgnoreNextChangePlugin(watchIgnorePlugin);
 
 		const wdmMiddleware = wdm(compiler, options.logLevel);
-		const invalidateBundle = () => {
+		const filesToInvalidate = new Set<string>();
+		let latestStats: webpack.Stats | null = null;
+		compiler.hooks.invalid.tap('remotion-manual-invalidation', () => {
+			latestStats = null;
+		});
+		compiler.hooks.watchRun.tap('remotion-manual-invalidation', () => {
+			if (filesToInvalidate.size === 0 || !compiler) {
+				return;
+			}
+
+			compiler.modifiedFiles = new Set([
+				...(compiler.modifiedFiles ?? []),
+				...filesToInvalidate,
+			]);
+			for (const file of filesToInvalidate) {
+				compiler.inputFileSystem?.purge?.(file);
+				compiler.fileTimestamps?.delete(file);
+			}
+
+			filesToInvalidate.clear();
+		});
+		compiler.hooks.done.tap('remotion-manual-invalidation', (stats) => {
+			latestStats = stats;
+		});
+
+		const invalidateBundle = (files: string[] = []) => {
+			const requireSuccessfulBuild = files.length > 0;
+			for (const file of files) {
+				filesToInvalidate.add(file);
+			}
+
 			return new Promise<void>((resolve, reject) => {
 				const watching = compiler?.watching;
 				if (!watching) {
@@ -254,6 +284,14 @@ export const startServer = async (options: {
 				watching.invalidate((error) => {
 					if (error) {
 						reject(error);
+						return;
+					}
+
+					if (
+						requireSuccessfulBuild &&
+						(!latestStats || latestStats.hasErrors())
+					) {
+						reject(new Error('Fix the compilation errors before exporting'));
 						return;
 					}
 
