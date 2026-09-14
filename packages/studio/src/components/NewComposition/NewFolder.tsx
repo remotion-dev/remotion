@@ -31,6 +31,11 @@ const content: React.CSSProperties = {
 	minWidth: 500,
 };
 
+const parentNameStyle: React.CSSProperties = {
+	...rightRow,
+	fontSize: 13,
+};
+
 const getUniqueFolderName = ({
 	folders,
 	parentName,
@@ -100,7 +105,7 @@ export const NewFolder: React.FC<{
 					{parentName ? (
 						<div style={optionRow}>
 							<div style={label}>Parent</div>
-							<div style={rightRow}>{parentName}</div>
+							<div style={parentNameStyle}>{parentName}</div>
 						</div>
 					) : null}
 					<div style={optionRow}>

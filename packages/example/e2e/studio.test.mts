@@ -1461,9 +1461,9 @@ test.describe('visual mode', () => {
 				.click();
 
 			const dialog = page.getByRole('dialog');
-			await expect(
-				dialog.getByText('visual-controls', {exact: true}),
-			).toBeVisible();
+			const parentName = dialog.getByText('visual-controls', {exact: true});
+			await expect(parentName).toBeVisible();
+			await expect(parentName).toHaveCSS('font-size', '13px');
 			await dialog.getByPlaceholder('Folder name').fill(newFolderName);
 			await dialog.getByRole('button', {name: /Add to .*/}).click();
 
