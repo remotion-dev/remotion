@@ -1,5 +1,7 @@
 import {expect, mock, test} from 'bun:test';
 
+const registeredFontFaces: unknown[] = [];
+
 mock.module('remotion', () => ({
 	continueRender: () => undefined,
 	delayRender: () => 0,
@@ -7,6 +9,9 @@ mock.module('remotion', () => ({
 mock.module('remotion/no-react', () => ({
 	NoReactInternals: {
 		ENABLE_V5_BREAKING_CHANGES: false,
+		registerFontFace: (fontFace: unknown) => {
+			registeredFontFaces.push(fontFace);
+		},
 	},
 }));
 
@@ -80,6 +85,22 @@ test('loads variable font faces from a generated module and font info', async ()
 		expect(addedFontFaces).toHaveLength(2);
 		expect(addedFontFaces[0]).toBeInstanceOf(MockFontFace);
 		expect(addedFontFaces[1]).toBeInstanceOf(MockFontFace);
+		expect(registeredFontFaces).toEqual([
+			expect.objectContaining({
+				fontFamily: 'Noto Sans',
+				format: 'woff2',
+				stretch: '62.5% 100%',
+				style: 'normal',
+				weight: '100 900',
+			}),
+			expect.objectContaining({
+				fontFamily: 'Noto Sans',
+				format: 'woff2',
+				stretch: '62.5% 100%',
+				style: 'italic',
+				weight: '100 900',
+			}),
+		]);
 	} finally {
 		globalThis.FontFace = originalFontFace;
 	}
