@@ -18,6 +18,7 @@ import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
 import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {useIsInsideFreeze} from '../timeline-position-state.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
@@ -156,6 +157,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 	});
+	const isInsideFreeze = useIsInsideFreeze();
+	const effectiveMuted =
+		muted || playerMuted || userPreferredVolume <= 0 || isInsideFreeze;
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
@@ -180,7 +184,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
-		muted: muted ?? false,
+		muted: Boolean(muted || isInsideFreeze),
 	});
 
 	// putting playback before useVolume
@@ -358,7 +362,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		<video
 			{...nativeProps}
 			ref={videoRef}
-			muted={muted || playerMuted || userPreferredVolume <= 0}
+			muted={effectiveMuted}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}

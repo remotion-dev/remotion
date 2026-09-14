@@ -99,6 +99,10 @@ export const useTimelinePosition = (): number => {
 	return useTimelinePositionFromContext(state);
 };
 
+export const useIsInsideFreeze = (): boolean => {
+	return useTimelineContext().isInsideFreeze;
+};
+
 export const useAbsoluteTimelinePosition = (): number => {
 	const state = useContext(AbsoluteTimeContext);
 	if (state === null) {

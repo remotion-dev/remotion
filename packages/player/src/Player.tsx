@@ -428,6 +428,7 @@ const PlayerFn = <
 		return {
 			frame,
 			isPlaying: readIsPlaying,
+			isInsideFreeze: false,
 			audioAndVideoTags,
 		};
 	}, [frame, readIsPlaying]);

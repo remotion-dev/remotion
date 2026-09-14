@@ -18,7 +18,10 @@ import {Img} from '../Img.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {useTimelinePosition} from '../timeline-position-state.js';
+import {
+	useIsInsideFreeze,
+	useTimelinePosition,
+} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -59,6 +62,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
+	const isInsideFreeze = useIsInsideFreeze();
 	const volumePropsFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
@@ -107,7 +111,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			return;
 		}
 
-		if (muted) {
+		if (muted || isInsideFreeze) {
 			return;
 		}
 
@@ -134,6 +138,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		return () => unregisterRenderAsset(id);
 	}, [
 		muted,
+		isInsideFreeze,
 		src,
 		registerRenderAsset,
 		id,

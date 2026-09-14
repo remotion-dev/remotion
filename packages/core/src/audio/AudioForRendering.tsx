@@ -12,7 +12,10 @@ import {getAbsoluteSrc} from '../absolute-src.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {useTimelinePosition} from '../timeline-position-state.js';
+import {
+	useIsInsideFreeze,
+	useTimelinePosition,
+} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -56,6 +59,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
 	const frame = useCurrentFrame();
+	const isInsideFreeze = useIsInsideFreeze();
 	const sequenceContext = useContext(SequenceContext);
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -97,7 +101,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (props.muted) {
+		if (props.muted || isInsideFreeze) {
 			return;
 		}
 
@@ -123,6 +127,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => unregisterRenderAsset(id);
 	}, [
 		props.muted,
+		isInsideFreeze,
 		props.src,
 		registerRenderAsset,
 		absoluteFrame,

@@ -102,6 +102,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const sampleRate = audioContext?.sampleRate ?? 48000;
 	const frame = useCurrentFrame();
+	const isInsideFreeze = Internals.useIsInsideFreeze();
 	const absoluteFrame = Internals.useTimelinePosition();
 
 	const {fps} = useVideoConfig();
@@ -184,7 +185,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				return false;
 			}
 
-			if (muted) {
+			if (muted || isInsideFreeze) {
 				return false;
 			}
 
@@ -434,6 +435,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		loop,
 		loopVolumeCurveBehavior,
 		muted,
+		isInsideFreeze,
 		onVideoFrame,
 		playbackRate,
 		registerRenderAsset,
@@ -482,7 +484,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				{...props}
 				src={src}
 				playbackRate={playbackRate ?? 1}
-				muted={muted ?? false}
+				muted={Boolean(muted || isInsideFreeze)}
 				acceptableTimeShiftInSeconds={
 					fallbackOffthreadVideoProps?.acceptableTimeShiftInSeconds
 				}

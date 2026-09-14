@@ -17,6 +17,7 @@ import {useDelayRender} from './use-delay-render';
 export type TimelineContextValue = {
 	frame: Record<string, number>;
 	isPlaying: () => boolean;
+	isInsideFreeze: boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
@@ -145,6 +146,7 @@ export const TimelineContextProvider: React.FC<{
 		return {
 			frame,
 			isPlaying: readIsPlaying,
+			isInsideFreeze: false,
 			audioAndVideoTags,
 		};
 	}, [frame, readIsPlaying]);

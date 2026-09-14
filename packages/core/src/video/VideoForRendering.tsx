@@ -18,7 +18,10 @@ import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
-import {useTimelinePosition} from '../timeline-position-state.js';
+import {
+	useIsInsideFreeze,
+	useTimelinePosition,
+} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -62,6 +65,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const absoluteFrame = useTimelinePosition();
 
 	const frame = useCurrentFrame();
+	const isInsideFreeze = useIsInsideFreeze();
 	const volumePropsFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
@@ -109,7 +113,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			throw new Error('No src passed');
 		}
 
-		if (props.muted) {
+		if (props.muted || isInsideFreeze) {
 			return;
 		}
 
@@ -140,6 +144,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return () => unregisterRenderAsset(id);
 	}, [
 		props.muted,
+		isInsideFreeze,
 		props.src,
 		registerRenderAsset,
 		id,

@@ -44,6 +44,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
 	const frame = useCurrentFrame();
+	const isInsideFreeze = Internals.useIsInsideFreeze();
 	const absoluteFrame = Internals.useTimelinePosition();
 
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -102,7 +103,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				return false;
 			}
 
-			if (muted) {
+			if (muted || isInsideFreeze) {
 				return false;
 			}
 
@@ -280,6 +281,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		loop,
 		loopVolumeCurveBehavior,
 		muted,
+		isInsideFreeze,
 		playbackRate,
 		registerRenderAsset,
 		src,
@@ -305,7 +307,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			<Html5Audio
 				src={src}
 				playbackRate={playbackRate}
-				muted={muted}
+				muted={Boolean(muted || isInsideFreeze)}
 				loop={loop}
 				volume={volumeProp}
 				delayRenderRetries={delayRenderRetries}

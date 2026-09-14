@@ -48,6 +48,7 @@ const {
 	useEffectChainState,
 	usePlaying,
 	useBuffering,
+	useIsInsideFreeze,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
@@ -191,7 +192,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const preloadedSrc = usePreload(src);
 	// TODO: Consider Sequence hidden
-	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
+	const isInsideFreeze = useIsInsideFreeze();
+	const effectiveMuted =
+		muted || playerMuted || userPreferredVolume <= 0 || isInsideFreeze;
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -531,7 +534,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				src={src}
 				style={actualStyle}
 				className={className}
-				muted={muted}
+				muted={effectiveMuted}
 				volume={volume}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}

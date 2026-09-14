@@ -311,6 +311,7 @@ export const Internals = {
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
+	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
 	evaluateVolume,
 	getAbsoluteSrc,
 	getAnimatedImageDurationInSeconds,

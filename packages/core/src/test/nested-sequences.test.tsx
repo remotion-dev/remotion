@@ -19,6 +19,7 @@ const getForFrame = (frame: number, content: React.ReactNode) => {
 						'my-comp': frame,
 					},
 					isPlaying: () => false,
+					isInsideFreeze: false,
 					audioAndVideoTags: {
 						current: [],
 					},
@@ -256,6 +257,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 						'my-comp': 15,
 					},
 					isPlaying: () => false,
+					isInsideFreeze: false,
 					audioAndVideoTags: {
 						current: [],
 					},
@@ -277,6 +279,7 @@ test('Sequence freeze pins the child frame without remounting the sequence', () 
 						'my-comp': 25,
 					},
 					isPlaying: () => false,
+					isInsideFreeze: false,
 					audioAndVideoTags: {
 						current: [],
 					},

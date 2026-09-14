@@ -15,6 +15,7 @@ import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
 import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {useIsInsideFreeze} from '../timeline-position-state.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
@@ -116,6 +117,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		volume,
 		mediaVolume,
 	});
+	const isInsideFreeze = useIsInsideFreeze();
+	const effectiveMuted =
+		muted || playerMuted || userPreferredVolume <= 0 || isInsideFreeze;
 
 	warnAboutTooHighVolume(userPreferredVolume);
 
@@ -127,7 +131,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
 		return {
-			muted: muted || playerMuted || userPreferredVolume <= 0,
+			muted: effectiveMuted,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			crossOrigin: crossOriginValue,
@@ -135,11 +139,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
-		playerMuted,
-		muted,
+		effectiveMuted,
 		nativeProps,
 		preloadedSrc,
-		userPreferredVolume,
 		crossOriginValue,
 	]);
 	// Generate a string that's as unique as possible for this asset
@@ -191,7 +193,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		loopDisplay: undefined,
 		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		refForOutline: null,
-		muted: muted ?? false,
+		muted: Boolean(muted || isInsideFreeze),
 	});
 
 	// putting playback before useVolume
