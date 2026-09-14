@@ -66,6 +66,7 @@ import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
+import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
 import {scalePrecomposeFixture} from './fixtures/scale-precompose';
@@ -229,6 +230,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue10676SvgGradientStroke} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
+				<Composition {...pr11215SvgFontRepro} />
 			</Folder>
 			<Folder name="clip-path">
 				<Composition {...clipPathPolygon} />

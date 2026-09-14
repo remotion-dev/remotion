@@ -1,4 +1,6 @@
-export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
+import {embedRegisteredFontsInSvg} from './embed-registered-fonts-in-svg';
+
+export const turnSvgIntoDrawable = async (svg: SVGSVGElement) => {
 	const {fill, color} = getComputedStyle(svg);
 
 	const originalTransform = svg.style.transform;
@@ -20,7 +22,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = '0';
 	svg.style.fill = fill;
 	svg.style.color = color;
-	const svgData = new XMLSerializer()
+	const serializedSvg = new XMLSerializer()
 		.serializeToString(svg)
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
@@ -33,6 +35,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.transformOrigin = originalTransformOrigin;
 	svg.style.fill = originalFill;
 	svg.style.color = originalColor;
+	const svgData = await embedRegisteredFontsInSvg({
+		svg,
+		svgData: serializedSvg,
+	});
 
 	return new Promise<HTMLImageElement>((resolve, reject) => {
 		const image = new Image();

@@ -188,12 +188,24 @@ export const loadFonts = (
 						unicodeRange: meta.unicodeRanges[subset],
 					},
 				);
+				const registerFont = () => {
+					NoReactInternals.registerFontFace({
+						fontFamily: meta.fontFamily,
+						fontUrl: font,
+						format: 'woff2',
+						style,
+						weight,
+						stretch: null,
+						unicodeRange: meta.unicodeRanges[subset] ?? null,
+					});
+				};
 
 				let attempts = 2;
 
 				const tryToLoad = () => {
 					//  Load font-face
 					if (fontFace.status === 'loaded') {
+						registerFont();
 						continueRender(handle);
 						return;
 					}
@@ -201,6 +213,7 @@ export const loadFonts = (
 					const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
 						.then(() => {
 							(options?.document ?? document).fonts.add(fontFace);
+							registerFont();
 							continueRender(handle);
 						})
 						.catch((err) => {
@@ -331,10 +344,22 @@ export const loadVariableFonts = (
 			`url(${font.src}) format('woff2')`,
 			descriptors,
 		);
+		const registerFont = () => {
+			NoReactInternals.registerFontFace({
+				fontFamily: meta.fontFamily,
+				fontUrl: font.src,
+				format: 'woff2',
+				style: font.style,
+				weight: font.weight,
+				stretch: font.stretch,
+				unicodeRange: font.unicodeRange,
+			});
+		};
 		let attempts = 2;
 
 		const tryToLoad = () => {
 			if (fontFace.status === 'loaded') {
+				registerFont();
 				continueRender(handle);
 				return;
 			}
@@ -342,6 +367,7 @@ export const loadVariableFonts = (
 			const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
 				.then(() => {
 					(options.document ?? document).fonts.add(fontFace);
+					registerFont();
 					continueRender(handle);
 				})
 				.catch((err) => {

@@ -1,4 +1,5 @@
 import {cancelRender, continueRender, delayRender} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {FontFormat} from './get-font-format';
 import {getFontFormat} from './get-font-format';
 
@@ -68,6 +69,15 @@ export const loadFont = async (options: LoadFontOptions): Promise<void> => {
 		});
 		await font.load();
 		document.fonts.add(font);
+		NoReactInternals.registerFontFace({
+			fontFamily: family,
+			fontUrl: url,
+			format: fontFormat,
+			style: style ?? null,
+			weight: weight ?? null,
+			stretch: stretch ?? null,
+			unicodeRange: unicodeRange ?? null,
+		});
 		continueRender(waitForFont);
 	} catch (err) {
 		cancelRender(err);

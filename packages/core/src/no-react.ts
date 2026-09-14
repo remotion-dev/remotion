@@ -27,6 +27,7 @@ import {
 	DELAY_RENDER_RETRY_TOKEN,
 } from './delay-render-constants';
 import {findPropsToDelete} from './find-props-to-delete';
+import {getRegisteredFontFaces, registerFontFace} from './font-face-registry';
 import {
 	deserializeJSONWithSpecialTypes,
 	serializeJSONWithSpecialTypes,
@@ -78,4 +79,6 @@ export const NoReactInternals = {
 	sequenceSchema,
 	parseScaleValue,
 	serializeScaleValue,
+	getRegisteredFontFaces,
+	registerFontFace,
 };
