@@ -27,6 +27,7 @@ import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
+import {invalidateBundleHandler} from './routes/invalidate-bundle';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
@@ -68,7 +69,7 @@ import {handleUpgradeRemotion} from './routes/upgrade-remotion';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
-	'/api/install-package' | '/api/invalidate-bundle' | '/api/update-config'
+	'/api/install-package' | '/api/update-config'
 >;
 
 export const allApiRoutes: {
@@ -77,6 +78,7 @@ export const allApiRoutes: {
 		ApiRoutes[key]['Response']
 	>;
 } = {
+	'/api/invalidate-bundle': invalidateBundleHandler,
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,

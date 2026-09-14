@@ -41,7 +41,6 @@ import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {handleAppIcon} from './preview-server/routes/app-icon';
 import {handleInstallPackage} from './preview-server/routes/install-dependency';
-import {invalidateBundleHandler} from './preview-server/routes/invalidate-bundle';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {updateConfigHandler} from './preview-server/routes/update-config';
 import {serveStatic} from './preview-server/serve-static';
@@ -465,7 +464,7 @@ export const handleRoutes = ({
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
-	invalidateBundle: (files?: string[]) => Promise<void>;
+	invalidateBundle: () => Promise<void>;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -585,27 +584,6 @@ export const handleRoutes = ({
 			remotionRoot,
 			entryPoint,
 			handler: (params) => handleInstallPackage({...params, invalidateBundle}),
-			request,
-			response,
-			logLevel,
-			methods,
-			binariesDirectory,
-			publicDir,
-			configFile,
-			getDefaultCodingAgent,
-			getDefaultEditor,
-		});
-	}
-
-	if (url.pathname === '/api/invalidate-bundle') {
-		return handleRequest<
-			ApiRoutes['/api/invalidate-bundle']['Request'],
-			ApiRoutes['/api/invalidate-bundle']['Response']
-		>({
-			remotionRoot,
-			entryPoint,
-			handler: (params) =>
-				invalidateBundleHandler({...params, invalidateBundle}),
 			request,
 			response,
 			logLevel,
