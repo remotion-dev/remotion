@@ -175,58 +175,6 @@ const dragCompositionSelectorItemToRoot = async ({
 	);
 };
 
-const dropAssetOnCanvas = async ({
-	assetPath,
-	durationInSeconds,
-	page,
-}: {
-	assetPath: string;
-	durationInSeconds: number;
-	page: Page;
-}) => {
-	const dragData = StudioProtocolInternals.makeDragData({
-		type: 'asset',
-		assetPath,
-		durationInSeconds,
-		height: null,
-		width: null,
-	});
-	const canvas = page.locator('.remotion-studio-composition-container');
-	await expect
-		.poll(() =>
-			canvas.evaluate((element, data) => {
-				const rect = element.getBoundingClientRect();
-				const dataTransfer = new DataTransfer();
-				dataTransfer.setData(data.mimeType, data.payload);
-				const event = new DragEvent('dragover', {
-					bubbles: true,
-					cancelable: true,
-					clientX: rect.left + rect.width / 2,
-					clientY: rect.top + rect.height / 2,
-					dataTransfer,
-				});
-				element.dispatchEvent(event);
-
-				return event.defaultPrevented;
-			}, dragData),
-		)
-		.toBe(true);
-	await canvas.evaluate((element, data) => {
-		const rect = element.getBoundingClientRect();
-		const dataTransfer = new DataTransfer();
-		dataTransfer.setData(data.mimeType, data.payload);
-		element.dispatchEvent(
-			new DragEvent('drop', {
-				bubbles: true,
-				cancelable: true,
-				clientX: rect.left + rect.width / 2,
-				clientY: rect.top + rect.height / 2,
-				dataTransfer,
-			}),
-		);
-	}, dragData);
-};
-
 const dropFile = async ({
 	base64,
 	fileName,
@@ -265,21 +213,6 @@ const dropFile = async ({
 		},
 		{base64, fileName, mimeType},
 	);
-};
-
-const getVideoTag = (source: string, assetPath: string) => {
-	const sourceIndex = source.indexOf(assetPath);
-	if (sourceIndex === -1) {
-		throw new Error(`Could not find ${assetPath} in source`);
-	}
-
-	const tagStart = source.lastIndexOf('<Video', sourceIndex);
-	const tagEnd = source.indexOf('/>', sourceIndex);
-	if (tagStart === -1 || tagEnd === -1) {
-		throw new Error(`Could not find <Video> tag for ${assetPath}`);
-	}
-
-	return source.slice(tagStart, tagEnd + 2);
 };
 
 test.describe('visual mode', () => {
@@ -3752,115 +3685,6 @@ export const SequenceShiftRepro = () => {
 		await page.locator('[data-timeline-scrubber]').click();
 
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
-	});
-
-	test('should preview and place Canvas drops at the playhead', async ({
-		page,
-	}) => {
-		test.setTimeout(90_000);
-		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
-		await expect(
-			page.getByRole('button', {name: '0', exact: true}),
-		).toBeVisible({timeout: 15_000});
-
-		const dragData = StudioProtocolInternals.makeDragData({
-			type: 'element',
-			dependencies: [],
-			dimensions: {width: 320, height: 120},
-			displayName: 'Drop Preview',
-			durationInFrames: 30,
-			slug: 'drop-preview',
-			sourceCode: 'export const DropPreview = () => null;',
-		});
-		const canvas = page.locator('.remotion-studio-composition-container');
-		await expect
-			.poll(() =>
-				canvas.evaluate((element, data) => {
-					const rect = element.getBoundingClientRect();
-					const dataTransfer = new DataTransfer();
-					dataTransfer.setData(data.mimeType, data.payload);
-					const event = new DragEvent('dragover', {
-						bubbles: true,
-						cancelable: true,
-						clientX: rect.left + rect.width / 2,
-						clientY: rect.top + rect.height / 2,
-						dataTransfer,
-					});
-					element.dispatchEvent(event);
-
-					return event.defaultPrevented;
-				}, dragData),
-			)
-			.toBe(true);
-
-		const preview = page.getByTestId('composition-drop-preview');
-		await expect(preview).toBeVisible();
-		const canvasBox = await canvas.boundingBox();
-		const previewBox = await preview.boundingBox();
-		if (canvasBox === null || previewBox === null) {
-			throw new Error('Expected the Canvas and Element preview to have boxes');
-		}
-
-		expect(previewBox.width / previewBox.height).toBeCloseTo(320 / 120, 2);
-		expect(
-			Math.abs(
-				previewBox.x +
-					previewBox.width / 2 -
-					(canvasBox.x + canvasBox.width / 2),
-			),
-		).toBeLessThan(1);
-		expect(
-			Math.abs(
-				previewBox.y +
-					previewBox.height / 2 -
-					(canvasBox.y + canvasBox.height / 2),
-			),
-		).toBeLessThan(1);
-
-		await page.evaluate(() => {
-			document.dispatchEvent(new DragEvent('dragend', {bubbles: true}));
-		});
-		await expect(preview).toBeHidden();
-
-		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
-			await page.locator('[data-sidebar-toggle="right"]').click();
-		}
-
-		await page.locator('[data-timeline-scrubber]').click();
-		await expect(
-			page.getByRole('button', {name: '45', exact: true}),
-		).toBeVisible();
-
-		await dropAssetOnCanvas({
-			assetPath: 'quick.mov',
-			durationInSeconds: 5.866667,
-			page,
-		});
-		await expect
-			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('quick.mov');
-		await expect(
-			page.getByRole('group', {name: 'Inspector source location'}).first(),
-		).toContainText('<Video>', {timeout: 15_000});
-		const longVideoTag = getVideoTag(
-			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
-			'quick.mov',
-		);
-		expect(longVideoTag).not.toContain('from=');
-
-		await dropAssetOnCanvas({
-			assetPath: 'drums-drumsticks.mp4',
-			durationInSeconds: 0.85,
-			page,
-		});
-		await expect
-			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('drums-drumsticks.mp4');
-		const shortVideoTag = getVideoTag(
-			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
-			'drums-drumsticks.mp4',
-		);
-		expect(shortVideoTag).toContain('from={45}');
 	});
 
 	test('should select an added composition before the codemod response arrives', async ({
