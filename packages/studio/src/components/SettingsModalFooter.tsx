@@ -69,6 +69,7 @@ export const SettingsModalFooter: React.FC<{
 						locationType={null}
 						location={configFileLocation}
 						label={<strong style={configFileName}>remotion.config.ts</strong>}
+						showTooltips={false}
 					/>
 				</div>
 				{showLicenseFaq ? (

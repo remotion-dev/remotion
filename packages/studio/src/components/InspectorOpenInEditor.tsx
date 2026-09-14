@@ -49,7 +49,14 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
 	readonly locationType: 'file' | 'folder' | null;
-}> = ({contextForAgents = null, label, location, locationType}) => {
+	readonly showTooltips: boolean;
+}> = ({
+	contextForAgents = null,
+	label,
+	location,
+	locationType,
+	showTooltips,
+}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const configureDefaultApps = useConfigureDefaultApps();
 	const {
@@ -218,8 +225,8 @@ export const InspectorOpenInEditor: React.FC<{
 				),
 				segmentId: 'default-editor',
 				style: mainSegmentStyle,
-				title: `Open in ${defaultAppName}`,
-				tooltipLabel: null,
+				title: showTooltips ? '' : `Open in ${defaultAppName}`,
+				tooltipLabel: showTooltips ? `Open in ${defaultAppName}` : null,
 				type: 'action',
 			},
 		];
@@ -236,7 +243,8 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'another-app',
 				selectedId: null,
 				style: dropdownSegmentStyle,
-				title: 'Open in another app',
+				title: showTooltips ? '' : 'Open in another app',
+				tooltipLabel: showTooltips ? 'Open in another app' : null,
 				type: 'menu',
 				values: menuItems,
 			});
@@ -251,6 +259,7 @@ export const InspectorOpenInEditor: React.FC<{
 		label,
 		menuItems,
 		onOpenDefault,
+		showTooltips,
 	]);
 
 	if (getBrowserStudioOperations() !== null) {

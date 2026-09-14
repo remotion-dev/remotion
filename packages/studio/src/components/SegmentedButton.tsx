@@ -38,6 +38,7 @@ type SegmentedButtonSegmentCommon = {
 	readonly segmentId: string;
 	readonly style: React.CSSProperties | null;
 	readonly title: string | null;
+	readonly tooltipLabel: string | null;
 };
 
 export type SegmentedButtonSegment = SegmentedButtonSegmentCommon &
@@ -45,7 +46,6 @@ export type SegmentedButtonSegment = SegmentedButtonSegmentCommon &
 		| {
 				readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 				readonly onPointerDown: React.PointerEventHandler<HTMLButtonElement> | null;
-				readonly tooltipLabel: string | null;
 				readonly type: 'action';
 		  }
 		| {
@@ -335,26 +335,42 @@ const SegmentedButtonMenu: React.FC<{
 		};
 	}, [index, opened, segment, segmentCount]);
 
+	const button = (
+		<button
+			ref={ref}
+			aria-expanded={opened}
+			aria-haspopup="menu"
+			aria-label={segment.ariaLabel}
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME} ${MENU_INITIATOR_CLASSNAME}`}
+			disabled={segment.disabled}
+			id={segment.buttonId ?? undefined}
+			onClick={onClick}
+			onMouseDown={preventMouseFocus}
+			onPointerDown={onPointerDown}
+			style={style}
+			tabIndex={tabIndex}
+			title={segment.title ?? undefined}
+			type="button"
+		>
+			{segment.renderContent(CURRENT_COLOR)}
+		</button>
+	);
+
 	return (
 		<>
-			<button
-				ref={ref}
-				aria-expanded={opened}
-				aria-haspopup="menu"
-				aria-label={segment.ariaLabel}
-				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME} ${MENU_INITIATOR_CLASSNAME}`}
-				disabled={segment.disabled}
-				id={segment.buttonId ?? undefined}
-				onClick={onClick}
-				onMouseDown={preventMouseFocus}
-				onPointerDown={onPointerDown}
-				style={style}
-				tabIndex={tabIndex}
-				title={segment.title ?? undefined}
-				type="button"
-			>
-				{segment.renderContent(CURRENT_COLOR)}
-			</button>
+			{segment.tooltipLabel === null ? (
+				button
+			) : (
+				<ActionTooltip
+					label={segment.tooltipLabel}
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+					triggerStyle={tooltipTriggerStyle}
+				>
+					{button}
+				</ActionTooltip>
+			)}
 			{portalStyle
 				? ReactDOM.createPortal(
 						<div

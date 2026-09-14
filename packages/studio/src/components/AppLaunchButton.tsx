@@ -101,6 +101,7 @@ export const AppLaunchButton: React.FC<{
 							selectedId: null,
 							style: dropdownSegmentStyle,
 							title: menuAriaLabel,
+							tooltipLabel: null,
 							type: 'menu' as const,
 							values: items,
 						},

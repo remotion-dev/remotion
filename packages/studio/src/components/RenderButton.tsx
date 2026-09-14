@@ -420,6 +420,7 @@ const RenderButtonInner: React.FC<{
 						? compactDropdownSegmentStyle
 						: defaultDropdownSegmentStyle,
 				title: 'Select render type',
+				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
 			},
