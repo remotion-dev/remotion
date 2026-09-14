@@ -3,6 +3,7 @@ import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Freeze} from '../freeze.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
@@ -73,6 +74,28 @@ describe('Register and unregister asset', () => {
 		expect(mockContext.registerRenderAsset).toHaveBeenCalled();
 		unmount();
 		expect(mockContext.unregisterRenderAsset).toHaveBeenCalled();
+	});
+
+	test('does not register a frozen audio asset', () => {
+		const props = {
+			src: 'test',
+			muted: false,
+			volume: 1,
+			onDuration: mock(),
+			onNativeError: mock(),
+			audioStreamIndex: 0,
+		};
+		render(
+			<CanUseRemotionHooksProvider>
+				<mockContext.MockProvider>
+					<Freeze frame={20}>
+						<AudioForRendering {...props} />
+					</Freeze>
+				</mockContext.MockProvider>
+			</CanUseRemotionHooksProvider>,
+		);
+
+		expect(mockContext.registerRenderAsset).not.toHaveBeenCalled();
 	});
 
 	test('no src passed', () => {

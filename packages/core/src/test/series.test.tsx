@@ -51,6 +51,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 			'my-comp': frame,
 		},
 		isPlaying: () => false,
+		isInsideFreeze: false,
 		audioAndVideoTags: {current: []},
 	};
 

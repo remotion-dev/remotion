@@ -12,6 +12,7 @@ import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {useMediaAudioState} from '../audio/use-media-audio-state.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
@@ -25,10 +26,7 @@ import {useMediaTag} from '../use-media-tag.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
-import {
-	usePlayerMutedState,
-	useMediaVolumeState,
-} from '../volume-position-state.js';
+import {useMediaVolumeState} from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
@@ -149,12 +147,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	const [mediaVolume] = useMediaVolumeState();
-	const [playerMuted] = usePlayerMutedState();
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
 		volume,
 		mediaVolume,
+	});
+	const {isMutedForTimeline, isMutedForPlayback} = useMediaAudioState({
+		muted: muted ?? false,
+		volume: userPreferredVolume,
+		audioEnabled: true,
 	});
 
 	warnAboutTooHighVolume(userPreferredVolume);
@@ -180,7 +182,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
-		muted: muted ?? false,
+		muted: isMutedForTimeline,
 	});
 
 	// putting playback before useVolume
@@ -358,7 +360,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		<video
 			{...nativeProps}
 			ref={videoRef}
-			muted={muted || playerMuted || userPreferredVolume <= 0}
+			muted={isMutedForPlayback}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}

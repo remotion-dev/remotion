@@ -38,7 +38,6 @@ import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 const {
 	useUnsafeVideoConfig,
 	SharedAudioContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -48,6 +47,7 @@ const {
 	useEffectChainState,
 	usePlaying,
 	useBuffering,
+	useMediaAudioState,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
@@ -151,7 +151,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		[refForOutline],
 	);
 
-	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
@@ -191,7 +190,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const preloadedSrc = usePreload(src);
 	// TODO: Consider Sequence hidden
-	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
+	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
+		muted,
+		volume: userPreferredVolume,
+		audioEnabled: true,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -531,7 +534,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				src={src}
 				style={actualStyle}
 				className={className}
-				muted={muted}
+				muted={effectiveMuted}
 				volume={volume}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
