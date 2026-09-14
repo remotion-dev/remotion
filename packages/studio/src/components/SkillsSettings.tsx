@@ -238,10 +238,12 @@ export const SkillsSettings: React.FC = () => {
 									<span style={status}>Installing…</span>
 								) : null}
 								{installed ? (
-									<CheckCircleFilled
-										aria-hidden
-										style={{...statusIcon, fill: BLUE}}
-									/>
+									<span style={actionSlot}>
+										<CheckCircleFilled
+											aria-hidden
+											style={{...statusIcon, fill: BLUE}}
+										/>
+									</span>
 								) : installingThisSkill ? (
 									<span style={actionSlot}>
 										<Spinner duration={0.5} size={14} />
