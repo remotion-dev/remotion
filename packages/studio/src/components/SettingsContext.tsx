@@ -203,15 +203,7 @@ export const SettingsProvider: React.FC<{
 				skillAction: null,
 				revision: currentSettings.revision + 1,
 			}));
-			const remainingSkill = remotionSkillsInfo.skills.find(
-				({name}) => name === skill,
-			);
-			showNotification(
-				remainingSkill?.installedGlobally
-					? `Removed ${skill} from this project. It is still installed globally.`
-					: `Removed ${skill}. Restart your coding agent to stop using it.`,
-				5000,
-			);
+			showNotification(`Removed ${skill}.`, 5000);
 		} catch (err) {
 			setSettings((currentSettings) => ({
 				...currentSettings,
