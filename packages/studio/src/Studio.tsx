@@ -7,6 +7,7 @@ import {ServerDisconnected} from './components/Notifications/ServerDisconnected'
 import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
 import {injectCSS} from './helpers/inject-css';
+import {StudioLocaleProvider} from './localization/StudioLocaleProvider';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
 import {CompositionListProvider} from './state/composition-list';
 
@@ -73,7 +74,9 @@ export const Studio: React.FC<{
 
 	return (
 		<FastRefreshProvider>
-			<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+			<StudioLocaleProvider>
+				<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+			</StudioLocaleProvider>
 		</FastRefreshProvider>
 	);
 };

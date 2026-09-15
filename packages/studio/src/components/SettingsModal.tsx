@@ -20,11 +20,13 @@ import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
 import {FilmIcon} from '../icons/video';
+import {useStudioLocale} from '../localization/StudioLocaleProvider';
 import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
 import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
+import {LanguageSettings} from './LanguageSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
 import {ModelsSettings} from './ModelsSettings';
@@ -49,6 +51,7 @@ import {useUpdateStatus} from './UpdateStatusContext';
 
 type SettingsTab =
 	| 'apps'
+	| 'language'
 	| 'rendering'
 	| 'studio'
 	| 'packages'
@@ -99,6 +102,7 @@ export const SettingsModal: React.FC<{
 }> = ({initialPublicLicenseKey, initialTab}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setPublicLicenseKey} = useSettings();
+	const {t} = useStudioLocale();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {upgradeState} = useUpdateStatus();
@@ -147,7 +151,7 @@ export const SettingsModal: React.FC<{
 	return (
 		<DismissableModal panelStyle={outerModalStyle}>
 			<>
-				<ModalHeader title="Settings" onClose={dismiss} />
+				<ModalHeader title={t('settings.title')} onClose={dismiss} />
 				<div style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>
 						{isBrowserStudio ? null : (
@@ -161,7 +165,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								Studio
+								{t('settings.studio')}
 							</VerticalTab>
 						)}
 						{isBrowserStudio ? null : (
@@ -175,7 +179,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								Defaults
+								{t('settings.defaults')}
 							</VerticalTab>
 						)}
 						<VerticalTab
@@ -188,7 +192,14 @@ export const SettingsModal: React.FC<{
 								</div>
 							)}
 						>
-							Shortcuts
+							{t('settings.shortcuts')}
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'language'}
+							onClick={() => selectTab('language')}
+						>
+							{t('settings.language')}
 						</VerticalTab>
 						{showPackages ? (
 							<VerticalTab
@@ -201,7 +212,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								Packages
+								{t('settings.packages')}
 							</VerticalTab>
 						) : null}
 						{isBrowserStudio ? null : (
@@ -215,7 +226,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								Skills
+								{t('settings.skills')}
 							</VerticalTab>
 						)}
 						<VerticalTab
@@ -228,7 +239,7 @@ export const SettingsModal: React.FC<{
 								</div>
 							)}
 						>
-							Models
+							{t('settings.models')}
 						</VerticalTab>
 						{isBrowserStudio ? null : (
 							<VerticalTab
@@ -241,7 +252,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								Apps
+								{t('settings.apps')}
 							</VerticalTab>
 						)}
 						{isBrowserStudio ? null : (
@@ -255,7 +266,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								License
+								{t('settings.license')}
 							</VerticalTab>
 						)}
 						{showUpdates ? (
@@ -269,7 +280,7 @@ export const SettingsModal: React.FC<{
 									</div>
 								)}
 							>
-								Updates
+								{t('settings.updates')}
 							</VerticalTab>
 						) : null}
 					</div>
@@ -321,6 +332,14 @@ export const SettingsModal: React.FC<{
 							<KeyboardShortcutsSettings />
 						</div>
 					) : null}
+					{openedTabs.includes('language') ? (
+						<div
+							style={tab === 'language' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<LanguageSettings />
+						</div>
+					) : null}
 					{openedTabs.includes('rendering') ? (
 						<div
 							style={tab === 'rendering' ? settingsOptionsPanel : hiddenPanel}
@@ -351,7 +370,8 @@ export const SettingsModal: React.FC<{
 				) : isBrowserStudio ||
 				  tab === 'models' ||
 				  tab === 'updates' ||
-				  tab === 'skills' ? null : (
+				  tab === 'skills' ||
+				  tab === 'language' ? null : (
 					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
 				)}
 			</>
