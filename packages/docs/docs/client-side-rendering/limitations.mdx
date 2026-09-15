@@ -74,6 +74,14 @@ The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for 
 The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.
 The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
 
+### Web fonts inside SVG
+
+Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
+
+The font selection must be part of the SVG markup, for example through an inline `style`, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
+
+Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser's `FontFace` API are not embedded. Text inside `<foreignObject>` is not detected as SVG text and does not receive embedded fonts.
+
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  

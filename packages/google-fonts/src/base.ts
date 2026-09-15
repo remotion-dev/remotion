@@ -178,49 +178,56 @@ export const loadFonts = (
 				const handle = delayRender(label, {timeoutInMilliseconds: 60000});
 				fontsLoaded++;
 
-				//  Create font-face
-				const fontFace = new FontFace(
-					meta.fontFamily,
-					`url(${font}) format('woff2')`,
-					{
-						weight: weight,
-						style: style,
-						unicodeRange: meta.unicodeRanges[subset],
-					},
-				);
+				const registerFont = (fontData: ArrayBuffer) => {
+					NoReactInternals.registerFontFace({
+						ascentOverride: null,
+						descentOverride: null,
+						display: null,
+						featureSettings: null,
+						fontFamily: meta.fontFamily,
+						fontData,
+						fontUrl: font,
+						format: 'woff2',
+						lineGapOverride: null,
+						style,
+						weight,
+						stretch: null,
+						unicodeRange: meta.unicodeRanges[subset] ?? null,
+						variant: null,
+					});
+				};
 
 				let attempts = 2;
 
-				const tryToLoad = () => {
-					//  Load font-face
-					if (fontFace.status === 'loaded') {
-						continueRender(handle);
-						return;
-					}
+				const tryToLoad = (): Promise<void> => {
+					return NoReactInternals.fetchFontData(font)
+						.then((fontData) => {
+							const fontFace = new FontFace(meta.fontFamily, fontData, {
+								weight,
+								style,
+								unicodeRange: meta.unicodeRanges[subset],
+							});
 
-					const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
-						.then(() => {
-							(options?.document ?? document).fonts.add(fontFace);
-							continueRender(handle);
+							return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => {
+								(options?.document ?? document).fonts.add(fontFace);
+								registerFont(fontData);
+								continueRender(handle);
+							});
 						})
 						.catch((err) => {
-							//  Mark font as not loaded
-							loadedFonts[fontKey] = undefined;
 							if (attempts === 0) {
+								loadedFonts[fontKey] = undefined;
 								throw err;
-							} else {
-								attempts--;
-								tryToLoad();
 							}
+
+							attempts--;
+							return tryToLoad();
 						});
-
-					//  Mark font as loaded
-					loadedFonts[fontKey] = promise;
-
-					promises.push(promise);
 				};
 
-				tryToLoad();
+				const promise = tryToLoad();
+				loadedFonts[fontKey] = promise;
+				promises.push(promise);
 			}
 		}
 
@@ -326,39 +333,51 @@ export const loadVariableFonts = (
 			descriptors.stretch = font.stretch;
 		}
 
-		const fontFace = new FontFace(
-			meta.fontFamily,
-			`url(${font.src}) format('woff2')`,
-			descriptors,
-		);
+		const registerFont = (fontData: ArrayBuffer) => {
+			NoReactInternals.registerFontFace({
+				ascentOverride: null,
+				descentOverride: null,
+				display: null,
+				featureSettings: null,
+				fontFamily: meta.fontFamily,
+				fontData,
+				fontUrl: font.src,
+				format: 'woff2',
+				lineGapOverride: null,
+				style: font.style,
+				weight: font.weight,
+				stretch: font.stretch,
+				unicodeRange: font.unicodeRange,
+				variant: null,
+			});
+		};
 		let attempts = 2;
 
-		const tryToLoad = () => {
-			if (fontFace.status === 'loaded') {
-				continueRender(handle);
-				return;
-			}
+		const tryToLoad = (): Promise<void> => {
+			return NoReactInternals.fetchFontData(font.src)
+				.then((fontData) => {
+					const fontFace = new FontFace(meta.fontFamily, fontData, descriptors);
 
-			const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
-				.then(() => {
-					(options.document ?? document).fonts.add(fontFace);
-					continueRender(handle);
+					return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => {
+						(options.document ?? document).fonts.add(fontFace);
+						registerFont(fontData);
+						continueRender(handle);
+					});
 				})
 				.catch((err) => {
-					loadedFonts[fontKey] = undefined;
 					if (attempts === 0) {
+						loadedFonts[fontKey] = undefined;
 						throw err;
 					}
 
 					attempts--;
-					tryToLoad();
+					return tryToLoad();
 				});
-
-			loadedFonts[fontKey] = promise;
-			promises.push(promise);
 		};
 
-		tryToLoad();
+		const promise = tryToLoad();
+		loadedFonts[fontKey] = promise;
+		promises.push(promise);
 	}
 
 	if (subsets.length > 20 && !options.ignoreTooManyRequestsWarning) {

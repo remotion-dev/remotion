@@ -28,6 +28,11 @@ import {
 } from './delay-render-constants';
 import {findPropsToDelete} from './find-props-to-delete';
 import {
+	fetchFontData,
+	getRegisteredFontFaces,
+	registerFontFace,
+} from './font-face-registry';
+import {
 	deserializeJSONWithSpecialTypes,
 	serializeJSONWithSpecialTypes,
 } from './input-props-serialization';
@@ -78,4 +83,7 @@ export const NoReactInternals = {
 	sequenceSchema,
 	parseScaleValue,
 	serializeScaleValue,
+	getRegisteredFontFaces,
+	registerFontFace,
+	fetchFontData,
 };

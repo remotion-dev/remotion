@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 const output = await build({
 	entrypoints: ['src/index.ts'],
 	naming: '[name].mjs',
-	external: ['remotion'],
+	external: ['remotion', 'remotion/no-react'],
 });
 
 const [file] = output.outputs;
