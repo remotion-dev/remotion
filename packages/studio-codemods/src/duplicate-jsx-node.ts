@@ -10,11 +10,21 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
+import {indentInsertedJsx} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
+import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
 import {
-	parseAst,
-	parseAstForReadOnly,
-	serializeAst,
-} from './sequence-props/parse-ast';
+	applySourceEdits,
+	getJsxElementSourceForInsertion,
+	getJsxStringAttributeValueSourceEdit,
+	type SourceEdit,
+} from './source-edits';
+import {
+	getEndOfLine,
+	getIndentationUnit,
+	getLineIndent,
+	indentContinuationLines,
+} from './source-style';
 
 const makeFragment = (first: JSXElement, second: JSXElement): JSXFragment => ({
 	type: 'JSXFragment',
@@ -161,19 +171,159 @@ export const duplicateJsxElementAtPath = (
 	jsxPath.replace(makeFragment(jsxNode, clone));
 };
 
-export const duplicateJsxNodes = async ({
+const getDuplicatedJsxSource = ({
+	element,
+	input,
+}: {
+	element: JSXElement;
+	input: string;
+}) => {
+	if (!element.loc) {
+		throw new Error('Cannot duplicate a JSX element without a source location');
+	}
+
+	const start = recastLocToOffset(input, element.loc.start);
+	const end = recastLocToOffset(input, element.loc.end);
+	let source = input.slice(start, end);
+	const nameAttribute = element.openingElement.attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type === 'JSXIdentifier' &&
+			attribute.name.name === 'name' &&
+			(attribute.value?.type === 'StringLiteral' ||
+				(attribute.value?.type === 'JSXExpressionContainer' &&
+					attribute.value.expression.type === 'StringLiteral')),
+	);
+
+	if (nameAttribute?.type === 'JSXAttribute') {
+		const value =
+			nameAttribute.value?.type === 'JSXExpressionContainer'
+				? nameAttribute.value.expression
+				: nameAttribute.value;
+		if (value?.type !== 'StringLiteral') {
+			throw new Error('Expected the JSX name attribute to be a string');
+		}
+
+		const edit = getJsxStringAttributeValueSourceEdit({
+			attribute: nameAttribute,
+			input,
+			newValue: `${value.value}-copy`,
+		});
+		source =
+			source.slice(0, edit.start - start) +
+			edit.replacement +
+			source.slice(edit.end - start);
+	}
+
+	const originalIndent = getLineIndent({input, offset: start});
+	return source
+		.split(/\r?\n/)
+		.map((line, index) => {
+			if (index === 0) {
+				return line;
+			}
+
+			return line.startsWith(originalIndent)
+				? line.slice(originalIndent.length)
+				: line.trimStart();
+		})
+		.join(getEndOfLine(input));
+};
+
+const getDuplicateSourceEdit = ({
+	input,
+	jsxPath,
+}: {
+	input: string;
+	jsxPath: recast.types.NodePath;
+}): SourceEdit => {
+	const element = jsxPath.node as JSXElement;
+	if (!element.loc) {
+		throw new Error('Cannot duplicate a JSX element without a source location');
+	}
+
+	const start = recastLocToOffset(input, element.loc.start);
+	const end = recastLocToOffset(input, element.loc.end);
+	const parentNode = jsxPath.parentPath?.node;
+	if (!parentNode) {
+		throw new Error('Cannot duplicate JSX element with no parent');
+	}
+
+	const duplicatedSource = getDuplicatedJsxSource({element, input});
+	const indent = getLineIndent({input, offset: start});
+	const endOfLine = getEndOfLine(input);
+	const lineEnd = input.indexOf('\n', end);
+	const sourceAfterElement = input.slice(
+		end,
+		lineEnd === -1 ? input.length : lineEnd,
+	);
+
+	if (parentNode.type === 'JSXElement' || parentNode.type === 'JSXFragment') {
+		const isStandalone = sourceAfterElement.trim() === '';
+		const lineStart = input.lastIndexOf('\n', start - 1) + 1;
+		const whitespaceBeforeElement =
+			input.slice(lineStart, start).match(/[\t ]*$/)?.[0] ?? '';
+		const insertion = isStandalone
+			? `${endOfLine}${indentInsertedJsx({
+					indent,
+					insertion: duplicatedSource,
+				})}`
+			: `${whitespaceBeforeElement}${indentContinuationLines({
+					indent,
+					input,
+					printed: duplicatedSource,
+				})}`;
+
+		return {end, replacement: insertion, start: end};
+	}
+
+	const arrayProperty = getArrayProperty(parentNode);
+	const parent = parentNode as unknown as Record<string, unknown>;
+	const isArrayChild =
+		arrayProperty !== null &&
+		(parent[arrayProperty] as unknown[]).includes(element);
+	if (isArrayChild) {
+		const isStandalone =
+			sourceAfterElement.trim() === '' || sourceAfterElement.trim() === ',';
+		const insertion = isStandalone
+			? `,${endOfLine}${indentInsertedJsx({
+					indent,
+					insertion: duplicatedSource,
+				})}`
+			: `, ${indentContinuationLines({
+					indent,
+					input,
+					printed: duplicatedSource,
+				})}`;
+		return {end, replacement: insertion, start: end};
+	}
+
+	const originalSource = getJsxElementSourceForInsertion({element, input});
+	const unit = getIndentationUnit(input, null);
+	const fragment = [
+		'<>',
+		indentInsertedJsx({indent: unit, insertion: originalSource}),
+		indentInsertedJsx({indent: unit, insertion: duplicatedSource}),
+		'</>',
+	].join(endOfLine);
+
+	return {
+		end,
+		replacement: indentContinuationLines({
+			indent,
+			input,
+			printed: fragment,
+		}),
+		start,
+	};
+};
+
+export const duplicateJsxNodes = ({
 	input,
 	nodePaths,
-	formatFile,
-	prettierConfigOverride,
 }: {
 	input: string;
 	nodePaths: SequenceNodePath[];
-	formatFile: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
-	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	output: string;
 	formatted: boolean;
@@ -201,61 +351,26 @@ export const duplicateJsxNodes = async ({
 				1,
 		};
 	});
+	const sourceEdits = targets.map(({jsxPath}) =>
+		getDuplicateSourceEdit({input, jsxPath}),
+	);
 
 	for (const target of targets) {
 		duplicateJsxElementAtPath(target.jsxPath);
 	}
 
-	const finalFile = serializeAst(ast);
-	const {output, formatted} = await formatFile({
-		contents: finalFile,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
+	const output = applySourceEdits({edits: sourceEdits, input});
 	const {nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
 	});
 
-	return {
+	return Promise.resolve({
 		output,
-		formatted,
+		formatted: true,
 		nodeLabels: targets.map((target) => target.nodeLabel),
 		logLines: targets.map((target) => target.logLine),
 		nodePathRemappings,
-	};
-};
-
-export const duplicateJsxNode = async ({
-	input,
-	nodePath,
-	formatFile,
-	prettierConfigOverride,
-}: {
-	input: string;
-	nodePath: SequenceNodePath;
-	formatFile: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
-	output: string;
-	formatted: boolean;
-	nodeLabel: string;
-	logLine: number;
-	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
-	const {nodeLabels, logLines, ...result} = await duplicateJsxNodes({
-		input,
-		nodePaths: [nodePath],
-		formatFile,
-		prettierConfigOverride,
 	});
-
-	return {
-		...result,
-		nodeLabel: nodeLabels[0],
-		logLine: logLines[0],
-	};
 };

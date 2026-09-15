@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
+import {duplicateJsxNodes} from '@remotion/studio-codemods';
 import type {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 } from '@remotion/studio-shared';
-import {duplicateJsxNodes} from '../../codemods/duplicate-jsx-node';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -15,7 +15,6 @@ import {
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -51,7 +50,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
+					const {output, nodeLabels, logLines, nodePathRemappings} =
 						await duplicateJsxNodes({
 							input: fileContents,
 							nodePaths: fileItems.map((item) => item.nodePath),
@@ -61,7 +60,6 @@ export const duplicateJsxNodeHandler: ApiHandler<
 						absolutePath,
 						fileRelativeToRoot,
 						fileContents,
-						formatted,
 						logLine: Math.min(...logLines),
 						nodeLabels,
 						nodePathRemappings,
@@ -122,13 +120,10 @@ export const duplicateJsxNodeHandler: ApiHandler<
 					{indent: false, logLevel},
 					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${fileDescription}`,
 				);
-				if (!update.formatted) {
-					warnAboutPrettierOnce(logLevel);
-				}
 
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[duplicate-jsx-node] Wrote ${update.fileRelativeToRoot}${update.formatted ? ' (formatted)' : ''}`,
+					`[duplicate-jsx-node] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 

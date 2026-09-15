@@ -1,8 +1,5 @@
 import {expect, test} from 'bun:test';
-import {
-	duplicateJsxNode,
-	duplicateJsxNodes,
-} from '../codemods/duplicate-jsx-node';
+import {duplicateJsxNodes} from '@remotion/studio-codemods';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const sample = `import React from 'react';
@@ -17,10 +14,10 @@ export const X: React.FC = () => {
 };
 `;
 
-test('duplicateJsxNode inserts a sibling JSX element', async () => {
-	const {output} = await duplicateJsxNode({
+test('duplicateJsxNodes inserts a sibling JSX element', async () => {
+	const {output} = await duplicateJsxNodes({
 		input: sample,
-		nodePath: lineColumnToNodePath(sample, 7),
+		nodePaths: [lineColumnToNodePath(sample, 7)],
 	});
 
 	const divOpens = output.match(/<div/g);
@@ -28,7 +25,7 @@ test('duplicateJsxNode inserts a sibling JSX element', async () => {
 	expect(output).toContain('<AbsoluteFill>');
 });
 
-test('duplicateJsxNode remaps following JSX siblings', async () => {
+test('duplicateJsxNodes remaps following JSX siblings', async () => {
 	const input = `export const X = () => (
 	<div>
 		<span name="duplicate" />
@@ -36,9 +33,9 @@ test('duplicateJsxNode remaps following JSX siblings', async () => {
 	</div>
 );
 `;
-	const {output, nodePathRemappings} = await duplicateJsxNode({
+	const {output, nodePathRemappings} = await duplicateJsxNodes({
 		input,
-		nodePath: lineContainingToNodePath(input, 'name="duplicate"'),
+		nodePaths: [lineContainingToNodePath(input, 'name="duplicate"')],
 	});
 
 	expect(nodePathRemappings).toEqual([
@@ -83,15 +80,21 @@ export const X: React.FC = () => {
 };
 `;
 
-test('duplicateJsxNode wraps sole return JSX in a fragment with two elements', async () => {
-	const {output} = await duplicateJsxNode({
+test('duplicateJsxNodes wraps sole return JSX in a fragment with two elements', async () => {
+	const {output} = await duplicateJsxNodes({
 		input: onlyReturn,
-		nodePath: lineColumnToNodePath(onlyReturn, 4),
+		nodePaths: [lineColumnToNodePath(onlyReturn, 4)],
 	});
 
-	expect(output).toMatch(/return\s*\(?\s*</);
-	const divOpens = output.match(/<div/g);
-	expect(divOpens?.length).toBe(2);
+	expect(output).toBe(`import React from 'react';
+
+export const X: React.FC = () => {
+	return <>
+		<div />
+		<div />
+	</>;
+};
+`);
 });
 
 const mapCase = `import React from 'react';
@@ -107,12 +110,105 @@ export const X: React.FC = () => {
 };
 `;
 
-test('duplicateJsxNode duplicates JSX inside map callback', async () => {
-	const {output} = await duplicateJsxNode({
+test('duplicateJsxNodes duplicates JSX inside map callback', async () => {
+	const {output} = await duplicateJsxNodes({
 		input: mapCase,
-		nodePath: lineColumnToNodePath(mapCase, 7),
+		nodePaths: [lineColumnToNodePath(mapCase, 7)],
 	});
 
 	const divOpens = output.match(/<div/g);
 	expect(divOpens?.length).toBe(2);
+});
+
+test('duplicateJsxNodes preserves surrounding source formatting', async () => {
+	const input = `export const X=()=>(
+  <div data={{value:1}}>
+    <span name='first' data-value = {1}/>
+    <span name='untouched'/>
+  </div>
+)
+`;
+	const {output} = await duplicateJsxNodes({
+		input,
+		nodePaths: [lineContainingToNodePath(input, "name='first'")],
+	});
+
+	expect(output).toBe(`export const X=()=>(
+  <div data={{value:1}}>
+    <span name='first' data-value = {1}/>
+    <span name='first-copy' data-value = {1}/>
+    <span name='untouched'/>
+  </div>
+)
+`);
+});
+
+test('duplicateJsxNodes preserves CRLF line endings', async () => {
+	const input = [
+		'export const X = () => (',
+		'  <div>',
+		'    <span name="first" />',
+		'  </div>',
+		');',
+		'',
+	].join('\r\n');
+	const {output} = await duplicateJsxNodes({
+		input,
+		nodePaths: [lineContainingToNodePath(input, 'name="first"')],
+	});
+
+	expect(output).toBe(
+		[
+			'export const X = () => (',
+			'  <div>',
+			'    <span name="first" />',
+			'    <span name="first-copy" />',
+			'  </div>',
+			');',
+			'',
+		].join('\r\n'),
+	);
+});
+
+test('duplicateJsxNodes preserves inline JSX spacing', async () => {
+	const input =
+		'export const X = () => <div><Keep /> <Copy name="item" /><Keep /></div>;\n';
+	const {output} = await duplicateJsxNodes({
+		input,
+		nodePaths: [lineContainingToNodePath(input, '<Copy name="item"')],
+	});
+
+	expect(output).toBe(
+		'export const X = () => <div><Keep /> <Copy name="item" /> <Copy name="item-copy" /><Keep /></div>;\n',
+	);
+});
+
+test('duplicateJsxNodes preserves multiline JSX formatting', async () => {
+	const input = `export const X = () => (
+  <div>
+    <Item
+      name={'item'}
+      value = {{nested:true}}
+    />
+  </div>
+);
+`;
+	const {output} = await duplicateJsxNodes({
+		input,
+		nodePaths: [lineContainingToNodePath(input, '<Item')],
+	});
+
+	expect(output).toBe(`export const X = () => (
+  <div>
+    <Item
+      name={'item'}
+      value = {{nested:true}}
+    />
+    <Item
+      name={'item-copy'}
+      value = {{nested:true}}
+    />
+  </div>
+);
+`);
 });

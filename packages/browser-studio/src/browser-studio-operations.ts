@@ -1353,7 +1353,6 @@ export const createBrowserStudioOperations = ({
 					result: await duplicateJsxNodesCodemod({
 						input: project.files[fileName],
 						nodePaths,
-						formatFile: formatCodemodFile,
 					}),
 				})),
 			);
