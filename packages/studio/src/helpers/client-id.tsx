@@ -93,9 +93,7 @@ export const PreviewServerConnection: React.FC<{
 				const isOwnConfigChange =
 					newEvent.originatorClientId !== null &&
 					newEvent.originatorClientId === clientId.current;
-				if (isOwnConfigChange) {
-					setRestartRequired(newEvent.changeType === 'restart');
-				}
+				setRestartRequired(newEvent.changeType === 'restart');
 
 				const shouldShowNotification =
 					!isOwnConfigChange || newEvent.changeType === 'reload';
