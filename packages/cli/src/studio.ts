@@ -29,6 +29,7 @@ import {
 	getRenderQueue,
 	removeJob,
 } from './render-queue/queue';
+import {restartStudioProcess} from './restart-studio-process';
 
 const {
 	binariesDirectoryOption,
@@ -350,6 +351,8 @@ export const studioCommand = async (
 		return;
 	}
 
-	// If the server is restarted through the UI, let's do the whole thing again.
-	await studioCommand(remotionRoot, args, logLevel);
+	await restartStudioProcess({
+		command: process.execPath,
+		args: [...process.execArgv, ...process.argv.slice(1)],
+	});
 };
