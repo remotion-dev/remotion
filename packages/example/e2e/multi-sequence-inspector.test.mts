@@ -36,6 +36,15 @@ test('edits shared controls and preserves relative translations in a single undo
 		});
 		const sourceBefore = fs.readFileSync(visualMode3DFile, 'utf-8');
 		const x = page.getByRole('button', {name: 'Offset X', exact: true});
+		await page
+			.getByRole('button', {name: 'Collapse Transform', exact: true})
+			.click();
+		await expect(x).toBeHidden();
+		await page
+			.getByRole('button', {name: 'Expand Transform', exact: true})
+			.press('Space');
+		await expect(x).toHaveText('Mixed');
+		await expect(x).toBeVisible();
 		await x.click();
 		const input = page.getByRole('textbox', {name: 'Offset X', exact: true});
 		await input.fill('99');

@@ -149,6 +149,12 @@ test.describe('captions inspector', () => {
 			sourceBeforeFailedImport,
 		);
 
+		await page
+			.getByRole('button', {name: 'Collapse Captions', exact: true})
+			.click();
+		await expect(defaultCaption).toBeHidden();
+		await expect(importCaptionsButton).toBeVisible();
+
 		await importCaptionsInput.setInputFiles({
 			name: 'captions.json',
 			mimeType: 'application/json',
@@ -220,6 +226,10 @@ test.describe('captions inspector', () => {
 			await expect(importCaptionsButton).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
 
+		await expect(page.getByText('No captions', {exact: true})).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: /^(Collapse|Expand) Captions$/}),
+		).toHaveCount(0);
 		await page.getByLabel('Import captions file').setInputFiles({
 			name: 'captions.json',
 			mimeType: 'application/json',

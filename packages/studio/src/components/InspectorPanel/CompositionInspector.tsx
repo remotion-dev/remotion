@@ -2,6 +2,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useImperativeHandle,
 	useMemo,
 	useState,
 } from 'react';
@@ -29,6 +30,7 @@ import {
 	useDataEditorWarningVisibility,
 } from '../RenderModal/DataEditor';
 import {resolveCompositionSchema} from '../RenderModal/SchemaEditor/infer-zod-schema-from-value';
+import {expandDefaultPropsEditorRef} from '../RenderModal/SchemaEditor/scroll-to-default-props-path';
 import type {AnyZodSchema} from '../RenderModal/SchemaEditor/zod-schema-type';
 import {getZodSchemaType} from '../RenderModal/SchemaEditor/zod-schema-type';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
@@ -36,10 +38,13 @@ import {WarningIndicatorButton} from '../RenderModal/WarningIndicatorButton';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {CollapsibleInspectorSectionHeader} from './CollapsibleInspectorSectionHeader';
 import {
-	InspectorQuickActionsSection,
 	InspectorDefaultPropsWarnings,
 	InspectorQuickAction,
+	InspectorQuickActionsSection,
+	InspectorSectionBody,
 	InspectorSectionHeader,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
@@ -47,16 +52,13 @@ import {CompositionMetadata} from './CompositionMetadata';
 import {ElementLibraryButton} from './ElementLibraryButton';
 import {
 	compositionDefaultPropsSection,
-	compositionVisualControlsSection,
 	defaultPropsWarningContainer,
 	inspectorOverviewSection,
 	scrollableContainer,
-	sectionHeaderEnd,
 	sectionHeaderRow,
-	sectionHeaderStart,
-	sectionHeaderTitle,
 } from './styles';
 import {useCompositionActions} from './use-composition-actions';
+import {useInspectorSectionExpanded} from './use-inspector-section-expanded';
 
 const actionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -155,8 +157,11 @@ const CompositionActions: React.FC = () => {
 	}
 
 	return (
-		<>
-			<InspectorSectionHeader>Actions</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			collapsible
+			label="Actions"
+			sectionId="composition-actions"
+		>
 			<InspectorQuickActionsSection>
 				{canShowInsertSolid ? (
 					<InspectorQuickAction
@@ -204,7 +209,7 @@ const CompositionActions: React.FC = () => {
 					</InspectorQuickAction>
 				) : null}
 			</InspectorQuickActionsSection>
-		</>
+		</CollapsibleInspectorSection>
 	);
 };
 
@@ -219,6 +224,14 @@ const CompositionDefaultPropsSection: React.FC<{
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
+	const [expanded, setExpanded] = useInspectorSectionExpanded(
+		'composition-default-props',
+	);
+	useImperativeHandle(
+		expandDefaultPropsEditorRef,
+		() => () => setExpanded(true),
+		[setExpanded],
+	);
 	const compositionId = composition.id;
 
 	useEffect(() => {
@@ -277,48 +290,54 @@ const CompositionDefaultPropsSection: React.FC<{
 	return (
 		<div style={compositionDefaultPropsSection}>
 			<InspectorSectionHeader>
-				<div style={sectionHeaderRow}>
-					<div style={sectionHeaderStart}>
-						<span style={sectionHeaderTitle}>Default Props</span>
-						<SegmentedControl
-							items={defaultPropsModeItems}
-							needsWrapping={false}
-							size="compact"
-						/>
-					</div>
-					<div style={sectionHeaderEnd}>
-						{defaultPropsWarnings.length > 0 ? (
-							<WarningIndicatorButton
-								setShowWarning={setShowWarning}
-								showWarning={showWarning}
-								warningCount={defaultPropsWarnings.length}
-								size="compact"
-							/>
-						) : null}
-					</div>
-				</div>
+				<CollapsibleInspectorSectionHeader
+					action={
+						expanded ? (
+							<div style={sectionHeaderRow}>
+								<SegmentedControl
+									items={defaultPropsModeItems}
+									needsWrapping={false}
+									size="compact"
+								/>
+								{defaultPropsWarnings.length > 0 ? (
+									<WarningIndicatorButton
+										setShowWarning={setShowWarning}
+										showWarning={showWarning}
+										warningCount={defaultPropsWarnings.length}
+										size="compact"
+									/>
+								) : null}
+							</div>
+						) : null
+					}
+					expanded={expanded}
+					label="Default Props"
+					onToggle={() => setExpanded(!expanded)}
+				/>
 			</InspectorSectionHeader>
-			{defaultPropsWarnings.length > 0 && showWarning ? (
-				<div style={defaultPropsWarningContainer}>
-					<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
-				</div>
-			) : null}
-			<DefaultPropsEditor
-				key={composition.id}
-				unresolvedComposition={composition}
-				defaultProps={currentDefaultProps}
-				setDefaultProps={setDefaultProps}
-				propsEditType="default-props"
-				schemaErrorMode="compact"
-				layout="inspector"
-				mode={defaultPropsMode}
-				onModeChange={setDefaultPropsMode}
-				hideModeControls={canShowDefaultPropsSection}
-				warnings={defaultPropsWarnings}
-				showWarning={false}
-				setShowWarning={setShowWarning}
-				hideWarningButton
-			/>
+			<InspectorSectionBody expanded={expanded}>
+				{defaultPropsWarnings.length > 0 && showWarning ? (
+					<div style={defaultPropsWarningContainer}>
+						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+					</div>
+				) : null}
+				<DefaultPropsEditor
+					key={composition.id}
+					unresolvedComposition={composition}
+					defaultProps={currentDefaultProps}
+					setDefaultProps={setDefaultProps}
+					propsEditType="default-props"
+					schemaErrorMode="compact"
+					layout="inspector"
+					mode={defaultPropsMode}
+					onModeChange={setDefaultPropsMode}
+					hideModeControls={canShowDefaultPropsSection}
+					warnings={defaultPropsWarnings}
+					showWarning={false}
+					setShowWarning={setShowWarning}
+					hideWarningButton
+				/>
+			</InspectorSectionBody>
 		</div>
 	);
 };
@@ -337,10 +356,13 @@ const CompositionVisualControlsSection: React.FC<{
 	}
 
 	return (
-		<div style={compositionVisualControlsSection}>
-			<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			collapsible
+			label="Visual Controls"
+			sectionId="composition-visual-controls"
+		>
 			<VisualControlsContent />
-		</div>
+		</CollapsibleInspectorSection>
 	);
 };
 
@@ -356,12 +378,17 @@ export const CompositionInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
-				<InspectorSectionHeader>Metadata</InspectorSectionHeader>
-				<CompositionMetadata
-					compositionId={composition.id}
-					disabled={readOnlyStudio || previewServerState.type !== 'connected'}
-					stack={composition.stack}
-				/>
+				<CollapsibleInspectorSection
+					collapsible
+					label="Metadata"
+					sectionId="composition-metadata"
+				>
+					<CompositionMetadata
+						compositionId={composition.id}
+						disabled={readOnlyStudio || previewServerState.type !== 'connected'}
+						stack={composition.stack}
+					/>
+				</CollapsibleInspectorSection>
 			</div>
 			<CompositionDefaultPropsSection
 				composition={composition}

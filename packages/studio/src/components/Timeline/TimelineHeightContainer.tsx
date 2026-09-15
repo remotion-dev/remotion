@@ -20,7 +20,25 @@ const TimelineHeightContainerInner: React.FC<{
 		[totalSize],
 	);
 
-	return <div style={style}>{children}</div>;
+	return (
+		<div
+			style={style}
+			onPointerDownCapture={(event) => {
+				const {activeElement} = document;
+				if (
+					event.button === 0 &&
+					activeElement instanceof HTMLButtonElement &&
+					event.target instanceof Node &&
+					!activeElement.contains(event.target)
+				) {
+					// Timeline drags can prevent the browser's default focus change.
+					activeElement.blur();
+				}
+			}}
+		>
+			{children}
+		</div>
+	);
 };
 
 export const TimelineHeightContainer = React.memo(TimelineHeightContainerInner);

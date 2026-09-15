@@ -25,6 +25,14 @@ test.describe('visual controls', () => {
 			.locator('[data-json-path="rotation"]')
 			.locator('..');
 		await expect(rotationFieldset).toBeVisible({timeout: 10_000});
+		await page
+			.getByRole('button', {name: 'Collapse Visual Controls', exact: true})
+			.click();
+		await expect(rotationFieldset).toBeHidden();
+		await page
+			.getByRole('button', {name: 'Expand Visual Controls', exact: true})
+			.press('Enter');
+		await expect(rotationFieldset).toBeVisible();
 
 		const rotationDragger = rotationFieldset.locator(
 			'button.__remotion_input_dragger',

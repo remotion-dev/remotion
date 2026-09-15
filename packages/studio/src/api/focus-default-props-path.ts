@@ -1,6 +1,8 @@
+import {flushSync} from 'react-dom';
 import {
 	DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME,
 	DEFAULT_PROPS_PATH_CLASSNAME,
+	expandDefaultPropsEditorRef,
 } from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 import type {JSONPath} from '../components/RenderModal/SchemaEditor/zod-types';
 
@@ -27,6 +29,7 @@ export const focusDefaultPropsPath = ({
 		};
 	}
 
+	flushSync(() => expandDefaultPropsEditorRef.current?.());
 	query.scrollIntoView({behavior: scrollBehavior});
 	query.classList.add(DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME);
 	return {

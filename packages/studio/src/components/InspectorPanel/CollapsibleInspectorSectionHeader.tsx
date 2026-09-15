@@ -1,14 +1,13 @@
 import React from 'react';
 import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {sectionHeaderRow} from './styles';
 
-const collapsibleSectionHeaderButton: React.CSSProperties = {
-	appearance: 'none',
-	backgroundColor: 'transparent',
-	border: 'none',
-	borderRadius: 3,
-	cursor: 'default',
+const sectionTitle: React.CSSProperties = {
 	display: 'block',
 	flex: 1,
 	fontFamily: 'Arial, Helvetica, sans-serif',
@@ -23,6 +22,20 @@ const collapsibleSectionHeaderButton: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
 	whiteSpace: 'nowrap',
+};
+
+const staticSectionTitle: React.CSSProperties = {
+	...sectionTitle,
+	color: LIGHT_TEXT,
+};
+
+const collapsibleSectionHeaderButton: React.CSSProperties = {
+	...sectionTitle,
+	appearance: 'none',
+	backgroundColor: 'transparent',
+	border: 'none',
+	borderRadius: 3,
+	cursor: 'default',
 	...hoverableStyle({
 		idleBackground: TRANSPARENT,
 		hoverBackground: TRANSPARENT,
@@ -31,24 +44,38 @@ const collapsibleSectionHeaderButton: React.CSSProperties = {
 	}),
 };
 
+const stopActivationKeyPropagation = (
+	event: React.KeyboardEvent<HTMLButtonElement>,
+) => {
+	if (event.key === 'Enter' || event.key === ' ') {
+		event.stopPropagation();
+	}
+};
+
 export const CollapsibleInspectorSectionHeader: React.FC<{
 	readonly action: React.ReactNode;
 	readonly expanded: boolean;
 	readonly label: string;
-	readonly onToggle: () => void;
+	readonly onToggle: (() => void) | null;
 }> = ({action, expanded, label, onToggle}) => {
 	return (
 		<div style={sectionHeaderRow}>
-			<button
-				type="button"
-				aria-expanded={expanded}
-				aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
-				className={`__remotion-inspector-section-title ${HOVERABLE_CLASS_NAME}`}
-				onClick={onToggle}
-				style={collapsibleSectionHeaderButton}
-			>
-				{label}
-			</button>
+			{onToggle === null ? (
+				<div style={staticSectionTitle}>{label}</div>
+			) : (
+				<button
+					type="button"
+					aria-expanded={expanded}
+					aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
+					className={`__remotion-inspector-section-title ${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+					onClick={onToggle}
+					onKeyDown={stopActivationKeyPropagation}
+					onKeyUp={stopActivationKeyPropagation}
+					style={collapsibleSectionHeaderButton}
+				>
+					{label}
+				</button>
+			)}
 			{action}
 		</div>
 	);

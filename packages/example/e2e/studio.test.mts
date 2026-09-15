@@ -839,6 +839,9 @@ test.describe('visual mode', () => {
 			});
 		const timelinePhase = page.getByText('Phase', {exact: true});
 		await expect(timelinePhase).toHaveCount(1);
+		await inspector
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
 		await inspector.evaluate((element) => {
 			element.scrollTop = 0;
 		});
@@ -852,14 +855,47 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
-	test('should keep Effects expanded and preserve the inspector scroll position when adding an effect', async ({
+	test('collapses populated Effects and opens them when adding an effect', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
 		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
 		const addEffectButton = page.getByTitle('Add effect', {exact: true});
+		const inspector = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: addEffectButton});
+		const effectPicker = page.getByRole('dialog');
 		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
 			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+
+		await expect(async () => {
+			await page
+				.getByTitle('Timeline expansion', {exact: true})
+				.first()
+				.click();
+			await expect(addEffectButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		await expect(page.getByText('Effects', {exact: true})).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: /^(Collapse|Expand) Effects$/}),
+		).toHaveCount(0);
+
+		// Adding the first effect must also work after undoing a collapsed one.
+		for (let i = 0; i < 2; i++) {
+			await addEffectButton.click();
+			await effectPicker.getByPlaceholder('Search effects...').fill('blur');
+			await effectPicker.getByText('blur()', {exact: true}).click();
+			await expect(inspector.getByText('blur()', {exact: true})).toBeVisible();
+			await page
+				.getByRole('button', {name: 'Collapse Effects', exact: true})
+				.click();
+			await expect(page.getByRole('button', {name: /^Undo/})).toBeEnabled();
+			await page.keyboard.press('ControlOrMeta+z');
+			await expect(
+				page.getByRole('button', {name: /^(Collapse|Expand) Effects$/}),
+			).toHaveCount(0);
+			await expect(inspector.getByText('Effects', {exact: true})).toBeVisible();
 		}
 
 		await expect(async () => {
@@ -867,23 +903,42 @@ test.describe('visual mode', () => {
 			await expect(addEffectButton).toBeVisible({timeout: 1000});
 		}).toPass({timeout: 15_000});
 		await expect(page.getByText('wave()', {exact: true})).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
+		await expect(page.getByText('wave()', {exact: true})).toBeHidden();
+		await expect(addEffectButton).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Expand Effects', exact: true})
+			.press('Enter');
+		await expect(page.getByText('wave()', {exact: true})).toBeVisible();
+		await page
+			.locator('[data-timeline-marquee-item][title="Scale precision"]')
+			.click();
 		await expect(
 			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
-		).toHaveCount(0);
-		const inspector = page
-			.locator('.__remotion-vertical-scrollbar')
-			.filter({has: addEffectButton});
+		).not.toBeFocused();
+		await page.keyboard.press('Enter');
+		const sequenceName = page.getByRole('textbox');
+		await expect(sequenceName).toHaveValue('Scale precision');
+		await sequenceName.press('Escape');
+		await page
+			.locator('[data-timeline-marquee-item][title="Scale precision"]')
+			.click();
+		await page
+			.getByRole('button', {name: 'Collapse Effects', exact: true})
+			.click();
 		await expect(inspector).toHaveCount(1);
 		await inspector.evaluate((element) => {
 			element.scrollTop = element.scrollHeight;
 		});
 		await addEffectButton.click();
+		await expect(inspector.getByText('wave()', {exact: true})).toBeVisible();
 
 		const scrollTopBefore = await inspector.evaluate(
 			(element) => element.scrollTop,
 		);
 		expect(scrollTopBefore).toBeGreaterThan(0);
-		const effectPicker = page.getByRole('dialog');
 		await effectPicker.getByPlaceholder('Search effects...').fill('blur');
 		await effectPicker.getByText('blur()', {exact: true}).click();
 

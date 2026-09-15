@@ -29,11 +29,11 @@ import {
 import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
 import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
-	InspectorSectionHeader,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -335,18 +335,23 @@ const SequenceExpandedInspector: React.FC<{
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
-					<InspectorSectionHeader>Actions</InspectorSectionHeader>
-					<InspectorQuickActionsSection>
-						<SplitSequenceQuickAction
-							selection={sequenceSelection}
-							track={track}
-						/>
-						<SequenceSourceQuickActions
-							selection={sequenceSelection}
-							track={track}
-							validatedSource={validatedLocation.source}
-						/>
-					</InspectorQuickActionsSection>
+					<CollapsibleInspectorSection
+						collapsible
+						label="Actions"
+						sectionId="sequence-actions"
+					>
+						<InspectorQuickActionsSection>
+							<SplitSequenceQuickAction
+								selection={sequenceSelection}
+								track={track}
+							/>
+							<SequenceSourceQuickActions
+								selection={sequenceSelection}
+								track={track}
+								validatedSource={validatedLocation.source}
+							/>
+						</InspectorQuickActionsSection>
+					</CollapsibleInspectorSection>
 				</>
 			) : (
 				<InspectorMessage>Source controls unavailable</InspectorMessage>
