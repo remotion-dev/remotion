@@ -61,7 +61,6 @@ export const StudioCodeHandoff: React.FC = () => {
 						<Interactive.Div
 							name="VS Code"
 							style={{
-								borderRadius: 12,
 								height: 748,
 								left: 0,
 								overflow: 'hidden',
@@ -126,7 +125,6 @@ export const Scene11: React.FC = () => {
 							name="Codex"
 							style={{
 								backgroundColor: '#f4f4f2',
-								borderRadius: 12,
 								height: 748,
 								left: 0,
 								overflow: 'hidden',
