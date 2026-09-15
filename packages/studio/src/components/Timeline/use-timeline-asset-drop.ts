@@ -1,4 +1,11 @@
-import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -8,7 +15,7 @@ import {handleCanvasCaptureDrop} from '../canvas-capture-drop';
 import {isFileDragEvent, isSupportedDropEvent} from '../drop-handler-data';
 import {getEffectDragData} from '../effect-drag-and-drop';
 import {handleDrop} from '../handle-drop';
-import {showNotification} from '../Notifications/NotificationCenter';
+import {showCannotAddSequenceDropNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
 import {getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
@@ -32,6 +39,7 @@ export const useTimelineAssetDrop = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [assetDropFrame, setAssetDropFrame] = useState<number | null>(null);
+	const unsupportedDropNotifiedRef = useRef(false);
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -93,9 +101,24 @@ export const useTimelineAssetDrop = () => {
 				!isSupportedDropEvent(event) ||
 				!isEventTargetInsideElement(event, timeline)
 			) {
+				unsupportedDropNotifiedRef.current = false;
 				setAssetDropFrame(null);
 				return;
 			}
+
+			const mayBeCanvasCapture =
+				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
+			const shouldNotifyAboutUnsupportedDrop =
+				compositionComponentInfo?.canAddSequence === false &&
+				!mayBeCanvasCapture;
+			if (
+				shouldNotifyAboutUnsupportedDrop &&
+				!unsupportedDropNotifiedRef.current
+			) {
+				showCannotAddSequenceDropNotification();
+			}
+
+			unsupportedDropNotifiedRef.current = shouldNotifyAboutUnsupportedDrop;
 
 			event.preventDefault();
 			event.stopPropagation();
@@ -107,11 +130,13 @@ export const useTimelineAssetDrop = () => {
 				isEventTargetInsideElement(event, scrollable);
 			setAssetDropFrame(shouldShowDropFrame ? getDropFrame(event) : null);
 		},
-		[canInsertAsset, getDropFrame],
+		[canInsertAsset, compositionComponentInfo?.canAddSequence, getDropFrame],
 	);
 
 	const onAssetDrop = useCallback(
 		async (event: DragEvent) => {
+			const unsupportedDropWasNotified = unsupportedDropNotifiedRef.current;
+			unsupportedDropNotifiedRef.current = false;
 			setAssetDropFrame(null);
 			const timeline = timelineVerticalScroll.current;
 			const {dataTransfer} = event;
@@ -158,11 +183,11 @@ export const useTimelineAssetDrop = () => {
 				compositionFile === null ||
 				videoConfig === null
 			) {
-				if (compositionComponentInfo?.canAddSequence === false) {
-					showNotification(
-						'Cannot insert items into this composition component',
-						3000,
-					);
+				if (
+					compositionComponentInfo?.canAddSequence === false &&
+					!unsupportedDropWasNotified
+				) {
+					showCannotAddSequenceDropNotification();
 				}
 
 				return;
@@ -210,6 +235,7 @@ export const useTimelineAssetDrop = () => {
 	);
 
 	const clearAssetDropFrame = useCallback(() => {
+		unsupportedDropNotifiedRef.current = false;
 		setAssetDropFrame(null);
 	}, []);
 

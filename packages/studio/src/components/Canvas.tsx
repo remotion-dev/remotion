@@ -83,7 +83,10 @@ import {
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
-import {showNotification} from './Notifications/NotificationCenter';
+import {
+	showCannotAddSequenceDropNotification,
+	showNotification,
+} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useSvgImportDialog} from './SvgImportDialog';
@@ -261,6 +264,7 @@ export const Canvas: React.FC<{
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
+	const unsupportedDropNotifiedRef = useRef(false);
 
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
@@ -1113,12 +1117,24 @@ export const Canvas: React.FC<{
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				unsupportedDropNotifiedRef.current = false;
 				setCompositionDropPreview(null);
 				return;
 			}
 
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
+			const shouldNotifyAboutUnsupportedDrop =
+				cannotAddSequence && !mayBeCanvasCapture;
+			if (
+				shouldNotifyAboutUnsupportedDrop &&
+				!unsupportedDropNotifiedRef.current
+			) {
+				showCannotAddSequenceDropNotification();
+			}
+
+			unsupportedDropNotifiedRef.current = shouldNotifyAboutUnsupportedDrop;
+
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);
 				return;
@@ -1234,15 +1250,19 @@ export const Canvas: React.FC<{
 			}
 		}
 
+		unsupportedDropNotifiedRef.current = false;
 		setCompositionDropPreview(null);
 	}, []);
 
 	const onDragEnd = useCallback(() => {
+		unsupportedDropNotifiedRef.current = false;
 		setCompositionDropPreview(null);
 	}, []);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
+			const unsupportedDropWasNotified = unsupportedDropNotifiedRef.current;
+			unsupportedDropNotifiedRef.current = false;
 			setCompositionDropPreview(null);
 
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
@@ -1276,10 +1296,10 @@ export const Canvas: React.FC<{
 			if (cannotAddSequence) {
 				event.preventDefault();
 				event.stopPropagation();
-				showNotification(
-					'Cannot insert items into this composition component',
-					3000,
-				);
+				if (!unsupportedDropWasNotified) {
+					showCannotAddSequenceDropNotification();
+				}
+
 				return;
 			}
 

@@ -72,6 +72,14 @@ export const MyComposition = () => {
 				width={1280}
 				height={720}
 			/>
+			<Composition
+				id="DirectCanvas"
+				component={DirectCanvas}
+				durationInFrames={60}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<CloseupFolder />
 		</>
 	);
@@ -79,6 +87,10 @@ export const MyComposition = () => {
 
 export const MyComponent = () => {
 	return <AbsoluteFill></AbsoluteFill>;
+};
+
+export const DirectCanvas = () => {
+	return <canvas width={1280} height={720} />;
 };
 `,
 	);
@@ -171,7 +183,7 @@ const CloseupPlaceholder = () => {
 			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {addElementLibraryToStudio, createElementPayload, installInStudio, isInsideStudio, StudioProtocolInternals} from '/protocol.js';
+				import {addElementLibraryToStudio, createElementPayload, installInStudio, isInsideStudio, setStudioDragData, StudioProtocolInternals} from '/protocol.js';
 				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
@@ -181,6 +193,14 @@ const CloseupPlaceholder = () => {
 					dimensions: {width: 640, height: 120},
 					durationInFrames: 30,
 				});
+				const dragHandle = document.createElement('div');
+				dragHandle.id = 'drag-element';
+				dragHandle.draggable = true;
+				dragHandle.textContent = 'Drag into Studio';
+				document.body.appendChild(dragHandle);
+				dragHandle.ondragstart = (event) => {
+					setStudioDragData({dataTransfer: event.dataTransfer, payload});
+				};
 				document.querySelector('#install').onclick = async () => {
 					document.querySelector('#status').textContent = '';
 					const result = await installInStudio({payload});
@@ -421,6 +441,75 @@ const CloseupPlaceholder = () => {
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
+
+		const elementDragData = await senderPage
+			.locator('#drag-element')
+			.evaluate((dragHandle) => {
+				const dataTransfer = new DataTransfer();
+				dragHandle.dispatchEvent(
+					new DragEvent('dragstart', {
+						bubbles: true,
+						cancelable: true,
+						dataTransfer,
+					}),
+				);
+				return Array.from(dataTransfer.types, (type) => ({
+					data: dataTransfer.getData(type),
+					type,
+				}));
+			});
+		expect(
+			elementDragData.some(({type}) =>
+				type.startsWith('application/vnd.remotion.drag+json;v=1;type=element'),
+			),
+		).toBe(true);
+
+		await studioPage.bringToFront();
+		const directCanvasInfo = studioPage.waitForResponse(
+			(response) =>
+				new URL(response.url()).pathname ===
+					'/api/composition-component-info' &&
+				response.request().postDataJSON().compositionId === 'DirectCanvas',
+		);
+		await studioPage.getByText('DirectCanvas', {exact: true}).first().click();
+		expect(await (await directCanvasInfo).json()).toMatchObject({
+			data: {canAddSequence: false},
+			success: true,
+		});
+
+		const cannotInsertNotification = studioPage.getByText(
+			'Cannot insert this item: This composition component cannot accept a new <Sequence>.',
+			{exact: true},
+		);
+		const dragElementOver = async (selector: string) => {
+			await studioPage.locator(selector).evaluate((target, dragData) => {
+				const dataTransfer = new DataTransfer();
+				for (const {data, type} of dragData) {
+					dataTransfer.setData(type, data);
+				}
+
+				target.dispatchEvent(
+					new DragEvent('dragover', {
+						bubbles: true,
+						cancelable: true,
+						dataTransfer,
+					}),
+				);
+			}, elementDragData);
+		};
+
+		await dragElementOver('.remotion-studio-composition-container');
+		await expect(cannotInsertNotification).toBeVisible();
+		await expect(cannotInsertNotification).toHaveCount(0, {timeout: 5000});
+
+		await dragElementOver('[data-timeline-scrollable="true"]');
+		await expect(cannotInsertNotification).toBeVisible();
+		await dragElementOver('.remotion-studio-composition-container');
+		await dragElementOver('[data-timeline-scrollable="true"]');
+		await expect(cannotInsertNotification).toHaveCount(1);
+		await expect(cannotInsertNotification).toHaveCount(0, {timeout: 5000});
+
+		await studioPage.getByText('MyComp', {exact: true}).first().click();
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await studioPage.bringToFront();
 		const newCompositionDialog = studioPage.getByRole('dialog', {
