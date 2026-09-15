@@ -13,6 +13,10 @@ import {Codex} from './Codex';
 import {Studio} from './Studio';
 import {TextEditor} from './TextEditor';
 
+const windowBorderRadius = 6;
+const screenInset = 6;
+const deviceBezel = 18;
+
 export const StudioCodeHandoff: React.FC = () => {
 	const frame = useCurrentFrame();
 
@@ -31,6 +35,7 @@ export const StudioCodeHandoff: React.FC = () => {
 				}}
 			>
 				<MacBookScreen
+					borderRadius={windowBorderRadius + screenInset + deviceBezel}
 					height={796}
 					left={0}
 					showCameraNotch={false}
@@ -41,7 +46,7 @@ export const StudioCodeHandoff: React.FC = () => {
 						name="Screen viewport"
 						style={{
 							backgroundColor: '#101114',
-							borderRadius: 19,
+							borderRadius: windowBorderRadius + screenInset,
 							height: 760,
 							left: 18,
 							overflow: 'hidden',
@@ -124,7 +129,6 @@ export const Scene11: React.FC = () => {
 						<Interactive.Div
 							name="Codex"
 							style={{
-								backgroundColor: '#f4f4f2',
 								height: 748,
 								left: 0,
 								overflow: 'hidden',
@@ -153,7 +157,7 @@ export const Scene11: React.FC = () => {
 						<Interactive.Div
 							name="Remotion Studio"
 							style={{
-								borderRadius: 12,
+								borderRadius: windowBorderRadius,
 								height: 748,
 								left: 0,
 								overflow: 'hidden',
@@ -193,27 +197,17 @@ export const Scene11: React.FC = () => {
 								}
 								durationInFrames={742}
 								frame={655}
-								responsivenessProgress={interpolate(
-									frame,
-									[140, 180],
-									[1, 0],
-									{
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								)}
+								responsivenessProgress={interpolate(frame, [140, 180], [1, 0], {
+									easing: Easing.bezier(0.16, 1, 0.3, 1),
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								})}
 								viewportHeight={748}
-								viewportWidth={interpolate(
-									frame,
-									[140, 180],
-									[667, 1340],
-									{
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								)}
+								viewportWidth={interpolate(frame, [140, 180], [667, 1340], {
+									easing: Easing.bezier(0.16, 1, 0.3, 1),
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								})}
 							/>
 						</Interactive.Div>
 					</Interactive.Div>

@@ -53,12 +53,17 @@ export type SidebarIconProps = StudioIconProps & {
 export const SidebarIcon: React.FC<SidebarIconProps> = ({
 	expanded = true,
 	side,
+	style,
 	...props
 }) => {
 	const dividerX = side === 'left' ? 5.75 : 10.25;
 
 	return (
-		<SvgIcon viewBox="0 0 16 16" {...props}>
+		<SvgIcon
+			viewBox="0 0 16 16"
+			style={{overflow: 'visible', ...style}}
+			{...props}
+		>
 			<rect
 				x="0.5"
 				y="0.5"

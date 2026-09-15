@@ -95,7 +95,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						alignItems: 'center',
 						backgroundColor: 'transparent',
 						display: 'flex',
-						height: 30 * scale,
+						height: 18 * scale,
 						minWidth: '100%',
 					}}
 				>
@@ -104,7 +104,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							boxSizing: 'border-box',
 							color: '#858585',
 							flex: `0 0 ${67 * scale}px`,
-							fontSize: 24 * scale,
+							fontSize: 12 * scale,
 							paddingRight: 25 * scale,
 							textAlign: 'right',
 							userSelect: 'none',
@@ -146,13 +146,20 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	return (
 		<Interactive.Div
 			name="Backdrop"
-			style={{backgroundColor: '#000000', inset: 0, position: 'absolute'}}
+			style={{
+				backgroundColor: '#000000',
+				borderRadius: 10 * scale,
+				inset: 0,
+				overflow: 'hidden',
+				position: 'absolute',
+			}}
 		>
 			<Interactive.Div
 				name="Editor window"
 				style={{
 					backgroundColor: '#131414',
 					border: `${scale}px solid #454545`,
+					borderRadius: 10 * scale,
 					boxSizing: 'border-box',
 					color: '#cccccc',
 					fontFamily:
@@ -178,13 +185,37 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						position: 'relative',
 					}}
 				>
-					<div style={{display: 'flex', gap: 8 * scale, left: 8 * scale, position: 'absolute'}}>
+					<div
+						style={{
+							display: 'flex',
+							gap: 8 * scale,
+							left: 8 * scale,
+							position: 'absolute',
+						}}
+					>
 						{['#ff5f57', '#febc2e', '#28c840'].map((color) => (
-							<div key={color} style={{backgroundColor: color, borderRadius: '50%', height: 12 * scale, width: 12 * scale}} />
+							<div
+								key={color}
+								style={{
+									backgroundColor: color,
+									borderRadius: '50%',
+									height: 12 * scale,
+									width: 12 * scale,
+								}}
+							/>
 						))}
 					</div>
-					<div style={{color: '#999999', fontSize: 20 * scale}}>{fileName} — brand</div>
-					<div style={{color: '#888888', display: 'flex', position: 'absolute', right: 10 * scale}}>
+					<div style={{color: '#999999', fontSize: 12 * scale}}>
+						{fileName} — brand
+					</div>
+					<div
+						style={{
+							color: '#888888',
+							display: 'flex',
+							position: 'absolute',
+							right: 10 * scale,
+						}}
+					>
 						<VscodeIcon name="ellipsis" size={14 * scale} />
 					</div>
 				</Interactive.Div>
@@ -216,14 +247,31 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							<VscodeIcon name={name} size={25 * scale} />
 						</div>
 					))}
-					<div style={{alignItems: 'center', bottom: 7 * scale, display: 'flex', height: 34 * scale, justifyContent: 'center', position: 'absolute', width: '100%'}}>
+					<div
+						style={{
+							alignItems: 'center',
+							bottom: 7 * scale,
+							display: 'flex',
+							height: 34 * scale,
+							justifyContent: 'center',
+							position: 'absolute',
+							width: '100%',
+						}}
+					>
 						<VscodeIcon name="settings-gear" size={24 * scale} />
 					</div>
 				</Interactive.Div>
 
 				<Interactive.Div
 					name="Editor tabs"
-					style={{backgroundColor: '#131414', height: tabBarHeight, left: activityBarWidth, position: 'absolute', right: 0, top: titleBarHeight}}
+					style={{
+						backgroundColor: '#131414',
+						height: tabBarHeight,
+						left: activityBarWidth,
+						position: 'absolute',
+						right: 0,
+						top: titleBarHeight,
+					}}
 				>
 					<div style={{display: 'flex', height: '100%'}}>
 						{tabs.map((tab, index) => (
@@ -236,7 +284,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 									boxSizing: 'border-box',
 									color: tab.active ? '#e7e7e7' : '#8e8e8e',
 									display: 'flex',
-									fontSize: 20 * scale,
+									fontSize: 12 * scale,
 									fontStyle: index === 2 ? 'italic' : 'normal',
 									height: '100%',
 									paddingLeft: 10 * scale,
@@ -245,49 +293,163 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 								}}
 							>
 								<ReactFileIcon size={14 * scale} />
-								<span style={{marginLeft: 7 * scale, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{tab.label}</span>
-								<span style={{display: 'flex', marginLeft: 'auto'}}><VscodeIcon name="close" size={14 * scale} /></span>
+								<span
+									style={{
+										marginLeft: 7 * scale,
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										whiteSpace: 'nowrap',
+									}}
+								>
+									{tab.label}
+								</span>
+								<span style={{display: 'flex', marginLeft: 'auto'}}>
+									<VscodeIcon name="close" size={14 * scale} />
+								</span>
 							</div>
 						))}
 					</div>
-					<div style={{color: '#777777', display: 'flex', position: 'absolute', right: 8 * scale, top: 8 * scale}}><VscodeIcon name="ellipsis" size={14 * scale} /></div>
+					<div
+						style={{
+							color: '#777777',
+							display: 'flex',
+							position: 'absolute',
+							right: 8 * scale,
+							top: 8 * scale,
+						}}
+					>
+						<VscodeIcon name="ellipsis" size={14 * scale} />
+					</div>
 				</Interactive.Div>
 
 				<Interactive.Div
 					name="Breadcrumbs"
-					style={{alignItems: 'center', backgroundColor: '#131414', color: '#9c9c9c', display: 'flex', fontSize: 20 * scale, height: breadcrumbHeight, left: activityBarWidth, paddingLeft: 16 * scale, position: 'absolute', right: 0, top: titleBarHeight + tabBarHeight}}
+					style={{
+						alignItems: 'center',
+						backgroundColor: '#131414',
+						color: '#9c9c9c',
+						display: 'flex',
+						fontSize: 12 * scale,
+						height: breadcrumbHeight,
+						left: activityBarWidth,
+						paddingLeft: 16 * scale,
+						position: 'absolute',
+						right: 0,
+						top: titleBarHeight + tabBarHeight,
+					}}
 				>
-					<span>src</span><span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
-					<span>announcements</span><span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
-					<span>whats-new-in-remotion</span><span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
-					<ReactFileIcon size={13 * scale} /><span style={{marginLeft: 5 * scale}}>{fileName}</span>
-					<span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span><span>…</span>
+					<span>src</span>
+					<span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
+					<span>announcements</span>
+					<span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
+					<span>whats-new-in-remotion</span>
+					<span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
+					<ReactFileIcon size={13 * scale} />
+					<span style={{marginLeft: 5 * scale}}>{fileName}</span>
+					<span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
+					<span>…</span>
 				</Interactive.Div>
 
 				<Interactive.Div
 					name="Code editor"
-					style={{backgroundColor: '#131414', height: editorHeight + 2 * scale, left: activityBarWidth, overflow: 'hidden', position: 'absolute', right: 0, top: editorTop - 2 * scale}}
+					style={{
+						backgroundColor: '#131414',
+						height: editorHeight + 2 * scale,
+						left: activityBarWidth,
+						overflow: 'hidden',
+						position: 'absolute',
+						right: 0,
+						top: editorTop - 2 * scale,
+					}}
 				>
 					{highlighted ? (
 						<Pre
 							code={highlighted}
 							handlers={[lineHandler]}
-							style={{backgroundColor: 'transparent', color: '#d4d4d4', fontFamily: 'Menlo, Monaco, "Courier New", monospace', fontSize: 24 * scale, fontVariantLigatures: 'none', left: scale, lineHeight: `${30 * scale}px`, margin: 0, minWidth: '100%', position: 'relative', tabSize: 4}}
+							style={{
+								backgroundColor: 'transparent',
+								color: '#d4d4d4',
+								fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+								fontSize: 12 * scale,
+								fontVariantLigatures: 'none',
+								left: scale,
+								lineHeight: `${18 * scale}px`,
+								margin: 0,
+								minWidth: '100%',
+								position: 'relative',
+								tabSize: 4,
+							}}
 						/>
 					) : null}
-					<div style={{backgroundColor: '#131414', bottom: 0, position: 'absolute', right: 4 * scale, top: 0, width: 14 * scale}}>
-						<div style={{backgroundColor: '#5c5d5e', borderRadius: 5 * scale, height: Math.min(707 * scale, editorHeight - 4 * scale), left: scale, position: 'absolute', top: 0, width: 13 * scale}} />
+					<div
+						style={{
+							backgroundColor: '#131414',
+							bottom: 0,
+							position: 'absolute',
+							right: 4 * scale,
+							top: 0,
+							width: 14 * scale,
+						}}
+					>
+						<div
+							style={{
+								backgroundColor: '#5c5d5e',
+								borderRadius: 5 * scale,
+								height: Math.min(707 * scale, editorHeight - 4 * scale),
+								left: scale,
+								position: 'absolute',
+								top: 0,
+								width: 13 * scale,
+							}}
+						/>
 					</div>
 				</Interactive.Div>
 
 				<Interactive.Div
 					name="Status bar"
-					style={{alignItems: 'center', backgroundColor: '#181919', borderTop: `${scale}px solid #2b2b2b`, bottom: 0, boxSizing: 'border-box', color: '#9a9a9a', display: 'flex', fontSize: 20 * scale, height: statusBarHeight, left: 0, paddingLeft: 13 * scale, position: 'absolute', right: 0}}
+					style={{
+						alignItems: 'center',
+						backgroundColor: '#181919',
+						borderTop: `${scale}px solid #2b2b2b`,
+						bottom: 0,
+						boxSizing: 'border-box',
+						color: '#9a9a9a',
+						display: 'flex',
+						fontSize: 12 * scale,
+						height: statusBarHeight,
+						left: 0,
+						paddingLeft: 13 * scale,
+						position: 'absolute',
+						right: 0,
+					}}
 				>
-					<VscodeIcon name="error" size={13 * scale} /><span style={{marginLeft: 4 * scale}}>0</span>
-					<span style={{display: 'flex', marginLeft: 7 * scale}}><VscodeIcon name="warning" size={13 * scale} /></span><span style={{marginLeft: 3 * scale}}>0</span>
-					<div style={{alignItems: 'center', display: 'flex', gap: 16 * scale, marginLeft: 'auto', paddingRight: 14 * scale}}>
-						<span>Ln {code.split('\n').length}, Col 1</span><span>Tab Size: 4</span><span>UTF-8</span><span>LF</span><span>{'{ }'}&nbsp; TypeScript JSX</span><span style={{display: 'flex'}}><VscodeIcon name="copilot" size={14 * scale} /></span><span>✓ oxc</span><span style={{display: 'flex'}}><VscodeIcon name="bell" size={14 * scale} /></span>
+					<VscodeIcon name="error" size={13 * scale} />
+					<span style={{marginLeft: 4 * scale}}>0</span>
+					<span style={{display: 'flex', marginLeft: 7 * scale}}>
+						<VscodeIcon name="warning" size={13 * scale} />
+					</span>
+					<span style={{marginLeft: 3 * scale}}>0</span>
+					<div
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							gap: 16 * scale,
+							marginLeft: 'auto',
+							paddingRight: 14 * scale,
+						}}
+					>
+						<span>Ln {code.split('\n').length}, Col 1</span>
+						<span>Tab Size: 4</span>
+						<span>UTF-8</span>
+						<span>LF</span>
+						<span>{'{ }'}&nbsp; TypeScript JSX</span>
+						<span style={{display: 'flex'}}>
+							<VscodeIcon name="copilot" size={14 * scale} />
+						</span>
+						<span>✓ oxc</span>
+						<span style={{display: 'flex'}}>
+							<VscodeIcon name="bell" size={14 * scale} />
+						</span>
 					</div>
 				</Interactive.Div>
 			</Interactive.Div>
