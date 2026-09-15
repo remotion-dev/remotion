@@ -737,6 +737,7 @@ const TimelineSequenceInner: React.FC<{
 			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
 			codingAgentInfo,
+			copyImageElement: null,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
