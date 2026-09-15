@@ -976,6 +976,7 @@ export const Codex: React.FC<CodexProps> = ({height, width}) => {
 			style={{
 				WebkitFontSmoothing: 'antialiased',
 				backgroundColor: '#ffffff',
+				borderRadius: 10 * scale,
 				fontFamily:
 					'-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
 				fontWeight: 400,
@@ -986,6 +987,7 @@ export const Codex: React.FC<CodexProps> = ({height, width}) => {
 				name="Codex window"
 				style={{
 					backgroundColor: '#ffffff',
+					borderRadius: 10,
 					height: referenceHeight,
 					left: 0,
 					overflow: 'hidden',

@@ -52,6 +52,7 @@ const BACKGROUND = '#1f2428';
 const INPUT_BACKGROUND = '#2f363d';
 const LIGHT_TEXT = '#A6A7A9';
 const TOOLBAR_FOREGROUND = '#d2d3d4';
+const MENU_BAR_ICON_COLOR = '#d8d8d8';
 const WHITE = '#ffffff';
 const BLUE = '#0b84f3';
 const TIMELINE_BACKGROUND = '#15181B';
@@ -179,7 +180,7 @@ const MenuToolbar: React.FC<{
 				<Interactive.Div name="Left sidebar toggle" style={{marginRight: 4}}>
 					<IconButton>
 						<SidebarIcon
-							color={LIGHT_TEXT}
+							color={MENU_BAR_ICON_COLOR}
 							expanded={responsivenessProgress < 0.5}
 							side="left"
 							size={16}
@@ -188,102 +189,32 @@ const MenuToolbar: React.FC<{
 				</Interactive.Div>
 				<Interactive.Div name="Remotion menu">
 					<IconButton width={30}>
-						<RemotionGlyph color={TOOLBAR_FOREGROUND} size={14} />
+						<RemotionGlyph color={MENU_BAR_ICON_COLOR} size={14} />
 					</IconButton>
 				</Interactive.Div>
 				<Interactive.Div
-					name="File menu"
+					name="Composition breadcrumb"
 					style={{
 						alignItems: 'center',
+						color: 'rgba(255, 255, 255, 0.8)',
 						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
+						gap: 5,
+						marginLeft: 8,
+						whiteSpace: 'nowrap',
 					}}
 				>
-					File
-				</Interactive.Div>
-				<Interactive.Div
-					name="View menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					View
-				</Interactive.Div>
-				<Interactive.Div
-					name="Composition menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					Composition
-				</Interactive.Div>
-				<Interactive.Div
-					name="Tools menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					Tools
-				</Interactive.Div>
-				<Interactive.Div
-					name="Help menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					Help
+					<span style={{letterSpacing: 0.08}}>brand / {compositionName}</span>
+					<span style={{color: '#1594f6', display: 'flex'}}>
+						<VscodeIcon size={16} />
+					</span>
+					<CaretIcon
+						color="#5a6065"
+						direction="down"
+						size={13}
+						style={{position: 'relative', left: 4, scale: '0.84 1'}}
+					/>
 				</Interactive.Div>
 			</div>
-			<Interactive.Div
-				name="Composition breadcrumb"
-				style={{
-					alignItems: 'center',
-					color: 'rgba(255, 255, 255, 0.8)',
-					display: 'flex',
-					gap: 5,
-					left: '50%',
-					position: 'absolute',
-					translate: '-50% 0',
-					whiteSpace: 'nowrap',
-				}}
-			>
-				<span
-					style={{
-						letterSpacing: 0.08,
-						position: 'relative',
-						left: -8,
-					}}
-				>
-					brand / {compositionName}
-				</span>
-				<span style={{color: '#1594f6', display: 'flex'}}>
-					<VscodeIcon size={16} />
-				</span>
-				<CaretIcon
-					color="#5a6065"
-					direction="down"
-					size={13}
-					style={{position: 'relative', left: 4, scale: '0.84 1'}}
-				/>
-			</Interactive.Div>
 			<div
 				style={{
 					alignItems: 'center',
@@ -296,13 +227,13 @@ const MenuToolbar: React.FC<{
 			>
 				<Interactive.Div name="Settings">
 					<IconButton>
-						<SettingsIcon color={LIGHT_TEXT} size={16} />
+						<SettingsIcon color={MENU_BAR_ICON_COLOR} size={16} />
 					</IconButton>
 				</Interactive.Div>
 				<Interactive.Div name="Right sidebar toggle">
 					<IconButton>
 						<SidebarIcon
-							color={LIGHT_TEXT}
+							color={MENU_BAR_ICON_COLOR}
 							expanded={responsivenessProgress < 0.5}
 							side="right"
 							size={16}
@@ -1820,6 +1751,7 @@ export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
 				}}
 			>
 				<MacBookScreen
+					borderRadius={null}
 					height={macBookHeight}
 					left={0}
 					showCameraNotch={false}

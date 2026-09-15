@@ -19,20 +19,21 @@ loadFont('normal', {
 });
 
 export const MacBookScreen: React.FC<{
+	readonly borderRadius: number | null;
 	readonly children: React.ReactNode;
 	readonly height: number;
 	readonly left: number;
 	readonly showCameraNotch: boolean;
 	readonly top: number;
 	readonly width: number;
-}> = ({children, height, left, showCameraNotch, top, width}) => {
+}> = ({borderRadius, children, height, left, showCameraNotch, top, width}) => {
 	return (
 		<Interactive.Div
 			name="Desktop / screen"
 			style={{
 				backgroundColor: '#101114',
 				border: '1px solid #35373d',
-				borderRadius: 36,
+				borderRadius: borderRadius ?? 36,
 				boxShadow: '0 42px 90px rgba(15, 22, 35, 0.24)',
 				height,
 				left,
@@ -101,6 +102,7 @@ export const MacBookAppScene = () => {
 export const MacBookDesktopScene = () => {
 	return (
 		<MacBookScreen
+			borderRadius={null}
 			height={863}
 			left={282}
 			showCameraNotch
