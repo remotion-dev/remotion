@@ -47,6 +47,7 @@
 		"watchthree": "turbo watch make --experimental-write-cache --filter='@remotion/three'",
 		"release": "bun publish.ts && turbo run publishprivate --concurrency=1 && git push --tags && git push",
 		"react-scan:capture": "bun packages/.monorepo/react-scan/capture.ts",
+		"react-scan:capture:brand": "bun packages/.monorepo/react-scan/capture.ts --package brand",
 		"studio:cpu-profile": "bun packages/.monorepo/cpu-profile/capture.ts",
 		"publishtemplates": "cd packages/it-tests && bun src/templates/publish.ts",
 		"playground": "bun packages/skills-evals/src/playground.ts",
