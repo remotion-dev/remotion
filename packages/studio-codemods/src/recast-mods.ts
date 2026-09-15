@@ -1209,7 +1209,7 @@ const mapRecognizedType = <T extends RecognizedType>(
 	return expression;
 };
 
-const getCompositionIdFromJSXElement = (
+export const getCompositionIdFromJSXElement = (
 	jsxElement: JSXFragment['children'][number],
 ) => {
 	if (jsxElement.type !== 'JSXElement') {
@@ -1262,7 +1262,7 @@ const getCompositionIdFromJSXElement = (
 	return id[0];
 };
 
-const getFolderNameFromJSXElement = (
+export const getFolderNameFromJSXElement = (
 	jsxElement: JSXFragment['children'][number],
 ) => {
 	if (jsxElement.type !== 'JSXElement') {

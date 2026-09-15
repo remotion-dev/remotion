@@ -9,6 +9,7 @@ import {
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import type {RecastCodemod} from '@remotion/studio-shared';
+import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
 import {parseAndApplyCodemod} from '../codemods/duplicate-composition';
 import {
 	createFileWatcherRegistry,
@@ -184,6 +185,33 @@ const clearUndoRedoStacks = () => {
 	(getUndoStack() as unknown as unknown[]).length = 0;
 	(getRedoStack() as unknown as unknown[]).length = 0;
 };
+
+test('folder codemods do not run Prettier after applying source edits', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `import {Folder} from 'remotion';
+
+const untouched  =  { value : "keep" };
+export const Root = () => <Folder name="Before" />;
+`;
+
+	try {
+		writeFileSync(filePath, input);
+		const output = await applyCodemodToFile({
+			filePath,
+			codeMod: {
+				type: 'rename-folder',
+				folderName: 'Before',
+				parentName: null,
+				newName: 'After',
+			},
+		});
+
+		expect(output).toBe(input.replace('"Before"', '"After"'));
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
 
 test('formats precise log messages for all codemods', () => {
 	const testCases: {codemod: RecastCodemod; expected: string}[] = [

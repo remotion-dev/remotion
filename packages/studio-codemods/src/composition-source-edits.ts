@@ -6,7 +6,6 @@ import {getNodeSourceEdit} from './delete-jsx-node';
 import {getCompositionId} from './duplicate-composition';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {printInsertedJsx} from './print-jsx';
-import {recastLocToOffset} from './recast-loc-to-offset';
 import {applyCodemod, type Change} from './recast-mods';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -14,6 +13,7 @@ import {
 	applySourceEdits,
 	captureImportSnapshots,
 	getInsertImportSourceEdits,
+	getJsxStringAttributeValueSourceEdit,
 	type SourceEdit,
 } from './source-edits';
 
@@ -150,31 +150,17 @@ export const editCompositionInSource = ({
 						attr.name.type === 'JSXIdentifier' &&
 						attr.name.name === 'id',
 				);
-				const value =
-					attribute?.type === 'JSXAttribute' ? attribute.value : null;
-				const literal =
-					value?.type === 'JSXExpressionContainer' ? value.expression : value;
-				if (!literal?.loc || literal.type !== 'StringLiteral') {
+				if (attribute?.type !== 'JSXAttribute') {
 					throw new Error('Could not locate the composition id');
 				}
 
-				const start = recastLocToOffset(input, literal.loc.start);
-				const end = recastLocToOffset(input, literal.loc.end);
-				const quote = input[start] === "'" ? "'" : '"';
-				const replacement =
-					value?.type === 'StringLiteral'
-						? quote +
-							codeMod.newId
-								.replaceAll('&', '&amp;')
-								.replaceAll('"', '&quot;')
-								.replaceAll("'", '&apos;')
-								.replaceAll('<', '&lt;') +
-							quote
-						: recast.prettyPrint(
-								recast.types.builders.stringLiteral(codeMod.newId),
-								{quote: quote === "'" ? 'single' : 'double'},
-							).code;
-				edits.push({start, end, replacement});
+				edits.push(
+					getJsxStringAttributeValueSourceEdit({
+						attribute,
+						input,
+						newValue: codeMod.newId,
+					}),
+				);
 				changesMade.push({description: 'Replaced composition id'});
 				return false;
 			},

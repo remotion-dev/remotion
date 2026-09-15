@@ -49,7 +49,12 @@ export const applyCodemodToFile = async ({
 		codeMod.type === 'new-composition' ||
 		codeMod.type === 'duplicate-composition' ||
 		codeMod.type === 'rename-composition' ||
-		codeMod.type === 'delete-composition'
+		codeMod.type === 'delete-composition' ||
+		codeMod.type === 'move-composition-to-folder' ||
+		codeMod.type === 'move-composition-or-folder' ||
+		codeMod.type === 'rename-folder' ||
+		codeMod.type === 'new-folder' ||
+		codeMod.type === 'delete-folder'
 	) {
 		return newContents;
 	}
