@@ -140,6 +140,19 @@ export type AddEffectModalState = {
 	clientId: string;
 };
 
+export type AssetSelectionModalState = {
+	readonly type: 'asset-selection';
+	readonly assetType: 'audio' | 'video' | 'image';
+	readonly initialUrl: string | null;
+	readonly invocationTimestamp: number;
+	readonly assetSelection: {
+		readonly initialQuery: string;
+		readonly onSelectFile: () => void;
+		readonly onSelected: (asset: StaticFile) => void;
+	};
+	readonly onSelectedUrl: (url: string) => void;
+};
+
 export type TranscriptionModalState = {
 	type: 'transcribe';
 	src: string;
@@ -270,6 +283,7 @@ export type ModalState =
 	  }
 	| ElementInstallModalState
 	| AddEffectModalState
+	| AssetSelectionModalState
 	| TranscriptionModalState
 	| VideoMattingModalState
 	| ConfirmationDialogState

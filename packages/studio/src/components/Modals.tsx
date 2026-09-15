@@ -4,6 +4,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
+import {AssetSelectorModal} from './AssetSelectorModal';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
@@ -280,6 +281,12 @@ export const Modals: React.FC<{
 					compositionSelection={modalContextType.compositionSelection}
 				/>
 			)}
+			{modalContextType && modalContextType.type === 'asset-selection' ? (
+				<AssetSelectorModal
+					readOnlyStudio={readOnlyStudio}
+					state={modalContextType}
+				/>
+			) : null}
 			{modalContextType && modalContextType.type === 'element-library' && (
 				<ElementLibraryModal
 					name={modalContextType.name}
