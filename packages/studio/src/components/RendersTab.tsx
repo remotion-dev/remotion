@@ -12,6 +12,7 @@ const row: React.CSSProperties = {
 	color: 'inherit',
 	alignItems: 'center',
 	flex: 1,
+	userSelect: 'none',
 };
 
 const badge: React.CSSProperties = {
@@ -22,6 +23,7 @@ const badge: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	userSelect: 'none',
 };
 
 export const RendersTab: React.FC<{
