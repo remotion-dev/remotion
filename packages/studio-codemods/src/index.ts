@@ -23,7 +23,6 @@ export {
 export {duplicateCompositionInSource} from './duplicate-composition';
 export {
 	duplicateJsxElementAtPath,
-	duplicateJsxNode,
 	duplicateJsxNodes,
 } from './duplicate-jsx-node';
 export {
