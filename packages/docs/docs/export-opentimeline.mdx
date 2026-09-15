@@ -6,9 +6,15 @@ sidebar_label: OpenTimelineIO
 crumb: Tooling
 ---
 
-OpenTimelineIO (`.otio`) lets you move a timeline into DaVinci Resolve or Premiere Pro while keeping supported media clips editable.
+OpenTimelineIO (`.otio`) lets you move a timeline into traditional video editing programs such as DaVinci Resolve or Premiere Pro.
 
-The Agent Skill below tells a coding agent to preserve native clips where possible and render faithful fallbacks for Remotion output that OTIO cannot describe.
+Remotion compositions are fully dynamic and programmatic.
+
+It is not possible to deterministically export a Remotion project to the OpenTimelineIO format.
+
+You can use the Agent Skill below to let your agent analyze the Remotion project and recreate an OpenTimeline file.
+
+In case there are elements that cannot be represented in OpenTimeline, they are prerendered in Remotion.
 
 ## Install the skill
 
