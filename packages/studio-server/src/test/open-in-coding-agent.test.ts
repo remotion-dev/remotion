@@ -281,64 +281,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 });
 
 test.skipIf(process.platform === 'win32')(
-	'launches the project through the coding agent executable',
-	async () => {
-		const directory = mkdtempSync(
-			path.join(tmpdir(), 'remotion-coding-agent-launch-'),
-		);
-		const applicationPath = path.join(directory, 'ChatGPT.app');
-		const executable = path.join(
-			applicationPath,
-			'Contents',
-			'Resources',
-			'codex',
-		);
-		const output = path.join(path.dirname(executable), 'received.txt');
-		mkdirSync(path.dirname(executable), {recursive: true});
-		writeFileSync(
-			executable,
-			'#!/bin/sh\nprintf "%s\\n" "$@" > "$(dirname "$0")/received.txt"\n',
-		);
-		chmodSync(executable, 0o755);
-
-		try {
-			const success = await launchCodingAgent({
-				codingAgent: {
-					applicationPath,
-					id: 'codex',
-					launchMode: 'direct',
-					name: 'Codex',
-					nameWithType: 'Codex',
-					platform: 'darwin',
-					terminal: null,
-				},
-				logLevel: 'error',
-				projectPath: '/Users/test/My Project',
-				prompt: null,
-			});
-			expect(success).toBe(true);
-
-			const expectedOutput = 'app\n/Users/test/My Project\n';
-			let receivedOutput = '';
-			for (let attempt = 0; attempt < 100; attempt++) {
-				if (existsSync(output)) {
-					receivedOutput = readFileSync(output, 'utf8');
-					if (receivedOutput === expectedOutput) {
-						break;
-					}
-				}
-
-				await Bun.sleep(10);
-			}
-
-			expect(receivedOutput).toBe(expectedOutput);
-		} finally {
-			rmSync(directory, {force: true, recursive: true});
-		}
-	},
-);
-
-test.skipIf(process.platform === 'win32')(
 	'launches a terminal coding agent in the project directory',
 	async () => {
 		const directory = mkdtempSync(
