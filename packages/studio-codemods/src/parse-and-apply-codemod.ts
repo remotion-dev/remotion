@@ -1,9 +1,9 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {editCompositionInSource} from './composition-source-edits';
 import {duplicateCompositionInSource} from './duplicate-composition';
+import {editFolderInSource} from './folder-source-edits';
 import type {Change} from './recast-mods';
 import {applyCodemod} from './recast-mods';
-import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst, serializeAst} from './sequence-props/parse-ast';
 
 export const parseAndApplyCodemod = ({
@@ -25,6 +25,16 @@ export const parseAndApplyCodemod = ({
 		return editCompositionInSource({input, codeMod});
 	}
 
+	if (
+		codeMod.type === 'move-composition-to-folder' ||
+		codeMod.type === 'move-composition-or-folder' ||
+		codeMod.type === 'rename-folder' ||
+		codeMod.type === 'new-folder' ||
+		codeMod.type === 'delete-folder'
+	) {
+		return editFolderInSource({input, codeMod});
+	}
+
 	const ast = parseAst(input);
 
 	const {newAst, changesMade} = applyCodemod({
@@ -36,15 +46,6 @@ export const parseAndApplyCodemod = ({
 		throw new Error(
 			'Unable to calculate the changes needed for this file. Edit the file manually.',
 		);
-	}
-
-	if (codeMod.type === 'new-folder') {
-		ensureNamedImport({
-			ast: newAst,
-			importedName: 'Folder',
-			sourcePath: 'remotion',
-			localName: 'Folder',
-		});
 	}
 
 	const output = serializeAst(newAst);

@@ -1,7 +1,15 @@
-import type {File, ImportDeclaration, Node} from '@babel/types';
+import type {
+	File,
+	ImportDeclaration,
+	JSXAttribute,
+	JSXElement,
+	Node,
+} from '@babel/types';
+import * as recast from 'recast';
+import {indentInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {getImportedName} from './sequence-props/imports';
-import {getEndOfLine, getPreferredQuote} from './source-style';
+import {getEndOfLine, getLineIndent, getPreferredQuote} from './source-style';
 
 export type SourceEdit = {
 	end: number;
@@ -12,6 +20,110 @@ export type SourceEdit = {
 export type ImportSnapshot = {
 	declaration: ImportDeclaration;
 	specifiers: NonNullable<ImportDeclaration['specifiers']>;
+};
+
+export const getJsxStringAttributeValueSourceEdit = ({
+	attribute,
+	input,
+	newValue,
+}: {
+	attribute: JSXAttribute;
+	input: string;
+	newValue: string;
+}): SourceEdit => {
+	const {value} = attribute;
+	const literal =
+		value?.type === 'JSXExpressionContainer' ? value.expression : value;
+	if (!literal?.loc || literal.type !== 'StringLiteral') {
+		throw new Error(`Could not locate the "${attribute.name.name}" attribute`);
+	}
+
+	const start = recastLocToOffset(input, literal.loc.start);
+	const end = recastLocToOffset(input, literal.loc.end);
+	const quote = input[start] === "'" ? "'" : '"';
+	const replacement =
+		value?.type === 'StringLiteral'
+			? quote +
+				newValue
+					.replaceAll('&', '&amp;')
+					.replaceAll('"', '&quot;')
+					.replaceAll("'", '&apos;')
+					.replaceAll('<', '&lt;') +
+				quote
+			: recast.prettyPrint(recast.types.builders.stringLiteral(newValue), {
+					quote: quote === "'" ? 'single' : 'double',
+				}).code;
+
+	return {start, end, replacement};
+};
+
+export const getJsxElementSourceForInsertion = ({
+	element,
+	input,
+}: {
+	element: JSXElement;
+	input: string;
+}): string => {
+	if (!element.loc) {
+		throw new Error('Could not locate the JSX element to move');
+	}
+
+	const start = recastLocToOffset(input, element.loc.start);
+	const end = recastLocToOffset(input, element.loc.end);
+	const originalIndent = getLineIndent({input, offset: start});
+
+	return input
+		.slice(start, end)
+		.split(/\r?\n/)
+		.map((line, index) => {
+			if (index === 0) {
+				return line;
+			}
+
+			return line.startsWith(originalIndent)
+				? line.slice(originalIndent.length)
+				: line.trimStart();
+		})
+		.join(getEndOfLine(input));
+};
+
+export const getAdjacentJsxInsertionSourceEdit = ({
+	input,
+	insertion,
+	position,
+	target,
+}: {
+	input: string;
+	insertion: string;
+	position: 'after' | 'before';
+	target: JSXElement;
+}): SourceEdit => {
+	if (!target.loc) {
+		throw new Error('Could not locate the JSX reorder target');
+	}
+
+	const targetStart = recastLocToOffset(input, target.loc.start);
+	const targetEnd = recastLocToOffset(input, target.loc.end);
+	const indent = getLineIndent({input, offset: targetStart});
+	const endOfLine = getEndOfLine(input);
+
+	if (position === 'after') {
+		return {
+			start: targetEnd,
+			end: targetEnd,
+			replacement: `${endOfLine}${indentInsertedJsx({indent, insertion})}`,
+		};
+	}
+
+	const continuation = insertion
+		.split(/\r?\n/)
+		.map((line, index) => (index === 0 ? line : `${indent}${line}`))
+		.join(endOfLine);
+	return {
+		start: targetStart,
+		end: targetStart,
+		replacement: `${continuation}${endOfLine}${indent}`,
+	};
 };
 
 export const getNodeEndIncludingSameLineComments = ({
