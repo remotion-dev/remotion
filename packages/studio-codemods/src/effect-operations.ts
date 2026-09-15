@@ -22,6 +22,12 @@ import {
 	ensureUseCurrentFrameHook,
 	findEnclosingFunctionPath,
 } from './ensure-imports-and-frame-hook';
+import {
+	captureFunctionSourceSnapshots,
+	getFunctionSourceEditsForPrependedStatements,
+} from './function-source-edits';
+import {printJsxOpeningElement} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {findJsxElementAtNodePath} from './sequence-props';
 import {
 	findEffectCallExpression,
@@ -36,8 +42,30 @@ import {
 import {enumerateEffectArrayElements} from './sequence-props/effect-array-elements';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
 import {ensureNamedImport} from './sequence-props/imports';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+	type SourceEdit,
+} from './source-edits';
+import {
+	getIndentationUnit,
+	getLineIndent,
+	getSourceFormattingConfig,
+	indentContinuationLines,
+	printNodeWithSourceStyle,
+} from './source-style';
 import {parseValueExpression} from './update-nested-prop';
+
+export {
+	findEffectCallExpression,
+	findEffectsAttr,
+} from './sequence-props/can-update-effect-props';
+export {
+	enumerateEffectArrayElements,
+	type EffectArrayElement,
+} from './sequence-props/effect-array-elements';
 
 const b = recast.types.builders;
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
@@ -69,6 +97,13 @@ export type FormatEffectFile = (input: {contents: string}) => Promise<{
 	output: string;
 }>;
 
+type EffectSourceStyleOptions = {
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: FormatEffectFile;
+	prettierConfigOverride?: Record<string, unknown> | null;
+};
+
 export type EffectTarget = {
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
@@ -86,8 +121,155 @@ export type EffectPropUpdate =
 			defaultValue: unknown | null;
 	  };
 
-const formatAst = (ast: File, formatFile: FormatEffectFile) =>
-	formatFile({contents: serializeAst(ast)});
+export type PropDelta = {
+	key: string;
+	valueString: string;
+};
+
+export type UpdateEffectPropsResult = {
+	output: string;
+	formatted: boolean;
+	oldValueString: string;
+	newValueString: string;
+	logLine: number;
+	effectCallee: string;
+	removedProps: PropDelta[];
+};
+
+type EffectSourceSnapshots = {
+	functionSnapshots: ReturnType<typeof captureFunctionSourceSnapshots>;
+	importSnapshots: ReturnType<typeof captureImportSnapshots>;
+	originalAttributeSources: Map<object, string>;
+	openingElementLocations: Map<JSXOpeningElement, JSXOpeningElement['loc']>;
+};
+
+const captureEffectSourceSnapshots = (ast: File): EffectSourceSnapshots => ({
+	functionSnapshots: captureFunctionSourceSnapshots(ast),
+	importSnapshots: captureImportSnapshots(ast),
+	originalAttributeSources: new Map(),
+	openingElementLocations: new Map(),
+});
+
+const trackOpeningElement = ({
+	jsx,
+	snapshots,
+}: {
+	jsx: JSXOpeningElement;
+	snapshots: EffectSourceSnapshots;
+}) => {
+	if (!snapshots.openingElementLocations.has(jsx)) {
+		snapshots.openingElementLocations.set(jsx, jsx.loc);
+		for (const attribute of jsx.attributes) {
+			snapshots.originalAttributeSources.set(
+				attribute,
+				recast.print(attribute).code,
+			);
+		}
+	}
+};
+
+const getEffectSourceOutput = ({
+	ast,
+	input,
+	prettierConfigOverride,
+	snapshots,
+}: {
+	ast: File;
+	input: string;
+	prettierConfigOverride: Record<string, unknown> | null;
+	snapshots: EffectSourceSnapshots;
+}) => {
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride,
+	});
+	const {coveredRanges, edits: functionEdits} =
+		getFunctionSourceEditsForPrependedStatements({
+			indentationUnit: formattingConfig.indentationUnit,
+			input,
+			printNode: (node) =>
+				printNodeWithSourceStyle({
+					input,
+					node,
+					prettierConfigOverride: formattingConfig,
+					wrapColumn: formattingConfig.printWidth,
+				}),
+			reprintBlockBodies: new Set(),
+			snapshots: snapshots.functionSnapshots,
+		});
+	const isCoveredByFunctionEdit = (start: number, end: number) =>
+		coveredRanges.some((range) => start >= range.start && end <= range.end);
+	const getJsxSourceIndent = (offset: number) => {
+		const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
+		const startsInsideSameLineFunctionBlock = snapshots.functionSnapshots.some(
+			({body}) => {
+				if (body.type !== 'BlockStatement' || !body.loc) {
+					return false;
+				}
+
+				const blockStart = recastLocToOffset(input, body.loc.start);
+				const blockEnd = recastLocToOffset(input, body.loc.end);
+				return (
+					blockStart < offset &&
+					offset < blockEnd &&
+					input.lastIndexOf('\n', blockStart - 1) + 1 === lineStart
+				);
+			},
+		);
+		const lineIndent = getLineIndent({input, offset});
+		return startsInsideSameLineFunctionBlock
+			? `${lineIndent}${getIndentationUnit(input, prettierConfigOverride)}`
+			: lineIndent;
+	};
+
+	const openingElementEdits: SourceEdit[] = [];
+	for (const [openingElement, location] of snapshots.openingElementLocations) {
+		if (!location) {
+			throw new Error('Cannot update effect without a JSX source location');
+		}
+
+		const start = recastLocToOffset(input, location.start);
+		const end = recastLocToOffset(input, location.end);
+		if (isCoveredByFunctionEdit(start, end)) {
+			continue;
+		}
+
+		const original = input.slice(start, end);
+		if (recast.print(openingElement).code === original) {
+			continue;
+		}
+
+		const replacement = indentContinuationLines({
+			indent: getJsxSourceIndent(start),
+			input,
+			printed: printJsxOpeningElement({
+				openingElement: openingElement as never,
+				input,
+				originalAttributeSources: snapshots.originalAttributeSources,
+				prettierConfigOverride: formattingConfig,
+			}),
+		}).replace(/^[\t ]+(?=\r?$)/gm, '');
+		openingElementEdits.push({
+			start,
+			end,
+			replacement,
+		});
+	}
+
+	return applySourceEdits({
+		input,
+		edits: [
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride: formattingConfig,
+				snapshots: snapshots.importSnapshots,
+			}),
+			...functionEdits,
+			...openingElementEdits,
+		],
+	});
+};
 
 const getEffectsArray = (attr: JSXAttribute, action: string) => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
@@ -127,7 +309,7 @@ const getJsx = ({
 	return jsx;
 };
 
-const assertValidEffect = ({
+export const assertValidEffect = ({
 	effectImportPath,
 	effectName,
 }: {
@@ -170,7 +352,7 @@ const hasTopLevelBinding = (ast: File, name: string) =>
 		);
 	});
 
-const ensureEffectImport = ({
+export const ensureEffectImport = ({
 	ast,
 	effectImportPath,
 	effectName,
@@ -197,7 +379,7 @@ const ensureEffectImport = ({
 	});
 };
 
-const makeConfigObject = (config: Record<string, unknown>) =>
+export const makeConfigObjectExpression = (config: Record<string, unknown>) =>
 	b.objectExpression(
 		Object.entries(config).map(([key, value]) =>
 			b.objectProperty(
@@ -207,192 +389,318 @@ const makeConfigObject = (config: Record<string, unknown>) =>
 		) as never,
 	) as ObjectExpression;
 
-export const addEffect = async ({
+export const addEffect = ({
 	effectConfig,
 	effectImportPath,
 	effectName,
-	formatFile,
 	input,
+	prettierConfigOverride,
 	sequenceNodePath,
 }: {
 	effectConfig: Record<string, unknown>;
 	effectImportPath: string;
 	effectName: string;
-	formatFile: FormatEffectFile;
 	input: string;
 	sequenceNodePath: SequenceNodePath;
-}) => {
-	const ast = parseAst(input);
-	const jsx = getJsx({action: 'add', ast, sequenceNodePath});
-	const localName = ensureEffectImport({ast, effectImportPath, effectName});
-	const effectCall = b.callExpression(b.identifier(localName), [
-		makeConfigObject(effectConfig) as never,
-	]);
-	const attr = findEffectsAttr(jsx.attributes);
-	if (attr) {
-		getEffectsArray(attr, 'add').elements.push(effectCall as never);
-	} else {
-		jsx.attributes.push(
-			makeEffectsAttr(
-				b.arrayExpression([effectCall as never]) as ArrayExpression,
-			),
-		);
-	}
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabel: string;
+	nodeLabel: string;
+	logLine: number;
+}> =>
+	Promise.resolve().then(() => {
+		assertValidEffect({effectImportPath, effectName});
+		const ast = parseAst(input);
+		const snapshots = captureEffectSourceSnapshots(ast);
+		const jsx = getJsx({action: 'add', ast, sequenceNodePath});
+		trackOpeningElement({jsx, snapshots});
+		const localName = ensureEffectImport({ast, effectImportPath, effectName});
+		const effectCall = b.callExpression(b.identifier(localName), [
+			makeConfigObjectExpression(effectConfig) as never,
+		]);
+		const attr = findEffectsAttr(jsx.attributes);
+		if (attr) {
+			getEffectsArray(attr, 'add').elements.push(effectCall as never);
+		} else {
+			jsx.attributes.push(
+				makeEffectsAttr(
+					b.arrayExpression([effectCall as never]) as ArrayExpression,
+				),
+			);
+		}
 
-	const formatted = await formatAst(ast, formatFile);
-	return formatted;
-};
+		return {
+			output: getEffectSourceOutput({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots,
+			}),
+			formatted: true,
+			effectLabel: `${effectName}()`,
+			nodeLabel:
+				jsx.name.type === 'JSXIdentifier' ? `<${jsx.name.name}>` : 'element',
+			logLine: jsx.loc?.start.line ?? 1,
+		};
+	});
 
-export const duplicateEffects = async ({
+export const duplicateEffects = ({
 	effects,
-	formatFile,
 	input,
+	prettierConfigOverride,
 }: {
 	effects: EffectTarget[];
-	formatFile: FormatEffectFile;
 	input: string;
-}) => {
-	if (effects.length === 0) {
-		throw new Error('No effects were specified for duplication');
-	}
-
-	const ast = parseAst(input);
-	const effectsByAttribute = new Map<
-		JSXAttribute,
-		{array: ArrayExpression; indices: Set<number>}
-	>();
-	for (const {effectIndex, sequenceNodePath} of effects) {
-		const jsx = getJsx({action: 'duplicate', ast, sequenceNodePath});
-		const attr = findEffectsAttr(jsx.attributes);
-		if (!attr) {
-			throw new Error('Could not find effects on the target JSX element');
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabels: string[];
+	logLines: number[];
+}> =>
+	Promise.resolve().then(() => {
+		if (effects.length === 0) {
+			throw new Error('No effects were specified for duplication');
 		}
 
-		const found = findEffectCallExpression({attr, effectIndex});
-		if (found.kind === 'error') {
-			throw new Error(`Cannot duplicate effect: ${found.reason}`);
-		}
-
-		const group = effectsByAttribute.get(attr) ?? {
-			array: getEffectsArray(attr, 'duplicate'),
-			indices: new Set<number>(),
-		};
-		group.indices.add(effectIndex);
-		effectsByAttribute.set(attr, group);
-	}
-
-	for (const {array, indices} of effectsByAttribute.values()) {
-		for (const effectIndex of [...indices].sort((a, bValue) => bValue - a)) {
-			const effect = array.elements[effectIndex];
-			if (!effect || effect.type !== 'CallExpression') {
-				throw new Error('Cannot duplicate effect: not-call-expression');
+		const ast = parseAst(input);
+		const snapshots = captureEffectSourceSnapshots(ast);
+		const effectsByAttribute = new Map<
+			JSXAttribute,
+			{
+				array: ArrayExpression;
+				indices: Set<number>;
+				effectLabels: string[];
+				logLines: number[];
+			}
+		>();
+		for (const {effectIndex, sequenceNodePath} of effects) {
+			const jsx = getJsx({action: 'duplicate', ast, sequenceNodePath});
+			const attr = findEffectsAttr(jsx.attributes);
+			if (!attr) {
+				throw new Error('Could not find effects on the target JSX element');
 			}
 
-			array.elements.splice(effectIndex + 1, 0, cloneAstValue(effect) as never);
+			const array = getEffectsArray(attr, 'duplicate');
+			const found = findEffectCallExpression({attr, effectIndex});
+			if (found.kind === 'error') {
+				throw new Error(`Cannot duplicate effect: ${found.reason}`);
+			}
+
+			const group = effectsByAttribute.get(attr) ?? {
+				array,
+				indices: new Set<number>(),
+				effectLabels: [],
+				logLines: [],
+			};
+			effectsByAttribute.set(attr, group);
+			trackOpeningElement({jsx, snapshots});
+			if (group.indices.has(effectIndex)) {
+				continue;
+			}
+
+			group.indices.add(effectIndex);
+			group.effectLabels.push(`${found.callee}()`);
+			group.logLines.push(
+				found.call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+			);
 		}
-	}
 
-	const formatted = await formatAst(ast, formatFile);
-	return formatted;
-};
+		for (const {array, indices} of effectsByAttribute.values()) {
+			for (const effectIndex of [...indices].sort((a, bValue) => bValue - a)) {
+				const effect = array.elements[effectIndex];
+				if (!effect || effect.type !== 'CallExpression') {
+					throw new Error('Cannot duplicate effect: not-call-expression');
+				}
 
-export const reorderEffect = async ({
-	formatFile,
+				array.elements.splice(
+					effectIndex + 1,
+					0,
+					cloneAstValue(effect) as never,
+				);
+			}
+		}
+
+		return {
+			output: getEffectSourceOutput({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots,
+			}),
+			formatted: true,
+			effectLabels: [...effectsByAttribute.values()].flatMap(
+				(group) => group.effectLabels,
+			),
+			logLines: [...effectsByAttribute.values()].flatMap(
+				(group) => group.logLines,
+			),
+		};
+	});
+
+export const duplicateEffect = ({
+	effectIndex,
+	input,
+	prettierConfigOverride,
+	sequenceNodePath,
+}: {
+	effectIndex: number;
+	input: string;
+	sequenceNodePath: SequenceNodePath;
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabel: string;
+	logLine: number;
+}> =>
+	duplicateEffects({
+		input,
+		effects: [{effectIndex, sequenceNodePath}],
+		prettierConfigOverride,
+	}).then(({effectLabels, formatted, logLines, output}) => ({
+		output,
+		formatted,
+		effectLabel: effectLabels[0],
+		logLine: logLines[0],
+	}));
+
+export const reorderEffect = ({
 	fromIndex,
 	input,
+	prettierConfigOverride,
 	sequenceNodePath,
 	toIndex,
 }: {
-	formatFile: FormatEffectFile;
 	fromIndex: number;
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	toIndex: number;
-}) => {
-	const ast = parseAst(input);
-	const jsx = getJsx({action: 'reorder', ast, sequenceNodePath});
-	const attr = findEffectsAttr(jsx.attributes);
-	if (!attr) {
-		throw new Error('Could not find effects on the target JSX element');
-	}
-
-	const array = getEffectsArray(attr, 'reorder');
-	const elements = enumerateEffectArrayElements(array);
-	if (fromIndex < 0 || fromIndex >= elements.length) {
-		throw new Error('Cannot reorder effect: source index not-found');
-	}
-
-	if (toIndex < 0 || toIndex >= elements.length) {
-		throw new Error('Cannot reorder effect: target index not-found');
-	}
-
-	if (elements[fromIndex].kind !== 'call') {
-		throw new Error(
-			'Cannot reorder effect: source effect is not-call-expression',
-		);
-	}
-
-	if (fromIndex !== toIndex) {
-		const [moved] = array.elements.splice(fromIndex, 1);
-		array.elements.splice(toIndex, 0, moved as never);
-	}
-
-	const formatted = await formatAst(ast, formatFile);
-	return formatted;
-};
-
-export const deleteEffects = async ({
-	effects,
-	formatFile,
-	input,
-}: {
-	effects: EffectDeletionTarget[];
-	formatFile: FormatEffectFile;
-	input: string;
-}) => {
-	if (effects.length === 0) {
-		throw new Error('No effects were specified for deletion');
-	}
-
-	const ast = parseAst(input);
-	const effectsByAttribute = new Map<
-		JSXAttribute,
-		{
-			all: boolean;
-			array: ArrayExpression;
-			attributes: JSXOpeningElement['attributes'];
-			indices: Set<number>;
-		}
-	>();
-	for (const effect of effects) {
-		const jsx = getJsx({
-			action: 'delete',
-			ast,
-			sequenceNodePath: effect.sequenceNodePath,
-		});
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabel: string;
+	logLine: number;
+}> =>
+	Promise.resolve().then(() => {
+		const ast = parseAst(input);
+		const snapshots = captureEffectSourceSnapshots(ast);
+		const jsx = getJsx({action: 'reorder', ast, sequenceNodePath});
 		const attr = findEffectsAttr(jsx.attributes);
 		if (!attr) {
 			throw new Error('Could not find effects on the target JSX element');
 		}
 
-		const group = effectsByAttribute.get(attr) ?? {
-			all: false,
-			array: getEffectsArray(attr, 'delete'),
-			attributes: jsx.attributes,
-			indices: new Set<number>(),
-		};
-		effectsByAttribute.set(attr, group);
-		if (effect.type === 'all-effects') {
-			if (group.array.elements.length === 0) {
-				throw new Error('Cannot delete effect: no effects found');
-			}
-
-			group.all = true;
-			group.indices.clear();
-			continue;
+		const array = getEffectsArray(attr, 'reorder');
+		const elements = enumerateEffectArrayElements(array);
+		if (fromIndex < 0 || fromIndex >= elements.length) {
+			throw new Error('Cannot reorder effect: source index not-found');
 		}
 
-		if (!group.all && !group.indices.has(effect.effectIndex)) {
+		if (toIndex < 0 || toIndex >= elements.length) {
+			throw new Error('Cannot reorder effect: target index not-found');
+		}
+
+		const target = elements[fromIndex];
+		if (target.kind !== 'call') {
+			throw new Error(
+				'Cannot reorder effect: source effect is not-call-expression',
+			);
+		}
+
+		trackOpeningElement({jsx, snapshots});
+		if (fromIndex !== toIndex) {
+			const [moved] = array.elements.splice(fromIndex, 1);
+			array.elements.splice(toIndex, 0, moved as never);
+		}
+
+		return {
+			output: getEffectSourceOutput({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots,
+			}),
+			formatted: true,
+			effectLabel: `${target.callee}()`,
+			logLine: target.node.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+		};
+	});
+
+export const deleteEffects = ({
+	effects,
+	input,
+	prettierConfigOverride,
+}: {
+	effects: EffectDeletionTarget[];
+	input: string;
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabels: string[];
+	logLines: number[];
+}> =>
+	Promise.resolve().then(() => {
+		if (effects.length === 0) {
+			throw new Error('No effects were specified for deletion');
+		}
+
+		const ast = parseAst(input);
+		const snapshots = captureEffectSourceSnapshots(ast);
+		const effectsByAttribute = new Map<
+			JSXAttribute,
+			{
+				all: boolean;
+				array: ArrayExpression;
+				attributes: JSXOpeningElement['attributes'];
+				indices: Set<number>;
+				effectLabels: string[];
+				logLines: number[];
+			}
+		>();
+		for (const effect of effects) {
+			const jsx = getJsx({
+				action: 'delete',
+				ast,
+				sequenceNodePath: effect.sequenceNodePath,
+			});
+			const attr = findEffectsAttr(jsx.attributes);
+			if (!attr) {
+				throw new Error('Could not find effects on the target JSX element');
+			}
+
+			const group = effectsByAttribute.get(attr) ?? {
+				all: false,
+				array: getEffectsArray(attr, 'delete'),
+				attributes: jsx.attributes,
+				indices: new Set<number>(),
+				effectLabels: [],
+				logLines: [],
+			};
+			effectsByAttribute.set(attr, group);
+			trackOpeningElement({jsx, snapshots});
+			if (effect.type === 'all-effects') {
+				if (group.array.elements.length === 0) {
+					throw new Error('Cannot delete effect: no effects found');
+				}
+
+				const elements = enumerateEffectArrayElements(group.array);
+				group.all = true;
+				group.indices.clear();
+				group.effectLabels = elements.map((element) =>
+					element.kind === 'call' ? `${element.callee}()` : 'effect',
+				);
+				group.logLines = elements.map((element) =>
+					element.kind === 'call'
+						? (element.node.loc?.start.line ?? attr.loc?.start.line ?? 1)
+						: (attr.loc?.start.line ?? 1),
+				);
+				continue;
+			}
+
+			if (group.all || group.indices.has(effect.effectIndex)) {
+				continue;
+			}
+
 			const found = findEffectCallExpression({
 				attr,
 				effectIndex: effect.effectIndex,
@@ -402,27 +710,71 @@ export const deleteEffects = async ({
 			}
 
 			group.indices.add(effect.effectIndex);
+			group.effectLabels.push(`${found.callee}()`);
+			group.logLines.push(
+				found.call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+			);
 		}
-	}
 
-	for (const [attr, group] of effectsByAttribute) {
-		if (!group.all) {
-			for (const index of [...group.indices].sort((a, bValue) => bValue - a)) {
-				group.array.elements.splice(index, 1);
+		for (const [attr, group] of effectsByAttribute) {
+			if (!group.all) {
+				for (const index of [...group.indices].sort(
+					(a, bValue) => bValue - a,
+				)) {
+					group.array.elements.splice(index, 1);
+				}
+			}
+
+			if (group.all || group.array.elements.length === 0) {
+				const index = group.attributes.indexOf(attr);
+				if (index !== -1) {
+					group.attributes.splice(index, 1);
+				}
 			}
 		}
 
-		if (group.all || group.array.elements.length === 0) {
-			const index = group.attributes.indexOf(attr);
-			if (index !== -1) {
-				group.attributes.splice(index, 1);
-			}
-		}
-	}
+		return {
+			output: getEffectSourceOutput({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots,
+			}),
+			formatted: true,
+			effectLabels: [...effectsByAttribute.values()].flatMap(
+				(group) => group.effectLabels,
+			),
+			logLines: [...effectsByAttribute.values()].flatMap(
+				(group) => group.logLines,
+			),
+		};
+	});
 
-	const formatted = await formatAst(ast, formatFile);
-	return formatted;
-};
+export const deleteEffect = ({
+	effectIndex,
+	input,
+	prettierConfigOverride,
+	sequenceNodePath,
+}: {
+	effectIndex: number;
+	input: string;
+	sequenceNodePath: SequenceNodePath;
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabel: string;
+	logLine: number;
+}> =>
+	deleteEffects({
+		input,
+		effects: [{type: 'single-effect', effectIndex, sequenceNodePath}],
+		prettierConfigOverride,
+	}).then(({effectLabels, formatted, logLines, output}) => ({
+		output,
+		formatted,
+		effectLabel: effectLabels[0],
+		logLine: logLines[0],
+	}));
 
 const makeEffectCall = ({
 	ast,
@@ -472,100 +824,116 @@ const ensureFrameHook = ({
 	}
 };
 
-export const pasteEffects = async ({
+export const pasteEffects = ({
 	effects,
-	formatFile,
 	input,
 	insertAtIndices,
+	prettierConfigOverride,
 	targetSequenceNodePath,
 	type,
 }: {
 	effects: EffectClipboardSnapshot[];
-	formatFile: FormatEffectFile;
 	input: string;
 	insertAtIndices: number[] | null;
 	targetSequenceNodePath: SequenceNodePath;
 	type: EffectClipboardPasteType;
-}) => {
-	const ast = parseAst(input);
-	const jsx = getJsx({
-		action: 'paste',
-		ast,
-		sequenceNodePath: targetSequenceNodePath,
-	});
-	const requiredImports = getRequiredRemotionImportsForClipboardParams(
-		effects.flatMap((effect) => Object.values(effect.params)),
-	);
-	const localNames = ensureClipboardParamRemotionImports({
-		ast,
-		requiredImports,
-	});
-	if (requiredImports.has('useCurrentFrame')) {
-		ensureFrameHook({
+} & EffectSourceStyleOptions): Promise<{
+	output: string;
+	formatted: boolean;
+	effectLabels: string[];
+	logLine: number;
+}> =>
+	Promise.resolve().then(() => {
+		const ast = parseAst(input);
+		const snapshots = captureEffectSourceSnapshots(ast);
+		const jsx = getJsx({
+			action: 'paste',
 			ast,
-			localNames,
 			sequenceNodePath: targetSequenceNodePath,
 		});
-	}
-
-	const calls = effects.map((effect) =>
-		makeEffectCall({ast, effect, localNames}),
-	);
-	const existingAttr = findEffectsAttr(jsx.attributes);
-	if (
-		insertAtIndices !== null &&
-		(type !== 'effects-additive' ||
-			insertAtIndices.length !== calls.length ||
-			new Set(insertAtIndices).size !== insertAtIndices.length ||
-			insertAtIndices.some((index) => !Number.isInteger(index) || index < 0))
-	) {
-		throw new Error('Cannot paste effects: invalid insertion indices');
-	}
-
-	if (type === 'effects-replacing') {
-		if (existingAttr) {
-			jsx.attributes.splice(jsx.attributes.indexOf(existingAttr), 1);
+		trackOpeningElement({jsx, snapshots});
+		const requiredImports = getRequiredRemotionImportsForClipboardParams(
+			effects.flatMap((effect) => Object.values(effect.params)),
+		);
+		const localNames = ensureClipboardParamRemotionImports({
+			ast,
+			requiredImports,
+		});
+		if (requiredImports.has('useCurrentFrame')) {
+			ensureFrameHook({
+				ast,
+				localNames,
+				sequenceNodePath: targetSequenceNodePath,
+			});
 		}
 
-		if (calls.length > 0) {
-			jsx.attributes.push(
-				makeEffectsAttr(b.arrayExpression(calls as never) as ArrayExpression),
-			);
+		const calls = effects.map((effect) =>
+			makeEffectCall({ast, effect, localNames}),
+		);
+		const existingAttr = findEffectsAttr(jsx.attributes);
+		if (
+			insertAtIndices !== null &&
+			(type !== 'effects-additive' ||
+				insertAtIndices.length !== calls.length ||
+				new Set(insertAtIndices).size !== insertAtIndices.length ||
+				insertAtIndices.some((index) => !Number.isInteger(index) || index < 0))
+		) {
+			throw new Error('Cannot paste effects: invalid insertion indices');
 		}
-	} else if (calls.length === 0) {
-		throw new Error('Cannot paste effects: no effects were copied');
-	} else if (insertAtIndices === null) {
-		if (existingAttr) {
-			getEffectsArray(existingAttr, 'paste').elements.push(
-				...(calls as ArrayExpression['elements']),
-			);
+
+		if (type === 'effects-replacing') {
+			if (existingAttr) {
+				jsx.attributes.splice(jsx.attributes.indexOf(existingAttr), 1);
+			}
+
+			if (calls.length > 0) {
+				jsx.attributes.push(
+					makeEffectsAttr(b.arrayExpression(calls as never) as ArrayExpression),
+				);
+			}
+		} else if (calls.length === 0) {
+			throw new Error('Cannot paste effects: no effects were copied');
+		} else if (insertAtIndices === null) {
+			if (existingAttr) {
+				getEffectsArray(existingAttr, 'paste').elements.push(
+					...(calls as ArrayExpression['elements']),
+				);
+			} else {
+				jsx.attributes.push(
+					makeEffectsAttr(b.arrayExpression(calls as never) as ArrayExpression),
+				);
+			}
 		} else {
-			jsx.attributes.push(
-				makeEffectsAttr(b.arrayExpression(calls as never) as ArrayExpression),
-			);
-		}
-	} else {
-		const elements = existingAttr
-			? getEffectsArray(existingAttr, 'paste').elements
-			: ([] as ArrayExpression['elements']);
-		for (const item of calls
-			.map((effect, index) => ({effect, index: insertAtIndices[index]!}))
-			.sort((a, bValue) => a.index - bValue.index)) {
-			elements.splice(Math.min(item.index, elements.length), 0, item.effect);
+			const elements = existingAttr
+				? getEffectsArray(existingAttr, 'paste').elements
+				: ([] as ArrayExpression['elements']);
+			for (const item of calls
+				.map((effect, index) => ({effect, index: insertAtIndices[index]!}))
+				.sort((a, bValue) => a.index - bValue.index)) {
+				elements.splice(Math.min(item.index, elements.length), 0, item.effect);
+			}
+
+			if (!existingAttr) {
+				jsx.attributes.push(
+					makeEffectsAttr(
+						b.arrayExpression(elements as never) as ArrayExpression,
+					),
+				);
+			}
 		}
 
-		if (!existingAttr) {
-			jsx.attributes.push(
-				makeEffectsAttr(
-					b.arrayExpression(elements as never) as ArrayExpression,
-				),
-			);
-		}
-	}
-
-	const formatted = await formatAst(ast, formatFile);
-	return formatted;
-};
+		return {
+			output: getEffectSourceOutput({
+				ast,
+				input,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				snapshots,
+			}),
+			formatted: true,
+			effectLabels: effects.map((effect) => `${effect.callee}()`),
+			logLine: jsx.loc?.start.line ?? 1,
+		};
+	});
 
 const isEffectParamUpdate = (
 	update: EffectPropUpdate,
@@ -580,6 +948,29 @@ const findObjectProperty = (object: ObjectExpression, key: string) =>
 				(property.key.type === 'StringLiteral' &&
 					(property.key as StringLiteral).value === key)),
 	);
+
+const printObjectPropertyValue = (property: ObjectProperty) =>
+	recast
+		.print(property.value)
+		.code.replace(/[\n\r\t]+/g, ' ')
+		.replace(/,(\s*[}\]])/g, '$1')
+		.trim();
+
+const removeObjectProperty = ({
+	key,
+	object,
+}: {
+	key: string;
+	object: ObjectExpression;
+}): PropDelta | null => {
+	const property = findObjectProperty(object, key);
+	if (!property) {
+		return null;
+	}
+
+	object.properties.splice(object.properties.indexOf(property), 1);
+	return {key, valueString: printObjectPropertyValue(property)};
+};
 
 const makeEffectPropExpression = ({
 	ast,
@@ -608,23 +999,32 @@ const makeEffectPropExpression = ({
 	return makeClipboardParamExpression({param: update.effectParam, localNames});
 };
 
-export const updateEffectProps = async ({
+export const updateEffectPropsAst = ({
 	effectIndex,
-	formatFile,
 	input,
+	prettierConfigOverride,
 	schema,
 	sequenceNodePath,
 	update,
 }: {
 	effectIndex: number;
-	formatFile: FormatEffectFile;
 	input: string;
+	prettierConfigOverride?: Record<string, unknown> | null;
 	schema: InteractivitySchema;
 	sequenceNodePath: SequenceNodePath;
 	update: EffectPropUpdate;
-}) => {
+}): {
+	serialized: string;
+	oldValueString: string;
+	newValueString: string;
+	logLine: number;
+	effectCallee: string;
+	removedProps: PropDelta[];
+} => {
 	const ast = parseAst(input);
+	const snapshots = captureEffectSourceSnapshots(ast);
 	const jsx = getJsx({action: 'update', ast, sequenceNodePath});
+	trackOpeningElement({jsx, snapshots});
 	const attr = findEffectsAttr(jsx.attributes);
 	if (!attr) {
 		throw new Error('Could not find effects on the target JSX element');
@@ -635,32 +1035,49 @@ export const updateEffectProps = async ({
 		throw new Error(`Cannot update effect prop: ${found.reason}`);
 	}
 
+	const {call, callee: effectCallee} = found;
 	const isDefault =
 		!isEffectParamUpdate(update) &&
 		update.defaultValue !== null &&
 		JSON.stringify(update.value) === JSON.stringify(update.defaultValue);
 	let object: ObjectExpression;
-	if (found.call.arguments.length === 0) {
+	if (call.arguments.length === 0) {
 		if (isDefault) {
-			const unchangedFormatted = await formatAst(ast, formatFile);
-			return unchangedFormatted;
+			return {
+				serialized: input,
+				oldValueString: '',
+				newValueString: JSON.stringify(update.defaultValue),
+				logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+				effectCallee,
+				removedProps: [],
+			};
 		}
 
 		object = b.objectExpression([]) as ObjectExpression;
-		found.call.arguments.push(object);
-	} else if (found.call.arguments[0].type !== 'ObjectExpression') {
+		call.arguments.push(object);
+	} else if (call.arguments[0].type !== 'ObjectExpression') {
 		throw new Error('Cannot update effect prop: computed');
 	} else {
-		object = found.call.arguments[0] as ObjectExpression;
+		object = call.arguments[0] as ObjectExpression;
 	}
 
 	const existing = findObjectProperty(object, update.key);
+	let oldValueString = '';
+	if (existing) {
+		oldValueString = recast.print(existing.value).code;
+	} else if (update.defaultValue !== null) {
+		oldValueString = JSON.stringify(update.defaultValue);
+	}
+
+	let newValueString = '';
 	if (isDefault) {
+		newValueString = JSON.stringify(update.defaultValue);
 		if (existing) {
 			object.properties.splice(object.properties.indexOf(existing), 1);
 		}
 	} else {
 		const value = makeEffectPropExpression({ast, sequenceNodePath, update});
+		newValueString = recast.print(value).code;
 		if (existing) {
 			existing.value = value as ObjectProperty['value'];
 		} else {
@@ -676,19 +1093,73 @@ export const updateEffectProps = async ({
 			: null
 		: update.value;
 	const field = schema[update.key];
+	const removedProps: PropDelta[] = [];
 	if (field?.type === 'enum' && staticValue !== null) {
 		for (const key of NoReactInternals.findPropsToDelete({
 			key: update.key,
 			schema,
 			value: staticValue,
 		})) {
-			const property = findObjectProperty(object, key);
-			if (property) {
-				object.properties.splice(object.properties.indexOf(property), 1);
+			const removed = removeObjectProperty({key, object});
+			if (removed) {
+				removedProps.push(removed);
 			}
 		}
 	}
 
-	const formatted = await formatAst(ast, formatFile);
-	return formatted;
+	return {
+		serialized: getEffectSourceOutput({
+			ast,
+			input,
+			prettierConfigOverride: prettierConfigOverride ?? null,
+			snapshots,
+		}),
+		oldValueString,
+		newValueString,
+		logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
+		effectCallee,
+		removedProps,
+	};
 };
+
+export const updateEffectProps = ({
+	effectIndex,
+	input,
+	prettierConfigOverride,
+	schema,
+	sequenceNodePath,
+	update,
+}: {
+	effectIndex: number;
+	input: string;
+	schema: InteractivitySchema;
+	sequenceNodePath: SequenceNodePath;
+	update: EffectPropUpdate;
+} & EffectSourceStyleOptions): Promise<UpdateEffectPropsResult> =>
+	Promise.resolve().then(() => {
+		const {
+			serialized,
+			oldValueString,
+			newValueString,
+			logLine,
+			effectCallee,
+			removedProps,
+		} = updateEffectPropsAst({
+			input,
+			sequenceNodePath,
+			effectIndex,
+			update,
+			schema,
+			prettierConfigOverride,
+		});
+
+		return {
+			output: serialized,
+			formatted: true,
+			oldValueString,
+			newValueString,
+			logLine,
+			effectCallee,
+			removedProps,
+		};
+	});

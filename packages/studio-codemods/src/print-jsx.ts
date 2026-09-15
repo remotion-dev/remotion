@@ -1,5 +1,6 @@
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	getIndentationUnit,
 	getObjectCurlySpacing,
@@ -51,10 +52,12 @@ export const indentInsertedJsx = ({
 export const printInsertedJsx = ({
 	element,
 	input,
+	originalAttributeSources,
 	prettierConfigOverride,
 }: {
 	element: namedTypes.JSXElement | namedTypes.JSXFragment;
 	input: string;
+	originalAttributeSources?: ReadonlyMap<object, string>;
 	prettierConfigOverride: Record<string, unknown> | null;
 }): string => {
 	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
@@ -118,6 +121,38 @@ export const printInsertedJsx = ({
 			typeof printWidth === 'number' ? printWidth : 80;
 		const name = printNode(opening.name, effectivePrintWidth);
 		const attributes = (opening.attributes ?? []).map((attribute) => {
+			const originalAttributeSource = originalAttributeSources?.get(attribute);
+			if (
+				originalAttributeSource === recast.print(attribute).code &&
+				attribute.loc
+			) {
+				const start = recastLocToOffset(input, attribute.loc.start);
+				const end = recastLocToOffset(input, attribute.loc.end);
+				const original = input.slice(start, end);
+				const lines = original.split(/\r?\n/);
+				const nonBlankContinuationLines = lines
+					.slice(1)
+					.filter((line) => line.trim().length > 0);
+				let commonIndent =
+					nonBlankContinuationLines[0]?.match(/^\s*/)?.[0] ?? '';
+				for (const line of nonBlankContinuationLines.slice(1)) {
+					const indent = line.match(/^\s*/)?.[0] ?? '';
+					while (!indent.startsWith(commonIndent)) {
+						commonIndent = commonIndent.slice(0, -1);
+					}
+				}
+
+				return lines
+					.map((line, index) => {
+						if (line.trim().length === 0) {
+							return '';
+						}
+
+						return index === 0 ? line : line.slice(commonIndent.length);
+					})
+					.join(endOfLine);
+			}
+
 			if (
 				attribute.type === 'JSXAttribute' &&
 				attribute.name.type === 'JSXIdentifier' &&
@@ -249,10 +284,12 @@ export const printInsertedJsx = ({
 export const printJsxOpeningElement = ({
 	openingElement,
 	input,
+	originalAttributeSources,
 	prettierConfigOverride,
 }: {
 	openingElement: namedTypes.JSXOpeningElement;
 	input: string;
+	originalAttributeSources?: ReadonlyMap<object, string>;
 	prettierConfigOverride: Record<string, unknown> | null;
 }): string => {
 	const wasSelfClosing = openingElement.selfClosing ?? false;
@@ -268,6 +305,7 @@ export const printJsxOpeningElement = ({
 	const printed = printInsertedJsx({
 		element: printableElement,
 		input,
+		originalAttributeSources,
 		prettierConfigOverride: {
 			bracketSpacing: getObjectCurlySpacing(input, prettierConfigOverride),
 			singleQuote:

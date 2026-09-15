@@ -1693,6 +1693,8 @@ test('mutates effects in the virtual project and reports structured failures', a
 import {contrast} from '@remotion/effects/contrast';
 import {AbsoluteFill} from 'remotion';
 
+const unrelated    = {keep:"this spacing"}
+
 export const Comp = () => (
 	<AbsoluteFill effects={[brightness({amount: 1}), contrast({amount: 2})]} />
 );
@@ -1719,7 +1721,7 @@ export const Comp = () => (
 	});
 	const subscription = await operations.subscribeToSequenceProps({
 		fileName: 'src/Comp.tsx',
-		line: 6,
+		line: 8,
 		column: 2,
 		nodePath: null,
 		componentIdentity: null,
@@ -1857,6 +1859,9 @@ export const Comp = () => (
 	expect(await operations.redo()).toMatchObject({success: true});
 	expect(currentProject.files[fileName].indexOf('tint({')).toBe(-1);
 	expect(projectChanges).toBeGreaterThanOrEqual(9);
+	expect(currentProject.files[fileName]).toContain(
+		'const unrelated    = {keep:"this spacing"}',
+	);
 
 	const beforeFailures = currentProject.files[fileName];
 	expect(

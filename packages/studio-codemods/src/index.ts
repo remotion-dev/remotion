@@ -28,15 +28,27 @@ export {
 } from './duplicate-jsx-node';
 export {
 	addEffect,
+	assertValidEffect,
+	deleteEffect,
 	deleteEffects,
+	duplicateEffect,
 	duplicateEffects,
+	ensureEffectImport,
+	enumerateEffectArrayElements,
+	findEffectCallExpression,
+	findEffectsAttr,
+	makeConfigObjectExpression,
 	pasteEffects,
 	reorderEffect,
 	updateEffectProps,
+	updateEffectPropsAst,
 	type EffectDeletionTarget,
+	type EffectArrayElement,
 	type EffectPropUpdate,
 	type EffectTarget,
 	type FormatEffectFile,
+	type PropDelta,
+	type UpdateEffectPropsResult,
 } from './effect-operations';
 export {
 	ensureRemotionImports,

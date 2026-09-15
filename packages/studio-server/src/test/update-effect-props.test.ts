@@ -73,7 +73,7 @@ test('updateEffectProps adds a missing prop', () => {
 
 	expect(effectCallee).toBe('tint');
 	expect(serialized).toContain('opacity: 0.25');
-	expect(serialized).toContain('color: "red"');
+	expect(serialized).toMatch(/color: ['"]red['"]/);
 });
 
 test('updateEffectProps writes uv-coordinate tuples', () => {
@@ -86,7 +86,7 @@ test('updateEffectProps writes uv-coordinate tuples', () => {
 		schema: tintSchema,
 	});
 
-	expect(serialized).toContain('position: [0.25,0.75]');
+	expect(serialized).toMatch(/position: \[0\.25,\s*0\.75\]/);
 });
 
 test('updateEffectProps writes array values', () => {
@@ -103,7 +103,7 @@ test('updateEffectProps writes array values', () => {
 		schema: tintSchema,
 	});
 
-	expect(serialized).toContain('colors: ["#ff0000","#00ff00"]');
+	expect(serialized).toMatch(/colors: \[['"]#ff0000['"],\s*['"]#00ff00['"]\]/);
 });
 
 test('updateEffectProps removes a prop equal to default', () => {
@@ -117,7 +117,7 @@ test('updateEffectProps removes a prop equal to default', () => {
 	});
 
 	expect(serialized).not.toContain('opacity:');
-	expect(serialized).toContain('color: "red"');
+	expect(serialized).toMatch(/color: ['"]red['"]/);
 });
 
 test('updateEffectProps targets the correct effect by index when there are multiple', () => {
@@ -133,8 +133,8 @@ test('updateEffectProps targets the correct effect by index when there are multi
 	});
 
 	expect(serialized).toContain('opacity: 0.9');
-	expect(serialized).toContain('color: "red"');
-	expect(serialized).toContain('color: "green"');
+	expect(serialized).toMatch(/color: ['"]red['"]/);
+	expect(serialized).toMatch(/color: ['"]green['"]/);
 });
 
 test('updateEffectProps throws when effect index is out of range', () => {
@@ -208,7 +208,7 @@ test('updateEffectProps removes props from inactive enum variants', () => {
 		},
 	});
 
-	expect(serialized).toContain('colorMode: "source"');
+	expect(serialized).toMatch(/colorMode: ['"]source['"]/);
 	expect(serialized).not.toContain('dotColor');
 	expect(serialized).toContain('opacity: 0.5');
 	expect(removedProps).toEqual([{key: 'dotColor', valueString: '"red  blue"'}]);
@@ -246,13 +246,13 @@ test('updateEffectProps writes keyframed effect params from clipboard data', () 
 	expect(serialized).toContain('Easing');
 	expect(serialized).toContain('interpolate');
 	expect(serialized).toContain('useCurrentFrame');
-	expect(serialized).toContain('from "remotion"');
+	expect(serialized).toMatch(/from ['"]remotion['"]/);
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain(
 		'opacity: interpolate(frame, [0, 30, 60], [0, 1, 0], {',
 	);
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('output: "perceptual-scale"');
+	expect(serialized).toMatch(/extrapolateLeft: ['"]clamp['"]/);
+	expect(serialized).toMatch(/output: ['"]perceptual-scale['"]/);
 	expect(serialized).toContain(
 		'easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4), Easing.step1]',
 	);

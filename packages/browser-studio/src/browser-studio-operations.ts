@@ -890,7 +890,6 @@ export const createBrowserStudioOperations = ({
 					effectConfig: request.effectConfig,
 					effectImportPath: request.effectImportPath,
 					effectName: request.effectName,
-					formatFile: formatCodemodFile,
 					input: project.files[absolutePath],
 					sequenceNodePath: request.sequenceNodePath.nodePath,
 				});
@@ -952,7 +951,6 @@ export const createBrowserStudioOperations = ({
 						absolutePath,
 						result: await deleteEffectsCodemod({
 							effects: targets,
-							formatFile: formatCodemodFile,
 							input: project.files[absolutePath],
 						}),
 					})),
@@ -1011,7 +1009,6 @@ export const createBrowserStudioOperations = ({
 						absolutePath,
 						result: await duplicateEffectsCodemod({
 							effects: targets,
-							formatFile: formatCodemodFile,
 							input: project.files[absolutePath],
 						}),
 					})),
@@ -1061,7 +1058,6 @@ export const createBrowserStudioOperations = ({
 				});
 				const result = await pasteEffectsCodemod({
 					effects: request.effects,
-					formatFile: formatCodemodFile,
 					input: project.files[absolutePath],
 					insertAtIndices: request.insertAtIndices,
 					targetSequenceNodePath: request.targetSequenceNodePath.nodePath,
@@ -1089,7 +1085,6 @@ export const createBrowserStudioOperations = ({
 					project,
 				});
 				const result = await reorderEffectCodemod({
-					formatFile: formatCodemodFile,
 					fromIndex: request.fromIndex,
 					input: project.files[absolutePath],
 					sequenceNodePath: request.sequenceNodePath.nodePath,
@@ -1117,7 +1112,6 @@ export const createBrowserStudioOperations = ({
 			});
 			const result = await updateEffectPropsCodemod({
 				effectIndex: request.effectIndex,
-				formatFile: formatCodemodFile,
 				input: project.files[absolutePath],
 				schema: request.schema,
 				sequenceNodePath: request.sequenceNodePath.nodePath,
@@ -1172,7 +1166,6 @@ export const createBrowserStudioOperations = ({
 				});
 				const result = await updateEffectPropsCodemod({
 					effectIndex: edit.effectIndex,
-					formatFile: formatCodemodFile,
 					input: outputByPath.get(absolutePath) ?? project.files[absolutePath],
 					schema: edit.schema,
 					sequenceNodePath: edit.sequenceNodePath.nodePath,
