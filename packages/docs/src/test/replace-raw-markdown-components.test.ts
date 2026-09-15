@@ -7,6 +7,7 @@ import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
+import {thirdPartyElementLibraries} from '../components/Elements/third-party-element-library-data';
 import {
 	expandRawMarkdownComponents,
 	getStringAttribute,
@@ -80,6 +81,27 @@ test('expands the actual Element category indexes without unrelated entries', ()
 				expect(output).not.toContain(elementLink);
 			}
 		}
+	}
+});
+
+test('expands the third-party library list in raw Markdown', () => {
+	const sourcePath = path.join(
+		__dirname,
+		'..',
+		'..',
+		'elements',
+		'libraries.mdx',
+	);
+	const output = expandRawMarkdownComponents({
+		raw: readFileSync(sourcePath, 'utf8'),
+		sourcePath,
+	});
+
+	expect(output).not.toContain('ThirdPartyElementLibraries');
+	for (const library of thirdPartyElementLibraries) {
+		expect(output).toContain(`[${library.displayName}](${library.browseUrl})`);
+		expect(output).toContain(library.description);
+		expect(output).toContain(`Element catalog: \`${library.catalogUrl}\``);
 	}
 });
 

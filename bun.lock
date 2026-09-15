@@ -635,7 +635,10 @@
       "devDependencies": {
         "@docusaurus/module-type-aliases": "3.10.1",
         "@docusaurus/theme-classic": "3.10.1",
+        "@happy-dom/global-registrator": "14.5.1",
         "@react-three/fiber": "catalog:",
+        "@testing-library/dom": "10.4.0",
+        "@testing-library/react": "16.1.0",
         "@tsconfig/docusaurus": "1.0.7",
         "@types/bun": "catalog:",
         "@types/color-namer": "1.3.3",
