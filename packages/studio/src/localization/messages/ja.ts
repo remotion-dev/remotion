@@ -1,4 +1,4 @@
-import {en} from './en';
+import type {en} from './en';
 
 export const ja = {
 	'common.cancel': 'キャンセル',
