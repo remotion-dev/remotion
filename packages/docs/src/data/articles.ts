@@ -2592,13 +2592,13 @@ export const articles = [
 		slug: 'env-variables',
 	},
 	{
-		id: 'export-otio',
+		id: 'export-opentimeline',
 		title: 'Export to OpenTimelineIO',
-		relativePath: 'docs/export-otio.mdx',
-		compId: 'articles-docs-export-otio',
+		relativePath: 'docs/export-opentimeline.mdx',
+		compId: 'articles-docs-export-opentimeline',
 		crumb: 'Tooling',
 		noAi: false,
-		slug: 'export-otio',
+		slug: 'export-opentimeline',
 	},
 	{
 		id: 'ffmpeg',
