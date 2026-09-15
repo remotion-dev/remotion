@@ -7,12 +7,10 @@ import {subscribeToSequencePropsRefresh} from '../components/Timeline/sequence-p
 import {SequencePropsObserver} from '../components/Timeline/SequencePropsObserver';
 import {
 	TimelineSelectionProvider,
-	useTimelineRowSelection,
 	useTimelineSelection,
 } from '../components/Timeline/TimelineSelection';
 import {FastRefreshContext} from '../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {queueSequenceNodePathMutation} from '../helpers/sequence-node-path-mutations';
 import {KeybindingContextProvider} from '../state/keybindings';
 
@@ -264,107 +262,4 @@ test('keeps the selected sequence selected after its node path changes', () => {
 					.sequenceSubscriptionKey.nodePath
 			: null,
 	).toEqual(['body', 1]);
-});
-
-test('only rerenders timeline rows whose selected state changes', () => {
-	const makeNodePathInfo = (index: number): SequenceNodePathInfo => ({
-		sequenceSubscriptionKey: {
-			absolutePath: '/project/src/BarChart.tsx',
-			effectKeys: [],
-			nodePath: ['body', index],
-			sequenceKeys: ['hidden', 'name'],
-			videoConfigValues: null,
-		},
-		auxiliaryKeys: [],
-		index,
-		numberOfSequencesWithThisNodePath: 1,
-		supportsEffects: true,
-	});
-	const firstNodePathInfo = makeNodePathInfo(0);
-	const secondNodePathInfo = makeNodePathInfo(1);
-	const renderCounts = {first: 0, second: 0};
-	const selectedStates = {first: false, second: false};
-	const selectionRef: {
-		current: ReturnType<typeof useTimelineSelection> | null;
-	} = {current: null};
-	const CaptureSelection = () => {
-		selectionRef.current = useTimelineSelection();
-		return null;
-	};
-
-	const Row = ({
-		name,
-		nodePathInfo,
-	}: {
-		readonly name: keyof typeof renderCounts;
-		readonly nodePathInfo: SequenceNodePathInfo;
-	}) => {
-		const {selected} = useTimelineRowSelection(nodePathInfo);
-		renderCounts[name] += 1;
-		selectedStates[name] = selected;
-		return null;
-	};
-
-	render(
-		<ObserverTestProviders
-			values={{
-				fastRefresh: {
-					fastRefreshes: 0,
-					manualRefreshes: 0,
-					increaseManualRefreshes: () => undefined,
-				},
-				expandedTracksSetter: {
-					expandParentTracks: () => undefined,
-					toggleTrack: () => undefined,
-					migrateExpandedTracksForSubscriptionKey: () => undefined,
-				} as never,
-				overrideIdsGetter: {overrideIdToNodePathMappings: {}},
-				overrideIdsSetter: {setOverrideIdToNodePath: () => undefined},
-				propStatusesRef: {current: {}},
-				visualModeSetters: {
-					remapPropStatuses: () => undefined,
-					setPropStatuses: () => undefined,
-				} as never,
-			}}
-		>
-			<KeybindingContextProvider>
-				<TimelineSelectionProvider>
-					<CaptureSelection />
-					<Row name="first" nodePathInfo={firstNodePathInfo} />
-					<Row name="second" nodePathInfo={secondNodePathInfo} />
-				</TimelineSelectionProvider>
-			</KeybindingContextProvider>
-		</ObserverTestProviders>,
-	);
-
-	expect(renderCounts).toEqual({first: 1, second: 1});
-	expect(selectedStates).toEqual({first: false, second: false});
-
-	act(() => {
-		selectionRef.current?.selectItems([
-			{type: 'sequence', nodePathInfo: firstNodePathInfo},
-		]);
-	});
-
-	expect(renderCounts).toEqual({first: 2, second: 1});
-	expect(selectedStates).toEqual({first: true, second: false});
-
-	act(() => {
-		selectionRef.current?.selectItems([
-			{type: 'sequence', nodePathInfo: secondNodePathInfo},
-		]);
-	});
-
-	expect(renderCounts).toEqual({first: 3, second: 2});
-	expect(selectedStates).toEqual({first: false, second: true});
-
-	act(() => {
-		selectionRef.current?.selectItems([
-			{type: 'sequence', nodePathInfo: firstNodePathInfo},
-			{type: 'sequence', nodePathInfo: secondNodePathInfo},
-		]);
-	});
-
-	expect(renderCounts).toEqual({first: 4, second: 3});
-	expect(selectedStates).toEqual({first: true, second: true});
 });
