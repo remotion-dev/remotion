@@ -55,6 +55,37 @@ export const showNotification = (
 	});
 };
 
+const CANNOT_ADD_SEQUENCE_DROP_NOTIFICATION =
+	'Cannot insert this item: This composition component cannot accept a new <Sequence>.';
+const CANNOT_ADD_SEQUENCE_NOTIFICATION_DURATION = 3000;
+let cannotAddSequenceNotification: CreatedNotification | null = null;
+let cannotAddSequenceDismissTimeout: ReturnType<typeof setTimeout> | null =
+	null;
+
+export const showCannotAddSequenceDropNotification = () => {
+	if (cannotAddSequenceNotification === null) {
+		cannotAddSequenceNotification = showNotification(
+			CANNOT_ADD_SEQUENCE_DROP_NOTIFICATION,
+			null,
+		);
+	} else {
+		cannotAddSequenceNotification.replaceContent(
+			CANNOT_ADD_SEQUENCE_DROP_NOTIFICATION,
+			null,
+		);
+	}
+
+	if (cannotAddSequenceDismissTimeout !== null) {
+		clearTimeout(cannotAddSequenceDismissTimeout);
+	}
+
+	cannotAddSequenceDismissTimeout = setTimeout(() => {
+		cannotAddSequenceNotification?.dismiss();
+		cannotAddSequenceNotification = null;
+		cannotAddSequenceDismissTimeout = null;
+	}, CANNOT_ADD_SEQUENCE_NOTIFICATION_DURATION);
+};
+
 export const NotificationCenter: React.FC = () => {
 	const [notifications, setNotifications] = useState<TNotification[]>([]);
 	const {currentZIndex} = useZIndex();
