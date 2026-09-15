@@ -211,7 +211,7 @@ export const QuickSwitcherContent: React.FC<{
 	const selectAsset = useSelectAsset();
 
 	const closeMenu = useCallback(() => undefined, []);
-	const actions = useMenuStructure(closeMenu, readOnlyStudio);
+	const actions = useMenuStructure(closeMenu, readOnlyStudio, false);
 	const [docResults, setDocResults] = useState<AlgoliaState>({type: 'initial'});
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
