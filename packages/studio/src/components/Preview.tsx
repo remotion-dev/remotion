@@ -34,6 +34,7 @@ import {RenderPreview} from './RenderPreview';
 import {SelectedOutlineOverlay} from './SelectedOutlineOverlay';
 import {Spinner} from './Spinner';
 import {StaticFilePreview} from './StaticFilePreview';
+import {ThreeEditorToolbar} from './ThreeEditorToolbar';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
 import {useTimelineSelection} from './Timeline/TimelineSelection';
 
@@ -381,6 +382,7 @@ const CompWhenItHasDimensions: React.FC<{
 				translationX={previewSize.translation.x}
 				translationY={previewSize.translation.y}
 			/>
+			<ThreeEditorToolbar />
 		</div>
 	);
 };
