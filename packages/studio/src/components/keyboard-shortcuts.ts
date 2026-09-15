@@ -78,6 +78,7 @@ export const defaultKeyboardShortcuts: Record<
 	cutEffects: [{key: 'x', commandOrControl: true}],
 	deleteSelection: [{key: 'Backspace'}, {key: 'Delete'}],
 	askAI: [{key: 'i', commandOrControl: true}],
+	pickColor: [{key: 'c', shift: true}],
 };
 
 export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
@@ -166,6 +167,10 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 			shortcut('Zoom out', 'zoomOut'),
 			shortcut('Reset zoom', 'resetZoom'),
 		],
+	},
+	{
+		name: 'Tools',
+		shortcuts: [shortcut('Color Picker', 'pickColor')],
 	},
 	{
 		name: 'Props Editor',

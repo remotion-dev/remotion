@@ -40,6 +40,7 @@ export const studioKeyboardShortcutActions = [
 	'cutEffects',
 	'deleteSelection',
 	'askAI',
+	'pickColor',
 ] as const;
 
 export type StudioKeyboardShortcutAction =

@@ -439,6 +439,81 @@ test.describe('visual mode', () => {
 		}
 	});
 
+	test('opens and customizes the Color Picker shortcut', async ({page}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const originalConfig = fs.readFileSync(configFile, 'utf8');
+		try {
+			await page.addInitScript(() => {
+				Object.defineProperty(window, 'EyeDropper', {
+					configurable: true,
+					value: class {
+						open() {
+							const count = Number(
+								localStorage.getItem('color-picker-open-count') ?? 0,
+							);
+							localStorage.setItem(
+								'color-picker-open-count',
+								String(count + 1),
+							);
+							return Promise.reject(new Error('canceled'));
+						}
+					},
+				});
+			});
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			const getColorPickerOpenCount = () =>
+				page.evaluate(() =>
+					Number(localStorage.getItem('color-picker-open-count') ?? 0),
+				);
+			await page.keyboard.press('Shift+C');
+			await expect.poll(getColorPickerOpenCount).toBe(1);
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			const colorPickerControl = dialog.getByRole('button', {
+				name: 'Change shortcut for Color Picker',
+				exact: true,
+			});
+			await expect(colorPickerControl).toContainText('C');
+			await colorPickerControl.click();
+			await page.keyboard.press('Shift+V');
+			await expect(colorPickerControl).toContainText('V');
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain('pickColor');
+			await page.keyboard.press('Escape');
+			await page.reload();
+			await page.keyboard.press('Shift+C');
+			await expect.poll(getColorPickerOpenCount).toBe(1);
+			await page.keyboard.press('Shift+V');
+			await expect.poll(getColorPickerOpenCount).toBe(2);
+
+			await page.getByRole('button', {name: 'Settings', exact: true}).click();
+			await dialog
+				.getByRole('button', {name: 'Shortcuts', exact: true})
+				.click();
+			await dialog
+				.getByRole('button', {
+					name: 'Actions for Color Picker',
+					exact: true,
+				})
+				.click();
+			await page.getByText('Reset to default', {exact: true}).click();
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('pickColor');
+			await page.keyboard.press('Escape');
+			await page.reload();
+			await page.keyboard.press('Shift+C');
+			await expect.poll(getColorPickerOpenCount).toBe(3);
+		} finally {
+			fs.writeFileSync(configFile, originalConfig);
+		}
+	});
+
 	test('should load the studio without flashing a composition error', async ({
 		page,
 	}) => {

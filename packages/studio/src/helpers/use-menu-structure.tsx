@@ -329,6 +329,7 @@ export const useMenuStructure = (
 	const goToFrameShortcut = useKeyboardShortcutLabel('goToFrame');
 	const renderShortcut = useKeyboardShortcutLabel('render');
 	const askAIShortcut = useKeyboardShortcutLabel('askAI');
+	const colorPickerShortcut = useKeyboardShortcutLabel('pickColor');
 	const showKeyboardShortcutsShortcut = useKeyboardShortcutLabel(
 		'showKeyboardShortcuts',
 	);
@@ -948,7 +949,9 @@ export const useMenuStructure = (
 									pickColor();
 								},
 								leftItem: null,
-								keyHint: null,
+								keyHint: keyboardShortcutsDisabled
+									? null
+									: colorPickerShortcut || null,
 								subMenu: null,
 								type: 'item' as const,
 								quickSwitcherLabel: 'Show Color Picker',
@@ -1184,6 +1187,7 @@ export const useMenuStructure = (
 		keyboardShortcutsDisabled,
 		studioAskAIEnabled,
 		askAIShortcut,
+		colorPickerShortcut,
 		checkerboardShortcut,
 		clearInOutPointsShortcut,
 		goToFrameShortcut,
