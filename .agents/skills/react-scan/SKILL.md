@@ -16,9 +16,18 @@ Start from the repository root:
 bun run react-scan:capture -- --label <short-kebab-case-description>
 ```
 
-Wait for Studio to finish building and settle. Perform one named interaction
-three times, then stop the command with Ctrl+C. Keep captures short so startup,
-HMR, and unrelated interactions do not dominate the data.
+Wait for Studio to finish building, open the printed Studio URL with the browser,
+and let the page settle. The React Scan WebMCP tools are only registered in this
+development capture mode.
+
+Call `start_react_scan_recording`, then use browser-use to perform one named
+interaction three times. Call `stop_react_scan_recording` immediately
+afterwards. Keep the recording short so startup, HMR, and unrelated interactions
+do not dominate the data. Call `get_react_scan_recording` to return the raw
+events and the same agent-oriented summary used by the on-disk collector.
+
+After retrieving the recording, stop the capture command with Ctrl+C. This
+finalizes the on-disk copy for deeper inspection and comparison.
 
 The command writes an ignored directory under `out/react-scan/` containing:
 
@@ -34,9 +43,10 @@ not record with the React DevTools Timeline Profiler at the same time.
 
 ## Analyze the evidence
 
-Read `metadata.json` and `summary.json` first. Confirm the capture contains
-commit events and inspect `profilingHooksStatuses`; do not interpret a missing
-profiling channel as an idle application.
+Read the `summary` returned by `get_react_scan_recording` first. For the persisted
+capture, read `metadata.json` and `summary.json` before the raw events. Confirm
+the capture contains commit events and inspect `profilingHooksStatuses`; do not
+interpret a missing profiling channel as an idle application.
 
 Prioritize components with high total self duration, repeated expensive
 renders, or a clear user-visible slow commit. Inclusive duration contains child

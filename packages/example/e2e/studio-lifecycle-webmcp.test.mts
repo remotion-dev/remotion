@@ -1,9 +1,10 @@
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
+import path from 'node:path';
 import {expect, test} from '@playwright/test';
 import {e2eEntryPoint, exampleDir, remotionBin} from './constants.mts';
 
-test('WebMCP restarts Studio and gracefully shuts it down through the public APIs', async ({
+test('WebMCP records React Scan and controls the Studio lifecycle', async ({
 	page,
 }) => {
 	test.setTimeout(120_000);
@@ -25,7 +26,20 @@ test('WebMCP restarts Studio and gracefully shuts it down through the public API
 			'--no-open',
 			'--force-new',
 		],
-		{cwd: exampleDir, stdio: 'pipe'},
+		{
+			cwd: exampleDir,
+			env: {
+				...process.env,
+				REMOTION_REACT_SCAN_ENDPOINT:
+					'http://127.0.0.1:9/react-scan-e2e-not-used',
+				REMOTION_REACT_SCAN_ENTRY_POINT: path.resolve(
+					exampleDir,
+					'../.monorepo/react-scan/client.ts',
+				),
+				REMOTION_REACT_SCAN_SESSION_ID: 'react-scan-e2e',
+			},
+			stdio: 'pipe',
+		},
 	);
 	let logs = '';
 	studio.stdout.on('data', (data: Buffer) => {
@@ -60,7 +74,10 @@ test('WebMCP restarts Studio and gracefully shuts it down through the public API
 			});
 		});
 		await page.goto(studioUrl);
-		const runTool = async (name: string) => {
+		const runTool = async (
+			name: string,
+			input: Record<string, unknown> = {},
+		) => {
 			await expect
 				.poll(() =>
 					page.evaluate((toolName) => {
@@ -72,25 +89,58 @@ test('WebMCP restarts Studio and gracefully shuts it down through the public API
 					}, name),
 				)
 				.toBe(true);
-			return page.evaluate(async (toolName) => {
-				const tool = (
-					window as typeof window & {
-						__remotion_webmcp_tools: Map<
-							string,
-							{
-								annotations: {readOnlyHint: boolean};
-								execute: (input: Record<string, unknown>) => Promise<unknown>;
-							}
-						>;
-					}
-				).__remotion_webmcp_tools.get(toolName);
-				if (!tool) throw new Error('Tool not registered');
-				return {
-					readOnly: tool.annotations.readOnlyHint,
-					result: await tool.execute({}),
-				};
-			}, name);
+			return page.evaluate(
+				async ({input, name: toolName}) => {
+					const tool = (
+						window as typeof window & {
+							__remotion_webmcp_tools: Map<
+								string,
+								{
+									annotations: {readOnlyHint: boolean};
+									execute: (input: Record<string, unknown>) => Promise<unknown>;
+								}
+							>;
+						}
+					).__remotion_webmcp_tools.get(toolName);
+					if (!tool) throw new Error('Tool not registered');
+					return {
+						readOnly: tool.annotations.readOnlyHint,
+						result: await tool.execute(input),
+					};
+				},
+				{input, name},
+			);
 		};
+		expect(await runTool('start_react_scan_recording')).toMatchObject({
+			readOnly: false,
+			result: {recording: true},
+		});
+		await runTool('select_composition', {
+			compositionName: 'AnimatedBarChart',
+		});
+		await runTool('select_composition', {
+			compositionName: 'schema-test',
+		});
+		await page.waitForTimeout(100);
+		const stoppedRecording = await runTool('stop_react_scan_recording');
+		expect(stoppedRecording).toMatchObject({
+			readOnly: false,
+			result: {recording: false},
+		});
+		expect(
+			(stoppedRecording.result as {eventCount: number}).eventCount,
+		).toBeGreaterThan(0);
+		const recording = await runTool('get_react_scan_recording');
+		expect(recording.readOnly).toBe(true);
+		expect(
+			(recording.result as {summary: {commitCount: number}}).summary
+				.commitCount,
+		).toBeGreaterThan(0);
+		expect(
+			(recording.result as {events: Array<{kind: string}>}).events.some(
+				(event) => event.kind === 'commit',
+			),
+		).toBe(true);
 		expect(await runTool('restart_studio')).toEqual({
 			readOnly: false,
 			result: {},
