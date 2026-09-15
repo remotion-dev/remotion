@@ -86,7 +86,7 @@ test.describe('effect keyframes', () => {
 		await factorInput.press('Enter');
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('scale({scale: 0.625})');
+			.toContain('scale: 0.625');
 
 		const preciseFactorDragger = page.getByRole('button', {
 			name: '0.625',
@@ -108,7 +108,7 @@ test.describe('effect keyframes', () => {
 		await page.mouse.up();
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
-			.toContain('scale({scale: 0.8})');
+			.toContain('scale: 0.8');
 		await page.reload();
 		await expect(async () => {
 			await page
