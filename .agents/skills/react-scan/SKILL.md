@@ -16,6 +16,12 @@ Start from the repository root:
 bun run react-scan:capture
 ```
 
+For the Brand Studio, run:
+
+```sh
+bun run react-scan:capture:brand
+```
+
 Wait for Studio to finish building, open the printed Studio URL with the browser,
 and let the page settle. The React Scan WebMCP tools are only registered in this
 development capture mode.
