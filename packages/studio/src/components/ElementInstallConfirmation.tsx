@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -337,7 +338,7 @@ type PreparedElementInstallation = {
 	basePlan: ElementInstallPlan;
 	name: string;
 	refresh: number;
-	plan: ElementInstallPlan & {filePath: string};
+	plan: ElementInstallPlan;
 };
 
 type NewCompositionPlanState =
@@ -577,36 +578,80 @@ export const ElementInstallConfirmation: React.FC<{
 	}
 
 	const requestedName = input.name;
-	const [preparation, setPreparation] = useState<{
-		basePlan: ElementInstallPlan;
-		refresh: number;
-		requestedName: string | null;
-		installation: PreparedElementInstallation | null;
-		error: string | null;
-	} | null>(null);
+	const [preparations, setPreparations] = useState<
+		Array<{
+			basePlan: ElementInstallPlan;
+			refresh: number;
+			requestedName: string | null;
+			installation: PreparedElementInstallation | null;
+			error: string | null;
+		}>
+	>([]);
 	const currentPreparation =
-		preparation?.basePlan === selectedPlan &&
-		preparation?.refresh === refreshPlan &&
-		preparation?.requestedName === requestedName
-			? preparation
-			: null;
+		preparations.find(
+			(preparation) =>
+				preparation.basePlan === selectedPlan &&
+				preparation.refresh === refreshPlan &&
+				preparation.requestedName === requestedName,
+		) ?? null;
 	const preparedInstallation = currentPreparation?.installation ?? null;
 	const planError = currentPreparation?.error ?? null;
 	const installationName =
 		requestedName ?? preparedInstallation?.name ?? elementBaseName;
-	const [existingInstallation, setExistingInstallation] =
-		useState<PreparedElementInstallation | null>(null);
+	const [existingInstallations, setExistingInstallations] = useState<
+		PreparedElementInstallation[]
+	>([]);
 	const existingDestination =
-		existingInstallation?.basePlan === selectedPlan &&
-		existingInstallation?.refresh === refreshPlan
-			? existingInstallation
-			: null;
+		existingInstallations.find(
+			(installation) =>
+				installation.basePlan === selectedPlan &&
+				installation.refresh === refreshPlan,
+		) ?? null;
 	const overwriteExisting =
 		existingDestination !== null &&
 		input.overwritePlan === existingDestination.plan;
 	const activePlan = overwriteExisting
 		? existingDestination.plan
 		: (preparedInstallation?.plan ?? null);
+	const [displayedPlans, setDisplayedPlans] = useState<
+		Array<{
+			basePlan: ElementInstallPlan;
+			refresh: number;
+			plan: ElementInstallPlan;
+		}>
+	>([]);
+	const rememberedDisplayedPlan =
+		displayedPlans.find(
+			(displayed) =>
+				displayed.basePlan === selectedPlan &&
+				displayed.refresh === refreshPlan,
+		)?.plan ?? null;
+	const displayedPlan = activePlan ?? rememberedDisplayedPlan ?? selectedPlan;
+	useLayoutEffect(() => {
+		if (activePlan === null || selectedPlan === null) {
+			return;
+		}
+
+		setDisplayedPlans((previous) => {
+			const existing = previous.find(
+				(displayed) =>
+					displayed.basePlan === selectedPlan &&
+					displayed.refresh === refreshPlan,
+			);
+			if (existing?.plan === activePlan) {
+				return previous;
+			}
+
+			return [
+				...previous.filter(
+					(displayed) =>
+						displayed.basePlan !== selectedPlan ||
+						displayed.refresh !== refreshPlan,
+				),
+				{basePlan: selectedPlan, refresh: refreshPlan, plan: activePlan},
+			];
+		});
+	}, [activePlan, refreshPlan, selectedPlan]);
 	useEffect(() => {
 		if (selectedPlan === null) {
 			return;
@@ -642,11 +687,14 @@ export const ElementInstallConfirmation: React.FC<{
 					plan: result.plan,
 				};
 				if (result.plan.expectedFileState.exists) {
-					setExistingInstallation((previous) =>
-						previous?.basePlan === selectedPlan &&
-						previous.refresh === refreshPlan
+					setExistingInstallations((previous) =>
+						previous.some(
+							(installation) =>
+								installation.basePlan === selectedPlan &&
+								installation.refresh === refreshPlan,
+						)
 							? previous
-							: prepared,
+							: [...previous, prepared],
 					);
 					if (requestedName === null) {
 						candidate = `${elementBaseName}-copy${copyNumber === 1 ? '' : `-${copyNumber}`}`;
@@ -655,24 +703,40 @@ export const ElementInstallConfirmation: React.FC<{
 					}
 				}
 
-				setPreparation({
-					basePlan: selectedPlan,
-					refresh: refreshPlan,
-					requestedName,
-					installation: prepared,
-					error: null,
-				});
+				setPreparations((previous) => [
+					...previous.filter(
+						(preparation) =>
+							preparation.basePlan !== selectedPlan ||
+							preparation.refresh !== refreshPlan ||
+							preparation.requestedName !== requestedName,
+					),
+					{
+						basePlan: selectedPlan,
+						refresh: refreshPlan,
+						requestedName,
+						installation: prepared,
+						error: null,
+					},
+				]);
 				return;
 			}
 		})().catch((error) => {
 			if (!canceled) {
-				setPreparation({
-					basePlan: selectedPlan,
-					refresh: refreshPlan,
-					requestedName,
-					installation: null,
-					error: error instanceof Error ? error.message : String(error),
-				});
+				setPreparations((previous) => [
+					...previous.filter(
+						(preparation) =>
+							preparation.basePlan !== selectedPlan ||
+							preparation.refresh !== refreshPlan ||
+							preparation.requestedName !== requestedName,
+					),
+					{
+						basePlan: selectedPlan,
+						refresh: refreshPlan,
+						requestedName,
+						installation: null,
+						error: error instanceof Error ? error.message : String(error),
+					},
+				]);
 			}
 		});
 		return () => {
@@ -848,14 +912,18 @@ export const ElementInstallConfirmation: React.FC<{
 						</dd>
 					</dl>
 
-					{activePlan ? (
-						<dl style={requestSourceStyle}>
-							<dt style={sectionTitleStyle}>Destination</dt>
-							<dd style={requestSourceDescriptionStyle}>
-								{activePlan.filePath}
-							</dd>
-						</dl>
-					) : null}
+					<dl
+						style={{
+							...requestSourceStyle,
+							visibility: displayedPlan === null ? 'hidden' : 'visible',
+						}}
+						aria-hidden={displayedPlan === null}
+					>
+						<dt style={sectionTitleStyle}>Destination</dt>
+						<dd style={requestSourceDescriptionStyle}>
+							{displayedPlan?.filePath ?? '\u00A0'}
+						</dd>
+					</dl>
 
 					<div style={destinationControlStyle}>
 						<div style={sectionTitleStyle}>Add to</div>

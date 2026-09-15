@@ -386,8 +386,35 @@ const CloseupPlaceholder = () => {
 			name: 'New composition',
 		});
 		await expect(currentDestination).toHaveAttribute('aria-pressed', 'true');
+		let releaseNewCompositionPreflight = () => {};
+		const newCompositionPreflightGate = new Promise<void>((resolve) => {
+			releaseNewCompositionPreflight = resolve;
+		});
+		let newCompositionPreflightIsPending = false;
+		await studioPage.route('**/api/prepare-element-install', async (route) => {
+			const body = route.request().postDataJSON();
+			if (
+				!newCompositionPreflightIsPending &&
+				body.installationName === 'protocol-element' &&
+				body.destination.type === 'new-composition'
+			) {
+				newCompositionPreflightIsPending = true;
+				await newCompositionPreflightGate;
+			}
+
+			await route.continue();
+		});
 		await currentDestination.press('ArrowRight');
 		await expect(newDestination).toHaveAttribute('aria-pressed', 'true');
+		await expect.poll(() => newCompositionPreflightIsPending).toBe(true);
+		await expect(dialog.getByText('Destination', {exact: true})).toBeVisible();
+		const addToControl = dialog.getByText('Add to', {exact: true});
+		const addToPositionWhilePending = (await addToControl.boundingBox())?.y;
+		expect(addToPositionWhilePending).toBeDefined();
+		releaseNewCompositionPreflight();
+		await expect(dialog.getByText('Destination', {exact: true})).toBeVisible();
+		const addToPositionWhenReady = (await addToControl.boundingBox())?.y;
+		expect(addToPositionWhenReady).toBe(addToPositionWhilePending);
 		await newDestination.press('ArrowLeft');
 		await expect(currentDestination).toHaveAttribute('aria-pressed', 'true');
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
@@ -534,15 +561,38 @@ const CloseupPlaceholder = () => {
 		await newCompositionDialog
 			.getByRole('button', {name: 'New composition', exact: true})
 			.click();
+		await expect(
+			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
+		).toBeChecked();
+		let releaseCurrentCompositionPreflight = () => {};
+		const currentCompositionPreflightGate = new Promise<void>((resolve) => {
+			releaseCurrentCompositionPreflight = resolve;
+		});
+		let currentCompositionPreflightIsPending = false;
+		await studioPage.route('**/api/prepare-element-install', async (route) => {
+			const body = route.request().postDataJSON();
+			if (
+				!currentCompositionPreflightIsPending &&
+				body.installationName === 'protocol-element' &&
+				body.destination.type === 'current-composition'
+			) {
+				currentCompositionPreflightIsPending = true;
+				await currentCompositionPreflightGate;
+			}
+
+			await route.continue();
+		});
 		await newCompositionDialog
 			.getByRole('button', {name: 'Current composition', exact: true})
 			.click();
+		await expect.poll(() => currentCompositionPreflightIsPending).toBe(true);
 		await expect(
 			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
 		).toBeChecked();
 		await expect(
 			newCompositionDialog.getByLabel('Installation name'),
 		).toHaveValue('protocol-element-copy-3');
+		releaseCurrentCompositionPreflight();
 		const independentFile = path.join(
 			temporaryProject,
 			'src',
@@ -559,9 +609,16 @@ const CloseupPlaceholder = () => {
 			await waitForFile(independentFile);
 			await route.fulfill({response});
 		});
+		const destinationRow = newCompositionDialog
+			.getByText('Destination', {exact: true})
+			.locator('..');
+		await expect(destinationRow).toContainText('.element.tsx');
+		const destinationBeforeTyping = await destinationRow.textContent();
+		expect(destinationBeforeTyping).not.toBeNull();
 		await newCompositionDialog
 			.getByLabel('Installation name')
 			.fill('speaker-name');
+		await expect(destinationRow).toHaveText(destinationBeforeTyping!);
 		await expect(
 			newCompositionDialog.getByRole('button', {name: /^Install/}),
 		).toBeEnabled();
