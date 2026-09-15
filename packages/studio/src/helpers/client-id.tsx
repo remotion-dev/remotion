@@ -18,6 +18,7 @@ import {reloadUrl} from './url-state';
 type Context = {
 	previewServerState: PreviewServerConnectionState;
 	configFileChangeRevision: number;
+	restartRequired: boolean;
 	subscribeToEvent: (
 		type: EventSourceEvent['type'],
 		listener: (event: EventSourceEvent) => void,
@@ -29,6 +30,7 @@ export const StudioServerConnectionCtx = React.createContext<Context>({
 		type: 'init',
 	},
 	configFileChangeRevision: 0,
+	restartRequired: false,
 	subscribeToEvent: () => {
 		throw new Error('Context not initalized');
 	},
@@ -71,6 +73,7 @@ export const PreviewServerConnection: React.FC<{
 	});
 	const [configFileChangeRevision, setConfigFileChangeRevision] =
 		React.useState(0);
+	const [restartRequired, setRestartRequired] = React.useState(false);
 	const clientId = useRef<string | null>(null);
 
 	useEffect(() => {
@@ -87,11 +90,14 @@ export const PreviewServerConnection: React.FC<{
 				window.remotion_studioConfig = newEvent.studioRuntimeConfig;
 				window.remotion_editorName = newEvent.editorName;
 				setConfigFileChangeRevision((revision) => revision + 1);
-				const isOwnRuntimeConfigChange =
-					newEvent.changeType === 'runtime' &&
+				const isOwnConfigChange =
 					newEvent.originatorClientId !== null &&
 					newEvent.originatorClientId === clientId.current;
-				if (!isOwnRuntimeConfigChange) {
+				setRestartRequired(newEvent.changeType === 'restart');
+
+				const shouldShowNotification =
+					!isOwnConfigChange || newEvent.changeType === 'reload';
+				if (shouldShowNotification) {
 					showNotification(
 						getConfigFileChangeMessage(newEvent.changeType),
 						4000,
@@ -174,9 +180,10 @@ export const PreviewServerConnection: React.FC<{
 		return {
 			previewServerState: state,
 			configFileChangeRevision,
+			restartRequired,
 			subscribeToEvent,
 		};
-	}, [configFileChangeRevision, state, subscribeToEvent]);
+	}, [configFileChangeRevision, restartRequired, state, subscribeToEvent]);
 
 	return (
 		<StudioServerConnectionCtx.Provider value={context}>

@@ -3,7 +3,7 @@ import {createServer} from 'node:net';
 import {expect, test} from '@playwright/test';
 import {e2eEntryPoint, exampleDir, remotionBin} from './constants.mts';
 
-test('upgrade progress survives closing settings and offers a graceful shutdown', async ({
+test('upgrade progress survives closing settings and offers a restart', async ({
 	page,
 }) => {
 	test.setTimeout(120_000);
@@ -62,6 +62,11 @@ test('upgrade progress survives closing settings and offers a graceful shutdown'
 		await page.route('https://bugs.remotion.dev/**', (route) =>
 			route.fulfill({json: {bugs: []}}),
 		);
+		let restartRequested = false;
+		await page.route('**/api/restart-studio', (route) => {
+			restartRequested = true;
+			return route.fulfill({json: {success: true, data: {}}});
+		});
 		// Avoid changing the example project's dependencies. The server integration test
 		// covers this request through the real CLI and package-manager boundary.
 		let finishUpgrade: () => void = () => undefined;
@@ -112,32 +117,14 @@ test('upgrade progress survives closing settings and offers a graceful shutdown'
 			dialog.getByText('Remotion has been upgraded.', {exact: true}),
 		).toBeVisible();
 		await dialog
-			.getByRole('button', {name: 'Shut down Studio', exact: true})
+			.getByRole('button', {name: 'Restart Studio', exact: true})
 			.click();
 		await expect(
-			dialog.getByText(
-				'Studio is shutting down. Run your Studio start command again in the terminal to use the new version.',
-				{exact: true},
-			),
+			dialog.getByText('Studio is restarting with the new version.', {
+				exact: true,
+			}),
 		).toBeVisible();
-		await expect.poll(() => logs).toContain('Shutting down Studio...');
-		expect(await exited).toBe(0);
-		await expect
-			.poll(async () => {
-				try {
-					await fetch(studioUrl);
-					return false;
-				} catch {
-					return true;
-				}
-			})
-			.toBe(true);
-		await expect(
-			dialog.getByText(
-				'Studio is shutting down. Run your Studio start command again in the terminal to use the new version.',
-				{exact: true},
-			),
-		).toBeVisible();
+		expect(restartRequested).toBe(true);
 	} finally {
 		if (studio.exitCode === null) studio.kill('SIGTERM');
 		await exited;

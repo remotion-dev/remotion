@@ -234,15 +234,8 @@ const RenderedReleaseNotes: React.FC<{
 
 export const UpdatesSettings: React.FC = () => {
 	const {remotionSkillsInfo} = useSettings();
-	const {
-		error,
-		info,
-		knownBugs,
-		upgradeState,
-		upgradeError,
-		upgrade,
-		shutdown,
-	} = useUpdateStatus();
+	const {error, info, knownBugs, upgradeState, upgradeError, upgrade, restart} =
+		useUpdateStatus();
 	const [releaseNotes, setReleaseNotes] = useState<
 		| (GetReleaseNotesResponse & {
 				currentVersion: string;
@@ -331,19 +324,19 @@ export const UpdatesSettings: React.FC = () => {
 				<div style={text}>
 					{upgradeState === 'upgrading'
 						? 'This may take a few minutes. You can follow the progress in your terminal.'
-						: upgradeState === 'shutdown'
-							? 'Studio is shutting down. Run your Studio start command again in the terminal to use the new version.'
-							: 'Restart Studio to use the new version. Shut down the server below, then run your Studio start command again in the terminal.'}
+						: upgradeState === 'restarting'
+							? 'Studio is restarting with the new version.'
+							: 'Restart Studio to use the new version.'}
 				</div>
-				{upgradeState === 'upgraded' || upgradeState === 'shutting-down' ? (
+				{upgradeState === 'upgraded' || upgradeState === 'restarting' ? (
 					<div style={{marginTop: 12}}>
 						<ModalButton
-							onClick={shutdown}
-							disabled={upgradeState === 'shutting-down'}
+							onClick={restart}
+							disabled={upgradeState === 'restarting'}
 						>
-							{upgradeState === 'shutting-down'
-								? 'Shutting down...'
-								: 'Shut down Studio'}
+							{upgradeState === 'restarting'
+								? 'Restarting...'
+								: 'Restart Studio'}
 						</ModalButton>
 					</div>
 				) : null}

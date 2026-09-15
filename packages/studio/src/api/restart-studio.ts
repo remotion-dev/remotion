@@ -1,5 +1,5 @@
 /**
- * @description Restarts the Remotion Studio.
+ * @description Restarts the Remotion Studio process.
  * @see [Documentation](https://www.remotion.dev/docs/studio/restart-studio)
  */
 
