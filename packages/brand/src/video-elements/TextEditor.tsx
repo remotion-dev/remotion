@@ -3,6 +3,7 @@ import {highlight, InnerLine, Pre} from 'codehike/code';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Interactive, useDelayRender} from 'remotion';
 import {z} from 'zod';
+import {ReactFileIcon, VscodeIcon} from './vscode-icons';
 
 const REFERENCE_WIDTH = 1399;
 const REFERENCE_HEIGHT = 1362;
@@ -18,52 +19,6 @@ export const textEditorSchema = z.object({
 });
 
 export type TextEditorProps = z.infer<typeof textEditorSchema>;
-
-const ReactFileIcon: React.FC<{readonly size: number}> = ({size}) => (
-	<svg aria-hidden="true" height={size} viewBox="0 0 24 24" width={size}>
-		<g fill="none" stroke="#3d7b86" strokeWidth="1.35">
-			<ellipse cx="12" cy="12" rx="10" ry="3.8" />
-			<ellipse cx="12" cy="12" rx="10" ry="3.8" transform="rotate(60 12 12)" />
-			<ellipse cx="12" cy="12" rx="10" ry="3.8" transform="rotate(120 12 12)" />
-		</g>
-		<circle cx="12" cy="12" fill="#3d7b86" r="1.75" />
-	</svg>
-);
-
-const ActivityIcon: React.FC<{
-	readonly kind: 'debug' | 'explorer' | 'extensions' | 'gear' | 'search' | 'source';
-	readonly size: number;
-}> = ({kind, size}) => {
-	const paths = {
-		debug: 'M5 3l12 7-12 7zM15.5 11a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm0 2v5m-2.5-2.5h5',
-		explorer: 'M6 3.5h7l5 5v12H6zM13 3.5v5h5M3.5 6.5v14h10',
-		extensions: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
-		gear: 'M9.7 3.2l.5-1.7h3.6l.5 1.7 1.5.7 1.6-.8 2.5 2.5-.8 1.6.7 1.5 1.7.5v3.6l-1.7.5-.7 1.5.8 1.6-2.5 2.5-1.6-.8-1.5.7-.5 1.7h-3.6l-.5-1.7-1.5-.7-1.6.8-2.5-2.5.8-1.6-.7-1.5-1.7-.5V9.2l1.7-.5.7-1.5-.8-1.6 2.5-2.5 1.6.8zM12 8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
-		search: 'M10.5 4.25a6.25 6.25 0 1 0 0 12.5 6.25 6.25 0 0 0 0-12.5zm4.7 10.95 5.1 5.1',
-		source: 'M7 2.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5zm0 14a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5zm10-11a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5zM7 7.25v9.5m2.25-.55c4.2-.6 5.7-2.8 5.7-6',
-	};
-
-	return (
-		<svg aria-hidden="true" height={size} viewBox="0 0 24 24" width={size}>
-			<path
-				d={paths[kind]}
-				fill="none"
-				stroke="currentColor"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.25"
-			/>
-		</svg>
-	);
-};
-
-const MoreIcon: React.FC<{readonly size: number}> = ({size}) => (
-	<svg aria-hidden="true" height={size} viewBox="0 0 24 24" width={size}>
-		<circle cx="6" cy="12" fill="currentColor" r="1.1" />
-		<circle cx="12" cy="12" fill="currentColor" r="1.1" />
-		<circle cx="18" cy="12" fill="currentColor" r="1.1" />
-	</svg>
-);
 
 export const TextEditor: React.FC<TextEditorProps> = ({
 	code,
@@ -184,7 +139,13 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 		{active: false, label: 'Root.tsx'},
 		{active: false, label: 'SlideInOverlay.tsx'},
 	];
-	const activityIcons = ['explorer', 'search', 'source', 'debug', 'extensions'] as const;
+	const activityIcons = [
+		'files',
+		'search-large',
+		'source-control',
+		'debug-alt',
+		'extensions',
+	] as const;
 
 	return (
 		<Interactive.Div
@@ -229,7 +190,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 					</div>
 					<div style={{color: '#999999', fontSize: 12 * scale}}>{fileName} — brand</div>
 					<div style={{color: '#888888', display: 'flex', position: 'absolute', right: 10 * scale}}>
-						<MoreIcon size={14 * scale} />
+						<VscodeIcon name="ellipsis" size={14 * scale} />
 					</div>
 				</Interactive.Div>
 
@@ -246,9 +207,9 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						width: activityBarWidth,
 					}}
 				>
-					{activityIcons.map((kind, index) => (
+					{activityIcons.map((name, index) => (
 						<div
-							key={kind}
+							key={name}
 							style={{
 								alignItems: 'center',
 								color: index === 0 ? '#bdbdbd' : '#8d8d8d',
@@ -257,11 +218,11 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 								justifyContent: 'center',
 							}}
 						>
-							<ActivityIcon kind={kind} size={25 * scale} />
+							<VscodeIcon name={name} size={25 * scale} />
 						</div>
 					))}
 					<div style={{alignItems: 'center', bottom: 7 * scale, display: 'flex', height: 34 * scale, justifyContent: 'center', position: 'absolute', width: '100%'}}>
-						<ActivityIcon kind="gear" size={24 * scale} />
+						<VscodeIcon name="settings-gear" size={24 * scale} />
 					</div>
 				</Interactive.Div>
 
@@ -290,11 +251,11 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							>
 								<ReactFileIcon size={14 * scale} />
 								<span style={{marginLeft: 7 * scale, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{tab.label}</span>
-								<span style={{fontSize: 18 * scale, fontStyle: 'normal', lineHeight: 1, marginLeft: 'auto'}}>×</span>
+								<span style={{display: 'flex', marginLeft: 'auto'}}><VscodeIcon name="close" size={14 * scale} /></span>
 							</div>
 						))}
 					</div>
-					<div style={{color: '#777777', display: 'flex', position: 'absolute', right: 8 * scale, top: 8 * scale}}><MoreIcon size={14 * scale} /></div>
+					<div style={{color: '#777777', display: 'flex', position: 'absolute', right: 8 * scale, top: 8 * scale}}><VscodeIcon name="ellipsis" size={14 * scale} /></div>
 				</Interactive.Div>
 
 				<Interactive.Div
@@ -328,10 +289,10 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 					name="Status bar"
 					style={{alignItems: 'center', backgroundColor: '#181919', borderTop: `${scale}px solid #2b2b2b`, bottom: 0, boxSizing: 'border-box', color: '#9a9a9a', display: 'flex', fontSize: 12 * scale, height: statusBarHeight, left: 0, paddingLeft: 13 * scale, position: 'absolute', right: 0}}
 				>
-					<span style={{fontSize: 16 * scale, lineHeight: 1}}>⊗</span><span style={{marginLeft: 4 * scale}}>0</span>
-					<span style={{fontSize: 15 * scale, marginLeft: 7 * scale}}>△</span><span style={{marginLeft: 3 * scale}}>0</span>
+					<VscodeIcon name="error" size={13 * scale} /><span style={{marginLeft: 4 * scale}}>0</span>
+					<span style={{display: 'flex', marginLeft: 7 * scale}}><VscodeIcon name="warning" size={13 * scale} /></span><span style={{marginLeft: 3 * scale}}>0</span>
 					<div style={{alignItems: 'center', display: 'flex', gap: 16 * scale, marginLeft: 'auto', paddingRight: 14 * scale}}>
-						<span>Ln {code.split('\n').length}, Col 1</span><span>Tab Size: 4</span><span>UTF-8</span><span>LF</span><span>{'{ }'}&nbsp; TypeScript JSX</span><span>♙</span><span>✓ oxc</span><span>≋ Prettier</span><span style={{fontSize: 15 * scale}}>♧</span>
+						<span>Ln {code.split('\n').length}, Col 1</span><span>Tab Size: 4</span><span>UTF-8</span><span>LF</span><span>{'{ }'}&nbsp; TypeScript JSX</span><span style={{display: 'flex'}}><VscodeIcon name="copilot" size={14 * scale} /></span><span>✓ oxc</span><span style={{display: 'flex'}}><VscodeIcon name="bell" size={14 * scale} /></span>
 					</div>
 				</Interactive.Div>
 			</Interactive.Div>
