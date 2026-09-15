@@ -3,6 +3,7 @@ import {
 	BORDER_CURRENT_COLOR,
 	CURRENT_COLOR,
 	TRANSPARENT,
+	WHITE_ALPHA_80,
 } from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
@@ -207,6 +208,7 @@ export const SidebarCollapserControl: React.FC<{
 				variant={null}
 				onClick={side === 'left' ? toggleLeft : toggleRight}
 				renderAction={side === 'left' ? toggleLeftAction : toggleRightAction}
+				unhoveredColor={WHITE_ALPHA_80}
 				style={side === 'left' ? {marginRight: 4} : undefined}
 				aria-label={label}
 				aria-expanded={expanded}
