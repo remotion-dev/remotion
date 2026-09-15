@@ -5,6 +5,7 @@ import React, {
 	useContext,
 	useEffect,
 	useRef,
+	useState,
 	useSyncExternalStore,
 } from 'react';
 import {
@@ -15,7 +16,7 @@ import {
 	useRemotionEnvironment,
 } from 'remotion';
 import type {Group} from 'three';
-import {TransformControls} from 'three/examples/jsm/controls/TransformControls.js';
+import type {TransformControls} from 'three/examples/jsm/controls/TransformControls.js';
 import {continuousEuler} from './continuous-euler';
 
 /* eslint-disable react/no-unknown-property -- position is an R3F group prop */
@@ -141,6 +142,9 @@ const ThreeGroupObject = forwardRef<
 	) => {
 		const objectRef = useRef<Group>(null);
 		const controlsRef = useRef<TransformControls | null>(null);
+		const [TransformControlsClass, setTransformControlsClass] = useState<
+			typeof TransformControls | null
+		>(null);
 		const sourceFrameRef = useRef(sourceFrame);
 		sourceFrameRef.current = sourceFrame;
 		const sequence = useContext(Internals.SequenceContext);
@@ -159,14 +163,33 @@ const ThreeGroupObject = forwardRef<
 			editor.availableModes.includes(editor.mode);
 
 		useEffect(() => {
+			if (!selected || TransformControlsClass) return;
+			let active = true;
+			import('three/examples/jsm/controls/TransformControls.js').then(
+				({TransformControls: Controls}) => {
+					if (active) setTransformControlsClass(() => Controls);
+				},
+			);
+			return () => {
+				active = false;
+			};
+		}, [selected, TransformControlsClass]);
+
+		useEffect(() => {
 			if (!isStudio || isRendering || sequenceId === null) return;
 			return Internals.ThreeEditorStore.register(sequenceId);
 		}, [isRendering, isStudio, sequenceId]);
 
 		useEffect(() => {
-			if (!selected || !objectRef.current || sequenceId === null) return;
+			if (
+				!selected ||
+				!TransformControlsClass ||
+				!objectRef.current ||
+				sequenceId === null
+			)
+				return;
 			const object = objectRef.current;
-			const controls = new TransformControls(camera, gl.domElement);
+			const controls = new TransformControlsClass(camera, gl.domElement);
 			controls.attach(object);
 			controls.setSpace('local');
 			const helper = controls.getHelper();
@@ -300,12 +323,20 @@ const ThreeGroupObject = forwardRef<
 				controls.dispose();
 				controlsRef.current = null;
 			};
-		}, [camera, gl.domElement, invalidate, scene, selected, sequenceId]);
+		}, [
+			TransformControlsClass,
+			camera,
+			gl.domElement,
+			invalidate,
+			scene,
+			selected,
+			sequenceId,
+		]);
 
 		useEffect(() => {
 			controlsRef.current?.setMode(editor.mode);
 			controlsRef.current?.setSize(editor.mode === 'scale' ? 1.45 : 1);
-		}, [editor.mode, selected]);
+		}, [TransformControlsClass, editor.mode, selected]);
 
 		const setRef = (object: Group | null) => {
 			objectRef.current = object;
