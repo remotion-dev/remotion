@@ -1,9 +1,12 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {restartStudio} from '../api/restart-studio';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {InspectorQuickAction} from './InspectorPanel/common';
 import {Spacing} from './layout';
 import {ModalFooterContainer} from './ModalFooter';
+import {showNotification} from './Notifications/NotificationCenter';
 
 const footer: React.CSSProperties = {
 	flex: 'none',
@@ -44,6 +47,8 @@ const externalLinkIndicator: React.CSSProperties = {
 export const SettingsModalFooter: React.FC<{
 	readonly showLicenseFaq: boolean;
 }> = ({showLicenseFaq}) => {
+	const {restartRequired} = useContext(StudioServerConnectionCtx);
+	const [restarting, setRestarting] = useState(false);
 	const configFileLocation = useMemo(() => {
 		return {
 			source: 'remotion.config.ts',
@@ -57,6 +62,13 @@ export const SettingsModalFooter: React.FC<{
 			'_blank',
 			'noopener,noreferrer',
 		);
+	}, []);
+	const restart = useCallback(() => {
+		setRestarting(true);
+		restartStudio().catch((error: Error) => {
+			setRestarting(false);
+			showNotification(`Could not restart Studio: ${error.message}`, 4000);
+		});
 	}, []);
 
 	return (
@@ -72,7 +84,16 @@ export const SettingsModalFooter: React.FC<{
 						showTooltips={false}
 					/>
 				</div>
-				{showLicenseFaq ? (
+				{restartRequired ? (
+					<InspectorQuickAction
+						disabled={restarting}
+						onClick={restart}
+						style={{flex: 'none', width: 'fit-content'}}
+						title="Restart Studio to apply config file changes"
+					>
+						{restarting ? 'Restarting...' : 'Restart Studio'}
+					</InspectorQuickAction>
+				) : showLicenseFaq ? (
 					<InspectorQuickAction
 						disabled={false}
 						onClick={openLicenseFaq}
