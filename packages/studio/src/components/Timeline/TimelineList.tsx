@@ -12,16 +12,20 @@ const container: React.CSSProperties = {
 	position: 'relative',
 };
 
+const noConnectedCompositions: readonly never[] = [];
+
 const TimelineListTrack: React.FC<{
 	readonly row: TimelineVirtualRow;
-}> = ({row}) => {
+}> = React.memo(({row}) => {
 	const {afterDropLineOffset, siblingIndex, track} = row;
 
 	return (
 		<TimelineSequenceItem
 			afterDropLineOffset={afterDropLineOffset}
 			siblingIndex={siblingIndex}
-			connectedCompositions={track.connectedCompositions ?? []}
+			connectedCompositions={
+				track.connectedCompositions ?? noConnectedCompositions
+			}
 			nestedDepth={track.depth}
 			sequence={track.sequence}
 			nodePathInfo={track.nodePathInfo}
@@ -29,7 +33,7 @@ const TimelineListTrack: React.FC<{
 			sequenceFrameOffset={track.sequenceFrameOffset}
 		/>
 	);
-};
+});
 
 export const TimelineList: React.FC = () => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();

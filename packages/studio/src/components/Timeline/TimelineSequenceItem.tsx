@@ -102,9 +102,9 @@ import {
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
+	type TimelineSelection,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
-	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
@@ -148,16 +148,18 @@ type TimelineSequenceExpandArrowProps = {
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequence: TSequence;
 };
 
 const TimelineSequenceExpandArrowInner: React.FC<
 	TimelineSequenceExpandArrowProps
-> = ({disabled, isExpanded, nodePathInfo, sequence}) => {
+> = ({disabled, isExpanded, nodePathInfo, selectedItems, sequence}) => {
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const hasExpandableContent = useTimelineSequenceHasExpandableContent({
 		sequence,
 		nodePathInfo,
+		selectedItems,
 	});
 	const onToggleExpand = useCallback(
 		() => toggleTrack(nodePathInfo),
@@ -185,6 +187,7 @@ const areTimelineSequenceExpandArrowPropsEqual = (
 	return (
 		first.disabled === second.disabled &&
 		first.isExpanded === second.isExpanded &&
+		first.selectedItems === second.selectedItems &&
 		first.sequence.controls?.schema === second.sequence.controls?.schema &&
 		first.sequence.controls?.runtimeValues ===
 			second.sequence.controls?.runtimeValues &&
@@ -323,9 +326,8 @@ const TimelineSequenceItemInner: React.FC<{
 	const assetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const deleteTimelineItems = useDeleteTimelineItems();
-	const {onSelect, selectable, selected} =
+	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
-	const {selectItem, selectedItems} = useTimelineSelection();
 	const selectedSequenceNodePathInfos = useMemo(() => {
 		if (
 			!selected ||
@@ -1464,6 +1466,7 @@ const TimelineSequenceItemInner: React.FC<{
 							disabled={!previewInteractive}
 							isExpanded={isExpanded}
 							nodePathInfo={nodePathInfo}
+							selectedItems={selectedItems}
 							sequence={sequence}
 						/>
 					</>
