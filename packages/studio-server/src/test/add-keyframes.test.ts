@@ -145,10 +145,18 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 		);
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 
-		expect(popRedo()).toEqual({success: true, nodePathMutation: null});
+		expect(popRedo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(output);
 	} finally {
 		clearUndoStackForTests();

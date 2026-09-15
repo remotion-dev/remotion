@@ -136,6 +136,7 @@ export const RenameFolder: React.FC<{
 								dryRun: false,
 								signal,
 								symbolicatedStack,
+								undoRedoNavigation: null,
 							})
 						}
 						applyCodemodForPreview={null}

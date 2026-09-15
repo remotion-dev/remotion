@@ -6,7 +6,7 @@ import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {applyCodemod} from '../components/RenderQueue/actions';
 import {slugifyName} from './slugify-name';
-import {pushUrl} from './url-state';
+import {getRoute, pushUrl} from './url-state';
 import {validateCompositionName} from './validate-new-comp-data';
 
 export const useRenameComposition = ({
@@ -64,15 +64,20 @@ export const useRenameComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
+			const nextCompositionId = slugifyName(newCompositionId);
 			const result = await applyCodemod({
 				codemod: getCodemod(newCompositionId),
 				dryRun: false,
 				signal,
 				symbolicatedStack,
+				undoRedoNavigation: {
+					undoRoute: getRoute(),
+					redoRoute: `/${nextCompositionId}`,
+				},
 			});
 
 			if (result.success) {
-				pushUrl(`/${slugifyName(newCompositionId)}`);
+				pushUrl(`/${nextCompositionId}`);
 			}
 
 			return result;

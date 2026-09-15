@@ -162,6 +162,7 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 			},
 			entryType: 'effect-props',
 			suppressHmrOnFileRestore: true,
+			undoRedoNavigation: null,
 		});
 
 		for (const [absolutePath, output] of outputByPath) {

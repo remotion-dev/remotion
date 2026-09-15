@@ -369,6 +369,7 @@ export const CompositionMetadata: React.FC<{
 				dryRun: false,
 				signal: new AbortController().signal,
 				symbolicatedStack,
+				undoRedoNavigation: null,
 			})
 				.then((result) => {
 					if (!result.success) {

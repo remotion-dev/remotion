@@ -188,11 +188,19 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	});
 	expect(project.publicFiles?.['renamed.bin']).toBeUndefined();
 
-	expect(await undo()).toEqual({success: true, nodePathMutation: null});
+	expect(await undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+		route: null,
+	});
 	expect(project.publicFiles?.['renamed.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
-	expect(await undo()).toEqual({success: true, nodePathMutation: null});
+	expect(await undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+		route: null,
+	});
 	expect(project.publicFiles?.['nested/upload.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
@@ -270,11 +278,13 @@ test('downloads CORS-enabled remote assets and rejects failed cross-origin fetch
 
 		expect(await operations.undo()).toEqual({
 			nodePathMutation: null,
+			route: null,
 			success: true,
 		});
 		expect(project.publicFiles?.['remote-logo.gif']).toBeUndefined();
 		expect(await operations.redo()).toEqual({
 			nodePathMutation: null,
+			route: null,
 			success: true,
 		});
 		expect(project.publicFiles?.['remote-logo.gif']).toEqual(gif);
@@ -310,6 +320,10 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 		resolveDependencies: null,
 	});
 	const request = {
+		undoRedoNavigation: {
+			undoRoute: '/MyComp',
+			redoRoute: '/MyCompCopy',
+		},
 		codemod: {
 			type: 'duplicate-composition' as const,
 			idToDuplicate: 'MyComp',
@@ -325,6 +339,7 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 	const preview = await operations.duplicateComposition({
 		...request,
 		dryRun: true,
+		undoRedoNavigation: null,
 	});
 	expect(preview.success).toBe(true);
 	if (!preview.success) {
@@ -350,10 +365,20 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: '/MyComp',
 	});
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
 	);
+	expect(await operations.redo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+		route: '/MyCompCopy',
+	});
+	expect(project.files['/project/src/Composition.tsx']).toContain(
+		'id="MyCompCopy"',
+	);
+	expect((await operations.undo()).success).toBe(true);
 
 	const failure = await operations.duplicateComposition({
 		...request,
@@ -452,6 +477,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		from: 12,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
+		undoRedoNavigation: null,
 		newComposition: null,
 	});
 	if (!inserted.success) {
@@ -506,6 +532,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		from: null,
 		overwriteExisting: false,
 		position: null,
+		undoRedoNavigation: null,
 		newComposition: null,
 	};
 	expect(await operations.insertElement(installRequest)).toMatchObject({
@@ -601,6 +628,10 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		from: null,
 		overwriteExisting: false,
 		position: null,
+		undoRedoNavigation: {
+			undoRoute: '/MyComp',
+			redoRoute: '/ElementScene',
+		},
 		newComposition: {
 			codemod: {
 				type: 'new-composition',
@@ -633,7 +664,10 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 	);
 	const installedProject = project;
 
-	expect((await operations.undo()).success).toBe(true);
+	expect(await operations.undo()).toMatchObject({
+		success: true,
+		route: '/MyComp',
+	});
 	expect(project.files['/project/src/Root.tsx']).toBe(
 		initialProject.files['/project/src/Root.tsx'],
 	);
@@ -646,7 +680,10 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		reason: 'Nothing to undo',
 	});
 
-	expect((await operations.redo()).success).toBe(true);
+	expect(await operations.redo()).toMatchObject({
+		success: true,
+		route: '/ElementScene',
+	});
 	expect(areBrowserStudioProjectsEqual(project, installedProject)).toBe(true);
 });
 
@@ -702,6 +739,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		from: 30,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
+		undoRedoNavigation: null,
 		newComposition: null,
 	});
 	if (!inserted.success) {
@@ -786,6 +824,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			from: 30,
 			overwriteExisting: false,
 			position: {x: 24, y: 48},
+			undoRedoNavigation: null,
 			newComposition: null,
 		});
 
@@ -834,6 +873,7 @@ test('installs packages as an undoable project mutation and reports structured f
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(project.files['/project/package.json']).toBe(
 		initialProject.files['/project/package.json'],
@@ -841,6 +881,7 @@ test('installs packages as an undoable project mutation and reports structured f
 	expect(await operations.redo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(project.files['/project/package.json']).toContain(
 		'"@remotion/google-fonts": "4.0.999"',

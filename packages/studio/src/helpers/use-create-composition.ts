@@ -8,6 +8,7 @@ import type {_InternalTypes} from 'remotion';
 import {useSelectComposition} from '../components/InitialCompositionLoader';
 import {applyCodemod} from '../components/RenderQueue/actions';
 import {slugifyName} from './slugify-name';
+import {getRoute} from './url-state';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -147,6 +148,10 @@ export const useCreateComposition = ({
 				dryRun: false,
 				signal,
 				symbolicatedStack,
+				undoRedoNavigation: {
+					undoRoute: getRoute(),
+					redoRoute: `/${compositionId}`,
+				},
 			});
 
 			if (result.success) {

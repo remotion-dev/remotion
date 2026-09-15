@@ -97,6 +97,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				},
 				entryType: 'duplicate-jsx-node',
 				suppressHmrOnFileRestore: false,
+				undoRedoNavigation: null,
 			});
 
 			for (const update of updates) {

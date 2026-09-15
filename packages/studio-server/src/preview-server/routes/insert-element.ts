@@ -67,6 +67,7 @@ export const insertElementHandler: ApiHandler<
 		from,
 		position,
 		overwriteExisting,
+		undoRedoNavigation,
 		newComposition,
 	},
 	entryPoint,
@@ -408,6 +409,7 @@ export const insertElementHandler: ApiHandler<
 							},
 				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
+				undoRedoNavigation,
 			});
 			if (compositionCreation !== null) {
 				suppressUndoStackInvalidation(compositionCreation.registrationFilePath);

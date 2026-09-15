@@ -625,6 +625,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			description: {undoMessage, redoMessage},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: suppressHmr,
+			undoRedoNavigation: null,
 		});
 
 		for (const [absolutePath, output] of outputByPath) {

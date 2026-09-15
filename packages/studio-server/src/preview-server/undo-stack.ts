@@ -4,6 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	RedoResponse,
 	SequenceNodePathRemapping,
+	UndoRedoNavigation,
 	UndoResponse,
 } from '@remotion/studio-shared';
 import {parseAst} from '../codemods/parse-ast';
@@ -71,6 +72,7 @@ type UndoEntry = {
 	/** When true, undo/redo file restores call `suppressBundlerUpdateForFile` (skip HMR refresh). */
 	suppressHmrOnFileRestore: boolean;
 	entryType: UndoEntryType;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 const MAX_ENTRIES = 100;
@@ -110,11 +112,13 @@ const makeUndoEntry = ({
 	description,
 	entryType,
 	suppressHmrOnFileRestore,
+	undoRedoNavigation,
 }: {
 	snapshots: UndoEntrySnapshot[];
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 }): UndoEntry => {
 	if (snapshots.length === 0) {
 		throw new Error('Cannot create an undo entry without snapshots');
@@ -127,6 +131,7 @@ const makeUndoEntry = ({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation,
 	};
 };
 
@@ -168,6 +173,7 @@ export function pushToUndoStack({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation: null,
 	});
 }
 
@@ -178,6 +184,7 @@ export function pushTransactionToUndoStack({
 	description,
 	entryType,
 	suppressHmrOnFileRestore,
+	undoRedoNavigation,
 }: {
 	snapshots: Array<{
 		filePath: string;
@@ -191,6 +198,7 @@ export function pushTransactionToUndoStack({
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 }) {
 	storedLogLevel = logLevel;
 	storedRemotionRoot = remotionRoot;
@@ -200,6 +208,7 @@ export function pushTransactionToUndoStack({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation,
 	});
 	undoStack.push(entry);
 	if (undoStack.length > MAX_ENTRIES) {
@@ -263,6 +272,7 @@ export function pushToRedoStack({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation: null,
 	});
 	redoStack.push(entry);
 	if (redoStack.length > MAX_ENTRIES) {
@@ -431,6 +441,7 @@ export function popUndo(): UndoResponse {
 			description: entry.description,
 			entryType: entry.entryType,
 			suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+			undoRedoNavigation: entry.undoRedoNavigation,
 		}),
 	);
 	if (redoStack.length > MAX_ENTRIES) {
@@ -499,7 +510,11 @@ export function popUndo(): UndoResponse {
 	}
 
 	broadcastState();
-	return {success: true, nodePathMutation};
+	return {
+		success: true,
+		nodePathMutation,
+		route: entry.undoRedoNavigation?.undoRoute ?? null,
+	};
 }
 
 export function popRedo(): RedoResponse {
@@ -528,6 +543,7 @@ export function popRedo(): RedoResponse {
 			description: entry.description,
 			entryType: entry.entryType,
 			suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+			undoRedoNavigation: entry.undoRedoNavigation,
 		}),
 	);
 	if (undoStack.length > MAX_ENTRIES) {
@@ -587,7 +603,11 @@ export function popRedo(): RedoResponse {
 	}
 
 	broadcastState();
-	return {success: true, nodePathMutation};
+	return {
+		success: true,
+		nodePathMutation,
+		route: entry.undoRedoNavigation?.redoRoute ?? null,
+	};
 }
 
 /*

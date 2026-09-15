@@ -278,6 +278,7 @@ export const addKeyframes = async ({
 					? 'sequence-props'
 					: 'effect-props',
 		suppressHmrOnFileRestore: true,
+		undoRedoNavigation: null,
 	});
 
 	for (const snapshot of snapshots) {

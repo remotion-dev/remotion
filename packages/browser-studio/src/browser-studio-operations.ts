@@ -633,6 +633,7 @@ export const createBrowserStudioOperations = ({
 			effectMutations,
 		});
 		controller.applyMutation({
+			undoRedoNavigation: null,
 			timelineSelection: null,
 			fileName: label,
 			mutate: () => result.project,
@@ -887,6 +888,7 @@ export const createBrowserStudioOperations = ({
 					sequenceNodePath: request.sequenceNodePath.nodePath,
 				});
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
@@ -949,6 +951,7 @@ export const createBrowserStudioOperations = ({
 					})),
 				);
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: updates.map((update) => update.absolutePath).join(', '),
 					nodePathMutationFiles: null,
@@ -1007,6 +1010,7 @@ export const createBrowserStudioOperations = ({
 					})),
 				);
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: updates.map((update) => update.absolutePath).join(', '),
 					nodePathMutationFiles: null,
@@ -1057,6 +1061,7 @@ export const createBrowserStudioOperations = ({
 					type: request.type,
 				});
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
@@ -1084,6 +1089,7 @@ export const createBrowserStudioOperations = ({
 					toIndex: request.toIndex,
 				});
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
@@ -1132,6 +1138,7 @@ export const createBrowserStudioOperations = ({
 				files: {...project.files, [absolutePath]: result.output},
 			};
 			controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: absolutePath,
 				nodePathMutationFiles: null,
@@ -1189,6 +1196,7 @@ export const createBrowserStudioOperations = ({
 				files: {...project.files, ...Object.fromEntries(outputByPath)},
 			};
 			controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: request.undoLabel,
 				nodePathMutationFiles: null,
@@ -1237,6 +1245,7 @@ export const createBrowserStudioOperations = ({
 					project,
 				});
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: 'Install packages',
 					mutate: () => nextProject,
@@ -1292,6 +1301,7 @@ export const createBrowserStudioOperations = ({
 				},
 			};
 			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: updates.map(({fileName}) => fileName).join(', '),
 				mutate: () => nextProject,
@@ -1357,6 +1367,7 @@ export const createBrowserStudioOperations = ({
 				},
 			};
 			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: updates.map(({fileName}) => fileName).join(', '),
 				mutate: () => nextProject,
@@ -1394,6 +1405,7 @@ export const createBrowserStudioOperations = ({
 				splitFrame,
 			});
 			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: absolutePath,
 				mutate: () => ({
@@ -1425,6 +1437,7 @@ export const createBrowserStudioOperations = ({
 		codemod,
 		dryRun,
 		symbolicatedStack,
+		undoRedoNavigation,
 	}) => {
 		try {
 			if (codemod.type === 'apply-visual-control') {
@@ -1471,6 +1484,7 @@ export const createBrowserStudioOperations = ({
 
 			if (!dryRun) {
 				controller.applyMutation({
+					undoRedoNavigation,
 					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
@@ -1507,6 +1521,7 @@ export const createBrowserStudioOperations = ({
 				formatFile: formatCodemodFile,
 			});
 			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: absolutePath,
 				mutate: () => ({
@@ -1781,7 +1796,7 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const duplicateComposition: BrowserStudioOperations['duplicateComposition'] =
-		async ({codemod, dryRun}) => {
+		async ({codemod, dryRun, undoRedoNavigation}) => {
 			try {
 				const project = getProject();
 				const compositionFile = getCompositionFile({
@@ -1811,6 +1826,7 @@ export const createBrowserStudioOperations = ({
 
 				if (!dryRun) {
 					controller.applyMutation({
+						undoRedoNavigation,
 						timelineSelection: null,
 						fileName: absolutePath,
 						nodePathMutationFiles: null,
@@ -1852,6 +1868,7 @@ export const createBrowserStudioOperations = ({
 					formatInline,
 				});
 				controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
 					nodePathMutationFiles: null,
@@ -1882,6 +1899,7 @@ export const createBrowserStudioOperations = ({
 					formatFile: formatCodemodFile,
 				});
 				const nodePathMutation = controller.applyMutation({
+					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
 					mutate: () => ({
@@ -1933,6 +1951,7 @@ export const createBrowserStudioOperations = ({
 				wrapInSequence: null,
 			});
 			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection:
 					result.insertedNodePath === null
 						? null
@@ -2196,6 +2215,7 @@ export const createBrowserStudioOperations = ({
 				}
 
 				const nodePathMutation = controller.applyMutation({
+					undoRedoNavigation: request.undoRedoNavigation,
 					timelineSelection: null,
 					fileName: insertion.filePath,
 					mutate: () => nextProject,
@@ -2330,6 +2350,7 @@ export const createBrowserStudioOperations = ({
 
 			const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
 			controller.applyMutation({
+				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName:
 					firstTarget?.fileName ??

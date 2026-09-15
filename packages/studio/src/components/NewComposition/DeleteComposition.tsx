@@ -1,5 +1,10 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import type {_InternalTypes} from 'remotion';
+import {Internals} from 'remotion';
+import {getRoute, pushUrl} from '../../helpers/url-state';
+import {useSelectComposition} from '../InitialCompositionLoader';
+import {deriveCanvasContentFromUrl} from '../load-canvas-content-from-url';
 import {inlineCodeSnippet} from '../Menu/styles';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
@@ -28,6 +33,12 @@ const DeleteCompositionLoaded: React.FC<{
 
 	const {unresolved} = context;
 	const compositionStack = unresolved.stack ?? null;
+	const {compositions} = useContext(Internals.CompositionManager);
+	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const selectComposition = useSelectComposition();
+	const navigationAfterDelete = useRef<
+		_InternalTypes['AnyComposition'] | null | undefined
+	>(undefined);
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
@@ -39,6 +50,20 @@ const DeleteCompositionLoaded: React.FC<{
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
 	}, []);
+
+	const onSuccess = useCallback(() => {
+		if (navigationAfterDelete.current === undefined) {
+			return;
+		}
+
+		if (navigationAfterDelete.current === null) {
+			pushUrl('/');
+			setCanvasContent(null);
+			return;
+		}
+
+		selectComposition(navigationAfterDelete.current, true);
+	}, [selectComposition, setCanvasContent]);
 
 	return (
 		<>
@@ -67,15 +92,32 @@ const DeleteCompositionLoaded: React.FC<{
 						codemod={codemod}
 						stack={compositionStack}
 						valid
-						onSuccess={null}
-						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
+						onSuccess={onSuccess}
+						applyCodemod={({signal, symbolicatedStack}) => {
+							const currentRoute = getRoute();
+							const currentCanvasContent = deriveCanvasContentFromUrl();
+							const isSelected =
+								currentCanvasContent?.type === 'composition' &&
+								currentCanvasContent.compositionId === compositionId;
+							const fallback = isSelected
+								? (compositions.find(({id}) => id !== compositionId) ?? null)
+								: undefined;
+							navigationAfterDelete.current = fallback;
+
+							return applyCodemod({
 								codemod,
 								dryRun: false,
 								signal,
 								symbolicatedStack,
-							})
-						}
+								undoRedoNavigation:
+									fallback === undefined
+										? null
+										: {
+												undoRoute: currentRoute,
+												redoRoute: fallback === null ? '/' : `/${fallback.id}`,
+											},
+							});
+						}}
 						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>

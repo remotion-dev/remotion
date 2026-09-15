@@ -304,10 +304,16 @@ export type UpdateDefaultPropsResponse =
 			stack: string;
 	  };
 
+export type UndoRedoNavigation = {
+	undoRoute: string;
+	redoRoute: string;
+};
+
 export type ApplyCodemodRequest = {
 	codemod: RecastCodemod;
 	dryRun: boolean;
 	symbolicatedStack: SymbolicatedStackFrame | null;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 export type SimpleDiff = {
@@ -1046,6 +1052,7 @@ export type InsertElementRequest = {
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 	newComposition: {
 		codemod: Extract<RecastCodemod, {type: 'new-composition'}>;
 		symbolicatedStack: SymbolicatedStackFrame | null;
@@ -1245,6 +1252,7 @@ export type UndoResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
+			route: string | null;
 	  }
 	| {
 			success: false;
@@ -1256,6 +1264,7 @@ export type RedoResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation | null;
+			route: string | null;
 	  }
 	| {
 			success: false;
