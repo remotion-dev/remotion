@@ -1124,14 +1124,16 @@ export const Canvas: React.FC<{
 
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
-			if (cannotAddSequence && !mayBeCanvasCapture) {
-				if (!unsupportedDropNotifiedRef.current) {
-					unsupportedDropNotifiedRef.current = true;
-					showCannotAddSequenceDropNotification();
-				}
-			} else {
-				unsupportedDropNotifiedRef.current = false;
+			const shouldNotifyAboutUnsupportedDrop =
+				cannotAddSequence && !mayBeCanvasCapture;
+			if (
+				shouldNotifyAboutUnsupportedDrop &&
+				!unsupportedDropNotifiedRef.current
+			) {
+				showCannotAddSequenceDropNotification();
 			}
+
+			unsupportedDropNotifiedRef.current = shouldNotifyAboutUnsupportedDrop;
 
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);

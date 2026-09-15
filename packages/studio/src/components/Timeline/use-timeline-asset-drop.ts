@@ -108,17 +108,17 @@ export const useTimelineAssetDrop = () => {
 
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
-			if (
+			const shouldNotifyAboutUnsupportedDrop =
 				compositionComponentInfo?.canAddSequence === false &&
-				!mayBeCanvasCapture
+				!mayBeCanvasCapture;
+			if (
+				shouldNotifyAboutUnsupportedDrop &&
+				!unsupportedDropNotifiedRef.current
 			) {
-				if (!unsupportedDropNotifiedRef.current) {
-					unsupportedDropNotifiedRef.current = true;
-					showCannotAddSequenceDropNotification();
-				}
-			} else {
-				unsupportedDropNotifiedRef.current = false;
+				showCannotAddSequenceDropNotification();
 			}
+
+			unsupportedDropNotifiedRef.current = shouldNotifyAboutUnsupportedDrop;
 
 			event.preventDefault();
 			event.stopPropagation();
