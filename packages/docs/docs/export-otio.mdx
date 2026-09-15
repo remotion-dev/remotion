@@ -1,0 +1,346 @@
+---
+image: /generated/articles-docs-export-otio.png
+id: export-otio
+title: Export to OpenTimelineIO
+sidebar_label: OpenTimelineIO
+crumb: Tooling
+---
+
+OpenTimelineIO (`.otio`) lets you move a timeline into DaVinci Resolve or Premiere Pro while keeping supported media clips editable.
+
+The Agent Skill below tells a coding agent to preserve native clips where possible and render faithful fallbacks for Remotion output that OTIO cannot describe.
+
+<ExperimentalBadge>
+  <p>This skill is experimental. It is not installed by `npx remotion skills add`.</p>
+</ExperimentalBadge>
+
+## Install the skill
+
+Create a skill directory in your Remotion project:
+
+```sh title="Terminal"
+mkdir -p .agents/skills/remotion-export-otio
+```
+
+Copy the complete file below to `.agents/skills/remotion-export-otio/SKILL.md`:
+
+````md title=".agents/skills/remotion-export-otio/SKILL.md"
+---
+name: remotion-export-otio
+description: Export a Remotion composition as an OpenTimelineIO (.otio) timeline for DaVinci Resolve or Premiere Pro
+---
+
+Use this skill when the user wants to hand a Remotion video over to a video editor, for example:
+
+- "Export this composition as OTIO"
+- "I want to finish this edit in DaVinci Resolve"
+- "Give me a timeline I can import into Premiere"
+- "Turn this rough cut into something my editor can open"
+
+Prefer OpenTimelineIO (`.otio`). It is a documented JSON format imported by DaVinci Resolve and Adobe Premiere 26 or later, and supported through converters by other editors. Only produce EDL, FCPXML or Premiere XML if the user explicitly asks for those.
+
+## Native clips and rendered fallbacks
+
+A Remotion composition is React code, not a timeline data structure. Preserve editability where possible, but do not silently omit visible or audible output merely because OTIO cannot describe it. Every contribution to the rendered result must be represented by a native clip, a processed derivative, or a rendered fallback. If that cannot be done, stop and report that the export is incomplete.
+
+These can usually become native editable clips:
+
+- `<Video>` and `<Audio>` from `@remotion/media`
+- `<OffthreadVideo>`, `<Video>` and `<Audio>` from `remotion`
+- `<Img>` from `remotion`; include still images by default
+
+These usually need a processed or rendered fallback:
+
+- Text, shapes, `<AbsoluteFill>`s, animations, `interpolate()`, `spring()`
+- Effects from `@remotion/effects`, transitions from `@remotion/transitions`
+- `playbackRate`, non-unity volume, volume curves, and `style` transforms
+- Anything drawn on a `<canvas>` or by `@remotion/three`, `@remotion/lottie`, `@remotion/skia`
+
+Use the first fallback that is faithful:
+
+1. Bake only the unsupported property into a derived media file, for example a retimed video, gain-adjusted sound, or video-only copy of muted B-roll.
+2. Render an isolated visual component over transparency for its exact active interval. Use muted ProRes 4444 and place it above the native clips.
+3. If isolation changes masks, blending, clipping, or sibling-dependent layout, render the smallest complete opaque ancestor or contiguous interval. Split or remove native video beneath that interval.
+4. For audio processing that cannot be baked into one source, render the smallest faithful WAV stem and remove every native audio contribution included in it.
+5. Flatten a whole scene or chapter only when its unsupported contributions cannot be isolated. Flatten the full composition only as a last resort.
+
+Never leave both a fallback and the media it replaces active. A visual overlay rendered with transparency may sit above native video, but an opaque fallback replaces video beneath it. An audio stem replaces all audio it contains.
+
+## Step 1: Read the timeline out of the code
+
+1. Find the `<Composition>` and note its `fps`, `durationInFrames`, `width` and `height`. If it has `calculateMetadata`, read what that function returns, and use the input props that are actually being used.
+2. Walk the component tree and collect every media element with a real `src`.
+3. For each media element, compute its **absolute start frame** by adding up the `from` prop of every `<Sequence>` it is nested in. `<Series>` and `<TransitionSeries>` place their children back to back, so accumulate their `durationInFrames`.
+4. Note `durationInFrames` of the closest wrapping `<Sequence>`, or the remaining composition duration if there is none.
+5. Note `trimBefore` and `trimAfter`, which are in frames and describe which part of the source file is used.
+6. Inventory every visible or audible construct that is not faithfully covered by those native clips. Group dependent constructs into the smallest intervals that can be rendered without changing their appearance or sound.
+
+Do not guess. If placement depends on props, conditionals or data that is fetched at runtime, ask the user which case to export, or export the default case and say so.
+
+## Step 2: Convert frames to OTIO time
+
+Every time value is a `RationalTime` with `rate` set to the composition `fps` and `value` set to a frame count:
+
+```json
+{"OTIO_SCHEMA": "RationalTime.1", "value": 90, "rate": 30}
+```
+
+For each clip:
+
+- `source_range.start_time` is the in-point **inside the source file**, which is `trimBefore` (or `0`).
+- `source_range.duration` is how many frames the clip occupies on the timeline.
+- The position on the timeline is **not** stored on the clip. Children of a track are laid end to end, so insert a `Gap.1` before a clip that does not start where the previous one ended.
+
+If the source file has a different frame rate than the composition, the frame numbers still describe the same points in time, and Resolve conforms the media on import.
+
+## Step 3: Preserve rendered output and audio fidelity
+
+Do not rely on a generic OTIO `Effect` or application-specific metadata for gain, envelopes, retiming, transforms, or Remotion effects unless the target editor behavior has been verified end to end. OTIO does not standardize the result of generic effects.
+
+For every audio-bearing `<Audio>`, `<Video>`, or `<OffthreadVideo>`, determine its effective `muted`, `volume`, trim, playback rate, loop behavior, tone frequency, audio stream selection, channel mapping, and active interval. Remotion numeric `volume` values are linear amplitude scalars, not decibels. If a processor requires decibels, convert with `20 * log10(volume)` and treat `0` as silence.
+
+- If `muted` is constantly true, do not create an audio clip for it. When a rendered or processed visual fallback contains an unwanted audio stream, create a video-only derivative. A time-varying `muted` value must be baked or rendered.
+- Reference the original localized source directly only when volume is constantly `1`, `muted` is constantly false, playback rate and tone frequency are `1`, no loop behavior is active, and the chosen source stream and channel mapping are faithfully represented.
+- If only a constant non-unity volume changes, bake that scalar into an audio-only localized derivative and reference the derivative at unity gain. Keep the original video leg when present. Deduplicate by canonical source plus processing parameters, not by source URL alone.
+- If volume or mute is a callback, curve, fade, or depends on composition state, render the exact affected audio element or the smallest faithful mix as a WAV stem.
+- Bake playback rate, looping, tone frequency, stream selection, channel mapping, panning, and other audio processing. If their interaction or target channel layout is ambiguous, render one combined stem and remove every source clip included in that stem.
+- If processed audio overlaps other simple audio, either keep separately baked clips so OTIO mixes them additively, or render one combined stem and remove every source clip included in that stem. Never double the mix.
+
+Preserve the original source and processing values in clip metadata for auditability, but do not treat metadata as the fidelity mechanism. Prefer PCM WAV for processed audio. Remotion's `--codec=wav` renderer emits 16-bit PCM; a separate media processor may explicitly create 24-bit PCM when the source quality warrants it. Probe every derivative or stem and set its `available_range` from the processed file rather than the compressed source container. Keep the clip's `source_range` duration equal to the intended active interval and fail if the processed file does not cover it. For an unlooped whole-source derivative, shorten the active interval to the decoded media duration or render explicit trailing silence when that is part of the intended interval. For constant-gain derivatives, compare decoded PCM against a unity-gain decode or Remotion-rendered reference on non-silent samples, accounting for resampling and clipping.
+
+Render visual fallbacks with the composition's actual props, dimensions, FPS, and frame range. `--frames=S-E` is inclusive, so the resulting clip duration is `E - S + 1` frames:
+
+```bash
+# Opaque interval that replaces native video beneath it
+npx remotion render <entry> <composition> fallback.mov \
+  --frames=S-E --codec=prores --prores-profile=light \
+  --pixel-format=yuv422p10le --image-format=png --muted
+
+# Transparent overlay; only use an entry/composition that truly isolates the layer
+npx remotion render <entry> <overlay-composition> overlay.mov \
+  --frames=S-E --codec=prores --prores-profile=4444 \
+  --pixel-format=yuva444p10le --image-format=png --muted
+
+# Audio stem that replaces all audio included in the render
+npx remotion render <entry> <composition> stem.wav \
+  --frames=S-E --codec=wav
+```
+
+Probe each fallback and confirm its frame or sample duration before adding it to the timeline. OTIO video tracks are composited bottom-to-top, so place transparent overlays above the native media they augment. Preserve the original frame coordinate inside an isolated fallback, or explicitly remap it when the fallback composition starts at frame `0`. Use a `source_range` starting at `0` for a file rendered from only the requested interval. If one full render is reused for several timeline intervals, use the corresponding source offsets instead.
+
+## Step 4: Localize media beside the `.otio` file
+
+Choose a dedicated output directory before writing the timeline. Every media file referenced by an included OTIO clip must be a regular local file in the same directory as the `.otio` file. The export is not complete until all included media has been localized there.
+
+For each unique native, processed, or rendered media source:
+
+- Download remote HTTP or HTTPS sources into the output directory. Follow redirects and fail on an unsuccessful response; never leave the remote URL in `target_url`.
+- Resolve `staticFile("video.mp4")` to `public/video.mp4`, and copy that file into the output directory. Copy other local sources and `file://` sources there as well, unless they already resolve to the destination file. When using Node or Bun, resolve `file://` sources with `fileURLToPath()`.
+- Preserve a meaningful basename and file extension. If different sources have the same basename, add a deterministic suffix derived from the canonical source, such as a short hash, before the extension. For processed derivatives and interval renders, the filename identity must also fingerprint every output-affecting processing parameter and the relevant source or composition interval. Do not overwrite an existing different file; reuse it only after confirming both its source and processing identity match.
+- Reuse one localized copy when the same source appears in multiple clips.
+- Reject empty files. Probe every localized audio or video file and verify that every still image is readable. If a required source cannot be downloaded, copied, or verified, stop and report that the export is incomplete. Do not write an OTIO file that references the remote, missing, or unusable source instead.
+- Treat any source that cannot be materialized as a standalone file, such as a `blob:` URL, unresolved runtime URL, or incomplete streaming manifest, as a localization failure.
+
+Set every `ExternalReference.target_url` to `pathToFileURL(finalAbsolutePath).href` when using Node or Bun. Do not build a `file://` URL by concatenating strings; `pathToFileURL()` correctly encodes spaces, `#`, `%`, and Unicode characters. A finished directory should look like:
+
+```text
+out/MyComposition/MyComposition.otio
+out/MyComposition/interview.mp4
+out/MyComposition/music.mp3
+```
+
+Fill in `available_range` with the full length of the localized source file. Get it with `npx remotion ffprobe out/MyComposition/interview.mp4`. Stop if a required audio or video source cannot be probed. Verify that each clip's `source_range` fits within its media reference's `available_range`. Never invent a duration.
+
+## Step 5: Write the `.otio` file
+
+Write one video track and one audio track unless the composition clearly needs more, for example when clips overlap in time or a transparent rendered fallback sits above native media. Overlapping clips must go on separate tracks, because a track is a sequence, not a layer.
+
+```json
+{
+  "OTIO_SCHEMA": "Timeline.1",
+  "name": "MyComposition",
+  "global_start_time": {
+    "OTIO_SCHEMA": "RationalTime.1",
+    "value": 0,
+    "rate": 30
+  },
+  "tracks": {
+    "OTIO_SCHEMA": "Stack.1",
+    "name": "tracks",
+    "children": [
+      {
+        "OTIO_SCHEMA": "Track.1",
+        "name": "V1",
+        "kind": "Video",
+        "children": [
+          {
+            "OTIO_SCHEMA": "Gap.1",
+            "name": "Intro animation",
+            "source_range": {
+              "OTIO_SCHEMA": "TimeRange.1",
+              "start_time": {
+                "OTIO_SCHEMA": "RationalTime.1",
+                "value": 0,
+                "rate": 30
+              },
+              "duration": {
+                "OTIO_SCHEMA": "RationalTime.1",
+                "value": 30,
+                "rate": 30
+              }
+            }
+          },
+          {
+            "OTIO_SCHEMA": "Clip.1",
+            "name": "interview.mp4",
+            "source_range": {
+              "OTIO_SCHEMA": "TimeRange.1",
+              "start_time": {
+                "OTIO_SCHEMA": "RationalTime.1",
+                "value": 60,
+                "rate": 30
+              },
+              "duration": {
+                "OTIO_SCHEMA": "RationalTime.1",
+                "value": 150,
+                "rate": 30
+              }
+            },
+            "media_reference": {
+              "OTIO_SCHEMA": "ExternalReference.1",
+              "target_url": "file:///Users/me/my-video/out/MyComposition/interview.mp4",
+              "available_range": {
+                "OTIO_SCHEMA": "TimeRange.1",
+                "start_time": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "value": 0,
+                  "rate": 30
+                },
+                "duration": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "value": 900,
+                  "rate": 30
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "OTIO_SCHEMA": "Track.1",
+        "name": "A1",
+        "kind": "Audio",
+        "children": [
+          {
+            "OTIO_SCHEMA": "Clip.1",
+            "name": "music.mp3",
+            "source_range": {
+              "OTIO_SCHEMA": "TimeRange.1",
+              "start_time": {
+                "OTIO_SCHEMA": "RationalTime.1",
+                "value": 0,
+                "rate": 30
+              },
+              "duration": {
+                "OTIO_SCHEMA": "RationalTime.1",
+                "value": 180,
+                "rate": 30
+              }
+            },
+            "media_reference": {
+              "OTIO_SCHEMA": "ExternalReference.1",
+              "target_url": "file:///Users/me/my-video/out/MyComposition/music.mp3",
+              "available_range": {
+                "OTIO_SCHEMA": "TimeRange.1",
+                "start_time": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "value": 0,
+                  "rate": 30
+                },
+                "duration": {
+                  "OTIO_SCHEMA": "RationalTime.1",
+                  "value": 3600,
+                  "rate": 30
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The example maps to this composition at 30fps:
+
+```tsx
+<Sequence from={30} durationInFrames={150}>
+  <Video src={staticFile("interview.mp4")} trimBefore={60} />
+</Sequence>
+<Audio src={staticFile("music.mp3")} />
+```
+
+Write the file only after all media has been localized, for example `out/MyComposition/MyComposition.otio`, and validate that it is parseable JSON before reporting success. If OpenTimelineIO is available, read the file back with it too. For every `ExternalReference`, verify that `target_url` uses the `file:` scheme, resolves to an existing nonempty regular file, and has the same immediate parent directory as the `.otio` file. Also verify that every localized audio or video file remains probeable.
+
+Audit the finished timeline against the inventory from Step 1. Every visible or audible contribution must map to a native clip, processed derivative, or rendered fallback. Verify that opaque visual fallbacks and audio stems do not overlap active clips they replace, that transparent fallbacks contain alpha, and that muted fallbacks contain no active audio. Treat a missing contribution or doubled replacement as a failed export.
+
+Do not report success unless every audible contribution has exactly one owner and all non-unity or time-varying gain, mute, retiming, looping, pitch, stream-selection, channel-mapping, pan, and mix behavior is baked into referenced media. Metadata alone never satisfies this invariant.
+
+## Step 6: Report back
+
+Always tell the user:
+
+1. Where the `.otio` file was written.
+2. Which elements became native editable clips.
+3. Which elements became processed derivatives, rendered overlays, opaque replacements, or audio stems, and why.
+4. Which media files were downloaded, copied, processed, or rendered beside the timeline.
+5. Anything the user explicitly chose to omit. If anything else could not be represented, report the export as incomplete instead of successful.
+
+Then give the import steps:
+
+```
+1. Open DaVinci Resolve
+2. File → Import → Timeline… and select the .otio file
+   (or right-click in the Media Pool → Timelines → Import → AAF, EDL, XML)
+3. The adjacent media should link automatically. If the folder was moved after export,
+   relink the clips to that same folder
+```
+
+OTIO import requires DaVinci Resolve 18.5 or later.
+
+Adobe Premiere 26 or later imports `.otio` directly. For older Premiere versions, convert the timeline to FCP7 XML:
+
+```bash
+pip install OpenTimelineIO otio-fcp-adapter
+otioconvert -i timeline.otio -o timeline.xml -O fcp_xml
+```
+
+## Do not
+
+- Do not invent media files, durations or paths that are not in the composition.
+- Do not leave an HTTP or HTTPS URL in `target_url`, or reference media outside the `.otio` file's directory.
+- Do not silently omit visible or audible output because OTIO cannot represent it natively. Bake or render it, or stop with an incomplete export.
+- Do not rely on generic OTIO effects or application-specific metadata as the only representation of volume, retiming, transforms, or Remotion effects.
+- Do not leave a replacement fallback active alongside the native video or audio it already contains.
+- Do not claim frame accuracy for a composition whose timing depends on runtime data.
+- Do not add tracks without a compositing or overlap reason.
+````
+
+## Use the skill
+
+Restart your coding agent if it was already open, then prompt it with the composition you want to export:
+
+```text title="Prompt"
+Use the remotion-export-otio skill to export MyComposition for DaVinci Resolve.
+```
+
+The result is a directory containing the `.otio` file and every media file it references. Unsupported visual output is rendered instead of omitted, so parts of the timeline may be flattened and the output directory may be large.
+
+## Import into DaVinci Resolve
+
+<Step>1</Step> In DaVinci Resolve, select **File → Import → Timeline**.
+<br />
+<Step>2</Step> Select the generated `.otio` file.
+<br />
+<Step>3</Step> If any clips are offline, relink them to the directory containing the `.otio` file.

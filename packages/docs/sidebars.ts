@@ -1540,6 +1540,7 @@ const sidebars: SidebarsConfig = {
 				'testing',
 				'figma',
 				'after-effects',
+				'export-otio',
 			],
 		},
 		{
