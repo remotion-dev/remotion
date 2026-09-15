@@ -360,14 +360,17 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(studio.getByPlaceholder('Composition ID')).toHaveValue(
 				'MyComp1',
 			);
+			await studio.getByPlaceholder('Composition ID').fill('测试');
 			await expect(studio.getByText(/addition/)).toBeVisible();
 			await studio.getByRole('button', {name: /^Add to /}).click();
 			await expect(
-				studio.getByTitle('/project').getByText('MyComp1'),
+				studio.getByTitle('/project').getByText('测试'),
 			).toBeVisible();
-			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await expect
+				.poll(() => new URL(page.url()).search)
+				.toBe('?/%E6%B5%8B%E8%AF%95');
 			await expect(page).toHaveTitle(
-				'MyComp1 / template-blank - Remotion Studio',
+				'测试 / template-blank - Remotion Studio',
 				{timeout: 5000},
 			);
 			await page.goBack();
@@ -392,7 +395,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 						];
 					}),
 				)
-				.toContain('id="MyComp1"');
+				.toContain('id="测试"');
 
 			await studio.getByRole('button', {name: /^Undo/}).click();
 			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
@@ -407,12 +410,14 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 						];
 					}),
 				)
-				.not.toContain('id="MyComp1"');
+				.not.toContain('id="测试"');
 
 			await studio.getByRole('button', {name: /^Redo/}).click();
-			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await expect
+				.poll(() => new URL(page.url()).search)
+				.toBe('?/%E6%B5%8B%E8%AF%95');
 			await expect(page).toHaveTitle(
-				'MyComp1 / template-blank - Remotion Studio',
+				'测试 / template-blank - Remotion Studio',
 				{timeout: 5000},
 			);
 			await expect
@@ -426,9 +431,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 						];
 					}),
 				)
-				.toContain('id="MyComp1"');
+				.toContain('id="测试"');
 
-			const duplicatedComposition = studio.locator('[data-compname="MyComp1"]');
+			const duplicatedComposition = studio.locator('[data-compname="测试"]');
 			await duplicatedComposition.click({button: 'right'});
 			await studio.getByText('Delete...', {exact: true}).click();
 			await expect(studio.getByText('Delete composition')).toBeVisible();
@@ -445,10 +450,12 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 						];
 					}),
 				)
-				.not.toContain('id="MyComp1"');
+				.not.toContain('id="测试"');
 
 			await studio.getByRole('button', {name: /^Undo/}).click();
-			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await expect
+				.poll(() => new URL(page.url()).search)
+				.toBe('?/%E6%B5%8B%E8%AF%95');
 			await expect(duplicatedComposition).toBeVisible();
 
 			await studio.getByRole('button', {name: /^Redo/}).click();
@@ -471,6 +478,10 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await studio.getByRole('button', {name: /^Redo/}).click();
 			await expect.poll(() => new URL(page.url()).search).toBe('?/');
 			await expect(composition).toHaveCount(0);
+			await expect(
+				studio.locator('.remotion-studio-composition-container'),
+			).toHaveCount(0);
+			await expect(page).toHaveTitle('Remotion Studio');
 		})(),
 		pageError,
 	]);

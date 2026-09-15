@@ -4,6 +4,7 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getRoute, pushUrl} from '../../helpers/url-state';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {deriveCanvasContentFromUrl} from '../load-canvas-content-from-url';
 import {inlineCodeSnippet} from '../Menu/styles';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
@@ -94,7 +95,10 @@ const DeleteCompositionLoaded: React.FC<{
 						onSuccess={onSuccess}
 						applyCodemod={({signal, symbolicatedStack}) => {
 							const currentRoute = getRoute();
-							const isSelected = currentRoute === `/${compositionId}`;
+							const currentCanvasContent = deriveCanvasContentFromUrl();
+							const isSelected =
+								currentCanvasContent?.type === 'composition' &&
+								currentCanvasContent.compositionId === compositionId;
 							const fallback = isSelected
 								? (compositions.find(({id}) => id !== compositionId) ?? null)
 								: undefined;
