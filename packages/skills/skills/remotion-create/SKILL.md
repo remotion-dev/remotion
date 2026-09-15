@@ -1,7 +1,7 @@
 ---
 name: remotion-create
 description: Create a new Remotion video
-version: 4.0.524
+version: 4.0.525
 ---
 
 These are instructions for making a new Remotion project and composition.  

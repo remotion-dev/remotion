@@ -1,7 +1,7 @@
 ---
 name: remotion-multimedia
 description: Interacting with Mediabunny
-version: 4.0.524
+version: 4.0.525
 ---
 
 Mediabunny is a multimedia library for dealing with audio and video in the browser.

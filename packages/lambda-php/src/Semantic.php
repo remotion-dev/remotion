@@ -4,5 +4,5 @@ namespace Remotion\LambdaPhp;
 
 class Semantic
 {
-    public const VERSION = "4.0.524";
+    public const VERSION = "4.0.525";
 }
