@@ -45,6 +45,7 @@ const titleGridItem: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -63,6 +64,7 @@ const titleInput: React.CSSProperties = {
 	outline: 'none',
 	overflow: 'hidden',
 	padding: 0,
+	userSelect: 'text',
 	WebkitAppearance: 'none',
 	width: '100%',
 };

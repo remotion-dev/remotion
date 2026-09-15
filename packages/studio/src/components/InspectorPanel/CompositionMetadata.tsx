@@ -50,10 +50,12 @@ const computedValueStyle: React.CSSProperties = {
 	fontSize: 12,
 	fontStyle: 'italic',
 	lineHeight: '20px',
+	userSelect: 'none',
 };
 
 const metadataFormatterStyle: React.CSSProperties = {
 	fontSize: 13,
+	userSelect: 'none',
 };
 
 const metadataDraggerStyles: Record<
@@ -132,6 +134,7 @@ const metadataLabelText: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
