@@ -142,6 +142,7 @@ import {
 	StudioReference,
 	studioReferenceSchema,
 } from './video-elements/Studio';
+import {StudioCodeHandoff} from './video-elements/StudioCodeHandoff';
 import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
@@ -403,6 +404,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 
 			<Folder name="VideoElements">
+				<Composition
+					id="StudioCodeHandoff"
+					component={StudioCodeHandoff}
+					durationInFrames={240}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="CodexUI"
 					component={Codex}

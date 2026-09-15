@@ -1,7 +1,7 @@
 import type {AnnotationHandler, HighlightedCode} from 'codehike/code';
 import {highlight, InnerLine, Pre} from 'codehike/code';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Interactive, useDelayRender, useVideoConfig} from 'remotion';
+import {Interactive, useDelayRender} from 'remotion';
 import {z} from 'zod';
 
 const REFERENCE_WIDTH = 1399;
@@ -68,9 +68,10 @@ const MoreIcon: React.FC<{readonly size: number}> = ({size}) => (
 export const TextEditor: React.FC<TextEditorProps> = ({
 	code,
 	fileName,
+	height,
 	highlightedLines,
+	width,
 }) => {
-	const {height, width} = useVideoConfig();
 	const scale = Math.min(width / REFERENCE_WIDTH, height / REFERENCE_HEIGHT);
 	const windowLeft = 56 * scale;
 	const windowTop = 38 * scale;
