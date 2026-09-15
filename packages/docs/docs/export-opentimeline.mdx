@@ -31,7 +31,7 @@ Use this skill when the user wants to hand a Remotion video over to a video edit
 - "Give me a timeline I can import into Premiere"
 - "Turn this rough cut into something my editor can open"
 
-Prefer OpenTimelineIO (`.otio`). It is a documented JSON format imported by DaVinci Resolve and Adobe Premiere 26 or later, and supported through converters by other editors. Only produce EDL, FCPXML or Premiere XML if the user explicitly asks for those.
+Prefer OpenTimelineIO (`.otio`). It is a documented JSON format imported by DaVinci Resolve and Adobe Premiere 25.6 or later, and supported through converters by other editors. Only produce EDL, FCPXML or Premiere XML if the user explicitly asks for those.
 
 ## Native clips and rendered fallbacks
 
@@ -309,7 +309,7 @@ Then give the import steps:
 
 OTIO import requires DaVinci Resolve 18.5 or later.
 
-Adobe Premiere 26 or later imports `.otio` directly. For older Premiere versions, convert the timeline to FCP7 XML:
+Adobe Premiere 25.6 or later imports `.otio` directly. For older Premiere versions, convert the timeline to FCP7 XML:
 
 ```bash
 pip install OpenTimelineIO otio-fcp-adapter
@@ -344,3 +344,11 @@ The result is a directory containing the `.otio` file and every media file it re
 <Step>1</Step> In DaVinci Resolve, select **File → Import → Timeline**.<br />
 <Step>2</Step> Select the generated `.otio` file.<br />
 <Step>3</Step> If any clips are offline, relink them to the directory containing the `.otio` file.
+
+## Import into Adobe Premiere
+
+<!-- prettier-ignore -->
+<Step>1</Step> In Adobe Premiere 25.6 or later, open a project and select **File → Import**.<br />
+<Step>2</Step> Select the generated `.otio` file.<br />
+<Step>3</Step> In the Project panel, double-click the imported sequence to open it in the Timeline panel.<br />
+<Step>4</Step> If any clips are offline, select them in the Project panel, right-click and select **Link Media**, then locate the directory containing the `.otio` file.
