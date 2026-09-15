@@ -153,6 +153,118 @@ export const getFunctionSourceEditsForPrependedStatements = ({
 				continue;
 			}
 
+			const returnStatement =
+				functionNode.body.type === 'BlockStatement'
+					? functionNode.body.body.at(-1)
+					: null;
+			let expressionHasJsxComment = false;
+			if (originalBody.type !== 'BlockStatement') {
+				recast.types.visit(originalBody, {
+					visitJSXExpressionContainer(path) {
+						if (path.node.expression.type === 'JSXEmptyExpression') {
+							expressionHasJsxComment = true;
+							return false;
+						}
+
+						this.traverse(path);
+						return undefined;
+					},
+				});
+			}
+
+			if (
+				originalBody.type !== 'BlockStatement' &&
+				expressionHasJsxComment &&
+				functionNode.type === 'ArrowFunctionExpression' &&
+				functionNode.body.type === 'BlockStatement' &&
+				returnStatement?.type === 'ReturnStatement' &&
+				returnStatement.argument === originalBody &&
+				functionNode.loc
+			) {
+				const functionStart = recastLocToOffset(input, functionNode.loc.start);
+				const tokens = (
+					originalBody.loc as
+						| {
+								tokens?: {
+									loc?: {
+										end: {column: number; line: number};
+										start: {column: number; line: number};
+									};
+									type?: {label?: string};
+								}[];
+						  }
+						| null
+						| undefined
+				)?.tokens;
+				const arrowToken = tokens?.findLast((token) => {
+					if (token.type?.label !== '=>' || !token.loc) {
+						return false;
+					}
+
+					const start = recastLocToOffset(input, token.loc.start);
+					const end = recastLocToOffset(input, token.loc.end);
+					return start >= functionStart && end <= range.start;
+				});
+				const arrowStart = arrowToken?.loc
+					? recastLocToOffset(input, arrowToken.loc.start)
+					: input.lastIndexOf('=>', range.start);
+				if (arrowStart >= functionStart) {
+					const functionIndent = getLineIndent({input, offset: functionStart});
+					const expressionStatementIndent = `${functionIndent}${indentationUnit}`;
+					const bodyStart = originalBody.loc
+						? recastLocToOffset(input, originalBody.loc.start)
+						: range.start;
+					let returnStart = range.start;
+					if (input[range.start] !== '(') {
+						const lastLeadingCommentEnd = (
+							originalBody.leadingComments ?? []
+						).reduce<number | null>((latest, comment) => {
+							if (!comment.loc) {
+								return latest;
+							}
+
+							const end = recastLocToOffset(input, comment.loc.end);
+							return end <= bodyStart ? Math.max(latest ?? end, end) : latest;
+						}, null);
+						if (lastLeadingCommentEnd !== null) {
+							returnStart = lastLeadingCommentEnd;
+							while (returnStart < bodyStart && /\s/.test(input[returnStart])) {
+								returnStart++;
+							}
+						}
+					}
+
+					const prependedStatements = functionNode.body.body.slice(0, -1);
+					const printedPrependedStatements = prependedStatements
+						.map((statement) =>
+							indentContinuationLines({
+								indent: expressionStatementIndent,
+								input,
+								printed: printNode(statement as unknown as namedTypes.Node),
+							}),
+						)
+						.join(`${endOfLine}${expressionStatementIndent}`);
+					const returnTerminator = printNode(
+						returnStatement as unknown as namedTypes.Node,
+					)
+						.trimEnd()
+						.endsWith(';')
+						? ';'
+						: '';
+					edits.push({
+						start: arrowStart,
+						end: returnStart,
+						replacement: `=> {${endOfLine}${expressionStatementIndent}${printedPrependedStatements}${prependedStatements.length === 0 ? '' : `${endOfLine}${expressionStatementIndent}`}${input.slice(range.start, returnStart)}return `,
+					});
+					edits.push({
+						start: range.end,
+						end: range.end,
+						replacement: `${returnTerminator}${endOfLine}${functionIndent}}`,
+					});
+					continue;
+				}
+			}
+
 			edits.push({
 				...range,
 				replacement: indentContinuationLines({
