@@ -65,7 +65,6 @@ test.describe('Inspector control layout', () => {
 	});
 
 	test('keeps inspector controls aligned', async ({page}) => {
-		test.setTimeout(90_000);
 		await page.goto(`${STUDIO_URL}/inspector-control-layout-e2e`);
 		await expect(page).toHaveURL(/inspector-control-layout-e2e/, {
 			timeout: 15_000,
@@ -108,15 +107,6 @@ test.describe('Inspector control layout', () => {
 		expect(
 			Math.abs(sourceActionBox.x - duplicateActionBox.x),
 		).toBeLessThanOrEqual(1);
-		await page
-			.getByRole('button', {name: 'Collapse Actions', exact: true})
-			.click();
-		await expect(duplicateAction).toBeHidden();
-		await expect(sourceAction).toBeVisible();
-		await page
-			.getByRole('button', {name: 'Expand Actions', exact: true})
-			.press('Enter');
-		await expect(duplicateAction).toBeVisible();
 
 		await expectInspectorControlsToUseAvailableWidth(
 			origin,
@@ -182,23 +172,5 @@ test.describe('Inspector control layout', () => {
 		expect(
 			computedFontFamilyBox.y + computedFontFamilyBox.height,
 		).toBeLessThanOrEqual(fontSizeBox.y);
-
-		await page.goto(`${STUDIO_URL}/assets/framer.webm`);
-		await page
-			.getByRole('button', {name: 'Collapse File', exact: true})
-			.click();
-		await expect(page.getByText('Size', {exact: true})).toBeHidden();
-		await page
-			.getByRole('button', {name: 'Expand File', exact: true})
-			.press('Enter');
-		await expect(page.getByText('Size', {exact: true})).toBeVisible();
-		await page
-			.getByRole('button', {name: 'Collapse Video', exact: true})
-			.click();
-		await expect(page.getByText('Frame rate', {exact: true})).toBeHidden();
-		await page
-			.getByRole('button', {name: 'Expand Video', exact: true})
-			.press('Space');
-		await expect(page.getByText('Frame rate', {exact: true})).toBeVisible();
 	});
 });

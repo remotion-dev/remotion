@@ -1,4 +1,3 @@
-import {flushSync} from 'react-dom';
 import {
 	DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME,
 	DEFAULT_PROPS_PATH_CLASSNAME,
@@ -29,8 +28,13 @@ export const focusDefaultPropsPath = ({
 		};
 	}
 
-	flushSync(() => expandDefaultPropsEditorRef.current?.());
-	query.scrollIntoView({behavior: scrollBehavior});
+	const scrollToField = () => query.scrollIntoView({behavior: scrollBehavior});
+	if (expandDefaultPropsEditorRef.current === null) {
+		scrollToField();
+	} else {
+		expandDefaultPropsEditorRef.current(scrollToField);
+	}
+
 	query.classList.add(DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME);
 	return {
 		success: true,

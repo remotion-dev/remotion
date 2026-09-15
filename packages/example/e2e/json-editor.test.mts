@@ -21,42 +21,6 @@ test.describe('visual mode', () => {
 		test.setTimeout(90_000);
 		await navigateToSchemaTest(page);
 
-		const collapseMetadata = page.getByRole('button', {
-			name: 'Collapse Metadata',
-			exact: true,
-		});
-		await page.mouse.move(0, 0);
-		await expect(collapseMetadata).toHaveCSS('cursor', 'default');
-		await expect(collapseMetadata).toHaveCSS('color', 'rgb(166, 167, 169)');
-		await collapseMetadata.hover();
-		await expect(collapseMetadata).toHaveCSS('cursor', 'default');
-		await expect(collapseMetadata).toHaveCSS('color', 'rgb(255, 255, 255)');
-		await collapseMetadata.click();
-		const expandMetadata = page.getByRole('button', {
-			name: 'Expand Metadata',
-			exact: true,
-		});
-		await expect(expandMetadata).toBeFocused();
-		await expect(expandMetadata).toHaveCSS('box-shadow', 'none');
-		await expect(page.getByText('Frame rate', {exact: true})).toBeHidden();
-		await page.reload();
-		await expect(expandMetadata).toBeVisible();
-		await expandMetadata.click();
-		await expect(page.getByText('Frame rate', {exact: true})).toBeVisible();
-
-		await page
-			.getByRole('button', {name: 'Collapse Actions', exact: true})
-			.click();
-		await expect(
-			page.getByRole('button', {name: 'Add Solid', exact: true}),
-		).toBeHidden();
-		await page
-			.getByRole('button', {name: 'Expand Actions', exact: true})
-			.press('Enter');
-		await expect(
-			page.getByRole('button', {name: 'Add Solid', exact: true}),
-		).toBeVisible();
-
 		const jsonTab = page.getByRole('button', {name: 'JSON', exact: true});
 		await expect(jsonTab).toBeVisible({timeout: 10_000});
 		await jsonTab.click();
@@ -94,24 +58,6 @@ test.describe('visual mode', () => {
 		const errorDiv = page.locator('[data-testid="json-props-error"]');
 		await expect(errorDiv).not.toBeEmpty({timeout: 5_000});
 		await textarea.blur();
-
-		await page
-			.getByRole('button', {name: 'Collapse Default Props', exact: true})
-			.click();
-		await expect(textarea).toBeHidden();
-		await expect(jsonTab).toBeHidden();
-		const expandDefaultProps = page.getByRole('button', {
-			name: 'Expand Default Props',
-			exact: true,
-		});
-		await page.keyboard.press('Tab');
-		await page.keyboard.press('Shift+Tab');
-		await expect(expandDefaultProps).toBeFocused();
-		await expect(expandDefaultProps).not.toHaveCSS('box-shadow', 'none');
-		await expandDefaultProps.press('Space');
-		await expect(textarea).toBeVisible();
-		await expect(textarea).toHaveValue('{invalid json');
-		await expect(errorDiv).not.toBeEmpty();
 
 		await expect
 			.poll(

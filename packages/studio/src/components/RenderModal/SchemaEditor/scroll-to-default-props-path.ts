@@ -8,4 +8,5 @@ export const DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME =
 export const defaultPropsEditorScrollableAreaRef =
 	React.createRef<HTMLDivElement>();
 
-export const expandDefaultPropsEditorRef = React.createRef<() => void>();
+export const expandDefaultPropsEditorRef =
+	React.createRef<(onExpanded: () => void) => void>();

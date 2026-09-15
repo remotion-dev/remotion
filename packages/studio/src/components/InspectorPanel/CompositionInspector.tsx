@@ -3,7 +3,9 @@ import React, {
 	useContext,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
@@ -227,11 +229,27 @@ const CompositionDefaultPropsSection: React.FC<{
 	const [expanded, setExpanded] = useInspectorSectionExpanded(
 		'composition-default-props',
 	);
+	const pendingScroll = useRef<(() => void) | null>(null);
 	useImperativeHandle(
 		expandDefaultPropsEditorRef,
-		() => () => setExpanded(true),
-		[setExpanded],
+		() => (onExpanded) => {
+			if (expanded) {
+				onExpanded();
+				return;
+			}
+
+			pendingScroll.current = onExpanded;
+			setExpanded(true);
+		},
+		[expanded, setExpanded],
 	);
+	useLayoutEffect(() => {
+		if (expanded && pendingScroll.current !== null) {
+			const scroll = pendingScroll.current;
+			pendingScroll.current = null;
+			scroll();
+		}
+	}, [expanded]);
 	const compositionId = composition.id;
 
 	useEffect(() => {
