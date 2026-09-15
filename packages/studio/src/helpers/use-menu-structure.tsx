@@ -19,6 +19,10 @@ import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {useEditorOpening} from '../components/use-default-editor-info';
 import {Checkmark} from '../icons/Checkmark';
+import {
+	useStudioLocale,
+	type StudioTranslator,
+} from '../localization/StudioLocaleProvider';
 import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
@@ -58,6 +62,7 @@ const inheritColor: React.CSSProperties = {
 const ICON_SIZE = 14;
 
 const getFileMenu = ({
+	t,
 	readOnlyStudio,
 	closeMenu,
 	editorName,
@@ -65,6 +70,7 @@ const getFileMenu = ({
 	previewServerState,
 	setSelectedModal,
 }: {
+	t: StudioTranslator;
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
 	editorName: string | null;
@@ -82,7 +88,7 @@ const getFileMenu = ({
 			: {
 					id: 'new-composition',
 					value: 'new-composition',
-					label: 'New composition...',
+					label: t('menus.newComposition'),
 					onClick: () => {
 						closeMenu();
 						setSelectedModal({
@@ -97,7 +103,7 @@ const getFileMenu = ({
 					keyHint: null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: 'New composition...',
+					quickSwitcherLabel: t('menus.newComposition'),
 					disabled: previewServerState !== 'connected',
 				},
 		readOnlyStudio
@@ -105,7 +111,7 @@ const getFileMenu = ({
 			: {
 					id: 'new-folder',
 					value: 'new-folder',
-					label: 'New folder...',
+					label: t('menus.newFolder'),
 					onClick: () => {
 						closeMenu();
 						setSelectedModal({
@@ -118,7 +124,7 @@ const getFileMenu = ({
 					keyHint: null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: 'New folder...',
+					quickSwitcherLabel: t('menus.newFolder'),
 					disabled: previewServerState !== 'connected',
 				},
 	].filter(NoReactInternals.truthy);
@@ -219,7 +225,7 @@ const getFileMenu = ({
 
 	return {
 		id: 'file' as const,
-		label: 'File',
+		label: t('menus.file'),
 		leaveLeftPadding: false,
 		items,
 		quickSwitcherLabel: null,
@@ -227,11 +233,13 @@ const getFileMenu = ({
 };
 
 const getRenderMenuItems = ({
+	t,
 	closeMenu,
 	previewServerState,
 	readOnlyStudio,
 	renderShortcut,
 }: {
+	t: StudioTranslator;
 	closeMenu: () => void;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
@@ -243,7 +251,7 @@ const getRenderMenuItems = ({
 			: {
 					id: 'render',
 					value: 'render',
-					label: 'Render...',
+					label: t('menus.render'),
 					onClick: () => {
 						closeMenu();
 						if (previewServerState !== 'connected') {
@@ -263,12 +271,12 @@ const getRenderMenuItems = ({
 						: renderShortcut || null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: 'Render...',
+					quickSwitcherLabel: t('menus.render'),
 				},
 		{
 			id: 'render-on-web',
 			value: 'render-on-web',
-			label: 'Render in browser...',
+			label: t('menus.renderInBrowser'),
 			onClick: () => {
 				closeMenu();
 
@@ -282,7 +290,7 @@ const getRenderMenuItems = ({
 			keyHint: null,
 			leftItem: null,
 			subMenu: null,
-			quickSwitcherLabel: 'Render in browser...',
+			quickSwitcherLabel: t('menus.renderInBrowser'),
 		},
 		{
 			type: 'divider' as const,
@@ -296,6 +304,7 @@ export const useMenuStructure = (
 	readOnlyStudio: boolean,
 ) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {t} = useStudioLocale();
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
@@ -434,7 +443,7 @@ export const useMenuStructure = (
 					{
 						id: 'settings',
 						value: 'settings',
-						label: 'Settings...',
+						label: t('menus.settings'),
 						onClick: () => {
 							closeMenu();
 							setSelectedModal({
@@ -449,7 +458,7 @@ export const useMenuStructure = (
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Settings...',
+						quickSwitcherLabel: t('menus.settings'),
 						disabled:
 							(browserStudioOperations === null && readOnlyStudio) ||
 							type !== 'connected',
@@ -494,6 +503,7 @@ export const useMenuStructure = (
 				quickSwitcherLabel: null,
 			},
 			getFileMenu({
+				t,
 				readOnlyStudio,
 				closeMenu,
 				editorId: defaultEditorId,
@@ -503,7 +513,7 @@ export const useMenuStructure = (
 			}),
 			{
 				id: 'view' as const,
-				label: 'View',
+				label: t('menus.view'),
 				leaveLeftPadding: true,
 				items: [
 					{
@@ -893,10 +903,11 @@ export const useMenuStructure = (
 			},
 			{
 				id: 'composition' as const,
-				label: 'Composition',
+				label: t('menus.composition'),
 				leaveLeftPadding: false,
 				items: [
 					...getRenderMenuItems({
+						t,
 						closeMenu,
 						previewServerState: type,
 						readOnlyStudio,
@@ -918,7 +929,7 @@ export const useMenuStructure = (
 			},
 			{
 				id: 'tools' as const,
-				label: 'Tools',
+				label: t('menus.tools'),
 				leaveLeftPadding: false,
 				items: [
 					studioAskAIEnabled
@@ -985,7 +996,7 @@ export const useMenuStructure = (
 			},
 			{
 				id: 'help' as const,
-				label: 'Help',
+				label: t('menus.help'),
 				leaveLeftPadding: false,
 				items: [
 					{
@@ -1209,6 +1220,7 @@ export const useMenuStructure = (
 		setSidebarCollapsedState,
 		setCheckerboard,
 		setSelectedModal,
+		t,
 	]);
 
 	return structure;
