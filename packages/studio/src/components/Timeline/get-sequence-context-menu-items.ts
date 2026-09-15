@@ -44,7 +44,7 @@ const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 
 const interactiveSvgComponentIdentity = 'dev.remotion.remotion.Interactive.Svg';
 
-export const copyImageToClipboard = async (element: Element): Promise<void> => {
+const copyImageToClipboard = async (element: Element): Promise<void> => {
 	let canvas: HTMLCanvasElement;
 
 	if (element.tagName === 'CANVAS') {

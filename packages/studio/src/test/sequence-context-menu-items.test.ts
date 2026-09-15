@@ -4,10 +4,7 @@ import type {TSequence} from 'remotion';
 import {getOpenInMenuItems} from '../components/get-open-in-menu-items';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getCopyContextForAgentsMenuItem} from '../components/Timeline/get-copy-context-for-agents-menu-item';
-import {
-	copyImageToClipboard,
-	getSequenceContextMenuItems,
-} from '../components/Timeline/get-sequence-context-menu-items';
+import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
 	calculateSequenceFreezeFrame,
@@ -23,14 +20,6 @@ const originalNavigatorDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
 	'navigator',
 );
-const originalDocumentDescriptor = Object.getOwnPropertyDescriptor(
-	globalThis,
-	'document',
-);
-const originalClipboardItemDescriptor = Object.getOwnPropertyDescriptor(
-	globalThis,
-	'ClipboardItem',
-);
 
 afterEach(() => {
 	if (originalWindowDescriptor) {
@@ -43,22 +32,6 @@ afterEach(() => {
 		Object.defineProperty(globalThis, 'navigator', originalNavigatorDescriptor);
 	} else {
 		Reflect.deleteProperty(globalThis, 'navigator');
-	}
-
-	if (originalDocumentDescriptor) {
-		Object.defineProperty(globalThis, 'document', originalDocumentDescriptor);
-	} else {
-		Reflect.deleteProperty(globalThis, 'document');
-	}
-
-	if (originalClipboardItemDescriptor) {
-		Object.defineProperty(
-			globalThis,
-			'ClipboardItem',
-			originalClipboardItemDescriptor,
-		);
-	} else {
-		Reflect.deleteProperty(globalThis, 'ClipboardItem');
 	}
 });
 
@@ -126,81 +99,6 @@ test('copy context menu items write their agent context to the clipboard', () =>
 	expect(copiedTexts).toEqual(['Property "style.opacity" in src/Video.tsx:10']);
 });
 
-test('image clipboard copying supports img and canvas elements', async () => {
-	class TestClipboardItem {
-		readonly data: Record<string, Blob | Promise<Blob>>;
-
-		constructor(data: Record<string, Blob | Promise<Blob>>) {
-			this.data = data;
-		}
-	}
-
-	Object.defineProperty(globalThis, 'ClipboardItem', {
-		configurable: true,
-		value: TestClipboardItem,
-	});
-
-	const copiedBlobs: Blob[] = [];
-	Object.defineProperty(globalThis, 'navigator', {
-		configurable: true,
-		value: {
-			clipboard: {
-				write: async (items: ClipboardItem[]) => {
-					const item = items[0] as unknown as TestClipboardItem;
-					const png = item.data['image/png'];
-					if (!png) {
-						throw new Error('Expected PNG clipboard data');
-					}
-
-					copiedBlobs.push(await png);
-				},
-			},
-		},
-	});
-
-	const sourceCanvas = {
-		tagName: 'CANVAS',
-		toBlob: (callback: (result: Blob | null) => void, type: string) => {
-			callback(new Blob(['canvas'], {type}));
-		},
-	} as unknown as HTMLCanvasElement;
-	await copyImageToClipboard(sourceCanvas);
-
-	const drawnSources: CanvasImageSource[] = [];
-	const generatedCanvas = {
-		width: 0,
-		height: 0,
-		getContext: () => ({
-			drawImage: (source: CanvasImageSource) => {
-				drawnSources.push(source);
-			},
-		}),
-		toBlob: (callback: (result: Blob | null) => void, type: string) => {
-			callback(new Blob(['image'], {type}));
-		},
-	};
-	Object.defineProperty(globalThis, 'document', {
-		configurable: true,
-		value: {
-			createElement: () => generatedCanvas,
-		},
-	});
-	const image = {
-		tagName: 'IMG',
-		naturalWidth: 120,
-		naturalHeight: 80,
-	} as unknown as HTMLImageElement;
-	await copyImageToClipboard(image);
-
-	expect(copiedBlobs.map((blob) => blob.type)).toEqual([
-		'image/png',
-		'image/png',
-	]);
-	expect(generatedCanvas.width).toBe(120);
-	expect(generatedCanvas.height).toBe(80);
-	expect(drawnSources).toEqual([image]);
-});
-
 test('the file manager entry is only shown on macOS', () => {
 	installTestWindow();
 	const getItems = () =>
@@ -246,14 +144,14 @@ const expectNoExtraDividers = (items: ComboboxValue[]) => {
 	}
 };
 
-test('sequence context menu places image copying before source actions', () => {
+test('sequence context menu normalizes dividers before source actions', () => {
 	installTestWindow();
 
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
 		codingAgentInfo: null,
-		copyImageElement: {tagName: 'IMG'} as Element,
+		copyImageElement: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -279,12 +177,10 @@ test('sequence context menu places image copying before source actions', () => {
 	const copyContextIndex = items.findIndex(
 		(item) => item.id === 'copy-context-for-agents',
 	);
-	const copyImageIndex = items.findIndex((item) => item.id === 'copy-image');
 	const renameIndex = items.findIndex((item) => item.id === 'rename-sequence');
 
-	expect(copyImageIndex).toBe(copyContextIndex + 1);
 	expect(
-		items.slice(copyImageIndex + 1, renameIndex).map((item) => item.type),
+		items.slice(copyContextIndex + 1, renameIndex).map((item) => item.type),
 	).toEqual(['divider']);
 });
 
