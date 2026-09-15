@@ -2,12 +2,14 @@ import {
 	AbsoluteFill,
 	Easing,
 	Interactive,
+	Sequence,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
+import {Scene11} from '../announcements/whats-new-in-remotion/Scene11';
 import {MacBookScreen} from '../WebMCPPromo/MacBookScene';
 import {Codex} from './Codex';
-import {StudioReference} from './Studio';
+import {Studio} from './Studio';
 import {TextEditor} from './TextEditor';
 
 export const StudioCodeHandoff: React.FC = () => {
@@ -18,37 +20,39 @@ export const StudioCodeHandoff: React.FC = () => {
 			<Interactive.Div
 				name="Device frame"
 				style={{
-					height: 936,
-					left: 142,
+					height: 796,
+					left: 92.5,
 					position: 'absolute',
-					top: 72,
-					width: 1636,
+					scale: 1.25,
+					top: 42.5,
+					transformOrigin: '0 0',
+					width: 1388,
 				}}
 			>
 				<MacBookScreen
-					height={936}
+					height={796}
 					left={0}
 					showCameraNotch={false}
 					top={0}
-					width={1636}
+					width={1388}
 				>
 					<Interactive.Div
 						name="Screen viewport"
 						style={{
 							backgroundColor: '#101114',
 							borderRadius: 19,
-							height: 900,
+							height: 760,
 							left: 18,
 							overflow: 'hidden',
 							position: 'absolute',
 							top: 18,
-							width: 1600,
+							width: 1352,
 						}}
 					>
 						<Interactive.Div
 							name="VS Code"
 							style={{
-								height: 900,
+								height: 760,
 								left: 0,
 								overflow: 'hidden',
 								position: 'absolute',
@@ -56,14 +60,14 @@ export const StudioCodeHandoff: React.FC = () => {
 								translate: interpolate(
 									frame,
 									[60, 100],
-									['800px 0px', '1600px 0px'],
+									['676px 0px', '1352px 0px'],
 									{
 										easing: Easing.bezier(0.16, 1, 0.3, 1),
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
 									},
 								),
-								width: 800,
+								width: 676,
 							}}
 						>
 							<TextEditor
@@ -102,9 +106,9 @@ export const Scene11: React.FC = () => {
 	);
 };`}
 								fileName="Scene11.tsx"
-								height={900}
+								height={760}
 								highlightedLines="14-18"
-								width={800}
+								width={676}
 							/>
 						</Interactive.Div>
 
@@ -112,7 +116,7 @@ export const Scene11: React.FC = () => {
 							name="Codex"
 							style={{
 								backgroundColor: '#f4f4f2',
-								height: 900,
+								height: 760,
 								left: 0,
 								overflow: 'hidden',
 								position: 'absolute',
@@ -120,7 +124,7 @@ export const Scene11: React.FC = () => {
 								translate: interpolate(
 									frame,
 									[60, 100, 140, 180],
-									['-800px 0px', '0px 0px', '0px 0px', '-800px 0px'],
+									['-676px 0px', '0px 0px', '0px 0px', '-676px 0px'],
 									{
 										easing: [
 											Easing.bezier(0.16, 1, 0.3, 1),
@@ -131,28 +135,16 @@ export const Scene11: React.FC = () => {
 										extrapolateRight: 'clamp',
 									},
 								),
-								width: 800,
+								width: 676,
 							}}
 						>
-							<div
-								style={{
-									height: 1040,
-									left: 0,
-									position: 'absolute',
-									scale: 800 / 1193,
-									top: (900 - (1040 * 800) / 1193) / 2,
-									transformOrigin: '0 0',
-									width: 1193,
-								}}
-							>
-								<Codex />
-							</div>
+							<Codex height={760} width={676} />
 						</Interactive.Div>
 
 						<Interactive.Div
 							name="Remotion Studio"
 							style={{
-								height: 900,
+								height: 760,
 								left: 0,
 								overflow: 'hidden',
 								position: 'absolute',
@@ -160,7 +152,7 @@ export const Scene11: React.FC = () => {
 								translate: interpolate(
 									frame,
 									[60, 100, 140, 180],
-									['0px 0px', '800px 0px', '800px 0px', '0px 0px'],
+									['0px 0px', '676px 0px', '676px 0px', '0px 0px'],
 									{
 										easing: [
 											Easing.bezier(0.16, 1, 0.3, 1),
@@ -171,7 +163,7 @@ export const Scene11: React.FC = () => {
 										extrapolateRight: 'clamp',
 									},
 								),
-								width: interpolate(frame, [140, 180], [800, 1600], {
+								width: interpolate(frame, [140, 180], [676, 1352], {
 									easing: Easing.bezier(0.16, 1, 0.3, 1),
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
@@ -179,40 +171,40 @@ export const Scene11: React.FC = () => {
 								zIndex: 1,
 							}}
 						>
-							<div
-								style={{
-									height: 1080,
-									left: 0,
-									position: 'absolute',
-									scale: 5 / 6,
-									top: 0,
-									transformOrigin: '0 0',
-									width: 1920,
-								}}
-							>
-								<StudioReference
-									responsivenessProgress={interpolate(
-										frame,
-										[140, 180],
-										[1, 0],
-										{
-											easing: Easing.bezier(0.16, 1, 0.3, 1),
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-										},
-									)}
-									viewportWidth={interpolate(
-										frame,
-										[140, 180],
-										[960, 1920],
-										{
-											easing: Easing.bezier(0.16, 1, 0.3, 1),
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-										},
-									)}
-								/>
-							</div>
+							<Studio
+								compositionHeight={1080}
+								compositionName="Chapter11-Outro"
+								compositionWidth={1920}
+								content={
+									<Sequence from={-416} layout="none">
+										{/* Show Studio frame 655 within this 240-frame composition. */}
+										<Scene11 platform="youtube" />
+									</Sequence>
+								}
+								durationInFrames={742}
+								frame={655}
+								responsivenessProgress={interpolate(
+									frame,
+									[140, 180],
+									[1, 0],
+									{
+										easing: Easing.bezier(0.16, 1, 0.3, 1),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									},
+								)}
+								viewportHeight={760}
+								viewportWidth={interpolate(
+									frame,
+									[140, 180],
+									[676, 1352],
+									{
+										easing: Easing.bezier(0.16, 1, 0.3, 1),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									},
+								)}
+							/>
 						</Interactive.Div>
 					</Interactive.Div>
 				</MacBookScreen>

@@ -5,8 +5,8 @@ import {Interactive, useDelayRender} from 'remotion';
 import {z} from 'zod';
 import {ReactFileIcon, VscodeIcon} from './vscode-icons';
 
-const REFERENCE_WIDTH = 1399;
-const REFERENCE_HEIGHT = 1362;
+const REFERENCE_WIDTH = 1287;
+const REFERENCE_HEIGHT = 1250;
 
 export const textEditorSchema = z.object({
 	code: z.string().describe('Code shown in the editor'),
@@ -28,17 +28,13 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	width,
 }) => {
 	const scale = Math.min(width / REFERENCE_WIDTH, height / REFERENCE_HEIGHT);
-	const windowLeft = 56 * scale;
-	const windowTop = 38 * scale;
-	const windowWidth = width - windowLeft * 2;
-	const windowHeight = height - windowTop - 74 * scale;
 	const titleBarHeight = 28 * scale;
 	const tabBarHeight = 34 * scale;
 	const breadcrumbHeight = 22 * scale;
 	const activityBarWidth = 50 * scale;
 	const statusBarHeight = 32 * scale;
 	const editorTop = titleBarHeight + tabBarHeight + breadcrumbHeight;
-	const editorHeight = windowHeight - editorTop - statusBarHeight;
+	const editorHeight = height - editorTop - statusBarHeight;
 	const [highlighted, setHighlighted] = useState<HighlightedCode | null>(null);
 	const {cancelRender, continueRender, delayRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Highlighting text editor code'));
@@ -157,17 +153,16 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 				style={{
 					backgroundColor: '#131414',
 					border: `${scale}px solid #454545`,
-					borderRadius: 10 * scale,
 					boxSizing: 'border-box',
 					color: '#cccccc',
 					fontFamily:
 						'-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-					height: windowHeight,
-					left: windowLeft,
+					height,
+					left: 0,
 					overflow: 'hidden',
 					position: 'absolute',
-					top: windowTop,
-					width: windowWidth,
+					top: 0,
+					width,
 				}}
 			>
 				<Interactive.Div

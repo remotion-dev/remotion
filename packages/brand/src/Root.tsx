@@ -122,7 +122,7 @@ import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
-import {Codex} from './video-elements/Codex';
+import {Codex, codexSchema} from './video-elements/Codex';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -417,16 +417,22 @@ export const RemotionRoot: React.FC = () => {
 					component={Codex}
 					durationInFrames={1}
 					fps={30}
-					width={1193}
-					height={1040}
+					width={1081}
+					height={928}
+					schema={codexSchema}
+					defaultProps={{height: 928, width: 1081}}
+					calculateMetadata={({props}) => ({
+						height: props.height,
+						width: props.width,
+					})}
 				/>
 				<Composition
 					id="TextEditorUI"
 					component={TextEditor}
 					durationInFrames={1}
 					fps={30}
-					width={1399}
-					height={1362}
+					width={1287}
+					height={1250}
 					schema={textEditorSchema}
 					defaultProps={{
 						code: `import {Video} from '@remotion/media';
@@ -469,9 +475,9 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 };
 `,
 						fileName: 'Scene11.tsx',
-						height: 1362,
+						height: 1250,
 						highlightedLines: '39',
-						width: 1399,
+						width: 1287,
 					}}
 					calculateMetadata={({props}) => ({height: props.height, width: props.width})}
 				/>

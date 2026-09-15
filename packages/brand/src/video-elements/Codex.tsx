@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Img, Interactive, staticFile} from 'remotion';
+import {z} from 'zod';
 import {
 	AlertCircleIcon,
 	AtIcon,
@@ -32,6 +33,13 @@ import {
 	StatusDotIcon,
 	VoiceIcon,
 } from './codex-icons';
+
+export const codexSchema = z.object({
+	height: z.number().int().positive(),
+	width: z.number().int().positive(),
+});
+
+export type CodexProps = z.infer<typeof codexSchema>;
 
 const SidebarNavigation: React.FC = () => {
 	return (
@@ -186,7 +194,7 @@ const RecentRow: React.FC<{
 	);
 };
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<{readonly height: number}> = ({height}) => {
 	return (
 		<Interactive.Div
 			name="Sidebar"
@@ -198,7 +206,7 @@ const Sidebar: React.FC = () => {
 				boxSizing: 'border-box',
 				color: '#393a3c',
 				fontSize: 12.5,
-				height: 928,
+				height,
 				left: 0,
 				position: 'absolute',
 				top: 0,
@@ -805,7 +813,7 @@ const Conversation: React.FC = () => {
 	);
 };
 
-const Composer: React.FC = () => {
+const Composer: React.FC<{readonly top: number}> = ({top}) => {
 	return (
 		<Interactive.Div
 			name="Composer"
@@ -820,7 +828,7 @@ const Composer: React.FC = () => {
 				height: 90,
 				left: 60,
 				position: 'absolute',
-				top: 824,
+				top,
 				width: 665,
 			}}
 		>
@@ -959,36 +967,39 @@ const Composer: React.FC = () => {
 	);
 };
 
-export const Codex: React.FC = () => {
+export const Codex: React.FC<CodexProps> = ({height, width}) => {
+	const scale = width / 1081;
+	const referenceHeight = height / scale;
+
 	return (
 		<AbsoluteFill
 			style={{
 				WebkitFontSmoothing: 'antialiased',
-				backgroundColor: 'transparent',
+				backgroundColor: '#ffffff',
 				fontFamily:
 					'-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
 				fontWeight: 400,
+				overflow: 'hidden',
 			}}
 		>
 			<Interactive.Div
 				name="Codex window"
 				style={{
 					backgroundColor: '#ffffff',
-					borderRadius: 10,
-					boxShadow:
-						'0 0 0 1px rgba(0, 0, 0, 0.07), 0 0 1px rgba(0, 0, 0, 0.7), 0 18px 42px rgba(0, 0, 0, 0.4)',
-					height: 928,
-					left: 56,
+					height: referenceHeight,
+					left: 0,
 					overflow: 'hidden',
 					position: 'absolute',
-					top: 38,
+					scale,
+					top: 0,
+					transformOrigin: '0 0',
 					width: 1081,
 				}}
 			>
-				<Sidebar />
+				<Sidebar height={referenceHeight} />
 				<div
 					style={{
-						height: 928,
+						height: referenceHeight,
 						left: 296,
 						position: 'absolute',
 						top: 0,
@@ -997,7 +1008,7 @@ export const Codex: React.FC = () => {
 				>
 					<Header />
 					<Conversation />
-					<Composer />
+					<Composer top={referenceHeight - 104} />
 				</div>
 			</Interactive.Div>
 		</AbsoluteFill>

@@ -84,6 +84,7 @@ export type StudioProps = {
 	readonly durationInFrames: number;
 	readonly frame: number;
 	readonly responsivenessProgress: number;
+	readonly viewportHeight: number | null;
 	readonly viewportWidth: number;
 };
 
@@ -1587,6 +1588,7 @@ const StudioInner = React.forwardRef<
 			durationInFrames,
 			frame,
 			responsivenessProgress,
+			viewportHeight,
 			viewportWidth,
 		},
 		ref,
@@ -1597,7 +1599,8 @@ const StudioInner = React.forwardRef<
 			() => outlineRef.current as HTMLDivElement,
 			[],
 		);
-		const {height, fps} = useVideoConfig();
+		const {height: videoHeight, fps} = useVideoConfig();
+		const height = viewportHeight ?? videoHeight;
 		const width = viewportWidth;
 		const topPanelHeight = Math.round(
 			(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
@@ -1766,6 +1769,7 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 			durationInFrames={742}
 			frame={655}
 			responsivenessProgress={responsivenessProgress}
+			viewportHeight={null}
 			viewportWidth={viewportWidth}
 		/>
 	);
