@@ -1,12 +1,14 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
-import {simpleDiff} from '@remotion/studio-codemods';
+import {
+	makeNewCompositionComponentSource,
+	simpleDiff,
+} from '@remotion/studio-codemods';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
 } from '@remotion/studio-shared';
-import {generateCanvasCaptureComposition} from '../../canvas-capture/generate-canvas-capture-composition';
 import {
 	applyCodemodToFile,
 	resolveFilePathFromSymbolicatedStack,
@@ -29,30 +31,7 @@ import {
 
 export const formatNewCompositionFile = (
 	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
-) => {
-	if (codemod.canvasCapture !== null) {
-		return generateCanvasCaptureComposition({
-			componentName: codemod.componentName,
-			compositionId: codemod.newId,
-			data: codemod.canvasCapture.data,
-			durationInFrames: codemod.newDurationInFrames,
-			fps: codemod.newFps,
-			height: codemod.newHeight,
-			keyframeFps: codemod.canvasCapture.keyframeFps,
-			videoFileName: codemod.canvasCapture.videoFileName,
-			videoHeight: codemod.canvasCapture.videoHeight,
-			videoWidth: codemod.canvasCapture.videoWidth,
-			width: codemod.newWidth,
-		});
-	}
-
-	return `import React from 'react';
-
-export const ${codemod.componentName}: React.FC = () => {
-	return null;
-};
-`;
-};
+) => makeNewCompositionComponentSource(codemod);
 
 const getFolderPath = (parentName: string | null, folderName: string) => {
 	return parentName ? `${parentName}/${folderName}` : folderName;

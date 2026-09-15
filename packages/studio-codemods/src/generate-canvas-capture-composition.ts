@@ -1,4 +1,4 @@
-import type {CanvasCaptureData} from '@remotion/studio-shared';
+import type {CanvasCaptureData, RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 
 type FramedMouseMovement = CanvasCaptureData['mouseMovements'][number] & {
@@ -281,6 +281,33 @@ export const ${componentName} = () => {
 			durationInFrames={${durationInFrames}}
 		/>
 	);
+};
+`;
+};
+
+export const makeNewCompositionComponentSource = (
+	codemod: Extract<RecastCodemod, {type: 'new-composition'}>,
+) => {
+	if (codemod.canvasCapture !== null) {
+		return generateCanvasCaptureComposition({
+			componentName: codemod.componentName,
+			compositionId: codemod.newId,
+			data: codemod.canvasCapture.data,
+			durationInFrames: codemod.newDurationInFrames,
+			fps: codemod.newFps,
+			height: codemod.newHeight,
+			keyframeFps: codemod.canvasCapture.keyframeFps,
+			videoFileName: codemod.canvasCapture.videoFileName,
+			videoHeight: codemod.canvasCapture.videoHeight,
+			videoWidth: codemod.canvasCapture.videoWidth,
+			width: codemod.newWidth,
+		});
+	}
+
+	return `import React from 'react';
+
+export const ${codemod.componentName}: React.FC = () => {
+	return null;
 };
 `;
 };

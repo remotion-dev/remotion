@@ -18,6 +18,7 @@ import {
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	makeInMemoryInsertJsxElementCodemodEnvironment,
+	makeNewCompositionComponentSource,
 	parseAndApplyCodemod,
 	pasteEffects as pasteEffectsCodemod,
 	reorderEffect as reorderEffectCodemod,
@@ -305,14 +306,6 @@ const resolveCodemodTargetFile = ({
 
 	return findProjectFile({filePath: rootFile, project});
 };
-
-const makeNewCompositionComponentSource = (componentName: string) =>
-	`import React from 'react';
-
-export const ${componentName}: React.FC = () => {
-	return null;
-};
-`;
 
 const getElementInstallPlanForProject = async ({
 	destination,
@@ -1447,15 +1440,6 @@ export const createBrowserStudioOperations = ({
 				);
 			}
 
-			if (
-				codemod.type === 'new-composition' &&
-				codemod.canvasCapture !== null
-			) {
-				throw new Error(
-					'Creating canvas capture compositions is not supported in Browser Studio',
-				);
-			}
-
 			const project = getProject();
 			const absolutePath = resolveCodemodTargetFile({
 				codemod,
@@ -1484,9 +1468,7 @@ export const createBrowserStudioOperations = ({
 					);
 				}
 
-				files[componentFilePath] = makeNewCompositionComponentSource(
-					codemod.componentName,
-				);
+				files[componentFilePath] = makeNewCompositionComponentSource(codemod);
 			}
 
 			const diff = simpleDiff({
@@ -2072,12 +2054,6 @@ export const createBrowserStudioOperations = ({
 				const originalProject = getProject();
 				let project = originalProject;
 				if (request.newComposition !== null) {
-					if (request.newComposition.codemod.canvasCapture !== null) {
-						throw new Error(
-							'Creating canvas capture compositions is not supported in Browser Studio',
-						);
-					}
-
 					if (request.newComposition.codemod.newId !== request.compositionId) {
 						throw new Error(
 							'New composition ID does not match installation target',
@@ -2113,7 +2089,7 @@ export const createBrowserStudioOperations = ({
 							...project.files,
 							[absolutePath]: newContents,
 							[componentFilePath]: makeNewCompositionComponentSource(
-								request.newComposition.codemod.componentName,
+								request.newComposition.codemod,
 							),
 						},
 					};

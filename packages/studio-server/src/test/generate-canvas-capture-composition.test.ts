@@ -1,11 +1,11 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
+import {generateCanvasCaptureComposition} from '@remotion/studio-codemods';
 import {
 	CANVAS_CAPTURE_METADATA_TAG,
 	parseCanvasCaptureData,
 } from '@remotion/studio-shared';
-import {generateCanvasCaptureComposition} from '../canvas-capture/generate-canvas-capture-composition';
 
 test('generates the ideal interactive Canvas Capture composition markup', async () => {
 	const fixtureDirectory = path.join(__dirname, 'fixtures');
