@@ -242,6 +242,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			assetLinkInfo,
 			canOpenInEditor,
 			codingAgentInfo,
+			copyImageElement:
+				contextMenuTarget.sequence.type === 'image'
+					? (contextMenuTarget.sequence.refForOutline?.current ?? null)
+					: null,
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,

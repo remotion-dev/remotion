@@ -44,6 +44,47 @@ const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 
 const interactiveSvgComponentIdentity = 'dev.remotion.remotion.Interactive.Svg';
 
+const copyImageToClipboard = async (element: Element): Promise<void> => {
+	let canvas: HTMLCanvasElement;
+
+	if (element.tagName === 'CANVAS') {
+		canvas = element as HTMLCanvasElement;
+	} else if (element.tagName === 'IMG') {
+		const image = element as HTMLImageElement;
+		if (image.naturalWidth === 0 || image.naturalHeight === 0) {
+			throw new Error('Image has not loaded');
+		}
+
+		canvas = document.createElement('canvas');
+		canvas.width = image.naturalWidth;
+		canvas.height = image.naturalHeight;
+		const context = canvas.getContext('2d');
+		if (!context) {
+			throw new Error('Could not create canvas context');
+		}
+
+		context.drawImage(image, 0, 0);
+	} else {
+		throw new Error('Expected an image or canvas element');
+	}
+
+	const blob = new Promise<Blob>((resolve, reject) => {
+		canvas.toBlob((result) => {
+			if (result) {
+				resolve(result);
+			} else {
+				reject(new Error('Could not convert image to PNG'));
+			}
+		}, 'image/png');
+	});
+
+	await navigator.clipboard.write([
+		new ClipboardItem({
+			'image/png': blob,
+		}),
+	]);
+};
+
 export const getMultiSequenceContextMenuItems = ({
 	deleteDisabled,
 	duplicateDisabled,
@@ -90,6 +131,7 @@ export const getMultiSequenceContextMenuItems = ({
 export const getSequenceContextMenuItems = ({
 	assetLinkInfo,
 	canOpenInEditor,
+	copyImageElement,
 	deleteDisabled,
 	disableInteractivityDisabled,
 	duplicateDisabled,
@@ -110,6 +152,7 @@ export const getSequenceContextMenuItems = ({
 }: {
 	readonly assetLinkInfo: TimelineAssetLinkInfo | null;
 	readonly canOpenInEditor: boolean;
+	readonly copyImageElement: Element | null;
 	readonly deleteDisabled: boolean;
 	readonly disableInteractivityDisabled: boolean;
 	readonly duplicateDisabled: boolean;
@@ -275,7 +318,32 @@ export const getSequenceContextMenuItems = ({
 					value: 'show-asset',
 				}
 			: null,
-		assetLinkInfo
+		copyImageElement
+			? {
+					type: 'item' as const,
+					id: 'copy-image',
+					keyHint: null,
+					label: 'Copy image',
+					leftItem: null,
+					disabled: false,
+					onClick: () => {
+						copyImageToClipboard(copyImageElement)
+							.then(() => {
+								showNotification('Copied image to clipboard', 1000);
+							})
+							.catch((err) => {
+								showNotification(
+									`Could not copy image: ${(err as Error).message}`,
+									2000,
+								);
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'copy-image',
+				}
+			: null,
+		assetLinkInfo || copyImageElement
 			? {
 					type: 'divider' as const,
 					id: 'sequence-link-divider',
