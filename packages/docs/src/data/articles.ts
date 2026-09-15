@@ -2592,6 +2592,15 @@ export const articles = [
 		slug: 'env-variables',
 	},
 	{
+		id: 'export-opentimeline',
+		title: 'Export to OpenTimelineIO',
+		relativePath: 'docs/export-opentimeline.mdx',
+		compId: 'articles-docs-export-opentimeline',
+		crumb: 'Tooling',
+		noAi: false,
+		slug: 'export-opentimeline',
+	},
+	{
 		id: 'ffmpeg',
 		title: 'Installing FFmpeg',
 		relativePath: 'docs/ffmpeg.mdx',
