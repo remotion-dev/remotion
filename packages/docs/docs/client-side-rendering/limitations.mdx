@@ -82,8 +82,6 @@ The font selection must be part of the SVG markup, for example through an inline
 
 Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser's `FontFace` API are not embedded. Text inside `<foreignObject>` is not detected as SVG text and does not receive embedded fonts.
 
-In Safari, SVG text may intermittently use a fallback font because WebKit can report the SVG image as loaded before its embedded font is ready. Use Chrome or Firefox when reliable SVG web font rendering is required.
-
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
