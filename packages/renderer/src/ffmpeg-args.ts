@@ -141,7 +141,10 @@ export const generateFfmpegArgs = ({
 						? []
 						: // https://www.canva.dev/blog/engineering/a-journey-through-colour-space-with-ffmpeg/
 							// "Color range" section
-							['-vf', 'zscale=matrix=709:matrixin=709:range=limited'],
+							[
+								'-vf',
+								'zscale=matrix=709:range=limited:primariesin=709:primaries=709:transferin=709:transfer=709',
+							],
 				]
 			: resolvedColorSpace === 'bt2020-ncl'
 				? [
