@@ -1,0 +1,52 @@
+.list {
+	margin-bottom: var(--ifm-leading);
+}
+
+.listItem + .listItem {
+	margin-top: 0.5rem;
+}
+
+.addLink {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--ifm-link-color);
+	cursor: pointer;
+	font: inherit;
+	text-decoration: underline;
+}
+
+.addLink:hover:not(:disabled) {
+	color: var(--ifm-link-hover-color);
+}
+
+.addLink:disabled {
+	cursor: default;
+	opacity: 0.65;
+}
+
+.addLink:focus-visible {
+	border-radius: 2px;
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.loadingStatus,
+.successStatus,
+.errorStatus {
+	margin: 4px 0 0;
+	font-size: 0.875rem;
+}
+
+.loadingStatus {
+	color: var(--ifm-color-emphasis-700);
+}
+
+.successStatus {
+	color: var(--ifm-color-success-dark);
+}
+
+.errorStatus {
+	color: var(--ifm-color-danger-dark);
+}
