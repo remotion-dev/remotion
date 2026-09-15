@@ -19,14 +19,14 @@ The Agent Skill below tells a coding agent to preserve native clips where possib
 Create a skill directory in your Remotion project:
 
 ```sh title="Terminal"
-mkdir -p .agents/skills/remotion-export-otio
+mkdir -p .agents/skills/remotion-opentimeline
 ```
 
-Copy the complete file below to `.agents/skills/remotion-export-otio/SKILL.md`:
+Copy the complete file below to `.agents/skills/remotion-opentimeline/SKILL.md`:
 
-````md title=".agents/skills/remotion-export-otio/SKILL.md"
+````md title=".agents/skills/remotion-opentimeline/SKILL.md"
 ---
-name: remotion-export-otio
+name: remotion-opentimeline
 description: Export a Remotion composition as an OpenTimelineIO (.otio) timeline for DaVinci Resolve or Premiere Pro
 ---
 
@@ -339,7 +339,7 @@ otioconvert -i timeline.otio -o timeline.xml -O fcp_xml
 Restart your coding agent if it was already open, then prompt it with the composition you want to export:
 
 ```text title="Prompt"
-Use the remotion-export-otio skill to export MyComposition for DaVinci Resolve.
+Use the remotion-opentimeline skill to export MyComposition for DaVinci Resolve.
 ```
 
 The result is a directory containing the `.otio` file and every media file it references. Unsupported visual output is rendered instead of omitted, so parts of the timeline may be flattened and the output directory may be large.
