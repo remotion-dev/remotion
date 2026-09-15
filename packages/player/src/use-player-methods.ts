@@ -156,6 +156,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			setPlaying(false);
 
 			emitter.dispatchPause();
+			// Also declared by the use-playback effect, but a synchronous
+			// play()+pause() batches to a no-op commit and never re-runs it.
 			audioContext?.suspend();
 		}
 	}, [audioContext, emitter, readIsPlaying, setPlaying]);
