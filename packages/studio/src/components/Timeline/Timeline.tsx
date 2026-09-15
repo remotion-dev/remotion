@@ -56,7 +56,7 @@ import {TimelineScrollable} from './TimelineScrollable';
 import {
 	TimelineSelectableItemsProvider,
 	TimelineSelectAllKeybindings,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
@@ -356,7 +356,7 @@ const TimelineInner: React.FC = () => {
 		fastRefreshes: number;
 		existingSequenceIds: Set<string>;
 	} | null>(null);
-	const {selectItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	useLayoutEffect(() => {
 		if (pendingInsertedElementSelection === null) {
 			pendingSelectionStart.current = null;
@@ -420,7 +420,7 @@ const TimelineInner: React.FC = () => {
 			return;
 		}
 
-		selectItems(
+		currentSelection.current.selectItems(
 			[{type: 'sequence', nodePathInfo: insertedTrack.nodePathInfo}],
 			{reveal: true},
 		);
@@ -430,10 +430,10 @@ const TimelineInner: React.FC = () => {
 		}
 	}, [
 		canvasContent,
+		currentSelection,
 		fastRefreshes,
 		layerChildrenValue,
 		pendingInsertedElementSelection,
-		selectItems,
 		timeline,
 	]);
 

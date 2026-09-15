@@ -62,6 +62,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
 import {useZIndex} from '../../state/z-index';
 import {
 	ExpandedTracksGetterContext,
@@ -485,6 +486,20 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>(
 	defaultTimelineSelectionContextValue,
 );
+
+type TimelineRowSelectionContextValue = Pick<
+	TimelineSelectionContextValue,
+	| 'canSelect'
+	| 'clearSelection'
+	| 'registerMarqueeSelectableItem'
+	| 'selectItem'
+> & {
+	readonly getSnapshot: () => TimelineSelectionState;
+	readonly subscribe: (listener: () => void) => () => void;
+};
+
+const TimelineRowSelectionContext =
+	createContext<TimelineRowSelectionContextValue | null>(null);
 
 const EMPTY_SELECTABLE_TIMELINE_ITEMS: readonly TimelineSelection[] = [];
 
@@ -995,6 +1010,13 @@ export const TimelineSelectionProvider: React.FC<{
 			? selectionState
 			: EMPTY_TIMELINE_SELECTION_STATE;
 	const availableSelectedItems = availableSelectionState.selectedItems;
+	const getAvailableSelectionState = useCallback(
+		() =>
+			selectionScope.current === timelineSelectionScope
+				? selectionController.getSnapshot()
+				: EMPTY_TIMELINE_SELECTION_STATE,
+		[selectionController, timelineSelectionScope],
+	);
 
 	const requestRevealSelectionItem = useCallback((item: TimelineSelection) => {
 		setRevealRequest((previousRequest) => ({
@@ -1318,19 +1340,39 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 	const currentSelection = useRef(value);
 	currentSelection.current = value;
+	const rowSelectionContextValue = useMemo(
+		(): TimelineRowSelectionContextValue => ({
+			canSelect,
+			clearSelection,
+			getSnapshot: getAvailableSelectionState,
+			registerMarqueeSelectableItem,
+			selectItem,
+			subscribe: selectionController.subscribe,
+		}),
+		[
+			canSelect,
+			clearSelection,
+			getAvailableSelectionState,
+			registerMarqueeSelectableItem,
+			selectItem,
+			selectionController.subscribe,
+		],
+	);
 
 	return (
 		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
-			<TimelineSelectionContext.Provider value={value}>
-				{children}
-				<TimelineEscapeKeybindings />
-				{isStudioInteractivityEnabled() ? (
-					<>
-						<TimelineClipboardKeybindings />
-						<TimelineDeleteKeybindings />
-					</>
-				) : null}
-			</TimelineSelectionContext.Provider>
+			<TimelineRowSelectionContext.Provider value={rowSelectionContextValue}>
+				<TimelineSelectionContext.Provider value={value}>
+					{children}
+					<TimelineEscapeKeybindings />
+					{isStudioInteractivityEnabled() ? (
+						<>
+							<TimelineClipboardKeybindings />
+							<TimelineDeleteKeybindings />
+						</>
+					) : null}
+				</TimelineSelectionContext.Provider>
+			</TimelineRowSelectionContext.Provider>
 		</CurrentTimelineSelectionContext.Provider>
 	);
 };
@@ -1559,7 +1601,14 @@ export const useTimelineMarqueeSelectableItem = (
 	item: TimelineSelection | null,
 	ref: React.RefObject<Element | null>,
 ) => {
-	const {registerMarqueeSelectableItem} = useTimelineSelection();
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useTimelineMarqueeSelectableItem must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const {registerMarqueeSelectableItem} = selectionContext;
 
 	useEffect(() => {
 		if (item === null) {
@@ -1577,15 +1626,59 @@ export const useTimelineRowSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
 	revealInInspector = false,
 ) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
-	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineSelection | null =>
 			getTimelineSelectionFromNodePathInfo(nodePathInfo),
 		[nodePathInfo],
 	);
+	return useTimelineSelectionItem({
+		revealInInspector,
+		selectionItem,
+		useSelectionOrder: true,
+	});
+};
 
-	const selected = selectionItem === null ? false : isSelected(selectionItem);
+const useTimelineSelectionItem = <
+	TSelectionItem extends TimelineSelection | null,
+>({
+	revealInInspector,
+	selectionItem,
+	useSelectionOrder,
+}: {
+	readonly revealInInspector: boolean;
+	readonly selectionItem: TSelectionItem;
+	readonly useSelectionOrder: boolean;
+}) => {
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useTimelineSelectionItem must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
+	const selectionItemKey = useMemo(
+		() =>
+			selectionItem === null ? null : getTimelineSelectionKey(selectionItem),
+		[selectionItem],
+	);
+	const getSelectedState = useCallback((): TimelineSelectionState | null => {
+		if (selectionItemKey === null) {
+			return null;
+		}
+
+		const snapshot = selectionContext.getSnapshot();
+		return snapshot.selectedItems.some(
+			(item) => getTimelineSelectionKey(item) === selectionItemKey,
+		)
+			? snapshot
+			: null;
+	}, [selectionContext, selectionItemKey]);
+	const selectedState = useSyncExternalStore(
+		selectionContext.subscribe,
+		getSelectedState,
+		getSelectedState,
+	);
 
 	const onSelect = useCallback(
 		(interaction?: TimelineSelectionInteraction) => {
@@ -1593,21 +1686,32 @@ export const useTimelineRowSelection = (
 				return;
 			}
 
-			selectItem(
+			selectionContext.selectItem(
 				selectionItem,
 				interaction,
-				selectableTimelineItemsRef.current,
+				useSelectionOrder ? selectableTimelineItemsRef.current : undefined,
 				{revealInInspector},
 			);
 		},
-		[revealInInspector, selectItem, selectableTimelineItemsRef, selectionItem],
+		[
+			revealInInspector,
+			selectableTimelineItemsRef,
+			selectionContext,
+			selectionItem,
+			useSelectionOrder,
+		],
 	);
 
 	return {
+		clearSelection: selectionContext.clearSelection,
 		onSelect,
-		selectable: canSelect && selectionItem !== null,
+		selectable: selectionContext.canSelect && selectionItem !== null,
+		selectedItems:
+			selectedState?.selectedItems ??
+			EMPTY_TIMELINE_SELECTION_STATE.selectedItems,
+		selectItem: selectionContext.selectItem,
 		selectionItem,
-		selected,
+		selected: selectedState !== null,
 	};
 };
 
@@ -1615,8 +1719,6 @@ export const useTimelineKeyframeSelection = (
 	nodePathInfo: SequenceNodePathInfo,
 	frame: number,
 ) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
-	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
 			type: 'keyframe',
@@ -1625,26 +1727,11 @@ export const useTimelineKeyframeSelection = (
 		}),
 		[nodePathInfo, frame],
 	);
-
-	const selected = isSelected(selectionItem);
-
-	const onSelect = useCallback(
-		(interaction?: TimelineSelectionInteraction) => {
-			selectItem(
-				selectionItem,
-				interaction,
-				selectableTimelineItemsRef.current,
-			);
-		},
-		[selectItem, selectableTimelineItemsRef, selectionItem],
-	);
-
-	return {
-		onSelect,
-		selectable: canSelect,
+	return useTimelineSelectionItem({
+		revealInInspector: false,
 		selectionItem,
-		selected,
-	};
+		useSelectionOrder: true,
+	});
 };
 
 export const useTimelineEasingSelection = ({
@@ -1658,8 +1745,6 @@ export const useTimelineEasingSelection = ({
 	readonly toFrame: number;
 	readonly segmentIndex: number;
 }) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
-	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineEasingSelection => ({
 			type: 'easing',
@@ -1670,31 +1755,14 @@ export const useTimelineEasingSelection = ({
 		}),
 		[nodePathInfo, fromFrame, segmentIndex, toFrame],
 	);
-
-	const selected = isSelected(selectionItem);
-
-	const onSelect = useCallback(
-		(interaction?: TimelineSelectionInteraction) => {
-			selectItem(
-				selectionItem,
-				interaction,
-				selectableTimelineItemsRef.current,
-			);
-		},
-		[selectItem, selectableTimelineItemsRef, selectionItem],
-	);
-
-	return {
-		onSelect,
-		selectable: canSelect,
-		selected,
+	return useTimelineSelectionItem({
+		revealInInspector: false,
 		selectionItem,
-	};
+		useSelectionOrder: true,
+	});
 };
 
 export const useTimelineGuideSelection = (guideId: string) => {
-	const {canSelect, clearSelection, isSelected, selectItem} =
-		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
 			type: 'guide',
@@ -1702,31 +1770,42 @@ export const useTimelineGuideSelection = (guideId: string) => {
 		}),
 		[guideId],
 	);
-
-	const selected = isSelected(selectionItem);
-
-	const onSelect = useCallback(() => {
-		selectItem(selectionItem);
-	}, [selectItem, selectionItem]);
-
-	return {
-		clearSelection,
-		onSelect,
-		selectable: canSelect,
-		selected,
+	return useTimelineSelectionItem({
+		revealInInspector: false,
 		selectionItem,
-	};
+		useSelectionOrder: false,
+	});
 };
 
 export const useTimelineRowContainsSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
 ): boolean => {
-	const {containsSelection} = useTimelineSelection();
-	if (nodePathInfo === null) {
-		return false;
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useTimelineRowContainsSelection must be used inside TimelineSelectionProvider',
+		);
 	}
 
-	return containsSelection(nodePathInfo);
+	const getContainsSelection = useCallback(() => {
+		if (nodePathInfo === null) {
+			return false;
+		}
+
+		return selectionContext
+			.getSnapshot()
+			.selectedItems.some(
+				(selected) =>
+					selected.type !== 'guide' &&
+					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
+			);
+	}, [nodePathInfo, selectionContext]);
+
+	return useSyncExternalStore(
+		selectionContext.subscribe,
+		getContainsSelection,
+		getContainsSelection,
+	);
 };
 
 export const useTimelineRowHighlightBackground = (

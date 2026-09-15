@@ -68,7 +68,6 @@ import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
 	useTimelineRowSelection,
-	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
@@ -535,9 +534,8 @@ const TimelineSequenceInner: React.FC<{
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
-	const {onSelect, selectable, selected} =
+	const {onSelect, selectable, selected, selectedItems} =
 		useTimelineRowSelection(nodePathInfo);
-	const {selectedItems} = useTimelineSelection();
 	const selectedSequenceNodePathInfos = useMemo(() => {
 		if (
 			!selected ||

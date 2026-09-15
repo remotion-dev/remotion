@@ -1,5 +1,12 @@
 import {isValidPackageName} from '@remotion/studio-shared';
-import {useContext, useEffect, useMemo, useRef, type FC} from 'react';
+import {
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	type FC,
+	type MutableRefObject,
+} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {installPackages} from '../api/install-package';
 import {pause} from '../api/pause';
@@ -53,6 +60,7 @@ import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timelin
 import {scrollableRef} from './Timeline/timeline-refs';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
@@ -185,23 +193,11 @@ const resolveAssetPath = ({
 	return resolvedAssetPath;
 };
 
-export const WebMcp: FC = () => {
-	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
-	const staticFiles = useStaticFiles();
-	const {canSelect, clearSelection, selectedItems, selectItems} =
-		useTimelineSelection();
-	const {canvasContent, compositions, currentCompositionMetadata, folders} =
-		useContext(Internals.CompositionManager);
-	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
-		Internals.usePlaybackRate();
-	const {isPlaying} = Internals.Timeline.useTimelineContext();
-	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
-	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
-		useContext(TimelineZoomCtx);
-	const selectComposition = useSelectComposition();
-	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
-		useContext(EditorShowGuidesContext);
+const WebMcpSelectionSync: FC<{
+	readonly currentSelectionRef: MutableRefObject<string | null>;
+	readonly selectedSequenceRef: MutableRefObject<WebMcpSequence | null>;
+}> = ({currentSelectionRef, selectedSequenceRef}) => {
+	const {selectedItems} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -230,19 +226,12 @@ export const WebMcp: FC = () => {
 	const currentResolvedLocation =
 		stack === currentStack ? resolvedLocation : null;
 	const currentSelection = useMemo(() => {
-		if (selectedItems.length === 0) {
-			return null;
-		}
-
-		if (selectedItems.length > 1) {
-			return null;
-		}
-
-		if (selectedItem === null || selectedItem.type === 'guide') {
-			return null;
-		}
-
-		if (track === null) {
+		if (
+			selectedItems.length !== 1 ||
+			selectedItem === null ||
+			selectedItem.type === 'guide' ||
+			track === null
+		) {
 			return null;
 		}
 
@@ -280,18 +269,35 @@ export const WebMcp: FC = () => {
 			root: window.remotion_cwd,
 		});
 	}, [currentResolvedLocation, selectedItem, selectedItems.length, track]);
-	const currentSelectionRef = useRef(currentSelection);
 	currentSelectionRef.current = currentSelection;
-	const selectedSequence = useMemo(
-		() => (track === null ? null : serializeSequence(track)),
-		[track],
+	selectedSequenceRef.current =
+		track === null ? null : serializeSequence(track);
+
+	return null;
+};
+
+export const WebMcp: FC = () => {
+	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const staticFiles = useStaticFiles();
+	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
+	const currentSelectionRef = useRef<string | null>(null);
+	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
+	const {canvasContent, compositions, currentCompositionMetadata, folders} =
+		useContext(Internals.CompositionManager);
+	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
+		Internals.usePlaybackRate();
+	const {isPlaying} = Internals.Timeline.useTimelineContext();
+	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
+	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
+		useContext(TimelineZoomCtx);
+	const selectComposition = useSelectComposition();
+	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
+		useContext(EditorShowGuidesContext);
+	const {sequences} = useContext(Internals.SequenceManager);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const selectedSequenceRef = useRef(selectedSequence);
-	selectedSequenceRef.current = selectedSequence;
-	const selectedItemsRef = useRef(selectedItems);
-	selectedItemsRef.current = selectedItems;
-	const canSelectRef = useRef(canSelect);
-	canSelectRef.current = canSelect;
 	const currentCompositionDefinition = useMemo(() => {
 		if (canvasContent?.type !== 'composition') {
 			return null;
@@ -971,7 +977,7 @@ export const WebMcp: FC = () => {
 							throw new Error('No composition is currently selected.');
 						}
 
-						if (!canSelectRef.current) {
+						if (!timelineSelectionRef.current.canSelect) {
 							throw new Error('Studio sequence selection is unavailable.');
 						}
 
@@ -991,7 +997,9 @@ export const WebMcp: FC = () => {
 							throw new Error(`Sequence ${sequenceId} cannot be selected.`);
 						}
 
-						selectItems([selection], {reveal: true});
+						timelineSelectionRef.current.selectItems([selection], {
+							reveal: true,
+						});
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							selectedSequence: serializeSequence(timelineTrack),
@@ -1293,8 +1301,8 @@ export const WebMcp: FC = () => {
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
-								selectedItemsRef.current.length === 1
-									? selectedItemsRef.current[0].type
+								timelineSelectionRef.current.selectedItems.length === 1
+									? timelineSelectionRef.current.selectedItems[0].type
 									: null,
 							selectedSequence: selectedSequenceRef.current,
 						}),
@@ -1489,11 +1497,12 @@ export const WebMcp: FC = () => {
 						setGuidesList(() => nextGuides);
 						persistGuidesList(nextGuides);
 
-						const removedGuideWasSelected = selectedItemsRef.current.some(
-							(item) => item.type === 'guide' && item.guideId === guideId,
-						);
+						const removedGuideWasSelected =
+							timelineSelectionRef.current.selectedItems.some(
+								(item) => item.type === 'guide' && item.guideId === guideId,
+							);
 						if (removedGuideWasSelected) {
-							clearSelection();
+							timelineSelectionRef.current.clearSelection();
 						}
 
 						return Promise.resolve({
@@ -1797,16 +1806,20 @@ export const WebMcp: FC = () => {
 	}, [
 		addCaptionJob,
 		addVideoMattingJob,
-		clearSelection,
 		isPlaying,
 		selectComposition,
-		selectItems,
 		setEditorShowGuides,
 		setGuidesList,
 		setPlaybackRate,
 		setPlayerMuted,
 		setTimelineZoom,
+		timelineSelectionRef,
 	]);
 
-	return null;
+	return (
+		<WebMcpSelectionSync
+			currentSelectionRef={currentSelectionRef}
+			selectedSequenceRef={selectedSequenceRef}
+		/>
+	);
 };
