@@ -19,7 +19,10 @@ import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
-import {elementRegistry} from '../components/Elements/element-registry';
+import {
+	elementCategories,
+	elementRegistry,
+} from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
 	getElementDefinition,
@@ -461,6 +464,33 @@ describe('Elements sidebar', () => {
 			registeredElementPages.sort(),
 		);
 		expect(new Set(listedElementPages).size).toBe(listedElementPages.length);
+
+		const thirdPartyIndex = elementsCategory.items.indexOf('libraries');
+		expect(thirdPartyIndex).toBe(elementsCategory.items.length - 1);
+		for (const {label} of elementCategories) {
+			const categoryIndex = elementsCategory.items.findIndex(
+				(item) =>
+					typeof item === 'object' &&
+					item !== null &&
+					item.type === 'category' &&
+					item.label === label,
+			);
+			expect(categoryIndex).toBeGreaterThan(-1);
+			expect(categoryIndex).toBeLessThan(thirdPartyIndex - 1);
+		}
+
+		const thirdPartySeparator = elementsCategory.items[thirdPartyIndex - 1];
+		if (
+			typeof thirdPartySeparator !== 'object' ||
+			thirdPartySeparator === null ||
+			thirdPartySeparator.type !== 'html'
+		) {
+			throw new Error(
+				'Third-party Elements must be separated from first-party categories',
+			);
+		}
+
+		expect(thirdPartySeparator.value).toContain('<hr');
 	});
 });
 
