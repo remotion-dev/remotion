@@ -2,6 +2,9 @@ import {expect, type Locator, test} from '@playwright/test';
 import {EXPANDED_SIDEBAR_STATE, STUDIO_URL} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
+const LONG_FONT_FAMILY =
+	"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif";
+
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
 const getBox = async (locator: Locator) => {
@@ -146,5 +149,28 @@ test.describe('Inspector control layout', () => {
 			keyframeButton,
 			colorButton,
 		);
+
+		const interactiveDiv = page
+			.getByText('Computed font family', {exact: true})
+			.first();
+		const fontFamilyLabel = page.getByText('Font family', {exact: true});
+		await expect(async () => {
+			await interactiveDiv.click();
+			await expect(fontFamilyLabel).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+
+		const computedFontFamily = page.getByText(LONG_FONT_FAMILY, {exact: true});
+		const computedFontFamilyTooltip = page.getByTitle(LONG_FONT_FAMILY);
+		await computedFontFamilyTooltip.hover();
+		await expect(computedFontFamilyTooltip).toContainText(LONG_FONT_FAMILY);
+		const fontSize = page.getByText('Font size', {exact: true});
+		const [computedFontFamilyBox, fontSizeBox] = await Promise.all([
+			getBox(computedFontFamily),
+			getBox(fontSize),
+		]);
+		expect(computedFontFamilyBox.height).toBeLessThanOrEqual(18);
+		expect(
+			computedFontFamilyBox.y + computedFontFamilyBox.height,
+		).toBeLessThanOrEqual(fontSizeBox.y);
 	});
 });
