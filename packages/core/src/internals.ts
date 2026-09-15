@@ -191,6 +191,7 @@ import {
 	type VideoConfigValues,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
+import {ThreeEditorStore} from './three-editor-store.js';
 import * as TimelinePosition from './timeline-position-state.js';
 import {
 	persistCurrentFrame,
@@ -357,6 +358,7 @@ export const Internals = {
 	useLazyComponent,
 	truthy,
 	SequenceContext,
+	ThreeEditorStore,
 	PremountContext,
 	usePremounting,
 	useRemotionContexts,

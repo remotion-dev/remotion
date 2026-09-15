@@ -20,14 +20,10 @@ const event = (overrides: Partial<KeyboardEvent>): KeyboardEvent =>
 	}) as KeyboardEvent;
 
 test('includes the platform redo shortcuts', () => {
-	expect(defaultKeyboardShortcuts.redo).toEqual(
-		isMac
-			? [{key: 'z', commandOrControl: true, shift: true}]
-			: [
-					{key: 'y', commandOrControl: true},
-					{key: 'z', commandOrControl: true, shift: true},
-				],
-	);
+	expect(defaultKeyboardShortcuts.redo).toEqual([
+		{key: 'y', commandOrControl: true},
+		{key: 'z', commandOrControl: true, shift: true},
+	]);
 });
 
 test('includes main-row and numeric-keypad zoom-in shortcuts', () => {

@@ -10,10 +10,13 @@ import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
+import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SequenceManager,
 	SequenceManagerRefContext,
+	VisualModeDragOverridesContext,
+	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
 } from './SequenceManager.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
@@ -32,6 +35,15 @@ export function useRemotionContexts() {
 	const visualModePropStatusesRefContext = React.useContext(
 		VisualModePropStatusesRefContext,
 	);
+	const visualModePropStatusesContext = React.useContext(
+		VisualModePropStatusesContext,
+	);
+	const visualModeDragOverridesContext = React.useContext(
+		VisualModeDragOverridesContext,
+	);
+	const overrideIdsToNodePathsGettersContext = React.useContext(
+		OverrideIdsToNodePathsGettersContext,
+	);
 	const bufferManagerContext = React.useContext(BufferingContextReact);
 	const logLevelContext = React.useContext(LogLevelContext);
 
@@ -48,6 +60,9 @@ export function useRemotionContexts() {
 			sequenceManagerContext,
 			sequenceManagerRefContext,
 			visualModePropStatusesRefContext,
+			visualModePropStatusesContext,
+			visualModeDragOverridesContext,
+			overrideIdsToNodePathsGettersContext,
 			bufferManagerContext,
 			logLevelContext,
 		}),
@@ -63,6 +78,9 @@ export function useRemotionContexts() {
 			sequenceManagerContext,
 			sequenceManagerRefContext,
 			visualModePropStatusesRefContext,
+			visualModePropStatusesContext,
+			visualModeDragOverridesContext,
+			overrideIdsToNodePathsGettersContext,
 			bufferManagerContext,
 			logLevelContext,
 		],
@@ -90,31 +108,43 @@ export const RemotionContextProvider = (
 								<VisualModePropStatusesRefContext.Provider
 									value={contexts.visualModePropStatusesRefContext}
 								>
-									<RenderAssetManager.Provider
-										value={contexts.renderAssetManagerContext}
+									<VisualModePropStatusesContext.Provider
+										value={contexts.visualModePropStatusesContext}
 									>
-										<ResolveCompositionContext.Provider
-											value={contexts.resolveCompositionContext}
+										<VisualModeDragOverridesContext.Provider
+											value={contexts.visualModeDragOverridesContext}
 										>
-											<TimelineContext.Provider
-												value={contexts.timelineContext}
+											<OverrideIdsToNodePathsGettersContext.Provider
+												value={contexts.overrideIdsToNodePathsGettersContext}
 											>
-												<SetTimelineContext.Provider
-													value={contexts.setTimelineContext}
+												<RenderAssetManager.Provider
+													value={contexts.renderAssetManagerContext}
 												>
-													<SequenceContext.Provider
-														value={contexts.sequenceContext}
+													<ResolveCompositionContext.Provider
+														value={contexts.resolveCompositionContext}
 													>
-														<BufferingContextReact.Provider
-															value={contexts.bufferManagerContext}
+														<TimelineContext.Provider
+															value={contexts.timelineContext}
 														>
-															{children}
-														</BufferingContextReact.Provider>
-													</SequenceContext.Provider>
-												</SetTimelineContext.Provider>
-											</TimelineContext.Provider>
-										</ResolveCompositionContext.Provider>
-									</RenderAssetManager.Provider>
+															<SetTimelineContext.Provider
+																value={contexts.setTimelineContext}
+															>
+																<SequenceContext.Provider
+																	value={contexts.sequenceContext}
+																>
+																	<BufferingContextReact.Provider
+																		value={contexts.bufferManagerContext}
+																	>
+																		{children}
+																	</BufferingContextReact.Provider>
+																</SequenceContext.Provider>
+															</SetTimelineContext.Provider>
+														</TimelineContext.Provider>
+													</ResolveCompositionContext.Provider>
+												</RenderAssetManager.Provider>
+											</OverrideIdsToNodePathsGettersContext.Provider>
+										</VisualModeDragOverridesContext.Provider>
+									</VisualModePropStatusesContext.Provider>
 								</VisualModePropStatusesRefContext.Provider>
 							</SequenceManager.Provider>
 						</SequenceManagerRefContext.Provider>

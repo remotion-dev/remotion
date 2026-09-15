@@ -171,6 +171,7 @@ import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {ThreeHtml} from './ThreeHtml/ThreeHtml';
+import {ThreeInteractive} from './ThreeInteractive';
 import {VideoTextureDemo} from './ThreeScene/Scene';
 import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
@@ -1903,6 +1904,14 @@ export const Index: React.FC = () => {
 					height={720}
 					fps={30}
 					durationInFrames={600}
+				/>
+				<Composition
+					id="three-interactive"
+					component={ThreeInteractive}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
 				/>
 				<Composition
 					id="three-webgpu"

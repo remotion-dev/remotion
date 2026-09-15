@@ -7,6 +7,7 @@ import {MenuToolbar} from './MenuToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
+import {ThreeEditorBridge} from './ThreeEditorBridge';
 import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
 import {Timeline} from './Timeline/Timeline';
 import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
@@ -91,6 +92,7 @@ export const EditorContent: React.FC<{
 
 	return (
 		<TimelineSelectionProvider>
+			<ThreeEditorBridge readOnlyStudio={readOnlyStudio} />
 			<WebMcp />
 			<Transform3DModeStateProvider>
 				<StudioClearSelectionArea>
