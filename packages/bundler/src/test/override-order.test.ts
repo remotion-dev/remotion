@@ -60,14 +60,9 @@ test('applies the shared override before the Rspack override', async () => {
 });
 
 test('includes React Scan only in an explicitly enabled development bundle', async () => {
-	const previousEndpoint = process.env.REMOTION_REACT_SCAN_ENDPOINT;
 	const previousEntryPoint = process.env.REMOTION_REACT_SCAN_ENTRY_POINT;
-	const previousSessionId = process.env.REMOTION_REACT_SCAN_SESSION_ID;
-	process.env.REMOTION_REACT_SCAN_ENDPOINT =
-		'http://127.0.0.1:4321/ingest/test';
 	process.env.REMOTION_REACT_SCAN_ENTRY_POINT =
 		'/internal/react-scan/client.ts';
-	process.env.REMOTION_REACT_SCAN_SESSION_ID = 'test';
 
 	try {
 		const [, productionWebpackConfig] = await webpackConfig({
@@ -125,22 +120,10 @@ test('includes React Scan only in an explicitly enabled development bundle', asy
 			).toBe(true);
 		}
 	} finally {
-		if (previousEndpoint === undefined) {
-			delete process.env.REMOTION_REACT_SCAN_ENDPOINT;
-		} else {
-			process.env.REMOTION_REACT_SCAN_ENDPOINT = previousEndpoint;
-		}
-
 		if (previousEntryPoint === undefined) {
 			delete process.env.REMOTION_REACT_SCAN_ENTRY_POINT;
 		} else {
 			process.env.REMOTION_REACT_SCAN_ENTRY_POINT = previousEntryPoint;
-		}
-
-		if (previousSessionId === undefined) {
-			delete process.env.REMOTION_REACT_SCAN_SESSION_ID;
-		} else {
-			process.env.REMOTION_REACT_SCAN_SESSION_ID = previousSessionId;
 		}
 	}
 });

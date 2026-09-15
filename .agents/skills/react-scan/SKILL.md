@@ -1,6 +1,6 @@
 ---
 name: react-scan
-description: Capture and analyze Remotion Studio React render profiles with the internal React Scan Lite collector. Use when diagnosing unnecessary re-renders, slow commits, frame-reactive component trees, or when comparing render performance before and after a change.
+description: Capture and analyze Remotion Studio React render profiles through development-only WebMCP tools. Use when diagnosing unnecessary re-renders, slow commits, frame-reactive component trees, or when comparing render performance before and after a change.
 ---
 
 # React Scan
@@ -13,7 +13,7 @@ performance problem from source alone when the workflow can be reproduced.
 Start from the repository root:
 
 ```sh
-bun run react-scan:capture -- --label <short-kebab-case-description>
+bun run react-scan:capture
 ```
 
 Wait for Studio to finish building, open the printed Studio URL with the browser,
@@ -24,28 +24,18 @@ Call `start_react_scan_recording`, then use browser-use to perform one named
 interaction three times. Call `stop_react_scan_recording` immediately
 afterwards. Keep the recording short so startup, HMR, and unrelated interactions
 do not dominate the data. Call `get_react_scan_recording` to return the raw
-events and the same agent-oriented summary used by the on-disk collector.
+events and an agent-oriented summary.
 
-After retrieving the recording, stop the capture command with Ctrl+C. This
-finalizes the on-disk copy for deeper inspection and comparison.
-
-The command writes an ignored directory under `out/react-scan/` containing:
-
-- `metadata.json`: capture context, git state, browser, and tested URL.
-- `summary.json`: ranked component costs, render causes, slow commits, and
-  profiling-hook status.
-- `events.ndjson`: raw React Scan Lite events for deeper inspection.
-
-`out/react-scan/latest.json` points to the newest capture.
+After retrieving the recording, stop Studio with Ctrl+C. Recordings only live in
+the WebMCP result; React Scan does not send them to a separate HTTP collector.
 
 React Scan replaces the React DevTools profiling-hook channel while active. Do
 not record with the React DevTools Timeline Profiler at the same time.
 
 ## Analyze the evidence
 
-Read the `summary` returned by `get_react_scan_recording` first. For the persisted
-capture, read `metadata.json` and `summary.json` before the raw events. Confirm
-the capture contains commit events and inspect `profilingHooksStatuses`; do not
+Read the `summary` returned by `get_react_scan_recording` first. Confirm the
+capture contains commit events and inspect `profilingHooksStatuses`; do not
 interpret a missing profiling channel as an idle application.
 
 Prioritize components with high total self duration, repeated expensive
@@ -75,5 +65,5 @@ Require an improvement in the relevant commit/component metrics without a
 regression in behavior. Do not optimize every re-render: cheap necessary renders
 are often preferable to added memoization complexity.
 
-Report both capture directories, the measured before/after change, and the
-focused tests used to protect behavior.
+Report the measured before/after change and the focused tests used to protect
+behavior.

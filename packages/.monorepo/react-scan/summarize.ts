@@ -1,13 +1,5 @@
 import type {LiteEvent, LiteFiberSummary} from 'react-scan/lite';
 
-export type StoredReactScanEvent = {
-	event: LiteEvent;
-	eventIndex: number;
-	receivedAt: string;
-	sequence: number;
-	sessionId: string;
-};
-
 type ComponentMetrics = {
 	changedHooks: Map<number, number>;
 	changedProps: Map<string, number>;
@@ -103,7 +95,7 @@ const getComponentKey = (fiber: LiteFiberSummary) => {
 	].join('\0');
 };
 
-export const summarizeReactScanEvents = (events: StoredReactScanEvent[]) => {
+export const summarizeReactScanEvents = (events: LiteEvent[]) => {
 	const componentMetrics = new Map<string, ComponentMetrics>();
 	const eventCounts = new Map<string, number>();
 	const slowestCommits: Array<{
@@ -126,8 +118,7 @@ export const summarizeReactScanEvents = (events: StoredReactScanEvent[]) => {
 		}
 	>();
 
-	for (const storedEvent of events) {
-		const event = storedEvent.event;
+	for (const event of events) {
 		eventCounts.set(event.kind, (eventCounts.get(event.kind) ?? 0) + 1);
 
 		if (event.kind === 'profiling-hooks-status') {

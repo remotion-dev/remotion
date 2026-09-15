@@ -30,13 +30,10 @@ test('WebMCP records React Scan and controls the Studio lifecycle', async ({
 			cwd: exampleDir,
 			env: {
 				...process.env,
-				REMOTION_REACT_SCAN_ENDPOINT:
-					'http://127.0.0.1:9/react-scan-e2e-not-used',
 				REMOTION_REACT_SCAN_ENTRY_POINT: path.resolve(
 					exampleDir,
 					'../.monorepo/react-scan/client.ts',
 				),
-				REMOTION_REACT_SCAN_SESSION_ID: 'react-scan-e2e',
 			},
 			stdio: 'pipe',
 		},

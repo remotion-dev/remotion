@@ -2,14 +2,6 @@ import type {LiteEvent} from 'react-scan/lite';
 import {instrument} from 'react-scan/lite';
 import {summarizeReactScanEvents} from './summarize';
 
-const endpoint = process.env.REMOTION_REACT_SCAN_ENDPOINT;
-const sessionId = process.env.REMOTION_REACT_SCAN_SESSION_ID;
-
-if (!endpoint || !sessionId) {
-	throw new Error('React Scan capture environment variables are missing');
-}
-
-const pendingEvents: LiteEvent[] = [];
 const recordingContextEvents = new Map<string, LiteEvent>();
 let recordedEvents: LiteEvent[] = [];
 let recordingStartedAt: string | null = null;
@@ -17,56 +9,6 @@ let recordingStartedAtInMilliseconds: number | null = null;
 let recordingEndedAt: string | null = null;
 let recordingDurationInMilliseconds: number | null = null;
 let isRecording = false;
-let flushTimer: ReturnType<typeof setTimeout> | null = null;
-let batchSequence = 0;
-let warnedAboutConnectionFailure = false;
-let flushChain = Promise.resolve();
-
-const flush = () => {
-	if (flushTimer !== null) {
-		clearTimeout(flushTimer);
-		flushTimer = null;
-	}
-
-	if (pendingEvents.length === 0) {
-		return flushChain;
-	}
-
-	const events = pendingEvents.splice(0, pendingEvents.length);
-	const sequence = batchSequence;
-	batchSequence++;
-
-	flushChain = flushChain.then(async () => {
-		try {
-			await fetch(endpoint, {
-				body: JSON.stringify({
-					client:
-						sequence === 0
-							? {
-									devicePixelRatio: window.devicePixelRatio,
-									height: window.innerHeight,
-									href: window.location.href,
-									userAgent: navigator.userAgent,
-									width: window.innerWidth,
-								}
-							: undefined,
-					events,
-					sequence,
-					sessionId,
-				}),
-				headers: {'Content-Type': 'application/json'},
-				method: 'POST',
-			});
-		} catch {
-			if (!warnedAboutConnectionFailure) {
-				warnedAboutConnectionFailure = true;
-				console.warn('Could not stream React Scan events to the collector.');
-			}
-		}
-	});
-
-	return flushChain;
-};
 
 const getRecordingStatus = () => ({
 	durationInMilliseconds: recordingDurationInMilliseconds,
@@ -118,14 +60,7 @@ if (typeof modelContext?.registerTool === 'function') {
 						throw new Error('React Scan is already recording.');
 					}
 
-					if (flushTimer !== null) {
-						clearTimeout(flushTimer);
-						flushTimer = null;
-					}
-
-					pendingEvents.splice(0, pendingEvents.length);
 					recordedEvents = [...recordingContextEvents.values()];
-					pendingEvents.push(...recordedEvents);
 					recordingStartedAt = new Date().toISOString();
 					recordingStartedAtInMilliseconds = performance.now();
 					recordingEndedAt = null;
@@ -155,7 +90,6 @@ if (typeof modelContext?.registerTool === 'function') {
 					);
 					recordingEndedAt = new Date().toISOString();
 					isRecording = false;
-					await flush();
 
 					return getRecordingStatus();
 				},
@@ -178,19 +112,10 @@ if (typeof modelContext?.registerTool === 'function') {
 						throw new Error('Stop React Scan before returning the recording.');
 					}
 
-					const receivedAt = new Date().toISOString();
 					return {
 						...getRecordingStatus(),
 						events: recordedEvents,
-						summary: summarizeReactScanEvents(
-							recordedEvents.map((event, eventIndex) => ({
-								event,
-								eventIndex,
-								receivedAt,
-								sequence: 0,
-								sessionId,
-							})),
-						),
+						summary: summarizeReactScanEvents(recordedEvents),
 					};
 				},
 			},
@@ -220,18 +145,6 @@ instrument({
 		}
 
 		recordedEvents.push(event);
-		pendingEvents.push(event);
-
-		if (pendingEvents.length >= 20) {
-			void flush();
-			return;
-		}
-
-		if (flushTimer === null) {
-			flushTimer = setTimeout(() => void flush(), 100);
-		}
 	},
 	recordChangeDescriptions: true,
 });
-
-window.addEventListener('pagehide', () => void flush());

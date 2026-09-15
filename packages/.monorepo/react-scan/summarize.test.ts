@@ -1,25 +1,16 @@
 import {expect, test} from 'bun:test';
-import type {LiteEvent} from 'react-scan/lite';
-import {summarizeReactScanEvents, type StoredReactScanEvent} from './summarize';
-
-const makeStoredEvent = (event: LiteEvent): StoredReactScanEvent => ({
-	event,
-	eventIndex: 0,
-	receivedAt: '2026-08-21T12:00:00.000Z',
-	sequence: 0,
-	sessionId: 'test',
-});
+import {summarizeReactScanEvents} from './summarize';
 
 test('summarizes commit costs and render causes for an agent', () => {
 	const summary = summarizeReactScanEvents([
-		makeStoredEvent({
+		{
 			available: true,
 			bundleType: 1,
 			kind: 'profiling-hooks-status',
 			reactVersion: '19.2.3',
 			timestamp: 1,
-		}),
-		makeStoredEvent({
+		},
+		{
 			kind: 'commit',
 			priorityName: 'UserBlocking',
 			timestamp: 2,
@@ -71,8 +62,8 @@ test('summarizes commit costs and render causes for an agent', () => {
 					treeBaseDuration: 2,
 				},
 			],
-		}),
-		makeStoredEvent({
+		},
+		{
 			kind: 'commit',
 			priorityName: 'Normal',
 			timestamp: 21,
@@ -124,7 +115,7 @@ test('summarizes commit costs and render causes for an agent', () => {
 					treeBaseDuration: 1,
 				},
 			],
-		}),
+		},
 	]);
 
 	expect(summary.commitCount).toBe(2);
