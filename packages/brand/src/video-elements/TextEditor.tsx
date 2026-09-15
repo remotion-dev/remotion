@@ -95,7 +95,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						alignItems: 'center',
 						backgroundColor: 'transparent',
 						display: 'flex',
-						height: 18 * scale,
+						height: 30 * scale,
 						minWidth: '100%',
 					}}
 				>
@@ -104,7 +104,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							boxSizing: 'border-box',
 							color: '#858585',
 							flex: `0 0 ${67 * scale}px`,
-							fontSize: 12 * scale,
+							fontSize: 24 * scale,
 							paddingRight: 25 * scale,
 							textAlign: 'right',
 							userSelect: 'none',
@@ -183,7 +183,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							<div key={color} style={{backgroundColor: color, borderRadius: '50%', height: 12 * scale, width: 12 * scale}} />
 						))}
 					</div>
-					<div style={{color: '#999999', fontSize: 12 * scale}}>{fileName} — brand</div>
+					<div style={{color: '#999999', fontSize: 20 * scale}}>{fileName} — brand</div>
 					<div style={{color: '#888888', display: 'flex', position: 'absolute', right: 10 * scale}}>
 						<VscodeIcon name="ellipsis" size={14 * scale} />
 					</div>
@@ -236,7 +236,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 									boxSizing: 'border-box',
 									color: tab.active ? '#e7e7e7' : '#8e8e8e',
 									display: 'flex',
-									fontSize: 12 * scale,
+									fontSize: 20 * scale,
 									fontStyle: index === 2 ? 'italic' : 'normal',
 									height: '100%',
 									paddingLeft: 10 * scale,
@@ -255,7 +255,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 
 				<Interactive.Div
 					name="Breadcrumbs"
-					style={{alignItems: 'center', backgroundColor: '#131414', color: '#9c9c9c', display: 'flex', fontSize: 12 * scale, height: breadcrumbHeight, left: activityBarWidth, paddingLeft: 16 * scale, position: 'absolute', right: 0, top: titleBarHeight + tabBarHeight}}
+					style={{alignItems: 'center', backgroundColor: '#131414', color: '#9c9c9c', display: 'flex', fontSize: 20 * scale, height: breadcrumbHeight, left: activityBarWidth, paddingLeft: 16 * scale, position: 'absolute', right: 0, top: titleBarHeight + tabBarHeight}}
 				>
 					<span>src</span><span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
 					<span>announcements</span><span style={{margin: `0 ${6 * scale}px`, color: '#686868'}}>›</span>
@@ -272,7 +272,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						<Pre
 							code={highlighted}
 							handlers={[lineHandler]}
-							style={{backgroundColor: 'transparent', color: '#d4d4d4', fontFamily: 'Menlo, Monaco, "Courier New", monospace', fontSize: 12 * scale, fontVariantLigatures: 'none', left: scale, lineHeight: `${18 * scale}px`, margin: 0, minWidth: '100%', position: 'relative', tabSize: 4}}
+							style={{backgroundColor: 'transparent', color: '#d4d4d4', fontFamily: 'Menlo, Monaco, "Courier New", monospace', fontSize: 24 * scale, fontVariantLigatures: 'none', left: scale, lineHeight: `${30 * scale}px`, margin: 0, minWidth: '100%', position: 'relative', tabSize: 4}}
 						/>
 					) : null}
 					<div style={{backgroundColor: '#131414', bottom: 0, position: 'absolute', right: 4 * scale, top: 0, width: 14 * scale}}>
@@ -282,7 +282,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 
 				<Interactive.Div
 					name="Status bar"
-					style={{alignItems: 'center', backgroundColor: '#181919', borderTop: `${scale}px solid #2b2b2b`, bottom: 0, boxSizing: 'border-box', color: '#9a9a9a', display: 'flex', fontSize: 12 * scale, height: statusBarHeight, left: 0, paddingLeft: 13 * scale, position: 'absolute', right: 0}}
+					style={{alignItems: 'center', backgroundColor: '#181919', borderTop: `${scale}px solid #2b2b2b`, bottom: 0, boxSizing: 'border-box', color: '#9a9a9a', display: 'flex', fontSize: 20 * scale, height: statusBarHeight, left: 0, paddingLeft: 13 * scale, position: 'absolute', right: 0}}
 				>
 					<VscodeIcon name="error" size={13 * scale} /><span style={{marginLeft: 4 * scale}}>0</span>
 					<span style={{display: 'flex', marginLeft: 7 * scale}}><VscodeIcon name="warning" size={13 * scale} /></span><span style={{marginLeft: 3 * scale}}>0</span>

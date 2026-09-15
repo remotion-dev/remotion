@@ -1,5 +1,6 @@
 import {
 	AbsoluteFill,
+	CanvasImage,
 	Easing,
 	Interactive,
 	Sequence,
@@ -49,25 +50,34 @@ export const StudioCodeHandoff: React.FC = () => {
 							width: 1352,
 						}}
 					>
+						<CanvasImage
+							fit="cover"
+							height={760}
+							name="Tahoe wallpaper"
+							src="https://remotion.media/webmcp-promo/tahoe-light-wallpaper.jpg"
+							style={{left: 0, position: 'absolute', top: 0}}
+							width={1352}
+						/>
 						<Interactive.Div
 							name="VS Code"
 							style={{
-								height: 760,
+								borderRadius: 12,
+								height: 748,
 								left: 0,
 								overflow: 'hidden',
 								position: 'absolute',
-								top: 0,
+								top: 6,
 								translate: interpolate(
 									frame,
 									[60, 100],
-									['676px 0px', '1352px 0px'],
+									['679px 0px', '1358px 0px'],
 									{
 										easing: Easing.bezier(0.16, 1, 0.3, 1),
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
 									},
 								),
-								width: 676,
+								width: 667,
 							}}
 						>
 							<TextEditor
@@ -106,9 +116,9 @@ export const Scene11: React.FC = () => {
 	);
 };`}
 								fileName="Scene11.tsx"
-								height={760}
+								height={748}
 								highlightedLines="14-18"
-								width={676}
+								width={667}
 							/>
 						</Interactive.Div>
 
@@ -116,15 +126,16 @@ export const Scene11: React.FC = () => {
 							name="Codex"
 							style={{
 								backgroundColor: '#f4f4f2',
-								height: 760,
+								borderRadius: 12,
+								height: 748,
 								left: 0,
 								overflow: 'hidden',
 								position: 'absolute',
-								top: 0,
+								top: 6,
 								translate: interpolate(
 									frame,
 									[60, 100, 140, 180],
-									['-676px 0px', '0px 0px', '0px 0px', '-676px 0px'],
+									['-667px 0px', '6px 0px', '6px 0px', '-667px 0px'],
 									{
 										easing: [
 											Easing.bezier(0.16, 1, 0.3, 1),
@@ -135,24 +146,25 @@ export const Scene11: React.FC = () => {
 										extrapolateRight: 'clamp',
 									},
 								),
-								width: 676,
+								width: 667,
 							}}
 						>
-							<Codex height={760} width={676} />
+							<Codex height={748} width={667} />
 						</Interactive.Div>
 
 						<Interactive.Div
 							name="Remotion Studio"
 							style={{
-								height: 760,
+								borderRadius: 12,
+								height: 748,
 								left: 0,
 								overflow: 'hidden',
 								position: 'absolute',
-								top: 0,
+								top: 6,
 								translate: interpolate(
 									frame,
 									[60, 100, 140, 180],
-									['0px 0px', '676px 0px', '676px 0px', '0px 0px'],
+									['6px 0px', '679px 0px', '679px 0px', '6px 0px'],
 									{
 										easing: [
 											Easing.bezier(0.16, 1, 0.3, 1),
@@ -163,7 +175,7 @@ export const Scene11: React.FC = () => {
 										extrapolateRight: 'clamp',
 									},
 								),
-								width: interpolate(frame, [140, 180], [676, 1352], {
+								width: interpolate(frame, [140, 180], [667, 1340], {
 									easing: Easing.bezier(0.16, 1, 0.3, 1),
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
@@ -193,11 +205,11 @@ export const Scene11: React.FC = () => {
 										extrapolateRight: 'clamp',
 									},
 								)}
-								viewportHeight={760}
+								viewportHeight={748}
 								viewportWidth={interpolate(
 									frame,
 									[140, 180],
-									[676, 1352],
+									[667, 1340],
 									{
 										easing: Easing.bezier(0.16, 1, 0.3, 1),
 										extrapolateLeft: 'clamp',
