@@ -142,6 +142,7 @@ export {
 	SubscribeToSequencePropsBatchResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
+	UndoRedoNavigation,
 	UndoRequest,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,

@@ -351,16 +351,19 @@ export const applyCodemod = ({
 	dryRun,
 	symbolicatedStack,
 	signal,
+	undoRedoNavigation,
 }: {
 	codemod: RecastCodemod;
 	dryRun: boolean;
 	symbolicatedStack: ApplyCodemodRequest['symbolicatedStack'];
 	signal: AbortController['signal'];
+	undoRedoNavigation: ApplyCodemodRequest['undoRedoNavigation'];
 }) => {
 	const body: ApplyCodemodRequest = {
 		codemod,
 		dryRun,
 		symbolicatedStack,
+		undoRedoNavigation,
 	};
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations !== null) {

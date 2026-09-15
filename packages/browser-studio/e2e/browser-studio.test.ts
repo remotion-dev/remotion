@@ -393,6 +393,84 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 					}),
 				)
 				.toContain('id="MyComp1"');
+
+			await studio.getByRole('button', {name: /^Undo/}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const browserWindow = window as typeof window & {
+							__browserStudioProject: {files: Record<string, string>};
+						};
+						return browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						];
+					}),
+				)
+				.not.toContain('id="MyComp1"');
+
+			await studio.getByRole('button', {name: /^Redo/}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await expect(page).toHaveTitle(
+				'MyComp1 / template-blank - Remotion Studio',
+				{timeout: 5000},
+			);
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const browserWindow = window as typeof window & {
+							__browserStudioProject: {files: Record<string, string>};
+						};
+						return browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						];
+					}),
+				)
+				.toContain('id="MyComp1"');
+
+			const duplicatedComposition = studio.locator('[data-compname="MyComp1"]');
+			await duplicatedComposition.click({button: 'right'});
+			await studio.getByText('Delete...', {exact: true}).click();
+			await expect(studio.getByText('Delete composition')).toBeVisible();
+			await studio.getByRole('button', {name: /^Delete from /}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await expect
+				.poll(() =>
+					page.evaluate(() => {
+						const browserWindow = window as typeof window & {
+							__browserStudioProject: {files: Record<string, string>};
+						};
+						return browserWindow.__browserStudioProject.files[
+							'/project/src/Composition.tsx'
+						];
+					}),
+				)
+				.not.toContain('id="MyComp1"');
+
+			await studio.getByRole('button', {name: /^Undo/}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp1');
+			await expect(duplicatedComposition).toBeVisible();
+
+			await studio.getByRole('button', {name: /^Redo/}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await expect(duplicatedComposition).toHaveCount(0);
+
+			await composition.click({button: 'right'});
+			await studio.getByText('Delete...', {exact: true}).click();
+			await studio.getByRole('button', {name: /^Delete from /}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/');
+			await expect(composition).toHaveCount(0);
+			await expect(
+				studio.locator('.remotion-studio-composition-container'),
+			).toHaveCount(0);
+
+			await studio.getByRole('button', {name: /^Undo/}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/MyComp');
+			await expect(composition).toBeVisible();
+
+			await studio.getByRole('button', {name: /^Redo/}).click();
+			await expect.poll(() => new URL(page.url()).search).toBe('?/');
+			await expect(composition).toHaveCount(0);
 		})(),
 		pageError,
 	]);

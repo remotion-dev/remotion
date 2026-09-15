@@ -19,7 +19,6 @@ import {formatLogFileLocation} from '../format-log-file-location';
 import {getProjectInfo} from '../project-info';
 import {
 	printUndoHint,
-	pushToUndoStack,
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
@@ -210,7 +209,7 @@ export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
 > = ({
-	input: {codemod, dryRun, symbolicatedStack},
+	input: {codemod, dryRun, symbolicatedStack, undoRedoNavigation},
 	logLevel,
 	remotionRoot,
 	entryPoint,
@@ -289,34 +288,20 @@ export const applyCodemodHandler: ApiHandler<
 						logLine: 1,
 						nodePathRemappings: null,
 					});
-					pushTransactionToUndoStack({
-						snapshots,
-						logLevel,
-						remotionRoot,
-						description: {
-							undoMessage,
-							redoMessage,
-						},
-						entryType,
-						suppressHmrOnFileRestore: false,
-					});
-				} else {
-					pushToUndoStack({
-						filePath,
-						oldContents: input,
-						newContents: null,
-						logLevel,
-						remotionRoot,
-						logLine,
-						description: {
-							undoMessage,
-							redoMessage,
-						},
-						entryType,
-						suppressHmrOnFileRestore: false,
-						nodePathRemappings: null,
-					});
 				}
+
+				pushTransactionToUndoStack({
+					snapshots,
+					logLevel,
+					remotionRoot,
+					description: {
+						undoMessage,
+						redoMessage,
+					},
+					entryType,
+					suppressHmrOnFileRestore: false,
+					undoRedoNavigation,
+				});
 
 				suppressUndoStackInvalidation(filePath);
 				if (componentFilePath) {

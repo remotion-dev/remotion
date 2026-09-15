@@ -626,6 +626,7 @@ export const CompositionSelectorItem: React.FC<{
 					signal: new AbortController().signal,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
+					undoRedoNavigation: null,
 				});
 
 				if (result.success) {

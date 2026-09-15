@@ -9,6 +9,7 @@ import React, {
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {WHITE_ALPHA_80} from '../helpers/colors';
+import {pushUrl} from '../helpers/url-state';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -60,6 +61,11 @@ export const UndoRedoButtons: React.FC = () => {
 			? browserStudioOperations.undo()
 			: callApi('/api/undo', {});
 		promise
+			.then((response) => {
+				if (response.success && response.route !== null) {
+					pushUrl(response.route);
+				}
+			})
 			.catch(() => {
 				// Ignore errors
 			})
@@ -79,6 +85,11 @@ export const UndoRedoButtons: React.FC = () => {
 			? browserStudioOperations.redo()
 			: callApi('/api/redo', {});
 		promise
+			.then((response) => {
+				if (response.success && response.route !== null) {
+					pushUrl(response.route);
+				}
+			})
 			.catch(() => {
 				// Ignore errors
 			})

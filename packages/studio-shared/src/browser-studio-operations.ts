@@ -34,6 +34,7 @@ import type {
 	InsertElementRequest,
 	InsertElementResponse,
 	InstallPackageRequest,
+	UndoRedoNavigation,
 	InstallableElement,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
@@ -84,6 +85,7 @@ export type WriteStaticFileRequest = {
 export type DuplicateCompositionRequest = {
 	codemod: Extract<RecastCodemod, {type: 'duplicate-composition'}>;
 	dryRun: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 export type DuplicateCompositionResponse =

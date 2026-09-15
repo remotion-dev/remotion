@@ -351,6 +351,7 @@ export const CompositionSelector: React.FC = () => {
 					signal: controller.signal,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
+					undoRedoNavigation: null,
 				});
 
 				if (result.success) {

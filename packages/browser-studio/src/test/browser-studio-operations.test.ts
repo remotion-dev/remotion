@@ -629,11 +629,13 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(currentProject.files[fileName]).toContain('from={10}');
 	expect(await operations.redo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(currentProject.files[fileName]).toContain('from={15}');
 
@@ -675,6 +677,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(currentProject.files[fileName]).not.toContain('style={{rotate:');
 
@@ -1152,6 +1155,7 @@ test('renames a composition by resolving the file from the composition id', asyn
 			newId: 'RenamedComp',
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1184,6 +1188,7 @@ test('updates composition metadata in Browser Studio', async () => {
 			newWidth: 1920,
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1206,6 +1211,7 @@ test('deletes a composition and supports a dry run', async () => {
 	const dryRunResult = await operations.applyCodemod({
 		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
 		dryRun: true,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!dryRunResult.success) {
@@ -1220,6 +1226,7 @@ test('deletes a composition and supports a dry run', async () => {
 	const result = await operations.applyCodemod({
 		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1252,6 +1259,7 @@ test('creates a composition with a component file in the root file', async () =>
 	const result = await operations.applyCodemod({
 		codemod,
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1269,6 +1277,7 @@ test('creates a composition with a component file in the root file', async () =>
 	const conflict = await operations.applyCodemod({
 		codemod: {...codemod, newId: 'FreshComp2'},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	expect(conflict).toEqual({
@@ -1330,6 +1339,7 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 			},
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1363,6 +1373,7 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 	const createResult = await operations.applyCodemod({
 		codemod: {type: 'new-folder', folderName: 'my-folder', parentName: null},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!createResult.success) {
@@ -1381,6 +1392,7 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 			newName: 'renamed-folder',
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!renameResult.success) {
@@ -1398,6 +1410,7 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 			parentName: null,
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!deleteResult.success) {
@@ -1441,6 +1454,7 @@ export const Root = () => {
 			parentName: null,
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: {
 			originalFileName: 'src/Root.tsx',
 			originalFunctionName: null,
@@ -1707,6 +1721,7 @@ test('reports structured failures for unsupported codemods', async () => {
 		await operations.applyCodemod({
 			codemod: {type: 'apply-visual-control', changes: []},
 			dryRun: false,
+			undoRedoNavigation: null,
 			symbolicatedStack: null,
 		}),
 	).toEqual({
@@ -1718,6 +1733,7 @@ test('reports structured failures for unsupported codemods', async () => {
 		await operations.applyCodemod({
 			codemod: {type: 'delete-composition', idToDelete: 'MissingComp'},
 			dryRun: false,
+			undoRedoNavigation: null,
 			symbolicatedStack: null,
 		}),
 	).toEqual({

@@ -173,7 +173,11 @@ export const Comp = () => {
 		expect(completionLog).toMatch(/^\[\d+ms\] /);
 		expect(completionLog).toContain('Comp.tsx:4');
 		expect(getUndoStack()).toHaveLength(1);
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();
@@ -310,7 +314,11 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 		expect(getUndoStack()).toHaveLength(1);
 		expect(getUndoStack()[0]?.suppressHmrOnFileRestore).toBe(false);
 
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();
@@ -419,7 +427,11 @@ export const Comp = () => {
 		expect(output).toContain('interpolate(frame, [10, 30], [0, 1])');
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();
@@ -534,7 +546,11 @@ export const Comp = () => {
 		expect(output).toContain("['3px 4px', '23px 44px']");
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();

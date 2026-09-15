@@ -152,6 +152,7 @@ const makeFixture = () => {
 			from: null,
 			overwriteExisting,
 			position: null,
+			undoRedoNavigation: null,
 			newComposition: null,
 		});
 	};
@@ -293,6 +294,7 @@ test('invalidates a new-composition install after an external component edit', a
 			from: null,
 			overwriteExisting: false,
 			position: null,
+			undoRedoNavigation: null,
 			newComposition: {
 				codemod: {
 					type: 'new-composition',
@@ -397,6 +399,7 @@ test('installs structured initial props on a component-owned Sequence', async ()
 			from: 30,
 			overwriteExisting: false,
 			position: {x: 120, y: 80},
+			undoRedoNavigation: null,
 			newComposition: null,
 		});
 
@@ -454,6 +457,7 @@ test('rejects contradictory component-owned installation props', async () => {
 				from: 30,
 				overwriteExisting: false,
 				position: {x: 120, y: 80},
+				undoRedoNavigation: null,
 				newComposition: null,
 			});
 			expect(response).toMatchObject({success: false, type: 'error'});
@@ -482,6 +486,7 @@ test('keeps wrapped installation and passes initial props to its child', async (
 			from: 12,
 			overwriteExisting: false,
 			position: {x: 40, y: 50},
+			undoRedoNavigation: null,
 			newComposition: null,
 		});
 		if (!response.success) {
@@ -520,6 +525,7 @@ test('materializes independent props for two component-owned copies', async () =
 			from: 0,
 			overwriteExisting: false,
 			position: null,
+			undoRedoNavigation: null,
 			newComposition: null,
 		});
 		expect(first.success).toBe(true);
@@ -532,6 +538,7 @@ test('materializes independent props for two component-owned copies', async () =
 			from: 30,
 			overwriteExisting: false,
 			position: null,
+			undoRedoNavigation: null,
 			newComposition: null,
 		});
 		expect(second.success).toBe(true);
@@ -574,6 +581,7 @@ test('installs independent named copies into the same and another composition', 
 			from: null,
 			position: null,
 			overwriteExisting: false,
+			undoRedoNavigation: null,
 			newComposition: null,
 		};
 		expect((await fixture.callHandlerWithInput(input)).success).toBe(true);
@@ -703,6 +711,7 @@ test.each(['../outside', 'nested/name', 'Uppercase', '', 'name.element.tsx'])(
 					from: null,
 					position: null,
 					overwriteExisting: false,
+					undoRedoNavigation: null,
 					newComposition: null,
 				}),
 			).toMatchObject({success: false, type: 'error'});

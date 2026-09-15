@@ -64,6 +64,7 @@ export const DeleteFolder: React.FC<{
 								dryRun: false,
 								signal,
 								symbolicatedStack,
+								undoRedoNavigation: null,
 							})
 						}
 						applyCodemodForPreview={null}

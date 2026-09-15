@@ -1328,6 +1328,7 @@ export const insertElement = async ({
 	position,
 	from,
 	overwriteExisting,
+	undoRedoNavigation,
 	newComposition,
 }: {
 	installationName: string | null;
@@ -1338,6 +1339,7 @@ export const insertElement = async ({
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;
 	overwriteExisting: boolean;
+	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
 	newComposition: InsertElementRequest['newComposition'];
 }) => {
 	try {
@@ -1354,6 +1356,7 @@ export const insertElement = async ({
 			from,
 			overwriteExisting,
 			position,
+			undoRedoNavigation,
 			newComposition,
 		});
 

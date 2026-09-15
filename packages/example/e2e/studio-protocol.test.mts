@@ -719,6 +719,10 @@ const CloseupPlaceholder = () => {
 		).toContainText('Protocol Element', {timeout: 30_000});
 
 		await studioPage.getByRole('button', {name: /^Undo/}).click();
+		await expect(studioPage).toHaveURL(`${studioUrl}/MyComp`, {
+			timeout: 30_000,
+		});
+		await expect(studioPage).toHaveTitle(/MyComp/);
 		await expect.poll(() => fs.existsSync(newCompositionFile)).toBe(false);
 		expect(fs.existsSync(newCompositionElementFile)).toBe(false);
 		expect(
@@ -726,6 +730,10 @@ const CloseupPlaceholder = () => {
 		).not.toContain('id="ProtocolElementScene"');
 
 		await studioPage.getByRole('button', {name: /^Redo/}).click();
+		await expect(studioPage).toHaveURL(`${studioUrl}/ProtocolElementScene`, {
+			timeout: 30_000,
+		});
+		await expect(studioPage).toHaveTitle(/ProtocolElementScene/);
 		await expect.poll(() => fs.existsSync(newCompositionFile)).toBe(true);
 		expect(fs.existsSync(newCompositionElementFile)).toBe(true);
 		expect(

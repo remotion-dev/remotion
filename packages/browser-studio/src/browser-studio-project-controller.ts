@@ -5,6 +5,7 @@ import type {
 	RedoResponse,
 	SequenceNodePathMutation,
 	SequenceNodePathRemapping,
+	UndoRedoNavigation,
 	UndoResponse,
 } from '@remotion/studio-shared';
 import {
@@ -27,6 +28,7 @@ type HistoryEntry = {
 	after: VirtualProject;
 	fileName: string;
 	nodePathMutationFiles: ProjectNodePathMutationFiles | null;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 type ProjectMutation = {
@@ -34,6 +36,7 @@ type ProjectMutation = {
 	mutate: (project: VirtualProject) => VirtualProject;
 	nodePathMutationFiles: ProjectNodePathMutationFiles | null;
 	timelineSelection: SequenceNodePathMutation['timelineSelection'];
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 const MAX_HISTORY_ENTRIES = 100;
@@ -528,6 +531,7 @@ export const createBrowserStudioProjectController = ({
 		mutate,
 		nodePathMutationFiles,
 		timelineSelection,
+		undoRedoNavigation,
 	}: ProjectMutation) => {
 		const before = getProject();
 		const after = mutate(before);
@@ -537,7 +541,13 @@ export const createBrowserStudioProjectController = ({
 		}
 
 		const discardedProjects: VirtualProject[] = [];
-		undoStack.push({before, after, fileName, nodePathMutationFiles});
+		undoStack.push({
+			before,
+			after,
+			fileName,
+			nodePathMutationFiles,
+			undoRedoNavigation,
+		});
 		if (undoStack.length > MAX_HISTORY_ENTRIES) {
 			const discarded = undoStack.shift();
 			if (discarded) {
@@ -583,7 +593,11 @@ export const createBrowserStudioProjectController = ({
 			nodePathMutationFiles: files ?? null,
 			timelineSelection: null,
 		});
-		return Promise.resolve({success: true, nodePathMutation});
+		return Promise.resolve({
+			success: true,
+			nodePathMutation,
+			route: entry.undoRedoNavigation?.undoRoute ?? null,
+		});
 	};
 
 	const redo = (): Promise<RedoResponse> => {
@@ -599,7 +613,11 @@ export const createBrowserStudioProjectController = ({
 			nodePathMutationFiles: entry.nodePathMutationFiles,
 			timelineSelection: null,
 		});
-		return Promise.resolve({success: true, nodePathMutation});
+		return Promise.resolve({
+			success: true,
+			nodePathMutation,
+			route: entry.undoRedoNavigation?.redoRoute ?? null,
+		});
 	};
 
 	return {
@@ -617,6 +635,7 @@ export const createBrowserStudioProjectController = ({
 					fileName: canonicalPath,
 					nodePathMutationFiles: null,
 					timelineSelection: null,
+					undoRedoNavigation: null,
 					mutate: (project) => {
 						const nextPublicFiles = getCanonicalPublicFiles(project);
 						delete nextPublicFiles[canonicalPath];
@@ -674,6 +693,7 @@ export const createBrowserStudioProjectController = ({
 					fileName: oldPath,
 					nodePathMutationFiles: null,
 					timelineSelection: null,
+					undoRedoNavigation: null,
 					mutate: (project) => {
 						const nextPublicFiles = getCanonicalPublicFiles(project);
 						nextPublicFiles[newPath] = nextPublicFiles[oldPath];
@@ -727,6 +747,7 @@ export const createBrowserStudioProjectController = ({
 					fileName: canonicalPath,
 					nodePathMutationFiles: null,
 					timelineSelection: null,
+					undoRedoNavigation: null,
 					mutate: (project) => ({
 						...project,
 						publicFileStorage: storage ?? project.publicFileStorage,

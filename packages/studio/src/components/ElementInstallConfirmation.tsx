@@ -24,6 +24,7 @@ import {
 	hoverableStyle,
 } from '../helpers/hoverable';
 import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
+import {getRoute} from '../helpers/url-state';
 import {useCreateComposition} from '../helpers/use-create-composition';
 import {validateCompositionName} from '../helpers/validate-new-comp-data';
 import type {
@@ -735,6 +736,13 @@ export const ElementInstallConfirmation: React.FC<{
 			from: mode === 'new-composition' ? null : request.from,
 			overwriteExisting,
 			position: mode === 'new-composition' ? null : request.position,
+			undoRedoNavigation:
+				mode === 'new-composition'
+					? {
+							undoRoute: getRoute(),
+							redoRoute: `/${newCompositionId}`,
+						}
+					: null,
 			newComposition:
 				mode === 'new-composition'
 					? {

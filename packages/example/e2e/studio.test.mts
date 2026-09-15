@@ -1443,6 +1443,7 @@ test.describe('visual mode', () => {
 			exampleDir,
 			'src/NewlyCreatedComposition.tsx',
 		);
+		const originalRootSource = fs.readFileSync(rootFile, 'utf8');
 
 		try {
 			await page.goto(`${STUDIO_URL}/schema-test`);
@@ -1495,12 +1496,36 @@ test.describe('visual mode', () => {
 			const compositionPosition = rootContents.indexOf(`id="${compositionId}"`);
 			expect(compositionPosition).toBeGreaterThan(folderStart);
 			expect(compositionPosition).toBeLessThan(folderEnd);
+			await expect.poll(() => fs.existsSync(compositionFile)).toBe(true);
+
+			await page.getByRole('button', {name: /^Undo/}).click();
+			await expect(page).toHaveURL(`${STUDIO_URL}/schema-test`, {
+				timeout: 15_000,
+			});
+			await expect(page).toHaveTitle(/schema-test/);
+			await expect
+				.poll(() => fs.readFileSync(rootFile, 'utf8'))
+				.toBe(originalRootSource);
+			await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
+
+			await page.getByRole('button', {name: /^Redo/}).click();
+			await expect(page).toHaveURL(`${STUDIO_URL}/${compositionId}`, {
+				timeout: 15_000,
+			});
+			await expect(page).toHaveTitle(new RegExp(compositionId));
+			await expect
+				.poll(() => fs.readFileSync(rootFile, 'utf8'))
+				.toContain(`id="${compositionId}"`);
+			await expect.poll(() => fs.existsSync(compositionFile)).toBe(true);
 		} finally {
 			const undoButton = page.getByRole('button', {name: /^Undo/});
 			if ((await undoButton.count()) > 0 && (await undoButton.isEnabled())) {
 				await undoButton.click();
 				await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
 			}
+
+			fs.writeFileSync(rootFile, originalRootSource);
+			fs.rmSync(compositionFile, {force: true});
 		}
 	});
 

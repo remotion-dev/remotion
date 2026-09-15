@@ -411,6 +411,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 				input: {
 					codemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -554,6 +555,7 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 						parentName: 'Other',
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -617,6 +619,7 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 						parentName: null,
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -688,6 +691,7 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 						newWidth: 1920,
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -812,6 +816,7 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 						newWidth: 1280,
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
