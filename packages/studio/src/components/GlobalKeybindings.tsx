@@ -4,6 +4,7 @@ import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {pickColor} from '../helpers/pick-color';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -224,6 +225,19 @@ export const GlobalKeybindings: React.FC = () => {
 					preventDefault: true,
 				})
 			: null;
+		const colorPicker =
+			'EyeDropper' in window
+				? keybindings.registerKeybinding({
+						event: 'keydown',
+						action: 'pickColor',
+						callback: () => {
+							pickColor();
+						},
+						triggerIfInputFieldFocused: false,
+						keepRegisteredWhenNotHighestContext: false,
+						preventDefault: true,
+					})
+				: null;
 
 		const sequencePropKeys = sequencePropShortcuts.map(({action, fieldKey}) =>
 			keybindings.registerKeybinding({
@@ -320,6 +334,7 @@ export const GlobalKeybindings: React.FC = () => {
 			cmdKKey.unregister();
 			cmdSKey.unregister();
 			cmdIKey?.unregister();
+			colorPicker?.unregister();
 			pageDown.unregister();
 			pageUp.unregister();
 			shiftMKey.unregister();
