@@ -16,7 +16,8 @@ import {
 	callUpdateSequenceKeyframeSettings,
 } from '../Timeline/call-update-keyframe-settings';
 import type {SelectedEasingUpdate} from '../Timeline/update-selected-easing';
-import {InspectorDetailRow, InspectorSectionHeader} from './common';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {InspectorDetailRow} from './common';
 import {detailsContainer} from './styles';
 
 const comboStyle: React.CSSProperties = {
@@ -201,8 +202,11 @@ export const KeyframeSettings: React.FC<{
 	}, []);
 
 	return (
-		<>
-			<InspectorSectionHeader>Keyframe settings</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			collapsible
+			label="Keyframe settings"
+			sectionId="keyframe-settings"
+		>
 			<div style={keyframeSettingsContainer}>
 				{canEditInterpolationSettings ? (
 					<>
@@ -252,6 +256,6 @@ export const KeyframeSettings: React.FC<{
 					/>
 				</InspectorDetailRow>
 			</div>
-		</>
+		</CollapsibleInspectorSection>
 	);
 };
