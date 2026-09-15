@@ -39,7 +39,7 @@ Otherwise, the function will throw.
 
 ## Return value
 
-Returns a promise that resolves to an empty object when the server acknowledges the restart request. The browser temporarily disconnects while Studio restarts.
+Returns a promise that resolves to an empty object when the server acknowledges the restart request. Studio launches a fresh CLI process on the same port, so package upgrades take effect after restarting. The browser temporarily disconnects while Studio restarts.
 
 ## See also
 

@@ -29,7 +29,10 @@ import {
 	getRenderQueue,
 	removeJob,
 } from './render-queue/queue';
-import {restartStudioProcess} from './restart-studio-process';
+import {
+	getRestartStudioProcessArgs,
+	restartStudioProcess,
+} from './restart-studio-process';
 
 const {
 	binariesDirectoryOption,
@@ -353,6 +356,10 @@ export const studioCommand = async (
 
 	await restartStudioProcess({
 		command: process.execPath,
-		args: [...process.execArgv, ...process.argv.slice(1)],
+		args: getRestartStudioProcessArgs({
+			argv: process.argv,
+			execArgv: process.execArgv,
+			port: result.port,
+		}),
 	});
 };

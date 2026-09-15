@@ -5,6 +5,7 @@ import {BLUE, CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {InspectorQuickAction} from './InspectorPanel/common';
 import {Spacing} from './layout';
+import {ModalButton} from './ModalButton';
 import {ModalFooterContainer} from './ModalFooter';
 import {showNotification} from './Notifications/NotificationCenter';
 
@@ -15,6 +16,7 @@ const footer: React.CSSProperties = {
 const footerRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
+	height: 28,
 	justifyContent: 'space-between',
 };
 
@@ -75,24 +77,32 @@ export const SettingsModalFooter: React.FC<{
 		<ModalFooterContainer style={footer}>
 			<div style={footerRow}>
 				<div style={configFileHint}>
-					Changes save to
-					<Spacing x={0.5} />
-					<InspectorOpenInEditor
-						locationType={null}
-						location={configFileLocation}
-						label={<strong style={configFileName}>remotion.config.ts</strong>}
-						showTooltips={false}
-					/>
+					{restartRequired ? (
+						'Restart the server to apply changes'
+					) : (
+						<>
+							Changes save to
+							<Spacing x={0.5} />
+							<InspectorOpenInEditor
+								locationType={null}
+								location={configFileLocation}
+								label={
+									<strong style={configFileName}>remotion.config.ts</strong>
+								}
+								showTooltips={false}
+							/>
+						</>
+					)}
 				</div>
 				{restartRequired ? (
-					<InspectorQuickAction
+					<ModalButton
 						disabled={restarting}
 						onClick={restart}
-						style={{flex: 'none', width: 'fit-content'}}
+						size="compact"
 						title="Restart Studio to apply config file changes"
 					>
 						{restarting ? 'Restarting...' : 'Restart Studio'}
-					</InspectorQuickAction>
+					</ModalButton>
 				) : showLicenseFaq ? (
 					<InspectorQuickAction
 						disabled={false}

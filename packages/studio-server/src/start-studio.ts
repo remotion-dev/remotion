@@ -35,7 +35,7 @@ import {printServerReadyComment, setServerReadyComment} from './server-ready';
 import {watchRootFile} from './watch-root-file';
 
 export type StartStudioResult =
-	| {type: 'restarted'}
+	| {type: 'restarted'; port: number}
 	| {type: 'already-running'}
 	| {type: 'shutdown'};
 
@@ -271,5 +271,5 @@ export const startStudio = async ({
 		RenderInternals.chalk.blue('Restarting server...'),
 	);
 
-	return {type: 'restarted'};
+	return {type: 'restarted', port};
 };

@@ -1,5 +1,33 @@
 import {expect, test} from 'bun:test';
-import {restartStudioProcess} from '../restart-studio-process';
+import {
+	getRestartStudioProcessArgs,
+	restartStudioProcess,
+} from '../restart-studio-process';
+
+test('restarts Studio on the same port', () => {
+	expect(
+		getRestartStudioProcessArgs({
+			argv: [
+				'/usr/local/bin/node',
+				'/project/remotion-cli.js',
+				'studio',
+				'index.ts',
+				'--port',
+				'3000',
+				'--no-open',
+			],
+			execArgv: ['--trace-warnings'],
+			port: 3002,
+		}),
+	).toEqual([
+		'--trace-warnings',
+		'/project/remotion-cli.js',
+		'studio',
+		'index.ts',
+		'--no-open',
+		'--port=3002',
+	]);
+});
 
 test('waits for the restarted process to exit', async () => {
 	let exited = false;
