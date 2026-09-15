@@ -81,14 +81,6 @@ const fontFamily = "Inter";
 <div style={{ fontFamily: fontFamily }}>Some text</div>;
 ```
 
-## Web fonts in SVG with `@remotion/web-renderer`
-
-From <AvailableFrom v="4.0.525" inline />, [`@remotion/web-renderer`](/docs/web-renderer) automatically embeds fonts loaded through [`@remotion/fonts`](/docs/fonts-api) and [`@remotion/google-fonts`](/docs/google-fonts) when they are used by SVG `<text>`, `<tspan>`, or `<textPath>` elements.
-
-Set `fontFamily` through an inline style, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
-
-Fonts loaded through CSS or the browser's `FontFace` API are not embedded into SVG images. See [client-side rendering limitations](/docs/client-side-rendering/limitations#web-fonts-inside-svg) for more details.
-
 ## Local fonts (manually)
 
 You may load fonts by using the web-native [`FontFace`](https://developer.mozilla.org/en-US/docs/Web/API/FontFace) API.
@@ -114,3 +106,9 @@ font
 :::note
 If your Typescript types give errors, install the newest version of the `@types/web` package.
 :::
+
+## Web fonts in `<svg>` with `@remotion/web-renderer`
+
+Fonts inside `<text>`, `<tspan>`, or `<textPath>` are technically a different document context when using [`@remotion/web-renderer`](/docs/web-renderer).
+
+From <AvailableFrom v="4.0.525" inline />, we try to mitigate this problem in the [`@remotion/fonts`](/docs/fonts-api) and [`@remotion/google-fonts`](/docs/google-fonts) packages by keeping an internal font registry. See [client-side rendering limitations](/docs/client-side-rendering/limitations#web-fonts-inside-svg) for more details.
