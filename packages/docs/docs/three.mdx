@@ -14,6 +14,18 @@ is a package for integrating [React Three Fiber](https://github.com/pmndrs/react
 
 - [`<ThreeCanvas />`](/docs/three-canvas) will allow you to use `useCurrentFrame()` and other Remotion hooks within a R3F Canvas. Animations are now not inside a `useFrame()` hook, but directly rendered into the markup.
 
+- `InteractiveThree.Group` registers a React Three Fiber group in the Studio timeline and exposes its local X, Y, and Z position in the Inspector. Select the group in the timeline to edit its position or add keyframes. This prototype does not support selecting the mesh by clicking the preview.
+
+```tsx
+import {InteractiveThree, ThreeCanvas} from '@remotion/three';
+
+<ThreeCanvas width={1280} height={720}>
+  <InteractiveThree.Group name="Product" positionX={0} positionY={0} positionZ={0}>
+    <mesh>{/* Geometry and material */}</mesh>
+  </InteractiveThree.Group>
+</ThreeCanvas>
+```
+
 - [`<ThreeWebGPUCanvas />`](/docs/three-webgpu-canvas) uses Three.js's `WebGPURenderer` and supports TSL node materials.
 
 - [`useVideoTexture()`](/docs/use-video-texture) allows you to use a Remotion [`<Html5Video />`](/docs/html5-video) as a texture map.
