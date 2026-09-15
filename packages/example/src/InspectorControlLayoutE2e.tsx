@@ -53,6 +53,13 @@ const inspectorControlLayoutSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+// Passing identifiers instead of inline literals keeps these values computed
+// so the fixture exercises runtime-only values in the Inspector.
+const COMPUTED_FONT_FAMILY =
+	"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif";
+const COMPUTED_TEXT =
+	'This is an intentionally long computed text value for verifying that runtime-only text is truncated to one line in narrow Inspector panels without overlapping the controls below it.';
+
 type InspectorControlLayoutProps = {
 	readonly name: string;
 	readonly src: string;
@@ -84,14 +91,22 @@ const InteractiveInspectorControlLayout = Interactive.withSchema({
 
 export const InspectorControlLayoutE2e: React.FC = () => {
 	return (
-		<InteractiveInspectorControlLayout
-			name="Inspector control layout"
-			src={staticFile('tablet.mp4')}
-			first={[-0.1276, 51.5072]}
-			second={[139.6917, 35.6895]}
-			label="London"
-			color="#ff5c4d"
-			width={24}
-		/>
+		<>
+			<InteractiveInspectorControlLayout
+				name="Inspector control layout"
+				src={staticFile('tablet.mp4')}
+				first={[-0.1276, 51.5072]}
+				second={[139.6917, 35.6895]}
+				label="London"
+				color="#ff5c4d"
+				width={24}
+			/>
+			<Interactive.Div
+				name="Computed font family"
+				style={{fontFamily: COMPUTED_FONT_FAMILY}}
+			>
+				{COMPUTED_TEXT}
+			</Interactive.Div>
+		</>
 	);
 };

@@ -34,6 +34,8 @@ const unsupportedStatusWrapper: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'inline-flex',
 	gap: 4,
+	maxWidth: '100%',
+	minWidth: 0,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
@@ -51,7 +53,11 @@ const computedValue: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
 	pointerEvents: 'none',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const fixLinkBase: React.CSSProperties = {
@@ -62,6 +68,7 @@ const fixLinkBase: React.CSSProperties = {
 		hoverColor: WHITE,
 	}),
 	display: 'inline-block',
+	flexShrink: 0,
 	fontSize: 10,
 	fontStyle: 'normal',
 	fontWeight: 600,
@@ -109,6 +116,7 @@ export const UnsupportedStatus: React.FC<{
 			style={unsupportedStatusWrapper}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
+			title={formattedValue && typeof label === 'string' ? label : undefined}
 		>
 			<span
 				style={formattedValue ? computedValue : unsupportedLabel}
