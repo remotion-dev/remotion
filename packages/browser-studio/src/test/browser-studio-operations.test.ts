@@ -1284,6 +1284,77 @@ test('creates a composition with a component file in the root file', async () =>
 	);
 });
 
+test('imports a Canvas Capture as an interactive composition', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+
+	const result = await operations.applyCodemod({
+		codemod: {
+			type: 'new-composition',
+			newId: 'CanvasComp',
+			componentName: 'CanvasComp',
+			componentImportPath: './CanvasComp',
+			folderName: null,
+			parentName: null,
+			newHeight: 1080,
+			newWidth: 1920,
+			newFps: 60,
+			newDurationInFrames: 180,
+			canvasCapture: {
+				videoFileName: 'capture.mp4',
+				videoHeight: 720,
+				videoWidth: 1280,
+				keyframeFps: 60,
+				data: {
+					captureMetadata: {density: 2},
+					mouseMovements: [
+						{
+							timeInSeconds: 0,
+							canvasX: 100,
+							canvasY: 200,
+							cursor: 'default',
+						},
+						{
+							timeInSeconds: 0.5,
+							canvasX: 150,
+							canvasY: 250,
+							cursor: 'pointer',
+						},
+					],
+					pointerClicks: [
+						{timeInSeconds: 0.25, type: 'pointer-down'},
+						{timeInSeconds: 0.3, type: 'pointer-up'},
+					],
+				},
+			},
+		},
+		dryRun: false,
+		symbolicatedStack: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const rootFile = getProject().files['/project/src/Root.tsx'];
+	const componentFile = getProject().files['/project/src/CanvasComp.tsx'];
+	expect(rootFile).toContain('<CanvasComp');
+	expect(rootFile).toContain('import { CanvasComp } from "./CanvasComp"');
+	expect(componentFile).toContain("src={staticFile('capture.mp4')}");
+	expect(componentFile).toContain('<MacOSCursor');
+	expect(componentFile).toContain('translate: interpolate(');
+	expect(componentFile).toContain("id={'CanvasComp'}");
+	expect(componentFile).toContain('width={1920}');
+	expect(componentFile).toContain('height={1080}');
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(getProject().files['/project/src/CanvasComp.tsx']).toBeUndefined();
+	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
+		'<CanvasComp',
+	);
+});
+
 test('creates, renames and deletes a folder in Browser Studio', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
@@ -1641,36 +1712,6 @@ test('reports structured failures for unsupported codemods', async () => {
 	).toEqual({
 		success: false,
 		reason: 'Applying visual controls is not supported in Browser Studio',
-	});
-
-	expect(
-		await operations.applyCodemod({
-			codemod: {
-				type: 'new-composition',
-				newId: 'CanvasComp',
-				componentName: 'CanvasComp',
-				componentImportPath: './CanvasComp',
-				folderName: null,
-				parentName: null,
-				newHeight: 720,
-				newWidth: 1280,
-				newFps: 30,
-				newDurationInFrames: 90,
-				canvasCapture: {
-					videoFileName: 'video.mp4',
-					videoHeight: 720,
-					videoWidth: 1280,
-					keyframeFps: 30,
-					data: {version: 1, tracks: []} as never,
-				},
-			},
-			dryRun: false,
-			symbolicatedStack: null,
-		}),
-	).toEqual({
-		success: false,
-		reason:
-			'Creating canvas capture compositions is not supported in Browser Studio',
 	});
 
 	expect(

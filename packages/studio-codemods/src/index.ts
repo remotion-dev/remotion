@@ -56,6 +56,10 @@ export {
 	findEnclosingFunctionPath,
 } from './ensure-imports-and-frame-hook';
 export {findSearchPosition} from './find-search-position';
+export {
+	generateCanvasCaptureComposition,
+	makeNewCompositionComponentSource,
+} from './generate-canvas-capture-composition';
 export {parseAndApplyCodemod} from './parse-and-apply-codemod';
 export {
 	applyCodemod,
