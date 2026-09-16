@@ -201,7 +201,8 @@ test('sequence context menu adds frame copying and normalizes dividers', () => {
 	const copyFrameIndex = items.findIndex((item) => item.id === 'copy-frame');
 	const renameIndex = items.findIndex((item) => item.id === 'rename-sequence');
 
-	expect(copyFrameIndex).toBe(copyContextIndex + 1);
+	expect(items[copyContextIndex + 1]?.type).toBe('divider');
+	expect(copyFrameIndex).toBe(copyContextIndex + 2);
 	expect(
 		items[copyFrameIndex]?.type === 'item' ? items[copyFrameIndex].label : null,
 	).toBe('Copy frame');

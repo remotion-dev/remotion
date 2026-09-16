@@ -58,7 +58,16 @@ const copyImageToClipboard = async (element: Element): Promise<void> => {
 	let canvas: HTMLCanvasElement;
 
 	if (element.tagName === 'CANVAS') {
-		canvas = element as HTMLCanvasElement;
+		const sourceCanvas = element as HTMLCanvasElement;
+		canvas = document.createElement('canvas');
+		canvas.width = sourceCanvas.width;
+		canvas.height = sourceCanvas.height;
+		const context = canvas.getContext('2d');
+		if (!context) {
+			throw new Error('Could not create canvas context');
+		}
+
+		context.drawImage(sourceCanvas, 0, 0);
 	} else if (element.tagName === 'IMG') {
 		const image = element as HTMLImageElement;
 		if (image.naturalWidth === 0 || image.naturalHeight === 0) {
@@ -343,6 +352,12 @@ export const getSequenceContextMenuItems = ({
 					quickSwitcherLabel: null,
 					subMenu: null,
 					value: 'show-asset',
+				}
+			: null,
+		copyImageElement
+			? {
+					type: 'divider' as const,
+					id: 'copy-image-divider',
 				}
 			: null,
 		copyImageElement
