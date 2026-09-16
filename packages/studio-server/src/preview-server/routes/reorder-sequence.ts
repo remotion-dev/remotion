@@ -16,7 +16,6 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {attrName} from './log-updates/formatting';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -44,7 +43,7 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, sequenceLabel, logLine, nodePathRemappings} =
+			const {output, sequenceLabel, logLine, nodePathRemappings} =
 				await reorderSequence({
 					input: fileContents,
 					sourceNodePath: sourceNodePath.nodePath,
@@ -93,13 +92,9 @@ export const reorderSequenceHandler: ApiHandler<
 				{indent: false, logLevel},
 				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Reordered ${attrName(sequenceLabel)}`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[reorder-sequence] Wrote ${fileRelativeToRoot}${formatted ? ' (formatted)' : ''}`,
+				`[reorder-sequence] Wrote ${fileRelativeToRoot}`,
 			);
 
 			printUndoHint(logLevel);

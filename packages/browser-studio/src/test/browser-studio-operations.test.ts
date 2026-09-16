@@ -1476,18 +1476,18 @@ export const Root = () => {
 
 test('reorders JSX sequences as an undoable project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
-	const initialContents = `import {Composition, Sequence} from 'remotion';
+	const initialContents = `import {Composition,Sequence} from "remotion"
 
-export const Component = () => {
+export const Component=()=>{
 	return (
 		<>
 			<Sequence name="first" from={0} durationInFrames={20} />
 			<Sequence name="second" from={20} durationInFrames={20} />
 		</>
-	);
-};
+	)
+}
 
-export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;
+export const Root=()=> <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />
 `;
 	const {operations, getProject} = makeOperationsForProject({
 		rootDir: '/project',
@@ -1556,9 +1556,19 @@ registerRoot(Root);`,
 	}
 
 	const reordered = getProject().files[fileName];
-	expect(reordered.indexOf('name="second"')).toBeLessThan(
-		reordered.indexOf('name="first"'),
-	);
+	expect(reordered).toBe(`import {Composition,Sequence} from "remotion"
+
+export const Component=()=>{
+	return (
+		<>
+			<Sequence name="second" from={20} durationInFrames={20} />
+			<Sequence name="first" from={0} durationInFrames={20} />
+		</>
+	)
+}
+
+export const Root=()=> <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />
+`);
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
