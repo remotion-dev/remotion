@@ -18,6 +18,20 @@ const deviceBezel = 18;
 
 export const StudioCodeHandoff: React.FC = () => {
 	const frame = useCurrentFrame();
+	const studioLeft = interpolate(frame, [60, 100, 140, 180], [6, 679, 679, 6], {
+		easing: [
+			Easing.bezier(0.16, 1, 0.3, 1),
+			Easing.linear,
+			Easing.bezier(0.16, 1, 0.3, 1),
+		],
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	const studioWidth = interpolate(frame, [140, 180], [667, 1340], {
+		easing: Easing.bezier(0.16, 1, 0.3, 1),
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
 
 	return (
 		<AbsoluteFill style={{backgroundColor: '#ffffff'}}>
@@ -161,31 +175,14 @@ export const Scene11: React.FC = () => {
 								overflow: 'hidden',
 								position: 'absolute',
 								top: 6,
-								translate: interpolate(
-									frame,
-									[60, 100, 140, 180],
-									['6px 0px', '679px 0px', '679px 0px', '6px 0px'],
-									{
-										easing: [
-											Easing.bezier(0.16, 1, 0.3, 1),
-											Easing.linear,
-											Easing.bezier(0.16, 1, 0.3, 1),
-										],
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								),
-								width: interpolate(frame, [140, 180], [667, 1340], {
-									easing: Easing.bezier(0.16, 1, 0.3, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								}),
+								translate: `${studioLeft}px 0px`,
+								width: studioWidth,
 								zIndex: 1,
 							}}
 						>
 							<Studio
 								compositionHeight={1080}
-								compositionName="Chapter11-Outro"
+								compositionName="Outro"
 								compositionWidth={1920}
 								content={
 									<Sequence from={-416} layout="none">
@@ -200,12 +197,9 @@ export const Scene11: React.FC = () => {
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
 								})}
+								timelineOffset={6 - studioLeft}
 								viewportHeight={748}
-								viewportWidth={interpolate(frame, [140, 180], [667, 1340], {
-									easing: Easing.bezier(0.16, 1, 0.3, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								})}
+								viewportWidth={studioWidth}
 							/>
 						</Interactive.Div>
 					</Interactive.Div>

@@ -318,9 +318,9 @@ const Conversation: React.FC = () => {
 					horizontalAlign={0}
 					textTranslateY={0}
 					verticalAlign={0}
-					width={116}
+					width={42}
 				>
-					Chapter11-Outro
+					Outro
 				</CodePill>
 				<span> composition at frame 655.</span>
 			</Interactive.Div>

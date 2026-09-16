@@ -67,6 +67,8 @@ const LEFT_SIDEBAR_RATIO = 0.1605;
 const RIGHT_SIDEBAR_RATIO = 0.222;
 const TOP_PANEL_RATIO = 0.662;
 const TIMELINE_LABEL_RATIO = 0.2611;
+const TIMELINE_LABEL_MIN_WIDTH = 250;
+const TIMELINE_LABEL_MAX_WIDTH = 350;
 const REFERENCE_COMPOSITION_WIDTH = 1920;
 const REFERENCE_COMPOSITION_HEIGHT = 1080;
 const DIALOGUE_AUDIO = 'https://remotion.media/dialogue.wav';
@@ -86,6 +88,7 @@ export type StudioProps = InteractiveBaseProps & {
 	readonly durationInFrames: number;
 	readonly frame: number;
 	readonly responsivenessProgress: number;
+	readonly timelineOffset: number;
 	readonly viewportHeight: number | null;
 	readonly viewportWidth: number;
 };
@@ -424,7 +427,7 @@ const LeftSidebar: React.FC = () => {
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
-					name="Chapter 11 outro composition"
+					name="Outro composition"
 					style={{
 						alignItems: 'center',
 						backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -449,7 +452,7 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						Chapter11-Outro
+						Outro
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
@@ -1284,10 +1287,22 @@ const Timeline: React.FC<{
 	readonly fps: number;
 	readonly frame: number;
 	readonly height: number;
+	readonly timelineOffset: number;
 	readonly width: number;
-}> = ({durationInFrames, fps, frame, height, width}) => {
-	const labelWidth = Math.round(width * TIMELINE_LABEL_RATIO);
+}> = ({durationInFrames, fps, frame, height, timelineOffset, width}) => {
+	const labelWidth = Math.min(
+		width,
+		Math.max(
+			TIMELINE_LABEL_MIN_WIDTH,
+			Math.min(
+				TIMELINE_LABEL_MAX_WIDTH,
+				Math.round(width * TIMELINE_LABEL_RATIO),
+			),
+		),
+	);
 	const trackWidth = width - labelWidth;
+	const timelineContentOffset =
+		timelineOffset + TIMELINE_LABEL_MAX_WIDTH - labelWidth;
 	const pixelsPerFrame = 1.29;
 	const sequenceWidth = durationInFrames * pixelsPerFrame;
 	const trackLeft = 19;
@@ -1451,7 +1466,8 @@ const Timeline: React.FC<{
 											: tick % timelineFps === 0
 												? 5
 												: 2,
-									left: trackLeft + tick * pixelsPerFrame,
+									left:
+										timelineContentOffset + trackLeft + tick * pixelsPerFrame,
 									position: 'absolute',
 									top: 0,
 									width: 2,
@@ -1462,7 +1478,11 @@ const Timeline: React.FC<{
 									style={{
 										color: 'rgba(255, 255, 255, 0.55)',
 										fontSize: 12,
-										left: trackLeft + tick * pixelsPerFrame + 9,
+										left:
+											timelineContentOffset +
+											trackLeft +
+											tick * pixelsPerFrame +
+											9,
 										position: 'absolute',
 										top: 3,
 									}}
@@ -1473,7 +1493,13 @@ const Timeline: React.FC<{
 						</React.Fragment>
 					))}
 				</Interactive.Div>
-				<div style={{height: rows[0], paddingLeft: trackLeft}}>
+				<div
+					style={{
+						height: rows[0],
+						paddingLeft: trackLeft,
+						translate: `${timelineContentOffset}px 0`,
+					}}
+				>
 					<Interactive.Div
 						name="Video filmstrip"
 						style={{height: 45, width: sequenceWidth}}
@@ -1481,7 +1507,13 @@ const Timeline: React.FC<{
 						<Filmstrip height={45} width={sequenceWidth} />
 					</Interactive.Div>
 				</div>
-				<div style={{height: rows[1], paddingLeft: trackLeft}}>
+				<div
+					style={{
+						height: rows[1],
+						paddingLeft: trackLeft,
+						translate: `${timelineContentOffset}px 0`,
+					}}
+				>
 					<Interactive.Div
 						name="Endcard sequence"
 						style={{
@@ -1502,7 +1534,13 @@ const Timeline: React.FC<{
 						{frame}
 					</Interactive.Div>
 				</div>
-				<div style={{height: rows[2], paddingLeft: trackLeft}}>
+				<div
+					style={{
+						height: rows[2],
+						paddingLeft: trackLeft,
+						translate: `${timelineContentOffset}px 0`,
+					}}
+				>
 					<Interactive.Div
 						name="Avatar strip"
 						style={{height: 21, width: sequenceWidth}}
@@ -1515,7 +1553,7 @@ const Timeline: React.FC<{
 					style={{
 						backgroundColor: PLAYHEAD,
 						bottom: 0,
-						left: playheadLeft,
+						left: timelineContentOffset + playheadLeft,
 						position: 'absolute',
 						top: 0,
 						width: 1,
@@ -1558,6 +1596,7 @@ const StudioInner = React.forwardRef<
 			name,
 			responsivenessProgress,
 			showInTimeline,
+			timelineOffset,
 			trimBefore,
 			viewportHeight,
 			viewportWidth,
@@ -1725,6 +1764,7 @@ const StudioInner = React.forwardRef<
 						fps={fps}
 						frame={frame}
 						height={timelineHeight}
+						timelineOffset={timelineOffset}
 						width={width}
 					/>
 				</div>
@@ -1749,12 +1789,13 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 	return (
 		<Studio
 			compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
-			compositionName="Chapter11-Outro"
+			compositionName="Outro"
 			compositionWidth={REFERENCE_COMPOSITION_WIDTH}
 			content={<Scene11 platform="youtube" />}
 			durationInFrames={742}
 			frame={655}
 			responsivenessProgress={responsivenessProgress}
+			timelineOffset={0}
 			viewportHeight={null}
 			viewportWidth={viewportWidth}
 		/>
