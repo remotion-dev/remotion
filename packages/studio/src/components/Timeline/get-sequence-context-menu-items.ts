@@ -44,6 +44,16 @@ const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 
 const interactiveSvgComponentIdentity = 'dev.remotion.remotion.Interactive.Svg';
 
+export const findCopyableFrameElement = (
+	element: Element | null,
+): Element | null => {
+	if (element?.tagName === 'CANVAS' || element?.tagName === 'VIDEO') {
+		return element;
+	}
+
+	return element?.querySelector('canvas, video') ?? null;
+};
+
 const copyImageToClipboard = async (element: Element): Promise<void> => {
 	let canvas: HTMLCanvasElement;
 
@@ -64,8 +74,23 @@ const copyImageToClipboard = async (element: Element): Promise<void> => {
 		}
 
 		context.drawImage(image, 0, 0);
+	} else if (element.tagName === 'VIDEO') {
+		const video = element as HTMLVideoElement;
+		if (video.videoWidth === 0 || video.videoHeight === 0) {
+			throw new Error('Video frame has not loaded');
+		}
+
+		canvas = document.createElement('canvas');
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+		const context = canvas.getContext('2d');
+		if (!context) {
+			throw new Error('Could not create canvas context');
+		}
+
+		context.drawImage(video, 0, 0);
 	} else {
-		throw new Error('Expected an image or canvas element');
+		throw new Error('Expected an image, video, or canvas element');
 	}
 
 	const blob = new Promise<Blob>((resolve, reject) => {
@@ -189,6 +214,8 @@ export const getSequenceContextMenuItems = ({
 		: null;
 	const defaultOpenInName =
 		defaultOpenInTarget === 'editor' ? editorName : gitSourceName;
+	const copyImageLabel =
+		copyImageElement && sequence.type === 'image' ? 'Copy image' : 'Copy frame';
 	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
 		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
 	);
@@ -321,26 +348,29 @@ export const getSequenceContextMenuItems = ({
 		copyImageElement
 			? {
 					type: 'item' as const,
-					id: 'copy-image',
+					id: copyImageLabel === 'Copy image' ? 'copy-image' : 'copy-frame',
 					keyHint: null,
-					label: 'Copy image',
+					label: copyImageLabel,
 					leftItem: null,
 					disabled: false,
 					onClick: () => {
 						copyImageToClipboard(copyImageElement)
 							.then(() => {
-								showNotification('Copied image to clipboard', 1000);
+								showNotification(
+									`Copied ${copyImageLabel === 'Copy image' ? 'image' : 'frame'} to clipboard`,
+									1000,
+								);
 							})
 							.catch((err) => {
 								showNotification(
-									`Could not copy image: ${(err as Error).message}`,
+									`Could not copy ${copyImageLabel === 'Copy image' ? 'image' : 'frame'}: ${(err as Error).message}`,
 									2000,
 								);
 							});
 					},
 					quickSwitcherLabel: null,
 					subMenu: null,
-					value: 'copy-image',
+					value: copyImageLabel === 'Copy image' ? 'copy-image' : 'copy-frame',
 				}
 			: null,
 		assetLinkInfo || copyImageElement
