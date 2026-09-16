@@ -259,6 +259,42 @@ test('an image asset field replaces a protocol-relative URL', () => {
 	expect(selectedModal).toBeNull();
 });
 
+test('a local image preview has no generic source label and is not draggable', () => {
+	const fieldSchema = {
+		type: 'asset',
+		assetType: 'image',
+		default: undefined,
+	} satisfies AssetFieldSchema;
+
+	render(
+		<TimelineAssetField
+			field={{
+				key: 'imageSrc',
+				description: 'Image source',
+				typeName: 'asset',
+				rowHeight: 56,
+				fieldSchema,
+				group: 'source',
+			}}
+			propStatus={{
+				status: 'static',
+				codeValue: 'remotion-file:images/logo.png',
+				keyframeDisplayOffsetAdjustment: null,
+			}}
+			effectiveValue="remotion-file:images/logo.png"
+			onSave={() => Promise.resolve()}
+			onDragValueChange={() => undefined}
+			onDragEnd={() => undefined}
+		/>,
+	);
+
+	expect(screen.getByText('logo.png')).toBeTruthy();
+	expect(screen.queryByText('Project asset')).toBeNull();
+	expect(document.querySelector('img')?.getAttribute('draggable')).toBe(
+		'false',
+	);
+});
+
 test('an image asset filter includes SVG files', () => {
 	const result = filterAssetsByType({
 		assets,

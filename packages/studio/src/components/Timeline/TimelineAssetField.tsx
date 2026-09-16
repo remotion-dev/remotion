@@ -306,11 +306,11 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		const linkInfo = getTimelineAssetLinkInfo(effectiveValue);
 		if (linkInfo !== null) {
 			let name: string;
-			let source: string;
+			let source: string | null;
 			let previewSrc: string;
 			if (linkInfo.kind === 'local') {
 				name = linkInfo.assetPath.split('/').pop() ?? linkInfo.assetPath;
-				source = 'Project asset';
+				source = null;
 				previewSrc = staticFile(linkInfo.assetPath);
 			} else {
 				previewSrc = linkInfo.href.startsWith('//')
@@ -340,7 +340,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 						title={title}
 						type="button"
 					>
-						<img alt="" src={previewSrc} style={thumbnail} />
+						<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
 					</button>
 					<button
 						aria-label={`Replace ${name}`}
@@ -352,7 +352,9 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 						type="button"
 					>
 						<span style={imageAssetName}>{name}</span>
-						<span style={imageAssetSource}>{source}</span>
+						{source === null ? null : (
+							<span style={imageAssetSource}>{source}</span>
+						)}
 					</button>
 					{action}
 				</div>
