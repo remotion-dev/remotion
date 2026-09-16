@@ -11,7 +11,6 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
-	formatInlineContentWithFormatter,
 	getFolderFile,
 	getRootFileForProject,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -32,7 +31,6 @@ import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
 	type EffectKeyframeUpdate,
-	type FormatInline,
 	type SequenceKeyframeUpdate,
 } from '@remotion/studio-codemods';
 import {
@@ -89,25 +87,6 @@ const formatCodemodFile = async ({contents}: {contents: string}) => ({
 		useTabs: true,
 	}),
 });
-
-const formatInline: FormatInline = ({inlineContent, linePrefix, endOfLine}) =>
-	formatInlineContentWithFormatter({
-		inlineContent,
-		linePrefix,
-		endOfLine,
-		prettierConfig: {
-			bracketSpacing: false,
-			parser: 'typescript',
-			singleQuote: true,
-			tabWidth: 2,
-			useTabs: false,
-		},
-		format: (source, options) =>
-			format(source, {
-				...options,
-				plugins: [prettierPluginTypescript, prettierPluginEstree],
-			}),
-	});
 
 const getStructuredError = (error: unknown) => ({
 	success: false as const,
@@ -1863,7 +1842,6 @@ export const createBrowserStudioOperations = ({
 					compositionId,
 					newDefaultProps: JSON.parse(defaultProps),
 					enumPaths,
-					formatInline,
 				});
 				controller.applyMutation({
 					undoRedoNavigation: null,

@@ -2,105 +2,24 @@ import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
+import {
+	getSourceFormattingConfig,
+	normalizePrintedIndentation,
+} from './source-style';
 
-export type FormatInline = (options: {
-	inlineContent: string;
-	linePrefix: string;
-	endOfLine: 'auto' | 'lf';
-}) => Promise<{formatted: string; didFormat: boolean}>;
+const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-/**
- * Instead of running prettier on the entire file (which is slow),
- * format only a small snippet of inline content (e.g. stringified defaultProps).
- *
- * We wrap the content in `const __x__ = CONTENT;` and adjust printWidth
- * so prettier makes the same line-breaking decisions as if the content
- * were at its actual column position in the file.
- */
-export const formatInlineContentWithFormatter = async ({
-	inlineContent,
-	linePrefix,
-	endOfLine,
-	prettierConfig,
-	format,
-}: {
-	inlineContent: string;
-	linePrefix: string;
-	endOfLine: 'auto' | 'lf';
-	prettierConfig: Record<string, unknown>;
-	format: (source: string, options: Record<string, unknown>) => Promise<string>;
-}): Promise<{formatted: string; didFormat: boolean}> => {
-	const tabWidth = (prettierConfig.tabWidth as number) ?? 2;
-	const baseIndent = linePrefix.match(/^(\s*)/)?.[1] ?? '';
-
-	// Calculate visual column offset (tabs expand to tabWidth columns)
-	const columnOffset = [...linePrefix].reduce(
-		(col, ch) => (ch === '\t' ? col + tabWidth : col + 1),
-		0,
-	);
-
-	// Adjust printWidth so the wrapper prefix occupies the same visual
-	// width as the actual file prefix, ensuring identical line breaks.
-	const configPrintWidth = (prettierConfig.printWidth as number) ?? 80;
-	const wrapperPrefix = 'const __x__ = ';
-	const effectivePrintWidth = Math.max(
-		configPrintWidth - columnOffset + wrapperPrefix.length,
-		20,
-	);
-
-	const wrappedSource = `${wrapperPrefix}${inlineContent};\n`;
-	const formattedWrapped = await format(wrappedSource, {
-		...prettierConfig,
-		printWidth: effectivePrintWidth,
-		filepath: 'test.tsx',
-		endOfLine,
-	});
-
-	// Extract the formatted value from the wrapper
-	const withoutSemicolon = formattedWrapped.replace(/;\s*$/, '');
-	const wrappedInParentheses = withoutSemicolon.startsWith(
-		`${wrapperPrefix}(\n`,
-	);
-	let formattedProps: string;
-
-	if (withoutSemicolon.startsWith(wrapperPrefix) && !wrappedInParentheses) {
-		formattedProps = withoutSemicolon.slice(wrapperPrefix.length);
-	} else {
-		// Prettier broke the line after `=` — extract and dedent one level
-		const lines = withoutSemicolon
-			.split('\n')
-			.slice(1, wrappedInParentheses ? -1 : undefined);
-		const useTabs = prettierConfig.useTabs as boolean;
-		const oneIndent = useTabs ? '\t' : ' '.repeat(tabWidth);
-		formattedProps = lines
-			.map((l) => (l.startsWith(oneIndent) ? l.slice(oneIndent.length) : l))
-			.join('\n');
-	}
-
-	// Add base indentation to all lines except the first
-	const indentedProps = formattedProps
-		.split('\n')
-		.map((line, i) =>
-			i === 0 ? line : line.length > 0 ? baseIndent + line : line,
-		)
-		.join('\n');
-
-	return {formatted: indentedProps, didFormat: true};
-};
-
-export const updateDefaultProps = async ({
+export const updateDefaultProps = ({
 	input,
 	compositionId,
 	newDefaultProps,
 	enumPaths,
-	formatInline,
 }: {
 	input: string;
 	compositionId: string;
 	newDefaultProps: Record<string, unknown>;
 	enumPaths: EnumPath[];
-	formatInline: FormatInline;
-}): Promise<{output: string; formatted: boolean}> => {
+}): {output: string} => {
 	const ast = parseAst(input);
 	const stringified = stringifyDefaultProps({
 		props: newDefaultProps,
@@ -231,12 +150,118 @@ export const updateDefaultProps = async ({
 	// linePrefix includes the JSX container opening brace
 	const lineStart = input.lastIndexOf('\n', replaceStart) + 1;
 	const linePrefix = input.substring(lineStart, replaceStart + 1);
-
-	const {formatted, didFormat} = await formatInline({
-		inlineContent: stringified,
-		linePrefix,
-		endOfLine: 'auto',
+	const previousValue = input.slice(replaceStart + 1, replaceEnd - 1).trim();
+	const inlineObjectSpacing = previousValue.match(
+		/\{([\t ]*)(?=(?:["'][^"']+["']|[$A-Z_a-z][$\w]*)[\t ]*:)/,
+	)?.[1];
+	const bracketSpacing = previousValue.startsWith('{ ')
+		? true
+		: previousValue.startsWith('{') &&
+			  !previousValue.startsWith('{\n') &&
+			  !previousValue.startsWith('{\r\n')
+			? false
+			: inlineObjectSpacing === undefined
+				? null
+				: inlineObjectSpacing.length > 0;
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride: bracketSpacing === null ? null : {bracketSpacing},
 	});
+	const valueAst = parseAst(`__defaultProps = ${stringified}`);
+	const statement = valueAst.program.body[0];
+	if (
+		statement?.type !== 'ExpressionStatement' ||
+		statement.expression.type !== 'AssignmentExpression'
+	) {
+		throw new Error('Could not parse the updated defaultProps value');
+	}
+
+	const expression = statement.expression.right;
+	recast.types.visit(expression, {
+		visitObjectProperty(path) {
+			const {node} = path;
+			if (
+				!node.computed &&
+				node.key.type === 'StringLiteral' &&
+				identifierRegex.test(node.key.value)
+			) {
+				node.key = recast.types.builders.identifier(node.key.value);
+			}
+
+			this.traverse(path);
+		},
+	});
+
+	const printExpression = ({
+		trailingComma,
+		wrapColumn,
+	}: {
+		trailingComma: boolean;
+		wrapColumn: number;
+	}) => {
+		const printed = recast.prettyPrint(expression, {
+			objectCurlySpacing: formattingConfig.bracketSpacing,
+			quote: formattingConfig.quote,
+			tabWidth: formattingConfig.tabWidth,
+			trailingComma,
+			useTabs: false,
+			wrapColumn,
+		}).code;
+
+		return normalizePrintedIndentation({
+			endOfLine: formattingConfig.endOfLine,
+			indentationUnit: formattingConfig.indentationUnit,
+			printed,
+			tabWidth: formattingConfig.tabWidth,
+		});
+	};
+
+	const compactLines = printExpression({
+		trailingComma: false,
+		wrapColumn: Number.POSITIVE_INFINITY,
+	})
+		.split(/\r?\n/)
+		.map((line) => line.trim())
+		.filter(Boolean);
+	const compact = compactLines.reduce((result, line) => {
+		if (result.length === 0) {
+			return line;
+		}
+
+		const omitSeparator =
+			!formattingConfig.bracketSpacing &&
+			(result.endsWith('{') || line.startsWith('}'));
+		return `${result}${omitSeparator ? '' : ' '}${line}`;
+	}, '');
+	const columnOffset = [...linePrefix].reduce(
+		(column, character) =>
+			character === '\t' ? column + formattingConfig.tabWidth : column + 1,
+		0,
+	);
+	const compactWidth = [...compact].reduce(
+		(column, character) =>
+			character === '\t' ? column + formattingConfig.tabWidth : column + 1,
+		0,
+	);
+	const baseIndent = linePrefix.match(/^([\t ]*)/)?.[1] ?? '';
+	const effectivePrintWidth = Math.max(
+		formattingConfig.printWidth - columnOffset,
+		20,
+	);
+	const multiline = printExpression({
+		trailingComma: true,
+		wrapColumn: effectivePrintWidth,
+	})
+		.split(/\r?\n/)
+		.filter((line) => line.trim().length > 0)
+		.map((line, index) =>
+			index === 0 || line.length === 0 ? line : baseIndent + line,
+		)
+		.join(formattingConfig.endOfLine);
+	const formatted =
+		columnOffset + compactWidth + 1 <= formattingConfig.printWidth
+			? compact
+			: multiline;
 
 	// Replace the JSX expression container in the original input
 	const output =
@@ -246,7 +271,7 @@ export const updateDefaultProps = async ({
 		'}' +
 		input.substring(replaceEnd);
 
-	return {output, formatted: didFormat};
+	return {output};
 };
 
 /** Line of the matching `<Composition>` / `<Still>` opening tag (for log links). */
