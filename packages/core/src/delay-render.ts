@@ -82,10 +82,12 @@ export const delayRenderInternal = ({
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (environment.isRendering) {
-		const timeoutToUse =
+		const timeoutToUse = Math.max(
+			0,
 			(options?.timeoutInMilliseconds ??
 				scope.remotion_puppeteerTimeout ??
-				defaultTimeout) - 2000;
+				defaultTimeout) - 2000,
+		);
 		const retriesLeft = (options?.retries ?? 0) - (scope.remotion_attempt - 1);
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
