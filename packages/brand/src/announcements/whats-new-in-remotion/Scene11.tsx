@@ -1,38 +1,69 @@
 import {Video} from '@remotion/media';
-import {interpolate, useVideoConfig} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {assetUrl} from './assets';
 import {SILENCES} from './Composition';
 import type {EndCardPlatform} from './EndCard';
 import {EndCard} from './EndCard';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
 
 const FILE = 'whats11.mov';
 
 export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
+	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const silence = SILENCES[FILE];
 	const trimBefore = Math.floor(silence.leadingEnd * fps);
 	const trimAfter = Math.ceil(silence.trailingStart * fps);
-	const sceneDuration = silence.trailingStart - silence.leadingEnd;
-
-	const overlayStartAt = sceneDuration - 7 - 1;
-	const overlayProgress = useSlideInProgress({
-		startAt: overlayStartAt,
-		holdDuration: 9999,
-	});
-	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
 
 	return (
 		<>
 			<Video
-				style={{transform: `translateX(${videoX}%)`}}
+				name="Presenter video"
+				style={{
+					translate: interpolate(
+						frame,
+						[16.73 * fps, 17.73 * fps],
+						['0% 0px', '-20% 0px'],
+						{
+							easing: Easing.out(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
 				src={assetUrl(FILE)}
 				trimBefore={trimBefore}
 				trimAfter={trimAfter}
 			/>
-			<SlideInOverlay startAt={overlayStartAt} holdDuration={9999}>
+			<Interactive.Div
+				name="Endcard overlay"
+				style={{
+					backgroundColor: 'white',
+					bottom: 0,
+					left: '60%',
+					overflow: 'hidden',
+					position: 'absolute',
+					top: 0,
+					translate: interpolate(
+						frame,
+						[16.73 * fps, 17.73 * fps],
+						['102% 0px', '0% 0px'],
+						{
+							easing: Easing.out(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					width: '40%',
+				}}
+			>
 				<EndCard platform={platform} />
-			</SlideInOverlay>
+			</Interactive.Div>
 		</>
 	);
 };

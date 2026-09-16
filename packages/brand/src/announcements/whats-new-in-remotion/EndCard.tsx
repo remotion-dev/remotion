@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-	AbsoluteFill,
+	Easing,
 	Img,
+	Interactive,
 	interpolate,
 	spring,
 	useCurrentFrame,
@@ -9,28 +10,7 @@ import {
 } from 'remotion';
 import {assetUrl} from './assets';
 
-const AVATAR = assetUrl('remotion-avatar.png');
-const FOLLOW_BUTTON_HEIGHT = 120;
-const SPACE_BETWEEN = 24;
-const FONT: React.CSSProperties = {
-	fontFamily: 'GT Planar',
-	fontWeight: 700,
-};
-
 export type EndCardPlatform = 'youtube' | 'x' | 'linkedin';
-
-const CHANNELS: {platform: EndCardPlatform | 'instagram'; label: string}[] = [
-	{platform: 'youtube', label: '@remotion_dev'},
-	{platform: 'x', label: '@remotion'},
-	{platform: 'instagram', label: '@remotion'},
-	{platform: 'linkedin', label: 'Remotion'},
-];
-
-const CTA_TEXT: Record<EndCardPlatform, string> = {
-	youtube: 'Subscribe',
-	x: 'Follow',
-	linkedin: 'Follow',
-};
 
 const YouTubeIcon: React.FC<{readonly height: number}> = ({height}) => (
 	<svg height={height} viewBox="0 0 576 512">
@@ -68,131 +48,236 @@ const LinkedInIcon: React.FC<{readonly height: number}> = ({height}) => (
 	</svg>
 );
 
-const PlatformIcon: React.FC<{
-	readonly platform: string;
-	readonly height: number;
-}> = ({platform, height}) => {
-	if (platform === 'youtube') return <YouTubeIcon height={height} />;
-	if (platform === 'x') return <XIcon height={height} />;
-	if (platform === 'instagram') return <InstagramIcon height={height} />;
-	if (platform === 'linkedin') return <LinkedInIcon height={height} />;
-	return null;
-};
-
 export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 	platform,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
-	const slideDelay = Math.round(1.2 * fps) + 20;
-	const slideDuration = 30;
-
-	const slideUp = spring({
-		fps,
-		frame,
-		config: {damping: 200},
-		delay: slideDelay,
-		durationInFrames: slideDuration,
-	});
-
-	const otherChannels = CHANNELS.filter((c) => c.platform !== platform);
-
 	return (
-		<AbsoluteFill
+		<Interactive.Div
+			name="Endcard"
 			style={{
 				backgroundColor: 'white',
+				bottom: 0,
+				display: 'flex',
+				flexDirection: 'column',
 				justifyContent: 'center',
+				left: 0,
 				padding: 60,
+				position: 'absolute',
+				right: 0,
+				top: 0,
 			}}
-			name={'Endcard'}
 		>
-			<div
+			<Interactive.Div
+				name="Endcard content"
 				style={{
-					transform: `translateY(${interpolate(slideUp, [0, 1], [200, 0])}px)`,
+					translate: interpolate(frame, [56, 86], ['0px 200px', '0px 0px'], {
+						easing: Easing.spring({damping: 200}),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 				}}
 			>
-				{/* Avatar + CTA button */}
-				<div style={{display: 'flex', alignItems: 'center'}}>
+				<Interactive.Div
+					name="Primary call to action"
+					style={{alignItems: 'center', display: 'flex'}}
+				>
 					<Img
-						src={AVATAR}
+						name="Remotion avatar"
+						src={assetUrl('remotion-avatar.png')}
 						style={{
-							height: FOLLOW_BUTTON_HEIGHT,
-							width: FOLLOW_BUTTON_HEIGHT,
 							borderRadius: '50%',
 							boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)',
+							height: 120,
+							width: 120,
 						}}
 					/>
-					<div style={{width: SPACE_BETWEEN}} />
-					<div
+					<div style={{width: 24}} />
+					<Interactive.Div
+						name="Call to action button"
 						style={{
-							height: FOLLOW_BUTTON_HEIGHT,
-							borderRadius: FOLLOW_BUTTON_HEIGHT / 2,
-							width: 340,
+							alignItems: 'center',
 							backgroundColor: 'black',
+							borderRadius: 60,
 							color: 'white',
 							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
+							fontFamily: 'GT Planar',
 							fontSize: 44,
-							...FONT,
 							fontWeight: 400,
+							height: 120,
+							justifyContent: 'center',
+							width: 340,
 						}}
 					>
-						{CTA_TEXT[platform]}
-					</div>
-				</div>
-				{/* Other channel rows */}
+						{platform === 'youtube' ? 'Subscribe' : 'Follow'}
+					</Interactive.Div>
+				</Interactive.Div>
 				<div style={{height: 60}} />
-				{otherChannels.map((channel, i) => {
-					const opacity = spring({
-						fps,
-						frame,
-						config: {damping: 200},
-						delay:
-							slideDelay +
-							((otherChannels.length - 1 - i) / otherChannels.length) *
-								(slideDuration - 15),
-						durationInFrames: 15,
-					});
-
-					return (
+				{platform === 'youtube' ? null : (
+					<Interactive.Div
+						name="YouTube channel"
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							opacity: spring({
+								fps,
+								frame,
+								config: {damping: 200},
+								delay: 66,
+								durationInFrames: 15,
+							}),
+							paddingBottom: 16,
+							paddingTop: 16,
+						}}
+					>
 						<div
-							key={channel.platform}
 							style={{
-								display: 'flex',
 								alignItems: 'center',
-								paddingTop: 16,
-								paddingBottom: 16,
-								opacity,
+								display: 'flex',
+								height: 50,
+								justifyContent: 'center',
+								width: 120,
 							}}
 						>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									height: 50,
-									width: FOLLOW_BUTTON_HEIGHT,
-								}}
-							>
-								<PlatformIcon platform={channel.platform} height={50} />
-							</div>
-							<div style={{width: SPACE_BETWEEN}} />
-							<div
-								style={{
-									fontSize: 42,
-									...FONT,
-									fontWeight: 500,
-									color: 'black',
-								}}
-							>
-								{channel.label}
-							</div>
+							<YouTubeIcon height={50} />
 						</div>
-					);
-				})}
-			</div>
-		</AbsoluteFill>
+						<div style={{width: 24}} />
+						<div
+							style={{
+								color: 'black',
+								fontFamily: 'GT Planar',
+								fontSize: 42,
+								fontWeight: 500,
+							}}
+						>
+							@remotion_dev
+						</div>
+					</Interactive.Div>
+				)}
+				{platform === 'x' ? null : (
+					<Interactive.Div
+						name="X channel"
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							opacity: spring({
+								fps,
+								frame,
+								config: {damping: 200},
+								delay: platform === 'linkedin' ? 61 : 66,
+								durationInFrames: 15,
+							}),
+							paddingBottom: 16,
+							paddingTop: 16,
+						}}
+					>
+						<div
+							style={{
+								alignItems: 'center',
+								display: 'flex',
+								height: 50,
+								justifyContent: 'center',
+								width: 120,
+							}}
+						>
+							<XIcon height={50} />
+						</div>
+						<div style={{width: 24}} />
+						<div
+							style={{
+								color: 'black',
+								fontFamily: 'GT Planar',
+								fontSize: 42,
+								fontWeight: 500,
+							}}
+						>
+							@remotion
+						</div>
+					</Interactive.Div>
+				)}
+				<Interactive.Div
+					name="Instagram channel"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						opacity: spring({
+							fps,
+							frame,
+							config: {damping: 200},
+							delay: platform === 'linkedin' ? 56 : 61,
+							durationInFrames: 15,
+						}),
+						paddingBottom: 16,
+						paddingTop: 16,
+					}}
+				>
+					<div
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							height: 50,
+							justifyContent: 'center',
+							width: 120,
+						}}
+					>
+						<InstagramIcon height={50} />
+					</div>
+					<div style={{width: 24}} />
+					<div
+						style={{
+							color: 'black',
+							fontFamily: 'GT Planar',
+							fontSize: 42,
+							fontWeight: 500,
+						}}
+					>
+						@remotion
+					</div>
+				</Interactive.Div>
+				{platform === 'linkedin' ? null : (
+					<Interactive.Div
+						name="LinkedIn channel"
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							opacity: spring({
+								fps,
+								frame,
+								config: {damping: 200},
+								delay: 56,
+								durationInFrames: 15,
+							}),
+							paddingBottom: 16,
+							paddingTop: 16,
+						}}
+					>
+						<div
+							style={{
+								alignItems: 'center',
+								display: 'flex',
+								height: 50,
+								justifyContent: 'center',
+								width: 120,
+							}}
+						>
+							<LinkedInIcon height={50} />
+						</div>
+						<div style={{width: 24}} />
+						<div
+							style={{
+								color: 'black',
+								fontFamily: 'GT Planar',
+								fontSize: 42,
+								fontWeight: 500,
+							}}
+						>
+							Remotion
+						</div>
+					</Interactive.Div>
+				)}
+			</Interactive.Div>
+		</Interactive.Div>
 	);
 };
