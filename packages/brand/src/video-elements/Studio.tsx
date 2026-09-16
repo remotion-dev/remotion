@@ -5,8 +5,8 @@ import {
 	Easing,
 	Img,
 	Interactive,
-	Sequence,
 	interpolate,
+	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -863,7 +863,9 @@ const PreviewCanvas: React.FC<{
 	);
 };
 
-const PreviewToolbar: React.FC = () => {
+const PreviewToolbar: React.FC<{
+	readonly responsivenessProgress: number;
+}> = ({responsivenessProgress}) => {
 	return (
 		<Interactive.Div
 			name="Preview toolbar"
@@ -885,6 +887,10 @@ const PreviewToolbar: React.FC = () => {
 					display: 'flex',
 					height: 28,
 					left: 16,
+					opacity: interpolate(responsivenessProgress, [0.4, 0.6], [1, 0], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					position: 'absolute',
 				}}
 			>
@@ -931,84 +937,110 @@ const PreviewToolbar: React.FC = () => {
 					translate: '-50% 0',
 				}}
 			>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Jump to start">
-					<IconButton>
-						<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<Interactive.Div name="Step backward">
-					<IconButton>
-						<StepBackIcon color={TOOLBAR_FOREGROUND} size={16} />
-					</IconButton>
-				</Interactive.Div>
+				<div
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						opacity: interpolate(responsivenessProgress, [0.4, 0.6], [1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						position: 'absolute',
+						right: '100%',
+					}}
+				>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Jump to start">
+						<IconButton>
+							<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Step backward">
+						<IconButton>
+							<StepBackIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+				</div>
 				<Interactive.Div name="Play">
 					<IconButton>
 						<PlayIcon color={TOOLBAR_FOREGROUND} size={14} />
 					</IconButton>
 				</Interactive.Div>
-				<Interactive.Div name="Step forward">
-					<IconButton>
-						<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Loop playback">
-					<IconButton active>
-						<LoopIcon color={BLUE} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 6}} />
-				<Interactive.Div name="Volume">
-					<IconButton>
-						<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Set in point">
-					<IconButton width={18}>
-						<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-					</IconButton>
-				</Interactive.Div>
-				<Interactive.Div name="Set out point">
-					<IconButton width={18}>
-						<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Transparency grid">
-					<IconButton active>
-						<CheckerboardIcon color={BLUE} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 2}} />
-				<Interactive.Div name="Canvas outline">
-					<IconButton active>
-						<OutlineIcon color={BLUE} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 2}} />
-				<Interactive.Div name="Rulers">
-					<IconButton>
-						<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 2}} />
-				<Interactive.Div name="Snapping">
-					<IconButton active>
-						<MagnetIcon
-							color={BLUE}
-							size={18}
-							style={{position: 'relative', top: 1}}
-						/>
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Fullscreen">
-					<IconButton>
-						<FullscreenIcon color={TOOLBAR_FOREGROUND} size={18} />
-					</IconButton>
-				</Interactive.Div>
+				<div
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						opacity: interpolate(responsivenessProgress, [0.4, 0.6], [1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						left: '100%',
+						position: 'absolute',
+					}}
+				>
+					<Interactive.Div name="Step forward">
+						<IconButton>
+							<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Loop playback">
+						<IconButton active>
+							<LoopIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 6}} />
+					<Interactive.Div name="Volume">
+						<IconButton>
+							<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Set in point">
+						<IconButton width={18}>
+							<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Set out point">
+						<IconButton width={18}>
+							<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Transparency grid">
+						<IconButton active>
+							<CheckerboardIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 2}} />
+					<Interactive.Div name="Canvas outline">
+						<IconButton active>
+							<OutlineIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 2}} />
+					<Interactive.Div name="Rulers">
+						<IconButton>
+							<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 2}} />
+					<Interactive.Div name="Snapping">
+						<IconButton active>
+							<MagnetIcon
+								color={BLUE}
+								size={18}
+								style={{position: 'relative', top: 1}}
+							/>
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Fullscreen">
+						<IconButton>
+							<FullscreenIcon color={TOOLBAR_FOREGROUND} size={18} />
+						</IconButton>
+					</Interactive.Div>
+				</div>
 			</div>
 			<div
 				style={{
@@ -1547,10 +1579,19 @@ const StudioInner = React.forwardRef<
 			350,
 			Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
 		);
+		const sidebarProgress = interpolate(
+			responsivenessProgress,
+			[0, 0.2],
+			[0, 1],
+			{
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
 		const leftSidebarOccupiedWidth =
-			(leftSidebarWidth + SPLITTER_SIZE) * (1 - responsivenessProgress);
+			(leftSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
 		const rightSidebarOccupiedWidth =
-			(rightSidebarWidth + SPLITTER_SIZE) * (1 - responsivenessProgress);
+			(rightSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
 		const canvasWidth = Math.max(
 			17,
 			width - leftSidebarOccupiedWidth - rightSidebarOccupiedWidth,
@@ -1603,7 +1644,7 @@ const StudioInner = React.forwardRef<
 										height: canvasRowHeight,
 										left: 0,
 										position: 'absolute',
-										translate: `${-responsivenessProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
+										translate: `${-sidebarProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
 										width: leftSidebarWidth + SPLITTER_SIZE,
 									}}
 								>
@@ -1659,7 +1700,7 @@ const StudioInner = React.forwardRef<
 								</div>
 							</div>
 						</div>
-						<PreviewToolbar />
+						<PreviewToolbar responsivenessProgress={responsivenessProgress} />
 					</div>
 					<Interactive.Div
 						name="Timeline splitter"
