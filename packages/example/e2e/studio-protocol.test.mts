@@ -504,37 +504,54 @@ const CloseupPlaceholder = () => {
 			success: true,
 		});
 
-		const cannotInsertNotification = studioPage.getByText(
-			'Cannot insert this item: This composition component cannot accept a new <Sequence>.',
-			{exact: true},
-		);
-		const dragElementOver = async (selector: string) => {
+		const dropElementOn = async (selector: string) => {
 			await studioPage.locator(selector).evaluate((target, dragData) => {
 				const dataTransfer = new DataTransfer();
 				for (const {data, type} of dragData) {
 					dataTransfer.setData(type, data);
 				}
 
-				target.dispatchEvent(
-					new DragEvent('dragover', {
-						bubbles: true,
-						cancelable: true,
-						dataTransfer,
-					}),
-				);
+				for (const type of ['dragover', 'drop']) {
+					target.dispatchEvent(
+						new DragEvent(type, {
+							bubbles: true,
+							cancelable: true,
+							dataTransfer,
+						}),
+					);
+				}
 			}, elementDragData);
 		};
+		const expectNewCompositionFallback = async () => {
+			const fallbackDialog = studioPage.getByRole('dialog', {
+				name: 'Install Protocol Element',
+			});
+			await expect(fallbackDialog).toBeVisible();
+			await expect(
+				fallbackDialog.getByRole('button', {name: 'Current composition'}),
+			).toBeDisabled();
+			await expect(
+				fallbackDialog.getByRole('button', {name: 'New composition'}),
+			).toHaveAttribute('aria-pressed', 'true');
+			await expect(
+				fallbackDialog.getByText(
+					'Studio could not find a safe place in “DirectCanvas” to insert the Element. Install it into a new composition instead.',
+					{exact: true},
+				),
+			).toBeVisible();
+			await expect(
+				fallbackDialog.getByText('Unverified drag-and-drop payload', {
+					exact: true,
+				}),
+			).toBeVisible();
+			await fallbackDialog.getByRole('button', {name: 'Cancel'}).click();
+			await expect(fallbackDialog).toBeHidden();
+		};
 
-		await dragElementOver('.remotion-studio-composition-container');
-		await expect(cannotInsertNotification).toBeVisible();
-		await expect(cannotInsertNotification).toHaveCount(0, {timeout: 5000});
-
-		await dragElementOver('[data-timeline-scrollable="true"]');
-		await expect(cannotInsertNotification).toBeVisible();
-		await dragElementOver('.remotion-studio-composition-container');
-		await dragElementOver('[data-timeline-scrollable="true"]');
-		await expect(cannotInsertNotification).toHaveCount(1);
-		await expect(cannotInsertNotification).toHaveCount(0, {timeout: 5000});
+		await dropElementOn('.remotion-studio-composition-container');
+		await expectNewCompositionFallback();
+		await dropElementOn('[data-timeline-scrollable="true"]');
+		await expectNewCompositionFallback();
 
 		await studioPage.getByText('MyComp', {exact: true}).first().click();
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
