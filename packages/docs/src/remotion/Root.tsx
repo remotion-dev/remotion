@@ -44,6 +44,10 @@ import {
 } from '../../components/effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
+import {
+	EffectsLutPreview,
+	LUT_PREVIEW_CONTENT,
+} from '../../components/effects/effects-lut-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -344,6 +348,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+				/>
+				<Still
+					id="effects-lut-preview"
+					component={EffectsLutPreview}
+					width={1280}
+					height={720}
+					defaultProps={{content: LUT_PREVIEW_CONTENT}}
 				/>
 				<Still
 					id="effects-shadows-highlights-preview"

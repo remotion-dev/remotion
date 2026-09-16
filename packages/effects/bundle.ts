@@ -44,6 +44,7 @@ const effectEntrypoints = [
 	'src/light-leak.ts',
 	'src/light-trail.ts',
 	'src/levels.ts',
+	'src/lut.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/noise-displacement.ts',

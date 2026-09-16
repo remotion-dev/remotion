@@ -1350,6 +1350,15 @@ export const articles = [
 		slug: 'cloudrun/upgrading',
 	},
 	{
+		id: 'color-correction',
+		title: 'Color correction',
+		relativePath: 'docs/color-correction.mdx',
+		compId: 'articles-docs-color-correction',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'color-correction',
+	},
+	{
 		id: 'compare-ssr',
 		title: 'Comparison of server-side rendering options',
 		relativePath: 'docs/compare.mdx',
@@ -2176,6 +2185,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/liquid-contours',
+	},
+	{
+		id: 'effects/lut',
+		title: 'lut()',
+		relativePath: 'docs/effects/lut.mdx',
+		compId: 'articles-docs-effects-lut',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/lut',
 	},
 	{
 		id: 'effects/mirror',

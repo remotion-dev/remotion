@@ -1,6 +1,5 @@
 import {
 	AbsoluteFill,
-	CanvasImage,
 	Easing,
 	Interactive,
 	Sequence,
@@ -45,7 +44,7 @@ export const StudioCodeHandoff: React.FC = () => {
 					<Interactive.Div
 						name="Screen viewport"
 						style={{
-							backgroundColor: '#101114',
+							backgroundColor: '#f8fafc',
 							borderRadius: windowBorderRadius + screenInset,
 							height: 760,
 							left: 18,
@@ -55,14 +54,6 @@ export const StudioCodeHandoff: React.FC = () => {
 							width: 1352,
 						}}
 					>
-						<CanvasImage
-							fit="cover"
-							height={760}
-							name="Tahoe wallpaper"
-							src="https://remotion.media/webmcp-promo/tahoe-light-wallpaper.jpg"
-							style={{left: 0, position: 'absolute', top: 0}}
-							width={1352}
-						/>
 						<Interactive.Div
 							name="VS Code"
 							style={{

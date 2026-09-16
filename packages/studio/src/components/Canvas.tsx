@@ -67,6 +67,7 @@ import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
+import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
 import {prepareElementInstall} from './element-install-api';
 import {
 	enqueueElementInstallRequest,
@@ -83,10 +84,7 @@ import {
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
-import {
-	showCannotAddSequenceDropNotification,
-	showNotification,
-} from './Notifications/NotificationCenter';
+import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useSvgImportDialog} from './SvgImportDialog';
@@ -264,8 +262,6 @@ export const Canvas: React.FC<{
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
-	const unsupportedDropNotifiedRef = useRef(false);
-
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
 	);
@@ -1117,23 +1113,17 @@ export const Canvas: React.FC<{
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
-				unsupportedDropNotifiedRef.current = false;
 				setCompositionDropPreview(null);
 				return;
 			}
 
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
-			const shouldNotifyAboutUnsupportedDrop =
-				cannotAddSequence && !mayBeCanvasCapture;
-			if (
-				shouldNotifyAboutUnsupportedDrop &&
-				!unsupportedDropNotifiedRef.current
-			) {
-				showCannotAddSequenceDropNotification();
-			}
-
-			unsupportedDropNotifiedRef.current = shouldNotifyAboutUnsupportedDrop;
+			const canDropElementIntoNewComposition =
+				cannotAddSequence &&
+				canReceiveElementInstallRequest &&
+				!isAddingAsset &&
+				hasElementDragType(event.dataTransfer);
 
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);
@@ -1143,7 +1133,11 @@ export const Canvas: React.FC<{
 			event.preventDefault();
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect =
-					canDropAssets || mayBeCanvasCapture ? 'copy' : 'none';
+					canDropAssets ||
+					canDropElementIntoNewComposition ||
+					mayBeCanvasCapture
+						? 'copy'
+						: 'none';
 			}
 
 			if (
@@ -1227,8 +1221,10 @@ export const Canvas: React.FC<{
 			addFitPadding,
 			canDropAssets,
 			cannotAddSequence,
+			canReceiveElementInstallRequest,
 			contentDimensions,
 			editorSnapping,
+			isAddingAsset,
 			previewSize,
 			size,
 		],
@@ -1250,19 +1246,15 @@ export const Canvas: React.FC<{
 			}
 		}
 
-		unsupportedDropNotifiedRef.current = false;
 		setCompositionDropPreview(null);
 	}, []);
 
 	const onDragEnd = useCallback(() => {
-		unsupportedDropNotifiedRef.current = false;
 		setCompositionDropPreview(null);
 	}, []);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
-			const unsupportedDropWasNotified = unsupportedDropNotifiedRef.current;
-			unsupportedDropNotifiedRef.current = false;
 			setCompositionDropPreview(null);
 
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
@@ -1293,18 +1285,24 @@ export const Canvas: React.FC<{
 				}
 			}
 
-			if (cannotAddSequence) {
+			const canDropElementIntoNewComposition =
+				cannotAddSequence &&
+				canReceiveElementInstallRequest &&
+				!isAddingAsset &&
+				getElementDragData(event.dataTransfer) !== null;
+
+			if (cannotAddSequence && !canDropElementIntoNewComposition) {
 				event.preventDefault();
 				event.stopPropagation();
-				if (!unsupportedDropWasNotified) {
-					showCannotAddSequenceDropNotification();
-				}
-
+				showNotification(
+					'Cannot insert this item: This composition component cannot accept a new <Sequence>.',
+					3000,
+				);
 				return;
 			}
 
 			if (
-				!canDropAssets ||
+				(!canDropAssets && !canDropElementIntoNewComposition) ||
 				compositionFile === null ||
 				currentCompositionId === null ||
 				config === null
@@ -1387,12 +1385,14 @@ export const Canvas: React.FC<{
 			addFitPadding,
 			canDropAssets,
 			cannotAddSequence,
+			canReceiveElementInstallRequest,
 			chooseSvgImportMode,
 			compositionFile,
 			config,
 			contentDimensions,
 			currentCompositionId,
 			editorSnapping,
+			isAddingAsset,
 			previewSize,
 			size,
 			setSelectedModal,

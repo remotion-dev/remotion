@@ -33,6 +33,7 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
+import {lut} from '@remotion/effects/lut';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
@@ -108,6 +109,10 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
+import {
+	EffectsLutPreview,
+	LUT_PREVIEW_CONTENT,
+} from '../effects/effects-lut-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -366,6 +371,20 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/levels',
 		comp: EffectsLevelsPreview,
 		schema: levels().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-lut',
+		effectName: 'lut',
+		effectImportPath: '@remotion/effects/lut',
+		comp: EffectsLutPreview,
+		schema: {
+			...lut({content: LUT_PREVIEW_CONTENT}).definition.schema,
+			content: {type: 'hidden'},
+		},
+		initialValues: {
+			content: LUT_PREVIEW_CONTENT,
+		},
 	},
 	{
 		...defaults,

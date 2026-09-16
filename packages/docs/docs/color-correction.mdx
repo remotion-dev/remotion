@@ -1,0 +1,90 @@
+---
+image: /generated/articles-docs-color-correction.png
+id: color-correction
+title: Color correction
+crumb: 'Designing visuals'
+---
+
+Color correction is possible in Remotion and is implemented using [effects](/docs/effects).
+
+## `colorCorrection()` effect
+
+Use the [`colorCorrection()`](/docs/effects/color-correction) effect to combine common adjustments in one effect:
+
+```tsx twoslash title="MyComp.tsx"
+import {colorCorrection} from '@remotion/effects/color-correction';
+import {Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        colorCorrection({
+          exposure: 0.25,
+          contrast: 1.1,
+          temperature: 0.1,
+          vibrance: 0.2,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+This is useful if you would like to have interactive controls in the Remotion Studio allowing you to live-preview multiple adjustments at once.
+
+Individual effects such as [`brightness()`](/docs/effects/brightness), [`contrast()`](/docs/effects/contrast), and [`saturation()`](/docs/effects/saturation) are also available.
+
+## LUTs
+
+LUTs (Look-up tables) are a popular way to define color adjustments for a video.
+You can find many of them online.
+
+Use [`lut()`](/docs/effects/lut) to apply an existing 3D color grade in the `.cube` format.
+Pass the file contents as a string:
+
+```tsx twoslash title="MyComp.tsx"
+import {lut} from '@remotion/effects/lut';
+import {Video} from '@remotion/media';
+
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        lut({
+          content: `
+            TITLE "Warm"
+            LUT_3D_SIZE 2
+            0 0 0
+            1 0.1 0
+            0 0.9 0.1
+            1 0.9 0.1
+            0 0.1 0.8
+            1 0.2 0.7
+            0 0.9 0.8
+            1 0.9 0.8
+          `
+        })
+      ]}
+    />
+  );
+};
+```
+
+## Combining adjustments
+
+Effects are applied in array order. Place `colorCorrection()` before `lut()` to make primary adjustments before applying the final grade.
+
+## Previewing LUTs in the Studio
+
+You can drop .cube files into your public folder and preview LUTs by clicking on them in the Assets panel.
+
+## See also
+
+- [Effects](/docs/effects)
+- [`colorCorrection()`](/docs/effects/color-correction)
+- [`lut()`](/docs/effects/lut)
+- [Data fetching](/docs/data-fetching)
