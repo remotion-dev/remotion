@@ -54,12 +54,132 @@ test('splitVideoFromAudio mutes the video and adds an Audio with the same timing
 	);
 });
 
+test('splitVideoFromAudio preserves unrelated source formatting without calling the formatter', async () => {
+	const input = `import{Video}from"@remotion/media"
+
+const untouched  = {keep : "spacing"}
+export const Comp=()=>(
+  <>
+    <Video
+      src = {"video.mp4"}
+      from = {10}
+      style = {{opacity:.5}}
+    />
+    <div  data-value = "unchanged"/>
+  </>
+)
+`;
+	let formatCalls = 0;
+	const {formatted, nodePathRemappings, output} = await splitVideoFromAudio({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Video'),
+		formatFile: () => {
+			formatCalls++;
+			throw new Error('Prettier must not be called');
+		},
+	});
+
+	expect(formatCalls).toBe(0);
+	expect(formatted).toBe(true);
+	expect(output).toBe(`import{Video, Audio}from"@remotion/media"
+
+const untouched  = {keep : "spacing"}
+export const Comp=()=>(
+  <>
+    <Video
+      src = {"video.mp4"}
+      from = {10}
+      style = {{opacity:.5}}
+      muted
+    />
+    <Audio src = {"video.mp4"} from = {10} />
+    <div  data-value = "unchanged"/>
+  </>
+)
+`);
+	expect(nodePathRemappings).toEqual([
+		{
+			oldNodePath: lineContainingToNodePath(input, '<Video'),
+			newNodePath: lineContainingToNodePath(output, '<Video'),
+		},
+		{
+			oldNodePath: lineContainingToNodePath(input, '<div'),
+			newNodePath: lineContainingToNodePath(output, '<div'),
+		},
+		{
+			oldNodePath: null,
+			newNodePath: lineContainingToNodePath(output, '<Audio'),
+		},
+	]);
+});
+
 test('splitVideoFromAudio does not copy non-audio props', async () => {
 	const output = await split(
 		'<Video src="video.mp4" name="my video" freeze={20} crop={{x: 0, y: 0, width: 100, height: 100}} />',
 	);
 
 	expect(output).toContain('<Audio src="video.mp4" />');
+});
+
+test('splitVideoFromAudio wraps a root video in a fragment', async () => {
+	const input = `import {Video} from '@remotion/media';
+
+export const Comp = () => <Video src="video.mp4" />;
+`;
+	const {output} = await splitVideoFromAudio({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Video'),
+	});
+
+	expect(output).toBe(`import {Video, Audio} from '@remotion/media';
+
+export const Comp = () => <>
+  <Video src="video.mp4" muted />
+  <Audio src="video.mp4" />
+</>;
+`);
+});
+
+test('splitVideoFromAudio preserves CRLF and tab indentation', async () => {
+	const input = [
+		`import {Video} from '@remotion/media';`,
+		'',
+		'export const Comp = () => {',
+		'\treturn (',
+		'\t\t<>',
+		'\t\t\t<Video',
+		'\t\t\t\tsrc="video.mp4"',
+		'\t\t\t\ttrimBefore={10}',
+		'\t\t\t/>',
+		'\t\t</>',
+		'\t);',
+		'};',
+		'',
+	].join('\r\n');
+	const {output} = await splitVideoFromAudio({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Video'),
+	});
+
+	expect(output).toBe(
+		[
+			`import {Video, Audio} from '@remotion/media';`,
+			'',
+			'export const Comp = () => {',
+			'\treturn (',
+			'\t\t<>',
+			'\t\t\t<Video',
+			'\t\t\t\tsrc="video.mp4"',
+			'\t\t\t\ttrimBefore={10}',
+			'\t\t\t\tmuted',
+			'\t\t\t/>',
+			'\t\t\t<Audio src="video.mp4" trimBefore={10} />',
+			'\t\t</>',
+			'\t);',
+			'};',
+			'',
+		].join('\r\n'),
+	);
 });
 
 test('splitVideoFromAudio replaces an existing muted prop', async () => {
@@ -77,6 +197,18 @@ test('splitVideoFromAudio reuses an existing Audio import', async () => {
 
 	expect(output).toContain(`import {Audio, Video} from '@remotion/media';`);
 	expect(output.match(/from '@remotion\/media'/g)?.length).toBe(1);
+});
+
+test('splitVideoFromAudio uses an aliased Audio import', async () => {
+	const output = await split(
+		'<Video src="video.mp4" />',
+		`import {Audio as Sound, Video} from '@remotion/media';`,
+	);
+
+	expect(output).toContain(
+		`import {Audio as Sound, Video} from '@remotion/media';`,
+	);
+	expect(output).toContain('<Sound src="video.mp4" />');
 });
 
 test('splitVideoFromAudio imports Audio from the same module as the tag', async () => {
@@ -170,14 +302,19 @@ test('splitVideoFromAudioHandler writes success and failure responses', async ()
 	try {
 		clearUndoStack();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
-		const input = wrap('<Video src="video.mp4" from={0} trimBefore={10} />');
+		const input = wrap(
+			'<Video src="video.mp4" from={0} trimBefore={10} />',
+		).replace(
+			'\n\nexport const Comp',
+			'\n\nconst untouched  =  { value : "keep" };\n\nexport const Comp',
+		);
 		writeFileSync(entryPoint, input);
 
 		const success = await splitVideoFromAudioHandler(
 			getHandlerOptions({
 				input: {
 					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, elementLine),
+					nodePath: lineContainingToNodePath(input, '<Video'),
 				},
 				entryPoint,
 				remotionRoot,
@@ -192,6 +329,7 @@ test('splitVideoFromAudioHandler writes success and failure responses', async ()
 		expect(written).toContain(
 			'<Audio src="video.mp4" from={0} trimBefore={10} />',
 		);
+		expect(written).toContain('const untouched  =  { value : "keep" };');
 		expect(getUndoStack().length).toBe(1);
 
 		const failureInput = wrap('<Video from={0} />');

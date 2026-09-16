@@ -1894,7 +1894,6 @@ export const createBrowserStudioOperations = ({
 				const result = await splitVideoFromAudioCodemod({
 					input: project.files[absolutePath],
 					nodePath,
-					formatFile: formatCodemodFile,
 				});
 				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
