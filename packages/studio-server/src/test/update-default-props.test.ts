@@ -7,7 +7,7 @@ import {
 	updateDefaultProps,
 } from '../codemods/update-default-props';
 
-test('updates default props without changing surrounding source', async () => {
+test('updates default props without changing surrounding source', () => {
 	const file = readFileSync(
 		path.join(__dirname, 'snapshots', 'root-before.tsx'),
 		'utf-8',
@@ -17,7 +17,7 @@ test('updates default props without changing surrounding source', async () => {
 		'utf-8',
 	);
 
-	const {output} = await updateDefaultProps({
+	const {output} = updateDefaultProps({
 		input: file,
 		compositionId: 'Comp3',
 		newDefaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
@@ -41,7 +41,7 @@ test('getCompositionDefaultPropsLine returns the opening tag line (ast-types vis
 	).toBe(27);
 });
 
-test('replaces multiline default props with a compact value', async () => {
+test('replaces multiline default props with a compact value', () => {
 	const file = readFileSync(
 		path.join(__dirname, 'snapshots', 'problematic.tsx'),
 		'utf-8',
@@ -51,7 +51,7 @@ test('replaces multiline default props with a compact value', async () => {
 		'utf-8',
 	);
 
-	const {output} = await updateDefaultProps({
+	const {output} = updateDefaultProps({
 		input: file,
 		compositionId: 'schema-test',
 		newDefaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
@@ -61,7 +61,7 @@ test('replaces multiline default props with a compact value', async () => {
 	expect(output).toBe(expected);
 });
 
-test('formats multiline default props without calling the compatibility formatter', async () => {
+test('formats multiline default props without Prettier', () => {
 	const input = `import {Composition} from 'remotion'
 
 const untouched    = {keep:"this spacing"}
@@ -73,9 +73,7 @@ export const Root=()=>(
 	/>
 )
 `;
-	let formatCalls = 0;
-
-	const {output, formatted} = await updateDefaultProps({
+	const {output} = updateDefaultProps({
 		input,
 		compositionId: 'Comp',
 		newDefaultProps: {
@@ -85,14 +83,8 @@ export const Root=()=>(
 			mode: 'fast',
 		},
 		enumPaths: [['mode']],
-		formatInline: () => {
-			formatCalls++;
-			throw new Error('Prettier must not be called');
-		},
 	});
 
-	expect(formatted).toBe(true);
-	expect(formatCalls).toBe(0);
 	expect(output).toBe(`import {Composition} from 'remotion'
 
 const untouched    = {keep:"this spacing"}
@@ -111,7 +103,7 @@ export const Root=()=>(
 `);
 });
 
-test('preserves CRLF, spaces, double quotes, and bracket spacing', async () => {
+test('preserves CRLF, spaces, double quotes, and bracket spacing', () => {
 	const input = [
 		'import { Composition } from "remotion"',
 		'',
@@ -126,7 +118,7 @@ test('preserves CRLF, spaces, double quotes, and bracket spacing', async () => {
 		'',
 	].join('\r\n');
 
-	const {output} = await updateDefaultProps({
+	const {output} = updateDefaultProps({
 		input,
 		compositionId: 'Comp',
 		newDefaultProps: {title: 'Hello'},
@@ -141,13 +133,13 @@ test('preserves CRLF, spaces, double quotes, and bracket spacing', async () => {
 	);
 });
 
-test('formats nested arrays and keeps non-identifier keys quoted', async () => {
+test('formats nested arrays and keeps non-identifier keys quoted', () => {
 	const input = `export const Root = () => (
   <Composition id="Comp" defaultProps={{ old: true }} />
 )
 `;
 
-	const {output} = await updateDefaultProps({
+	const {output} = updateDefaultProps({
 		input,
 		compositionId: 'Comp',
 		newDefaultProps: {

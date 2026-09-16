@@ -51,7 +51,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 				input: fileContents,
 				compositionId,
 			});
-			const {output} = await updateDefaultProps({
+			const {output} = updateDefaultProps({
 				compositionId,
 				input: fileContents,
 				newDefaultProps: JSON.parse(defaultProps),
