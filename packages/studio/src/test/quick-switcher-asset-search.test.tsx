@@ -70,7 +70,28 @@ const assets: StaticFile[] = [
 		sizeInBytes: 1,
 		src: '/videos/playlist.m3u8',
 	},
+	{
+		lastModified: 0,
+		name: 'luts/cinematic.cube',
+		sizeInBytes: 1,
+		src: '/luts/cinematic.cube',
+	},
+	{
+		lastModified: 0,
+		name: 'luts/warm.CUBE',
+		sizeInBytes: 1,
+		src: '/luts/warm.CUBE',
+	},
 ];
+
+test('filters LUT assets and preserves the filename query', () => {
+	const result = filterAssetsByType({assets, query: 'type:LUT cinematic'});
+	expect(result.query).toBe('cinematic');
+	expect(result.assets.map((asset) => asset.name)).toEqual([
+		'luts/cinematic.cube',
+		'luts/warm.CUBE',
+	]);
+});
 
 test('filters quick switcher assets by type', () => {
 	const result = filterAssetsByType({
