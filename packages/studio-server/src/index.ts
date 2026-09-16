@@ -23,6 +23,7 @@ export type {
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
 
+import {parseAndApplyCodemod} from '@remotion/studio-codemods';
 import {AnsiDiff} from './ansi-diff';
 import {
 	addCompletedClientRender,
@@ -30,10 +31,6 @@ import {
 	removeCompletedClientRender,
 } from './client-render-queue';
 import {applyCodemodToFile} from './codemods/apply-codemod-to-file';
-import {
-	formatOutput,
-	parseAndApplyCodemod,
-} from './codemods/duplicate-composition';
 import {updateDefaultProps} from './codemods/update-default-props';
 import {
 	detectOutdatedRemotionSkills,
@@ -98,7 +95,6 @@ export const StudioServerInternals = {
 	formatBytes,
 	parseAndApplyCodemod,
 	applyCodemodToFile,
-	formatOutput,
 	updateDefaultProps,
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,

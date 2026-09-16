@@ -8,9 +8,9 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {parseAndApplyCodemod} from '@remotion/studio-codemods';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
-import {parseAndApplyCodemod} from '../codemods/duplicate-composition';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -20,6 +20,7 @@ import {
 	applyCodemodHandler,
 	getCodemodLogMessage,
 } from '../preview-server/routes/apply-codemod';
+import {applyVisualControlHandler} from '../preview-server/routes/apply-visual-control-change';
 import {redoHandler} from '../preview-server/routes/redo';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
@@ -209,6 +210,116 @@ export const Root = () => <Folder name="Before" />;
 
 		expect(output).toBe(input.replace('"Before"', '"After"'));
 	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('metadata codemods do not run Prettier after applying source edits', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `const untouched  =  { value : "keep" };
+export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
+`;
+
+	try {
+		writeFileSync(filePath, input);
+		const output = await applyCodemodToFile({
+			filePath,
+			codeMod: {
+				type: 'update-composition-metadata',
+				idToUpdate: 'Comp',
+				newDurationInFrames: 90,
+				newFps: null,
+				newHeight: 1080,
+				newWidth: 1920,
+			},
+		});
+
+		expect(output).toBe(`const untouched  =  { value : "keep" };
+export const Root=()=> <Composition id='Comp' width = {1920} durationInFrames={90} height={1080}/>;
+`);
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('visual-control codemods do not run Prettier after applying source edits', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `const untouched  =  { value : "keep" };
+export const Root=()=> visualControl('opacity', OPACITY);
+`;
+
+	try {
+		writeFileSync(filePath, input);
+		const output = await applyCodemodToFile({
+			filePath,
+			codeMod: {
+				type: 'apply-visual-control',
+				changes: [
+					{
+						id: 'opacity',
+						newValueSerialized: '0.5',
+						newValueIsUndefined: false,
+						enumPaths: [],
+					},
+				],
+			},
+		});
+
+		expect(output).toBe(input.replace('OPACITY', '0.5'));
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('visual-control handler preserves source formatting', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+		router: () => Promise.resolve(),
+		closeConnections: () => Promise.resolve(),
+		addNewClientListener: () => () => undefined,
+	});
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `const untouched  =  { value : "keep" };
+export const Root=()=> visualControl('opacity', OPACITY);
+`;
+
+	try {
+		clearUndoRedoStacks();
+		writeFileSync(filePath, input);
+		const response = await applyVisualControlHandler(
+			getHandlerOptions({
+				input: {
+					fileName: 'Root.tsx',
+					changes: [
+						{
+							id: 'opacity',
+							newValueSerialized: '0.5',
+							newValueIsUndefined: false,
+							enumPaths: [],
+						},
+					],
+				},
+				entryPoint: filePath,
+				remotionRoot,
+			}),
+		);
+
+		expect(response.success).toBe(true);
+		expect(readFileSync(filePath, 'utf-8')).toBe(
+			input.replace('OPACITY', '0.5'),
+		);
+		expect(getUndoStack()).toHaveLength(1);
+	} finally {
+		clearUndoRedoStacks();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
 });

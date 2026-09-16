@@ -31,7 +31,6 @@
 		"kiwi-schema": "0.5.0",
 		"semver": "7.5.3",
 		"zod": "catalog:",
-		"prettier": "catalog:",
 		"remotion": "workspace:*",
 		"recast": "0.23.21",
 		"@remotion/bundler": "workspace:*",
@@ -47,6 +46,7 @@
 		"@types/semver": "7.5.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
+		"prettier": "catalog:",
 		"@types/node": "catalog:",
 		"@typescript/native-preview": "catalog:"
 	},
