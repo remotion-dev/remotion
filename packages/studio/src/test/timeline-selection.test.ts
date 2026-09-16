@@ -3838,6 +3838,109 @@ const makeOutlineSequence = ({
 	readonly parent: string | null;
 }) => ({id, parent});
 
+test('Canvas outline rendering measures each disjoint hit target only once', () => {
+	let pointReads = 0;
+	const outlines = Array.from({length: 1000}, (_, index): SelectedOutline => {
+		const outline = makeTestOutline({
+			key: String(index),
+			left: (index % 40) * 20,
+			top: Math.floor(index / 40) * 20,
+			width: 10,
+			height: 10,
+		});
+		return {
+			...outline,
+			get points() {
+				pointReads++;
+				return outline.points;
+			},
+		};
+	});
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines,
+		sequences: outlines.map(({key}) =>
+			makeOutlineSequence({id: key, parent: null}),
+		),
+		targetsByKey: new Map(
+			outlines.map(({key}) => [
+				key,
+				makeOutlineTarget({id: key, parent: null}),
+			]),
+		),
+	});
+
+	expect(orderedOutlines.map(({key}) => key)).toEqual(
+		outlines.map(({key}) => key),
+	);
+	expect(pointReads).toBeLessThanOrEqual(outlines.length * 32);
+});
+
+test('Canvas outline rendering preserves overlap and area tolerances', () => {
+	const sequences = [
+		makeOutlineSequence({id: 'small', parent: null}),
+		makeOutlineSequence({id: 'large', parent: null}),
+	];
+	const targetsByKey = new Map(
+		sequences.map(({id, parent}) => [id, makeOutlineTarget({id, parent})]),
+	);
+
+	for (const axis of ['left', 'top'] as const) {
+		for (const gap of [0.5, 0.51]) {
+			const outlines = [
+				makeTestOutline({
+					key: 'small',
+					left: axis === 'left' ? 20 + gap : 0,
+					top: axis === 'top' ? 20 + gap : 0,
+					width: 10,
+					height: 10,
+				}),
+				makeTestOutline({
+					key: 'large',
+					left: 0,
+					top: 0,
+					width: 20,
+					height: 20,
+				}),
+			];
+
+			expect(
+				orderOutlinesForRendering({
+					outlines,
+					sequences,
+					targetsByKey,
+				}).map(({key}) => key),
+			).toEqual(gap === 0.5 ? ['large', 'small'] : ['small', 'large']);
+		}
+	}
+
+	for (const extraWidth of [0.05, 0.051]) {
+		const outlines = [
+			makeTestOutline({
+				key: 'small',
+				left: 0,
+				top: 0,
+				width: 10,
+				height: 10,
+			}),
+			makeTestOutline({
+				key: 'large',
+				left: 0,
+				top: 0,
+				width: 10 + extraWidth,
+				height: 10,
+			}),
+		];
+
+		expect(
+			orderOutlinesForRendering({
+				outlines,
+				sequences,
+				targetsByKey,
+			}).map(({key}) => key),
+		).toEqual(extraWidth === 0.05 ? ['small', 'large'] : ['large', 'small']);
+	}
+});
+
 test('Canvas outline rendering keeps smaller nested hit targets above parents', () => {
 	const orderedOutlines = orderOutlinesForRendering({
 		outlines: [

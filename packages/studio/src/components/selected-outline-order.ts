@@ -65,12 +65,9 @@ const getOutlineBounds = (outline: SelectedOutline) => {
 };
 
 const outlineBoundsOverlap = (
-	a: SelectedOutline,
-	b: SelectedOutline,
+	aBounds: ReturnType<typeof getOutlineBounds>,
+	bBounds: ReturnType<typeof getOutlineBounds>,
 ): boolean => {
-	const aBounds = getOutlineBounds(a);
-	const bBounds = getOutlineBounds(b);
-
 	return (
 		aBounds.minX <= bBounds.maxX + outlineBoundsOverlapTolerance &&
 		aBounds.maxX + outlineBoundsOverlapTolerance >= bBounds.minX &&
@@ -277,14 +274,29 @@ const orderOutlineGroup = ({
 	// For unrelated overlapping outlines, put broader hit targets below
 	// smaller ones so a large selected sequence cannot swallow clicks on
 	// a more specific element in the same canvas area.
+	const bounds = outlines.map(getOutlineBounds);
+	const areas = outlines.map(getOutlineHitArea);
 	for (let i = 0; i < outlines.length; i++) {
-		for (let j = i + 1; j < outlines.length; j++) {
-			const a = outlines[i];
-			const b = outlines[j];
-			const aTarget = targetsByKey.get(a.key);
-			const bTarget = targetsByKey.get(b.key);
+		const a = outlines[i];
+		const aTarget = targetsByKey.get(a.key);
+		if (aTarget === undefined) {
+			continue;
+		}
 
-			if (aTarget === undefined || bTarget === undefined) {
+		for (let j = i + 1; j < outlines.length; j++) {
+			if (!outlineBoundsOverlap(bounds[i], bounds[j])) {
+				continue;
+			}
+
+			const aArea = areas[i];
+			const bArea = areas[j];
+			if (Math.abs(aArea - bArea) <= outlineAreaEqualityTolerance) {
+				continue;
+			}
+
+			const b = outlines[j];
+			const bTarget = targetsByKey.get(b.key);
+			if (bTarget === undefined) {
 				continue;
 			}
 
@@ -299,14 +311,7 @@ const orderOutlineGroup = ({
 				parentBySequenceId,
 			});
 
-			if (aAncestorOfB || bAncestorOfA || !outlineBoundsOverlap(a, b)) {
-				continue;
-			}
-
-			const aArea = getOutlineHitArea(a);
-			const bArea = getOutlineHitArea(b);
-
-			if (Math.abs(aArea - bArea) <= outlineAreaEqualityTolerance) {
+			if (aAncestorOfB || bAncestorOfA) {
 				continue;
 			}
 
