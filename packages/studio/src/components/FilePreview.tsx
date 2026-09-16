@@ -5,6 +5,7 @@ import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
+import {LutPreview} from './LutPreview';
 import {TextViewer} from './TextViewer';
 
 const msgStyle: React.CSSProperties = {
@@ -133,6 +134,10 @@ export const FilePreview: React.FC<{
 
 	if (fileType === 'font') {
 		return <FontPreview src={src} />;
+	}
+
+	if (fileType === 'lut') {
+		return <LutPreview key={src} src={src} />;
 	}
 
 	if (fileType === 'json') {
