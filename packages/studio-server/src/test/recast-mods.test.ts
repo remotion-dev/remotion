@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {parseAndApplyCodemod} from '../codemods/duplicate-composition';
+import {parseAndApplyCodemod} from '@remotion/studio-codemods';
 
 const compositionInRoot = `import {Composition} from 'remotion';
 import {NewVideo} from './NewVideo';

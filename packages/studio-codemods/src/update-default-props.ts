@@ -1,13 +1,8 @@
 import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import * as recast from 'recast';
+import {formatSerializedValue} from './format-serialized-value';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
-import {
-	getSourceFormattingConfig,
-	normalizePrintedIndentation,
-} from './source-style';
-
-const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
 export const updateDefaultProps = ({
 	input,
@@ -151,117 +146,16 @@ export const updateDefaultProps = ({
 	const lineStart = input.lastIndexOf('\n', replaceStart) + 1;
 	const linePrefix = input.substring(lineStart, replaceStart + 1);
 	const previousValue = input.slice(replaceStart + 1, replaceEnd - 1).trim();
-	const inlineObjectSpacing = previousValue.match(
-		/\{([\t ]*)(?=(?:["'][^"']+["']|[$A-Z_a-z][$\w]*)[\t ]*:)/,
-	)?.[1];
-	const bracketSpacing = previousValue.startsWith('{ ')
-		? true
-		: previousValue.startsWith('{') &&
-			  !previousValue.startsWith('{\n') &&
-			  !previousValue.startsWith('{\r\n')
-			? false
-			: inlineObjectSpacing === undefined
-				? null
-				: inlineObjectSpacing.length > 0;
-	const formattingConfig = getSourceFormattingConfig({
-		input,
-		prettierConfigOverride: bracketSpacing === null ? null : {bracketSpacing},
-	});
-	const valueAst = parseAst(`__defaultProps = ${stringified}`);
-	const statement = valueAst.program.body[0];
-	if (
-		statement?.type !== 'ExpressionStatement' ||
-		statement.expression.type !== 'AssignmentExpression'
-	) {
-		throw new Error('Could not parse the updated defaultProps value');
+	if (stringified === undefined) {
+		throw new Error('Could not serialize the updated defaultProps value');
 	}
 
-	const expression = statement.expression.right;
-	recast.types.visit(expression, {
-		visitObjectProperty(path) {
-			const {node} = path;
-			if (
-				!node.computed &&
-				node.key.type === 'StringLiteral' &&
-				identifierRegex.test(node.key.value)
-			) {
-				node.key = recast.types.builders.identifier(node.key.value);
-			}
-
-			this.traverse(path);
-		},
+	const formatted = formatSerializedValue({
+		input,
+		linePrefix,
+		previousValue,
+		serialized: stringified,
 	});
-
-	const printExpression = ({
-		trailingComma,
-		wrapColumn,
-	}: {
-		trailingComma: boolean;
-		wrapColumn: number;
-	}) => {
-		const printed = recast.prettyPrint(expression, {
-			objectCurlySpacing: formattingConfig.bracketSpacing,
-			quote: formattingConfig.quote,
-			tabWidth: formattingConfig.tabWidth,
-			trailingComma,
-			useTabs: false,
-			wrapColumn,
-		}).code;
-
-		return normalizePrintedIndentation({
-			endOfLine: formattingConfig.endOfLine,
-			indentationUnit: formattingConfig.indentationUnit,
-			printed,
-			tabWidth: formattingConfig.tabWidth,
-		});
-	};
-
-	const compactLines = printExpression({
-		trailingComma: false,
-		wrapColumn: Number.POSITIVE_INFINITY,
-	})
-		.split(/\r?\n/)
-		.map((line) => line.trim())
-		.filter(Boolean);
-	const compact = compactLines.reduce((result, line) => {
-		if (result.length === 0) {
-			return line;
-		}
-
-		const omitSeparator =
-			!formattingConfig.bracketSpacing &&
-			(result.endsWith('{') || line.startsWith('}'));
-		return `${result}${omitSeparator ? '' : ' '}${line}`;
-	}, '');
-	const columnOffset = [...linePrefix].reduce(
-		(column, character) =>
-			character === '\t' ? column + formattingConfig.tabWidth : column + 1,
-		0,
-	);
-	const compactWidth = [...compact].reduce(
-		(column, character) =>
-			character === '\t' ? column + formattingConfig.tabWidth : column + 1,
-		0,
-	);
-	const baseIndent = linePrefix.match(/^([\t ]*)/)?.[1] ?? '';
-	const effectivePrintWidth = Math.max(
-		formattingConfig.printWidth - columnOffset,
-		20,
-	);
-	const multiline = printExpression({
-		trailingComma: true,
-		wrapColumn: effectivePrintWidth,
-	})
-		.split(/\r?\n/)
-		.filter((line) => line.trim().length > 0)
-		.map((line, index) =>
-			index === 0 || line.length === 0 ? line : baseIndent + line,
-		)
-		.join(formattingConfig.endOfLine);
-	const formatted =
-		columnOffset + compactWidth + 1 <= formattingConfig.printWidth
-			? compact
-			: multiline;
 
 	// Replace the JSX expression container in the original input
 	const output =

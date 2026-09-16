@@ -6,6 +6,7 @@ import {getNodeSourceEdit} from './delete-jsx-node';
 import {getCompositionId} from './duplicate-composition';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {printInsertedJsx} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {applyCodemod, type Change} from './recast-mods';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -16,6 +17,7 @@ import {
 	getJsxStringAttributeValueSourceEdit,
 	type SourceEdit,
 } from './source-edits';
+import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 
 export const editCompositionInSource = ({
 	input,
@@ -24,7 +26,13 @@ export const editCompositionInSource = ({
 	input: string;
 	codeMod: Extract<
 		RecastCodemod,
-		{type: 'new-composition' | 'rename-composition' | 'delete-composition'}
+		{
+			type:
+				| 'new-composition'
+				| 'rename-composition'
+				| 'delete-composition'
+				| 'update-composition-metadata';
+		}
 	>;
 }): {newContents: string; changesMade: Change[]} => {
 	const ast = parseAst(input);
@@ -126,12 +134,13 @@ export const editCompositionInSource = ({
 		recast.types.visit(ast, {
 			visitJSXElement(path) {
 				const element = path.node as unknown as JSXElement;
-				if (
-					getCompositionId(element) !==
-					(codeMod.type === 'rename-composition'
+				const compositionId =
+					codeMod.type === 'rename-composition'
 						? codeMod.idToRename
-						: codeMod.idToDelete)
-				) {
+						: codeMod.type === 'delete-composition'
+							? codeMod.idToDelete
+							: codeMod.idToUpdate;
+				if (getCompositionId(element) !== compositionId) {
 					this.traverse(path);
 					return undefined;
 				}
@@ -144,19 +153,147 @@ export const editCompositionInSource = ({
 					return false;
 				}
 
-				const attribute = element.openingElement.attributes.find(
+				if (codeMod.type === 'update-composition-metadata') {
+					const metadata = [
+						{name: 'fps', value: codeMod.newFps, description: 'FPS'},
+						{
+							name: 'durationInFrames',
+							value: codeMod.newDurationInFrames,
+							description: 'durationInFrames',
+						},
+						{name: 'width', value: codeMod.newWidth, description: 'width'},
+						{name: 'height', value: codeMod.newHeight, description: 'height'},
+					] as const;
+					const existingMetadata = new Set<string>();
+
+					for (const metadataAttribute of element.openingElement.attributes) {
+						if (
+							metadataAttribute.type !== 'JSXAttribute' ||
+							metadataAttribute.name.type !== 'JSXIdentifier'
+						) {
+							continue;
+						}
+
+						const update = metadata.find(
+							(item) => item.name === metadataAttribute.name.name,
+						);
+						if (!update || update.value === null) {
+							continue;
+						}
+
+						existingMetadata.add(update.name);
+						if (metadataAttribute.value?.loc) {
+							edits.push({
+								start: recastLocToOffset(
+									input,
+									metadataAttribute.value.loc.start,
+								),
+								end: recastLocToOffset(input, metadataAttribute.value.loc.end),
+								replacement: `{${update.value}}`,
+							});
+						} else if (metadataAttribute.loc) {
+							const offset = recastLocToOffset(
+								input,
+								metadataAttribute.loc.end,
+							);
+							edits.push({
+								start: offset,
+								end: offset,
+								replacement: `={${update.value}}`,
+							});
+						} else {
+							throw new Error(
+								`Could not locate the "${update.name}" attribute`,
+							);
+						}
+
+						changesMade.push({
+							description: `Replaced ${update.description}`,
+						});
+					}
+
+					const missingMetadata = metadata.filter(
+						(item) => item.value !== null && !existingMetadata.has(item.name),
+					);
+					if (missingMetadata.length > 0) {
+						const {openingElement} = element;
+						if (!openingElement.loc || !openingElement.name.loc) {
+							throw new Error(
+								'Could not locate the composition opening element',
+							);
+						}
+
+						const openingEnd = recastLocToOffset(input, openingElement.loc.end);
+						const closingStart =
+							openingEnd - (openingElement.selfClosing ? 2 : 1);
+						const lastAttribute = openingElement.attributes.findLast(
+							(candidate) => candidate.loc,
+						);
+						const anchor =
+							lastAttribute?.loc?.end ?? openingElement.name.loc.end;
+						const anchorOffset = recastLocToOffset(input, anchor);
+						const rendered = missingMetadata.map(
+							(item) => `${item.name}={${item.value}}`,
+						);
+
+						if (input.slice(anchorOffset, closingStart).includes('\n')) {
+							const closingLineStart =
+								input.lastIndexOf('\n', closingStart - 1) + 1;
+							const attributeIndent =
+								lastAttribute?.loc &&
+								lastAttribute.loc.start.line > openingElement.name.loc.end.line
+									? getLineIndent({
+											input,
+											offset: recastLocToOffset(input, lastAttribute.loc.start),
+										})
+									: getLineIndent({
+											input,
+											offset: recastLocToOffset(
+												input,
+												openingElement.loc.start,
+											),
+										}) + getIndentationUnit(input, null);
+							const endOfLine = getEndOfLine(input);
+							edits.push({
+								start: closingLineStart,
+								end: closingLineStart,
+								replacement:
+									rendered
+										.map(
+											(renderedAttribute) =>
+												`${attributeIndent}${renderedAttribute}`,
+										)
+										.join(endOfLine) + endOfLine,
+							});
+						} else {
+							edits.push({
+								start: anchorOffset,
+								end: anchorOffset,
+								replacement: ` ${rendered.join(' ')}`,
+							});
+						}
+
+						for (const item of missingMetadata) {
+							changesMade.push({description: `Added ${item.description}`});
+						}
+					}
+
+					return false;
+				}
+
+				const idAttribute = element.openingElement.attributes.find(
 					(attr) =>
 						attr.type === 'JSXAttribute' &&
 						attr.name.type === 'JSXIdentifier' &&
 						attr.name.name === 'id',
 				);
-				if (attribute?.type !== 'JSXAttribute') {
+				if (idAttribute?.type !== 'JSXAttribute') {
 					throw new Error('Could not locate the composition id');
 				}
 
 				edits.push(
 					getJsxStringAttributeValueSourceEdit({
-						attribute,
+						attribute: idAttribute,
 						input,
 						newValue: codeMod.newId,
 					}),

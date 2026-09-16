@@ -75,11 +75,7 @@ export const registerComposition = async ({
 				enumPaths: [],
 			});
 
-		const formatted = await StudioServerInternals.formatOutput(
-			withDefaultScene,
-		);
-
-		writeFileSync(rootPath, formatted, 'utf-8');
+		writeFileSync(rootPath, withDefaultScene, 'utf-8');
 		return {registered: true};
 	} catch (err) {
 		return {

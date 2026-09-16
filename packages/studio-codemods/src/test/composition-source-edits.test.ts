@@ -177,3 +177,121 @@ test('rename preserves expression quotes and delete replaces standalone and cond
 		}
 	}
 });
+
+test('updates existing composition metadata without changing surrounding source', () => {
+	const input = [
+		'import { Composition } from "remotion"',
+		'',
+		'const preserve  =  { value : "keep" }',
+		'export const Root = () => (',
+		'    <Composition',
+		'        id={"Original"}',
+		'        durationInFrames = { DURATION }',
+		'        fps={FPS}',
+		'        width',
+		'        height="720"',
+		'    />',
+		')',
+		'',
+	].join('\r\n');
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'Original',
+			newDurationInFrames: 240,
+			newFps: 60,
+			newWidth: 1920,
+			newHeight: 1080,
+		},
+	});
+
+	expect(changesMade).toEqual([
+		{description: 'Replaced durationInFrames'},
+		{description: 'Replaced FPS'},
+		{description: 'Replaced width'},
+		{description: 'Replaced height'},
+	]);
+	expect(newContents).toBe(
+		input
+			.replace('{ DURATION }', '{240}')
+			.replace('{FPS}', '{60}')
+			.replace('        width\r\n', '        width={1920}\r\n')
+			.replace('height="720"', 'height={1080}'),
+	);
+	expect(() => parseAst(newContents)).not.toThrow();
+});
+
+test('adds missing composition metadata using multiline source style', () => {
+	for (const [indent, eol] of [
+		['\t', '\n'],
+		['  ', '\n'],
+		['    ', '\r\n'],
+	]) {
+		const input = [
+			'export const Root = () => (',
+			`${indent}<Composition`,
+			`${indent}${indent}id="Original"`,
+			`${indent}/>`,
+			')',
+			'',
+		].join(eol);
+		const {changesMade, newContents} = parseAndApplyCodemod({
+			input,
+			codeMod: {
+				type: 'update-composition-metadata',
+				idToUpdate: 'Original',
+				newDurationInFrames: 90,
+				newFps: 30,
+				newWidth: 1920,
+				newHeight: 1080,
+			},
+		});
+
+		expect(changesMade).toEqual([
+			{description: 'Added FPS'},
+			{description: 'Added durationInFrames'},
+			{description: 'Added width'},
+			{description: 'Added height'},
+		]);
+		expect(newContents).toBe(
+			input.replace(
+				`${indent}/>`,
+				[
+					`${indent}${indent}fps={30}`,
+					`${indent}${indent}durationInFrames={90}`,
+					`${indent}${indent}width={1920}`,
+					`${indent}${indent}height={1080}`,
+					`${indent}/>`,
+				].join(eol),
+			),
+		);
+		expect(() => parseAst(newContents)).not.toThrow();
+	}
+});
+
+test('adds missing composition metadata without reformatting an inline tag', () => {
+	const input = `const preserve  =  { value : "keep" };
+export const Root=()=> <Still id={'Original'} height = "720"/>;
+`;
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'Original',
+			newDurationInFrames: null,
+			newFps: null,
+			newWidth: 1920,
+			newHeight: 1080,
+		},
+	});
+
+	expect(changesMade).toEqual([
+		{description: 'Replaced height'},
+		{description: 'Added width'},
+	]);
+	expect(newContents).toBe(`const preserve  =  { value : "keep" };
+export const Root=()=> <Still id={'Original'} height = {1080} width={1920}/>;
+`);
+	expect(() => parseAst(newContents)).not.toThrow();
+});
