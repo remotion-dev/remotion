@@ -204,6 +204,11 @@
 			"module": "./dist/esm/levels.mjs",
 			"import": "./dist/esm/levels.mjs"
 		},
+		"./lut": {
+			"types": "./dist/lut.d.ts",
+			"module": "./dist/esm/lut.mjs",
+			"import": "./dist/esm/lut.mjs"
+		},
 		"./light-leak": {
 			"types": "./dist/light-leak.d.ts",
 			"module": "./dist/esm/light-leak.mjs",
@@ -499,6 +504,9 @@
 			],
 			"levels": [
 				"dist/levels.d.ts"
+			],
+			"lut": [
+				"dist/lut.d.ts"
 			],
 			"light-leak": [
 				"dist/light-leak.d.ts"
