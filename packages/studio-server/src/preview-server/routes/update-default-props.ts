@@ -19,7 +19,6 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {checkIfTypeScriptFile} from './can-update-default-props';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -52,7 +51,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 				input: fileContents,
 				compositionId,
 			});
-			const {output, formatted} = await updateDefaultProps({
+			const {output} = await updateDefaultProps({
 				compositionId,
 				input: fileContents,
 				newDefaultProps: JSON.parse(defaultProps),
@@ -92,9 +91,6 @@ export const updateDefaultPropsHandler: ApiHandler<
 				{indent: false, logLevel},
 				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
 
 			printUndoHint(logLevel);
 
