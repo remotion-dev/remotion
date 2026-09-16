@@ -14,7 +14,7 @@ function toSeconds(time: string) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}
 
-	const [seconds, millis] = third.split(',');
+	const [seconds, millis] = third.trim().split(/[,.]/);
 	if (!seconds) {
 		throw new Error(`Invalid timestamp:${time}`);
 	}
@@ -40,16 +40,20 @@ export type ParseSrtOutput = {
 };
 
 export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
-	const inputLines = input.split('\n');
+	const inputLines = input
+		.replace(/^\uFEFF/, '')
+		.replace(/\r\n/g, '\n')
+		.replace(/\r/g, '\n')
+		.split('\n');
 	const captions: Caption[] = [];
 
 	for (let i = 0; i < inputLines.length; i++) {
 		const line = inputLines[i];
 		const nextLine = inputLines[i + 1];
-		if (line?.match(/([0-9]+)/) && nextLine?.includes(' --> ')) {
+		if (line?.match(/^\s*\d+\s*$/) && nextLine?.includes(' --> ')) {
 			const nextLineSplit = nextLine.split(' --> ');
-			const start = toSeconds(nextLineSplit[0] as string);
-			const end = toSeconds(nextLineSplit[1] as string);
+			const start = toSeconds((nextLineSplit[0] as string).trim());
+			const end = toSeconds((nextLineSplit[1] as string).trim());
 			captions.push({
 				text: '',
 				startMs: start * 1000,
@@ -60,10 +64,12 @@ export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 		} else if (line?.includes(' --> ')) {
 			continue;
 		} else if (line?.trim() === '') {
-			(captions[captions.length - 1] as Caption).text = (
-				captions[captions.length - 1] as Caption
-			).text.trim();
-		} else {
+			if (captions.length > 0) {
+				(captions[captions.length - 1] as Caption).text = (
+					captions[captions.length - 1] as Caption
+				).text.trim();
+			}
+		} else if (captions.length > 0) {
 			(captions[captions.length - 1] as Caption).text += line + '\n';
 		}
 	}
