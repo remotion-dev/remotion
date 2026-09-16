@@ -34,7 +34,8 @@ const makeSharedAudioContext = (): SharedAudioContextForMediaPlayer => {
 };
 
 const makeAudioPlayer = (
-	sharedAudioContext: SharedAudioContextForMediaPlayer,
+	sharedAudioContext: SharedAudioContextForMediaPlayer | null,
+	onError: ((error: Error) => void) | null = null,
 ) => {
 	return new MediaPlayer({
 		canvas: null,
@@ -62,6 +63,7 @@ const makeAudioPlayer = (
 		tagType: 'audio',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		onError,
 	});
 };
 
@@ -165,6 +167,7 @@ test('dispose should immediately unblock playback delays', async () => {
 		tagType: 'video',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		onError: null,
 	});
 
 	await player.initialize(0, false, 1);
@@ -184,4 +187,82 @@ test('dispose should immediately unblock playback delays', async () => {
 	expect(activeBlocks).toBe(0);
 
 	await seekPromise.catch(() => {});
+});
+
+test.each(['video', 'audio'] as const)(
+	'reports a required %s seek failure once and stops playback and seeking',
+	async (tagType) => {
+		const onError = vi.fn();
+		const player = makeAudioPlayer(null, onError);
+		const error = new TypeError('Failed to fetch');
+		const seek = vi.fn(() => Promise.reject(error));
+		player[`${tagType}IteratorManager`] = {seek} as never;
+		player.play();
+
+		await player.seekTo(1);
+		player.play();
+		await player.seekTo(2);
+
+		expect(onError).toHaveBeenCalledOnce();
+		expect(onError).toHaveBeenCalledWith(error);
+		expect(seek).toHaveBeenCalledOnce();
+		// Inspect playback state without exposing a new public API for this test.
+		// eslint-disable-next-line dot-notation
+		expect(player['playing']).toBe(false);
+		player[`${tagType}IteratorManager`] = null;
+		await player.dispose();
+	},
+);
+
+test('ignores a stale seek failure and allows the newer seek', async () => {
+	const onError = vi.fn();
+	const player = makeAudioPlayer(null, onError);
+	let rejectSeek!: (error: Error) => void;
+	const seek = vi
+		.fn()
+		.mockImplementationOnce(
+			() =>
+				new Promise<void>((_, reject) => {
+					rejectSeek = reject;
+				}),
+		)
+		.mockResolvedValue(undefined);
+	player.videoIteratorManager = {seek} as never;
+
+	const first = player.seekTo(1);
+	await vi.waitFor(() => expect(seek).toHaveBeenCalledOnce());
+	const second = player.seekTo(2);
+	rejectSeek(new TypeError('Failed to fetch'));
+	await Promise.all([first, second]);
+
+	expect(onError).not.toHaveBeenCalled();
+	expect(seek).toHaveBeenCalledTimes(2);
+	player.videoIteratorManager = null;
+	await player.dispose();
+});
+
+test('ignores pending seek failures after disposal and skips new seeks', async () => {
+	const onError = vi.fn();
+	const player = makeAudioPlayer(null, onError);
+	let rejectSeek!: (error: Error) => void;
+	const seek = vi.fn(
+		() =>
+			new Promise<void>((_, reject) => {
+				rejectSeek = reject;
+			}),
+	);
+	player.videoIteratorManager = {seek} as never;
+
+	const pending = player.seekTo(1);
+	await vi.waitFor(() => expect(seek).toHaveBeenCalledOnce());
+	player.videoIteratorManager = null;
+	await player.dispose();
+	rejectSeek(new TypeError('Failed to fetch'));
+	await pending;
+	player.videoIteratorManager = {seek} as never;
+	await player.seekTo(2);
+
+	expect(onError).not.toHaveBeenCalled();
+	expect(seek).toHaveBeenCalledOnce();
+	player.videoIteratorManager = null;
 });

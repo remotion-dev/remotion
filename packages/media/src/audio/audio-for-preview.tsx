@@ -142,6 +142,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialVolume = useRef(userPreferredVolume);
 	const initialDurationInFrames = useRef(videoConfig.durationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
+	const onErrorRef = useRef(onError);
+	onErrorRef.current = onError;
+	const disallowFallbackRef = useRef(disallowFallbackToHtml5Audio);
+	disallowFallbackRef.current = disallowFallbackToHtml5Audio;
 
 	useCommonEffects({
 		mediaPlayerRef,
@@ -217,6 +221,18 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				tagType: 'audio',
 				getEffects: () => [],
 				getEffectChainState: () => null,
+				onError: (error) => {
+					const [action] = callOnErrorAndResolve({
+						onError: onErrorRef.current,
+						error,
+						disallowFallback: disallowFallbackRef.current,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fallback') {
+						setShouldFallbackToNativeAudio(true);
+					}
+				},
 			});
 
 			mediaPlayerRef.current = player;

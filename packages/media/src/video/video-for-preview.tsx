@@ -174,6 +174,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const onErrorRef = useRef(onError);
 	onErrorRef.current = onError;
+	const disallowFallbackRef = useRef(disallowFallbackToOffthreadVideo);
+	disallowFallbackRef.current = disallowFallbackToOffthreadVideo;
 
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
@@ -298,6 +300,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
+				onError: (error) => {
+					const [action] = callOnErrorAndResolve({
+						onError: onErrorRef.current,
+						error,
+						disallowFallback: disallowFallbackRef.current,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fallback') {
+						setShouldFallbackToNativeVideo(true);
+					}
+				},
 			});
 
 			mediaPlayerRef.current = player;
