@@ -16,7 +16,6 @@ import React, {
 } from 'react';
 import {type _InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -41,11 +40,11 @@ import {SetSelectedModalContext} from '../state/modals';
 import {makeCompositionDragData} from './composition-drag-data';
 import {getCompositionContextMenuItems} from './composition-menu-items';
 import {
-	type CompositionSelectorActiveDrag,
 	compositionSelectorDragDataToSymbolicatedStack,
 	hasCompositionSelectorDragData,
 	makeCompositionSelectorDragData,
 	parseCompositionSelectorDragData,
+	type CompositionSelectorActiveDrag,
 	type CompositionSelectorDragData,
 } from './composition-selector-drag-data';
 import {CompositionContextButton} from './CompositionContextButton';
@@ -58,7 +57,7 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
-import {useEditorOpening} from './use-default-editor-info';
+import {useOpenInMenuApps} from './use-open-in-menu-apps';
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 2,
@@ -345,11 +344,7 @@ export const CompositionSelectorItem: React.FC<{
 	);
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
-	const {defaultEditorId, defaultEditorName} = useEditorOpening(
-		connectionStatus === 'connected',
-	);
+	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const resolvedLocation = useResolvedStack(
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
@@ -360,9 +355,8 @@ export const CompositionSelectorItem: React.FC<{
 				closeMenu: noop,
 				composition: item.composition,
 				connectionStatus,
-				editorId: defaultEditorId,
-				editorName: defaultEditorName,
 				includeCompositionManagementItems: true,
+				openInApps,
 				resolvedLocation,
 				setSelectedModal,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -372,21 +366,14 @@ export const CompositionSelectorItem: React.FC<{
 		return getFolderMenuItems({
 			closeMenu: noop,
 			connectionStatus,
-			editorId: defaultEditorId,
-			editorName: defaultEditorName,
+			editorId: openInApps.defaultEditorId,
+			editorName: openInApps.defaultEditorName,
 			folder: item.folder,
 			resolvedLocation,
 			setSelectedModal,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
 		});
-	}, [
-		connectionStatus,
-		defaultEditorId,
-		defaultEditorName,
-		item,
-		resolvedLocation,
-		setSelectedModal,
-	]);
+	}, [connectionStatus, item, openInApps, resolvedLocation, setSelectedModal]);
 
 	const onItemDragStart = useCallback(
 		(event: DragEvent<HTMLElement>) => {

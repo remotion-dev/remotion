@@ -94,11 +94,23 @@ const commonArgs = {
 	closeMenu: () => undefined,
 	composition,
 	connectionStatus: 'connected' as const,
-	editorId: 'vscode' as const,
-	editorName: 'Code',
 	readOnlyStudio: false,
 	resolvedLocation: null,
 	setSelectedModal: () => undefined,
+	openInApps: {
+		canOpenDesktopApps: true,
+		canOpenInEditor: true,
+		codingAgentInfo: null,
+		defaultEditorId: 'vscode' as const,
+		defaultEditorName: 'Code',
+		editorInfo: {
+			defaultEditor: 'vscode' as const,
+			installedEditors: [
+				{id: 'vscode' as const, name: 'Code', nameWithType: 'Code'},
+			],
+		},
+		onConfigureApps: null,
+	},
 };
 
 const ids = (items: ReturnType<typeof getCompositionMenuItems>) =>
@@ -127,9 +139,14 @@ test('connected composition context menus omit management actions', () => {
 
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
-		editorId: null,
-		editorName: null,
 		includeCompositionManagementItems: false,
+		openInApps: {
+			...commonArgs.openInApps,
+			canOpenInEditor: false,
+			defaultEditorId: null,
+			defaultEditorName: null,
+			editorInfo: null,
+		},
 	});
 
 	expect(ids(items)).toEqual([
@@ -221,11 +238,19 @@ test('editor actions use Open labels and are adjacent', () => {
 });
 
 test('read-only composition menus keep navigation and copy actions enabled', () => {
-	installTestWindowWithEditor();
+	installTestWindowWithGitSource({readOnly: true});
 
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: true,
+		openInApps: {
+			...commonArgs.openInApps,
+			canOpenDesktopApps: false,
+			canOpenInEditor: false,
+			defaultEditorId: null,
+			defaultEditorName: null,
+			editorInfo: null,
+		},
 		readOnlyStudio: true,
 		resolvedLocation,
 	});
@@ -239,8 +264,11 @@ test('read-only composition menus keep navigation and copy actions enabled', () 
 	};
 
 	expect(itemById('open-in-new-window').disabled).not.toBe(true);
-	expect(itemById('show-in-editor').disabled).toBe(false);
-	expect(itemById('open-component-in-editor').disabled).toBe(false);
+	expect(itemById('open-composition-in-git-source').disabled).toBe(false);
+	expect(itemById('open-component-in-git-source').disabled).toBe(false);
+	expect(ids(items)).not.toContain('show-in-editor');
+	expect(ids(items)).not.toContain('open-composition-in-another-app');
+	expect(ids(items)).not.toContain('open-component-in-another-app');
 	expect(itemById('copy-context-for-agents').disabled).toBe(false);
 	expect(itemById('copy-file-location').disabled).toBe(false);
 	expect(itemById('copy-id').disabled).toBe(false);
@@ -253,9 +281,15 @@ test('composition context menus can open source locations on GitHub', () => {
 	const openedUrls = installTestWindowWithGitSource({readOnly: true});
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
-		editorId: null,
-		editorName: null,
 		includeCompositionManagementItems: true,
+		openInApps: {
+			...commonArgs.openInApps,
+			canOpenDesktopApps: false,
+			canOpenInEditor: false,
+			defaultEditorId: null,
+			defaultEditorName: null,
+			editorInfo: null,
+		},
 		readOnlyStudio: true,
 		resolvedLocation,
 	});
@@ -279,15 +313,70 @@ test('composition context menus can open source locations on GitHub', () => {
 	]);
 });
 
-test('interactive composition context menus retain GitHub actions', () => {
+test('interactive composition context menus list GitHub as an alternative', () => {
 	installTestWindowWithGitSource({readOnly: false});
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: false,
+		openInApps: {
+			...commonArgs.openInApps,
+			codingAgentInfo: {
+				defaultCodingAgent: 'cursor',
+				installedCodingAgents: [
+					{
+						id: 'cursor',
+						name: 'Cursor',
+						nameWithType: 'Cursor Agent',
+					},
+				],
+				installedGitClients: [],
+				installedTerminals: [],
+			},
+			editorInfo: {
+				defaultEditor: 'vscode',
+				installedEditors: [
+					{id: 'vscode', name: 'Code', nameWithType: 'Code'},
+					{id: 'cursor', name: 'Cursor', nameWithType: 'Cursor Editor'},
+				],
+			},
+			onConfigureApps: () => undefined,
+		},
 		resolvedLocation,
 	});
 
 	expect(ids(items)).toContain('show-in-editor');
-	expect(ids(items)).toContain('open-composition-in-git-source');
-	expect(ids(items)).toContain('open-component-in-git-source');
+	expect(ids(items)).not.toContain('open-composition-in-git-source');
+	expect(ids(items)).not.toContain('open-component-in-git-source');
+
+	const compositionAlternatives = items.find(
+		(item) => item.id === 'open-composition-in-another-app',
+	);
+	const componentAlternatives = items.find(
+		(item) => item.id === 'open-component-in-another-app',
+	);
+	if (
+		compositionAlternatives?.type !== 'item' ||
+		compositionAlternatives.subMenu === null ||
+		componentAlternatives?.type !== 'item' ||
+		componentAlternatives.subMenu === null
+	) {
+		throw new Error('Expected composition and component Open in submenus');
+	}
+
+	expect(compositionAlternatives.subMenu.items.map((item) => item.id)).toEqual(
+		expect.arrayContaining([
+			'open-in-cursor',
+			'open-in-coding-agent-cursor',
+			'open-in-github',
+			'change-default-apps',
+		]),
+	);
+	expect(componentAlternatives.subMenu.items.map((item) => item.id)).toEqual(
+		expect.arrayContaining([
+			'open-in-cursor',
+			'open-in-coding-agent-cursor',
+			'open-in-github',
+			'change-default-apps',
+		]),
+	);
 });

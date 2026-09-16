@@ -17,7 +17,7 @@ import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
-import {useEditorOpening} from '../components/use-default-editor-info';
+import {useOpenInMenuApps} from '../components/use-open-in-menu-apps';
 import {Checkmark} from '../icons/Checkmark';
 import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -35,7 +35,6 @@ import {
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
-import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
@@ -314,10 +313,8 @@ export const useMenuStructure = (
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
-	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
-	const {defaultEditorId, defaultEditorName} = useEditorOpening(
-		type === 'connected',
-	);
+	const {connectionStatus: type, openInApps} = useOpenInMenuApps();
+	const {defaultEditorId, defaultEditorName} = openInApps;
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const resetZoomShortcut = useKeyboardShortcutLabel('resetZoom');
 	const toggleSnappingShortcut = useKeyboardShortcutLabel('toggleSnapping');
@@ -906,9 +903,8 @@ export const useMenuStructure = (
 						closeMenu,
 						composition: currentComposition,
 						connectionStatus: type,
-						editorId: defaultEditorId,
-						editorName: defaultEditorName,
 						includeCompositionManagementItems: true,
+						openInApps,
 						resolvedLocation: resolvedCompositionLocation,
 						setSelectedModal,
 						readOnlyStudio,
@@ -1184,6 +1180,7 @@ export const useMenuStructure = (
 		mobileLayout,
 		defaultEditorId,
 		defaultEditorName,
+		openInApps,
 		keyboardShortcutsDisabled,
 		studioAskAIEnabled,
 		askAIShortcut,
