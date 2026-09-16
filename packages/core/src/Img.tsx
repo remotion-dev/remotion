@@ -62,6 +62,7 @@ export type ImgProps = NativeImgProps & {
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
 	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
+	readonly onImageError?: (error: Error) => void;
 	readonly src: string;
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
@@ -99,6 +100,7 @@ type ImgContentProps = Omit<
 
 const ImgContent: React.FC<ImgContentProps> = ({
 	onError,
+	onImageError,
 	maxRetries = 2,
 	src,
 	pauseWhenLoading,
@@ -176,10 +178,16 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			errors.current[imageRef.current?.src as string] =
 				(errors.current[imageRef.current?.src as string] ?? 0) + 1;
 			if (
-				onError &&
+				(onError || onImageError) &&
 				(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
 			) {
-				onError(e);
+				onError?.(e);
+				onImageError?.(
+					new Error(
+						'Error loading image with src: ' +
+							truncateSrcForLabel(imageRef.current?.src as string),
+					),
+				);
 				return;
 			}
 
@@ -210,7 +218,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				// In async image callbacks, we rely on the stored error for renderer propagation.
 			}
 		},
-		[cancelRender, maxRetries, onError, retryIn],
+		[cancelRender, maxRetries, onError, onImageError, retryIn],
 	);
 
 	if (typeof window !== 'undefined') {
@@ -460,7 +468,6 @@ export const imgSchema = {
 
 const imgCanvasFallbackIncompatibleProps = new Set([
 	'alt',
-	'crossOrigin',
 	'decoding',
 	'fetchPriority',
 	'loading',
@@ -566,6 +573,7 @@ const ImgInner: React.FC<
 	maxRetries,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
+	onImageError,
 	...props
 }) => {
 	const refForOutline = useRef<HTMLElement | null>(null);
@@ -602,6 +610,7 @@ const ImgInner: React.FC<
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				onImageError={onImageError}
 				outlineRef={refForOutline}
 			/>
 		);
@@ -637,6 +646,7 @@ const ImgInner: React.FC<
 			cropTop={cropTop}
 			cropBottom={cropBottom}
 			id={id}
+			onError={onImageError}
 			pauseWhenLoading={shouldPauseWhenLoading}
 			maxRetries={maxRetries}
 			delayRenderRetries={delayRenderRetries}

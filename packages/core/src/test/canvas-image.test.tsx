@@ -23,6 +23,7 @@ type DrawImageCall = {
 
 const drawImageCalls: DrawImageCall[] = [];
 let imageLoadCount = 0;
+const imageCrossOrigins: Array<string | null> = [];
 
 const stub2dContext = (canvas: HTMLCanvasElement) => ({
 	canvas,
@@ -70,6 +71,7 @@ class MockImage {
 	public set src(src: string) {
 		this.currentSrc = src;
 		imageLoadCount++;
+		imageCrossOrigins.push(this.crossOrigin);
 		queueMicrotask(() => this.onload?.());
 	}
 }
@@ -200,6 +202,7 @@ const SequenceRegistrationWrapper: React.FC<{
 beforeEach(() => {
 	drawImageCalls.length = 0;
 	imageLoadCount = 0;
+	imageCrossOrigins.length = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
 	resetDelayRenderState();
 });
@@ -225,6 +228,21 @@ test('<CanvasImage> renders a canvas element with the decoded image dimensions',
 	await waitFor(() => {
 		expect(canvas?.width).toBe(200);
 		expect(canvas?.height).toBe(100);
+	});
+});
+
+test('<CanvasImage> forwards crossOrigin to its image loader', async () => {
+	render(
+		<WrapSequenceContext>
+			<CanvasImage
+				src="https://example.com/authenticated.png"
+				crossOrigin="use-credentials"
+			/>
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(imageCrossOrigins).toEqual(['use-credentials']);
 	});
 });
 
