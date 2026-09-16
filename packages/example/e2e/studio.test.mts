@@ -2266,13 +2266,14 @@ export const SequenceShiftRepro = () => {
 			await expect(
 				page.getByText('Open in Cursor Editor', {exact: true}),
 			).toBeVisible();
-			await expect(
-				page.getByText('Open in Cursor Agent', {exact: true}),
-			).toBeVisible();
+			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
 			const cursorAgentButton = page.getByRole('button', {
-				name: 'Open in Cursor Agent',
+				name: 'Cursor',
 				exact: true,
 			});
+			await expect(
+				cursorAgentButton.locator('img[data-coding-agent-icon="cursor"]'),
+			).toBeVisible();
 			await expect(
 				page.getByRole('button', {name: 'Open component docs', exact: true}),
 			).toHaveCount(0);
@@ -3220,10 +3221,11 @@ export const SequenceShiftRepro = () => {
 			});
 
 			await timelineGridline.click({button: 'right'});
-			await expect(
-				page.getByText('Open in Codex', {exact: true}),
-			).toBeVisible();
+			await expect(page.getByText('Open in Code', {exact: true})).toBeVisible();
 			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
+			await expect(
+				page.getByRole('button', {name: 'Codex', exact: true}),
+			).toBeVisible();
 			const cursorAgentIcon = page.locator(
 				'img[data-coding-agent-icon="cursor"]',
 			);
