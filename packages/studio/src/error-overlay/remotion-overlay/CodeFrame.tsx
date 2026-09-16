@@ -11,17 +11,24 @@ import {
 	WHITE_ALPHA_40,
 } from '../../helpers/colors';
 
-const container: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	width: '100%',
-};
-
 const frame: React.CSSProperties = {
 	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
 	borderRadius: 6,
+	display: 'flex',
 	marginBottom: 20,
-	overflowY: 'auto',
+	overflow: 'hidden',
+};
+
+const sourceContainer: React.CSSProperties = {
+	flex: 1,
+	minWidth: 0,
+	overflowX: 'auto',
+	overscrollBehaviorX: 'none',
+};
+
+const lineNumberColumn: React.CSSProperties = {
+	flexShrink: 0,
+	width: 60,
 };
 
 const lineNumber: React.CSSProperties = {
@@ -35,9 +42,6 @@ const lineNumber: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'flex-end',
 	fontFamily: 'monospace',
-	position: 'sticky',
-	left: 0,
-	zIndex: 1,
 };
 
 export const CodeFrame: React.FC<{
@@ -53,56 +57,65 @@ export const CodeFrame: React.FC<{
 				marginLeft: horizontalMargin,
 				marginRight: horizontalMargin,
 			}}
-			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 		>
-			{/* Keep every row as wide as the longest line when scrolling. */}
-			<div style={{minWidth: '100%', width: 'max-content'}}>
+			<div style={lineNumberColumn}>
 				{source.map((s, j) => {
 					return (
 						<div
 							// eslint-disable-next-line react/no-array-index-key
 							key={j}
 							style={{
-								...container,
+								...lineNumber,
+								fontSize,
 								backgroundColor: s.highlight
-									? SELECTED_BACKGROUND
-									: TRANSPARENT,
+									? ERROR_CODE_FRAME_BACKGROUND
+									: ERROR_CODE_FRAME_LINE_BACKGROUND,
+								backgroundImage: s.highlight
+									? `linear-gradient(${SELECTED_BACKGROUND}, ${SELECTED_BACKGROUND})`
+									: undefined,
+								color: s.highlight ? WHITE : WHITE_ALPHA_40,
 							}}
 						>
-							<div
-								style={{
-									...lineNumber,
-									fontSize,
-									backgroundColor: s.highlight
-										? ERROR_CODE_FRAME_BACKGROUND
-										: ERROR_CODE_FRAME_LINE_BACKGROUND,
-									backgroundImage: s.highlight
-										? `linear-gradient(${SELECTED_BACKGROUND}, ${SELECTED_BACKGROUND})`
-										: undefined,
-									color: s.highlight ? WHITE : WHITE_ALPHA_40,
-								}}
-							>
-								{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
-							</div>
-							<code
-								className="language-tsx"
-								style={{
-									fontFamily: 'monospace',
-									fontSize,
-									color: '#9cdcfe',
-									whiteSpace: 'pre',
-									tabSize: 2,
-									backgroundColor: TRANSPARENT,
-									lineHeight: 1.7,
-									paddingRight: 12,
-									paddingLeft: 12,
-								}}
-							>
-								<LazySyntaxHighlightedSource source={s.content} />
-							</code>
+							{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
 						</div>
 					);
 				})}
+			</div>
+			<div style={sourceContainer} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
+				{/* Keep every row as wide as the longest line when scrolling. */}
+				<div style={{minWidth: '100%', width: 'max-content'}}>
+					{source.map((s, j) => {
+						return (
+							<div
+								// eslint-disable-next-line react/no-array-index-key
+								key={j}
+								style={{
+									backgroundColor: s.highlight
+										? SELECTED_BACKGROUND
+										: TRANSPARENT,
+								}}
+							>
+								<code
+									className="language-tsx"
+									style={{
+										display: 'block',
+										fontFamily: 'monospace',
+										fontSize,
+										color: '#9cdcfe',
+										whiteSpace: 'pre',
+										tabSize: 2,
+										backgroundColor: TRANSPARENT,
+										lineHeight: 1.7,
+										paddingRight: 12,
+										paddingLeft: 12,
+									}}
+								>
+									<LazySyntaxHighlightedSource source={s.content} />
+								</code>
+							</div>
+						);
+					})}
+				</div>
 			</div>
 		</div>
 	);
