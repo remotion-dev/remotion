@@ -38,10 +38,10 @@ const Header: React.FC = () => {
 			name="Title bar"
 			style={{
 				alignItems: 'center',
-				backgroundColor: '#ffffff',
-				borderBottom: '1px solid #e4e4e4',
+				backgroundColor: '#171717',
+				borderBottom: '1px solid #3b3b3b',
 				boxSizing: 'border-box',
-				color: '#191a1c',
+				color: '#e4e4e4',
 				display: 'flex',
 				fontWeight: 450,
 				height: 42,
@@ -71,7 +71,7 @@ const Header: React.FC = () => {
 			<MoreIcon
 				size={15}
 				style={{
-					color: '#8f9092',
+					color: '#8b8b8b',
 					left: 593,
 					position: 'absolute',
 					scale: '1.15 1.2',
@@ -82,7 +82,7 @@ const Header: React.FC = () => {
 			<ShareIcon
 				size={14}
 				style={{
-					color: '#8f9092',
+					color: '#8b8b8b',
 					left: 626,
 					position: 'absolute',
 					scale: '1.35 1.1',
@@ -92,7 +92,7 @@ const Header: React.FC = () => {
 			/>
 			<div
 				style={{
-					color: '#8f9092',
+					color: '#8b8b8b',
 					fontSize: 12,
 					left: 646,
 					position: 'absolute',
@@ -104,7 +104,7 @@ const Header: React.FC = () => {
 			<SlidersIcon
 				size={14}
 				style={{
-					color: '#8f9092',
+					color: '#8b8b8b',
 					left: 695,
 					position: 'absolute',
 					scale: '1.3 1',
@@ -115,7 +115,7 @@ const Header: React.FC = () => {
 			<BottomPanelIcon
 				size={14}
 				style={{
-					color: '#8f9092',
+					color: '#8b8b8b',
 					left: 727,
 					position: 'absolute',
 					scale: '1 1.1',
@@ -125,7 +125,7 @@ const Header: React.FC = () => {
 			<RightPanelIcon
 				size={14}
 				style={{
-					color: '#8f9092',
+					color: '#8b8b8b',
 					left: 758,
 					position: 'absolute',
 					scale: '1 1.1',
@@ -155,10 +155,10 @@ const CodePill: React.FC<{
 		<code
 			style={{
 				alignItems: 'center',
-				backgroundColor: '#eaeaea',
+				backgroundColor: '#303030',
 				borderRadius: 4,
 				boxSizing: 'border-box',
-				color: '#252628',
+				color: '#e4e4e4',
 				display: 'inline-flex',
 				fontFamily: 'Menlo, Monaco, monospace',
 				fontSize: 11.5,
@@ -184,7 +184,7 @@ const StatusDivider: React.FC<{
 			<div
 				style={{
 					alignItems: 'center',
-					color: '#757677',
+					color: '#9a9a9a',
 					display: 'flex',
 					fontSize: 12.5,
 					fontWeight: 450,
@@ -192,11 +192,11 @@ const StatusDivider: React.FC<{
 				}}
 			>
 				{children}
-				<ChevronRightIcon size={12} style={{color: '#b9babb', marginLeft: 5}} />
+				<ChevronRightIcon size={12} style={{color: '#8b8b8b', marginLeft: 5}} />
 			</div>
 			<div
 				style={{
-					backgroundColor: '#ededed',
+					backgroundColor: '#2a2a2a',
 					bottom: 0,
 					height: 1,
 					left: 0,
@@ -217,10 +217,10 @@ const Conversation: React.FC = () => {
 			<Interactive.Div
 				name="First user message"
 				style={{
-					backgroundColor: '#e7f1fd',
+					backgroundColor: '#213569',
 					borderRadius: 16,
 					boxSizing: 'border-box',
-					color: '#152240',
+					color: '#f5f9fe',
 					fontSize: 12.5,
 					height: 120,
 					left: 260,
@@ -251,7 +251,7 @@ const Conversation: React.FC = () => {
 			<Interactive.Div
 				name="First assistant message"
 				style={{
-					color: '#191a1c',
+					color: '#e4e4e4',
 					fontSize: 12.5,
 					left: 61,
 					lineHeight: '21px',
@@ -282,9 +282,9 @@ const Conversation: React.FC = () => {
 				name="Second user message"
 				style={{
 					alignItems: 'center',
-					backgroundColor: '#e7f1fd',
+					backgroundColor: '#213569',
 					borderRadius: 16,
-					color: '#152240',
+					color: '#f5f9fe',
 					display: 'flex',
 					fontSize: 12.5,
 					height: 38,
@@ -303,7 +303,7 @@ const Conversation: React.FC = () => {
 			<Interactive.Div
 				name="Second assistant message"
 				style={{
-					color: '#191a1c',
+					color: '#e4e4e4',
 					fontSize: 12.5,
 					left: 61,
 					lineHeight: '21px',
@@ -328,10 +328,10 @@ const Conversation: React.FC = () => {
 			<Interactive.Div
 				name="Rendered end card"
 				style={{
-					backgroundColor: '#ffffff',
-					border: '1px solid #ededed',
+					backgroundColor: '#1f1f1f',
+					border: '1px solid #3b3b3b',
 					borderRadius: 7,
-					boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
+					boxShadow: '0 1px 2px rgba(0, 0, 0, 0.35)',
 					boxSizing: 'border-box',
 					height: 144,
 					left: 61,
@@ -352,7 +352,7 @@ const Conversation: React.FC = () => {
 			<div
 				style={{
 					alignItems: 'center',
-					color: '#959698',
+					color: '#8b8b8b',
 					display: 'flex',
 					height: 18,
 					left: 61,
@@ -381,13 +381,13 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 		<Interactive.Div
 			name="Composer"
 			style={{
-				backgroundColor: '#ffffff',
-				border: '1px solid #efefef',
-				borderBottomColor: '#ebebeb',
+				backgroundColor: '#252525',
+				border: '1px solid #3b3b3b',
+				borderBottomColor: '#3b3b3b',
 				borderRadius: 19,
-				boxShadow: '0 2px 8px 0 #0000000a, 0 4px 80px 8px #00000006',
+				boxShadow: '0 2px 8px 0 #00000040, 0 4px 80px 8px #00000020',
 				boxSizing: 'border-box',
-				color: '#191a1c',
+				color: '#e4e4e4',
 				height: 90,
 				left: 60,
 				position: 'absolute',
@@ -397,7 +397,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 		>
 			<div
 				style={{
-					color: '#c6c6c7',
+					color: '#8b8b8b',
 					fontSize: 12.6,
 					left: 11,
 					lineHeight: '18px',
@@ -416,7 +416,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 				style={{
 					alignItems: 'center',
 					bottom: 11,
-					color: '#ce5a21',
+					color: '#e98047',
 					display: 'flex',
 					fontFamily: 'Arial, Helvetica, sans-serif',
 					fontSize: 12.2,
@@ -457,7 +457,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 				<SpinnerIcon
 					size={14}
 					style={{
-						color: '#858688',
+						color: '#8b8b8b',
 						marginRight: 8,
 						scale: '1.1',
 						translate: '-5px 2px',
@@ -479,7 +479,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 				</span>
 				<span
 					style={{
-						color: '#898a8c',
+						color: '#8b8b8b',
 						fontFamily: 'Arial, Helvetica, sans-serif',
 						fontSize: 12.65,
 						marginLeft: 4,
@@ -493,7 +493,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 				<ChevronDownIcon
 					size={13}
 					style={{
-						color: '#898a8c',
+						color: '#8b8b8b',
 						marginLeft: 1,
 						marginRight: 11,
 						scale: '1.4 1.25',
@@ -512,7 +512,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 			<div
 				style={{
 					alignItems: 'center',
-					backgroundColor: '#4a76f1',
+					backgroundColor: '#395ab9',
 					borderRadius: '50%',
 					bottom: 7,
 					color: '#ffffff',
@@ -539,7 +539,7 @@ export const Codex: React.FC<CodexProps> = ({borderRadius, height, width}) => {
 		<AbsoluteFill
 			style={{
 				WebkitFontSmoothing: 'antialiased',
-				backgroundColor: '#ffffff',
+				backgroundColor: '#171717',
 				borderRadius,
 				fontFamily:
 					'-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
@@ -550,7 +550,7 @@ export const Codex: React.FC<CodexProps> = ({borderRadius, height, width}) => {
 			<Interactive.Div
 				name="Codex window"
 				style={{
-					backgroundColor: '#ffffff',
+					backgroundColor: '#171717',
 					borderRadius: borderRadius / scale,
 					height: MINIMUM_HEIGHT,
 					left: (width - scaledWidth) / 2,
