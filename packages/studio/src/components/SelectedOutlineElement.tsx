@@ -32,7 +32,10 @@ import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
-import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
+import {
+	findCopyableFrameElement,
+	getSequenceContextMenuItems,
+} from './Timeline/get-sequence-context-menu-items';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
 	getTimelineSequenceSelectionKey,
@@ -238,14 +241,16 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
 		const canRotate = !sourceEditDisabled;
+		const outlineElement =
+			contextMenuTarget.sequence.refForOutline?.current ?? null;
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
 			codingAgentInfo,
 			copyImageElement:
 				contextMenuTarget.sequence.type === 'image'
-					? (contextMenuTarget.sequence.refForOutline?.current ?? null)
-					: null,
+					? outlineElement
+					: findCopyableFrameElement(outlineElement),
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,

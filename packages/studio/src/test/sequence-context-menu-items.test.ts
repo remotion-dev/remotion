@@ -4,7 +4,10 @@ import type {TSequence} from 'remotion';
 import {getOpenInMenuItems} from '../components/get-open-in-menu-items';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getCopyContextForAgentsMenuItem} from '../components/Timeline/get-copy-context-for-agents-menu-item';
-import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
+import {
+	findCopyableFrameElement,
+	getSequenceContextMenuItems,
+} from '../components/Timeline/get-sequence-context-menu-items';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
 	calculateSequenceFreezeFrame,
@@ -73,6 +76,23 @@ const renameSequenceItem: ComboboxValue = {
 };
 
 const noop = () => undefined;
+
+test('finds direct and nested elements that can copy a frame', () => {
+	const canvas = {tagName: 'CANVAS'} as Element;
+	const video = {tagName: 'VIDEO'} as Element;
+	const wrapper = {
+		tagName: 'DIV',
+		querySelector: (selector: string) => {
+			expect(selector).toBe('canvas, video');
+			return video;
+		},
+	} as unknown as Element;
+
+	expect(findCopyableFrameElement(canvas)).toBe(canvas);
+	expect(findCopyableFrameElement(video)).toBe(video);
+	expect(findCopyableFrameElement(wrapper)).toBe(video);
+	expect(findCopyableFrameElement(null)).toBeNull();
+});
 
 test('copy context menu items write their agent context to the clipboard', () => {
 	const copiedTexts: string[] = [];
@@ -144,14 +164,14 @@ const expectNoExtraDividers = (items: ComboboxValue[]) => {
 	}
 };
 
-test('sequence context menu normalizes dividers before source actions', () => {
+test('sequence context menu adds frame copying and normalizes dividers', () => {
 	installTestWindow();
 
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
 		codingAgentInfo: null,
-		copyImageElement: null,
+		copyImageElement: {tagName: 'CANVAS'} as Element,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -168,6 +188,7 @@ test('sequence context menu normalizes dividers before source actions', () => {
 		selectAsset: noop,
 		sequence: {
 			documentationLink: 'https://www.remotion.dev/docs/sequence',
+			type: 'sequence',
 		} as TSequence,
 		sourceActions: [renameSequenceItem],
 	});
@@ -177,10 +198,16 @@ test('sequence context menu normalizes dividers before source actions', () => {
 	const copyContextIndex = items.findIndex(
 		(item) => item.id === 'copy-context-for-agents',
 	);
+	const copyFrameIndex = items.findIndex((item) => item.id === 'copy-frame');
 	const renameIndex = items.findIndex((item) => item.id === 'rename-sequence');
 
+	expect(items[copyContextIndex + 1]?.type).toBe('divider');
+	expect(copyFrameIndex).toBe(copyContextIndex + 2);
 	expect(
-		items.slice(copyContextIndex + 1, renameIndex).map((item) => item.type),
+		items[copyFrameIndex]?.type === 'item' ? items[copyFrameIndex].label : null,
+	).toBe('Copy frame');
+	expect(
+		items.slice(copyFrameIndex + 1, renameIndex).map((item) => item.type),
 	).toEqual(['divider']);
 });
 
