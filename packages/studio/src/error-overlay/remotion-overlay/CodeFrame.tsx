@@ -21,8 +21,6 @@ const frame: React.CSSProperties = {
 	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
 	borderRadius: 6,
 	marginBottom: 20,
-	marginLeft: 14,
-	marginRight: 14,
 	overflowY: 'auto',
 };
 
@@ -30,7 +28,6 @@ const lineNumber: React.CSSProperties = {
 	whiteSpace: 'pre',
 	paddingRight: 12,
 	color: 'inherit',
-	fontSize: 14,
 	lineHeight: 1.7,
 	width: 60,
 	flexShrink: 0,
@@ -43,9 +40,18 @@ const lineNumber: React.CSSProperties = {
 export const CodeFrame: React.FC<{
 	readonly source: ScriptLine[];
 	readonly lineNumberWidth: number;
-}> = ({source, lineNumberWidth}) => {
+	readonly fontSize: number;
+	readonly horizontalMargin: number;
+}> = ({source, lineNumberWidth, fontSize, horizontalMargin}) => {
 	return (
-		<div style={frame} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
+		<div
+			style={{
+				...frame,
+				marginLeft: horizontalMargin,
+				marginRight: horizontalMargin,
+			}}
+			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+		>
 			{/* Keep every row as wide as the longest line when scrolling. */}
 			<div style={{minWidth: '100%', width: 'max-content'}}>
 				{source.map((s, j) => {
@@ -63,6 +69,7 @@ export const CodeFrame: React.FC<{
 							<div
 								style={{
 									...lineNumber,
+									fontSize,
 									backgroundColor: s.highlight
 										? TRANSPARENT
 										: ERROR_CODE_FRAME_LINE_BACKGROUND,
@@ -75,7 +82,7 @@ export const CodeFrame: React.FC<{
 								className="language-tsx"
 								style={{
 									fontFamily: 'monospace',
-									fontSize: 14,
+									fontSize,
 									color: '#9cdcfe',
 									whiteSpace: 'pre',
 									tabSize: 2,

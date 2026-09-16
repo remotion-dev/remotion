@@ -1,3 +1,4 @@
+import type {GetRemotionSkillsInfoResponse} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -125,15 +126,76 @@ const loading: React.CSSProperties = {
 	marginTop: 14,
 };
 
+export const SkillSettingsRow: React.FC<{
+	readonly isLast: boolean;
+	readonly skill: GetRemotionSkillsInfoResponse['skills'][number];
+}> = ({isLast, skill}) => {
+	const {installSkill, removeSkill, skillAction} = useSettings();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canInstall =
+		!window.remotion_isReadOnlyStudio &&
+		previewServerState.type === 'connected';
+	const installed = skill.installedInProject || skill.installedGlobally;
+	const processingThisSkill = skillAction?.skill === skill.name;
+	const installedLocation =
+		skill.installedInProject && skill.installedGlobally
+			? 'Project and global'
+			: skill.installedInProject
+				? 'Project'
+				: skill.installedGlobally
+					? 'Global'
+					: null;
+	const renderInstallAction: RenderInlineAction = useCallback((color) => {
+		return <CloudDownloadIcon color={color} style={actionIcon} />;
+	}, []);
+	const renderRemoveAction: RenderInlineAction = useCallback((color) => {
+		return <TrashIcon color={color} style={actionIcon} />;
+	}, []);
+
+	return (
+		<div role="listitem" style={isLast ? lastSkillRow : skillRow}>
+			<span style={skillName}>/{skill.name}</span>
+			{processingThisSkill ? (
+				<span style={status}>
+					{skillAction.type === 'installing' ? 'Installing…' : 'Removing…'}
+				</span>
+			) : installedLocation ? (
+				<span style={status}>{installedLocation}</span>
+			) : null}
+			{installed ? (
+				<CheckCircleFilled aria-hidden style={{...statusIcon, fill: BLUE}} />
+			) : null}
+			{processingThisSkill ? (
+				<span style={actionSlot}>
+					<Spinner duration={0.5} size={14} />
+				</span>
+			) : installed && canInstall ? (
+				<InlineAction
+					title={
+						skill.installedInProject
+							? `Remove ${skill.name} from this project`
+							: `Remove ${skill.name} globally`
+					}
+					disabled={skillAction !== null}
+					onClick={() => removeSkill(skill.name)}
+					renderAction={renderRemoveAction}
+					variant={null}
+				/>
+			) : canInstall ? (
+				<InlineAction
+					title={`Install ${skill.name} in this project`}
+					disabled={skillAction !== null}
+					onClick={() => installSkill(skill.name)}
+					renderAction={renderInstallAction}
+					variant={null}
+				/>
+			) : null}
+		</div>
+	);
+};
+
 export const SkillsSettings: React.FC = () => {
-	const {
-		error,
-		remotionSkillsInfo,
-		installSkill,
-		removeSkill,
-		skillAction,
-		skillActionError,
-	} = useSettings();
+	const {error, remotionSkillsInfo, skillActionError} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canInstall =
 		!window.remotion_isReadOnlyStudio &&
@@ -163,14 +225,6 @@ export const SkillsSettings: React.FC = () => {
 		},
 		[copied],
 	);
-	const renderInstallAction: RenderInlineAction = useCallback((color) => {
-		return <CloudDownloadIcon color={color} style={actionIcon} />;
-	}, []);
-	const renderRemoveAction: RenderInlineAction = useCallback((color) => {
-		return <TrashIcon color={color} style={actionIcon} />;
-	}, []);
-	const actionInProgress = skillAction !== null;
-
 	return (
 		<div style={container}>
 			{remotionSkillsInfo === null && error === null ? (
@@ -215,70 +269,12 @@ export const SkillsSettings: React.FC = () => {
 			{remotionSkillsInfo ? (
 				<div style={list} role="list" aria-label="Remotion Agent Skills">
 					{remotionSkillsInfo.skills.map((skill, index) => {
-						const installed =
-							skill.installedInProject || skill.installedGlobally;
-						const processingThisSkill = skillAction?.skill === skill.name;
-						const installedLocation =
-							skill.installedInProject && skill.installedGlobally
-								? 'Project and global'
-								: skill.installedInProject
-									? 'Project'
-									: skill.installedGlobally
-										? 'Global'
-										: null;
-
 						return (
-							<div
+							<SkillSettingsRow
 								key={skill.name}
-								role="listitem"
-								style={
-									index === remotionSkillsInfo.skills.length - 1
-										? lastSkillRow
-										: skillRow
-								}
-							>
-								<span style={skillName}>/{skill.name}</span>
-								{processingThisSkill ? (
-									<span style={status}>
-										{skillAction.type === 'installing'
-											? 'Installing…'
-											: 'Removing…'}
-									</span>
-								) : installedLocation ? (
-									<span style={status}>{installedLocation}</span>
-								) : null}
-								{installed ? (
-									<CheckCircleFilled
-										aria-hidden
-										style={{...statusIcon, fill: BLUE}}
-									/>
-								) : null}
-								{processingThisSkill ? (
-									<span style={actionSlot}>
-										<Spinner duration={0.5} size={14} />
-									</span>
-								) : installed && canInstall ? (
-									<InlineAction
-										title={
-											skill.installedInProject
-												? `Remove ${skill.name} from this project`
-												: `Remove ${skill.name} globally`
-										}
-										disabled={actionInProgress}
-										onClick={() => removeSkill(skill.name)}
-										renderAction={renderRemoveAction}
-										variant={null}
-									/>
-								) : canInstall ? (
-									<InlineAction
-										title={`Install ${skill.name} in this project`}
-										disabled={actionInProgress}
-										onClick={() => installSkill(skill.name)}
-										renderAction={renderInstallAction}
-										variant={null}
-									/>
-								) : null}
-							</div>
+								isLast={index === remotionSkillsInfo.skills.length - 1}
+								skill={skill}
+							/>
 						);
 					})}
 				</div>

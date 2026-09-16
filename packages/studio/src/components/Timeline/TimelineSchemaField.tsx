@@ -22,7 +22,6 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../../state/modals';
-import {useSettings} from '../SettingsContext';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
@@ -154,16 +153,13 @@ export const TimelineNonEditableStatus: React.FC<{
 	readonly validatedLocation: CodePosition;
 }> = ({propStatus, field, runtimeValue, validatedLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {remotionSkillsInfo} = useSettings();
 	const onFix = useCallback(() => {
 		setSelectedModal({
 			type: 'fix-computed-value',
 			prop: field.key,
-			context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
-			remotionInteractivitySkillAvailable:
-				remotionSkillsInfo?.remotionInteractivitySkillAvailable ?? false,
+			location: validatedLocation,
 		});
-	}, [field.key, remotionSkillsInfo, setSelectedModal, validatedLocation]);
+	}, [field.key, setSelectedModal, validatedLocation]);
 
 	if (propStatus.status === 'computed') {
 		return (

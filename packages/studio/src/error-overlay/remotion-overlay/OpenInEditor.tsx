@@ -25,7 +25,8 @@ export const OpenInEditor: React.FC<{
 	readonly canHaveKeyboardShortcuts: boolean;
 	readonly editorId: EditorPickerId;
 	readonly editorName: string;
-}> = ({stack, canHaveKeyboardShortcuts, editorId, editorName}) => {
+	readonly size: 'compact' | 'default';
+}> = ({stack, canHaveKeyboardShortcuts, editorId, editorName, size}) => {
 	const {editorInfo} = useSettings();
 	const configureDefaultApps = useConfigureDefaultApps();
 	const {registerKeybinding} = useKeybinding();
@@ -96,11 +97,11 @@ export const OpenInEditor: React.FC<{
 			menuItems={menuItems}
 			onConfigureApps={configureDefaultApps}
 			onClick={openPreferredEditor}
-			size="default"
+			size={size}
 			style={null}
 			title={`Open in ${editorName}`}
 		>
-			<EditorIcon editorId={editorId} size={14} />
+			<EditorIcon editorId={editorId} size={size === 'default' ? 14 : 18} />
 			Open in {editorName}
 			{canHaveKeyboardShortcuts ? (
 				<ShortcutHint keyToPress="o" cmdOrCtrl />

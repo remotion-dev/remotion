@@ -177,6 +177,7 @@ export const ErrorDisplay: React.FC<{
 							canHaveKeyboardShortcuts={keyboardShortcuts}
 							editorId={defaultEditorId}
 							editorName={defaultEditorName}
+							size="default"
 							stack={stackFrames[0]}
 						/>
 						<div style={spacer} />
@@ -227,8 +228,12 @@ export const ErrorDisplay: React.FC<{
 							<StackElement
 								// eslint-disable-next-line react/no-array-index-key
 								key={i}
+								collapsible
 								isFirst={i === 0}
 								s={s}
+								fontSize={14}
+								headerAction={null}
+								horizontalSpacing={14}
 								lineNumberWidth={lineNumberWidth}
 								defaultFunctionName={'(anonymous function)'}
 								editorId={canOpenInEditor ? defaultEditorId : null}
