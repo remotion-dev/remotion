@@ -13,4 +13,11 @@ export const thirdPartyElementLibraries = [
 		catalogUrl: 'https://remocn.dev/docs/typography',
 		displayName: 'Remocn',
 	},
+	{
+		bannerUrl:
+			'https://remotion.media/elements/third-party-libraries/lexington-themes.png',
+		browseUrl: 'https://lexingtonthemes.com/remotion/free-templates',
+		catalogUrl: 'https://lexingtonthemes.com/remotion/free-templates',
+		displayName: 'Lexington Themes',
+	},
 ] as const satisfies readonly ThirdPartyElementLibrary[];
