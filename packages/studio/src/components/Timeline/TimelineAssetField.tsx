@@ -67,7 +67,6 @@ const imageAssetField: React.CSSProperties = {
 	gap: 4,
 	margin: '0 4px',
 	minWidth: 0,
-	padding: '4px 0',
 };
 
 const imageAssetPreviewContainer: React.CSSProperties = {
@@ -93,8 +92,10 @@ const imageAssetPreviewButton: React.CSSProperties = {
 };
 
 const thumbnailContainer: React.CSSProperties = {
+	borderRadius: 4,
 	flexShrink: 0,
 	height: 40,
+	overflow: 'hidden',
 	width: 40,
 };
 
