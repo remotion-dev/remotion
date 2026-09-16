@@ -140,6 +140,28 @@ export const Comp = () => <>
 `);
 });
 
+test('splitVideoFromAudio separates siblings with one space on a shared line', async () => {
+	const input = `import {Video} from '@remotion/media';
+
+export const Comp = () => (
+  <div>
+    <Video src="video.mp4" /></div>
+);
+`;
+	const {output} = await splitVideoFromAudio({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Video'),
+	});
+
+	expect(output).toBe(`import {Video, Audio} from '@remotion/media';
+
+export const Comp = () => (
+  <div>
+    <Video src="video.mp4" muted /> <Audio src="video.mp4" /></div>
+);
+`);
+});
+
 test('splitVideoFromAudio preserves CRLF and tab indentation', async () => {
 	const input = [
 		`import {Video} from '@remotion/media';`,

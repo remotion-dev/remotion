@@ -289,9 +289,6 @@ const getAudioSiblingSourceEdit = ({
 		lineEnd === -1 ? input.length : lineEnd,
 	);
 	const isStandalone = sourceAfterElement.trim() === '';
-	const lineStart = input.lastIndexOf('\n', start - 1) + 1;
-	const whitespaceBeforeElement =
-		input.slice(lineStart, start).match(/[\t ]*$/)?.[0] ?? '';
 
 	return {
 		start: end,
@@ -301,7 +298,7 @@ const getAudioSiblingSourceEdit = ({
 					indent,
 					insertion: audioSource,
 				})}`
-			: `${whitespaceBeforeElement}${indentContinuationLines({
+			: ` ${indentContinuationLines({
 					indent,
 					input,
 					printed: audioSource,
