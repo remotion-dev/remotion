@@ -3,8 +3,12 @@ import {cleanup, fireEvent, render, screen} from '@testing-library/react';
 import type {AssetFieldSchema} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
 import {AssetSelectorModal} from '../components/AssetSelectorModal';
+import {portals} from '../components/Menu/portals';
 import {filterAssetsByType} from '../components/QuickSwitcher/asset-search';
-import {TimelineAssetField} from '../components/Timeline/TimelineAssetField';
+import {
+	AssetSelectionContext,
+	TimelineAssetField,
+} from '../components/Timeline/TimelineAssetField';
 import {SetSelectedModalContext, type ModalState} from '../state/modals';
 
 afterEach(cleanup);
@@ -259,33 +263,48 @@ test('an image asset field replaces a protocol-relative URL', () => {
 	expect(selectedModal).toBeNull();
 });
 
-test('a local image preview has no generic source label and is not draggable', () => {
+test('a local image preview supports navigation and asset actions', async () => {
 	const fieldSchema = {
 		type: 'asset',
 		assetType: 'image',
 		default: undefined,
 	} satisfies AssetFieldSchema;
+	let navigationCount = 0;
 
 	render(
-		<TimelineAssetField
-			field={{
-				key: 'imageSrc',
-				description: 'Image source',
-				typeName: 'asset',
-				rowHeight: 56,
-				fieldSchema,
-				group: 'source',
+		<AssetSelectionContext.Provider
+			value={{
+				getSourceAction: () => ({
+					children: 'logo.png',
+					disabled: false,
+					onClick: () => {
+						navigationCount++;
+					},
+					title: 'images/logo.png',
+				}),
+				sourceAction: null,
 			}}
-			propStatus={{
-				status: 'static',
-				codeValue: 'remotion-file:images/logo.png',
-				keyframeDisplayOffsetAdjustment: null,
-			}}
-			effectiveValue="remotion-file:images/logo.png"
-			onSave={() => Promise.resolve()}
-			onDragValueChange={() => undefined}
-			onDragEnd={() => undefined}
-		/>,
+		>
+			<TimelineAssetField
+				field={{
+					key: 'imageSrc',
+					description: 'Image source',
+					typeName: 'asset',
+					rowHeight: 56,
+					fieldSchema,
+					group: 'source',
+				}}
+				propStatus={{
+					status: 'static',
+					codeValue: 'remotion-file:images/logo.png',
+					keyframeDisplayOffsetAdjustment: null,
+				}}
+				effectiveValue="remotion-file:images/logo.png"
+				onSave={() => Promise.resolve()}
+				onDragValueChange={() => undefined}
+				onDragEnd={() => undefined}
+			/>
+		</AssetSelectionContext.Provider>,
 	);
 
 	expect(screen.getByText('logo.png')).toBeTruthy();
@@ -293,6 +312,20 @@ test('a local image preview has no generic source label and is not draggable', (
 	expect(document.querySelector('img')?.getAttribute('draggable')).toBe(
 		'false',
 	);
+	const previewButtons = screen.getAllByRole('button', {
+		name: 'Open logo.png',
+	});
+	expect(previewButtons).toHaveLength(2);
+	fireEvent.click(previewButtons[0]);
+	expect(navigationCount).toBe(1);
+	const previousMenuPortal = portals[0];
+	portals[0] = document.body;
+	try {
+		fireEvent.contextMenu(previewButtons[1]);
+		expect(await screen.findByText('Copy file name')).toBeTruthy();
+	} finally {
+		portals[0] = previousMenuPortal;
+	}
 });
 
 test('an image asset filter includes SVG files', () => {
