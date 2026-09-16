@@ -869,7 +869,7 @@ test.describe('visual mode', () => {
 		await expect(page.getByText('wave()', {exact: true})).toBeVisible();
 		await expect(
 			page.getByRole('button', {name: 'Collapse Effects', exact: true}),
-		).toHaveCount(0);
+		).toBeVisible();
 		const inspector = page
 			.locator('.__remotion-vertical-scrollbar')
 			.filter({has: addEffectButton});
