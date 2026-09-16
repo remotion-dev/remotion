@@ -1,0 +1,81 @@
+---
+image: /generated/articles-docs-color-correction.png
+id: color-correction
+title: Color correction
+crumb: 'Designing visuals'
+---
+
+Color correction can adjust the exposure, contrast, color balance, and saturation of canvas-based content.
+
+## Primary adjustments
+
+Use [`colorCorrection()`](/docs/effects/color-correction) to combine common adjustments in one effect:
+
+```tsx twoslash title="MyComp.tsx"
+import {colorCorrection} from '@remotion/effects/color-correction';
+import {Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        colorCorrection({
+          exposure: 0.25,
+          contrast: 1.1,
+          temperature: 0.1,
+          vibrance: 0.2,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+Individual effects such as [`brightness()`](/docs/effects/brightness), [`contrast()`](/docs/effects/contrast), and [`saturation()`](/docs/effects/saturation) are also available.
+
+## LUTs
+
+Use [`lut()`](/docs/effects/lut) to apply an existing 3D color grade in the `.cube` format.
+Pass the file contents as a string:
+
+```tsx twoslash title="MyComp.tsx"
+import {lut} from '@remotion/effects/lut';
+import {Video} from '@remotion/media';
+
+const content = `
+TITLE "Warm"
+LUT_3D_SIZE 2
+
+0 0 0
+1 0.1 0
+0 0.9 0.1
+1 0.9 0.1
+0 0.1 0.8
+1 0.2 0.7
+0 0.9 0.8
+1 0.9 0.8
+`;
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[lut({content})]}
+    />
+  );
+};
+```
+
+If the LUT is hosted remotely, fetch its contents before rendering and pass the resulting string to `lut()`.
+
+## Combining adjustments
+
+Effects are applied in array order. Place `colorCorrection()` before `lut()` to make primary adjustments before applying the final grade.
+
+## See also
+
+- [Effects](/docs/effects)
+- [`colorCorrection()`](/docs/effects/color-correction)
+- [`lut()`](/docs/effects/lut)
+- [Data fetching](/docs/data-fetching)

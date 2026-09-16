@@ -1156,6 +1156,7 @@ const sidebars: SidebarsConfig = {
 				'html-in-canvas',
 				'shaders',
 				'effects',
+				'color-correction',
 				'measuring',
 				'using-randomness',
 				'animation-math',

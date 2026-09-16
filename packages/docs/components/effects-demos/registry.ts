@@ -378,7 +378,10 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectName: 'lut',
 		effectImportPath: '@remotion/effects/lut',
 		comp: EffectsLutPreview,
-		schema: lut({content: LUT_PREVIEW_CONTENT}).definition.schema,
+		schema: {
+			...lut({content: LUT_PREVIEW_CONTENT}).definition.schema,
+			content: {type: 'hidden'},
+		},
 		initialValues: {
 			content: LUT_PREVIEW_CONTENT,
 		},
