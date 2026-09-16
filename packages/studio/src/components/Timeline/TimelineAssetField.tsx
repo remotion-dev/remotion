@@ -2,7 +2,12 @@ import React, {createContext, useCallback, useContext, useMemo} from 'react';
 import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {writeStaticFile} from '../../api/write-static-file';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -59,33 +64,37 @@ const imageAssetField: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flex: 1,
-	gap: 8,
+	gap: 4,
+	margin: '0 4px',
 	minWidth: 0,
-	padding: '4px 12px',
+	padding: '4px 0',
 };
 
-const imageAssetPreview: React.CSSProperties = {
+const imageAssetPreviewContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
+
+const imageAssetPreviewButton: React.CSSProperties = {
 	alignItems: 'center',
+	appearance: 'none',
+	border: 'none',
+	borderRadius: 4,
+	cursor: 'default',
 	display: 'flex',
 	flex: 1,
 	gap: 8,
-	minWidth: 0,
-};
-
-const thumbnailButton: React.CSSProperties = {
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-	appearance: 'none',
-	border: 'none',
-	cursor: 'default',
-	flexShrink: 0,
 	height: 40,
 	margin: 0,
-	padding: 0,
+	minWidth: 0,
+	padding: '0 8px',
+	textAlign: 'left',
+};
+
+const thumbnailContainer: React.CSSProperties = {
+	flexShrink: 0,
+	height: 40,
 	width: 40,
 };
 
@@ -97,22 +106,11 @@ const thumbnail: React.CSSProperties = {
 };
 
 const imageAssetInfo: React.CSSProperties = {
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-	appearance: 'none',
-	border: 'none',
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
 	gap: 2,
-	margin: 0,
 	minWidth: 0,
-	padding: 0,
-	textAlign: 'left',
 };
 
 const imageAssetName: React.CSSProperties = {
@@ -359,44 +357,47 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		const previewDisabled = opensSource
 			? inlineSourceAction.disabled
 			: window.remotion_isReadOnlyStudio;
+		const previewButtonStyle: React.CSSProperties = {
+			...imageAssetPreviewButton,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: previewDisabled
+					? TRANSPARENT
+					: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor: LIGHT_TEXT,
+				hoverColor: previewDisabled ? LIGHT_TEXT : WHITE,
+			}),
+		};
 		const previewAction = (
-			<>
-				<button
-					aria-label={previewLabel}
-					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					disabled={previewDisabled}
-					onClick={onPreviewClick}
-					style={thumbnailButton}
-					title={title}
-					type="button"
-				>
+			<button
+				aria-label={previewLabel}
+				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+				disabled={previewDisabled}
+				onClick={onPreviewClick}
+				style={previewButtonStyle}
+				title={title}
+				type="button"
+			>
+				<span style={thumbnailContainer}>
 					<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
-				</button>
-				<button
-					aria-label={previewLabel}
-					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					disabled={previewDisabled}
-					onClick={onPreviewClick}
-					style={imageAssetInfo}
-					title={title}
-					type="button"
-				>
+				</span>
+				<span style={imageAssetInfo}>
 					<span style={imageAssetName}>{name}</span>
 					{source === null ? null : (
 						<span style={imageAssetSource}>{source}</span>
 					)}
-				</button>
-			</>
+				</span>
+			</button>
 		);
 
 		return (
 			<div style={imageAssetField}>
 				{localAssetPath === null ? (
-					<div style={imageAssetPreview}>{previewAction}</div>
+					<div style={imageAssetPreviewContainer}>{previewAction}</div>
 				) : (
 					<ContextMenu
 						getItems={getLocalAssetContextMenuItems}
-						style={imageAssetPreview}
+						style={imageAssetPreviewContainer}
 					>
 						{previewAction}
 					</ContextMenu>

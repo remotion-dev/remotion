@@ -225,11 +225,11 @@ test('an image asset field replaces a protocol-relative URL', () => {
 	const sourceButtons = screen.getAllByRole('button', {
 		name: 'Replace avatar.png',
 	});
-	expect(sourceButtons).toHaveLength(2);
+	expect(sourceButtons).toHaveLength(1);
 	expect(document.querySelector('img')?.getAttribute('src')).toBe(
 		'https://cdn.example.com/images/avatar.png',
 	);
-	fireEvent.click(sourceButtons[1]);
+	fireEvent.click(sourceButtons[0]);
 
 	const modal = selectedModal as ModalState | null;
 	if (modal?.type !== 'asset-selection' || modal.assetType !== 'image') {
@@ -315,13 +315,13 @@ test('a local image preview supports navigation and asset actions', async () => 
 	const previewButtons = screen.getAllByRole('button', {
 		name: 'Open logo.png',
 	});
-	expect(previewButtons).toHaveLength(2);
+	expect(previewButtons).toHaveLength(1);
 	fireEvent.click(previewButtons[0]);
 	expect(navigationCount).toBe(1);
 	const previousMenuPortal = portals[0];
 	portals[0] = document.body;
 	try {
-		fireEvent.contextMenu(previewButtons[1]);
+		fireEvent.contextMenu(previewButtons[0]);
 		expect(await screen.findByText('Copy file name')).toBeTruthy();
 	} finally {
 		portals[0] = previousMenuPortal;
