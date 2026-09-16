@@ -35,6 +35,9 @@ const lineNumber: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'flex-end',
 	fontFamily: 'monospace',
+	position: 'sticky',
+	left: 0,
+	zIndex: 1,
 };
 
 export const CodeFrame: React.FC<{
@@ -71,8 +74,11 @@ export const CodeFrame: React.FC<{
 									...lineNumber,
 									fontSize,
 									backgroundColor: s.highlight
-										? TRANSPARENT
+										? ERROR_CODE_FRAME_BACKGROUND
 										: ERROR_CODE_FRAME_LINE_BACKGROUND,
+									backgroundImage: s.highlight
+										? `linear-gradient(${SELECTED_BACKGROUND}, ${SELECTED_BACKGROUND})`
+										: undefined,
 									color: s.highlight ? WHITE : WHITE_ALPHA_40,
 								}}
 							>
