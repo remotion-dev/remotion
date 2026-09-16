@@ -2178,6 +2178,15 @@ export const articles = [
 		slug: 'effects/liquid-contours',
 	},
 	{
+		id: 'effects/lut',
+		title: 'lut()',
+		relativePath: 'docs/effects/lut.mdx',
+		compId: 'articles-docs-effects-lut',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/lut',
+	},
+	{
 		id: 'effects/mirror',
 		title: 'mirror()',
 		relativePath: 'docs/effects/mirror.mdx',

@@ -60,6 +60,18 @@ export const getEffectCatalogCategories = (
 	return categories;
 };
 
+const DEFAULT_LUT_CONTENT = `TITLE "Teal and orange"
+LUT_3D_SIZE 2
+
+0.02 0.05 0.08
+0.95 0.12 0.06
+0.02 0.8 0.4
+1 0.9 0.18
+0.08 0.18 0.9
+0.95 0.2 0.75
+0.15 0.88 0.92
+1 0.92 0.78`;
+
 export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 	{
 		id: 'effects-brightness',
@@ -171,6 +183,19 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			name: 'levels',
 			importPath: '@remotion/effects/levels',
 			config: {},
+		},
+	},
+	{
+		id: 'effects-lut',
+		category: 'Color',
+		label: 'lut()',
+		description: 'Apply an inline 3D Cube LUT',
+		effect: {
+			name: 'lut',
+			importPath: '@remotion/effects/lut',
+			config: {
+				content: DEFAULT_LUT_CONTENT,
+			},
 		},
 	},
 	{
