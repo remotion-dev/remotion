@@ -8,12 +8,18 @@ import type {SequenceNodePath} from 'remotion';
 import {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
+	getNodeSourceEdit,
 } from './delete-jsx-node';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	getAdjacentJsxInsertionSourceEdit,
+	getJsxElementSourceForInsertion,
+} from './source-edits';
 
 const {namedTypes} = recast.types;
 
@@ -36,19 +42,20 @@ const getJsxChildrenParent = (
 	return null;
 };
 
+/* eslint-disable require-await -- Keep the formatter-era Promise API. */
 export const reorderSequence = async ({
 	input,
 	sourceNodePath,
 	targetNodePath,
 	position,
-	formatFile,
-	prettierConfigOverride,
 }: {
 	input: string;
 	sourceNodePath: SequenceNodePath;
 	targetNodePath: SequenceNodePath;
 	position: ReorderSequencePosition;
-	formatFile: (input: {
+	// Kept optional for compatibility with callers from before source edits
+	// replaced the full-file formatting pass.
+	formatFile?: (input: {
 		contents: string;
 		prettierConfigOverride: Record<string, unknown> | null;
 	}) => Promise<{output: string; formatted: boolean}>;
@@ -102,6 +109,18 @@ export const reorderSequence = async ({
 		sourceElement.openingElement.loc?.start.line ??
 		sourceElement.loc?.start.line ??
 		1;
+	const sourceEdits = [
+		getNodeSourceEdit({input, jsxPath: sourcePath}),
+		getAdjacentJsxInsertionSourceEdit({
+			input,
+			insertion: getJsxElementSourceForInsertion({
+				element: sourceElement,
+				input,
+			}),
+			position,
+			target: targetElement,
+		}),
+	];
 
 	const [moved] = children.splice(sourceIndex, 1);
 	if (!moved) {
@@ -121,11 +140,7 @@ export const reorderSequence = async ({
 		moved,
 	);
 
-	const finalFile = serializeAst(ast);
-	const {output, formatted} = await formatFile({
-		contents: finalFile,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-	});
+	const output = applySourceEdits({edits: sourceEdits, input});
 	const {nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
@@ -134,9 +149,10 @@ export const reorderSequence = async ({
 
 	return {
 		output,
-		formatted,
+		formatted: true,
 		sequenceLabel,
 		logLine,
 		nodePathRemappings,
 	};
 };
+/* eslint-enable require-await */

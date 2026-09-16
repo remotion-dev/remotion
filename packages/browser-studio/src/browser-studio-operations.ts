@@ -1517,7 +1517,6 @@ export const createBrowserStudioOperations = ({
 				sourceNodePath: sourceNodePath.nodePath,
 				targetNodePath: targetNodePath.nodePath,
 				position,
-				formatFile: formatCodemodFile,
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
