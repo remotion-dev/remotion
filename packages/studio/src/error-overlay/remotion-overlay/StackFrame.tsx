@@ -4,6 +4,7 @@ import type {
 } from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
+import {CodeFrame} from '../../components/CodeFrame';
 import {
 	BORDER_WHITE_ALPHA_12,
 	LIGHT_TEXT,
@@ -17,7 +18,6 @@ import {
 } from '../../helpers/hoverable';
 import {openInEditor} from '../../helpers/open-in-editor';
 import {CaretDown} from '../../icons/caret';
-import {CodeFrame} from './CodeFrame';
 import {formatLocation} from './format-location';
 
 const location: React.CSSProperties = {

@@ -1,7 +1,5 @@
 import type {ScriptLine} from '@remotion/studio-shared';
 import React from 'react';
-import {LazySyntaxHighlightedSource} from '../../components/LazySyntaxHighlightedSource';
-import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
 import {
 	ERROR_CODE_FRAME_BACKGROUND,
 	ERROR_CODE_FRAME_LINE_BACKGROUND,
@@ -9,7 +7,9 @@ import {
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_40,
-} from '../../helpers/colors';
+} from '../helpers/colors';
+import {LazySyntaxHighlightedSource} from './LazySyntaxHighlightedSource';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 
 const frame: React.CSSProperties = {
 	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
