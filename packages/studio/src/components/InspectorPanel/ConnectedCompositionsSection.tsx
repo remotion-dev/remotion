@@ -12,7 +12,8 @@ import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {useEditorOpening} from '../use-default-editor-info';
-import {InspectorQuickAction, InspectorSectionHeader} from './common';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {InspectorQuickAction} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -49,8 +50,11 @@ export const ConnectedCompositionsSection: React.FC<{
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 }> = ({connectedCompositions}) => {
 	return (
-		<>
-			<InspectorSectionHeader>Connected compositions</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			collapsible
+			label="Connected compositions"
+			sectionId="connected-compositions"
+		>
 			<div style={compositionListStyle}>
 				{connectedCompositions.map((composition) => (
 					<ConnectedCompositionRow
@@ -59,7 +63,7 @@ export const ConnectedCompositionsSection: React.FC<{
 					/>
 				))}
 			</div>
-		</>
+		</CollapsibleInspectorSection>
 	);
 };
 

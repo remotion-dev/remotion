@@ -36,7 +36,6 @@ import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
-import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -90,11 +89,6 @@ const emptyState: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
-};
-
-const effectsHeaderTitle: React.CSSProperties = {
-	...sectionHeaderTitle,
-	flexShrink: 1,
 };
 
 const borderRadiusToggleIcon: React.CSSProperties = {
@@ -209,7 +203,7 @@ const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
 };
 
 type InspectorSectionExpansionOverrides = Readonly<Record<string, boolean>>;
-type AdditionalInspectorSectionId = 'captions';
+type AdditionalInspectorSectionId = 'captions' | 'effects';
 
 const loadInspectorSectionExpansionOverrides =
 	(): InspectorSectionExpansionOverrides => {
@@ -453,32 +447,71 @@ export const InspectorSequenceSection: React.FC<{
 		});
 	}, []);
 
-	const {controlRows, effectRows} = useMemo(() => {
+	const isAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId): boolean => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			return sectionExpansionOverrides[expansionKey] ?? true;
+		},
+		[nodePathInfo, sectionExpansionOverrides],
+	);
+	const setAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId, expanded: boolean) => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			setSectionExpansionOverrides((previous) => {
+				if (previous[expansionKey] === expanded) {
+					return previous;
+				}
+
+				const next = {...previous, [expansionKey]: expanded};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[nodePathInfo],
+	);
+	const toggleAdditionalSection = useCallback(
+		(sectionId: AdditionalInspectorSectionId) => {
+			setAdditionalSectionExpanded(
+				sectionId,
+				!isAdditionalSectionExpanded(sectionId),
+			);
+		},
+		[isAdditionalSectionExpanded, setAdditionalSectionExpanded],
+	);
+	const effectsExpanded = isAdditionalSectionExpanded('effects');
+	const {controlRows, effectRows, hasEffects} = useMemo(() => {
 		const controlNodes: TimelineTreeNode[] = [];
-		let effectsRoot: TimelineTreeNode | null = null;
+		let root: Extract<TimelineTreeNode, {kind: 'group'}> | null = null;
 
 		for (const node of tree) {
 			if (isEffectsRoot(node)) {
-				effectsRoot = node;
+				root = node;
 			} else {
 				controlNodes.push(node);
 			}
 		}
 
 		return {
+			hasEffects: root !== null && root.children.length > 0,
 			controlRows: flattenVisibleTreeNodes({
 				nodes: controlNodes,
 				getIsExpanded,
 			}),
 			effectRows:
-				effectsRoot === null
+				root === null || !effectsExpanded
 					? []
 					: flattenVisibleTreeNodes({
-							nodes: effectsRoot.children,
+							nodes: root.children,
 							getIsExpanded,
 						}),
 		};
-	}, [getIsExpanded, tree]);
+	}, [effectsExpanded, getIsExpanded, tree]);
 
 	useEffect(() => {
 		if (
@@ -504,6 +537,7 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
+		setAdditionalSectionExpanded('effects', true);
 		const parentKeys: string[] = [];
 		let {depth} = rows[targetIndex];
 		for (let i = targetIndex - 1; i >= 0 && depth > 0; i--) {
@@ -526,7 +560,12 @@ export const InspectorSequenceSection: React.FC<{
 			persistInspectorCollapsedKeys(next);
 			return next;
 		});
-	}, [inspectorRevealToken, selectedEffectKey, tree]);
+	}, [
+		inspectorRevealToken,
+		selectedEffectKey,
+		setAdditionalSectionExpanded,
+		tree,
+	]);
 
 	useEffect(() => {
 		if (inspectorRevealToken === null) {
@@ -667,31 +706,6 @@ export const InspectorSequenceSection: React.FC<{
 		},
 		[isControlGroupExpanded, nodePathInfo],
 	);
-	const isAdditionalSectionExpanded = useCallback(
-		(sectionId: AdditionalInspectorSectionId): boolean => {
-			const expansionKey = getInspectorSectionExpansionKey({
-				nodePathInfo,
-				sectionId,
-			});
-			return sectionExpansionOverrides[expansionKey] ?? true;
-		},
-		[nodePathInfo, sectionExpansionOverrides],
-	);
-	const toggleAdditionalSection = useCallback(
-		(sectionId: AdditionalInspectorSectionId) => {
-			const expansionKey = getInspectorSectionExpansionKey({
-				nodePathInfo,
-				sectionId,
-			});
-			const nextExpanded = !isAdditionalSectionExpanded(sectionId);
-			setSectionExpansionOverrides((previous) => {
-				const next = {...previous, [expansionKey]: nextExpanded};
-				persistInspectorSectionExpansionOverrides(next);
-				return next;
-			});
-		},
-		[isAdditionalSectionExpanded, nodePathInfo],
-	);
 	const captionsExpanded = isAdditionalSectionExpanded('captions');
 	const visibleControlRows = controlGroups.flatMap((group) => {
 		return isControlGroupExpanded(group) ? group.rows : [];
@@ -723,8 +737,7 @@ export const InspectorSequenceSection: React.FC<{
 			? (runtimeValues.captions as Caption[])
 			: []
 		: null;
-	const showEffectsSection =
-		nodePathInfo.supportsEffects || effectRows.length > 0;
+	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
@@ -736,6 +749,8 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
+		setAdditionalSectionExpanded('effects', true);
+
 		setSelectedModal({
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
@@ -746,6 +761,7 @@ export const InspectorSequenceSection: React.FC<{
 		canAddEffect,
 		nodePathInfo.sequenceSubscriptionKey,
 		previewServerState,
+		setAdditionalSectionExpanded,
 		setSelectedModal,
 		validatedLocation.source,
 	]);
@@ -834,16 +850,20 @@ export const InspectorSequenceSection: React.FC<{
 	);
 
 	const effectsHeader = (
-		<div style={sectionHeaderRow}>
-			<div style={effectsHeaderTitle}>Effects</div>
-			<InlineAction
-				variant={null}
-				disabled={!canAddEffect}
-				onClick={onAddEffect}
-				title={canAddEffect ? 'Add effect' : undefined}
-				renderAction={(color) => <Plus color={color} style={plusIcon} />}
-			/>
-		</div>
+		<CollapsibleInspectorSectionHeader
+			action={
+				<InlineAction
+					variant={null}
+					disabled={!canAddEffect}
+					onClick={onAddEffect}
+					title={canAddEffect ? 'Add effect' : undefined}
+					renderAction={(color) => <Plus color={color} style={plusIcon} />}
+				/>
+			}
+			expanded={effectsExpanded}
+			label="Effects"
+			onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
+		/>
 	);
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {

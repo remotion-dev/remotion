@@ -25,12 +25,11 @@ import {SetSelectedModalContext} from '../state/modals';
 import {AssetAudioVolume} from './AssetAudioVolume';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
+import {CollapsibleInspectorSection} from './InspectorPanel/CollapsibleInspectorSection';
 import {
 	InspectorDetailRow,
-	InspectorQuickActionsSection,
 	InspectorQuickAction,
-	InspectorSection,
-	InspectorSectionHeader,
+	InspectorQuickActionsSection,
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
@@ -331,7 +330,11 @@ export const AssetInfo: React.FC<{
 				/>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
-				<InspectorSection header="File">
+				<CollapsibleInspectorSection
+					collapsible
+					label="File"
+					sectionId="asset-file"
+				>
 					<div style={assetMetadataStyle}>
 						{fileDetails.map((detail) => (
 							<InspectorDetailRow key={detail.label} label={detail.label}>
@@ -339,10 +342,14 @@ export const AssetInfo: React.FC<{
 							</InspectorDetailRow>
 						))}
 					</div>
-				</InspectorSection>
+				</CollapsibleInspectorSection>
 			) : null}
 			{mediaSections && mediaSections.video ? (
-				<InspectorSection header="Video">
+				<CollapsibleInspectorSection
+					collapsible
+					label="Video"
+					sectionId="asset-video"
+				>
 					<div style={assetMetadataStyle}>
 						{mediaSections.video.map((detail) => (
 							<InspectorDetailRow key={detail.label} label={detail.label}>
@@ -350,10 +357,14 @@ export const AssetInfo: React.FC<{
 							</InspectorDetailRow>
 						))}
 					</div>
-				</InspectorSection>
+				</CollapsibleInspectorSection>
 			) : null}
 			{mediaSections && mediaSections.audio !== null ? (
-				<InspectorSection header="Audio">
+				<CollapsibleInspectorSection
+					collapsible={mediaSections.audio.length > 0}
+					label="Audio"
+					sectionId="asset-audio"
+				>
 					{mediaSections.audio.length === 0 ? (
 						<div style={assetEmptyStateStyle}>None</div>
 					) : (
@@ -383,78 +394,89 @@ export const AssetInfo: React.FC<{
 							) : null}
 						</div>
 					)}
-				</InspectorSection>
+				</CollapsibleInspectorSection>
 			) : null}
-			<InspectorSectionHeader>Actions</InspectorSectionHeader>
-			<InspectorQuickActionsSection>
-				{fileManagerAvailable ? (
-					<InspectorQuickAction
-						disabled={fileManagerDisabled}
-						onClick={onShowInFileManager}
-						renderIcon={(color) => (
-							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Show in {fileManagerName}
-					</InspectorQuickAction>
-				) : null}
-				{src ? (
-					<InspectorQuickAction
-						disabled={mutationsDisabled}
-						onClick={onTranscribe}
-						renderIcon={(color) => (
-							<TranscriptionIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Transcribe
-					</InspectorQuickAction>
-				) : null}
-				{fileType === 'video' ? (
-					<InspectorQuickAction
-						disabled={mutationsDisabled}
-						onClick={onTrackMatting}
-						renderIcon={(color) => (
-							<SeparationIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Separate foreground
-					</InspectorQuickAction>
-				) : null}
-				{src ? (
-					<InspectorQuickAction
-						disabled={false}
-						onClick={onOpenConvert}
-						renderIcon={(color) => (
-							<RemotionConvertIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Convert
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 16 16"
-							style={convertArrowStyle}
+			<CollapsibleInspectorSection
+				collapsible
+				label="Actions"
+				sectionId="asset-actions"
+			>
+				<InspectorQuickActionsSection>
+					{fileManagerAvailable ? (
+						<InspectorQuickAction
+							disabled={fileManagerDisabled}
+							onClick={onShowInFileManager}
+							renderIcon={(color) => (
+								<ExpandedFolderIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
+							)}
 						>
-							<path
-								d="M4 12 12 4M6 4h6v6"
-								fill="none"
-								stroke={CURRENT_COLOR}
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1.5"
-							/>
-						</svg>
+							Show in {fileManagerName}
+						</InspectorQuickAction>
+					) : null}
+					{src ? (
+						<InspectorQuickAction
+							disabled={mutationsDisabled}
+							onClick={onTranscribe}
+							renderIcon={(color) => (
+								<TranscriptionIcon color={color} style={quickActionIconStyle} />
+							)}
+						>
+							Transcribe
+						</InspectorQuickAction>
+					) : null}
+					{fileType === 'video' ? (
+						<InspectorQuickAction
+							disabled={mutationsDisabled}
+							onClick={onTrackMatting}
+							renderIcon={(color) => (
+								<SeparationIcon color={color} style={quickActionIconStyle} />
+							)}
+						>
+							Separate foreground
+						</InspectorQuickAction>
+					) : null}
+					{src ? (
+						<InspectorQuickAction
+							disabled={false}
+							onClick={onOpenConvert}
+							renderIcon={(color) => (
+								<RemotionConvertIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
+							)}
+						>
+							Convert
+							<svg
+								aria-hidden="true"
+								viewBox="0 0 16 16"
+								style={convertArrowStyle}
+							>
+								<path
+									d="M4 12 12 4M6 4h6v6"
+									fill="none"
+									stroke={CURRENT_COLOR}
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="1.5"
+								/>
+							</svg>
+						</InspectorQuickAction>
+					) : null}
+					<InspectorQuickAction
+						disabled={mutationsDisabled}
+						onClick={onDelete}
+						renderIcon={(color) => (
+							<TrashIcon color={color} style={quickActionIconStyle} />
+						)}
+					>
+						Delete
 					</InspectorQuickAction>
-				) : null}
-				<InspectorQuickAction
-					disabled={mutationsDisabled}
-					onClick={onDelete}
-					renderIcon={(color) => (
-						<TrashIcon color={color} style={quickActionIconStyle} />
-					)}
-				>
-					Delete
-				</InspectorQuickAction>
-			</InspectorQuickActionsSection>
+				</InspectorQuickActionsSection>
+			</CollapsibleInspectorSection>
 		</>
 	);
 };

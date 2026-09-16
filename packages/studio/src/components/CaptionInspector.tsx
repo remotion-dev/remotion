@@ -47,6 +47,8 @@ export const CaptionInspector: React.FC<{
 	readOnlyTitle,
 }) => {
 	const fileInput = useRef<HTMLInputElement>(null);
+	const expansionRef = useRef({expanded, onToggle});
+	expansionRef.current = {expanded, onToggle};
 	const [isImporting, setIsImporting] = useState(false);
 	const {setSelectedModal} = React.useContext(SetSelectedModalContext);
 
@@ -64,12 +66,14 @@ export const CaptionInspector: React.FC<{
 
 			setIsImporting(true);
 			try {
-				onReplaceCaptions(
-					parseCaptionFile({
-						fileName,
-						contents: await contents,
-					}),
-				);
+				const imported = parseCaptionFile({
+					fileName,
+					contents: await contents,
+				});
+				onReplaceCaptions(imported);
+				if (imported.length > 0 && !expansionRef.current.expanded) {
+					expansionRef.current.onToggle();
+				}
 			} catch (error) {
 				showNotification(
 					`Could not import ${fileName}: ${error instanceof Error ? error.message : String(error)}`,
@@ -159,10 +163,10 @@ export const CaptionInspector: React.FC<{
 					}
 					expanded={expanded}
 					label="Captions"
-					onToggle={onToggle}
+					onToggle={captions.length > 0 ? onToggle : null}
 				/>
 			</InspectorSectionHeader>
-			{expanded ? (
+			{expanded || captions.length === 0 ? (
 				<CaptionTextEditor
 					captions={captions}
 					onChange={onTextChange}

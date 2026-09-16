@@ -12,11 +12,12 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
-	TimelineRowLayoutContext,
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
+	TimelineRowLayoutContext,
 } from '../Timeline/TimelineRowLayoutContext';
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
-import {InspectorMessage, InspectorSection} from './common';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {InspectorMessage} from './common';
 import {
 	MultiSequenceField,
 	type MultiSequenceTarget,
@@ -155,7 +156,12 @@ export const MultiSequenceInspector: React.FC<{
 							(field) => field.group === group.id,
 						);
 						return groupedFields.length === 0 ? null : (
-							<InspectorSection key={group.id} header={group.label}>
+							<CollapsibleInspectorSection
+								key={group.id}
+								collapsible
+								label={group.label}
+								sectionId={`multi-sequence-${group.id}`}
+							>
 								{groupedFields.map((field) => (
 									<MultiSequenceField
 										key={
@@ -167,7 +173,7 @@ export const MultiSequenceInspector: React.FC<{
 										readOnlyStudio={readOnlyStudio}
 									/>
 								))}
-							</InspectorSection>
+							</CollapsibleInspectorSection>
 						);
 					})}
 				</TimelineRowLayoutContext.Provider>

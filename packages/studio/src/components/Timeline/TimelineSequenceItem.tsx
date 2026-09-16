@@ -1016,7 +1016,8 @@ const TimelineSequenceItemInner: React.FC<{
 
 			if (
 				document.activeElement instanceof HTMLInputElement ||
-				document.activeElement instanceof HTMLTextAreaElement
+				document.activeElement instanceof HTMLTextAreaElement ||
+				document.activeElement instanceof HTMLButtonElement
 			) {
 				return;
 			}

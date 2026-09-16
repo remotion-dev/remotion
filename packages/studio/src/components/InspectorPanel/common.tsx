@@ -31,6 +31,29 @@ export const InspectorQuickActionsSection: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={inspectorQuickActionsSection}>{children}</div>;
 
+const collapsedSectionBody: React.CSSProperties = {
+	...inspectorSectionBody,
+	display: 'none',
+};
+
+export const InspectorSectionBody: React.FC<{
+	readonly children: React.ReactNode;
+	readonly expanded: boolean;
+}> = ({children, expanded}) => {
+	if (children === null) {
+		return null;
+	}
+
+	return (
+		<div
+			hidden={!expanded}
+			style={expanded ? inspectorSectionBody : collapsedSectionBody}
+		>
+			{children}
+		</div>
+	);
+};
+
 export const InspectorSection: React.FC<{
 	readonly children: React.ReactNode;
 	readonly header: React.ReactNode;
@@ -38,9 +61,7 @@ export const InspectorSection: React.FC<{
 	return (
 		<>
 			<InspectorSectionHeader>{header}</InspectorSectionHeader>
-			{children === null ? null : (
-				<div style={inspectorSectionBody}>{children}</div>
-			)}
+			<InspectorSectionBody expanded>{children}</InspectorSectionBody>
 		</>
 	);
 };
