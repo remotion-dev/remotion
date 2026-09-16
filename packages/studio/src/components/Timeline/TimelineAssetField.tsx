@@ -2,7 +2,12 @@ import React, {createContext, useCallback, useContext, useMemo} from 'react';
 import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {writeStaticFile} from '../../api/write-static-file';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -15,6 +20,8 @@ import type {
 } from '../../helpers/timeline-layout';
 import {PenIcon} from '../../icons/pen';
 import {SetSelectedModalContext} from '../../state/modals';
+import {useAssetContextMenuItems} from '../asset-context-menu';
+import {ContextMenu} from '../ContextMenu';
 import {pickFilesToImport} from '../import-assets';
 import {InlineAction} from '../InlineAction';
 import {
@@ -57,25 +64,38 @@ const imageAssetField: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flex: 1,
-	gap: 8,
+	gap: 4,
+	margin: '0 4px',
 	minWidth: 0,
-	padding: '4px 12px',
 };
 
-const thumbnailButton: React.CSSProperties = {
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
+const imageAssetPreviewContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
+
+const imageAssetPreviewButton: React.CSSProperties = {
+	alignItems: 'center',
 	appearance: 'none',
 	border: 'none',
+	borderRadius: 4,
 	cursor: 'default',
-	flexShrink: 0,
+	display: 'flex',
+	flex: 1,
+	gap: 8,
 	height: 40,
 	margin: 0,
-	padding: 0,
+	minWidth: 0,
+	padding: '0 8px',
+	textAlign: 'left',
+};
+
+const thumbnailContainer: React.CSSProperties = {
+	borderRadius: 4,
+	flexShrink: 0,
+	height: 40,
+	overflow: 'hidden',
 	width: 40,
 };
 
@@ -87,22 +107,11 @@ const thumbnail: React.CSSProperties = {
 };
 
 const imageAssetInfo: React.CSSProperties = {
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-	appearance: 'none',
-	border: 'none',
 	display: 'flex',
 	flex: 1,
 	flexDirection: 'column',
 	gap: 2,
-	margin: 0,
 	minWidth: 0,
-	padding: 0,
-	textAlign: 'left',
 };
 
 const imageAssetName: React.CSSProperties = {
@@ -170,6 +179,17 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	const {getSourceAction, sourceAction} = useContext(AssetSelectionContext);
 	const {assetType} = field.fieldSchema;
 	const initialQuery = assetType ? `type:${assetType} ` : '';
+	const imageLinkInfo =
+		assetType === 'image' && typeof effectiveValue === 'string'
+			? getTimelineAssetLinkInfo(effectiveValue)
+			: null;
+	const localAssetPath =
+		imageLinkInfo?.kind === 'local' ? imageLinkInfo.assetPath : null;
+	const {getContextMenuItems: getLocalAssetContextMenuItems} =
+		useAssetContextMenuItems({
+			relativePath: localAssetPath,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+		});
 	const inlineSourceAction = useMemo(() => {
 		if (typeof effectiveValue === 'string') {
 			return getSourceAction(effectiveValue);
@@ -302,62 +322,90 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		/>
 	);
 
-	if (assetType === 'image' && typeof effectiveValue === 'string') {
-		const linkInfo = getTimelineAssetLinkInfo(effectiveValue);
-		if (linkInfo !== null) {
-			let name: string;
-			let source: string;
-			let previewSrc: string;
-			if (linkInfo.kind === 'local') {
-				name = linkInfo.assetPath.split('/').pop() ?? linkInfo.assetPath;
-				source = 'Project asset';
-				previewSrc = staticFile(linkInfo.assetPath);
-			} else {
-				previewSrc = linkInfo.href.startsWith('//')
-					? `https:${linkInfo.href}`
-					: linkInfo.href;
-				try {
-					const url = new URL(previewSrc);
-					const encodedName = url.pathname.split('/').filter(Boolean).pop();
-					name = encodedName ? decodeURIComponent(encodedName) : url.hostname;
-					source = url.hostname;
-				} catch {
-					name = 'Remote image';
-					source = linkInfo.href;
-				}
+	if (imageLinkInfo !== null) {
+		const linkInfo = imageLinkInfo;
+		let name: string;
+		let source: string | null;
+		let previewSrc: string;
+		if (linkInfo.kind === 'local') {
+			name = linkInfo.assetPath.split('/').pop() ?? linkInfo.assetPath;
+			source = null;
+			previewSrc = staticFile(linkInfo.assetPath);
+		} else {
+			previewSrc = linkInfo.href.startsWith('//')
+				? `https:${linkInfo.href}`
+				: linkInfo.href;
+			try {
+				const url = new URL(previewSrc);
+				const encodedName = url.pathname.split('/').filter(Boolean).pop();
+				name = encodedName ? decodeURIComponent(encodedName) : url.hostname;
+				source = url.hostname;
+			} catch {
+				name = 'Remote image';
+				source = linkInfo.href;
 			}
-
-			const title = inlineSourceAction?.title ?? linkInfo.title;
-
-			return (
-				<div style={imageAssetField}>
-					<button
-						aria-label={`Replace ${name}`}
-						className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-						disabled={window.remotion_isReadOnlyStudio}
-						onClick={openAssetSelection}
-						style={thumbnailButton}
-						title={title}
-						type="button"
-					>
-						<img alt="" src={previewSrc} style={thumbnail} />
-					</button>
-					<button
-						aria-label={`Replace ${name}`}
-						className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-						disabled={window.remotion_isReadOnlyStudio}
-						onClick={openAssetSelection}
-						style={imageAssetInfo}
-						title={title}
-						type="button"
-					>
-						<span style={imageAssetName}>{name}</span>
-						<span style={imageAssetSource}>{source}</span>
-					</button>
-					{action}
-				</div>
-			);
 		}
+
+		const opensSource =
+			linkInfo.kind === 'local' &&
+			inlineSourceAction !== null &&
+			inlineSourceAction.onClick !== null;
+		const title = inlineSourceAction?.title ?? linkInfo.title;
+		const onPreviewClick = opensSource
+			? inlineSourceAction.onClick
+			: openAssetSelection;
+		const previewLabel = `${opensSource ? 'Open' : 'Replace'} ${name}`;
+		const previewDisabled = opensSource
+			? inlineSourceAction.disabled
+			: window.remotion_isReadOnlyStudio;
+		const previewButtonStyle: React.CSSProperties = {
+			...imageAssetPreviewButton,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: previewDisabled
+					? TRANSPARENT
+					: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor: LIGHT_TEXT,
+				hoverColor: previewDisabled ? LIGHT_TEXT : WHITE,
+			}),
+		};
+		const previewAction = (
+			<button
+				aria-label={previewLabel}
+				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+				disabled={previewDisabled}
+				onClick={onPreviewClick}
+				style={previewButtonStyle}
+				title={title}
+				type="button"
+			>
+				<span style={thumbnailContainer}>
+					<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
+				</span>
+				<span style={imageAssetInfo}>
+					<span style={imageAssetName}>{name}</span>
+					{source === null ? null : (
+						<span style={imageAssetSource}>{source}</span>
+					)}
+				</span>
+			</button>
+		);
+
+		return (
+			<div style={imageAssetField}>
+				{localAssetPath === null ? (
+					<div style={imageAssetPreviewContainer}>{previewAction}</div>
+				) : (
+					<ContextMenu
+						getItems={getLocalAssetContextMenuItems}
+						style={imageAssetPreviewContainer}
+					>
+						{previewAction}
+					</ContextMenu>
+				)}
+				{action}
+			</div>
+		);
 	}
 
 	if (inlineSourceAction === null) {

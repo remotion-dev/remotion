@@ -3,8 +3,12 @@ import {cleanup, fireEvent, render, screen} from '@testing-library/react';
 import type {AssetFieldSchema} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
 import {AssetSelectorModal} from '../components/AssetSelectorModal';
+import {portals} from '../components/Menu/portals';
 import {filterAssetsByType} from '../components/QuickSwitcher/asset-search';
-import {TimelineAssetField} from '../components/Timeline/TimelineAssetField';
+import {
+	AssetSelectionContext,
+	TimelineAssetField,
+} from '../components/Timeline/TimelineAssetField';
 import {SetSelectedModalContext, type ModalState} from '../state/modals';
 
 afterEach(cleanup);
@@ -242,11 +246,11 @@ test('an image asset field replaces a protocol-relative URL', () => {
 	const sourceButtons = screen.getAllByRole('button', {
 		name: 'Replace avatar.png',
 	});
-	expect(sourceButtons).toHaveLength(2);
+	expect(sourceButtons).toHaveLength(1);
 	expect(document.querySelector('img')?.getAttribute('src')).toBe(
 		'https://cdn.example.com/images/avatar.png',
 	);
-	fireEvent.click(sourceButtons[1]);
+	fireEvent.click(sourceButtons[0]);
 
 	const modal = selectedModal as ModalState | null;
 	if (modal?.type !== 'asset-selection' || modal.assetType !== 'image') {
@@ -278,6 +282,71 @@ test('an image asset field replaces a protocol-relative URL', () => {
 	expect(dragValue).toBe(replacement);
 	expect(savedValue).toBe(replacement);
 	expect(selectedModal).toBeNull();
+});
+
+test('a local image preview supports navigation and asset actions', async () => {
+	const fieldSchema = {
+		type: 'asset',
+		assetType: 'image',
+		default: undefined,
+	} satisfies AssetFieldSchema;
+	let navigationCount = 0;
+
+	render(
+		<AssetSelectionContext.Provider
+			value={{
+				getSourceAction: () => ({
+					children: 'logo.png',
+					disabled: false,
+					onClick: () => {
+						navigationCount++;
+					},
+					title: 'images/logo.png',
+				}),
+				sourceAction: null,
+			}}
+		>
+			<TimelineAssetField
+				field={{
+					key: 'imageSrc',
+					description: 'Image source',
+					typeName: 'asset',
+					rowHeight: 56,
+					fieldSchema,
+					group: 'source',
+				}}
+				propStatus={{
+					status: 'static',
+					codeValue: 'remotion-file:images/logo.png',
+					keyframeDisplayOffsetAdjustment: null,
+				}}
+				effectiveValue="remotion-file:images/logo.png"
+				onSave={() => Promise.resolve()}
+				onDragValueChange={() => undefined}
+				onDragEnd={() => undefined}
+			/>
+		</AssetSelectionContext.Provider>,
+	);
+
+	expect(screen.getByText('logo.png')).toBeTruthy();
+	expect(screen.queryByText('Project asset')).toBeNull();
+	expect(document.querySelector('img')?.getAttribute('draggable')).toBe(
+		'false',
+	);
+	const previewButtons = screen.getAllByRole('button', {
+		name: 'Open logo.png',
+	});
+	expect(previewButtons).toHaveLength(1);
+	fireEvent.click(previewButtons[0]);
+	expect(navigationCount).toBe(1);
+	const previousMenuPortal = portals[0];
+	portals[0] = document.body;
+	try {
+		fireEvent.contextMenu(previewButtons[0]);
+		expect(await screen.findByText('Copy file name')).toBeTruthy();
+	} finally {
+		portals[0] = previousMenuPortal;
+	}
 });
 
 test('an image asset filter includes SVG files', () => {
