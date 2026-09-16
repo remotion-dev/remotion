@@ -1125,12 +1125,7 @@ export const Canvas: React.FC<{
 				!isAddingAsset &&
 				hasElementDragType(event.dataTransfer);
 
-			if (
-				!canDropAssets &&
-				!canDropElementIntoNewComposition &&
-				!cannotAddSequence &&
-				!mayBeCanvasCapture
-			) {
+			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);
 				return;
 			}
