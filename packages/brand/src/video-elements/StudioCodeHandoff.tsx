@@ -34,17 +34,22 @@ export const StudioCodeHandoff: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#ffffff'}}>
+		<AbsoluteFill
+			style={{
+				backgroundColor: '#d9d9d9',
+			}}
+		>
 			<Interactive.Div
 				name="Device frame"
 				style={{
 					height: 796,
 					left: 92.5,
 					position: 'absolute',
-					scale: 1.25,
+					scale: 1.34,
 					top: 42.5,
 					transformOrigin: '0 0',
 					width: 1388,
+					translate: '-62.5px 57.4px',
 				}}
 			>
 				<MacBookScreen
