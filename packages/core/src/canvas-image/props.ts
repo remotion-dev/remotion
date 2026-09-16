@@ -19,6 +19,7 @@ export type CanvasImageCanvasProps = Omit<
 export type CanvasImageProps = CanvasImageSequenceProps &
 	CanvasImageCanvasProps & {
 		readonly src: string;
+		readonly crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'];
 		readonly width?: number;
 		readonly height?: number;
 		readonly fit?: ImageFit;

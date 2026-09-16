@@ -15,6 +15,7 @@ import {SetTimelineContext} from '../TimelineContext.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const drawImageCalls: unknown[][] = [];
+const imageCrossOrigins: Array<string | null> = [];
 const OriginalImage = globalThis.Image;
 
 const stub2dContext = () => ({
@@ -61,6 +62,7 @@ class MockImage {
 
 	public set src(src: string) {
 		this.currentSrc = src;
+		imageCrossOrigins.push(this.crossOrigin);
 		queueMicrotask(() => this.onload?.());
 	}
 }
@@ -96,6 +98,7 @@ const makeEffect = (
 
 beforeEach(() => {
 	drawImageCalls.length = 0;
+	imageCrossOrigins.length = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
 });
 
@@ -230,6 +233,68 @@ test('Img with an empty effects array still renders an img tag', () => {
 	renderImg(<Img ref={ref} src={testImgUrl} effects={[]} />);
 
 	expect(ref.current?.tagName).toBe('IMG');
+});
+
+test('<Img> forwards crossOrigin when effects use <CanvasImage>', async () => {
+	renderImg(
+		<Img
+			src={testImgUrl}
+			width={50}
+			height={50}
+			effects={[makeEffect()]}
+			crossOrigin="use-credentials"
+		/>,
+	);
+
+	await waitFor(() => {
+		expect(imageCrossOrigins).toEqual(['use-credentials']);
+	});
+});
+
+test('<Img> calls onImageError for native and canvas image failures', async () => {
+	const nativeError = {current: null as Error | null};
+	const {container, unmount} = renderImg(
+		<Img
+			src={testImgUrl}
+			maxRetries={0}
+			onImageError={(error) => {
+				nativeError.current = error;
+			}}
+		/>,
+	);
+
+	fireEvent.error(container.querySelector('img') as HTMLImageElement);
+	expect(nativeError.current).toBeInstanceOf(Error);
+	unmount();
+
+	class FailingImage extends MockImage {
+		public get src() {
+			return '';
+		}
+
+		public set src(_src: string) {
+			queueMicrotask(() => this.onerror?.());
+		}
+	}
+
+	globalThis.Image = FailingImage as unknown as typeof Image;
+	const canvasError = {current: null as Error | null};
+	renderImg(
+		<Img
+			src={testImgUrl}
+			width={50}
+			height={50}
+			effects={[makeEffect()]}
+			maxRetries={0}
+			onImageError={(error) => {
+				canvasError.current = error;
+			}}
+		/>,
+	);
+
+	await waitFor(() => {
+		expect(canvasError.current).toBeInstanceOf(Error);
+	});
 });
 
 test('<Img> does not decode again when premounting ends after loading', async () => {
