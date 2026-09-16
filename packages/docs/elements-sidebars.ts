@@ -28,7 +28,6 @@ const sidebars: SidebarsConfig = {
 			collapsible: true,
 			collapsed: false,
 			items: [
-				'libraries',
 				'contributing',
 				{
 					type: 'html',
@@ -49,6 +48,13 @@ const sidebars: SidebarsConfig = {
 						)
 						.map(([slug]) => `${slug}/index`),
 				})),
+				{
+					type: 'html',
+					value:
+						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+					defaultStyle: true,
+				},
+				'libraries',
 			],
 		},
 	],
