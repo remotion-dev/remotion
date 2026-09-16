@@ -1,3 +1,4 @@
+import {AudioBufferSink} from 'mediabunny';
 import {expect, test, vi} from 'vitest';
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
@@ -36,10 +37,11 @@ const makeSharedAudioContext = (): SharedAudioContextForMediaPlayer => {
 const makeAudioPlayer = (
 	sharedAudioContext: SharedAudioContextForMediaPlayer | null,
 	onError: ((error: Error) => void) | null = null,
+	tagType: 'audio' | 'video' = 'audio',
 ) => {
 	return new MediaPlayer({
 		canvas: null,
-		src: '/voice-note.m4a',
+		src: tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
 		logLevel: 'error',
 		sharedAudioContext,
 		loop: false,
@@ -60,7 +62,7 @@ const makeAudioPlayer = (
 		sequenceOffset: 0,
 		credentials: undefined,
 		requestInit: undefined,
-		tagType: 'audio',
+		tagType,
 		getEffects: () => [],
 		getEffectChainState: () => null,
 		onError,
@@ -189,14 +191,14 @@ test('dispose should immediately unblock playback delays', async () => {
 	await seekPromise.catch(() => {});
 });
 
-test.each(['video', 'audio'] as const)(
+test.each(['video'] as const)(
 	'reports a required %s seek failure once and stops playback and seeking',
 	async (tagType) => {
 		const onError = vi.fn();
 		const player = makeAudioPlayer(null, onError);
 		const error = new TypeError('Failed to fetch');
 		const seek = vi.fn(() => Promise.reject(error));
-		player[`${tagType}IteratorManager`] = {seek} as never;
+		player[`${tagType}IteratorManager`] = {seek, destroy: vi.fn()} as never;
 		player.play();
 
 		await player.seekTo(1);
@@ -211,6 +213,76 @@ test.each(['video', 'audio'] as const)(
 		expect(player['playing']).toBe(false);
 		player[`${tagType}IteratorManager`] = null;
 		await player.dispose();
+	},
+);
+
+test.each(['terminal', 'video', 'destroyed', 'disposed'] as const)(
+	'handles a real scheduled audio read rejection when %s',
+	async (state) => {
+		const onError = vi.fn();
+		const player = makeAudioPlayer(
+			makeSharedAudioContext(),
+			onError,
+			state === 'video' ? 'video' : 'audio',
+		);
+		await player.initialize(0, false, 1);
+		player.audioIteratorManager!.destroyIterator();
+		// Observe the existing buffering owner, including scheduler cleanup.
+		// eslint-disable-next-line dot-notation
+		const delays = player['premountAwareDelayPlayback'];
+		const createHandle = delays.createHandle.bind(delays);
+		const unblocks = vi.fn();
+		vi.spyOn(delays, 'createHandle').mockImplementation(() => {
+			const handle = createHandle();
+			return {
+				...handle,
+				unblock: () => {
+					unblocks();
+					handle.unblock();
+				},
+			};
+		});
+		const error = new TypeError('Failed to fetch');
+		let rejectRead!: (error: Error) => void;
+		const buffers = vi
+			.spyOn(AudioBufferSink.prototype, 'buffers')
+			.mockImplementation(
+				// The read rejects before it can yield an audio buffer.
+				// eslint-disable-next-line require-yield
+				async function* () {
+					await new Promise<void>((_, reject) => {
+						rejectRead = reject;
+					});
+				},
+			);
+		try {
+			await player.seekTo(1);
+			await vi.waitFor(() => expect(rejectRead).toBeDefined());
+			if (state === 'destroyed') {
+				player.audioIteratorManager!.destroyIterator();
+			} else if (state === 'disposed') {
+				await player.dispose();
+			}
+
+			rejectRead(error);
+
+			if (state === 'terminal' || state === 'video') {
+				await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
+				player.play();
+				await player.seekTo(2);
+				expect(onError).toHaveBeenCalledOnce();
+				expect(unblocks).toHaveBeenCalled();
+				expect(buffers).toHaveBeenCalledOnce();
+				// eslint-disable-next-line dot-notation
+				expect(player['playing']).toBe(false);
+			} else {
+				await new Promise((resolve) => requestAnimationFrame(resolve));
+				expect(onError).not.toHaveBeenCalled();
+			}
+		} finally {
+			buffers.mockRestore();
+			await player.dispose();
+		}
 	},
 );
 

@@ -128,6 +128,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
 
@@ -301,7 +302,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
 				onError: (error) => {
-					const [action] = callOnErrorAndResolve({
+					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
 						error,
 						disallowFallback: disallowFallbackRef.current,
@@ -310,6 +311,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 					});
 					if (action === 'fallback') {
 						setShouldFallbackToNativeVideo(true);
+					} else {
+						setTerminalError(errorToUse);
 					}
 				},
 			});
@@ -537,6 +540,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 			objectFit: objectFitProp,
 		};
 	}, [objectFitProp, style]);
+
+	if (terminalError) {
+		throw terminalError;
+	}
 
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway

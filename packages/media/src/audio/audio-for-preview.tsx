@@ -84,6 +84,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
 
@@ -222,7 +223,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				getEffects: () => [],
 				getEffectChainState: () => null,
 				onError: (error) => {
-					const [action] = callOnErrorAndResolve({
+					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
 						error,
 						disallowFallback: disallowFallbackRef.current,
@@ -231,6 +232,8 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					});
 					if (action === 'fallback') {
 						setShouldFallbackToNativeAudio(true);
+					} else {
+						setTerminalError(errorToUse);
 					}
 				},
 			});
@@ -383,6 +386,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		initialRequestInit,
 		setMediaDurationInSeconds,
 	]);
+
+	if (terminalError) {
+		throw terminalError;
+	}
 
 	if (shouldFallbackToNativeAudio && !disallowFallbackToHtml5Audio) {
 		return (

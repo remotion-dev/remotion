@@ -218,12 +218,14 @@ export class MediaPlayer {
 	}
 
 	private reportTerminalError(error: Error): void {
-		if (this.terminalError) {
+		if (this.terminalError || this.isDisposalError()) {
 			return;
 		}
 
 		this.terminalError = error;
 		this.playing = false;
+		this.audioIteratorManager?.destroyIterator();
+		this.videoIteratorManager?.destroy();
 		this.onError?.(error);
 	}
 
@@ -419,6 +421,7 @@ export class MediaPlayer {
 					initialVolume,
 					toneFrequency: this.toneFrequency,
 					drawDebugOverlay: this.drawDebugOverlay,
+					onError: (error) => this.reportTerminalError(error),
 					getSequenceDurationInSeconds: () =>
 						this.getSequenceDurationInSeconds(),
 				});
