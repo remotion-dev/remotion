@@ -28,9 +28,9 @@ test('turns custom Transformers versions into pinned esm.sh URLs', () => {
 	expect(
 		getBrowserStudioTransformersUrl({
 			localUrl,
-			resolution: {version: '4.2.0'},
+			resolution: {version: '4.3.0'},
 		}),
-	).toBe('https://esm.sh/@huggingface/transformers@4.2.0?dev=');
+	).toBe('https://esm.sh/@huggingface/transformers@4.3.0?dev=');
 	expect(
 		getBrowserStudioTransformersUrl({
 			localUrl,

@@ -133,7 +133,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 		},
 		targetVersion: '4.0.462',
 		extraPackageVersions: {
-			'@huggingface/transformers': '4.2.0',
+			'@huggingface/transformers': '4.3.0',
 			mediabunny: '1.50.7',
 			zod: '4.5.4',
 		},
@@ -143,7 +143,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 	expect(result.catalogPackages).toEqual([
 		{pkg: 'remotion', version: '4.0.462'},
 		{pkg: '@remotion/player', version: '4.0.462'},
-		{pkg: '@huggingface/transformers', version: '4.2.0'},
+		{pkg: '@huggingface/transformers', version: '4.3.0'},
 		{pkg: 'mediabunny', version: '1.50.7'},
 	]);
 });
@@ -151,12 +151,12 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 test('uses the Mediabunny version for extension packages', () => {
 	expect(
 		resolveExtraPackageVersions({
-			'@huggingface/transformers': '4.2.0',
+			'@huggingface/transformers': '4.3.0',
 			mediabunny: '1.50.8',
 			zod: '4.5.4',
 		}),
 	).toMatchObject({
-		'@huggingface/transformers': '4.2.0',
+		'@huggingface/transformers': '4.3.0',
 		mediabunny: '1.50.8',
 		'@mediabunny/ac3': '1.50.8',
 		'@mediabunny/dts': '1.50.8',
