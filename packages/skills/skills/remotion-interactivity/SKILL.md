@@ -239,6 +239,8 @@ Render separate elements if one version should have effects and another should n
 
 ## Making your own component interactive
 
+When using `Interactive.withSchema()`, include `Interactive.baseSchema` in the schema so standard timeline controls such as trimming and visibility remain available.
+
 To make a custom userland component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)
 

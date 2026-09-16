@@ -10,3 +10,5 @@ Use the canonical interactivity best-practices page instead:
 
 To make an element or custom component interactive, use:
 [packages/docs/docs/studio/make-component-interactive.mdx](../../../packages/docs/docs/studio/make-component-interactive.mdx)
+
+When using `Interactive.withSchema()`, include `Interactive.baseSchema` in the schema so standard timeline controls such as trimming and visibility remain available.

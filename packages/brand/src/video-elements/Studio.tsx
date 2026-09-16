@@ -10,6 +10,7 @@ import {
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
+	type InteractiveBaseProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -77,7 +78,7 @@ export const studioReferenceSchema = z.object({
 
 export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 
-export type StudioProps = {
+export type StudioProps = InteractiveBaseProps & {
 	readonly compositionName: string;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -90,6 +91,7 @@ export type StudioProps = {
 };
 
 const studioInteractivitySchema = {
+	...Interactive.baseSchema,
 	viewportWidth: {
 		type: 'number',
 		default: 1600,
@@ -1549,8 +1551,14 @@ const StudioInner = React.forwardRef<
 			content,
 			controls,
 			durationInFrames,
+			from,
+			freeze,
 			frame,
+			hidden,
+			name,
 			responsivenessProgress,
+			showInTimeline,
+			trimBefore,
 			viewportHeight,
 			viewportWidth,
 		},
@@ -1600,9 +1608,15 @@ const StudioInner = React.forwardRef<
 		return (
 			<Sequence
 				controls={controls}
+				durationInFrames={durationInFrames}
+				freeze={freeze}
+				from={from ?? 0}
+				hidden={hidden}
 				layout="none"
-				name="<Studio>"
+				name={name ?? '<Studio>'}
 				outlineRef={outlineRef}
+				showInTimeline={showInTimeline ?? true}
+				trimBefore={trimBefore}
 			>
 				<div
 					ref={outlineRef}
