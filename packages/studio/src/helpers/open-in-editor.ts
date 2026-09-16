@@ -1,10 +1,11 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
-import type {GitClientId, TerminalId} from '@remotion/studio-shared';
 import type {
 	CompositionComponentInfoResponse,
 	EditorPickerId,
+	GitClientId,
 	OpenInTerminalResponse,
 	SymbolicatedStackFrame,
+	TerminalId,
 } from '@remotion/studio-shared';
 import {useEffect} from 'react';
 import {callApi} from '../components/call-api';
@@ -77,15 +78,13 @@ export const openOriginalPositionInEditor = async (
 	}
 };
 
-export const openOriginalPositionInEditorAtProperty = async ({
-	editorId,
+export const findOriginalPositionInFileAtProperty = async ({
 	originalPosition,
 	property,
 }: {
-	editorId: EditorPickerId;
 	originalPosition: CodePosition;
 	property: string;
-}) => {
+}): Promise<CodePosition> => {
 	const request = {
 		fileName: originalPosition.source,
 		lineNumber: originalPosition.line,
@@ -97,14 +96,28 @@ export const openOriginalPositionInEditorAtProperty = async ({
 		? await browserStudioOperations.findInFile(request)
 		: await callApi('/api/find-in-file', request);
 
-	await openOriginalPositionInEditor(
-		{
-			source: originalPosition.source,
-			line: position.lineNumber,
-			column: position.columnNumber,
-		},
-		editorId,
-	);
+	return {
+		source: originalPosition.source,
+		line: position.lineNumber,
+		column: position.columnNumber,
+	};
+};
+
+export const openOriginalPositionInEditorAtProperty = async ({
+	editorId,
+	originalPosition,
+	property,
+}: {
+	editorId: EditorPickerId;
+	originalPosition: CodePosition;
+	property: string;
+}) => {
+	const position = await findOriginalPositionInFileAtProperty({
+		originalPosition,
+		property,
+	});
+
+	await openOriginalPositionInEditor(position, editorId);
 };
 
 type ResolvedCompositionComponentInfo = {

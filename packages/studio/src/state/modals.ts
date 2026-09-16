@@ -260,8 +260,11 @@ export type ModalState =
 	| {
 			type: 'fix-computed-value';
 			prop: string;
-			context: string;
-			remotionInteractivitySkillAvailable: boolean;
+			location: {
+				source: string;
+				line: number;
+				column: number;
+			};
 	  }
 	| {
 			type: 'quick-switcher';
