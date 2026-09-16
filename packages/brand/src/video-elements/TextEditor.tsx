@@ -5,7 +5,7 @@ import {Interactive, useDelayRender} from 'remotion';
 import {z} from 'zod';
 import {ReactFileIcon, VscodeIcon} from './vscode-icons';
 
-const REFERENCE_WIDTH = 1287;
+const REFERENCE_WIDTH = 1237;
 const REFERENCE_HEIGHT = 1250;
 
 export const textEditorSchema = z.object({
@@ -31,7 +31,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	const titleBarHeight = 28 * scale;
 	const tabBarHeight = 34 * scale;
 	const breadcrumbHeight = 22 * scale;
-	const activityBarWidth = 50 * scale;
 	const statusBarHeight = 32 * scale;
 	const editorTop = titleBarHeight + tabBarHeight + breadcrumbHeight;
 	const editorHeight = height - editorTop - statusBarHeight;
@@ -135,14 +134,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 		{active: false, label: 'Root.tsx'},
 		{active: false, label: 'SlideInOverlay.tsx'},
 	];
-	const activityIcons = [
-		'files',
-		'search-large',
-		'source-control',
-		'debug-alt',
-		'extensions',
-	] as const;
-
 	return (
 		<Interactive.Div
 			name="Backdrop"
@@ -221,53 +212,11 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 				</Interactive.Div>
 
 				<Interactive.Div
-					name="Activity bar"
-					style={{
-						backgroundColor: '#181919',
-						bottom: statusBarHeight,
-						borderRight: `${scale}px solid #2b2b2b`,
-						color: '#8e8e8e',
-						left: 0,
-						position: 'absolute',
-						top: titleBarHeight,
-						width: activityBarWidth,
-					}}
-				>
-					{activityIcons.map((name, index) => (
-						<div
-							key={name}
-							style={{
-								alignItems: 'center',
-								color: index === 0 ? '#bdbdbd' : '#8d8d8d',
-								display: 'flex',
-								height: 45 * scale,
-								justifyContent: 'center',
-							}}
-						>
-							<VscodeIcon name={name} size={25 * scale} />
-						</div>
-					))}
-					<div
-						style={{
-							alignItems: 'center',
-							bottom: 7 * scale,
-							display: 'flex',
-							height: 34 * scale,
-							justifyContent: 'center',
-							position: 'absolute',
-							width: '100%',
-						}}
-					>
-						<VscodeIcon name="settings-gear" size={24 * scale} />
-					</div>
-				</Interactive.Div>
-
-				<Interactive.Div
 					name="Editor tabs"
 					style={{
 						backgroundColor: '#131414',
 						height: tabBarHeight,
-						left: activityBarWidth,
+						left: 0,
 						position: 'absolute',
 						right: 0,
 						top: titleBarHeight,
@@ -331,7 +280,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						display: 'flex',
 						fontSize: 12 * scale,
 						height: breadcrumbHeight,
-						left: activityBarWidth,
+						left: 0,
 						paddingLeft: 16 * scale,
 						position: 'absolute',
 						right: 0,
@@ -355,7 +304,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 					style={{
 						backgroundColor: '#131414',
 						height: editorHeight + 2 * scale,
-						left: activityBarWidth,
+						left: 0,
 						overflow: 'hidden',
 						position: 'absolute',
 						right: 0,

@@ -405,22 +405,14 @@ export const RemotionRoot: React.FC = () => {
 
 			<Folder name="VideoElements">
 				<Composition
-					id="StudioCodeHandoff"
-					component={StudioCodeHandoff}
-					durationInFrames={240}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
 					id="CodexUI"
 					component={Codex}
 					durationInFrames={1}
 					fps={30}
-					width={1081}
+					width={785}
 					height={928}
 					schema={codexSchema}
-					defaultProps={{height: 928, width: 1081}}
+					defaultProps={{height: 928, width: 785}}
 					calculateMetadata={({props}) => ({
 						height: props.height,
 						width: props.width,
@@ -431,7 +423,7 @@ export const RemotionRoot: React.FC = () => {
 					component={TextEditor}
 					durationInFrames={1}
 					fps={30}
-					width={1287}
+					width={1237}
 					height={1250}
 					schema={textEditorSchema}
 					defaultProps={{
@@ -477,9 +469,12 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 						fileName: 'Scene11.tsx',
 						height: 1250,
 						highlightedLines: '39',
-						width: 1287,
+						width: 1237,
 					}}
-					calculateMetadata={({props}) => ({height: props.height, width: props.width})}
+					calculateMetadata={({props}) => ({
+						height: props.height,
+						width: props.width,
+					})}
 				/>
 				<Composition
 					id="StudioUI"
@@ -489,10 +484,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					width={1600}
 					height={900}
 					schema={studioReferenceSchema}
-					defaultProps={{
-						viewportWidth: 1600,
-						responsivenessProgress: 0,
-					}}
+					defaultProps={{viewportWidth: 1600, responsivenessProgress: 0}}
 					calculateMetadata={({props}) => ({width: props.viewportWidth})}
 				/>
 				<Composition
@@ -507,6 +499,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 						viewportWidth: 1600,
 						responsivenessProgress: 0,
 					}}
+				/>
+				<Composition
+					id="StudioCodeHandoff"
+					component={StudioCodeHandoff}
+					durationInFrames={240}
+					fps={30}
+					width={1920}
+					height={1080}
 				/>
 				<Composition
 					id="StepGuide"

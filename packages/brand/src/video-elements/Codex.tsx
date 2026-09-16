@@ -3,34 +3,21 @@ import {AbsoluteFill, Img, Interactive, staticFile} from 'remotion';
 import {z} from 'zod';
 import {
 	AlertCircleIcon,
-	AtIcon,
-	BackIcon,
-	BellIcon,
 	BoltIcon,
 	BottomPanelIcon,
 	ChevronDownIcon,
 	ChevronRightIcon,
-	ClockIcon,
 	CopyIcon,
 	FeedbackIcon,
 	FolderIcon,
-	ForwardIcon,
 	HandoffIcon,
-	HelpIcon,
-	HistoryIcon,
 	MicrophoneIcon,
 	MoreIcon,
-	NewChatIcon,
-	PanelIcon,
 	PlusIcon,
-	ProjectsIcon,
-	PullRequestIcon,
 	RightPanelIcon,
-	SearchIcon,
 	ShareIcon,
 	SlidersIcon,
 	SpinnerIcon,
-	StatusDotIcon,
 	VoiceIcon,
 } from './codex-icons';
 
@@ -41,433 +28,8 @@ export const codexSchema = z.object({
 
 export type CodexProps = z.infer<typeof codexSchema>;
 
-const SidebarNavigation: React.FC = () => {
-	return (
-		<>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 28,
-					left: 14,
-					position: 'absolute',
-					top: 76,
-					width: 268,
-				}}
-			>
-				<NewChatIcon size={15} />
-				<span style={{marginLeft: 7}}>New chat</span>
-				<HistoryIcon size={14} style={{marginLeft: 'auto'}} />
-			</div>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 28,
-					left: 14,
-					position: 'absolute',
-					top: 104,
-					width: 268,
-				}}
-			>
-				<ProjectsIcon size={15} />
-				<span style={{marginLeft: 7}}>Projects</span>
-			</div>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 28,
-					left: 14,
-					position: 'absolute',
-					top: 132,
-					width: 268,
-				}}
-			>
-				<PullRequestIcon size={15} />
-				<span style={{marginLeft: 7}}>Pull requests</span>
-			</div>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 28,
-					left: 14,
-					position: 'absolute',
-					top: 160,
-					width: 268,
-				}}
-			>
-				<ClockIcon size={15} />
-				<span style={{marginLeft: 7}}>Scheduled</span>
-			</div>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 28,
-					left: 14,
-					position: 'absolute',
-					top: 188,
-					width: 268,
-				}}
-			>
-				<AtIcon size={15} />
-				<span style={{marginLeft: 7}}>Plugins</span>
-			</div>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 28,
-					left: 14,
-					position: 'absolute',
-					top: 216,
-					width: 268,
-				}}
-			>
-				<MoreIcon size={15} />
-				<span style={{marginLeft: 7}}>Explore</span>
-			</div>
-		</>
-	);
-};
-
-const RecentRow: React.FC<{
-	readonly active: boolean | null;
-	readonly dot: boolean | null;
-	readonly handoff: boolean | null;
-	readonly label: string;
-	readonly spinner: boolean | null;
-	readonly top: number;
-}> = ({active, dot, handoff, label, spinner, top}) => {
-	return (
-		<div
-			style={{
-				alignItems: 'center',
-				backgroundColor: active ? '#e7e6e8' : 'transparent',
-				borderRadius: 9,
-				display: 'flex',
-				height: 27,
-				left: 7,
-				overflow: 'hidden',
-				position: 'absolute',
-				top,
-				width: 281,
-			}}
-		>
-			<div
-				style={{
-					marginLeft: 7,
-					overflow: 'hidden',
-					paddingRight: handoff || dot || spinner ? 48 : 8,
-					textOverflow: 'clip',
-					whiteSpace: 'nowrap',
-				}}
-			>
-				{label}
-			</div>
-			{handoff ? (
-				<HandoffIcon
-					size={14}
-					style={{color: '#98999a', left: 232, position: 'absolute'}}
-				/>
-			) : null}
-			{spinner ? (
-				<SpinnerIcon
-					size={15}
-					style={{color: '#6c6d6f', left: 257, position: 'absolute'}}
-				/>
-			) : null}
-			{dot ? (
-				<StatusDotIcon
-					size={13}
-					style={{
-						color: '#4a76f1',
-						left: 257,
-						position: 'absolute',
-						translate: '0 -1px',
-					}}
-				/>
-			) : null}
-		</div>
-	);
-};
-
-const Sidebar: React.FC<{readonly height: number}> = ({height}) => {
-	return (
-		<Interactive.Div
-			name="Sidebar"
-			style={{
-				backgroundColor: '#f3f2f3',
-				backgroundImage:
-					'linear-gradient(90deg, #f3f2f3 0 19px, #f3f3f3 19px 20px, #f3f3f4 20px 21px, #f4f3f4 21px 30px, #f3f3f4 30px 32px, #f3f3f3 32px 34px, #f3f2f3 34px 62px, #f3f3f3 62px 64px, #f3f3f4 64px 66px, #f4f3f4 66px 78px, #f3f3f4 78px 80px, #f3f3f3 80px 82px, #f3f2f3 82px)',
-				borderRight: '1px solid #e2e1e2',
-				boxSizing: 'border-box',
-				color: '#393a3c',
-				fontSize: 12.5,
-				height,
-				left: 0,
-				position: 'absolute',
-				top: 0,
-				width: 296,
-			}}
-		>
-			<div
-				style={{
-					backgroundColor: '#ff5f57',
-					borderRadius: '50%',
-					height: 12,
-					left: 17,
-					position: 'absolute',
-					top: 16,
-					width: 12,
-				}}
-			/>
-			<div
-				style={{
-					backgroundColor: '#febc2e',
-					borderRadius: '50%',
-					height: 12,
-					left: 37,
-					position: 'absolute',
-					top: 16,
-					width: 12,
-				}}
-			/>
-			<div
-				style={{
-					backgroundColor: '#28c840',
-					borderRadius: '50%',
-					height: 12,
-					left: 57,
-					position: 'absolute',
-					top: 16,
-					width: 12,
-				}}
-			/>
-
-			<PanelIcon
-				size={14}
-				style={{
-					color: '#858688',
-					left: 93,
-					position: 'absolute',
-					scale: '1 1.1',
-					top: 13,
-				}}
-			/>
-			<BackIcon
-				size={17}
-				style={{color: '#b8b9ba', left: 120, position: 'absolute', top: 13}}
-			/>
-			<ForwardIcon
-				size={17}
-				style={{color: '#d0d0d1', left: 149, position: 'absolute', top: 12}}
-			/>
-
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					fontSize: 15,
-					fontWeight: 600,
-					height: 22,
-					left: 15,
-					position: 'absolute',
-					top: 45,
-				}}
-			>
-				Codex
-				<ChevronDownIcon
-					size={13}
-					style={{
-						color: '#77787a',
-						marginLeft: 2,
-						scale: '1.4 1.7',
-						translate: '0 -1px',
-					}}
-				/>
-			</div>
-			<SearchIcon
-				size={16}
-				style={{
-					color: '#6f7072',
-					left: 240,
-					position: 'absolute',
-					scale: '1.08',
-					top: 47,
-					transformOrigin: 'top left',
-				}}
-			/>
-			<div
-				style={{
-					height: 18,
-					left: 263,
-					position: 'absolute',
-					top: 46,
-					width: 18,
-				}}
-			>
-				<BellIcon
-					size={16}
-					style={{
-						color: '#6f7072',
-						scale: '0.85 1',
-						transformOrigin: 'left',
-						translate: '3px 0',
-					}}
-				/>
-				<div
-					style={{
-						backgroundColor: '#4a76f1',
-						border: '2px solid #f3f2f3',
-						borderRadius: '50%',
-						height: 7,
-						left: 10,
-						position: 'absolute',
-						top: -1,
-						width: 7,
-					}}
-				/>
-			</div>
-
-			<SidebarNavigation />
-			<div
-				style={{
-					color: '#a1a2a3',
-					fontSize: 12.5,
-					left: 15,
-					lineHeight: '18px',
-					position: 'absolute',
-					top: 260,
-				}}
-			>
-				Recents
-			</div>
-
-			<RecentRow
-				active={null}
-				dot={null}
-				handoff={null}
-				label="Fix Studio percentage translate values"
-				spinner
-				top={284}
-			/>
-			<RecentRow
-				active={null}
-				dot={null}
-				handoff={null}
-				label="Build text editor mockup"
-				spinner
-				top={312}
-			/>
-			<RecentRow
-				active={null}
-				dot={null}
-				handoff
-				label="Investigate issue #11294"
-				spinner
-				top={340}
-			/>
-			<RecentRow
-				active
-				dot={null}
-				handoff
-				label="Capture Remotion outro screenshot"
-				spinner={null}
-				top={368}
-			/>
-			<RecentRow
-				active={null}
-				dot
-				handoff={null}
-				label="Fix issue 11235 in Studio"
-				spinner={null}
-				top={396}
-			/>
-			<RecentRow
-				active={null}
-				dot
-				handoff
-				label="Open PR for issue #11260"
-				spinner={null}
-				top={424}
-			/>
-			<RecentRow
-				active={null}
-				dot={null}
-				handoff
-				label="Fix PR #11201 merge conflicts"
-				spinner
-				top={452}
-			/>
-			<RecentRow
-				active={null}
-				dot
-				handoff
-				label="Find timeline layer double-click"
-				spinner={null}
-				top={480}
-			/>
-			<RecentRow
-				active={null}
-				dot={null}
-				handoff
-				label="@remotion/studio: Add skill installation to"
-				spinner={null}
-				top={508}
-			/>
-
-			<div
-				style={{
-					alignItems: 'center',
-					borderTop: '1px solid #e2e1e2',
-					bottom: 0,
-					boxSizing: 'border-box',
-					display: 'flex',
-					height: 42,
-					left: 0,
-					paddingLeft: 14,
-					position: 'absolute',
-					width: 295,
-				}}
-			>
-				<div
-					style={{
-						alignItems: 'center',
-						backgroundColor: '#3c72ad',
-						borderRadius: '50%',
-						color: 'white',
-						display: 'flex',
-						fontSize: 5.5,
-						height: 16,
-						justifyContent: 'center',
-						letterSpacing: -0.4,
-						translate: '0 -1px',
-						width: 17,
-					}}
-				>
-					JB
-				</div>
-				<div style={{fontSize: 12.5, marginLeft: 7, translate: '0 -1px'}}>
-					Jonny Burger
-				</div>
-				<HelpIcon
-					size={15}
-					strokeWidth={1.2}
-					style={{
-						color: '#77787a',
-						marginLeft: 'auto',
-						marginRight: 14,
-						scale: '1.08',
-						translate: '-0.5px -0.5px',
-					}}
-				/>
-			</div>
-		</Interactive.Div>
-	);
-};
+const MINIMUM_WIDTH = 785;
+const MINIMUM_HEIGHT = 928;
 
 const Header: React.FC = () => {
 	return (
@@ -968,8 +530,9 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 };
 
 export const Codex: React.FC<CodexProps> = ({height, width}) => {
-	const scale = width / 1081;
-	const referenceHeight = height / scale;
+	const scale = Math.min(width / MINIMUM_WIDTH, height / MINIMUM_HEIGHT);
+	const scaledWidth = MINIMUM_WIDTH * scale;
+	const scaledHeight = MINIMUM_HEIGHT * scale;
 
 	return (
 		<AbsoluteFill
@@ -988,21 +551,20 @@ export const Codex: React.FC<CodexProps> = ({height, width}) => {
 				style={{
 					backgroundColor: '#ffffff',
 					borderRadius: 10,
-					height: referenceHeight,
-					left: 0,
+					height: MINIMUM_HEIGHT,
+					left: (width - scaledWidth) / 2,
 					overflow: 'hidden',
 					position: 'absolute',
 					scale,
-					top: 0,
+					top: (height - scaledHeight) / 2,
 					transformOrigin: '0 0',
-					width: 1081,
+					width: MINIMUM_WIDTH,
 				}}
 			>
-				<Sidebar height={referenceHeight} />
 				<div
 					style={{
-						height: referenceHeight,
-						left: 296,
+						height: MINIMUM_HEIGHT,
+						left: 0,
 						position: 'absolute',
 						top: 0,
 						width: 785,
@@ -1010,7 +572,7 @@ export const Codex: React.FC<CodexProps> = ({height, width}) => {
 				>
 					<Header />
 					<Conversation />
-					<Composer top={referenceHeight - 104} />
+					<Composer top={MINIMUM_HEIGHT - 104} />
 				</div>
 			</Interactive.Div>
 		</AbsoluteFill>
