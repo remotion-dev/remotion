@@ -8,5 +8,5 @@ test('uses the shared recommended versions for auxiliary packages', () => {
 		expect(EXTRA_PACKAGES_DOCS[name]).toBe(versionDocsUrl);
 	}
 
-	expect(EXTRA_PACKAGES['@huggingface/transformers']).toBe('4.2.0');
+	expect(EXTRA_PACKAGES['@huggingface/transformers']).toBe('4.3.0');
 });

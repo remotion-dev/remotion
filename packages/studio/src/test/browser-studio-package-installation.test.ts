@@ -53,7 +53,7 @@ test('routes package installation through the explicit Browser Studio capability
 		[{name: '@remotion/google-fonts', version: null}],
 		[
 			{name: '@remotion/video-matting', version: null},
-			{name: TRANSFORMERS_PACKAGE, version: '4.2.0'},
+			{name: TRANSFORMERS_PACKAGE, version: '4.3.0'},
 		],
 	]);
 });
