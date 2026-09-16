@@ -7,7 +7,6 @@ import React, {
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	LIGHT_TEXT,
 	TRANSPARENT,
@@ -28,7 +27,7 @@ import {ContextMenu} from '../ContextMenu';
 import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
-import {useEditorOpening} from '../use-default-editor-info';
+import {useOpenInMenuApps} from '../use-open-in-menu-apps';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 	useScrollIntoViewOnSelected,
@@ -129,11 +128,7 @@ export const QuickSwitcherResult: React.FC<{
 	const onSelected = result.type === 'folder' ? null : result.onSelected;
 	const composition = result.type === 'composition' ? result.composition : null;
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
-	const {defaultEditorId, defaultEditorName} = useEditorOpening(
-		connectionStatus === 'connected',
-	);
+	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const resolvedLocation = useResolvedStack(composition?.stack ?? null);
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (composition === null) {
@@ -144,9 +139,8 @@ export const QuickSwitcherResult: React.FC<{
 			closeMenu: noop,
 			composition,
 			connectionStatus,
-			editorId: defaultEditorId,
-			editorName: defaultEditorName,
 			includeCompositionManagementItems: true,
+			openInApps,
 			resolvedLocation,
 			setSelectedModal,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -154,8 +148,7 @@ export const QuickSwitcherResult: React.FC<{
 	}, [
 		composition,
 		connectionStatus,
-		defaultEditorId,
-		defaultEditorName,
+		openInApps,
 		resolvedLocation,
 		setSelectedModal,
 	]);

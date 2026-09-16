@@ -1,3 +1,4 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
@@ -6,17 +7,25 @@ import {
 	formatContextForAgents,
 	formatFileLocation,
 } from '../helpers/format-file-location';
-import {getGitSourceName, openGitSource} from '../helpers/get-git-menu-item';
+import {
+	getDefaultOpenInTarget,
+	getGitSourceName,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
 import {
 	loadCompositionComponentInfo,
 	openCompositionComponentInEditor,
+	openInCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import type {PreviewServerConnectionState} from '../helpers/preview-server-events';
 import type {ModalState} from '../state/modals';
+import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getOpenInNewWindowMenuItem} from './open-in-new-window';
+import {openInFileExplorer} from './RenderQueue/actions';
+import type {OpenInMenuApps} from './use-open-in-menu-apps';
 
 export const getCompositionMenuItems = ({
 	composition,
@@ -26,8 +35,7 @@ export const getCompositionMenuItems = ({
 	closeMenu,
 	readOnlyStudio,
 	includeCompositionManagementItems,
-	editorId,
-	editorName,
+	openInApps,
 }: {
 	composition: _InternalTypes['AnyComposition'] | null;
 	connectionStatus: PreviewServerConnectionState['type'];
@@ -36,9 +44,17 @@ export const getCompositionMenuItems = ({
 	closeMenu: () => void;
 	readOnlyStudio: boolean;
 	includeCompositionManagementItems: boolean;
-	editorId: EditorPickerId | null;
-	editorName: string | null;
+	openInApps: OpenInMenuApps;
 }): ComboboxValue[] => {
+	const {
+		canOpenDesktopApps,
+		canOpenInEditor,
+		codingAgentInfo,
+		defaultEditorId,
+		defaultEditorName,
+		editorInfo,
+		onConfigureApps,
+	} = openInApps;
 	const fileLocation = formatFileLocation({
 		location: resolvedLocation,
 		root: window.remotion_cwd,
@@ -48,125 +64,258 @@ export const getCompositionMenuItems = ({
 		name: composition?.id ?? null,
 		root: window.remotion_cwd,
 	});
-	const showInEditorDisabled =
-		!editorId ||
-		!composition ||
-		connectionStatus !== 'connected' ||
-		!resolvedLocation;
+	const openCompositionInEditorDisabled =
+		!defaultEditorId || !composition || !canOpenInEditor || !resolvedLocation;
 	const openComponentInEditorDisabled =
-		showInEditorDisabled || !resolvedLocation?.source;
+		openCompositionInEditorDisabled || !resolvedLocation?.source;
 	const gitSourceName = window.remotion_gitSource
 		? getGitSourceName(window.remotion_gitSource)
 		: null;
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
+	const defaultOpenInName =
+		defaultOpenInTarget === 'editor' ? defaultEditorName : gitSourceName;
 	const openCompositionInGitSourceDisabled = !composition || !resolvedLocation;
 	const openComponentInGitSourceDisabled =
 		openCompositionInGitSourceDisabled ||
 		!resolvedLocation?.source ||
 		(!readOnlyStudio && connectionStatus !== 'connected');
 	const copyFileLocationDisabled = !composition || !fileLocation;
+	const openWithCodingAgent = async (
+		codingAgentId: DefaultCodingAgent,
+		codingAgentName: string,
+	) => {
+		try {
+			const response = await openInCodingAgent(
+				codingAgentId,
+				codingAgentId === 'copilot' ? null : contextForAgents,
+			);
+			if (!response.success) {
+				showNotification(`Could not open ${codingAgentName}`, 2000);
+			}
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
+	};
+
+	const openCompositionWithEditor = async (editorId: EditorPickerId) => {
+		closeMenu();
+		if (!composition || !resolvedLocation) {
+			return;
+		}
+
+		try {
+			await openOriginalPositionInEditor(resolvedLocation, editorId);
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
+	};
+
+	const openComponentWithEditor = async (editorId: EditorPickerId) => {
+		closeMenu();
+		if (!composition || !resolvedLocation?.source) {
+			return;
+		}
+
+		try {
+			await openCompositionComponentInEditor({
+				compositionFile: resolvedLocation.source,
+				compositionId: composition.id,
+				editorId,
+			});
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
+	};
+
+	const openComponentInGitSource = async () => {
+		closeMenu();
+		if (!composition || !resolvedLocation?.source) {
+			return;
+		}
+
+		try {
+			const info = await loadCompositionComponentInfo({
+				compositionFile: resolvedLocation.source,
+				compositionId: composition.id,
+			});
+			openGitSource({folder: false, location: info.location});
+		} catch (err) {
+			showNotification((err as Error).message, 2000);
+		}
+	};
+
+	const openCompositionInFileExplorer = () => {
+		if (!resolvedLocation?.source) {
+			return;
+		}
+
+		openInFileExplorer({directory: resolvedLocation.source}).catch((err) => {
+			showNotification(`Could not open file: ${err.message}`, 2000);
+		});
+	};
+
+	const openComponentInFileExplorer = async () => {
+		if (!composition || !resolvedLocation?.source) {
+			return;
+		}
+
+		try {
+			const info = await loadCompositionComponentInfo({
+				compositionFile: resolvedLocation.source,
+				compositionId: composition.id,
+			});
+			await openInFileExplorer({directory: info.location.source});
+		} catch (err) {
+			showNotification(`Could not open file: ${(err as Error).message}`, 2000);
+		}
+	};
+
+	const commonOpenInMenuItems = {
+		canOpenDesktopApps,
+		codingAgentInfo,
+		editorInfo,
+		excludeCodingAgentId: null,
+		excludeEditorId: defaultOpenInTarget === 'editor' ? defaultEditorId : null,
+		excludeGitSource: defaultOpenInTarget === 'git-source',
+		folder: false,
+		onConfigureApps,
+		onOpenInCodingAgent: (codingAgentId: DefaultCodingAgent, name: string) => {
+			openWithCodingAgent(codingAgentId, name).catch(() => undefined);
+		},
+		onOpenInGitClient: () => undefined,
+		onOpenInTerminal: null,
+	};
+	const compositionOpenInMenuItems = getOpenInMenuItems({
+		...commonOpenInMenuItems,
+		editorDisabled: openCompositionInEditorDisabled,
+		fileManagerDisabled:
+			!resolvedLocation?.source || connectionStatus !== 'connected',
+		gitSourceDisabled: openCompositionInGitSourceDisabled,
+		onOpenInEditor: (editorId) => {
+			openCompositionWithEditor(editorId).catch(() => undefined);
+		},
+		onOpenInFileExplorer: openCompositionInFileExplorer,
+		onOpenInGitSource: () => {
+			closeMenu();
+			openGitSource({folder: false, location: resolvedLocation});
+		},
+	});
+	const componentOpenInMenuItems = getOpenInMenuItems({
+		...commonOpenInMenuItems,
+		editorDisabled: openComponentInEditorDisabled,
+		fileManagerDisabled:
+			!resolvedLocation?.source || connectionStatus !== 'connected',
+		gitSourceDisabled: openComponentInGitSourceDisabled,
+		onOpenInEditor: (editorId) => {
+			openComponentWithEditor(editorId).catch(() => undefined);
+		},
+		onOpenInFileExplorer: () => {
+			openComponentInFileExplorer().catch(() => undefined);
+		},
+		onOpenInGitSource: () => {
+			openComponentInGitSource().catch(() => undefined);
+		},
+	});
+	const hasOpenInItems =
+		defaultOpenInName !== null ||
+		compositionOpenInMenuItems.length > 0 ||
+		componentOpenInMenuItems.length > 0;
 
 	return [
-		editorName
+		defaultOpenInTarget && defaultOpenInName
 			? {
-					id: 'show-in-editor',
+					id:
+						defaultOpenInTarget === 'editor'
+							? 'show-in-editor'
+							: 'open-composition-in-git-source',
 					keyHint: null,
-					label: `Open composition in ${editorName}`,
-					leftItem: null,
-					onClick: async () => {
-						closeMenu();
-						if (!composition || !resolvedLocation || !editorId) {
-							return;
-						}
-
-						try {
-							await openOriginalPositionInEditor(resolvedLocation, editorId);
-						} catch (err) {
-							showNotification((err as Error).message, 2000);
-						}
-					},
-					quickSwitcherLabel: `Open composition in ${editorName}`,
-					subMenu: null,
-					type: 'item' as const,
-					value: 'show-in-editor',
-					disabled: showInEditorDisabled,
-				}
-			: null,
-		editorName
-			? {
-					id: 'open-component-in-editor',
-					keyHint: null,
-					label: `Open component in ${editorName}`,
-					leftItem: null,
-					onClick: async () => {
-						closeMenu();
-						if (!composition || !resolvedLocation?.source || !editorId) {
-							return;
-						}
-
-						try {
-							await openCompositionComponentInEditor({
-								compositionFile: resolvedLocation.source,
-								compositionId: composition.id,
-								editorId,
-							});
-						} catch (err) {
-							showNotification((err as Error).message, 2000);
-						}
-					},
-					quickSwitcherLabel: `Open composition component in ${editorName}`,
-					subMenu: null,
-					type: 'item' as const,
-					value: 'open-component-in-editor',
-					disabled: openComponentInEditorDisabled,
-				}
-			: null,
-		gitSourceName
-			? {
-					id: 'open-composition-in-git-source',
-					keyHint: null,
-					label: `Open composition in ${gitSourceName}`,
+					label: `Open composition in ${defaultOpenInName}`,
 					leftItem: null,
 					onClick: () => {
-						closeMenu();
-						openGitSource({folder: false, location: resolvedLocation});
+						if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
+							openCompositionWithEditor(defaultEditorId).catch(() => undefined);
+						} else if (defaultOpenInTarget === 'git-source') {
+							closeMenu();
+							openGitSource({folder: false, location: resolvedLocation});
+						}
 					},
-					quickSwitcherLabel: `Open composition in ${gitSourceName}`,
+					quickSwitcherLabel: `Open composition in ${defaultOpenInName}`,
 					subMenu: null,
 					type: 'item' as const,
-					value: 'open-composition-in-git-source',
-					disabled: openCompositionInGitSourceDisabled,
+					value:
+						defaultOpenInTarget === 'editor'
+							? 'show-in-editor'
+							: 'open-composition-in-git-source',
+					disabled:
+						defaultOpenInTarget === 'editor'
+							? openCompositionInEditorDisabled
+							: openCompositionInGitSourceDisabled,
 				}
 			: null,
-		gitSourceName
+		compositionOpenInMenuItems.length > 0
 			? {
-					id: 'open-component-in-git-source',
+					id: 'open-composition-in-another-app',
 					keyHint: null,
-					label: `Open component in ${gitSourceName}`,
+					label: 'Open composition in...',
 					leftItem: null,
-					onClick: async () => {
-						closeMenu();
-						if (!composition || !resolvedLocation?.source) {
-							return;
-						}
-
-						try {
-							const info = await loadCompositionComponentInfo({
-								compositionFile: resolvedLocation.source,
-								compositionId: composition.id,
-							});
-							openGitSource({folder: false, location: info.location});
-						} catch (err) {
-							showNotification((err as Error).message, 2000);
-						}
+					onClick: () => undefined,
+					quickSwitcherLabel: null,
+					subMenu: {
+						items: compositionOpenInMenuItems,
+						leaveLeftSpace: true,
+						preselectIndex: false as const,
 					},
-					quickSwitcherLabel: `Open composition component in ${gitSourceName}`,
-					subMenu: null,
 					type: 'item' as const,
-					value: 'open-component-in-git-source',
-					disabled: openComponentInGitSourceDisabled,
+					value: 'open-composition-in-another-app',
 				}
 			: null,
-		(editorName || gitSourceName) && includeCompositionManagementItems
+		defaultOpenInTarget && defaultOpenInName
+			? {
+					id:
+						defaultOpenInTarget === 'editor'
+							? 'open-component-in-editor'
+							: 'open-component-in-git-source',
+					keyHint: null,
+					label: `Open component in ${defaultOpenInName}`,
+					leftItem: null,
+					onClick: () => {
+						if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
+							openComponentWithEditor(defaultEditorId).catch(() => undefined);
+						} else if (defaultOpenInTarget === 'git-source') {
+							openComponentInGitSource().catch(() => undefined);
+						}
+					},
+					quickSwitcherLabel: `Open composition component in ${defaultOpenInName}`,
+					subMenu: null,
+					type: 'item' as const,
+					value:
+						defaultOpenInTarget === 'editor'
+							? 'open-component-in-editor'
+							: 'open-component-in-git-source',
+					disabled:
+						defaultOpenInTarget === 'editor'
+							? openComponentInEditorDisabled
+							: openComponentInGitSourceDisabled,
+				}
+			: null,
+		componentOpenInMenuItems.length > 0
+			? {
+					id: 'open-component-in-another-app',
+					keyHint: null,
+					label: 'Open component in...',
+					leftItem: null,
+					onClick: () => undefined,
+					quickSwitcherLabel: null,
+					subMenu: {
+						items: componentOpenInMenuItems,
+						leaveLeftSpace: true,
+						preselectIndex: false as const,
+					},
+					type: 'item' as const,
+					value: 'open-component-in-another-app',
+				}
+			: null,
+		hasOpenInItems && includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'show-in-editor-divider',
@@ -246,7 +395,7 @@ export const getCompositionMenuItems = ({
 					disabled: !composition || readOnlyStudio,
 				}
 			: null,
-		editorName || gitSourceName || includeCompositionManagementItems
+		hasOpenInItems || includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'copy-actions-divider',

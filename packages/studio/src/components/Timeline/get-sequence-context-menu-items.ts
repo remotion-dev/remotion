@@ -189,9 +189,6 @@ export const getSequenceContextMenuItems = ({
 		: null;
 	const defaultOpenInName =
 		defaultOpenInTarget === 'editor' ? editorName : gitSourceName;
-	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
-		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
-	);
 	const contextForAgents = formatContextForAgents({
 		location: originalLocation,
 		name: sequence.displayName || sequence.controls?.componentName || null,
@@ -208,34 +205,35 @@ export const getSequenceContextMenuItems = ({
 		);
 	};
 
-	const openInMenuItems = onConfigureApps
-		? getOpenInMenuItems({
-				codingAgentInfo,
-				editorDisabled: !canOpenInEditor || !originalLocation,
-				editorInfo,
-				excludeCodingAgentId: defaultCodingAgent?.id ?? null,
-				excludeEditorId: defaultEditorId,
-				fileManagerDisabled: !originalLocation?.source,
-				folder: false,
-				location: originalLocation,
-				onConfigureApps,
-				onOpenInCodingAgent: openInCodingAgentWithContext,
-				onOpenInEditor: openInEditor,
-				onOpenInFileExplorer: () => {
-					if (!originalLocation?.source) {
-						return;
-					}
+	const openInMenuItems = getOpenInMenuItems({
+		canOpenDesktopApps: onConfigureApps !== null,
+		codingAgentInfo,
+		editorDisabled: !canOpenInEditor || !originalLocation,
+		editorInfo,
+		excludeCodingAgentId: null,
+		excludeEditorId: defaultEditorId,
+		excludeGitSource: defaultOpenInTarget === 'git-source',
+		fileManagerDisabled: !originalLocation?.source,
+		folder: false,
+		gitSourceDisabled: !originalLocation,
+		onConfigureApps,
+		onOpenInCodingAgent: openInCodingAgentWithContext,
+		onOpenInEditor: openInEditor,
+		onOpenInFileExplorer: () => {
+			if (!originalLocation?.source) {
+				return;
+			}
 
-					openInFileExplorer({directory: originalLocation.source}).catch(
-						(err) => {
-							showNotification(`Could not open file: ${err.message}`, 2000);
-						},
-					);
-				},
-				onOpenInGitClient: () => undefined,
-				onOpenInTerminal: null,
-			})
-		: [];
+			openInFileExplorer({directory: originalLocation.source}).catch((err) => {
+				showNotification(`Could not open file: ${err.message}`, 2000);
+			});
+		},
+		onOpenInGitClient: () => undefined,
+		onOpenInGitSource: () => {
+			openGitSource({folder: false, location: originalLocation});
+		},
+		onOpenInTerminal: null,
+	});
 
 	const items = [
 		defaultOpenInTarget && defaultOpenInName
@@ -265,25 +263,7 @@ export const getSequenceContextMenuItems = ({
 							: 'open-in-git-source',
 				}
 			: null,
-		defaultCodingAgent
-			? {
-					type: 'item' as const,
-					id: 'open-in-default-coding-agent',
-					keyHint: null,
-					label: `Open in ${defaultCodingAgent.nameWithType}`,
-					leftItem: null,
-					disabled: false,
-					onClick: () =>
-						openInCodingAgentWithContext(
-							defaultCodingAgent.id,
-							defaultCodingAgent.nameWithType,
-						),
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'open-in-default-coding-agent',
-				}
-			: null,
-		onConfigureApps
+		openInMenuItems.length > 0
 			? {
 					type: 'item' as const,
 					id: 'open-in-another-app',

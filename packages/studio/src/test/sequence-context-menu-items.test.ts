@@ -103,19 +103,22 @@ test('the file manager entry is only shown on macOS', () => {
 	installTestWindow();
 	const getItems = () =>
 		getOpenInMenuItems({
+			canOpenDesktopApps: true,
 			codingAgentInfo: null,
 			editorDisabled: false,
 			editorInfo: null,
 			excludeCodingAgentId: null,
 			excludeEditorId: null,
+			excludeGitSource: false,
 			fileManagerDisabled: false,
 			folder: false,
-			location: null,
+			gitSourceDisabled: false,
 			onConfigureApps: noop,
 			onOpenInCodingAgent: noop,
 			onOpenInEditor: noop,
 			onOpenInFileExplorer: noop,
 			onOpenInGitClient: noop,
+			onOpenInGitSource: noop,
 			onOpenInTerminal: null,
 		});
 
@@ -187,6 +190,13 @@ test('sequence context menu normalizes dividers before source actions', () => {
 test('sequence context menu shares alternate apps without repeating defaults', () => {
 	installTestWindow();
 	window.remotion_editorName = 'Cursor Editor';
+	window.remotion_gitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
 
 	const openedEditors: Array<string | null> = [];
 	const openedCodingAgents: Array<{
@@ -252,16 +262,12 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		sequence: {displayName: 'Intro card'} as TSequence,
 	});
 
-	expect(items.slice(0, 3).map((item) => item.id)).toEqual([
+	expect(items.slice(0, 2).map((item) => item.id)).toEqual([
 		'open-in-editor',
-		'open-in-default-coding-agent',
 		'open-in-another-app',
 	]);
 	expect(items[0]?.type === 'item' ? items[0].label : null).toBe(
 		'Open in Cursor Editor',
-	);
-	expect(items[1]?.type === 'item' ? items[1].label : null).toBe(
-		'Open in Cursor Agent',
 	);
 	const openIn = items.find((item) => item.id === 'open-in-another-app');
 	if (openIn?.type !== 'item' || openIn.subMenu === null) {
@@ -270,22 +276,23 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 
 	const submenuIds = openIn.subMenu.items.map((item) => item.id);
 	expect(submenuIds).toContain('open-in-vscode');
+	expect(submenuIds).toContain('open-in-coding-agent-cursor');
 	expect(submenuIds).toContain('open-in-coding-agent-claude-code');
+	expect(submenuIds).toContain('open-in-github');
 	expect(submenuIds).toContain('open-in-file-explorer');
 	expect(submenuIds).toContain('change-default-apps');
 	expect(submenuIds).not.toContain('open-in-cursor');
-	expect(submenuIds).not.toContain('open-in-coding-agent-cursor');
-	const finderIndex = submenuIds.indexOf('open-in-file-explorer');
-	expect(openIn.subMenu.items[finderIndex - 1]?.type).toBe('divider');
+	const gitHubIndex = submenuIds.indexOf('open-in-github');
+	expect(openIn.subMenu.items[gitHubIndex - 1]?.type).toBe('divider');
 
-	const defaultAgent = items.find(
-		(item) => item.id === 'open-in-default-coding-agent',
+	const cursorAgent = openIn.subMenu.items.find(
+		(item) => item.id === 'open-in-coding-agent-cursor',
 	);
-	if (defaultAgent?.type !== 'item') {
-		throw new Error('Expected default coding agent item');
+	if (cursorAgent?.type !== 'item') {
+		throw new Error('Expected Cursor coding agent item');
 	}
 
-	defaultAgent.onClick('open-in-default-coding-agent', null);
+	cursorAgent.onClick('open-in-coding-agent-cursor', null);
 	const claudeCode = openIn.subMenu.items.find(
 		(item) => item.id === 'open-in-coding-agent-claude-code',
 	);
@@ -495,6 +502,7 @@ test('read-only sequence menus open source locations on GitHub', () => {
 	expect(openedUrls).toEqual([
 		'https://github.com/example/project/blob/main/src/Video.tsx#L12',
 	]);
+	expect(items.some((item) => item.id === 'open-in-another-app')).toBe(false);
 });
 
 test('sequence freeze context menu item is hidden for audio', () => {

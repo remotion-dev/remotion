@@ -1,6 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	LIGHT_TEXT,
 	TRANSPARENT,
@@ -17,7 +16,7 @@ import {getCompositionContextMenuItems} from './composition-menu-items';
 import {ContextMenu} from './ContextMenu';
 import {InlineDropdown} from './InlineDropdown';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
-import {useEditorOpening} from './use-default-editor-info';
+import {useOpenInMenuApps} from './use-open-in-menu-apps';
 
 const baseStyle: React.CSSProperties = {
 	cursor: 'default',
@@ -79,20 +78,15 @@ export const MenuCompositionName: React.FC = () => {
 	}, [canvasContent, compositions]);
 	const asset = canvasContent?.type === 'asset' ? canvasContent.asset : null;
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
-	const {defaultEditorId, defaultEditorName} = useEditorOpening(
-		connectionStatus === 'connected',
-	);
+	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const resolvedLocation = useResolvedStack(composition?.stack ?? null);
 	const getContextMenuItems = useCallback(() => {
 		return getCompositionContextMenuItems({
 			closeMenu: noop,
 			composition,
 			connectionStatus,
-			editorId: defaultEditorId,
-			editorName: defaultEditorName,
 			includeCompositionManagementItems: true,
+			openInApps,
 			resolvedLocation,
 			setSelectedModal,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -100,8 +94,7 @@ export const MenuCompositionName: React.FC = () => {
 	}, [
 		composition,
 		connectionStatus,
-		defaultEditorId,
-		defaultEditorName,
+		openInApps,
 		resolvedLocation,
 		setSelectedModal,
 	]);

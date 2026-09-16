@@ -124,15 +124,17 @@ export const InspectorOpenInEditor: React.FC<{
 	);
 	const menuItems = useMemo((): ComboboxValue[] => {
 		const items = getOpenInMenuItems({
+			canOpenDesktopApps: canConfigureApps,
 			codingAgentInfo,
 			editorDisabled: location === null || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: defaultEditorId,
+			excludeGitSource: defaultOpenInTarget === 'git-source',
 			fileManagerDisabled:
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
-			location,
+			gitSourceDisabled: location === null,
 			onConfigureApps: configureDefaultApps,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
@@ -165,6 +167,9 @@ export const InspectorOpenInEditor: React.FC<{
 						);
 					});
 			},
+			onOpenInGitSource: () => {
+				openGitSource({folder: locationType === 'folder', location});
+			},
 			onOpenInTerminal: (terminalId) => {
 				if (!location?.source || locationType !== 'folder') {
 					return;
@@ -185,11 +190,10 @@ export const InspectorOpenInEditor: React.FC<{
 			},
 		});
 
-		return defaultOpenInTarget === 'git-source'
-			? items.filter((item) => item.id !== 'open-in-github')
-			: items;
+		return items;
 	}, [
 		codingAgentInfo,
+		canConfigureApps,
 		canOpenInEditor,
 		configureDefaultApps,
 		defaultEditorId,
