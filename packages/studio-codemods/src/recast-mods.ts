@@ -22,6 +22,7 @@ import type {CompositionOrFolder, RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {applyVisualControl} from './apply-visual-control';
 import {deleteJsxElementAtPath} from './delete-jsx-node';
+import {parseAst} from './sequence-props/parse-ast';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
 export type Change = {
@@ -42,7 +43,14 @@ export const applyCodemod = ({
 	const changesMade: Change[] = [];
 
 	if (codeMod.type === 'apply-visual-control') {
-		return applyVisualControl({file, transformation: codeMod, changesMade});
+		const result = applyVisualControl({
+			input: recast.print(file).code,
+			transformation: codeMod,
+		});
+		return {
+			newAst: parseAst(result.newContents),
+			changesMade: result.changesMade,
+		};
 	}
 
 	if (codeMod.type === 'move-composition-to-folder') {

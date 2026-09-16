@@ -1,20 +1,21 @@
-import type {
-	AssignmentExpression,
-	ExpressionStatement,
-	File,
-} from '@babel/types';
 import {
 	stringifyDefaultProps,
 	type ApplyVisualControlCodemod,
 } from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {ApplyCodeModReturnType, Change} from './recast-mods';
+import {formatSerializedValue} from './format-serialized-value';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
+import {applySourceEdits, type SourceEdit} from './source-edits';
 
 const expectString = (
-	node: ExpressionKind | recast.types.namedTypes.SpreadElement,
+	node: ExpressionKind | recast.types.namedTypes.SpreadElement | undefined,
 ) => {
+	if (!node) {
+		throw new Error('Expected a string literal');
+	}
+
 	if (node.type === 'StringLiteral') {
 		return node.value;
 	}
@@ -33,14 +34,19 @@ const expectString = (
 };
 
 export const applyVisualControl = ({
-	file,
+	input,
 	transformation,
-	changesMade,
 }: {
-	file: File;
+	input: string;
 	transformation: ApplyVisualControlCodemod;
-	changesMade: Change[];
-}): ApplyCodeModReturnType => {
+}): {
+	newContents: string;
+	changesMade: {description: string}[];
+} => {
+	const file = parseAst(input);
+	const changesMade: {description: string}[] = [];
+	const edits: SourceEdit[] = [];
+
 	recast.types.visit(file.program, {
 		visitCallExpression(path) {
 			const {node} = path;
@@ -59,40 +65,71 @@ export const applyVisualControl = ({
 
 			const firstArgument = node.arguments[0];
 			const str = expectString(firstArgument);
+			const matchingChanges = transformation.changes.filter(
+				(candidate) => candidate.id === str,
+			);
+			const change = matchingChanges.at(-1);
+			if (!change) {
+				return this.traverse(path);
+			}
 
-			for (const change of transformation.changes) {
-				if (change.id !== str) {
-					continue;
+			const serialized = change.newValueIsUndefined
+				? 'undefined'
+				: stringifyDefaultProps({
+						props: JSON.parse(change.newValueSerialized),
+						enumPaths: change.enumPaths,
+					});
+			if (serialized === undefined) {
+				throw new Error('Could not serialize the visual control value');
+			}
+
+			const secondArgument = node.arguments[1];
+			if (secondArgument) {
+				if (!secondArgument.loc) {
+					throw new Error('Could not locate the visual control value');
 				}
 
-				let parsed: ExpressionKind;
-				if (change.newValueIsUndefined) {
-					parsed = (
-						(
-							parseAst('a = undefined').program
-								.body[0] as unknown as ExpressionStatement
-						).expression as AssignmentExpression
-					).right as ExpressionKind;
-				} else {
-					parsed = (
-						(
-							parseAst(
-								`a = ${stringifyDefaultProps({props: JSON.parse(change.newValueSerialized), enumPaths: change.enumPaths})}`,
-							).program.body[0] as unknown as ExpressionStatement
-						).expression as AssignmentExpression
-					).right as ExpressionKind;
+				const start = recastLocToOffset(input, secondArgument.loc.start);
+				const end = recastLocToOffset(input, secondArgument.loc.end);
+				const lineStart = input.lastIndexOf('\n', start - 1) + 1;
+				edits.push({
+					start,
+					end,
+					replacement: formatSerializedValue({
+						input,
+						linePrefix: input.slice(lineStart, start),
+						previousValue: input.slice(start, end).trim(),
+						serialized,
+					}),
+				});
+			} else {
+				if (!firstArgument.loc) {
+					throw new Error('Could not locate the visual control identifier');
 				}
 
-				node.arguments[1] = parsed;
-
-				changesMade.push({
-					description: `Applied visual control ${change.id}`,
+				const offset = recastLocToOffset(input, firstArgument.loc.end);
+				const lineStart = input.lastIndexOf('\n', offset - 1) + 1;
+				edits.push({
+					start: offset,
+					end: offset,
+					replacement: `, ${formatSerializedValue({
+						input,
+						linePrefix: `${input.slice(lineStart, offset)}, `,
+						previousValue: null,
+						serialized,
+					})}`,
 				});
 			}
 
-			return this.traverse(path);
+			for (const matchingChange of matchingChanges) {
+				changesMade.push({
+					description: `Applied visual control ${matchingChange.id}`,
+				});
+			}
+
+			return false;
 		},
 	});
 
-	return {newAst: file, changesMade};
+	return {newContents: applySourceEdits({input, edits}), changesMade};
 };

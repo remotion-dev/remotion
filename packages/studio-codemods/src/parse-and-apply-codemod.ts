@@ -1,4 +1,5 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
+import {applyVisualControl} from './apply-visual-control';
 import {editCompositionInSource} from './composition-source-edits';
 import {duplicateCompositionInSource} from './duplicate-composition';
 import {editFolderInSource} from './folder-source-edits';
@@ -13,6 +14,17 @@ export const parseAndApplyCodemod = ({
 	input: string;
 	codeMod: RecastCodemod;
 }): {newContents: string; changesMade: Change[]} => {
+	if (codeMod.type === 'apply-visual-control') {
+		const result = applyVisualControl({input, transformation: codeMod});
+		if (result.changesMade.length === 0) {
+			throw new Error(
+				'Unable to calculate the changes needed for this file. Edit the file manually.',
+			);
+		}
+
+		return result;
+	}
+
 	if (codeMod.type === 'duplicate-composition') {
 		return duplicateCompositionInSource({input, codemod: codeMod});
 	}
@@ -20,7 +32,8 @@ export const parseAndApplyCodemod = ({
 	if (
 		codeMod.type === 'new-composition' ||
 		codeMod.type === 'rename-composition' ||
-		codeMod.type === 'delete-composition'
+		codeMod.type === 'delete-composition' ||
+		codeMod.type === 'update-composition-metadata'
 	) {
 		return editCompositionInSource({input, codeMod});
 	}
