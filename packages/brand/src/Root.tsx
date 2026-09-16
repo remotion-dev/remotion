@@ -412,7 +412,7 @@ export const RemotionRoot: React.FC = () => {
 					width={785}
 					height={928}
 					schema={codexSchema}
-					defaultProps={{height: 928, width: 785}}
+					defaultProps={{borderRadius: 6, height: 928, width: 785}}
 					calculateMetadata={({props}) => ({
 						height: props.height,
 						width: props.width,
@@ -423,10 +423,11 @@ export const RemotionRoot: React.FC = () => {
 					component={TextEditor}
 					durationInFrames={1}
 					fps={30}
-					width={1237}
-					height={1250}
+					width={720}
+					height={822}
 					schema={textEditorSchema}
 					defaultProps={{
+						borderRadius: 6,
 						code: `import {Video} from '@remotion/media';
 import {interpolate, useVideoConfig} from 'remotion';
 import {assetUrl} from './assets';
@@ -467,9 +468,9 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 };
 `,
 						fileName: 'Scene11.tsx',
-						height: 1250,
+						height: 822,
 						highlightedLines: '39',
-						width: 1237,
+						width: 720,
 					}}
 					calculateMetadata={({props}) => ({
 						height: props.height,

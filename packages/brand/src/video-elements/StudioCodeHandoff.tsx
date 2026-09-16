@@ -57,6 +57,7 @@ export const StudioCodeHandoff: React.FC = () => {
 						<Interactive.Div
 							name="VS Code"
 							style={{
+								borderRadius: windowBorderRadius,
 								height: 748,
 								left: 0,
 								overflow: 'hidden',
@@ -76,6 +77,7 @@ export const StudioCodeHandoff: React.FC = () => {
 							}}
 						>
 							<TextEditor
+								borderRadius={windowBorderRadius}
 								code={`import {Video} from '@remotion/media';
 import {interpolate, useVideoConfig} from 'remotion';
 import {assetUrl} from './assets';
@@ -120,6 +122,7 @@ export const Scene11: React.FC = () => {
 						<Interactive.Div
 							name="Codex"
 							style={{
+								borderRadius: windowBorderRadius,
 								height: 748,
 								left: 0,
 								overflow: 'hidden',
@@ -142,7 +145,11 @@ export const Scene11: React.FC = () => {
 								width: 667,
 							}}
 						>
-							<Codex height={748} width={667} />
+							<Codex
+								borderRadius={windowBorderRadius}
+								height={748}
+								width={667}
+							/>
 						</Interactive.Div>
 
 						<Interactive.Div

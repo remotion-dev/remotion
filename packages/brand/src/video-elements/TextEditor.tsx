@@ -5,10 +5,8 @@ import {Interactive, useDelayRender} from 'remotion';
 import {z} from 'zod';
 import {ReactFileIcon, VscodeIcon} from './vscode-icons';
 
-const REFERENCE_WIDTH = 1237;
-const REFERENCE_HEIGHT = 1250;
-
 export const textEditorSchema = z.object({
+	borderRadius: z.number().nonnegative(),
 	code: z.string().describe('Code shown in the editor'),
 	fileName: z.string().describe('Active file name'),
 	height: z.number().int().min(320).max(4096).describe('Output height'),
@@ -21,13 +19,23 @@ export const textEditorSchema = z.object({
 export type TextEditorProps = z.infer<typeof textEditorSchema>;
 
 export const TextEditor: React.FC<TextEditorProps> = ({
+	borderRadius,
 	code,
 	fileName,
 	height,
 	highlightedLines,
 	width,
 }) => {
-	const scale = Math.min(width / REFERENCE_WIDTH, height / REFERENCE_HEIGHT);
+	const codeLines = code.split('\n');
+	const referenceWidth = Math.max(
+		720,
+		Math.max(...codeLines.map((line) => line.replaceAll('\t', '    ').length)) *
+			7.25 +
+			100,
+	);
+	const referenceHeight = Math.max(320, codeLines.length * 18 + 120);
+	const scale = Math.min(width / referenceWidth, height / referenceHeight);
+	const scaledWidth = referenceWidth * scale;
 	const titleBarHeight = 28 * scale;
 	const tabBarHeight = 34 * scale;
 	const breadcrumbHeight = 22 * scale;
@@ -139,10 +147,13 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 			name="Backdrop"
 			style={{
 				backgroundColor: '#000000',
-				borderRadius: 10 * scale,
-				inset: 0,
+				borderRadius,
+				height,
+				left: (width - scaledWidth) / 2,
 				overflow: 'hidden',
 				position: 'absolute',
+				top: 0,
+				width: scaledWidth,
 			}}
 		>
 			<Interactive.Div
@@ -150,7 +161,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 				style={{
 					backgroundColor: '#131414',
 					border: `${scale}px solid #454545`,
-					borderRadius: 10 * scale,
+					borderRadius,
 					boxSizing: 'border-box',
 					color: '#cccccc',
 					fontFamily:
@@ -160,7 +171,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 					overflow: 'hidden',
 					position: 'absolute',
 					top: 0,
-					width,
+					width: scaledWidth,
 				}}
 			>
 				<Interactive.Div
@@ -387,7 +398,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							paddingRight: 14 * scale,
 						}}
 					>
-						<span>Ln {code.split('\n').length}, Col 1</span>
+						<span>Ln {codeLines.length}, Col 1</span>
 						<span>Tab Size: 4</span>
 						<span>UTF-8</span>
 						<span>LF</span>

@@ -22,6 +22,7 @@ import {
 } from './codex-icons';
 
 export const codexSchema = z.object({
+	borderRadius: z.number().nonnegative(),
 	height: z.number().int().positive(),
 	width: z.number().int().positive(),
 });
@@ -529,7 +530,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 	);
 };
 
-export const Codex: React.FC<CodexProps> = ({height, width}) => {
+export const Codex: React.FC<CodexProps> = ({borderRadius, height, width}) => {
 	const scale = Math.min(width / MINIMUM_WIDTH, height / MINIMUM_HEIGHT);
 	const scaledWidth = MINIMUM_WIDTH * scale;
 	const scaledHeight = MINIMUM_HEIGHT * scale;
@@ -539,7 +540,7 @@ export const Codex: React.FC<CodexProps> = ({height, width}) => {
 			style={{
 				WebkitFontSmoothing: 'antialiased',
 				backgroundColor: '#ffffff',
-				borderRadius: 10 * scale,
+				borderRadius,
 				fontFamily:
 					'-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
 				fontWeight: 400,
@@ -550,7 +551,7 @@ export const Codex: React.FC<CodexProps> = ({height, width}) => {
 				name="Codex window"
 				style={{
 					backgroundColor: '#ffffff',
-					borderRadius: 10,
+					borderRadius: borderRadius / scale,
 					height: MINIMUM_HEIGHT,
 					left: (width - scaledWidth) / 2,
 					overflow: 'hidden',
