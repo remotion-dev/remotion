@@ -38,7 +38,7 @@ const lineNumber: React.CSSProperties = {
 	lineHeight: 1.7,
 	width: 60,
 	flexShrink: 0,
-	display: 'inline-flex',
+	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'flex-end',
 	fontFamily: 'monospace',
@@ -108,6 +108,8 @@ export const CodeFrame: React.FC<{
 										lineHeight: 1.7,
 										paddingRight: 12,
 										paddingLeft: 12,
+										paddingTop: 0,
+										paddingBottom: 0,
 									}}
 								>
 									<LazySyntaxHighlightedSource source={s.content} />
