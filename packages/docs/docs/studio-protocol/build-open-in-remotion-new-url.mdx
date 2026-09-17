@@ -1,10 +1,10 @@
 ---
-image: /generated/articles-docs-studio-protocol-build-open-in-remotio-new-url.png
-title: 'buildOpenInRemotioNewUrl()'
+image: /generated/articles-docs-studio-protocol-build-open-in-remotion-new-url.png
+title: 'buildOpenInRemotionNewUrl()'
 crumb: '@remotion/studio-protocol'
 ---
 
-# buildOpenInRemotioNewUrl()<AvailableFrom v="4.0.526" />
+# buildOpenInRemotionNewUrl()<AvailableFrom v="4.0.526" />
 
 Builds a URL that opens an Element in the browser-based editor at [remotion.dev/new](https://www.remotion.dev/new).
 
@@ -12,7 +12,7 @@ Builds a URL that opens an Element in the browser-based editor at [remotion.dev/
 
 ```tsx twoslash title="OpenInRemotion.tsx"
 import {
-  buildOpenInRemotioNewUrl,
+  buildOpenInRemotionNewUrl,
   createElementPayload,
 } from '@remotion/studio-protocol';
 
@@ -32,7 +32,7 @@ export const MyElement = () => {
 export const OpenInRemotion = () => {
   return (
     <a
-      href={buildOpenInRemotioNewUrl({payload})}
+      href={buildOpenInRemotionNewUrl({payload})}
       target="_blank"
       rel="noopener noreferrer"
     >

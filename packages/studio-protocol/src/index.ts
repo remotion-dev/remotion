@@ -39,7 +39,7 @@ export {
 	type AddElementLibraryToStudioResult,
 } from './add-element-library-to-studio';
 export type {AssetDragData} from './asset-drag-data';
-export {buildOpenInRemotioNewUrl} from './browser-studio-link';
+export {buildOpenInRemotionNewUrl} from './browser-studio-link';
 export type {
 	ComponentDimensions,
 	ComponentDragData,

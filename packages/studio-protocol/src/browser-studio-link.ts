@@ -81,7 +81,7 @@ export const makeBrowserStudioUrl = ({
 	return url.toString();
 };
 
-export const buildOpenInRemotioNewUrl = ({
+export const buildOpenInRemotionNewUrl = ({
 	payload,
 }: {
 	readonly payload: StudioElementPayload;
