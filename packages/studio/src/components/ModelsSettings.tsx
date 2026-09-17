@@ -1,6 +1,9 @@
-import React, {Suspense, useCallback, useState} from 'react';
+import React, {Suspense, useCallback, useContext, useState} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WARNING_COLOR, WHITE} from '../helpers/colors';
 import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
+import {canInstallPackagesInStudio} from '../helpers/settings-tab-availability';
 import {Button} from './Button';
 import {sectionHeader} from './InspectorPanel/styles';
 import {
@@ -95,10 +98,11 @@ type InstallState =
 
 const OptionalModelPackage: React.FC<{
 	readonly children: React.ReactNode;
+	readonly canInstall: boolean;
 	readonly label: string;
 	readonly packageName: string;
 	readonly style: React.CSSProperties;
-}> = ({children, label, packageName, style}) => {
+}> = ({canInstall, children, label, packageName, style}) => {
 	const installed = useOptionalPackageInstalled(packageName);
 	const [installState, setInstallState] = useState<InstallState>({
 		type: 'idle',
@@ -121,7 +125,7 @@ const OptionalModelPackage: React.FC<{
 					<h3 style={title}>{label}</h3>
 					<p style={packageNameStyle}>{packageName}</p>
 				</div>
-				{installed ? null : (
+				{installed || !canInstall ? null : (
 					<Button
 						disabled={installState.type === 'installing'}
 						onClick={install}
@@ -139,8 +143,9 @@ const OptionalModelPackage: React.FC<{
 			) : (
 				<>
 					<p style={missingDescription}>
-						Install the package and {TRANSFORMERS_PACKAGE} to download and
-						manage its models.
+						{canInstall
+							? `Install the package and ${TRANSFORMERS_PACKAGE} to download and manage its models.`
+							: 'Reconnect the Studio server to install this package and manage its models.'}
 					</p>
 					{installState.type === 'error' ? (
 						<p style={errorStyle}>{installState.message}</p>
@@ -152,6 +157,13 @@ const OptionalModelPackage: React.FC<{
 };
 
 export const ModelsSettings: React.FC = () => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canInstall = canInstallPackagesInStudio({
+		isBrowserStudio: getBrowserStudioOperations() !== null,
+		previewServerConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
+
 	return (
 		<div style={container}>
 			<p style={overview}>
@@ -159,6 +171,7 @@ export const ModelsSettings: React.FC = () => {
 				browser cache here.
 			</p>
 			<OptionalModelPackage
+				canInstall={canInstall}
 				label="Transcription"
 				packageName={WHISPER_WEBGPU_PACKAGE}
 				style={section}
@@ -166,6 +179,7 @@ export const ModelsSettings: React.FC = () => {
 				<LazyWhisperModels description={null} indent={false} visible />
 			</OptionalModelPackage>
 			<OptionalModelPackage
+				canInstall={canInstall}
 				label="Video matting"
 				packageName={VIDEO_MATTING_PACKAGE}
 				style={lastSection}

@@ -170,11 +170,7 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType &&
-			modalContextType.type === 'settings' &&
-			(!isBrowserStudio ||
-				modalContextType.initialTab === 'packages' ||
-				modalContextType.initialTab === 'shortcuts') ? (
+			{modalContextType && modalContextType.type === 'settings' ? (
 				<SettingsModal
 					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
 					initialTab={modalContextType.initialTab}
