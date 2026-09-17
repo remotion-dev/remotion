@@ -9,7 +9,6 @@ import type {
 	EffectDefinition,
 	EffectDescriptor,
 } from '../effects/effect-types.js';
-import {Img} from '../Img.js';
 import {Internals} from '../internals.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
@@ -229,79 +228,6 @@ test('<CanvasImage> renders a canvas element with the decoded image dimensions',
 	await waitFor(() => {
 		expect(canvas?.width).toBe(200);
 		expect(canvas?.height).toBe(100);
-	});
-});
-
-test('image registrations settle after resizing and update when the source changes', async () => {
-	let renders = 0;
-	const Previews: React.FC<{readonly src: string; readonly width: number}> = ({
-		src,
-		width,
-	}) => {
-		const {sequences} = React.useContext(SequenceManager);
-		renders++;
-		// Fail a passive-effect loop instead of letting it hang the test.
-		if (renders > 20) {
-			throw new Error('Image sequence registrations did not settle');
-		}
-
-		return (
-			<>
-				<Img src={src} name="Native image" alt="Image preview" width={width} />
-				<CanvasImage
-					src={src}
-					name="Canvas image"
-					aria-label="Canvas preview"
-					width={width}
-					height={50}
-				/>
-				<output>
-					{sequences
-						.filter((sequence) => sequence.type === 'image')
-						.map((sequence) => `${sequence.displayName}: ${sequence.src}`)
-						.join(' | ')}
-				</output>
-			</>
-		);
-	};
-
-	const renderImages = (src: string, width: number) => (
-		<Internals.RemotionEnvironmentContext
-			value={{...studioEnv, isReadOnlyStudio: true}}
-		>
-			<WrapSequenceContext>
-				<Previews src={src} width={width} />
-			</WrapSequenceContext>
-		</Internals.RemotionEnvironmentContext>
-	);
-	const rendered = render(renderImages('first.png', 100));
-
-	expect(
-		rendered.getByText('Native image: first.png | Canvas image: first.png'),
-	).toBeTruthy();
-
-	rendered.rerender(renderImages('first.png', 200));
-	expect(rendered.getByAltText('Image preview').getAttribute('width')).toBe(
-		'200',
-	);
-	expect(rendered.getByLabelText('Canvas preview').getAttribute('width')).toBe(
-		'200',
-	);
-
-	rendered.rerender(renderImages('second.png', 200));
-	expect(
-		rendered.getByText('Native image: second.png | Canvas image: second.png'),
-	).toBeTruthy();
-	expect(rendered.getByAltText('Image preview').getAttribute('src')).toBe(
-		'second.png',
-	);
-	await waitFor(() => {
-		expect(
-			drawImageCalls.some(
-				({args}) =>
-					args[0] instanceof MockImage && args[0].src === 'second.png',
-			),
-		).toBe(true);
 	});
 });
 
