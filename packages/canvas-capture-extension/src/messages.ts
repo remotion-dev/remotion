@@ -30,6 +30,10 @@ export type CaptureControllerRequest =
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;
+			readonly command: 'toggle-controls';
+	  }
+	| {
+			readonly type: typeof captureControllerMessageType;
 			readonly command: 'set-options';
 			readonly scale: number;
 	  }

@@ -80,6 +80,7 @@ export const useCompositionActions = () => {
 	const canShowGenerateWithAgent =
 		previewInteractive &&
 		!window.remotion_isReadOnlyStudio &&
+		browserStudioOperations === null &&
 		currentCompositionId !== null;
 
 	const insertSolid = useCallback(async () => {

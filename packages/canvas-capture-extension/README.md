@@ -47,11 +47,9 @@ WXT starts Vite, writes the development extension to the durable
 directory, launches the pinned Chrome for Testing with the required feature
 flags and persistent profile, and loads the extension automatically.
 
-Open a regular webpage and click the extension icon. Keep the recorder window
-open while editing files in `src/entrypoints/recorder`: React and CSS edits use
-Vite HMR without rebuilding or reloading the window. WXT rebuilds and reloads
-the relevant extension contexts when the background, capture, receiver, or
-manifest changes.
+Open a regular webpage and click the extension icon to show the in-page capture
+controls. WXT rebuilds and reloads the relevant extension contexts when source
+files change.
 
 The development extension is separate from the manually loaded production
 extension, so its path and extension ID remain stable across worktrees.
@@ -63,6 +61,16 @@ extension, so its path and extension ID remain stable across worktrees.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.
 
-Click the extension icon on a webpage to open the recorder window. Choose H.264 MP4 or VP9 WebM, set the output scale, select an area (the page is focused while you drag, but the recorder window remains open) or choose **Whole page**, then press **Record**. The recorder displays the rounded output dimensions and only enables **Record** after the browser confirms that Mediabunny's exact high-quality, realtime configuration is supported. The whole page subtree is drawn at the display's native pixel density, then the selected crop is copied into a reusable, correctly sized `OffscreenCanvas`. Recording continues if the recorder window closes; click the extension icon to reopen it, then press **Stop and open in Convert** to load the recording in [remotion.dev/convert](https://remotion.dev/convert) without downloading it first, or **Stop and download** to save it directly.
+Click the extension icon on a webpage to toggle the in-page controls. Set the
+output scale, select an area or choose **Whole page**, then start recording. The
+controls display the selected format and rounded output dimensions and only
+enable recording after the browser confirms that Mediabunny's exact
+high-quality, realtime configuration is supported. The whole page subtree is
+drawn at the display's native pixel density, then the selected crop is copied
+into a reusable, correctly sized `OffscreenCanvas`. The controls are mounted
+outside the captured body subtree, so they do not appear in area or whole-page
+recordings. Stop the recording, then open it in
+[remotion.dev/convert](https://remotion.dev/convert) without downloading it
+first or save it directly.
 
 The page contents are temporarily placed inside a `layoutSubtree` canvas while recording and restored afterward. Websites that rely on direct-child CSS selectors may look different during capture. Chrome's own pages and the Chrome Web Store do not allow extension script injection.

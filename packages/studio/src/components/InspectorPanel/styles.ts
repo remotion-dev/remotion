@@ -50,6 +50,7 @@ export const sectionHeader: React.CSSProperties = {
 	lineHeight: '24px',
 	padding: `4px 0 4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const inspectorSectionBody: React.CSSProperties = {
@@ -170,6 +171,7 @@ export const detailLabel: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
