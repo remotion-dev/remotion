@@ -1,13 +1,14 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {
 	BACKGROUND,
 	BLUE,
 	BORDER_TRANSPARENT_2PX,
-	WHITE_ALPHA_06,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	WHITE,
+	WHITE_ALPHA_06,
 } from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {
@@ -53,43 +54,33 @@ export const Tab: React.FC<{
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
 }> = ({children, onClick, onDragEnter, onDragLeave, style, selected}) => {
-	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const definiteStyle: React.CSSProperties = useMemo(
 		() => ({
 			...selectorButton,
-			backgroundColor: selected
-				? BACKGROUND
-				: hovered
-					? WHITE_ALPHA_06
-					: INPUT_BACKGROUND,
-			color: selected ? WHITE : LIGHT_TEXT,
+			...hoverableStyle({
+				idleBackground: selected ? BACKGROUND : INPUT_BACKGROUND,
+				hoverBackground: selected ? BACKGROUND : WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: selected ? WHITE : LIGHT_TEXT,
+			}),
 			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		}),
-		[hovered, selected, style],
+		[selected, style],
 	);
 
 	return (
 		<div
+			className={HOVERABLE_CLASS_NAME}
 			style={definiteStyle}
 			role="button"
 			onClick={onClick}
 			onDragEnter={onDragEnter}
 			onDragLeave={onDragLeave}
 			tabIndex={tabIndex}
-			onPointerLeave={onPointerLeave}
-			onPointerEnter={onPointerEnter}
 		>
 			{children}
 		</div>

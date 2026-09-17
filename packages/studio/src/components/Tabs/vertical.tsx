@@ -1,10 +1,11 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {
-	WHITE_ALPHA_06,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_06,
 } from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
@@ -40,41 +41,35 @@ export const VerticalTab: React.FC<{
 	readonly selected: boolean;
 	readonly autoFocus?: boolean;
 }> = ({children, onClick, renderIcon, style, selected, autoFocus}) => {
-	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
 	const isCompact = useBreakpoint(compactTabBreakpoint);
 
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-
-	const color = selected || hovered ? WHITE : LIGHT_TEXT;
+	const color = selected ? WHITE : LIGHT_TEXT;
 
 	const definiteStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...selectorButton,
-			backgroundColor: selected || hovered ? WHITE_ALPHA_06 : TRANSPARENT,
-			color,
+			...hoverableStyle({
+				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: color,
+				hoverColor: WHITE,
+			}),
 			boxShadow: 'none',
 			...style,
 			...(isCompact ? compactSelectorButton : null),
 		};
-	}, [color, hovered, isCompact, selected, style]);
+	}, [color, isCompact, selected, style]);
 
 	const button = (
 		<button
 			aria-label={children}
 			autoFocus={autoFocus}
+			className={HOVERABLE_CLASS_NAME}
 			style={definiteStyle}
 			type="button"
 			onClick={onClick}
 			tabIndex={tabIndex}
-			onPointerLeave={onPointerLeave}
-			onPointerEnter={onPointerEnter}
 		>
 			{renderIcon ? renderIcon(color) : null}
 			{isCompact ? null : children}

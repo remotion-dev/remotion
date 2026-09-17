@@ -10,7 +10,16 @@ Use the established Studio interaction convention for clickable controls:
 - Set `cursor: 'default'`; do not use `cursor: 'pointer'`.
 - Drive purely visual hover styling through `HOVERABLE_CLASS_NAME` and
   `hoverableStyle()` from `packages/studio/src/helpers/hoverable.ts`. Do not add
-  React hover state for color or background changes.
+  React hover state or `onPointerEnter` / `onPointerLeave` handlers for color,
+  background, opacity, or other purely visual changes.
+- This is a correctness constraint, not just a style preference. Browser Studio
+  runs inside an iframe. Browsers may omit `pointerleave` when the pointer exits
+  the iframe, leaving React-driven hover state stuck after the pointer is gone.
+  CSS `:hover` is maintained by the browser and self-corrects.
+- When touching an existing Studio control, replace state-driven visual hover
+  interactions with the shared CSS hover helpers. Event-driven hover state is
+  only tenable when behavior, rather than styling, genuinely depends on pointer
+  presence.
 - Keep the background unchanged unless the surrounding component already uses
   a shared background-hover convention. For a text-only action, use
   `TRANSPARENT` for both `idleBackground` and `hoverBackground`.
