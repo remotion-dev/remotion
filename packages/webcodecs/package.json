@@ -15,7 +15,6 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"testwebcodecs": "playwright test src/it-tests",
 		"watch": "tsgo -w",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
