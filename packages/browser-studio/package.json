@@ -27,6 +27,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/browser-bundler": "workspace:*",
 		"@remotion/studio-codemods": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",

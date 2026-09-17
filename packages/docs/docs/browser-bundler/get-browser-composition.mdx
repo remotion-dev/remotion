@@ -1,0 +1,182 @@
+---
+image: /generated/articles-docs-browser-bundler-get-browser-composition.png
+title: getBrowserComposition()
+crumb: '@remotion/browser-bundler'
+---
+
+# getBrowserComposition()<AvailableFrom v="4.0.526" />
+
+Selects a registered composition by ID and resolves its video configuration and props. Import it from `@remotion/browser-bundler/runtime`.
+
+<ExperimentalBadge>
+<p>This API is experimental. It runs trusted project code in the host page.</p>
+</ExperimentalBadge>
+
+Use a root returned by [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle):
+
+```tsx twoslash title="resolve-composition.tsx"
+// @moduleResolution: bundler
+import type {FC} from 'react';
+declare const root: FC;
+// ---cut---
+import {getBrowserComposition} from '@remotion/browser-bundler/runtime';
+import {Player} from '@remotion/player';
+
+const composition = await getBrowserComposition({
+  root,
+  compositionId: 'HelloWorld',
+  inputProps: {message: 'Hello from the browser!'},
+});
+
+export const Preview = () => (
+  <Player
+    component={composition.component}
+    inputProps={composition.props}
+    durationInFrames={composition.durationInFrames}
+    fps={composition.fps}
+    compositionWidth={composition.width}
+    compositionHeight={composition.height}
+    controls
+  />
+);
+```
+
+Call this in browser-side initialization or an event handler. For a React example with loading, errors, and cleanup, see the [overview](/docs/browser-bundler#minimal-example).
+
+## Options
+
+### root
+
+The `React.FC` returned by [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle). Its registered [`<Composition>`](/docs/composition) elements are used to find the requested ID.
+
+### compositionId
+
+The exact `id` of the registered [`<Composition>`](/docs/composition) to select. The promise rejects if no composition with that ID is registered.
+
+### inputProps
+
+A `Record<string, unknown>` of [input props](/docs/terminology/input-props). This field is required; pass `{}` to use the composition's defaults.
+
+Input props are shallowly merged over [`defaultProps`](/docs/composition#defaultprops). If the composition supplies [`calculateMetadata()`](/docs/calculate-metadata), it receives the merged props and may return new props or video metadata.
+
+### signal?
+
+An `AbortSignal` that cancels pending composition resolution, including waiting for registration and [`calculateMetadata()`](/docs/calculate-metadata). By default, there is no caller-provided cancellation signal.
+
+The metadata function receives an `abortSignal` for cancelling its own asynchronous work. Cancellation rejects the returned promise. It does not stop arbitrary synchronous project code, cancel compilation, or unmount an existing Player.
+
+```ts twoslash title="Cancelling composition resolution"
+// @moduleResolution: bundler
+import type {FC} from 'react';
+declare const root: FC;
+// ---cut---
+import {getBrowserComposition} from '@remotion/browser-bundler/runtime';
+
+const controller = new AbortController();
+const pending = getBrowserComposition({
+  root,
+  compositionId: 'HelloWorld',
+  inputProps: {},
+  signal: controller.signal,
+});
+
+controller.abort();
+
+try {
+  await pending;
+} catch (error) {
+  if (!controller.signal.aborted) {
+    throw error;
+  }
+}
+```
+
+## Return value
+
+A `Promise<BrowserComposition>`. Import the `BrowserComposition` type from `@remotion/browser-bundler/runtime`.
+
+The result extends `VideoConfig` from `remotion` with a `component` field. It includes the following values for playback:
+
+### component
+
+The selected composition's video component, compatible with [`<Player>`](/docs/player/player). Compositions registered with either `component` or [`lazyComponent`](/docs/composition#lazycomponent) are supported.
+
+Pass this value to the Player's `component` prop, not the registered root or `<Composition>` itself.
+
+Providers wrapped around `<Composition>` in the root are used for registration only. They are not included around the returned video component. Put providers needed for playback inside the video component or in the host UI around your Player.
+
+### id
+
+The selected composition's ID.
+
+### props
+
+The resolved props after merging input and default props and applying any props returned by [`calculateMetadata()`](/docs/calculate-metadata). Pass this value to the Player's `inputProps`.
+
+### defaultProps
+
+The composition's original default props, before applying input props or metadata transformations.
+
+### width
+
+The resolved video width in pixels. Pass it as the Player's `compositionWidth`.
+
+### height
+
+The resolved video height in pixels. Pass it as the Player's `compositionHeight`.
+
+### fps
+
+The resolved frame rate. Pass it as the Player's `fps`.
+
+### durationInFrames
+
+The resolved duration in frames. Pass it as the Player's `durationInFrames`.
+
+### defaultCodec
+
+The default codec returned by [`calculateMetadata()`](/docs/calculate-metadata), or `null`.
+
+### defaultOutName
+
+The default output name returned by [`calculateMetadata()`](/docs/calculate-metadata), or `null`.
+
+### defaultVideoImageFormat
+
+The default intermediate frame format returned by [`calculateMetadata()`](/docs/calculate-metadata), or `null`.
+
+### defaultPixelFormat
+
+The default pixel format returned by [`calculateMetadata()`](/docs/calculate-metadata), or `null`.
+
+### defaultProResProfile
+
+The default ProRes profile returned by [`calculateMetadata()`](/docs/calculate-metadata), or `null`.
+
+### defaultSampleRate
+
+The default audio sample rate returned by [`calculateMetadata()`](/docs/calculate-metadata), or `null`.
+
+These default encoding settings are part of `VideoConfig`. They do not configure Player playback.
+
+## Resolution and errors
+
+The function uses ordinary [`<Composition>`](/docs/composition) registration, supports lazily loaded compositions, and runs [`calculateMetadata()`](/docs/calculate-metadata) when present. It validates the resulting dimensions, frame rate, and duration.
+
+The promise rejects for a missing composition ID, invalid or duplicate registrations, metadata errors, invalid video configuration, or cancellation. Handle these errors separately from compiler diagnostics: a successful compilation does not guarantee valid runtime metadata.
+
+This function runs again on every call. Resolving a new bundle does not automatically update a Player; you decide when to replace its component, props, and configuration.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox="Not tested" safari="Not tested" nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering={false} player studio="" hideServers />
+
+The experimental workflow has only been tested in Chrome. Call this in a browser page with a DOM, not during server rendering or a video frame render.
+
+## See also
+
+- [Overview and complete Player example](/docs/browser-bundler)
+- [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle)
+- [`<Composition>`](/docs/composition)
+- [`calculateMetadata()`](/docs/calculate-metadata)
+- [`<Player>`](/docs/player/player)

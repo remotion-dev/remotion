@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-browser-bundler-load-browser-bundle.png
+title: loadBrowserBundle()
+crumb: '@remotion/browser-bundler'
+---
+
+# loadBrowserBundle()<AvailableFrom v="4.0.526" />
+
+Executes a [`BrowserBundle`](/docs/browser-bundler/create-browser-bundler#browserbundle) and returns the root component it registered with [`registerRoot()`](/docs/register-root). Import it from `@remotion/browser-bundler/runtime`.
+
+<ExperimentalBadge>
+<p>This API is experimental and executes trusted code only. It is not a sandbox.</p>
+</ExperimentalBadge>
+
+After compiling a project with [`createBrowserBundler()`](/docs/browser-bundler/create-browser-bundler):
+
+```ts twoslash title="load-composition.ts"
+// @moduleResolution: bundler
+import type {BrowserBundle} from '@remotion/browser-bundler';
+declare const bundle: BrowserBundle;
+// ---cut---
+import {
+  getBrowserComposition,
+  loadBrowserBundle,
+} from '@remotion/browser-bundler/runtime';
+
+const root = loadBrowserBundle({bundle});
+const composition = await getBrowserComposition({
+  root,
+  compositionId: 'HelloWorld',
+  inputProps: {},
+});
+```
+
+## Options
+
+### bundle
+
+The complete `BrowserBundle` returned by a bundler's `bundle()` method. Its entry point must synchronously call [`registerRoot()`](/docs/register-root) exactly once with a root component. Registering after an awaited operation or in a timer is not supported.
+
+Exporting a video component without registering a root is not sufficient. Use the [normal Remotion project structure](/docs/browser-bundler#minimal-example).
+
+## Return value
+
+The registered root component, typed as `React.FC`.
+
+Registration is captured separately for each bundle. Loading a bundle does not replace the host app's global Remotion root registration. React, React DOM, and Remotion imports are shared with the host app.
+
+The returned root registers compositions; it is not the video component to pass to [`<Player>`](/docs/player/player). Use [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) to select a composition by ID and obtain its `component`, `props`, and video configuration.
+
+## Code execution
+
+The function synchronously evaluates `bundle.code` using `Function`. Both source code and imported npm dependencies execute with the host page's privileges. They can access its DOM, storage, and network; do not pass untrusted bundles.
+
+Your Content Security Policy must allow JavaScript code evaluation. The overall workflow also requires workers, WebAssembly, and allowed asset and dependency requests. See [trusted code only](/docs/browser-bundler#trusted-code-only).
+
+Each call executes the bundle again. There is no automatic cleanup of its side effects, and disposing the compiler does not undo them.
+
+## Errors
+
+Throws if evaluation fails, a shared import is unavailable, or the bundle does not register a valid root exactly once. Errors from importing or initializing project code can occur here even if compilation succeeded.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox="Not tested" safari="Not tested" nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering={false} player studio="" hideServers />
+
+The experimental browser workflow has only been tested in Chrome. Load bundles in the host app, not during server rendering.
+
+## See also
+
+- [Overview and complete Player example](/docs/browser-bundler)
+- [`createBrowserBundler()`](/docs/browser-bundler/create-browser-bundler)
+- [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition)
+- [`registerRoot()`](/docs/register-root)

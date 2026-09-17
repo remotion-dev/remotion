@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
-import {makeBrowserStudioHttpClient} from '../browser-studio-http-client';
+import {makeBrowserHttpClient} from '../http-client';
 
 test('coalesces concurrent requests with equivalent headers', async () => {
 	let requests = 0;
-	const httpClient = makeBrowserStudioHttpClient({
+	const httpClient = makeBrowserHttpClient({
 		fetchImplementation: async () => {
 			requests++;
 			await Promise.resolve();
@@ -25,7 +25,10 @@ test('coalesces concurrent requests with equivalent headers', async () => {
 
 	expect(first).toBe(second);
 	const response = await second;
-	expect({...response, body: new TextDecoder().decode(response.body)}).toEqual({
+	expect({
+		...response,
+		body: new TextDecoder().decode(response.body),
+	}).toMatchObject({
 		body: 'module',
 		headers: {'x-test': 'value'},
 		status: 200,
@@ -35,7 +38,7 @@ test('coalesces concurrent requests with equivalent headers', async () => {
 
 test('allows a failed request to be retried', async () => {
 	let requests = 0;
-	const httpClient = makeBrowserStudioHttpClient({
+	const httpClient = makeBrowserHttpClient({
 		fetchImplementation: () => {
 			requests++;
 			if (requests === 1) {

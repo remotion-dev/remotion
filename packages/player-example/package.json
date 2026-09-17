@@ -11,6 +11,7 @@
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"dependencies": {
+		"@remotion/browser-bundler": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/canvas": "workspace:*",
 		"@remotion/eslint-config-flat": "workspace:*",
@@ -25,15 +26,17 @@
 		"@remotion/media": "workspace:*"
 	},
 	"devDependencies": {
+		"@playwright/test": "1.55.1",
 		"eslint": "catalog:",
 		"prettier": "catalog:",
 		"@types/node": "catalog:"
 	},
 	"scripts": {
-		"formatting": "prettier src pages --check",
-		"lint": "eslint src pages",
-		"dev": "next dev",
-		"build-site": "next build",
-		"testnextjs": "next build"
+		"formatting": "prettier src pages e2e playwright.config.ts next.config.mjs --check",
+		"lint": "eslint src pages e2e playwright.config.ts next.config.mjs",
+		"dev": "next dev --webpack",
+		"build-site": "next build --webpack",
+		"testnextjs": "next build --webpack",
+		"testbrowserbundler": "playwright test"
 	}
 }

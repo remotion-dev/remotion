@@ -13,6 +13,12 @@ const examples = [
 		description: 'A Player with a live list of mounted timeline layers.',
 	},
 	{
+		href: '/browser-bundler',
+		name: 'Browser-compiled Player',
+		description:
+			'Compile an editable virtual Remotion project and play a registered composition.',
+	},
+	{
 		href: '/audio',
 		name: 'Audio',
 		description: 'Switch between compositions containing audio.',
@@ -64,7 +70,20 @@ function Index() {
 			<ul style={{lineHeight: 1.5, paddingLeft: 24}}>
 				{examples.map((example) => (
 					<li key={example.href} style={{marginBottom: 16}}>
-						<Link href={example.href}>{example.name}</Link>
+						<Link
+							href={example.href}
+							onNavigate={(event) => {
+								if (example.href !== '/browser-bundler') {
+									return;
+								}
+
+								// COOP/COEP apply to documents, not client-side navigations.
+								event.preventDefault();
+								window.location.assign(example.href);
+							}}
+						>
+							{example.name}
+						</Link>
 						<div style={{color: '#555'}}>{example.description}</div>
 					</li>
 				))}

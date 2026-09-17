@@ -3,7 +3,8 @@
 		"./src/**/*",
 		"./pages/index.tsx",
 		"./pages/player.tsx",
-		"./pages/canvas.tsx"
+		"./pages/canvas.tsx",
+		"./pages/browser-bundler.tsx"
 	],
 	"compilerOptions": {
 		"strict": true,
@@ -17,13 +18,16 @@
 		"forceConsistentCasingInFileNames": true,
 		"noFallthroughCasesInSwitch": true,
 		"module": "esnext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
 		"incremental": true
 	},
 	"references": [
+		{
+			"path": "../browser-bundler"
+		},
 		{
 			"path": "../canvas"
 		},

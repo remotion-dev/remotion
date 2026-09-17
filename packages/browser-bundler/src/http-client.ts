@@ -1,10 +1,10 @@
-type BrowserStudioHttpResponse = {
+type BrowserHttpResponse = {
 	body: Buffer;
 	headers: Record<string, string>;
 	status: number;
 };
 
-export const makeBrowserStudioHttpClient = ({
+export const makeBrowserHttpClient = ({
 	fetchImplementation,
 }: {
 	fetchImplementation: (
@@ -12,7 +12,7 @@ export const makeBrowserStudioHttpClient = ({
 		init?: RequestInit,
 	) => Promise<Response>;
 }) => {
-	const responseCache = new Map<string, Promise<BrowserStudioHttpResponse>>();
+	const responseCache = new Map<string, Promise<BrowserHttpResponse>>();
 
 	return (url: string, headers: Record<string, string>) => {
 		const cacheKey = JSON.stringify([

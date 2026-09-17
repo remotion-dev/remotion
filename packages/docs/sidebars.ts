@@ -216,6 +216,19 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/browser-bundler',
+			link: {
+				type: 'doc',
+				id: 'browser-bundler/index',
+			},
+			items: [
+				'browser-bundler/create-browser-bundler',
+				'browser-bundler/load-browser-bundle',
+				'browser-bundler/get-browser-composition',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/bundler',
 			link: {
 				type: 'doc',

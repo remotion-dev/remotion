@@ -12,10 +12,5 @@
 		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [
-		{"path": "../browser-bundler"},
-		{"path": "../studio"},
-		{"path": "../studio-codemods"},
-		{"path": "../studio-shared"}
-	]
+	"references": [{"path": "../core"}, {"path": "../player"}]
 }
