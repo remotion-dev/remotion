@@ -63,7 +63,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly effectsOutputSize: EffectsOutputSize | undefined;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 type FallbackToOffthreadVideo = {
@@ -330,7 +330,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								? resolveEffectsOutputSize({
 										sourceWidth: imageBitmap.width,
 										sourceHeight: imageBitmap.height,
-										effectsOutputSize: effectsOutputSize ?? null,
+										effectsOutputSize:
+											effectsOutputSize?.width === undefined ||
+											effectsOutputSize?.height === undefined
+												? null
+												: {
+														width: effectsOutputSize.width,
+														height: effectsOutputSize.height,
+													},
 									})
 								: {width: imageBitmap.width, height: imageBitmap.height};
 

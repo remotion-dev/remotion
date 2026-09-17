@@ -171,7 +171,7 @@ const InnerVideo: React.FC<
 				requestInit={requestInit}
 				objectFit={objectFit}
 				effects={effects}
-				effectsOutputSize={effectsOutputSize}
+				effectsOutputSize={effectsOutputSize ?? null}
 			/>
 		);
 	}
@@ -206,7 +206,7 @@ const InnerVideo: React.FC<
 			controls={controls}
 			objectFit={objectFit}
 			effects={effects}
-			effectsOutputSize={effectsOutputSize}
+			effectsOutputSize={effectsOutputSize ?? null}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -434,7 +434,7 @@ const VideoInner: React.FC<
 						_experimentalInitiallyDrawCachedFrame ?? false
 					}
 					effects={memoizedEffects}
-					effectsOutputSize={effectsOutputSize}
+					effectsOutputSize={effectsOutputSize ?? null}
 					setMediaDurationInSeconds={setMediaDurationInSeconds}
 					refForOutline={refForOutline}
 				/>

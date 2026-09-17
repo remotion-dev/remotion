@@ -95,8 +95,9 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects'> &
+	Omit<OptionalVideoProps, 'effects' | 'effectsOutputSize'> &
 	NativeVideoProps & {
+		effectsOutputSize: EffectsOutputSize | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};

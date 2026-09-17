@@ -79,7 +79,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly effectsOutputSize: EffectsOutputSize | undefined;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 

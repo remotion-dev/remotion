@@ -1,6 +1,6 @@
 import {Video} from '@remotion/media';
 import {Input} from 'mediabunny';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {AbsoluteFill, Internals, staticFile} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
@@ -58,6 +58,61 @@ test('can extract a video frame', async (t) => {
 	} finally {
 		disposeSpy.mockRestore();
 	}
+});
+
+test('evaluates video effects at the requested output size when rendering', async (t) => {
+	if (t.task.file.projectName === 'chromium') {
+		t.skip();
+		return;
+	}
+
+	const sizes: Array<{width: number; height: number}> = [];
+	const effect = Internals.createEffect<
+		Record<string, never>,
+		CanvasRenderingContext2D
+	>({
+		type: 'dev.remotion.test.output-size',
+		label: 'output-size()',
+		documentationLink: null,
+		backend: '2d',
+		calculateKey: () => 'output-size',
+		setup: (target) => target.getContext('2d')!,
+		apply: ({source, state, width, height}) => {
+			sizes.push({width, height});
+			state.drawImage(source, 0, 0, width, height);
+		},
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => undefined,
+	});
+	const Component: React.FC = () => (
+		<Video
+			muted
+			src={staticFile('video.mp4')}
+			effects={[effect()]}
+			effectsOutputSize={{width: 320, height: 180}}
+		/>
+	);
+	const result = await renderStillOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'effects-output-size',
+			width: 320,
+			height: 180,
+			fps: 25,
+			durationInFrames: 100,
+			calculateMetadata: () => Promise.resolve({}),
+		},
+		frame: 20,
+		inputProps: {},
+		delayRenderTimeoutInMilliseconds: 5000,
+	});
+	expect((await result.blob({format: 'png'})).size).toBeGreaterThan(0);
+	expect(sizes.length).toBeGreaterThan(0);
+	expect(
+		sizes.every(({width, height}) => width === 320 && height === 180),
+	).toBe(true);
 });
 
 test('cannot render inside an svg tag', async () => {
