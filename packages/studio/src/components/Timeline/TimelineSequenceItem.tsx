@@ -1458,6 +1458,12 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{numberOfHiddenDuplicates > 0 ? (
+					<>
+						<Spacing x={0.5} />
+						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
+					</>
+				) : null}
 				{hasExpandableContent && nodePathInfo !== null ? (
 					<>
 						<Spacing x={0.5} />
@@ -1468,12 +1474,6 @@ const TimelineSequenceItemInner: React.FC<{
 							selectedItems={selectedItems}
 							sequence={sequence}
 						/>
-					</>
-				) : null}
-				{numberOfHiddenDuplicates > 0 ? (
-					<>
-						<Spacing x={0.5} />
-						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
 					</>
 				) : null}
 				{mediaSrc ? (
