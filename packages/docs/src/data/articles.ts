@@ -7094,6 +7094,15 @@ export const articles = [
 		slug: 'studio-protocol/add-element-library-to-studio',
 	},
 	{
+		id: 'studio-protocol/build-open-in-remotion-dot-new-url',
+		title: 'buildOpenInRemotionDotNewUrl()',
+		relativePath: 'docs/studio-protocol/build-open-in-remotion-dot-new-url.mdx',
+		compId: 'articles-docs-studio-protocol-build-open-in-remotion-dot-new-url',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/build-open-in-remotion-dot-new-url',
+	},
+	{
 		id: 'studio-protocol/component-library-integration',
 		title: 'Integrating a component library with Studio',
 		relativePath: 'docs/studio-protocol/component-library-integration.mdx',
