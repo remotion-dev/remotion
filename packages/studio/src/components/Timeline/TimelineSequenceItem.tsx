@@ -300,6 +300,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
 	readonly numberOfHiddenDuplicates: number;
+	readonly showProvisionalVisibilityToggle: boolean;
 }> = ({
 	afterDropLineOffset,
 	connectedCompositions,
@@ -310,6 +311,7 @@ const TimelineSequenceItemInner: React.FC<{
 	sequenceFrameOffset,
 	siblingIndex,
 	numberOfHiddenDuplicates,
+	showProvisionalVisibilityToggle,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {hovered, onPointerEnter, onPointerLeave} =
@@ -925,6 +927,9 @@ const TimelineSequenceItemInner: React.FC<{
 		codeHiddenStatus !== undefined &&
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
+	const showVisibilityToggle =
+		canToggleVisibility ||
+		(previewInteractive && showProvisionalVisibilityToggle);
 
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
@@ -1410,11 +1415,11 @@ const TimelineSequenceItemInner: React.FC<{
 		<TimelineRowChrome
 			depth={nestedDepth}
 			eye={
-				canToggleVisibility ? (
+				showVisibilityToggle ? (
 					<TimelineLayerEye
 						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
 						hidden={isItemHidden}
-						onInvoked={onToggleVisibility}
+						onInvoked={canToggleVisibility ? onToggleVisibility : null}
 					/>
 				) : (
 					<TimelineLayerEyeSpacer />

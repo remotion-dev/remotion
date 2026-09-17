@@ -35,6 +35,9 @@ const TimelineListTrack: React.FC<{
 				0,
 				(track.displayGroup?.numberOfSequences ?? 1) - 1,
 			)}
+			showProvisionalVisibilityToggle={
+				track.nodePathInfo === null && track.displayGroup !== null
+			}
 		/>
 	);
 });
