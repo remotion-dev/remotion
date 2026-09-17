@@ -166,6 +166,34 @@ All values in one interpolation must have the same type.
 For each component, units must match.
 For missing dimensions, CSS defaults are used: scale defaults to `1`, translate and rotate default to `0`, and transform origin defaults to `50% 50% 0`.
 
+Use `outputType` to explicitly select and validate the CSS value type:
+
+```tsx twoslash
+import {interpolate} from 'remotion';
+
+const rotation = interpolate(0.5, [0, 1], ['0deg', '90deg'], {
+  outputType: 'rotate',
+});
+```
+
+Supported values are `'scale'`, `'translate'`, `'rotate'`, `'transform-origin'`, and `'font-weight'`.
+If omitted, scale, translate, rotate, and transform origin values continue to be inferred.
+
+## Example: Font weights
+
+Font weight keywords require `outputType: 'font-weight'`.
+The keywords `normal` and `bold` are normalized to `400` and `700`.
+Numeric strings and numbers between `1` and `1000` are also supported.
+The result is a number.
+
+```tsx twoslash
+import {interpolate} from 'remotion';
+
+const fontWeight = interpolate(0.5, [0, 1], ['normal', 'bold'], {
+  outputType: 'font-weight',
+}); // 550
+```
+
 ## Example: Discrete string values<AvailableFrom v="4.0.509" />
 
 Use `Easing.step1` to switch between strings that cannot be blended. The previous value is held until the next keyframe.
@@ -304,6 +332,12 @@ For `[0, -1]` at progress `0.5`, the result is `-Math.sqrt(0.5)`.
 `easing` still controls time and progress.
 `output` controls the value distribution after easing.
 
+### outputType?
+
+Explicitly selects the output value syntax.
+Accepts `'font-weight'`, `'scale'`, `'translate'`, `'rotate'`, or `'transform-origin'`.
+Font weight keywords are only supported when this option is set to `'font-weight'`.
+
 ### posterize<AvailableFrom v="4.0.470" />
 
 _Default_: no posterization
@@ -327,12 +361,18 @@ With `posterize: 3`, frames `0`, `1`, and `2` use the value for frame `0`; frame
 Since `v3.3.77`, types for the options are exported from Remotion.
 
 ```tsx twoslash
-import {ExtrapolateType, InterpolateOptions} from 'remotion';
+import {
+  ExtrapolateType,
+  InterpolateOptions,
+  InterpolateOutputType,
+} from 'remotion';
 
 const extrapolate: ExtrapolateType = 'clamp';
+const outputType: InterpolateOutputType = 'rotate';
 const option: InterpolateOptions = {
   extrapolateLeft: extrapolate,
   output: 'perceptual-scale',
+  outputType,
   posterize: 3,
 };
 ```

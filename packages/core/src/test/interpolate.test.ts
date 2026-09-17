@@ -87,6 +87,65 @@ test('A single non-numeric string keyframe does not require easing', () => {
 	expect(interpolate(100, [20], ['default'])).toBe('default');
 });
 
+test('Can interpolate font weights with an explicit output type', () => {
+	expect(
+		interpolate(0.5, [0, 1], ['normal', 'bold'], {
+			outputType: 'font-weight',
+		}),
+	).toBe(550);
+	expect(
+		interpolate(0.5, [0, 1], ['100', 900], {
+			outputType: 'font-weight',
+		}),
+	).toBe(500);
+});
+
+test('Font weight keywords require an explicit output type', () => {
+	expectToThrow(
+		() => interpolate(0.5, [0, 1], ['normal', 'bold']),
+		/Non-numeric strings can only be interpolated using Easing\.step1/,
+	);
+});
+
+test('Font weights must be absolute values in the CSS range', () => {
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['lighter', 'bold'], {
+				outputType: 'font-weight',
+			}),
+		/Expected "normal", "bold", or a number between 1 and 1000/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], [0, 1001], {
+				outputType: 'font-weight',
+			}),
+		/Expected "normal", "bold", or a number between 1 and 1000/,
+	);
+});
+
+test('Explicit string output types validate the output range', () => {
+	expect(
+		interpolate(0.5, [0, 1], ['0deg', '90deg'], {outputType: 'rotate'}),
+	).toBe('45deg');
+	expect(
+		interpolate(0.5, [0, 1], ['left top', 'right bottom'], {
+			outputType: 'transform-origin',
+		}),
+	).toBe('50% 50%');
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['0deg', '90deg'], {
+				outputType: 'translate',
+			}),
+		/as translate because it is a rotate value/,
+	);
+	expectToThrow(
+		() => interpolate(0.5, [0, 1], [0, 90], {outputType: 'rotate'}),
+		/rotate outputRange must contain strings with the appropriate CSS units/,
+	);
+});
+
 test('Easing array with one keyframe accepts no entries', () => {
 	expect(
 		interpolate(0.5, [0], [1], {
