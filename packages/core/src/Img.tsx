@@ -2,6 +2,7 @@ import React, {
 	useCallback,
 	useContext,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -384,6 +385,14 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			src,
+		}),
+		[src],
+	);
+
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -420,7 +429,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
-				_remotionInternalIsMedia={{type: 'image', src}}
+				_remotionInternalIsMedia={isMedia}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
