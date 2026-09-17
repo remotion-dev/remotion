@@ -841,6 +841,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
+				'studio-protocol/build-open-in-remotion-new-url',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
 				'studio-protocol/add-element-library-to-studio',
@@ -1432,6 +1433,7 @@ const sidebars: SidebarsConfig = {
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
+				'studio/remotion-dev-new',
 			],
 		},
 		{

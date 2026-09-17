@@ -55,9 +55,6 @@
 		"@remotion/player-example#testnextjs": {
 			"dependsOn": ["^make"]
 		},
-		"testwebcodecs": {
-			"dependsOn": ["@remotion/webcodecs#make"]
-		},
 		"teste2e": {
 			"dependsOn": ["^make"]
 		},

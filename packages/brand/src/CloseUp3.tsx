@@ -488,7 +488,7 @@ export const CloseUp3Preview = () => {
 export const CloseUp3 = () => {
 	return (
 		<Composition
-			id="CloseUp3"
+			id="DragOntoCanvas"
 			component={CloseUp3Preview}
 			width={1920}
 			height={1080}
