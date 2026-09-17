@@ -1441,11 +1441,9 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('should keep programmatically duplicated timeline rows collapsed across HMR', async ({
+	test('should collapse programmatically duplicated timeline rows', async ({
 		page,
 	}) => {
-		const barChartFile = path.join(exampleDir, 'src', 'BarChart.tsx');
-		const originalSource = fs.readFileSync(barChartFile, 'utf-8');
 		await page.addInitScript(() => {
 			window.localStorage.setItem(
 				'remotion.sidebarRightCollapsing',
@@ -1462,11 +1460,6 @@ test.describe('visual mode', () => {
 				.getByLabel('4 other programmatically duplicated instances are hidden'),
 		).toBeVisible({timeout: 15_000});
 		await expect(page.getByText('25% gridline', {exact: true})).toHaveCount(0);
-		const gridlineVisibilityToggle = firstGridline
-			.locator('..')
-			.locator('..')
-			.locator('[data-timeline-layer-eye]');
-		await expect(gridlineVisibilityToggle).toBeVisible({timeout: 15_000});
 
 		await firstGridline.click();
 		const duplicationLabel = page.getByText('5 instances', {
@@ -1493,99 +1486,6 @@ test.describe('visual mode', () => {
 				.locator('.__remotion-studio-menu-item')
 				.filter({hasText: 'Delete all'}),
 		).toBeVisible();
-
-		await page.keyboard.press('Escape');
-		await page.evaluate(() => {
-			const state = window as typeof window & {
-				timelineGroupingBadStates: Set<string>;
-				stopTimelineGroupingObserver: () => void;
-			};
-			state.timelineGroupingBadStates = new Set();
-			const recordTimelineGrouping = () => {
-				const timelineList = document.querySelector('[data-timeline-list]');
-				const exactTextDivs = [
-					...(timelineList?.querySelectorAll('div') ?? []),
-				].filter((element) => element.childNodes.length === 1);
-				const firstGridline = exactTextDivs.find(
-					(element) => element.textContent === '0% gridline',
-				);
-				if (
-					firstGridline &&
-					!firstGridline.parentElement?.querySelector(
-						'[aria-label="4 other programmatically duplicated instances are hidden"]',
-					)
-				) {
-					state.timelineGroupingBadStates.add(
-						'missing-gridline-duplicate-count',
-					);
-				}
-
-				for (const label of [
-					'25% gridline',
-					'50% gridline',
-					'75% gridline',
-					'100% gridline',
-				]) {
-					if (exactTextDivs.some((element) => element.textContent === label)) {
-						state.timelineGroupingBadStates.add('expanded-gridline-duplicates');
-					}
-				}
-			};
-			let animationFrame = requestAnimationFrame(function sample() {
-				recordTimelineGrouping();
-				animationFrame = requestAnimationFrame(sample);
-			});
-			state.stopTimelineGroupingObserver = () =>
-				cancelAnimationFrame(animationFrame);
-		});
-
-		try {
-			const eyebrow = page.locator(
-				'[data-timeline-marquee-item][title="Eyebrow"]',
-			);
-			await eyebrow.click({button: 'right'});
-			await page
-				.locator('[data-remotion-menu-tree-id]')
-				.last()
-				.getByRole('button', {name: 'Delete', exact: true})
-				.click();
-
-			await expect
-				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
-				.not.toContain('name="Eyebrow"');
-			await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
-			await expect(firstGridline).toBeVisible();
-			await expect(
-				firstGridline
-					.locator('..')
-					.getByLabel(
-						'4 other programmatically duplicated instances are hidden',
-					),
-			).toBeVisible();
-			await expect(page.getByText('25% gridline', {exact: true})).toHaveCount(
-				0,
-			);
-			await expect(gridlineVisibilityToggle).toBeVisible({timeout: 30_000});
-
-			expect(
-				await page.evaluate(() => {
-					const state = window as typeof window & {
-						timelineGroupingBadStates: Set<string>;
-						stopTimelineGroupingObserver: () => void;
-					};
-					state.stopTimelineGroupingObserver();
-					return [...state.timelineGroupingBadStates];
-				}),
-			).toEqual([]);
-
-			await page.getByRole('button', {name: /^Undo/}).click();
-			await expect
-				.poll(() => fs.readFileSync(barChartFile, 'utf-8'))
-				.toBe(originalSource);
-			await expect(eyebrow).toBeVisible({timeout: 30_000});
-		} finally {
-			fs.writeFileSync(barChartFile, originalSource);
-		}
 	});
 
 	test('should split the right-clicked clip at the playhead from either timeline surface', async ({

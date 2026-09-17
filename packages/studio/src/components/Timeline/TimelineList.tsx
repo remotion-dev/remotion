@@ -43,7 +43,7 @@ export const TimelineList: React.FC = () => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
 
 	return (
-		<div data-timeline-list="true" style={{...container, height: tracksEnd}}>
+		<div style={{...container, height: tracksEnd}}>
 			{virtualItems.map((virtualItem) => (
 				<div
 					key={virtualItem.key}
