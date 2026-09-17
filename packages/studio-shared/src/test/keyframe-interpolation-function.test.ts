@@ -131,6 +131,25 @@ test('isSchemaFieldKeyframable rejects font-family fields', () => {
 	);
 });
 
+test('font-weight fields use interpolate keyframes', () => {
+	const schema = {
+		'style.fontWeight': {
+			type: 'font-weight',
+			default: 400,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'style.fontWeight'})).toBe(
+		true,
+	);
+	expect(
+		getKeyframeInterpolationFunctionForSchemaField({
+			schema,
+			key: 'style.fontWeight',
+		}),
+	).toBe('interpolate');
+});
+
 test('isSchemaFieldKeyframable rejects asset fields', () => {
 	const schema = {
 		src: {
