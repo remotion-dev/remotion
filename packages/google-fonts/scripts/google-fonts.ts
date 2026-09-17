@@ -15974,37 +15974,37 @@ export const googleFonts: Font[] = [
 			'syriac',
 			'vietnamese',
 		],
-		version: 'v17',
-		lastModified: '2026-04-14',
+		version: 'v19',
+		lastModified: '2026-09-16',
 		files: {
 			'300':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNLGTVtgMj1ufBSg.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNLGTVtgMj1ufBSg.woff2',
 			'500':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNQGTVtgMj1ufBSg.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNQGTVtgMj1ufBSg.woff2',
 			'600':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNrGPVtgMj1ufBSg.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNrGPVtgMj1ufBSg.woff2',
 			'700':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNlWPVtgMj1ufBSg.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNlWPVtgMj1ufBSg.woff2',
 			'800':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQN8mPVtgMj1ufBSg.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQN8mPVtgMj1ufBSg.woff2',
 			regular:
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNcmTVtgMj1ufBSg.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNcmTVtgMj1ufBSg.woff2',
 			'300italic':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuidj8Aki9OLRShwi.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuidj8Aki9OLRShwi.woff2',
 			italic:
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuic98Aki9OLRShwi.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuic98Aki9OLRShwi.woff2',
 			'500italic':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuicP8Aki9OLRShwi.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuicP8Aki9OLRShwi.woff2',
 			'600italic':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuifj9wki9OLRShwi.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuifj9wki9OLRShwi.woff2',
 			'700italic':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuifa9wki9OLRShwi.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuifa9wki9OLRShwi.woff2',
 			'800italic':
-				'https://fonts.gstatic.com/s/googlesanscode/v17/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuie99wki9OLRShwi.woff2',
+				'https://fonts.gstatic.com/s/googlesanscode/v19/pxijyogzv91QhV44Z_GQBHsGf5PuWEt-oWZnOk-ljWSpwaFB6rqcd6jvHiMYuie99wki9OLRShwi.woff2',
 		},
 		category: 'monospace',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/googlesanscode/v17/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNcmTlsgki.woff2',
+		menu: 'https://fonts.gstatic.com/s/googlesanscode/v19/pxihyogzv91QhV44Z_GQBHsGf5PuckJMZfIVTPZaiXEp_ht12EVEHsN1sCQNcmTlsgki.woff2',
 		axes: [
 			{
 				tag: 'MONO',
@@ -27419,15 +27419,15 @@ export const googleFonts: Font[] = [
 		family: 'Noto Color Emoji',
 		variants: ['regular'],
 		subsets: ['emoji'],
-		version: 'v40',
-		lastModified: '2026-08-10',
+		version: 'v47',
+		lastModified: '2026-09-16',
 		files: {
 			regular:
-				'https://fonts.gstatic.com/s/notocoloremoji/v40/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabts79iz64w.woff2',
+				'https://fonts.gstatic.com/s/notocoloremoji/v47/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabts79iz64w.woff2',
 		},
 		category: 'sans-serif',
 		kind: 'webfonts#webfont',
-		menu: 'https://fonts.gstatic.com/s/notocoloremoji/v40/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFWb9m7g.woff2',
+		menu: 'https://fonts.gstatic.com/s/notocoloremoji/v47/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFWb9m7g.woff2',
 		colorCapabilities: ['COLRv1', 'SVG'],
 	},
 	{
