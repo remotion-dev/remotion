@@ -44,7 +44,7 @@ const layerEyeActions = new WeakMap<Element, () => void>();
 const TIMELINE_LAYER_EYE_ATTR = 'data-timeline-layer-eye';
 
 export const TimelineLayerEye: React.FC<{
-	readonly onInvoked: (type: 'enable' | 'disable') => void;
+	readonly onInvoked: ((type: 'enable' | 'disable') => void) | null;
 	readonly hidden: boolean;
 	readonly type: 'eye' | 'speaker' | 'effect';
 }> = ({onInvoked, hidden, type}) => {
@@ -96,6 +96,10 @@ export const TimelineLayerEye: React.FC<{
 
 			e.preventDefault();
 			e.stopPropagation();
+			if (onInvoked === null) {
+				return;
+			}
+
 			stopLayerPointerSession?.();
 			layerPointedDown = hidden ? 'enable' : 'disable';
 			onInvoked(layerPointedDown);
@@ -133,7 +137,7 @@ export const TimelineLayerEye: React.FC<{
 	);
 
 	const onPointerEnter = useCallback(() => {
-		if (layerPointedDown) {
+		if (layerPointedDown && onInvoked !== null) {
 			onInvoked(layerPointedDown);
 		}
 	}, [onInvoked]);
@@ -142,7 +146,7 @@ export const TimelineLayerEye: React.FC<{
 		(element: HTMLDivElement | null) => {
 			if (element) {
 				layerEyeActions.set(element, () => {
-					if (layerPointedDown) {
+					if (layerPointedDown && onInvoked !== null) {
 						onInvoked(layerPointedDown);
 					}
 				});
@@ -166,7 +170,7 @@ export const TimelineLayerEye: React.FC<{
 			draggable={false}
 			onDragStart={onDragStart}
 			onDoubleClick={onDoubleClick}
-			onPointerEnter={onPointerEnter}
+			onPointerEnter={onInvoked === null ? undefined : onPointerEnter}
 			onPointerDown={onPointerDown}
 		>
 			{renderAction(LIGHT_COLOR)}

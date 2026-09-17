@@ -28,9 +28,8 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    or incompatible, use `$install-canvas-capture-browser` to install it.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `capture.js`, `recorder.html`, `logo.svg`,
-   `content-scripts/receiver.js`, and the recorder's generated `assets/` and
-   `chunks/` files.
+   `background.js`, `capture.js`, `logo.svg`, `content-scripts/receiver.js`,
+   and the generated extension icons.
 
 ## Develop with React and Vite
 
@@ -41,10 +40,8 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension Dev`,
    launches the pinned Chrome for Testing with the Canvas Draw Element feature
    enabled, and loads the extension automatically.
-4. Keep the recorder window open while editing files in
-   `src/entrypoints/recorder`. React and CSS changes use Vite HMR. Background,
-   capture, receiver, or manifest changes cause WXT to rebuild and reload the
-   affected extension contexts.
+4. Click the extension icon to show the in-page controls. Source and manifest
+   changes cause WXT to rebuild and reload the affected extension contexts.
 
 Use the separate development directory only for `bun run dev`. Continue using
 the production install directory above for manually loaded builds.

@@ -202,6 +202,7 @@ export const Scene11: React.FC = () => {
 									extrapolateLeft: 'clamp',
 									extrapolateRight: 'clamp',
 								})}
+								showTimelineZoom={false}
 								timelineOffset={6 - studioLeft}
 								viewportHeight={748}
 								viewportWidth={studioWidth}

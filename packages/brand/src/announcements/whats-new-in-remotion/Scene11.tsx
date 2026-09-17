@@ -1,11 +1,5 @@
 import {Video} from '@remotion/media';
-import {
-	Easing,
-	Interactive,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {Easing, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {assetUrl} from './assets';
 import {SILENCES} from './Composition';
 import type {EndCardPlatform} from './EndCard';
@@ -40,8 +34,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				trimBefore={trimBefore}
 				trimAfter={trimAfter}
 			/>
-			<Interactive.Div
-				name="Endcard overlay"
+			<div
 				style={{
 					backgroundColor: 'white',
 					bottom: 0,
@@ -63,7 +56,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				}}
 			>
 				<EndCard platform={platform} />
-			</Interactive.Div>
+			</div>
 		</>
 	);
 };

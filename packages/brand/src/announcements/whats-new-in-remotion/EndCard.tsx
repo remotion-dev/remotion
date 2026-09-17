@@ -70,8 +70,7 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 				top: 0,
 			}}
 		>
-			<Interactive.Div
-				name="Endcard content"
+			<div
 				style={{
 					translate: interpolate(frame, [56, 86], ['0px 200px', '0px 0px'], {
 						easing: Easing.spring({damping: 200}),
@@ -80,10 +79,7 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 					}),
 				}}
 			>
-				<Interactive.Div
-					name="Primary call to action"
-					style={{alignItems: 'center', display: 'flex'}}
-				>
+				<div style={{alignItems: 'center', display: 'flex'}}>
 					<Img
 						name="Remotion avatar"
 						src={assetUrl('remotion-avatar.png')}
@@ -113,7 +109,7 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 					>
 						{platform === 'youtube' ? 'Subscribe' : 'Follow'}
 					</Interactive.Div>
-				</Interactive.Div>
+				</div>
 				<div style={{height: 60}} />
 				{platform === 'youtube' ? null : (
 					<Interactive.Div
@@ -277,7 +273,7 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 						</div>
 					</Interactive.Div>
 				)}
-			</Interactive.Div>
+			</div>
 		</Interactive.Div>
 	);
 };

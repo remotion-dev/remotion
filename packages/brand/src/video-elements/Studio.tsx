@@ -88,6 +88,7 @@ export type StudioProps = InteractiveBaseProps & {
 	readonly durationInFrames: number;
 	readonly frame: number;
 	readonly responsivenessProgress: number;
+	readonly showTimelineZoom: boolean;
 	readonly timelineOffset: number;
 	readonly viewportHeight: number | null;
 	readonly viewportWidth: number;
@@ -1287,9 +1288,18 @@ const Timeline: React.FC<{
 	readonly fps: number;
 	readonly frame: number;
 	readonly height: number;
+	readonly showZoom: boolean;
 	readonly timelineOffset: number;
 	readonly width: number;
-}> = ({durationInFrames, fps, frame, height, timelineOffset, width}) => {
+}> = ({
+	durationInFrames,
+	fps,
+	frame,
+	height,
+	showZoom,
+	timelineOffset,
+	width,
+}) => {
 	const labelWidth = Math.min(
 		width,
 		Math.max(
@@ -1320,7 +1330,64 @@ const Timeline: React.FC<{
 		{length: Math.floor(durationInFrames / 5) + 1},
 		(_, index) => index * 5,
 	);
-	const rows = [46, 22, 22];
+	// Mirrors the layer tree the real Studio shows for the Outro composition.
+	const layers: {
+		name: string;
+		secondary: string | null;
+		depth: number;
+		expanded: boolean | null;
+		track: 'filmstrip' | 'sequence' | 'avatar';
+	}[] = [
+		{
+			name: 'Presenter video',
+			secondary: 'whats11.mov',
+			depth: 0,
+			expanded: null,
+			track: 'filmstrip',
+		},
+		{
+			name: 'Endcard',
+			secondary: null,
+			depth: 0,
+			expanded: true,
+			track: 'sequence',
+		},
+		{
+			name: 'Remotion avatar',
+			secondary: 'remotion-avatar.png',
+			depth: 1,
+			expanded: null,
+			track: 'avatar',
+		},
+		{
+			name: 'Call to action button',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+		{
+			name: 'X channel',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+		{
+			name: 'Instagram channel',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+		{
+			name: 'LinkedIn channel',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+	];
 
 	return (
 		<Interactive.Div
@@ -1375,65 +1442,66 @@ const Timeline: React.FC<{
 							{frame}
 						</div>
 					</Interactive.Div>
-					<div
-						style={{
-							alignItems: 'center',
-							display: 'flex',
-							gap: 4,
-							left: 217,
-							position: 'absolute',
-							top: 7,
-						}}
-					>
-						<Interactive.Div name="Timeline zoom out">
-							<IconButton>
-								<CanvasZoomOutIcon color={TOOLBAR_FOREGROUND} size={20} />
-							</IconButton>
-						</Interactive.Div>
-						<Interactive.Div
-							name="Timeline zoom control"
+					{showZoom ? (
+						<div
 							style={{
-								backgroundColor: '#353a3e',
-								borderRadius: 8,
-								height: 6,
-								position: 'relative',
-								width: 80,
+								alignItems: 'center',
+								display: 'flex',
+								gap: 4,
+								left: 217,
+								position: 'absolute',
+								top: 7,
 							}}
 						>
-							<div
+							<Interactive.Div name="Timeline zoom out">
+								<IconButton>
+									<CanvasZoomOutIcon color={TOOLBAR_FOREGROUND} size={20} />
+								</IconButton>
+							</Interactive.Div>
+							<Interactive.Div
+								name="Timeline zoom control"
 								style={{
-									backgroundColor: WHITE,
-									borderRadius: '50%',
-									height: 14,
-									left: 0,
-									position: 'absolute',
-									top: -4,
-									width: 14,
+									backgroundColor: '#353a3e',
+									borderRadius: 8,
+									height: 6,
+									position: 'relative',
+									width: 80,
 								}}
-							/>
-						</Interactive.Div>
-						<Interactive.Div name="Timeline zoom in">
-							<IconButton>
-								<CanvasZoomIcon color={TOOLBAR_FOREGROUND} size={20} />
-							</IconButton>
-						</Interactive.Div>
-					</div>
+							>
+								<div
+									style={{
+										backgroundColor: WHITE,
+										borderRadius: '50%',
+										height: 14,
+										left: 0,
+										position: 'absolute',
+										top: -4,
+										width: 14,
+									}}
+								/>
+							</Interactive.Div>
+							<Interactive.Div name="Timeline zoom in">
+								<IconButton>
+									<CanvasZoomIcon color={TOOLBAR_FOREGROUND} size={20} />
+								</IconButton>
+							</Interactive.Div>
+						</div>
+					) : null}
 				</div>
-				<Interactive.Div name="Video clip layer" style={{height: rows[0]}}>
-					<TimelineRowLabel depth={0} secondary="whats11.mov">
-						&lt;Video&gt;
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Endcard layer" style={{height: rows[1]}}>
-					<TimelineRowLabel depth={0} expanded>
-						Endcard
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Avatar image layer" style={{height: rows[2]}}>
-					<TimelineRowLabel depth={1} secondary="remotion-avatar.png">
-						&lt;Img&gt;
-					</TimelineRowLabel>
-				</Interactive.Div>
+				{layers.map((layer) => (
+					<div
+						key={layer.name}
+						style={{height: layer.track === 'filmstrip' ? 46 : 22}}
+					>
+						<TimelineRowLabel
+							depth={layer.depth}
+							expanded={layer.expanded ?? undefined}
+							secondary={layer.secondary ?? undefined}
+						>
+							{layer.name}
+						</TimelineRowLabel>
+					</div>
+				))}
 			</Interactive.Div>
 			<Interactive.Div
 				name="Timeline tracks"
@@ -1493,61 +1561,51 @@ const Timeline: React.FC<{
 						</React.Fragment>
 					))}
 				</Interactive.Div>
-				<div
-					style={{
-						height: rows[0],
-						paddingLeft: trackLeft,
-						translate: `${timelineContentOffset}px 0`,
-					}}
-				>
-					<Interactive.Div
-						name="Video filmstrip"
-						style={{height: 45, width: sequenceWidth}}
-					>
-						<Filmstrip height={45} width={sequenceWidth} />
-					</Interactive.Div>
-				</div>
-				<div
-					style={{
-						height: rows[1],
-						paddingLeft: trackLeft,
-						translate: `${timelineContentOffset}px 0`,
-					}}
-				>
-					<Interactive.Div
-						name="Endcard sequence"
+				{layers.map((layer) => (
+					<div
+						key={layer.name}
 						style={{
-							backgroundColor: '#0d69bd',
-							border: '1px solid #327cbf',
-							borderRadius: 2,
-							boxSizing: 'border-box',
-							color: '#8bc5f0',
-							fontFamily: 'monospace',
-							fontSize: 11,
-							height: 21,
-							lineHeight: '19px',
-							overflow: 'hidden',
-							paddingLeft: 5,
-							width: sequenceWidth,
+							height: layer.track === 'filmstrip' ? 46 : 22,
+							paddingLeft: trackLeft,
+							translate: `${timelineContentOffset}px 0`,
 						}}
 					>
-						{frame}
-					</Interactive.Div>
-				</div>
-				<div
-					style={{
-						height: rows[2],
-						paddingLeft: trackLeft,
-						translate: `${timelineContentOffset}px 0`,
-					}}
-				>
-					<Interactive.Div
-						name="Avatar strip"
-						style={{height: 21, width: sequenceWidth}}
-					>
-						<AvatarStrip height={21} width={sequenceWidth} />
-					</Interactive.Div>
-				</div>
+						{layer.track === 'filmstrip' ? (
+							<Interactive.Div
+								name="Video filmstrip"
+								style={{height: 45, width: sequenceWidth}}
+							>
+								<Filmstrip height={45} width={sequenceWidth} />
+							</Interactive.Div>
+						) : layer.track === 'avatar' ? (
+							<Interactive.Div
+								name="Avatar strip"
+								style={{height: 21, width: sequenceWidth}}
+							>
+								<AvatarStrip height={21} width={sequenceWidth} />
+							</Interactive.Div>
+						) : (
+							<div
+								style={{
+									backgroundColor: '#0d69bd',
+									border: '1px solid #327cbf',
+									borderRadius: 2,
+									boxSizing: 'border-box',
+									color: '#8bc5f0',
+									fontFamily: 'monospace',
+									fontSize: 11,
+									height: 21,
+									lineHeight: '19px',
+									overflow: 'hidden',
+									paddingLeft: 5,
+									width: sequenceWidth,
+								}}
+							>
+								{frame}
+							</div>
+						)}
+					</div>
+				))}
 				<Interactive.Div
 					name="Timeline playhead"
 					style={{
@@ -1596,6 +1654,7 @@ const StudioInner = React.forwardRef<
 			name,
 			responsivenessProgress,
 			showInTimeline,
+			showTimelineZoom,
 			timelineOffset,
 			trimBefore,
 			viewportHeight,
@@ -1764,6 +1823,7 @@ const StudioInner = React.forwardRef<
 						fps={fps}
 						frame={frame}
 						height={timelineHeight}
+						showZoom={showTimelineZoom}
 						timelineOffset={timelineOffset}
 						width={width}
 					/>
@@ -1795,6 +1855,7 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 			durationInFrames={742}
 			frame={655}
 			responsivenessProgress={responsivenessProgress}
+			showTimelineZoom
 			timelineOffset={0}
 			viewportHeight={null}
 			viewportWidth={viewportWidth}

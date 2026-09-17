@@ -21,8 +21,8 @@ import {
 	cropSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
-	sequencePremountSchema,
 	sequenceCropSchema,
+	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
@@ -362,7 +362,6 @@ test('textSchema exposes common text style fields', () => {
 		type: 'font-weight',
 		default: 400,
 		description: 'Font weight',
-		keyframable: false,
 	});
 	expect(Object.keys(textSchema['style.fontStyle'].variants)).toEqual([
 		'normal',

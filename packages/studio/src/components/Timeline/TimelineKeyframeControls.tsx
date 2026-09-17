@@ -23,6 +23,7 @@ import {
 	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {
 	callAddKeyframes,
 	type AddEffectKeyframeChange,
@@ -43,6 +44,7 @@ import {
 	getKeyframeDisplayOffset,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
+import {normalizeFontWeightForKeyframe} from './normalize-font-weight-for-keyframe';
 import {ensureFrameIsInViewport} from './timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
@@ -88,6 +90,7 @@ const navButtonStyle: React.CSSProperties = {
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	width: NAV_BUTTON_SIZE,
 };
 
@@ -368,12 +371,21 @@ const getAddChange = (
 		return null;
 	}
 
+	const fieldSchema = target.schema[target.fieldKey];
+	const normalizedValue =
+		fieldSchema?.type === 'font-weight'
+			? normalizeFontWeightForKeyframe(value)
+			: value;
+	if (normalizedValue === null) {
+		return null;
+	}
+
 	const change = {
 		fileName: target.fileName,
 		nodePath: target.nodePath,
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
-		value,
+		value: normalizedValue,
 		schema: target.schema,
 	};
 
@@ -531,6 +543,7 @@ export const TimelineKeyframeControls: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const tracks = useTimelineKeyframeTracks();
 
@@ -781,6 +794,10 @@ export const TimelineKeyframeControls: React.FC<{
 				setPropStatuses,
 				clientId,
 			});
+			for (const {target} of addChanges) {
+				expandParentTracks(target.nodePathInfo);
+			}
+
 			if (mode === 'timeline') {
 				selectItems(
 					addChanges.map(({target}) => ({
@@ -795,6 +812,7 @@ export const TimelineKeyframeControls: React.FC<{
 		[
 			canToggleKeyframe,
 			clientId,
+			expandParentTracks,
 			hasKeyframeAtCurrentFrame,
 			keyframeToggleTargets,
 			mode,

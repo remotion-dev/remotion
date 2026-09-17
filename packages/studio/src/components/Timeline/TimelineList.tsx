@@ -31,6 +31,13 @@ const TimelineListTrack: React.FC<{
 			nodePathInfo={track.nodePathInfo}
 			keyframeDisplayOffset={track.keyframeDisplayOffset}
 			sequenceFrameOffset={track.sequenceFrameOffset}
+			numberOfHiddenDuplicates={Math.max(
+				0,
+				(track.displayGroup?.numberOfSequences ?? 1) - 1,
+			)}
+			showProvisionalVisibilityToggle={
+				track.nodePathInfo === null && track.displayGroup !== null
+			}
 		/>
 	);
 });

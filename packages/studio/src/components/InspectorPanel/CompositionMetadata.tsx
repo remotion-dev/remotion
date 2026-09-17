@@ -42,6 +42,7 @@ const computedContainerStyle: React.CSSProperties = {
 	...inputDraggerContainerStyle,
 	textAlign: 'right',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const computedValueStyle: React.CSSProperties = {
@@ -51,11 +52,13 @@ const computedValueStyle: React.CSSProperties = {
 	fontStyle: 'italic',
 	lineHeight: '20px',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const metadataFormatterStyle: React.CSSProperties = {
 	fontSize: 13,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const metadataDraggerStyles: Record<
@@ -135,6 +138,7 @@ const metadataLabelText: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

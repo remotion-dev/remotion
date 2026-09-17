@@ -78,6 +78,7 @@ const itemStyle: React.CSSProperties = {
 	textAlign: 'left',
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const labelStyle: React.CSSProperties = {

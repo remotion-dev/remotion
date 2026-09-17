@@ -267,6 +267,13 @@ export type ModalState =
 			};
 	  }
 	| {
+			type: 'generate-with-agent';
+			location: {
+				source: string;
+				line: number;
+			} | null;
+	  }
+	| {
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;

@@ -18,6 +18,8 @@ import {
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {canEditStudioConfig} from '../../helpers/settings-tab-availability';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
 import {FileIcon} from '../../icons/file';
@@ -189,6 +191,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	if (!context) {
 		throw new Error(
 			'Should not be able to render without resolving comp first',
@@ -222,6 +225,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [tab, setTab] = useState<TabType>('general');
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const canEditConfig = canEditStudioConfig({
+		isBrowserStudio,
+		previewServerConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
 		() => initialStillImageFormat ?? 'png',
 	);
@@ -712,7 +720,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					>
 						Other
 					</VerticalTab>
-					{isBrowserStudio ? null : (
+					{canEditConfig ? (
 						<VerticalTab
 							style={horizontalTab}
 							selected={false}
@@ -731,7 +739,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						>
 							License
 						</VerticalTab>
-					)}
+					) : null}
 				</div>
 				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (

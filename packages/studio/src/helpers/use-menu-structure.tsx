@@ -41,6 +41,7 @@ import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
+import {canEditStudioConfig} from './settings-tab-availability';
 import {getStudioAskAIEnabled} from './studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 import {useKeyboardShortcutLabel} from './use-keyboard-shortcut-label';
@@ -342,6 +343,11 @@ export const useMenuStructure = (
 
 	const {remotion_packageManager} = window;
 	const browserStudioOperations = getBrowserStudioOperations();
+	const studioConfigEditable = canEditStudioConfig({
+		isBrowserStudio: browserStudioOperations !== null,
+		previewServerConnected: type === 'connected',
+		readOnlyStudio,
+	});
 
 	const sizePreselectIndex = sizes.findIndex(
 		(s) => String(size.size) === String(s.size),
@@ -436,8 +442,7 @@ export const useMenuStructure = (
 							closeMenu();
 							setSelectedModal({
 								type: 'settings',
-								initialTab:
-									browserStudioOperations === null ? 'studio' : 'shortcuts',
+								initialTab: studioConfigEditable ? 'studio' : 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -447,9 +452,6 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: null,
 						quickSwitcherLabel: 'Settings...',
-						disabled:
-							(browserStudioOperations === null && readOnlyStudio) ||
-							type !== 'connected',
 					},
 					{
 						id: 'acknowledgements',
@@ -465,13 +467,13 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Acknowledgements',
 					},
-					browserStudioOperations === null
+					studioConfigEditable
 						? {
 								type: 'divider' as const,
 								id: 'timeline-divider-1',
 							}
 						: null,
-					browserStudioOperations === null
+					studioConfigEditable
 						? {
 								id: 'restart-studio',
 								value: 'restart-studio',
@@ -955,7 +957,7 @@ export const useMenuStructure = (
 						: null,
 					!canInstallPackages() ||
 					(browserStudioOperations === null &&
-						remotion_packageManager === 'unknown')
+						(remotion_packageManager === 'unknown' || type !== 'connected'))
 						? null
 						: {
 								id: 'install-packages',
@@ -1196,6 +1198,7 @@ export const useMenuStructure = (
 		showKeyboardShortcutsShortcut,
 		toggleSnappingShortcut,
 		browserStudioOperations,
+		studioConfigEditable,
 		size.size,
 		setSize,
 		setEditorZoomGestures,

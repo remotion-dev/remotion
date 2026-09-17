@@ -299,6 +299,8 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
+	readonly numberOfHiddenDuplicates: number;
+	readonly showProvisionalVisibilityToggle: boolean;
 }> = ({
 	afterDropLineOffset,
 	connectedCompositions,
@@ -308,6 +310,8 @@ const TimelineSequenceItemInner: React.FC<{
 	keyframeDisplayOffset,
 	sequenceFrameOffset,
 	siblingIndex,
+	numberOfHiddenDuplicates,
+	showProvisionalVisibilityToggle,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {hovered, onPointerEnter, onPointerLeave} =
@@ -396,11 +400,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.displayName === '' && connectedCompositions.length === 1
 			? connectedCompositions[0].id
 			: displayName;
-	const numberOfHiddenDuplicates = Math.max(
-		0,
-		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) - 1,
-	);
-
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
 		() =>
@@ -928,6 +927,9 @@ const TimelineSequenceItemInner: React.FC<{
 		codeHiddenStatus !== undefined &&
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
+	const showVisibilityToggle =
+		canToggleVisibility ||
+		(previewInteractive && showProvisionalVisibilityToggle);
 
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
@@ -1413,11 +1415,11 @@ const TimelineSequenceItemInner: React.FC<{
 		<TimelineRowChrome
 			depth={nestedDepth}
 			eye={
-				canToggleVisibility ? (
+				showVisibilityToggle ? (
 					<TimelineLayerEye
 						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
 						hidden={isItemHidden}
-						onInvoked={onToggleVisibility}
+						onInvoked={canToggleVisibility ? onToggleVisibility : null}
 					/>
 				) : (
 					<TimelineLayerEyeSpacer />
@@ -1461,6 +1463,12 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{numberOfHiddenDuplicates > 0 ? (
+					<>
+						<Spacing x={0.5} />
+						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
+					</>
+				) : null}
 				{hasExpandableContent && nodePathInfo !== null ? (
 					<>
 						<Spacing x={0.5} />
@@ -1471,12 +1479,6 @@ const TimelineSequenceItemInner: React.FC<{
 							selectedItems={selectedItems}
 							sequence={sequence}
 						/>
-					</>
-				) : null}
-				{numberOfHiddenDuplicates > 0 ? (
-					<>
-						<Spacing x={0.5} />
-						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
 					</>
 				) : null}
 				{mediaSrc ? (
