@@ -9,9 +9,13 @@ crumb: '@remotion/browser-bundler'
 
 Compile a virtual Remotion project in the browser and use a registered [composition](/docs/composition) in your own UI, such as a [`<Player>`](/docs/player/player).
 
-<ExperimentalBadge>
-<p>This package is experimental. The initial implementation has only been tested in Chrome.</p>
-</ExperimentalBadge>
+:::warning
+
+*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+The initial implementation has only been tested in Chrome.
 
 The main entry point compiles source snapshots, manages its worker and WebAssembly compiler, applies source edits incrementally, and resolves npm imports over HTTP. The separate `@remotion/browser-bundler/runtime` entry point executes a bundle and resolves a registered composition.
 

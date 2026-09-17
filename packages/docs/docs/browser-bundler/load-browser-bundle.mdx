@@ -8,9 +8,13 @@ crumb: '@remotion/browser-bundler'
 
 Executes a [`BrowserBundle`](/docs/browser-bundler/create-browser-bundler#browserbundle) and returns the root component it registered with [`registerRoot()`](/docs/register-root). Import it from `@remotion/browser-bundler/runtime`.
 
-<ExperimentalBadge>
-<p>This API is experimental and executes trusted code only. It is not a sandbox.</p>
-</ExperimentalBadge>
+:::warning
+
+*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+This API executes trusted code only. It is not a sandbox.
 
 After compiling a project with [`createBrowserBundler()`](/docs/browser-bundler/create-browser-bundler):
 
