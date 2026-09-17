@@ -7301,6 +7301,15 @@ export const articles = [
 		slug: 'studio/reevaluate-composition',
 	},
 	{
+		id: 'studio/remotion-dev-new',
+		title: 'remotion.dev/new',
+		relativePath: 'docs/studio/remotion-dev-new.mdx',
+		compId: 'articles-docs-studio-remotion-dev-new',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/remotion-dev-new',
+	},
+	{
 		id: 'studio/restart-studio',
 		title: 'restartStudio()',
 		relativePath: 'docs/studio/restart-studio.mdx',

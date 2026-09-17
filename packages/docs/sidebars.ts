@@ -1420,6 +1420,7 @@ const sidebars: SidebarsConfig = {
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
+				'studio/remotion-dev-new',
 			],
 		},
 		{
