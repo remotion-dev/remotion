@@ -237,3 +237,29 @@ test('from / to', () => {
 		}),
 	).toBeCloseTo(169.082);
 });
+
+describe('Undefined config properties should fall back to the defaults', () => {
+	// Each case uses its own fps so it does not share cache entries with
+	// other tests. The undefined config is evaluated first on purpose: it
+	// shares a cache key with the default config, so a NaN result would
+	// poison every later default-config call at the same frame.
+	test.each([
+		[{damping: undefined}, 23],
+		[{stiffness: undefined}, 25],
+		[{mass: undefined}, 27],
+		[{damping: undefined, stiffness: undefined, mass: undefined}, 29],
+	])('config %p', (config, fps) => {
+		const value = spring({fps, frame: 10, config});
+		expect(Number.isNaN(value)).toBe(false);
+		// Spelled-out defaults have their own cache key, so this is a fresh
+		// calculation and not a copy of the value under test
+		expect(value).toBe(
+			spring({
+				fps,
+				frame: 10,
+				config: {damping: 10, mass: 1, stiffness: 100},
+			}),
+		);
+		expect(value).toBe(spring({fps, frame: 10}));
+	});
+});
