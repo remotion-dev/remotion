@@ -350,6 +350,10 @@ const getFileSource = ({
 
 export type BrowserStudioProjectController = {
 	applyMutation: (mutation: ProjectMutation) => SequenceNodePathMutation | null;
+	applyMutationRetainingPublicFiles: (
+		mutation: ProjectMutation,
+		retainedPublicFiles: Record<string, VirtualProjectPublicFile>,
+	) => SequenceNodePathMutation | null;
 	deleteStaticFile: BrowserStudioOperations['deleteStaticFile'];
 	emitEvent: (event: EventSourceEvent) => void;
 	findInFile: BrowserStudioOperations['findInFile'];
@@ -528,15 +532,28 @@ export const createBrowserStudioProjectController = ({
 		return nodePathMutation;
 	};
 
-	const applyMutation = ({
-		fileName,
-		mutate,
-		nodePathMutationFiles,
-		timelineSelection,
-		undoRedoNavigation,
-	}: ProjectMutation) => {
-		const before = getProject();
-		const after = mutate(before);
+	const applyMutationWithRetainedPublicFiles = (
+		{
+			fileName,
+			mutate,
+			nodePathMutationFiles,
+			timelineSelection,
+			undoRedoNavigation,
+		}: ProjectMutation,
+		retainedPublicFiles: Record<string, VirtualProjectPublicFile> | null,
+	) => {
+		const currentProject = getProject();
+		const before =
+			retainedPublicFiles === null
+				? currentProject
+				: {
+						...currentProject,
+						publicFiles: {
+							...getCanonicalPublicFiles(currentProject),
+							...retainedPublicFiles,
+						},
+					};
+		const after = mutate(currentProject);
 
 		if (after === before) {
 			return null;
@@ -563,7 +580,7 @@ export const createBrowserStudioProjectController = ({
 
 		redoStack.length = 0;
 		const nodePathMutation = commitProject({
-			previousProject: before,
+			previousProject: currentProject,
 			nextProject: after,
 			nodePathMutationFiles,
 			timelineSelection,
@@ -572,6 +589,9 @@ export const createBrowserStudioProjectController = ({
 
 		return nodePathMutation;
 	};
+
+	const applyMutation = (mutation: ProjectMutation) =>
+		applyMutationWithRetainedPublicFiles(mutation, null);
 
 	const undo = (): Promise<UndoResponse> => {
 		const entry = undoStack.pop();
@@ -624,6 +644,8 @@ export const createBrowserStudioProjectController = ({
 
 	return {
 		applyMutation,
+		applyMutationRetainingPublicFiles: (mutation, retainedPublicFiles) =>
+			applyMutationWithRetainedPublicFiles(mutation, retainedPublicFiles),
 		deleteStaticFile: ({relativePath}) => {
 			try {
 				const canonicalPath = normalizePublicFilePath(relativePath);

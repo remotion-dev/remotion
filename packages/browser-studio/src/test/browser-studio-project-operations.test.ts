@@ -508,6 +508,14 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		},
 	});
 	const element = {
+		assets: [
+			{path: 'elements/lower-third.bin', type: 'base64', data: 'AAEC'},
+			{
+				path: 'elements/remote.bin',
+				type: 'url',
+				url: 'https://assets.example/remote.bin',
+			},
+		],
 		dependencies: [
 			{name: '@remotion/shapes', version: null},
 			{name: 'zod', version: '4.1.5'},
@@ -558,18 +566,29 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		},
 	});
 
-	const inserted = await operations.insertElement({
-		installationName: null,
-		compositionFile: '/project/src/Composition.tsx',
-		compositionId: 'MyComp',
-		element,
-		expectedFileState: preflight.plan.expectedFileState,
-		from: 12,
-		overwriteExisting: false,
-		position: {x: 24, y: 48},
-		undoRedoNavigation: null,
-		newComposition: null,
-	});
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = Object.assign(
+		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
+		{preconnect: originalFetch.preconnect},
+	);
+	let inserted: Awaited<ReturnType<typeof operations.insertElement>>;
+	try {
+		inserted = await operations.insertElement({
+			installationName: null,
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+			element,
+			expectedFileState: preflight.plan.expectedFileState,
+			from: 12,
+			overwriteExisting: false,
+			position: {x: 24, y: 48},
+			undoRedoNavigation: null,
+			newComposition: null,
+		});
+	} finally {
+		globalThis.fetch = originalFetch;
+	}
+
 	if (!inserted.success) {
 		throw new Error(
 			inserted.type === 'error' ? inserted.reason : 'Unexpected file conflict',
@@ -579,6 +598,12 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		element.sourceCode,
+	);
+	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
+	);
+	expect(project.publicFiles?.['elements/remote.bin']).toEqual(
+		new Uint8Array([3, 4, 5]),
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'import { LowerThird } from "./lower-third.element";',
@@ -605,6 +630,12 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		initialProject.files['/project/src/Composition.tsx'],
 	);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBeUndefined();
+	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
+	);
+	expect(project.publicFiles?.['elements/remote.bin']).toEqual(
+		new Uint8Array([3, 4, 5]),
+	);
 	expect(project.files['/project/package.json']).toBe(
 		initialProject.files['/project/package.json'],
 	);
@@ -612,6 +643,14 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		element.sourceCode,
 	);
+	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
+	);
+	expect(project.publicFiles?.['elements/remote.bin']).toEqual(
+		new Uint8Array([3, 4, 5]),
+	);
+	// Later requests exercise source conflict behavior without another network fetch.
+	element.assets = element.assets.slice(0, 1);
 
 	const installRequest = {
 		installationName: null,
@@ -691,6 +730,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		resolveDependencies: null,
 	});
 	const element = {
+		assets: [],
 		dependencies: [],
 		dimensions: {width: 640, height: 180},
 		displayName: 'Browser Element',
@@ -790,6 +830,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		resolveDependencies: null,
 	});
 	const element = {
+		assets: [],
 		dependencies: [],
 		dimensions: {width: 640, height: 180},
 		displayName: 'Captions',
@@ -901,6 +942,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			compositionFile: '/project/src/Composition.tsx',
 			compositionId: 'MyComp',
 			element: {
+				assets: [],
 				dependencies: [],
 				dimensions: {width: 640, height: 180},
 				displayName: 'Captions',

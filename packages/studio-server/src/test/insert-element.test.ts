@@ -71,6 +71,7 @@ const structuredInitialProps = {
 };
 
 const element: InsertElementRequest['element'] = {
+	assets: [],
 	dependencies: [],
 	dimensions: {width: 900, height: 260},
 	durationInFrames: 72,
@@ -88,6 +89,7 @@ const makeFixture = () => {
 	);
 	const compositionFile = path.join(remotionRoot, 'Root.tsx');
 	const elementFile = path.join(remotionRoot, 'lower-third.element.tsx');
+	const publicDir = path.join(remotionRoot, 'custom-public');
 	writeFileSync(compositionFile, compositionSource);
 	const events: EventSourceEvent[] = [];
 	const contentsAtMutation: string[] = [];
@@ -132,7 +134,7 @@ const makeFixture = () => {
 				cancelJob: () => undefined,
 				removeJob: () => undefined,
 			},
-			publicDir: remotionRoot,
+			publicDir,
 			remotionRoot,
 			request: {} as never,
 			response: {} as never,
@@ -164,11 +166,12 @@ const makeFixture = () => {
 	} as const;
 	const prepareInstall = (
 		destination: PrepareElementInstallRequest['destination'],
+		elementToPrepare: InsertElementRequest['element'] = element,
 	) => {
 		const input: PrepareElementInstallRequest = {
 			installationName: null,
 			destination,
-			element,
+			element: elementToPrepare,
 		};
 
 		return prepareElementInstallHandler({
@@ -184,7 +187,7 @@ const makeFixture = () => {
 				cancelJob: () => undefined,
 				removeJob: () => undefined,
 			},
-			publicDir: remotionRoot,
+			publicDir,
 			remotionRoot,
 			request: {} as never,
 			response: {} as never,
@@ -211,6 +214,7 @@ const makeFixture = () => {
 		elementFile,
 		events,
 		outsideRoot,
+		publicDir,
 		watcherSkipSequencePropsUpdates,
 	};
 };
@@ -233,6 +237,90 @@ test('plans an Element installation without changing the project', async () => {
 			compositionSource,
 		);
 	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('installs Element assets in a custom public directory and retains them on undo', async () => {
+	const fixture = makeFixture();
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = Object.assign(
+		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
+		{preconnect: originalFetch.preconnect},
+	);
+	try {
+		const assetElement = {
+			...element,
+			assets: [
+				{path: 'elements/embedded.bin', type: 'base64' as const, data: 'AAEC'},
+				{
+					path: 'elements/remote.bin',
+					type: 'url' as const,
+					url: 'https://93.184.216.35/remote.bin',
+				},
+			],
+		};
+		const preflight = await fixture.prepareInstall(
+			fixture.currentDestination,
+			assetElement,
+		);
+		expect(preflight.success).toBe(true);
+		expect(existsSync(fixture.publicDir)).toBe(false);
+
+		const response = await fixture.callHandlerWithInput({
+			installationName: null,
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: assetElement,
+			expectedFileState: null,
+			from: null,
+			overwriteExisting: false,
+			position: null,
+			undoRedoNavigation: null,
+			newComposition: null,
+		});
+		expect(response.success).toBe(true);
+		expect(
+			readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+		).toEqual(Buffer.from([0, 1, 2]));
+		expect(
+			readFileSync(path.join(fixture.publicDir, 'elements/remote.bin')),
+		).toEqual(Buffer.from([3, 4, 5]));
+
+		expect(popUndo().success).toBe(true);
+		expect(existsSync(fixture.elementFile)).toBe(false);
+		expect(
+			readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+		).toEqual(Buffer.from([0, 1, 2]));
+		expect(popRedo().success).toBe(true);
+		expect(existsSync(fixture.elementFile)).toBe(true);
+
+		const conflict = await fixture.callHandlerWithInput({
+			installationName: 'second',
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: {
+				...assetElement,
+				assets: [{path: 'elements/embedded.bin', type: 'base64', data: 'CQgH'}],
+			},
+			expectedFileState: null,
+			from: null,
+			overwriteExisting: false,
+			position: null,
+			undoRedoNavigation: null,
+			newComposition: null,
+		});
+		expect(conflict).toMatchObject({
+			success: false,
+			type: 'error',
+			reason:
+				'Asset elements/embedded.bin already exists with different contents',
+		});
+		expect(
+			readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+		).toEqual(Buffer.from([0, 1, 2]));
+	} finally {
+		globalThis.fetch = originalFetch;
 		fixture.cleanup();
 	}
 });

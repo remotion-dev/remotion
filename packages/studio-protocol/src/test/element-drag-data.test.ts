@@ -4,6 +4,7 @@ import {StudioProtocolInternals, type ElementDragData} from '../index';
 type ElementInput = Omit<ElementDragData['element'], 'durationInFrames'>;
 
 const validElement = {
+	assets: [],
 	dependencies: [{name: '@remotion/google-fonts', version: null}],
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',
@@ -50,6 +51,19 @@ test('parses element drag data', () => {
 		type: 'remotion-element',
 		version: 1,
 		element: {...validElement, durationInFrames: 120},
+	});
+});
+
+test('preserves assets in version 2 drag data', () => {
+	const assets = [
+		{path: 'element/logo.bin', type: 'base64' as const, data: 'AAEC'},
+	];
+	const parsed = parseElementDragData(
+		JSON.stringify(makeElementDragData({...validElement, assets})),
+	);
+	expect(parsed).toMatchObject({
+		version: 2,
+		element: {assets},
 	});
 });
 

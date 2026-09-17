@@ -35,6 +35,7 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 		version: 1,
 		durationInFrames: 90,
 		element: {
+			assets: [],
 			dependencies: [
 				{name: '@remotion/google-fonts', version: null},
 				{name: 'lodash', version: '4.17.21'},
@@ -77,6 +78,45 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 			preview: {width: 800, height: 200, durationInFrames: 90},
 		},
 	);
+});
+
+test('validates assets and uses payload version 2', () => {
+	const payload = createElementPayload({
+		...validInput,
+		assets: [
+			{
+				path: 'my-element/logo.png',
+				type: 'url',
+				url: 'https://example.com/logo.png',
+			},
+			{path: 'my-element/data.json', type: 'base64', data: 'eyJvayI6dHJ1ZX0='},
+		],
+	});
+	expect(payload.version).toBe(2);
+	expect(parseStudioElementPayload(payload)?.element.assets).toEqual(
+		payload.element.assets,
+	);
+	expect(parseStudioElementPayload({...payload, version: 1})).toBe(null);
+
+	for (const assets of [
+		[{path: '../logo.png', type: 'base64', data: 'AA=='}],
+		[{path: 'logo.png', type: 'base64', data: 'not base64'}],
+		[{path: 'logo.png', type: 'url', url: 'file:///logo.png'}],
+		[
+			{path: 'nested', type: 'base64', data: 'AA=='},
+			{path: 'nested/logo.png', type: 'base64', data: 'AA=='},
+		],
+	] as const) {
+		expect(() => createInvalidPayload({...validInput, assets})).toThrow();
+	}
+});
+
+test('normalizes version 1 payloads without assets', () => {
+	const payload = createElementPayload(validInput);
+	const {assets: _assets, ...legacyElement} = payload.element;
+	expect(
+		parseStudioElementPayload({...payload, element: legacyElement}),
+	).toMatchObject({version: 1, element: {assets: []}});
 });
 
 test('defaults new Element payloads to wrapped installation', () => {

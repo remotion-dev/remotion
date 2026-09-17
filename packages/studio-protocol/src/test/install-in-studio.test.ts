@@ -131,6 +131,36 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 	});
 });
 
+test('requires a Studio that supports asset payloads', async () => {
+	const payload = createElementPayload({
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Asset Element',
+		durationInFrames: 30,
+		slug: 'asset-element',
+		sourceCode: 'export const AssetElement = () => null;',
+		assets: [{path: 'asset.bin', type: 'base64', data: 'AA=='}],
+	});
+	const result = await installInStudioWithDependencies(payload, {
+		...dependencies,
+		fetchFn: () =>
+			Promise.resolve(
+				jsonResponse(
+					descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 999_000,
+						projectName: 'Old Studio',
+						targetId: 'old-target',
+					}),
+				),
+			),
+	});
+	expect(result).toMatchObject({
+		success: false,
+		code: 'studio-upgrade-required',
+	});
+});
+
 test('distinguishes a compatible Studio without an installable target', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
