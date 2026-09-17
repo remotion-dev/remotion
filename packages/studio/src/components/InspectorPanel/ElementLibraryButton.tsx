@@ -48,6 +48,7 @@ const elementLibraryDropdownLabelStyle: React.CSSProperties = {
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

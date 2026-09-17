@@ -12,6 +12,7 @@ const cwd: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

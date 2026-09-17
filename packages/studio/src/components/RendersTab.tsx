@@ -13,6 +13,7 @@ const row: React.CSSProperties = {
 	alignItems: 'center',
 	flex: 1,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const badge: React.CSSProperties = {
@@ -24,6 +25,7 @@ const badge: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const RendersTab: React.FC<{
