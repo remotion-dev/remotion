@@ -299,6 +299,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
+	readonly numberOfHiddenDuplicates: number;
 }> = ({
 	afterDropLineOffset,
 	connectedCompositions,
@@ -308,6 +309,7 @@ const TimelineSequenceItemInner: React.FC<{
 	keyframeDisplayOffset,
 	sequenceFrameOffset,
 	siblingIndex,
+	numberOfHiddenDuplicates,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {hovered, onPointerEnter, onPointerLeave} =
@@ -396,11 +398,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.displayName === '' && connectedCompositions.length === 1
 			? connectedCompositions[0].id
 			: displayName;
-	const numberOfHiddenDuplicates = Math.max(
-		0,
-		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) - 1,
-	);
-
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
 		() =>

@@ -31,6 +31,10 @@ const TimelineListTrack: React.FC<{
 			nodePathInfo={track.nodePathInfo}
 			keyframeDisplayOffset={track.keyframeDisplayOffset}
 			sequenceFrameOffset={track.sequenceFrameOffset}
+			numberOfHiddenDuplicates={Math.max(
+				0,
+				(track.displayGroup?.numberOfSequences ?? 1) - 1,
+			)}
 		/>
 	);
 });
@@ -39,7 +43,7 @@ export const TimelineList: React.FC = () => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
 
 	return (
-		<div style={{...container, height: tracksEnd}}>
+		<div data-timeline-list="true" style={{...container, height: tracksEnd}}>
 			{virtualItems.map((virtualItem) => (
 				<div
 					key={virtualItem.key}

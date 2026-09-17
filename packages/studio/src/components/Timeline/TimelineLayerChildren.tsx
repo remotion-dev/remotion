@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import type {TSequence} from 'remotion';
 import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
-import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -15,6 +14,7 @@ import {
 } from '../../helpers/hoverable';
 import {toggleBooleanMapKey} from '../../helpers/persist-boolean-map';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 
 // Reserve the same space before and after children register or unregister.
@@ -41,7 +41,7 @@ export const TimelineLayerChildrenProvider =
 	TimelineLayerChildrenContext.Provider;
 
 export const useTimelineLayerChildren = (
-	tracks: TimelineTrackData[],
+	tracks: TimelineTrackWithDisplayGroup[],
 	sequences: TSequence[],
 	compositionId: string | null,
 ) => {
@@ -98,17 +98,19 @@ export const useTimelineLayerChildren = (
 			}
 
 			ancestors.set(track.sequence.id, parentIds);
-			// Source identity survives remounts. For layers without source metadata,
-			// use the structural position instead of the ephemeral sequence ID.
+			// Source identity survives remounts. While it is resolving, the stack
+			// gives interactive layers a stable display identity.
 			const identity = track.nodePathInfo
 				? ['source', timelineNodePathInfoToKey(track.nodePathInfo)]
-				: [
-						'position',
-						...[...parentIds]
-							.reverse()
-							.concat(track.sequence.id)
-							.map((id) => siblingIndices.get(id)),
-					];
+				: track.displayGroup
+					? ['stack', track.displayGroup.key]
+					: [
+							'position',
+							...[...parentIds]
+								.reverse()
+								.concat(track.sequence.id)
+								.map((id) => siblingIndices.get(id)),
+						];
 			keys.set(track.sequence.id, JSON.stringify([compositionId, identity]));
 		}
 

@@ -23,7 +23,6 @@ import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled'
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
-import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
@@ -39,6 +38,10 @@ import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
 import {TimelineAssetDropFrameContext} from './timeline-asset-drop-context';
+import {
+	addTimelineDisplayGroups,
+	type TimelineTrackWithDisplayGroup,
+} from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
@@ -281,16 +284,18 @@ const TimelineInner: React.FC = () => {
 
 	const videoConfigIsNull = videoConfig === null;
 
-	const timeline = useMemo((): TimelineTrackData[] => {
+	const timeline = useMemo((): TimelineTrackWithDisplayGroup[] => {
 		if (videoConfigIsNull) {
 			return [];
 		}
 
-		return calculateTimeline({
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			compositions,
-		});
+		return addTimelineDisplayGroups(
+			calculateTimeline({
+				sequences,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				compositions,
+			}),
+		);
 	}, [
 		sequences,
 		videoConfigIsNull,
@@ -322,20 +327,17 @@ const TimelineInner: React.FC = () => {
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
-		const seenNodePaths = new Set<string>();
+		const seenDisplayGroups = new Set<string>();
 		return filtered.filter((track) => {
-			if (track.nodePathInfo === null) {
+			if (track.displayGroup === null) {
 				return true;
 			}
 
-			const key = timelineSequenceNodePathToKey(
-				track.nodePathInfo.sequenceSubscriptionKey,
-			);
-			if (seenNodePaths.has(key)) {
+			if (seenDisplayGroups.has(track.displayGroup.key)) {
 				return false;
 			}
 
-			seenNodePaths.add(key);
+			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
 	}, [filtered]);
