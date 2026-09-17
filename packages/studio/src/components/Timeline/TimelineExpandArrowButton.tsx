@@ -16,6 +16,7 @@ const arrowButton: React.CSSProperties = {
 	fontSize: 8,
 	marginRight: 4,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	outline: 'none',
 	lineHeight: 1,
 };

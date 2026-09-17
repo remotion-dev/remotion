@@ -90,6 +90,7 @@ const navButtonStyle: React.CSSProperties = {
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	width: NAV_BUTTON_SIZE,
 };
 

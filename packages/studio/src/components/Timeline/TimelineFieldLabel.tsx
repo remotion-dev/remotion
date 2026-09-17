@@ -15,6 +15,7 @@ const fieldNameBase: React.CSSProperties = {
 	lineHeight: `${TIMELINE_STACKED_FIELD_HEADER_HEIGHT}px`,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',

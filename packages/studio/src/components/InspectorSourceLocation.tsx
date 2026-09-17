@@ -26,12 +26,14 @@ const sourceLocationStyle: React.CSSProperties = {
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 	width: 'fit-content',
 };
 
 const quickActionStyle: React.CSSProperties = {
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
@@ -44,6 +46,7 @@ const sourceLocationLabelStyle: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

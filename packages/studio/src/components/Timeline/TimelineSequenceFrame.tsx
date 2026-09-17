@@ -13,6 +13,7 @@ const relativeFrameStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 	pointerEvents: 'none',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const snowflakeStyle: React.CSSProperties = {
