@@ -5,11 +5,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_06,
 } from '../../helpers/colors';
-import {
-	HOVERABLE_CLASS_NAME,
-	HOVERABLE_CURRENT_COLOR,
-	hoverableStyle,
-} from '../../helpers/hoverable';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
@@ -37,10 +33,6 @@ const compactSelectorButton: React.CSSProperties = {
 	paddingRight: 4,
 };
 
-const labelStyle: React.CSSProperties = {
-	color: HOVERABLE_CURRENT_COLOR,
-};
-
 export const VerticalTab: React.FC<{
 	readonly children: string;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -61,7 +53,7 @@ export const VerticalTab: React.FC<{
 				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
 				hoverBackground: WHITE_ALPHA_06,
 				idleColor: color,
-				hoverColor: WHITE,
+				hoverColor: color,
 			}),
 			boxShadow: 'none',
 			...style,
@@ -79,8 +71,8 @@ export const VerticalTab: React.FC<{
 			onClick={onClick}
 			tabIndex={tabIndex}
 		>
-			{renderIcon ? renderIcon(HOVERABLE_CURRENT_COLOR) : null}
-			{isCompact ? null : <span style={labelStyle}>{children}</span>}
+			{renderIcon ? renderIcon(color) : null}
+			{isCompact ? null : <span style={{color}}>{children}</span>}
 		</button>
 	);
 
