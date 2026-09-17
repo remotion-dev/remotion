@@ -13,8 +13,9 @@ export {
 export type {
 	EasingFunction,
 	ExtrapolateType,
-	InterpolateOutputOption,
 	InterpolateOptions,
+	InterpolateOutputOption,
+	InterpolateOutputType,
 } from './interpolate';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';

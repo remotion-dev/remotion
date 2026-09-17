@@ -1,4 +1,8 @@
-import type {InteractivitySchema, InteractivitySchemaField} from 'remotion';
+import type {
+	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputType,
+} from 'remotion';
 
 export const keyframeInterpolationFunctions = [
 	'interpolate',
@@ -56,6 +60,29 @@ const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 } as const satisfies Record<
 	InteractivitySchemaField['type'],
 	KeyframeInterpolationStrategy
+>;
+
+const KEYFRAME_FIELD_TYPE_OUTPUT_TYPE = {
+	array: null,
+	asset: null,
+	boolean: null,
+	'remotion-captions': null,
+	color: null,
+	enum: null,
+	'font-family': null,
+	'font-weight': 'font-weight',
+	hidden: null,
+	number: null,
+	'rotation-css': 'rotate',
+	'rotation-degrees': null,
+	scale: 'scale',
+	'text-content': null,
+	'transform-origin': 'transform-origin',
+	translate: 'translate',
+	'uv-coordinate': null,
+} as const satisfies Record<
+	InteractivitySchemaField['type'],
+	InterpolateOutputType | null
 >;
 
 const KEYFRAME_INTERPOLATION_EASING_SUPPORT = {
@@ -152,6 +179,17 @@ export const getKeyframeInterpolationFunctionForSchemaField = ({
 
 	const strategy = KEYFRAME_FIELD_TYPE_INTERPOLATION[field.type];
 	return strategy === 'infer' || strategy === 'unsupported' ? null : strategy;
+};
+
+export const getKeyframeOutputTypeForSchemaField = ({
+	schema,
+	key,
+}: {
+	schema: InteractivitySchema | null;
+	key: string;
+}): InterpolateOutputType | null => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	return field ? KEYFRAME_FIELD_TYPE_OUTPUT_TYPE[field.type] : null;
 };
 
 export const getKeyframeInterpolationFunction = ({

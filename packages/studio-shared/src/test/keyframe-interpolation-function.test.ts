@@ -4,6 +4,7 @@ import {Interactive} from 'remotion';
 import {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	getKeyframeOutputTypeForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
@@ -148,6 +149,12 @@ test('font-weight fields use interpolate keyframes', () => {
 			key: 'style.fontWeight',
 		}),
 	).toBe('interpolate');
+	expect(
+		getKeyframeOutputTypeForSchemaField({
+			schema,
+			key: 'style.fontWeight',
+		}),
+	).toBe('font-weight');
 });
 
 test('isSchemaFieldKeyframable rejects asset fields', () => {
@@ -217,4 +224,37 @@ test('transform-origin fields use interpolate keyframes', () => {
 			key: 'style.transformOrigin',
 		}),
 	).toBe('interpolate');
+	expect(
+		getKeyframeOutputTypeForSchemaField({
+			schema,
+			key: 'style.transformOrigin',
+		}),
+	).toBe('transform-origin');
+});
+
+test('CSS transform schema fields expose their interpolation output types', () => {
+	const schema = {
+		'style.scale': {
+			type: 'scale',
+			default: 1,
+		},
+		'style.translate': {
+			type: 'translate',
+			default: '0px',
+		},
+		'style.rotate': {
+			type: 'rotation-css',
+			default: '0deg',
+		},
+	} satisfies InteractivitySchema;
+
+	expect(
+		getKeyframeOutputTypeForSchemaField({schema, key: 'style.scale'}),
+	).toBe('scale');
+	expect(
+		getKeyframeOutputTypeForSchemaField({schema, key: 'style.translate'}),
+	).toBe('translate');
+	expect(
+		getKeyframeOutputTypeForSchemaField({schema, key: 'style.rotate'}),
+	).toBe('rotate');
 });
