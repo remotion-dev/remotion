@@ -1,0 +1,54 @@
+.group {
+	display: inline-flex;
+	align-self: flex-start;
+	align-items: stretch;
+	padding-top: 2px;
+	color: var(--ifm-color-emphasis-700);
+	user-select: none;
+}
+
+.button {
+	all: unset;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	background-color: var(--ifm-color-emphasis-100);
+	color: inherit;
+	cursor: pointer;
+}
+
+.button:hover {
+	background-color: var(--ifm-color-emphasis-200);
+	color: var(--ifm-color-emphasis-900);
+}
+
+.button:focus-visible {
+	position: relative;
+	z-index: 1;
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.copyButton {
+	gap: 0.375em;
+	padding: 5px 9px;
+	border-radius: 999px 0 0 999px;
+	font-size: 0.8125rem;
+	white-space: nowrap;
+}
+
+.menuButton {
+	justify-content: center;
+	padding: 5px 7px;
+	border-left: 1px solid var(--ifm-color-emphasis-200);
+	border-radius: 0 999px 999px 0;
+}
+
+.icon {
+	display: block;
+	flex: none;
+}
+
+.icon > svg {
+	display: block;
+}
