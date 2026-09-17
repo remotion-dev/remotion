@@ -116,7 +116,7 @@ export type FontWeightFieldSchema = {
 	type: 'font-weight';
 	default: number | string | undefined;
 	description?: string;
-	keyframable?: false;
+	keyframable?: boolean;
 };
 
 export type AssetFieldSchema = {
@@ -313,7 +313,6 @@ export const textSchema = {
 		type: 'font-weight',
 		default: 400,
 		description: 'Font weight',
-		keyframable: false,
 	},
 	'style.fontStyle': {
 		type: 'enum',

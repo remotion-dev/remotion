@@ -43,6 +43,7 @@ import {
 	getKeyframeDisplayOffset,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
+import {normalizeFontWeightForKeyframe} from './normalize-font-weight-for-keyframe';
 import {ensureFrameIsInViewport} from './timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
@@ -368,12 +369,21 @@ const getAddChange = (
 		return null;
 	}
 
+	const fieldSchema = target.schema[target.fieldKey];
+	const normalizedValue =
+		fieldSchema?.type === 'font-weight'
+			? normalizeFontWeightForKeyframe(value)
+			: value;
+	if (normalizedValue === null) {
+		return null;
+	}
+
 	const change = {
 		fileName: target.fileName,
 		nodePath: target.nodePath,
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
-		value,
+		value: normalizedValue,
 		schema: target.schema,
 	};
 

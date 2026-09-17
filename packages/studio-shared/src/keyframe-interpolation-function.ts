@@ -1,4 +1,4 @@
-import type {InteractivitySchemaField, InteractivitySchema} from 'remotion';
+import type {InteractivitySchema, InteractivitySchemaField} from 'remotion';
 
 export const keyframeInterpolationFunctions = [
 	'interpolate',
@@ -18,7 +18,7 @@ const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	color: true,
 	enum: true,
 	'font-family': false,
-	'font-weight': false,
+	'font-weight': true,
 	hidden: true,
 	number: true,
 	'rotation-css': true,
@@ -43,7 +43,7 @@ const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	color: 'interpolateColors',
 	enum: 'interpolate',
 	'font-family': 'unsupported',
-	'font-weight': 'unsupported',
+	'font-weight': 'interpolate',
 	hidden: 'infer',
 	number: 'infer',
 	'rotation-css': 'interpolate',
