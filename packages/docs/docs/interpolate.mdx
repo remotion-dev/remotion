@@ -179,21 +179,6 @@ const rotation = interpolate(0.5, [0, 1], ['0deg', '90deg'], {
 Supported values are `'scale'`, `'translate'`, `'rotate'`, `'transform-origin'`, and `'font-weight'`.
 If omitted, scale, translate, rotate, and transform origin values continue to be inferred.
 
-## Example: Font weights
-
-Font weight keywords require `outputType: 'font-weight'`.
-The keywords `normal` and `bold` are normalized to `400` and `700`.
-Numeric strings and numbers between `1` and `1000` are also supported.
-The result is a number.
-
-```tsx twoslash
-import {interpolate} from 'remotion';
-
-const fontWeight = interpolate(0.5, [0, 1], ['normal', 'bold'], {
-  outputType: 'font-weight',
-}); // 550
-```
-
 ## Example: Discrete string values<AvailableFrom v="4.0.509" />
 
 Use `Easing.step1` to switch between strings that cannot be blended. The previous value is held until the next keyframe.
@@ -332,7 +317,7 @@ For `[0, -1]` at progress `0.5`, the result is `-Math.sqrt(0.5)`.
 `easing` still controls time and progress.
 `output` controls the value distribution after easing.
 
-### outputType?
+### outputType?<AvailableFrom v="4.0.526" />
 
 Explicitly selects the output value syntax.
 Accepts `'font-weight'`, `'scale'`, `'translate'`, `'rotate'`, or `'transform-origin'`.
