@@ -1,7 +1,7 @@
 import {expect, test} from '@playwright/test';
 import {VERSION} from 'remotion/version';
 
-test('compiles a virtual root, plays its composition, imports a dependency and recovers from errors', async ({
+test('compiles conventional source paths, plays its composition and automatically recompiles edits', async ({
 	page,
 }) => {
 	const pageErrors: string[] = [];
@@ -49,7 +49,6 @@ test('compiles a virtual root, plays its composition, imports a dependency and r
 				'<Circle radius={40} fill="red" role="img" aria-label="Bundled circle" />',
 			)}`,
 	);
-	await page.getByRole('button', {name: 'Compile', exact: true}).click();
 	expect(new URL((await dependencyRequest).url()).searchParams.has('dev')).toBe(
 		false,
 	);
@@ -64,15 +63,20 @@ test('compiles a virtual root, plays its composition, imports a dependency and r
 	).toBeVisible();
 
 	await editor.fill("import {Broken from 'remotion';");
-	await page.getByRole('button', {name: 'Compile', exact: true}).click();
 	const compilationError = page
 		.getByRole('alert')
 		.filter({hasText: 'Rspack compilation failed'});
 	await expect(compilationError).toBeVisible();
 	await expect(compilationError).toContainText('Video.tsx');
+	await expect(
+		composition.getByRole('heading', {
+			name: 'COMPILED IN THE BROWSER',
+			exact: true,
+		}),
+	).toBeVisible();
 
+	await editor.fill(original.replace('{title}', '{title + " - intermediate"}'));
 	await editor.fill(original);
-	await page.getByRole('button', {name: 'Compile', exact: true}).click();
 	await expect(
 		composition.getByRole('heading', {
 			name: 'Compiled in the browser',

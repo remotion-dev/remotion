@@ -124,15 +124,14 @@ import {Player} from '@remotion/player';
 import {useEffect, useState} from 'react';
 
 const project: VirtualProject = {
-  rootDir: '/project',
-  entryPoint: '/project/src/index.ts',
+  entryPoint: 'src/index.ts',
   files: {
-    '/project/src/index.ts': `
+    'src/index.ts': `
       import {registerRoot} from 'remotion';
       import {Root} from './Root';
       registerRoot(Root);
     `,
-    '/project/src/Root.tsx': `
+    'src/Root.tsx': `
       import {AbsoluteFill, Composition, useCurrentFrame} from 'remotion';
 
       const Video = ({message}: {message: string}) => {
@@ -233,13 +232,13 @@ export const BrowserBundlerPreview = () => {
 
 Pass the returned `component` to [`<Player>`](/docs/player/player), not the registered root or `<Composition>` itself. Pass `props` and the resolved dimensions, frame rate, and duration alongside it. [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) merges default and input props and runs [`calculateMetadata()`](/docs/calculate-metadata) when provided.
 
-This example compiles once and disposes its worker. For editing, keep the bundler alive, submit a new complete snapshot for each compilation, then load and resolve the new bundle before updating your Player.
+This example compiles once and disposes its worker. For editing, keep the bundler alive and submit a new complete snapshot when the source changes. Load and resolve the new bundle before updating your Player. Keep the last successful preview visible while compiling, and discard results superseded by newer edits.
 
 ## Scope and limitations
 
 ### Source snapshots
 
-A [`VirtualProject`](/docs/browser-bundler/create-browser-bundler#virtualproject) contains source file paths and text. You own editing, history, saving, and restoring snapshots. The package does not provide filesystem persistence or an installation UI for npm packages.
+A [`VirtualProject`](/docs/browser-bundler/create-browser-bundler#virtualproject) contains project-relative source file paths, such as `src/index.ts` and `src/Root.tsx`, and their text. You own editing, history, saving, and restoring snapshots. The package does not provide filesystem persistence or an installation UI for npm packages.
 
 ### Dependencies
 

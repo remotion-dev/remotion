@@ -7,6 +7,10 @@ import {
 	normalizeVirtualPath,
 } from './virtual-project';
 
+export type BrowserCompilerProject = VirtualProject & {
+	rootDir: string;
+};
+
 export type BrowserCompilerResult = {
 	bundle: string | null;
 	assets: {name: string; content: string}[];
@@ -18,7 +22,7 @@ export type BrowserCompilerResult = {
 };
 
 export type BrowserCompiler = {
-	compile: (project: VirtualProject) => Promise<BrowserCompilerResult>;
+	compile: (project: BrowserCompilerProject) => Promise<BrowserCompilerResult>;
 	dispose: () => Promise<void>;
 };
 
@@ -42,7 +46,7 @@ export const createBrowserCompiler = async ({
 	configure,
 	onProgress,
 }: {
-	project: VirtualProject;
+	project: BrowserCompilerProject;
 	virtualFiles: Record<string, string>;
 	configure: (rspack: typeof RspackBrowser) => RspackBrowser.Configuration;
 	onProgress: ((progress: BrowserBundlerProgress) => void) | null;

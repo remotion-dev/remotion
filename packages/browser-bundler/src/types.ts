@@ -1,5 +1,4 @@
 export type VirtualProject = {
-	rootDir: string;
 	entryPoint: string;
 	files: Record<string, string>;
 };

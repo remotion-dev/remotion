@@ -1,4 +1,4 @@
-import type {VirtualProject as SourceProject} from '@remotion/browser-bundler';
+import type {BrowserCompilerProject as SourceProject} from '@remotion/browser-bundler/compiler';
 import type {StudioElementPayload} from '@remotion/studio-protocol';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 

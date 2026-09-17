@@ -36,14 +36,13 @@ export const Video: React.FC<{title: string; accent: string}> = ({title, accent}
 `;
 
 const project: VirtualProject = {
-	rootDir: '/browser-demo',
-	entryPoint: '/browser-demo/src/index.ts',
+	entryPoint: 'src/index.ts',
 	files: {
-		'/browser-demo/src/index.ts': `import {registerRoot} from 'remotion';
+		'src/index.ts': `import {registerRoot} from 'remotion';
 import {Root} from './Root';
 registerRoot(Root);
 `,
-		'/browser-demo/src/Root.tsx': `import React from 'react';
+		'src/Root.tsx': `import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {Video} from './Video';
 
@@ -65,8 +64,8 @@ export const Root = () => (
   </Folder>
 );
 `,
-		'/browser-demo/src/Video.tsx': initialSource,
-		'/browser-demo/src/Orb.tsx': `import React from 'react';
+		'src/Video.tsx': initialSource,
+		'src/Orb.tsx': `import React from 'react';
 import {useCurrentFrame} from 'remotion';
 
 export const Orb: React.FC<{accent: string}> = ({accent}) => {
@@ -92,15 +91,15 @@ const getCompilationErrorMessage = (error: unknown): string => {
 type CompilationState =
 	| {type: 'loading'}
 	| {type: 'error'; message: string}
-	| {
-			type: 'ready';
-			composition: BrowserComposition;
-			revision: number;
-	  };
+	| {type: 'ready'};
 
 export const BrowserBundlerExample: React.FC = () => {
 	const [source, setSource] = useState(initialSource);
 	const [state, setState] = useState<CompilationState>({type: 'loading'});
+	const [preview, setPreview] = useState<{
+		composition: BrowserComposition;
+		revision: number;
+	} | null>(null);
 	const [progress, setProgress] = useState<string | null>(null);
 	const [warnings, setWarnings] = useState<string[]>([]);
 	const bundlerRef = useRef<ReturnType<typeof createBrowserBundler> | null>(
@@ -108,6 +107,7 @@ export const BrowserBundlerExample: React.FC = () => {
 	);
 	const requestId = useRef(0);
 	const abortRef = useRef<AbortController | null>(null);
+	const compilationQueue = useRef<Promise<void>>(Promise.resolve());
 
 	const compile = useCallback(async (videoSource: string) => {
 		const bundler = bundlerRef.current;
@@ -123,43 +123,51 @@ export const BrowserBundlerExample: React.FC = () => {
 		setWarnings([]);
 		setProgress(null);
 
-		try {
-			const bundle = await bundler.bundle({
-				project: {
-					...project,
-					files: {
-						...project.files,
-						'/browser-demo/src/Video.tsx': videoSource,
+		compilationQueue.current = compilationQueue.current.then(async () => {
+			if (controller.signal.aborted || revision !== requestId.current) {
+				return;
+			}
+
+			try {
+				const bundle = await bundler.bundle({
+					project: {
+						...project,
+						files: {
+							...project.files,
+							'src/Video.tsx': videoSource,
+						},
 					},
-				},
-			});
-			if (controller.signal.aborted || revision !== requestId.current) {
-				return;
-			}
+				});
+				if (controller.signal.aborted || revision !== requestId.current) {
+					return;
+				}
 
-			setWarnings(bundle.warnings);
-			const root = loadBrowserBundle({bundle});
-			const composition = await getBrowserComposition({
-				root,
-				compositionId: 'BrowserDemo',
-				inputProps: {},
-				signal: controller.signal,
-			});
-			if (controller.signal.aborted || revision !== requestId.current) {
-				return;
-			}
+				setWarnings(bundle.warnings);
+				const root = loadBrowserBundle({bundle});
+				const composition = await getBrowserComposition({
+					root,
+					compositionId: 'BrowserDemo',
+					inputProps: {},
+					signal: controller.signal,
+				});
+				if (controller.signal.aborted || revision !== requestId.current) {
+					return;
+				}
 
-			setState({type: 'ready', composition, revision});
-		} catch (error) {
-			if (controller.signal.aborted || revision !== requestId.current) {
-				return;
-			}
+				setPreview({composition, revision});
+				setState({type: 'ready'});
+			} catch (error) {
+				if (controller.signal.aborted || revision !== requestId.current) {
+					return;
+				}
 
-			setState({
-				type: 'error',
-				message: getCompilationErrorMessage(error),
-			});
-		}
+				setState({
+					type: 'error',
+					message: getCompilationErrorMessage(error),
+				});
+			}
+		});
+		await compilationQueue.current;
 	}, []);
 
 	useEffect(() => {
@@ -221,22 +229,21 @@ export const BrowserBundlerExample: React.FC = () => {
 				default props, and calculated metadata in a Player.
 			</p>
 			<p>
-				Edit the source and compile again. Only run code you trust: the compiled
+				Edits recompile automatically. Only run code you trust: the compiled
 				code runs in this page, not in a sandbox.
 			</p>
-			<form
-				onSubmit={(event) => {
-					event.preventDefault();
-					void compile(source);
-				}}
-			>
+			<div>
 				<label htmlFor="browser-video-source">
 					<strong>Video.tsx source</strong>
 				</label>
 				<textarea
 					id="browser-video-source"
 					value={source}
-					onChange={(event) => setSource(event.target.value)}
+					onChange={(event) => {
+						const nextSource = event.target.value;
+						setSource(nextSource);
+						void compile(nextSource);
+					}}
 					rows={17}
 					spellCheck={false}
 					style={{
@@ -250,8 +257,7 @@ export const BrowserBundlerExample: React.FC = () => {
 						width: '100%',
 					}}
 				/>
-				<button type="submit">Compile</button>
-			</form>
+			</div>
 			<p role="status" aria-live="polite">
 				{state.type === 'loading'
 					? (progress ?? 'Compiling the virtual project...')
@@ -276,21 +282,21 @@ export const BrowserBundlerExample: React.FC = () => {
 					{state.message}
 				</pre>
 			) : null}
-			{state.type === 'ready' ? (
+			{preview ? (
 				<section aria-label="Compiled composition">
 					<p>
-						{state.composition.width} x {state.composition.height} /{' '}
-						{state.composition.fps} fps / {state.composition.durationInFrames}{' '}
-						frames
+						{preview.composition.width} x {preview.composition.height} /{' '}
+						{preview.composition.fps} fps /{' '}
+						{preview.composition.durationInFrames} frames
 					</p>
 					<Player
-						key={state.revision}
-						component={state.composition.component}
-						inputProps={state.composition.props}
-						compositionWidth={state.composition.width}
-						compositionHeight={state.composition.height}
-						fps={state.composition.fps}
-						durationInFrames={state.composition.durationInFrames}
+						key={preview.revision}
+						component={preview.composition.component}
+						inputProps={preview.composition.props}
+						compositionWidth={preview.composition.width}
+						compositionHeight={preview.composition.height}
+						fps={preview.composition.fps}
+						durationInFrames={preview.composition.durationInFrames}
 						controls
 						loop
 						acknowledgeRemotionLicense

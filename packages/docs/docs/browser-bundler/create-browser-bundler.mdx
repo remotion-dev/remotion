@@ -119,21 +119,17 @@ Pending `bundle()` calls reject, and further calls to `bundle()` on this instanc
 
 An object describing source files in memory. Import the `VirtualProject` type from `@remotion/browser-bundler`.
 
-### rootDir
-
-The virtual project's root directory, for example `'/project'`. Use forward-slash paths.
-
 ### entryPoint
 
-The virtual entry file, for example `'/project/src/index.ts'`. It must be included in `files`.
+The project-relative entry file, for example `'src/index.ts'`. It must be included in `files`.
 
 Use an ordinary Remotion entry point that calls [`registerRoot()`](/docs/register-root) if you will execute the result with [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle).
 
-Keep `rootDir` and `entryPoint` unchanged across source edits to reuse the compiler. Changing either starts a new compiler for the new project.
+Keep `entryPoint` unchanged across source edits to reuse the compiler. Changing it starts a new compiler for the new project.
 
 ### files
 
-A `Record<string, string>` mapping virtual file paths to their source text. Use complete paths such as `'/project/src/Root.tsx'`, not paths relative to `rootDir`.
+A `Record<string, string>` mapping project-relative file paths to their source text, for example `'src/Root.tsx'`. Use forward slashes and a conventional Remotion directory structure; no enclosing directory prefix is needed.
 
 This is a source snapshot, not a persistent filesystem. Do not include binary media or expect files under `public/` to be served as assets.
 

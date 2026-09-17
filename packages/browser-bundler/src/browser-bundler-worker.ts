@@ -1,6 +1,7 @@
 import {
 	createBrowserCompiler,
 	type BrowserCompiler,
+	type BrowserCompilerProject,
 } from './create-browser-compiler';
 import {createBrowserDependencyPlugin} from './dependency-resolution';
 import {BrowserBundlerError, serializeCompilerError} from './errors';
@@ -8,7 +9,6 @@ import {makeBrowserHttpClient} from './http-client';
 import type {
 	BrowserBundlerWorkerRequest,
 	BrowserBundlerWorkerResponse,
-	VirtualProject,
 } from './types';
 import {normalizeVirtualPath} from './virtual-project';
 
@@ -26,7 +26,7 @@ const sharedModules = [
 ];
 
 let compiler: BrowserCompiler | null = null;
-let previousProject: VirtualProject | null = null;
+let previousProject: BrowserCompilerProject | null = null;
 let queue: Promise<void> = Promise.resolve();
 
 const postResponse = (response: BrowserBundlerWorkerResponse) => {
@@ -39,7 +39,10 @@ self.addEventListener(
 		const request = event.data;
 		queue = queue.then(async () => {
 			try {
-				const {project} = request;
+				const project: BrowserCompilerProject = {
+					...request.project,
+					rootDir: '/',
+				};
 				if (
 					compiler &&
 					(previousProject?.rootDir !== project.rootDir ||
