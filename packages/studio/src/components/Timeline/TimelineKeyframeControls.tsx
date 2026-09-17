@@ -23,6 +23,7 @@ import {
 	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {
 	callAddKeyframes,
 	type AddEffectKeyframeChange,
@@ -541,6 +542,7 @@ export const TimelineKeyframeControls: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const tracks = useTimelineKeyframeTracks();
 
@@ -791,6 +793,10 @@ export const TimelineKeyframeControls: React.FC<{
 				setPropStatuses,
 				clientId,
 			});
+			for (const {target} of addChanges) {
+				expandParentTracks(target.nodePathInfo);
+			}
+
 			if (mode === 'timeline') {
 				selectItems(
 					addChanges.map(({target}) => ({
@@ -805,6 +811,7 @@ export const TimelineKeyframeControls: React.FC<{
 		[
 			canToggleKeyframe,
 			clientId,
+			expandParentTracks,
 			hasKeyframeAtCurrentFrame,
 			keyframeToggleTargets,
 			mode,
