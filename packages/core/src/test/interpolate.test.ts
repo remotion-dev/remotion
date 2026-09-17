@@ -98,6 +98,11 @@ test('Can interpolate font weights with an explicit output type', () => {
 			outputType: 'font-weight',
 		}),
 	).toBe(500);
+	expect(
+		interpolate(0.5, [0, 1], ['NORMAL', 'BOLD'], {
+			outputType: 'font-weight',
+		}),
+	).toBe(550);
 });
 
 test('Font weight keywords require an explicit output type', () => {
@@ -122,6 +127,15 @@ test('Font weights must be absolute values in the CSS range', () => {
 			}),
 		/Expected "normal", "bold", or a number between 1 and 1000/,
 	);
+	for (const invalidWeight of ['1e3', '0x10', ' 100 ']) {
+		expectToThrow(
+			() =>
+				interpolate(0.5, [0, 1], [invalidWeight, 'bold'], {
+					outputType: 'font-weight',
+				}),
+			/Expected "normal", "bold", or a number between 1 and 1000/,
+		);
+	}
 });
 
 test('Explicit string output types validate the output range', () => {
@@ -143,6 +157,20 @@ test('Explicit string output types validate the output range', () => {
 	expectToThrow(
 		() => interpolate(0.5, [0, 1], [0, 90], {outputType: 'rotate'}),
 		/rotate outputRange must contain strings with the appropriate CSS units/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['left top', 'right bottom'], {
+				outputType: 'rotate',
+			}),
+		/as rotate because it is a transform-origin value/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['left top', 'right bottom'], {
+				outputType: 'translate',
+			}),
+		/as translate because it is a transform-origin value/,
 	);
 });
 
