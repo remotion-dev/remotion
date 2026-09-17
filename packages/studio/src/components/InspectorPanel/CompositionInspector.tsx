@@ -17,6 +17,7 @@ import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled'
 import {CloudDownloadIcon} from '../../icons/cloud-download';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
+import {SparklesIcon} from '../../icons/sparkles';
 import {FilmIcon} from '../../icons/video';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -94,6 +95,8 @@ const CompositionActions: React.FC = () => {
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		generateWithAgent,
+		canShowGenerateWithAgent,
 	} = useCompositionActions();
 	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
 	const confirm = useConfirmationDialog();
@@ -153,6 +156,7 @@ const CompositionActions: React.FC = () => {
 		!canShowInsertAsset &&
 		!canShowInsertComposition &&
 		!canShowInsertSolid &&
+		!canShowGenerateWithAgent &&
 		downloadProject === null
 	) {
 		return null;
@@ -196,6 +200,17 @@ const CompositionActions: React.FC = () => {
 						)}
 					>
 						Add composition...
+					</InspectorQuickAction>
+				) : null}
+				{canShowGenerateWithAgent ? (
+					<InspectorQuickAction
+						disabled={false}
+						onClick={generateWithAgent}
+						renderIcon={(color) => (
+							<SparklesIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Generate with agent...
 					</InspectorQuickAction>
 				) : null}
 				{canShowInsertAsset ? <ElementLibraryButton /> : null}

@@ -77,6 +77,10 @@ export const useCompositionActions = () => {
 	const canInsertAsset = canShowInsertAsset && !isAddingAsset;
 	const canShowInsertComposition = canShowInsertAsset;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
+	const canShowGenerateWithAgent =
+		previewInteractive &&
+		!window.remotion_isReadOnlyStudio &&
+		currentCompositionId !== null;
 
 	const insertSolid = useCallback(async () => {
 		if (
@@ -283,6 +287,17 @@ export const useCompositionActions = () => {
 		setSelectedModal,
 	]);
 
+	const generateWithAgent = useCallback(() => {
+		if (currentCompositionId === null) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'generate-with-agent',
+			location: compositionComponentInfo?.location ?? null,
+		});
+	}, [compositionComponentInfo, currentCompositionId, setSelectedModal]);
+
 	return {
 		canInsertAsset,
 		canInsertComposition,
@@ -290,8 +305,10 @@ export const useCompositionActions = () => {
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowGenerateWithAgent,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		generateWithAgent,
 	};
 };

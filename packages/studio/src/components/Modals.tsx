@@ -14,6 +14,7 @@ import {
 } from './ElementInstallConfirmation';
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
+import {GenerateWithAgentModal} from './GenerateWithAgentModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -268,6 +269,9 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}
+			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
+				<GenerateWithAgentModal state={modalContextType} />
+			) : null}
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
 					readOnlyStudio={readOnlyStudio}
