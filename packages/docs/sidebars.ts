@@ -828,7 +828,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
-				'studio-protocol/build-open-in-remotion-dot-new-url',
+				'studio-protocol/build-open-in-remotio-new-url',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
 				'studio-protocol/add-element-library-to-studio',

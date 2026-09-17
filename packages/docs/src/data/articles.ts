@@ -7094,13 +7094,13 @@ export const articles = [
 		slug: 'studio-protocol/add-element-library-to-studio',
 	},
 	{
-		id: 'studio-protocol/build-open-in-remotion-dot-new-url',
-		title: 'buildOpenInRemotionDotNewUrl()',
-		relativePath: 'docs/studio-protocol/build-open-in-remotion-dot-new-url.mdx',
-		compId: 'articles-docs-studio-protocol-build-open-in-remotion-dot-new-url',
+		id: 'studio-protocol/build-open-in-remotio-new-url',
+		title: 'buildOpenInRemotioNewUrl()',
+		relativePath: 'docs/studio-protocol/build-open-in-remotio-new-url.mdx',
+		compId: 'articles-docs-studio-protocol-build-open-in-remotio-new-url',
 		crumb: '@remotion/studio-protocol',
 		noAi: false,
-		slug: 'studio-protocol/build-open-in-remotion-dot-new-url',
+		slug: 'studio-protocol/build-open-in-remotio-new-url',
 	},
 	{
 		id: 'studio-protocol/component-library-integration',
