@@ -20,6 +20,10 @@ Use the established Studio interaction convention for clickable controls:
   interactions with the shared CSS hover helpers. Event-driven hover state is
   only tenable when behavior, rather than styling, genuinely depends on pointer
   presence.
+- Do not rely on `color` inheritance for nested labels or SVG paint elements:
+  the Studio CSS reset assigns styles to every descendant. Use
+  `HOVERABLE_CURRENT_COLOR` as an explicit label color and pass it to icon color
+  props so all painted elements follow the CSS hover state.
 - Keep the background unchanged unless the surrounding component already uses
   a shared background-hover convention. For a text-only action, use
   `TRANSPARENT` for both `idleBackground` and `hoverBackground`.

@@ -5,7 +5,11 @@ import {
 	WHITE,
 	WHITE_ALPHA_06,
 } from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	HOVERABLE_CLASS_NAME,
+	HOVERABLE_CURRENT_COLOR,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
@@ -31,6 +35,10 @@ const compactSelectorButton: React.CSSProperties = {
 	width: 42,
 	paddingLeft: 12,
 	paddingRight: 4,
+};
+
+const labelStyle: React.CSSProperties = {
+	color: HOVERABLE_CURRENT_COLOR,
 };
 
 export const VerticalTab: React.FC<{
@@ -71,8 +79,8 @@ export const VerticalTab: React.FC<{
 			onClick={onClick}
 			tabIndex={tabIndex}
 		>
-			{renderIcon ? renderIcon(color) : null}
-			{isCompact ? null : children}
+			{renderIcon ? renderIcon(HOVERABLE_CURRENT_COLOR) : null}
+			{isCompact ? null : <span style={labelStyle}>{children}</span>}
 		</button>
 	);
 
