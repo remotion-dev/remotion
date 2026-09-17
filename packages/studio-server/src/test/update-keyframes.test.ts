@@ -269,6 +269,13 @@ const rotateSchema = {
 	},
 } satisfies InteractivitySchema;
 
+const fontWeightSchema = {
+	'style.fontWeight': {
+		type: 'font-weight',
+		default: 400,
+	},
+} satisfies InteractivitySchema;
+
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -1264,6 +1271,7 @@ test('updateSequenceKeyframes converts static translate to interpolate', async (
 	);
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("outputType: 'translate'");
 	expect(output).toContain('interpolate');
 });
 
@@ -1371,7 +1379,33 @@ test('updateSequenceKeyframes converts static rotate to interpolate', async () =
 	expect(output).toContain("rotate: interpolate(frame, [55], ['19deg'], {");
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("outputType: 'rotate'");
 	expect(output).toContain('interpolate');
+});
+
+test('updateSequenceKeyframes sets the font weight output type', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <AbsoluteFill style={{fontWeight: 400}} />;
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'fontWeight')),
+		schema: fontWeightSchema,
+		updates: [
+			{
+				key: 'style.fontWeight',
+				operation: {type: 'add', frame: 55, value: 700},
+			},
+		],
+	});
+
+	expect(output).toContain('fontWeight: interpolate(frame, [55], [700], {');
+	expect(output).toContain("outputType: 'font-weight'");
 });
 
 test('updateSequenceKeyframes migrates rotate away from interpolateColors', async () => {

@@ -305,10 +305,11 @@ export {
 export {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
-	isSchemaFieldHoldOnly,
 	getKeyframeInterpolationFunctionForSchemaField,
+	getKeyframeOutputTypeForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
