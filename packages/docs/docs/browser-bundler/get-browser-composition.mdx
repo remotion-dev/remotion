@@ -4,7 +4,7 @@ title: getBrowserComposition()
 crumb: '@remotion/browser-bundler'
 ---
 
-# getBrowserComposition()<AvailableFrom v="4.0.526" />
+# getBrowserComposition()<AvailableFrom v="4.0.527" />
 
 Selects a registered composition by ID and resolves its video configuration and props. Import it from `@remotion/browser-bundler/runtime`.
 
@@ -103,7 +103,7 @@ The result extends `VideoConfig` from `remotion` with a `component` field. It in
 
 ### component
 
-The selected composition's video component, compatible with [`<Player>`](/docs/player/player). Compositions registered with either `component` or [`lazyComponent`](/docs/composition#lazycomponent) are supported.
+The selected composition's video component, compatible with [`<Player>`](/docs/player/player). Compositions registered with either `component` or [`lazyComponent`](/docs/composition#component-or-lazycomponent) are supported.
 
 Pass this value to the Player's `component` prop, not the registered root or `<Composition>` itself.
 
