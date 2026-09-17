@@ -475,7 +475,7 @@ export const CloseUp8Preview = () => {
 export const CloseUp8 = () => {
 	return (
 		<Composition
-			id="CloseUp8"
+			id="HoverOverOutlines"
 			component={CloseUp8Preview}
 			width={1920}
 			height={1080}
