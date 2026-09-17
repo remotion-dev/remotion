@@ -61,7 +61,12 @@
 		"react": "catalog:",
 		"react-dom": "catalog:"
 	},
-	"keywords": ["remotion", "browser", "bundler", "rspack"],
+	"keywords": [
+		"remotion",
+		"browser",
+		"bundler",
+		"rspack"
+	],
 	"publishConfig": {
 		"access": "public"
 	},

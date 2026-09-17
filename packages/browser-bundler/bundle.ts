@@ -17,11 +17,7 @@ const define = {
 };
 
 const output = await build({
-	entrypoints: [
-		'src/index.ts',
-		'src/runtime.ts',
-		'src/compiler.ts',
-	],
+	entrypoints: ['src/index.ts', 'src/runtime.ts', 'src/compiler.ts'],
 	naming: '[name].js',
 	outdir: 'dist',
 	target: 'browser',
@@ -57,12 +53,17 @@ if (!workerOutput.success) {
 	throw new Error(workerOutput.logs.join('\n'));
 }
 
-const rspackDir = path.dirname(fileURLToPath(import.meta.resolve('@rspack/browser')));
+const rspackDir = path.dirname(
+	fileURLToPath(import.meta.resolve('@rspack/browser')),
+);
 for (const asset of [
 	'rspack.wasm32-wasi.wasm',
 	'wasi-worker-browser.mjs',
 	'wasi-worker-browser.mjs.LICENSE.txt',
 	'index.js.LICENSE.txt',
 ]) {
-	await Bun.write(path.join('dist', asset), Bun.file(path.join(rspackDir, asset)));
+	await Bun.write(
+		path.join('dist', asset),
+		Bun.file(path.join(rspackDir, asset)),
+	);
 }
