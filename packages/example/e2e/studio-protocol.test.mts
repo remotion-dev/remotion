@@ -53,6 +53,12 @@ test('installs an Element from a website into a clean Studio project', async ({
 	const temporaryProject = fs.mkdtempSync(
 		path.join(os.tmpdir(), 'remotion-studio-protocol-'),
 	);
+	const installedAsset = path.join(
+		temporaryProject,
+		'public',
+		'protocol-element',
+		'data.bin',
+	);
 	fs.cpSync(path.join(packagesDirectory, 'template-blank'), temporaryProject, {
 		recursive: true,
 	});
@@ -192,6 +198,11 @@ const CloseupPlaceholder = () => {
 					dependencies: [],
 					dimensions: {width: 640, height: 120},
 					durationInFrames: 30,
+					assets: [{
+						path: 'protocol-element/data.bin',
+						type: 'base64',
+						data: 'AAEC',
+					}],
 				});
 				const dragHandle = document.createElement('div');
 				dragHandle.id = 'drag-element';
@@ -379,6 +390,26 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
+		await expect(
+			dialog.getByText('Included assets', {exact: true}),
+		).toBeVisible();
+		await expect(
+			dialog.getByText('protocol-element/data.bin', {exact: true}),
+		).toBeVisible();
+		await expect(
+			dialog.getByText('Embedded asset', {exact: true}),
+		).toBeVisible();
+		await dialog.getByRole('button', {name: 'Cancel'}).click();
+		expect(fs.existsSync(installedAsset)).toBe(false);
+		await browseElements.click();
+		await expect(externalLibraryItem).toBeVisible();
+		await externalLibraryItem.click();
+		await expect(elementsIframe).toBeVisible();
+		await installInStudio.click();
+		await expect(dialog).toBeVisible();
+		await expect(
+			dialog.getByText('protocol-element/data.bin', {exact: true}),
+		).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
 			name: 'Current composition',
 		});
@@ -449,6 +480,7 @@ const CloseupPlaceholder = () => {
 		);
 		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 		expect(compositionSource).toMatch(
 			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s*\/>\s*<\/Sequence>/,
 		);
@@ -802,6 +834,7 @@ const CloseupPlaceholder = () => {
 		expect(
 			fs.readFileSync(path.join(closeupDirectory, 'Closeup.tsx'), 'utf8'),
 		).not.toContain('id="ProtocolElementScene"');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.getByRole('button', {name: /^Redo/}).click();
 		await expect(studioPage).toHaveURL(`${studioUrl}/ProtocolElementScene`, {
@@ -819,6 +852,7 @@ const CloseupPlaceholder = () => {
 		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
 			'export const ProtocolElement',
 		);
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.bringToFront();
 		await studioPage.keyboard.press('Escape');

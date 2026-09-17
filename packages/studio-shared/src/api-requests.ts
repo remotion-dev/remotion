@@ -89,6 +89,10 @@ export type ElementDependency =
 	  };
 
 export type InstallableElement = {
+	assets: Array<
+		| {path: string; type: 'url'; url: string}
+		| {path: string; type: 'base64'; data: string}
+	>;
 	dependencies: ElementDependency[];
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;

@@ -2,10 +2,10 @@ import {
 	addEffect as addEffectCodemod,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
-	deleteJsxNodes,
 	deleteEffects as deleteEffectsCodemod,
-	duplicateEffects as duplicateEffectsCodemod,
+	deleteJsxNodes,
 	duplicateCompositionInSource,
+	duplicateEffects as duplicateEffectsCodemod,
 	duplicateJsxNodes as duplicateJsxNodesCodemod,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
@@ -27,8 +27,8 @@ import {
 	splitJsxSequence as splitJsxSequenceCodemod,
 	splitVideoFromAudio as splitVideoFromAudioCodemod,
 	updateDefaultProps as updateDefaultPropsCodemod,
-	updateEffectProps as updateEffectPropsCodemod,
 	updateEffectKeyframes,
+	updateEffectProps as updateEffectPropsCodemod,
 	updateSequenceKeyframes,
 	type EffectKeyframeUpdate,
 	type SequenceKeyframeUpdate,
@@ -64,9 +64,13 @@ import type {
 } from 'remotion';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
-import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
+import {
+	downloadRemoteAssetInBrowserStudio,
+	fetchRemoteAssetBytesInBrowserStudio,
+} from './download-remote-asset';
+import {getBrowserStudioStoredPublicFile} from './opfs-public-files';
 import {saveSequencePropsInProject} from './save-sequence-props';
-import type {VirtualProject} from './types';
+import type {VirtualProject, VirtualProjectPublicFile} from './types';
 
 /*
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
@@ -2011,6 +2015,7 @@ export const createBrowserStudioOperations = ({
 			),
 		insertElement: async (request) => {
 			try {
+				StudioProtocolInternals.assertElementAssets(request.element.assets);
 				const installationMode = request.element.installationMode ?? 'wrapped';
 				const componentOwnsSequence =
 					installationMode === 'component-owned-sequence';
@@ -2126,6 +2131,67 @@ export const createBrowserStudioOperations = ({
 					};
 				}
 
+				let totalAssetBytes = 0;
+				const newAssetFiles: Record<string, VirtualProjectPublicFile> = {};
+				for (const asset of request.element.assets) {
+					const contents =
+						asset.type === 'base64'
+							? StudioProtocolInternals.decodeElementAssetData(asset.data)
+							: await fetchRemoteAssetBytesInBrowserStudio({
+									acceptHeader: null,
+									maxSize:
+										StudioProtocolInternals.maxElementAssetBytes -
+										totalAssetBytes,
+									url: new URL(asset.url),
+								});
+					totalAssetBytes += contents.byteLength;
+					const matches = Object.entries(
+						originalProject.publicFiles ?? {},
+					).filter(([filePath]) => filePath.replace(/^\/+/, '') === asset.path);
+					if (matches.length > 1) {
+						throw new Error(`Multiple public files resolve to ${asset.path}`);
+					}
+
+					const existing = matches[0]?.[1];
+					if (existing === undefined) {
+						newAssetFiles[asset.path] = contents;
+						continue;
+					}
+
+					const storage = originalProject.publicFileStorage;
+					if (
+						typeof existing !== 'string' &&
+						!(existing instanceof Uint8Array) &&
+						storage === undefined
+					) {
+						throw new Error(
+							`Stored public file ${asset.path} has no project storage`,
+						);
+					}
+
+					const existingBlob =
+						typeof existing === 'string' || existing instanceof Uint8Array
+							? new Blob([
+									typeof existing === 'string'
+										? existing
+										: existing.slice().buffer,
+								])
+							: await getBrowserStudioStoredPublicFile({
+									file: existing,
+									storage: storage!,
+								});
+					if (
+						existingBlob.size !== contents.byteLength ||
+						!new Uint8Array(await existingBlob.arrayBuffer()).every(
+							(byte, index) => byte === contents[index],
+						)
+					) {
+						throw new Error(
+							`Asset ${asset.path} already exists with different contents`,
+						);
+					}
+				}
+
 				const installedDependencies = await resolveElementDependencies(
 					request.element.dependencies,
 				);
@@ -2181,7 +2247,13 @@ export const createBrowserStudioOperations = ({
 				};
 				const nextProject = addDependenciesToProject({
 					dependencies: installedDependencies,
-					project: projectWithElement,
+					project: {
+						...projectWithElement,
+						publicFiles: {
+							...(projectWithElement.publicFiles ?? {}),
+							...newAssetFiles,
+						},
+					},
 				});
 				if (getProject() !== originalProject) {
 					throw new Error(
@@ -2189,18 +2261,21 @@ export const createBrowserStudioOperations = ({
 					);
 				}
 
-				const nodePathMutation = controller.applyMutation({
-					undoRedoNavigation: request.undoRedoNavigation,
-					timelineSelection: null,
-					fileName: insertion.filePath,
-					mutate: () => nextProject,
-					nodePathMutationFiles: [
-						{
-							absolutePath: insertion.filePath,
-							remappings: insertion.nodePathRemappings,
-						},
-					],
-				});
+				const nodePathMutation = controller.applyMutationRetainingPublicFiles(
+					{
+						undoRedoNavigation: request.undoRedoNavigation,
+						timelineSelection: null,
+						fileName: insertion.filePath,
+						mutate: () => nextProject,
+						nodePathMutationFiles: [
+							{
+								absolutePath: insertion.filePath,
+								remappings: insertion.nodePathRemappings,
+							},
+						],
+					},
+					newAssetFiles,
+				);
 				if (nodePathMutation === null) {
 					throw new Error('Could not insert Element');
 				}
@@ -2221,6 +2296,7 @@ export const createBrowserStudioOperations = ({
 		packageInstallation,
 		prepareElementInstall: async (request) => {
 			try {
+				StudioProtocolInternals.assertElementAssets(request.element.assets);
 				const plan = await getElementInstallPlanForProject({
 					...request,
 					project: getProject(),

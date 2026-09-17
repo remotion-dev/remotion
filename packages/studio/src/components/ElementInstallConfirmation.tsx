@@ -1061,6 +1061,27 @@ export const ElementInstallConfirmation: React.FC<{
 						) : null}
 					</section>
 
+					{request.element.assets.length > 0 ? (
+						<section
+							style={requestSourceStyle}
+							aria-labelledby="element-install-assets"
+						>
+							<h3 id="element-install-assets" style={sectionTitleStyle}>
+								Included assets
+							</h3>
+							<ul style={dependencyListStyle} role="list">
+								{request.element.assets.map((asset) => (
+									<li key={asset.path}>
+										<code style={codeStyle}>{asset.path}</code>
+										<div style={dependencyNameStyle}>
+											{asset.type === 'url' ? asset.url : 'Embedded asset'}
+										</div>
+									</li>
+								))}
+							</ul>
+						</section>
+					) : null}
+
 					{missingPackages.length > 0 ? (
 						<section
 							style={requestSourceStyle}

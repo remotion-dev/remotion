@@ -1,3 +1,4 @@
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
@@ -12,6 +13,7 @@ export const prepareElementInstallHandler: ApiHandler<
 > = ({entryPoint, input, remotionRoot}) =>
 	withSourceFileWriteQueue(async () => {
 		try {
+			StudioProtocolInternals.assertElementAssets(input.element.assets);
 			const plan = await getElementInstallPlan({
 				...input,
 				entryPoint,
