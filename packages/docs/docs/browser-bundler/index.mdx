@@ -57,6 +57,8 @@ The initial Next.js integration uses webpack for development and production buil
 }
 ```
 
+For TypeScript projects, use `"moduleResolution": "bundler"` in `tsconfig.json` so imports from `@remotion/browser-bundler/runtime` resolve through the package's exports.
+
 Merge these headers and webpack rules into your configuration. This example uses `/browser-bundler` as the page route; replace it with your route.
 
 ```js title="next.config.mjs"
