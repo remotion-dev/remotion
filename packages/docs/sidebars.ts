@@ -828,6 +828,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
+				'studio-protocol/build-open-in-remotion-new-url',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
 				'studio-protocol/add-element-library-to-studio',
@@ -1156,7 +1157,6 @@ const sidebars: SidebarsConfig = {
 				'html-in-canvas',
 				'shaders',
 				'effects',
-				'color-correction',
 				'measuring',
 				'using-randomness',
 				'animation-math',
@@ -1177,6 +1177,7 @@ const sidebars: SidebarsConfig = {
 				'videos/sequence',
 				'videos/transparency',
 				'videos/video-manipulation',
+				'color-correction',
 				'greenscreen',
 				'videos/accelerated-video',
 				'videos/jumpcuts',
@@ -1419,6 +1420,7 @@ const sidebars: SidebarsConfig = {
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
+				'studio/remotion-dev-new',
 			],
 		},
 		{

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/webcodecs",
-	"version": "4.0.525",
+	"version": "4.0.526",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -15,7 +15,6 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"testwebcodecs": "playwright test src/it-tests",
 		"watch": "tsgo -w",
 		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},

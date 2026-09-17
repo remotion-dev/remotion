@@ -594,7 +594,7 @@ export const CloseUp1Preview = () => {
 export const CloseUp1 = () => {
 	return (
 		<Composition
-			id="CloseUp1"
+			id="TrimClip"
 			component={CloseUp1Preview}
 			width={1920}
 			height={1080}

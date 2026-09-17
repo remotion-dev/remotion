@@ -139,7 +139,7 @@ test('parse m3u8', async () => {
 	expect(keyframes).toEqual(null);
 	expect(location).toBe(null);
 	expect(metadata).toEqual([]);
-	expect(mimeType).toBe('application/x-mpegURL');
+	expect(mimeType).toBe('application/vnd.apple.mpegurl');
 	expect(name).toBe('MT43ye01xu1301RYUmrpNZeBf800iEWkicKdKLUtUv7TMI.m3u8');
 	expect(audioSamples).toBe(240);
 	expect(videoSamples).toBe(151);

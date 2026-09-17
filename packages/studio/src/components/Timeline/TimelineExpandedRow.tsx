@@ -31,6 +31,7 @@ const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 type TimelineExpandedRowProps = {

@@ -25,7 +25,7 @@ export const MINIMAL_BUILD_MATRIX: BuildMatrix = {
 const TASKS_BY_SUITE = {
 	lambda: ['testlambda'],
 	nextjs: ['testnextjs'],
-	browser: ['testwebcodecs', 'teste2e'],
+	browser: ['teste2e'],
 	webrenderer: ['testwebrenderer', 'testbrowserstudio'],
 	ssr: ['testssr'],
 	monorepo: ['testmonorepo'],

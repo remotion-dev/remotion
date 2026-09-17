@@ -7094,6 +7094,15 @@ export const articles = [
 		slug: 'studio-protocol/add-element-library-to-studio',
 	},
 	{
+		id: 'studio-protocol/build-open-in-remotion-new-url',
+		title: 'buildOpenInRemotionNewUrl()',
+		relativePath: 'docs/studio-protocol/build-open-in-remotion-new-url.mdx',
+		compId: 'articles-docs-studio-protocol-build-open-in-remotion-new-url',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/build-open-in-remotion-new-url',
+	},
+	{
 		id: 'studio-protocol/component-library-integration',
 		title: 'Integrating a component library with Studio',
 		relativePath: 'docs/studio-protocol/component-library-integration.mdx',
@@ -7290,6 +7299,15 @@ export const articles = [
 		crumb: '@remotion/studio',
 		noAi: false,
 		slug: 'studio/reevaluate-composition',
+	},
+	{
+		id: 'studio/remotion-dev-new',
+		title: 'remotion.dev/new',
+		relativePath: 'docs/studio/remotion-dev-new.mdx',
+		compId: 'articles-docs-studio-remotion-dev-new',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/remotion-dev-new',
 	},
 	{
 		id: 'studio/restart-studio',

@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {StudioProtocolInternals} from '..';
+import {buildOpenInRemotionNewUrl, StudioProtocolInternals} from '..';
 import {createElementPayload} from '../element-payload';
 
 const payload = createElementPayload({
@@ -13,10 +13,7 @@ const payload = createElementPayload({
 });
 
 test('round-trips a payload through the default Browser Studio URL', () => {
-	const url = StudioProtocolInternals.makeBrowserStudioUrl({
-		endpoint: null,
-		payload,
-	});
+	const url = buildOpenInRemotionNewUrl({payload});
 	const parsedUrl = new URL(url);
 
 	expect(parsedUrl.origin).toBe('https://www.remotion.dev');

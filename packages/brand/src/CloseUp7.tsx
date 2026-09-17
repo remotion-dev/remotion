@@ -337,7 +337,7 @@ export const CloseUp7Preview = () => {
 export const CloseUp7 = () => {
 	return (
 		<Composition
-			id="CloseUp7"
+			id="AddEffect"
 			component={CloseUp7Preview}
 			width={1920}
 			height={1080}
