@@ -111,6 +111,7 @@ export const VideoMattingQueueItem: React.FC<{
 				selected,
 			}),
 			userSelect: 'none' as const,
+			WebkitUserSelect: 'none' as const,
 		}),
 		[done, hovered, selected],
 	);

@@ -66,6 +66,7 @@ const modeItem: React.CSSProperties = {
 	fontSize: 13,
 	cursor: 'pointer',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const modeInactive: React.CSSProperties = {

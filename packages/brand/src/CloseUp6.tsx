@@ -585,7 +585,7 @@ export const CloseUp6Preview = () => {
 export const CloseUp6 = () => {
 	return (
 		<Composition
-			id="CloseUp6"
+			id="RotationControl"
 			component={CloseUp6Preview}
 			width={1920}
 			height={1080}

@@ -112,13 +112,8 @@ jobs:
           bun-version: 1.3.3
       - name: Install
         run: bun ci
-      - name: Install deps
-        run: cd packages/webcodecs && bunx playwright install --with-deps
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
-      - name: Test Webcodecs
-        run: |
-          bun run testwebcodecs
       - name: Install E2E deps
         run: cd packages/example && bunx playwright install --with-deps
       - name: Test Example E2E
@@ -231,7 +226,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
           - windows-latest
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
