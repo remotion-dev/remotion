@@ -81,6 +81,14 @@ export const makeBrowserStudioUrl = ({
 	return url.toString();
 };
 
+export const buildOpenInRemotionNewUrl = ({
+	payload,
+}: {
+	readonly payload: StudioElementPayload;
+}) => {
+	return makeBrowserStudioUrl({endpoint: null, payload});
+};
+
 export const parseBrowserStudioHash = (
 	hash: string,
 ): StudioElementPayload | null => {
