@@ -1,6 +1,8 @@
 import {parseAst} from './sequence-props/parse-ast';
 
-export const basicCaptionsElementSource = `import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
+export const basicCaptionsElementSource = `import type {Caption} from '@remotion/captions';
+import {createTikTokStyleCaptions} from '@remotion/captions';
+import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -12,15 +14,6 @@ import {
 	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
-
-type Caption = {
-	text: string;
-	startMs: number;
-	endMs: number;
-	timestampMs: number | null;
-	confidence: number | null;
-	pageBreakAfter?: boolean;
-};
 
 type BasicCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
@@ -38,45 +31,14 @@ const BasicCaptionsContent: React.FC<{
 }> = ({captions, playbackRate, trimBefore, combineTokensWithinMilliseconds}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const pages = useMemo(() => {
-		const result: {text: string; startMs: number; durationMs: number}[] = [];
-		let text = '';
-		let startMs = 0;
-		let endMs = 0;
-		const add = () => {
-			result.push({text: text.trim(), startMs, durationMs: 0});
-		};
-
-		for (const caption of captions) {
-			if (
-				text &&
-				caption.text.startsWith(' ') &&
-				endMs - startMs > combineTokensWithinMilliseconds
-			) {
-				add();
-				text = '';
-			}
-			if (!text) {
-				startMs = caption.startMs;
-			}
-			text = (text + caption.text).trimStart();
-			endMs = caption.endMs;
-			if (caption.pageBreakAfter && text) {
-				add();
-				text = '';
-			}
-		}
-		if (text) {
-			add();
-		}
-		for (let i = 0; i < result.length; i++) {
-			result[i].durationMs =
-				i + 1 < result.length
-					? result[i + 1].startMs - result[i].startMs
-					: endMs - result[i].startMs;
-		}
-		return result;
-	}, [captions, combineTokensWithinMilliseconds]);
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
 	// The Sequence frame already includes trimBefore; only elapsed frames speed up.
 	const currentTimeMs =
 		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
@@ -109,7 +71,7 @@ const BasicCaptionsContent: React.FC<{
 				whiteSpace: 'pre-wrap',
 			}}
 		>
-			{page.text}
+			{page.text.trim()}
 		</div>
 	);
 };

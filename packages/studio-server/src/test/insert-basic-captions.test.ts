@@ -102,6 +102,9 @@ export const Comp = () => (
 				'utf-8',
 			),
 		).toBe(basicCaptionsElementSource);
+		expect(basicCaptionsElementSource).toContain(
+			"import {createTikTokStyleCaptions} from '@remotion/captions';",
+		);
 		expect(
 			readdirSync(remotionRoot).filter((file) => file.endsWith('.element.tsx')),
 		).toEqual(['basic-captions.element.tsx']);

@@ -1,4 +1,5 @@
 import {afterEach, expect, mock, test} from 'bun:test';
+import type {PackageInstallSpec} from '@remotion/studio-shared';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import {type ContextType, useContext} from 'react';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
@@ -38,6 +39,18 @@ const resamplingCalls: Array<{
 	audioStreamIndex: number | null;
 	requestInit: Omit<RequestInit, 'signal'> | null;
 }> = [];
+const packageInstallCalls: (readonly PackageInstallSpec[])[] = [];
+
+mock.module('../api/install-package', () => ({
+	installPackages: (dependencies: readonly PackageInstallSpec[]) => {
+		packageInstallCalls.push(dependencies);
+		return Promise.resolve({});
+	},
+}));
+
+mock.module('../components/Notifications/NotificationCenter', () => ({
+	showNotification: () => undefined,
+}));
 
 const resampledWaveform = new Float32Array(32_000).fill(0.25);
 
@@ -166,6 +179,7 @@ afterEach(async () => {
 test('downloads a model in the queued job before transcribing', async () => {
 	disposalCalls = 0;
 	resamplingCalls.length = 0;
+	packageInstallCalls.length = 0;
 	modelLoadCall = undefined;
 	modelLoadProgressCallback = undefined;
 	transcriptionCall = undefined;
@@ -351,7 +365,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 		expect(disposalCalls).toBe(1);
 
 		const insertedRequests: Array<{endpoint: string; body: unknown}> = [];
-		window.remotion_installedPackages = ['@remotion/captions'];
+		window.remotion_installedPackages = [];
 		Object.defineProperty(window, 'remotion_browserStudio', {
 			configurable: true,
 			value: null,
@@ -434,6 +448,9 @@ test('downloads a model in the queued job before transcribing', async () => {
 					],
 				},
 			},
+		]);
+		expect(packageInstallCalls).toEqual([
+			[{name: '@remotion/captions', version: null}],
 		]);
 		expect(writtenFiles).toHaveLength(1);
 
