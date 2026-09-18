@@ -918,7 +918,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								</div>
 							)}
 						>
-							{target === null ? 'Transcribe' : 'Generate captions'}
+							Transcribe
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
