@@ -135,7 +135,7 @@ export const InitialCompositionLoader: React.FC = () => {
 			return;
 		}
 
-		if (compositions.length > 0) {
+		if (compositions.length > 0 && !window.remotion_isReadOnlyStudio) {
 			selectComposition(compositions[0], true);
 		} else {
 			setCompositionListState('ready');
