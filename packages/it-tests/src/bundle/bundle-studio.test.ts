@@ -68,15 +68,44 @@ test(
 			},
 		});
 		await tab.goto({
-			url: `http://localhost:${server.port}/?/WidthHeight`,
+			url: `http://localhost:${server.port}/`,
 			timeout: 10000,
 			options: {},
 		});
-		await new Promise((resolve) => {
-			setTimeout(() => {
-				resolve(null);
-			}, 3000);
+		const initialState = await tab.evaluateHandle(async () => {
+			for (let attempt = 0; attempt < 100; attempt++) {
+				if (
+					document.body.textContent?.includes('Welcome to Remotion Studio') &&
+					window.location.search === ''
+				) {
+					return 'ready';
+				}
+
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
+
+			return 'timed-out';
 		});
+		expect(initialState.toString()).toBe('ready');
+
+		const compositionSelected = await tab.evaluateHandle(async () => {
+			const composition = document.querySelector<HTMLElement>(
+				'[data-compname="WidthHeight"]',
+			);
+			composition?.click();
+
+			for (let attempt = 0; attempt < 100; attempt++) {
+				if (window.location.search === '?/WidthHeight') {
+					return 'selected';
+				}
+
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
+
+			return 'timed-out';
+		});
+		expect(compositionSelected.toString()).toBe('selected');
+
 		const result = await tab.evaluateHandle(() => {
 			return document.querySelectorAll('.css-reset').length;
 		});
@@ -159,6 +188,8 @@ test(
 		expect(Number(orphanedFontTimeouts.toString())).toBe(0);
 
 		await Promise.all([
+			initialState.dispose(),
+			compositionSelected.dispose(),
 			result.dispose(),
 			sourceLocation.dispose(),
 			sequenceSourceLocation.dispose(),

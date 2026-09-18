@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import type {OnRetry} from '../error-overlay/remotion-overlay/ErrorDisplay';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, WHITE} from '../helpers/colors';
+import {getRoute} from '../helpers/url-state';
 import {CompositionListContext} from '../state/composition-list';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
@@ -27,6 +28,11 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	backgroundColor: BACKGROUND,
 	flexDirection: 'column',
+};
+
+const welcomeLabel: React.CSSProperties = {
+	...loaderLabel,
+	textAlign: 'center',
 };
 
 export const CanvasOrLoading: React.FC<{
@@ -72,11 +78,25 @@ export const CanvasOrLoading: React.FC<{
 			return null;
 		}
 
-		const compname = window.location.pathname.replace('/', '');
+		const route = getRoute();
+		if (route === '') {
+			return (
+				<div style={container} className="css-reset">
+					<div style={welcomeLabel}>
+						Welcome to Remotion Studio.
+						<br />
+						Select a composition to get started.
+					</div>
+				</div>
+			);
+		}
 
 		return (
 			<div style={container} className="css-reset">
-				<div style={loaderLabel}>Composition with ID {compname} not found.</div>
+				<div style={loaderLabel}>
+					Composition with ID {decodeURIComponent(route.substring(1))} not
+					found.
+				</div>
 			</div>
 		);
 	}
