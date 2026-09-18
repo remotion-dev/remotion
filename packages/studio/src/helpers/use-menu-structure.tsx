@@ -231,11 +231,13 @@ const getRenderMenuItems = ({
 	previewServerState,
 	readOnlyStudio,
 	renderShortcut,
+	compositionSelected,
 }: {
 	closeMenu: () => void;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
 	renderShortcut: string;
+	compositionSelected: boolean;
 }): ComboboxValue[] => {
 	return [
 		readOnlyStudio
@@ -264,6 +266,7 @@ const getRenderMenuItems = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
+					disabled: !compositionSelected,
 				},
 		{
 			id: 'render-on-web',
@@ -283,6 +286,7 @@ const getRenderMenuItems = ({
 			leftItem: null,
 			subMenu: null,
 			quickSwitcherLabel: 'Render in browser...',
+			disabled: !compositionSelected,
 		},
 		{
 			type: 'divider' as const,
@@ -900,6 +904,7 @@ export const useMenuStructure = (
 						previewServerState: type,
 						readOnlyStudio,
 						renderShortcut,
+						compositionSelected: currentComposition !== null,
 					}),
 					...getCompositionMenuItems({
 						closeMenu,
