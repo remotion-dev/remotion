@@ -203,9 +203,7 @@ export const CaptionQueueItem: React.FC<{
 			return job.error.message;
 		}
 
-		return job.target === null
-			? job.outName
-			: 'Basic captions added to composition';
+		return job.target === null ? job.outName : 'Captions added to composition';
 	}, [job]);
 
 	return (
