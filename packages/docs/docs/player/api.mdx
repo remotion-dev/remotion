@@ -118,9 +118,9 @@ Start the playback from a specific frame. Default `0`. Once the player is mounte
 
 If you use an [`<Html5Audio />`](/docs/html5-audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
 
-This option controls how many audio tags are being rendered, the default is `5`. If you mount more audio tags than shared audio tags are available, then an error will be thrown.
+This option controls how many shared audio tags are rendered. In Remotion 4.0, the default is `5`. In Remotion 5.0, the default is `0`. If you mount more audio tags than shared audio tags are available, an error will be thrown.
 
-If you'd like to opt out of this behavior, you can pass `0` to mount native audio tags simultaneously as you mount Remotion's [`<Html5Audio />`](/docs/html5-audio) tags.
+Pass a value greater than `0` to enable this behavior. With `0`, each [`<Html5Audio />`](/docs/html5-audio) mounts its own native `<audio>` element when it appears.
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 

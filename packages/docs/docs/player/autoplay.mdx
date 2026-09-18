@@ -95,6 +95,8 @@ If an `<Html5Audio>` tag is played after the first user interaction, it will be 
 
 If you have more than 5 `<Html5Audio>` tags that play at the same time, you can increase the number of auxiliary tags by passing the [`numberOfSharedAudioTags`](/docs/player/player#numberofsharedaudiotags) prop to the `<Player>`, because otherwise an error will be thrown.
 
+In Remotion 5.0, `numberOfSharedAudioTags` defaults to `0`. Pass a positive value to enable shared audio tags.
+
 ## Dealing with an autoplay failure<AvailableFrom v="4.0.187" />
 
 If the browser blocks a video from being autoplayed due to it having sound and not being started from a user interaction:
