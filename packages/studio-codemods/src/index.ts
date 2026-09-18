@@ -87,6 +87,10 @@ export {splitJsxSequence} from './split-jsx-sequence';
 export {splitVideoFromAudio} from './split-video-from-audio';
 export {insertBasicCaptions} from './insert-basic-captions';
 export {
+	basicCaptionsElementSource,
+	getBasicCaptionsElementFile,
+} from './basic-captions-element-source';
+export {
 	getCompositionDefaultPropsLine,
 	updateDefaultProps,
 } from './update-default-props';

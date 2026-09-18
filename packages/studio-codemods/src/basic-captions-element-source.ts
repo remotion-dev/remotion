@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
+export const basicCaptionsElementSource = `import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -10,36 +10,70 @@ import {
 	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
-import type {Caption} from './caption';
-import {createTikTokStyleCaptions} from './create-tiktok-style-captions';
 
-export type BasicCaptionsProps = InteractiveBaseProps &
+type Caption = {
+	text: string;
+	startMs: number;
+	endMs: number;
+	timestampMs: number | null;
+	confidence: number | null;
+	pageBreakAfter?: boolean;
+};
+
+type BasicCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
-	Pick<
-		SequenceProps,
-		'from' | 'durationInFrames' | 'trimBefore' | 'width' | 'height'
-	> & {
+	Pick<SequenceProps, 'from' | 'durationInFrames' | 'trimBefore' | 'width' | 'height'> & {
 		readonly captions: Caption[];
 		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-const CaptionContent: React.FC<
-	Pick<
-		BasicCaptionsProps,
-		'captions' | 'playbackRate' | 'combineTokensWithinMilliseconds'
-	>
-> = ({captions, playbackRate = 1, combineTokensWithinMilliseconds = 2000}) => {
+const BasicCaptionsContent: React.FC<{
+	readonly captions: Caption[];
+	readonly playbackRate: number;
+	readonly combineTokensWithinMilliseconds: number;
+}> = ({captions, playbackRate, combineTokensWithinMilliseconds}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const pages = useMemo(
-		() =>
-			createTikTokStyleCaptions({
-				captions,
-				combineTokensWithinMilliseconds,
-			}).pages,
-		[captions, combineTokensWithinMilliseconds],
-	);
+	const pages = useMemo(() => {
+		const result: {text: string; startMs: number; durationMs: number}[] = [];
+		let text = '';
+		let startMs = 0;
+		let endMs = 0;
+		const add = () => {
+			result.push({text: text.trim(), startMs, durationMs: 0});
+		};
+
+		for (const caption of captions) {
+			if (
+				text &&
+				caption.text.startsWith(' ') &&
+				endMs - startMs > combineTokensWithinMilliseconds
+			) {
+				add();
+				text = '';
+			}
+			if (!text) {
+				startMs = caption.startMs;
+			}
+			text = (text + caption.text).trimStart();
+			endMs = caption.endMs;
+			if (caption.pageBreakAfter && text) {
+				add();
+				text = '';
+			}
+		}
+		if (text) {
+			add();
+		}
+		for (let i = 0; i < result.length; i++) {
+			result[i].durationMs =
+				i + 1 < result.length
+					? result[i + 1].startMs - result[i].startMs
+					: endMs - result[i].startMs;
+		}
+		return result;
+	}, [captions, combineTokensWithinMilliseconds]);
 	const currentTimeMs = (frame / fps) * 1000 * playbackRate;
 	const page = pages.find(
 		(candidate) =>
@@ -70,7 +104,7 @@ const CaptionContent: React.FC<
 				whiteSpace: 'pre-wrap',
 			}}
 		>
-			{page.text.trim()}
+			{page.text}
 		</div>
 	);
 };
@@ -112,13 +146,13 @@ const BasicCaptionsInner = forwardRef<
 	(
 		{
 			captions,
-			combineTokensWithinMilliseconds,
+			combineTokensWithinMilliseconds = 2000,
 			controls,
 			durationInFrames,
 			from,
 			height = 220,
 			name,
-			playbackRate,
+			playbackRate = 1,
 			style,
 			trimBefore,
 			width = 900,
@@ -155,7 +189,7 @@ const BasicCaptionsInner = forwardRef<
 						...style,
 					}}
 				>
-					<CaptionContent
+					<BasicCaptionsContent
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 						playbackRate={playbackRate}
@@ -172,3 +206,36 @@ export const BasicCaptions = Interactive.withSchema({
 	schema: basicCaptionsSchema,
 	supportsEffects: false,
 }) as React.FC<BasicCaptionsProps>;
+`;
+
+export const getBasicCaptionsElementFile = ({
+	fileName,
+	readFileContents,
+}: {
+	fileName: string;
+	readFileContents: (fileName: string) => string | null;
+}): {
+	fileName: string;
+	importPath: string;
+	shouldWrite: boolean;
+} => {
+	const separatorIndex = Math.max(
+		fileName.lastIndexOf('/'),
+		fileName.lastIndexOf('\\'),
+	);
+	const directory = fileName.slice(0, separatorIndex + 1);
+	for (let index = 0; index < 1000; index++) {
+		const baseName = `basic-captions${index === 0 ? '' : `-${index + 1}`}.element`;
+		const candidate = `${directory}${baseName}.tsx`;
+		const existing = readFileContents(candidate);
+		if (existing === null || existing === basicCaptionsElementSource) {
+			return {
+				fileName: candidate,
+				importPath: `./${baseName}`,
+				shouldWrite: existing === null,
+			};
+		}
+	}
+
+	throw new Error('Could not find an available filename for Basic captions');
+};

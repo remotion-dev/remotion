@@ -1,5 +1,6 @@
 import {
 	addEffect as addEffectCodemod,
+	basicCaptionsElementSource,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	deleteJsxNodes,
@@ -9,6 +10,7 @@ import {
 	duplicateJsxNodes as duplicateJsxNodesCodemod,
 	findProjectFile,
 	getCanUpdateDefaultPropsForProject,
+	getBasicCaptionsElementFile,
 	getCompositionComponentInfo,
 	getCompositionFile,
 	getFolderFile,
@@ -1912,11 +1914,16 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({filePath: fileName, project});
+			const elementFile = getBasicCaptionsElementFile({
+				fileName: absolutePath,
+				readFileContents: (candidate) => project.files[candidate] ?? null,
+			});
 			const result = insertBasicCaptionsCodemod({
 				input: project.files[absolutePath],
 				nodePath,
 				captions,
 				durationInFrames,
+				importPath: elementFile.importPath,
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
@@ -1924,7 +1931,13 @@ export const createBrowserStudioOperations = ({
 				fileName: absolutePath,
 				mutate: () => ({
 					...project,
-					files: {...project.files, [absolutePath]: result.output},
+					files: {
+						...project.files,
+						...(elementFile.shouldWrite
+							? {[elementFile.fileName]: basicCaptionsElementSource}
+							: {}),
+						[absolutePath]: result.output,
+					},
 				}),
 				nodePathMutationFiles: [
 					{

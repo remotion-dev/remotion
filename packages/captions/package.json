@@ -21,15 +21,10 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"dependencies": {},
-	"peerDependencies": {
-		"react": ">=16.8.0",
-		"remotion": "workspace:*"
-	},
+	"peerDependencies": {},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"react": "catalog:",
-		"remotion": "workspace:*",
 		"@typescript/native-preview": "catalog:"
 	},
 	"keywords": [
@@ -37,12 +32,6 @@
 	],
 	"exports": {
 		"./package.json": "./package.json",
-		"./basic-captions": {
-			"types": "./dist/basic-captions.d.ts",
-			"module": "./dist/esm/basic-captions.mjs",
-			"import": "./dist/esm/basic-captions.mjs",
-			"require": "./dist/basic-captions.js"
-		},
 		".": {
 			"types": "./dist/index.d.ts",
 			"module": "./dist/esm/index.mjs",

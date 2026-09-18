@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {basicCaptionsElementSource} from '@remotion/studio-codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
@@ -423,7 +424,10 @@ registerRoot(Root);`,
 	}
 
 	expect(currentProject.files[fileName]).toContain(
-		"import {BasicCaptions} from '@remotion/captions/basic-captions';",
+		"import {BasicCaptions} from './basic-captions.element';",
+	);
+	expect(currentProject.files['/project/src/basic-captions.element.tsx']).toBe(
+		basicCaptionsElementSource,
 	);
 	expect(currentProject.files[fileName]).toContain(
 		'<BasicCaptions captions={[',
@@ -435,6 +439,9 @@ registerRoot(Root);`,
 	});
 	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
+	expect(
+		currentProject.files['/project/src/basic-captions.element.tsx'],
+	).toBeUndefined();
 });
 
 test('reports invalid timeline Solid input without changing the project', async () => {

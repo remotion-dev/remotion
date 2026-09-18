@@ -1,7 +1,14 @@
 import {expect, test} from 'bun:test';
-import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {
+	mkdtempSync,
+	readFileSync,
+	readdirSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {basicCaptionsElementSource} from '@remotion/studio-codemods';
 import {insertBasicCaptions} from '../codemods/insert-basic-captions';
 import {
 	createFileWatcherRegistry,
@@ -83,8 +90,18 @@ export const Comp = () => (
 
 		const written = readFileSync(entryPoint, 'utf-8');
 		expect(written).toContain(
-			`import {BasicCaptions} from '@remotion/captions/basic-captions';`,
+			`import {BasicCaptions} from './basic-captions.element';`,
 		);
+		expect(written).not.toContain('@remotion/captions/basic-captions');
+		expect(
+			readFileSync(
+				path.join(remotionRoot, 'basic-captions.element.tsx'),
+				'utf-8',
+			),
+		).toBe(basicCaptionsElementSource);
+		expect(
+			readdirSync(remotionRoot).filter((file) => file.endsWith('.element.tsx')),
+		).toEqual(['basic-captions.element.tsx']);
 		expect(written.match(/<BasicCaptions/g)).toHaveLength(2);
 		expect(written).toContain('"text": " Hello"');
 		expect(written.replace(/\s+/g, ' ')).toContain(

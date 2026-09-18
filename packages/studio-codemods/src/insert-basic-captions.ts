@@ -30,6 +30,7 @@ export const insertBasicCaptions = ({
 	nodePath,
 	captions,
 	durationInFrames,
+	importPath = './basic-captions.element',
 	prettierConfigOverride = null,
 }: {
 	input: string;
@@ -43,6 +44,7 @@ export const insertBasicCaptions = ({
 		pageBreakAfter?: boolean;
 	}[];
 	durationInFrames: number | null;
+	importPath?: string;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): {
 	output: string;
@@ -96,7 +98,7 @@ export const insertBasicCaptions = ({
 		ast,
 		importedName: 'BasicCaptions',
 		localName,
-		sourcePath: '@remotion/captions/basic-captions',
+		sourcePath: importPath,
 	});
 	const copiedAttributes = media.openingElement.attributes
 		.filter(
