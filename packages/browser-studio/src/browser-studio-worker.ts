@@ -1,6 +1,8 @@
 import {
 	createBrowserCompiler,
 	createBrowserDependencyPlugin,
+	createBrowserHmrRuntimePlugin,
+	createBrowserReactRefreshPlugin,
 	getVirtualProjectChanges,
 	getVirtualProjectFiles,
 	makeBrowserHttpClient,
@@ -10,7 +12,6 @@ import {
 } from '@remotion/browser-bundler/compiler';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
-import type * as RspackBrowser from '@rspack/browser';
 import {BROWSER_STUDIO_TRANSFORMERS_PACKAGE} from './browser-studio-import-map';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
@@ -106,80 +107,6 @@ const applyDependencyResolution = ({
 	if (resolution?.version) {
 		resolvedVersions[name] = resolution.version;
 	}
-};
-
-const getReactRefreshPlugin = (
-	rspackBrowser: typeof RspackBrowser,
-): RspackBrowser.RspackPluginInstance => ({
-	name: 'browser-studio-react-refresh',
-	apply: (compiler) => {
-		new rspackBrowser.ProvidePlugin({
-			$ReactRefreshRuntime$: browserStudioVirtualFilePaths.reactRefreshRuntime,
-			__react_refresh_utils__: browserStudioVirtualFilePaths.reactRefreshUtils,
-		}).apply(compiler);
-		new rspackBrowser.DefinePlugin({
-			__react_refresh_error_overlay__: false,
-			__react_refresh_library__: JSON.stringify('browser-studio'),
-			__react_refresh_socket__: false,
-			__reload_on_runtime_errors__: false,
-		}).apply(compiler);
-
-		compiler.hooks.compilation.tap(
-			'browser-studio-react-refresh',
-			(compilation) => {
-				compilation.hooks.additionalTreeRuntimeRequirements.tap(
-					'browser-studio-react-refresh',
-					(_chunk, runtimeRequirements) => {
-						runtimeRequirements.add(rspackBrowser.RuntimeGlobals.moduleCache);
-					},
-				);
-			},
-		);
-	},
-});
-
-const getBrowserStudioHmrRuntimePlugin = (
-	rspackBrowser: typeof RspackBrowser,
-): RspackBrowser.RspackPluginInstance => {
-	class BrowserStudioManifestRuntimeModule extends rspackBrowser.RuntimeModule {
-		constructor() {
-			super(
-				'browser studio hmr manifest',
-				rspackBrowser.RuntimeModule.STAGE_TRIGGER,
-			);
-		}
-
-		generate() {
-			return `${rspackBrowser.RuntimeGlobals.hmrDownloadManifest} = function() {
-	return window.remotion_browserStudioHmr.getManifest(${rspackBrowser.RuntimeGlobals.getUpdateManifestFilename}());
-};`;
-		}
-	}
-
-	return {
-		name: 'browser-studio-hmr-runtime',
-		apply: (compiler) => {
-			compiler.hooks.compilation.tap(
-				'browser-studio-hmr-runtime',
-				(compilation) => {
-					compilation.hooks.runtimeRequirementInTree
-						.for(rspackBrowser.RuntimeGlobals.hmrDownloadManifest)
-						.tap('browser-studio-hmr-runtime', (chunk) => {
-							compilation.addRuntimeModule(
-								chunk,
-								new BrowserStudioManifestRuntimeModule(),
-							);
-						});
-
-					rspackBrowser.RuntimePlugin.getCompilationHooks(
-						compilation,
-					).createScript.tap('browser-studio-hmr-runtime', (code) => {
-						return `${code}\nscript.src = window.remotion_browserStudioHmr.resolveScriptUrl(script.src);`;
-					});
-				},
-			);
-		},
-	};
 };
 
 const createCompiler = async ({
@@ -328,7 +255,11 @@ const createCompiler = async ({
 				publicPath: '/__remotion_browser_studio_hmr__/',
 			},
 			plugins: [
-				getReactRefreshPlugin(rspackBrowser),
+				createBrowserReactRefreshPlugin({
+					rspack: rspackBrowser,
+					refreshRuntime: browserStudioVirtualFilePaths.reactRefreshRuntime,
+					refreshUtils: browserStudioVirtualFilePaths.reactRefreshUtils,
+				}),
 				createBrowserDependencyPlugin({
 					rspack: rspackBrowser,
 					development: true,
@@ -343,7 +274,10 @@ const createCompiler = async ({
 						}),
 				}),
 				new rspackBrowser.HotModuleReplacementPlugin(),
-				getBrowserStudioHmrRuntimePlugin(rspackBrowser),
+				createBrowserHmrRuntimePlugin({
+					rspack: rspackBrowser,
+					bridgeName: 'remotion_browserStudioHmr',
+				}),
 				new rspackBrowser.optimize.LimitChunkCountPlugin({maxChunks: 1}),
 			],
 			resolve: {extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']},

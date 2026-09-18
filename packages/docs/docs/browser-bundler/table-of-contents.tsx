@@ -14,9 +14,17 @@ export const TableOfContents: React.FC = () => {
 					<strong>loadBrowserBundle()</strong>
 					<div>Execute a trusted bundle and capture its registered root</div>
 				</TOCItem>
+				<TOCItem link="/docs/browser-bundler/create-browser-bundle-runtime">
+					<strong>createBrowserBundleRuntime()</strong>
+					<div>Apply live edits with Rspack and React Fast Refresh</div>
+				</TOCItem>
 				<TOCItem link="/docs/browser-bundler/get-browser-composition">
 					<strong>getBrowserComposition()</strong>
 					<div>Resolve a registered composition for playback</div>
+				</TOCItem>
+				<TOCItem link="/docs/browser-bundler/create-browser-composition-observer">
+					<strong>createBrowserCompositionObserver()</strong>
+					<div>Keep composition registration mounted across live edits</div>
 				</TOCItem>
 			</Grid>
 		</div>

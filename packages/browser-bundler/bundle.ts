@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {build} from 'bun';
@@ -8,7 +9,23 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
+const refreshRuntimePath = fileURLToPath(
+	import.meta.resolve('@rspack/plugin-react-refresh/react-refresh'),
+);
 const define = {
+	__BROWSER_BUNDLER_REACT_REFRESH_FILES__: JSON.stringify({
+		entry: readFileSync(
+			new URL(
+				import.meta.resolve('@rspack/plugin-react-refresh/react-refresh-entry'),
+			),
+			'utf-8',
+		),
+		runtime: readFileSync(refreshRuntimePath, 'utf-8'),
+		utils: readFileSync(
+			path.join(path.dirname(refreshRuntimePath), 'refreshUtils.js'),
+			'utf-8',
+		),
+	}),
 	__BROWSER_BUNDLER_DEPENDENCY_VERSIONS__: JSON.stringify({
 		react: rootPackage.workspaces.catalog.react,
 		'react-dom': rootPackage.workspaces.catalog['react-dom'],
@@ -29,6 +46,7 @@ const output = await build({
 		'react-dom/client',
 		'react/jsx-runtime',
 		'react/jsx-dev-runtime',
+		'react-refresh/runtime',
 		'remotion',
 		'remotion/no-react',
 		'remotion/version',

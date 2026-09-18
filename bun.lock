@@ -154,12 +154,14 @@
       "version": "4.0.526",
       "dependencies": {
         "@rspack/browser": "2.1.1",
+        "react-refresh": "0.18.0",
         "remotion": "workspace:*",
       },
       "devDependencies": {
         "@happy-dom/global-registrator": "14.5.1",
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/player": "workspace:*",
+        "@rspack/plugin-react-refresh": "1.6.1",
         "@testing-library/react": "16.1.0",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
@@ -193,7 +195,6 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/studio": "workspace:*",
         "@rspack/core": "1.7.11",
-        "@rspack/plugin-react-refresh": "1.6.1",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@typescript/native-preview": "catalog:",
@@ -1476,6 +1477,7 @@
         "next": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
+        "react-refresh": "0.18.0",
         "remotion": "workspace:*",
       },
       "devDependencies": {

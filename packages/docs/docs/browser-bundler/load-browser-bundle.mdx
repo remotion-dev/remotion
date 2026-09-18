@@ -16,6 +16,8 @@ Executes a [`BrowserBundle`](/docs/browser-bundler/create-browser-bundler#browse
 
 This API executes trusted code only. It is not a sandbox.
 
+Each call evaluates a fresh bundle. For state-preserving edits, use [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime) with `enableFastRefresh: true` instead.
+
 After compiling a project with [`createBrowserBundler()`](/docs/browser-bundler/create-browser-bundler):
 
 ```ts twoslash title="load-composition.ts"
@@ -41,6 +43,8 @@ const composition = await getBrowserComposition({
 ### bundle
 
 The complete `BrowserBundle` returned by a bundler's `bundle()` method. Its entry point must synchronously call [`registerRoot()`](/docs/register-root) exactly once with a root component. Registering after an awaited operation or in a timer is not supported.
+
+Fast Refresh bundles are not accepted by this one-shot loader.
 
 Exporting a video component without registering a root is not sufficient. Use the [normal Remotion project structure](/docs/browser-bundler#minimal-example).
 

@@ -5,7 +5,16 @@ import {
 } from './create-browser-compiler';
 import {createBrowserDependencyPlugin} from './dependency-resolution';
 import {BrowserBundlerError, serializeCompilerError} from './errors';
+import {
+	browserBundleHmrBridgeName,
+	browserBundleHotUpdateName,
+} from './fast-refresh-bridge';
+import {
+	createBrowserHmrRuntimePlugin,
+	createBrowserReactRefreshPlugin,
+} from './hmr-plugins';
 import {makeBrowserHttpClient} from './http-client';
+import {getBrowserReactRefreshVirtualFiles} from './refresh-virtual-files';
 import type {
 	BrowserBundlerWorkerRequest,
 	BrowserBundlerWorkerResponse,
@@ -27,7 +36,16 @@ const sharedModules = [
 
 let compiler: BrowserCompiler | null = null;
 let previousProject: BrowserCompilerProject | null = null;
+let previousHash: string | null = null;
+let sessionId: string | null = null;
 let queue: Promise<void> = Promise.resolve();
+
+const refreshPaths = {
+	entry: '/__remotion_browser_bundler__/refresh-entry.js',
+	runtime: '/__remotion_browser_bundler__/refresh-runtime.js',
+	utils: '/__remotion_browser_bundler__/refreshUtils.js',
+};
+const hotEntry = '/__remotion_browser_bundler__/hot-entry.js';
 
 const postResponse = (response: BrowserBundlerWorkerResponse) => {
 	self.postMessage(response);
@@ -43,6 +61,8 @@ self.addEventListener(
 					...request.project,
 					rootDir: '/',
 				};
+				const {enableFastRefresh} = request;
+				const entryPoint = normalizeVirtualPath(project.entryPoint);
 				if (
 					compiler &&
 					(previousProject?.rootDir !== project.rootDir ||
@@ -52,9 +72,30 @@ self.addEventListener(
 					compiler = null;
 				}
 
+				if (compiler === null) {
+					previousHash = null;
+					sessionId = crypto.randomUUID();
+				}
+
 				compiler ??= await createBrowserCompiler({
 					project,
-					virtualFiles: {},
+					virtualFiles: enableFastRefresh
+						? {
+								...getBrowserReactRefreshVirtualFiles(refreshPaths),
+								[hotEntry]: `
+globalThis[${JSON.stringify(browserBundleHmrBridgeName)}].setHotRuntime({
+  check: () => module.hot.check(false),
+  apply: () => module.hot.apply(),
+  getHash: () => __webpack_hash__,
+  status: () => module.hot.status(),
+});
+require(${JSON.stringify(entryPoint)});
+module.hot.accept(${JSON.stringify(entryPoint)}, () => {
+  require(${JSON.stringify(entryPoint)});
+});
+`,
+							}
+						: {},
 					onProgress: (progress) =>
 						postResponse({type: 'progress', ...progress}),
 					configure: (rspack) => ({
@@ -64,7 +105,9 @@ self.addEventListener(
 						entry: {
 							bundle: {
 								asyncChunks: false,
-								import: [normalizeVirtualPath(project.entryPoint)],
+								import: enableFastRefresh
+									? [refreshPaths.entry, hotEntry]
+									: [entryPoint],
 							},
 						},
 						experiments: {
@@ -75,11 +118,26 @@ self.addEventListener(
 							},
 						},
 						externals: Object.fromEntries(
-							sharedModules.map((name) => [name, `commonjs ${name}`]),
+							[
+								...sharedModules,
+								...(enableFastRefresh ? ['react-refresh/runtime'] : []),
+							].map((name) => [name, `commonjs ${name}`]),
 						),
 						module: {
 							rules: [
 								{parser: {worker: false}, test: /\.[cm]?[jt]sx?$/},
+								...(enableFastRefresh
+									? [
+											{
+												exclude: [
+													/node_modules/,
+													/__remotion_browser_bundler__/,
+												],
+												test: /\.[jt]sx?$/,
+												use: [{loader: 'builtin:react-refresh-loader'}],
+											},
+										]
+									: []),
 								{
 									test: /\.[jt]sx?$/,
 									use: [
@@ -91,8 +149,8 @@ self.addEventListener(
 													parser: {syntax: 'typescript', tsx: true},
 													transform: {
 														react: {
-															// jsxDEV is unavailable in production React.
-															development: false,
+															development: enableFastRefresh,
+															refresh: enableFastRefresh,
 															runtime: 'automatic',
 														},
 													},
@@ -103,19 +161,48 @@ self.addEventListener(
 								},
 							],
 						},
-						optimization: {runtimeChunk: false, splitChunks: false},
+						optimization: {
+							emitOnErrors: !enableFastRefresh,
+							runtimeChunk: false,
+							splitChunks: false,
+						},
 						output: {
+							chunkFilename: '[name].js',
+							chunkFormat: 'array-push',
+							chunkLoading: 'jsonp',
 							filename: 'bundle.js',
 							path: '/dist',
 							publicPath: '',
 							hashFunction: 'xxhash64',
 							uniqueName: 'remotion-browser-bundler',
+							...(enableFastRefresh
+								? {hotUpdateGlobal: browserBundleHotUpdateName}
+								: {}),
 						},
 						plugins: [
+							...(enableFastRefresh
+								? [
+										createBrowserReactRefreshPlugin({
+											rspack,
+											refreshRuntime: refreshPaths.runtime,
+											refreshUtils: refreshPaths.utils,
+										}),
+										new rspack.HotModuleReplacementPlugin(),
+										createBrowserHmrRuntimePlugin({
+											rspack,
+											bridgeName: browserBundleHmrBridgeName,
+										}),
+									]
+								: []),
 							createBrowserDependencyPlugin({
 								rspack,
-								development: false,
-								external: ['react', 'react-dom', 'remotion'],
+								development: enableFastRefresh,
+								external: [
+									'react',
+									'react-dom',
+									'remotion',
+									...(enableFastRefresh ? ['react-refresh'] : []),
+								],
 								resolvedUrls: {},
 								resolvedVersions: {
 									...__BROWSER_BUNDLER_DEPENDENCY_VERSIONS__,
@@ -137,11 +224,30 @@ self.addEventListener(
 					);
 				}
 
+				if (enableFastRefresh && (!result.hash || sessionId === null)) {
+					throw new Error('Rspack did not return a Fast Refresh build hash.');
+				}
+
 				postResponse({
 					type: 'bundle',
 					id: request.id,
-					bundle: {code: result.bundle, warnings: result.warnings},
+					bundle: {
+						code: result.bundle,
+						warnings: result.warnings,
+						fastRefresh:
+							enableFastRefresh && result.hash && sessionId !== null
+								? {
+										sessionId,
+										hash: result.hash,
+										previousHash,
+										assets: result.assets.filter((asset) =>
+											asset.name.includes('.hot-update.'),
+										),
+									}
+								: null,
+					},
 				});
+				previousHash = result.hash ?? null;
 			} catch (error) {
 				postResponse({
 					type: 'error',

@@ -2,7 +2,6 @@ import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './src/dev/get-dependency-versions-for-build';
-import {getBrowserStudioReactRefreshFilesForBuild} from './src/dev/get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './src/dev/get-setup-environment-for-build';
 import {getBrowserStudioWorkspacePackageExportsForBuild} from './src/dev/get-workspace-package-exports-for-build';
 import {studioRenderEntryExternal} from './src/dev/studio-render-entry-external';
@@ -13,7 +12,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 console.time('Generated.');
 const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
-const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 const workspacePackageExports =
 	getBrowserStudioWorkspacePackageExportsForBuild();
@@ -75,7 +73,6 @@ const output = await build({
 	define: {
 		__BROWSER_STUDIO_ASSET_SIZES__: JSON.stringify(browserStudioAssetSizes),
 		__BROWSER_STUDIO_DEPENDENCY_VERSIONS__: JSON.stringify(dependencyVersions),
-		__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 		__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
 		__BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__: JSON.stringify(
 			workspacePackageExports,

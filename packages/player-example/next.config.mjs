@@ -2,7 +2,12 @@
 const nextConfig = {
 	agentRules: false,
 	async headers() {
-		return ['/browser-bundler', '/_next/:path*'].map((source) => ({
+		return [
+			'/browser-bundler',
+			'/browser-bundler-preview.html',
+			'/browser-bundler-preview.js',
+			'/_next/:path*',
+		].map((source) => ({
 			source,
 			headers: [
 				{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},

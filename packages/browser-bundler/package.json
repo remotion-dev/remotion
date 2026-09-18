@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@rspack/browser": "2.1.1",
+		"react-refresh": "0.18.0",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
@@ -50,6 +51,7 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@rspack/plugin-react-refresh": "1.6.1",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",

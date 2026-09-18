@@ -22,6 +22,7 @@
 		"next": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
+		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
 		"@remotion/media": "workspace:*"
 	},
@@ -32,11 +33,12 @@
 		"@types/node": "catalog:"
 	},
 	"scripts": {
-		"formatting": "prettier src pages e2e playwright.config.ts next.config.mjs --check",
-		"lint": "eslint src pages e2e playwright.config.ts next.config.mjs",
-		"dev": "next dev --webpack",
-		"build-site": "next build --webpack",
-		"testnextjs": "next build --webpack",
+		"formatting": "prettier src pages e2e build-browser-bundler-preview.ts playwright.config.ts next.config.mjs --check",
+		"lint": "eslint src pages e2e build-browser-bundler-preview.ts playwright.config.ts next.config.mjs",
+		"make": "bun build-browser-bundler-preview.ts",
+		"dev": "bun run make && next dev --webpack",
+		"build-site": "bun run make && next build --webpack",
+		"testnextjs": "bun run make && next build --webpack",
 		"testbrowserbundler": "playwright test"
 	}
 }

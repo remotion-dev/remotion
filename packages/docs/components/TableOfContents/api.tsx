@@ -1,7 +1,6 @@
 import React from 'react';
 import {TableOfContents as AnimatedEmojiTableOfContents} from '../../docs/animated-emoji/TableOfContents';
 import {TableOfContents as AnimationUtilsTableOfContents} from '../../docs/animation-utils/table-of-contents';
-import {TableOfContents as BrowserBundlerTableOfContents} from '../../docs/browser-bundler/table-of-contents';
 import {TableOfContents as BundlerTableOfContents} from '../../docs/bundler/table-of-contents';
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as CloudrunTableOfContents} from '../../docs/cloudrun/table-of-contents';
@@ -78,9 +77,6 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/animation-utils</h2>
 			<p>Obtain info about video and audio.</p>
 			<AnimationUtilsTableOfContents />
-			<h2>@remotion/browser-bundler</h2>
-			<p>Compile virtual Remotion projects in the browser.</p>
-			<BrowserBundlerTableOfContents />
 			<h2>@remotion/bundler</h2>
 			<p>Create a Webpack bundle from Node.JS </p>
 			<BundlerTableOfContents />

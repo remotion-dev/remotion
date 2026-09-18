@@ -522,6 +522,15 @@ export const articles = [
 		slug: 'brownfield',
 	},
 	{
+		id: 'browser-bundler/create-browser-bundle-runtime',
+		title: 'createBrowserBundleRuntime()',
+		relativePath: 'docs/browser-bundler/create-browser-bundle-runtime.mdx',
+		compId: 'articles-docs-browser-bundler-create-browser-bundle-runtime',
+		crumb: '@remotion/browser-bundler',
+		noAi: false,
+		slug: 'browser-bundler/create-browser-bundle-runtime',
+	},
+	{
 		id: 'browser-bundler/create-browser-bundler',
 		title: 'createBrowserBundler()',
 		relativePath: 'docs/browser-bundler/create-browser-bundler.mdx',
@@ -529,6 +538,16 @@ export const articles = [
 		crumb: '@remotion/browser-bundler',
 		noAi: false,
 		slug: 'browser-bundler/create-browser-bundler',
+	},
+	{
+		id: 'browser-bundler/create-browser-composition-observer',
+		title: 'createBrowserCompositionObserver()',
+		relativePath:
+			'docs/browser-bundler/create-browser-composition-observer.mdx',
+		compId: 'articles-docs-browser-bundler-create-browser-composition-observer',
+		crumb: '@remotion/browser-bundler',
+		noAi: false,
+		slug: 'browser-bundler/create-browser-composition-observer',
 	},
 	{
 		id: 'browser-bundler/get-browser-composition',

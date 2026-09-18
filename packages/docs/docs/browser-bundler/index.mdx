@@ -232,7 +232,7 @@ export const BrowserBundlerPreview = () => {
 
 Pass the returned `component` to [`<Player>`](/docs/player/player), not the registered root or `<Composition>` itself. Pass `props` and the resolved dimensions, frame rate, and duration alongside it. [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) merges default and input props and runs [`calculateMetadata()`](/docs/calculate-metadata) when provided.
 
-This example compiles once and disposes its worker. For editing, keep the bundler alive and submit a new complete snapshot when the source changes. Load and resolve the new bundle before updating your Player. Keep the last successful preview visible while compiling, and discard results superseded by newer edits.
+This example compiles once and disposes its worker. For editing, keep the bundler alive and submit a new complete snapshot when the source changes. Keep the last successful preview visible while compiling.
 
 ## Scope and limitations
 
@@ -252,7 +252,11 @@ The virtual project has no `public/` asset mapping or public-file persistence. [
 
 ### Updating the preview
 
-Compiling does not automatically replace an existing Player component. You own recompilation triggers, loading and resolving the new bundle, handling stale results and errors, and updating playback. There is no automatic hot module replacement for the host Player.
+Compiling does not automatically replace an existing Player component. You own recompilation triggers, loading and resolving the new bundle, handling stale results and errors, and updating playback.
+
+For state-preserving edits, enable [`enableFastRefresh`](/docs/browser-bundler/create-browser-bundler#enablefastrefresh) and apply bundles with [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime). Use an isolated preview with development React and [`createBrowserCompositionObserver()`](/docs/browser-bundler/create-browser-composition-observer) to keep the composition registration tree mounted alongside the Player. This uses Rspack hot updates and React Fast Refresh rather than evaluating and remounting a fresh Player on each edit.
+
+Coalesce pending source edits before compilation, but apply every successfully compiled Fast Refresh bundle in order. Discarding compiled updates breaks the hot-update chain.
 
 This package does not export a video file. See [client-side rendering](/docs/client-side-rendering) for video export APIs and their separate requirements.
 

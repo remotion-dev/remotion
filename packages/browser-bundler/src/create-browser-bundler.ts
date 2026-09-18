@@ -26,6 +26,7 @@ export const createBrowserBundler = (
 				type: 'module',
 			});
 	const dependencyVersions = {...options.dependencyVersions};
+	const enableFastRefresh = options.enableFastRefresh ?? false;
 	const pending = new Map<
 		number,
 		{
@@ -97,6 +98,7 @@ export const createBrowserBundler = (
 						id,
 						project,
 						dependencyVersions,
+						enableFastRefresh,
 					} satisfies BrowserBundlerWorkerRequest);
 				} catch (error) {
 					pending.delete(id);

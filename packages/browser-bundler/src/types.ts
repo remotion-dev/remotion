@@ -1,3 +1,5 @@
+import type {BrowserHmrAsset} from './hmr-assets';
+
 export type VirtualProject = {
 	entryPoint: string;
 	files: Record<string, string>;
@@ -13,6 +15,12 @@ export type VirtualFileSystem = {
 export type BrowserBundle = {
 	code: string;
 	warnings: string[];
+	fastRefresh: {
+		sessionId: string;
+		hash: string;
+		previousHash: string | null;
+		assets: BrowserHmrAsset[];
+	} | null;
 };
 
 export type BrowserBundlerProgress = {
@@ -23,6 +31,7 @@ export type BrowserBundlerProgress = {
 
 export type BrowserBundlerOptions = {
 	dependencyVersions?: Record<string, string>;
+	enableFastRefresh?: boolean;
 	onProgress?: (progress: BrowserBundlerProgress) => void;
 	workerUrl?: string | URL;
 };
@@ -36,6 +45,7 @@ export type BrowserBundlerWorkerRequest = {
 	id: number;
 	project: VirtualProject;
 	dependencyVersions: Record<string, string>;
+	enableFastRefresh: boolean;
 };
 
 export type SerializedCompilerError = {

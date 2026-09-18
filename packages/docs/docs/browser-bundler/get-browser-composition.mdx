@@ -171,6 +171,8 @@ The promise rejects for a missing composition ID, invalid or duplicate registrat
 
 This function runs again on every call. Resolving a new bundle does not automatically update a Player; you decide when to replace its component, props, and configuration.
 
+For Fast Refresh, use [`createBrowserCompositionObserver()`](/docs/browser-bundler/create-browser-composition-observer) instead. It keeps the registration tree mounted between edits, preserving the component wrapper passed to the Player.
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox="Not tested" safari="Not tested" nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering={false} player studio="" hideServers />
@@ -181,6 +183,7 @@ The experimental workflow has only been tested in Chrome. Call this in a browser
 
 - [Overview and complete Player example](/docs/browser-bundler)
 - [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle)
+- [`createBrowserCompositionObserver()`](/docs/browser-bundler/create-browser-composition-observer)
 - [`<Composition>`](/docs/composition)
 - [`calculateMetadata()`](/docs/calculate-metadata)
 - [`<Player>`](/docs/player/player)

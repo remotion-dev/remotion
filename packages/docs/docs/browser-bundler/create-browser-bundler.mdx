@@ -71,6 +71,14 @@ const bundler = createBrowserBundler({
 });
 ```
 
+### enableFastRefresh?
+
+Enable Rspack hot updates and React Fast Refresh. Default: `false`.
+
+Apply these bundles with [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime), not [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle). The preview must use development React and React DOM with the React Refresh hook installed before the renderer loads. An isolated preview iframe can provide that environment even when the editor itself is a production app.
+
+Apply every successful bundle in compilation order. You may coalesce pending source edits before calling `bundle()`, but must not discard already compiled hot updates.
+
 ### onProgress?
 
 Called with download progress while loading the compiler's WebAssembly asset. By default, no progress callback is called. This is download progress, not compilation progress.
@@ -144,6 +152,26 @@ The compiled JavaScript as a `string`. Pass the complete `BrowserBundle` to [`lo
 ### warnings
 
 An array of compiler warning strings. An empty array means no compiler warnings were reported.
+
+### fastRefresh
+
+Hot-update data when `enableFastRefresh` is enabled, otherwise `null`. Pass the complete bundle to the preview runtime without modifying this data.
+
+#### sessionId
+
+Identifies the compiler session. Create a new preview runtime if the session changes.
+
+#### hash
+
+Identifies the compiled version of the project.
+
+#### previousHash
+
+The preceding successful compilation's hash, or `null` for the first build.
+
+#### assets
+
+The hot-update scripts and manifests emitted by Rspack. Each asset has a `name` and its text `content`.
 
 ## Errors
 

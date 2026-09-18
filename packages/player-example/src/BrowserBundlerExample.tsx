@@ -3,20 +3,16 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
-import {
-	getBrowserComposition,
-	loadBrowserBundle,
-	type BrowserComposition,
-} from '@remotion/browser-bundler/runtime';
-import {Player} from '@remotion/player';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import type {BrowserBundlerPreview} from './browser-bundler-preview/bridge';
 
-const initialSource = `import React from 'react';
+const initialSource = `import React, {useState} from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Orb} from './Orb';
 
 export const Video: React.FC<{title: string; accent: string}> = ({title, accent}) => {
+  const [clicks, setClicks] = useState(0);
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
 
@@ -29,6 +25,13 @@ export const Video: React.FC<{title: string; accent: string}> = ({title, accent}
       <div style={{position: 'relative', transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
         <h1 style={{fontSize: 76, margin: 0}}>{title}</h1>
         <p style={{fontSize: 28, color: accent}}>Frame {frame} of {durationInFrames}</p>
+        <button type="button" style={{fontSize: 28, padding: '8px 16px'}}
+          onClick={(event) => {
+            event.stopPropagation();
+            setClicks((value) => value + 1);
+          }}>
+          Clicks: {clicks}
+        </button>
       </div>
     </AbsoluteFill>
   );
@@ -93,43 +96,45 @@ type CompilationState =
 	| {type: 'error'; message: string}
 	| {type: 'ready'};
 
+type CompilationSession = {
+	bundler: ReturnType<typeof createBrowserBundler>;
+	preview: Promise<BrowserBundlerPreview>;
+	queue: Promise<void>;
+	revision: number;
+	disposed: boolean;
+};
+
 export const BrowserBundlerExample: React.FC = () => {
 	const [source, setSource] = useState(initialSource);
 	const [state, setState] = useState<CompilationState>({type: 'loading'});
-	const [preview, setPreview] = useState<{
-		composition: BrowserComposition;
-		revision: number;
-	} | null>(null);
 	const [progress, setProgress] = useState<string | null>(null);
 	const [warnings, setWarnings] = useState<string[]>([]);
-	const bundlerRef = useRef<ReturnType<typeof createBrowserBundler> | null>(
-		null,
-	);
-	const requestId = useRef(0);
-	const abortRef = useRef<AbortController | null>(null);
-	const compilationQueue = useRef<Promise<void>>(Promise.resolve());
+	const iframeRef = useRef<HTMLIFrameElement | null>(null);
+	const sessionRef = useRef<CompilationSession | null>(null);
 
 	const compile = useCallback(async (videoSource: string) => {
-		const bundler = bundlerRef.current;
-		if (!bundler) {
+		const session = sessionRef.current;
+		if (!session || session.disposed) {
 			return;
 		}
 
-		const revision = ++requestId.current;
-		abortRef.current?.abort();
-		const controller = new AbortController();
-		abortRef.current = controller;
+		const revision = ++session.revision;
 		setState({type: 'loading'});
 		setWarnings([]);
 		setProgress(null);
 
-		compilationQueue.current = compilationQueue.current.then(async () => {
-			if (controller.signal.aborted || revision !== requestId.current) {
+		session.queue = session.queue.then(async () => {
+			if (session.disposed || revision !== session.revision) {
 				return;
 			}
 
 			try {
-				const bundle = await bundler.bundle({
+				const preview = await session.preview;
+				if (session.disposed || revision !== session.revision) {
+					return;
+				}
+
+				const bundle = await session.bundler.bundle({
 					project: {
 						...project,
 						files: {
@@ -138,26 +143,21 @@ export const BrowserBundlerExample: React.FC = () => {
 						},
 					},
 				});
-				if (controller.signal.aborted || revision !== requestId.current) {
+				if (session.disposed) {
+					return;
+				}
+
+				// Coalesce edits before compilation, but never discard a compiled
+				// update: the next HMR update builds on this bundle's module graph.
+				await preview.applyBundle(bundle);
+				if (session.disposed || revision !== session.revision) {
 					return;
 				}
 
 				setWarnings(bundle.warnings);
-				const root = loadBrowserBundle({bundle});
-				const composition = await getBrowserComposition({
-					root,
-					compositionId: 'BrowserDemo',
-					inputProps: {},
-					signal: controller.signal,
-				});
-				if (controller.signal.aborted || revision !== requestId.current) {
-					return;
-				}
-
-				setPreview({composition, revision});
 				setState({type: 'ready'});
 			} catch (error) {
-				if (controller.signal.aborted || revision !== requestId.current) {
+				if (session.disposed || revision !== session.revision) {
 					return;
 				}
 
@@ -167,13 +167,23 @@ export const BrowserBundlerExample: React.FC = () => {
 				});
 			}
 		});
-		await compilationQueue.current;
+		await session.queue;
 	}, []);
 
 	useEffect(() => {
+		const iframe = iframeRef.current;
+		if (!iframe) {
+			setState({
+				type: 'error',
+				message: 'The Player preview iframe is missing.',
+			});
+			return;
+		}
+
 		let disposed = false;
 		try {
 			const bundler = createBrowserBundler({
+				enableFastRefresh: true,
 				onProgress: ({loadedBytes, totalBytes}) => {
 					if (disposed) {
 						return;
@@ -186,14 +196,112 @@ export const BrowserBundlerExample: React.FC = () => {
 					);
 				},
 			});
-			bundlerRef.current = bundler;
+			let resolvePreview: (preview: BrowserBundlerPreview) => void;
+			let rejectPreview: (error: unknown) => void;
+			const preview = new Promise<BrowserBundlerPreview>((resolve, reject) => {
+				resolvePreview = resolve;
+				rejectPreview = reject;
+			});
+			const session: CompilationSession = {
+				bundler,
+				preview,
+				queue: Promise.resolve(),
+				revision: 0,
+				disposed: false,
+			};
+			sessionRef.current = session;
+			let previewRuntime: BrowserBundlerPreview | null = null;
+			let loaded = false;
+			let loadFailed = false;
+			let loadTimeout: number | null = null;
+			const reportPreviewError = (message: string) => {
+				if (!disposed) {
+					setState({type: 'error', message});
+				}
+			};
+			const failPreview = (error: unknown) => {
+				loadFailed = true;
+				if (loadTimeout !== null) {
+					window.clearTimeout(loadTimeout);
+				}
+
+				rejectPreview(error);
+				reportPreviewError(getCompilationErrorMessage(error));
+			};
+			void preview.catch((error: unknown) => {
+				reportPreviewError(getCompilationErrorMessage(error));
+			});
+			loadTimeout = window.setTimeout(
+				() =>
+					failPreview(new Error('Timed out while loading the Player preview.')),
+				30_000,
+			);
+			const onLoad = () => {
+				if (
+					disposed ||
+					loadFailed ||
+					iframe.contentWindow?.location.href === 'about:blank'
+				) {
+					return;
+				}
+
+				if (loaded) {
+					failPreview(
+						new Error(
+							'The Player preview reloaded. Reload this page to reconnect.',
+						),
+					);
+					return;
+				}
+
+				loaded = true;
+				const initialize = iframe.contentWindow?.remotionBrowserBundlerPreview;
+				if (!initialize) {
+					failPreview(
+						new Error(
+							'Could not load the development Player preview. Run "bun run make" in packages/player-example and reload this page.',
+						),
+					);
+					return;
+				}
+
+				void initialize
+					.then((createPreview) => {
+						if (disposed || loadFailed) {
+							return;
+						}
+
+						previewRuntime = createPreview({onError: reportPreviewError});
+						if (loadTimeout !== null) {
+							window.clearTimeout(loadTimeout);
+						}
+						resolvePreview(previewRuntime);
+					})
+					.catch(failPreview);
+			};
+			const onError = () =>
+				failPreview(new Error('The Player preview iframe failed to load.'));
+			iframe.addEventListener('load', onLoad);
+			iframe.addEventListener('error', onError);
+			iframe.src = '/browser-bundler-preview.html';
 			void compile(initialSource);
 
 			return () => {
 				disposed = true;
-				abortRef.current?.abort();
-				bundlerRef.current = null;
-				bundler.dispose();
+				session.disposed = true;
+				sessionRef.current = null;
+				if (loadTimeout !== null) {
+					window.clearTimeout(loadTimeout);
+				}
+				iframe.removeEventListener('load', onLoad);
+				iframe.removeEventListener('error', onError);
+				rejectPreview(new Error('The Player preview was disposed.'));
+				try {
+					previewRuntime?.dispose();
+				} finally {
+					bundler.dispose();
+					iframe.src = 'about:blank';
+				}
 			};
 		} catch (error) {
 			setState({
@@ -212,16 +320,7 @@ export const BrowserBundlerExample: React.FC = () => {
 				padding: '0 20px',
 			}}
 		>
-			<Link
-				href="/"
-				onNavigate={(event) => {
-					// Leave the isolated document when returning to other examples.
-					event.preventDefault();
-					window.location.assign('/');
-				}}
-			>
-				All Player examples
-			</Link>
+			<Link href="/">All Player examples</Link>
 			<h1>Browser-compiled Player</h1>
 			<p>
 				A virtual Remotion project calls <code>registerRoot()</code>. This page
@@ -229,8 +328,10 @@ export const BrowserBundlerExample: React.FC = () => {
 				default props, and calculated metadata in a Player.
 			</p>
 			<p>
-				Edits recompile automatically. Only run code you trust: the compiled
-				code runs in this page, not in a sandbox.
+				Edits use React Fast Refresh to preserve component state and playback.
+				The persistent preview iframe bundles its own development React, even
+				when this page uses production React. Only run code you trust: this
+				same-origin iframe is not a security sandbox.
 			</p>
 			<div>
 				<label htmlFor="browser-video-source">
@@ -262,8 +363,8 @@ export const BrowserBundlerExample: React.FC = () => {
 				{state.type === 'loading'
 					? (progress ?? 'Compiling the virtual project...')
 					: state.type === 'ready'
-						? 'BrowserDemo compiled successfully.'
-						: 'Compilation failed.'}
+						? 'BrowserDemo compiled successfully with Fast Refresh.'
+						: 'Compilation or preview failed.'}
 			</p>
 			{warnings.length > 0 ? (
 				<section aria-label="Compiler warnings">
@@ -282,33 +383,13 @@ export const BrowserBundlerExample: React.FC = () => {
 					{state.message}
 				</pre>
 			) : null}
-			{preview ? (
-				<section aria-label="Compiled composition">
-					<p>
-						{preview.composition.width} x {preview.composition.height} /{' '}
-						{preview.composition.fps} fps /{' '}
-						{preview.composition.durationInFrames} frames
-					</p>
-					<Player
-						key={preview.revision}
-						component={preview.composition.component}
-						inputProps={preview.composition.props}
-						compositionWidth={preview.composition.width}
-						compositionHeight={preview.composition.height}
-						fps={preview.composition.fps}
-						durationInFrames={preview.composition.durationInFrames}
-						controls
-						loop
-						acknowledgeRemotionLicense
-						errorFallback={({error}) => (
-							<div role="alert">
-								Could not play the composition: {error.message}
-							</div>
-						)}
-						style={{width: '100%'}}
-					/>
-				</section>
-			) : null}
+			{/* eslint-disable-next-line @remotion/warn-native-media-tag */}
+			<iframe
+				ref={iframeRef}
+				title="Live Player preview"
+				allow="autoplay; fullscreen"
+				style={{border: 0, width: '100%', aspectRatio: '1280 / 840'}}
+			/>
 		</main>
 	);
 };
