@@ -181,6 +181,12 @@ This prevents black frames that were commonly seen when a `<Sequence>` containin
 
 **Required action**: If you don't want this behavior for a specific Sequence, opt out by passing [`premountFor={0}`](/docs/sequence#premountfor).
 
+## `<Player>` does not create shared audio tags by default
+
+The default [`numberOfSharedAudioTags`](/docs/player/player#numberofsharedaudiotags) value of the [`<Player>`](/docs/player/player) has changed from `5` to `0`.
+
+**Required action**: If you rely on shared audio tags to work around browser autoplay policies, set `numberOfSharedAudioTags={5}` or another value that covers the maximum number of [`<Html5Audio>`](/docs/html5-audio) tags playing at the same time.
+
 ## Media and images pause playback while loading
 
 [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) have paused playback while loading by default since they were introduced.

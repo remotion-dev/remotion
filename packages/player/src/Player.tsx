@@ -19,6 +19,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
@@ -152,7 +153,9 @@ const PlayerFn = <
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
 		moveToBeginningWhenEnded = true,
-		numberOfSharedAudioTags = 5,
+		numberOfSharedAudioTags = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+			? 0
+			: 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
 		renderLoading,
