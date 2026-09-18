@@ -239,7 +239,7 @@ export const getCompositionMenuItems = ({
 							openGitSource({folder: false, location: resolvedLocation});
 						}
 					},
-					quickSwitcherLabel: `Open composition in ${defaultOpenInName}`,
+					quickSwitcherLabel: `Composition: Open in ${defaultOpenInName}`,
 					subMenu: null,
 					type: 'item' as const,
 					value:
@@ -259,7 +259,7 @@ export const getCompositionMenuItems = ({
 					label: 'Open composition in...',
 					leftItem: null,
 					onClick: () => undefined,
-					quickSwitcherLabel: null,
+					quickSwitcherLabel: 'Composition',
 					subMenu: {
 						items: compositionOpenInMenuItems,
 						leaveLeftSpace: true,
@@ -285,7 +285,7 @@ export const getCompositionMenuItems = ({
 							openComponentInGitSource().catch(() => undefined);
 						}
 					},
-					quickSwitcherLabel: `Open composition component in ${defaultOpenInName}`,
+					quickSwitcherLabel: `Component: Open in ${defaultOpenInName}`,
 					subMenu: null,
 					type: 'item' as const,
 					value:
@@ -305,7 +305,7 @@ export const getCompositionMenuItems = ({
 					label: 'Open component in...',
 					leftItem: null,
 					onClick: () => undefined,
-					quickSwitcherLabel: null,
+					quickSwitcherLabel: 'Component',
 					subMenu: {
 						items: componentOpenInMenuItems,
 						leaveLeftSpace: true,
