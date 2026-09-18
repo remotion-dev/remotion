@@ -251,8 +251,8 @@ describe('Undefined config properties should fall back to the defaults', () => {
 	])('config %p', (config, fps) => {
 		const value = spring({fps, frame: 10, config});
 		expect(Number.isNaN(value)).toBe(false);
-		// Spelled-out defaults have their own cache key, so this is a fresh
-		// calculation and not a copy of the value under test
+		// Both resolve to the same calculationCache key, so this compares against
+		// the cached value; it fails if the two ever resolve differently.
 		expect(value).toBe(
 			spring({
 				fps,
