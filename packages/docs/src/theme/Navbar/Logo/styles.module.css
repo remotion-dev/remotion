@@ -1,0 +1,35 @@
+.contextMenu {
+	position: fixed;
+	inset: auto;
+	min-width: 190px;
+	margin: 0;
+	padding: 6px;
+	background: var(--ifm-background-surface-color);
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 8px;
+	box-shadow: var(--box-shadow);
+}
+
+.contextMenuItem {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 10px;
+	color: var(--ifm-font-color-base);
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	white-space: nowrap;
+	border-radius: 5px;
+}
+
+.contextMenuIcon {
+	flex: 0 0 auto;
+}
+
+.contextMenuItem:hover,
+.contextMenuItem:focus-visible {
+	color: var(--ifm-font-color-base);
+	text-decoration: none;
+	background: var(--ifm-color-emphasis-200);
+	outline: none;
+}
