@@ -17,6 +17,7 @@ import {
 } from '../InspectorSequenceSection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
@@ -175,7 +176,10 @@ const SequenceSourceQuickActions: React.FC<{
 		setSelectedModal({
 			type: 'transcribe',
 			src: mediaSequence.src,
-			displayName: mediaSequence.displayName,
+			displayName: getMediaFileName(
+				mediaSequence.src,
+				mediaSequence.displayName,
+			),
 			audioStreamIndex: null,
 			requestInit: null,
 			target: {

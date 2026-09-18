@@ -1,10 +1,6 @@
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
-export const getDefaultOutputBaseName = (
-	src: string,
-	displayName: string,
-	fallbackName: string,
-): string => {
+export const getMediaFileName = (src: string, displayName: string): string => {
 	let pathname = displayName;
 	if (!/^(data|blob):/i.test(src.trimStart())) {
 		pathname = src.split(/[?#]/)[0] ?? src;
@@ -28,8 +24,16 @@ export const getDefaultOutputBaseName = (
 		// Keep the encoded name if it contains an invalid escape sequence.
 	}
 
+	return decoded;
+};
+
+export const getDefaultOutputBaseName = (
+	src: string,
+	displayName: string,
+	fallbackName: string,
+): string => {
 	return (
-		decoded
+		getMediaFileName(src, displayName)
 			.replace(/\.[^/.]+$/, '')
 			.replace(/[^a-zA-Z0-9-_ ]/g, '-')
 			.trim()
