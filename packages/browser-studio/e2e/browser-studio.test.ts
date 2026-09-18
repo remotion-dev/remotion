@@ -1585,6 +1585,20 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect
 		.poll(() => getColor(compositionActions))
 		.toBe('rgb(166, 167, 169)');
+	await compositionActions.click();
+	await expect(studio.getByText('Copy ID', {exact: true})).toBeVisible();
+	await expect
+		.poll(() =>
+			compositionItem
+				.locator('button')
+				.evaluateAll((elements) =>
+					elements.every((element) =>
+						element.checkVisibility({checkOpacity: true}),
+					),
+				),
+		)
+		.toBe(true);
+	await page.keyboard.press('Escape');
 	await neutralArea.hover();
 	await expect
 		.poll(() => getBackgroundColor(compositionItem))

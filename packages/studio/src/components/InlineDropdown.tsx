@@ -146,6 +146,7 @@ export const InlineDropdown = ({
 					onClick={onClick}
 					unhoveredColor={opened.type === 'open' ? WHITE : unhoveredColor}
 					{...props}
+					aria-expanded={opened.type === 'open'}
 				/>
 			</div>
 			{portalStyle && opened.type === 'open'
