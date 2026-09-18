@@ -45,7 +45,7 @@ export const getConfigureDefaultAppsMenuItems = ({
 			label: <span style={menuLabel}>Configure default apps...</span>,
 			leftItem: null,
 			onClick: onConfigureApps,
-			quickSwitcherLabel: null,
+			quickSwitcherLabel: 'Configure default apps...',
 			subMenu: null,
 			type: 'item' as const,
 			value: 'change-default-apps',
@@ -113,7 +113,7 @@ export const getOpenInMenuItems = ({
 					onOpenInEditor(editor.id);
 				}
 			},
-			quickSwitcherLabel: null,
+			quickSwitcherLabel: `Open in ${editor.name}`,
 			subMenu: null,
 			type: 'item' as const,
 			value: editor.id,
@@ -129,7 +129,7 @@ export const getOpenInMenuItems = ({
 			leftItem: <CodingAgentIcon codingAgentId={codingAgent.id} size={18} />,
 			onClick: () =>
 				onOpenInCodingAgent(codingAgent.id, codingAgent.nameWithType),
-			quickSwitcherLabel: null,
+			quickSwitcherLabel: `Open in ${codingAgent.nameWithType}`,
 			subMenu: null,
 			type: 'item' as const,
 			value: `coding-agent-${codingAgent.id}`,
@@ -155,7 +155,7 @@ export const getOpenInMenuItems = ({
 							onOpenInGitSource();
 						}
 					},
-					quickSwitcherLabel: null,
+					quickSwitcherLabel: 'Open in GitHub.com',
 					subMenu: null,
 					type: 'item' as const,
 					value: 'github',
@@ -175,7 +175,7 @@ export const getOpenInMenuItems = ({
 							onOpenInFileExplorer();
 						}
 					},
-					quickSwitcherLabel: null,
+					quickSwitcherLabel: `Open in ${fileManagerName}`,
 					subMenu: null,
 					type: 'item' as const,
 					value: 'file-explorer',
@@ -222,7 +222,7 @@ export const getOpenInMenuItems = ({
 						label: <span style={menuLabel}>{terminal.name}</span>,
 						leftItem: <TerminalIcon terminalId={terminal.id} size={18} />,
 						onClick: () => onOpenInTerminal?.(terminal.id),
-						quickSwitcherLabel: null,
+						quickSwitcherLabel: `Open in ${terminal.name}`,
 						subMenu: null,
 						type: 'item' as const,
 						value: `terminal-${terminal.id}`,
@@ -242,7 +242,7 @@ export const getOpenInMenuItems = ({
 						label: <span style={menuLabel}>{gitClient.name}</span>,
 						leftItem: <GitClientIcon gitClientId={gitClient.id} size={18} />,
 						onClick: () => onOpenInGitClient(gitClient.id),
-						quickSwitcherLabel: null,
+						quickSwitcherLabel: `Open in ${gitClient.name}`,
 						subMenu: null,
 						type: 'item' as const,
 						value: `git-client-${gitClient.id}`,
