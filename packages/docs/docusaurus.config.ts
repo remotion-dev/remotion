@@ -348,6 +348,19 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		// MapLibre's worker fallback uses a dynamic URL even when setWorkerUrl() is called.
+		() => ({
+			name: 'ignore-maplibre-worker-warning',
+			configureWebpack: () => ({
+				ignoreWarnings: [
+					{
+						module: /maplibre-gl\/dist\/maplibre-gl\.mjs$/,
+						message:
+							/Critical dependency: the request of a dependency is an expression/,
+					},
+				],
+			}),
+		}),
 		elementSourceDependencies,
 		longContentHashes,
 		[
