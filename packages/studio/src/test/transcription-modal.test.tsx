@@ -144,6 +144,7 @@ test('serializes transcription modal settings into caption jobs', async () => {
 								displayName="interview.wav"
 								requestInit={requestInit}
 								src="/media/interview.wav"
+								target={null}
 							/>
 						</StaticFilesProvider>
 					</RenderQueueContext.Provider>
@@ -267,6 +268,7 @@ test('serializes transcription modal settings into caption jobs', async () => {
 			model: 'tiny',
 			noRepeatNgramSize: 3,
 			outName: 'captions/interview.json',
+			target: null,
 			repetitionPenalty: 1.2,
 			requestInit,
 			src: '/media/interview.wav',

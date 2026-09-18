@@ -54,6 +54,7 @@ const baseJob = {
 	audioStreamIndex: null,
 	requestInit: null,
 	outName: 'dialogue-captions.json',
+	target: null,
 	model: 'tiny.en',
 	language: null,
 	chunkLengthInSeconds: 30,

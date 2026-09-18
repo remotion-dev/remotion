@@ -53,6 +53,7 @@ export const makeBrowserStudioOperations = (
 		saveSequenceProps: () => unusedOperation('saveSequenceProps'),
 		splitJsxSequence: () => unusedOperation('splitJsxSequence'),
 		splitVideoFromAudio: () => unusedOperation('splitVideoFromAudio'),
+		insertBasicCaptions: () => unusedOperation('insertBasicCaptions'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
 		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),

@@ -73,6 +73,8 @@ export {
 	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,
 	InsertElementFileConflict,
+	InsertBasicCaptionsRequest,
+	InsertBasicCaptionsResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,

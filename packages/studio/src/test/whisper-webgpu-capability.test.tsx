@@ -49,6 +49,7 @@ test('asks before installing Whisper for transcription', () => {
 					displayName: 'voice.wav',
 					audioStreamIndex: null,
 					requestInit: null,
+					target: null,
 				}}
 			/>
 		</ModalsProvider>,
@@ -105,6 +106,7 @@ test('opens transcription after installing Whisper without restarting', async ()
 						displayName: 'voice.wav',
 						audioStreamIndex: null,
 						requestInit: null,
+						target: null,
 					}}
 				/>
 			</ModalsProvider>,

@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {basicCaptionsElementSource} from '@remotion/studio-codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
@@ -325,7 +326,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	).toBe(false);
 });
 
-test('splits video from audio, broadcasts remappings and supports undo', async () => {
+test('splits video audio and inserts captions with remappings and undo', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	const initialSource = `import {Video} from '@remotion/media';
 export const Component = () => <Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />;`;
@@ -402,6 +403,107 @@ registerRoot(Root);`,
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
+
+	events.length = 0;
+	const captionsResult = await operations.insertBasicCaptions({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+		durationInFrames: 20,
+		captions: [
+			{
+				text: ' Hello',
+				startMs: 100,
+				endMs: 500,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+	});
+	if (!captionsResult.success) {
+		throw new Error(captionsResult.reason);
+	}
+
+	expect(currentProject.files[fileName]).toContain(
+		"import {BasicCaptions} from './basic-captions.element';",
+	);
+	expect(currentProject.files['/project/src/basic-captions.element.tsx']).toBe(
+		basicCaptionsElementSource,
+	);
+	expect(currentProject.files[fileName]).toContain(
+		'<BasicCaptions captions={[',
+	);
+	expect(currentProject.files[fileName]).toContain('"text": " Hello"');
+	expect(events).toContainEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: captionsResult.nodePathMutation,
+	});
+	const localElementPath = '/project/src/basic-captions.element.tsx';
+	const customizedSource = currentProject.files[localElementPath].replace(
+		'bottom: 120',
+		'bottom: 90',
+	);
+	currentProject = {
+		...currentProject,
+		files: {...currentProject.files, [localElementPath]: customizedSource},
+	};
+	const videoOffset = currentProject.files[fileName].indexOf('<Video');
+	const beforeVideo = currentProject.files[fileName].slice(0, videoOffset);
+	const currentSubscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Composition.tsx',
+		line: beforeVideo.split('\n').length,
+		column: beforeVideo.length - beforeVideo.lastIndexOf('\n') - 1,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.media.Video',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!currentSubscription.success) {
+		throw new Error('Expected the updated Video node path');
+	}
+
+	const repeatedCaptionsResult = await operations.insertBasicCaptions({
+		fileName: 'src/Composition.tsx',
+		nodePath: currentSubscription.nodePath.nodePath,
+		durationInFrames: 20,
+		captions: [
+			{
+				text: ' Again',
+				startMs: 100,
+				endMs: 500,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+	});
+	if (!repeatedCaptionsResult.success) {
+		throw new Error(repeatedCaptionsResult.reason);
+	}
+
+	expect(currentProject.files[localElementPath]).toBe(customizedSource);
+	expect(
+		currentProject.files['/project/src/basic-captions-2.element.tsx'],
+	).toBeUndefined();
+	expect(
+		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+	).toHaveLength(2);
+	expect((await operations.undo()).success).toBe(true);
+	expect(currentProject.files[localElementPath]).toBe(customizedSource);
+	expect(
+		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+	).toHaveLength(1);
+	expect((await operations.undo()).success).toBe(true);
+	expect(currentProject.files[fileName]).toBe(initialSource);
+	expect(
+		currentProject.files['/project/src/basic-captions.element.tsx'],
+	).toBeUndefined();
 });
 
 test('reports invalid timeline Solid input without changing the project', async () => {

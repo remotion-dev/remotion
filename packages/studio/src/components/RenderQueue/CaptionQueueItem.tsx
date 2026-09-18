@@ -124,7 +124,7 @@ export const CaptionQueueItem: React.FC<{
 	const [hovered, setHovered] = useState(false);
 	const {removeCaptionJob} = useContext(RenderQueueContext);
 	const selectAsset = useSelectAsset();
-	const isHoverable = job.status === 'done';
+	const isHoverable = job.status === 'done' && job.target === null;
 
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -154,6 +154,10 @@ export const CaptionQueueItem: React.FC<{
 
 	const onClick = useCallback(() => {
 		if (job.status !== 'done') {
+			return;
+		}
+
+		if (job.target !== null) {
 			return;
 		}
 
@@ -199,7 +203,7 @@ export const CaptionQueueItem: React.FC<{
 			return job.error.message;
 		}
 
-		return job.outName;
+		return job.target === null ? job.outName : 'Captions added to composition';
 	}, [job]);
 
 	return (
