@@ -7,7 +7,7 @@
 	background: var(--ifm-background-surface-color);
 	border: 1px solid var(--ifm-color-emphasis-300);
 	border-radius: 8px;
-	box-shadow: var(--box-shadow);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .contextMenuItem {
