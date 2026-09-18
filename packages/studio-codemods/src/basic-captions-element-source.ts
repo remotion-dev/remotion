@@ -33,8 +33,9 @@ type BasicCaptionsProps = InteractiveBaseProps &
 const BasicCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly playbackRate: number;
+	readonly trimBefore: number;
 	readonly combineTokensWithinMilliseconds: number;
-}> = ({captions, playbackRate, combineTokensWithinMilliseconds}) => {
+}> = ({captions, playbackRate, trimBefore, combineTokensWithinMilliseconds}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(() => {
@@ -76,7 +77,9 @@ const BasicCaptionsContent: React.FC<{
 		}
 		return result;
 	}, [captions, combineTokensWithinMilliseconds]);
-	const currentTimeMs = (frame / fps) * 1000 * playbackRate;
+	// The Sequence frame already includes trimBefore; only elapsed frames speed up.
+	const currentTimeMs =
+		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
 	const page = pages.find(
 		(candidate) =>
 			currentTimeMs >= candidate.startMs &&
@@ -195,6 +198,7 @@ const BasicCaptionsInner = forwardRef<
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 						playbackRate={playbackRate}
+						trimBefore={trimBefore ?? 0}
 					/>
 				</div>
 			</Sequence>
