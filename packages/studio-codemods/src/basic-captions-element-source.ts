@@ -1,3 +1,5 @@
+import {parseAst} from './sequence-props/parse-ast';
+
 export const basicCaptionsElementSource = `import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
 import {
 	Interactive,
@@ -228,7 +230,47 @@ export const getBasicCaptionsElementFile = ({
 		const baseName = `basic-captions${index === 0 ? '' : `-${index + 1}`}.element`;
 		const candidate = `${directory}${baseName}.tsx`;
 		const existing = readFileContents(candidate);
-		if (existing === null || existing === basicCaptionsElementSource) {
+		let exportsBasicCaptions = false;
+		if (existing !== null) {
+			try {
+				const ast = parseAst(existing);
+				exportsBasicCaptions = ast.program.body.some((statement) => {
+					if (statement.type !== 'ExportNamedDeclaration') {
+						return false;
+					}
+
+					const {declaration} = statement;
+					if (declaration?.type === 'VariableDeclaration') {
+						return declaration.declarations.some(
+							(item) =>
+								item.id.type === 'Identifier' &&
+								item.id.name === 'BasicCaptions',
+						);
+					}
+
+					if (
+						declaration?.type === 'FunctionDeclaration' ||
+						declaration?.type === 'ClassDeclaration'
+					) {
+						return declaration.id?.name === 'BasicCaptions';
+					}
+
+					return statement.specifiers.some(
+						(specifier) =>
+							(specifier.type === 'ExportSpecifier' &&
+								specifier.exported.type === 'Identifier' &&
+								specifier.exported.name === 'BasicCaptions') ||
+							(specifier.type === 'ExportSpecifier' &&
+								specifier.exported.type === 'StringLiteral' &&
+								specifier.exported.value === 'BasicCaptions'),
+					);
+				});
+			} catch {
+				// Keep a malformed or unrelated file untouched and use another name.
+			}
+		}
+
+		if (existing === null || exportsBasicCaptions) {
 			return {
 				fileName: candidate,
 				importPath: `./${baseName}`,

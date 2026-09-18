@@ -8,7 +8,10 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {basicCaptionsElementSource} from '@remotion/studio-codemods';
+import {
+	basicCaptionsElementSource,
+	getBasicCaptionsElementFile,
+} from '@remotion/studio-codemods';
 import {insertBasicCaptions} from '../codemods/insert-basic-captions';
 import {
 	createFileWatcherRegistry,
@@ -140,4 +143,51 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 	expect(output).toContain('<Audio src="voice.mp3" />');
 	expect(output).toContain('<BasicCaptions captions={[');
 	expect(output).toContain('durationInFrames={30}');
+});
+
+test('keeps edited Basic captions source and adds another instance for the same clip', () => {
+	const customizedSource = basicCaptionsElementSource.replace(
+		'bottom: 120',
+		'bottom: 90',
+	);
+	const localElement = getBasicCaptionsElementFile({
+		fileName: '/project/Comp.tsx',
+		readFileContents: (candidate) =>
+			candidate === '/project/basic-captions.element.tsx'
+				? customizedSource
+				: null,
+	});
+	expect(localElement).toEqual({
+		fileName: '/project/basic-captions.element.tsx',
+		importPath: './basic-captions.element',
+		shouldWrite: false,
+	});
+
+	const input = `import {Audio} from 'remotion';
+export const Comp = () => <Audio src="voice.mp3" />;`;
+	const captions = [
+		{
+			text: ' Hello',
+			startMs: 0,
+			endMs: 500,
+			timestampMs: null,
+			confidence: null,
+		},
+	];
+	const first = insertBasicCaptions({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Audio'),
+		captions,
+		durationInFrames: 30,
+		importPath: localElement.importPath,
+	});
+	const second = insertBasicCaptions({
+		input: first.output,
+		nodePath: lineContainingToNodePath(first.output, '<Audio'),
+		captions,
+		durationInFrames: 30,
+		importPath: localElement.importPath,
+	});
+	expect(second.output.match(/<BasicCaptions captions/g)).toHaveLength(2);
+	expect(second.output.match(/import \{BasicCaptions\}/g)).toHaveLength(1);
 });
