@@ -90,6 +90,7 @@ export const RenderQueue: React.FC = () => {
 				const job = allJobs[i];
 				if (
 					isCaptionJob(job) &&
+					job.target === null &&
 					job.status === 'done' &&
 					canvasContent.asset === job.outName
 				) {

@@ -2,6 +2,7 @@ import type {
 	WhisperWebGpuModel,
 	WhisperWebGpuTask,
 } from '@remotion/whisper-webgpu';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 
 export type CaptionJobProgress = {
 	message: string;
@@ -23,6 +24,11 @@ export type AddCaptionJobParams = {
 	audioStreamIndex: number | null;
 	requestInit: Omit<RequestInit, 'signal'> | null;
 	outName: string;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number | null;
+	} | null;
 	model: WhisperWebGpuModel;
 	language: string | null;
 	task: WhisperWebGpuTask;

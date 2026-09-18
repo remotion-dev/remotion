@@ -30,6 +30,7 @@ const makeCaptionParams = (displayName: string): AddCaptionJobParams => ({
 	audioStreamIndex: null,
 	requestInit: null,
 	outName: `${displayName}.json`,
+	target: null,
 	model: 'tiny.en',
 	language: null,
 	chunkLengthInSeconds: 30,

@@ -25,6 +25,7 @@ import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
 import {findInFileHandler} from './routes/find-in-file';
+import {insertBasicCaptionsHandler} from './routes/insert-basic-captions';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {
@@ -128,6 +129,7 @@ export const allApiRoutes: {
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
+	'/api/insert-basic-captions': insertBasicCaptionsHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,

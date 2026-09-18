@@ -85,6 +85,7 @@ export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 export {simpleDiff} from './simple-diff';
 export {splitJsxSequence} from './split-jsx-sequence';
 export {splitVideoFromAudio} from './split-video-from-audio';
+export {insertBasicCaptions} from './insert-basic-captions';
 export {
 	getCompositionDefaultPropsLine,
 	updateDefaultProps,

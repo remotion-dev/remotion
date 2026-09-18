@@ -918,6 +918,24 @@ export type SplitVideoFromAudioResponse =
 			stack: string;
 	  };
 
+export type InsertBasicCaptionsRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	durationInFrames: number | null;
+	captions: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+		pageBreakAfter?: boolean;
+	}[];
+};
+
+export type InsertBasicCaptionsResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
 export type InsertableCompositionElement =
 	| {
 			type: 'solid';
@@ -1411,6 +1429,10 @@ export type ApiRoutes = {
 	'/api/split-video-from-audio': ReqAndRes<
 		SplitVideoFromAudioRequest,
 		SplitVideoFromAudioResponse
+	>;
+	'/api/insert-basic-captions': ReqAndRes<
+		InsertBasicCaptionsRequest,
+		InsertBasicCaptionsResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

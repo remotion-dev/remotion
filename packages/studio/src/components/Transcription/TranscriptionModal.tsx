@@ -705,6 +705,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	displayName,
 	requestInit,
 	src,
+	target,
 }) => {
 	const [tab, setTab] = useState<Tab>('transcribe');
 	const isModelCached = useCallback(
@@ -771,14 +772,17 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	const normalizedOutName = outName.normalize('NFC').toLowerCase();
 	const queuedOutputExists = captionJobs.some(
 		(job) =>
+			job.target === null &&
 			(job.status === 'idle' || job.status === 'running') &&
 			job.outName.normalize('NFC').toLowerCase() === normalizedOutName,
 	);
 	const outputValidationMessage =
-		validateCaptionOutputName(outName) ??
-		(queuedOutputExists
-			? 'Another caption job is already using this output file'
-			: null);
+		target === null
+			? (validateCaptionOutputName(outName) ??
+				(queuedOutputExists
+					? 'Another caption job is already using this output file'
+					: null))
+			: null;
 	const exists = staticFiles.some(
 		(file) => file.name.normalize('NFC').toLowerCase() === normalizedOutName,
 	);
@@ -836,7 +840,8 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 			displayName,
 			audioStreamIndex,
 			requestInit,
-			outName,
+			outName: target === null ? outName : 'Basic captions',
+			target,
 			model: selectedModel,
 			language: modelInfo.multilingual ? selectedLanguage : null,
 			task: modelInfo.supportsTranslation ? selectedTask : 'transcribe',
@@ -863,6 +868,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		forceFullSequences,
 		noRepeatNgramSize,
 		outName,
+		target,
 		repetitionPenalty,
 		requestInit,
 		src,
@@ -876,10 +882,13 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 		topK,
 	]);
 
+	const title =
+		target === null ? `Transcribe ${displayName}` : 'Generate captions';
+
 	return (
-		<DismissableModal ariaLabel={`Transcribe ${displayName}`}>
+		<DismissableModal ariaLabel={title}>
 			<div style={transcriptionModalStyle}>
-				<ModalHeader title={`Transcribe ${displayName}`} />
+				<ModalHeader title={title} />
 				<div style={container}>
 					<div style={flexer} />
 					<Button
@@ -893,7 +902,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								: BLUE_DISABLED,
 						}}
 					>
-						Transcribe
+						{target === null ? 'Transcribe' : 'Generate captions'}
 					</Button>
 				</div>
 				<div style={transcriptionLayout}>
@@ -909,7 +918,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 								</div>
 							)}
 						>
-							Transcribe
+							{target === null ? 'Transcribe' : 'Generate captions'}
 						</VerticalTab>
 						<VerticalTab
 							style={horizontalTab}
@@ -940,13 +949,15 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 						style={tab === 'transcribe' ? settingsPanel : hiddenPanel}
 						className={VERTICAL_SCROLLBAR_CLASSNAME}
 					>
-						<OutputSettings
-							exists={exists}
-							onOutNameChange={onOutNameChange}
-							outName={outName}
-							validationMessage={outputValidationMessage}
-						/>
-						<RenderModalHr />
+						{target === null ? (
+							<OutputSettings
+								exists={exists}
+								onOutNameChange={onOutNameChange}
+								outName={outName}
+								validationMessage={outputValidationMessage}
+							/>
+						) : null}
+						{target === null ? <RenderModalHr /> : null}
 						<ModelSettings
 							cachedModels={cachedModels}
 							selectedLanguage={selectedLanguage}

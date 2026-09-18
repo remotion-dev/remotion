@@ -15,7 +15,7 @@ export const TranscriptionModalWithOptionalWhisper: React.FC<{
 		<OptionalPackageModal
 			ariaLabel="Install transcription package"
 			packageName={WHISPER_WEBGPU_PACKAGE}
-			title="Transcribe"
+			title={state.target === null ? 'Transcribe' : 'Generate captions'}
 		>
 			<Suspense fallback={null}>
 				<LazyTranscriptionModal {...state} />

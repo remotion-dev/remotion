@@ -618,6 +618,7 @@ export const WebMcp: FC = () => {
 							model: model.name,
 							noRepeatNgramSize,
 							outName: outputPath,
+							target: null,
 							repetitionPenalty,
 							requestInit: null,
 							src,

@@ -325,7 +325,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	).toBe(false);
 });
 
-test('splits video from audio, broadcasts remappings and supports undo', async () => {
+test('splits video audio and inserts captions with remappings and undo', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	const initialSource = `import {Video} from '@remotion/media';
 export const Component = () => <Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />;`;
@@ -401,6 +401,39 @@ registerRoot(Root);`,
 
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
+	expect(currentProject.files[fileName]).toBe(initialSource);
+
+	events.length = 0;
+	const captionsResult = await operations.insertBasicCaptions({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+		durationInFrames: 20,
+		captions: [
+			{
+				text: ' Hello',
+				startMs: 100,
+				endMs: 500,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+	});
+	if (!captionsResult.success) {
+		throw new Error(captionsResult.reason);
+	}
+
+	expect(currentProject.files[fileName]).toContain(
+		"import {BasicCaptions} from '@remotion/captions/basic-captions';",
+	);
+	expect(currentProject.files[fileName]).toContain(
+		'<BasicCaptions captions={[',
+	);
+	expect(currentProject.files[fileName]).toContain('"text": " Hello"');
+	expect(events).toContainEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: captionsResult.nodePathMutation,
+	});
+	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
 });
 

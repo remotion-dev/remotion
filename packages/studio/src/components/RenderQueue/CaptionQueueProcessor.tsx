@@ -9,6 +9,9 @@ import {
 } from '@remotion/whisper-webgpu';
 import {useCallback, useContext, useEffect} from 'react';
 import {writeStaticFile} from '../../api/write-static-file';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {installRequiredPackages} from '../../helpers/install-required-package';
+import {callApi} from '../call-api';
 import {resampleMediaTo16Khz} from '../Transcription/resample-media-to-16-khz';
 import type {CaptionJob} from './caption-job-types';
 import {RenderQueueContext} from './context';
@@ -93,14 +96,38 @@ export const CaptionQueueProcessor: React.FC = () => {
 					whisperWebGpuOutput: transcription,
 				});
 
-				updateCaptionJobProgress(job.id, {
-					message: `Saving ${job.outName}...`,
-					value: 0.95,
-				});
-				await writeStaticFile({
-					contents: JSON.stringify(captions, null, 2),
-					filePath: job.outName,
-				});
+				if (job.target === null) {
+					updateCaptionJobProgress(job.id, {
+						message: `Saving ${job.outName}...`,
+						value: 0.95,
+					});
+					await writeStaticFile({
+						contents: JSON.stringify(captions, null, 2),
+						filePath: job.outName,
+					});
+				} else {
+					updateCaptionJobProgress(job.id, {
+						message: 'Adding Basic captions...',
+						value: 0.95,
+					});
+					await installRequiredPackages([
+						{name: '@remotion/captions', version: null},
+					]);
+					const request = {
+						fileName: job.target.fileName,
+						nodePath: job.target.nodePath.nodePath,
+						durationInFrames: job.target.durationInFrames,
+						captions,
+					};
+					const browserStudioOperations = getBrowserStudioOperations();
+					const response = browserStudioOperations
+						? await browserStudioOperations.insertBasicCaptions(request)
+						: await callApi('/api/insert-basic-captions', request);
+					if (!response.success) {
+						throw new Error(response.reason);
+					}
+				}
+
 				captionCount = captions.length;
 			} catch (error) {
 				processingError =
