@@ -208,6 +208,10 @@ export const internalOpenBrowser = async ({
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
 			'--force-gpu-mem-available-mb=4096',
+			// Prevent duplicated horizontal strips in Lambda renders: https://github.com/remotion-dev/remotion/issues/11428
+			process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA === 'true'
+				? '--disable-gpu-rasterization'
+				: null,
 			'--disable-hang-monitor',
 			'--disable-extensions',
 			'--allow-chrome-scheme-url',
