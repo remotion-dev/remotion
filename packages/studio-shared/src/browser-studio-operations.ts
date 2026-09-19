@@ -62,6 +62,8 @@ import type {
 	SplitVideoFromAudioResponse,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
+	InsertVideoLayersRequest,
+	InsertVideoLayersResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -227,6 +229,9 @@ export type BrowserStudioOperations = {
 	insertBasicCaptions: (
 		request: InsertBasicCaptionsRequest,
 	) => Promise<InsertBasicCaptionsResponse>;
+	insertVideoLayers: (
+		request: InsertVideoLayersRequest,
+	) => Promise<InsertVideoLayersResponse>;
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;

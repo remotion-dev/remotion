@@ -7,6 +7,8 @@ import {
 } from '@remotion/video-matting';
 import {useCallback, useContext, useEffect} from 'react';
 import {writeStaticFile} from '../../api/write-static-file';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {callApi} from '../call-api';
 import {RenderQueueContext} from './context';
 import {loadModelForJob} from './load-model-for-job';
 import type {VideoMattingJob} from './video-matting-job-types';
@@ -93,6 +95,27 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 							writeStaticFile({contents, filePath: job.foregroundOutName}),
 						),
 				]);
+
+				if (job.target !== null) {
+					updateVideoMattingJobProgress(job.id, {
+						detail: null,
+						message: 'Adding separated video layers...',
+						value: 0.97,
+					});
+					const request = {
+						fileName: job.target.fileName,
+						nodePath: job.target.nodePath.nodePath,
+						baseSrc: job.baseOutName,
+						foregroundSrc: job.foregroundOutName,
+					};
+					const browserStudioOperations = getBrowserStudioOperations();
+					const response = browserStudioOperations
+						? await browserStudioOperations.insertVideoLayers(request)
+						: await callApi('/api/insert-video-layers', request);
+					if (!response.success) {
+						throw new Error(response.reason);
+					}
+				}
 			} catch (error) {
 				processingError =
 					error instanceof Error ? error : new Error(String(error));

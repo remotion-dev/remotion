@@ -66,6 +66,7 @@ const videoMattingParams: AddVideoMattingJobParams = {
 	foregroundOutName: 'video-foreground.webm',
 	model: 'ben2-base',
 	src: '/video.mp4',
+	target: null,
 	videoBitrate: 'very-high',
 };
 

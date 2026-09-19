@@ -940,6 +940,17 @@ export type InsertBasicCaptionsResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
+export type InsertVideoLayersRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	baseSrc: string;
+	foregroundSrc: string;
+};
+
+export type InsertVideoLayersResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
 export type InsertableCompositionElement =
 	| {
 			type: 'solid';
@@ -1437,6 +1448,10 @@ export type ApiRoutes = {
 	'/api/insert-basic-captions': ReqAndRes<
 		InsertBasicCaptionsRequest,
 		InsertBasicCaptionsResponse
+	>;
+	'/api/insert-video-layers': ReqAndRes<
+		InsertVideoLayersRequest,
+		InsertVideoLayersResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

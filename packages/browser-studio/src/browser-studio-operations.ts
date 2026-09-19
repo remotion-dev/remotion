@@ -17,6 +17,7 @@ import {
 	getRootFileForProject,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	insertBasicCaptions as insertBasicCaptionsCodemod,
+	insertVideoLayers as insertVideoLayersCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	makeInMemoryInsertJsxElementCodemodEnvironment,
@@ -1986,6 +1987,50 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const insertVideoLayers: BrowserStudioOperations['insertVideoLayers'] = ({
+		fileName,
+		nodePath,
+		baseSrc,
+		foregroundSrc,
+	}) => {
+		try {
+			const project = getProject();
+			const absolutePath = findProjectFile({filePath: fileName, project});
+			const result = insertVideoLayersCodemod({
+				input: project.files[absolutePath],
+				nodePath,
+				baseSrc,
+				foregroundSrc,
+			});
+			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
+				timelineSelection: null,
+				fileName: absolutePath,
+				mutate: () => ({
+					...project,
+					files: {...project.files, [absolutePath]: result.output},
+				}),
+				nodePathMutationFiles: [
+					{
+						absolutePath,
+						remappings: result.nodePathRemappings,
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not insert separated video layers');
+			}
+
+			return Promise.resolve({success: true as const, nodePathMutation});
+		} catch (error) {
+			return Promise.resolve({
+				success: false as const,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			});
+		}
+	};
+
 	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
 		request,
 	) => {
@@ -2437,6 +2482,7 @@ export const createBrowserStudioOperations = ({
 		},
 		splitVideoFromAudio,
 		insertBasicCaptions,
+		insertVideoLayers,
 		subscribeToDefaultProps: ({clientId, compositionId}) => {
 			const clients =
 				defaultPropsSubscriptions.get(compositionId) ?? new Set<string>();
