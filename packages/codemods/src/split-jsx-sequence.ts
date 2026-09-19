@@ -21,7 +21,7 @@ import type {SequenceNodePath} from 'remotion';
 import {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
-} from './delete-jsx-node-internal';
+} from './delete-jsx-nodes-internal';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,

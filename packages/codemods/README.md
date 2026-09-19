@@ -29,12 +29,11 @@ Mounted JSX elements can be deleted using the same node paths that Remotion
 Canvas and Studio use:
 
 ```tsx
-import {deleteJsxNode} from '@remotion/codemods';
+import {deleteJsxNodes} from '@remotion/codemods';
 
-const removed = await deleteJsxNode({
-  project: result.project,
-  filePath: result.insertedNode.filePath,
-  nodePath: result.insertedNode.nodePath,
+const removed = await deleteJsxNodes({
+	project: result.project,
+	nodes: [result.insertedNode],
 });
 ```
 

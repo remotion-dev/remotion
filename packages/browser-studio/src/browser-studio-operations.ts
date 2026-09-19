@@ -44,7 +44,7 @@ const {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	deleteEffects: deleteEffectsCodemod,
-	deleteJsxNodes,
+	deleteJsxNodes: deleteJsxNodesCodemod,
 	duplicateCompositionInSource,
 	duplicateEffects: duplicateEffectsCodemod,
 	duplicateJsxNodes: duplicateJsxNodesCodemod,
@@ -1240,7 +1240,7 @@ export const createBrowserStudioOperations = ({
 		},
 	};
 
-	const deleteJsxNode: BrowserStudioOperations['deleteJsxNode'] = async ({
+	const deleteJsxNodes: BrowserStudioOperations['deleteJsxNodes'] = async ({
 		nodes,
 	}) => {
 		try {
@@ -1266,7 +1266,7 @@ export const createBrowserStudioOperations = ({
 			const updates = await Promise.all(
 				[...nodesByFile].map(async ([fileName, nodePaths]) => ({
 					fileName,
-					result: await deleteJsxNodes({
+					result: await deleteJsxNodesCodemod({
 						input: project.files[fileName],
 						nodePaths,
 					}),
@@ -2067,7 +2067,7 @@ export const createBrowserStudioOperations = ({
 						sourceOrigin: value.sourceOrigin,
 					};
 		},
-		deleteJsxNode,
+		deleteJsxNodes,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadRemoteAsset: (request) =>
 			downloadRemoteAssetInBrowserStudio({

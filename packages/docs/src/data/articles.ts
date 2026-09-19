@@ -1414,13 +1414,13 @@ export const articles = [
 		slug: 'codemods/add-solid',
 	},
 	{
-		id: 'codemods/delete-jsx-node',
-		title: 'deleteJsxNode()',
-		relativePath: 'docs/codemods/delete-jsx-node.mdx',
-		compId: 'articles-docs-codemods-delete-jsx-node',
+		id: 'codemods/delete-jsx-nodes',
+		title: 'deleteJsxNodes()',
+		relativePath: 'docs/codemods/delete-jsx-nodes.mdx',
+		compId: 'articles-docs-codemods-delete-jsx-nodes',
 		crumb: '@remotion/codemods',
 		noAi: false,
-		slug: 'codemods/delete-jsx-node',
+		slug: 'codemods/delete-jsx-nodes',
 	},
 	{
 		id: 'codemods/index',

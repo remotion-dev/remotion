@@ -80,7 +80,7 @@ An array describing each changed file with its `filePath`, `previousContents`, a
 
 ### insertedNode
 
-The `filePath` and `nodePath` of the inserted JSX element. Pass these values to [`deleteJsxNode()`](/docs/codemods/delete-jsx-node) to remove the element again.
+The `filePath` and `nodePath` of the inserted JSX element. Pass these values as an item in `nodes` to [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes) to remove the element again.
 
 ## Compatibility
 
@@ -90,5 +90,5 @@ The `filePath` and `nodePath` of the inserted JSX element. Pass these values to 
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-solid.ts)
 - [`<Solid>`](/docs/solid)
-- [`deleteJsxNode()`](/docs/codemods/delete-jsx-node)
+- [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes)
 - [`@remotion/browser-bundler`](/docs/browser-bundler)

@@ -593,35 +593,3 @@ export const deleteJsxNodes = ({
 		nodePathRemappings,
 	});
 };
-
-export const deleteJsxNode = async ({
-	input,
-	nodePath,
-}: {
-	input: string;
-	nodePath: SequenceNodePath;
-	// Kept optional for compatibility with callers from before source edits
-	// replaced the full-file formatting pass.
-	formatFile?: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
-	output: string;
-	formatted: boolean;
-	nodeLabel: string;
-	logLine: number;
-}> => {
-	const {output, formatted, nodeLabels, logLines} = await deleteJsxNodes({
-		input,
-		nodePaths: [nodePath],
-	});
-
-	return {
-		output,
-		formatted,
-		nodeLabel: nodeLabels[0],
-		logLine: logLines[0],
-	};
-};

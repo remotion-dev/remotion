@@ -3,7 +3,7 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
-import {addSolid, deleteJsxNode} from '@remotion/codemods';
+import {addSolid, deleteJsxNodes} from '@remotion/codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import type {SequenceNodePath} from 'remotion';
@@ -409,9 +409,13 @@ export const BrowserBundlerExample: React.FC = () => {
 						}
 
 						setState({type: 'loading'});
-						void deleteJsxNode({
-							filePath: insertedSolid.filePath,
-							nodePath: insertedSolid.nodePath,
+						void deleteJsxNodes({
+							nodes: [
+								{
+									filePath: insertedSolid.filePath,
+									nodePath: insertedSolid.nodePath,
+								},
+							],
 							project: {
 								...project,
 								files: {...project.files, 'src/Video.tsx': source},

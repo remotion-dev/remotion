@@ -3,7 +3,6 @@ import type {SequenceNodePath} from 'remotion';
 
 const {
 	deleteJsxElementAtPath,
-	deleteJsxNode: deleteJsxNodeCodemod,
 	deleteJsxNodes: deleteJsxNodesCodemod,
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
@@ -25,16 +24,4 @@ export const deleteJsxNodes = ({
 	deleteJsxNodesCodemod({
 		input,
 		nodePaths,
-	});
-
-export const deleteJsxNode = ({
-	input,
-	nodePath,
-}: {
-	input: string;
-	nodePath: SequenceNodePath;
-}) =>
-	deleteJsxNodeCodemod({
-		input,
-		nodePath,
 	});

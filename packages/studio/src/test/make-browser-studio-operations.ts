@@ -10,7 +10,7 @@ export const makeBrowserStudioOperations = (
 	return {
 		applyCodemod: () => unusedOperation('applyCodemod'),
 		consumeInitialElement: () => null,
-		deleteJsxNode: () => unusedOperation('deleteJsxNode'),
+		deleteJsxNodes: () => unusedOperation('deleteJsxNodes'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
 		downloadRemoteAsset: () => unusedOperation('downloadRemoteAsset'),
 		downloadProject: () => unusedOperation('downloadProject'),

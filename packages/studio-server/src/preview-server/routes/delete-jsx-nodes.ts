@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeResponse,
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesResponse,
 } from '@remotion/studio-shared';
-import {deleteJsxNodes} from '../../codemods/delete-jsx-node';
+import {deleteJsxNodes} from '../../codemods/delete-jsx-nodes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -29,16 +29,16 @@ const getDeletedNodeDescription = (nodeLabels: string[]): string => {
 	return `${nodeLabels.length} JSX nodes`;
 };
 
-export const deleteJsxNodeHandler: ApiHandler<
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeResponse
+export const deleteJsxNodesHandler: ApiHandler<
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesResponse
 > = ({input: {nodes}, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
 			logHmrTiming({
 				detail: null,
 				logLevel,
-				stage: 'delete-jsx-node-request-start',
+				stage: 'delete-jsx-nodes-request-start',
 			});
 
 			if (nodes.length === 0) {
@@ -47,7 +47,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[delete-jsx-node] Received request to delete ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
+				`[delete-jsx-nodes] Received request to delete ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
 			);
 
 			const itemsByFileName = new Map<string, typeof nodes>();
@@ -87,7 +87,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 			logHmrTiming({
 				detail: `files=${updates.length}`,
 				logLevel,
-				stage: 'delete-jsx-node-codemod-complete',
+				stage: 'delete-jsx-nodes-codemod-complete',
 			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
@@ -113,7 +113,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 						undoMessage: `↩️  Deletion of ${deletedNodeDescription}`,
 						redoMessage: `↪️  Deletion of ${deletedNodeDescription}`,
 					},
-					entryType: 'delete-jsx-node',
+					entryType: 'delete-jsx-nodes',
 					suppressHmrOnFileRestore: false,
 					nodePathRemappings: update.nodePathRemappings,
 				});
@@ -146,7 +146,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 				);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[delete-jsx-node] Wrote ${update.fileRelativeToRoot}`,
+					`[delete-jsx-nodes] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 

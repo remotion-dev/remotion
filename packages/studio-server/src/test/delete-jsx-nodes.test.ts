@@ -6,13 +6,13 @@ import type {
 	EventSourceEvent,
 	SubscribeToSequencePropsRequest,
 } from '@remotion/studio-shared';
-import {deleteJsxNode, deleteJsxNodes} from '../codemods/delete-jsx-node';
+import {deleteJsxNodes} from '../codemods/delete-jsx-nodes';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {deleteJsxNodeHandler} from '../preview-server/routes/delete-jsx-node';
+import {deleteJsxNodesHandler} from '../preview-server/routes/delete-jsx-nodes';
 import {subscribeToSequenceProps} from '../preview-server/routes/subscribe-to-sequence-props';
 import {unsubscribeClientSequencePropsWatchers} from '../preview-server/sequence-props-watchers';
 import {
@@ -34,10 +34,10 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNode removes a JSX child from a parent element', async () => {
-	const {output} = await deleteJsxNode({
+test('deleteJsxNodes removes a JSX child from a parent element', async () => {
+	const {output} = await deleteJsxNodes({
 		input: sample,
-		nodePath: lineColumnToNodePath(sample, 7),
+		nodePaths: [lineColumnToNodePath(sample, 7)],
 	});
 
 	expect(output).not.toContain('<div');
@@ -51,10 +51,10 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNode replaces sole return JSX with null', async () => {
-	const {output} = await deleteJsxNode({
+test('deleteJsxNodes replaces sole return JSX with null', async () => {
+	const {output} = await deleteJsxNodes({
 		input: onlyReturn,
-		nodePath: lineColumnToNodePath(onlyReturn, 4),
+		nodePaths: [lineColumnToNodePath(onlyReturn, 4)],
 	});
 
 	expect(output).toContain('return null');
@@ -68,10 +68,10 @@ export const X: React.FC<{show: boolean}> = ({show}) => {
 };
 `;
 
-test('deleteJsxNode turns conditional JSX into null', async () => {
-	const {output} = await deleteJsxNode({
+test('deleteJsxNodes turns conditional JSX into null', async () => {
+	const {output} = await deleteJsxNodes({
 		input: conditional,
-		nodePath: lineColumnToNodePath(conditional, 4),
+		nodePaths: [lineColumnToNodePath(conditional, 4)],
 	});
 
 	expect(output).toContain('&& null');
@@ -85,10 +85,10 @@ export const X: React.FC<{show: boolean}> = ({show}) => {
 };
 `;
 
-test('deleteJsxNode replaces JSX in ternary consequent with null', async () => {
-	const {output} = await deleteJsxNode({
+test('deleteJsxNodes replaces JSX in ternary consequent with null', async () => {
+	const {output} = await deleteJsxNodes({
 		input: ternary,
-		nodePath: lineColumnToNodePath(ternary, 4),
+		nodePaths: [lineColumnToNodePath(ternary, 4)],
 	});
 
 	expect(output).toMatch(/\?\s*null/);
@@ -108,10 +108,10 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNode replaces JSX inside map callback', async () => {
-	const {output} = await deleteJsxNode({
+test('deleteJsxNodes replaces JSX inside map callback', async () => {
+	const {output} = await deleteJsxNodes({
 		input: mapCase,
-		nodePath: lineColumnToNodePath(mapCase, 7),
+		nodePaths: [lineColumnToNodePath(mapCase, 7)],
 	});
 
 	expect(output).not.toContain('<div');
@@ -406,7 +406,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		expect(subscription.success).toBe(true);
 		expect(subscription.results.every((result) => result.success)).toBe(true);
 
-		const response = await deleteJsxNodeHandler({
+		const response = await deleteJsxNodesHandler({
 			...apiHandlerContext,
 			input: {
 				nodes: [

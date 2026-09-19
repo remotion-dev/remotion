@@ -16,11 +16,10 @@ import {parseAst} from './sequence-props/parse-ast';
 export {applyVisualControl} from './apply-visual-control';
 export {
 	deleteJsxElementAtPath,
-	deleteJsxNode,
 	deleteJsxNodes,
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
-} from './delete-jsx-node-internal';
+} from './delete-jsx-nodes-internal';
 export {duplicateCompositionInSource} from './duplicate-composition';
 export {
 	duplicateJsxElementAtPath,

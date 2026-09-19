@@ -2,7 +2,7 @@ import type {JSXElement, JSXFragment} from '@babel/types';
 import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
-import {findJsxElementPathForDeletion} from './delete-jsx-node-internal';
+import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,

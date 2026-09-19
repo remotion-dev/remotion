@@ -2039,7 +2039,7 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'codemods/index',
 			},
-			items: ['codemods/add-solid', 'codemods/delete-jsx-node'],
+			items: ['codemods/add-solid', 'codemods/delete-jsx-nodes'],
 		},
 	],
 };

@@ -6,7 +6,7 @@ import type {
 } from '@babel/types';
 import type {CompositionOrFolder, RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import {getNodeSourceEdit} from './delete-jsx-node-internal';
+import {getNodeSourceEdit} from './delete-jsx-nodes-internal';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';

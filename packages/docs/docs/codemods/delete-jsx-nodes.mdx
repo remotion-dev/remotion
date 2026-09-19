@@ -1,14 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-delete-jsx-node.png
-title: 'deleteJsxNode()'
+image: /generated/articles-docs-codemods-delete-jsx-nodes.png
+title: 'deleteJsxNodes()'
 crumb: '@remotion/codemods'
 ---
 
-# deleteJsxNode()<AvailableFrom v="4.0.527" />
+# deleteJsxNodes()<AvailableFrom v="4.0.527" />
 
-Deletes the JSX element identified by a mounted layer's node path.
-
-The API uses the same source-editing routine as Remotion Studio. It works with any JSX layer, including [`<Sequence>`](/docs/sequence) and [`<Solid>`](/docs/solid).
+Deletes one or more JSX elements identified by mounted layer node paths. It works with any JSX layer, including [`<Sequence>`](/docs/sequence) and [`<Solid>`](/docs/solid).
 
 :::warning
 
@@ -16,17 +14,16 @@ _Draft API_: This API is not yet stable. We are in the experimental phase of thi
 
 :::
 
-```ts twoslash title="delete-jsx-node.ts"
-import {deleteJsxNode, type CodemodProject} from '@remotion/codemods';
+```ts twoslash title="delete-jsx-nodes.ts"
+import {deleteJsxNodes, type CodemodProject} from '@remotion/codemods';
 import type {SequenceNodePath} from 'remotion';
 
 declare const project: CodemodProject;
 declare const nodePath: SequenceNodePath;
 
-const result = await deleteJsxNode({
+const result = await deleteJsxNodes({
   project,
-  filePath: 'src/Video.tsx',
-  nodePath,
+  nodes: [{filePath: 'src/Video.tsx', nodePath}],
 });
 
 console.log(result.project.files);
@@ -43,11 +40,15 @@ Pass an object with the following properties.
 
 An in-memory Remotion project containing `rootDir` and a `files` record.
 
-### filePath
+### nodes
+
+The JSX elements to delete. Nodes may belong to different project files.
+
+#### filePath
 
 The source file containing the JSX element. Absolute paths emitted by a mounted layer and project-relative paths are both accepted.
 
-### nodePath
+#### nodePath
 
 The `SequenceNodePath` identifying the JSX element to delete. Canvas layers expose it as `nodePathInfo.sequenceSubscriptionKey.nodePath`.
 
@@ -69,7 +70,7 @@ An array describing each changed file with its `filePath`, `previousContents`, a
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/delete-jsx-node.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/delete-jsx-nodes.ts)
 - [`addSolid()`](/docs/codemods/add-solid)
 - [`<Sequence>`](/docs/sequence)
 - [`@remotion/canvas`](/docs/canvas)

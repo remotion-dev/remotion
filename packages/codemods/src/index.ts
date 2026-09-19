@@ -12,7 +12,6 @@ import {
 	deleteEffect,
 	deleteEffects,
 	deleteJsxElementAtPath,
-	deleteJsxNode as deleteJsxNodeFromSource,
 	deleteJsxNodes,
 	duplicateCompositionInSource,
 	duplicateEffect,
@@ -75,7 +74,7 @@ export type {
 	CodemodProject,
 	CodemodResult,
 } from './codemod-project';
-export {deleteJsxNode, type DeleteJsxNodeOptions} from './delete-jsx-node';
+export {deleteJsxNodes, type DeleteJsxNodesOptions} from './delete-jsx-nodes';
 export type {
 	EffectArrayElement,
 	EffectDeletionTarget,
@@ -112,7 +111,6 @@ export const CodemodsInternals = {
 	deleteEffect,
 	deleteEffects,
 	deleteJsxElementAtPath,
-	deleteJsxNode: deleteJsxNodeFromSource,
 	deleteJsxNodes,
 	duplicateCompositionInSource,
 	duplicateEffect,
