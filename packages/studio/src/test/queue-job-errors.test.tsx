@@ -15,6 +15,7 @@ import {RenderQueueContext} from '../components/RenderQueue/context';
 import {QueueJobErrorModal} from '../components/RenderQueue/QueueJobErrorModal';
 import type {VideoMattingJob} from '../components/RenderQueue/video-matting-job-types';
 import {VideoMattingQueueItem} from '../components/RenderQueue/VideoMattingQueueItem';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {SelectedModalContext} from '../state/modals';
 
 const originalClipboard = Object.getOwnPropertyDescriptor(
@@ -118,6 +119,15 @@ test('opens and copies transcription and video matting errors', async () => {
 	const transcriptionDialog = screen.getByRole('dialog', {
 		name: 'Transcription failed',
 	});
+	const description = within(transcriptionDialog).getByText(
+		'The job failed because of the following error:',
+	);
+	const descriptionStyle = getComputedStyle(description);
+	expect(descriptionStyle.color).toBe(LIGHT_TEXT);
+	expect(descriptionStyle.fontFamily).toBe('sans-serif');
+	expect(descriptionStyle.fontSize).toBe('14px');
+	expect(descriptionStyle.lineHeight).toBe('1.5');
+	expect(descriptionStyle.marginTop).toBe('16px');
 	expect(transcriptionDialog.textContent).toContain(captionJob.error.stack!);
 	fireEvent.click(
 		within(transcriptionDialog).getByRole('button', {name: 'Copy stack'}),

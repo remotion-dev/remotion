@@ -1,6 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {CopyStackTrace} from '../../error-overlay/remotion-overlay/CopyStackTrace';
-import {RENDER_STATUS_BACKGROUND} from '../../helpers/colors';
+import {LIGHT_TEXT, RENDER_STATUS_BACKGROUND} from '../../helpers/colors';
 import {SetSelectedModalContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Flex, SPACING_UNIT} from '../layout';
@@ -22,6 +22,16 @@ const codeBlock: React.CSSProperties = {
 	fontFamily: 'monospace',
 	overflow: 'auto',
 	maxHeight: 300,
+};
+
+const description: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: 0,
+	marginBottom: 12,
+	marginTop: 16,
 };
 
 const spacer: React.CSSProperties = {
@@ -55,7 +65,9 @@ export const QueueJobErrorModal: React.FC<{
 		>
 			<ModalHeader title={title} />
 			<div style={container}>
-				<p>The job failed because of the following error:</p>
+				<p style={description}>
+					The job failed because of the following error:
+				</p>
 				<div className={HORIZONTAL_SCROLLBAR_CLASSNAME} style={codeBlock}>
 					{errorDetails}
 				</div>
