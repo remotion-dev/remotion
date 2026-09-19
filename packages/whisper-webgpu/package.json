@@ -27,7 +27,7 @@
 		"@remotion/captions": "workspace:*"
 	},
 	"peerDependencies": {
-		"@huggingface/transformers": "4.3.0"
+		"@huggingface/transformers": "4.2.0"
 	},
 	"exports": {
 		".": {

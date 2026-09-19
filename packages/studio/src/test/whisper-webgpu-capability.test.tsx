@@ -33,7 +33,7 @@ test('adds the pinned Transformers version to AI package installations', () => {
 			withRequiredAuxiliaryPackages([{name: packageName, version: null}]),
 		).toEqual([
 			{name: packageName, version: null},
-			{name: TRANSFORMERS_PACKAGE, version: '4.3.0'},
+			{name: TRANSFORMERS_PACKAGE, version: '4.2.0'},
 		]);
 	}
 });
@@ -131,7 +131,7 @@ test('opens transcription after installing Whisper without restarting', async ()
 		expect(JSON.parse(String(requestInit?.body))).toEqual({
 			dependencies: [
 				{name: WHISPER_WEBGPU_PACKAGE, version: null},
-				{name: TRANSFORMERS_PACKAGE, version: '4.3.0'},
+				{name: TRANSFORMERS_PACKAGE, version: '4.2.0'},
 			],
 		});
 		expect(window.remotion_installedPackages).toContain(TRANSFORMERS_PACKAGE);

@@ -132,7 +132,7 @@ export type ExtraPackage = {
 export const extraPackages: ExtraPackage[] = [
 	{
 		name: '@huggingface/transformers',
-		version: '4.3.0',
+		version: '4.2.0',
 		description: 'Machine learning models in the browser',
 		docsUrl: 'https://huggingface.co/docs/transformers.js',
 		versionDocsUrl: 'https://www.remotion.dev/docs/whisper-webgpu',
