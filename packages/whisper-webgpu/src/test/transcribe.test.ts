@@ -499,6 +499,27 @@ test('reports model progress without reaching 100% before every file loads', asy
 	await disposeWhisperModel({model: 'medium.en'});
 });
 
+test('keeps a loaded model alive until every async disposable handle is released', async () => {
+	const {loadWhisperModel} = await import('../index');
+	const initializationsBeforeLoading = pipelineInitializationCount;
+	const disposalsBeforeLoading = disposeCalls;
+
+	{
+		await using firstLoad = await loadWhisperModel({model: 'tiny.en'});
+		expect(firstLoad.alreadyLoaded).toBe(false);
+		expect(pipelineInitializationCount).toBe(initializationsBeforeLoading + 1);
+
+		{
+			await using secondLoad = await loadWhisperModel({model: 'tiny.en'});
+			expect(secondLoad.alreadyLoaded).toBe(true);
+		}
+
+		expect(disposeCalls).toBe(disposalsBeforeLoading);
+	}
+
+	expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
+});
+
 test('validates and forwards transcription settings through transcribe()', async () => {
 	const {disposeWhisperModel, transcribe} = await import('../index');
 	const channelWaveform = new Float32Array(16_000);
