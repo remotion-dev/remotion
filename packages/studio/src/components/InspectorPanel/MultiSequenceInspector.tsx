@@ -183,24 +183,6 @@ export const MultiSequenceInspector: React.FC<{
 				</div>
 			</InspectorInfoHeader>
 			<div role="separator" style={sequenceHeaderDivider} />
-			<CollapsibleInspectorSection
-				collapsible
-				label="Actions"
-				sectionId="multi-sequence-actions"
-			>
-				<InspectorQuickActionsSection>
-					<InspectorQuickAction
-						disabled={!canSplit}
-						onClick={onSplit}
-						title={canSplit ? undefined : 'Studio is read-only'}
-						renderIcon={(color) => (
-							<ScissorsIcon style={actionIconStyle} color={color} />
-						)}
-					>
-						Split selected
-					</InspectorQuickAction>
-				</InspectorQuickActionsSection>
-			</CollapsibleInspectorSection>
 			{targets === null ? (
 				<InspectorMessage>Sequence controls unavailable</InspectorMessage>
 			) : fields.length === 0 ? (
@@ -236,6 +218,24 @@ export const MultiSequenceInspector: React.FC<{
 					})}
 				</TimelineRowLayoutContext.Provider>
 			)}
+			<CollapsibleInspectorSection
+				collapsible
+				label="Actions"
+				sectionId="multi-sequence-actions"
+			>
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction
+						disabled={!canSplit}
+						onClick={onSplit}
+						title={canSplit ? undefined : 'Studio is read-only'}
+						renderIcon={(color) => (
+							<ScissorsIcon style={actionIconStyle} color={color} />
+						)}
+					>
+						Split selected
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
+			</CollapsibleInspectorSection>
 		</div>
 	);
 };
