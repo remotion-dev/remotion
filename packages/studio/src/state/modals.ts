@@ -267,6 +267,14 @@ export type ModalState =
 			jobId: string;
 	  }
 	| {
+			type: 'queue-job-error';
+			title: string;
+			error: {
+				message: string;
+				stack: string | null;
+			};
+	  }
+	| {
 			type: 'fix-computed-value';
 			prop: string;
 			location: {
