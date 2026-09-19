@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-webgpu'
 
 # isWhisperModelCached()<AvailableFrom v="4.0.518" />
 
-Checks whether all files needed for a timestamped Whisper model from `remotion.media` are present in the browser cache. The check does not download or initialize the model.
+Checks whether all files needed for a timestamped Whisper model from `remotion.media` are present in the persistent Transformers.js cache. The check does not download or initialize the model.
 
 ```ts twoslash title="model-cache.ts"
 import {isWhisperModelCached} from '@remotion/whisper-webgpu';
@@ -30,7 +30,7 @@ Models cached from Hugging Face by versions before 4.0.522 do not satisfy this c
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

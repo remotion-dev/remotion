@@ -35,13 +35,13 @@ Called while model files are resolved and downloaded. `progress` is the aggregat
 
 Returns whether the same model pipeline was already loaded in memory.
 
-The browser manages its persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the page closes.
+[Transformers.js](https://huggingface.co/docs/transformers.js) manages the persistent model cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the process or page closes.
 
 Versions before 4.0.522 downloaded models from Hugging Face. A model cached by an earlier version is downloaded once more from `remotion.media`, then reused from the new cache entry when using the default Transformers.js cache settings.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

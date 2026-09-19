@@ -349,6 +349,7 @@ test('transcribes with word timestamps using WebGPU', async () => {
 		remotePathTemplate: 'models/{model}/',
 	});
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
+	expect(await canUseWhisperWebGpu()).toEqual({supported: true});
 
 	const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const originalNavigator = Object.getOwnPropertyDescriptor(

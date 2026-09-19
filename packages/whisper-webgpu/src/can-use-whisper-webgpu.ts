@@ -17,11 +17,29 @@ export type CanUseWhisperWebGpuResult =
 export const canUseWhisperWebGpu =
 	async (): Promise<CanUseWhisperWebGpuResult> => {
 		if (typeof window === 'undefined') {
+			if (typeof process !== 'undefined' && process.release?.name === 'node') {
+				const supportsNativeWebGpu =
+					(process.platform === 'darwin' &&
+						(process.arch === 'arm64' || process.arch === 'x64')) ||
+					(process.platform === 'win32' &&
+						(process.arch === 'arm64' || process.arch === 'x64')) ||
+					(process.platform === 'linux' && process.arch === 'x64');
+
+				if (supportsNativeWebGpu) {
+					return {supported: true};
+				}
+
+				return {
+					supported: false,
+					reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+					detailedReason: `The native WebGPU backend is not available on ${process.platform} ${process.arch}.`,
+				};
+			}
+
 			return {
 				supported: false,
 				reason: WhisperWebGpuUnsupportedReason.WindowUndefined,
-				detailedReason:
-					'`window` is not defined. @remotion/whisper-webgpu is intended for browser environments.',
+				detailedReason: 'WebGPU is not available in this environment.',
 			};
 		}
 

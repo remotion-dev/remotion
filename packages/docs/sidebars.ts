@@ -1015,6 +1015,7 @@ const sidebars: SidebarsConfig = {
 				id: 'whisper-webgpu/index',
 			},
 			items: [
+				'whisper-webgpu/node',
 				'whisper-webgpu/can-use-whisper-webgpu',
 				'whisper-webgpu/get-available-models',
 				'whisper-webgpu/clear-stale-models',
