@@ -1,3 +1,7 @@
+import {
+	getNativeMaskImage,
+	type MaskImageLoaderState,
+} from './mask-image-loader';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseLinearGradient} from './parse-linear-gradient';
 
@@ -192,23 +196,39 @@ export const parseMaskImage = (
 	return null;
 };
 
-const elementHasUrlMaskImage = (element: Element) => {
-	const value = getMaskImageValue(getComputedStyle(element));
-	return value?.trim().toLowerCase().startsWith('url(') ?? false;
-};
+export const waitForNativeMaskImages = async (
+	element: HTMLElement,
+	state: MaskImageLoaderState,
+) => {
+	const pending = new Set<Promise<HTMLImageElement>>();
+	const documentUrl = new URL(element.ownerDocument.URL);
+	documentUrl.hash = '';
+	for (const node of [element, ...element.querySelectorAll('*')]) {
+		const value = getMaskImageValue(getComputedStyle(node));
+		if (!value) {
+			continue;
+		}
 
-export const containsUrlMaskImage = (element: HTMLElement) => {
-	if (elementHasUrlMaskImage(element)) {
-		return true;
-	}
+		const urls =
+			value.match(
+				/url\((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|(?:\\.|[^)\\])*)\)/gi,
+			) ?? [];
+		for (const token of urls) {
+			const src = parseUrlFunction(token);
+			if (src === null) {
+				continue;
+			}
 
-	const children = element.querySelectorAll('*');
-	for (let index = 0; index < children.length; index++) {
-		const child = children[index];
-		if (elementHasUrlMaskImage(child)) {
-			return true;
+			const url = new URL(src, node.baseURI);
+			const withoutFragment = new URL(url.href);
+			withoutFragment.hash = '';
+			if (url.hash && withoutFragment.href === documentUrl.href) {
+				continue;
+			}
+
+			pending.add(getNativeMaskImage({src: url.href, state}));
 		}
 	}
 
-	return false;
+	await Promise.all(pending);
 };

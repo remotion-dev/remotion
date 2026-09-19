@@ -18,6 +18,18 @@ export default defineConfig({
 			instances: [
 				{
 					browser: 'chromium',
+					name: 'chromium-native',
+					include: ['src/test/native-mask-readiness.test.ts'],
+					provider: playwright({
+						launchOptions: {
+							channel: 'chrome',
+							args: ['--enable-blink-features=CanvasDrawElement'],
+						},
+					}),
+				} as const,
+				{
+					browser: 'chromium',
+					exclude: ['src/test/native-mask-readiness.test.ts'],
 					provider: playwright({
 						launchOptions: {
 							channel: 'chrome',
@@ -28,10 +40,12 @@ export default defineConfig({
 				} as const,
 				{
 					browser: 'firefox',
+					exclude: ['src/test/native-mask-readiness.test.ts'],
 					viewport: {width: 1280, height: 720},
 				} as const,
 				{
 					browser: 'webkit',
+					exclude: ['src/test/native-mask-readiness.test.ts'],
 					viewport: {width: 1280, height: 720},
 				} as const,
 			].filter(truthy),

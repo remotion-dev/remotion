@@ -1,7 +1,7 @@
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from './compose';
-import {containsUrlMaskImage} from './drawing/mask-image';
+import {waitForNativeMaskImages} from './drawing/mask-image';
 import type {HtmlInCanvasContext} from './html-in-canvas';
 import {
 	containsLayoutSubtreeCanvas,
@@ -43,14 +43,7 @@ export const createLayer = async ({
 		htmlInCanvasContext &&
 		onHtmlInCanvasLayerOutcome
 	) {
-		if (containsUrlMaskImage(element)) {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.',
-				shouldWarn: false,
-			});
-		} else if (containsLayoutSubtreeCanvas(element)) {
+		if (containsLayoutSubtreeCanvas(element)) {
 			onHtmlInCanvasLayerOutcome({
 				native: false,
 				reason:
@@ -59,6 +52,10 @@ export const createLayer = async ({
 			});
 		} else {
 			try {
+				await waitForNativeMaskImages(
+					element,
+					internalState.maskImageLoaderState,
+				);
 				const offCtx = await drawWithHtmlInCanvas({
 					htmlInCanvasContext,
 					element,
