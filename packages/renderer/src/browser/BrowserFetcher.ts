@@ -54,7 +54,7 @@ interface BrowserFetcherRevisionInfo {
 	local: boolean;
 }
 
-const getPlatform = (): Platform => {
+export const getPlatform = (): Platform => {
 	const platform = os.platform();
 	switch (platform) {
 		case 'darwin':
@@ -82,13 +82,23 @@ const getVersionFilePath = (chromeMode: ChromeMode): string => {
 	return path.join(downloadsFolder, 'VERSION');
 };
 
-const getExpectedVersion = (
-	version: string | null,
-	_chromeMode: ChromeMode,
-): string => {
+export const getExpectedVersion = ({
+	version,
+	chromeMode,
+	platform,
+}: {
+	version: string | null;
+	chromeMode: ChromeMode;
+	platform: Platform;
+}): string => {
 	if (version) {
 		return version;
 	}
+
+	if (chromeMode === 'headless-shell' && platform === 'mac-arm64') {
+		return `${TESTED_VERSION}-remotion-v2`;
+	}
+
 	return TESTED_VERSION;
 };
 
@@ -129,7 +139,7 @@ export const downloadBrowser = async ({
 	const downloadsFolder = getDownloadsFolder(chromeMode);
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
-	const expectedVersion = getExpectedVersion(version, chromeMode);
+	const expectedVersion = getExpectedVersion({version, chromeMode, platform});
 
 	if (await existsAsync(outputPath)) {
 		const installedVersion = readVersionFile(chromeMode);
