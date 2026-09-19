@@ -14,7 +14,7 @@ window.remotionBrowserBundlerPreview = initialize;
 void initialize.catch((error: unknown) => {
 	const message = document.createElement('p');
 	message.setAttribute('role', 'alert');
-	message.textContent = `Could not load the Player preview: ${
+	message.textContent = `Could not load the Canvas preview: ${
 		error instanceof Error ? error.message : String(error)
 	}`;
 	document.body.replaceChildren(message);

@@ -4,7 +4,7 @@
 
 This is the internal Player testbed. Run `bun run dev` and choose an example.
 
-## Browser-compiled Player
+## Browser-compiled Canvas
 
 The `/browser-bundler` example compiles a conventional virtual project with
 `createBrowserBundler({enableFastRefresh: true})`. The host owns the source editor,
@@ -15,8 +15,10 @@ The same-origin preview iframe has a separate, prebundled **development** React,
 React DOM, Remotion, and Player. Its bootstrap installs React Refresh before loading
 React DOM, so Fast Refresh also works when the Next.js host is a production build.
 The iframe calls `createBrowserBundleRuntime().applyBundle()` and keeps both its
-composition registration tree and Player mounted. Registered metadata is resolved
-reactively; compatible edits preserve video state, the paused frame, and playback.
+composition registration tree and `@remotion/canvas` instance mounted. The Canvas
+controller exposes the timeline layers mounted at the current frame and owns the
+selection UI next to the preview. Registered metadata is resolved reactively;
+compatible edits preserve video state, the paused frame, playback, and layer panel.
 Hook-signature changes are left to React Refresh to reset.
 
 `createBrowserCompositionObserver()` from `@remotion/browser-bundler/runtime`
