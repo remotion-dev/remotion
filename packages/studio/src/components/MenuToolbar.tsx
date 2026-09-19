@@ -48,6 +48,20 @@ const menuItems: React.CSSProperties = {
 	height: 24,
 };
 
+const fixedWidthRight: React.CSSProperties = {
+	width: 'fit-content',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'flex-end',
+};
+
+const fixedWidthLeft: React.CSSProperties = {
+	minWidth: 0,
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'flex-start',
+};
+
 export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
@@ -66,32 +80,6 @@ export const MenuToolbar: React.FC<{
 	});
 
 	const mobileLayout = useMobileLayout();
-
-	const fixedWidthRight: React.CSSProperties = useMemo(() => {
-		return {
-			...(mobileLayout
-				? {width: 'fit-content'}
-				: {
-						width: '330px',
-					}),
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'flex-end',
-		};
-	}, [mobileLayout]);
-
-	const fixedWidthLeft: React.CSSProperties = useMemo(() => {
-		return {
-			...(mobileLayout
-				? {minWidth: '0px'}
-				: {
-						minWidth: '330px',
-					}),
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'flex-start',
-		};
-	}, [mobileLayout]);
 
 	const itemClicked = useCallback(
 		(itemId: SetStateAction<string | null>) => {
@@ -113,7 +101,7 @@ export const MenuToolbar: React.FC<{
 		setSelected(null);
 	}, []);
 
-	const structure = useMenuStructure(closeMenu, readOnlyStudio);
+	const structure = useMenuStructure(closeMenu, readOnlyStudio, true);
 
 	const menus = useMemo(() => {
 		return structure.map((s) => s.id);
@@ -221,7 +209,6 @@ export const MenuToolbar: React.FC<{
 					})}
 				</div>
 			</div>
-			{mobileLayout ? null : <div style={flex} />}
 			<MenuBuildIndicator mobileLayout={mobileLayout} />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
