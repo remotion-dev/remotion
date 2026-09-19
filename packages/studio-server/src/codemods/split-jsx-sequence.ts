@@ -1,4 +1,7 @@
-import {splitJsxSequence as splitJsxSequenceCodemod} from '@remotion/studio-codemods';
+import {
+	splitJsxSequence as splitJsxSequenceCodemod,
+	splitJsxSequences as splitJsxSequencesCodemod,
+} from '@remotion/studio-codemods';
 import type {SequenceNodePath} from 'remotion';
 
 export const splitJsxSequence = ({
@@ -19,5 +22,24 @@ export const splitJsxSequence = ({
 		nodePath,
 		sequenceKeys,
 		splitFrame,
+		prettierConfigOverride,
+	});
+
+export const splitJsxSequences = ({
+	input,
+	splits,
+	prettierConfigOverride,
+}: {
+	input: string;
+	splits: Array<{
+		nodePath: SequenceNodePath;
+		sequenceKeys: string[];
+		splitFrame: number;
+	}>;
+	prettierConfigOverride?: Record<string, unknown> | null;
+}) =>
+	splitJsxSequencesCodemod({
+		input,
+		splits,
 		prettierConfigOverride,
 	});

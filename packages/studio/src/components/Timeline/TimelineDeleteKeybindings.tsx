@@ -6,10 +6,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {getCurrentFrame} from './imperative-state';
-import {
-	shouldHandleTimelineSplitShortcut,
-	splitSelectedTimelineItems,
-} from './split-selected-timeline-item';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -69,12 +66,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		});
 		const split = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'd',
-			callback: (event) => {
-				if (!shouldHandleTimelineSplitShortcut(event)) {
-					return;
-				}
-
+			action: 'splitSequences',
+			callback: () => {
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
@@ -94,7 +87,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				splitPromise.catch(() => undefined);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,

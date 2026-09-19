@@ -27,7 +27,7 @@ import {
 	reorderSequence as reorderSequenceCodemod,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
-	splitJsxSequence as splitJsxSequenceCodemod,
+	splitJsxSequences as splitJsxSequencesCodemod,
 	splitVideoFromAudio as splitVideoFromAudioCodemod,
 	updateDefaultProps as updateDefaultPropsCodemod,
 	updateEffectProps as updateEffectPropsCodemod,
@@ -1368,37 +1368,63 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
-		fileName,
-		nodePath,
-		sequenceKeys,
-		splitFrame,
+		sequences,
 	}) => {
 		try {
+			if (sequences.length === 0) {
+				throw new Error('No JSX sequences were specified for splitting');
+			}
+
 			const project = getProject();
-			const absolutePath = findProjectFile({
-				filePath: fileName,
-				project,
-			});
-			const result = await splitJsxSequenceCodemod({
-				input: project.files[absolutePath],
-				nodePath,
-				sequenceKeys,
-				splitFrame,
-			});
+			const sequencesByFile = new Map<
+				string,
+				Array<{
+					nodePath: (typeof sequences)[number]['nodePath'];
+					sequenceKeys: string[];
+					splitFrame: number;
+				}>
+			>();
+			for (const sequence of sequences) {
+				const fileName = findProjectFile({
+					filePath: sequence.fileName,
+					project,
+				});
+				const fileSequences = sequencesByFile.get(fileName) ?? [];
+				fileSequences.push({
+					nodePath: sequence.nodePath,
+					sequenceKeys: sequence.sequenceKeys,
+					splitFrame: sequence.splitFrame,
+				});
+				sequencesByFile.set(fileName, fileSequences);
+			}
+
+			const updates = await Promise.all(
+				[...sequencesByFile].map(async ([fileName, splits]) => ({
+					fileName,
+					result: await splitJsxSequencesCodemod({
+						input: project.files[fileName],
+						splits,
+					}),
+				})),
+			);
+			const nextProject = {
+				...project,
+				files: {
+					...project.files,
+					...Object.fromEntries(
+						updates.map(({fileName, result}) => [fileName, result.output]),
+					),
+				},
+			};
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
-				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {...project.files, [absolutePath]: result.output},
-				}),
-				nodePathMutationFiles: [
-					{
-						absolutePath,
-						remappings: result.nodePathRemappings,
-					},
-				],
+				fileName: updates.map(({fileName}) => fileName).join(', '),
+				mutate: () => nextProject,
+				nodePathMutationFiles: updates.map(({fileName, result}) => ({
+					absolutePath: fileName,
+					remappings: result.nodePathRemappings,
+				})),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not split JSX sequence');

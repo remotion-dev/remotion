@@ -133,6 +133,7 @@ export {
 	SaveSequencePropsResult,
 	SimpleDiff,
 	SplitJsxSequenceRequest,
+	SplitJsxSequenceRequestItem,
 	SplitJsxSequenceResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,

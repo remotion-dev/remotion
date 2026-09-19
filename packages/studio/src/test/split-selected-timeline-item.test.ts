@@ -9,8 +9,6 @@ import type {
 import {Internals} from 'remotion';
 import {
 	getTimelineSequenceSplitEligibility,
-	shouldHandleTimelineDuplicateShortcut,
-	shouldHandleTimelineSplitShortcut,
 	splitSelectedTimelineItems,
 } from '../components/Timeline/split-selected-timeline-item';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -35,7 +33,10 @@ const makeNodePathInfo = (
 	supportsEffects: true,
 });
 
-const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
+const makeSequence = (
+	overrides: Partial<TSequence> = {},
+	overrideId = 'override',
+): TSequence =>
 	({
 		from: 10,
 		trimBefore: null,
@@ -52,7 +53,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		controls: {
 			schema: {},
 			runtimeValues: makeRuntimeValueStore({}),
-			overrideId: 'override',
+			overrideId,
 			supportsEffects: true,
 			componentIdentity: null,
 			componentName: 'Sequence',
@@ -209,13 +210,6 @@ test('getTimelineSequenceSplitEligibility rejects dynamic timing props', () => {
 	).toBe(false);
 });
 
-test('Cmd+D and Cmd+Shift+D shortcut gates are mutually exclusive', () => {
-	expect(shouldHandleTimelineDuplicateShortcut({shiftKey: false})).toBe(true);
-	expect(shouldHandleTimelineDuplicateShortcut({shiftKey: true})).toBe(false);
-	expect(shouldHandleTimelineSplitShortcut({shiftKey: false})).toBe(false);
-	expect(shouldHandleTimelineSplitShortcut({shiftKey: true})).toBe(true);
-});
-
 test('splitSelectedTimelineItems splits the selected sequence at the playhead', async () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0]);
 	const propStatuses = {
@@ -242,12 +236,85 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 		},
 		propStatuses,
 		splitFrame: 30,
-		splitSequence: (options) => {
-			splitCalls.push(options);
+		splitSequences: ({sequences: splitSequences}) => {
+			splitCalls.push(...splitSequences);
 			return Promise.resolve(true);
 		},
 	});
 
 	expect(result).toBe(true);
 	expect(splitCalls).toEqual([{nodePathInfo, splitFrame: 30}]);
+});
+
+test('splitSelectedTimelineItems batches multiple selected clips', async () => {
+	const first = makeNodePathInfo(['body', 0]);
+	const second = makeNodePathInfo(['body', 1]);
+	const firstSequence = makeSequence();
+	const secondSequence = makeSequence(
+		{id: 'second-sequence'},
+		'second-override',
+	);
+	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
+		[];
+
+	const result = await splitSelectedTimelineItems({
+		selections: [
+			{type: 'sequence', nodePathInfo: first},
+			{type: 'sequence', nodePathInfo: second},
+		],
+		sequences: [firstSequence, secondSequence],
+		overrideIdsToNodePaths: {
+			override: first.sequenceSubscriptionKey,
+			'second-override': second.sequenceSubscriptionKey,
+		},
+		propStatuses: undefined,
+		splitFrame: 30,
+		splitSequences: ({sequences}) => {
+			splitCalls.push(...sequences);
+			return Promise.resolve(true);
+		},
+	});
+
+	expect(result).toBe(true);
+	expect(splitCalls).toEqual([
+		{nodePathInfo: first, splitFrame: 30},
+		{nodePathInfo: second, splitFrame: 30},
+	]);
+});
+
+test('splitSelectedTimelineItems skips ineligible clips and reports the partial split', async () => {
+	const eligible = makeNodePathInfo(['body', 0]);
+	const ineligible = makeNodePathInfo(['body', 1]);
+	const ineligibleSequence = makeSequence(
+		{from: 40, id: 'ineligible-sequence'},
+		'ineligible-override',
+	);
+	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
+		[];
+	const notifications: string[] = [];
+
+	const result = await splitSelectedTimelineItems({
+		selections: [
+			{type: 'sequence', nodePathInfo: eligible},
+			{type: 'sequence', nodePathInfo: ineligible},
+		],
+		sequences: [makeSequence(), ineligibleSequence],
+		overrideIdsToNodePaths: {
+			override: eligible.sequenceSubscriptionKey,
+			'ineligible-override': ineligible.sequenceSubscriptionKey,
+		},
+		propStatuses: undefined,
+		splitFrame: 30,
+		splitSequences: ({sequences}) => {
+			splitCalls.push(...sequences);
+			return Promise.resolve(true);
+		},
+		notify: (message) => notifications.push(message),
+	});
+
+	expect(result).toBe(true);
+	expect(splitCalls).toEqual([{nodePathInfo: eligible, splitFrame: 30}]);
+	expect(notifications).toEqual([
+		'Split 1 clip. Skipped 1 clip that could not be split.',
+	]);
 });
