@@ -375,6 +375,7 @@ const innerRenderStill = async ({
 			jpegQuality,
 			wantsBuffer: !output,
 			timeoutInMilliseconds,
+			remotionSharedMemory: null,
 		}),
 		collectAssets({
 			frame,

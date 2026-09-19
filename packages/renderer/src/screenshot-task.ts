@@ -2,6 +2,10 @@ import fs from 'node:fs';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 
 export const screenshotTask = async ({
 	format,
@@ -12,6 +16,7 @@ export const screenshotTask = async ({
 	path,
 	jpegQuality,
 	scale,
+	remotionSharedMemory,
 }: {
 	page: Page;
 	format: StillImageFormat;
@@ -21,7 +26,8 @@ export const screenshotTask = async ({
 	width: number;
 	height: number;
 	scale: number;
-}): Promise<Buffer> => {
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
+}): Promise<CapturedFrame> => {
 	const client = page._client();
 	const target = page.target();
 
@@ -63,20 +69,58 @@ export const screenshotTask = async ({
 				!process.env.DISABLE_FROM_SURFACE || height > 8192 || width > 8192;
 			const scaleFactor = fromSurface ? 1 : scale;
 
-			const {value} = await client.send('Page.captureScreenshot', {
-				format,
-				quality: jpegQuality,
-				clip: {
-					x: 0,
-					y: 0,
-					height: height * scaleFactor,
-					scale: 1,
-					width: width * scaleFactor,
-				},
-				captureBeyondViewport: true,
-				optimizeForSpeed: true,
-				fromSurface,
-			});
+			const reservation = await remotionSharedMemory?.acquire(page);
+			let value;
+			try {
+				({value} = await client.send('Page.captureScreenshot', {
+					format,
+					quality: jpegQuality,
+					clip: {
+						x: 0,
+						y: 0,
+						height: height * scaleFactor,
+						scale: 1,
+						width: width * scaleFactor,
+					},
+					captureBeyondViewport: true,
+					optimizeForSpeed: true,
+					fromSurface,
+					remotionFrameSlot: reservation?.slot,
+					remotionFrameId: reservation?.frameId,
+					remotionFastViewport: reservation ? true : undefined,
+				}));
+			} catch (error) {
+				reservation?.fail();
+				throw error;
+			}
+
+			if (reservation) {
+				if (value.data !== '' || !value.remotionFrame) {
+					await reservation.discardPublished();
+					throw new Error(
+						'Chromium did not return a Remotion shared-memory frame.',
+					);
+				}
+
+				const rawFrame = await reservation.publish(value.remotionFrame);
+				stopPerfMeasure(cap);
+				if (omitBackground) {
+					try {
+						await client.send('Emulation.setDefaultBackgroundColorOverride');
+					} catch (error) {
+						try {
+							await rawFrame.release();
+						} catch {
+							// Preserve the background reset error that made the capture fail.
+						}
+
+						throw error;
+					}
+				}
+
+				return rawFrame;
+			}
+
 			result = value;
 		}
 

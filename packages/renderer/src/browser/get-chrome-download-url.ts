@@ -129,6 +129,10 @@ export function getChromeDownloadUrl({
 	}
 
 	if (chromeMode === 'headless-shell') {
+		if (platform === 'mac-arm64' && version === null) {
+			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`;
+		}
+
 		// Amazon Linux 2023 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && platform === 'linux64' && !version) {

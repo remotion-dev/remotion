@@ -733,6 +733,21 @@ export interface CaptureScreenshotRequest {
 	 * Optimize image encoding for speed, not for resulting size (defaults to false) EXPERIMENTAL
 	 */
 	optimizeForSpeed?: boolean;
+	/**
+	 * Writes the captured pixels into this slot of a Remotion shared-memory
+	 * frame pool instead of encoding an image. Remotion Chromium only.
+	 */
+	remotionFrameSlot?: number;
+	/**
+	 * Ownership token for the shared-memory slot. Must be supplied together
+	 * with `remotionFrameSlot`. Remotion Chromium only.
+	 */
+	remotionFrameId?: string;
+	/**
+	 * Skips the temporary viewport resize used by the regular CDP screenshot
+	 * path. Remotion Chromium only.
+	 */
+	remotionFastViewport?: boolean;
 }
 
 export interface CaptureScreenshotResponse {
@@ -740,6 +755,36 @@ export interface CaptureScreenshotResponse {
 	 * Base64-encoded image data. (Encoded as a base64 string when passed over JSON)
 	 */
 	data: string;
+	remotionFrame?: RemotionRawFrame;
+}
+
+export interface RemotionRawFrame {
+	slot: number;
+	frameId: string;
+	width: number;
+	height: number;
+	stride: number;
+	byteLength: number;
+	pixelFormat: 'bgra';
+	alphaType: 'opaque' | 'straight';
+	colorSpace: 'srgb';
+	capturePath: string;
+}
+
+export interface RemotionCreateFramePoolRequest {
+	slotCount: number;
+	slotCapacity: number;
+}
+
+export interface RemotionCreateFramePoolResponse {
+	sharedMemoryName: string;
+	slotCount: number;
+	slotCapacity: number;
+}
+
+export interface RemotionReleaseFrameRequest {
+	slot: number;
+	frameId: string;
 }
 
 export interface PrintPDFRequest {
