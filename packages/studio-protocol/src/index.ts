@@ -15,8 +15,11 @@ import {
 import {makeDragData, parseDragData} from './drag-data';
 import {getDragPreviewMetadata} from './drag-preview-metadata';
 import {
+	assertElementAssets,
+	decodeElementAssetData,
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
+	maxElementAssetBytes,
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
 import {
@@ -76,13 +79,13 @@ export type {
 	EffectDragData,
 } from './effect-drag-data';
 export type {
+	ElementAsset,
 	ElementDependency,
 	ElementDragData,
 	ElementInitialProps,
 	ElementInitialPropValue,
 	ElementInstallationMode,
 } from './element-drag-data';
-export type {RenderOutputDragData} from './render-output-drag-data';
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,
@@ -94,6 +97,7 @@ export {
 	type InstallInStudioResult,
 } from './install-in-studio';
 export {isInsideStudio} from './is-inside-studio';
+export type {RenderOutputDragData} from './render-output-drag-data';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
 	StudioProtocolDescriptor,
@@ -103,6 +107,8 @@ export type {
 export const StudioProtocolInternals = {
 	addElementLibraryToStudioWithDependencies,
 	areComponentProps,
+	assertElementAssets,
+	decodeElementAssetData,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,
@@ -113,6 +119,7 @@ export const StudioProtocolInternals = {
 	makeBrowserStudioUrl,
 	makeDragData,
 	makeElementFileNameFromSlug,
+	maxElementAssetBytes,
 	openInBrowserStudio,
 	parseBrowserStudioHash,
 	parseDragData,

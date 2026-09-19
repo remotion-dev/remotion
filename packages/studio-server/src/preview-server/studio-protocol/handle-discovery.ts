@@ -155,7 +155,7 @@ export const handleStudioProtocolDiscovery = ({
 						{
 							type: 'install-element',
 							payloadType: 'remotion-element',
-							payloadVersions: [1],
+							payloadVersions: [1, 2],
 							target:
 								issuedInstallTarget === null || installTarget === null
 									? null
