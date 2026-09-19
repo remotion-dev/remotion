@@ -5,7 +5,6 @@ import type {
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
 } from '@remotion/studio-shared';
-import {insertBasicCaptions} from '../../codemods/insert-basic-captions';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -21,8 +20,11 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {basicCaptionsElementSource, getBasicCaptionsElementFile} =
-	CodemodsInternals;
+const {
+	basicCaptionsElementSource,
+	getBasicCaptionsElementFile,
+	insertBasicCaptions,
+} = CodemodsInternals;
 
 export const insertBasicCaptionsHandler: ApiHandler<
 	InsertBasicCaptionsRequest,

@@ -31,7 +31,6 @@ import {
 	removeCompletedClientRender,
 } from './client-render-queue';
 import {applyCodemodToFile} from './codemods/apply-codemod-to-file';
-import {updateDefaultProps} from './codemods/update-default-props';
 import {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
@@ -64,6 +63,8 @@ import {getEditorName} from './preview-server/routes/open-in-editor';
 import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
+
+const {updateDefaultProps} = CodemodsInternals;
 
 const parseAndApplyCodemod = ({
 	input,
