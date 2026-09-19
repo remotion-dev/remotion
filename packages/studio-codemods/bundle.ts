@@ -10,6 +10,7 @@ const external = ['@remotion/studio-shared', 'recast'];
 console.time('Generated.');
 const esmOutput = await build({
 	entrypoints: [
+		'src/public.ts',
 		'src/index.ts',
 		'src/resolve-composition-component-location.ts',
 	],
@@ -18,6 +19,7 @@ const esmOutput = await build({
 });
 const cjsOutput = await build({
 	entrypoints: [
+		'src/public.ts',
 		'src/index.ts',
 		'src/resolve-composition-component-location.ts',
 	],

@@ -1,1 +1,1 @@
-export {splitVideoFromAudio} from '@remotion/studio-codemods';
+export {splitVideoFromAudio} from '@remotion/studio-codemods/internal';

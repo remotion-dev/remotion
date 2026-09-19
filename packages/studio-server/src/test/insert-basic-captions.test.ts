@@ -11,7 +11,7 @@ import path from 'node:path';
 import {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
-} from '@remotion/studio-codemods';
+} from '@remotion/studio-codemods/internal';
 import {insertBasicCaptions} from '../codemods/insert-basic-captions';
 import {
 	createFileWatcherRegistry,

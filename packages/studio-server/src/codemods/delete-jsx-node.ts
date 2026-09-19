@@ -4,7 +4,7 @@ import {
 	deleteJsxNodes as deleteJsxNodesCodemod,
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
-} from '@remotion/studio-codemods';
+} from '@remotion/studio-codemods/internal';
 import type {SequenceNodePath} from 'remotion';
 
 export {

@@ -1,1 +1,1 @@
-export {reorderSequence} from '@remotion/studio-codemods';
+export {reorderSequence} from '@remotion/studio-codemods/internal';

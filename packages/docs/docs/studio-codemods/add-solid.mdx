@@ -1,0 +1,81 @@
+---
+image: /generated/articles-docs-studio-codemods-add-solid.png
+title: 'addSolid()'
+crumb: '@remotion/studio-codemods'
+---
+
+# addSolid()<AvailableFrom v="4.0.527" />
+
+Adds a [`<Solid>`](/docs/solid) to a composition component and adds the required imports.
+
+```ts twoslash title="add-solid.ts"
+import {addSolid, type CodemodProject} from '@remotion/studio-codemods';
+
+declare const project: CodemodProject;
+
+const result = addSolid({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  width: 1920,
+  height: 1080,
+});
+
+console.log(result.project.files);
+console.log(result.changes);
+```
+
+The input project is not mutated.
+
+## Options
+
+Pass an object with the following properties.
+
+### project
+
+An in-memory Remotion project containing `rootDir` and a `files` record.
+
+### compositionFile
+
+The path to the file that registers the composition. The component may be declared in that file or imported from another project file.
+
+### compositionId
+
+The ID of the [`<Composition>`](/docs/composition) to edit.
+
+### width
+
+The width of the inserted [`<Solid>`](/docs/solid).
+
+### height
+
+The height of the inserted [`<Solid>`](/docs/solid).
+
+### from?
+
+Wraps the [`<Solid>`](/docs/solid) in a [`<Sequence>`](/docs/sequence) starting at this frame. By default, the solid is not wrapped in a sequence.
+
+### position?
+
+Positions the solid at `{x, y}` pixels and adds a CSS translation. By default, the solid starts at the composition origin.
+
+## Return value
+
+An object with the following properties.
+
+### project
+
+A new project containing the transformed source. Unchanged project fields are preserved.
+
+### changes
+
+An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`<Solid>`](/docs/solid)
+- [`@remotion/browser-bundler`](/docs/browser-bundler)

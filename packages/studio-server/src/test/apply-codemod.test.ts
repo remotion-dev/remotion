@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {parseAndApplyCodemod} from '@remotion/studio-codemods';
+import {parseAndApplyCodemod} from '@remotion/studio-codemods/internal';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
 import {

@@ -1,5 +1,5 @@
 import type {JSXAttribute} from '@babel/types';
-import {findEffectsAttr as findEffectsAttrCodemod} from '@remotion/studio-codemods';
+import {findEffectsAttr as findEffectsAttrCodemod} from '@remotion/studio-codemods/internal';
 
 export {
 	enumerateEffectArrayElements,
@@ -10,7 +10,7 @@ export {
 	type UpdateEffectPropsResult,
 	updateEffectProps,
 	updateEffectPropsAst,
-} from '@remotion/studio-codemods';
+} from '@remotion/studio-codemods/internal';
 
 export const findEffectsAttr = (
 	attrs: readonly (JSXAttribute | unknown)[],

@@ -3,6 +3,7 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
+import {addSolid} from '@remotion/studio-codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import type {BrowserBundlerPreview} from './browser-bundler-preview/bridge';
@@ -350,6 +351,49 @@ export const BrowserBundlerExample: React.FC = () => {
 						Fast Refresh · live layers
 					</div>
 				</div>
+				<button
+					type="button"
+					disabled={state.type === 'loading'}
+					onClick={() => {
+						try {
+							const result = addSolid({
+								compositionFile: 'src/Root.tsx',
+								compositionId: 'BrowserDemo',
+								height: 720,
+								project: {
+									...project,
+									files: {...project.files, 'src/Video.tsx': source},
+									rootDir: '/',
+								},
+								width: 1280,
+							});
+							const nextSource = result.project.files['src/Video.tsx'];
+							if (!nextSource) {
+								throw new Error('The codemod did not return Video.tsx.');
+							}
+
+							setSource(nextSource);
+							void compile(nextSource);
+						} catch (error) {
+							setState({
+								message: getCompilationErrorMessage(error),
+								type: 'error',
+							});
+						}
+					}}
+					style={{
+						backgroundColor: '#4f46e5',
+						border: 0,
+						borderRadius: 5,
+						color: 'white',
+						fontSize: 12,
+						fontWeight: 600,
+						marginLeft: 'auto',
+						padding: '7px 11px',
+					}}
+				>
+					Add Solid
+				</button>
 				<p
 					role="status"
 					aria-live="polite"
@@ -359,7 +403,7 @@ export const BrowserBundlerExample: React.FC = () => {
 						borderRadius: 999,
 						color: state.type === 'error' ? '#fecaca' : '#bfdbfe',
 						fontSize: 12,
-						margin: '0 0 0 auto',
+						margin: 0,
 						padding: '5px 10px',
 					}}
 				>

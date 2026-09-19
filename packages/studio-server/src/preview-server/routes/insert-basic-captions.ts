@@ -3,7 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
-} from '@remotion/studio-codemods';
+} from '@remotion/studio-codemods/internal';
 import type {
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,

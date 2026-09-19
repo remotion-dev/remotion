@@ -1005,7 +1005,7 @@ const getNodePathRemappings = ({
 	return remappings;
 };
 
-export const insertSolidIntoProjectWithNodePathRemappings = <
+const insertSolidIntoProjectWithoutNodePathRemappings = <
 	Project extends CodemodProject,
 >({
 	project,
@@ -1016,7 +1016,8 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 }): {
 	project: Project;
 	filePath: string;
-	nodePathRemappings: SequenceNodePathRemapping[];
+	previousSource: string;
+	nextSource: string;
 } => {
 	if (request.element.type !== 'solid') {
 		throw new Error('This codemod only supports adding <Solid>');
@@ -1058,14 +1059,10 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 		source: resolved.source,
 		width: request.element.width,
 	});
-	const nodePathRemappings = getNodePathRemappings({
-		afterSource: output,
-		beforeSource: resolved.source,
-	});
-
 	return {
 		filePath: resolved.filePath,
-		nodePathRemappings,
+		nextSource: output,
+		previousSource: resolved.source,
 		project: {
 			...project,
 			files: {
@@ -1076,6 +1073,34 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 	};
 };
 
+export const insertSolidIntoProjectWithNodePathRemappings = <
+	Project extends CodemodProject,
+>({
+	project,
+	request,
+}: {
+	project: Project;
+	request: InsertJsxElementRequest;
+}): {
+	project: Project;
+	filePath: string;
+	nodePathRemappings: SequenceNodePathRemapping[];
+} => {
+	const result = insertSolidIntoProjectWithoutNodePathRemappings({
+		project,
+		request,
+	});
+
+	return {
+		filePath: result.filePath,
+		nodePathRemappings: getNodePathRemappings({
+			afterSource: result.nextSource,
+			beforeSource: result.previousSource,
+		}),
+		project: result.project,
+	};
+};
+
 export const insertSolidIntoProject = <Project extends CodemodProject>({
 	project,
 	request,
@@ -1083,7 +1108,7 @@ export const insertSolidIntoProject = <Project extends CodemodProject>({
 	project: Project;
 	request: InsertJsxElementRequest;
 }): Project => {
-	return insertSolidIntoProjectWithNodePathRemappings({project, request})
+	return insertSolidIntoProjectWithoutNodePathRemappings({project, request})
 		.project;
 };
 

@@ -4,7 +4,7 @@ import {
 	updateInlineCaptionPatches,
 	type SequencePropsNodeUpdate,
 	updateMultipleSequenceProps,
-} from '@remotion/studio-codemods';
+} from '@remotion/studio-codemods/internal';
 import type {
 	SaveSequencePropEdit,
 	SaveSequencePropsRequest,

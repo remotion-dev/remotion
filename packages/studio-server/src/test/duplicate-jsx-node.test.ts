@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {duplicateJsxNodes} from '@remotion/studio-codemods';
+import {duplicateJsxNodes} from '@remotion/studio-codemods/internal';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const sample = `import React from 'react';

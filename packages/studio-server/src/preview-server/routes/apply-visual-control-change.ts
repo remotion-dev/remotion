@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import type {File} from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
-import {applyVisualControl} from '@remotion/studio-codemods';
+import {applyVisualControl} from '@remotion/studio-codemods/internal';
 import type {
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,

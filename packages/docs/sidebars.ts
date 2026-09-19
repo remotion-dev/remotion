@@ -2031,6 +2031,17 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 	],
+	studioCodemodsSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/studio-codemods',
+			link: {
+				type: 'doc',
+				id: 'studio-codemods/index',
+			},
+			items: ['studio-codemods/add-solid'],
+		},
+	],
 };
 
 export default sidebars;

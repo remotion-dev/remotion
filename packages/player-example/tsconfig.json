@@ -34,6 +34,9 @@
 			"path": "../player"
 		},
 		{
+			"path": "../studio-codemods"
+		},
+		{
 			"path": "../google-fonts"
 		},
 		{

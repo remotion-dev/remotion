@@ -4,7 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {
 	makeNewCompositionComponentSource,
 	simpleDiff,
-} from '@remotion/studio-codemods';
+} from '@remotion/studio-codemods/internal';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,

@@ -23,7 +23,7 @@ export type {
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
 
-import {parseAndApplyCodemod} from '@remotion/studio-codemods';
+import {parseAndApplyCodemod} from '@remotion/studio-codemods/internal';
 import {AnsiDiff} from './ansi-diff';
 import {
 	addCompletedClientRender,

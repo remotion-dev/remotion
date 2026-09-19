@@ -1,5 +1,5 @@
 import {existsSync, readFileSync} from 'node:fs';
-import {parseAndApplyCodemod} from '@remotion/studio-codemods';
+import {parseAndApplyCodemod} from '@remotion/studio-codemods/internal';
 import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,

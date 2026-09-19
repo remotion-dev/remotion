@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
-import {duplicateJsxNodes} from '@remotion/studio-codemods';
+import {duplicateJsxNodes} from '@remotion/studio-codemods/internal';
 import type {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
