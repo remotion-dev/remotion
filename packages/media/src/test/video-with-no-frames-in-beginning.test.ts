@@ -128,6 +128,9 @@ test('same goes for audio', async () => {
 		initialVolume: 1,
 		toneFrequency: 1,
 		drawDebugOverlay: () => {},
+		onError: (error) => {
+			throw error;
+		},
 	});
 
 	const nonceManager = makeNonceManager();
