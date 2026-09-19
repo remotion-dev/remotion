@@ -29,6 +29,7 @@ import {
 import {printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
+import {applySourceEdits} from './source-edits';
 import {
 	getEndOfLine,
 	getLineIndent,
@@ -383,7 +384,151 @@ const getSplitSourceEdit = ({
 	return {end, replacement, start};
 };
 
-export const splitJsxSequence = ({
+export type SplitJsxSequenceItem = {
+	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
+	splitFrame: number;
+};
+
+export const splitJsxSequences = ({
+	input,
+	splits,
+	prettierConfigOverride,
+}: {
+	input: string;
+	splits: SplitJsxSequenceItem[];
+	prettierConfigOverride?: Record<string, unknown> | null;
+}): Promise<{
+	output: string;
+	nodeLabels: string[];
+	logLines: number[];
+	nodePathRemappings: SequenceNodePathRemapping[];
+}> => {
+	if (splits.length === 0) {
+		throw new Error('No JSX sequences were specified for splitting');
+	}
+
+	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
+	const targets = splits.map(({nodePath, sequenceKeys, splitFrame}) => {
+		if (!Number.isInteger(splitFrame)) {
+			throw new Error('Split frame must be an integer');
+		}
+
+		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
+		if (!jsxPath) {
+			throw new Error(
+				'Could not find a JSX sequence at the specified location to split',
+			);
+		}
+
+		const jsxElement = jsxPath.node as JSXElement;
+		const tagName = getSplittableSequenceTagName(jsxElement);
+		if (!hasSequenceTimingTraits(sequenceKeys)) {
+			throw new Error(`<${tagName}> cannot be split`);
+		}
+
+		const timing = readSequenceTiming(jsxElement);
+		const finiteEnd =
+			timing.durationInFrames === Infinity
+				? Infinity
+				: timing.from + timing.durationInFrames;
+
+		if (splitFrame <= timing.from) {
+			throw new Error('Cannot split at or before the sequence start');
+		}
+
+		if (splitFrame >= finiteEnd) {
+			throw new Error('Cannot split at or after the sequence end');
+		}
+
+		return {finiteEnd, jsxElement, jsxPath, splitFrame, timing};
+	});
+	const nodeLabels: string[] = [];
+	const logLines: number[] = [];
+	const sourceEdits = targets.map(
+		({finiteEnd, jsxElement, jsxPath, splitFrame, timing}) => {
+			const right = cloneJsxElement(jsxElement);
+			// Match Studio's numeric dragger precision while retaining fractional frames.
+			const leftDuration = normalizeComputedTiming(splitFrame - timing.from);
+			const rightDuration =
+				timing.durationInFrames === Infinity
+					? Infinity
+					: normalizeComputedTiming(finiteEnd - splitFrame);
+			const rightTrimBefore = normalizeComputedTiming(
+				timing.trimBefore + leftDuration,
+			);
+
+			setNumericAttribute({
+				element: jsxElement,
+				name: 'durationInFrames',
+				value: leftDuration,
+				omitIfMissing: false,
+			});
+			setNumericAttribute({
+				element: right,
+				name: 'from',
+				value: splitFrame,
+				omitIfMissing: false,
+			});
+			setNumericAttribute({
+				element: right,
+				name: 'durationInFrames',
+				value: rightDuration === Infinity ? null : rightDuration,
+				omitIfMissing: !timing.hasDurationInFrames,
+			});
+			setNumericAttribute({
+				element: right,
+				name: 'trimBefore',
+				value: rightTrimBefore === 0 ? null : rightTrimBefore,
+				omitIfMissing: !timing.hasTrimBefore && rightTrimBefore === 0,
+			});
+			orderTimingAttributes(jsxElement);
+			orderTimingAttributes(right);
+
+			const {parentPath} = jsxPath;
+			if (!parentPath) {
+				throw new Error('Cannot split JSX sequence with no parent');
+			}
+
+			const isJsxChild =
+				namedTypes.JSXElement.check(parentPath.node) ||
+				namedTypes.JSXFragment.check(parentPath.node);
+			if (!insertAfter(parentPath.node, jsxElement, right)) {
+				jsxPath.replace(makeFragment(jsxElement, right));
+			}
+
+			nodeLabels.push(getJsxElementTagLabel(jsxElement));
+			logLines.push(
+				jsxElement.openingElement.loc?.start.line ??
+					jsxElement.loc?.start.line ??
+					1,
+			);
+			return getSplitSourceEdit({
+				input,
+				left: jsxElement,
+				prettierConfigOverride: prettierConfigOverride ?? null,
+				right,
+				wrapInFragment: !isJsxChild,
+			});
+		},
+	);
+	const output = applySourceEdits({edits: sourceEdits, input});
+	const {nodePathRemappings} = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
+	});
+
+	return Promise.resolve({
+		output,
+		nodeLabels,
+		logLines,
+		nodePathRemappings,
+	});
+};
+
+export const splitJsxSequence = async ({
 	input,
 	nodePath,
 	sequenceKeys,
@@ -401,113 +546,17 @@ export const splitJsxSequence = ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
-	if (!Number.isInteger(splitFrame)) {
-		throw new Error('Split frame must be an integer');
-	}
+	const {output, nodeLabels, logLines, nodePathRemappings} =
+		await splitJsxSequences({
+			input,
+			prettierConfigOverride,
+			splits: [{nodePath, sequenceKeys, splitFrame}],
+		});
 
-	const ast = parseAst(input);
-	const capturedNodePaths = captureJsxNodePaths(ast);
-	const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
-	if (!jsxPath) {
-		throw new Error(
-			'Could not find a JSX sequence at the specified location to split',
-		);
-	}
-
-	const jsxElement = jsxPath.node as JSXElement;
-	const tagName = getSplittableSequenceTagName(jsxElement);
-	if (!hasSequenceTimingTraits(sequenceKeys)) {
-		throw new Error(`<${tagName}> cannot be split`);
-	}
-
-	const timing = readSequenceTiming(jsxElement);
-	const finiteEnd =
-		timing.durationInFrames === Infinity
-			? Infinity
-			: timing.from + timing.durationInFrames;
-
-	if (splitFrame <= timing.from) {
-		throw new Error('Cannot split at or before the sequence start');
-	}
-
-	if (splitFrame >= finiteEnd) {
-		throw new Error('Cannot split at or after the sequence end');
-	}
-
-	const right = cloneJsxElement(jsxElement);
-	// Match Studio's numeric dragger precision while retaining fractional frames.
-	const leftDuration = normalizeComputedTiming(splitFrame - timing.from);
-	const rightDuration =
-		timing.durationInFrames === Infinity
-			? Infinity
-			: normalizeComputedTiming(finiteEnd - splitFrame);
-	const rightTrimBefore = normalizeComputedTiming(
-		timing.trimBefore + leftDuration,
-	);
-
-	setNumericAttribute({
-		element: jsxElement,
-		name: 'durationInFrames',
-		value: leftDuration,
-		omitIfMissing: false,
-	});
-	setNumericAttribute({
-		element: right,
-		name: 'from',
-		value: splitFrame,
-		omitIfMissing: false,
-	});
-	setNumericAttribute({
-		element: right,
-		name: 'durationInFrames',
-		value: rightDuration === Infinity ? null : rightDuration,
-		omitIfMissing: !timing.hasDurationInFrames,
-	});
-	setNumericAttribute({
-		element: right,
-		name: 'trimBefore',
-		value: rightTrimBefore === 0 ? null : rightTrimBefore,
-		omitIfMissing: !timing.hasTrimBefore && rightTrimBefore === 0,
-	});
-	orderTimingAttributes(jsxElement);
-	orderTimingAttributes(right);
-
-	const {parentPath} = jsxPath;
-	if (!parentPath) {
-		throw new Error('Cannot split JSX sequence with no parent');
-	}
-
-	const isJsxChild =
-		namedTypes.JSXElement.check(parentPath.node) ||
-		namedTypes.JSXFragment.check(parentPath.node);
-	if (!insertAfter(parentPath.node, jsxElement, right)) {
-		jsxPath.replace(makeFragment(jsxElement, right));
-	}
-
-	const sourceEdit = getSplitSourceEdit({
-		input,
-		left: jsxElement,
-		prettierConfigOverride: prettierConfigOverride ?? null,
-		right,
-		wrapInFragment: !isJsxChild,
-	});
-	const output =
-		input.slice(0, sourceEdit.start) +
-		sourceEdit.replacement +
-		input.slice(sourceEdit.end);
-	const {nodePathRemappings} = getNodePathRemappings({
-		ast,
-		captured: capturedNodePaths,
+	return {
 		output,
-	});
-
-	return Promise.resolve({
-		output,
-		nodeLabel: getJsxElementTagLabel(jsxElement),
-		logLine:
-			jsxElement.openingElement.loc?.start.line ??
-			jsxElement.loc?.start.line ??
-			1,
+		nodeLabel: nodeLabels[0],
+		logLine: logLines[0],
 		nodePathRemappings,
-	});
+	};
 };
