@@ -1,10 +1,10 @@
 import {expect, test} from 'bun:test';
-import {CodeModsInternals} from '..';
+import {CodemodInternals} from '..';
 
 const {
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	insertSolidIntoSource,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 test('inserts a Solid into a component source file', () => {
 	const result = insertSolidIntoSource({

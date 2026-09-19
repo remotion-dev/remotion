@@ -1,5 +1,5 @@
 import {
-	CodeModsInternals,
+	CodemodInternals,
 	type EffectKeyframeUpdate,
 	type SequenceKeyframeUpdate,
 } from '@remotion/codemods';
@@ -73,7 +73,7 @@ const {
 	updateEffectKeyframes,
 	updateEffectProps: updateEffectPropsCodemod,
 	updateSequenceKeyframes,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 /*
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so

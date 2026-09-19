@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import {splitJsxSequence} from '../codemods/split-jsx-sequence';
 import {
 	createFileWatcherRegistry,
@@ -13,7 +13,7 @@ import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequen
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
-const {splitJsxSequence: splitJsxSequenceCodemod} = CodeModsInternals;
+const {splitJsxSequence: splitJsxSequenceCodemod} = CodemodInternals;
 
 const wrap = (
 	sequence: string,

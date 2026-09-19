@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
-const {duplicateJsxNodes} = CodeModsInternals;
+const {duplicateJsxNodes} = CodemodInternals;
 
 const sample = `import React from 'react';
 import {AbsoluteFill} from 'remotion';

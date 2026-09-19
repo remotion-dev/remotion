@@ -1,9 +1,9 @@
 import {readFileSync} from 'node:fs';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import type {CanUpdateDefaultPropsResponse} from '@remotion/studio-shared';
 import {getProjectInfo} from '../project-info';
 
-export const {computeCanUpdateDefaultPropsFromContent} = CodeModsInternals;
+export const {computeCanUpdateDefaultPropsFromContent} = CodemodInternals;
 
 export const checkIfTypeScriptFile = (file: string) => {
 	if (

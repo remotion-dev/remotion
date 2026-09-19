@@ -1,10 +1,10 @@
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import type {SequenceNodePath} from 'remotion';
 
 const {
 	splitJsxSequence: splitJsxSequenceCodemod,
 	splitJsxSequences: splitJsxSequencesCodemod,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 export const splitJsxSequence = ({
 	input,

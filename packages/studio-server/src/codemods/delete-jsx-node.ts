@@ -1,4 +1,4 @@
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import type {SequenceNodePath} from 'remotion';
 
 const {
@@ -7,7 +7,7 @@ const {
 	deleteJsxNodes: deleteJsxNodesCodemod,
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 export {
 	deleteJsxElementAtPath,

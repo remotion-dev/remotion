@@ -1,4 +1,4 @@
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import type {
 	BrowserStudioOperations,
 	EventSourceEvent,
@@ -21,7 +21,7 @@ import type {
 	VirtualProjectPublicFile,
 } from './types';
 
-const {findSearchPosition} = CodeModsInternals;
+const {findSearchPosition} = CodemodInternals;
 
 type ProjectNodePathMutationFiles = SequenceNodePathMutation['files'];
 

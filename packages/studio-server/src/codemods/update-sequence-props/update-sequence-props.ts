@@ -1,6 +1,6 @@
 import type {File} from '@babel/types';
 import {
-	CodeModsInternals,
+	CodemodInternals,
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
@@ -15,7 +15,7 @@ import type {
 const {
 	updateMultipleSequenceProps: updateMultipleSequencePropsCodemod,
 	updateSequencePropsAst,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 export {
 	type RemovedProp,

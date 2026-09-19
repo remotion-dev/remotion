@@ -1,5 +1,5 @@
 import {existsSync, readFileSync} from 'node:fs';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
@@ -7,7 +7,7 @@ import type {
 import {resolveFileInsideProject} from '../helpers/resolve-file-inside-project';
 import {checkIfTypeScriptFile} from '../preview-server/routes/can-update-default-props';
 
-const {parseAndApplyCodemod} = CodeModsInternals;
+const {parseAndApplyCodemod} = CodemodInternals;
 
 export const resolveFilePathFromSymbolicatedStack = (
 	remotionRoot: string,

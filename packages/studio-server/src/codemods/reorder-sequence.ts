@@ -1,3 +1,3 @@
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 
-export const {reorderSequence} = CodeModsInternals;
+export const {reorderSequence} = CodemodInternals;

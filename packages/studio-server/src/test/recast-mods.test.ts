@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 
-const {parseAndApplyCodemod} = CodeModsInternals;
+const {parseAndApplyCodemod} = CodemodInternals;
 
 const compositionInRoot = `import {Composition} from 'remotion';
 import {NewVideo} from './NewVideo';

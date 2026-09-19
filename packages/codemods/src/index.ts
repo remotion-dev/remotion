@@ -98,7 +98,7 @@ export type {
 	UpdateEffectPropsResult,
 } from './internals';
 
-export const CodeModsInternals = {
+export const CodemodInternals = {
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	addEffect,

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-	CodeModsInternals,
+	CodemodInternals,
 	type InsertJsxElementCodemodEnvironment,
 	type ResolvedCompositionComponent,
 	type ResolvedCompositionComponentWithFile,
@@ -19,7 +19,7 @@ const {
 	resolveCompositionComponent: resolveCompositionComponentCodemod,
 	resolveCompositionComponentWithFile:
 		resolveCompositionComponentWithFileCodemod,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 const makeCodemodEnvironment = (
 	remotionRoot: string,

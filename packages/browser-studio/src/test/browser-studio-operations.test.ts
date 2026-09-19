@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
@@ -12,7 +12,7 @@ const {
 	basicCaptionsElementSource,
 	insertSolidIntoProject,
 	insertSolidIntoProjectWithNodePathRemappings,
-} = CodeModsInternals;
+} = CodemodInternals;
 
 const insertSolid = (
 	project: VirtualProject,

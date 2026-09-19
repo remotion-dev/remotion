@@ -1,5 +1,5 @@
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 
 export type {EffectTarget as EffectDuplicationTarget} from '@remotion/codemods';
 
-export const {duplicateEffect, duplicateEffects} = CodeModsInternals;
+export const {duplicateEffect, duplicateEffects} = CodemodInternals;

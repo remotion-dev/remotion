@@ -1,6 +1,6 @@
 import type {JSXAttribute} from '@babel/types';
 import {
-	CodeModsInternals,
+	CodemodInternals,
 	type EffectArrayElement,
 	type EffectPropUpdate,
 	type PropDelta,
@@ -19,9 +19,9 @@ export const {
 	findEffectCallExpression,
 	updateEffectProps,
 	updateEffectPropsAst,
-} = CodeModsInternals;
+} = CodemodInternals;
 
-const {findEffectsAttr: findEffectsAttrCodemod} = CodeModsInternals;
+const {findEffectsAttr: findEffectsAttrCodemod} = CodemodInternals;
 
 export const findEffectsAttr = (
 	attrs: readonly (JSXAttribute | unknown)[],

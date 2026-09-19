@@ -23,7 +23,7 @@ export type {
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
 
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import {AnsiDiff} from './ansi-diff';
 import {
 	addCompletedClientRender,
@@ -72,7 +72,7 @@ const parseAndApplyCodemod = ({
 	input: string;
 	codeMod: RecastCodemod;
 }): {newContents: string; changesMade: {description: string}[]} =>
-	CodeModsInternals.parseAndApplyCodemod({input, codeMod});
+	CodemodInternals.parseAndApplyCodemod({input, codeMod});
 
 export type {
 	RemotionSkillsScope,

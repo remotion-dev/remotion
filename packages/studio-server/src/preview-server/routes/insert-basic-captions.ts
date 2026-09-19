@@ -1,5 +1,5 @@
 import {lstatSync, readFileSync} from 'node:fs';
-import {CodeModsInternals} from '@remotion/codemods';
+import {CodemodInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	InsertBasicCaptionsRequest,
@@ -22,7 +22,7 @@ import {
 } from './source-file-write-queue';
 
 const {basicCaptionsElementSource, getBasicCaptionsElementFile} =
-	CodeModsInternals;
+	CodemodInternals;
 
 export const insertBasicCaptionsHandler: ApiHandler<
 	InsertBasicCaptionsRequest,
