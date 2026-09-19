@@ -42,6 +42,7 @@ type UndoEntryType =
 	| 'duplicate-jsx-node'
 	| 'split-jsx-sequence'
 	| 'split-video-from-audio'
+	| 'insert-basic-captions'
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'

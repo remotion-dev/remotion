@@ -7,7 +7,9 @@ import {AudioIcon} from '../../icons/audio';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
+import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {
 	hasSequenceControls,
@@ -15,6 +17,7 @@ import {
 } from '../InspectorSequenceSection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
@@ -127,6 +130,7 @@ const SequenceSourceQuickActions: React.FC<{
 }> = ({selection, track, validatedSource}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const confirm = useConfirmationDialog();
@@ -154,6 +158,44 @@ const SequenceSourceQuickActions: React.FC<{
 	});
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
+	const mediaSequence =
+		track.sequence.type === 'video' || track.sequence.type === 'audio'
+			? track.sequence
+			: null;
+	const transcriptionDisabledReason = sourceActionsDisabled
+		? 'Studio is read-only'
+		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+			? 'Programmatically duplicated media cannot be transcribed from source'
+			: undefined;
+	const onGenerateCaptions = useCallback(() => {
+		if (transcriptionDisabledReason !== undefined || mediaSequence === null) {
+			return;
+		}
+
+		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		setSelectedModal({
+			type: 'transcribe',
+			src: mediaSequence.src,
+			displayName: getMediaFileName(
+				mediaSequence.src,
+				mediaSequence.displayName,
+			),
+			audioStreamIndex: null,
+			requestInit: null,
+			target: {
+				fileName: nodePath.absolutePath,
+				nodePath,
+				durationInFrames: Number.isFinite(mediaSequence.duration)
+					? mediaSequence.duration
+					: null,
+			},
+		});
+	}, [
+		selection.nodePathInfo,
+		setSelectedModal,
+		mediaSequence,
+		transcriptionDisabledReason,
+	]);
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;
@@ -220,6 +262,18 @@ const SequenceSourceQuickActions: React.FC<{
 					)}
 				>
 					Split video from audio
+				</InspectorQuickAction>
+			) : null}
+			{track.sequence.type === 'video' || track.sequence.type === 'audio' ? (
+				<InspectorQuickAction
+					disabled={transcriptionDisabledReason !== undefined}
+					onClick={onGenerateCaptions}
+					title={transcriptionDisabledReason}
+					renderIcon={(color) => (
+						<TranscriptionIcon style={actionIconStyle} color={color} />
+					)}
+				>
+					Generate captions
 				</InspectorQuickAction>
 			) : null}
 			<InspectorQuickAction

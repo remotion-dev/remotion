@@ -60,6 +60,8 @@ import type {
 	SplitJsxSequenceResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
+	InsertBasicCaptionsRequest,
+	InsertBasicCaptionsResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -222,6 +224,9 @@ export type BrowserStudioOperations = {
 	splitVideoFromAudio: (
 		request: SplitVideoFromAudioRequest,
 	) => Promise<SplitVideoFromAudioResponse>;
+	insertBasicCaptions: (
+		request: InsertBasicCaptionsRequest,
+	) => Promise<InsertBasicCaptionsResponse>;
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;

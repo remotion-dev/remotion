@@ -17,6 +17,7 @@ import type {
 import {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	getKeyframeOutputTypeForSchemaField,
 	HOLD_KEYFRAME_EASING,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldHoldOnly,
@@ -32,6 +33,7 @@ import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
 	InterpolateOutputOption,
+	InterpolateOutputType,
 	SequenceNodePath,
 	VideoConfigNumericExpression,
 	VideoConfigValues,
@@ -525,8 +527,10 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 
 const createClampOptionsExpression = ({
 	defaultOutput,
+	outputType,
 }: {
 	defaultOutput: InterpolateOutputOption | null;
+	outputType: InterpolateOutputType | null;
 }): ExpressionKind => {
 	const properties = [
 		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
@@ -539,6 +543,12 @@ const createClampOptionsExpression = ({
 	if (defaultOutput !== null && defaultOutput !== 'linear') {
 		properties.push(
 			b.objectProperty(b.identifier('output'), b.stringLiteral(defaultOutput)),
+		);
+	}
+
+	if (outputType !== null) {
+		properties.push(
+			b.objectProperty(b.identifier('outputType'), b.stringLiteral(outputType)),
 		);
 	}
 
@@ -803,6 +813,32 @@ const getInlineOptionsFromExtraArgs = (
 	}
 
 	return existingOptions as ObjectExpression;
+};
+
+const setOutputTypeInExtraArgs = ({
+	extraArgs,
+	outputType,
+}: {
+	extraArgs: (ExpressionKind | SpreadElementKind)[];
+	outputType: InterpolateOutputType | null;
+}): (ExpressionKind | SpreadElementKind)[] => {
+	if (outputType === null) {
+		return extraArgs;
+	}
+
+	const options =
+		getInlineOptionsFromExtraArgs(extraArgs) ??
+		(extraArgs.length === 0 ? createEmptyOptionsExpression() : null);
+	if (options === null) {
+		return extraArgs;
+	}
+
+	setOptionsProperty({
+		options,
+		propertyName: 'outputType',
+		value: b.stringLiteral(outputType),
+	});
+	return getExtraArgsWithOptions({extraArgs, options});
 };
 
 const normalizeEasingAfterAddingKeyframe = ({
@@ -1278,12 +1314,16 @@ const addKeyframe = ({
 						defaultEasing,
 					})
 				: {extraArgs: existing.extraArgs, needsEasingImport: false};
+		const updatedExtraArgs = setOutputTypeInExtraArgs({
+			extraArgs: normalizedEasing.extraArgs,
+			outputType: getKeyframeOutputTypeForSchemaField({schema, key}),
+		});
 
 		return {
 			expression: createInterpolateExpression({
 				callee: b.identifier(nextCalleeName),
 				input: existing.input,
-				extraArgs: normalizedEasing.extraArgs,
+				extraArgs: updatedExtraArgs,
 				keyframes: nextKeyframes,
 			}),
 			introduced: {
@@ -1330,6 +1370,7 @@ const addKeyframe = ({
 			: [
 					createClampOptionsExpression({
 						defaultOutput: getDefaultKeyframeOutput({schema, key}),
+						outputType: getKeyframeOutputTypeForSchemaField({schema, key}),
 					}),
 				];
 

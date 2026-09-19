@@ -159,6 +159,11 @@ export type TranscriptionModalState = {
 	displayName: string;
 	audioStreamIndex: number | null;
 	requestInit: Omit<RequestInit, 'signal'> | null;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number | null;
+	} | null;
 };
 
 export type VideoMattingModalState = {

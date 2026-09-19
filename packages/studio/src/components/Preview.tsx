@@ -72,6 +72,9 @@ const containerStyle = (options: {
 }): React.CSSProperties => {
 	return {
 		transform: `scale(${options.scale})`,
+		// Keep the scaled composition on its own layer so the checkerboard does
+		// not bleed through its edges at fractional preview scales.
+		willChange: 'transform',
 		marginLeft: options.xCorrection,
 		marginTop: options.yCorrection,
 		width: options.width,

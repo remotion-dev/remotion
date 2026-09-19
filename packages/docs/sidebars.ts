@@ -367,6 +367,8 @@ const sidebars: SidebarsConfig = {
 			},
 			items: ['enable-scss/enable-scss'],
 		},
+		'eslint-config',
+		'eslint-plugin',
 		{
 			type: 'category',
 			label: '@remotion/fonts',

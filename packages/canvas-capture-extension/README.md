@@ -61,8 +61,11 @@ extension, so its path and extension ID remain stable across worktrees.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.
 
-Click the extension icon on a webpage to toggle the in-page controls. Set the
-output scale, select an area or choose **Whole page**, then start recording. The
+Click the extension icon on a webpage to toggle the in-page controls. Select an
+area or choose **Whole page**, then choose HD (1280×720), 2K (2560×1440), 4K
+(3840×2160), 6K (5760×3240), or 8K (7680×4320) and start recording. The
+capture scale adapts to the selected area, so smaller areas are enlarged more
+while preserving their aspect ratio. The
 controls display the selected format and rounded output dimensions and only
 enable recording after the browser confirms that Mediabunny's exact
 high-quality, realtime configuration is supported. The whole page subtree is

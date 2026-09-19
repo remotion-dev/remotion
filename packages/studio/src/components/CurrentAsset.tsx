@@ -227,6 +227,7 @@ export const AssetInfo: React.FC<{
 			displayName: fileName,
 			audioStreamIndex: null,
 			requestInit: null,
+			target: null,
 		});
 	}, [fileName, mutationsDisabled, setSelectedModal, src]);
 	const onTrackMatting = useCallback(() => {

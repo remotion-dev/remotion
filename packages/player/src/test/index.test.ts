@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
 import React, {createRef, useRef} from 'react';
 import {Html5Audio, Internals, useCurrentFrame} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
 import {Thumbnail} from '../Thumbnail.js';
@@ -36,6 +37,22 @@ test('Thumbnail supports usePlaying in its composition', () => {
 	);
 
 	expect(view.getByText('paused')).toBeTruthy();
+});
+
+test('Player uses the version-specific default number of shared audio tags', () => {
+	const view = render(
+		React.createElement(Player, {
+			component: () => null,
+			durationInFrames: 100,
+			compositionWidth: 1920,
+			compositionHeight: 1080,
+			fps: 30,
+		}),
+	);
+
+	expect(view.container.querySelectorAll('audio')).toHaveLength(
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 0 : 5,
+	);
 });
 
 test('Seeking to the current frame does not rerender the composition', () => {

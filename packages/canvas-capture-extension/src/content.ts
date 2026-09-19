@@ -29,6 +29,16 @@ type SelectedTarget =
 	| {readonly type: 'whole-page'}
 	| {readonly type: 'page-crop'; readonly crop: CaptureCrop};
 
+const resolutionOptions = [
+	{label: 'HD', width: 1280, height: 720},
+	{label: '2K', width: 2560, height: 1440},
+	{label: '4K', width: 3840, height: 2160},
+	{label: '6K', width: 5760, height: 3240},
+	{label: '8K', width: 7680, height: 4320},
+] as const;
+
+type Resolution = (typeof resolutionOptions)[number]['label'];
+
 export const startContent = () => {
 	const extensionWindow = window as ExtensionWindow;
 
@@ -111,6 +121,8 @@ export const startContent = () => {
 		.capture-dimensions {
 			position: fixed;
 			display: none;
+			align-items: center;
+			gap: 4px;
 			padding: 3px 6px;
 			border-radius: 4px;
 			background: #0b84f3;
@@ -123,6 +135,27 @@ export const startContent = () => {
 			line-height: 16px;
 			pointer-events: none;
 			white-space: nowrap;
+		}
+		.capture-dimensions svg {
+			width: 14px;
+			height: 8px;
+			flex: 0 0 14px;
+			fill: none;
+			stroke: currentColor;
+			stroke-width: 1.25;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+		}
+		.capture-dimensions-zoom {
+			margin-left: -5px;
+			padding: 0 5px;
+			border: 1px solid #fff;
+			border-radius: 999px;
+			background: #0b84f3;
+			line-height: 16px;
+		}
+		.capture-dimensions-zoom + svg {
+			margin-left: -5px;
 		}
 		.capture-controls {
 			position: fixed;
@@ -188,59 +221,19 @@ export const startContent = () => {
 			height: 24px;
 			fill: currentColor;
 		}
-		.capture-controls-scale {
+		.capture-controls-resolution {
 			display: flex;
-			width: 190px;
-			min-width: 130px;
 			align-items: center;
-			flex: 0 1 190px;
 			gap: 4px;
 			margin: 0 8px;
 		}
-		.capture-controls-scale input {
-			-webkit-appearance: none;
-			appearance: none;
-			min-width: 0;
-			width: 100%;
-			height: 12px;
-			border: 2px solid #000;
-			border-radius: 8px;
-			cursor: pointer;
+		.capture-controls-resolution button {
+			min-width: 42px;
+			padding: 0 6px;
 		}
-		.capture-controls-scale input::-webkit-slider-thumb {
-			-webkit-appearance: none;
-			appearance: none;
-			width: 24px;
-			height: 24px;
-			border: 2px solid #000;
-			border-bottom-width: 4px;
-			border-radius: 50%;
-			background: #fff;
-			cursor: pointer;
-			scale: 1.2;
-		}
-		.capture-controls-scale input::-moz-range-thumb {
-			width: 24px;
-			height: 24px;
-			border: 2px solid #000;
-			border-bottom-width: 4px;
-			border-radius: 50%;
-			background: #fff;
-			cursor: pointer;
-			scale: 1.2;
-		}
-		.capture-controls-scale input:disabled,
-		.capture-controls-scale input:disabled::-webkit-slider-thumb,
-		.capture-controls-scale input:disabled::-moz-range-thumb {
-			cursor: default;
-			opacity: 0.5;
-		}
-		.capture-controls-scale output {
-			min-width: 28px;
-			font-size: 16px;
-			font-weight: 400;
-			opacity: 0.55;
-			text-align: left;
+		.capture-controls-resolution button[aria-pressed="true"] {
+			background: #0b84f3;
+			color: #fff;
 		}
 		.capture-controls button {
 			height: 38px;
@@ -345,6 +338,31 @@ export const startContent = () => {
 		highlight.className = 'highlight';
 		const dimensions = document.createElement('div');
 		dimensions.className = 'capture-dimensions';
+		const dimensionsSource = document.createElement('span');
+		const dimensionsZoom = document.createElement('span');
+		dimensionsZoom.className = 'capture-dimensions-zoom';
+		const dimensionsOutput = document.createElement('span');
+		const dimensionsLine = document.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'svg',
+		);
+		dimensionsLine.setAttribute('viewBox', '0 0 14 8');
+		dimensionsLine.setAttribute('aria-hidden', 'true');
+		dimensionsLine.innerHTML = '<path d="M1 4h12" />';
+		const dimensionsArrow = document.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'svg',
+		);
+		dimensionsArrow.setAttribute('viewBox', '0 0 14 8');
+		dimensionsArrow.setAttribute('aria-hidden', 'true');
+		dimensionsArrow.innerHTML = '<path d="M1 4h11m-3-3 3 3-3 3" />';
+		dimensions.append(
+			dimensionsSource,
+			dimensionsLine,
+			dimensionsZoom,
+			dimensionsArrow,
+			dimensionsOutput,
+		);
 		const controls = document.createElement('div');
 		controls.className = 'capture-controls';
 		const controlsHeader = document.createElement('div');
@@ -363,25 +381,26 @@ export const startContent = () => {
 		controlsSecondary.ariaLabel = 'Select an area';
 		controlsSecondary.dataset.tooltip = 'Select an area';
 		controlsSecondary.innerHTML =
-			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M192 88C192 74.7 181.3 64 168 64C154.7 64 144 74.7 144 88L144 144L88 144C74.7 144 64 154.7 64 168C64 181.3 74.7 192 88 192L144 192L144 440C144 470.9 169.1 496 200 496L400 496L400 448L200 448C195.6 448 192 444.4 192 440L192 88zM448 552C448 565.3 458.7 576 472 576C485.3 576 496 565.3 496 552L496 496L552 496C565.3 496 576 485.3 576 472C576 458.7 565.3 448 552 448L496 448L496 200C496 169.1 470.9 144 440 144L240 144L240 192L440 192C444.4 192 448 195.6 448 200L448 552z"/></svg>';
+			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M192 80C192 71.2 184.8 64 176 64C167.2 64 160 71.2 160 80L160 160L80 160C71.2 160 64 167.2 64 176C64 184.8 71.2 192 80 192L160 192L160 432C160 458.5 181.5 480 208 480L400 480L400 448L208 448C199.2 448 192 440.8 192 432L192 80zM448 560C448 568.8 455.2 576 464 576C472.8 576 480 568.8 480 560L480 480L560 480C568.8 480 576 472.8 576 464C576 455.2 568.8 448 560 448L480 448L480 208C480 181.5 458.5 160 432 160L240 160L240 192L432 192C440.8 192 448 199.2 448 208L448 560z"/></svg>';
 		const controlsWholePage = document.createElement('button');
 		controlsWholePage.className = 'capture-controls-select';
 		controlsWholePage.type = 'button';
 		controlsWholePage.ariaLabel = 'Select the whole page';
 		controlsWholePage.dataset.tooltip = 'Select the whole page';
 		controlsWholePage.innerHTML =
-			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M512 160C529.7 160 544 174.3 544 192L544 288L96 288L96 192C96 174.3 110.3 160 128 160L512 160zM544 320L544 448C544 465.7 529.7 480 512 480L128 480C110.3 480 96 465.7 96 448L96 320L544 320zM128 128C92.7 128 64 156.7 64 192L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 192C576 156.7 547.3 128 512 128L128 128zM184 224C184 210.7 173.3 200 160 200C146.7 200 136 210.7 136 224C136 237.3 146.7 248 160 248C173.3 248 184 237.3 184 224zM256 248C269.3 248 280 237.3 280 224C280 210.7 269.3 200 256 200C242.7 200 232 210.7 232 224C232 237.3 242.7 248 256 248zM376 224C376 210.7 365.3 200 352 200C338.7 200 328 210.7 328 224C328 237.3 338.7 248 352 248C365.3 248 376 237.3 376 224z"/></svg>';
-		const controlsScale = document.createElement('label');
-		controlsScale.className = 'capture-controls-scale';
-		controlsScale.dataset.tooltip = 'Capture scale';
-		const controlsScaleInput = document.createElement('input');
-		controlsScaleInput.type = 'range';
-		controlsScaleInput.min = '0.1';
-		controlsScaleInput.max = '4';
-		controlsScaleInput.step = '0.1';
-		controlsScaleInput.ariaLabel = 'Capture scale';
-		const controlsScaleOutput = document.createElement('output');
-		controlsScale.append(controlsScaleInput, controlsScaleOutput);
+			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M224 160L224 224L544 224L544 192C544 174.3 529.7 160 512 160L224 160zM192 160L128 160C110.3 160 96 174.3 96 192L96 224L192 224L192 160zM96 256L96 448C96 465.7 110.3 480 128 480L512 480C529.7 480 544 465.7 544 448L544 256L96 256zM64 192C64 156.7 92.7 128 128 128L512 128C547.3 128 576 156.7 576 192L576 448C576 483.3 547.3 512 512 512L128 512C92.7 512 64 483.3 64 448L64 192z"/></svg>';
+		const controlsResolution = document.createElement('div');
+		controlsResolution.className = 'capture-controls-resolution';
+		controlsResolution.setAttribute('role', 'group');
+		controlsResolution.ariaLabel = 'Output resolution';
+		const resolutionButtons = resolutionOptions.map((option) => {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.textContent = option.label;
+			button.dataset.tooltip = `Up to ${option.width}×${option.height}`;
+			controlsResolution.appendChild(button);
+			return {button, option};
+		});
 		const controlsPrimary = document.createElement('button');
 		controlsPrimary.className = 'capture-controls-primary';
 		controlsPrimary.type = 'button';
@@ -399,7 +418,7 @@ export const startContent = () => {
 			controlsLogo,
 			controlsSecondary,
 			controlsWholePage,
-			controlsScale,
+			controlsResolution,
 			controlsPrimary,
 			controlsClose,
 		);
@@ -418,7 +437,9 @@ export const startContent = () => {
 		let completedRecording: File | null = null;
 		let finalizing = false;
 		let selecting = false;
+		let startingRecording = false;
 		let scale = Math.max(1, window.devicePixelRatio);
+		let resolution: Resolution | null = '2K';
 		let format: CaptureFormat = 'mp4';
 		let encoderSupport: CaptureControllerState['encoderSupport'] =
 			'unavailable';
@@ -468,6 +489,21 @@ export const startContent = () => {
 			return {crop: selectedTarget.crop};
 		};
 
+		const getResolutionScale = (
+			width: number,
+			height: number,
+			selectedResolution: Resolution,
+		) => {
+			const option = resolutionOptions.find(
+				(candidate) => candidate.label === selectedResolution,
+			);
+			if (!option) {
+				throw new Error('Unknown capture resolution.');
+			}
+
+			return Math.min(option.width / width, option.height / height);
+		};
+
 		const refreshEncoderSupport = async () => {
 			const checkId = ++encoderSupportCheckId;
 			if (
@@ -496,6 +532,16 @@ export const startContent = () => {
 			}
 
 			try {
+				if (resolution) {
+					const source = getCapturePreflight({scale: 1, crop: target.crop});
+					const selectedSize = target.crop ?? source.sourceSize;
+					scale = getResolutionScale(
+						selectedSize.width,
+						selectedSize.height,
+						resolution,
+					);
+				}
+
 				const preflight = getCapturePreflight({
 					scale,
 					crop: target.crop,
@@ -551,7 +597,7 @@ export const startContent = () => {
 					encoderSupport = 'unsupported';
 					encoderSupportKey = supportKey;
 					setStatus(
-						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Reduce the scale or select a smaller area.`,
+						`Neither H.264 MP4 nor VP9 WebM encoding is supported at ${outputSize.width}×${outputSize.height} in this browser. Choose a lower resolution or select a smaller area.`,
 						true,
 					);
 				}
@@ -575,9 +621,14 @@ export const startContent = () => {
 				return;
 			}
 
-			const scaled = getScaledCanvasSize(rect.width, rect.height, scale);
-			dimensions.textContent = `${Math.round(rect.width)}×${Math.round(rect.height)} → ${scaled.width}×${scaled.height}`;
-			dimensions.style.display = 'block';
+			const previewScale = resolution
+				? getResolutionScale(rect.width, rect.height, resolution)
+				: scale;
+			const scaled = getScaledCanvasSize(rect.width, rect.height, previewScale);
+			dimensionsSource.textContent = `${Math.round(rect.width)}×${Math.round(rect.height)}`;
+			dimensionsZoom.textContent = `${previewScale.toFixed(1)}×`;
+			dimensionsOutput.textContent = `${scaled.width}×${scaled.height}`;
+			dimensions.style.display = 'flex';
 			const badgeRect = dimensions.getBoundingClientRect();
 			const left = Math.min(
 				Math.max(4, rect.left + (rect.width - badgeRect.width) / 2),
@@ -593,7 +644,7 @@ export const startContent = () => {
 		};
 
 		const updateHighlight = () => {
-			if (capture || selecting || controlsDismissed) {
+			if (selecting || controlsDismissed) {
 				interactionShield.style.display = 'none';
 				backdrop.style.display = 'none';
 				highlight.style.display = 'none';
@@ -601,7 +652,8 @@ export const startContent = () => {
 				return;
 			}
 
-			interactionShield.style.display = 'block';
+			interactionShield.style.display =
+				capture || startingRecording ? 'none' : 'block';
 			const target = resolveCaptureTarget();
 			let rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null =
 				null;
@@ -656,18 +708,17 @@ export const startContent = () => {
 				return;
 			}
 
-			if (document.activeElement !== controlsScaleInput) {
-				controlsScaleInput.value = String(state.scale);
-			}
-
-			const scalePercentage = ((state.scale - 0.1) / (4 - 0.1)) * 100;
-			controlsScaleInput.style.background = `linear-gradient(to right, #0b84f3 0%, #0b84f3 ${scalePercentage}%, #fff ${scalePercentage}%, #fff 100%)`;
-			controlsScaleOutput.textContent = `${Number(state.scale.toFixed(1))}×`;
-			controlsScaleInput.disabled =
-				controlsBusy ||
-				state.recording ||
-				state.hasCompletedRecording ||
-				!state.supported;
+			resolutionButtons.forEach(({button, option}) => {
+				button.setAttribute(
+					'aria-pressed',
+					String(resolution === option.label),
+				);
+				button.disabled =
+					controlsBusy ||
+					state.recording ||
+					state.hasCompletedRecording ||
+					!state.supported;
+			});
 			controlsSecondary.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
 			controlsWholePage.disabled =
@@ -869,9 +920,12 @@ export const startContent = () => {
 
 			if (request.command === 'set-options') {
 				if (!capture && !completedRecording && !finalizing) {
+					resolution = null;
 					if (setOptions(request.scale)) {
 						await refreshEncoderSupport();
 					}
+
+					updateControls();
 				}
 
 				return getState();
@@ -924,45 +978,59 @@ export const startContent = () => {
 			}
 
 			if (request.command === 'start-recording') {
-				if (capture || completedRecording || finalizing || selecting) {
+				if (
+					capture ||
+					startingRecording ||
+					completedRecording ||
+					finalizing ||
+					selecting
+				) {
 					return getState();
 				}
 
-				if (!setOptions(request.scale)) {
-					return getState();
-				}
-
-				await refreshEncoderSupport();
-				if (encoderSupport !== 'supported') {
-					return getState();
-				}
-
-				const target = resolveCaptureTarget();
-				if (!target) {
-					setStatus('Choose an area or the whole page first.', true);
-					return getState();
-				}
-
-				try {
-					capture = new PageCapture({
-						scale,
-						format,
-						crop: target.crop,
-					});
-					await capture.start();
-					setStatus(`Recording ${getFormatLabel(format)} at ${scale}× scale…`);
-				} catch (error) {
-					capture?.restore();
-					capture = null;
-					setStatus(
-						error instanceof Error ? error.message : String(error),
-						true,
-					);
-				}
-
+				startingRecording = true;
 				updateHighlight();
-				updateControls();
-				return getState();
+				try {
+					if (!setOptions(request.scale)) {
+						return getState();
+					}
+
+					await refreshEncoderSupport();
+					if (encoderSupport !== 'supported') {
+						return getState();
+					}
+
+					const target = resolveCaptureTarget();
+					if (!target) {
+						setStatus('Choose an area or the whole page first.', true);
+						return getState();
+					}
+
+					try {
+						capture = new PageCapture({
+							scale,
+							format,
+							crop: target.crop,
+						});
+						await capture.start();
+						setStatus(
+							`Recording ${getFormatLabel(format)} at ${scale}× scale…`,
+						);
+					} catch (error) {
+						capture?.restore();
+						capture = null;
+						setStatus(
+							error instanceof Error ? error.message : String(error),
+							true,
+						);
+					}
+
+					return getState();
+				} finally {
+					startingRecording = false;
+					updateHighlight();
+					updateControls();
+				}
 			}
 
 			if (request.command === 'stop-recording') {
@@ -1085,20 +1153,20 @@ export const startContent = () => {
 					updateControls();
 				});
 		});
-		controlsScaleInput.addEventListener('input', () => {
-			const nextScale = Number(controlsScaleInput.value);
-			const scalePercentage = ((nextScale - 0.1) / (4 - 0.1)) * 100;
-			controlsScaleInput.style.background = `linear-gradient(to right, #0b84f3 0%, #0b84f3 ${scalePercentage}%, #fff ${scalePercentage}%, #fff 100%)`;
-			controlsScaleOutput.textContent = `${Number(nextScale.toFixed(1))}×`;
-		});
-		controlsScaleInput.addEventListener('change', () => {
-			handleRequest({
-				type: captureControllerMessageType,
-				command: 'set-options',
-				scale: Number(controlsScaleInput.value),
-			}).catch((error) => {
-				setStatus(error instanceof Error ? error.message : String(error), true);
+		resolutionButtons.forEach(({button, option}) => {
+			button.addEventListener('click', () => {
+				resolution = option.label;
+				updateHighlight();
 				updateControls();
+				refreshEncoderSupport()
+					.then(updateControls)
+					.catch((error) => {
+						setStatus(
+							error instanceof Error ? error.message : String(error),
+							true,
+						);
+						updateControls();
+					});
 			});
 		});
 

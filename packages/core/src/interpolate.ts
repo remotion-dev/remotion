@@ -5,6 +5,12 @@ import {normalizeNumber} from './normalize-number.js';
 
 export type ExtrapolateType = 'extend' | 'identity' | 'clamp' | 'wrap';
 export type InterpolateOutputOption = 'linear' | 'perceptual-scale';
+export type InterpolateOutputType =
+	| 'font-weight'
+	| 'scale'
+	| 'translate'
+	| 'rotate'
+	| 'transform-origin';
 
 /**
  * @description This function allows you to map a range of values to another with a concise syntax
@@ -20,6 +26,7 @@ export type InterpolateOptions = Partial<{
 	extrapolateLeft: ExtrapolateType;
 	extrapolateRight: ExtrapolateType;
 	output: InterpolateOutputOption;
+	outputType: InterpolateOutputType;
 	posterize: number;
 }>;
 
@@ -416,6 +423,7 @@ const parseAxisRotationValue = (
 
 const parseStringInterpolationValue = (
 	output: string | number,
+	outputType: Exclude<InterpolateOutputType, 'font-weight'> | undefined,
 ): ParsedStringInterpolationValue => {
 	if (typeof output === 'number') {
 		if (!Number.isFinite(output)) {
@@ -433,8 +441,29 @@ const parseStringInterpolationValue = (
 		};
 	}
 
+	if (outputType === 'transform-origin') {
+		const transformOriginParts = output.trim().split(/\s+/);
+		if (
+			transformOriginParts.length < 1 ||
+			transformOriginParts.length > 3 ||
+			transformOriginParts[0] === ''
+		) {
+			throw new TypeError(
+				`String outputRange values must contain 1 to 3 components, but got "${output}"`,
+			);
+		}
+
+		return parseTransformOriginValue(output, transformOriginParts);
+	}
+
 	const axisRotation = parseAxisRotationValue(output);
 	if (axisRotation !== null) {
+		if (outputType !== undefined && outputType !== 'rotate') {
+			throw new TypeError(
+				`Cannot interpolate "${output}" as ${outputType} because it is a rotate value`,
+			);
+		}
+
 		return axisRotation;
 	}
 
@@ -446,6 +475,12 @@ const parseStringInterpolationValue = (
 	}
 
 	if (parts.some((part) => transformOriginKeywords.has(part.toLowerCase()))) {
+		if (outputType !== undefined) {
+			throw new TypeError(
+				`Cannot interpolate "${output}" as ${outputType} because it is a transform-origin value`,
+			);
+		}
+
 		return parseTransformOriginValue(output, parts);
 	}
 
@@ -459,6 +494,12 @@ const parseStringInterpolationValue = (
 				`Cannot interpolate "${output}" because it mixes ${kind} and ${part.kind} values`,
 			);
 		}
+	}
+
+	if (outputType !== undefined && outputType !== kind) {
+		throw new TypeError(
+			`Cannot interpolate "${output}" as ${outputType} because it is a ${kind} value`,
+		);
 	}
 
 	if (kind === 'scale') {
@@ -748,14 +789,16 @@ const interpolateString = ({
 	inputRange,
 	outputRange,
 	options,
+	outputType,
 }: {
 	input: number;
 	inputRange: readonly number[];
 	outputRange: readonly (string | number)[];
 	options: InterpolateOptions | undefined;
+	outputType: Exclude<InterpolateOutputType, 'font-weight'> | undefined;
 }): string => {
-	const initiallyParsedOutputRange = outputRange.map(
-		parseStringInterpolationValue,
+	const initiallyParsedOutputRange = outputRange.map((output) =>
+		parseStringInterpolationValue(output, outputType),
 	);
 	const hasAxisRotation = initiallyParsedOutputRange.some(
 		(parsed) => parsed.axisRotation,
@@ -895,6 +938,54 @@ const interpolateString = ({
 		units,
 		dimensions,
 		axisRotation: hasAxisRotation,
+	});
+};
+
+const interpolateFontWeight = ({
+	input,
+	inputRange,
+	outputRange,
+	options,
+}: {
+	input: number;
+	inputRange: readonly number[];
+	outputRange: readonly (number | string)[];
+	options: InterpolateOptions | undefined;
+}): number => {
+	const normalizedOutputRange = outputRange.map((output) => {
+		if (typeof output === 'string') {
+			const lowerCaseOutput = output.toLowerCase();
+			if (lowerCaseOutput === 'normal') {
+				return 400;
+			}
+
+			if (lowerCaseOutput === 'bold') {
+				return 700;
+			}
+		}
+
+		const match =
+			typeof output === 'string' ? cssNumberRegex.exec(output) : null;
+		const value =
+			typeof output === 'number'
+				? output
+				: match !== null && match[2] === undefined
+					? Number(match[1])
+					: Number.NaN;
+		if (!Number.isFinite(value) || value < 1 || value > 1000) {
+			throw new TypeError(
+				`Cannot interpolate font weight "${output}". Expected "normal", "bold", or a number between 1 and 1000`,
+			);
+		}
+
+		return value;
+	});
+
+	return interpolateNumber({
+		input,
+		inputRange,
+		outputRange: normalizedOutputRange,
+		options,
 	});
 };
 
@@ -1124,6 +1215,25 @@ function assertValidInterpolateOutputOption(
 	);
 }
 
+function assertValidInterpolateOutputType(
+	outputType: InterpolateOptions['outputType'],
+) {
+	if (
+		outputType === undefined ||
+		outputType === 'font-weight' ||
+		outputType === 'scale' ||
+		outputType === 'translate' ||
+		outputType === 'rotate' ||
+		outputType === 'transform-origin'
+	) {
+		return;
+	}
+
+	throw new Error(
+		`outputType must be "font-weight", "scale", "translate", "rotate", or "transform-origin", but got ${String(outputType)}`,
+	);
+}
+
 /*
  * @description Allows you to map a range of values to another using a concise syntax.
  * @see [Documentation](https://remotion.dev/docs/interpolate)
@@ -1134,6 +1244,12 @@ export function interpolate(
 	inputRange: readonly number[],
 	outputRange: readonly number[],
 	options?: InterpolateOptions,
+): number;
+export function interpolate(
+	input: number,
+	inputRange: readonly number[],
+	outputRange: readonly (number | string)[],
+	options: InterpolateOptions & {outputType: 'font-weight'},
 ): number;
 export function interpolate(
 	input: number,
@@ -1193,6 +1309,7 @@ export function interpolate(
 	assertValidInterpolateEasingOption(options?.easing, inputRange.length);
 	assertValidInterpolatePosterizeOption(options?.posterize);
 	assertValidInterpolateOutputOption(options?.output);
+	assertValidInterpolateOutputType(options?.outputType);
 
 	if (typeof input !== 'number') {
 		throw new TypeError('Cannot interpolate an input which is not a number');
@@ -1202,9 +1319,35 @@ export function interpolate(
 		throw new Error('outputRange must contain only numbers');
 	}
 
+	const outputType = options?.outputType;
+	if (outputType === 'font-weight') {
+		if (
+			!outputRange.every(
+				(output) => typeof output === 'number' || typeof output === 'string',
+			)
+		) {
+			throw new TypeError(
+				'Font weight outputRange must contain only numbers or strings',
+			);
+		}
+
+		return interpolateFontWeight({
+			input,
+			inputRange,
+			outputRange,
+			options,
+		});
+	}
+
 	const hasStringOutput = outputRange.some(
 		(output) => typeof output === 'string',
 	);
+	if (outputType !== undefined && outputType !== 'scale' && !hasStringOutput) {
+		throw new TypeError(
+			`${outputType} outputRange must contain strings with the appropriate CSS units`,
+		);
+	}
+
 	if (hasStringOutput) {
 		if (
 			!outputRange.every(
@@ -1217,7 +1360,13 @@ export function interpolate(
 		}
 
 		try {
-			return interpolateString({input, inputRange, outputRange, options});
+			return interpolateString({
+				input,
+				inputRange,
+				outputRange,
+				options,
+				outputType,
+			});
 		} catch (error) {
 			if (!outputRange.every((output) => typeof output === 'string')) {
 				throw error;
@@ -1225,7 +1374,7 @@ export function interpolate(
 
 			const hasNonNumericString = outputRange.some((output) => {
 				try {
-					parseStringInterpolationValue(output);
+					parseStringInterpolationValue(output, outputType);
 					return false;
 				} catch (parseError) {
 					return parseError instanceof UnsupportedStringInterpolationValueError;

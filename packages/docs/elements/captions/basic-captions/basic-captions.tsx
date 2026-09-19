@@ -17,6 +17,7 @@ type BasicCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
+		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -56,8 +57,15 @@ const basicCaptionsSchema = {
 
 const BasicCaptionsContent: React.FC<{
 	readonly captions: Caption[];
+	readonly playbackRate: number;
+	readonly trimBefore: number;
 	readonly combineTokensWithinMilliseconds: number;
-}> = ({captions, combineTokensWithinMilliseconds}) => {
+}> = ({
+	captions,
+	playbackRate,
+	trimBefore,
+	combineTokensWithinMilliseconds,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -68,7 +76,9 @@ const BasicCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs = (frame / fps) * 1000;
+	// The Sequence frame already includes trimBefore; only elapsed frames speed up.
+	const currentTimeMs =
+		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
 	const page = pages.find(
 		(candidate) =>
 			currentTimeMs >= candidate.startMs &&
@@ -116,7 +126,9 @@ const BasicCaptionsInner = forwardRef<
 			controls,
 			height = defaultHeight,
 			name,
+			playbackRate = 1,
 			style,
+			trimBefore,
 			width = defaultWidth,
 			...interactiveProps
 		},
@@ -132,6 +144,7 @@ const BasicCaptionsInner = forwardRef<
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<BasicCaptions>'}
+				trimBefore={trimBefore}
 				outlineRef={outlineRef}
 			>
 				<div
@@ -149,6 +162,8 @@ const BasicCaptionsInner = forwardRef<
 					<BasicCaptionsContent
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+						playbackRate={playbackRate}
+						trimBefore={trimBefore ?? 0}
 					/>
 				</div>
 			</Sequence>

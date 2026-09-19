@@ -1,8 +1,19 @@
 import {expect, test} from 'bun:test';
+import {getMediaFileName} from '../components/public-output-name';
 import {
 	getDefaultCaptionOutputName,
 	validateCaptionOutputName,
 } from '../components/Transcription/caption-output-name';
+
+test('shows the media filename when generating captions', () => {
+	expect(
+		getMediaFileName(
+			'https://example.com/media/My%20Interview.wav?token=secret',
+			'<Audio>',
+		),
+	).toBe('My Interview.wav');
+	expect(getMediaFileName('blob:1234', '<Video>')).toBe('<Video>');
+});
 
 test('derives a caption JSON name from local and remote media sources', () => {
 	expect(getDefaultCaptionOutputName('/interview.mp4')).toBe(

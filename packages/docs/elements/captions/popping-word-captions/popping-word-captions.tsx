@@ -29,6 +29,7 @@ type PoppingWordCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
+		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -75,9 +76,6 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
 	subsets: ['latin'],
 });
-
-const frameToMilliseconds = (frame: number, fps: number) =>
-	(frame / fps) * 1000;
 
 const isTimeWithinHalfOpenInterval = (
 	timeMs: number,
@@ -245,11 +243,15 @@ const PoppingWordCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
+	readonly playbackRate: number;
+	readonly trimBefore: number;
 }> = ({
 	captionAreaWidth,
 	captions,
 	combineTokensWithinMilliseconds,
 	fontLoaded,
+	playbackRate,
+	trimBefore,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -261,7 +263,8 @@ const PoppingWordCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs = frameToMilliseconds(frame, fps);
+	const currentTimeMs =
+		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
@@ -294,7 +297,9 @@ const PoppingWordCaptionsInner = forwardRef<
 			controls,
 			height = defaultHeight,
 			name,
+			playbackRate = 1,
 			style,
+			trimBefore,
 			width = defaultWidth,
 			...interactiveProps
 		},
@@ -323,6 +328,7 @@ const PoppingWordCaptionsInner = forwardRef<
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<PoppingWordCaptions>'}
+				trimBefore={trimBefore}
 				outlineRef={outlineRef}
 			>
 				<div
@@ -339,6 +345,8 @@ const PoppingWordCaptionsInner = forwardRef<
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 						fontLoaded={fontLoaded}
+						playbackRate={playbackRate}
+						trimBefore={trimBefore ?? 0}
 					/>
 				</div>
 			</Sequence>

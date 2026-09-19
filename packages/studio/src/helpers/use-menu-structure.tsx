@@ -231,11 +231,13 @@ const getRenderMenuItems = ({
 	previewServerState,
 	readOnlyStudio,
 	renderShortcut,
+	compositionSelected,
 }: {
 	closeMenu: () => void;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
 	renderShortcut: string;
+	compositionSelected: boolean;
 }): ComboboxValue[] => {
 	return [
 		readOnlyStudio
@@ -264,6 +266,7 @@ const getRenderMenuItems = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
+					disabled: !compositionSelected,
 				},
 		{
 			id: 'render-on-web',
@@ -283,6 +286,7 @@ const getRenderMenuItems = ({
 			leftItem: null,
 			subMenu: null,
 			quickSwitcherLabel: 'Render in browser...',
+			disabled: !compositionSelected,
 		},
 		{
 			type: 'divider' as const,
@@ -900,6 +904,7 @@ export const useMenuStructure = (
 						previewServerState: type,
 						readOnlyStudio,
 						renderShortcut,
+						compositionSelected: currentComposition !== null,
 					}),
 					...getCompositionMenuItems({
 						closeMenu,
@@ -1230,6 +1235,7 @@ const itemToSearchResult = (
 	item: SelectionItem,
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void,
 	prefixes: string[],
+	path: string[],
 ): TQuickSwitcherResult[] => {
 	if (item.disabled) {
 		return [];
@@ -1242,24 +1248,37 @@ const itemToSearchResult = (
 					return null;
 				}
 
-				return itemToSearchResult(subItem, setSelectedModal, [
-					...prefixes,
-					getItemLabel(item),
-				]);
+				return itemToSearchResult(
+					subItem,
+					setSelectedModal,
+					[...prefixes, getItemLabel(item)],
+					[...path, subItem.id],
+				);
 			})
 			.flat(1)
 			.filter(NoReactInternals.truthy);
 	}
 
+	const label = getItemLabel(item);
+	const distinctPrefixes = prefixes.filter(
+		(prefix, index) => prefix !== prefixes[index + 1],
+	);
+	if (
+		distinctPrefixes.length > 0 &&
+		label.startsWith(`${distinctPrefixes.at(-1)}: `)
+	) {
+		distinctPrefixes.pop();
+	}
+
 	return [
 		{
 			type: 'menu-item',
-			id: item.id,
+			id: path.join(':'),
 			onSelected: () => {
 				setSelectedModal(null);
 				item.onClick(item.id, null);
 			},
-			title: [...prefixes, getItemLabel(item)].join(': '),
+			title: [...distinctPrefixes, label].join(': '),
 		},
 	];
 };
@@ -1275,7 +1294,12 @@ export const makeSearchResults = (
 					return null;
 				}
 
-				return itemToSearchResult(item, setSelectedModal, []);
+				return itemToSearchResult(
+					item,
+					setSelectedModal,
+					[],
+					[menu.id, item.id],
+				);
 			});
 		})
 		.flat(Infinity)

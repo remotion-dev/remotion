@@ -6,9 +6,6 @@ sidebar_label: Installation in existing project
 crumb: 'Brownfield integration'
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 Remotion can be installed into existing projects, such as [Next.JS](https://nextjs.org/), [React Router](https://reactrouter.com/), [Vite](https://vitejs.dev/guide/) or [Create React App](https://create-react-app.dev/), as well as server-only projects that run on Node.JS. Get started by adding the following packages:
 
 <Installation pkg="remotion @remotion/cli" />
@@ -112,56 +109,11 @@ npx remotion render remotion/index.ts MyComp out.mp4
 
 Replace the entrypoint, composition name and output filename with the values that correspond to your usecase.
 
-## Install the ESLint Plugin
+## Set up ESLint
 
-Remotion has an ESLint plugin that warns about improper usage of Remotion APIs. To add it to your existing project, install it:
+Remotion provides ESLint rules that warn about incorrect or inefficient use of Remotion APIs.
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm i -D @remotion/eslint-plugin
-```
-
-  </TabItem>
-
-  <TabItem value="yarn">
-
-```bash
-yarn add -D @remotion/eslint-plugin
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i -D @remotion/eslint-plugin
-```
-
-  </TabItem>
-</Tabs>
-
-This snippet will enable the recommended rules only for the Remotion files:
-
-```json title=".eslintrc"
-{
-  "plugins": ["@remotion"],
-  "overrides": [
-    {
-      "files": ["remotion/*.{ts,tsx}"],
-      "extends": ["plugin:@remotion/recommended"]
-    }
-  ]
-}
-```
+Use [`@remotion/eslint-plugin`](/docs/eslint-plugin) with your existing ESLint configuration. To use Remotion's complete ESLint setup, see [`@remotion/eslint-config`](/docs/eslint-config).
 
 ## Embed a Remotion video into your React app
 

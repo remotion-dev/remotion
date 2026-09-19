@@ -21,6 +21,7 @@ import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
 	InterpolateOutputOption,
+	InterpolateOutputType,
 	JsxComponentIdentity,
 	SequenceNodePath,
 	VideoConfigNumericExpression,
@@ -300,6 +301,30 @@ const getInterpolateOutputOption = (
 	return null;
 };
 
+const getInterpolateOutputType = (
+	node: Expression,
+): InterpolateOutputType | null => {
+	if (node.type === 'StringLiteral') {
+		if (
+			node.value === 'font-weight' ||
+			node.value === 'scale' ||
+			node.value === 'translate' ||
+			node.value === 'rotate' ||
+			node.value === 'transform-origin'
+		) {
+			return node.value;
+		}
+
+		return null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getInterpolateOutputType(node.expression as Expression);
+	}
+
+	return null;
+};
+
 const getKeyframeEasing = (node: Expression): PropEasing[number] | null =>
 	parseKeyframeEasingExpression(node);
 
@@ -464,6 +489,17 @@ const getInterpolationMetadata = (
 			}
 
 			output = parsedOutput;
+			continue;
+		}
+
+		if (key === 'outputType') {
+			if (
+				interpolationFunction === 'interpolateColors' ||
+				getInterpolateOutputType(value) === null
+			) {
+				return null;
+			}
+
 			continue;
 		}
 

@@ -1,0 +1,52 @@
+---
+image: /generated/articles-docs-eslint-plugin.png
+title: '@remotion/eslint-plugin'
+sidebar_label: '@remotion/eslint-plugin'
+crumb: 'ESLint'
+---
+
+`@remotion/eslint-plugin` warns about incorrect or inefficient use of Remotion APIs.
+
+Use the plugin directly when your project already has an ESLint configuration, for example in a Next.js or React Router project. To use Remotion's complete ESLint setup, use an [`@remotion/eslint-config` package](/docs/eslint-config) instead.
+
+## Installation
+
+<Installation pkg="@remotion/eslint-plugin" />
+
+The plugin supports ESLint 7 and later. Use the legacy configuration with ESLint 7 or 8, and the flat configuration with ESLint 9 or later.
+
+## Flat config
+
+Import `flatPlugin` and add it to your existing configuration. This example enables the recommended rules only for Remotion files:
+
+```js title="eslint.config.mjs"
+import remotion from '@remotion/eslint-plugin';
+
+export default [
+  // Your existing ESLint configuration
+  {
+    files: ['src/remotion/**/*.{js,jsx,ts,tsx}'],
+    ...remotion.flatPlugin,
+  },
+];
+```
+
+## Legacy config
+
+Extend `plugin:@remotion/recommended` in an override to enable the recommended rules only for Remotion files:
+
+```json title=".eslintrc"
+{
+  "overrides": [
+    {
+      "files": ["src/remotion/**/*.{js,jsx,ts,tsx}"],
+      "extends": ["plugin:@remotion/recommended"]
+    }
+  ]
+}
+```
+
+## See also
+
+- [`@remotion/eslint-config`](/docs/eslint-config)
+- [Installing Remotion in an existing project](/docs/brownfield)
