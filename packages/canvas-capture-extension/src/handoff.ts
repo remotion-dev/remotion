@@ -28,7 +28,12 @@ const toBase64 = (bytes: Uint8Array) => {
 	return btoa(binary);
 };
 
-export const openCaptureInConvert = async (file: File) => {
+export type CaptureHandoffDestination = 'convert' | 'new';
+
+export const openCaptureInRemotion = async (
+	file: File,
+	destination: CaptureHandoffDestination,
+) => {
 	const captureId = crypto.randomUUID();
 	const chunkCount = Math.ceil(file.size / CHUNK_SIZE);
 	const storedKeys: string[] = [];
@@ -55,8 +60,9 @@ export const openCaptureInConvert = async (file: File) => {
 		storedKeys.push(metadataKey);
 
 		await browser.runtime.sendMessage({
-			type: 'remotion-canvas-capture-open-convert',
+			type: 'remotion-canvas-capture-open',
 			captureId,
+			destination,
 		});
 	} catch (error) {
 		await browser.storage.local.remove(storedKeys).catch(() => undefined);
