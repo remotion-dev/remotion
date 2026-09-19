@@ -1,4 +1,4 @@
-import {findSearchPosition} from '@remotion/studio-codemods/internal';
+import {findSearchPosition} from '@remotion/codemods/internal';
 import type {
 	BrowserStudioOperations,
 	EventSourceEvent,

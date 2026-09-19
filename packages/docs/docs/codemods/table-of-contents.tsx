@@ -5,7 +5,7 @@ import {TOCItem} from '../../components/TableOfContents/TOCItem';
 export const TableOfContents: React.FC = () => {
 	return (
 		<Grid>
-			<TOCItem link="/docs/studio-codemods/add-solid">
+			<TOCItem link="/docs/codemods/add-solid">
 				<strong>addSolid()</strong>
 				<div>Add a Solid to a composition source file</div>
 			</TOCItem>

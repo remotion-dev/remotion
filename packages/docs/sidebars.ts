@@ -2031,15 +2031,15 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 	],
-	studioCodemodsSidebar: [
+	codemodsSidebar: [
 		{
 			type: 'category',
-			label: '@remotion/studio-codemods',
+			label: '@remotion/codemods',
 			link: {
 				type: 'doc',
-				id: 'studio-codemods/index',
+				id: 'codemods/index',
 			},
-			items: ['studio-codemods/add-solid'],
+			items: ['codemods/add-solid'],
 		},
 	],
 };

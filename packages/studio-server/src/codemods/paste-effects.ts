@@ -1,4 +1,4 @@
-import {pasteEffects as pasteEffectsCodemod} from '@remotion/studio-codemods/internal';
+import {pasteEffects as pasteEffectsCodemod} from '@remotion/codemods/internal';
 
 type PasteEffectsInput = Parameters<typeof pasteEffectsCodemod>[0] & {
 	readonly targetFileName: string;

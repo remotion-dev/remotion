@@ -2,4 +2,4 @@ export {
 	deleteEffect,
 	deleteEffects,
 	type EffectDeletionTarget,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';

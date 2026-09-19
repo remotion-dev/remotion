@@ -35,7 +35,7 @@ import {
 	updateSequenceKeyframes,
 	type EffectKeyframeUpdate,
 	type SequenceKeyframeUpdate,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 import {
 	StudioProtocolInternals,
 	type StudioElementPayload,
@@ -100,7 +100,7 @@ const getStructuredError = (error: unknown) => ({
 export {
 	insertSolidIntoProject,
 	insertSolidIntoProjectWithNodePathRemappings,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
 	emitEvent: (event: EventSourceEvent) => void;

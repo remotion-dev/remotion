@@ -180,7 +180,7 @@
       "version": "4.0.526",
       "dependencies": {
         "@remotion/browser-bundler": "workspace:*",
-        "@remotion/studio-codemods": "workspace:*",
+        "@remotion/codemods": "workspace:*",
         "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@rspack/browser": "2.1.1",
@@ -357,6 +357,23 @@
         "@remotion/eslint-config-internal": "workspace:*",
         "@types/minimist": "1.2.2",
         "@types/node": "catalog:",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
+    "packages/codemods": {
+      "name": "@remotion/codemods",
+      "version": "4.0.526",
+      "dependencies": {
+        "@babel/parser": "7.24.1",
+        "@babel/types": "7.24.0",
+        "@remotion/studio-shared": "workspace:*",
+        "ast-types": "0.16.1",
+        "recast": "0.23.21",
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
       },
@@ -565,6 +582,7 @@
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
+        "@remotion/codemods": "workspace:*",
         "@remotion/convert": "workspace:*",
         "@remotion/design": "workspace:*",
         "@remotion/docusaurus-plugin": "workspace:*",
@@ -604,7 +622,6 @@
         "@remotion/skia": "workspace:*",
         "@remotion/starburst": "workspace:*",
         "@remotion/studio": "workspace:*",
-        "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
@@ -1472,13 +1489,13 @@
         "@remotion/browser-bundler": "workspace:*",
         "@remotion/bundler": "workspace:*",
         "@remotion/canvas": "workspace:*",
+        "@remotion/codemods": "workspace:*",
         "@remotion/eslint-config-flat": "workspace:*",
         "@remotion/gif": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/preload": "workspace:*",
-        "@remotion/studio-codemods": "workspace:*",
         "next": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
@@ -1839,11 +1856,11 @@
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
+        "@remotion/codemods": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
-        "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/timeline-utils": "workspace:*",
@@ -1882,23 +1899,6 @@
         "@remotion/whisper-webgpu",
       ],
     },
-    "packages/studio-codemods": {
-      "name": "@remotion/studio-codemods",
-      "version": "4.0.526",
-      "dependencies": {
-        "@babel/parser": "7.24.1",
-        "@babel/types": "7.24.0",
-        "@remotion/studio-shared": "workspace:*",
-        "ast-types": "0.16.1",
-        "recast": "0.23.21",
-        "remotion": "workspace:*",
-      },
-      "devDependencies": {
-        "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
-        "eslint": "catalog:",
-      },
-    },
     "packages/studio-protocol": {
       "name": "@remotion/studio-protocol",
       "version": "4.0.526",
@@ -1918,8 +1918,8 @@
         "@babel/parser": "7.24.1",
         "@babel/types": "7.24.0",
         "@remotion/bundler": "workspace:*",
+        "@remotion/codemods": "workspace:*",
         "@remotion/renderer": "workspace:*",
-        "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@svgr/core": "8.1.0",
@@ -4580,6 +4580,8 @@
 
     "@remotion/cloudrun": ["@remotion/cloudrun@workspace:packages/cloudrun"],
 
+    "@remotion/codemods": ["@remotion/codemods@workspace:packages/codemods"],
+
     "@remotion/compositor": ["@remotion/compositor@workspace:packages/compositor"],
 
     "@remotion/compositor-darwin-arm64": ["@remotion/compositor-darwin-arm64@workspace:packages/compositor-darwin-arm64"],
@@ -4723,8 +4725,6 @@
     "@remotion/streaming": ["@remotion/streaming@workspace:packages/streaming"],
 
     "@remotion/studio": ["@remotion/studio@workspace:packages/studio"],
-
-    "@remotion/studio-codemods": ["@remotion/studio-codemods@workspace:packages/studio-codemods"],
 
     "@remotion/studio-protocol": ["@remotion/studio-protocol@workspace:packages/studio-protocol"],
 

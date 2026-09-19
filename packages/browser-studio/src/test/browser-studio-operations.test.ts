@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {basicCaptionsElementSource} from '@remotion/studio-codemods/internal';
+import {basicCaptionsElementSource} from '@remotion/codemods/internal';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';

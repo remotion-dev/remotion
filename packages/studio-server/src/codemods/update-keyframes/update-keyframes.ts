@@ -1,7 +1,7 @@
 import {
 	updateEffectKeyframes as updateEffectKeyframesCodemod,
 	updateSequenceKeyframes as updateSequenceKeyframesCodemod,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 
 export {
 	type EffectKeyframeUpdate,
@@ -10,7 +10,7 @@ export {
 	type SequenceKeyframeUpdate,
 	updateEffectKeyframesAst,
 	updateSequenceKeyframesAst,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 
 type UpdateSequenceKeyframesInput = Omit<
 	Parameters<typeof updateSequenceKeyframesCodemod>[0],

@@ -3,7 +3,7 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
-import {addSolid} from '@remotion/studio-codemods';
+import {addSolid} from '@remotion/codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import type {BrowserBundlerPreview} from './browser-bundler-preview/bridge';

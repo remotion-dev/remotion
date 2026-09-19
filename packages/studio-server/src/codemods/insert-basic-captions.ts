@@ -1,1 +1,1 @@
-export {insertBasicCaptions} from '@remotion/studio-codemods/internal';
+export {insertBasicCaptions} from '@remotion/codemods/internal';

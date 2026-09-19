@@ -1,10 +1,10 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import {
 	makeNewCompositionComponentSource,
 	simpleDiff,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,

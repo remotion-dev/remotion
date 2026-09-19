@@ -1,1 +1,1 @@
-export {updateInlineCaptionPatches} from '@remotion/studio-codemods/internal';
+export {updateInlineCaptionPatches} from '@remotion/codemods/internal';

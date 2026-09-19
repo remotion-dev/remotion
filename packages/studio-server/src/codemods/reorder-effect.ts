@@ -1,1 +1,1 @@
-export {reorderEffect} from '@remotion/studio-codemods/internal';
+export {reorderEffect} from '@remotion/codemods/internal';

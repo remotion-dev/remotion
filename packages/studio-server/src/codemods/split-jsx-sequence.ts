@@ -1,7 +1,7 @@
 import {
 	splitJsxSequence as splitJsxSequenceCodemod,
 	splitJsxSequences as splitJsxSequencesCodemod,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 import type {SequenceNodePath} from 'remotion';
 
 export const splitJsxSequence = ({

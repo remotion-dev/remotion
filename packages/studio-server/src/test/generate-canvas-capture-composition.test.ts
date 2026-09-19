@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
-import {generateCanvasCaptureComposition} from '@remotion/studio-codemods/internal';
+import {generateCanvasCaptureComposition} from '@remotion/codemods/internal';
 import {
 	CANVAS_CAPTURE_METADATA_TAG,
 	parseCanvasCaptureData,

@@ -1,9 +1,9 @@
 import {lstatSync, readFileSync} from 'node:fs';
-import {RenderInternals} from '@remotion/renderer';
 import {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,

@@ -2,4 +2,4 @@ export {
 	ensureRemotionImports,
 	ensureUseCurrentFrameHook,
 	findEnclosingFunctionPath,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';

@@ -1,11 +1,11 @@
-# @remotion/studio-codemods
+# @remotion/codemods
 
 Codemods for editing Remotion projects without a filesystem dependency.
 
 ## Usage
 
 ```tsx
-import {addSolid} from '@remotion/studio-codemods';
+import {addSolid} from '@remotion/codemods';
 
 const result = addSolid({
 	project: {
@@ -25,4 +25,4 @@ console.log(result.project.files);
 console.log(result.changes);
 ```
 
-See the [documentation](https://www.remotion.dev/docs/studio-codemods).
+See the [documentation](https://www.remotion.dev/docs/codemods).

@@ -1,4 +1,4 @@
 export {
 	getCompositionDefaultPropsLine,
 	updateDefaultProps,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';

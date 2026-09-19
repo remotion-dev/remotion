@@ -1,12 +1,12 @@
 {
-	"name": "@remotion/studio-codemods",
+	"name": "@remotion/codemods",
 	"version": "4.0.526",
 	"description": "Codemods for Remotion projects",
 	"main": "dist/public.cjs",
 	"types": "dist/public.d.ts",
 	"module": "dist/esm/public.mjs",
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-codemods"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/codemods"
 	},
 	"type": "module",
 	"scripts": {

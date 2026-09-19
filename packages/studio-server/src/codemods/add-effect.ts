@@ -3,4 +3,4 @@ export {
 	assertValidEffect,
 	ensureEffectImport,
 	makeConfigObjectExpression,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';

@@ -6,7 +6,7 @@ import {
 	type SequencePropUpdate,
 	updateMultipleSequenceProps as updateMultipleSequencePropsCodemod,
 	updateSequencePropsAst,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 import type {
 	InteractivitySchema,
 	SequenceNodePath,

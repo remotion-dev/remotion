@@ -7,7 +7,7 @@ import {
 	type InsertJsxElementCodemodEnvironment,
 	type ResolvedCompositionComponent,
 	type ResolvedCompositionComponentWithFile,
-} from '@remotion/studio-codemods/internal';
+} from '@remotion/codemods/internal';
 import type {
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,

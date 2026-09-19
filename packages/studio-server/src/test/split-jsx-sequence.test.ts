@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {splitJsxSequence as splitJsxSequenceCodemod} from '@remotion/studio-codemods/internal';
+import {splitJsxSequence as splitJsxSequenceCodemod} from '@remotion/codemods/internal';
 import {splitJsxSequence} from '../codemods/split-jsx-sequence';
 import {
 	createFileWatcherRegistry,

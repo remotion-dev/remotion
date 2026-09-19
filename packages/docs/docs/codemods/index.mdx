@@ -1,11 +1,11 @@
 ---
-image: /generated/articles-docs-studio-codemods-index.png
+image: /generated/articles-docs-codemods-index.png
 sidebar_label: Overview
-title: '@remotion/studio-codemods'
-crumb: '@remotion/studio-codemods'
+title: '@remotion/codemods'
+crumb: '@remotion/codemods'
 ---
 
-# @remotion/studio-codemods<AvailableFrom v="4.0.527" />
+# @remotion/codemods<AvailableFrom v="4.0.527" />
 
 Apply source-to-source transforms to an in-memory Remotion project.
 
@@ -19,7 +19,7 @@ The package accepts a record of file paths and source code and returns a new pro
 
 ## Installation
 
-<Installation pkg="@remotion/studio-codemods" />
+<Installation pkg="@remotion/codemods" />
 
 Keep the version aligned with the other Remotion packages in the project.
 
@@ -28,7 +28,7 @@ Keep the version aligned with the other Remotion packages in the project.
 A codemod project contains a `rootDir` and a `files` record. File paths may be project-relative or absolute, but they must consistently identify imports within the project.
 
 ```ts twoslash title="project.ts"
-import type {CodemodProject} from '@remotion/studio-codemods';
+import type {CodemodProject} from '@remotion/codemods';
 
 export const project: CodemodProject = {
   rootDir: '/',
