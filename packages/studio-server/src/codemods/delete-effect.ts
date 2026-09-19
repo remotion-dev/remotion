@@ -1,5 +1,5 @@
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 
 export type {EffectDeletionTarget} from '@remotion/codemods';
 
-export const {deleteEffect, deleteEffects} = CodemodInternals;
+export const {deleteEffect, deleteEffects} = CodemodsInternals;

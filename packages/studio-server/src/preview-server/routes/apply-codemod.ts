@@ -1,6 +1,6 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApplyCodemodRequest,
@@ -25,7 +25,7 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {makeNewCompositionComponentSource, simpleDiff} = CodemodInternals;
+const {makeNewCompositionComponentSource, simpleDiff} = CodemodsInternals;
 
 export const formatNewCompositionFile = (
 	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,

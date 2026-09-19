@@ -1,5 +1,5 @@
 import {
-	CodemodInternals,
+	CodemodsInternals,
 	type SequencePropsNodeUpdate,
 } from '@remotion/codemods';
 import type {
@@ -17,7 +17,7 @@ const {
 	findProjectFile,
 	updateInlineCaptionPatches,
 	updateMultipleSequenceProps,
-} = CodemodInternals;
+} = CodemodsInternals;
 
 const parseSequencePropEditValue = (
 	value: SaveSequencePropEdit['value'],

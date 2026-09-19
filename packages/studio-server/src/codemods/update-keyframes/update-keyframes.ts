@@ -1,5 +1,5 @@
 import {
-	CodemodInternals,
+	CodemodsInternals,
 	type EffectKeyframeUpdate,
 	type IntroducedKeyframeIdentifiers,
 	type KeyframeOperation,
@@ -14,12 +14,12 @@ export type {
 };
 
 export const {updateEffectKeyframesAst, updateSequenceKeyframesAst} =
-	CodemodInternals;
+	CodemodsInternals;
 
 const {
 	updateEffectKeyframes: updateEffectKeyframesCodemod,
 	updateSequenceKeyframes: updateSequenceKeyframesCodemod,
-} = CodemodInternals;
+} = CodemodsInternals;
 
 type UpdateSequenceKeyframesInput = Omit<
 	Parameters<typeof updateSequenceKeyframesCodemod>[0],

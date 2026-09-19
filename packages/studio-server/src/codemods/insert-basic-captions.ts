@@ -1,3 +1,3 @@
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 
-export const {insertBasicCaptions} = CodemodInternals;
+export const {insertBasicCaptions} = CodemodsInternals;

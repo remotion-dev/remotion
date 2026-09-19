@@ -1,7 +1,7 @@
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 
 export const {
 	ensureRemotionImports,
 	ensureUseCurrentFrameHook,
 	findEnclosingFunctionPath,
-} = CodemodInternals;
+} = CodemodsInternals;

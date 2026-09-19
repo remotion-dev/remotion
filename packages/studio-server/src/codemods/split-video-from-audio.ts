@@ -1,3 +1,3 @@
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 
-export const {splitVideoFromAudio} = CodemodInternals;
+export const {splitVideoFromAudio} = CodemodsInternals;

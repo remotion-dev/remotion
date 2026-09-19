@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
 import {
@@ -25,7 +25,7 @@ import {redoHandler} from '../preview-server/routes/redo';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
 
-const {parseAndApplyCodemod} = CodemodInternals;
+const {parseAndApplyCodemod} = CodemodsInternals;
 
 const rootContents = `import React from 'react';
 import {Composition} from 'remotion';

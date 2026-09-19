@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DuplicateJsxNodeRequest,
@@ -20,7 +20,7 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {duplicateJsxNodes} = CodemodInternals;
+const {duplicateJsxNodes} = CodemodsInternals;
 
 export const duplicateJsxNodeHandler: ApiHandler<
 	DuplicateJsxNodeRequest,
