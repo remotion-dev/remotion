@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
 } from '@remotion/studio-shared';
-import {splitVideoFromAudio} from '../../codemods/split-video-from-audio';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -20,6 +20,8 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
+
+const {splitVideoFromAudio} = CodemodsInternals;
 
 export const splitVideoFromAudioHandler: ApiHandler<
 	SplitVideoFromAudioRequest,

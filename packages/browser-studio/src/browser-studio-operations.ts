@@ -1,41 +1,8 @@
 import {
-	addEffect as addEffectCodemod,
-	basicCaptionsElementSource,
-	computeSequencePropsStatusFromContent,
-	computeSequencePropsSubscriptionFromContent,
-	deleteJsxNodes,
-	deleteEffects as deleteEffectsCodemod,
-	duplicateEffects as duplicateEffectsCodemod,
-	duplicateCompositionInSource,
-	duplicateJsxNodes as duplicateJsxNodesCodemod,
-	findProjectFile,
-	getCanUpdateDefaultPropsForProject,
-	getBasicCaptionsElementFile,
-	getCompositionComponentInfo,
-	getCompositionFile,
-	getFolderFile,
-	getRootFileForProject,
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertBasicCaptions as insertBasicCaptionsCodemod,
-	JsxElementIdentityMismatchError,
-	JsxElementNotFoundAtLocationError,
-	makeInMemoryInsertJsxElementCodemodEnvironment,
-	makeNewCompositionComponentSource,
-	parseAndApplyCodemod,
-	pasteEffects as pasteEffectsCodemod,
-	reorderEffect as reorderEffectCodemod,
-	reorderSequence as reorderSequenceCodemod,
-	resolveCompositionComponentWithFile,
-	simpleDiff,
-	splitJsxSequences as splitJsxSequencesCodemod,
-	splitVideoFromAudio as splitVideoFromAudioCodemod,
-	updateDefaultProps as updateDefaultPropsCodemod,
-	updateEffectProps as updateEffectPropsCodemod,
-	updateEffectKeyframes,
-	updateSequenceKeyframes,
+	CodemodsInternals,
 	type EffectKeyframeUpdate,
 	type SequenceKeyframeUpdate,
-} from '@remotion/studio-codemods';
+} from '@remotion/codemods';
 import {
 	StudioProtocolInternals,
 	type StudioElementPayload,
@@ -71,6 +38,43 @@ import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
+const {
+	addEffect: addEffectCodemod,
+	basicCaptionsElementSource,
+	computeSequencePropsStatusFromContent,
+	computeSequencePropsSubscriptionFromContent,
+	deleteEffects: deleteEffectsCodemod,
+	deleteJsxNodes: deleteJsxNodesCodemod,
+	duplicateCompositionInSource,
+	duplicateEffects: duplicateEffectsCodemod,
+	duplicateJsxNodes: duplicateJsxNodesCodemod,
+	findProjectFile,
+	getBasicCaptionsElementFile,
+	getCanUpdateDefaultPropsForProject,
+	getCompositionComponentInfo,
+	getCompositionFile,
+	getFolderFile,
+	getRootFileForProject,
+	insertBasicCaptions: insertBasicCaptionsCodemod,
+	insertJsxElementIntoProjectWithNodePathRemappings,
+	JsxElementIdentityMismatchError,
+	JsxElementNotFoundAtLocationError,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	makeNewCompositionComponentSource,
+	parseAndApplyCodemod,
+	pasteEffects: pasteEffectsCodemod,
+	reorderEffect: reorderEffectCodemod,
+	reorderSequence: reorderSequenceCodemod,
+	resolveCompositionComponentWithFile,
+	simpleDiff,
+	splitJsxSequences: splitJsxSequencesCodemod,
+	splitVideoFromAudio: splitVideoFromAudioCodemod,
+	updateDefaultProps: updateDefaultPropsCodemod,
+	updateEffectKeyframes,
+	updateEffectProps: updateEffectPropsCodemod,
+	updateSequenceKeyframes,
+} = CodemodsInternals;
+
 /*
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
  * Browser Studio deliberately reports the unsupported operation instead.
@@ -96,11 +100,6 @@ const getStructuredError = (error: unknown) => ({
 	reason: error instanceof Error ? error.message : String(error),
 	stack: error instanceof Error && error.stack ? error.stack : '',
 });
-
-export {
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '@remotion/studio-codemods';
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
 	emitEvent: (event: EventSourceEvent) => void;
@@ -1241,7 +1240,7 @@ export const createBrowserStudioOperations = ({
 		},
 	};
 
-	const deleteJsxNode: BrowserStudioOperations['deleteJsxNode'] = async ({
+	const deleteJsxNodes: BrowserStudioOperations['deleteJsxNodes'] = async ({
 		nodes,
 	}) => {
 		try {
@@ -1267,7 +1266,7 @@ export const createBrowserStudioOperations = ({
 			const updates = await Promise.all(
 				[...nodesByFile].map(async ([fileName, nodePaths]) => ({
 					fileName,
-					result: await deleteJsxNodes({
+					result: await deleteJsxNodesCodemod({
 						input: project.files[fileName],
 						nodePaths,
 					}),
@@ -2068,7 +2067,7 @@ export const createBrowserStudioOperations = ({
 						sourceOrigin: value.sourceOrigin,
 					};
 		},
-		deleteJsxNode,
+		deleteJsxNodes,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadRemoteAsset: (request) =>
 			downloadRemoteAssetInBrowserStudio({

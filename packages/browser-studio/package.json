@@ -28,7 +28,7 @@
 	},
 	"dependencies": {
 		"@remotion/browser-bundler": "workspace:*",
-		"@remotion/studio-codemods": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@rspack/browser": "2.1.1",

@@ -1,17 +1,21 @@
 import type {File} from '@babel/types';
 import {
+	CodemodsInternals,
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
 	type SequencePropUpdate,
-	updateMultipleSequenceProps as updateMultipleSequencePropsCodemod,
-	updateSequencePropsAst,
-} from '@remotion/studio-codemods';
+} from '@remotion/codemods';
 import type {
 	InteractivitySchema,
 	SequenceNodePath,
 	VideoConfigValues,
 } from 'remotion';
+
+const {
+	updateMultipleSequenceProps: updateMultipleSequencePropsCodemod,
+	updateSequencePropsAst,
+} = CodemodsInternals;
 
 export {
 	type RemovedProp,

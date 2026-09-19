@@ -1,11 +1,10 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {parseAst} from '../codemods/parse-ast';
-import {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from '../codemods/update-default-props';
+
+const {getCompositionDefaultPropsLine, updateDefaultProps} = CodemodsInternals;
 
 test('updates default props without changing surrounding source', () => {
 	const file = readFileSync(

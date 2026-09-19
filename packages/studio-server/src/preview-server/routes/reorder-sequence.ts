@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderSequenceRequest,
 	ReorderSequenceResponse,
 } from '@remotion/studio-shared';
-import {reorderSequence} from '../../codemods/reorder-sequence';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -20,6 +20,8 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
+
+const {reorderSequence} = CodemodsInternals;
 
 export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceRequest,
