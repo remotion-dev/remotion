@@ -62,6 +62,17 @@ test('Fast Refresh preserves an isolated Canvas, video state and editor focus th
 	await expect(
 		composition.getByRole('button', {name: 'Clicks: 2', exact: true}),
 	).toBeVisible();
+	await page.getByRole('button', {name: 'Remove Solid', exact: true}).click();
+	await expect(page.getByRole('status')).toHaveText('Up to date');
+	await expect(
+		mountedLayers.getByRole('heading', {name: 'Layers (5)'}),
+	).toBeVisible();
+	await expect(page.getByRole('textbox', {name: 'Video.tsx'})).not.toHaveValue(
+		/<Solid width=\{1280\} height=\{720\}/,
+	);
+	await expect(
+		composition.getByRole('button', {name: 'Clicks: 2', exact: true}),
+	).toBeVisible();
 	const playbackRate = composition.getByRole('button', {
 		name: 'Change playback rate',
 		exact: true,
@@ -98,7 +109,7 @@ test('Fast Refresh preserves an isolated Canvas, video state and editor focus th
 	await expect(frame).toHaveText(pausedFrame);
 	await expect(playbackRate).toHaveText('1.5x');
 	await expect(
-		mountedLayers.getByRole('heading', {name: 'Layers (6)'}),
+		mountedLayers.getByRole('heading', {name: 'Layers (5)'}),
 	).toBeVisible();
 	await expect(
 		composition.getByRole('button', {name: 'Play video', exact: true}),

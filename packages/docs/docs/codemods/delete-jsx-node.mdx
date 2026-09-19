@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-codemods-delete-jsx-node.png
+title: 'deleteJsxNode()'
+crumb: '@remotion/codemods'
+---
+
+# deleteJsxNode()<AvailableFrom v="4.0.527" />
+
+Deletes the JSX element identified by a mounted layer's node path.
+
+The API uses the same source-editing routine as Remotion Studio. It works with any JSX layer, including [`<Sequence>`](/docs/sequence) and [`<Solid>`](/docs/solid).
+
+:::warning
+
+_Draft API_: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+```ts twoslash title="delete-jsx-node.ts"
+import {deleteJsxNode, type CodemodProject} from '@remotion/codemods';
+import type {SequenceNodePath} from 'remotion';
+
+declare const project: CodemodProject;
+declare const nodePath: SequenceNodePath;
+
+const result = await deleteJsxNode({
+  project,
+  filePath: 'src/Video.tsx',
+  nodePath,
+});
+
+console.log(result.project.files);
+console.log(result.changes);
+```
+
+The input project is not mutated.
+
+## Options
+
+Pass an object with the following properties.
+
+### project
+
+An in-memory Remotion project containing `rootDir` and a `files` record.
+
+### filePath
+
+The source file containing the JSX element. Absolute paths emitted by a mounted layer and project-relative paths are both accepted.
+
+### nodePath
+
+The `SequenceNodePath` identifying the JSX element to delete. Canvas layers expose it as `nodePathInfo.sequenceSubscriptionKey.nodePath`.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### project
+
+A new project containing the transformed source. Unchanged project fields are preserved.
+
+### changes
+
+An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`addSolid()`](/docs/codemods/add-solid)
+- [`<Sequence>`](/docs/sequence)
+- [`@remotion/canvas`](/docs/canvas)

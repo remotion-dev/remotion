@@ -267,6 +267,7 @@ export const findProjectFile = ({
 	const rootDir = normalizePath(project.rootDir);
 	const candidates = [
 		normalizedInput,
+		normalizePath(normalizedInput.replace(/^\/+/, '')),
 		normalizePath(`/${normalizedInput}`),
 		normalizePath(`${rootDir}/${normalizedInput.replace(/^\//, '')}`),
 	];
@@ -956,7 +957,7 @@ const getNodePathRemappings = ({
 		visitJSXOpeningElement(path) {
 			before.push({
 				nodePath: getNodePathForRecastPath(path, astBefore),
-				signature: recast.print(path.node as JSXOpeningElement).code,
+				signature: recast.prettyPrint(path.node as JSXOpeningElement).code,
 			});
 			return this.traverse(path);
 		},
@@ -965,7 +966,7 @@ const getNodePathRemappings = ({
 		visitJSXOpeningElement(path) {
 			after.push({
 				nodePath: getNodePathForRecastPath(path, astAfter),
-				signature: recast.print(path.node as JSXOpeningElement).code,
+				signature: recast.prettyPrint(path.node as JSXOpeningElement).code,
 			});
 			return this.traverse(path);
 		},

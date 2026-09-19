@@ -29,6 +29,7 @@ const result = addSolid({
 
 console.log(result.project.files);
 console.log(result.changes);
+console.log(result.insertedNode);
 ```
 
 The input project is not mutated.
@@ -77,6 +78,10 @@ A new project containing the transformed source. Unchanged project fields are pr
 
 An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
 
+### insertedNode
+
+The `filePath` and `nodePath` of the inserted JSX element. Pass these values to [`deleteJsxNode()`](/docs/codemods/delete-jsx-node) to remove the element again.
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
@@ -84,4 +89,5 @@ An array describing each changed file with its `filePath`, `previousContents`, a
 ## See also
 
 - [`<Solid>`](/docs/solid)
+- [`deleteJsxNode()`](/docs/codemods/delete-jsx-node)
 - [`@remotion/browser-bundler`](/docs/browser-bundler)

@@ -3,9 +3,10 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
-import {addSolid} from '@remotion/codemods';
+import {addSolid, deleteJsxNode} from '@remotion/codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import type {SequenceNodePath} from 'remotion';
 import type {BrowserBundlerPreview} from './browser-bundler-preview/bridge';
 
 const initialSource = `import React, {useState} from 'react';
@@ -117,6 +118,10 @@ export const BrowserBundlerExample: React.FC = () => {
 	const [state, setState] = useState<CompilationState>({type: 'loading'});
 	const [progress, setProgress] = useState<string | null>(null);
 	const [warnings, setWarnings] = useState<string[]>([]);
+	const [insertedSolid, setInsertedSolid] = useState<{
+		filePath: string;
+		nodePath: SequenceNodePath;
+	} | null>(null);
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const sessionRef = useRef<CompilationSession | null>(null);
 
@@ -373,6 +378,7 @@ export const BrowserBundlerExample: React.FC = () => {
 							}
 
 							setSource(nextSource);
+							setInsertedSolid(result.insertedNode);
 							void compile(nextSource);
 						} catch (error) {
 							setState({
@@ -393,6 +399,53 @@ export const BrowserBundlerExample: React.FC = () => {
 					}}
 				>
 					Add Solid
+				</button>
+				<button
+					type="button"
+					disabled={state.type === 'loading' || insertedSolid === null}
+					onClick={() => {
+						if (!insertedSolid) {
+							return;
+						}
+
+						setState({type: 'loading'});
+						void deleteJsxNode({
+							filePath: insertedSolid.filePath,
+							nodePath: insertedSolid.nodePath,
+							project: {
+								...project,
+								files: {...project.files, 'src/Video.tsx': source},
+								rootDir: '/',
+							},
+						})
+							.then((result) => {
+								const nextSource = result.project.files['src/Video.tsx'];
+								if (!nextSource) {
+									throw new Error('The codemod did not return Video.tsx.');
+								}
+
+								setSource(nextSource);
+								setInsertedSolid(null);
+								void compile(nextSource);
+							})
+							.catch((error) => {
+								setState({
+									message: getCompilationErrorMessage(error),
+									type: 'error',
+								});
+							});
+					}}
+					style={{
+						backgroundColor: insertedSolid ? '#7f1d1d' : '#242933',
+						border: 0,
+						borderRadius: 5,
+						color: insertedSolid ? 'white' : '#6b7280',
+						fontSize: 12,
+						fontWeight: 600,
+						padding: '7px 11px',
+					}}
+				>
+					Remove Solid
 				</button>
 				<p
 					role="status"
@@ -451,6 +504,7 @@ export const BrowserBundlerExample: React.FC = () => {
 						onChange={(event) => {
 							const nextSource = event.target.value;
 							setSource(nextSource);
+							setInsertedSolid(null);
 							void compile(nextSource);
 						}}
 						spellCheck={false}

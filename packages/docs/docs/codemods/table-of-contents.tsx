@@ -9,6 +9,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>addSolid()</strong>
 				<div>Add a Solid to a composition source file</div>
 			</TOCItem>
+			<TOCItem link="/docs/codemods/delete-jsx-node">
+				<strong>deleteJsxNode()</strong>
+				<div>Delete a mounted JSX layer from its source file</div>
+			</TOCItem>
 		</Grid>
 	);
 };
