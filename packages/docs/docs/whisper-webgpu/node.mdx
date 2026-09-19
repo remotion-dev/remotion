@@ -6,7 +6,9 @@ crumb: '@remotion/whisper-webgpu'
 
 # Using @remotion/whisper-webgpu in Node.js<AvailableFrom v="4.0.527" />
 
-`@remotion/whisper-webgpu` can transcribe a 16kHz mono waveform in Node.js using the native WebGPU backend from [Transformers.js](https://huggingface.co/docs/transformers.js).
+`@remotion/whisper-webgpu` can transcribe a 16kHz mono waveform in Node.js using [Transformers.js](https://huggingface.co/docs/transformers.js) and [ONNX Runtime's WebGPU execution provider](https://onnxruntime.ai/docs/execution-providers/WebGPU-ExecutionProvider.html).
+
+Node.js does not expose the browser `navigator.gpu` API. Transformers.js uses the native `onnxruntime-node` addon instead, whose experimental WebGPU execution provider uses Dawn to access Metal, Vulkan, or Direct3D 12.
 
 The following example uses [`@mediabunny/server`](https://mediabunny.dev/guide/extensions/server) to decode and resample a local audio or video file before transcribing it.
 
@@ -122,11 +124,11 @@ await writeFile('captions.json', JSON.stringify(captions, null, 2));
 
 The model is downloaded on the first run and cached on the file system. `await using` releases it from memory when the script exits while keeping the downloaded files cached. The input to [`transcribe()`](/docs/whisper-webgpu/transcribe) must be a mono `Float32Array` sampled at 16kHz.
 
-Call [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) before loading the model if the script may run on different operating systems or CPU architectures.
+Call [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) before loading the model if the script may run on different hardware. It creates and disposes a tiny WebGPU-backed ONNX session, so it verifies that ONNX Runtime can acquire an adapter without downloading a Whisper model.
 
 ## Supported platforms
 
-The native WebGPU backend supports Node.js on macOS x64 and Arm64, Windows x64 and Arm64, and Linux x64.
+ONNX Runtime bundles its experimental WebGPU execution provider for Node.js on macOS x64 and Arm64, Windows x64 and Arm64, and Linux x64. A usable GPU adapter and compatible driver are still required.
 
 ## See also
 

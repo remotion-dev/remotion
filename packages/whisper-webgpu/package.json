@@ -24,7 +24,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/captions": "workspace:*"
+		"@remotion/captions": "workspace:*",
+		"onnxruntime-node": "catalog:"
 	},
 	"peerDependencies": {
 		"@huggingface/transformers": "4.3.0"

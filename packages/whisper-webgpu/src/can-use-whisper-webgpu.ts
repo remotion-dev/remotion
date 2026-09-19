@@ -18,22 +18,19 @@ export const canUseWhisperWebGpu =
 	async (): Promise<CanUseWhisperWebGpuResult> => {
 		if (typeof window === 'undefined') {
 			if (typeof process !== 'undefined' && process.release?.name === 'node') {
-				const supportsNativeWebGpu =
-					(process.platform === 'darwin' &&
-						(process.arch === 'arm64' || process.arch === 'x64')) ||
-					(process.platform === 'win32' &&
-						(process.arch === 'arm64' || process.arch === 'x64')) ||
-					(process.platform === 'linux' && process.arch === 'x64');
-
-				if (supportsNativeWebGpu) {
+				try {
+					const {probeNodeWebGpu} = await import('./probe-node-webgpu');
+					await probeNodeWebGpu();
 					return {supported: true};
+				} catch (error) {
+					const message =
+						error instanceof Error ? error.message : String(error);
+					return {
+						supported: false,
+						reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+						detailedReason: `ONNX Runtime could not initialize WebGPU: ${message}`,
+					};
 				}
-
-				return {
-					supported: false,
-					reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
-					detailedReason: `The native WebGPU backend is not available on ${process.platform} ${process.arch}.`,
-				};
 			}
 
 			return {

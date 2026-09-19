@@ -2897,6 +2897,7 @@
       "version": "4.0.526",
       "dependencies": {
         "@remotion/captions": "workspace:*",
+        "onnxruntime-node": "catalog:",
       },
       "devDependencies": {
         "@huggingface/transformers": "catalog:",
@@ -2984,6 +2985,7 @@
     "eslint": "9.19.0",
     "mediabunny": "1.56.1",
     "next": "16.3.3",
+    "onnxruntime-node": "1.30.0",
     "openai": "4.67.1",
     "playwright": "1.55.1",
     "prettier": "3.8.1",
