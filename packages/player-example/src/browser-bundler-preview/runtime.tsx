@@ -12,19 +12,25 @@ import {
 	type SequenceNodePathInfo,
 	type TimelineTrackData,
 } from '@remotion/canvas';
-import React, {useEffect, useSyncExternalStore} from 'react';
+import React, {useEffect, useMemo, useSyncExternalStore} from 'react';
 import {createRoot} from 'react-dom/client';
-import type {CreateBrowserBundlerPreview} from './bridge';
+import type {
+	BrowserBundlerPreviewNode,
+	CreateBrowserBundlerPreview,
+} from './bridge';
+
+const fallbackAbsolutePath = 'browser-bundler-example';
 
 const getExampleNodePathInfo = (
 	layer: TimelineTrackData,
+	sourceNode: BrowserBundlerPreviewNode | undefined,
 ): SequenceNodePathInfo => {
 	return (
 		layer.nodePathInfo ?? {
 			sequenceSubscriptionKey: {
-				absolutePath: 'browser-bundler-example',
+				absolutePath: sourceNode?.filePath ?? fallbackAbsolutePath,
 				effectKeys: [],
-				nodePath: ['sequence', layer.sequence.id],
+				nodePath: sourceNode?.nodePath ?? ['sequence', layer.sequence.id],
 				sequenceKeys: [],
 				videoConfigValues: null,
 			},
@@ -39,8 +45,18 @@ const getExampleNodePathInfo = (
 const Preview: React.FC<{
 	readonly composition: BrowserComposition;
 	readonly revision: number;
+	readonly sourceNodes: BrowserBundlerPreviewNode[];
+	readonly onDeleteJsxNodes: (
+		nodes: BrowserBundlerPreviewNode[],
+	) => Promise<void>;
 	readonly onReady: (revision: number) => void;
-}> = ({composition: preview, revision, onReady}) => {
+}> = ({
+	composition: preview,
+	revision,
+	sourceNodes,
+	onDeleteJsxNodes,
+	onReady,
+}) => {
 	const controller = useCanvasController();
 	const layers = useSyncExternalStore(
 		controller.timeline.subscribe,
@@ -48,15 +64,71 @@ const Preview: React.FC<{
 		controller.timeline.getSnapshot,
 	);
 	const selection = useCanvasSelection(controller.selection);
-	const selectedKeys = new Set(
-		selection.selectedItems.map(getCanvasSelectionItemKey),
+	const selectedKeys = useMemo(
+		() => new Set(selection.selectedItems.map(getCanvasSelectionItemKey)),
+		[selection.selectedItems],
 	);
-	const selectableLayers: CanvasSelectionItem[] = layers.map((layer) => ({
-		type: 'sequence',
-		nodePathInfo: getExampleNodePathInfo(layer),
-	}));
+	const selectableLayers: CanvasSelectionItem[] = layers.map(
+		(layer, index) => ({
+			type: 'sequence',
+			nodePathInfo: getExampleNodePathInfo(layer, sourceNodes[index]),
+		}),
+	);
+	const selectedNodes = useMemo(() => {
+		const nodes = new Map<string, BrowserBundlerPreviewNode>();
+		for (const [index, layer] of layers.entries()) {
+			const layerSelection: CanvasSelectionItem = {
+				type: 'sequence',
+				nodePathInfo: getExampleNodePathInfo(layer, sourceNodes[index]),
+			};
+			if (!selectedKeys.has(getCanvasSelectionItemKey(layerSelection))) {
+				continue;
+			}
+
+			const node = sourceNodes[index];
+			if (!node) {
+				continue;
+			}
+
+			nodes.set(JSON.stringify(node), node);
+		}
+
+		return [...nodes.values()];
+	}, [layers, selectedKeys, sourceNodes]);
 
 	useEffect(() => onReady(revision), [onReady, preview, revision]);
+	useEffect(() => {
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (
+				(event.key !== 'Backspace' && event.key !== 'Delete') ||
+				event.repeat ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				selectedNodes.length === 0
+			) {
+				return;
+			}
+
+			const target = event.target;
+			if (
+				target instanceof HTMLElement &&
+				(target.isContentEditable ||
+					target.tagName === 'INPUT' ||
+					target.tagName === 'SELECT' ||
+					target.tagName === 'TEXTAREA')
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			controller.selection.clear();
+			void onDeleteJsxNodes(selectedNodes);
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		return () => window.removeEventListener('keydown', onKeyDown);
+	}, [controller.selection, onDeleteJsxNodes, selectedNodes]);
 
 	return (
 		<section
@@ -153,7 +225,9 @@ const Preview: React.FC<{
 								margin: 0,
 							}}
 						>
-							Selection ({selection.selectedItems.length})
+							{selectedNodes.length === 0
+								? 'Select a layer, then press Backspace to delete it'
+								: `${selectedNodes.length} selected · Backspace to delete`}
 						</h2>
 						<button
 							type="button"
@@ -184,8 +258,11 @@ const Preview: React.FC<{
 							padding: 0,
 						}}
 					>
-						{layers.map((layer) => {
-							const nodePathInfo = getExampleNodePathInfo(layer);
+						{layers.map((layer, index) => {
+							const nodePathInfo = getExampleNodePathInfo(
+								layer,
+								sourceNodes[index],
+							);
 							const layerSelection: CanvasSelectionItem = {
 								type: 'sequence',
 								nodePathInfo,
@@ -271,6 +348,7 @@ const Preview: React.FC<{
 };
 
 export const createBrowserBundlerPreview: CreateBrowserBundlerPreview = ({
+	onDeleteJsxNodes,
 	onError,
 }) => {
 	const container = document.getElementById('browser-bundler-preview');
@@ -281,6 +359,7 @@ export const createBrowserBundlerPreview: CreateBrowserBundlerPreview = ({
 	const runtime = createBrowserBundleRuntime();
 	let disposed = false;
 	let revision = 0;
+	let sourceNodes: BrowserBundlerPreviewNode[] = [];
 	let pending: {
 		revision: number;
 		resolve: () => void;
@@ -321,6 +400,8 @@ export const createBrowserBundlerPreview: CreateBrowserBundlerPreview = ({
 				<Preview
 					composition={composition}
 					revision={revision}
+					sourceNodes={sourceNodes}
+					onDeleteJsxNodes={onDeleteJsxNodes}
 					onReady={onReady}
 				/>,
 			);
@@ -354,11 +435,12 @@ export const createBrowserBundlerPreview: CreateBrowserBundlerPreview = ({
 	window.addEventListener('pagehide', dispose);
 
 	return {
-		applyBundle: async (bundle) => {
+		applyBundle: async (bundle, nextSourceNodes) => {
 			if (disposed) {
 				throw new Error('The Canvas preview was disposed.');
 			}
 
+			sourceNodes = nextSourceNodes;
 			const RegisteredRoot = await runtime.applyBundle(bundle);
 			if (disposed) {
 				throw new Error('The Canvas preview was disposed.');

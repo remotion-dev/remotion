@@ -36,6 +36,7 @@ import {
 	getCompositionFile,
 	getFolderFile,
 	getJsxElementTagLabel,
+	getJsxElementsWithNodePaths,
 	getRootFileForProject,
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,
@@ -91,9 +92,9 @@ export type {
 	ResolvedCompositionComponent,
 	ResolvedCompositionComponentWithFile,
 	SequenceKeyframeUpdate,
+	SequencePropUpdate,
 	SequencePropsNodeUpdate,
 	SequencePropsNodeUpdateResult,
-	SequencePropUpdate,
 	UpdateEffectPropsResult,
 } from './internals';
 
@@ -135,6 +136,7 @@ export const CodemodsInternals = {
 	getCompositionFile,
 	getFolderFile,
 	getJsxElementTagLabel,
+	getJsxElementsWithNodePaths,
 	getRootFileForProject,
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,

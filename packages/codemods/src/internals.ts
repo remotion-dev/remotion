@@ -15,6 +15,10 @@ import {parseAst} from './sequence-props/parse-ast';
 
 export {applyVisualControl} from './apply-visual-control';
 export {
+	basicCaptionsElementSource,
+	getBasicCaptionsElementFile,
+} from './basic-captions-element-source';
+export {
 	deleteJsxElementAtPath,
 	deleteJsxNodes,
 	findJsxElementPathForDeletion,
@@ -41,8 +45,8 @@ export {
 	reorderEffect,
 	updateEffectProps,
 	updateEffectPropsAst,
-	type EffectDeletionTarget,
 	type EffectArrayElement,
+	type EffectDeletionTarget,
 	type EffectPropUpdate,
 	type EffectTarget,
 	type FormatEffectFile,
@@ -59,13 +63,8 @@ export {
 	generateCanvasCaptureComposition,
 	makeNewCompositionComponentSource,
 } from './generate-canvas-capture-composition';
-export {parseAndApplyCodemod} from './parse-and-apply-codemod';
-export {
-	applyCodemod,
-	type ApplyCodeModReturnType,
-	type Change,
-} from './recast-mods';
-export {reorderSequence} from './reorder-sequence';
+export {getJsxElementsWithNodePaths} from './get-jsx-elements-with-node-paths';
+export {insertBasicCaptions} from './insert-basic-captions';
 export {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -76,6 +75,13 @@ export {
 	type ResolvedCompositionComponent,
 	type ResolvedCompositionComponentWithFile,
 } from './insert-jsx-element';
+export {parseAndApplyCodemod} from './parse-and-apply-codemod';
+export {
+	applyCodemod,
+	type ApplyCodeModReturnType,
+	type Change,
+} from './recast-mods';
+export {reorderSequence} from './reorder-sequence';
 export {
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
@@ -85,34 +91,29 @@ export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 export {simpleDiff} from './simple-diff';
 export {splitJsxSequence, splitJsxSequences} from './split-jsx-sequence';
 export {splitVideoFromAudio} from './split-video-from-audio';
-export {insertBasicCaptions} from './insert-basic-captions';
-export {
-	basicCaptionsElementSource,
-	getBasicCaptionsElementFile,
-} from './basic-captions-element-source';
 export {
 	getCompositionDefaultPropsLine,
 	updateDefaultProps,
 } from './update-default-props';
 export {updateInlineCaptionPatches} from './update-inline-caption-patches';
 export {
+	updateEffectKeyframes,
+	updateEffectKeyframesAst,
+	updateSequenceKeyframes,
+	updateSequenceKeyframesAst,
 	type EffectKeyframeUpdate,
 	type FormatKeyframesFile,
 	type IntroducedKeyframeIdentifiers,
 	type KeyframeOperation,
 	type SequenceKeyframeUpdate,
-	updateEffectKeyframes,
-	updateEffectKeyframesAst,
-	updateSequenceKeyframes,
-	updateSequenceKeyframesAst,
 } from './update-keyframes';
 export {
+	updateMultipleSequenceProps,
+	updateSequencePropsAst,
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
 	type SequencePropUpdate,
-	updateMultipleSequenceProps,
-	updateSequencePropsAst,
 } from './update-sequence-props';
 
 type AstNode = {
