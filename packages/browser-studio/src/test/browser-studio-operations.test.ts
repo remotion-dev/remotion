@@ -405,6 +405,34 @@ registerRoot(Root);`,
 	expect(currentProject.files[fileName]).toBe(initialSource);
 
 	events.length = 0;
+	const videoLayersResult = await operations.insertVideoLayers({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+		baseSrc: 'video-base.webm',
+		foregroundSrc: 'video-foreground.webm',
+	});
+	if (!videoLayersResult.success) {
+		throw new Error(videoLayersResult.reason);
+	}
+
+	const videoLayersOutput = currentProject.files[fileName].replace(/\s+/g, ' ');
+	expect(currentProject.files[fileName]).toContain(
+		`import {staticFile} from 'remotion';`,
+	);
+	expect(videoLayersOutput).toContain(
+		"<Video src={staticFile('video-base.webm')} from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />",
+	);
+	expect(videoLayersOutput).toContain(
+		"<Video src={staticFile('video-foreground.webm')} from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />",
+	);
+	expect(events).toContainEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: videoLayersResult.nodePathMutation,
+	});
+	expect((await operations.undo()).success).toBe(true);
+	expect(currentProject.files[fileName]).toBe(initialSource);
+
+	events.length = 0;
 	const captionsResult = await operations.insertBasicCaptions({
 		fileName: 'src/Composition.tsx',
 		nodePath: subscription.nodePath.nodePath,

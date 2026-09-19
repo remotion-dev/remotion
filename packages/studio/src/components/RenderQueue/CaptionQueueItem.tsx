@@ -27,6 +27,7 @@ import {
 	renderQueueItemSubtitleStyle,
 	RENDER_QUEUE_ITEM_SELECTED_CLASSNAME,
 } from './item-style';
+import {QueueJobError} from './QueueJobError';
 import {SuccessIcon} from './SuccessIcon';
 
 const container: React.CSSProperties = {
@@ -221,9 +222,16 @@ export const CaptionQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
 				<div style={subtitleContainer}>
-					<span style={subtitle} title={message}>
-						{message}
-					</span>
+					{job.status === 'failed' ? (
+						<QueueJobError
+							error={job.error}
+							modalTitle="Transcription failed"
+						/>
+					) : (
+						<span style={subtitle} title={message}>
+							{message}
+						</span>
+					)}
 				</div>
 			</div>
 			<Spacing x={1} />

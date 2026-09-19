@@ -3,6 +3,7 @@ import type {
 	VideoMattingBitrate,
 	VideoMattingModel,
 } from '@remotion/video-matting';
+import type {SequencePropsSubscriptionKey} from 'remotion';
 
 export type VideoMattingJobProgress = {
 	detail: string | null;
@@ -24,6 +25,10 @@ export type AddVideoMattingJobParams = {
 	model: VideoMattingModel;
 	audio: VideoLayerAudio;
 	videoBitrate: VideoMattingBitrate;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+	} | null;
 };
 
 export type VideoMattingJob = AddVideoMattingJobParams & {

@@ -57,7 +57,7 @@ afterEach(() => {
 	processJob = null;
 });
 
-test('loads the model, separates the layers and writes both outputs', async () => {
+test('writes both layers and inserts them into the selected video source', async () => {
 	const originalBrowserStudio = Object.getOwnPropertyDescriptor(
 		window,
 		'remotion_browserStudio',
@@ -65,6 +65,15 @@ test('loads the model, separates the layers and writes both outputs', async () =
 	Object.defineProperty(window, 'remotion_browserStudio', {
 		configurable: true,
 		value: makeBrowserStudioOperations({
+			insertVideoLayers: ({baseSrc, foregroundSrc, fileName, nodePath}) => {
+				calls.push(
+					`insert:${fileName}:${nodePath.join('.')}:${baseSrc}:${foregroundSrc}`,
+				);
+				return Promise.resolve({
+					success: true,
+					nodePathMutation: {} as never,
+				});
+			},
 			writeStaticFile: ({filePath}) => {
 				calls.push(`write:${filePath}`);
 				return Promise.resolve();
@@ -113,6 +122,16 @@ test('loads the model, separates the layers and writes both outputs', async () =
 			foregroundOutName: 'input-foreground.webm',
 			model: 'modnet',
 			audio: 'base',
+			target: {
+				fileName: '/project/Composition.tsx',
+				nodePath: {
+					absolutePath: '/project/Composition.tsx',
+					effectKeys: [],
+					nodePath: ['Comp', 0],
+					sequenceKeys: [],
+					videoConfigValues: null,
+				},
+			},
 			videoBitrate: 'very-high',
 		}),
 	);
@@ -124,6 +143,7 @@ test('loads the model, separates the layers and writes both outputs', async () =
 		'separate',
 		'write:input-base.webm',
 		'write:input-foreground.webm',
+		'insert:/project/Composition.tsx:Comp.0:input-base.webm:input-foreground.webm',
 		'dispose-model',
 	]);
 	expect(progress).toContainEqual({

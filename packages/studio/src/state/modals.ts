@@ -170,6 +170,10 @@ export type VideoMattingModalState = {
 	type: 'video-matting';
 	src: string;
 	displayName: string;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+	} | null;
 };
 
 export type CanvasCaptureImport = {
@@ -261,6 +265,14 @@ export type ModalState =
 	| {
 			type: 'render-progress';
 			jobId: string;
+	  }
+	| {
+			type: 'queue-job-error';
+			title: string;
+			error: {
+				message: string;
+				stack: string | null;
+			};
 	  }
 	| {
 			type: 'fix-computed-value';
