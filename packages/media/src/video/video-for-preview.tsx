@@ -28,6 +28,7 @@ import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {
+	EffectsOutputSize,
 	FallbackOffthreadVideoProps,
 	NativeVideoProps,
 	VideoObjectFit,
@@ -78,6 +79,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 
@@ -112,6 +114,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize,
 	setMediaDurationInSeconds,
 	refForOutline,
 	...props
@@ -171,6 +174,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const effectsRef = useRef(effects);
 	effectsRef.current = effects;
+	const effectsOutputSizeRef = useRef(effectsOutputSize);
+	effectsOutputSizeRef.current = effectsOutputSize;
 
 	const onErrorRef = useRef(onError);
 	onErrorRef.current = onError;
@@ -298,6 +303,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
+				getEffectsOutputSize: () => effectsOutputSizeRef.current ?? null,
 			});
 
 			mediaPlayerRef.current = player;
@@ -514,7 +520,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
-	}, [effects, mediaPlayerReady, mediaPlayerRef]);
+	}, [
+		effects,
+		effectsOutputSize?.height,
+		effectsOutputSize?.width,
+		mediaPlayerReady,
+		mediaPlayerRef,
+	]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
