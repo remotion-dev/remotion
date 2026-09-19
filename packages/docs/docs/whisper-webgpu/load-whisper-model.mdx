@@ -11,7 +11,7 @@ Downloads a timestamped Whisper model from `remotion.media` and initializes it. 
 ```ts twoslash title="load-model.ts"
 import {loadWhisperModel} from '@remotion/whisper-webgpu';
 
-const result = await loadWhisperModel({
+await using result = await loadWhisperModel({
   model: 'small.en',
   onProgress: ({progress}) => {
     console.log(progress);
@@ -33,15 +33,23 @@ Called while model files are resolved and downloaded. `progress` is the aggregat
 
 ## Return value
 
-Returns whether the same model pipeline was already loaded in memory.
+### `alreadyLoaded`
 
-The browser manages its persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) is called or the page closes.
+Whether the same model pipeline was already loaded in memory.
+
+### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+
+Releases this call's hold on the initialized model. The pipeline is disposed after every load handle is released and active transcriptions finish.
+
+Use `await using` to call this method automatically when leaving the current scope. Call [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) to dispose the pipeline explicitly regardless of retained load handles.
+
+[Transformers.js](https://huggingface.co/docs/transformers.js) manages the persistent model cache. Releasing the initialized pipeline does not delete the downloaded model files.
 
 Versions before 4.0.522 downloaded models from Hugging Face. A model cached by an earlier version is downloaded once more from `remotion.media`, then reused from the new cache entry when using the default Transformers.js cache settings.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

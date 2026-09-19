@@ -1,3 +1,4 @@
+import './symbol-async-dispose';
 import {
 	getHostedModelId,
 	getModelInfo,
@@ -29,6 +30,7 @@ type LoadedWhisperPipelineState = {
 	onIdle: Array<() => void>;
 	progressListeners: Set<OnWhisperWebGpuModelLoadProgress>;
 	latestProgress: WhisperWebGpuModelLoadProgress | null;
+	retainedLoadHandles: number;
 };
 
 const pipelines = new Map<WhisperWebGpuModel, LoadedWhisperPipelineState>();
@@ -38,7 +40,7 @@ export type LoadWhisperModelOptions = {
 	onProgress?: OnWhisperWebGpuModelLoadProgress;
 };
 
-export type LoadWhisperModelResult = {
+export type LoadWhisperModelResult = AsyncDisposable & {
 	alreadyLoaded: boolean;
 };
 
@@ -83,6 +85,7 @@ const getOrCreateWhisperPipeline = ({
 		onIdle: [],
 		progressListeners,
 		latestProgress: null,
+		retainedLoadHandles: 0,
 	};
 	const emitProgress = (progress: WhisperWebGpuModelLoadProgress) => {
 		state.latestProgress = progress;
@@ -170,6 +173,28 @@ const getOrCreateWhisperPipeline = ({
 	};
 };
 
+const disposeWhisperPipelineState = async ({
+	model,
+	state,
+}: {
+	model: WhisperWebGpuModel;
+	state: LoadedWhisperPipelineState;
+}): Promise<void> => {
+	if (pipelines.get(model) !== state) {
+		return;
+	}
+
+	pipelines.delete(model);
+	const loadedPipeline = await state.loading;
+	if (state.activeTranscriptions > 0) {
+		await new Promise<void>((resolve) => {
+			state.onIdle.push(resolve);
+		});
+	}
+
+	await loadedPipeline.dispose();
+};
+
 export const loadWhisperModel = async ({
 	model,
 	onProgress,
@@ -184,7 +209,24 @@ export const loadWhisperModel = async ({
 		unsubscribe();
 	}
 
-	return {alreadyLoaded};
+	state.retainedLoadHandles++;
+	let released = false;
+	const result = {alreadyLoaded} as LoadWhisperModelResult;
+	Object.defineProperty(result, Symbol.asyncDispose, {
+		enumerable: false,
+		value: async () => {
+			if (released) {
+				return;
+			}
+
+			released = true;
+			state.retainedLoadHandles--;
+			if (state.retainedLoadHandles === 0) {
+				await disposeWhisperPipelineState({model, state});
+			}
+		},
+	});
+	return result;
 };
 
 export const withLoadedWhisperPipeline = async <ReturnValue>({
@@ -226,22 +268,9 @@ export const disposeWhisperModel = async ({
 	const matching = [...pipelines.entries()].filter(([loadedModel]) => {
 		return model === undefined || loadedModel === model;
 	});
-	for (const [key, state] of matching) {
-		if (pipelines.get(key) === state) {
-			pipelines.delete(key);
-		}
-	}
-
 	await Promise.all(
-		matching.map(async ([, state]) => {
-			const loadedPipeline = await state.loading;
-			if (state.activeTranscriptions > 0) {
-				await new Promise<void>((resolve) => {
-					state.onIdle.push(resolve);
-				});
-			}
-
-			await loadedPipeline.dispose();
+		matching.map(([key, state]) => {
+			return disposeWhisperPipelineState({model: key, state});
 		}),
 	);
 };

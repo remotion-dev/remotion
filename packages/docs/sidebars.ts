@@ -1015,6 +1015,11 @@ const sidebars: SidebarsConfig = {
 				id: 'whisper-webgpu/index',
 			},
 			items: [
+				{
+					type: 'doc',
+					id: 'whisper-webgpu/node',
+					label: 'Usage in Node.js',
+				},
 				'whisper-webgpu/can-use-whisper-webgpu',
 				'whisper-webgpu/get-available-models',
 				'whisper-webgpu/clear-stale-models',

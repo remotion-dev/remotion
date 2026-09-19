@@ -53,6 +53,14 @@ let cacheClear:
 			options: Record<string, unknown>;
 	  }
 	| undefined;
+let webGpuProbe:
+	| {
+			model: Uint8Array;
+			options: Record<string, unknown>;
+	  }
+	| undefined;
+let webGpuProbeError: Error | null = null;
+let webGpuProbeReleaseCalls = 0;
 
 const originalTransformersEnvironment = {
 	remoteHost: 'https://huggingface.co/',
@@ -161,6 +169,24 @@ mock.module('@huggingface/transformers', () => ({
 		onProgress?.({status: 'done', file: 'encoder_model.onnx'});
 		onProgress?.({status: 'ready'});
 		return fakePipeline;
+	},
+}));
+
+mock.module('onnxruntime-node', () => ({
+	InferenceSession: {
+		create: (model: Uint8Array, options: Record<string, unknown>) => {
+			webGpuProbe = {model, options};
+			if (webGpuProbeError) {
+				return Promise.reject(webGpuProbeError);
+			}
+
+			return Promise.resolve({
+				release: () => {
+					webGpuProbeReleaseCalls++;
+					return Promise.resolve();
+				},
+			});
+		},
 	},
 }));
 
@@ -349,6 +375,22 @@ test('transcribes with word timestamps using WebGPU', async () => {
 		remotePathTemplate: 'models/{model}/',
 	});
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
+	expect(await canUseWhisperWebGpu()).toEqual({supported: true});
+	expect(webGpuProbe?.model).toHaveLength(130);
+	expect(webGpuProbe?.options).toEqual({executionProviders: ['webgpu']});
+	expect(webGpuProbeReleaseCalls).toBe(1);
+
+	webGpuProbeError = new Error('Failed to get a WebGPU adapter');
+	try {
+		expect(await canUseWhisperWebGpu()).toEqual({
+			supported: false,
+			reason: WhisperWebGpuUnsupportedReason.WebGpuUnavailable,
+			detailedReason:
+				'ONNX Runtime could not initialize WebGPU: Failed to get a WebGPU adapter',
+		});
+	} finally {
+		webGpuProbeError = null;
+	}
 
 	const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const originalNavigator = Object.getOwnPropertyDescriptor(
@@ -496,6 +538,27 @@ test('reports model progress without reaching 100% before every file loads', asy
 		),
 	);
 	await disposeWhisperModel({model: 'medium.en'});
+});
+
+test('keeps a loaded model alive until every async disposable handle is released', async () => {
+	const {loadWhisperModel} = await import('../index');
+	const initializationsBeforeLoading = pipelineInitializationCount;
+	const disposalsBeforeLoading = disposeCalls;
+
+	{
+		await using firstLoad = await loadWhisperModel({model: 'tiny.en'});
+		expect(firstLoad.alreadyLoaded).toBe(false);
+		expect(pipelineInitializationCount).toBe(initializationsBeforeLoading + 1);
+
+		{
+			await using secondLoad = await loadWhisperModel({model: 'tiny.en'});
+			expect(secondLoad.alreadyLoaded).toBe(true);
+		}
+
+		expect(disposeCalls).toBe(disposalsBeforeLoading);
+	}
+
+	expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
 });
 
 test('validates and forwards transcription settings through transcribe()', async () => {
@@ -668,7 +731,7 @@ test('shares concurrent initialization and keeps the model host scoped until eve
 	expect(disposeCalls).toBe(disposalsBeforeLoading);
 
 	releaseInitialization();
-	await expect(firstLoad).resolves.toEqual({alreadyLoaded: false});
+	await expect(firstLoad).resolves.toMatchObject({alreadyLoaded: false});
 	await expect(transcription).resolves.toMatchObject({model: 'base'});
 	expect(firstProgress.at(-1)).toBe(1);
 	expect(secondProgress).toEqual(firstProgress);

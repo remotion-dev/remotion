@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/whisper-webgpu",
 	"version": "4.0.526",
-	"description": "Transcribe audio in the browser using Whisper and WebGPU",
+	"description": "Transcribe audio using Whisper and WebGPU",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -24,7 +24,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/captions": "workspace:*"
+		"@remotion/captions": "workspace:*",
+		"onnxruntime-node": "catalog:"
 	},
 	"peerDependencies": {
 		"@huggingface/transformers": "4.3.0"

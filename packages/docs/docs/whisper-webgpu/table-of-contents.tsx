@@ -5,6 +5,10 @@ import {TOCItem} from '../../components/TableOfContents/TOCItem';
 export const TableOfContents: React.FC = () => {
 	return (
 		<Grid>
+			<TOCItem link="/docs/whisper-webgpu/node">
+				<strong>Using in Node.js</strong>
+				<div>Decode media and transcribe it in Node.js</div>
+			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/can-use-whisper-webgpu">
 				<strong>canUseWhisperWebGpu()</strong>
 				<div>Check whether WebGPU is available</div>
@@ -27,7 +31,7 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/remove-whisper-model">
 				<strong>removeWhisperModel()</strong>
-				<div>Remove a model from the browser cache</div>
+				<div>Remove a model from the persistent cache</div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/transcribe">
 				<strong>transcribe()</strong>
