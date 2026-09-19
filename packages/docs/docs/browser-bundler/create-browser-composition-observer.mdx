@@ -1,0 +1,123 @@
+---
+image: /generated/articles-docs-browser-bundler-create-browser-composition-observer.png
+title: createBrowserCompositionObserver()
+crumb: '@remotion/browser-bundler'
+---
+
+# createBrowserCompositionObserver()<AvailableFrom v="4.0.527" />
+
+Keep a registered Remotion root mounted and observe a selected composition's component, props, and video configuration. Import it from `@remotion/browser-bundler/runtime`.
+
+:::warning
+
+*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+Use this with [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime) for state-preserving edits. Unlike [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition), the observer retains the registration tree between updates.
+
+Registrations are local to the observer and do not replace the host's composition registry.
+
+This API executes trusted project code. It is not a sandbox.
+
+## Usage
+
+Create one observer and one Player root for the lifetime of the preview:
+
+```tsx twoslash title="preview.tsx"
+// @moduleResolution: bundler
+import type {FC} from 'react';
+declare const root: FC;
+declare const container: HTMLDivElement;
+// ---cut---
+import {createBrowserCompositionObserver} from '@remotion/browser-bundler/runtime';
+import {Player} from '@remotion/player';
+import {createRoot} from 'react-dom/client';
+
+const preview = createRoot(container);
+const observer = createBrowserCompositionObserver({
+  onChange: (composition) => {
+    preview.render(
+      <Player
+        component={composition.component}
+        inputProps={composition.props}
+        compositionWidth={composition.width}
+        compositionHeight={composition.height}
+        fps={composition.fps}
+        durationInFrames={composition.durationInFrames}
+        controls
+      />,
+    );
+  },
+  onError: (error) => console.error('Could not resolve composition:', error),
+});
+
+observer.update({
+  root,
+  compositionId: 'HelloWorld',
+  inputProps: {message: 'Hello from the browser!'},
+});
+
+export const dispose = () => {
+  preview.unmount();
+  observer.dispose();
+};
+```
+
+After each successful hot update, call `update()` with the root returned by [`applyBundle()`](/docs/browser-bundler/create-browser-bundle-runtime#applybundle). Keep the Player mounted without a changing `key`.
+
+## Options
+
+### onChange
+
+Receives a [`BrowserComposition`](/docs/browser-bundler/get-browser-composition#return-value) after registration and metadata resolution. It can run again when the selected composition or its input props change, including during Fast Refresh.
+
+The result contains the registered video component, merged and calculated props, dimensions, frame rate, and duration. The component wrapper remains stable while its registration stays mounted. Replacing the registration tree or selecting a different composition can reset video state.
+
+### onError
+
+Receives an `Error` for registration failures, a missing composition, or failed or invalid [`calculateMetadata()`](/docs/calculate-metadata) results. A later `update()` can recover from these errors.
+
+Keep the previous Player visible while displaying the error. The observer does not render an error UI.
+
+## Return value
+
+A `BrowserCompositionObserver` with the following methods.
+
+### update()
+
+Selects a composition and starts asynchronous registration and metadata resolution. Returns `void`; results arrive through `onChange` or `onError`.
+
+Pass a `BrowserCompositionSelection` object with these fields:
+
+#### root
+
+The registered `React.FC` returned by [`applyBundle()`](/docs/browser-bundler/create-browser-bundle-runtime#applybundle) or [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle).
+
+#### compositionId
+
+The exact `id` of the registered [`<Composition>`](/docs/composition).
+
+#### inputProps
+
+A required `Record<string, unknown>`. Pass `{}` to use the composition's defaults. Input props override default props before [`calculateMetadata()`](/docs/calculate-metadata) runs.
+
+Changing the selection cancels superseded metadata work and ignores its eventual result. This does not permit skipping compiled Fast Refresh bundles: apply those in compilation order.
+
+### dispose()
+
+Unmounts the registration tree, cancels pending metadata work, and removes the observer's hidden container. Further `update()` calls throw.
+
+Dispose the Player, bundle runtime, and compiler separately. Providers around `<Composition>` are used for registration only; providers needed during playback belong inside the video component or around the Player.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox="Not tested" safari="Not tested" nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering={false} player studio="" hideServers />
+
+The experimental workflow has only been tested in Chrome. Call this in a browser document, not during server rendering.
+
+## See also
+
+- [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime)
+- [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition)
+- [`<Player>`](/docs/player/player)

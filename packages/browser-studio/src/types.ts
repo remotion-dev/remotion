@@ -1,10 +1,8 @@
+import type {BrowserCompilerProject as SourceProject} from '@remotion/browser-bundler/compiler';
 import type {StudioElementPayload} from '@remotion/studio-protocol';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 
-export type VirtualProject = {
-	rootDir: string;
-	entryPoint: string;
-	files: Record<string, string>;
+export type VirtualProject = SourceProject & {
 	publicFiles?: Record<string, VirtualProjectPublicFile>;
 	publicFileStorage?: BrowserStudioProjectStorage;
 };
@@ -26,12 +24,7 @@ export type VirtualProjectPublicFile =
 	| string
 	| BrowserStudioStoredPublicFile;
 
-export type VirtualFileSystem = {
-	readFile: (path: string) => Promise<string> | string;
-	writeFile: (path: string, contents: string) => Promise<void> | void;
-	exists: (path: string) => Promise<boolean> | boolean;
-	listFiles: () => Promise<string[]> | string[];
-};
+export type {VirtualFileSystem} from '@remotion/browser-bundler';
 
 export type BrowserStudioDependencyResolution =
 	| string

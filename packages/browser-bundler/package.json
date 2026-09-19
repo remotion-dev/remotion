@@ -1,0 +1,76 @@
+{
+	"name": "@remotion/browser-bundler",
+	"version": "4.0.526",
+	"description": "Compile virtual Remotion projects in the browser",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/index.js",
+	"type": "module",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/browser-bundler"
+	},
+	"scripts": {
+		"test": "bun test src/test",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "Remotion License",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"@rspack/browser": "2.1.1",
+		"react-refresh": "0.18.0",
+		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": ">=18.0.0",
+		"react-dom": ">=18.0.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"module": "./dist/index.js"
+		},
+		"./runtime": {
+			"types": "./dist/runtime.d.ts",
+			"import": "./dist/runtime.js",
+			"module": "./dist/runtime.js"
+		},
+		"./compiler": {
+			"types": "./dist/compiler.d.ts",
+			"import": "./dist/compiler.js",
+			"module": "./dist/compiler.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"@rspack/plugin-react-refresh": "1.6.1",
+		"@happy-dom/global-registrator": "14.5.1",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@testing-library/react": "16.1.0",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"browser",
+		"bundler",
+		"rspack"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/browser-bundler"
+}

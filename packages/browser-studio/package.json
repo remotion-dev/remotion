@@ -27,6 +27,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/browser-bundler": "workspace:*",
 		"@remotion/studio-codemods": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
@@ -53,7 +54,6 @@
 		"@huggingface/transformers": "catalog:",
 		"@playwright/test": "1.55.1",
 		"@rspack/core": "1.7.11",
-		"@rspack/plugin-react-refresh": "1.6.1",
 		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",

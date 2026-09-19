@@ -13,6 +13,7 @@
 	},
 	"include": ["src"],
 	"references": [
+		{"path": "../browser-bundler"},
 		{"path": "../studio"},
 		{"path": "../studio-codemods"},
 		{"path": "../studio-shared"}
