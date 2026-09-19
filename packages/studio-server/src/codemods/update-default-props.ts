@@ -1,4 +1,4 @@
-export {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from '@remotion/codemods/internal';
+import {CodeModsInternals} from '@remotion/codemods';
+
+export const {getCompositionDefaultPropsLine, updateDefaultProps} =
+	CodeModsInternals;

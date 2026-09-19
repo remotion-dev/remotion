@@ -1,16 +1,25 @@
 import {
-	updateEffectKeyframes as updateEffectKeyframesCodemod,
-	updateSequenceKeyframes as updateSequenceKeyframesCodemod,
-} from '@remotion/codemods/internal';
-
-export {
+	CodeModsInternals,
 	type EffectKeyframeUpdate,
 	type IntroducedKeyframeIdentifiers,
 	type KeyframeOperation,
 	type SequenceKeyframeUpdate,
-	updateEffectKeyframesAst,
-	updateSequenceKeyframesAst,
-} from '@remotion/codemods/internal';
+} from '@remotion/codemods';
+
+export type {
+	EffectKeyframeUpdate,
+	IntroducedKeyframeIdentifiers,
+	KeyframeOperation,
+	SequenceKeyframeUpdate,
+};
+
+export const {updateEffectKeyframesAst, updateSequenceKeyframesAst} =
+	CodeModsInternals;
+
+const {
+	updateEffectKeyframes: updateEffectKeyframesCodemod,
+	updateSequenceKeyframes: updateSequenceKeyframesCodemod,
+} = CodeModsInternals;
 
 type UpdateSequenceKeyframesInput = Omit<
 	Parameters<typeof updateSequenceKeyframesCodemod>[0],

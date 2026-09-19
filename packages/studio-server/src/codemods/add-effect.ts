@@ -1,6 +1,8 @@
-export {
+import {CodeModsInternals} from '@remotion/codemods';
+
+export const {
 	addEffect,
 	assertValidEffect,
 	ensureEffectImport,
 	makeConfigObjectExpression,
-} from '@remotion/codemods/internal';
+} = CodeModsInternals;

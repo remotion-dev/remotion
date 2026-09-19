@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {addSolid, deleteJsxNode} from '../public';
+import {addSolid, deleteJsxNode} from '../index';
 
 const makeProject = () => ({
 	entryPoint: 'src/index.ts',

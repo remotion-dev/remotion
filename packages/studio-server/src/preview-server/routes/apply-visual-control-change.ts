@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import type {File} from '@babel/types';
-import {applyVisualControl} from '@remotion/codemods/internal';
+import {CodeModsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApplyVisualControlRequest,
@@ -23,6 +23,8 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
+
+const {applyVisualControl} = CodeModsInternals;
 
 const getVisualControlChangeLine = (file: File, changeId: string): number => {
 	let line = 1;

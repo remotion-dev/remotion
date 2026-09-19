@@ -1,4 +1,4 @@
-import {formatBytes} from '@remotion/studio-shared';
+import {formatBytes, type RecastCodemod} from '@remotion/studio-shared';
 export {
 	ApiRoutes,
 	CopyStillToClipboardRequest,
@@ -23,7 +23,7 @@ export type {
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
 
-import {parseAndApplyCodemod} from '@remotion/codemods/internal';
+import {CodeModsInternals} from '@remotion/codemods';
 import {AnsiDiff} from './ansi-diff';
 import {
 	addCompletedClientRender,
@@ -64,6 +64,15 @@ import {getEditorName} from './preview-server/routes/open-in-editor';
 import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
+
+const parseAndApplyCodemod = ({
+	input,
+	codeMod,
+}: {
+	input: string;
+	codeMod: RecastCodemod;
+}): {newContents: string; changesMade: {description: string}[]} =>
+	CodeModsInternals.parseAndApplyCodemod({input, codeMod});
 
 export type {
 	RemotionSkillsScope,

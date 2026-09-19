@@ -9,7 +9,7 @@ import {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
 	getNodeSourceEdit,
-} from './delete-jsx-node';
+} from './delete-jsx-node-internal';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,

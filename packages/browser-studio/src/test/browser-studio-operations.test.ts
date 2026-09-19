@@ -1,16 +1,18 @@
 import {expect, test} from 'bun:test';
-import {basicCaptionsElementSource} from '@remotion/codemods/internal';
+import {CodeModsInternals} from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {
-	createBrowserStudioOperations,
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '../browser-studio-operations';
+import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
+
+const {
+	basicCaptionsElementSource,
+	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
+} = CodeModsInternals;
 
 const insertSolid = (
 	project: VirtualProject,

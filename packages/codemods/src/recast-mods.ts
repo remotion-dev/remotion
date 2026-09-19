@@ -21,7 +21,7 @@ import type {
 import type {CompositionOrFolder, RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {applyVisualControl} from './apply-visual-control';
-import {deleteJsxElementAtPath} from './delete-jsx-node';
+import {deleteJsxElementAtPath} from './delete-jsx-node-internal';
 import {parseAst} from './sequence-props/parse-ast';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 

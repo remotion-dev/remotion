@@ -2,7 +2,7 @@ import type {JSXElement} from '@babel/types';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {namedTypes} from 'ast-types';
 import * as recast from 'recast';
-import {getNodeSourceEdit} from './delete-jsx-node';
+import {getNodeSourceEdit} from './delete-jsx-node-internal';
 import {getCompositionId} from './duplicate-composition';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {printInsertedJsx} from './print-jsx';

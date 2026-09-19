@@ -8,10 +8,7 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {
-	basicCaptionsElementSource,
-	getBasicCaptionsElementFile,
-} from '@remotion/codemods/internal';
+import {CodeModsInternals} from '@remotion/codemods';
 import {insertBasicCaptions} from '../codemods/insert-basic-captions';
 import {
 	createFileWatcherRegistry,
@@ -21,6 +18,9 @@ import {setLiveEventsListener} from '../preview-server/live-events';
 import {insertBasicCaptionsHandler} from '../preview-server/routes/insert-basic-captions';
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineContainingToNodePath} from './test-utils';
+
+const {basicCaptionsElementSource, getBasicCaptionsElementFile} =
+	CodeModsInternals;
 
 test('transcription inserts inline Basic captions beside selected Video and Audio tags', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-captions-'));

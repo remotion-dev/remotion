@@ -1,16 +1,27 @@
 import type {JSXAttribute} from '@babel/types';
-import {findEffectsAttr as findEffectsAttrCodemod} from '@remotion/codemods/internal';
-
-export {
-	enumerateEffectArrayElements,
-	findEffectCallExpression,
+import {
+	CodeModsInternals,
 	type EffectArrayElement,
 	type EffectPropUpdate,
 	type PropDelta,
 	type UpdateEffectPropsResult,
+} from '@remotion/codemods';
+
+export type {
+	EffectArrayElement,
+	EffectPropUpdate,
+	PropDelta,
+	UpdateEffectPropsResult,
+};
+
+export const {
+	enumerateEffectArrayElements,
+	findEffectCallExpression,
 	updateEffectProps,
 	updateEffectPropsAst,
-} from '@remotion/codemods/internal';
+} = CodeModsInternals;
+
+const {findEffectsAttr: findEffectsAttrCodemod} = CodeModsInternals;
 
 export const findEffectsAttr = (
 	attrs: readonly (JSXAttribute | unknown)[],

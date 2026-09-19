@@ -1,13 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-	insertJsxElementIntoComposition as insertJsxElementIntoCompositionCodemod,
-	resolveCompositionComponent as resolveCompositionComponentCodemod,
-	resolveCompositionComponentWithFile as resolveCompositionComponentWithFileCodemod,
+	CodeModsInternals,
 	type InsertJsxElementCodemodEnvironment,
 	type ResolvedCompositionComponent,
 	type ResolvedCompositionComponentWithFile,
-} from '@remotion/codemods/internal';
+} from '@remotion/codemods';
 import type {
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
@@ -15,6 +13,13 @@ import type {
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import {svgMarkupToJsx} from './svg-to-jsx';
+
+const {
+	insertJsxElementIntoComposition: insertJsxElementIntoCompositionCodemod,
+	resolveCompositionComponent: resolveCompositionComponentCodemod,
+	resolveCompositionComponentWithFile:
+		resolveCompositionComponentWithFileCodemod,
+} = CodeModsInternals;
 
 const makeCodemodEnvironment = (
 	remotionRoot: string,

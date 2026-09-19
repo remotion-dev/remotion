@@ -1,41 +1,8 @@
 import {
-	addEffect as addEffectCodemod,
-	basicCaptionsElementSource,
-	computeSequencePropsStatusFromContent,
-	computeSequencePropsSubscriptionFromContent,
-	deleteJsxNodes,
-	deleteEffects as deleteEffectsCodemod,
-	duplicateEffects as duplicateEffectsCodemod,
-	duplicateCompositionInSource,
-	duplicateJsxNodes as duplicateJsxNodesCodemod,
-	findProjectFile,
-	getCanUpdateDefaultPropsForProject,
-	getBasicCaptionsElementFile,
-	getCompositionComponentInfo,
-	getCompositionFile,
-	getFolderFile,
-	getRootFileForProject,
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertBasicCaptions as insertBasicCaptionsCodemod,
-	JsxElementIdentityMismatchError,
-	JsxElementNotFoundAtLocationError,
-	makeInMemoryInsertJsxElementCodemodEnvironment,
-	makeNewCompositionComponentSource,
-	parseAndApplyCodemod,
-	pasteEffects as pasteEffectsCodemod,
-	reorderEffect as reorderEffectCodemod,
-	reorderSequence as reorderSequenceCodemod,
-	resolveCompositionComponentWithFile,
-	simpleDiff,
-	splitJsxSequences as splitJsxSequencesCodemod,
-	splitVideoFromAudio as splitVideoFromAudioCodemod,
-	updateDefaultProps as updateDefaultPropsCodemod,
-	updateEffectProps as updateEffectPropsCodemod,
-	updateEffectKeyframes,
-	updateSequenceKeyframes,
+	CodeModsInternals,
 	type EffectKeyframeUpdate,
 	type SequenceKeyframeUpdate,
-} from '@remotion/codemods/internal';
+} from '@remotion/codemods';
 import {
 	StudioProtocolInternals,
 	type StudioElementPayload,
@@ -71,6 +38,43 @@ import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
+const {
+	addEffect: addEffectCodemod,
+	basicCaptionsElementSource,
+	computeSequencePropsStatusFromContent,
+	computeSequencePropsSubscriptionFromContent,
+	deleteEffects: deleteEffectsCodemod,
+	deleteJsxNodes,
+	duplicateCompositionInSource,
+	duplicateEffects: duplicateEffectsCodemod,
+	duplicateJsxNodes: duplicateJsxNodesCodemod,
+	findProjectFile,
+	getBasicCaptionsElementFile,
+	getCanUpdateDefaultPropsForProject,
+	getCompositionComponentInfo,
+	getCompositionFile,
+	getFolderFile,
+	getRootFileForProject,
+	insertBasicCaptions: insertBasicCaptionsCodemod,
+	insertJsxElementIntoProjectWithNodePathRemappings,
+	JsxElementIdentityMismatchError,
+	JsxElementNotFoundAtLocationError,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	makeNewCompositionComponentSource,
+	parseAndApplyCodemod,
+	pasteEffects: pasteEffectsCodemod,
+	reorderEffect: reorderEffectCodemod,
+	reorderSequence: reorderSequenceCodemod,
+	resolveCompositionComponentWithFile,
+	simpleDiff,
+	splitJsxSequences: splitJsxSequencesCodemod,
+	splitVideoFromAudio: splitVideoFromAudioCodemod,
+	updateDefaultProps: updateDefaultPropsCodemod,
+	updateEffectKeyframes,
+	updateEffectProps: updateEffectPropsCodemod,
+	updateSequenceKeyframes,
+} = CodeModsInternals;
+
 /*
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
  * Browser Studio deliberately reports the unsupported operation instead.
@@ -96,11 +100,6 @@ const getStructuredError = (error: unknown) => ({
 	reason: error instanceof Error ? error.message : String(error),
 	stack: error instanceof Error && error.stack ? error.stack : '',
 });
-
-export {
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '@remotion/codemods/internal';
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
 	emitEvent: (event: EventSourceEvent) => void;
