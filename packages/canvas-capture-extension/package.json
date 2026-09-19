@@ -11,7 +11,10 @@
 		"make": "bunx --bun wxt build"
 	},
 	"dependencies": {
-		"mediabunny": "catalog:"
+		"@remotion/design": "workspace:*",
+		"mediabunny": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
