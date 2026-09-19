@@ -170,6 +170,10 @@ export type VideoMattingModalState = {
 	type: 'video-matting';
 	src: string;
 	displayName: string;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+	} | null;
 };
 
 export type CanvasCaptureImport = {

@@ -70,6 +70,7 @@ test('uses the same install confirmation for video matting', () => {
 					type: 'video-matting',
 					src: '/video.webm',
 					displayName: 'video.webm',
+					target: null,
 				}}
 			/>
 		</ModalsProvider>,

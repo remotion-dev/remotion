@@ -86,6 +86,7 @@ export {simpleDiff} from './simple-diff';
 export {splitJsxSequence} from './split-jsx-sequence';
 export {splitVideoFromAudio} from './split-video-from-audio';
 export {insertBasicCaptions} from './insert-basic-captions';
+export {insertVideoLayers} from './insert-video-layers';
 export {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,

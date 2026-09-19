@@ -239,6 +239,7 @@ export const AssetInfo: React.FC<{
 			type: 'video-matting',
 			src,
 			displayName: fileName,
+			target: null,
 		});
 	}, [fileName, fileType, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
