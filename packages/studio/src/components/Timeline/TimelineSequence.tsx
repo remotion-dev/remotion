@@ -47,6 +47,7 @@ import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -438,8 +439,8 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const {sequences} = useContext(Internals.SequenceManager);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const renderWindow = useContext(TimelineViewportContext);
 	const mediaDurationDragLimitsRegistry = useContext(
@@ -651,12 +652,12 @@ const TimelineSequenceInner: React.FC<{
 		splitSelectedTimelineItems({
 			selections: selectedItems,
 			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 			propStatuses,
 			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
-		overrideIdToNodePathMappings,
+		overrideIdToNodePathMappingsRef,
 		previewInteractive,
 		propStatuses,
 		selectedItems,

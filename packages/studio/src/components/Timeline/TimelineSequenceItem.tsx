@@ -72,6 +72,7 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 } from '../selected-outline-types';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -315,11 +316,13 @@ const TimelineSequenceItemInner: React.FC<{
 	showProvisionalVisibilityToggle,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
-	const {sequences} = useContext(Internals.SequenceManager);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
-	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {hovered, onPointerEnter, onPointerLeave} =
 		useTimelineSequenceHover(nodePathInfo);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -459,18 +462,18 @@ const TimelineSequenceItemInner: React.FC<{
 
 		splitSelectedTimelineItems({
 			selections: selectedItems,
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			propStatuses,
+			sequences: sequencesRef.current,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			propStatuses: propStatusesRef.current,
 			splitFrame: getCurrentFrame(),
 		})?.catch(() => undefined);
 	}, [
-		overrideIdToNodePathMappings,
+		overrideIdToNodePathMappingsRef,
 		previewInteractive,
-		propStatuses,
+		propStatusesRef,
 		selectedItems,
 		selectedSequenceNodePathInfos,
-		sequences,
+		sequencesRef,
 	]);
 
 	const onDeleteSequenceFromSource = useCallback(() => {

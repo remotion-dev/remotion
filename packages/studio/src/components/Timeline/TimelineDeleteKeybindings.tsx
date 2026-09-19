@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {getCurrentFrame} from './imperative-state';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
@@ -17,8 +18,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -76,7 +77,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				const splitPromise = splitSelectedTimelineItems({
 					selections: selectedItems,
 					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 					propStatuses: propStatusesRef.current,
 					splitFrame: getCurrentFrame(),
 				});
@@ -103,7 +104,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		currentSelection,
 		deleteTimelineItems,
 		keybindings,
-		overrideIdToNodePathMappings,
+		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
 		previewServerState,
 		sequencesRef,
