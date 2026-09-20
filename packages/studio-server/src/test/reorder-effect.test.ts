@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
-import {reorderEffect} from '../codemods/reorder-effect';
+import {CodemodsInternals} from '@remotion/codemods';
 import {lineColumnToNodePath} from './test-utils';
+
+const {reorderEffect} = CodemodsInternals;
 
 const buildInput = (
 	effects: string,

@@ -3,9 +3,13 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
+import {CodemodsInternals, addSolid, deleteJsxNodes} from '@remotion/codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import type {BrowserBundlerPreview} from './browser-bundler-preview/bridge';
+import type {
+	BrowserBundlerPreview,
+	BrowserBundlerPreviewNode,
+} from './browser-bundler-preview/bridge';
 
 const initialSource = `import React, {useState} from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
@@ -90,6 +94,8 @@ export const Orb: React.FC<{accent: string}> = ({accent}) => {
 	},
 };
 
+const layerElementNames = new Set(['AbsoluteFill', 'Sequence', 'Solid']);
+
 const getCompilationErrorMessage = (error: unknown): string => {
 	if (error instanceof BrowserBundlerError) {
 		return [error.message, ...error.diagnostics].join('\n\n');
@@ -116,6 +122,7 @@ export const BrowserBundlerExample: React.FC = () => {
 	const [state, setState] = useState<CompilationState>({type: 'loading'});
 	const [progress, setProgress] = useState<string | null>(null);
 	const [warnings, setWarnings] = useState<string[]>([]);
+	const sourceRef = useRef(initialSource);
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const sessionRef = useRef<CompilationSession | null>(null);
 
@@ -156,7 +163,12 @@ export const BrowserBundlerExample: React.FC = () => {
 
 				// Coalesce edits before compilation, but never discard a compiled
 				// update: the next HMR update builds on this bundle's module graph.
-				await preview.applyBundle(bundle);
+				const sourceNodes = CodemodsInternals.getJsxElementsWithNodePaths({
+					source: videoSource,
+				})
+					.filter(({tagName}) => layerElementNames.has(tagName))
+					.map(({nodePath}) => ({filePath: 'src/Video.tsx', nodePath}));
+				await preview.applyBundle(bundle, sourceNodes);
 				if (session.disposed || revision !== session.revision) {
 					return;
 				}
@@ -176,6 +188,38 @@ export const BrowserBundlerExample: React.FC = () => {
 		});
 		await session.queue;
 	}, []);
+	const deleteNodes = useCallback(
+		async (nodes: BrowserBundlerPreviewNode[]) => {
+			setState({type: 'loading'});
+			try {
+				const result = await deleteJsxNodes({
+					nodes,
+					project: {
+						...project,
+						files: {
+							...project.files,
+							'src/Video.tsx': sourceRef.current,
+						},
+						rootDir: '/',
+					},
+				});
+				const nextSource = result.project.files['src/Video.tsx'];
+				if (!nextSource) {
+					throw new Error('The codemod did not return Video.tsx.');
+				}
+
+				sourceRef.current = nextSource;
+				setSource(nextSource);
+				await compile(nextSource);
+			} catch (error) {
+				setState({
+					message: getCompilationErrorMessage(error),
+					type: 'error',
+				});
+			}
+		},
+		[compile],
+	);
 
 	useEffect(() => {
 		const iframe = iframeRef.current;
@@ -278,7 +322,10 @@ export const BrowserBundlerExample: React.FC = () => {
 							return;
 						}
 
-						previewRuntime = createPreview({onError: reportPreviewError});
+						previewRuntime = createPreview({
+							onDeleteJsxNodes: deleteNodes,
+							onError: reportPreviewError,
+						});
 						if (loadTimeout !== null) {
 							window.clearTimeout(loadTimeout);
 						}
@@ -316,7 +363,7 @@ export const BrowserBundlerExample: React.FC = () => {
 				message: getCompilationErrorMessage(error),
 			});
 		}
-	}, [compile]);
+	}, [compile, deleteNodes]);
 
 	return (
 		<main
@@ -350,6 +397,50 @@ export const BrowserBundlerExample: React.FC = () => {
 						Fast Refresh · live layers
 					</div>
 				</div>
+				<button
+					type="button"
+					disabled={state.type === 'loading'}
+					onClick={() => {
+						try {
+							const result = addSolid({
+								compositionFile: 'src/Root.tsx',
+								compositionId: 'BrowserDemo',
+								height: 720,
+								project: {
+									...project,
+									files: {...project.files, 'src/Video.tsx': source},
+									rootDir: '/',
+								},
+								width: 1280,
+							});
+							const nextSource = result.project.files['src/Video.tsx'];
+							if (!nextSource) {
+								throw new Error('The codemod did not return Video.tsx.');
+							}
+
+							setSource(nextSource);
+							sourceRef.current = nextSource;
+							void compile(nextSource);
+						} catch (error) {
+							setState({
+								message: getCompilationErrorMessage(error),
+								type: 'error',
+							});
+						}
+					}}
+					style={{
+						backgroundColor: '#4f46e5',
+						border: 0,
+						borderRadius: 5,
+						color: 'white',
+						fontSize: 12,
+						fontWeight: 600,
+						marginLeft: 'auto',
+						padding: '7px 11px',
+					}}
+				>
+					Add Solid
+				</button>
 				<p
 					role="status"
 					aria-live="polite"
@@ -359,7 +450,7 @@ export const BrowserBundlerExample: React.FC = () => {
 						borderRadius: 999,
 						color: state.type === 'error' ? '#fecaca' : '#bfdbfe',
 						fontSize: 12,
-						margin: '0 0 0 auto',
+						margin: 0,
 						padding: '5px 10px',
 					}}
 				>
@@ -407,6 +498,7 @@ export const BrowserBundlerExample: React.FC = () => {
 						onChange={(event) => {
 							const nextSource = event.target.value;
 							setSource(nextSource);
+							sourceRef.current = nextSource;
 							void compile(nextSource);
 						}}
 						spellCheck={false}

@@ -18,7 +18,7 @@ import {
 } from './routes/default-coding-agent';
 import {getDefaultEditorInfoHandler} from './routes/default-editor';
 import {deleteEffectHandler} from './routes/delete-effect';
-import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
+import {deleteJsxNodesHandler} from './routes/delete-jsx-nodes';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
@@ -125,7 +125,7 @@ export const allApiRoutes: {
 	'/api/batch-update-keyframe-settings': batchUpdateKeyframeSettingsHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/paste-effects': pasteEffectsHandler,
-	'/api/delete-jsx-node': deleteJsxNodeHandler,
+	'/api/delete-jsx-nodes': deleteJsxNodesHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,

@@ -2031,6 +2031,17 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 	],
+	codemodsSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/codemods',
+			link: {
+				type: 'doc',
+				id: 'codemods/index',
+			},
+			items: ['codemods/add-solid', 'codemods/delete-jsx-nodes'],
+		},
+	],
 };
 
 export default sidebars;

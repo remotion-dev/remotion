@@ -208,7 +208,7 @@
 			"path": "./packages/studio"
 		},
 		{
-			"path": "./packages/studio-codemods"
+			"path": "./packages/codemods"
 		},
 		{
 			"path": "./packages/studio-server"
