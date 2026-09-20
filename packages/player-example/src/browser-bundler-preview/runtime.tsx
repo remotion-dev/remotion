@@ -76,7 +76,8 @@ const Preview: React.FC<{
 	);
 	const selectedNodes = useMemo(() => {
 		const nodes = new Map<string, BrowserBundlerPreviewNode>();
-		for (const [index, layer] of layers.entries()) {
+		for (let index = 0; index < layers.length; index++) {
+			const layer = layers[index];
 			const layerSelection: CanvasSelectionItem = {
 				type: 'sequence',
 				nodePathInfo: getExampleNodePathInfo(layer, sourceNodes[index]),
@@ -93,7 +94,7 @@ const Preview: React.FC<{
 			nodes.set(JSON.stringify(node), node);
 		}
 
-		return [...nodes.values()];
+		return Array.from(nodes.values());
 	}, [layers, selectedKeys, sourceNodes]);
 
 	useEffect(() => onReady(revision), [onReady, preview, revision]);
