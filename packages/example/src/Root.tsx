@@ -2030,6 +2030,14 @@ export const Index: React.FC = () => {
 					width={100}
 					height={100}
 				/>
+				<Composition
+					id="gsap-parity"
+					lazyComponent={() => import('./Gsap/ParityFixture')}
+					durationInFrames={90}
+					fps={30}
+					width={640}
+					height={300}
+				/>
 			</Folder>
 			<Folder name="lottie">
 				<Composition
