@@ -3,6 +3,7 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
 import {expect, type MockInstance, test, vi} from 'vitest';
+import {page} from 'vitest/browser';
 import {Audio} from '../audio/audio';
 
 const mountAudioPlayer = (fps: number, src: string) => {
@@ -42,6 +43,7 @@ const mountAudioPlayer = (fps: number, src: string) => {
 			component={Composition}
 			compositionWidth={100}
 			compositionHeight={100}
+			controls
 			durationInFrames={300}
 			fps={fps}
 			inputProps={{}}
@@ -137,7 +139,7 @@ test('replaces queued audio once after a running audio-clock stall', async () =>
 		}));
 		vi.spyOn(context, 'baseLatency', 'get').mockReturnValue(1024 / 48000);
 		vi.spyOn(context, 'outputLatency', 'get').mockReturnValue(0.2);
-		playerRef.current?.play();
+		await page.getByRole('button', {name: 'Play'}).click();
 		await vi.waitFor(
 			() => expect(playerRef.current?.getCurrentFrame()).toBeGreaterThan(10),
 			{timeout: 5000},
