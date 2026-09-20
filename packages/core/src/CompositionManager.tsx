@@ -122,6 +122,63 @@ export type SequenceControls = SequenceRegistrationControls & {
 	currentRuntimeValueDotNotation: RuntimeValueSnapshot;
 };
 
+export type CustomSequenceOutlinePoint = {
+	readonly x: number;
+	readonly y: number;
+};
+
+export type CustomSequenceValueChange = {
+	readonly phase: 'preview' | 'commit';
+	readonly values: Readonly<Record<string, unknown>>;
+};
+
+export type CustomSequenceOutline = {
+	readonly type: 'custom';
+	readonly positionControls: {
+		readonly position: {
+			readonly x: string;
+			readonly y: string;
+			readonly z: string;
+		};
+		readonly rotation: {
+			readonly x: string;
+			readonly y: string;
+			readonly z: string;
+		};
+		readonly scale: string;
+		readonly getLocalAxes: () => {
+			readonly originOffset: CustomSequenceOutlinePoint;
+			readonly x: CustomSequenceLocalAxis | null;
+			readonly y: CustomSequenceLocalAxis | null;
+			readonly z: CustomSequenceLocalAxis | null;
+		};
+		readonly getValues: () => Readonly<Record<string, unknown>>;
+		readonly requestValueChange: (change: CustomSequenceValueChange) => void;
+	} | null;
+	readonly measure: () => {
+		readonly points: readonly [
+			CustomSequenceOutlinePoint,
+			CustomSequenceOutlinePoint,
+			CustomSequenceOutlinePoint,
+			CustomSequenceOutlinePoint,
+		];
+		readonly dimensions: {
+			readonly width: number;
+			readonly height: number;
+		} | null;
+	} | null;
+	readonly setSelected: (selected: boolean) => void;
+	readonly subscribeToOutlineChanges: (listener: () => void) => () => void;
+	readonly subscribeToValueChanges: (
+		listener: (change: CustomSequenceValueChange) => void,
+	) => () => void;
+};
+
+export type CustomSequenceLocalAxis = {
+	readonly screenDirection: CustomSequenceOutlinePoint;
+	readonly positionDeltaPerPixel: readonly [number, number, number];
+};
+
 export type TSequence = {
 	from: number;
 	trimBefore: number | null;
@@ -138,6 +195,7 @@ export type TSequence = {
 	postmountDisplay: number | null;
 	controls: SequenceRegistrationControls | null;
 	refForOutline: React.RefObject<Element | null> | null;
+	customOutlineRef?: React.RefObject<CustomSequenceOutline | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
 	effectRuntimeValues: readonly RuntimeValueStore[] | null;
 	isInsideSeries: boolean;

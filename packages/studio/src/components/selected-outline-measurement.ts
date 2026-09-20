@@ -1,4 +1,20 @@
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
+
+type MeasurableCustomOutline = {
+	readonly measure: () => {
+		readonly points: readonly [
+			{readonly x: number; readonly y: number},
+			{readonly x: number; readonly y: number},
+			{readonly x: number; readonly y: number},
+			{readonly x: number; readonly y: number},
+		];
+		readonly dimensions: {
+			readonly width: number;
+			readonly height: number;
+		} | null;
+	} | null;
+};
+
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
 import {useCache as resetBoxQuadsCache} from '../helpers/get-box-quads-polyfill-internals.js';
@@ -625,7 +641,12 @@ export const getSequencesWithSelectableOutlines = ({
 				track.nodePathInfo.auxiliaryKeys.length === 0
 			);
 		})
-		.filter((track) => track.sequence.refForOutline !== null)
+		.filter(
+			(track) =>
+				track.sequence.refForOutline !== null ||
+				(track.sequence.customOutlineRef !== null &&
+					track.sequence.customOutlineRef !== undefined),
+		)
 		.sort((a, b) => a.depth - b.depth)
 		.map((track) => {
 			if (track.nodePathInfo === null) {
@@ -668,7 +689,7 @@ export const measureOutlineTargets = (
 		readonly crop: SelectedOutlineLayoutTarget['crop'];
 		readonly includeOutsideContainer: boolean;
 		readonly key: string;
-		readonly ref: React.RefObject<Element | null>;
+		readonly ref: React.RefObject<Element | MeasurableCustomOutline | null>;
 	}[],
 ): SelectedOutline[] => {
 	// Reuse shared ancestor geometry within this synchronous batch only.
@@ -682,11 +703,36 @@ export const measureOutlineTargets = (
 			continue;
 		}
 
-		const uncroppedPoints = getElementOutlinePoints(
-			element,
-			containerRect,
-			target.includeOutsideContainer,
-		);
+		const customMeasurement =
+			element instanceof Element ? null : element.measure();
+		const customPoints = customMeasurement?.points;
+		const uncroppedPoints: SelectedOutline['points'] | null =
+			element instanceof Element
+				? getElementOutlinePoints(
+						element,
+						containerRect,
+						target.includeOutsideContainer,
+					)
+				: customPoints === undefined
+					? null
+					: [
+							{
+								x: customPoints[0].x - containerRect.left,
+								y: customPoints[0].y - containerRect.top,
+							},
+							{
+								x: customPoints[1].x - containerRect.left,
+								y: customPoints[1].y - containerRect.top,
+							},
+							{
+								x: customPoints[2].x - containerRect.left,
+								y: customPoints[2].y - containerRect.top,
+							},
+							{
+								x: customPoints[3].x - containerRect.left,
+								y: customPoints[3].y - containerRect.top,
+							},
+						];
 		if (uncroppedPoints === null) {
 			continue;
 		}
@@ -706,7 +752,9 @@ export const measureOutlineTargets = (
 								width: element.width.baseVal.value,
 								height: element.height.baseVal.value,
 							}
-						: null,
+						: element instanceof Element
+							? null
+							: (customMeasurement?.dimensions ?? null),
 			uncroppedPoints,
 			points,
 		});

@@ -6,18 +6,23 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {_InternalTypes} from 'remotion';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {
 	useSetTimelineSequenceHover,
 	useTimelineSequenceHoverState,
 } from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
+import {CustomOutlinePositionControls} from './CustomOutlinePositionControls';
+import {CustomOutlineValueChangeBridge} from './CustomOutlineValueChangeBridge';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	measureOutlines,
 	outlinesAreEqual,
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
+
+type CustomSequenceOutline = _InternalTypes['CustomSequenceOutline'];
 import type {
 	SelectedOutlineContextMenuOpenHandler,
 	SelectedOutlineLayoutTarget,
@@ -87,6 +92,9 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const resizeObserverRef = useRef<ResizeObserver | null>(null);
 	const resizeObserverAnimationFrameRef = useRef<number | null>(null);
 	const observedOutlineElementsRef = useRef<ReadonlySet<Element>>(new Set());
+	const selectedCustomOutlinesRef = useRef<ReadonlySet<CustomSequenceOutline>>(
+		new Set(),
+	);
 	const contextMenuOpenHandlersRef = useRef(
 		new Map<string, SelectedOutlineContextMenuOpenHandler>(),
 	);
@@ -163,6 +171,48 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	}, [updateOutlines, updateOutlinesRef]);
 
 	useLayoutEffect(() => {
+		const nextSelectedCustomOutlines = new Set<CustomSequenceOutline>();
+		for (const target of outlineTargets) {
+			const outline = target.ref.current;
+			if (outline === null || outline instanceof Element) continue;
+			if (target.selected || target.containsSelection) {
+				nextSelectedCustomOutlines.add(outline);
+			}
+		}
+
+		for (const outline of selectedCustomOutlinesRef.current) {
+			if (!nextSelectedCustomOutlines.has(outline)) {
+				outline.setSelected(false);
+			}
+		}
+
+		for (const outline of nextSelectedCustomOutlines) {
+			if (!selectedCustomOutlinesRef.current.has(outline)) {
+				outline.setSelected(true);
+			}
+		}
+
+		selectedCustomOutlinesRef.current = nextSelectedCustomOutlines;
+	}, [outlineTargets]);
+
+	useLayoutEffect(() => {
+		return () => {
+			for (const outline of selectedCustomOutlinesRef.current) {
+				outline.setSelected(false);
+			}
+		};
+	}, []);
+
+	useLayoutEffect(() => {
+		const cleanups = outlineTargets.flatMap((target) => {
+			const outline = target.ref.current;
+			if (outline === null || outline instanceof Element) return [];
+			return [outline.subscribeToOutlineChanges(updateOutlines)];
+		});
+		return () => cleanups.forEach((cleanup) => cleanup());
+	}, [outlineTargets, updateOutlines]);
+
+	useLayoutEffect(() => {
 		if (typeof ResizeObserver === 'undefined') {
 			return;
 		}
@@ -203,7 +253,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		}
 
 		for (const target of outlineTargets) {
-			if (target.ref.current !== null) {
+			if (target.ref.current instanceof Element) {
 				nextObservedElements.add(target.ref.current);
 			}
 		}
@@ -275,17 +325,24 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		outlinesForTransformOrigin,
 		outlinesForUvHandles,
 	} = useMemo(() => {
+		const hasSelectedCustomOutline = outlineTargets.some((target) => {
+			const outline = target.ref.current;
+			return (
+				target.selected && outline !== null && !(outline instanceof Element)
+			);
+		});
 		const editingHandles: SelectedOutline[] = [];
 		const transformOrigin: SelectedOutline[] = [];
 		const uvHandles: SelectedOutline[] = [];
 		for (const outline of outlinesForRendering) {
 			const target = targetsByKey.get(outline.key);
 			if (
-				target?.containsSelection === true ||
-				(target !== undefined &&
-					timelineSequenceNodePathToKey(
-						target.nodePathInfo.sequenceSubscriptionKey,
-					) === hoveredNodePathKey)
+				!hasSelectedCustomOutline &&
+				(target?.containsSelection === true ||
+					(target !== undefined &&
+						timelineSequenceNodePathToKey(
+							target.nodePathInfo.sequenceSubscriptionKey,
+						) === hoveredNodePathKey))
 			) {
 				editingHandles.push(outline);
 			}
@@ -307,7 +364,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			outlinesForTransformOrigin: transformOrigin,
 			outlinesForUvHandles: uvHandles,
 		};
-	}, [hoveredNodePathKey, outlinesForRendering, targetsByKey]);
+	}, [hoveredNodePathKey, outlineTargets, outlinesForRendering, targetsByKey]);
 	const targetsRef = useRef(outlineTargets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
 	useLayoutEffect(() => {
@@ -321,6 +378,15 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					return [];
 				}
 
+				const customOutline = target.ref.current;
+				if (
+					customOutline !== null &&
+					!(customOutline instanceof Element) &&
+					customOutline.positionControls !== null
+				) {
+					return [];
+				}
+
 				const drag = getLatestOutlineTargetByKey(target.key)?.drag ?? null;
 				return drag === null ? [] : [drag];
 			}),
@@ -329,8 +395,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const getAllDragOutlines = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
+				const customOutline = target.ref.current;
 				if (
 					(!target.selected && !target.containsSelection) ||
+					(customOutline !== null &&
+						!(customOutline instanceof Element) &&
+						customOutline.positionControls !== null) ||
 					(getLatestOutlineTargetByKey(target.key)?.drag ?? null) === null
 				) {
 					return [];
@@ -377,6 +447,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			height="100%"
 			aria-hidden="true"
 		>
+			<CustomOutlineValueChangeBridge targets={outlineTargets} />
 			<ContextMenuForTarget
 				triggerRef={overlayRef}
 				getItems={getDelegatedContextMenuItems}
@@ -420,6 +491,25 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					onDraggingChange={onDraggingChange}
 					onSelect={onSelect}
 					outline={outline}
+				/>
+			))}
+			{outlinesForRendering.map((outline) => (
+				<CustomOutlinePositionControls
+					key={`${outline.key}-custom-position-controls`}
+					compositionHeight={compositionHeight}
+					compositionWidth={compositionWidth}
+					onDraggingChange={onDraggingChange}
+					onSelect={onSelect}
+					outline={outline}
+					scale={scale}
+					target={targetsByKey.get(outline.key)}
+					visible={
+						targetsByKey.get(outline.key) !== undefined &&
+						timelineSequenceNodePathToKey(
+							targetsByKey.get(outline.key)!.nodePathInfo
+								.sequenceSubscriptionKey,
+						) === hoveredNodePathKey
+					}
 				/>
 			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}

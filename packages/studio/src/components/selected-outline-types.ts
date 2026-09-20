@@ -4,9 +4,12 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 	InteractivitySchema,
 	InteractivitySchemaField,
+	_InternalTypes,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
+
+type CustomSequenceOutline = _InternalTypes['CustomSequenceOutline'];
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import type {TimelineSelection} from './Timeline/TimelineSelection';
@@ -24,7 +27,7 @@ export type SelectedOutlineLayoutTarget = {
 	readonly containsSelection: boolean;
 	readonly keyframeDisplayOffset: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly ref: React.RefObject<Element | null>;
+	readonly ref: React.RefObject<Element | CustomSequenceOutline | null>;
 	readonly selected: boolean;
 	readonly selectedForCrop: boolean;
 	readonly selectedForRotation: boolean;

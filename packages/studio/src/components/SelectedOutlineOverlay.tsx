@@ -285,7 +285,8 @@ const calculateOutlineTargets = ({
 			return [];
 		}
 
-		if (sequence.refForOutline === null) {
+		const outlineRef = sequence.customOutlineRef ?? sequence.refForOutline;
+		if (outlineRef === null) {
 			throw new Error('Expected sequence to have a ref for outline');
 		}
 
@@ -397,7 +398,7 @@ const calculateOutlineTargets = ({
 			crop,
 			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
 			nodePathInfo,
-			ref: sequence.refForOutline,
+			ref: outlineRef,
 			selected,
 			selectedForCrop,
 			selectedForRotation,
