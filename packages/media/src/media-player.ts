@@ -886,6 +886,8 @@ export class MediaPlayer {
 		this.audioIteratorManager.destroyIterator();
 		// An anchor can change while paused, when no frame update will restart
 		// scheduling. Refill the queue against the new anchor immediately.
-		await this.seekTo(unloopedTimeInSeconds);
+		// Re-anchoring audio is not a user seek: retain pending video frames,
+		// even if buffering has temporarily paused the internal media player.
+		await this.seekTo(unloopedTimeInSeconds, true);
 	};
 }

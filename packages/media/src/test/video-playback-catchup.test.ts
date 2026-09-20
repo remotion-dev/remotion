@@ -1,9 +1,18 @@
 import type {InputVideoTrack} from 'mediabunny';
 import {expect, test, vi} from 'vitest';
+import type {AudioIteratorManager} from '../audio-iterator-manager';
+import {MediaPlayer} from '../media-player';
 import {videoIteratorManager} from '../video-iterator-manager';
 import type {VideoIterator} from '../video/video-preview-iterator';
 
 vi.mock('mediabunny', () => ({CanvasSink: class {}}));
+vi.mock('../get-shared-input', () => ({
+	acquireSharedInput: () => ({
+		input: {},
+		getDuration: () => Promise.resolve(10),
+		release: () => undefined,
+	}),
+}));
 vi.mock('../prewarm-iterator-for-looping', () => ({
 	makePrewarmedVideoIteratorCache: () => ({destroy: () => undefined}),
 }));
@@ -11,6 +20,55 @@ const {createIterator} = vi.hoisted(() => ({createIterator: vi.fn()}));
 vi.mock('../video/video-preview-iterator', () => ({
 	createVideoIterator: createIterator,
 }));
+
+test.each([false, true])(
+	'audio re-anchoring preserves video catch-up intent (playing=%s)',
+	async (playing) => {
+		const player = new MediaPlayer({
+			canvas: null,
+			src: '/video.mp4',
+			logLevel: 'error',
+			sharedAudioContext: null,
+			loop: false,
+			trimBefore: undefined,
+			trimAfter: undefined,
+			playbackRate: 1,
+			toneFrequency: 1,
+			globalPlaybackRate: 1,
+			audioStreamIndex: 0,
+			fps: 30,
+			debugOverlay: false,
+			bufferState: {delayPlayback: () => ({unblock: () => undefined})},
+			isPremounting: false,
+			isPostmounting: false,
+			durationInFrames: 300,
+			onVideoFrameCallback: null,
+			playing,
+			sequenceOffset: 0,
+			credentials: undefined,
+			requestInit: undefined,
+			tagType: 'video',
+			getEffects: () => [],
+			getEffectChainState: () => null,
+		});
+		const destroyIterator = vi.fn();
+		player.audioIteratorManager = {
+			destroyIterator,
+		} as unknown as AudioIteratorManager;
+		const seek = vi.spyOn(player, 'seekTo').mockResolvedValue();
+		try {
+			await player.audioSyncAnchorChanged(2.1);
+			expect(destroyIterator).toHaveBeenCalledOnce();
+			expect(seek).toHaveBeenCalledExactlyOnceWith(2.1, true);
+			player.audioIteratorManager = null;
+			await player.audioSyncAnchorChanged(3);
+			expect(seek).toHaveBeenCalledTimes(1);
+		} finally {
+			seek.mockRestore();
+			await player.dispose();
+		}
+	},
+);
 
 test.each(['paint', 'cancel', 'error'] as const)(
 	'catch-up releases buffering after %s',
