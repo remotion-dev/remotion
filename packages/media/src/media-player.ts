@@ -470,6 +470,7 @@ export class MediaPlayer {
 	private seekToWithQueue = async (
 		newTime: number,
 		unloopedNewTime: number,
+		continuousPlayback: boolean | null,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
@@ -478,24 +479,26 @@ export class MediaPlayer {
 			newTime,
 			unloopedNewTime,
 			nonce,
+			continuousPlayback,
 		);
 		await this.seekPromiseChain;
 	};
 
-	public async seekTo(time: number): Promise<void> {
+	public async seekTo(time: number, continuousPlayback: boolean | null = null): Promise<void> {
 		const newTime = this.getTrimmedTime(time);
 
 		if (newTime === null) {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime, time);
+		await this.seekToWithQueue(newTime, time, continuousPlayback);
 	}
 
 	private async seekToDoNotCallDirectly(
 		newTime: number,
 		unloopedNewTime: number,
 		nonce: Nonce,
+		continuousPlayback: boolean | null,
 	): Promise<void> {
 		if (nonce.isStale()) {
 			return;
@@ -509,6 +512,7 @@ export class MediaPlayer {
 					fps: this.fps,
 					playbackRate: this.playbackRate,
 					isPlaying: this.playing,
+					continuousPlayback,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,

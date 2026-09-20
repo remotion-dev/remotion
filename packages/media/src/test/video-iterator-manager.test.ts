@@ -115,6 +115,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 				fps: 30,
 				playbackRate: 3.75,
 				isPlaying: true,
+				continuousPlayback: null,
 			});
 		}
 
@@ -123,6 +124,24 @@ test('plays at a high playback rate without restarting the iterator', async () =
 	} finally {
 		manager.destroy();
 	}
+});
+
+test('playback catch-up retains its iterator while another layer buffers', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack);
+	const nonceManager = makeNonceManager();
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		await manager.seek({
+			newTime: 0.5,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: false,
+			continuousPlayback: true,
+		});
+		expect(manager.getVideoIteratorsCreated()).toBe(1);
+	} finally { manager.destroy(); }
 });
 
 test('paused forward scrubs do not wait for pending frames', async () => {
@@ -152,6 +171,7 @@ test('paused forward scrubs do not wait for pending frames', async () => {
 			fps: 30,
 			playbackRate: 4,
 			isPlaying: false,
+			continuousPlayback: null,
 		});
 
 		expect(pendingFrameBehavior).toBe('restart-iterator');
@@ -209,6 +229,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		continuousPlayback: null,
 	});
 	await manager.seek({
 		newTime: 0,
@@ -216,6 +237,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		continuousPlayback: null,
 	});
 	await manager.seek({
 		newTime: 8,
@@ -223,6 +245,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		fps: 30,
 		playbackRate: 1,
 		isPlaying: false,
+		continuousPlayback: null,
 	});
 
 	// With the fix, max concurrent blocks should be 1
@@ -282,6 +305,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 			fps: 30,
 			playbackRate: 1,
 			isPlaying: false,
+			continuousPlayback: null,
 		});
 	}
 

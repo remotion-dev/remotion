@@ -25,6 +25,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const {
 		setPlaying,
 		frameRef,
+		seekRevision,
 		audioAndVideoTags,
 		isPlaying: readIsPlaying,
 		isBuffering,
@@ -67,6 +68,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 	const seek = useCallback(
 		(newFrame: number) => {
+			if (seekRevision) seekRevision.current++;
 			const frameToSeekTo = config
 				? Internals.TimelinePosition.clampFrameToCompositionRange(
 						newFrame,
@@ -93,7 +95,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 			emitter.dispatchSeek(frameToSeekTo);
 		},
-		[config, emitter, frameRef, setTimelinePosition, video?.id],
+		[config, emitter, frameRef, seekRevision, setTimelinePosition, video?.id],
 	);
 
 	const play = useCallback(

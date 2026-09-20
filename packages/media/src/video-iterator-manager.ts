@@ -214,12 +214,14 @@ export const videoIteratorManager = async ({
 		fps,
 		playbackRate,
 		isPlaying,
+		continuousPlayback,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		fps: number;
 		playbackRate: number;
 		isPlaying: boolean;
+		continuousPlayback: boolean | null;
 	}) => {
 		if (!videoFrameIterator) {
 			return;
@@ -245,37 +247,45 @@ export const videoIteratorManager = async ({
 		}
 
 		const pendingFrameBehavior =
-			previousTime !== null &&
-			isSequentialMediaTimeAdvance({
+			previousTime !== null && newTime >= previousTime &&
+			(continuousPlayback ?? isSequentialMediaTimeAdvance({
 				previousTime,
 				newTime,
 				fps,
 				playbackRate,
 				isPlaying,
-			})
+			}))
 				? 'wait'
 				: 'restart-iterator';
-		const videoSatisfyResult = await videoFrameIterator.tryToSatisfySeek(
-			newTime,
-			{
-				pendingFrameBehavior,
-				shouldContinue: () => !nonce.isStale(),
-			},
-		);
+		let pendingFrameHandle: DelayPlaybackIfNotPremounting | null = null;
+		try {
+			const videoSatisfyResult = await videoFrameIterator.tryToSatisfySeek(
+				newTime,
+				{
+					pendingFrameBehavior,
+					onWait: () => {
+						// Arm only when decoding actually blocks, not for ready frames.
+						pendingFrameHandle ??= delayPlaybackHandleIfNotPremounting();
+					},
+					shouldContinue: () => !nonce.isStale(),
+				},
+			);
 
-		// Doing this before the staleness check, because
-		// frame might be better than what we currently have
-		// TODO: check if this is actually true
-		if (videoSatisfyResult.type === 'satisfied') {
-			await drawFrame(videoSatisfyResult.frame);
-			return;
+			if (videoSatisfyResult.type === 'satisfied') {
+				await drawFrame(videoSatisfyResult.frame);
+				return;
+			}
+
+			if (nonce.isStale()) {
+				return;
+			}
+
+			await startVideoIterator(newTime, nonce);
+		} finally {
+			// Keep the clock paused until the recovered frame is painted; also
+			// release the handle on cancellation or decoder failure.
+			(pendingFrameHandle as DelayPlaybackIfNotPremounting | null)?.unblock();
 		}
-
-		if (nonce.isStale()) {
-			return;
-		}
-
-		await startVideoIterator(newTime, nonce);
 	};
 
 	return {

@@ -247,6 +247,7 @@ const PlayerFn = <
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
 	const frameRef = useRef(frame);
+	const seekRevision = useRef(0);
 	frameRef.current = frame;
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -463,6 +464,7 @@ const PlayerFn = <
 			isPlaying: readIsPlaying,
 			isBuffering: readIsBuffering,
 			frameRef,
+			seekRevision,
 			audioAndVideoTags,
 		};
 	}, [

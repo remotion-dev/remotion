@@ -63,9 +63,11 @@ export const createVideoIterator = async (
 
 	const getFrameEndTimestamp = async ({
 		pendingFrameBehavior,
+		onWait,
 		shouldContinue,
 	}: {
 		pendingFrameBehavior: 'wait' | 'restart-iterator';
+		onWait: () => void;
 		shouldContinue: () => boolean;
 	}) => {
 		const peeked = peekIfReady();
@@ -84,6 +86,7 @@ export const createVideoIterator = async (
 			return {type: 'cancelled' as const};
 		}
 
+		onWait();
 		const awaitedPeeked = setPeekedFrame(await peeked.wait());
 		if (!shouldContinue()) {
 			return {type: 'cancelled' as const};
@@ -153,6 +156,7 @@ export const createVideoIterator = async (
 		time: number,
 		options: {
 			pendingFrameBehavior: 'wait' | 'restart-iterator';
+			onWait: () => void;
 			shouldContinue: () => boolean;
 		},
 	): Promise<
@@ -197,6 +201,7 @@ export const createVideoIterator = async (
 
 			const frameEndTimestamp = await getFrameEndTimestamp({
 				pendingFrameBehavior: options.pendingFrameBehavior,
+				onWait: options.onWait,
 				shouldContinue: options.shouldContinue,
 			});
 			if (frameEndTimestamp.type === 'cancelled') {
@@ -274,6 +279,7 @@ export const createVideoIterator = async (
 				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
 					pendingFrameBehavior: options.pendingFrameBehavior,
+				onWait: options.onWait,
 					shouldContinue: options.shouldContinue,
 				});
 				if (frameEndTimestamp.type === 'cancelled') {

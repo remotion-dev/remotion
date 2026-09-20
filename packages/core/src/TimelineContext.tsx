@@ -43,6 +43,8 @@ export type SetTimelineContextValue = {
 	isPlaying: () => boolean;
 	isBuffering: () => boolean;
 	frameRef: RefObject<Record<string, number>>;
+	// Null until a host publishes explicit seek intent (Studio/rendering).
+	seekRevision: RefObject<number> | null;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
@@ -61,6 +63,7 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	isPlaying: () => false,
 	isBuffering: missingSetTimelineContext,
 	frameRef: {current: {}},
+	seekRevision: null,
 	audioAndVideoTags: {current: []},
 });
 
@@ -178,6 +181,7 @@ export const TimelineContextProvider: React.FC<{
 			isPlaying: readIsPlaying,
 			isBuffering: readIsBuffering,
 			frameRef,
+			seekRevision: null,
 			audioAndVideoTags,
 		};
 	}, [bufferingStore, playingStore, readIsBuffering, readIsPlaying]);

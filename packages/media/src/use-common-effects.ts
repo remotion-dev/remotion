@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useContext, useLayoutEffect} from 'react';
+import {useContext, useLayoutEffect, useRef} from 'react';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {MediaPlayer} from './media-player';
@@ -52,6 +52,8 @@ export const useCommonEffects = ({
 	readonly label: string;
 }) => {
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
+	const {seekRevision} = useContext(Internals.SetTimelineContext);
+	const lastSeekRevision = useRef(seekRevision?.current);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -216,12 +218,16 @@ export const useCommonEffects = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.seekTo(currentTime).catch(() => {
+		const revision = seekRevision?.current;
+		const continuousPlayback = revision === undefined ? null :
+			revision === lastSeekRevision.current && playing;
+		lastSeekRevision.current = revision;
+		mediaPlayer.seekTo(currentTime, continuousPlayback).catch(() => {
 			// Might be disposed
 		});
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
 			`[${label}] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
-	}, [currentTime, logLevel, mediaPlayerReady, label, mediaPlayerRef]);
+	}, [currentTime, logLevel, mediaPlayerReady, label, mediaPlayerRef, playing, seekRevision]);
 };

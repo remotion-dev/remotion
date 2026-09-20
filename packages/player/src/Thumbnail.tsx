@@ -127,6 +127,7 @@ const ThumbnailFn = <
 			isPlaying: () => false,
 			isBuffering: () => bufferingStore.store.getSnapshot().buffering,
 			frameRef,
+			seekRevision: null,
 			audioAndVideoTags,
 		};
 	}, [bufferingStore]);

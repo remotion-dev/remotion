@@ -142,6 +142,7 @@ export const WrapSequenceContext: React.FC<{
 			isPlaying: () => false,
 			isBuffering: () => bufferingStore.store.getSnapshot().buffering,
 			frameRef: {current: {}},
+			seekRevision: null,
 			audioAndVideoTags: {current: []},
 		}),
 		[bufferingStore],

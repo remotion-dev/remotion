@@ -16,6 +16,36 @@ const makeFrame = ({
 	};
 };
 
+test('notifies buffering while catching up several frames on the same iterator', async () => {
+	let index = 0;
+	let waits = 0;
+	let closed = false;
+	const iterator = await createVideoIterator(0, {
+		destroy: () => undefined,
+		prewarmIteratorForLooping: () => undefined,
+		makeIteratorOrUsePrewarmed: () => ({
+			closeIterator: async () => { closed = true; },
+			next: () => {
+				const frame = makeFrame({timestamp: index++ / 60, duration: 1 / 60});
+				return index === 1 ? {type: 'ready', frame} : {type: 'pending', wait: async () => frame};
+			},
+		}),
+	});
+	try {
+		const result = await iterator.tryToSatisfySeek(0.5, {
+			pendingFrameBehavior: 'wait',
+			onWait: () => { waits++; },
+			shouldContinue: () => true,
+		});
+		expect(result.type).toBe('satisfied');
+		if (result.type === 'satisfied') expect(result.frame.timestamp).toBe(0.5);
+		expect(waits).toBeGreaterThan(0);
+		expect(closed).toBe(false);
+	} finally {
+		iterator.destroy();
+	}
+});
+
 test('preview iterator uses next frame timestamp instead of reported duration', async () => {
 	const frames = [
 		makeFrame({timestamp: 0, duration: 0.1}),
@@ -45,6 +75,7 @@ test('preview iterator uses next frame timestamp instead of reported duration', 
 	try {
 		const result = await iterator.tryToSatisfySeek(1.5, {
 			pendingFrameBehavior: 'wait',
+			onWait: () => undefined,
 			shouldContinue: () => true,
 		});
 
@@ -96,6 +127,7 @@ test('preview iterator does not trust reported duration without a next timestamp
 	try {
 		const result = await iterator.tryToSatisfySeek(1.5, {
 			pendingFrameBehavior: 'restart-iterator',
+			onWait: () => undefined,
 			shouldContinue: () => true,
 		});
 
@@ -144,6 +176,7 @@ test('preview iterator waits through high-FPS frames for a sequential timeline s
 	try {
 		const result = await iterator.tryToSatisfySeek(1 / timelineFps, {
 			pendingFrameBehavior: 'wait',
+			onWait: () => undefined,
 			shouldContinue: () => true,
 		});
 
@@ -193,6 +226,7 @@ test('preview iterator supports frames longer than one timeline step', async () 
 	try {
 		const result = await iterator.tryToSatisfySeek(0.075, {
 			pendingFrameBehavior: 'wait',
+			onWait: () => undefined,
 			shouldContinue: () => true,
 		});
 
@@ -246,6 +280,7 @@ test('preview iterator stops decoding when a seek is superseded', async () => {
 	try {
 		const result = await iterator.tryToSatisfySeek(1, {
 			pendingFrameBehavior: 'wait',
+			onWait: () => undefined,
 			shouldContinue: () => shouldContinue,
 		});
 
