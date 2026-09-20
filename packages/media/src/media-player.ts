@@ -484,7 +484,10 @@ export class MediaPlayer {
 		await this.seekPromiseChain;
 	};
 
-	public async seekTo(time: number, continuousPlayback: boolean | null = null): Promise<void> {
+	public async seekTo(
+		time: number,
+		continuousPlayback: boolean | null = null,
+	): Promise<void> {
 		const newTime = this.getTrimmedTime(time);
 
 		if (newTime === null) {

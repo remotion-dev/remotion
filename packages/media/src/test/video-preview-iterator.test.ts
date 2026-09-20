@@ -24,17 +24,23 @@ test('notifies buffering while catching up several frames on the same iterator',
 		destroy: () => undefined,
 		prewarmIteratorForLooping: () => undefined,
 		makeIteratorOrUsePrewarmed: () => ({
-			closeIterator: async () => { closed = true; },
+			closeIterator: async () => {
+				closed = true;
+			},
 			next: () => {
 				const frame = makeFrame({timestamp: index++ / 60, duration: 1 / 60});
-				return index === 1 ? {type: 'ready', frame} : {type: 'pending', wait: async () => frame};
+				return index === 1
+					? {type: 'ready', frame}
+					: {type: 'pending', wait: async () => frame};
 			},
 		}),
 	});
 	try {
 		const result = await iterator.tryToSatisfySeek(0.5, {
 			pendingFrameBehavior: 'wait',
-			onWait: () => { waits++; },
+			onWait: () => {
+				waits++;
+			},
 			shouldContinue: () => true,
 		});
 		expect(result.type).toBe('satisfied');

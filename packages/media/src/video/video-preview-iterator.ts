@@ -279,7 +279,7 @@ export const createVideoIterator = async (
 				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
 					pendingFrameBehavior: options.pendingFrameBehavior,
-				onWait: options.onWait,
+					onWait: options.onWait,
 					shouldContinue: options.shouldContinue,
 				});
 				if (frameEndTimestamp.type === 'cancelled') {

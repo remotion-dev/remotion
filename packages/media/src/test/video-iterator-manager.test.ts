@@ -141,7 +141,9 @@ test('playback catch-up retains its iterator while another layer buffers', async
 			continuousPlayback: true,
 		});
 		expect(manager.getVideoIteratorsCreated()).toBe(1);
-	} finally { manager.destroy(); }
+	} finally {
+		manager.destroy();
+	}
 });
 
 test('paused forward scrubs do not wait for pending frames', async () => {

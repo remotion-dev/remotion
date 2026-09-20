@@ -219,8 +219,10 @@ export const useCommonEffects = ({
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
 		const revision = seekRevision?.current;
-		const continuousPlayback = revision === undefined ? null :
-			revision === lastSeekRevision.current && playing;
+		const continuousPlayback =
+			revision === undefined
+				? null
+				: revision === lastSeekRevision.current && playing;
 		lastSeekRevision.current = revision;
 		mediaPlayer.seekTo(currentTime, continuousPlayback).catch(() => {
 			// Might be disposed
@@ -229,5 +231,13 @@ export const useCommonEffects = ({
 			{logLevel, tag: '@remotion/media'},
 			`[${label}] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
-	}, [currentTime, logLevel, mediaPlayerReady, label, mediaPlayerRef, playing, seekRevision]);
+	}, [
+		currentTime,
+		logLevel,
+		mediaPlayerReady,
+		label,
+		mediaPlayerRef,
+		playing,
+		seekRevision,
+	]);
 };

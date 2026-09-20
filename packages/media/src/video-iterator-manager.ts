@@ -247,14 +247,16 @@ export const videoIteratorManager = async ({
 		}
 
 		const pendingFrameBehavior =
-			previousTime !== null && newTime >= previousTime &&
-			(continuousPlayback ?? isSequentialMediaTimeAdvance({
-				previousTime,
-				newTime,
-				fps,
-				playbackRate,
-				isPlaying,
-			}))
+			previousTime !== null &&
+			newTime >= previousTime &&
+			(continuousPlayback ??
+				isSequentialMediaTimeAdvance({
+					previousTime,
+					newTime,
+					fps,
+					playbackRate,
+					isPlaying,
+				}))
 				? 'wait'
 				: 'restart-iterator';
 		let pendingFrameHandle: DelayPlaybackIfNotPremounting | null = null;
