@@ -562,6 +562,15 @@ export const startContent = () => {
 			dimensions,
 			controls,
 		);
+		for (const eventType of [
+			'pointerdown',
+			'pointerup',
+			'mousedown',
+			'mouseup',
+			'click',
+		] as const) {
+			shadow.addEventListener(eventType, (event) => event.stopPropagation());
+		}
 
 		let selectedTarget: SelectedTarget | null = null;
 		let capture: PageCapture | null = null;
