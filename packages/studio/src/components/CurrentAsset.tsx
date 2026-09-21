@@ -417,7 +417,7 @@ export const AssetInfo: React.FC<{
 							Show in {fileManagerName}
 						</InspectorQuickAction>
 					) : null}
-					{src ? (
+					{src && mediaMetadata?.hasAudioTrack !== false ? (
 						<InspectorQuickAction
 							disabled={mutationsDisabled}
 							onClick={onTranscribe}
