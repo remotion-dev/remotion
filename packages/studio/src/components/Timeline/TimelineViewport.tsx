@@ -13,6 +13,12 @@ type TimelineRenderWindow = {
 export const TimelineViewportContext =
 	createContext<TimelineRenderWindow | null>(null);
 
+let updateTimelineViewport: (() => void) | null = null;
+
+export const syncTimelineViewport = () => {
+	updateTimelineViewport?.();
+};
+
 export const getTimelineRenderWindow = (
 	scrollable: HTMLDivElement,
 ): TimelineRenderWindow => {
@@ -63,6 +69,7 @@ export const TimelineViewportProvider: React.FC<{
 	useLayoutEffect(() => {
 		let element: HTMLDivElement | null = null;
 		let resizeObserver: ResizeObserver | null = null;
+		updateTimelineViewport = update;
 		const animationFrame = requestAnimationFrame(() => {
 			element = scrollable.current;
 			if (!element) {
@@ -76,6 +83,10 @@ export const TimelineViewportProvider: React.FC<{
 		});
 
 		return () => {
+			if (updateTimelineViewport === update) {
+				updateTimelineViewport = null;
+			}
+
 			cancelAnimationFrame(animationFrame);
 			resizeObserver?.disconnect();
 			element?.removeEventListener('scroll', update);
