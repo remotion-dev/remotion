@@ -50,12 +50,8 @@ export const ExploreSection: React.FC = () => {
 								aria-hidden="true"
 							>
 								<source
-									src={`/img/explore-remotion-${item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
+									src={`https://remotion.media/explore-remotion/${item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
 									type="video/mp4"
-								/>
-								<source
-									src={`/img/explore-remotion-${item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.webm`}
-									type="video/webm"
 								/>
 							</video>
 						) : null}

@@ -5,7 +5,6 @@ import {
 	Composition,
 	Easing,
 	interpolate,
-	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 
@@ -24,9 +23,7 @@ export const AudioWaveformPreview = () => {
 			from={-207}
 		>
 			<Video
-				src={staticFile(
-					'remotion-capture-localhost-2026-09-21T12-03-17-851Z.mp4',
-				)}
+				src="https://remotion.media/explore-remotion/audio-waveform-source-2026-09-21.mp4"
 				style={{
 					position: 'absolute',
 				}}
