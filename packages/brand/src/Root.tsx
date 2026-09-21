@@ -1,3 +1,4 @@
+import {RenderModalCodec} from './RenderModalCodec';
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
@@ -711,6 +712,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					width={1920}
 					height={1080}
 				/>
+				<RenderModalCodec />
 			</Folder>
 
 			<Folder name="StudioAssets">
