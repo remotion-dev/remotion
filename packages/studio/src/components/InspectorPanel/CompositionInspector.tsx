@@ -313,10 +313,11 @@ const CompositionDefaultPropsSection: React.FC<{
 		defaultProps: currentDefaultProps,
 		mode: defaultPropsMode,
 		propsEditType: 'default-props',
-		showCannotSaveDefaultPropsWarning: canShowDefaultPropsSection,
+		showCannotSaveDefaultPropsWarning:
+			canShowDefaultPropsSection && !readOnlyStudio,
 	});
 
-	if (readOnlyStudio || !canShowDefaultPropsSection) {
+	if (!canShowDefaultPropsSection) {
 		return null;
 	}
 
@@ -344,7 +345,7 @@ const CompositionDefaultPropsSection: React.FC<{
 						) : null
 					}
 					expanded={expanded}
-					label="Default Props"
+					label={readOnlyStudio ? 'Props' : 'Default Props'}
 					onToggle={() => setExpanded(!expanded)}
 				/>
 			</InspectorSectionHeader>
