@@ -256,6 +256,7 @@ import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
+import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
@@ -1217,6 +1218,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<SimultaneousPlaybackComp />
 				<PremountSequenceVideoComp />
 				<ObjectFitTestComp />
 				<NewVideoBufferStateComp />
