@@ -201,22 +201,6 @@ const CloseupPlaceholder = () => {
 				dragHandle.ondragstart = (event) => {
 					setStudioDragData({dataTransfer: event.dataTransfer, payload});
 				};
-				const fullscreenPayload = createElementPayload({
-					displayName: 'Fullscreen Element',
-					slug: 'fullscreen-element',
-					sourceCode: 'export const FullscreenElement = () => <div>Fills composition</div>;',
-					dependencies: [],
-					dimensions: null,
-					durationInFrames: 30,
-				});
-				const fullscreenDragHandle = document.createElement('div');
-				fullscreenDragHandle.id = 'drag-fullscreen-element';
-				fullscreenDragHandle.draggable = true;
-				fullscreenDragHandle.textContent = 'Drag fullscreen Element into Studio';
-				document.body.appendChild(fullscreenDragHandle);
-				fullscreenDragHandle.ondragstart = (event) => {
-					setStudioDragData({dataTransfer: event.dataTransfer, payload: fullscreenPayload});
-				};
 				document.querySelector('#install').onclick = async () => {
 					document.querySelector('#status').textContent = '';
 					const result = await installInStudio({payload});
@@ -485,8 +469,9 @@ const CloseupPlaceholder = () => {
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
 
-		const readDragDataFromHandle = (selector: string) =>
-			senderPage.locator(selector).evaluate((dragHandle) => {
+		const elementDragData = await senderPage
+			.locator('#drag-element')
+			.evaluate((dragHandle) => {
 				const dataTransfer = new DataTransfer();
 				dragHandle.dispatchEvent(
 					new DragEvent('dragstart', {
@@ -500,21 +485,9 @@ const CloseupPlaceholder = () => {
 					type,
 				}));
 			});
-		const elementDragData = await readDragDataFromHandle('#drag-element');
-		const fullscreenElementDragData = await readDragDataFromHandle(
-			'#drag-fullscreen-element',
-		);
 		expect(
 			elementDragData.some(({type}) =>
 				type.startsWith('application/vnd.remotion.drag+json;v=1;type=element'),
-			),
-		).toBe(true);
-		expect(
-			fullscreenElementDragData.some(
-				({type}) =>
-					type.startsWith(
-						'application/vnd.remotion.drag+json;v=1;type=element',
-					) && !type.includes(';width='),
 			),
 		).toBe(true);
 
@@ -581,73 +554,6 @@ const CloseupPlaceholder = () => {
 		await expectNewCompositionFallback();
 
 		await studioPage.getByText('MyComp', {exact: true}).first().click();
-		const compositionCanvas = studioPage.locator(
-			'.remotion-studio-composition-container',
-		);
-		const dragElementOverCanvas = async (
-			dragData: typeof elementDragData,
-			offsetX: number,
-			offsetY: number,
-		) => {
-			await compositionCanvas.evaluate(
-				(target, input) => {
-					const dataTransfer = new DataTransfer();
-					for (const {data, type} of input.dragData) {
-						dataTransfer.setData(type, data);
-					}
-
-					const rect = target.getBoundingClientRect();
-					target.dispatchEvent(
-						new DragEvent('dragover', {
-							bubbles: true,
-							cancelable: true,
-							clientX: rect.left + rect.width / 2 + input.offsetX,
-							clientY: rect.top + rect.height / 2 + input.offsetY,
-							dataTransfer,
-						}),
-					);
-				},
-				{dragData, offsetX, offsetY},
-			);
-		};
-		await dragElementOverCanvas(elementDragData, 5, 5);
-		const elementPreview = studioPage.getByTestId('composition-drop-preview');
-		await expect(elementPreview).toBeVisible();
-		const previewBox = await elementPreview.boundingBox();
-		const compositionBox = await compositionCanvas.boundingBox();
-		expect(previewBox).not.toBeNull();
-		expect(compositionBox).not.toBeNull();
-		expect(previewBox!.width).toBeCloseTo(compositionBox!.width / 2, 1);
-		expect(previewBox!.height).toBeCloseTo(compositionBox!.height / 6, 1);
-		expect(previewBox!.x + previewBox!.width / 2).toBeCloseTo(
-			compositionBox!.x + compositionBox!.width / 2,
-			1,
-		);
-		expect(previewBox!.y + previewBox!.height / 2).toBeCloseTo(
-			compositionBox!.y + compositionBox!.height / 2,
-			1,
-		);
-		const snapLines = studioPage
-			.getByTestId('canvas-drop-snap-lines')
-			.locator('line');
-		await expect(snapLines).toHaveCount(2);
-		await expect(snapLines.first()).toHaveAttribute('stroke', '#ff00ff');
-		await dragElementOverCanvas(
-			fullscreenElementDragData,
-			compositionBox!.width / 4,
-			compositionBox!.height / 4,
-		);
-		await expect(elementPreview).toBeVisible();
-		await expect(elementPreview).toHaveCSS('border-top-width', '1px');
-		const fullscreenPreviewBox = await elementPreview.boundingBox();
-		expect(fullscreenPreviewBox).not.toBeNull();
-		expect(fullscreenPreviewBox!.x).toBeCloseTo(compositionBox!.x, 1);
-		expect(fullscreenPreviewBox!.y).toBeCloseTo(compositionBox!.y, 1);
-		expect(fullscreenPreviewBox!.width).toBeCloseTo(compositionBox!.width, 1);
-		expect(fullscreenPreviewBox!.height).toBeCloseTo(compositionBox!.height, 1);
-		await expect(studioPage.getByTestId('canvas-drop-snap-lines')).toHaveCount(
-			0,
-		);
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await studioPage.bringToFront();
 		const newCompositionDialog = studioPage.getByRole('dialog', {

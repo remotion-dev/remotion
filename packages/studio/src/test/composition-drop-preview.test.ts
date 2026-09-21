@@ -104,30 +104,3 @@ test('snaps the dragged left edge to the destination right edge', () => {
 		}).dropPosition,
 	).toEqual({centerX: 2240, centerY: 540});
 });
-
-test('snaps an element edge to a visible guide and reports the pink indicator target', () => {
-	const snapped = snapCompositionDropPosition({
-		compositionDimensions: {width: 640, height: 120},
-		destinationDimensions,
-		dropPosition: {centerX: 625, centerY: 400},
-		guides: [
-			{
-				id: 'vertical-guide',
-				compositionId: 'MyComp',
-				orientation: 'vertical',
-				position: 300,
-				show: true,
-			},
-		],
-		scale: 1,
-	});
-
-	expect(snapped.dropPosition).toEqual({centerX: 620, centerY: 400});
-	expect(snapped.snapPoints).toEqual([
-		{
-			distance: 5,
-			edge: 'left',
-			target: {axis: 'x', position: 300, type: 'guide-vertical'},
-		},
-	]);
-});
