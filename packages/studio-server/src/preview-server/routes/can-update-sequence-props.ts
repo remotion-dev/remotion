@@ -1894,7 +1894,7 @@ const computeSequenceOnlyPropsRecord = ({
 
 		const dotIndex = key.indexOf('.');
 		if (dotIndex !== -1) {
-			filteredProps[key] = getNestedPropStatus({
+			const status = getNestedPropStatus({
 				jsxElement,
 				ast,
 				parentKey: key.slice(0, dotIndex),
@@ -1903,6 +1903,19 @@ const computeSequenceOnlyPropsRecord = ({
 				allowSpecialValues: assetKeys.includes(key),
 				lastSpreadIndex,
 			});
+			filteredProps[key] =
+				key === 'style.translate' &&
+				((status.status === 'static' &&
+					typeof status.codeValue === 'string' &&
+					status.codeValue.includes('%')) ||
+					(status.status === 'keyframed' &&
+						status.keyframes.some(
+							(keyframe) =>
+								typeof keyframe.value === 'string' &&
+								keyframe.value.includes('%'),
+						)))
+					? computedStatus()
+					: status;
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else if (lastSpreadIndex !== -1) {
