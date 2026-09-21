@@ -2,9 +2,44 @@ import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {expect, test} from 'vitest';
 import {makeNonceManager} from '../nonce-manager';
 import {
+	getPreviewCanvasSize,
 	isSequentialMediaTimeAdvance,
 	videoIteratorManager,
 } from '../video-iterator-manager';
+
+test('preview sizing respects device pixels, fit, hidden layers and source resolution', () => {
+	const input = {
+		width: 3840,
+		height: 2160,
+		boxWidth: 640,
+		boxHeight: 360,
+		devicePixelRatio: 2,
+		objectFit: 'contain' as const,
+	};
+	expect(getPreviewCanvasSize(input)).toEqual({width: 1280, height: 720});
+	expect(
+		getPreviewCanvasSize({...input, boxHeight: 640, objectFit: 'cover'}),
+	).toEqual({width: 2276, height: 1280});
+	expect(
+		getPreviewCanvasSize({...input, boxHeight: 640, objectFit: 'fill'}),
+	).toEqual({width: 2276, height: 1280});
+	expect(getPreviewCanvasSize({...input, boxWidth: 0})).toEqual({
+		width: 3840,
+		height: 2160,
+	});
+	expect(getPreviewCanvasSize({...input, devicePixelRatio: 10})).toEqual({
+		width: 3840,
+		height: 2160,
+	});
+	expect(getPreviewCanvasSize({...input, objectFit: 'none'})).toEqual({
+		width: 3840,
+		height: 2160,
+	});
+	expect(getPreviewCanvasSize({...input, objectFit: 'scale-down'})).toEqual({
+		width: 3840,
+		height: 2160,
+	});
+});
 
 test('detects one timeline frame as a sequential media time advance', () => {
 	expect(
@@ -98,7 +133,45 @@ const makeManager = (
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getPreviewSize: null,
 	});
+
+test('preview dimensions reach the sink, retained frames and display canvas', async () => {
+	const {videoTrack} = await prepare();
+	const canvas = document.createElement('canvas');
+	const sizes: number[][] = [];
+	const manager = await videoIteratorManager({
+		videoTrack,
+		canvas,
+		context: canvas.getContext('2d'),
+		getPreviewSize: () => ({width: 160, height: 90}),
+		getOnVideoFrameCallback: () => (frame) => {
+			const source = frame as HTMLCanvasElement;
+			sizes.push([source.width, source.height]);
+		},
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+			[Symbol.dispose]: () => {},
+		}),
+		logLevel: 'error',
+		drawDebugOverlay: () => {},
+		getLoopSegmentMediaEndTimestamp: () => 10,
+		getStartTime: () => 0,
+		getIsLooping: () => false,
+		getEffects: () => [],
+		getEffectChainState: () => null,
+	});
+	try {
+		await manager.startVideoIterator(
+			0,
+			makeNonceManager().createAsyncOperation(),
+		);
+		expect([canvas.width, canvas.height]).toEqual([160, 90]);
+		expect(sizes).toEqual([[160, 90]]);
+	} finally {
+		manager.destroy();
+	}
+});
 
 test('plays at a high playback rate without restarting the iterator', async () => {
 	const {videoTrack} = await prepare();
@@ -194,6 +267,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getPreviewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -265,6 +339,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getPreviewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -313,6 +388,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getPreviewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();

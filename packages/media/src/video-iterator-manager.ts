@@ -10,12 +10,52 @@ import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premou
 import {roundTo4Digits} from './helpers/round-to-4-digits';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
+import type {VideoObjectFit} from './video/props';
 import {
 	createVideoIterator,
 	type VideoIterator,
 } from './video/video-preview-iterator';
 
 const {runEffectChain} = Internals;
+
+// Keep source aspect ratio even for object-fit: fill: both axes must have
+// enough samples. cover needs the larger scale; contain needs the smaller.
+export const getPreviewCanvasSize = ({
+	width,
+	height,
+	boxWidth,
+	boxHeight,
+	devicePixelRatio,
+	objectFit,
+}: {
+	width: number;
+	height: number;
+	boxWidth: number;
+	boxHeight: number;
+	devicePixelRatio: number;
+	objectFit: VideoObjectFit;
+}) => {
+	if (
+		boxWidth <= 0 ||
+		boxHeight <= 0 ||
+		objectFit === 'none' ||
+		objectFit === 'scale-down'
+	) {
+		return {width, height};
+	}
+
+	const scale = Math.min(
+		1,
+		(objectFit === 'contain' ? Math.min : Math.max)(
+			boxWidth / width,
+			boxHeight / height,
+		) * devicePixelRatio,
+	);
+	return {
+		width: Math.max(1, Math.ceil(width * scale)),
+		height: Math.max(1, Math.ceil(height * scale)),
+	};
+};
 
 export const isSequentialMediaTimeAdvance = ({
 	previousTime,
@@ -54,7 +94,14 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
+	getPreviewSize,
 }: {
+	getPreviewSize:
+		| ((
+				width: number,
+				height: number,
+		  ) => {width: number; height: number} | null)
+		| null;
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
@@ -82,9 +129,12 @@ export const videoIteratorManager = async ({
 		lastDrawnFrame = null;
 	};
 
+	const sourceWidth = await videoTrack.getDisplayWidth();
+	const sourceHeight = await videoTrack.getDisplayHeight();
+	const previewSize = getPreviewSize?.(sourceWidth, sourceHeight);
+	const displayWidth = previewSize?.width ?? sourceWidth;
+	const displayHeight = previewSize?.height ?? sourceHeight;
 	if (canvas) {
-		const displayWidth = await videoTrack.getDisplayWidth();
-		const displayHeight = await videoTrack.getDisplayHeight();
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
@@ -92,6 +142,8 @@ export const videoIteratorManager = async ({
 	}
 
 	const canvasSink = new CanvasSink(videoTrack, {
+		width: displayWidth,
+		height: displayHeight,
 		// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
 		// canvas objects for later decoded frames, so Remotion copies pixels into
 		// stable canvases before retaining frames across seeks/peeks.

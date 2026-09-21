@@ -84,6 +84,14 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
+	// Preview-only. Headless and rendering consumers leave this unset.
+	public getPreviewSize:
+		| ((
+				width: number,
+				height: number,
+		  ) => {width: number; height: number} | null)
+		| null = null;
+
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
@@ -359,6 +367,7 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					getPreviewSize: this.getPreviewSize,
 				});
 			}
 

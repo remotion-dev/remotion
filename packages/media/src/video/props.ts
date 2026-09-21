@@ -74,6 +74,8 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
+	/** Size preview canvases to the displayed layer in device pixels. Does not affect rendering. */
+	_experimentalAutoPreviewSize: boolean;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
 };

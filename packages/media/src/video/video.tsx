@@ -105,6 +105,7 @@ const InnerVideo: React.FC<
 	controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
+	_experimentalAutoPreviewSize,
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
@@ -208,6 +209,7 @@ const InnerVideo: React.FC<
 				_experimentalInitiallyDrawCachedFrame
 			}
 			refForOutline={refForOutline}
+			_experimentalAutoPreviewSize={_experimentalAutoPreviewSize}
 		/>
 	);
 };
@@ -245,6 +247,7 @@ const VideoInner: React.FC<
 	controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
+	_experimentalAutoPreviewSize,
 	effects,
 	durationInFrames,
 	from,
@@ -426,6 +429,7 @@ const VideoInner: React.FC<
 					requestInit={requestInit}
 					controls={controls}
 					objectFit={objectFit ?? 'contain'}
+					_experimentalAutoPreviewSize={_experimentalAutoPreviewSize ?? false}
 					_experimentalInitiallyDrawCachedFrame={
 						_experimentalInitiallyDrawCachedFrame ?? false
 					}
