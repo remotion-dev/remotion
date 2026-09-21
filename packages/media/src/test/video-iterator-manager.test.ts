@@ -7,37 +7,29 @@ import {
 	videoIteratorManager,
 } from '../video-iterator-manager';
 
-test('preview sizing respects device pixels, fit, hidden layers and source resolution', () => {
-	const input = {
-		width: 3840,
-		height: 2160,
-		boxWidth: 640,
-		boxHeight: 360,
-		devicePixelRatio: 2,
-		objectFit: 'contain' as const,
-	};
-	expect(getPreviewCanvasSize(input)).toEqual({width: 1280, height: 720});
-	expect(
-		getPreviewCanvasSize({...input, boxHeight: 640, objectFit: 'cover'}),
-	).toEqual({width: 2276, height: 1280});
-	expect(
-		getPreviewCanvasSize({...input, boxHeight: 640, objectFit: 'fill'}),
-	).toEqual({width: 2276, height: 1280});
-	expect(getPreviewCanvasSize({...input, boxWidth: 0})).toEqual({
+test('explicit preview pixel budget preserves aspect ratio and caps at source size', () => {
+	expect(getPreviewCanvasSize(3840, 2160, {width: 640, height: 360})).toEqual({
+		width: 640,
+		height: 360,
+	});
+	expect(getPreviewCanvasSize(3840, 2160, {width: 640, height: 640})).toEqual({
+		width: 640,
+		height: 360,
+	});
+	expect(getPreviewCanvasSize(2160, 3840, {width: 640, height: 640})).toEqual({
+		width: 360,
+		height: 640,
+	});
+	expect(getPreviewCanvasSize(3840, 2160, {width: 7680, height: 4320})).toEqual(
+		{width: 3840, height: 2160},
+	);
+	expect(getPreviewCanvasSize(3840, 2160, null)).toEqual({
 		width: 3840,
 		height: 2160,
 	});
-	expect(getPreviewCanvasSize({...input, devicePixelRatio: 10})).toEqual({
-		width: 3840,
-		height: 2160,
-	});
-	expect(getPreviewCanvasSize({...input, objectFit: 'none'})).toEqual({
-		width: 3840,
-		height: 2160,
-	});
-	expect(getPreviewCanvasSize({...input, objectFit: 'scale-down'})).toEqual({
-		width: 3840,
-		height: 2160,
+	expect(getPreviewCanvasSize(3840, 2160, {width: 1, height: 1})).toEqual({
+		width: 1,
+		height: 1,
 	});
 });
 
@@ -133,7 +125,7 @@ const makeManager = (
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getPreviewSize: null,
+		previewSize: null,
 	});
 
 test('preview dimensions reach the sink, retained frames and display canvas', async () => {
@@ -144,7 +136,7 @@ test('preview dimensions reach the sink, retained frames and display canvas', as
 		videoTrack,
 		canvas,
 		context: canvas.getContext('2d'),
-		getPreviewSize: () => ({width: 160, height: 90}),
+		previewSize: {width: 160, height: 90},
 		getOnVideoFrameCallback: () => (frame) => {
 			const source = frame as HTMLCanvasElement;
 			sizes.push([source.width, source.height]);
@@ -267,7 +259,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getPreviewSize: null,
+		previewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -339,7 +331,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getPreviewSize: null,
+		previewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -388,7 +380,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getIsLooping: () => false,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getPreviewSize: null,
+		previewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();

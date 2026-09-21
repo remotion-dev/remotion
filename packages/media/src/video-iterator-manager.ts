@@ -10,7 +10,7 @@ import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premou
 import {roundTo4Digits} from './helpers/round-to-4-digits';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
-import type {VideoObjectFit} from './video/props';
+import type {PreviewSize} from './video/props';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -18,39 +18,16 @@ import {
 
 const {runEffectChain} = Internals;
 
-// Keep source aspect ratio even for object-fit: fill: both axes must have
-// enough samples. cover needs the larger scale; contain needs the smaller.
-export const getPreviewCanvasSize = ({
-	width,
-	height,
-	boxWidth,
-	boxHeight,
-	devicePixelRatio,
-	objectFit,
-}: {
-	width: number;
-	height: number;
-	boxWidth: number;
-	boxHeight: number;
-	devicePixelRatio: number;
-	objectFit: VideoObjectFit;
-}) => {
-	if (
-		boxWidth <= 0 ||
-		boxHeight <= 0 ||
-		objectFit === 'none' ||
-		objectFit === 'scale-down'
-	) {
-		return {width, height};
-	}
-
-	const scale = Math.min(
-		1,
-		(objectFit === 'contain' ? Math.min : Math.max)(
-			boxWidth / width,
-			boxHeight / height,
-		) * devicePixelRatio,
-	);
+// The caller supplies a pixel budget, not a CSS layout box. Preserve the
+// source aspect ratio and never upscale; CSS object-fit still controls layout.
+export const getPreviewCanvasSize = (
+	width: number,
+	height: number,
+	previewSize: PreviewSize | null,
+) => {
+	const scale = previewSize
+		? Math.min(1, previewSize.width / width, previewSize.height / height)
+		: 1;
 	return {
 		width: Math.max(1, Math.ceil(width * scale)),
 		height: Math.max(1, Math.ceil(height * scale)),
@@ -94,14 +71,9 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
-	getPreviewSize,
+	previewSize,
 }: {
-	getPreviewSize:
-		| ((
-				width: number,
-				height: number,
-		  ) => {width: number; height: number} | null)
-		| null;
+	previewSize: PreviewSize | null;
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
@@ -131,9 +103,11 @@ export const videoIteratorManager = async ({
 
 	const sourceWidth = await videoTrack.getDisplayWidth();
 	const sourceHeight = await videoTrack.getDisplayHeight();
-	const previewSize = getPreviewSize?.(sourceWidth, sourceHeight);
-	const displayWidth = previewSize?.width ?? sourceWidth;
-	const displayHeight = previewSize?.height ?? sourceHeight;
+	const {width: displayWidth, height: displayHeight} = getPreviewCanvasSize(
+		sourceWidth,
+		sourceHeight,
+		previewSize,
+	);
 	if (canvas) {
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;

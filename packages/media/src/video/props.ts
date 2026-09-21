@@ -17,6 +17,11 @@ export type MediaErrorEvent = {
 	error: Error;
 };
 
+export type PreviewSize = {
+	width: number;
+	height: number;
+};
+
 export type VideoObjectFit =
 	| 'fill'
 	| 'contain'
@@ -74,8 +79,15 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
-	/** Size preview canvases to the displayed layer in device pixels. Does not affect rendering. */
-	_experimentalAutoPreviewSize: boolean;
+	/**
+	 * Maximum preview backing dimensions in pixels (positive integers).
+	 * Preserves source aspect ratio; never upscales. Set CSS width/height to
+	 * preserve layout independently of the canvas's reduced intrinsic size.
+	 * Sampled on mount; remount to change resolution.
+	 * Effects and onVideoFrame receive reduced frames. Ignored for rendering
+	 * and headless playback. The caller may derive this from useCurrentScale().
+	 */
+	previewSize: PreviewSize | null;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
 };

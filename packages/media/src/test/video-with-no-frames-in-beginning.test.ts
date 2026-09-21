@@ -46,7 +46,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		getOnVideoFrameCallback: () => null,
 		getEffects: () => [],
 		getEffectChainState: () => null,
-		getPreviewSize: null,
+		previewSize: null,
 	});
 
 	const nonceManager = makeNonceManager();

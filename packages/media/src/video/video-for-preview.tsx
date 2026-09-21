@@ -27,10 +27,10 @@ import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
-import {getPreviewCanvasSize} from '../video-iterator-manager';
 import type {
 	FallbackOffthreadVideoProps,
 	NativeVideoProps,
+	PreviewSize,
 	VideoObjectFit,
 } from './props';
 import {cacheVideoFrame, getCachedVideoFrame} from './video-frame-cache';
@@ -78,7 +78,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly objectFit: VideoObjectFit;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
-	readonly _experimentalAutoPreviewSize: boolean;
+	readonly previewSize: PreviewSize | null;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
@@ -113,7 +113,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	requestInit,
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
-	_experimentalAutoPreviewSize,
+	previewSize,
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
@@ -128,6 +128,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
+	// Keep inline objects and zoom updates from restarting the decoder.
+	const initialPreviewSize = useRef(headless ? null : previewSize);
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
@@ -303,37 +305,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					effectChainStateRef.current?.get(width, height)!,
 			});
 
-			if (_experimentalAutoPreviewSize && !headless) {
-				player.getPreviewSize = (width, height) => {
-					const canvas = canvasRef.current!;
-					// Establish the source's natural layout before measuring. Only reduce
-					// backing stores whose CSS layout is independent of intrinsic size.
-					canvas.width = width;
-					canvas.height = height;
-					const rect = canvas.getBoundingClientRect();
-					const size = getPreviewCanvasSize({
-						width,
-						height,
-						boxWidth: rect.width,
-						boxHeight: rect.height,
-						devicePixelRatio: window.devicePixelRatio,
-						objectFit: objectFitProp,
-					});
-					canvas.width = size.width;
-					canvas.height = size.height;
-					const resized = canvas.getBoundingClientRect();
-					if (
-						Math.abs(resized.width - rect.width) > 0.01 ||
-						Math.abs(resized.height - rect.height) > 0.01
-					) {
-						canvas.width = width;
-						canvas.height = height;
-						return null;
-					}
-
-					return size;
-				};
-			}
+			player.previewSize = initialPreviewSize.current;
 
 			mediaPlayerRef.current = player;
 			player
@@ -487,9 +459,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
-		_experimentalAutoPreviewSize,
-		headless,
-		objectFitProp,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
