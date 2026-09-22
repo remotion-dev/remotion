@@ -25,7 +25,6 @@ import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {simpleDiff} from './simple-diff';
-import {updateDefaultProps} from './update-default-props';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
 
 export {addSolid, type AddSolidOptions, type AddSolidResult} from './add-solid';
@@ -181,7 +180,6 @@ export const CodemodsInternals = {
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
 	simpleDiff,
-	updateDefaultProps,
 	updateInlineCaptionPatches,
 };
 

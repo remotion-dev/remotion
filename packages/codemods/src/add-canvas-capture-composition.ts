@@ -56,9 +56,19 @@ export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 		);
 	}
 
-	if (project.files[component.filePath] !== undefined) {
+	let existingComponentFile: string | null = null;
+	try {
+		existingComponentFile = findProjectFile({
+			project,
+			filePath: component.filePath,
+		});
+	} catch {
+		// The component is created only when no equivalent project path exists.
+	}
+
+	if (existingComponentFile !== null) {
 		throw new Error(
-			`Cannot create ${component.filePath} because it already exists`,
+			`Cannot create ${existingComponentFile} because it already exists`,
 		);
 	}
 

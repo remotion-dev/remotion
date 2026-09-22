@@ -39,7 +39,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### compositionFile
 
-The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+The project file containing the [`<Composition>`](/docs/composition) or [`<Still>`](/docs/still) registration. Static IDs, named import aliases, and namespace imports from `remotion` are supported.
 
 ### compositionId
 
@@ -48,6 +48,10 @@ The static ID of the composition to edit.
 ### defaultProps
 
 The complete replacement object of serializable prop values. This replaces the object rather than merging it.
+
+### enumPaths?
+
+Paths whose values should be written with an `as const` assertion to preserve literal types. For example, `[['mode']]` writes a string `mode` value as `'value' as const`. Use `'[]'` to match array indices and `'{}'` to match object keys, such as `[['items', '[]', 'mode']]`. By default, no assertions are added.
 
 ## Return value
 
@@ -68,6 +72,10 @@ An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path i
 ### updatedNode
 
 The composition registration's node reference.
+
+### logLine
+
+The one-based line of the composition registration in the input source.
 
 ## Errors
 

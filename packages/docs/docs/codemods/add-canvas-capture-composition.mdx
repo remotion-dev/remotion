@@ -1,0 +1,129 @@
+---
+image: /generated/articles-docs-codemods-add-canvas-capture-composition.png
+title: 'addCanvasCaptureComposition()'
+crumb: '@remotion/codemods'
+---
+
+# addCanvasCaptureComposition()<AvailableFrom v="4.0.528" />
+
+Creates an interactive Canvas Capture component and registers it in the project. Both files are returned in one result.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="add-canvas-capture-composition.ts"
+import {addCanvasCaptureComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = addCanvasCaptureComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'Capture',
+  component: {
+    filePath: 'src/Capture.tsx',
+    importName: 'Capture',
+    importPath: './Capture',
+  },
+  metadata: {width: 1920, height: 1080, fps: 30, durationInFrames: 90},
+  capture: {
+    videoFileName: 'capture.mp4',
+    videoWidth: 1920,
+    videoHeight: 1080,
+    keyframeFps: 30,
+    data: {
+      captureMetadata: {density: 1},
+      mouseMovements: [{timeInSeconds: 0, canvasX: 100, canvasY: 200, cursor: 'pointer'}],
+      pointerClicks: [],
+    },
+  },
+});
+
+console.log(result.changes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the registration component.
+
+### compositionId
+
+The new composition ID. Must contain only letters, numbers, or hyphens and be unused in the registration file.
+
+### component
+
+The component file and import to create.
+
+#### filePath
+
+The new project file path. An existing file cannot be overwritten.
+
+#### importName
+
+The named component export, beginning with an uppercase letter, `_`, or `$`.
+
+#### importPath
+
+The module specifier to use in the registration file, such as `./Capture`.
+
+### metadata
+
+The composition's `width`, `height`, `fps`, and `durationInFrames`. See [`addComposition()`](/docs/codemods/add-composition#metadata).
+
+### folder?
+
+An existing folder reference `{name, parentName}`. By default, inserts at the registration root.
+
+### capture
+
+The recorded video and cursor data. The video must already be available in the [public folder](/docs/importing-assets).
+
+#### videoFileName
+
+The path to the video within the public folder, passed to [`staticFile()`](/docs/staticfile).
+
+#### videoWidth
+
+The recorded video's width in pixels.
+
+#### videoHeight
+
+The recorded video's height in pixels.
+
+#### keyframeFps
+
+The frame rate used to convert recording timestamps into cursor keyframes.
+
+#### data
+
+Capture data containing `captureMetadata.density`, `mouseMovements`, and `pointerClicks`. Mouse movements have `timeInSeconds`, `canvasX`, `canvasY`, and `cursor`. Clicks have `timeInSeconds` and `type: 'pointer-down' | 'pointer-up'`. At least one movement must have non-null canvas coordinates.
+
+The generated component uses `@remotion/media` and `@remotion/mac-cursors`. These packages must be installed in the project.
+
+## Return value
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-canvas-capture-composition.ts)
+- [`@remotion/codemods`](/docs/codemods)

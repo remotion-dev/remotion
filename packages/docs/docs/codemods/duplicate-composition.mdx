@@ -30,7 +30,7 @@ const result = duplicateComposition({
 console.log(result);
 ```
 
-Both registrations reference the same component implementation. Default props and other registration props are copied. The original registration kind is preserved: a [`<Still>`](/docs/still) remains a [`<Still>`](/docs/still).
+Both registrations reference the same component implementation. Default props and other registration props are copied. By default, the original registration kind is preserved: a [`<Still>`](/docs/still) remains a [`<Still>`](/docs/still).
 
 [`<Still>`](/docs/still) registrations only support width and height overrides; supplying FPS or duration throws an error.
 
@@ -42,7 +42,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### compositionFile
 
-The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+The project file containing the [`<Composition>`](/docs/composition) or [`<Still>`](/docs/still) registration. Static IDs, named import aliases, and namespace imports from `remotion` are supported.
 
 ### compositionId
 
@@ -55,6 +55,10 @@ The new ID, containing only letters, numbers, or hyphens. It must be unused in t
 ### metadata?
 
 Overrides for `width`, `height`, `fps`, and `durationInFrames`. Omitted values are copied from the original.
+
+### tag?
+
+`'Composition'` or `'Still'`. Defaults to the original registration kind. Choosing `'Still'` removes `fps` and `durationInFrames` from the copy. When converting a still to a composition, provide these values through `metadata`.
 
 ## Return value
 

@@ -49,6 +49,14 @@ The JSX props to inspect. Use `children` for static text or a one-level path suc
 
 An array of prop-name arrays indexed by effect position. By default, inline effect calls and their explicit configuration keys are discovered from source.
 
+### assetKeys?
+
+Prop names for which [`staticFile()`](/docs/staticfile) calls and `new Date()` expressions should be read as serialized asset and date values. Defaults to `[]`; these expressions are otherwise treated as computed.
+
+### componentIdentity?
+
+The expected component identity, such as `'dev.remotion.remotion.Sequence'`. Remotion imports are resolved through named aliases and namespace imports. Throws if the node now refers to a different component. Defaults to `null`, which skips this check.
+
 ### videoConfig?
 
 The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these to interpret supported expressions using [`useVideoConfig()`](/docs/use-video-config). By default, those runtime values are unknown.
@@ -56,6 +64,10 @@ The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these
 ## Return value
 
 Returns an object with the following properties.
+
+### canUpdate
+
+Always `true` when inspection succeeds. Check each prop's `status` and each effect's `canUpdate` before editing; this value does not mean every prop is static.
 
 ### props
 
@@ -67,7 +79,7 @@ An array of effect descriptions. Editable entries include `canUpdate: true`, `ef
 
 ## Errors
 
-Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+Throws when the target cannot be resolved, its component identity does not match, or the source cannot be parsed. Computed prop values are reported in `props` rather than causing an error.
 
 ## Compatibility
 

@@ -1,19 +1,21 @@
-import type {EnumPath} from '@remotion/studio-shared';
+import type {JSXElement} from '@babel/types';
+import {stringifyDefaultProps, type EnumPath} from '@remotion/studio-shared';
 import type {CodemodProject} from './codemod-project';
 import type {CodemodValue} from './codemod-value';
 import {
 	type CompositionTarget,
 	requireComposition,
 } from './composition-editing';
+import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
+import {formatSerializedValue} from './format-serialized-value';
+import {getJsxNodeProps} from './get-jsx-node-props';
 import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
 	getUpdatedNodeReference,
 } from './node-references';
-import {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from './update-default-props';
+import {recastLocToOffset} from './recast-loc-to-offset';
+import {parseAst} from './sequence-props/parse-ast';
 import {updateJsxNodeProps} from './update-jsx-node-props';
 
 export type SetCompositionDefaultPropsOptions<Project extends CodemodProject> =
@@ -31,25 +33,82 @@ export const setCompositionDefaultProps = <Project extends CodemodProject>({
 	enumPaths,
 }: SetCompositionDefaultPropsOptions<Project>) => {
 	const node = requireComposition({project, compositionFile, compositionId});
-	if (enumPaths === undefined) {
-		return updateJsxNodeProps({project, node, props: {defaultProps}});
+	const status = getJsxNodeProps({
+		project,
+		node,
+		keys: ['defaultProps'],
+		assetKeys: ['defaultProps'],
+	}).props.defaultProps;
+	if (status.status === 'computed') {
+		throw new Error('Cannot update computed prop "defaultProps"');
 	}
 
-	const input = project.files[node.filePath];
-	const logLine = getCompositionDefaultPropsLine({input, compositionId});
-	const {output} = updateDefaultProps({
-		input,
-		compositionId,
-		newDefaultProps: defaultProps,
-		enumPaths,
+	let input = project.files[node.filePath];
+	let element = findJsxElementPathForDeletion(parseAst(input), node.nodePath)
+		?.node as JSXElement | undefined;
+	const logLine = element?.openingElement.loc?.start.line ?? 1;
+	let attribute = element?.openingElement.attributes.find(
+		(attr) =>
+			attr.type === 'JSXAttribute' &&
+			attr.name.type === 'JSXIdentifier' &&
+			attr.name.name === 'defaultProps',
+	);
+	if (!attribute || (attribute.type === 'JSXAttribute' && !attribute.value)) {
+		const inserted = updateJsxNodeProps({
+			project,
+			node,
+			props: {defaultProps: {}},
+		});
+		input = inserted.project.files[node.filePath];
+		element = findJsxElementPathForDeletion(
+			parseAst(input),
+			inserted.updatedNode.nodePath,
+		)?.node as JSXElement | undefined;
+		attribute = element?.openingElement.attributes.find(
+			(attr) =>
+				attr.type === 'JSXAttribute' &&
+				attr.name.type === 'JSXIdentifier' &&
+				attr.name.name === 'defaultProps',
+		);
+	}
+
+	if (
+		attribute?.type !== 'JSXAttribute' ||
+		attribute.value?.type !== 'JSXExpressionContainer' ||
+		!attribute.value.loc
+	) {
+		throw new Error('Could not locate the defaultProps expression');
+	}
+
+	const serialized = stringifyDefaultProps({
+		props: defaultProps,
+		enumPaths: enumPaths ?? [],
 	});
+	if (serialized === undefined) {
+		throw new Error('Could not serialize the updated defaultProps value');
+	}
+
+	const start = recastLocToOffset(input, attribute.value.loc.start);
+	const end = recastLocToOffset(input, attribute.value.loc.end);
+	const lineStart = input.lastIndexOf('\n', start) + 1;
+	const formatted = formatSerializedValue({
+		input,
+		linePrefix: input.slice(lineStart, start + 1),
+		previousValue: input.slice(start + 1, end - 1).trim(),
+		serialized,
+	});
+	const output =
+		input.slice(0, start) + '{' + formatted + '}' + input.slice(end);
 	const result = getNodeEditResult({
 		project,
 		edits: [
 			{
 				filePath: node.filePath,
 				output,
-				nodePathRemappings: getUnchangedStructureRemappings({input, output}),
+				nodePathRemappings: getUnchangedStructureRemappings({
+					input: project.files[node.filePath],
+					output,
+				}),
 			},
 		],
 	});
