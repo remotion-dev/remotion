@@ -1,7 +1,11 @@
 import type {AddFolderOptions} from './add-folder';
 import type {CodemodProject} from './codemod-project';
-import {editCompositionProject} from './composition-editing';
+import {getCodemodResult} from './codemod-project';
 import {requireTreeItem, getTreeEntries} from './folder-editing';
+import {getUnwrapFolderSourceEdit} from './folder-source-edits';
+import {findProjectFile} from './internals';
+import {parseAst} from './sequence-props/parse-ast';
+import {applySourceEdits} from './source-edits';
 
 export type UnwrapFolderOptions<Project extends CodemodProject> =
 	AddFolderOptions<Project>;
@@ -11,17 +15,22 @@ export const unwrapFolder = <Project extends CodemodProject>({
 	compositionFile,
 	folder,
 }: UnwrapFolderOptions<Project>) => {
-	requireTreeItem(getTreeEntries({project, compositionFile}), {
+	const filePath = findProjectFile({project, filePath: compositionFile});
+	const input = project.files[filePath];
+	const located = requireTreeItem(getTreeEntries({ast: parseAst(input)}), {
 		type: 'folder',
 		...folder,
 	});
-	return editCompositionProject({
+	const nextContents = applySourceEdits({
+		input,
+		edits: [getUnwrapFolderSourceEdit({input, located})],
+	});
+	parseAst(nextContents);
+	return getCodemodResult({
 		project,
-		compositionFile,
-		codemod: {
-			type: 'delete-folder',
-			folderName: folder.name,
-			parentName: folder.parentName,
+		nextProject: {
+			...project,
+			files: {...project.files, [filePath]: nextContents},
 		},
 	});
 };

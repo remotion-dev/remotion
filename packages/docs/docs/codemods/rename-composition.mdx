@@ -39,7 +39,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### compositionFile
 
-The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
 
 ### compositionId
 
@@ -47,7 +47,7 @@ The static ID of the composition to edit.
 
 ### newId
 
-The new ID, containing only letters, numbers, or hyphens. It must be unused in this file.
+The new ID, containing only ASCII letters, numbers, CJK characters, or hyphens. It must be unused in this file.
 
 ## Return value
 

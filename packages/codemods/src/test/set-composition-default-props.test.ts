@@ -1,63 +1,50 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
-import {parseAst} from '../codemods/parse-ast';
-
-const {getCompositionDefaultPropsLine, updateDefaultProps} = CodemodsInternals;
+import {setCompositionDefaultProps} from '../index';
 
 test('updates default props without changing surrounding source', () => {
-	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'root-before.tsx'),
+	const input = readFileSync(
+		path.join(__dirname, 'fixtures', 'root-before.tsx.txt'),
 		'utf-8',
 	);
 	const expected = readFileSync(
-		path.join(__dirname, 'snapshots', 'root-after.tsx'),
+		path.join(__dirname, 'fixtures', 'root-after.tsx.txt'),
 		'utf-8',
 	);
 
-	const {output} = updateDefaultProps({
-		input: file,
+	const result = setCompositionDefaultProps({
+		project: {rootDir: '/', files: {'Root.tsx': input}},
+		compositionFile: 'Root.tsx',
 		compositionId: 'Comp3',
-		newDefaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
+		defaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
 		enumPaths: [],
 	});
 
-	expect(output).toBe(expected);
-});
-
-test('getCompositionDefaultPropsLine returns the opening tag line (ast-types visitor must traverse)', () => {
-	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'root-before.tsx'),
-		'utf-8',
-	);
-
-	expect(
-		getCompositionDefaultPropsLine({
-			input: file,
-			compositionId: 'Comp3',
-		}),
-	).toBe(27);
+	expect(result.project.files['Root.tsx']).toBe(expected);
+	expect(result.logLine).toBe(27);
 });
 
 test('replaces multiline default props with a compact value', () => {
-	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'problematic.tsx'),
-		'utf-8',
-	);
-	const expected = readFileSync(
-		path.join(__dirname, 'snapshots', 'fixed.tsx'),
-		'utf-8',
-	);
+	const input =
+		"import {Composition} from 'remotion';\n" +
+		readFileSync(
+			path.join(__dirname, 'fixtures', 'problematic.tsx.txt'),
+			'utf-8',
+		);
+	const expected =
+		"import {Composition} from 'remotion';\n" +
+		readFileSync(path.join(__dirname, 'fixtures', 'fixed.tsx.txt'), 'utf-8');
 
-	const {output} = updateDefaultProps({
-		input: file,
+	const result = setCompositionDefaultProps({
+		project: {rootDir: '/', files: {'Root.tsx': input}},
+		compositionFile: 'Root.tsx',
 		compositionId: 'schema-test',
-		newDefaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
+		defaultProps: {abc: 'def', newDate: 'remotion-date:2022-01-02'},
 		enumPaths: [],
 	});
 
-	expect(output).toBe(expected);
+	expect(result.project.files['Root.tsx']).toBe(expected);
 });
 
 test('formats multiline default props without Prettier', () => {
@@ -72,10 +59,11 @@ export const Root=()=>(
 	/>
 )
 `;
-	const {output} = updateDefaultProps({
-		input,
+	const result = setCompositionDefaultProps({
+		project: {rootDir: '/', files: {'Root.tsx': input}},
+		compositionFile: 'Root.tsx',
 		compositionId: 'Comp',
-		newDefaultProps: {
+		defaultProps: {
 			title: 'Hello',
 			publishedAt: 'remotion-date:2026-07-29T00:00:00.000Z',
 			audio: 'remotion-file:my%20folder/audio%20%231.wav',
@@ -84,7 +72,8 @@ export const Root=()=>(
 		enumPaths: [['mode']],
 	});
 
-	expect(output).toBe(`import {Composition} from 'remotion'
+	expect(result.project.files['Root.tsx'])
+		.toBe(`import {Composition} from 'remotion'
 
 const untouched    = {keep:"this spacing"}
 
@@ -117,14 +106,15 @@ test('preserves CRLF, spaces, double quotes, and bracket spacing', () => {
 		'',
 	].join('\r\n');
 
-	const {output} = updateDefaultProps({
-		input,
+	const result = setCompositionDefaultProps({
+		project: {rootDir: '/', files: {'Root.tsx': input}},
+		compositionFile: 'Root.tsx',
 		compositionId: 'Comp',
-		newDefaultProps: {title: 'Hello'},
+		defaultProps: {title: 'Hello'},
 		enumPaths: [],
 	});
 
-	expect(output).toBe(
+	expect(result.project.files['Root.tsx']).toBe(
 		input.replace(
 			'defaultProps={{ old: "value" }}',
 			'defaultProps={{ title: "Hello" }}',
@@ -133,15 +123,17 @@ test('preserves CRLF, spaces, double quotes, and bracket spacing', () => {
 });
 
 test('formats nested arrays and keeps non-identifier keys quoted', () => {
-	const input = `export const Root = () => (
+	const input = `import {Composition} from "remotion";
+export const Root = () => (
   <Composition id="Comp" defaultProps={{ old: true }} />
 )
 `;
 
-	const {output} = updateDefaultProps({
-		input,
+	const result = setCompositionDefaultProps({
+		project: {rootDir: '/', files: {'Root.tsx': input}},
+		compositionFile: 'Root.tsx',
 		compositionId: 'Comp',
-		newDefaultProps: {
+		defaultProps: {
 			items: [
 				{mode: 'fast', label: 'hello'},
 				{mode: 'slow', label: 'world'},
@@ -151,7 +143,9 @@ test('formats nested arrays and keeps non-identifier keys quoted', () => {
 		enumPaths: [['items', '[]', 'mode']],
 	});
 
-	expect(output).toBe(`export const Root = () => (
+	expect(result.project.files['Root.tsx'])
+		.toBe(`import {Composition} from "remotion";
+export const Root = () => (
   <Composition id="Comp" defaultProps={{
     items: [{
       mode: "fast" as const,
@@ -164,5 +158,4 @@ test('formats nested arrays and keeps non-identifier keys quoted', () => {
   }} />
 )
 `);
-	expect(() => parseAst(output)).not.toThrow();
 });

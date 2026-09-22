@@ -19,6 +19,7 @@ export const updateEffectKeyframes = async <Project extends CodemodProject>({
 	updates,
 	schema,
 	videoConfig,
+	prettierConfigOverride,
 }: UpdateEffectKeyframesOptions<Project>) => {
 	if (updates.length === 0) {
 		throw new Error('Expected at least one keyframe update');
@@ -29,13 +30,14 @@ export const updateEffectKeyframes = async <Project extends CodemodProject>({
 	}
 
 	const {filePath, input} = getEffectSource({project, node: effect});
-	const {output} = await updateEffectKeyframesInSource({
+	const {output, ...details} = await updateEffectKeyframesInSource({
 		input,
 		sequenceNodePath: effect.nodePath,
 		effectIndex: effect.effectIndex,
 		updates,
 		schema,
 		videoConfigValues: videoConfig ?? null,
+		prettierConfigOverride,
 	});
 	const result = getNodeEditResult({
 		project,
@@ -49,6 +51,7 @@ export const updateEffectKeyframes = async <Project extends CodemodProject>({
 	});
 	return {
 		...result,
+		...details,
 		updatedEffect: {
 			...getUpdatedNodeReference({...result, node: effect}),
 			effectIndex: effect.effectIndex,

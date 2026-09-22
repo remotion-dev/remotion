@@ -16,6 +16,7 @@ export type DuplicateJsxNodesOptions<Project extends CodemodProject> = {
 export type DuplicateJsxNodesResult<Project extends CodemodProject> =
 	CodemodNodeResult<Project> & {
 		insertedNodes: JsxNodeReference[];
+		editDetails: {filePath: string; nodeLabels: string[]; logLines: number[]}[];
 	};
 
 export const duplicateJsxNodes = async <Project extends CodemodProject>({
@@ -37,6 +38,11 @@ export const duplicateJsxNodes = async <Project extends CodemodProject>({
 	const result = getNodeEditResult({project, edits});
 	return {
 		...result,
+		editDetails: edits.map(({filePath, nodeLabels, logLines}) => ({
+			filePath,
+			nodeLabels,
+			logLines,
+		})),
 		insertedNodes: getInsertedNodeReferences(result.nodePathRemappings),
 	};
 };

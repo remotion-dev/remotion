@@ -145,6 +145,12 @@ const getKeyframeFunctionSourceEdits = ({
 }) => {
 	const reprintBlockBodies = new Set<BlockStatement>();
 	const fnPath = findEnclosingFunctionPath(jsxPath);
+	if (needsFrameHook && !fnPath) {
+		throw new Error(
+			'Cannot add keyframes outside a component function because useCurrentFrame() needs a function scope',
+		);
+	}
+
 	if (fnPath) {
 		const functionNode = fnPath.value as FunctionNode;
 		const snapshot = functionSnapshots.find(

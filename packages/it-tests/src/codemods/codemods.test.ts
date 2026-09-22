@@ -1,9 +1,15 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'fs';
 import {resolve} from 'path';
-import {StudioServerInternals} from '@remotion/studio-server';
+import {
+	deleteComposition,
+	duplicateComposition,
+	getJsxNodeProps,
+	getJsxNodes,
+	renameComposition,
+} from '@remotion/codemods';
 
-const rootFile = resolve(
+const compositionFile = resolve(
 	__dirname,
 	'..',
 	'..',
@@ -12,147 +18,96 @@ const rootFile = resolve(
 	'src',
 	'CodemodTestbed.tsx',
 );
+const contents = readFileSync(compositionFile, 'utf-8');
+const original = {rootDir: '/', files: {[compositionFile]: contents}};
 
-const getCompositionCount = (comp: string) => {
-	const lines = comp.split('\n');
-	const compositions = lines.filter(
-		(l) => l.includes('<Composition') || l.includes('<Still'),
-	);
-	return compositions.length;
-};
-
-const contents = readFileSync(rootFile, 'utf-8');
-const compCount = getCompositionCount(contents);
-
-test('Should be able to delete composition', () => {
-	expect(contents).toContain('"one"');
-
-	const {changesMade, newContents} = StudioServerInternals.parseAndApplyCodemod(
-		{
-			input: contents,
-			codeMod: {
-				type: 'delete-composition',
-				idToDelete: 'one',
-			},
-		},
-	);
-	expect(changesMade.length).toBe(1);
-	expect(getCompositionCount(newContents)).toBe(compCount - 1);
-	expect(newContents).not.toContain('"one"');
-});
-
-test('Should be able to rename composition', () => {
-	const {changesMade, newContents} = StudioServerInternals.parseAndApplyCodemod(
-		{
-			input: contents,
-			codeMod: {
-				type: 'rename-composition',
-				idToRename: 'one',
-				newId: 'abc',
-			},
-		},
-	);
-	expect(changesMade.length).toBe(1);
-	expect(getCompositionCount(newContents)).toBe(compCount);
-	expect(newContents).not.toContain('"one"');
-	expect(newContents).toContain('"abc"');
-});
-
-test('Should be able to duplicate composition', () => {
-	const {newContents} = StudioServerInternals.parseAndApplyCodemod({
-		input: contents,
-		codeMod: {
-			type: 'duplicate-composition',
-			idToDuplicate: 'one',
-			newDurationInFrames: 200,
-			newFps: 24,
-			newHeight: 999,
-			newWidth: 998,
-			newId: 'def',
-			tag: 'Composition',
-		},
+test('edits composition registrations through the packaged public API', () => {
+	let {project} = renameComposition({
+		project: original,
+		compositionFile,
+		compositionId: 'one',
+		newId: 'Renamed',
 	});
+	expect(project.files[compositionFile]).toBe(
+		contents.replace('id="one"', 'id="Renamed"'),
+	);
+	project = duplicateComposition({
+		project,
+		compositionFile,
+		compositionId: 'Renamed',
+		newId: 'Copy',
+		metadata: {width: 998, height: 999, fps: 24, durationInFrames: 200},
+	}).project;
+	project = duplicateComposition({
+		project,
+		compositionFile,
+		compositionId: 'Copy',
+		newId: 'Poster',
+		tag: 'Still',
+		metadata: {width: 500, height: 400},
+	}).project;
 
-	expect(getCompositionCount(newContents)).toBe(compCount + 1);
-	expect(newContents).toContain('"def"');
-	expect(newContents).toContain('width={998}');
-	expect(newContents).toContain('height={999}');
-	expect(newContents).toContain('fps={24}');
-	expect(newContents).toContain('durationInFrames={200}');
-});
-
-test('Should be able to duplicate composition into a still', () => {
-	const {newContents} = StudioServerInternals.parseAndApplyCodemod({
-		input: contents,
-		codeMod: {
-			type: 'duplicate-composition',
-			idToDuplicate: 'one',
-			newDurationInFrames: 200,
-			newFps: 24,
-			newHeight: 999,
-			newWidth: 998,
-			newId: 'def',
-			tag: 'Still',
-		},
+	const registrations = getJsxNodes({project, filePath: compositionFile})
+		.filter(
+			(node) => node.tagName === 'Composition' || node.tagName === 'Still',
+		)
+		.map((node) => ({
+			tagName: node.tagName,
+			props: getJsxNodeProps({
+				project,
+				node,
+				keys: ['id', 'width', 'height', 'fps', 'durationInFrames'],
+			}).props,
+		}));
+	expect(registrations).toContainEqual({
+		tagName: 'Composition',
+		props: expect.objectContaining({
+			id: expect.objectContaining({codeValue: 'Copy'}),
+			width: expect.objectContaining({codeValue: 998}),
+			height: expect.objectContaining({codeValue: 999}),
+			fps: expect.objectContaining({codeValue: 24}),
+			durationInFrames: expect.objectContaining({codeValue: 200}),
+		}),
 	});
-
-	expect(getCompositionCount(newContents)).toBe(compCount + 1);
-	expect(newContents).toContain('"def"');
-	expect(newContents).toContain('width={998}');
-	expect(newContents).toContain('height={999}');
-	expect(newContents).not.toContain('fps={24}');
-	expect(newContents).not.toContain('durationInFrames={200}');
+	expect(registrations).toContainEqual({
+		tagName: 'Still',
+		props: expect.objectContaining({
+			id: expect.objectContaining({codeValue: 'Poster'}),
+			width: expect.objectContaining({codeValue: 500}),
+			height: expect.objectContaining({codeValue: 400}),
+			fps: expect.objectContaining({status: 'static', codeValue: undefined}),
+			durationInFrames: expect.objectContaining({
+				status: 'static',
+				codeValue: undefined,
+			}),
+		}),
+	});
+	project = deleteComposition({
+		project,
+		compositionFile,
+		compositionId: 'Renamed',
+	}).project;
+	expect(project.files[compositionFile]).not.toContain('id="Renamed"');
+	expect(project.files[compositionFile]).toContain('id="Copy"');
+	expect(project.files[compositionFile]).toContain('id="Poster"');
+	expect(original.files[compositionFile]).toBe(contents);
 });
 
-test('Should be able to recognize non-arrow function', () => {
-	const {changesMade, newContents} = StudioServerInternals.parseAndApplyCodemod(
-		{
-			input: contents,
-			codeMod: {
-				type: 'rename-composition',
-				idToRename: 'four',
-				newId: 'ghi',
-			},
-		},
-	);
-	expect(changesMade.length).toBe(1);
-	expect(getCompositionCount(newContents)).toBe(compCount);
-	expect(newContents).not.toContain('"four"');
-	expect(newContents).toContain('"ghi"');
-});
-
-// test.todo('should work if there is no fragment');
-
-test('in non-return statement', () => {
-	const {changesMade, newContents} = StudioServerInternals.parseAndApplyCodemod(
-		{
-			input: contents,
-			codeMod: {
-				type: 'rename-composition',
-				idToRename: 'six',
-				newId: 'jkl',
-			},
-		},
-	);
-	expect(changesMade.length).toBe(1);
-	expect(getCompositionCount(newContents)).toBe(compCount);
-	expect(newContents).not.toContain('"six"');
-	expect(newContents).toContain('"jkl"');
-});
-
-test("curly braces id={'seven'}", () => {
-	const {changesMade, newContents} = StudioServerInternals.parseAndApplyCodemod(
-		{
-			input: contents,
-			codeMod: {
-				type: 'rename-composition',
-				idToRename: 'seven',
-				newId: 'mno',
-			},
-		},
-	);
-	expect(changesMade.length).toBe(1);
-	expect(getCompositionCount(newContents)).toBe(compCount);
-	expect(newContents).not.toContain('"seven"');
-	expect(newContents).toBe(contents.replace("id={'seven'}", "id={'mno'}"));
+test('renames registrations in functions, variables, and expression attributes', () => {
+	let project = original;
+	let expected = contents;
+	for (const [compositionId, newId, before, after] of [
+		['four', 'Function', 'id="four"', 'id="Function"'],
+		['six', 'Variable', 'id="six"', 'id="Variable"'],
+		['seven', 'Expression', "id={'seven'}", "id={'Expression'}"],
+	]) {
+		project = renameComposition({
+			project,
+			compositionFile,
+			compositionId,
+			newId,
+		}).project;
+		expected = expected.replace(before, after);
+		expect(project.files[compositionFile]).toBe(expected);
+	}
 });

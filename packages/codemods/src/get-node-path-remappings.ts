@@ -3,7 +3,7 @@ import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {getNodePathForRecastPath} from './sequence-props';
-import {parseAst} from './sequence-props/parse-ast';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 
 export type CapturedJsxNodePath = {
 	node: JSXOpeningElement;
@@ -47,7 +47,7 @@ export const getNodePathRemappings = ({
 		},
 	});
 
-	const finalAst = parseAst(output);
+	const {ast: finalAst} = getReadOnlySourceSnapshot(output);
 	const finalNodePaths: SequenceNodePath[] = [];
 	recast.visit(finalAst, {
 		visitJSXOpeningElement(path) {

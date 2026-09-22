@@ -3,5 +3,5 @@ export type CodemodValue =
 	| number
 	| boolean
 	| null
-	| CodemodValue[]
+	| readonly CodemodValue[]
 	| {[key: string]: CodemodValue};

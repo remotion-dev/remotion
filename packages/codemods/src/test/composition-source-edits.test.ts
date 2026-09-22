@@ -1,6 +1,13 @@
 import {expect, test} from 'bun:test';
-import {parseAndApplyCodemod} from '../parse-and-apply-codemod';
-import {parseAst} from '../sequence-props/parse-ast';
+import {
+	addComposition,
+	deleteComposition,
+	duplicateComposition,
+	renameComposition,
+	updateCompositionMetadata,
+} from '../index';
+
+const compositionFile = 'Root.tsx';
 
 for (const [indent, eol] of [
 	['\t', '\n'],
@@ -28,42 +35,37 @@ for (const [indent, eol] of [
 			'</>;',
 			'',
 		].join(eol);
-		const renamed = parseAndApplyCodemod({
-			input,
-			codeMod: {
-				type: 'rename-composition',
-				idToRename: 'Original',
-				newId: 'Renamed',
-			},
-		}).newContents;
-		expect(renamed).toBe(input.replace('id="Original"', 'id="Renamed"'));
-		const duplicated = parseAndApplyCodemod({
-			input: renamed,
-			codeMod: {
-				type: 'duplicate-composition',
-				idToDuplicate: 'Renamed',
-				newId: 'Copy',
-				tag: 'Composition',
-				newFps: null,
-				newHeight: null,
-				newWidth: null,
-				newDurationInFrames: null,
-			},
-		}).newContents;
-		expect(duplicated).toBe(
-			renamed.replace(
+		const renamed = renameComposition({
+			project: {rootDir: '/', files: {[compositionFile]: input}},
+			compositionFile,
+			compositionId: 'Original',
+			newId: 'Renamed',
+		});
+		expect(renamed.project.files[compositionFile]).toBe(
+			input.replace('id="Original"', 'id="Renamed"'),
+		);
+		const duplicated = duplicateComposition({
+			project: renamed.project,
+			compositionFile,
+			compositionId: 'Renamed',
+			newId: 'Copy',
+		});
+		expect(duplicated.project.files[compositionFile]).toBe(
+			renamed.project.files[compositionFile].replace(
 				composition.replace('Original', 'Renamed'),
 				composition.replace('Original', 'Renamed') +
 					eol +
 					composition.replace('Original', 'Copy'),
 			),
 		);
-		const deleted = parseAndApplyCodemod({
-			input: duplicated,
-			codeMod: {type: 'delete-composition', idToDelete: 'Copy'},
-		}).newContents;
-		expect(deleted).toBe(renamed);
-		parseAst(duplicated);
+		const deleted = deleteComposition({
+			project: duplicated.project,
+			compositionFile,
+			compositionId: 'Copy',
+		});
+		expect(deleted.project.files[compositionFile]).toBe(
+			renamed.project.files[compositionFile],
+		);
 	});
 }
 
@@ -87,29 +89,21 @@ test('new compositions append to fragments and folders and wrap standalone roots
 		],
 	] as const) {
 		const input = `import {Composition, Folder} from 'remotion';\nexport const Root = () => (${root});\n`;
-		const output = parseAndApplyCodemod({
-			input,
-			codeMod: {
-				type: 'new-composition',
-				componentName: 'Fresh',
-				componentImportPath: './Fresh',
-				newId: 'Fresh',
-				newWidth: 1920,
-				newHeight: 1080,
-				newDurationInFrames: 90,
-				newFps: 30,
-				folderName,
-				parentName: null,
-				canvasCapture: null,
-			},
-		}).newContents;
+		const result = addComposition({
+			project: {rootDir: '/', files: {[compositionFile]: input}},
+			compositionFile,
+			compositionId: 'Fresh',
+			component: {importName: 'Fresh', importPath: './Fresh'},
+			metadata: {width: 1920, height: 1080, durationInFrames: 90, fps: 30},
+			folder:
+				folderName === null ? undefined : {name: folderName, parentName: null},
+		});
 		const inserted =
 			'<Composition\n    id="Fresh"\n    component={Fresh}\n    durationInFrames={90}\n    fps={30}\n    width={1920}\n    height={1080}\n  />';
-		expect(output).toBe(
+		expect(result.project.files[compositionFile]).toBe(
 			"import {Fresh} from './Fresh';\n" +
 				input.replace(root, expected.replace('INSERT', inserted)),
 		);
-		parseAst(output);
 	}
 });
 
@@ -122,19 +116,15 @@ export const Root = () => (
   </Composition>
 );
 `;
-	const output = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'duplicate-composition',
-			idToDuplicate: 'Original',
-			newId: 'Poster',
-			tag: 'Still',
-			newFps: null,
-			newDurationInFrames: null,
-			newWidth: 500,
-			newHeight: 400,
-		},
-	}).newContents;
+	const result = duplicateComposition({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		compositionId: 'Original',
+		newId: 'Poster',
+		tag: 'Still',
+		metadata: {width: 500, height: 400},
+	});
+	const output = result.project.files[compositionFile];
 	expect(output).toContain("import {Composition, Still} from 'remotion';");
 	expect(output).toContain(
 		'    <Still id="Poster" width={500} height={400}>\n      {/* keep the child */}\n      <Child />\n    </Still>',
@@ -142,10 +132,10 @@ export const Root = () => (
 	expect(output).toContain(
 		'    <Composition id="Original" fps={30} durationInFrames={90}>',
 	);
-	parseAst(output);
 });
 
 test('rename preserves expression quotes and delete replaces standalone and conditional JSX with null', () => {
+	const imports = "import {Composition, Still} from 'remotion';\n";
 	for (const original of [
 		'<Composition id={"Original"} />',
 		"<Still id={'Original'} />",
@@ -155,71 +145,56 @@ test('rename preserves expression quotes and delete replaces standalone and cond
 			`(${original})`,
 			`enabled ? ${original} : null`,
 		]) {
-			const input = `export const Root = () => ${expression};\n`;
-			const renamed = parseAndApplyCodemod({
-				input,
-				codeMod: {
-					type: 'rename-composition',
-					idToRename: 'Original',
-					newId: 'Renamed',
-				},
-			}).newContents;
-			expect(renamed).toBe(input.replace('Original', 'Renamed'));
-			const deleted = parseAndApplyCodemod({
-				input: renamed,
-				codeMod: {type: 'delete-composition', idToDelete: 'Renamed'},
-			}).newContents;
-			expect(deleted).toBe(
-				expression.startsWith('enabled')
-					? 'export const Root = () => enabled ? null : null;\n'
-					: 'export const Root = () => null;\n',
+			const input = `${imports}export const Root = () => ${expression};\n`;
+			const renamed = renameComposition({
+				project: {rootDir: '/', files: {[compositionFile]: input}},
+				compositionFile,
+				compositionId: 'Original',
+				newId: 'Renamed',
+			});
+			expect(renamed.project.files[compositionFile]).toBe(
+				input.replace('Original', 'Renamed'),
+			);
+			const deleted = deleteComposition({
+				project: renamed.project,
+				compositionFile,
+				compositionId: 'Renamed',
+			});
+			expect(deleted.project.files[compositionFile]).toBe(
+				imports +
+					(expression.startsWith('enabled')
+						? 'export const Root = () => enabled ? null : null;\n'
+						: 'export const Root = () => null;\n'),
 			);
 		}
 	}
 });
 
-test('updates existing composition metadata without changing surrounding source', () => {
+test('updates computed and shorthand metadata while adding missing values without changing surrounding source', () => {
 	const input = [
 		'import { Composition } from "remotion"',
 		'',
 		'const preserve  =  { value : "keep" }',
 		'export const Root = () => (',
-		'    <Composition',
-		'        id={"Original"}',
-		'        durationInFrames = { DURATION }',
-		'        fps={FPS}',
-		'        width',
-		'        height="720"',
-		'    />',
+		'    <Composition id={"Original"} width = { WIDTH } height>',
+		'        {/* keep child */}',
+		'        <Child />',
+		'    </Composition>',
 		')',
 		'',
 	].join('\r\n');
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'update-composition-metadata',
-			idToUpdate: 'Original',
-			newDurationInFrames: 240,
-			newFps: 60,
-			newWidth: 1920,
-			newHeight: 1080,
-		},
+	const result = updateCompositionMetadata({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		compositionId: 'Original',
+		metadata: {durationInFrames: 240, fps: 60, width: 1920, height: 1080},
 	});
-
-	expect(changesMade).toEqual([
-		{description: 'Replaced durationInFrames'},
-		{description: 'Replaced FPS'},
-		{description: 'Replaced width'},
-		{description: 'Replaced height'},
-	]);
-	expect(newContents).toBe(
-		input
-			.replace('{ DURATION }', '{240}')
-			.replace('{FPS}', '{60}')
-			.replace('        width\r\n', '        width={1920}\r\n')
-			.replace('height="720"', 'height={1080}'),
+	expect(result.project.files[compositionFile]).toBe(
+		input.replace(
+			'{ WIDTH } height>',
+			'{1920} height={1080} fps={60} durationInFrames={240}>',
+		),
 	);
-	expect(() => parseAst(newContents)).not.toThrow();
 });
 
 test('adds missing composition metadata using multiline source style', () => {
@@ -229,6 +204,7 @@ test('adds missing composition metadata using multiline source style', () => {
 		['    ', '\r\n'],
 	]) {
 		const input = [
+			"import {Composition} from 'remotion';",
 			'export const Root = () => (',
 			`${indent}<Composition`,
 			`${indent}${indent}id="Original"`,
@@ -236,25 +212,13 @@ test('adds missing composition metadata using multiline source style', () => {
 			')',
 			'',
 		].join(eol);
-		const {changesMade, newContents} = parseAndApplyCodemod({
-			input,
-			codeMod: {
-				type: 'update-composition-metadata',
-				idToUpdate: 'Original',
-				newDurationInFrames: 90,
-				newFps: 30,
-				newWidth: 1920,
-				newHeight: 1080,
-			},
+		const result = updateCompositionMetadata({
+			project: {rootDir: '/', files: {[compositionFile]: input}},
+			compositionFile,
+			compositionId: 'Original',
+			metadata: {durationInFrames: 90, fps: 30, width: 1920, height: 1080},
 		});
-
-		expect(changesMade).toEqual([
-			{description: 'Added FPS'},
-			{description: 'Added durationInFrames'},
-			{description: 'Added width'},
-			{description: 'Added height'},
-		]);
-		expect(newContents).toBe(
+		expect(result.project.files[compositionFile]).toBe(
 			input.replace(
 				`${indent}/>`,
 				[
@@ -266,32 +230,56 @@ test('adds missing composition metadata using multiline source style', () => {
 				].join(eol),
 			),
 		);
-		expect(() => parseAst(newContents)).not.toThrow();
 	}
 });
 
-test('adds missing composition metadata without reformatting an inline tag', () => {
-	const input = `const preserve  =  { value : "keep" };
+test('updates an inline Still without adding timing props or reformatting its tag', () => {
+	const input = `import {Still} from 'remotion';
+const preserve  =  { value : "keep" };
 export const Root=()=> <Still id={'Original'} height = "720"/>;
 `;
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'update-composition-metadata',
-			idToUpdate: 'Original',
-			newDurationInFrames: null,
-			newFps: null,
-			newWidth: 1920,
-			newHeight: 1080,
-		},
+	const result = updateCompositionMetadata({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		compositionId: 'Original',
+		metadata: {width: 1920, height: 1080},
 	});
+	expect(result.project.files[compositionFile]).toBe(
+		input.replace('height = "720"', 'height = {1080} width={1920}'),
+	);
+});
 
-	expect(changesMade).toEqual([
-		{description: 'Replaced height'},
-		{description: 'Added width'},
-	]);
-	expect(newContents).toBe(`const preserve  =  { value : "keep" };
-export const Root=()=> <Still id={'Original'} height = {1080} width={1920}/>;
-`);
-	expect(() => parseAst(newContents)).not.toThrow();
+test('composition edits resolve named aliases and namespace imports without changing the original registration', () => {
+	for (const [imports, originalTag, expectedTag] of [
+		[
+			"import {Composition as Comp, Still as Poster} from 'remotion';",
+			'Comp',
+			'Poster',
+		],
+		["import * as R from 'remotion';", 'R.Composition', 'Still'],
+	]) {
+		const original = `<${originalTag} id="Original" fps={30} durationInFrames={90}><Child /></${originalTag}>`;
+		const input = `${imports}\nexport const Root = () => ${original};\n`;
+		const copy = duplicateComposition({
+			project: {rootDir: '/', files: {[compositionFile]: input}},
+			compositionFile,
+			compositionId: 'Original',
+			newId: 'Poster',
+			tag: 'Still',
+			metadata: {width: 500, height: 400},
+		});
+		const renamed = renameComposition({
+			project: copy.project,
+			compositionFile,
+			compositionId: 'Poster',
+			newId: 'Renamed',
+		});
+		expect(renamed.project.files[compositionFile]).toContain(original);
+		expect(renamed.project.files[compositionFile]).toContain(
+			`<${expectedTag} id="Renamed" width={500} height={400}>`,
+		);
+		expect(renamed.project.files[compositionFile]).toContain(
+			`</${expectedTag}>`,
+		);
+	}
 });

@@ -131,9 +131,9 @@ JSX, effect, and keyframe mutations return these mappings in addition to the sha
 
 ## Supported edits
 
-Code must be valid JavaScript or TypeScript with supported JSX structures. Prop inspection distinguishes static values, recognized keyframes, and computed expressions. The package does not evaluate arbitrary JavaScript. Prop updates reject computed values; setting a recognized keyframed prop replaces it with a static value.
+Code must be valid JavaScript or TypeScript with supported JSX structures. Prop inspection distinguishes static values, recognized keyframes, and computed expressions. The package does not evaluate arbitrary JavaScript. The `props` form of prop updates rejects computed values; [structured `updates`](/docs/codemods/update-jsx-node-props#updates) permit explicit replacement. Setting a recognized keyframed prop to a static value replaces its animation.
 
-Registration edits use explicit composition files and static IDs. They support the original `Composition`, `Still`, and `Folder` import names. Component insertion and resolution support additional import patterns, as documented on their pages.
+Registration edits use explicit composition files and static IDs. They support `Composition`, `Still`, and `Folder` from `remotion`, including aliased and namespace imports. Component insertion and resolution support additional import patterns, as documented on their pages.
 
 `CodemodValue` represents serializable strings, numbers, booleans, `null`, arrays, and objects. Strings are values, not executable expressions. [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props) also accepts `undefined` to remove a property.
 
