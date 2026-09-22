@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {addSolid, CodemodsInternals} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
@@ -8,19 +8,30 @@ import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
-const {basicCaptionsElementSource} = CodemodsInternals;
+const {
+	basicCaptionsElementSource,
+	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
+} = CodemodsInternals;
 
 const insertSolid = (
 	project: VirtualProject,
 	compositionFile = '/project/src/Composition.tsx',
 ) => {
-	return addSolid({
+	return insertSolidIntoProject({
 		project,
-		compositionFile,
-		compositionId: 'MyComp',
-		width: 1280,
-		height: 720,
-	}).project;
+		request: {
+			compositionFile,
+			compositionId: 'MyComp',
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+				position: null,
+			},
+			from: null,
+		},
+	});
 };
 
 test('consumes an initial Element payload only once', () => {
@@ -80,15 +91,20 @@ test('adds multiple Solids without duplicating the import', () => {
 
 test('adds a Solid at a timeline frame', () => {
 	const project = createBlankTemplateProject();
-	const updated = addSolid({
+	const updated = insertSolidIntoProject({
 		project,
-		compositionFile: '/project/src/Composition.tsx',
-		compositionId: 'MyComp',
-		from: 42,
-		width: 1280,
-		height: 720,
-		position: {x: 100, y: 50},
-	}).project;
+		request: {
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+			from: 42,
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+				position: {x: 100, y: 50},
+			},
+		},
+	});
 	const composition = updated.files['/project/src/Composition.tsx'];
 
 	expect(composition).toContain('<Sequence from={42}');
@@ -185,13 +201,21 @@ registerRoot(Root);
 `,
 		},
 	};
-	const {project: updated, nodePathRemappings} = addSolid({
-		project,
-		compositionFile: '/project/src/index.tsx',
-		compositionId: 'MyComp',
-		width: 1280,
-		height: 720,
-	});
+	const {project: updated, nodePathRemappings} =
+		insertSolidIntoProjectWithNodePathRemappings({
+			project,
+			request: {
+				compositionFile: '/project/src/index.tsx',
+				compositionId: 'MyComp',
+				from: null,
+				element: {
+					type: 'solid',
+					width: 1280,
+					height: 720,
+					position: null,
+				},
+			},
+		});
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
@@ -2057,7 +2081,7 @@ export const Comp = () => (
 		]),
 	).toEqual({
 		success: false,
-		reason: 'Effect index is out of range',
+		reason: 'Cannot duplicate effect: not-found',
 		stack: expect.any(String),
 	});
 	expect(

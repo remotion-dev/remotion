@@ -1,12 +1,7 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
-import type {CodemodProject, CodemodResult} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
+import type {CodemodProject} from './codemod-project';
 import {getJsxNodeProps} from './get-jsx-node-props';
 import {getJsxNodes} from './get-jsx-nodes';
-import {findProjectFile} from './internals';
-import {parseAndApplyCodemod} from './parse-and-apply-codemod';
 import type {ResolveCompositionComponentOptions} from './resolve-composition-component';
-import {parseAst} from './sequence-props/parse-ast';
 
 export type CompositionTarget = {
 	compositionFile: string;
@@ -35,12 +30,21 @@ const getCompositionNodes = ({
 	return getJsxNodes({project, filePath: compositionFile})
 		.filter(
 			(node) =>
-				(node.tagName === 'Composition' || node.tagName === 'Still') &&
-				node.componentIdentity === `dev.remotion.remotion.${node.tagName}`,
+				node.componentIdentity === 'dev.remotion.remotion.Composition' ||
+				node.componentIdentity === 'dev.remotion.remotion.Still',
 		)
 		.map((node) => {
 			const status = getJsxNodeProps({project, node, keys: ['id']}).props.id;
-			return {node, id: status.status === 'static' ? status.codeValue : null};
+			return {
+				node: {
+					...node,
+					tagName:
+						node.componentIdentity === 'dev.remotion.remotion.Still'
+							? 'Still'
+							: 'Composition',
+				},
+				id: status.status === 'static' ? status.codeValue : null,
+			};
 		});
 };
 
@@ -99,29 +103,4 @@ export const validateMetadata = (metadata: Partial<CompositionMetadata>) => {
 			);
 		}
 	}
-};
-
-export const editCompositionProject = <Project extends CodemodProject>({
-	project,
-	compositionFile,
-	codemod,
-}: {
-	project: Project;
-	compositionFile: string;
-	codemod: RecastCodemod;
-}): CodemodResult<Project> => {
-	const filePath = findProjectFile({project, filePath: compositionFile});
-
-	const {newContents} = parseAndApplyCodemod({
-		input: project.files[filePath],
-		codeMod: codemod,
-	});
-	parseAst(newContents);
-	return getCodemodResult({
-		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [filePath]: newContents},
-		},
-	});
 };

@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
-import {deleteEffect, deleteEffects} from '../effect-operations';
-import {lineColumnToNodePath} from './node-path-test-utils';
+import {CodemodsInternals} from '@remotion/codemods';
+import {lineColumnToNodePath} from './test-utils';
+
+const {deleteEffect, deleteEffects} = CodemodsInternals;
 
 const buildInput = (
 	effects: string,

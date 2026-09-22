@@ -69,7 +69,7 @@ export const registerComposition = async ({
 
 		const {output: withDefaultScene} =
 			await StudioServerInternals.updateDefaultProps({
-				input: duplicated,
+				input: duplicated.files[rootPath],
 				compositionId: projectName,
 				newDefaultProps: getDefaultPropsForNewProject(),
 				enumPaths: [],

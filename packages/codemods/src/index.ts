@@ -1,11 +1,9 @@
-import {applyVisualControl} from './apply-visual-control';
 import {
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
 } from './basic-captions-element-source';
 import {enumerateEffectArrayElements, pasteEffects} from './effect-operations';
 import {findSearchPosition} from './find-search-position';
-import {makeNewCompositionComponentSource} from './generate-canvas-capture-composition';
 import {insertBasicCaptions} from './insert-basic-captions';
 import {
 	insertJsxElementIntoComposition,
@@ -23,7 +21,6 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
-import {parseAndApplyCodemod} from './parse-and-apply-codemod';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
@@ -164,7 +161,6 @@ export type {
 export const CodemodsInternals = {
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
-	applyVisualControl,
 	basicCaptionsElementSource,
 	computeCanUpdateDefaultPropsFromContent,
 	computeSequencePropsSubscriptionFromContent,
@@ -181,8 +177,6 @@ export const CodemodsInternals = {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	insertVideoLayers,
-	makeNewCompositionComponentSource,
-	parseAndApplyCodemod,
 	pasteEffects,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
@@ -190,3 +184,13 @@ export const CodemodsInternals = {
 	updateDefaultProps,
 	updateInlineCaptionPatches,
 };
+
+export {
+	addCanvasCaptureComposition,
+	type AddCanvasCaptureCompositionOptions,
+} from './add-canvas-capture-composition';
+export {
+	updateVisualControls,
+	type UpdateVisualControlsOptions,
+	type UpdateVisualControlsResult,
+} from './update-visual-controls';

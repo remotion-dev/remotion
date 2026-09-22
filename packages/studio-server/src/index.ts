@@ -1,4 +1,4 @@
-import {formatBytes, type RecastCodemod} from '@remotion/studio-shared';
+import {formatBytes} from '@remotion/studio-shared';
 export {
 	ApiRoutes,
 	CopyStillToClipboardRequest,
@@ -66,15 +66,6 @@ import {startStudio} from './start-studio';
 
 const {updateDefaultProps} = CodemodsInternals;
 
-const parseAndApplyCodemod = ({
-	input,
-	codeMod,
-}: {
-	input: string;
-	codeMod: RecastCodemod;
-}): {newContents: string; changesMade: {description: string}[]} =>
-	CodemodsInternals.parseAndApplyCodemod({input, codeMod});
-
 export type {
 	RemotionSkillsScope,
 	RemotionSkillsStatus,
@@ -103,7 +94,6 @@ export const StudioServerInternals = {
 	setFileWatcherRegistry,
 	AnsiDiff,
 	formatBytes,
-	parseAndApplyCodemod,
 	applyCodemodToFile,
 	updateDefaultProps,
 	getInstalledDependencies,

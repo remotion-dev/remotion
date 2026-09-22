@@ -1,5 +1,7 @@
 import {expect, test} from 'bun:test';
-import {computeCanUpdateDefaultPropsFromContent} from '../internals';
+import {CodemodsInternals} from '..';
+
+const {computeCanUpdateDefaultPropsFromContent} = CodemodsInternals;
 
 test('extracts editable default props including special values', () => {
 	const source = `import {Composition, staticFile} from 'remotion';

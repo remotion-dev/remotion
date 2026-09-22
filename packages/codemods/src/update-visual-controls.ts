@@ -1,10 +1,16 @@
 import {
 	stringifyDefaultProps,
-	type ApplyVisualControlCodemod,
+	type VisualControlChange,
 } from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
+import {
+	getCodemodResult,
+	type CodemodProject,
+	type CodemodResult,
+} from './codemod-project';
 import {formatSerializedValue} from './format-serialized-value';
+import {findProjectFile} from './internals';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
 import {applySourceEdits, type SourceEdit} from './source-edits';
@@ -23,7 +29,7 @@ const expectString = (
 	if (node.type === 'TemplateLiteral') {
 		if (node.expressions.length > 0) {
 			throw new Error(
-				'applyVisualControl() must use a static identifier, the string may not be dynamic.',
+				'visualControl() must use a static identifier, the string may not be dynamic.',
 			);
 		}
 
@@ -33,18 +39,26 @@ const expectString = (
 	throw new Error('Expected a string literal');
 };
 
-export const applyVisualControl = ({
-	input,
-	transformation,
-}: {
-	input: string;
-	transformation: ApplyVisualControlCodemod;
-}): {
-	newContents: string;
-	changesMade: {description: string}[];
-} => {
+export type UpdateVisualControlsOptions<Project extends CodemodProject> = {
+	project: Project;
+	filePath: string;
+	changes: VisualControlChange[];
+};
+
+export type UpdateVisualControlsResult<Project extends CodemodProject> =
+	CodemodResult<Project> & {
+		updatedControls: {id: string; line: number}[];
+	};
+
+export const updateVisualControls = <Project extends CodemodProject>({
+	project,
+	filePath,
+	changes,
+}: UpdateVisualControlsOptions<Project>): UpdateVisualControlsResult<Project> => {
+	const resolvedFilePath = findProjectFile({project, filePath});
+	const input = project.files[resolvedFilePath];
 	const file = parseAst(input);
-	const changesMade: {description: string}[] = [];
+	const updatedControls: {id: string; line: number}[] = [];
 	const edits: SourceEdit[] = [];
 
 	recast.types.visit(file.program, {
@@ -65,7 +79,7 @@ export const applyVisualControl = ({
 
 			const firstArgument = node.arguments[0];
 			const str = expectString(firstArgument);
-			const matchingChanges = transformation.changes.filter(
+			const matchingChanges = changes.filter(
 				(candidate) => candidate.id === str,
 			);
 			const change = matchingChanges.at(-1);
@@ -122,8 +136,9 @@ export const applyVisualControl = ({
 			}
 
 			for (const matchingChange of matchingChanges) {
-				changesMade.push({
-					description: `Applied visual control ${matchingChange.id}`,
+				updatedControls.push({
+					id: matchingChange.id,
+					line: node.loc?.start.line ?? 1,
 				});
 			}
 
@@ -131,5 +146,17 @@ export const applyVisualControl = ({
 		},
 	});
 
-	return {newContents: applySourceEdits({input, edits}), changesMade};
+	return {
+		...getCodemodResult({
+			project,
+			nextProject: {
+				...project,
+				files: {
+					...project.files,
+					[resolvedFilePath]: applySourceEdits({input, edits}),
+				},
+			},
+		}),
+		updatedControls,
+	};
 };

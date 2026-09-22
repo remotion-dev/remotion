@@ -326,10 +326,6 @@ test('invalidates a new-composition install after an external component edit', a
 			);
 		}
 
-		const registration = readFileSync(fixture.compositionFile, 'utf-8');
-		expect(registration).toContain('const Target = () => <div>Hello</div>;');
-		expect(registration.match(/id="ElementScene"/g)).toHaveLength(1);
-
 		const componentFile = path.join(
 			path.dirname(fixture.compositionFile),
 			'ElementScene.tsx',

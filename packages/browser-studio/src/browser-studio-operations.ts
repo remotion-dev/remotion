@@ -1,6 +1,7 @@
 import {
 	CodemodsInternals,
 	addComposition,
+	addCanvasCaptureComposition,
 	addEffect as addEffectCodemod,
 	addFolder,
 	addSolid,
@@ -36,6 +37,7 @@ import {
 	type StudioElementPayload,
 } from '@remotion/studio-protocol';
 import {
+	emptyCompositionComponent,
 	getAllSchemaKeys,
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
@@ -81,8 +83,6 @@ const {
 	insertVideoLayers: insertVideoLayersCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
-	makeNewCompositionComponentSource,
-	parseAndApplyCodemod,
 	pasteEffects: pasteEffectsCodemod,
 	simpleDiff,
 } = CodemodsInternals;
@@ -324,22 +324,19 @@ const applyCompositionCodemod = ({
 }): VirtualProject => {
 	const target = {project, compositionFile};
 	switch (codemod.type) {
-		case 'new-composition':
-			if (codemod.canvasCapture !== null) {
-				const {newContents} = parseAndApplyCodemod({
-					input: project.files[compositionFile],
-					codeMod: codemod,
-				});
-				return {
-					...project,
-					files: {...project.files, [compositionFile]: newContents},
-				};
+		case 'new-composition': {
+			const componentFilePath = `${dirname(compositionFile)}/${codemod.componentName}.tsx`;
+			if (project.files[componentFilePath] !== undefined) {
+				throw new Error(
+					`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
+				);
 			}
 
-			return addComposition({
+			const composition = {
 				...target,
 				compositionId: codemod.newId,
 				component: {
+					filePath: componentFilePath,
 					importName: codemod.componentName,
 					importPath: codemod.componentImportPath,
 				},
@@ -353,7 +350,24 @@ const applyCompositionCodemod = ({
 					codemod.folderName === null
 						? undefined
 						: {name: codemod.folderName, parentName: codemod.parentName},
-			}).project;
+			};
+			if (codemod.canvasCapture !== null) {
+				return addCanvasCaptureComposition({
+					...composition,
+					capture: codemod.canvasCapture,
+				}).project;
+			}
+
+			const result = addComposition(composition).project;
+			return {
+				...result,
+				files: {
+					...result.files,
+					[componentFilePath]: emptyCompositionComponent(codemod.componentName),
+				},
+			};
+		}
+
 		case 'duplicate-composition':
 			return duplicateCompositionCodemod({
 				...target,
@@ -1496,20 +1510,9 @@ export const createBrowserStudioOperations = ({
 					? newContents
 					: (await formatCodemodFile({contents: newContents})).output;
 			const files: Record<string, string> = {
-				...project.files,
+				...nextProject.files,
 				[absolutePath]: output,
 			};
-
-			if (codemod.type === 'new-composition') {
-				const componentFilePath = `${dirname(absolutePath)}/${codemod.componentName}.tsx`;
-				if (project.files[componentFilePath] !== undefined) {
-					throw new Error(
-						`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
-					);
-				}
-
-				files[componentFilePath] = makeNewCompositionComponentSource(codemod);
-			}
 
 			const diff = simpleDiff({
 				oldLines: input.split('\n'),
@@ -2218,29 +2221,11 @@ export const createBrowserStudioOperations = ({
 						);
 					}
 
-					const compositionProject = applyCompositionCodemod({
+					project = applyCompositionCodemod({
 						project,
 						compositionFile: absolutePath,
 						codemod: request.newComposition.codemod,
 					});
-					const newContents = compositionProject.files[absolutePath];
-					const componentFilePath = `${dirname(absolutePath)}/${request.newComposition.codemod.componentName}.tsx`;
-					if (project.files[componentFilePath] !== undefined) {
-						throw new Error(
-							`Cannot create ${relativeToRoot(componentFilePath, project.rootDir)} because it already exists`,
-						);
-					}
-
-					project = {
-						...project,
-						files: {
-							...project.files,
-							[absolutePath]: newContents,
-							[componentFilePath]: makeNewCompositionComponentSource(
-								request.newComposition.codemod,
-							),
-						},
-					};
 				}
 
 				const plan = await getElementInstallPlanForProject({

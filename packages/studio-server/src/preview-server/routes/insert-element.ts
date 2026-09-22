@@ -21,7 +21,6 @@ import {
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {formatNewCompositionFile} from './apply-codemod';
 import {checkIfTypeScriptFile} from './can-update-default-props';
 import {
 	getElementInstallPlan,
@@ -171,13 +170,13 @@ export const insertElementHandler: ApiHandler<
 					registrationFilePath,
 					'utf-8',
 				);
-				const registrationFileNewContents = await applyCodemodToFile({
+				const nextProject = await applyCodemodToFile({
 					filePath: registrationFilePath,
 					codeMod: newComposition.codemod,
 				});
-				const componentFileContents = await formatNewCompositionFile(
-					newComposition.codemod,
-				);
+				const registrationFileNewContents =
+					nextProject.files[registrationFilePath];
+				const componentFileContents = nextProject.files[componentFilePath];
 				compositionCreation = {
 					componentFileContents,
 					componentFilePath,

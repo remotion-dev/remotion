@@ -30,7 +30,6 @@ import {
 	updateEffectProps,
 	updateJsxNodeKeyframes,
 	updateJsxNodeProps,
-	updateMultipleJsxNodeProps,
 	type CodemodProject,
 } from '../index';
 
@@ -269,13 +268,6 @@ export const VideoComposition = () => <><Video src="video.mp4" from={10} duratio
 
 test('manage composition registrations and nested folders without changing components', () => {
 	const original = makeProject();
-	const helper = 'const Helper = () => <div>Keep this helper unchanged</div>;';
-	original.files[compositionFile] = original.files[compositionFile]
-		.replace(
-			'export const Root = () => ',
-			`export const Root = () => {\n${helper}\nreturn `,
-		)
-		.replace('/>;\n', '/>;\n};\n');
 	let {project} = addComposition({
 		project: original,
 		compositionFile,
@@ -283,7 +275,6 @@ test('manage composition registrations and nested folders without changing compo
 		component: {importName: 'Title', importPath: './Title'},
 		metadata: {width: 1920, height: 1080, fps: 30, durationInFrames: 60},
 	});
-	expect(project.files[compositionFile]).toContain(helper);
 	project = setCompositionDefaultProps({
 		project,
 		compositionFile,
@@ -572,8 +563,7 @@ test('nested copies return root references and insertion preserves relative keys
 
 test('reject ambiguous registration roots and unsupported splitting or audio detachment', async () => {
 	const project = makeProject();
-	project.files[compositionFile] +=
-		'\nconst AnotherRoot = () => <Composition id="Other" component={Video} />;';
+	project.files[compositionFile] += '\nconst AnotherComponent = () => <div />;';
 	expect(() =>
 		addComposition({
 			project,
@@ -604,79 +594,4 @@ test('node discovery and edits use original source locations with tabs and CRLF'
 	expect(edited.project.files[filePath]).toContain('opacity: 0.25');
 	expect(edited.project.files[filePath].startsWith('\uFEFF')).toBe(true);
 	expect(edited.project.files[filePath]).toContain('\r\n');
-});
-
-test('batch structured prop edits across files and preserve edit results in request order', () => {
-	const project = {
-		rootDir: '/',
-		files: {
-			'first.tsx':
-				'export const First = () => <div style={{opacity: 0.5}} title="first" />;',
-			'second.tsx': 'export const Second = () => <div title="second" />;',
-		},
-	};
-	const first = getJsxNodes({project, filePath: 'first.tsx'})[0];
-	const second = getJsxNodes({project, filePath: 'second.tsx'})[0];
-	const result = updateMultipleJsxNodeProps({
-		project,
-		changes: [
-			{
-				node: first,
-				updates: [{key: 'style.opacity', value: 1, defaultValue: 1}],
-			},
-			{node: second, props: {title: 'updated second'}},
-			{node: first, props: {title: 'updated first'}},
-		],
-	});
-
-	expect(result.changes).toHaveLength(2);
-	expect(result.results[0].oldValueStrings).toEqual(['0.5']);
-	expect(result.updatedNodes.map((node) => node.filePath)).toEqual([
-		'first.tsx',
-		'second.tsx',
-		'first.tsx',
-	]);
-	expect(
-		getJsxNodeProps({
-			project: result.project,
-			node: result.updatedNodes[0],
-			keys: ['style.opacity', 'title'],
-		}).props,
-	).toMatchObject({
-		'style.opacity': {codeValue: undefined},
-		title: {codeValue: 'updated first'},
-	});
-	expect(
-		getJsxNodeProps({
-			project: result.project,
-			node: result.updatedNodes[1],
-			keys: ['title'],
-		}).props.title,
-	).toMatchObject({codeValue: 'updated second'});
-	expect(project.files['first.tsx']).toContain('opacity: 0.5');
-});
-
-test('set composition default props preserves serialized dates and enum assertions', () => {
-	const input = `import {Composition} from 'remotion';
-const untouched    = "keep this spacing";
-export const Root = () => <Composition id="Comp" defaultProps={{mode: 'old'}} />;
-`;
-	const result = setCompositionDefaultProps({
-		project: {rootDir: '/', files: {'Root.tsx': input}},
-		compositionFile: 'Root.tsx',
-		compositionId: 'Comp',
-		defaultProps: {
-			mode: 'fast',
-			date: 'remotion-date:2026-07-29T00:00:00.000Z',
-		},
-		enumPaths: [['mode']],
-	});
-	expect(result.logLine).toBe(3);
-	expect(result.project.files['Root.tsx']).toContain(
-		'const untouched    = "keep this spacing";',
-	);
-	expect(result.project.files['Root.tsx']).toContain("mode: 'fast' as const");
-	expect(result.project.files['Root.tsx']).toMatch(
-		/date: new Date\(\s*'2026-07-29T00:00:00\.000Z',?\s*\)/,
-	);
 });

@@ -1,18 +1,16 @@
-import type {JSXElement} from '@babel/types';
-import type {CompositionOrFolder, RecastCodemod} from '@remotion/studio-shared';
+import type {File, JSXElement} from '@babel/types';
 import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
-import {
-	type FolderReference,
-	editCompositionProject,
-} from './composition-editing';
+import type {FolderReference} from './composition-editing';
+import {getMoveTreeItemSourceEdits} from './folder-source-edits';
 import {findProjectFile} from './internals';
 import {
 	getCompositionIdFromJSXElement,
 	getFolderNameFromJSXElement,
-} from './recast-mods';
+} from './registration-source-edits';
 import {parseAst} from './sequence-props/parse-ast';
+import {applySourceEdits} from './source-edits';
 
 export type CompositionTreeItem =
 	| {type: 'composition'; compositionId: string}
@@ -23,37 +21,45 @@ export type CompositionDestination =
 	| {type: 'folder'; folder: FolderReference}
 	| {type: 'before' | 'after'; target: CompositionTreeItem};
 
-type TreeEntry = {item: CompositionTreeItem; parentName: string | null};
+export type TreeEntry = {
+	item: CompositionTreeItem;
+	parentName: string | null;
+	node: JSXElement;
+	path: recast.types.NodePath;
+	directJsxChild: boolean;
+};
 
-export const getTreeEntries = ({
-	project,
-	compositionFile,
-}: {
-	project: CodemodProject;
-	compositionFile: string;
-}): TreeEntry[] => {
-	const filePath = findProjectFile({project, filePath: compositionFile});
-	const ast = parseAst(project.files[filePath]);
+export const getTreeEntries = ({ast}: {ast: File}): TreeEntry[] => {
 	const entries: TreeEntry[] = [];
 	const folders: string[] = [];
 	recast.visit(ast, {
 		visitJSXElement(path) {
-			const element = path.node as JSXElement;
-			const name = getFolderNameFromJSXElement(element);
-			const compositionId = getCompositionIdFromJSXElement(element);
+			const node = path.node as JSXElement;
+			const name = getFolderNameFromJSXElement(node, ast);
+			const compositionId = getCompositionIdFromJSXElement(node, ast);
 			const parentName = folders.join('/') || null;
-			if (name !== null) {
-				entries.push({item: {type: 'folder', name, parentName}, parentName});
-				folders.push(name);
-			} else if (compositionId) {
-				entries.push({item: {type: 'composition', compositionId}, parentName});
+			const parent = path.parentPath?.node;
+			const item: CompositionTreeItem | null =
+				name !== null
+					? {type: 'folder', name, parentName}
+					: compositionId !== null
+						? {type: 'composition', compositionId}
+						: null;
+			if (item) {
+				entries.push({
+					item,
+					parentName,
+					node,
+					path: path as unknown as recast.types.NodePath,
+					directJsxChild:
+						(parent?.type === 'JSXElement' || parent?.type === 'JSXFragment') &&
+						parent.children.includes(node),
+				});
 			}
 
+			if (name !== null) folders.push(name);
 			this.traverse(path);
-			if (name !== null) {
-				folders.pop();
-			}
-
+			if (name !== null) folders.pop();
 			return false;
 		},
 	});
@@ -81,11 +87,6 @@ export const requireTreeItem = (
 	return matches[0];
 };
 
-const toSourceItem = (item: CompositionTreeItem): CompositionOrFolder =>
-	item.type === 'composition'
-		? item
-		: {type: 'folder', folderName: item.name, parentName: item.parentName};
-
 export const moveTreeItem = <Project extends CodemodProject>({
 	project,
 	compositionFile,
@@ -97,48 +98,82 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	source: CompositionTreeItem;
 	destination: CompositionDestination;
 }) => {
-	const entries = getTreeEntries({project, compositionFile});
+	const filePath = findProjectFile({project, filePath: compositionFile});
+	const input = project.files[filePath];
+	const entries = getTreeEntries({ast: parseAst(input)});
 	const entry = requireTreeItem(entries, source);
-	let target: Extract<
-		RecastCodemod,
-		{type: 'move-composition-or-folder'}
-	>['destination'];
-	if (destination.type === 'folder') {
-		requireTreeItem(entries, {type: 'folder', ...destination.folder});
-		const parentPath = [destination.folder.parentName, destination.folder.name]
+	const target =
+		destination.type === 'root'
+			? null
+			: requireTreeItem(
+					entries,
+					destination.type === 'folder'
+						? {type: 'folder', ...destination.folder}
+						: destination.target,
+				);
+	const destinationParentName =
+		destination.type === 'folder'
+			? [destination.folder.parentName, destination.folder.name]
+					.filter(Boolean)
+					.join('/')
+			: (target?.parentName ?? null);
+	if (source.type === 'folder') {
+		const sourcePath = [source.parentName, source.name]
 			.filter(Boolean)
 			.join('/');
-		if (entry.parentName === parentPath) {
-			return getCodemodResult({project, nextProject: project});
+		if (
+			destinationParentName === sourcePath ||
+			destinationParentName?.startsWith(`${sourcePath}/`)
+		) {
+			throw new Error('A folder cannot be moved inside itself');
 		}
 
-		target = {
-			type: 'folder',
-			folderName: destination.folder.name,
-			parentName: destination.folder.parentName,
-		};
-	} else if (destination.type === 'root') {
-		if (entry.parentName === null) {
-			return getCodemodResult({project, nextProject: project});
+		if (
+			entries.some(
+				(candidate) =>
+					candidate !== entry &&
+					candidate.item.type === 'folder' &&
+					candidate.item.name === source.name &&
+					candidate.parentName === destinationParentName,
+			)
+		) {
+			throw new Error(
+				`A folder named "${source.name}" already exists in the destination`,
+			);
 		}
-
-		target = destination;
-	} else {
-		const targetEntry = requireTreeItem(entries, destination.target);
-		if (entry === targetEntry) {
-			return getCodemodResult({project, nextProject: project});
-		}
-
-		target = {type: destination.type, target: toSourceItem(destination.target)};
 	}
 
-	return editCompositionProject({
+	if (
+		entry === target ||
+		((destination.type === 'folder' || destination.type === 'root') &&
+			entry.parentName === destinationParentName)
+	) {
+		return getCodemodResult({project, nextProject: project});
+	}
+
+	if (!entry.directJsxChild)
+		throw new Error(
+			'Could not locate the JSX element to move as a direct JSX child',
+		);
+	if (target && !target.directJsxChild)
+		throw new Error(
+			'Could not locate the JSX destination as a direct JSX child',
+		);
+	const nextContents = applySourceEdits({
+		input,
+		edits: getMoveTreeItemSourceEdits({
+			input,
+			source: entry,
+			target,
+			position: destination.type,
+		}),
+	});
+	parseAst(nextContents);
+	return getCodemodResult({
 		project,
-		compositionFile,
-		codemod: {
-			type: 'move-composition-or-folder',
-			source: toSourceItem(source),
-			destination: target,
+		nextProject: {
+			...project,
+			files: {...project.files, [filePath]: nextContents},
 		},
 	});
 };

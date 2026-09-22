@@ -5,7 +5,7 @@ import path from 'node:path';
 import {getFieldsToShow} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../codemods/parse-ast';
-import {updateSequenceProps} from '../codemods/update-sequence-props/update-sequence-props';
+import {updateSequencePropsAst} from '../codemods/update-sequence-props/update-sequence-props';
 import {lineColumnToNodePath} from '../preview-server/routes/can-update-sequence-props';
 import {prettify} from './test-utils';
 
@@ -75,9 +75,8 @@ test('Should be able to update a discriminated union', async () => {
 	const nodePath = lineColumnToNodePath(ast, 3);
 	assert(nodePath, 'No node path found');
 
-	const update = await updateSequenceProps({
+	const update = updateSequencePropsAst({
 		videoConfigValues: null,
-		prettierConfigOverride: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -95,7 +94,7 @@ test('Should be able to update a discriminated union', async () => {
 		'utf-8',
 	);
 
-	expect(await prettify(update.output)).toBe(await prettify(expected));
+	expect(await prettify(update.serialized)).toBe(await prettify(expected));
 });
 
 test('Should remove variant-specific props when switching enum value', async () => {
@@ -109,9 +108,8 @@ test('Should remove variant-specific props when switching enum value', async () 
 	const nodePath = lineColumnToNodePath(ast, 3);
 	assert(nodePath, 'No node path found');
 
-	const update = await updateSequenceProps({
+	const update = updateSequencePropsAst({
 		videoConfigValues: null,
-		prettierConfigOverride: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -133,7 +131,7 @@ test('Should remove variant-specific props when switching enum value', async () 
 		'utf-8',
 	);
 
-	expect(await prettify(update.output)).toBe(await prettify(expected));
+	expect(await prettify(update.serialized)).toBe(await prettify(expected));
 });
 
 test('Should remove premountFor and preserve styleWhile* when switching to layout="none"', async () => {
@@ -147,9 +145,8 @@ test('Should remove premountFor and preserve styleWhile* when switching to layou
 	const nodePath = lineColumnToNodePath(ast, 3);
 	assert(nodePath, 'No node path found');
 
-	const update = await updateSequenceProps({
+	const update = updateSequencePropsAst({
 		videoConfigValues: null,
-		prettierConfigOverride: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -171,5 +168,5 @@ test('Should remove premountFor and preserve styleWhile* when switching to layou
 		'utf-8',
 	);
 
-	expect(await prettify(update.output)).toBe(await prettify(expected));
+	expect(await prettify(update.serialized)).toBe(await prettify(expected));
 });

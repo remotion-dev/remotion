@@ -2,7 +2,9 @@ import {existsSync} from 'node:fs';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {
-	CodemodsInternals,
+	addCanvasCaptureComposition,
+	updateVisualControls,
+	type CodemodProject,
 	addComposition,
 	addFolder,
 	deleteComposition,
@@ -19,10 +21,9 @@ import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
+import {emptyCompositionComponent} from '@remotion/studio-shared';
 import {resolveFileInsideProject} from '../helpers/resolve-file-inside-project';
 import {checkIfTypeScriptFile} from '../preview-server/routes/can-update-default-props';
-
-const {parseAndApplyCodemod} = CodemodsInternals;
 
 export const resolveFilePathFromSymbolicatedStack = (
 	remotionRoot: string,
@@ -53,7 +54,7 @@ export const applyCodemodToFile = async ({
 }: {
 	filePath: string;
 	codeMod: RecastCodemod;
-}): Promise<string> => {
+}): Promise<CodemodProject> => {
 	checkIfTypeScriptFile(filePath);
 
 	const input = await readFile(filePath, 'utf-8');
@@ -61,18 +62,30 @@ export const applyCodemodToFile = async ({
 		project: {files: {[filePath]: input}, rootDir: path.dirname(filePath)},
 		compositionFile: filePath,
 	};
-	if (
-		codeMod.type === 'apply-visual-control' ||
-		(codeMod.type === 'new-composition' && codeMod.canvasCapture !== null)
-	) {
-		return parseAndApplyCodemod({input, codeMod}).newContents;
+	if (codeMod.type === 'apply-visual-control') {
+		return updateVisualControls({
+			...options,
+			filePath,
+			changes: codeMod.changes,
+		}).project;
 	}
 
 	if (codeMod.type === 'new-composition') {
-		return addComposition({
+		const componentFilePath = path.join(
+			path.dirname(filePath),
+			`${codeMod.componentName}.tsx`,
+		);
+		if (existsSync(componentFilePath)) {
+			throw new Error(
+				`Cannot create ${componentFilePath} because it already exists`,
+			);
+		}
+
+		const composition = {
 			...options,
 			compositionId: codeMod.newId,
 			component: {
+				filePath: componentFilePath,
 				importName: codeMod.componentName,
 				importPath: codeMod.componentImportPath,
 			},
@@ -86,7 +99,22 @@ export const applyCodemodToFile = async ({
 				codeMod.folderName === null
 					? undefined
 					: {name: codeMod.folderName, parentName: codeMod.parentName},
-		}).project.files[filePath];
+		};
+		if (codeMod.canvasCapture !== null) {
+			return addCanvasCaptureComposition({
+				...composition,
+				capture: codeMod.canvasCapture,
+			}).project;
+		}
+
+		const result = addComposition(composition).project;
+		return {
+			...result,
+			files: {
+				...result.files,
+				[componentFilePath]: emptyCompositionComponent(codeMod.componentName),
+			},
+		};
 	}
 
 	if (codeMod.type === 'rename-composition') {
@@ -94,12 +122,12 @@ export const applyCodemodToFile = async ({
 			...options,
 			compositionId: codeMod.idToRename,
 			newId: codeMod.newId,
-		}).project.files[filePath];
+		}).project;
 	}
 
 	if (codeMod.type === 'delete-composition') {
 		return deleteComposition({...options, compositionId: codeMod.idToDelete})
-			.project.files[filePath];
+			.project;
 	}
 
 	if (
@@ -132,7 +160,7 @@ export const applyCodemodToFile = async ({
 						compositionId: codeMod.idToUpdate,
 						metadata,
 					});
-		return result.project.files[filePath];
+		return result.project;
 	}
 
 	if (codeMod.type === 'move-composition-to-folder') {
@@ -149,7 +177,7 @@ export const applyCodemodToFile = async ({
 								parentName: codeMod.parentName,
 							},
 						},
-		}).project.files[filePath];
+		}).project;
 	}
 
 	if (codeMod.type === 'move-composition-or-folder') {
@@ -188,7 +216,7 @@ export const applyCodemodToFile = async ({
 						},
 						destination,
 					});
-		return result.project.files[filePath];
+		return result.project;
 	}
 
 	const folder = {name: codeMod.folderName, parentName: codeMod.parentName};
@@ -198,5 +226,5 @@ export const applyCodemodToFile = async ({
 			: codeMod.type === 'rename-folder'
 				? renameFolder({...options, folder, newName: codeMod.newName})
 				: unwrapFolder({...options, folder});
-	return folderResult.project.files[filePath];
+	return folderResult.project;
 };

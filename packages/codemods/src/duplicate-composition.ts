@@ -1,12 +1,14 @@
 import type {CodemodProject, CodemodResult} from './codemod-project';
+import {getCodemodResult} from './codemod-project';
 import {
 	type CompositionTarget,
 	type CompositionMetadata,
 	requireComposition,
 	assertNewCompositionId,
 	validateMetadata,
-	editCompositionProject,
 } from './composition-editing';
+import {duplicateCompositionInSource} from './duplicate-composition-in-source';
+import {parseAst} from './sequence-props/parse-ast';
 
 export type DuplicateCompositionOptions<Project extends CodemodProject> =
 	CompositionTarget & {
@@ -35,18 +37,19 @@ export const duplicateComposition = <Project extends CodemodProject>({
 		throw new Error('Still registrations do not have fps or durationInFrames');
 	}
 
-	return editCompositionProject({
+	const output = duplicateCompositionInSource({
+		input: project.files[node.filePath],
+		nodePath: node.nodePath,
+		newId,
+		tag: newTag,
+		metadata,
+	});
+	parseAst(output);
+	return getCodemodResult({
 		project,
-		compositionFile,
-		codemod: {
-			type: 'duplicate-composition',
-			idToDuplicate: compositionId,
-			newId,
-			tag: newTag,
-			newWidth: metadata.width ?? null,
-			newHeight: metadata.height ?? null,
-			newFps: metadata.fps ?? null,
-			newDurationInFrames: metadata.durationInFrames ?? null,
+		nextProject: {
+			...project,
+			files: {...project.files, [node.filePath]: output},
 		},
 	});
 };

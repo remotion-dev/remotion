@@ -1,14 +1,19 @@
 import type {JSXElement} from '@babel/types';
+import type {CanvasCaptureData} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import type {CodemodProject, CodemodResult} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
 import {
+	getCodemodResult,
+	type CodemodProject,
+	type CodemodResult,
+} from './codemod-project';
+import {
+	assertNewCompositionId,
+	validateMetadata,
 	type CompositionTarget,
 	type CompositionMetadata,
 	type FolderReference,
-	assertNewCompositionId,
-	validateMetadata,
 } from './composition-editing';
+import {generateCanvasCaptureComposition} from './generate-canvas-capture-composition';
 import {findProjectFile} from './internals';
 import {getRegistrationInsertionSourceEdit} from './registration-source-edits';
 import {ensureNamedImport} from './sequence-props/imports';
@@ -19,22 +24,30 @@ import {
 	getInsertImportSourceEdits,
 } from './source-edits';
 
-export type AddCompositionOptions<Project extends CodemodProject> =
+export type AddCanvasCaptureCompositionOptions<Project extends CodemodProject> =
 	CompositionTarget & {
 		project: Project;
-		component: {importName: string; importPath: string};
+		component: {filePath: string; importName: string; importPath: string};
 		metadata: CompositionMetadata;
 		folder?: FolderReference;
+		capture: {
+			data: CanvasCaptureData;
+			keyframeFps: number;
+			videoFileName: string;
+			videoHeight: number;
+			videoWidth: number;
+		};
 	};
 
-export const addComposition = <Project extends CodemodProject>({
+export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 	project,
 	compositionFile,
 	compositionId,
 	component,
 	metadata,
 	folder,
-}: AddCompositionOptions<Project>): CodemodResult<Project> => {
+	capture,
+}: AddCanvasCaptureCompositionOptions<Project>): CodemodResult<Project> => {
 	assertNewCompositionId({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (!/^[A-Z_$][\w$]*$/.test(component.importName)) {
@@ -43,16 +56,16 @@ export const addComposition = <Project extends CodemodProject>({
 		);
 	}
 
+	if (project.files[component.filePath] !== undefined) {
+		throw new Error(
+			`Cannot create ${component.filePath} because it already exists`,
+		);
+	}
+
 	const filePath = findProjectFile({project, filePath: compositionFile});
 	const input = project.files[filePath];
 	const ast = parseAst(input);
 	const snapshots = captureImportSnapshots(ast);
-	const tag = ensureNamedImport({
-		ast,
-		importedName: 'Composition',
-		sourcePath: 'remotion',
-		localName: 'Composition',
-	});
 	const componentName = ensureNamedImport({
 		ast,
 		importedName: component.importName,
@@ -61,24 +74,7 @@ export const addComposition = <Project extends CodemodProject>({
 	});
 	const b = recast.types.builders;
 	const insertion = b.jsxElement(
-		b.jsxOpeningElement(
-			b.jsxIdentifier(tag),
-			[
-				b.jsxAttribute(b.jsxIdentifier('id'), b.stringLiteral(compositionId)),
-				b.jsxAttribute(
-					b.jsxIdentifier('component'),
-					b.jsxExpressionContainer(b.identifier(componentName)),
-				),
-				...(['durationInFrames', 'fps', 'width', 'height'] as const).map(
-					(name) =>
-						b.jsxAttribute(
-							b.jsxIdentifier(name),
-							b.jsxExpressionContainer(b.numericLiteral(metadata[name])),
-						),
-				),
-			],
-			true,
-		),
+		b.jsxOpeningElement(b.jsxIdentifier(componentName), [], true),
 		null,
 		[],
 	);
@@ -99,9 +95,23 @@ export const addComposition = <Project extends CodemodProject>({
 			}),
 		],
 	});
+	const componentSource = generateCanvasCaptureComposition({
+		componentName: component.importName,
+		compositionId,
+		...metadata,
+		...capture,
+	});
 	parseAst(output);
+	parseAst(componentSource);
 	return getCodemodResult({
 		project,
-		nextProject: {...project, files: {...project.files, [filePath]: output}},
+		nextProject: {
+			...project,
+			files: {
+				...project.files,
+				[filePath]: output,
+				[component.filePath]: componentSource,
+			},
+		},
 	});
 };
