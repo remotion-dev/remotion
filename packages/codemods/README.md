@@ -1,40 +1,18 @@
 # @remotion/codemods
 
-Codemods for editing Remotion projects without a filesystem dependency.
+Codemods for Remotion projects
+
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/codemods.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/codemods?minimal=true)
+
+## Installation
+
+```bash
+npm install @remotion/codemods --save-exact
+```
+
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
 
 ## Usage
 
-```tsx
-import {addSolid} from '@remotion/codemods';
-
-const result = addSolid({
-  project: {
-    rootDir: '/',
-    files: {
-      'src/Root.tsx': rootSource,
-      'src/Video.tsx': videoSource,
-    },
-  },
-  compositionFile: 'src/Root.tsx',
-  compositionId: 'MyComposition',
-  width: 1920,
-  height: 1080,
-});
-
-console.log(result.project.files);
-console.log(result.changes);
-```
-
-Mounted JSX elements can be deleted using the same node paths that Remotion
-Canvas and Studio use:
-
-```tsx
-import {deleteJsxNodes} from '@remotion/codemods';
-
-const removed = await deleteJsxNodes({
-	project: result.project,
-	nodes: [result.insertedNode],
-});
-```
-
-See the [documentation](https://www.remotion.dev/docs/codemods).
+See the [documentation](https://www.remotion.dev/docs/codemods) for more information.

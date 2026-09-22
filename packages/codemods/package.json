@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/codemods",
-	"version": "4.0.526",
+	"version": "4.0.527",
 	"description": "Codemods for Remotion projects",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -58,5 +58,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/codemods"
 }
