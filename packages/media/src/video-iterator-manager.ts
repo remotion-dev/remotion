@@ -34,7 +34,9 @@ export const isSequentialMediaTimeAdvance = ({
 		return false;
 	}
 
-	const maximumSequentialAdvance = Math.abs(playbackRate) / fps;
+	// Experimental bounded catch-up: missed playback frames are not scrubs.
+	// Keep distant seeks on the restart path rather than decoding arbitrarily far.
+	const maximumSequentialAdvance = Math.max(Math.abs(playbackRate) / fps, 1);
 	return (
 		roundTo4Digits(newTime - previousTime) <=
 		roundTo4Digits(maximumSequentialAdvance)

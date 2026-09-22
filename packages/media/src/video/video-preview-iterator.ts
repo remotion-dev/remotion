@@ -246,13 +246,25 @@ export const createVideoIterator = async (
 				};
 			}
 
-			const frame = getNextOrNullIfNotAvailable();
+			let frame = getNextOrNullIfNotAvailable();
 
 			if (frame.type === 'need-to-wait-for-it') {
-				return {
-					type: 'not-satisfied' as const,
-					reason: 'iterator did not have frame ready',
-				};
+				if (options.pendingFrameBehavior === 'restart-iterator') {
+					return {
+						type: 'not-satisfied' as const,
+						reason: 'iterator did not have frame ready',
+					};
+				}
+
+				const awaitedFrame = await frame.waitPromise();
+				if (!options.shouldContinue()) {
+					return {
+						type: 'not-satisfied',
+						reason: 'seek was superseded',
+					};
+				}
+
+				frame = {type: 'got-frame-or-end', frame: awaitedFrame};
 			}
 
 			if (frame.type === 'got-frame-or-end') {

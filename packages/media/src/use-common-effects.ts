@@ -57,6 +57,7 @@ export const useCommonEffects = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
+		mediaPlayer.setPlaybackIntent(playing);
 		if (playing && !isPlayerBuffering) {
 			mediaPlayer.play();
 		} else {

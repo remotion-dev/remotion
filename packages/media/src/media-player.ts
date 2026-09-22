@@ -61,6 +61,7 @@ export class MediaPlayer {
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
+	private playbackRequested = false;
 	private loop = false;
 	private fps: number;
 
@@ -171,6 +172,7 @@ export class MediaPlayer {
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
+		this.playbackRequested = playing;
 		this.sequenceOffset = sequenceOffset;
 		// Reuse a shared, reference-counted Input per (src, credentials,
 		// requestInit) so mounting a new range does not re-parse the container or
@@ -530,7 +532,7 @@ export class MediaPlayer {
 					nonce,
 					fps: this.fps,
 					playbackRate: this.playbackRate,
-					isPlaying: this.playing,
+					isPlaying: this.playbackRequested,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -561,6 +563,10 @@ export class MediaPlayer {
 			// an exhausted iterator and displaying its last frame indefinitely.
 			this.reportTerminalError(error as Error);
 		}
+	}
+
+	public setPlaybackIntent(playing: boolean): void {
+		this.playbackRequested = playing;
 	}
 
 	public play(): void {
