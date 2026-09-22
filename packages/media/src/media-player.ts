@@ -88,6 +88,8 @@ export class MediaPlayer {
 
 	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
 	private seekPromiseChain: Promise<unknown> = Promise.resolve();
+	private terminalError: Error | null = null;
+	private onError: ((error: Error) => void) | null;
 
 	constructor({
 		canvas,
@@ -115,6 +117,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
+		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -144,6 +147,7 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
+		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
@@ -183,6 +187,7 @@ export class MediaPlayer {
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
+		this.onError = onError;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
@@ -210,6 +215,18 @@ export class MediaPlayer {
 
 	private isDisposalError(): boolean {
 		return this.disposed || this.input.disposed === true;
+	}
+
+	private reportTerminalError(error: Error): void {
+		if (this.terminalError || this.isDisposalError()) {
+			return;
+		}
+
+		this.terminalError = error;
+		this.playing = false;
+		this.audioIteratorManager?.destroyIterator();
+		this.videoIteratorManager?.destroy();
+		this.onError?.(error);
 	}
 
 	public initialize(
@@ -404,6 +421,7 @@ export class MediaPlayer {
 					initialVolume,
 					toneFrequency: this.toneFrequency,
 					drawDebugOverlay: this.drawDebugOverlay,
+					onError: (error) => this.reportTerminalError(error),
 					getSequenceDurationInSeconds: () =>
 						this.getSequenceDurationInSeconds(),
 				});
@@ -483,6 +501,10 @@ export class MediaPlayer {
 	};
 
 	public async seekTo(time: number): Promise<void> {
+		if (this.terminalError || this.isDisposalError()) {
+			return;
+		}
+
 		const newTime = this.getTrimmedTime(time);
 
 		if (newTime === null) {
@@ -497,7 +519,7 @@ export class MediaPlayer {
 		unloopedNewTime: number,
 		nonce: Nonce,
 	): Promise<void> {
-		if (nonce.isStale()) {
+		if (nonce.isStale() || this.terminalError || this.isDisposalError()) {
 			return;
 		}
 
@@ -534,12 +556,15 @@ export class MediaPlayer {
 				return;
 			}
 
-			throw error;
+			// Seeks are serialized: a newer nonce does not replace the iterator
+			// whose read failed. Ignoring the error would leave queued seeks using
+			// an exhausted iterator and displaying its last frame indefinitely.
+			this.reportTerminalError(error as Error);
 		}
 	}
 
 	public play(): void {
-		if (this.playing) {
+		if (this.playing || this.terminalError) {
 			return;
 		}
 

@@ -81,6 +81,7 @@ export const audioIteratorManager = ({
 	initialVolume,
 	toneFrequency,
 	drawDebugOverlay,
+	onError,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -93,6 +94,7 @@ export const audioIteratorManager = ({
 	initialVolume: number;
 	toneFrequency: number;
 	drawDebugOverlay: () => void;
+	onError: (error: Error) => void;
 }) => {
 	let muted = initialMuted;
 	let currentVolume = Math.max(0, initialVolume);
@@ -382,7 +384,16 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				throw e;
+				// A non-destructive seek can stale the nonce while retaining this
+				// iterator. Only ignore errors when the iterator was replaced.
+				if (iterator.isDestroyed()) {
+					onDestroyed();
+					return;
+				}
+
+				iterator.destroy();
+				onDestroyed();
+				onError(e as Error);
 			},
 		});
 	};
