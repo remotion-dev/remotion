@@ -10,6 +10,12 @@ The **package name** for each folder is `@remotion/[folder-name]`, except for th
 - To build the project after you made changes, run `bunx turbo make --filter="[package-name]"` and only include the package you are working on. Refer to package naming convention above. For example, the command to build the package in `packages/shapes` is `bunx turbo make --filter="@remotion/shapes"`.
 - After making code changes, run `bunx prettier src --write` to format the code. Do not run the formatted on the docs.
 
+## Test changes
+
+Do not add or modify tests, test fixtures, or snapshots unless the user explicitly asks for test changes. Feature work, bug fixes, refactors, and PR preparation do not imply permission to write tests. Keep agent-authored test changes out of PRs unless explicitly requested, and preserve pre-existing user changes.
+
+Running existing tests for validation is allowed.
+
 ## Documentation
 
 Any new features or settings should be documented in the `packages/docs` folder.

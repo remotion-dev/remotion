@@ -20,13 +20,12 @@ means `unstack` and `init` again.
 Decide the layers first, then write code into them:
 
 ```
-(main) <- todo-app/models <- todo-app/api <- todo-app/frontend <- todo-app/integration
+(main) <- todo-app/models <- todo-app/api <- todo-app/frontend
 ```
 
 - `todo-app/models` — shared types and schema
 - `todo-app/api` — routes that use the models
 - `todo-app/frontend` — components that call the routes
-- `todo-app/integration` — tests exercising the whole feature
 
 This is illustrative. Infer the stack topic and layer names from the actual task; do not reuse
 `todo-app` or these layer names literally.
@@ -74,7 +73,7 @@ changes carry over to the new branch. Commit or stash first if you want the new 
 Add a branch when you start a **different concern that depends on what you have built so far**.
 Signals:
 
-- Moving from backend to frontend, or from core logic to tests or documentation
+- Moving from backend to frontend, or from core logic to documentation or explicitly requested tests
 - The next changes have a different reviewer audience
 - The current branch's diff is already large enough to review on its own
 
