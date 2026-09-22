@@ -21,621 +21,621 @@ export const hostedLayers: HostedLayers = {
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-south-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-southeast-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-southeast-2': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'eu-central-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 64,
+			version: 68,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 64,
+			version: 68,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 26,
+			version: 30,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 26,
+			version: 30,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 26,
+			version: 30,
 		},
 	],
 	'eu-west-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 27,
+			version: 29,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'eu-west-2': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'us-east-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 31,
+			version: 33,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 39,
+			version: 41,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'us-east-2': [
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'us-west-2': [
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 26,
+			version: 28,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 30,
+			version: 32,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'af-south-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-east-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-northeast-2': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-northeast-3': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ca-central-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 22,
+			version: 24,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 22,
+			version: 24,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 13,
+			version: 15,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 13,
+			version: 15,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 13,
+			version: 15,
 		},
 	],
 	'eu-north-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'eu-south-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'eu-west-3': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'sa-east-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 22,
+			version: 24,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 22,
+			version: 24,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 13,
+			version: 15,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 13,
+			version: 15,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 13,
+			version: 15,
 		},
 	],
 	'us-west-1': [
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 23,
+			version: 25,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 14,
+			version: 16,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 14,
+			version: 16,
 		},
 	],
 	'ap-southeast-4': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-4:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 11,
+			version: 13,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-4:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 11,
+			version: 13,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-4:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-4:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-4:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 10,
+			version: 12,
 		},
 	],
 	'ap-southeast-5': [
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-5:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-5:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-5:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-5:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:ap-southeast-5:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 10,
+			version: 12,
 		},
 	],
 	'eu-central-2': [
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-2:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-2:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-2:678892195805:layer:remotion-binaries-emoji-apple-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-2:678892195805:layer:remotion-binaries-emoji-google-arm64',
-			version: 10,
+			version: 12,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-2:678892195805:layer:remotion-binaries-cjk-arm64',
-			version: 10,
+			version: 12,
 		},
 	],
 };
