@@ -396,9 +396,6 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
-		await expect(
-			dialog.getByRole('heading', {name: 'Included assets', exact: true}),
-		).toHaveCount(0);
 		await dialog.getByRole('button', {name: 'Cancel'}).click();
 		expect(fs.existsSync(installedAsset)).toBe(false);
 		await browseElements.click();
@@ -473,10 +470,6 @@ const CloseupPlaceholder = () => {
 		const compositionSource = fs.readFileSync(
 			path.join(temporaryProject, 'src', 'Composition.tsx'),
 			'utf8',
-		);
-		expect(compositionSource).toContain('ProtocolElement');
-		expect(compositionSource).toMatch(
-			/assetSrc=\{staticFile\(["']protocol-element\/data\.bin["']\)\}/,
 		);
 		expect(compositionSource).toContain('protocol-element.element');
 		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));

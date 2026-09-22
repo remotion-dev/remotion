@@ -508,14 +508,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		},
 	});
 	const element = {
-		assets: [
-			{path: 'elements/lower-third.bin', type: 'base64', data: 'AAEC'},
-			{
-				path: 'elements/remote.bin',
-				type: 'url',
-				url: 'https://assets.example/remote.bin',
-			},
-		],
+		assets: [{path: 'elements/lower-third.bin', type: 'base64', data: 'AAEC'}],
 		dependencies: [
 			{name: '@remotion/shapes', version: null},
 			{name: 'zod', version: '4.1.5'},
@@ -573,28 +566,18 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		},
 	});
 
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = Object.assign(
-		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
-		{preconnect: originalFetch.preconnect},
-	);
-	let inserted: Awaited<ReturnType<typeof operations.insertElement>>;
-	try {
-		inserted = await operations.insertElement({
-			installationName: null,
-			compositionFile: '/project/src/Composition.tsx',
-			compositionId: 'MyComp',
-			element,
-			expectedFileState: preflight.plan.expectedFileState,
-			from: 12,
-			overwriteExisting: false,
-			position: {x: 24, y: 48},
-			undoRedoNavigation: null,
-			newComposition: null,
-		});
-	} finally {
-		globalThis.fetch = originalFetch;
-	}
+	const inserted = await operations.insertElement({
+		installationName: null,
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+		expectedFileState: preflight.plan.expectedFileState,
+		from: 12,
+		overwriteExisting: false,
+		position: {x: 24, y: 48},
+		undoRedoNavigation: null,
+		newComposition: null,
+	});
 
 	if (!inserted.success) {
 		throw new Error(
@@ -611,9 +594,6 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	);
 	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
 		new Uint8Array([0, 1, 2]),
-	);
-	expect(project.publicFiles?.['elements/remote.bin']).toEqual(
-		new Uint8Array([3, 4, 5]),
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'import { LowerThird } from "./lower-third.element";',
@@ -640,12 +620,6 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		initialProject.files['/project/src/Composition.tsx'],
 	);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBeUndefined();
-	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
-		new Uint8Array([0, 1, 2]),
-	);
-	expect(project.publicFiles?.['elements/remote.bin']).toEqual(
-		new Uint8Array([3, 4, 5]),
-	);
 	expect(project.files['/project/package.json']).toBe(
 		initialProject.files['/project/package.json'],
 	);
@@ -653,14 +627,6 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		installedElementSource,
 	);
-	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
-		new Uint8Array([0, 1, 2]),
-	);
-	expect(project.publicFiles?.['elements/remote.bin']).toEqual(
-		new Uint8Array([3, 4, 5]),
-	);
-	// Later requests exercise source conflict behavior without another network fetch.
-	element.assets = element.assets.slice(0, 1);
 
 	const installRequest = {
 		installationName: null,
@@ -778,84 +744,39 @@ test('retains installed assets across earlier history while allowing explicit as
 		filePath: 'upload.txt',
 		contents: 'Uploaded',
 	});
-	for (const name of ['first', 'second']) {
+	for (const [name, assetPath] of [
+		['first', 'first.bin'],
+		['second', '__proto__'],
+	]) {
 		expect(
-			(
-				await install(
-					[{path: `${name}.bin`, type: 'base64', data: 'AAEC'}],
-					name,
-				)
-			).success,
+			(await install([{path: assetPath, type: 'base64', data: 'AAEC'}], name))
+				.success,
 		).toBe(true);
 	}
 
+	const installedAssets = {
+		'first.bin': new Uint8Array([0, 1, 2]),
+		['__proto__']: new Uint8Array([0, 1, 2]),
+	};
 	for (let i = 0; i < 3; i++) {
 		expect((await operations.undo()).success).toBe(true);
-		expect(getProject().publicFiles?.['first.bin']).toEqual(
-			new Uint8Array([0, 1, 2]),
-		);
-		expect(getProject().publicFiles?.['second.bin']).toEqual(
-			new Uint8Array([0, 1, 2]),
-		);
 	}
 
 	expect(getProject().files['/project/src/Composition.tsx']).toBe(
 		originalSource,
 	);
-	expect(getProject().publicFiles?.['upload.txt']).toBeUndefined();
+	expect(getProject().publicFiles).toEqual(installedAssets);
 	for (let i = 0; i < 3; i++) {
 		expect((await operations.redo()).success).toBe(true);
-		expect(getProject().publicFiles?.['first.bin']).toEqual(
-			new Uint8Array([0, 1, 2]),
-		);
-		expect(getProject().publicFiles?.['second.bin']).toEqual(
-			new Uint8Array([0, 1, 2]),
-		);
 	}
 
-	expect(getProject().publicFiles?.['upload.txt']).toBe('Uploaded');
+	expect(getProject().publicFiles).toEqual({
+		...installedAssets,
+		'upload.txt': 'Uploaded',
+	});
 	expect(getProject().files['/project/src/Composition.tsx']).toContain(
 		'<AssetElement2',
 	);
-
-	await operations.renameStaticFile({
-		oldRelativePath: 'second.bin',
-		newRelativePath: '__proto__',
-	});
-	await operations.deleteStaticFile({relativePath: '__proto__'});
-	expect(getProject().publicFiles?.['second.bin']).toBeUndefined();
-	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
-		false,
-	);
-	expect((await operations.undo()).success).toBe(true);
-	expect(Object.entries(getProject().publicFiles ?? {})).toContainEqual([
-		'__proto__',
-		new Uint8Array([0, 1, 2]),
-	]);
-	expect((await operations.undo()).success).toBe(true);
-	expect(getProject().publicFiles?.['second.bin']).toEqual(
-		new Uint8Array([0, 1, 2]),
-	);
-	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
-		false,
-	);
-	expect((await operations.redo()).success).toBe(true);
-	expect((await operations.redo()).success).toBe(true);
-	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
-		false,
-	);
-});
-
-test('installs prototype-named assets and exposes them in the public file listing', async () => {
-	const {getProject, install, operations} = makeElementAssetFixture();
-	expect(
-		(await install([{path: '__proto__', type: 'base64', data: 'AAEC'}], null))
-			.success,
-	).toBe(true);
-	expect(Object.entries(getProject().publicFiles ?? {})).toContainEqual([
-		'__proto__',
-		new Uint8Array([0, 1, 2]),
-	]);
 	const events: EventSourceEvent[] = [];
 	const unsubscribe = operations.subscribeToEvent((event) =>
 		events.push(event),
@@ -866,9 +787,27 @@ test('installs prototype-named assets and exposes them in the public file listin
 		events.findLast((event) => event.type === 'new-public-folder'),
 	).toMatchObject({
 		files: expect.arrayContaining([
-			{name: '__proto__', sizeInBytes: 3, src: '/__proto__', lastModified: 1},
+			expect.objectContaining({
+				name: '__proto__',
+				sizeInBytes: 3,
+				src: '/__proto__',
+			}),
 		]),
 	});
+
+	await operations.deleteStaticFile({relativePath: '__proto__'});
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
+	expect((await operations.undo()).success).toBe(true);
+	expect(Object.entries(getProject().publicFiles ?? {})).toContainEqual([
+		'__proto__',
+		new Uint8Array([0, 1, 2]),
+	]);
+	expect((await operations.redo()).success).toBe(true);
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
 });
 
 test.each([

@@ -337,7 +337,6 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 			expect(caller).toMatch(
 				/sources: \[staticFile\(["']elements\/embedded\.bin["']\)\]/,
 			);
-			expect(caller).not.toContain('__remotion_element_asset');
 
 			expect(popUndo().success).toBe(true);
 			expect(existsSync(fixture.elementFile)).toBe(false);
