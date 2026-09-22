@@ -566,28 +566,18 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		},
 	});
 
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = Object.assign(
-		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
-		{preconnect: originalFetch.preconnect},
-	);
-	let inserted: Awaited<ReturnType<typeof operations.insertElement>>;
-	try {
-		inserted = await operations.insertElement({
-			installationName: null,
-			compositionFile: '/project/src/Composition.tsx',
-			compositionId: 'MyComp',
-			element,
-			expectedFileState: preflight.plan.expectedFileState,
-			from: 12,
-			overwriteExisting: false,
-			position: {x: 24, y: 48},
-			undoRedoNavigation: null,
-			newComposition: null,
-		});
-	} finally {
-		globalThis.fetch = originalFetch;
-	}
+	const inserted = await operations.insertElement({
+		installationName: null,
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element,
+		expectedFileState: preflight.plan.expectedFileState,
+		from: 12,
+		overwriteExisting: false,
+		position: {x: 24, y: 48},
+		undoRedoNavigation: null,
+		newComposition: null,
+	});
 
 	if (!inserted.success) {
 		throw new Error(
