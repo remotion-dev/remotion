@@ -128,6 +128,7 @@ import {
 	TIMELINE_SELECTED_BACKGROUND,
 	TIMELINE_TICKS_BACKGROUND,
 	timelineMarqueeRectsIntersect,
+	type TimelineSelection,
 } from '../components/Timeline/TimelineSelection';
 import {
 	getTimelineSequenceDurationDragChanges,
@@ -8454,7 +8455,7 @@ test('Deleting selected keyframe selects remaining easing under playhead', () =>
 	]);
 });
 
-test('Deleting selected keyframe clears selection when playhead is not between remaining keyframes', () => {
+test('Deleting selected keyframe selects its property when playhead is not between remaining keyframes', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
@@ -8500,7 +8501,54 @@ test('Deleting selected keyframe clears selection when playhead is not between r
 			propStatuses,
 			timelinePosition: 0,
 		}),
-	).toEqual([]);
+	).toEqual([
+		{
+			type: 'sequence-prop',
+			nodePathInfo: opacityNodePathInfo,
+			key: 'opacity',
+		},
+	]);
+});
+
+test('Deleting keyframes across properties selects each affected property once', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const effectNodePathInfo = makeNodePathInfo(
+		['body', 1],
+		['effects', '1', 'radius'],
+	);
+
+	expect(
+		getTimelineSelectionAfterDeletingItems({
+			selections: [opacityNodePathInfo, effectNodePathInfo].flatMap(
+				(nodePathInfo): TimelineSelection[] => [
+					{type: 'keyframe', nodePathInfo, frame: 10},
+					{type: 'keyframe', nodePathInfo, frame: 20},
+					{
+						type: 'easing',
+						nodePathInfo,
+						fromFrame: 10,
+						toFrame: 20,
+						segmentIndex: 1,
+					},
+				],
+			),
+		}),
+	).toEqual([
+		{
+			type: 'sequence-prop',
+			nodePathInfo: opacityNodePathInfo,
+			key: 'style.opacity',
+		},
+		{
+			type: 'sequence-effect-prop',
+			nodePathInfo: effectNodePathInfo,
+			i: 1,
+			key: 'radius',
+		},
+	]);
 });
 
 test('Deleting selected keyframes ignores selected easings', async () => {

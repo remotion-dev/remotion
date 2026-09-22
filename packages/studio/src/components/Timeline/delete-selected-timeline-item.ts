@@ -13,6 +13,7 @@ import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {
+	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
 	type TimelineSelection,
 } from './TimelineSelection';
@@ -314,7 +315,14 @@ export const getTimelineSelectionAfterDeletingItems = ({
 	const nextSelections = new Map<string, TimelineSelection>();
 
 	for (const selection of selections) {
-		const nextSelection = getSequenceSelectionAfterDeletingEffect(selection);
+		if (selection.type === 'easing') {
+			continue;
+		}
+
+		const nextSelection =
+			selection.type === 'keyframe'
+				? getTimelineSelectionFromNodePathInfo(selection.nodePathInfo)
+				: getSequenceSelectionAfterDeletingEffect(selection);
 		if (!nextSelection) {
 			return [];
 		}

@@ -44,6 +44,129 @@ test.describe('effect keyframes', () => {
 		await stopStudio();
 	});
 
+	test('deletes marquee-selected keyframes without flashing and keeps their property selected', async ({
+		page,
+	}) => {
+		test.setTimeout(120_000);
+		const originalContent = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+		fs.writeFileSync(
+			effectKeyframeE2eFile,
+			originalContent.replace(
+				'opacity: interpolate(frame, [0, 30], [0, 1])',
+				'opacity: interpolate(frame, [0, 10, 20, 30, 40, 60, 89], [0, 1, 0, 1, 0, 1, 0])',
+			),
+		);
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		const opacity = page.getByText('Opacity', {exact: true});
+		await expect(async () => {
+			await page
+				.getByTitle('Timeline expansion', {exact: true})
+				.first()
+				.click();
+			await expect(opacity).toHaveCount(1, {timeout: 1_000});
+		}).toPass({timeout: 30_000});
+		await opacity.click();
+
+		const keyframes = page.getByRole('button', {
+			name: /^Select keyframe at frame /,
+		});
+		await expect(keyframes).toHaveCount(7);
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 10', exact: true})
+			.scrollIntoViewIfNeeded();
+		const propertyLabel = opacity.last().locator('..');
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 10', exact: true})
+			.click();
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+		await page.keyboard.press('Escape');
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(0, 0, 0, 0)',
+		);
+		await page
+			.getByRole('button', {
+				name: 'Select easing from frame 10 to 20',
+				exact: true,
+			})
+			.click();
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+		const first = await page
+			.getByRole('button', {name: 'Select keyframe at frame 10', exact: true})
+			.last()
+			.boundingBox();
+		const second = await page
+			.getByRole('button', {name: 'Select keyframe at frame 20', exact: true})
+			.last()
+			.boundingBox();
+		assert(first && second);
+		await page.mouse.move(first.x - 2, first.y - 2);
+		await page.mouse.down();
+		await page.mouse.move(
+			second.x + second.width + 2,
+			second.y + second.height + 2,
+			{
+				steps: 5,
+			},
+		);
+		await page.mouse.up();
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+
+		// Hold the real save request so the optimistic timeline update is visible.
+		let resumeDelete: () => void = () => undefined;
+		const deleteGate = new Promise<void>((resolve) => {
+			resumeDelete = resolve;
+		});
+		await page.route('**/api/delete-keyframes', async (route) => {
+			await deleteGate;
+			await route.continue();
+		});
+		const deleteRequest = page.waitForRequest('**/api/delete-keyframes', {
+			timeout: 10_000,
+		});
+		try {
+			await page.keyboard.press('Backspace');
+			await deleteRequest;
+			await expect(keyframes).toHaveCount(5);
+			const easings = page.getByRole('button', {
+				name: /^Select easing from frame /,
+			});
+			await expect(easings).toHaveCount(4);
+			for (const easing of await easings.all()) {
+				await expect(easing.locator('div')).toHaveCSS('outline-style', 'none');
+			}
+
+			await expect(opacity).toHaveCount(2);
+		} finally {
+			resumeDelete();
+			await page.unrouteAll({behavior: 'wait'});
+		}
+
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*30,\s*40,\s*60,\s*89\]/);
+
+		// The property remains selected, so another Backspace resets its value.
+		await page.keyboard.press('Backspace');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.not.toContain('opacity:');
+		await page.reload();
+		await expect(
+			page.getByTitle('Timeline expansion', {exact: true}).first(),
+		).toBeVisible();
+		await expect(keyframes).toHaveCount(0);
+	});
+
 	test('edits precise inspector values and adds effect keyframes', async ({
 		page,
 	}) => {
