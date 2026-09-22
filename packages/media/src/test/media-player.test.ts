@@ -286,33 +286,6 @@ test.each(['terminal', 'video', 'destroyed', 'disposed'] as const)(
 	},
 );
 
-test('ignores a stale seek failure and allows the newer seek', async () => {
-	const onError = vi.fn();
-	const player = makeAudioPlayer(null, onError);
-	let rejectSeek!: (error: Error) => void;
-	const seek = vi
-		.fn()
-		.mockImplementationOnce(
-			() =>
-				new Promise<void>((_, reject) => {
-					rejectSeek = reject;
-				}),
-		)
-		.mockResolvedValue(undefined);
-	player.videoIteratorManager = {seek} as never;
-
-	const first = player.seekTo(1);
-	await vi.waitFor(() => expect(seek).toHaveBeenCalledOnce());
-	const second = player.seekTo(2);
-	rejectSeek(new TypeError('Failed to fetch'));
-	await Promise.all([first, second]);
-
-	expect(onError).not.toHaveBeenCalled();
-	expect(seek).toHaveBeenCalledTimes(2);
-	player.videoIteratorManager = null;
-	await player.dispose();
-});
-
 test('ignores pending seek failures after disposal and skips new seeks', async () => {
 	const onError = vi.fn();
 	const player = makeAudioPlayer(null, onError);

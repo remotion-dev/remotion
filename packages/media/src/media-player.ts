@@ -552,10 +552,13 @@ export class MediaPlayer {
 				}),
 			]);
 		} catch (error) {
-			if (this.isDisposalError() || nonce.isStale()) {
+			if (this.isDisposalError()) {
 				return;
 			}
 
+			// Seeks are serialized: a newer nonce does not replace the iterator
+			// whose read failed. Ignoring the error would leave queued seeks using
+			// an exhausted iterator and displaying its last frame indefinitely.
 			this.reportTerminalError(error as Error);
 		}
 	}
