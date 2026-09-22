@@ -83,7 +83,7 @@ export const OverlayExample: React.FC = () => {
 
 ### `<TransitionSeries>`
 
-Inherits the [`from`](/docs/sequence#from), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`from`](/docs/sequence#from), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
 
 The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>`, `<TransitionSeries.Transition>`, and `<TransitionSeries.Overlay>` components.  
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
@@ -91,14 +91,12 @@ Transition scenes must stay absolutely positioned. Remove the `layout` prop or k
 
 ### `<TransitionSeries.Sequence>`
 
-Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
 
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
 Transition scenes must stay absolutely positioned. Remove the `layout` prop or keep the default `absolute-fill`. See the [v5 migration guide](/docs/5-0-migration).
 
 The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from <AvailableFrom v="4.0.497" inline />.
-
-The [`playbackRate`](/docs/sequence#playbackrate) prop is supported from <AvailableFrom v="4.0.528" inline /> on both `<TransitionSeries>` and `<TransitionSeries.Sequence>`. It defaults to `1` and must remain constant across frames. A sequence's rate changes its content without changing its duration or transition timing. A rate on `<TransitionSeries>` speeds up the entire series, including its transitions.
 
 As children, put the contents of your scene.
 

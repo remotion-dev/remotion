@@ -5,11 +5,10 @@ import {
 	Freeze,
 	Html5Video,
 	Sequence,
-	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 
-const src = staticFile('vp8-vorbis.webm');
+const src = 'https://remotion.media/video.mp4';
 const videoStyle: CSSProperties = {
 	width: '100%',
 	height: 180,
@@ -142,7 +141,12 @@ export const SequencePlaybackRateLoops = () => {
 					description="Same clocks, trims, and rate through the native video path. Muted for comparison."
 				>
 					<NestedClocks>
-						<Sequence from={17} durationInFrames={420} layout="none">
+						<Sequence
+							from={17}
+							durationInFrames={420}
+							layout="none"
+							playbackRate={2.5}
+						>
 							<Html5Video
 								name="Native loop · source [197, 268) · 0.75×"
 								src={src}

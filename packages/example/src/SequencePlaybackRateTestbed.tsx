@@ -8,7 +8,7 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-const video = staticFile('vp8-vorbis.webm');
+const video = 'https://remotion.media/video.mp4';
 
 const mediaStyle: CSSProperties = {
 	width: '100%',
@@ -84,7 +84,7 @@ export const SequencePlaybackRateTestbed = () => {
 				<Panel title="1. Video + audio inside a 2× sequence">
 					<Sequence
 						name="Sped-up video and audio · 2×"
-						playbackRate={2}
+						playbackRate={3.1}
 						layout="none"
 					>
 						<Video
@@ -98,6 +98,7 @@ export const SequencePlaybackRateTestbed = () => {
 							name="Audio inherits 2×"
 							src={staticFile('podcast.wav')}
 							volume={0.6}
+							toneFrequency={0.47}
 						/>
 						<Clock label="Media parent frame" color="#58d9c1" />
 					</Sequence>
@@ -118,7 +119,7 @@ export const SequencePlaybackRateTestbed = () => {
 						</AbsoluteFill>
 						<Sequence
 							name="Trimmed video parent · 2×"
-							playbackRate={2}
+							playbackRate={0.9}
 							layout="none"
 						>
 							<Video
