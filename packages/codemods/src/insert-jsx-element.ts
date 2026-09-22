@@ -7,7 +7,6 @@ import type {
 	FunctionDeclaration,
 	ImportDeclaration,
 	ImportDefaultSpecifier,
-	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
 	JSXOpeningElement,
@@ -137,7 +136,7 @@ export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
 }): InsertJsxElementCodemodEnvironment => {
 	const filesByNormalizedPath = new Map(
 		Object.entries(project.files).map(([fileName, contents]) => [
-			normalizeVirtualPath(fileName),
+			resolveVirtualPath(project.rootDir, fileName),
 			contents,
 		]),
 	);
@@ -1486,88 +1485,38 @@ const getImportDeclarations = ({
 	);
 };
 
-const importDeclarationHasNamespaceSpecifier = (
-	importDeclaration: ImportDeclaration,
-) => {
-	return importDeclaration.specifiers?.some(
-		(specifier) => specifier.type === 'ImportNamespaceSpecifier',
-	);
-};
-
-const hasOfficialLocalImport = ({
-	ast,
-	importedName,
-	sourcePath,
-}: {
-	ast: File;
-	importedName: string;
-	sourcePath: string;
-}) => {
-	return getImportDeclarations({ast, sourcePath}).some((importDeclaration) => {
-		return importDeclaration.specifiers?.some((specifier) => {
-			return (
-				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === importedName &&
-				(specifier.local?.name ?? importedName) === importedName
-			);
-		});
-	});
-};
-
-const addOfficialNamedImport = ({
-	ast,
-	importedName,
-	sourcePath,
-}: {
-	ast: File;
-	importedName: string;
-	sourcePath: string;
-}) => {
-	const existingImport = getImportDeclarations({ast, sourcePath}).find(
-		(candidate) => !importDeclarationHasNamespaceSpecifier(candidate),
-	);
-	const importSpecifier = recast.types.builders.importSpecifier(
-		recast.types.builders.identifier(importedName),
-	) as unknown as ImportSpecifier;
-
-	if (existingImport) {
-		existingImport.specifiers = [
-			...(existingImport.specifiers ?? []),
-			importSpecifier,
-		];
-		return;
-	}
-
-	const importDeclaration = recast.types.builders.importDeclaration(
-		[importSpecifier as never],
-		recast.types.builders.stringLiteral(sourcePath),
-	) as unknown as ImportDeclaration;
-	insertImportDeclaration(ast, importDeclaration);
-};
-
 const ensureOfficialNamedImport = ({
 	ast,
 	importedName,
 	sourcePath,
-	label,
 }: {
 	ast: File;
 	importedName: string;
 	sourcePath: string;
-	label: string;
 }) => {
-	if (hasOfficialLocalImport({ast, importedName, sourcePath})) {
-		return importedName;
-	}
+	for (const declaration of getImportDeclarations({ast, sourcePath})) {
+		if (declaration.importKind === 'type') {
+			continue;
+		}
 
-	if (hasTopLevelBinding({ast, name: importedName})) {
-		throw new Error(
-			`Cannot add ${label} because ${importedName} is already defined`,
+		const existing = declaration.specifiers.find(
+			(specifier) =>
+				specifier.type === 'ImportSpecifier' &&
+				specifier.importKind !== 'type' &&
+				getImportedName(specifier) === importedName,
 		);
+		if (existing) {
+			return existing.local.name;
+		}
 	}
 
-	addOfficialNamedImport({ast, importedName, sourcePath});
-	return importedName;
+	let localName = importedName;
+	let suffix = 2;
+	while (hasTopLevelBinding({ast, name: localName})) {
+		localName = `${importedName}${suffix++}`;
+	}
+
+	return ensureNamedImport({ast, importedName, sourcePath, localName});
 };
 
 const ensureStaticFileImport = (ast: File) => {
@@ -1575,7 +1524,6 @@ const ensureStaticFileImport = (ast: File) => {
 		ast,
 		importedName: 'staticFile',
 		sourcePath: 'remotion',
-		label: 'staticFile()',
 	});
 };
 
@@ -1584,7 +1532,6 @@ const ensureCanvasImageImport = (ast: File) => {
 		ast,
 		importedName: 'CanvasImage',
 		sourcePath: 'remotion',
-		label: '<CanvasImage>',
 	});
 };
 
@@ -1593,7 +1540,6 @@ const ensureAnimatedImageImport = (ast: File) => {
 		ast,
 		importedName: 'AnimatedImage',
 		sourcePath: 'remotion',
-		label: '<AnimatedImage>',
 	});
 };
 
@@ -1602,7 +1548,6 @@ const ensureVideoImport = (ast: File) => {
 		ast,
 		importedName: 'Video',
 		sourcePath: '@remotion/media',
-		label: '<Video>',
 	});
 };
 
@@ -1611,7 +1556,6 @@ const ensureAudioImport = (ast: File) => {
 		ast,
 		importedName: 'Audio',
 		sourcePath: '@remotion/media',
-		label: '<Audio>',
 	});
 };
 
@@ -1620,7 +1564,6 @@ const ensureGifImport = (ast: File) => {
 		ast,
 		importedName: 'Gif',
 		sourcePath: '@remotion/gif',
-		label: '<Gif>',
 	});
 };
 

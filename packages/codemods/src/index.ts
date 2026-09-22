@@ -70,6 +70,96 @@ import {
 } from './internals';
 
 export {addSolid, type AddSolidOptions, type AddSolidResult} from './add-solid';
+export {
+	addMedia,
+	addComponent,
+	type AddMediaOptions,
+	type AddComponentOptions,
+	type AddContentOptions,
+	type CodemodValue,
+} from './add-content';
+export {
+	getJsxNodes,
+	type GetJsxNodesOptions,
+	type JsxNode,
+} from './get-jsx-nodes';
+export {
+	getJsxNodeProps,
+	updateJsxNodeProps,
+	type GetJsxNodePropsOptions,
+	type UpdateJsxNodePropsOptions,
+	type JsxNodeProps,
+} from './jsx-props';
+export {
+	duplicateJsxNodes,
+	reorderJsxNode,
+	splitSequences,
+	detachAudio,
+	type DuplicateJsxNodesOptions,
+	type DuplicateJsxNodesResult,
+	type ReorderJsxNodeOptions,
+	type SplitSequencesOptions,
+	type DetachAudioOptions,
+} from './jsx-operations';
+export type {
+	JsxNodeReference,
+	JsxNodePathRemapping,
+	CodemodNodeResult,
+	CodemodInsertionResult,
+} from './node-references';
+export {
+	resolveCompositionComponent,
+	addComposition,
+	renameComposition,
+	duplicateComposition,
+	deleteComposition,
+	updateCompositionMetadata,
+	setCompositionDefaultProps,
+	type CompositionTarget,
+	type CompositionMetadata,
+	type FolderReference,
+	type ResolveCompositionComponentOptions,
+	type AddCompositionOptions,
+	type RenameCompositionOptions,
+	type DuplicateCompositionOptions,
+	type DeleteCompositionOptions,
+	type UpdateCompositionMetadataOptions,
+	type SetCompositionDefaultPropsOptions,
+} from './composition-operations';
+export {
+	addFolder,
+	renameFolder,
+	moveComposition,
+	moveFolder,
+	unwrapFolder,
+	type CompositionTreeItem,
+	type CompositionDestination,
+	type AddFolderOptions,
+	type RenameFolderOptions,
+	type MoveCompositionOptions,
+	type MoveFolderOptions,
+	type UnwrapFolderOptions,
+} from './folder-operations';
+export {
+	addEffect,
+	updateEffectProps,
+	deleteEffects,
+	duplicateEffects,
+	reorderEffect,
+	type EffectReference,
+	type AddEffectOptions,
+	type UpdateEffectPropsOptions,
+	type DeleteEffectsOptions,
+	type DuplicateEffectsOptions,
+	type ReorderEffectOptions,
+} from './public-effect-operations';
+export {
+	updateJsxNodeKeyframes,
+	updateEffectKeyframes,
+	type JsxNodeKeyframeUpdate,
+	type UpdateJsxNodeKeyframesOptions,
+	type UpdateEffectKeyframesOptions,
+} from './keyframe-operations';
 export type {
 	CodemodFileChange,
 	CodemodProject,

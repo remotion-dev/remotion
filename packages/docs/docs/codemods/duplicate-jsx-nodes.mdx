@@ -1,0 +1,75 @@
+---
+image: /generated/articles-docs-codemods-duplicate-jsx-nodes.png
+title: 'duplicateJsxNodes()'
+crumb: '@remotion/codemods'
+---
+
+# duplicateJsxNodes()<AvailableFrom v="4.0.528" />
+
+Duplicates one or more JSX elements beside their originals.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="duplicate-jsx-nodes.ts"
+import {duplicateJsxNodes, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: JsxNodeReference;
+
+const result = await duplicateJsxNodes({
+  project,
+  nodes: [node],
+});
+
+console.log(result);
+```
+
+Copies JSX source, including props and children. Imported component implementations remain shared. Overlapping ancestor/descendant selections are unsupported.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### nodes
+
+The node references to duplicate. They may belong to different files. All references are resolved against the input project; duplicate references are deduplicated.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### insertedNodes
+
+References to the roots of the new copies, in source order within each file. Descendant references are included in `nodePathRemappings`.
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/jsx-operations.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

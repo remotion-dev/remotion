@@ -472,9 +472,12 @@ const appendElementToRoot = ({
 	returnStatement,
 }: {
 	element: JSXElement;
-	returnStatement: ReturnStatement;
+	returnStatement: ReturnStatement | ArrowFunctionExpression;
 }) => {
-	const {argument} = returnStatement;
+	const argument =
+		returnStatement.type === 'ArrowFunctionExpression'
+			? returnStatement.body
+			: returnStatement.argument;
 	if (argument?.type !== 'JSXFragment' && argument?.type !== 'JSXElement') {
 		throw new Error('Could not find a root JSX element');
 	}
@@ -484,14 +487,19 @@ const appendElementToRoot = ({
 			stripParenthesizedExtra(element),
 		);
 	} else {
-		returnStatement.argument = wrapInJsxFragment([
+		const fragment = wrapInJsxFragment([
 			argument as unknown as JSXElement,
 			element,
 		]) as never;
+		if (returnStatement.type === 'ArrowFunctionExpression') {
+			returnStatement.body = fragment;
+		} else {
+			returnStatement.argument = fragment;
+		}
 	}
 };
 
-const getEnclosingReturnStatement = (path: recast.types.NodePath) => {
+const getEnclosingJsxReturn = (path: recast.types.NodePath) => {
 	let currentPath: recast.types.NodePath | null = path;
 	while (currentPath !== null) {
 		if (
@@ -499,6 +507,14 @@ const getEnclosingReturnStatement = (path: recast.types.NodePath) => {
 			'ReturnStatement'
 		) {
 			return currentPath.node as unknown as ReturnStatement;
+		}
+
+		const node = currentPath.node as ArrowFunctionExpression;
+		if (
+			node?.type === 'ArrowFunctionExpression' &&
+			(node.body.type === 'JSXElement' || node.body.type === 'JSXFragment')
+		) {
+			return node;
 		}
 
 		currentPath = currentPath.parentPath ?? null;
@@ -719,7 +735,7 @@ const moveCompositionOrFolder = ({
 		}
 	}
 
-	const sourceReturnStatement = getEnclosingReturnStatement(sourceItem.path);
+	const sourceReturnStatement = getEnclosingJsxReturn(sourceItem.path);
 	deleteJsxElementAtPath(sourceItem.path);
 	const element = stripParenthesizedExtra(sourceItem.node);
 	if (transformation.destination.type === 'root') {
@@ -840,7 +856,7 @@ const moveCompositionToFolder = ({
 
 	const compositionElement = (sourcePath as recast.types.NodePath)
 		.node as JSXElement;
-	const sourceReturnStatement = getEnclosingReturnStatement(sourcePath);
+	const sourceReturnStatement = getEnclosingJsxReturn(sourcePath);
 	deleteJsxElementAtPath(sourcePath);
 	if (transformation.folderName === null) {
 		appendElementToRoot({

@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-codemods-delete-effects.png
+title: 'deleteEffects()'
+crumb: '@remotion/codemods'
+---
+
+# deleteEffects()<AvailableFrom v="4.0.528" />
+
+Deletes selected effects from one or more JSX nodes.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="delete-effects.ts"
+import {deleteEffects, type CodemodProject, type EffectReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const effect: EffectReference;
+
+const result = await deleteEffects({
+  project,
+  effects: [effect],
+});
+
+console.log(result);
+```
+
+Indices of later effects shift after deletion. Read effects again with [`getJsxNodeProps()`](/docs/codemods/get-jsx-node-props) before using old effect indices. Imports are preserved.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### effects
+
+Effect references to remove. References may span files and nodes; indices refer to the input project. Duplicate references are deduplicated.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/public-effect-operations.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

@@ -1,0 +1,79 @@
+---
+image: /generated/articles-docs-codemods-detach-audio.png
+title: 'detachAudio()'
+crumb: '@remotion/codemods'
+---
+
+# detachAudio()<AvailableFrom v="4.0.528" />
+
+Mutes a video element and inserts a corresponding audio element beside it.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="detach-audio.ts"
+import {detachAudio, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: JsxNodeReference;
+
+const result = await detachAudio({
+  project,
+  node,
+});
+
+console.log(result);
+```
+
+Supports recognized Remotion video imports. The audio element uses the same source and copies supported playback and timing props. This edits JSX; it does not extract or write an audio file.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### node
+
+A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### insertedNode
+
+The new audio element reference.
+
+### updatedNode
+
+The muted video element reference.
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/jsx-operations.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

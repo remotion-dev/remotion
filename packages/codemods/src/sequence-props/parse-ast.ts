@@ -1,6 +1,6 @@
 import type {File} from '@babel/types';
 import * as recast from 'recast';
-import * as tsParser from 'recast/parsers/babel-ts';
+import * as tsParser from 'recast/parsers/babel-ts.js';
 
 const normalizeImportSpacing = (input: string) =>
 	input.replace(/(import[^\n]*\n)\n+(?=import\b)/g, '$1');

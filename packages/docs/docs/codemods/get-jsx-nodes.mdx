@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-codemods-get-jsx-nodes.png
+title: 'getJsxNodes()'
+crumb: '@remotion/codemods'
+---
+
+# getJsxNodes()<AvailableFrom v="4.0.528" />
+
+Lists the JSX elements in a project file in source order.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="get-jsx-nodes.ts"
+import {getJsxNodes, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = getJsxNodes({
+  project,
+  filePath: 'src/Video.tsx',
+});
+
+console.log(result);
+```
+
+This inspects source without executing it. A node rendered multiple times, for example inside `.map()`, still has one source reference. JSX fragments are not listed.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### filePath
+
+The project-relative or absolute source file path.
+
+## Return value
+
+Returns an array. Each entry has the following properties.
+
+### filePath
+
+The matching key in `project.files`.
+
+### nodePath
+
+An opaque path identifying this JSX element in the current source snapshot.
+
+### tagName
+
+The JSX tag name, such as `Sequence`, `div`, or `Interactive.Div`.
+
+### componentIdentity
+
+The recognized component identity, or `null` when it cannot be determined. Import aliases are resolved where supported.
+
+### location
+
+The opening tag's `{line, column}` location, or `null`. Lines are one-based; columns are zero-based.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-jsx-nodes.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

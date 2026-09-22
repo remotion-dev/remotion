@@ -1,4 +1,5 @@
 import type {
+	ArrowFunctionExpression,
 	File,
 	JSXElement,
 	JSXFragment,
@@ -128,13 +129,20 @@ const getRegistrationRoot = (
 ): JSXElement | JSXFragment => {
 	let currentPath: recast.types.NodePath | null = path;
 	while (currentPath !== null) {
-		const node = currentPath.node as ReturnStatement;
+		const node = currentPath.node as ReturnStatement | ArrowFunctionExpression;
 		if (
 			node.type === 'ReturnStatement' &&
 			(node.argument?.type === 'JSXElement' ||
 				node.argument?.type === 'JSXFragment')
 		) {
 			return node.argument;
+		}
+
+		if (
+			node.type === 'ArrowFunctionExpression' &&
+			(node.body.type === 'JSXElement' || node.body.type === 'JSXFragment')
+		) {
+			return node.body;
 		}
 
 		currentPath = currentPath.parentPath ?? null;

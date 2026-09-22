@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-codemods-delete-composition.png
+title: 'deleteComposition()'
+crumb: '@remotion/codemods'
+---
+
+# deleteComposition()<AvailableFrom v="4.0.528" />
+
+Removes a composition or still registration.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="delete-composition.ts"
+import {deleteComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = deleteComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+});
+
+console.log(result);
+```
+
+Keeps component implementations, imports, and media files. A missing or ambiguous composition ID throws an error.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+## Return value
+
+Returns an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/composition-operations.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

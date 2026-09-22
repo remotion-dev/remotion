@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-codemods-move-composition.png
+title: 'moveComposition()'
+crumb: '@remotion/codemods'
+---
+
+# moveComposition()<AvailableFrom v="4.0.528" />
+
+Moves a composition into a folder, to the root, or beside another registration.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="move-composition.ts"
+import {moveComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = moveComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  destination: {type: 'folder', folder: {name: 'Social', parentName: null}},
+});
+
+console.log(result);
+```
+
+The composition and destination must be in the same registration file. Their source must allow a direct JSX-child move. The component implementation and composition ID stay unchanged.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### destination
+
+Where to move the item within the same file. Use `{type: 'root'}`, `{type: 'folder', folder: {name, parentName}}`, or `{type: 'before' | 'after', target}`. A target is `{type: 'composition', compositionId}` or `{type: 'folder', name, parentName}`. Moving an item into its current parent is a no-op.
+
+## Return value
+
+Returns an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/folder-operations.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
