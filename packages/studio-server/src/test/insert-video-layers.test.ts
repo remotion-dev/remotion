@@ -40,43 +40,73 @@ export const Comp = () => (
 
 	try {
 		(getUndoStack() as unknown as unknown[]).length = 0;
-		writeFileSync(entryPoint, input);
-		const result = await insertVideoLayersHandler({
-			input: {
-				fileName: entryPoint,
-				nodePath: lineContainingToNodePath(input, '<Clip'),
-				baseSrc: 'input-base.webm',
-				foregroundSrc: 'input-foreground.webm',
+		for (const {source, base, foreground} of [
+			{
+				source: input,
+				base: "<Clip src={staticFile('input-base.webm')} from={10} style={{opacity: 0.5}} />",
+				foreground:
+					"<Clip src={staticFile('input-foreground.webm')} from={10} style={{opacity: 0.5, position: 'absolute', top: 0, left: 0}} />",
 			},
-			entryPoint,
-			remotionRoot,
-			request: {} as never,
-			response: {} as never,
-			logLevel: 'error',
-			methods: {
-				removeJob: () => undefined,
-				cancelJob: () => undefined,
-				addJob: () => undefined,
+			{
+				source: input.replace('\t\tstyle={{opacity: 0.5}}\n', ''),
+				base: "<Clip src={staticFile('input-base.webm')} from={10} />",
+				foreground:
+					"<Clip src={staticFile('input-foreground.webm')} from={10} style={{position: 'absolute', top: 0, left: 0}} />",
 			},
-			publicDir: remotionRoot,
-			binariesDirectory: null,
-			configFile: null,
-			getDefaultCodingAgent: () => null,
-			getDefaultEditor: () => null,
-		});
+			{
+				source: input.replace(
+					'style={{opacity: 0.5}}',
+					'style={{\n\t\t\topacity: 0.5,\n\t\t}}',
+				),
+				base: "<Clip src={staticFile('input-base.webm')} from={10} style={{ opacity: 0.5, }} />",
+				foreground:
+					"<Clip src={staticFile('input-foreground.webm')} from={10} style={{ opacity: 0.5, position: 'absolute', top: 0, left: 0, }} />",
+			},
+			{
+				source: input.replace(
+					'style={{opacity: 0.5}}',
+					"style={{position: 'absolute', top: 10, left: 20, opacity: 0.5}}",
+				),
+				base: "<Clip src={staticFile('input-base.webm')} from={10} style={{position: 'absolute', top: 10, left: 20, opacity: 0.5}} />",
+				foreground:
+					"<Clip src={staticFile('input-foreground.webm')} from={10} style={{top: 0, left: 0, ...({position: 'absolute', top: 10, left: 20, opacity: 0.5}), position: 'absolute'}} />",
+			},
+		]) {
+			writeFileSync(entryPoint, source);
+			const result = await insertVideoLayersHandler({
+				input: {
+					fileName: entryPoint,
+					nodePath: lineContainingToNodePath(source, '<Clip'),
+					baseSrc: 'input-base.webm',
+					foregroundSrc: 'input-foreground.webm',
+				},
+				entryPoint,
+				remotionRoot,
+				request: {} as never,
+				response: {} as never,
+				logLevel: 'error',
+				methods: {
+					removeJob: () => undefined,
+					cancelJob: () => undefined,
+					addJob: () => undefined,
+				},
+				publicDir: remotionRoot,
+				binariesDirectory: null,
+				configFile: null,
+				getDefaultCodingAgent: () => null,
+				getDefaultEditor: () => null,
+			});
 
-		expect(result.success).toBe(true);
-		const written = readFileSync(entryPoint, 'utf-8');
-		const singleLine = written.replace(/\s+/g, ' ');
-		expect(written).toContain(`import {staticFile} from 'remotion';`);
-		expect(singleLine).toContain(
-			"<Clip src={staticFile('input-base.webm')} from={10} style={{opacity: 0.5}} />",
-		);
-		expect(singleLine).toContain(
-			"<Clip src={staticFile('input-foreground.webm')} from={10} style={{opacity: 0.5}} />",
-		);
-		expect(written).toContain("const untouched  = {keep : 'spacing'};");
-		expect(getUndoStack()).toHaveLength(1);
+			expect(result.success).toBe(true);
+			const written = readFileSync(entryPoint, 'utf-8');
+			const singleLine = written.replace(/\s+/g, ' ');
+			expect(written).toContain(`import {staticFile} from 'remotion';`);
+			expect(singleLine).toContain(base);
+			expect(singleLine).toContain(foreground);
+			expect(written).toContain("const untouched  = {keep : 'spacing'};");
+		}
+
+		expect(getUndoStack()).toHaveLength(4);
 	} finally {
 		cleanupFileWatcher();
 		cleanupLiveEvents();

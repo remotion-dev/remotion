@@ -21,6 +21,7 @@ import {
 	captureImportSnapshots,
 	getAdjacentJsxInsertionSourceEdit,
 	getInsertImportSourceEdits,
+	type SourceEdit,
 } from './source-edits';
 import {
 	getEndOfLine,
@@ -54,11 +55,13 @@ const replaceSrcInElementSource = ({
 	input,
 	srcAttribute,
 	srcSource,
+	styleEdit,
 }: {
 	element: JSXElement;
 	input: string;
 	srcAttribute: JSXAttribute;
 	srcSource: string;
+	styleEdit: SourceEdit | null;
 }) => {
 	if (!element.loc || !srcAttribute.value?.loc) {
 		throw new Error('Could not locate the selected video source');
@@ -69,10 +72,25 @@ const replaceSrcInElementSource = ({
 	const valueStart = recastLocToOffset(input, srcAttribute.value.loc.start);
 	const valueEnd = recastLocToOffset(input, srcAttribute.value.loc.end);
 	const originalIndent = getLineIndent({input, offset: elementStart});
-	const elementSource =
-		input.slice(elementStart, valueStart) +
-		srcSource +
-		input.slice(valueEnd, elementEnd);
+	const elementSource = applySourceEdits({
+		input: input.slice(elementStart, elementEnd),
+		edits: [
+			{
+				start: valueStart - elementStart,
+				end: valueEnd - elementStart,
+				replacement: srcSource,
+			},
+			...(styleEdit
+				? [
+						{
+							start: styleEdit.start - elementStart,
+							end: styleEdit.end - elementStart,
+							replacement: styleEdit.replacement,
+						},
+					]
+				: []),
+		],
+	});
 
 	return elementSource
 		.split(/\r?\n/)
@@ -194,17 +212,127 @@ export const insertVideoLayers = ({
 		prettierConfigOverride,
 		src: foregroundSrc,
 	});
+	const styleAttribute = video.openingElement.attributes.find(
+		(attribute): attribute is JSXAttribute =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type === 'JSXIdentifier' &&
+			attribute.name.name === 'style',
+	);
+	const quote =
+		getPreferredQuote(input, prettierConfigOverride) === 'single' ? "'" : '"';
+	const positioning = `position: ${quote}absolute${quote}, top: 0, left: 0`;
+	let foregroundStyleEdit: SourceEdit;
+	if (styleAttribute) {
+		const {value} = styleAttribute;
+		if (value?.type !== 'JSXExpressionContainer' || !value.loc) {
+			throw new Error(
+				'Could not add positioning to the foreground video style',
+			);
+		}
+
+		const {expression} = value;
+		if (!expression.loc) {
+			throw new Error('Could not locate the foreground video style');
+		}
+
+		const expressionStart = recastLocToOffset(input, expression.loc.start);
+		const expressionEnd = recastLocToOffset(input, expression.loc.end);
+		const expressionSource = input.slice(expressionStart, expressionEnd);
+		const hasPositioning =
+			expression.type === 'ObjectExpression' &&
+			expression.properties.some(
+				(property) =>
+					property.type === 'ObjectProperty' &&
+					!property.computed &&
+					['position', 'top', 'left', 'inset'].includes(
+						property.key.type === 'Identifier'
+							? property.key.name
+							: property.key.type === 'StringLiteral'
+								? property.key.value
+								: '',
+					),
+			);
+		if (
+			expression.type === 'ObjectExpression' &&
+			!hasPositioning &&
+			!expressionSource.includes('//') &&
+			!expressionSource.includes('/*')
+		) {
+			const body = expressionSource.slice(1, -1);
+			const trimmedBody = body.trimEnd();
+			const separator =
+				expression.properties.length === 0 || trimmedBody.endsWith(',')
+					? ''
+					: ',';
+			const closingIndent = body.match(/\r?\n([\t ]*)$/)?.[1];
+			const lastProperty = expression.properties.at(-1);
+			const propertyIndent = lastProperty?.loc
+				? getLineIndent({
+						input,
+						offset: recastLocToOffset(input, lastProperty.loc.start),
+					})
+				: `${closingIndent ?? ''}${getIndentationUnit(input, prettierConfigOverride)}`;
+			const replacement =
+				closingIndent === undefined
+					? `{${trimmedBody}${separator}${trimmedBody ? ' ' : ''}${positioning}${body.slice(trimmedBody.length)}}`
+					: `{${trimmedBody}${separator}${getEndOfLine(input)}${propertyIndent}${positioning},${getEndOfLine(input)}${closingIndent}}`;
+			foregroundStyleEdit = {
+				start: expressionStart,
+				end: expressionEnd,
+				replacement,
+			};
+		} else {
+			foregroundStyleEdit = {
+				start: recastLocToOffset(input, value.loc.start),
+				end: recastLocToOffset(input, value.loc.end),
+				replacement: `{{top: 0, left: 0, ...(${expressionSource}), position: ${quote}absolute${quote}}}`,
+			};
+		}
+	} else {
+		if (!video.openingElement.loc) {
+			throw new Error('Could not locate the foreground video opening tag');
+		}
+
+		const closingStart =
+			recastLocToOffset(input, video.openingElement.loc.end) -
+			(video.openingElement.selfClosing ? 2 : 1);
+		const closingLineStart = input.lastIndexOf('\n', closingStart - 1) + 1;
+		const closingLinePrefix = input.slice(closingLineStart, closingStart);
+		if (/^[\t ]*$/.test(closingLinePrefix)) {
+			const lastAttribute = video.openingElement.attributes.at(-1);
+			const attributeIndent = lastAttribute?.loc
+				? getLineIndent({
+						input,
+						offset: recastLocToOffset(input, lastAttribute.loc.start),
+					})
+				: closingLinePrefix + getIndentationUnit(input, prettierConfigOverride);
+			foregroundStyleEdit = {
+				start: closingLineStart,
+				end: closingLineStart,
+				replacement: `${attributeIndent}style={{${positioning}}}${getEndOfLine(input)}`,
+			};
+		} else {
+			foregroundStyleEdit = {
+				start: closingStart,
+				end: closingStart,
+				replacement: `${/\s/.test(input[closingStart - 1] ?? '') ? '' : ' '}style={{${positioning}}}${video.openingElement.selfClosing ? ' ' : ''}`,
+			};
+		}
+	}
+
 	const baseVideoSource = replaceSrcInElementSource({
 		element: video,
 		input,
 		srcAttribute,
 		srcSource: baseSrcSource,
+		styleEdit: null,
 	});
 	const foregroundVideoSource = replaceSrcInElementSource({
 		element: video,
 		input,
 		srcAttribute,
 		srcSource: foregroundSrcSource,
+		styleEdit: foregroundStyleEdit,
 	});
 	const foregroundVideo = parseVideoElement(foregroundVideoSource);
 
