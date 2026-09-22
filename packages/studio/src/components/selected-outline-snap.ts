@@ -1,8 +1,9 @@
+import {SELECTED_OUTLINE_SNAP_COLOR} from '../helpers/colors';
 import type {Guide} from '../state/editor-guides';
 import type {SelectedOutline} from './selected-outline-geometry';
 
 export const selectedOutlineSnapThresholdPx = 10;
-export const selectedOutlineSnapIndicatorColor = '#ff00ff';
+export const selectedOutlineSnapIndicatorColor = SELECTED_OUTLINE_SNAP_COLOR;
 
 export type SelectedOutlineSnapAxis = 'x' | 'y';
 

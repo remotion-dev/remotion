@@ -6,7 +6,12 @@ import React, {
 	useState,
 } from 'react';
 import type {TSequence} from 'remotion';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {
+	CURRENT_COLOR,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+} from '../../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -187,7 +192,7 @@ export const TimelineLayerChildrenToggle: React.FC<{
 				cursor: 'default',
 			}}
 		>
-			<TimelineCollapseToggle collapsed={isCollapsed} color="currentColor" />
+			<TimelineCollapseToggle collapsed={isCollapsed} color={CURRENT_COLOR} />
 		</button>
 	);
 };

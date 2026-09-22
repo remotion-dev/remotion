@@ -1,8 +1,9 @@
 import type {SVGProps} from 'react';
 import React from 'react';
+import {CURRENT_COLOR} from '../helpers/colors';
 
 export const AlignLeftIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
-	const color = props.color ?? 'currentColor';
+	const color = props.color ?? CURRENT_COLOR;
 
 	return (
 		<svg {...props} viewBox="0 0 16 16" fill="none">
