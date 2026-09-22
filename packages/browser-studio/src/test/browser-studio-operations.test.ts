@@ -328,7 +328,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	).toBe(false);
 });
 
-test('splits video audio and inserts captions with remappings and undo', async () => {
+test('splits video audio, inserts video layers and captions with remappings and undo', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	const initialSource = `import {Video} from '@remotion/media';
 export const Component = () => <Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />;`;
@@ -425,7 +425,7 @@ registerRoot(Root);`,
 		"<Video src={staticFile('video-base.webm')} from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />",
 	);
 	expect(videoLayersOutput).toContain(
-		"<Video src={staticFile('video-foreground.webm')} from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />",
+		"<Video src={staticFile('video-foreground.webm')} from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5, position: 'absolute', top: 0, left: 0}} />",
 	);
 	expect(events).toContainEqual({
 		type: 'sequence-node-paths-remapped',
