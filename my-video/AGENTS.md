@@ -29,8 +29,12 @@ Rendering and Studio need Node.js and a Chrome/Chromium download; they work in C
 When upgrading Remotion, re-vendor the skills so guidance matches the installed version:
 
 ```console
-cp -R ../packages/skills/skills/. .claude/skills/
+node scripts/vendor-skills.mjs   # defaults to ../packages/skills/skills; pass another source path if needed
 ```
+
+The script copies the skills without their symlinks (which break on Windows checkouts and inflate zip bundles), rewrites sibling-skill links accordingly, and fails if any relative link is broken. Do not copy the skills by hand.
+
+`node scripts/build-chat-skill.mjs` packages `chat-skill/SKILL.md` plus these skills into `remotion-video-skill.zip` for upload to claude.ai (Claude Chat and account-wide Cowork). Rebuild it after re-vendoring.
 
 ## Conventions
 
