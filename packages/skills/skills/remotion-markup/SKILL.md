@@ -353,9 +353,9 @@ This will start a long-running process and print the server URL for the preview.
 If server is already started, it will print the URL.
 You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
-## Optional: one-frame render check
+## Optional: frame render check
 
-You can render a single frame with the CLI to sanity-check layout, colors, or timing.  
+You can render a single frame with the CLI to sanity-check layout or colors.
 Skip it for trivial edits, pure refactors, or when you already have enough confidence from Studio or prior renders.
 
 ```bash
@@ -363,3 +363,11 @@ npx remotion still [composition-id] --scale=0.25 --frame=30
 ```
 
 At 30 fps, `--frame=30` is the one-second mark (`--frame` is zero-based).
+
+To check how the composition changes over time, render selected frames as an image sequence in one call:
+
+```bash
+npx remotion render [composition-id] out/frames --frames=0,30,90 --image-format=png --scale=0.25
+```
+
+Inspect the resulting images for layout and timing issues. `--frames` is zero-based and accepts a comma-separated list of frame numbers.
