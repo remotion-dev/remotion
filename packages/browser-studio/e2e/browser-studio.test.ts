@@ -8,6 +8,7 @@ import {
 } from '@playwright/test';
 import {
 	createElementPayload,
+	staticFileRef,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
 import {strFromU8, unzipSync} from 'fflate';
@@ -1225,45 +1226,47 @@ test('drops and imports an Element payload with the deployment Remotion version'
 	}
 
 	const dataTransfer = await canvas.evaluateHandle(() => new DataTransfer());
-	await dataTransfer.evaluate((transfer) => {
-		const payload = JSON.stringify({
-			type: 'remotion-element',
-			version: 2,
-			element: {
-				assets: [
-					{
-						path: 'browser-element/logo.svg',
-						type: 'base64',
-						data: btoa(
-							'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="blue" /></svg>',
-						),
-					},
-				],
-				dependencies: [{name: '@remotion/shapes', version: null}],
-				dimensions: {width: 320, height: 180},
-				displayName: 'Browser Element',
-				durationInFrames: 60,
-				installationMode: 'wrapped',
-				slug: 'browser-element',
-				sourceCode: `import {Rect} from '@remotion/shapes';
-import {staticFileRef as asset} from '@remotion/studio-protocol';
+	await dataTransfer.evaluate(
+		(transfer, initialProps) => {
+			const payload = JSON.stringify({
+				type: 'remotion-element',
+				version: 2,
+				element: {
+					assets: [
+						{
+							path: 'browser-element/logo.svg',
+							type: 'base64',
+							data: btoa(
+								'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="blue" /></svg>',
+							),
+						},
+					],
+					dependencies: [{name: '@remotion/shapes', version: null}],
+					dimensions: {width: 320, height: 180},
+					displayName: 'Browser Element',
+					durationInFrames: 60,
+					installationMode: 'wrapped',
+					initialProps,
+					slug: 'browser-element',
+					sourceCode: `import {Rect} from '@remotion/shapes';
 import {Img} from 'remotion';
 
-const metadata = {asset: 'Element asset'};
-export const BrowserElement = () => <>
+export const BrowserElement = ({logoSrc}: {logoSrc: string}) => <>
 	<Rect width={320} height={180} fill="red" />
-	<Img alt={metadata.asset} src={asset({path: 'browser-element/logo.svg', previewSrc: 'https://preview.example/logo.svg'})} />
+	<Img alt="Element asset" src={logoSrc} />
 </>;
 `,
-			},
-		});
-		transfer.effectAllowed = 'copy';
-		transfer.setData(
-			'application/vnd.remotion.drag+json;v=1;type=element;width=320;height=180;duration=60',
-			payload,
-		);
-		transfer.setData('text/plain', payload);
-	});
+				},
+			});
+			transfer.effectAllowed = 'copy';
+			transfer.setData(
+				'application/vnd.remotion.drag+json;v=1;type=element;width=320;height=180;duration=60',
+				payload,
+			);
+			transfer.setData('text/plain', payload);
+		},
+		{logoSrc: staticFileRef('browser-element/logo.svg')},
+	);
 	const coordinates = {
 		clientX: box.x + box.width / 2,
 		clientY: box.y + box.height / 2,
@@ -1317,9 +1320,11 @@ export const BrowserElement = () => <>
 			}),
 		)
 		.toMatchObject({
-			composition: expect.stringContaining('<BrowserElement />'),
-			element: expect.stringMatching(
-				/staticFile\(["']browser-element\/logo\.svg["']\)/,
+			composition: expect.stringMatching(
+				/logoSrc=\{staticFile\(["']browser-element\/logo\.svg["']\)\}/,
+			),
+			element: expect.stringContaining(
+				'<Img alt="Element asset" src={logoSrc} />',
 			),
 			installedVersion: expect.any(String),
 		});

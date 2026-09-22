@@ -90,13 +90,9 @@ export const insertElementHandler: ApiHandler<
 	publicDir,
 }) => {
 	let resolvedAssets: Array<{contents: Uint8Array; path: string}>;
-	let loweredSourceCode: string;
 	try {
 		StudioProtocolInternals.assertElementAssets(element.assets);
-		loweredSourceCode = CodemodsInternals.lowerElementStaticFileRefs({
-			assets: element.assets,
-			sourceCode: element.sourceCode,
-		});
+		StudioProtocolInternals.assertElementAssetReferences(element);
 		resolvedAssets = await StudioProtocolInternals.resolveElementAssets({
 			assets: element.assets,
 			downloadAsset: (options) =>
@@ -111,7 +107,6 @@ export const insertElementHandler: ApiHandler<
 		};
 	}
 
-	const elementToInstall = {...element, sourceCode: loweredSourceCode};
 	return withSourceFileWriteQueue(async () => {
 		const createdAssets: Array<{absolutePath: string; contents: Uint8Array}> =
 			[];
@@ -251,7 +246,7 @@ export const insertElementHandler: ApiHandler<
 			const plan = await getElementInstallPlan({
 				installationName,
 				destination: installDestination,
-				element: elementToInstall,
+				element,
 				entryPoint,
 				remotionRoot,
 			});
@@ -270,7 +265,7 @@ export const insertElementHandler: ApiHandler<
 						conflict: {
 							filePath: plan.filePath,
 							existingSource: existingElementSource,
-							incomingSource: loweredSourceCode,
+							incomingSource: element.sourceCode,
 						},
 					};
 				}
@@ -280,7 +275,7 @@ export const insertElementHandler: ApiHandler<
 
 			const elementSourcesDiffer =
 				plan.existingElementSource !== null &&
-				plan.existingElementSource !== loweredSourceCode;
+				plan.existingElementSource !== element.sourceCode;
 
 			if (!overwriteExisting && plan.existingElementSource !== null) {
 				return {
@@ -289,7 +284,7 @@ export const insertElementHandler: ApiHandler<
 					conflict: {
 						filePath: plan.filePath,
 						existingSource: plan.existingElementSource,
-						incomingSource: loweredSourceCode,
+						incomingSource: element.sourceCode,
 					},
 				};
 			}
@@ -364,7 +359,7 @@ export const insertElementHandler: ApiHandler<
 			const finalPlan = await getElementInstallPlan({
 				installationName,
 				destination: installDestination,
-				element: elementToInstall,
+				element,
 				entryPoint,
 				remotionRoot,
 			});
@@ -501,7 +496,7 @@ export const insertElementHandler: ApiHandler<
 								{
 									filePath: plan.elementFileName,
 									oldContents: plan.existingElementSource,
-									newContents: loweredSourceCode,
+									newContents: element.sourceCode,
 									logLine: 1,
 									nodePathRemappings: null,
 								},
@@ -554,7 +549,7 @@ export const insertElementHandler: ApiHandler<
 			if (shouldWriteElementFile) {
 				writeSource({
 					file: plan.elementFileName,
-					content: loweredSourceCode,
+					content: element.sourceCode,
 					metadata: null,
 				});
 			}

@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	EventSourceEvent,
 	InsertElementRequest,
@@ -241,137 +242,151 @@ test('plans an Element installation without changing the project', async () => {
 	}
 });
 
-test('installs Element assets in a custom public directory and retains them on undo', async () => {
-	const fixture = makeFixture();
-	const originalFetch = globalThis.fetch;
-	let fetches = 0;
-	globalThis.fetch = Object.assign(
-		() => {
-			fetches++;
-			return Promise.resolve(new Response(new Uint8Array([3, 4, 5])));
-		},
-		{preconnect: originalFetch.preconnect},
-	);
-	try {
-		const assetElement = {
-			...element,
-			assets: [
-				{path: 'elements/embedded.bin', type: 'base64' as const, data: 'AAEC'},
-				{
-					path: 'elements/remote.bin',
-					type: 'url' as const,
-					url: 'https://93.184.216.35/remote.bin',
+test.each(['wrapped', 'component-owned-sequence'] as const)(
+	'installs asset props in %s mode and retains assets on undo',
+	async (installationMode) => {
+		const fixture = makeFixture();
+		const originalFetch = globalThis.fetch;
+		let fetches = 0;
+		globalThis.fetch = Object.assign(
+			() => {
+				fetches++;
+				return Promise.resolve(new Response(new Uint8Array([3, 4, 5])));
+			},
+			{preconnect: originalFetch.preconnect},
+		);
+		try {
+			const assetElement = {
+				...element,
+				assets: [
+					{
+						path: 'elements/embedded.bin',
+						type: 'base64' as const,
+						data: 'AAEC',
+					},
+					{
+						path: 'elements/remote.bin',
+						type: 'url' as const,
+						url: 'https://93.184.216.35/remote.bin',
+					},
+				],
+				installationMode,
+				initialProps: {
+					logoSrc: staticFileRef('elements/remote.bin'),
+					media: {sources: [staticFileRef('elements/embedded.bin')]},
 				},
-			],
-			sourceCode: `import {staticFileRef} from '@remotion/studio-protocol';
-import {Img} from 'remotion';
+				sourceCode: `import {Img, Sequence, type SequenceProps} from 'remotion';
 
-export const LowerThird = () => (
-	<Img name="Logo" src={staticFileRef({path: 'elements/remote.bin', previewSrc: 'https://preview.example/logo.png'})} />
+export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProps) => (
+	<Sequence {...props}><Img name="Logo" src={logoSrc} /></Sequence>
 );
 `,
-		};
-		const invalidElement = {
-			...assetElement,
-			sourceCode: assetElement.sourceCode.replace(
-				'elements/remote.bin',
-				'elements/undeclared.bin',
-			),
-		};
-		expect(
-			await fixture.prepareInstall(fixture.currentDestination, invalidElement),
-		).toMatchObject({success: false});
-		expect(
-			await fixture.callHandlerWithInput({
-				installationName: 'invalid',
+			};
+			const invalidElement = {
+				...assetElement,
+				initialProps: {logoSrc: staticFileRef('elements/undeclared.bin')},
+			};
+			expect(
+				await fixture.prepareInstall(
+					fixture.currentDestination,
+					invalidElement,
+				),
+			).toMatchObject({success: false});
+			expect(
+				await fixture.callHandlerWithInput({
+					installationName: 'invalid',
+					compositionFile: 'Root.tsx',
+					compositionId: 'target',
+					element: invalidElement,
+					expectedFileState: null,
+					from: null,
+					overwriteExisting: false,
+					position: null,
+					undoRedoNavigation: null,
+					newComposition: null,
+				}),
+			).toMatchObject({success: false});
+			expect(fetches).toBe(0);
+			expect(existsSync(fixture.publicDir)).toBe(false);
+
+			const preflight = await fixture.prepareInstall(
+				fixture.currentDestination,
+				assetElement,
+			);
+			expect(preflight.success).toBe(true);
+			expect(existsSync(fixture.publicDir)).toBe(false);
+
+			const response = await fixture.callHandlerWithInput({
+				installationName: null,
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
-				element: invalidElement,
+				element: assetElement,
 				expectedFileState: null,
 				from: null,
 				overwriteExisting: false,
 				position: null,
 				undoRedoNavigation: null,
 				newComposition: null,
-			}),
-		).toMatchObject({success: false});
-		expect(fetches).toBe(0);
-		expect(existsSync(fixture.publicDir)).toBe(false);
+			});
+			expect(response).toMatchObject({success: true});
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+			).toEqual(Buffer.from([0, 1, 2]));
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/remote.bin')),
+			).toEqual(Buffer.from([3, 4, 5]));
+			const installedSource = readFileSync(fixture.elementFile, 'utf8');
+			expect(installedSource).toBe(assetElement.sourceCode);
+			const caller = readFileSync(fixture.compositionFile, 'utf8');
+			expect(caller).toMatch(
+				/logoSrc=\{staticFile\(["']elements\/remote\.bin["']\)\}/,
+			);
+			expect(caller).toMatch(
+				/sources: \[staticFile\(["']elements\/embedded\.bin["']\)\]/,
+			);
+			expect(caller).not.toContain('__remotion_element_asset');
 
-		const preflight = await fixture.prepareInstall(
-			fixture.currentDestination,
-			assetElement,
-		);
-		expect(preflight.success).toBe(true);
-		expect(existsSync(fixture.publicDir)).toBe(false);
+			expect(popUndo().success).toBe(true);
+			expect(existsSync(fixture.elementFile)).toBe(false);
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+			).toEqual(Buffer.from([0, 1, 2]));
+			expect(popRedo().success).toBe(true);
+			expect(existsSync(fixture.elementFile)).toBe(true);
 
-		const response = await fixture.callHandlerWithInput({
-			installationName: null,
-			compositionFile: 'Root.tsx',
-			compositionId: 'target',
-			element: assetElement,
-			expectedFileState: null,
-			from: null,
-			overwriteExisting: false,
-			position: null,
-			undoRedoNavigation: null,
-			newComposition: null,
-		});
-		expect(response.success).toBe(true);
-		expect(
-			readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
-		).toEqual(Buffer.from([0, 1, 2]));
-		expect(
-			readFileSync(path.join(fixture.publicDir, 'elements/remote.bin')),
-		).toEqual(Buffer.from([3, 4, 5]));
-		const installedSource = readFileSync(fixture.elementFile, 'utf8');
-		expect(installedSource).toMatch(
-			/<Img name="Logo" src=\{staticFile\(["']elements\/remote\.bin["']\)\} \/>/,
-		);
-		expect(installedSource).toContain("from 'remotion'");
-		expect(installedSource).not.toContain('staticFileRef');
-		expect(installedSource).not.toContain('preview.example');
-
-		expect(popUndo().success).toBe(true);
-		expect(existsSync(fixture.elementFile)).toBe(false);
-		expect(
-			readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
-		).toEqual(Buffer.from([0, 1, 2]));
-		expect(popRedo().success).toBe(true);
-		expect(existsSync(fixture.elementFile)).toBe(true);
-
-		const conflict = await fixture.callHandlerWithInput({
-			installationName: 'second',
-			compositionFile: 'Root.tsx',
-			compositionId: 'target',
-			element: {
-				...assetElement,
-				assets: [
-					{path: 'elements/embedded.bin', type: 'base64', data: 'CQgH'},
-					assetElement.assets[1],
-				],
-			},
-			expectedFileState: null,
-			from: null,
-			overwriteExisting: false,
-			position: null,
-			undoRedoNavigation: null,
-			newComposition: null,
-		});
-		expect(conflict).toMatchObject({
-			success: false,
-			type: 'error',
-			reason:
-				'Asset elements/embedded.bin already exists with different contents',
-		});
-		expect(
-			readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
-		).toEqual(Buffer.from([0, 1, 2]));
-	} finally {
-		globalThis.fetch = originalFetch;
-		fixture.cleanup();
-	}
-});
+			const conflict = await fixture.callHandlerWithInput({
+				installationName: 'second',
+				compositionFile: 'Root.tsx',
+				compositionId: 'target',
+				element: {
+					...assetElement,
+					assets: [
+						{path: 'elements/embedded.bin', type: 'base64', data: 'CQgH'},
+						assetElement.assets[1],
+					],
+				},
+				expectedFileState: null,
+				from: null,
+				overwriteExisting: false,
+				position: null,
+				undoRedoNavigation: null,
+				newComposition: null,
+			});
+			expect(conflict).toMatchObject({
+				success: false,
+				type: 'error',
+				reason:
+					'Asset elements/embedded.bin already exists with different contents',
+			});
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+			).toEqual(Buffer.from([0, 1, 2]));
+		} finally {
+			globalThis.fetch = originalFetch;
+			fixture.cleanup();
+		}
+	},
+);
 
 test('rejects oversized mixed Element assets before writing any files, regardless of order', async () => {
 	const fixture = makeFixture();

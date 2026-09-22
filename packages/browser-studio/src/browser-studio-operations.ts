@@ -80,8 +80,6 @@ const {
 	computeSequencePropsSubscriptionFromContent,
 	findProjectFile,
 	getBasicCaptionsElementFile,
-	lowerElementStaticFileRefs,
-	lowerElementStaticFileRefs,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
@@ -92,6 +90,7 @@ const {
 	insertVideoLayers: insertVideoLayersCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
+
 	pasteEffects: pasteEffectsCodemod,
 	simpleDiff,
 } = CodemodsInternals;
@@ -2184,13 +2183,8 @@ export const createBrowserStudioOperations = ({
 		insertElement: async (request) => {
 			try {
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
-				const element = {
-					...request.element,
-					sourceCode: lowerElementStaticFileRefs({
-						assets: request.element.assets,
-						sourceCode: request.element.sourceCode,
-					}),
-				};
+				StudioProtocolInternals.assertElementAssetReferences(request.element);
+				const {element} = request;
 				const installationMode = request.element.installationMode ?? 'wrapped';
 				const componentOwnsSequence =
 					installationMode === 'component-owned-sequence';
@@ -2459,13 +2453,9 @@ export const createBrowserStudioOperations = ({
 		prepareElementInstall: async (request) => {
 			try {
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
-				const sourceCode = lowerElementStaticFileRefs({
-					assets: request.element.assets,
-					sourceCode: request.element.sourceCode,
-				});
+				StudioProtocolInternals.assertElementAssetReferences(request.element);
 				const plan = await getElementInstallPlanForProject({
 					...request,
-					element: {...request.element, sourceCode},
 					project: getProject(),
 				});
 				return {

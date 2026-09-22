@@ -22,6 +22,10 @@ export type ElementAsset =
 			readonly data: string;
 	  };
 
+export type StaticFileRef = {
+	readonly __remotion_element_asset: string;
+};
+
 export type ElementInitialPropValue =
 	| string
 	| number
@@ -264,47 +268,6 @@ export function assertElementAssets(
 	}
 }
 
-export const makeElementDragData = ({
-	assets,
-	dependencies,
-	dimensions,
-	displayName,
-	durationInFrames,
-	initialProps,
-	slug,
-	sourceCode,
-	installationMode,
-}: Omit<ElementDragData['element'], 'dependencies'> & {
-	dependencies: ElementDependency[];
-}): ElementDragData => {
-	assertElementAssets(assets);
-	for (const dependency of dependencies) {
-		assertElementDependency(dependency);
-	}
-
-	return {
-		type: 'remotion-element',
-		version: assets.length === 0 ? 1 : 2,
-		element: {
-			assets: [...assets],
-			dependencies: Array.from(
-				new Map(
-					dependencies.map(
-						(dependency) => [dependency.name, dependency] as const,
-					),
-				).values(),
-			),
-			dimensions,
-			displayName,
-			...(durationInFrames === undefined ? {} : {durationInFrames}),
-			initialProps,
-			...(installationMode === undefined ? {} : {installationMode}),
-			slug,
-			sourceCode,
-		},
-	};
-};
-
 const dimensionsSchema = z.object({
 	width: z.number().check(z.positive()),
 	height: z.number().check(z.positive()),
@@ -363,6 +326,65 @@ export const isElementInitialProps = (
 		Object.keys(value).every((key) => initialPropNameRegex.test(key)) &&
 		isJsonCompatibleValue(value, new Set()));
 
+export const staticFileRef = (path: string): StaticFileRef => {
+	if (typeof path !== 'string' || !isValidElementAssetPath(path)) {
+		throw new TypeError('staticFileRef() requires a safe Element asset path');
+	}
+
+	return {__remotion_element_asset: path};
+};
+
+export const isStaticFileRef = (value: unknown): value is StaticFileRef =>
+	typeof value === 'object' &&
+	value !== null &&
+	!Array.isArray(value) &&
+	Object.keys(value).length === 1 &&
+	Object.hasOwn(value, '__remotion_element_asset') &&
+	typeof (value as StaticFileRef).__remotion_element_asset === 'string' &&
+	isValidElementAssetPath((value as StaticFileRef).__remotion_element_asset);
+
+export function assertElementAssetReferences({
+	assets,
+	initialProps,
+}: {
+	assets: readonly {readonly path: string}[];
+	initialProps: ElementInitialProps | null;
+}): void {
+	const paths = new Set(assets.map((asset) => asset.path));
+	const seen = new Set<object>();
+	const visit = (value: unknown): void => {
+		if (value === null || typeof value !== 'object') {
+			return;
+		}
+
+		if (Object.hasOwn(value, '__remotion_element_asset')) {
+			if (!isStaticFileRef(value)) {
+				throw new TypeError('Invalid staticFileRef() in initialProps');
+			}
+
+			if (!paths.has(value.__remotion_element_asset)) {
+				throw new TypeError(
+					`staticFileRef() path ${JSON.stringify(value.__remotion_element_asset)} is not declared in the Element assets`,
+				);
+			}
+
+			return;
+		}
+
+		if (seen.has(value)) {
+			throw new TypeError(
+				'Element initialProps must not contain circular references',
+			);
+		}
+
+		seen.add(value);
+		Object.values(value).forEach(visit);
+		seen.delete(value);
+	};
+
+	Object.values(initialProps ?? {}).forEach(visit);
+}
+
 export const hasValidElementInitialPropsForInstallationMode = ({
 	initialProps,
 	installationMode,
@@ -391,6 +413,48 @@ export const hasValidElementInitialPropsForInstallationMode = ({
 			typeof initialProps.style === 'object' &&
 			!Array.isArray(initialProps.style))
 	);
+};
+
+export const makeElementDragData = ({
+	assets,
+	dependencies,
+	dimensions,
+	displayName,
+	durationInFrames,
+	initialProps,
+	slug,
+	sourceCode,
+	installationMode,
+}: Omit<ElementDragData['element'], 'dependencies'> & {
+	dependencies: ElementDependency[];
+}): ElementDragData => {
+	assertElementAssets(assets);
+	assertElementAssetReferences({assets, initialProps});
+	for (const dependency of dependencies) {
+		assertElementDependency(dependency);
+	}
+
+	return {
+		type: 'remotion-element',
+		version: assets.length === 0 ? 1 : 2,
+		element: {
+			assets: [...assets],
+			dependencies: Array.from(
+				new Map(
+					dependencies.map(
+						(dependency) => [dependency.name, dependency] as const,
+					),
+				).values(),
+			),
+			dimensions,
+			displayName,
+			...(durationInFrames === undefined ? {} : {durationInFrames}),
+			initialProps,
+			...(installationMode === undefined ? {} : {installationMode}),
+			slug,
+			sourceCode,
+		},
+	};
 };
 
 const elementDragDataSchema = z.object({

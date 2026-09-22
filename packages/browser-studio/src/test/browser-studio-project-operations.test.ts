@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {ElementDragData} from '@remotion/studio-protocol';
+import {staticFileRef, type ElementDragData} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {
@@ -523,16 +523,18 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		dimensions: {width: 640, height: 180},
 		displayName: 'Lower Third',
 		durationInFrames: 90,
-		initialProps: {label: 'Starter'},
+		initialProps: {
+			label: 'Starter',
+			logoSrc: staticFileRef('elements/lower-third.bin'),
+		},
 		installationMode: 'wrapped' as const,
 		slug: 'titles/lower-third',
-		sourceCode: `import {staticFileRef} from '@remotion/studio-protocol';
-import {Rect} from '@remotion/shapes';
+		sourceCode: `import {Rect} from '@remotion/shapes';
 import {Img} from 'remotion';
 
-export const LowerThird = () => <>
+export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 	<Rect width={640} height={180} />
-	<Img name="Logo" src={staticFileRef({path: 'elements/lower-third.bin', previewSrc: 'https://preview.example/logo.png'})} />
+	<Img name="Logo" src={logoSrc} />
 </>;
 `,
 	} satisfies ElementDragData['element'];
@@ -578,10 +580,7 @@ export const LowerThird = () => <>
 		compositionId: 'MyComp',
 		element: {
 			...element,
-			sourceCode: element.sourceCode.replace(
-				'elements/lower-third.bin',
-				'elements/undeclared.bin',
-			),
+			initialProps: {logoSrc: staticFileRef('elements/undeclared.bin')},
 		},
 		expectedFileState: null,
 		from: 12,
@@ -625,11 +624,10 @@ export const LowerThird = () => <>
 	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
 	const installedElementSource =
 		project.files['/project/src/lower-third.element.tsx'];
-	expect(installedElementSource).toMatch(
-		/<Img name="Logo" src=\{staticFile\(["']elements\/lower-third\.bin["']\)\} \/>/,
+	expect(installedElementSource).toBe(element.sourceCode);
+	expect(project.files['/project/src/Composition.tsx']).toMatch(
+		/logoSrc=\{staticFile\(["']elements\/lower-third\.bin["']\)\}/,
 	);
-	expect(installedElementSource).not.toContain('staticFileRef');
-	expect(installedElementSource).not.toContain('preview.example');
 	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
 		new Uint8Array([0, 1, 2]),
 	);
@@ -1040,6 +1038,8 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 
 test('installs component-owned Element timing and initial props', async () => {
 	let project = createBlankTemplateProject();
+	project.files['/project/src/Composition.tsx'] =
+		`import {staticFile as assetFile} from 'remotion';\n${project.files['/project/src/Composition.tsx']}`;
 	const operations = createBrowserStudioOperations({
 		dependencyVersions: {},
 		getStaticFiles: null,
@@ -1051,13 +1051,20 @@ test('installs component-owned Element timing and initial props', async () => {
 		resolveDependencies: null,
 	});
 	const element = {
-		assets: [],
+		assets: [{path: 'captions/sound.bin', type: 'base64', data: 'AAEC'}],
 		dependencies: [],
 		dimensions: {width: 640, height: 180},
 		displayName: 'Captions',
 		durationInFrames: 90,
 		initialProps: {
-			captions: [{text: 'Starter', startMs: 0, endMs: 1000}],
+			captions: [
+				{
+					text: 'Starter',
+					startMs: 0,
+					endMs: 1000,
+					sound: staticFileRef('captions/sound.bin'),
+				},
+			],
 			style: {
 				color: 'red',
 				position: 'relative',
@@ -1107,6 +1114,10 @@ test('installs component-owned Element timing and initial props', async () => {
 	expect(composition).not.toContain('<Sequence');
 	expect(composition).toContain('<Captions');
 	expect(composition).toContain('captions={[');
+	expect(composition).toContain('sound: assetFile("captions/sound.bin")');
+	expect(project.publicFiles?.['captions/sound.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
+	);
 	expect(composition).toContain('text: "Starter"');
 	expect(composition).toContain('width={640}');
 	expect(composition).toContain('durationInFrames={90}');

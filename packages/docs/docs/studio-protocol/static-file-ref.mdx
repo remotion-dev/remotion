@@ -4,86 +4,74 @@ title: 'staticFileRef()'
 crumb: '@remotion/studio-protocol'
 ---
 
-# staticFileRef()<AvailableFrom v="4.0.526" />
+# staticFileRef()<AvailableFrom v="4.0.528" />
 
-Use `staticFileRef()` in Element source that is shared with a website preview. It returns the preview URL on the website. During installation, Studio replaces it with [`staticFile()`](/docs/staticfile) and the public-relative asset path.
+Reference an installed Element asset in [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops). Studio generates a [`staticFile()`](/docs/staticfile) expression on the component invocation. The Element source is not rewritten.
 
 ## Example
 
-```tsx twoslash title="ProductCard.tsx"
-import {staticFileRef} from '@remotion/studio-protocol';
+Accept the asset URL as a component prop:
+
+```tsx twoslash title="MyElement.tsx"
 import {Img} from 'remotion';
 
-export const ProductCard = () => (
-  <Img
-    name="Logo"
-    src={staticFileRef({
-      path: 'product-card/logo.png',
-      previewSrc: 'https://cdn.example.com/product-card/logo.png',
-    })}
-  />
+export const MyElement = ({logoSrc}: {logoSrc: string}) => (
+  <Img name="Logo" src={logoSrc} />
 );
 ```
 
-Declare the same path in [`createElementPayload()`](/docs/studio-protocol/create-element-payload):
+Declare the asset and reference it in the installation props:
 
 ```ts twoslash title="element-payload.ts"
-import {createElementPayload} from '@remotion/studio-protocol';
+import {createElementPayload, staticFileRef} from '@remotion/studio-protocol';
 
-const sourceCode = `export const ProductCard = () => null;`;
+const sourceCode = `export const MyElement = ({logoSrc}: {logoSrc: string}) => <img src={logoSrc} />;`;
 // ---cut---
-createElementPayload({
-  displayName: 'Product Card',
-  slug: 'product-card',
+const logo = {
+  path: 'my-element/logo.png',
+  type: 'url',
+  url: 'https://cdn.example.com/logo.png',
+} as const;
+
+const payload = createElementPayload({
+  displayName: 'My Element',
+  slug: 'my-element',
   sourceCode,
   dependencies: [],
   dimensions: {width: 900, height: 260},
   durationInFrames: 90,
-  assets: [
-    {
-      path: 'product-card/logo.png',
-      type: 'url',
-      url: 'https://cdn.example.com/product-card/logo.png',
-    },
-  ],
+  assets: [logo],
+  initialProps: {
+    logoSrc: staticFileRef(logo.path),
+  },
 });
 ```
 
-Studio installs the asset and writes this source:
+Studio saves the asset to `public/my-element/logo.png` and inserts:
 
-```tsx title="product-card.element.tsx"
-import {Img, staticFile} from 'remotion';
-
-export const ProductCard = () => (
-  <Img name="Logo" src={staticFile('product-card/logo.png')} />
-);
+```tsx title="Generated component invocation"
+<MyElement logoSrc={staticFile('my-element/logo.png')} />
 ```
 
-Keep the call inline on the media or interactive layer so the installed source remains editable in Visual Mode.
+This works in both installation modes. In `'wrapped'` mode, Studio places this invocation inside a generated `<Sequence>`.
+
+For the website preview, pass the hosted URL as the Player's `inputProps`, for example `inputProps={{logoSrc: logo.url}}`. Do not pass the reference object to the preview component: it is installation metadata, not a URL.
 
 ## Arguments
 
-Pass an inline object with the following fields:
+### path
 
-### `path`
-
-A string literal that exactly matches an `assets` entry in [`createElementPayload()`](/docs/studio-protocol/create-element-payload#assets).
-
-### `previewSrc`
-
-A non-empty string literal returned when the component runs on the library website. `staticFileRef()` does not fetch or register this URL. The matching `assets` descriptor remains the source Studio downloads or decodes.
-
-Import `staticFileRef()` as a direct named import. Studio rejects variables, spreads, computed properties, non-literal field values, undeclared paths, and indirect or namespace calls during preparation, before confirmation or asset downloads.
-
-For assets that should remain remote after installation, use the URL directly instead of `staticFileRef()`.
+A public-relative path that exactly matches an entry in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets). The path may come from a variable. Undeclared paths and malformed references are rejected before asset downloads.
 
 ## Return value
 
-The `previewSrc` string.
+A JSON-serializable `StaticFileRef` object for use in `initialProps`. References may also appear inside nested objects and arrays. Pass the returned value unchanged; do not construct or depend on its internal representation.
+
+For assets that should remain remote after installation, pass a URL string instead.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player studio={false} hideServers />
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
 
 ## See also
 

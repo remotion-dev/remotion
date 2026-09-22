@@ -11,22 +11,13 @@ Creates a validated, versioned Element payload for [`buildOpenInRemotionNewUrl()
 ## Example
 
 ```ts twoslash title="element-payload.ts"
-import {createElementPayload} from '@remotion/studio-protocol';
+import {createElementPayload, staticFileRef} from '@remotion/studio-protocol';
 
 const elementSourceCode = `
-import {staticFileRef} from '@remotion/studio-protocol';
 import {Img} from 'remotion';
 
-export const MyElement = () => {
-  return (
-    <Img
-      name="Logo"
-      src={staticFileRef({
-        path: 'my-element/logo.png',
-        previewSrc: 'https://example.com/logo.png',
-      })}
-    />
-  );
+export const MyElement = ({logoSrc}: {logoSrc: string}) => {
+  return <Img name="Logo" src={logoSrc} />;
 };
 `;
 
@@ -40,6 +31,7 @@ const payload = createElementPayload({
   ],
   dimensions: {width: 900, height: 260},
   durationInFrames: 90,
+  initialProps: {logoSrc: staticFileRef('my-element/logo.png')},
   assets: [
     {
       path: 'my-element/logo.png',
@@ -81,11 +73,11 @@ For `@remotion/*` packages, set `version` to `null`. Studio installs the version
 
 Do not declare `react`, `react-dom`, or `remotion`; every Remotion project already provides them.
 
-### assets?<AvailableFrom v="4.0.526" />
+### assets?<AvailableFrom v="4.0.528" />
 
 Files to install in the project's public directory. The default is `[]`.
 
-Set `path` to a forward-slash path relative to the public directory. When the same source runs in a website preview, reference it with [`staticFileRef()`](/docs/studio-protocol/static-file-ref). Studio writes [`staticFile()`](/docs/staticfile) into the installed source. Paths cannot be absolute, contain traversal or platform-unsafe segments, or conflict with another declared asset path.
+Set `path` to a forward-slash path relative to the public directory. Use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) in `initialProps` to pass the installed asset to your component. Studio generates a [`staticFile()`](/docs/staticfile) expression on the component invocation and leaves the Element source unchanged. Paths cannot be absolute, contain traversal or platform-unsafe segments, or conflict with another declared asset path.
 
 For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without credentials. For an embedded file, set `type` to `'base64'` and provide strictly encoded `data`. Browser Studio requires remote servers to allow cross-origin requests (CORS).
 
@@ -107,13 +99,13 @@ The preferred duration shown while dragging. It must be a positive integer.
 
 ### initialProps?<AvailableFrom v="4.0.524" />
 
-Use `initialProps` when a `component-owned-sequence` Element needs replaceable starter content. Studio writes each property onto the installed component. The default is `null`.
+Props to write onto the installed component invocation, in both installation modes. The default is `null`. In `'wrapped'` mode, the component invocation is inside the generated Sequence.
 
-Use JSON-compatible values and valid JSX attribute names. For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
+Use JSON-compatible values and valid JSX attribute names. Asset props can use [`staticFileRef()`](/docs/studio-protocol/static-file-ref), including inside nested objects and arrays. Studio turns these references into `staticFile()` expressions on the caller, not inside the Element source.
 
-Pass the same props to the component preview. Element dimensions are not passed as component props, so include `width` and `height` when the component needs them.
+For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
 
-In `'wrapped'` mode, Studio also passes `initialProps` to the component inside the generated Sequence. Most wrapped Elements do not need this because their editable values can stay on internal `Interactive` call sites in the copied source.
+Pass the corresponding values to the component preview, using hosted URLs instead of asset references. Element dimensions are not passed as component props in `component-owned-sequence` mode, so include `width` and `height` when the component needs them.
 
 ### installationMode?<AvailableFrom v="4.0.506" />
 

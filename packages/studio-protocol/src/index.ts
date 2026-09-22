@@ -15,7 +15,9 @@ import {
 import {makeDragData, parseDragData} from './drag-data';
 import {getDragPreviewMetadata} from './drag-preview-metadata';
 import {
+	assertElementAssetReferences,
 	assertElementAssets,
+	isStaticFileRef,
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
@@ -77,8 +79,10 @@ export type {
 	EffectConfigValue,
 	EffectDragData,
 } from './effect-drag-data';
+export {staticFileRef} from './element-drag-data';
 export type {
 	ElementAsset,
+	StaticFileRef,
 	ElementDependency,
 	ElementDragData,
 	ElementInitialProps,
@@ -97,7 +101,6 @@ export {
 } from './install-in-studio';
 export {isInsideStudio} from './is-inside-studio';
 export type {RenderOutputDragData} from './render-output-drag-data';
-export {staticFileRef} from './static-file-ref';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
 	StudioProtocolDescriptor,
@@ -107,7 +110,9 @@ export type {
 export const StudioProtocolInternals = {
 	addElementLibraryToStudioWithDependencies,
 	areComponentProps,
+	assertElementAssetReferences,
 	assertElementAssets,
+	isStaticFileRef,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,

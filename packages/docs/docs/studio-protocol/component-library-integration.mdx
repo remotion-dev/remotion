@@ -27,13 +27,15 @@ Show each component in a [`<Player>`](/docs/player). The preview lets users exam
 
 Import the component normally for the preview. The website bundler then compiles the component.
 
-Use the same dimensions and duration in the Player and the Element payload. For a `component-owned-sequence` Element with replaceable starter content, set [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in the payload and pass the same object to the Player as `inputProps`.
+Use the same dimensions and duration in the Player and the Element payload. For replaceable starter content in either installation mode, set [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in the payload and pass the corresponding values to the Player as `inputProps`.
 
 ### Preview installed assets
 
-Use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) when an asset should use a hosted URL in the Player but become [`staticFile()`](/docs/staticfile) after installation. Put the call directly on the media or interactive layer and declare its public-relative path in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets).
+Accept asset URLs as component props. Pass hosted URLs to the Player, and use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) in the payload's `initialProps` for assets that should be installed. Declare each referenced path in [`assets`](/docs/studio-protocol/create-element-payload#assets).
 
-Assets that should remain remote after installation can use their URL directly. `staticFileRef()` is separate from `initialProps`; it keeps asset references on the editable layers in wrapped Elements.
+Studio installs the assets and generates [`staticFile()`](/docs/staticfile) expressions on the component invocation. The Element source stays unchanged. This works in both installation modes.
+
+Assets that should remain remote after installation can use URL strings directly in `initialProps`.
 
 ## Reuse component code
 
