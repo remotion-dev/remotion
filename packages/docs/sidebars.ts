@@ -960,6 +960,11 @@ const sidebars: SidebarsConfig = {
 				id: 'video-matting/index',
 			},
 			items: [
+				{
+					type: 'doc',
+					id: 'video-matting/node',
+					label: 'Usage in Node.js',
+				},
 				'video-matting/can-use-video-matting',
 				'video-matting/get-available-models',
 				'video-matting/is-video-matting-model-cached',

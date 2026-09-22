@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/video-matting",
 	"version": "4.0.527",
-	"description": "Separate a video into a base layer and transparent foreground in the browser",
+	"description": "Separate a video into a base layer and transparent foreground in the browser and Node.js",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -24,7 +24,8 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"mediabunny": "catalog:"
+		"mediabunny": "catalog:",
+		"onnxruntime-node": "catalog:"
 	},
 	"peerDependencies": {
 		"@huggingface/transformers": "4.2.0"

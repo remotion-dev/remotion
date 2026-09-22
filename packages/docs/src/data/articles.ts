@@ -8959,6 +8959,15 @@ export const articles = [
 		slug: 'video-matting/load-video-matting-model',
 	},
 	{
+		id: 'video-matting/node',
+		title: 'Using @remotion/video-matting in Node.js',
+		relativePath: 'docs/video-matting/node.mdx',
+		compId: 'articles-docs-video-matting-node',
+		crumb: '@remotion/video-matting',
+		noAi: false,
+		slug: 'video-matting/node',
+	},
+	{
 		id: 'video-matting/remove-video-matting-model',
 		title: 'removeVideoMattingModel()',
 		relativePath: 'docs/video-matting/remove-video-matting-model.mdx',

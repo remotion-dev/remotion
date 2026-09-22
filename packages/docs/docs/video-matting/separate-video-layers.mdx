@@ -35,6 +35,8 @@ Place inserted content between the base and foreground. The base remains opaque 
 
 A `string`, `URL`, or `Blob` containing the input video. A `File` may be passed because it extends `Blob`.
 
+In [Node.js](/docs/video-matting/node), strings can also be local file paths, and `file:` URLs are supported.
+
 ### model?
 
 The video matting model to use. Default: `modnet`.
@@ -220,7 +222,7 @@ Both layers are WebM files encoded with VP9. The foreground preserves alpha. Aud
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

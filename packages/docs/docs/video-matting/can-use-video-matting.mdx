@@ -6,7 +6,7 @@ crumb: '@remotion/video-matting'
 
 # canUseVideoMatting()<AvailableFrom v="4.0.523" />
 
-Checks whether a video matting model can run in the current browser.
+Checks whether a video matting model can run in the current browser or Node.js environment.
 
 This function checks WebGPU and model-specific requirements. It does not inspect an input file or check video decoding and encoding support.
 
@@ -42,6 +42,8 @@ When `supported` is `false`, one of:
 - `webgpu-requires-secure-context`
 - `shader-f16-unavailable`
 
+In Node.js, failed native WebGPU probes return `webgpu-unavailable` with the ONNX Runtime error in `detailedReason`.
+
 `shader-f16-unavailable` applies to models such as `ben2-base` that require 16-bit shader support.
 
 ### detailedReason?
@@ -50,7 +52,7 @@ When `supported` is `false`, a human-readable explanation of the reason.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

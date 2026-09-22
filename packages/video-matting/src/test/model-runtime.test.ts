@@ -1,4 +1,8 @@
 import {beforeEach, expect, mock, test} from 'bun:test';
+import {existsSync} from 'node:fs';
+import {mkdtemp, readdir, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
 let initializationCount = 0;
 let initializationStarted: ((count: number) => void) | null = null;
@@ -37,6 +41,8 @@ const originalTransformersEnvironment = {
 	useCustomCache: true,
 	customCache,
 	useBrowserCache: false,
+	useFSCache: false,
+	cacheDir: null as string | null,
 	cacheKey: 'transformers-cache',
 	fetch: (url: string) => {
 		requestedFiles.push(url);
@@ -116,9 +122,13 @@ mock.module('@huggingface/transformers', () => ({
 		is_pipeline_cached_files: () => {
 			const files = ['config.json', 'onnx/model.onnx'].map((file) => ({
 				file,
-				cached: downloadedFiles.has(
-					`https://remotion.media/models/modnet-v1/${file}`,
-				),
+				cached: transformersEnvironment.useFSCache
+					? existsSync(
+							join(transformersEnvironment.cacheDir!, 'modnet-v1', file),
+						)
+					: downloadedFiles.has(
+							`https://remotion.media/models/modnet-v1/${file}`,
+						),
 			}));
 			return Promise.resolve({
 				files,
@@ -144,7 +154,15 @@ mock.module('@huggingface/transformers', () => ({
 				remotePathTemplate: transformersEnvironment.remotePathTemplate,
 			};
 			return Promise.resolve(
-				checkDownloadedFiles ? downloadedFiles.size === 2 : true,
+				transformersEnvironment.useFSCache
+					? ['config.json', 'onnx/model.onnx'].every((file) =>
+							existsSync(
+								join(transformersEnvironment.cacheDir!, modelId, file),
+							),
+						)
+					: checkDownloadedFiles
+						? downloadedFiles.size === 2
+						: true,
 			);
 		},
 	},
@@ -176,7 +194,7 @@ beforeEach(async () => {
 	Object.assign(transformersEnvironment, originalTransformersEnvironment);
 });
 
-test('downloads without initializing WebGPU, then initializes from the cached files', async () => {
+test('downloads a model, then initializes from the cached files', async () => {
 	checkDownloadedFiles = true;
 	transformersEnvironment.useCustomCache = false;
 	transformersEnvironment.useBrowserCache = true;
@@ -424,4 +442,34 @@ test('coordinates the shared Transformers environment across model loads', async
 	).toEqual([false, false]);
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
 	await disposeVideoMattingModel();
+});
+
+test('an interrupted filesystem download can be retried without leaving partial model files', async () => {
+	const {downloadVideoMattingModel} = await import('../index');
+	const directory = await mkdtemp(join(tmpdir(), 'video-matting-download-'));
+	transformersEnvironment.useCustomCache = false;
+	transformersEnvironment.useFSCache = true;
+	transformersEnvironment.cacheDir = directory;
+	transformersEnvironment.fetch = () =>
+		Promise.resolve(
+			new Response(
+				new ReadableStream({
+					start(controller) {
+						controller.error(new Error('download interrupted'));
+					},
+				}),
+			),
+		);
+	try {
+		await expect(downloadVideoMattingModel({model: 'modnet'})).rejects.toThrow(
+			'download interrupted',
+		);
+		expect(await readdir(join(directory, 'modnet-v1'))).toEqual([]);
+		transformersEnvironment.fetch = originalTransformersEnvironment.fetch;
+		expect(await downloadVideoMattingModel({model: 'modnet'})).toEqual({
+			alreadyDownloaded: false,
+		});
+	} finally {
+		await rm(directory, {recursive: true, force: true});
+	}
 });

@@ -1,4 +1,5 @@
 import './symbol-async-dispose';
+import type {RawImage} from '@huggingface/transformers';
 import {
 	getHostedVideoMattingModelId,
 	getVideoMattingModelInfo,
@@ -18,7 +19,10 @@ export type OnVideoMattingModelLoadProgress = (
 	progress: VideoMattingModelLoadProgress,
 ) => void;
 
-export type VideoMattingImageSource = HTMLCanvasElement | OffscreenCanvas;
+export type VideoMattingImageSource =
+	| HTMLCanvasElement
+	| OffscreenCanvas
+	| VideoMattingPipelineResult;
 
 export type VideoMattingPipelineResult = {
 	data: Uint8ClampedArray<ArrayBuffer>;
@@ -39,7 +43,9 @@ type TransformerPipelineResult = {
 };
 
 type TransformerPipeline = {
-	(image: VideoMattingImageSource): Promise<TransformerPipelineResult>;
+	(
+		image: HTMLCanvasElement | OffscreenCanvas | RawImage,
+	): Promise<TransformerPipelineResult>;
 	dispose: () => Promise<void>;
 };
 
@@ -164,6 +170,7 @@ const getOrCreateVideoMattingPipeline = ({
 				AutoProcessor,
 				BackgroundRemovalPipeline,
 				ModelRegistry,
+				RawImage,
 			}) => {
 				const hostedModelId = getHostedVideoMattingModelId(model);
 				if (
@@ -219,7 +226,16 @@ const getOrCreateVideoMattingPipeline = ({
 
 					const loadedPipeline: LoadedPipeline = {
 						run: async (image) => {
-							const result = await loadedTransformerPipeline(image);
+							const result = await loadedTransformerPipeline(
+								'data' in image
+									? new RawImage(
+											image.data,
+											image.width,
+											image.height,
+											image.channels,
+										)
+									: image,
+							);
 							if (result.channels !== 4) {
 								throw new Error(
 									`The video matting model "${model}" returned ${result.channels} channels instead of RGBA.`,
