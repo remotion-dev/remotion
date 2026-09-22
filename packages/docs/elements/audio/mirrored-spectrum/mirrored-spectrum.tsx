@@ -24,13 +24,14 @@ const mirroredAudioSpectrumSchema = {
 	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
+		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 		description: 'Audio source',
 	},
 	barColor: {
 		type: 'color',
-		default: '#0b84f3',
+		default: '#2563eb',
 		description: 'Bar color',
 	},
 	numberOfBars: {
@@ -133,7 +134,7 @@ const MirroredAudioSpectrumInner = forwardRef<
 	(
 		{
 			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			barColor = '#0b84f3',
+			barColor = '#2563eb',
 			controls,
 			name,
 			numberOfBars = 65,
@@ -170,7 +171,6 @@ const MirroredAudioSpectrumInner = forwardRef<
 export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumInner,
 	componentName: '<MirroredAudioSpectrum>',
-	componentIdentity: null,
 	schema: mirroredAudioSpectrumSchema,
 	supportsEffects: false,
 }) as React.FC<MirroredAudioSpectrumProps>;

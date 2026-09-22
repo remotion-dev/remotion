@@ -44,6 +44,7 @@ import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 export const canvasImageSchema = {
 	src: {
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,
@@ -91,9 +92,11 @@ const makeAbortError = () => {
 const loadImage = ({
 	src,
 	signal,
+	crossOrigin,
 }: {
 	readonly src: string;
 	readonly signal: AbortSignal;
+	readonly crossOrigin: CanvasImageProps['crossOrigin'];
 }): Promise<LoadedImage> => {
 	return new Promise((resolve, reject) => {
 		const image = new Image();
@@ -159,7 +162,7 @@ const loadImage = ({
 			return;
 		}
 
-		image.crossOrigin = 'anonymous';
+		image.crossOrigin = crossOrigin ?? 'anonymous';
 		image.src = src;
 	});
 };
@@ -185,6 +188,7 @@ const waitForNextFrame = ({
 type CanvasImageContentProps = Pick<
 	CanvasImageProps,
 	| 'className'
+	| 'crossOrigin'
 	| 'delayRenderRetries'
 	| 'delayRenderTimeoutInMilliseconds'
 	| 'fit'
@@ -209,6 +213,7 @@ const CanvasImageContent = forwardRef<
 	(
 		{
 			src,
+			crossOrigin,
 			width,
 			height,
 			fit = 'fill',
@@ -328,7 +333,7 @@ const CanvasImageContent = forwardRef<
 			};
 
 			const attemptLoad = () => {
-				loadImage({src: actualSrc, signal: controller.signal})
+				loadImage({src: actualSrc, signal: controller.signal, crossOrigin})
 					.then((image) => {
 						if (cancelled) {
 							return;
@@ -378,6 +383,7 @@ const CanvasImageContent = forwardRef<
 			actualSrc,
 			cancelRender,
 			continuePendingLoadDelay,
+			crossOrigin,
 			delayRender,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
@@ -521,6 +527,7 @@ const CanvasImageInner = forwardRef<
 	(
 		{
 			src,
+			crossOrigin,
 			width,
 			height,
 			fit,
@@ -559,6 +566,14 @@ const CanvasImageInner = forwardRef<
 		if (!src) {
 			throw new Error('No "src" prop was passed to <CanvasImage>.');
 		}
+
+		const isMedia = useMemo(
+			() => ({
+				type: 'image' as const,
+				src,
+			}),
+			[src],
+		);
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
@@ -609,7 +624,7 @@ const CanvasImageInner = forwardRef<
 					}
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
-					_remotionInternalIsMedia={{type: 'image', src}}
+					_remotionInternalIsMedia={isMedia}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
@@ -619,6 +634,7 @@ const CanvasImageInner = forwardRef<
 					<CanvasImageContent
 						ref={actualRef}
 						src={src}
+						crossOrigin={crossOrigin}
 						width={width}
 						height={height}
 						fit={fit}

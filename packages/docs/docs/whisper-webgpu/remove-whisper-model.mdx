@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-whisper-webgpu-remove-whisper-model.png
+title: removeWhisperModel()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# removeWhisperModel()<AvailableFrom v="4.0.523" />
+
+Removes a Whisper model from memory and the persistent browser cache.
+
+If the model is still loading or transcribing, removal waits for the operation to finish.
+
+```ts twoslash title="remove-model.ts"
+import {removeWhisperModel} from '@remotion/whisper-webgpu';
+
+await removeWhisperModel({model: 'small.en'});
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model)
+- [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)

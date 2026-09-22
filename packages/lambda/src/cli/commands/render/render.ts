@@ -34,9 +34,10 @@ import {
 import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {RENDER_COMMAND} from '../command-names';
 import {makeProgressString} from './progress';
 
-export const RENDER_COMMAND = 'render';
+export {RENDER_COMMAND} from '../command-names';
 
 const {
 	x264Option,

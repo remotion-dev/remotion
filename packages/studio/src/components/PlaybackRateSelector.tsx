@@ -4,19 +4,15 @@ import {WHITE_ALPHA_80} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {PlaybackRateIcon} from '../icons/playback-rate';
-import {persistPlaybackRate} from '../state/playbackrate';
+import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {TimelineCombobox} from './TimelineCombobox';
-
-const commonPlaybackRates: number[] = [
-	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 1.5, 2, 4,
-];
 
 const getPlaybackRateLabel = (playbackRate: number) => {
 	return `${playbackRate}x`;
 };
 
-const accessibilityLabel = 'Change the playback rate';
+const accessibilityLabel = 'Playback rate';
 
 type PlaybackRateMenuItemsProps = {
 	readonly playbackRate: number;
@@ -81,6 +77,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 	return (
 		<TimelineCombobox
 			title={accessibilityLabel}
+			tooltipDelay={800}
 			labelWidth={30}
 			selectedId={selectedId}
 			values={items}

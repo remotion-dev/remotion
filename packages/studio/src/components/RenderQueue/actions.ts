@@ -351,16 +351,19 @@ export const applyCodemod = ({
 	dryRun,
 	symbolicatedStack,
 	signal,
+	undoRedoNavigation,
 }: {
 	codemod: RecastCodemod;
 	dryRun: boolean;
 	symbolicatedStack: ApplyCodemodRequest['symbolicatedStack'];
 	signal: AbortController['signal'];
+	undoRedoNavigation: ApplyCodemodRequest['undoRedoNavigation'];
 }) => {
 	const body: ApplyCodemodRequest = {
 		codemod,
 		dryRun,
 		symbolicatedStack,
+		undoRedoNavigation,
 	};
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations !== null) {
@@ -384,6 +387,14 @@ export const cancelRenderJob = (job: RenderJob) => {
 
 export const updateAvailable = (signal: AbortSignal) => {
 	return callApi('/api/update-available', {}, signal);
+};
+
+export const getReleaseNotes = (
+	currentVersion: string,
+	latestVersion: string,
+	signal: AbortSignal,
+) => {
+	return callApi('/api/release-notes', {currentVersion, latestVersion}, signal);
 };
 
 export const getProjectInfo = (signal: AbortSignal) => {

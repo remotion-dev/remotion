@@ -25,6 +25,7 @@ export const getInstallCommand = ({
 		pnpm: ['i', ...additionalArgs, ...pkgList],
 		yarn: ['add', '--exact', ...additionalArgs, ...pkgList],
 		bun: ['i', ...additionalArgs, ...pkgList],
+		nub: ['add', ...additionalArgs, ...pkgList],
 	};
 
 	return commands[manager];

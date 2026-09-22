@@ -40,17 +40,14 @@ export const config: VercelConfig = {
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
 		]),
-		routes.header('/transcribe(.*)', [
-			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
-			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
-		]),
-		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
+		routes.header('/new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
 	],
 	redirects: [
+		routes.redirect('/experimental_new', '/new', {permanent: true}),
 		routes.redirect(
 			'/elements/guidelines',
 			'/elements/contributing#element-guidelines',
@@ -130,9 +127,11 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
+		routes.redirect('/webmcp', '/docs/ai/webmcp', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
 		routes.redirect('/gsap', '/docs/gsap', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
+		routes.redirect('/mediabunny', '/docs/mediabunny', {permanent: false}),
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
@@ -380,6 +379,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/recorder', '/docs/recorder', {permanent: false}),
+		routes.redirect('/canvas-capture', '/docs/canvas-capture', {
+			permanent: false,
+		}),
 		routes.redirect('/install-whisper-cpp', '/docs/install-whisper-cpp', {
 			permanent: false,
 		}),
@@ -390,11 +392,6 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/animated-captions/faq', '/elements/captions/', {
 			permanent: true,
 		}),
-		routes.redirect(
-			'/elements/data/product-offer',
-			'/elements/commerce/product-offer',
-			{permanent: true},
-		),
 		routes.redirect(
 			'/elements/text/news-article-headline-highlight',
 			'/elements/text/news-article-highlight',
@@ -455,10 +452,14 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/terms.pdf', '/docs/terms.pdf', {permanent: true}),
 		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
+		routes.redirect('/privacy.pdf', '/docs/privacy.pdf', {permanent: true}),
 		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
 		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),
 		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect('/dpia.pdf', '/docs/dpia.pdf', {permanent: true}),
 		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
 		routes.redirect('/docs/license/privacy', '/docs/privacy', {
 			permanent: true,

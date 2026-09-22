@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import type {File} from '@babel/types';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddSequenceKeyframe,
@@ -13,7 +14,6 @@ import type {
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
-import {updateInlineCaptionPatches} from '../../codemods/update-inline-caption-patches';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -40,6 +40,8 @@ import {
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
+
+const {updateInlineCaptionPatches} = CodemodsInternals;
 
 type ResolvedSequencePropEdit = {
 	index: number;
@@ -625,6 +627,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			description: {undoMessage, redoMessage},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: suppressHmr,
+			undoRedoNavigation: null,
 		});
 
 		for (const [absolutePath, output] of outputByPath) {

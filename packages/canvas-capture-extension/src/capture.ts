@@ -157,22 +157,31 @@ const wrapWholePage = (): WrappedPage => {
 	content.style.width = `${initialSize.width}px`;
 	content.style.height = `${initialSize.height}px`;
 
-	let movingNode = false;
+	const pendingNodes = new Set<Node>();
+	let moveFrame: number | null = null;
 	const observer = new MutationObserver((records) => {
-		if (movingNode) {
-			return;
-		}
-
 		for (const record of records) {
 			for (const node of record.addedNodes) {
 				if (node === canvas || node.parentNode !== body) {
 					continue;
 				}
 
-				movingNode = true;
-				content.appendChild(node);
-				movingNode = false;
+				pendingNodes.add(node);
 			}
+		}
+
+		if (pendingNodes.size > 0 && moveFrame === null) {
+			// Yield before moving nodes so page observers cannot keep the same microtask checkpoint alive.
+			moveFrame = requestAnimationFrame(() => {
+				moveFrame = null;
+				for (const node of pendingNodes) {
+					if (node.parentNode === body) {
+						content.appendChild(node);
+					}
+				}
+
+				pendingNodes.clear();
+			});
 		}
 	});
 	observer.observe(body, {childList: true});
@@ -182,14 +191,33 @@ const wrapWholePage = (): WrappedPage => {
 		content,
 		getSize: () => {
 			const size = getPageSize(content, minimumSize);
-			canvas.style.width = `${size.width}px`;
-			canvas.style.height = `${size.height}px`;
-			content.style.width = `${size.width}px`;
-			content.style.height = `${size.height}px`;
+			const width = `${size.width}px`;
+			const height = `${size.height}px`;
+			if (canvas.style.width !== width) {
+				canvas.style.width = width;
+			}
+
+			if (canvas.style.height !== height) {
+				canvas.style.height = height;
+			}
+
+			if (content.style.width !== width) {
+				content.style.width = width;
+			}
+
+			if (content.style.height !== height) {
+				content.style.height = height;
+			}
+
 			return size;
 		},
 		restore: () => {
 			observer.disconnect();
+			if (moveFrame !== null) {
+				cancelAnimationFrame(moveFrame);
+			}
+
+			pendingNodes.clear();
 			while (content.firstChild) {
 				body.insertBefore(content.firstChild, canvas);
 			}

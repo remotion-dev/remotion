@@ -10,6 +10,79 @@ import path from 'node:path';
 
 const embeddedSkillFilename = 'REFERENCE.md';
 
+export const removeCrossSkillLinksFromMarkdown = ({
+	contents,
+	file,
+	skillRoot,
+}: {
+	contents: string;
+	file: string;
+	skillRoot: string;
+}) => {
+	return contents.replace(
+		/(!?)\[([^\]]+)]\(([^)]+)\)/g,
+		(match, imagePrefix: string, label: string, target: string) => {
+			if (
+				imagePrefix === '!' ||
+				(!target.startsWith('./') && !target.startsWith('../'))
+			) {
+				return match;
+			}
+
+			const targetWithoutFragment = target.split('#')[0];
+			const relativeTarget = path.relative(
+				skillRoot,
+				path.resolve(path.dirname(file), targetWithoutFragment),
+			);
+			if (
+				relativeTarget === '..' ||
+				relativeTarget.startsWith(`..${path.sep}`) ||
+				path.isAbsolute(relativeTarget)
+			) {
+				return label;
+			}
+
+			return match;
+		},
+	);
+};
+
+// Agent Skills file references must stay inside the skill directory. Keep the
+// handoff text while removing links to sibling skills from distributable builds.
+const removeCrossSkillLinks = (skillsRoot: string) => {
+	const skillDirectories = readdirSync(skillsRoot, {withFileTypes: true})
+		.filter((entry) => entry.isDirectory())
+		.map((entry) => path.join(skillsRoot, entry.name));
+
+	const rewriteMarkdownFiles = (skillRoot: string, directory: string) => {
+		for (const entry of readdirSync(directory, {withFileTypes: true})) {
+			const file = path.join(directory, entry.name);
+			if (entry.isDirectory()) {
+				rewriteMarkdownFiles(skillRoot, file);
+				continue;
+			}
+
+			if (!entry.isFile() || !file.endsWith('.md')) {
+				continue;
+			}
+
+			const contents = readFileSync(file, 'utf-8');
+			const rewritten = removeCrossSkillLinksFromMarkdown({
+				contents,
+				file,
+				skillRoot,
+			});
+			if (contents !== rewritten) {
+				writeFileSync(file, rewritten);
+			}
+		}
+	};
+
+	for (const skillDirectory of skillDirectories) {
+		rewriteMarkdownFiles(skillDirectory, skillDirectory);
+	}
+};
+
 const prepareEmbeddedSkillRoot = ({
 	embeddedRoot,
 	parentEntryFilename,
@@ -107,6 +180,8 @@ export const prepareEmbeddedSkills = (skillsRoot: string) => {
 	for (const embeddedRoot of embeddedRoots) {
 		prepareEmbeddedSkillRoot(embeddedRoot);
 	}
+
+	removeCrossSkillLinks(skillsRoot);
 };
 
 if (import.meta.main) {

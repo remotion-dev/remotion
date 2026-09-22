@@ -63,25 +63,39 @@ export const makeHoverableCSS = () => `
     color: var(${COLOR_VARIABLE}, inherit);
   }
 
+  ${hoverGroup} ${reveal} {
+    flex-shrink: 0;
+  }
+
   @media (hover: hover) {
-    ${hoverable}:hover,
-    ${hoverGroup}:hover ${hoverable} {
+    ${hoverable}:hover {
       background-color: var(${HOVER_BG_VARIABLE}, var(${BG_VARIABLE}, ${TRANSPARENT}));
     }
 
     ${hoverable}:hover,
-    ${hoverable}:hover *,
-    ${hoverGroup}:hover ${hoverable},
-    ${hoverGroup}:hover ${hoverable} * {
+    ${hoverable}:hover * {
       color: var(${HOVER_COLOR_VARIABLE}, var(${COLOR_VARIABLE}, inherit));
+    }
+
+    /* An outer hoverable must not put a nested inline action into its hover
+       state. The nested action should only use its hover color when the
+       pointer is over the action itself. */
+    ${hoverable}:hover ${hoverable}:not(:hover),
+    ${hoverable}:hover ${hoverable}:not(:hover) * {
+      color: var(${COLOR_VARIABLE}, inherit);
     }
 
     ${hoverGroup} ${reveal} {
       opacity: 0;
+      width: 0;
+      overflow: hidden;
     }
 
-    ${hoverGroup}:hover ${reveal} {
+    ${hoverGroup}:hover ${reveal},
+    ${hoverGroup}:has([aria-expanded="true"]) ${reveal} {
       opacity: 1;
+      width: auto;
+      overflow: visible;
     }
   }
 `;

@@ -2,7 +2,7 @@ import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {pushUrl} from '../../helpers/url-state';
+import {getRoute, pushUrl} from '../../helpers/url-state';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -382,6 +382,10 @@ const DuplicateCompositionLoaded: React.FC<{
 								dryRun: false,
 								signal,
 								symbolicatedStack,
+								undoRedoNavigation: {
+									undoRoute: getRoute(),
+									redoRoute: `/${newId}`,
+								},
 							})
 						}
 						applyCodemodForPreview={({signal, symbolicatedStack}) =>
@@ -390,6 +394,7 @@ const DuplicateCompositionLoaded: React.FC<{
 								dryRun: true,
 								signal,
 								symbolicatedStack,
+								undoRedoNavigation: null,
 							})
 						}
 					/>

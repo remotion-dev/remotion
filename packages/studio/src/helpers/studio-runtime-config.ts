@@ -34,6 +34,10 @@ export const getStudioKeyboardShortcutsEnabled = () => {
 	return getStudioRuntimeConfig().keyboardShortcutsEnabled;
 };
 
+export const getStudioKeyboardShortcuts = () => {
+	return getStudioRuntimeConfig().keyboardShortcuts ?? null;
+};
+
 export const getStudioMaxTimelineTracks = () => {
 	return getStudioRuntimeConfig().maxTimelineTracks;
 };

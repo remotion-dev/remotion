@@ -87,6 +87,93 @@ test('A single non-numeric string keyframe does not require easing', () => {
 	expect(interpolate(100, [20], ['default'])).toBe('default');
 });
 
+test('Can interpolate font weights with an explicit output type', () => {
+	expect(
+		interpolate(0.5, [0, 1], ['normal', 'bold'], {
+			outputType: 'font-weight',
+		}),
+	).toBe(550);
+	expect(
+		interpolate(0.5, [0, 1], ['100', 900], {
+			outputType: 'font-weight',
+		}),
+	).toBe(500);
+	expect(
+		interpolate(0.5, [0, 1], ['NORMAL', 'BOLD'], {
+			outputType: 'font-weight',
+		}),
+	).toBe(550);
+});
+
+test('Font weight keywords require an explicit output type', () => {
+	expectToThrow(
+		() => interpolate(0.5, [0, 1], ['normal', 'bold']),
+		/Non-numeric strings can only be interpolated using Easing\.step1/,
+	);
+});
+
+test('Font weights must be absolute values in the CSS range', () => {
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['lighter', 'bold'], {
+				outputType: 'font-weight',
+			}),
+		/Expected "normal", "bold", or a number between 1 and 1000/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], [0, 1001], {
+				outputType: 'font-weight',
+			}),
+		/Expected "normal", "bold", or a number between 1 and 1000/,
+	);
+	for (const invalidWeight of ['1e3', '0x10', ' 100 ']) {
+		expectToThrow(
+			() =>
+				interpolate(0.5, [0, 1], [invalidWeight, 'bold'], {
+					outputType: 'font-weight',
+				}),
+			/Expected "normal", "bold", or a number between 1 and 1000/,
+		);
+	}
+});
+
+test('Explicit string output types validate the output range', () => {
+	expect(
+		interpolate(0.5, [0, 1], ['0deg', '90deg'], {outputType: 'rotate'}),
+	).toBe('45deg');
+	expect(
+		interpolate(0.5, [0, 1], ['left top', 'right bottom'], {
+			outputType: 'transform-origin',
+		}),
+	).toBe('50% 50%');
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['0deg', '90deg'], {
+				outputType: 'translate',
+			}),
+		/as translate because it is a rotate value/,
+	);
+	expectToThrow(
+		() => interpolate(0.5, [0, 1], [0, 90], {outputType: 'rotate'}),
+		/rotate outputRange must contain strings with the appropriate CSS units/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['left top', 'right bottom'], {
+				outputType: 'rotate',
+			}),
+		/as rotate because it is a transform-origin value/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(0.5, [0, 1], ['left top', 'right bottom'], {
+				outputType: 'translate',
+			}),
+		/as translate because it is a transform-origin value/,
+	);
+});
+
 test('Easing array with one keyframe accepts no entries', () => {
 	expect(
 		interpolate(0.5, [0], [1], {
@@ -756,6 +843,90 @@ test('Allow tail spring keeps previous string segment settling while the next se
 	expect(yWithoutTail).toBe(0);
 	expect(yWithTail).toBeGreaterThan(0);
 	expect(yWithTail).toBeLessThan(10);
+});
+
+test('Allow tail spring stays continuous when followed by a hold segment', () => {
+	const easing = [
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+	] as const;
+	const options = {
+		easing,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+		output: 'perceptual-scale',
+	} as const;
+
+	const immediatelyBeforeHold = interpolate(
+		169.999,
+		[21, 170, 591],
+		[1.26, 6.02, 6.02],
+		options,
+	);
+	const atHold = interpolate(170, [21, 170, 591], [1.26, 6.02, 6.02], options);
+
+	expect(immediatelyBeforeHold).toBeCloseTo(atHold, 5);
+});
+
+test('Allow tail axis rotation keeps its axis while settling into a hold segment', () => {
+	const axisRotation = '0.945221 -0.227695 0.233905 45.778028deg';
+	const easing = [
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+		Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.02,
+			mass: 1,
+			stiffness: 100,
+		}),
+	] as const;
+	const options = {
+		easing,
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	} as const;
+	const atHold = interpolate(
+		170,
+		[21, 170, 591, 620],
+		['0deg', axisRotation, axisRotation, '0deg'],
+		options,
+	);
+	const afterHold = interpolate(
+		171,
+		[21, 170, 591, 620],
+		['0deg', axisRotation, axisRotation, '0deg'],
+		options,
+	);
+
+	expect(afterHold).toStartWith('0.945221 -0.227695 0.233905 ');
+	expect(Number(afterHold.split(' ')[3].replace('deg', ''))).toBeGreaterThan(
+		Number(atHold.split(' ')[3].replace('deg', '')),
+	);
 });
 
 test('Clamp left test', () => {

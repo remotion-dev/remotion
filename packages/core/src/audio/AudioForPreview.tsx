@@ -13,20 +13,20 @@ import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel} from '../log-level-context.js';
 import {usePreload} from '../prefetch.js';
 import {random} from '../random.js';
+import {SequenceOrderMarker} from '../sequence-order-marker.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
-import {
-	usePlayerMutedState,
-	useMediaVolumeState,
-} from '../volume-position-state.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import {useMediaVolumeState} from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {IsExact, NativeAudioProps, RemotionAudioProps} from './props.js';
 import {useSharedAudio} from './shared-audio-tags.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
+import {useMediaAudioState} from './use-media-audio-state.js';
 
 type AudioForPreviewProps = RemotionAudioProps & {
 	readonly shouldPreMountAudioTags: boolean;
@@ -92,7 +92,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}
 
 	const [mediaVolume] = useMediaVolumeState();
-	const [playerMuted] = usePlayerMutedState();
 
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
@@ -105,6 +104,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	const preloadedSrc = usePreload(src);
 
 	const sequenceContext = useContext(SequenceContext);
+	const {isStudio} = useRemotionEnvironment();
 
 	const [timelineId] = useState(() => String(Math.random()));
 
@@ -112,6 +112,11 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		frame: volumePropFrame,
 		volume,
 		mediaVolume,
+	});
+	const {isMutedForTimeline, isMutedForPlayback} = useMediaAudioState({
+		muted: muted ?? false,
+		volume: userPreferredVolume,
+		audioEnabled: true,
 	});
 
 	warnAboutTooHighVolume(userPreferredVolume);
@@ -124,7 +129,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
 		return {
-			muted: muted || playerMuted || userPreferredVolume <= 0,
+			muted: isMutedForPlayback,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			crossOrigin: crossOriginValue,
@@ -132,11 +137,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
-		playerMuted,
-		muted,
+		isMutedForPlayback,
 		nativeProps,
 		preloadedSrc,
-		userPreferredVolume,
 		crossOriginValue,
 	]);
 	// Generate a string that's as unique as possible for this asset
@@ -188,7 +191,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		loopDisplay: undefined,
 		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		refForOutline: null,
-		muted: muted ?? false,
+		muted: isMutedForTimeline,
 	});
 
 	// putting playback before useVolume
@@ -275,16 +278,24 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}, [audioRef, src]);
 
 	if (initialShouldPreMountAudioElements) {
-		return null;
+		return isStudio ? (
+			<SequenceOrderMarker sequenceId={timelineId}>{null}</SequenceOrderMarker>
+		) : null;
 	}
 
-	return (
+	const audio = (
 		<audio
 			ref={audioRef}
 			preload="metadata"
 			crossOrigin={crossOriginValue}
 			{...propsToPass}
 		/>
+	);
+
+	return isStudio ? (
+		<SequenceOrderMarker sequenceId={timelineId}>{audio}</SequenceOrderMarker>
+	) : (
+		audio
 	);
 };
 

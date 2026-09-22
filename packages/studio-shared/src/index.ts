@@ -27,6 +27,7 @@ export {
 	CaptionPatch,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	ComponentProp,
 	ConvertFigmaClipboardToSvgRequest,
 	ConvertFigmaClipboardToSvgResponse,
 	CopyRenderOutputToAssetRequest,
@@ -36,9 +37,9 @@ export {
 	DeleteEffectRequest,
 	DeleteEffectRequestItem,
 	DeleteEffectResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeRequestItem,
-	DeleteJsxNodeResponse,
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesRequestItem,
+	DeleteJsxNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteSequenceKeyframe,
@@ -50,8 +51,11 @@ export {
 	DuplicateEffectRequestItem,
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
+	DuplicateJsxNodeRequestItem,
 	DuplicateJsxNodeResponse,
 	EditorPickerId,
+	EffectDefinition,
+	ElementInstallDestination,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	ElementInstallSource,
@@ -63,14 +67,21 @@ export {
 	GetDefaultEditorInfoResponse,
 	GetRemotionSkillsInfoRequest,
 	GetRemotionSkillsInfoResponse,
+	InstallRemotionSkillRequest,
+	RemoveRemotionSkillRequest,
+	GetReleaseNotesRequest,
+	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,
 	InsertElementFileConflict,
+	InsertBasicCaptionsRequest,
+	InsertBasicCaptionsResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
+	InstallableElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
 	LogStudioErrorRequest,
@@ -107,6 +118,7 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	ShutdownStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveInlineCaptionPatchesRequest,
@@ -121,6 +133,7 @@ export {
 	SaveSequencePropsResult,
 	SimpleDiff,
 	SplitJsxSequenceRequest,
+	SplitJsxSequenceRequestItem,
 	SplitJsxSequenceResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
@@ -132,6 +145,7 @@ export {
 	SubscribeToSequencePropsBatchResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
+	UndoRedoNavigation,
 	UndoRequest,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
@@ -177,8 +191,11 @@ export type {
 	SequenceNodePathMutation,
 	SequenceNodePathRemapping,
 } from './sequence-node-path-mutation';
-export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
-export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
+export type {
+	ApplyVisualControlCodemod,
+	CompositionOrFolder,
+	RecastCodemod,
+} from './codemods';
 export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
 export {hasSequenceTimingTraits} from './has-sequence-timing-traits';
 export {
@@ -186,6 +203,14 @@ export {
 	type ConfigFileChangeType,
 } from './config-file-change';
 export {configMethodLifecycles} from './config-method-lifecycles';
+export {
+	studioKeyboardShortcutActions,
+	type StudioKeyboardShortcut,
+	type StudioKeyboardShortcutAction,
+	type StudioKeyboardShortcuts,
+	type StudioKeyboardShortcutValue,
+	validateStudioKeyboardShortcuts,
+} from './keyboard-shortcuts';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -283,10 +308,11 @@ export {
 export {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
-	isSchemaFieldHoldOnly,
 	getKeyframeInterpolationFunctionForSchemaField,
+	getKeyframeOutputTypeForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,

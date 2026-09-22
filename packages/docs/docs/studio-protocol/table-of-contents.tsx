@@ -9,6 +9,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>createElementPayload()</strong>
 				<div>Create a versioned Element payload</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/build-open-in-remotion-new-url">
+				<strong>buildOpenInRemotionNewUrl()</strong>
+				<div>Build a URL that opens an Element on remotion.dev/new</div>
+			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/set-studio-drag-data">
 				<strong>setStudioDragData()</strong>
 				<div>Put an Element payload on a drag event</div>
@@ -16,6 +20,14 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/studio-protocol/install-in-studio">
 				<strong>installInStudio()</strong>
 				<div>Request installation into the active Studio</div>
+			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/add-element-library-to-studio">
+				<strong>addElementLibraryToStudio()</strong>
+				<div>Add an Element catalog to a Studio project</div>
+			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/is-inside-studio">
+				<strong>isInsideStudio()</strong>
+				<div>Check whether a library is embedded in Studio</div>
 			</TOCItem>
 		</Grid>
 	);

@@ -15,7 +15,10 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CaptionInspector} from './CaptionInspector';
-import {saveInlineCaptionPatches} from './Timeline/save-sequence-prop';
+import {
+	saveInlineCaptionPatches,
+	saveSequenceProps,
+} from './Timeline/save-sequence-prop';
 
 const serializeCaptions = (captions: Caption[]): string => {
 	return JSON.stringify(captions);
@@ -171,6 +174,51 @@ export const InlineCaptionInspector: React.FC<{
 		],
 	);
 
+	const replaceCaptions = useCallback(
+		(nextCaptions: Caption[]) => {
+			if (!canSave || clientId === null) {
+				return;
+			}
+
+			setDraftCaptions(nextCaptions);
+			setDragOverrides(
+				nodePath,
+				'captions',
+				Internals.makeStaticDragOverride(nextCaptions),
+			);
+			savedCaptions.current = nextCaptions;
+			saveSequenceProps({
+				changes: [
+					{
+						fileName: validatedLocation.source,
+						nodePath,
+						fieldKey: 'captions',
+						value: nextCaptions,
+						defaultValue: null,
+						schema: controls.schema,
+					},
+				],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				setPropStatuses,
+				clientId,
+				undoLabel: 'Import captions',
+				redoLabel: 'Import captions again',
+			});
+			clearDragOverrides(nodePath);
+		},
+		[
+			canSave,
+			clearDragOverrides,
+			clientId,
+			controls.schema,
+			nodePath,
+			setDragOverrides,
+			setPropStatuses,
+			validatedLocation.source,
+		],
+	);
+
 	const readOnlyTitle = readOnlyStudio
 		? 'Caption editing is unavailable in read-only Studio'
 		: clientId === null
@@ -189,6 +237,7 @@ export const InlineCaptionInspector: React.FC<{
 			onToggle={onToggle}
 			readOnly={!canSave}
 			readOnlyTitle={canSave ? null : readOnlyTitle}
+			onReplaceCaptions={canSave ? replaceCaptions : null}
 		/>
 	);
 };

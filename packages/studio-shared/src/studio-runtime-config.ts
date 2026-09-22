@@ -3,6 +3,7 @@ import type {
 	DefaultCodingAgent,
 	LogLevel,
 } from '@remotion/renderer';
+import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
 	readonly askAIEnabled: boolean | null;
@@ -28,6 +29,7 @@ export type StudioRuntimeConfig = {
 	readonly elementLibraries?: readonly StudioElementLibrary[];
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
+	readonly keyboardShortcuts?: StudioKeyboardShortcuts | null;
 	readonly bufferStateDelayInMilliseconds: number | null;
 	readonly defaultCodingAgent: DefaultCodingAgent | null;
 	readonly defaultEditor: BuiltInEditor | 'custom' | null;

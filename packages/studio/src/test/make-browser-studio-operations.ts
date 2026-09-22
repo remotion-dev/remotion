@@ -10,7 +10,7 @@ export const makeBrowserStudioOperations = (
 	return {
 		applyCodemod: () => unusedOperation('applyCodemod'),
 		consumeInitialElement: () => null,
-		deleteJsxNode: () => unusedOperation('deleteJsxNode'),
+		deleteJsxNodes: () => unusedOperation('deleteJsxNodes'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
 		downloadRemoteAsset: () => unusedOperation('downloadRemoteAsset'),
 		downloadProject: () => unusedOperation('downloadProject'),
@@ -53,6 +53,7 @@ export const makeBrowserStudioOperations = (
 		saveSequenceProps: () => unusedOperation('saveSequenceProps'),
 		splitJsxSequence: () => unusedOperation('splitJsxSequence'),
 		splitVideoFromAudio: () => unusedOperation('splitVideoFromAudio'),
+		insertBasicCaptions: () => unusedOperation('insertBasicCaptions'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
 		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),

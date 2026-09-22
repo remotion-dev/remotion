@@ -1,24 +1,21 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
-import {simpleDiff} from '@remotion/studio-codemods';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
 } from '@remotion/studio-shared';
-import {generateCanvasCaptureComposition} from '../../canvas-capture/generate-canvas-capture-composition';
 import {
 	applyCodemodToFile,
 	resolveFilePathFromSymbolicatedStack,
 } from '../../codemods/apply-codemod-to-file';
-import {formatOutput} from '../../codemods/duplicate-composition';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {getProjectInfo} from '../project-info';
 import {
 	printUndoHint,
-	pushToUndoStack,
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
@@ -28,32 +25,11 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const formatNewCompositionFile = (
+const {makeNewCompositionComponentSource, simpleDiff} = CodemodsInternals;
+
+export const formatNewCompositionFile = (
 	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
-) => {
-	if (codemod.canvasCapture !== null) {
-		return generateCanvasCaptureComposition({
-			componentName: codemod.componentName,
-			compositionId: codemod.newId,
-			data: codemod.canvasCapture.data,
-			durationInFrames: codemod.newDurationInFrames,
-			fps: codemod.newFps,
-			height: codemod.newHeight,
-			keyframeFps: codemod.canvasCapture.keyframeFps,
-			videoFileName: codemod.canvasCapture.videoFileName,
-			videoHeight: codemod.canvasCapture.videoHeight,
-			videoWidth: codemod.canvasCapture.videoWidth,
-			width: codemod.newWidth,
-		});
-	}
-
-	return formatOutput(`import React from 'react';
-
-export const ${codemod.componentName}: React.FC = () => {
-	return null;
-};
-`);
-};
+) => makeNewCompositionComponentSource(codemod);
 
 const getFolderPath = (parentName: string | null, folderName: string) => {
 	return parentName ? `${parentName}/${folderName}` : folderName;
@@ -90,6 +66,14 @@ export const getCodemodLogMessage = (
 			? `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`
 			: 'to root';
 		return `Moved composition "${codemod.idToMove}" ${destination}`;
+	}
+
+	if (codemod.type === 'move-composition-or-folder') {
+		const source =
+			codemod.source.type === 'composition'
+				? `composition "${codemod.source.compositionId}"`
+				: `folder "${getFolderPath(codemod.source.parentName, codemod.source.folderName)}"`;
+		return `Moved ${source}`;
 	}
 
 	if (codemod.type === 'rename-folder') {
@@ -164,6 +148,18 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		};
 	}
 
+	if (codemod.type === 'move-composition-or-folder') {
+		const label =
+			codemod.source.type === 'composition'
+				? `composition "${codemod.source.compositionId}"`
+				: `folder "${getFolderPath(codemod.source.parentName, codemod.source.folderName)}"`;
+		return {
+			undoMessage: `↩️  Move of ${label}`,
+			redoMessage: `↪️  Move of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
 	if (codemod.type === 'new-composition') {
 		return {
 			undoMessage: `↩️  Creation of composition "${codemod.newId}"`,
@@ -212,7 +208,7 @@ export const applyCodemodHandler: ApiHandler<
 	ApplyCodemodRequest,
 	ApplyCodemodResponse
 > = ({
-	input: {codemod, dryRun, symbolicatedStack},
+	input: {codemod, dryRun, symbolicatedStack, undoRedoNavigation},
 	logLevel,
 	remotionRoot,
 	entryPoint,
@@ -291,34 +287,20 @@ export const applyCodemodHandler: ApiHandler<
 						logLine: 1,
 						nodePathRemappings: null,
 					});
-					pushTransactionToUndoStack({
-						snapshots,
-						logLevel,
-						remotionRoot,
-						description: {
-							undoMessage,
-							redoMessage,
-						},
-						entryType,
-						suppressHmrOnFileRestore: false,
-					});
-				} else {
-					pushToUndoStack({
-						filePath,
-						oldContents: input,
-						newContents: null,
-						logLevel,
-						remotionRoot,
-						logLine,
-						description: {
-							undoMessage,
-							redoMessage,
-						},
-						entryType,
-						suppressHmrOnFileRestore: false,
-						nodePathRemappings: null,
-					});
 				}
+
+				pushTransactionToUndoStack({
+					snapshots,
+					logLevel,
+					remotionRoot,
+					description: {
+						undoMessage,
+						redoMessage,
+					},
+					entryType,
+					suppressHmrOnFileRestore: false,
+					undoRedoNavigation,
+				});
 
 				suppressUndoStackInvalidation(filePath);
 				if (componentFilePath) {

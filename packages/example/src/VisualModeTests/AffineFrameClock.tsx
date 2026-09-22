@@ -13,6 +13,10 @@ export const AffineFrameClock: React.FC = () => {
 				style={{
 					height: 400,
 					rotate: interpolate(captureFrame, [30, 60], ['0deg', '30deg']),
+					translate: interpolate(frame, [0, 30], ['0px 0px', '100px 0px'], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					width: 400,
 				}}
 			>

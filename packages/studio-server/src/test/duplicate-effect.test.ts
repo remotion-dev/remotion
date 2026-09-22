@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
-import {duplicateEffect, duplicateEffects} from '../codemods/duplicate-effect';
+import {CodemodsInternals} from '@remotion/codemods';
 import {lineColumnToNodePath} from './test-utils';
+
+const {duplicateEffect, duplicateEffects} = CodemodsInternals;
 
 const buildInput = (
 	effects: string,

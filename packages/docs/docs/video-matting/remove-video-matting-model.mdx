@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-video-matting-remove-video-matting-model.png
+title: removeVideoMattingModel()
+crumb: '@remotion/video-matting'
+---
+
+# removeVideoMattingModel()<AvailableFrom v="4.0.523" />
+
+Removes a video matting model from memory and the persistent browser cache.
+
+If the model is still loading or separating a video, removal waits for the operation to finish.
+
+```ts twoslash title="remove-model.ts"
+import {removeVideoMattingModel} from '@remotion/video-matting';
+
+await removeVideoMattingModel({model: 'modnet'});
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-available-models).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model)
+- [`isVideoMattingModelCached()`](/docs/video-matting/is-video-matting-model-cached)
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)

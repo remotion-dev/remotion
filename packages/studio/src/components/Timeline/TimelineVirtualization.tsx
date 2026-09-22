@@ -1,8 +1,8 @@
 import {
 	defaultRangeExtractor,
 	type Range,
-	type VirtualItem,
 	useVirtualizer,
+	type VirtualItem,
 } from '@tanstack/react-virtual';
 import React, {
 	createContext,
@@ -13,9 +13,9 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
+import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
 	getTimelineSequenceSelectionKey,
@@ -28,7 +28,7 @@ import {useTimelineTrackHeights} from './use-timeline-height';
 export type TimelineVirtualRow = {
 	readonly afterDropLineOffset: number;
 	readonly siblingIndex: number;
-	readonly track: TimelineTrackData;
+	readonly track: TimelineTrackWithDisplayGroup;
 };
 
 type TimelineVirtualizationContextValue = {
@@ -53,7 +53,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly hasBeenCut: boolean;
 	readonly isStill: boolean;
-	readonly timeline: readonly TimelineTrackData[];
+	readonly timeline: readonly TimelineTrackWithDisplayGroup[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
 	const trackHeights = useTimelineTrackHeights({timeline});
 	const {revealRequest, selectedItems} = useTimelineSelection();

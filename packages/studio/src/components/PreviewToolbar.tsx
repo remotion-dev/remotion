@@ -174,7 +174,6 @@ export const PreviewToolbar: React.FC<{
 					<PreviewToolbarControl>
 						<LoopToggle loop={loop} setLoop={setLoop} />
 					</PreviewToolbarControl>
-					<Spacing x={0.75} />
 					<PreviewToolbarControl>
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
@@ -192,29 +191,22 @@ export const PreviewToolbar: React.FC<{
 							<CheckboardToggle />
 						</PreviewToolbarControl>
 					)}
-					{isMobileLayout ? null : <Spacing x={0.25} />}
 					{isMobileLayout || !showCompositionControls ? null : (
 						<PreviewToolbarControl>
 							<OutlineToggle />
 						</PreviewToolbarControl>
 					)}
 					{isMobileLayout ? null : (
-						<>
-							{showCompositionControls ? <Spacing x={0.25} /> : null}
-							<PreviewToolbarControl>
-								<RulersAndGuidesToggle showGuides={showCompositionControls} />
-							</PreviewToolbarControl>
-						</>
+						<PreviewToolbarControl>
+							<RulersAndGuidesToggle showGuides={showCompositionControls} />
+						</PreviewToolbarControl>
 					)}
 					{readOnlyStudio ||
 					isMobileLayout ||
 					!showCompositionControls ? null : (
-						<>
-							<Spacing x={0.25} />
-							<PreviewToolbarControl>
-								<SnappingToggle />
-							</PreviewToolbarControl>
-						</>
+						<PreviewToolbarControl>
+							<SnappingToggle />
+						</PreviewToolbarControl>
 					)}
 				</>
 			) : null}
@@ -227,7 +219,7 @@ export const PreviewToolbar: React.FC<{
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
-				<FpsCounter playbackSpeed={playbackRate} />
+				{isMobileLayout ? null : <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
 				<PreviewToolbarControl>
 					<RenderButton
@@ -238,7 +230,11 @@ export const PreviewToolbar: React.FC<{
 				</PreviewToolbarControl>
 				<Spacing x={1.5} />
 			</div>
-			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
+			<PlaybackKeyboardShortcutsManager
+				setPlaybackRate={setPlaybackRate}
+				setMuted={setPlayerMuted}
+				setLoop={setLoop}
+			/>
 			<PlaybackRatePersistor />
 		</div>
 	);

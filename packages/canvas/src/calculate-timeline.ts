@@ -17,7 +17,7 @@ import type {
 	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
-import {sortItemsByNonceHistory} from './sort-by-nonce-history';
+import {sortItemsByCommitOrder} from './sort-by-commit-order';
 import {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';
 
 const getInheritedLoopDisplay = (
@@ -49,7 +49,10 @@ export const calculateTimeline = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	compositions?: readonly _InternalTypes['AnyComposition'][];
 }): TimelineTrackData[] => {
-	const sortedSequences = sortItemsByNonceHistory(sequences);
+	const sortedSequences = sortItemsByCommitOrder(
+		sequences,
+		(sequence) => sequence.timelineOrder,
+	);
 	const tracks: TimelineTrackWithOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {
@@ -142,15 +145,15 @@ export const calculateTimeline = ({
 		});
 	}
 
-	const nonceRanks = new Map<string, number>();
+	const sequenceRanks = new Map<string, number>();
 	for (let i = 0; i < tracks.length; i++) {
-		nonceRanks.set(tracks[i].sequence.id, i);
+		sequenceRanks.set(tracks[i].sequence.id, i);
 	}
 
 	const sortedTracks: TimelineTrackData[] = tracks
 		.sort((a, b) => {
-			const sortKeyA = getTimelineSequenceSortKey(a, tracks, nonceRanks);
-			const sortKeyB = getTimelineSequenceSortKey(b, tracks, nonceRanks);
+			const sortKeyA = getTimelineSequenceSortKey(a, tracks, sequenceRanks);
+			const sortKeyB = getTimelineSequenceSortKey(b, tracks, sequenceRanks);
 			return sortKeyA.localeCompare(sortKeyB);
 		})
 		.map((track) => {

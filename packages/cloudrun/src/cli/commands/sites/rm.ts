@@ -10,7 +10,7 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {SITES_LS_SUBCOMMAND} from './ls';
 
-export const SITES_RM_COMMAND = 'rm';
+export {SITES_RM_COMMAND} from '../command-names';
 
 export const sitesRmSubcommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {

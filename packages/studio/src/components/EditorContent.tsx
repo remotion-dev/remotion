@@ -15,6 +15,7 @@ import {
 	TimelineSelectionProvider,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
+import {WebMcp} from './WebMcp';
 
 const noop = () => undefined;
 
@@ -77,7 +78,11 @@ export const EditorContent: React.FC<{
 			<SplitterElement sticky={null} type="flexer">
 				{children}
 			</SplitterElement>
-			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
+			<SplitterHandle
+				allowToCollapse="none"
+				onCollapse={noop}
+				onCollapseDuringDrag={null}
+			/>
 			<SplitterElement sticky={null} type="anti-flexer">
 				{showTimeline ? <Timeline /> : <TimelineEmptyState />}
 			</SplitterElement>
@@ -86,6 +91,7 @@ export const EditorContent: React.FC<{
 
 	return (
 		<TimelineSelectionProvider>
+			<WebMcp />
 			<Transform3DModeStateProvider>
 				<StudioClearSelectionArea>
 					<InitialCompositionLoader />

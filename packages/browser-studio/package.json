@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/browser-studio",
 	"private": true,
-	"version": "4.0.517",
+	"version": "4.0.527",
 	"description": "Run Remotion Studio in the browser",
 	"main": "dist/esm/index.mjs",
 	"types": "dist/index.d.ts",
@@ -27,11 +27,12 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/studio-codemods": "workspace:*",
+		"@remotion/browser-bundler": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@rspack/browser": "2.1.1",
-		"fflate": "0.8.2",
+		"fflate": "0.8.3",
 		"prettier": "catalog:",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*"
@@ -50,9 +51,9 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@huggingface/transformers": "catalog:",
 		"@playwright/test": "1.55.1",
 		"@rspack/core": "1.7.11",
-		"@rspack/plugin-react-refresh": "1.6.1",
 		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",

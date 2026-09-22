@@ -80,6 +80,7 @@ const requestWriteRoute = async ({
 		getCurrentInputProps: () => ({}),
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
+		invalidateBundle: () => Promise.resolve(),
 		getEnvVariables: () => ({}),
 		getExperimentalKeepAudioContextAlive: () => false,
 		getNumberOfAudioTags: () => 0,

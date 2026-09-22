@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-video-matting-index.png
+title: '@remotion/video-matting'
+crumb: 'Separate a video into layers'
+---
+
+# @remotion/video-matting<AvailableFrom v="4.0.523" />
+
+Separate a video into an opaque base layer and a foreground layer with alpha, locally in the browser using WebGPU.
+
+import {TableOfContents} from './table-of-contents';
+
+## Installation
+
+<Installation pkg="@remotion/video-matting @huggingface/transformers" />
+
+## Example
+
+```ts twoslash title="separate-video.ts"
+import {separateVideoLayers} from '@remotion/video-matting';
+
+const file = new File([], 'input.mp4');
+
+const {base, foreground} = await separateVideoLayers({
+  src: file,
+});
+
+const baseBlob = await base.getBlob();
+const foregroundBlob = await foreground.getBlob();
+
+await Promise.all([base.dispose(), foreground.dispose()]);
+```
+
+Call `dispose()` after retrieving the blobs to release package-owned temporary storage.
+
+The model is downloaded on the first call and cached by the browser. Call [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model) first to display download progress.
+
+## Model hosting
+
+Model files are downloaded from immutable paths on `remotion.media`. We find that downloads are faster from a R2 mirror than from Hugging Face directly. The models are byte-identical to the ones you can find from Hugging Face.
+
+## APIs
+
+<TableOfContents />
+
+## Requirements
+
+WebGPU requires HTTPS in production or `localhost` during development. Use [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) to check whether the selected model is supported.
+
+If the page uses a strict Content Security Policy, add `https://remotion.media` to its `connect-src` directive, for example `connect-src 'self' https://remotion.media`.
+
+The browser must also be able to decode the input video and encode VP9 with alpha through WebCodecs. [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) checks these media capabilities for the selected input.
+
+## License
+
+The package is MIT licensed. Downloaded model weights retain the licenses listed under [`getAvailableModels()`](/docs/video-matting/get-available-models).

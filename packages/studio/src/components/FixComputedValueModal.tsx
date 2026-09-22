@@ -1,29 +1,32 @@
-import type {DefaultCodingAgent} from '@remotion/renderer';
-import React, {useCallback} from 'react';
-import {LIGHT_TEXT, SELECTED_BACKGROUND, WHITE} from '../helpers/colors';
-import {copyText} from '../helpers/copy-text';
-import {openInCodingAgent} from '../helpers/open-in-editor';
-import {CaretDown} from '../icons/caret';
-import {ClipboardIcon} from '../icons/clipboard';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import React, {useContext, useEffect, useState} from 'react';
+import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
+import {OpenInEditor} from '../error-overlay/remotion-overlay/OpenInEditor';
+import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
+import {findOriginalPositionInFileAtProperty} from '../helpers/open-in-editor';
 import type {ModalState} from '../state/modals';
-import {CodingAgentIcon} from './CodingAgentIcon';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineAction} from './InlineAction';
-import {ModalFooterContainer} from './ModalFooter';
+import {AgentPrompt} from './AgentPrompt';
+import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
-import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
-import {showNotification} from './Notifications/NotificationCenter';
-import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
-import {useSettings} from './SettingsContext';
+import {useEditorOpening} from './use-default-editor-info';
 
 const panelStyle: React.CSSProperties = {
 	borderRadius: 6,
+	display: 'flex',
+	flexDirection: 'column',
+	width: getMaxModalWidth(560),
+	maxHeight: getMaxModalHeight(800),
+	minWidth: 0,
 	overflow: 'hidden',
 };
 
 const container: React.CSSProperties = {
-	padding: '12px 16px 18px',
+	padding: 16,
+	minHeight: 0,
+	overflowY: 'auto',
 };
 
 const text: React.CSSProperties = {
@@ -33,56 +36,15 @@ const text: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-const commandField: React.CSSProperties = {
-	alignItems: 'center',
-	background: SELECTED_BACKGROUND,
-	borderRadius: 6,
-	boxSizing: 'border-box',
-	display: 'flex',
+const sourcePreviewContainer: React.CSSProperties = {
+	marginBottom: 16,
+	marginTop: 4,
+};
+
+const sourcePreviewStatus: React.CSSProperties = {
+	...text,
+	marginBottom: 16,
 	marginTop: 10,
-	padding: '8px 8px 8px 10px',
-	width: '100%',
-};
-
-const code: React.CSSProperties = {
-	color: WHITE,
-	flex: 1,
-	fontFamily: 'monospace',
-	fontSize: 14,
-	lineHeight: 1.5,
-	margin: 0,
-	minWidth: 0,
-	overflowX: 'auto',
-	whiteSpace: 'pre-wrap',
-};
-
-const copyIcon: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
-};
-
-const footer: React.CSSProperties = {
-	display: 'flex',
-	flex: 'none',
-	justifyContent: 'flex-end',
-};
-
-const mainSegmentStyle: React.CSSProperties = {
-	gap: 6,
-	padding: '0 9px',
-};
-
-const dropdownSegmentStyle: React.CSSProperties = {
-	padding: 0,
-	width: 20,
-};
-
-const menuLabel: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	lineHeight: '16px',
 };
 
 type FixComputedValueModalState = Extract<
@@ -90,171 +52,130 @@ type FixComputedValueModalState = Extract<
 	{type: 'fix-computed-value'}
 >;
 
+type SourcePreviewState =
+	| {
+			type: 'loading';
+	  }
+	| {
+			type: 'loaded';
+			stack: SymbolicatedStackFrame;
+	  }
+	| {
+			type: 'error';
+			message: string;
+	  };
+
 export const FixComputedValueModal: React.FC<{
 	readonly state: FixComputedValueModalState;
 }> = ({state}) => {
-	const {codingAgentInfo} = useSettings();
-	const prompt = `/remotion-interactivity ${state.context} make "${state.prop}" interactive`;
-	const installCommand = 'npx remotion skills add';
-	const installedCodingAgents = codingAgentInfo?.installedCodingAgents ?? [];
-	const defaultCodingAgent =
-		installedCodingAgents.find(
-			(agent) => agent.id === codingAgentInfo?.defaultCodingAgent,
-		) ?? installedCodingAgents[0];
-	const alternativeCodingAgents = installedCodingAgents.filter(
-		(agent) => agent.id !== defaultCodingAgent?.id,
-	);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
+		useEditorOpening(previewServerState.type === 'connected');
+	const [sourcePreview, setSourcePreview] = useState<SourcePreviewState>({
+		type: 'loading',
+	});
+	const promptLocation =
+		sourcePreview.type === 'loaded'
+			? `${sourcePreview.stack.originalFileName}:${sourcePreview.stack.originalLineNumber}:${sourcePreview.stack.originalColumnNumber}`
+			: `${state.location.source}:${state.location.line}:${state.location.column}`;
+	const promptDetails = ` ${promptLocation} make "${state.prop}" interactive`;
+	const canOpenSourceInEditor =
+		sourcePreview.type === 'loaded' &&
+		canOpenInEditor &&
+		defaultEditorId !== null &&
+		defaultEditorName !== null;
 
-	const onCopyPrompt = useCallback(() => {
-		copyText(prompt).catch((err) => {
-			showNotification(`Could not copy: ${err.message}`, 2000);
-		});
-	}, [prompt]);
+	useEffect(() => {
+		let cancelled = false;
+		setSourcePreview({type: 'loading'});
 
-	const onCopyInstallCommand = useCallback(() => {
-		copyText(installCommand).catch((err) => {
-			showNotification(`Could not copy: ${err.message}`, 2000);
-		});
-	}, [installCommand]);
-
-	const renderCopyAction: RenderInlineAction = useCallback((color) => {
-		return <ClipboardIcon color={color} style={copyIcon} />;
-	}, []);
-
-	const openWithCodingAgent = useCallback(
-		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
-			try {
-				const response = await openInCodingAgent(
-					codingAgentId,
-					codingAgentId === 'copilot' ? null : prompt,
+		findOriginalPositionInFileAtProperty({
+			originalPosition: state.location,
+			property: state.prop.split('.').at(-1) ?? state.prop,
+		})
+			.then((position) => {
+				return resolveFileSource(
+					{
+						columnNumber: position.column,
+						fileName: position.source,
+						lineNumber: position.line,
+						message: `Computed value "${state.prop}"`,
+					},
+					1,
 				);
-				if (!response.success) {
-					showNotification(`Could not open ${codingAgentName}`, 2000);
+			})
+			.then((stack) => {
+				if (!cancelled) {
+					setSourcePreview({type: 'loaded', stack});
 				}
-			} catch (err) {
-				showNotification((err as Error).message, 2000);
-			}
-		},
-		[prompt],
-	);
+			})
+			.catch((err: unknown) => {
+				if (!cancelled) {
+					setSourcePreview({
+						type: 'error',
+						message: err instanceof Error ? err.message : String(err),
+					});
+				}
+			});
 
-	const agentMenuItems = React.useMemo((): ComboboxValue[] => {
-		return alternativeCodingAgents.map((codingAgent) => ({
-			id: `fix-computed-value-in-${codingAgent.id}`,
-			keyHint: null,
-			label: <span style={menuLabel}>{codingAgent.name}</span>,
-			leftItem: <CodingAgentIcon codingAgentId={codingAgent.id} size={18} />,
-			onClick: () => {
-				openWithCodingAgent(codingAgent.id, codingAgent.nameWithType).catch(
-					() => undefined,
-				);
-			},
-			quickSwitcherLabel: null,
-			subMenu: null,
-			type: 'item',
-			value: `coding-agent-${codingAgent.id}`,
-		}));
-	}, [alternativeCodingAgents, openWithCodingAgent]);
-
-	const segments = React.useMemo((): SegmentedButtonSegment[] => {
-		if (!defaultCodingAgent) {
-			return [];
-		}
-
-		return [
-			{
-				ariaLabel: `Open in ${defaultCodingAgent.nameWithType}`,
-				buttonId: null,
-				disabled: false,
-				idleColor: LIGHT_TEXT,
-				onClick: () => {
-					openWithCodingAgent(
-						defaultCodingAgent.id,
-						defaultCodingAgent.nameWithType,
-					).catch(() => undefined);
-				},
-				onPointerDown: null,
-				renderContent: () => (
-					<>
-						<CodingAgentIcon codingAgentId={defaultCodingAgent.id} size={18} />
-						Open in {defaultCodingAgent.name}
-					</>
-				),
-				segmentId: 'default-coding-agent',
-				style: mainSegmentStyle,
-				title: `Open in ${defaultCodingAgent.nameWithType}`,
-				type: 'action',
-			},
-			...(alternativeCodingAgents.length > 0
-				? [
-						{
-							ariaLabel: 'Open in another coding agent',
-							buttonId: null,
-							disabled: false,
-							idleColor: LIGHT_TEXT,
-							leaveLeftSpace: true,
-							onOpenChange: null,
-							renderContent: (color: string) => <CaretDown color={color} />,
-							segmentId: 'another-coding-agent',
-							selectedId: null,
-							style: dropdownSegmentStyle,
-							title: 'Open in another coding agent',
-							type: 'menu' as const,
-							values: agentMenuItems,
-						},
-					]
-				: []),
-		];
-	}, [
-		agentMenuItems,
-		alternativeCodingAgents.length,
-		defaultCodingAgent,
-		openWithCodingAgent,
-	]);
+		return () => {
+			cancelled = true;
+		};
+	}, [state.location, state.prop]);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title="Fix computed value" />
 			<div style={container}>
-				{state.remotionInteractivitySkillAvailable ? null : (
-					<>
-						<div style={text}>First, install the Remotion Agent Skills:</div>
-						<div style={commandField}>
-							<pre style={code}>{installCommand}</pre>
-							<InlineAction
-								variant={null}
-								onClick={onCopyInstallCommand}
-								renderAction={renderCopyAction}
-								title="Copy command"
-							/>
-						</div>
-					</>
+				<div style={text}>
+					This value cannot be interactively edited because it is computed:
+				</div>
+				{sourcePreview.type === 'loaded' ? (
+					<div style={sourcePreviewContainer}>
+						<StackElement
+							collapsible={false}
+							defaultFunctionName={null}
+							editorId={canOpenInEditor ? defaultEditorId : null}
+							fontSize={13}
+							headerAction={
+								canOpenSourceInEditor ? (
+									<OpenInEditor
+										canHaveKeyboardShortcuts={false}
+										editorId={defaultEditorId}
+										editorName={defaultEditorName}
+										size="compact"
+										stack={sourcePreview.stack}
+									/>
+								) : null
+							}
+							horizontalSpacing={0}
+							isFirst
+							lineNumberWidth={
+								String(
+									Math.max(
+										0,
+										...(sourcePreview.stack.originalScriptCode ?? []).map(
+											(line) => line.lineNumber,
+										),
+									),
+								).length
+							}
+							s={sourcePreview.stack}
+						/>
+					</div>
+				) : (
+					<div style={sourcePreviewStatus}>
+						{sourcePreview.type === 'loading'
+							? 'Loading code preview...'
+							: `Could not load code preview: ${sourcePreview.message}`}
+					</div>
 				)}
-				<div
-					style={{
-						...text,
-						marginTop: state.remotionInteractivitySkillAvailable ? 0 : 16,
-					}}
-				>
-					{state.remotionInteractivitySkillAvailable
-						? 'Paste this prompt into your coding agent to make this value editable in Studio:'
-						: 'Then, paste this prompt into your coding agent:'}
-				</div>
-				<div style={commandField}>
-					<pre style={code}>{prompt}</pre>
-					<InlineAction
-						variant={null}
-						onClick={onCopyPrompt}
-						renderAction={renderCopyAction}
-						title="Copy prompt"
-					/>
-				</div>
+				<AgentPrompt
+					availableText="Use this prompt to make this value editable:"
+					promptDetails={promptDetails}
+					skillId="remotion-interactivity"
+				/>
 			</div>
-			{defaultCodingAgent ? (
-				<ModalFooterContainer style={footer}>
-					<SegmentedButton segments={segments} style={null} title={null} />
-				</ModalFooterContainer>
-			) : null}
 		</DismissableModal>
 	);
 };

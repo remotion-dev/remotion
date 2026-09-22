@@ -33,6 +33,7 @@ export type StudioHtmlOptions = {
 	mode: 'dev' | 'bundle';
 	bundleScriptUrl?: string;
 	bundleScriptType?: 'classic' | 'module';
+	importMap: Record<string, string> | null;
 	readOnlyStudio?: boolean;
 	studioRuntimeConfig?: StudioRuntimeConfig;
 };
@@ -65,6 +66,7 @@ export const studioHtml = ({
 	mode,
 	bundleScriptUrl,
 	bundleScriptType,
+	importMap,
 	readOnlyStudio,
 	studioRuntimeConfig,
 }: StudioHtmlOptions) => {
@@ -87,6 +89,11 @@ export const studioHtml = ({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		${
+			importMap
+				? `<script type="importmap">${JSON.stringify({imports: importMap}).replaceAll('<', '\\u003c')}</script>`
+				: ''
+		}
 		${
 			includeFavicon
 				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="${publicPath}favicon.ico" />`

@@ -1,170 +1,50 @@
-import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type React from 'react';
 import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {
-	EditorShowGuidesContext,
-	persistGuidesList,
-} from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
-import {
-	deleteSelectedTimelineItems,
-	getTimelineSelectionAfterDeletingItems,
-} from './delete-selected-timeline-item';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {getCurrentFrame} from './imperative-state';
-import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
-import {
-	shouldHandleTimelineDuplicateShortcut,
-	shouldHandleTimelineSplitShortcut,
-	splitSelectedTimelineItems,
-} from './split-selected-timeline-item';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 } from './TimelineSelection';
-import {
-	getEasingSelections,
-	updateSelectedTimelineEasings,
-} from './update-selected-easing';
+import {useDeleteTimelineItems} from './use-delete-timeline-items';
 
 export const TimelineDeleteKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setGuidesList} = useContext(EditorShowGuidesContext);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	useEffect(() => {
 		if (!canSelect || previewServerState.type !== 'connected') {
 			return;
 		}
 
-		const {clientId} = previewServerState;
-		const handleDelete = () => {
-			const timelinePosition = getCurrentFrame();
-			const {selectedItems, clearSelection, selectItems} =
-				currentSelection.current;
-			const sequences = sequencesRef.current;
-			const propStatuses = propStatusesRef.current;
-			if (selectedItems.length === 0) {
-				return;
-			}
-
-			const selectedGuide = selectedItems.find((item) => item.type === 'guide');
-			if (selectedGuide) {
-				setGuidesList((prevGuides) => {
-					const newGuides = prevGuides.filter(
-						(guide) => guide.id !== selectedGuide.guideId,
-					);
-					persistGuidesList(newGuides);
-					return newGuides;
-				});
-				clearSelection();
-				return;
-			}
-
-			const deletePromise = deleteSelectedTimelineItems({
-				selections: selectedItems,
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				setPropStatuses,
-				clientId,
-				confirm,
-				propStatuses,
-				timelinePosition,
-			});
-
-			if (deletePromise !== null) {
-				deletePromise
-					.then((deleted) => {
-						if (deleted) {
-							const nextSelection = getTimelineSelectionAfterDeletingItems({
-								selections: selectedItems,
-								sequences,
-								overrideIdsToNodePaths: overrideIdToNodePathMappings,
-								propStatuses,
-								timelinePosition,
-							});
-							if (nextSelection.length === 0) {
-								clearSelection();
-							} else {
-								selectItems(nextSelection);
-							}
-						}
-					})
-					.catch(() => undefined);
-				return;
-			}
-
-			const easingSelections = getEasingSelections(selectedItems);
-			if (easingSelections.length === selectedItems.length) {
-				const resetEasingPromise = updateSelectedTimelineEasings({
-					selections: easingSelections,
-					sequences,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					propStatuses,
-					setPropStatuses,
-					clientId,
-					easing: LINEAR_KEYFRAME_EASING,
-				});
-
-				if (resetEasingPromise !== null) {
-					resetEasingPromise.catch(() => undefined);
-					return;
-				}
-			}
-
-			const resetPromise = resetSelectedTimelineProps({
-				selections: selectedItems,
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				propStatuses,
-				setPropStatuses,
-				clientId,
-			});
-
-			if (resetPromise !== null) {
-				resetPromise.catch(() => undefined);
-			}
-		};
-
-		const backspace = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'Backspace',
-			callback: handleDelete,
-			commandCtrlKey: false,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
 		const deleteKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'Delete',
-			callback: handleDelete,
-			commandCtrlKey: false,
+			action: 'deleteSelection',
+			callback: () => deleteTimelineItems(null),
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const duplicate = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'd',
-			callback: (event) => {
-				if (!shouldHandleTimelineDuplicateShortcut(event)) {
-					return;
-				}
-
+			action: 'duplicateSequences',
+			callback: () => {
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
@@ -181,19 +61,14 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				duplicatePromise.catch(() => undefined);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const split = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'd',
-			callback: (event) => {
-				if (!shouldHandleTimelineSplitShortcut(event)) {
-					return;
-				}
-
+			action: 'splitSequences',
+			callback: () => {
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
@@ -202,7 +77,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				const splitPromise = splitSelectedTimelineItems({
 					selections: selectedItems,
 					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 					propStatuses: propStatusesRef.current,
 					splitFrame: getCurrentFrame(),
 				});
@@ -213,14 +88,12 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				splitPromise.catch(() => undefined);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {
-			backspace.unregister();
 			deleteKey.unregister();
 			duplicate.unregister();
 			split.unregister();
@@ -229,13 +102,12 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		canSelect,
 		confirm,
 		currentSelection,
+		deleteTimelineItems,
 		keybindings,
-		overrideIdToNodePathMappings,
+		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
 		previewServerState,
 		sequencesRef,
-		setGuidesList,
-		setPropStatuses,
 	]);
 
 	return null;

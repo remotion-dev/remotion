@@ -1,5 +1,12 @@
 import {type ReorderSequencePosition} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	_InternalTypes,
 	SequencePropsSubscriptionKey,
@@ -24,6 +31,11 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
+import {useIsStill} from '../../helpers/is-current-selected-still';
+import {
+	isPointerSessionRelease,
+	startDeferredCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -41,7 +53,6 @@ import {Transform3DModeStateContext} from '../../state/transform-3d-mode';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
-import {deleteJsxNode} from '../delete-jsx-node-api';
 import {
 	addEffectFromDragData,
 	getEffectDragData,
@@ -61,19 +72,31 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 } from '../selected-outline-types';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
-import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
+import {
+	getMultiSequenceContextMenuItems,
+	getSequenceContextMenuItems,
+} from './get-sequence-context-menu-items';
+import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {timelineVerticalScroll} from './timeline-refs';
+import {
+	EDGE_SCROLL_VERTICAL_INCREMENT,
+	startTimelineEdgeAutoScroll,
+} from './timeline-scroll-logic';
 import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
 import {TimelineExpandedSection} from './TimelineExpandedSection';
+import {TimelineLayerChildrenToggle} from './TimelineLayerChildren';
 import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
@@ -81,11 +104,14 @@ import {
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
+	type TimelineSelection,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
-	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
+import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
+import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
@@ -112,9 +138,6 @@ const effectDropHighlight: React.CSSProperties = {
 	outlineOffset: -1,
 };
 
-export const SEQUENCE_REORDER_MIME_TYPE =
-	'application/remotion-sequence-reorder';
-
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathKey: string;
@@ -123,22 +146,22 @@ type SequenceReorderDragData = {
 	readonly fileName: string;
 };
 
-let currentSequenceDrag: SequenceReorderDragData | null = null;
-
 type TimelineSequenceExpandArrowProps = {
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequence: TSequence;
 };
 
 const TimelineSequenceExpandArrowInner: React.FC<
 	TimelineSequenceExpandArrowProps
-> = ({disabled, isExpanded, nodePathInfo, sequence}) => {
+> = ({disabled, isExpanded, nodePathInfo, selectedItems, sequence}) => {
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const hasExpandableContent = useTimelineSequenceHasExpandableContent({
 		sequence,
 		nodePathInfo,
+		selectedItems,
 	});
 	const onToggleExpand = useCallback(
 		() => toggleTrack(nodePathInfo),
@@ -166,6 +189,7 @@ const areTimelineSequenceExpandArrowPropsEqual = (
 	return (
 		first.disabled === second.disabled &&
 		first.isExpanded === second.isExpanded &&
+		first.selectedItems === second.selectedItems &&
 		first.sequence.controls?.schema === second.sequence.controls?.schema &&
 		first.sequence.controls?.runtimeValues ===
 			second.sequence.controls?.runtimeValues &&
@@ -205,47 +229,6 @@ const sequenceReorderAfterLine: React.CSSProperties = {
 	top: -1,
 };
 
-const hasSequenceReorderDragType = (dataTransfer: DataTransfer) => {
-	return Array.from(dataTransfer.types).includes(SEQUENCE_REORDER_MIME_TYPE);
-};
-
-const isSequenceReorderDrag = (dataTransfer: DataTransfer) => {
-	return (
-		currentSequenceDrag !== null || hasSequenceReorderDragType(dataTransfer)
-	);
-};
-
-const getSequenceReorderDragData = (
-	dataTransfer: DataTransfer,
-): SequenceReorderDragData | null => {
-	if (currentSequenceDrag) {
-		return currentSequenceDrag;
-	}
-
-	const value = dataTransfer.getData(SEQUENCE_REORDER_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	try {
-		const parsed = JSON.parse(value) as SequenceReorderDragData;
-		if (
-			typeof parsed.nodePathKey === 'string' &&
-			typeof parsed.siblingIndex === 'number' &&
-			(typeof parsed.parentId === 'string' || parsed.parentId === null) &&
-			typeof parsed.fileName === 'string' &&
-			parsed.nodePath &&
-			Array.isArray(parsed.nodePath.nodePath)
-		) {
-			return parsed;
-		}
-	} catch {
-		return null;
-	}
-
-	return null;
-};
-
 const getDestinationIndex = ({
 	fromIndex,
 	insertionIndex,
@@ -267,6 +250,48 @@ type SequenceDropTarget =
 			readonly reason: string;
 	  };
 
+type SequencePointerDropTarget = {
+	readonly getDropTarget: (
+		clientY: number,
+		dragData: SequenceReorderDragData,
+	) => SequenceDropTarget | null;
+	readonly setDropIndicator: (position: ReorderSequencePosition | null) => void;
+	readonly reorder: (
+		dropTarget: Extract<SequenceDropTarget, {type: 'valid'}>,
+	) => void;
+};
+
+const sequencePointerDropTargets = new Map<
+	HTMLDivElement,
+	SequencePointerDropTarget
+>();
+
+const getSequencePointerDropTargetAtPoint = ({
+	clientX,
+	clientY,
+}: {
+	readonly clientX: number;
+	readonly clientY: number;
+}) => {
+	for (const element of document.elementsFromPoint(clientX, clientY)) {
+		let current: Element | null = element;
+		while (current) {
+			const dropTarget = sequencePointerDropTargets.get(
+				current as HTMLDivElement,
+			);
+			if (dropTarget) {
+				return dropTarget;
+			}
+
+			current = current.parentElement;
+		}
+	}
+
+	return null;
+};
+
+const SEQUENCE_REORDER_POINTER_THRESHOLD = 3;
+
 const TimelineSequenceItemInner: React.FC<{
 	readonly afterDropLineOffset: number;
 	readonly sequence: TSequence;
@@ -276,6 +301,8 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
+	readonly numberOfHiddenDuplicates: number;
+	readonly showProvisionalVisibilityToggle: boolean;
 }> = ({
 	afterDropLineOffset,
 	connectedCompositions,
@@ -285,13 +312,23 @@ const TimelineSequenceItemInner: React.FC<{
 	keyframeDisplayOffset,
 	sequenceFrameOffset,
 	siblingIndex,
+	numberOfHiddenDuplicates,
+	showProvisionalVisibilityToggle,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {hovered, onPointerEnter, onPointerLeave} =
 		useTimelineSequenceHover(nodePathInfo);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const isStill = useIsStill();
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
@@ -299,22 +336,41 @@ const TimelineSequenceItemInner: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
+	const assetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
-	const {onSelect, selectable, selected} =
+	const deleteTimelineItems = useDeleteTimelineItems();
+	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
-	const {selectItem, selectedItems} = useTimelineSelection();
+	const selectedSequenceNodePathInfos = useMemo(() => {
+		if (
+			!selected ||
+			selectedItems.length < 2 ||
+			selectedItems.some((item) => item.type !== 'sequence')
+		) {
+			return null;
+		}
+
+		return selectedItems.flatMap((item) =>
+			item.type === 'sequence' ? [item.nodePathInfo] : [],
+		);
+	}, [selected, selectedItems]);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	const [isRenaming, setIsRenaming] = useState(false);
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
+	const sequenceReorderWrapperRef = useRef<HTMLDivElement>(null);
+	const stopSequencePointerSession = useRef<(() => void) | null>(null);
+	const suppressNextClick = useRef(false);
 	const {
-		canOpenInEditor,
 		canConfigureApps,
+		canOpenInEditor,
+		canOpenSource,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(sequence);
 
@@ -353,11 +409,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.displayName === '' && connectedCompositions.length === 1
 			? connectedCompositions[0].id
 			: displayName;
-	const numberOfHiddenDuplicates = Math.max(
-		0,
-		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) - 1,
-	);
-
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
 		() =>
@@ -395,48 +446,66 @@ const TimelineSequenceItemInner: React.FC<{
 			() => undefined,
 		);
 	}, [confirm, duplicateDisabled, nodePathInfo, validatedLocation?.source]);
-
-	const onDeleteSequenceFromSource = useCallback(async () => {
-		if (deleteDisabled || !validatedLocation?.source || !nodePath) {
+	const onDuplicateSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
 			return;
 		}
 
-		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const shouldDelete = await confirm({
-				title: 'Delete sequence?',
-				message:
-					'This sequence is programmatically duplicated ' +
-					nodePathInfo.numberOfSequencesWithThisNodePath +
-					' times in the code. Deleting removes all instances. Continue?',
-				confirmLabel: 'Delete',
-			});
-			if (!shouldDelete) {
-				return;
-			}
+		duplicateSequencesFromSource(selectedSequenceNodePathInfos, confirm).catch(
+			() => undefined,
+		);
+	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+	const onSplitSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
 		}
 
-		try {
-			const result = await deleteJsxNode({
-				nodes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath: nodePath.nodePath,
-					},
-				],
-			});
-			if (!result.success) {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
+		splitSelectedTimelineItems({
+			selections: selectedItems,
+			sequences: sequencesRef.current,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			propStatuses: propStatusesRef.current,
+			splitFrame: getCurrentFrame(),
+		})?.catch(() => undefined);
 	}, [
-		confirm,
+		overrideIdToNodePathMappingsRef,
+		previewInteractive,
+		propStatusesRef,
+		selectedItems,
+		selectedSequenceNodePathInfos,
+		sequencesRef,
+	]);
+
+	const onDeleteSequenceFromSource = useCallback(() => {
+		if (
+			deleteDisabled ||
+			!validatedLocation?.source ||
+			!nodePath ||
+			!nodePathInfo
+		) {
+			return;
+		}
+
+		deleteTimelineItems([{type: 'sequence', nodePathInfo}]);
+	}, [
 		deleteDisabled,
+		deleteTimelineItems,
 		nodePath,
 		validatedLocation?.source,
 		nodePathInfo,
 	]);
+	const onDeleteSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		deleteTimelineItems(
+			selectedSequenceNodePathInfos.map((selectedNodePathInfo) => ({
+				type: 'sequence',
+				nodePathInfo: selectedNodePathInfo,
+			})),
+		);
+	}, [deleteTimelineItems, previewInteractive, selectedSequenceNodePathInfos]);
 
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
@@ -463,12 +532,10 @@ const TimelineSequenceItemInner: React.FC<{
 	]);
 
 	const getSequenceDropTarget = useCallback(
-		(e: React.DragEvent<HTMLDivElement>): SequenceDropTarget | null => {
-			const dragData = getSequenceReorderDragData(e.dataTransfer);
-			if (!dragData) {
-				return null;
-			}
-
+		(
+			clientY: number,
+			dragData: SequenceReorderDragData,
+		): SequenceDropTarget | null => {
 			if (!nodePath || !nodePathKey || !validatedLocation?.source) {
 				return {
 					type: 'invalid',
@@ -500,8 +567,13 @@ const TimelineSequenceItemInner: React.FC<{
 				};
 			}
 
-			const rect = e.currentTarget.getBoundingClientRect();
-			const before = e.clientY < rect.top + rect.height / 2;
+			const element = sequenceReorderWrapperRef.current;
+			if (!element) {
+				return null;
+			}
+
+			const rect = element.getBoundingClientRect();
+			const before = clientY < rect.top + rect.height / 2;
 			const insertionIndex = before ? siblingIndex : siblingIndex + 1;
 			const toIndex = getDestinationIndex({
 				fromIndex: dragData.siblingIndex,
@@ -531,87 +603,8 @@ const TimelineSequenceItemInner: React.FC<{
 		],
 	);
 
-	const onSequenceDragStart = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (
-				!canReorderSequence ||
-				!nodePath ||
-				!nodePathKey ||
-				!validatedLocation?.source
-			) {
-				e.preventDefault();
-				return;
-			}
-
-			const dragData = {
-				nodePath,
-				nodePathKey,
-				siblingIndex,
-				parentId,
-				fileName: validatedLocation.source,
-			};
-			currentSequenceDrag = dragData;
-			e.dataTransfer.effectAllowed = 'move';
-			e.dataTransfer.setData(
-				SEQUENCE_REORDER_MIME_TYPE,
-				JSON.stringify(dragData),
-			);
-			e.stopPropagation();
-		},
-		[
-			canReorderSequence,
-			nodePath,
-			nodePathKey,
-			parentId,
-			siblingIndex,
-			validatedLocation?.source,
-		],
-	);
-
-	const onSequenceDragEnd = useCallback(() => {
-		currentSequenceDrag = null;
-		setSequenceDropIndicator(null);
-	}, []);
-
-	const onSequenceDragOver = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (!hasSequenceReorderDragType(e.dataTransfer)) {
-				return;
-			}
-
-			const dropTarget = getSequenceDropTarget(e);
-			if (!dropTarget) {
-				setSequenceDropIndicator(null);
-				return;
-			}
-
-			if (dropTarget.type === 'invalid') {
-				setSequenceDropIndicator(null);
-				e.dataTransfer.dropEffect = 'none';
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			e.dataTransfer.dropEffect = 'move';
-			setSequenceDropIndicator(dropTarget.position);
-		},
-		[getSequenceDropTarget],
-	);
-
-	const onSequenceDragLeave = useCallback(
-		(e: React.DragEvent<HTMLDivElement>) => {
-			if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
-				return;
-			}
-
-			setSequenceDropIndicator(null);
-		},
-		[],
-	);
-
-	const onSequenceDrop = useCallback(
-		async (e: React.DragEvent<HTMLDivElement>) => {
+	const reorderSequenceFromPointer = useCallback(
+		async (dropTarget: Extract<SequenceDropTarget, {type: 'valid'}>) => {
 			if (
 				!canReorderSequence ||
 				previewServerState.type !== 'connected' ||
@@ -620,17 +613,6 @@ const TimelineSequenceItemInner: React.FC<{
 			) {
 				return;
 			}
-
-			const dropTarget = getSequenceDropTarget(e);
-			if (!dropTarget || dropTarget.type === 'invalid') {
-				setSequenceDropIndicator(null);
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			setSequenceDropIndicator(null);
-			currentSequenceDrag = null;
 
 			try {
 				const result = await reorderSequence({
@@ -650,11 +632,217 @@ const TimelineSequenceItemInner: React.FC<{
 		},
 		[
 			canReorderSequence,
-			getSequenceDropTarget,
 			nodePath,
 			previewServerState,
 			validatedLocation?.source,
 		],
+	);
+
+	useEffect(() => {
+		const element = sequenceReorderWrapperRef.current;
+		if (!element || !canHandleSequenceDrag) {
+			return;
+		}
+
+		const pointerDropTarget: SequencePointerDropTarget = {
+			getDropTarget: getSequenceDropTarget,
+			reorder: (dropTarget) => {
+				reorderSequenceFromPointer(dropTarget).catch(() => undefined);
+			},
+			setDropIndicator: setSequenceDropIndicator,
+		};
+		sequencePointerDropTargets.set(element, pointerDropTarget);
+
+		return () => {
+			sequencePointerDropTargets.delete(element);
+		};
+	}, [
+		canHandleSequenceDrag,
+		getSequenceDropTarget,
+		reorderSequenceFromPointer,
+	]);
+
+	useEffect(() => {
+		return () => stopSequencePointerSession.current?.();
+	}, []);
+
+	const onSequencePointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			if (!(e.target instanceof Element)) {
+				return;
+			}
+
+			if (
+				e.button !== 0 ||
+				!e.isPrimary ||
+				e.target.closest('[data-remotion-sequence-reorder-row]') !==
+					e.currentTarget ||
+				e.target.closest(
+					'button, input, textarea, select, [contenteditable="true"], [data-timeline-layer-eye]',
+				) ||
+				!canReorderSequence ||
+				!nodePath ||
+				!nodePathKey ||
+				!validatedLocation?.source
+			) {
+				return;
+			}
+
+			stopSequencePointerSession.current?.();
+
+			const dragData: SequenceReorderDragData = {
+				fileName: validatedLocation.source,
+				nodePath,
+				nodePathKey,
+				parentId,
+				siblingIndex,
+			};
+			const sourceElement = e.currentTarget;
+			const sourceRect = sourceElement.getBoundingClientRect();
+			const startX = e.clientX;
+			const startY = e.clientY;
+			let currentClientY = startY;
+			let dragPreview: HTMLDivElement | null = null;
+			let activeDropTarget: SequencePointerDropTarget | null = null;
+			let activeDrop: Extract<SequenceDropTarget, {type: 'valid'}> | null =
+				null;
+			let didDrag = false;
+			let previousUserSelect = '';
+			let previousWebkitUserSelect = '';
+
+			const updateDropTarget = (clientY: number) => {
+				const pointerDropTarget = getSequencePointerDropTargetAtPoint({
+					clientX: startX,
+					clientY,
+				});
+				const dropTarget = pointerDropTarget?.getDropTarget(clientY, dragData);
+
+				if (activeDropTarget !== pointerDropTarget) {
+					activeDropTarget?.setDropIndicator(null);
+				}
+
+				activeDropTarget = pointerDropTarget;
+				activeDrop = dropTarget?.type === 'valid' ? dropTarget : null;
+				activeDropTarget?.setDropIndicator(activeDrop?.position ?? null);
+			};
+
+			const verticalScroll = timelineVerticalScroll.current;
+			const autoScroll = startTimelineEdgeAutoScroll({
+				includeHorizontal: false,
+				includeVertical: true,
+				verticalTopOffset: isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT,
+				onTick: (directions) => {
+					if (directions.y === null || !verticalScroll) {
+						return;
+					}
+
+					verticalScroll.scrollTop +=
+						directions.y === 'up'
+							? -EDGE_SCROLL_VERTICAL_INCREMENT
+							: EDGE_SCROLL_VERTICAL_INCREMENT;
+					updateDropTarget(currentClientY);
+				},
+			});
+
+			stopSequencePointerSession.current = startDeferredCapturedPointerSession({
+				captureTarget: sourceElement,
+				event: e.nativeEvent,
+				onMove: (pointerEvent, capturePointer) => {
+					currentClientY = pointerEvent.clientY;
+					if (
+						!didDrag &&
+						Math.hypot(
+							pointerEvent.clientX - startX,
+							pointerEvent.clientY - startY,
+						) < SEQUENCE_REORDER_POINTER_THRESHOLD
+					) {
+						return;
+					}
+
+					if (!didDrag) {
+						didDrag = true;
+						capturePointer();
+						previousUserSelect = document.body.style.userSelect;
+						previousWebkitUserSelect = document.body.style.webkitUserSelect;
+						document.body.style.userSelect = 'none';
+						document.body.style.webkitUserSelect = 'none';
+
+						dragPreview = sourceElement.cloneNode(true) as HTMLDivElement;
+						dragPreview.setAttribute('aria-hidden', 'true');
+						dragPreview.setAttribute(
+							'data-remotion-sequence-reorder-preview',
+							'true',
+						);
+						dragPreview.removeAttribute('data-remotion-sequence-reorder-row');
+						Object.assign(dragPreview.style, {
+							height: `${sourceRect.height}px`,
+							left: `${sourceRect.left}px`,
+							margin: '0',
+							opacity: '0.8',
+							pointerEvents: 'none',
+							position: 'fixed',
+							top: `${sourceRect.top}px`,
+							width: `${sourceRect.width}px`,
+							zIndex: '2147483647',
+						});
+						document.body.appendChild(dragPreview);
+					}
+
+					pointerEvent.preventDefault();
+					dragPreview!.style.transform = `translate3d(0, ${pointerEvent.clientY - startY}px, 0)`;
+					updateDropTarget(pointerEvent.clientY);
+					autoScroll.update({clientX: startX, clientY: pointerEvent.clientY});
+				},
+				onEnd: (reason, pointerEvent) => {
+					const released = isPointerSessionRelease(reason, pointerEvent);
+					if (released && didDrag) {
+						updateDropTarget(pointerEvent.clientY);
+					}
+
+					autoScroll.stop();
+					activeDropTarget?.setDropIndicator(null);
+					dragPreview?.remove();
+					stopSequencePointerSession.current = null;
+
+					if (!didDrag) {
+						return;
+					}
+
+					document.body.style.userSelect = previousUserSelect;
+					document.body.style.webkitUserSelect = previousWebkitUserSelect;
+					suppressNextClick.current = true;
+					setTimeout(() => {
+						suppressNextClick.current = false;
+					}, 0);
+
+					if (released && activeDrop) {
+						activeDropTarget?.reorder(activeDrop);
+					}
+				},
+			});
+		},
+		[
+			canReorderSequence,
+			isStill,
+			nodePath,
+			nodePathKey,
+			parentId,
+			siblingIndex,
+			validatedLocation?.source,
+		],
+	);
+
+	const onSequenceClickCapture = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!suppressNextClick.current) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+			suppressNextClick.current = false;
+		},
+		[],
 	);
 
 	const mediaSrc =
@@ -663,7 +851,6 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.type === 'image'
 			? sequence.src
 			: null;
-
 	const isExpanded =
 		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
@@ -769,6 +956,9 @@ const TimelineSequenceItemInner: React.FC<{
 		codeHiddenStatus !== undefined &&
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
+	const showVisibilityToggle =
+		canToggleVisibility ||
+		(previewInteractive && showProvisionalVisibilityToggle);
 
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
@@ -779,7 +969,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenInEditor,
+				canOpenSource,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				// The track list row reorders via native drag-and-drop, which
 				// already suppresses `dblclick` after a drag.
@@ -804,19 +994,19 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			openInEditor(null);
+			openSource();
 		},
 		[
-			canOpenInEditor,
+			canOpenSource,
 			connectedCompositions,
-			openInEditor,
+			openSource,
 			selectComposition,
 			sequence,
 			sequenceFrameOffset,
 		],
 	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenInEditor;
+		connectedCompositions.length === 1 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -857,7 +1047,8 @@ const TimelineSequenceItemInner: React.FC<{
 
 			if (
 				document.activeElement instanceof HTMLInputElement ||
-				document.activeElement instanceof HTMLTextAreaElement
+				document.activeElement instanceof HTMLTextAreaElement ||
+				document.activeElement instanceof HTMLButtonElement
 			) {
 				return;
 			}
@@ -978,9 +1169,33 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
 
 	const getContextMenuItems = useCallback(() => {
-		if (selectable) {
+		if (assetContextMenu !== null) {
+			return assetContextMenu;
+		}
+
+		if (selectable && !selected) {
 			onSelect({shiftKey: false, toggleKey: false});
 		}
+
+		if (selectedSequenceNodePathInfos !== null) {
+			return getMultiSequenceContextMenuItems({
+				deleteDisabled: !previewInteractive,
+				duplicateDisabled: !previewInteractive,
+				splitDisabled: !previewInteractive,
+				onDeleteSelectedSequences,
+				onDuplicateSelectedSequences,
+				onSplitSelectedSequences,
+			});
+		}
+
+		const splitMenuItem = getSequenceSplitMenuItem({
+			nodePathInfo,
+			sequence,
+			propStatuses: propStatusesForOverride,
+			splitFrame: getCurrentFrame(),
+			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+			hasMultipleSelection: selected && selectedItems.length > 1,
+		});
 
 		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
 			clientId:
@@ -1000,6 +1215,7 @@ const TimelineSequenceItemInner: React.FC<{
 			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
 			codingAgentInfo,
+			copyImageElement: null,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
@@ -1098,11 +1314,13 @@ const TimelineSequenceItemInner: React.FC<{
 							subMenu: null,
 							value: 'rename-sequence',
 						},
+						...(splitMenuItem ? [splitMenuItem] : []),
 						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 					]
 				: [],
 		});
 	}, [
+		assetContextMenu,
 		canAddEffect,
 		canCrop,
 		canRotate,
@@ -1117,13 +1335,16 @@ const TimelineSequenceItemInner: React.FC<{
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
-		nodePathInfo?.supportsEffects,
+		nodePathInfo,
 		onAddEffect,
 		onCrop,
 		onRotate,
 		onDeleteSequenceFromSource,
+		onDeleteSelectedSequences,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
+		onDuplicateSelectedSequences,
+		onSplitSelectedSequences,
 		onRenameSequence,
 		onSelect,
 		openInCodingAgent,
@@ -1134,6 +1355,9 @@ const TimelineSequenceItemInner: React.FC<{
 		propStatusesForOverride,
 		selectAsset,
 		selectable,
+		selected,
+		selectedItems.length,
+		selectedSequenceNodePathInfos,
 		sequence,
 		sequenceFrameOffset,
 		setSelectedModal,
@@ -1159,11 +1383,7 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const onEffectDragOver = useCallback(
 		(e: React.DragEvent<HTMLDivElement>) => {
-			if (
-				!canDropEffect ||
-				isSequenceReorderDrag(e.dataTransfer) ||
-				!hasEffectDragType(e.dataTransfer)
-			) {
+			if (!canDropEffect || !hasEffectDragType(e.dataTransfer)) {
 				return;
 			}
 
@@ -1192,7 +1412,6 @@ const TimelineSequenceItemInner: React.FC<{
 				previewServerState.type !== 'connected' ||
 				nodePath === null ||
 				validatedLocation === null ||
-				isSequenceReorderDrag(e.dataTransfer) ||
 				!hasEffectDragType(e.dataTransfer)
 			) {
 				return;
@@ -1228,17 +1447,17 @@ const TimelineSequenceItemInner: React.FC<{
 		<TimelineRowChrome
 			depth={nestedDepth}
 			eye={
-				canToggleVisibility ? (
+				showVisibilityToggle ? (
 					<TimelineLayerEye
 						type={sequence.type === 'audio' ? 'speaker' : 'eye'}
 						hidden={isItemHidden}
-						onInvoked={onToggleVisibility}
+						onInvoked={canToggleVisibility ? onToggleVisibility : null}
 					/>
 				) : (
 					<TimelineLayerEyeSpacer />
 				)
 			}
-			arrow={<TimelineExpandArrowSpacer />}
+			arrow={<TimelineLayerChildrenToggle sequence={sequence} />}
 			style={rowStyle}
 			selected={selected}
 			selectable={selectable}
@@ -1276,6 +1495,12 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{numberOfHiddenDuplicates > 0 ? (
+					<>
+						<Spacing x={0.5} />
+						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
+					</>
+				) : null}
 				{hasExpandableContent && nodePathInfo !== null ? (
 					<>
 						<Spacing x={0.5} />
@@ -1283,14 +1508,9 @@ const TimelineSequenceItemInner: React.FC<{
 							disabled={!previewInteractive}
 							isExpanded={isExpanded}
 							nodePathInfo={nodePathInfo}
+							selectedItems={selectedItems}
 							sequence={sequence}
 						/>
-					</>
-				) : null}
-				{numberOfHiddenDuplicates > 0 ? (
-					<>
-						<Spacing x={0.5} />
-						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
 					</>
 				) : null}
 				{mediaSrc ? (
@@ -1302,14 +1522,12 @@ const TimelineSequenceItemInner: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	const draggableTrackRow = canHandleSequenceDrag ? (
+	const reorderableTrackRow = canHandleSequenceDrag ? (
 		<div
-			draggable={canReorderSequence}
-			onDragStart={onSequenceDragStart}
-			onDragEnd={onSequenceDragEnd}
-			onDragOver={onSequenceDragOver}
-			onDragLeave={onSequenceDragLeave}
-			onDrop={onSequenceDrop}
+			ref={sequenceReorderWrapperRef}
+			data-remotion-sequence-reorder-row
+			onClickCapture={onSequenceClickCapture}
+			onPointerDownCapture={onSequencePointerDown}
 			style={sequenceReorderWrapper}
 		>
 			{sequenceReorderLineStyle ? (
@@ -1335,10 +1553,10 @@ const TimelineSequenceItemInner: React.FC<{
 		<>
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
 				<ContextMenu getItems={getContextMenuItems}>
-					{draggableTrackRow}
+					{reorderableTrackRow}
 				</ContextMenu>
 			) : (
-				draggableTrackRow
+				reorderableTrackRow
 			)}
 			{previewConnected &&
 			isStudioInteractivityEnabled() &&

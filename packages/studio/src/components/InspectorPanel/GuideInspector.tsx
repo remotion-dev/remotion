@@ -7,11 +7,8 @@ import {
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {InputDragger} from '../NewComposition/InputDragger';
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
-import {
-	InspectorDetailRow,
-	InspectorMessage,
-	InspectorSectionHeader,
-} from './common';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {InspectorDetailRow, InspectorMessage} from './common';
 import {guideDetailsContainer, selectedContainer} from './styles';
 
 const updateGuidePosition = ({
@@ -84,27 +81,32 @@ export const GuideInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<InspectorSectionHeader>
-				{guide.orientation === 'vertical' ? 'Vertical' : 'Horizontal'} guide
-			</InspectorSectionHeader>
-			<div style={guideDetailsContainer}>
-				<InspectorDetailRow
-					label={guide.orientation === 'vertical' ? 'X position' : 'Y position'}
-				>
-					<InputDragger
-						type="number"
-						value={guide.position}
-						status="ok"
-						onValueChange={onValueChange}
-						onValueChangeEnd={onValueChangeEnd}
-						onTextChange={() => undefined}
-						step={1}
-						formatter={(value) => String(Math.round(Number(value)))}
-						rightAlign
-						small
-					/>
-				</InspectorDetailRow>
-			</div>
+			<CollapsibleInspectorSection
+				collapsible
+				label={`${guide.orientation === 'vertical' ? 'Vertical' : 'Horizontal'} guide`}
+				sectionId="guide"
+			>
+				<div style={guideDetailsContainer}>
+					<InspectorDetailRow
+						label={
+							guide.orientation === 'vertical' ? 'X position' : 'Y position'
+						}
+					>
+						<InputDragger
+							type="number"
+							value={guide.position}
+							status="ok"
+							onValueChange={onValueChange}
+							onValueChangeEnd={onValueChangeEnd}
+							onTextChange={() => undefined}
+							step={1}
+							formatter={(value) => String(Math.round(Number(value)))}
+							rightAlign
+							small
+						/>
+					</InspectorDetailRow>
+				</div>
+			</CollapsibleInspectorSection>
 		</div>
 	);
 };

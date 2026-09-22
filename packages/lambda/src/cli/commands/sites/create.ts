@@ -36,6 +36,7 @@ const {
 	disableGitSourceOption,
 	askAIOption,
 	keyboardShortcutsOption,
+	rspackOption,
 } = BrowserSafeApis.options;
 
 export const sitesCreateSubcommand = async (
@@ -217,6 +218,9 @@ export const sitesCreateSubcommand = async (
 				updateProgress(false);
 			},
 			enableCaching: BrowserSafeApis.options.bundleCacheOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value,
+			rspack: rspackOption.getValue({
 				commandLine: CliInternals.parsedCli,
 			}).value,
 			bundlerOverride: ConfigInternals.getBundlerOverrideFn(),

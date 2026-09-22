@@ -1,25 +1,23 @@
 import type {Config} from '@docusaurus/types';
 import elementSourceDependencies from './plugins/element-source-dependencies.js';
+import longContentHashes from './plugins/long-content-hashes.js';
 import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
 import {elementRegistry} from './src/components/Elements/element-registry';
 
-const lowMemoryBuild =
-	process.env.VERCEL === '1' ||
-	process.env.VERCEL === 'true' ||
-	process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-const fasterConfig = lowMemoryBuild
+const fasterConfig = isVercel
 	? {
 			swcJsLoader: true,
 			swcJsMinimizer: true,
 			swcHtmlMinimizer: true,
 			lightningCssMinimizer: true,
 			mdxCrossCompilerCache: false,
-			rspackBundler: false,
+			rspackBundler: true,
 			rspackPersistentCache: false,
 			ssgWorkerThreads: false,
-			gitEagerVcs: false,
+			gitEagerVcs: true,
 		}
 	: true;
 
@@ -350,7 +348,21 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		// MapLibre's worker fallback uses a dynamic URL even when setWorkerUrl() is called.
+		() => ({
+			name: 'ignore-maplibre-worker-warning',
+			configureWebpack: () => ({
+				ignoreWarnings: [
+					{
+						module: /maplibre-gl\/dist\/maplibre-gl\.mjs$/,
+						message:
+							/Critical dependency: the request of a dependency is an expression/,
+					},
+				],
+			}),
+		}),
 		elementSourceDependencies,
+		longContentHashes,
 		[
 			'@docusaurus/plugin-content-docs',
 			{

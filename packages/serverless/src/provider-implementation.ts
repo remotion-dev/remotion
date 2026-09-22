@@ -8,7 +8,7 @@ import type {
 import type {
 	CloudProvider,
 	DeleteAfter,
-	GetFolderFiles,
+	FunctionErrorInfo,
 	Privacy,
 	ProviderSpecifics,
 	ReceivedArtifact,
@@ -48,6 +48,10 @@ export type ForgetBrowserEventLoop = (options: {
 	logLevel: LogLevel;
 	launchedBrowser: LaunchedBrowser;
 }) => void;
+
+export type CloseBrowserInstance = (options: {
+	launchedBrowser: LaunchedBrowser;
+}) => Promise<void>;
 
 export type GenerateRenderId = (options: {
 	deleteAfter: DeleteAfter | null;
@@ -105,7 +109,7 @@ export type CreateFunction<Provider extends CloudProvider> = (
 ) => Promise<{FunctionName: string}>;
 
 export type InvokeWebhookOptions = {
-	payload: WebhookPayload;
+	payload: WebhookPayload<string | null>;
 	url: string;
 	secret: string | null;
 };
@@ -123,6 +127,7 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	defaultX264Preset: X264Preset | null;
 	getBrowserInstance: GetBrowserInstance;
 	forgetBrowserEventLoop: ForgetBrowserEventLoop;
+	closeBrowserInstance: CloseBrowserInstance;
 	timer: DebuggingTimer;
 	generateRandomId: GenerateRenderId;
 	deleteTmpDir: () => Promise<void>;
@@ -131,7 +136,14 @@ export type InsideFunctionSpecifics<Provider extends CloudProvider> = {
 	invokeWebhook: InvokeWebhook;
 	getCurrentRegionInFunction: () => Provider['region'];
 	makeArtifactWithDetails: MakeArtifactWithDetails<Provider>;
-	getFolderFiles: GetFolderFiles;
+	normalizeChromiumOptions:
+		| ((options: {
+				chromiumOptions: ChromiumOptions;
+				logLevel: LogLevel;
+		  }) => ChromiumOptions)
+		| null;
+	getTmpDirState: ((error: string) => FunctionErrorInfo['tmpDir']) | null;
+	startRendererDiagnostics: ((requestId: string) => () => void) | null;
 };
 
 export type FullClientSpecifics<Provider extends CloudProvider> = {

@@ -14,7 +14,8 @@ import {
 	handleCtrlC,
 	registerCtrlCHandler,
 } from './cleanup-before-quit';
-import {cloudrunCommand} from './cloudrun-command';
+import {cloudrunCommand, tryPrintCloudrunHelp} from './cloudrun-command';
+import {getCommandHelp, makeCommandHelpOption} from './command-help';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
@@ -28,7 +29,7 @@ import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {initializeCli} from './initialize-cli';
-import {lambdaCommand} from './lambda-command';
+import {lambdaCommand, tryPrintLambdaHelp} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -58,6 +59,26 @@ const {packageManagerOption, skipSkillsOption, versionFlagOption} =
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
+	const helpPath =
+		command === 'help' && (args.length > 0 || !parsedCli.help)
+			? args
+			: parsedCli._;
+	if (parsedCli.help || command === 'help') {
+		const [helpCommand, ...helpArgs] = helpPath;
+		if (helpCommand === 'lambda' || helpCommand === 'cloudrun') {
+			const helpRemotionRoot = RenderInternals.findRemotionRoot();
+			const printed =
+				helpCommand === 'lambda'
+					? tryPrintLambdaHelp(helpRemotionRoot, helpArgs, 'info')
+					: tryPrintCloudrunHelp(helpRemotionRoot, helpArgs, 'info');
+			if (printed) {
+				return;
+			}
+		}
+
+		printHelp('info', helpPath);
+		return;
+	}
 
 	const packageManager = packageManagerOption.getValue({
 		commandLine: parsedCli,
@@ -160,17 +181,12 @@ export const cli = async () => {
 			await browserCommand(args, logLevel);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
-		} else if (command === 'help') {
-			printHelp(logLevel);
-			process.exit(0);
-		} else if (parsedCli.help) {
-			printHelp(logLevel);
 		} else {
 			if (command) {
 				Log.error({indent: false, logLevel}, `Command ${command} not found.`);
 			}
 
-			printHelp(logLevel);
+			printHelp(logLevel, []);
 			process.exit(1);
 		}
 	} catch (err) {
@@ -211,6 +227,8 @@ export const CliInternals = {
 	makeHyperlink,
 	supportsHyperlink,
 	getGitSource,
+	getCommandHelp,
+	makeCommandHelpOption,
 	handleCtrlC,
 	registerCtrlCHandler,
 };

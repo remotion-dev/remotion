@@ -16,15 +16,16 @@ import type {FallbackHtml5AudioProps} from './props';
 
 const {
 	useUnsafeVideoConfig,
-	Timeline,
 	SharedAudioContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
 	warnAboutTooHighVolume,
 	usePreload,
 	SequenceContext,
+	usePlaying,
+	useBuffering,
+	useMediaAudioState,
 } = Internals;
 
 type NewAudioForPreviewProps = {
@@ -79,18 +80,18 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
+	const initialToneFrequencyRef = useRef(toneFrequency ?? 1);
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
 
-	const [playing] = Timeline.usePlayingState();
+	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
-	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(
@@ -125,17 +126,13 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
-	const bufferingContext = useContext(Internals.BufferingContextReact);
+	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
+		muted,
+		volume: userPreferredVolume,
+		audioEnabled: true,
+	});
 
-	if (!bufferingContext) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
-
-	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
-
-	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
+	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
@@ -158,6 +155,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		effectiveMuted,
 		userPreferredVolume,
 		playbackRate,
+		toneFrequency: toneFrequency ?? 1,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -203,6 +201,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				fps: videoConfig.fps,
 				canvas: null,
 				playbackRate: initialPlaybackRate.current,
+				toneFrequency: initialToneFrequencyRef.current,
 				audioStreamIndex: audioStreamIndex ?? null,
 				debugOverlay: false,
 				bufferState: buffer,
@@ -373,7 +372,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		return (
 			<RemotionAudio
 				src={src}
-				muted={muted}
+				muted={effectiveMuted}
 				volume={volume}
 				startFrom={trimBefore}
 				endAt={trimAfter}

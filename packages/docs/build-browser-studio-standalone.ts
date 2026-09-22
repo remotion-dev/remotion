@@ -2,7 +2,6 @@ import {copyFileSync, cpSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from '../browser-studio/src/dev/get-dependency-versions-for-build';
-import {getBrowserStudioReactRefreshFilesForBuild} from '../browser-studio/src/dev/get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from '../browser-studio/src/dev/get-setup-environment-for-build';
 import {getBrowserStudioWorkspacePackageExportsForBuild} from '../browser-studio/src/dev/get-workspace-package-exports-for-build';
 import {getBrowserStudioWorkspaceCommit} from './get-browser-studio-workspace-commit';
@@ -18,7 +17,6 @@ const outputDir = path.join(
 );
 const publicAssetPath = `/assets/experimental-new/${commit}`;
 const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
-const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 const workspacePackageExports =
 	getBrowserStudioWorkspacePackageExportsForBuild();
@@ -46,7 +44,6 @@ copyFileSync(
 const output = await build({
 	define: {
 		__BROWSER_STUDIO_DEPENDENCY_VERSIONS__: JSON.stringify(dependencyVersions),
-		__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 		__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
 		__BROWSER_STUDIO_WORKSPACE_COMMIT__: JSON.stringify(commit),
 		__BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__: JSON.stringify(
@@ -77,6 +74,18 @@ await Bun.write(
 			'dist',
 			'esm',
 			'browser-studio-vendor-entry.mjs',
+		),
+	),
+);
+
+await Bun.write(
+	path.join(outputDir, 'browser-studio-transformers-entry.mjs'),
+	Bun.file(
+		path.join(
+			browserStudioDir,
+			'dist',
+			'esm',
+			'browser-studio-transformers-entry.mjs',
 		),
 	),
 );
@@ -121,11 +130,8 @@ const html = `<!DOCTYPE html>
 </html>
 `;
 
-await Bun.write(
-	path.join(import.meta.dir, 'build', 'experimental_new', 'index.html'),
-	html,
-);
+await Bun.write(path.join(import.meta.dir, 'build', 'new', 'index.html'), html);
 
 process.stdout.write(
-	`Built standalone Browser Studio at /experimental_new with ${output.outputs.length + 4} assets.\n`,
+	`Built standalone Browser Studio at /new with ${output.outputs.length + 5} assets.\n`,
 );

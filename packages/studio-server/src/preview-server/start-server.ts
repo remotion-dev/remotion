@@ -87,16 +87,26 @@ export const startServer = async (options: {
 
 	const portConfig = RenderInternals.getPortConfig(options.forceIPv4);
 
-	const onPortUnavailable = options.forceNew
-		? undefined
-		: async (port: number): Promise<'continue' | 'stop'> => {
-				const detection = await detectRemotionServer({
-					port,
-					cwd: options.remotionRoot,
-					hostname: portConfig.hostsToTry[0],
-				});
-				return detection.type === 'match' ? 'stop' : 'continue';
-			};
+	const onPortUnavailable = async (
+		port: number,
+	): Promise<'continue' | 'stop'> => {
+		if (!options.forceNew) {
+			const detection = await detectRemotionServer({
+				port,
+				cwd: options.remotionRoot,
+				hostname: portConfig.hostsToTry[0],
+			});
+			if (detection.type === 'match') {
+				return 'stop';
+			}
+		}
+
+		RenderInternals.Log.info(
+			{indent: false, logLevel: options.logLevel},
+			RenderInternals.chalk.gray(`Port ${port} is busy, trying another.`),
+		);
+		return 'continue';
+	};
 
 	let portSelection = await RenderInternals.getDesiredPort({
 		desiredPort,
@@ -233,6 +243,25 @@ export const startServer = async (options: {
 		setWatchIgnoreNextChangePlugin(watchIgnorePlugin);
 
 		const wdmMiddleware = wdm(compiler, options.logLevel);
+		const invalidateBundle = () => {
+			return new Promise<void>((resolve, reject) => {
+				const watching = compiler?.watching;
+				if (!watching) {
+					reject(new Error('The Studio bundle is not being watched.'));
+					return;
+				}
+
+				watching.invalidate((error) => {
+					if (error) {
+						reject(error);
+						return;
+					}
+
+					resolve();
+				});
+			});
+		};
+
 		const liveEventsServer = makeLiveEventsRouter(options.logLevel, () => {
 			const undoStack = getUndoStack();
 			const redoStack = getRedoStack();
@@ -294,6 +323,7 @@ export const startServer = async (options: {
 						getDefaultCodingAgent: options.getDefaultCodingAgent,
 						getDefaultEditor: options.getDefaultEditor,
 						configFile: options.configFile,
+						invalidateBundle,
 					});
 				})
 				.catch((err) => {

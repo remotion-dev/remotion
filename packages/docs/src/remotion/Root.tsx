@@ -44,6 +44,10 @@ import {
 } from '../../components/effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
+import {
+	EffectsLutPreview,
+	LUT_PREVIEW_CONTENT,
+} from '../../components/effects/effects-lut-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -89,6 +93,7 @@ import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../../components/effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../../components/effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../../components/effects/effects-thermal-vision-preview';
 import {EffectsTilePreview} from '../../components/effects/effects-tile-preview';
 import {EffectsTintPreview} from '../../components/effects/effects-tint-preview';
@@ -115,6 +120,7 @@ import {
 import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
+import {ElementPlayground} from './element-playground/ElementPlayground';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -134,7 +140,15 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<Folder name="elements">
-				{Object.values(elementDefinitions).map((definition) => {
+				<Composition
+					id="elements-install-playground"
+					component={ElementPlayground}
+					durationInFrames={300}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				{elementDefinitions.map((definition) => {
 					const dimensions = getElementPreviewDimensions(definition);
 
 					return (
@@ -336,6 +350,13 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
 				/>
 				<Still
+					id="effects-lut-preview"
+					component={EffectsLutPreview}
+					width={1280}
+					height={720}
+					defaultProps={{content: LUT_PREVIEW_CONTENT}}
+				/>
+				<Still
 					id="effects-shadows-highlights-preview"
 					component={EffectsShadowsHighlightsPreview}
 					width={1280}
@@ -355,6 +376,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.8}}
+				/>
+				<Still
+					id="effects-tear-preview"
+					component={EffectsTearPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.75,
+						rotation: 20,
+						jaggedness: 20,
+						angle: 0,
+					}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

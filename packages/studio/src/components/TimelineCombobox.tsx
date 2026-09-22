@@ -1,6 +1,7 @@
 import React from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {CaretDown} from '../icons/caret';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -19,6 +20,8 @@ const label: React.CSSProperties = {
 	overflow: 'hidden',
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -28,6 +31,7 @@ export const TimelineCombobox: React.FC<{
 	readonly values: ComboboxValue[];
 	readonly selectedId: string | number;
 	readonly title: string;
+	readonly tooltipDelay: number | null;
 	readonly labelWidth?: number;
 	readonly renderLeftItem?: RenderInlineAction;
 	readonly unhoveredIconColor?: string;
@@ -35,6 +39,7 @@ export const TimelineCombobox: React.FC<{
 	values,
 	selectedId,
 	title,
+	tooltipDelay,
 	labelWidth = 32,
 	renderLeftItem,
 	unhoveredIconColor = LIGHT_TEXT,
@@ -61,7 +66,9 @@ export const TimelineCombobox: React.FC<{
 					{selected ? (
 						<div
 							title={
-								typeof selected.label === 'string' ? selected.label : undefined
+								tooltipDelay === null && typeof selected.label === 'string'
+									? selected.label
+									: undefined
 							}
 							style={{...label, width: labelWidth}}
 						>
@@ -75,17 +82,31 @@ export const TimelineCombobox: React.FC<{
 			segmentId: 'selector',
 			selectedId,
 			style: {fontFamily: 'inherit', padding: '0 4px'},
-			title,
+			title: tooltipDelay === null ? title : null,
+			tooltipLabel: null,
 			type: 'menu',
 			values,
 		},
 	];
 
-	return (
+	const button = (
 		<SegmentedButton
 			segments={segments}
 			style={segmentedButtonStyle}
 			title={null}
 		/>
+	);
+
+	return tooltipDelay === null ? (
+		button
+	) : (
+		<ActionTooltip
+			label={title}
+			shortcut={null}
+			delay={tooltipDelay}
+			dismissOnClick
+		>
+			{button}
+		</ActionTooltip>
 	);
 };

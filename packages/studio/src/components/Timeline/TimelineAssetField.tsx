@@ -2,6 +2,17 @@ import React, {createContext, useCallback, useContext, useMemo} from 'react';
 import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {writeStaticFile} from '../../api/write-static-file';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -9,6 +20,8 @@ import type {
 } from '../../helpers/timeline-layout';
 import {PenIcon} from '../../icons/pen';
 import {SetSelectedModalContext} from '../../state/modals';
+import {useAssetContextMenuItems} from '../asset-context-menu';
+import {ContextMenu} from '../ContextMenu';
 import {pickFilesToImport} from '../import-assets';
 import {InlineAction} from '../InlineAction';
 import {
@@ -17,6 +30,7 @@ import {
 } from '../InspectorPanel/common';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useStaticFiles} from '../use-static-files';
+import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 
 const penIcon: React.CSSProperties = {
 	display: 'block',
@@ -29,6 +43,7 @@ const sourceActions: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
 	gap: 4,
+	margin: '0 4px',
 	minWidth: 0,
 };
 
@@ -39,17 +54,95 @@ const standaloneSourceActionStyle: React.CSSProperties = {
 	width: 'auto',
 };
 
+const assetTypeToAccept = {
+	audio: 'audio/*',
+	video: 'video/*',
+	image: 'image/*',
+} as const;
+
+const imageAssetField: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flex: 1,
+	gap: 4,
+	margin: '0 4px',
+	minWidth: 0,
+};
+
+const imageAssetPreviewContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
+
+const imageAssetPreviewButton: React.CSSProperties = {
+	alignItems: 'center',
+	appearance: 'none',
+	border: 'none',
+	borderRadius: 4,
+	cursor: 'default',
+	display: 'flex',
+	flex: 1,
+	gap: 8,
+	height: 40,
+	margin: 0,
+	minWidth: 0,
+	padding: '0 8px',
+	textAlign: 'left',
+};
+
+const thumbnailContainer: React.CSSProperties = {
+	borderRadius: 4,
+	flexShrink: 0,
+	height: 40,
+	overflow: 'hidden',
+	width: 40,
+};
+
+const thumbnail: React.CSSProperties = {
+	display: 'block',
+	height: '100%',
+	objectFit: 'contain',
+	width: '100%',
+};
+
+const imageAssetInfo: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	gap: 2,
+	minWidth: 0,
+};
+
+const imageAssetName: React.CSSProperties = {
+	color: WHITE,
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: '16px',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const imageAssetSource: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 11,
+	lineHeight: '14px',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
 export type InspectorSourceAction = InspectorQuickActionProps;
 
 type AssetSelectionContextValue = {
-	readonly initialQuery: string;
 	readonly getSourceAction: (src: string) => InspectorSourceAction | null;
 	readonly sourceAction: InspectorSourceAction | null;
 };
 
 export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
 	getSourceAction: () => null,
-	initialQuery: '',
 	sourceAction: null,
 });
 
@@ -83,17 +176,26 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const staticFiles = useStaticFiles();
-	const {getSourceAction, initialQuery, sourceAction} = useContext(
-		AssetSelectionContext,
-	);
+	const {getSourceAction, sourceAction} = useContext(AssetSelectionContext);
+	const {assetType} = field.fieldSchema;
+	const initialQuery = assetType ? `type:${assetType} ` : '';
+	const imageLinkInfo =
+		assetType === 'image' && typeof effectiveValue === 'string'
+			? getTimelineAssetLinkInfo(effectiveValue)
+			: null;
+	const localAssetPath =
+		imageLinkInfo?.kind === 'local' ? imageLinkInfo.assetPath : null;
+	const {getContextMenuItems: getLocalAssetContextMenuItems} =
+		useAssetContextMenuItems({
+			relativePath: localAssetPath,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+		});
 	const inlineSourceAction = useMemo(() => {
-		if (field.key !== 'src') {
-			return null;
+		if (typeof effectiveValue === 'string') {
+			return getSourceAction(effectiveValue);
 		}
 
-		return typeof effectiveValue === 'string'
-			? getSourceAction(effectiveValue)
-			: sourceAction;
+		return field.key === 'src' ? sourceAction : null;
 	}, [effectiveValue, field.key, getSourceAction, sourceAction]);
 
 	const onSelect = useCallback(
@@ -111,8 +213,25 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		[propStatus.codeValue, onDragValueChange, onSave, onDragEnd],
 	);
 
+	const onSelectUrl = useCallback(
+		(url: string) => {
+			if (url === propStatus.codeValue) {
+				return;
+			}
+
+			onDragValueChange(url);
+			onSave(url).finally(() => {
+				onDragEnd();
+			});
+		},
+		[propStatus.codeValue, onDragValueChange, onDragEnd, onSave],
+	);
+
 	const selectFile = useCallback(async () => {
-		const [file] = await pickFilesToImport({multiple: false});
+		const [file] = await pickFilesToImport({
+			multiple: false,
+			accept: assetType ? assetTypeToAccept[assetType] : null,
+		});
 		if (!file) {
 			return;
 		}
@@ -148,23 +267,50 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				4000,
 			);
 		}
-	}, [onSelect, staticFiles]);
+	}, [assetType, onSelect, staticFiles]);
 
 	const openAssetSelection = useCallback(() => {
+		const assetSelection = {
+			initialQuery,
+			onSelectFile: () => {
+				selectFile().catch(() => undefined);
+			},
+			onSelected: (asset: {name: string; src: string}) =>
+				onSelect(asset.name, asset.src),
+		};
+
+		if (assetType !== undefined) {
+			const linkInfo =
+				typeof effectiveValue === 'string'
+					? getTimelineAssetLinkInfo(effectiveValue)
+					: null;
+			setSelectedModal({
+				type: 'asset-selection',
+				assetType,
+				initialUrl: linkInfo?.kind === 'remote' ? linkInfo.href : null,
+				invocationTimestamp: Date.now(),
+				assetSelection,
+				onSelectedUrl: onSelectUrl,
+			});
+			return;
+		}
+
 		setSelectedModal({
 			type: 'quick-switcher',
 			mode: 'assets',
 			invocationTimestamp: Date.now(),
-			assetSelection: {
-				initialQuery,
-				onSelectFile: () => {
-					selectFile().catch(() => undefined);
-				},
-				onSelected: (asset) => onSelect(asset.name, asset.src),
-			},
+			assetSelection,
 			compositionSelection: null,
 		});
-	}, [initialQuery, onSelect, selectFile, setSelectedModal]);
+	}, [
+		assetType,
+		effectiveValue,
+		initialQuery,
+		onSelect,
+		onSelectUrl,
+		selectFile,
+		setSelectedModal,
+	]);
 
 	const action = (
 		<InlineAction
@@ -176,6 +322,92 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		/>
 	);
 
+	if (imageLinkInfo !== null) {
+		const linkInfo = imageLinkInfo;
+		let name: string;
+		let source: string | null;
+		let previewSrc: string;
+		if (linkInfo.kind === 'local') {
+			name = linkInfo.assetPath.split('/').pop() ?? linkInfo.assetPath;
+			source = null;
+			previewSrc = staticFile(linkInfo.assetPath);
+		} else {
+			previewSrc = linkInfo.href.startsWith('//')
+				? `https:${linkInfo.href}`
+				: linkInfo.href;
+			try {
+				const url = new URL(previewSrc);
+				const encodedName = url.pathname.split('/').filter(Boolean).pop();
+				name = encodedName ? decodeURIComponent(encodedName) : url.hostname;
+				source = url.hostname;
+			} catch {
+				name = 'Remote image';
+				source = linkInfo.href;
+			}
+		}
+
+		const opensSource =
+			linkInfo.kind === 'local' &&
+			inlineSourceAction !== null &&
+			inlineSourceAction.onClick !== null;
+		const title = inlineSourceAction?.title ?? linkInfo.title;
+		const onPreviewClick = opensSource
+			? inlineSourceAction.onClick
+			: openAssetSelection;
+		const previewLabel = `${opensSource ? 'Open' : 'Replace'} ${name}`;
+		const previewDisabled = opensSource
+			? inlineSourceAction.disabled
+			: window.remotion_isReadOnlyStudio;
+		const previewButtonStyle: React.CSSProperties = {
+			...imageAssetPreviewButton,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: previewDisabled
+					? TRANSPARENT
+					: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor: LIGHT_TEXT,
+				hoverColor: previewDisabled ? LIGHT_TEXT : WHITE,
+			}),
+		};
+		const previewAction = (
+			<button
+				aria-label={previewLabel}
+				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+				disabled={previewDisabled}
+				onClick={onPreviewClick}
+				style={previewButtonStyle}
+				title={title}
+				type="button"
+			>
+				<span style={thumbnailContainer}>
+					<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
+				</span>
+				<span style={imageAssetInfo}>
+					<span style={imageAssetName}>{name}</span>
+					{source === null ? null : (
+						<span style={imageAssetSource}>{source}</span>
+					)}
+				</span>
+			</button>
+		);
+
+		return (
+			<div style={imageAssetField}>
+				{localAssetPath === null ? (
+					<div style={imageAssetPreviewContainer}>{previewAction}</div>
+				) : (
+					<ContextMenu
+						getItems={getLocalAssetContextMenuItems}
+						style={imageAssetPreviewContainer}
+					>
+						{previewAction}
+					</ContextMenu>
+				)}
+				{action}
+			</div>
+		);
+	}
+
 	if (inlineSourceAction === null) {
 		return action;
 	}
@@ -184,6 +416,16 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		<div style={sourceActions}>
 			<InspectorQuickAction
 				{...inlineSourceAction}
+				disabled={
+					assetType === undefined
+						? inlineSourceAction.disabled
+						: window.remotion_isReadOnlyStudio
+				}
+				onClick={
+					assetType === undefined
+						? inlineSourceAction.onClick
+						: openAssetSelection
+				}
 				size="compact"
 				style={standaloneSourceActionStyle}
 			/>

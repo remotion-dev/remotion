@@ -2,7 +2,10 @@ import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {formatFileLocation} from '../helpers/format-file-location';
+import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../helpers/format-file-location';
 import {getFolderId} from '../helpers/get-folder-id';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import type {PreviewServerConnectionState} from '../helpers/preview-server-events';
@@ -37,6 +40,11 @@ export const getFolderMenuItems = ({
 		location: resolvedLocation,
 		root: window.remotion_cwd,
 	});
+	const contextForAgents = formatContextForAgents({
+		location: resolvedLocation,
+		name: folderId,
+		root: window.remotion_cwd,
+	});
 	const showInEditorDisabled =
 		!editorId || connectionStatus !== 'connected' || !resolvedLocation;
 	const copyFileLocationDisabled = !fileLocation;
@@ -68,6 +76,30 @@ export const getFolderMenuItems = ({
 					disabled: showInEditorDisabled,
 				}
 			: null,
+		{
+			id: 'copy-context-for-agents',
+			keyHint: null,
+			label: `Copy context for agents`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!contextForAgents) {
+					return;
+				}
+
+				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						1000,
+					);
+				});
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-context-for-agents',
+			disabled: !contextForAgents,
+		},
 		{
 			id: 'copy-folder-file-location',
 			keyHint: null,
@@ -122,6 +154,25 @@ export const getFolderMenuItems = ({
 			subMenu: null,
 			type: 'item' as const,
 			value: 'new-composition-in-folder',
+			disabled: codemodDisabled,
+		},
+		{
+			id: 'new-folder-in-folder',
+			keyHint: null,
+			label: `New folder...`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				setSelectedModal({
+					type: 'new-folder',
+					parentName: folderId,
+					stack: folder.stack,
+				});
+			},
+			quickSwitcherLabel: 'New folder in folder...',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'new-folder-in-folder',
 			disabled: codemodDisabled,
 		},
 		{

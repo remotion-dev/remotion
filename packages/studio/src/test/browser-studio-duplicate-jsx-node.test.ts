@@ -28,7 +28,11 @@ test('routes JSX duplication through Browser Studio', async () => {
 					receivedRequests.push(request);
 					return Promise.resolve({
 						success: true,
-						nodePathMutation: {files: [], mutationId: 'test-mutation'},
+						nodePathMutation: {
+							files: [],
+							mutationId: 'test-mutation',
+							timelineSelection: null,
+						},
 					});
 				},
 			}),
@@ -36,15 +40,23 @@ test('routes JSX duplication through Browser Studio', async () => {
 	});
 
 	const result = await duplicateJsxNode({
-		fileName: '/project/src/Composition.tsx',
-		nodePath,
+		nodes: [
+			{
+				fileName: '/project/src/Composition.tsx',
+				nodePath,
+			},
+		],
 	});
 
 	expect(result.success).toBe(true);
 	expect(receivedRequests).toEqual([
 		{
-			fileName: '/project/src/Composition.tsx',
-			nodePath,
+			nodes: [
+				{
+					fileName: '/project/src/Composition.tsx',
+					nodePath,
+				},
+			],
 		},
 	]);
 });

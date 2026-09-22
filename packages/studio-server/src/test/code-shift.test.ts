@@ -12,7 +12,21 @@ export const Component = () => {
 };
 `;
 
-test('Should add style.scale to a Video component and format with prettier', async () => {
+const expectedOutput = `import {Video} from '@remotion/media';
+
+const src = 'https://remotion.media/video.mp4';
+
+export const Component = () => {
+    return <Video
+        src={src}
+        style={{
+            scale: 2
+        }}
+    />;
+};
+`;
+
+test('Should add style.scale without changing the existing indentation style', async () => {
 	const {output, oldValueStrings, formatted} = await updateSequenceProps({
 		videoConfigValues: null,
 		input: componentInput,
@@ -29,24 +43,10 @@ test('Should add style.scale to a Video component and format with prettier', asy
 
 	expect(oldValueString).toBe('');
 	expect(formatted).toBe(true);
-	expect(output).toBe(`import {Video} from '@remotion/media';
-
-const src = 'https://remotion.media/video.mp4';
-
-export const Component = () => {
-\treturn (
-\t\t<Video
-\t\t\tsrc={src}
-\t\t\tstyle={{
-\t\t\t\tscale: 2,
-\t\t\t}}
-\t\t/>
-\t);
-};
-`);
+	expect(output).toBe(expectedOutput);
 });
 
-test('Should resolve prettier config if override is null', async () => {
+test('Should infer source formatting if the config override is null', async () => {
 	const {output, formatted} = await updateSequenceProps({
 		videoConfigValues: null,
 		input: componentInput,
@@ -57,6 +57,5 @@ test('Should resolve prettier config if override is null', async () => {
 	});
 
 	expect(formatted).toBe(true);
-	expect(output).toContain('\treturn (');
-	expect(output).toContain('style={{');
+	expect(output).toBe(expectedOutput);
 });

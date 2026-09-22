@@ -1,8 +1,10 @@
 import type {Size} from '@remotion/player';
 import React, {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import type {OnRetry} from '../error-overlay/remotion-overlay/ErrorDisplay';
 import {ErrorLoader} from '../error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, WHITE} from '../helpers/colors';
+import {getRoute} from '../helpers/url-state';
 import {CompositionListContext} from '../state/composition-list';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
@@ -26,6 +28,11 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	backgroundColor: BACKGROUND,
 	flexDirection: 'column',
+};
+
+const welcomeLabel: React.CSSProperties = {
+	...loaderLabel,
+	textAlign: 'center',
 };
 
 export const CanvasOrLoading: React.FC<{
@@ -58,7 +65,11 @@ export const CanvasOrLoading: React.FC<{
 
 	if (renderError) {
 		return (
-			<ErrorLoading error={renderError} calculateMetadataContext={false} />
+			<ErrorLoading
+				error={renderError}
+				calculateMetadataContext={false}
+				onRetry={null}
+			/>
 		);
 	}
 
@@ -67,11 +78,21 @@ export const CanvasOrLoading: React.FC<{
 			return null;
 		}
 
-		const compname = window.location.pathname.replace('/', '');
+		const route = getRoute();
+		if (route === '') {
+			return (
+				<div style={container} className="css-reset">
+					<div style={welcomeLabel}>Select a composition to get started.</div>
+				</div>
+			);
+		}
 
 		return (
 			<div style={container} className="css-reset">
-				<div style={loaderLabel}>Composition with ID {compname} not found.</div>
+				<div style={loaderLabel}>
+					Composition with ID {decodeURIComponent(route.substring(1))} not
+					found.
+				</div>
 			</div>
 		);
 	}
@@ -106,7 +127,15 @@ export const CanvasOrLoading: React.FC<{
 	}
 
 	if (resolved.type === 'error') {
-		return <ErrorLoading error={resolved.error} calculateMetadataContext />;
+		return (
+			<ErrorLoading
+				error={resolved.error}
+				calculateMetadataContext
+				onRetry={() =>
+					Internals.resolveCompositionsRef.current?.reloadCurrentlySelectedComposition()
+				}
+			/>
+		);
 	}
 
 	return (
@@ -128,7 +157,8 @@ const loaderContainer: React.CSSProperties = {
 const ErrorLoading: React.FC<{
 	readonly error: Error;
 	readonly calculateMetadataContext: boolean;
-}> = ({error, calculateMetadataContext}) => {
+	readonly onRetry: OnRetry;
+}> = ({error, calculateMetadataContext, onRetry}) => {
 	return (
 		<div style={loaderContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<ErrorLoader
@@ -136,9 +166,7 @@ const ErrorLoading: React.FC<{
 				canHaveDismissButton={false}
 				keyboardShortcuts
 				error={error}
-				onRetry={() =>
-					Internals.resolveCompositionsRef.current?.reloadCurrentlySelectedComposition()
-				}
+				onRetry={onRetry}
 				calculateMetadata={calculateMetadataContext}
 			/>
 		</div>

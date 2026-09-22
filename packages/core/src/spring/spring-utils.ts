@@ -117,13 +117,22 @@ export function springCalculation({
 }): AnimationNode {
 	const from = 0;
 	const to = 1;
+	// An explicit `undefined` (e.g. a forwarded optional prop) must not
+	// override the defaults, otherwise the physics turn into NaN
+	const resolvedConfig: SpringConfig = {
+		damping: config.damping ?? defaultSpringConfig.damping,
+		mass: config.mass ?? defaultSpringConfig.mass,
+		stiffness: config.stiffness ?? defaultSpringConfig.stiffness,
+		overshootClamping:
+			config.overshootClamping ?? defaultSpringConfig.overshootClamping,
+	};
 	const cacheKey = [
 		frame,
 		fps,
-		config.damping,
-		config.mass,
-		config.overshootClamping,
-		config.stiffness,
+		resolvedConfig.damping,
+		resolvedConfig.mass,
+		resolvedConfig.overshootClamping,
+		resolvedConfig.stiffness,
 	].join('-');
 	if (calculationCache[cacheKey]) {
 		return calculationCache[cacheKey];
@@ -139,18 +148,19 @@ export function springCalculation({
 	const frameClamped = Math.max(0, frame);
 	const unevenRest = frameClamped % 1;
 	for (let f = 0; f <= Math.floor(frameClamped); f++) {
-		if (f === Math.floor(frameClamped)) {
-			f += unevenRest;
-		}
-
 		const time = (f / fps) * 1000;
 		animation = advance({
 			animation,
 			now: time,
-			config: {
-				...defaultSpringConfig,
-				...config,
-			},
+			config: resolvedConfig,
+		});
+	}
+
+	if (unevenRest > 0) {
+		animation = advance({
+			animation,
+			now: (frameClamped / fps) * 1000,
+			config: resolvedConfig,
 		});
 	}
 

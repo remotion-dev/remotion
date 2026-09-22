@@ -41,6 +41,12 @@
 		},
 		{
 			"path": "../web-renderer"
+		},
+		{
+			"path": "../whisper-webgpu"
+		},
+		{
+			"path": "../video-matting"
 		}
 	]
 }

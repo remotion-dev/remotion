@@ -8,8 +8,9 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {RecastCodemod} from '@remotion/studio-shared';
-import {parseAndApplyCodemod} from '../codemods/duplicate-composition';
+import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -19,9 +20,12 @@ import {
 	applyCodemodHandler,
 	getCodemodLogMessage,
 } from '../preview-server/routes/apply-codemod';
+import {applyVisualControlHandler} from '../preview-server/routes/apply-visual-control-change';
 import {redoHandler} from '../preview-server/routes/redo';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
+
+const {parseAndApplyCodemod} = CodemodsInternals;
 
 const rootContents = `import React from 'react';
 import {Composition} from 'remotion';
@@ -155,10 +159,172 @@ export const RemotionRoot: React.FC = () => {
 };
 `;
 
+const folderRootWithEarlierComponentContents = `import React from 'react';
+import {Composition, Folder} from 'remotion';
+
+const Component = () => {
+	return <><div>Content</div></>;
+};
+
+export const RemotionRoot: React.FC = () => {
+	return (
+		<>
+			<Folder name="Parent">
+				<Composition
+					id="Nested"
+					component={Component}
+					durationInFrames={120}
+					fps={30}
+					width={1280}
+					height={720}
+				/>
+			</Folder>
+		</>
+	);
+};
+`;
+
 const clearUndoRedoStacks = () => {
 	(getUndoStack() as unknown as unknown[]).length = 0;
 	(getRedoStack() as unknown as unknown[]).length = 0;
 };
+
+test('folder codemods do not run Prettier after applying source edits', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `import {Folder} from 'remotion';
+
+const untouched  =  { value : "keep" };
+export const Root = () => <Folder name="Before" />;
+`;
+
+	try {
+		writeFileSync(filePath, input);
+		const output = await applyCodemodToFile({
+			filePath,
+			codeMod: {
+				type: 'rename-folder',
+				folderName: 'Before',
+				parentName: null,
+				newName: 'After',
+			},
+		});
+
+		expect(output).toBe(input.replace('"Before"', '"After"'));
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('metadata codemods do not run Prettier after applying source edits', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `const untouched  =  { value : "keep" };
+export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
+`;
+
+	try {
+		writeFileSync(filePath, input);
+		const output = await applyCodemodToFile({
+			filePath,
+			codeMod: {
+				type: 'update-composition-metadata',
+				idToUpdate: 'Comp',
+				newDurationInFrames: 90,
+				newFps: null,
+				newHeight: 1080,
+				newWidth: 1920,
+			},
+		});
+
+		expect(output).toBe(`const untouched  =  { value : "keep" };
+export const Root=()=> <Composition id='Comp' width = {1920} durationInFrames={90} height={1080}/>;
+`);
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('visual-control codemods do not run Prettier after applying source edits', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `const untouched  =  { value : "keep" };
+export const Root=()=> visualControl('opacity', OPACITY);
+`;
+
+	try {
+		writeFileSync(filePath, input);
+		const output = await applyCodemodToFile({
+			filePath,
+			codeMod: {
+				type: 'apply-visual-control',
+				changes: [
+					{
+						id: 'opacity',
+						newValueSerialized: '0.5',
+						newValueIsUndefined: false,
+						enumPaths: [],
+					},
+				],
+			},
+		});
+
+		expect(output).toBe(input.replace('OPACITY', '0.5'));
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('visual-control handler preserves source formatting', async () => {
+	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+		router: () => Promise.resolve(),
+		closeConnections: () => Promise.resolve(),
+		addNewClientListener: () => () => undefined,
+	});
+	const filePath = path.join(remotionRoot, 'Root.tsx');
+	const input = `const untouched  =  { value : "keep" };
+export const Root=()=> visualControl('opacity', OPACITY);
+`;
+
+	try {
+		clearUndoRedoStacks();
+		writeFileSync(filePath, input);
+		const response = await applyVisualControlHandler(
+			getHandlerOptions({
+				input: {
+					fileName: 'Root.tsx',
+					changes: [
+						{
+							id: 'opacity',
+							newValueSerialized: '0.5',
+							newValueIsUndefined: false,
+							enumPaths: [],
+						},
+					],
+				},
+				entryPoint: filePath,
+				remotionRoot,
+			}),
+		);
+
+		expect(response.success).toBe(true);
+		expect(readFileSync(filePath, 'utf-8')).toBe(
+			input.replace('OPACITY', '0.5'),
+		);
+		expect(getUndoStack()).toHaveLength(1);
+	} finally {
+		clearUndoRedoStacks();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
 
 test('formats precise log messages for all codemods', () => {
 	const testCases: {codemod: RecastCodemod; expected: string}[] = [
@@ -231,6 +397,29 @@ test('formats precise log messages for all codemods', () => {
 				parentName: null,
 			},
 			expected: 'Moved composition "MoveMe" to root',
+		},
+		{
+			codemod: {
+				type: 'move-composition-or-folder',
+				source: {type: 'composition', compositionId: 'MoveMe'},
+				destination: {
+					type: 'before',
+					target: {type: 'folder', folderName: 'Shared', parentName: null},
+				},
+			},
+			expected: 'Moved composition "MoveMe"',
+		},
+		{
+			codemod: {
+				type: 'move-composition-or-folder',
+				source: {
+					type: 'folder',
+					folderName: 'Shared',
+					parentName: 'Parent',
+				},
+				destination: {type: 'root'},
+			},
+			expected: 'Moved folder "Parent/Shared"',
 		},
 		{
 			codemod: {
@@ -363,6 +552,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 				input: {
 					codemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -506,6 +696,7 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 						parentName: 'Other',
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -569,6 +760,7 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 						parentName: null,
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -640,6 +832,7 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 						newWidth: 1920,
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -654,7 +847,23 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 		);
 
 		expect(applyResponse.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="FreshVideo"');
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(
+			"import {FreshVideo} from './FreshVideo';\n" +
+				rootContents.replace(
+					'\t\t</>',
+					[
+						'\t\t\t<Composition',
+						'\t\t\t\tid="FreshVideo"',
+						'\t\t\t\tcomponent={FreshVideo}',
+						'\t\t\t\tdurationInFrames={150}',
+						'\t\t\t\tfps={30}',
+						'\t\t\t\twidth={1920}',
+						'\t\t\t\theight={1080}',
+						'\t\t\t/>',
+						'\t\t</>',
+					].join('\n'),
+				),
+		);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
 			"import {FreshVideo} from './FreshVideo'",
 		);
@@ -748,6 +957,7 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 						newWidth: 1280,
 					} satisfies RecastCodemod,
 					dryRun: false,
+					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -777,7 +987,7 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		expect(componentContents).toContain("src={staticFile('capture.mp4')}");
 		expect(componentContents).toContain('width: 1920');
 		expect(componentContents).toContain('height: 1080');
-		expect(componentContents).toContain('id="FreshCapture"');
+		expect(componentContents).toContain("id={'FreshCapture'}");
 		expect(componentContents).toContain('width={1280}');
 		expect(componentContents).toContain('height={720}');
 
@@ -958,6 +1168,126 @@ test('moves a composition to root', () => {
 		newContents.indexOf('id="NestedA"'),
 	);
 	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
+});
+
+test('moves a composition to its registration root when another component appears first', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootWithEarlierComponentContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'Nested'},
+			destination: {type: 'root'},
+		},
+	});
+
+	expect(changesMade).toHaveLength(1);
+	expect(newContents.match(/id="Nested"/g)).toHaveLength(1);
+	expect(newContents.indexOf('id="Nested"')).toBeGreaterThan(
+		newContents.indexOf('export const RemotionRoot'),
+	);
+	expect(newContents.indexOf('id="Nested"')).toBeGreaterThan(
+		newContents.indexOf('</Folder>'),
+	);
+});
+
+test('visually reorders compositions and folders', () => {
+	const compositionBeforeFolder = parseAndApplyCodemod({
+		input: selfClosingFolderRootContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'KeepMe'},
+			destination: {
+				type: 'before',
+				target: {type: 'folder', folderName: 'Empty', parentName: null},
+			},
+		},
+	});
+
+	expect(compositionBeforeFolder.changesMade).toHaveLength(1);
+	expect(
+		compositionBeforeFolder.newContents.indexOf('id="KeepMe"'),
+	).toBeLessThan(
+		compositionBeforeFolder.newContents.indexOf('<Folder name="Empty"'),
+	);
+
+	const folderAfterComposition = parseAndApplyCodemod({
+		input: selfClosingFolderRootContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'folder', folderName: 'Empty', parentName: null},
+			destination: {
+				type: 'after',
+				target: {type: 'composition', compositionId: 'KeepMe'},
+			},
+		},
+	});
+
+	expect(folderAfterComposition.changesMade).toHaveLength(1);
+	expect(
+		folderAfterComposition.newContents.indexOf('id="KeepMe"'),
+	).toBeLessThan(
+		folderAfterComposition.newContents.indexOf('<Folder name="Empty"'),
+	);
+});
+
+test('moves a folder into another folder with its descendants', () => {
+	const {changesMade, newContents} = parseAndApplyCodemod({
+		input: folderRootContents,
+		codeMod: {
+			type: 'move-composition-or-folder',
+			source: {type: 'folder', folderName: 'Parent', parentName: null},
+			destination: {
+				type: 'folder',
+				folderName: 'Shared',
+				parentName: 'Other',
+			},
+		},
+	});
+
+	expect(changesMade).toHaveLength(1);
+	expect(newContents.match(/<Folder name="Parent">/g)).toHaveLength(1);
+	expect(newContents.match(/id="NestedA"/g)).toHaveLength(1);
+	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
+		newContents.indexOf('<Folder name="Parent">'),
+	);
+});
+
+test('rejects moving a folder into its descendant', () => {
+	expect(() =>
+		parseAndApplyCodemod({
+			input: folderRootContents,
+			codeMod: {
+				type: 'move-composition-or-folder',
+				source: {type: 'folder', folderName: 'Parent', parentName: null},
+				destination: {
+					type: 'folder',
+					folderName: 'Shared',
+					parentName: 'Parent',
+				},
+			},
+		}),
+	).toThrow('A folder cannot be moved inside itself');
+});
+
+test('rejects duplicate folder names at the destination', () => {
+	expect(() =>
+		parseAndApplyCodemod({
+			input: folderRootContents,
+			codeMod: {
+				type: 'move-composition-or-folder',
+				source: {
+					type: 'folder',
+					folderName: 'Shared',
+					parentName: 'Parent',
+				},
+				destination: {
+					type: 'folder',
+					folderName: 'Other',
+					parentName: null,
+				},
+			},
+		}),
+	).toThrow('A folder named "Shared" already exists in the destination');
 });
 
 test('does not use folders inside JSX attributes as move targets', () => {

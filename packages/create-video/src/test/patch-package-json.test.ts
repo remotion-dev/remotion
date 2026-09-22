@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {patchPackageJson} from '../patch-package-json';
 import type {PackageManager} from '../pkg-managers';
 
-const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun'];
+const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun', 'nub'];
 
 for (const packageManager of packageManagers) {
 	test(`Using ${packageManager} package manager provides the correct "packageManager" entry in package.json`, () => {

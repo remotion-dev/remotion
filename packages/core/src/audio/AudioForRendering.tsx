@@ -15,10 +15,12 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useAudioEnabled} from '../use-media-enabled.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {RemotionAudioProps} from './props.js';
 import {useFrameForVolumeProp} from './use-audio-frame.js';
+import {useMediaAudioState} from './use-media-audio-state.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
@@ -83,6 +85,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaVolume: 1,
 	});
 	warnAboutTooHighVolume(volume);
+	const audioEnabled = useAudioEnabled();
+	const {shouldUseAudio} = useMediaAudioState({
+		muted: props.muted ?? false,
+		volume,
+		audioEnabled,
+	});
 
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLVideoElement;
@@ -93,15 +101,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			throw new Error('No src passed');
 		}
 
-		if (!window.remotion_audioEnabled) {
-			return;
-		}
-
-		if (props.muted) {
-			return;
-		}
-
-		if (volume <= 0) {
+		if (!shouldUseAudio) {
 			return;
 		}
 
@@ -122,7 +122,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
-		props.muted,
+		shouldUseAudio,
 		props.src,
 		registerRenderAsset,
 		absoluteFrame,

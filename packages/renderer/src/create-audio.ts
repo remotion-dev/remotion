@@ -46,6 +46,7 @@ export const createAudio = async ({
 	trimRightOffset,
 	forSeamlessAacConcatenation,
 	sampleRate,
+	enforceAudioTrack,
 }: {
 	assets: FrameAndAssets[];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -64,7 +65,8 @@ export const createAudio = async ({
 	trimRightOffset: number;
 	forSeamlessAacConcatenation: boolean;
 	sampleRate: number;
-}): Promise<string> => {
+	enforceAudioTrack: boolean;
+}): Promise<string | null> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
 		onDownload: onDownload ?? (() => () => undefined),
@@ -169,6 +171,12 @@ export const createAudio = async ({
 				]
 			: []),
 	];
+	if (!enforceAudioTrack && preprocessed.length === 0) {
+		deleteDirectory(downloadMap.audioMixing);
+		onProgress(1);
+		return null;
+	}
+
 	const merged = path.join(downloadMap.audioPreprocessing, 'merged.wav');
 	const extension = getExtensionFromAudioCodec(audioCodec);
 	const outName = path.join(

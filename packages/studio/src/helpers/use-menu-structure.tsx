@@ -17,8 +17,7 @@ import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
-import {useEditorOpening} from '../components/use-default-editor-info';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {useOpenInMenuApps} from '../components/use-open-in-menu-apps';
 import {Checkmark} from '../icons/Checkmark';
 import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -36,15 +35,16 @@ import {
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
-import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
+import {canEditStudioConfig} from './settings-tab-availability';
 import {getStudioAskAIEnabled} from './studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
+import {useKeyboardShortcutLabel} from './use-keyboard-shortcut-label';
 
 type Structure = Menu[];
 
@@ -230,10 +230,14 @@ const getRenderMenuItems = ({
 	closeMenu,
 	previewServerState,
 	readOnlyStudio,
+	renderShortcut,
+	compositionSelected,
 }: {
 	closeMenu: () => void;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
+	renderShortcut: string;
+	compositionSelected: boolean;
 }): ComboboxValue[] => {
 	return [
 		readOnlyStudio
@@ -256,15 +260,18 @@ const getRenderMenuItems = ({
 						renderButton.click();
 					},
 					type: 'item' as const,
-					keyHint: 'R',
+					keyHint: areKeyboardShortcutsDisabled()
+						? null
+						: renderShortcut || null,
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
+					disabled: !compositionSelected,
 				},
 		{
 			id: 'render-on-web',
 			value: 'render-on-web',
-			label: 'Render on web...',
+			label: 'Render in browser...',
 			onClick: () => {
 				closeMenu();
 
@@ -278,7 +285,8 @@ const getRenderMenuItems = ({
 			keyHint: null,
 			leftItem: null,
 			subMenu: null,
-			quickSwitcherLabel: 'Render on web...',
+			quickSwitcherLabel: 'Render in browser...',
+			disabled: !compositionSelected,
 		},
 		{
 			type: 'divider' as const,
@@ -310,11 +318,23 @@ export const useMenuStructure = (
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
-	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
-	const {defaultEditorId, defaultEditorName} = useEditorOpening(
-		type === 'connected',
-	);
+	const {connectionStatus: type, openInApps} = useOpenInMenuApps();
+	const {defaultEditorId, defaultEditorName} = openInApps;
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const resetZoomShortcut = useKeyboardShortcutLabel('resetZoom');
+	const toggleSnappingShortcut = useKeyboardShortcutLabel('toggleSnapping');
+	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
+	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
+	const setInPointShortcut = useKeyboardShortcutLabel('setInPoint');
+	const setOutPointShortcut = useKeyboardShortcutLabel('setOutPoint');
+	const clearInOutPointsShortcut = useKeyboardShortcutLabel('clearInOutPoints');
+	const goToFrameShortcut = useKeyboardShortcutLabel('goToFrame');
+	const renderShortcut = useKeyboardShortcutLabel('render');
+	const askAIShortcut = useKeyboardShortcutLabel('askAI');
+	const colorPickerShortcut = useKeyboardShortcutLabel('pickColor');
+	const showKeyboardShortcutsShortcut = useKeyboardShortcutLabel(
+		'showKeyboardShortcuts',
+	);
 	const studioAskAIEnabled = getStudioAskAIEnabled();
 	const {
 		setSidebarCollapsedState,
@@ -327,6 +347,11 @@ export const useMenuStructure = (
 
 	const {remotion_packageManager} = window;
 	const browserStudioOperations = getBrowserStudioOperations();
+	const studioConfigEditable = canEditStudioConfig({
+		isBrowserStudio: browserStudioOperations !== null,
+		previewServerConnected: type === 'connected',
+		readOnlyStudio,
+	});
 
 	const sizePreselectIndex = sizes.findIndex(
 		(s) => String(size.size) === String(s.size),
@@ -421,8 +446,7 @@ export const useMenuStructure = (
 							closeMenu();
 							setSelectedModal({
 								type: 'settings',
-								initialTab:
-									browserStudioOperations === null ? 'rendering' : 'shortcuts',
+								initialTab: studioConfigEditable ? 'studio' : 'shortcuts',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -432,9 +456,6 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: null,
 						quickSwitcherLabel: 'Settings...',
-						disabled:
-							(browserStudioOperations === null && readOnlyStudio) ||
-							type !== 'connected',
 					},
 					{
 						id: 'acknowledgements',
@@ -450,13 +471,13 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Acknowledgements',
 					},
-					browserStudioOperations === null
+					studioConfigEditable
 						? {
 								type: 'divider' as const,
 								id: 'timeline-divider-1',
 							}
 						: null,
-					browserStudioOperations === null
+					studioConfigEditable
 						? {
 								id: 'restart-studio',
 								value: 'restart-studio',
@@ -501,7 +522,10 @@ export const useMenuStructure = (
 							preselectIndex: sizePreselectIndex,
 							items: sizes.map((newSize) => ({
 								id: String(newSize.size),
-								keyHint: newSize.size === 1 ? '0' : null,
+								keyHint:
+									newSize.size === 1 && !keyboardShortcutsDisabled
+										? resetZoomShortcut || null
+										: null,
 								label: getPreviewSizeLabel(newSize),
 								leftItem:
 									String(newSize.size) === String(size.size) ? (
@@ -586,7 +610,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'enable-snapping',
-						keyHint: keyboardShortcutsDisabled ? null : 'Shift+M',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: toggleSnappingShortcut || null,
 						label: 'Enable Snapping',
 						onClick: () => {
 							closeMenu();
@@ -736,7 +762,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'checkerboard',
-						keyHint: 'T',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: checkerboardShortcut || null,
 						label: 'Transparency as checkerboard',
 						onClick: () => {
 							closeMenu();
@@ -756,7 +784,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'quick-switcher',
-						keyHint: `${cmdOrCtrlCharacter}+K`,
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: quickSwitcherShortcut || null,
 						label: 'Quick Switcher',
 						onClick: () => {
 							closeMenu();
@@ -780,7 +810,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'in-mark',
-						keyHint: 'I',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: setInPointShortcut || null,
 						label: 'In Mark',
 						leftItem: null,
 						onClick: () => {
@@ -794,7 +826,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'out-mark',
-						keyHint: 'O',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: setOutPointShortcut || null,
 						label: 'Out Mark',
 						leftItem: null,
 						onClick: () => {
@@ -808,7 +842,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'x-mark',
-						keyHint: 'X',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: clearInOutPointsShortcut || null,
 						label: 'Clear In/Out Marks',
 						leftItem: null,
 						onClick: () => {
@@ -822,7 +858,9 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'goto-time',
-						keyHint: 'G',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: goToFrameShortcut || null,
 						label: 'Go to frame',
 						leftItem: null,
 						onClick: () => {
@@ -865,14 +903,15 @@ export const useMenuStructure = (
 						closeMenu,
 						previewServerState: type,
 						readOnlyStudio,
+						renderShortcut,
+						compositionSelected: currentComposition !== null,
 					}),
 					...getCompositionMenuItems({
 						closeMenu,
 						composition: currentComposition,
 						connectionStatus: type,
-						editorId: defaultEditorId,
-						editorName: defaultEditorName,
 						includeCompositionManagementItems: true,
+						openInApps,
 						resolvedLocation: resolvedCompositionLocation,
 						setSelectedModal,
 						readOnlyStudio,
@@ -895,7 +934,9 @@ export const useMenuStructure = (
 									askAiModalRef.current?.toggle();
 								},
 								leftItem: null,
-								keyHint: `${cmdOrCtrlCharacter}+I`,
+								keyHint: keyboardShortcutsDisabled
+									? null
+									: askAIShortcut || null,
 								subMenu: null,
 								type: 'item' as const,
 								quickSwitcherLabel: 'Ask AI',
@@ -911,7 +952,9 @@ export const useMenuStructure = (
 									pickColor();
 								},
 								leftItem: null,
-								keyHint: null,
+								keyHint: keyboardShortcutsDisabled
+									? null
+									: colorPickerShortcut || null,
 								subMenu: null,
 								type: 'item' as const,
 								quickSwitcherLabel: 'Show Color Picker',
@@ -919,7 +962,7 @@ export const useMenuStructure = (
 						: null,
 					!canInstallPackages() ||
 					(browserStudioOperations === null &&
-						remotion_packageManager === 'unknown')
+						(remotion_packageManager === 'unknown' || type !== 'connected'))
 						? null
 						: {
 								id: 'install-packages',
@@ -964,7 +1007,9 @@ export const useMenuStructure = (
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
 						},
-						keyHint: '?',
+						keyHint: keyboardShortcutsDisabled
+							? null
+							: showKeyboardShortcutsShortcut || null,
 						leftItem: null,
 						subMenu: null,
 						type: 'item' as const,
@@ -1142,9 +1187,23 @@ export const useMenuStructure = (
 		mobileLayout,
 		defaultEditorId,
 		defaultEditorName,
+		openInApps,
 		keyboardShortcutsDisabled,
 		studioAskAIEnabled,
+		askAIShortcut,
+		colorPickerShortcut,
+		checkerboardShortcut,
+		clearInOutPointsShortcut,
+		goToFrameShortcut,
+		quickSwitcherShortcut,
+		renderShortcut,
+		resetZoomShortcut,
+		setInPointShortcut,
+		setOutPointShortcut,
+		showKeyboardShortcutsShortcut,
+		toggleSnappingShortcut,
 		browserStudioOperations,
+		studioConfigEditable,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
@@ -1176,6 +1235,7 @@ const itemToSearchResult = (
 	item: SelectionItem,
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void,
 	prefixes: string[],
+	path: string[],
 ): TQuickSwitcherResult[] => {
 	if (item.disabled) {
 		return [];
@@ -1188,24 +1248,37 @@ const itemToSearchResult = (
 					return null;
 				}
 
-				return itemToSearchResult(subItem, setSelectedModal, [
-					...prefixes,
-					getItemLabel(item),
-				]);
+				return itemToSearchResult(
+					subItem,
+					setSelectedModal,
+					[...prefixes, getItemLabel(item)],
+					[...path, subItem.id],
+				);
 			})
 			.flat(1)
 			.filter(NoReactInternals.truthy);
 	}
 
+	const label = getItemLabel(item);
+	const distinctPrefixes = prefixes.filter(
+		(prefix, index) => prefix !== prefixes[index + 1],
+	);
+	if (
+		distinctPrefixes.length > 0 &&
+		label.startsWith(`${distinctPrefixes.at(-1)}: `)
+	) {
+		distinctPrefixes.pop();
+	}
+
 	return [
 		{
 			type: 'menu-item',
-			id: item.id,
+			id: path.join(':'),
 			onSelected: () => {
 				setSelectedModal(null);
 				item.onClick(item.id, null);
 			},
-			title: [...prefixes, getItemLabel(item)].join(': '),
+			title: [...distinctPrefixes, label].join(': '),
 		},
 	];
 };
@@ -1221,7 +1294,12 @@ export const makeSearchResults = (
 					return null;
 				}
 
-				return itemToSearchResult(item, setSelectedModal, []);
+				return itemToSearchResult(
+					item,
+					setSelectedModal,
+					[],
+					[menu.id, item.id],
+				);
 			});
 		})
 		.flat(Infinity)

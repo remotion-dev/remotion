@@ -3,7 +3,6 @@ import {fileURLToPath} from 'url';
 import {build} from 'bun';
 import {browserStudioPackageJsonArtifactFilename} from '../workspace-package-exports';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
-import {getBrowserStudioReactRefreshFilesForBuild} from './get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
 import {getBrowserStudioWorkspacePackageExportsForBuild} from './get-workspace-package-exports-for-build';
 import {studioRenderEntryExternal} from './studio-render-entry-external';
@@ -71,7 +70,6 @@ const frameHtml = `<!DOCTYPE html>
 
 const buildDevAssets = async () => {
 	const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
-	const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 	const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 	const workspacePackageExports =
 		getBrowserStudioWorkspacePackageExportsForBuild();
@@ -82,6 +80,7 @@ const buildDevAssets = async () => {
 	const vendorOutput = await build({
 		define: {'process.env.NODE_ENV': JSON.stringify('development')},
 		entrypoints: ['src/browser-studio-vendor-entry.ts'],
+		external: ['@huggingface/transformers'],
 		format: 'iife',
 		naming: '[name].mjs',
 		outdir: outDir,
@@ -101,6 +100,20 @@ const buildDevAssets = async () => {
 		throw new Error('Browser Studio vendor entry was not generated');
 	}
 
+	const transformersOutput = await build({
+		entrypoints: ['src/browser-studio-transformers-entry.ts'],
+		format: 'esm',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!transformersOutput.success) {
+		process.stderr.write(`${transformersOutput.logs.join('\n')}\n`);
+		process.exit(1);
+	}
+
 	const browserStudioAssetSizes = {
 		rspackWasm: Bun.file(
 			path.join(rspackBrowserDist, 'rspack.wasm32-wasi.wasm'),
@@ -113,7 +126,6 @@ const buildDevAssets = async () => {
 			__BROWSER_STUDIO_ASSET_SIZES__: JSON.stringify(browserStudioAssetSizes),
 			__BROWSER_STUDIO_DEPENDENCY_VERSIONS__:
 				JSON.stringify(dependencyVersions),
-			__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 			__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
 			__BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__: JSON.stringify(
 				workspacePackageExports,

@@ -5,7 +5,11 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from '../../helpers/colors';
+import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
+import {ActionTooltip} from '../ActionTooltip';
+
+const compactTabBreakpoint = 700;
 
 const selectorButton: React.CSSProperties = {
 	border: 'none',
@@ -22,15 +26,23 @@ const selectorButton: React.CSSProperties = {
 	WebkitUserSelect: 'none',
 };
 
+const compactSelectorButton: React.CSSProperties = {
+	width: 42,
+	paddingLeft: 12,
+	paddingRight: 4,
+};
+
 export const VerticalTab: React.FC<{
-	readonly children: React.ReactNode;
+	readonly children: string;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
-}> = ({children, onClick, renderIcon, style, selected}) => {
+	readonly autoFocus?: boolean;
+}> = ({children, onClick, renderIcon, style, selected, autoFocus}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
+	const isCompact = useBreakpoint(compactTabBreakpoint);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -49,11 +61,14 @@ export const VerticalTab: React.FC<{
 			color,
 			boxShadow: 'none',
 			...style,
+			...(isCompact ? compactSelectorButton : null),
 		};
-	}, [color, hovered, selected, style]);
+	}, [color, hovered, isCompact, selected, style]);
 
-	return (
+	const button = (
 		<button
+			aria-label={children}
+			autoFocus={autoFocus}
 			style={definiteStyle}
 			type="button"
 			onClick={onClick}
@@ -62,7 +77,23 @@ export const VerticalTab: React.FC<{
 			onPointerEnter={onPointerEnter}
 		>
 			{renderIcon ? renderIcon(color) : null}
-			{children}
+			{isCompact ? null : children}
 		</button>
+	);
+
+	if (!isCompact) {
+		return button;
+	}
+
+	return (
+		<ActionTooltip
+			label={children}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+			side="right"
+		>
+			{button}
+		</ActionTooltip>
 	);
 };

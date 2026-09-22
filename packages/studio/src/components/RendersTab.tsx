@@ -12,6 +12,8 @@ const row: React.CSSProperties = {
 	color: 'inherit',
 	alignItems: 'center',
 	flex: 1,
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const badge: React.CSSProperties = {
@@ -22,15 +24,19 @@ const badge: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const RendersTab: React.FC<{
 	readonly selected: boolean;
 	readonly onClick: MouseEventHandler<HTMLDivElement>;
 }> = ({selected, onClick}) => {
-	const {jobs} = useContext(RenderQueueContext);
-	const failedJobs = jobs.filter((j) => j.status === 'failed').length;
-	const jobCount = jobs.length;
+	const {jobs, captionJobs} = useContext(RenderQueueContext);
+	const failedJobs = [...jobs, ...captionJobs].filter(
+		(job) => job.status === 'failed',
+	).length;
+	const jobCount = jobs.length + captionJobs.length;
 
 	const badgeStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -46,7 +52,7 @@ export const RendersTab: React.FC<{
 	return (
 		<Tab selected={selected} onClick={onClick}>
 			<div style={row}>
-				Renders
+				Jobs
 				{jobCount > 0 ? (
 					<>
 						<Flex />

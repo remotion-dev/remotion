@@ -4,9 +4,9 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	RedoResponse,
 	SequenceNodePathRemapping,
+	UndoRedoNavigation,
 	UndoResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
@@ -38,10 +38,11 @@ type UndoEntryType =
 	| 'paste-effects'
 	| 'reorder-effect'
 	| 'reorder-sequence'
-	| 'delete-jsx-node'
+	| 'delete-jsx-nodes'
 	| 'duplicate-jsx-node'
 	| 'split-jsx-sequence'
 	| 'split-video-from-audio'
+	| 'insert-basic-captions'
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
@@ -49,6 +50,7 @@ type UndoEntryType =
 	| 'new-composition'
 	| 'duplicate-composition'
 	| 'move-composition-to-folder'
+	| 'move-composition-or-folder'
 	| 'new-folder'
 	| 'delete-folder'
 	| 'rename-folder';
@@ -71,6 +73,7 @@ type UndoEntry = {
 	/** When true, undo/redo file restores call `suppressBundlerUpdateForFile` (skip HMR refresh). */
 	suppressHmrOnFileRestore: boolean;
 	entryType: UndoEntryType;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 const MAX_ENTRIES = 100;
@@ -110,11 +113,13 @@ const makeUndoEntry = ({
 	description,
 	entryType,
 	suppressHmrOnFileRestore,
+	undoRedoNavigation,
 }: {
 	snapshots: UndoEntrySnapshot[];
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 }): UndoEntry => {
 	if (snapshots.length === 0) {
 		throw new Error('Cannot create an undo entry without snapshots');
@@ -127,6 +132,7 @@ const makeUndoEntry = ({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation,
 	};
 };
 
@@ -168,6 +174,7 @@ export function pushToUndoStack({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation: null,
 	});
 }
 
@@ -178,6 +185,7 @@ export function pushTransactionToUndoStack({
 	description,
 	entryType,
 	suppressHmrOnFileRestore,
+	undoRedoNavigation,
 }: {
 	snapshots: Array<{
 		filePath: string;
@@ -191,6 +199,7 @@ export function pushTransactionToUndoStack({
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 }) {
 	storedLogLevel = logLevel;
 	storedRemotionRoot = remotionRoot;
@@ -200,6 +209,7 @@ export function pushTransactionToUndoStack({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation,
 	});
 	undoStack.push(entry);
 	if (undoStack.length > MAX_ENTRIES) {
@@ -263,6 +273,7 @@ export function pushToRedoStack({
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
+		undoRedoNavigation: null,
 	});
 	redoStack.push(entry);
 	if (redoStack.length > MAX_ENTRIES) {
@@ -431,6 +442,7 @@ export function popUndo(): UndoResponse {
 			description: entry.description,
 			entryType: entry.entryType,
 			suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+			undoRedoNavigation: entry.undoRedoNavigation,
 		}),
 	);
 	if (redoStack.length > MAX_ENTRIES) {
@@ -445,29 +457,17 @@ export function popUndo(): UndoResponse {
 		return [
 			{
 				absolutePath: snapshot.filePath,
-				remappings: snapshot.nodePathRemappings.flatMap(
-					(remapping): SequenceNodePathRemapping[] => {
-						if (remapping.newNodePath === null) {
-							return [];
-						}
-
-						return [
-							{
-								oldNodePath: remapping.newNodePath,
-								newNodePath: remapping.oldNodePath,
-							},
-						];
-					},
-				),
-				restoredNodePaths: snapshot.nodePathRemappings.flatMap(
-					(remapping): SequenceNodePath[] =>
-						remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+				remappings: snapshot.nodePathRemappings.map(
+					(remapping): SequenceNodePathRemapping => ({
+						oldNodePath: remapping.newNodePath,
+						newNodePath: remapping.oldNodePath,
+					}),
 				),
 			},
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files);
+		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
 
 	for (const snapshot of entry.snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
@@ -511,7 +511,11 @@ export function popUndo(): UndoResponse {
 	}
 
 	broadcastState();
-	return {success: true, nodePathMutation};
+	return {
+		success: true,
+		nodePathMutation,
+		route: entry.undoRedoNavigation?.undoRoute ?? null,
+	};
 }
 
 export function popRedo(): RedoResponse {
@@ -540,6 +544,7 @@ export function popRedo(): RedoResponse {
 			description: entry.description,
 			entryType: entry.entryType,
 			suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+			undoRedoNavigation: entry.undoRedoNavigation,
 		}),
 	);
 	if (undoStack.length > MAX_ENTRIES) {
@@ -555,12 +560,11 @@ export function popRedo(): RedoResponse {
 			{
 				absolutePath: snapshot.filePath,
 				remappings: snapshot.nodePathRemappings,
-				restoredNodePaths: [],
 			},
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files);
+		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
 
 	for (const snapshot of snapshotsWithNewContents) {
 		suppressUndoStackInvalidation(snapshot.filePath);
@@ -600,7 +604,11 @@ export function popRedo(): RedoResponse {
 	}
 
 	broadcastState();
-	return {success: true, nodePathMutation};
+	return {
+		success: true,
+		nodePathMutation,
+		route: entry.undoRedoNavigation?.redoRoute ?? null,
+	};
 }
 
 /*

@@ -1,13 +1,13 @@
 import {readFileSync} from 'node:fs';
 import type {File} from '@babel/types';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
-import {applyCodemod} from '@remotion/studio-codemods';
 import type {
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
-import {parseAst, serializeAst} from '../../codemods/parse-ast';
+import {parseAst} from '../../codemods/parse-ast';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -19,11 +19,12 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
+
+const {applyVisualControl} = CodemodsInternals;
 
 const getVisualControlChangeLine = (file: File, changeId: string): number => {
 	let line = 1;
@@ -52,7 +53,7 @@ export const applyVisualControlHandler: ApiHandler<
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse
 > = ({input: {fileName, changes}, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+	return withSourceFileWriteQueue(() => {
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[apply-visual-control] Received request for ${fileName} with ${changes.length} changes`,
@@ -68,9 +69,9 @@ export const applyVisualControlHandler: ApiHandler<
 		const logLine =
 			changes.length > 0 ? getVisualControlChangeLine(ast, changes[0].id) : 1;
 
-		const {newAst, changesMade} = applyCodemod({
-			file: ast,
-			codeMod: {
+		const {newContents: output, changesMade} = applyVisualControl({
+			input: fileContents,
+			transformation: {
 				type: 'apply-visual-control',
 				changes,
 			},
@@ -78,31 +79,6 @@ export const applyVisualControlHandler: ApiHandler<
 
 		if (changesMade.length === 0) {
 			throw new Error('No changes were made to the file');
-		}
-
-		let output = serializeAst(newAst);
-		let formatted = false;
-
-		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-		type PrettierType = typeof import('prettier');
-		try {
-			const prettier: PrettierType = await import('prettier');
-			const {format, resolveConfig, resolveConfigFile} = prettier;
-			const configFilePath = await resolveConfigFile();
-			if (configFilePath) {
-				const prettierConfig = await resolveConfig(configFilePath);
-				if (prettierConfig) {
-					output = await format(output, {
-						...prettierConfig,
-						filepath: 'test.tsx',
-						plugins: [],
-						endOfLine: 'auto',
-					});
-					formatted = true;
-				}
-			}
-		} catch {
-			// Prettier not available, use unformatted output
 		}
 
 		pushToUndoStack({
@@ -151,14 +127,9 @@ export const applyVisualControlHandler: ApiHandler<
 			{indent: false, logLevel},
 			`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Applied visual control changes`,
 		);
-		if (!formatted) {
-			warnAboutPrettierOnce(logLevel);
-		}
 
 		printUndoHint(logLevel);
 
-		return {
-			success: true,
-		};
+		return Promise.resolve({success: true});
 	});
 };

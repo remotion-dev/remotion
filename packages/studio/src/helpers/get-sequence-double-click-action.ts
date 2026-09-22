@@ -2,16 +2,16 @@ import type {TSequence} from 'remotion';
 
 export type SequenceDoubleClickAction =
 	| 'open-connected-composition'
-	| 'open-in-editor';
+	| 'open-source';
 
 export const getSequenceDoubleClickAction = ({
 	button,
-	canOpenInEditor,
+	canOpenSource,
 	numberOfConnectedCompositions,
 	sequenceWasDragged,
 }: {
 	readonly button: number;
-	readonly canOpenInEditor: boolean;
+	readonly canOpenSource: boolean;
 	readonly numberOfConnectedCompositions: number;
 	readonly sequenceWasDragged: boolean;
 }): SequenceDoubleClickAction | null => {
@@ -30,7 +30,7 @@ export const getSequenceDoubleClickAction = ({
 		return 'open-connected-composition';
 	}
 
-	return canOpenInEditor ? 'open-in-editor' : null;
+	return canOpenSource ? 'open-source' : null;
 };
 
 export const getConnectedCompositionFrame = ({

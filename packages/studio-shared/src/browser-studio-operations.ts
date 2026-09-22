@@ -1,4 +1,3 @@
-import type {ElementDragData} from '@remotion/studio-protocol';
 import type {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
@@ -14,8 +13,8 @@ import type {
 	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeResponse,
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteEffectRequest,
@@ -35,6 +34,8 @@ import type {
 	InsertElementRequest,
 	InsertElementResponse,
 	InstallPackageRequest,
+	UndoRedoNavigation,
+	InstallableElement,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	PasteEffectsRequest,
@@ -59,6 +60,8 @@ import type {
 	SplitJsxSequenceResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
+	InsertBasicCaptionsRequest,
+	InsertBasicCaptionsResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -84,6 +87,7 @@ export type WriteStaticFileRequest = {
 export type DuplicateCompositionRequest = {
 	codemod: Extract<RecastCodemod, {type: 'duplicate-composition'}>;
 	dryRun: boolean;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
 export type DuplicateCompositionResponse =
@@ -160,13 +164,13 @@ export type BrowserStudioPackageInstallationOperations = {
 
 export type BrowserStudioOperations = {
 	consumeInitialElement: () => {
-		element: ElementDragData['element'];
+		element: InstallableElement;
 		sourceOrigin: string | null;
 	} | null;
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
-	deleteJsxNode: (
-		request: DeleteJsxNodeRequest,
-	) => Promise<DeleteJsxNodeResponse>;
+	deleteJsxNodes: (
+		request: DeleteJsxNodesRequest,
+	) => Promise<DeleteJsxNodesResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
 	) => Promise<DeleteStaticFileResponse>;
@@ -220,6 +224,9 @@ export type BrowserStudioOperations = {
 	splitVideoFromAudio: (
 		request: SplitVideoFromAudioRequest,
 	) => Promise<SplitVideoFromAudioResponse>;
+	insertBasicCaptions: (
+		request: InsertBasicCaptionsRequest,
+	) => Promise<InsertBasicCaptionsResponse>;
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;

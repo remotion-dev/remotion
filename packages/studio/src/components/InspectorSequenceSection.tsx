@@ -4,6 +4,7 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import {Internals, type TSequence} from 'remotion';
@@ -35,7 +36,6 @@ import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
-import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -59,8 +59,10 @@ import {
 } from './Timeline/TimelineRowLayoutContext';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	TimelineSelectionOrderProvider,
+	useTimelineSelection,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
@@ -323,6 +325,27 @@ export const InspectorSequenceSection: React.FC<{
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
+	const {inspectorRevealRequest, selectedItems} = useTimelineSelection();
+	const selectedEffect =
+		selectedItems.length === 1 &&
+		(selectedItems[0].type === 'sequence-effect' ||
+			selectedItems[0].type === 'sequence-effect-prop')
+			? selectedItems[0]
+			: null;
+	const selectedEffectKey =
+		selectedEffect === null ? null : getTimelineSelectionKey(selectedEffect);
+	const inspectorRevealItem = inspectorRevealRequest?.item;
+	const inspectorRevealItemKey =
+		inspectorRevealItem?.type === 'sequence-effect' ||
+		inspectorRevealItem?.type === 'sequence-effect-prop'
+			? getTimelineSelectionKey(inspectorRevealItem)
+			: null;
+	const inspectorRevealToken =
+		inspectorRevealItemKey === selectedEffectKey
+			? (inspectorRevealRequest?.token ?? null)
+			: null;
+	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
+	const scrolledInspectorRevealToken = useRef<number | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
 	);
@@ -348,9 +371,6 @@ export const InspectorSequenceSection: React.FC<{
 	const mediaSrc = getTimelineAssetSrcFromSchema(
 		sequence.controls,
 		runtimeValues,
-	);
-	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
-		sequence.controls.componentIdentity,
 	);
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
@@ -400,10 +420,9 @@ export const InspectorSequenceSection: React.FC<{
 	const assetSelectionContextValue = useMemo(
 		() => ({
 			getSourceAction,
-			initialQuery: assetSelectionInitialQuery,
 			sourceAction,
 		}),
-		[assetSelectionInitialQuery, getSourceAction, sourceAction],
+		[getSourceAction, sourceAction],
 	);
 
 	const getIsExpanded = useCallback(
@@ -428,32 +447,141 @@ export const InspectorSequenceSection: React.FC<{
 		});
 	}, []);
 
-	const {controlRows, effectRows} = useMemo(() => {
+	const isAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId): boolean => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			return sectionExpansionOverrides[expansionKey] ?? true;
+		},
+		[nodePathInfo, sectionExpansionOverrides],
+	);
+	const setAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId, expanded: boolean) => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			setSectionExpansionOverrides((previous) => {
+				if (previous[expansionKey] === expanded) {
+					return previous;
+				}
+
+				const next = {...previous, [expansionKey]: expanded};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[nodePathInfo],
+	);
+	const toggleAdditionalSection = useCallback(
+		(sectionId: AdditionalInspectorSectionId) => {
+			setAdditionalSectionExpanded(
+				sectionId,
+				!isAdditionalSectionExpanded(sectionId),
+			);
+		},
+		[isAdditionalSectionExpanded, setAdditionalSectionExpanded],
+	);
+	const effectsExpanded = isAdditionalSectionExpanded('effects');
+	const {controlRows, effectRows, hasEffects} = useMemo(() => {
 		const controlNodes: TimelineTreeNode[] = [];
-		let effectsRoot: TimelineTreeNode | null = null;
+		let root: Extract<TimelineTreeNode, {kind: 'group'}> | null = null;
 
 		for (const node of tree) {
 			if (isEffectsRoot(node)) {
-				effectsRoot = node;
+				root = node;
 			} else {
 				controlNodes.push(node);
 			}
 		}
 
 		return {
+			hasEffects: root !== null && root.children.length > 0,
 			controlRows: flattenVisibleTreeNodes({
 				nodes: controlNodes,
 				getIsExpanded,
 			}),
 			effectRows:
-				effectsRoot === null
+				root === null || !effectsExpanded
 					? []
 					: flattenVisibleTreeNodes({
-							nodes: effectsRoot.children,
+							nodes: root.children,
 							getIsExpanded,
 						}),
 		};
-	}, [getIsExpanded, tree]);
+	}, [effectsExpanded, getIsExpanded, tree]);
+
+	useEffect(() => {
+		if (
+			selectedEffectKey === null ||
+			inspectorRevealToken === null ||
+			scrolledInspectorRevealToken.current === inspectorRevealToken
+		) {
+			return;
+		}
+
+		const rows = flattenVisibleTreeNodes({
+			nodes: tree,
+			getIsExpanded: () => true,
+		});
+		const targetIndex = rows.findIndex(({node}) => {
+			const selection = getTimelineSelectionFromNodePathInfo(node.nodePathInfo);
+			return (
+				selection !== null &&
+				getTimelineSelectionKey(selection) === selectedEffectKey
+			);
+		});
+		if (targetIndex === -1) {
+			return;
+		}
+
+		setAdditionalSectionExpanded('effects', true);
+		const parentKeys: string[] = [];
+		let {depth} = rows[targetIndex];
+		for (let i = targetIndex - 1; i >= 0 && depth > 0; i--) {
+			if (rows[i].depth < depth) {
+				parentKeys.push(getInspectorExpansionKey(rows[i].node.nodePathInfo));
+				depth = rows[i].depth;
+			}
+		}
+
+		setCollapsedKeys((previous) => {
+			if (!parentKeys.some((key) => previous.has(key))) {
+				return previous;
+			}
+
+			const next = new Set(previous);
+			for (const key of parentKeys) {
+				next.delete(key);
+			}
+
+			persistInspectorCollapsedKeys(next);
+			return next;
+		});
+	}, [
+		inspectorRevealToken,
+		selectedEffectKey,
+		setAdditionalSectionExpanded,
+		tree,
+	]);
+
+	useEffect(() => {
+		if (inspectorRevealToken === null) {
+			return;
+		}
+
+		if (
+			scrolledInspectorRevealToken.current === inspectorRevealToken ||
+			selectedEffectRowRef.current === null
+		) {
+			return;
+		}
+
+		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
+		scrolledInspectorRevealToken.current = inspectorRevealToken;
+	}, [effectRows, inspectorRevealToken]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
@@ -578,33 +706,7 @@ export const InspectorSequenceSection: React.FC<{
 		},
 		[isControlGroupExpanded, nodePathInfo],
 	);
-	const isAdditionalSectionExpanded = useCallback(
-		(sectionId: AdditionalInspectorSectionId): boolean => {
-			const expansionKey = getInspectorSectionExpansionKey({
-				nodePathInfo,
-				sectionId,
-			});
-			return sectionExpansionOverrides[expansionKey] ?? true;
-		},
-		[nodePathInfo, sectionExpansionOverrides],
-	);
-	const toggleAdditionalSection = useCallback(
-		(sectionId: AdditionalInspectorSectionId) => {
-			const expansionKey = getInspectorSectionExpansionKey({
-				nodePathInfo,
-				sectionId,
-			});
-			const nextExpanded = !isAdditionalSectionExpanded(sectionId);
-			setSectionExpansionOverrides((previous) => {
-				const next = {...previous, [expansionKey]: nextExpanded};
-				persistInspectorSectionExpansionOverrides(next);
-				return next;
-			});
-		},
-		[isAdditionalSectionExpanded, nodePathInfo],
-	);
 	const captionsExpanded = isAdditionalSectionExpanded('captions');
-	const effectsExpanded = isAdditionalSectionExpanded('effects');
 	const visibleControlRows = controlGroups.flatMap((group) => {
 		return isControlGroupExpanded(group) ? group.rows : [];
 	});
@@ -629,15 +731,13 @@ export const InspectorSequenceSection: React.FC<{
 		sequencePropStatuses,
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
-	const inlineCaptionValue =
-		schema.captions?.type === 'remotion-captions'
-			? runtimeValues.captions
-			: null;
-	const inlineCaptions = Array.isArray(inlineCaptionValue)
-		? (inlineCaptionValue as Caption[])
+	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const inlineCaptions = hasCaptionsSchema
+		? Array.isArray(runtimeValues.captions)
+			? (runtimeValues.captions as Caption[])
+			: []
 		: null;
-	const showEffectsSection =
-		nodePathInfo.supportsEffects || effectRows.length > 0;
+	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
@@ -649,6 +749,8 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
+		setAdditionalSectionExpanded('effects', true);
+
 		setSelectedModal({
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
@@ -659,6 +761,7 @@ export const InspectorSequenceSection: React.FC<{
 		canAddEffect,
 		nodePathInfo.sequenceSubscriptionKey,
 		previewServerState,
+		setAdditionalSectionExpanded,
 		setSelectedModal,
 		validatedLocation.source,
 	]);
@@ -759,7 +862,7 @@ export const InspectorSequenceSection: React.FC<{
 			}
 			expanded={effectsExpanded}
 			label="Effects"
-			onToggle={() => toggleAdditionalSection('effects')}
+			onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
 		/>
 	);
 
@@ -859,9 +962,24 @@ export const InspectorSequenceSection: React.FC<{
 				) : null}
 				{showEffectsSection ? (
 					<InspectorSection header={effectsHeader}>
-						{effectsExpanded && effectRows.length > 0 ? (
+						{effectRows.length > 0 ? (
 							<TimelineSelectionOrderProvider items={effectSelectableItems}>
-								{effectRows.map(renderRow)}
+								{effectRows.map((row) => {
+									const selection = getTimelineSelectionFromNodePathInfo(
+										row.node.nodePathInfo,
+									);
+									const selected =
+										selection !== null &&
+										getTimelineSelectionKey(selection) === selectedEffectKey;
+									return (
+										<div
+											key={getInspectorExpansionKey(row.node.nodePathInfo)}
+											ref={selected ? selectedEffectRowRef : null}
+										>
+											{renderRow(row)}
+										</div>
+									);
+								})}
 							</TimelineSelectionOrderProvider>
 						) : null}
 					</InspectorSection>

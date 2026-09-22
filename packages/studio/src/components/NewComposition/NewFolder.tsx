@@ -9,7 +9,14 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
+import {
+	getKeysToExpand,
+	splitParentIntoNameAndParent,
+} from '../../helpers/create-folder-tree';
+import {persistExpandedFolders} from '../../helpers/persist-open-folders';
+import {slugifyName} from '../../helpers/slugify-name';
 import {validateNewFolderName} from '../../helpers/validate-new-folder-name';
+import {FolderContext} from '../../state/folders';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
@@ -19,6 +26,7 @@ import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
+import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -27,6 +35,11 @@ const content: React.CSSProperties = {
 	flex: 1,
 	fontSize: 13,
 	minWidth: 500,
+};
+
+const parentNameStyle: React.CSSProperties = {
+	...rightRow,
+	fontSize: 13,
 };
 
 const getUniqueFolderName = ({
@@ -54,6 +67,7 @@ export const NewFolder: React.FC<{
 	readonly stack: string | null;
 }> = ({parentName, stack}) => {
 	const {folders} = useContext(Internals.CompositionManager);
+	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const [newName, setName] = useState(() =>
 		getUniqueFolderName({folders, parentName}),
 	);
@@ -72,24 +86,47 @@ export const NewFolder: React.FC<{
 		[],
 	);
 
-	const folderNameErrMessage = validateNewFolderName({
-		folders,
-		newName,
-		parentName,
-	});
+	const folderName = slugifyName(newName);
+	const folderNameErrMessage = folderName
+		? validateNewFolderName({folders, newName: folderName, parentName})
+		: 'Enter a name containing letters or numbers.';
 	const valid = folderNameErrMessage === null;
 
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'new-folder',
-			folderName: newName,
+			folderName,
 			parentName,
 		};
-	}, [newName, parentName]);
+	}, [folderName, parentName]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
 	}, []);
+	const onSuccess = useCallback(() => {
+		if (parentName === null) {
+			return;
+		}
+
+		const parentFolder = splitParentIntoNameAndParent(parentName);
+		const parentFolderName = parentFolder.name;
+		if (parentFolderName === null) {
+			return;
+		}
+
+		setCompositionFoldersExpanded((previousState) => {
+			const foldersExpanded = {...previousState};
+			for (const key of getKeysToExpand(
+				parentFolderName,
+				parentFolder.parent,
+			)) {
+				foldersExpanded[key] = true;
+			}
+
+			persistExpandedFolders('compositions', foldersExpanded);
+			return foldersExpanded;
+		});
+	}, [parentName, setCompositionFoldersExpanded]);
 
 	return (
 		<DismissableModal>
@@ -99,7 +136,7 @@ export const NewFolder: React.FC<{
 					{parentName ? (
 						<div style={optionRow}>
 							<div style={label}>Parent</div>
-							<div style={rightRow}>{parentName}</div>
+							<div style={parentNameStyle}>{parentName}</div>
 						</div>
 					) : null}
 					<div style={optionRow}>
@@ -115,6 +152,12 @@ export const NewFolder: React.FC<{
 									placeholder="Folder name"
 									status="ok"
 									rightAlign
+								/>
+								<SlugPreview
+									action="create"
+									currentName={null}
+									input={newName}
+									slug={folderName}
 								/>
 								{folderNameErrMessage ? (
 									<>
@@ -139,7 +182,7 @@ export const NewFolder: React.FC<{
 						codemod={codemod}
 						stack={stack}
 						valid={valid}
-						onSuccess={null}
+						onSuccess={onSuccess}
 						fallbackToRootFile
 						applyCodemod={({signal, symbolicatedStack}) =>
 							applyCodemod({
@@ -147,6 +190,7 @@ export const NewFolder: React.FC<{
 								dryRun: false,
 								signal,
 								symbolicatedStack,
+								undoRedoNavigation: null,
 							})
 						}
 						applyCodemodForPreview={null}

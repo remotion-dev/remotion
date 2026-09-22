@@ -108,7 +108,12 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	const unregisterSequence = useCallback(() => undefined, []);
 
 	const ctx: SequenceManagerContext = useMemo(
-		() => ({registerSequence, unregisterSequence, sequences: []}),
+		() => ({
+			registerSequence,
+			unregisterSequence,
+			updateSequence: registerSequence,
+			sequences: [],
+		}),
 		[registerSequence, unregisterSequence],
 	);
 
@@ -218,7 +223,6 @@ const makeMediaInTimelineData = ({
 		duration: 100,
 		doesVolumeChange: false,
 		muted: false,
-		nonce: {get: () => [[0, 0]]},
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
 		src: 'video.mp4',
@@ -240,6 +244,54 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	);
 
 	expect(registerCalls).toBe(1);
+});
+
+test('Sequence timing changes update its registration without changing order', async () => {
+	let getSequences = (): TSequence[] => {
+		throw new Error('Sequence manager has not mounted');
+	};
+
+	const CaptureSequences = () => {
+		const sequencesRef = React.useContext(SequenceManagerRefContext);
+		getSequences = () => sequencesRef.current;
+		return null;
+	};
+
+	const renderSequences = (firstDuration: number) => (
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: false,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<SequenceManagerProvider>
+					<CaptureSequences />
+					<Sequence name="First" durationInFrames={firstDuration} />
+					<Sequence name="Second" durationInFrames={20} />
+				</SequenceManagerProvider>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>
+	);
+
+	const rendered = render(renderSequences(10));
+	await waitFor(() => {
+		expect(getSequences()).toHaveLength(2);
+	});
+	const initialIds = getSequences().map((sequence) => sequence.id);
+
+	rendered.rerender(renderSequences(15));
+	await waitFor(() => {
+		expect(getSequences()[0]?.duration).toBe(15);
+	});
+	expect(getSequences().map((sequence) => sequence.displayName)).toEqual([
+		'First',
+		'Second',
+	]);
+	expect(getSequences().map((sequence) => sequence.id)).toEqual(initialIds);
 });
 
 test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
@@ -289,6 +341,33 @@ test('Interactive runtime values update mounted consumers without re-registering
 	expect(consumer.getByText('0.75')).toBeTruthy();
 	expect(consumerRenders).toBe(2);
 	expect(registeredSequences).toHaveLength(1);
+});
+
+test('Interactive controls capture the video config from the surrounding sequence', () => {
+	const registeredSequences: TSequence[] = [];
+	const SequenceChild: React.FC = () => {
+		return <Interactive.Div>Hello</Interactive.Div>;
+	};
+
+	render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={120}
+			currentFrame={30}
+			onRegisterSequence={(sequence) => registeredSequences.push(sequence)}
+		>
+			<Sequence from={30} durationInFrames={60}>
+				<SequenceChild />
+			</Sequence>
+		</SequenceTestWrapper>,
+	);
+
+	const interactiveSequence = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	);
+	expect(interactiveSequence?.controls?.videoConfigValues).toMatchObject({
+		durationInFrames: 60,
+		fps: 30,
+	});
 });
 
 test('Interactive runtime values are published only after a render commits', () => {

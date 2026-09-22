@@ -1,5 +1,4 @@
-import type {RefObject} from 'react';
-import {useContext, useMemo} from 'react';
+import {useContext} from 'react';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -100,6 +99,10 @@ export const useTimelinePosition = (): number => {
 	return useTimelinePositionFromContext(state);
 };
 
+export const useIsInsideFreeze = (): boolean => {
+	return useTimelineContext().isInsideFreeze;
+};
+
 export const useAbsoluteTimelinePosition = (): number => {
 	const state = useContext(AbsoluteTimeContext);
 	if (state === null) {
@@ -118,18 +121,5 @@ export const useTimelineSetFrame = (): ((
 	return setFrame;
 };
 
-type PlayingReturnType = readonly [
-	boolean,
-	(u: React.SetStateAction<boolean>) => void,
-	RefObject<boolean>,
-];
-
-export const usePlayingState = (): PlayingReturnType => {
-	const {playing, imperativePlaying} = useTimelineContext();
-	const {setPlaying} = useContext(SetTimelineContext);
-
-	return useMemo(
-		() => [playing, setPlaying, imperativePlaying],
-		[imperativePlaying, playing, setPlaying],
-	);
-};
+export {usePlaying} from './use-playing.js';
+export {useBuffering} from './use-buffering.js';

@@ -31,6 +31,7 @@ const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 type TimelineExpandedRowProps = {
@@ -93,6 +94,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					labelNextToToggle={isInspector}
+					revealInInspector={!isInspector}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
@@ -139,6 +141,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframeControlsMode={keyframeControlsMode}
+					revealInInspector={!isInspector}
 					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);

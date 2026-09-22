@@ -7,6 +7,7 @@ import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	renderHumanReadableAudioCodec,
@@ -17,14 +18,18 @@ import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
+import {SeparationIcon} from '../icons/separation';
+import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
+import {SetSelectedModalContext} from '../state/modals';
+import {AssetAudioVolume} from './AssetAudioVolume';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
+import {CollapsibleInspectorSection} from './InspectorPanel/CollapsibleInspectorSection';
 import {
 	InspectorDetailRow,
-	InspectorQuickActionsSection,
 	InspectorQuickAction,
-	InspectorSection,
+	InspectorQuickActionsSection,
 } from './InspectorPanel/common';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from './layout';
@@ -179,9 +184,13 @@ export const AssetInfo: React.FC<{
 	readonly onAssetClick?: () => void;
 	readonly readOnlyStudio: boolean;
 }> = ({assetName, contentSized = false, onAssetClick, readOnlyStudio}) => {
+	const {currentAssetMetadata} = useContext(Internals.CompositionManager);
+	const volumeMetadata =
+		currentAssetMetadata?.asset === assetName ? currentAssetMetadata : null;
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const browserStudioOperations = getBrowserStudioOperations();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const staticFiles = useStaticFiles();
 	const renameFile = useRenameStaticFile({
@@ -202,6 +211,36 @@ export const AssetInfo: React.FC<{
 	const mediaMetadata = useMediaMetadata(src);
 	const imageSrc = getCurrentAssetImageMetadataSource(assetName);
 	const imageMetadata = useImageMetadata(imageSrc);
+	const mutationsDisabled =
+		browserStudioOperations === null &&
+		(readOnlyStudio || connectionStatus !== 'connected');
+	const fileName = assetName?.split('/').pop() ?? '';
+	const fileType = assetName ? getPreviewFileType(assetName) : null;
+	const onTranscribe = useCallback(() => {
+		if (src === null || mutationsDisabled) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'transcribe',
+			src,
+			displayName: fileName,
+			audioStreamIndex: null,
+			requestInit: null,
+			target: null,
+		});
+	}, [fileName, mutationsDisabled, setSelectedModal, src]);
+	const onTrackMatting = useCallback(() => {
+		if (src === null || fileType !== 'video' || mutationsDisabled) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'video-matting',
+			src,
+			displayName: fileName,
+		});
+	}, [fileName, fileType, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
 		onAssetClick === undefined &&
 		(browserStudioOperations !== null ||
@@ -242,7 +281,6 @@ export const AssetInfo: React.FC<{
 		);
 	}
 
-	const fileName = assetName.split('/').pop() ?? assetName;
 	const fileDetails: CurrentAssetDetail[] = [];
 	if (imageMetadata !== null) {
 		fileDetails.push({
@@ -271,10 +309,6 @@ export const AssetInfo: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const mutationsDisabled =
-		browserStudioOperations === null &&
-		(readOnlyStudio || connectionStatus !== 'connected');
-
 	return (
 		<>
 			<InspectorInfoHeader
@@ -297,7 +331,11 @@ export const AssetInfo: React.FC<{
 				/>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
-				<InspectorSection header="File">
+				<CollapsibleInspectorSection
+					collapsible
+					label="File"
+					sectionId="asset-file"
+				>
 					<div style={assetMetadataStyle}>
 						{fileDetails.map((detail) => (
 							<InspectorDetailRow key={detail.label} label={detail.label}>
@@ -305,10 +343,14 @@ export const AssetInfo: React.FC<{
 							</InspectorDetailRow>
 						))}
 					</div>
-				</InspectorSection>
+				</CollapsibleInspectorSection>
 			) : null}
 			{mediaSections && mediaSections.video ? (
-				<InspectorSection header="Video">
+				<CollapsibleInspectorSection
+					collapsible
+					label="Video"
+					sectionId="asset-video"
+				>
 					<div style={assetMetadataStyle}>
 						{mediaSections.video.map((detail) => (
 							<InspectorDetailRow key={detail.label} label={detail.label}>
@@ -316,10 +358,14 @@ export const AssetInfo: React.FC<{
 							</InspectorDetailRow>
 						))}
 					</div>
-				</InspectorSection>
+				</CollapsibleInspectorSection>
 			) : null}
 			{mediaSections && mediaSections.audio !== null ? (
-				<InspectorSection header="Audio">
+				<CollapsibleInspectorSection
+					collapsible={mediaSections.audio.length > 0}
+					label="Audio"
+					sectionId="asset-audio"
+				>
 					{mediaSections.audio.length === 0 ? (
 						<div style={assetEmptyStateStyle}>None</div>
 					) : (
@@ -329,57 +375,109 @@ export const AssetInfo: React.FC<{
 									<span style={assetMetadataValueStyle}>{detail.value}</span>
 								</InspectorDetailRow>
 							))}
+							{src ? (
+								<InspectorDetailRow label="Average volume">
+									<span style={assetMetadataValueStyle}>
+										<AssetAudioVolume
+											key={volumeMetadata?.src ?? src}
+											src={volumeMetadata?.src ?? null}
+											waveformSampleRate={
+												volumeMetadata
+													? Math.ceil(
+															volumeMetadata.fps *
+																TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+														)
+													: null
+											}
+										/>
+									</span>
+								</InspectorDetailRow>
+							) : null}
 						</div>
 					)}
-				</InspectorSection>
+				</CollapsibleInspectorSection>
 			) : null}
-			<InspectorQuickActionsSection>
-				{src ? (
-					<InspectorQuickAction
-						disabled={false}
-						onClick={onOpenConvert}
-						renderIcon={(color) => (
-							<RemotionConvertIcon color={color} style={quickActionIconStyle} />
-						)}
-					>
-						Convert
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 16 16"
-							style={convertArrowStyle}
+			<CollapsibleInspectorSection
+				collapsible
+				label="Actions"
+				sectionId="asset-actions"
+			>
+				<InspectorQuickActionsSection>
+					{fileManagerAvailable ? (
+						<InspectorQuickAction
+							disabled={fileManagerDisabled}
+							onClick={onShowInFileManager}
+							renderIcon={(color) => (
+								<ExpandedFolderIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
+							)}
 						>
-							<path
-								d="M4 12 12 4M6 4h6v6"
-								fill="none"
-								stroke={CURRENT_COLOR}
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1.5"
-							/>
-						</svg>
-					</InspectorQuickAction>
-				) : null}
-				{fileManagerAvailable ? (
+							Show in {fileManagerName}
+						</InspectorQuickAction>
+					) : null}
+					{src && mediaMetadata?.hasAudioTrack !== false ? (
+						<InspectorQuickAction
+							disabled={mutationsDisabled}
+							onClick={onTranscribe}
+							renderIcon={(color) => (
+								<TranscriptionIcon color={color} style={quickActionIconStyle} />
+							)}
+						>
+							Transcribe
+						</InspectorQuickAction>
+					) : null}
+					{fileType === 'video' ? (
+						<InspectorQuickAction
+							disabled={mutationsDisabled}
+							onClick={onTrackMatting}
+							renderIcon={(color) => (
+								<SeparationIcon color={color} style={quickActionIconStyle} />
+							)}
+						>
+							Separate foreground
+						</InspectorQuickAction>
+					) : null}
+					{src ? (
+						<InspectorQuickAction
+							disabled={false}
+							onClick={onOpenConvert}
+							renderIcon={(color) => (
+								<RemotionConvertIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
+							)}
+						>
+							Convert
+							<svg
+								aria-hidden="true"
+								viewBox="0 0 16 16"
+								style={convertArrowStyle}
+							>
+								<path
+									d="M4 12 12 4M6 4h6v6"
+									fill="none"
+									stroke={CURRENT_COLOR}
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="1.5"
+								/>
+							</svg>
+						</InspectorQuickAction>
+					) : null}
 					<InspectorQuickAction
-						disabled={fileManagerDisabled}
-						onClick={onShowInFileManager}
+						disabled={mutationsDisabled}
+						onClick={onDelete}
 						renderIcon={(color) => (
-							<ExpandedFolderIcon color={color} style={quickActionIconStyle} />
+							<TrashIcon color={color} style={quickActionIconStyle} />
 						)}
 					>
-						Show in {fileManagerName}
+						Delete
 					</InspectorQuickAction>
-				) : null}
-				<InspectorQuickAction
-					disabled={mutationsDisabled}
-					onClick={onDelete}
-					renderIcon={(color) => (
-						<TrashIcon color={color} style={quickActionIconStyle} />
-					)}
-				>
-					Delete
-				</InspectorQuickAction>
-			</InspectorQuickActionsSection>
+				</InspectorQuickActionsSection>
+			</CollapsibleInspectorSection>
 		</>
 	);
 };

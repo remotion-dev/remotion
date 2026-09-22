@@ -214,10 +214,16 @@ You will need to update your render count manually periodically to reflect your 
 
 To check the usage programmatically, for example to implement spend controls, use [`getUsage()`](/docs/licensing/get-usage) from the [`@remotion/licensing`](/docs/licensing) package.
 
+## Telemetry never fails a render
+
+Telemetry never throttles, blocks, or fails renders - even if the telemetry request itself fails, renders still complete successfully.
+
 ## Data retention
 
 Telemetry data is currently retained indefinitely and is not regularly deleted.  
 It is not shared with any third parties and is only used internally by Remotion for license accountability.
+
+See the [DPA Statement](/docs/dpa) for Remotion's role as an independent controller.
 
 ## See also
 

@@ -72,8 +72,8 @@ const containerStyle = (options: {
 }): React.CSSProperties => {
 	return {
 		transform: `scale(${options.scale})`,
-		// Avoid the background bleeding through opaque compositions at fractional
-		// scales due to Chromium compositing the child and background together.
+		// Keep the scaled composition on its own layer so the checkerboard does
+		// not bleed through its edges at fractional preview scales.
 		willChange: 'transform',
 		marginLeft: options.xCorrection,
 		marginTop: options.yCorrection,

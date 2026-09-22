@@ -39,6 +39,8 @@ export const SeparateAudioOptionInput: React.FC<{
 
 	return (
 		<RenderModalOutputName
+			ariaLabel={null}
+			existingOutputPath={null}
 			existence={existence}
 			inputStyle={input}
 			onValueChange={onValueChange}

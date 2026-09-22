@@ -108,6 +108,13 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 		throw new Error('should not have rendered this modal');
 	}
 
+	const errorDetails =
+		job.status === 'failed'
+			? job.error.stack?.split('\n')[0].includes(job.error.message)
+				? job.error.stack
+				: [job.error.message, job.error.stack].filter(Boolean).join('\n')
+			: null;
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<ModalHeader title={`Render ${job.compositionId}`} />
@@ -116,7 +123,7 @@ export const RenderStatusModal: React.FC<{readonly jobId: string}> = ({
 					<>
 						<p>The render failed because of the following error:</p>
 						<div className={HORIZONTAL_SCROLLBAR_CLASSNAME} style={codeBlock}>
-							{job.error.stack}
+							{errorDetails}
 						</div>
 					</>
 				) : null}

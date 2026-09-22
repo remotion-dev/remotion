@@ -8,8 +8,8 @@ import {signalRestart} from '../close-and-restart';
 export const handleRestartStudio: ApiHandler<
 	RestartStudioRequest,
 	RestartStudioResponse
-> = () => {
-	signalRestart();
+> = ({response}) => {
+	response.once('finish', signalRestart);
 
 	return Promise.resolve({});
 };

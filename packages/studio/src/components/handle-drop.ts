@@ -137,7 +137,12 @@ export const handleDrop = async ({
 			createdAt: Date.now(),
 			compositionFile,
 			compositionId,
-			element: element.element,
+			element: {
+				...element.element,
+				durationInFrames: element.element.durationInFrames ?? null,
+				initialProps: element.element.initialProps ?? null,
+				installationMode: element.element.installationMode ?? null,
+			},
 			from: getFromForDrop({
 				durationInFrames: element.element.durationInFrames,
 				from,

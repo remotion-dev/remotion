@@ -153,6 +153,7 @@ export const CodemodFooter: React.FC<{
 						dryRun: true,
 						symbolicatedStack,
 						signal,
+						undoRedoNavigation: null,
 					});
 
 			if (res.success) {

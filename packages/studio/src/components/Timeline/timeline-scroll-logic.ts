@@ -1,7 +1,11 @@
 import {interpolate} from 'remotion';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {setCurrentFrame} from './imperative-state';
-import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
+import {
+	scrollableRef,
+	sliderAreaRef,
+	timelineVerticalScroll,
+} from './timeline-refs';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 
 export const canScrollTimelineIntoDirection = () => {
@@ -14,6 +18,14 @@ export const canScrollTimelineIntoDirection = () => {
 };
 
 export const SCROLL_INCREMENT = 200;
+
+export const getTimelineContentWidth = () => {
+	return (
+		sliderAreaRef.current?.clientWidth ??
+		scrollableRef.current?.scrollWidth ??
+		0
+	);
+};
 
 export const EDGE_SCROLL_VERTICAL_INCREMENT = 60;
 
@@ -250,7 +262,7 @@ export const isCursorInViewport = ({
 	frame: number;
 	durationInFrames: number;
 }) => {
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
 
 	const scrollPosOnRightEdge = getScrollPositionForCursorOnRightEdge({
@@ -290,7 +302,7 @@ export const ensureFrameIsInViewport = ({
 	// listener in TimelineSlider, which reads the frame imperatively.
 	setCurrentFrame(frame);
 	redrawTimelineSliderFast.current?.draw(frame);
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	const scrollLeft = scrollableRef.current?.scrollLeft ?? 0;
 	if (direction === 'fit-left') {
 		const currentFrameLeft = getFrameFromX({
@@ -396,7 +408,7 @@ export const getScrollPositionForCursorOnRightEdge = ({
 	const fromRight = framesRemaining * frameIncrement + TIMELINE_PADDING;
 
 	const scrollPos =
-		(scrollableRef.current?.scrollWidth as number) -
+		getTimelineContentWidth() -
 		fromRight -
 		(scrollableRef.current?.clientWidth as number) +
 		TIMELINE_PADDING +
@@ -406,7 +418,7 @@ export const getScrollPositionForCursorOnRightEdge = ({
 };
 
 const getFrameIncrement = (durationInFrames: number) => {
-	const width = scrollableRef.current?.scrollWidth ?? 0;
+	const width = getTimelineContentWidth();
 	return getFrameIncrementFromWidth(durationInFrames, width);
 };
 
@@ -555,7 +567,7 @@ export const prepareToPreserveTimelineCursor = ({
 		return () => undefined;
 	}
 
-	const oldTimelineWidth = current.scrollWidth;
+	const oldTimelineWidth = getTimelineContentWidth();
 	const oldScrollLeft = current.scrollLeft;
 	const frameIncrement = getFrameIncrementFromWidth(
 		currentDurationInFrames,
@@ -576,7 +588,7 @@ export const prepareToPreserveTimelineCursor = ({
 			anchorContentX: prevCursorPosition,
 			oldScrollLeft,
 			oldTimelineWidth,
-			newTimelineWidth: current.scrollWidth,
+			newTimelineWidth: getTimelineContentWidth(),
 		});
 	};
 };

@@ -44,13 +44,17 @@ test.describe('error overlay dismissal', () => {
 
 		const errorMessage = page.getByText('"radius" must be a finite number');
 		const openInEditorRequests: unknown[] = [];
+		const openInCodingAgentRequests: unknown[] = [];
 		await page.route('**/api/default-editor-info', async (route) => {
 			await route.fulfill({
 				json: {
 					success: true,
 					data: {
-						defaultEditor: null,
-						installedEditors: [{id: 'zed', name: 'Zed', nameWithType: 'Zed'}],
+						defaultEditor: 'zed',
+						installedEditors: [
+							{id: 'zed', name: 'Zed', nameWithType: 'Zed'},
+							{id: 'vscode', name: 'Code', nameWithType: 'VS Code'},
+						],
 					},
 				},
 			});
@@ -60,11 +64,25 @@ test.describe('error overlay dismissal', () => {
 				json: {
 					success: true,
 					data: {
-						defaultCodingAgent: null,
-						installedCodingAgents: [],
+						defaultCodingAgent: 'codex',
+						installedCodingAgents: [
+							{id: 'codex', name: 'Codex', nameWithType: 'Codex'},
+							{
+								id: 'claude-code',
+								name: 'Claude',
+								nameWithType: 'Claude Code',
+							},
+						],
+						installedGitClients: [],
 						installedTerminals: [],
 					},
 				},
+			});
+		});
+		await page.route('**/api/open-in-coding-agent', async (route) => {
+			openInCodingAgentRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
 			});
 		});
 		await page.route('**/api/open-in-editor', async (route) => {
@@ -99,6 +117,46 @@ test.describe('error overlay dismissal', () => {
 		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
 			origin: STUDIO_URL,
 		});
+		await page.addInitScript(() => {
+			Object.defineProperty(window.navigator, 'platform', {value: 'Win32'});
+			type RegisteredTool = {
+				readonly name: string;
+				readonly execute: (input: Record<string, unknown>) => Promise<unknown>;
+			};
+			const tools = new Map<string, RegisteredTool>();
+			Object.defineProperty(window, '__remotion_webmcp_tools', {
+				value: tools,
+			});
+			Object.defineProperty(document, 'modelContext', {
+				value: {
+					registerTool: async (
+						tool: RegisteredTool,
+						options: {readonly signal: AbortSignal},
+					) => {
+						tools.set(tool.name, tool);
+						options.signal.addEventListener('abort', () => {
+							if (tools.get(tool.name) === tool) {
+								tools.delete(tool.name);
+							}
+						});
+					},
+				},
+			});
+		});
+		const getCurrentError = () => {
+			return page.evaluate(async () => {
+				const tools = (
+					window as typeof window & {
+						readonly __remotion_webmcp_tools: Map<
+							string,
+							{readonly execute: () => Promise<unknown>}
+						>;
+					}
+				).__remotion_webmcp_tools;
+				const tool = tools.get('get_current_error');
+				return tool ? tool.execute() : 'not-registered';
+			});
+		};
 		await page.goto(`${STUDIO_URL}/error-overlay-unsymbolicated-e2e`);
 		await expect(page.getByText('Expected defaults').first()).toBeVisible({
 			timeout: 15_000,
@@ -106,15 +164,106 @@ test.describe('error overlay dismissal', () => {
 		await expect(
 			page.getByText('Could not symbolicate the stack trace: Failed to fetch'),
 		).toBeVisible();
+		await expect(page.getByRole('button', {name: 'Copy stack'})).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Copy Stacktrace'}),
+			page.getByRole('button', {
+				name: 'Search Issues Ctrl+G',
+			}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: /Search GitHub Issues/}),
+			page.getByRole('button', {
+				name: 'Ask on Discord Ctrl+D',
+			}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: /Ask on Discord/}),
+			page.getByRole('button', {name: 'Fix with Codex', exact: true}),
 		).toBeVisible();
+		await expect(
+			page.getByRole('button', {
+				name: 'Fix with another coding agent',
+			}),
+		).toBeVisible();
+		for (const buttonName of [
+			'Copy stack',
+			'Search Issues Ctrl+G',
+			'Ask on Discord Ctrl+D',
+			'Fix with Codex',
+		]) {
+			const button = page.getByRole('button', {name: buttonName});
+			await expect(button).toHaveCSS('border-style', 'none');
+			await expect(button).toHaveCSS('cursor', 'default');
+		}
+		await expect(
+			page.getByRole('button', {name: 'Retry', exact: true}),
+		).toHaveCount(0);
+		const errorMessageBounds = await page
+			.getByText('Expected defaults', {exact: true})
+			.first()
+			.boundingBox();
+		const fixWithAgentButton = page.getByRole('button', {
+			name: 'Fix with Codex',
+			exact: true,
+		});
+		const fixWithAgentButtonBounds = await fixWithAgentButton.boundingBox();
+		const copyButton = page.getByRole('button', {name: 'Copy stack'});
+		const copyButtonBounds = await copyButton.boundingBox();
+		const fixWithAgentIconLeft = await fixWithAgentButton
+			.locator('img')
+			.evaluate((element) => element.getBoundingClientRect().left);
+		const actionTypography = await Promise.all(
+			[fixWithAgentButton, copyButton].map((button) =>
+				button.evaluate((element) => {
+					const style = window.getComputedStyle(element);
+					return {fontFamily: style.fontFamily, fontSize: style.fontSize};
+				}),
+			),
+		);
+		if (!errorMessageBounds || !fixWithAgentButtonBounds || !copyButtonBounds) {
+			throw new Error(
+				'Expected the error message and action row to be visible',
+			);
+		}
+
+		expect(actionTypography[0]).toEqual(actionTypography[1]);
+		expect(
+			Math.abs(fixWithAgentButtonBounds.y - copyButtonBounds.y),
+		).toBeLessThan(1);
+		expect(
+			Math.abs(fixWithAgentButtonBounds.height - copyButtonBounds.height),
+		).toBeLessThan(1);
+		expect(Math.abs(fixWithAgentIconLeft - errorMessageBounds.x)).toBeLessThan(
+			1,
+		);
+		expect(
+			fixWithAgentButtonBounds.y -
+				(errorMessageBounds.y + errorMessageBounds.height),
+		).toBeLessThan(16);
+		await page
+			.getByRole('button', {name: 'Fix with Codex', exact: true})
+			.click();
+		await expect
+			.poll(() => openInCodingAgentRequests)
+			.toEqual([
+				expect.objectContaining({
+					codingAgentId: 'codex',
+					prompt: expect.stringMatching(
+						/TypeError: Expected defaults[\s\S]*webpack-internal:\/\/\/cannot-symbolicate\.js/,
+					),
+				}),
+			]);
+
+		const macPage = await context.newPage();
+		await macPage.addInitScript(() => {
+			Object.defineProperty(window.navigator, 'platform', {value: 'MacIntel'});
+		});
+		await macPage.goto(`${STUDIO_URL}/error-overlay-unsymbolicated-e2e`);
+		await expect(
+			macPage.getByRole('button', {name: 'Search Issues ⌘G'}),
+		).toBeVisible();
+		await expect(
+			macPage.getByRole('button', {name: 'Ask on Discord ⌘D'}),
+		).toBeVisible();
+		await macPage.close();
 
 		const rawStack = page.getByLabel('Unsymbolicated stack trace');
 		await expect(rawStack).toContainText(
@@ -134,8 +283,16 @@ test.describe('error overlay dismissal', () => {
 				(element) => element.scrollWidth > element.clientWidth,
 			),
 		).toBe(true);
+		await expect.poll(getCurrentError).toEqual({
+			name: 'TypeError',
+			message: 'Expected defaults',
+			stack: expect.stringContaining(
+				'webpack-internal:///cannot-symbolicate.js',
+			),
+			symbolicatedStackFrames: null,
+		});
 
-		await page.getByRole('button', {name: 'Copy Stacktrace'}).click();
+		await page.getByRole('button', {name: 'Copy stack'}).click();
 		await expect(page.getByRole('button', {name: 'Copied!'})).toBeVisible();
 		expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
 			'webpack-internal:///cannot-symbolicate.js',
@@ -146,19 +303,106 @@ test.describe('error overlay dismissal', () => {
 
 		// Sanity check: no error visible initially.
 		await expect(errorMessage).toHaveCount(0);
+		await expect.poll(getCurrentError).toBe(null);
 
 		// 1. Introduce the bug: remove the `radius: 24` argument.
 		await writeAndWaitForRebuild(buggyContent, 'introducing the bug');
 		await expect(errorMessage).toBeVisible({timeout: 15_000});
-		await page.getByRole('button', {name: 'Open in Zed', exact: true}).click();
+		await expect(
+			page.getByText('ErrorOverlayRepro', {exact: true}),
+		).toBeVisible();
+		const highlightedSourceLine = page.getByText('effects={[blur({})]}', {
+			exact: true,
+		});
+		await expect(highlightedSourceLine).toHaveCSS(
+			'color',
+			'rgb(156, 220, 254)',
+		);
+		await expect(
+			highlightedSourceLine.locator('span.token.function', {hasText: /^blur$/}),
+		).toHaveCSS('color', 'rgb(220, 220, 170)');
+		await expect.poll(getCurrentError).toEqual({
+			name: 'TypeError',
+			message: '"radius" must be a finite number, but got undefined',
+			stack: expect.any(String),
+			symbolicatedStackFrames: expect.arrayContaining([
+				expect.objectContaining({
+					originalFunctionName: 'ErrorOverlayRepro',
+					originalFileName: expect.stringContaining(
+						'src/ErrorOverlayE2e/ErrorOverlayRepro.tsx',
+					),
+				}),
+			]),
+		});
+		await expect(
+			page.getByText('react_stack_bottom_frame', {exact: true}),
+		).toHaveCount(0);
+		await page.getByRole('button', {name: 'Copy stack'}).click();
+		const copiedSymbolicatedStack = await page.evaluate(() =>
+			navigator.clipboard.readText(),
+		);
+		expect(copiedSymbolicatedStack).toContain('ErrorOverlayRepro');
+		expect(copiedSymbolicatedStack).not.toContain('react_stack_bottom_frame');
+		const openInEditorButtonBounds = await page
+			.locator('#error-overlay-open-in-editor')
+			.boundingBox();
+		const symbolicatedFixButtonBounds = await page
+			.getByRole('button', {name: 'Fix with Codex', exact: true})
+			.boundingBox();
+		const symbolicatedCopyButtonBounds = await page
+			.getByRole('button', {name: 'Copy stack'})
+			.boundingBox();
+		if (
+			!openInEditorButtonBounds ||
+			!symbolicatedFixButtonBounds ||
+			!symbolicatedCopyButtonBounds
+		) {
+			throw new Error('Expected the symbolicated error actions to be visible');
+		}
+
+		expect(
+			Math.abs(openInEditorButtonBounds.y - symbolicatedFixButtonBounds.y),
+		).toBeLessThan(1);
+		expect(
+			Math.abs(openInEditorButtonBounds.y - symbolicatedCopyButtonBounds.y),
+		).toBeLessThan(1);
+		await page.locator('#error-overlay-open-in-editor').click();
 		await expect
 			.poll(() => openInEditorRequests)
 			.toEqual([expect.objectContaining({editorId: 'zed'})]);
+		const openInAnotherApp = page.locator('#error-overlay-open-in-another-app');
+		await openInAnotherApp.click();
+		await expect(
+			page.getByRole('button', {name: 'VS Code', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {
+				name: 'Configure default apps...',
+				exact: true,
+			}),
+		).toBeVisible();
+		await page.getByRole('button', {name: 'VS Code', exact: true}).click();
+		await expect
+			.poll(() => openInEditorRequests)
+			.toEqual([
+				expect.objectContaining({editorId: 'zed'}),
+				expect.objectContaining({editorId: 'vscode'}),
+			]);
+		await openInAnotherApp.click();
+		await page
+			.getByRole('button', {
+				name: 'Configure default apps...',
+				exact: true,
+			})
+			.click();
+		await expect(page.getByText('Default editor', {exact: true})).toBeVisible();
+		await page.keyboard.press('Escape');
 
 		// 2. Fix the bug: restore the `radius: 24` argument. The error UI should
 		//    dismiss once HMR applies the fix.
 		await writeAndWaitForRebuild(originalContent, 'fixing the bug');
 		await expect(errorMessage).toHaveCount(0, {timeout: 15_000});
+		await expect.poll(getCurrentError).toBe(null);
 
 		// 3. Re-introduce the bug: the error UI should come back. This guards
 		//    against the boundary getting permanently stuck in the success state

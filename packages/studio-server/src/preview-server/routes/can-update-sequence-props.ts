@@ -25,6 +25,7 @@ import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
 	InterpolateOutputOption,
+	InterpolateOutputType,
 	JsxComponentIdentity,
 	LogLevel,
 	SequenceNodePath,
@@ -363,6 +364,30 @@ const getInterpolateOutputOption = (
 	return null;
 };
 
+const getInterpolateOutputType = (
+	node: Expression,
+): InterpolateOutputType | null => {
+	if (node.type === 'StringLiteral') {
+		if (
+			node.value === 'font-weight' ||
+			node.value === 'scale' ||
+			node.value === 'translate' ||
+			node.value === 'rotate' ||
+			node.value === 'transform-origin'
+		) {
+			return node.value;
+		}
+
+		return null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getInterpolateOutputType(node.expression as Expression);
+	}
+
+	return null;
+};
+
 const getKeyframeEasing = (node: Expression): PropEasing[number] | null =>
 	parseKeyframeEasingExpression(node);
 
@@ -527,6 +552,17 @@ const getInterpolationMetadata = (
 			}
 
 			output = parsedOutput;
+			continue;
+		}
+
+		if (key === 'outputType') {
+			if (
+				interpolationFunction === 'interpolateColors' ||
+				getInterpolateOutputType(value) === null
+			) {
+				return null;
+			}
+
 			continue;
 		}
 
@@ -1858,7 +1894,7 @@ const computeSequenceOnlyPropsRecord = ({
 
 		const dotIndex = key.indexOf('.');
 		if (dotIndex !== -1) {
-			filteredProps[key] = getNestedPropStatus({
+			const status = getNestedPropStatus({
 				jsxElement,
 				ast,
 				parentKey: key.slice(0, dotIndex),
@@ -1867,6 +1903,19 @@ const computeSequenceOnlyPropsRecord = ({
 				allowSpecialValues: assetKeys.includes(key),
 				lastSpreadIndex,
 			});
+			filteredProps[key] =
+				key === 'style.translate' &&
+				((status.status === 'static' &&
+					typeof status.codeValue === 'string' &&
+					status.codeValue.includes('%')) ||
+					(status.status === 'keyframed' &&
+						status.keyframes.some(
+							(keyframe) =>
+								typeof keyframe.value === 'string' &&
+								keyframe.value.includes('%'),
+						)))
+					? computedStatus()
+					: status;
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else if (lastSpreadIndex !== -1) {

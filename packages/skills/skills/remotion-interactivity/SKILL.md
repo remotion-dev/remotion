@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.517
+version: 4.0.527
 ---
 
 By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
@@ -238,6 +238,8 @@ const rotation = frame * 1.5;
 Render separate elements if one version should have effects and another should not.
 
 ## Making your own component interactive
+
+When using `Interactive.withSchema()`, include `Interactive.baseSchema` in the schema so standard timeline controls such as trimming and visibility remain available.
 
 To make a custom userland component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)

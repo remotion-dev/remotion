@@ -26,7 +26,10 @@ import {
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
 } from '../../helpers/colors';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -1112,8 +1115,8 @@ export const EasingEditor: React.FC<{
 				onMove: (moveEvent) => {
 					updateHandleFromPointer(handle, moveEvent);
 				},
-				onEnd: (reason) => {
-					if (reason === 'pointerup' || reason === 'buttons-released') {
+				onEnd: (reason, endEvent) => {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						commitEasing(
 							serializeBezier(bezierRef.current),
 							liveOverrideVersionRef.current,

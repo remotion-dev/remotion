@@ -18,6 +18,7 @@ import {
 	getOutputConfig,
 	getResolveConfig,
 	getSharedModuleRules,
+	transformersImportMetaWarning,
 } from './shared-bundler-config';
 import esbuild = require('esbuild');
 export type {WebpackConfiguration, WebpackOverrideFn} from './override-types';
@@ -64,6 +65,7 @@ export const webpackConfig = async ({
 
 	const baseConfig: WebpackConfiguration = {
 		...getBaseConfig(environment, poll),
+		ignoreWarnings: [transformersImportMetaWarning],
 		entry: getStudioEntryPoints({
 			fastRefreshRuntime:
 				environment === 'development'
@@ -71,10 +73,7 @@ export const webpackConfig = async ({
 					: null,
 			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
-			sequenceStackTraces:
-				environment === 'development'
-					? require.resolve('./setup-sequence-stack-traces')
-					: null,
+			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),
 			studioRenderEntry: entry,

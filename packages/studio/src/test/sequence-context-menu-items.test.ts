@@ -1,9 +1,13 @@
 import {afterEach, expect, test} from 'bun:test';
+import type {GitSource} from '@remotion/studio-shared';
 import type {TSequence} from 'remotion';
 import {getOpenInMenuItems} from '../components/get-open-in-menu-items';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getCopyContextForAgentsMenuItem} from '../components/Timeline/get-copy-context-for-agents-menu-item';
-import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
+import {
+	findCopyableFrameElement,
+	getSequenceContextMenuItems,
+} from '../components/Timeline/get-sequence-context-menu-items';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
 	calculateSequenceFreezeFrame,
@@ -41,11 +45,15 @@ const installTestWindow = () => {
 		| 'remotion_cwd'
 		| 'remotion_editorName'
 		| 'remotion_fileSystemPlatform'
+		| 'remotion_gitSource'
+		| 'remotion_isReadOnlyStudio'
 	> = {
 		open: () => null,
 		remotion_cwd: '/project',
 		remotion_editorName: null,
 		remotion_fileSystemPlatform: 'darwin',
+		remotion_gitSource: null,
+		remotion_isReadOnlyStudio: false,
 	};
 
 	Object.defineProperty(globalThis, 'window', {
@@ -68,6 +76,23 @@ const renameSequenceItem: ComboboxValue = {
 };
 
 const noop = () => undefined;
+
+test('finds direct and nested elements that can copy a frame', () => {
+	const canvas = {tagName: 'CANVAS'} as Element;
+	const video = {tagName: 'VIDEO'} as Element;
+	const wrapper = {
+		tagName: 'DIV',
+		querySelector: (selector: string) => {
+			expect(selector).toBe('canvas, video');
+			return video;
+		},
+	} as unknown as Element;
+
+	expect(findCopyableFrameElement(canvas)).toBe(canvas);
+	expect(findCopyableFrameElement(video)).toBe(video);
+	expect(findCopyableFrameElement(wrapper)).toBe(video);
+	expect(findCopyableFrameElement(null)).toBeNull();
+});
 
 test('copy context menu items write their agent context to the clipboard', () => {
 	const copiedTexts: string[] = [];
@@ -98,19 +123,22 @@ test('the file manager entry is only shown on macOS', () => {
 	installTestWindow();
 	const getItems = () =>
 		getOpenInMenuItems({
+			canOpenDesktopApps: true,
 			codingAgentInfo: null,
 			editorDisabled: false,
 			editorInfo: null,
 			excludeCodingAgentId: null,
 			excludeEditorId: null,
+			excludeGitSource: false,
 			fileManagerDisabled: false,
 			folder: false,
-			location: null,
+			gitSourceDisabled: false,
 			onConfigureApps: noop,
 			onOpenInCodingAgent: noop,
 			onOpenInEditor: noop,
 			onOpenInFileExplorer: noop,
 			onOpenInGitClient: noop,
+			onOpenInGitSource: noop,
 			onOpenInTerminal: null,
 		});
 
@@ -139,13 +167,14 @@ const expectNoExtraDividers = (items: ComboboxValue[]) => {
 	}
 };
 
-test('sequence context menu normalizes dividers before source actions', () => {
+test('sequence context menu adds frame copying and normalizes dividers', () => {
 	installTestWindow();
 
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
 		codingAgentInfo: null,
+		copyImageElement: {tagName: 'CANVAS'} as Element,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -162,6 +191,7 @@ test('sequence context menu normalizes dividers before source actions', () => {
 		selectAsset: noop,
 		sequence: {
 			documentationLink: 'https://www.remotion.dev/docs/sequence',
+			type: 'sequence',
 		} as TSequence,
 		sourceActions: [renameSequenceItem],
 	});
@@ -171,16 +201,29 @@ test('sequence context menu normalizes dividers before source actions', () => {
 	const copyContextIndex = items.findIndex(
 		(item) => item.id === 'copy-context-for-agents',
 	);
+	const copyFrameIndex = items.findIndex((item) => item.id === 'copy-frame');
 	const renameIndex = items.findIndex((item) => item.id === 'rename-sequence');
 
+	expect(items[copyContextIndex + 1]?.type).toBe('divider');
+	expect(copyFrameIndex).toBe(copyContextIndex + 2);
 	expect(
-		items.slice(copyContextIndex + 1, renameIndex).map((item) => item.type),
+		items[copyFrameIndex]?.type === 'item' ? items[copyFrameIndex].label : null,
+	).toBe('Copy frame');
+	expect(
+		items.slice(copyFrameIndex + 1, renameIndex).map((item) => item.type),
 	).toEqual(['divider']);
 });
 
 test('sequence context menu shares alternate apps without repeating defaults', () => {
 	installTestWindow();
 	window.remotion_editorName = 'Cursor Editor';
+	window.remotion_gitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
 
 	const openedEditors: Array<string | null> = [];
 	const openedCodingAgents: Array<{
@@ -208,6 +251,7 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 			installedTerminals: [],
 			installedGitClients: [],
 		},
+		copyImageElement: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -245,16 +289,12 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		sequence: {displayName: 'Intro card'} as TSequence,
 	});
 
-	expect(items.slice(0, 3).map((item) => item.id)).toEqual([
+	expect(items.slice(0, 2).map((item) => item.id)).toEqual([
 		'open-in-editor',
-		'open-in-default-coding-agent',
 		'open-in-another-app',
 	]);
 	expect(items[0]?.type === 'item' ? items[0].label : null).toBe(
 		'Open in Cursor Editor',
-	);
-	expect(items[1]?.type === 'item' ? items[1].label : null).toBe(
-		'Open in Cursor Agent',
 	);
 	const openIn = items.find((item) => item.id === 'open-in-another-app');
 	if (openIn?.type !== 'item' || openIn.subMenu === null) {
@@ -263,22 +303,23 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 
 	const submenuIds = openIn.subMenu.items.map((item) => item.id);
 	expect(submenuIds).toContain('open-in-vscode');
+	expect(submenuIds).toContain('open-in-coding-agent-cursor');
 	expect(submenuIds).toContain('open-in-coding-agent-claude-code');
+	expect(submenuIds).toContain('open-in-github');
 	expect(submenuIds).toContain('open-in-file-explorer');
 	expect(submenuIds).toContain('change-default-apps');
 	expect(submenuIds).not.toContain('open-in-cursor');
-	expect(submenuIds).not.toContain('open-in-coding-agent-cursor');
-	const finderIndex = submenuIds.indexOf('open-in-file-explorer');
-	expect(openIn.subMenu.items[finderIndex - 1]?.type).toBe('divider');
+	const gitHubIndex = submenuIds.indexOf('open-in-github');
+	expect(openIn.subMenu.items[gitHubIndex - 1]?.type).toBe('divider');
 
-	const defaultAgent = items.find(
-		(item) => item.id === 'open-in-default-coding-agent',
+	const cursorAgent = openIn.subMenu.items.find(
+		(item) => item.id === 'open-in-coding-agent-cursor',
 	);
-	if (defaultAgent?.type !== 'item') {
-		throw new Error('Expected default coding agent item');
+	if (cursorAgent?.type !== 'item') {
+		throw new Error('Expected Cursor coding agent item');
 	}
 
-	defaultAgent.onClick('open-in-default-coding-agent', null);
+	cursorAgent.onClick('open-in-coding-agent-cursor', null);
 	const claudeCode = openIn.subMenu.items.find(
 		(item) => item.id === 'open-in-coding-agent-claude-code',
 	);
@@ -323,6 +364,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 		assetLinkInfo: null,
 		canOpenInEditor: false,
 		codingAgentInfo: null,
+		copyImageElement: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -367,6 +409,7 @@ test('programmatically duplicated sequence menus apply actions to all instances'
 		assetLinkInfo: null,
 		canOpenInEditor: false,
 		codingAgentInfo: null,
+		copyImageElement: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -401,6 +444,7 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 		assetLinkInfo: null,
 		canOpenInEditor: false,
 		codingAgentInfo: null,
+		copyImageElement: null,
 		deleteDisabled: true,
 		disableInteractivityDisabled: true,
 		duplicateDisabled: true,
@@ -430,6 +474,62 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 		'copy-context-for-agents',
 		'copy-svg',
 	]);
+});
+
+test('read-only sequence menus open source locations on GitHub', () => {
+	installTestWindow();
+	const gitSource: GitSource = {
+		name: 'project',
+		org: 'example',
+		ref: 'main',
+		relativeFromGitRoot: '',
+		type: 'github',
+	};
+	window.remotion_gitSource = gitSource;
+	window.remotion_isReadOnlyStudio = true;
+	const openedUrls: string[] = [];
+	window.open = (url) => {
+		openedUrls.push(String(url));
+		return null;
+	};
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		codingAgentInfo: null,
+		copyImageElement: null,
+		deleteDisabled: true,
+		disableInteractivityDisabled: true,
+		duplicateDisabled: true,
+		editorInfo: null,
+		includeSourceEditItems: false,
+		isProgrammaticallyDuplicated: false,
+		onConfigureApps: null,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
+		openInEditor: noop,
+		originalLocation: {
+			column: 1,
+			line: 12,
+			source: '/project/src/Video.tsx',
+		},
+		selectAsset: noop,
+		sequence: {} as TSequence,
+	});
+
+	const openInGitHub = items.find((item) => item.id === 'open-in-git-source');
+	if (openInGitHub?.type !== 'item') {
+		throw new Error('Expected Open in GitHub menu item');
+	}
+
+	expect(openInGitHub.label).toBe('Open in GitHub');
+	openInGitHub.onClick('open-in-git-source', null);
+	expect(openedUrls).toEqual([
+		'https://github.com/example/project/blob/main/src/Video.tsx#L12',
+	]);
+	expect(items.some((item) => item.id === 'open-in-another-app')).toBe(false);
 });
 
 test('sequence freeze context menu item is hidden for audio', () => {

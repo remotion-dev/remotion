@@ -5,6 +5,7 @@ import type {GcpRegion} from '../pricing/gcp-regions';
 const CloudrunBooleanFlags = [
 	...CliInternals.BooleanFlags,
 	'force',
+	'f',
 	'yes',
 	'y',
 	'onlyAllocateCpuDuringRequestProcessing',

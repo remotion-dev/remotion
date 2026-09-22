@@ -33,6 +33,7 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
+import {lut} from '@remotion/effects/lut';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
@@ -55,6 +56,7 @@ import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {starburst} from '@remotion/effects/starburst';
+import {tear} from '@remotion/effects/tear';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
@@ -107,6 +109,10 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
+import {
+	EffectsLutPreview,
+	LUT_PREVIEW_CONTENT,
+} from '../effects/effects-lut-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -148,6 +154,7 @@ import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
 import {EffectsTilePreview} from '../effects/effects-tile-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
@@ -300,6 +307,17 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-tear',
+		effectName: 'tear',
+		effectImportPath: '@remotion/effects/tear',
+		comp: EffectsTearPreview,
+		schema: {
+			...tear().definition.schema,
+			progress: {...tear().definition.schema.progress, max: 2},
+		},
+	},
+	{
+		...defaults,
 		id: 'effects-venetian-blinds',
 		effectName: 'venetianBlinds',
 		effectImportPath: '@remotion/effects/venetian-blinds',
@@ -353,6 +371,20 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/levels',
 		comp: EffectsLevelsPreview,
 		schema: levels().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-lut',
+		effectName: 'lut',
+		effectImportPath: '@remotion/effects/lut',
+		comp: EffectsLutPreview,
+		schema: {
+			...lut({content: LUT_PREVIEW_CONTENT}).definition.schema,
+			content: {type: 'hidden'},
+		},
+		initialValues: {
+			content: LUT_PREVIEW_CONTENT,
+		},
 	},
 	{
 		...defaults,

@@ -1,14 +1,19 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {SearchIcon} from '../icons/search';
 import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row} from './layout';
@@ -16,9 +21,9 @@ import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
+import {SettingsButton} from './SettingsButton';
 import {SidebarCollapserControl} from './SidebarCollapserControls';
 import {UndoRedoButtons} from './UndoRedoButtons';
-import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -54,6 +59,11 @@ export const MenuToolbar: React.FC<{
 		!readOnlyStudio ||
 		(previewServerState.type === 'connected' &&
 			browserStudioOperations !== null);
+	const showUpdates = canShowUpdates({
+		connectionStatus: previewServerState.type,
+		isBrowserStudio: browserStudioOperations !== null,
+		readOnlyStudio,
+	});
 
 	const mobileLayout = useMobileLayout();
 
@@ -156,9 +166,10 @@ export const MenuToolbar: React.FC<{
 		return <SearchIcon color={color} width={18} height={18} />;
 	}, []);
 
-	const searchTooltip = areKeyboardShortcutsDisabled()
-		? 'Quick Switcher'
-		: `Quick Switcher (${cmdOrCtrlCharacter}+K)`;
+	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
+	const quickSwitcherAriaShortcut =
+		useKeyboardShortcutAriaKeyShortcuts('quickSwitcher');
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 
 	return (
 		<Row
@@ -169,12 +180,24 @@ export const MenuToolbar: React.FC<{
 		>
 			<div style={fixedWidthLeft}>
 				{mobileLayout ? (
-					<InlineAction
-						variant={null}
-						onClick={openQuickSwitcher}
-						renderAction={renderSearchIcon}
-						title={searchTooltip}
-					/>
+					<ActionTooltip
+						label="Quick switcher"
+						shortcut={shortcutsDisabled ? null : quickSwitcherShortcut}
+						delay={800}
+						dismissOnClick
+					>
+						<InlineAction
+							variant={null}
+							onClick={openQuickSwitcher}
+							renderAction={renderSearchIcon}
+							aria-label="Quick switcher"
+							aria-keyshortcuts={
+								shortcutsDisabled
+									? undefined
+									: quickSwitcherAriaShortcut || undefined
+							}
+						/>
+					</ActionTooltip>
 				) : (
 					<SidebarCollapserControl side="left" />
 				)}
@@ -197,13 +220,13 @@ export const MenuToolbar: React.FC<{
 						);
 					})}
 				</div>
-				{readOnlyStudio || browserStudioOperations ? null : <UpdateCheck />}
 			</div>
 			{mobileLayout ? null : <div style={flex} />}
 			<MenuBuildIndicator mobileLayout={mobileLayout} />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
 				{canUndoAndRedo ? <UndoRedoButtons /> : null}
+				<SettingsButton showUpdates={showUpdates} />
 				<SidebarCollapserControl side="right" />
 			</div>
 		</Row>

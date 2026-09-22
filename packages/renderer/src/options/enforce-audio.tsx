@@ -9,8 +9,36 @@ const cliFlag = 'enforce-audio-track' as const;
 export const enforceAudioOption = {
 	name: 'Enforce Audio Track',
 	cliFlag,
-	description: () => (
-		<>Render a silent audio track if there would be none otherwise.</>
+	description: (mode) => (
+		<>
+			<p>
+				Defaults to <code>false</code>. If <code>true</code>, include a silent
+				audio track when the render contains no audio. If <code>false</code>,
+				omit the audio track when no audio is present. Audio-only exports and{' '}
+				<code>
+					{mode === 'cli' ? '--separate-audio-to' : 'separateAudioTo'}
+				</code>{' '}
+				still produce an audio file, even when silent.
+			</p>
+			<p>
+				{mode === 'cli' ? (
+					<>
+						Pass <code>--enforce-audio-track</code>
+					</>
+				) : (
+					<>
+						Set this to <code>true</code>
+					</>
+				)}{' '}
+				for{' '}
+				<a href="/docs/distributed-rendering">
+					chunks that will later be concatenated
+				</a>
+				, because other chunks may contain audio.{' '}
+				<code>{mode === 'cli' ? '--muted' : 'muted: true'}</code> takes
+				precedence.
+			</p>
+		</>
 	),
 	ssrName: 'enforceAudioTrack',
 	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',

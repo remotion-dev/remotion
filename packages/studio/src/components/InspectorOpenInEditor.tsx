@@ -6,6 +6,10 @@ import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
+import {
 	openInCodingAgent,
 	openInGitClient,
 	openInTerminal,
@@ -13,12 +17,13 @@ import {
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
-import {SetSelectedModalContext} from '../state/modals';
+import {GitHubIcon} from '../icons/github';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useConfigureDefaultApps} from './use-configure-default-apps';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -37,15 +42,23 @@ const dropdownSegmentStyle: React.CSSProperties = {
 };
 
 const editorButtonIconSize = 18;
+const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
 	readonly locationType: 'file' | 'folder' | null;
-}> = ({contextForAgents = null, label, location, locationType}) => {
+	readonly showTooltips: boolean;
+}> = ({
+	contextForAgents = null,
+	label,
+	location,
+	locationType,
+	showTooltips,
+}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const configureDefaultApps = useConfigureDefaultApps();
 	const {
 		canConfigureApps,
 		canOpenInEditor,
@@ -54,6 +67,7 @@ export const InspectorOpenInEditor: React.FC<{
 		editorInfo,
 	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const openWithEditor = useCallback(
 		async (editorId: EditorPickerId) => {
@@ -86,37 +100,42 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
-	const editorName = defaultEditorName ?? 'default editor';
-	const canOpenDefault = location !== null && canOpenInEditor;
+	const defaultAppName =
+		defaultOpenInTarget === 'git-source'
+			? 'GitHub'
+			: (defaultEditorName ?? 'default editor');
+	const canOpenDefault = location !== null && defaultOpenInTarget !== null;
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			if (defaultEditorId) {
+			if (defaultOpenInTarget === 'git-source') {
+				openGitSource({folder: locationType === 'folder', location});
+			} else if (defaultOpenInTarget === 'editor' && defaultEditorId) {
 				openWithEditor(defaultEditorId).catch(() => undefined);
 			}
 		},
-		[defaultEditorId, openWithEditor],
+		[
+			defaultEditorId,
+			defaultOpenInTarget,
+			location,
+			locationType,
+			openWithEditor,
+		],
 	);
 	const menuItems = useMemo((): ComboboxValue[] => {
-		return getOpenInMenuItems({
+		const items = getOpenInMenuItems({
+			canOpenDesktopApps: canConfigureApps,
 			codingAgentInfo,
-			editorDisabled: location === null,
+			editorDisabled: location === null || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: defaultEditorId,
-			fileManagerDisabled: !location?.source,
+			excludeGitSource: defaultOpenInTarget === 'git-source',
+			fileManagerDisabled:
+				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
-			location,
-			onConfigureApps: canConfigureApps
-				? () => {
-						setSelectedModal({
-							type: 'settings',
-							initialTab: 'apps',
-							initialPublicLicenseKey:
-								window.remotion_renderDefaults?.publicLicenseKey ?? null,
-						});
-					}
-				: null,
+			gitSourceDisabled: location === null,
+			onConfigureApps: configureDefaultApps,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -148,6 +167,9 @@ export const InspectorOpenInEditor: React.FC<{
 						);
 					});
 			},
+			onOpenInGitSource: () => {
+				openGitSource({folder: locationType === 'folder', location});
+			},
 			onOpenInTerminal: (terminalId) => {
 				if (!location?.source || locationType !== 'folder') {
 					return;
@@ -167,21 +189,26 @@ export const InspectorOpenInEditor: React.FC<{
 					});
 			},
 		});
+
+		return items;
 	}, [
 		codingAgentInfo,
 		canConfigureApps,
+		canOpenInEditor,
+		configureDefaultApps,
 		defaultEditorId,
+		defaultOpenInTarget,
 		editorInfo,
 		location,
 		locationType,
 		openWithCodingAgent,
 		openWithEditor,
-		setSelectedModal,
+		previewServerState.type,
 	]);
 	const segments = useMemo((): SegmentedButtonSegment[] => {
-		return [
+		const result: SegmentedButtonSegment[] = [
 			{
-				ariaLabel: `Open in ${editorName}`,
+				ariaLabel: `Open in ${defaultAppName}`,
 				buttonId: null,
 				disabled: !canOpenDefault,
 				idleColor: LIGHT_TEXT,
@@ -190,18 +217,26 @@ export const InspectorOpenInEditor: React.FC<{
 				renderContent: () => (
 					<>
 						{label}
-						<EditorIcon
-							editorId={defaultEditorId}
-							size={editorButtonIconSize}
-						/>
+						{defaultOpenInTarget === 'git-source' ? (
+							<GitHubIcon size={githubButtonIconSize} />
+						) : (
+							<EditorIcon
+								editorId={defaultEditorId}
+								size={editorButtonIconSize}
+							/>
+						)}
 					</>
 				),
 				segmentId: 'default-editor',
 				style: mainSegmentStyle,
-				title: `Open in ${editorName}`,
+				title: showTooltips ? '' : `Open in ${defaultAppName}`,
+				tooltipLabel: showTooltips ? `Open in ${defaultAppName}` : null,
 				type: 'action',
 			},
-			{
+		];
+
+		if (menuItems.length > 0) {
+			result.push({
 				ariaLabel: 'Open in another app',
 				buttonId: null,
 				disabled: false,
@@ -212,24 +247,30 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'another-app',
 				selectedId: null,
 				style: dropdownSegmentStyle,
-				title: 'Open in another app',
+				title: showTooltips ? '' : 'Open in another app',
+				tooltipLabel: showTooltips ? 'Open in another app' : null,
 				type: 'menu',
 				values: menuItems,
-			},
-		];
+			});
+		}
+
+		return result;
 	}, [
 		canOpenDefault,
+		defaultAppName,
 		defaultEditorId,
-		editorName,
+		defaultOpenInTarget,
 		label,
 		menuItems,
 		onOpenDefault,
+		showTooltips,
 	]);
 
-	if (
-		previewServerState.type !== 'connected' ||
-		getBrowserStudioOperations() !== null
-	) {
+	if (getBrowserStudioOperations() !== null) {
+		return null;
+	}
+
+	if (previewServerState.type !== 'connected' && defaultOpenInTarget === null) {
 		return null;
 	}
 

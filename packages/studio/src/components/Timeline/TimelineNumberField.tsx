@@ -64,8 +64,13 @@ export const TimelineNumberField: React.FC<{
 
 	const configuredStep =
 		field.fieldSchema.type === 'number' ? field.fieldSchema.step : undefined;
-	const step = configuredStep ?? 1;
+	const currentValue = dragValue ?? (effectiveValue as number);
+	const step =
+		field.fieldSchema.type === 'font-weight' && currentValue % 100 === 0
+			? 100
+			: (configuredStep ?? 1);
 	const allowStepMismatch =
+		field.fieldSchema.type === 'font-weight' ||
 		field.group === 'crop' ||
 		('kind' in field && field.kind === 'effect-field');
 
@@ -82,7 +87,7 @@ export const TimelineNumberField: React.FC<{
 	return (
 		<InputDragger
 			type="number"
-			value={dragValue ?? (effectiveValue as number)}
+			value={currentValue}
 			buttonStyle={leftAlignedDraggerStyle}
 			style={draggerStyle}
 			status="ok"
@@ -93,14 +98,21 @@ export const TimelineNumberField: React.FC<{
 			min={
 				field.fieldSchema.type === 'number'
 					? (field.fieldSchema.min ?? -Infinity)
-					: -Infinity
+					: field.fieldSchema.type === 'font-weight'
+						? 1
+						: -Infinity
 			}
 			max={
 				field.fieldSchema.type === 'number'
 					? (field.fieldSchema.max ?? Infinity)
-					: Infinity
+					: field.fieldSchema.type === 'font-weight'
+						? 1000
+						: Infinity
 			}
 			step={step}
+			dragSensitivity={
+				field.fieldSchema.type === 'font-weight' && step === 100 ? 0.1 : 1
+			}
 			formatter={formatter}
 			rightAlign={false}
 			allowStepMismatch={allowStepMismatch}

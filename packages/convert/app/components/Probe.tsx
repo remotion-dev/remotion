@@ -221,6 +221,9 @@ export const Probe: React.FC<{
 									metadata={metadata}
 									isHdr={isHdr}
 									sampleRate={sampleRate}
+									audioTrack={
+										tracks?.find((track) => track.isAudioTrack()) ?? null
+									}
 								/>
 							) : selectedTrack.isVideoTrack() ? (
 								<VideoTrackOverview

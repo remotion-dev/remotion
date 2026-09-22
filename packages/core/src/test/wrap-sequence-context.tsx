@@ -5,14 +5,17 @@ import type {CompositionManagerContext} from '../CompositionManagerContext.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
 import type {LoggingContextValue} from '../log-level-context.js';
 import {LogLevelContext} from '../log-level-context.js';
+import {createRuntimeValueStore} from '../runtime-value-store.js';
 import {SequenceManagerProvider} from '../SequenceManager.js';
 import type {
 	PlaybackRateContextValue,
+	SetTimelineContextValue,
 	TimelineContextValue,
 } from '../TimelineContext.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
+	SetTimelineContext,
 	TimelineContext,
 } from '../TimelineContext.js';
 
@@ -32,7 +35,7 @@ const makeMockCompositionContext = (
 			height: 1080,
 			width: 1080,
 			parentFolderName: null,
-			nonce: [[0, 0]],
+			order: null,
 			calculateMetadata: null,
 			schema: null,
 			stack: null,
@@ -115,28 +118,52 @@ export const WrapSequenceContext: React.FC<{
 	const timelineContext = useMemo<TimelineContextValue>(
 		() => ({
 			frame: {'my-comp': currentFrame},
-			playing: false,
-			imperativePlaying: {current: false},
+			isPlaying: () => false,
+			isInsideFreeze: false,
 			audioAndVideoTags: {current: []},
 		}),
 		[currentFrame],
 	);
+	const bufferingStore = useMemo(
+		() => createRuntimeValueStore({buffering: false}),
+		[],
+	);
+	const setTimelineContext = useMemo<SetTimelineContextValue>(
+		() => ({
+			setFrame: () => undefined,
+			setPlaying: () => undefined,
+			setBuffering: (buffering) => {
+				if (bufferingStore.store.getSnapshot().buffering !== buffering) {
+					bufferingStore.setSnapshot({buffering});
+				}
+			},
+			subscribePlaying: () => () => undefined,
+			subscribeBuffering: bufferingStore.store.subscribe,
+			isPlaying: () => false,
+			isBuffering: () => bufferingStore.store.getSnapshot().buffering,
+			frameRef: {current: {}},
+			audioAndVideoTags: {current: []},
+		}),
+		[bufferingStore],
+	);
 
 	return (
 		<LogLevelContext.Provider value={logContext}>
-			<BufferingProvider>
-				<CanUseRemotionHooksProvider>
-					<MaybeTimelineProvider timelineContext={timelineContext}>
-						<MaybePlaybackRateProvider>
-							<SequenceManagerProvider>
-								<CompositionManager.Provider value={compositionContext}>
-									{children}
-								</CompositionManager.Provider>
-							</SequenceManagerProvider>
-						</MaybePlaybackRateProvider>
-					</MaybeTimelineProvider>
-				</CanUseRemotionHooksProvider>
-			</BufferingProvider>
+			<SetTimelineContext.Provider value={setTimelineContext}>
+				<BufferingProvider>
+					<CanUseRemotionHooksProvider>
+						<MaybeTimelineProvider timelineContext={timelineContext}>
+							<MaybePlaybackRateProvider>
+								<SequenceManagerProvider>
+									<CompositionManager.Provider value={compositionContext}>
+										{children}
+									</CompositionManager.Provider>
+								</SequenceManagerProvider>
+							</MaybePlaybackRateProvider>
+						</MaybeTimelineProvider>
+					</CanUseRemotionHooksProvider>
+				</BufferingProvider>
+			</SetTimelineContext.Provider>
 		</LogLevelContext.Provider>
 	);
 };

@@ -12,21 +12,52 @@ const inlineCaptionsFile = path.join(
 	'CaptionsTester',
 	'InlineAnimatedCaptions.tsx',
 );
+const elementCaptionsFile = path.join(
+	exampleDir,
+	'src',
+	'moving-pill-captions.element.tsx',
+);
+const elementCallSiteFile = path.join(
+	exampleDir,
+	'src',
+	'MovingPillCaptionsComposition.tsx',
+);
+const missingCaptionsCallSiteFile = path.join(
+	exampleDir,
+	'src',
+	'CaptionsTester',
+	'MissingCaptionsComposition.tsx',
+);
 
 test.describe('captions inspector', () => {
-	let sourceBefore: string;
+	let inlineSourceBefore: string;
+	let elementSourceBefore: string;
+	let elementCallSiteSourceBefore: string;
+	let missingCaptionsCallSiteSourceBefore: string;
 
 	test.beforeEach(async () => {
-		sourceBefore = fs.readFileSync(inlineCaptionsFile, 'utf-8');
+		inlineSourceBefore = fs.readFileSync(inlineCaptionsFile, 'utf-8');
+		elementSourceBefore = fs.readFileSync(elementCaptionsFile, 'utf-8');
+		elementCallSiteSourceBefore = fs.readFileSync(elementCallSiteFile, 'utf-8');
+		missingCaptionsCallSiteSourceBefore = fs.readFileSync(
+			missingCaptionsCallSiteFile,
+			'utf-8',
+		);
 		await startStudio();
 	});
 
 	test.afterEach(async () => {
 		await stopStudio();
-		fs.writeFileSync(inlineCaptionsFile, sourceBefore);
+		fs.writeFileSync(inlineCaptionsFile, inlineSourceBefore);
+		fs.writeFileSync(elementCaptionsFile, elementSourceBefore);
+		fs.writeFileSync(elementCallSiteFile, elementCallSiteSourceBefore);
+		fs.writeFileSync(
+			missingCaptionsCallSiteFile,
+			missingCaptionsCallSiteSourceBefore,
+		);
 	});
 
-	test('persists a forced page break to an inline caption', async ({page}) => {
+	test('persists caption edits at their inline definitions', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/captions-inspector-e2e`);
 		await expect(page).toHaveURL(/captions-inspector-e2e/, {timeout: 15_000});
 		await page.waitForFunction(
@@ -64,5 +95,152 @@ test.describe('captions inspector', () => {
 					.includes('pageBreakAfter: true');
 			})
 			.toBe(true);
+
+		await page.goto(`${STUDIO_URL}/default-captions-inspector-e2e`);
+		await expect(page).toHaveURL(/default-captions-inspector-e2e/, {
+			timeout: 15_000,
+		});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const defaultCaptionsSequence = page
+			.getByTitle('Moving Pill Captions', {exact: true})
+			.first();
+		const defaultCaption = page.getByRole('textbox', {name: 'Caption 1'});
+		await expect(async () => {
+			await defaultCaptionsSequence.click();
+			await expect(defaultCaption).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+		await expect(defaultCaption).toBeEnabled();
+
+		const importCaptionsButton = page.getByRole('button', {
+			name: 'Import captions',
+			exact: true,
+		});
+		const importCaptionsInput = page.getByLabel('Import captions file');
+		await expect(importCaptionsButton).toBeVisible();
+
+		const sourceBeforeFailedImport = fs.readFileSync(
+			elementCallSiteFile,
+			'utf-8',
+		);
+		await importCaptionsInput.setInputFiles({
+			name: 'broken.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify([
+					{
+						text: 'Broken',
+						endMs: 1000,
+						timestampMs: 500,
+						confidence: null,
+					},
+				]),
+			),
+		});
+		await expect(
+			page.getByText(
+				/broken\.json:.*captions\[0\]\.startMs must be a finite, non-negative number/,
+			),
+		).toBeVisible();
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).toBe(
+			sourceBeforeFailedImport,
+		);
+
+		await importCaptionsInput.setInputFiles({
+			name: 'captions.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify([
+					{
+						text: 'Imported',
+						startMs: 100,
+						endMs: 400,
+						timestampMs: 250,
+						confidence: null,
+					},
+					{
+						text: ' captions',
+						startMs: 400,
+						endMs: 900,
+						timestampMs: 650,
+						confidence: null,
+					},
+				]),
+			),
+		});
+		await expect(defaultCaption).toHaveValue('Imported');
+		await expect
+			.poll(() => fs.readFileSync(elementCallSiteFile, 'utf-8'))
+			.toMatch(/text:\s*['"]Imported['"][\s\S]*startMs:\s*100/);
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			elementSourceBefore,
+		);
+		expect(fs.readFileSync(elementCallSiteFile, 'utf-8')).not.toBe(
+			elementCallSiteSourceBefore,
+		);
+
+		await defaultCaption.fill('Edited imported caption');
+		await defaultCaption.blur();
+		await expect
+			.poll(() => {
+				return /text:\s*['"]Edited imported caption['"]/.test(
+					fs.readFileSync(elementCallSiteFile, 'utf-8'),
+				);
+			})
+			.toBe(true);
+		expect(fs.readFileSync(elementCaptionsFile, 'utf-8')).toBe(
+			elementSourceBefore,
+		);
+	});
+
+	test('imports captions when the schema-declared prop is missing', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/missing-captions-inspector-e2e`);
+		await expect(page).toHaveURL(/missing-captions-inspector-e2e/, {
+			timeout: 15_000,
+		});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const captionsSequence = page
+			.getByText('<MissingCaptions>', {exact: true})
+			.first();
+		const importCaptionsButton = page.getByRole('button', {
+			name: 'Import captions',
+			exact: true,
+		});
+		await expect(async () => {
+			await captionsSequence.click();
+			await expect(importCaptionsButton).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+
+		await page.getByLabel('Import captions file').setInputFiles({
+			name: 'captions.json',
+			mimeType: 'application/json',
+			buffer: Buffer.from(
+				JSON.stringify([
+					{
+						text: 'Materialized',
+						startMs: 0,
+						endMs: 1000,
+						timestampMs: 500,
+						confidence: null,
+					},
+				]),
+			),
+		});
+
+		await expect(page.getByRole('textbox', {name: 'Caption 1'})).toHaveValue(
+			'Materialized',
+		);
+		await expect
+			.poll(() => fs.readFileSync(missingCaptionsCallSiteFile, 'utf-8'))
+			.toMatch(/<MissingCaptions[\s\S]*captions=\{\[[\s\S]*Materialized/);
 	});
 });

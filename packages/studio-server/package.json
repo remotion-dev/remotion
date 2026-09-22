@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
 	},
 	"name": "@remotion/studio-server",
-	"version": "4.0.517",
+	"version": "4.0.527",
 	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"scripts": {
@@ -31,12 +31,11 @@
 		"kiwi-schema": "0.5.0",
 		"semver": "7.5.3",
 		"zod": "catalog:",
-		"prettier": "catalog:",
 		"remotion": "workspace:*",
 		"recast": "0.23.21",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/studio-codemods": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"memfs": "3.4.3",
 		"open": "8.4.2"
@@ -47,6 +46,7 @@
 		"@types/semver": "7.5.3",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
+		"prettier": "catalog:",
 		"@types/node": "catalog:",
 		"@typescript/native-preview": "catalog:"
 	},

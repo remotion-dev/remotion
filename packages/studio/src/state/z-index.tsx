@@ -5,7 +5,10 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {observePointerRelease} from '../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	observePointerRelease,
+} from '../helpers/pointer-session';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 import {getClickLock} from './input-dragger-click-lock';
@@ -120,11 +123,7 @@ export const HigherZIndex: React.FC<{
 				event: downEvent,
 				onEnd: (reason, upEvent) => {
 					endPointerSession = null;
-					if (
-						(reason === 'pointerup' || reason === 'buttons-released') &&
-						upEvent &&
-						!getClickLock()
-					) {
+					if (isPointerSessionRelease(reason, upEvent) && !getClickLock()) {
 						const target =
 							document.elementFromPoint(upEvent.clientX, upEvent.clientY) ??
 							(upEvent.target as Element);

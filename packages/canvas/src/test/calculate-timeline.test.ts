@@ -6,12 +6,10 @@ const makeSequence = ({
 	id,
 	parent,
 	from,
-	nonce,
 }: {
 	id: string;
 	parent: string | null;
 	from: number;
-	nonce: number;
 }): TSequence => ({
 	controls: null,
 	displayName: id,
@@ -25,12 +23,12 @@ const makeSequence = ({
 	id,
 	isInsideSeries: false,
 	loopDisplay: undefined,
-	nonce: [[0, nonce]],
 	parent,
 	postmountDisplay: null,
 	premountDisplay: null,
 	refForOutline: null,
 	showInTimeline: true,
+	timelineOrder: null,
 	trimBefore: null,
 	type: 'sequence',
 });
@@ -45,8 +43,8 @@ test('normalizes nesting and visible starts', () => {
 	const timeline = calculateTimeline({
 		overrideIdsToNodePaths: {},
 		sequences: [
-			makeSequence({id: 'child', parent: 'parent', from: -10, nonce: 1}),
-			makeSequence({id: 'parent', parent: null, from: 20, nonce: 0}),
+			makeSequence({id: 'child', parent: 'parent', from: -10}),
+			makeSequence({id: 'parent', parent: null, from: 20}),
 		],
 	});
 
@@ -61,4 +59,26 @@ test('normalizes nesting and visible starts', () => {
 		{id: 'parent', depth: 0, from: 20, sequenceFrameOffset: 0},
 		{id: 'child', depth: 1, from: 20, sequenceFrameOffset: 10},
 	]);
+});
+
+test('committed Fiber order takes precedence over internal order', () => {
+	const right = makeSequence({
+		id: 'right',
+		parent: null,
+		from: 10,
+	});
+	const left = makeSequence({
+		id: 'left',
+		parent: null,
+		from: 0,
+	});
+	right.timelineOrder = 1;
+	left.timelineOrder = 0;
+
+	const timeline = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [right, left],
+	});
+
+	expect(timeline.map((track) => track.sequence.id)).toEqual(['left', 'right']);
 });

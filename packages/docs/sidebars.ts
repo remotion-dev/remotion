@@ -308,6 +308,7 @@ const sidebars: SidebarsConfig = {
 				'effects/light-trail',
 				'effects/lines',
 				'effects/liquid-contours',
+				'effects/lut',
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',
@@ -330,6 +331,7 @@ const sidebars: SidebarsConfig = {
 				'effects/skew',
 				'effects/speckle',
 				'effects/starburst',
+				'effects/tear',
 				'effects/thermal-vision',
 				'effects/tile',
 				'effects/tint',
@@ -365,6 +367,8 @@ const sidebars: SidebarsConfig = {
 			},
 			items: ['enable-scss/enable-scss'],
 		},
+		'eslint-config',
+		'eslint-plugin',
 		{
 			type: 'category',
 			label: '@remotion/fonts',
@@ -392,9 +396,11 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'google-fonts/load-font',
+				'google-fonts/load-variable-font',
 				'google-fonts/get-available-fonts',
 				'google-fonts/get-info',
 				'google-fonts/load-font-from-info',
+				'google-fonts/load-variable-font-from-info',
 			],
 		},
 		{
@@ -801,6 +807,7 @@ const sidebars: SidebarsConfig = {
 				'studio/write-static-file',
 				'studio/delete-static-file',
 				'studio/restart-studio',
+				'studio/shut-down-studio',
 				'studio/save-default-props',
 				'studio/play',
 				'studio/pause',
@@ -823,8 +830,11 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
+				'studio-protocol/build-open-in-remotion-new-url',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
+				'studio-protocol/add-element-library-to-studio',
+				'studio-protocol/is-inside-studio',
 				'studio-protocol/security',
 			],
 		},
@@ -910,6 +920,7 @@ const sidebars: SidebarsConfig = {
 						'transitions/presentations/crosswarp',
 						'transitions/presentations/cross-zoom',
 						'transitions/presentations/swap',
+						'transitions/presentations/blur-slide',
 						'transitions/presentations/none',
 						{
 							type: 'doc',
@@ -939,6 +950,23 @@ const sidebars: SidebarsConfig = {
 				'vercel/render-still-on-vercel',
 				'vercel/upload-to-vercel-blob',
 				'vercel/vercel-types',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/video-matting',
+			link: {
+				type: 'doc',
+				id: 'video-matting/index',
+			},
+			items: [
+				'video-matting/can-use-video-matting',
+				'video-matting/get-available-models',
+				'video-matting/is-video-matting-model-cached',
+				'video-matting/load-video-matting-model',
+				'video-matting/remove-video-matting-model',
+				'video-matting/separate-video-layers',
+				'video-matting/dispose-video-matting-model',
 			],
 		},
 		{
@@ -977,6 +1005,26 @@ const sidebars: SidebarsConfig = {
 				'whisper-web/get-available-models',
 				'whisper-web/get-loaded-models',
 				'whisper-web/to-captions',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/whisper-webgpu',
+			link: {
+				type: 'doc',
+				id: 'whisper-webgpu/index',
+			},
+			items: [
+				'whisper-webgpu/can-use-whisper-webgpu',
+				'whisper-webgpu/get-available-models',
+				'whisper-webgpu/clear-stale-models',
+				'whisper-webgpu/is-whisper-model-cached',
+				'whisper-webgpu/load-whisper-model',
+				'whisper-webgpu/remove-whisper-model',
+				'whisper-webgpu/transcribe',
+				'whisper-webgpu/to-captions',
+				'whisper-webgpu/resample-to-16khz',
+				'whisper-webgpu/dispose-whisper-model',
 			],
 		},
 		{
@@ -1131,6 +1179,7 @@ const sidebars: SidebarsConfig = {
 				'videos/sequence',
 				'videos/transparency',
 				'videos/video-manipulation',
+				'color-correction',
 				'greenscreen',
 				'videos/accelerated-video',
 				'videos/jumpcuts',
@@ -1373,6 +1422,7 @@ const sidebars: SidebarsConfig = {
 				'studio/make-component-interactive',
 				'studio/deploy-static',
 				'studio/deploy-server',
+				'studio/remotion-dev-new',
 			],
 		},
 		{
@@ -1467,9 +1517,11 @@ const sidebars: SidebarsConfig = {
 						'ai/claude-code-plugin',
 						'ai/codex-plugin',
 						'ai/cursor-plugin',
+						'ai/github-copilot-plugin',
 						'ai/kimi-code-plugin',
 					],
 				},
+				'ai/webmcp',
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',
@@ -1494,6 +1546,7 @@ const sidebars: SidebarsConfig = {
 				'testing',
 				'figma',
 				'after-effects',
+				'export-opentimeline',
 			],
 		},
 		{
@@ -1508,30 +1561,7 @@ const sidebars: SidebarsConfig = {
 			href: '/docs/api',
 			label: 'API Reference',
 		},
-		{
-			type: 'category',
-			label: 'Terminology',
-			link: {
-				type: 'doc',
-				id: 'terminology',
-			},
-			items: [
-				'terminology/player',
-				'terminology/studio',
-				'terminology/concurrency',
-				'terminology/input-props',
-				'terminology/cloud-run-url',
-				'terminology/service-name',
-				'terminology/entry-point',
-				'terminology/root-file',
-				'terminology/remotion-root',
-				'terminology/public-dir',
-				'terminology/serve-url',
-				'terminology/bundle',
-				'terminology/sequence',
-				'terminology/composition',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Snippets',
@@ -1555,6 +1585,30 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/live-streaming',
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
+			],
+    },
+    {
+			type: 'category',
+			label: 'Terminology',
+			link: {
+				type: 'doc',
+				id: 'terminology',
+			},
+			items: [
+				'terminology/player',
+				'terminology/studio',
+				'terminology/concurrency',
+				'terminology/input-props',
+				'terminology/cloud-run-url',
+				'terminology/service-name',
+				'terminology/entry-point',
+				'terminology/root-file',
+				'terminology/remotion-root',
+				'terminology/public-dir',
+				'terminology/serve-url',
+				'terminology/bundle',
+				'terminology/sequence',
+				'terminology/composition',
 			],
 		},
 		{
@@ -1727,6 +1781,11 @@ const sidebars: SidebarsConfig = {
 			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',
+		},
+		{
+			type: 'link',
+			href: '/docs/canvas-capture',
+			label: 'Canvas Capture',
 		},
 		{
 			type: 'html',
@@ -1943,6 +2002,45 @@ const sidebars: SidebarsConfig = {
 				'recorder/our-recorder',
 				'recorder/support',
 			],
+		},
+	],
+	canvasCaptureSidebar: [
+		{
+			type: 'category',
+			label: 'Canvas Capture',
+			link: {
+				type: 'doc',
+				id: 'canvas-capture/index',
+			},
+			items: ['canvas-capture/installation'],
+		},
+	],
+	browserBundlerSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/browser-bundler',
+			link: {
+				type: 'doc',
+				id: 'browser-bundler/index',
+			},
+			items: [
+				'browser-bundler/create-browser-bundler',
+				'browser-bundler/load-browser-bundle',
+				'browser-bundler/create-browser-bundle-runtime',
+				'browser-bundler/get-browser-composition',
+				'browser-bundler/create-browser-composition-observer',
+			],
+		},
+	],
+	codemodsSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/codemods',
+			link: {
+				type: 'doc',
+				id: 'codemods/index',
+			},
+			items: ['codemods/add-solid', 'codemods/delete-jsx-nodes'],
 		},
 	],
 };

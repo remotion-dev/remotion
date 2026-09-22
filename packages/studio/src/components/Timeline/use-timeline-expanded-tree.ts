@@ -16,14 +16,19 @@ import {
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
-import {useTimelineSelection} from './TimelineSelection';
+import {
+	type TimelineSelection,
+	useTimelineSelection,
+} from './TimelineSelection';
 
 export const useTimelineSequenceHasExpandableContent = ({
 	sequence,
 	nodePathInfo,
+	selectedItems,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly selectedItems: readonly TimelineSelection[];
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
@@ -31,7 +36,6 @@ export const useTimelineSequenceHasExpandableContent = ({
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {selectedItems} = useTimelineSelection();
 	const selectedRowKeys = useMemo(
 		() => getSelectedTimelineExpandedRowKeys(selectedItems),
 		[selectedItems],

@@ -101,6 +101,7 @@ export const getBrowserStudioDependencyVersionsForBuild = (): Record<
 	}
 
 	const dependencySpecs: Record<string, string> = {
+		'@huggingface/transformers': 'catalog:',
 		[studioPackageJson.name]: studioPackageJson.version,
 		react: 'catalog:',
 		'react-dom': 'catalog:',

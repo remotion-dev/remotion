@@ -93,7 +93,7 @@ export const NewLanding: React.FC<{
 							/>
 						</div>
 
-						<Demo />
+						<Demo title={null} description={null} />
 						<br />
 						<br />
 						<br />

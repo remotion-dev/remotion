@@ -1,5 +1,8 @@
 import type {Size} from '@remotion/player';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	StudioProtocolInternals,
+	type InstallInStudioResult,
+} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -53,29 +56,30 @@ import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {handleCanvasCaptureDrop} from './canvas-capture-drop';
+import {getCompositionDragPreviewMetadata} from './composition-drag-data';
 import {
 	getCompositionDropPreviewBox,
 	snapCompositionDropPosition,
 	type CompositionDropPreview,
 } from './composition-drop-preview';
-import {useConfirmationDialog} from './ConfirmationDialog';
 import {isFileDragEvent, isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
+import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
 import {prepareElementInstall} from './element-install-api';
 import {
 	enqueueElementInstallRequest,
 	subscribeToElementInstallRequests,
 } from './element-install-request';
-import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
 import {
+	getElementPositionForDrop,
+	getFromForDrop,
 	hasSvgFile,
 	importAssets,
 	importFigmaClipboard,
-	insertElement,
 	insertSvgMarkup,
 	type InsertElementDropPosition,
 } from './import-assets';
@@ -83,11 +87,24 @@ import {SPACING_UNIT} from './layout';
 import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {SelectedOutlineSnapLines} from './SelectedOutlineSnapIndicators';
 import {useSvgImportDialog} from './SvgImportDialog';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
+const getCanvasDragPreviewMetadata = (mimeTypes: ArrayLike<string>) => {
+	const composition = getCompositionDragPreviewMetadata(mimeTypes);
+	if (composition !== null) {
+		return {
+			...composition,
+			width: composition.width ?? undefined,
+			height: composition.height ?? undefined,
+			durationInFrames: composition.durationInFrames ?? undefined,
+		};
+	}
+
+	return StudioProtocolInternals.getDragPreviewMetadata(mimeTypes);
+};
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -221,12 +238,11 @@ export const Canvas: React.FC<{
 		initialZoom: number;
 	} | null>(null);
 	const keybindings = useKeybinding();
-	const confirm = useConfirmationDialog();
 	const chooseSvgImportMode = useSvgImportDialog();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
-	const {editorShowGuides} = useContext(EditorShowGuidesContext);
+	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
@@ -240,9 +256,6 @@ export const Canvas: React.FC<{
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [compositionDropPreview, setCompositionDropPreview] =
 		useState<CompositionDropPreview | null>(null);
-	const [installingElementName, setInstallingElementName] = useState<
-		string | null
-	>(null);
 	const [pendingElementInstallRequests, setPendingElementInstallRequests] =
 		useState<ElementInstallRequest[]>([]);
 	const [activeElementInstallRequest, setActiveElementInstallRequest] =
@@ -250,7 +263,6 @@ export const Canvas: React.FC<{
 	const lastFocusedAtRef = useRef<number | null>(
 		typeof document === 'undefined' || document.hasFocus() ? Date.now() : null,
 	);
-
 	const [assetResolution, setAssetResolution] = useState<AssetMetadata | null>(
 		null,
 	);
@@ -277,13 +289,15 @@ export const Canvas: React.FC<{
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
-	const canInstallElements =
+	const canReceiveElementInstallRequest =
 		previewServerClientId !== null &&
 		!window.remotion_isReadOnlyStudio &&
-		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null;
-	const canDropAssets = canInstallElements && !isAddingAsset;
+	const canInsertIntoCurrentComposition =
+		canReceiveElementInstallRequest &&
+		compositionComponentInfo?.canAddSequence === true;
+	const canDropAssets = canInsertIntoCurrentComposition && !isAddingAsset;
 	const cannotAddSequence = compositionComponentInfo?.canAddSequence === false;
 	const contentDimensions = useMemo(() => {
 		if (
@@ -688,8 +702,7 @@ export const Canvas: React.FC<{
 	useEffect(() => {
 		const resetBinding = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: '0',
-			commandCtrlKey: false,
+			action: 'resetZoom',
 			callback: onReset,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -698,8 +711,7 @@ export const Canvas: React.FC<{
 
 		const zoomIn = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: '+',
-			commandCtrlKey: false,
+			action: 'zoomIn',
 			callback: onZoomIn,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -708,8 +720,7 @@ export const Canvas: React.FC<{
 
 		const zoomOut = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: '-',
-			commandCtrlKey: false,
+			action: 'zoomOut',
 			callback: onZoomOut,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -769,16 +780,19 @@ export const Canvas: React.FC<{
 			callApi('/api/update-element-install-target', {
 				requestId,
 				clientId: previewServerClientId,
-				compositionFile: canInstallElements ? compositionFile : null,
-				compositionId: canInstallElements ? currentCompositionId : null,
-				canInstall: canInstallElements,
+				compositionFile: canReceiveElementInstallRequest
+					? compositionFile
+					: null,
+				compositionId: canReceiveElementInstallRequest
+					? currentCompositionId
+					: null,
 				lastFocusedAt: lastFocusedAtRef.current,
 				readOnly: window.remotion_isReadOnlyStudio,
 				studioUrl: window.location.href,
 			}).catch(() => undefined);
 		},
 		[
-			canInstallElements,
+			canReceiveElementInstallRequest,
 			compositionFile,
 			currentCompositionId,
 			previewServerClientId,
@@ -810,19 +824,6 @@ export const Canvas: React.FC<{
 	}, [subscribeToEvent, updateElementInstallTarget]);
 
 	useEffect(() => {
-		if (installingElementName === null) {
-			return;
-		}
-
-		const previousTitle = document.title;
-		document.title = `📦 Install ${installingElementName} - Remotion Studio`;
-
-		return () => {
-			document.title = previousTitle;
-		};
-	}, [installingElementName]);
-
-	useEffect(() => {
 		if (previewServerClientId === null) {
 			return;
 		}
@@ -835,22 +836,130 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			setPendingElementInstallRequests((requests) => [
-				...requests,
-				event.request,
-			]);
+			enqueueElementInstallRequest(event.request);
 		});
 	}, [previewServerClientId, subscribeToEvent]);
 
 	useEffect(() => {
+		const onMessage = (event: MessageEvent) => {
+			const elementLibrary = document.querySelector<HTMLIFrameElement>(
+				'iframe[data-remotion-element-library]',
+			);
+			if (
+				event.source !== elementLibrary?.contentWindow ||
+				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(event.origin)
+			) {
+				return;
+			}
+
+			const payload =
+				StudioProtocolInternals.parseStudioProtocolIframeInstallRequest(
+					event.data,
+				);
+			const responsePort = event.ports[0];
+			if (payload === null || responsePort === undefined) {
+				return;
+			}
+
+			const canInstall =
+				canReceiveElementInstallRequest &&
+				compositionFile !== null &&
+				currentCompositionId !== null &&
+				previewServerClientId !== null;
+			const request: ElementInstallRequest | null = canInstall
+				? {
+						clientId: previewServerClientId,
+						compositionFile,
+						compositionId: currentCompositionId,
+						createdAt: Date.now(),
+						element: {
+							...payload.element,
+							durationInFrames: payload.element.durationInFrames ?? null,
+							initialProps: payload.element.initialProps ?? null,
+							installationMode: payload.element.installationMode ?? null,
+						},
+						from: null,
+						id: crypto.randomUUID(),
+						position: null,
+						source: {origin: event.origin, type: 'studio-protocol'},
+					}
+				: null;
+			const result: InstallInStudioResult = canInstall
+				? {
+						success: true,
+						status: 'awaiting-confirmation',
+						target: {
+							compositionId: currentCompositionId,
+							projectName: window.remotion_projectName,
+							studioOrigin: window.location.origin,
+							studioVersion: window.remotion_version,
+						},
+					}
+				: {
+						success: false,
+						code: 'no-installable-target',
+						message:
+							'Focus a composition in a Remotion Studio that is not read-only, then try again.',
+					};
+
+			const timeout = window.setTimeout(() => responsePort.close(), 1000);
+			responsePort.onmessage = () => {
+				window.clearTimeout(timeout);
+				responsePort.close();
+				if (request !== null) {
+					enqueueElementInstallRequest(request);
+				}
+			};
+
+			responsePort.postMessage(result);
+		};
+
+		window.addEventListener('message', onMessage);
+		return () => window.removeEventListener('message', onMessage);
+	}, [
+		canReceiveElementInstallRequest,
+		compositionFile,
+		currentCompositionId,
+		previewServerClientId,
+	]);
+
+	useEffect(() => {
 		return subscribeToElementInstallRequests((request) => {
-			setPendingElementInstallRequests((requests) => [...requests, request]);
+			const isDragAndDrop = request.source.type === 'drag-and-drop';
+			const requestWithDefaults = isDragAndDrop
+				? request
+				: {
+						...request,
+						from:
+							request.from ??
+							getFromForDrop({
+								durationInFrames: request.element.durationInFrames,
+								from: getCurrentFrame(),
+								preferCompositionStart: true,
+							}),
+						position:
+							request.position ??
+							getElementPositionForDrop({
+								dimensions: request.element.dimensions,
+								dropPosition:
+									contentDimensions === null || contentDimensions === 'none'
+										? null
+										: {
+												centerX: contentDimensions.width / 2,
+												centerY: contentDimensions.height / 2,
+											},
+							}),
+					};
+			setPendingElementInstallRequests((requests) => [
+				...requests,
+				requestWithDefaults,
+			]);
 		});
-	}, []);
+	}, [contentDimensions]);
 
 	useEffect(() => {
 		if (
-			!canInstallElements ||
+			!canReceiveElementInstallRequest ||
 			compositionFile === null ||
 			currentCompositionId === null
 		) {
@@ -877,7 +986,7 @@ export const Canvas: React.FC<{
 				type: 'browser-studio-link',
 			},
 		});
-	}, [canInstallElements, compositionFile, currentCompositionId]);
+	}, [canReceiveElementInstallRequest, compositionFile, currentCompositionId]);
 
 	useEffect(() => {
 		if (
@@ -896,119 +1005,111 @@ export const Canvas: React.FC<{
 		setPendingElementInstallRequests(remainingRequests);
 	}, [activeElementInstallRequest, pendingElementInstallRequests]);
 
+	const closeElementInstallDialog = useCallback(() => {
+		setSelectedModal(null);
+		setActiveElementInstallRequest(null);
+	}, [setSelectedModal]);
+
 	useEffect(() => {
 		if (activeElementInstallRequest === null) {
 			return;
 		}
 
 		let canceled = false;
-
 		const handleInstallRequest = async () => {
-			setInstallingElementName(activeElementInstallRequest.element.displayName);
-			const preflight = await prepareElementInstall({
-				compositionFile: activeElementInstallRequest.compositionFile,
-				compositionId: activeElementInstallRequest.compositionId,
-				element: activeElementInstallRequest.element,
-			});
-			if (!preflight.success) {
-				showNotification(
-					`Could not review Element installation: ${preflight.reason}`,
-					4000,
-				);
-				return;
-			}
-
-			if (canceled) {
-				return;
-			}
-
-			const declaredDependencies = Array.from(
-				new Map(
-					activeElementInstallRequest.element.dependencies.map((dependency) => [
-						dependency.name,
-						dependency,
-					]),
-				).values(),
-			);
-			const missingPackages = getMissingPackages(declaredDependencies).map(
-				(dependency) => dependency.name,
-			);
-			const ignoredDependencies = declaredDependencies.filter(
-				(dependency) =>
-					elementInstallDependencyIgnoreList.includes(dependency.name) &&
-					!missingPackages.includes(dependency.name),
-			);
-			const dependenciesToReview = declaredDependencies
-				.filter((dependency) => !ignoredDependencies.includes(dependency))
-				.map((dependency) =>
-					dependency.version === null
-						? dependency.name
-						: `${dependency.name}@${dependency.version}`,
-				);
-			const {source} = activeElementInstallRequest;
-			const sourceLabel =
-				source.type === 'studio-protocol'
-					? source.origin
-					: source.type === 'browser-studio-link'
-						? (source.origin ?? 'Unverified Browser Studio link')
-						: 'Unverified drag-and-drop payload';
-			const sourceIsUnverified =
-				source.type === 'drag-and-drop' ||
-				(source.type === 'browser-studio-link' && source.origin === null);
-			const accepted = await confirm({
-				title: 'Install Element',
-				message: (
-					<ElementInstallConfirmation
-						displayName={activeElementInstallRequest.element.displayName}
-						sourceLabel={sourceLabel}
-						sourceIsUnverified={sourceIsUnverified}
-						compositionId={activeElementInstallRequest.compositionId}
-						filePath={preflight.plan.filePath}
-						overwritesExistingFile={preflight.plan.expectedFileState.exists}
-						dependenciesToReview={dependenciesToReview}
-						missingPackages={missingPackages}
-						sourceCode={activeElementInstallRequest.element.sourceCode}
-						usesBrowserDependencyResolution={
-							getBrowserStudioOperations() !== null
-						}
-					/>
-				),
-				confirmLabel: 'Install',
-				cancelLabel: 'Cancel',
-			});
-
-			if (accepted && !canceled) {
-				await insertElement({
-					element: activeElementInstallRequest.element,
-					compositionFile: activeElementInstallRequest.compositionFile,
-					compositionId: activeElementInstallRequest.compositionId,
-					expectedFileState: preflight.plan.expectedFileState,
-					from: activeElementInstallRequest.from,
-					position: activeElementInstallRequest.position,
-					overwriteExisting: preflight.plan.expectedFileState.exists,
-				});
-			}
-		};
-
-		handleInstallRequest()
-			.finally(() => {
+			try {
+				const [newPreflight, currentPreflight] = await Promise.all([
+					prepareElementInstall({
+						installationName: null,
+						destination: {
+							type: 'new-composition',
+							compositionFile: null,
+						},
+						element: activeElementInstallRequest.element,
+					}),
+					prepareElementInstall({
+						installationName: null,
+						destination: {
+							type: 'current-composition',
+							compositionFile: activeElementInstallRequest.compositionFile,
+							compositionId: activeElementInstallRequest.compositionId,
+						},
+						element: activeElementInstallRequest.element,
+					}),
+				]);
 				if (canceled) {
 					return;
 				}
 
-				setInstallingElementName(null);
-				setActiveElementInstallRequest(null);
-			})
-			.catch((err) => {
-				setTimeout(() => {
-					throw err;
-				}, 0);
-			});
+				if (!newPreflight.success) {
+					showNotification(
+						`Could not review Element installation: ${newPreflight.reason}`,
+						4000,
+					);
+					setActiveElementInstallRequest(null);
+					return;
+				}
 
+				const declaredDependencies = Array.from(
+					new Map(
+						activeElementInstallRequest.element.dependencies.map(
+							(dependency) => [dependency.name, dependency],
+						),
+					).values(),
+				);
+				const missingPackages = getMissingPackages(declaredDependencies).map(
+					(dependency) =>
+						dependency.version === null
+							? dependency.name
+							: `${dependency.name}@${dependency.version}`,
+				);
+				const {source} = activeElementInstallRequest;
+				const sourceLabel =
+					source.type === 'studio-protocol'
+						? source.origin
+						: source.type === 'browser-studio-link'
+							? (source.origin ?? 'Unverified Browser Studio link')
+							: 'Unverified drag-and-drop payload';
+				const sourceIsUnverified =
+					source.type === 'drag-and-drop' ||
+					(source.type === 'browser-studio-link' && source.origin === null);
+				const currentPlan = currentPreflight.success
+					? currentPreflight.plan
+					: null;
+				setSelectedModal({
+					type: 'element-install',
+					currentPlan,
+					missingPackages,
+					newPlan: newPreflight.plan,
+					onClose: closeElementInstallDialog,
+					request: activeElementInstallRequest,
+					sourceIsUnverified,
+					sourceLabel,
+				});
+			} catch (error) {
+				if (canceled) {
+					return;
+				}
+
+				showNotification(
+					`Could not review Element installation: ${
+						error instanceof Error ? error.message : String(error)
+					}`,
+					4000,
+				);
+				setActiveElementInstallRequest(null);
+			}
+		};
+
+		handleInstallRequest();
 		return () => {
 			canceled = true;
 		};
-	}, [activeElementInstallRequest, confirm]);
+	}, [
+		activeElementInstallRequest,
+		closeElementInstallDialog,
+		setSelectedModal,
+	]);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
@@ -1019,6 +1120,12 @@ export const Canvas: React.FC<{
 
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
+			const canDropElementIntoNewComposition =
+				cannotAddSequence &&
+				canReceiveElementInstallRequest &&
+				!isAddingAsset &&
+				hasElementDragType(event.dataTransfer);
+
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);
 				return;
@@ -1027,7 +1134,11 @@ export const Canvas: React.FC<{
 			event.preventDefault();
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect =
-					canDropAssets || mayBeCanvasCapture ? 'copy' : 'none';
+					canDropAssets ||
+					canDropElementIntoNewComposition ||
+					mayBeCanvasCapture
+						? 'copy'
+						: 'none';
 			}
 
 			if (
@@ -1039,46 +1150,60 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+			const metadata = getCanvasDragPreviewMetadata(
 				event.dataTransfer?.types ?? [],
 			);
 			if (
 				(metadata?.type !== 'composition' && metadata?.type !== 'element') ||
-				metadata.width === undefined ||
-				metadata.height === undefined
+				(metadata.type === 'composition' &&
+					(metadata.width === undefined || metadata.height === undefined))
 			) {
 				setCompositionDropPreview(null);
 				return;
 			}
 
-			let dropPosition = getDropPosition({
-				addFitPadding,
-				clientX: event.clientX,
-				clientY: event.clientY,
-				contentDimensions,
-				unbounded: metadata.type === 'composition',
-				previewSize,
-				size,
-			});
+			const isFullscreenElement =
+				metadata.type === 'element' &&
+				(metadata.width === undefined || metadata.height === undefined);
+			let dropPosition = isFullscreenElement
+				? {
+						centerX: contentDimensions.width / 2,
+						centerY: contentDimensions.height / 2,
+					}
+				: getDropPosition({
+						addFitPadding,
+						clientX: event.clientX,
+						clientY: event.clientY,
+						contentDimensions,
+						unbounded: metadata.type === 'composition',
+						previewSize,
+						size,
+					});
 			if (dropPosition === null) {
 				setCompositionDropPreview(null);
 				return;
 			}
 
-			const compositionDimensions = {
-				width: metadata.width,
-				height: metadata.height,
-			};
+			const compositionDimensions =
+				metadata.width === undefined || metadata.height === undefined
+					? contentDimensions
+					: {width: metadata.width, height: metadata.height};
+			let snapPoints: CompositionDropPreview['snapPoints'] = [];
 			if (
-				metadata.type === 'composition' &&
+				!isFullscreenElement &&
 				editorSnapping &&
 				!event.metaKey &&
 				!event.ctrlKey
 			) {
-				dropPosition = snapCompositionDropPosition({
+				const snapped = snapCompositionDropPosition({
 					compositionDimensions,
 					destinationDimensions: contentDimensions,
 					dropPosition,
+					guides: editorShowGuides
+						? guidesList.filter(
+								(guide) => guide.compositionId === currentCompositionId,
+							)
+						: [],
 					scale: calculateCanvasScale({
 						addFitPadding,
 						canvasSize: size,
@@ -1087,6 +1212,8 @@ export const Canvas: React.FC<{
 						previewSize: previewSize.size,
 					}),
 				});
+				dropPosition = snapped.dropPosition;
+				snapPoints = snapped.snapPoints;
 			}
 
 			setCompositionDropPreview((currentPreview) => {
@@ -1096,23 +1223,34 @@ export const Canvas: React.FC<{
 					currentPreview.compositionDimensions.height ===
 						compositionDimensions.height &&
 					currentPreview.dropPosition.centerX === dropPosition.centerX &&
-					currentPreview.dropPosition.centerY === dropPosition.centerY
+					currentPreview.dropPosition.centerY === dropPosition.centerY &&
+					currentPreview.snapPoints.length === snapPoints.length &&
+					snapPoints.every((snapPoint, index) => {
+						const currentPoint = currentPreview.snapPoints[index];
+						return (
+							currentPoint.edge === snapPoint.edge &&
+							currentPoint.target.type === snapPoint.target.type &&
+							currentPoint.target.position === snapPoint.target.position
+						);
+					})
 				) {
 					return currentPreview;
 				}
 
-				return {
-					compositionDimensions,
-					dropPosition,
-				};
+				return {compositionDimensions, dropPosition, snapPoints};
 			});
 		},
 		[
 			addFitPadding,
 			canDropAssets,
 			cannotAddSequence,
+			canReceiveElementInstallRequest,
 			contentDimensions,
+			currentCompositionId,
+			editorShowGuides,
 			editorSnapping,
+			guidesList,
+			isAddingAsset,
 			previewSize,
 			size,
 		],
@@ -1173,18 +1311,24 @@ export const Canvas: React.FC<{
 				}
 			}
 
-			if (cannotAddSequence) {
+			const canDropElementIntoNewComposition =
+				cannotAddSequence &&
+				canReceiveElementInstallRequest &&
+				!isAddingAsset &&
+				getElementDragData(event.dataTransfer) !== null;
+
+			if (cannotAddSequence && !canDropElementIntoNewComposition) {
 				event.preventDefault();
 				event.stopPropagation();
 				showNotification(
-					'Cannot insert items into this composition component',
+					'Cannot insert this item: This composition component cannot accept a new <Sequence>.',
 					3000,
 				);
 				return;
 			}
 
 			if (
-				!canDropAssets ||
+				(!canDropAssets && !canDropElementIntoNewComposition) ||
 				compositionFile === null ||
 				currentCompositionId === null ||
 				config === null
@@ -1205,7 +1349,7 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const metadata = StudioProtocolInternals.getDragPreviewMetadata(
+				const metadata = getCanvasDragPreviewMetadata(
 					event.dataTransfer?.types ?? [],
 				);
 				const isComposition = metadata?.type === 'composition';
@@ -1220,7 +1364,7 @@ export const Canvas: React.FC<{
 				});
 				if (
 					dropPosition !== null &&
-					isComposition &&
+					(metadata?.type === 'composition' || metadata?.type === 'element') &&
 					metadata.width !== undefined &&
 					metadata.height !== undefined &&
 					contentDimensions !== null &&
@@ -1236,6 +1380,11 @@ export const Canvas: React.FC<{
 						},
 						destinationDimensions: contentDimensions,
 						dropPosition,
+						guides: editorShowGuides
+							? guidesList.filter(
+									(guide) => guide.compositionId === currentCompositionId,
+								)
+							: [],
 						scale: calculateCanvasScale({
 							addFitPadding,
 							canvasSize: size,
@@ -1243,7 +1392,7 @@ export const Canvas: React.FC<{
 							compositionWidth: contentDimensions.width,
 							previewSize: previewSize.size,
 						}),
-					});
+					}).dropPosition;
 				}
 
 				await handleDrop({
@@ -1267,12 +1416,16 @@ export const Canvas: React.FC<{
 			addFitPadding,
 			canDropAssets,
 			cannotAddSequence,
+			canReceiveElementInstallRequest,
 			chooseSvgImportMode,
 			compositionFile,
 			config,
 			contentDimensions,
 			currentCompositionId,
+			editorShowGuides,
 			editorSnapping,
+			guidesList,
+			isAddingAsset,
 			previewSize,
 			size,
 			setSelectedModal,
@@ -1441,6 +1594,62 @@ export const Canvas: React.FC<{
 				zIndex: 1,
 			};
 		}, [compositionDropPreview, contentDimensions, previewSize, size]);
+	const compositionDropSnapLines = useMemo(() => {
+		if (
+			compositionDropPreview === null ||
+			compositionDropPreview.snapPoints.length === 0 ||
+			contentDimensions === null ||
+			contentDimensions === 'none'
+		) {
+			return null;
+		}
+
+		const scale = calculateCanvasScale({
+			addFitPadding,
+			canvasSize: size,
+			compositionHeight: contentDimensions.height,
+			compositionWidth: contentDimensions.width,
+			previewSize: previewSize.size,
+		});
+		const left =
+			size.width / 2 -
+			(contentDimensions.width * scale) / 2 -
+			previewSize.translation.x;
+		const top =
+			size.height / 2 -
+			(contentDimensions.height * scale) / 2 -
+			previewSize.translation.y;
+
+		return (
+			<svg
+				aria-hidden="true"
+				data-testid="canvas-drop-snap-lines"
+				style={{
+					position: 'absolute',
+					left,
+					top,
+					width: contentDimensions.width * scale,
+					height: contentDimensions.height * scale,
+					pointerEvents: 'none',
+					overflow: 'visible',
+					zIndex: 2,
+				}}
+			>
+				<SelectedOutlineSnapLines
+					compositionHeight={contentDimensions.height}
+					compositionWidth={contentDimensions.width}
+					scale={scale}
+					snapPoints={compositionDropPreview.snapPoints}
+				/>
+			</svg>
+		);
+	}, [
+		addFitPadding,
+		compositionDropPreview,
+		contentDimensions,
+		previewSize,
+		size,
+	]);
 
 	return (
 		<>
@@ -1461,6 +1670,7 @@ export const Canvas: React.FC<{
 						style={compositionDropPreviewStyle}
 					/>
 				)}
+				{compositionDropSnapLines}
 				{isFit ? null : (
 					<div style={resetZoom} className="css-reset">
 						<ResetZoomButton onClick={onReset} />

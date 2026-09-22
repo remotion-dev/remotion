@@ -6,9 +6,12 @@ crumb: 'License and terms'
 description: Frequently asked questions about Remotion licensing, pricing, renders, and compliance.
 ---
 
-### What is Remotion?
+On this page, we answer some common questions about our license.  
+If you need any clarification, send an email to hi@remotion.dev.
 
-Remotion is a React-based technology for programmatic video creation. It lets you build videos with code, AI agents, or manual edits; preview and refine them in the browser; and render them locally, client-side, or in the cloud. If you want to learn about Remotion itself first, start with [The Fundamentals](/docs/the-fundamentals).
+See the [Terms and Conditions](/docs/terms) for the full definitions.
+
+## Free License vs. Company License
 
 ### Who is eligible for the Free License?
 
@@ -21,75 +24,69 @@ You are eligible to use Remotion for free if you are:
 
 [Contact us](/contact) in case you need confirmation if your use case is acceptable.
 
-### Is Remotion open-source?
+### Does the Free License have restrictions in functionality?
 
-No. Remotion is source-available software, but it is not open-source software according to the [Open Source Initiative's Open Source Definition](https://opensource.org/osd).
+No. There is no difference in functionality between the Free License and Company License.
 
-The Remotion source code is publicly available, but its use is governed by the proprietary [Remotion License](/docs/license/pricing), which includes conditions that are not part of OSI-approved open-source licenses.
+### What do I have to do to use the Free License?
+
+If you are eligible, simply [get started](/docs)!
+
+You don't have to contact us to use Remotion under the Free License.  
+You also don't have to sign up on remotion.pro to use the Free License.
+
+But if you are unsure, don't hesitate to contact us and we are happy to clarify your license situation.
 
 ### Why is Remotion free for some and paid for others?
 
-The Remotion project works similarly as many open source projects, in that way, that the code is openly available on GitHub and that individuals use it freely and contribute back. But to pay for the time that it takes to maintain such an ambitious project, we need to generate money. This is also good for you: You get regular updates, good support, motivated maintainers and an overall healthy product. By separating individuals and companies, we are charging those who are most able to afford it.
+We run the Remotion project in spirit like many open source projects: the code is openly available on GitHub, we accept contributions and it is free for most people.
 
-### What is the difference in functionality between the free and paid version?
+But to pay for the time that it takes to maintain such an ambitious project, we need to generate money.  
+By separating individuals and companies, we are charging those who are able to afford it.  
+This is good for you: You get regular updates, good support, motivated maintainers and an overall healthy product.
 
-There is no difference between the free and paid version.
+### Can single-person companies use the Free License?
 
-We discriminate the price of the same software for various users: Remotion is free for individuals and small organizations, but paid for bigger organizations.
+Yes. Even if you are incorporated, you can operate under the Free License, as long as your total headcount is 3 or less. You don't need a Company License for it.
 
-### Does a Remotion license cover codec patent fees?
+### Can I make money under the Free License?
 
-No. A Remotion license covers your use of Remotion only. It does not include a license to third-party patents, such as patents relating to codecs like H.264/AVC, HEVC or AAC. Depending on your use case and jurisdiction, you may need additional licenses or need to pay royalties. It is your responsibility to determine whether these requirements apply to you.
+Yes. There are only a couple of [small commercial restrictions](#what-kind-of-commercial-use-is-allowed) which are in place for everybody.  
+There is no difference between the Free License and Company License when it comes to commercial usage.
 
-See the [Terms and Conditions](/docs/terms#ThirdPartyRights) for the full terms and the [FFmpeg license](/docs/miscellaneous/ffmpeg-license) page for the third-party software that Remotion redistributes.
+### Can I run an automation under the Free License?
 
-### What does prioritized support mean?
+Yes. In the following sections on this page, we discuss the "Remotion for Automators" plan, but it only applies to the Company License.  
+If you are eligible for the Free License, you can also run an automation.
 
-Support is provided on a best-effort basis, but we will respond first to people who own a company license. We try to reply and help everybody who files an issue or contacts us. We recommend to ask questions or get help in public channels such as GitHub Issues or Discord whenever possible where community members also have the chance to reply. See our [Support Policy](/docs/support) for more details.
+## Company License
 
-### How is commercial use allowed?
+### Do I need to buy a license?
 
-Any commercial use case is allowed as long as you are not selling Remotion as a product itself or allowing people to circumvent cases where they would have to buy a license themselves.
+See [above](#who-is-eligible-for-the-free-license) whether you are eligible for the Free License.
 
-Example of an accepted use case:
-Allowing users to create and render their own personalized video based on your Remotion template.
+If you are, you don't need to buy a license - even if you set up an automation, launch a SaaS, or are using it commercially.
 
-Example of an unacceptable use case:
-Allowing users to submit any Remotion video, meaning a Remotion project, to your server for rendering.
+If you are not eligible for the Free License, you need to buy a Company License.
 
-### What is the difference between Remotion for Creators and Remotion for Automators?
+### How do I buy a Company License?
 
-The Company License is available in two options, which can be combined or purchased individually:
+You can buy a Company License under [remotion.pro/license](https://remotion.pro/license).
 
-- **Remotion for Creators** is for organizations creating low-volume videos for themselves using Remotion, without setting up an automation. It is priced at $25 per Seat per month, with no minimum number of Seats and no Minimum Spend when purchased alone. A Seat covers one person who writes Remotion code themselves or uses agentic coding tools.
-- **Remotion for Automators** is for organizations building automations such as video editors, prompt-to-video tools, automated video pipelines, embedding the [Remotion Player](/docs/player), or any other type of automation. It is priced at $0.01 per [Render](#how-is-1-render-defined), with a Minimum Spend of $100 per month. Developers working on automation projects do not require a Seat.
+### How much does a Company License cost?
 
-When both options are activated at the same time, a combined Minimum Spend of $100 per month applies, and spending on Seats counts towards this Minimum Spend.
+We distinguish 2 cases:
 
-See the [Terms and Conditions](/docs/terms) for the full definitions.
+- **Remotion for Creators** is for organizations wanting to produce videos without setting up an [automation](#what-is-considered-an-automation).  
+  It costs $25/month per person who writes Remotion code themselves or using agentic coding tools.
+- **Remotion for Automators** is for organizations building [automations](#what-is-considered-an-automation).  
+  It costs $0.01 per [render](#how-is-1-render-defined), with a minimum spend of $100/month.
 
-### What is telemetry and is it mandatory?
+Both options can be activated, a combined minimum spend of $100 per month applies.
 
-Telemetry is a reporting mechanism that sends a small, anonymized event to Remotion each time a render is performed. It is implemented through the [`@remotion/licensing`](/docs/licensing) package and is described in detail on the [Telemetry](/docs/telemetry) page.
+Developers working on automations do not require a "Remotion for Creators" seat.
 
-Telemetry never throttles, blocks, or fails renders - even if the telemetry request itself fails, renders still complete successfully.
-
-Telemetry is used to ensure accountability, and to provide you with insights into your own rendering activity in the Remotion Dashboard.
-
-The information collected is limited to:
-
-- IP address of the machine triggering the render
-- Domain name (for [client-side rendering](/docs/client-side-rendering) only)
-- Whether the render was in production or development
-- Whether the render was a video or a still image
-
-No content, metadata, or user data from the rendered media is ever collected. See the [Telemetry](/docs/telemetry#sent-information) and [Terms](/docs/terms#Telemetry) pages for the full details, and the [DPA Statement](/docs/dpa) for Remotion's role as an independent controller.
-
-**Who telemetry is mandatory for:** Starting with the Remotion 5.0 release, telemetry becomes mandatory for Company License Users and Enterprise License Users under the "Remotion for Automators" option. These users must obtain a license key from [remotion.pro](https://www.remotion.pro/dashboard) and include it in their rendering configuration so that each render is reported. Telemetry is also mandatory for everyone using [client-side rendering](/docs/client-side-rendering): a telemetry event is always sent for every render, even without a `licenseKey`, regardless of license type or whether the render is part of an [automation process](#what-is-considered-an-automation). The event is solely used to verify that Remotion is being used; no content, metadata, or user data from the rendered media is collected.
-
-**Who telemetry is voluntary for:** Telemetry is voluntary for Free License Users and for companies under the "Remotion for Creators" option. For server-side rendering, these users control whether telemetry is sent: a telemetry event is only sent when a `licenseKey` is set, so omitting it means no telemetry is sent. Free License Users can pass `"free-license"` to the `licenseKey` option to declare their eligibility for the Free License and disable a console warning.
-
-If you are unable to activate telemetry due to firewall restrictions, corporate policies, or other technical limitations, you must provide Remotion with a monthly verifiable report of your rendering activity as an alternative. Please [contact us](/contact) as this requires an Enterprise License and a custom agreement.
+Use our [Pricing Calculator](/docs/license/pricing) to see how much a Company License costs for you.
 
 ### What is considered an automation?
 
@@ -114,27 +111,91 @@ An automation is defined as owning code that programmatically calls one of the f
 - [`npx remotion cloudrun still`](/docs/cloudrun/cli/still)
 - [`<Player>`](/docs/player/player)
 
-### How is 1 Render defined?
+In practice, organizations building video editors, prompt-to-video tools, automated video pipelines or using the [Remotion Player](/docs/player) will fall under Remotion for Automators.
 
-1 Render is the successful generation of a video, audio, GIF, PDF or still image.
+### How is 1 render defined?
+
+1 render is the successful generation of a video, audio, GIF, still image or PDF.
 
 Previews in the [Remotion Studio](/docs/studio) or [Remotion Player](/docs/player) do not count as Renders.
 
 ### When do I need to purchase Renders?
 
-If you require a Company License and are building an automation, your use case falls under Remotion for Automators and requires you to purchase Renders.
+You only need to pay per render if you are required to license "Remotion for Automators".  
+If you are eligible for the Free License or "Remotion for Creators", you don't need to pay per render.
 
-If you qualify for the Free License and are building an automation, then you do not have to purchase Renders.
+### For how long do I need to maintain my license?
 
-Low-volume video production, such as rendering locally or one-off renders on a server, fall under the Remotion for Creators option and do not require purchasing Renders.
+**Remotion for Creators**:  
+You need to have at least 1 seat active as long as you are using Remotion to render videos.  
+Of course you remain the right to use your produced videos even after you cancel your license.
 
-### Can I use an LLM to generate Remotion code on behalf of a user?
+**Remotion for Automators**:  
+You must maintain an active license while you are considered running an automation.  
+Once you fully stop running this automation, you may cancel your license at any time.
 
-Yes, it is allowed to build a service that generates Remotion code using artificial intelligence and renders it. Allowing end-users to edit the Remotion code is also permitted if the code was initially generated by your service.
+### Are there benefits of the Company License?
 
-However, it is not allowed to let users bring or upload their own Remotion code to your service for rendering.
+There are no special features that you unlock through the Company License.  
+It is simply a requirement for organizations of a certain size.
 
-See the [Terms and Conditions](/docs/terms#RenderingService) for the full policy on rendering services.
+We do however respond first to people who own a Company License.  
+Your team members can enter their Discord username after purchasing a license, giving them a tag on Discord and access to a private `#customers` channel, which will signal to us that you are a holder of the Company License.  
+See our [Support Policy](/docs/support) for more details.
+
+## Enterprise License
+
+### What is the Enterprise License?
+
+It is an elevated version of the Company License which will make us do extra things for you. For example:
+
+- Agree to customizations of terms and pricing
+- Put our signature on agreements
+- Fill out vendor onboarding, compliance forms and any other form of paperwork
+- Private support channel with the Remotion team on Slack or Discord
+- Move off our self-serve licensing platform on remotion.pro
+- Highest feature request consideration if the current API does not suffice
+
+These things are overhead for us, so we only do them under the Enterprise License which has a higher minimum.
+
+### How much does an Enterprise License cost?
+
+As a baseline, the cost is the same as a Company License, but with a minimum spend of $500 (instead of $100).  
+We may quote you a higher price if the requirements you have to lead to more effort, risk or resources being taken on our side.  
+On the Enterprise License level, we are considering custom pricing suggestions to fit your use case.
+
+### What are the benefits of the Enterprise License?
+
+With the Enterprise License, you:
+
+- can propose customizations of terms and pricing
+- get us to fill out paperwork
+- can obtain a formalized signed agreement from us
+- get a monthly consulting session with an engineer from the Remotion team
+- have a direct support channel with the Remotion team at the highest priority
+- have higher influence on Remotion's roadmap
+- get the [Editor Starter](/docs/editor-starter) for free
+
+Our Enterprise License subscribers are considered our partners and we are especially concerned with their success.  
+Often we also actively reach out to them to notify them about new improvements and suggestions for how they specifically can get the most out of Remotion.
+
+### How do I buy an Enterprise License?
+
+You can buy it through [remotion.pro/license](https://remotion.pro/license), our self-serve platform.
+
+But since most Enterprise Licenses are about forming a partnership and potential customizations of the terms, most interested companies are contacting us first at hi@remotion.dev or by [booking a call](https://cal.com/remotion).
+
+## Allowed use cases
+
+### What kind of commercial use is allowed?
+
+Any commercial use case is allowed as long as you are not selling Remotion as a product itself or allowing people to circumvent cases where they would have to buy a license themselves.
+
+Example of an accepted use case:
+Allowing users to create and render their own personalized video based on your Remotion template.
+
+Example of an unacceptable use case:
+Allowing users to submit any Remotion video, meaning a Remotion project, to your server for rendering.
 
 ### We are an agency making videos for a client. Do we need a license?
 
@@ -148,50 +209,70 @@ It depends on whether your client receives only the finished video, or whether t
 
 See the [Terms and Conditions](/docs/terms#Partnerships) for the formal definitions.
 
-### We require a purchase order process or a vendor onboarding. Do you do this?
+### Can I use an LLM to generate Remotion code on behalf of a user?
 
-Filling out compliance forms, introducing additional commitments and skipping our [licensing platform](https://www.remotion.pro/login) for license management, such as billing and payment, requires an Enterprise License. Please [contact us](/contact) if you would like to discuss a custom agreement.
+Yes, it is allowed to build a service that generates Remotion code using artificial intelligence and renders it.  
+Your customers can be other companies and they don't need to have a Company License.
 
-### What are the benefits of having an Enterprise License?
+Allowing end-users to edit the Remotion code is also permitted if the code was initially generated by your service.  
+However, it is **not allowed to let users bring or upload their own Remotion code** to your service for rendering.
 
-The Enterprise License is suited for teams with needs that go beyond the standard Company License. It includes:
+See the [Terms and Conditions](/docs/terms#RenderingService) for the full policy on rendering services.
 
-- **Custom pricing for high render volume**: For especially high render volumes where standard per-render pricing no longer fits, we offer custom pricing.
-- **Vendor onboarding and compliance**: We complete vendor onboarding and comply with your vendor policies, including any off-platform license management and custom billing needs.
-- **Closer collaboration and priority support**: Work directly with the Remotion team through a private Slack or Discord channel, with the highest priority support.
-- **Feature request consideration**: Your feature requests are considered for inclusion in the product roadmap.
-- **Access to the Remotion Editor Starter**: Get access to the [Remotion Editor Starter](/docs/editor-starter) so you don't have to start from scratch when you want to create a web video editor.
+## Telemetry
 
-### Can we use Remotion in a serverless architecture?
+### How does Remotion know how many videos we render?
 
-Yes. You can use a solution such as Remotion Lambda to render a video serverlessly. Rendering a media file this way counts as a [Render](#how-is-1-render-defined).
+On the "Remotion for Automators" plan, it is your responsibility to continuously ensure your license covers the amount of renders you do per month. You can update the amount of renders on your remotion.pro dashboard.
 
-### What if these licensing plans don't fit our use case?
+We may use telemetry to ensure customers' licenses cover their usage (see next question).
 
-You can [contact us](/contact) if you would like to discuss a custom agreement.
+### Does Remotion have telemetry?
 
-### What is the difference between remotion.dev and remotion.pro?
+For client-side rendering, there is telemetry enabled by default which cannot be disabled.  
+Through this, we see which domains render how many videos and will routinely reach out for sales and upsells if we see that Remotion is not properly licensed.  
+See: [Telemetry in client-side rendering](/docs/telemetry#telemetry-in-client-side-rendering)
 
-Remotion operates two main websites, both run by Remotion AG:
+For server-side rendering, there is no automatic telemetry.  
+Because of accountability problems, we are making a change to our license and terms in Remotion 5.0 to make telemetry mandatory for "Remotion for Automators" customers.  
+See: [Telemetry](/docs/telemetry)
 
-- **[remotion.dev](https://www.remotion.dev/)** is the Remotion documentation and project site, where you find docs, examples, and templates. It is where you learn about and explore Remotion.
-- **[remotion.pro](https://www.remotion.pro/)** is the Remotion licensing platform. It hosts the [Remotion Dashboard](https://www.remotion.pro/login) for managing your Company License, billing, Seats, and Renders, the [Remotion Store](https://www.remotion.pro/store) for buying digital products, and the license key used for render telemetry.
+Telemetry in server-side rendering remains voluntary for Free License users and for companies under the "Remotion for Creators" option.
 
-You only need an account on remotion.pro if you require a [Company License](/docs/license/pricing) or want to buy digital products in the Remotion Store. The legal documents in this section (e.g., [Terms and Conditions](/docs/terms), [Privacy Policy](/docs/privacy), [DPA](/docs/dpa) and [DPIA Statement](/docs/dpia)) are published on remotion.dev for easy access, but where they refer to the licensing platform, the Store, or the Dashboard, they concern remotion.pro.
+### What if I cannot enable telemetry due to organization policy?
+
+If you are unable to activate telemetry due to firewall restrictions, corporate policies, or other technical limitations, you must provide Remotion with a monthly verifiable report of your rendering activity as an alternative.  
+Please [contact us](/contact) if this applies to you.
+
+## Procurement
 
 ### How do I sign up for a Remotion license/account?
 
-Signing up is only required if you fall under the requirements of the [Company License](/docs/license/pricing). If you are eligible for the Free License, you do not need an account.
+Signing up is only required if you fall under the requirements of the [Company License](/docs/license/pricing).  
+If you are [eligible for the Free License](#who-is-eligible-for-the-free-license), you do not need an account.
 
 To create an account:
 
 1. Go to the Remotion licensing platform at [remotion.pro/license](https://www.remotion.pro/license).
 2. Create an account using either email, Google, or GitHub.
-3. Once signed up, create a new project/workspace associated with your account. You will be asked to link the project to your company and use case.
-4. After the project/workspace is created, configure your license according to your use case and expected usage.
+3. Once signed up, create a new project associated with your account.  
+   You will be asked to link the project to your company and use case.
+4. After the project is created, configure your license according to your use case and expected usage.
 5. Invite team members to the project so they can help manage the license.
+6. Set up the telemetry based on the instructions if you obtained "Remotion for Automators".
 
-Holding a Company License also comes with perks such as **priority support** and access to **Remotion templates**, which are available through the licensing platform within your created project.
+### What is the difference between remotion.dev and remotion.pro?
+
+Remotion AG operates two websites:
+
+- [remotion.dev](https://www.remotion.dev/) is the Remotion documentation and project site, where you find docs, examples, and templates.  
+  It is where you learn about and explore Remotion.
+- [remotion.pro](https://www.remotion.pro/) is the Remotion licensing platform.  
+  It hosts the [Remotion Dashboard](https://www.remotion.pro/login) for managing your Company License (seats, team members, renders, billing, perks, telemetry) and the [Remotion Store](https://www.remotion.pro/store) for buying products like the Editor Starter.
+
+You only need an account on remotion.pro if you require a [Company License](/docs/license/pricing) or want to buy products in the Remotion Store.
+
+The legal documents in this section (e.g., [Terms and Conditions](/docs/terms), [Privacy Policy](/docs/privacy), [DPA](/docs/dpa) and [DPIA Statement](/docs/dpia)) are published on remotion.dev for easy access, but where they refer to the licensing platform, the Store, or the Dashboard, they concern remotion.pro.
 
 ### How can I sign up for an account on remotion.pro?
 
@@ -203,12 +284,6 @@ You can sign up for an account on [remotion.pro](https://www.remotion.pro/) usin
 
 If you signed up using email, you can link your Remotion account to Google or GitHub in your [account settings](https://www.remotion.pro/settings) for a smoother login experience.
 
-### Where is my Remotion project hosted?
-
-You have to set up your own infrastructure by either using cloud services (e.g., AWS, Google Cloud, or Azure), setting up your own on-premise infrastructure or using client-side rendering.
-
-Acquiring [Renders](#how-is-1-render-defined) refers to the permission to use Remotion to render media programmatically in an automated way. However, it does not include the costs of any cloud services you might be using to render your media.
-
 ### What if we go beyond the usage my license allows?
 
 If you go beyond the render limit of your license, you can increase the number of renders at any time in your Remotion Dashboard, and the price will be prorated for the current period and included in your next invoice. We expect that you make those adjustments in the Remotion Dashboard within 30 days after you have exceeded your limit.
@@ -219,7 +294,7 @@ The same applies to the number of Seats, if you onboarded more Creators than you
 
 There are no refunds because you can already evaluate Remotion before using it commercially.
 
-### Can we upgrade / downgrade / cancel / get a receipt?
+### Can we upgrade / downgrade / cancel / get an invoice?
 
 Your [Remotion Dashboard](https://www.remotion.pro/login) allows you to do all of these without having to contact a human.
 
@@ -227,10 +302,26 @@ Your [Remotion Dashboard](https://www.remotion.pro/login) allows you to do all o
 
 We use Stripe as a payment service. It accepts all major payment methods.
 
-### For how long do I need to maintain my license?
+### We require a purchase order process or a vendor onboarding. Do you do this?
 
-Remotion for Creators:
-You need to have at least 1 Seat active as long as you are using Remotion to render videos, either locally or as one-off renders on a server.
+Filling out compliance forms, introducing additional commitments and skipping our [licensing platform](https://www.remotion.pro/login) for license management, such as billing and payment, requires an Enterprise License. Please [contact us](/contact) if you would like to discuss a custom agreement.
 
-Remotion for Automators:
-You must maintain an active license while working on a Remotion project or rendering videos through your automation. Once you stop rendering videos and no longer use Remotion in any other capacity, such as the Remotion Player, you may cancel your license.
+## Legal
+
+### Is Remotion open source?
+
+Remotion is source-available software, but it is not open source software according to the [Open Source Initiative's Open Source Definition](https://opensource.org/osd).
+
+The Remotion source code is publicly available, but its use is governed by the proprietary [Remotion License](/docs/license/pricing), which includes conditions that are not part of OSI-approved open source licenses.
+
+### Does a Remotion license cover codec patent fees?
+
+No. A Remotion license covers your use of Remotion only. It does not include a license to third-party patents, such as patents relating to codecs like H.264/AVC, HEVC or AAC. Depending on your use case and jurisdiction, you may need additional licenses or need to pay royalties. It is your responsibility to determine whether these requirements apply to you.
+
+See the [Terms and Conditions](/docs/terms#ThirdPartyRights) for the full terms and the [FFmpeg license](/docs/miscellaneous/ffmpeg-license) page for the third-party software that Remotion redistributes.
+
+### Where is my Remotion project hosted?
+
+We don't host Remotion for you. Remotion is a self-hosted product and licensing gives you permission to use it, but Remotion is not a hosted service.
+
+You have to set up your own infrastructure in the cloud, setting up your own on-premise infrastructure or just using Remotion locally.

@@ -2,17 +2,21 @@ import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import {useContext, useEffect, useMemo, useRef} from 'react';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
+	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
-import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
+import {
+	acquireSequencePropsSubscription,
+	subscribeToSequencePropsRefresh,
+} from './sequence-props-subscription-store';
 import {shouldSubscribeToSourceFile} from './should-subscribe-to-source-file';
 
 export const useSequencePropsSubscription = ({
@@ -23,6 +27,7 @@ export const useSequencePropsSubscription = ({
 	effects,
 	preferMappedNodePath,
 	stack,
+	videoConfigValues,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
@@ -31,6 +36,7 @@ export const useSequencePropsSubscription = ({
 	originalLocation: OriginalPosition | null;
 	preferMappedNodePath: boolean;
 	stack: string | null;
+	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
@@ -44,12 +50,11 @@ export const useSequencePropsSubscription = ({
 	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const [refreshToken, setRefreshToken] = useState(0);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
-	const videoConfig = Internals.useUnsafeVideoConfig();
-
 	const effectsSignature = useMemo(
 		() =>
 			effects.map((effect) => getAllSchemaKeys(effect).join('\0')).join('\0\0'),
@@ -77,6 +82,12 @@ export const useSequencePropsSubscription = ({
 	const locationColumn = validatedLocation?.column ?? null;
 
 	useEffect(() => {
+		return subscribeToSequencePropsRefresh(overrideId, () => {
+			setRefreshToken((token) => token + 1);
+		});
+	}, [overrideId]);
+
+	useEffect(() => {
 		if (
 			!clientId ||
 			!locationSource ||
@@ -84,7 +95,7 @@ export const useSequencePropsSubscription = ({
 			!locationLine ||
 			locationColumn === null ||
 			!schema ||
-			videoConfig === null
+			videoConfigValues === null
 		) {
 			return;
 		}
@@ -104,12 +115,7 @@ export const useSequencePropsSubscription = ({
 				: null,
 			clientId,
 			stack,
-			videoConfigValues: {
-				durationInFrames: videoConfig.durationInFrames,
-				fps: videoConfig.fps,
-				height: videoConfig.height,
-				width: videoConfig.width,
-			},
+			videoConfigValues,
 			applyOnce: (result) => {
 				if (!result.success) {
 					return;
@@ -160,10 +166,11 @@ export const useSequencePropsSubscription = ({
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
 		preferMappedNodePath,
+		refreshToken,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,
 		stack,
-		videoConfig,
+		videoConfigValues,
 	]);
 };

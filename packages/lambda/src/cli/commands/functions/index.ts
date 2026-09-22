@@ -4,12 +4,13 @@ import type {LogLevel} from '@remotion/renderer';
 import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
 import {AwsProvider} from '../../../client';
 import {quit} from '../../helpers/quit';
+import {FUNCTIONS_COMMAND} from '../command-names';
 import {FUNCTIONS_DEPLOY_SUBCOMMAND, functionsDeploySubcommand} from './deploy';
 import {FUNCTIONS_LS_SUBCOMMAND, functionsLsCommand} from './ls';
 import {FUNCTIONS_RM_SUBCOMMAND, functionsRmCommand} from './rm';
 import {FUNCTIONS_RMALL_SUBCOMMAND, functionsRmallCommand} from './rmall';
 
-export const FUNCTIONS_COMMAND = 'functions';
+export {FUNCTIONS_COMMAND} from '../command-names';
 
 const printFunctionsHelp = (logLevel: LogLevel) => {
 	CliInternals.Log.info(

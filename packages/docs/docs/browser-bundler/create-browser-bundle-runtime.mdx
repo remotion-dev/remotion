@@ -1,0 +1,109 @@
+---
+image: /generated/articles-docs-browser-bundler-create-browser-bundle-runtime.png
+title: createBrowserBundleRuntime()
+crumb: '@remotion/browser-bundler'
+---
+
+# createBrowserBundleRuntime()<AvailableFrom v="4.0.527" />
+
+Load a virtual Remotion project once and apply later edits through Rspack hot updates and React Fast Refresh. Import it from `@remotion/browser-bundler/runtime`.
+
+:::warning
+
+*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+This API executes trusted code only. Neither the runtime nor a same-origin preview iframe is a security sandbox.
+
+## Preview setup
+
+React Fast Refresh requires development builds of React and React DOM. Keep this renderer in an isolated preview iframe when the surrounding editor uses production React.
+
+Install `react-refresh@0.18.0` as a direct dependency of the preview app. Serve the iframe with the same [cross-origin isolation headers](/docs/browser-bundler#browser-setup) as the editor.
+
+Bundle the preview separately with `process.env.NODE_ENV` fixed to `'development'`, including its React, React DOM, Remotion, and Player dependencies. Initialize React Refresh before importing code that loads React DOM:
+
+```js title="preview-entry.js"
+import RefreshRuntime from 'react-refresh/runtime';
+
+RefreshRuntime.injectIntoGlobalHook(globalThis);
+
+import('./preview.js');
+```
+
+Keep the iframe, its React root, and its Player mounted across edits. Recreating the document or giving the Player a new `key` on each compilation loses the state that Fast Refresh preserves.
+
+Create the compiler with [`enableFastRefresh: true`](/docs/browser-bundler/create-browser-bundler#enablefastrefresh), and pass its bundles to the preview runtime:
+
+```ts twoslash title="Applying bundles in preview.ts"
+// @moduleResolution: bundler
+import type {BrowserBundle} from '@remotion/browser-bundler';
+import type {BrowserComposition} from '@remotion/browser-bundler/runtime';
+declare const bundle: BrowserBundle;
+declare const updatePlayer: (composition: BrowserComposition) => void;
+declare const showError: (error: Error) => void;
+// ---cut---
+import {
+  createBrowserBundleRuntime,
+  createBrowserCompositionObserver,
+} from '@remotion/browser-bundler/runtime';
+
+const runtime = createBrowserBundleRuntime();
+const observer = createBrowserCompositionObserver({
+  onChange: updatePlayer,
+  onError: showError,
+});
+
+export const applyBundle = async (bundle: BrowserBundle) => {
+  const root = await runtime.applyBundle(bundle);
+  observer.update({
+    root,
+    compositionId: 'HelloWorld',
+    inputProps: {},
+  });
+};
+
+await applyBundle(bundle);
+```
+
+The returned root registers compositions; it is not the video component for the Player. [`createBrowserCompositionObserver()`](/docs/browser-bundler/create-browser-composition-observer) keeps the registration tree mounted and supplies the selected component and metadata to your Player.
+
+Calling [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) again for every edit creates fresh component wrappers and does not preserve that tree.
+
+## Return value
+
+A `BrowserBundleRuntime` with the following methods. Use one runtime per preview document.
+
+### applyBundle()
+
+Accepts a complete [`BrowserBundle`](/docs/browser-bundler/create-browser-bundler#browserbundle) and returns a `Promise<React.FC>` containing its registered root.
+
+The first call evaluates the full bundle. Later calls apply Rspack's hot-update assets to the existing module graph and run React Fast Refresh. Compatible component edits preserve React state; changing hook signatures or component types can reset the affected component.
+
+Calls are serialized. Apply every successfully compiled bundle in order, even when newer edits are pending. Skipping compiled updates breaks the hot-update chain and rejects the promise.
+
+Compilation errors do not produce a bundle to apply. Keep the previous preview visible while showing diagnostics, then apply the next successful build.
+
+### dispose()
+
+Release the runtime's hot-update assets and document-level bindings. Further `applyBundle()` calls reject. Unmount the preview's React roots and dispose its compiler separately.
+
+Disposal does not undo arbitrary side effects from evaluated project code. Use a new preview document when replacing an entire compiler session or project.
+
+## Errors
+
+Rejects if Fast Refresh was not enabled, the preview renderer does not support it, an update is missing or out of order, the compiler session changes, or evaluation or hot application fails.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox="Not tested" safari="Not tested" nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering={false} player studio="" hideServers />
+
+The experimental workflow has only been tested in Chrome.
+
+## See also
+
+- [Browser bundler overview](/docs/browser-bundler)
+- [`createBrowserBundler()`](/docs/browser-bundler/create-browser-bundler)
+- [`createBrowserCompositionObserver()`](/docs/browser-bundler/create-browser-composition-observer)
+- [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle)

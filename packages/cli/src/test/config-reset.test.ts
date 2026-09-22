@@ -86,6 +86,10 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setEnableCrossSiteIsolation(true);
 	Config.setInteractivityEnabled(false);
 	Config.setKeyboardShortcutsEnabled(false);
+	Config.setKeyboardShortcuts({
+		playPause: {key: 'p'},
+		quickSwitcher: null,
+	});
 	Config.setLogLevel('verbose');
 	Config.setNumberOfSharedAudioTags(2);
 	Config.setRspack(true);
@@ -115,6 +119,10 @@ test('reset config options restores defaults before reloading config', async () 
 			url: 'https://example.com/elements',
 		},
 	]);
+	expect(ConfigInternals.getKeyboardShortcuts()).toEqual({
+		playPause: {key: 'p'},
+		quickSwitcher: null,
+	});
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
@@ -219,6 +227,7 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.keyboardShortcutsOption.getConfigValue(),
 	).toBeNull();
+	expect(ConfigInternals.getKeyboardShortcuts()).toBeNull();
 	expect(BrowserSafeApis.options.logLevelOption.getConfigValue()).toBeNull();
 	expect(
 		BrowserSafeApis.options.numberOfSharedAudioTagsOption.getConfigValue(),

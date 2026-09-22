@@ -8,7 +8,7 @@ import React, {
 	useState,
 	type CSSProperties,
 } from 'react';
-import {PALETTE} from '../layout/colors';
+import {FONTS, PALETTE} from '../layout/colors';
 import {useColorMode} from '../layout/use-color-mode';
 import {SectionTitle} from '../VideoAppsTitle';
 import {
@@ -41,7 +41,10 @@ const playerWrapper: CSSProperties = {
 	overflow: 'hidden',
 };
 
-export const Demo: React.FC = () => {
+export const Demo: React.FC<{
+	readonly title: string | null;
+	readonly description: string | null;
+}> = ({title, description}) => {
 	const {colorMode} = useColorMode();
 	const [data, setData] = useState<LocationAndTrending | null>(null);
 	const ref = useRef<PlayerRef>(null);
@@ -110,7 +113,19 @@ export const Demo: React.FC = () => {
 
 	return (
 		<div id="demo" className="pt-24">
-			<SectionTitle>Interactive demo</SectionTitle>
+			<SectionTitle>{title ?? 'Interactive demo'}</SectionTitle>
+			{description ? (
+				<p
+					className="max-w-[840px] mx-auto text-center"
+					style={{
+						fontFamily: FONTS.GTPLANAR,
+						fontSize: 15,
+						textWrap: 'balance',
+					}}
+				>
+					{description}
+				</p>
+			) : null}
 			<div className="max-w-[760px] mx-auto">
 				<div className="h-[105px] relative">
 					<DragAndDropNudge />

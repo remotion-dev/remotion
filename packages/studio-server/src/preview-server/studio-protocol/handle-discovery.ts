@@ -48,7 +48,7 @@ const getLiveStudioTarget = (requestId: string) => {
 	return target;
 };
 
-const isInstallableTarget = (
+const isElementRequestTarget = (
 	target: ElementInstallTarget | null,
 ): target is ElementInstallTarget & {
 	readonly compositionFile: string;
@@ -56,7 +56,6 @@ const isInstallableTarget = (
 	readonly lastFocusedAt: number;
 } =>
 	target !== null &&
-	target.canInstall &&
 	target.compositionFile !== null &&
 	target.compositionId !== null &&
 	target.lastFocusedAt !== null;
@@ -88,7 +87,7 @@ export const handleStudioProtocolDiscovery = ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	const requestOrigin = getAllowedStudioProtocolOrigin(request);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
@@ -114,7 +113,7 @@ export const handleStudioProtocolDiscovery = ({
 		setTimeout(() => {
 			const now = Date.now();
 			const target = getLiveStudioTarget(requestId);
-			const installTarget = isInstallableTarget(target) ? target : null;
+			const installTarget = isElementRequestTarget(target) ? target : null;
 			const issuedInstallTarget =
 				installTarget === null
 					? null
@@ -131,6 +130,15 @@ export const handleStudioProtocolDiscovery = ({
 							now,
 							origin: requestOrigin,
 							purpose: 'set-license-key',
+							target,
+						});
+			const issuedElementLibraryTarget =
+				target === null
+					? null
+					: issueStudioProtocolTarget({
+							now,
+							origin: requestOrigin,
+							purpose: 'add-element-library',
 							target,
 						});
 			response.writeHead(200, {
@@ -168,6 +176,19 @@ export const handleStudioProtocolDiscovery = ({
 									: {
 											id: issuedLicenseKeyTarget.id,
 											expiresAt: issuedLicenseKeyTarget.expiresAt,
+											lastFocusedAt: target.lastFocusedAt,
+										},
+						},
+						{
+							type: 'add-element-library',
+							target:
+								issuedElementLibraryTarget === null ||
+								target === null ||
+								target.lastFocusedAt === null
+									? null
+									: {
+											id: issuedElementLibraryTarget.id,
+											expiresAt: issuedElementLibraryTarget.expiresAt,
 											lastFocusedAt: target.lastFocusedAt,
 										},
 						},

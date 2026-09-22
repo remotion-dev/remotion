@@ -6,7 +6,10 @@ import {
 	COLOR_PICKER_SATURATION_BLACK_GRADIENT,
 	COLOR_PICKER_SATURATION_VALUE_GRADIENT,
 } from '../../helpers/colors';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 
 const AREA_HEIGHT = 140;
 
@@ -84,8 +87,7 @@ export const SaturationValueArea: React.FC<{
 					updateFromEvent(ev.clientX, ev.clientY, false);
 				},
 				onEnd: (reason, ev) => {
-					const shouldUseEndEvent =
-						reason === 'pointerup' || reason === 'buttons-released';
+					const shouldUseEndEvent = isPointerSessionRelease(reason, ev);
 					updateFromEvent(
 						shouldUseEndEvent && ev ? ev.clientX : lastPosition.clientX,
 						shouldUseEndEvent && ev ? ev.clientY : lastPosition.clientY,

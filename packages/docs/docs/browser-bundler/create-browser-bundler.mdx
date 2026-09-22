@@ -1,0 +1,196 @@
+---
+image: /generated/articles-docs-browser-bundler-create-browser-bundler.png
+title: createBrowserBundler()
+crumb: '@remotion/browser-bundler'
+---
+
+# createBrowserBundler()<AvailableFrom v="4.0.527" />
+
+Creates a browser-side compiler for virtual Remotion projects. Import it from `@remotion/browser-bundler`.
+
+:::warning
+
+*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+Read the [browser setup requirements](/docs/browser-bundler#browser-setup) before using this API.
+
+Given a [`VirtualProject`](#virtualproject) snapshot, such as the [overview example](/docs/browser-bundler#minimal-example):
+
+```ts twoslash title="compile-project.ts"
+// @moduleResolution: bundler
+import type {VirtualProject} from '@remotion/browser-bundler';
+declare const project: VirtualProject;
+// ---cut---
+import {
+  BrowserBundlerError,
+  createBrowserBundler,
+} from '@remotion/browser-bundler';
+
+const bundler = createBrowserBundler({
+  onProgress: ({loadedBytes, totalBytes}) => {
+    console.log({loadedBytes, totalBytes});
+  },
+});
+
+try {
+  const bundle = await bundler.bundle({project});
+  console.log(bundle.warnings);
+} catch (error) {
+  if (error instanceof BrowserBundlerError) {
+    console.error(error.diagnostics);
+  } else {
+    throw error;
+  }
+} finally {
+  bundler.dispose();
+}
+```
+
+## Options
+
+All options are optional. Calling `createBrowserBundler()` uses the defaults.
+
+### dependencyVersions?
+
+A `Record<string, string>` mapping npm package names to versions. These values override the package's built-in dependency versions for HTTP dependency resolution.
+
+The built-in defaults are the versions used to build `@remotion/browser-bundler`. Other packages without a configured version resolve to `latest` on [esm.sh](https://esm.sh). Pin dependencies if you need reproducible resolutions.
+
+React, React DOM, and Remotion imports must match the host app's versions. They are shared with the host at runtime; setting a different version here does not install a separate runtime.
+
+```ts twoslash title="Pinning an additional dependency"
+// @moduleResolution: bundler
+import {createBrowserBundler} from '@remotion/browser-bundler';
+
+const bundler = createBrowserBundler({
+  dependencyVersions: {
+    'lodash-es': '4.17.21',
+  },
+});
+```
+
+### enableFastRefresh?
+
+Enable Rspack hot updates and React Fast Refresh. Default: `false`.
+
+Apply these bundles with [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime), not [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle). The preview must use development React and React DOM with the React Refresh hook installed before the renderer loads. An isolated preview iframe can provide that environment even when the editor itself is a production app.
+
+Apply every successful bundle in compilation order. You may coalesce pending source edits before calling `bundle()`, but must not discard already compiled hot updates.
+
+### onProgress?
+
+Called with download progress while loading the compiler's WebAssembly asset. By default, no progress callback is called. This is download progress, not compilation progress.
+
+#### asset
+
+The string `'rspack-wasm'`.
+
+#### loadedBytes
+
+The number of bytes downloaded so far.
+
+#### totalBytes
+
+The total download size in bytes, or `null` if the size is not yet known. Only calculate a percentage when this value is known and greater than zero.
+
+### workerUrl?
+
+A `string` or `URL` pointing to the browser bundler's prebuilt module worker on the same origin as your app. By default, the package resolves its worker relative to its own module URL.
+
+Use this when you serve the packaged worker at a custom location. The URL must point to the browser bundler worker, not to your virtual project's entry point. Host its adjacent WebAssembly and supporting worker assets too, preserving their filenames and relative paths. See [host bundler support](/docs/browser-bundler#host-bundler-support).
+
+## Return value
+
+A `BrowserBundler` with the following methods. Creating it starts a worker; compiler initialization happens when a project is first bundled.
+
+### bundle()
+
+Accepts an object containing a `project` field with a [`VirtualProject`](#virtualproject). Returns a `Promise<BrowserBundle>` that resolves after compilation completes.
+
+Calls on the same instance are serialized. Reusing the instance applies added, edited, and removed source files incrementally. Pass a complete snapshot, not only the changed files; omitted files are removed from the next project snapshot.
+
+A failed compilation rejects its promise without preventing a later compilation on the same instance. Compiling does not execute the bundle or update your UI.
+
+#### project
+
+The complete [`VirtualProject`](#virtualproject) snapshot to compile.
+
+### dispose()
+
+Terminates the worker and releases its compiler resources. Returns `void`.
+
+Pending `bundle()` calls reject, and further calls to `bundle()` on this instance reject. Create a new bundler to compile again. Calling `dispose()` does not unmount a Player or undo side effects from an already executed bundle.
+
+## VirtualProject
+
+An object describing source files in memory. Import the `VirtualProject` type from `@remotion/browser-bundler`.
+
+### entryPoint
+
+The project-relative entry file, for example `'src/index.ts'`. It must be included in `files`.
+
+Use an ordinary Remotion entry point that calls [`registerRoot()`](/docs/register-root) if you will execute the result with [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle).
+
+Keep `entryPoint` unchanged across source edits to reuse the compiler. Changing it starts a new compiler for the new project.
+
+### files
+
+A `Record<string, string>` mapping project-relative file paths to their source text, for example `'src/Root.tsx'`. Use forward slashes and a conventional Remotion directory structure; no enclosing directory prefix is needed.
+
+This is a source snapshot, not a persistent filesystem. Do not include binary media or expect files under `public/` to be served as assets.
+
+## BrowserBundle
+
+The object returned by `bundle()`. Import the `BrowserBundle` type from `@remotion/browser-bundler`.
+
+### code
+
+The compiled JavaScript as a `string`. Pass the complete `BrowserBundle` to [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle) to execute it.
+
+### warnings
+
+An array of compiler warning strings. An empty array means no compiler warnings were reported.
+
+### fastRefresh
+
+Hot-update data when `enableFastRefresh` is enabled, otherwise `null`. Pass the complete bundle to the preview runtime without modifying this data.
+
+#### sessionId
+
+Identifies the compiler session. Create a new preview runtime if the session changes.
+
+#### hash
+
+Identifies the compiled version of the project.
+
+#### previousHash
+
+The preceding successful compilation's hash, or `null` for the first build.
+
+#### assets
+
+The hot-update scripts and manifests emitted by Rspack. Each asset has a `name` and its text `content`.
+
+## Errors
+
+Compilation failures reject with `BrowserBundlerError`, exported from `@remotion/browser-bundler`. Display its `message` and diagnostics in your own error UI.
+
+### diagnostics
+
+An array of compiler diagnostic strings on `BrowserBundlerError`. It may be empty when no detailed diagnostics are available.
+
+Browser setup failures can throw synchronously from `createBrowserBundler()`. Worker failures and disposal can reject `bundle()` with other errors, so handle more than `BrowserBundlerError`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox="Not tested" safari="Not tested" nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering={false} player studio="" hideServers />
+
+The experimental workflow has only been tested in Chrome. Run it in the host web app with [cross-origin isolation](/docs/browser-bundler#browser-setup), not during server rendering or a video frame render.
+
+## See also
+
+- [Overview and complete Player example](/docs/browser-bundler)
+- [`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle)
+- [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition)

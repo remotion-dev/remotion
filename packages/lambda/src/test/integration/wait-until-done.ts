@@ -25,7 +25,7 @@ export const waitUntilDone = async (bucketName: string, renderId: string) => {
 		}
 
 		if (progress.fatalErrorEncountered) {
-			throw new Error(progress.errors.join('\n'));
+			throw new Error(progress.errors.map((error) => error.message).join('\n'));
 		}
 
 		await new Promise((resolve) => {

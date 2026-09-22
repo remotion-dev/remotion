@@ -30,11 +30,6 @@ export const compositionDefaultPropsSection: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-export const compositionVisualControlsSection: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-};
-
 export const inspectorOverviewSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
@@ -55,6 +50,7 @@ export const sectionHeader: React.CSSProperties = {
 	lineHeight: '24px',
 	padding: `4px 0 4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const inspectorSectionBody: React.CSSProperties = {
@@ -88,30 +84,6 @@ export const sectionHeaderRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 8,
 	justifyContent: 'space-between',
-	minWidth: 0,
-};
-
-export const sectionHeaderTitle: React.CSSProperties = {
-	alignItems: 'center',
-	color: LIGHT_TEXT,
-	display: 'flex',
-	flexShrink: 0,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	fontWeight: 'bold',
-	lineHeight: '16px',
-	minHeight: 24,
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	userSelect: 'none',
-	whiteSpace: 'nowrap',
-};
-
-export const sectionHeaderStart: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'flex',
-	gap: 8,
 	minWidth: 0,
 };
 
@@ -198,6 +170,8 @@ export const detailLabel: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

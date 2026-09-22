@@ -80,9 +80,9 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			},
 		},
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
@@ -101,9 +101,9 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		providerSpecifics: mockImplementation,
 		insideFunctionSpecifics: mockServerImplementation,
@@ -123,9 +123,9 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 	const responseStream = new ResponseStream();
 	await innerHandler<AwsProvider>({
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),

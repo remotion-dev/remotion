@@ -1,18 +1,16 @@
-import {
-	type ComponentDragData,
-	type CompositionDragData,
-	type ComponentProp,
-	type ElementDragData,
-} from '@remotion/studio-protocol';
+import type {ComponentDragData} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
+	type ComponentProp,
 	type DownloadRemoteAssetResponse,
 	type ElementInstallExpectedFileState,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
+	type InsertElementRequest,
+	type InstallableElement,
 } from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -25,6 +23,7 @@ import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
 import {callApi} from './call-api';
+import type {CompositionDragData} from './composition-drag-data';
 import {installElement} from './element-install-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
@@ -618,15 +617,23 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = ({
-	multiple = true,
-}: {
-	readonly multiple?: boolean;
-} = {}): Promise<File[]> => {
+export const pickFilesToImport = (
+	{
+		multiple = true,
+		accept,
+	}: {
+		readonly multiple?: boolean;
+		readonly accept: string | null;
+	} = {accept: null},
+): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = multiple;
+		if (accept !== null) {
+			input.accept = accept;
+		}
+
 		input.style.display = 'none';
 
 		let didResolve = false;
@@ -693,13 +700,6 @@ const insertCompositionElement = async ({
 	if (!result.success) {
 		showNotification(result.reason, 4000);
 		return false;
-	}
-
-	if (result.insertedNodePath !== null) {
-		requestInsertedElementSelection({
-			compositionId,
-			nodePath: result.insertedNodePath,
-		});
 	}
 
 	return true;
@@ -1320,6 +1320,7 @@ export const insertComposition = async ({
 };
 
 export const insertElement = async ({
+	installationName,
 	compositionFile,
 	compositionId,
 	element,
@@ -1327,14 +1328,19 @@ export const insertElement = async ({
 	position,
 	from,
 	overwriteExisting,
+	undoRedoNavigation,
+	newComposition,
 }: {
+	installationName: string | null;
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState;
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;
 	overwriteExisting: boolean;
+	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
+	newComposition: InsertElementRequest['newComposition'];
 }) => {
 	try {
 		if (getBrowserStudioOperations() === null) {
@@ -1342,6 +1348,7 @@ export const insertElement = async ({
 		}
 
 		const response = await installElement({
+			installationName,
 			compositionFile,
 			compositionId,
 			element,
@@ -1349,6 +1356,8 @@ export const insertElement = async ({
 			from,
 			overwriteExisting,
 			position,
+			undoRedoNavigation,
+			newComposition,
 		});
 
 		if (!response.success) {
@@ -1357,7 +1366,15 @@ export const insertElement = async ({
 					? response.reason
 					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
+			return false;
 		}
+
+		requestInsertedElementSelection({
+			compositionId,
+			nodePath: null,
+			notification: `Installed ${element.displayName}`,
+		});
+		return true;
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${
@@ -1365,5 +1382,6 @@ export const insertElement = async ({
 			}`,
 			4000,
 		);
+		return false;
 	}
 };

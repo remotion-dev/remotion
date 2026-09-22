@@ -1,5 +1,5 @@
 import type {PropsWithChildren} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	BLACK_ALPHA_60,
 	INPUT_BACKGROUND,
@@ -7,6 +7,11 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../helpers/hoverable';
 import {useZIndex} from '../state/z-index';
 
 const container: React.CSSProperties = {
@@ -24,6 +29,7 @@ const item: React.CSSProperties = {
 	fontSize: 15,
 	padding: '4px 12px',
 	appearance: 'none',
+	cursor: 'default',
 	border: 'none',
 	flex: 1,
 	justifyContent: 'center',
@@ -37,14 +43,21 @@ const compactItem: React.CSSProperties = {
 	padding: '2px 7px',
 };
 
+const mediumItem: React.CSSProperties = {
+	...item,
+	fontSize: 13,
+	fontWeight: 400,
+	padding: '3px 10px',
+};
+
 export type SegmentedControlItem = {
 	label: React.ReactNode;
-	onClick: () => void;
+	onClick: (() => void) | null;
 	key: string;
 	selected: boolean;
 };
 
-type SegmentedControlSize = 'default' | 'compact';
+type SegmentedControlSize = 'default' | 'medium' | 'compact';
 
 export const SegmentedControl: React.FC<{
 	readonly items: SegmentedControlItem[];
@@ -67,8 +80,37 @@ export const SegmentedControl: React.FC<{
 		};
 	}, [needsWrapping]);
 
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (
+				!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
+			) {
+				return;
+			}
+
+			const buttons = Array.from(
+				event.currentTarget.querySelectorAll<HTMLButtonElement>(
+					'button:not(:disabled)',
+				),
+			);
+			const index = buttons.indexOf(event.target as HTMLButtonElement);
+			if (index === -1) {
+				return;
+			}
+
+			event.preventDefault();
+			const direction =
+				event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
+			const next =
+				buttons[(index + direction + buttons.length) % buttons.length];
+			next.click();
+			requestAnimationFrame(() => next.focus());
+		},
+		[],
+	);
+
 	return (
-		<div style={controlStyle}>
+		<div style={controlStyle} onKeyDown={onKeyDown}>
 			{items.map((i) => {
 				return (
 					<Item
@@ -88,38 +130,38 @@ export const SegmentedControl: React.FC<{
 const Item: React.FC<
 	PropsWithChildren<{
 		readonly selected: boolean;
-		readonly onClick: () => void;
+		readonly onClick: (() => void) | null;
 		readonly size: SegmentedControlSize;
 	}>
 > = ({selected, onClick, children, size}) => {
-	const [hovered, setHovered] = useState(false);
-
 	const {tabIndex} = useZIndex();
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const itemStyle: React.CSSProperties = useMemo(() => {
 		return {
-			...(size === 'compact' ? compactItem : item),
-			backgroundColor: selected ? INPUT_BACKGROUND : TRANSPARENT,
-			color: selected ? WHITE : hovered ? WHITE : LIGHT_TEXT,
+			...(size === 'compact'
+				? compactItem
+				: size === 'medium'
+					? mediumItem
+					: item),
+			opacity: onClick === null ? 0.5 : 1,
+			...hoverableStyle({
+				idleBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,
+				hoverBackground: selected ? INPUT_BACKGROUND : TRANSPARENT,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: onClick === null ? LIGHT_TEXT : WHITE,
+			}),
 		};
-	}, [hovered, selected, size]);
+	}, [onClick, selected, size]);
 
 	return (
 		<button
 			type="button"
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
+			aria-pressed={selected}
+			disabled={onClick === null}
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			style={itemStyle}
 			tabIndex={tabIndex}
-			onClick={onClick}
+			onClick={onClick ?? undefined}
 		>
 			{children}
 		</button>

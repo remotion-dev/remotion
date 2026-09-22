@@ -1,11 +1,13 @@
 import {existsSync, readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {resolveFileInsideProject} from '../helpers/resolve-file-inside-project';
 import {checkIfTypeScriptFile} from '../preview-server/routes/can-update-default-props';
-import {formatOutput, parseAndApplyCodemod} from './duplicate-composition';
+
+const {parseAndApplyCodemod} = CodemodsInternals;
 
 export const resolveFilePathFromSymbolicatedStack = (
 	remotionRoot: string,
@@ -30,7 +32,7 @@ export const resolveFilePathFromSymbolicatedStack = (
 	return absolutePath;
 };
 
-export const applyCodemodToFile = async ({
+export const applyCodemodToFile = ({
 	filePath,
 	codeMod,
 }: {
@@ -45,5 +47,5 @@ export const applyCodemodToFile = async ({
 		input,
 	});
 
-	return formatOutput(newContents);
+	return Promise.resolve(newContents);
 };

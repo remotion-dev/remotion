@@ -8,14 +8,16 @@ export type ElementInstallTarget = {
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
-	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
 	studioUrl: string;
 	updatedAt: number;
 };
 
-export type StudioProtocolTargetPurpose = 'install-element' | 'set-license-key';
+export type StudioProtocolTargetPurpose =
+	| 'install-element'
+	| 'set-license-key'
+	| 'add-element-library';
 
 const targetsByClientId = new Map<string, ElementInstallTarget>();
 
@@ -134,12 +136,11 @@ export const consumeStudioProtocolTarget = ({
 		return null;
 	}
 
-	if (purpose === 'set-license-key') {
+	if (purpose !== 'install-element') {
 		return issued.target;
 	}
 
 	if (
-		!current.canInstall ||
 		current.compositionFile !== issued.target.compositionFile ||
 		current.compositionId !== issued.target.compositionId
 	) {

@@ -671,7 +671,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 		const copy = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'c',
+			action: 'copyEffectsAndValues',
 			callback: (e) => {
 				const {selectedItems} = currentSelection.current;
 				const propStatuses = propStatusesRef.current;
@@ -883,7 +883,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						);
 					});
 			},
-			commandCtrlKey: true,
 			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -891,7 +890,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 		const cut = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'x',
+			action: 'cutEffects',
 			callback: (e) => {
 				const {selectedItems, clearSelection, selectItems} =
 					currentSelection.current;
@@ -964,7 +963,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						);
 					});
 			},
-			commandCtrlKey: true,
 			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,

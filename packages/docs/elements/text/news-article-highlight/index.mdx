@@ -4,9 +4,9 @@ description: A news article camera treatment with animated highlights for drawin
 image: https://remotion.media/elements/text-news-article-highlight-preview.png
 ---
 
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
 
 # News Article Highlight
 
-<ElementPage definition={elementDefinitions['text/news-article-highlight']} sourceFile="./news-article-highlight.tsx" />
+<ElementPage definition={getElementDefinition('text/news-article-highlight')} sourceFile="./news-article-highlight.tsx" />

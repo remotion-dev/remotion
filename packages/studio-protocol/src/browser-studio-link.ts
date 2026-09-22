@@ -1,11 +1,15 @@
+import * as z from 'zod/mini';
 import type {StudioElementPayload} from './element-payload';
 import {parseStudioElementPayload} from './element-payload';
-import {isRecord} from './validation';
 
 const browserStudioHashKey = 'remotion-browser-studio';
-const defaultBrowserStudioEndpoint =
-	'https://www.remotion.dev/experimental_new';
+const defaultBrowserStudioEndpoint = 'https://www.remotion.dev/new';
 const maxEncodedPayloadLength = 1_100_000;
+const browserStudioEnvelopeSchema = z.object({
+	type: z.literal('remotion-browser-studio'),
+	version: z.literal(1),
+	payload: z.unknown(),
+});
 
 const toBase64Url = (value: string) => {
 	const bytes = new TextEncoder().encode(value);
@@ -77,6 +81,14 @@ export const makeBrowserStudioUrl = ({
 	return url.toString();
 };
 
+export const buildOpenInRemotionNewUrl = ({
+	payload,
+}: {
+	readonly payload: StudioElementPayload;
+}) => {
+	return makeBrowserStudioUrl({endpoint: null, payload});
+};
+
 export const parseBrowserStudioHash = (
 	hash: string,
 ): StudioElementPayload | null => {
@@ -97,16 +109,13 @@ export const parseBrowserStudioHash = (
 	}
 
 	try {
-		const envelope: unknown = JSON.parse(decoded);
-		if (
-			!isRecord(envelope) ||
-			envelope.type !== 'remotion-browser-studio' ||
-			envelope.version !== 1
-		) {
-			return null;
-		}
-
-		return parseStudioElementPayload(envelope.payload);
+		const envelope = z.safeParse(
+			browserStudioEnvelopeSchema,
+			JSON.parse(decoded),
+		);
+		return envelope.success
+			? parseStudioElementPayload(envelope.data.payload)
+			: null;
 	} catch {
 		return null;
 	}

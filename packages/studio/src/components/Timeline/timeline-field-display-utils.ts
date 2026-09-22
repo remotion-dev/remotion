@@ -7,7 +7,10 @@ import {
 	roundToDecimalPlaces,
 } from './timeline-field-utils';
 import {parseCssRotationToDegrees} from './timeline-rotation-utils';
-import {parseTranslate, serializeTranslate} from './timeline-translate-utils';
+import {
+	parseTranslateWithUnits,
+	serializeTranslateWithUnits,
+} from './timeline-translate-utils';
 import {parseTransformOrigin} from './transform-origin-utils';
 
 const DISPLAY_FALLBACK_DECIMAL_PLACES = 3;
@@ -137,11 +140,15 @@ const formatNumberTimelineFieldValueForDisplay = ({
 		return digits === 0 ? String(numericValue) : numericValue.toFixed(digits);
 	}
 
-	return formatTimelineNumber({
-		decimalPlaces: stepDecimals,
-		fixed: true,
-		value: numericValue,
-	});
+	// The step controls increments, not the precision of source or typed values.
+	// Keep finer values while trimming floating point noise.
+	const normalizedValue =
+		getDecimalPlaces(numericValue) > stepDecimals
+			? Number(numericValue.toPrecision(15))
+			: numericValue;
+	return getDecimalPlaces(normalizedValue) > stepDecimals
+		? String(normalizedValue)
+		: normalizedValue.toFixed(stepDecimals);
 };
 
 const formatRotationTimelineFieldValueForDisplay = ({
@@ -229,8 +236,10 @@ const formatTranslateTimelineFieldValueForDisplay = ({
 		return formatTranslateCoordinateForDisplay(numericValue, decimalPlaces);
 	}
 
-	const translate = parseTranslate(String(value ?? '0px 0px'));
-	return serializeTranslate(translate, decimalPlaces);
+	const translate = parseTranslateWithUnits(String(value ?? '0px 0px'));
+	return translate === null
+		? null
+		: serializeTranslateWithUnits(translate, decimalPlaces);
 };
 
 const formatTransformOriginAxisValueForDisplay = ({
@@ -397,6 +406,7 @@ export const formatTimelineFieldValueForDisplay = ({
 		case 'color':
 		case 'enum':
 		case 'font-family':
+		case 'font-weight':
 		case 'hidden':
 			return formatUnknownTimelineValueForDisplay(value);
 

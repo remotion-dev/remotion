@@ -1,4 +1,8 @@
 export {
+	BlurSlideTransitionDoc,
+	BlurSlideTransitionDocThumb,
+} from './blur-slide-doc';
+export {
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 } from './book-flip-doc';

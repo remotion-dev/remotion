@@ -1,12 +1,21 @@
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import {
+	getTimelineVisibleDuration,
+	getTimelineVisibleStart,
+} from '@remotion/canvas';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLUE,
-	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_AUDIO_GRADIENT,
-	TIMELINE_IMAGE_GRADIENT,
+	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
 	TIMELINE_NEGATIVE_START_BORDER_COLOR,
 	TIMELINE_VIDEO_GRADIENT,
@@ -32,45 +41,53 @@ import {
 	TIMELINE_LAYER_HEIGHT_AUDIO,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {useMaxMediaDuration} from '../../helpers/use-max-media-duration';
+import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
-import {deleteJsxNode} from '../delete-jsx-node-api';
 import {useSelectComposition} from '../InitialCompositionLoader';
-import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
-import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
+import {
+	getMultiSequenceContextMenuItems,
+	getSequenceContextMenuItems,
+} from './get-sequence-context-menu-items';
+import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
+import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
-	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
-	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	canResizeTimelineSequenceDuration,
+	getTimelineSequenceMediaDurationDragLimits,
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
 	TimelineSequenceLeftEdgeDragHandle,
+	TimelineSequenceMediaDurationDragLimitsContext,
 	TimelineSequenceRightEdgeDragHandle,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineViewportContext} from './TimelineViewport';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
+import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
@@ -176,6 +193,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly negativeStartClipped: boolean;
 	readonly style: React.CSSProperties;
 	readonly children: React.ReactNode;
+	readonly edgeDragHandles: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
 	readonly fromCanUpdate: boolean;
@@ -183,8 +201,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
-	readonly onPointerDownCapture: () => void;
-	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+	readonly onPointerDownCapture: React.PointerEventHandler<HTMLDivElement>;
+	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
 	displayDurationInFrames,
@@ -195,19 +213,20 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	negativeStartClipped,
 	style,
 	children,
+	edgeDragHandles,
 	nodePathInfo,
 	sequenceFrameOffset,
 	fromCanUpdate,
 	frozenFrame,
 	onMoveDragPointerDown,
 	onPointerDownCapture,
-	onDoubleClick,
+	onClick,
 }) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const isAsset = canvasContent?.type === 'asset';
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
-	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
-	const {selectedItems} = useTimelineSelection();
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
@@ -258,17 +277,13 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		: 0;
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
-		const hasSelectedTrack = selectedItems.some(
-			(item) => item.type !== 'guide',
-		);
-
 		return {
 			...style,
 			background: negativeStart ? TRANSPARENT : style.background,
 			border: negativeStart ? 'none' : style.border,
-			opacity: hasSelectedTrack && !selected && !containsSelection ? 0.75 : 1,
+			opacity: selected || isAsset ? 1 : 0.75,
 		};
-	}, [containsSelection, negativeStart, selected, selectedItems, style]);
+	}, [isAsset, negativeStart, selected, style]);
 
 	const content = (
 		<>
@@ -314,11 +329,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			s.type !== 'video' &&
 			s.type !== 'image' &&
 			s.loopDisplay === undefined &&
-			(isInRange || isPremounting || isPostmounting) ? (
+			(frozenFrame !== null || isInRange || isPremounting || isPostmounting) ? (
 				<div
 					style={{
-						paddingLeft:
-							5 + (negativeStart?.width ?? 0) + (premount?.width ?? 0),
+						paddingLeft: 5 + negativeStartEnd + (premount?.width ?? 0),
 						height: '100%',
 						display: 'flex',
 						alignItems: 'center',
@@ -343,7 +357,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			title={s.displayName}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
-			onDoubleClick={onDoubleClick}
+			onClick={onClick ?? undefined}
 		>
 			{negativeStart ? (
 				<>
@@ -386,8 +400,18 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					</div>
 				</>
 			) : (
-				content
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						overflow: 'hidden',
+						borderRadius: 'inherit',
+					}}
+				>
+					{content}
+				</div>
 			)}
+			{edgeDragHandles}
 		</div>
 	);
 };
@@ -414,23 +438,54 @@ const TimelineSequenceInner: React.FC<{
 	// if that is the case, it needs to be asynchronously determined
 
 	const video = Internals.useVideo();
+	const {sequences} = useContext(Internals.SequenceManager);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
 	const renderWindow = useContext(TimelineViewportContext);
+	const mediaDurationDragLimitsRegistry = useContext(
+		TimelineSequenceMediaDurationDragLimitsContext,
+	);
 	const dragAwareDoubleClick = useMemo(
 		() => createDragAwareDoubleClickTracker(),
 		[],
 	);
 
-	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
-	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
+	const mediaMetadata = useMediaMetadata(
+		s.type === 'audio' || s.type === 'video' ? s.src : null,
+	);
 	const extendVideoLastFrame = isVideoWithLastFrameHold(s);
+	const naturalMediaDuration =
+		(s.type === 'audio' || s.type === 'video') &&
+		mediaMetadata !== null &&
+		s.playbackRate > 0
+			? Math.max(
+					0,
+					(mediaMetadata.duration * (video?.fps ?? 30) -
+						getTimelineMediaStartFrame({
+							startMediaFrom: s.startMediaFrom,
+							mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
+							sequenceFrameOffset,
+							playbackRate: s.playbackRate,
+						})) /
+						s.playbackRate,
+				)
+			: null;
+	const maxMediaDuration =
+		s.type === 'sequence' || s.type === 'image' || extendVideoLastFrame
+			? Infinity
+			: naturalMediaDuration;
+	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
 
 	const {
-		canOpenInEditor,
 		canConfigureApps,
+		canOpenInEditor,
+		canOpenSource,
 		codingAgentInfo,
 		editorInfo,
 		openInCodingAgent,
 		openInEditor,
+		openSource,
 		originalLocation,
 	} = useOpenSequenceInApps(s);
 	const validatedLocation = useMemo(() => {
@@ -463,7 +518,6 @@ const TimelineSequenceInner: React.FC<{
 	const durationCanResize = Boolean(
 		isStudioInteractivityEnabled() &&
 		canResizeTimelineSequenceDuration({
-			sequence: s,
 			status: propStatusesForOverride?.durationInFrames,
 		}),
 	);
@@ -481,10 +535,26 @@ const TimelineSequenceInner: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
+	const assetContextMenu = useAssetTimelineContextMenu();
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
-	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
-	const onSequenceDoubleClick = useCallback(
+	const deleteTimelineItems = useDeleteTimelineItems();
+	const {onSelect, selectable, selected, selectedItems} =
+		useTimelineRowSelection(nodePathInfo);
+	const selectedSequenceNodePathInfos = useMemo(() => {
+		if (
+			!selected ||
+			selectedItems.length < 2 ||
+			selectedItems.some((item) => item.type !== 'sequence')
+		) {
+			return null;
+		}
+
+		return selectedItems.flatMap((item) =>
+			item.type === 'sequence' ? [item.nodePathInfo] : [],
+		);
+	}, [selected, selectedItems]);
+	const performSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
 				e.stopPropagation();
@@ -493,7 +563,7 @@ const TimelineSequenceInner: React.FC<{
 
 			const action = getSequenceDoubleClickAction({
 				button: e.button,
-				canOpenInEditor,
+				canOpenSource,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				sequenceWasDragged:
 					dragAwareDoubleClick.consumePointerGestureWasDragged(),
@@ -517,20 +587,30 @@ const TimelineSequenceInner: React.FC<{
 				return;
 			}
 
-			openInEditor(null);
+			openSource();
 		},
 		[
-			canOpenInEditor,
+			canOpenSource,
 			connectedCompositions,
 			dragAwareDoubleClick,
-			openInEditor,
+			openSource,
 			s,
 			selectComposition,
 			sequenceFrameOffset,
 		],
 	);
+	const onSequenceClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!dragAwareDoubleClick.acceptClickAsDoubleClick(e)) {
+				return;
+			}
+
+			performSequenceDoubleClick(e);
+		},
+		[dragAwareDoubleClick, performSequenceDoubleClick],
+	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenInEditor;
+		connectedCompositions.length === 1 || canOpenSource;
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const deleteDisabled =
 		!previewInteractive || !s.controls || !canDeleteFromSource;
@@ -555,47 +635,65 @@ const TimelineSequenceInner: React.FC<{
 			() => undefined,
 		);
 	}, [confirm, duplicateDisabled, nodePathInfo, validatedLocation?.source]);
-	const onDeleteSequenceFromSource = useCallback(async () => {
-		if (!validatedLocation?.source || !nodePath || deleteDisabled) {
+	const onDuplicateSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
 			return;
 		}
 
-		if (nodePathInfo && nodePathInfo.numberOfSequencesWithThisNodePath > 1) {
-			const shouldDelete = await confirm({
-				title: 'Delete sequence?',
-				message:
-					'This sequence is programmatically duplicated ' +
-					nodePathInfo.numberOfSequencesWithThisNodePath +
-					' times in the code. Deleting removes all instances. Continue?',
-				confirmLabel: 'Delete',
-			});
-			if (!shouldDelete) {
-				return;
-			}
+		duplicateSequencesFromSource(selectedSequenceNodePathInfos, confirm).catch(
+			() => undefined,
+		);
+	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+	const onSplitSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
 		}
 
-		try {
-			const result = await deleteJsxNode({
-				nodes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath: nodePath.nodePath,
-					},
-				],
-			});
-			if (!result.success) {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
+		splitSelectedTimelineItems({
+			selections: selectedItems,
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			propStatuses,
+			splitFrame: getCurrentFrame(),
+		})?.catch(() => undefined);
 	}, [
-		confirm,
+		overrideIdToNodePathMappingsRef,
+		previewInteractive,
+		propStatuses,
+		selectedItems,
+		selectedSequenceNodePathInfos,
+		sequences,
+	]);
+	const onDeleteSequenceFromSource = useCallback(() => {
+		if (
+			!validatedLocation?.source ||
+			!nodePath ||
+			!nodePathInfo ||
+			deleteDisabled
+		) {
+			return;
+		}
+
+		deleteTimelineItems([{type: 'sequence', nodePathInfo}]);
+	}, [
 		deleteDisabled,
+		deleteTimelineItems,
 		nodePath,
 		nodePathInfo,
 		validatedLocation?.source,
 	]);
+	const onDeleteSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		deleteTimelineItems(
+			selectedSequenceNodePathInfos.map((selectedNodePathInfo) => ({
+				type: 'sequence',
+				nodePathInfo: selectedNodePathInfo,
+			})),
+		);
+	}, [deleteTimelineItems, previewInteractive, selectedSequenceNodePathInfos]);
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
 			disableInteractivityDisabled ||
@@ -620,9 +718,33 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation?.source,
 	]);
 	const getContextMenuItems = useCallback(() => {
-		if (selectable) {
+		if (assetContextMenu !== null) {
+			return assetContextMenu;
+		}
+
+		if (selectable && !selected) {
 			onSelect({shiftKey: false, toggleKey: false});
 		}
+
+		if (selectedSequenceNodePathInfos !== null) {
+			return getMultiSequenceContextMenuItems({
+				deleteDisabled: !previewInteractive,
+				duplicateDisabled: !previewInteractive,
+				splitDisabled: !previewInteractive,
+				onDeleteSelectedSequences,
+				onDuplicateSelectedSequences,
+				onSplitSelectedSequences,
+			});
+		}
+
+		const splitMenuItem = getSequenceSplitMenuItem({
+			nodePathInfo,
+			sequence: s,
+			propStatuses: propStatusesForOverride,
+			splitFrame: getCurrentFrame(),
+			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+			hasMultipleSelection: selected && selectedItems.length > 1,
+		});
 
 		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
 			clientId:
@@ -642,6 +764,7 @@ const TimelineSequenceInner: React.FC<{
 			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
 			codingAgentInfo,
+			copyImageElement: null,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
@@ -666,12 +789,15 @@ const TimelineSequenceInner: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: s,
-			sourceActions:
-				isStudioInteractivityEnabled() && freezeFrameMenuItem
-					? [freezeFrameMenuItem]
-					: [],
+			sourceActions: isStudioInteractivityEnabled()
+				? [
+						...(splitMenuItem ? [splitMenuItem] : []),
+						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+					]
+				: [],
 		});
 	}, [
+		assetContextMenu,
 		canOpenInEditor,
 		canConfigureApps,
 		codingAgentInfo,
@@ -682,10 +808,14 @@ const TimelineSequenceInner: React.FC<{
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
+		nodePathInfo,
 		onSelect,
 		onDeleteSequenceFromSource,
+		onDeleteSelectedSequences,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
+		onDuplicateSelectedSequences,
+		onSplitSelectedSequences,
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,
@@ -695,6 +825,9 @@ const TimelineSequenceInner: React.FC<{
 		s,
 		selectAsset,
 		selectable,
+		selected,
+		selectedItems.length,
+		selectedSequenceNodePathInfos,
 		sequenceFrameOffset,
 		setPropStatuses,
 		setSelectedModal,
@@ -729,8 +862,8 @@ const TimelineSequenceInner: React.FC<{
 			durationInFrames: displayDurationInFrames,
 			startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
 			cascadedStart,
-			startFromMedia:
-				s.type === 'sequence' || s.type === 'image' ? 0 : s.startMediaFrom,
+			// The media duration cap already accounts for trimming and playback speed.
+			startFromMedia: 0,
 			maxMediaDuration: effectiveMaxMediaDuration,
 			video,
 			windowWidth,
@@ -777,7 +910,96 @@ const TimelineSequenceInner: React.FC<{
 	const showLeftBorderRadius =
 		visibleLayout?.leftEdgeVisible === true &&
 		localStart >= 0 &&
-		(s.trimBefore ?? 0) === 0;
+		(s.trimBefore ?? 0) === 0 &&
+		(s.type === 'sequence' ||
+			s.type === 'image' ||
+			getTimelineMediaStartFrame({
+				startMediaFrom: s.startMediaFrom,
+				mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
+				sequenceFrameOffset,
+				playbackRate: s.playbackRate,
+			}) === 0);
+
+	// Compare frame boundaries: fractional media durations still occupy the last frame.
+	const endsAtNaturalMediaDuration =
+		!s.loopDisplay &&
+		s.frozenFrame === null &&
+		(s.type === 'audio' || s.type === 'video') &&
+		s.frozenMediaFrame === null &&
+		naturalMediaDuration !== null &&
+		Number.isFinite(naturalMediaDuration) &&
+		naturalMediaDuration > 0 &&
+		Math.ceil(
+			Math.min(
+				s.duration,
+				video.durationInFrames - s.from,
+				maxMediaDuration ?? Infinity,
+			),
+		) === Math.ceil(naturalMediaDuration);
+
+	const parentSequence = sequences.find(
+		(candidate) => candidate.id === s.parent,
+	);
+	const parentEnd = parentSequence
+		? getTimelineVisibleStart(parentSequence, sequences) +
+			getTimelineVisibleDuration(parentSequence, sequences)
+		: video.durationInFrames;
+	const endsAtContainerBoundary =
+		Math.ceil(s.from + displayDurationInFrames) >=
+		Math.ceil(Math.min(parentEnd, video.durationInFrames));
+	const hasImplicitMediaDuration =
+		(s.type === 'audio' || s.type === 'video') &&
+		propStatusesForOverride?.durationInFrames?.status === 'static' &&
+		propStatusesForOverride.durationInFrames.codeValue === undefined;
+	const durationInFramesCodeValue =
+		propStatusesForOverride?.durationInFrames?.status === 'static'
+			? propStatusesForOverride.durationInFrames.codeValue
+			: null;
+	const explicitDurationInFrames =
+		typeof durationInFramesCodeValue === 'number' &&
+		Number.isFinite(durationInFramesCodeValue)
+			? durationInFramesCodeValue
+			: null;
+	const isMedia = s.type === 'audio' || s.type === 'video';
+	const mediaDurationDragLimits = isMedia
+		? getTimelineSequenceMediaDurationDragLimits({
+				cascadedStart,
+				displayDurationInFrames: s.duration,
+				displayStart: s.from,
+				effectiveMaxMediaDuration,
+				explicitDurationInFrames,
+				hasImplicitDuration: hasImplicitMediaDuration,
+				naturalMediaDuration,
+				timelineDurationInFrames: video.durationInFrames,
+			})
+		: null;
+	const mediaDurationDragSelectionKey = nodePathInfo
+		? getTimelineSequenceSelectionKey(nodePathInfo)
+		: null;
+	useEffect(() => {
+		if (
+			mediaDurationDragLimitsRegistry === null ||
+			mediaDurationDragSelectionKey === null ||
+			!isMedia
+		) {
+			return;
+		}
+
+		const registry = mediaDurationDragLimitsRegistry.current;
+		registry.set(mediaDurationDragSelectionKey, mediaDurationDragLimits);
+		return () => {
+			registry.delete(mediaDurationDragSelectionKey);
+		};
+	}, [
+		isMedia,
+		mediaDurationDragLimits,
+		mediaDurationDragLimitsRegistry,
+		mediaDurationDragSelectionKey,
+	]);
+
+	const showRightBorderRadius =
+		visibleLayout?.rightEdgeVisible === true &&
+		(endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -786,9 +1008,7 @@ const TimelineSequenceInner: React.FC<{
 					? TIMELINE_AUDIO_GRADIENT
 					: s.type === 'video'
 						? TIMELINE_VIDEO_GRADIENT
-						: s.type === 'image'
-							? TIMELINE_IMAGE_GRADIENT
-							: BLUE,
+						: BLUE,
 			border: `${SEQUENCE_BORDER_WIDTH}px solid ${WHITE_ALPHA_20}`,
 			borderLeftColor:
 				visibleLayout?.leftEdgeVisible && !negativeStartClipped
@@ -799,22 +1019,30 @@ const TimelineSequenceInner: React.FC<{
 				: TRANSPARENT,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
-			borderTopRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
-			borderBottomRightRadius: visibleLayout?.rightEdgeVisible ? 2 : 0,
+			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
+			borderBottomRightRadius: showRightBorderRadius ? 2 : 0,
 			position: 'absolute',
 			height: getTimelineLayerHeight(s.type),
 			marginLeft: visibleLayout?.marginLeft ?? 0,
 			width: visibleLayout?.width ?? 0,
 			color: WHITE,
-			overflow: 'hidden',
+			// Edge handles extend outside the layer; media is clipped separately.
+			overflow: 'visible',
 		};
-	}, [negativeStartClipped, s.type, showLeftBorderRadius, visibleLayout]);
+	}, [
+		negativeStartClipped,
+		s.type,
+		showLeftBorderRadius,
+		showRightBorderRadius,
+		visibleLayout,
+	]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		durationCanResize;
+		durationCanResize &&
+		(!isMedia || mediaDurationDragLimits !== null);
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
@@ -852,8 +1080,38 @@ const TimelineSequenceInner: React.FC<{
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
-			onDoubleClick={
-				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
+			onClick={canHandleSequenceDoubleClick ? onSequenceClick : null}
+			edgeDragHandles={
+				<>
+					{showLeftEdgeDragHandle &&
+					visibleLayout.leftEdgeVisible &&
+					negativeStartWidth === 0 &&
+					nodePathInfo &&
+					validatedLocation ? (
+						<TimelineSequenceLeftEdgeDragHandle
+							nodePathInfo={nodePathInfo}
+							windowWidth={windowWidth}
+							timelineDurationInFrames={video.durationInFrames ?? 1}
+							onDragEnd={dragAwareDoubleClick.endPointerGesture}
+							onSelect={onSelect}
+							selected={selected}
+						/>
+					) : null}
+					{showRightEdgeDragHandle &&
+					visibleLayout.rightEdgeVisible &&
+					nodePathInfo &&
+					validatedLocation ? (
+						<TimelineSequenceRightEdgeDragHandle
+							nodePathInfo={nodePathInfo}
+							mediaDurationDragLimits={mediaDurationDragLimits}
+							windowWidth={windowWidth}
+							timelineDurationInFrames={video.durationInFrames ?? 1}
+							onDragEnd={dragAwareDoubleClick.endPointerGesture}
+							onSelect={onSelect}
+							selected={selected}
+						/>
+					) : null}
+				</>
 			}
 		>
 			{s.type === 'audio' && visibleLayout.media ? (
@@ -909,29 +1167,6 @@ const TimelineSequenceInner: React.FC<{
 					visibleWidth={visibleLayout.width}
 				/>
 			)}
-			{showLeftEdgeDragHandle &&
-			visibleLayout.leftEdgeVisible &&
-			negativeStartWidth === 0 &&
-			nodePathInfo &&
-			validatedLocation ? (
-				<TimelineSequenceLeftEdgeDragHandle
-					nodePathInfo={nodePathInfo}
-					windowWidth={windowWidth}
-					timelineDurationInFrames={video.durationInFrames ?? 1}
-					onDragEnd={dragAwareDoubleClick.endPointerGesture}
-				/>
-			) : null}
-			{showRightEdgeDragHandle &&
-			visibleLayout.rightEdgeVisible &&
-			nodePathInfo &&
-			validatedLocation ? (
-				<TimelineSequenceRightEdgeDragHandle
-					nodePathInfo={nodePathInfo}
-					windowWidth={windowWidth}
-					timelineDurationInFrames={video.durationInFrames ?? 1}
-					onDragEnd={dragAwareDoubleClick.endPointerGesture}
-				/>
-			) : null}
 		</TimelineSequenceCurrentFrame>
 	);
 

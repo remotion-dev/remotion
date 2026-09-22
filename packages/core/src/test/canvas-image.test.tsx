@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
-import {BufferingContextReact} from '../buffering.js';
 import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import {CanvasImage} from '../canvas-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
@@ -24,6 +23,7 @@ type DrawImageCall = {
 
 const drawImageCalls: DrawImageCall[] = [];
 let imageLoadCount = 0;
+const imageCrossOrigins: Array<string | null> = [];
 
 const stub2dContext = (canvas: HTMLCanvasElement) => ({
 	canvas,
@@ -71,6 +71,7 @@ class MockImage {
 	public set src(src: string) {
 		this.currentSrc = src;
 		imageLoadCount++;
+		imageCrossOrigins.push(this.crossOrigin);
 		queueMicrotask(() => this.onload?.());
 	}
 }
@@ -129,25 +130,13 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 const BufferingEvents: React.FC<{
 	readonly events: string[];
 }> = ({events}) => {
-	const manager = React.useContext(BufferingContextReact);
+	const {subscribeBuffering} = React.useContext(Internals.SetTimelineContext);
 
 	React.useLayoutEffect(() => {
-		if (!manager) {
-			throw new Error('Expected BufferingContextReact');
-		}
-
-		const buffering = manager.listenForBuffering(() => {
-			events.push('waiting');
+		return subscribeBuffering((state) => {
+			events.push(state.buffering ? 'waiting' : 'resume');
 		});
-		const resume = manager.listenForResume(() => {
-			events.push('resume');
-		});
-
-		return () => {
-			buffering.remove();
-			resume.remove();
-		};
-	}, [events, manager]);
+	}, [events, subscribeBuffering]);
 
 	return null;
 };
@@ -193,6 +182,7 @@ const SequenceRegistrationWrapper: React.FC<{
 		() => ({
 			registerSequence,
 			unregisterSequence,
+			updateSequence: registerSequence,
 			sequences: [],
 		}),
 		[registerSequence, unregisterSequence],
@@ -212,6 +202,7 @@ const SequenceRegistrationWrapper: React.FC<{
 beforeEach(() => {
 	drawImageCalls.length = 0;
 	imageLoadCount = 0;
+	imageCrossOrigins.length = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
 	resetDelayRenderState();
 });
@@ -237,6 +228,21 @@ test('<CanvasImage> renders a canvas element with the decoded image dimensions',
 	await waitFor(() => {
 		expect(canvas?.width).toBe(200);
 		expect(canvas?.height).toBe(100);
+	});
+});
+
+test('<CanvasImage> forwards crossOrigin to its image loader', async () => {
+	render(
+		<WrapSequenceContext>
+			<CanvasImage
+				src="https://example.com/authenticated.png"
+				crossOrigin="use-credentials"
+			/>
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(imageCrossOrigins).toEqual(['use-credentials']);
 	});
 });
 
@@ -279,6 +285,7 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
 	expect(canvasImageSchema.src).toEqual({
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,

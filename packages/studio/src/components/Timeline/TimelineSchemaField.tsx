@@ -22,7 +22,6 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../../state/modals';
-import {useSettings} from '../SettingsContext';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {TimelineArrayField} from './TimelineArrayField';
 import {
@@ -34,14 +33,18 @@ const unsupportedStatusWrapper: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'inline-flex',
 	gap: 4,
+	maxWidth: '100%',
+	minWidth: 0,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
 
 const unsupportedLabel: React.CSSProperties = {
 	color: WHITE_ALPHA_40,
+	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	fontStyle: 'italic',
+	lineHeight: '18px',
 };
 
 const computedValue: React.CSSProperties = {
@@ -49,7 +52,11 @@ const computedValue: React.CSSProperties = {
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
 	pointerEvents: 'none',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const fixLinkBase: React.CSSProperties = {
@@ -60,6 +67,7 @@ const fixLinkBase: React.CSSProperties = {
 		hoverColor: WHITE,
 	}),
 	display: 'inline-block',
+	flexShrink: 0,
 	fontSize: 10,
 	fontStyle: 'normal',
 	fontWeight: 600,
@@ -107,6 +115,7 @@ export const UnsupportedStatus: React.FC<{
 			style={unsupportedStatusWrapper}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
+			title={formattedValue && typeof label === 'string' ? label : undefined}
 		>
 			<span
 				style={formattedValue ? computedValue : unsupportedLabel}
@@ -144,26 +153,27 @@ export const TimelineNonEditableStatus: React.FC<{
 	readonly validatedLocation: CodePosition;
 }> = ({propStatus, field, runtimeValue, validatedLocation}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {remotionSkillsInfo} = useSettings();
 	const onFix = useCallback(() => {
 		setSelectedModal({
 			type: 'fix-computed-value',
 			prop: field.key,
-			context: `${validatedLocation.source}:${validatedLocation.line}:${validatedLocation.column}`,
-			remotionInteractivitySkillAvailable:
-				remotionSkillsInfo?.remotionInteractivitySkillAvailable ?? false,
+			location: validatedLocation,
 		});
-	}, [field.key, remotionSkillsInfo, setSelectedModal, validatedLocation]);
+	}, [field.key, setSelectedModal, validatedLocation]);
 
 	if (propStatus.status === 'computed') {
 		return (
 			<UnsupportedStatus
-				label={formatTimelineFieldValueForDisplay({
-					fieldSchema: field.fieldSchema,
-					value: runtimeValue,
-				})}
+				label={
+					runtimeValue === undefined
+						? 'computed'
+						: formatTimelineFieldValueForDisplay({
+								fieldSchema: field.fieldSchema,
+								value: runtimeValue,
+							})
+				}
 				onFix={onFix}
-				formattedValue
+				formattedValue={runtimeValue !== undefined}
 			/>
 		);
 	}

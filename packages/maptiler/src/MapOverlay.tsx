@@ -184,7 +184,6 @@ const MapOverlayInner = forwardRef(MapOverlayRefForwardingFunction);
 export const MapOverlay = Interactive.withSchema({
 	Component: MapOverlayInner,
 	componentName: '<MapOverlay>',
-	componentIdentity: null,
 	schema: mapOverlaySchema,
 	supportsEffects: false,
 });

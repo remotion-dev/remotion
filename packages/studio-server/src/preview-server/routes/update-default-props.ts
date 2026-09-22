@@ -1,13 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from '@remotion/studio-shared';
-import {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from '../../codemods/update-default-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
@@ -19,11 +16,12 @@ import {
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
 import {checkIfTypeScriptFile} from './can-update-default-props';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
+
+const {getCompositionDefaultPropsLine, updateDefaultProps} = CodemodsInternals;
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
@@ -52,7 +50,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 				input: fileContents,
 				compositionId,
 			});
-			const {output, formatted} = await updateDefaultProps({
+			const {output} = updateDefaultProps({
 				compositionId,
 				input: fileContents,
 				newDefaultProps: JSON.parse(defaultProps),
@@ -92,9 +90,6 @@ export const updateDefaultPropsHandler: ApiHandler<
 				{indent: false, logLevel},
 				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
 
 			printUndoHint(logLevel);
 

@@ -3,11 +3,14 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
+import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {
 	hasSequenceControls,
@@ -15,8 +18,8 @@ import {
 } from '../InspectorSequenceSection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
-import {deleteSequencesFromSource} from '../Timeline/delete-selected-timeline-item';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
 	getTimelineSequenceSplitEligibility,
@@ -27,12 +30,14 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
+import {useDeleteTimelineItems} from '../Timeline/use-delete-timeline-items';
 import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
 import {
-	InspectorQuickActionsSection,
-	InspectorQuickAction,
 	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -126,9 +131,11 @@ const SequenceSourceQuickActions: React.FC<{
 }> = ({selection, track, validatedSource}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const propStatusesForOverride = useMemo(
 		() =>
 			Internals.getPropStatusesCtx(
@@ -152,6 +159,45 @@ const SequenceSourceQuickActions: React.FC<{
 	});
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
+	const mediaSequence =
+		track.sequence.type === 'video' || track.sequence.type === 'audio'
+			? track.sequence
+			: null;
+	const mediaMetadata = useMediaMetadata(mediaSequence?.src ?? null);
+	const transcriptionDisabledReason = sourceActionsDisabled
+		? 'Studio is read-only'
+		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+			? 'Programmatically duplicated media cannot be transcribed from source'
+			: undefined;
+	const onGenerateCaptions = useCallback(() => {
+		if (transcriptionDisabledReason !== undefined || mediaSequence === null) {
+			return;
+		}
+
+		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		setSelectedModal({
+			type: 'transcribe',
+			src: mediaSequence.src,
+			displayName: getMediaFileName(
+				mediaSequence.src,
+				mediaSequence.displayName,
+			),
+			audioStreamIndex: null,
+			requestInit: null,
+			target: {
+				fileName: nodePath.absolutePath,
+				nodePath,
+				durationInFrames: Number.isFinite(mediaSequence.duration)
+					? mediaSequence.duration
+					: null,
+			},
+		});
+	}, [
+		selection.nodePathInfo,
+		setSelectedModal,
+		mediaSequence,
+		transcriptionDisabledReason,
+	]);
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;
@@ -166,10 +212,8 @@ const SequenceSourceQuickActions: React.FC<{
 			return;
 		}
 
-		deleteSequencesFromSource([selection.nodePathInfo], confirm).catch(
-			() => undefined,
-		);
-	}, [confirm, selection.nodePathInfo, sourceActionsDisabled]);
+		deleteTimelineItems([selection]);
+	}, [deleteTimelineItems, selection, sourceActionsDisabled]);
 	const splitVideoFromAudioDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
@@ -220,6 +264,18 @@ const SequenceSourceQuickActions: React.FC<{
 					)}
 				>
 					Split video from audio
+				</InspectorQuickAction>
+			) : null}
+			{mediaSequence !== null && mediaMetadata?.hasAudioTrack !== false ? (
+				<InspectorQuickAction
+					disabled={transcriptionDisabledReason !== undefined}
+					onClick={onGenerateCaptions}
+					title={transcriptionDisabledReason}
+					renderIcon={(color) => (
+						<TranscriptionIcon style={actionIconStyle} color={color} />
+					)}
+				>
+					Generate captions
 				</InspectorQuickAction>
 			) : null}
 			<InspectorQuickAction
@@ -335,17 +391,23 @@ const SequenceExpandedInspector: React.FC<{
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
-					<InspectorQuickActionsSection>
-						<SplitSequenceQuickAction
-							selection={sequenceSelection}
-							track={track}
-						/>
-						<SequenceSourceQuickActions
-							selection={sequenceSelection}
-							track={track}
-							validatedSource={validatedLocation.source}
-						/>
-					</InspectorQuickActionsSection>
+					<CollapsibleInspectorSection
+						collapsible
+						label="Actions"
+						sectionId="sequence-actions"
+					>
+						<InspectorQuickActionsSection>
+							<SplitSequenceQuickAction
+								selection={sequenceSelection}
+								track={track}
+							/>
+							<SequenceSourceQuickActions
+								selection={sequenceSelection}
+								track={track}
+								validatedSource={validatedLocation.source}
+							/>
+						</InspectorQuickActionsSection>
+					</CollapsibleInspectorSection>
 				</>
 			) : (
 				<InspectorMessage>Source controls unavailable</InspectorMessage>

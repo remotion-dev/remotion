@@ -68,6 +68,8 @@ import {
 	HourLongTimelineTestbed,
 } from './HourLongTimelineTestbed';
 import {
+	BlurSlideTransitionDoc,
+	BlurSlideTransitionDocThumb,
 	BookFlipTransitionDoc,
 	BookFlipTransitionDocThumb,
 	CrossZoomTransitionDoc,
@@ -180,6 +182,7 @@ import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
 	PushCutDemo,
 } from './Transitions/PushCutDemo';
+import {VariableGoogleFont} from './VariableGoogleFont/VariableGoogleFont';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -237,6 +240,7 @@ import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
 import {
@@ -252,6 +256,7 @@ import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
+import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
@@ -312,12 +317,14 @@ import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
 import {ConstantMultiplication} from './VisualModeTests/ConstantMultiplication';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
+import {FontWeightControls} from './VisualModeTests/FontWeightControls';
 import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
+import {SequenceDurationInterpolation} from './VisualModeTests/SequenceDurationInterpolation';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
@@ -1211,6 +1218,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<SimultaneousPlaybackComp />
 				<PremountSequenceVideoComp />
 				<ObjectFitTestComp />
 				<NewVideoBufferStateComp />
@@ -1456,6 +1464,22 @@ export const Index: React.FC = () => {
 					<Composition
 						id="swap-transition-doc-thumb"
 						component={SwapTransitionDocThumb}
+						fps={30}
+						height={280}
+						width={540}
+						durationInFrames={60}
+					/>
+					<Composition
+						id="blur-slide-transition-doc"
+						component={BlurSlideTransitionDoc}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={90}
+					/>
+					<Composition
+						id="blur-slide-transition-doc-thumb"
+						component={BlurSlideTransitionDocThumb}
 						fps={30}
 						height={280}
 						width={540}
@@ -2008,6 +2032,14 @@ export const Index: React.FC = () => {
 					width={100}
 					height={100}
 				/>
+				<Composition
+					id="gsap-parity"
+					lazyComponent={() => import('./Gsap/ParityFixture')}
+					durationInFrames={90}
+					fps={30}
+					width={640}
+					height={300}
+				/>
 			</Folder>
 			<Folder name="lottie">
 				<Composition
@@ -2266,6 +2298,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Composition
+					id="tear-test"
+					component={TearTest}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<RiveEffectsTestbed />
 				<GifEffectsTestbed />
 				<AnimatedImageEffects />
@@ -3054,6 +3094,14 @@ export const Index: React.FC = () => {
 					durationInFrames={90}
 				/>
 				<Composition
+					id="font-weight-controls"
+					component={FontWeightControls}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
 					id="interactive-svg-elements"
 					component={InteractiveSvgElements}
 					width={1080}
@@ -3080,6 +3128,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="issue-9170-duration-subtraction"
 					component={Issue9170}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="sequence-duration-interpolation"
+					component={SequenceDurationInterpolation}
 					width={1200}
 					height={800}
 					fps={30}
@@ -3112,6 +3168,14 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={2 * 60 * 30}
+			/>
+			<Composition
+				id="variable-google-font"
+				component={VariableGoogleFont}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={180}
 			/>
 		</>
 	);

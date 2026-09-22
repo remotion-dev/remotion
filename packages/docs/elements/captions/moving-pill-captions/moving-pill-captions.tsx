@@ -29,28 +29,22 @@ import {
 type MovingPillCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
-		readonly captions?: Caption[];
+		readonly captions: Caption[];
+		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-type MovingPillCaptionsLayerProps = Omit<
-	MovingPillCaptionsProps,
-	'captions'
-> & {
-	readonly callerStyle: React.CSSProperties | null;
-	readonly captions: Caption[];
-};
-
 const desiredFontSize = 80;
-const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
-const backgroundColor = '#0b84f3';
+const backgroundColor = '#2563eb';
 const pillHorizontalPadding = 12;
 const pillVerticalPadding = 12;
 const pillBorderRadius = 10;
 const pillMoveDurationInFrames = 5;
 const defaultCombineTokensWithinMilliseconds = 800;
+const defaultWidth = 682;
+const defaultHeight = 252;
 
 const movingPillCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -79,7 +73,6 @@ const movingPillCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	callerStyle: {type: 'hidden'},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
@@ -87,9 +80,6 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
 	subsets: ['latin'],
 });
-
-const frameToMilliseconds = (frame: number, fps: number) =>
-	(frame / fps) * 1000;
 
 const isTimeWithinHalfOpenInterval = (
 	timeMs: number,
@@ -133,11 +123,9 @@ const CaptionPage: React.FC<{
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
 }> = ({captionAreaWidth, currentTimeMs, fps, page, pageIndex}) => {
+	const {width: compositionWidth} = useVideoConfig();
+	const availableWidth = captionAreaWidth ?? compositionWidth;
 	const fontSize = useMemo(() => {
-		const availableWidth = Math.min(
-			maximumTextWidth,
-			captionAreaWidth ?? maximumTextWidth,
-		);
 		const maximumTokenWidth = Math.max(
 			1,
 			availableWidth - pillHorizontalPadding * 2,
@@ -163,11 +151,11 @@ const CaptionPage: React.FC<{
 				fontWeight,
 				text: page.text,
 				validateFontIsLoaded: true,
-				withinWidth: maximumTextWidth,
+				withinWidth: availableWidth,
 			}).fontSize,
 			...tokenFontSizes,
 		);
-	}, [captionAreaWidth, page.text, page.tokens]);
+	}, [availableWidth, page.text, page.tokens]);
 	const textContainerRef = useRef<HTMLDivElement>(null);
 	const tokenRefs = useRef<Array<HTMLSpanElement | null>>([]);
 	const [tokenLayouts, setTokenLayouts] = useState<TokenLayout[]>([]);
@@ -264,9 +252,6 @@ const CaptionPage: React.FC<{
 
 	return (
 		<div
-			aria-label={page.text}
-			aria-live="off"
-			role="group"
 			style={{
 				alignItems: 'center',
 				display: 'flex',
@@ -277,14 +262,12 @@ const CaptionPage: React.FC<{
 		>
 			<div
 				ref={textContainerRef}
-				aria-hidden="true"
 				style={{
 					color: textColor,
 					fontFamily,
 					fontSize,
 					fontWeight,
 					lineHeight: 1.5,
-					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
 					position: 'relative',
 					textAlign: 'center',
@@ -295,7 +278,6 @@ const CaptionPage: React.FC<{
 			>
 				{hasTokenLayouts && latestStartedTokenIndex >= 0 ? (
 					<div
-						aria-hidden="true"
 						style={{
 							backgroundColor,
 							borderRadius: pillBorderRadius,
@@ -350,11 +332,15 @@ const MovingPillCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
+	readonly playbackRate: number;
+	readonly trimBefore: number;
 }> = ({
 	captionAreaWidth,
 	captions,
 	combineTokensWithinMilliseconds,
 	fontLoaded,
+	playbackRate,
+	trimBefore,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -366,7 +352,8 @@ const MovingPillCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs = frameToMilliseconds(frame, fps);
+	const currentTimeMs =
+		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
@@ -388,36 +375,27 @@ const MovingPillCaptionsContent: React.FC<{
 
 const MovingPillCaptionsInner = forwardRef<
 	HTMLDivElement,
-	MovingPillCaptionsLayerProps & {
+	MovingPillCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
 	(
 		{
-			callerStyle,
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
-			height,
+			height = defaultHeight,
 			name,
+			playbackRate = 1,
 			style,
-			width,
+			trimBefore,
+			width = defaultWidth,
 			...interactiveProps
 		},
 		ref,
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
-		const {
-			rotate: callerRotate,
-			scale: callerScale,
-			transform: callerTransform,
-			transformBox: callerTransformBox,
-			transformOrigin: callerTransformOrigin,
-			transformStyle: callerTransformStyle,
-			translate: callerTranslate,
-			...callerContentStyle
-		} = callerStyle ?? {};
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -439,37 +417,26 @@ const MovingPillCaptionsInner = forwardRef<
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<MovingPillCaptions>'}
+				trimBefore={trimBefore}
 				outlineRef={outlineRef}
 			>
 				<div
+					ref={outlineRef}
 					style={{
-						height: height ?? '100%',
-						rotate: callerRotate,
-						scale: callerScale,
-						transform: callerTransform,
-						transformBox: callerTransformBox,
-						transformOrigin: callerTransformOrigin,
-						transformStyle: callerTransformStyle,
-						translate: callerTranslate,
-						width: width ?? '100%',
+						height,
+						marginInline: 'auto',
+						width,
+						...style,
 					}}
 				>
-					<div
-						ref={outlineRef}
-						style={{
-							height: '100%',
-							width: '100%',
-							...style,
-							...callerContentStyle,
-						}}
-					>
-						<MovingPillCaptionsContent
-							captionAreaWidth={width ?? null}
-							captions={captions}
-							combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-							fontLoaded={fontLoaded}
-						/>
-					</div>
+					<MovingPillCaptionsContent
+						captionAreaWidth={width ?? null}
+						captions={captions}
+						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+						fontLoaded={fontLoaded}
+						playbackRate={playbackRate}
+						trimBefore={trimBefore ?? 0}
+					/>
 				</div>
 			</Sequence>
 		);
@@ -479,95 +446,8 @@ const MovingPillCaptionsInner = forwardRef<
 const MovingPillCaptionsLayer = Interactive.withSchema({
 	Component: MovingPillCaptionsInner,
 	componentName: '<MovingPillCaptions>',
-	componentIdentity: null,
 	schema: movingPillCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsLayerProps>;
+}) as React.FC<MovingPillCaptionsProps>;
 
-export const MovingPillCaptions: React.FC<MovingPillCaptionsProps> = ({
-	captions,
-	style,
-	...props
-}) => {
-	if (captions) {
-		return (
-			<MovingPillCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={captions}
-				style={{translate: '0px 0px'}}
-			/>
-		);
-	}
-
-	return (
-		<div
-			style={{
-				alignItems: 'center',
-				display: 'flex',
-				height: 180,
-				justifyContent: 'center',
-				width: 900,
-			}}
-		>
-			<MovingPillCaptionsLayer
-				{...props}
-				callerStyle={style ?? null}
-				captions={[
-					{
-						text: 'Captions',
-						startMs: 0,
-						endMs: 800,
-						timestampMs: 400,
-						confidence: null,
-					},
-					{
-						text: ' can',
-						startMs: 800,
-						endMs: 1500,
-						timestampMs: 1150,
-						confidence: null,
-					},
-					{
-						text: ' move',
-						startMs: 1500,
-						endMs: 2300,
-						timestampMs: 1900,
-						confidence: null,
-					},
-					{
-						text: ' with',
-						startMs: 2300,
-						endMs: 3100,
-						timestampMs: 2700,
-						confidence: null,
-					},
-					{
-						text: ' every',
-						startMs: 3100,
-						endMs: 4000,
-						timestampMs: 3550,
-						confidence: null,
-					},
-					{
-						text: ' spoken',
-						startMs: 4000,
-						endMs: 5100,
-						timestampMs: 4550,
-						confidence: null,
-					},
-					{
-						text: ' word.',
-						startMs: 5100,
-						endMs: 6500,
-						timestampMs: 5800,
-						confidence: null,
-					},
-				]}
-				width={681}
-				height={252}
-				style={{translate: '0px 0px'}}
-			/>
-		</div>
-	);
-};
+export const MovingPillCaptions = MovingPillCaptionsLayer;

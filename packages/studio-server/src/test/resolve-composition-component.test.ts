@@ -422,7 +422,7 @@ test('canAddSequence=true for self-closing root JSX return', async () => {
 	}
 });
 
-test('wraps a self-closing root in a Sequence before inserting', async () => {
+test('inserts a Solid next to a self-closing root without wrapping it', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -452,31 +452,33 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 			compositionFile: 'Root.tsx',
 			compositionId: 'test',
 			element: {
-				type: 'asset',
-				assetType: 'audio',
-				src: 'music.mp3',
-				srcType: 'static',
-				dimensions: null,
-				durationInFrames: null,
+				type: 'solid',
+				width: 1920,
+				height: 1080,
 				position: null,
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
-			"import { staticFile, Sequence } from 'remotion';",
+			"import {staticFile, Solid} from 'remotion';",
 		);
-		expect(result.output).toContain('<Sequence>');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain(
-			"<Video src={staticFile('background.mov')} />",
+			'<Video src={staticFile("background.mov")} />',
 		);
-		expect(result.output).toContain('</Sequence>');
-		expect(result.output).toContain("<Audio src={staticFile('music.mp3')} />");
+		expect(result.output).toContain('<Solid');
+		expect(result.output).toMatch(/style=\{\{\s*position: 'absolute'\s*\}\}/);
 		expect(result.nodePathRemappings).toEqual([
 			{
 				oldNodePath: lineContainingToNodePath(componentInput, '<Video'),
 				newNodePath: lineContainingToNodePath(result.output, '<Video'),
+			},
+			{
+				oldNodePath: null,
+				newNodePath: lineContainingToNodePath(result.output, '<Solid'),
 			},
 		]);
 	} finally {
@@ -530,6 +532,7 @@ test('inserts an asset as a sibling of a connected composition', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		const connectedCompositionEnd = result.output.indexOf('</Sequence>');
@@ -542,7 +545,7 @@ test('inserts an asset as a sibling of a connected composition', async () => {
 	}
 });
 
-test('removes parentheses when wrapping a self-closing root in a Sequence', async () => {
+test('inserts beside a parenthesized self-closing root without wrapping it', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -586,10 +589,15 @@ test('removes parentheses when wrapping a self-closing root in a Sequence', asyn
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain('<Sequence>\n\t\t\t\t<Video');
-		expect(result.output).not.toContain('<Sequence>\n\t\t\t(');
+		const videoStart = result.output.indexOf('<Video');
+		const imageStart = result.output.indexOf('<CanvasImage');
+		expect(result.output).toContain('<>');
+		expect(result.output).not.toContain('<Sequence');
+		expect(videoStart).toBeGreaterThan(-1);
+		expect(imageStart).toBeGreaterThan(videoStart);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -783,11 +791,12 @@ test('inserts a Solid into the resolved composition component', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.source).toBe('MyComp.tsx');
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Solid } from 'remotion';",
+			"import {AbsoluteFill, Solid} from 'remotion';",
 		);
 		expect(result.output).toContain('<Solid');
 		expect(result.output).toContain('width={1280}');
@@ -840,6 +849,7 @@ test('inserts a Solid with a translate style', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("position: 'absolute'");
@@ -890,6 +900,7 @@ test('rounds the translate style to one decimal place', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("position: 'absolute'");
@@ -939,10 +950,11 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Solid as RemotionSolid } from 'remotion';",
+			"import {AbsoluteFill, Solid as RemotionSolid} from 'remotion';",
 		);
 		expect(result.output).toContain('<RemotionSolid');
 		expect(result.output).toContain('width={1920}');
@@ -984,6 +996,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain("import { Solid } from 'remotion';");
@@ -1016,6 +1029,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 		expect(secondInsert.output.match(/<Solid/g)?.length).toBe(2);
 	} finally {
@@ -1061,10 +1075,11 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Interactive } from 'remotion';",
+			"import {AbsoluteFill, Interactive} from 'remotion';",
 		);
 		expect(result.output).toContain('<Interactive.Svg');
 		expect(result.output).toContain('from={42}');
@@ -1127,10 +1142,11 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
 		);
 		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
@@ -1193,10 +1209,11 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
 		);
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
@@ -1250,10 +1267,11 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, AnimatedImage } from 'remotion';",
+			"import {AbsoluteFill, staticFile, AnimatedImage} from 'remotion';",
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
@@ -1313,11 +1331,12 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain("import { Video } from '@remotion/media';");
+		expect(result.output).toContain("import {Video} from '@remotion/media';");
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
+			"import {AbsoluteFill, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('from={42}');
@@ -1376,6 +1395,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			}),
 		).rejects.toThrow('Cannot add <Video> because Video is already defined');
 	} finally {
@@ -1427,11 +1447,12 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain("import { Gif } from '@remotion/gif';");
+		expect(result.output).toContain("import {Gif} from '@remotion/gif';");
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
+			"import {AbsoluteFill, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
@@ -1488,11 +1509,12 @@ test('inserts an Audio asset into the resolved composition component', async () 
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain("import { Audio } from '@remotion/media';");
+		expect(result.output).toContain("import {Audio} from '@remotion/media';");
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile } from 'remotion';",
+			"import {AbsoluteFill, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
@@ -1546,10 +1568,11 @@ test('inserts a remote audio asset with a literal URL', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain("import { Audio } from '@remotion/media';");
-		expect(result.output).toContain("import { AbsoluteFill } from 'remotion';");
+		expect(result.output).toContain("import {Audio} from '@remotion/media';");
+		expect(result.output).toContain("import {AbsoluteFill} from 'remotion';");
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain('src="https://example.com/whip.wav"');
 		expect(result.output).not.toContain('staticFile');
@@ -1604,6 +1627,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			}),
 		).rejects.toThrow('Cannot add <Audio> because Audio is already defined');
 	} finally {
@@ -1655,11 +1679,10 @@ test('inserts a component into the resolved composition component', async () => 
 			},
 			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain(
-			"import { Circle } from '@remotion/shapes';",
-		);
+		expect(result.output).toContain("import {Circle} from '@remotion/shapes';");
 		expect(result.output).toContain('<Circle');
 		expect(result.output).toContain('fill="#0b84ff"');
 		expect(result.output).toContain('dataShapeIndex={1}');
@@ -1672,7 +1695,7 @@ test('inserts a component into the resolved composition component', async () => 
 	}
 });
 
-test('rejects type-only component imports instead of using them as values', async () => {
+test('adds value imports without reusing or colliding with type-only component imports', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1704,25 +1727,25 @@ test('rejects type-only component imports instead of using them as values', asyn
 				].join('\n'),
 			);
 
-			await expect(
-				insertJsxElementIntoComposition({
-					remotionRoot: tempDir,
-					compositionFile: 'Root.tsx',
-					compositionId: 'test',
-					element: {
-						type: 'component',
-						componentName: 'LowerThird',
-						importName: 'LowerThird',
-						importPath: './lower-third.element',
-						props: [],
-						position: null,
-					},
-					from: null,
-					prettierConfigOverride: {singleQuote: true, useTabs: true},
-				}),
-			).rejects.toThrow(
-				'Cannot add <LowerThird> because LowerThird is already defined',
-			);
+			const aliasedResult = await insertJsxElementIntoComposition({
+				remotionRoot: tempDir,
+				compositionFile: 'Root.tsx',
+				compositionId: 'test',
+				element: {
+					type: 'component',
+					componentName: 'LowerThird',
+					importName: 'LowerThird',
+					importPath: './lower-third.element',
+					props: [],
+					position: null,
+				},
+				from: null,
+				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
+			});
+			expect(aliasedResult.output).toContain('LowerThird as LowerThird2');
+			expect(aliasedResult.output).toContain('<LowerThird2');
+			expect(aliasedResult.output).toMatch(/\btype\s+(?:\{\s*)?LowerThird\b/);
 		}
 
 		await fs.writeFile(
@@ -1751,9 +1774,10 @@ test('rejects type-only component imports instead of using them as values', asyn
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 		expect(result.output).toContain(
-			"import { LowerThird } from './lower-third.element';",
+			"import {LowerThird} from './lower-third.element';",
 		);
 		expect(result.output).toContain('<LowerThird');
 	} finally {
@@ -1801,6 +1825,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 			wrapInSequence: {
 				dimensions: null,
 				from: 42,
@@ -1810,10 +1835,10 @@ test('wraps a component in a dimensionless Sequence', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, Sequence } from 'remotion';",
+			"import {AbsoluteFill, Sequence} from 'remotion';",
 		);
 		expect(result.output).toContain(
-			"import { LowerThird } from './lower-third.element';",
+			"import {LowerThird} from './lower-third.element';",
 		);
 		expect(result.output).toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
@@ -1890,9 +1915,10 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
-		expect(result.output).toContain("import { Source } from './Source';");
+		expect(result.output).toContain("import {Source} from './Source';");
 		expect(result.output).toContain('Sequence');
 		expect(result.output).toContain('<Sequence');
 		expect(result.output).toContain('width={1080}');
@@ -2063,6 +2089,7 @@ test('inserts a default-exported composition next to an existing namespace impor
 			},
 			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
 		});
 
 		expect(result.output).toContain(
@@ -2139,6 +2166,7 @@ test('rejects array payloads for resolved composition props', async () => {
 				},
 				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
+				sourceFileOverrides: null,
 			}),
 		).rejects.toThrow('Resolved composition props must be an object');
 	} finally {

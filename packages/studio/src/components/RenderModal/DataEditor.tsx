@@ -20,6 +20,7 @@ import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {resolveCompositionSchema} from './SchemaEditor/infer-zod-schema-from-value';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
+	InvalidDefaultProps,
 	NoDefaultProps,
 	NoSchemaDefined,
 	type SchemaErrorMode,
@@ -379,6 +380,11 @@ export const DataEditor: React.FC<{
 		return <NoDefaultProps mode={schemaErrorMode} />;
 	}
 
+	// <Composition> normalizes omitted defaultProps to an empty object.
+	// Avoid rendering field editors with undefined values in that case.
+	const emptyDefaultPropsAreInvalid =
+		Object.keys(defaultProps).length === 0 && !zodValidationResult.success;
+
 	const shouldRenderControlRow =
 		!hideModeControls || (!hideWarningButton && warnings.length > 0);
 	const shouldRenderWarningMessages = showWarning && warnings.length > 0;
@@ -442,16 +448,20 @@ export const DataEditor: React.FC<{
 			) : null}
 
 			{mode === 'schema' ? (
-				<SchemaEditor
-					value={defaultProps}
-					setValue={setDefaultProps}
-					schema={schema}
-					scrollableContainer={!compactLayout}
-					contentInset={
-						compactLayout ? INSPECTOR_PANEL_HORIZONTAL_PADDING : undefined
-					}
-					errorMode={schemaErrorMode}
-				/>
+				emptyDefaultPropsAreInvalid ? (
+					<InvalidDefaultProps zodValidationResult={zodValidationResult} />
+				) : (
+					<SchemaEditor
+						value={defaultProps}
+						setValue={setDefaultProps}
+						schema={schema}
+						scrollableContainer={!compactLayout}
+						contentInset={
+							compactLayout ? INSPECTOR_PANEL_HORIZONTAL_PADDING : undefined
+						}
+						errorMode={schemaErrorMode}
+					/>
+				)
 			) : (
 				<RenderModalJSONPropsEditor
 					value={defaultProps ?? {}}

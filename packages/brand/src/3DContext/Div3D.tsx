@@ -553,7 +553,6 @@ ExtrudeDivInner.displayName = '<ExtrudeDiv>';
 export const ExtrudeDiv = Interactive.withSchema({
 	Component: ExtrudeDivInner,
 	componentName: '<ExtrudeDiv>',
-	componentIdentity: null,
 	schema: extrudeDivSchema,
 	supportsEffects: false,
 });

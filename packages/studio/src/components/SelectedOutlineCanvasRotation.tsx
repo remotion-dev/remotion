@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
+import {isMac} from '../helpers/is-mac';
 import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {canvasRotationCursor} from './canvas-rotation-cursor';
@@ -63,9 +64,39 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
+	const [commandKeyPressed, setCommandKeyPressed] = React.useState(false);
 	const cursor = transform3DMode
 		? canvasRotationCursor
 		: canvas2DRotationCursor;
+
+	React.useEffect(() => {
+		const commandKey = isMac ? 'Meta' : 'Control';
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (event.key === commandKey) {
+				setCommandKeyPressed(true);
+			}
+		};
+
+		const onKeyUp = (event: KeyboardEvent) => {
+			if (event.key === commandKey) {
+				setCommandKeyPressed(false);
+			}
+		};
+
+		const onBlur = () => {
+			setCommandKeyPressed(false);
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		window.addEventListener('keyup', onKeyUp);
+		window.addEventListener('blur', onBlur);
+
+		return () => {
+			window.removeEventListener('keydown', onKeyDown);
+			window.removeEventListener('keyup', onKeyUp);
+			window.removeEventListener('blur', onBlur);
+		};
+	}, []);
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPathElement>) => {
@@ -291,8 +322,8 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 		<polygon
 			points={outline.points.map((point) => `${point.x},${point.y}`).join(' ')}
 			fill={TRANSPARENT}
-			pointerEvents="all"
-			cursor={cursor}
+			pointerEvents={commandKeyPressed ? 'none' : 'all'}
+			cursor={commandKeyPressed ? 'default' : cursor}
 			onPointerDown={onPointerDown}
 			data-remotion-studio-canvas-rotation
 		/>

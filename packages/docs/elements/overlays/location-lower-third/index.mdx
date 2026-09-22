@@ -5,8 +5,8 @@ image: https://remotion.media/elements/overlays-location-lower-third-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # Location Lower Third
 
-<ElementPage definition={elementDefinitions['overlays/location-lower-third']} sourceFile="./location-lower-third.tsx" />
+<ElementPage definition={getElementDefinition('overlays/location-lower-third')} sourceFile="./location-lower-third.tsx" />

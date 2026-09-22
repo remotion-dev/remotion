@@ -1,4 +1,5 @@
-import {isRecord, isUrl} from './validation';
+import * as z from 'zod/mini';
+import {isUrl} from './validation';
 
 export type SfxDragData = {
 	type: 'remotion-sfx';
@@ -8,6 +9,15 @@ export type SfxDragData = {
 		url: string;
 	};
 };
+
+const sfxDragDataSchema = z.object({
+	type: z.literal('remotion-sfx'),
+	version: z.literal(1),
+	sfx: z.object({
+		name: z.string().check(z.minLength(1)),
+		url: z.string().check(z.refine(isUrl)),
+	}),
+});
 
 export const makeSfxDragData = ({
 	name,
@@ -22,27 +32,13 @@ export const makeSfxDragData = ({
 
 export const parseSfxDragData = (value: string): SfxDragData | null => {
 	try {
-		const parsed: unknown = JSON.parse(value);
-		if (
-			!isRecord(parsed) ||
-			parsed.type !== 'remotion-sfx' ||
-			parsed.version !== 1 ||
-			!isRecord(parsed.sfx)
-		) {
-			return null;
-		}
-
-		const {name, url} = parsed.sfx;
-		if (
-			typeof name !== 'string' ||
-			name.length === 0 ||
-			typeof url !== 'string' ||
-			!isUrl(url)
-		) {
-			return null;
-		}
-
-		return makeSfxDragData({name, url});
+		const parsed = z.safeParse(sfxDragDataSchema, JSON.parse(value));
+		return parsed.success
+			? makeSfxDragData({
+					name: parsed.data.sfx.name,
+					url: parsed.data.sfx.url,
+				})
+			: null;
 	} catch {
 		return null;
 	}

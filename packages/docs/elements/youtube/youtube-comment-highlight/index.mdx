@@ -6,8 +6,8 @@ image: https://remotion.media/elements/youtube-youtube-comment-highlight-preview
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 
 # YouTube Comment Highlight
 
-<ElementPage definition={elementDefinitions['youtube/youtube-comment-highlight']} sourceFile="./youtube-comment-highlight.tsx" />
+<ElementPage definition={getElementDefinition('youtube/youtube-comment-highlight')} sourceFile="./youtube-comment-highlight.tsx" />

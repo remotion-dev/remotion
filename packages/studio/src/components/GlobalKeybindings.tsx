@@ -1,11 +1,17 @@
+import type {StudioKeyboardShortcutAction} from '@remotion/studio-shared';
 import type React from 'react';
 import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {pickColor} from '../helpers/pick-color';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
@@ -17,12 +23,15 @@ import {
 	useCurrentTimelineSelectionStateAsRef,
 } from './Timeline/TimelineSelection';
 
-const sequencePropShortcuts: Record<string, string> = {
-	p: 'style.translate',
-	r: 'style.rotate',
-	s: 'style.scale',
-	t: 'style.opacity',
-};
+const sequencePropShortcuts = [
+	{action: 'selectTranslateProp', fieldKey: 'style.translate'},
+	{action: 'selectRotateProp', fieldKey: 'style.rotate'},
+	{action: 'selectScaleProp', fieldKey: 'style.scale'},
+	{action: 'selectOpacityProp', fieldKey: 'style.opacity'},
+] as const satisfies readonly {
+	readonly action: StudioKeyboardShortcutAction;
+	readonly fieldKey: string;
+}[];
 
 const hasOwnProperty = (obj: object, key: string) =>
 	Object.prototype.hasOwnProperty.call(obj, key);
@@ -32,6 +41,62 @@ export const GlobalKeybindings: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {setEditorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {editorShowRulers, setEditorShowRulers} = useContext(
+		EditorShowRulersContext,
+	);
+	const {editorShowGuides, setEditorShowGuides} = useContext(
+		EditorShowGuidesContext,
+	);
+	const showGuides = canvasContent?.type === 'composition';
+	const showCanvasViewControls =
+		showGuides ||
+		(canvasContent?.type === 'asset' &&
+			getPreviewFileType(canvasContent.asset) === 'video');
+
+	useEffect(() => {
+		if (!showCanvasViewControls) return;
+		const outlines = showGuides
+			? keybindings.registerKeybinding({
+					event: 'keydown',
+					action: 'toggleOutlines',
+					callback: (event) => {
+						if (!event.repeat) setEditorShowOutlines((current) => !current);
+					},
+					preventDefault: true,
+					triggerIfInputFieldFocused: false,
+					keepRegisteredWhenNotHighestContext: false,
+				})
+			: null;
+		const rulers = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'toggleRulersAndGuides',
+			callback: (event) => {
+				if (event.repeat) return;
+				const visible = editorShowRulers || (showGuides && editorShowGuides);
+				setEditorShowRulers(() => !visible);
+				if (showGuides) setEditorShowGuides(() => !visible);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		return () => {
+			outlines?.unregister();
+			rulers.unregister();
+		};
+	}, [
+		keybindings,
+		showCanvasViewControls,
+		showGuides,
+		editorShowRulers,
+		editorShowGuides,
+		setEditorShowOutlines,
+		setEditorShowRulers,
+		setEditorShowGuides,
+	]);
+
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -118,33 +183,9 @@ export const GlobalKeybindings: React.FC = () => {
 	}, [video]);
 
 	useEffect(() => {
-		const onSequencePropKey = (event: KeyboardEvent) => {
-			const key = event.key.toLowerCase();
-			const fieldKey = sequencePropShortcuts[key];
-			if (!fieldKey) {
-				return;
-			}
-
-			if (selectSequenceProp(fieldKey)) {
-				event.preventDefault();
-				return;
-			}
-
-			if (key === 't') {
-				setCheckerboard((c) => !c);
-				event.preventDefault();
-				return;
-			}
-
-			if (key === 'r') {
-				openRenderModal();
-				event.preventDefault();
-			}
-		};
-
 		const cmdKKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'k',
+			action: 'quickSwitcher',
 			callback: () => {
 				setSelectedModal({
 					type: 'quick-switcher',
@@ -159,7 +200,6 @@ export const GlobalKeybindings: React.FC = () => {
 			},
 			triggerIfInputFieldFocused: true,
 			keepRegisteredWhenNotHighestContext: false,
-			commandCtrlKey: true,
 			preventDefault: true,
 		});
 		const cmdSKey = keybindings.registerKeybinding({
@@ -176,31 +216,70 @@ export const GlobalKeybindings: React.FC = () => {
 		const cmdIKey = getStudioAskAIEnabled()
 			? keybindings.registerKeybinding({
 					event: 'keydown',
-					key: 'i',
+					action: 'askAI',
 					callback: () => {
 						askAiModalRef.current?.toggle();
 					},
 					triggerIfInputFieldFocused: true,
 					keepRegisteredWhenNotHighestContext: true,
-					commandCtrlKey: true,
 					preventDefault: true,
 				})
 			: null;
+		const colorPicker =
+			'EyeDropper' in window
+				? keybindings.registerKeybinding({
+						event: 'keydown',
+						action: 'pickColor',
+						callback: () => {
+							pickColor();
+						},
+						triggerIfInputFieldFocused: false,
+						keepRegisteredWhenNotHighestContext: false,
+						preventDefault: true,
+					})
+				: null;
 
-		const sequencePropKeys = Object.keys(sequencePropShortcuts).map((key) =>
+		const sequencePropKeys = sequencePropShortcuts.map(({action, fieldKey}) =>
 			keybindings.registerKeybinding({
 				event: 'keydown',
-				key,
-				callback: onSequencePropKey,
-				commandCtrlKey: false,
+				action,
+				callback: (event) => {
+					if (selectSequenceProp(fieldKey)) {
+						event.preventDefault();
+					}
+				},
 				preventDefault: false,
 				triggerIfInputFieldFocused: false,
 				keepRegisteredWhenNotHighestContext: false,
 			}),
 		);
+		const render = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'render',
+			callback: (event) => {
+				if (event.defaultPrevented) return;
+				openRenderModal();
+				event.preventDefault();
+			},
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const checkerboard = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'toggleCheckerboard',
+			callback: (event) => {
+				if (event.defaultPrevented) return;
+				setCheckerboard((current) => !current);
+				event.preventDefault();
+			},
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
 		const questionMark = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: '?',
+			event: 'keydown',
+			action: 'showKeyboardShortcuts',
 			callback: () => {
 				setSelectedModal({
 					type: 'settings',
@@ -209,7 +288,6 @@ export const GlobalKeybindings: React.FC = () => {
 						window.remotion_renderDefaults?.publicLicenseKey ?? null,
 				});
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -217,9 +295,8 @@ export const GlobalKeybindings: React.FC = () => {
 
 		const pageDown = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'PageDown',
+			action: 'nextComposition',
 			callback: navigateToNextComposition,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -227,9 +304,8 @@ export const GlobalKeybindings: React.FC = () => {
 
 		const pageUp = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'PageUp',
+			action: 'previousComposition',
 			callback: navigateToPreviousComposition,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -237,17 +313,11 @@ export const GlobalKeybindings: React.FC = () => {
 
 		const shiftMKey = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'm',
-			callback: (event) => {
-				if (!event.shiftKey) {
-					return;
-				}
-
+			action: 'toggleSnapping',
+			callback: () => {
 				setEditorSnapping((current) => !current);
-				event.preventDefault();
 			},
-			commandCtrlKey: false,
-			preventDefault: false,
+			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
@@ -257,10 +327,14 @@ export const GlobalKeybindings: React.FC = () => {
 				sequencePropKey.unregister();
 			}
 
+			render.unregister();
+			checkerboard.unregister();
+
 			questionMark.unregister();
 			cmdKKey.unregister();
 			cmdSKey.unregister();
 			cmdIKey?.unregister();
+			colorPicker?.unregister();
 			pageDown.unregister();
 			pageUp.unregister();
 			shiftMKey.unregister();

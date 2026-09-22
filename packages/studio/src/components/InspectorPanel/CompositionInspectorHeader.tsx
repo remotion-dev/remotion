@@ -8,6 +8,10 @@ import {
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../../helpers/get-git-menu-item';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {
 	openOriginalPositionInEditor,
@@ -50,6 +54,7 @@ export const CompositionInspectorHeader = () => {
 	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
 		previewServerState.type === 'connected',
 	);
+	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const currentComposition = useMemo(() => {
 		if (!video) {
@@ -97,28 +102,31 @@ export const CompositionInspectorHeader = () => {
 		});
 	}, [compositionFile, compositionId]);
 
+	const openSourceLocation = useCallback(
+		(location: OriginalPosition) => {
+			if (defaultOpenInTarget === 'editor' && defaultEditorId) {
+				openOriginalPositionInEditor(location, defaultEditorId).catch((err) => {
+					showNotification((err as Error).message, 2000);
+				});
+				return;
+			}
+
+			if (defaultOpenInTarget === 'git-source') {
+				openGitSource({folder: false, location});
+			}
+		},
+		[defaultEditorId, defaultOpenInTarget],
+	);
 	const openFileLocation = useCallback(() => {
-		if (!validatedLocation || !defaultEditorId || !canOpenInEditor) {
-			return;
+		if (validatedLocation) {
+			openSourceLocation(validatedLocation);
 		}
-
-		openOriginalPositionInEditor(validatedLocation, defaultEditorId).catch(
-			(err) => {
-				showNotification((err as Error).message, 2000);
-			},
-		);
-	}, [canOpenInEditor, defaultEditorId, validatedLocation]);
+	}, [openSourceLocation, validatedLocation]);
 	const openComponentLocation = useCallback(() => {
-		if (!componentLocation || !defaultEditorId || !canOpenInEditor) {
-			return;
+		if (componentLocation) {
+			openSourceLocation(componentLocation);
 		}
-
-		openOriginalPositionInEditor(componentLocation, defaultEditorId).catch(
-			(err) => {
-				showNotification((err as Error).message, 2000);
-			},
-		);
-	}, [canOpenInEditor, componentLocation, defaultEditorId]);
+	}, [componentLocation, openSourceLocation]);
 	const renderCompositionIcon = useCallback(
 		(color: string) => {
 			if (!video) {
@@ -153,7 +161,7 @@ export const CompositionInspectorHeader = () => {
 					/>
 					<InspectorSourceLocation
 						location={validatedLocation}
-						canOpen={validatedLocation !== null && canOpenInEditor}
+						canOpen={validatedLocation !== null && defaultOpenInTarget !== null}
 						onOpen={openFileLocation}
 						renderIcon={renderCompositionIcon}
 						size="quick-action"
@@ -165,7 +173,9 @@ export const CompositionInspectorHeader = () => {
 					) : (
 						<InspectorSourceLocation
 							location={componentLocation}
-							canOpen={componentLocation !== null && canOpenInEditor}
+							canOpen={
+								componentLocation !== null && defaultOpenInTarget !== null
+							}
 							onOpen={openComponentLocation}
 							renderIcon={renderReactIcon}
 							size="quick-action"

@@ -3,6 +3,10 @@ import JsxRuntimeDev from 'react/jsx-dev-runtime';
 import JsxRuntime from 'react/jsx-runtime';
 import {Internals} from 'remotion';
 
+type ReactRefreshRuntime = {
+	getFamilyByType: (component: unknown) => unknown;
+};
+
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
@@ -50,7 +54,8 @@ const enableProxy = <
 ): T => {
 	return new Proxy(api, {
 		apply(target, thisArg, argArray) {
-			if (componentsToAddStacksTo.includes(argArray[0])) {
+			const component = argArray[0];
+			if (componentsToAddStacksTo.includes(component)) {
 				const [first, props, ...rest] = argArray;
 				const children = isCreateElement
 					? rest.length === 0
@@ -85,7 +90,31 @@ const enableProxy = <
 	});
 };
 
-React.createElement = enableProxy(originalCreateElement, true, null);
-JsxRuntime.jsx = enableProxy(originalJsx, false, null);
-JsxRuntime.jsxs = enableProxy(originalJsxs, false, null);
-JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false, 4);
+let stackTracesEnabled = false;
+
+const enableSequenceStackTraces = () => {
+	if (stackTracesEnabled) {
+		return;
+	}
+
+	stackTracesEnabled = true;
+	React.createElement = enableProxy(originalCreateElement, true, null);
+	JsxRuntime.jsx = enableProxy(originalJsx, false, null);
+	JsxRuntime.jsxs = enableProxy(originalJsxs, false, null);
+	if (originalJsxDev) {
+		JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false, 4);
+	}
+};
+
+if (typeof window !== 'undefined') {
+	window.remotion_enableSequenceStackTraces = enableSequenceStackTraces;
+}
+
+if (process.env.NODE_ENV !== 'production') {
+	const RefreshRuntime =
+		require('react-refresh/runtime') as ReactRefreshRuntime;
+	Internals.setComponentIdentityResolver((component) => {
+		return RefreshRuntime.getFamilyByType(component) ?? component;
+	});
+	enableSequenceStackTraces();
+}

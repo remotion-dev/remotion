@@ -1,5 +1,9 @@
 import {test, expect} from 'bun:test';
-import {extractInfoFromCss} from '../scripts/extract-info-from-css';
+import {
+	extractInfoFromCss,
+	extractVariableInfoFromCss,
+} from '../scripts/extract-info-from-css';
+import {getVariableCssLink} from '../scripts/utils';
 
 const testFile = `
 /* latin-ext */
@@ -75,5 +79,68 @@ test('Should extract correctly', () => {
 			},
 		},
 		subsets: ['latin', 'latin-ext'],
+	});
+});
+
+test('Should generate and extract variable font information', () => {
+	const font = {
+		family: 'Roboto Flex',
+		variants: ['regular'],
+		subsets: ['latin'],
+		version: 'v30',
+		lastModified: '2025-09-08',
+		category: 'sans-serif',
+		axes: [
+			{tag: 'opsz', start: 8, end: 144},
+			{tag: 'wdth', start: 25, end: 151},
+			{tag: 'wght', start: 100, end: 1000},
+		],
+	};
+	const url = getVariableCssLink(font);
+	expect(url).toBe(
+		'https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000',
+	);
+	expect(
+		getVariableCssLink({
+			...font,
+			family: 'Noto Sans',
+			variants: ['regular', 'italic'],
+			axes: [{tag: 'wght', start: 100, end: 900}],
+		}),
+	).toBe(
+		'https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900',
+	);
+
+	expect(
+		extractVariableInfoFromCss({
+			axes: font.axes,
+			contents: `/* latin */
+@font-face {
+  font-family: 'Roboto Flex';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-stretch: 25% 151%;
+  src: url(https://fonts.gstatic.com/roboto-flex.woff2) format('woff2');
+  unicode-range: U+0000-00FF;
+}`,
+			url: url as string,
+		}),
+	).toEqual({
+		axes: {
+			opsz: {min: 8, max: 144},
+			wdth: {min: 25, max: 151},
+			wght: {min: 100, max: 1000},
+		},
+		fontFaces: [
+			{
+				style: 'normal',
+				weight: '100 1000',
+				stretch: '25% 151%',
+				subset: 'latin',
+				unicodeRange: 'U+0000-00FF',
+				src: 'https://fonts.gstatic.com/roboto-flex.woff2',
+			},
+		],
+		url,
 	});
 });

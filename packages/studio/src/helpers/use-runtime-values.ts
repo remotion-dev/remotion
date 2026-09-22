@@ -1,5 +1,9 @@
-import {useCallback, useMemo, useSyncExternalStore} from 'react';
-import type {RuntimeValueStore, SequenceRegistrationControls} from 'remotion';
+import {useCallback, useMemo} from 'react';
+import {
+	type RuntimeValueStore,
+	type SequenceRegistrationControls,
+} from 'remotion';
+import {useSyncExternalStore} from './use-sync-external-store';
 
 const EMPTY_RUNTIME_VALUES: Readonly<Record<string, unknown>> = {};
 const EMPTY_RUNTIME_VALUE_STORE = {

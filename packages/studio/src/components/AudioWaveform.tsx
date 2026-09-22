@@ -9,6 +9,7 @@ import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
+import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -21,19 +22,17 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 		position: 'relative',
 		width: '100%',
 		height,
+		overflow: 'hidden',
 	};
 };
 
 const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
-	width: '100%',
-	height: '100%',
+	flexShrink: 0,
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
 	position: 'absolute',
-	width: '100%',
-	height: '100%',
 };
 
 const parseVolume = (volume: string | number): WaveformVolume => {
@@ -78,6 +77,10 @@ const AudioWaveformInner: React.FC<{
 		throw new Error('Expected video config');
 	}
 
+	const waveformSampleRate = Math.ceil(
+		vidConf.fps * TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+	);
+
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
 	const shouldRenderVolumeOverlay =
@@ -110,10 +113,11 @@ const AudioWaveformInner: React.FC<{
 
 		return subscribeToWaveformPeaks({
 			src,
+			waveformSampleRate,
 			onPeaks: (p) => setPeaks(p),
 			onError: (err) => setError(err),
 		});
-	}, [src]);
+	}, [src, waveformSampleRate]);
 
 	const portionPeaks = useMemo(() => {
 		if (!peaks) {
@@ -129,6 +133,7 @@ const AudioWaveformInner: React.FC<{
 			peaks,
 			playbackRate,
 			startFrom,
+			waveformSampleRate,
 		});
 	}, [
 		displayDurationInFrames,
@@ -139,6 +144,7 @@ const AudioWaveformInner: React.FC<{
 		playbackRate,
 		startFrom,
 		vidConf.fps,
+		waveformSampleRate,
 	]);
 
 	// Drawing must happen in a layout effect: when the timeline zooms, the
@@ -153,16 +159,19 @@ const AudioWaveformInner: React.FC<{
 		const pixelRatio = window.devicePixelRatio;
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
+		const drawingWidth = visualizationWidth * pixelRatio;
 
 		canvasElement.width = w;
 		canvasElement.height = h;
+		canvasElement.style.width = w / pixelRatio + 'px';
+		canvasElement.style.height = h / pixelRatio + 'px';
 
 		drawBars({
 			canvas: canvasElement,
 			peaks: portionPeaks ?? EMPTY_PEAKS,
 			color: WHITE_ALPHA_60,
 			volume: visibleVolume,
-			width: w,
+			width: drawingWidth,
 		});
 	}, [height, portionPeaks, visibleVolume, visualizationWidth]);
 
@@ -179,6 +188,7 @@ const AudioWaveformInner: React.FC<{
 		const pixelRatio = window.devicePixelRatio;
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
+		const drawingWidth = visualizationWidth * pixelRatio;
 		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
@@ -186,6 +196,8 @@ const AudioWaveformInner: React.FC<{
 
 		volumeCanvasElement.width = w;
 		volumeCanvasElement.height = h;
+		volumeCanvasElement.style.width = w / pixelRatio + 'px';
+		volumeCanvasElement.style.height = h / pixelRatio + 'px';
 
 		context.clearRect(0, 0, w, h);
 		if (!Array.isArray(visibleVolume)) {
@@ -198,7 +210,7 @@ const AudioWaveformInner: React.FC<{
 			const x =
 				visibleVolume.length <= 1
 					? 0
-					: (index / (visibleVolume.length - 1)) * w;
+					: (index / (visibleVolume.length - 1)) * drawingWidth;
 			const y = (1 - v) * (h - TIMELINE_BORDER * 2 * pixelRatio) + pixelRatio;
 			if (index === 0) {
 				context.moveTo(x, y);

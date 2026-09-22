@@ -104,7 +104,7 @@ test.describe('visual controls', () => {
 			.poll(
 				() => {
 					const content = fs.readFileSync(visualControlsFile, 'utf-8');
-					return content.includes("'subtitle', null");
+					return /'subtitle',\s*null/.test(content);
 				},
 				{
 					message:

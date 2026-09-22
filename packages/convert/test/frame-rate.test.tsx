@@ -25,6 +25,7 @@ const FrameRateProbe: React.FC<{file: File}> = ({file}) => {
 				metadata={null}
 				isAudioOnly={false}
 				sampleRate={null}
+				audioTrack={null}
 			/>
 			<div data-testid="timeline-fps">{fps}</div>
 		</>

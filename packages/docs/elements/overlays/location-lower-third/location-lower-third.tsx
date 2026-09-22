@@ -2,28 +2,9 @@ import React from 'react';
 import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 const location = 'Berlin, Germany';
-const venue = 'LocalFirstConf, July 14';
 
 export const LocationLowerThird: React.FC = () => {
 	const frame = useCurrentFrame();
-	const visibleLocationCharacters = Math.floor(
-		interpolate(
-			frame,
-			[14, 38, 88, 108],
-			[0, location.length, location.length, 0],
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		),
-	);
-	const visibleVenueCharacters = Math.floor(
-		interpolate(frame, [27, 54, 82, 102], [0, venue.length, venue.length, 0], {
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}),
-	);
-
 	return (
 		<Interactive.Div
 			name="Container"
@@ -76,7 +57,7 @@ export const LocationLowerThird: React.FC = () => {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					})}
-					stroke="#1d4ed8"
+					stroke="#2563eb"
 					strokeDasharray="1"
 					strokeDashoffset={interpolate(
 						frame,
@@ -113,6 +94,7 @@ export const LocationLowerThird: React.FC = () => {
 					height: 132,
 					display: 'flex',
 					flexDirection: 'column',
+					justifyContent: 'center',
 				}}
 			>
 				<div
@@ -120,24 +102,41 @@ export const LocationLowerThird: React.FC = () => {
 						height: 82,
 						display: 'flex',
 						alignItems: 'center',
-						overflow: 'hidden',
 					}}
 				>
 					<Interactive.Div
+						cropRight={interpolate(frame, [14, 38, 88, 108], [1, 0, 0, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+
+							easing: [
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+								Easing.linear,
+								Easing.spring({
+									damping: 200,
+									mass: 1,
+									stiffness: 100,
+									allowTail: true,
+									durationRestThreshold: 0.02,
+									overshootClamping: false,
+								}),
+							],
+						})}
 						name="Location"
 						dir="auto"
 						style={{
 							minWidth: 0,
-							maxWidth: 440,
-							overflow: 'hidden',
 							color: '#18181b',
 							fontSize: 54,
 							fontWeight: 700,
 							letterSpacing: -1,
-							lineHeight: 1,
-							clipPath: `inset(0 ${
-								100 - (visibleLocationCharacters / location.length) * 100
-							}% 0 0)`,
 							textOverflow: 'ellipsis',
 							whiteSpace: 'nowrap',
 							opacity: interpolate(frame, [14, 22, 98, 110], [0, 1, 1, 0], {
@@ -147,41 +146,6 @@ export const LocationLowerThird: React.FC = () => {
 						}}
 					>
 						{location}
-					</Interactive.Div>
-				</div>
-
-				<div
-					style={{
-						minHeight: 0,
-						flex: 1,
-						display: 'flex',
-						alignItems: 'center',
-						overflow: 'hidden',
-					}}
-				>
-					<Interactive.Div
-						name="Venue"
-						dir="auto"
-						style={{
-							minWidth: 0,
-							maxWidth: 440,
-							overflow: 'hidden',
-							color: '#52525b',
-							fontSize: 29,
-							fontWeight: 500,
-							lineHeight: 1,
-							clipPath: `inset(0 ${
-								100 - (visibleVenueCharacters / venue.length) * 100
-							}% 0 0)`,
-							textOverflow: 'ellipsis',
-							whiteSpace: 'nowrap',
-							opacity: interpolate(frame, [27, 35, 92, 104], [0, 1, 1, 0], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-						}}
-					>
-						{venue}
 					</Interactive.Div>
 				</div>
 			</div>

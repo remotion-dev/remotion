@@ -3,6 +3,10 @@ import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
+import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
@@ -12,7 +16,6 @@ import {
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
-import {deleteJsxNode} from './delete-jsx-node-api';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
@@ -29,7 +32,10 @@ import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
-import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
+import {
+	findCopyableFrameElement,
+	getSequenceContextMenuItems,
+} from './Timeline/get-sequence-context-menu-items';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
 	getTimelineSequenceSelectionKey,
@@ -37,6 +43,7 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
 import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
@@ -94,11 +101,15 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		editorInfo,
 	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const defaultOpenInTarget = getDefaultOpenInTarget({
+		canOpenInEditor: editorAvailable,
+	});
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
 	);
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
@@ -145,7 +156,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			});
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenInEditor: editorAvailable,
+				canOpenSource: defaultOpenInTarget !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
 				sequenceWasDragged,
 			});
@@ -159,17 +170,24 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				return true;
 			}
 
-			const openTargetInEditor = async () => {
+			const openTargetSource = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
-				if (originalLocation === null || defaultEditorId === null) {
+				if (originalLocation === null) {
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation, defaultEditorId);
+				if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
+					await openOriginalPositionInEditor(originalLocation, defaultEditorId);
+					return;
+				}
+
+				if (defaultOpenInTarget === 'git-source') {
+					openGitSource({folder: false, location: originalLocation});
+				}
 			};
 
-			openTargetInEditor().catch((err) => {
+			openTargetSource().catch((err) => {
 				showNotification((err as Error).message, 2000);
 			});
 
@@ -178,7 +196,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		[
 			compositions,
 			defaultEditorId,
-			editorAvailable,
+			defaultOpenInTarget,
 			resolveOriginalLocation,
 			selectComposition,
 		],
@@ -223,11 +241,16 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
 		const canRotate = !sourceEditDisabled;
-
+		const outlineElement =
+			contextMenuTarget.sequence.refForOutline?.current ?? null;
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
 			codingAgentInfo,
+			copyImageElement:
+				contextMenuTarget.sequence.type === 'image'
+					? outlineElement
+					: findCopyableFrameElement(outlineElement),
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
@@ -244,42 +267,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 						});
 					}
 				: null,
-			onDeleteSequenceFromSource: async () => {
+			onDeleteSequenceFromSource: () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
 				}
 
-				if (
-					contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath > 1
-				) {
-					const shouldDelete = await confirm({
-						title: 'Delete sequence?',
-						message:
-							'This sequence is programmatically duplicated ' +
-							contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath +
-							' times in the code. Deleting removes all instances. Continue?',
-						confirmLabel: 'Delete',
-					});
-					if (!shouldDelete) {
-						return;
-					}
-				}
-
-				try {
-					const result = await deleteJsxNode({
-						nodes: [
-							{
-								fileName: nodePath.absolutePath,
-								nodePath: nodePath.nodePath,
-							},
-						],
-					});
-					if (!result.success) {
-						showNotification(result.reason, 4000);
-					}
-				} catch (err) {
-					showNotification((err as Error).message, 4000);
-				}
+				deleteTimelineItems([
+					{
+						type: 'sequence',
+						nodePathInfo: contextMenuTarget.nodePathInfo,
+					},
+				]);
 			},
 			onDisableSequenceInteractivity: () => {
 				if (
@@ -437,6 +435,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		canConfigureApps,
 		codingAgentInfo,
 		confirm,
+		deleteTimelineItems,
 		editorInfo,
 		getTarget,
 		onSelect,
@@ -478,6 +477,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
 				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
+				translateWithCommandKey={
+					layoutTarget?.selectedForRotation === true &&
+					Boolean(controlTarget?.rotationDrag)
+				}
 			/>
 			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
 				<SelectedOutlineCanvasRotation

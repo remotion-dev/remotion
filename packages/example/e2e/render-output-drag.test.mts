@@ -1,6 +1,6 @@
+import {expect, test} from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import {expect, test} from '@playwright/test';
 import {apiCall} from './api-call.mts';
 import {STUDIO_URL, exampleDir} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
@@ -63,7 +63,7 @@ test.describe('render output dragging', () => {
 				window.localStorage.setItem('remotion.sidebarPanel', 'renders');
 			});
 			await page.reload();
-			await expect(page.getByText('Renders', {exact: true})).toBeVisible();
+			await expect(page.getByText('Jobs', {exact: true})).toBeVisible();
 			const result = await apiCall('/api/register-client-render', {
 				id,
 				type: 'client-video',

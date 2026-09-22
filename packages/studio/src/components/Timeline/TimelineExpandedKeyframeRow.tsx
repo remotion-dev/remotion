@@ -20,6 +20,7 @@ const rowClipper: React.CSSProperties = {
 	boxSizing: 'border-box',
 	marginLeft: -TIMELINE_PADDING,
 	marginRight: -TIMELINE_PADDING,
+	minWidth: `calc(100% + ${TIMELINE_PADDING * 2}px)`,
 	overflow: 'hidden',
 	paddingLeft: TIMELINE_PADDING,
 	paddingRight: TIMELINE_PADDING,

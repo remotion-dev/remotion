@@ -26,21 +26,18 @@ import {
 } from '@remotion/serverless-client';
 import {startCancellationPolling} from '../cancellation-polling';
 import type {LaunchedBrowser} from '../get-browser-instance';
-import {getTmpDirStateIfENoSp} from '../get-tmp-dir';
-import {startLeakDetection} from '../leak-detection';
 import {onDownloadsHelper} from '../on-downloads-helpers';
 import type {InsideFunctionSpecifics} from '../provider-implementation';
-import {enableNodeIntrospection} from '../why-is-node-running';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	isWarm: boolean;
 };
 
 export type RequestContext = {
-	invokedFunctionArn: string;
+	expectedBucketOwner: string | null;
 	getRemainingTimeInMillis: () => number;
-	awsRequestId: string;
+	requestId: string;
 };
 
 const renderHandler = async <Provider extends CloudProvider>({
@@ -75,13 +72,11 @@ const renderHandler = async <Provider extends CloudProvider>({
 		throw new Error('Params must be renderer');
 	}
 
-	if (params.chromiumOptions.gl === 'angle') {
-		RenderInternals.Log.warn(
-			{indent: false, logLevel: params.logLevel},
-			'gl=angle is not supported in Lambda. Changing to gl=swangle instead.',
-		);
-		params.chromiumOptions.gl = 'swangle';
-	}
+	const chromiumOptions =
+		insideFunctionSpecifics.normalizeChromiumOptions?.({
+			chromiumOptions: params.chromiumOptions,
+			logLevel: params.logLevel,
+		}) ?? params.chromiumOptions;
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
@@ -119,7 +114,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 	const browserInstance = await insideFunctionSpecifics.getBrowserInstance({
 		logLevel: params.logLevel,
 		indent: false,
-		chromiumOptions: params.chromiumOptions,
+		chromiumOptions,
 		providerSpecifics,
 		insideFunctionSpecifics,
 	});
@@ -330,7 +325,7 @@ const renderHandler = async <Provider extends CloudProvider>({
 			gopSize: params.gopSize ?? null,
 			onDownload: onDownloadsHelper(params.logLevel),
 			overwrite: false,
-			chromiumOptions: params.chromiumOptions,
+			chromiumOptions,
 			scale: params.scale,
 			timeoutInMilliseconds: params.timeoutInMilliseconds,
 			port: null,
@@ -460,8 +455,6 @@ const renderHandler = async <Provider extends CloudProvider>({
 	return {};
 };
 
-const ENABLE_SLOW_LEAK_DETECTION = false;
-
 export const rendererHandler = async <Provider extends CloudProvider>({
 	onStream,
 	options,
@@ -494,7 +487,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 
 	const logs: BrowserLog[] = [];
 
-	const leakDetection = enableNodeIntrospection(ENABLE_SLOW_LEAK_DETECTION);
+	const finishRendererDiagnostics =
+		insideFunctionSpecifics.startRendererDiagnostics?.(
+			requestContext.requestId,
+		) ?? null;
 	let shouldKeepBrowserOpen = true;
 	let instance: LaunchedBrowser | undefined;
 	let cancellationRequested = false;
@@ -571,10 +567,10 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 					frame: null,
 					type: 'renderer',
 					isFatal: !shouldRetry,
-					tmpDir: getTmpDirStateIfENoSp(
-						(err as Error).stack as string,
-						insideFunctionSpecifics,
-					),
+					tmpDir:
+						insideFunctionSpecifics.getTmpDirState?.(
+							(err as Error).stack as string,
+						) ?? null,
 					attempt: params.attempt,
 					totalAttempts: params.retriesLeft + params.attempt,
 					willRetry: shouldRetry,
@@ -583,36 +579,36 @@ export const rendererHandler = async <Provider extends CloudProvider>({
 		});
 	} finally {
 		stopCancellationPolling();
-		if (executionMode === 'direct') {
-			if (!shouldKeepBrowserOpen && instance) {
-				await instance.instance.close({silent: true});
+		if (!shouldKeepBrowserOpen && instance) {
+			try {
+				await insideFunctionSpecifics.closeBrowserInstance({
+					launchedBrowser: instance,
+				});
+			} catch (err) {
+				RenderInternals.Log.info(
+					{indent: false, logLevel: params.logLevel},
+					'Could not close browser instance after flaky error',
+					err,
+				);
 			}
-		} else if (shouldKeepBrowserOpen && instance) {
+		} else if (
+			executionMode === 'invoked' &&
+			shouldKeepBrowserOpen &&
+			instance
+		) {
 			insideFunctionSpecifics.forgetBrowserEventLoop({
 				logLevel: params.logLevel,
 				launchedBrowser: instance,
 			});
-		} else {
+		}
+
+		if (!shouldKeepBrowserOpen) {
 			RenderInternals.Log.info(
 				{indent: false, logLevel: params.logLevel},
 				'Function did not succeed with flaky error, not keeping browser open.',
 			);
-			RenderInternals.Log.info(
-				{indent: false, logLevel: params.logLevel},
-				'Waiting 2 seconds to allow for response to be sent',
-			);
-
-			setTimeout(() => {
-				RenderInternals.Log.info(
-					{indent: false, logLevel: params.logLevel},
-					'Quitting Function forcefully now to force not keeping the Function warm.',
-				);
-				process.exit(0);
-			}, 2000);
 		}
 
-		if (ENABLE_SLOW_LEAK_DETECTION) {
-			startLeakDetection(leakDetection, requestContext.awsRequestId);
-		}
+		finishRendererDiagnostics?.();
 	}
 };

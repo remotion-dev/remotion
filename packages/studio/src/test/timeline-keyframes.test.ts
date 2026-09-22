@@ -41,6 +41,7 @@ const makeControls = (
 ): NonNullable<TSequence['controls']> => ({
 	schema: {},
 	runtimeValues: makeRuntimeValueStore({}),
+	videoConfigValues: null,
 	overrideId,
 	supportsEffects: false,
 	componentIdentity: null,
@@ -53,14 +54,14 @@ const makeSequence = ({
 	trimBefore,
 	parent = null,
 	overrideId = null,
-	nonce,
+	timelineOrder,
 }: {
 	id: string;
 	from: number;
 	trimBefore: number | null;
 	parent?: string | null;
 	overrideId?: string | null;
-	nonce: number;
+	timelineOrder: number;
 }): TSequence => ({
 	type: 'sequence',
 	from,
@@ -71,7 +72,7 @@ const makeSequence = ({
 	documentationLink: null,
 	parent,
 	showInTimeline: true,
-	nonce: [[0, nonce]],
+	timelineOrder,
 	loopDisplay: undefined,
 	getStack,
 	refForOutline: null,
@@ -187,25 +188,30 @@ test('keyframe display offsets follow the parent sequence context', () => {
 				from: 30,
 				trimBefore: null,
 				overrideId: 'root-style',
-				nonce: 0,
+				timelineOrder: 0,
 			}),
-			makeSequence({id: 'parent', from: 30, trimBefore: null, nonce: 1}),
+			makeSequence({
+				id: 'parent',
+				from: 30,
+				trimBefore: null,
+				timelineOrder: 1,
+			}),
 			makeSequence({
 				id: 'child',
 				from: 0,
 				trimBefore: null,
 				parent: 'parent',
 				overrideId: 'child',
-				nonce: 2,
+				timelineOrder: 2,
 			}),
-			makeSequence({id: 'outer', from: 10, trimBefore: null, nonce: 3}),
+			makeSequence({id: 'outer', from: 10, trimBefore: null, timelineOrder: 3}),
 			makeSequence({
 				id: 'own-from',
 				from: 20,
 				trimBefore: null,
 				parent: 'outer',
 				overrideId: 'own-from',
-				nonce: 4,
+				timelineOrder: 4,
 			}),
 			makeSequence({
 				id: 'grandchild',
@@ -213,7 +219,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 				trimBefore: null,
 				parent: 'own-from',
 				overrideId: 'grandchild',
-				nonce: 5,
+				timelineOrder: 5,
 			}),
 		],
 		overrideIdsToNodePaths: {
@@ -271,7 +277,7 @@ test('track lookup survives effect key changes', () => {
 			from: 0,
 			trimBefore: null,
 			overrideId: 'sequence',
-			nonce: 0,
+			timelineOrder: 0,
 		}),
 	];
 	const currentNodePath = makeNodePathWithEffectKeys('sequence', [
@@ -304,7 +310,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 				id: 'parent',
 				from: 0,
 				trimBefore: 20,
-				nonce: 0,
+				timelineOrder: 0,
 			}),
 			makeSequence({
 				id: 'child',
@@ -312,7 +318,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 				trimBefore: null,
 				parent: 'parent',
 				overrideId: 'child',
-				nonce: 1,
+				timelineOrder: 1,
 			}),
 		],
 		overrideIdsToNodePaths: {
@@ -352,7 +358,7 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 				id: 'timing-wrapper',
 				from: -5,
 				trimBefore: null,
-				nonce: 0,
+				timelineOrder: 0,
 			}),
 			makeSequence({
 				id: 'controlled-element',
@@ -360,7 +366,7 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 				trimBefore: null,
 				parent: 'timing-wrapper',
 				overrideId: 'controlled-element',
-				nonce: 1,
+				timelineOrder: 1,
 			}),
 		],
 		overrideIdsToNodePaths: {

@@ -29,6 +29,10 @@ import {
 	getRenderQueue,
 	removeJob,
 } from './render-queue/queue';
+import {
+	getRestartStudioProcessArgs,
+	restartStudioProcess,
+} from './restart-studio-process';
 
 const {
 	binariesDirectoryOption,
@@ -160,6 +164,7 @@ export const studioCommand = async (
 
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -345,10 +350,16 @@ export const studioCommand = async (
 		configFile,
 	});
 
-	if (result.type === 'already-running') {
+	if (result.type !== 'restarted') {
 		return;
 	}
 
-	// If the server is restarted through the UI, let's do the whole thing again.
-	await studioCommand(remotionRoot, args, logLevel);
+	await restartStudioProcess({
+		command: process.execPath,
+		args: getRestartStudioProcessArgs({
+			argv: process.argv,
+			execArgv: process.execArgv,
+			port: result.port,
+		}),
+	});
 };

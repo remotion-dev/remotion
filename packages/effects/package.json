@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.517",
+	"version": "4.0.527",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -204,6 +204,11 @@
 			"module": "./dist/esm/levels.mjs",
 			"import": "./dist/esm/levels.mjs"
 		},
+		"./lut": {
+			"types": "./dist/lut.d.ts",
+			"module": "./dist/esm/lut.mjs",
+			"import": "./dist/esm/lut.mjs"
+		},
 		"./light-leak": {
 			"types": "./dist/light-leak.d.ts",
 			"module": "./dist/esm/light-leak.mjs",
@@ -318,6 +323,11 @@
 			"types": "./dist/starburst.d.ts",
 			"module": "./dist/esm/starburst.mjs",
 			"import": "./dist/esm/starburst.mjs"
+		},
+		"./tear": {
+			"types": "./dist/tear.d.ts",
+			"module": "./dist/esm/tear.mjs",
+			"import": "./dist/esm/tear.mjs"
 		},
 		"./thermal-vision": {
 			"types": "./dist/thermal-vision.d.ts",
@@ -495,6 +505,9 @@
 			"levels": [
 				"dist/levels.d.ts"
 			],
+			"lut": [
+				"dist/lut.d.ts"
+			],
 			"light-leak": [
 				"dist/light-leak.d.ts"
 			],
@@ -563,6 +576,9 @@
 			],
 			"starburst": [
 				"dist/starburst.d.ts"
+			],
+			"tear": [
+				"dist/tear.d.ts"
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"

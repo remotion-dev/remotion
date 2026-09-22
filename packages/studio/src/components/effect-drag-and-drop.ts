@@ -2,7 +2,10 @@ import {
 	StudioProtocolInternals,
 	type EffectDragData,
 } from '@remotion/studio-protocol';
-import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
+import {
+	type EffectDefinition,
+	getRequiredPackageForEffectImportPath,
+} from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {getBrowserStudioEffectOperations} from '../helpers/browser-studio-operations';
 import {installRequiredPackages} from '../helpers/install-required-package';
@@ -53,7 +56,7 @@ export const addEffectToSequence = async ({
 	nodePath,
 }: {
 	readonly clientId: string;
-	readonly effect: EffectDragData['effect'];
+	readonly effect: EffectDefinition;
 	readonly fileName: string;
 	readonly nodePath: SequencePropsSubscriptionKey;
 }) => {

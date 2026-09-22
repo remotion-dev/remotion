@@ -11,7 +11,6 @@ import {
 } from 'remotion';
 import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
-import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {callOnErrorAndResolve} from '../on-error';
 import {extractFrameViaBroadcastChannel} from '../video-extraction/extract-frame-via-broadcast-channel';
@@ -40,6 +39,8 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	credentials,
 	requestInit,
 }) => {
+	const audioContext = useContext(Internals.SharedAudioContext);
+	const sampleRate = audioContext?.sampleRate ?? 48000;
 	const defaultLogLevel = Internals.useLogLevel();
 	const logLevel = overriddenLogLevel ?? defaultLogLevel;
 	const frame = useCurrentFrame();
@@ -91,24 +92,17 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const mediaCache = useRenderMediaCache(logLevel);
 
 	const audioEnabled = Internals.useAudioEnabled();
+	const {isMutedForPlayback, shouldUseAudio} = Internals.useMediaAudioState({
+		muted: muted ?? false,
+		volume: null,
+		audioEnabled,
+	});
 
 	useLayoutEffect(() => {
 		const timestamp = frame / fps;
 		const durationInSeconds = 1 / fps;
 
-		const shouldRenderAudio = (() => {
-			if (!audioEnabled) {
-				return false;
-			}
-
-			if (muted) {
-				return false;
-			}
-
-			return true;
-		})();
-
-		if (!shouldRenderAudio) {
+		if (!shouldUseAudio) {
 			return;
 		}
 
@@ -122,12 +116,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		});
 
 		extractFrameViaBroadcastChannel({
+			sampleRate,
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
 			playbackRate: playbackRate ?? 1,
 			logLevel,
-			includeAudio: shouldRenderAudio,
+			includeAudio: shouldUseAudio,
 			includeVideo: false,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop: loop ?? false,
@@ -243,8 +238,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						frame: absoluteFrame,
 						startInVideo,
 						timestamp: audio.timestamp,
-						duration:
-							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
+						duration: audio.durationInMicroSeconds,
 						toneFrequency: toneFrequency ?? 1,
 					});
 				}
@@ -264,6 +258,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			unregisterRenderAsset(id);
 		};
 	}, [
+		sampleRate,
 		absoluteFrame,
 		continueRender,
 		delayRender,
@@ -277,7 +272,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		logLevel,
 		loop,
 		loopVolumeCurveBehavior,
-		muted,
+		shouldUseAudio,
 		playbackRate,
 		registerRenderAsset,
 		src,
@@ -291,7 +286,6 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		trimBefore,
 		replaceWithHtml5Audio,
 		maxCacheSize,
-		audioEnabled,
 		onError,
 		credentials,
 		initialRequestInit,
@@ -303,7 +297,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			<Html5Audio
 				src={src}
 				playbackRate={playbackRate}
-				muted={muted}
+				muted={isMutedForPlayback}
 				loop={loop}
 				volume={volumeProp}
 				delayRenderRetries={delayRenderRetries}

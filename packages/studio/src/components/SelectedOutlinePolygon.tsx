@@ -8,7 +8,9 @@ import {
 } from '../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {isMac} from '../helpers/is-mac';
 import {
+	isPointerSessionRelease,
 	startCapturedPointerSession,
 	type PointerSessionEndReason,
 } from '../helpers/pointer-session';
@@ -93,6 +95,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	) => boolean;
 	readonly scale: number;
 	readonly showSelectedOutline: boolean;
+	readonly translateWithCommandKey: boolean;
 }> = ({
 	compositionHeight,
 	compositionWidth,
@@ -113,6 +116,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	onDoubleClickTarget,
 	scale,
 	showSelectedOutline,
+	translateWithCommandKey,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const dragAwareDoubleClick = useMemo(
@@ -168,7 +172,13 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 
-			const interaction = getOutlineSelectionInteraction(event);
+			const temporaryTranslate =
+				translateWithCommandKey &&
+				(selected || containsSelection) &&
+				(isMac ? event.metaKey : event.ctrlKey);
+			const interaction = temporaryTranslate
+				? {shiftKey: false, toggleKey: false}
+				: getOutlineSelectionInteraction(event);
 			const shouldUpdateSelection =
 				!selected || interaction.shiftKey || interaction.toggleKey;
 			const ownerSvg = polygonRef.current?.ownerSVGElement;
@@ -252,7 +262,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			let currentPointerY = startPointerY;
 			let axisLocked = false;
 			let dragStarted = false;
-			let snappingDisabled = event.metaKey || event.ctrlKey;
+			let snappingDisabled =
+				!temporaryTranslate && (event.metaKey || event.ctrlKey);
 			let snapTargets: ReturnType<typeof getSelectedOutlineSnapTargets> | null =
 				null;
 
@@ -357,7 +368,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				currentPointerX = moveEvent.clientX;
 				currentPointerY = moveEvent.clientY;
 				axisLocked = moveEvent.shiftKey;
-				snappingDisabled = moveEvent.metaKey || moveEvent.ctrlKey;
+				snappingDisabled =
+					!temporaryTranslate && (moveEvent.metaKey || moveEvent.ctrlKey);
 				updateDragOverrides();
 			};
 
@@ -375,7 +387,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				updateDragOverrides();
 			};
 
-			const onPointerUp = (reason: PointerSessionEndReason) => {
+			const onPointerUp = (
+				reason: PointerSessionEndReason,
+				endEvent: PointerEvent | null,
+			) => {
 				dragAwareDoubleClick.endPointerGesture(dragStarted);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
@@ -392,7 +407,11 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 				if (changes.length === 0) {
 					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-					if (deferSelection && !dragStarted && reason === 'pointerup') {
+					if (
+						deferSelection &&
+						!dragStarted &&
+						isPointerSessionRelease(reason, endEvent)
+					) {
 						onSelect(target.selection, interaction);
 					}
 
@@ -476,10 +495,11 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			scale,
 			setPropStatuses,
 			setDragOverrides,
+			translateWithCommandKey,
 		],
 	);
 
-	const onDoubleClick = React.useCallback(
+	const performDoubleClick = React.useCallback(
 		(event: React.MouseEvent<SVGPolygonElement>) => {
 			const target = getTarget();
 			if (target === undefined) {
@@ -500,6 +520,16 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			event.stopPropagation();
 		},
 		[dragAwareDoubleClick, getTarget, onDoubleClickTarget],
+	);
+	const onClick = React.useCallback(
+		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (!dragAwareDoubleClick.acceptClickAsDoubleClick(event)) {
+				return;
+			}
+
+			performDoubleClick(event);
+		},
+		[dragAwareDoubleClick, performDoubleClick],
 	);
 
 	const onEffectDragOver = React.useCallback(
@@ -598,7 +628,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			}}
 			onPointerDown={onPointerDown}
 			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
-			onDoubleClick={onDoubleClick}
+			onClick={onClick}
 			onDragOver={onEffectDragOver}
 			onDragLeave={onEffectDragLeave}
 			onDrop={onEffectDrop}

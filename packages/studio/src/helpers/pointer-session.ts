@@ -7,6 +7,21 @@ export type PointerSessionEndReason =
 	| 'buttons-released'
 	| 'manual';
 
+export const isPointerSessionRelease = (
+	reason: PointerSessionEndReason,
+	event: PointerEvent | null,
+): event is PointerEvent => {
+	if (event === null) {
+		return false;
+	}
+
+	return (
+		reason === 'pointerup' ||
+		reason === 'buttons-released' ||
+		(reason === 'lostpointercapture' && event.buttons === 0)
+	);
+};
+
 type PointerSessionEvent = Pick<PointerEvent, 'button' | 'pointerId'>;
 
 const getButtonMask = (button: number) => {
@@ -33,12 +48,31 @@ const startPointerSession = ({
 }: {
 	event: PointerSessionEvent;
 	captureTarget: Element | null;
-	onMove?: (event: PointerEvent) => void;
+	onMove?: (
+		event: PointerEvent,
+		capturePointer: (target: Element) => void,
+	) => void;
 	onEnd: (reason: PointerSessionEndReason, event: PointerEvent | null) => void;
 }): (() => void) => {
 	const {pointerId} = event;
 	const buttonMask = getButtonMask(event.button);
 	let ended = false;
+	let activeCaptureTarget: Element | null = null;
+
+	const capturePointer = (target: Element) => {
+		if (activeCaptureTarget !== null) {
+			return;
+		}
+
+		activeCaptureTarget = target;
+		try {
+			target.setPointerCapture?.(pointerId);
+		} catch {
+			// Capture is best-effort for detached targets.
+		}
+
+		target.addEventListener('lostpointercapture', handleLostPointerCapture);
+	};
 
 	const cleanup = () => {
 		window.removeEventListener('pointermove', handleMove);
@@ -46,14 +80,14 @@ const startPointerSession = ({
 		window.removeEventListener('pointercancel', handleCancel);
 		window.removeEventListener('blur', handleBlur);
 		document.removeEventListener('visibilitychange', handleVisibilityChange);
-		captureTarget?.removeEventListener(
+		activeCaptureTarget?.removeEventListener(
 			'lostpointercapture',
 			handleLostPointerCapture,
 		);
 
-		if (captureTarget?.hasPointerCapture?.(pointerId)) {
+		if (activeCaptureTarget?.hasPointerCapture?.(pointerId)) {
 			try {
-				captureTarget.releasePointerCapture(pointerId);
+				activeCaptureTarget.releasePointerCapture(pointerId);
 			} catch {
 				// The browser may already have released capture.
 			}
@@ -83,7 +117,7 @@ const startPointerSession = ({
 			return;
 		}
 
-		onMove?.(moveEvent);
+		onMove?.(moveEvent, capturePointer);
 	}
 
 	function handleUp(upEvent: PointerEvent) {
@@ -115,17 +149,8 @@ const startPointerSession = ({
 		}
 	}
 
-	if (captureTarget) {
-		try {
-			captureTarget.setPointerCapture?.(pointerId);
-		} catch {
-			// Capture is best-effort for detached targets.
-		}
-
-		captureTarget.addEventListener(
-			'lostpointercapture',
-			handleLostPointerCapture,
-		);
+	if (captureTarget !== null) {
+		capturePointer(captureTarget);
 	}
 
 	window.addEventListener('pointermove', handleMove);
@@ -151,6 +176,30 @@ export const startCapturedPointerSession = ({
 	onEnd: (reason: PointerSessionEndReason, event: PointerEvent | null) => void;
 }) => {
 	return startPointerSession({event, captureTarget, onMove, onEnd});
+};
+
+// Use when a click must remain targeted at the element under the pointer, but
+// an actual drag needs a stable capture target. Call `capturePointer()` from
+// `onMove` once the movement qualifies as a drag.
+export const startDeferredCapturedPointerSession = ({
+	event,
+	captureTarget,
+	onMove,
+	onEnd,
+}: {
+	event: PointerSessionEvent;
+	captureTarget: Element;
+	onMove: (event: PointerEvent, capturePointer: () => void) => void;
+	onEnd: (reason: PointerSessionEndReason, event: PointerEvent | null) => void;
+}) => {
+	return startPointerSession({
+		event,
+		captureTarget: null,
+		onMove: (moveEvent, capturePointer) => {
+			onMove(moveEvent, () => capturePointer(captureTarget));
+		},
+		onEnd,
+	});
 };
 
 // Use when observing a gesture that started elsewhere. This deliberately does

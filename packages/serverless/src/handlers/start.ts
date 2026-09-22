@@ -13,7 +13,7 @@ import type {InsideFunctionSpecifics} from '../provider-implementation';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	timeoutInMilliseconds: number;
 	renderId: string;
 };

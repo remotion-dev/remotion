@@ -195,6 +195,7 @@ const SequenceTestWrapper: React.FC<{
 		return {
 			registerSequence,
 			sequences: [],
+			updateSequence: registerSequence,
 			unregisterSequence,
 		};
 	}, [registerSequence, unregisterSequence]);

@@ -1,5 +1,6 @@
-import {useState, useSyncExternalStore} from 'react';
+import {useState} from 'react';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
+import {useSyncExternalStore} from './use-sync-external-store';
 
 export type CanvasSelectionItem =
 	| {

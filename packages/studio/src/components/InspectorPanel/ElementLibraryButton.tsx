@@ -1,6 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {CURRENT_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CaretDown} from '../../icons/caret';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -22,14 +21,6 @@ const browseElementsIconContainerStyle: React.CSSProperties = {
 	marginLeft: -2,
 	marginRight: -2,
 	width: 22,
-};
-
-const browseElementsArrowStyle: React.CSSProperties = {
-	display: 'inline-block',
-	height: 12,
-	marginLeft: 4,
-	verticalAlign: -2,
-	width: 12,
 };
 
 const elementLibraryDropdownStyle: React.CSSProperties = {
@@ -56,6 +47,8 @@ const elementLibraryDropdownLabelStyle: React.CSSProperties = {
 	overflow: 'hidden',
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -68,24 +61,18 @@ const elementLibraryDropdownCaretStyle: React.CSSProperties = {
 export const ElementLibraryButton: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {studioRuntimeConfig} = useSettings();
-	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const elementLibraries =
 		studioRuntimeConfig?.elementLibraries ?? noElementLibraries;
 
 	const openElementLibrary = useCallback(
 		(name: string, url: string) => {
-			if (isBrowserStudio) {
-				window.open(url, '_blank', 'noopener,noreferrer');
-				return;
-			}
-
 			setSelectedModal({
 				type: 'element-library',
 				name,
 				url,
 			});
 		},
-		[isBrowserStudio, setSelectedModal],
+		[setSelectedModal],
 	);
 
 	const openElementsLibrary = useCallback(() => {
@@ -124,6 +111,7 @@ export const ElementLibraryButton: React.FC = () => {
 				selectedId: null,
 				style: elementLibraryDropdownSegmentStyle,
 				title: 'Choose an Element library to browse inside Studio.',
+				tooltipLabel: null,
 				type: 'menu',
 				values: [
 					{
@@ -162,7 +150,7 @@ export const ElementLibraryButton: React.FC = () => {
 		[elementLibraries, openElementLibrary, openElementsLibrary],
 	);
 
-	if (elementLibraries.length > 0 && !isBrowserStudio) {
+	if (elementLibraries.length > 0) {
 		return (
 			<SegmentedButton
 				segments={elementLibraryDropdownSegments}
@@ -180,29 +168,9 @@ export const ElementLibraryButton: React.FC = () => {
 			renderIcon={(color) => (
 				<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
 			)}
-			title={
-				isBrowserStudio
-					? 'Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition.'
-					: 'Browse the Remotion Elements library inside Studio.'
-			}
+			title="Browse the Remotion Elements library inside Studio."
 		>
 			Browse Elements
-			{isBrowserStudio ? (
-				<svg
-					aria-hidden="true"
-					viewBox="0 0 16 16"
-					style={browseElementsArrowStyle}
-				>
-					<path
-						d="M4 12 12 4M6 4h6v6"
-						fill="none"
-						stroke={CURRENT_COLOR}
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth="1.5"
-					/>
-				</svg>
-			) : null}
 		</InspectorQuickAction>
 	);
 };

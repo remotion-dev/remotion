@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.517",
+	"version": "4.0.527",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -11,6 +11,7 @@
 		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
 	],
 	"dependencies": {
+		"@remotion/browser-bundler": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/canvas": "workspace:*",
 		"@remotion/eslint-config-flat": "workspace:*",
@@ -18,22 +19,27 @@
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/preload": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"next": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
+		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
 		"@remotion/media": "workspace:*"
 	},
 	"devDependencies": {
+		"@playwright/test": "1.55.1",
 		"eslint": "catalog:",
 		"prettier": "catalog:",
 		"@types/node": "catalog:"
 	},
 	"scripts": {
-		"formatting": "prettier src pages --check",
-		"lint": "eslint src pages",
-		"dev": "next dev",
-		"build-site": "next build",
-		"testnextjs": "next build"
+		"formatting": "prettier src pages e2e build-browser-bundler-preview.ts playwright.config.ts next.config.mjs --check",
+		"lint": "eslint src pages e2e build-browser-bundler-preview.ts playwright.config.ts next.config.mjs",
+		"make": "bun build-browser-bundler-preview.ts",
+		"dev": "bun run make && next dev --webpack",
+		"build-site": "bun run make && next build --webpack",
+		"testnextjs": "bun run make && next build --webpack",
+		"testbrowserbundler": "playwright test"
 	}
 }

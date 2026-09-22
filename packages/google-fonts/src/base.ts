@@ -12,6 +12,18 @@ export type FontInfo = {
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
 	subsets: string[];
+	variable?: {
+		axes: Record<string, {min: number; max: number}>;
+		fontFaces: {
+			style: string;
+			weight: string;
+			stretch: string | null;
+			subset: string;
+			unicodeRange: string;
+			src: string;
+		}[];
+		url: string;
+	};
 };
 
 interface WithResolvers<T> {
@@ -166,49 +178,56 @@ export const loadFonts = (
 				const handle = delayRender(label, {timeoutInMilliseconds: 60000});
 				fontsLoaded++;
 
-				//  Create font-face
-				const fontFace = new FontFace(
-					meta.fontFamily,
-					`url(${font}) format('woff2')`,
-					{
-						weight: weight,
-						style: style,
-						unicodeRange: meta.unicodeRanges[subset],
-					},
-				);
+				const registerFont = (fontData: ArrayBuffer) => {
+					NoReactInternals.registerFontFace({
+						ascentOverride: null,
+						descentOverride: null,
+						display: null,
+						featureSettings: null,
+						fontFamily: meta.fontFamily,
+						fontData,
+						fontUrl: font,
+						format: 'woff2',
+						lineGapOverride: null,
+						style,
+						weight,
+						stretch: null,
+						unicodeRange: meta.unicodeRanges[subset] ?? null,
+						variant: null,
+					});
+				};
 
 				let attempts = 2;
 
-				const tryToLoad = () => {
-					//  Load font-face
-					if (fontFace.status === 'loaded') {
-						continueRender(handle);
-						return;
-					}
+				const tryToLoad = (): Promise<void> => {
+					return NoReactInternals.fetchFontData(font)
+						.then((fontData) => {
+							const fontFace = new FontFace(meta.fontFamily, fontData, {
+								weight,
+								style,
+								unicodeRange: meta.unicodeRanges[subset],
+							});
 
-					const promise = loadFontFaceOrTimeoutAfter20Seconds(fontFace)
-						.then(() => {
-							(options?.document ?? document).fonts.add(fontFace);
-							continueRender(handle);
+							return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => {
+								(options?.document ?? document).fonts.add(fontFace);
+								registerFont(fontData);
+								continueRender(handle);
+							});
 						})
 						.catch((err) => {
-							//  Mark font as not loaded
-							loadedFonts[fontKey] = undefined;
 							if (attempts === 0) {
+								loadedFonts[fontKey] = undefined;
 								throw err;
-							} else {
-								attempts--;
-								tryToLoad();
 							}
+
+							attempts--;
+							return tryToLoad();
 						});
-
-					//  Mark font as loaded
-					loadedFonts[fontKey] = promise;
-
-					promises.push(promise);
 				};
 
-				tryToLoad();
+				const promise = tryToLoad();
+				loadedFonts[fontKey] = promise;
+				promises.push(promise);
 			}
 		}
 
@@ -223,6 +242,153 @@ export const loadFonts = (
 		fontFamily: meta.fontFamily,
 		fonts: meta.fonts,
 		unicodeRanges: meta.unicodeRanges,
+		waitUntilDone: () => Promise.all<void>(promises).then(() => undefined),
+	};
+};
+
+export const loadVariableFonts = (
+	meta: FontInfo,
+	style: string,
+	options: FontLoadOptions & {subsets: string[]},
+): {
+	fontFamily: FontInfo['fontFamily'];
+	axes: Record<string, {min: number; max: number}>;
+	waitUntilDone: () => Promise<undefined>;
+} => {
+	if (!meta.variable) {
+		throw new Error(`${meta.fontFamily} is not available as a variable font`);
+	}
+
+	if (options.subsets.length === 0) {
+		throw new Error('Pass at least one subset to loadVariableFont()');
+	}
+
+	const fontFacesForStyle = meta.variable.fontFaces.filter(
+		(fontFace) => fontFace.style === style,
+	);
+	if (fontFacesForStyle.length === 0) {
+		throw new Error(
+			`The variable font ${meta.fontFamily} does not have a style ${style}`,
+		);
+	}
+
+	const availableSubsetKeys = fontFacesForStyle.map(
+		(fontFace) => fontFace.subset,
+	);
+	const subsets = [
+		...new Set(
+			options.subsets.flatMap((requestedSubset) =>
+				resolveFontSubsetKeys({
+					availableSubsetKeys,
+					metaSubsets: meta.subsets,
+					requestedSubset,
+				}),
+			),
+		),
+	];
+	const promises: Promise<void>[] = [];
+
+	for (const subset of subsets) {
+		if (typeof FontFace === 'undefined') {
+			continue;
+		}
+
+		const font = fontFacesForStyle.find(
+			(fontFace) => fontFace.subset === subset,
+		);
+		if (!font) {
+			throw new Error(
+				`subset: ${subset} is not available for the variable font '${meta.fontFamily}'`,
+			);
+		}
+
+		const fontKey = [
+			meta.fontFamily,
+			'variable',
+			font.style,
+			font.weight,
+			font.stretch,
+			font.subset,
+			font.src,
+		].join('-');
+		const previousPromise = loadedFonts[fontKey];
+		if (previousPromise) {
+			promises.push(previousPromise);
+			continue;
+		}
+
+		const handle = delayRender(
+			`Fetching variable ${meta.fontFamily} font ${JSON.stringify({
+				style,
+				subset,
+			})}`,
+			{timeoutInMilliseconds: 60000},
+		);
+		const descriptors: FontFaceDescriptors = {
+			style: font.style,
+			weight: font.weight,
+			unicodeRange: font.unicodeRange,
+		};
+		if (font.stretch) {
+			descriptors.stretch = font.stretch;
+		}
+
+		const registerFont = (fontData: ArrayBuffer) => {
+			NoReactInternals.registerFontFace({
+				ascentOverride: null,
+				descentOverride: null,
+				display: null,
+				featureSettings: null,
+				fontFamily: meta.fontFamily,
+				fontData,
+				fontUrl: font.src,
+				format: 'woff2',
+				lineGapOverride: null,
+				style: font.style,
+				weight: font.weight,
+				stretch: font.stretch,
+				unicodeRange: font.unicodeRange,
+				variant: null,
+			});
+		};
+		let attempts = 2;
+
+		const tryToLoad = (): Promise<void> => {
+			return NoReactInternals.fetchFontData(font.src)
+				.then((fontData) => {
+					const fontFace = new FontFace(meta.fontFamily, fontData, descriptors);
+
+					return loadFontFaceOrTimeoutAfter20Seconds(fontFace).then(() => {
+						(options.document ?? document).fonts.add(fontFace);
+						registerFont(fontData);
+						continueRender(handle);
+					});
+				})
+				.catch((err) => {
+					if (attempts === 0) {
+						loadedFonts[fontKey] = undefined;
+						throw err;
+					}
+
+					attempts--;
+					return tryToLoad();
+				});
+		};
+
+		const promise = tryToLoad();
+		loadedFonts[fontKey] = promise;
+		promises.push(promise);
+	}
+
+	if (subsets.length > 20 && !options.ignoreTooManyRequestsWarning) {
+		console.warn(
+			`Made ${subsets.length} network requests to load the variable font ${meta.fontFamily}. Consider loading fewer subsets. Disable this warning by passing "ignoreTooManyRequestsWarning: true" to "options".`,
+		);
+	}
+
+	return {
+		fontFamily: meta.fontFamily,
+		axes: meta.variable.axes,
 		waitUntilDone: () => Promise.all<void>(promises).then(() => undefined),
 	};
 };

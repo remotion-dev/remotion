@@ -37,6 +37,7 @@ import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
 import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
+import {lut} from '../lut/index.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
@@ -66,6 +67,7 @@ import {shrinkwrap} from '../shrinkwrap.js';
 import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {starburst} from '../starburst.js';
+import {tear, type TearParams} from '../tear.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tile} from '../tile.js';
 import {tint} from '../tint.js';
@@ -98,12 +100,27 @@ const expectDefaultBlueColorArrayControl = (schema: {
 	});
 };
 
+const IDENTITY_LUT = `TITLE "Identity"
+LUT_3D_SIZE 2
+
+0 0 0
+1 0 0
+0 1 0
+1 1 0
+0 0 1
+1 0 1
+0 1 1
+1 1 1`;
+
 test('public UV coordinates convert to shader UV coordinates', () => {
 	expect(publicUvToShaderUv([0, 0])).toEqual([0, 1]);
 	expect(publicUvToShaderUv([0.25, 0.75])).toEqual([0.25, 0.25]);
 });
 
 test('@remotion/effects expose documentation links', () => {
+	expect(tear().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/tear',
+	);
 	expect(barrelDistortion().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/barrel-distortion',
 	);
@@ -193,6 +210,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(liquidContours().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/liquid-contours',
+	);
+	expect(lut({content: IDENTITY_LUT}).definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/lut',
 	);
 	expect(linearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-gradient',
@@ -334,6 +354,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(liquidContours().definition.label).toBe('liquidContours()');
+	expect(lut({content: IDENTITY_LUT}).definition.label).toBe('lut()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(exposure().definition.label).toBe('exposure()');
@@ -1171,6 +1192,37 @@ test('levels() parameters produce distinct effect keys', () => {
 		new Set([neutral.effectKey, clipped.effectKey, brighterMidtones.effectKey])
 			.size,
 	).toBe(3);
+});
+
+test('lut() accepts valid inline Cube content', () => {
+	expect(() => lut({content: IDENTITY_LUT})).not.toThrow();
+});
+
+test('lut() requires content', () => {
+	expect(() => lut({} as Parameters<typeof lut>[0])).toThrow(
+		'"content" must be a non-empty string, but got undefined',
+	);
+	expect(() => lut({content: ''})).toThrow(
+		'"content" must be a non-empty string, but got ""',
+	);
+});
+
+test('lut() rejects invalid Cube content', () => {
+	expect(() =>
+		lut({
+			content: `LUT_3D_SIZE 2
+0 0 0`,
+		}),
+	).toThrow('expected 8 color rows for LUT_3D_SIZE 2, but got 1');
+});
+
+test('lut() content produces distinct effect keys', () => {
+	const identity = lut({content: IDENTITY_LUT});
+	const warm = lut({
+		content: IDENTITY_LUT.replace('1 1 1', '1 0.8 0.6'),
+	});
+
+	expect(identity.effectKey).not.toBe(warm.effectKey);
 });
 
 test('shadowsHighlights() accepts default params', () => {
@@ -4346,4 +4398,37 @@ test('liquidContours() parameters produce distinct effect keys', () => {
 	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
 		effects.length,
 	);
+});
+
+test('tear() resolves defaults and includes every parameter in its effect key', () => {
+	expect(tear().effectKey).toBe(
+		tear({progress: 0.5, rotation: 20, jaggedness: 20}).effectKey,
+	);
+	const effects = [
+		tear(),
+		tear({progress: 0.75}),
+		tear({progress: 2}),
+		tear({angle: 45}),
+		tear({rotation: 30}),
+		tear({jaggedness: 0}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(6);
+});
+
+test('tear() rejects invalid parameters', () => {
+	const cases: [TearParams, string][] = [
+		[{progress: -0.1}, '"progress" must be >= 0'],
+		[{rotation: -1}, '"rotation" must be between 0 and 90'],
+		[{rotation: 91}, '"rotation" must be between 0 and 90'],
+		[{jaggedness: -1}, '"jaggedness" must be >= 0'],
+	];
+	for (const name of ['progress', 'rotation', 'jaggedness', 'angle'] as const) {
+		for (const value of [NaN, Infinity, -Infinity]) {
+			cases.push([{[name]: value}, `"${name}" must be a finite number`]);
+		}
+	}
+
+	for (const [params, message] of cases) {
+		expect(() => tear(params)).toThrow(message);
+	}
 });

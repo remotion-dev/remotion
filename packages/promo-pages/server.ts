@@ -1,4 +1,6 @@
 import {serve} from 'bun';
+import automate from './automate.html';
+import exploreSection from './explore_section.html';
 import homepage from './homepage.html';
 import promptsShow from './prompts-show.html';
 import promptsSubmit from './prompts-submit.html';
@@ -15,6 +17,8 @@ const startServer = () => {
 				port,
 				routes: {
 					'/': homepage,
+					'/explore_section': exploreSection,
+					'/automate': automate,
 					'/about': team,
 					'/prompts': prompts,
 					'/prompts/show': promptsShow,

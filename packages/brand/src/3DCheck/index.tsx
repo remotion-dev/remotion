@@ -20,7 +20,7 @@ const Comp = () => {
 
 	return (
 		<AbsoluteFill className="flex justify-center items-center">
-			<Scale factor={14}>
+			<Scale factor={3.94}>
 				<RotateY radians={progress * Math.PI}>
 					<ExtrudeDiv
 						width={width}

@@ -1,15 +1,18 @@
 import {expect, test} from 'bun:test';
+import {CodemodsInternals} from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {
-	createBrowserStudioOperations,
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '../browser-studio-operations';
+import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
+
+const {
+	basicCaptionsElementSource,
+	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
+} = CodemodsInternals;
 
 const insertSolid = (
 	project: VirtualProject,
@@ -52,7 +55,11 @@ test('consumes an initial Element payload only once', () => {
 	});
 
 	expect(operations.consumeInitialElement()).toEqual({
-		element: payload.element,
+		element: {
+			...payload.element,
+			durationInFrames: 60,
+			installationMode: 'wrapped',
+		},
 		sourceOrigin: 'https://elements.example.test',
 	});
 	expect(operations.consumeInitialElement()).toBe(null);
@@ -179,7 +186,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	);
 });
 
-test('wraps a self-closing root, aliases bindings, and remaps the root', () => {
+test('inserts beside a self-closing root, aliases bindings, and remaps the root', () => {
 	const project: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: '/project/src/index.tsx',
@@ -212,13 +219,17 @@ registerRoot(Root);
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
-		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid, Sequence as RemotionSequence} from 'remotion';",
+		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid} from 'remotion';",
 	);
-	expect(output).toContain('<RemotionSequence>');
+	expect(output).not.toContain('<RemotionSequence>');
+	expect(output).toContain('<AbsoluteFill />');
 	expect(output).toContain('<RemotionSolid width={1280}');
-	expect(nodePathRemappings).toHaveLength(1);
-	expect(nodePathRemappings[0].newNodePath).not.toEqual(
-		nodePathRemappings[0].oldNodePath,
+	expect(nodePathRemappings).toHaveLength(2);
+	expect(nodePathRemappings).toEqual(
+		expect.arrayContaining([
+			expect.objectContaining({oldNodePath: expect.any(Array)}),
+			expect.objectContaining({oldNodePath: null}),
+		]),
 	);
 });
 
@@ -288,13 +299,16 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
-			remappings: [
+			remappings: expect.arrayContaining([
 				{
 					oldNodePath: subscription.nodePath.nodePath,
 					newNodePath: expect.any(Array),
 				},
-			],
-			restoredNodePaths: [],
+				{
+					oldNodePath: null,
+					newNodePath: expect.any(Array),
+				},
+			]),
 		},
 	]);
 	expect(
@@ -314,7 +328,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	).toBe(false);
 });
 
-test('splits video from audio, broadcasts remappings and supports undo', async () => {
+test('splits video audio and inserts captions with remappings and undo', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	const initialSource = `import {Video} from '@remotion/media';
 export const Component = () => <Video src="video.mp4" from={10} durationInFrames={20} volume={0.5} style={{opacity: 0.5}} />;`;
@@ -391,6 +405,107 @@ registerRoot(Root);`,
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
+
+	events.length = 0;
+	const captionsResult = await operations.insertBasicCaptions({
+		fileName: 'src/Composition.tsx',
+		nodePath: subscription.nodePath.nodePath,
+		durationInFrames: 20,
+		captions: [
+			{
+				text: ' Hello',
+				startMs: 100,
+				endMs: 500,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+	});
+	if (!captionsResult.success) {
+		throw new Error(captionsResult.reason);
+	}
+
+	expect(currentProject.files[fileName]).toContain(
+		"import {BasicCaptions} from './basic-captions.element';",
+	);
+	expect(currentProject.files['/project/src/basic-captions.element.tsx']).toBe(
+		basicCaptionsElementSource,
+	);
+	expect(currentProject.files[fileName]).toContain(
+		'<BasicCaptions captions={[',
+	);
+	expect(currentProject.files[fileName]).toContain('"text": " Hello"');
+	expect(events).toContainEqual({
+		type: 'sequence-node-paths-remapped',
+		mutation: captionsResult.nodePathMutation,
+	});
+	const localElementPath = '/project/src/basic-captions.element.tsx';
+	const customizedSource = currentProject.files[localElementPath].replace(
+		'bottom: 120',
+		'bottom: 90',
+	);
+	currentProject = {
+		...currentProject,
+		files: {...currentProject.files, [localElementPath]: customizedSource},
+	};
+	const videoOffset = currentProject.files[fileName].indexOf('<Video');
+	const beforeVideo = currentProject.files[fileName].slice(0, videoOffset);
+	const currentSubscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Composition.tsx',
+		line: beforeVideo.split('\n').length,
+		column: beforeVideo.length - beforeVideo.lastIndexOf('\n') - 1,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.media.Video',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!currentSubscription.success) {
+		throw new Error('Expected the updated Video node path');
+	}
+
+	const repeatedCaptionsResult = await operations.insertBasicCaptions({
+		fileName: 'src/Composition.tsx',
+		nodePath: currentSubscription.nodePath.nodePath,
+		durationInFrames: 20,
+		captions: [
+			{
+				text: ' Again',
+				startMs: 100,
+				endMs: 500,
+				timestampMs: 300,
+				confidence: null,
+			},
+		],
+	});
+	if (!repeatedCaptionsResult.success) {
+		throw new Error(repeatedCaptionsResult.reason);
+	}
+
+	expect(currentProject.files[localElementPath]).toBe(customizedSource);
+	expect(
+		currentProject.files['/project/src/basic-captions-2.element.tsx'],
+	).toBeUndefined();
+	expect(
+		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+	).toHaveLength(2);
+	expect((await operations.undo()).success).toBe(true);
+	expect(currentProject.files[localElementPath]).toBe(customizedSource);
+	expect(
+		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+	).toHaveLength(1);
+	expect((await operations.undo()).success).toBe(true);
+	expect(currentProject.files[fileName]).toBe(initialSource);
+	expect(
+		currentProject.files['/project/src/basic-captions.element.tsx'],
+	).toBeUndefined();
 });
 
 test('reports invalid timeline Solid input without changing the project', async () => {
@@ -618,11 +733,13 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(currentProject.files[fileName]).toContain('from={10}');
 	expect(await operations.redo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(currentProject.files[fileName]).toContain('from={15}');
 
@@ -659,11 +776,12 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		redoLabel: 'Reapply property paste',
 	});
 	expect(currentProject.files[fileName]).toContain(
-		'rotate: interpolate(frame, [0, 30], ["0deg", "90deg"])',
+		"rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])",
 	);
 	expect(await operations.undo()).toEqual({
 		success: true,
 		nodePathMutation: null,
+		route: null,
 	});
 	expect(currentProject.files[fileName]).not.toContain('style={{rotate:');
 
@@ -758,10 +876,14 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
-		splitFrame: 10,
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				splitFrame: 10,
+			},
+		],
 	});
 	expect(failure).toMatchObject({
 		success: false,
@@ -771,10 +893,14 @@ registerRoot(Root);`,
 	expect(currentProject.files[fileName]).toBe(initialContents);
 
 	const splitResult = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
-		splitFrame: 15,
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				splitFrame: 15,
+			},
+		],
 	});
 	if (!splitResult.success) {
 		throw new Error(splitResult.reason);
@@ -796,7 +922,6 @@ registerRoot(Root);`,
 		{
 			absolutePath: fileName,
 			remappings: expect.any(Array),
-			restoredNodePaths: [],
 		},
 	]);
 
@@ -870,8 +995,12 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.duplicateJsxNode({
-		fileName: 'src/Composition.tsx',
-		nodePath: [...subscription.nodePath.nodePath, 'missing'],
+		nodes: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: [...subscription.nodePath.nodePath, 'missing'],
+			},
+		],
 	});
 	expect(failure).toMatchObject({
 		success: false,
@@ -882,8 +1011,12 @@ registerRoot(Root);`,
 	expect(getProject().files[fileName]).toBe(initialContents);
 
 	const result = await operations.duplicateJsxNode({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
+		nodes: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+			},
+		],
 	});
 	if (!result.success) {
 		throw new Error(result.reason);
@@ -896,7 +1029,6 @@ registerRoot(Root);`,
 		{
 			absolutePath: fileName,
 			remappings: expect.any(Array),
-			restoredNodePaths: [],
 		},
 	]);
 	expect(
@@ -1135,6 +1267,7 @@ test('renames a composition by resolving the file from the composition id', asyn
 			newId: 'RenamedComp',
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1167,6 +1300,7 @@ test('updates composition metadata in Browser Studio', async () => {
 			newWidth: 1920,
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1189,6 +1323,7 @@ test('deletes a composition and supports a dry run', async () => {
 	const dryRunResult = await operations.applyCodemod({
 		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
 		dryRun: true,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!dryRunResult.success) {
@@ -1203,6 +1338,7 @@ test('deletes a composition and supports a dry run', async () => {
 	const result = await operations.applyCodemod({
 		codemod: {type: 'delete-composition', idToDelete: 'MyComp'},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1235,6 +1371,7 @@ test('creates a composition with a component file in the root file', async () =>
 	const result = await operations.applyCodemod({
 		codemod,
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!result.success) {
@@ -1243,8 +1380,8 @@ test('creates a composition with a component file in the root file', async () =>
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	expect(rootFile).toContain('id="FreshComp"');
-	expect(rootFile).toContain("import {Composition} from 'remotion'");
-	expect(rootFile).toContain("import {FreshComp} from './FreshComp'");
+	expect(rootFile).toContain('import { Composition } from "remotion"');
+	expect(rootFile).toContain('import { FreshComp } from "./FreshComp"');
 	expect(getProject().files['/project/src/FreshComp.tsx']).toContain(
 		'export const FreshComp: React.FC',
 	);
@@ -1252,6 +1389,7 @@ test('creates a composition with a component file in the root file', async () =>
 	const conflict = await operations.applyCodemod({
 		codemod: {...codemod, newId: 'FreshComp2'},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	expect(conflict).toEqual({
@@ -1267,6 +1405,78 @@ test('creates a composition with a component file in the root file', async () =>
 	);
 });
 
+test('imports a Canvas Capture as an interactive composition', async () => {
+	const {operations, getProject} = makeOperationsForProject(
+		createBlankTemplateProject(),
+	);
+
+	const result = await operations.applyCodemod({
+		codemod: {
+			type: 'new-composition',
+			newId: 'CanvasComp',
+			componentName: 'CanvasComp',
+			componentImportPath: './CanvasComp',
+			folderName: null,
+			parentName: null,
+			newHeight: 1080,
+			newWidth: 1920,
+			newFps: 60,
+			newDurationInFrames: 180,
+			canvasCapture: {
+				videoFileName: 'capture.mp4',
+				videoHeight: 720,
+				videoWidth: 1280,
+				keyframeFps: 60,
+				data: {
+					captureMetadata: {density: 2},
+					mouseMovements: [
+						{
+							timeInSeconds: 0,
+							canvasX: 100,
+							canvasY: 200,
+							cursor: 'default',
+						},
+						{
+							timeInSeconds: 0.5,
+							canvasX: 150,
+							canvasY: 250,
+							cursor: 'pointer',
+						},
+					],
+					pointerClicks: [
+						{timeInSeconds: 0.25, type: 'pointer-down'},
+						{timeInSeconds: 0.3, type: 'pointer-up'},
+					],
+				},
+			},
+		},
+		dryRun: false,
+		undoRedoNavigation: null,
+		symbolicatedStack: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const rootFile = getProject().files['/project/src/Root.tsx'];
+	const componentFile = getProject().files['/project/src/CanvasComp.tsx'];
+	expect(rootFile).toContain('<CanvasComp');
+	expect(rootFile).toContain('import { CanvasComp } from "./CanvasComp"');
+	expect(componentFile).toContain("src={staticFile('capture.mp4')}");
+	expect(componentFile).toContain('<MacOSCursor');
+	expect(componentFile).toContain('translate: interpolate(');
+	expect(componentFile).toContain("id={'CanvasComp'}");
+	expect(componentFile).toContain('width={1920}');
+	expect(componentFile).toContain('height={1080}');
+
+	const undoResult = await operations.undo();
+	expect(undoResult.success).toBe(true);
+	expect(getProject().files['/project/src/CanvasComp.tsx']).toBeUndefined();
+	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
+		'<CanvasComp',
+	);
+});
+
 test('creates, renames and deletes a folder in Browser Studio', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
@@ -1275,6 +1485,7 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 	const createResult = await operations.applyCodemod({
 		codemod: {type: 'new-folder', folderName: 'my-folder', parentName: null},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!createResult.success) {
@@ -1293,6 +1504,7 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 			newName: 'renamed-folder',
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!renameResult.success) {
@@ -1310,6 +1522,7 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 			parentName: null,
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	});
 	if (!deleteResult.success) {
@@ -1353,6 +1566,7 @@ export const Root = () => {
 			parentName: null,
 		},
 		dryRun: false,
+		undoRedoNavigation: null,
 		symbolicatedStack: {
 			originalFileName: 'src/Root.tsx',
 			originalFunctionName: null,
@@ -1374,18 +1588,18 @@ export const Root = () => {
 
 test('reorders JSX sequences as an undoable project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
-	const initialContents = `import {Composition, Sequence} from 'remotion';
+	const initialContents = `import {Composition,Sequence} from "remotion"
 
-export const Component = () => {
+export const Component=()=>{
 	return (
 		<>
 			<Sequence name="first" from={0} durationInFrames={20} />
 			<Sequence name="second" from={20} durationInFrames={20} />
 		</>
-	);
-};
+	)
+}
 
-export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;
+export const Root=()=> <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />
 `;
 	const {operations, getProject} = makeOperationsForProject({
 		rootDir: '/project',
@@ -1454,14 +1668,23 @@ registerRoot(Root);`,
 	}
 
 	const reordered = getProject().files[fileName];
-	expect(reordered.indexOf('name="second"')).toBeLessThan(
-		reordered.indexOf('name="first"'),
-	);
+	expect(reordered).toBe(`import {Composition,Sequence} from "remotion"
+
+export const Component=()=>{
+	return (
+		<>
+			<Sequence name="second" from={20} durationInFrames={20} />
+			<Sequence name="first" from={0} durationInFrames={20} />
+		</>
+	)
+}
+
+export const Root=()=> <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />
+`);
 	expect(result.nodePathMutation.files).toEqual([
 		{
 			absolutePath: fileName,
 			remappings: expect.any(Array),
-			restoredNodePaths: [],
 		},
 	]);
 	expect(
@@ -1620,6 +1843,7 @@ test('reports structured failures for unsupported codemods', async () => {
 		await operations.applyCodemod({
 			codemod: {type: 'apply-visual-control', changes: []},
 			dryRun: false,
+			undoRedoNavigation: null,
 			symbolicatedStack: null,
 		}),
 	).toEqual({
@@ -1629,38 +1853,9 @@ test('reports structured failures for unsupported codemods', async () => {
 
 	expect(
 		await operations.applyCodemod({
-			codemod: {
-				type: 'new-composition',
-				newId: 'CanvasComp',
-				componentName: 'CanvasComp',
-				componentImportPath: './CanvasComp',
-				folderName: null,
-				parentName: null,
-				newHeight: 720,
-				newWidth: 1280,
-				newFps: 30,
-				newDurationInFrames: 90,
-				canvasCapture: {
-					videoFileName: 'video.mp4',
-					videoHeight: 720,
-					videoWidth: 1280,
-					keyframeFps: 30,
-					data: {version: 1, tracks: []} as never,
-				},
-			},
-			dryRun: false,
-			symbolicatedStack: null,
-		}),
-	).toEqual({
-		success: false,
-		reason:
-			'Creating canvas capture compositions is not supported in Browser Studio',
-	});
-
-	expect(
-		await operations.applyCodemod({
 			codemod: {type: 'delete-composition', idToDelete: 'MissingComp'},
 			dryRun: false,
+			undoRedoNavigation: null,
 			symbolicatedStack: null,
 		}),
 	).toEqual({
@@ -1676,6 +1871,8 @@ test('mutates effects in the virtual project and reports structured failures', a
 	const initialContents = `import {brightness} from '@remotion/effects/brightness';
 import {contrast} from '@remotion/effects/contrast';
 import {AbsoluteFill} from 'remotion';
+
+const unrelated    = {keep:"this spacing"}
 
 export const Comp = () => (
 	<AbsoluteFill effects={[brightness({amount: 1}), contrast({amount: 2})]} />
@@ -1703,7 +1900,7 @@ export const Comp = () => (
 	});
 	const subscription = await operations.subscribeToSequenceProps({
 		fileName: 'src/Comp.tsx',
-		line: 6,
+		line: 8,
 		column: 2,
 		nodePath: null,
 		componentIdentity: null,
@@ -1841,6 +2038,9 @@ export const Comp = () => (
 	expect(await operations.redo()).toMatchObject({success: true});
 	expect(currentProject.files[fileName].indexOf('tint({')).toBe(-1);
 	expect(projectChanges).toBeGreaterThanOrEqual(9);
+	expect(currentProject.files[fileName]).toContain(
+		'const unrelated    = {keep:"this spacing"}',
+	);
 
 	const beforeFailures = currentProject.files[fileName];
 	expect(

@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {splitJsxSequence} from '../codemods/split-jsx-sequence';
 import {
 	createFileWatcherRegistry,
@@ -11,6 +12,8 @@ import {setLiveEventsListener} from '../preview-server/live-events';
 import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequence';
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
+
+const {splitJsxSequence: splitJsxSequenceCodemod} = CodemodsInternals;
 
 const wrap = (
 	sequence: string,
@@ -65,8 +68,16 @@ test('splitJsxSequence remaps following JSX siblings', async () => {
 
 	expect(nodePathRemappings).toEqual([
 		{
+			oldNodePath: lineContainingToNodePath(input, 'name="split"'),
+			newNodePath: lineContainingToNodePath(output, 'name="split"'),
+		},
+		{
 			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
 			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+		},
+		{
+			oldNodePath: null,
+			newNodePath: lineContainingToNodePath(output, 'from={30}'),
 		},
 	]);
 });
@@ -103,6 +114,69 @@ test('splitJsxSequence splits finite duration and trimBefore', async () => {
 	expect(output).toContain(
 		'<Sequence from={30} durationInFrames={30} trimBefore={25} />',
 	);
+});
+
+test('splitJsxSequence preserves surrounding formatting without calling Prettier', async () => {
+	const input = `const deliberatelyUnformatted = {value : true}
+
+export const Comp = () => {
+  return (
+    <>
+      <Sequence
+        name="clip"
+        from={0}
+        durationInFrames={50}
+      >
+        <div>Child</div>
+      </Sequence>
+      <Keep prop = {1}/>
+    </>
+  )
+}
+`;
+	const {output} = await splitJsxSequenceCodemod({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Sequence'),
+		sequenceKeys: sequenceTimingKeys,
+		splitFrame: 30,
+	});
+
+	expect(output).toStartWith(
+		'const deliberatelyUnformatted = {value : true}\n',
+	);
+	expect(output).toContain(
+		'<Sequence name="clip" from={0} durationInFrames={30}>\n',
+	);
+	expect(output).toContain(
+		'<Sequence name="clip" from={30} durationInFrames={20} trimBefore={30}>\n',
+	);
+	expect(output).toContain('      <Keep prop = {1}/>');
+	expect(output).toEndWith('  )\n}\n');
+});
+
+test('splitJsxSequence formats a split component root as a fragment', async () => {
+	const input = `export const Comp = () => <Sequence from={0} durationInFrames={50}><span>Hi</span></Sequence>;
+
+const keep = { value : true }
+`;
+	const {output} = await splitJsxSequenceCodemod({
+		input,
+		nodePath: lineContainingToNodePath(input, '<Sequence'),
+		sequenceKeys: sequenceTimingKeys,
+		splitFrame: 30,
+	});
+
+	expect(output).toBe(`export const Comp = () => <>
+  <Sequence from={0} durationInFrames={30}>
+    <span>Hi</span>
+  </Sequence>
+  <Sequence from={30} durationInFrames={20} trimBefore={30}>
+    <span>Hi</span>
+  </Sequence>
+</>;
+
+const keep = { value : true }
+`);
 });
 
 test('splitJsxSequence splits a video with a negative from', async () => {
@@ -239,16 +313,28 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 	try {
 		clearUndoStack();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
-		const input = wrap('<AbsoluteFill from={0} durationInFrames={50} />');
+		const input = wrap(
+			'<AbsoluteFill name="one" from={0} durationInFrames={50} />\n\t\t\t<AbsoluteFill name="two" from={10} durationInFrames={50} />',
+		);
 		writeFileSync(entryPoint, input);
 
 		const success = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
-					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, sequenceLine),
-					sequenceKeys: sequenceTimingKeys,
-					splitFrame: 30,
+					sequences: [
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="one"'),
+							sequenceKeys: sequenceTimingKeys,
+							splitFrame: 30,
+						},
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="two"'),
+							sequenceKeys: sequenceTimingKeys,
+							splitFrame: 30,
+						},
+					],
 				},
 				entryPoint,
 				remotionRoot,
@@ -257,17 +343,24 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 
 		expect(success.success).toBe(true);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
-			'<AbsoluteFill from={30} durationInFrames={20} trimBefore={30} />',
+			'<AbsoluteFill name="one" from={30} durationInFrames={20} trimBefore={30} />',
+		);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain(
+			'<AbsoluteFill name="two" from={30} durationInFrames={30} trimBefore={20} />',
 		);
 		expect(getUndoStack().length).toBe(1);
 
 		const failure = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
-					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, sequenceLine),
-					sequenceKeys: sequenceTimingKeys,
-					splitFrame: 0,
+					sequences: [
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="one"'),
+							sequenceKeys: sequenceTimingKeys,
+							splitFrame: 0,
+						},
+					],
 				},
 				entryPoint,
 				remotionRoot,

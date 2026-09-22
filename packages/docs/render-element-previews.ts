@@ -31,7 +31,7 @@ if (elementArguments.length > 1) {
 const selectedElementSlug = elementArguments[0]
 	? elementArguments[0].slice('--element='.length)
 	: null;
-const allElementDefinitions = Object.values(elementDefinitions);
+const allElementDefinitions = elementDefinitions;
 const selectedElementDefinition = selectedElementSlug
 	? allElementDefinitions.find(
 			(definition) => definition.slug === selectedElementSlug,
@@ -69,7 +69,7 @@ const elementCompositions = compositions.filter((composition) =>
 );
 
 const expectedCompositionIds = new Set(
-	Object.values(elementDefinitions).map((definition) =>
+	elementDefinitions.map((definition) =>
 		getElementCompositionId(definition.slug),
 	),
 );

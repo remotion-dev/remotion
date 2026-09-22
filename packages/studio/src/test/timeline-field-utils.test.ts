@@ -51,19 +51,41 @@ test('formatTimelineNumber can omit unnecessary trailing zeroes', () => {
 	).toBe('10');
 });
 
-test('formatTimelineFieldValueForDisplay formats number fields based on step', () => {
-	expect(
-		formatTimelineFieldValueForDisplay({
-			fieldSchema: {
-				type: 'number',
-				default: 0,
-				hiddenFromList: false,
-				step: 0.01,
-			},
-			value: 1.2000000000000002,
-		}),
-	).toBe('1.20');
-});
+test.each([
+	{step: 0.1, value: 0.75, expected: '0.75'},
+	{step: 0.1, value: '0.625', expected: '0.625'},
+	{step: 0.1, value: 1, expected: '1.0'},
+	{step: 1, value: -60.525, expected: '-60.525'},
+	{step: 0.01, value: 0.005, expected: '0.005'},
+	{step: 0.01, value: 1.2000000000000002, expected: '1.20'},
+	{step: 0.1, value: 0.1 + 0.2, expected: '0.3'},
+	{step: 0.1, value: 0.123456789, expected: '0.123456789'},
+	{step: 0.1, value: 1.25e-7, expected: '1.25e-7'},
+	{step: 0.1, value: 1e-101, expected: '1e-101'},
+	{step: 1e-7, value: 1.25e-7, expected: '1.25e-7'},
+	{
+		step: 1e-16,
+		value: 1.2000000000000002,
+		expected: '1.2000000000000002',
+	},
+	{step: 1, value: Number.MAX_SAFE_INTEGER, expected: '9007199254740991'},
+	{step: undefined, value: 0.123456789, expected: '0.123456789'},
+])(
+	'displays $value with step $step as $expected',
+	({step, value, expected}) => {
+		expect(
+			formatTimelineFieldValueForDisplay({
+				fieldSchema: {
+					type: 'number',
+					default: 0,
+					hiddenFromList: false,
+					step,
+				},
+				value,
+			}),
+		).toBe(expected);
+	},
+);
 
 test('formatTimelineFieldValueForDisplay formats scale fields with fixed decimals', () => {
 	expect(
@@ -116,6 +138,32 @@ test('formatTimelineFieldValueForDisplay formats translate fields as pixels', ()
 			value: '12.345px 0px',
 		}),
 	).toBe('12.3px 0px');
+});
+
+test('formatTimelineFieldValueForDisplay preserves translate percentages', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'translate',
+				default: '0px 0px',
+				step: 1,
+			},
+			value: '71.44625% 2.164444%',
+		}),
+	).toBe('71.4% 2.2%');
+});
+
+test('formatTimelineFieldValueForDisplay normalizes unitless translate zero', () => {
+	expect(
+		formatTimelineFieldValueForDisplay({
+			fieldSchema: {
+				type: 'translate',
+				default: '0px 0px',
+				step: 1,
+			},
+			value: '0 0',
+		}),
+	).toBe('0px 0px');
 });
 
 test('formatTimelineFieldValueForDisplay preserves transform-origin units', () => {

@@ -41,6 +41,8 @@ const outputNameInputContainer: React.CSSProperties = {
 };
 
 type Props = {
+	readonly ariaLabel: string | null;
+	readonly existingOutputPath: string | null;
 	readonly existence: boolean;
 	readonly inputStyle: React.CSSProperties;
 	readonly outName: string;
@@ -50,6 +52,8 @@ type Props = {
 };
 
 export const RenderModalOutputName = ({
+	ariaLabel,
+	existingOutputPath,
 	existence,
 	inputStyle,
 	outName,
@@ -58,10 +62,12 @@ export const RenderModalOutputName = ({
 	label: labelText,
 }: Props) => {
 	const openExistingOutput = useCallback(() => {
-		openInFileExplorer({directory: outName}).catch((err) => {
-			showNotification(`Could not open file: ${err.message}`, 2000);
-		});
-	}, [outName]);
+		openInFileExplorer({directory: existingOutputPath ?? outName}).catch(
+			(err) => {
+				showNotification(`Could not open file: ${err.message}`, 2000);
+			},
+		);
+	}, [existingOutputPath, outName]);
 
 	const renderOpenIcon: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIconSolid style={openIconStyle} color={color} />;
@@ -80,6 +86,7 @@ export const RenderModalOutputName = ({
 			<div style={rightRow}>
 				<div style={outputNameInputContainer}>
 					<RemotionInput
+						aria-label={ariaLabel ?? undefined}
 						status={validationMessage ? 'error' : existence ? 'warning' : 'ok'}
 						style={inputStyle}
 						type="text"

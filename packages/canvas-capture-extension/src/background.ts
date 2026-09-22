@@ -1,66 +1,48 @@
 import {browser} from 'wxt/browser';
-import {capturePopupTargetMessageType} from './messages';
+import {
+	captureControllerMessageType,
+	type CaptureControllerRequest,
+} from './messages';
 
 export const startBackground = () => {
-	const captureWindowStorageKey = 'remotion-canvas-capture-window-id';
-	let windowAction = Promise.resolve();
-
-	const showCaptureWindow = async (tabId: number) => {
-		const stored = await browser.storage.session.get(captureWindowStorageKey);
-		const storedWindowId = stored[captureWindowStorageKey];
-		if (typeof storedWindowId === 'number') {
-			try {
-				await browser.windows.update(storedWindowId, {focused: true});
-				await browser.runtime.sendMessage({
-					type: capturePopupTargetMessageType,
-					tabId,
-				});
-				return;
-			} catch {
-				await browser.storage.session.remove(captureWindowStorageKey);
-			}
-		}
-
-		const url = new URL(browser.runtime.getURL('/recorder.html'));
-		url.searchParams.set('tabId', String(tabId));
-		const captureWindow = await browser.windows.create({
-			url: url.toString(),
-			type: 'popup',
-			width: 380,
-			height: 560,
-			focused: true,
-		});
-		if (!captureWindow) {
-			throw new Error('Could not open the Canvas Capture window.');
-		}
-
-		if (captureWindow.id !== undefined) {
-			await browser.storage.session.set({
-				[captureWindowStorageKey]: captureWindow.id,
-			});
-		}
-	};
-
-	browser.action.onClicked.addListener((tab) => {
+	browser.action.onClicked.addListener(async (tab) => {
 		if (tab.id === undefined) {
 			return;
 		}
 
-		const tabId = tab.id;
-		windowAction = windowAction
-			.then(() => showCaptureWindow(tabId))
-			.catch(() => undefined);
-	});
-
-	browser.windows.onRemoved.addListener((windowId) => {
-		const clearStoredWindow = async () => {
-			const stored = await browser.storage.session.get(captureWindowStorageKey);
-			if (stored[captureWindowStorageKey] === windowId) {
-				await browser.storage.session.remove(captureWindowStorageKey);
-			}
+		const request: CaptureControllerRequest = {
+			type: captureControllerMessageType,
+			command: 'toggle-controls',
 		};
+		try {
+			try {
+				await browser.tabs.sendMessage(tab.id, request);
+			} catch {
+				await browser.scripting.executeScript({
+					target: {tabId: tab.id},
+					files: ['/capture.js'],
+				});
+				await browser.tabs.sendMessage(tab.id, request);
+			}
 
-		clearStoredWindow().catch(() => undefined);
+			await browser.action.setBadgeText({tabId: tab.id, text: ''});
+			await browser.action.setTitle({
+				tabId: tab.id,
+				title: 'Open Remotion Canvas Capture',
+			});
+		} catch (error) {
+			await browser.action.setBadgeBackgroundColor({
+				tabId: tab.id,
+				color: '#ff3232',
+			});
+			await browser.action.setBadgeText({tabId: tab.id, text: '!'});
+			await browser.action.setTitle({
+				tabId: tab.id,
+				title: `Could not open Remotion Canvas Capture: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+			});
+		}
 	});
 
 	browser.runtime.onMessage.addListener((message) => {
@@ -68,14 +50,16 @@ export const startBackground = () => {
 			typeof message !== 'object' ||
 			message === null ||
 			!('type' in message) ||
-			message.type !== 'remotion-canvas-capture-open-convert' ||
+			message.type !== 'remotion-canvas-capture-open' ||
 			!('captureId' in message) ||
-			typeof message.captureId !== 'string'
+			typeof message.captureId !== 'string' ||
+			!('destination' in message) ||
+			(message.destination !== 'convert' && message.destination !== 'new')
 		) {
 			return;
 		}
 
-		const url = new URL('https://www.remotion.dev/convert');
+		const url = new URL(`https://www.remotion.dev/${message.destination}`);
 		url.searchParams.set('canvas-capture', message.captureId);
 		return browser.tabs.create({url: url.toString()});
 	});

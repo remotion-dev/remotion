@@ -7,19 +7,26 @@ import {Spinner} from './Spinner';
 
 const cwd: React.CSSProperties = {
 	fontSize: 13,
-	opacity: 0.8,
+	color: WHITE_ALPHA_80,
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
 const spinnerSize = 14;
 
 const spinner: React.CSSProperties = {
+	opacity: 0.8,
 	position: 'relative',
 	width: spinnerSize,
+};
+
+const openInEditor: React.CSSProperties = {
+	display: 'flex',
+	opacity: 0.8,
 };
 
 const noSpinner: React.CSSProperties = {
@@ -60,7 +67,13 @@ export const MenuBuildIndicator: React.FC<{
 			{window.remotion_projectName}
 			<MenuCompositionName />
 			<Spacing x={1} />
-			<InspectorOpenInEditor location={folderLocation} locationType="folder" />
+			<div style={openInEditor}>
+				<InspectorOpenInEditor
+					location={folderLocation}
+					locationType="folder"
+					showTooltips
+				/>
+			</div>
 			{mobileLayout ? null : <Spacing x={0.5} />}
 			{mobileLayout ? (
 				isBuilding ? (

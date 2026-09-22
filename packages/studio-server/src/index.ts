@@ -1,4 +1,4 @@
-import {formatBytes} from '@remotion/studio-shared';
+import {formatBytes, type RecastCodemod} from '@remotion/studio-shared';
 export {
 	ApiRoutes,
 	CopyStillToClipboardRequest,
@@ -23,6 +23,7 @@ export type {
 	UiOpenGlOptions,
 } from '@remotion/studio-shared';
 
+import {CodemodsInternals} from '@remotion/codemods';
 import {AnsiDiff} from './ansi-diff';
 import {
 	addCompletedClientRender,
@@ -30,11 +31,6 @@ import {
 	removeCompletedClientRender,
 } from './client-render-queue';
 import {applyCodemodToFile} from './codemods/apply-codemod-to-file';
-import {
-	formatOutput,
-	parseAndApplyCodemod,
-} from './codemods/duplicate-composition';
-import {updateDefaultProps} from './codemods/update-default-props';
 import {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
@@ -68,6 +64,17 @@ import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
 
+const {updateDefaultProps} = CodemodsInternals;
+
+const parseAndApplyCodemod = ({
+	input,
+	codeMod,
+}: {
+	input: string;
+	codeMod: RecastCodemod;
+}): {newContents: string; changesMade: {description: string}[]} =>
+	CodemodsInternals.parseAndApplyCodemod({input, codeMod});
+
 export type {
 	RemotionSkillsScope,
 	RemotionSkillsStatus,
@@ -98,7 +105,6 @@ export const StudioServerInternals = {
 	formatBytes,
 	parseAndApplyCodemod,
 	applyCodemodToFile,
-	formatOutput,
 	updateDefaultProps,
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,

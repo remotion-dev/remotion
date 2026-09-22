@@ -10,7 +10,9 @@ import {
 	MarkdownIcon,
 	OpenAIIcon,
 	RemotionIcon,
+	CopyIcon,
 } from './icons';
+import styles from './styles.module.css';
 
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
 
@@ -185,58 +187,28 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 			}}
 		>
 			<DocBreadcrumbs {...props} />
-			<div
-				style={{display: 'inline-flex', alignItems: 'stretch'}}
-				className="copy-markdown-btn"
-			>
+			<div className={`copy-markdown-btn ${styles.group}`}>
 				<button
 					onClick={handleCopyMarkdown}
-					style={{
-						all: 'unset',
-						cursor: 'pointer',
-						display: 'inline-flex',
-						alignItems: 'center',
-						fontSize: '0.875rem',
-						whiteSpace: 'nowrap',
-						border: '1px solid var(--border-color)',
-						borderRadius: '6px 0 0 6px',
-						padding: '6px 10px',
-					}}
+					className={`${styles.button} ${styles.copyButton}`}
 					type="button"
 				>
-					<svg
-						height="14"
-						width="14"
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 448 512"
-						style={{marginRight: '0.4em'}}
-					>
-						<path
-							fill="currentcolor"
-							d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"
-						/>
-					</svg>
-					{copied ? 'Copied' : 'Copy page'}
+					<span className={styles.icon}>
+						<CopyIcon size={15} />
+					</span>
+					<span aria-live="polite">{copied ? 'Copied' : 'Copy page'}</span>
 				</button>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger asChild>
 						<button
-							style={{
-								all: 'unset',
-								cursor: 'pointer',
-								display: 'inline-flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								padding: '6px 8px',
-								border: '1px solid var(--border-color)',
-								borderLeft: 'none',
-								borderRadius: '0 6px 6px 0',
-							}}
+							aria-label="Copy page options"
+							className={`${styles.button} ${styles.menuButton}`}
 							type="button"
 						>
 							<svg
-								width="10"
-								height="10"
+								className={styles.icon}
+								width="9"
+								height="9"
 								xmlns="http://www.w3.org/2000/svg"
 								viewBox="0 0 640 640"
 								fill="currentColor"

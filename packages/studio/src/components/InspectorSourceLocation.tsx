@@ -25,8 +25,15 @@ const sourceLocationStyle: React.CSSProperties = {
 	textAlign: 'left',
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 	width: 'fit-content',
+};
+
+const quickActionStyle: React.CSSProperties = {
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
@@ -38,6 +45,8 @@ const sourceLocationLabelStyle: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -104,6 +113,7 @@ export const InspectorSourceLocation: React.FC<{
 				disabled={!canOpen}
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
+				style={quickActionStyle}
 				title={fileLocation ?? undefined}
 			>
 				{label}

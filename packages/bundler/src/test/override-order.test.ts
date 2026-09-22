@@ -59,15 +59,32 @@ test('applies the shared override before the Rspack override', async () => {
 	expect(config.name).toBe('shared-rspack-rspack');
 });
 
+test('suppresses the Transformers standalone import.meta warning', async () => {
+	const [, webpackConfiguration] = await webpackConfig({
+		...baseOptions,
+		bundlerOverride: (config) => config,
+		webpackOverride: (config) => config,
+	});
+	const [, rspackConfiguration] = await rspackConfig({
+		...baseOptions,
+		bundlerOverride: (config) => config,
+		rspackOverride: (config) => config,
+	});
+	const expectedWarning = {
+		module:
+			/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+		message:
+			/Accessing import\.meta directly is unsupported|'import\.meta' cannot be used as a standalone expression/,
+	};
+
+	expect(webpackConfiguration.ignoreWarnings).toEqual([expectedWarning]);
+	expect(rspackConfiguration.ignoreWarnings).toEqual([expectedWarning]);
+});
+
 test('includes React Scan only in an explicitly enabled development bundle', async () => {
-	const previousEndpoint = process.env.REMOTION_REACT_SCAN_ENDPOINT;
 	const previousEntryPoint = process.env.REMOTION_REACT_SCAN_ENTRY_POINT;
-	const previousSessionId = process.env.REMOTION_REACT_SCAN_SESSION_ID;
-	process.env.REMOTION_REACT_SCAN_ENDPOINT =
-		'http://127.0.0.1:4321/ingest/test';
 	process.env.REMOTION_REACT_SCAN_ENTRY_POINT =
 		'/internal/react-scan/client.ts';
-	process.env.REMOTION_REACT_SCAN_SESSION_ID = 'test';
 
 	try {
 		const [, productionWebpackConfig] = await webpackConfig({
@@ -102,6 +119,20 @@ test('includes React Scan only in an explicitly enabled development bundle', asy
 			).toBe(false);
 		}
 
+		for (const config of [
+			productionWebpackConfig,
+			productionRspackConfig,
+			developmentWebpackConfig,
+			developmentRspackConfig,
+		]) {
+			expect(Array.isArray(config.entry)).toBe(true);
+			expect(
+				(config.entry as string[]).some((entry) =>
+					entry.includes('setup-sequence-stack-traces'),
+				),
+			).toBe(true);
+		}
+
 		for (const config of [developmentWebpackConfig, developmentRspackConfig]) {
 			expect(Array.isArray(config.entry)).toBe(true);
 			expect(
@@ -111,22 +142,10 @@ test('includes React Scan only in an explicitly enabled development bundle', asy
 			).toBe(true);
 		}
 	} finally {
-		if (previousEndpoint === undefined) {
-			delete process.env.REMOTION_REACT_SCAN_ENDPOINT;
-		} else {
-			process.env.REMOTION_REACT_SCAN_ENDPOINT = previousEndpoint;
-		}
-
 		if (previousEntryPoint === undefined) {
 			delete process.env.REMOTION_REACT_SCAN_ENTRY_POINT;
 		} else {
 			process.env.REMOTION_REACT_SCAN_ENTRY_POINT = previousEntryPoint;
-		}
-
-		if (previousSessionId === undefined) {
-			delete process.env.REMOTION_REACT_SCAN_SESSION_ID;
-		} else {
-			process.env.REMOTION_REACT_SCAN_SESSION_ID = previousSessionId;
 		}
 	}
 });

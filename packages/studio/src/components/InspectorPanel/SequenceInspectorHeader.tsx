@@ -54,7 +54,7 @@ const externalTabIndicatorStyle: React.CSSProperties = {
 };
 
 type SequenceInspectorSourceLocation = {
-	readonly canOpenInEditor: boolean;
+	readonly canOpen: boolean;
 	readonly openFileLocation: () => void;
 	readonly validatedLocation: CodePosition | null;
 };
@@ -62,7 +62,7 @@ type SequenceInspectorSourceLocation = {
 export const useSequenceInspectorSourceLocation = (
 	sequence: TimelineTrackData['sequence'],
 ): SequenceInspectorSourceLocation => {
-	const {canOpenInEditor, openInEditor, originalLocation} =
+	const {canOpenSource, openSource, originalLocation} =
 		useOpenSequenceInApps(sequence);
 
 	const validatedLocation = useMemo(() => {
@@ -82,15 +82,11 @@ export const useSequenceInspectorSourceLocation = (
 	}, [originalLocation]);
 
 	const openFileLocation = useCallback(() => {
-		if (!canOpenInEditor) {
-			return;
-		}
-
-		openInEditor(null);
-	}, [canOpenInEditor, openInEditor]);
+		openSource();
+	}, [openSource]);
 
 	return {
-		canOpenInEditor,
+		canOpen: validatedLocation !== null && canOpenSource,
 		openFileLocation,
 		validatedLocation,
 	};
@@ -178,7 +174,7 @@ export const SequenceInspectorHeader: React.FC<{
 				)}
 				<InspectorSourceLocation
 					location={sourceLocation.validatedLocation}
-					canOpen={sourceLocation.canOpenInEditor}
+					canOpen={sourceLocation.canOpen}
 					onOpen={sourceLocation.openFileLocation}
 					renderIcon={renderReactIcon}
 					size="quick-action"

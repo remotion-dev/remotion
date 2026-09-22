@@ -1,6 +1,5 @@
 import {homedir} from 'node:os';
 import path from 'node:path';
-import react from '@vitejs/plugin-react';
 import {defineConfig} from 'wxt';
 
 const homeDirectory = homedir();
@@ -24,8 +23,20 @@ export default defineConfig({
 			'Record any element on a webpage as a high-resolution MP4 or WebM.',
 		version: '0.1.0',
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
+		icons: {
+			16: 'icons/icon-16.png',
+			32: 'icons/icon-32.png',
+			48: 'icons/icon-48.png',
+			128: 'icons/icon-128.png',
+		},
 		action: {
 			default_title: 'Open Remotion Canvas Capture',
+			default_icon: {
+				16: 'icons/icon-16.png',
+				32: 'icons/icon-32.png',
+				48: 'icons/icon-48.png',
+				128: 'icons/icon-128.png',
+			},
 		},
 	},
 	webExt: {
@@ -54,7 +65,4 @@ export default defineConfig({
 		],
 		keepProfileChanges: true,
 	},
-	vite: () => ({
-		plugins: [react()],
-	}),
 });

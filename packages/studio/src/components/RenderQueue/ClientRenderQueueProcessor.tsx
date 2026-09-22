@@ -134,7 +134,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 						progress: progress.progress,
 					});
 				},
-				outputTarget: 'web-fs',
+				outputTarget: null,
 				licenseKey: job.licenseKey ?? undefined,
 				pageResponsiveness: job.pageResponsiveness,
 				allowHtmlInCanvas: job.allowHtmlInCanvas,

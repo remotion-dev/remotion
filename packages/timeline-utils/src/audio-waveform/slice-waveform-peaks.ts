@@ -6,12 +6,14 @@ export const sliceWaveformPeaks = ({
 	peaks,
 	playbackRate,
 	startFrom,
+	waveformSampleRate = TARGET_SAMPLE_RATE,
 }: {
 	readonly peaks: Float32Array;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
 	readonly fps: number;
 	readonly playbackRate: number;
+	readonly waveformSampleRate?: number;
 }) => {
 	if (peaks.length === 0) {
 		return peaks;
@@ -20,9 +22,9 @@ export const sliceWaveformPeaks = ({
 	const startTimeInSeconds = startFrom / fps;
 	const durationInSeconds = (durationInFrames / fps) * playbackRate;
 
-	const startPeakIndex = Math.floor(startTimeInSeconds * TARGET_SAMPLE_RATE);
+	const startPeakIndex = Math.floor(startTimeInSeconds * waveformSampleRate);
 	const endPeakIndex = Math.ceil(
-		(startTimeInSeconds + durationInSeconds) * TARGET_SAMPLE_RATE,
+		(startTimeInSeconds + durationInSeconds) * waveformSampleRate,
 	);
 
 	if (!Number.isFinite(startPeakIndex) || !Number.isFinite(endPeakIndex)) {

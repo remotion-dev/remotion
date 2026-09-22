@@ -5,7 +5,7 @@ import {Internals} from 'remotion';
 import {getKeysToExpand} from '../helpers/create-folder-tree';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
-import {getRoute, pushUrl} from '../helpers/url-state';
+import {getNavigationWindow, getRoute, pushUrl} from '../helpers/url-state';
 import {
 	CompositionListContext,
 	compositionListRenderedRef,
@@ -135,7 +135,7 @@ export const InitialCompositionLoader: React.FC = () => {
 			return;
 		}
 
-		if (compositions.length > 0) {
+		if (compositions.length > 0 && !window.remotion_isReadOnlyStudio) {
 			selectComposition(compositions[0], true);
 		} else {
 			setCompositionListState('ready');
@@ -177,9 +177,10 @@ export const InitialCompositionLoader: React.FC = () => {
 			setCanvasContent(newCanvas);
 		};
 
-		window.addEventListener('popstate', onchange);
+		const navigationWindow = getNavigationWindow();
+		navigationWindow.addEventListener('popstate', onchange);
 
-		return () => window.removeEventListener('popstate', onchange);
+		return () => navigationWindow.removeEventListener('popstate', onchange);
 	}, [
 		compositions,
 		selectAsset,

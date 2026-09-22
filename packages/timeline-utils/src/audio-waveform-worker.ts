@@ -8,11 +8,17 @@ import {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
 
 declare const self: DedicatedWorkerGlobalScope;
 
-const postPeaks = (requestId: number, peaks: Float32Array, final: boolean) => {
+const postPeaks = (
+	requestId: number,
+	peaks: Float32Array,
+	final: boolean,
+	averageVolume: number | null,
+) => {
 	// Structured cloning copies the array, so the decoder can keep
 	// mutating its buffer while the main thread reads the snapshot.
 	const payload: AudioWaveformWorkerOutgoingMessage = {
 		type: 'peaks',
+		averageVolume,
 		requestId,
 		peaks,
 		final,
@@ -39,14 +45,15 @@ self.addEventListener(
 		const controller = new AbortController();
 
 		loadWaveformPeaks(message.src, controller.signal, {
+			waveformSampleRate: message.waveformSampleRate,
 			onProgress: ({peaks, final}) => {
 				if (!final) {
-					postPeaks(message.requestId, peaks, false);
+					postPeaks(message.requestId, peaks, false, null);
 				}
 			},
 		})
-			.then((peaks) => {
-				postPeaks(message.requestId, peaks, true);
+			.then(({peaks, averageVolume}) => {
+				postPeaks(message.requestId, peaks, true, averageVolume);
 			})
 			.catch((error) => {
 				postError(message.requestId, error);

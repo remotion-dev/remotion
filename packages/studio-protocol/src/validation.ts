@@ -1,7 +1,3 @@
-export const isRecord = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
 export const isUrl = (value: string): boolean => {
 	try {
 		const parsed = new URL(value);

@@ -125,11 +125,19 @@ test('batches sequence and effect easing changes into one undo entry', async () 
 		expect(effectOutput).toContain('easing: [Easing.bezier(0.42, 0, 1, 1)]');
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(sequenceFilePath, 'utf-8')).toBe(input);
 		expect(readFileSync(effectFilePath, 'utf-8')).toBe(input);
 
-		expect(popRedo()).toEqual({success: true, nodePathMutation: null});
+		expect(popRedo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(sequenceFilePath, 'utf-8')).toBe(sequenceOutput);
 		expect(readFileSync(effectFilePath, 'utf-8')).toBe(effectOutput);
 	} finally {

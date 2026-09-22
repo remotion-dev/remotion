@@ -4,8 +4,6 @@ export type {CanvasProps} from './canvas';
 export {createCanvasController, useCanvasController} from './canvas-controller';
 export type {CanvasController} from './canvas-controller';
 export {getConnectedCompositions} from './get-connected-compositions';
-export {getCanvasSelectableOutlines} from './get-canvas-selectable-outlines';
-export type {CanvasSelectableOutline} from './get-canvas-selectable-outlines';
 export {
 	getCascadedStart,
 	getCascadedStartWithTrim,
@@ -19,29 +17,6 @@ export type {
 	TimelineTrackData,
 	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';
-export {
-	canvasOutlinesAreEqual,
-	clampCanvasOutlineValue,
-	createCanvasOutlinesController,
-	cropCanvasOutlinePoints,
-	getCanvasOutlinePointAtUv,
-	getCanvasOutlineUvForPoint,
-	getTransformedSvgViewportPoints,
-	measureCanvasOutlines,
-	mixCanvasOutlinePoints,
-	mixCanvasOutlineValues,
-	useCanvasOutlines,
-	useCanvasOutlinesController,
-} from './outlines';
-export {orderCanvasOutlinesForRendering} from './order-outlines-for-rendering';
-export type {CanvasOutlineOrderTarget} from './order-outlines-for-rendering';
-export type {
-	CanvasOutline,
-	CanvasOutlinePoint,
-	CanvasOutlinesController,
-	CanvasOutlinesSnapshot,
-	CanvasOutlineTarget,
-} from './outlines';
 export {
 	createCanvasSelectionController,
 	EMPTY_CANVAS_SELECTION,
@@ -57,8 +32,5 @@ export type {
 	CanvasSelectionInteraction,
 	CanvasSelectionSnapshot,
 } from './selection';
-export {
-	compareNonceHistories,
-	sortItemsByNonceHistory,
-} from './sort-by-nonce-history';
+export {sortItemsByCommitOrder} from './sort-by-commit-order';
 export {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';

@@ -11,7 +11,12 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {CanvasCaptureData, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	CanvasCaptureData,
+	ElementInstallExpectedFileState,
+	ElementInstallRequest,
+	RenderDefaults,
+} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -28,7 +33,6 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -136,12 +140,61 @@ export type AddEffectModalState = {
 	clientId: string;
 };
 
+export type AssetSelectionModalState = {
+	readonly type: 'asset-selection';
+	readonly assetType: 'audio' | 'video' | 'image';
+	readonly initialUrl: string | null;
+	readonly invocationTimestamp: number;
+	readonly assetSelection: {
+		readonly initialQuery: string;
+		readonly onSelectFile: () => void;
+		readonly onSelected: (asset: StaticFile) => void;
+	};
+	readonly onSelectedUrl: (url: string) => void;
+};
+
+export type TranscriptionModalState = {
+	type: 'transcribe';
+	src: string;
+	displayName: string;
+	audioStreamIndex: number | null;
+	requestInit: Omit<RequestInit, 'signal'> | null;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number | null;
+	} | null;
+};
+
+export type VideoMattingModalState = {
+	type: 'video-matting';
+	src: string;
+	displayName: string;
+};
+
 export type CanvasCaptureImport = {
 	readonly data: CanvasCaptureData;
 	readonly durationInSeconds: number;
 	readonly file: File;
 	readonly height: number;
 	readonly width: number;
+};
+
+export type ElementInstallPlan = {
+	readonly compositionFile: string;
+	readonly expectedFileState: ElementInstallExpectedFileState;
+	readonly filePath: string;
+};
+
+export type ElementInstallModalState = {
+	readonly type: 'element-install';
+	readonly currentPlan: ElementInstallPlan | null;
+	readonly missingPackages: string[];
+	readonly newPlan: ElementInstallPlan;
+	readonly onClose: () => void;
+	readonly request: ElementInstallRequest;
+	readonly sourceIsUnverified: boolean;
+	readonly sourceLabel: string;
 };
 
 export type ModalState =
@@ -196,7 +249,10 @@ export type ModalState =
 				| 'rendering'
 				| 'studio'
 				| 'packages'
+				| 'models'
 				| 'shortcuts'
+				| 'skills'
+				| 'updates'
 				| 'license';
 			initialPublicLicenseKey: string | null;
 	  }
@@ -207,15 +263,20 @@ export type ModalState =
 			jobId: string;
 	  }
 	| {
-			type: 'update';
-			info: UpdateInfo;
-			knownBugs: Bug[];
-	  }
-	| {
 			type: 'fix-computed-value';
 			prop: string;
-			context: string;
-			remotionInteractivitySkillAvailable: boolean;
+			location: {
+				source: string;
+				line: number;
+				column: number;
+			};
+	  }
+	| {
+			type: 'generate-with-agent';
+			location: {
+				source: string;
+				line: number;
+			} | null;
 	  }
 	| {
 			type: 'quick-switcher';
@@ -236,7 +297,11 @@ export type ModalState =
 			name: string;
 			url: string;
 	  }
+	| ElementInstallModalState
 	| AddEffectModalState
+	| AssetSelectionModalState
+	| TranscriptionModalState
+	| VideoMattingModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 

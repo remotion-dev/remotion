@@ -1,6 +1,10 @@
-import {splitJsxSequence as splitJsxSequenceCodemod} from '@remotion/studio-codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {SequenceNodePath} from 'remotion';
-import {formatFileContent} from './format-file-content';
+
+const {
+	splitJsxSequence: splitJsxSequenceCodemod,
+	splitJsxSequences: splitJsxSequencesCodemod,
+} = CodemodsInternals;
 
 export const splitJsxSequence = ({
 	input,
@@ -20,10 +24,24 @@ export const splitJsxSequence = ({
 		nodePath,
 		sequenceKeys,
 		splitFrame,
-		formatFile: ({contents, prettierConfigOverride: override}) =>
-			formatFileContent({
-				input: contents,
-				prettierConfigOverride: override,
-			}),
+		prettierConfigOverride,
+	});
+
+export const splitJsxSequences = ({
+	input,
+	splits,
+	prettierConfigOverride,
+}: {
+	input: string;
+	splits: Array<{
+		nodePath: SequenceNodePath;
+		sequenceKeys: string[];
+		splitFrame: number;
+	}>;
+	prettierConfigOverride?: Record<string, unknown> | null;
+}) =>
+	splitJsxSequencesCodemod({
+		input,
+		splits,
 		prettierConfigOverride,
 	});

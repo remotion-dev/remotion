@@ -63,6 +63,7 @@ export const configMethodLifecycles = {
 	setInteractivityEnabled: 'runtime',
 	setJpegQuality: 'runtime',
 	setKeyboardShortcutsEnabled: 'runtime',
+	setKeyboardShortcuts: 'runtime',
 	setLambdaInsights: 'runtime',
 	setLevel: 'restart',
 	setLogLevel: 'restart',

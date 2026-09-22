@@ -1,0 +1,271 @@
+---
+image: /generated/articles-docs-browser-bundler-index.png
+sidebar_label: Overview
+title: '@remotion/browser-bundler'
+crumb: '@remotion/browser-bundler'
+---
+
+# @remotion/browser-bundler<AvailableFrom v="4.0.527" />
+
+Compile a virtual Remotion project in the browser and use a registered [composition](/docs/composition) in your own UI, such as a [`<Player>`](/docs/player/player).
+
+:::warning
+
+*Draft API*: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+The initial implementation has only been tested in Chrome.
+
+The main entry point compiles source snapshots, manages its worker and WebAssembly compiler, applies source edits incrementally, and resolves npm imports over HTTP. The separate `@remotion/browser-bundler/runtime` entry point executes a bundle and resolves a registered composition.
+
+Neither entry point provides an editor or playback UI.
+
+## Installation
+
+<Installation pkg="@remotion/browser-bundler" />
+
+For the example below, also install [`@remotion/player`](/docs/player/installation). Keep all Remotion packages on the same version, and use the same React and React DOM versions in the host app and virtual project.
+
+## Browser setup
+
+Serve your app in a secure context, such as HTTPS or `localhost`, with these response headers:
+
+```text title="HTTP response headers"
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: require-corp
+```
+
+`window.crossOriginIsolated` must be `true`. The browser must support module workers, `SharedArrayBuffer`, and WebAssembly with shared memory. Cross-origin scripts, media, and other resources must satisfy the page's cross-origin policy.
+
+The compiler downloads a sizable WebAssembly binary and can use significant memory. The first compilation is slower than subsequent edits. Use [`onProgress`](/docs/browser-bundler/create-browser-bundler#onprogress) to display download progress, and reuse a bundler instance while editing.
+
+### Host bundler support
+
+The package ships a prebuilt compiler worker together with its WebAssembly binary and supporting worker asset. Your app's bundler must handle `new Worker(new URL(..., import.meta.url))` and emit the assets referenced with `new URL(..., import.meta.url)`. Serve those emitted assets alongside your app.
+
+Alternatively, use [`workerUrl`](/docs/browser-bundler/create-browser-bundler#workerurl) to host the packaged worker and its adjacent assets at a custom same-origin location. Preserve the packaged filenames and relative paths. This overrides the main worker URL, not the requirement to deploy its supporting assets.
+
+Other bundlers and deployment configurations are not guaranteed to work without additional setup. Call these APIs on the client, not during server rendering.
+
+### Next.js with webpack
+
+The initial Next.js integration uses webpack for development and production builds, not Turbopack:
+
+```json title="package.json (scripts)"
+{
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack"
+  }
+}
+```
+
+For TypeScript projects, use `"moduleResolution": "bundler"` in `tsconfig.json` so imports from `@remotion/browser-bundler/runtime` resolve through the package's exports.
+
+Merge these headers and webpack rules into your configuration. This example uses `/browser-bundler` as the page route; replace it with your route.
+
+```js title="next.config.mjs"
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async headers() {
+    return ['/browser-bundler', '/_next/:path*'].map((source) => ({
+      source,
+      headers: [
+        {key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
+        {key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
+      ],
+    }));
+  },
+  webpack(config) {
+    config.module.rules.push(
+      {test: /browser-bundler-worker\.js$/, parser: {url: true}},
+      {test: /\.wasm$/, type: 'asset/resource'},
+      {test: /wasi-worker-browser\.mjs$/, type: 'asset/resource'},
+    );
+    return config;
+  },
+};
+
+export default nextConfig;
+```
+
+If other pages are served without these headers, use full-page navigation when entering or leaving this route. Next.js client-side navigation does not change the current document's cross-origin isolation. A normal `<a>` link performs a full-page navigation.
+
+Next.js normally makes asset URLs relative. The supporting worker starts from a `blob:` URL, so its `importScripts()` call needs an absolute script URL. The scoped `parser: {url: true}` rule preserves that behavior for the packaged compiler worker without changing URL handling throughout your app.
+
+This configuration is specific to webpack. Check that the emitted worker and WebAssembly URLs remain accessible in your deployment.
+
+## Trusted code only
+
+[`loadBrowserBundle()`](/docs/browser-bundler/load-browser-bundle) evaluates JavaScript using `Function`. The bundle and its dependencies run with your host page's privileges, including access to its DOM, storage, and network. This is not a sandbox; do not use it to execute untrusted source.
+
+Your Content Security Policy must permit JavaScript code evaluation (`'unsafe-eval'`), workers, and WebAssembly compilation, as well as the asset and dependency requests. Allowing only `'wasm-unsafe-eval'` is insufficient for the runtime's JavaScript evaluation.
+
+## Minimal example
+
+This is a normal Remotion project: its entry point calls [`registerRoot()`](/docs/register-root), and its root registers a [`<Composition>`](/docs/composition). The host selects the hardcoded `HelloWorld` ID after compiling.
+
+```tsx twoslash title="BrowserBundlerPreview.tsx"
+// @moduleResolution: bundler
+'use client';
+
+import {
+  createBrowserBundler,
+  type BrowserBundler,
+  type VirtualProject,
+} from '@remotion/browser-bundler';
+import {
+  getBrowserComposition,
+  loadBrowserBundle,
+  type BrowserComposition,
+} from '@remotion/browser-bundler/runtime';
+import {Player} from '@remotion/player';
+import {useEffect, useState} from 'react';
+
+const project: VirtualProject = {
+  entryPoint: 'src/index.ts',
+  files: {
+    'src/index.ts': `
+      import {registerRoot} from 'remotion';
+      import {Root} from './Root';
+      registerRoot(Root);
+    `,
+    'src/Root.tsx': `
+      import {AbsoluteFill, Composition, useCurrentFrame} from 'remotion';
+
+      const Video = ({message}: {message: string}) => {
+        const frame = useCurrentFrame();
+        return (
+          <AbsoluteFill style={{
+            backgroundColor: 'white',
+            color: 'black',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontSize: 80,
+            opacity: Math.min(frame / 30, 1),
+          }}>
+            {message}
+          </AbsoluteFill>
+        );
+      };
+
+      export const Root = () => (
+        <Composition
+          id="HelloWorld"
+          component={Video}
+          durationInFrames={90}
+          fps={30}
+          width={1280}
+          height={720}
+          defaultProps={{message: 'Hello world'}}
+        />
+      );
+    `,
+  },
+};
+
+export const BrowserBundlerPreview = () => {
+  const [composition, setComposition] = useState<BrowserComposition | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let bundler: BrowserBundler | null = null;
+
+    const compile = async () => {
+      try {
+        bundler = createBrowserBundler();
+        const bundle = await bundler.bundle({project});
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        const root = loadBrowserBundle({bundle});
+        const resolved = await getBrowserComposition({
+          root,
+          compositionId: 'HelloWorld',
+          inputProps: {message: 'Hello from the browser!'},
+          signal: controller.signal,
+        });
+        if (!controller.signal.aborted) {
+          setComposition(resolved);
+        }
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      } finally {
+        bundler?.dispose();
+      }
+    };
+
+    void compile();
+    return () => {
+      controller.abort();
+      bundler?.dispose();
+    };
+  }, []);
+
+  if (error) {
+    return <pre>{error}</pre>;
+  }
+
+  if (!composition) {
+    return <p>Compiling...</p>;
+  }
+
+  return (
+    <Player
+      component={composition.component}
+      inputProps={composition.props}
+      durationInFrames={composition.durationInFrames}
+      fps={composition.fps}
+      compositionWidth={composition.width}
+      compositionHeight={composition.height}
+      controls
+      style={{width: '100%'}}
+    />
+  );
+};
+```
+
+Pass the returned `component` to [`<Player>`](/docs/player/player), not the registered root or `<Composition>` itself. Pass `props` and the resolved dimensions, frame rate, and duration alongside it. [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) merges default and input props and runs [`calculateMetadata()`](/docs/calculate-metadata) when provided.
+
+This example compiles once and disposes its worker. For editing, keep the bundler alive and submit a new complete snapshot when the source changes. Keep the last successful preview visible while compiling.
+
+## Scope and limitations
+
+### Source snapshots
+
+A [`VirtualProject`](/docs/browser-bundler/create-browser-bundler#virtualproject) contains project-relative source file paths, such as `src/index.ts` and `src/Root.tsx`, and their text. You own editing, history, saving, and restoring snapshots. The package does not provide filesystem persistence or an installation UI for npm packages.
+
+### Dependencies
+
+Browser-compatible npm imports resolve through [esm.sh](https://esm.sh). Default dependency versions come from the versions used to build the package. Use [`dependencyVersions`](/docs/browser-bundler/create-browser-bundler#dependencyversions) to pin additional dependencies.
+
+React, React DOM, and Remotion imports are shared with the host app when executing the bundle; they are not isolated copies. An override cannot make a different React or Remotion version run alongside the host version.
+
+### Public assets
+
+The virtual project has no `public/` asset mapping or public-file persistence. [`staticFile()`](/docs/staticfile) does not map a virtual source file to a served asset. Use hosted asset URLs that satisfy the page's cross-origin policy.
+
+### Updating the preview
+
+Compiling does not automatically replace an existing Player component. You own recompilation triggers, loading and resolving the new bundle, handling stale results and errors, and updating playback.
+
+For state-preserving edits, enable [`enableFastRefresh`](/docs/browser-bundler/create-browser-bundler#enablefastrefresh) and apply bundles with [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime). Use an isolated preview with development React and [`createBrowserCompositionObserver()`](/docs/browser-bundler/create-browser-composition-observer) to keep the composition registration tree mounted alongside the Player. This uses Rspack hot updates and React Fast Refresh rather than evaluating and remounting a fresh Player on each edit.
+
+Coalesce pending source edits before compilation, but apply every successfully compiled Fast Refresh bundle in order. Discarding compiled updates breaks the hot-update chain.
+
+This package does not export a video file. See [client-side rendering](/docs/client-side-rendering) for video export APIs and their separate requirements.
+
+## APIs
+
+import {TableOfContents} from './table-of-contents';
+
+<TableOfContents />
+
+## License
+
+[Remotion License](/docs/license)

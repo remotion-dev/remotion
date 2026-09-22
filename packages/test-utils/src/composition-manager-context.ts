@@ -31,7 +31,7 @@ export const makeMockCompositionManagerContext =
 							default: Mock as ComponentType<unknown>,
 						}),
 					),
-					nonce: [[0, 0]],
+					order: null,
 					defaultProps: undefined,
 					folderName: null,
 					parentFolderName: null,

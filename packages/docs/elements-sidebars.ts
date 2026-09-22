@@ -5,6 +5,7 @@ import {
 	elementRegistry,
 } from './src/components/Elements/element-registry';
 
+// Keep navigation alphabetical; the library uses the curated definitions array order.
 const compareStrings = (a: string, b: string) => {
 	if (a < b) {
 		return -1;
@@ -27,7 +28,6 @@ const sidebars: SidebarsConfig = {
 			collapsible: true,
 			collapsed: false,
 			items: [
-				'libraries',
 				'contributing',
 				{
 					type: 'html',
@@ -48,6 +48,13 @@ const sidebars: SidebarsConfig = {
 						)
 						.map(([slug]) => `${slug}/index`),
 				})),
+				{
+					type: 'html',
+					value:
+						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+					defaultStyle: true,
+				},
+				'libraries',
 			],
 		},
 	],

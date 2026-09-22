@@ -23,9 +23,10 @@ export const Checkbox: React.FC<{
 	readonly checked: boolean;
 	readonly onChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly name: string;
+	readonly inputId?: string;
 	readonly disabled?: boolean;
 	readonly variant?: CheckboxVariant;
-}> = ({checked, onChange, disabled, name, variant = 'default'}) => {
+}> = ({checked, onChange, disabled, inputId, name, variant = 'default'}) => {
 	const size = SIZES[variant];
 	const checkmarkSize = CHECKMARK_SIZES[variant];
 
@@ -71,6 +72,7 @@ export const Checkbox: React.FC<{
 	return (
 		<div style={background}>
 			<input
+				id={inputId}
 				style={input}
 				type={'checkbox'}
 				checked={checked}

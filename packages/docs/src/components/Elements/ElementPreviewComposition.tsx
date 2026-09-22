@@ -32,9 +32,13 @@ export const ElementPreviewComposition: React.FC<{
 	} = definition;
 	const {height, width} = useVideoConfig();
 	const hasElementDimensions = elementWidth !== null && elementHeight !== null;
+	const element = React.createElement(
+		Component as React.ComponentType<Record<string, unknown>>,
+		definition.initialProps ?? {},
+	);
 
 	if (!hasElementDimensions) {
-		return <Component />;
+		return element;
 	}
 
 	const scale = Math.min(
@@ -54,13 +58,24 @@ export const ElementPreviewComposition: React.FC<{
 			<Sequence height={elementHeight} layout="none" width={elementWidth}>
 				<div
 					style={{
-						height: elementHeight,
+						height: elementHeight * scale,
 						position: 'relative',
-						scale,
-						width: elementWidth,
+						width: elementWidth * scale,
 					}}
 				>
-					<Component />
+					<div
+						style={{
+							height: elementHeight,
+							left: 0,
+							position: 'absolute',
+							top: 0,
+							transform: `scale(${scale})`,
+							transformOrigin: 'top left',
+							width: elementWidth,
+						}}
+					>
+						{element}
+					</div>
 				</div>
 			</Sequence>
 		</AbsoluteFill>

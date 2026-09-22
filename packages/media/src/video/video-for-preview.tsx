@@ -37,9 +37,7 @@ import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
 const {
 	useUnsafeVideoConfig,
-	Timeline,
 	SharedAudioContext,
-	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -47,12 +45,16 @@ const {
 	usePreload,
 	SequenceContext,
 	useEffectChainState,
+	usePlaying,
+	useBuffering,
+	useMediaAudioState,
 } = Internals;
 
 type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
+	readonly toneFrequency: number;
 	readonly logLevel: LogLevel;
 	readonly className: string | undefined;
 	readonly muted: boolean;
@@ -87,6 +89,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	src: unpreloadedSrc,
 	style,
 	playbackRate,
+	toneFrequency,
 	logLevel,
 	className,
 	muted,
@@ -128,7 +131,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
 
-	const [playing] = Timeline.usePlayingState();
+	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
@@ -148,7 +151,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		[refForOutline],
 	);
 
-	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
@@ -187,23 +189,20 @@ const VideoForPreviewAssertedShowing: React.FC<
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
-	const buffering = useContext(Internals.BufferingContextReact);
-
-	if (!buffering) {
-		throw new Error(
-			'useMediaPlayback must be used inside a <BufferingContext>',
-		);
-	}
-
 	// TODO: Consider Sequence hidden
-	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
+	const {isMutedForPlayback: effectiveMuted} = useMediaAudioState({
+		muted,
+		volume: userPreferredVolume,
+		audioEnabled: true,
+	});
 
-	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
+	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(playbackRate);
+	const initialToneFrequency = useRef(toneFrequency);
 	const initialMuted = useRef(effectiveMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
@@ -282,6 +281,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				trimBefore: initialTrimBeforeRef.current,
 				fps: videoConfig.fps,
 				playbackRate: initialPlaybackRate.current,
+				toneFrequency: initialToneFrequency.current,
 				audioStreamIndex,
 				debugOverlay,
 				bufferState: buffer,
@@ -474,6 +474,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		effectiveMuted,
 		userPreferredVolume,
 		playbackRate,
+		toneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -533,11 +534,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 				src={src}
 				style={actualStyle}
 				className={className}
-				muted={muted}
+				muted={effectiveMuted}
 				volume={volume}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				toneFrequency={toneFrequency}
 				loopVolumeCurveBehavior={loopVolumeCurveBehavior}
 				name={'<Html5Video> (fallback)'}
 				loop={loop}

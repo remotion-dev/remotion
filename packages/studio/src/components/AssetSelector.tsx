@@ -3,7 +3,7 @@ import {copyRenderOutputToAsset} from '../api/copy-render-output-to-asset';
 import {writeStaticFile} from '../api/write-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT, WHITE_ALPHA_06} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
@@ -14,7 +14,9 @@ import useAssetDragEvents, {
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
+import {pickFilesToImport} from './import-assets';
 import {inlineCodeSnippet} from './Menu/styles';
+import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {useStaticFiles} from './use-static-files';
@@ -75,6 +77,48 @@ export const AssetSelector: React.FC<{
 	const assetTree = useMemo(() => {
 		return buildAssetFolderStructure(staticFiles, null, assetFoldersExpanded);
 	}, [assetFoldersExpanded, staticFiles]);
+	const writeFilesToPublicFolder = useCallback(
+		async ({
+			files,
+			assetPath,
+		}: {
+			files: File[];
+			assetPath: string | null;
+		}): Promise<boolean> => {
+			const makePath = (file: File) => {
+				return [assetPath, file.name].filter(Boolean).join('/');
+			};
+
+			const differentExistingFile = files.find((file) => {
+				const filePath = makePath(file);
+				return staticFiles.some(
+					(staticFile) =>
+						staticFile.name === filePath &&
+						staticFile.sizeInBytes !== file.size,
+				);
+			});
+			if (differentExistingFile) {
+				showNotification(
+					`File with name ${makePath(
+						differentExistingFile,
+					)} already exists and is different`,
+					4000,
+				);
+				return false;
+			}
+
+			for (const file of files) {
+				const body = await file.arrayBuffer();
+				await writeStaticFile({
+					contents: body,
+					filePath: makePath(file),
+				});
+			}
+
+			return true;
+		},
+		[staticFiles],
+	);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -138,43 +182,58 @@ export const AssetSelector: React.FC<{
 					return;
 				}
 
-				const makePath = (file: File) => {
-					return [assetPath, file.name].filter(Boolean).join('/');
-				};
-
-				const differentExistingFile = Array.from(files).find((file) => {
-					const filePath = makePath(file);
-					return staticFiles.some(
-						(staticFile) =>
-							staticFile.name === filePath &&
-							staticFile.sizeInBytes !== file.size,
-					);
-				});
-				if (differentExistingFile) {
-					showNotification(
-						`File with name ${makePath(
-							differentExistingFile,
-						)} already exists and is different`,
-						4000,
-					);
-					return;
-				}
-
-				for (const file of files) {
-					const body = await file.arrayBuffer();
-					await writeStaticFile({
-						contents: body,
-						filePath: makePath(file),
-					});
-				}
+				await writeFilesToPublicFolder({files, assetPath});
 			} catch (error) {
 				showNotification(`Error during upload: ${error}`, 3000);
 			} finally {
 				setDropLocation(null);
 			}
 		},
-		[dropLocation, staticFiles],
+		[dropLocation, writeFilesToPublicFolder],
 	);
+	const uploadAssets = useCallback(
+		async (assetPath: string | null) => {
+			try {
+				const files = await pickFilesToImport();
+				if (files.length === 0) {
+					return;
+				}
+
+				const wereWritten = await writeFilesToPublicFolder({
+					files,
+					assetPath,
+				});
+				if (wereWritten) {
+					const destination = assetPath ? `'${assetPath}'` : 'public folder';
+					showNotification(
+						files.length === 1
+							? `Uploaded ${files[0].name} to ${destination}`
+							: `Uploaded ${files.length} assets to ${destination}`,
+						3000,
+					);
+				}
+			} catch (error) {
+				showNotification(`Error during upload: ${error}`, 3000);
+			}
+		},
+		[writeFilesToPublicFolder],
+	);
+	const getAssetActions = useCallback((): ComboboxValue[] => {
+		return [
+			{
+				id: 'upload-assets',
+				keyHint: null,
+				label: 'Upload...',
+				leftItem: null,
+				onClick: () => uploadAssets(null),
+				quickSwitcherLabel: 'Upload assets...',
+				subMenu: null,
+				type: 'item',
+				value: 'upload-assets',
+				disabled: !shouldAllowUpload,
+			},
+		];
+	}, [shouldAllowUpload, uploadAssets]);
 
 	return (
 		<div
@@ -187,6 +246,7 @@ export const AssetSelector: React.FC<{
 				mode="assets"
 				showShortcut
 				tabIndex={tabIndex}
+				getActions={getAssetActions}
 			/>
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
@@ -226,6 +286,7 @@ export const AssetSelector: React.FC<{
 						dropLocation={dropLocation}
 						setDropLocation={setDropLocation}
 						readOnlyStudio={readOnlyStudio}
+						uploadAssets={uploadAssets}
 					/>
 				</div>
 			)}

@@ -1,21 +1,36 @@
-export const parseIsMadeWithRemotion = (key: string, value: unknown) => {
+const remotionMetadataMarkers = [
+	'Made with Remotion',
+	'Separated with @remotion/video-matting',
+] as const;
+
+export const parseRemotionMetadata = (key: string, value: unknown) => {
 	if (key !== 'comment') {
 		return null;
 	}
 
-	const isMadeWithRemotion = String(value).includes('Made with Remotion');
-	if (!isMadeWithRemotion) {
-		return null;
+	const stringValue = String(value);
+	for (const label of remotionMetadataMarkers) {
+		const prefix = `${label} `;
+		const markerIndex = stringValue.indexOf(prefix);
+		if (markerIndex === -1) {
+			continue;
+		}
+
+		const version = stringValue
+			.slice(markerIndex + prefix.length)
+			.split(/[;\s]/, 1)[0];
+		if (version) {
+			return {label, version};
+		}
 	}
 
-	const version = String(value).split(' ')[3];
-	return version;
+	return null;
 };
 
 export const renderMetadataLabel = (key: string, value: unknown) => {
-	const version = parseIsMadeWithRemotion(key, value);
-	if (version) {
-		return 'Made with Remotion';
+	const remotionMetadata = parseRemotionMetadata(key, value);
+	if (remotionMetadata) {
+		return remotionMetadata.label;
 	}
 
 	if (key === 'com.apple.quicktime.location.accuracy.horizontal') {
@@ -235,9 +250,9 @@ export const renderMetadataValue = ({
 	key: string;
 	value: string | number;
 }) => {
-	const version = parseIsMadeWithRemotion(key, value);
-	if (version) {
-		return 'v' + version;
+	const remotionMetadata = parseRemotionMetadata(key, value);
+	if (remotionMetadata) {
+		return 'v' + remotionMetadata.version;
 	}
 
 	if (key === 'com.apple.quicktime.location.ISO6709') {

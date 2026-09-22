@@ -51,6 +51,7 @@ export class MediaPlayer {
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
+	private toneFrequency: number;
 	private globalPlaybackRate: number;
 	private audioStreamIndex: number | null;
 
@@ -97,6 +98,7 @@ export class MediaPlayer {
 		trimBefore,
 		trimAfter,
 		playbackRate,
+		toneFrequency,
 		globalPlaybackRate,
 		audioStreamIndex,
 		fps,
@@ -122,6 +124,7 @@ export class MediaPlayer {
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
 		playbackRate: number;
+		toneFrequency: number;
 		globalPlaybackRate: number;
 		audioStreamIndex: number | null;
 		fps: number;
@@ -147,6 +150,7 @@ export class MediaPlayer {
 		this.logLevel = logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
+		this.toneFrequency = toneFrequency;
 		this.globalPlaybackRate = globalPlaybackRate;
 		this.loop = loop;
 		this.trimBefore = trimBefore;
@@ -398,6 +402,7 @@ export class MediaPlayer {
 					getStartTime: () => this.getStartTime(),
 					initialMuted,
 					initialVolume,
+					toneFrequency: this.toneFrequency,
 					drawDebugOverlay: this.drawDebugOverlay,
 					getSequenceDurationInSeconds: () =>
 						this.getSequenceDurationInSeconds(),
@@ -617,6 +622,22 @@ export class MediaPlayer {
 		if (previousRate !== rate) {
 			this.playbackRate = rate;
 			this.audioIteratorManager?.destroyIterator();
+			await this.seekTo(unloopedTimeInSeconds);
+		}
+	}
+
+	public async setToneFrequency(
+		toneFrequency: number,
+		unloopedTimeInSeconds: number,
+	): Promise<void> {
+		if (this.toneFrequency !== toneFrequency) {
+			this.toneFrequency = toneFrequency;
+			if (!this.audioIteratorManager) {
+				return;
+			}
+
+			this.audioIteratorManager.setToneFrequency(toneFrequency);
+			this.audioIteratorManager.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds);
 		}
 	}
@@ -850,11 +871,14 @@ export class MediaPlayer {
 		}
 	};
 
-	public audioSyncAnchorChanged = () => {
+	public audioSyncAnchorChanged = async (unloopedTimeInSeconds: number) => {
 		if (!this.audioIteratorManager) {
 			return;
 		}
 
 		this.audioIteratorManager.destroyIterator();
+		// An anchor can change while paused, when no frame update will restart
+		// scheduling. Refill the queue against the new anchor immediately.
+		await this.seekTo(unloopedTimeInSeconds);
 	};
 }

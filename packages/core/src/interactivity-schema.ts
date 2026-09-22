@@ -112,8 +112,16 @@ export type FontFamilyFieldSchema = {
 	keyframable?: false;
 };
 
+export type FontWeightFieldSchema = {
+	type: 'font-weight';
+	default: number | string | undefined;
+	description?: string;
+	keyframable?: boolean;
+};
+
 export type AssetFieldSchema = {
 	type: 'asset';
+	assetType?: 'audio' | 'video' | 'image';
 	default: string | undefined;
 	description?: string;
 	keyframable?: false;
@@ -211,6 +219,7 @@ export type VisibleFieldSchema =
 	| ColorFieldSchema
 	| TextContentFieldSchema
 	| FontFamilyFieldSchema
+	| FontWeightFieldSchema
 	| AssetFieldSchema
 	| ArrayFieldSchema
 	| CaptionsFieldSchema
@@ -301,22 +310,9 @@ export const textSchema = {
 		hiddenFromList: false,
 	},
 	'style.fontWeight': {
-		type: 'enum',
-		default: '400',
+		type: 'font-weight',
+		default: 400,
 		description: 'Font weight',
-		variants: {
-			'100': {},
-			'200': {},
-			'300': {},
-			'400': {},
-			'500': {},
-			'600': {},
-			'700': {},
-			'800': {},
-			'900': {},
-			normal: {},
-			bold: {},
-		},
 	},
 	'style.fontStyle': {
 		type: 'enum',

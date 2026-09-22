@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
-import {updateInlineCaptionPatches} from '../codemods/update-inline-caption-patches';
+import {CodemodsInternals} from '@remotion/codemods';
 import {lineColumnToNodePath} from './test-utils';
+
+const {updateInlineCaptionPatches} = CodemodsInternals;
 
 const input = `import {TimedCaptions} from './TimedCaptions';
 

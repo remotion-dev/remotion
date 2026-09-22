@@ -4,41 +4,43 @@ import type {
 } from '@remotion/studio-shared';
 import React, {useCallback, useState} from 'react';
 import {Button} from '../../components/Button';
+import {CodeFrame} from '../../components/CodeFrame';
 import {
-	BLACK,
-	BORDER_STACK_FRAME_BLUE,
-	WHITE_ALPHA_60,
+	BORDER_WHITE_ALPHA_12,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
 } from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {openInEditor} from '../../helpers/open-in-editor';
-import {CaretDown, CaretRight} from './carets';
-import {CodeFrame} from './CodeFrame';
+import {CaretDown} from '../../icons/caret';
 import {formatLocation} from './format-location';
 
 const location: React.CSSProperties = {
-	color: WHITE_ALPHA_60,
+	color: LIGHT_TEXT,
 	fontFamily: 'monospace',
-	fontSize: 14,
+	overflowWrap: 'anywhere',
 };
 
 const header: React.CSSProperties = {
-	paddingLeft: 14,
 	paddingTop: 10,
 	paddingBottom: 10,
-	paddingRight: 14,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	borderBottom: BORDER_STACK_FRAME_BLUE,
-	backgroundColor: BLACK,
 };
 
 const left: React.CSSProperties = {
 	paddingRight: 14,
 	flex: 1,
+	minWidth: 0,
 };
 
 const fnName: React.CSSProperties = {
-	fontSize: 14,
 	lineHeight: 1.5,
 	marginBottom: 3,
 };
@@ -47,16 +49,29 @@ export const StackElement: React.FC<{
 	readonly s: SymbolicatedStackFrame;
 	readonly lineNumberWidth: number;
 	readonly isFirst: boolean;
-	readonly defaultFunctionName: string;
+	readonly defaultFunctionName: string | null;
 	readonly editorId: EditorPickerId | null;
-}> = ({s, lineNumberWidth, isFirst, defaultFunctionName, editorId}) => {
+	readonly collapsible: boolean;
+	readonly fontSize: number;
+	readonly horizontalSpacing: number;
+	readonly headerAction: React.ReactNode;
+}> = ({
+	s,
+	lineNumberWidth,
+	isFirst,
+	defaultFunctionName,
+	editorId,
+	collapsible,
+	fontSize,
+	horizontalSpacing,
+	headerAction,
+}) => {
 	const [showCodeFrame, setShowCodeFrame] = useState(
 		() =>
 			(!s.originalFileName?.includes('node_modules') &&
 				!s.originalFileName?.startsWith('webpack/')) ||
 			isFirst,
 	);
-	const [locationHovered, setLocationHovered] = useState(false);
 	const canOpenFileLocation = Boolean(editorId && s.originalFileName);
 	const onOpenFileLocation = useCallback(() => {
 		if (!canOpenFileLocation) {
@@ -75,34 +90,48 @@ export const StackElement: React.FC<{
 	const toggleCodeFrame = useCallback(() => {
 		setShowCodeFrame((f) => !f);
 	}, []);
+	const functionName = s.originalFunctionName ?? defaultFunctionName;
+	const shouldShowCodeFrame = collapsible ? showCodeFrame : true;
 	return (
 		<div className="css-reset">
-			<div style={header}>
+			<div
+				style={{
+					...header,
+					borderBottom: shouldShowCodeFrame ? 'none' : BORDER_WHITE_ALPHA_12,
+					paddingLeft: horizontalSpacing,
+					paddingRight: horizontalSpacing,
+				}}
+			>
 				<div style={left}>
-					<div style={fnName}>
-						{s.originalFunctionName ?? defaultFunctionName}
-					</div>
+					{functionName === null ? null : (
+						<div style={{...fnName, fontSize}}>{functionName}</div>
+					)}
 					{s.originalFileName ? (
-						<div style={location}>
+						<div style={{...location, fontSize}}>
 							{canOpenFileLocation ? (
-								<span
+								<button
+									type="button"
+									className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 									onClick={onOpenFileLocation}
-									onPointerEnter={() => {
-										setLocationHovered(true);
-									}}
-									onPointerLeave={() => {
-										setLocationHovered(false);
-									}}
 									style={{
 										...location,
-										cursor: 'pointer',
-										textDecoration: locationHovered ? 'underline' : 'none',
-										textUnderlineOffset: locationHovered ? 4 : undefined,
+										...hoverableStyle({
+											idleBackground: TRANSPARENT,
+											hoverBackground: TRANSPARENT,
+											idleColor: LIGHT_TEXT,
+											hoverColor: WHITE,
+										}),
+										appearance: 'none',
+										border: 'none',
+										color: undefined,
+										cursor: 'default',
+										fontSize,
+										padding: 0,
 									}}
 								>
 									{formatLocation(s.originalFileName as string)}:
 									{s.originalLineNumber}
-								</span>
+								</button>
 							) : (
 								<>
 									{formatLocation(s.originalFileName as string)}:
@@ -112,17 +141,29 @@ export const StackElement: React.FC<{
 						</div>
 					) : null}
 				</div>
-				{s.originalScriptCode && s.originalScriptCode.length > 0 ? (
+				{headerAction}
+				{collapsible &&
+				s.originalScriptCode &&
+				s.originalScriptCode.length > 0 ? (
 					<Button onClick={toggleCodeFrame}>
-						{showCodeFrame ? <CaretDown invert={false} /> : <CaretRight />}
+						<div
+							style={{
+								display: 'flex',
+								transform: shouldShowCodeFrame ? undefined : 'rotate(-90deg)',
+							}}
+						>
+							<CaretDown />
+						</div>
 					</Button>
 				) : null}
 			</div>
 			<div>
 				{s.originalScriptCode &&
 				s.originalScriptCode.length > 0 &&
-				showCodeFrame ? (
+				shouldShowCodeFrame ? (
 					<CodeFrame
+						fontSize={fontSize}
+						horizontalMargin={horizontalSpacing}
 						lineNumberWidth={lineNumberWidth}
 						source={s.originalScriptCode}
 					/>

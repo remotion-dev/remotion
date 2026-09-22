@@ -1,11 +1,25 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {canShowUpdates} from '../helpers/can-show-updates';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
-	canInstallPackages,
-	getBrowserStudioOperations,
-} from '../helpers/browser-studio-operations';
+	canEditStudioConfig,
+	getAvailableSettingsTabs,
+	getSafeSettingsTab,
+	type SettingsTab,
+} from '../helpers/settings-tab-availability';
 import {AppsIcon} from '../icons/apps';
+import {CloudDownloadIcon} from '../icons/cloud-download';
 import {KeyboardIcon} from '../icons/keyboard';
 import {LicenseIcon} from '../icons/license';
+import {ModelsIcon} from '../icons/models';
 import {PackageIcon} from '../icons/package';
 import {RemotionTriangleIcon} from '../icons/remotion-triangle';
 import {SkillsIcon} from '../icons/skills';
@@ -17,6 +31,7 @@ import {InstallPackageSettings} from './InstallPackage';
 import {KeyboardShortcutsSettings} from './KeyboardShortcutsSettings';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {ModalHeader} from './ModalHeader';
+import {ModelsSettings} from './ModelsSettings';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RenderingSettings} from './RenderingSettings';
 import {
@@ -33,15 +48,8 @@ import {SettingsModalFooter} from './SettingsModalFooter';
 import {SkillsSettings} from './SkillsSettings';
 import {StudioSettings} from './StudioSettings';
 import {VerticalTab} from './Tabs/vertical';
-
-type SettingsTab =
-	| 'apps'
-	| 'rendering'
-	| 'studio'
-	| 'packages'
-	| 'shortcuts'
-	| 'skills'
-	| 'license';
+import {UpdatesSettings} from './UpdatesSettings';
+import {useUpdateStatus} from './UpdateStatusContext';
 
 const hiddenPanel: React.CSSProperties = {
 	display: 'none',
@@ -84,15 +92,40 @@ export const SettingsModal: React.FC<{
 }> = ({initialPublicLicenseKey, initialTab}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setPublicLicenseKey} = useSettings();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const {upgradeState} = useUpdateStatus();
+	const showUpdates =
+		upgradeState !== 'idle' ||
+		canShowUpdates({
+			connectionStatus: previewServerState.type,
+			isBrowserStudio,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+		});
 	const packageManager =
 		window.remotion_packageManager === 'unknown'
 			? null
 			: window.remotion_packageManager;
-	const showPackages =
-		canInstallPackages() && (isBrowserStudio || packageManager !== null);
-	const [tab, setTab] = useState<SettingsTab>(initialTab);
-	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([initialTab]);
+	const previewServerConnected = previewServerState.type === 'connected';
+	const canEditConfig = canEditStudioConfig({
+		isBrowserStudio,
+		previewServerConnected,
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
+	const availableTabs = useMemo(
+		() =>
+			getAvailableSettingsTabs({
+				isBrowserStudio,
+				packageManagerAvailable: packageManager !== null,
+				previewServerConnected,
+				readOnlyStudio: window.remotion_isReadOnlyStudio,
+				showUpdates,
+			}),
+		[isBrowserStudio, packageManager, previewServerConnected, showUpdates],
+	);
+	const safeInitialTab = getSafeSettingsTab(initialTab, availableTabs);
+	const [tab, setTab] = useState<SettingsTab>(safeInitialTab);
+	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([safeInitialTab]);
 	const [packagesFooterContainer, setPackagesFooterContainer] =
 		useState<HTMLDivElement | null>(null);
 
@@ -109,6 +142,12 @@ export const SettingsModal: React.FC<{
 			return [...currentOpenedTabs, newTab];
 		});
 	}, []);
+	useLayoutEffect(() => {
+		const safeTab = getSafeSettingsTab(tab, availableTabs);
+		if (safeTab !== tab) {
+			selectTab(safeTab);
+		}
+	}, [availableTabs, selectTab, tab]);
 	useEffect(() => {
 		setPublicLicenseKey(initialPublicLicenseKey);
 	}, [initialPublicLicenseKey, setPublicLicenseKey]);
@@ -119,21 +158,7 @@ export const SettingsModal: React.FC<{
 				<ModalHeader title="Settings" onClose={dismiss} />
 				<div style={horizontalLayout}>
 					<div style={settingsLeftSidebar}>
-						{isBrowserStudio ? null : (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'rendering'}
-								onClick={() => selectTab('rendering')}
-								renderIcon={(color) => (
-									<div style={iconContainer}>
-										<FilmIcon color={color} style={icon} />
-									</div>
-								)}
-							>
-								Defaults
-							</VerticalTab>
-						)}
-						{isBrowserStudio ? null : (
+						{availableTabs.includes('studio') ? (
 							<VerticalTab
 								style={horizontalTab}
 								selected={tab === 'studio'}
@@ -146,7 +171,21 @@ export const SettingsModal: React.FC<{
 							>
 								Studio
 							</VerticalTab>
-						)}
+						) : null}
+						{availableTabs.includes('rendering') ? (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'rendering'}
+								onClick={() => selectTab('rendering')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<FilmIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Defaults
+							</VerticalTab>
+						) : null}
 						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'shortcuts'}
@@ -159,7 +198,7 @@ export const SettingsModal: React.FC<{
 						>
 							Shortcuts
 						</VerticalTab>
-						{showPackages ? (
+						{availableTabs.includes('packages') ? (
 							<VerticalTab
 								style={horizontalTab}
 								selected={tab === 'packages'}
@@ -173,7 +212,7 @@ export const SettingsModal: React.FC<{
 								Packages
 							</VerticalTab>
 						) : null}
-						{isBrowserStudio ? null : (
+						{availableTabs.includes('skills') ? (
 							<VerticalTab
 								style={horizontalTab}
 								selected={tab === 'skills'}
@@ -186,8 +225,22 @@ export const SettingsModal: React.FC<{
 							>
 								Skills
 							</VerticalTab>
-						)}
-						{isBrowserStudio ? null : (
+						) : null}
+						{availableTabs.includes('models') ? (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'models'}
+								onClick={() => selectTab('models')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<ModelsIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Models
+							</VerticalTab>
+						) : null}
+						{availableTabs.includes('apps') ? (
 							<VerticalTab
 								style={horizontalTab}
 								selected={tab === 'apps'}
@@ -200,8 +253,8 @@ export const SettingsModal: React.FC<{
 							>
 								Apps
 							</VerticalTab>
-						)}
-						{isBrowserStudio ? null : (
+						) : null}
+						{availableTabs.includes('license') ? (
 							<VerticalTab
 								style={horizontalTab}
 								selected={tab === 'license'}
@@ -214,9 +267,24 @@ export const SettingsModal: React.FC<{
 							>
 								License
 							</VerticalTab>
-						)}
+						) : null}
+						{availableTabs.includes('updates') ? (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'updates'}
+								onClick={() => selectTab('updates')}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<CloudDownloadIcon color={color} style={icon} />
+									</div>
+								)}
+							>
+								Updates
+							</VerticalTab>
+						) : null}
 					</div>
-					{openedTabs.includes('packages') ? (
+					{availableTabs.includes('packages') &&
+					openedTabs.includes('packages') ? (
 						<div style={tab === 'packages' ? optionsPanel : hiddenPanel}>
 							<InstallPackageSettings
 								footerContainer={packagesFooterContainer}
@@ -224,7 +292,7 @@ export const SettingsModal: React.FC<{
 							/>
 						</div>
 					) : null}
-					{openedTabs.includes('apps') ? (
+					{availableTabs.includes('apps') && openedTabs.includes('apps') ? (
 						<div
 							style={tab === 'apps' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
@@ -232,7 +300,16 @@ export const SettingsModal: React.FC<{
 							<DefaultEditorSettings />
 						</div>
 					) : null}
-					{openedTabs.includes('license') ? (
+					{availableTabs.includes('models') && openedTabs.includes('models') ? (
+						<div
+							style={tab === 'models' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<ModelsSettings />
+						</div>
+					) : null}
+					{availableTabs.includes('license') &&
+					openedTabs.includes('license') ? (
 						<div
 							style={tab === 'license' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
@@ -240,7 +317,7 @@ export const SettingsModal: React.FC<{
 							<LicenseSettings />
 						</div>
 					) : null}
-					{openedTabs.includes('skills') ? (
+					{availableTabs.includes('skills') && openedTabs.includes('skills') ? (
 						<div
 							style={tab === 'skills' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
@@ -256,7 +333,8 @@ export const SettingsModal: React.FC<{
 							<KeyboardShortcutsSettings />
 						</div>
 					) : null}
-					{openedTabs.includes('rendering') ? (
+					{availableTabs.includes('rendering') &&
+					openedTabs.includes('rendering') ? (
 						<div
 							style={tab === 'rendering' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
@@ -264,7 +342,7 @@ export const SettingsModal: React.FC<{
 							<RenderingSettings />
 						</div>
 					) : null}
-					{openedTabs.includes('studio') ? (
+					{availableTabs.includes('studio') && openedTabs.includes('studio') ? (
 						<div
 							style={tab === 'studio' ? settingsOptionsPanel : hiddenPanel}
 							className={VERTICAL_SCROLLBAR_CLASSNAME}
@@ -272,10 +350,22 @@ export const SettingsModal: React.FC<{
 							<StudioSettings />
 						</div>
 					) : null}
+					{availableTabs.includes('updates') &&
+					openedTabs.includes('updates') ? (
+						<div
+							style={tab === 'updates' ? settingsOptionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<UpdatesSettings />
+						</div>
+					) : null}
 				</div>
 				{tab === 'packages' ? (
 					<div ref={setPackagesFooterContainer} />
-				) : isBrowserStudio ? null : (
+				) : !canEditConfig ||
+				  tab === 'models' ||
+				  tab === 'updates' ||
+				  tab === 'skills' ? null : (
 					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
 				)}
 			</>

@@ -6,7 +6,7 @@ crumb: '@remotion/studio-protocol'
 
 # createElementPayload()<AvailableFrom v="4.0.502" />
 
-Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
+Creates a validated, versioned Element payload for [`buildOpenInRemotionNewUrl()`](/docs/studio-protocol/build-open-in-remotion-new-url), [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data), and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
 ## Example
 
@@ -68,13 +68,25 @@ Studio uses these dimensions for the drag preview, drop position, and the genera
 
 The preferred duration shown while dragging. It must be a positive integer.
 
+### initialProps?<AvailableFrom v="4.0.524" />
+
+Use `initialProps` when a `component-owned-sequence` Element needs replaceable starter content. Studio writes each property onto the installed component. The default is `null`.
+
+Use JSON-compatible values and valid JSX attribute names. For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
+
+Pass the same props to the component preview. Element dimensions are not passed as component props, so include `width` and `height` when the component needs them.
+
+In `'wrapped'` mode, Studio also passes `initialProps` to the component inside the generated Sequence. Most wrapped Elements do not need this because their editable values can stay on internal `Interactive` call sites in the copied source.
+
 ### installationMode?<AvailableFrom v="4.0.506" />
 
 Controls how Studio installs the Element. The default is `'wrapped'`.
 
-Use `'wrapped'` for a regular visual component. Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
+With `'wrapped'`, Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
 
-Use `'component-owned-sequence'` only if the component already owns the one Sequence that should appear in the timeline and be editable in Studio. The component must accept and forward `from`, `durationInFrames`, `name`, and `style` to that Sequence and its rendered outline. It must also define its own rendered dimensions. Studio places timing and absolute positioning props directly on the component call instead of generating an outer Sequence.
+With `'component-owned-sequence'`, Studio puts timing, name, and absolute positioning props on the component call without adding an outer Sequence. The component must provide its own Studio-editable Sequence and rendered dimensions.
+
+See [Design it for composition](/elements/contributing#design-it-for-composition) for guidance on choosing a mode and wiring the component.
 
 ## Return value
 
@@ -88,5 +100,6 @@ Invalid input throws a `TypeError`.
 
 ## See also
 
+- [`buildOpenInRemotionNewUrl()`](/docs/studio-protocol/build-open-in-remotion-new-url)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)

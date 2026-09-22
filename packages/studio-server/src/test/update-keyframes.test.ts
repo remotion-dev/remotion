@@ -269,6 +269,13 @@ const rotateSchema = {
 	},
 } satisfies InteractivitySchema;
 
+const fontWeightSchema = {
+	'style.fontWeight': {
+		type: 'font-weight',
+		default: 400,
+	},
+} satisfies InteractivitySchema;
+
 const translateInput = `import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
@@ -1264,6 +1271,7 @@ test('updateSequenceKeyframes converts static translate to interpolate', async (
 	);
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("outputType: 'translate'");
 	expect(output).toContain('interpolate');
 });
 
@@ -1371,7 +1379,33 @@ test('updateSequenceKeyframes converts static rotate to interpolate', async () =
 	expect(output).toContain("rotate: interpolate(frame, [55], ['19deg'], {");
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("outputType: 'rotate'");
 	expect(output).toContain('interpolate');
+});
+
+test('updateSequenceKeyframes sets the font weight output type', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <AbsoluteFill style={{fontWeight: 400}} />;
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'fontWeight')),
+		schema: fontWeightSchema,
+		updates: [
+			{
+				key: 'style.fontWeight',
+				operation: {type: 'add', frame: 55, value: 700},
+			},
+		],
+	});
+
+	expect(output).toContain('fontWeight: interpolate(frame, [55], [700], {');
+	expect(output).toContain("outputType: 'font-weight'");
 });
 
 test('updateSequenceKeyframes migrates rotate away from interpolateColors', async () => {
@@ -1493,7 +1527,7 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 	});
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [0, 100], [2, 4])']);
-	expect(output).toContain('style={{scale: interpolate(frame, [100], [4])}}');
+	expect(output).toContain('scale: interpolate(frame, [100], [4])');
 });
 
 test('updateSequenceKeyframes removes the adjacent easing segment when deleting keyframes', async () => {
@@ -1595,7 +1629,7 @@ test('updateSequenceKeyframes moves overlapping selected keyframes together', as
 		'interpolate(frame, [50, 80, 100], [2, 3, 4])',
 	]);
 	expect(output).toContain(
-		'style={{scale: interpolate(frame, [50, 80, 100], [2, 3, 4])}}',
+		'scale: interpolate(frame, [50, 80, 100], [2, 3, 4])',
 	);
 });
 
@@ -1627,7 +1661,7 @@ test('updateSequenceKeyframes resorts keyframes when moving past an adjacent key
 		'interpolate(frame, [50, 75, 100], [3, 2, 4])',
 	]);
 	expect(output).toContain(
-		'style={{scale: interpolate(frame, [50, 75, 100], [3, 2, 4])}}',
+		'scale: interpolate(frame, [50, 75, 100], [3, 2, 4])',
 	);
 });
 
@@ -1693,7 +1727,7 @@ test('updateSequenceKeyframes allows moving keyframes outside the sequence range
 		'interpolate(frame, [-15, 50, 140], [2, 3, 4])',
 	]);
 	expect(output).toContain(
-		'style={{scale: interpolate(frame, [-15, 50, 140], [2, 3, 4])}}',
+		'scale: interpolate(frame, [-15, 50, 140], [2, 3, 4])',
 	);
 });
 
@@ -1721,7 +1755,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 
 	expect(oldValueStrings).toEqual(['interpolate(frame, [12], [320])']);
 	expect(newValueStrings).toEqual(['320']);
-	expect(output).toContain('style={{scale: 320}}');
+	expect(output).toContain('scale: 320');
 	const status = computeSequencePropsStatusFromContent({
 		videoConfigValues: null,
 		fileContents: output,
@@ -1788,7 +1822,7 @@ test('updateSequenceKeyframes preserves the playhead value when all keyframes ar
 			})),
 		});
 
-		expect(output).toContain('style={{scale: 3}}');
+		expect(output).toContain('scale: 3');
 	}
 });
 
@@ -1838,8 +1872,8 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 
 	expect(oldValueStrings).toEqual(['0.2']);
 	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain("extrapolateLeft: 'clamp'");
+	expect(serialized).toContain("extrapolateRight: 'clamp'");
 	expect(serialized).not.toContain('perceptual-scale');
 });
 
@@ -1862,7 +1896,7 @@ test('updateEffectKeyframes uses the schema keyframe output default', () => {
 	});
 
 	expect(serialized).toContain('scale: interpolate(frame, [40], [2], {');
-	expect(serialized).toContain('output: "perceptual-scale"');
+	expect(serialized).toContain("output: 'perceptual-scale'");
 });
 
 test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
@@ -1887,8 +1921,8 @@ test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
 	expect(serialized).toContain('useCurrentFrame');
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain('phase: interpolate(frame, [30], [90], {');
-	expect(serialized).toContain('extrapolateLeft: "clamp"');
-	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).toContain("extrapolateLeft: 'clamp'");
+	expect(serialized).toContain("extrapolateRight: 'clamp'");
 });
 
 test('updateEffectKeyframes adds props to a zero-argument effect', () => {

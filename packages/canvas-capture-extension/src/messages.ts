@@ -1,27 +1,7 @@
 export const captureControllerMessageType =
 	'remotion-canvas-capture-controller';
-export const capturePopupTargetMessageType =
-	'remotion-canvas-capture-popup-target';
 
 export type CaptureFormat = 'mp4' | 'webm';
-
-export type CapturePopupTargetMessage = {
-	readonly type: typeof capturePopupTargetMessageType;
-	readonly tabId: number;
-};
-
-export const isCapturePopupTargetMessage = (
-	message: unknown,
-): message is CapturePopupTargetMessage => {
-	return (
-		typeof message === 'object' &&
-		message !== null &&
-		'type' in message &&
-		message.type === capturePopupTargetMessageType &&
-		'tabId' in message &&
-		typeof message.tabId === 'number'
-	);
-};
 
 export type CaptureControllerState = {
 	readonly supported: boolean;
@@ -36,6 +16,7 @@ export type CaptureControllerState = {
 	readonly outputSize: {readonly width: number; readonly height: number} | null;
 	readonly recording: boolean;
 	readonly finalizing: boolean;
+	readonly hasCompletedRecording: boolean;
 	readonly scale: number;
 	readonly format: CaptureFormat;
 	readonly status: string;
@@ -46,6 +27,10 @@ export type CaptureControllerRequest =
 	| {
 			readonly type: typeof captureControllerMessageType;
 			readonly command: 'get-state';
+	  }
+	| {
+			readonly type: typeof captureControllerMessageType;
+			readonly command: 'toggle-controls';
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;
@@ -72,7 +57,18 @@ export type CaptureControllerRequest =
 	| {
 			readonly type: typeof captureControllerMessageType;
 			readonly command: 'stop-recording';
-			readonly destination: 'convert' | 'download';
+	  }
+	| {
+			readonly type: typeof captureControllerMessageType;
+			readonly command: 'open-in-convert';
+	  }
+	| {
+			readonly type: typeof captureControllerMessageType;
+			readonly command: 'open-in-new';
+	  }
+	| {
+			readonly type: typeof captureControllerMessageType;
+			readonly command: 'download-recording';
 	  };
 
 export const isCaptureControllerRequest = (

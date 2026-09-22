@@ -18,7 +18,6 @@ import {
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
 import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
@@ -248,7 +247,6 @@ export const insertJsxElementHandler: ApiHandler<
 				source,
 				oldContents,
 				output,
-				formatted,
 				insertedNodePath,
 				logLine,
 				nodePathRemappings,
@@ -259,14 +257,23 @@ export const insertJsxElementHandler: ApiHandler<
 				element,
 				from,
 				prettierConfigOverride: null,
+				sourceFileOverrides: null,
 			});
-			const nodePathMutation = broadcastSequenceNodePathMutation([
-				{
-					absolutePath: fileName,
-					remappings: nodePathRemappings,
-					restoredNodePaths: [],
-				},
-			]);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[
+					{
+						absolutePath: fileName,
+						remappings: nodePathRemappings,
+					},
+				],
+				insertedNodePath === null
+					? null
+					: {
+							absolutePath: fileName,
+							compositionId,
+							nodePath: insertedNodePath,
+						},
+			);
 			if (insertedNodePath === null) {
 				RenderInternals.Log.warn(
 					{indent: false, logLevel},
@@ -306,13 +313,9 @@ export const insertJsxElementHandler: ApiHandler<
 				{indent: false, logLevel},
 				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Added ${elementLabel}`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
-
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[insert-jsx-element] Wrote ${source}${formatted ? ' (formatted)' : ''}`,
+				`[insert-jsx-element] Wrote ${source}`,
 			);
 
 			printUndoHint(logLevel);

@@ -1,18 +1,14 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
-import type {GitClientId, TerminalId} from '@remotion/studio-shared';
 import type {
 	EditorPickerId,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
+	GitClientId,
+	TerminalId,
 } from '@remotion/studio-shared';
 import React from 'react';
 import {NoReactInternals} from 'remotion/no-react';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
-import {
-	getGitRefUrl,
-	getGitSourceBranchUrl,
-} from '../helpers/get-git-menu-item';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
 import {GitClientIcon} from '../icons/git-client';
@@ -28,30 +24,64 @@ const menuLabel: React.CSSProperties = {
 	lineHeight: '16px',
 };
 
+export const getConfigureDefaultAppsMenuItems = ({
+	hasPreviousItems,
+	onConfigureApps,
+}: {
+	readonly hasPreviousItems: boolean;
+	readonly onConfigureApps: (() => void) | null;
+}): ComboboxValue[] => {
+	if (!onConfigureApps) {
+		return [];
+	}
+
+	return [
+		...(hasPreviousItems
+			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
+			: []),
+		{
+			id: 'change-default-apps',
+			keyHint: null,
+			label: <span style={menuLabel}>Configure default apps...</span>,
+			leftItem: null,
+			onClick: onConfigureApps,
+			quickSwitcherLabel: 'Configure default apps...',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'change-default-apps',
+		},
+	];
+};
+
 export const getOpenInMenuItems = ({
+	canOpenDesktopApps,
 	codingAgentInfo,
 	editorDisabled,
 	editorInfo,
 	excludeCodingAgentId,
 	excludeEditorId,
+	excludeGitSource,
 	fileManagerDisabled,
 	folder,
-	location,
+	gitSourceDisabled,
 	onConfigureApps,
 	onOpenInCodingAgent,
 	onOpenInEditor,
 	onOpenInFileExplorer,
 	onOpenInGitClient,
+	onOpenInGitSource,
 	onOpenInTerminal,
 }: {
+	readonly canOpenDesktopApps: boolean;
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorDisabled: boolean;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
 	readonly excludeCodingAgentId: DefaultCodingAgent | null;
 	readonly excludeEditorId: EditorPickerId | null;
+	readonly excludeGitSource: boolean;
 	readonly fileManagerDisabled: boolean;
 	readonly folder: boolean;
-	readonly location: OriginalPosition | null;
+	readonly gitSourceDisabled: boolean;
 	readonly onConfigureApps: (() => void) | null;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
@@ -60,13 +90,17 @@ export const getOpenInMenuItems = ({
 	readonly onOpenInEditor: (editorId: EditorPickerId) => void;
 	readonly onOpenInFileExplorer: () => void;
 	readonly onOpenInGitClient: (gitClientId: GitClientId) => void;
+	readonly onOpenInGitSource: () => void;
 	readonly onOpenInTerminal: ((terminalId: TerminalId) => void) | null;
 }): ComboboxValue[] => {
-	const showFinder = window.remotion_fileSystemPlatform === 'darwin';
+	const showFinder =
+		canOpenDesktopApps && window.remotion_fileSystemPlatform === 'darwin';
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const editors: ComboboxValue[] = (editorInfo?.installedEditors ?? [])
+	const editors: ComboboxValue[] = (
+		canOpenDesktopApps ? (editorInfo?.installedEditors ?? []) : []
+	)
 		.filter((editor) => editor.id !== excludeEditorId)
 		.map((editor) => ({
 			disabled: editorDisabled,
@@ -79,13 +113,13 @@ export const getOpenInMenuItems = ({
 					onOpenInEditor(editor.id);
 				}
 			},
-			quickSwitcherLabel: null,
+			quickSwitcherLabel: `Open in ${editor.name}`,
 			subMenu: null,
 			type: 'item' as const,
 			value: editor.id,
 		}));
 	const codingAgents: ComboboxValue[] = (
-		codingAgentInfo?.installedCodingAgents ?? []
+		canOpenDesktopApps ? (codingAgentInfo?.installedCodingAgents ?? []) : []
 	)
 		.filter((codingAgent) => codingAgent.id !== excludeCodingAgentId)
 		.map((codingAgent) => ({
@@ -95,38 +129,38 @@ export const getOpenInMenuItems = ({
 			leftItem: <CodingAgentIcon codingAgentId={codingAgent.id} size={18} />,
 			onClick: () =>
 				onOpenInCodingAgent(codingAgent.id, codingAgent.nameWithType),
-			quickSwitcherLabel: null,
+			quickSwitcherLabel: `Open in ${codingAgent.nameWithType}`,
 			subMenu: null,
 			type: 'item' as const,
 			value: `coding-agent-${codingAgent.id}`,
 		}));
-	const terminals = folder ? (codingAgentInfo?.installedTerminals ?? []) : [];
-	const gitClients = folder ? (codingAgentInfo?.installedGitClients ?? []) : [];
-	const gitHubItem: ComboboxValue | null = window.remotion_gitSource
-		? {
-				id: 'open-in-github',
-				keyHint: null,
-				label: <span style={menuLabel}>GitHub.com</span>,
-				leftItem: <GitHubIcon size={18} />,
-				onClick: () => {
-					const gitSource = window.remotion_gitSource;
-					if (!gitSource) {
-						return;
-					}
-
-					window.open(
-						folder || !location
-							? getGitSourceBranchUrl(gitSource)
-							: getGitRefUrl(gitSource, location, window.remotion_cwd),
-						'_blank',
-					);
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item' as const,
-				value: 'github',
-			}
-		: null;
+	const terminals =
+		canOpenDesktopApps && folder
+			? (codingAgentInfo?.installedTerminals ?? [])
+			: [];
+	const gitClients =
+		canOpenDesktopApps && folder
+			? (codingAgentInfo?.installedGitClients ?? [])
+			: [];
+	const gitHubItem: ComboboxValue | null =
+		window.remotion_gitSource && !excludeGitSource
+			? {
+					disabled: gitSourceDisabled,
+					id: 'open-in-github',
+					keyHint: null,
+					label: <span style={menuLabel}>GitHub.com</span>,
+					leftItem: <GitHubIcon size={16} />,
+					onClick: () => {
+						if (!gitSourceDisabled) {
+							onOpenInGitSource();
+						}
+					},
+					quickSwitcherLabel: 'Open in GitHub.com',
+					subMenu: null,
+					type: 'item' as const,
+					value: 'github',
+				}
+			: null;
 	const systemApps: ComboboxValue[] = [
 		gitHubItem,
 		showFinder
@@ -141,7 +175,7 @@ export const getOpenInMenuItems = ({
 							onOpenInFileExplorer();
 						}
 					},
-					quickSwitcherLabel: null,
+					quickSwitcherLabel: `Open in ${fileManagerName}`,
 					subMenu: null,
 					type: 'item' as const,
 					value: 'file-explorer',
@@ -188,7 +222,7 @@ export const getOpenInMenuItems = ({
 						label: <span style={menuLabel}>{terminal.name}</span>,
 						leftItem: <TerminalIcon terminalId={terminal.id} size={18} />,
 						onClick: () => onOpenInTerminal?.(terminal.id),
-						quickSwitcherLabel: null,
+						quickSwitcherLabel: `Open in ${terminal.name}`,
 						subMenu: null,
 						type: 'item' as const,
 						value: `terminal-${terminal.id}`,
@@ -208,7 +242,7 @@ export const getOpenInMenuItems = ({
 						label: <span style={menuLabel}>{gitClient.name}</span>,
 						leftItem: <GitClientIcon gitClientId={gitClient.id} size={18} />,
 						onClick: () => onOpenInGitClient(gitClient.id),
-						quickSwitcherLabel: null,
+						quickSwitcherLabel: `Open in ${gitClient.name}`,
 						subMenu: null,
 						type: 'item' as const,
 						value: `git-client-${gitClient.id}`,
@@ -228,21 +262,9 @@ export const getOpenInMenuItems = ({
 					...systemApps,
 				]
 			: []),
-		...(onConfigureApps && (hasCategorizedApps || systemApps.length > 0)
-			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
-			: []),
-		onConfigureApps
-			? {
-					id: 'change-default-apps',
-					keyHint: null,
-					label: <span style={menuLabel}>Change default apps...</span>,
-					leftItem: null,
-					onClick: onConfigureApps,
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item' as const,
-					value: 'change-default-apps',
-				}
-			: null,
+		...getConfigureDefaultAppsMenuItems({
+			hasPreviousItems: hasCategorizedApps || systemApps.length > 0,
+			onConfigureApps,
+		}),
 	].filter(NoReactInternals.truthy);
 };

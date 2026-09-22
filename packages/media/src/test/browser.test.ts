@@ -11,6 +11,7 @@ test('Should be able to extract a frame', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
@@ -67,6 +68,7 @@ test('Should be able to extract the last frame', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1_000_000,
 		durationInSeconds: 1 / 30,
@@ -123,6 +125,7 @@ test('Should manage the cache', async (t) => {
 
 	for (let i = 0; i < 50; i++) {
 		await extractFrameAndAudio({
+			sampleRate: 48000,
 			src: `/bigbuckbunny.mp4?i=${i}`,
 			timeInSeconds: 1,
 			durationInSeconds: 1 / 30,
@@ -154,6 +157,7 @@ test('Should be apply volume correctly', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
@@ -214,6 +218,7 @@ test('Should be able to loop', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: `/bigbuckbunny.mp4`,
 		timeInSeconds: 10000001,
 		durationInSeconds: 1 / 30,

@@ -1,4 +1,3 @@
-import {getCanvasSelectableOutlines} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
@@ -39,7 +38,9 @@ import {
 	getSelectedSequenceKeys,
 	getSelectedTransformOriginInfo,
 	getSequenceKeysContainingSelection,
+	getSequencesWithSelectableOutlines,
 } from './selected-outline-measurement';
+import {orderOutlinesForRendering} from './selected-outline-order';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
@@ -61,6 +62,8 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
+
+export {orderOutlinesForRendering};
 
 export {
 	applySelectedOutlineDragAxisLock,
@@ -99,6 +102,8 @@ export {
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 	getSelectedSequenceKeys,
+	getSequencesWithSelectableOutlines,
+	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
 export {selectedOutlineDragThresholdPx} from './selected-outline-types';
 
@@ -180,7 +185,7 @@ const getCropDragFields = ({
 	return fields as SelectedOutlineCropDragTarget['fields'];
 };
 
-type SelectableOutlines = ReturnType<typeof getCanvasSelectableOutlines>;
+type SelectableOutlines = ReturnType<typeof getSequencesWithSelectableOutlines>;
 
 type CalculateOutlineTargetsOptions = {
 	readonly mode: 'controls' | 'layout';
@@ -390,7 +395,6 @@ const calculateOutlineTargets = ({
 			key,
 			containsSelection,
 			crop,
-			includeOutsideContainer: showSelectedOutline,
 			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
 			nodePathInfo,
 			ref: sequence.refForOutline,
@@ -669,7 +673,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 	) => SelectedOutlineTarget | undefined;
 	readonly getSelectableOutlines: (
 		timelinePosition: number,
-	) => ReturnType<typeof getCanvasSelectableOutlines>;
+	) => ReturnType<typeof getSequencesWithSelectableOutlines>;
 	readonly hoveredTimelineNodePathKey: string | null;
 	readonly measureAllOutlines: boolean;
 	readonly onDraggingChange: (dragging: boolean) => void;
@@ -775,34 +779,26 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 		[outlineRuntimeControls, outlineRuntimeSnapshots],
 	);
 
-	const outlineTargets = useMemo(() => {
-		const targets = calculateOutlineTargetsForCurrentState({
-			mode: 'layout',
-			runtimeValuesByStore: outlineRuntimeValuesByStore,
-			selectableOutlines: selectableOutlinesForLayout,
-			targetKey: null,
-			targetTimelinePosition: timelinePosition,
-		});
-		return targets.map((target) => {
-			const hovered =
-				timelineSequenceNodePathToKey(
-					target.nodePathInfo.sequenceSubscriptionKey,
-				) === hoveredTimelineNodePathKey;
-			return hovered && !target.includeOutsideContainer
-				? {...target, includeOutsideContainer: true}
-				: target;
-		});
-	}, [
-		calculateOutlineTargetsForCurrentState,
-		hoveredTimelineNodePathKey,
-		outlineRuntimeValuesByStore,
-		selectableOutlinesForLayout,
-		timelinePosition,
-	]);
+	const outlineTargets = useMemo(
+		() =>
+			calculateOutlineTargetsForCurrentState({
+				mode: 'layout',
+				runtimeValuesByStore: outlineRuntimeValuesByStore,
+				selectableOutlines: selectableOutlinesForLayout,
+				targetKey: null,
+				targetTimelinePosition: timelinePosition,
+			}),
+		[
+			calculateOutlineTargetsForCurrentState,
+			outlineRuntimeValuesByStore,
+			selectableOutlinesForLayout,
+			timelinePosition,
+		],
+	);
 
 	useLayoutEffect(() => {
 		updateOutlinesRef.current();
-	}, [outlineTargets, scale, translationX, translationY]);
+	}, [scale, translationX, translationY]);
 	return (
 		<SelectedOutlineRenderer
 			compositionHeight={compositionHeight}
@@ -891,7 +887,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				return [];
 			}
 
-			return getCanvasSelectableOutlines({
+			return getSequencesWithSelectableOutlines({
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
@@ -950,19 +946,17 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			],
 		);
 
-	const calculateOutlineTargetsRef = useRef(
-		calculateOutlineTargetsForCurrentState,
-	);
 	const getSelectableOutlinesRef = useRef(getSelectableOutlines);
 	const selectableOutlinesCacheRef = useRef<{
 		readonly getSelectableOutlines: typeof getSelectableOutlines;
-		readonly selectableOutlines: ReturnType<typeof getCanvasSelectableOutlines>;
+		readonly selectableOutlines: ReturnType<
+			typeof getSequencesWithSelectableOutlines
+		>;
 		readonly timelinePosition: number;
 	} | null>(null);
 	useLayoutEffect(() => {
-		calculateOutlineTargetsRef.current = calculateOutlineTargetsForCurrentState;
 		getSelectableOutlinesRef.current = getSelectableOutlines;
-	}, [calculateOutlineTargetsForCurrentState, getSelectableOutlines]);
+	}, [getSelectableOutlines]);
 	const getSelectableOutlinesAtFrame = useCallback(
 		(timelinePosition: number) => {
 			const currentGetSelectableOutlines = getSelectableOutlinesRef.current;
@@ -987,7 +981,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const getLatestOutlineTargetByKey = useCallback(
 		(key: string) => {
 			const timelinePosition = getCurrentFrame();
-			const target = calculateOutlineTargetsRef.current({
+			const target = calculateOutlineTargetsForCurrentState({
 				mode: 'controls',
 				runtimeValuesByStore: new Map(),
 				selectableOutlines: getSelectableOutlinesAtFrame(timelinePosition),
@@ -996,7 +990,11 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 			})[0];
 			return target as SelectedOutlineTarget | undefined;
 		},
-		[getCurrentFrame, getSelectableOutlinesAtFrame],
+		[
+			calculateOutlineTargetsForCurrentState,
+			getCurrentFrame,
+			getSelectableOutlinesAtFrame,
+		],
 	);
 	const getCurrentSelectableOutlines = useCallback(
 		() => getSelectableOutlinesAtFrame(getCurrentFrame()),

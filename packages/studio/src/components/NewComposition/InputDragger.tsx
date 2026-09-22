@@ -7,7 +7,10 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
 import {BLUE, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
-import {startCapturedPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import {
@@ -18,8 +21,11 @@ import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
-	readonly onValueChange: (newVal: number) => void;
-	readonly onValueChangeEnd?: (newVal: number) => void;
+	readonly onValueChange: (newVal: number, source: 'input' | 'drag') => void;
+	readonly onValueChangeEnd?: (
+		newVal: number,
+		source: 'input' | 'drag',
+	) => void;
 	readonly onTextChange: (newVal: string) => void;
 	readonly status: RemInputStatus;
 	readonly formatter?: (str: number | string) => string;
@@ -64,6 +70,44 @@ const compactInputDraggerStyle: React.CSSProperties = {
 const compactInputDraggerContainerStyle: React.CSSProperties = {
 	...inputDraggerContainerStyle,
 	...compactInputDraggerStyle,
+};
+
+let activateInputDraggerOnNextFocus = false;
+
+const clearInputDraggerActivationRequest = () => {
+	// Let the receiving dragger's React onFocus handler consume the request first.
+	setTimeout(() => {
+		activateInputDraggerOnNextFocus = false;
+	}, 0);
+	document.removeEventListener(
+		'focusin',
+		clearInputDraggerActivationRequest,
+		true,
+	);
+};
+
+const requestInputDraggerActivationOnNextFocus = () => {
+	activateInputDraggerOnNextFocus = true;
+	document.addEventListener(
+		'focusin',
+		clearInputDraggerActivationRequest,
+		true,
+	);
+};
+
+const consumeInputDraggerActivationRequest = () => {
+	if (!activateInputDraggerOnNextFocus) {
+		return false;
+	}
+
+	activateInputDraggerOnNextFocus = false;
+	document.removeEventListener(
+		'focusin',
+		clearInputDraggerActivationRequest,
+		true,
+	);
+
+	return true;
 };
 
 const isInt = (num: number) => {
@@ -500,11 +544,14 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	);
 
 	const onFocus = useCallback(() => {
-		if (!small || pointerDownRef.current) {
+		if (pointerDownRef.current) {
 			return;
 		}
 
-		setInputFallback(true);
+		const wasActivatedByInputDragger = consumeInputDraggerActivationRequest();
+		if (small || wasActivatedByInputDragger) {
+			setInputFallback(true);
+		}
 	}, [small]);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
@@ -548,7 +595,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					value: parsed,
 				})
 			) {
-				onValueChange(parsed);
+				onValueChange(parsed, 'input');
 			}
 		},
 		[_max, _min, onValueChange],
@@ -574,7 +621,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 		if (validation.valid) {
 			fallbackRef.current.setCustomValidity('');
-			onValueChangeEnd?.(validation.value);
+			onValueChangeEnd?.(validation.value, 'input');
 
 			setInputFallback(false);
 		} else {
@@ -586,6 +633,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
+				if (e.key === 'Tab') {
+					requestInputDraggerActivationOnNextFocus();
+					return;
+				}
+
 				if (e.key === 'Enter') {
 					fallbackRef.current?.blur();
 					return;
@@ -613,7 +665,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 				e.currentTarget.value = String(nextValue);
 				e.currentTarget.setCustomValidity('');
-				onValueChange(nextValue);
+				onValueChange(nextValue, 'input');
 			},
 			[_max, _min, deriveStep, onValueChange, value],
 		);
@@ -667,21 +719,20 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 						? newValue
 						: roundToDecimalPlaces(newValue, dragDecimalPlaces);
 				lastDragValue = nextValue;
-				onValueChange(nextValue);
+				onValueChange(nextValue, 'drag');
 			};
 
 			startCapturedPointerSession({
 				event: e.nativeEvent,
 				captureTarget: target,
 				onMove: moveListener,
-				onEnd: (reason) => {
+				onEnd: (reason, endEvent) => {
 					pointerDownRef.current = false;
 					setDragging(false);
 					stopForcingSpecificCursor();
-					const commit =
-						reason === 'pointerup' || reason === 'buttons-released';
+					const commit = isPointerSessionRelease(reason, endEvent);
 					if (commit && lastDragValue !== null && onValueChangeEnd) {
-						onValueChangeEnd(lastDragValue);
+						onValueChangeEnd(lastDragValue, 'drag');
 					}
 
 					setTimeout(() => {
@@ -746,6 +797,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			aria-label={props['aria-label']}
+			title={props.title}
 			className={'__remotion_input_dragger'}
 			style={
 				buttonStyle

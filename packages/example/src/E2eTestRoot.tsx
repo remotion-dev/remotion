@@ -1,71 +1,36 @@
 import React from 'react';
-import {AbsoluteFill, Composition, Folder, useCurrentScale} from 'remotion';
+import {Composition, Folder} from 'remotion';
 import {BarChart} from './BarChart';
 import {
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
 } from './CaptionsTester/AnimatedCaptions';
 import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
+import {MissingCaptionsComposition} from './CaptionsTester/MissingCaptionsComposition';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {
 	ErrorOverlayRepro,
 	UnsymbolicatedErrorOverlayRepro,
 } from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
-import {InspectorControlLayoutE2e} from './InspectorControlLayoutE2e';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
-import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {MacCursorsExample} from './MacCursors';
+import {MovingPillCaptionsComposition} from './MovingPillCaptionsComposition';
 import {NewVideoComp} from './NewVideo';
-import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
-import {TimelineVirtualizationTestbed} from './TimelineVirtualizationTestbed';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
 import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {FontWeightControls} from './VisualModeTests/FontWeightControls';
+import {InteractiveHtmlElements} from './VisualModeTests/InteractiveComponents';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
-
-const UseCurrentScaleOnLoad: React.FC = () => {
-	const scale = useCurrentScale();
-	const measuredElement = React.useRef<HTMLDivElement>(null);
-	const [correctedWidth, setCorrectedWidth] = React.useState<number | null>(
-		null,
-	);
-
-	React.useLayoutEffect(() => {
-		if (!measuredElement.current) {
-			return;
-		}
-
-		setCorrectedWidth(
-			Math.round(measuredElement.current.getBoundingClientRect().width / scale),
-		);
-	}, [scale]);
-
-	return (
-		<AbsoluteFill>
-			<div ref={measuredElement} style={{width: 100}} />
-			<div data-testid="use-current-scale-corrected-width">
-				{correctedWidth}
-			</div>
-		</AbsoluteFill>
-	);
-};
 
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
-			<Composition
-				id="use-current-scale-on-load"
-				component={UseCurrentScaleOnLoad}
-				width={1920}
-				height={1080}
-				fps={30}
-				durationInFrames={30}
-			/>
 			<Folder name="Schema">
 				<Composition
 					id="schema-test"
@@ -109,6 +74,22 @@ export const E2eTestRoot: React.FC = () => {
 				width={1080}
 				height={CAPTIONS_HEIGHT}
 			/>
+			<Composition
+				id="default-captions-inspector-e2e"
+				component={MovingPillCaptionsComposition}
+				durationInFrames={210}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="missing-captions-inspector-e2e"
+				component={MissingCaptionsComposition}
+				durationInFrames={30}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
 			<Folder name="visual-controls">
 				<Composition
 					id="visual-controls"
@@ -143,16 +124,6 @@ export const E2eTestRoot: React.FC = () => {
 				fps={30}
 				durationInFrames={90}
 			/>
-			<Folder name="lost-node-path">
-				<Composition
-					id="lost-node-path-e2e"
-					component={LostNodePathRepro}
-					width={1920}
-					height={1080}
-					fps={30}
-					durationInFrames={90}
-				/>
-			</Folder>
 			<Folder name="error-overlay">
 				<Composition
 					id="error-overlay-e2e"
@@ -191,20 +162,20 @@ export const E2eTestRoot: React.FC = () => {
 				durationInFrames={120}
 			/>
 			<Composition
-				id="rotation-keyframe-e2e"
-				component={RotationKeyframeE2e}
-				width={1080}
-				height={1080}
-				fps={30}
-				durationInFrames={90}
-			/>
-			<Composition
 				id="affine-frame-clock"
 				component={AffineFrameClock}
 				width={1280}
 				height={720}
 				fps={30}
 				durationInFrames={60}
+			/>
+			<Composition
+				id="font-weight-controls"
+				component={FontWeightControls}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<Composition
 				id="outline-selection-cases"
@@ -223,14 +194,6 @@ export const E2eTestRoot: React.FC = () => {
 				durationInFrames={60}
 			/>
 			<Composition
-				id="timeline-virtualization-testbed"
-				component={TimelineVirtualizationTestbed}
-				width={1280}
-				height={720}
-				fps={30}
-				durationInFrames={30}
-			/>
-			<Composition
 				id="timeline-negative-start"
 				component={TimelineNegativeFromResize}
 				width={1080}
@@ -239,8 +202,8 @@ export const E2eTestRoot: React.FC = () => {
 				durationInFrames={90}
 			/>
 			<Composition
-				id="inspector-control-layout-e2e"
-				component={InspectorControlLayoutE2e}
+				id="interactive-html-elements"
+				component={InteractiveHtmlElements}
 				width={1080}
 				height={1080}
 				fps={30}

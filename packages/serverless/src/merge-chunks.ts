@@ -25,7 +25,7 @@ export const mergeChunksAndFinishRender = async <
 >(options: {
 	bucketName: string;
 	renderId: string;
-	expectedBucketOwner: string;
+	expectedBucketOwner: string | null;
 	numberOfFrames: number;
 	codec: ServerlessCodec;
 	chunkCount: number;

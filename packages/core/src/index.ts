@@ -21,12 +21,12 @@ import {
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import type {
-	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	AssetFieldSchema,
 	CaptionsFieldSchema,
-	InteractivitySchemaField,
 	InteractivitySchema,
+	InteractivitySchemaField,
 } from './interactivity-schema.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
@@ -106,6 +106,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
 		remotion_isReadOnlyStudio: boolean;
+		remotion_enableSequenceStackTraces: (() => void) | null;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '11';
@@ -226,12 +227,12 @@ export {
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
-	InterpolateOutputOption,
 	InterpolateOptions,
+	InterpolateOutputOption,
+	InterpolateOutputType,
 	random,
 	RandomSeed,
 } from './no-react';
-export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';
@@ -346,18 +347,18 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
-	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	AssetFieldSchema,
 	CaptionsFieldSchema,
 	DelayRenderScope,
+	InteractivitySchema,
+	InteractivitySchemaField,
 	JsxComponentIdentity,
 	LoopDisplay,
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 	SequenceControls,
 	SequenceRegistrationControls,
-	InteractivitySchemaField,
-	InteractivitySchema,
 	UseBufferState,
 };

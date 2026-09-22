@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-eslint-config.png
+title: '@remotion/eslint-config'
+sidebar_label: '@remotion/eslint-config'
+crumb: 'ESLint'
+---
+
+The Remotion ESLint configs provide recommended rules for JavaScript, TypeScript, React, React Hooks, and Remotion.
+
+Use a shared config when it can be the base ESLint configuration for your project. If your project already has an ESLint configuration, use [`@remotion/eslint-plugin`](/docs/eslint-plugin) directly instead.
+
+## Choose a config
+
+| ESLint version | Package | Config format |
+| --- | --- | --- |
+| 9 or later | `@remotion/eslint-config-flat` | Flat config |
+| 7.15 through 8.x with Remotion 4 | `@remotion/eslint-config` | Legacy config |
+| 8.57 or later with Remotion 5 | `@remotion/eslint-config` | Legacy config |
+
+## ESLint 9 and later
+
+Install the flat config:
+
+<Installation pkg="@remotion/eslint-config-flat" />
+
+Add an `eslint.config.mjs` file:
+
+```js title="eslint.config.mjs"
+import {config} from '@remotion/eslint-config-flat';
+
+export default config;
+```
+
+To apply Remotion-specific rules only to part of an existing project, use `makeConfig()`:
+
+```js title="eslint.config.mjs"
+import {makeConfig} from '@remotion/eslint-config-flat';
+
+export default makeConfig({
+  remotionDir: 'src/remotion/**/*.{ts,tsx}',
+});
+```
+
+The JavaScript, TypeScript, React, and React Hooks rules still apply to the whole project. Only the rules from [`@remotion/eslint-plugin`](/docs/eslint-plugin) are limited to `remotionDir`.
+
+## ESLint 8 and earlier
+
+Install the legacy config:
+
+<Installation pkg="@remotion/eslint-config" />
+
+Extend it from your ESLint configuration:
+
+```json title=".eslintrc"
+{
+  "extends": ["@remotion"]
+}
+```
+
+Remotion 4 supports ESLint 7.15 and later. Remotion 5 requires ESLint <MinEslintVersion /> or later. Use `@remotion/eslint-config-flat` when upgrading to ESLint 9.
+
+## See also
+
+- [`@remotion/eslint-plugin`](/docs/eslint-plugin)
+- [Installing Remotion in an existing project](/docs/brownfield)

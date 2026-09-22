@@ -24,10 +24,14 @@ import {
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
-const {disableGitSourceOption, askAIOption, keyboardShortcutsOption} =
-	BrowserSafeApis.options;
+const {
+	disableGitSourceOption,
+	askAIOption,
+	keyboardShortcutsOption,
+	rspackOption,
+} = BrowserSafeApis.options;
 
-export const SITES_CREATE_SUBCOMMAND = 'create';
+export {SITES_CREATE_SUBCOMMAND} from '../command-names';
 
 export const sitesCreateSubcommand = async (
 	args: string[],
@@ -183,6 +187,9 @@ export const sitesCreateSubcommand = async (
 				updateProgress(false);
 			},
 			enableCaching: BrowserSafeApis.options.bundleCacheOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value,
+			rspack: rspackOption.getValue({
 				commandLine: CliInternals.parsedCli,
 			}).value,
 			bundlerOverride: ConfigInternals.getBundlerOverrideFn(),

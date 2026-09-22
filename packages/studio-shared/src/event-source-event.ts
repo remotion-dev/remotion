@@ -109,6 +109,12 @@ export type EventSourceEvent =
 			licenseKey: string;
 	  }
 	| {
+			type: 'element-library-add-request';
+			url: string;
+			displayName: string | null;
+			origin: string;
+	  }
+	| {
 			type: 'visual-control-values-changed';
 			values: Array<{
 				id: string;
