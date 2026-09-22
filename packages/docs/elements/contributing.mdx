@@ -124,61 +124,11 @@ Declare images, audio, and video that should be installed into the user's public
 
 Accept each asset URL as a component prop, such as `audioSrc`. In `initialProps`, pass a URL that works in your preview: a locally served asset or, if you prefer, a hosted URL. The preview location does not need to match the installed asset path.
 
-For example, the oscilloscope uses a hosted audio file:
+In `element-definitions.ts`, declare `assets` using the [`createElementPayload()` asset format](/docs/studio-protocol/create-element-payload#assets). Use public-relative paths scoped to your Element. In `installationProps`, reference those paths with [`staticFileRef()`](/docs/studio-protocol/static-file-ref), which documents the API and a complete example.
 
-```ts title="elements/audio/oscilloscope/initial-props.ts"
-import type {ElementAsset} from '@remotion/studio-protocol';
-import type {ComponentProps} from 'react';
-import type {AudioOscilloscope} from './audio-oscilloscope';
+`installationProps` shallowly overrides `initialProps` only for installation; an overridden object or array replaces that entire prop. Previews use `initialProps` unchanged. For Elements without installed assets, use `assets: []` and `installationProps: null`.
 
-export const audioOscilloscopeAudio = {
-  path: 'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
-  type: 'url',
-  url: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-} as const satisfies ElementAsset;
-
-export const audioOscilloscopeInitialProps = {
-  audioSrc: audioOscilloscopeAudio.url,
-} satisfies ComponentProps<typeof AudioOscilloscope>;
-```
-
-In `element-definitions.ts`, register `assets` and override the asset prop for installation with [`staticFileRef()`](/docs/studio-protocol/static-file-ref):
-
-```ts title="Fields in the central Element definition"
-import {staticFileRef} from '@remotion/studio-protocol';
-import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
-import {
-  audioOscilloscopeAudio,
-  audioOscilloscopeInitialProps,
-} from '../../../elements/audio/oscilloscope/initial-props';
-
-const elementImplementations = [
-  {
-    slug: 'audio/oscilloscope',
-    component: AudioOscilloscope,
-    assets: [audioOscilloscopeAudio],
-    initialProps: audioOscilloscopeInitialProps,
-    installationProps: {
-      audioSrc: staticFileRef(audioOscilloscopeAudio.path),
-    },
-    // Keep the remaining Element metadata here.
-  },
-];
-```
-
-`installationProps` shallowly overrides `initialProps` only when building the installation payload. Unchanged props keep their initial values; an overridden object or array replaces that entire prop. Previews never receive the reference objects. For Elements without installed assets, use `assets: []` and `installationProps: null`.
-
-Studio downloads the URL to `public/elements/audio-oscilloscope/remotion-made-this-picture-move.mp3` and generates this asset prop on the installed caller:
-
-```tsx title="Installed asset prop"
-<AudioOscilloscope
-  audioSrc={staticFile('elements/audio-oscilloscope/remotion-made-this-picture-move.mp3')}
-/>
-```
-
-The Element source is copied unchanged. Do not hardcode `staticFile()` paths inside it for assets that need hosted URLs in previews. References work in both installation modes, including inside objects and arrays.
-
-Use a unique public-relative path scoped to your Element. Every reference must match a declared asset path. Assets can also contain [base64 data](/docs/studio-protocol/create-element-payload#assets) instead of a download URL. To keep an asset remote after installation, leave its URL in `initialProps` without an installation override.
+Studio saves the assets into the public directory and generates [`staticFile()`](/docs/staticfile) expressions on the installed caller, leaving the Element source unchanged. This works in both installation modes. To keep an asset remote after installation, leave its URL in `initialProps` without an installation override.
 
 Before submitting, preview the Element, install it into Studio, and confirm the asset appears in the public directory and plays or renders from the local file.
 
