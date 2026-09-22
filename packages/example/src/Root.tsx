@@ -323,6 +323,7 @@ import {
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {KeyframeDeleteFlash} from './VisualModeTests/KeyframeDeleteFlash';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceDurationInterpolation} from './VisualModeTests/SequenceDurationInterpolation';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
@@ -3037,6 +3038,14 @@ export const Index: React.FC = () => {
 				durationInFrames={180}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="keyframe-delete-flash"
+					component={KeyframeDeleteFlash}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={420}
+				/>
 				<Composition
 					id="constant-multiplication"
 					component={ConstantMultiplication}
