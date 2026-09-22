@@ -533,6 +533,7 @@ export const startContent = () => {
 					{
 						'aria-label': label,
 						className: 'capture-controls-primary-button',
+						depth: 0.5,
 						disabled,
 					},
 					createElement('span', {
