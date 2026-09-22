@@ -193,6 +193,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: packages/lambda-go/go.mod
+          cache-dependency-path: packages/lambda-go/go.sum
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
