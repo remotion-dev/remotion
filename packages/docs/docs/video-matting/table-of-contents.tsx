@@ -19,7 +19,7 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/video-matting/download-video-matting-model">
 				<strong>downloadVideoMattingModel()</strong>
-				<div>Download a model without initializing WebGPU</div>
+				<div>Download a model</div>
 			</TOCItem>
 			<TOCItem link="/docs/video-matting/load-video-matting-model">
 				<strong>loadVideoMattingModel()</strong>

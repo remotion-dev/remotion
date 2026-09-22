@@ -35,7 +35,7 @@ const {captions} = toCaptions({whisperWebGpuOutput: transcription});
 console.log(captions);
 ```
 
-[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache without initializing WebGPU. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) when you want to initialize the model explicitly.
+[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) when you want to initialize the model explicitly.
 
 See [Using `@remotion/whisper-webgpu` in Node.js](/docs/whisper-webgpu/node) for a complete Node.js example.
 

@@ -231,7 +231,7 @@ beforeEach(async () => {
 	Object.assign(transformersEnvironment, originalTransformersEnvironment);
 });
 
-test('downloads without initializing WebGPU, then initializes from the cached files', async () => {
+test('downloads a model, then initializes from the cached files', async () => {
 	checkDownloadedFiles = true;
 	transformersEnvironment.useCustomCache = false;
 	transformersEnvironment.useBrowserCache = true;
