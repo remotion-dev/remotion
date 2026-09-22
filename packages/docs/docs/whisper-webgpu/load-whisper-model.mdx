@@ -31,7 +31,7 @@ Called while the cached model is initialized. `progress` is `null` during initia
 
 ### signal?<AvailableFrom v="4.0.528" />
 
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling this call. Default: no cancellation signal. Initialization already in progress finishes before the promise rejects with the signal's reason. If no other call is using the model, it is disposed. Other callers loading or transcribing with the same model are unaffected.
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling this call.
 
 ## Return value
 
