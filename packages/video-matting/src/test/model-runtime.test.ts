@@ -176,10 +176,11 @@ test('shares loading, reports progress, and defers disposal while in use', async
 	});
 	expect(cacheCheckEnvironment).toEqual(initializationEnvironment);
 	releaseInitialization();
-	expect(await Promise.all([first, second])).toEqual([
-		{alreadyLoaded: false},
-		{alreadyLoaded: true},
-	]);
+	expect(
+		(await Promise.all([first, second])).map(
+			({alreadyLoaded}) => alreadyLoaded,
+		),
+	).toEqual([false, true]);
 	expect(initializationOptions).toMatchObject({
 		device: 'webgpu',
 		dtype: 'fp32',
@@ -215,6 +216,50 @@ test('shares loading, reports progress, and defers disposal while in use', async
 	await disposal;
 	expect(pipelineRunCount).toBe(1);
 	expect(disposeCalls).toBe(1);
+	expect(livePipelineCount).toBe(0);
+});
+
+test('await using releases a model after its last load handle', async () => {
+	const {loadVideoMattingModel} = await import('../index');
+	const {withLoadedVideoMattingPipeline} = await getRuntime();
+
+	{
+		await using first = await loadVideoMattingModel({model: 'modnet'});
+		expect(first.alreadyLoaded).toBe(false);
+		{
+			await using second = await loadVideoMattingModel({model: 'modnet'});
+			expect(second.alreadyLoaded).toBe(true);
+			await second[Symbol.asyncDispose]();
+		}
+
+		expect(disposeCalls).toBe(0);
+		const result = await withLoadedVideoMattingPipeline({
+			model: 'modnet',
+			signal: null,
+			run: (pipeline) => pipeline({} as OffscreenCanvas),
+		});
+		expect(result.data).toEqual(new Uint8ClampedArray([10, 20, 30, 128]));
+	}
+
+	expect(initializationCount).toBe(1);
+	expect(pipelineRunCount).toBe(1);
+	expect(disposeCalls).toBe(1);
+	expect(livePipelineCount).toBe(0);
+});
+
+test('an old load handle cannot dispose a replacement model', async () => {
+	const {disposeVideoMattingModel, loadVideoMattingModel} =
+		await import('../index');
+	const oldHandle = await loadVideoMattingModel({model: 'modnet'});
+	await disposeVideoMattingModel({model: 'modnet'});
+	const newHandle = await loadVideoMattingModel({model: 'modnet'});
+
+	await oldHandle[Symbol.asyncDispose]();
+	expect(disposeCalls).toBe(1);
+	expect(livePipelineCount).toBe(1);
+
+	await newHandle[Symbol.asyncDispose]();
+	expect(disposeCalls).toBe(2);
 	expect(livePipelineCount).toBe(0);
 });
 
@@ -282,10 +327,9 @@ test('coordinates the shared Transformers environment across model loads', async
 		environmentWithState[Symbol.for('@remotion/transformers/model-host-state')],
 	).toBe(sharedState);
 	releaseInitialization();
-	expect(await Promise.all(loads)).toEqual([
-		{alreadyLoaded: false},
-		{alreadyLoaded: false},
-	]);
+	expect(
+		(await Promise.all(loads)).map(({alreadyLoaded}) => alreadyLoaded),
+	).toEqual([false, false]);
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
 	await disposeVideoMattingModel();
 });

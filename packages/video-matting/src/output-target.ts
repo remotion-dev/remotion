@@ -12,7 +12,7 @@ export type VideoLayerOutputOptions =
 			outputWritable: WritableStream<StreamTargetChunk>;
 	  };
 
-export type VideoLayerOutput = {
+export type VideoLayerOutput = AsyncDisposable & {
 	getBlob: () => Promise<Blob>;
 	dispose: () => Promise<void>;
 };

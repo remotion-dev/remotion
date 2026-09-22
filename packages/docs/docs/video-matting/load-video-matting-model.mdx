@@ -11,7 +11,7 @@ Downloads a video matting model from an immutable path on `remotion.media` and i
 ```ts twoslash title="load-model.ts"
 import {loadVideoMattingModel} from '@remotion/video-matting';
 
-const result = await loadVideoMattingModel({
+await using result = await loadVideoMattingModel({
   model: 'modnet',
   onProgress: ({progress}) => {
     console.log(progress);
@@ -61,7 +61,13 @@ Returns an object with this property:
 
 Whether the same model was already initialized in memory.
 
-The browser manages the persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. This function also retains the initialized model in memory until [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) is called or the page closes.
+### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+
+Releases this call's hold on the initialized model. The pipeline is disposed after every load handle is released and active separations finish.
+
+Use `await using` to call this method automatically when leaving the current scope. Call [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) to dispose the pipeline explicitly regardless of retained load handles.
+
+The browser manages the persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. Releasing the initialized pipeline does not delete the downloaded model files.
 
 The hosted files are byte-identical to files from the pinned upstream Hugging Face revision.
 

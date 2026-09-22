@@ -67,7 +67,7 @@ export type SeparateVideoLayersOptions = {
 	onProgress?: (progress: SeparateVideoLayersProgress) => void;
 };
 
-export type SeparateVideoLayersResult = {
+export type SeparateVideoLayersResult = AsyncDisposable & {
 	base: VideoLayerOutput;
 	foreground: VideoLayerOutput;
 	model: VideoMattingModel;
@@ -538,15 +538,21 @@ export const separateVideoLayers = async (
 					throwIfAborted(options.signal);
 
 					completed = true;
-					return {
+					const separated = {
 						base,
 						foreground,
 						model,
 						width,
 						height,
 						durationInSeconds,
-						processedFrames,
-					};
+					} as SeparateVideoLayersResult;
+					Object.defineProperty(separated, Symbol.asyncDispose, {
+						enumerable: false,
+						value: async () => {
+							await Promise.all([base.dispose(), foreground.dispose()]);
+						},
+					});
+					return separated;
 				} catch (error) {
 					await cancelPendingMedia();
 

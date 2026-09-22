@@ -1,3 +1,4 @@
+import './symbol-async-dispose';
 import {
 	getHostedVideoMattingModelId,
 	getVideoMattingModelInfo,
@@ -54,6 +55,7 @@ type LoadedVideoMattingPipelineState = {
 	onIdle: Array<() => void>;
 	progressListeners: Set<OnVideoMattingModelLoadProgress>;
 	lastProgress: VideoMattingModelLoadProgress | null;
+	retainedLoadHandles: number;
 };
 
 const pipelines = new Map<VideoMattingModel, LoadedVideoMattingPipelineState>();
@@ -64,7 +66,7 @@ export type LoadVideoMattingModelOptions = {
 	onProgress?: OnVideoMattingModelLoadProgress;
 };
 
-export type LoadVideoMattingModelResult = {
+export type LoadVideoMattingModelResult = AsyncDisposable & {
 	alreadyLoaded: boolean;
 };
 
@@ -147,6 +149,7 @@ const getOrCreateVideoMattingPipeline = ({
 		onIdle: [],
 		progressListeners: new Set(),
 		lastProgress: null,
+		retainedLoadHandles: 0,
 	};
 	const pendingDisposal = disposals.get(model) ?? null;
 
@@ -311,57 +314,6 @@ const subscribeToProgress = (
 	};
 };
 
-export const loadVideoMattingModel = async ({
-	model,
-	onProgress,
-}: LoadVideoMattingModelOptions): Promise<LoadVideoMattingModelResult> => {
-	const {state, alreadyLoaded} = getOrCreateVideoMattingPipeline({model});
-	const unsubscribe = subscribeToProgress(state, onProgress);
-	try {
-		await state.loading;
-	} finally {
-		unsubscribe();
-	}
-
-	return {alreadyLoaded};
-};
-
-export const withLoadedVideoMattingPipeline = async <ReturnValue>({
-	model,
-	onProgress,
-	signal,
-	run,
-}: {
-	model: VideoMattingModel;
-	onProgress?: OnVideoMattingModelLoadProgress;
-	signal: AbortSignal | null;
-	run: (pipeline: LoadedVideoMattingPipeline) => Promise<ReturnValue>;
-}): Promise<ReturnValue> => {
-	const {state} = getOrCreateVideoMattingPipeline({model});
-	const unsubscribe = subscribeToProgress(state, onProgress);
-	state.pendingUses++;
-	let isActive = false;
-	try {
-		const loaded = await waitForLoadingOrAbort({
-			loading: state.loading,
-			signal,
-		});
-		state.pendingUses--;
-		state.activeUses++;
-		isActive = true;
-		return await run(loaded.run);
-	} finally {
-		unsubscribe();
-		if (isActive) {
-			state.activeUses--;
-		} else {
-			state.pendingUses--;
-		}
-
-		notifyIfIdle(state);
-	}
-};
-
 export type DisposeVideoMattingModelOptions = {
 	model?: VideoMattingModel;
 };
@@ -415,4 +367,72 @@ export const disposeVideoMattingModel = async ({
 	}
 
 	await Promise.all(pending.values());
+};
+
+export const loadVideoMattingModel = async ({
+	model,
+	onProgress,
+}: LoadVideoMattingModelOptions): Promise<LoadVideoMattingModelResult> => {
+	const {state, alreadyLoaded} = getOrCreateVideoMattingPipeline({model});
+	const unsubscribe = subscribeToProgress(state, onProgress);
+	try {
+		await state.loading;
+	} finally {
+		unsubscribe();
+	}
+
+	state.retainedLoadHandles++;
+	let released = false;
+	const result = {alreadyLoaded} as LoadVideoMattingModelResult;
+	Object.defineProperty(result, Symbol.asyncDispose, {
+		enumerable: false,
+		value: async () => {
+			if (released) {
+				return;
+			}
+
+			released = true;
+			state.retainedLoadHandles--;
+			if (state.retainedLoadHandles === 0 && pipelines.get(model) === state) {
+				await disposeVideoMattingModel({model});
+			}
+		},
+	});
+	return result;
+};
+
+export const withLoadedVideoMattingPipeline = async <ReturnValue>({
+	model,
+	onProgress,
+	signal,
+	run,
+}: {
+	model: VideoMattingModel;
+	onProgress?: OnVideoMattingModelLoadProgress;
+	signal: AbortSignal | null;
+	run: (pipeline: LoadedVideoMattingPipeline) => Promise<ReturnValue>;
+}): Promise<ReturnValue> => {
+	const {state} = getOrCreateVideoMattingPipeline({model});
+	const unsubscribe = subscribeToProgress(state, onProgress);
+	state.pendingUses++;
+	let isActive = false;
+	try {
+		const loaded = await waitForLoadingOrAbort({
+			loading: state.loading,
+			signal,
+		});
+		state.pendingUses--;
+		state.activeUses++;
+		isActive = true;
+		return await run(loaded.run);
+	} finally {
+		unsubscribe();
+		if (isActive) {
+			state.activeUses--;
+		} else {
+			state.pendingUses--;
+		}
+
+		notifyIfIdle(state);
+	}
 };

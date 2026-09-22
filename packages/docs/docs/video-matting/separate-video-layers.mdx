@@ -13,7 +13,7 @@ import {separateVideoLayers} from '@remotion/video-matting';
 
 const file = new File([], 'input.mp4');
 
-const result = await separateVideoLayers({
+await using result = await separateVideoLayers({
   src: file,
   model: 'modnet',
   audio: 'base',
@@ -24,8 +24,6 @@ const result = await separateVideoLayers({
 
 const baseBlob = await result.base.getBlob();
 const foregroundBlob = await result.foreground.getBlob();
-
-await Promise.all([result.base.dispose(), result.foreground.dispose()]);
 ```
 
 Place inserted content between the base and foreground. The base remains opaque and includes the original subject; the foreground repeats the subject with alpha so it appears in front of the inserted content.
@@ -171,6 +169,10 @@ Returns a promise resolving to a `Blob`, unless `outputs.base.outputWritable` wa
 
 Releases temporary storage owned by the base output. Call it after `base.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
 
+#### `base[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+
+Calls `base.dispose()` when an `await using` scope ends.
+
 ### foreground
 
 The foreground output with alpha.
@@ -182,6 +184,10 @@ Returns a promise resolving to a `Blob`, unless `outputs.foreground.outputWritab
 #### foreground.dispose()
 
 Releases temporary storage owned by the foreground output. Call it after `foreground.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
+
+#### `foreground[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+
+Calls `foreground.dispose()` when an `await using` scope ends.
 
 ### model
 
@@ -202,6 +208,10 @@ The duration of the processed video in seconds.
 ### processedFrames
 
 The number of video frames processed.
+
+### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+
+Disposes both outputs when an `await using` scope ends. Retrieve any blobs before leaving the scope; blobs returned by `getBlob()` remain usable afterward. The loaded model remains in memory for reuse.
 
 ## Output format
 
