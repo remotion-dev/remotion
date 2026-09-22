@@ -94,7 +94,7 @@ export const Comp=()=>(
       style = {{opacity:.5}}
       muted
     />
-    <Audio src = {"video.mp4"} from = {10} />
+    <Audio src={"video.mp4"} from={10} />
     <div  data-value = "unchanged"/>
   </>
 )

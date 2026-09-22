@@ -49,7 +49,7 @@ import {
 	type FunctionNode,
 	type FunctionSourceSnapshot,
 } from './function-source-edits';
-import {printJsxOpeningElement} from './print-jsx';
+import {captureJsxAttributeSources, printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	extractStaticValue,
@@ -91,11 +91,13 @@ import {parseValueExpression} from './update-nested-prop';
 const b = recast.types.builders;
 
 const getOpeningElementSourceEdit = ({
+	originalAttributeSources,
 	input,
 	openingElement,
 	prettierConfigOverride,
 	propertyNames,
 }: {
+	originalAttributeSources: ReadonlyMap<object, string>;
 	input: string;
 	openingElement: JSXOpeningElement;
 	prettierConfigOverride: Record<string, unknown> | null;
@@ -107,6 +109,7 @@ const getOpeningElementSourceEdit = ({
 
 	const start = recastLocToOffset(input, openingElement.loc.start);
 	const printed = printJsxOpeningElement({
+		originalAttributeSources,
 		openingElement: openingElement as never,
 		input,
 		prettierConfigOverride,
@@ -180,6 +183,7 @@ const getKeyframeFunctionSourceEdits = ({
 };
 
 const getKeyframeSourceOutput = ({
+	originalAttributeSources,
 	ast,
 	functionSourceCoveredRanges,
 	functionSourceEdits,
@@ -189,6 +193,7 @@ const getKeyframeSourceOutput = ({
 	prettierConfigOverride,
 	propertyNames,
 }: {
+	originalAttributeSources: ReadonlyMap<object, string>;
 	ast: File;
 	functionSourceCoveredRanges: {end: number; start: number}[];
 	functionSourceEdits: SourceEdit[];
@@ -224,6 +229,7 @@ const getKeyframeSourceOutput = ({
 			...(!openingElementIsCovered
 				? [
 						getOpeningElementSourceEdit({
+							originalAttributeSources,
 							input,
 							openingElement,
 							prettierConfigOverride,
@@ -2036,6 +2042,8 @@ export const updateSequenceKeyframesAst = ({
 		node.attributes = [];
 	}
 
+	const originalAttributeSources = captureJsxAttributeSources(node);
+
 	const requiredImports = new Set<string>();
 	let needsFrameHook = false;
 
@@ -2116,6 +2124,7 @@ export const updateSequenceKeyframesAst = ({
 
 	return {
 		serialized: getKeyframeSourceOutput({
+			originalAttributeSources,
 			ast,
 			functionSourceCoveredRanges,
 			functionSourceEdits,
@@ -2228,6 +2237,7 @@ export const updateEffectKeyframesAst = ({
 	}
 
 	const attr = findEffectsAttr(jsx.attributes ?? []);
+	const originalAttributeSources = captureJsxAttributeSources(jsx);
 	if (!attr) {
 		throw new Error('Could not find effects on the target JSX element');
 	}
@@ -2318,6 +2328,7 @@ export const updateEffectKeyframesAst = ({
 
 	return {
 		serialized: getKeyframeSourceOutput({
+			originalAttributeSources,
 			ast,
 			functionSourceCoveredRanges,
 			functionSourceEdits,
