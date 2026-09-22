@@ -12,6 +12,7 @@ export type DuplicateCompositionOptions<Project extends CodemodProject> =
 	CompositionTarget & {
 		project: Project;
 		newId: string;
+		tag?: 'Composition' | 'Still';
 		metadata?: Partial<CompositionMetadata>;
 	};
 
@@ -20,13 +21,15 @@ export const duplicateComposition = <Project extends CodemodProject>({
 	compositionFile,
 	compositionId,
 	newId,
+	tag,
 	metadata = {},
 }: DuplicateCompositionOptions<Project>): CodemodResult<Project> => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	assertNewCompositionId({project, compositionFile, compositionId: newId});
 	validateMetadata(metadata);
+	const newTag = tag ?? (node.tagName === 'Still' ? 'Still' : 'Composition');
 	if (
-		node.tagName === 'Still' &&
+		newTag === 'Still' &&
 		(metadata.fps !== undefined || metadata.durationInFrames !== undefined)
 	) {
 		throw new Error('Still registrations do not have fps or durationInFrames');
@@ -39,7 +42,7 @@ export const duplicateComposition = <Project extends CodemodProject>({
 			type: 'duplicate-composition',
 			idToDuplicate: compositionId,
 			newId,
-			tag: node.tagName === 'Still' ? 'Still' : 'Composition',
+			tag: newTag,
 			newWidth: metadata.width ?? null,
 			newHeight: metadata.height ?? null,
 			newFps: metadata.fps ?? null,

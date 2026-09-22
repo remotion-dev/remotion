@@ -1,18 +1,19 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
-import {parseAst} from '../codemods/parse-ast';
-
-const {getCompositionDefaultPropsLine, updateDefaultProps} = CodemodsInternals;
+import {parseAst} from '../sequence-props/parse-ast';
+import {
+	getCompositionDefaultPropsLine,
+	updateDefaultProps,
+} from '../update-default-props';
 
 test('updates default props without changing surrounding source', () => {
 	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'root-before.tsx'),
+		path.join(__dirname, 'fixtures', 'root-before.tsx.txt'),
 		'utf-8',
 	);
 	const expected = readFileSync(
-		path.join(__dirname, 'snapshots', 'root-after.tsx'),
+		path.join(__dirname, 'fixtures', 'root-after.tsx.txt'),
 		'utf-8',
 	);
 
@@ -28,7 +29,7 @@ test('updates default props without changing surrounding source', () => {
 
 test('getCompositionDefaultPropsLine returns the opening tag line (ast-types visitor must traverse)', () => {
 	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'root-before.tsx'),
+		path.join(__dirname, 'fixtures', 'root-before.tsx.txt'),
 		'utf-8',
 	);
 
@@ -42,11 +43,11 @@ test('getCompositionDefaultPropsLine returns the opening tag line (ast-types vis
 
 test('replaces multiline default props with a compact value', () => {
 	const file = readFileSync(
-		path.join(__dirname, 'snapshots', 'problematic.tsx'),
+		path.join(__dirname, 'fixtures', 'problematic.tsx.txt'),
 		'utf-8',
 	);
 	const expected = readFileSync(
-		path.join(__dirname, 'snapshots', 'fixed.tsx'),
+		path.join(__dirname, 'fixtures', 'fixed.tsx.txt'),
 		'utf-8',
 	);
 

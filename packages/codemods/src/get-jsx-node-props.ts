@@ -1,5 +1,6 @@
 import type {
 	CanUpdateSequencePropsResponseTrue,
+	JsxComponentIdentity,
 	VideoConfigValues,
 } from 'remotion';
 import type {CodemodProject} from './codemod-project';
@@ -17,12 +18,14 @@ export type GetJsxNodePropsOptions = {
 	node: JsxNodeReference;
 	keys: string[];
 	effectKeys?: string[][];
+	assetKeys?: string[];
+	componentIdentity?: JsxComponentIdentity | null;
 	videoConfig?: VideoConfigValues;
 };
 
 export type JsxNodeProps = Pick<
 	CanUpdateSequencePropsResponseTrue,
-	'props' | 'effects'
+	'canUpdate' | 'props' | 'effects'
 >;
 
 export const getJsxNodeProps = ({
@@ -30,6 +33,8 @@ export const getJsxNodeProps = ({
 	node,
 	keys,
 	effectKeys,
+	assetKeys,
+	componentIdentity,
 	videoConfig,
 }: GetJsxNodePropsOptions): JsxNodeProps => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
@@ -65,10 +70,11 @@ export const getJsxNodeProps = ({
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: project.files[filePath],
 		nodePath: node.nodePath,
-		componentIdentity: null,
+		componentIdentity: componentIdentity ?? null,
+		assetKeys,
 		keys,
 		effects,
 		videoConfigValues: videoConfig ?? null,
 	});
-	return {props: result.props, effects: result.effects};
+	return result;
 };

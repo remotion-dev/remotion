@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {addEffect} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddEffectRequest,
@@ -20,8 +20,6 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
-
-const {addEffect} = CodemodsInternals;
 
 export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
@@ -52,14 +50,16 @@ export const addEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabel, nodeLabel, logLine} =
-				await addEffect({
-					input: fileContents,
-					sequenceNodePath: sequenceNodePath.nodePath,
-					effectName,
-					effectImportPath,
-					effectConfig,
-				});
+			const result = await addEffect({
+				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
+				node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
+				importName: effectName,
+				importPath: effectImportPath,
+				props: effectConfig,
+			});
+			const output = result.project.files[absolutePath];
+			const {formatted, effectLabel, nodeLabel, logLine} =
+				result.editDetails[0];
 
 			pushToUndoStack({
 				filePath: absolutePath,

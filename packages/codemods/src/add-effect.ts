@@ -25,13 +25,14 @@ export const addEffect = async <Project extends CodemodProject>({
 	props = {},
 }: AddEffectOptions<Project>) => {
 	const {filePath, input, length} = getEffectSource({project, node});
-	const {output} = await addEffectInSource({
-		input,
-		sequenceNodePath: node.nodePath,
-		effectName: importName,
-		effectImportPath: importPath,
-		effectConfig: props,
-	});
+	const {output, formatted, effectLabel, nodeLabel, logLine} =
+		await addEffectInSource({
+			input,
+			sequenceNodePath: node.nodePath,
+			effectName: importName,
+			effectImportPath: importPath,
+			effectConfig: props,
+		});
 	const result = getNodeEditResult({
 		project,
 		edits: [
@@ -44,6 +45,7 @@ export const addEffect = async <Project extends CodemodProject>({
 	});
 	return {
 		...result,
+		editDetails: [{filePath, formatted, effectLabel, nodeLabel, logLine}],
 		insertedEffect: {
 			...getUpdatedNodeReference({...result, node}),
 			effectIndex: length,

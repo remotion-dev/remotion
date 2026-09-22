@@ -12,7 +12,7 @@ import {splitJsxSequences} from './split-jsx-sequence';
 
 export type SplitSequencesOptions<Project extends CodemodProject> = {
 	project: Project;
-	splits: {node: JsxNodeReference; frame: number}[];
+	splits: {node: JsxNodeReference; frame: number; sequenceKeys?: string[]}[];
 };
 
 export const splitSequences = async <Project extends CodemodProject>({
@@ -28,28 +28,32 @@ export const splitSequences = async <Project extends CodemodProject>({
 	const groups = new Map<string, typeof splits>();
 	for (const split of splits) {
 		const filePath = findProjectFile({project, filePath: split.node.filePath});
-		const target = getJsxNodes({project, filePath}).find(
-			(node) =>
-				JSON.stringify(node.nodePath) === JSON.stringify(split.node.nodePath),
-		);
-		if (
-			!target?.componentIdentity ||
-			!/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z]+)|media\.(Video|Audio))$/.test(
-				target.componentIdentity,
-			)
-		) {
-			throw new Error(
-				'Only Remotion sequences, interactive elements, and timeline media can be split',
+		if (split.sequenceKeys === undefined) {
+			const target = getJsxNodes({project, filePath}).find(
+				(node) =>
+					JSON.stringify(node.nodePath) === JSON.stringify(split.node.nodePath),
 			);
-		}
+			if (
+				!target?.componentIdentity ||
+				!/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z]+)|media\.(Video|Audio))$/.test(
+					target.componentIdentity,
+				)
+			) {
+				throw new Error(
+					'Only Remotion sequences, interactive elements, and timeline media can be split',
+				);
+			}
 
-		const status = getJsxNodeProps({
-			project,
-			node: split.node,
-			keys: ['from', 'durationInFrames', 'trimBefore'],
-		});
-		if (Object.values(status.props).some((prop) => prop.status !== 'static')) {
-			throw new Error('Sequence timing must be static to split it');
+			const status = getJsxNodeProps({
+				project,
+				node: split.node,
+				keys: ['from', 'durationInFrames', 'trimBefore'],
+			});
+			if (
+				Object.values(status.props).some((prop) => prop.status !== 'static')
+			) {
+				throw new Error('Sequence timing must be static to split it');
+			}
 		}
 
 		const group = groups.get(filePath) ?? [];
@@ -72,10 +76,14 @@ export const splitSequences = async <Project extends CodemodProject>({
 			filePath,
 			...(await splitJsxSequences({
 				input: project.files[filePath],
-				splits: group.map(({node, frame}) => ({
+				splits: group.map(({node, frame, sequenceKeys}) => ({
 					nodePath: node.nodePath,
 					splitFrame: frame,
-					sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+					sequenceKeys: sequenceKeys ?? [
+						'from',
+						'durationInFrames',
+						'trimBefore',
+					],
 				})),
 			})),
 		})),
@@ -83,6 +91,11 @@ export const splitSequences = async <Project extends CodemodProject>({
 	const result = getNodeEditResult({project, edits});
 	return {
 		...result,
+		editDetails: edits.map(({filePath, nodeLabels, logLines}) => ({
+			filePath,
+			nodeLabels,
+			logLines,
+		})),
 		insertedNodes: getInsertedNodeReferences(result.nodePathRemappings),
 	};
 };

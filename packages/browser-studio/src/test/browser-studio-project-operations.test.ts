@@ -393,6 +393,21 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
 	);
+
+	const stillResult = await operations.duplicateComposition({
+		...request,
+		codemod: {...request.codemod, newId: 'MyStill', tag: 'Still'},
+		dryRun: false,
+	});
+	expect(stillResult.success).toBe(true);
+	const stillSource =
+		project.files['/project/src/Composition.tsx'].match(
+			/<Still[\s\S]*?\/>/,
+		)?.[0];
+	expect(stillSource).toContain('id="MyStill"');
+	expect(stillSource).toContain('width={1920}');
+	expect(stillSource).not.toContain('fps=');
+	expect(stillSource).not.toContain('durationInFrames=');
 });
 
 test('imports an Element with pinned Remotion dependencies as one undoable mutation', async () => {

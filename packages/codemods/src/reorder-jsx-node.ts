@@ -34,5 +34,16 @@ export const reorderJsxNode = async <Project extends CodemodProject>({
 		position,
 	});
 	const result = getNodeEditResult({project, edits: [{filePath, ...edit}]});
-	return {...result, updatedNode: getUpdatedNodeReference({...result, node})};
+	return {
+		...result,
+		editDetails: [
+			{
+				filePath,
+				formatted: edit.formatted,
+				sequenceLabel: edit.sequenceLabel,
+				logLine: edit.logLine,
+			},
+		],
+		updatedNode: getUpdatedNodeReference({...result, node}),
+	};
 };

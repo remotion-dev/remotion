@@ -69,6 +69,100 @@ export const applyCodemod = ({
 		});
 	}
 
+	if (
+		(codeMod.type === 'new-composition' && codeMod.folderName === null) ||
+		(codeMod.type === 'new-folder' && codeMod.parentName === null)
+	) {
+		const functions = new Map<
+			object,
+			{path: recast.types.NodePath; hasRegistration: boolean}
+		>();
+		recast.visit(file, {
+			visitNode(jsxPath) {
+				const jsx = jsxPath.node;
+				if (
+					!recast.types.namedTypes.JSXElement.check(jsx) &&
+					!recast.types.namedTypes.JSXFragment.check(jsx)
+				) {
+					this.traverse(jsxPath);
+					return false;
+				}
+
+				let parent = jsxPath.parentPath;
+				while (parent) {
+					if (recast.types.namedTypes.Function.check(parent.node)) {
+						const existing = functions.get(parent.node);
+						functions.set(parent.node, {
+							path: parent,
+							hasRegistration:
+								existing?.hasRegistration === true ||
+								(jsx.type === 'JSXElement' &&
+									(getCompositionIdFromJSXElement(jsx as JSXElement) !== null ||
+										getFolderNameFromJSXElement(jsx as JSXElement) !== null)),
+						});
+						break;
+					}
+
+					parent = parent.parentPath;
+				}
+
+				this.traverse(jsxPath);
+				return false;
+			},
+		});
+		const registered = [...functions.values()].filter(
+			({hasRegistration}) => hasRegistration,
+		);
+		const candidates =
+			registered.length > 0 ? registered : [...functions.values()];
+		if (candidates.length !== 1) {
+			throw new Error(
+				'Adding registrations requires a single JSX component containing registrations, or a file with a single JSX component',
+			);
+		}
+
+		const target = candidates[0].path;
+		recast.visit(
+			target.node as
+				| FunctionDeclaration
+				| FunctionExpression
+				| ArrowFunctionExpression,
+			{
+				visitNode(rootPath) {
+					const {node} = rootPath;
+					if (
+						recast.types.namedTypes.Function.check(node) &&
+						node !== target.node
+					) {
+						return false;
+					}
+
+					const key =
+						node.type === 'ReturnStatement'
+							? 'argument'
+							: node.type === 'ArrowFunctionExpression'
+								? 'body'
+								: null;
+					const root = key === null ? null : rootPath.get(key).node;
+					if (root?.type === 'JSXElement' || root?.type === 'JSXFragment') {
+						rootPath
+							.get(key)
+							.replace(
+								codeMod.type === 'new-composition'
+									? addNewCompositionToRootJsx(root, codeMod, changesMade)
+									: addNewFolderToRootJsx(root, codeMod, changesMade),
+							);
+						return false;
+					}
+
+					this.traverse(rootPath);
+					return false;
+				},
+			},
+		);
+		return {newAst: file, changesMade};
+	}
+
 	const body = file.program.body.map((node) => {
 		return mapAll(node, codeMod, changesMade, null);
 	});

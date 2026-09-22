@@ -219,7 +219,8 @@ export const Root = () => <Folder name="Before" />;
 test('metadata codemods do not run Prettier after applying source edits', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const filePath = path.join(remotionRoot, 'Root.tsx');
-	const input = `const untouched  =  { value : "keep" };
+	const input = `import {Composition} from 'remotion';
+const untouched  =  { value : "keep" };
 export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 `;
 
@@ -237,7 +238,8 @@ export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 			},
 		});
 
-		expect(output).toBe(`const untouched  =  { value : "keep" };
+		expect(output).toBe(`import {Composition} from 'remotion';
+const untouched  =  { value : "keep" };
 export const Root=()=> <Composition id='Comp' width = {1920} durationInFrames={90} height={1080}/>;
 `);
 	} finally {
@@ -631,26 +633,34 @@ test('applyCodemodHandler logs composition renames and pushes them to the undo a
 	});
 });
 
-test('applyCodemodHandler pushes composition duplications to undo and redo stacks', async () => {
-	await runCompositionCodemodUndoRedoTest({
-		codemod: {
-			type: 'duplicate-composition',
-			idToDuplicate: 'DeleteMe',
-			newId: 'Duplicated',
-			newDurationInFrames: null,
-			newFps: null,
-			newHeight: null,
-			newWidth: null,
-			tag: 'Composition',
-		},
-		assertApplied: (contents) => {
-			expect(contents).toContain('id="DeleteMe"');
-			expect(contents).toContain('id="Duplicated"');
-			expect(contents).toContain('id="KeepMe"');
-		},
-		expectedUndoMessage:
-			'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
-	});
+test('applyCodemodHandler pushes composition and still duplications to undo and redo stacks', async () => {
+	for (const tag of ['Composition', 'Still'] as const) {
+		await runCompositionCodemodUndoRedoTest({
+			codemod: {
+				type: 'duplicate-composition',
+				idToDuplicate: 'DeleteMe',
+				newId: 'Duplicated',
+				newDurationInFrames: 120,
+				newFps: 30,
+				newHeight: null,
+				newWidth: null,
+				tag,
+			},
+			assertApplied: (contents) => {
+				expect(contents).toContain('id="DeleteMe"');
+				expect(contents).toContain('id="Duplicated"');
+				expect(contents).toContain('id="KeepMe"');
+				if (tag === 'Still') {
+					const still = contents.match(/<Still[\s\S]*?\/>/)?.[0];
+					expect(still).toContain('id="Duplicated"');
+					expect(still).not.toContain('fps=');
+					expect(still).not.toContain('durationInFrames=');
+				}
+			},
+			expectedUndoMessage:
+				'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
+		});
+	}
 });
 
 test('applyCodemodHandler pushes folder creations to undo and redo stacks', async () => {

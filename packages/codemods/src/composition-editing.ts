@@ -1,5 +1,4 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
-import * as recast from 'recast';
 import type {CodemodProject, CodemodResult} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
 import {getJsxNodeProps} from './get-jsx-node-props';
@@ -112,38 +111,6 @@ export const editCompositionProject = <Project extends CodemodProject>({
 	codemod: RecastCodemod;
 }): CodemodResult<Project> => {
 	const filePath = findProjectFile({project, filePath: compositionFile});
-	if (codemod.type === 'new-composition' || codemod.type === 'new-folder') {
-		const functions = new Set<object>();
-		recast.visit(parseAst(project.files[filePath]), {
-			visitNode(path) {
-				if (
-					!recast.types.namedTypes.JSXElement.check(path.node) &&
-					!recast.types.namedTypes.JSXFragment.check(path.node)
-				) {
-					this.traverse(path);
-					return false;
-				}
-
-				let parent = path.parentPath;
-				while (parent) {
-					if (recast.types.namedTypes.Function.check(parent.node)) {
-						functions.add(parent.node);
-						break;
-					}
-
-					parent = parent.parentPath;
-				}
-
-				this.traverse(path);
-				return false;
-			},
-		});
-		if (functions.size > 1) {
-			throw new Error(
-				'Adding registrations requires a file with a single JSX component',
-			);
-		}
-	}
 
 	const {newContents} = parseAndApplyCodemod({
 		input: project.files[filePath],

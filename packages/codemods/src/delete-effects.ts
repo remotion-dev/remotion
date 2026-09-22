@@ -8,7 +8,10 @@ import {
 
 export type DeleteEffectsOptions<Project extends CodemodProject> = {
 	project: Project;
-	effects: EffectReference[];
+	effects: (
+		| EffectReference
+		| (Omit<EffectReference, 'effectIndex'> & {effectIndex: null})
+	)[];
 };
 
 export const deleteEffects = async <Project extends CodemodProject>({
@@ -19,20 +22,39 @@ export const deleteEffects = async <Project extends CodemodProject>({
 	const edits = await Promise.all(
 		[...groups].map(async ([filePath, group]) => {
 			const input = project.files[filePath];
-			const {output} = await deleteEffectsInSource({
-				input,
-				effects: group.map((effect) => ({
-					type: 'single-effect',
-					sequenceNodePath: effect.nodePath,
-					effectIndex: effect.effectIndex,
-				})),
-			});
+			const {output, formatted, effectLabels, logLines} =
+				await deleteEffectsInSource({
+					input,
+					effects: group.map((effect) =>
+						effect.effectIndex === null
+							? {
+									type: 'all-effects',
+									sequenceNodePath: effect.nodePath,
+								}
+							: {
+									type: 'single-effect',
+									sequenceNodePath: effect.nodePath,
+									effectIndex: effect.effectIndex,
+								},
+					),
+				});
 			return {
 				filePath,
 				output,
+				formatted,
+				effectLabels,
+				logLines,
 				nodePathRemappings: getUnchangedStructureRemappings({input, output}),
 			};
 		}),
 	);
-	return getNodeEditResult({project, edits});
+	return {
+		...getNodeEditResult({project, edits}),
+		editDetails: edits.map(({filePath, formatted, effectLabels, logLines}) => ({
+			filePath,
+			formatted,
+			effectLabels,
+			logLines,
+		})),
+	};
 };
