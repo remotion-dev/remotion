@@ -345,6 +345,6 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and 
 
 ## Visual checks
 
-Do not preview or render as a routine final step. Use visual verification only when the change affects the rendered result and there is a specific layout, appearance, or timing question that code review and existing evidence cannot answer. Skip it for changes that cannot affect the rendered result.
+When a visual check is useful, open the [Remotion Studio](../remotion-studio/SKILL.md) for an interactive preview.
 
-When a visual check is useful, use [Remotion Studio](../remotion-studio/SKILL.md) for an interactive preview or [Rendering](../remotion-render/SKILL.md) to inspect one or several frames. Choose the check that answers the question.
+You can also use [Rendering](../remotion-render/SKILL.md) to inspect one or several frames as images.
