@@ -343,7 +343,7 @@ export const startContent = () => {
 		.capture-controls button.capture-controls-close:disabled {
 			opacity: 1;
 		}
-		.capture-controls [data-tooltip] {
+		.capture-controls [data-tooltip]:not(.capture-controls-primary) {
 			position: relative;
 		}
 		.capture-controls [data-tooltip]::after {
