@@ -231,9 +231,9 @@ export const startContent = () => {
 			display: none;
 			align-items: center;
 			gap: 6px;
-			width: 224px;
+			width: 270px;
 			max-width: calc(100vw - 40px);
-			padding: 8px;
+			padding: 12px;
 			border: 2px solid #000;
 			border-bottom-width: 4px;
 			border-radius: 999px;
@@ -267,8 +267,9 @@ export const startContent = () => {
 		.capture-controls-header {
 			display: flex;
 			align-items: center;
+			min-height: 42px;
 			cursor: grab;
-			padding: 0 6px;
+			padding: 0 8px;
 			user-select: none;
 		}
 		.capture-controls-header.dragging {
@@ -282,13 +283,15 @@ export const startContent = () => {
 			fill: currentColor;
 		}
 		.capture-controls-close {
-			width: 32px;
-			flex: 0 0 32px !important;
+			display: grid;
+			width: 38px;
+			flex: 0 0 38px !important;
+			place-items: center;
 			border: 0 !important;
 			background: transparent !important;
 			color: var(--capture-controls-icon-color) !important;
 			margin-left: auto;
-			padding: 4px;
+			padding: 0;
 			transition: color 120ms ease;
 		}
 		.capture-controls-close:hover:not(:disabled) {
@@ -304,7 +307,7 @@ export const startContent = () => {
 			stroke-linecap: round;
 		}
 		.capture-controls button {
-			height: 38px;
+			height: 42px;
 			border: 2px solid #000;
 			border-bottom-width: 4px;
 			border-radius: 8px;
@@ -314,20 +317,31 @@ export const startContent = () => {
 			font: inherit;
 			font-weight: 700;
 		}
+		.capture-controls-actions {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			transform: translate(-50%, -50%);
+		}
 		.capture-controls-select {
-			width: 32px;
-			flex: 0 0 32px;
+			display: grid;
+			width: 38px;
+			flex: 0 0 38px;
+			place-items: center;
 			border: 0 !important;
 			background: transparent !important;
 			color: var(--capture-controls-icon-color) !important;
-			padding: 4px;
+			padding: 0;
 			transition: color 120ms ease;
+		}
+		.capture-controls-select[hidden] {
+			display: none;
 		}
 		.capture-controls-select:hover:not(:disabled) {
 			color: #000 !important;
-		}
-		.capture-controls-select + .capture-controls-select {
-			margin-left: -6px;
 		}
 		.capture-controls-select svg {
 			display: block;
@@ -382,16 +396,16 @@ export const startContent = () => {
 			position: absolute;
 			left: 50%;
 			top: 50%;
-			width: 40px;
-			height: 38px;
+			width: 42px;
+			height: 42px;
 			perspective: 300px;
 			transform: translate(-50%, -50%);
 		}
 		.capture-controls-duration {
 			position: absolute;
-			left: 47px;
+			left: 56px;
 			top: 50%;
-			width: 42px;
+			width: 50px;
 			font-variant-numeric: tabular-nums;
 			font-weight: 700;
 			text-align: center;
@@ -412,7 +426,7 @@ export const startContent = () => {
 		.capture-controls-primary button {
 			position: relative;
 			display: grid;
-			width: 40px;
+			width: 42px;
 			padding: 0;
 			place-items: center;
 			border-radius: 999px !important;
@@ -596,16 +610,21 @@ export const startContent = () => {
 		controlsClose.dataset.tooltip = 'Close';
 		controlsClose.innerHTML =
 			'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
-		controls.append(
-			controlsEncodingError,
-			controlsHeader,
+		const controlsActions = document.createElement('div');
+		controlsActions.className = 'capture-controls-actions';
+		controlsActions.append(
 			controlsSecondary,
 			controlsWholePage,
-			controlsDuration,
-			controlsPrimary,
 			controlsNew,
 			controlsConvert,
 			controlsDownload,
+		);
+		controls.append(
+			controlsEncodingError,
+			controlsHeader,
+			controlsActions,
+			controlsDuration,
+			controlsPrimary,
 			controlsClose,
 		);
 		shadow.append(
