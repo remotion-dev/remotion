@@ -298,7 +298,10 @@ export const startContent = () => {
 			display: block;
 			width: 24px;
 			height: 24px;
-			fill: currentColor;
+			fill: none;
+			stroke: currentColor;
+			stroke-width: 1.5;
+			stroke-linecap: round;
 		}
 		.capture-controls button {
 			height: 38px;
@@ -518,7 +521,7 @@ export const startContent = () => {
 		controlsHeader.className = 'capture-controls-header';
 		controlsHeader.dataset.tooltip = 'Drag to reposition';
 		controlsHeader.innerHTML =
-			'<svg class="capture-controls-grab" viewBox="0 0 640 640" aria-hidden="true"><path d="M288 128C288 92.7 259.3 64 224 64C188.7 64 160 92.7 160 128C160 163.3 188.7 192 224 192C259.3 192 288 163.3 288 128zM288 320C288 284.7 259.3 256 224 256C188.7 256 160 284.7 160 320C160 355.3 188.7 384 224 384C259.3 384 288 355.3 288 320zM160 512C160 547.3 188.7 576 224 576C259.3 576 288 547.3 288 512C288 476.7 259.3 448 224 448C188.7 448 160 476.7 160 512zM480 128C480 92.7 451.3 64 416 64C380.7 64 352 92.7 352 128C352 163.3 380.7 192 416 192C451.3 192 480 163.3 480 128zM352 320C352 355.3 380.7 384 416 384C451.3 384 480 355.3 480 320C480 284.7 451.3 256 416 256C380.7 256 352 284.7 352 320zM480 512C480 476.7 451.3 448 416 448C380.7 448 352 476.7 352 512C352 547.3 380.7 576 416 576C451.3 576 480 547.3 480 512z"/></svg>';
+			'<svg class="capture-controls-grab" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="4" r="1.5"/><circle cx="15" cy="4" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="20" r="1.5"/><circle cx="15" cy="20" r="1.5"/></svg>';
 		const controlsSecondary = document.createElement('button');
 		controlsSecondary.className = 'capture-controls-select';
 		controlsSecondary.type = 'button';
@@ -592,7 +595,7 @@ export const startContent = () => {
 		controlsClose.ariaLabel = 'Close capture controls';
 		controlsClose.dataset.tooltip = 'Close';
 		controlsClose.innerHTML =
-			'<svg viewBox="46 46 548 548" aria-hidden="true"><path d="M135.5 169C126.1 159.6 126.1 144.4 135.5 135.1C144.9 125.8 160.1 125.7 169.4 135.1L320.4 286.1L471.4 135.1C480.8 125.7 496 125.7 505.3 135.1C514.6 144.5 514.7 159.7 505.3 169L354.3 320L505.3 471C514.7 480.4 514.7 495.6 505.3 504.9C495.9 514.2 480.7 514.3 471.4 504.9L320.4 353.9L169.4 504.9C160 514.3 144.8 514.3 135.5 504.9C126.2 495.5 126.1 480.3 135.5 471L286.5 320L135.5 169z"/></svg>';
+			'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
 		controls.append(
 			controlsEncodingError,
 			controlsHeader,
