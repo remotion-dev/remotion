@@ -501,7 +501,6 @@ const NewCompositionLoaded: React.FC<{
 				? null
 				: {
 						data: canvasCapture.data,
-						videoDurationInSeconds: canvasCapture.durationInSeconds,
 						videoFileName: canvasCapture.file.name,
 						videoHeight: canvasCapture.height,
 						videoWidth: canvasCapture.width,

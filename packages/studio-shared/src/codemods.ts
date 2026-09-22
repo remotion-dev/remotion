@@ -37,7 +37,6 @@ export type RecastCodemod =
 			newFps: number;
 			newDurationInFrames: number;
 			canvasCapture: {
-				readonly videoDurationInSeconds: number;
 				readonly videoFileName: string;
 				readonly videoHeight: number;
 				readonly videoWidth: number;
