@@ -408,21 +408,33 @@ export const startContent = () => {
 			padding: 0;
 			place-items: center;
 			border-radius: 999px !important;
-			background: #ff3232 !important;
+			background: #fff !important;
 			overflow: hidden;
 		}
 		.capture-controls-primary button:hover:not(:disabled) {
+			background: #f5f5f5 !important;
+		}
+		.capture-controls-primary.recording button {
+			background: #ff3232 !important;
+		}
+		.capture-controls-primary.recording button:hover:not(:disabled) {
 			background: #ff4b4b !important;
 		}
 		.capture-controls-record-icon {
 			position: absolute;
 			left: 50%;
 			top: 50%;
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: #ff3232;
+			transform: translate(-50%, -50%);
+		}
+		.capture-controls-primary.recording .capture-controls-record-icon {
 			width: 13px;
 			height: 13px;
 			border-radius: 4.5px;
 			background: #fff;
-			transform: translate(-50%, -50%);
 		}
 	`;
 
@@ -959,6 +971,7 @@ export const startContent = () => {
 			controlsWholePage.hidden = state.recording || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
 			controlsPrimary.hidden = !state.hasTarget || state.hasCompletedRecording;
+			controlsPrimary.classList.toggle('recording', state.recording);
 			controlsNew.hidden = !state.hasCompletedRecording;
 			controlsNew.disabled = controlsBusy;
 			controlsConvert.hidden = !state.hasCompletedRecording;
