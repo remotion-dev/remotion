@@ -18,6 +18,8 @@ description: Release a new Remotion version
 - Run `bun set-version.ts <version>`, where <version> is the current version plus 1. If the exit code is not 0, abort the entire release process immediately.
 - Run `cd packages/example && sh runlambda.sh && cd ../..`. If this fails, abort the release.
 - Run `NPM_CONFIG_TOKEN=<token> bun run release` where <token> is the NPM token we just created
+  - An npm `409 Cannot publish over previously staged version "<version>"` is acceptable and does not block release completion when `npm stage list` and the `/-/stage` API show no staged version or stage ID to approve. Let the registry settle itself; do not keep retrying, waiting, or attempting manual fixes for this state. Continue the release workflow.
+  - Mention the affected package and version in the release summary as an accepted registry delay with availability pending. `bun publish --tolerate-republish` may report success despite this conflict, so do not claim that the affected version is already available on npm. This exception applies only to this staging conflict; other publish failures remain errors.
 - Run `bun run publishtemplates` from the repository root to republish every template with the newly released packages. If any template fails to publish, stop the release workflow and report the failure.
 - Generate a changelog in markdown and save it to `/tmp/release-<version>.md`:
   - Run `git log v<previous_version>..v<new_version> --oneline` to get all commits
