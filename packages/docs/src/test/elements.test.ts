@@ -346,13 +346,10 @@ describe('Element library', () => {
 		}
 	});
 
-	test('creates canonical fixed-size and adaptive drag payloads', () => {
+	test('creates canonical drag payloads for every gallery Element', () => {
 		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
-		for (const slug of [
-			'overlays/name-lower-third',
-			'backgrounds/paper-texture',
-		] as const) {
-			const definition = getElementDefinition(slug);
+		for (const definition of elementDefinitionList) {
+			const {slug} = definition;
 			const sourceCode = sourceCodeBySlug[slug];
 			const payload = createElementPayloadFromDefinition({
 				definition,
@@ -361,9 +358,10 @@ describe('Element library', () => {
 
 			expect(payload).toMatchObject({
 				type: 'remotion-element',
-				version: 1,
+				version: definition.assets.length > 0 ? 2 : 1,
 				durationInFrames: definition.durationInFrames,
 				element: {
+					assets: definition.assets,
 					dependencies: definition.dependencies,
 					displayName: definition.displayName,
 					durationInFrames: definition.durationInFrames,

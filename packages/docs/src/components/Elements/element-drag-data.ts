@@ -20,11 +20,15 @@ export const createElementPayloadFromDefinition = ({
 			: null;
 
 	return createElementPayload({
+		assets: definition.assets,
 		dependencies: definition.dependencies,
 		dimensions,
 		displayName: definition.displayName,
 		durationInFrames: definition.durationInFrames,
-		initialProps: definition.initialProps,
+		initialProps:
+			definition.installationProps === null
+				? definition.initialProps
+				: {...definition.initialProps, ...definition.installationProps},
 		installationMode: definition.installationMode,
 		slug: definition.slug,
 		sourceCode,
