@@ -70,14 +70,10 @@ import {
 } from './internals';
 
 export {addSolid, type AddSolidOptions, type AddSolidResult} from './add-solid';
-export {
-	addMedia,
-	addComponent,
-	type AddMediaOptions,
-	type AddComponentOptions,
-	type AddContentOptions,
-	type CodemodValue,
-} from './add-content';
+export {addMedia, type AddMediaOptions} from './add-media';
+export {addComponent, type AddComponentOptions} from './add-component';
+export {type AddContentOptions} from './insert-content';
+export {type CodemodValue} from './codemod-value';
 export {
 	getJsxNodes,
 	type GetJsxNodesOptions,
@@ -85,22 +81,21 @@ export {
 } from './get-jsx-nodes';
 export {
 	getJsxNodeProps,
-	updateJsxNodeProps,
 	type GetJsxNodePropsOptions,
-	type UpdateJsxNodePropsOptions,
 	type JsxNodeProps,
-} from './jsx-props';
+} from './get-jsx-node-props';
+export {
+	updateJsxNodeProps,
+	type UpdateJsxNodePropsOptions,
+} from './update-jsx-node-props';
 export {
 	duplicateJsxNodes,
-	reorderJsxNode,
-	splitSequences,
-	detachAudio,
 	type DuplicateJsxNodesOptions,
 	type DuplicateJsxNodesResult,
-	type ReorderJsxNodeOptions,
-	type SplitSequencesOptions,
-	type DetachAudioOptions,
-} from './jsx-operations';
+} from './duplicate-jsx-nodes';
+export {reorderJsxNode, type ReorderJsxNodeOptions} from './reorder-jsx-node';
+export {splitSequences, type SplitSequencesOptions} from './split-sequences';
+export {detachAudio, type DetachAudioOptions} from './detach-audio';
 export type {
 	JsxNodeReference,
 	JsxNodePathRemapping,
@@ -109,57 +104,64 @@ export type {
 } from './node-references';
 export {
 	resolveCompositionComponent,
-	addComposition,
+	type ResolveCompositionComponentOptions,
+} from './resolve-composition-component';
+export {addComposition, type AddCompositionOptions} from './add-composition';
+export {
 	renameComposition,
+	type RenameCompositionOptions,
+} from './rename-composition';
+export {
 	duplicateComposition,
+	type DuplicateCompositionOptions,
+} from './duplicate-composition';
+export {
 	deleteComposition,
+	type DeleteCompositionOptions,
+} from './delete-composition';
+export {
 	updateCompositionMetadata,
+	type UpdateCompositionMetadataOptions,
+} from './update-composition-metadata';
+export {
 	setCompositionDefaultProps,
+	type SetCompositionDefaultPropsOptions,
+} from './set-composition-default-props';
+export {
 	type CompositionTarget,
 	type CompositionMetadata,
 	type FolderReference,
-	type ResolveCompositionComponentOptions,
-	type AddCompositionOptions,
-	type RenameCompositionOptions,
-	type DuplicateCompositionOptions,
-	type DeleteCompositionOptions,
-	type UpdateCompositionMetadataOptions,
-	type SetCompositionDefaultPropsOptions,
-} from './composition-operations';
+} from './composition-editing';
+export {addFolder, type AddFolderOptions} from './add-folder';
+export {renameFolder, type RenameFolderOptions} from './rename-folder';
+export {moveComposition, type MoveCompositionOptions} from './move-composition';
+export {moveFolder, type MoveFolderOptions} from './move-folder';
+export {unwrapFolder, type UnwrapFolderOptions} from './unwrap-folder';
 export {
-	addFolder,
-	renameFolder,
-	moveComposition,
-	moveFolder,
-	unwrapFolder,
 	type CompositionTreeItem,
 	type CompositionDestination,
-	type AddFolderOptions,
-	type RenameFolderOptions,
-	type MoveCompositionOptions,
-	type MoveFolderOptions,
-	type UnwrapFolderOptions,
-} from './folder-operations';
+} from './folder-editing';
+export {addEffect, type AddEffectOptions} from './add-effect';
 export {
-	addEffect,
 	updateEffectProps,
-	deleteEffects,
-	duplicateEffects,
-	reorderEffect,
-	type EffectReference,
-	type AddEffectOptions,
 	type UpdateEffectPropsOptions,
-	type DeleteEffectsOptions,
+} from './update-effect-props';
+export {deleteEffects, type DeleteEffectsOptions} from './delete-effects';
+export {
+	duplicateEffects,
 	type DuplicateEffectsOptions,
-	type ReorderEffectOptions,
-} from './public-effect-operations';
+} from './duplicate-effects';
+export {reorderEffect, type ReorderEffectOptions} from './reorder-effect';
+export {type EffectReference} from './effect-references';
 export {
 	updateJsxNodeKeyframes,
-	updateEffectKeyframes,
 	type JsxNodeKeyframeUpdate,
 	type UpdateJsxNodeKeyframesOptions,
+} from './update-jsx-node-keyframes';
+export {
+	updateEffectKeyframes,
 	type UpdateEffectKeyframesOptions,
-} from './keyframe-operations';
+} from './update-effect-keyframes';
 export type {
 	CodemodFileChange,
 	CodemodProject,

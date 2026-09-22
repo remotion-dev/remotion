@@ -1,7 +1,7 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {applyVisualControl} from './apply-visual-control';
 import {editCompositionInSource} from './composition-source-edits';
-import {duplicateCompositionInSource} from './duplicate-composition';
+import {duplicateCompositionInSource} from './duplicate-composition-in-source';
 import {editFolderInSource} from './folder-source-edits';
 import type {Change} from './recast-mods';
 import {applyCodemod} from './recast-mods';

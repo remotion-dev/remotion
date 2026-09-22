@@ -3,7 +3,7 @@ import type {RecastCodemod} from '@remotion/studio-shared';
 import {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {getNodeSourceEdit} from './delete-jsx-nodes-internal';
-import {getCompositionId} from './duplicate-composition';
+import {getCompositionId} from './duplicate-composition-in-source';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';

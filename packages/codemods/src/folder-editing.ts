@@ -4,10 +4,9 @@ import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
 import {
-	editCompositionProject,
-	type CompositionTarget,
 	type FolderReference,
-} from './composition-operations';
+	editCompositionProject,
+} from './composition-editing';
 import {findProjectFile} from './internals';
 import {
 	getCompositionIdFromJSXElement,
@@ -18,6 +17,7 @@ import {parseAst} from './sequence-props/parse-ast';
 export type CompositionTreeItem =
 	| {type: 'composition'; compositionId: string}
 	| ({type: 'folder'} & FolderReference);
+
 export type CompositionDestination =
 	| {type: 'root'}
 	| {type: 'folder'; folder: FolderReference}
@@ -25,7 +25,7 @@ export type CompositionDestination =
 
 type TreeEntry = {item: CompositionTreeItem; parentName: string | null};
 
-const getTreeEntries = ({
+export const getTreeEntries = ({
 	project,
 	compositionFile,
 }: {
@@ -60,7 +60,10 @@ const getTreeEntries = ({
 	return entries;
 };
 
-const requireTreeItem = (entries: TreeEntry[], item: CompositionTreeItem) => {
+export const requireTreeItem = (
+	entries: TreeEntry[],
+	item: CompositionTreeItem,
+) => {
 	const matches = entries.filter(({item: entry}) =>
 		item.type === 'composition'
 			? entry.type === 'composition' &&
@@ -83,7 +86,7 @@ const toSourceItem = (item: CompositionTreeItem): CompositionOrFolder =>
 		? item
 		: {type: 'folder', folderName: item.name, parentName: item.parentName};
 
-const moveTreeItem = <Project extends CodemodProject>({
+export const moveTreeItem = <Project extends CodemodProject>({
 	project,
 	compositionFile,
 	source,
@@ -139,146 +142,3 @@ const moveTreeItem = <Project extends CodemodProject>({
 		},
 	});
 };
-
-export type AddFolderOptions<Project extends CodemodProject> = {
-	project: Project;
-	compositionFile: string;
-	folder: FolderReference;
-};
-
-export const addFolder = <Project extends CodemodProject>({
-	project,
-	compositionFile,
-	folder,
-}: AddFolderOptions<Project>) => {
-	if (!folder.name || folder.name.includes('/')) {
-		throw new Error('Folder names must be non-empty and cannot contain /');
-	}
-
-	const entries = getTreeEntries({project, compositionFile});
-	if (
-		entries.some(
-			({item}) =>
-				item.type === 'folder' &&
-				item.name === folder.name &&
-				item.parentName === folder.parentName,
-		)
-	) {
-		throw new Error('A folder with this name already exists in the parent');
-	}
-
-	if (folder.parentName !== null) {
-		const parts = folder.parentName.split('/');
-		const name = parts.pop()!;
-		requireTreeItem(entries, {
-			type: 'folder',
-			name,
-			parentName: parts.join('/') || null,
-		});
-	}
-
-	return editCompositionProject({
-		project,
-		compositionFile,
-		codemod: {
-			type: 'new-folder',
-			folderName: folder.name,
-			parentName: folder.parentName,
-		},
-	});
-};
-
-export type RenameFolderOptions<Project extends CodemodProject> =
-	AddFolderOptions<Project> & {newName: string};
-
-export const renameFolder = <Project extends CodemodProject>({
-	project,
-	compositionFile,
-	folder,
-	newName,
-}: RenameFolderOptions<Project>) => {
-	const entries = getTreeEntries({project, compositionFile});
-	requireTreeItem(entries, {type: 'folder', ...folder});
-	if (newName === folder.name) {
-		return getCodemodResult({project, nextProject: project});
-	}
-
-	if (!newName || newName.includes('/')) {
-		throw new Error('Folder names must be non-empty and cannot contain /');
-	}
-
-	if (
-		entries.some(
-			({item}) =>
-				item.type === 'folder' &&
-				item.name === newName &&
-				item.parentName === folder.parentName,
-		)
-	) {
-		throw new Error('A folder with this name already exists in the parent');
-	}
-
-	return editCompositionProject({
-		project,
-		compositionFile,
-		codemod: {
-			type: 'rename-folder',
-			folderName: folder.name,
-			parentName: folder.parentName,
-			newName,
-		},
-	});
-};
-
-export type UnwrapFolderOptions<Project extends CodemodProject> =
-	AddFolderOptions<Project>;
-
-export const unwrapFolder = <Project extends CodemodProject>({
-	project,
-	compositionFile,
-	folder,
-}: UnwrapFolderOptions<Project>) => {
-	requireTreeItem(getTreeEntries({project, compositionFile}), {
-		type: 'folder',
-		...folder,
-	});
-	return editCompositionProject({
-		project,
-		compositionFile,
-		codemod: {
-			type: 'delete-folder',
-			folderName: folder.name,
-			parentName: folder.parentName,
-		},
-	});
-};
-
-export type MoveCompositionOptions<Project extends CodemodProject> =
-	CompositionTarget & {project: Project; destination: CompositionDestination};
-export const moveComposition = <Project extends CodemodProject>({
-	project,
-	compositionFile,
-	compositionId,
-	destination,
-}: MoveCompositionOptions<Project>) =>
-	moveTreeItem({
-		project,
-		compositionFile,
-		source: {type: 'composition', compositionId},
-		destination,
-	});
-
-export type MoveFolderOptions<Project extends CodemodProject> =
-	AddFolderOptions<Project> & {destination: CompositionDestination};
-export const moveFolder = <Project extends CodemodProject>({
-	project,
-	compositionFile,
-	folder,
-	destination,
-}: MoveFolderOptions<Project>) =>
-	moveTreeItem({
-		project,
-		compositionFile,
-		source: {type: 'folder', ...folder},
-		destination,
-	});

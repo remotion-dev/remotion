@@ -1,29 +1,26 @@
 import type {CodemodProject, CodemodResult} from './codemod-project';
+import {getCodemodResult} from './codemod-project';
 import {
 	type CompositionTarget,
 	type CompositionMetadata,
 	requireComposition,
-	assertNewCompositionId,
 	validateMetadata,
 	editCompositionProject,
 } from './composition-editing';
 
-export type DuplicateCompositionOptions<Project extends CodemodProject> =
+export type UpdateCompositionMetadataOptions<Project extends CodemodProject> =
 	CompositionTarget & {
 		project: Project;
-		newId: string;
-		metadata?: Partial<CompositionMetadata>;
+		metadata: Partial<CompositionMetadata>;
 	};
 
-export const duplicateComposition = <Project extends CodemodProject>({
+export const updateCompositionMetadata = <Project extends CodemodProject>({
 	project,
 	compositionFile,
 	compositionId,
-	newId,
-	metadata = {},
-}: DuplicateCompositionOptions<Project>): CodemodResult<Project> => {
+	metadata,
+}: UpdateCompositionMetadataOptions<Project>): CodemodResult<Project> => {
 	const node = requireComposition({project, compositionFile, compositionId});
-	assertNewCompositionId({project, compositionFile, compositionId: newId});
 	validateMetadata(metadata);
 	if (
 		node.tagName === 'Still' &&
@@ -32,14 +29,16 @@ export const duplicateComposition = <Project extends CodemodProject>({
 		throw new Error('Still registrations do not have fps or durationInFrames');
 	}
 
+	if (Object.values(metadata).every((value) => value === undefined)) {
+		return getCodemodResult({project, nextProject: project});
+	}
+
 	return editCompositionProject({
 		project,
 		compositionFile,
 		codemod: {
-			type: 'duplicate-composition',
-			idToDuplicate: compositionId,
-			newId,
-			tag: node.tagName === 'Still' ? 'Still' : 'Composition',
+			type: 'update-composition-metadata',
+			idToUpdate: compositionId,
 			newWidth: metadata.width ?? null,
 			newHeight: metadata.height ?? null,
 			newFps: metadata.fps ?? null,

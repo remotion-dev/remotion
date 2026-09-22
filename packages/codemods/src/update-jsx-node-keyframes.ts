@@ -8,11 +8,6 @@ import {
 	type JsxNodeReference,
 } from './node-references';
 import {
-	getEffectSource,
-	type EffectReference,
-} from './public-effect-operations';
-import {
-	updateEffectKeyframes as updateEffectKeyframesInSource,
 	updateSequenceKeyframes,
 	type SequenceKeyframeUpdate,
 } from './update-keyframes';
@@ -58,52 +53,4 @@ export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
 		],
 	});
 	return {...result, updatedNode: getUpdatedNodeReference({...result, node})};
-};
-
-export type UpdateEffectKeyframesOptions<Project extends CodemodProject> = Omit<
-	UpdateJsxNodeKeyframesOptions<Project>,
-	'node'
-> & {effect: EffectReference};
-
-export const updateEffectKeyframes = async <Project extends CodemodProject>({
-	project,
-	effect,
-	updates,
-	schema,
-	videoConfig,
-}: UpdateEffectKeyframesOptions<Project>) => {
-	if (updates.length === 0) {
-		throw new Error('Expected at least one keyframe update');
-	}
-
-	if (!Number.isInteger(effect.effectIndex) || effect.effectIndex < 0) {
-		throw new Error('Effect index must be a non-negative integer');
-	}
-
-	const {filePath, input} = getEffectSource({project, node: effect});
-	const {output} = await updateEffectKeyframesInSource({
-		input,
-		sequenceNodePath: effect.nodePath,
-		effectIndex: effect.effectIndex,
-		updates,
-		schema,
-		videoConfigValues: videoConfig ?? null,
-	});
-	const result = getNodeEditResult({
-		project,
-		edits: [
-			{
-				filePath,
-				output,
-				nodePathRemappings: getUnchangedStructureRemappings({input, output}),
-			},
-		],
-	});
-	return {
-		...result,
-		updatedEffect: {
-			...getUpdatedNodeReference({...result, node: effect}),
-			effectIndex: effect.effectIndex,
-		},
-	};
 };

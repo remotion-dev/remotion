@@ -24,7 +24,7 @@ export {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
 } from './delete-jsx-nodes-internal';
-export {duplicateCompositionInSource} from './duplicate-composition';
+export {duplicateCompositionInSource} from './duplicate-composition-in-source';
 export {
 	duplicateJsxElementAtPath,
 	duplicateJsxNodes,
