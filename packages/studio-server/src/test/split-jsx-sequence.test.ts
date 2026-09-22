@@ -233,7 +233,16 @@ test('splitJsxSequence splits sequence-backed components', async () => {
 	);
 });
 
-test('splitJsxSequence rejects boundary and dynamic splits', async () => {
+test('splitJsxSequence allows fractional splits and rejects invalid positions', async () => {
+	const output = await split(
+		'<Sequence from={10} durationInFrames={20} />',
+		10.5,
+	);
+	expect(output).toContain('<Sequence from={10} durationInFrames={0.5} />');
+	expect(output).toContain(
+		'<Sequence from={10.5} durationInFrames={19.5} trimBefore={0.5} />',
+	);
+
 	await expect(
 		split('<Sequence from={10} durationInFrames={20} />', 10),
 	).rejects.toThrow(/sequence start/);
@@ -243,9 +252,6 @@ test('splitJsxSequence rejects boundary and dynamic splits', async () => {
 	await expect(
 		split('<Sequence from={10} durationInFrames={20} />', 8),
 	).rejects.toThrow(/sequence start/);
-	await expect(
-		split('<Sequence from={10} durationInFrames={20} />', 10.5),
-	).rejects.toThrow(/integer/);
 	await expect(
 		split('<Sequence from={start} durationInFrames={20} />', 15),
 	).rejects.toThrow(/dynamic from/);

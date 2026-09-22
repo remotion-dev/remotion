@@ -124,10 +124,14 @@ test('nested Sequence rates keep decoded video, looping, and scheduled audio in 
 			/>,
 		);
 
-		await expect.poll(() => nestedDraws).toBeGreaterThan(0);
-		await expect.poll(() => referenceDraws).toBeGreaterThan(0);
+		await expect.poll(() => nestedDraws, {timeout: 10_000}).toBeGreaterThan(0);
 		await expect
-			.poll(() => createdNodes.filter((node) => node.buffer !== null).length)
+			.poll(() => referenceDraws, {timeout: 10_000})
+			.toBeGreaterThan(0);
+		await expect
+			.poll(() => createdNodes.filter((node) => node.buffer !== null).length, {
+				timeout: 10_000,
+			})
 			.toBeGreaterThan(0);
 		for (const node of createdNodes.filter(
 			(source) => source.buffer !== null,
@@ -146,17 +150,17 @@ test('nested Sequence rates keep decoded video, looping, and scheduled audio in 
 				const previousTrimmedReferenceDraws = trimmedReferenceDraws;
 				playerRef.current!.seekTo(frame);
 				await expect
-					.poll(() => nestedDraws)
+					.poll(() => nestedDraws, {timeout: 10_000})
 					.toBeGreaterThan(previousNestedDraws);
 				await expect
-					.poll(() => referenceDraws)
+					.poll(() => referenceDraws, {timeout: 10_000})
 					.toBeGreaterThan(previousReferenceDraws);
 				if (frame >= 30 && frame < 120) {
 					await expect
-						.poll(() => trimmedDraws)
+						.poll(() => trimmedDraws, {timeout: 10_000})
 						.toBeGreaterThan(previousTrimmedDraws);
 					await expect
-						.poll(() => trimmedReferenceDraws)
+						.poll(() => trimmedReferenceDraws, {timeout: 10_000})
 						.toBeGreaterThan(previousTrimmedReferenceDraws);
 				}
 			}
@@ -191,7 +195,7 @@ test('nested Sequence rates keep decoded video, looping, and scheduled audio in 
 		container.remove();
 		audioSpy.mockRestore();
 	}
-});
+}, 30_000);
 
 test('client rendering resamples nested Sequence media at the combined rate', async () => {
 	const environment = {

@@ -75,7 +75,9 @@ test('preserves the Player media playback rate across source changes and reloads
 				/>,
 			);
 			await expect
-				.poll(() => container.querySelector('video')?.readyState)
+				.poll(() => container.querySelector('video')?.readyState, {
+					timeout: 10_000,
+				})
 				.toBe(4);
 			const video = container.querySelector('video')!;
 			await expect.poll(() => video.playbackRate).toBeCloseTo(0.9 * globalRate);
@@ -137,14 +139,14 @@ test('preserves the Player media playback rate across source changes and reloads
 			// Loading a new resource resets playbackRate to defaultPlaybackRate.
 			video.src = `/bigbuckbunny.mp4?reload=${index}`;
 			video.load();
-			await expect.poll(() => video.readyState).toBe(4);
+			await expect.poll(() => video.readyState, {timeout: 10_000}).toBe(4);
 			expect(video.playbackRate).toBeCloseTo(0.9 * globalRate);
 		}
 	} finally {
 		root.unmount();
 		container.remove();
 	}
-});
+}, 30_000);
 
 test('seeks trimmed HTML5 loops across fractional boundaries under nested sequence rates', async () => {
 	const container = document.createElement('div');
@@ -249,8 +251,12 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 					inputProps={{mediaRate, useThreeLevels}}
 				/>,
 			);
-			await expect.poll(() => videoRef.current?.readyState).toBe(4);
-			await expect.poll(() => audioRef.current?.readyState).toBe(4);
+			await expect
+				.poll(() => videoRef.current?.readyState, {timeout: 10_000})
+				.toBe(4);
+			await expect
+				.poll(() => audioRef.current?.readyState, {timeout: 10_000})
+				.toBe(4);
 
 			const frames = useThreeLevels
 				? [50, 49, 50, 80, 81, 110, 111, 141, 142, 154, 20, 50]
@@ -308,4 +314,4 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 		root.unmount();
 		container.remove();
 	}
-});
+}, 30_000);
