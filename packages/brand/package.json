@@ -17,7 +17,10 @@
 		"render-homepage-assets": "./render-homepage-assets.sh"
 	},
 	"dependencies": {
-		"@mediabunny/prores": "catalog:"
+		"@huggingface/transformers": "4.2.0",
+		"@mediabunny/prores": "catalog:",
+		"@remotion/video-matting": "workspace:*",
+		"@remotion/whisper-webgpu": "workspace:*"
 	},
 	"devDependencies": {
 		"@code-hike/lighter": "1.0.3",

@@ -81,7 +81,10 @@ Called while a previously downloaded model is initialized. Call [`downloadWhispe
 
 ### signal?<AvailableFrom v="4.0.528" />
 
-An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling transcription. Default: no cancellation signal. Calling `abort()` on its controller stops token generation and rejects the promise with the signal's reason. A GPU operation already in progress must finish first. No partial transcript is returned.
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling transcription.  
+Calling `abort()` on its controller stops token generation and rejects the promise with the signal's reason.  
+A GPU operation already in progress must finish first.  
+No partial transcript is returned.
 
 ```ts twoslash title="cancel-transcription.ts"
 import {transcribe} from '@remotion/whisper-webgpu';
