@@ -6,7 +6,7 @@ crumb: '@remotion/video-matting'
 
 # isVideoMattingModelCached()<AvailableFrom v="4.0.523" />
 
-Checks whether all files hosted on `remotion.media` for a video matting model are present in the browser cache. The check does not download or initialize the model.
+Checks whether all files hosted on `remotion.media` for a video matting model are present in the browser or Node.js filesystem cache. The check does not download or initialize the model.
 
 ```ts twoslash title="model-cache.ts"
 import {isVideoMattingModelCached} from '@remotion/video-matting';
@@ -28,7 +28,9 @@ A `Promise<boolean>` resolving to `true` if every required model file is cached.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+[Node.js usage](/docs/video-matting/node) is available from <AvailableFrom v="4.0.528" inline />.
+
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

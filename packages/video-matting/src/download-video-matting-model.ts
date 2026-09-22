@@ -1,3 +1,7 @@
+import type * as NodeCrypto from 'node:crypto';
+import type * as NodeFsPromises from 'node:fs/promises';
+import type * as NodePath from 'node:path';
+import {importNodeModule} from './import-node-module';
 import {
 	getHostedVideoMattingModelId,
 	getVideoMattingModelInfo,
@@ -34,9 +38,10 @@ export const downloadVideoMattingModel = ({
 			: env.useBrowserCache && typeof caches !== 'undefined'
 				? await caches.open(env.cacheKey)
 				: null;
-		if (cache === null) {
+		const useFileCache = cache === null && env.useFSCache;
+		if (cache === null && !useFileCache) {
 			throw new Error(
-				'A Transformers.js browser or custom cache is required to download a video matting model.',
+				'A Transformers.js model cache is required to download a video matting model.',
 			);
 		}
 
@@ -77,32 +82,75 @@ export const downloadVideoMattingModel = ({
 			}
 
 			const url = `${env.remoteHost}${env.remotePathTemplate.replace('{model}', hostedModelId)}${file}`;
-			// Transformers.js 4.2.0 uses the remote URL as the browser cache key.
+			// Transformers.js 4.2.0 keys browser caches by URL and its FileCache by model/file.
+			const cacheKey = cache === null ? `${hostedModelId}/${file}` : url;
 			const response = await env.fetch(url);
 			if (!response.ok || response.body === null) {
 				throw new Error(`Could not download ${url}: HTTP ${response.status}.`);
 			}
 
 			const reader = response.body.getReader();
-			const stream = new ReadableStream<Uint8Array>({
-				async pull(controller) {
-					try {
+			if (cache !== null) {
+				const stream = new ReadableStream<Uint8Array>({
+					async pull(controller) {
+						try {
+							const {done, value} = await reader.read();
+							if (done) {
+								controller.close();
+								return;
+							}
+
+							loadedBytes += value.byteLength;
+							emitProgress(file);
+							controller.enqueue(value);
+						} catch (error) {
+							controller.error(error);
+						}
+					},
+					cancel: () => reader.cancel(),
+				});
+				await cache.put(
+					cacheKey,
+					new Response(stream, {headers: response.headers}),
+				);
+			} else {
+				// Match Transformers.js FileCache's model/file layout without loading ONNX.
+				const [{mkdir, open, rename, unlink}, {join, dirname}, {randomUUID}] =
+					await Promise.all([
+						importNodeModule<typeof NodeFsPromises>('node:fs/promises'),
+						importNodeModule<typeof NodePath>('node:path'),
+						importNodeModule<typeof NodeCrypto>('node:crypto'),
+					]);
+				if (env.cacheDir === null) {
+					throw new Error('Transformers.js env.cacheDir must be set.');
+				}
+
+				const destination = join(env.cacheDir, cacheKey);
+				const temporary = `${destination}.tmp.${randomUUID()}`;
+				await mkdir(dirname(destination), {recursive: true});
+				const handle = await open(temporary, 'wx');
+				try {
+					while (true) {
 						const {done, value} = await reader.read();
 						if (done) {
-							controller.close();
-							return;
+							break;
 						}
 
+						await handle.writeFile(value);
 						loadedBytes += value.byteLength;
 						emitProgress(file);
-						controller.enqueue(value);
-					} catch (error) {
-						controller.error(error);
 					}
-				},
-				cancel: () => reader.cancel(),
-			});
-			await cache.put(url, new Response(stream, {headers: response.headers}));
+
+					await handle.close();
+					await rename(temporary, destination);
+				} catch (error) {
+					await Promise.allSettled([handle.close(), reader.cancel(error)]);
+					await unlink(temporary).catch(() => undefined);
+					throw error;
+				} finally {
+					reader.releaseLock();
+				}
+			}
 		}
 
 		if (

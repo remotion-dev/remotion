@@ -6,7 +6,7 @@ crumb: '@remotion/video-matting'
 
 # disposeVideoMattingModel()<AvailableFrom v="4.0.523" />
 
-Releases the memory used by initialized video matting models. Persistent browser-cached model files are not deleted.
+Releases the memory used by initialized video matting models. Persistent cached model files are not deleted.
 
 ```ts twoslash title="dispose.ts"
 import {disposeVideoMattingModel} from '@remotion/video-matting';
@@ -28,7 +28,9 @@ A `Promise<void>` that resolves after the selected models have been disposed.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+[Node.js usage](/docs/video-matting/node) is available from <AvailableFrom v="4.0.528" inline />.
+
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

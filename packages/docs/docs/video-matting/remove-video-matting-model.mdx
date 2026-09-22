@@ -6,7 +6,7 @@ crumb: '@remotion/video-matting'
 
 # removeVideoMattingModel()<AvailableFrom v="4.0.523" />
 
-Removes a video matting model from memory and the persistent browser cache.
+Removes a video matting model from memory and the persistent model cache.
 
 If the model is still loading or separating a video, removal waits for the operation to finish.
 
@@ -24,7 +24,9 @@ One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-av
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+[Node.js usage](/docs/video-matting/node) is available from <AvailableFrom v="4.0.528" inline />.
+
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

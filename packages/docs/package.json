@@ -24,6 +24,7 @@
 		"upload-element-preview": "bun run upload-element-preview.ts"
 	},
 	"dependencies": {
+		"@huggingface/transformers": "catalog:",
 		"@remotion/studio-protocol": "workspace:*",
 		"@aws-sdk/s3-request-presigner": "catalog:",
 		"@babel/parser": "7.24.1",

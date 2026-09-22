@@ -565,6 +565,7 @@
         "@docusaurus/preset-classic": "3.10.1",
         "@docusaurus/theme-common": "3.10.1",
         "@docusaurus/types": "3.10.1",
+        "@huggingface/transformers": "catalog:",
         "@mdx-js/react": "3.0.1",
         "@mediabunny/ac3": "catalog:",
         "@mediabunny/dts": "catalog:",
@@ -2815,9 +2816,11 @@
       "version": "4.0.527",
       "dependencies": {
         "mediabunny": "catalog:",
+        "onnxruntime-node": "catalog:",
       },
       "devDependencies": {
         "@huggingface/transformers": "catalog:",
+        "@mediabunny/server": "catalog:",
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
