@@ -1,7 +1,7 @@
 ---
 name: remotion-captions
 description: Transcribing, displaying and animating captions
-version: 4.0.517
+version: 4.0.527
 ---
 
 All captions must be processed in JSON. The captions must use the [`Caption`](https://www.remotion.dev/docs/captions/caption.md) type which is the following:
@@ -26,6 +26,8 @@ type Caption = {
 ## Generating captions
 
 To transcribe video and audio files to generate captions, load the [transcribe-captions.md](transcribe-captions.md) file for more instructions.
+
+For transcription that must run client-side, in the browser, over WebGPU (no Node.js step, no server, no API key), load [browser-transcription.md](browser-transcription.md) instead.
 
 ## Displaying captions
 

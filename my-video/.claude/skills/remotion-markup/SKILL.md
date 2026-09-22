@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.517
+version: 4.0.527
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -257,6 +257,10 @@ Order or preference:
 - A listed effect via [effects.md](effects.md)
 - A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
 
+## Background removal (AI video matting)
+
+For chroma-key (green/blue screen) removal, use `colorKey()` from [effects.md](effects.md). For removing the background from footage that has **no** green screen — an AI segmentation model cutting out the subject — see [video-matting.md](video-matting.md).
+
 ## 3D content
 
 See [./3d.md](./3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
@@ -341,7 +345,7 @@ Use `npx remotion add` to add new packages with the right version:
 npx remotion add @remotion/media
 ```
 
-This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, and `zod`.
+This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and `@huggingface/transformers`.
 
 ## Previewing markup
 
