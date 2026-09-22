@@ -69,6 +69,7 @@ const disposals = new Map<VideoMattingModel, Promise<void>>();
 
 export type LoadVideoMattingModelOptions = {
 	model: VideoMattingModel;
+	signal?: AbortSignal;
 	onProgress?: OnVideoMattingModelLoadProgress;
 };
 
@@ -365,17 +366,37 @@ export const disposeVideoMattingModel = async ({
 
 export const loadVideoMattingModel = async ({
 	model,
+	signal,
 	onProgress,
 }: LoadVideoMattingModelOptions): Promise<LoadVideoMattingModelResult> => {
+	signal?.throwIfAborted();
 	const {state, alreadyLoaded} = getOrCreateVideoMattingPipeline({model});
+	state.pendingUses++;
 	const unsubscribe = subscribeToProgress(state, onProgress);
 	try {
-		await state.loading;
+		await waitForLoadingOrAbort({
+			loading: state.loading,
+			signal: signal ?? null,
+		});
+		signal?.throwIfAborted();
+		state.retainedLoadHandles++;
 	} finally {
 		unsubscribe();
+		state.pendingUses--;
+		notifyIfIdle(state);
+		if (
+			signal?.aborted &&
+			state.pendingUses === 0 &&
+			state.activeUses === 0 &&
+			state.retainedLoadHandles === 0 &&
+			pipelines.get(model) === state
+		) {
+			// GPU initialization cannot be interrupted. Release the unused model
+			// once it finishes without delaying the canceled caller.
+			disposeVideoMattingModel({model}).catch(() => undefined);
+		}
 	}
 
-	state.retainedLoadHandles++;
 	let released = false;
 	const result = {alreadyLoaded} as LoadVideoMattingModelResult;
 	Object.defineProperty(result, Symbol.asyncDispose, {

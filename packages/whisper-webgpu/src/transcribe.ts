@@ -1,3 +1,4 @@
+import type {Tensor} from '@huggingface/transformers';
 import {
 	withLoadedWhisperPipeline,
 	type OnWhisperWebGpuModelLoadProgress,
@@ -32,6 +33,7 @@ export type TranscribeOptions = {
 	repetitionPenalty?: number;
 	noRepeatNgramSize?: number;
 	onModelLoadProgress?: OnWhisperWebGpuModelLoadProgress;
+	signal?: AbortSignal;
 };
 
 type TransformersJsWord = {
@@ -58,7 +60,9 @@ export const transcribe = async ({
 	repetitionPenalty = 1,
 	noRepeatNgramSize = 0,
 	onModelLoadProgress,
+	signal,
 }: TranscribeOptions): Promise<WhisperWebGpuTranscription> => {
+	signal?.throwIfAborted();
 	if (channelWaveform.length === 0) {
 		throw new Error('The audio waveform is empty.');
 	}
@@ -135,7 +139,26 @@ export const transcribe = async ({
 	const output = await withLoadedWhisperPipeline({
 		model,
 		onProgress: onModelLoadProgress,
+		signal: signal ?? null,
 		run: async (transcriber) => {
+			let logitsProcessor = null;
+			if (signal) {
+				const {LogitsProcessor, LogitsProcessorList} =
+					await import('@huggingface/transformers');
+				// Whisper in Transformers.js 4.2.0 does not forward stopping_criteria.
+				// Its logits processors run for each token, including across audio chunks.
+				class AbortLogitsProcessor extends LogitsProcessor {
+					_call(_inputIds: bigint[][], logits: Tensor) {
+						signal?.throwIfAborted();
+						return logits;
+					}
+				}
+
+				logitsProcessor = new LogitsProcessorList();
+				logitsProcessor.push(new AbortLogitsProcessor());
+			}
+
+			signal?.throwIfAborted();
 			return (await transcriber(channelWaveform, {
 				return_timestamps: 'word',
 				chunk_length_s: chunkLengthInSeconds,
@@ -146,10 +169,12 @@ export const transcribe = async ({
 				top_k: topK,
 				repetition_penalty: repetitionPenalty,
 				no_repeat_ngram_size: noRepeatNgramSize,
+				...(logitsProcessor ? {logits_processor: logitsProcessor} : {}),
 				...(multilingual ? {language, task} : {}),
 			})) as TransformersJsTranscription;
 		},
 	});
+	signal?.throwIfAborted();
 
 	if (!output.chunks) {
 		throw new Error(

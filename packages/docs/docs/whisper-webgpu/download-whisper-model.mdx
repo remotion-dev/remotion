@@ -47,6 +47,10 @@ Bytes downloaded in this call.
 
 Estimated total model size in bytes.
 
+### signal?<AvailableFrom v="4.0.528" />
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling the download. Default: no cancellation signal. Calling `abort()` on its controller rejects the promise with the signal's reason and removes the incomplete file. Already downloaded files remain cached and can be reused on retry.
+
 ## Return value
 
 ### alreadyDownloaded

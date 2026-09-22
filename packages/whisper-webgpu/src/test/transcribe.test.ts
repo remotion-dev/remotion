@@ -1,8 +1,11 @@
 import {expect, mock, test} from 'bun:test';
 import {existsSync} from 'node:fs';
-import {mkdtemp, readFile, rm, unlink} from 'node:fs/promises';
+import {mkdtemp, readFile, readdir, rm, unlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import * as Transformers from '@huggingface/transformers';
+
+const {LogitsProcessor, LogitsProcessorList} = Transformers;
 
 let pipelineInitialization:
 	| {
@@ -36,6 +39,8 @@ let pipelineInitializationGate: Promise<void> | null = null;
 let onPipelineInitializationStarted: (() => void) | null = null;
 let transcriptionGate: Promise<void> | null = null;
 let onTranscriptionStarted: (() => void) | null = null;
+let onTranscriptionToken: (() => void) | null = null;
+let transcriptionTokens = 0;
 let cacheCheck:
 	| {
 			task: string;
@@ -109,6 +114,21 @@ const fakePipeline = Object.assign(
 		transcriptionCall = {audio, options};
 		onTranscriptionStarted?.();
 		await transcriptionGate;
+
+		for (let token = 0; token < 3; token++) {
+			const processors = options.logits_processor as
+				| {_call: (inputIds: bigint[][], logits: object) => object}
+				| undefined;
+			const logits = {token};
+			if (processors && processors._call([], logits) !== logits) {
+				throw new Error('The logits processor must return the logits.');
+			}
+
+			transcriptionTokens++;
+			onTranscriptionToken?.();
+			await Promise.resolve();
+		}
+
 		return {
 			text: ' Hello world free today.',
 			chunks: [
@@ -130,6 +150,8 @@ const fakePipeline = Object.assign(
 
 mock.module('@huggingface/transformers', () => ({
 	env: transformersEnvironment,
+	LogitsProcessor,
+	LogitsProcessorList,
 	ModelRegistry: {
 		is_pipeline_cached_files: (_task: string, modelId: string) => {
 			const files = downloadFiles.map((file) => ({
@@ -919,4 +941,186 @@ test('waits for active transcriptions before disposal', async () => {
 	expect(disposeCalls).toBe(disposalsBeforeTranscription + 1);
 	transcriptionGate = null;
 	onTranscriptionStarted = null;
+});
+
+test('cancels a download, removes the incomplete file, and downloads successfully on retry', async () => {
+	const {downloadWhisperModel} = await import('../index');
+	downloadCacheDir = await mkdtemp(join(tmpdir(), 'remotion-whisper-abort-'));
+	const environment =
+		transformersEnvironment as typeof transformersEnvironment & {
+			cacheDir: string;
+		};
+	environment.cacheDir = downloadCacheDir;
+	checkDownloadedFiles = true;
+	const controller = new AbortController();
+	try {
+		await expect(
+			downloadWhisperModel({
+				model: 'tiny.en',
+				signal: controller.signal,
+				onProgress: ({loadedBytes}) => {
+					if (loadedBytes > 0) {
+						controller.abort();
+					}
+				},
+			}),
+		).rejects.toMatchObject({name: 'AbortError'});
+		expect(
+			await readdir(join(downloadCacheDir, 'whisper-tiny.en_timestamped-v1')),
+		).toEqual([]);
+		expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
+
+		await expect(downloadWhisperModel({model: 'tiny.en'})).resolves.toEqual({
+			alreadyDownloaded: false,
+		});
+		for (const file of downloadFiles) {
+			expect(
+				await readFile(
+					join(downloadCacheDir, 'whisper-tiny.en_timestamped-v1', file),
+					'utf8',
+				),
+			).toBe(
+				`https://remotion.media/models/whisper-tiny.en_timestamped-v1/${file}`,
+			);
+		}
+	} finally {
+		checkDownloadedFiles = false;
+		await rm(downloadCacheDir, {recursive: true, force: true});
+		downloadCacheDir = '';
+		environment.cacheDir = '';
+	}
+});
+
+test('preserves the abort reason when the browser cache rejects an interrupted response', async () => {
+	const {downloadWhisperModel} = await import('../index');
+	const environment =
+		transformersEnvironment as typeof transformersEnvironment & {
+			useCustomCache: boolean;
+			customCache: {
+				put: (key: string, response: Response) => Promise<void>;
+			} | null;
+		};
+	const previousCache = environment.customCache;
+	const previousUseCustomCache = environment.useCustomCache;
+	const cachedFiles = new Map<string, ArrayBuffer>();
+	environment.useCustomCache = true;
+	environment.customCache = {
+		put: async (key, response) => {
+			try {
+				cachedFiles.set(key, await response.arrayBuffer());
+			} catch {
+				// Cache.put() rejects errored response bodies with a TypeError.
+				throw new TypeError('Failed to read the response body');
+			}
+		},
+	};
+	const controller = new AbortController();
+	const reason = new Error('Canceled by the caller');
+	try {
+		await expect(
+			downloadWhisperModel({
+				model: 'tiny.en',
+				signal: controller.signal,
+				onProgress: ({loadedBytes}) => {
+					if (loadedBytes > 0) {
+						controller.abort(reason);
+					}
+				},
+			}),
+		).rejects.toBe(reason);
+		expect(cachedFiles.size).toBe(0);
+	} finally {
+		environment.customCache = previousCache;
+		environment.useCustomCache = previousUseCustomCache;
+	}
+});
+
+test('cancels model initialization without disposing another caller’s model handle', async () => {
+	const {loadWhisperModel} = await import('../index');
+	let releaseInitialization: () => void = () => {};
+	pipelineInitializationGate = new Promise<void>((resolve) => {
+		releaseInitialization = resolve;
+	});
+	const initializationStarted = new Promise<void>((resolve) => {
+		onPipelineInitializationStarted = resolve;
+	});
+	const controller = new AbortController();
+	const disposalsBeforeLoading = disposeCalls;
+	try {
+		const canceledLoad = loadWhisperModel({
+			model: 'base.en',
+			signal: controller.signal,
+		});
+		await initializationStarted;
+		const retainedLoad = loadWhisperModel({model: 'base.en'});
+		controller.abort();
+		releaseInitialization();
+		await expect(canceledLoad).rejects.toMatchObject({name: 'AbortError'});
+		const retained = await retainedLoad;
+		expect(retained.alreadyLoaded).toBe(true);
+		expect(disposeCalls).toBe(disposalsBeforeLoading);
+		await retained[Symbol.asyncDispose]();
+		expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
+
+		await expect(
+			loadWhisperModel({
+				model: 'base.en',
+				signal: controller.signal,
+			}),
+		).rejects.toMatchObject({name: 'AbortError'});
+		const singleController = new AbortController();
+		await expect(
+			loadWhisperModel({
+				model: 'base.en',
+				signal: singleController.signal,
+				onProgress: () => singleController.abort(),
+			}),
+		).rejects.toMatchObject({name: 'AbortError'});
+		expect(disposeCalls).toBe(disposalsBeforeLoading + 2);
+		await using retry = await loadWhisperModel({model: 'base.en'});
+		expect(retry.alreadyLoaded).toBe(false);
+	} finally {
+		releaseInitialization();
+		pipelineInitializationGate = null;
+		onPipelineInitializationStarted = null;
+	}
+});
+
+test('stops active token generation and can transcribe again after cancellation', async () => {
+	const {loadWhisperModel, transcribe} = await import('../index');
+	const channelWaveform = new Float32Array(16_000);
+	const controller = new AbortController();
+	const disposalsBeforeLoading = disposeCalls;
+	const tokensBeforeTranscription = transcriptionTokens;
+	try {
+		await using loaded = await loadWhisperModel({model: 'tiny.en'});
+		expect(loaded.alreadyLoaded).toBe(false);
+		onTranscriptionToken = () => controller.abort();
+		await expect(
+			transcribe({
+				channelWaveform,
+				model: 'tiny.en',
+				signal: controller.signal,
+			}),
+		).rejects.toMatchObject({name: 'AbortError'});
+		expect(transcriptionTokens - tokensBeforeTranscription).toBe(1);
+		expect(disposeCalls).toBe(disposalsBeforeLoading);
+
+		onTranscriptionToken = null;
+		await expect(
+			transcribe({
+				channelWaveform,
+				model: 'tiny.en',
+				signal: new AbortController().signal,
+			}),
+		).resolves.toMatchObject({
+			text: 'Hello world free today.',
+			model: 'tiny.en',
+		});
+		expect(transcriptionTokens - tokensBeforeTranscription).toBe(4);
+	} finally {
+		onTranscriptionToken = null;
+	}
+
+	expect(disposeCalls).toBe(disposalsBeforeLoading + 1);
 });

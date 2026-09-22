@@ -18,6 +18,7 @@ export type VideoMattingModelDownloadProgress = {
 
 export type DownloadVideoMattingModelOptions = {
 	model: VideoMattingModel;
+	signal?: AbortSignal;
 	onProgress?: (progress: VideoMattingModelDownloadProgress) => void;
 };
 
@@ -27,12 +28,18 @@ export type DownloadVideoMattingModelResult = {
 
 export const downloadVideoMattingModel = ({
 	model,
+	signal,
 	onProgress,
 }: DownloadVideoMattingModelOptions): Promise<DownloadVideoMattingModelResult> => {
 	const modelInfo = getVideoMattingModelInfo(model);
 	const totalBytes = modelInfo.webGpuDownloadSize;
 	const hostedModelId = getHostedVideoMattingModelId(model);
+	if (signal?.aborted) {
+		return Promise.reject(signal.reason);
+	}
+
 	return withRemotionModelHost(async ({env, ModelRegistry}) => {
+		signal?.throwIfAborted();
 		const cache = env.useCustomCache
 			? env.customCache
 			: env.useBrowserCache && typeof caches !== 'undefined'
@@ -54,6 +61,7 @@ export const downloadVideoMattingModel = ({
 			hostedModelId,
 			registryOptions,
 		);
+		signal?.throwIfAborted();
 		if (cacheStatus.allCached) {
 			onProgress?.({
 				file: null,
@@ -61,6 +69,7 @@ export const downloadVideoMattingModel = ({
 				loadedBytes: totalBytes,
 				totalBytes,
 			});
+			signal?.throwIfAborted();
 			return {alreadyDownloaded: true};
 		}
 
@@ -77,6 +86,7 @@ export const downloadVideoMattingModel = ({
 		emitProgress(null);
 
 		for (const {file, cached} of cacheStatus.files) {
+			signal?.throwIfAborted();
 			if (cached) {
 				continue;
 			}
@@ -84,75 +94,90 @@ export const downloadVideoMattingModel = ({
 			const url = `${env.remoteHost}${env.remotePathTemplate.replace('{model}', hostedModelId)}${file}`;
 			// Transformers.js 4.2.0 keys browser caches by URL and its FileCache by model/file.
 			const cacheKey = cache === null ? `${hostedModelId}/${file}` : url;
-			const response = await env.fetch(url);
+			const response = await env.fetch(url, {signal});
 			if (!response.ok || response.body === null) {
 				throw new Error(`Could not download ${url}: HTTP ${response.status}.`);
 			}
 
 			const reader = response.body.getReader();
-			if (cache !== null) {
-				const stream = new ReadableStream<Uint8Array>({
-					async pull(controller) {
-						try {
-							const {done, value} = await reader.read();
-							if (done) {
-								controller.close();
-								return;
+			const onAbort = () => {
+				reader.cancel(signal?.reason).catch(() => undefined);
+			};
+
+			signal?.addEventListener('abort', onAbort, {once: true});
+			try {
+				signal?.throwIfAborted();
+				if (cache !== null) {
+					const stream = new ReadableStream<Uint8Array>({
+						async pull(controller) {
+							try {
+								const {done, value} = await reader.read();
+								signal?.throwIfAborted();
+								if (done) {
+									controller.close();
+									return;
+								}
+
+								loadedBytes += value.byteLength;
+								emitProgress(file);
+								signal?.throwIfAborted();
+								controller.enqueue(value);
+							} catch (error) {
+								controller.error(error);
 							}
-
-							loadedBytes += value.byteLength;
-							emitProgress(file);
-							controller.enqueue(value);
-						} catch (error) {
-							controller.error(error);
-						}
-					},
-					cancel: () => reader.cancel(),
-				});
-				await cache.put(
-					cacheKey,
-					new Response(stream, {headers: response.headers}),
-				);
-			} else {
-				// Match Transformers.js FileCache's model/file layout without loading ONNX.
-				const [{mkdir, open, rename, unlink}, {join, dirname}, {randomUUID}] =
-					await Promise.all([
-						importNodeModule<typeof NodeFsPromises>('node:fs/promises'),
-						importNodeModule<typeof NodePath>('node:path'),
-						importNodeModule<typeof NodeCrypto>('node:crypto'),
-					]);
-				if (env.cacheDir === null) {
-					throw new Error('Transformers.js env.cacheDir must be set.');
-				}
-
-				const destination = join(env.cacheDir, cacheKey);
-				const temporary = `${destination}.tmp.${randomUUID()}`;
-				await mkdir(dirname(destination), {recursive: true});
-				const handle = await open(temporary, 'wx');
-				try {
-					while (true) {
-						const {done, value} = await reader.read();
-						if (done) {
-							break;
-						}
-
-						await handle.writeFile(value);
-						loadedBytes += value.byteLength;
-						emitProgress(file);
+						},
+						cancel: () => reader.cancel(),
+					});
+					await cache.put(
+						cacheKey,
+						new Response(stream, {headers: response.headers}),
+					);
+				} else {
+					// Match Transformers.js FileCache's model/file layout without loading ONNX.
+					const [{mkdir, open, rename, unlink}, {join, dirname}, {randomUUID}] =
+						await Promise.all([
+							importNodeModule<typeof NodeFsPromises>('node:fs/promises'),
+							importNodeModule<typeof NodePath>('node:path'),
+							importNodeModule<typeof NodeCrypto>('node:crypto'),
+						]);
+					if (env.cacheDir === null) {
+						throw new Error('Transformers.js env.cacheDir must be set.');
 					}
 
-					await handle.close();
-					await rename(temporary, destination);
-				} catch (error) {
-					await Promise.allSettled([handle.close(), reader.cancel(error)]);
-					await unlink(temporary).catch(() => undefined);
-					throw error;
-				} finally {
-					reader.releaseLock();
+					const destination = join(env.cacheDir, cacheKey);
+					const temporary = `${destination}.tmp.${randomUUID()}`;
+					await mkdir(dirname(destination), {recursive: true});
+					const handle = await open(temporary, 'wx');
+					try {
+						while (true) {
+							const {done, value} = await reader.read();
+							signal?.throwIfAborted();
+							if (done) {
+								break;
+							}
+
+							await handle.writeFile(value);
+							loadedBytes += value.byteLength;
+							emitProgress(file);
+						}
+
+						await handle.close();
+						signal?.throwIfAborted();
+						await rename(temporary, destination);
+					} catch (error) {
+						await Promise.allSettled([handle.close(), reader.cancel(error)]);
+						await unlink(temporary).catch(() => undefined);
+						throw error;
+					}
 				}
+			} finally {
+				signal?.removeEventListener('abort', onAbort);
+				await reader.cancel().catch(() => undefined);
+				reader.releaseLock();
 			}
 		}
 
+		signal?.throwIfAborted();
 		if (
 			!(await ModelRegistry.is_pipeline_cached(
 				'background-removal',
@@ -165,12 +190,17 @@ export const downloadVideoMattingModel = ({
 			);
 		}
 
+		signal?.throwIfAborted();
 		onProgress?.({
 			file: null,
 			progress: 1,
 			loadedBytes: totalBytes,
 			totalBytes,
 		});
+		signal?.throwIfAborted();
 		return {alreadyDownloaded: false};
+	}).catch((error) => {
+		signal?.throwIfAborted();
+		throw error;
 	});
 };
