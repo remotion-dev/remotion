@@ -7,7 +7,7 @@
 import type {webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {HotMiddlewareMessage, ModuleMap} from '@remotion/studio-shared';
+import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {logHmrTiming} from '../hmr-timing';
 import type {LiveEventsServer} from '../live-events';
 import type {WebpackStats} from './types';
@@ -175,14 +175,16 @@ function publishStats(
 ) {
 	const stats = statsResult.toJson({
 		all: false,
-		cached: true,
 		children: true,
-		modules: true,
 		timings: true,
 		hash: true,
 	});
-	// For multi-compiler, stats will be an object with a 'children' array of stats
-	const bundles = extractBundles(stats);
+	// A single compilation may also have child compilations. Only MultiStats
+	// should publish its children instead of the parent compilation.
+	const bundles =
+		statsResult.compilation || !stats.children?.length
+			? [stats]
+			: stats.children;
 	bundles.forEach((_stats: WebpackStats) => {
 		let name = _stats.name || '';
 
@@ -198,31 +200,9 @@ function publishStats(
 			hash: _stats.hash,
 			warnings: _stats.warnings || [],
 			errors: _stats.errors || [],
-			modules: buildModuleMap(_stats.modules),
+			// Module names only label browser console messages. The client already
+			// falls back to module IDs, which are named in development builds.
+			modules: {},
 		});
 	});
-}
-
-function extractBundles(stats: WebpackStats) {
-	// Stats has modules, single bundle
-	if (stats.modules) return [stats];
-
-	// Stats has children, multiple bundles
-	if (stats.children?.length) return stats.children;
-
-	// Not sure, assume single
-	return [stats];
-}
-
-function buildModuleMap(modules: WebpackStats['modules']): ModuleMap {
-	const map: {[key: string]: string} = {};
-	if (!modules) {
-		return map;
-	}
-
-	modules.forEach((module) => {
-		const id = module.id as string;
-		map[id] = module.name as string;
-	});
-	return map;
 }
