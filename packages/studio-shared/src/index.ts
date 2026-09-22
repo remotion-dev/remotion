@@ -75,6 +75,8 @@ export {
 	InsertElementFileConflict,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
+	InsertVideoLayersRequest,
+	InsertVideoLayersResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,

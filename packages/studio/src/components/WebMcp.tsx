@@ -778,6 +778,7 @@ export const WebMcp: FC = () => {
 							foregroundOutName: foregroundOutputPath,
 							model,
 							src,
+							target: null,
 							videoBitrate,
 						});
 						return {

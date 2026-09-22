@@ -65,6 +65,7 @@ export {
 } from './generate-canvas-capture-composition';
 export {getJsxElementsWithNodePaths} from './get-jsx-elements-with-node-paths';
 export {insertBasicCaptions} from './insert-basic-captions';
+export {insertVideoLayers} from './insert-video-layers';
 export {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,

@@ -20,6 +20,7 @@ import {
 } from './CircularProgress';
 import {RenderQueueContext} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
+import {QueueJobError} from './QueueJobError';
 import {SuccessIcon} from './SuccessIcon';
 import type {VideoMattingJob} from './video-matting-job-types';
 
@@ -197,11 +198,18 @@ export const VideoMattingQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
 				<div style={subtitles} title={tooltip}>
-					{messages.map((message) => (
-						<span key={message} style={subtitle}>
-							{message}
-						</span>
-					))}
+					{job.status === 'failed' ? (
+						<QueueJobError
+							error={job.error}
+							modalTitle="Video matting failed"
+						/>
+					) : (
+						messages.map((message) => (
+							<span key={message} style={subtitle}>
+								{message}
+							</span>
+						))
+					)}
 				</div>
 			</div>
 			<Spacing x={1} />

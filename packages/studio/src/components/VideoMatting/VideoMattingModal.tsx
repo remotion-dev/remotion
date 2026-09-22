@@ -108,6 +108,7 @@ const makeOptions = <Value extends string>({
 export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	displayName,
 	src,
+	target,
 }) => {
 	const [tab, setTab] = useState<Tab>('separate');
 	const isModelCached = useCallback(
@@ -128,7 +129,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	const [foregroundOutName, setForegroundOutName] = useState(
 		`${baseName}-foreground.webm`,
 	);
-	const [model, setModel] = useState<VideoMattingModel>('ben2-base');
+	const [model, setModel] = useState<VideoMattingModel>('modnet');
 	const [audio, setAudio] = useState<VideoLayerAudio>('base');
 	const [videoBitrate, setVideoBitrate] =
 		useState<VideoMattingBitrate>('very-high');
@@ -244,6 +245,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 			model,
 			audio,
 			videoBitrate,
+			target,
 		});
 		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedOptionsSidebarPanel('renders');
@@ -260,13 +262,16 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		setSelectedModal,
 		setSidebarCollapsedState,
 		src,
+		target,
 		videoBitrate,
 	]);
+	const title =
+		target === null ? `Track matting ${displayName}` : 'Separate foreground';
 
 	return (
-		<DismissableModal ariaLabel={`Track matting ${displayName}`}>
+		<DismissableModal ariaLabel={title}>
 			<div style={modalStyle}>
-				<ModalHeader title={`Track matting ${displayName}`} />
+				<ModalHeader title={title} />
 				<div style={container}>
 					<div style={flexer} />
 					<Button

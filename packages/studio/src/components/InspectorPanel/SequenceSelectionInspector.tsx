@@ -7,6 +7,7 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
+import {SeparationIcon} from '../../icons/separation';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
@@ -169,6 +170,11 @@ const SequenceSourceQuickActions: React.FC<{
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
 			? 'Programmatically duplicated media cannot be transcribed from source'
 			: undefined;
+	const videoMattingDisabledReason = sourceActionsDisabled
+		? 'Studio is read-only'
+		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+			? 'Programmatically duplicated videos cannot be separated from source'
+			: undefined;
 	const onGenerateCaptions = useCallback(() => {
 		if (transcriptionDisabledReason !== undefined || mediaSequence === null) {
 			return;
@@ -197,6 +203,33 @@ const SequenceSourceQuickActions: React.FC<{
 		setSelectedModal,
 		mediaSequence,
 		transcriptionDisabledReason,
+	]);
+	const onSeparateForeground = useCallback(() => {
+		if (
+			videoMattingDisabledReason !== undefined ||
+			track.sequence.type !== 'video'
+		) {
+			return;
+		}
+
+		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		setSelectedModal({
+			type: 'video-matting',
+			src: track.sequence.src,
+			displayName: getMediaFileName(
+				track.sequence.src,
+				track.sequence.displayName,
+			),
+			target: {
+				fileName: nodePath.absolutePath,
+				nodePath,
+			},
+		});
+	}, [
+		selection.nodePathInfo,
+		setSelectedModal,
+		track.sequence,
+		videoMattingDisabledReason,
 	]);
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
@@ -252,6 +285,18 @@ const SequenceSourceQuickActions: React.FC<{
 					)}
 				>
 					{freezeFrameMenuItem.label}
+				</InspectorQuickAction>
+			) : null}
+			{track.sequence.type === 'video' ? (
+				<InspectorQuickAction
+					disabled={videoMattingDisabledReason !== undefined}
+					onClick={onSeparateForeground}
+					title={videoMattingDisabledReason}
+					renderIcon={(color) => (
+						<SeparationIcon style={actionIconStyle} color={color} />
+					)}
+				>
+					Separate foreground
 				</InspectorQuickAction>
 			) : null}
 			{track.sequence.type === 'video' ? (
