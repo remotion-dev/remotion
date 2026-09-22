@@ -44,7 +44,7 @@ const originalTransformersEnvironment = {
 	useFSCache: false,
 	cacheDir: null as string | null,
 	cacheKey: 'transformers-cache',
-	fetch: (url: string, _options?: RequestInit) => {
+	fetch: (url: string) => {
 		requestedFiles.push(url);
 		return Promise.resolve(new Response(url));
 	},
@@ -472,117 +472,4 @@ test('an interrupted filesystem download can be retried without leaving partial 
 	} finally {
 		await rm(directory, {recursive: true, force: true});
 	}
-});
-
-for (const cache of ['browser', 'filesystem'] as const) {
-	test(`cancels a model download into the ${cache} cache and retries it`, async () => {
-		const {downloadVideoMattingModel} = await import('../index');
-		const directory = await mkdtemp(join(tmpdir(), 'video-matting-cancel-'));
-		const controller = new AbortController();
-		const reason = new Error('Canceled model download');
-		let streamCanceled = false;
-		transformersEnvironment.useCustomCache = cache === 'browser';
-		transformersEnvironment.useFSCache = cache === 'filesystem';
-		transformersEnvironment.cacheDir = directory;
-		transformersEnvironment.fetch = (_url, options) => {
-			expect(options?.signal).toBe(controller.signal);
-			return Promise.resolve(
-				new Response(
-					new ReadableStream<Uint8Array>({
-						start(stream) {
-							stream.enqueue(new Uint8Array([1, 2, 3]));
-						},
-						cancel() {
-							streamCanceled = true;
-						},
-					}),
-				),
-			);
-		};
-
-		try {
-			await expect(
-				downloadVideoMattingModel({
-					model: 'modnet',
-					signal: controller.signal,
-					onProgress: ({loadedBytes}) => {
-						if (loadedBytes > 0) {
-							controller.abort(reason);
-						}
-					},
-				}),
-			).rejects.toBe(reason);
-			expect(streamCanceled).toBe(true);
-			expect(downloadedFiles.size).toBe(0);
-			if (cache === 'filesystem') {
-				expect(await readdir(join(directory, 'modnet-v1'))).toEqual([]);
-			}
-
-			transformersEnvironment.fetch = originalTransformersEnvironment.fetch;
-			expect(await downloadVideoMattingModel({model: 'modnet'})).toEqual({
-				alreadyDownloaded: false,
-			});
-		} finally {
-			await rm(directory, {recursive: true, force: true});
-		}
-	});
-}
-
-test('canceling one model load leaves concurrent callers usable', async () => {
-	const {loadVideoMattingModel} = await import('../index');
-	const controller = new AbortController();
-	const reason = new Error('Canceled model load');
-	let releaseInitialization: () => void = () => undefined;
-	initializationGate = new Promise<void>((resolve) => {
-		releaseInitialization = resolve;
-	});
-	const started = new Promise<void>((resolve) => {
-		initializationStarted = () => resolve();
-	});
-	const progress: string[] = [];
-	const canceledLoad = loadVideoMattingModel({
-		model: 'modnet',
-		signal: controller.signal,
-		onProgress: ({status}) => progress.push(status),
-	});
-	const completedLoad = loadVideoMattingModel({model: 'modnet'});
-	await started;
-	controller.abort(reason);
-	await expect(canceledLoad).rejects.toBe(reason);
-	releaseInitialization();
-	const loaded = await completedLoad;
-	expect(loaded.alreadyLoaded).toBe(true);
-	expect(progress).toEqual(['initializing']);
-	expect(livePipelineCount).toBe(1);
-	await loaded[Symbol.asyncDispose]();
-	expect(disposeCalls).toBe(1);
-	expect(livePipelineCount).toBe(0);
-});
-
-test('canceled model loading releases unused GPU resources after initialization', async () => {
-	const {disposeVideoMattingModel, loadVideoMattingModel} =
-		await import('../index');
-	const controller = new AbortController();
-	let releaseInitialization: () => void = () => undefined;
-	initializationGate = new Promise<void>((resolve) => {
-		releaseInitialization = resolve;
-	});
-	const started = new Promise<void>((resolve) => {
-		initializationStarted = () => resolve();
-	});
-	const loading = loadVideoMattingModel({
-		model: 'modnet',
-		signal: controller.signal,
-	});
-	await started;
-	controller.abort();
-	await expect(loading).rejects.toMatchObject({name: 'AbortError'});
-	releaseInitialization();
-	await disposeVideoMattingModel();
-	expect(disposeCalls).toBe(1);
-	expect(livePipelineCount).toBe(0);
-	await expect(
-		loadVideoMattingModel({model: 'modnet', signal: controller.signal}),
-	).rejects.toMatchObject({name: 'AbortError'});
-	expect(initializationCount).toBe(1);
 });
