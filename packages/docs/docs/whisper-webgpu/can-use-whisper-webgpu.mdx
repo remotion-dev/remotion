@@ -8,7 +8,7 @@ crumb: '@remotion/whisper-webgpu'
 
 Asynchronously checks whether WebGPU transcription is supported in the current environment.
 
-In a browser, WebGPU, a usable adapter, and a secure context (or localhost) are required. Node.js support is available from <AvailableFrom v="4.0.527" inline />. In Node.js, the function creates and disposes a tiny ONNX Runtime session using the WebGPU execution provider. This checks whether ONNX Runtime can acquire a WebGPU adapter without downloading a Whisper model or running inference.
+In a browser, WebGPU, a usable adapter, and a secure context (or localhost) are required. Node.js support is available from <AvailableFrom v="4.0.528" inline />. In Node.js, the function creates and disposes a tiny ONNX Runtime session using the WebGPU execution provider. This checks whether ONNX Runtime can acquire a WebGPU adapter without downloading a Whisper model or running inference.
 
 ```ts twoslash title="support.ts"
 import {canUseWhisperWebGpu} from '@remotion/whisper-webgpu';

@@ -169,7 +169,7 @@ Returns a promise resolving to a `Blob`, unless `outputs.base.outputWritable` wa
 
 Releases temporary storage owned by the base output. Call it after `base.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
 
-#### `base[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+#### `base[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
 
 Calls `base.dispose()` when an `await using` scope ends.
 
@@ -185,7 +185,7 @@ Returns a promise resolving to a `Blob`, unless `outputs.foreground.outputWritab
 
 Releases temporary storage owned by the foreground output. Call it after `foreground.getBlob()` has resolved. The method is idempotent and has no effect for `arraybuffer` or custom writable outputs.
 
-#### `foreground[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+#### `foreground[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
 
 Calls `foreground.dispose()` when an `await using` scope ends.
 
@@ -209,7 +209,7 @@ The duration of the processed video in seconds.
 
 The number of video frames processed.
 
-### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.527" />
+### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
 
 Disposes both outputs when an `await using` scope ends. Retrieve any blobs before leaving the scope; blobs returned by `getBlob()` remain usable afterward. The loaded model remains in memory for reuse.
 
