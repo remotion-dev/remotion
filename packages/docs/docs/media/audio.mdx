@@ -361,6 +361,12 @@ Pass this prop to disable the fallback and fail the render instead.
 When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the audio cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
 :::
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="Supported codecs" serverSideRendering player studio hideServers />
+
+See [supported media](/docs/media/support). Unsupported codecs may use a [fallback](/docs/media/fallback) during preview and server-side rendering; client-side rendering requires a decodable source and cannot fall back.
+
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/audio/audio.tsx)
