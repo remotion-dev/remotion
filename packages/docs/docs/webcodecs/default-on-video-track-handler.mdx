@@ -71,12 +71,6 @@ export const defaultOnVideoTrackHandler: ConvertMediaOnVideoTrackHandler = async
 };
 ```
 
-## Compatibility
-
-<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
-
-The handler can run without WebCodecs. Re-encoding is selected only when the runtime supports the required decoder and encoder; otherwise it copies, drops or rejects the track.
-
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/default-on-video-track-handler.ts)

@@ -96,12 +96,6 @@ The sample rate with which you'd like to re-encode the audio track. If the sampl
 
 Returns a `Promise<boolean>`.
 
-## Compatibility
-
-<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
-
-This capability check can run without WebCodecs. A `true` result for PCM-to-WAV conversion still requires `AudioData` and `EncodedAudioChunk` to perform the conversion. Other supported codecs vary by browser and operating system.
-
 ## See also
 
 - [Source code for this function on GitHub](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/can-reencode-audio-track.ts)
