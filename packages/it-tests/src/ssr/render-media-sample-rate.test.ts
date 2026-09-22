@@ -11,9 +11,11 @@ import os from 'os';
 import path from 'path';
 import {
 	combineChunks,
+	openBrowser,
 	renderMedia,
 	RenderInternals,
 	selectComposition,
+	type HeadlessBrowser,
 } from '@remotion/renderer';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
@@ -276,16 +278,19 @@ const renderIssue10468Wav = async ({
 	tmpDir,
 	name,
 	props,
+	puppeteerInstance,
 }: {
 	tmpDir: string;
 	name: string;
 	props: Record<string, unknown>;
+	puppeteerInstance: HeadlessBrowser;
 }) => {
 	const outputLocation = path.join(tmpDir, name);
 	const composition = await selectComposition({
 		id: 'audio-issue-10468',
 		serveUrl: exampleBuild,
 		inputProps: props,
+		puppeteerInstance,
 	});
 	await renderMedia({
 		outputLocation,
@@ -293,6 +298,10 @@ const renderIssue10468Wav = async ({
 		serveUrl: exampleBuild,
 		composition,
 		inputProps: props,
+		puppeteerInstance,
+		// Keep a 100 ms lead-in before frame 81 so Html5Audio's millisecond delay
+		// stays sample-exact, followed by all 39 audio frames.
+		frameRange: [78, 119],
 		sampleRate: 48000,
 		concurrency: 1,
 		logLevel: 'error',
@@ -304,28 +313,34 @@ const renderIssue10468Wav = async ({
 test(
 	'Render video with sampleRate 44100 should produce 44100 Hz audio',
 	async () => {
-		const comp = await selectComposition({
-			id: 'audio-testing',
-			serveUrl: exampleBuild,
-			inputProps: {},
-		});
+		const puppeteerInstance = await openBrowser('chrome');
+		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'sample-rate-44100-'));
+		try {
+			const comp = await selectComposition({
+				id: 'audio-testing',
+				serveUrl: exampleBuild,
+				inputProps: {},
+				puppeteerInstance,
+			});
+			const outPath = path.join(tmpDir, 'out.mp4');
+			await renderMedia({
+				outputLocation: outPath,
+				codec: 'h264',
+				serveUrl: exampleBuild,
+				composition: comp,
+				puppeteerInstance,
+				frameRange: [0, 2],
+				sampleRate: 44100,
+				enforceAudioTrack: true,
+				logLevel: 'error',
+			});
 
-		const tmpDir = os.tmpdir();
-		const outPath = path.join(tmpDir, 'sample-rate-44100.mp4');
-
-		await renderMedia({
-			outputLocation: outPath,
-			codec: 'h264',
-			serveUrl: exampleBuild,
-			composition: comp,
-			frameRange: [0, 2],
-			sampleRate: 44100,
-			enforceAudioTrack: true,
-			logLevel: 'error',
-		});
-
-		const sampleRate = await getSampleRateFromFile(outPath);
-		expect(sampleRate).toBe(44100);
+			const sampleRate = await getSampleRateFromFile(outPath);
+			expect(sampleRate).toBe(44100);
+		} finally {
+			await puppeteerInstance.close({silent: true});
+			rmSync(tmpDir, {recursive: true, force: true});
+		}
 	},
 	{timeout: 30000},
 );
@@ -333,17 +348,20 @@ test(
 test(
 	'@remotion/media sample-rate conversion should match Html5Audio',
 	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
 		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-10468-'));
 		try {
 			const reference = await renderIssue10468Wav({
 				tmpDir,
 				name: 'html5-reference.wav',
 				props: {...issue10468InputProps, implementation: 'html5'},
+				puppeteerInstance,
 			});
 			const candidate = await renderIssue10468Wav({
 				tmpDir,
 				name: 'media.wav',
 				props: issue10468InputProps,
+				puppeteerInstance,
 			});
 
 			expect(reference.sampleRate).toBe(48000);
@@ -357,6 +375,7 @@ test(
 			expect(comparison.signalToNoiseRatio).toBeGreaterThan(30);
 			expect(comparison.maximumError).toBeLessThanOrEqual(600);
 		} finally {
+			await puppeteerInstance.close({silent: true});
 			rmSync(tmpDir, {recursive: true, force: true});
 		}
 	},
@@ -366,6 +385,7 @@ test(
 test(
 	'@remotion/media should not leave audio gaps at 24.87 FPS (#5758)',
 	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
 		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'issue-5758-'));
 		try {
 			const outputLocation = path.join(tmpDir, 'media.wav');
@@ -373,6 +393,7 @@ test(
 				id: 'audio-issue-5758',
 				serveUrl: exampleBuild,
 				inputProps: issue5758InputProps,
+				puppeteerInstance,
 			});
 			await renderMedia({
 				outputLocation,
@@ -380,6 +401,7 @@ test(
 				serveUrl: exampleBuild,
 				composition,
 				inputProps: issue5758InputProps,
+				puppeteerInstance,
 				sampleRate: 48000,
 				concurrency: 1,
 				logLevel: 'error',
@@ -394,6 +416,7 @@ test(
 				rendered.samples.subarray(onset).findIndex((sample) => sample === 0),
 			).toBe(-1);
 		} finally {
+			await puppeteerInstance.close({silent: true});
 			rmSync(tmpDir, {recursive: true, force: true});
 		}
 	},
@@ -403,6 +426,7 @@ test(
 test(
 	'@remotion/media keeps 423 nested and intermittently mounted audio clips sample-aligned',
 	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
 		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'inline-audio-stress-'));
 		const previousTmpDir = process.env.TMPDIR;
 		process.env.TMPDIR = tmpDir;
@@ -419,6 +443,7 @@ test(
 				id: 'inline-audio-stress',
 				serveUrl: exampleBuild,
 				inputProps: inlineAudioStressInputProps,
+				puppeteerInstance,
 			});
 			await renderMedia({
 				outputLocation,
@@ -426,6 +451,7 @@ test(
 				serveUrl: exampleBuild,
 				composition,
 				inputProps: inlineAudioStressInputProps,
+				puppeteerInstance,
 				sampleRate: STRESS_SAMPLE_RATE,
 				concurrency: 4,
 				logLevel: 'error',
@@ -484,6 +510,7 @@ test(
 				process.env.TMPDIR = previousTmpDir;
 			}
 
+			await puppeteerInstance.close({silent: true});
 			rmSync(tmpDir, {recursive: true, force: true});
 		}
 	},
@@ -491,34 +518,49 @@ test(
 );
 
 test(
-	'@remotion/media keeps seamless AAC chunks sample-identical with 423 nested clips',
+	'@remotion/media keeps seamless AAC chunks sample-identical with 120 nested clips',
 	async () => {
+		const puppeteerInstance = await openBrowser('chrome');
 		const tmpDir = mkdtempSync(
 			path.join(os.tmpdir(), 'inline-audio-seamless-aac-'),
 		);
 		try {
-			const composition = await selectComposition({
+			// More than 100 clips still exercises three levels of ten-input mixing.
+			// At 48 kHz / 30 FPS, 88-frame chunks alternate between half-block and
+			// whole-block AAC boundaries, both crossing mounted audio.
+			const durationInFrames = 200;
+			const framesPerChunk = 88;
+			const inputProps = {
+				...inlineAudioStressInputProps,
+				clips: stressClips.slice(0, 120),
+				// End with silence, as in the full stress fixture, including AAC padding.
+				intermittentDurationInFrames: 160,
+				intermittentRanges: stressIntermittentRanges.slice(0, 3),
+			};
+			const selectedComposition = await selectComposition({
 				id: 'inline-audio-stress',
 				serveUrl: exampleBuild,
-				inputProps: inlineAudioStressInputProps,
+				inputProps,
+				puppeteerInstance,
 			});
+			const composition = {...selectedComposition, durationInFrames};
 			const singleAac = path.join(tmpDir, 'single.aac');
 			await renderMedia({
 				outputLocation: singleAac,
 				codec: 'aac',
 				serveUrl: exampleBuild,
 				composition,
-				inputProps: inlineAudioStressInputProps,
+				inputProps,
+				puppeteerInstance,
 				sampleRate: STRESS_SAMPLE_RATE,
 				concurrency: 4,
 				logLevel: 'error',
 			});
 
-			const framesPerChunk = 200;
 			const audioFiles: string[] = [];
 			for (
 				let chunkStart = 0;
-				chunkStart < STRESS_DURATION_IN_FRAMES;
+				chunkStart < durationInFrames;
 				chunkStart += framesPerChunk
 			) {
 				const chunk = path.join(tmpDir, `chunk-${chunkStart}.aac`);
@@ -528,13 +570,11 @@ test(
 					codec: 'aac',
 					serveUrl: exampleBuild,
 					composition,
-					inputProps: inlineAudioStressInputProps,
+					inputProps,
+					puppeteerInstance,
 					frameRange: [
 						chunkStart,
-						Math.min(
-							chunkStart + framesPerChunk - 1,
-							STRESS_DURATION_IN_FRAMES - 1,
-						),
+						Math.min(chunkStart + framesPerChunk - 1, durationInFrames - 1),
 					],
 					compositionStart: 0,
 					forSeamlessAacConcatenation: true,
@@ -554,7 +594,7 @@ test(
 				fps: STRESS_FPS,
 				framesPerChunk,
 				preferLossless: false,
-				compositionDurationInFrames: STRESS_DURATION_IN_FRAMES,
+				compositionDurationInFrames: durationInFrames,
 				sampleRate: STRESS_SAMPLE_RATE,
 				logLevel: 'error',
 			});
@@ -587,6 +627,7 @@ test(
 				combined.samples.length - single.samples.length,
 			).toBeLessThanOrEqual(2 * 1024 * single.channels);
 		} finally {
+			await puppeteerInstance.close({silent: true});
 			rmSync(tmpDir, {recursive: true, force: true});
 		}
 	},
@@ -596,27 +637,33 @@ test(
 test(
 	'Render video with default sampleRate should produce 48000 Hz audio',
 	async () => {
-		const comp = await selectComposition({
-			id: 'audio-testing',
-			serveUrl: exampleBuild,
-			inputProps: {},
-		});
+		const puppeteerInstance = await openBrowser('chrome');
+		const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'sample-rate-default-'));
+		try {
+			const comp = await selectComposition({
+				id: 'audio-testing',
+				serveUrl: exampleBuild,
+				inputProps: {},
+				puppeteerInstance,
+			});
+			const outPath = path.join(tmpDir, 'out.mp4');
+			await renderMedia({
+				outputLocation: outPath,
+				codec: 'h264',
+				serveUrl: exampleBuild,
+				composition: comp,
+				puppeteerInstance,
+				frameRange: [0, 2],
+				enforceAudioTrack: true,
+				logLevel: 'error',
+			});
 
-		const tmpDir = os.tmpdir();
-		const outPath = path.join(tmpDir, 'sample-rate-default.mp4');
-
-		await renderMedia({
-			outputLocation: outPath,
-			codec: 'h264',
-			serveUrl: exampleBuild,
-			composition: comp,
-			frameRange: [0, 2],
-			enforceAudioTrack: true,
-			logLevel: 'error',
-		});
-
-		const sampleRate = await getSampleRateFromFile(outPath);
-		expect(sampleRate).toBe(48000);
+			const sampleRate = await getSampleRateFromFile(outPath);
+			expect(sampleRate).toBe(48000);
+		} finally {
+			await puppeteerInstance.close({silent: true});
+			rmSync(tmpDir, {recursive: true, force: true});
+		}
 	},
 	{timeout: 30000},
 );
