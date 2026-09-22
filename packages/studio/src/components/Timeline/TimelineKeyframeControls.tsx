@@ -34,7 +34,6 @@ import {
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
-import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
 import {
 	getNextKeyframeDisplayFrame,
 	getPreviousKeyframeDisplayFrame,
@@ -54,7 +53,6 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
-import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const NAV_BUTTON_SIZE = 14;
 const INSPECTOR_NAV_BUTTON_WIDTH = NAV_BUTTON_SIZE / 2;
@@ -757,25 +755,19 @@ export const TimelineKeyframeControls: React.FC<{
 					const change = getDeleteChange(target);
 					return change === null ? [] : [{target, change}];
 				});
-				const singleDeleteTarget = deleteTargets[0];
-				const easingSelection =
-					deleteTargets.length === 1 &&
-					singleDeleteTarget &&
-					isKeyframedStatus(singleDeleteTarget.target.propStatus) &&
-					canEditEasingForInterpolationFunction(
-						singleDeleteTarget.target.propStatus.interpolationFunction,
-					)
-						? getEasingSelectionAfterKeyframeDelete({
-								deletedSourceFrames: [singleDeleteTarget.target.sourceFrame],
-								keyframeDisplayOffset:
-									singleDeleteTarget.target.keyframeDisplayOffset,
-								keyframePlaybackRate:
-									singleDeleteTarget.target.keyframePlaybackRate,
-								nodePathInfo: singleDeleteTarget.target.nodePathInfo,
-								propStatus: singleDeleteTarget.target.propStatus,
-								timelinePosition,
-							})
-						: null;
+				if (deleteTargets.length === 0) {
+					return;
+				}
+
+				selectItems(
+					deleteTargets.flatMap(({target}) => {
+						const propertySelection = getTimelineSelectionFromNodePathInfo(
+							target.nodePathInfo,
+						);
+						return propertySelection === null ? [] : [propertySelection];
+					}),
+					{reveal: true},
+				);
 				const deleteChanges = deleteTargets.map(({change}) => change);
 				await callDeleteKeyframes({
 					sequenceKeyframes: deleteChanges.filter(
@@ -789,10 +781,6 @@ export const TimelineKeyframeControls: React.FC<{
 					setPropStatuses,
 					clientId,
 				});
-				if (mode === 'timeline' && easingSelection !== null) {
-					selectItems([easingSelection], {reveal: true});
-				}
-
 				return;
 			}
 
@@ -842,7 +830,6 @@ export const TimelineKeyframeControls: React.FC<{
 			mode,
 			selectItems,
 			setPropStatuses,
-			timelinePosition,
 		],
 	);
 

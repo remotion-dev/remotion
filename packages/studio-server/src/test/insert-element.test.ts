@@ -421,16 +421,16 @@ test('installs structured initial props on a component-owned Sequence', async ()
 		expect(composition).toContain('from={30}');
 		expect(composition).toContain('name="Lower Third"');
 		expect(composition).toContain('captions={[');
-		expect(composition).toContain('text: "First copy"');
+		expect(composition).toContain("text: 'First copy'");
 		expect(composition).toContain('width={900}');
-		expect(composition).toContain('color: "red"');
+		expect(composition).toContain("color: 'red'");
 		expect(composition).toContain('opacity: 0.8');
-		expect(composition).toContain('position: "absolute"');
-		expect(composition).toContain('translate: "120px 80px"');
-		expect(composition).not.toContain('position: "relative"');
-		expect(composition).not.toContain('translate: "1px 2px"');
+		expect(composition).toContain("position: 'absolute'");
+		expect(composition).toContain("translate: '120px 80px'");
+		expect(composition).not.toContain("position: 'relative'");
+		expect(composition).not.toContain("translate: '1px 2px'");
 		expect(composition.match(/\bstyle=/g)).toHaveLength(1);
-		expect(composition.match(/text: "First copy"/g)).toHaveLength(1);
+		expect(composition.match(/text: 'First copy'/g)).toHaveLength(1);
 		expect(incomingElementSource).not.toContain('First copy');
 	} finally {
 		fixture.cleanup();
@@ -500,9 +500,9 @@ test('keeps wrapped installation and passes initial props to its child', async (
 		const composition = readFileSync(fixture.compositionFile, 'utf-8');
 		expect(composition).toContain('<Sequence');
 		expect(composition).toContain('from={12}');
-		expect(composition).toContain('translate: "40px 50px"');
+		expect(composition).toContain("translate: '40px 50px'");
 		expect(composition).toContain('label="Starter"');
-		expect(composition).toMatch(/style=\{\{\s*color: "blue"\s*\}\}/);
+		expect(composition).toMatch(/style=\{\{\s*color: 'blue'\s*\}\}/);
 	} finally {
 		fixture.cleanup();
 	}
@@ -545,7 +545,7 @@ test('materializes independent props for two component-owned copies', async () =
 
 		const composition = readFileSync(fixture.compositionFile, 'utf-8');
 		expect(composition.match(/captions=\{\[/g)).toHaveLength(2);
-		expect(composition.match(/text: "First copy"/g)).toHaveLength(2);
+		expect(composition.match(/text: 'First copy'/g)).toHaveLength(2);
 		expect(composition).not.toContain('...structuredInitialProps');
 	} finally {
 		fixture.cleanup();

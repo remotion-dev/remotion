@@ -252,6 +252,7 @@ export const ${previewComponentName} = () => {
 		>
 			<Video
 				src={staticFile(${serialize(videoFileName)})}
+				durationInFrames={${durationInFrames}}
 				style={{
 					position: 'absolute',
 				}}

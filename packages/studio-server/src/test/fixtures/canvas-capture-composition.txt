@@ -21,6 +21,7 @@ export const CanvasCapturePreview = () => {
 		>
 			<Video
 				src={staticFile('remotion-capture-editor-starter.mp4')}
+				durationInFrames={500}
 				style={{
 					position: 'absolute',
 				}}

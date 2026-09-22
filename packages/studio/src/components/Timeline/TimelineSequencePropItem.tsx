@@ -45,7 +45,10 @@ import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowContainsSelection,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const fieldRowBase: React.CSSProperties = {};
@@ -443,6 +446,7 @@ export const TimelineSequencePropItem: React.FC<{
 		previewServerState.type === 'connected',
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
 		visualModePropStatuses,
@@ -660,13 +664,13 @@ export const TimelineSequencePropItem: React.FC<{
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
-			containsSelection={false}
+			containsSelection={containsSelection}
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
-				selected={selection.selected}
+				selected={selection.selected || containsSelection}
 			>
 				{fieldValue}
 			</TimelineFieldRowContent>

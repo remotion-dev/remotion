@@ -44,7 +44,10 @@ import {
 	TimelineNonEditableStatus,
 	UnsupportedStatus,
 } from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowContainsSelection,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -447,6 +450,7 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const style = useMemo((): React.CSSProperties => {
 		return field.typeName === 'text-content'
 			? fieldRowBase
@@ -626,13 +630,13 @@ export const TimelineEffectPropItem: React.FC<{
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
-			containsSelection={false}
+			containsSelection={containsSelection}
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
-				selected={selection.selected}
+				selected={selection.selected || containsSelection}
 			>
 				<TimelineEffectPropValueAtCurrentFrame
 					field={field}

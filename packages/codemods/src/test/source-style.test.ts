@@ -2,11 +2,42 @@ import {expect, test} from 'bun:test';
 import * as recast from 'recast';
 import {
 	getEndOfLine,
+	getIndentationUnit,
 	getLineIndent,
 	getSourceFormattingConfig,
 	indentContinuationLinesAtOffset,
 	printNodeWithSourceStyle,
 } from '../source-style';
+
+test.each([
+	[
+		'a header comment',
+		'/**\n * Comment\n */\nconst f = () => {\n    return 1;\n};',
+		'    ',
+	],
+	[
+		'a deeply indented first line',
+		'const f = () => (\n        <div>\n            <span />\n        </div>\n);',
+		'    ',
+	],
+	[
+		'an aligned continuation',
+		'const value = call(\n                   argument);\nconst f = () => {\n  if (value) {\n    return 1;\n  }\n};',
+		'  ',
+	],
+	[
+		'a tab in a comment',
+		'// Example:\n\t// indented comment\nconst f = () => {\n    return 1;\n};',
+		'    ',
+	],
+	[
+		'a stray tab-indented line',
+		'const f = () => {\n\tconst a = 1;\n  if (a) {\n    return a;\n  }\n};',
+		'  ',
+	],
+])('infers indentation despite %s', (_name, input, expected) => {
+	expect(getIndentationUnit(input, null)).toBe(expected);
+});
 
 test('infers formatting choices from source', () => {
 	const input = "import {thing} from 'pkg'\r\n\r\n\tconst value = 1\r\n";

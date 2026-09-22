@@ -613,6 +613,16 @@ const nodePathDescendsFrom = (
 	);
 };
 
+const timelineRowContainsSelection = (
+	nodePathInfo: SequenceNodePathInfo,
+	selection: TimelineSelection,
+): boolean =>
+	selection.type !== 'guide' &&
+	(nodePathDescendsFrom(selection.nodePathInfo, nodePathInfo) ||
+		((selection.type === 'keyframe' || selection.type === 'easing') &&
+			timelineNodePathInfoToKey(selection.nodePathInfo) ===
+				timelineNodePathInfoToKey(nodePathInfo)));
+
 export const getSelectableTimelineSequenceSelections = (
 	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
 ): TimelineSelection[] => {
@@ -1225,10 +1235,8 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			return availableSelectedItems.some(
-				(selected) =>
-					selected.type !== 'guide' &&
-					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
+			return availableSelectedItems.some((selected) =>
+				timelineRowContainsSelection(nodePathInfo, selected),
 			);
 		},
 		[availableSelectedItems],
@@ -1795,10 +1803,8 @@ export const useTimelineRowContainsSelection = (
 
 		return selectionContext
 			.getSnapshot()
-			.selectedItems.some(
-				(selected) =>
-					selected.type !== 'guide' &&
-					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
+			.selectedItems.some((selected) =>
+				timelineRowContainsSelection(nodePathInfo, selected),
 			);
 	}, [nodePathInfo, selectionContext]);
 

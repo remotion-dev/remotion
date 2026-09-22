@@ -32,9 +32,7 @@ import {
 	callDeleteSequenceKeyframe,
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
-import {getEasingSelectionAfterKeyframeDelete} from '../Timeline/get-easing-selection-after-keyframe-delete';
 import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
-import {getCurrentFrame} from '../Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
 import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
 import {
@@ -480,21 +478,7 @@ export const KeyframeInspector: React.FC<{
 				return;
 			}
 
-			const easingSelection = canEditEasingForInterpolationFunction(
-				details.propStatus.interpolationFunction,
-			)
-				? getEasingSelectionAfterKeyframeDelete({
-						deletedSourceFrames: [details.sourceFrame],
-						keyframeDisplayOffset: details.keyframeDisplayOffset,
-						keyframePlaybackRate: details.keyframePlaybackRate,
-						nodePathInfo: selection.nodePathInfo,
-						propStatus: details.propStatus,
-						timelinePosition: getCurrentFrame(),
-					})
-				: null;
-			if (easingSelection !== null) {
-				selectItems([easingSelection], {reveal: true});
-			} else if (parentSelection !== null) {
+			if (parentSelection !== null) {
 				selectItems([parentSelection], {reveal: true});
 			}
 
@@ -527,7 +511,6 @@ export const KeyframeInspector: React.FC<{
 			parentSelection,
 			previewServerState,
 			selectItems,
-			selection.nodePathInfo,
 			setPropStatuses,
 		],
 	);

@@ -984,7 +984,9 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		expect(componentContents).toContain(
 			'url("data:image/svg+xml,%3Csvg%20width%3D%2224%22%2F%3E") 6 7, alias',
 		);
-		expect(componentContents).toContain("src={staticFile('capture.mp4')}");
+		expect(componentContents).toMatch(
+			/<Video\s+src=\{staticFile\('capture\.mp4'\)\}\s+durationInFrames=\{90\}/,
+		);
 		expect(componentContents).toContain('width: 1920');
 		expect(componentContents).toContain('height: 1080');
 		expect(componentContents).toContain("id={'FreshCapture'}");

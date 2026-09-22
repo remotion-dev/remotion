@@ -53,13 +53,45 @@ export const getIndentationUnit = (
 	input: string,
 	prettierConfigOverride: Record<string, unknown> | null,
 ): string => {
-	if (/^\t+/m.test(input)) {
+	let tabIndentedLines = 0;
+	let spaceIndentedLines = 0;
+	let previousIndent = '';
+	const widths = new Map<number, number>();
+	for (const line of input.split(/\r?\n/)) {
+		const match = line.match(/^([\t ]*)(\S.*)$/);
+		// Comment decoration and blank lines are not indentation levels.
+		if (!match || /^(?:\/[/*]|\*)/.test(match[2])) {
+			continue;
+		}
+
+		const indent = match[1];
+		if (indent.includes('\t')) {
+			tabIndentedLines++;
+		} else if (indent.length > 0) {
+			spaceIndentedLines++;
+		}
+
+		if (!indent.includes('\t') && !previousIndent.includes('\t')) {
+			const difference = Math.abs(indent.length - previousIndent.length);
+			if (difference > 0) {
+				widths.set(difference, (widths.get(difference) ?? 0) + 1);
+			}
+		}
+
+		previousIndent = indent;
+	}
+
+	if (tabIndentedLines > spaceIndentedLines) {
 		return '\t';
 	}
 
-	const indentation = input.match(/^([ ]+)\S/m)?.[1].length;
-	if (indentation) {
-		return ' '.repeat(indentation > 1 ? indentation : 2);
+	// Prefer the most common change in depth, then the smaller width on ties.
+	// The first indented line may be several levels deep or a continuation.
+	const indentation = [...widths].sort(
+		([widthA, countA], [widthB, countB]) => countB - countA || widthA - widthB,
+	)[0]?.[0];
+	if (indentation !== undefined) {
+		return ' '.repeat(indentation);
 	}
 
 	if (prettierConfigOverride?.useTabs === true) {
@@ -156,7 +188,12 @@ export const indentContinuationLines = ({
 	input: string;
 	printed: string;
 }): string => {
-	return printed.split(/\r?\n/).join(`${getEndOfLine(input)}${indent}`);
+	return printed
+		.split(/\r?\n/)
+		.map((line, index) =>
+			index === 0 || line.length === 0 ? line : `${indent}${line}`,
+		)
+		.join(getEndOfLine(input));
 };
 
 export const indentContinuationLinesAtOffset = ({
