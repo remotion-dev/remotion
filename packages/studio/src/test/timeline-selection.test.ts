@@ -8398,37 +8398,11 @@ test('Deleting selected sequences still clears selection', () => {
 	).toEqual([]);
 });
 
-test('Deleting selected keyframe selects remaining easing under playhead', () => {
-	const schema = {
-		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies InteractivitySchema;
+test('Deleting a selected keyframe selects its property', () => {
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
 	);
-	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
-	const propStatuses = {
-		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
-			canUpdate: true,
-			props: {
-				opacity: {
-					status: 'keyframed',
-					keyframeDisplayOffsetAdjustment: null,
-					interpolationFunction: 'interpolate',
-					keyframes: [
-						{frame: 0, value: 0},
-						{frame: 10, value: 0.5},
-						{frame: 20, value: 1},
-					],
-					easing: [{type: 'linear'}, {type: 'linear'}],
-					clamping: {left: 'extend', right: 'extend'},
-					posterize: undefined,
-					output: undefined,
-				},
-			},
-			effects: [],
-		},
-	} satisfies PropStatuses;
 
 	expect(
 		getTimelineSelectionAfterDeletingItems({
@@ -8439,67 +8413,6 @@ test('Deleting selected keyframe selects remaining easing under playhead', () =>
 					frame: 10,
 				},
 			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
-			propStatuses,
-			timelinePosition: 10,
-		}),
-	).toEqual([
-		{
-			type: 'easing',
-			nodePathInfo: opacityNodePathInfo,
-			fromFrame: 0,
-			toFrame: 20,
-			segmentIndex: 0,
-		},
-	]);
-});
-
-test('Deleting selected keyframe selects its property when playhead is not between remaining keyframes', () => {
-	const schema = {
-		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies InteractivitySchema;
-	const opacityNodePathInfo = makeNodePathInfo(
-		['body', 0],
-		['controls', 'opacity'],
-	);
-	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
-	const propStatuses = {
-		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
-			canUpdate: true,
-			props: {
-				opacity: {
-					status: 'keyframed',
-					keyframeDisplayOffsetAdjustment: null,
-					interpolationFunction: 'interpolate',
-					keyframes: [
-						{frame: 0, value: 0},
-						{frame: 10, value: 0.5},
-						{frame: 20, value: 1},
-					],
-					easing: [{type: 'linear'}, {type: 'linear'}],
-					clamping: {left: 'extend', right: 'extend'},
-					posterize: undefined,
-					output: undefined,
-				},
-			},
-			effects: [],
-		},
-	} satisfies PropStatuses;
-
-	expect(
-		getTimelineSelectionAfterDeletingItems({
-			selections: [
-				{
-					type: 'keyframe',
-					nodePathInfo: opacityNodePathInfo,
-					frame: 0,
-				},
-			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
-			propStatuses,
-			timelinePosition: 0,
 		}),
 	).toEqual([
 		{

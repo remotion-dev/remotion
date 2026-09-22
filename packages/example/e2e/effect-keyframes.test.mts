@@ -44,7 +44,7 @@ test.describe('effect keyframes', () => {
 		await stopStudio();
 	});
 
-	test('deletes marquee-selected keyframes without flashing and keeps their property selected', async ({
+	test('deletes keyframes without flashing and keeps their property selected', async ({
 		page,
 	}) => {
 		test.setTimeout(120_000);
@@ -154,6 +154,60 @@ test.describe('effect keyframes', () => {
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*30,\s*40,\s*60,\s*89\]/);
+
+		// Single-keyframe deletion also selects the property, even at the playhead.
+		await page
+			.getByRole('button', {name: 'Go to next keyframe'})
+			.last()
+			.click();
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 30', exact: true})
+			.click();
+		await page.keyboard.press('Backspace');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*40,\s*60,\s*89\]/);
+		await expect(
+			page.getByTitle('Back to property', {exact: true}),
+		).toHaveCount(0);
+		await expect(opacity).toHaveCount(2);
+
+		// Removing from the keyframe inspector has the same result.
+		await page
+			.getByRole('button', {name: 'Go to next keyframe'})
+			.last()
+			.click();
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 40', exact: true})
+			.click();
+		await page
+			.getByRole('button', {name: 'Remove keyframe', exact: true})
+			.first()
+			.click();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*60,\s*89\]/);
+		await expect(
+			page.getByTitle('Back to property', {exact: true}),
+		).toHaveCount(0);
+		await expect(opacity).toHaveCount(2);
+
+		// The timeline's keyframe toggle also keeps the property selected.
+		await page
+			.getByRole('button', {name: 'Go to next keyframe'})
+			.last()
+			.click();
+		await page
+			.getByRole('button', {name: 'Remove keyframe', exact: true})
+			.last()
+			.click();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*89\]/);
+		await expect(
+			page.getByTitle('Back to property', {exact: true}),
+		).toHaveCount(0);
+		await expect(opacity).toHaveCount(2);
 
 		// The property remains selected, so another Backspace resets its value.
 		await page.keyboard.press('Backspace');

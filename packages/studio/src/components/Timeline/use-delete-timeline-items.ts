@@ -84,10 +84,6 @@ export const useDeleteTimelineItems = () => {
 				const updateSelectionAfterDeletion = () => {
 					const nextSelection = getTimelineSelectionAfterDeletingItems({
 						selections: selectedItems,
-						sequences,
-						overrideIdsToNodePaths: overrideIdToNodePathMappings,
-						propStatuses,
-						timelinePosition,
 					});
 					if (nextSelection.length === 0) {
 						clearSelection();
