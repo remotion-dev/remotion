@@ -263,7 +263,9 @@ export const useMediaInTimeline = ({
 						compositionFrame - Math.max(firstVisible, iterationStart),
 					) *
 						sequenceRate +
-					(loopVolumeCurveBehavior === 'extend' ? iteration * loopDuration : 0);
+					(loopVolumeCurveBehavior === 'extend'
+						? (iteration * loopDuration * sequenceRate) / timeline.playbackRate
+						: 0);
 				return evaluateVolume({frame, volume, mediaVolume});
 			},
 		).join(',');

@@ -17,6 +17,7 @@ import type {
 import type {EffectDefinition} from './effects/effect-types.js';
 import {getStackForControls} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
+import {getSequenceBoundaryTolerance} from './get-sequence-boundary-tolerance.js';
 import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
@@ -616,12 +617,19 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	});
 
 	// Use an exclusive end so fractional clocks and frozen subframes remain visible.
-	const endThreshold =
-		cumulatedFrom + (from + durationInFrames) / parentPlaybackRate;
+	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
+	const endThreshold = from + durationInFrames;
+	const boundaryTolerance = getSequenceBoundaryTolerance({
+		absoluteFrame,
+		cumulatedFrom,
+		from,
+		parentPlaybackRate,
+		durationInFrames,
+	});
 	const content =
-		absoluteFrame < cumulatedFrom + from / parentPlaybackRate
+		frameInParent - from < -boundaryTolerance
 			? null
-			: absoluteFrame >= endThreshold
+			: frameInParent - endThreshold >= -boundaryTolerance
 				? null
 				: children;
 	const frozenContent =

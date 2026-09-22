@@ -1,5 +1,5 @@
 import {createContext, useContext} from 'react';
-import {Loop} from '../loop/index.js';
+import {Loop, LoopTimelineContext} from '../loop/index.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 
@@ -19,11 +19,22 @@ export type LoopVolumeCurveBehavior = 'repeat' | 'extend';
  */
 export const useFrameForVolumeProp = (behavior: LoopVolumeCurveBehavior) => {
 	const loop = Loop.useLoop();
+	const loopTimeline = useContext(LoopTimelineContext);
+	const sequenceContext = useContext(SequenceContext);
 	const frame = useCurrentFrame();
 	const startsAt = useMediaStartsAt();
 	if (behavior === 'repeat' || loop === null) {
 		return frame + startsAt;
 	}
 
-	return frame + startsAt + loop.durationInFrames * loop.iteration;
+	// Loop durations use the parent's clock, while volume callbacks use the
+	// media's clock, including rates applied inside the loop.
+	return (
+		frame +
+		startsAt +
+		(loop.durationInFrames *
+			loop.iteration *
+			(sequenceContext?.playbackRate ?? 1)) /
+			(loopTimeline?.playbackRate ?? 1)
+	);
 };
