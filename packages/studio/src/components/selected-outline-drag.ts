@@ -102,7 +102,9 @@ export const getSelectedOutlineDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			translateFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame =
+			(timelinePosition - target.keyframeDisplayOffset) *
+			target.keyframePlaybackRate;
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
@@ -586,7 +588,9 @@ export const getSelectedOutlineScaleDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			scaleFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame =
+			(timelinePosition - target.keyframeDisplayOffset) *
+			target.keyframePlaybackRate;
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
@@ -733,7 +737,9 @@ export const getSelectedOutlineRotationDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			rotateFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame =
+			(timelinePosition - target.keyframeDisplayOffset) *
+			target.keyframePlaybackRate;
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,

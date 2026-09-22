@@ -84,6 +84,7 @@ type ImgContentProps = Omit<
 	| 'showInTimeline'
 	| 'from'
 	| 'trimBefore'
+	| 'playbackRate'
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
@@ -366,6 +367,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	src,
 	from,
 	trimBefore,
+	playbackRate,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -426,6 +428,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
@@ -562,6 +565,7 @@ const ImgInner: React.FC<
 	src,
 	from,
 	trimBefore,
+	playbackRate,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -599,6 +603,7 @@ const ImgInner: React.FC<
 				src={src}
 				from={from}
 				trimBefore={trimBefore}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames}
 				freeze={freeze}
 				premountFor={premountFor}
@@ -662,6 +667,7 @@ const ImgInner: React.FC<
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			durationInFrames={durationInFrames}
 			freeze={freeze}
 			premountFor={premountFor}

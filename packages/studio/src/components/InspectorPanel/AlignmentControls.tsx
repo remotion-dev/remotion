@@ -119,11 +119,13 @@ export const AlignmentControls: React.FC<{
 				(status) => status.status === 'keyframed',
 			);
 			const sourceFrame =
-				timelinePosition -
-				getKeyframeDisplayOffset({
-					propStatus: firstKeyframedStatus,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-				});
+				(timelinePosition -
+					getKeyframeDisplayOffset({
+						propStatus: firstKeyframedStatus,
+						keyframeDisplayOffset: track.keyframeDisplayOffset,
+						keyframePlaybackRate: track.keyframePlaybackRate,
+					})) *
+				track.keyframePlaybackRate;
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -268,11 +270,13 @@ export const AlignmentControls: React.FC<{
 		renderNodePropStatuses ?? {},
 	).find((status) => status.status === 'keyframed');
 	const renderSourceFrame =
-		timelinePosition -
-		getKeyframeDisplayOffset({
-			propStatus: firstRenderKeyframedStatus,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-		});
+		(timelinePosition -
+			getKeyframeDisplayOffset({
+				propStatus: firstRenderKeyframedStatus,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			})) *
+		track.keyframePlaybackRate;
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({

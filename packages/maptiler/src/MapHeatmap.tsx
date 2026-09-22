@@ -191,6 +191,7 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 		name,
 		showInTimeline,
 		trimBefore,
+		playbackRate,
 	} = props;
 
 	return (
@@ -198,6 +199,7 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 			layout="none"
 			from={from ?? 0}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			durationInFrames={durationInFrames ?? Infinity}
 			freeze={freeze}
 			hidden={hidden}

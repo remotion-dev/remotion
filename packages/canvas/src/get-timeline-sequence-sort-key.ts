@@ -18,6 +18,7 @@ export type TimelineTrackData = {
 	depth: number;
 	nodePathInfo: SequenceNodePathInfo | null;
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 	sequenceFrameOffset: number;
 	cascadedStart: number;
 	localStart: number;

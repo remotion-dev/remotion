@@ -635,6 +635,7 @@ export const getSequencesWithSelectableOutlines = ({
 			return {
 				depth: track.depth,
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
 				key: getTimelineSequenceSelectionKey(track.nodePathInfo),
 				nodePathInfo: track.nodePathInfo,
 				sequence: track.sequence,

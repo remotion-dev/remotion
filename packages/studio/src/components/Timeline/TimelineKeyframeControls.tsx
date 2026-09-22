@@ -123,6 +123,7 @@ type KeyframeControlTarget = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly sourceFrame: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
@@ -279,16 +280,20 @@ const resolveKeyframeControlTarget = ({
 			propStatus: sequenceSelectedPropStatus,
 			nodePath,
 			fileName: nodePath.absolutePath,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: sequenceSelectedPropStatus,
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
 			}),
 			sourceFrame:
-				timelinePosition -
-				getKeyframeDisplayOffset({
-					propStatus: sequenceSelectedPropStatus,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-				}),
+				(timelinePosition -
+					getKeyframeDisplayOffset({
+						propStatus: sequenceSelectedPropStatus,
+						keyframeDisplayOffset: track.keyframeDisplayOffset,
+						keyframePlaybackRate: track.keyframePlaybackRate,
+					})) *
+				track.keyframePlaybackRate,
 			defaultValue: fieldNode.field.fieldSchema.default,
 			dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
 				fieldNode.field.key
@@ -317,16 +322,20 @@ const resolveKeyframeControlTarget = ({
 		propStatus: effectSelectedPropStatus,
 		nodePath,
 		fileName: nodePath.absolutePath,
+		keyframePlaybackRate: track.keyframePlaybackRate,
 		keyframeDisplayOffset: getKeyframeDisplayOffset({
 			propStatus: effectSelectedPropStatus,
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 		}),
 		sourceFrame:
-			timelinePosition -
-			getKeyframeDisplayOffset({
-				propStatus: effectSelectedPropStatus,
-				keyframeDisplayOffset: track.keyframeDisplayOffset,
-			}),
+			(timelinePosition -
+				getKeyframeDisplayOffset({
+					propStatus: effectSelectedPropStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
+				})) *
+			track.keyframePlaybackRate,
 		defaultValue: fieldNode.field.fieldSchema.default,
 		dragOverrideValue: getEffectDragOverrides(
 			nodePath,
@@ -515,6 +524,7 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly schema: InteractivitySchema;
@@ -527,6 +537,7 @@ export const TimelineKeyframeControls: React.FC<{
 	nodePath,
 	fileName,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	defaultValue,
 	dragOverrideValue,
 	schema,
@@ -555,11 +566,18 @@ export const TimelineKeyframeControls: React.FC<{
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
-	const jsxFrame = timelinePosition - resolvedKeyframeDisplayOffset;
+	const jsxFrame =
+		(timelinePosition - resolvedKeyframeDisplayOffset) * keyframePlaybackRate;
 	const keyframes = useMemo(
-		() => getTimelineKeyframes(propStatus, keyframeDisplayOffset),
-		[propStatus, keyframeDisplayOffset],
+		() =>
+			getTimelineKeyframes(
+				propStatus,
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+			),
+		[propStatus, keyframeDisplayOffset, keyframePlaybackRate],
 	);
 
 	const hasKeyframeAtCurrentFrame = useMemo(() => {
@@ -636,6 +654,7 @@ export const TimelineKeyframeControls: React.FC<{
 			nodePath,
 			fileName,
 			keyframeDisplayOffset: resolvedKeyframeDisplayOffset,
+			keyframePlaybackRate,
 			sourceFrame: jsxFrame,
 			defaultValue,
 			dragOverrideValue,
@@ -650,6 +669,7 @@ export const TimelineKeyframeControls: React.FC<{
 			fileName,
 			jsxFrame,
 			resolvedKeyframeDisplayOffset,
+			keyframePlaybackRate,
 			nodePath,
 			nodePathInfo,
 			propStatus,
@@ -749,6 +769,8 @@ export const TimelineKeyframeControls: React.FC<{
 								deletedSourceFrames: [singleDeleteTarget.target.sourceFrame],
 								keyframeDisplayOffset:
 									singleDeleteTarget.target.keyframeDisplayOffset,
+								keyframePlaybackRate:
+									singleDeleteTarget.target.keyframePlaybackRate,
 								nodePathInfo: singleDeleteTarget.target.nodePathInfo,
 								propStatus: singleDeleteTarget.target.propStatus,
 								timelinePosition,
@@ -803,7 +825,9 @@ export const TimelineKeyframeControls: React.FC<{
 					addChanges.map(({target}) => ({
 						type: 'keyframe' as const,
 						nodePathInfo: target.nodePathInfo,
-						frame: target.sourceFrame + target.keyframeDisplayOffset,
+						frame:
+							target.sourceFrame / target.keyframePlaybackRate +
+							target.keyframeDisplayOffset,
 					})),
 					{reveal: true},
 				);

@@ -20,6 +20,7 @@ import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
 import {SharedAudioTagsContext} from './shared-audio-tags.js';
+import {Html5MediaTrimContext} from './use-audio-frame.js';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
@@ -156,20 +157,28 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
-			<Sequence
-				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
-				showInTimeline={false}
-				durationInFrames={trimAfterValue}
-				name={name}
-			>
-				<Html5Audio
-					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
-					pauseWhenBuffering={shouldPauseWhenBuffering}
-					{...otherProps}
-					ref={ref}
-				/>
-			</Sequence>
+			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
+				<Sequence
+					layout="none"
+					from={0 - (trimBeforeValue ?? 0)}
+					showInTimeline={false}
+					durationInFrames={
+						trimAfterValue === undefined
+							? undefined
+							: (trimBeforeValue ?? 0) +
+								(trimAfterValue - (trimBeforeValue ?? 0)) /
+									(props.playbackRate ?? 1)
+					}
+					name={name}
+				>
+					<Html5Audio
+						_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+						pauseWhenBuffering={shouldPauseWhenBuffering}
+						{...otherProps}
+						ref={ref}
+					/>
+				</Sequence>
+			</Html5MediaTrimContext.Provider>
 		);
 	}
 

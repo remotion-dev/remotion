@@ -94,7 +94,7 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 	);
 	expect(registerSequence).toHaveBeenCalled();
 	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
-		mediaFrameAtSequenceZero: null,
+		mediaFrameAtSequenceZero: 0,
 		muted: false,
 	});
 

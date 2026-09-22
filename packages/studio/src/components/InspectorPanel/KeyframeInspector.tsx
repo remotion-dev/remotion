@@ -76,6 +76,7 @@ type KeyframeEditorDetails =
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 			readonly schema: InteractivitySchema;
 			readonly keyframeDisplayOffset: number;
+			readonly keyframePlaybackRate: number;
 			readonly sourceFrame: number;
 	  }
 	| {
@@ -88,6 +89,7 @@ type KeyframeEditorDetails =
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 			readonly schema: InteractivitySchema;
 			readonly keyframeDisplayOffset: number;
+			readonly keyframePlaybackRate: number;
 			readonly sourceFrame: number;
 			readonly validatedLocation: CodePosition;
 	  };
@@ -183,7 +185,7 @@ export const KeyframeInspector: React.FC<{
 		}
 
 		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-		const {keyframeDisplayOffset} = track;
+		const {keyframeDisplayOffset, keyframePlaybackRate} = track;
 
 		if (keyframeField.type === 'sequence') {
 			const sequenceFields = getFieldsToShow({
@@ -212,19 +214,23 @@ export const KeyframeInspector: React.FC<{
 				field: sequenceField,
 				fieldLabel: sequenceField.description ?? sequenceField.key,
 				fileName: nodePath.absolutePath,
+				keyframePlaybackRate,
 				keyframeDisplayOffset: getKeyframeDisplayOffset({
 					propStatus: sequencePropStatus,
 					keyframeDisplayOffset,
+					keyframePlaybackRate,
 				}),
 				nodePath,
 				propStatus: sequencePropStatus,
 				schema: track.sequence.controls.schema,
 				sourceFrame:
-					selection.frame -
-					getKeyframeDisplayOffset({
-						propStatus: sequencePropStatus,
-						keyframeDisplayOffset,
-					}),
+					(selection.frame -
+						getKeyframeDisplayOffset({
+							propStatus: sequencePropStatus,
+							keyframeDisplayOffset,
+							keyframePlaybackRate,
+						})) *
+					keyframePlaybackRate,
 			};
 		}
 
@@ -264,19 +270,23 @@ export const KeyframeInspector: React.FC<{
 			field: effectField,
 			fieldLabel: effectField.description ?? effectField.key,
 			fileName: nodePath.absolutePath,
+			keyframePlaybackRate,
 			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: effectPropStatus,
 				keyframeDisplayOffset,
+				keyframePlaybackRate,
 			}),
 			nodePath,
 			propStatus: effectPropStatus,
 			schema: effect.schema,
 			sourceFrame:
-				selection.frame -
-				getKeyframeDisplayOffset({
-					propStatus: effectPropStatus,
-					keyframeDisplayOffset,
-				}),
+				(selection.frame -
+					getKeyframeDisplayOffset({
+						propStatus: effectPropStatus,
+						keyframeDisplayOffset,
+						keyframePlaybackRate,
+					})) *
+				keyframePlaybackRate,
 			validatedLocation: {
 				source: nodePath.absolutePath,
 				line: 1,
@@ -327,6 +337,7 @@ export const KeyframeInspector: React.FC<{
 			const toFrame = getInspectorKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
+				keyframePlaybackRate: details.keyframePlaybackRate,
 			});
 
 			if (displayFrame === selection.frame || toFrame === details.sourceFrame) {
@@ -385,6 +396,7 @@ export const KeyframeInspector: React.FC<{
 			const toFrame = getInspectorKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
+				keyframePlaybackRate: details.keyframePlaybackRate,
 			});
 
 			setDraftFrame(displayFrame);
@@ -474,6 +486,7 @@ export const KeyframeInspector: React.FC<{
 				? getEasingSelectionAfterKeyframeDelete({
 						deletedSourceFrames: [details.sourceFrame],
 						keyframeDisplayOffset: details.keyframeDisplayOffset,
+						keyframePlaybackRate: details.keyframePlaybackRate,
 						nodePathInfo: selection.nodePathInfo,
 						propStatus: details.propStatus,
 						timelinePosition: getCurrentFrame(),
@@ -540,7 +553,9 @@ export const KeyframeInspector: React.FC<{
 				)}
 				keyframes={details.propStatus.keyframes.map((keyframe) => ({
 					...keyframe,
-					frame: keyframe.frame + details.keyframeDisplayOffset,
+					frame:
+						keyframe.frame / details.keyframePlaybackRate +
+						details.keyframeDisplayOffset,
 				}))}
 				nodePathInfo={selection.nodePathInfo}
 			/>

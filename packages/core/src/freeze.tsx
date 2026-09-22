@@ -63,6 +63,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 
 	const relativeFrom = sequenceContext?.relativeFrom ?? 0;
+	const playbackRate = sequenceContext?.playbackRate ?? 1;
 
 	const timelineValue: TimelineContextValue = useMemo(() => {
 		if (!isActive) {
@@ -74,10 +75,17 @@ export const Freeze: React.FC<FreezeProps> = ({
 			isPlaying: () => false,
 			isInsideFreeze: true,
 			frame: {
-				[videoConfig.id]: frameToFreeze + relativeFrom,
+				[videoConfig.id]: frameToFreeze / playbackRate + relativeFrom,
 			},
 		};
-	}, [isActive, timelineContext, videoConfig.id, frameToFreeze, relativeFrom]);
+	}, [
+		isActive,
+		timelineContext,
+		videoConfig.id,
+		frameToFreeze,
+		relativeFrom,
+		playbackRate,
+	]);
 
 	const newSequenceContext: SequenceContextType | null = useMemo(() => {
 		if (!sequenceContext) {

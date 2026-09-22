@@ -1,4 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
+import {sliceVisibleWaveformPeaks} from '@remotion/timeline-utils';
 import type {
 	InteractivitySchema,
 	SequenceRegistrationControls,
@@ -15,6 +16,7 @@ import {
 } from '../components/Timeline/timeline-asset-link';
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
 import {toFileToken} from '../components/Timeline/TimelineAssetField';
+import {calculateTimeline} from '../helpers/calculate-timeline';
 import {isVideoWithLastFrameHold} from '../helpers/is-video-with-last-frame-hold';
 import {makeRuntimeValueStore} from './make-runtime-value-store';
 
@@ -348,4 +350,97 @@ test('remote asset URLs split before the filename for middle ellipsis', () => {
 		trailing: 'video.mp4?download=1',
 	});
 	expect(parts.leading + parts.trailing).toBe(src);
+});
+
+test('filmstrips and waveform peaks follow nested sequence rates and trims', () => {
+	const outer: TSequence = {
+		controls: null,
+		displayName: 'outer',
+		documentationLink: null,
+		duration: 100,
+		effects: [],
+		effectRuntimeValues: null,
+		from: 10,
+		frozenFrame: null,
+		getStack: () => null,
+		id: 'outer',
+		isInsideSeries: false,
+		loopDisplay: undefined,
+		parent: null,
+		postmountDisplay: null,
+		premountDisplay: null,
+		refForOutline: null,
+		sequencePlaybackRate: 1.5,
+		showInTimeline: true,
+		timelineOrder: null,
+		trimBefore: 6,
+		type: 'sequence',
+	};
+	const inner: TSequence = {
+		...outer,
+		id: 'inner',
+		parent: 'outer',
+		from: 30,
+		duration: 60,
+		sequencePlaybackRate: 2,
+		trimBefore: 8,
+	};
+	const media: TSequence = {
+		...outer,
+		id: 'media',
+		parent: 'inner',
+		from: 0,
+		duration: 180,
+		sequencePlaybackRate: 1,
+		trimBefore: null,
+		type: 'video',
+		src: 'video.mp4',
+		playbackRate: 0.5,
+		mediaFrameAtSequenceZero: 5,
+		startMediaFrom: 5,
+		frozenMediaFrame: null,
+		muted: false,
+		doesVolumeChange: false,
+		volume: 1,
+	};
+	const track = calculateTimeline({
+		sequences: [outer, inner, media],
+		overrideIdsToNodePaths: {},
+	}).find((candidate) => candidate.sequence.id === 'media')!;
+	if (track.sequence.type !== 'video') throw new Error('Expected video');
+	const startFrame = getTimelineMediaStartFrame({
+		startMediaFrom: track.sequence.startMediaFrom,
+		mediaFrameAtSequenceZero: track.sequence.mediaFrameAtSequenceZero,
+		sequenceFrameOffset: track.sequenceFrameOffset,
+		playbackRate: track.sequence.playbackRate,
+	});
+	const playbackRate =
+		track.sequence.playbackRate * track.sequence.sequencePlaybackRate;
+	expect(startFrame).toBeCloseTo(9);
+	const filmstrip = getTimelineVideoFilmstripTimes({
+		trimBefore: startFrame,
+		durationInFrames: track.sequence.duration,
+		playbackRate,
+		fps: 30,
+		loopDisplay: undefined,
+		frozenMediaFrame: null,
+	});
+	if (filmstrip.type !== 'range') throw new Error('Expected moving filmstrip');
+	expect(filmstrip.fromSeconds).toBeCloseTo(0.3);
+	expect(filmstrip.toSeconds).toBeCloseTo(2.3);
+
+	// Scrolling ten composition frames into this track advances fifteen media frames.
+	const peaks = sliceVisibleWaveformPeaks({
+		displayOffsetInFrames: 10,
+		displayDurationInFrames: 20,
+		durationInFrames: track.sequence.duration,
+		fps: 30,
+		loopDisplay: undefined,
+		peaks: Float32Array.from({length: 180}, (_, frame) => frame),
+		playbackRate,
+		startFrom: startFrame,
+		waveformSampleRate: 30,
+	});
+	expect(peaks[0]).toBe(24);
+	expect(peaks[peaks.length - 1]).toBe(53);
 });

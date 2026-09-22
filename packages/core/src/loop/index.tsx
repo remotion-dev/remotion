@@ -14,7 +14,7 @@ export type LoopProps = {
 	readonly name?: string;
 	readonly children: React.ReactNode;
 } & LayoutAndStyle &
-	Pick<SequenceProps, 'showInTimeline'>;
+	Pick<SequenceProps, 'showInTimeline' | 'playbackRate'>;
 
 type LoopContextType = {
 	iteration: number;
@@ -39,6 +39,7 @@ export const Loop: React.FC<LoopProps> & {
 	children,
 	name,
 	showInTimeline,
+	playbackRate,
 	...props
 }) => {
 	const currentFrame = useCurrentFrame();
@@ -101,6 +102,7 @@ export const Loop: React.FC<LoopProps> & {
 				layout={props.layout}
 				style={style}
 				showInTimeline={showInTimeline}
+				playbackRate={playbackRate}
 			>
 				{children}
 			</Sequence>

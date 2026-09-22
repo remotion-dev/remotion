@@ -389,12 +389,14 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	nodePath,
 	validatedLocation,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	runtimeValueStore,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -404,7 +406,9 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 			field={field}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
-			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			sourceFrame={
+				(timelinePosition - keyframeDisplayOffset) * keyframePlaybackRate
+			}
 			runtimeValueStore={runtimeValueStore}
 		/>
 	);
@@ -417,6 +421,7 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 	readonly revealInInspector: boolean;
 	readonly runtimeValueStore: RuntimeValueStore | null;
@@ -427,6 +432,7 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 	revealInInspector,
 	runtimeValueStore,
@@ -464,6 +470,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	const dragOverrideValue = useMemo(() => {
@@ -490,6 +497,7 @@ export const TimelineEffectPropItem: React.FC<{
 				nodePath={nodePath}
 				fileName={validatedLocation.source}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				keyframePlaybackRate={keyframePlaybackRate}
 				defaultValue={field.fieldSchema.default}
 				dragOverrideValue={dragOverrideValue}
 				schema={field.effectSchema}
@@ -631,6 +639,7 @@ export const TimelineEffectPropItem: React.FC<{
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>

@@ -23,6 +23,7 @@ export type SelectedOutlineLayoutTarget = {
 	readonly key: string;
 	readonly containsSelection: boolean;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
@@ -134,6 +135,7 @@ export type SelectedOutlineDragTarget = {
 	readonly clientId: string;
 	readonly fieldDefault: string | undefined;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 };
@@ -141,6 +143,7 @@ export type SelectedOutlineDragTarget = {
 export type SelectedOutlineTransformOriginDragTarget = {
 	readonly clientId: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly originDefault: string | undefined;
 	readonly originPropStatus:
@@ -175,6 +178,7 @@ export type SelectedOutlineScaleDragTarget = {
 	readonly fieldDefault: number | string | undefined;
 	readonly fieldSchema: ScaleFieldSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly linked: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
@@ -188,6 +192,7 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly fieldDefault: string | undefined;
 	readonly fieldSchema: RotationFieldSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly transform3DMode: boolean;
@@ -227,6 +232,7 @@ export type SelectedOutlineRotationDragState = {
 export type SequenceWithSelectedOutline = {
 	readonly depth: number;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly key: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly sequence: TSequence;

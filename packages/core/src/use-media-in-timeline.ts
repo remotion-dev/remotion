@@ -1,5 +1,8 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {
+	Html5MediaTrimContext,
+	useMediaStartsAt,
+} from './audio/use-audio-frame.js';
 import type {LoopDisplay, TSequence} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
@@ -54,6 +57,7 @@ export const useBasicMediaInTimeline = ({
 	}
 
 	const parentSequence = useContext(SequenceContext);
+	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
@@ -79,17 +83,21 @@ export const useBasicMediaInTimeline = ({
 			});
 		}
 
-		return new Array(Math.floor(Math.max(0, duration + mediaStartsAt)))
+		// Curves start at the first visible frame, just like the live volume callback.
+		// Sampling composition frames also preserves fractional local frames at slow rates.
+		return new Array(
+			Math.ceil(Math.max(0, duration + mediaStartsAt) / sequencePlaybackRate),
+		)
 			.fill(true)
 			.map((_, i) => {
 				return evaluateVolume({
-					frame: i + mediaStartsAt,
+					frame: i * sequencePlaybackRate,
 					volume,
 					mediaVolume,
 				});
 			})
 			.join(',');
-	}, [duration, mediaStartsAt, volume, mediaVolume]);
+	}, [duration, mediaStartsAt, volume, mediaVolume, sequencePlaybackRate]);
 
 	useEffect(() => {
 		if (typeof volume === 'number' && volume !== initialVolume) {
@@ -166,7 +174,7 @@ export const useMediaInTimeline = ({
 	muted: boolean;
 }) => {
 	const parentSequence = useContext(SequenceContext);
-	const startsAt = useMediaStartsAt();
+	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
@@ -209,11 +217,12 @@ export const useMediaInTimeline = ({
 			muted,
 			showInTimeline: true,
 			timelineOrder: null,
-			startMediaFrom: 0 - startsAt,
-			mediaFrameAtSequenceZero: null,
+			startMediaFrom: mediaTrimBefore,
+			mediaFrameAtSequenceZero: mediaTrimBefore * (1 - playbackRate),
 			doesVolumeChange,
 			loopDisplay,
 			playbackRate,
+			sequencePlaybackRate: 1,
 			getStack,
 			premountDisplay,
 			postmountDisplay,
@@ -232,7 +241,7 @@ export const useMediaInTimeline = ({
 		volumes,
 		doesVolumeChange,
 		mediaType,
-		startsAt,
+		mediaTrimBefore,
 		playbackRate,
 		getStack,
 		premountDisplay,

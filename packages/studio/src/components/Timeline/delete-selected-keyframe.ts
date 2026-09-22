@@ -91,10 +91,14 @@ const getSelectedKeyframeDeletion = ({
 		const effectKeyframeDisplayOffset = getKeyframeDisplayOffset({
 			propStatus: effectPropStatus,
 			keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
 		});
-		const effectSourceFrame = frame - effectKeyframeDisplayOffset;
+		const effectSourceFrame =
+			(frame - effectKeyframeDisplayOffset) *
+			(track?.keyframePlaybackRate ?? 1);
 		const effectPlayheadSourceFrame =
-			timelinePosition - effectKeyframeDisplayOffset;
+			(timelinePosition - effectKeyframeDisplayOffset) *
+			(track?.keyframePlaybackRate ?? 1);
 		const effectValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 			propStatus: effectPropStatus,
 			playheadSourceFrame: effectPlayheadSourceFrame,
@@ -119,9 +123,13 @@ const getSelectedKeyframeDeletion = ({
 	const keyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus: sequencePropStatus,
 		keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+		keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
 	});
-	const sourceFrame = frame - keyframeDisplayOffset;
-	const playheadSourceFrame = timelinePosition - keyframeDisplayOffset;
+	const sourceFrame =
+		(frame - keyframeDisplayOffset) * (track?.keyframePlaybackRate ?? 1);
+	const playheadSourceFrame =
+		(timelinePosition - keyframeDisplayOffset) *
+		(track?.keyframePlaybackRate ?? 1);
 	const sequenceValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 		propStatus: sequencePropStatus,
 		playheadSourceFrame,

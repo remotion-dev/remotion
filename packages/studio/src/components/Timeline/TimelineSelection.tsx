@@ -751,6 +751,7 @@ export const getSelectableTimelineItems = ({
 					nodePath: nodePathInfo.sequenceSubscriptionKey,
 					propStatuses,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
 					getDragOverrides,
 					getEffectDragOverrides,
 					timelinePosition,

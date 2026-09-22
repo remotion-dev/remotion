@@ -34,15 +34,15 @@ export const usePremounting = ({
 		? (premountFor ?? fps)
 		: (premountFor ?? 0);
 	const effectivePostmountFor = postmountFor ?? 0;
-	const endThreshold = Math.ceil(from + durationInFrames - 1);
+	const endExclusive = from + durationInFrames;
 	const premountingActive =
 		!environment.isRendering &&
 		frame < from &&
 		frame >= from - effectivePremountFor;
 	const postmountingActive =
 		!environment.isRendering &&
-		frame > endThreshold &&
-		frame <= endThreshold + effectivePostmountFor;
+		frame >= endExclusive &&
+		frame < endExclusive + effectivePostmountFor;
 	const isPremountingOrPostmounting = premountingActive || postmountingActive;
 	const freezeFrame = premountingActive
 		? from

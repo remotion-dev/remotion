@@ -1074,7 +1074,9 @@ const useSelectedOutlineUvTarget = (
 				nodePath: layoutTarget.nodePathInfo.sequenceSubscriptionKey,
 				selectedEffects: selectedEffectsBySequenceKey.get(layoutTarget.key),
 				sequence: layoutTarget.sequence,
-				sourceFrame: timelinePosition - layoutTarget.keyframeDisplayOffset,
+				sourceFrame:
+					(timelinePosition - layoutTarget.keyframeDisplayOffset) *
+					layoutTarget.keyframePlaybackRate,
 			}),
 		};
 	}, [

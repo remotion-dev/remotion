@@ -47,6 +47,7 @@ type SequenceTiming = {
 	from: number;
 	durationInFrames: number;
 	trimBefore: number;
+	playbackRate: number;
 	hasFrom: boolean;
 	hasDurationInFrames: boolean;
 	hasTrimBefore: boolean;
@@ -121,6 +122,7 @@ const readSequenceTiming = (element: JSXElement): SequenceTiming => {
 	let from = 0;
 	let durationInFrames = Infinity;
 	let trimBefore = 0;
+	let playbackRate = 1;
 	let hasFrom = false;
 	let hasDurationInFrames = false;
 	let hasTrimBefore = false;
@@ -134,7 +136,8 @@ const readSequenceTiming = (element: JSXElement): SequenceTiming => {
 		if (
 			name !== 'from' &&
 			name !== 'durationInFrames' &&
-			name !== 'trimBefore'
+			name !== 'trimBefore' &&
+			name !== 'playbackRate'
 		) {
 			continue;
 		}
@@ -158,12 +161,21 @@ const readSequenceTiming = (element: JSXElement): SequenceTiming => {
 			trimBefore = value;
 			hasTrimBefore = true;
 		}
+
+		if (name === 'playbackRate') {
+			if (!Number.isFinite(value) || value <= 0) {
+				throw new Error('Cannot split sequence with invalid playbackRate');
+			}
+
+			playbackRate = value;
+		}
 	}
 
 	return {
 		from,
 		durationInFrames,
 		trimBefore,
+		playbackRate,
 		hasFrom,
 		hasDurationInFrames,
 		hasTrimBefore,
@@ -411,8 +423,8 @@ export const splitJsxSequences = ({
 	const ast = parseAst(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
 	const targets = splits.map(({nodePath, sequenceKeys, splitFrame}) => {
-		if (!Number.isInteger(splitFrame)) {
-			throw new Error('Split frame must be an integer');
+		if (!Number.isFinite(splitFrame)) {
+			throw new Error('Split frame must be finite');
 		}
 
 		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
@@ -456,7 +468,7 @@ export const splitJsxSequences = ({
 					? Infinity
 					: normalizeComputedTiming(finiteEnd - splitFrame);
 			const rightTrimBefore = normalizeComputedTiming(
-				timing.trimBefore + leftDuration,
+				timing.trimBefore + leftDuration * timing.playbackRate,
 			);
 
 			setNumericAttribute({

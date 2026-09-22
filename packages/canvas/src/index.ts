@@ -5,6 +5,7 @@ export {createCanvasController, useCanvasController} from './canvas-controller';
 export type {CanvasController} from './canvas-controller';
 export {getConnectedCompositions} from './get-connected-compositions';
 export {
+	getParentSequencePlaybackRate,
 	getCascadedStart,
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,

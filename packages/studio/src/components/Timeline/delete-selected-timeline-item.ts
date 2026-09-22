@@ -241,13 +241,16 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 
 		return getEasingSelectionAfterKeyframeDelete({
 			deletedSourceFrames: [
-				selection.frame -
+				(selection.frame -
 					getKeyframeDisplayOffset({
 						propStatus: sequencePropStatus,
 						keyframeDisplayOffset: track.keyframeDisplayOffset,
-					}),
+						keyframePlaybackRate: track.keyframePlaybackRate,
+					})) *
+					track.keyframePlaybackRate,
 			],
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 			nodePathInfo: selection.nodePathInfo,
 			propStatus: sequencePropStatus,
 			timelinePosition,
@@ -274,13 +277,16 @@ const getEasingSelectionAfterDeletingKeyframes = ({
 
 	return getEasingSelectionAfterKeyframeDelete({
 		deletedSourceFrames: [
-			selection.frame -
+			(selection.frame -
 				getKeyframeDisplayOffset({
 					propStatus: effectPropStatus,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
-				}),
+					keyframePlaybackRate: track.keyframePlaybackRate,
+				})) *
+				track.keyframePlaybackRate,
 		],
 		keyframeDisplayOffset: track.keyframeDisplayOffset,
+		keyframePlaybackRate: track.keyframePlaybackRate,
 		nodePathInfo: selection.nodePathInfo,
 		propStatus: effectPropStatus,
 		timelinePosition,

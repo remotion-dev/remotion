@@ -110,6 +110,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 	const startsAt = Internals.useMediaStartsAt();
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const startInVideo = sequenceContext
 		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 		: 0;
@@ -173,7 +174,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			);
 		}
 
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
 		const newHandle = delayRender(
@@ -189,7 +190,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate,
+			playbackRate: playbackRate * sequencePlaybackRate,
 			logLevel,
 			includeAudio: shouldUseAudio,
 			includeVideo: videoEnabled,
@@ -429,6 +430,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		shouldUseAudio,
 		onVideoFrame,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
 		startInVideo,

@@ -3,6 +3,7 @@ import type {CanUpdateSequencePropStatus} from 'remotion';
 export const getTimelineKeyframes = (
 	propStatus: CanUpdateSequencePropStatus | null | undefined,
 	keyframeDisplayOffset = 0,
+	keyframePlaybackRate = 1,
 ): {frame: number; value: unknown}[] => {
 	if (!propStatus) {
 		return [];
@@ -16,30 +17,34 @@ export const getTimelineKeyframes = (
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
-	if (resolvedKeyframeDisplayOffset === 0) {
+	if (resolvedKeyframeDisplayOffset === 0 && keyframePlaybackRate === 1) {
 		return keyframes;
 	}
 
 	return keyframes.map((keyframe) => ({
 		...keyframe,
-		frame: keyframe.frame + resolvedKeyframeDisplayOffset,
+		frame:
+			keyframe.frame / keyframePlaybackRate + resolvedKeyframeDisplayOffset,
 	}));
 };
 
 export const getKeyframeDisplayOffset = ({
 	propStatus,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 }: {
 	propStatus: CanUpdateSequencePropStatus | null | undefined;
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 }): number => {
 	return (
 		keyframeDisplayOffset +
 		(propStatus?.status === 'keyframed' || propStatus?.status === 'static'
 			? propStatus.keyframeDisplayOffsetAdjustment === null
 				? 0
-				: propStatus.keyframeDisplayOffsetAdjustment
+				: propStatus.keyframeDisplayOffsetAdjustment / keyframePlaybackRate
 			: 0)
 	);
 };

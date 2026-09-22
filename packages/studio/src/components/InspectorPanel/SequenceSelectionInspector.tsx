@@ -434,6 +434,7 @@ const SequenceExpandedInspector: React.FC<{
 						validatedLocation={validatedLocation}
 						nodePathInfo={track.nodePathInfo}
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						keyframePlaybackRate={track.keyframePlaybackRate}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
 					<CollapsibleInspectorSection

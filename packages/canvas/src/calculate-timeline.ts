@@ -6,6 +6,7 @@ import type {
 } from 'remotion';
 import {getConnectedCompositions} from './get-connected-compositions';
 import {
+	getParentSequencePlaybackRate,
 	getCascadedStart,
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,
@@ -25,7 +26,15 @@ const getInheritedLoopDisplay = (
 	sequences: TSequence[],
 ): LoopDisplay | undefined => {
 	if (sequence.loopDisplay) {
-		return sequence.loopDisplay;
+		return {
+			...sequence.loopDisplay,
+			startOffset:
+				sequence.loopDisplay.startOffset /
+				getParentSequencePlaybackRate(sequence, sequences),
+			durationInFrames:
+				sequence.loopDisplay.durationInFrames /
+				getParentSequencePlaybackRate(sequence, sequences),
+		};
 	}
 
 	if (!sequence.parent) {
@@ -96,10 +105,12 @@ export const calculateTimeline = ({
 			sequence,
 			sortedSequences,
 		);
-		const effectiveFrom =
-			sequence.trimBefore === null
-				? sequence.from
-				: sequence.from - sequence.trimBefore;
+		const parentPlaybackRate = getParentSequencePlaybackRate(
+			sequence,
+			sortedSequences,
+		);
+		const sequencePlaybackRate =
+			parentPlaybackRate * sequence.sequencePlaybackRate;
 
 		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
 		const visibleDuration = getTimelineVisibleDuration(
@@ -119,9 +130,20 @@ export const calculateTimeline = ({
 			sequence: {
 				...sequence,
 				from: visibleStart,
+				sequencePlaybackRate,
+				premountDisplay:
+					sequence.premountDisplay === null
+						? null
+						: sequence.premountDisplay / parentPlaybackRate,
+				postmountDisplay:
+					sequence.postmountDisplay === null
+						? null
+						: sequence.postmountDisplay / parentPlaybackRate,
 				duration: visibleDuration,
 				loopDisplay:
-					sequence.type === 'audio' || sequence.type === 'video'
+					sequence.loopDisplay ||
+					sequence.type === 'audio' ||
+					sequence.type === 'video'
 						? getInheritedLoopDisplay(sequence, sortedSequences)
 						: sequence.loopDisplay,
 			},
@@ -130,9 +152,11 @@ export const calculateTimeline = ({
 			localStart: sequence.from,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
-				? cascadedStartWithTrim - effectiveFrom
+				? cascadedStart - sequence.from / parentPlaybackRate
 				: 0,
-			sequenceFrameOffset: visibleStart - cascadedStartWithTrim,
+			sequenceFrameOffset:
+				(visibleStart - cascadedStartWithTrim) * sequencePlaybackRate,
+			keyframePlaybackRate: parentPlaybackRate,
 			nodePathInfo: nodePath
 				? {
 						sequenceSubscriptionKey: nodePath,

@@ -46,6 +46,7 @@ test('gets easing selection after deleting an in-between keyframe', () => {
 		getEasingSelectionAfterKeyframeDelete({
 			deletedSourceFrames: [10],
 			keyframeDisplayOffset: 5,
+			keyframePlaybackRate: 1,
 			nodePathInfo,
 			propStatus: keyframedStatus,
 			timelinePosition: 15,
@@ -66,6 +67,7 @@ test('does not select an easing after deleting an edge keyframe', () => {
 		getEasingSelectionAfterKeyframeDelete({
 			deletedSourceFrames: [0],
 			keyframeDisplayOffset: 5,
+			keyframePlaybackRate: 1,
 			nodePathInfo,
 			propStatus: keyframedStatus,
 			timelinePosition: 5,

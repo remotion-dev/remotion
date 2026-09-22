@@ -115,14 +115,18 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		throw new TypeError('No `src` was passed to <NewAudioForPreview>.');
 	}
 
-	const currentTime = frame / videoConfig.fps;
+	const parentSequence = useContext(SequenceContext);
+	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
+	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const sequenceDurationInFrames =
+		videoConfig.durationInFrames / sequencePlaybackRate;
+	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
 
 	const preloadedSrc = usePreload(src);
 
-	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
@@ -138,10 +142,10 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
-	const initialPlaybackRate = useRef(playbackRate);
+	const initialPlaybackRate = useRef(effectivePlaybackRate);
 	const initialMuted = useRef(effectiveMuted);
 	const initialVolume = useRef(userPreferredVolume);
-	const initialDurationInFrames = useRef(videoConfig.durationInFrames);
+	const initialDurationInFrames = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const onErrorRef = useRef(onError);
 	onErrorRef.current = onError;
@@ -159,13 +163,13 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		trimAfter,
 		effectiveMuted,
 		userPreferredVolume,
-		playbackRate,
+		playbackRate: effectivePlaybackRate,
 		toneFrequency: toneFrequency ?? 1,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,
-		durationInFrames: videoConfig.durationInFrames,
+		durationInFrames: sequenceDurationInFrames,
 		isPremounting,
 		isPostmounting,
 		currentTime,

@@ -98,6 +98,8 @@ Transition scenes must stay absolutely positioned. Remove the `layout` prop or k
 
 The [`trimBefore`](/docs/sequence#trimbefore) prop is supported from <AvailableFrom v="4.0.497" inline />.
 
+The [`playbackRate`](/docs/sequence#playbackrate) prop is supported from <AvailableFrom v="4.0.528" inline /> on both `<TransitionSeries>` and `<TransitionSeries.Sequence>`. It defaults to `1` and must remain constant across frames. A sequence's rate changes its content without changing its duration or transition timing. A rate on `<TransitionSeries>` speeds up the entire series, including its transitions.
+
 As children, put the contents of your scene.
 
 ### `<TransitionSeries.Transition>`

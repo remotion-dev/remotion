@@ -69,6 +69,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const startInVideo = sequenceContext
 		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 		: 0;
@@ -99,7 +100,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	});
 
 	useLayoutEffect(() => {
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
 		if (!shouldUseAudio) {
@@ -120,7 +121,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate: playbackRate ?? 1,
+			playbackRate: (playbackRate ?? 1) * sequencePlaybackRate,
 			logLevel,
 			includeAudio: shouldUseAudio,
 			includeVideo: false,
@@ -274,6 +275,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		loopVolumeCurveBehavior,
 		shouldUseAudio,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
 		startInVideo,

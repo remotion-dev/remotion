@@ -186,7 +186,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
-	const currentTime = frame / videoConfig.fps;
+	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
+	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const sequenceDurationInFrames =
+		videoConfig.durationInFrames / sequencePlaybackRate;
+	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
@@ -204,11 +208,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
-	const initialPlaybackRate = useRef(playbackRate);
+	const initialPlaybackRate = useRef(effectivePlaybackRate);
 	const initialToneFrequency = useRef(toneFrequency);
 	const initialMuted = useRef(effectiveMuted);
 	const initialVolume = useRef(userPreferredVolume);
-	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
+	const initialSequenceDuration = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const hasDrawnRealFrameRef = useRef(false);
 	const isPremountingRef = useRef(isPremounting);
@@ -490,13 +494,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		trimAfter,
 		effectiveMuted,
 		userPreferredVolume,
-		playbackRate,
+		playbackRate: effectivePlaybackRate,
 		toneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,
-		durationInFrames: videoConfig.durationInFrames,
+		durationInFrames: sequenceDurationInFrames,
 		isPremounting,
 		isPostmounting,
 		currentTime,

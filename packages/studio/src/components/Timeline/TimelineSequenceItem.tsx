@@ -299,6 +299,7 @@ const TimelineSequenceItemInner: React.FC<{
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly sequenceFrameOffset: number;
 	readonly siblingIndex: number;
 	readonly numberOfHiddenDuplicates: number;
@@ -310,6 +311,7 @@ const TimelineSequenceItemInner: React.FC<{
 	sequence,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	sequenceFrameOffset,
 	siblingIndex,
 	numberOfHiddenDuplicates,
@@ -1570,6 +1572,7 @@ const TimelineSequenceItemInner: React.FC<{
 					nodePathInfo={nodePathInfo}
 					nestedDepth={nestedDepth}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 				/>
 			) : null}
 		</>

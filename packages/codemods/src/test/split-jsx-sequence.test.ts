@@ -75,3 +75,29 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 		nodePathRemappings.filter((remapping) => remapping.oldNodePath === null),
 	).toHaveLength(2);
 });
+
+test('splitting a sped-up sequence preserves its child clock across a fractional parent frame', async () => {
+	const input =
+		'export const Comp = () => <Sequence from={10} durationInFrames={50} trimBefore={5} playbackRate={2} />;';
+	const ast = parseAst(input);
+	let nodePath = null;
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(path) {
+			nodePath = getNodePathForRecastPath(path, ast);
+			return false;
+		},
+	});
+	if (!nodePath) throw new Error('Could not find Sequence');
+	const {output} = await splitJsxSequence({
+		input,
+		nodePath,
+		sequenceKeys: ['from', 'durationInFrames', 'trimBefore', 'playbackRate'],
+		splitFrame: 22.5,
+	});
+	expect(output.replace(/\s+/g, ' ')).toContain(
+		'from={10} durationInFrames={12.5} trimBefore={5} playbackRate={2}',
+	);
+	expect(output.replace(/\s+/g, ' ')).toContain(
+		'from={22.5} durationInFrames={37.5} trimBefore={30} playbackRate={2}',
+	);
+});

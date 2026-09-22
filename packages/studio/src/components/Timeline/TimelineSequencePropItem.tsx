@@ -235,10 +235,12 @@ type TimelineSequenceKeyframedValueProps =
 			| {
 					readonly sourceFrame: number;
 					readonly keyframeDisplayOffset?: never;
+					readonly keyframePlaybackRate?: never;
 			  }
 			| {
 					readonly sourceFrame?: never;
 					readonly keyframeDisplayOffset: number;
+					readonly keyframePlaybackRate: number;
 			  }
 		);
 
@@ -292,18 +294,23 @@ const TimelineSequenceKeyframedValueAtSourceFrame: React.FC<
 const TimelineSequenceKeyframedValueAtCurrentFrame: React.FC<
 	Omit<TimelineSequenceKeyframedValueAtSourceFrameProps, 'sourceFrame'> & {
 		readonly keyframeDisplayOffset: number;
+		readonly keyframePlaybackRate: number;
 	}
-> = ({keyframeDisplayOffset, ...props}) => {
+> = ({keyframeDisplayOffset, keyframePlaybackRate, ...props}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus: props.propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	return (
 		<TimelineSequenceKeyframedValueAtSourceFrame
 			{...props}
-			sourceFrame={timelinePosition - resolvedKeyframeDisplayOffset}
+			sourceFrame={
+				(timelinePosition - resolvedKeyframeDisplayOffset) *
+				keyframePlaybackRate
+			}
 		/>
 	);
 };
@@ -392,6 +399,7 @@ const TimelineSequenceKeyframedValueUnmemoized: React.FC<
 		<TimelineSequenceKeyframedValueAtCurrentFrame
 			{...valueProps}
 			keyframeDisplayOffset={props.keyframeDisplayOffset}
+			keyframePlaybackRate={props.keyframePlaybackRate}
 		/>
 	);
 };
@@ -408,6 +416,7 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 	readonly runtimeValue: unknown;
 }> = ({
@@ -418,6 +427,7 @@ export const TimelineSequencePropItem: React.FC<{
 	nodePathInfo,
 	schema,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 	runtimeValue,
 }) => {
@@ -463,6 +473,7 @@ export const TimelineSequencePropItem: React.FC<{
 				nodePath={nodePath}
 				fileName={validatedLocation.source}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				keyframePlaybackRate={keyframePlaybackRate}
 				defaultValue={field.fieldSchema.default}
 				dragOverrideValue={dragOverrideValue}
 				schema={schema}
@@ -604,6 +615,7 @@ export const TimelineSequencePropItem: React.FC<{
 			schema={schema}
 			propStatus={propStatus}
 			keyframeDisplayOffset={keyframeDisplayOffset}
+			keyframePlaybackRate={keyframePlaybackRate}
 		/>
 	) : propStatus.status === 'static' ? (
 		<Value
