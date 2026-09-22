@@ -107,10 +107,7 @@
       "name": "@remotion/brand",
       "version": "4.0.527",
       "dependencies": {
-        "@huggingface/transformers": "4.2.0",
         "@mediabunny/prores": "catalog:",
-        "@remotion/video-matting": "workspace:*",
-        "@remotion/whisper-webgpu": "4.0.527",
       },
       "devDependencies": {
         "@code-hike/lighter": "1.0.3",
