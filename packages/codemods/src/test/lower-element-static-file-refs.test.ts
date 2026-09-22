@@ -10,9 +10,9 @@ test('lowers inline Element asset references and preserves layers', () => {
 import {Img, staticFile as file} from 'remotion';
 
 export const Card = () => <>
-	<Img name="Logo" src={asset('card/logo.png', 'https://example.com/logo.png')} />
-	<audio data-layer="Sound" src={asset('card/sound.mp3', 'data:audio/mpeg;base64,AA==')} />
-	<Img name="Repeated" src={asset('card/logo.png', 'https://example.com/logo.png')} />
+	<Img name="Logo" src={asset({path: 'card/logo.png', previewSrc: 'https://example.com/logo.png'})} />
+	<audio data-layer="Sound" src={asset({previewSrc: 'data:audio/mpeg;base64,AA==', path: 'card/sound.mp3'})} />
+	<Img name="Repeated" src={asset({'path': 'card/logo.png', 'previewSrc': 'https://example.com/logo.png'})} />
 </>;
 `,
 	});
@@ -35,7 +35,7 @@ test('adds staticFile and removes an empty protocol import', () => {
 		assets: [{path: 'card/logo.png'}],
 		sourceCode: `import {staticFileRef} from '@remotion/studio-protocol';
 import {Img} from 'remotion';
-export const Card = () => <Img src={staticFileRef('card/logo.png', '/preview.png')} />;
+export const Card = () => <Img src={staticFileRef({path: 'card/logo.png', previewSrc: '/preview.png'})} />;
 `,
 	});
 
@@ -45,32 +45,47 @@ export const Card = () => <Img src={staticFileRef('card/logo.png', '/preview.png
 });
 
 test('rejects unsupported or unsafe staticFileRef usage without partial output', () => {
+	const options = "{path: 'card/logo.png', previewSrc: '/preview.png'}";
 	const cases = [
-		`import {staticFileRef} from '@remotion/studio-protocol';
-export const Card = () => staticFileRef('other.png', '/preview.png');`,
-		`import {staticFileRef} from '@remotion/studio-protocol';
+		...[
+			"{path: 'other.png', previewSrc: '/preview.png'}",
+			"{path, previewSrc: '/preview.png'}",
+			"{path: 'card/logo.png'}",
+			"{previewSrc: '/preview.png'}",
+			"{path: 'card/logo.png', previewSrc: ''}",
+			"{path: 'card/logo.png', previewSrc: getPreview()}",
+			"{...options, path: 'card/logo.png'}",
+			"{['path']: 'card/logo.png', previewSrc: '/preview.png'}",
+			"{path: 'card/logo.png', path: 'card/sound.mp3'}",
+			"{path: 'card/logo.png', get previewSrc() {return '/preview.png'}}",
+			"{path: 'card/logo.png', previewSrc: '/preview.png', extra: true}",
+			'options',
+			`${options}, '/preview.png'`,
+			"'card/logo.png', '/preview.png'",
+		].map(
+			(args) => `import {staticFileRef} from '@remotion/studio-protocol';
 const path = 'card/logo.png';
-export const Card = () => staticFileRef(path, '/preview.png');`,
-		`import {staticFileRef} from '@remotion/studio-protocol';
-export const Card = () => staticFileRef('card/logo.png');`,
+const options = ${options};
+export const Card = () => staticFileRef(${args});`,
+		),
 		`import * as Protocol from '@remotion/studio-protocol';
-export const Card = () => Protocol.staticFileRef('card/logo.png', '/preview.png');`,
+export const Card = () => Protocol.staticFileRef(${options});`,
 		`import {staticFileRef} from '@remotion/studio-protocol';
 const ref = staticFileRef;
-export const Card = () => ref('card/logo.png', '/preview.png');`,
+export const Card = () => ref(${options});`,
 		`import {staticFileRef as asset} from '@remotion/studio-protocol';
 const metadata = {asset};
-export const Card = () => asset('card/logo.png', '/preview.png');`,
+export const Card = () => asset(${options});`,
 		`import {staticFileRef as asset} from '@remotion/studio-protocol';
 const metadata = {[asset]: 'Logo'};
-export const Card = () => asset('card/logo.png', '/preview.png');`,
+export const Card = () => asset(${options});`,
 		`import {staticFileRef} from '@remotion/studio-protocol';
 const staticFile = () => '';
-export const Card = () => staticFileRef('card/logo.png', '/preview.png');`,
-		`export const Card = () => staticFileRef('card/logo.png', '/preview.png');`,
+export const Card = () => staticFileRef(${options});`,
+		`export const Card = () => staticFileRef(${options});`,
 		`import {staticFileRef} from '@remotion/studio-protocol';
 import {staticFile as file} from 'remotion';
-export const Card = ({file}: {file: () => string}) => staticFileRef('card/logo.png', '/preview.png');`,
+export const Card = ({file}: {file: () => string}) => staticFileRef(${options});`,
 	];
 
 	for (const sourceCode of cases) {
@@ -84,7 +99,7 @@ test('distinguishes imported references from property names and shadowed locals'
 		sourceCode: `import {staticFileRef as asset} from '@remotion/studio-protocol';
 const metadata = {asset: 'Logo'};
 const local = (asset: string) => asset;
-export const Card = () => <img alt={metadata.asset} src={asset('card/logo.png', '/preview.png')} />;`,
+export const Card = () => <img alt={metadata.asset} src={asset({path: 'card/logo.png', previewSrc: '/preview.png'})} />;`,
 	});
 	expect(result).toContain("{asset: 'Logo'}");
 	expect(result).toContain('metadata.asset');

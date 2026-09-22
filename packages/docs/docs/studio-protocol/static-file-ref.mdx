@@ -17,10 +17,10 @@ import {Img} from 'remotion';
 export const ProductCard = () => (
   <Img
     name="Logo"
-    src={staticFileRef(
-      'product-card/logo.png',
-      'https://cdn.example.com/product-card/logo.png',
-    )}
+    src={staticFileRef({
+      path: 'product-card/logo.png',
+      previewSrc: 'https://cdn.example.com/product-card/logo.png',
+    })}
   />
 );
 ```
@@ -63,6 +63,8 @@ Keep the call inline on the media or interactive layer so the installed source r
 
 ## Arguments
 
+Pass an inline object with the following fields:
+
 ### `path`
 
 A string literal that exactly matches an `assets` entry in [`createElementPayload()`](/docs/studio-protocol/create-element-payload#assets).
@@ -71,7 +73,7 @@ A string literal that exactly matches an `assets` entry in [`createElementPayloa
 
 A non-empty string literal returned when the component runs on the library website. `staticFileRef()` does not fetch or register this URL. The matching `assets` descriptor remains the source Studio downloads or decodes.
 
-Import `staticFileRef()` as a direct named import. Studio rejects non-literal arguments, undeclared paths, and indirect or namespace calls during preparation, before confirmation or asset downloads.
+Import `staticFileRef()` as a direct named import. Studio rejects variables, spreads, computed properties, non-literal field values, undeclared paths, and indirect or namespace calls during preparation, before confirmation or asset downloads.
 
 For assets that should remain remote after installation, use the URL directly instead of `staticFileRef()`.
 

@@ -177,7 +177,7 @@ const CloseupPlaceholder = () => {
 	const protocolElementSource = `import {staticFileRef} from '@remotion/studio-protocol';
 
 export const ProtocolElement = () => (
-	<div data-asset={staticFileRef('protocol-element/data.bin', 'https://preview.example/data.bin')}>
+	<div data-asset={staticFileRef({path: 'protocol-element/data.bin', previewSrc: 'https://preview.example/data.bin'})}>
 		Installed through protocol
 	</div>
 );`;

@@ -267,7 +267,7 @@ test('installs Element assets in a custom public directory and retains them on u
 import {Img} from 'remotion';
 
 export const LowerThird = () => (
-	<Img name="Logo" src={staticFileRef('elements/remote.bin', 'https://preview.example/logo.png')} />
+	<Img name="Logo" src={staticFileRef({path: 'elements/remote.bin', previewSrc: 'https://preview.example/logo.png'})} />
 );
 `,
 		};

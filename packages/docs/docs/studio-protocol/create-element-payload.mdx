@@ -21,10 +21,10 @@ export const MyElement = () => {
   return (
     <Img
       name="Logo"
-      src={staticFileRef(
-        'my-element/logo.png',
-        'https://example.com/logo.png',
-      )}
+      src={staticFileRef({
+        path: 'my-element/logo.png',
+        previewSrc: 'https://example.com/logo.png',
+      })}
     />
   );
 };

@@ -69,7 +69,7 @@ export const lowerElementStaticFileRefs = ({
 		}
 	}
 
-	const calls: namedTypes.CallExpression[] = [];
+	const calls: {node: namedTypes.CallExpression; assetPath: string}[] = [];
 	const declaredPaths = new Set(assets.map((asset) => asset.path));
 	const outputLocalName = existingStaticFileLocalName ?? 'staticFile';
 	recast.types.visit(ast, {
@@ -112,14 +112,40 @@ export const lowerElementStaticFileRefs = ({
 				return undefined;
 			}
 
+			const options = path.node.arguments[0];
+			const invalidOptionsMessage =
+				'staticFileRef() requires an inline object with path and previewSrc as non-empty string literals';
 			if (
-				path.node.arguments.length !== 2 ||
-				path.node.arguments[0]?.type !== 'StringLiteral' ||
-				path.node.arguments[1]?.type !== 'StringLiteral'
+				path.node.arguments.length !== 1 ||
+				options?.type !== 'ObjectExpression' ||
+				options.properties.length !== 2
 			) {
-				throw new Error(
-					'staticFileRef() requires an asset path and preview source as string literals',
-				);
+				throw new Error(invalidOptionsMessage);
+			}
+
+			const values = new Map<string, string>();
+			for (const property of options.properties) {
+				if (
+					property.type !== 'ObjectProperty' ||
+					property.computed ||
+					property.shorthand ||
+					property.value.type !== 'StringLiteral' ||
+					property.value.value.length === 0
+				) {
+					throw new Error(invalidOptionsMessage);
+				}
+
+				const key =
+					property.key.type === 'Identifier'
+						? property.key.name
+						: property.key.type === 'StringLiteral'
+							? property.key.value
+							: null;
+				if ((key !== 'path' && key !== 'previewSrc') || values.has(key)) {
+					throw new Error(invalidOptionsMessage);
+				}
+
+				values.set(key, property.value.value);
 			}
 
 			const staticFileBinding = path.scope.lookup(outputLocalName);
@@ -133,14 +159,14 @@ export const lowerElementStaticFileRefs = ({
 				);
 			}
 
-			const assetPath = path.node.arguments[0].value;
-			if (!declaredPaths.has(assetPath)) {
+			const assetPath = values.get('path');
+			if (assetPath === undefined || !declaredPaths.has(assetPath)) {
 				throw new Error(
 					`staticFileRef() path ${JSON.stringify(assetPath)} is not declared in the Element assets`,
 				);
 			}
 
-			calls.push(path.node);
+			calls.push({node: path.node, assetPath});
 			// This direct call is valid; only inspect references elsewhere.
 			return false;
 		},
@@ -175,9 +201,9 @@ export const lowerElementStaticFileRefs = ({
 			localName: outputLocalName,
 			sourcePath: 'remotion',
 		});
-		for (const call of calls) {
-			call.callee = recast.types.builders.identifier(localName);
-			call.arguments = [call.arguments[0]];
+		for (const {node, assetPath} of calls) {
+			node.callee = recast.types.builders.identifier(localName);
+			node.arguments = [recast.types.builders.stringLiteral(assetPath)];
 		}
 	}
 

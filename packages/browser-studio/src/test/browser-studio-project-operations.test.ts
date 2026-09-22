@@ -532,7 +532,7 @@ import {Img} from 'remotion';
 
 export const LowerThird = () => <>
 	<Rect width={640} height={180} />
-	<Img name="Logo" src={staticFileRef('elements/lower-third.bin', 'https://preview.example/logo.png')} />
+	<Img name="Logo" src={staticFileRef({path: 'elements/lower-third.bin', previewSrc: 'https://preview.example/logo.png'})} />
 </>;
 `,
 	} satisfies ElementDragData['element'];

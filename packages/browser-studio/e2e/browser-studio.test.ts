@@ -1252,7 +1252,7 @@ import {Img} from 'remotion';
 const metadata = {asset: 'Element asset'};
 export const BrowserElement = () => <>
 	<Rect width={320} height={180} fill="red" />
-	<Img alt={metadata.asset} src={asset('browser-element/logo.svg', 'https://preview.example/logo.svg')} />
+	<Img alt={metadata.asset} src={asset({path: 'browser-element/logo.svg', previewSrc: 'https://preview.example/logo.svg'})} />
 </>;
 `,
 			},
