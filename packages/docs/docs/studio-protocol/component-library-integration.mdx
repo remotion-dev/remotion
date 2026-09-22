@@ -29,6 +29,12 @@ Import the component normally for the preview. The website bundler then compiles
 
 Use the same dimensions and duration in the Player and the Element payload. For a `component-owned-sequence` Element with replaceable starter content, set [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in the payload and pass the same object to the Player as `inputProps`.
 
+### Preview installed assets
+
+Use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) when an asset should use a hosted URL in the Player but become [`staticFile()`](/docs/staticfile) after installation. Put the call directly on the media or interactive layer and declare its public-relative path in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets).
+
+Assets that should remain remote after installation can use their URL directly. `staticFileRef()` is separate from `initialProps`; it keeps asset references on the editable layers in wrapped Elements.
+
 ## Reuse component code
 
 Use the same implementation in the Player preview and the installed Element. Import the component module for the Player. Load the component source as a string for the payload.
@@ -102,6 +108,7 @@ When Studio embeds the library through Browse Elements, use [`isInsideStudio()`]
 - [Element guidelines](/elements/contributing#element-guidelines)
 - [`<Player>`](/docs/player)
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`staticFileRef()`](/docs/studio-protocol/static-file-ref)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)
 - [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)

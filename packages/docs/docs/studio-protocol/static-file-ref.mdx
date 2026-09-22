@@ -1,0 +1,90 @@
+---
+image: /generated/articles-docs-studio-protocol-static-file-ref.png
+title: 'staticFileRef()'
+crumb: '@remotion/studio-protocol'
+---
+
+# staticFileRef()<AvailableFrom v="4.0.526" />
+
+Use `staticFileRef()` in Element source that is shared with a website preview. It returns the preview URL on the website. During installation, Studio replaces it with [`staticFile()`](/docs/staticfile) and the public-relative asset path.
+
+## Example
+
+```tsx twoslash title="ProductCard.tsx"
+import {staticFileRef} from '@remotion/studio-protocol';
+import {Img} from 'remotion';
+
+export const ProductCard = () => (
+  <Img
+    name="Logo"
+    src={staticFileRef(
+      'product-card/logo.png',
+      'https://cdn.example.com/product-card/logo.png',
+    )}
+  />
+);
+```
+
+Declare the same path in [`createElementPayload()`](/docs/studio-protocol/create-element-payload):
+
+```ts twoslash title="element-payload.ts"
+import {createElementPayload} from '@remotion/studio-protocol';
+
+const sourceCode = `export const ProductCard = () => null;`;
+// ---cut---
+createElementPayload({
+  displayName: 'Product Card',
+  slug: 'product-card',
+  sourceCode,
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+  assets: [
+    {
+      path: 'product-card/logo.png',
+      type: 'url',
+      url: 'https://cdn.example.com/product-card/logo.png',
+    },
+  ],
+});
+```
+
+Studio installs the asset and writes this source:
+
+```tsx title="product-card.element.tsx"
+import {Img, staticFile} from 'remotion';
+
+export const ProductCard = () => (
+  <Img name="Logo" src={staticFile('product-card/logo.png')} />
+);
+```
+
+Keep the call inline on the media or interactive layer so the installed source remains editable in Visual Mode.
+
+## Arguments
+
+### `path`
+
+A string literal that exactly matches an `assets` entry in [`createElementPayload()`](/docs/studio-protocol/create-element-payload#assets).
+
+### `previewSrc`
+
+A non-empty string literal returned when the component runs on the library website. `staticFileRef()` does not fetch or register this URL. The matching `assets` descriptor remains the source Studio downloads or decodes.
+
+Import `staticFileRef()` as a direct named import. Studio rejects non-literal arguments, undeclared paths, and indirect or namespace calls during preparation, before confirmation or asset downloads.
+
+For assets that should remain remote after installation, use the URL directly instead of `staticFileRef()`.
+
+## Return value
+
+The `previewSrc` string.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player studio={false} hideServers />
+
+## See also
+
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [Integrating a component library with Studio](/docs/studio-protocol/component-library-integration)
+- [`staticFile()`](/docs/staticfile)

@@ -98,6 +98,7 @@ export {
 } from './install-in-studio';
 export {isInsideStudio} from './is-inside-studio';
 export type {RenderOutputDragData} from './render-output-drag-data';
+export {staticFileRef} from './static-file-ref';
 export type {SfxDragData} from './sfx-drag-data';
 export type {
 	StudioProtocolDescriptor,

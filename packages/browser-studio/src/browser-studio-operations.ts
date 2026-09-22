@@ -77,6 +77,8 @@ const {
 	computeSequencePropsSubscriptionFromContent,
 	findProjectFile,
 	getBasicCaptionsElementFile,
+	lowerElementStaticFileRefs,
+	lowerElementStaticFileRefs,
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
@@ -2179,6 +2181,13 @@ export const createBrowserStudioOperations = ({
 		insertElement: async (request) => {
 			try {
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
+				const element = {
+					...request.element,
+					sourceCode: lowerElementStaticFileRefs({
+						assets: request.element.assets,
+						sourceCode: request.element.sourceCode,
+					}).sourceCode,
+				};
 				const installationMode = request.element.installationMode ?? 'wrapped';
 				const componentOwnsSequence =
 					installationMode === 'component-owned-sequence';
@@ -2240,7 +2249,7 @@ export const createBrowserStudioOperations = ({
 						compositionFile: request.compositionFile,
 						compositionId: request.compositionId,
 					},
-					element: request.element,
+					element,
 					project,
 				});
 				if (
@@ -2257,7 +2266,7 @@ export const createBrowserStudioOperations = ({
 							conflict: {
 								existingSource: plan.existingSource,
 								filePath: plan.filePath,
-								incomingSource: request.element.sourceCode,
+								incomingSource: element.sourceCode,
 							},
 						};
 					}
@@ -2272,7 +2281,7 @@ export const createBrowserStudioOperations = ({
 						conflict: {
 							existingSource: plan.existingSource,
 							filePath: plan.filePath,
-							incomingSource: request.element.sourceCode,
+							incomingSource: element.sourceCode,
 						},
 					};
 				}
@@ -2388,7 +2397,7 @@ export const createBrowserStudioOperations = ({
 					...insertion.project,
 					files: {
 						...insertion.project.files,
-						[plan.elementFilePath]: request.element.sourceCode,
+						[plan.elementFilePath]: element.sourceCode,
 					},
 				};
 				const nextProject = addDependenciesToProject({
@@ -2443,8 +2452,13 @@ export const createBrowserStudioOperations = ({
 		prepareElementInstall: async (request) => {
 			try {
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
+				const {sourceCode} = lowerElementStaticFileRefs({
+					assets: request.element.assets,
+					sourceCode: request.element.sourceCode,
+				});
 				const plan = await getElementInstallPlanForProject({
 					...request,
+					element: {...request.element, sourceCode},
 					project: getProject(),
 				});
 				return {

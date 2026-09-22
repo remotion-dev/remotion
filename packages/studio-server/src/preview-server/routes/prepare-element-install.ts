@@ -1,3 +1,4 @@
+import {CodemodsInternals} from '@remotion/codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	PrepareElementInstallRequest,
@@ -14,8 +15,13 @@ export const prepareElementInstallHandler: ApiHandler<
 	withSourceFileWriteQueue(async () => {
 		try {
 			StudioProtocolInternals.assertElementAssets(input.element.assets);
+			const {sourceCode} = CodemodsInternals.lowerElementStaticFileRefs({
+				assets: input.element.assets,
+				sourceCode: input.element.sourceCode,
+			});
 			const plan = await getElementInstallPlan({
 				...input,
+				element: {...input.element, sourceCode},
 				entryPoint,
 				remotionRoot,
 			});

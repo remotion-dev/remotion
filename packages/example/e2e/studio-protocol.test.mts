@@ -174,6 +174,13 @@ const CloseupPlaceholder = () => {
 		path.join(packagesDirectory, 'studio-protocol', 'dist', 'esm', 'index.mjs'),
 		'utf8',
 	);
+	const protocolElementSource = `import {staticFileRef} from '@remotion/studio-protocol';
+
+export const ProtocolElement = () => (
+	<div data-asset={staticFileRef('protocol-element/data.bin', 'https://preview.example/data.bin')}>
+		Installed through protocol
+	</div>
+);`;
 	const senderServer = createServer((request, response) => {
 		if (request.url === '/protocol.js') {
 			response.writeHead(200, {'Content-Type': 'text/javascript'});
@@ -194,7 +201,7 @@ const CloseupPlaceholder = () => {
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
-					sourceCode: 'export const ProtocolElement = () => <div>Installed through protocol</div>;',
+					sourceCode: ${JSON.stringify(protocolElementSource)},
 					dependencies: [],
 					dimensions: {width: 640, height: 120},
 					durationInFrames: 30,
@@ -471,9 +478,13 @@ const CloseupPlaceholder = () => {
 			'protocol-element.element.tsx',
 		);
 		await waitForFile(elementFile);
-		expect(fs.readFileSync(elementFile, 'utf8')).toContain(
-			'export const ProtocolElement',
+		const installedElementSource = fs.readFileSync(elementFile, 'utf8');
+		expect(installedElementSource).toContain('export const ProtocolElement');
+		expect(installedElementSource).toMatch(
+			/staticFile\(["']protocol-element\/data\.bin["']\)/,
 		);
+		expect(installedElementSource).not.toContain('staticFileRef');
+		expect(installedElementSource).not.toContain('preview.example');
 		const compositionSource = fs.readFileSync(
 			path.join(temporaryProject, 'src', 'Composition.tsx'),
 			'utf8',

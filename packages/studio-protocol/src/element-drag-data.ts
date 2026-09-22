@@ -177,7 +177,7 @@ const windowsReservedNames = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
 const strictBase64Regex =
 	/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
 
-const isValidElementAssetPath = (assetPath: string) =>
+export const isValidElementAssetPath = (assetPath: string) =>
 	assetPath.length > 0 &&
 	assetPath.length <= 1024 &&
 	!assetPath.startsWith('/') &&

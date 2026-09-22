@@ -244,8 +244,12 @@ test('plans an Element installation without changing the project', async () => {
 test('installs Element assets in a custom public directory and retains them on undo', async () => {
 	const fixture = makeFixture();
 	const originalFetch = globalThis.fetch;
+	let fetches = 0;
 	globalThis.fetch = Object.assign(
-		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
+		() => {
+			fetches++;
+			return Promise.resolve(new Response(new Uint8Array([3, 4, 5])));
+		},
 		{preconnect: originalFetch.preconnect},
 	);
 	try {
@@ -259,7 +263,41 @@ test('installs Element assets in a custom public directory and retains them on u
 					url: 'https://93.184.216.35/remote.bin',
 				},
 			],
+			sourceCode: `import {staticFileRef} from '@remotion/studio-protocol';
+import {Img} from 'remotion';
+
+export const LowerThird = () => (
+	<Img name="Logo" src={staticFileRef('elements/remote.bin', 'https://preview.example/logo.png')} />
+);
+`,
 		};
+		const invalidElement = {
+			...assetElement,
+			sourceCode: assetElement.sourceCode.replace(
+				'elements/remote.bin',
+				'elements/undeclared.bin',
+			),
+		};
+		expect(
+			await fixture.prepareInstall(fixture.currentDestination, invalidElement),
+		).toMatchObject({success: false});
+		expect(
+			await fixture.callHandlerWithInput({
+				installationName: 'invalid',
+				compositionFile: 'Root.tsx',
+				compositionId: 'target',
+				element: invalidElement,
+				expectedFileState: null,
+				from: null,
+				overwriteExisting: false,
+				position: null,
+				undoRedoNavigation: null,
+				newComposition: null,
+			}),
+		).toMatchObject({success: false});
+		expect(fetches).toBe(0);
+		expect(existsSync(fixture.publicDir)).toBe(false);
+
 		const preflight = await fixture.prepareInstall(
 			fixture.currentDestination,
 			assetElement,
@@ -286,6 +324,13 @@ test('installs Element assets in a custom public directory and retains them on u
 		expect(
 			readFileSync(path.join(fixture.publicDir, 'elements/remote.bin')),
 		).toEqual(Buffer.from([3, 4, 5]));
+		const installedSource = readFileSync(fixture.elementFile, 'utf8');
+		expect(installedSource).toMatch(
+			/<Img name="Logo" src=\{staticFile\(["']elements\/remote\.bin["']\)\} \/>/,
+		);
+		expect(installedSource).toContain("from 'remotion'");
+		expect(installedSource).not.toContain('staticFileRef');
+		expect(installedSource).not.toContain('preview.example');
 
 		expect(popUndo().success).toBe(true);
 		expect(existsSync(fixture.elementFile)).toBe(false);
@@ -301,7 +346,10 @@ test('installs Element assets in a custom public directory and retains them on u
 			compositionId: 'target',
 			element: {
 				...assetElement,
-				assets: [{path: 'elements/embedded.bin', type: 'base64', data: 'CQgH'}],
+				assets: [
+					{path: 'elements/embedded.bin', type: 'base64', data: 'CQgH'},
+					assetElement.assets[1],
+				],
 			},
 			expectedFileState: null,
 			from: null,

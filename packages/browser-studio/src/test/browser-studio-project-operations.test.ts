@@ -526,9 +526,14 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		initialProps: {label: 'Starter'},
 		installationMode: 'wrapped' as const,
 		slug: 'titles/lower-third',
-		sourceCode: `import {Rect} from '@remotion/shapes';
+		sourceCode: `import {staticFileRef} from '@remotion/studio-protocol';
+import {Rect} from '@remotion/shapes';
+import {Img} from 'remotion';
 
-export const LowerThird = () => <Rect width={640} height={180} />;
+export const LowerThird = () => <>
+	<Rect width={640} height={180} />
+	<Img name="Logo" src={staticFileRef('elements/lower-third.bin', 'https://preview.example/logo.png')} />
+</>;
 `,
 	} satisfies ElementDragData['element'];
 	const preflight = await operations.prepareElementInstall({
@@ -566,6 +571,28 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		},
 	});
 
+	const projectBeforeInvalidInstall = project;
+	const invalidInstall = await operations.insertElement({
+		installationName: null,
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		element: {
+			...element,
+			sourceCode: element.sourceCode.replace(
+				'elements/lower-third.bin',
+				'elements/undeclared.bin',
+			),
+		},
+		expectedFileState: null,
+		from: 12,
+		overwriteExisting: false,
+		position: {x: 24, y: 48},
+		undoRedoNavigation: null,
+		newComposition: null,
+	});
+	expect(invalidInstall).toMatchObject({success: false, type: 'error'});
+	expect(project).toBe(projectBeforeInvalidInstall);
+
 	const originalFetch = globalThis.fetch;
 	globalThis.fetch = Object.assign(
 		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
@@ -596,9 +623,13 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	}
 
 	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
-	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
-		element.sourceCode,
+	const installedElementSource =
+		project.files['/project/src/lower-third.element.tsx'];
+	expect(installedElementSource).toMatch(
+		/<Img name="Logo" src=\{staticFile\(["']elements\/lower-third\.bin["']\)\} \/>/,
 	);
+	expect(installedElementSource).not.toContain('staticFileRef');
+	expect(installedElementSource).not.toContain('preview.example');
 	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
 		new Uint8Array([0, 1, 2]),
 	);
@@ -641,7 +672,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	);
 	expect((await operations.redo()).success).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
 		new Uint8Array([0, 1, 2]),
@@ -667,8 +698,9 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(await operations.insertElement(installRequest)).toMatchObject({
 		success: false,
 		type: 'file-conflict',
+		conflict: {incomingSource: installedElementSource},
 	});
-	const customizedSource = `${element.sourceCode}\n// Customized\n`;
+	const customizedSource = `${installedElementSource}\n// Customized\n`;
 	project = {
 		...project,
 		files: {
@@ -685,7 +717,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		).success,
 	).toBe(true);
 	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		customizedSource,
@@ -705,14 +737,14 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		).success,
 	).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 	expect((await operations.undo()).success).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		customizedSource,
 	);
 	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 });
 
