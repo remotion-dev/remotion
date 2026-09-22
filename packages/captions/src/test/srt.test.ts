@@ -59,6 +59,18 @@ test.each(['Left --> right\nAnother line', '00:00:03,000 --> 00:00:04,000'])(
 	},
 );
 
+test('Preserves exact milliseconds when parsing and serializing SRT', () => {
+	const srt = '1\n00:00:01,001 --> 00:00:01,003\nHello';
+	const {captions} = parseSrt({input: srt});
+
+	expect(captions[0]).toMatchObject({
+		startMs: 1001,
+		endMs: 1003,
+		timestampMs: 1002,
+	});
+	expect(serializeSrt({lines: [captions]})).toBe(srt);
+});
+
 test('Should start a new SRT cue after a forced page break', () => {
 	const serialized = serializeSrt({
 		lines: [
