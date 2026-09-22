@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import {getJsxNodeProps} from './get-jsx-node-props';
 import {getJsxNodes} from './get-jsx-nodes';
@@ -70,10 +71,8 @@ export const assertNewCompositionId = ({
 	compositionFile,
 	compositionId,
 }: ResolveCompositionComponentOptions) => {
-	if (!/^[a-zA-Z0-9-]+$/.test(compositionId)) {
-		throw new Error(
-			'Composition IDs may only contain letters, numbers, and hyphens',
-		);
+	if (!Internals.isCompositionIdValid(compositionId)) {
+		throw new Error(Internals.invalidCompositionErrorMessage);
 	}
 
 	if (
