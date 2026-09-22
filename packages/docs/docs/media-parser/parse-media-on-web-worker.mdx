@@ -39,6 +39,12 @@ Same as [`parseMedia()`](/docs/media-parser/parse-media), but without the option
 
 The [`reader`](/docs/media-parser/parse-media#reader) option in the worker is hardcoded to [`webReader`](/docs/media-parser/web-reader).
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={false} bun serverlessFunctions="Bun workers" clientSideRendering serverSideRendering player studio />
+
+Requires ES modules and a runtime with the browser-style `Worker` API. See [runtime requirements](/docs/media-parser/runtime-support).
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/worker.module.ts)

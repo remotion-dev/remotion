@@ -224,6 +224,12 @@ try {
 }
 ```
 
+## Compatibility
+
+<CompatibilityTable chrome="Supported codecs" firefox="Supported codecs" safari="Supported codecs" nodejs={false} bun={false} serverlessFunctions={false} clientSideRendering="Supported codecs" serverSideRendering="Supported codecs" player="Supported codecs" studio="Supported codecs" />
+
+Requires the relevant [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) APIs in a secure context. Decodable codecs depend on the browser and operating system. Server-side rendering runs this API inside Chromium, not directly in Node.js or Bun.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/create-audio-decoder.ts)

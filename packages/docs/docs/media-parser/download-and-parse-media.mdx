@@ -103,6 +103,12 @@ You must return one of the following:
 See also the example above.  
 The function may be async, parsing is paused until it resolves.
 
+## Compatibility
+
+<CompatibilityTable chrome="Browser writer" firefox="Browser writer" safari="Browser writer" nodejs bun serverlessFunctions="Writable storage" clientSideRendering="Browser writer" serverSideRendering="Browser writer" player="Browser writer" studio="Browser writer" />
+
+The documented `nodeWriter` requires a writable filesystem. Browser usage requires a [writer](/docs/media-parser/download-and-parse-media#writer) compatible with the browser, such as [`bufferWriter`](/docs/webcodecs/buffer-writer). The [runtime requirements](/docs/media-parser/runtime-support) also apply.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-parser/src/download-and-parse-media.ts)

@@ -140,6 +140,12 @@ if (transformedFrame !== originalFrame) {
 // transformedFrame.close();
 ```
 
+## Compatibility
+
+<CompatibilityTable chrome="VideoFrame" firefox="VideoFrame" safari="VideoFrame" nodejs={false} bun={false} serverlessFunctions={false} clientSideRendering serverSideRendering player studio />
+
+Requires WebCodecs [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) and a 2D `OffscreenCanvas` context. Server-side rendering runs this API inside Chromium.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/rotate-and-resize-video-frame.ts)

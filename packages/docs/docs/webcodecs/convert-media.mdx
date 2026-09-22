@@ -344,6 +344,12 @@ const blob = await result.save();
 
 [See notes about `@remotion/webcodecs`](/docs/webcodecs#-license-disclaimer).
 
+## Compatibility
+
+<CompatibilityTable chrome="Supported codecs" firefox="Supported codecs" safari="Supported codecs" nodejs="Copy only" bun="Copy only" serverlessFunctions="Copy only" clientSideRendering="Supported codecs" serverSideRendering="Supported codecs" player="Supported codecs" studio="Supported codecs" />
+
+Re-encoding requires [WebCodecs](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API) in a secure context and support for the input and output codecs. Without WebCodecs, only compatible tracks can be copied or dropped; use a writer supported by the runtime.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/convert-media.ts)

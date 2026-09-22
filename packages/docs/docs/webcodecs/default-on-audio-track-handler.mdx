@@ -79,6 +79,12 @@ export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler = async
 };
 ```
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+The handler can run without WebCodecs. Performing a selected re-encoding still requires the relevant WebCodecs APIs, including `AudioData` and `EncodedAudioChunk` for PCM audio.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/default-on-audio-track-handler.ts)

@@ -63,6 +63,12 @@ try {
 }
 ```
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+Requires resizable `ArrayBuffer` and `File` APIs, as available in the [Media Parser runtimes](/docs/media-parser/runtime-support). The writer itself does not require WebCodecs.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/webcodecs/src/writers/buffer-implementation/writer.ts)
