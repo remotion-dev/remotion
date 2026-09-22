@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useContext, useLayoutEffect} from 'react';
+import {useContext, useLayoutEffect, useRef} from 'react';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {MediaPlayer} from './media-player';
@@ -52,12 +52,18 @@ export const useCommonEffects = ({
 	readonly label: string;
 }) => {
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
+	const {seek} = useContext(Internals.SetTimelineContext);
+	const revision = seek?.revision.current ?? null;
+	const lastRequest = useRef<{
+		player: MediaPlayer;
+		time: number;
+		revision: number | null;
+	} | null>(null);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer) return;
 
-		mediaPlayer.setPlaybackIntent(playing);
 		if (playing && !isPlayerBuffering) {
 			mediaPlayer.play();
 		} else {
@@ -217,12 +223,34 @@ export const useCommonEffects = ({
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.seekTo(currentTime).catch(() => {
-			// Might be disposed
-		});
+		// Pausing or buffering at the same target must not supersede an in-flight
+		// playback request with a scrub. A same-frame explicit seek still counts.
+		const previous = lastRequest.current;
+		if (
+			previous?.player === mediaPlayer &&
+			previous.time === currentTime &&
+			previous.revision === revision
+		) {
+			return;
+		}
+
+		lastRequest.current = {player: mediaPlayer, time: currentTime, revision};
+		mediaPlayer
+			.seekTo(currentTime, revision === null ? null : {revision, playing})
+			.catch(() => {
+				// Might be disposed
+			});
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
 			`[${label}] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
-	}, [currentTime, logLevel, mediaPlayerReady, label, mediaPlayerRef]);
+	}, [
+		currentTime,
+		logLevel,
+		mediaPlayerReady,
+		label,
+		mediaPlayerRef,
+		playing,
+		revision,
+	]);
 };
