@@ -61,8 +61,7 @@ export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 				confidence: 1,
 				timestampMs: (start + end) / 2,
 			});
-		} else if (line?.includes(' --> ')) {
-			continue;
+			i++;
 		} else if (line?.trim() === '') {
 			if (captions.length > 0) {
 				(captions[captions.length - 1] as Caption).text = (
