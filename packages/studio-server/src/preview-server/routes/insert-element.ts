@@ -96,22 +96,12 @@ export const insertElementHandler: ApiHandler<
 		loweredSourceCode = CodemodsInternals.lowerElementStaticFileRefs({
 			assets: element.assets,
 			sourceCode: element.sourceCode,
-		}).sourceCode;
-		let totalBytes = 0;
-		resolvedAssets = [];
-		for (const asset of element.assets) {
-			const contents =
-				asset.type === 'base64'
-					? StudioProtocolInternals.decodeElementAssetData(asset.data)
-					: await downloadRemoteAssetBytes({
-							acceptHeader: null,
-							maxSize:
-								StudioProtocolInternals.maxElementAssetBytes - totalBytes,
-							url: new URL(asset.url),
-						});
-			totalBytes += contents.byteLength;
-			resolvedAssets.push({contents, path: asset.path});
-		}
+		});
+		resolvedAssets = await StudioProtocolInternals.resolveElementAssets({
+			assets: element.assets,
+			downloadAsset: (options) =>
+				downloadRemoteAssetBytes({...options, acceptHeader: null}),
+		});
 	} catch (err) {
 		return {
 			success: false,

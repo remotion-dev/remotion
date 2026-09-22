@@ -1228,8 +1228,17 @@ test('drops and imports an Element payload with the deployment Remotion version'
 	await dataTransfer.evaluate((transfer) => {
 		const payload = JSON.stringify({
 			type: 'remotion-element',
-			version: 1,
+			version: 2,
 			element: {
+				assets: [
+					{
+						path: 'browser-element/logo.svg',
+						type: 'base64',
+						data: btoa(
+							'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="blue" /></svg>',
+						),
+					},
+				],
 				dependencies: [{name: '@remotion/shapes', version: null}],
 				dimensions: {width: 320, height: 180},
 				displayName: 'Browser Element',
@@ -1237,8 +1246,14 @@ test('drops and imports an Element payload with the deployment Remotion version'
 				installationMode: 'wrapped',
 				slug: 'browser-element',
 				sourceCode: `import {Rect} from '@remotion/shapes';
+import {staticFileRef as asset} from '@remotion/studio-protocol';
+import {Img} from 'remotion';
 
-export const BrowserElement = () => <Rect width={320} height={180} fill="red" />;
+const metadata = {asset: 'Element asset'};
+export const BrowserElement = () => <>
+	<Rect width={320} height={180} fill="red" />
+	<Img alt={metadata.asset} src={asset('browser-element/logo.svg', 'https://preview.example/logo.svg')} />
+</>;
 `,
 			},
 		});
@@ -1269,6 +1284,12 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 	await expect(
 		studio.getByText('@remotion/shapes', {exact: true}),
 	).toBeVisible();
+	await expect(
+		studio.getByText('Included assets', {exact: true}),
+	).toBeVisible();
+	await expect(
+		studio.getByText('browser-element/logo.svg', {exact: true}),
+	).toBeVisible();
 	await studio.getByRole('button', {name: /^Install/}).click();
 
 	await expect
@@ -1297,7 +1318,9 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 		)
 		.toMatchObject({
 			composition: expect.stringContaining('<BrowserElement />'),
-			element: expect.stringContaining('export const BrowserElement'),
+			element: expect.stringMatching(
+				/staticFile\(["']browser-element\/logo\.svg["']\)/,
+			),
 			installedVersion: expect.any(String),
 		});
 	const versions = await page.evaluate(() => {
@@ -1314,6 +1337,9 @@ export const BrowserElement = () => <Rect width={320} height={180} fill="red" />
 		};
 	});
 	expect(versions.installed).toBe(versions.remotion);
+	await expect(
+		studio.getByRole('img', {name: 'Element asset'}),
+	).toHaveJSProperty('naturalWidth', 20);
 	await expect(
 		studio.getByText('Browser Element', {exact: true}),
 	).toBeVisible();

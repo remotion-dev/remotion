@@ -748,6 +748,195 @@ export const LowerThird = () => <>
 	);
 });
 
+const makeElementAssetFixture = () => {
+	let project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	return {
+		getProject: () => project,
+		operations,
+		install: (
+			assets: ElementDragData['element']['assets'],
+			installationName: string | null,
+		) =>
+			operations.insertElement({
+				installationName,
+				compositionFile: '/project/src/Composition.tsx',
+				compositionId: 'MyComp',
+				element: {
+					assets,
+					dependencies: [],
+					dimensions: null,
+					displayName: 'Asset Element',
+					durationInFrames: 30,
+					initialProps: null,
+					installationMode: 'wrapped',
+					slug: 'asset-element',
+					sourceCode: 'export const AssetElement = () => <div />;',
+				},
+				expectedFileState: null,
+				from: null,
+				overwriteExisting: false,
+				position: null,
+				undoRedoNavigation: null,
+				newComposition: null,
+			}),
+	};
+};
+
+test('retains installed assets across earlier history while allowing explicit asset undo and redo', async () => {
+	const {getProject, install, operations} = makeElementAssetFixture();
+	const originalSource = getProject().files['/project/src/Composition.tsx'];
+	await operations.writeStaticFile({
+		filePath: 'upload.txt',
+		contents: 'Uploaded',
+	});
+	for (const name of ['first', 'second']) {
+		expect(
+			(
+				await install(
+					[{path: `${name}.bin`, type: 'base64', data: 'AAEC'}],
+					name,
+				)
+			).success,
+		).toBe(true);
+	}
+
+	for (let i = 0; i < 3; i++) {
+		expect((await operations.undo()).success).toBe(true);
+		expect(getProject().publicFiles?.['first.bin']).toEqual(
+			new Uint8Array([0, 1, 2]),
+		);
+		expect(getProject().publicFiles?.['second.bin']).toEqual(
+			new Uint8Array([0, 1, 2]),
+		);
+	}
+
+	expect(getProject().files['/project/src/Composition.tsx']).toBe(
+		originalSource,
+	);
+	expect(getProject().publicFiles?.['upload.txt']).toBeUndefined();
+	for (let i = 0; i < 3; i++) {
+		expect((await operations.redo()).success).toBe(true);
+		expect(getProject().publicFiles?.['first.bin']).toEqual(
+			new Uint8Array([0, 1, 2]),
+		);
+		expect(getProject().publicFiles?.['second.bin']).toEqual(
+			new Uint8Array([0, 1, 2]),
+		);
+	}
+
+	expect(getProject().publicFiles?.['upload.txt']).toBe('Uploaded');
+	expect(getProject().files['/project/src/Composition.tsx']).toContain(
+		'<AssetElement2',
+	);
+
+	await operations.renameStaticFile({
+		oldRelativePath: 'second.bin',
+		newRelativePath: '__proto__',
+	});
+	await operations.deleteStaticFile({relativePath: '__proto__'});
+	expect(getProject().publicFiles?.['second.bin']).toBeUndefined();
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
+	expect((await operations.undo()).success).toBe(true);
+	expect(Object.entries(getProject().publicFiles ?? {})).toContainEqual([
+		'__proto__',
+		new Uint8Array([0, 1, 2]),
+	]);
+	expect((await operations.undo()).success).toBe(true);
+	expect(getProject().publicFiles?.['second.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
+	);
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
+	expect((await operations.redo()).success).toBe(true);
+	expect((await operations.redo()).success).toBe(true);
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
+});
+
+test('installs prototype-named assets and exposes them in the public file listing', async () => {
+	const {getProject, install, operations} = makeElementAssetFixture();
+	expect(
+		(await install([{path: '__proto__', type: 'base64', data: 'AAEC'}], null))
+			.success,
+	).toBe(true);
+	expect(Object.entries(getProject().publicFiles ?? {})).toContainEqual([
+		'__proto__',
+		new Uint8Array([0, 1, 2]),
+	]);
+	const events: EventSourceEvent[] = [];
+	const unsubscribe = operations.subscribeToEvent((event) =>
+		events.push(event),
+	);
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	unsubscribe();
+	expect(
+		events.findLast((event) => event.type === 'new-public-folder'),
+	).toMatchObject({
+		files: expect.arrayContaining([
+			{name: '__proto__', sizeInBytes: 3, src: '/__proto__', lastModified: 1},
+		]),
+	});
+});
+
+test.each([
+	['folder', 'folder/asset.bin'],
+	['folder/asset.bin', 'folder'],
+	['Asset.bin', 'asset.bin'],
+])(
+	'rejects installation of %s conflicting with public path %s',
+	async (existingPath, assetPath) => {
+		const {getProject, install, operations} = makeElementAssetFixture();
+		await operations.writeStaticFile({
+			filePath: existingPath,
+			contents: 'Existing',
+		});
+		const before = getProject();
+		expect(
+			await install([{path: assetPath, type: 'base64', data: 'AAEC'}], null),
+		).toMatchObject({success: false, type: 'error'});
+		expect(getProject()).toBe(before);
+	},
+);
+
+test('enforces the aggregate Element asset limit regardless of URL/base64 order', async () => {
+	const {getProject, install} = makeElementAssetFixture();
+	const before = getProject();
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = Object.assign(
+		() => Promise.resolve(new Response(new Uint8Array(50 * 1024 * 1024))),
+		{preconnect: originalFetch.preconnect},
+	);
+	const assets: ElementDragData['element']['assets'] = [
+		{path: 'remote.bin', type: 'url', url: 'https://assets.example/remote.bin'},
+		{path: 'embedded.bin', type: 'base64', data: 'AAEC'},
+	];
+	try {
+		for (const orderedAssets of [assets, [...assets].reverse()]) {
+			expect(await install(orderedAssets, null)).toMatchObject({
+				success: false,
+				type: 'error',
+			});
+			expect(getProject()).toBe(before);
+		}
+	} finally {
+		globalThis.fetch = originalFetch;
+	}
+});
+
 test('installs an Element into a new composition as one undoable mutation', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project = initialProject;

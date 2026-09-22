@@ -16,10 +16,8 @@ import {makeDragData, parseDragData} from './drag-data';
 import {getDragPreviewMetadata} from './drag-preview-metadata';
 import {
 	assertElementAssets,
-	decodeElementAssetData,
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
-	maxElementAssetBytes,
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
 import {
@@ -29,6 +27,7 @@ import {
 	parseStudioProtocolInstallRequest,
 } from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
+import {resolveElementAssets} from './resolve-element-assets';
 import {
 	parseStudioProtocolSetLicenseKeyRequest,
 	setLicenseKeyInStudio,
@@ -109,7 +108,6 @@ export const StudioProtocolInternals = {
 	addElementLibraryToStudioWithDependencies,
 	areComponentProps,
 	assertElementAssets,
-	decodeElementAssetData,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,
@@ -120,7 +118,6 @@ export const StudioProtocolInternals = {
 	makeBrowserStudioUrl,
 	makeDragData,
 	makeElementFileNameFromSlug,
-	maxElementAssetBytes,
 	openInBrowserStudio,
 	parseBrowserStudioHash,
 	parseDragData,
@@ -130,5 +127,6 @@ export const StudioProtocolInternals = {
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,
 	parseStudioProtocolSetLicenseKeyRequest,
+	resolveElementAssets,
 	setLicenseKeyInStudio,
 };

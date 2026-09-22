@@ -1,90 +1,21 @@
-import type {File, ImportDeclaration, ImportSpecifier} from '@babel/types';
+import type {
+	ImportDeclaration,
+	ImportSpecifier,
+	isReferenced as BabelIsReferenced,
+	Node,
+} from '@babel/types';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {ensureNamedImport, getImportedName} from './sequence-props/imports';
 import {parseAst, serializeAst} from './sequence-props/parse-ast';
 
-const protocolPackage = '@remotion/studio-protocol';
+// Load the standalone CommonJS validator without the root's Node-only environment checks.
+const isReferenced: typeof BabelIsReferenced =
+	require('@babel/types/lib/validators/isReferenced').default;
 
-const isValueImport = (
-	declaration: ImportDeclaration,
-	specifier: ImportSpecifier,
-) =>
-	declaration.importKind !== 'type' &&
+const isStaticFileRefImport = (specifier: ImportSpecifier) =>
 	specifier.importKind !== 'type' &&
 	getImportedName(specifier) === 'staticFileRef';
-
-const hasTopLevelBinding = (ast: File, name: string) =>
-	ast.program.body.some((statement) => {
-		if (statement.type === 'ImportDeclaration') {
-			return statement.specifiers?.some(
-				(specifier) => specifier.local?.name === name,
-			);
-		}
-
-		const declaration =
-			statement.type === 'ExportNamedDeclaration'
-				? statement.declaration
-				: statement;
-		if (
-			declaration?.type === 'FunctionDeclaration' ||
-			declaration?.type === 'ClassDeclaration'
-		) {
-			return declaration.id?.name === name;
-		}
-
-		if (declaration?.type === 'VariableDeclaration') {
-			return declaration.declarations.some(
-				(item) => item.id.type === 'Identifier' && item.id.name === name,
-			);
-		}
-
-		return false;
-	});
-
-const findStaticFileLocalName = (ast: File) => {
-	for (const statement of ast.program.body) {
-		if (
-			statement.type !== 'ImportDeclaration' ||
-			statement.importKind === 'type' ||
-			statement.source.value !== 'remotion'
-		) {
-			continue;
-		}
-
-		for (const specifier of statement.specifiers ?? []) {
-			if (
-				specifier.type === 'ImportSpecifier' &&
-				specifier.importKind !== 'type' &&
-				getImportedName(specifier) === 'staticFile'
-			) {
-				return specifier.local?.name ?? 'staticFile';
-			}
-		}
-	}
-
-	return null;
-};
-
-const getStaticFileLocalName = (ast: File) => {
-	const existing = findStaticFileLocalName(ast);
-	if (existing !== null) {
-		return existing;
-	}
-
-	if (hasTopLevelBinding(ast, 'staticFile')) {
-		throw new Error(
-			'Cannot install Element source because staticFile is already defined',
-		);
-	}
-
-	return ensureNamedImport({
-		ast,
-		importedName: 'staticFile',
-		localName: 'staticFile',
-		sourcePath: 'remotion',
-	});
-};
 
 export const lowerElementStaticFileRefs = ({
 	assets,
@@ -92,46 +23,55 @@ export const lowerElementStaticFileRefs = ({
 }: {
 	assets: readonly {readonly path: string}[];
 	sourceCode: string;
-}): {sourceCode: string; referencedAssetPaths: string[]} => {
+}): string => {
 	if (!sourceCode.includes('staticFileRef')) {
-		return {sourceCode, referencedAssetPaths: []};
+		return sourceCode;
 	}
 
 	const ast = parseAst(sourceCode);
 	const importedLocalNames = new Set<string>();
 	const namespaceLocalNames = new Set<string>();
 	const protocolImports: ImportDeclaration[] = [];
+	let existingStaticFileLocalName: string | null = null;
 	for (const statement of ast.program.body) {
 		if (
 			statement.type !== 'ImportDeclaration' ||
-			statement.source.value !== protocolPackage
+			statement.importKind === 'type'
 		) {
 			continue;
 		}
 
-		protocolImports.push(statement);
-		if (statement.importKind === 'type') {
-			continue;
-		}
-
 		for (const specifier of statement.specifiers ?? []) {
+			if (
+				statement.source.value === 'remotion' &&
+				specifier.type === 'ImportSpecifier' &&
+				specifier.importKind !== 'type' &&
+				getImportedName(specifier) === 'staticFile'
+			) {
+				existingStaticFileLocalName ??= specifier.local?.name ?? 'staticFile';
+			}
+
+			if (statement.source.value !== '@remotion/studio-protocol') {
+				continue;
+			}
+
 			if (specifier.type === 'ImportNamespaceSpecifier') {
 				namespaceLocalNames.add(specifier.local.name);
 			} else if (
 				specifier.type === 'ImportSpecifier' &&
-				isValueImport(statement, specifier)
+				isStaticFileRefImport(specifier)
 			) {
 				importedLocalNames.add(specifier.local?.name ?? 'staticFileRef');
+				if (!protocolImports.includes(statement)) {
+					protocolImports.push(statement);
+				}
 			}
 		}
 	}
 
-	const calls: Array<{
-		call: namedTypes.CallExpression;
-		assetPath: string;
-	}> = [];
+	const calls: namedTypes.CallExpression[] = [];
 	const declaredPaths = new Set(assets.map((asset) => asset.path));
-	const existingStaticFileLocalName = findStaticFileLocalName(ast);
+	const outputLocalName = existingStaticFileLocalName ?? 'staticFile';
 	recast.types.visit(ast, {
 		visitCallExpression(path) {
 			const {callee} = path.node;
@@ -182,7 +122,6 @@ export const lowerElementStaticFileRefs = ({
 				);
 			}
 
-			const outputLocalName = existingStaticFileLocalName ?? 'staticFile';
 			const staticFileBinding = path.scope.lookup(outputLocalName);
 			if (
 				(existingStaticFileLocalName === null && staticFileBinding !== null) ||
@@ -201,53 +140,52 @@ export const lowerElementStaticFileRefs = ({
 				);
 			}
 
-			calls.push({assetPath, call: path.node});
+			calls.push(path.node);
+			// This direct call is valid; only inspect references elsewhere.
 			return false;
 		},
-	});
-
-	let remainingReference: string | null = null;
-	recast.types.visit(ast, {
 		visitIdentifier(path) {
 			if (
-				remainingReference === null &&
 				importedLocalNames.has(path.node.name) &&
-				path.parentPath.node.type !== 'ImportSpecifier' &&
 				path.scope.lookup(path.node.name)?.path.node.type === 'Program' &&
-				!calls.some((item) => item.call.callee === path.node)
+				isReferenced(
+					path.node as Node,
+					path.parentPath.node as Node,
+					path.parentPath.parentPath?.node as Node | undefined,
+				)
 			) {
-				remainingReference = path.node.name;
-				return false;
+				throw new Error(
+					'staticFileRef() may only be used as a direct function call',
+				);
 			}
 
 			this.traverse(path);
 			return undefined;
 		},
 	});
-	if (remainingReference !== null) {
-		throw new Error(
-			'staticFileRef() may only be used as a direct function call',
-		);
-	}
 
 	if (calls.length === 0 && importedLocalNames.size === 0) {
-		return {sourceCode, referencedAssetPaths: []};
+		return sourceCode;
 	}
 
-	const staticFileLocalName =
-		calls.length === 0 ? null : getStaticFileLocalName(ast);
-	for (const {assetPath, call} of calls) {
-		call.callee = recast.types.builders.identifier(
-			staticFileLocalName as string,
-		);
-		call.arguments = [recast.types.builders.stringLiteral(assetPath)];
+	if (calls.length > 0) {
+		const localName = ensureNamedImport({
+			ast,
+			importedName: 'staticFile',
+			localName: outputLocalName,
+			sourcePath: 'remotion',
+		});
+		for (const call of calls) {
+			call.callee = recast.types.builders.identifier(localName);
+			call.arguments = [call.arguments[0]];
+		}
 	}
 
 	for (const declaration of protocolImports) {
 		declaration.specifiers = (declaration.specifiers ?? []).filter(
 			(specifier) =>
 				specifier.type !== 'ImportSpecifier' ||
-				!isValueImport(declaration, specifier),
+				!isStaticFileRefImport(specifier),
 		);
 		if (declaration.specifiers.length === 0) {
 			ast.program.body = ast.program.body.filter(
@@ -256,8 +194,5 @@ export const lowerElementStaticFileRefs = ({
 		}
 	}
 
-	return {
-		referencedAssetPaths: [...new Set(calls.map((item) => item.assetPath))],
-		sourceCode: serializeAst(ast),
-	};
+	return serializeAst(ast);
 };

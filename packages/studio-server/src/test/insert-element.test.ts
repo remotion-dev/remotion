@@ -373,6 +373,46 @@ export const LowerThird = () => (
 	}
 });
 
+test('rejects oversized mixed Element assets before writing any files, regardless of order', async () => {
+	const fixture = makeFixture();
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = Object.assign(
+		() => Promise.resolve(new Response(new Uint8Array(50 * 1024 * 1024))),
+		{preconnect: originalFetch.preconnect},
+	);
+	const assets: InsertElementRequest['element']['assets'] = [
+		{path: 'remote.bin', type: 'url', url: 'https://93.184.216.35/remote.bin'},
+		{path: 'embedded.bin', type: 'base64', data: 'AAEC'},
+	];
+	try {
+		for (const orderedAssets of [assets, [...assets].reverse()]) {
+			expect(
+				await fixture.callHandlerWithInput({
+					installationName: null,
+					compositionFile: 'Root.tsx',
+					compositionId: 'target',
+					element: {...element, assets: orderedAssets},
+					expectedFileState: null,
+					from: null,
+					overwriteExisting: false,
+					position: null,
+					undoRedoNavigation: null,
+					newComposition: null,
+				}),
+			).toMatchObject({success: false, type: 'error'});
+			expect(existsSync(fixture.publicDir)).toBe(false);
+			expect(existsSync(fixture.elementFile)).toBe(false);
+			expect(readFileSync(fixture.compositionFile, 'utf8')).toBe(
+				compositionSource,
+			);
+			expect(getUndoStack()).toHaveLength(0);
+		}
+	} finally {
+		globalThis.fetch = originalFetch;
+		fixture.cleanup();
+	}
+});
+
 test('plans a new-composition install without resolving the selected component', async () => {
 	const fixture = makeFixture();
 	try {

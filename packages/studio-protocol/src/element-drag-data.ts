@@ -210,12 +210,6 @@ const isValidElementAssetUrl = (value: string) => {
 	}
 };
 
-const getStrictBase64DecodedLength = (data: string): number | null =>
-	data.length % 4 === 0 && strictBase64Regex.test(data)
-		? (data.length / 4) * 3 -
-			(data.endsWith('==') ? 2 : data.endsWith('=') ? 1 : 0)
-		: null;
-
 const elementAssetSchema = z.union([
 	z.strictObject({
 		path: z.string().check(z.refine(isValidElementAssetPath)),
@@ -231,9 +225,6 @@ const elementAssetSchema = z.union([
 const elementAssetsSchema = z
 	.array(elementAssetSchema)
 	.check(z.maxLength(maxElementAssets));
-
-export const decodeElementAssetData = (data: string): Uint8Array =>
-	Uint8Array.from(atob(data), (character) => character.charCodeAt(0));
 
 export function assertElementAssets(
 	value: unknown,
@@ -262,7 +253,9 @@ export function assertElementAssets(
 
 		paths.add(assetPath);
 		if (asset.type === 'base64') {
-			embeddedBytes += getStrictBase64DecodedLength(asset.data) as number;
+			embeddedBytes +=
+				(asset.data.length / 4) * 3 -
+				(asset.data.endsWith('==') ? 2 : asset.data.endsWith('=') ? 1 : 0);
 		}
 	}
 

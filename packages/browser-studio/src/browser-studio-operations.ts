@@ -62,7 +62,10 @@ import type {
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {createBrowserStudioProjectController} from './browser-studio-project-controller';
+import {
+	createBrowserStudioProjectController,
+	getCanonicalPublicFiles,
+} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
 import {
 	downloadRemoteAssetInBrowserStudio,
@@ -2186,7 +2189,7 @@ export const createBrowserStudioOperations = ({
 					sourceCode: lowerElementStaticFileRefs({
 						assets: request.element.assets,
 						sourceCode: request.element.sourceCode,
-					}).sourceCode,
+					}),
 				};
 				const installationMode = request.element.installationMode ?? 'wrapped';
 				const componentOwnsSequence =
@@ -2286,30 +2289,37 @@ export const createBrowserStudioOperations = ({
 					};
 				}
 
-				let totalAssetBytes = 0;
-				const newAssetFiles: Record<string, VirtualProjectPublicFile> = {};
-				for (const asset of request.element.assets) {
-					const contents =
-						asset.type === 'base64'
-							? StudioProtocolInternals.decodeElementAssetData(asset.data)
-							: await fetchRemoteAssetBytesInBrowserStudio({
-									acceptHeader: null,
-									maxSize:
-										StudioProtocolInternals.maxElementAssetBytes -
-										totalAssetBytes,
-									url: new URL(asset.url),
-								});
-					totalAssetBytes += contents.byteLength;
-					const matches = Object.entries(
-						originalProject.publicFiles ?? {},
-					).filter(([filePath]) => filePath.replace(/^\/+/, '') === asset.path);
-					if (matches.length > 1) {
-						throw new Error(`Multiple public files resolve to ${asset.path}`);
+				const resolvedAssets =
+					await StudioProtocolInternals.resolveElementAssets({
+						assets: request.element.assets,
+						downloadAsset: (options) =>
+							fetchRemoteAssetBytesInBrowserStudio({
+								...options,
+								acceptHeader: null,
+							}),
+					});
+				const publicFiles = getCanonicalPublicFiles(originalProject);
+				const newAssetFiles: Record<string, VirtualProjectPublicFile> =
+					Object.create(null);
+				for (const {path: assetPath, contents} of resolvedAssets) {
+					const destination = assetPath.toLowerCase();
+					const conflict = Object.keys(publicFiles).find((filePath) => {
+						const existingPath = filePath.toLowerCase();
+						return (
+							(filePath !== assetPath && existingPath === destination) ||
+							existingPath.startsWith(`${destination}/`) ||
+							destination.startsWith(`${existingPath}/`)
+						);
+					});
+					if (conflict !== undefined) {
+						throw new Error(
+							`Asset ${assetPath} conflicts with existing public file ${conflict}`,
+						);
 					}
 
-					const existing = matches[0]?.[1];
+					const existing = publicFiles[assetPath];
 					if (existing === undefined) {
-						newAssetFiles[asset.path] = contents;
+						newAssetFiles[assetPath] = contents;
 						continue;
 					}
 
@@ -2320,7 +2330,7 @@ export const createBrowserStudioOperations = ({
 						storage === undefined
 					) {
 						throw new Error(
-							`Stored public file ${asset.path} has no project storage`,
+							`Stored public file ${assetPath} has no project storage`,
 						);
 					}
 
@@ -2342,7 +2352,7 @@ export const createBrowserStudioOperations = ({
 						)
 					) {
 						throw new Error(
-							`Asset ${asset.path} already exists with different contents`,
+							`Asset ${assetPath} already exists with different contents`,
 						);
 					}
 				}
@@ -2416,21 +2426,18 @@ export const createBrowserStudioOperations = ({
 					);
 				}
 
-				const nodePathMutation = controller.applyMutationRetainingPublicFiles(
-					{
-						undoRedoNavigation: request.undoRedoNavigation,
-						timelineSelection: null,
-						fileName: insertion.filePath,
-						mutate: () => nextProject,
-						nodePathMutationFiles: [
-							{
-								absolutePath: insertion.filePath,
-								remappings: insertion.nodePathRemappings,
-							},
-						],
-					},
-					newAssetFiles,
-				);
+				const nodePathMutation = controller.applyMutation({
+					undoRedoNavigation: request.undoRedoNavigation,
+					timelineSelection: null,
+					fileName: insertion.filePath,
+					mutate: () => nextProject,
+					nodePathMutationFiles: [
+						{
+							absolutePath: insertion.filePath,
+							remappings: insertion.nodePathRemappings,
+						},
+					],
+				});
 				if (nodePathMutation === null) {
 					throw new Error('Could not insert Element');
 				}
@@ -2452,7 +2459,7 @@ export const createBrowserStudioOperations = ({
 		prepareElementInstall: async (request) => {
 			try {
 				StudioProtocolInternals.assertElementAssets(request.element.assets);
-				const {sourceCode} = lowerElementStaticFileRefs({
+				const sourceCode = lowerElementStaticFileRefs({
 					assets: request.element.assets,
 					sourceCode: request.element.sourceCode,
 				});

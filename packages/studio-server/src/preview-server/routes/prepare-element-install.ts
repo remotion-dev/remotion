@@ -15,7 +15,7 @@ export const prepareElementInstallHandler: ApiHandler<
 	withSourceFileWriteQueue(async () => {
 		try {
 			StudioProtocolInternals.assertElementAssets(input.element.assets);
-			const {sourceCode} = CodemodsInternals.lowerElementStaticFileRefs({
+			const sourceCode = CodemodsInternals.lowerElementStaticFileRefs({
 				assets: input.element.assets,
 				sourceCode: input.element.sourceCode,
 			});

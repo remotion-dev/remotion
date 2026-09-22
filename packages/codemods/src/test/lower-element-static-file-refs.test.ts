@@ -17,21 +17,17 @@ export const Card = () => <>
 `,
 	});
 
-	expect(result.referencedAssetPaths).toEqual([
-		'card/logo.png',
-		'card/sound.mp3',
-	]);
-	expect(result.sourceCode).toMatch(
+	expect(result).toMatch(
 		/import \{\s*createElementPayload\s*\} from '@remotion\/studio-protocol';/,
 	);
-	expect(result.sourceCode).toMatch(
+	expect(result).toMatch(
 		/<Img name="Logo" src=\{file\(["']card\/logo\.png["']\)\} \/>/,
 	);
-	expect(result.sourceCode).toMatch(
+	expect(result).toMatch(
 		/<audio data-layer="Sound" src=\{file\(["']card\/sound\.mp3["']\)\} \/>/,
 	);
-	expect(result.sourceCode).not.toContain('staticFileRef');
-	expect(result.sourceCode).not.toContain('https://example.com');
+	expect(result).not.toContain('staticFileRef');
+	expect(result).not.toContain('https://example.com');
 });
 
 test('adds staticFile and removes an empty protocol import', () => {
@@ -43,11 +39,9 @@ export const Card = () => <Img src={staticFileRef('card/logo.png', '/preview.png
 `,
 	});
 
-	expect(result.sourceCode).toMatch(
-		/import \{\s*Img, staticFile\s*\} from 'remotion';/,
-	);
-	expect(result.sourceCode).toMatch(/staticFile\(["']card\/logo\.png["']\)/);
-	expect(result.sourceCode).not.toContain('@remotion/studio-protocol');
+	expect(result).toMatch(/import \{\s*Img, staticFile\s*\} from 'remotion';/);
+	expect(result).toMatch(/staticFile\(["']card\/logo\.png["']\)/);
+	expect(result).not.toContain('@remotion/studio-protocol');
 });
 
 test('rejects unsupported or unsafe staticFileRef usage without partial output', () => {
@@ -64,6 +58,12 @@ export const Card = () => Protocol.staticFileRef('card/logo.png', '/preview.png'
 		`import {staticFileRef} from '@remotion/studio-protocol';
 const ref = staticFileRef;
 export const Card = () => ref('card/logo.png', '/preview.png');`,
+		`import {staticFileRef as asset} from '@remotion/studio-protocol';
+const metadata = {asset};
+export const Card = () => asset('card/logo.png', '/preview.png');`,
+		`import {staticFileRef as asset} from '@remotion/studio-protocol';
+const metadata = {[asset]: 'Logo'};
+export const Card = () => asset('card/logo.png', '/preview.png');`,
 		`import {staticFileRef} from '@remotion/studio-protocol';
 const staticFile = () => '';
 export const Card = () => staticFileRef('card/logo.png', '/preview.png');`,
@@ -78,11 +78,22 @@ export const Card = ({file}: {file: () => string}) => staticFileRef('card/logo.p
 	}
 });
 
+test('distinguishes imported references from property names and shadowed locals', () => {
+	const result = lowerElementStaticFileRefs({
+		assets,
+		sourceCode: `import {staticFileRef as asset} from '@remotion/studio-protocol';
+const metadata = {asset: 'Logo'};
+const local = (asset: string) => asset;
+export const Card = () => <img alt={metadata.asset} src={asset('card/logo.png', '/preview.png')} />;`,
+	});
+	expect(result).toContain("{asset: 'Logo'}");
+	expect(result).toContain('metadata.asset');
+	expect(result).toContain('(asset: string) => asset');
+	expect(result).toMatch(/staticFile\(["']card\/logo\.png["']\)/);
+});
+
 test('leaves unrelated local functions unchanged', () => {
 	const sourceCode = `const staticFileRef = (path: string) => path;
 export const Card = () => staticFileRef('card/logo.png');`;
-	expect(lowerElementStaticFileRefs({assets, sourceCode})).toEqual({
-		referencedAssetPaths: [],
-		sourceCode,
-	});
+	expect(lowerElementStaticFileRefs({assets, sourceCode})).toBe(sourceCode);
 });
