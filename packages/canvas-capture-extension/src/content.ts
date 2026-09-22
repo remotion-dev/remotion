@@ -130,45 +130,17 @@ export const startContent = () => {
 			display: none;
 			width: 16px;
 			height: 16px;
-			border: 3px solid #fff;
-			border-radius: 50%;
-			background: #0b84f3;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+			background: transparent;
 		}
 		.highlight.editable .selection-handle { display: block; }
 		.selection-handle[data-handle="nw"] { left: -8px; top: -8px; cursor: nwse-resize; z-index: 1; }
 		.selection-handle[data-handle="ne"] { right: -8px; top: -8px; cursor: nesw-resize; z-index: 1; }
 		.selection-handle[data-handle="se"] { right: -8px; bottom: -8px; cursor: nwse-resize; z-index: 1; }
 		.selection-handle[data-handle="sw"] { left: -8px; bottom: -8px; cursor: nesw-resize; z-index: 1; }
-		.selection-handle[data-handle="n"],
-		.selection-handle[data-handle="s"],
-		.selection-handle[data-handle="e"],
-		.selection-handle[data-handle="w"] {
-			border: 0;
-			border-radius: 0;
-			background: transparent;
-			box-shadow: none;
-		}
 		.selection-handle[data-handle="n"] { left: 8px; right: 8px; top: -8px; width: auto; cursor: ns-resize; }
 		.selection-handle[data-handle="s"] { left: 8px; right: 8px; bottom: -8px; width: auto; cursor: ns-resize; }
 		.selection-handle[data-handle="e"] { right: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
 		.selection-handle[data-handle="w"] { left: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
-		.selection-handle[data-handle="n"]::after,
-		.selection-handle[data-handle="s"]::after,
-		.selection-handle[data-handle="e"]::after,
-		.selection-handle[data-handle="w"]::after {
-			content: '';
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			width: 16px;
-			height: 16px;
-			border: 3px solid #fff;
-			border-radius: 50%;
-			background: #0b84f3;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-			transform: translate(-50%, -50%);
-		}
 		.capture-dimensions {
 			position: fixed;
 			display: none;
