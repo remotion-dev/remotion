@@ -72,7 +72,7 @@ export const listOfRemotionPackages = [
 	'@remotion/serverless-client',
 	'@remotion/skills',
 	'@remotion/skills-evals',
-	'@remotion/studio-codemods',
+	'@remotion/codemods',
 	'@remotion/studio-server',
 	'@remotion/studio-shared',
 	'@remotion/studio',

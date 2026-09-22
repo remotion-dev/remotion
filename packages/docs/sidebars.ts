@@ -1566,30 +1566,7 @@ const sidebars: SidebarsConfig = {
 			href: '/docs/api',
 			label: 'API Reference',
 		},
-		{
-			type: 'category',
-			label: 'Terminology',
-			link: {
-				type: 'doc',
-				id: 'terminology',
-			},
-			items: [
-				'terminology/player',
-				'terminology/studio',
-				'terminology/concurrency',
-				'terminology/input-props',
-				'terminology/cloud-run-url',
-				'terminology/service-name',
-				'terminology/entry-point',
-				'terminology/root-file',
-				'terminology/remotion-root',
-				'terminology/public-dir',
-				'terminology/serve-url',
-				'terminology/bundle',
-				'terminology/sequence',
-				'terminology/composition',
-			],
-		},
+
 		{
 			type: 'category',
 			label: 'Snippets',
@@ -1613,6 +1590,30 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/live-streaming',
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
+			],
+    },
+    {
+			type: 'category',
+			label: 'Terminology',
+			link: {
+				type: 'doc',
+				id: 'terminology',
+			},
+			items: [
+				'terminology/player',
+				'terminology/studio',
+				'terminology/concurrency',
+				'terminology/input-props',
+				'terminology/cloud-run-url',
+				'terminology/service-name',
+				'terminology/entry-point',
+				'terminology/root-file',
+				'terminology/remotion-root',
+				'terminology/public-dir',
+				'terminology/serve-url',
+				'terminology/bundle',
+				'terminology/sequence',
+				'terminology/composition',
 			],
 		},
 		{
@@ -2034,6 +2035,17 @@ const sidebars: SidebarsConfig = {
 				'browser-bundler/get-browser-composition',
 				'browser-bundler/create-browser-composition-observer',
 			],
+		},
+	],
+	codemodsSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/codemods',
+			link: {
+				type: 'doc',
+				id: 'codemods/index',
+			},
+			items: ['codemods/add-solid', 'codemods/delete-jsx-nodes'],
 		},
 	],
 };

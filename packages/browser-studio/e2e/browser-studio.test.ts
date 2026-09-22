@@ -1585,6 +1585,30 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect
 		.poll(() => getColor(compositionActions))
 		.toBe('rgb(166, 167, 169)');
+	await compositionActions.click();
+	await expect(studio.getByText('Copy ID', {exact: true})).toBeVisible();
+	await expect
+		.poll(() =>
+			compositionItem
+				.locator('button')
+				.evaluateAll((elements) =>
+					elements.every((element) =>
+						element.checkVisibility({checkOpacity: true}),
+					),
+				),
+		)
+		.toBe(true);
+	const contextActionBox = await compositionActions.boundingBox();
+	if (contextActionBox === null) {
+		throw new Error('Expected the context action to be visible');
+	}
+
+	await page.mouse.click(
+		contextActionBox.x + 2,
+		contextActionBox.y + contextActionBox.height / 2,
+	);
+	await expect(studio.getByText('Copy ID', {exact: true})).toBeHidden();
+	await expect(studio.getByText('hover test', {exact: true})).toBeVisible();
 	await neutralArea.hover();
 	await expect
 		.poll(() => getBackgroundColor(compositionItem))

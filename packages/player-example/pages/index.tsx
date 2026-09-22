@@ -8,15 +8,10 @@ const examples = [
 			'The original Player testbed with custom controls and thumbnails.',
 	},
 	{
-		href: '/canvas',
-		name: 'Canvas layers',
-		description: 'A Player with a live list of mounted timeline layers.',
-	},
-	{
 		href: '/browser-bundler',
-		name: 'Browser-compiled Player',
+		name: 'Browser-compiled Canvas',
 		description:
-			'Compile an editable virtual Remotion project and play a registered composition.',
+			'Compile an editable virtual Remotion project and inspect its live Canvas layers.',
 	},
 	{
 		href: '/audio',

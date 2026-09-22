@@ -3,7 +3,6 @@
 		"./src/**/*",
 		"./pages/index.tsx",
 		"./pages/player.tsx",
-		"./pages/canvas.tsx",
 		"./pages/browser-bundler.tsx"
 	],
 	"compilerOptions": {
@@ -33,6 +32,9 @@
 		},
 		{
 			"path": "../player"
+		},
+		{
+			"path": "../codemods"
 		},
 		{
 			"path": "../google-fonts"

@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-test('Fast Refresh preserves an isolated Player, video state and editor focus through live edits', async ({
+test('Fast Refresh preserves an isolated Canvas, video state and editor focus through live edits', async ({
 	page,
 }) => {
 	const pageErrors: string[] = [];
@@ -8,9 +8,9 @@ test('Fast Refresh preserves an isolated Player, video state and editor focus th
 
 	await page.goto('/');
 	await page
-		.getByRole('link', {name: 'Browser-compiled Player', exact: true})
+		.getByRole('link', {name: 'Browser-compiled Canvas', exact: true})
 		.click();
-	const preview = page.frameLocator('iframe[title="Live Player preview"]');
+	const preview = page.frameLocator('iframe[title="Live Canvas preview"]');
 	const composition = preview.getByRole('region', {
 		name: 'Compiled composition',
 	});
@@ -25,6 +25,25 @@ test('Fast Refresh preserves an isolated Player, video state and editor focus th
 	).toBeVisible();
 	await expect(
 		composition.getByText('1280 x 720 / 30 fps / 138 frames', {exact: true}),
+	).toBeVisible();
+	const mountedLayers = composition.getByRole('region', {
+		name: 'Mounted layers',
+	});
+	await expect(
+		mountedLayers.getByRole('heading', {name: 'Layers (5)'}),
+	).toBeVisible();
+	await expect(
+		mountedLayers.getByRole('button', {name: /^Background/}),
+	).toBeVisible();
+	await expect(mountedLayers.getByRole('button', {name: /^Orb/})).toBeVisible();
+	await expect(
+		mountedLayers.getByRole('button', {name: /^Content/}),
+	).toBeVisible();
+	await mountedLayers.getByRole('button', {name: /^Content/}).click();
+	await expect(
+		composition
+			.getByRole('region', {name: 'Layer selection'})
+			.getByRole('heading', {name: 'Selection (1)'}),
 	).toBeVisible();
 	await composition
 		.getByRole('button', {name: 'Clicks: 0', exact: true})
@@ -49,7 +68,7 @@ test('Fast Refresh preserves an isolated Player, video state and editor focus th
 		.click();
 	const pausedFrame = await frame.innerText();
 
-	const editor = page.getByRole('textbox', {name: 'Video.tsx source'});
+	const editor = page.getByRole('textbox', {name: 'Video.tsx'});
 	const original = await editor.inputValue();
 	const compatibleEdit = original.replace(
 		'{title}',
@@ -68,6 +87,9 @@ test('Fast Refresh preserves an isolated Player, video state and editor focus th
 	await expect(frame).toHaveText(pausedFrame);
 	await expect(playbackRate).toHaveText('1.5x');
 	await expect(
+		mountedLayers.getByRole('heading', {name: 'Layers (5)'}),
+	).toBeVisible();
+	await expect(
 		composition.getByRole('button', {name: 'Play video', exact: true}),
 	).toBeVisible();
 	await expect(editor).toBeFocused();
@@ -75,21 +97,15 @@ test('Fast Refresh preserves an isolated Player, video state and editor focus th
 	const typingSource = `${compatibleEdit}\n// Consecutive edits: `;
 	const status = page.getByRole('status');
 	await editor.fill(typingSource);
-	await expect(status).toHaveText(
-		'BrowserDemo compiled successfully with Fast Refresh.',
-	);
+	await expect(status).toHaveText('Up to date');
 	// Use the keyboard, not locator typing that would restore lost focus.
 	await page.keyboard.type('first', {delay: 80});
 	await expect(editor).toHaveValue(`${typingSource}first`);
-	await expect(status).toHaveText(
-		'BrowserDemo compiled successfully with Fast Refresh.',
-	);
+	await expect(status).toHaveText('Up to date');
 	await expect(editor).toBeFocused();
 	await page.keyboard.type(' second', {delay: 80});
 	await expect(editor).toHaveValue(`${typingSource}first second`);
-	await expect(status).toHaveText(
-		'BrowserDemo compiled successfully with Fast Refresh.',
-	);
+	await expect(status).toHaveText('Up to date');
 	await expect(editor).toBeFocused();
 	await expect(frame).toHaveText(pausedFrame);
 
@@ -184,14 +200,12 @@ test('Fast Refresh preserves an isolated Player, video state and editor focus th
 	await expect(frame).toHaveText(recoveryFrame);
 	await expect(playbackRate).toHaveText('1.5x');
 
-	await page
-		.getByRole('link', {name: 'All Player examples', exact: true})
-		.click();
+	await page.getByRole('link', {name: 'Player examples', exact: true}).click();
 	await expect(
 		page.getByRole('heading', {name: 'Player examples', exact: true}),
 	).toBeVisible();
 	await page
-		.getByRole('link', {name: 'Browser-compiled Player', exact: true})
+		.getByRole('link', {name: 'Browser-compiled Canvas', exact: true})
 		.click();
 	await expect(
 		composition.getByRole('heading', {

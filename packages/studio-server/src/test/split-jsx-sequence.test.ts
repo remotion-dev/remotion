@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {splitJsxSequence as splitJsxSequenceCodemod} from '@remotion/studio-codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {splitJsxSequence} from '../codemods/split-jsx-sequence';
 import {
 	createFileWatcherRegistry,
@@ -12,6 +12,8 @@ import {setLiveEventsListener} from '../preview-server/live-events';
 import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequence';
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
+
+const {splitJsxSequence: splitJsxSequenceCodemod} = CodemodsInternals;
 
 const wrap = (
 	sequence: string,
@@ -311,16 +313,28 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 	try {
 		clearUndoStack();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
-		const input = wrap('<AbsoluteFill from={0} durationInFrames={50} />');
+		const input = wrap(
+			'<AbsoluteFill name="one" from={0} durationInFrames={50} />\n\t\t\t<AbsoluteFill name="two" from={10} durationInFrames={50} />',
+		);
 		writeFileSync(entryPoint, input);
 
 		const success = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
-					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, sequenceLine),
-					sequenceKeys: sequenceTimingKeys,
-					splitFrame: 30,
+					sequences: [
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="one"'),
+							sequenceKeys: sequenceTimingKeys,
+							splitFrame: 30,
+						},
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="two"'),
+							sequenceKeys: sequenceTimingKeys,
+							splitFrame: 30,
+						},
+					],
 				},
 				entryPoint,
 				remotionRoot,
@@ -329,17 +343,24 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 
 		expect(success.success).toBe(true);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
-			'<AbsoluteFill from={30} durationInFrames={20} trimBefore={30} />',
+			'<AbsoluteFill name="one" from={30} durationInFrames={20} trimBefore={30} />',
+		);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain(
+			'<AbsoluteFill name="two" from={30} durationInFrames={30} trimBefore={20} />',
 		);
 		expect(getUndoStack().length).toBe(1);
 
 		const failure = await splitJsxSequenceHandler(
 			getHandlerOptions({
 				input: {
-					fileName: entryPoint,
-					nodePath: lineColumnToNodePath(input, sequenceLine),
-					sequenceKeys: sequenceTimingKeys,
-					splitFrame: 0,
+					sequences: [
+						{
+							fileName: entryPoint,
+							nodePath: lineContainingToNodePath(input, 'name="one"'),
+							sequenceKeys: sequenceTimingKeys,
+							splitFrame: 0,
+						},
+					],
 				},
 				entryPoint,
 				remotionRoot,

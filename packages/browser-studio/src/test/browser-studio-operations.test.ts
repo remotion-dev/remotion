@@ -1,16 +1,18 @@
 import {expect, test} from 'bun:test';
-import {basicCaptionsElementSource} from '@remotion/studio-codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {
-	createBrowserStudioOperations,
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '../browser-studio-operations';
+import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
+
+const {
+	basicCaptionsElementSource,
+	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
+} = CodemodsInternals;
 
 const insertSolid = (
 	project: VirtualProject,
@@ -874,10 +876,14 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
-		splitFrame: 10,
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				splitFrame: 10,
+			},
+		],
 	});
 	expect(failure).toMatchObject({
 		success: false,
@@ -887,10 +893,14 @@ registerRoot(Root);`,
 	expect(currentProject.files[fileName]).toBe(initialContents);
 
 	const splitResult = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
-		splitFrame: 15,
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				splitFrame: 15,
+			},
+		],
 	});
 	if (!splitResult.success) {
 		throw new Error(splitResult.reason);

@@ -91,7 +91,8 @@ export const makeHoverableCSS = () => `
       overflow: hidden;
     }
 
-    ${hoverGroup}:hover ${reveal} {
+    ${hoverGroup}:hover ${reveal},
+    ${hoverGroup}:has([aria-expanded="true"]) ${reveal} {
       opacity: 1;
       width: auto;
       overflow: visible;

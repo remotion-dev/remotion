@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {splitVideoFromAudio} from '../codemods/split-video-from-audio';
+import {CodemodsInternals} from '@remotion/codemods';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -11,6 +11,8 @@ import {setLiveEventsListener} from '../preview-server/live-events';
 import {splitVideoFromAudioHandler} from '../preview-server/routes/split-video-from-audio';
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
+
+const {splitVideoFromAudio} = CodemodsInternals;
 
 const wrap = (
 	element: string,

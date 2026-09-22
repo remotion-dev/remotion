@@ -1,10 +1,7 @@
 import {
-	computeSequencePropsStatusFromContent,
-	findProjectFile,
-	updateInlineCaptionPatches,
+	CodemodsInternals,
 	type SequencePropsNodeUpdate,
-	updateMultipleSequenceProps,
-} from '@remotion/studio-codemods';
+} from '@remotion/codemods';
 import type {
 	SaveSequencePropEdit,
 	SaveSequencePropsRequest,
@@ -14,6 +11,13 @@ import type {
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import type {VirtualProject} from './types';
+
+const {
+	computeSequencePropsStatusFromContent,
+	findProjectFile,
+	updateInlineCaptionPatches,
+	updateMultipleSequenceProps,
+} = CodemodsInternals;
 
 const parseSequencePropEditValue = (
 	value: SaveSequencePropEdit['value'],

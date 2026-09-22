@@ -11,5 +11,5 @@ const result = await build({
 });
 
 if (!result.success) {
-	throw new AggregateError(result.logs, 'Could not build the Player preview.');
+	throw new AggregateError(result.logs, 'Could not build the Canvas preview.');
 }

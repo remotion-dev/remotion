@@ -72,6 +72,7 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 } from '../selected-outline-types';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -82,6 +83,7 @@ import {
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
@@ -314,6 +316,13 @@ const TimelineSequenceItemInner: React.FC<{
 	showProvisionalVisibilityToggle,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {hovered, onPointerEnter, onPointerLeave} =
 		useTimelineSequenceHover(nodePathInfo);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -446,6 +455,26 @@ const TimelineSequenceItemInner: React.FC<{
 			() => undefined,
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+	const onSplitSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		splitSelectedTimelineItems({
+			selections: selectedItems,
+			sequences: sequencesRef.current,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			propStatuses: propStatusesRef.current,
+			splitFrame: getCurrentFrame(),
+		})?.catch(() => undefined);
+	}, [
+		overrideIdToNodePathMappingsRef,
+		previewInteractive,
+		propStatusesRef,
+		selectedItems,
+		selectedSequenceNodePathInfos,
+		sequencesRef,
+	]);
 
 	const onDeleteSequenceFromSource = useCallback(() => {
 		if (
@@ -1152,8 +1181,10 @@ const TimelineSequenceItemInner: React.FC<{
 			return getMultiSequenceContextMenuItems({
 				deleteDisabled: !previewInteractive,
 				duplicateDisabled: !previewInteractive,
+				splitDisabled: !previewInteractive,
 				onDeleteSelectedSequences,
 				onDuplicateSelectedSequences,
+				onSplitSelectedSequences,
 			});
 		}
 
@@ -1313,6 +1344,7 @@ const TimelineSequenceItemInner: React.FC<{
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onDuplicateSelectedSequences,
+		onSplitSelectedSequences,
 		onRenameSequence,
 		onSelect,
 		openInCodingAgent,

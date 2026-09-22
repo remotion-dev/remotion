@@ -119,7 +119,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		throw new Error('Expected the inserted Solid to have a node path');
 	}
 
-	const deleteResult = await operations.deleteJsxNode({
+	const deleteResult = await operations.deleteJsxNodes({
 		nodes: [
 			{
 				fileName: '/project/src/Composition.tsx',

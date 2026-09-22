@@ -13,8 +13,8 @@ import type {
 	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeResponse,
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteEffectRequest,
@@ -168,9 +168,9 @@ export type BrowserStudioOperations = {
 		sourceOrigin: string | null;
 	} | null;
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
-	deleteJsxNode: (
-		request: DeleteJsxNodeRequest,
-	) => Promise<DeleteJsxNodeResponse>;
+	deleteJsxNodes: (
+		request: DeleteJsxNodesRequest,
+	) => Promise<DeleteJsxNodesResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
 	) => Promise<DeleteStaticFileResponse>;

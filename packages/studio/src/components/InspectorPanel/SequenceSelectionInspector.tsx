@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
@@ -162,6 +163,7 @@ const SequenceSourceQuickActions: React.FC<{
 		track.sequence.type === 'video' || track.sequence.type === 'audio'
 			? track.sequence
 			: null;
+	const mediaMetadata = useMediaMetadata(mediaSequence?.src ?? null);
 	const transcriptionDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
@@ -264,7 +266,7 @@ const SequenceSourceQuickActions: React.FC<{
 					Split video from audio
 				</InspectorQuickAction>
 			) : null}
-			{track.sequence.type === 'video' || track.sequence.type === 'audio' ? (
+			{mediaSequence !== null && mediaMetadata?.hasAudioTrack !== false ? (
 				<InspectorQuickAction
 					disabled={transcriptionDisabledReason !== undefined}
 					onClick={onGenerateCaptions}
