@@ -17,22 +17,35 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="separate-video.ts"
-import {separateVideoLayers} from '@remotion/video-matting';
+import {
+  loadVideoMattingModel,
+  separateVideoLayers,
+} from '@remotion/video-matting';
 
-const file = new File([], 'input.mp4');
+export const matteVideo = async (file: File) => {
+  const model = 'modnet';
+  await using modelHandle = await loadVideoMattingModel({
+    model,
+    onProgress: ({progress}) => console.log('Loading model:', progress),
+  });
+  console.log('Model already in memory:', modelHandle.alreadyLoaded);
 
-await using result = await separateVideoLayers({
-  src: file,
-});
+  await using layers = await separateVideoLayers({
+    src: file,
+    model,
+    onProgress: ({progress}) => console.log('Separating layers:', progress),
+  });
 
-const {base, foreground} = result;
-const baseBlob = await base.getBlob();
-const foregroundBlob = await foreground.getBlob();
+  const [baseBlob, foregroundBlob] = await Promise.all([
+    layers.base.getBlob(),
+    layers.foreground.getBlob(),
+  ]);
+
+  return {baseBlob, foregroundBlob};
+};
 ```
 
-`await using` releases package-owned temporary storage after the blobs have been retrieved. It does not unload the model.
-
-The model is downloaded on the first call and cached by the browser. Call [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model) first to display download progress.
+Pass a `File` from a file input to `matteVideo()`. On return, `await using` releases the model from memory and removes temporary output files. The returned blobs remain usable, and downloaded model files stay cached for future runs.
 
 ## Model hosting
 
