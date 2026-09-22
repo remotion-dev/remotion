@@ -20,19 +20,23 @@ export type WhisperModelDownloadProgress = {
 export type DownloadWhisperModelOptions = {
 	model: WhisperWebGpuModel;
 	onProgress?: (progress: WhisperModelDownloadProgress) => void;
+	signal?: AbortSignal;
 };
 
 export type DownloadWhisperModelResult = {
 	alreadyDownloaded: boolean;
 };
 
-export const downloadWhisperModel = ({
+export const downloadWhisperModel = async ({
 	model,
 	onProgress,
+	signal,
 }: DownloadWhisperModelOptions): Promise<DownloadWhisperModelResult> => {
+	signal?.throwIfAborted();
 	const totalBytes = getModelInfo(model).webGpuDownloadSize;
 	const hostedModelId = getHostedModelId(model);
-	return withRemotionModelHost(async ({env, ModelRegistry}) => {
+	const result = await withRemotionModelHost(async ({env, ModelRegistry}) => {
+		signal?.throwIfAborted();
 		const cache = env.useCustomCache
 			? env.customCache
 			: env.useBrowserCache && typeof caches !== 'undefined'
@@ -54,6 +58,7 @@ export const downloadWhisperModel = ({
 			hostedModelId,
 			registryOptions,
 		);
+		signal?.throwIfAborted();
 		if (cacheStatus.allCached) {
 			onProgress?.({
 				file: null,
@@ -77,6 +82,7 @@ export const downloadWhisperModel = ({
 		emitProgress(null);
 
 		for (const {file, cached} of cacheStatus.files) {
+			signal?.throwIfAborted();
 			if (cached) {
 				continue;
 			}
@@ -84,73 +90,85 @@ export const downloadWhisperModel = ({
 			const url = `${env.remoteHost}${env.remotePathTemplate.replace('{model}', hostedModelId)}${file}`;
 			// Transformers.js 4.2.0 keys browser caches by URL and its FileCache by model/file.
 			const cacheKey = cache === null ? `${hostedModelId}/${file}` : url;
-			const response = await env.fetch(url);
+			const response = await env.fetch(url, {signal});
 			if (!response.ok || response.body === null) {
 				throw new Error(`Could not download ${url}: HTTP ${response.status}.`);
 			}
 
 			const reader = response.body.getReader();
-			if (cache !== null) {
-				const stream = new ReadableStream<Uint8Array>({
-					async pull(controller) {
-						try {
+			try {
+				if (cache !== null) {
+					const stream = new ReadableStream<Uint8Array>({
+						async pull(controller) {
+							try {
+								signal?.throwIfAborted();
+								const {done, value} = await reader.read();
+								signal?.throwIfAborted();
+								if (done) {
+									controller.close();
+									return;
+								}
+
+								loadedBytes += value.byteLength;
+								emitProgress(file);
+								signal?.throwIfAborted();
+								controller.enqueue(value);
+							} catch (error) {
+								controller.error(error);
+							}
+						},
+						cancel: () => reader.cancel(),
+					});
+					await cache.put(
+						cacheKey,
+						new Response(stream, {headers: response.headers}),
+					);
+				} else {
+					// Match Transformers.js FileCache's model/file layout without loading ONNX.
+					const [{mkdir, open, rename, unlink}, {join, dirname}, {randomUUID}] =
+						await Promise.all([
+							importNodeModule<typeof NodeFsPromises>('node:fs/promises'),
+							importNodeModule<typeof NodePath>('node:path'),
+							importNodeModule<typeof NodeCrypto>('node:crypto'),
+						]);
+					if (env.cacheDir === null) {
+						throw new Error('Transformers.js env.cacheDir must be set.');
+					}
+
+					const destination = join(env.cacheDir, cacheKey);
+					const temporary = `${destination}.tmp.${randomUUID()}`;
+					await mkdir(dirname(destination), {recursive: true});
+					const handle = await open(temporary, 'wx');
+					try {
+						while (true) {
+							signal?.throwIfAborted();
 							const {done, value} = await reader.read();
+							signal?.throwIfAborted();
 							if (done) {
-								controller.close();
-								return;
+								break;
 							}
 
+							await handle.writeFile(value);
 							loadedBytes += value.byteLength;
 							emitProgress(file);
-							controller.enqueue(value);
-						} catch (error) {
-							controller.error(error);
-						}
-					},
-					cancel: () => reader.cancel(),
-				});
-				await cache.put(
-					cacheKey,
-					new Response(stream, {headers: response.headers}),
-				);
-			} else {
-				// Match Transformers.js FileCache's model/file layout without loading ONNX.
-				const [{mkdir, open, rename, unlink}, {join, dirname}, {randomUUID}] =
-					await Promise.all([
-						importNodeModule<typeof NodeFsPromises>('node:fs/promises'),
-						importNodeModule<typeof NodePath>('node:path'),
-						importNodeModule<typeof NodeCrypto>('node:crypto'),
-					]);
-				if (env.cacheDir === null) {
-					throw new Error('Transformers.js env.cacheDir must be set.');
-				}
-
-				const destination = join(env.cacheDir, cacheKey);
-				const temporary = `${destination}.tmp.${randomUUID()}`;
-				await mkdir(dirname(destination), {recursive: true});
-				const handle = await open(temporary, 'wx');
-				try {
-					while (true) {
-						const {done, value} = await reader.read();
-						if (done) {
-							break;
 						}
 
-						await handle.writeFile(value);
-						loadedBytes += value.byteLength;
-						emitProgress(file);
+						await handle.close();
+						signal?.throwIfAborted();
+						await rename(temporary, destination);
+					} catch (error) {
+						await handle.close();
+						await unlink(temporary);
+						throw error;
 					}
-				} catch (error) {
-					await handle.close();
-					await unlink(temporary);
-					throw error;
 				}
-
-				await handle.close();
-				await rename(temporary, destination);
+			} finally {
+				await reader.cancel().catch(() => {});
+				reader.releaseLock();
 			}
 		}
 
+		signal?.throwIfAborted();
 		if (
 			!(await ModelRegistry.is_pipeline_cached(
 				'automatic-speech-recognition',
@@ -161,6 +179,7 @@ export const downloadWhisperModel = ({
 			throw new Error(`The Whisper model "${model}" was not fully cached.`);
 		}
 
+		signal?.throwIfAborted();
 		onProgress?.({
 			file: null,
 			progress: 1,
@@ -168,5 +187,10 @@ export const downloadWhisperModel = ({
 			totalBytes,
 		});
 		return {alreadyDownloaded: false};
+	}).catch((error) => {
+		signal?.throwIfAborted();
+		throw error;
 	});
+	signal?.throwIfAborted();
+	return result;
 };

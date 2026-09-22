@@ -79,6 +79,30 @@ Prevents a generated token sequence of this length from occurring more than once
 
 Called while a previously downloaded model is initialized. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first to download the files and receive download progress.
 
+### signal?<AvailableFrom v="4.0.528" />
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling transcription.  
+Calling `abort()` on its controller stops token generation and rejects the promise with the signal's reason.  
+A GPU operation already in progress must finish first.  
+No partial transcript is returned.
+
+```ts twoslash title="cancel-transcription.ts"
+import {transcribe} from '@remotion/whisper-webgpu';
+
+declare const channelWaveform: Float32Array;
+// ---cut---
+const controller = new AbortController();
+document.querySelector('button')?.addEventListener('click', () => {
+  controller.abort();
+});
+
+const result = await transcribe({
+  channelWaveform,
+  model: 'small.en',
+  signal: controller.signal,
+});
+```
+
 ## Return value
 
 Returns the full `text`, timestamped `words`, and selected `model`.

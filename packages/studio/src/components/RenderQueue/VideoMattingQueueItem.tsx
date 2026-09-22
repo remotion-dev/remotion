@@ -21,6 +21,9 @@ import {
 import {RenderQueueContext} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
 import {QueueJobError} from './QueueJobError';
+import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
+import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
+import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {SuccessIcon} from './SuccessIcon';
 import type {VideoMattingJob} from './video-matting-job-types';
 
@@ -60,7 +63,7 @@ const ellipsisIconStyle: React.SVGProps<SVGSVGElement> = {
 };
 
 const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
-	if (job.status === 'running') {
+	if (job.status === 'running' || job.status === 'saving') {
 		return (
 			<div
 				style={statusIcon}
@@ -77,7 +80,7 @@ const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
 	}
 
 	if (job.status === 'done') return <SuccessIcon />;
-	if (job.status === 'failed')
+	if (job.status === 'failed' || job.status === 'cancelled')
 		return (
 			<svg style={statusIcon} viewBox="0 0 512 512">
 				<path
@@ -119,13 +122,15 @@ export const VideoMattingQueueItem: React.FC<{
 	const messages =
 		job.status === 'idle'
 			? ['Queued for video matting']
-			: job.status === 'running'
+			: job.status === 'running' || job.status === 'saving'
 				? [job.progress.message, job.progress.detail].filter(
 						(message): message is string => message !== null,
 					)
 				: job.status === 'failed'
 					? [job.error.message]
-					: [job.baseOutName, job.foregroundOutName];
+					: job.status === 'cancelled'
+						? ['Cancelled']
+						: [job.baseOutName, job.foregroundOutName];
 	const tooltip = messages.join('\n');
 	const revealAsset = useCallback(
 		(assetName: string) => {
@@ -198,7 +203,9 @@ export const VideoMattingQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
 				<div style={subtitles} title={tooltip}>
-					{job.status === 'failed' ? (
+					{job.status === 'cancelled' ? (
+						<RenderQueueCancelledMessage />
+					) : job.status === 'failed' ? (
 						<QueueJobError
 							error={job.error}
 							modalTitle="Video matting failed"
@@ -230,7 +237,14 @@ export const VideoMattingQueueItem: React.FC<{
 					/>
 				</ActionTooltip>
 			) : null}
-			{job.status === 'running' ? null : (
+			{job.status === 'done' ||
+			job.status === 'failed' ||
+			job.status === 'cancelled' ? (
+				<RenderQueueRepeatItem job={job} />
+			) : null}
+			{job.status === 'running' ? (
+				<RenderQueueCancelButton job={job} />
+			) : job.status === 'saving' ? null : (
 				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
 					<InlineAction
 						renderAction={renderRemove}

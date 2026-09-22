@@ -27,6 +27,10 @@ console.log(alreadyDownloaded);
 
 One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-available-models).
 
+### signal?<AvailableFrom v="4.0.528" />
+
+An `AbortSignal` used to cancel downloading. Aborting rejects with the signal's reason and removes incomplete files. Already downloaded files remain cached for the next attempt.
+
 ### onProgress?
 
 Called as files download. Default: no callback. The callback receives:

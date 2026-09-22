@@ -88,6 +88,7 @@ test('writes both layers and inserts them into the selected video source', async
 	let done = false;
 	let failed: Error | null = null;
 	const value = {
+		getAbortController: () => new AbortController(),
 		setProcessVideoMattingJobCallback: (callback: typeof processJob) => {
 			processJob = callback;
 		},
@@ -100,6 +101,7 @@ test('writes both layers and inserts them into the selected video source', async
 		markVideoMattingJobDone: () => {
 			done = true;
 		},
+		markVideoMattingJobSaving: () => undefined,
 		markVideoMattingJobFailed: (_id: string, error: Error) => {
 			failed = error;
 		},

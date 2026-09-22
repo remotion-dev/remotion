@@ -38,6 +38,7 @@ const pipelines = new Map<WhisperWebGpuModel, LoadedWhisperPipelineState>();
 export type LoadWhisperModelOptions = {
 	model: WhisperWebGpuModel;
 	onProgress?: OnWhisperWebGpuModelLoadProgress;
+	signal?: AbortSignal;
 };
 
 export type LoadWhisperModelResult = AsyncDisposable & {
@@ -181,18 +182,38 @@ const disposeWhisperPipelineState = async ({
 export const loadWhisperModel = async ({
 	model,
 	onProgress,
+	signal,
 }: LoadWhisperModelOptions): Promise<LoadWhisperModelResult> => {
+	signal?.throwIfAborted();
 	const {state, alreadyLoaded, unsubscribe} = getOrCreateWhisperPipeline({
 		model,
-		onProgress,
+		onProgress: (progress) => {
+			if (!signal?.aborted) {
+				onProgress?.(progress);
+			}
+		},
 	});
+	state.retainedLoadHandles++;
 	try {
 		await state.loading;
+		signal?.throwIfAborted();
+	} catch (error) {
+		state.retainedLoadHandles--;
+		if (state.retainedLoadHandles === 0 && state.activeTranscriptions === 0) {
+			await disposeWhisperPipelineState({model, state}).catch(
+				(disposeError) => {
+					signal?.throwIfAborted();
+					throw disposeError;
+				},
+			);
+		}
+
+		signal?.throwIfAborted();
+		throw error;
 	} finally {
 		unsubscribe();
 	}
 
-	state.retainedLoadHandles++;
 	let released = false;
 	const result = {alreadyLoaded} as LoadWhisperModelResult;
 	Object.defineProperty(result, Symbol.asyncDispose, {
@@ -215,12 +236,15 @@ export const loadWhisperModel = async ({
 export const withLoadedWhisperPipeline = async <ReturnValue>({
 	model,
 	onProgress,
+	signal,
 	run,
 }: {
 	model: WhisperWebGpuModel;
 	onProgress?: OnWhisperWebGpuModelLoadProgress;
+	signal: AbortSignal | null;
 	run: (pipeline: LoadedWhisperPipeline) => Promise<ReturnValue>;
 }): Promise<ReturnValue> => {
+	signal?.throwIfAborted();
 	const {state, unsubscribe} = getOrCreateWhisperPipeline({
 		model,
 		onProgress,
@@ -229,13 +253,23 @@ export const withLoadedWhisperPipeline = async <ReturnValue>({
 	try {
 		const loaded = await state.loading;
 		unsubscribe();
+		signal?.throwIfAborted();
 		return await run(loaded);
+	} catch (error) {
+		signal?.throwIfAborted();
+		throw error;
 	} finally {
 		unsubscribe();
 		state.activeTranscriptions--;
 		if (state.activeTranscriptions === 0) {
 			for (const resolve of state.onIdle.splice(0)) {
 				resolve();
+			}
+
+			if (signal?.aborted && state.retainedLoadHandles === 0) {
+				await disposeWhisperPipelineState({model, state}).catch(() => {
+					signal.throwIfAborted();
+				});
 			}
 		}
 	}

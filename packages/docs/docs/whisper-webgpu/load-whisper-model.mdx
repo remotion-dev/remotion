@@ -29,6 +29,10 @@ One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-a
 
 Called while the cached model is initialized. `progress` is `null` during initialization and `1` when ready. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) for download progress.
 
+### signal?<AvailableFrom v="4.0.528" />
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling this call.
+
 ## Return value
 
 ### `alreadyLoaded`
