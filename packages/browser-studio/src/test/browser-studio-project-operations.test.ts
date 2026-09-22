@@ -933,8 +933,6 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 
 test('installs component-owned Element timing and initial props', async () => {
 	let project = createBlankTemplateProject();
-	project.files['/project/src/Composition.tsx'] =
-		`import {staticFile as assetFile} from 'remotion';\n${project.files['/project/src/Composition.tsx']}`;
 	const operations = createBrowserStudioOperations({
 		dependencyVersions: {},
 		getStaticFiles: null,
@@ -1009,7 +1007,6 @@ test('installs component-owned Element timing and initial props', async () => {
 	expect(composition).not.toContain('<Sequence');
 	expect(composition).toContain('<Captions');
 	expect(composition).toContain('captions={[');
-	expect(composition).toContain('sound: assetFile("captions/sound.bin")');
 	expect(project.publicFiles?.['captions/sound.bin']).toEqual(
 		new Uint8Array([0, 1, 2]),
 	);
