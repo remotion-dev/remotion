@@ -809,7 +809,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	expect(remainingProjectDirectories).not.toContain(previousDirectoryName);
 });
 
-test('drops a local image onto the canvas and imports it into the virtual project', async ({
+test('drops local media onto the canvas, imports it, and renders a video filmstrip', async ({
 	page,
 }) => {
 	const studioApiRequests: string[] = [];
@@ -883,6 +883,42 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 					'/project/src/Composition.tsx'
 				].includes('staticFile("framer.webm")'),
 			),
+		)
+		.toBe(true);
+	await expect
+		.poll(() =>
+			studio
+				.getByTitle('<Video>', {exact: true})
+				.locator('canvas')
+				.evaluateAll<boolean, HTMLCanvasElement>((canvases) =>
+					canvases.some((filmstrip) => {
+						const context = filmstrip.getContext('2d');
+						if (!context || filmstrip.width === 0 || filmstrip.height === 0) {
+							return false;
+						}
+
+						const {data} = context.getImageData(
+							0,
+							0,
+							filmstrip.width,
+							filmstrip.height,
+						);
+						// Video thumbnails fill the canvas; the audio waveform is translucent.
+						const minimumOpaquePixels =
+							filmstrip.width * filmstrip.height * 0.9;
+						let opaquePixels = 0;
+						for (let index = 3; index < data.length; index += 4) {
+							if (data[index] === 255) {
+								opaquePixels++;
+								if (opaquePixels > minimumOpaquePixels) {
+									return true;
+								}
+							}
+						}
+
+						return false;
+					}),
+				),
 		)
 		.toBe(true);
 	expect(studioApiRequests).toEqual([]);
