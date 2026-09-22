@@ -38,6 +38,7 @@ const makePlayer = ({
 		tagType: 'audio',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		getEffectsOutputSize: () => null,
 	});
 };
 

@@ -15,6 +15,7 @@ export {AudioProps, FallbackHtml5AudioProps} from './audio/props';
 export {MediaErrorAction} from './on-error';
 export type {MediaRequestInit} from './request-init';
 export {
+	EffectsOutputSize,
 	FallbackOffthreadVideoProps,
 	VideoObjectFit,
 	VideoProps,
