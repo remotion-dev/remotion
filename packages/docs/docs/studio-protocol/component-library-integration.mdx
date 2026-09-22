@@ -11,7 +11,7 @@ An Element contains the source code for one component. It also contains the data
 
 Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the component library in the target project.
 
-A component that follows the [Element guidelines](/elements/contributing#element-guidelines) is usually ready for Studio.
+Keep the component self-contained: avoid imports from the preview website and declare its external packages in [`dependencies`](/docs/studio-protocol/create-element-payload#dependencies).
 
 Use this procedure to preview and deliver a component:
 
@@ -27,15 +27,29 @@ Show each component in a [`<Player>`](/docs/player). The preview lets users exam
 
 Import the component normally for the preview. The website bundler then compiles the component.
 
-Use the same dimensions and duration in the Player and the Element payload. For replaceable starter content in either installation mode, set [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in the payload and pass the corresponding values to the Player as `inputProps`.
+Use the same dimensions and duration in the Player and the Element payload.
 
-### Preview installed assets
+### Choose starter props
 
-Accept asset URLs as component props. Pass hosted URLs to the Player, and use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) in the payload's `initialProps` for assets that should be installed. Declare each referenced path in [`assets`](/docs/studio-protocol/create-element-payload#assets).
+Expose replaceable content as component props, keeping rendering and animation in the component source. Set starter values in the payload's [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) and pass the corresponding values to the Player as [`inputProps`](/docs/player/player#inputprops). Both installation modes support this.
 
-Studio installs the assets and generates [`staticFile()`](/docs/staticfile) expressions on the component invocation. The Element source stays unchanged. This works in both installation modes.
+Studio writes `initialProps` onto the installed component invocation. Use [`Interactive.withSchema()`](/docs/interactive-with-schema) to make props editable in the Inspector. Content hardcoded inside the component cannot be changed through caller props.
 
-Assets that should remain remote after installation can use URL strings directly in `initialProps`.
+For [`component-owned-sequence`](/docs/studio-protocol/create-element-payload#installationmode), Studio supplies `from`, `durationInFrames`, and `name`. Include `width` and `height` in `initialProps` if the component needs them: Element dimension metadata is not passed as component props.
+
+### Preview installed assets<AvailableFrom v="4.0.528" />
+
+Accept image, audio, and video URLs as component props, rather than hardcoding preview URLs or installed file paths in the source.
+
+Pass normal URL strings to the Player. These may point to assets served by your preview website or, if you prefer, hosted elsewhere. The preview location does not need to match the installed asset path.
+
+For assets that should be copied into the user's project, declare them in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets). Choose public-relative paths scoped to the component, such as `my-element/logo.png`, to reduce collisions with other components.
+
+In the payload's `initialProps`, replace each corresponding URL with [`staticFileRef()`](/docs/studio-protocol/static-file-ref), referencing the declared asset path. Keep these references out of the Player's `inputProps`: they are installation metadata, not runtime URLs. See the [`staticFileRef()` example](/docs/studio-protocol/static-file-ref#example) for the complete payload and generated code.
+
+Studio saves the assets into the public directory and generates [`staticFile()`](/docs/staticfile) expressions on the component invocation. The Element source stays unchanged. This works in both installation modes.
+
+For assets that should remain remote after installation, keep URL strings in `initialProps` instead of using references. Those assets continue to depend on the remote host.
 
 ## Reuse component code
 
@@ -100,7 +114,8 @@ When Studio embeds the library through Browse Elements, use [`isInsideStudio()`]
 - Compare the Player preview with the installed Element.
 - Validate each payload with `createElementPayload()`.
 - Test installation and cross-tab drag-and-drop from the production website.
-- Install the Element in a clean Remotion project. Check for unresolved imports, package dependencies, and assets.
+- Install the Element in a clean Remotion project. Check for unresolved imports and package dependencies.
+- Verify that installed assets appear in the public directory and render or play from local files. Confirm that assets intended to stay remote still use their URLs.
 - Treat the source code as public. The browser receives it, and Studio shows it.
 - Serve the production website through HTTPS. HTTP is supported only on `localhost` and `127.0.0.1`.
 
