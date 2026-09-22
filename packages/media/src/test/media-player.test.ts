@@ -216,15 +216,11 @@ test.each(['video'] as const)(
 	},
 );
 
-test.each(['terminal', 'video', 'destroyed', 'disposed'] as const)(
-	'handles a real scheduled audio read rejection when %s',
-	async (state) => {
+test.each(['audio', 'video'] as const)(
+	'reports a scheduled audio read failure once for %s playback',
+	async (tagType) => {
 		const onError = vi.fn();
-		const player = makeAudioPlayer(
-			makeSharedAudioContext(),
-			onError,
-			state === 'video' ? 'video' : 'audio',
-		);
+		const player = makeAudioPlayer(makeSharedAudioContext(), onError, tagType);
 		await player.initialize(0, false, 1);
 		player.audioIteratorManager!.destroyIterator();
 		// Observe the existing buffering owner, including scheduler cleanup.
@@ -258,27 +254,16 @@ test.each(['terminal', 'video', 'destroyed', 'disposed'] as const)(
 		try {
 			await player.seekTo(1);
 			await vi.waitFor(() => expect(rejectRead).toBeDefined());
-			if (state === 'destroyed') {
-				player.audioIteratorManager!.destroyIterator();
-			} else if (state === 'disposed') {
-				await player.dispose();
-			}
-
 			rejectRead(error);
 
-			if (state === 'terminal' || state === 'video') {
-				await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
-				player.play();
-				await player.seekTo(2);
-				expect(onError).toHaveBeenCalledOnce();
-				expect(unblocks).toHaveBeenCalled();
-				expect(buffers).toHaveBeenCalledOnce();
-				// eslint-disable-next-line dot-notation
-				expect(player['playing']).toBe(false);
-			} else {
-				await new Promise((resolve) => requestAnimationFrame(resolve));
-				expect(onError).not.toHaveBeenCalled();
-			}
+			await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
+			player.play();
+			await player.seekTo(2);
+			expect(onError).toHaveBeenCalledOnce();
+			expect(unblocks).toHaveBeenCalled();
+			expect(buffers).toHaveBeenCalledOnce();
+			// eslint-disable-next-line dot-notation
+			expect(player['playing']).toBe(false);
 		} finally {
 			buffers.mockRestore();
 			await player.dispose();

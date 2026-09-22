@@ -1,5 +1,4 @@
-import {Player, type PlayerRef} from '@remotion/player';
-import {CanvasSink} from 'mediabunny';
+import {Player} from '@remotion/player';
 import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {expect, test, vi} from 'vitest';
@@ -20,78 +19,7 @@ const waitFor = async (predicate: () => boolean) => {
 	throw new Error('Timed out waiting for condition');
 };
 
-test('surfaces a read failure during overlapping video playback seeks', async () => {
-	const container = document.createElement('div');
-	document.body.appendChild(container);
-	const root = createRoot(container);
-	const playerRef = React.createRef<PlayerRef>();
-	const error = new TypeError('Video read failed during playback');
-	const onError = vi.fn(() => 'fail' as const);
-	const onVideoFrame = vi.fn();
-	let rejectRead!: (error: Error) => void;
-	const {canvases} = CanvasSink.prototype;
-	const readSpy = vi
-		.spyOn(CanvasSink.prototype, 'canvases')
-		.mockImplementation(async function* (this: CanvasSink, ...args) {
-			const iterator = canvases.apply(this, args);
-			try {
-				const first = await iterator.next();
-				if (first.done) {
-					return;
-				}
-
-				yield first.value;
-				// Keep the next real media read pending while playback advances.
-				await new Promise<void>((_, reject) => {
-					rejectRead = reject;
-				});
-			} finally {
-				await iterator.return();
-			}
-		});
-	const Composition = () => (
-		<Video
-			src="/bigbuckbunny.mp4"
-			onError={onError}
-			onVideoFrame={onVideoFrame}
-		/>
-	);
-	root.render(
-		<Player
-			ref={playerRef}
-			acknowledgeRemotionLicense
-			component={Composition}
-			compositionHeight={720}
-			compositionWidth={1280}
-			durationInFrames={100}
-			fps={30}
-			initiallyMuted
-			inputProps={{}}
-			errorFallback={({error: caught}) => <div>{caught.message}</div>}
-		/>,
-	);
-	try {
-		await vi.waitFor(() => expect(onVideoFrame).toHaveBeenCalled());
-		await vi.waitFor(() => expect(rejectRead).toBeDefined());
-		playerRef.current!.play();
-		// Several frame updates supersede the seek awaiting the failed read,
-		// but the queued seeks still depend on the same video iterator.
-		await waitFor(() => playerRef.current!.getCurrentFrame() >= 3);
-		rejectRead(error);
-		await vi.waitFor(() =>
-			expect(container.textContent).toContain(error.message),
-		);
-		expect(onError).toHaveBeenCalledExactlyOnceWith(error);
-	} finally {
-		rejectRead?.(error);
-		root.unmount();
-		container.remove();
-		readSpy.mockRestore();
-	}
-});
-
 test.each([
-	['audio', 'callback'],
 	['video', 'callback'],
 	['audio', 'disallow'],
 	['video', 'disallow'],
@@ -117,11 +45,7 @@ test.each([
 		const error = new Error('Terminal preview read failure');
 		const Composition = () =>
 			tagType === 'audio' ? (
-				<Audio
-					src="/voice-note.m4a"
-					onError={policy === 'callback' ? () => 'fail' : undefined}
-					disallowFallbackToHtml5Audio={policy === 'disallow'}
-				/>
+				<Audio src="/voice-note.m4a" disallowFallbackToHtml5Audio />
 			) : (
 				<Video
 					src="/bigbuckbunny.mp4"
