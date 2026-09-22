@@ -74,7 +74,7 @@ The caption Elements show the distinction: moving a pill between words, popping 
 - Keep the implementation self-contained, using HTML, CSS, and React where possible.
 - Avoid global styles, layout side effects, and fullscreen assumptions unless the Element is a background.
 - Set explicit defaults for inherited visual properties. In particular, set text colors on the Element root or the nearest visual surface instead of relying on browser or host-page defaults. Ensure every use of `currentColor` resolves from an ancestor with an explicit color so the Element looks the same under light and dark host themes.
-- [Include assets](#include-assets) that should be copied into the user's project. Use stable remote URLs for previewing them and Google Fonts for non-websafe fonts.
+- [Include assets](#include-assets) that should be copied into the user's project. Use Google Fonts for non-websafe fonts.
 - Avoid project-specific branding or footage, and make colors easy to change.
 - Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
 - Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
@@ -122,7 +122,9 @@ For `component-owned-sequence`, Studio supplies `from`, `durationInFrames`, and 
 
 Declare images, audio, and video that should be installed into the user's public directory. These are separate from the PNG and MP4 gallery previews in [Prepare previews](#2-prepare-previews).
 
-Accept each asset URL as a component prop, such as `audioSrc`. Use a hosted URL in `initialProps` so the gallery and preview renders work without a matching public-folder structure:
+Accept each asset URL as a component prop, such as `audioSrc`. In `initialProps`, pass a URL that works in your preview: a locally served asset or, if you prefer, a hosted URL. The preview location does not need to match the installed asset path.
+
+For example, the oscilloscope uses a hosted audio file:
 
 ```ts title="elements/audio/oscilloscope/initial-props.ts"
 import type {ElementAsset} from '@remotion/studio-protocol';
@@ -176,7 +178,7 @@ Studio downloads the URL to `public/elements/audio-oscilloscope/remotion-made-th
 
 The Element source is copied unchanged. Do not hardcode `staticFile()` paths inside it for assets that need hosted URLs in previews. References work in both installation modes, including inside objects and arrays.
 
-Use a unique public-relative path scoped to your Element. Every reference must match a declared asset path. Assets can also contain [base64 data](/docs/studio-protocol/create-element-payload#assets) instead of a download URL; supply a usable preview URL, such as a data URL, in `initialProps`. To keep an asset remote after installation, leave its URL in `initialProps` without an installation override.
+Use a unique public-relative path scoped to your Element. Every reference must match a declared asset path. Assets can also contain [base64 data](/docs/studio-protocol/create-element-payload#assets) instead of a download URL. To keep an asset remote after installation, leave its URL in `initialProps` without an installation override.
 
 Before submitting, preview the Element, install it into Studio, and confirm the asset appears in the public directory and plays or renders from the local file.
 
