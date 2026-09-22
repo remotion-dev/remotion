@@ -18,15 +18,19 @@ import {TableOfContents} from './table-of-contents';
 
 ```ts twoslash title="separate-video.ts"
 import {
+  downloadVideoMattingModel,
   loadVideoMattingModel,
   separateVideoLayers,
 } from '@remotion/video-matting';
 
 export const matteVideo = async (file: File) => {
   const model = 'modnet';
+  await downloadVideoMattingModel({
+    model,
+    onProgress: ({progress}) => console.log('Downloading model:', progress),
+  });
   await using modelHandle = await loadVideoMattingModel({
     model,
-    onProgress: ({progress}) => console.log('Loading model:', progress),
   });
   console.log('Model already in memory:', modelHandle.alreadyLoaded);
 

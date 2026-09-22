@@ -6,16 +6,14 @@ crumb: '@remotion/whisper-webgpu'
 
 # loadWhisperModel()<AvailableFrom v="4.0.518" />
 
-Downloads a timestamped Whisper model from `remotion.media` and initializes it. Calling it before [`transcribe()`](/docs/whisper-webgpu/transcribe) lets you show model-loading progress.
+Initializes a previously downloaded Whisper model on WebGPU. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first.
 
 ```ts twoslash title="load-model.ts"
-import {loadWhisperModel} from '@remotion/whisper-webgpu';
+import {downloadWhisperModel, loadWhisperModel} from '@remotion/whisper-webgpu';
 
+await downloadWhisperModel({model: 'small.en'});
 await using result = await loadWhisperModel({
   model: 'small.en',
-  onProgress: ({progress}) => {
-    console.log(progress);
-  },
 });
 
 console.log(result.alreadyLoaded);
@@ -29,7 +27,7 @@ One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-a
 
 ### onProgress?
 
-Called while model files are resolved and downloaded. `progress` is the aggregate download progress between `0` and `1` and never decreases.
+Called while the cached model is initialized. `progress` is `null` during initialization and `1` when ready. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) for download progress.
 
 ## Return value
 
@@ -51,6 +49,7 @@ Use `await using` to call this method automatically when leaving the current sco
 
 ## See also
 
+- [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model)
 - [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model)
 - [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)
 - [`removeWhisperModel()`](/docs/whisper-webgpu/remove-whisper-model)

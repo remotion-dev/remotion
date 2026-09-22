@@ -6,18 +6,16 @@ crumb: '@remotion/video-matting'
 
 # loadVideoMattingModel()<AvailableFrom v="4.0.523" />
 
-Downloads a video matting model from our `remotion.media` CDN.
+Initializes a previously downloaded video matting model on WebGPU. Call [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first.
 
 Call it before [`separateVideoLayers()`](/docs/video-matting/separate-video-layers).
 
 ```ts twoslash title="load-model.ts"
-import {loadVideoMattingModel} from '@remotion/video-matting';
+import {downloadVideoMattingModel, loadVideoMattingModel} from '@remotion/video-matting';
 
+await downloadVideoMattingModel({model: 'modnet'});
 await using result = await loadVideoMattingModel({
   model: 'modnet',
-  onProgress: ({progress}) => {
-    console.log(progress);
-  },
 });
 
 console.log(result.alreadyLoaded);
@@ -31,7 +29,7 @@ One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-av
 
 ### onProgress?
 
-Called while model files are resolved and downloaded. Default: no callback.
+Called while the cached model is initialized. Use [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) for download progress. Default: no callback.
 
 The callback receives these properties:
 
@@ -45,15 +43,15 @@ The model file associated with the update, or `null` for aggregate progress.
 
 #### progress
 
-Download progress between `0` and `1`, or `null` when it cannot be calculated.
+`null` during initialization and `1` when ready.
 
 #### loadedBytes
 
-The number of bytes downloaded, or `null` when it is unknown.
+Always `null`; downloads happen in [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model).
 
 #### totalBytes
 
-The total number of bytes, or `null` when it is unknown.
+Always `null`.
 
 ## Return value
 
@@ -65,9 +63,11 @@ Whether the same model was already initialized in memory.
 
 ### `[Symbol.asyncDispose]()`<AvailableFrom v="4.0.528" />
 
-Releases this call's hold on the initialized model. The pipeline is disposed after every load handle is released and active separations finish.
+Releases resources allocated by this function.
 
-Use `await using` to call this method automatically when leaving the current scope. Call [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) to dispose the pipeline explicitly regardless of retained load handles.
+Use `await using` to call this method automatically when leaving the current scope.
+
+Call [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) to dispose the pipeline explicitly regardless of retained load handles.
 
 ## Compatibility
 
@@ -75,6 +75,7 @@ Use `await using` to call this method automatically when leaving the current sco
 
 ## See also
 
+- [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model)
 - [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model)
 - [`isVideoMattingModelCached()`](/docs/video-matting/is-video-matting-model-cached)
 - [`removeVideoMattingModel()`](/docs/video-matting/remove-video-matting-model)

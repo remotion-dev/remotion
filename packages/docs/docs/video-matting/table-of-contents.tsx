@@ -17,9 +17,13 @@ export const TableOfContents: React.FC = () => {
 				<strong>isVideoMattingModelCached()</strong>
 				<div>Check whether a model is downloaded</div>
 			</TOCItem>
+			<TOCItem link="/docs/video-matting/download-video-matting-model">
+				<strong>downloadVideoMattingModel()</strong>
+				<div>Download a model without initializing WebGPU</div>
+			</TOCItem>
 			<TOCItem link="/docs/video-matting/load-video-matting-model">
 				<strong>loadVideoMattingModel()</strong>
-				<div>Download and initialize a model</div>
+				<div>Initialize a downloaded model</div>
 			</TOCItem>
 			<TOCItem link="/docs/video-matting/remove-video-matting-model">
 				<strong>removeVideoMattingModel()</strong>

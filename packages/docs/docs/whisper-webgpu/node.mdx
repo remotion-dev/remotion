@@ -20,6 +20,7 @@ The following example uses [`@mediabunny/server`](https://mediabunny.dev/guide/e
 import {registerMediabunnyServer} from '@mediabunny/server';
 import {
   WHISPER_WEBGPU_SAMPLE_RATE,
+  downloadWhisperModel,
   loadWhisperModel,
   toCaptions,
   transcribe,
@@ -118,6 +119,7 @@ for (const chunk of chunks) {
 }
 
 const model = 'small.en';
+await downloadWhisperModel({model});
 await using modelHandle = await loadWhisperModel({model});
 const transcription = await transcribe({channelWaveform, model});
 const {captions} = toCaptions({whisperWebGpuOutput: transcription});

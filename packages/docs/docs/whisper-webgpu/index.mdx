@@ -17,9 +17,10 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="transcribe.ts"
-import {clearStaleModels, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
+import {clearStaleModels, downloadWhisperModel, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
 
 await clearStaleModels();
+await downloadWhisperModel({model: 'small.en'});
 
 const file = new File([], 'audio.wav');
 const channelWaveform = await resampleTo16Khz({file});
@@ -34,7 +35,7 @@ const {captions} = toCaptions({whisperWebGpuOutput: transcription});
 console.log(captions);
 ```
 
-The model is downloaded on the first call and cached by the runtime. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) first to display model download progress.
+[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache without initializing WebGPU. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) when you want to initialize the model explicitly.
 
 See [Using `@remotion/whisper-webgpu` in Node.js](/docs/whisper-webgpu/node) for a complete Node.js example.
 

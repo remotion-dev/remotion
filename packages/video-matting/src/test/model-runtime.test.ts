@@ -21,10 +21,27 @@ let cacheClear:
 let cacheCheckEnvironment:
 	| {remoteHost: string; remotePathTemplate: string}
 	| undefined;
+const downloadedFiles = new Map<string, Response>();
+const requestedFiles: string[] = [];
+let checkDownloadedFiles = false;
+const customCache = {
+	match: (url: string) => Promise.resolve(downloadedFiles.get(url)?.clone()),
+	put: async (url: string, response: Response) => {
+		downloadedFiles.set(url, new Response(await response.arrayBuffer()));
+	},
+};
 
 const originalTransformersEnvironment = {
 	remoteHost: 'https://huggingface.co/',
 	remotePathTemplate: '{model}/resolve/{revision}/',
+	useCustomCache: true,
+	customCache,
+	useBrowserCache: false,
+	cacheKey: 'transformers-cache',
+	fetch: (url: string) => {
+		requestedFiles.push(url);
+		return Promise.resolve(new Response(url));
+	},
 };
 const transformersEnvironment = {...originalTransformersEnvironment};
 const preexistingWhisperModelHostState = {
@@ -71,7 +88,10 @@ mock.module('@huggingface/transformers', () => ({
 			initializationCount++;
 			initializedModelIds.push(modelId);
 			initializationOptions = options;
-			initializationEnvironment = {...transformersEnvironment};
+			initializationEnvironment = {
+				remoteHost: transformersEnvironment.remoteHost,
+				remotePathTemplate: transformersEnvironment.remotePathTemplate,
+			};
 			initializationStarted?.(initializationCount);
 			await initializationGate;
 			const onProgress = options.progress_callback as
@@ -93,6 +113,18 @@ mock.module('@huggingface/transformers', () => ({
 	},
 	BackgroundRemovalPipeline,
 	ModelRegistry: {
+		is_pipeline_cached_files: () => {
+			const files = ['config.json', 'onnx/model.onnx'].map((file) => ({
+				file,
+				cached: downloadedFiles.has(
+					`https://remotion.media/models/modnet-v1/${file}`,
+				),
+			}));
+			return Promise.resolve({
+				files,
+				allCached: files.every(({cached}) => cached),
+			});
+		},
 		clear_pipeline_cache: (
 			task: string,
 			modelId: string,
@@ -107,8 +139,13 @@ mock.module('@huggingface/transformers', () => ({
 			options: Record<string, unknown>,
 		) => {
 			cacheCheck = {task, modelId, options};
-			cacheCheckEnvironment = {...transformersEnvironment};
-			return Promise.resolve(true);
+			cacheCheckEnvironment = {
+				remoteHost: transformersEnvironment.remoteHost,
+				remotePathTemplate: transformersEnvironment.remotePathTemplate,
+			};
+			return Promise.resolve(
+				checkDownloadedFiles ? downloadedFiles.size === 2 : true,
+			);
 		},
 	},
 }));
@@ -131,9 +168,64 @@ beforeEach(async () => {
 	cacheCheck = undefined;
 	cacheClear = undefined;
 	cacheCheckEnvironment = undefined;
+	downloadedFiles.clear();
+	requestedFiles.length = 0;
+	checkDownloadedFiles = false;
 	preexistingWhisperModelHostState.activeOperations = 0;
 	preexistingWhisperModelHostState.previousRemoteConfiguration = null;
 	Object.assign(transformersEnvironment, originalTransformersEnvironment);
+});
+
+test('downloads without initializing WebGPU, then initializes from the cached files', async () => {
+	checkDownloadedFiles = true;
+	transformersEnvironment.useCustomCache = false;
+	transformersEnvironment.useBrowserCache = true;
+	const originalCaches = Object.getOwnPropertyDescriptor(globalThis, 'caches');
+	Object.defineProperty(globalThis, 'caches', {
+		configurable: true,
+		value: {open: () => Promise.resolve(customCache)},
+	});
+	try {
+		const {downloadVideoMattingModel, loadVideoMattingModel} =
+			await import('../index');
+		await expect(loadVideoMattingModel({model: 'modnet'})).rejects.toThrow(
+			'downloadVideoMattingModel() first',
+		);
+		const progress: number[] = [];
+		const download = await downloadVideoMattingModel({
+			model: 'modnet',
+			onProgress: ({progress: value}) => progress.push(value),
+		});
+
+		expect(download.alreadyDownloaded).toBe(false);
+		expect(initializationCount).toBe(0);
+		expect(requestedFiles).toEqual([
+			'https://remotion.media/models/modnet-v1/config.json',
+			'https://remotion.media/models/modnet-v1/onnx/model.onnx',
+		]);
+		expect(progress.at(-1)).toBe(1);
+		downloadedFiles.delete(
+			'https://remotion.media/models/modnet-v1/onnx/model.onnx',
+		);
+		expect(
+			(await downloadVideoMattingModel({model: 'modnet'})).alreadyDownloaded,
+		).toBe(false);
+		expect(requestedFiles.slice(2)).toEqual([requestedFiles[1]]);
+
+		await using loaded = await loadVideoMattingModel({model: 'modnet'});
+		expect(loaded.alreadyLoaded).toBe(false);
+		expect(initializationCount).toBe(1);
+		expect(
+			(await downloadVideoMattingModel({model: 'modnet'})).alreadyDownloaded,
+		).toBe(true);
+		expect(requestedFiles).toHaveLength(3);
+	} finally {
+		if (originalCaches) {
+			Object.defineProperty(globalThis, 'caches', originalCaches);
+		} else {
+			Reflect.deleteProperty(globalThis, 'caches');
+		}
+	}
 });
 
 test('shares loading, reports progress, and defers disposal while in use', async () => {

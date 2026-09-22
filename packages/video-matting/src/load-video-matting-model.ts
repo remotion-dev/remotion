@@ -163,54 +163,32 @@ const getOrCreateVideoMattingPipeline = ({
 				AutoModelForImageSegmentation,
 				AutoProcessor,
 				BackgroundRemovalPipeline,
+				ModelRegistry,
 			}) => {
 				const hostedModelId = getHostedVideoMattingModelId(model);
-				const totalBytes = modelInfo.webGpuDownloadSize;
-				const loadedByFile = new Map<string, number>();
-				let lastProgress = 0;
-				let lastLoadedBytes = 0;
+				if (
+					!(await ModelRegistry.is_pipeline_cached(
+						'background-removal',
+						hostedModelId,
+						{device: 'webgpu', dtype: modelInfo.dtype},
+					))
+				) {
+					throw new Error(
+						`The video matting model "${model}" is not downloaded. Call downloadVideoMattingModel() first.`,
+					);
+				}
 
 				notifyProgress(state, {
-					status: 'loading',
+					status: 'initializing',
 					file: null,
-					progress: 0,
-					loadedBytes: 0,
-					totalBytes,
+					progress: null,
+					loadedBytes: null,
+					totalBytes: null,
 				});
 
 				const pretrainedOptions = {
 					device: 'webgpu' as const,
 					dtype: modelInfo.dtype,
-					progress_callback: (event: unknown) => {
-						const record = event as Record<string, unknown>;
-						if (
-							record.status === 'progress' &&
-							typeof record.file === 'string' &&
-							typeof record.loaded === 'number' &&
-							Number.isFinite(record.loaded)
-						) {
-							loadedByFile.set(
-								record.file,
-								Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
-							);
-							const loadedBytes = [...loadedByFile.values()].reduce(
-								(sum, loaded) => sum + loaded,
-								0,
-							);
-							lastProgress = Math.max(
-								lastProgress,
-								Math.min(loadedBytes / totalBytes, 0.99),
-							);
-							lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
-							notifyProgress(state, {
-								status: 'loading',
-								file: null,
-								progress: lastProgress,
-								loadedBytes: Math.min(lastLoadedBytes, totalBytes),
-								totalBytes,
-							});
-						}
-					},
 				};
 				const transformerProcessor = await AutoProcessor.from_pretrained(
 					hostedModelId,
@@ -235,8 +213,8 @@ const getOrCreateVideoMattingPipeline = ({
 						status: 'ready',
 						file: null,
 						progress: 1,
-						loadedBytes: totalBytes,
-						totalBytes,
+						loadedBytes: null,
+						totalBytes: null,
 					});
 
 					const loadedPipeline: LoadedPipeline = {

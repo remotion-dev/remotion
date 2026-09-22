@@ -963,6 +963,7 @@ const sidebars: SidebarsConfig = {
 				'video-matting/can-use-video-matting',
 				'video-matting/get-available-models',
 				'video-matting/is-video-matting-model-cached',
+				'video-matting/download-video-matting-model',
 				'video-matting/load-video-matting-model',
 				'video-matting/remove-video-matting-model',
 				'video-matting/separate-video-layers',
@@ -1024,6 +1025,7 @@ const sidebars: SidebarsConfig = {
 				'whisper-webgpu/get-available-models',
 				'whisper-webgpu/clear-stale-models',
 				'whisper-webgpu/is-whisper-model-cached',
+				'whisper-webgpu/download-whisper-model',
 				'whisper-webgpu/load-whisper-model',
 				'whisper-webgpu/remove-whisper-model',
 				'whisper-webgpu/transcribe',
@@ -1591,8 +1593,8 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
 			],
-    },
-    {
+		},
+		{
 			type: 'category',
 			label: 'Terminology',
 			link: {

@@ -25,9 +25,13 @@ export const TableOfContents: React.FC = () => {
 				<strong>isWhisperModelCached()</strong>
 				<div>Check whether a model is downloaded</div>
 			</TOCItem>
+			<TOCItem link="/docs/whisper-webgpu/download-whisper-model">
+				<strong>downloadWhisperModel()</strong>
+				<div>Download a model without initializing WebGPU</div>
+			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/load-whisper-model">
 				<strong>loadWhisperModel()</strong>
-				<div>Download and initialize a model</div>
+				<div>Initialize a downloaded model</div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/remove-whisper-model">
 				<strong>removeWhisperModel()</strong>

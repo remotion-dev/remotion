@@ -8662,6 +8662,15 @@ export const articles = [
 		slug: 'video-matting/dispose-video-matting-model',
 	},
 	{
+		id: 'video-matting/download-video-matting-model',
+		title: 'downloadVideoMattingModel()',
+		relativePath: 'docs/video-matting/download-video-matting-model.mdx',
+		compId: 'articles-docs-video-matting-download-video-matting-model',
+		crumb: '@remotion/video-matting',
+		noAi: false,
+		slug: 'video-matting/download-video-matting-model',
+	},
+	{
 		id: 'video-matting/get-available-models',
 		title: 'getAvailableModels()',
 		relativePath: 'docs/video-matting/get-available-models.mdx',
@@ -9317,6 +9326,15 @@ export const articles = [
 		crumb: '@remotion/whisper-webgpu',
 		noAi: false,
 		slug: 'whisper-webgpu/dispose-whisper-model',
+	},
+	{
+		id: 'whisper-webgpu/download-whisper-model',
+		title: 'downloadWhisperModel()',
+		relativePath: 'docs/whisper-webgpu/download-whisper-model.mdx',
+		compId: 'articles-docs-whisper-webgpu-download-whisper-model',
+		crumb: '@remotion/whisper-webgpu',
+		noAi: false,
+		slug: 'whisper-webgpu/download-whisper-model',
 	},
 	{
 		id: 'whisper-webgpu/get-available-models',

@@ -9,8 +9,9 @@ crumb: '@remotion/video-matting'
 Separates a video into an opaque base WebM and a foreground WebM with alpha.
 
 ```ts twoslash title="separate-video.ts"
-import {separateVideoLayers} from '@remotion/video-matting';
+import {downloadVideoMattingModel, separateVideoLayers} from '@remotion/video-matting';
 
+await downloadVideoMattingModel({model: 'modnet'});
 const file = new File([], 'input.mp4');
 
 await using result = await separateVideoLayers({
@@ -121,7 +122,7 @@ Aborting rejects the promise and cancels both outputs. Model inference may finis
 
 ### onModelLoadProgress?
 
-Called while model files are resolved and downloaded. Default: no callback.
+Called while a previously downloaded model is initialized. Default: no callback. Call [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first to download the files and receive download progress.
 
 To load the model separately, use [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model).
 

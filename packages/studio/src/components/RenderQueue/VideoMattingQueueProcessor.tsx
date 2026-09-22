@@ -1,6 +1,7 @@
 import {
 	canUseVideoMatting,
 	disposeVideoMattingModel,
+	downloadVideoMattingModel,
 	isVideoMattingModelCached,
 	loadVideoMattingModel,
 	separateVideoLayers,
@@ -40,11 +41,13 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					progressStart: 0,
 					progressSpan: 0.2,
 					isModelCached: (model) => isVideoMattingModelCached({model}),
-					loadModel: (model, onProgress) =>
-						loadVideoMattingModel({
+					loadModel: async (model, onProgress) => {
+						await downloadVideoMattingModel({
 							model,
 							onProgress: (progress) => onProgress(progress.progress),
-						}),
+						});
+						await loadVideoMattingModel({model});
+					},
 					updateProgress: (progress) =>
 						updateVideoMattingJobProgress(job.id, {
 							...progress,
