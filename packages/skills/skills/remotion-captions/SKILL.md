@@ -27,6 +27,8 @@ type Caption = {
 
 To transcribe video and audio files to generate captions, load the [transcribe-captions.md](transcribe-captions.md) file for more instructions.
 
+For transcription that must run client-side, in the browser, over WebGPU (no Node.js step, no server, no API key), load [browser-transcription.md](browser-transcription.md) instead.
+
 ## Displaying captions
 
 To display captions in your video, load the [display-captions.md](display-captions.md) file for more instructions.

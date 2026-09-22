@@ -15,6 +15,8 @@ import {LottieScene} from "./LottieScene";
 import {ThreeScene} from "./ThreeScene";
 import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
+import {VideoMattingScene} from "./VideoMattingScene";
+import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 
 // A zod schema (vs. ShowcaseReel's plain `type`) gets Studio-generated,
 // validated controls: zTextarea() for a multi-line field, zColor() for a
@@ -29,7 +31,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 9;
+const SCENE_COUNT = 11;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -47,9 +49,11 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 // A second reel covering the capabilities the first ShowcaseReel didn't
 // touch: @remotion/effects (chained WebGL2 passes), @remotion/media +
 // @remotion/gif + @remotion/mac-cursors (real embedded/cropped footage),
-// @remotion/media-utils (a real audio waveform), @remotion/lottie,
-// @remotion/three, @remotion/gsap, and core remotion fundamentals
-// (Easing, <Series>, <Loop>, <Freeze>, random()).
+// @remotion/video-matting (AI background removal), @remotion/media-utils
+// (a real audio waveform), @remotion/whisper-webgpu (in-browser
+// transcription), @remotion/lottie, @remotion/three, @remotion/gsap, and
+// core remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>,
+// random()).
 export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, accentColor}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
@@ -70,7 +74,17 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
         <TransitionSeries.Transition presentation={wipe({direction: "from-left"})} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <VideoMattingScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AudioScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <BrowserTranscriptionScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
 

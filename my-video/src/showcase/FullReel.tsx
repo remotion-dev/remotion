@@ -18,6 +18,8 @@ import {ThreeScene} from "./ThreeScene";
 import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
 import {OutroScene} from "./OutroScene";
+import {VideoMattingScene} from "./VideoMattingScene";
+import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 
 export const fullReelSchema = z.object({
   title: z.string(),
@@ -29,7 +31,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 12;
+const SCENE_COUNT = 14;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -51,8 +53,10 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
 // @remotion/captions (CaptionsScene); @remotion/paths (RouteScene);
 // @remotion/effects chained WebGL2 passes (EffectsScene); @remotion/media +
-// @remotion/gif + @remotion/mac-cursors (MediaScene); @remotion/media-utils
-// real audio waveform (AudioScene); @remotion/lottie (LottieScene);
+// @remotion/gif + @remotion/mac-cursors (MediaScene); @remotion/video-matting
+// AI background removal (VideoMattingScene); @remotion/media-utils real
+// audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
+// transcription (BrowserTranscriptionScene); @remotion/lottie (LottieScene);
 // @remotion/three (ThreeScene); @remotion/gsap (GsapScene); core remotion
 // Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
 // @remotion/animation-utils + rough-notation (OutroScene).
@@ -91,9 +95,19 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
         <TransitionSeries.Transition presentation={wipe({direction: "from-top"})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <VideoMattingScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AudioScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <BrowserTranscriptionScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={wipe({direction: "from-right"})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <LottieScene />
