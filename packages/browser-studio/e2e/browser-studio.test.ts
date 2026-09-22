@@ -1287,6 +1287,9 @@ export const BrowserElement = ({logoSrc}: {logoSrc: string}) => <>
 	await expect(
 		studio.getByText('@remotion/shapes', {exact: true}),
 	).toBeVisible();
+	await expect(
+		studio.getByRole('heading', {name: 'Included assets', exact: true}),
+	).toHaveCount(0);
 	await studio.getByRole('button', {name: /^Install/}).click();
 
 	await expect

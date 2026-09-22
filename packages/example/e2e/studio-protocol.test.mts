@@ -396,6 +396,9 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
+		await expect(
+			dialog.getByRole('heading', {name: 'Included assets', exact: true}),
+		).toHaveCount(0);
 		await dialog.getByRole('button', {name: 'Cancel'}).click();
 		expect(fs.existsSync(installedAsset)).toBe(false);
 		await browseElements.click();
