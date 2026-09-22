@@ -199,6 +199,7 @@
         "@types/react-dom": "catalog:",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
+        "mediabunny": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
       },
