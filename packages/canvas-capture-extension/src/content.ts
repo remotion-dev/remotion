@@ -376,18 +376,23 @@ export const startContent = () => {
 			visibility: visible;
 		}
 		.capture-controls-primary {
+			position: absolute;
+			left: 50%;
+			top: 50%;
 			width: 40px;
 			height: 38px;
-			flex: 0 0 40px;
-			margin-left: 6px;
 			perspective: 300px;
+			transform: translate(-50%, -50%);
 		}
 		.capture-controls-duration {
-			width: 64px;
-			flex: 0 0 64px;
+			position: absolute;
+			left: 47px;
+			top: 50%;
+			width: 42px;
 			font-variant-numeric: tabular-nums;
 			font-weight: 700;
 			text-align: center;
+			transform: translateY(-50%);
 		}
 		.capture-controls-primary .contents {
 			display: contents;
@@ -965,10 +970,10 @@ export const startContent = () => {
 			dimensionsZoomSlider.disabled = dimensionsZoom.disabled;
 			controlsSecondary.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsSecondary.hidden = state.recording || state.hasCompletedRecording;
+			controlsSecondary.hidden = state.hasTarget || state.hasCompletedRecording;
 			controlsWholePage.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsWholePage.hidden = state.recording || state.hasCompletedRecording;
+			controlsWholePage.hidden = state.hasTarget || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
 			controlsPrimary.hidden = !state.hasTarget || state.hasCompletedRecording;
 			controlsPrimary.classList.toggle('recording', state.recording);
@@ -992,12 +997,17 @@ export const startContent = () => {
 				(!state.recording &&
 					(!state.hasTarget || state.encoderSupport !== 'supported'));
 			renderControlsPrimary(primaryLabel, primaryDisabled);
-			const closeLabel = state.hasCompletedRecording
-				? 'Discard recording'
-				: 'Close';
+			const closeLabel = state.recording
+				? 'Stop recording before clearing selection'
+				: state.hasCompletedRecording
+					? 'Discard recording and clear selection'
+					: state.hasTarget
+						? 'Clear selection'
+						: 'Close';
 			controlsClose.ariaLabel = closeLabel;
 			controlsClose.dataset.tooltip = closeLabel;
-			controlsClose.disabled = controlsBusy;
+			controlsClose.disabled =
+				controlsBusy || state.recording || startingRecording;
 		};
 
 		const cancelSelection = () => {
@@ -1468,20 +1478,24 @@ export const startContent = () => {
 		};
 
 		controlsClose.addEventListener('click', () => {
-			if (completedRecording) {
+			if (capture || startingRecording || finalizing) {
+				return;
+			}
+
+			if (selectedTarget || completedRecording) {
+				setStatus(
+					completedRecording
+						? 'Recording discarded. Choose an area or the whole page.'
+						: 'Choose an area or the whole page.',
+				);
 				completedRecording = null;
-				setStatus('Recording discarded. Ready to record again.');
+				selectedTarget = null;
+				encoderSupportCheckId++;
+				encoderSupport = 'unavailable';
+				encoderSupportKey = null;
+				outputSize = null;
 				updateHighlight();
 				updateControls();
-				refreshEncoderSupport()
-					.then(updateControls)
-					.catch((error) => {
-						setStatus(
-							error instanceof Error ? error.message : String(error),
-							true,
-						);
-						updateControls();
-					});
 				return;
 			}
 
