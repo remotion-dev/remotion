@@ -60,7 +60,7 @@ const currentTimeButtonStyle = {
 	padding: 0,
 	border: 'none',
 	lineHeight: '21px',
-	'--remotion-cli-internals-blue-hovered': WHITE,
+	'--remotion-studio-blue-hovered': WHITE,
 } as React.CSSProperties;
 
 const currentTimeSubtitle: React.CSSProperties = {

@@ -2,6 +2,7 @@ import type {GetRemotionSkillsInfoResponse} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
+	BLACK_ALPHA_22,
 	BLUE,
 	BORDER_WHITE_ALPHA_12,
 	LIGHT_TEXT,
@@ -40,7 +41,7 @@ const description: React.CSSProperties = {
 
 const commandField: React.CSSProperties = {
 	alignItems: 'center',
-	backgroundColor: 'rgba(0, 0, 0, 0.22)',
+	backgroundColor: BLACK_ALPHA_22,
 	borderRadius: 4,
 	display: 'flex',
 	marginTop: 8,

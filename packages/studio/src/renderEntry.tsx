@@ -26,6 +26,7 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {BACKGROUND_HEX, TRANSPARENT, WHITE} from './helpers/colors';
+import {studioCssVariables} from './helpers/studio-css-variables';
 
 let currentBundleMode: BundleState = {
 	type: 'index',
@@ -39,6 +40,7 @@ const getBundleMode = () => {
 	return currentBundleMode;
 };
 
+Internals.CSSUtils.injectCSS(studioCssVariables);
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),
 );
