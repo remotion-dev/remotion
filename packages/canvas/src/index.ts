@@ -15,6 +15,7 @@ export {getTimelineNestedLevel} from './get-timeline-nestedness';
 export {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
 export type {
 	SequenceNodePathInfo,
+	TimelineLoopDisplay,
 	TimelineTrackData,
 	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';

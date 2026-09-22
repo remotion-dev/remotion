@@ -1,5 +1,8 @@
 import {afterEach, expect, test} from 'bun:test';
-import {sliceVisibleWaveformPeaks} from '@remotion/timeline-utils';
+import {
+	getLoopDisplaySegments,
+	sliceVisibleWaveformPeaks,
+} from '@remotion/timeline-utils';
 import type {
 	InteractivitySchema,
 	SequenceRegistrationControls,
@@ -443,4 +446,131 @@ test('filmstrips and waveform peaks follow nested sequence rates and trims', () 
 	});
 	expect(peaks[0]).toBe(24);
 	expect(peaks[peaks.length - 1]).toBe(53);
+
+	// A parent trim can skip whole loops and most of the next iteration. Both
+	// media-owned loops and HTML5's wrapping Loop must show the same clipped span.
+	const trimmedParent: TSequence = {
+		...outer,
+		from: 30,
+		duration: 90,
+		sequencePlaybackRate: 2,
+		trimBefore: 75,
+	};
+	const cycle = 27 / 0.7;
+	for (const {iteration, parentDuration} of [
+		{iteration: null, parentDuration: 90},
+		{iteration: 1, parentDuration: 90},
+		{iteration: 2, parentDuration: 90},
+		{iteration: null, parentDuration: 4},
+	]) {
+		const loopingVideo: TSequence = {
+			...media,
+			parent: iteration === null ? 'outer' : 'media-trim',
+			duration: iteration === null ? 255 : cycle + 12,
+			playbackRate: 0.7,
+			startMediaFrom: 12,
+			mediaFrameAtSequenceZero: iteration === null ? 12 : 12 * (1 - 0.7),
+			loopDisplay:
+				iteration === null
+					? {
+							durationInFrames: cycle,
+							numberOfTimes: 255 / cycle,
+							startOffset: 0,
+						}
+					: undefined,
+		};
+		const loop: TSequence = {
+			...outer,
+			id: 'loop',
+			parent: 'outer',
+			from: (iteration ?? 0) * cycle,
+			duration: cycle,
+			sequencePlaybackRate: 1,
+			trimBefore: null,
+			loopDisplay: {
+				durationInFrames: cycle,
+				numberOfTimes: 255 / cycle,
+				startOffset: -(iteration ?? 0) * cycle,
+			},
+		};
+		const mediaTrim: TSequence = {
+			...loop,
+			id: 'media-trim',
+			parent: 'loop',
+			from: -12,
+			duration: cycle + 12,
+			loopDisplay: undefined,
+		};
+		const loopTrack = calculateTimeline({
+			sequences:
+				iteration === null
+					? [{...trimmedParent, duration: parentDuration}, loopingVideo]
+					: [
+							{...trimmedParent, duration: parentDuration},
+							loop,
+							mediaTrim,
+							loopingVideo,
+						],
+			overrideIdsToNodePaths: {},
+		}).find((candidate) => candidate.sequence.id === 'media')!;
+		if (loopTrack.sequence.type !== 'video') throw new Error('Expected video');
+		const {sequence: loopedMedia} = loopTrack;
+		const {loopDisplay} = loopedMedia;
+		if (!loopDisplay) throw new Error('Expected loop display');
+		const rate = loopedMedia.playbackRate * loopedMedia.sequencePlaybackRate;
+		const cycleStartFrame =
+			getTimelineMediaStartFrame({
+				startMediaFrom: loopedMedia.startMediaFrom,
+				mediaFrameAtSequenceZero: loopedMedia.mediaFrameAtSequenceZero,
+				sequenceFrameOffset: loopTrack.sequenceFrameOffset,
+				playbackRate: loopedMedia.playbackRate,
+			}) -
+			loopDisplay.mediaOffsetInFrames * rate;
+		expect(loopedMedia.from + loopDisplay.startOffset).toBeCloseTo(30);
+		expect(
+			loopDisplay.durationInFrames * loopDisplay.numberOfTimes,
+		).toBeCloseTo(parentDuration);
+		expect(cycleStartFrame).toBeCloseTo(12);
+
+		const segments = getLoopDisplaySegments({
+			displayOffsetInFrames: loopDisplay.phaseOffsetInFrames,
+			displayDurationInFrames: 4,
+			loopDurationInFrames: loopDisplay.durationInFrames,
+		});
+		expect(segments).toHaveLength(2);
+		const filmstrips = segments.map((segment) =>
+			getTimelineVideoFilmstripTimes({
+				trimBefore: cycleStartFrame + segment.loopOffsetInFrames * rate,
+				durationInFrames: segment.durationInFrames,
+				playbackRate: rate,
+				fps: 30,
+				loopDisplay: undefined,
+				frozenMediaFrame: null,
+			}),
+		);
+		expect(filmstrips[0]).toEqual({
+			type: 'range',
+			fromSeconds: expect.closeTo(1.25),
+			toSeconds: expect.closeTo(1.3),
+		});
+		expect(filmstrips[1]).toEqual({
+			type: 'range',
+			fromSeconds: expect.closeTo(0.4),
+			toSeconds: expect.closeTo(16.1 / 30),
+		});
+		const loopedPeaks = sliceVisibleWaveformPeaks({
+			displayDurationInFrames: 4,
+			displayOffsetInFrames: loopDisplay.phaseOffsetInFrames,
+			durationInFrames: loopDisplay.durationInFrames,
+			fps: 30,
+			loopDisplay,
+			peaks: Float32Array.from({length: 120}, (_, index) =>
+				index >= 12 && index < 39 ? index : -1,
+			),
+			playbackRate: rate,
+			startFrom: cycleStartFrame,
+			waveformSampleRate: 30,
+		});
+		expect(Array.from(loopedPeaks)).toEqual([37, 38, 12, 13, 14, 15, 16]);
+	}
 });

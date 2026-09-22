@@ -8,6 +8,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import type {MediaRequestInit} from '../request-init';
@@ -84,6 +85,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [knownDuration, setKnownDuration] = useState<number | null>(null);
 	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeAudio, setShouldFallbackToNativeAudio] =
 		useState(false);
@@ -95,9 +97,23 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 
 	const [mediaVolume] = useMediaVolumeState();
 
-	const volumePropFrame = useFrameForVolumeProp(
+	const unloopedVolumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
 	);
+	const volumePropFrame =
+		loop && videoConfig
+			? frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior,
+					loop,
+					assetDurationInSeconds: knownDuration,
+					fps: videoConfig.fps,
+					frame,
+					startsAt: unloopedVolumePropFrame - frame,
+					playbackRate,
+					trimBefore,
+					trimAfter,
+				})
+			: unloopedVolumePropFrame;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -317,6 +333,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
+						setKnownDuration(result.durationInSeconds);
 
 						Internals.Log.trace(
 							{logLevel, tag: '@remotion/media'},

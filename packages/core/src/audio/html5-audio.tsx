@@ -120,8 +120,13 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		trimAfter,
 	});
 
-	if (loop && durationFetched !== undefined) {
-		if (!Number.isFinite(durationFetched)) {
+	// An explicit trim end defines the loop before metadata has loaded. Waiting
+	// for metadata would leave the media unmounted when seeking into later loops.
+	const loopDuration =
+		trimAfterValue ??
+		(durationFetched === undefined ? undefined : durationFetched * fps);
+	if (loop && loopDuration !== undefined) {
+		if (!Number.isFinite(loopDuration)) {
 			return (
 				<Html5Audio
 					{...propsOtherThanLoop}
@@ -131,14 +136,12 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			);
 		}
 
-		const duration = durationFetched * fps;
-
 		return (
 			<Loop
 				layout="none"
 				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
-					mediaDurationInFrames: duration,
+					mediaDurationInFrames: loopDuration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
 				})}

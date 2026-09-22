@@ -90,8 +90,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		trimAfter,
 	});
 
-	if (loop && durationFetched !== undefined) {
-		if (!Number.isFinite(durationFetched)) {
+	// An explicit trim end defines the loop before metadata has loaded. Waiting
+	// for metadata would leave the media unmounted when seeking into later loops.
+	const loopDuration =
+		trimAfterValue ??
+		(durationFetched === undefined ? undefined : durationFetched * fps);
+	if (loop && loopDuration !== undefined) {
+		if (!Number.isFinite(loopDuration)) {
 			return (
 				<Html5Video
 					{...propsOtherThanLoop}
@@ -102,13 +107,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			);
 		}
 
-		const mediaDuration = durationFetched * fps;
-
 		return (
 			<Loop
 				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
-					mediaDurationInFrames: mediaDuration,
+					mediaDurationInFrames: loopDuration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
 				})}

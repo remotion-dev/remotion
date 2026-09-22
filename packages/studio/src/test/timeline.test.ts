@@ -280,6 +280,8 @@ test('Should inherit loop display from parent for media tracks', () => {
 		durationInFrames: 100,
 		numberOfTimes: 3,
 		startOffset: -50,
+		phaseOffsetInFrames: 0,
+		mediaOffsetInFrames: 0,
 	});
 });
 

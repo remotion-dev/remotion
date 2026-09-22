@@ -21,7 +21,5 @@ export const calculateMediaDuration = ({
 		duration -= trimBefore;
 	}
 
-	const actualDuration = duration / playbackRate;
-
-	return Number(actualDuration.toFixed(10));
+	return duration / playbackRate;
 };

@@ -287,6 +287,8 @@ import {
 	RoughNotationStrikeThrough,
 	RoughNotationUnderline,
 } from './RoughNotation';
+import {SequencePlaybackRateKeyframes} from './SequencePlaybackRateKeyframes';
+import {SequencePlaybackRateLoops} from './SequencePlaybackRateLoops';
 import {SequencePlaybackRateTestbed} from './SequencePlaybackRateTestbed';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
@@ -3045,6 +3047,22 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={240}
+			/>
+			<Composition
+				id="sequence-playback-rate-keyframes"
+				component={SequencePlaybackRateKeyframes}
+				width={1440}
+				height={1080}
+				fps={30}
+				durationInFrames={180}
+			/>
+			<Composition
+				id="sequence-playback-rate-loops"
+				component={SequencePlaybackRateLoops}
+				width={1440}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
 				<Composition

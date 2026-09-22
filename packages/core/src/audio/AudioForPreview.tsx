@@ -189,6 +189,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
 		loopDisplay: undefined,
+		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
 		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		refForOutline: null,
 		muted: isMutedForTimeline,

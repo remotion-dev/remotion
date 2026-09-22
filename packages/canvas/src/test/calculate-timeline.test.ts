@@ -109,7 +109,7 @@ test('retimed nested tracks use composition geometry and local media clocks', ()
 		doesVolumeChange: true,
 		// Registration already samples volume at composition-frame cadence.
 		volume: '0,0.3,0.6',
-		loopDisplay: {durationInFrames: 30, startOffset: -30, numberOfTimes: 3},
+		loopDisplay: {durationInFrames: 30, startOffset: 0, numberOfTimes: 6},
 	};
 	const tracks = calculateTimeline({
 		sequences: [outer, inner, video],
@@ -127,8 +127,10 @@ test('retimed nested tracks use composition geometry and local media clocks', ()
 	expect(mediaTrack.sequenceFrameOffset).toBeCloseTo(8);
 	expect(mediaTrack.sequence.loopDisplay).toEqual({
 		durationInFrames: 10,
-		startOffset: -10,
-		numberOfTimes: 3,
+		startOffset: 0,
+		numberOfTimes: 4,
+		phaseOffsetInFrames: expect.closeTo(8 / 3),
+		mediaOffsetInFrames: expect.closeTo(8 / 3),
 	});
 	if (mediaTrack.sequence.type !== 'video') throw new Error('Expected video');
 	expect(

@@ -22,6 +22,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
@@ -128,6 +129,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [knownDuration, setKnownDuration] = useState<number | null>(null);
 	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
@@ -154,7 +156,23 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const [mediaVolume] = useMediaVolumeState();
 
-	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
+	const unloopedVolumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior,
+	);
+	const volumePropFrame =
+		loop && videoConfig
+			? frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior,
+					loop,
+					assetDurationInSeconds: knownDuration,
+					fps: videoConfig.fps,
+					frame,
+					startsAt: unloopedVolumePropFrame - frame,
+					playbackRate,
+					trimBefore,
+					trimAfter,
+				})
+			: unloopedVolumePropFrame;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -395,6 +413,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
+						setKnownDuration(result.durationInSeconds);
 
 						hasDrawnRealFrameRef.current = true;
 					}

@@ -111,6 +111,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			return;
 		}
 
+		let cancelled = false;
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -137,7 +138,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			mediaCache,
 		})
 			.then((result) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -219,6 +220,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					fps,
 					frame,
 					startsAt,
+					playbackRate: playbackRate ?? 1,
+					trimBefore,
+					trimAfter,
 				});
 				const volume = Internals.evaluateVolume({
 					volume: volumeProp,
@@ -247,7 +251,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((error) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -255,6 +259,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};

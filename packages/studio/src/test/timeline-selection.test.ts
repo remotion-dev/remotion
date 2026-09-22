@@ -6315,7 +6315,7 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 					keyframeDisplayOffset: 0,
 					keyframePlaybackRate: 1,
 					nodePathInfo: sequenceNodePathInfo,
-					sequence: makeTimelineSequence({schema}),
+					sequence: {...makeTimelineSequence({schema}), loopDisplay: undefined},
 					sequenceFrameOffset: 0,
 				},
 			],
