@@ -77,7 +77,7 @@ export const Example = () => {
 						extrapolateRight: 'clamp'
 					})
 				}}
-				data-label = {label}
+				data-label={label}
 			/>
 		</AbsoluteFill>
 	)

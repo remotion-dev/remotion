@@ -23,7 +23,7 @@ export const Video = () => {
 			style={{
 				opacity: 0.5,
 			}}
-			render={() => (
+			render = {() => (
 				<section>
 					{/* Keep the callback and its indentation. */}
 
@@ -42,10 +42,9 @@ export const Video = () => {
 				node,
 				props: {title: 'Hello'},
 			});
-			const expected = input.replace(
-				format('\t\t/>'),
-				format("\t\t\ttitle={'Hello'}\n\t\t/>"),
-			);
+			const expected = input
+				.replace('render = {', 'render={')
+				.replace(format('\t\t/>'), format("\t\t\ttitle={'Hello'}\n\t\t/>"));
 			expect(changed.project.files[filePath]).toBe(expected);
 
 			const repeated = updateJsxNodeProps({

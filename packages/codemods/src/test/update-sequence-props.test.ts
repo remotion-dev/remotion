@@ -56,7 +56,7 @@ test('patches an opening element without reprinting its siblings', () => {
 `);
 });
 
-test('preserves existing attribute formatting when patching an opening element', () => {
+test('formats the patched opening element and preserves unrelated formatting', () => {
 	const input = `const unrelated    = {keep:"this spacing"};
 
 export const Example = () => {
@@ -101,7 +101,7 @@ export const Example = () => {
 
 export const Example = () => {
     return (
-        <Interactive.Div name = "Example" hidden>
+        <Interactive.Div name="Example" hidden>
             Text
         </Interactive.Div>
     );

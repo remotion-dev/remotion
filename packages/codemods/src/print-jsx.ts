@@ -139,7 +139,14 @@ export const printInsertedJsx = ({
 			) {
 				const start = recastLocToOffset(input, attribute.loc.start);
 				const end = recastLocToOffset(input, attribute.loc.end);
-				const original = input.slice(start, end);
+				// Preserve the value's source, while normalizing the attribute syntax.
+				const original =
+					attribute.type === 'JSXAttribute' && attribute.value?.loc
+						? `${printNode(attribute.name, printWidth)}=${input.slice(
+								recastLocToOffset(input, attribute.value.loc.start),
+								end,
+							)}`
+						: input.slice(start, end);
 				const lines = original.split(/\r?\n/);
 				const nonBlankContinuationLines = lines
 					.slice(1)
