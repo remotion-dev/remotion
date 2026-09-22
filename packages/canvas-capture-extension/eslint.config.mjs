@@ -6,6 +6,7 @@ export default {
 	...config,
 	files: [
 		...(config.files ?? []),
+		'e2e/**/*.ts',
 		'entrypoints/**/*.ts',
 		'entrypoints/**/*.tsx',
 		'wxt.config.ts',

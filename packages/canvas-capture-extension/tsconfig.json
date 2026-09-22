@@ -9,5 +9,5 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true
 	},
-	"include": ["src", "wxt.config.ts", ".wxt/wxt.d.ts"]
+	"include": ["src", "e2e", "wxt.config.ts", ".wxt/wxt.d.ts"]
 }

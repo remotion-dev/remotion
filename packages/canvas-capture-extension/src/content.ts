@@ -1563,6 +1563,64 @@ export const startContent = () => {
 
 		controlsHeader.addEventListener('pointerup', finishControlsDrag);
 		controlsHeader.addEventListener('pointercancel', finishControlsDrag);
+		// Shadow-root bubbling guards run after a page's document capture listeners.
+		// Finish our drags here before an outside-interaction listener can dismiss
+		// page UI. The target handlers won't run after stopping propagation.
+		let releasedDragPointerId: number | null = null;
+		window.addEventListener(
+			'pointerdown',
+			() => {
+				releasedDragPointerId = null;
+			},
+			true,
+		);
+		window.addEventListener(
+			'pointerup',
+			(event) => {
+				const finishDrag =
+					selectionDrag?.pointerId === event.pointerId
+						? finishSelectionDrag
+						: controlsDrag?.pointerId === event.pointerId
+							? finishControlsDrag
+							: selectionStart &&
+								  selectionLayer.hasPointerCapture(event.pointerId)
+								? finishSelection
+								: null;
+				if (!finishDrag) {
+					return;
+				}
+
+				releasedDragPointerId = event.pointerId;
+				event.stopImmediatePropagation();
+				finishDrag(event);
+			},
+			true,
+		);
+		// Releasing pointer capture can retarget the compatibility mouseup/click
+		// outside the shadow tree. Consume only the completed drag's events; the
+		// next pointerdown restores normal page interactions.
+		window.addEventListener(
+			'mouseup',
+			(event) => {
+				if (releasedDragPointerId !== null) {
+					event.stopImmediatePropagation();
+				}
+			},
+			true,
+		);
+		window.addEventListener(
+			'click',
+			(event) => {
+				if (releasedDragPointerId !== event.pointerId) {
+					return;
+				}
+
+				releasedDragPointerId = null;
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			},
+			true,
+		);
 		controlsSecondary.addEventListener('click', () => {
 			handleRequest({
 				type: captureControllerMessageType,
