@@ -54,8 +54,9 @@ export const ensureMaxCharactersPerLine = ({
 			filledCharactersInLine > maxCharsPerLine / 2;
 
 		if (
-			filledCharactersInLine + w.text.length > maxCharsPerLine ||
-			preventOrphanWord
+			currentSegment.length > 0 &&
+			(filledCharactersInLine + w.text.length > maxCharsPerLine ||
+				preventOrphanWord)
 		) {
 			segments.push(currentSegment);
 			currentSegment = [];

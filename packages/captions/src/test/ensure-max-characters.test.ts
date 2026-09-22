@@ -159,6 +159,31 @@ test('Ensure max characters per line', () => {
 	});
 });
 
+test('Does not emit empty segments before oversized words', () => {
+	const first: Caption = {
+		text: ' extraordinary',
+		startMs: 0,
+		endMs: 1000,
+		timestampMs: 500,
+		confidence: 1,
+		pageBreakAfter: true,
+	};
+	const second: Caption = {
+		text: ' caption',
+		startMs: 1000,
+		endMs: 2000,
+		timestampMs: 1500,
+		confidence: 1,
+	};
+
+	expect(
+		ensureMaxCharactersPerLine({
+			captions: [first, second],
+			maxCharsPerLine: 4,
+		}),
+	).toEqual({segments: [[first], [second]]});
+});
+
 test('Does not emit standalone whitespace captions', () => {
 	const captions: Caption[] = [
 		{
