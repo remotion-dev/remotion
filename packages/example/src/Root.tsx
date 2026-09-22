@@ -256,6 +256,7 @@ import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
+import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
@@ -1217,6 +1218,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<SimultaneousPlaybackComp />
 				<PremountSequenceVideoComp />
 				<ObjectFitTestComp />
 				<NewVideoBufferStateComp />
@@ -2029,6 +2031,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					width={100}
 					height={100}
+				/>
+				<Composition
+					id="gsap-parity"
+					lazyComponent={() => import('./Gsap/ParityFixture')}
+					durationInFrames={90}
+					fps={30}
+					width={640}
+					height={300}
 				/>
 			</Folder>
 			<Folder name="lottie">

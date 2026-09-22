@@ -38,7 +38,7 @@ type UndoEntryType =
 	| 'paste-effects'
 	| 'reorder-effect'
 	| 'reorder-sequence'
-	| 'delete-jsx-node'
+	| 'delete-jsx-nodes'
 	| 'duplicate-jsx-node'
 	| 'split-jsx-sequence'
 	| 'split-video-from-audio'

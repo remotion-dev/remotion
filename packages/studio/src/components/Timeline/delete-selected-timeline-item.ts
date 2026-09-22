@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
-import {deleteJsxNode} from '../delete-jsx-node-api';
+import {deleteJsxNodes} from '../delete-jsx-nodes-api';
 import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {deleteSelectedKeyframes} from './delete-selected-keyframe';
@@ -58,7 +58,7 @@ export const deleteSequencesFromSource = async (
 		return false;
 	}
 
-	return deleteJsxNode({
+	return deleteJsxNodes({
 		nodes: nodePathInfos.map((nodePathInfo) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 

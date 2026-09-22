@@ -1,1 +1,3 @@
-export {insertVideoLayers} from '@remotion/studio-codemods';
+import {CodemodsInternals} from '@remotion/codemods';
+
+export const {insertVideoLayers} = CodemodsInternals;

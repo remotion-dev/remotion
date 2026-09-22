@@ -1,42 +1,8 @@
 import {
-	addEffect as addEffectCodemod,
-	basicCaptionsElementSource,
-	computeSequencePropsStatusFromContent,
-	computeSequencePropsSubscriptionFromContent,
-	deleteJsxNodes,
-	deleteEffects as deleteEffectsCodemod,
-	duplicateEffects as duplicateEffectsCodemod,
-	duplicateCompositionInSource,
-	duplicateJsxNodes as duplicateJsxNodesCodemod,
-	findProjectFile,
-	getCanUpdateDefaultPropsForProject,
-	getBasicCaptionsElementFile,
-	getCompositionComponentInfo,
-	getCompositionFile,
-	getFolderFile,
-	getRootFileForProject,
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertBasicCaptions as insertBasicCaptionsCodemod,
-	insertVideoLayers as insertVideoLayersCodemod,
-	JsxElementIdentityMismatchError,
-	JsxElementNotFoundAtLocationError,
-	makeInMemoryInsertJsxElementCodemodEnvironment,
-	makeNewCompositionComponentSource,
-	parseAndApplyCodemod,
-	pasteEffects as pasteEffectsCodemod,
-	reorderEffect as reorderEffectCodemod,
-	reorderSequence as reorderSequenceCodemod,
-	resolveCompositionComponentWithFile,
-	simpleDiff,
-	splitJsxSequence as splitJsxSequenceCodemod,
-	splitVideoFromAudio as splitVideoFromAudioCodemod,
-	updateDefaultProps as updateDefaultPropsCodemod,
-	updateEffectProps as updateEffectPropsCodemod,
-	updateEffectKeyframes,
-	updateSequenceKeyframes,
+	CodemodsInternals,
 	type EffectKeyframeUpdate,
 	type SequenceKeyframeUpdate,
-} from '@remotion/studio-codemods';
+} from '@remotion/codemods';
 import {
 	StudioProtocolInternals,
 	type StudioElementPayload,
@@ -72,6 +38,44 @@ import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
+const {
+	addEffect: addEffectCodemod,
+	basicCaptionsElementSource,
+	computeSequencePropsStatusFromContent,
+	computeSequencePropsSubscriptionFromContent,
+	deleteEffects: deleteEffectsCodemod,
+	deleteJsxNodes: deleteJsxNodesCodemod,
+	duplicateCompositionInSource,
+	duplicateEffects: duplicateEffectsCodemod,
+	duplicateJsxNodes: duplicateJsxNodesCodemod,
+	findProjectFile,
+	getBasicCaptionsElementFile,
+	getCanUpdateDefaultPropsForProject,
+	getCompositionComponentInfo,
+	getCompositionFile,
+	getFolderFile,
+	getRootFileForProject,
+	insertBasicCaptions: insertBasicCaptionsCodemod,
+	insertJsxElementIntoProjectWithNodePathRemappings,
+	insertVideoLayers: insertVideoLayersCodemod,
+	JsxElementIdentityMismatchError,
+	JsxElementNotFoundAtLocationError,
+	makeInMemoryInsertJsxElementCodemodEnvironment,
+	makeNewCompositionComponentSource,
+	parseAndApplyCodemod,
+	pasteEffects: pasteEffectsCodemod,
+	reorderEffect: reorderEffectCodemod,
+	reorderSequence: reorderSequenceCodemod,
+	resolveCompositionComponentWithFile,
+	simpleDiff,
+	splitJsxSequences: splitJsxSequencesCodemod,
+	splitVideoFromAudio: splitVideoFromAudioCodemod,
+	updateDefaultProps: updateDefaultPropsCodemod,
+	updateEffectKeyframes,
+	updateEffectProps: updateEffectPropsCodemod,
+	updateSequenceKeyframes,
+} = CodemodsInternals;
+
 /*
  * SVG conversion uses SVGR in desktop Studio. SVGR depends on Node APIs, so
  * Browser Studio deliberately reports the unsupported operation instead.
@@ -97,11 +101,6 @@ const getStructuredError = (error: unknown) => ({
 	reason: error instanceof Error ? error.message : String(error),
 	stack: error instanceof Error && error.stack ? error.stack : '',
 });
-
-export {
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '@remotion/studio-codemods';
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
 	emitEvent: (event: EventSourceEvent) => void;
@@ -1242,7 +1241,7 @@ export const createBrowserStudioOperations = ({
 		},
 	};
 
-	const deleteJsxNode: BrowserStudioOperations['deleteJsxNode'] = async ({
+	const deleteJsxNodes: BrowserStudioOperations['deleteJsxNodes'] = async ({
 		nodes,
 	}) => {
 		try {
@@ -1268,7 +1267,7 @@ export const createBrowserStudioOperations = ({
 			const updates = await Promise.all(
 				[...nodesByFile].map(async ([fileName, nodePaths]) => ({
 					fileName,
-					result: await deleteJsxNodes({
+					result: await deleteJsxNodesCodemod({
 						input: project.files[fileName],
 						nodePaths,
 					}),
@@ -1369,37 +1368,63 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
-		fileName,
-		nodePath,
-		sequenceKeys,
-		splitFrame,
+		sequences,
 	}) => {
 		try {
+			if (sequences.length === 0) {
+				throw new Error('No JSX sequences were specified for splitting');
+			}
+
 			const project = getProject();
-			const absolutePath = findProjectFile({
-				filePath: fileName,
-				project,
-			});
-			const result = await splitJsxSequenceCodemod({
-				input: project.files[absolutePath],
-				nodePath,
-				sequenceKeys,
-				splitFrame,
-			});
+			const sequencesByFile = new Map<
+				string,
+				Array<{
+					nodePath: (typeof sequences)[number]['nodePath'];
+					sequenceKeys: string[];
+					splitFrame: number;
+				}>
+			>();
+			for (const sequence of sequences) {
+				const fileName = findProjectFile({
+					filePath: sequence.fileName,
+					project,
+				});
+				const fileSequences = sequencesByFile.get(fileName) ?? [];
+				fileSequences.push({
+					nodePath: sequence.nodePath,
+					sequenceKeys: sequence.sequenceKeys,
+					splitFrame: sequence.splitFrame,
+				});
+				sequencesByFile.set(fileName, fileSequences);
+			}
+
+			const updates = await Promise.all(
+				[...sequencesByFile].map(async ([fileName, splits]) => ({
+					fileName,
+					result: await splitJsxSequencesCodemod({
+						input: project.files[fileName],
+						splits,
+					}),
+				})),
+			);
+			const nextProject = {
+				...project,
+				files: {
+					...project.files,
+					...Object.fromEntries(
+						updates.map(({fileName, result}) => [fileName, result.output]),
+					),
+				},
+			};
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
-				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {...project.files, [absolutePath]: result.output},
-				}),
-				nodePathMutationFiles: [
-					{
-						absolutePath,
-						remappings: result.nodePathRemappings,
-					},
-				],
+				fileName: updates.map(({fileName}) => fileName).join(', '),
+				mutate: () => nextProject,
+				nodePathMutationFiles: updates.map(({fileName, result}) => ({
+					absolutePath: fileName,
+					remappings: result.nodePathRemappings,
+				})),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not split JSX sequence');
@@ -2087,7 +2112,7 @@ export const createBrowserStudioOperations = ({
 						sourceOrigin: value.sourceOrigin,
 					};
 		},
-		deleteJsxNode,
+		deleteJsxNodes,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadRemoteAsset: (request) =>
 			downloadRemoteAssetInBrowserStudio({

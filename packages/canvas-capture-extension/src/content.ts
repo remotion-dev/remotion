@@ -16,7 +16,12 @@ import {
 	getScaledCanvasSize,
 	isHtmlInCanvasAvailable,
 } from './recorder';
-import {makeSelectionRectangle, type SelectionRectangle} from './selection';
+import {
+	dragSelectionRectangle,
+	makeSelectionRectangle,
+	type SelectionHandle,
+	type SelectionRectangle,
+} from './selection';
 
 type ExtensionController = {
 	readonly handleRequest: (
@@ -115,6 +120,55 @@ export const startContent = () => {
 			box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.65);
 			pointer-events: none;
 		}
+		.highlight.editable {
+			cursor: move;
+			pointer-events: auto;
+			touch-action: none;
+		}
+		.selection-handle {
+			position: absolute;
+			display: none;
+			width: 16px;
+			height: 16px;
+			border: 3px solid #fff;
+			border-radius: 50%;
+			background: #0b84f3;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+		}
+		.highlight.editable .selection-handle { display: block; }
+		.selection-handle[data-handle="nw"] { left: -8px; top: -8px; cursor: nwse-resize; z-index: 1; }
+		.selection-handle[data-handle="ne"] { right: -8px; top: -8px; cursor: nesw-resize; z-index: 1; }
+		.selection-handle[data-handle="se"] { right: -8px; bottom: -8px; cursor: nwse-resize; z-index: 1; }
+		.selection-handle[data-handle="sw"] { left: -8px; bottom: -8px; cursor: nesw-resize; z-index: 1; }
+		.selection-handle[data-handle="n"],
+		.selection-handle[data-handle="s"],
+		.selection-handle[data-handle="e"],
+		.selection-handle[data-handle="w"] {
+			border: 0;
+			border-radius: 0;
+			background: transparent;
+			box-shadow: none;
+		}
+		.selection-handle[data-handle="n"] { left: 8px; right: 8px; top: -8px; width: auto; cursor: ns-resize; }
+		.selection-handle[data-handle="s"] { left: 8px; right: 8px; bottom: -8px; width: auto; cursor: ns-resize; }
+		.selection-handle[data-handle="e"] { right: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
+		.selection-handle[data-handle="w"] { left: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
+		.selection-handle[data-handle="n"]::after,
+		.selection-handle[data-handle="s"]::after,
+		.selection-handle[data-handle="e"]::after,
+		.selection-handle[data-handle="w"]::after {
+			content: '';
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			width: 16px;
+			height: 16px;
+			border: 3px solid #fff;
+			border-radius: 50%;
+			background: #0b84f3;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+			transform: translate(-50%, -50%);
+		}
 		.capture-dimensions {
 			position: fixed;
 			display: none;
@@ -197,13 +251,15 @@ export const startContent = () => {
 			cursor: pointer;
 		}
 		.capture-controls {
+			--capture-controls-icon-color: #737373;
+
 			position: fixed;
 			left: 50%;
 			bottom: 20px;
 			display: none;
 			align-items: center;
 			gap: 6px;
-			width: fit-content;
+			width: 224px;
 			max-width: calc(100vw - 40px);
 			padding: 8px;
 			border: 2px solid #000;
@@ -248,29 +304,23 @@ export const startContent = () => {
 		}
 		.capture-controls-grab {
 			display: block;
-			width: 20px;
-			height: 20px;
+			width: 24px;
+			height: 24px;
+			color: var(--capture-controls-icon-color);
 			fill: currentColor;
-			opacity: 0.55;
-		}
-		.capture-controls-logo {
-			display: block;
-			width: 25px;
-			height: 26px;
-			margin-left: -5px;
 		}
 		.capture-controls-close {
-			width: 40px;
-			flex: 0 0 40px !important;
+			width: 32px;
+			flex: 0 0 32px !important;
 			border: 0 !important;
 			background: transparent !important;
-			color: #555b61 !important;
-			opacity: 0.55;
-			padding: 7px;
-			transition: opacity 120ms ease;
+			color: var(--capture-controls-icon-color) !important;
+			margin-left: auto;
+			padding: 4px;
+			transition: color 120ms ease;
 		}
 		.capture-controls-close:hover:not(:disabled) {
-			opacity: 1;
+			color: #000 !important;
 		}
 		.capture-controls-close svg {
 			display: block;
@@ -294,12 +344,12 @@ export const startContent = () => {
 			flex: 0 0 32px;
 			border: 0 !important;
 			background: transparent !important;
-			opacity: 0.55;
+			color: var(--capture-controls-icon-color) !important;
 			padding: 4px;
-			transition: opacity 120ms ease;
+			transition: color 120ms ease;
 		}
 		.capture-controls-select:hover:not(:disabled) {
-			opacity: 1;
+			color: #000 !important;
 		}
 		.capture-controls-select + .capture-controls-select {
 			margin-left: -6px;
@@ -313,6 +363,10 @@ export const startContent = () => {
 		.capture-controls button:disabled {
 			cursor: default;
 			opacity: 0.5;
+		}
+		.capture-controls button.capture-controls-select:disabled,
+		.capture-controls button.capture-controls-close:disabled {
+			opacity: 1;
 		}
 		.capture-controls [data-tooltip] {
 			position: relative;
@@ -357,7 +411,8 @@ export const startContent = () => {
 			perspective: 300px;
 		}
 		.capture-controls-duration {
-			min-width: 40px;
+			width: 64px;
+			flex: 0 0 64px;
 			font-variant-numeric: tabular-nums;
 			font-weight: 700;
 			text-align: center;
@@ -410,6 +465,13 @@ export const startContent = () => {
 		interactionShield.className = 'interaction-shield';
 		const highlight = document.createElement('div');
 		highlight.className = 'highlight';
+		for (const handle of ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']) {
+			const element = document.createElement('div');
+			element.className = 'selection-handle';
+			element.dataset.handle = handle;
+			highlight.appendChild(element);
+		}
+
 		const dimensions = document.createElement('div');
 		dimensions.className = 'capture-dimensions';
 		const dimensionsSource = document.createElement('span');
@@ -468,11 +530,6 @@ export const startContent = () => {
 		controlsHeader.dataset.tooltip = 'Drag to reposition';
 		controlsHeader.innerHTML =
 			'<svg class="capture-controls-grab" viewBox="0 0 640 640" aria-hidden="true"><path d="M288 128C288 92.7 259.3 64 224 64C188.7 64 160 92.7 160 128C160 163.3 188.7 192 224 192C259.3 192 288 163.3 288 128zM288 320C288 284.7 259.3 256 224 256C188.7 256 160 284.7 160 320C160 355.3 188.7 384 224 384C259.3 384 288 355.3 288 320zM160 512C160 547.3 188.7 576 224 576C259.3 576 288 547.3 288 512C288 476.7 259.3 448 224 448C188.7 448 160 476.7 160 512zM480 128C480 92.7 451.3 64 416 64C380.7 64 352 92.7 352 128C352 163.3 380.7 192 416 192C451.3 192 480 163.3 480 128zM352 320C352 355.3 380.7 384 416 384C451.3 384 480 355.3 480 320C480 284.7 451.3 256 416 256C380.7 256 352 284.7 352 320zM480 512C480 476.7 451.3 448 416 448C380.7 448 352 476.7 352 512C352 547.3 380.7 576 416 576C451.3 576 480 547.3 480 512z"/></svg>';
-		const controlsLogo = document.createElement('img');
-		controlsLogo.className = 'capture-controls-logo';
-		controlsLogo.src =
-			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASbSURBVHgB7d1/TttIFAfw98a2RDeBDTfIDZaeoHCCZU9QeoKlf1ZQbaIG9U/aExROQDkB6QlwT4B7ArKEqFId+3UmhP5QJQr2vLE9fp8/ClVVQHzz5s1MMhMAIYQQQgghhBBCCCGEEEIIIRxCqFBvQL00vNohVE8QaAMI+4t/QEr05wkCxgTZJyQVh1k3ngxwAp6rJBATxJfo+l8k2DV/fcB/jQExBsg/RCoaT148SsAzzgPpHFxv6A8nQNSH8mJdRWP9tU6vX66OwQNOA1mEQXQGD6uK+0FM9J9jzOm4yeE4C2Tl9ed+kGdnlirjbstwIhUMmzasOQukM5qe6w8b4N5YEb2dvlx7Dw3gJJDOwdWOnjW9gyotqiYfzvbWjqDGFLhA+BSqZoZK/aDQfexi8QCpKfYK6Q0u9VojvIS6qWnFsFdIGgXbUEffK+ZdT084oCYcDFnqCdQZ0U6azS/+OJj+BzXAPmSZMdvJVNcGPYzpqfJWlVNl1gpZLgT70BT6Z626WniHLIJNaCC9xzbQ66azKnoLayCIVO/+cbfNVO8sLPfenGENhBpaId8sZmJ0/mj0/y44whbIyk25299ErIACdeiqr7AFEs3TKvat2Ji+4iIUtkAI0KtAjEWz1wtJYMTXQxT8BT7SC0nOUPgCIeiDrxhDYRyywLsh6yc6FI6ewhKI67l7VUxPsT0lZglEP6/txXT3PsyUuPtqugmWsARCqkH7VxYQwomtbRamCsE+tEtPb0qegAU8FYLtqpCljc7o+hBK4qkQxD+hlWi3bD/hqRDyYw+rCN1PSk2FeSrEk03FgjbLVAlXD2lzIEbhF3bwrNQJWx0IIRZ+Yo5r66TlFVJ8lunmlYvtU/gBKYHUjATCwpzyKkYC4YAggdSJyvNTKCgEYRdiMt1fLXw4iKdCzLHm1sqHUIJUiE2IR7O91SMoQXqILYtXzqelqsPg2jpJoHXSfyYv1hMoialC6BO0Cj6f7a0Xnur+SIaskpBgONvvvgFLeJ4Pac2Qtbg1YgAWcb3qJAHvYTzbX9sBy1gCUTl4fo0SxtE83QIGLIGkYWalwdXTTRiTwTrLg47tFG5nNCXwDh1zDFM/4ptlebZ9omdTb7nDMDiPI3wAb+BzPZtycs6QcR2ifOgjE10ZWzbXGb/DFoiiPIEGQ3MBWjB/7Pp2Orbd3iDLxnnYzM1k0y9cDVG/fG9g1Dm4uvh29WsT6B1bzOlZlXc2cl+t0ZTGbnrFMErTx1VfoMk8ppjGTtXfJncH0yvCYP7Mxta5DayBZEH6PsjC0mcmOJggdAUP63alLPt9Wd3R9LxOJ3LrGsQt/mkQwan+LVQeSN2DuMUeSJjN36RR9LSqi8yaEsQtJ/f2mgMshHAGjqC5tF9XpnkwcO3KcnF3szX3Zcp6MxNzPNafjeXu93tafXW1nSt1aGn4mphKIMh1jwrGs72uF8/BOH+7ipXXl/0gCwb6Wz90fTJB1P0gh49g1g7ZPG7acHQflb3Dzk0wahtB/b2cFt8ccjFDD+GEzBu3UPZRESZBGMU+vnmLEEIIIYQQQgghhBBCCCFEG30F6Cu5JpPbnzQAAAAASUVORK5CYII=';
-		controlsLogo.alt = 'Remotion';
 		const controlsSecondary = document.createElement('button');
 		controlsSecondary.className = 'capture-controls-select';
 		controlsSecondary.type = 'button';
@@ -521,7 +578,7 @@ export const startContent = () => {
 		controlsNew.ariaLabel = 'Open in remotion.dev/new';
 		controlsNew.dataset.tooltip = 'Open in remotion.dev/new';
 		controlsNew.innerHTML =
-			'<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M80 48C53.5 48 32 69.5 32 96v320c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V176L352 48H80zm304 64.6L415.4 144H384v-31.4zM80 80h272v96h96v240c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16zm160 144v64h-64v32h64v64h32v-64h64v-32h-64v-64h-32z"/></svg>';
+			'<svg viewBox="-24 -24 560 560" aria-hidden="true"><path d="M80 48C53.5 48 32 69.5 32 96v320c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V176L352 48H80zm304 64.6L415.4 144H384v-31.4zM80 80h272v96h96v240c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16zm160 144v64h-64v32h64v64h32v-64h64v-32h-64v-64h-32z"/></svg>';
 		const controlsConvert = document.createElement('button');
 		controlsConvert.className = 'capture-controls-select';
 		controlsConvert.type = 'button';
@@ -529,7 +586,7 @@ export const startContent = () => {
 		controlsConvert.ariaLabel = 'Open in remotion.dev/convert';
 		controlsConvert.dataset.tooltip = 'Open in remotion.dev/convert';
 		controlsConvert.innerHTML =
-			'<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M304 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l153.4 0-260.7 260.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L480 54.6 480 208c0 8.8 7.2 16 16 16s16-7.2 16-16l0-192c0-8.8-7.2-16-16-16L304 0zM80 96C35.8 96 0 131.8 0 176L0 432c0 44.2 35.8 80 80 80l256 0c44.2 0 80-35.8 80-80l0-96c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 96c0 26.5-21.5 48-48 48L80 480c-26.5 0-48-21.5-48-48l0-256c0-26.5 21.5-48 48-48l96 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L80 96z"/></svg>';
+			'<svg viewBox="-64 -64 640 640" aria-hidden="true"><path d="M304 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l153.4 0-260.7 260.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L480 54.6 480 208c0 8.8 7.2 16 16 16s16-7.2 16-16l0-192c0-8.8-7.2-16-16-16L304 0zM80 96C35.8 96 0 131.8 0 176L0 432c0 44.2 35.8 80 80 80l256 0c44.2 0 80-35.8 80-80l0-96c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 96c0 26.5-21.5 48-48 48L80 480c-26.5 0-48-21.5-48-48l0-256c0-26.5 21.5-48 48-48l96 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L80 96z"/></svg>';
 		const controlsDownload = document.createElement('button');
 		controlsDownload.className = 'capture-controls-select';
 		controlsDownload.type = 'button';
@@ -537,18 +594,17 @@ export const startContent = () => {
 		controlsDownload.ariaLabel = 'Download recording';
 		controlsDownload.dataset.tooltip = 'Download recording';
 		controlsDownload.innerHTML =
-			'<svg viewBox="0 0 384 512" aria-hidden="true"><path d="M0 496c0-8.8 7.2-16 16-16l352 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 512c-8.8 0-16-7.2-16-16zM209 377c-9.4 9.4-24.6 9.4-33.9 0L31 233c-6.9-6.9-8.9-17.2-5.2-26.2S38.3 192 48 192l80 0 0-64 0 0 0-80c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 144 80 0c9.7 0 18.5 5.8 22.2 14.8s1.7 19.3-5.2 26.2L209 377zm15-249l0-80c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16l0 80 0 0 0 80c0 8.8-7.2 16-16 16L67.3 224 192 348.7 316.7 224 240 224c-8.8 0-16-7.2-16-16l0-80z"/></svg>';
+			'<svg viewBox="-128 -64 640 640" aria-hidden="true"><path d="M0 496c0-8.8 7.2-16 16-16l352 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 512c-8.8 0-16-7.2-16-16zM209 377c-9.4 9.4-24.6 9.4-33.9 0L31 233c-6.9-6.9-8.9-17.2-5.2-26.2S38.3 192 48 192l80 0 0-64 0 0 0-80c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 144 80 0c9.7 0 18.5 5.8 22.2 14.8s1.7 19.3-5.2 26.2L209 377zm15-249l0-80c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16l0 80 0 0 0 80c0 8.8-7.2 16-16 16L67.3 224 192 348.7 316.7 224 240 224c-8.8 0-16-7.2-16-16l0-80z"/></svg>';
 		const controlsClose = document.createElement('button');
 		controlsClose.className = 'capture-controls-close';
 		controlsClose.type = 'button';
 		controlsClose.ariaLabel = 'Close capture controls';
 		controlsClose.dataset.tooltip = 'Close';
 		controlsClose.innerHTML =
-			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M135.5 169C126.1 159.6 126.1 144.4 135.5 135.1C144.9 125.8 160.1 125.7 169.4 135.1L320.4 286.1L471.4 135.1C480.8 125.7 496 125.7 505.3 135.1C514.6 144.5 514.7 159.7 505.3 169L354.3 320L505.3 471C514.7 480.4 514.7 495.6 505.3 504.9C495.9 514.2 480.7 514.3 471.4 504.9L320.4 353.9L169.4 504.9C160 514.3 144.8 514.3 135.5 504.9C126.2 495.5 126.1 480.3 135.5 471L286.5 320L135.5 169z"/></svg>';
+			'<svg viewBox="46 46 548 548" aria-hidden="true"><path d="M135.5 169C126.1 159.6 126.1 144.4 135.5 135.1C144.9 125.8 160.1 125.7 169.4 135.1L320.4 286.1L471.4 135.1C480.8 125.7 496 125.7 505.3 135.1C514.6 144.5 514.7 159.7 505.3 169L354.3 320L505.3 471C514.7 480.4 514.7 495.6 505.3 504.9C495.9 514.2 480.7 514.3 471.4 504.9L320.4 353.9L169.4 504.9C160 514.3 144.8 514.3 135.5 504.9C126.2 495.5 126.1 480.3 135.5 471L286.5 320L135.5 169z"/></svg>';
 		controls.append(
 			controlsEncodingError,
 			controlsHeader,
-			controlsLogo,
 			controlsSecondary,
 			controlsWholePage,
 			controlsDuration,
@@ -567,6 +623,15 @@ export const startContent = () => {
 			dimensions,
 			controls,
 		);
+		for (const eventType of [
+			'pointerdown',
+			'pointerup',
+			'mousedown',
+			'mouseup',
+			'click',
+		] as const) {
+			shadow.addEventListener(eventType, (event) => event.stopPropagation());
+		}
 
 		let selectedTarget: SelectedTarget | null = null;
 		let capture: PageCapture | null = null;
@@ -597,6 +662,14 @@ export const startContent = () => {
 			: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
 		let statusIsError = !supported;
 		let selectionStart: {readonly x: number; readonly y: number} | null = null;
+		let selectionDrag: {
+			readonly pointerId: number;
+			readonly startX: number;
+			readonly startY: number;
+			readonly rect: SelectionRectangle;
+			readonly crop: CaptureCrop;
+			readonly handle: SelectionHandle;
+		} | null = null;
 
 		const setStatus = (message: string, error = false) => {
 			status = message;
@@ -665,7 +738,8 @@ export const startContent = () => {
 				capture ||
 				completedRecording ||
 				finalizing ||
-				selecting
+				selecting ||
+				selectionDrag
 			) {
 				if (!selectedTarget) {
 					encoderSupport = 'unavailable';
@@ -853,6 +927,14 @@ export const startContent = () => {
 
 			backdrop.style.display = 'none';
 			highlight.style.display = 'block';
+			highlight.classList.toggle(
+				'editable',
+				selectedTarget?.type === 'page-crop' &&
+					!capture &&
+					!startingRecording &&
+					!completedRecording &&
+					!finalizing,
+			);
 			highlight.style.left = `${rect.left}px`;
 			highlight.style.top = `${rect.top}px`;
 			highlight.style.width = `${rect.width}px`;
@@ -897,10 +979,10 @@ export const startContent = () => {
 			dimensionsZoomSlider.disabled = dimensionsZoom.disabled;
 			controlsSecondary.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsSecondary.hidden = state.recording;
+			controlsSecondary.hidden = state.recording || state.hasCompletedRecording;
 			controlsWholePage.disabled =
 				controlsBusy || state.recording || state.hasCompletedRecording;
-			controlsWholePage.hidden = state.recording;
+			controlsWholePage.hidden = state.recording || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
 			controlsPrimary.hidden = state.hasCompletedRecording;
 			controlsNew.hidden = !state.hasCompletedRecording;
@@ -952,6 +1034,85 @@ export const startContent = () => {
 			updateControls();
 		};
 
+		highlight.addEventListener('pointerdown', (event) => {
+			if (
+				event.button !== 0 ||
+				selectedTarget?.type !== 'page-crop' ||
+				capture ||
+				startingRecording ||
+				completedRecording ||
+				finalizing ||
+				selectionDrag
+			) {
+				return;
+			}
+
+			const box = highlight.getBoundingClientRect();
+			selectionDrag = {
+				pointerId: event.pointerId,
+				startX: event.clientX,
+				startY: event.clientY,
+				rect: makeSelectionRectangle(box.left, box.top, box.right, box.bottom),
+				crop: selectedTarget.crop,
+				handle:
+					((event.target as HTMLElement).dataset.handle as
+						| SelectionHandle
+						| undefined) ?? 'move',
+			};
+			encoderSupportCheckId++;
+			encoderSupport = 'checking';
+			updateControls();
+			highlight.setPointerCapture(event.pointerId);
+			event.preventDefault();
+		});
+
+		const updateSelectionDrag = (event: PointerEvent) => {
+			if (!selectionDrag || selectionDrag.pointerId !== event.pointerId) {
+				return;
+			}
+
+			const rect = dragSelectionRectangle({
+				rect: selectionDrag.rect,
+				handle: selectionDrag.handle,
+				deltaX: event.clientX - selectionDrag.startX,
+				deltaY: event.clientY - selectionDrag.startY,
+				viewportWidth: window.innerWidth,
+				viewportHeight: window.innerHeight,
+				minimumWidth: minimumCaptureArea.width,
+				minimumHeight: minimumCaptureArea.height,
+			});
+			selectedTarget = {
+				type: 'page-crop',
+				crop: getCropRelativeTo(rect, document.body.getBoundingClientRect()),
+			};
+			updateHighlight();
+		};
+
+		highlight.addEventListener('pointermove', updateSelectionDrag);
+
+		const finishSelectionDrag = (event: PointerEvent) => {
+			if (!selectionDrag || selectionDrag.pointerId !== event.pointerId) {
+				return;
+			}
+
+			if (event.type === 'pointercancel') {
+				selectedTarget = {type: 'page-crop', crop: selectionDrag.crop};
+			} else {
+				updateSelectionDrag(event);
+			}
+
+			selectionDrag = null;
+			highlight.releasePointerCapture(event.pointerId);
+			encoderSupportKey = null;
+			updateHighlight();
+			refreshEncoderSupport()
+				.then(updateControls)
+				.catch(() => undefined);
+		};
+
+		highlight.addEventListener('pointerup', finishSelectionDrag);
+		highlight.addEventListener('pointercancel', finishSelectionDrag);
+
 		const finishSelection = (event: PointerEvent) => {
 			if (!selectionStart) {
 				return;
@@ -960,8 +1121,8 @@ export const startContent = () => {
 			const selection = makeSelectionRectangle(
 				selectionStart.x,
 				selectionStart.y,
-				event.clientX,
-				event.clientY,
+				Math.min(Math.max(0, event.clientX), window.innerWidth),
+				Math.min(Math.max(0, event.clientY), window.innerHeight),
 			);
 			selectionStart = null;
 			if (
@@ -1012,8 +1173,8 @@ export const startContent = () => {
 			const rect = makeSelectionRectangle(
 				selectionStart.x,
 				selectionStart.y,
-				event.clientX,
-				event.clientY,
+				Math.min(Math.max(0, event.clientX), window.innerWidth),
+				Math.min(Math.max(0, event.clientY), window.innerHeight),
 			);
 			selectionBox.style.left = `${rect.left}px`;
 			selectionBox.style.top = `${rect.top}px`;
@@ -1124,7 +1285,7 @@ export const startContent = () => {
 			}
 		};
 
-		const consumeCompletedRecording = async (
+		const handleCompletedRecording = async (
 			destination: 'convert' | 'new' | 'download',
 		) => {
 			if (!completedRecording || finalizing) {
@@ -1147,10 +1308,7 @@ export const startContent = () => {
 				}
 
 				downloadFile(file);
-				completedRecording = null;
-				setStatus(
-					`${getContainerLabel(format)} downloaded. Ready to record again.`,
-				);
+				setStatus(`${getContainerLabel(format)} downloaded.`);
 			} catch (error) {
 				setStatus(error instanceof Error ? error.message : String(error), true);
 			} finally {
@@ -1188,6 +1346,11 @@ export const startContent = () => {
 
 			if (request.command === 'select-area') {
 				if (!capture && !completedRecording && !finalizing) {
+					if (selectionDrag) {
+						highlight.releasePointerCapture(selectionDrag.pointerId);
+						selectionDrag = null;
+					}
+
 					encoderSupportCheckId++;
 					encoderSupportKey = null;
 					selecting = true;
@@ -1219,6 +1382,11 @@ export const startContent = () => {
 
 			if (request.command === 'select-whole-page') {
 				if (!capture && !completedRecording && !finalizing) {
+					if (selectionDrag) {
+						highlight.releasePointerCapture(selectionDrag.pointerId);
+						selectionDrag = null;
+					}
+
 					if (selecting) {
 						cancelSelection();
 					}
@@ -1240,7 +1408,8 @@ export const startContent = () => {
 					startingRecording ||
 					completedRecording ||
 					finalizing ||
-					selecting
+					selecting ||
+					selectionDrag
 				) {
 					return getState();
 				}
@@ -1301,7 +1470,7 @@ export const startContent = () => {
 				return getState();
 			}
 
-			await consumeCompletedRecording(
+			await handleCompletedRecording(
 				request.command === 'open-in-convert'
 					? 'convert'
 					: request.command === 'open-in-new'

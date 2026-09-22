@@ -1188,6 +1188,45 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('percentage translate values are computed while other style props remain editable', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<>
+			<Sequence style={{translate: interpolate(frame, [0, 100], ['0% 0px', '-20% 0px']), opacity: 0.5}} />
+			<Sequence style={{translate: '20% 0px'}} />
+			<Sequence style={{translate: interpolate(frame, [0, 100], ['0px 0px', '20px 0px'])}} />
+		</>
+	);
+};
+`;
+	const getProps = (line: number) => {
+		const result = computeSequencePropsStatusFromContent({
+			videoConfigValues: null,
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: ['style.translate', 'style.opacity'],
+			effects: [],
+		});
+		if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+		return result.props;
+	};
+
+	expect(getProps(8)['style.translate']).toEqual({status: 'computed'});
+	expect(getProps(8)['style.opacity']).toMatchObject({
+		status: 'static',
+		codeValue: 0.5,
+	});
+	expect(getProps(9)['style.translate']).toEqual({status: 'computed'});
+	expect(getProps(10)['style.translate']).toMatchObject({
+		status: 'keyframed',
+	});
+});
+
 test('computeSequencePropsStatus preserves the useCurrentFrame coordinate space across userland timing components', () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';

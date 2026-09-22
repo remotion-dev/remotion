@@ -1,4 +1,11 @@
-import {useState, useCallback, useContext, useMemo} from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import type {
 	OverrideIdToNodePaths,
@@ -7,6 +14,10 @@ import type {
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
+
+export const OverrideIdToNodePathMappingsRefContext = createContext<{
+	readonly current: OverrideIdToNodePaths;
+}>({current: {}});
 
 export const getReadOnlyOverrideIdToNodePathMappings = (
 	sequences: readonly TSequence[],
@@ -47,6 +58,10 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 				: null,
 		[sequences],
 	);
+	const overrideIdToNodePathMappings =
+		readOnlyOverrideToNodePathMap ?? overrideToNodePathMap;
+	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
+	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 
 	const setOverrideIdToNodePath = useCallback(
 		(overrideId: string, state: SequencePropsSubscriptionKey | null) => {
@@ -73,21 +88,24 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 	);
 
 	const getters = useMemo((): OverrideToNodePathGetters => {
-		return {
-			overrideIdToNodePathMappings:
-				readOnlyOverrideToNodePathMap ?? overrideToNodePathMap,
-		};
-	}, [overrideToNodePathMap, readOnlyOverrideToNodePathMap]);
+		return {overrideIdToNodePathMappings};
+	}, [overrideIdToNodePathMappings]);
 
 	const setters = useMemo((): OverrideToNodeSetters => {
 		return {setOverrideIdToNodePath};
 	}, [setOverrideIdToNodePath]);
 
 	return (
-		<Internals.OverrideIdsToNodePathsGettersContext.Provider value={getters}>
-			<Internals.OverrideIdsToNodePathsSettersContext.Provider value={setters}>
-				{children}
-			</Internals.OverrideIdsToNodePathsSettersContext.Provider>
-		</Internals.OverrideIdsToNodePathsGettersContext.Provider>
+		<OverrideIdToNodePathMappingsRefContext.Provider
+			value={overrideIdToNodePathMappingsRef}
+		>
+			<Internals.OverrideIdsToNodePathsGettersContext.Provider value={getters}>
+				<Internals.OverrideIdsToNodePathsSettersContext.Provider
+					value={setters}
+				>
+					{children}
+				</Internals.OverrideIdsToNodePathsSettersContext.Provider>
+			</Internals.OverrideIdsToNodePathsGettersContext.Provider>
+		</OverrideIdToNodePathMappingsRefContext.Provider>
 	);
 };

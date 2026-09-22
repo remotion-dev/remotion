@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
-import {addEffect} from '../codemods/add-effect';
+import {CodemodsInternals} from '@remotion/codemods';
 import {lineColumnToNodePath} from './test-utils';
+
+const {addEffect} = CodemodsInternals;
 
 const buildInput = (jsx: string) => `import {Solid} from 'remotion';
 

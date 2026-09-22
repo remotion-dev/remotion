@@ -10,50 +10,51 @@ You can also press <kbd>?</kbd> to open this tab.
 
 ## Available actions
 
-| Action ID                       | Default                                    | Action                                                         |
-| ------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
-| `playPause`                     | `Space`                                    | Play or pause                                                  |
-| `toggleMute`                    | `M`                                        | Mute or unmute preview audio                                   |
-| `toggleLoop`                    | `Shift+L`                                  | Enable or disable looping                                      |
-| `jumpToBeginning`               | `A`                                        | Jump to the beginning                                          |
-| `jumpToEnd`                     | `E`                                        | Jump to the end                                                |
-| `reversePlayback`               | `J`                                        | Play in reverse                                                |
-| `pausePlayback`                 | `K`                                        | Pause playback                                                 |
-| `playForward`                   | `L`                                        | Play forward; press repeatedly to increase speed               |
-| `goToFrame`                     | `G`                                        | Open the frame input                                           |
-| `pauseAndReturnToPlaybackStart` | `Enter`                                    | Pause and return to where playback started                     |
-| `toggleLeftSidebar`             | `Cmd/Ctrl+B`                               | Toggle the left sidebar                                        |
-| `toggleRightSidebar`            | `Cmd/Ctrl+J`                               | Toggle the right sidebar                                       |
-| `toggleBothSidebars`            | `Cmd/Ctrl+G`                               | Toggle both sidebars                                           |
-| `enterFullscreen`               | `F`                                        | Enter fullscreen                                               |
-| `toggleOutlines`                | `Shift+O`                                  | Show or hide outlines                                          |
-| `toggleRulersAndGuides`         | `Shift+R`                                  | Show or hide rulers and guides                                 |
-| `toggleSnapping`                | `Shift+M`                                  | Enable or disable snapping                                     |
-| `previousComposition`           | `PageUp`                                   | Select the previous composition                                |
-| `nextComposition`               | `PageDown`                                 | Select the next composition                                    |
-| `showKeyboardShortcuts`         | `?`                                        | Open the Shortcuts settings                                    |
-| `quickSwitcher`                 | `Cmd/Ctrl+K`                               | Open the Quick Switcher                                        |
-| `render`                        | `R`                                        | Open the Render dialog unless a sequence property is selected  |
-| `toggleCheckerboard`            | `T`                                        | Toggle the checkerboard unless a sequence property is selected |
-| `setInPoint`                    | `I`                                        | Set the playback In Point                                      |
-| `setOutPoint`                   | `O`                                        | Set the playback Out Point                                     |
-| `clearInOutPoints`              | `X`                                        | Clear the playback In and Out Points                           |
-| `zoomIn`                        | `+`                                        | Zoom into the preview                                          |
-| `zoomOut`                       | `-`                                        | Zoom out of the preview                                        |
-| `resetZoom`                     | `0`                                        | Reset the preview zoom                                         |
-| `undo`                          | `Cmd/Ctrl+Z`                               | Undo the last props edit                                       |
-| `redo`                          | `Cmd/Ctrl+Shift+Z`; `Ctrl+Y` outside macOS | Redo the last props edit                                       |
-| `selectAllSequenceRows`         | `Cmd/Ctrl+A`                               | Select all sequence rows                                       |
-| `selectTranslateProp`           | `P`                                        | Select the `style.translate` property                          |
-| `selectOpacityProp`             | `T`                                        | Select the `style.opacity` property                            |
-| `selectRotateProp`              | `R`                                        | Select the `style.rotate` property                             |
-| `selectScaleProp`               | `S`                                        | Select the `style.scale` property                              |
-| `duplicateSequences`            | `Cmd/Ctrl+D`                               | Duplicate selected sequences                                   |
-| `copyEffectsAndValues`          | `Cmd/Ctrl+C`                               | Copy selected effects or property values                       |
-| `cutEffects`                    | `Cmd/Ctrl+X`                               | Cut selected effects                                           |
-| `deleteSelection`               | `Backspace` or `Delete`                    | Delete or reset the selection                                  |
-| `askAI`                         | `Cmd/Ctrl+I`                               | Open Ask AI when it is enabled                                 |
-| `pickColor`                     | `Shift+C`                                  | Open the color picker <AvailableFrom v="4.0.525" inline />     |
+| Action ID                       | Default                                    | Action                                                                                 |
+| ------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `playPause`                     | `Space`                                    | Play or pause                                                                          |
+| `toggleMute`                    | `M`                                        | Mute or unmute preview audio                                                           |
+| `toggleLoop`                    | `Shift+L`                                  | Enable or disable looping                                                              |
+| `jumpToBeginning`               | `A`                                        | Jump to the beginning                                                                  |
+| `jumpToEnd`                     | `E`                                        | Jump to the end                                                                        |
+| `reversePlayback`               | `J`                                        | Play in reverse                                                                        |
+| `pausePlayback`                 | `K`                                        | Pause playback                                                                         |
+| `playForward`                   | `L`                                        | Play forward; press repeatedly to increase speed                                       |
+| `goToFrame`                     | `G`                                        | Open the frame input                                                                   |
+| `pauseAndReturnToPlaybackStart` | `Enter`                                    | Pause and return to where playback started                                             |
+| `toggleLeftSidebar`             | `Cmd/Ctrl+B`                               | Toggle the left sidebar                                                                |
+| `toggleRightSidebar`            | `Cmd/Ctrl+J`                               | Toggle the right sidebar                                                               |
+| `toggleBothSidebars`            | `Cmd/Ctrl+G`                               | Toggle both sidebars                                                                   |
+| `enterFullscreen`               | `F`                                        | Enter fullscreen                                                                       |
+| `toggleOutlines`                | `Shift+O`                                  | Show or hide outlines                                                                  |
+| `toggleRulersAndGuides`         | `Shift+R`                                  | Show or hide rulers and guides                                                         |
+| `toggleSnapping`                | `Shift+M`                                  | Enable or disable snapping                                                             |
+| `previousComposition`           | `PageUp`                                   | Select the previous composition                                                        |
+| `nextComposition`               | `PageDown`                                 | Select the next composition                                                            |
+| `showKeyboardShortcuts`         | `?`                                        | Open the Shortcuts settings                                                            |
+| `quickSwitcher`                 | `Cmd/Ctrl+K`                               | Open the Quick Switcher                                                                |
+| `render`                        | `R`                                        | Open the Render dialog unless a sequence property is selected                          |
+| `toggleCheckerboard`            | `T`                                        | Toggle the checkerboard unless a sequence property is selected                         |
+| `setInPoint`                    | `I`                                        | Set the playback In Point                                                              |
+| `setOutPoint`                   | `O`                                        | Set the playback Out Point                                                             |
+| `clearInOutPoints`              | `X`                                        | Clear the playback In and Out Points                                                   |
+| `zoomIn`                        | `+`                                        | Zoom into the preview                                                                  |
+| `zoomOut`                       | `-`                                        | Zoom out of the preview                                                                |
+| `resetZoom`                     | `0`                                        | Reset the preview zoom                                                                 |
+| `undo`                          | `Cmd/Ctrl+Z`                               | Undo the last props edit                                                               |
+| `redo`                          | `Cmd/Ctrl+Shift+Z`; `Ctrl+Y` outside macOS | Redo the last props edit                                                               |
+| `selectAllSequenceRows`         | `Cmd/Ctrl+A`                               | Select all sequence rows                                                               |
+| `selectTranslateProp`           | `P`                                        | Select the `style.translate` property                                                  |
+| `selectOpacityProp`             | `T`                                        | Select the `style.opacity` property                                                    |
+| `selectRotateProp`              | `R`                                        | Select the `style.rotate` property                                                     |
+| `selectScaleProp`               | `S`                                        | Select the `style.scale` property                                                      |
+| `duplicateSequences`            | `Cmd/Ctrl+D`                               | Duplicate selected sequences                                                           |
+| `splitSequences`                | `Cmd/Ctrl+Shift+D`                         | Split eligible selected sequences at the playhead <AvailableFrom v="4.0.527" inline /> |
+| `copyEffectsAndValues`          | `Cmd/Ctrl+C`                               | Copy selected effects or property values                                               |
+| `cutEffects`                    | `Cmd/Ctrl+X`                               | Cut selected effects                                                                   |
+| `deleteSelection`               | `Backspace` or `Delete`                    | Delete or reset the selection                                                          |
+| `askAI`                         | `Cmd/Ctrl+I`                               | Open Ask AI when it is enabled                                                         |
+| `pickColor`                     | `Shift+C`                                  | Open the color picker <AvailableFrom v="4.0.525" inline />                             |
 
 ## Fixed shortcuts
 

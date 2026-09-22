@@ -3,12 +3,16 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
+import {CodemodsInternals, addSolid, deleteJsxNodes} from '@remotion/codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import type {BrowserBundlerPreview} from './browser-bundler-preview/bridge';
+import type {
+	BrowserBundlerPreview,
+	BrowserBundlerPreviewNode,
+} from './browser-bundler-preview/bridge';
 
 const initialSource = `import React, {useState} from 'react';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Orb} from './Orb';
 
 export const Video: React.FC<{title: string; accent: string}> = ({title, accent}) => {
@@ -21,18 +25,25 @@ export const Video: React.FC<{title: string; accent: string}> = ({title, accent}
       backgroundColor: '#0f172a', color: 'white', fontFamily: 'sans-serif',
       justifyContent: 'center', padding: 80,
     }}>
-      <Orb accent={accent} />
-      <div style={{position: 'relative', transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
-        <h1 style={{fontSize: 76, margin: 0}}>{title}</h1>
-        <p style={{fontSize: 28, color: accent}}>Frame {frame} of {durationInFrames}</p>
-        <button type="button" style={{fontSize: 28, padding: '8px 16px'}}
-          onClick={(event) => {
-            event.stopPropagation();
-            setClicks((value) => value + 1);
-          }}>
-          Clicks: {clicks}
-        </button>
-      </div>
+      <Sequence name="Background" layout="none">
+        <AbsoluteFill style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}} />
+      </Sequence>
+      <Sequence name="Orb" layout="none">
+        <Orb accent={accent} />
+      </Sequence>
+      <Sequence name="Content" layout="none">
+        <div style={{position: 'relative', transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
+          <h1 style={{fontSize: 76, margin: 0}}>{title}</h1>
+          <p style={{fontSize: 28, color: accent}}>Frame {frame} of {durationInFrames}</p>
+          <button type="button" style={{fontSize: 28, padding: '8px 16px'}}
+            onClick={(event) => {
+              event.stopPropagation();
+              setClicks((value) => value + 1);
+            }}>
+            Clicks: {clicks}
+          </button>
+        </div>
+      </Sequence>
     </AbsoluteFill>
   );
 };
@@ -83,6 +94,8 @@ export const Orb: React.FC<{accent: string}> = ({accent}) => {
 	},
 };
 
+const layerElementNames = new Set(['AbsoluteFill', 'Sequence', 'Solid']);
+
 const getCompilationErrorMessage = (error: unknown): string => {
 	if (error instanceof BrowserBundlerError) {
 		return [error.message, ...error.diagnostics].join('\n\n');
@@ -109,6 +122,7 @@ export const BrowserBundlerExample: React.FC = () => {
 	const [state, setState] = useState<CompilationState>({type: 'loading'});
 	const [progress, setProgress] = useState<string | null>(null);
 	const [warnings, setWarnings] = useState<string[]>([]);
+	const sourceRef = useRef(initialSource);
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const sessionRef = useRef<CompilationSession | null>(null);
 
@@ -149,7 +163,12 @@ export const BrowserBundlerExample: React.FC = () => {
 
 				// Coalesce edits before compilation, but never discard a compiled
 				// update: the next HMR update builds on this bundle's module graph.
-				await preview.applyBundle(bundle);
+				const sourceNodes = CodemodsInternals.getJsxElementsWithNodePaths({
+					source: videoSource,
+				})
+					.filter(({tagName}) => layerElementNames.has(tagName))
+					.map(({nodePath}) => ({filePath: 'src/Video.tsx', nodePath}));
+				await preview.applyBundle(bundle, sourceNodes);
 				if (session.disposed || revision !== session.revision) {
 					return;
 				}
@@ -169,13 +188,45 @@ export const BrowserBundlerExample: React.FC = () => {
 		});
 		await session.queue;
 	}, []);
+	const deleteNodes = useCallback(
+		async (nodes: BrowserBundlerPreviewNode[]) => {
+			setState({type: 'loading'});
+			try {
+				const result = await deleteJsxNodes({
+					nodes,
+					project: {
+						...project,
+						files: {
+							...project.files,
+							'src/Video.tsx': sourceRef.current,
+						},
+						rootDir: '/',
+					},
+				});
+				const nextSource = result.project.files['src/Video.tsx'];
+				if (!nextSource) {
+					throw new Error('The codemod did not return Video.tsx.');
+				}
+
+				sourceRef.current = nextSource;
+				setSource(nextSource);
+				await compile(nextSource);
+			} catch (error) {
+				setState({
+					message: getCompilationErrorMessage(error),
+					type: 'error',
+				});
+			}
+		},
+		[compile],
+	);
 
 	useEffect(() => {
 		const iframe = iframeRef.current;
 		if (!iframe) {
 			setState({
 				type: 'error',
-				message: 'The Player preview iframe is missing.',
+				message: 'The Canvas preview iframe is missing.',
 			});
 			return;
 		}
@@ -233,7 +284,7 @@ export const BrowserBundlerExample: React.FC = () => {
 			});
 			loadTimeout = window.setTimeout(
 				() =>
-					failPreview(new Error('Timed out while loading the Player preview.')),
+					failPreview(new Error('Timed out while loading the Canvas preview.')),
 				30_000,
 			);
 			const onLoad = () => {
@@ -248,7 +299,7 @@ export const BrowserBundlerExample: React.FC = () => {
 				if (loaded) {
 					failPreview(
 						new Error(
-							'The Player preview reloaded. Reload this page to reconnect.',
+							'The Canvas preview reloaded. Reload this page to reconnect.',
 						),
 					);
 					return;
@@ -259,7 +310,7 @@ export const BrowserBundlerExample: React.FC = () => {
 				if (!initialize) {
 					failPreview(
 						new Error(
-							'Could not load the development Player preview. Run "bun run make" in packages/player-example and reload this page.',
+							'Could not load the development Canvas preview. Run "bun run make" in packages/player-example and reload this page.',
 						),
 					);
 					return;
@@ -271,7 +322,10 @@ export const BrowserBundlerExample: React.FC = () => {
 							return;
 						}
 
-						previewRuntime = createPreview({onError: reportPreviewError});
+						previewRuntime = createPreview({
+							onDeleteJsxNodes: deleteNodes,
+							onError: reportPreviewError,
+						});
 						if (loadTimeout !== null) {
 							window.clearTimeout(loadTimeout);
 						}
@@ -280,7 +334,7 @@ export const BrowserBundlerExample: React.FC = () => {
 					.catch(failPreview);
 			};
 			const onError = () =>
-				failPreview(new Error('The Player preview iframe failed to load.'));
+				failPreview(new Error('The Canvas preview iframe failed to load.'));
 			iframe.addEventListener('load', onLoad);
 			iframe.addEventListener('error', onError);
 			iframe.src = '/browser-bundler-preview.html';
@@ -295,7 +349,7 @@ export const BrowserBundlerExample: React.FC = () => {
 				}
 				iframe.removeEventListener('load', onLoad);
 				iframe.removeEventListener('error', onError);
-				rejectPreview(new Error('The Player preview was disposed.'));
+				rejectPreview(new Error('The Canvas preview was disposed.'));
 				try {
 					previewRuntime?.dispose();
 				} finally {
@@ -309,87 +363,200 @@ export const BrowserBundlerExample: React.FC = () => {
 				message: getCompilationErrorMessage(error),
 			});
 		}
-	}, [compile]);
+	}, [compile, deleteNodes]);
 
 	return (
 		<main
 			style={{
+				backgroundColor: '#0b0d12',
+				color: '#e5e7eb',
+				display: 'flex',
+				flexDirection: 'column',
 				fontFamily: 'sans-serif',
-				margin: '40px auto',
-				maxWidth: 1000,
-				padding: '0 20px',
+				height: '100vh',
+				overflow: 'hidden',
 			}}
 		>
-			<Link href="/">All Player examples</Link>
-			<h1>Browser-compiled Player</h1>
-			<p>
-				A virtual Remotion project calls <code>registerRoot()</code>. This page
-				selects <code>BrowserDemo</code> and uses its registered component,
-				default props, and calculated metadata in a Player.
-			</p>
-			<p>
-				Edits use React Fast Refresh to preserve component state and playback.
-				The persistent preview iframe bundles its own development React, even
-				when this page uses production React. Only run code you trust: this
-				same-origin iframe is not a security sandbox.
-			</p>
-			<div>
-				<label htmlFor="browser-video-source">
-					<strong>Video.tsx source</strong>
-				</label>
-				<textarea
-					id="browser-video-source"
-					value={source}
-					onChange={(event) => {
-						const nextSource = event.target.value;
-						setSource(nextSource);
-						void compile(nextSource);
+			<header
+				style={{
+					alignItems: 'center',
+					borderBottom: '1px solid #2b303b',
+					display: 'flex',
+					flex: '0 0 56px',
+					gap: 16,
+					padding: '0 18px',
+				}}
+			>
+				<Link href="/" style={{color: '#9ca3af', fontSize: 13}}>
+					Player examples
+				</Link>
+				<div style={{borderLeft: '1px solid #374151', height: 24}} />
+				<div>
+					<h1 style={{fontSize: 16, margin: 0}}>Browser-compiled Canvas</h1>
+					<div style={{color: '#9ca3af', fontSize: 12}}>
+						Fast Refresh · live layers
+					</div>
+				</div>
+				<button
+					type="button"
+					disabled={state.type === 'loading'}
+					onClick={() => {
+						try {
+							const result = addSolid({
+								compositionFile: 'src/Root.tsx',
+								compositionId: 'BrowserDemo',
+								height: 720,
+								project: {
+									...project,
+									files: {...project.files, 'src/Video.tsx': source},
+									rootDir: '/',
+								},
+								width: 1280,
+							});
+							const nextSource = result.project.files['src/Video.tsx'];
+							if (!nextSource) {
+								throw new Error('The codemod did not return Video.tsx.');
+							}
+
+							setSource(nextSource);
+							sourceRef.current = nextSource;
+							void compile(nextSource);
+						} catch (error) {
+							setState({
+								message: getCompilationErrorMessage(error),
+								type: 'error',
+							});
+						}
 					}}
-					rows={17}
-					spellCheck={false}
 					style={{
-						boxSizing: 'border-box',
-						display: 'block',
-						fontFamily: 'monospace',
-						fontSize: 13,
-						lineHeight: 1.5,
-						margin: '8px 0 12px',
-						padding: 12,
-						width: '100%',
+						backgroundColor: '#4f46e5',
+						border: 0,
+						borderRadius: 5,
+						color: 'white',
+						fontSize: 12,
+						fontWeight: 600,
+						marginLeft: 'auto',
+						padding: '7px 11px',
 					}}
-				/>
-			</div>
-			<p role="status" aria-live="polite">
-				{state.type === 'loading'
-					? (progress ?? 'Compiling the virtual project...')
-					: state.type === 'ready'
-						? 'BrowserDemo compiled successfully with Fast Refresh.'
-						: 'Compilation or preview failed.'}
-			</p>
-			{warnings.length > 0 ? (
-				<section aria-label="Compiler warnings">
-					<h2>Warnings</h2>
-					<ul>
-						{warnings.map((warning, index) => (
-							<li key={`${index}-${warning}`}>
-								<pre style={{whiteSpace: 'pre-wrap'}}>{warning}</pre>
-							</li>
-						))}
-					</ul>
+				>
+					Add Solid
+				</button>
+				<p
+					role="status"
+					aria-live="polite"
+					style={{
+						backgroundColor: state.type === 'error' ? '#3f1515' : '#172033',
+						border: `1px solid ${state.type === 'error' ? '#7f1d1d' : '#293958'}`,
+						borderRadius: 999,
+						color: state.type === 'error' ? '#fecaca' : '#bfdbfe',
+						fontSize: 12,
+						margin: 0,
+						padding: '5px 10px',
+					}}
+				>
+					{state.type === 'loading'
+						? (progress ?? 'Compiling…')
+						: state.type === 'ready'
+							? 'Up to date'
+							: 'Compilation failed'}
+				</p>
+			</header>
+			<div
+				style={{
+					display: 'grid',
+					flex: 1,
+					gridTemplateColumns: 'minmax(280px, 36%) minmax(0, 1fr)',
+					minHeight: 0,
+				}}
+			>
+				<section
+					aria-label="Code editor"
+					style={{
+						borderRight: '1px solid #2b303b',
+						display: 'flex',
+						flexDirection: 'column',
+						minHeight: 0,
+					}}
+				>
+					<label
+						htmlFor="browser-video-source"
+						style={{
+							backgroundColor: '#141820',
+							borderBottom: '1px solid #2b303b',
+							color: '#cbd5e1',
+							fontFamily: 'monospace',
+							fontSize: 12,
+							padding: '10px 14px',
+						}}
+					>
+						Video.tsx
+					</label>
+					<textarea
+						id="browser-video-source"
+						value={source}
+						wrap="off"
+						onChange={(event) => {
+							const nextSource = event.target.value;
+							setSource(nextSource);
+							sourceRef.current = nextSource;
+							void compile(nextSource);
+						}}
+						spellCheck={false}
+						style={{
+							backgroundColor: '#0f131a',
+							border: 0,
+							boxSizing: 'border-box',
+							color: '#dbeafe',
+							flex: 1,
+							fontFamily: 'monospace',
+							fontSize: 13,
+							lineHeight: 1.55,
+							minHeight: 0,
+							outline: 0,
+							padding: 16,
+							resize: 'none',
+							width: '100%',
+						}}
+					/>
+					{warnings.length > 0 || state.type === 'error' ? (
+						<div
+							style={{
+								backgroundColor: '#171116',
+								borderTop: '1px solid #4c1d24',
+								maxHeight: '30%',
+								overflow: 'auto',
+								padding: '10px 14px',
+							}}
+						>
+							{warnings.map((warning, index) => (
+								<pre
+									key={`${index}-${warning}`}
+									style={{fontSize: 11, margin: 0, whiteSpace: 'pre-wrap'}}
+								>
+									{warning}
+								</pre>
+							))}
+							{state.type === 'error' ? (
+								<pre
+									role="alert"
+									style={{color: '#fca5a5', fontSize: 11, margin: 0}}
+								>
+									{state.message}
+								</pre>
+							) : null}
+						</div>
+					) : null}
 				</section>
-			) : null}
-			{state.type === 'error' ? (
-				<pre role="alert" style={{color: '#b91c1c', whiteSpace: 'pre-wrap'}}>
-					{state.message}
-				</pre>
-			) : null}
-			{/* eslint-disable-next-line @remotion/warn-native-media-tag */}
-			<iframe
-				ref={iframeRef}
-				title="Live Player preview"
-				allow="autoplay; fullscreen"
-				style={{border: 0, width: '100%', aspectRatio: '1280 / 840'}}
-			/>
+				<section aria-label="Preview" style={{minHeight: 0, minWidth: 0}}>
+					{/* eslint-disable-next-line @remotion/warn-native-media-tag */}
+					<iframe
+						ref={iframeRef}
+						title="Live Canvas preview"
+						allow="autoplay; fullscreen"
+						style={{border: 0, display: 'block', height: '100%', width: '100%'}}
+					/>
+				</section>
+			</div>
 		</main>
 	);
 };

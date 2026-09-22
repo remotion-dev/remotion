@@ -47,6 +47,7 @@ import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -59,6 +60,7 @@ import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
@@ -437,6 +439,9 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const {sequences} = useContext(Internals.SequenceManager);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
 	const renderWindow = useContext(TimelineViewportContext);
 	const mediaDurationDragLimitsRegistry = useContext(
 		TimelineSequenceMediaDurationDragLimitsContext,
@@ -639,6 +644,26 @@ const TimelineSequenceInner: React.FC<{
 			() => undefined,
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+	const onSplitSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		splitSelectedTimelineItems({
+			selections: selectedItems,
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			propStatuses,
+			splitFrame: getCurrentFrame(),
+		})?.catch(() => undefined);
+	}, [
+		overrideIdToNodePathMappingsRef,
+		previewInteractive,
+		propStatuses,
+		selectedItems,
+		selectedSequenceNodePathInfos,
+		sequences,
+	]);
 	const onDeleteSequenceFromSource = useCallback(() => {
 		if (
 			!validatedLocation?.source ||
@@ -705,8 +730,10 @@ const TimelineSequenceInner: React.FC<{
 			return getMultiSequenceContextMenuItems({
 				deleteDisabled: !previewInteractive,
 				duplicateDisabled: !previewInteractive,
+				splitDisabled: !previewInteractive,
 				onDeleteSelectedSequences,
 				onDuplicateSelectedSequences,
+				onSplitSelectedSequences,
 			});
 		}
 
@@ -788,6 +815,7 @@ const TimelineSequenceInner: React.FC<{
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onDuplicateSelectedSequences,
+		onSplitSelectedSequences,
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,

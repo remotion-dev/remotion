@@ -844,16 +844,16 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodeRequestItem = {
+export type DeleteJsxNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodeRequest = {
-	nodes: DeleteJsxNodeRequestItem[];
+export type DeleteJsxNodesRequest = {
+	nodes: DeleteJsxNodesRequestItem[];
 };
 
-export type DeleteJsxNodeResponse =
+export type DeleteJsxNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -884,11 +884,15 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type SplitJsxSequenceRequest = {
+export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
+};
+
+export type SplitJsxSequenceRequest = {
+	sequences: SplitJsxSequenceRequestItem[];
 };
 
 export type SplitJsxSequenceResponse =
@@ -1425,9 +1429,9 @@ export type ApiRoutes = {
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-node': ReqAndRes<
-		DeleteJsxNodeRequest,
-		DeleteJsxNodeResponse
+	'/api/delete-jsx-nodes': ReqAndRes<
+		DeleteJsxNodesRequest,
+		DeleteJsxNodesResponse
 	>;
 	'/api/duplicate-jsx-node': ReqAndRes<
 		DuplicateJsxNodeRequest,

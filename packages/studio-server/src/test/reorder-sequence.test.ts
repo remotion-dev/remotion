@@ -1,8 +1,10 @@
 import {expect, test} from 'bun:test';
+import {CodemodsInternals} from '@remotion/codemods';
 import {parseAst} from '../codemods/parse-ast';
-import {reorderSequence} from '../codemods/reorder-sequence';
 import {lineColumnToNodePath as getNodePathAtPosition} from '../preview-server/routes/can-update-sequence-props';
 import {lineColumnToNodePath} from './test-utils';
+
+const {reorderSequence} = CodemodsInternals;
 
 const sequenceContaining = (input: string, search: string) => {
 	const searchOffset = input.indexOf(search);

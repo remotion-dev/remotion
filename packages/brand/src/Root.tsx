@@ -11,6 +11,7 @@ import {
 	ApplicationVideoEditor,
 	Applications,
 } from './Applications';
+import {AudioWaveform} from './AudioWaveform';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
@@ -80,6 +81,8 @@ import {
 	ExpertsGraphic,
 	expertsGraphicDurationInFrames,
 } from './HomepageAssets/ExpertsGraphic';
+import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
+import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
@@ -96,10 +99,11 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import './index.css';
 import {Logo} from './Logo';
+import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
+import {RenderModalCodec} from './RenderModalCodec';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -243,6 +247,24 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="HomepageAssets">
+				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionAudioWaveform"
+						component={ExploreRemotionAudioWaveform}
+						durationInFrames={200}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionRenderModalCodec"
+						component={ExploreRemotionRenderModalCodec}
+						durationInFrames={127}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+				</Folder>
 				<Composition
 					id="ExpertsGraphic"
 					component={ExpertsGraphic}
@@ -711,6 +733,8 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					width={1920}
 					height={1080}
 				/>
+				<RenderModalCodec />
+				<AudioWaveform />
 			</Folder>
 
 			<Folder name="StudioAssets">
