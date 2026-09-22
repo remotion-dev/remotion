@@ -233,7 +233,7 @@ export const startContent = () => {
 			gap: 6px;
 			width: 270px;
 			max-width: calc(100vw - 40px);
-			padding: 12px;
+			padding: 8px;
 			border: 2px solid #000;
 			border-bottom-width: 4px;
 			border-radius: 999px;
@@ -267,9 +267,8 @@ export const startContent = () => {
 		.capture-controls-header {
 			display: flex;
 			align-items: center;
-			min-height: 42px;
 			cursor: grab;
-			padding: 0 8px;
+			padding: 0 6px;
 			user-select: none;
 		}
 		.capture-controls-header.dragging {
@@ -283,15 +282,13 @@ export const startContent = () => {
 			fill: currentColor;
 		}
 		.capture-controls-close {
-			display: grid;
-			width: 38px;
-			flex: 0 0 38px !important;
-			place-items: center;
+			width: 32px;
+			flex: 0 0 32px !important;
 			border: 0 !important;
 			background: transparent !important;
 			color: var(--capture-controls-icon-color) !important;
 			margin-left: auto;
-			padding: 0;
+			padding: 4px;
 			transition: color 120ms ease;
 		}
 		.capture-controls-close:hover:not(:disabled) {
@@ -307,7 +304,7 @@ export const startContent = () => {
 			stroke-linecap: round;
 		}
 		.capture-controls button {
-			height: 42px;
+			height: 38px;
 			border: 2px solid #000;
 			border-bottom-width: 4px;
 			border-radius: 8px;
@@ -327,18 +324,13 @@ export const startContent = () => {
 			transform: translate(-50%, -50%);
 		}
 		.capture-controls-select {
-			display: grid;
-			width: 38px;
-			flex: 0 0 38px;
-			place-items: center;
+			width: 32px;
+			flex: 0 0 32px;
 			border: 0 !important;
 			background: transparent !important;
 			color: var(--capture-controls-icon-color) !important;
-			padding: 0;
+			padding: 4px;
 			transition: color 120ms ease;
-		}
-		.capture-controls-select[hidden] {
-			display: none;
 		}
 		.capture-controls-select:hover:not(:disabled) {
 			color: #000 !important;
@@ -396,16 +388,16 @@ export const startContent = () => {
 			position: absolute;
 			left: 50%;
 			top: 50%;
-			width: 42px;
-			height: 42px;
+			width: 40px;
+			height: 38px;
 			perspective: 300px;
 			transform: translate(-50%, -50%);
 		}
 		.capture-controls-duration {
 			position: absolute;
-			left: 56px;
+			left: 47px;
 			top: 50%;
-			width: 50px;
+			width: 42px;
 			font-variant-numeric: tabular-nums;
 			font-weight: 700;
 			text-align: center;
@@ -426,7 +418,7 @@ export const startContent = () => {
 		.capture-controls-primary button {
 			position: relative;
 			display: grid;
-			width: 42px;
+			width: 40px;
 			padding: 0;
 			place-items: center;
 			border-radius: 999px !important;
