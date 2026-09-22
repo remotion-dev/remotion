@@ -16,7 +16,12 @@ import {
 	getScaledCanvasSize,
 	isHtmlInCanvasAvailable,
 } from './recorder';
-import {makeSelectionRectangle, type SelectionRectangle} from './selection';
+import {
+	dragSelectionRectangle,
+	makeSelectionRectangle,
+	type SelectionHandle,
+	type SelectionRectangle,
+} from './selection';
 
 type ExtensionController = {
 	readonly handleRequest: (
@@ -114,6 +119,55 @@ export const startContent = () => {
 			border: 1px solid #0b84f3;
 			box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.65);
 			pointer-events: none;
+		}
+		.highlight.editable {
+			cursor: move;
+			pointer-events: auto;
+			touch-action: none;
+		}
+		.selection-handle {
+			position: absolute;
+			display: none;
+			width: 16px;
+			height: 16px;
+			border: 3px solid #fff;
+			border-radius: 50%;
+			background: #0b84f3;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+		}
+		.highlight.editable .selection-handle { display: block; }
+		.selection-handle[data-handle="nw"] { left: -8px; top: -8px; cursor: nwse-resize; z-index: 1; }
+		.selection-handle[data-handle="ne"] { right: -8px; top: -8px; cursor: nesw-resize; z-index: 1; }
+		.selection-handle[data-handle="se"] { right: -8px; bottom: -8px; cursor: nwse-resize; z-index: 1; }
+		.selection-handle[data-handle="sw"] { left: -8px; bottom: -8px; cursor: nesw-resize; z-index: 1; }
+		.selection-handle[data-handle="n"],
+		.selection-handle[data-handle="s"],
+		.selection-handle[data-handle="e"],
+		.selection-handle[data-handle="w"] {
+			border: 0;
+			border-radius: 0;
+			background: transparent;
+			box-shadow: none;
+		}
+		.selection-handle[data-handle="n"] { left: 8px; right: 8px; top: -8px; width: auto; cursor: ns-resize; }
+		.selection-handle[data-handle="s"] { left: 8px; right: 8px; bottom: -8px; width: auto; cursor: ns-resize; }
+		.selection-handle[data-handle="e"] { right: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
+		.selection-handle[data-handle="w"] { left: -8px; top: 8px; bottom: 8px; height: auto; cursor: ew-resize; }
+		.selection-handle[data-handle="n"]::after,
+		.selection-handle[data-handle="s"]::after,
+		.selection-handle[data-handle="e"]::after,
+		.selection-handle[data-handle="w"]::after {
+			content: '';
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			width: 16px;
+			height: 16px;
+			border: 3px solid #fff;
+			border-radius: 50%;
+			background: #0b84f3;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+			transform: translate(-50%, -50%);
 		}
 		.capture-dimensions {
 			position: fixed;
@@ -411,6 +465,13 @@ export const startContent = () => {
 		interactionShield.className = 'interaction-shield';
 		const highlight = document.createElement('div');
 		highlight.className = 'highlight';
+		for (const handle of ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']) {
+			const element = document.createElement('div');
+			element.className = 'selection-handle';
+			element.dataset.handle = handle;
+			highlight.appendChild(element);
+		}
+
 		const dimensions = document.createElement('div');
 		dimensions.className = 'capture-dimensions';
 		const dimensionsSource = document.createElement('span');
@@ -601,6 +662,14 @@ export const startContent = () => {
 			: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
 		let statusIsError = !supported;
 		let selectionStart: {readonly x: number; readonly y: number} | null = null;
+		let selectionDrag: {
+			readonly pointerId: number;
+			readonly startX: number;
+			readonly startY: number;
+			readonly rect: SelectionRectangle;
+			readonly crop: CaptureCrop;
+			readonly handle: SelectionHandle;
+		} | null = null;
 
 		const setStatus = (message: string, error = false) => {
 			status = message;
@@ -669,7 +738,8 @@ export const startContent = () => {
 				capture ||
 				completedRecording ||
 				finalizing ||
-				selecting
+				selecting ||
+				selectionDrag
 			) {
 				if (!selectedTarget) {
 					encoderSupport = 'unavailable';
@@ -857,6 +927,14 @@ export const startContent = () => {
 
 			backdrop.style.display = 'none';
 			highlight.style.display = 'block';
+			highlight.classList.toggle(
+				'editable',
+				selectedTarget?.type === 'page-crop' &&
+					!capture &&
+					!startingRecording &&
+					!completedRecording &&
+					!finalizing,
+			);
 			highlight.style.left = `${rect.left}px`;
 			highlight.style.top = `${rect.top}px`;
 			highlight.style.width = `${rect.width}px`;
@@ -956,6 +1034,85 @@ export const startContent = () => {
 			updateControls();
 		};
 
+		highlight.addEventListener('pointerdown', (event) => {
+			if (
+				event.button !== 0 ||
+				selectedTarget?.type !== 'page-crop' ||
+				capture ||
+				startingRecording ||
+				completedRecording ||
+				finalizing ||
+				selectionDrag
+			) {
+				return;
+			}
+
+			const box = highlight.getBoundingClientRect();
+			selectionDrag = {
+				pointerId: event.pointerId,
+				startX: event.clientX,
+				startY: event.clientY,
+				rect: makeSelectionRectangle(box.left, box.top, box.right, box.bottom),
+				crop: selectedTarget.crop,
+				handle:
+					((event.target as HTMLElement).dataset.handle as
+						| SelectionHandle
+						| undefined) ?? 'move',
+			};
+			encoderSupportCheckId++;
+			encoderSupport = 'checking';
+			updateControls();
+			highlight.setPointerCapture(event.pointerId);
+			event.preventDefault();
+		});
+
+		const updateSelectionDrag = (event: PointerEvent) => {
+			if (!selectionDrag || selectionDrag.pointerId !== event.pointerId) {
+				return;
+			}
+
+			const rect = dragSelectionRectangle({
+				rect: selectionDrag.rect,
+				handle: selectionDrag.handle,
+				deltaX: event.clientX - selectionDrag.startX,
+				deltaY: event.clientY - selectionDrag.startY,
+				viewportWidth: window.innerWidth,
+				viewportHeight: window.innerHeight,
+				minimumWidth: minimumCaptureArea.width,
+				minimumHeight: minimumCaptureArea.height,
+			});
+			selectedTarget = {
+				type: 'page-crop',
+				crop: getCropRelativeTo(rect, document.body.getBoundingClientRect()),
+			};
+			updateHighlight();
+		};
+
+		highlight.addEventListener('pointermove', updateSelectionDrag);
+
+		const finishSelectionDrag = (event: PointerEvent) => {
+			if (!selectionDrag || selectionDrag.pointerId !== event.pointerId) {
+				return;
+			}
+
+			if (event.type === 'pointercancel') {
+				selectedTarget = {type: 'page-crop', crop: selectionDrag.crop};
+			} else {
+				updateSelectionDrag(event);
+			}
+
+			selectionDrag = null;
+			highlight.releasePointerCapture(event.pointerId);
+			encoderSupportKey = null;
+			updateHighlight();
+			refreshEncoderSupport()
+				.then(updateControls)
+				.catch(() => undefined);
+		};
+
+		highlight.addEventListener('pointerup', finishSelectionDrag);
+		highlight.addEventListener('pointercancel', finishSelectionDrag);
+
 		const finishSelection = (event: PointerEvent) => {
 			if (!selectionStart) {
 				return;
@@ -964,8 +1121,8 @@ export const startContent = () => {
 			const selection = makeSelectionRectangle(
 				selectionStart.x,
 				selectionStart.y,
-				event.clientX,
-				event.clientY,
+				Math.min(Math.max(0, event.clientX), window.innerWidth),
+				Math.min(Math.max(0, event.clientY), window.innerHeight),
 			);
 			selectionStart = null;
 			if (
@@ -1016,8 +1173,8 @@ export const startContent = () => {
 			const rect = makeSelectionRectangle(
 				selectionStart.x,
 				selectionStart.y,
-				event.clientX,
-				event.clientY,
+				Math.min(Math.max(0, event.clientX), window.innerWidth),
+				Math.min(Math.max(0, event.clientY), window.innerHeight),
 			);
 			selectionBox.style.left = `${rect.left}px`;
 			selectionBox.style.top = `${rect.top}px`;
@@ -1189,6 +1346,11 @@ export const startContent = () => {
 
 			if (request.command === 'select-area') {
 				if (!capture && !completedRecording && !finalizing) {
+					if (selectionDrag) {
+						highlight.releasePointerCapture(selectionDrag.pointerId);
+						selectionDrag = null;
+					}
+
 					encoderSupportCheckId++;
 					encoderSupportKey = null;
 					selecting = true;
@@ -1220,6 +1382,11 @@ export const startContent = () => {
 
 			if (request.command === 'select-whole-page') {
 				if (!capture && !completedRecording && !finalizing) {
+					if (selectionDrag) {
+						highlight.releasePointerCapture(selectionDrag.pointerId);
+						selectionDrag = null;
+					}
+
 					if (selecting) {
 						cancelSelection();
 					}
@@ -1241,7 +1408,8 @@ export const startContent = () => {
 					startingRecording ||
 					completedRecording ||
 					finalizing ||
-					selecting
+					selecting ||
+					selectionDrag
 				) {
 					return getState();
 				}
