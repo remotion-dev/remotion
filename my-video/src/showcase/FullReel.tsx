@@ -20,6 +20,7 @@ import {FundamentalsScene} from "./FundamentalsScene";
 import {OutroScene} from "./OutroScene";
 import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
+import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 
 export const fullReelSchema = z.object({
   title: z.string(),
@@ -31,7 +32,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 14;
+const SCENE_COUNT = 15;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -57,7 +58,8 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // AI background removal (VideoMattingScene); @remotion/media-utils real
 // audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
 // transcription (BrowserTranscriptionScene); @remotion/lottie (LottieScene);
-// @remotion/three (ThreeScene); @remotion/gsap (GsapScene); core remotion
+// @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three (ThreeScene);
+// @remotion/gsap (GsapScene); core remotion
 // Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
 // @remotion/animation-utils + rough-notation (OutroScene).
 export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}) => {
@@ -113,6 +115,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
           <LottieScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({direction: "from-right"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <AnimatedEmojiScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ThreeScene />

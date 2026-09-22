@@ -17,6 +17,7 @@ import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
 import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
+import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 
 // A zod schema (vs. ShowcaseReel's plain `type`) gets Studio-generated,
 // validated controls: zTextarea() for a multi-line field, zColor() for a
@@ -31,7 +32,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 11;
+const SCENE_COUNT = 12;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -51,9 +52,9 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 // @remotion/gif + @remotion/mac-cursors (real embedded/cropped footage),
 // @remotion/video-matting (AI background removal), @remotion/media-utils
 // (a real audio waveform), @remotion/whisper-webgpu (in-browser
-// transcription), @remotion/lottie, @remotion/three, @remotion/gsap, and
-// core remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>,
-// random()).
+// transcription), @remotion/lottie, @remotion/animated-emoji,
+// @remotion/three, @remotion/gsap, and core remotion fundamentals
+// (Easing, <Series>, <Loop>, <Freeze>, random()).
 export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, accentColor}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
@@ -92,6 +93,11 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
           <LottieScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <AnimatedEmojiScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ThreeScene />
