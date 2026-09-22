@@ -34,6 +34,8 @@ node scripts/vendor-skills.mjs   # defaults to ../packages/skills/skills; pass a
 
 The script copies the skills without their symlinks (which break on Windows checkouts and inflate zip bundles), rewrites sibling-skill links accordingly, and fails if any relative link is broken. Do not copy the skills by hand.
 
+`node scripts/build-chat-skill.mjs` packages `chat-skill/SKILL.md` plus these skills into `remotion-video-skill.zip` for upload to claude.ai (Claude Chat and account-wide Cowork). Rebuild it after re-vendoring.
+
 ## Conventions
 
 - Register new compositions in `src/Root.tsx`; one component per file under `src/`.
