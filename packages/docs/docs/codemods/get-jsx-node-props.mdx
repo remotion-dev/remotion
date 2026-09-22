@@ -1,0 +1,80 @@
+---
+image: /generated/articles-docs-codemods-get-jsx-node-props.png
+title: 'getJsxNodeProps()'
+crumb: '@remotion/codemods'
+---
+
+# getJsxNodeProps()<AvailableFrom v="4.0.528" />
+
+Inspects props and inline effects without executing the project.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="get-jsx-node-props.ts"
+import {getJsxNodeProps, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: JsxNodeReference;
+
+const result = getJsxNodeProps({
+  project,
+  node,
+  keys: ['children', 'style.opacity'],
+});
+
+console.log(result);
+```
+
+A spread that may override a prop makes that prop computed. Static source values are not resolved runtime props.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### node
+
+A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+
+### keys
+
+The JSX props to inspect. Use `children` for static text or a one-level path such as `style.opacity`.
+
+### effectKeys?
+
+An array of prop-name arrays indexed by effect position. By default, inline effect calls and their explicit configuration keys are discovered from source.
+
+### videoConfig?
+
+The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these to interpret supported expressions using [`useVideoConfig()`](/docs/use-video-config). By default, those runtime values are unknown.
+
+## Return value
+
+Returns an object with the following properties.
+
+### props
+
+A record keyed by the requested names. Each value has `status: 'static'` with `codeValue`, `status: 'keyframed'` with keyframes and interpolation settings, or `status: 'computed'` when the value cannot be statically understood. A missing prop is static with `codeValue: undefined`.
+
+### effects
+
+An array of effect descriptions. Editable entries include `canUpdate: true`, `effectIndex`, `callee`, `importPath`, and prop statuses. Unsupported entries include `canUpdate: false` and a `reason`. Automatically discovering effects requires an inline array.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-jsx-node-props.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

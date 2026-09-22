@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-codemods-set-composition-default-props.png
+title: 'setCompositionDefaultProps()'
+crumb: '@remotion/codemods'
+---
+
+# setCompositionDefaultProps()<AvailableFrom v="4.0.528" />
+
+Replaces a composition's statically readable default props or adds them when missing.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="set-composition-default-props.ts"
+import {setCompositionDefaultProps, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = setCompositionDefaultProps({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  defaultProps: {title: 'Hello', backgroundColor: '#ffffff'},
+});
+
+console.log(result);
+```
+
+Computed default props and props potentially overridden by a spread are rejected. The component implementation is unchanged.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### defaultProps
+
+The complete replacement object of serializable prop values. This replaces the object rather than merging it.
+
+## Return value
+
+Returns an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### updatedNode
+
+The composition registration's node reference.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/set-composition-default-props.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

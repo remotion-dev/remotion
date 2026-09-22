@@ -24,7 +24,7 @@ export {
 	findJsxElementPathForDeletion,
 	getJsxElementTagLabel,
 } from './delete-jsx-nodes-internal';
-export {duplicateCompositionInSource} from './duplicate-composition';
+export {duplicateCompositionInSource} from './duplicate-composition-in-source';
 export {
 	duplicateJsxElementAtPath,
 	duplicateJsxNodes,
@@ -264,6 +264,9 @@ export const findProjectFile = ({
 	const rootDir = normalizePath(project.rootDir);
 	const candidates = [
 		normalizedInput,
+		...(normalizedInput.startsWith(`${rootDir}/`)
+			? [normalizedInput.slice(rootDir.length + 1)]
+			: []),
 		normalizePath(normalizedInput.replace(/^\/+/, '')),
 		normalizePath(`/${normalizedInput}`),
 		normalizePath(`${rootDir}/${normalizedInput.replace(/^\//, '')}`),

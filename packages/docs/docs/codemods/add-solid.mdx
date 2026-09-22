@@ -82,6 +82,10 @@ An array describing each changed file with its `filePath`, `previousContents`, a
 
 The `filePath` and `nodePath` of the inserted JSX element. Pass these values as an item in `nodes` to [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes) to remove the element again.
 
+### nodePathRemappings<AvailableFrom v="4.0.528" />
+
+File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node references after the edit. A `null` old path indicates an insertion; a `null` new path indicates removal. See [node references](/docs/codemods#node-references).
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />

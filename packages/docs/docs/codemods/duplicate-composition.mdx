@@ -1,0 +1,83 @@
+---
+image: /generated/articles-docs-codemods-duplicate-composition.png
+title: 'duplicateComposition()'
+crumb: '@remotion/codemods'
+---
+
+# duplicateComposition()<AvailableFrom v="4.0.528" />
+
+Copies a composition or still registration with a new ID.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="duplicate-composition.ts"
+import {duplicateComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = duplicateComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  newId: 'Portrait',
+  metadata: {width: 1080, height: 1920},
+});
+
+console.log(result);
+```
+
+Both registrations reference the same component implementation. Default props and other registration props are copied. The original registration kind is preserved: a [`<Still>`](/docs/still) remains a [`<Still>`](/docs/still).
+
+[`<Still>`](/docs/still) registrations only support width and height overrides; supplying FPS or duration throws an error.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### newId
+
+The new ID, containing only letters, numbers, or hyphens. It must be unused in this file.
+
+### metadata?
+
+Overrides for `width`, `height`, `fps`, and `durationInFrames`. Omitted values are copied from the original.
+
+## Return value
+
+Returns an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/duplicate-composition.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

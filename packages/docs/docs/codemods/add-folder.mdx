@@ -1,0 +1,79 @@
+---
+image: /generated/articles-docs-codemods-add-folder.png
+title: 'addFolder()'
+crumb: '@remotion/codemods'
+---
+
+# addFolder()<AvailableFrom v="4.0.528" />
+
+Adds an empty [`<Folder>`](/docs/folder) to the registration tree.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="add-folder.ts"
+import {addFolder, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = addFolder({
+  project,
+  compositionFile: 'src/Root.tsx',
+  folder: {name: 'Social', parentName: null},
+});
+
+console.log(result);
+```
+
+Adds the `Folder` import when needed. The name must be non-empty, contain no `/`, and be unused in its parent. The parent must exist. Use a file containing one registration component.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with their original import names and static IDs or folder names.
+
+### folder
+
+Identifies a folder in `compositionFile`.
+
+#### name
+
+The folder name.
+
+#### parentName
+
+The slash-separated path of the parent folder, such as `Social/Published`. Use `null` for a top-level folder.
+
+## Return value
+
+Returns an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-folder.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

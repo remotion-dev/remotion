@@ -1,0 +1,95 @@
+---
+image: /generated/articles-docs-codemods-update-jsx-node-keyframes.png
+title: 'updateJsxNodeKeyframes()'
+crumb: '@remotion/codemods'
+---
+
+# updateJsxNodeKeyframes()<AvailableFrom v="4.0.528" />
+
+Adds, removes, moves, or configures keyframes on a JSX prop.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="update-jsx-node-keyframes.ts"
+import {updateJsxNodeKeyframes, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: JsxNodeReference;
+
+const result = await updateJsxNodeKeyframes({
+  project,
+  node,
+  updates: [
+    {key: 'style.opacity', operation: {type: 'add', frame: 0, value: 0}},
+    {key: 'style.opacity', operation: {type: 'add', frame: 30, value: 1}},
+  ],
+});
+
+console.log(result);
+```
+
+Adds the required interpolation imports and frame hook. Supports recognized inline interpolation expressions; unsupported dynamic expressions throw. Frame coordinates belong to the interpolation expression's local frame clock.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### node
+
+A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+
+### updates
+
+An array of `{key, operation}` objects, applied in order. JSX prop keys may use paths such as `style.opacity`. Effect keys name configuration properties.
+
+#### operation
+
+Use `{type: 'add', frame, value}` to add or replace a keyframe; `{type: 'remove', frame, valueWhenLastKeyframeDeleted}` to remove one; `{type: 'move', moves: [{fromFrame, toFrame}]}` to move keyframes; `{type: 'easing', segmentIndex, easing}` to change easing; or `{type: 'settings', clamping, posterize, output}` to change interpolation settings. For settings, pass `undefined` for unchanged fields. `valueWhenLastKeyframeDeleted` supplies the static fallback when removing the final keyframe, or `null` to use the supported default.
+
+### schema?
+
+A Remotion `InteractivitySchema` for schema-specific defaults and enum variants. By default, no schema-specific behavior is applied.
+
+### videoConfig?
+
+The composition's `width`, `height`, `fps`, and `durationInFrames`. Supply these to interpret supported expressions using [`useVideoConfig()`](/docs/use-video-config). By default, those runtime values are unknown.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### updatedNode
+
+The edited JSX node reference. Adding a frame hook can change node paths throughout the component.
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-jsx-node-keyframes.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
