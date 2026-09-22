@@ -13,6 +13,12 @@ import {
   extendedReelSchema,
 } from "./showcase/ExtendedReel";
 import { SourceClipGenerator } from "./showcase/SourceClipGenerator";
+import {
+  FullReel,
+  calculateFullReelMetadata,
+  fullReelDefaultProps,
+  fullReelSchema,
+} from "./showcase/FullReel";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -39,7 +45,18 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={extendedReelDefaultProps}
         calculateMetadata={calculateExtendedReelMetadata}
       />
-      {/* Not part of either reel — a one-off source generator for
+      <Composition
+        id="FullReel"
+        component={FullReel}
+        width={1280}
+        height={720}
+        fps={30}
+        durationInFrames={735}
+        schema={fullReelSchema}
+        defaultProps={fullReelDefaultProps}
+        calculateMetadata={calculateFullReelMetadata}
+      />
+      {/* Not part of any reel — a one-off source generator for
           public/sample-clip.mp4 (see scripts/generate-sample-media.mjs). */}
       <Composition
         id="SourceClipGenerator"
