@@ -83,7 +83,7 @@ For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without cr
 
 An installation can contain at most 100 assets and 50MB of downloaded or decoded data in total. The complete Element payload remains limited to 250,000 JSON characters, including embedded base64 data. Use remote URLs for larger files.
 
-Studio lists assets before confirmation and fetches them only after you confirm. An existing file is reused when its bytes match. Different contents cause the installation to fail, even when you approve replacing an existing Element source file. Undo removes installed source changes but retains successfully installed assets; redo does not download them again.
+Studio fetches assets only after you confirm the installation. An existing file is reused when its bytes match. Different contents cause the installation to fail, even when you approve replacing an existing Element source file. Undo removes installed source changes but retains successfully installed assets; redo does not download them again.
 
 Assets use Element payload version 2. Asset-free payloads continue to use version 1. A Studio that only supports version 1 asks you to upgrade instead of installing source without its assets.
 

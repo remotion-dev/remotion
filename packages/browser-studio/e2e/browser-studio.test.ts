@@ -1288,11 +1288,8 @@ export const BrowserElement = ({logoSrc}: {logoSrc: string}) => <>
 		studio.getByText('@remotion/shapes', {exact: true}),
 	).toBeVisible();
 	await expect(
-		studio.getByText('Included assets', {exact: true}),
-	).toBeVisible();
-	await expect(
-		studio.getByText('browser-element/logo.svg', {exact: true}),
-	).toBeVisible();
+		studio.getByRole('heading', {name: 'Included assets', exact: true}),
+	).toHaveCount(0);
 	await studio.getByRole('button', {name: /^Install/}).click();
 
 	await expect

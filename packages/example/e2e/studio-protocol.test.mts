@@ -397,14 +397,8 @@ const CloseupPlaceholder = () => {
 		});
 		await expect(dialog).toBeVisible();
 		await expect(
-			dialog.getByText('Included assets', {exact: true}),
-		).toBeVisible();
-		await expect(
-			dialog.getByText('protocol-element/data.bin', {exact: true}),
-		).toBeVisible();
-		await expect(
-			dialog.getByText('Embedded asset', {exact: true}),
-		).toBeVisible();
+			dialog.getByRole('heading', {name: 'Included assets', exact: true}),
+		).toHaveCount(0);
 		await dialog.getByRole('button', {name: 'Cancel'}).click();
 		expect(fs.existsSync(installedAsset)).toBe(false);
 		await browseElements.click();
@@ -413,9 +407,6 @@ const CloseupPlaceholder = () => {
 		await expect(elementsIframe).toBeVisible();
 		await installInStudio.click();
 		await expect(dialog).toBeVisible();
-		await expect(
-			dialog.getByText('protocol-element/data.bin', {exact: true}),
-		).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
 			name: 'Current composition',
 		});
