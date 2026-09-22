@@ -10,7 +10,6 @@ import {RenderInternals} from '@remotion/renderer';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {logHmrTiming} from '../hmr-timing';
 import type {LiveEventsServer} from '../live-events';
-import type {WebpackStats} from './types';
 
 declare global {
 	const __webpack_hash__: unknown;
@@ -173,36 +172,18 @@ function publishStats(
 	statsResult: webpack.Stats,
 	publishHmr: (hmrEvent: HotMiddlewareMessage) => void,
 ) {
-	const stats = statsResult.toJson({
-		all: false,
-		children: true,
-		timings: true,
-		hash: true,
-	});
-	// A single compilation may also have child compilations. Only MultiStats
-	// should publish its children instead of the parent compilation.
-	const bundles =
-		statsResult.compilation || !stats.children?.length
-			? [stats]
-			: stats.children;
-	bundles.forEach((_stats: WebpackStats) => {
-		let name = _stats.name || '';
-
-		// Fallback to compilation name in case of 1 bundle (if it exists)
-		if (bundles.length === 1 && !name && statsResult.compilation) {
-			name = statsResult.compilation.name || '';
-		}
-
-		publishHmr({
-			name,
-			action,
-			time: _stats.time,
-			hash: _stats.hash,
-			warnings: _stats.warnings || [],
-			errors: _stats.errors || [],
-			// Module names only label browser console messages. The client already
-			// falls back to module IDs, which are named in development builds.
-			modules: {},
-		});
+	// Studio uses a single compiler. Child compilations must not replace the
+	// parent compilation's hash in the HMR message.
+	publishHmr({
+		name: statsResult.compilation.name ?? '',
+		action,
+		time: statsResult.endTime - statsResult.startTime,
+		hash: statsResult.hash,
+		// Build diagnostics are printed by the dev middleware.
+		warnings: [],
+		errors: [],
+		// Module names only label browser console messages. The client already
+		// falls back to module IDs, which are named in development builds.
+		modules: {},
 	});
 }
