@@ -523,6 +523,7 @@ export const startContent = () => {
 		controlsDuration.ariaLabel = 'Recording duration 00:00';
 		const controlsPrimary = document.createElement('div');
 		controlsPrimary.className = 'capture-controls-primary';
+		controlsPrimary.hidden = true;
 		const controlsPrimaryRoot = createRoot(controlsPrimary);
 		const renderControlsPrimary = (label: string, disabled: boolean) => {
 			controlsPrimary.dataset.tooltip = label;
@@ -956,7 +957,7 @@ export const startContent = () => {
 				controlsBusy || state.recording || state.hasCompletedRecording;
 			controlsWholePage.hidden = state.recording || state.hasCompletedRecording;
 			controlsDuration.hidden = !state.recording;
-			controlsPrimary.hidden = state.hasCompletedRecording;
+			controlsPrimary.hidden = !state.hasTarget || state.hasCompletedRecording;
 			controlsNew.hidden = !state.hasCompletedRecording;
 			controlsNew.disabled = controlsBusy;
 			controlsConvert.hidden = !state.hasCompletedRecording;
