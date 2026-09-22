@@ -1,3 +1,7 @@
+import type * as NodeCrypto from 'node:crypto';
+import type * as NodeFsPromises from 'node:fs/promises';
+import type * as NodePath from 'node:path';
+import {importNodeModule} from './import-node-module';
 import {
 	getHostedModelId,
 	getModelInfo,
@@ -111,14 +115,11 @@ export const downloadWhisperModel = ({
 				);
 			} else {
 				// Match Transformers.js FileCache's model/file layout without loading ONNX.
-				const fsName: string = 'node:fs/promises';
-				const pathName: string = 'node:path';
-				const cryptoName: string = 'node:crypto';
 				const [{mkdir, open, rename, unlink}, {join, dirname}, {randomUUID}] =
 					await Promise.all([
-						import(/* @vite-ignore */ fsName),
-						import(/* @vite-ignore */ pathName),
-						import(/* @vite-ignore */ cryptoName),
+						importNodeModule<typeof NodeFsPromises>('node:fs/promises'),
+						importNodeModule<typeof NodePath>('node:path'),
+						importNodeModule<typeof NodeCrypto>('node:crypto'),
 					]);
 				if (env.cacheDir === null) {
 					throw new Error('Transformers.js env.cacheDir must be set.');

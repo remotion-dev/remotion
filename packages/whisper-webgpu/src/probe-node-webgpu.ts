@@ -1,4 +1,5 @@
 import type * as OnnxRuntimeNode from 'onnxruntime-node';
+import {importNodeModule} from './import-node-module';
 
 // A 130-byte multiplication model from ONNX Runtime's test fixtures.
 // https://github.com/microsoft/onnxruntime/blob/main/onnxruntime/test/testdata/mul_1.onnx
@@ -19,10 +20,8 @@ const webGpuProbeModel = new Uint8Array([
 
 export const probeNodeWebGpu = async (): Promise<void> => {
 	// Keep the native Node.js addon out of browser bundles.
-	const packageName: string = 'onnxruntime-node';
-	const {InferenceSession} = (await import(
-		/* @vite-ignore */ packageName
-	)) as typeof OnnxRuntimeNode;
+	const {InferenceSession} =
+		await importNodeModule<typeof OnnxRuntimeNode>('onnxruntime-node');
 	const session = await InferenceSession.create(webGpuProbeModel, {
 		executionProviders: ['webgpu'],
 	});
