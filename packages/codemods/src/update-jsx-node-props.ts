@@ -13,7 +13,7 @@ import {
 	type JsxNodeReference,
 	type NodeSourceEdit,
 } from './node-references';
-import {parseAst} from './sequence-props/parse-ast';
+import {takeSourceSnapshotForEdit} from './sequence-props-snapshot';
 import {
 	updateMultipleSequenceProps,
 	type SequencePropUpdate,
@@ -67,56 +67,57 @@ export const updateMultipleJsxNodeProps = <Project extends CodemodProject>({
 	const results: SequencePropsNodeUpdateResult[] = [];
 	for (const [filePath, group] of groups) {
 		const input = project.files[filePath];
-		const ast = parseAst(input);
+		const fileChanges = group.map(({change}) => {
+			const updates =
+				change.updates ??
+				Object.entries(change.props).map(([key, value]) => ({
+					key,
+					value,
+					defaultValue: null,
+				}));
+			if (updates.length === 0) {
+				throw new Error('Expected at least one prop to update');
+			}
+
+			const keys = updates.map(({key}) => key);
+			const status = change.updates
+				? null
+				: getJsxNodeProps({
+						project,
+						node: change.node,
+						keys,
+						videoConfig: change.videoConfig,
+					});
+			for (const key of keys) {
+				if (
+					!key ||
+					key.split('.').some((part) => !part) ||
+					key.split('.').length > 2
+				) {
+					throw new Error(
+						'Prop keys must be names or one-level nested paths such as style.opacity',
+					);
+				}
+
+				if (status?.props[key]?.status === 'computed') {
+					throw new Error(`Cannot update computed prop "${key}"`);
+				}
+			}
+
+			return {
+				nodePath: change.node.nodePath,
+				updates,
+				schema: change.schema ?? {},
+				videoConfigValues: change.videoConfig ?? null,
+			};
+		});
+		const ast = takeSourceSnapshotForEdit(input);
 		const captured = captureJsxNodePaths(ast);
 		const edit = updateMultipleSequenceProps({
 			input,
 			ast,
 			prettierConfigOverride,
-			changes: group.map(({change}) => {
-				const updates =
-					change.updates ??
-					Object.entries(change.props).map(([key, value]) => ({
-						key,
-						value,
-						defaultValue: null,
-					}));
-				if (updates.length === 0) {
-					throw new Error('Expected at least one prop to update');
-				}
-
-				const keys = updates.map(({key}) => key);
-				const status = change.updates
-					? null
-					: getJsxNodeProps({
-							project,
-							node: change.node,
-							keys,
-							videoConfig: change.videoConfig,
-						});
-				for (const key of keys) {
-					if (
-						!key ||
-						key.split('.').some((part) => !part) ||
-						key.split('.').length > 2
-					) {
-						throw new Error(
-							'Prop keys must be names or one-level nested paths such as style.opacity',
-						);
-					}
-
-					if (status?.props[key]?.status === 'computed') {
-						throw new Error(`Cannot update computed prop "${key}"`);
-					}
-				}
-
-				return {
-					nodePath: change.node.nodePath,
-					updates,
-					schema: change.schema ?? {},
-					videoConfigValues: change.videoConfig ?? null,
-				};
-			}),
+			changes: fileChanges,
 		});
 		const {nodePathRemappings} = getNodePathRemappings({
 			ast: edit.ast,

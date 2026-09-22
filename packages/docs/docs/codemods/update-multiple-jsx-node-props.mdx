@@ -46,13 +46,13 @@ A non-empty array of node edits.
 
 The [`JsxNodeReference`](/docs/codemods#node-references) to edit, containing `filePath` and `nodePath`.
 
-#### props
+#### props?
 
-A record of prop values, such as `{from: 30, 'style.opacity': 0.5}`. A value of `undefined` removes a prop. Supply either `props` or `updates` for each edit.
+A non-empty record of prop values, such as `{from: 30, 'style.opacity': 0.5}`. A value of `undefined` removes a prop. Only one level of nested keys is supported. Computed props, including values potentially overridden by a spread, are rejected. Supply exactly one of `props` or `updates` for each edit.
 
-#### updates
+#### updates?
 
-Structured [`SequencePropUpdate`](/docs/codemods/update-jsx-node-props#updates) entries for edits that need default values, enum handling, or other update metadata. Supply this instead of `props`.
+A non-empty array of [structured prop updates](/docs/codemods/update-jsx-node-props#updates) for edits that need default values or other update metadata. This form permits explicitly replacing computed prop values. Supply this instead of `props`.
 
 #### schema?
 

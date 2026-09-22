@@ -34,6 +34,8 @@ console.log(result);
 
 Adds the required interpolation imports and frame hook. Supports recognized inline interpolation expressions; unsupported dynamic expressions throw. Frame coordinates belong to the interpolation expression's local frame clock.
 
+Creating an animation that needs a new [`useCurrentFrame()`](/docs/use-current-frame) hook requires an enclosing function. Existing supported interpolation expressions can be edited outside functions. Static prop edits outside functions remain supported by [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props).
+
 ## Options
 
 ### project

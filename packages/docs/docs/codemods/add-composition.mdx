@@ -30,7 +30,7 @@ const result = addComposition({
 console.log(result);
 ```
 
-Adds the registration and required imports. The component implementation must already exist. Use a file containing one registration component.
+Adds the registration and required imports to `compositionFile` only. It does not create a component file: the component implementation must already exist. To generate and register a Canvas Capture component together, use [`addCanvasCaptureComposition()`](/docs/codemods/add-canvas-capture-composition).
 
 ## Options
 
@@ -42,9 +42,11 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
 
+When `folder` is omitted, the file must have one component containing registrations, or a single JSX component if no registrations exist yet. The first JSX return in the selected component is used; returns in nested functions are ignored.
+
 ### compositionId
 
-The new composition ID. Must contain only letters, numbers, or hyphens and be unused in this file.
+The new composition ID. Must contain only ASCII letters, numbers, CJK characters, or hyphens and be unused in this file.
 
 ### component
 
@@ -52,7 +54,7 @@ The component to register.
 
 #### importName
 
-The named component export.
+The named component export, beginning with an uppercase letter, `_`, or `$`.
 
 #### importPath
 
@@ -92,7 +94,7 @@ The updated project. Unchanged files and extra project fields are preserved.
 
 ### changes
 
-An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+An array containing the registration file's `{filePath, previousContents, nextContents}` change. No component-file change is returned.
 
 ## Errors
 

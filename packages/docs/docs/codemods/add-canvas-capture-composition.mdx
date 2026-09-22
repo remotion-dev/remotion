@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # addCanvasCaptureComposition()<AvailableFrom v="4.0.528" />
 
-Creates an interactive Canvas Capture component and registers it in the project. Both files are returned in one result.
+Creates an interactive Canvas Capture component and registers it in the project. Both files are returned in one result. Use [`addComposition()`](/docs/codemods/add-composition) when the component implementation already exists.
 
 :::warning
 
@@ -53,11 +53,11 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### compositionFile
 
-The project file containing the registration component.
+The existing project file containing the registration component. The same [registration-root requirements and import support](/docs/codemods/add-composition#compositionfile) as [`addComposition()`](/docs/codemods/add-composition) apply.
 
 ### compositionId
 
-The new composition ID. Must contain only letters, numbers, or hyphens and be unused in the registration file.
+The new composition ID. Must contain only ASCII letters, numbers, CJK characters, or hyphens and be unused in the registration file.
 
 ### component
 
@@ -73,7 +73,7 @@ The named component export, beginning with an uppercase letter, `_`, or `$`.
 
 #### importPath
 
-The module specifier to use in the registration file, such as `./Capture`.
+The module specifier to use in the registration file, such as `./Capture`. It must resolve to `component.filePath`; the path is not derived automatically.
 
 ### metadata
 
@@ -117,7 +117,11 @@ The updated project. Unchanged files and extra project fields are preserved.
 
 ### changes
 
-An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+Two `{filePath, previousContents, nextContents}` entries: the modified registration file and the created component file. The new component's `previousContents` is `null`. Save both changes to persist the operation; the video asset is not created or copied.
+
+## Errors
+
+Throws if the component file already exists, the registration target cannot be resolved, the capture has no usable cursor movements, or an option is invalid. Failed operations leave the input project unchanged.
 
 ## Compatibility
 

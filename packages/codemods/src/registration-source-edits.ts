@@ -214,9 +214,9 @@ export const getRegistrationInsertionSourceEdit = ({
 				return false;
 			},
 		});
-		if (roots.length !== 1) {
+		if (roots.length === 0) {
 			throw new Error(
-				'Adding registrations requires a single JSX return in the registration component',
+				'Adding registrations requires a JSX return in the registration component',
 			);
 		}
 

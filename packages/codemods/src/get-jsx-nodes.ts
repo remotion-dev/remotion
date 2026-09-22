@@ -5,8 +5,8 @@ import {captureJsxNodePaths} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
 import type {JsxNodeReference} from './node-references';
 import {recastLocToOffset} from './recast-loc-to-offset';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
-import {parseAst} from './sequence-props/parse-ast';
 
 export type JsxNode = JsxNodeReference & {
 	tagName: string;
@@ -25,7 +25,7 @@ export const getJsxNodes = ({
 }: GetJsxNodesOptions): JsxNode[] => {
 	const resolvedFilePath = findProjectFile({project, filePath});
 	const input = project.files[resolvedFilePath];
-	const ast = parseAst(input);
+	const {ast} = getReadOnlySourceSnapshot(input);
 	return captureJsxNodePaths(ast).map(({node, nodePath}) => {
 		const offset = node.loc ? recastLocToOffset(input, node.loc.start) : null;
 		return {

@@ -43,7 +43,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### filePath
 
-The project source file containing the `visualControl()` calls.
+The project source file containing the `visualControl()` calls. Calls must use this name directly; aliased imports and namespace calls are not matched.
 
 ### changes
 
@@ -77,7 +77,11 @@ An array of `{filePath, previousContents, nextContents}` file changes. A `null` 
 
 ### updatedControls
 
-An array of `{id, line}` entries for the requested changes that matched a call. `line` is the call's one-based source line. A matched call can be reported even if its value was already equal to the requested value.
+An array of `{id, line}` entries for the requested changes that matched a call. `line` is the call's one-based source line. Multiple matching calls produce separate entries. A matched call can be reported even if its value was already equal to the requested value.
+
+## Errors
+
+Throws if a `visualControl()` call has a dynamic identifier, a matched change contains invalid serialized JSON, or the source cannot be parsed. Failed operations leave the input project unchanged.
 
 ## Compatibility
 

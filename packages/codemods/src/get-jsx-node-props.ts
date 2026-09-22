@@ -10,8 +10,8 @@ import {
 	computeSequencePropsStatusFromContent,
 	findJsxElementAtNodePath,
 } from './sequence-props';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {findEffectsAttr} from './sequence-props/can-update-effect-props';
-import {parseAst} from './sequence-props/parse-ast';
 
 export type GetJsxNodePropsOptions = {
 	project: CodemodProject;
@@ -40,7 +40,7 @@ export const getJsxNodeProps = ({
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	let effects = effectKeys;
 	if (effects === undefined) {
-		const ast = parseAst(project.files[filePath]);
+		const {ast} = getReadOnlySourceSnapshot(project.files[filePath]);
 		const jsx = findJsxElementAtNodePath(ast, node.nodePath);
 		const attr = jsx ? findEffectsAttr(jsx.attributes) : null;
 		const array =
