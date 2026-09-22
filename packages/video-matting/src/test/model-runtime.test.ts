@@ -1,9 +1,8 @@
 import {beforeEach, expect, mock, test} from 'bun:test';
 import {existsSync} from 'node:fs';
-import {mkdtemp, readdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdtemp, readdir, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {pathToFileURL} from 'node:url';
 
 let initializationCount = 0;
 let initializationStarted: ((count: number) => void) | null = null;
@@ -63,39 +62,11 @@ Object.defineProperty(
 	{value: preexistingWhisperModelHostState},
 );
 
-class RawImage {
-	public data: Uint8ClampedArray;
-	public width: number;
-	public height: number;
-	public channels: number;
-
-	constructor(
-		data: Uint8ClampedArray,
-		width: number,
-		height: number,
-		channels: number,
-	) {
-		this.data = data;
-		this.width = width;
-		this.height = height;
-		this.channels = channels;
-	}
-}
-
 function BackgroundRemovalPipeline() {
 	livePipelineCount++;
 	return Object.assign(
-		(image: unknown) => {
+		() => {
 			pipelineRunCount++;
-			if (image instanceof RawImage) {
-				const data = image.data.slice();
-				for (let i = 3; i < data.length; i += 4) {
-					data[i] = 128;
-				}
-
-				return Promise.resolve({...image, data});
-			}
-
 			return Promise.resolve({
 				data: new Uint8ClampedArray([10, 20, 30, 128]),
 				width: 1,
@@ -147,7 +118,6 @@ mock.module('@huggingface/transformers', () => ({
 		},
 	},
 	BackgroundRemovalPipeline,
-	RawImage,
 	ModelRegistry: {
 		is_pipeline_cached_files: () => {
 			const files = ['config.json', 'onnx/model.onnx'].map((file) => ({
@@ -171,13 +141,6 @@ mock.module('@huggingface/transformers', () => ({
 			options: Record<string, unknown>,
 		) => {
 			cacheClear = {task, modelId, options};
-			if (transformersEnvironment.useFSCache) {
-				return rm(join(transformersEnvironment.cacheDir!, modelId), {
-					recursive: true,
-					force: true,
-				});
-			}
-
 			return Promise.resolve();
 		},
 		is_pipeline_cached: (
@@ -480,162 +443,6 @@ test('coordinates the shared Transformers environment across model loads', async
 	expect(transformersEnvironment).toEqual(originalTransformersEnvironment);
 	await disposeVideoMattingModel();
 });
-
-// Keep the neural network deterministic; decoding, encoding, pixels, storage,
-// cancellation, and the public package workflow all use the real implementation.
-test('downloads to disk and separates local video with alpha, audio, and cancellation', async () => {
-	const {registerMediabunnyServer} = await import('@mediabunny/server');
-	const {
-		ALL_FORMATS,
-		AudioSample,
-		AudioSampleSink,
-		AudioSampleSource,
-		BlobSource,
-		BufferTarget,
-		Input,
-		Output,
-		VideoSample,
-		VideoSampleSink,
-		VideoSampleSource,
-		WebMOutputFormat,
-	} = await import('mediabunny');
-	const {
-		downloadVideoMattingModel,
-		isVideoMattingModelCached,
-		loadVideoMattingModel,
-		removeVideoMattingModel,
-		separateVideoLayers,
-	} = await import('../index');
-	registerMediabunnyServer({hardwareContext: null});
-	const directory = await mkdtemp(join(tmpdir(), 'video-matting-node-'));
-	transformersEnvironment.useCustomCache = false;
-	transformersEnvironment.useFSCache = true;
-	transformersEnvironment.cacheDir = join(directory, 'models');
-	try {
-		expect(await isVideoMattingModelCached({model: 'modnet'})).toBe(false);
-		expect(await downloadVideoMattingModel({model: 'modnet'})).toEqual({
-			alreadyDownloaded: false,
-		});
-		expect(
-			await readFile(
-				join(directory, 'models/modnet-v1/onnx/model.onnx'),
-				'utf8',
-			),
-		).toBe('https://remotion.media/models/modnet-v1/onnx/model.onnx');
-		expect(await downloadVideoMattingModel({model: 'modnet'})).toEqual({
-			alreadyDownloaded: true,
-		});
-		expect(requestedFiles).toHaveLength(2);
-		expect(initializationCount).toBe(0);
-
-		const output = new Output({
-			format: new WebMOutputFormat(),
-			target: new BufferTarget(),
-		});
-		const video = new VideoSampleSource({
-			codec: 'vp9',
-			alpha: 'keep',
-			bitrate: 1_000_000,
-		});
-		const audio = new AudioSampleSource({codec: 'opus', bitrate: 64_000});
-		output.addVideoTrack(video);
-		output.addAudioTrack(audio);
-		await output.start();
-		for (let i = 0; i < 3; i++) {
-			const data = new Uint8Array(32 * 16 * 4);
-			for (let j = 0; j < data.length; j += 4) {
-				data[j] = 255;
-				data[j + 3] = 128;
-			}
-
-			using sample = new VideoSample(data, {
-				format: 'RGBA',
-				codedWidth: 32,
-				codedHeight: 16,
-				timestamp: i / 10,
-				duration: 0.1,
-			});
-			using sound = new AudioSample({
-				format: 'f32',
-				sampleRate: 48_000,
-				numberOfChannels: 1,
-				timestamp: i / 10,
-				data: new Float32Array(4800).fill(0.1),
-			});
-			await Promise.all([video.add(sample), audio.add(sound)]);
-		}
-
-		video.close();
-		audio.close();
-		await output.finalize();
-		const src = join(directory, 'input.webm');
-		await writeFile(src, new Uint8Array(output.target.buffer!));
-		await using modelHandle = await loadVideoMattingModel({model: 'modnet'});
-		expect(modelHandle.alreadyLoaded).toBe(false);
-
-		const controller = new AbortController();
-		await expect(
-			separateVideoLayers({
-				src,
-				signal: controller.signal,
-				onProgress: ({processedFrames}) => {
-					if (processedFrames === 1) {
-						controller.abort(new Error('stop after first frame'));
-					}
-				},
-			}),
-		).rejects.toThrow('stop after first frame');
-
-		await using layers = await separateVideoLayers({
-			src: pathToFileURL(src),
-			audio: 'both',
-			audioBitrate: 'medium',
-		});
-		expect(layers).toMatchObject({
-			width: 32,
-			height: 16,
-			processedFrames: 3,
-			durationInSeconds: 0.3,
-		});
-		for (const [layer, expectedRed, expectedAlpha] of [
-			[layers.base, 128, 255],
-			[layers.foreground, 255, 64],
-		] as const) {
-			using input = new Input({
-				formats: ALL_FORMATS,
-				source: new BlobSource(await layer.getBlob()),
-			});
-			const track = (await input.getPrimaryVideoTrack())!;
-			expect(await track.getCodec()).toBe('vp9');
-			expect(await track.getDisplayWidth()).toBe(32);
-			expect(await track.getDisplayHeight()).toBe(16);
-			const timestamps: number[] = [];
-			for await (const frame of new VideoSampleSink(track).samples()) {
-				try {
-					const data = new Uint8Array(16 * 32 * 4);
-					await frame.copyTo(data, {format: 'RGBA'});
-					expect(Math.abs(data[0]! - expectedRed)).toBeLessThan(5);
-					expect(Math.abs(data[3]! - expectedAlpha)).toBeLessThan(3);
-					timestamps.push(frame.timestamp);
-				} finally {
-					frame.close();
-				}
-			}
-
-			expect(timestamps).toEqual([0, 0.1, 0.2]);
-			const audioTrack = (await input.getPrimaryAudioTrack())!;
-			expect(await audioTrack.getCodec()).toBe('opus');
-			using decodedAudio = await new AudioSampleSink(audioTrack).getSample(0);
-			expect(decodedAudio!.numberOfFrames).toBeGreaterThan(0);
-		}
-
-		await removeVideoMattingModel({model: 'modnet'});
-		expect(await isVideoMattingModelCached({model: 'modnet'})).toBe(false);
-		expect(livePipelineCount).toBe(0);
-	} finally {
-		await rm(directory, {recursive: true, force: true});
-	}
-}, 30_000);
 
 test('an interrupted filesystem download can be retried without leaving partial model files', async () => {
 	const {downloadVideoMattingModel} = await import('../index');

@@ -2820,7 +2820,6 @@
       },
       "devDependencies": {
         "@huggingface/transformers": "catalog:",
-        "@mediabunny/server": "catalog:",
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
