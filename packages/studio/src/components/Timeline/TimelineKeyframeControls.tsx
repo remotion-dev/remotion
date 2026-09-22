@@ -41,6 +41,7 @@ import {
 } from './get-keyframe-navigation';
 import {
 	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
 import {normalizeFontWeightForKeyframe} from './normalize-font-weight-for-keyframe';
@@ -284,14 +285,16 @@ const resolveKeyframeControlTarget = ({
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
 				keyframePlaybackRate: track.keyframePlaybackRate,
 			}),
-			sourceFrame:
-				(timelinePosition -
-					getKeyframeDisplayOffset({
-						propStatus: sequenceSelectedPropStatus,
-						keyframeDisplayOffset: track.keyframeDisplayOffset,
-						keyframePlaybackRate: track.keyframePlaybackRate,
-					})) *
-				track.keyframePlaybackRate,
+			sourceFrame: getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				propStatus: sequenceSelectedPropStatus,
+				keyframeDisplayOffset: getKeyframeDisplayOffset({
+					propStatus: sequenceSelectedPropStatus,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
+				}),
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
 			defaultValue: fieldNode.field.fieldSchema.default,
 			dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
 				fieldNode.field.key
@@ -326,14 +329,16 @@ const resolveKeyframeControlTarget = ({
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
 			keyframePlaybackRate: track.keyframePlaybackRate,
 		}),
-		sourceFrame:
-			(timelinePosition -
-				getKeyframeDisplayOffset({
-					propStatus: effectSelectedPropStatus,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-					keyframePlaybackRate: track.keyframePlaybackRate,
-				})) *
-			track.keyframePlaybackRate,
+		sourceFrame: getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			propStatus: effectSelectedPropStatus,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: effectSelectedPropStatus,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
+			keyframePlaybackRate: track.keyframePlaybackRate,
+		}),
 		defaultValue: fieldNode.field.fieldSchema.default,
 		dragOverrideValue: getEffectDragOverrides(
 			nodePath,
@@ -566,8 +571,12 @@ export const TimelineKeyframeControls: React.FC<{
 		keyframeDisplayOffset,
 		keyframePlaybackRate,
 	});
-	const jsxFrame =
-		(timelinePosition - resolvedKeyframeDisplayOffset) * keyframePlaybackRate;
+	const jsxFrame = getKeyframeSourceFrame({
+		displayFrame: timelinePosition,
+		keyframeDisplayOffset: resolvedKeyframeDisplayOffset,
+		keyframePlaybackRate,
+		propStatus,
+	});
 	const keyframes = useMemo(
 		() =>
 			getTimelineKeyframes(

@@ -26,7 +26,10 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
-import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -393,6 +396,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
 	readonly keyframePlaybackRate: number;
+	readonly propStatus: CanUpdateSequencePropStatus | null;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
@@ -400,6 +404,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	validatedLocation,
 	keyframeDisplayOffset,
 	keyframePlaybackRate,
+	propStatus,
 	runtimeValueStore,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -409,9 +414,12 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 			field={field}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
-			sourceFrame={
-				(timelinePosition - keyframeDisplayOffset) * keyframePlaybackRate
-			}
+			sourceFrame={getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+				propStatus,
+			})}
 			runtimeValueStore={runtimeValueStore}
 		/>
 	);
@@ -644,6 +652,7 @@ export const TimelineEffectPropItem: React.FC<{
 					validatedLocation={validatedLocation}
 					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
 					keyframePlaybackRate={keyframePlaybackRate}
+					propStatus={propStatus}
 					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>

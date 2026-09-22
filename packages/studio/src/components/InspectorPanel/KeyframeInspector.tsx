@@ -32,7 +32,10 @@ import {
 	callDeleteSequenceKeyframe,
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
-import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from '../Timeline/get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
 import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
 import {
@@ -49,10 +52,7 @@ import {
 	InspectorQuickAction,
 	InspectorMessage,
 } from './common';
-import {
-	clampInspectorKeyframeDisplayFrame,
-	getInspectorKeyframeSourceFrame,
-} from './keyframe-inspector-frame';
+import {clampInspectorKeyframeDisplayFrame} from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
@@ -221,14 +221,16 @@ export const KeyframeInspector: React.FC<{
 				nodePath,
 				propStatus: sequencePropStatus,
 				schema: track.sequence.controls.schema,
-				sourceFrame:
-					(selection.frame -
-						getKeyframeDisplayOffset({
-							propStatus: sequencePropStatus,
-							keyframeDisplayOffset,
-							keyframePlaybackRate,
-						})) *
+				sourceFrame: getKeyframeSourceFrame({
+					displayFrame: selection.frame,
+					propStatus: sequencePropStatus,
+					keyframeDisplayOffset: getKeyframeDisplayOffset({
+						propStatus: sequencePropStatus,
+						keyframeDisplayOffset,
+						keyframePlaybackRate,
+					}),
 					keyframePlaybackRate,
+				}),
 			};
 		}
 
@@ -277,14 +279,16 @@ export const KeyframeInspector: React.FC<{
 			nodePath,
 			propStatus: effectPropStatus,
 			schema: effect.schema,
-			sourceFrame:
-				(selection.frame -
-					getKeyframeDisplayOffset({
-						propStatus: effectPropStatus,
-						keyframeDisplayOffset,
-						keyframePlaybackRate,
-					})) *
+			sourceFrame: getKeyframeSourceFrame({
+				displayFrame: selection.frame,
+				propStatus: effectPropStatus,
+				keyframeDisplayOffset: getKeyframeDisplayOffset({
+					propStatus: effectPropStatus,
+					keyframeDisplayOffset,
+					keyframePlaybackRate,
+				}),
 				keyframePlaybackRate,
+			}),
 			validatedLocation: {
 				source: nodePath.absolutePath,
 				line: 1,
@@ -332,10 +336,11 @@ export const KeyframeInspector: React.FC<{
 				return;
 			}
 
-			const toFrame = getInspectorKeyframeSourceFrame({
+			const toFrame = getKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
 				keyframePlaybackRate: details.keyframePlaybackRate,
+				propStatus: details.propStatus,
 			});
 
 			if (displayFrame === selection.frame || toFrame === details.sourceFrame) {
@@ -391,10 +396,11 @@ export const KeyframeInspector: React.FC<{
 				durationInFrames: videoConfig.durationInFrames,
 				frame: value,
 			});
-			const toFrame = getInspectorKeyframeSourceFrame({
+			const toFrame = getKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
 				keyframePlaybackRate: details.keyframePlaybackRate,
+				propStatus: details.propStatus,
 			});
 
 			setDraftFrame(displayFrame);

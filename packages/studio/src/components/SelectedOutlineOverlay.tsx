@@ -55,7 +55,10 @@ import {
 } from './selected-outline-types';
 import {SelectedOutlineKeyboardControls} from './SelectedOutlineKeyboardControls';
 import {SelectedOutlineRenderer} from './SelectedOutlineRenderer';
-import {getKeyframeDisplayOffset} from './Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './Timeline/get-timeline-keyframes';
 import {
 	useTimelineSelection,
 	type TimelineSelection,
@@ -315,13 +318,16 @@ const calculateOutlineTargets = ({
 			(status) => status.status === 'keyframed',
 		);
 		const nodeKeyframeDisplayOffset = getKeyframeDisplayOffset({
-			propStatus: firstKeyframedStatus,
+			propStatus: firstKeyframedStatus ?? null,
 			keyframeDisplayOffset,
 			keyframePlaybackRate,
 		});
-		const sourceFrame =
-			(targetTimelinePosition - nodeKeyframeDisplayOffset) *
-			keyframePlaybackRate;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: targetTimelinePosition,
+			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
+			keyframePlaybackRate,
+			propStatus: firstKeyframedStatus ?? null,
+		});
 		const dragOverrides = getDragOverrides(nodePath) ?? {};
 		const runtimeValues = controls
 			? (runtimeValuesByStore.get(controls.runtimeValues) ??
@@ -391,7 +397,7 @@ const calculateOutlineTargets = ({
 				transformOriginPropStatus?.status === 'keyframed')
 				? String(
 						Internals.getEffectiveVisualModeValue({
-							propStatus: transformOriginPropStatus,
+							propStatus: transformOriginPropStatus ?? null,
 							dragOverrideValue: dragOverrides[transformOriginFieldKey],
 							defaultValue: transformOriginFieldSchema.default,
 							frame: sourceFrame,
@@ -474,13 +480,16 @@ const calculateOutlineTargets = ({
 			selectedTransformOriginInfo?.displayFrame === null ||
 			selectedTransformOriginInfo?.displayFrame === undefined
 				? sourceFrame
-				: (selectedTransformOriginInfo.displayFrame -
-						getKeyframeDisplayOffset({
-							propStatus: transformOriginPropStatus,
+				: getKeyframeSourceFrame({
+						displayFrame: selectedTransformOriginInfo.displayFrame,
+						propStatus: transformOriginPropStatus ?? null,
+						keyframeDisplayOffset: getKeyframeDisplayOffset({
+							propStatus: transformOriginPropStatus ?? null,
 							keyframeDisplayOffset,
 							keyframePlaybackRate,
-						})) *
-					keyframePlaybackRate;
+						}),
+						keyframePlaybackRate,
+					});
 		const canTransformOriginStatus =
 			transformOriginPropStatus?.status === 'static' ||
 			(transformOriginPropStatus?.status === 'keyframed' &&
@@ -497,12 +506,11 @@ const calculateOutlineTargets = ({
 			fieldSchema?.type === 'translate' &&
 			canTransformOriginStatus &&
 			canTransformOriginTranslateStatus;
-		const cropSourceFrame =
-			selectedCropInfo?.displayFrame === null ||
-			selectedCropInfo?.displayFrame === undefined
-				? sourceFrame
-				: (selectedCropInfo.displayFrame - nodeKeyframeDisplayOffset) *
-					keyframePlaybackRate;
+		const cropSourceFrame = {
+			displayFrame: selectedCropInfo?.displayFrame ?? targetTimelinePosition,
+			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
+			keyframePlaybackRate,
+		};
 		const canCropDrag =
 			previewInteractive &&
 			selectedForCrop &&
@@ -524,7 +532,7 @@ const calculateOutlineTargets = ({
 								transformOriginPropStatus !== undefined
 									? {
 											defaultValue: transformOriginFieldSchema.default,
-											propStatus: transformOriginPropStatus,
+											propStatus: transformOriginPropStatus ?? null,
 											value: transformOriginValueForRotation,
 										}
 									: null,
@@ -600,7 +608,7 @@ const calculateOutlineTargets = ({
 							clientId: connectedClientId,
 							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
-								propStatus: transformOriginPropStatus,
+								propStatus: transformOriginPropStatus ?? null,
 								keyframeDisplayOffset,
 								keyframePlaybackRate,
 							}),
@@ -609,7 +617,7 @@ const calculateOutlineTargets = ({
 							originPropStatus: transformOriginPropStatus,
 							originValue: String(
 								Internals.getEffectiveVisualModeValue({
-									propStatus: transformOriginPropStatus,
+									propStatus: transformOriginPropStatus ?? null,
 									dragOverrideValue: dragOverrides[transformOriginFieldKey],
 									defaultValue: transformOriginFieldSchema.default,
 									frame: transformOriginSourceFrame,
@@ -648,7 +656,17 @@ const calculateOutlineTargets = ({
 										)
 									: '1',
 							schema: controls.schema,
-							sourceFrame: transformOriginSourceFrame,
+							sourceFrame: {
+								displayFrame:
+									selectedTransformOriginInfo?.displayFrame ??
+									targetTimelinePosition,
+								keyframeDisplayOffset: getKeyframeDisplayOffset({
+									propStatus: transformOriginPropStatus,
+									keyframeDisplayOffset,
+									keyframePlaybackRate,
+								}),
+								keyframePlaybackRate,
+							},
 							translateDefault: fieldSchema.default,
 							translatePropStatus: propStatus,
 							translateValue: String(

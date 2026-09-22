@@ -30,6 +30,7 @@ import {
 import {getUvCoordinateForPoint} from './selected-outline-uv';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
+import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 
 const CROP_HANDLE_THICKNESS = 5;
@@ -270,7 +271,10 @@ const CropHandle: React.FC<{
 						field.propStatus.status === 'keyframed'
 							? Internals.makeKeyframedDragOverride({
 									status: field.propStatus,
-									frame: cropDrag.sourceFrame,
+									frame: resolveKeyframeSourceFrame(
+										cropDrag.sourceFrame,
+										field.propStatus,
+									),
 									value,
 								})
 							: Internals.makeStaticDragOverride(value),

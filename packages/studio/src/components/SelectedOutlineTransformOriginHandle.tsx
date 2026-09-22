@@ -30,6 +30,7 @@ import {
 	getUvHandlePosition,
 } from './selected-outline-uv';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
+import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {parseCssRotation} from './Timeline/timeline-rotation-utils';
 import {
@@ -215,7 +216,10 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					transformOriginDrag.originPropStatus.status === 'keyframed'
 						? Internals.makeKeyframedDragOverride({
 								status: transformOriginDrag.originPropStatus,
-								frame: transformOriginDrag.sourceFrame,
+								frame: resolveKeyframeSourceFrame(
+									transformOriginDrag.sourceFrame,
+									transformOriginDrag.originPropStatus,
+								),
 								value: origin,
 							})
 						: Internals.makeStaticDragOverride(origin),
@@ -227,7 +231,10 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 						? transformOriginDrag.originPropStatus.status === 'keyframed'
 							? Internals.makeKeyframedDragOverride({
 									status: transformOriginDrag.translatePropStatus,
-									frame: transformOriginDrag.sourceFrame,
+									frame: resolveKeyframeSourceFrame(
+										transformOriginDrag.sourceFrame,
+										transformOriginDrag.translatePropStatus,
+									),
 									value: translate,
 								})
 							: {

@@ -9,6 +9,7 @@ import type {
 } from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import type {KeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 import type {TimelineSelection} from './Timeline/TimelineSelection';
 
 export type SelectedOutlineContextMenuOpenResult =
@@ -120,7 +121,7 @@ export type SelectedOutlineCropDragTarget = {
 	>;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly transformOrigin: {
 		readonly defaultValue: string | undefined;
 		readonly propStatus: CanUpdateSequencePropStatus;
@@ -153,7 +154,7 @@ export type SelectedOutlineTransformOriginDragTarget = {
 	readonly rotateValue: string;
 	readonly scaleValue: number | string;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly translateDefault: string | undefined;
 	readonly translatePropStatus:
 		| CanUpdateSequencePropStatusStatic
