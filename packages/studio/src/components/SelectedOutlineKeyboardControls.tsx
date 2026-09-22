@@ -15,31 +15,19 @@ import {
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
-import type {getSequencesWithSelectableOutlines} from './selected-outline-measurement';
-import {
-	getSelectedSequenceKeys,
-	getSequenceKeysContainingSelection,
-} from './selected-outline-measurement';
 import {
 	translateFieldKey,
+	type SelectedOutlineDragTarget,
 	type SelectedOutlineKeyboardNudgeSession,
-	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
-import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
 
 export const SelectedOutlineKeyboardControls: React.FC<{
-	readonly getLatestOutlineTargetByKey: (
-		key: string,
-	) => SelectedOutlineTarget | undefined;
-	readonly getSelectableOutlines: () => ReturnType<
-		typeof getSequencesWithSelectableOutlines
-	>;
-}> = ({getLatestOutlineTargetByKey, getSelectableOutlines}) => {
-	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+}> = ({getAllDragTargets}) => {
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -206,24 +194,9 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				return;
 			}
 
-			const {selectedItems} = currentSelection.current;
-			const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
-			const sequenceKeysContainingSelection =
-				getSequenceKeysContainingSelection(selectedItems);
-			const selectableOutlines = getSelectableOutlines();
-			const allDragTargets = selectableOutlines.flatMap(({key}) => {
-				if (
-					!selectedSequenceKeys.has(key) &&
-					!sequenceKeysContainingSelection.has(key)
-				) {
-					return [];
-				}
+			const allDragTargets = getAllDragTargets();
 
-				const drag = getLatestOutlineTargetByKey(key)?.drag ?? null;
-				return drag === null ? [] : [drag];
-			});
-
-			if (selectedItems.length === 0 || allDragTargets.length === 0) {
+			if (allDragTargets.length === 0) {
 				seekWithArrowKey(event, direction);
 				return;
 			}
@@ -299,11 +272,9 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 			}
 		},
 		[
-			currentSelection,
+			getAllDragTargets,
 			getCurrentFrame,
 			getDragOverrides,
-			getLatestOutlineTargetByKey,
-			getSelectableOutlines,
 			seekWithArrowKey,
 			setDragOverrides,
 		],
