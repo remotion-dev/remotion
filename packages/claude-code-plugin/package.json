@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/claude-code-plugin",
-	"version": "4.0.526",
+	"version": "4.0.527",
 	"private": true,
 	"type": "module",
 	"repository": {

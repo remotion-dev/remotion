@@ -1,6 +1,6 @@
 import type {Caption} from './caption';
 
-function toSeconds(time: string) {
+function toMilliseconds(time: string) {
 	const [first, second, third] = time.split(':');
 	if (!first) {
 		throw new Error(`Invalid timestamp:${time}`);
@@ -24,10 +24,10 @@ function toSeconds(time: string) {
 	}
 
 	return (
-		parseInt(first, 10) * 3600 +
-		parseInt(second, 10) * 60 +
-		parseInt(seconds, 10) +
-		parseInt(millis, 10) / 1000
+		parseInt(first, 10) * 3600000 +
+		parseInt(second, 10) * 60000 +
+		parseInt(seconds, 10) * 1000 +
+		parseInt(millis, 10)
 	);
 }
 
@@ -52,14 +52,14 @@ export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
 		const nextLine = inputLines[i + 1];
 		if (line?.match(/^\s*\d+\s*$/) && nextLine?.includes(' --> ')) {
 			const nextLineSplit = nextLine.split(' --> ');
-			const start = toSeconds((nextLineSplit[0] as string).trim());
-			const end = toSeconds((nextLineSplit[1] as string).trim());
+			const start = toMilliseconds((nextLineSplit[0] as string).trim());
+			const end = toMilliseconds((nextLineSplit[1] as string).trim());
 			captions.push({
 				text: '',
-				startMs: start * 1000,
-				endMs: end * 1000,
+				startMs: start,
+				endMs: end,
 				confidence: 1,
-				timestampMs: ((start + end) / 2) * 1000,
+				timestampMs: (start + end) / 2,
 			});
 		} else if (line?.includes(' --> ')) {
 			continue;

@@ -10,7 +10,7 @@ const splitWords = (inputCaptions: Caption[]): Caption[] => {
 		for (let j = 0; j < words.length; j++) {
 			const word = words[j];
 			captions.push({
-				text: j === 0 ? ` ${word}` : word,
+				text: ` ${word}`,
 				startMs: w.startMs,
 				endMs: w.endMs,
 				confidence: w.confidence,
