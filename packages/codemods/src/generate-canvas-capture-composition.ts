@@ -91,6 +91,7 @@ export const generateCanvasCaptureComposition = ({
 	fps,
 	height,
 	keyframeFps,
+	videoDurationInSeconds,
 	videoFileName,
 	videoHeight,
 	videoWidth,
@@ -103,6 +104,7 @@ export const generateCanvasCaptureComposition = ({
 	readonly fps: number;
 	readonly height: number;
 	readonly keyframeFps: number;
+	readonly videoDurationInSeconds: number;
 	readonly videoFileName: string;
 	readonly videoHeight: number;
 	readonly videoWidth: number;
@@ -252,6 +254,7 @@ export const ${previewComponentName} = () => {
 		>
 			<Video
 				src={staticFile(${serialize(videoFileName)})}
+				durationInFrames={${Math.ceil(videoDurationInSeconds * fps)}}
 				style={{
 					position: 'absolute',
 				}}
@@ -297,6 +300,7 @@ export const makeNewCompositionComponentSource = (
 			fps: codemod.newFps,
 			height: codemod.newHeight,
 			keyframeFps: codemod.canvasCapture.keyframeFps,
+			videoDurationInSeconds: codemod.canvasCapture.videoDurationInSeconds,
 			videoFileName: codemod.canvasCapture.videoFileName,
 			videoHeight: codemod.canvasCapture.videoHeight,
 			videoWidth: codemod.canvasCapture.videoWidth,

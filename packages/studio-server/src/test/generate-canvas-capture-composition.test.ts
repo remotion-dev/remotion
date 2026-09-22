@@ -30,6 +30,7 @@ test('generates the ideal interactive Canvas Capture composition markup', async 
 		fps: 60,
 		height: 1080,
 		keyframeFps: 30,
+		videoDurationInSeconds: 7.25,
 		videoFileName: 'remotion-capture-editor-starter.mp4',
 		videoHeight: 1386,
 		videoWidth: 3026,

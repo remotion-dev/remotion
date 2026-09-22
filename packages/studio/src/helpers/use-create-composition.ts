@@ -69,6 +69,7 @@ export const useCreateComposition = ({
 	};
 	canvasCapture: {
 		readonly data: CanvasCaptureData;
+		readonly videoDurationInSeconds: number;
 		readonly videoFileName: string;
 		readonly videoHeight: number;
 		readonly videoWidth: number;
@@ -113,6 +114,7 @@ export const useCreateComposition = ({
 					: {
 							data: canvasCapture.data,
 							keyframeFps: Number(selectedFrameRate),
+							videoDurationInSeconds: canvasCapture.videoDurationInSeconds,
 							videoFileName: canvasCapture.videoFileName,
 							videoHeight: canvasCapture.videoHeight,
 							videoWidth: canvasCapture.videoWidth,

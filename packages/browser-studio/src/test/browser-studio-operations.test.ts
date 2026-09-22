@@ -1451,6 +1451,7 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 			newFps: 60,
 			newDurationInFrames: 180,
 			canvasCapture: {
+				videoDurationInSeconds: 3,
 				videoFileName: 'capture.mp4',
 				videoHeight: 720,
 				videoWidth: 1280,
