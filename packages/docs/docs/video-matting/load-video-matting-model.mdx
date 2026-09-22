@@ -6,7 +6,9 @@ crumb: '@remotion/video-matting'
 
 # loadVideoMattingModel()<AvailableFrom v="4.0.523" />
 
-Downloads a video matting model from an immutable path on `remotion.media` and initializes it. Calling it before [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) lets you show model-loading progress.
+Downloads a video matting model from our `remotion.media` CDN.
+
+Call it before [`separateVideoLayers()`](/docs/video-matting/separate-video-layers).
 
 ```ts twoslash title="load-model.ts"
 import {loadVideoMattingModel} from '@remotion/video-matting';
@@ -66,10 +68,6 @@ Whether the same model was already initialized in memory.
 Releases this call's hold on the initialized model. The pipeline is disposed after every load handle is released and active separations finish.
 
 Use `await using` to call this method automatically when leaving the current scope. Call [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) to dispose the pipeline explicitly regardless of retained load handles.
-
-The browser manages the persistent [Transformers.js](https://huggingface.co/docs/transformers.js) cache. Releasing the initialized pipeline does not delete the downloaded model files.
-
-The hosted files are byte-identical to files from the pinned upstream Hugging Face revision.
 
 ## Compatibility
 

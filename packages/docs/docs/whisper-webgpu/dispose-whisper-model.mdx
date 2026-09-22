@@ -8,8 +8,6 @@ crumb: '@remotion/whisper-webgpu'
 
 Releases the memory used by initialized Whisper pipelines. Persistently cached model files are not deleted.
 
-Calling this function disposes the selected pipeline regardless of retained handles returned by [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model).
-
 ```ts twoslash title="dispose.ts"
 import {disposeWhisperModel} from '@remotion/whisper-webgpu';
 

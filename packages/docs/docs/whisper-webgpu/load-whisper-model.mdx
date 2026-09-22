@@ -45,8 +45,6 @@ Use `await using` to call this method automatically when leaving the current sco
 
 [Transformers.js](https://huggingface.co/docs/transformers.js) manages the persistent model cache. Releasing the initialized pipeline does not delete the downloaded model files.
 
-Versions before 4.0.522 downloaded models from Hugging Face. A model cached by an earlier version is downloaded once more from `remotion.media`, then reused from the new cache entry when using the default Transformers.js cache settings.
-
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
