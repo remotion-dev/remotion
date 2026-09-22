@@ -31,6 +31,7 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
@@ -83,7 +84,9 @@ import {
 	expertsGraphicDurationInFrames,
 } from './HomepageAssets/ExpertsGraphic';
 import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
+import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
+import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
@@ -102,10 +105,11 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import './index.css';
 import {Logo} from './Logo';
+import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
+import {QuickSwitcher} from './QuickSwitcher';
 import {RenderModalCodec} from './RenderModalCodec';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
@@ -252,6 +256,22 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotion3DRotation"
+						component={ExploreRemotion3DRotation}
+						durationInFrames={1115}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionQuickSwitcher"
+						component={ExploreRemotionQuickSwitcher}
+						durationInFrames={419}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionCompositionList"
 						component={ExploreRemotionCompositionList}
@@ -757,6 +777,8 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<AudioWaveform />
 				<VideoPlayback />
 				<CompositionList />
+				<QuickSwitcher />
+				<Composition3DRotation />
 			</Folder>
 
 			<Folder name="StudioAssets">
