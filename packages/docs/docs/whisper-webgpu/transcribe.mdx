@@ -9,8 +9,9 @@ crumb: '@remotion/whisper-webgpu'
 Transcribes a 16kHz mono waveform and returns words with start and end timestamps.
 
 ```ts twoslash title="transcribe.ts"
-import {resampleTo16Khz, transcribe} from '@remotion/whisper-webgpu';
+import {downloadWhisperModel, resampleTo16Khz, transcribe} from '@remotion/whisper-webgpu';
 
+await downloadWhisperModel({model: 'small.en'});
 const file = new File([], 'audio.wav');
 const channelWaveform = await resampleTo16Khz({file});
 
@@ -76,7 +77,7 @@ Prevents a generated token sequence of this length from occurring more than once
 
 ### onModelLoadProgress?
 
-Called while the model is loaded. To load independently, use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model).
+Called while a previously downloaded model is initialized. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first to download the files and receive download progress.
 
 ## Return value
 
@@ -86,7 +87,7 @@ Word-level timestamps are returned after transcription completes. [Transformers.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

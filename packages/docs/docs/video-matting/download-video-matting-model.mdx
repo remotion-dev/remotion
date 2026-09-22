@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-video-matting-download-video-matting-model.png
+title: downloadVideoMattingModel()
+crumb: '@remotion/video-matting'
+---
+
+# downloadVideoMattingModel()<AvailableFrom v="4.0.528" />
+
+Downloads a video matting model from `remotion.media` into the browser cache without initializing WebGPU. Call [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model) or [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) afterwards.
+
+The browser Cache API or a Transformers.js custom cache must be enabled.
+
+```ts twoslash title="download-model.ts"
+import {downloadVideoMattingModel} from '@remotion/video-matting';
+
+const {alreadyDownloaded} = await downloadVideoMattingModel({
+  model: 'modnet',
+  onProgress: ({progress}) => console.log(progress),
+});
+
+console.log(alreadyDownloaded);
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/video-matting/get-available-models).
+
+### onProgress?
+
+Called as files download. Default: no callback. The callback receives:
+
+#### file
+
+The file being downloaded, or `null` for aggregate progress.
+
+#### progress
+
+Aggregate progress between `0` and `1`.
+
+#### loadedBytes
+
+Bytes downloaded in this call.
+
+#### totalBytes
+
+Estimated total model size in bytes.
+
+## Return value
+
+### alreadyDownloaded
+
+`true` if all files were already cached before this call.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+## See also
+
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)
+- [`isVideoMattingModelCached()`](/docs/video-matting/is-video-matting-model-cached)
+- [`removeVideoMattingModel()`](/docs/video-matting/remove-video-matting-model)

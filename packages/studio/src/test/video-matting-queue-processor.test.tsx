@@ -14,13 +14,17 @@ let processJob: ((job: VideoMattingJob) => Promise<void>) | null = null;
 mock.module('@remotion/video-matting', () => ({
 	canUseVideoMatting: () => Promise.resolve({supported: true}),
 	isVideoMattingModelCached: () => Promise.resolve(false),
-	loadVideoMattingModel: ({
+	downloadVideoMattingModel: ({
 		onProgress,
 	}: {
 		onProgress: (progress: {progress: number}) => void;
 	}) => {
-		calls.push('load-model');
+		calls.push('download-model');
 		onProgress({progress: 1});
+		return Promise.resolve({alreadyDownloaded: false});
+	},
+	loadVideoMattingModel: () => {
+		calls.push('load-model');
 		return Promise.resolve({alreadyLoaded: false});
 	},
 	separateVideoLayers: ({
@@ -139,6 +143,7 @@ test('writes both layers and inserts them into the selected video source', async
 	expect(failed).toBeNull();
 	expect(done).toBe(true);
 	expect(calls).toEqual([
+		'download-model',
 		'load-model',
 		'separate',
 		'write:input-base.webm',

@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-whisper-webgpu-download-whisper-model.png
+title: downloadWhisperModel()
+crumb: '@remotion/whisper-webgpu'
+---
+
+# downloadWhisperModel()<AvailableFrom v="4.0.528" />
+
+Downloads a Whisper model from `remotion.media` into the Transformers.js cache without initializing WebGPU. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) or [`transcribe()`](/docs/whisper-webgpu/transcribe) afterwards.
+
+The browser uses its Cache API; Node.js uses the Transformers.js filesystem cache. A cache must be enabled.
+
+```ts twoslash title="download-model.ts"
+import {downloadWhisperModel} from '@remotion/whisper-webgpu';
+
+const {alreadyDownloaded} = await downloadWhisperModel({
+  model: 'small.en',
+  onProgress: ({progress}) => console.log(progress),
+});
+
+console.log(alreadyDownloaded);
+```
+
+## Options
+
+### model
+
+One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models).
+
+### onProgress?
+
+Called as files download. Default: no callback. The callback receives:
+
+#### file
+
+The file being downloaded, or `null` for aggregate progress.
+
+#### progress
+
+Aggregate progress between `0` and `1`.
+
+#### loadedBytes
+
+Bytes downloaded in this call.
+
+#### totalBytes
+
+Estimated total model size in bytes.
+
+## Return value
+
+### alreadyDownloaded
+
+`true` if all files were already cached before this call.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
+
+## See also
+
+- [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)
+- [`isWhisperModelCached()`](/docs/whisper-webgpu/is-whisper-model-cached)
+- [`removeWhisperModel()`](/docs/whisper-webgpu/remove-whisper-model)

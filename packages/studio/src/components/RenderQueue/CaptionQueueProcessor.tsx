@@ -2,6 +2,7 @@ import {
 	canUseWhisperWebGpu,
 	clearStaleModels,
 	disposeWhisperModel,
+	downloadWhisperModel,
 	isWhisperModelCached,
 	loadWhisperModel,
 	toCaptions,
@@ -49,11 +50,13 @@ export const CaptionQueueProcessor: React.FC = () => {
 					progressStart: 0.03,
 					progressSpan: 0.27,
 					isModelCached: (model) => isWhisperModelCached({model}),
-					loadModel: (model, onProgress) =>
-						loadWhisperModel({
+					loadModel: async (model, onProgress) => {
+						await downloadWhisperModel({
 							model,
 							onProgress: (progress) => onProgress(progress.progress),
-						}),
+						});
+						await loadWhisperModel({model});
+					},
 					updateProgress: (progress) =>
 						updateCaptionJobProgress(job.id, progress),
 				});
