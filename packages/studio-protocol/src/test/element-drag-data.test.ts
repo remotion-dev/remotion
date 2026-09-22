@@ -54,19 +54,6 @@ test('parses element drag data', () => {
 	});
 });
 
-test('preserves assets in version 2 drag data', () => {
-	const assets = [
-		{path: 'element/logo.bin', type: 'base64' as const, data: 'AAEC'},
-	];
-	const parsed = parseElementDragData(
-		JSON.stringify(makeElementDragData({...validElement, assets})),
-	);
-	expect(parsed).toMatchObject({
-		version: 2,
-		element: {assets},
-	});
-});
-
 test('normalizes legacy drag data without initial props', () => {
 	const {initialProps: _initialProps, ...legacyElement} = validElement;
 	expect(

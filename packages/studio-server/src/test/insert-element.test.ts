@@ -282,6 +282,18 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 );
 `,
 			};
+			const request: InsertElementRequest = {
+				installationName: null,
+				compositionFile: 'Root.tsx',
+				compositionId: 'target',
+				element: assetElement,
+				expectedFileState: null,
+				from: null,
+				overwriteExisting: false,
+				position: null,
+				undoRedoNavigation: null,
+				newComposition: null,
+			};
 			const invalidElement = {
 				...assetElement,
 				initialProps: {logoSrc: staticFileRef('elements/undeclared.bin')},
@@ -294,16 +306,8 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 			).toMatchObject({success: false});
 			expect(
 				await fixture.callHandlerWithInput({
-					installationName: 'invalid',
-					compositionFile: 'Root.tsx',
-					compositionId: 'target',
+					...request,
 					element: invalidElement,
-					expectedFileState: null,
-					from: null,
-					overwriteExisting: false,
-					position: null,
-					undoRedoNavigation: null,
-					newComposition: null,
 				}),
 			).toMatchObject({success: false});
 			expect(fetches).toBe(0);
@@ -316,18 +320,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 			expect(preflight.success).toBe(true);
 			expect(existsSync(fixture.publicDir)).toBe(false);
 
-			const response = await fixture.callHandlerWithInput({
-				installationName: null,
-				compositionFile: 'Root.tsx',
-				compositionId: 'target',
-				element: assetElement,
-				expectedFileState: null,
-				from: null,
-				overwriteExisting: false,
-				position: null,
-				undoRedoNavigation: null,
-				newComposition: null,
-			});
+			const response = await fixture.callHandlerWithInput(request);
 			expect(response).toMatchObject({success: true});
 			expect(
 				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
@@ -355,9 +348,8 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 			expect(existsSync(fixture.elementFile)).toBe(true);
 
 			const conflict = await fixture.callHandlerWithInput({
+				...request,
 				installationName: 'second',
-				compositionFile: 'Root.tsx',
-				compositionId: 'target',
 				element: {
 					...assetElement,
 					assets: [
@@ -365,12 +357,6 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 						assetElement.assets[1],
 					],
 				},
-				expectedFileState: null,
-				from: null,
-				overwriteExisting: false,
-				position: null,
-				undoRedoNavigation: null,
-				newComposition: null,
 			});
 			expect(conflict).toMatchObject({
 				success: false,

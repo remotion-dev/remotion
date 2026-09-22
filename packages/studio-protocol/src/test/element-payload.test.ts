@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {parseDragData} from '../drag-data';
 import {setStudioDragData} from '../drag-transport';
+import {parseElementDragData, staticFileRef} from '../element-drag-data';
 import {
 	createElementPayload,
 	parseStudioElementPayload,
@@ -80,7 +81,7 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 	);
 });
 
-test('validates assets and uses payload version 2', () => {
+test('validates asset payloads and references for both transports', () => {
 	const payload = createElementPayload({
 		...validInput,
 		assets: [
@@ -91,11 +92,12 @@ test('validates assets and uses payload version 2', () => {
 			},
 			{path: 'my-element/data.json', type: 'base64', data: 'eyJvayI6dHJ1ZX0='},
 		],
+		initialProps: {media: [{src: staticFileRef('my-element/logo.png')}]},
 	});
+	const serialized = JSON.stringify(payload);
 	expect(payload.version).toBe(2);
-	expect(parseStudioElementPayload(payload)?.element.assets).toEqual(
-		payload.element.assets,
-	);
+	expect(parseStudioElementPayload(JSON.parse(serialized))).toEqual(payload);
+	expect(parseElementDragData(serialized)?.element).toEqual(payload.element);
 	expect(parseStudioElementPayload({...payload, version: 1})).toBe(null);
 
 	for (const assets of [
@@ -109,14 +111,29 @@ test('validates assets and uses payload version 2', () => {
 	] as const) {
 		expect(() => createInvalidPayload({...validInput, assets})).toThrow();
 	}
-});
 
-test('normalizes version 1 payloads without assets', () => {
-	const payload = createElementPayload(validInput);
-	const {assets: _assets, ...legacyElement} = payload.element;
-	expect(
-		parseStudioElementPayload({...payload, element: legacyElement}),
-	).toMatchObject({version: 1, element: {assets: []}});
+	for (const path of ['', '../logo.png', '/logo.png']) {
+		expect(() => staticFileRef(path)).toThrow();
+	}
+
+	for (const ref of [
+		staticFileRef('missing.png'),
+		{__remotion_element_asset: '../logo.png'},
+		{__remotion_element_asset: 123},
+		{__remotion_element_asset: 'my-element/logo.png', extra: true},
+	]) {
+		const initialProps = {media: [{src: ref}]};
+		expect(() =>
+			createElementPayload({
+				...validInput,
+				assets: payload.element.assets,
+				initialProps,
+			}),
+		).toThrow();
+		const tampered = {...payload, element: {...payload.element, initialProps}};
+		expect(parseStudioElementPayload(tampered)).toBeNull();
+		expect(parseElementDragData(JSON.stringify(tampered))).toBeNull();
+	}
 });
 
 test('defaults new Element payloads to wrapped installation', () => {
@@ -125,12 +142,16 @@ test('defaults new Element payloads to wrapped installation', () => {
 	expect(payload.element.installationMode).toBe('wrapped');
 });
 
-test('normalizes legacy payloads without initial props to null', () => {
+test('normalizes legacy payloads without initial props or assets', () => {
 	const payload = createElementPayload(validInput);
-	const {initialProps: _initialProps, ...legacyElement} = payload.element;
+	const {
+		initialProps: _initialProps,
+		assets: _assets,
+		...legacyElement
+	} = payload.element;
 	expect(
 		parseStudioElementPayload({...payload, element: legacyElement}),
-	).toMatchObject({element: {initialProps: null}});
+	).toMatchObject({version: 1, element: {initialProps: null, assets: []}});
 });
 
 test('rejects invalid and reserved initial props', () => {

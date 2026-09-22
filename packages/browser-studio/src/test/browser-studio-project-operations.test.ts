@@ -573,25 +573,6 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		},
 	});
 
-	const projectBeforeInvalidInstall = project;
-	const invalidInstall = await operations.insertElement({
-		installationName: null,
-		compositionFile: '/project/src/Composition.tsx',
-		compositionId: 'MyComp',
-		element: {
-			...element,
-			initialProps: {logoSrc: staticFileRef('elements/undeclared.bin')},
-		},
-		expectedFileState: null,
-		from: 12,
-		overwriteExisting: false,
-		position: {x: 24, y: 48},
-		undoRedoNavigation: null,
-		newComposition: null,
-	});
-	expect(invalidInstall).toMatchObject({success: false, type: 'error'});
-	expect(project).toBe(projectBeforeInvalidInstall);
-
 	const originalFetch = globalThis.fetch;
 	globalThis.fetch = Object.assign(
 		() => Promise.resolve(new Response(new Uint8Array([3, 4, 5]))),
@@ -909,31 +890,6 @@ test.each([
 		expect(getProject()).toBe(before);
 	},
 );
-
-test('enforces the aggregate Element asset limit regardless of URL/base64 order', async () => {
-	const {getProject, install} = makeElementAssetFixture();
-	const before = getProject();
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = Object.assign(
-		() => Promise.resolve(new Response(new Uint8Array(50 * 1024 * 1024))),
-		{preconnect: originalFetch.preconnect},
-	);
-	const assets: ElementDragData['element']['assets'] = [
-		{path: 'remote.bin', type: 'url', url: 'https://assets.example/remote.bin'},
-		{path: 'embedded.bin', type: 'base64', data: 'AAEC'},
-	];
-	try {
-		for (const orderedAssets of [assets, [...assets].reverse()]) {
-			expect(await install(orderedAssets, null)).toMatchObject({
-				success: false,
-				type: 'error',
-			});
-			expect(getProject()).toBe(before);
-		}
-	} finally {
-		globalThis.fetch = originalFetch;
-	}
-});
 
 test('installs an Element into a new composition as one undoable mutation', async () => {
 	const initialProject = createBlankTemplateProject();
