@@ -39,10 +39,6 @@ export const matteVideo = async (file: File) => {
 };
 ```
 
-[`separateVideoLayers()`](/docs/video-matting/separate-video-layers) loads the downloaded model automatically. Use [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model) with `await using` when you want to initialize it before processing and release it when the scope ends. Call [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) when you want to release a model loaded automatically.
-
-`await using layers` removes the temporary output files when `matteVideo()` returns; the blobs remain usable.
-
 ## Model hosting
 
 We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
