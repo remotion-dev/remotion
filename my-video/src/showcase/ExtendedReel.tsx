@@ -156,7 +156,7 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
-          <OutroScene />
+          <OutroScene logoMatrix={null} />
         </TransitionSeries.Sequence>
       </TransitionSeries>
     </AbsoluteFill>

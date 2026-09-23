@@ -82,7 +82,7 @@ export const ShowcaseReel: React.FC<ShowcaseReelProps> = ({title, subtitle}) => 
         />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
-          <OutroScene />
+          <OutroScene logoMatrix={null} />
         </TransitionSeries.Sequence>
       </TransitionSeries>
     </AbsoluteFill>

@@ -1,4 +1,12 @@
 import {fade} from "@remotion/transitions/fade";
+import {bookFlip} from "@remotion/transitions/book-flip";
+import {crosswarp} from "@remotion/transitions/crosswarp";
+import {dissolve} from "@remotion/transitions/dissolve";
+import {ripple} from "@remotion/transitions/ripple";
+import {swap} from "@remotion/transitions/swap";
+import {zoomBlur} from "@remotion/transitions/zoom-blur";
+import {zoomInOut} from "@remotion/transitions/zoom-in-out";
+import {blurSlide, crossZoom, dreamyZoom, filmBurn, linearBlur} from "@remotion/transitions";
 import type {HtmlInCanvasShader, TransitionPresentation} from "@remotion/transitions";
 import {makeHtmlInCanvasPresentation} from "@remotion/transitions";
 import {HtmlInCanvas} from "remotion";
@@ -38,9 +46,32 @@ const irisWipeShader: HtmlInCanvasShader<Record<string, never>> = (canvas) => {
 
 const irisWipe = makeHtmlInCanvasPresentation(irisWipeShader);
 
-// fade() and irisWipe() carry different (unrelated) presentation-prop
-// types, so this factory's return type is widened to a common
-// PresentationProps of Record<string, unknown> -- both branches are still
-// internally type-correct, only this shared boundary is loosened.
-export const irisWipeOrFallback = (): TransitionPresentation<Record<string, unknown>> =>
-  (HtmlInCanvas.isSupported() ? irisWipe({}) : fade()) as TransitionPresentation<Record<string, unknown>>;
+// @remotion/transitions ships a whole family of *other* built-in
+// presentations beyond fade()/slide()/wipe(): bookFlip, crossZoom,
+// crosswarp, dissolve, dreamyZoom, filmBurn, linearBlur, ripple, swap,
+// zoomBlur, zoomInOut and blurSlide. Every one of them is ALSO built with
+// makeHtmlInCanvasPresentation() internally (see each's source under
+// packages/transitions/src/presentations/), so they all need the exact
+// same Chrome 149+ HTML-in-canvas support as the custom iris-wipe above --
+// this one shared helper wraps any such presentation factory with the same
+// isSupported()-gated fallback to fade(), rather than repeating the same
+// three-line check twelve times.
+const orFallback = <TPassedProps extends Record<string, unknown>>(
+  presentation: (props: TPassedProps) => TransitionPresentation<TPassedProps>,
+  props: TPassedProps,
+) => (): TransitionPresentation<Record<string, unknown>> =>
+  (HtmlInCanvas.isSupported() ? presentation(props) : fade()) as TransitionPresentation<Record<string, unknown>>;
+
+export const irisWipeOrFallback = orFallback(irisWipe, {});
+export const bookFlipOrFallback = orFallback(bookFlip, {});
+export const crossZoomOrFallback = orFallback(crossZoom, {});
+export const crosswarpOrFallback = orFallback(crosswarp, {});
+export const dissolveOrFallback = orFallback(dissolve, {});
+export const dreamyZoomOrFallback = orFallback(dreamyZoom, {});
+export const filmBurnOrFallback = orFallback(filmBurn, {});
+export const linearBlurOrFallback = orFallback(linearBlur, {});
+export const rippleOrFallback = orFallback(ripple, {});
+export const swapOrFallback = orFallback(swap, {});
+export const zoomBlurOrFallback = orFallback(zoomBlur, {});
+export const zoomInOutOrFallback = orFallback(zoomInOut, {});
+export const blurSlideOrFallback = orFallback(blurSlide, {});

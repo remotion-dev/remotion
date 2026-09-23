@@ -1,7 +1,8 @@
-import {Audio} from "@remotion/media";
+import {Audio, getTargetSampleRate} from "@remotion/media";
 import {
   audioBufferToDataUrl,
   createSmoothSvgPath,
+  getAudioData,
   getImageDimensions,
   getWaveformPortion,
   useAudioData,
@@ -39,6 +40,10 @@ const HEIGHT = 160;
 //   re-encodes it as a data: URL, played back (muted, so it doesn't double
 //   the audible track) through <Html5Audio> instead of a frame-synced
 //   <Audio>/<OffthreadVideo> decoder.
+// - getAudioData(): the promise-based, non-hook twin of useAudioData() --
+//   same decode, callable outside a component's render.
+// - getTargetSampleRate() (from @remotion/media, not media-utils): the
+//   sample rate this render's audio pipeline actually resamples to.
 // getAudioDurationInSeconds()/getVideoMetadata() are intentionally not used
 // here — Remotion deprecated both in favor of Mediabunny's getMediaMetadata().
 export const AudioScene: React.FC = () => {
@@ -56,13 +61,21 @@ export const AudioScene: React.FC = () => {
 
   const [imageSize, setImageSize] = useState<{width: number; height: number} | null>(null);
   const [dataUrl, setDataUrl] = useState<string | null>(null);
+  // getAudioData() is the promise-based, non-hook twin of useAudioData()
+  // above -- same decode, but callable outside a component's render (a
+  // preprocessing script, for example) rather than tied to a frame.
+  const [audioDataDirect, setAudioDataDirect] = useState<Awaited<ReturnType<typeof getAudioData>> | null>(null);
   const [handle] = useState(() => delayRender("loading media-utils extras"));
+  // The sample rate Remotion's audio pipeline will actually resample to for
+  // this render (48kHz by default, or Config.setAudioSampleRate()'s value).
+  const targetSampleRate = getTargetSampleRate();
 
   useEffect(() => {
     (async () => {
       try {
         const dimensions = await getImageDimensions(staticFile("sample-clip.gif"));
         setImageSize(dimensions);
+        setAudioDataDirect(await getAudioData(staticFile("sample-tone.wav")));
 
         const response = await fetch(staticFile("sample-tone.wav"));
         const arrayBuffer = await response.arrayBuffer();
@@ -142,6 +155,10 @@ export const AudioScene: React.FC = () => {
         }}
       >
         {imageSize ? `sample-clip.gif is ${imageSize.width}×${imageSize.height}px` : "Measuring…"} · audioBufferToDataUrl → &lt;Html5Audio&gt; (muted)
+      </div>
+      <div style={{position: "absolute", bottom: 30, width, textAlign: "center", color: palette.textDim, fontSize: 14, fontFamily: "monospace"}}>
+        getTargetSampleRate(): {targetSampleRate}Hz
+        {audioDataDirect ? ` · getAudioData(): ${audioDataDirect.numberOfChannels}ch @ ${audioDataDirect.sampleRate}Hz, ${audioDataDirect.durationInSeconds.toFixed(2)}s` : ""}
       </div>
       <Audio src={staticFile("sample-tone.wav")} volume={0.5} />
       {dataUrl ? <Html5Audio src={dataUrl} volume={0} /> : null}

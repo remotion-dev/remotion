@@ -1,7 +1,30 @@
 import {translateY} from "@remotion/animation-utils";
 import {CameraMotionBlur, Trail} from "@remotion/motion-blur";
 import {noise2D, noise3D, noise4D} from "@remotion/noise";
-import {Arrow, Callout, Circle, Ellipse, Heart, Pie, Polygon, Rect, Spark, Star, Triangle, makeStar} from "@remotion/shapes";
+import {
+  Arrow,
+  Callout,
+  Circle,
+  Ellipse,
+  Heart,
+  Pie,
+  Polygon,
+  Rect,
+  Spark,
+  Star,
+  Triangle,
+  makeArrow,
+  makeCallout,
+  makeCircle,
+  makeEllipse,
+  makeHeart,
+  makePie,
+  makePolygon,
+  makeRect,
+  makeSpark,
+  makeStar,
+  makeTriangle,
+} from "@remotion/shapes";
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
@@ -20,20 +43,36 @@ const SHAPES = [
   {name: "Callout", delay: 40, color: "#f472b6"},
 ] as const;
 
-// makeStar() returns raw path data (path/width/height/instructions) instead
-// of rendering an SVG element -- the "generate coordinates yourself" half of
-// @remotion/shapes' API, distinct from the pre-built <Star> component below.
+// Every make*() function returns the same raw ShapeInfo shape
+// (path/width/height/transformOrigin/instructions) instead of rendering an
+// SVG element -- the "generate coordinates yourself" half of
+// @remotion/shapes' API, distinct from the pre-built components above.
 // Useful when you need the path for @remotion/paths functions or a custom
-// <svg> composition rather than a standalone shape.
-const customStarPath = makeStar({innerRadius: 14, outerRadius: 30, points: 6});
+// <svg> composition rather than a standalone shape. Rendered as its own
+// compact strip below the main grid, all 11 make*() siblings alongside
+// makeStar().
+const RAW_SHAPES = [
+  {name: "circle", color: palette.accent, ...makeCircle({radius: 22})},
+  {name: "ellipse", color: "#34d399", ...makeEllipse({rx: 28, ry: 18})},
+  {name: "rect", color: "#34d399", ...makeRect({width: 44, height: 44, cornerRadius: 8})},
+  {name: "triangle", color: "#f472b6", ...makeTriangle({length: 48, direction: "up"})},
+  {name: "arrow", color: palette.accent, ...makeArrow({length: 48, headWidth: 30, headLength: 20, shaftWidth: 12})},
+  {name: "heart", color: "#f87171", ...makeHeart({height: 40})},
+  {name: "pie", color: palette.accent2, ...makePie({radius: 22, progress: 0.65})},
+  {name: "polygon", color: "#a78bfa", ...makePolygon({points: 5, radius: 22})},
+  {name: "spark", color: "#facc15", ...makeSpark({width: 34, height: 46})},
+  {name: "callout", color: "#f472b6", ...makeCallout({width: 64, height: 30})},
+  {name: "star", color: palette.text, ...makeStar({innerRadius: 14, outerRadius: 30, points: 6})},
+] as const;
 
 // Demonstrates: @remotion/shapes' full set of pre-built shape components
-// plus makeStar()'s raw-path-data API, @remotion/motion-blur's <Trail> (on
-// the moving star) and <CameraMotionBlur> (wrapping the whole grid, a
-// camera-level blur distinct from Trail's per-object echo), and all three
-// @remotion/noise functions: noise2D() shifts the background gradient,
-// noise3D() rotates its hue, noise4D() varies a film-grain overlay's
-// opacity.
+// (main grid) AND every one of its raw-path-data make*() siblings (the
+// strip below it, all 11 sharing the same {path, width, height} ShapeInfo
+// shape), @remotion/motion-blur's <Trail> (on the moving star) and
+// <CameraMotionBlur> (wrapping the whole grid, a camera-level blur distinct
+// from Trail's per-object echo), and all three @remotion/noise functions:
+// noise2D() shifts the background gradient, noise3D() rotates its hue,
+// noise4D() varies a film-grain overlay's opacity.
 export const ShapesScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, width} = useVideoConfig();
@@ -134,13 +173,26 @@ export const ShapesScene: React.FC = () => {
             </div>
           );
         })}
-        <div style={{transform: `scale(${spring({fps, frame: frame - 44, config: {damping: 12, mass: 0.6}})})`}}>
-          <svg width={customStarPath.width} height={customStarPath.height}>
-            <path d={customStarPath.path} fill={palette.text} />
-          </svg>
-        </div>
       </div>
       </CameraMotionBlur>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 130,
+          width,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-end",
+          gap: 20,
+          opacity: interpolate(frame, [44, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"}),
+        }}
+      >
+        {RAW_SHAPES.map((shape) => (
+          <svg key={shape.name} width={shape.width} height={shape.height} style={{overflow: "visible"}}>
+            <path d={shape.path} fill={shape.color} />
+          </svg>
+        ))}
+      </div>
       <div
         style={{
           position: "absolute",

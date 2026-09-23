@@ -4,14 +4,23 @@ import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
 
+type OutroSceneProps = {
+  // A @remotion/zod-types' zMatrix() value from FullReel's schema -- a flat
+  // square array (2x2 here) rather than a full CSS matrix3d()'s 16 values.
+  // null in reels that don't expose this parameter.
+  logoMatrix: number[] | null;
+};
+
 // Demonstrates: @remotion/animation-utils' interpolateStyles() for combining
-// multiple animated CSS properties in one call, plus rough-notation's six
-// annotation styles as a closing flourish: <Underline>, <Box>, <Circle>,
-// <Bracket>, <StrikeThrough> and <CrossedOff> (<Highlight> is used in
-// TitleScene).
-export const OutroScene: React.FC = () => {
+// multiple animated CSS properties in one call, rough-notation's six
+// annotation styles as a closing flourish (<Underline>, <Box>, <Circle>,
+// <Bracket>, <StrikeThrough> and <CrossedOff> -- <Highlight> is used in
+// TitleScene), and @remotion/zod-types' zMatrix() (FullReel's schema),
+// applied as a real CSS matrix() transform on the wordmark.
+export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
   const frame = useCurrentFrame();
   const {fps, width} = useVideoConfig();
+  const [matrixA, matrixB, matrixC, matrixD] = logoMatrix ?? [1, 0, 0, 1];
 
   const intro = interpolateStyles(
     frame,
@@ -97,14 +106,14 @@ export const OutroScene: React.FC = () => {
           fontSize: 32,
           letterSpacing: 4,
           color: palette.accent2,
-          transform: `scale(${wordmarkScale})`,
+          transform: `scale(${wordmarkScale}) matrix(${matrixA}, ${matrixB}, ${matrixC}, ${matrixD}, 0, 0)`,
           opacity: interpolate(frame, [30, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"}),
         }}
       >
         MY-VIDEO
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.textDim, fontSize: 24}}>
-        @remotion/animation-utils · @remotion/rough-notation (6 annotation styles)
+        @remotion/animation-utils · @remotion/rough-notation (6 styles) · @remotion/zod-types zMatrix()
       </div>
     </AbsoluteFill>
   );
