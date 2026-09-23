@@ -8,7 +8,7 @@ import {
 	type PcmS16AudioData,
 	type UnresampledPcmS16AudioData,
 } from '../convert-audiodata/convert-audiodata';
-import {calculateEndTime, getTimeInSeconds} from '../get-time-in-seconds';
+import {getTimeInSeconds} from '../get-time-in-seconds';
 import {
 	isNetworkError,
 	isUnsupportedConfigurationError,
@@ -107,157 +107,102 @@ const extractAudioInternal = async ({
 	}
 
 	try {
+		const sampleIterator = await mediaCache.audioManager.getIterator({
+			src,
+			timeInSeconds,
+			audioSampleSink: audio.sampleSink,
+			isMatroska,
+			actualMatroskaTimestamps,
+			logLevel,
+			maxCacheSize,
+		});
+
+		const durationInSeconds = durationNotYetApplyingPlaybackRate * playbackRate;
+
+		const samples = await sampleIterator.getSamples(
+			timeInSeconds,
+			durationInSeconds,
+		);
+
+		mediaCache.audioManager.logOpenFrames();
+
 		const audioDataArray: UnresampledPcmS16AudioData[] = [];
-		const loopStartInSeconds = (trimBefore ?? 0) / fps;
-		const loopEndInSeconds = loop
-			? calculateEndTime({
-					mediaDurationInSeconds,
-					ifNoMediaDuration: 'fail',
-					src,
-					trimAfter,
-					trimBefore,
-					fps,
-				})
-			: Infinity;
-		let remainingDuration = durationNotYetApplyingPlaybackRate * playbackRate;
-		let segmentTimeInSeconds = timeInSeconds;
+		for (let i = 0; i < samples.length; i++) {
+			const sample = samples[i];
 
-		// A rendered frame can cross a trimmed loop boundary, or even several
-		// complete loops. Join the source slices before resampling the output frame.
-		while (remainingDuration > 0) {
-			const durationInSeconds = Math.min(
-				remainingDuration,
-				loopEndInSeconds - segmentTimeInSeconds,
-			);
-			if (durationInSeconds <= 0) {
-				break;
+			// Less than 1 sample would be included - we did not need it after all!
+			if (
+				Math.abs(sample.timestamp - (timeInSeconds + durationInSeconds)) *
+					sample.sampleRate <
+				1
+			) {
+				continue;
 			}
 
-			const sampleIterator = await mediaCache.audioManager.getIterator({
-				src,
-				timeInSeconds: segmentTimeInSeconds,
-				audioSampleSink: audio.sampleSink,
-				isMatroska,
-				actualMatroskaTimestamps,
-				logLevel,
-				maxCacheSize,
-			});
+			// Less than 1 sample would be included - we did not need it after all!
+			if (sample.timestamp + sample.duration <= timeInSeconds) {
+				continue;
+			}
 
-			const samples = await sampleIterator.getSamples(
-				segmentTimeInSeconds,
-				durationInSeconds,
-			);
+			const isFirstSample = i === 0;
+			const isLastSample = i === samples.length - 1;
 
-			mediaCache.audioManager.logOpenFrames();
-			let segmentAudioFrames = 0;
+			const audioDataRaw = sample.toAudioData();
 
-			for (let i = 0; i < samples.length; i++) {
-				const sample = samples[i];
+			// amount of samples to shave from start and end
+			let trimStartInSeconds = 0;
+			let trimEndInSeconds = 0;
+			let leadingSilence: UnresampledPcmS16AudioData | null = null;
 
-				// Less than 1 sample would be included - we did not need it after all!
-				if (
-					Math.abs(
-						sample.timestamp - (segmentTimeInSeconds + durationInSeconds),
-					) *
-						sample.sampleRate <
-					1
-				) {
-					continue;
-				}
+			if (isFirstSample) {
+				trimStartInSeconds = fixFloatingPoint(timeInSeconds - sample.timestamp);
 
-				// Less than 1 sample would be included - we did not need it after all!
-				if (sample.timestamp + sample.duration <= segmentTimeInSeconds) {
-					continue;
-				}
-
-				const isFirstSample = i === 0;
-				const isLastSample = i === samples.length - 1;
-
-				const audioDataRaw = sample.toAudioData();
-
-				// amount of samples to shave from start and end
-				let trimStartInSeconds = 0;
-				let trimEndInSeconds = 0;
-				let leadingSilence: UnresampledPcmS16AudioData | null = null;
-
-				if (isFirstSample) {
-					trimStartInSeconds = fixFloatingPoint(
-						segmentTimeInSeconds - sample.timestamp,
+				if (trimStartInSeconds < 0) {
+					const silenceFrames = Math.ceil(
+						fixFloatingPoint(-trimStartInSeconds * audioDataRaw.sampleRate),
 					);
-
-					if (trimStartInSeconds < 0) {
-						const silenceFrames = Math.ceil(
-							fixFloatingPoint(-trimStartInSeconds * audioDataRaw.sampleRate),
-						);
-						leadingSilence = {
-							data: new Int16Array(
-								silenceFrames * audioDataRaw.numberOfChannels,
-							),
-							numberOfChannels: audioDataRaw.numberOfChannels,
-							numberOfFrames: silenceFrames,
-							sampleRate: audioDataRaw.sampleRate,
-							timestamp: segmentTimeInSeconds * 1_000_000,
-							durationInMicroSeconds:
-								(silenceFrames / audioDataRaw.sampleRate) * 1_000_000,
-						};
-						trimStartInSeconds = 0;
-					}
+					leadingSilence = {
+						data: new Int16Array(silenceFrames * audioDataRaw.numberOfChannels),
+						numberOfChannels: audioDataRaw.numberOfChannels,
+						numberOfFrames: silenceFrames,
+						sampleRate: audioDataRaw.sampleRate,
+						timestamp: timeInSeconds * 1_000_000,
+						durationInMicroSeconds:
+							(silenceFrames / audioDataRaw.sampleRate) * 1_000_000,
+					};
+					trimStartInSeconds = 0;
 				}
-
-				if (isLastSample) {
-					trimEndInSeconds =
-						// clamp to 0 in case the audio ends early
-						Math.max(
-							0,
-							sample.timestamp +
-								sample.duration -
-								(segmentTimeInSeconds + durationInSeconds),
-						);
-				}
-
-				const audioData = convertAudioDataToS16({
-					audioData: audioDataRaw,
-					trimStartInSeconds,
-					trimEndInSeconds,
-					audioDataTimestamp: sample.timestamp,
-					isLast: isLastSample,
-				});
-				audioDataRaw.close();
-
-				if (audioData.numberOfFrames === 0) {
-					continue;
-				}
-
-				if (leadingSilence) {
-					audioDataArray.push(leadingSilence);
-					segmentAudioFrames += leadingSilence.numberOfFrames;
-				}
-
-				audioDataArray.push(audioData);
-				segmentAudioFrames += audioData.numberOfFrames;
 			}
 
-			// A container can outlast its audio track. Preserve that silent tail
-			// before appending the next loop, so the following audio stays in sync.
-			const missingFrames =
-				Math.ceil(fixFloatingPoint(durationInSeconds * audio.sampleRate)) -
-				segmentAudioFrames;
-			if (loop && missingFrames > 0) {
-				audioDataArray.push({
-					data: new Int16Array(missingFrames * audio.numberOfChannels),
-					numberOfChannels: audio.numberOfChannels,
-					numberOfFrames: missingFrames,
-					sampleRate: audio.sampleRate,
-					timestamp:
-						(segmentTimeInSeconds + segmentAudioFrames / audio.sampleRate) *
-						1_000_000,
-					durationInMicroSeconds:
-						(missingFrames / audio.sampleRate) * 1_000_000,
-				});
+			if (isLastSample) {
+				trimEndInSeconds =
+					// clamp to 0 in case the audio ends early
+					Math.max(
+						0,
+						sample.timestamp +
+							sample.duration -
+							(timeInSeconds + durationInSeconds),
+					);
 			}
 
-			remainingDuration -= durationInSeconds;
-			segmentTimeInSeconds = loopStartInSeconds;
+			const audioData = convertAudioDataToS16({
+				audioData: audioDataRaw,
+				trimStartInSeconds,
+				trimEndInSeconds,
+				audioDataTimestamp: sample.timestamp,
+				isLast: isLastSample,
+			});
+			audioDataRaw.close();
+
+			if (audioData.numberOfFrames === 0) {
+				continue;
+			}
+
+			if (leadingSilence) {
+				audioDataArray.push(leadingSilence);
+			}
+
+			audioDataArray.push(audioData);
 		}
 
 		if (audioDataArray.length === 0) {
