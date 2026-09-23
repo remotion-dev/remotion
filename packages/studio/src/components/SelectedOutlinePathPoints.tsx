@@ -26,9 +26,13 @@ export const SelectedOutlinePathPoints: React.FC<{
 	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const {points, connections} = useMemo(() => {
+	const {points, connections, implicitTControls} = useMemo(() => {
 		if (outline.path === null) {
-			return {points: [], connections: []};
+			return {
+				points: [],
+				connections: [],
+				implicitTControls: new Map<number, {x: number; y: number}>(),
+			};
 		}
 
 		try {
@@ -47,6 +51,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 				y2: number;
 				key: string;
 			}[] = [];
+			const pathImplicitTControls = new Map<number, {x: number; y: number}>();
 			let x = 0;
 			let y = 0;
 			let subpathX = 0;
@@ -170,6 +175,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 									x: 2 * x - previousQuadraticControl.x,
 									y: 2 * y - previousQuadraticControl.y,
 								};
+					pathImplicitTControls.set(instructionIndex, control);
 					if (control.x !== x || control.y !== y) {
 						pathConnections.push(
 							{
@@ -251,9 +257,14 @@ export const SelectedOutlinePathPoints: React.FC<{
 						key: connection.key,
 					};
 				}),
+				implicitTControls: pathImplicitTControls,
 			};
 		} catch {
-			return {points: [], connections: []};
+			return {
+				points: [],
+				connections: [],
+				implicitTControls: new Map<number, {x: number; y: number}>(),
+			};
 		}
 	}, [outline.path]);
 
@@ -325,6 +336,14 @@ export const SelectedOutlinePathPoints: React.FC<{
 					localDeltaY === 0
 						? point.localY
 						: Math.round((point.localY + localDeltaY) * 100) / 100;
+				const translatedX = (value: number) =>
+					nextX === point.localX
+						? value
+						: Math.round((value + nextX - point.localX) * 100) / 100;
+				const translatedY = (value: number) =>
+					nextY === point.localY
+						? value
+						: Math.round((value + nextY - point.localY) * 100) / 100;
 
 				const instruction = instructions[point.instructionIndex];
 				if (instruction === undefined) {
@@ -343,6 +362,35 @@ export const SelectedOutlinePathPoints: React.FC<{
 							nextX === point.localX
 								? {...instruction, y: nextY}
 								: {type: 'L', x: nextX, y: nextY};
+					} else if (instruction.type === 'C') {
+						updated = {
+							...instruction,
+							cp2x: translatedX(instruction.cp2x),
+							cp2y: translatedY(instruction.cp2y),
+							x: nextX,
+							y: nextY,
+						};
+					} else if (instruction.type === 'S' || instruction.type === 'Q') {
+						updated = {
+							...instruction,
+							cpx: translatedX(instruction.cpx),
+							cpy: translatedY(instruction.cpy),
+							x: nextX,
+							y: nextY,
+						};
+					} else if (instruction.type === 'T') {
+						const control = implicitTControls.get(point.instructionIndex);
+						if (control === undefined) {
+							return;
+						}
+
+						updated = {
+							type: 'Q',
+							cpx: translatedX(control.x),
+							cpy: translatedY(control.y),
+							x: nextX,
+							y: nextY,
+						};
 					} else if ('x' in instruction && 'y' in instruction) {
 						updated = {...instruction, x: nextX, y: nextY};
 					} else {
@@ -381,6 +429,23 @@ export const SelectedOutlinePathPoints: React.FC<{
 
 				const nextInstructions = instructions.slice();
 				nextInstructions[point.instructionIndex] = updated;
+				if (point.role === 'end') {
+					const nextInstruction = instructions[point.instructionIndex + 1];
+					if (nextInstruction?.type === 'C') {
+						nextInstructions[point.instructionIndex + 1] = {
+							...nextInstruction,
+							cp1x: translatedX(nextInstruction.cp1x),
+							cp1y: translatedY(nextInstruction.cp1y),
+						};
+					} else if (nextInstruction?.type === 'Q') {
+						nextInstructions[point.instructionIndex + 1] = {
+							...nextInstruction,
+							cpx: translatedX(nextInstruction.cpx),
+							cpy: translatedY(nextInstruction.cpy),
+						};
+					}
+				}
+
 				const nextD = serializeInstructions(nextInstructions);
 				if (lastD === nextD) {
 					return;
