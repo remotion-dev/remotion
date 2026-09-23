@@ -49,6 +49,10 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
           color={palette.accent2}
           rtl
           bowing={3}
+          strokeWidth={8}
+          iterations={1}
+          padding={{top: 4}}
+          name="Outro underline"
           progress={interpolate(frame, [12, 32], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
         >
           Ready
@@ -68,20 +72,53 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
         }}
       >
         Ask in{" "}
-        <Box color={palette.accent} strokeWidth={3} padding={{left: 8, right: 8}} progress={interpolate(frame, [18, 34], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        {/* A new seed every 4 frames redraws the rough shape, the "boiling"
+            hand-drawn look the seed docs describe; preserveVertices keeps
+            the corners where they are while the edges wobble. */}
+        <Box
+          color={palette.accent}
+          strokeWidth={3}
+          iterations={1}
+          padding={{left: 8, right: 8}}
+          seed={Math.floor(frame / 4)}
+          preserveVertices
+          name="Outro box"
+          progress={interpolate(frame, [18, 34], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
+        >
           Claude Chat
         </Box>
         ,{" "}
-        {/* box defaults to "around" (circumscribes the text); strokeWidth defaults to 20, which buried the words. */}
-        <Circle color={palette.accent2} strokeWidth={6} roughness={2.5} curveTightness={0.4} progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        {/* strokeWidth defaults to 20 (7 for <Box>), which buries the words, so
+            every annotation here sets its own. box="inside" fits the ellipse
+            inside the padded box instead of circumscribing the text, so the
+            padding is what keeps it clear of the words. style applies to the
+            circled text itself. */}
+        <Circle
+          color={palette.accent2}
+          strokeWidth={6}
+          iterations={1}
+          roughness={2.5}
+          curveTightness={0.4}
+          curveFitting={0.9}
+          curveStepCount={12}
+          box="inside"
+          padding={{left: 34, right: 34, top: 16, bottom: 16}}
+          style={{color: palette.text}}
+          name="Outro circle"
+          progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
+        >
           Claude Cowork
         </Circle>
         , or{" "}
         <Bracket
           color={palette.accent}
+          strokeWidth={4}
+          padding={{left: 6, right: 6, top: 2, bottom: 2}}
           bracketLeft
           bracketRight
+          bracketTop
           bracketBottom
+          name="Outro bracket"
           progress={interpolate(frame, [30, 46], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
         >
           Claude Code
@@ -97,11 +134,28 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
         }}
       >
         No{" "}
-        <StrikeThrough color={palette.textDim} seed={7} disableMultiStroke progress={interpolate(frame, [48, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <StrikeThrough
+          color={palette.textDim}
+          seed={7}
+          disableMultiStroke
+          strokeWidth={3}
+          iterations={2}
+          rtl
+          name="Outro strike-through"
+          progress={interpolate(frame, [48, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
+        >
           manual editing
         </StrikeThrough>
         , no{" "}
-        <CrossedOff color={palette.textDim} maxRandomnessOffset={4} iterations={2} progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <CrossedOff
+          color={palette.textDim}
+          maxRandomnessOffset={4}
+          iterations={2}
+          strokeWidth={3}
+          rtl
+          name="Outro crossed-off"
+          progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
+        >
           timelines
         </CrossedOff>
         .

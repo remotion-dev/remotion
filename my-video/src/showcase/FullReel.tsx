@@ -165,8 +165,9 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
           <EffectsScene accentColor={accentColor} />
         </TransitionSeries.Sequence>
         {/* An overlay, not a transition: a transition mounts both scenes at
-            once, and EffectsScene's WebGL2 contexts plus the catalog's 12
-            would reach Chrome's limit of about 16 (see EffectsCatalogScene). */}
+            once, and EffectsScene's 4 WebGL2 contexts plus the catalog's 12
+            would sit exactly at Chrome's limit of 16, with no headroom (see
+            EffectsCatalogScene). */}
         <TransitionSeries.Overlay durationInFrames={20}>
           <CutFlash />
         </TransitionSeries.Overlay>
