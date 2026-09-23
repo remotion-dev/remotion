@@ -129,15 +129,20 @@ export const RoundedTextBoxScene: React.FC = () => {
 
   const scale = spring({frame, fps, config: {damping: 12}});
 
-  // getAvailableFonts() is the catalog-browsing half of @remotion/google-fonts
-  // -- font.ts uses the per-font subpath import to load Poppins directly,
-  // this lists every font the package knows about.
+  // getAvailableFonts() is the catalog-browsing half of @remotion/google-fonts:
+  // it lists every font the package knows about, without fetching anything.
+  // No scene loads a Google Font. font.ts's `poppins` is a system font stack,
+  // because fonts.gstatic.com fails inside this sandbox's renderer.
   const availableFonts = useMemo(() => getAvailableFonts(), []);
   const poppinsListed = availableFonts.some((f) => f.fontFamily === "Poppins");
   // getInfo() is the per-font metadata loadFont() works from: every weight,
   // style and subset, with its fonts.gstatic.com URL. Reading it fetches
-  // nothing, so unlike loadFont() it works in this sandbox.
+  // nothing, so unlike loadFont() it works in this sandbox. Its subsets are
+  // why the real Poppins can't set Vietnamese: there is no "vietnamese" one,
+  // so letters such as ế and ữ would come from a fallback font mid-word (see
+  // "Language" in AGENTS.md).
   const poppinsInfo = useMemo(() => getInfo(), []);
+  const poppinsVietnamese = poppinsInfo.subsets.some((subset) => subset === "vietnamese");
 
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins, justifyContent: "center", alignItems: "center"}}>
@@ -188,9 +193,14 @@ export const RoundedTextBoxScene: React.FC = () => {
           loadFont(): self-hosted {LOCAL_FONT_FAMILY}, weight 400, U+0020-007E
         </div>
       ) : null}
-      <div style={{marginTop: 10, fontSize: 14, color: palette.textDim, fontFamily: "monospace"}}>
-        getAvailableFonts(): {availableFonts.length} Google Fonts (Poppins listed: {String(poppinsListed)}) · Poppins getInfo():{" "}
-        {Object.keys(poppinsInfo.fonts.normal).length} weights × {Object.keys(poppinsInfo.fonts).length} styles, {Object.keys(poppinsInfo.unicodeRanges).join("/")}
+      <div style={{marginTop: 10, fontSize: 14, color: palette.textDim, fontFamily: "monospace", textAlign: "center"}}>
+        <div>
+          getAvailableFonts(): {availableFonts.length} Google Fonts (Poppins listed: {String(poppinsListed)})
+        </div>
+        <div>
+          Poppins getInfo(): {Object.keys(poppinsInfo.fonts.normal).length} weights × {Object.keys(poppinsInfo.fonts).length} styles ·
+          subsets: {poppinsInfo.subsets.join(", ")} · includes "vietnamese": {String(poppinsVietnamese)}
+        </div>
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 32, fontWeight: 600}}>
         fitTextOnNLines() · measureText() · fitText() · fillTextBox() · loadFont()

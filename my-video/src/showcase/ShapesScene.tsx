@@ -51,20 +51,34 @@ const SHAPES = [
 // Useful when you need the path for @remotion/paths functions or a custom
 // <svg> composition rather than a standalone shape. Rendered as its own
 // compact strip below the main grid, all 11 make*() siblings alongside
-// makeStar().
+// makeStar(). Star, Triangle, Rect, Polygon and Callout can round with
+// edgeRoundness (Bézier curves along each edge) or cornerRadius (an arc at
+// each corner, like CSS border-radius), but not both: make*() throws if both
+// are set. So each of these uses whichever one its component in the grid
+// doesn't. Arrow only has cornerRadius.
 const RAW_SHAPES = [
   {name: "circle", color: palette.accent, ...makeCircle({radius: 22})},
   {name: "ellipse", color: "#34d399", ...makeEllipse({rx: 28, ry: 18})},
-  {name: "rect", color: "#34d399", ...makeRect({width: 44, height: 44, cornerRadius: 8})},
-  {name: "triangle", color: "#f472b6", ...makeTriangle({length: 48, direction: "up"})},
-  {name: "arrow", color: palette.accent, ...makeArrow({length: 48, headWidth: 30, headLength: 20, shaftWidth: 12})},
+  {name: "rect", color: "#34d399", ...makeRect({width: 44, height: 44, edgeRoundness: 1})},
+  {name: "triangle", color: "#f472b6", ...makeTriangle({length: 48, direction: "up", cornerRadius: 6})},
+  {
+    name: "arrow",
+    color: palette.accent,
+    ...makeArrow({length: 48, headWidth: 30, headLength: 20, shaftWidth: 12, direction: "up", cornerRadius: 3}),
+  },
   {name: "heart", color: "#f87171", ...makeHeart({height: 40})},
   // closePath: false skips the line back to the centre, so this one is an open arc.
   {name: "pie", color: palette.accent2, ...makePie({radius: 22, progress: 0.65, closePath: false})},
-  {name: "polygon", color: "#a78bfa", ...makePolygon({points: 5, radius: 22})},
+  {name: "polygon", color: "#a78bfa", ...makePolygon({points: 5, radius: 22, edgeRoundness: 1})},
   {name: "spark", color: "#facc15", ...makeSpark({width: 34, height: 46})},
-  {name: "callout", color: "#f472b6", ...makeCallout({width: 64, height: 30})},
-  {name: "star", color: palette.text, ...makeStar({innerRadius: 14, outerRadius: 30, points: 6})},
+  // The pointer defaults (40 long, 60 wide) are sized for the 500×200 default
+  // body and would swallow this 64×30 one.
+  {
+    name: "callout",
+    color: "#f472b6",
+    ...makeCallout({width: 64, height: 30, pointerLength: 10, pointerBaseWidth: 14, edgeRoundness: 1}),
+  },
+  {name: "star", color: palette.text, ...makeStar({innerRadius: 14, outerRadius: 30, points: 6, cornerRadius: 3})},
 ] as const;
 
 // Demonstrates: @remotion/shapes' full set of pre-built shape components
@@ -142,17 +156,18 @@ export const ShapesScene: React.FC = () => {
                   <Star
                     points={5}
                     innerRadius={20} outerRadius={44}
+                    edgeRoundness={0.6}
                     fill={shape.color}
                     style={{transform: translateY(bob)}}
                   />
                 );
               case "Triangle":
-                return <Triangle length={90} direction="up" fill={shape.color} />;
+                return <Triangle length={90} direction="up" edgeRoundness={1} fill={shape.color} />;
               case "Rect":
                 // makeTransform() composes animation-utils helpers into one transform string.
                 return <Rect width={80} height={80} fill={shape.color} cornerRadius={12} style={{transform: makeTransform([rotate(frame * 3), skewX(10)])}} />;
               case "Arrow":
-                return <Arrow length={90} headWidth={56} headLength={36} shaftWidth={22} fill={shape.color} direction="right" />;
+                return <Arrow length={90} headWidth={56} headLength={36} shaftWidth={22} cornerRadius={6} fill={shape.color} direction="right" />;
               case "Heart":
                 return <Heart height={80} aspectRatio={1.3} bottomRoundnessAdjustment={0.4} depthAdjustment={-0.3} fill={shape.color} />;
               case "Pie":
@@ -167,8 +182,9 @@ export const ShapesScene: React.FC = () => {
               case "Spark":
                 return <Spark width={70} height={98} edgeRoundness={1} cornerRadius={0} fill={shape.color} />;
               case "Callout":
+                // pointerPosition runs from 0 to 1 along the side the pointer is on.
                 return (
-                  <Callout width={140} height={64} pointerLength={16} pointerBaseWidth={24} pointerDirection="down" cornerRadius={10} fill={shape.color} />
+                  <Callout width={140} height={64} pointerLength={16} pointerBaseWidth={24} pointerDirection="down" pointerPosition={0.25} cornerRadius={10} fill={shape.color} />
                 );
             }
           })();
