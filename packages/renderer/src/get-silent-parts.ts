@@ -26,14 +26,6 @@ export const getSilentParts = async ({
 	noiseThresholdInDecibels?: number;
 	binariesDirectory?: string | null;
 }): Promise<GetSilentPartsResponse> => {
-	const compositor = startLongRunningCompositor({
-		maximumFrameCacheItemsInBytes: null,
-		logLevel: logLevel ?? 'info',
-		indent: false,
-		binariesDirectory: binariesDirectory ?? null,
-		extraThreads: 0,
-	});
-
 	const minDurationInSeconds = passedMinDuration ?? 1;
 
 	if (typeof minDurationInSeconds !== 'number') {
@@ -62,20 +54,33 @@ export const getSilentParts = async ({
 		);
 	}
 
-	const res = await compositor.executeCommand('GetSilences', {
-		src,
-		minDurationInSeconds,
-		noiseThresholdInDecibels,
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: logLevel ?? 'info',
+		indent: false,
+		binariesDirectory: binariesDirectory ?? null,
+		extraThreads: 0,
 	});
 
-	const response = JSON.parse(
+	let res: Uint8Array;
+	try {
+		res = await compositor.executeCommand('GetSilences', {
+			src,
+			minDurationInSeconds,
+			noiseThresholdInDecibels,
+		});
+	} catch (executeError) {
+		// Shut down the compositor so that it does not keep the Node.js process alive,
+		// but surface the original error rather than a shutdown error
+		await compositor.shutDownOrKill().catch(() => undefined);
+		throw executeError;
+	}
+
+	await compositor.shutDownOrKill();
+
+	const {silentParts, durationInSeconds} = JSON.parse(
 		new TextDecoder('utf-8').decode(res),
 	) as GetSilentPartsResponseRust;
-
-	await compositor.finishCommands();
-	await compositor.waitForDone();
-
-	const {silentParts, durationInSeconds} = response;
 
 	return {
 		silentParts,

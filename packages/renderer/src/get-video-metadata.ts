@@ -26,11 +26,19 @@ export const getVideoMetadata = async (
 		binariesDirectory: options?.binariesDirectory ?? null,
 		extraThreads: 0,
 	});
-	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
-		src: resolve(process.cwd(), videoSource),
-	});
-	await compositor.finishCommands();
-	await compositor.waitForDone();
+	let metadataResponse: Uint8Array;
+	try {
+		metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
+			src: resolve(process.cwd(), videoSource),
+		});
+	} catch (executeError) {
+		// Shut down the compositor so that it does not keep the Node.js process alive,
+		// but surface the original error rather than a shutdown error
+		await compositor.shutDownOrKill().catch(() => undefined);
+		throw executeError;
+	}
+
+	await compositor.shutDownOrKill();
 	return JSON.parse(
 		new TextDecoder('utf-8').decode(metadataResponse),
 	) as VideoMetadata;
