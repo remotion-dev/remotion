@@ -38,12 +38,17 @@ const boundingBox = getBoundingBox(ROUTE_PATH);
 // A faint wavy echo behind the main route, remapping every point's y
 // coordinate with warpPath() — purely decorative, but a real use of the API
 // rather than a manually-drawn second path.
-const warpedEcho = warpPath(ROUTE_PATH, (point) => ({...point, y: point.y + Math.sin(point.x / 45) * 14}));
+// interpolationThreshold subdivides segments longer than 8px before warping
+// (the default is derived from the path's size), so the wave stays smooth.
+const warpedEcho = warpPath(ROUTE_PATH, (point) => ({...point, y: point.y + Math.sin(point.x / 45) * 14}), {
+  interpolationThreshold: 8,
+});
 // A small "minimap" duplicate: reversed (traversed start-to-end backwards),
 // reset to a 0,0 origin, then scaled down to fit a corner inset.
 const minimapPath = scalePath(resetPath(reversePath(ROUTE_PATH)), 0.22, 0.22);
 const minimapBox = getBoundingBox(minimapPath);
-const minimapViewBox = extendViewBox(`0 0 ${minimapBox.x2} ${minimapBox.y2}`, 1.3);
+// getBoundingBox() already returns viewBox/width/height alongside x1..y2.
+const minimapViewBox = extendViewBox(minimapBox.viewBox, 1.3);
 // parsePath -> reduceInstructions -> serializeInstructions round-trip,
 // simplifying curves to line segments; normalizePath makes every
 // instruction absolute. Both just feed the info readout below.
@@ -112,8 +117,8 @@ export const RouteScene: React.FC = () => {
         <rect
           x={boundingBox.x1}
           y={boundingBox.y1}
-          width={boundingBox.x2 - boundingBox.x1}
-          height={boundingBox.y2 - boundingBox.y1}
+          width={boundingBox.width}
+          height={boundingBox.height}
           fill="none"
           stroke={palette.textDim}
           strokeWidth={1}
@@ -185,7 +190,7 @@ export const RouteScene: React.FC = () => {
           </Interactive.Text>
         </g>
         <svg x={1000} y={520} width={180} height={160} viewBox={minimapViewBox} style={{overflow: "visible"}}>
-          <rect x={0} y={0} width={minimapBox.x2} height={minimapBox.y2} fill={palette.bgAlt} rx={8} />
+          <rect x={minimapBox.x1} y={minimapBox.y1} width={minimapBox.width} height={minimapBox.height} fill={palette.bgAlt} rx={8} />
           <path d={minimapPath} fill="none" stroke={palette.accent2} strokeWidth={2} strokeLinecap="round" />
         </svg>
         <text x={1090} y={690} textAnchor="middle" fill={palette.textDim} fontSize={14} fontFamily="monospace">

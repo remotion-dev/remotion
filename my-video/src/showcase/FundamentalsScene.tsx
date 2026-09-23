@@ -89,35 +89,46 @@ const EasingBeat: React.FC = () => {
   );
 };
 
-// Beat 2: <Loop> repeats a short pulse a fixed number of times, then
-// <Freeze> holds the final frame instead of letting it play past its range.
+// Hoisted to module scope: defined inside the beat, it was a new component
+// type on every render, so React remounted it every frame.
+const Pulse: React.FC<{color: string; x: number}> = ({color, x}) => {
+  const frame = useCurrentFrame();
+  const scale = 1 + 0.3 * Math.sin((frame / 15) * Math.PI);
+  return (
+    <AbsoluteFill style={{justifyContent: "center", alignItems: "center"}}>
+      <div
+        style={{width: 90, height: 90, borderRadius: "50%", background: color, transform: `translateX(${x}px) scale(${scale})`}}
+      />
+    </AbsoluteFill>
+  );
+};
+
+// Beat 2: <Loop> repeats a pulse three times. <Freeze>'s active() callback
+// only holds its frame on alternate pairs of frames, so it strobes between
+// held and live. <Series.Sequence offset={-3}> starts that segment 3 frames
+// early, overlapping the loop. <AbsoluteFill> takes Sequence's from/freeze
+// props itself, so the third dot needs no <Sequence>/<Freeze> wrapper.
 const LoopFreezeBeat: React.FC = () => {
   const {width} = useVideoConfig();
-  const Pulse: React.FC = () => {
-    const frame = useCurrentFrame();
-    const scale = 1 + 0.3 * Math.sin((frame / 15) * Math.PI);
-    return (
-      <AbsoluteFill style={{justifyContent: "center", alignItems: "center"}}>
-        <div style={{width: 90, height: 90, borderRadius: "50%", background: palette.accent, transform: `scale(${scale})`}} />
-      </AbsoluteFill>
-    );
-  };
 
   return (
     <AbsoluteFill>
-      <Label>{"<Loop> repeats · <Freeze> holds"}</Label>
+      <Label>{"<Loop> · <Freeze active={fn}> · offset · <AbsoluteFill from freeze>"}</Label>
       <Series>
         <Series.Sequence durationInFrames={18}>
           <Loop durationInFrames={6} times={3}>
-            <Pulse />
+            <Pulse color={palette.accent} x={-160} />
           </Loop>
         </Series.Sequence>
-        <Series.Sequence durationInFrames={7}>
-          <Freeze frame={5}>
-            <Pulse />
+        <Series.Sequence durationInFrames={7} offset={-3}>
+          <Freeze frame={5} active={(f) => f % 4 < 2}>
+            <Pulse color={palette.accent2} x={0} />
           </Freeze>
         </Series.Sequence>
       </Series>
+      <AbsoluteFill from={8} freeze={4}>
+        <Pulse color={palette.textDim} x={160} />
+      </AbsoluteFill>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 24}}>
         Same component, sequenced with &lt;Series&gt;
       </div>

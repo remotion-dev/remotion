@@ -1,4 +1,5 @@
-import {translateY} from "@remotion/animation-utils";
+import {makeTransform, rotate, skewX, translateY} from "@remotion/animation-utils";
+import {useTransitionProgress} from "@remotion/transitions";
 import {CameraMotionBlur, Trail} from "@remotion/motion-blur";
 import {noise2D, noise3D, noise4D} from "@remotion/noise";
 import {
@@ -58,7 +59,8 @@ const RAW_SHAPES = [
   {name: "triangle", color: "#f472b6", ...makeTriangle({length: 48, direction: "up"})},
   {name: "arrow", color: palette.accent, ...makeArrow({length: 48, headWidth: 30, headLength: 20, shaftWidth: 12})},
   {name: "heart", color: "#f87171", ...makeHeart({height: 40})},
-  {name: "pie", color: palette.accent2, ...makePie({radius: 22, progress: 0.65})},
+  // closePath: false skips the line back to the centre, so this one is an open arc.
+  {name: "pie", color: palette.accent2, ...makePie({radius: 22, progress: 0.65, closePath: false})},
   {name: "polygon", color: "#a78bfa", ...makePolygon({points: 5, radius: 22})},
   {name: "spark", color: "#facc15", ...makeSpark({width: 34, height: 46})},
   {name: "callout", color: "#f472b6", ...makeCallout({width: 64, height: 30})},
@@ -81,6 +83,10 @@ export const ShapesScene: React.FC = () => {
   const hueShift = noise3D("shapes-hue", frame / 90, 0, 1) * 30;
   const grainOpacity = 0.06 + noise4D("shapes-grain", frame / 20, 0, 1, 2) * 0.03;
   const bob = Math.sin(frame / 10) * 18;
+  // entering is this scene's progress through the transition that brings it
+  // in (TitleScene reads exiting for the other side); outside a
+  // TransitionSeries it stays at 1.
+  const {entering, isInTransitionSeries} = useTransitionProgress();
 
   return (
     <AbsoluteFill style={{background: gradientBg, fontFamily: poppins}}>
@@ -101,9 +107,14 @@ export const ShapesScene: React.FC = () => {
           textAlign: "center",
           color: palette.textDim,
           fontSize: 28,
+          opacity: entering,
+          transform: `translateY(${(1 - entering) * 30}px)`,
         }}
       >
         @remotion/shapes · @remotion/motion-blur · @remotion/noise
+      </div>
+      <div style={{position: "absolute", top: 104, width, textAlign: "center", color: palette.textDim, fontSize: 14, fontFamily: "monospace"}}>
+        useTransitionProgress(): entering {entering.toFixed(2)}, isInTransitionSeries {String(isInTransitionSeries)}
       </div>
       <CameraMotionBlur shutterAngle={140} samples={4}>
       <div
@@ -138,15 +149,19 @@ export const ShapesScene: React.FC = () => {
               case "Triangle":
                 return <Triangle length={90} direction="up" fill={shape.color} />;
               case "Rect":
-                return <Rect width={80} height={80} fill={shape.color} cornerRadius={12} />;
+                // makeTransform() composes animation-utils helpers into one transform string.
+                return <Rect width={80} height={80} fill={shape.color} cornerRadius={12} style={{transform: makeTransform([rotate(frame * 3), skewX(10)])}} />;
               case "Arrow":
                 return <Arrow length={90} headWidth={56} headLength={36} shaftWidth={22} fill={shape.color} direction="right" />;
               case "Heart":
-                return <Heart height={80} fill={shape.color} />;
+                return <Heart height={80} aspectRatio={1.3} bottomRoundnessAdjustment={0.4} depthAdjustment={-0.3} fill={shape.color} />;
               case "Pie":
-                return <Pie radius={44} progress={0.7} fill={shape.color} />;
+                return <Pie radius={44} progress={0.7} counterClockwise rotation={frame / 12} fill={shape.color} />;
               case "Polygon":
-                return <Polygon points={6} radius={44} fill={shape.color} />;
+                // debug draws the Bézier control points of the path's curve
+                // segments; a straight-edged polygon has none, so cornerRadius
+                // is what gives it curves (one per corner) to show.
+                return <Polygon points={6} radius={44} cornerRadius={10} fill={shape.color} debug />;
               case "Ellipse":
                 return <Ellipse rx={56} ry={34} fill={shape.color} />;
               case "Spark":

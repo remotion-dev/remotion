@@ -8,7 +8,7 @@ import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
 import {sampleCaptions} from "./sampleCaptions";
 
-const SWITCH_CAPTIONS_EVERY_MS = 1200;
+const SWITCH_CAPTIONS_EVERY_MS = 800;
 const HIGHLIGHT_COLOR = palette.accent2;
 
 // A hand-built stand-in for a real ElevenLabs Speech-to-Text response (this
@@ -67,6 +67,8 @@ export const CaptionsScene: React.FC = () => {
       createTikTokStyleCaptions({
         captions: sampleCaptions,
         combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
+        // Also start a new page after any pause of 100ms+ (the one after "Remotion:").
+        breakOnSilenceAfterMilliseconds: 100,
       }),
     [],
   );

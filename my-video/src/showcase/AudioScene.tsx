@@ -14,6 +14,7 @@ import {useEffect, useState} from "react";
 import {
   AbsoluteFill,
   Html5Audio,
+  interpolate,
   staticFile,
   useCurrentFrame,
   useDelayRender,
@@ -96,6 +97,9 @@ export const AudioScene: React.FC = () => {
         numberOfSamples: 256,
         windowInSeconds: 0.5,
         dataOffsetInSeconds,
+        // Off by default here (but on by default for getWaveformPortion()):
+        // scales the window so its loudest sample reaches full height.
+        normalize: true,
       })
     : null;
 
@@ -108,8 +112,14 @@ export const AudioScene: React.FC = () => {
       })
     : null;
 
+  // <Audio>'s volume can be a per-frame function; it's inaudible in a still,
+  // so the same function also drives the meter below.
+  const volumeAt = (f: number) =>
+    interpolate(f, [0, 20, 55, 75], [0, 0.5, 0.5, 0], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
+
   const spectrum = fullAudioData
-    ? visualizeAudio({fps, frame, audioData: fullAudioData, numberOfSamples: 32})
+    ? // smoothing (on by default) averages neighbouring frames; off shows the raw per-frame FFT.
+      visualizeAudio({fps, frame, audioData: fullAudioData, numberOfSamples: 32, smoothing: false})
     : null;
 
   const envelope =
@@ -120,6 +130,22 @@ export const AudioScene: React.FC = () => {
           durationInSeconds: fullAudioData.durationInSeconds,
           numberOfSamples: 32,
         })
+      : null;
+
+  // The same envelope with normalize: false keeps raw amplitudes. This tone is
+  // steady and quiet (~0.10 per bar), so drawn at the same scale the bars would
+  // be ~2px tall; the value is shown as text instead.
+  const rawEnvelopePeak =
+    fullAudioData && fullAudioData.durationInSeconds > 0
+      ? Math.max(
+          ...getWaveformPortion({
+            audioData: fullAudioData,
+            startTimeInSeconds: 0,
+            durationInSeconds: fullAudioData.durationInSeconds,
+            numberOfSamples: 32,
+            normalize: false,
+          }).map((bar) => bar.amplitude),
+        )
       : null;
 
   return (
@@ -142,6 +168,11 @@ export const AudioScene: React.FC = () => {
           <div key={bar.index} style={{width: 6, height: Math.max(2, bar.amplitude * 24), background: palette.textDim, alignSelf: "flex-end"}} />
         ))}
       </div>
+      {rawEnvelopePeak === null ? null : (
+        <div style={{marginTop: 8, textAlign: "center", color: palette.textDim, fontSize: 13, fontFamily: "monospace"}}>
+          getWaveformPortion(): peak-normalized bars · with normalize: false the loudest bar is {rawEnvelopePeak.toFixed(2)}
+        </div>
+      )}
       <div
         style={{
           position: "absolute",
@@ -149,7 +180,7 @@ export const AudioScene: React.FC = () => {
           width,
           textAlign: "center",
           color: palette.text,
-          fontSize: 28,
+          fontSize: 22,
           fontWeight: 600,
         }}
       >
@@ -159,7 +190,13 @@ export const AudioScene: React.FC = () => {
         getTargetSampleRate(): {targetSampleRate}Hz
         {audioDataDirect ? ` · getAudioData(): ${audioDataDirect.numberOfChannels}ch @ ${audioDataDirect.sampleRate}Hz, ${audioDataDirect.durationInSeconds.toFixed(2)}s` : ""}
       </div>
-      <Audio src={staticFile("sample-tone.wav")} volume={0.5} />
+      <div style={{position: "absolute", bottom: 100, left: (width - 240) / 2, width: 240, height: 8, borderRadius: 4, background: palette.bgAlt}}>
+        <div style={{width: `${volumeAt(frame) * 200}%`, height: "100%", borderRadius: 4, background: palette.accent2}} />
+      </div>
+      <div style={{position: "absolute", bottom: 112, width, textAlign: "center", color: palette.textDim, fontSize: 13, fontFamily: "monospace"}}>
+        {"<Audio volume={(f) => …}>"}: {volumeAt(frame).toFixed(2)}
+      </div>
+      <Audio src={staticFile("sample-tone.wav")} volume={volumeAt} />
       {dataUrl ? <Html5Audio src={dataUrl} volume={0} /> : null}
     </AbsoluteFill>
   );

@@ -11,6 +11,7 @@ import {
   staticFile,
   useVideoConfig,
 } from "remotion";
+import {useState} from "react";
 import {sepiaEffect} from "./effects/sepia-effect";
 import {palette} from "./palette";
 import {poppins} from "./font";
@@ -22,9 +23,27 @@ const IFRAME_CONTENT = `<!doctype html><html><body style="margin:0;display:flex;
 const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, children}) => (
   <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 6}}>
     <div style={{width: TILE, height: TILE, overflow: "hidden", borderRadius: 8, background: "#000"}}>{children}</div>
-    <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>{label}</div>
+    {/* Fixed width so a long label wraps instead of widening the column (4 tiles per row). */}
+    <div style={{width: TILE, color: palette.textDim, fontSize: 14, fontFamily: "monospace", textAlign: "center"}}>{label}</div>
   </div>
 );
+
+// A deliberately missing file: <Img> retries maxRetries times, then calls
+// onImageError. That callback must unmount the <Img> (here: swap in a
+// fallback) -- its load delayRender() is only released on unmount, so an
+// onImageError that leaves the <Img> mounted times the render out after 28s
+// (confirmed with a real render; see AGENTS.md).
+const ImgFallbackTile: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
+  if (error !== null) {
+    return (
+      <div style={{width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: palette.textDim, fontSize: 13, textAlign: "center", padding: 12}}>
+        onImageError: {error.replace(/^.*\//, "missing ")}
+      </div>
+    );
+  }
+  return <Img src={staticFile("missing-on-purpose.png")} maxRetries={0} onImageError={(e) => setError(e.message)} />;
+};
 
 // Demonstrates six core remotion media/canvas components in a grid:
 // <Img> (a plain <img>, sample-frame.png — a static PNG, not the animated
@@ -68,11 +87,11 @@ export const CoreMediaScene: React.FC = () => {
         <Tile label="<Img>">
           <Img src={staticFile("sample-frame.png")} style={{width: "100%", height: "100%", objectFit: "cover"}} />
         </Tile>
-        <Tile label="<OffthreadVideo>">
-          <OffthreadVideo src={staticFile("sample-clip.mp4")} style={{width: "100%", height: "100%", objectFit: "cover"}} muted />
+        <Tile label="<OffthreadVideo playbackRate={1.2}>">
+          <OffthreadVideo src={staticFile("sample-clip.mp4")} style={{width: "100%", height: "100%", objectFit: "cover"}} muted playbackRate={1.2} />
         </Tile>
-        <Tile label="<AnimatedImage>">
-          <AnimatedImage src={staticFile("sample-clip.gif")} style={{width: "100%", height: "100%", objectFit: "cover"}} />
+        <Tile label="<AnimatedImage fit=contain, 0.5x>">
+          <AnimatedImage src={staticFile("sample-clip.gif")} width={TILE} height={TILE} fit="contain" playbackRate={0.5} loopBehavior="loop" />
         </Tile>
         <Tile label="<Html5Video> (native decode unreliable here)">
           <div
@@ -90,6 +109,9 @@ export const CoreMediaScene: React.FC = () => {
           >
             See MediaScene's &lt;Video&gt; instead
           </div>
+        </Tile>
+        <Tile label="<Img maxRetries onImageError>">
+          <ImgFallbackTile />
         </Tile>
         <Tile label="<CanvasImage> + createEffect()">
           <CanvasImage src={staticFile("sample-clip.gif")} width={TILE} height={TILE} fit="cover" effects={[sepiaEffect({amount: 1})]} />

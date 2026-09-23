@@ -3,11 +3,12 @@ import {slide} from "@remotion/transitions/slide";
 import {wipe} from "@remotion/transitions/wipe";
 import {clockWipe} from "@remotion/transitions/clock-wipe";
 import {flip} from "@remotion/transitions/flip";
+import {iris} from "@remotion/transitions/iris";
 import {none} from "@remotion/transitions/none";
 import {TransitionSeries, linearTiming, pushCut, springTiming} from "@remotion/transitions";
 import {zColor, zMatrix, zTextarea} from "@remotion/zod-types";
 import type {CalculateMetadataFunction} from "remotion";
-import {AbsoluteFill} from "remotion";
+import {AbsoluteFill, Easing} from "remotion";
 import {z} from "zod";
 import {
   blurSlideOrFallback,
@@ -17,7 +18,6 @@ import {
   dissolveOrFallback,
   dreamyZoomOrFallback,
   filmBurnOrFallback,
-  irisWipeOrFallback,
   linearBlurOrFallback,
   rippleOrFallback,
   swapOrFallback,
@@ -47,6 +47,8 @@ import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
+import {CutFlash} from "./CutFlash";
+import {palette} from "./palette";
 
 export const fullReelSchema = z.object({
   title: z.string(),
@@ -62,6 +64,10 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
 const SCENE_COUNT = 23;
+// Separators that are <TransitionSeries.Overlay>s rather than Transitions:
+// an overlay sits on the cut without overlapping the scenes, so it doesn't
+// shorten the reel.
+const OVERLAY_COUNT = 1;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -71,29 +77,38 @@ export const fullReelDefaultProps: FullReelProps = {
 };
 
 export const calculateFullReelMetadata: CalculateMetadataFunction<FullReelProps> = () => {
-  const durationInFrames = SCENE_COUNT * SCENE_DURATION - (SCENE_COUNT - 1) * TRANSITION_DURATION;
-  return {durationInFrames};
+  const durationInFrames = SCENE_COUNT * SCENE_DURATION - (SCENE_COUNT - 1 - OVERLAY_COUNT) * TRANSITION_DURATION;
+  // calculateMetadata() can set more than the duration: these become the
+  // CLI's defaults for this composition, and scenes can read them back from
+  // useVideoConfig() (CoreEnvironmentScene does).
+  return {durationInFrames, defaultCodec: "h264", defaultOutName: "full-reel"};
 };
 
 const t = linearTiming({durationInFrames: TRANSITION_DURATION});
+// linearTiming() also takes an easing curve for the presentation progress.
+const tEased = linearTiming({durationInFrames: TRANSITION_DURATION, easing: Easing.inOut(Easing.cubic)});
 // Pinned to TRANSITION_DURATION: left to settle naturally, a damping: 200
 // spring takes ~23 frames, which the duration formula above doesn't account
 // for — the reel used to end on 8 blank frames because of it.
-const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITION_DURATION});
+// reverse runs the spring backwards in time: progress still goes 0 -> 1, but
+// starts slow and finishes fast instead of the usual quick start.
+const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITION_DURATION, reverse: true});
 
 // The single, complete demo reel: every scene from ShowcaseReel and
 // ExtendedReel combined into one video (one title, one outro — the two
-// reels' duplicate bookends are dropped). Its transitions alone cover the
-// full @remotion/transitions catalog: flip, clockWipe, wipe, none() (a
-// no-op presentation meant to pair with useTransitionProgress() -- see
-// TitleScene), pushCut and springTiming() (as an alternative to
-// linearTiming(), on the last transition) all work standalone; iris-wipe
-// (a custom shader) plus bookFlip, crossZoom, crosswarp, dissolve,
-// dreamyZoom, filmBurn, linearBlur, ripple, swap, zoomBlur, zoomInOut and
-// blurSlide are ALL built with makeHtmlInCanvasPresentation() internally,
-// so every one of them is wrapped in the same isSupported()-gated fallback
-// to fade() as the iris-wipe (see htmlInCanvasPresentation.ts) rather than
-// throwing where HtmlInCanvas isn't supported. ~46.5s covering: spring
+// reels' duplicate bookends are dropped). Its transitions cover all 20
+// built-in @remotion/transitions presentations. fade, slide, wipe, flip,
+// clockWipe, iris, none() (a no-op meant to pair with
+// useTransitionProgress() -- see TitleScene) and pushCut render with CSS,
+// several with their tuning options set (fade's shouldFadeOutExitingScene,
+// flip's perspective, pushCut's flash). bookFlip, crossZoom, crosswarp,
+// dissolve, dreamyZoom, filmBurn, linearBlur, ripple, swap, zoomBlur,
+// zoomInOut and blurSlide are built with makeHtmlInCanvasPresentation()
+// internally, so each is wrapped in an isSupported()-gated fallback to
+// fade() (see htmlInCanvasPresentation.ts) rather than throwing where
+// HtmlInCanvas isn't supported. Timings: linearTiming() with and without an
+// easing, and springTiming() with reverse on the last one. One cut uses a
+// <TransitionSeries.Overlay> (CutFlash) instead of a transition. ~47s covering: spring
 // animation, staggered text, rough-notation highlights, and
 // useTransitionProgress() reacting to its own exit transition (TitleScene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
@@ -122,17 +137,17 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <TitleScene title={title} subtitle={subtitle} />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={fade({shouldFadeOutExitingScene: true})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ShapesScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={irisWipeOrFallback()} timing={t} />
+        <TransitionSeries.Transition presentation={iris({width: 1280, height: 720})} timing={tEased} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CaptionsScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={flip({direction: "from-left"})} timing={t} />
+        <TransitionSeries.Transition presentation={flip({direction: "from-left", perspective: 500})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <RouteScene />
@@ -156,7 +171,7 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <VideoMattingScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={pushCut()} timing={t} />
+        <TransitionSeries.Transition presentation={pushCut({flashColor: palette.accent2, flashOpacity: 0.6, flashFrames: 4})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AudioScene />
@@ -226,7 +241,9 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <FundamentalsScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={t} />
+        <TransitionSeries.Overlay durationInFrames={20}>
+          <CutFlash />
+        </TransitionSeries.Overlay>
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <InterpolateScene />
