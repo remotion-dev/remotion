@@ -1,3 +1,4 @@
+import {ding, mouseClick} from '@remotion/sfx';
 import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	ElementAsset,
@@ -105,6 +106,24 @@ export type ElementDefinition = {
 	readonly width: number;
 };
 
+const youtubeSubscribeNudgeAssets = {
+	click: {
+		path: 'elements/youtube-subscribe-nudge/mouse-click.wav',
+		type: 'url',
+		url: mouseClick,
+	},
+	ding: {
+		path: 'elements/youtube-subscribe-nudge/ding.wav',
+		type: 'url',
+		url: ding,
+	},
+	avatar: {
+		path: 'elements/youtube-subscribe-nudge/remotion-logo.png',
+		type: 'url',
+		url: 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+	},
+} as const satisfies Record<string, ElementAsset>;
+
 // Array order defines the order of categories and cards in the Element library.
 const elementImplementations = [
 	{
@@ -112,7 +131,7 @@ const elementImplementations = [
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
 			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
-		},
+		} as ElementInitialProps,
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description: 'Suitable for visualizing speech.',
@@ -143,7 +162,7 @@ const elementImplementations = [
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
 			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
-		},
+		} as ElementInitialProps,
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description: 'A static audio waveform with playback progress.',
@@ -165,7 +184,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: null,
+		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -174,7 +193,7 @@ const elementImplementations = [
 		assets: [audioOscilloscopeAudio],
 		installationProps: {
 			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
-		},
+		} as ElementInitialProps,
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
 		description: 'Suitable for both music and speech visualization.',
@@ -196,7 +215,7 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: null,
+		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -1213,8 +1232,16 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-subscribe-nudge',
-		assets: [],
-		installationProps: null,
+		assets: [
+			youtubeSubscribeNudgeAssets.click,
+			youtubeSubscribeNudgeAssets.ding,
+			youtubeSubscribeNudgeAssets.avatar,
+		],
+		installationProps: {
+			clickSrc: staticFileRef(youtubeSubscribeNudgeAssets.click.path),
+			dingSrc: staticFileRef(youtubeSubscribeNudgeAssets.ding.path),
+			avatarSrc: staticFileRef(youtubeSubscribeNudgeAssets.avatar.path),
+		} as ElementInitialProps,
 		component: YouTubeSubscribeNudge,
 		contributors: [],
 		description:
@@ -1238,7 +1265,11 @@ const elementImplementations = [
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},
 		safeArea: 240,
-		initialProps: null,
+		initialProps: {
+			clickSrc: youtubeSubscribeNudgeAssets.click.url,
+			dingSrc: youtubeSubscribeNudgeAssets.ding.url,
+			avatarSrc: youtubeSubscribeNudgeAssets.avatar.url,
+		} as ElementInitialProps,
 		installationMode: 'wrapped',
 		width: 1920,
 	},
