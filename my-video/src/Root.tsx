@@ -19,8 +19,12 @@ import {
   fullReelDefaultProps,
   fullReelSchema,
 } from "./showcase/FullReel";
-import {EFFECTS_CATALOG_DURATION, EffectsCatalogScene} from "./showcase/EffectsCatalogScene";
+import {
+  EFFECTS_CATALOG_DURATION,
+  EffectsCatalogScene,
+} from "./showcase/EffectsCatalogScene";
 import { AbsoluteFill } from "remotion";
+import { TyDoReel, tyDoComposition } from "./tydo/TyDoReel";
 import { gradientBg, palette } from "./showcase/palette";
 import { poppins } from "./showcase/font";
 import { BrandKitDemo } from "./brand/BrandKitDemo";
@@ -31,11 +35,27 @@ import { EmojiCatalog } from "./brand/EmojiCatalog";
 // a <Still> always renders frame 0, where a spring()/interpolate() entrance
 // hasn't started yet, so it would render blank.
 const PosterStill: React.FC = () => (
-  <AbsoluteFill style={{background: gradientBg, justifyContent: "center", alignItems: "center", fontFamily: poppins}}>
-    <div style={{fontSize: 110, fontWeight: 700, color: palette.text, letterSpacing: -2}}>
+  <AbsoluteFill
+    style={{
+      background: gradientBg,
+      justifyContent: "center",
+      alignItems: "center",
+      fontFamily: poppins,
+    }}
+  >
+    <div
+      style={{
+        fontSize: 110,
+        fontWeight: 700,
+        color: palette.text,
+        letterSpacing: -2,
+      }}
+    >
       {fullReelDefaultProps.title}
     </div>
-    <div style={{fontSize: 36, color: palette.textDim, marginTop: 24}}>{fullReelDefaultProps.subtitle}</div>
+    <div style={{ fontSize: 36, color: palette.textDim, marginTop: 24 }}>
+      {fullReelDefaultProps.subtitle}
+    </div>
   </AbsoluteFill>
 );
 
@@ -43,6 +63,9 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <MyComposition />
+      <Folder name="FinanceHub">
+        <Composition {...tyDoComposition} component={TyDoReel} />
+      </Folder>
       <Folder name="Brand">
         {/* The FinHub brand kit in src/brand/, with sample text. */}
         <Composition id="BrandKitDemo" component={BrandKitDemo} durationInFrames={300} fps={30} width={1920} height={1080} />

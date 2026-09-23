@@ -9,3 +9,7 @@ out
 
 # Claude Chat skill bundle (built from chat-skill/ + .claude/skills/)
 remotion-video-skill.zip
+
+# TyDoReel source video and its render proxy (too large for GitHub)
+/public/4.1*.mp4
+/public/ty-do-source.mp4
