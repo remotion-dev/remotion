@@ -5,6 +5,7 @@ import {
   Artifact,
   Experimental,
   Interactive,
+  Sequence,
   VERSION,
   getInputProps,
   getRemotionEnvironment,
@@ -46,11 +47,27 @@ import {poppins} from "./font";
 //
 // Interactive.withSchema() is intentionally not used here: it's a
 // component-authoring API for building reusable Studio-integrated
-// component libraries (see @remotion/skia's SkiaCanvas-style components),
-// not something a content scene like this one would reach for.
+// component libraries (in 4.0.527, @remotion/shapes, @remotion/gif,
+// @remotion/media's <Audio>/<Video>, @remotion/mac-cursors,
+// @remotion/rough-notation, @remotion/rive and @remotion/transitions'
+// <TransitionSeries> are built with it; @remotion/skia isn't), not something
+// a content scene like this one would reach for.
+//
+// The last row comes from inside a <Sequence width height>: useVideoConfig()
+// there reports the Sequence's size, not the composition's. It needs its own
+// component because the hook reads the Sequence's context.
+const SequenceSizeRow: React.FC<{outsideSize: string}> = ({outsideSize}) => {
+  const {width, height} = useVideoConfig();
+  return (
+    <div style={{color: palette.text, fontSize: 17, fontFamily: "monospace"}}>
+      {`useVideoConfig() inside <Sequence width={640} height={360}>: ${width}x${height} (outside it: ${outsideSize})`}
+    </div>
+  );
+};
+
 export const CoreEnvironmentScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const {width, fps, id, defaultCodec, defaultOutName} = useVideoConfig();
+  const {width, height, fps, id, defaultCodec, defaultOutName} = useVideoConfig();
   const scale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
   const pixelDensity = usePixelDensity({dontThrowIfOutsideOfRemotion: true});
   const environment = useRemotionEnvironment();
@@ -157,6 +174,9 @@ export const CoreEnvironmentScene: React.FC = () => {
             {row}
           </div>
         ))}
+        <Sequence width={640} height={360} layout="none">
+          <SequenceSizeRow outsideSize={`${width}x${height}`} />
+        </Sequence>
       </div>
     </AbsoluteFill>
   );

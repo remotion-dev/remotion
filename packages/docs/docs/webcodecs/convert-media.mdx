@@ -128,7 +128,7 @@ If a [`onVideoTrack`](#onvideotrack) handler is provided, it will override this 
 
 _string_ <TsType type="ConvertMediaAudioCodec" source="@remotion/webcodecs"/>
 
-The audio codec to convert to. Currently, only `"opus"` is supported.  
+The audio codec to convert to. Currently, `"opus"`, `"aac"` and `"wav"` are supported.  
 The default is defined by [`getDefaultAudioCodec()`](/docs/webcodecs/get-default-audio-codec).  
 If an [`onAudioTrack`](#onaudiotrack) handler is provided, it will override this setting.
 
@@ -158,7 +158,7 @@ Resize the video. See [Resize a video](/docs/webcodecs/resize-a-video) for more 
 
 _string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
 
-One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+One of `"error"`, `"warn"`, `"info"`, `"verbose"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
 
 ### `onProgress?`

@@ -83,13 +83,16 @@ const audioTrackOf = (tracks: MediaParserTrack[]): MediaParserAudioTrack => {
 //
 // - media-parser: parseMedia() with webReader, universalReader and on a web
 //   worker (parseMediaOnWebWorker), a mediaParserController() aborted on
-//   purpose and recognised with hasBeenAborted(), and WEBCODECS_TIMESCALE.
+//   purpose and recognised with hasBeenAborted(), another one's
+//   getSeekingHints() after a full parse, and WEBCODECS_TIMESCALE.
 // - webcodecs: the container/codec catalog functions, the can*Track()
 //   checks, extractFrames() + rotateAndResizeVideoFrame() (the thumbnails),
 //   createVideoDecoder()/createAudioDecoder() fed by parseMedia(),
-//   getPartialAudioData() + convertAudioData(), and two convertMedia() runs,
-//   one per writer (bufferWriter in memory, webFsWriter to the origin-private
-//   file system), with webcodecsController() and the default track handlers.
+//   getPartialAudioData() + convertAudioData() (resampled and converted to
+//   s16), and two convertMedia() runs, one per writer (bufferWriter in
+//   memory, rotated and resized, with onProgress and finalState; webFsWriter
+//   to the origin-private file system), with webcodecsController() and the
+//   default track handlers.
 //
 // This Chromium can't decode H.264 or AAC through WebCodecs, which is why the
 // .mp4 checks come out false and the decoding work uses the VP9 .webm and the
@@ -101,7 +104,7 @@ const audioTrackOf = (tracks: MediaParserTrack[]): MediaParserAudioTrack => {
 export const MediaToolsScene: React.FC = () => {
   const {width} = useVideoConfig();
   const {delayRender, continueRender} = useDelayRender();
-  // ~19 experiments run one after another, each capped at 15s above. They
+  // ~20 experiments run one after another, each capped at 15s above. They
   // take a few seconds in total here; the default 30s budget would leave no
   // room for a slower machine.
   const [handle] = useState(() => delayRender("Running media-parser / webcodecs experiments", {timeoutInMilliseconds: 120000}));
@@ -134,8 +137,10 @@ export const MediaToolsScene: React.FC = () => {
         webmTracks = r.tracks;
         return `${r.container} · ${r.videoCodec} · ${r.tracks.length} track`;
       });
+      let wavSampleRate: number | null = null;
       await add("parseMedia(wav, universalReader)", async () => {
         const r = await parseMedia({src: absolute(WAV), reader: universalReader, acknowledgeRemotionLicense: true, fields: {sampleRate: true, numberOfAudioChannels: true, audioCodec: true}});
+        wavSampleRate = r.sampleRate;
         return `${r.audioCodec} · ${r.sampleRate}Hz · ${r.numberOfAudioChannels}ch`;
       });
       await add("mediaParserController().abort()", async () => {
@@ -199,6 +204,10 @@ export const MediaToolsScene: React.FC = () => {
         });
         return `${thumbs.length} frames, resized to 160px wide`;
       });
+      // Kept so the row after the decode can ask it for seeking hints: they
+      // describe what this parse learned about the file, including every
+      // keyframe it passed.
+      const decodeController = mediaParserController();
       await add("createVideoDecoder() via parseMedia", async () => {
         let decoded = 0;
         // Decoder errors arrive in a callback; keep them and rethrow after
@@ -207,6 +216,7 @@ export const MediaToolsScene: React.FC = () => {
         await parseMedia({
           src: WEBM,
           reader: webReader,
+          controller: decodeController,
           acknowledgeRemotionLicense: true,
           onVideoTrack: async ({track}) => {
             const decoder = await createVideoDecoder({
@@ -231,6 +241,12 @@ export const MediaToolsScene: React.FC = () => {
         });
         if (decodeError) throw decodeError;
         return `${decoded} VP9 frames decoded`;
+      });
+      await add("mediaParserController().getSeekingHints()", async () => {
+        const hints = await decodeController.getSeekingHints();
+        if (hints?.type !== "webm-seeking-hints") return `unexpected: ${hints?.type ?? "null"}`;
+        const keyframes = hints.keyframes.map((k) => `${k.presentationTimeInSeconds.toFixed(2)}s`).join(", ");
+        return `${hints.type} · keyframes at ${keyframes || "none"} · cues ${hints.loadedCues ? `${hints.loadedCues.cues.length} loaded` : "not loaded"}`;
       });
       await add("createAudioDecoder() via parseMedia", async () => {
         let chunks = 0;
@@ -266,14 +282,18 @@ export const MediaToolsScene: React.FC = () => {
       await add("getPartialAudioData() + convertAudioData()", async () => {
         const samples = await getPartialAudioData({src: WAV, fromSeconds: 0, toSeconds: 0.1, channelIndex: 0, signal: new AbortController().signal});
         const peak = samples.reduce((max, v) => Math.max(max, Math.abs(v)), 0);
-        const original = new AudioData({format: "f32", sampleRate: 44100, numberOfFrames: samples.length, numberOfChannels: 1, timestamp: 0, data: samples});
-        const resampled = convertAudioData({audioData: original, newSampleRate: 16000});
-        const text = `${samples.length} samples, peak ${peak.toFixed(2)} → ${resampled.numberOfFrames} at 16kHz`;
+        // The samples carry no rate of their own, so take the one parseMedia()
+        // read from the file rather than assuming it.
+        if (wavSampleRate === null) throw new Error("parseMedia(wav) reported no sample rate");
+        const original = new AudioData({format: "f32", sampleRate: wavSampleRate, numberOfFrames: samples.length, numberOfChannels: 1, timestamp: 0, data: samples});
+        // 16kHz 16-bit PCM is the input whisper.cpp expects.
+        const resampled = convertAudioData({audioData: original, newSampleRate: 16000, format: "s16"});
+        const text = `${samples.length} samples @ ${wavSampleRate}Hz, peak ${peak.toFixed(2)} → ${resampled.numberOfFrames} ${resampled.format} at ${resampled.sampleRate}Hz`;
         original.close();
         resampled.close();
         return text;
       });
-      await add("convertMedia(webm vp9 → vp8, bufferWriter)", async () => {
+      await add("convertMedia(vp8, rotate, resize, bufferWriter)", async () => {
         const start = performance.now();
         const result = await convertMedia({
           src: WEBM,
@@ -283,10 +303,18 @@ export const MediaToolsScene: React.FC = () => {
           controller: webcodecsController(),
           onVideoTrack: defaultOnVideoTrackHandler,
           onAudioTrack: defaultOnAudioTrackHandler,
+          rotate: 90,
+          resize: {mode: "width", width: 180},
+          // convertMedia() only tracks progress when there is a listener:
+          // without one, result.finalState stays all zeros.
+          onProgress: () => {},
         });
         try {
           const blob = await result.save();
-          return `${(blob.size / 1024).toFixed(0)} KB in ${((performance.now() - start) / 1000).toFixed(1)}s`;
+          // Parse the output back, so the size shown is what was written.
+          const {dimensions} = await parseMedia({src: blob, acknowledgeRemotionLicense: true, fields: {dimensions: true}});
+          const {encodedVideoFrames, millisecondsWritten} = result.finalState;
+          return `${dimensions?.width}×${dimensions?.height} · ${encodedVideoFrames} frames, ${millisecondsWritten}ms · ${(blob.size / 1024).toFixed(0)} KB in ${((performance.now() - start) / 1000).toFixed(1)}s`;
         } finally {
           await result.remove();
         }

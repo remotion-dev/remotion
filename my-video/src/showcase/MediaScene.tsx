@@ -1,5 +1,7 @@
 import {Gif, getGifDurationInSeconds, preloadGif} from "@remotion/gif";
 import {MacOSCursor, macOSCursorNames, macOSCursorSchema, resolveCursor} from "@remotion/mac-cursors";
+import {grayscale} from "@remotion/effects/grayscale";
+import {hue} from "@remotion/effects/hue";
 import {Video} from "@remotion/media";
 import {preloadAudio, preloadFont, preloadImage, preloadVideo, resolveRedirect} from "@remotion/preload";
 import {useEffect, useState} from "react";
@@ -8,8 +10,9 @@ import {palette} from "./palette";
 import {poppins} from "./font";
 
 // Demonstrates: @remotion/media's <Video> (trimBefore + animated cropLeft/
-// cropRight on real footage), @remotion/gif's <Gif> (also croppable per the
-// cropping guide) plus its preloadGif()/getGifDurationInSeconds() helpers,
+// cropRight + a 2D effects chain on real footage), @remotion/gif's <Gif>
+// (pre-rolled with a negative <Sequence from>) plus its
+// preloadGif()/getGifDurationInSeconds() helpers,
 // @remotion/preload's asset-warming functions (each returns an unregister
 // callback, unlike preloadGif's waitUntilDone()/free() pair) plus
 // resolveRedirect(), and @remotion/mac-cursors overlaid to suggest a UI
@@ -64,6 +67,11 @@ export const MediaScene: React.FC = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  // The footage starts gray and gains its color while the crop closes in.
+  const desaturate = interpolate(frame, [15, 45], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   const cursorX = interpolate(frame, [0, 40], [900, 560], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -109,6 +117,11 @@ export const MediaScene: React.FC = () => {
             objectFit="cover"
             cropLeft={crop}
             cropRight={crop}
+            // Only 2D-backend effects here: they draw on plain 2D canvases and
+            // take no WebGL context. This scene is mounted together with
+            // EffectsCatalogScene (12 WebGL contexts) during the transition
+            // between them, and Chrome keeps only 16 (see AGENTS.md).
+            effects={[hue({degrees: frame * 2}), grayscale({amount: desaturate})]}
             muted
           />
         </div>

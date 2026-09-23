@@ -1,3 +1,4 @@
+import {blur} from "@remotion/effects/blur";
 import {
   AbsoluteFill,
   AnimatedImage,
@@ -23,7 +24,7 @@ const IFRAME_CONTENT = `<!doctype html><html><body style="margin:0;display:flex;
 const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, children}) => (
   <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 6}}>
     <div style={{width: TILE, height: TILE, overflow: "hidden", borderRadius: 8, background: "#000"}}>{children}</div>
-    {/* Fixed width so a long label wraps instead of widening the column (4 tiles per row). */}
+    {/* Fixed width so a long label wraps instead of widening the column (5 tiles per row). */}
     <div style={{width: TILE, color: palette.textDim, fontSize: 14, fontFamily: "monospace", textAlign: "center"}}>{label}</div>
   </div>
 );
@@ -53,8 +54,19 @@ const ImgFallbackTile: React.FC = () => {
 // <AnimatedImage> (sample-clip.gif, frame-accurate via ImageDecoder, synced
 // to useCurrentFrame() rather than looping on its own like a plain <img>
 // would), <CanvasImage> with a custom createEffect() filter
-// (sepia-effect.ts) applied, and <IFrame> pointed at a local data: URL so
-// it needs no network. <HtmlInCanvas> is checked with the standalone
+// (sepia-effect.ts) applied to sample-frame.png (not the gif: <CanvasImage>
+// loads through new Image() and draws it once, so a gif shows only its
+// first frame), and <IFrame> pointed at a local data: URL so it needs no
+// network.
+//
+// <Img effects> renders through <CanvasImage> instead of a native <img>.
+// blur() is a WebGL2 effect, so that tile holds 2 WebGL contexts; this
+// scene's neighbors in FullReel (GsapScene, MediaToolsScene) hold none, so
+// that stays well inside Chrome's 16 (see AGENTS.md). Given a missing file,
+// <CanvasImage maxRetries onError> releases its own delayRender() when it
+// calls onError, so unlike <Img onImageError> it can stay mounted.
+//
+// <HtmlInCanvas> is checked with the standalone
 // isHtmlInCanvasSupported() (the same function as HtmlInCanvas.isSupported())
 // rather than assumed — it needs a recent Chrome with a flag enabled, which
 // this sandbox's headless Chromium 141 predates. When it's unsupported the
@@ -71,15 +83,22 @@ const ImgFallbackTile: React.FC = () => {
 export const CoreMediaScene: React.FC = () => {
   const {width} = useVideoConfig();
   const htmlInCanvasSupported = isHtmlInCanvasSupported();
+  // The state setter doubles as onError: it's stable, so it doesn't restart
+  // <CanvasImage>'s load effect (onError is one of its dependencies).
+  const [canvasImageError, setCanvasImageError] = useState<Error | null>(null);
 
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins, flexDirection: "column", alignItems: "center", paddingTop: 48}}>
       <div style={{width, textAlign: "center", color: palette.textDim, fontSize: 24, marginBottom: 24}}>
         core remotion · media &amp; canvas components
       </div>
-      <div style={{display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center", maxWidth: 1150}}>
+      <div style={{display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center", maxWidth: 1180}}>
         <Tile label="<Img>">
           <Img src={staticFile("sample-frame.png")} style={{width: "100%", height: "100%", objectFit: "cover"}} />
+        </Tile>
+        <Tile label="<Img effects={[blur({radius: 8})]}>">
+          {/* With effects, width/height must be numbers and style.objectFit becomes <CanvasImage>'s fit. */}
+          <Img src={staticFile("sample-frame.png")} width={TILE} height={TILE} style={{objectFit: "cover"}} effects={[blur({radius: 8})]} />
         </Tile>
         <Tile label="<OffthreadVideo playbackRate={1.2}>">
           <OffthreadVideo src={staticFile("sample-clip.mp4")} style={{width: "100%", height: "100%", objectFit: "cover"}} muted playbackRate={1.2} />
@@ -108,7 +127,29 @@ export const CoreMediaScene: React.FC = () => {
           <ImgFallbackTile />
         </Tile>
         <Tile label="<CanvasImage> + createEffect()">
-          <CanvasImage src={staticFile("sample-clip.gif")} width={TILE} height={TILE} fit="cover" effects={[sepiaEffect({amount: 1})]} />
+          <CanvasImage src={staticFile("sample-frame.png")} width={TILE} height={TILE} fit="cover" effects={[sepiaEffect({amount: 1})]} />
+        </Tile>
+        <Tile label="<CanvasImage maxRetries onError>">
+          <div style={{position: "relative", width: "100%", height: "100%"}}>
+            <CanvasImage src={staticFile("missing-on-purpose.png")} width={TILE} height={TILE} maxRetries={0} onError={setCanvasImageError} />
+            {canvasImageError === null ? null : (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: palette.textDim,
+                  fontSize: 13,
+                  textAlign: "center",
+                  padding: 12,
+                }}
+              >
+                onError: {canvasImageError.message.replace(/"[^"]*\//, '"…/')}
+              </div>
+            )}
+          </div>
         </Tile>
         <Tile label="<IFrame> (local data: URL)">
           <IFrame src={`data:text/html,${encodeURIComponent(IFRAME_CONTENT)}`} style={{width: "100%", height: "100%", border: "none"}} />

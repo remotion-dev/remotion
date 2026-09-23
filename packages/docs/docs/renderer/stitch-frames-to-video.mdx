@@ -29,7 +29,7 @@ A `number` specifying the desired output width in pixels for the video.
 
 A `number` specifying the desired output height in pixels for the video.
 
-### `metadata`<AvailableFrom v="4.0.216" />
+### `metadata?`<AvailableFrom v="4.0.216" />
 
 _object_
 
@@ -147,10 +147,6 @@ A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/doc
 
 <Options cli id="separate-audio-to" />
 
-### `forSeamlessAacConcatenation?`<AvailableFrom v="4.0.123" />
-
-<Options id="for-seamless-aac-concatenation" />
-
 ### `x264Preset?`
 
 <Options id="x264-preset" />
@@ -207,7 +203,7 @@ An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 
-`stitchFramesToVideo()` returns a promise which resolves to nothing. If everything goes well, the output will be placed in `outputLocation`.
+`stitchFramesToVideo()` returns a promise which resolves to a `Buffer` if no `outputLocation` was specified, otherwise to `null`. If everything goes well, the output will be placed in `outputLocation`.
 
 ## Compatibility
 

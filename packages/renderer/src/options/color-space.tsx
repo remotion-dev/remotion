@@ -60,11 +60,8 @@ export const colorSpaceOption = {
 			<code>
 				{'"'}bt2020-ncl{'"'}
 			</code>{' '}
-			(since v4.0.88),{' '}
-			<code>
-				{'"'}bt2020-cl{'"'}
-			</code>{' '}
-			(since v4.0.88), .<br />
+			(since v4.0.88).
+			<br />
 			For best color accuracy, it is recommended to also use{' '}
 			<code>
 				{'"'}png{'"'}

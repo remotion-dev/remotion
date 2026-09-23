@@ -36,9 +36,9 @@ const HEIGHT = 160;
 // - getImageDimensions(): the caption reads real pixel dimensions of
 //   sample-clip.gif rather than a hardcoded number.
 // - audioBufferToDataUrl(): decodes the wav via the Web Audio API and
-//   re-encodes it as a data: URL, played back (muted, so it doesn't double
-//   the audible track) through <Html5Audio> instead of a frame-synced
-//   <Audio>/<OffthreadVideo> decoder.
+//   re-encodes it as a data: URL, played back through <Html5Audio> instead
+//   of a frame-synced <Audio>/<OffthreadVideo> decoder. It's muted (the
+//   `muted` prop), so it doesn't double the audible track.
 // - getAudioData(): the promise-based, non-hook twin of useAudioData() --
 //   same decode, callable outside a component's render.
 // - getTargetSampleRate() (from @remotion/media, not media-utils): the
@@ -196,8 +196,12 @@ export const AudioScene: React.FC = () => {
       <div style={{position: "absolute", bottom: 112, width, textAlign: "center", color: palette.textDim, fontSize: 13, fontFamily: "monospace"}}>
         {"<Audio volume={(f) => …}>"}: {volumeAt(frame).toFixed(2)}
       </div>
-      <Audio src={staticFile("sample-tone.wav")} volume={volumeAt} />
-      {dataUrl ? <Html5Audio src={dataUrl} volume={0} /> : null}
+      {/* sample-tone.wav is PCM, which Mediabunny decodes itself rather than
+          through WebCodecs, so this Chromium never needs the <Html5Audio>
+          fallback. As with MediaScene's disallowFallbackToOffthreadVideo, a
+          fallback would only warn in the main tab; this makes it fail the render. */}
+      <Audio src={staticFile("sample-tone.wav")} volume={volumeAt} disallowFallbackToHtml5Audio />
+      {dataUrl ? <Html5Audio src={dataUrl} muted /> : null}
     </AbsoluteFill>
   );
 };
