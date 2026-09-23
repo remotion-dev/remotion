@@ -5,7 +5,6 @@ import {
 	isVideoMattingModelCached,
 	loadVideoMattingModel,
 	removeVideoBackground,
-	separateVideoLayers,
 	type RemoveVideoBackgroundResult,
 	type SeparateVideoLayersProgress,
 } from '@remotion/video-matting';
@@ -31,10 +30,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 	const processJob = useCallback(
 		async (job: VideoMattingJob) => {
 			const {signal} = getAbortController(job.id);
-			let outputs:
-				| Awaited<ReturnType<typeof separateVideoLayers>>
-				| RemoveVideoBackgroundResult
-				| null = null;
+			let output: RemoveVideoBackgroundResult | null = null;
 			let processingError: Error | null = null;
 			try {
 				signal.throwIfAborted();
@@ -84,18 +80,16 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 							message:
 								progress.stage === 'finalizing'
 									? 'Finalizing video...'
-									: 'outName' in job
-										? 'Removing background...'
-										: 'Separating foreground...',
+									: 'Removing background...',
 							value: 0.2 + (progress.progress ?? 1) * 0.65,
 						});
 					},
 				};
-				outputs =
-					'outName' in job
-						? await removeVideoBackground({...mattingOptions, audio: job.audio})
-						: await separateVideoLayers({...mattingOptions, audio: job.audio});
-				if (outputs === null) {
+				output = await removeVideoBackground({
+					...mattingOptions,
+					audio: job.audio,
+				});
+				if (output === null) {
 					throw new Error('Video matting produced no output.');
 				}
 
@@ -105,32 +99,14 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					message: 'Saving video...',
 					value: 0.88,
 				});
-				const foreground = await (
-					'video' in outputs ? outputs.video : outputs.foreground
-				).getBlob();
-				const base = 'base' in outputs ? await outputs.base.getBlob() : null;
+				const video = await output.video.getBlob();
 				signal.throwIfAborted();
 				markVideoMattingJobSaving(job.id);
-				if ('outName' in job) {
-					await foreground
-						.arrayBuffer()
-						.then((contents) =>
-							writeStaticFile({contents, filePath: job.outName}),
-						);
-				} else {
-					await Promise.all([
-						base!
-							.arrayBuffer()
-							.then((contents) =>
-								writeStaticFile({contents, filePath: job.baseOutName}),
-							),
-						foreground
-							.arrayBuffer()
-							.then((contents) =>
-								writeStaticFile({contents, filePath: job.foregroundOutName}),
-							),
-					]);
-				}
+				await video
+					.arrayBuffer()
+					.then((contents) =>
+						writeStaticFile({contents, filePath: job.outName}),
+					);
 
 				if (job.target !== null) {
 					updateVideoMattingJobProgress(job.id, {
@@ -139,38 +115,21 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 						value: 0.97,
 					});
 					const browserStudioOperations = getBrowserStudioOperations();
-					if ('outName' in job) {
-						const request = {
-							fileName: job.target.fileName,
-							nodePath: job.target.nodePath.nodePath,
-							src: job.outName,
-						};
-						const replaceSource = browserStudioOperations?.replaceVideoSource;
-						if (browserStudioOperations && !replaceSource) {
-							throw new Error(
-								'Browser Studio cannot replace the video source.',
-							);
-						}
+					const request = {
+						fileName: job.target.fileName,
+						nodePath: job.target.nodePath.nodePath,
+						src: job.outName,
+					};
+					const replaceSource = browserStudioOperations?.replaceVideoSource;
+					if (browserStudioOperations && !replaceSource) {
+						throw new Error('Browser Studio cannot replace the video source.');
+					}
 
-						const response = replaceSource
-							? await replaceSource(request)
-							: await callApi('/api/replace-video-source', request);
-						if (!response.success) {
-							throw new Error(response.reason);
-						}
-					} else {
-						const request = {
-							fileName: job.target.fileName,
-							nodePath: job.target.nodePath.nodePath,
-							baseSrc: job.baseOutName,
-							foregroundSrc: job.foregroundOutName,
-						};
-						const response = browserStudioOperations
-							? await browserStudioOperations.insertVideoLayers(request)
-							: await callApi('/api/insert-video-layers', request);
-						if (!response.success) {
-							throw new Error(response.reason);
-						}
+					const response = replaceSource
+						? await replaceSource(request)
+						: await callApi('/api/replace-video-source', request);
+					if (!response.success) {
+						throw new Error(response.reason);
 					}
 				}
 			} catch (error) {
@@ -178,13 +137,8 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					error instanceof Error ? error : new Error(String(error));
 			}
 
-			if (outputs) {
-				await Promise.allSettled([
-					'base' in outputs ? outputs.base.dispose() : null,
-					'video' in outputs
-						? outputs.video.dispose()
-						: outputs.foreground.dispose(),
-				]);
+			if (output) {
+				await Promise.allSettled([output.video.dispose()]);
 			}
 
 			try {

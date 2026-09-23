@@ -1,5 +1,4 @@
 import type {
-	VideoLayerAudio,
 	VideoMattingBitrate,
 	VideoMattingModel,
 } from '@remotion/video-matting';
@@ -23,24 +22,15 @@ type VideoMattingJobCommon = {
 	displayName: string;
 	model: VideoMattingModel;
 	videoBitrate: VideoMattingBitrate;
+	outName: string;
+	audio: 'keep' | 'none';
 	target: {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 	} | null;
 };
 
-export type AddVideoMattingJobParams = VideoMattingJobCommon &
-	(
-		| {
-				outName: string;
-				audio: 'keep' | 'none';
-		  }
-		| {
-				baseOutName: string;
-				foregroundOutName: string;
-				audio: VideoLayerAudio;
-		  }
-	);
+export type AddVideoMattingJobParams = VideoMattingJobCommon;
 
 export type VideoMattingJob = AddVideoMattingJobParams & {
 	id: string;

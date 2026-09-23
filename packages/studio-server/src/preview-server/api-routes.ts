@@ -28,7 +28,6 @@ import {findInFileHandler} from './routes/find-in-file';
 import {insertBasicCaptionsHandler} from './routes/insert-basic-captions';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
-import {insertVideoLayersHandler} from './routes/insert-video-layers';
 import {
 	installRemotionSkillHandler,
 	removeRemotionSkillHandler,
@@ -132,7 +131,6 @@ export const allApiRoutes: {
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
-	'/api/insert-video-layers': insertVideoLayersHandler,
 	'/api/replace-video-source': replaceVideoSourceHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,

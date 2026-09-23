@@ -62,8 +62,6 @@ import type {
 	SplitVideoFromAudioResponse,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
-	InsertVideoLayersRequest,
-	InsertVideoLayersResponse,
 	ReplaceVideoSourceRequest,
 	ReplaceVideoSourceResponse,
 	SubscribeToDefaultPropsRequest,
@@ -231,9 +229,6 @@ export type BrowserStudioOperations = {
 	insertBasicCaptions: (
 		request: InsertBasicCaptionsRequest,
 	) => Promise<InsertBasicCaptionsResponse>;
-	insertVideoLayers: (
-		request: InsertVideoLayersRequest,
-	) => Promise<InsertVideoLayersResponse>;
 	replaceVideoSource?: (
 		request: ReplaceVideoSourceRequest,
 	) => Promise<ReplaceVideoSourceResponse>;

@@ -161,11 +161,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 					job.status === 'running' ||
 					job.status === 'saving',
 			)
-			.flatMap((job) =>
-				'outName' in job
-					? [job.outName]
-					: [job.baseOutName, job.foregroundOutName],
-			)
+			.map((job) => job.outName)
 			.map((name) => name.normalize('NFC').toLowerCase()),
 	);
 	const outputError =

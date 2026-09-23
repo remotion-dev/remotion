@@ -27,7 +27,7 @@ mock.module('@remotion/video-matting', () => ({
 		calls.push('load-model');
 		return Promise.resolve({alreadyLoaded: false});
 	},
-	separateVideoLayers: ({
+	removeVideoBackground: ({
 		onProgress,
 	}: {
 		onProgress: (progress: {
@@ -36,15 +36,11 @@ mock.module('@remotion/video-matting', () => ({
 			processedFrames: number;
 		}) => void;
 	}) => {
-		calls.push('separate');
+		calls.push('remove-background');
 		onProgress({stage: 'processing', progress: 0.5, processedFrames: 42});
 		return Promise.resolve({
-			base: {
-				getBlob: () => Promise.resolve(new Blob(['base'])),
-				dispose: () => Promise.resolve(),
-			},
-			foreground: {
-				getBlob: () => Promise.resolve(new Blob(['foreground'])),
+			video: {
+				getBlob: () => Promise.resolve(new Blob(['video'])),
 				dispose: () => Promise.resolve(),
 			},
 		});
@@ -61,7 +57,7 @@ afterEach(() => {
 	processJob = null;
 });
 
-test('writes both layers and inserts them into the selected video source', async () => {
+test('writes the transparent video and replaces the selected video source', async () => {
 	const originalBrowserStudio = Object.getOwnPropertyDescriptor(
 		window,
 		'remotion_browserStudio',
@@ -69,10 +65,8 @@ test('writes both layers and inserts them into the selected video source', async
 	Object.defineProperty(window, 'remotion_browserStudio', {
 		configurable: true,
 		value: makeBrowserStudioOperations({
-			insertVideoLayers: ({baseSrc, foregroundSrc, fileName, nodePath}) => {
-				calls.push(
-					`insert:${fileName}:${nodePath.join('.')}:${baseSrc}:${foregroundSrc}`,
-				);
+			replaceVideoSource: ({src, fileName, nodePath}) => {
+				calls.push(`replace:${fileName}:${nodePath.join('.')}:${src}`);
 				return Promise.resolve({
 					success: true,
 					nodePathMutation: {} as never,
@@ -124,10 +118,9 @@ test('writes both layers and inserts them into the selected video source', async
 			startedAt: 1,
 			src: '/input.webm',
 			displayName: 'input.webm',
-			baseOutName: 'input-base.webm',
-			foregroundOutName: 'input-foreground.webm',
+			outName: 'input-no-background.webm',
 			model: 'modnet',
-			audio: 'base',
+			audio: 'keep',
 			target: {
 				fileName: '/project/Composition.tsx',
 				nodePath: {
@@ -147,10 +140,9 @@ test('writes both layers and inserts them into the selected video source', async
 	expect(calls).toEqual([
 		'download-model',
 		'load-model',
-		'separate',
-		'write:input-base.webm',
-		'write:input-foreground.webm',
-		'insert:/project/Composition.tsx:Comp.0:input-base.webm:input-foreground.webm',
+		'remove-background',
+		'write:input-no-background.webm',
+		'replace:/project/Composition.tsx:Comp.0:input-no-background.webm',
 		'dispose-model',
 	]);
 	expect(progress).toContainEqual({
@@ -160,7 +152,7 @@ test('writes both layers and inserts them into the selected video source', async
 	});
 	expect(progress).toContainEqual({
 		detail: 'Processed 42 frames · 50%',
-		message: 'Separating foreground...',
+		message: 'Removing background...',
 		value: 0.525,
 	});
 	if (originalBrowserStudio) {

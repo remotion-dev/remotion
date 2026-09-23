@@ -100,10 +100,7 @@ export const RenderQueue: React.FC = () => {
 				if (
 					isVideoMattingJob(job) &&
 					job.status === 'done' &&
-					('outName' in job
-						? canvasContent.asset === job.outName
-						: canvasContent.asset === job.baseOutName ||
-							canvasContent.asset === job.foregroundOutName)
+					canvasContent.asset === job.outName
 				) {
 					return i;
 				}

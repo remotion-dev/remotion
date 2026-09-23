@@ -68,11 +68,7 @@ const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
 			<div
 				style={statusIcon}
 				role="progressbar"
-				aria-label={
-					'outName' in job
-						? 'Background removal progress'
-						: 'Video matting progress'
-				}
+				aria-label="Background removal progress"
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={Math.round(job.progress.value * 100)}
@@ -125,11 +121,7 @@ export const VideoMattingQueueItem: React.FC<{
 	);
 	const messages =
 		job.status === 'idle'
-			? [
-					'outName' in job
-						? 'Queued for background removal'
-						: 'Queued for video matting',
-				]
+			? ['Queued for background removal']
 			: job.status === 'running' || job.status === 'saving'
 				? [job.progress.message, job.progress.detail].filter(
 						(message): message is string => message !== null,
@@ -138,9 +130,7 @@ export const VideoMattingQueueItem: React.FC<{
 					? [job.error.message]
 					: job.status === 'cancelled'
 						? ['Cancelled']
-						: 'outName' in job
-							? [job.outName]
-							: [job.baseOutName, job.foregroundOutName];
+						: [job.outName];
 	const tooltip = messages.join('\n');
 	const revealAsset = useCallback(
 		(assetName: string) => {
@@ -149,7 +139,7 @@ export const VideoMattingQueueItem: React.FC<{
 		},
 		[selectAsset],
 	);
-	const outputName = 'outName' in job ? job.outName : job.foregroundOutName;
+	const outputName = job.outName;
 	const onClick = useCallback(() => {
 		if (!done) return;
 		revealAsset(outputName);
@@ -207,11 +197,7 @@ export const VideoMattingQueueItem: React.FC<{
 					) : job.status === 'failed' ? (
 						<QueueJobError
 							error={job.error}
-							modalTitle={
-								'outName' in job
-									? 'Background removal failed'
-									: 'Video matting failed'
-							}
+							modalTitle="Background removal failed"
 						/>
 					) : (
 						messages.map((message) => (
