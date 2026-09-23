@@ -47,6 +47,19 @@ _number - required_
 
 The height of the video in pixels.
 
+### `scale?`
+
+_number — default `1`_
+
+Scales `width` and `height` before checking encoder support. Pass composition dimensions and the same scale used for rendering, not already-scaled output dimensions.
+
+### `resizeToEvenDimensions?`
+
+_boolean — default `false`_
+
+For H.264 and H.265, checks support using output dimensions rounded up to multiples of 2 after scaling and rounding to integer pixels.
+Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#resizetoevendimensions), which resizes finished frames without changing the composition layout.
+
 ### `container?`
 
 _string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" />

@@ -1,6 +1,29 @@
 import type {CanRenderIssue} from './can-render-types';
 import type {WebRendererVideoCodec} from './mediabunny-mappings';
 
+export const getEncodedDimensions = ({
+	width,
+	height,
+	scale,
+	codec,
+	resizeToEvenDimensions,
+}: {
+	width: number;
+	height: number;
+	scale: number;
+	codec: WebRendererVideoCodec | null;
+	resizeToEvenDimensions: boolean;
+}) => {
+	const scaledWidth = Math.round(width * scale);
+	const scaledHeight = Math.round(height * scale);
+	const roundToEven =
+		resizeToEvenDimensions && (codec === 'h264' || codec === 'h265');
+	return {
+		width: roundToEven ? Math.ceil(scaledWidth / 2) * 2 : scaledWidth,
+		height: roundToEven ? Math.ceil(scaledHeight / 2) * 2 : scaledHeight,
+	};
+};
+
 export const validateDimensions = (options: {
 	width: number;
 	height: number;

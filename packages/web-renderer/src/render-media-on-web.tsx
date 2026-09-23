@@ -51,6 +51,7 @@ import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
 import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
+import {getEncodedDimensions} from './validate-dimensions';
 import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
 import {waitForReady} from './wait-for-ready';
@@ -143,6 +144,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	isProduction: boolean;
 	muted: boolean;
 	scale: number;
+	resizeToEvenDimensions: boolean;
 	sampleRate: number;
 	allowHtmlInCanvas: boolean;
 	metadata: MetadataTags | null;
@@ -194,6 +196,7 @@ const internalRenderMediaOnWeb = async <
 	licenseKey,
 	muted,
 	scale,
+	resizeToEvenDimensions,
 	isProduction,
 	sampleRate,
 	allowHtmlInCanvas,
@@ -315,6 +318,16 @@ const internalRenderMediaOnWeb = async <
 		compositionWidth: composition.width ?? null,
 	});
 
+	const encodedDimensions = getEncodedDimensions({
+		width: resolved.width,
+		height: resolved.height,
+		scale,
+		codec: videoEnabled ? codec : null,
+		resizeToEvenDimensions,
+	});
+	const needsResize =
+		encodedDimensions.width !== Math.round(resolved.width * scale) ||
+		encodedDimensions.height !== Math.round(resolved.height * scale);
 	const realFrameRange = getRealFrameRange(
 		resolved.durationInFrames,
 		frameRange,
@@ -463,6 +476,9 @@ const internalRenderMediaOnWeb = async <
 								? videoBitrate
 								: getQualityForWebRendererQuality(videoBitrate),
 						sizeChangeBehavior: 'deny',
+						...(needsResize
+							? {transform: {...encodedDimensions, fit: 'fill' as const}}
+							: {}),
 						hardwareAcceleration,
 						latencyMode: 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
@@ -832,6 +848,7 @@ export const renderMediaOnWeb = <
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
+				resizeToEvenDimensions: options.resizeToEvenDimensions ?? false,
 				isProduction: options.isProduction ?? true,
 				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,

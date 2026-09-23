@@ -90,6 +90,20 @@ _number_
 
 <Options id="scale" />
 
+### `resizeToEvenDimensions?`
+
+boolean — default `false`
+
+For H.264 and H.265, rounds each output dimension up to a multiple of 2 after applying `scale` and rounding to integer pixels.
+The finished frame is stretched to fill the adjusted size, without padding or cropping. This may slightly change its aspect ratio.
+For example, a `1200 × 675` composition at `scale: 1` produces a `1200 × 676` video.
+
+The composition dimensions, layout, and `useVideoConfig()` values remain unchanged.
+The resize happens after `onFrame`, which still receives and returns frames at the original scaled dimensions.
+Even-sized output and other codecs are unchanged. This option does not apply to still renders.
+
+Pass the same `scale` and `resizeToEvenDimensions` values to [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web) when checking support.
+
 ### `onProgress?`
 
 _function_ <TsType type="RenderMediaOnWebProgressCallback" source="@remotion/web-renderer" href="/docs/web-renderer/types#rendermediaonwebprogresscallback" />

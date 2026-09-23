@@ -14,7 +14,8 @@ import {
 	isAudioOnlyContainer,
 } from './mediabunny-mappings';
 import {resolveAudioCodec} from './resolve-audio-codec';
-import {validateDimensions} from './validate-dimensions';
+import {getEncodedDimensions, validateDimensions} from './validate-dimensions';
+import {validateScale} from './validate-scale';
 
 export type {
 	CanRenderIssue,
@@ -33,7 +34,15 @@ export const canRenderMediaOnWeb = async (
 	const videoEnabled = !isAudioOnlyContainer(container);
 	const transparent = options.transparent ?? false;
 	const muted = options.muted ?? false;
-	const {width, height} = options;
+	const scale = options.scale ?? 1;
+	validateScale(scale);
+	const {width, height} = getEncodedDimensions({
+		width: options.width,
+		height: options.height,
+		scale,
+		codec: videoCodec,
+		resizeToEvenDimensions: options.resizeToEvenDimensions ?? false,
+	});
 
 	const resolvedVideoBitrate =
 		typeof options.videoBitrate === 'number'
@@ -85,7 +94,7 @@ export const canRenderMediaOnWeb = async (
 
 			const canEncodeVideoResult = await canEncodeVideo(
 				codecToMediabunnyCodec(videoCodec),
-				{bitrate: resolvedVideoBitrate},
+				{bitrate: resolvedVideoBitrate, width, height},
 			);
 			if (!canEncodeVideoResult) {
 				issues.push({
