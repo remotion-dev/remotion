@@ -1,3 +1,4 @@
+import {buildOpenInRemotionNewUrl, createElementPayload, isInsideStudio, setStudioDragData} from "@remotion/studio-protocol";
 import {useEffect, useState} from "react";
 import {
   AbsoluteFill,
@@ -59,6 +60,33 @@ export const CoreEnvironmentScene: React.FC = () => {
   const [prefetchStatus, setPrefetchStatus] = useState<"loading" | "ready" | "failed">("loading");
   const [progressEvents, setProgressEvents] = useState(0);
   const buffer = useBufferState();
+  // @remotion/studio-protocol is how an element library hands a component to
+  // the Studio. Packaging one and writing it into a drag's DataTransfer work
+  // anywhere; installInStudio()/addElementLibraryToStudio() probe localhost for
+  // a running Studio instead, so they run in scripts/renderer-apis.mjs.
+  const [studioProtocol] = useState(() => {
+    try {
+      const payload = createElementPayload({
+        displayName: "Pulse",
+        slug: "pulse",
+        sourceCode: "export const Pulse: React.FC = () => null;",
+        dependencies: [],
+        dimensions: null,
+        durationInFrames: 60,
+      });
+      const dataTransfer = new DataTransfer();
+      setStudioDragData({dataTransfer, payload});
+      const url = new URL(buildOpenInRemotionNewUrl({payload}));
+      // MIME parameters (";v=1;type=element;...") trimmed for display.
+      const types = [...dataTransfer.types].map((type) => type.split(";")[0]);
+      return [
+        `studio-protocol: isInsideStudio() ${isInsideStudio()} · buildOpenInRemotionNewUrl() → ${url.host}`,
+        `createElementPayload() → setStudioDragData(): ${types.join(", ")}`,
+      ];
+    } catch (err) {
+      return [`studio-protocol failed: ${err instanceof Error ? err.message : String(err)}`];
+    }
+  });
   const isPlayer = Experimental.useIsPlayer();
 
   useEffect(() => {
@@ -109,6 +137,7 @@ export const CoreEnvironmentScene: React.FC = () => {
     `getStaticFiles(): ${staticFiles.length} files in public/ (${staticFiles.slice(0, 2).map((f) => f.name).join(", ")}, …)`,
     `watchStaticFile(sample-clip.mp4): ${environment.isStudio ? `watching, ${watchedChanges} edits seen` : "no-op outside the Studio"}`,
     `Experimental.useIsPlayer(): ${String(isPlayer)}`,
+    ...studioProtocol,
   ];
 
   return (
@@ -124,7 +153,7 @@ export const CoreEnvironmentScene: React.FC = () => {
       <div style={{width: 48, height: 48, borderRadius: 12, background: swatchColor, marginBottom: 24}} />
       <div style={{display: "flex", flexDirection: "column", gap: 10, alignItems: "center"}}>
         {rows.map((row) => (
-          <div key={row} style={{color: palette.text, fontSize: 20, fontFamily: "monospace"}}>
+          <div key={row} style={{color: palette.text, fontSize: 17, fontFamily: "monospace"}}>
             {row}
           </div>
         ))}
