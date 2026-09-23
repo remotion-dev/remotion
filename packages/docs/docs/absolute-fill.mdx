@@ -51,12 +51,6 @@ The layers that get rendered last appear on top - this is because of how HTML wo
 
 `<AbsoluteFill>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
-It is registered as a layer in the [Remotion Studio](/docs/studio) timeline.
-
-Pass these props directly to `<AbsoluteFill>` instead of adding an outer `<Sequence>` just to name or time the layer.
-Use an outer `<Sequence>` when grouping multiple children or using features such as [premounting](/docs/sequence#premountfor) or [width and height overrides](/docs/sequence#width).
-When nesting them, timing [cascades](/docs/sequence#cascading) like nested sequences.
-
 ```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
 import {AbsoluteFill} from 'remotion';
 
