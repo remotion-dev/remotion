@@ -52,6 +52,7 @@
 		"@remotion/browser-studio": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/captions": "workspace:*",
+		"@remotion/canvas": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/convert": "workspace:*",

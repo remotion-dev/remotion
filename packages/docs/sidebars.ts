@@ -2044,6 +2044,28 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 	],
+	canvasSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/canvas',
+			link: {
+				type: 'doc',
+				id: 'canvas/index',
+			},
+			items: [
+				'canvas/canvas',
+				'canvas/create-canvas-controller',
+				'canvas/use-canvas-controller',
+				'canvas/create-canvas-selection-controller',
+				'canvas/create-canvas-hover-controller',
+				'canvas/use-canvas-selection',
+				'canvas/use-canvas-sequence-hover',
+				'canvas/use-canvas-hover',
+				'canvas/get-canvas-sequence-node-path-info',
+				'canvas/get-canvas-selection-item-key',
+			],
+		},
+	],
 	codemodsSidebar: [
 		{
 			type: 'category',

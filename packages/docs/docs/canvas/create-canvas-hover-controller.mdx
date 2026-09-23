@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-canvas-create-canvas-hover-controller.png
+title: createCanvasHoverController()
+crumb: '@remotion/canvas'
+---
+
+# createCanvasHoverController()<AvailableFrom v="4.0.527" />
+
+Creates a standalone `CanvasHoverController`. [`createCanvasController()`](/docs/canvas/create-canvas-controller) already creates one at `controller.hover`; use this function when hover has a separate lifetime.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts title="hover.ts"
+import {createCanvasHoverController} from '@remotion/canvas';
+
+export const hover = createCanvasHoverController();
+hover.clear(null);
+```
+
+The function takes no arguments. The initial snapshot is `null`. Read and subscribe with [`useCanvasHover()`](/docs/canvas/use-canvas-hover), or use `getSnapshot()` and `subscribe(listener)` outside React.
+
+## Methods
+
+### setHoveredSequence()
+
+Accepts a `CanvasHover` value, `null`, or an updater function. A `CanvasHover` has `key` for the instance, `nodePathKey` for the source node, and `source` (`'canvas'` or `'timeline'`). Identical values do not emit an update.
+
+### clear()
+
+`clear('canvas')` or `clear('timeline')` clears hover only when it came from that source. `clear(null)` clears hover regardless of source.
+
+### getSnapshot()
+
+Returns the current `CanvasHover` or `null`.
+
+### subscribe()
+
+`subscribe(listener)` calls `listener` after a hover update and returns an unsubscribe function.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`useCanvasHover()`](/docs/canvas/use-canvas-hover)
+- [`useCanvasSequenceHover()`](/docs/canvas/use-canvas-sequence-hover)

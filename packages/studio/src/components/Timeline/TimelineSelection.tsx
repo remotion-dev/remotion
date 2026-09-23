@@ -1,13 +1,12 @@
 import {
-	EMPTY_CANVAS_SELECTION,
-	getCanvasSelectionAfterInteraction,
+	CanvasInternals,
 	getCanvasSelectionItemKey,
-	getCanvasSequenceSelectionKey,
 	useCanvasSelection,
-	useCanvasSelectionController,
-	type CanvasSelectionInteraction,
-	type CanvasSelectionItem,
-	type CanvasSelectionSnapshot,
+} from '@remotion/canvas';
+import type {
+	CanvasSelectionInteraction,
+	CanvasSelectionItem,
+	CanvasSelectionSnapshot,
 } from '@remotion/canvas';
 import {
 	canEditEasingForInterpolationFunction,
@@ -87,6 +86,13 @@ import {
 } from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
+
+const {
+	EMPTY_CANVAS_SELECTION,
+	getCanvasSelectionAfterInteraction,
+	getCanvasSequenceSelectionKey,
+	useCanvasSelectionController,
+} = CanvasInternals;
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
 export const TIMELINE_EXPANDED_SELECTED_BACKGROUND = BACKGROUND;
