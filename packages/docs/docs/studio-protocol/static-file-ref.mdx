@@ -6,7 +6,7 @@ crumb: '@remotion/studio-protocol'
 
 # staticFileRef()<AvailableFrom v="4.0.528" />
 
-Reference an installed Element asset in [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops). Studio generates a [`staticFile()`](/docs/staticfile) expression on the component invocation. The Element source is not rewritten.
+Reference an Element asset in [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops). When the Element is installed, Studio downloads the asset into the user's project's `public/` directory and generates a [`staticFile()`](/docs/staticfile) expression on the component invocation. The Element source is not rewritten.
 
 ## Example
 
