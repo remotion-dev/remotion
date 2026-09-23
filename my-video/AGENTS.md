@@ -18,7 +18,7 @@ Rendering and Studio need Node.js and a Chrome/Chromium download; they work in C
 - `src/index.ts` — entry point, registers the root component
 - `src/Root.tsx` — every `<Composition>` must be registered here
 - `src/Composition.tsx` — the `MyComp` composition (1280×720 @ 30fps)
-- `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions, shapes, motion blur, noise, captions, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, three, gsap, core-`remotion` fundamentals), and `FullReel` (both combined into one video). Point at a scene here as a worked example before writing a new one from scratch.
+- `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions, shapes, motion blur, noise, captions, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, animated-emoji, three, gsap, core-`remotion` fundamentals), and `FullReel` (both combined into one video). Point at a scene here as a worked example before writing a new one from scratch.
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`, including `sample-clip.mp4`/`.gif`, `sample-tone.wav` and `sample-lottie.json` (locally-generated stand-ins used by `ExtendedReel`; regenerate the media ones with `node scripts/generate-sample-media.mjs`)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
@@ -43,6 +43,10 @@ Without this, effects/`<ThreeCanvas>` scenes render as solid black — Chromium 
 ## `@remotion/video-matting` and `@remotion/whisper-webgpu` need WebGPU *and* network access
 
 These both run a real ML model locally in the browser (background removal and speech transcription respectively), downloaded from `remotion.media` on first use. WebGPU itself works fine through the swiftshader wrapper above — verify with `canUseVideoMatting()`/`canUseWhisperWebGpu()` — but the model download is a separate requirement: it needs outbound network access to `remotion.media`, which a sandboxed environment may block the same way it can block `fonts.gstatic.com` (see `google-fonts.md`). `VideoMattingScene`/`BrowserTranscriptionScene` call `loadVideoMattingModel()`/`loadWhisperModel()` and show a graceful fallback message on failure rather than assuming success — this is also just correct production behavior, since model download can fail for a real user too (flaky network, an unsupported browser), not something specific to a restricted sandbox.
+
+## `@remotion/animated-emoji` assets are not bundled with the package
+
+Unlike `@remotion/google-fonts` (which fetches from a CDN at build time), `@remotion/animated-emoji`'s video files aren't shipped in the npm package at all — the package only knows how to play them via `<Loop>` + `<OffthreadVideo transparent>`. You have to copy the specific emoji's `.mp4`/`.webm` pair yourself, once, from [remotion-dev/animated-emoji](https://github.com/remotion-dev/animated-emoji)'s `public/` folder into this project's `public/`. Don't `git clone`/sparse-checkout that repo's `public/` folder directly — it's ~2GB of every emoji; fetch only the two files you need (e.g. via the GitHub API or a shallow single-file fetch). `AnimatedEmojiScene` uses `star-struck-0.5x` this way — fully offline at render time, no CDN dependency.
 
 ## Skills
 
