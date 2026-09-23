@@ -140,8 +140,10 @@ const elementImplementations = [
 	},
 	{
 		slug: 'audio/waveform-progress',
-		assets: [],
-		installationProps: null,
+		assets: [audioOscilloscopeAudio],
+		installationProps: {
+			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+		},
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description: 'A static audio waveform with playback progress.',
@@ -169,8 +171,10 @@ const elementImplementations = [
 	},
 	{
 		slug: 'audio/mirrored-spectrum',
-		assets: [],
-		installationProps: null,
+		assets: [audioOscilloscopeAudio],
+		installationProps: {
+			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+		},
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
 		description: 'Suitable for both music and speech visualization.',

@@ -3,22 +3,17 @@ import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import {createRequire} from 'module';
 import path from 'path';
 import {pathToFileURL} from 'url';
-import {staticFileRef} from '@remotion/studio-protocol';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import * as jsxRuntime from 'react/jsx-runtime';
 import elementSidebars from '../../elements-sidebars';
-import {audioOscilloscopeAudio} from '../../elements/audio/oscilloscope/initial-props';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
 	getRemotionElementSourceMap,
 } from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
-import {
-	elementDefinitions,
-	type ElementDefinition,
-} from '../components/Elements/element-definitions';
+import {elementDefinitions} from '../components/Elements/element-definitions';
 import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
 	getElementDocumentationUrl,
@@ -351,30 +346,6 @@ describe('Element library', () => {
 		}
 	});
 
-	test('keeps preview URLs separate from installed asset references', () => {
-		const definition: ElementDefinition =
-			getElementDefinition('audio/oscilloscope');
-		const sourceCode = getRemotionElementSourceMap({elementsRoot})[
-			definition.slug
-		];
-		const payload = createElementPayloadFromDefinition({
-			definition: {
-				...definition,
-				initialProps: {...definition.initialProps, lineColor: '#123456'},
-			},
-			sourceCode,
-		});
-
-		expect(definition.initialProps).toMatchObject({
-			audioSrc: audioOscilloscopeAudio.url,
-		});
-		expect(payload.element.assets).toEqual([audioOscilloscopeAudio]);
-		expect(payload.element.initialProps).toEqual({
-			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
-			lineColor: '#123456',
-		});
-	});
-
 	test('creates canonical drag payloads for every gallery Element', () => {
 		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
 		for (const definition of elementDefinitionList) {
@@ -383,14 +354,15 @@ describe('Element library', () => {
 			const payload = createElementPayloadFromDefinition({
 				definition,
 				sourceCode,
+				installAssets: false,
 			});
 
 			expect(payload).toMatchObject({
 				type: 'remotion-element',
-				version: definition.assets.length > 0 ? 2 : 1,
+				version: 1,
 				durationInFrames: definition.durationInFrames,
 				element: {
-					assets: definition.assets,
+					assets: [],
 					dependencies: definition.dependencies,
 					displayName: definition.displayName,
 					durationInFrames: definition.durationInFrames,
@@ -407,6 +379,21 @@ describe('Element library', () => {
 						}
 					: null;
 			expect(payload.element.dimensions).toEqual(expectedDimensions);
+			expect(payload.element.initialProps).toEqual(definition.initialProps);
+
+			if (definition.assets.length > 0) {
+				const assetPayload = createElementPayloadFromDefinition({
+					definition,
+					sourceCode,
+					installAssets: true,
+				});
+				expect(assetPayload.version).toBe(2);
+				expect(assetPayload.element.assets).toEqual(definition.assets);
+				expect(assetPayload.element.initialProps).toEqual({
+					...definition.initialProps,
+					...definition.installationProps,
+				});
+			}
 		}
 	});
 });

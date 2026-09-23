@@ -161,6 +161,87 @@ test('requires a Studio that supports asset payloads', async () => {
 	});
 });
 
+test('sends remote URLs to a focused v1 Studio and local asset references to a focused v2 Studio', async () => {
+	const legacyPayload = createElementPayload({
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Audio Element',
+		durationInFrames: 30,
+		slug: 'audio-element',
+		sourceCode: 'export const AudioElement = () => null;',
+		initialProps: {audioSrc: 'https://remotion.media/audio.mp3'},
+	});
+	const assetPayload = createElementPayload({
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Audio Element',
+		durationInFrames: 30,
+		slug: 'audio-element',
+		sourceCode: 'export const AudioElement = () => null;',
+		assets: [
+			{path: 'audio.mp3', type: 'url', url: 'https://remotion.media/audio.mp3'},
+		],
+		initialProps: {audioSrc: {__remotion_element_asset: 'audio.mp3'}},
+	});
+	for (const supportsAssets of [false, true]) {
+		const requests: unknown[] = [];
+		const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
+			const url = String(input);
+			if (url.endsWith('/api/studio-protocol/install')) {
+				requests.push(JSON.parse(String(options?.body)));
+				return Promise.resolve(
+					jsonResponse({
+						protocol: 'remotion-studio-protocol',
+						protocolVersion: 1,
+						status: 'awaiting-confirmation',
+					}),
+				);
+			}
+
+			return Promise.resolve(
+				jsonResponse({
+					...descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 999_000,
+						projectName: 'Studio',
+						targetId: 'target',
+					}),
+					capabilities: [
+						{
+							type: 'install-element',
+							payloadType: 'remotion-element',
+							payloadVersions: supportsAssets ? [1, 2] : [1],
+							target: {
+								id: 'target',
+								expiresAt: 1_010_000,
+								compositionId: 'Main',
+								lastFocusedAt: 999_000,
+							},
+						},
+					],
+				}),
+			);
+		};
+
+		const result = await installInStudioWithDependencies(
+			assetPayload,
+			{...dependencies, fetchFn, ports: [3000]},
+			legacyPayload,
+		);
+
+		expect(result.success).toBe(true);
+		expect(requests).toEqual([
+			{
+				operation: 'install-element',
+				protocol: 'remotion-studio-protocol',
+				protocolVersion: 1,
+				targetId: 'target',
+				payload: supportsAssets ? assetPayload : legacyPayload,
+			},
+		]);
+	}
+});
+
 test('distinguishes a compatible Studio without an installable target', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);

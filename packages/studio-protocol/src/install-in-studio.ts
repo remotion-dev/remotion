@@ -168,6 +168,7 @@ export const isAllowedStudioProtocolPageOrigin = (
 export const installInStudioWithDependencies = async (
 	payload: StudioElementPayload,
 	dependencies: InstallInStudioDependencies,
+	fallbackPayload: StudioElementPayload | null = null,
 ): Promise<InstallInStudioResult> => {
 	if (!isAllowedStudioProtocolPageOrigin(dependencies.pageOrigin)) {
 		return failure(
@@ -221,7 +222,9 @@ export const installInStudioWithDependencies = async (
 
 	const supportedStudios = discovery.studios.flatMap((studio) => {
 		const capability = getInstallCapability(studio.descriptor);
-		return capability?.payloadVersions.includes(payload.version)
+		return capability?.payloadVersions.includes(payload.version) ||
+			(fallbackPayload !== null &&
+				capability?.payloadVersions.includes(fallbackPayload.version))
 			? [{...studio, capability}]
 			: [];
 	});
@@ -262,6 +265,20 @@ export const installInStudioWithDependencies = async (
 		);
 	}
 
+	// Remove the v1 remote-URL fallback after 2026-10-23 (one-month
+	// transition window for Studios without Element asset support).
+	const selectedPayload = selected.capability.payloadVersions.includes(
+		payload.version,
+	)
+		? payload
+		: fallbackPayload;
+	if (selectedPayload === null) {
+		return failure(
+			'unsupported-protocol',
+			'The running Remotion Studio cannot install this Element payload version.',
+		);
+	}
+
 	let response: Response;
 	try {
 		const requestBody = {
@@ -269,7 +286,7 @@ export const installInStudioWithDependencies = async (
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
 			targetId: selectedTarget.id,
-			payload,
+			payload: selectedPayload,
 		} satisfies StudioProtocolInstallRequest;
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
@@ -373,28 +390,43 @@ const installInParentStudio = (
 
 export const installInStudio = async ({
 	payload,
+	fallbackPayload,
 }: {
 	readonly payload: StudioElementPayload;
+	readonly fallbackPayload?: StudioElementPayload;
 }): Promise<InstallInStudioResult> => {
 	const parentResult = await installInParentStudio(payload);
 	if (parentResult !== null) {
 		return parentResult;
 	}
 
-	return installInStudioWithDependencies(payload, {
-		fetchFn: fetch,
-		now: Date.now,
-		pageOrigin:
-			typeof globalThis.location === 'undefined'
-				? null
-				: globalThis.location.origin,
-		permissionQueryFn:
-			typeof globalThis.navigator === 'undefined' ||
-			typeof globalThis.navigator.permissions?.query !== 'function'
-				? null
-				: (descriptor) =>
-						// @ts-expect-error Chromium's loopback permission names are not in lib.dom yet.
-						globalThis.navigator.permissions.query(descriptor),
-		ports: studioProtocolProbePorts,
-	});
+	// Older embedded Studios silently ignore v2. Retry with v1 after the
+	// response timeout rather than preventing new parent Studios from using assets.
+	if (fallbackPayload !== undefined) {
+		const fallbackResult = await installInParentStudio(fallbackPayload);
+		if (fallbackResult !== null) {
+			return fallbackResult;
+		}
+	}
+
+	return installInStudioWithDependencies(
+		payload,
+		{
+			fetchFn: fetch,
+			now: Date.now,
+			pageOrigin:
+				typeof globalThis.location === 'undefined'
+					? null
+					: globalThis.location.origin,
+			permissionQueryFn:
+				typeof globalThis.navigator === 'undefined' ||
+				typeof globalThis.navigator.permissions?.query !== 'function'
+					? null
+					: (descriptor) =>
+							// @ts-expect-error Chromium's loopback permission names are not in lib.dom yet.
+							globalThis.navigator.permissions.query(descriptor),
+			ports: studioProtocolProbePorts,
+		},
+		fallbackPayload ?? null,
+	);
 };
