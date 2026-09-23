@@ -1,7 +1,18 @@
 # @remotion/canvas
 
-Experimental primitives for building a Remotion authoring interface around [`@remotion/player`](https://www.remotion.dev/docs/player/player).
+Experimental primitives for building Remotion authoring interfaces
 
-See the [Canvas documentation](https://www.remotion.dev/docs/canvas) for installation, a complete example, and the supported API.
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/canvas.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/canvas?minimal=true)
 
-`CanvasInternals` is used by Remotion Studio and may change without notice.
+## Installation
+
+```bash
+npm install @remotion/canvas --save-exact
+```
+
+When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
+Remove the `^` character from the version number to use the exact version.
+
+## Usage
+
+See the [documentation](https://www.remotion.dev/docs/canvas) for more information.
