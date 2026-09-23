@@ -72,8 +72,10 @@ Logos of the lenders the owner is accredited with, so they are cleared to appear
 | `anz.webp` | 632×356 | transparent |
 | `firstmac.png` | 300×102 | transparent; small, so keep it at or below about 100px tall |
 | `st-george.png` | 400×340 | white background. A stock-site copy whose fake transparency (a grey checkerboard in the pixels) was whitened; replace it with the official file from St.George's broker portal |
+| `nab.png` | 703×289 | NAB's white-on-black version, cropped to its black box (the file around it had a fake checkerboard) |
+| `bankwest.png` | 688×252 | Bankwest's new logo, orange on its dark grey background, cropped around the logo. The orange ribbon symbol on its own is Bankwest's old logo; don't use it |
 
-Still missing: NAB (the copy received came from a stock-image site, with a checkerboard and a "cleanpng" watermark across the logo, so it wasn't saved) and an orange ribbon symbol whose lender wasn't named. Official files come from each lender's broker portal or brand team; SVG or transparent PNG is best.
+Official files come from each lender's broker portal or brand team; SVG or transparent PNG is best. Replace a file under the same name and `LenderRow` picks it up.
 
 ## Brand kit: `src/brand/`
 
