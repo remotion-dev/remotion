@@ -52,6 +52,7 @@ import {
 } from "@remotion/renderer";
 import {addElementLibraryToStudio, createElementPayload, installInStudio} from "@remotion/studio-protocol";
 import {VERSION} from "remotion/version";
+import {ALL_FORMATS, FilePathSource, Input} from "mediabunny";
 import {bundlerOverride} from "../bundler-override.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -584,6 +585,21 @@ await step("renderer getSilentParts()", async () => {
   if (audibleParts.length !== 0 || silentParts.length !== 1) throw new Error(`${audibleParts.length} audible, ${silentParts.length} silent part(s), expected 0 and 1`);
   const [{startInSeconds, endInSeconds}] = silentParts;
   return `sample-clip.mp4 (${durationInSeconds.toFixed(2)}s): 0 audible, 1 silent part (${startInSeconds.toFixed(2)}-${endInSeconds.toFixed(2)}s)`;
+});
+
+// Mediabunny reads a local file in Node with FilePathSource. The bundled
+// remotion-multimedia skill's Node example uses FileSource, which 1.56.1
+// doesn't export (BlobSource takes a File or Blob). See docs/findings.md.
+await step("mediabunny Input + FilePathSource", async () => {
+  const input = new Input({formats: ALL_FORMATS, source: new FilePathSource(join(publicDir, "sample-clip-tone.webm"))});
+  try {
+    const video = await input.getPrimaryVideoTrack();
+    const audio = await input.getPrimaryAudioTrack();
+    if (!video || !audio) throw new Error("expected a video and an audio track");
+    return `sample-clip-tone.webm: ${await input.getMimeType()}, ${video.displayWidth}×${video.displayHeight}, ${(await input.computeDuration()).toFixed(2)}s, canDecode() ${await video.canDecode()}/${await audio.canDecode()} (Node has no WebCodecs)`;
+  } finally {
+    input.dispose();
+  }
 });
 
 await browser?.close({silent: true});

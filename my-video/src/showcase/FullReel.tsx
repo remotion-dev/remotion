@@ -47,6 +47,7 @@ import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
 import {MediaToolsScene} from "./MediaToolsScene";
+import {MediabunnyScene} from "./MediabunnyScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
 import {EFFECTS_CATALOG_DURATION, EffectsCatalogScene} from "./EffectsCatalogScene";
 import {CutFlash} from "./CutFlash";
@@ -67,7 +68,7 @@ const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
 // Scenes of SCENE_DURATION each; EffectsCatalogScene, the one longer
 // sequence, is added separately.
-const SCENE_COUNT = 24;
+const SCENE_COUNT = 25;
 // Separators that are <TransitionSeries.Overlay>s rather than Transitions:
 // an overlay sits on the cut without overlapping the scenes, so it doesn't
 // shorten the reel.
@@ -132,8 +133,10 @@ const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITI
 // see its own comment for why); @remotion/layout-utils + @remotion/
 // rounded-text-box + @remotion/fonts (RoundedTextBoxScene); @remotion/sfx
 // (SfxScene); @remotion/gsap (GsapScene); core remotion media/canvas
-// components (CoreMediaScene); core remotion environment/introspection APIs
-// (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
+// components (CoreMediaScene); @remotion/media-parser + @remotion/webcodecs
+// (MediaToolsScene); Mediabunny called directly, the library under
+// @remotion/media (MediabunnyScene); core remotion environment/introspection
+// APIs (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
 // random() (FundamentalsScene); every interpolate() option and its exported
 // validators (InterpolateScene); @remotion/animation-utils + rough-notation
 // (OutroScene).
@@ -285,6 +288,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <MediaToolsScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-top"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <MediabunnyScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={swapOrFallback()} timing={t} />
 

@@ -32,7 +32,7 @@ import {AbsoluteFill, Img, staticFile, useDelayRender, useVideoConfig} from "rem
 import {palette} from "./palette";
 import {poppins} from "./font";
 
-type Row = {label: string; value: string; ok: boolean};
+export type Row = {label: string; value: string; ok: boolean};
 
 const MP4 = staticFile("sample-clip.mp4");
 const WEBM = staticFile("sample-clip.webm");
@@ -43,7 +43,7 @@ const WAV = staticFile("sample-tone.wav");
 // ("... is not a URL"), and universalReader takes a leading "/" for a
 // filesystem path and calls Node's fs (which fails in the browser). Both
 // get an absolute URL instead.
-const absolute = (src: string) => new URL(src, window.location.href).href;
+export const absolute = (src: string) => new URL(src, window.location.href).href;
 
 // Each experiment gets its own time limit, so one stalled codec call shows up
 // as a "failed: timed out" row instead of tripping the scene's delayRender()
@@ -52,7 +52,7 @@ const EXPERIMENT_TIMEOUT_MS = 15000;
 
 // Runs one experiment and records its real outcome: the result text, or the
 // error message if it threw or timed out. Nothing here is assumed to work.
-const attempt = async (label: string, fn: () => Promise<string>): Promise<Row> => {
+export const attempt = async (label: string, fn: () => Promise<string>): Promise<Row> => {
   let timer: ReturnType<typeof setTimeout> | null = null;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error(`timed out after ${EXPERIMENT_TIMEOUT_MS / 1000}s`)), EXPERIMENT_TIMEOUT_MS);
