@@ -141,7 +141,7 @@ export const SequenceWrapAction: React.FC<{
 			wrapperNames.map((wrapper) => ({
 				type: 'item',
 				id: wrapper,
-				label: wrapper,
+				label: `<${wrapper}>`,
 				value: wrapper,
 				onClick: () => onWrap(wrapper),
 				keyHint: null,
