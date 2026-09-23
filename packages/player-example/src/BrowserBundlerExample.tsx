@@ -208,7 +208,9 @@ export const BrowserBundlerExample: React.FC = () => {
 						rootDir: '/',
 					},
 				});
-				const nextSource = result.project.files['src/Video.tsx'];
+				const nextSource =
+					result.changes.find((change) => change.filePath === 'src/Video.tsx')
+						?.nextContents ?? sourceRef.current;
 				if (!nextSource) {
 					throw new Error('The codemod did not return Video.tsx.');
 				}
@@ -418,7 +420,10 @@ export const BrowserBundlerExample: React.FC = () => {
 								},
 								width: 1280,
 							});
-							const nextSource = result.project.files['src/Video.tsx'];
+							const nextSource =
+								result.changes.find(
+									(change) => change.filePath === 'src/Video.tsx',
+								)?.nextContents ?? source;
 							if (!nextSource) {
 								throw new Error('The codemod did not return Video.tsx.');
 							}

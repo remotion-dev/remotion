@@ -325,6 +325,7 @@ import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
+import {InteractivePaths} from './VisualModeTests/InteractivePaths';
 import {Issue9170} from './VisualModeTests/Issue9170';
 import {KeyframeDeleteFlash} from './VisualModeTests/KeyframeDeleteFlash';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
@@ -3140,6 +3141,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="interactive-svg-elements"
 					component={InteractiveSvgElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="interactive-paths"
+					component={InteractivePaths}
 					width={1080}
 					height={1080}
 					fps={30}

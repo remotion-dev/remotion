@@ -21,10 +21,10 @@ export const renameComposition = <Project extends CodemodProject>({
 	compositionFile,
 	compositionId,
 	newId,
-}: RenameCompositionOptions<Project>): CodemodResult<Project> => {
+}: RenameCompositionOptions<Project>): CodemodResult => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	if (newId === compositionId) {
-		return getCodemodResult({project, nextProject: project});
+		return {changes: []};
 	}
 
 	assertNewCompositionId({project, compositionFile, compositionId: newId});
@@ -51,9 +51,6 @@ export const renameComposition = <Project extends CodemodProject>({
 	});
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [node.filePath]: output},
-		},
+		edits: [{filePath: node.filePath, nextContents: output}],
 	});
 };

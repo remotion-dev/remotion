@@ -2083,6 +2083,7 @@ const sidebars: SidebarsConfig = {
 				'codemods/add-folder',
 				'codemods/add-media',
 				'codemods/add-solid',
+				'codemods/apply-codemod-changes',
 				'codemods/delete-composition',
 				'codemods/delete-effects',
 				'codemods/delete-jsx-nodes',

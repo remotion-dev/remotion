@@ -136,7 +136,7 @@ export const updateMultipleJsxNodeProps = <Project extends CodemodProject>({
 		results,
 		formatted: true,
 		updatedNodes: changes.map(({node}) =>
-			getUpdatedNodeReference({...result, node}),
+			getUpdatedNodeReference({project, ...result, node}),
 		),
 	};
 };

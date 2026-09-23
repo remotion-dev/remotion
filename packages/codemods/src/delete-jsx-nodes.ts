@@ -16,7 +16,7 @@ export const deleteJsxNodes = async <Project extends CodemodProject>({
 	project,
 	nodes,
 }: DeleteJsxNodesOptions<Project>): Promise<
-	CodemodNodeResult<Project> & {
+	CodemodNodeResult & {
 		editDetails: {
 			filePath: string;
 			formatted: boolean;

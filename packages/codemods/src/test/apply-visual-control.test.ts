@@ -11,7 +11,7 @@ test('updates visual controls without changing surrounding source', () => {
 		"const optional = visualControl('optional')",
 		'',
 	].join('\r\n');
-	const {project, updatedControls} = updateVisualControls({
+	const {changes, updatedControls} = updateVisualControls({
 		project: {rootDir: '/', files: {'Root.tsx': input}},
 		filePath: 'Root.tsx',
 		changes: [
@@ -41,7 +41,7 @@ test('updates visual controls without changing surrounding source', () => {
 		{id: 'mode', line: 5},
 		{id: 'optional', line: 6},
 	]);
-	expect(project.files['Root.tsx']).toBe(
+	expect(changes[0].nextContents).toBe(
 		input
 			.replace('OPACITY', '0.5')
 			.replace('"slow"', "'fast' as const")
@@ -53,7 +53,7 @@ test('formats object values using the existing source style', () => {
 	const input = `const untouched    = {keep:"this spacing"}
 const settings = visualControl("settings", { old: true })
 `;
-	const {project} = updateVisualControls({
+	const {changes} = updateVisualControls({
 		project: {rootDir: '/', files: {'Root.tsx': input}},
 		filePath: 'Root.tsx',
 		changes: [
@@ -69,7 +69,7 @@ const settings = visualControl("settings", { old: true })
 		],
 	});
 
-	expect(project.files['Root.tsx'])
+	expect(changes[0].nextContents)
 		.toBe(`const untouched    = {keep:"this spacing"}
 const settings = visualControl("settings", { title: "Hello", "dash-key": true })
 `);
@@ -85,7 +85,7 @@ test('wraps long visual-control values using CRLF and tab indentation', () => {
 		')',
 		'',
 	].join('\r\n');
-	const {project} = updateVisualControls({
+	const {changes} = updateVisualControls({
 		project: {rootDir: '/', files: {'Root.tsx': input}},
 		filePath: 'Root.tsx',
 		changes: [
@@ -103,7 +103,7 @@ test('wraps long visual-control values using CRLF and tab indentation', () => {
 		],
 	});
 
-	expect(project.files['Root.tsx']).toBe(
+	expect(changes[0].nextContents).toBe(
 		[
 			'import {visualControl} from "@remotion/studio"',
 			'',
@@ -123,7 +123,7 @@ test('wraps long visual-control values using CRLF and tab indentation', () => {
 test('an outer visual control replacement supersedes nested controls', () => {
 	const input =
 		"const value = visualControl('outer', {nested: visualControl('inner', 1)});\n";
-	const {project, updatedControls} = updateVisualControls({
+	const {changes, updatedControls} = updateVisualControls({
 		project: {rootDir: '/', files: {'Root.tsx': input}},
 		filePath: 'Root.tsx',
 		changes: [
@@ -143,7 +143,7 @@ test('an outer visual control replacement supersedes nested controls', () => {
 	});
 
 	expect(updatedControls).toEqual([{id: 'outer', line: 1}]);
-	expect(project.files['Root.tsx']).toBe(
+	expect(changes[0].nextContents).toBe(
 		"const value = visualControl('outer', 2);\n",
 	);
 });
@@ -182,7 +182,4 @@ test('rejects dynamic identifiers and leaves unmatched visual controls unchanged
 	});
 	expect(unchanged.changes).toEqual([]);
 	expect(unchanged.updatedControls).toEqual([]);
-	expect(unchanged.project.files['Root.tsx']).toBe(
-		"const value = visualControl('other', 1);\n",
-	);
 });

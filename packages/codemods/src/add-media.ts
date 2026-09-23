@@ -16,7 +16,7 @@ export const addMedia = <Project extends CodemodProject>({
 	srcType,
 	dimensions,
 	...options
-}: AddMediaOptions<Project>): Promise<CodemodInsertionResult<Project>> => {
+}: AddMediaOptions<Project>): Promise<CodemodInsertionResult> => {
 	if (
 		dimensions &&
 		(!Number.isFinite(dimensions.width) ||

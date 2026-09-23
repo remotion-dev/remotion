@@ -1,9 +1,11 @@
 import {expect, test} from 'bun:test';
 import {
+	applyCodemodChanges,
 	getJsxNodes,
 	updateJsxNodeKeyframes,
 	updateJsxNodeProps,
 } from '../index';
+import {getChangedContents} from './get-changed-contents';
 
 for (const indentation of ['\t', '  ', '    ']) {
 	for (const endOfLine of ['\n', '\r\n']) {
@@ -45,23 +47,25 @@ export const Video = () => {
 			const expected = input
 				.replace('render = {', 'render={')
 				.replace(format('\t\t/>'), format("\t\t\ttitle={'Hello'}\n\t\t/>"));
-			expect(changed.project.files[filePath]).toBe(expected);
+			expect(getChangedContents(changed, filePath)).toBe(expected);
+			const afterChange = applyCodemodChanges(project, changed.changes);
 
 			const repeated = updateJsxNodeProps({
-				project: changed.project,
+				project: afterChange,
 				node: changed.updatedNode,
 				props: {title: 'Hello'},
 			});
-			expect(repeated.project.files[filePath]).toBe(expected);
+			const afterRepeat = applyCodemodChanges(afterChange, repeated.changes);
+			expect(afterRepeat.files[filePath]).toBe(expected);
 
 			const animated = await updateJsxNodeKeyframes({
-				project: repeated.project,
+				project: afterRepeat,
 				node: repeated.updatedNode,
 				updates: [
 					{key: 'style.opacity', operation: {type: 'add', frame: 0, value: 0}},
 				],
 			});
-			expect(animated.project.files[filePath]).toBe(
+			expect(getChangedContents(animated, filePath)).toBe(
 				expected
 					.replace(
 						'{AbsoluteFill}',

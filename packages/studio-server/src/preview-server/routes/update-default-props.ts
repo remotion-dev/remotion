@@ -55,7 +55,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 				enumPaths,
 			});
 			const {logLine} = result;
-			const output = result.project.files[projectInfo.rootFile];
+			const output = result.changes[0]?.nextContents ?? fileContents;
 
 			pushToUndoStack({
 				filePath: projectInfo.rootFile,

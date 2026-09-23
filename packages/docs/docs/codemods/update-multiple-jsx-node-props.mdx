@@ -29,7 +29,7 @@ const result = updateMultipleJsxNodeProps({
   ],
 });
 
-console.log(result.project, result.updatedNodes);
+console.log(result.changes, result.updatedNodes);
 ```
 
 ## Options
@@ -69,10 +69,6 @@ Formatting options for inserted or changed source. By default, formatting is inf
 If any edit fails, no updated project is returned and the input project remains unchanged.
 
 ## Return value
-
-### project
-
-The updated project. Unchanged files and extra project fields are preserved.
 
 ### changes
 

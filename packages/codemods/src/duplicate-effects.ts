@@ -50,7 +50,7 @@ export const duplicateEffects = async <Project extends CodemodProject>({
 		})),
 		insertedEffects: [...groups.values()].flatMap((group) =>
 			group.map((effect) => ({
-				...getUpdatedNodeReference({...result, node: effect}),
+				...getUpdatedNodeReference({project, ...result, node: effect}),
 				effectIndex:
 					effect.effectIndex +
 					1 +

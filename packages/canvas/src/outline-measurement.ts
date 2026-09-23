@@ -1,8 +1,12 @@
-import {useCache as resetBoxQuadsCache} from './get-box-quads-polyfill-internals.js';
+import {
+	getResultingTransformationBetweenElementAndAllAncestors,
+	useCache as resetBoxQuadsCache,
+} from './get-box-quads-polyfill-internals.js';
 import {getBoxQuadsPonyfill} from './get-box-quads-ponyfill';
 import type {
 	CanvasOutline,
 	CanvasOutlinePoint,
+	CanvasOutlinePath,
 	CanvasOutlineTarget,
 } from './outline-geometry';
 import {getCanvasOutlinePoint} from './outline-geometry';
@@ -107,21 +111,212 @@ const getSvgSvgElementViewport = (element: SVGSVGElement): SvgViewport => {
 	};
 };
 
+/**
+ * Maps SVG user units to viewport pixels, including ancestor CSS transforms.
+ *
+ * `getScreenCTM()` is the obvious API for this, but WebKit ignores ancestor
+ * CSS transforms in it, while Blink/Gecko include them — so a Studio fit-scale
+ * wrapper would make the outline render at the wrong size in Safari. Instead
+ * we compose two consistent transforms:
+ *
+ * 1. The polyfill's CSS-transform-aware walk from the root <svg> to the
+ *    document element (document coordinates, no viewport scroll — FIX 15).
+ * 2. `element.getCTM()`, the pure SVG-internal transform from user units to
+ *    the root <svg>'s viewport. Cross-browser consistent, no CSS involved.
+ *
+ * Finally we mirror `toViewportRelativeDocumentElementQuad`: subtract window
+ * scroll to land in viewport coordinates, then subtract the overlay origin
+ * (like `quadToPoints` does for HTML quads).
+ */
+const getSvgElementScreenMatrix = (
+	element: SVGGraphicsElement,
+): (SvgScreenCtm & {readonly is2D: boolean}) | null => {
+	const ownerSvg = element.ownerSVGElement;
+	const {documentElement} = element.ownerDocument;
+	const win = element.ownerDocument.defaultView;
+	if (!ownerSvg || !documentElement || !win) {
+		return null;
+	}
+
+	let walk;
+	try {
+		// Walking the root <svg> (not the path) avoids the polyfill's
+		// bbox-translate branch for SVG children, which would shift the
+		// coordinates by the path's `getBBox()` origin.
+		walk = getResultingTransformationBetweenElementAndAllAncestors(
+			ownerSvg,
+			documentElement,
+			[],
+		);
+	} catch {
+		// Mirrors getBoxQuadsPonyfill's try/catch contract for exotic DOMs.
+		return null;
+	}
+
+	const ctm = element.getCTM();
+	if (ctm === null) {
+		return null;
+	}
+
+	const matrix = walk.multiply(ctm);
+	const scrollX = win.scrollX ?? documentElement.scrollLeft ?? 0;
+	const scrollY = win.scrollY ?? documentElement.scrollTop ?? 0;
+
+	return {
+		a: matrix.a,
+		b: matrix.b,
+		c: matrix.c,
+		d: matrix.d,
+		e: matrix.e - scrollX,
+		f: matrix.f - scrollY,
+		is2D: matrix.is2D,
+	};
+};
+
 const getSvgSvgElementOutlinePoints = (
 	element: SVGSVGElement,
 	containerRect: DOMRect,
 ): CanvasOutline['points'] | null => {
-	const ctm = element.getScreenCTM();
 	const viewport = getSvgSvgElementViewport(element);
-	if (ctm === null || (viewport.width === 0 && viewport.height === 0)) {
+	if (viewport.width === 0 && viewport.height === 0) {
 		return null;
 	}
 
+	const {documentElement} = element.ownerDocument;
+	const win = element.ownerDocument.defaultView;
+	if (!documentElement || !win) {
+		return null;
+	}
+
+	let walk;
+	try {
+		// The walk on the root <svg> includes its own CSS transform, unlike
+		// `getScreenCTM()` in WebKit, which ignores ancestor CSS transforms.
+		walk = getResultingTransformationBetweenElementAndAllAncestors(
+			element,
+			documentElement,
+			[],
+		);
+	} catch {
+		// Mirrors getBoxQuadsPonyfill's try/catch contract for exotic DOMs.
+		return null;
+	}
+
+	if (!walk.is2D) {
+		return null;
+	}
+
+	// Compose the viewBox→viewport transform manually: root-svg `getCTM()`
+	// semantics are unreliable across browsers, and this keeps the math
+	// dependency-free. `walk` maps viewport px → document coordinates.
+	const viewBox = element.viewBox.baseVal;
+	const hasViewBox = viewBox.width > 0 && viewBox.height > 0;
+	const viewportWidth = element.width.baseVal.value;
+	const viewportHeight = element.height.baseVal.value;
+
+	let scaleX = 1;
+	let scaleY = 1;
+	let translateX = 0;
+	let translateY = 0;
+	if (hasViewBox) {
+		// SVG_PRESERVEASPECTRATIO_NONE = 1, XMINYMIN = 2 … XMAXYMAX = 10;
+		// SVG_MEETORSLICE_MEET = 1, SVG_MEETORSLICE_SLICE = 2.
+		const {align, meetOrSlice} = element.preserveAspectRatio.baseVal;
+		if (align === 1) {
+			scaleX = viewportWidth / viewBox.width;
+			scaleY = viewportHeight / viewBox.height;
+		} else {
+			const uniform =
+				meetOrSlice === 2
+					? Math.max(
+							viewportWidth / viewBox.width,
+							viewportHeight / viewBox.height,
+						)
+					: Math.min(
+							viewportWidth / viewBox.width,
+							viewportHeight / viewBox.height,
+						);
+			scaleX = uniform;
+			scaleY = uniform;
+			// x alignment: align % 3 → 2 = xMin, 0 = xMid, 1 = xMax.
+			translateX =
+				align % 3 === 0
+					? (viewportWidth - viewBox.width * uniform) / 2
+					: align % 3 === 1
+						? viewportWidth - viewBox.width * uniform
+						: 0;
+			// y alignment: YMIN = 2–4, YMID = 5–7, YMAX = 8–10.
+			translateY =
+				align <= 4
+					? 0
+					: align <= 7
+						? (viewportHeight - viewBox.height * uniform) / 2
+						: viewportHeight - viewBox.height * uniform;
+		}
+
+		translateX -= viewBox.x * scaleX;
+		translateY -= viewBox.y * scaleY;
+	}
+
+	const scrollX = win.scrollX ?? documentElement.scrollLeft ?? 0;
+	const scrollY = win.scrollY ?? documentElement.scrollTop ?? 0;
+
 	return getTransformedSvgViewportPoints({
 		viewport,
-		ctm,
+		ctm: {
+			a: walk.a * scaleX,
+			b: walk.b * scaleX,
+			c: walk.c * scaleY,
+			d: walk.d * scaleY,
+			e: walk.a * translateX + walk.c * translateY + walk.e - scrollX,
+			f: walk.b * translateX + walk.d * translateY + walk.f - scrollY,
+		},
 		containerRect,
 	});
+};
+
+const isSvgPathElement = (element: Element): element is SVGPathElement => {
+	const ownerSvgPathElement = element.ownerDocument.defaultView?.SVGPathElement;
+	return (
+		(typeof SVGPathElement !== 'undefined' &&
+			element instanceof SVGPathElement) ||
+		(ownerSvgPathElement !== undefined &&
+			element instanceof ownerSvgPathElement)
+	);
+};
+
+const getPathOutline = ({
+	element,
+	containerRect,
+}: {
+	readonly element: SVGPathElement;
+	readonly containerRect: DOMRect;
+}): CanvasOutlinePath | null => {
+	const d = element.getAttribute('d');
+	if (d === null || d === '') {
+		return null;
+	}
+
+	const ctm = getSvgElementScreenMatrix(element);
+	if (ctm === null || !ctm.is2D) {
+		// In a 3D CSS context no single 2D matrix can place the path; the
+		// polygon outline from `getBoxQuads` still applies.
+		return null;
+	}
+
+	// Shift the translation into the overlay svg's local space, like every
+	// other point source.
+	return {
+		d,
+		matrix: {
+			a: ctm.a,
+			b: ctm.b,
+			c: ctm.c,
+			d: ctm.d,
+			e: ctm.e - containerRect.left,
+			f: ctm.f - containerRect.top,
+		},
+	};
 };
 
 const getElementOutlinePoints = (
@@ -216,6 +411,10 @@ export const measureCanvasOutlineTargets = (
 		const points = cropCanvasOutlinePoints(uncroppedPoints, target.crop);
 		const ownerHTMLElement = element.ownerDocument.defaultView?.HTMLElement;
 
+		const path = isSvgPathElement(element)
+			? getPathOutline({element, containerRect})
+			: null;
+
 		outlines.push({
 			key: target.key,
 			dimensions:
@@ -234,6 +433,7 @@ export const measureCanvasOutlineTargets = (
 						: null,
 			uncroppedPoints,
 			points,
+			path,
 		});
 	}
 
@@ -274,6 +474,29 @@ export const canvasOutlinesAreEqual = (
 				) {
 					return false;
 				}
+			}
+		}
+
+		const aPath = a[i].path;
+		const bPath = b[i].path;
+		if ((aPath === null) !== (bPath === null)) {
+			return false;
+		}
+
+		if (aPath !== null && bPath !== null) {
+			if (aPath.d !== bPath.d) {
+				return false;
+			}
+
+			if (
+				Math.abs(aPath.matrix.a - bPath.matrix.a) > 0.01 ||
+				Math.abs(aPath.matrix.b - bPath.matrix.b) > 0.01 ||
+				Math.abs(aPath.matrix.c - bPath.matrix.c) > 0.01 ||
+				Math.abs(aPath.matrix.d - bPath.matrix.d) > 0.01 ||
+				Math.abs(aPath.matrix.e - bPath.matrix.e) > 0.01 ||
+				Math.abs(aPath.matrix.f - bPath.matrix.f) > 0.01
+			) {
+				return false;
 			}
 		}
 

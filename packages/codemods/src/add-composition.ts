@@ -34,7 +34,7 @@ export const addComposition = <Project extends CodemodProject>({
 	component,
 	metadata,
 	folder,
-}: AddCompositionOptions<Project>): CodemodResult<Project> => {
+}: AddCompositionOptions<Project>): CodemodResult => {
 	assertNewCompositionId({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (!/^[A-Z_$][\w$]*$/.test(component.importName)) {
@@ -102,6 +102,6 @@ export const addComposition = <Project extends CodemodProject>({
 	parseAst(output);
 	return getCodemodResult({
 		project,
-		nextProject: {...project, files: {...project.files, [filePath]: output}},
+		edits: [{filePath, nextContents: output}],
 	});
 };

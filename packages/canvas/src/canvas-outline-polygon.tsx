@@ -46,6 +46,13 @@ export const CanvasOutlinePolygon = memo(
 				() => outline.points.map((point) => `${point.x},${point.y}`).join(' '),
 				[outline.points],
 			);
+			const matrixTransform = useMemo(
+				() =>
+					outline.path === null
+						? null
+						: `matrix(${outline.path.matrix.a} ${outline.path.matrix.b} ${outline.path.matrix.c} ${outline.path.matrix.d} ${outline.path.matrix.e} ${outline.path.matrix.f})`,
+				[outline.path],
+			);
 			const onPointerEnter = useCallback(() => {
 				if (!dragging) {
 					onHoverChange(outline.key);
@@ -58,23 +65,37 @@ export const CanvasOutlinePolygon = memo(
 			}, [dragging, onHoverChange]);
 
 			return (
-				<polygon
-					{...props}
-					ref={ref}
-					data-remotion-canvas-outline-key={outline.key}
-					data-remotion-directly-selected-outline={
-						directlySelected ? 'true' : undefined
-					}
-					points={points}
-					fill={fill}
-					stroke={stroke}
-					strokeOpacity={visible ? 1 : 0}
-					strokeWidth={2}
-					vectorEffect="non-scaling-stroke"
-					pointerEvents={interactive ? 'all' : 'none'}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
-				/>
+				<g>
+					<polygon
+						{...props}
+						ref={ref}
+						data-remotion-canvas-outline-key={outline.key}
+						data-remotion-directly-selected-outline={
+							directlySelected ? 'true' : undefined
+						}
+						points={points}
+						fill={fill}
+						stroke={matrixTransform === null ? stroke : 'transparent'}
+						strokeOpacity={visible ? 1 : 0}
+						strokeWidth={2}
+						vectorEffect="non-scaling-stroke"
+						pointerEvents={interactive ? 'all' : 'none'}
+						onPointerEnter={onPointerEnter}
+						onPointerLeave={onPointerLeave}
+					/>
+					{matrixTransform === null ? null : (
+						<path
+							d={outline.path?.d ?? ''}
+							transform={matrixTransform}
+							fill="none"
+							stroke={stroke}
+							strokeOpacity={visible ? 1 : 0}
+							strokeWidth={2}
+							vectorEffect="non-scaling-stroke"
+							pointerEvents="none"
+						/>
+					)}
+				</g>
 			);
 		},
 	),

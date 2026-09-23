@@ -43,7 +43,7 @@ export const splitVideoFromAudioHandler: ApiHandler<
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
 			});
-			const output = result.project.files[absolutePath];
+			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, nodeLabel, logLine} = result.editDetails[0];
 			const nodePathRemappings = result.nodePathRemappings.map(
 				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
