@@ -42,6 +42,9 @@ export type MediaPlayerInitResult =
 
 export type MediaSeekIntent =
 	| {readonly revision: number; readonly playing: boolean}
+	// An internal resync after media configuration changes, not a timeline seek.
+	// Invalidate the satisfied revision so the next video request cannot be
+	// mistaken for continuous playback. This does not always restart the iterator.
 	| 'discontinuity'
 	| null;
 
