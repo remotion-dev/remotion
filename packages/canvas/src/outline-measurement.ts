@@ -5,7 +5,7 @@ import type {
 	CanvasOutlinePoint,
 	CanvasOutlineTarget,
 } from './outline-geometry';
-import {getCanvasOutlinePoint} from './outline-geometry';
+import {getCanvasOutlinePoint, getCanvasOutlineUv} from './outline-geometry';
 
 const rectToPoints = (
 	elementRect: DOMRect,
@@ -124,6 +124,81 @@ const getSvgSvgElementOutlinePoints = (
 	});
 };
 
+const isSvgPathElement = (element: Element): element is SVGPathElement => {
+	const ownerSvgPathElement = element.ownerDocument.defaultView?.SVGPathElement;
+	return (
+		(typeof SVGPathElement !== 'undefined' &&
+			element instanceof SVGPathElement) ||
+		(ownerSvgPathElement !== undefined &&
+			element instanceof ownerSvgPathElement)
+	);
+};
+
+const pathSampleSpacing = 8;
+const maxPathSamples = 400;
+
+const getPathPoints = ({
+	element,
+	containerRect,
+}: {
+	readonly element: SVGPathElement;
+	readonly containerRect: DOMRect;
+}): readonly CanvasOutlinePoint[] | null => {
+	const ctm = element.getScreenCTM();
+	if (ctm === null) {
+		return null;
+	}
+
+	const totalLength = element.getTotalLength();
+	if (totalLength === 0) {
+		return null;
+	}
+
+	const count = Math.min(
+		maxPathSamples,
+		Math.max(2, Math.ceil(totalLength / pathSampleSpacing) + 1),
+	);
+	const points: CanvasOutlinePoint[] = [];
+	for (let i = 0; i < count; i++) {
+		// Walk the length so each sample is equidistant along the geometry.
+		const length = (totalLength * i) / (count - 1);
+		const point = element.getPointAtLength(length);
+		points.push({
+			x: ctm.a * point.x + ctm.c * point.y + ctm.e - containerRect.left,
+			y: ctm.b * point.x + ctm.d * point.y + ctm.f - containerRect.top,
+		});
+	}
+
+	return points;
+};
+
+const cropPathPoints = (
+	pathPoints: readonly CanvasOutlinePoint[],
+	uncroppedPoints: CanvasOutline['uncroppedPoints'],
+	crop: CanvasOutlineTarget['crop'],
+): readonly CanvasOutlinePoint[] => {
+	if (
+		crop.left === 0 &&
+		crop.right === 0 &&
+		crop.top === 0 &&
+		crop.bottom === 0
+	) {
+		return pathPoints;
+	}
+
+	if (uncroppedPoints === null) {
+		return pathPoints;
+	}
+
+	return pathPoints.map((point) => {
+		const uv = getCanvasOutlineUv(uncroppedPoints, point);
+		return getCanvasOutlinePoint(
+			cropCanvasOutlinePoints(uncroppedPoints, crop),
+			uv,
+		);
+	});
+};
+
 const getElementOutlinePoints = (
 	element: Element,
 	containerRect: DOMRect,
@@ -216,6 +291,15 @@ export const measureCanvasOutlineTargets = (
 		const points = cropCanvasOutlinePoints(uncroppedPoints, target.crop);
 		const ownerHTMLElement = element.ownerDocument.defaultView?.HTMLElement;
 
+		const pathPoints = isSvgPathElement(element)
+			? (() => {
+					const sampled = getPathPoints({element, containerRect});
+					return sampled === null
+						? null
+						: cropPathPoints(sampled, uncroppedPoints, target.crop);
+				})()
+			: null;
+
 		outlines.push({
 			key: target.key,
 			dimensions:
@@ -234,6 +318,7 @@ export const measureCanvasOutlineTargets = (
 						: null,
 			uncroppedPoints,
 			points,
+			pathPoints,
 		});
 	}
 
@@ -271,6 +356,27 @@ export const canvasOutlinesAreEqual = (
 				if (
 					Math.abs(aUncropped[j].x - bUncropped[j].x) > 0.01 ||
 					Math.abs(aUncropped[j].y - bUncropped[j].y) > 0.01
+				) {
+					return false;
+				}
+			}
+		}
+
+		const aPathPoints = a[i].pathPoints;
+		const bPathPoints = b[i].pathPoints;
+		if ((aPathPoints === null) !== (bPathPoints === null)) {
+			return false;
+		}
+
+		if (aPathPoints !== null && bPathPoints !== null) {
+			if (aPathPoints.length !== bPathPoints.length) {
+				return false;
+			}
+
+			for (let j = 0; j < aPathPoints.length; j++) {
+				if (
+					Math.abs(aPathPoints[j].x - bPathPoints[j].x) > 0.01 ||
+					Math.abs(aPathPoints[j].y - bPathPoints[j].y) > 0.01
 				) {
 					return false;
 				}

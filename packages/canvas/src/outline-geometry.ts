@@ -24,6 +24,12 @@ export type CanvasOutline = {
 		CanvasOutlinePoint,
 		CanvasOutlinePoint,
 	];
+	/**
+	 * Samples along the actual geometry of an SVG path, in the same space as
+	 * `points` (already cropped). Null for non-path elements, or when the
+	 * geometry cannot be sampled.
+	 */
+	readonly pathPoints: readonly CanvasOutlinePoint[] | null;
 };
 
 const mix = (from: number, to: number, progress: number): number => {

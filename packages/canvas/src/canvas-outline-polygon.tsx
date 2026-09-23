@@ -46,6 +46,15 @@ export const CanvasOutlinePolygon = memo(
 				() => outline.points.map((point) => `${point.x},${point.y}`).join(' '),
 				[outline.points],
 			);
+			const pathPointsAttr = useMemo(
+				() =>
+					outline.pathPoints === null
+						? null
+						: outline.pathPoints
+								.map((point) => `${point.x},${point.y}`)
+								.join(' '),
+				[outline.pathPoints],
+			);
 			const onPointerEnter = useCallback(() => {
 				if (!dragging) {
 					onHoverChange(outline.key);
@@ -58,23 +67,36 @@ export const CanvasOutlinePolygon = memo(
 			}, [dragging, onHoverChange]);
 
 			return (
-				<polygon
-					{...props}
-					ref={ref}
-					data-remotion-canvas-outline-key={outline.key}
-					data-remotion-directly-selected-outline={
-						directlySelected ? 'true' : undefined
-					}
-					points={points}
-					fill={fill}
-					stroke={stroke}
-					strokeOpacity={visible ? 1 : 0}
-					strokeWidth={2}
-					vectorEffect="non-scaling-stroke"
-					pointerEvents={interactive ? 'all' : 'none'}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
-				/>
+				<g>
+					<polygon
+						{...props}
+						ref={ref}
+						data-remotion-canvas-outline-key={outline.key}
+						data-remotion-directly-selected-outline={
+							directlySelected ? 'true' : undefined
+						}
+						points={points}
+						fill={fill}
+						stroke={pathPointsAttr === null ? stroke : 'transparent'}
+						strokeOpacity={visible ? 1 : 0}
+						strokeWidth={2}
+						vectorEffect="non-scaling-stroke"
+						pointerEvents={interactive ? 'all' : 'none'}
+						onPointerEnter={onPointerEnter}
+						onPointerLeave={onPointerLeave}
+					/>
+					{pathPointsAttr === null ? null : (
+						<polyline
+							points={pathPointsAttr}
+							fill="none"
+							stroke={stroke}
+							strokeOpacity={visible ? 1 : 0}
+							strokeWidth={2}
+							vectorEffect="non-scaling-stroke"
+							pointerEvents="none"
+						/>
+					)}
+				</g>
 			);
 		},
 	),
