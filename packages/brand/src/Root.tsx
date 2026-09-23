@@ -105,6 +105,7 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
+import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
 import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
@@ -779,6 +780,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<CompositionList />
 				<QuickSwitcher />
 				<Composition3DRotation />
+				<KeyframeMove />
 			</Folder>
 
 			<Folder name="StudioAssets">
