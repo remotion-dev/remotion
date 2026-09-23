@@ -1,6 +1,6 @@
 import {useThree} from "@react-three/fiber";
 import {Video} from "@remotion/media";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {staticFile, useRemotionEnvironment} from "remotion";
 import {CanvasTexture} from "three";
 
@@ -26,6 +26,8 @@ export const VideoTexturePlane: React.FC<{rotationY: number}> = ({rotationY}) =>
     }
     return {context, texture: new CanvasTexture(canvas)};
   });
+  // A CanvasTexture holds a GPU texture that garbage collection doesn't free.
+  useEffect(() => () => target.texture.dispose(), [target]);
   const {invalidate, advance} = useThree();
   const {isRendering} = useRemotionEnvironment();
 

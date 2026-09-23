@@ -115,22 +115,29 @@ await step("lambda expressWebhook()", async () => {
   const req = {method: "POST", body: payload, header: (name) => (name === "X-Remotion-Signature" ? signature : undefined)};
   const res = {setHeader: () => undefined, status: (s) => ((status = s), res), json: () => res, end: () => res};
   await handler(req, res);
+  // The handlers turn every failure into an HTTP 500 and never reject, so
+  // resolving proves nothing; check the status and the callback.
+  if (status !== 200 || received !== payload.renderId) throw new Error(`HTTP ${status}, onSuccess got ${received}`);
   return `HTTP ${status}, onSuccess got ${received}`;
 });
 await step("lambda appRouterWebhook()", async () => {
-  const handler = appRouterWebhook({secret, onSuccess: () => undefined});
+  let received = null;
+  const handler = appRouterWebhook({secret, onSuccess: (p) => (received = p.renderId)});
   const response = await handler(
     new Request("http://localhost/webhook", {method: "POST", headers: {"X-Remotion-Signature": signature}, body: JSON.stringify(payload)}),
   );
-  return `HTTP ${response.status}`;
+  if (response.status !== 200 || received !== payload.renderId) throw new Error(`HTTP ${response.status}, onSuccess got ${received}`);
+  return `HTTP ${response.status}, onSuccess got ${received}`;
 });
 await step("lambda pagesRouterWebhook()", async () => {
   let status = null;
-  const handler = pagesRouterWebhook({secret, onSuccess: () => undefined});
+  let received = null;
+  const handler = pagesRouterWebhook({secret, onSuccess: (p) => (received = p.renderId)});
   const req = {method: "POST", body: payload, headers: {"x-remotion-signature": signature}};
   const res = {setHeader: () => undefined, status: (s) => ((status = s), res), json: () => res, end: () => res};
   await handler(req, res);
-  return `HTTP ${status}`;
+  if (status !== 200 || received !== payload.renderId) throw new Error(`HTTP ${status}, onSuccess got ${received}`);
+  return `HTTP ${status}, onSuccess got ${received}`;
 });
 await step("cloudrun getRegions()", () => `${getCloudRunRegions().length} GCP regions`);
 await step("cloudrun speculateServiceName()", () => speculateServiceName({memoryLimit: "2Gi", cpuLimit: "1.0", timeoutSeconds: 300}));
