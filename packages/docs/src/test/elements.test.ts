@@ -3,22 +3,17 @@ import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import {createRequire} from 'module';
 import path from 'path';
 import {pathToFileURL} from 'url';
-import {staticFileRef} from '@remotion/studio-protocol';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import * as jsxRuntime from 'react/jsx-runtime';
 import elementSidebars from '../../elements-sidebars';
-import {audioOscilloscopeAudio} from '../../elements/audio/oscilloscope/initial-props';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
 	getRemotionElementSourceMap,
 } from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
-import {
-	elementDefinitions,
-	type ElementDefinition,
-} from '../components/Elements/element-definitions';
+import {elementDefinitions} from '../components/Elements/element-definitions';
 import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
 	getElementDocumentationUrl,
