@@ -114,13 +114,36 @@ const extractAudioInternal = async ({
 				? (mediaDurationInSeconds ?? Infinity)
 				: trimAfter / fps;
 		if (loop && loopEndInSeconds <= loopStartInSeconds) {
-			throw new Error('Cannot loop audio over an empty range');
+			throw new Error(
+				`Cannot loop audio over an empty range (${loopStartInSeconds} to ${loopEndInSeconds})`,
+			);
 		}
 
 		const audioDataArray: UnresampledPcmS16AudioData[] = [];
 		let remainingDurationInSeconds = durationInSeconds;
 		let segmentStartInSeconds = timeInSeconds;
 		let pendingSilenceInSeconds = 0;
+		const appendSilence = (
+			silenceDurationInSeconds: number,
+			numberOfChannels: number,
+			sourceSampleRate: number,
+		) => {
+			const silenceFrames = Math.ceil(
+				fixFloatingPoint(silenceDurationInSeconds * sourceSampleRate),
+			);
+			if (silenceFrames > 0) {
+				audioDataArray.push({
+					data: new Int16Array(silenceFrames * numberOfChannels),
+					numberOfChannels,
+					numberOfFrames: silenceFrames,
+					sampleRate: sourceSampleRate,
+					timestamp: timeInSeconds * 1_000_000,
+					durationInMicroSeconds:
+						(silenceFrames / sourceSampleRate) * 1_000_000,
+				});
+			}
+		};
+
 		while (remainingDurationInSeconds > 0.0000000001) {
 			const segmentDurationInSeconds = loop
 				? Math.min(
@@ -235,20 +258,11 @@ const extractAudioInternal = async ({
 					segmentAudioData[0];
 				// Preserve silence at the end of a loop pass before appending audio
 				// from the next pass.
-				const silenceFrames = Math.ceil(
-					fixFloatingPoint(pendingSilenceInSeconds * sourceSampleRate),
+				appendSilence(
+					pendingSilenceInSeconds,
+					numberOfChannels,
+					sourceSampleRate,
 				);
-				if (silenceFrames > 0) {
-					audioDataArray.push({
-						data: new Int16Array(silenceFrames * numberOfChannels),
-						numberOfChannels,
-						numberOfFrames: silenceFrames,
-						sampleRate: sourceSampleRate,
-						timestamp: timeInSeconds * 1_000_000,
-						durationInMicroSeconds:
-							(silenceFrames / sourceSampleRate) * 1_000_000,
-					});
-				}
 
 				audioDataArray.push(...segmentAudioData);
 				const segmentFrames = segmentAudioData.reduce(
@@ -269,6 +283,16 @@ const extractAudioInternal = async ({
 
 		if (audioDataArray.length === 0) {
 			return {data: null, durationInSeconds: mediaDurationInSeconds};
+		}
+
+		if (loop && pendingSilenceInSeconds > 0) {
+			const {numberOfChannels, sampleRate: sourceSampleRate} =
+				audioDataArray[0];
+			appendSilence(
+				pendingSilenceInSeconds,
+				numberOfChannels,
+				sourceSampleRate,
+			);
 		}
 
 		const combined = combineAudioDataAndClosePrevious(audioDataArray);

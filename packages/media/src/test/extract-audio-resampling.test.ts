@@ -63,6 +63,35 @@ test('resamples Mediabunny AudioSamples as one continuous frame', async () => {
 	expect(maximumError).toBeLessThanOrEqual(2);
 });
 
+test('pads the final silent tail of a looped audio frame', async () => {
+	const src = new URL('../../../remotion-media/ding.wav', import.meta.url).href;
+	const extracted = await extractAudio({
+		sampleRate: TARGET_SAMPLE_RATE,
+		audioStreamIndex: 0,
+		// Source frame 40 at 46x crosses the loop at frame 43. The WAV ends at
+		// frame 42, leaving silence at the end of both loop passes.
+		timeInSeconds: 42 / FPS,
+		durationInSeconds: 1 / FPS,
+		playbackRate: 46,
+		fps: FPS,
+		logLevel: 'info',
+		loop: true,
+		src,
+		trimBefore: 0,
+		trimAfter: 43,
+		maxCacheSize: getMaxVideoCacheSize('info'),
+		credentials: undefined,
+		mediaCache: globalMediaCache,
+	});
+
+	assert(typeof extracted === 'object' && extracted.data);
+	expect(extracted.data.numberOfFrames).toBe(TARGET_SAMPLE_RATE / FPS);
+	expect(extracted.data.data.some((sample) => sample !== 0)).toBe(true);
+	expect(Array.from(extracted.data.data.slice(-20))).toEqual(
+		new Array(20).fill(0),
+	);
+});
+
 test('downmixes 5.1 audio without overflowing and excludes the LFE channel', () => {
 	const sourceChannels = new Int16Array([
 		32767, 32767, 32767, -32768, 32767, 32767, 0, 0, 0, 32767, 32767, -32768,
