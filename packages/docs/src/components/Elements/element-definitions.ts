@@ -406,6 +406,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/rounded-captions',
+		assets: [],
+		installationProps: null,
 		component: RoundedCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description:
