@@ -3,6 +3,8 @@ import React, {useCallback, useMemo, useRef} from 'react';
 import {version} from 'react-dom';
 import {
 	HtmlInCanvas,
+	Freeze,
+	Sequence,
 	Internals,
 	type EffectsProp,
 	type HtmlInCanvasPixelDensity,
@@ -36,6 +38,83 @@ export type AllShapesProps = Omit<
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
 	};
 
+const RenderSvgWithTiming = ({
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	from,
+	trimBefore,
+	playbackRate,
+	freeze,
+	hidden,
+	showInTimeline,
+	controls,
+	durationInFrames,
+	name,
+	defaultName,
+	outlineRef,
+	documentationLink,
+	memoizedEffectDefinitions,
+	content,
+	actualStyle,
+}: ShapeSequenceProps & {
+	readonly defaultName: string;
+	readonly documentationLink: string;
+	readonly content: React.ReactElement<Pick<AllShapesProps, 'style'>>;
+	readonly actualStyle: React.CSSProperties;
+	readonly outlineRef: React.RefObject<Element | null>;
+	readonly memoizedEffectDefinitions: ReturnType<
+		typeof Internals.useMemoizedEffectDefinitions
+	>;
+}) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: actualStyle,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline}
+				controls={controls}
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				durationInFrames={durationInFrames}
+				name={name ?? defaultName}
+				outlineRef={outlineRef}
+				_remotionInternalDocumentationLink={
+					name === undefined ? documentationLink : undefined
+				}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				{React.cloneElement(content, {style: premountingStyle ?? undefined})}
+			</Sequence>
+		</Freeze>
+	);
+};
+
 export const RenderSvg = ({
 	defaultName,
 	documentationLink,
@@ -55,7 +134,6 @@ export const RenderSvg = ({
 	postmountFor,
 	styleWhilePremounted,
 	styleWhilePostmounted,
-
 	trimBefore,
 	playbackRate,
 	freeze,
@@ -216,9 +294,7 @@ export const RenderSvg = ({
 	}
 
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={actualStyle}
+		<RenderSvgWithTiming
 			premountFor={premountFor}
 			postmountFor={postmountFor}
 			styleWhilePremounted={styleWhilePremounted}
@@ -230,17 +306,14 @@ export const RenderSvg = ({
 			hidden={hidden}
 			showInTimeline={showInTimeline}
 			controls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
 			durationInFrames={durationInFrames}
-			name={name ?? defaultName}
+			name={name}
+			defaultName={defaultName}
 			outlineRef={outlineRef}
-			_remotionInternalDocumentationLink={
-				name === undefined ? documentationLink : undefined
-			}
-		>
-			{(premountingStyle) =>
-				React.cloneElement(content, {style: premountingStyle ?? undefined})
-			}
-		</Internals.PremountedSequence>
+			documentationLink={documentationLink}
+			memoizedEffectDefinitions={memoizedEffectDefinitions}
+			content={content}
+			actualStyle={actualStyle}
+		/>
 	);
 };

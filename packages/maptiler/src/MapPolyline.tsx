@@ -6,6 +6,8 @@ import {
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {useContext, useEffect, useRef, useState} from 'react';
 import {
+	Freeze,
+	Sequence,
 	Internals,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
@@ -447,23 +449,43 @@ export const MapPolyline = (props: MapPolylineProps) => {
 		playbackRate,
 	} = props;
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={null}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MapPolyline>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-		>
-			{() => <MapPolylineDrawing {...props} />}
-		</Internals.PremountedSequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<MapPolyline>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapPolylineDrawing {...props} />
+			</Sequence>
+		</Freeze>
 	);
 };

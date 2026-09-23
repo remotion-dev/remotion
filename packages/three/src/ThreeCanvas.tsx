@@ -8,6 +8,8 @@ import React, {
 	useState,
 } from 'react';
 import {
+	Freeze,
+	Sequence,
 	Internals,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
@@ -169,27 +171,44 @@ export const ThreeCanvasInternals = ({
 	style,
 	...props
 }: ThreeCanvasInternalsProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={style ?? null}
-			from={from}
-			durationInFrames={durationInFrames}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			freeze={freeze}
-			hidden={hidden}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			styleWhilePremounted={styleWhilePremounted}
-			styleWhilePostmounted={styleWhilePostmounted}
-			name={name ?? '<ThreeCanvas>'}
-			showInTimeline={showInTimeline ?? false}
-		>
-			{(premountingStyle) => (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<ThreeCanvas>'}
+				showInTimeline={showInTimeline ?? false}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
 				<ThreeCanvasContent {...props} style={premountingStyle ?? undefined} />
-			)}
-		</Internals.PremountedSequence>
+			</Sequence>
+		</Freeze>
 	);
 };
 

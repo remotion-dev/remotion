@@ -6,7 +6,7 @@ import type {
 	InteractivitySchema,
 	SequenceControls,
 } from 'remotion';
-import {Interactive, Internals} from 'remotion';
+import {Freeze, Sequence, Interactive, Internals} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps &
@@ -75,27 +75,44 @@ const MacOSCursorInner: React.FC<
 	const width = resolved?.width ?? undefined;
 	const height = resolved?.height ?? undefined;
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={style ?? null}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			styleWhilePremounted={styleWhilePremounted}
-			styleWhilePostmounted={styleWhilePostmounted}
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MacOSCursor>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			outlineRef={refForOutline}
-		>
-			{(premountingStyle) =>
-				resolved ? (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<MacOSCursor>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				outlineRef={refForOutline}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				{resolved ? (
 					<svg
 						ref={refForOutline}
 						className={className}
@@ -122,9 +139,9 @@ const MacOSCursorInner: React.FC<
 							preserveAspectRatio="xMinYMin meet"
 						/>
 					</svg>
-				) : null
-			}
-		</Internals.PremountedSequence>
+				) : null}
+			</Sequence>
+		</Freeze>
 	);
 };
 

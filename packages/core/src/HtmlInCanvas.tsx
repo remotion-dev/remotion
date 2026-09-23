@@ -16,6 +16,7 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Freeze} from './freeze.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -30,10 +31,11 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import {PremountedSequence} from './PremountedSequence.js';
+import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
+import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -762,32 +764,50 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
+
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: sequenceProps.from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: '<HtmlInCanvas />',
 		});
 
 		return (
-			<PremountedSequence
-				durationInFrames={durationInFrames}
-				name={name ?? '<HtmlInCanvas>'}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
-				controls={controls}
-				_remotionInternalEffects={memoizedEffectDefinitions}
-				outlineRef={actualRef}
-				hideWhilePremounted="opacity"
-				style={croppedStyle}
-				premountFor={premountFor}
-				postmountFor={postmountFor}
-				styleWhilePremounted={styleWhilePremounted}
-				styleWhilePostmounted={styleWhilePostmounted}
-				{...sequenceProps}
-			>
-				{(premountingStyle) => (
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					durationInFrames={durationInFrames}
+					name={name ?? '<HtmlInCanvas>'}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
+					controls={controls}
+					_remotionInternalEffects={memoizedEffectDefinitions}
+					outlineRef={actualRef}
+					{...sequenceProps}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
 					<HtmlInCanvasContent
 						ref={setCanvasRef}
 						width={width}
@@ -797,12 +817,12 @@ const HtmlInCanvasInner = forwardRef<
 						onInit={onInit}
 						pixelDensity={pixelDensity}
 						controls={controls}
-						style={premountingStyle ?? undefined}
+						style={croppedStyle ?? undefined}
 					>
 						{children}
 					</HtmlInCanvasContent>
-				)}
-			</PremountedSequence>
+				</Sequence>
+			</Freeze>
 		);
 	},
 );

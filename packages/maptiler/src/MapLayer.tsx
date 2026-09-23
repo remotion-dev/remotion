@@ -1,6 +1,8 @@
 import type {LayerSpecification} from '@maptiler/sdk';
 import {useContext, useEffect, useRef, useMemo} from 'react';
 import {
+	Freeze,
+	Sequence,
 	Internals,
 	useDelayRender,
 	type InteractiveBaseProps,
@@ -153,21 +155,44 @@ export const MapLayer = ({
 	premountFor,
 	postmountFor,
 	...props
-}: MapLayerProps) => (
-	<Internals.PremountedSequence
-		hideWhilePremounted="opacity"
-		style={null}
-		from={from}
-		durationInFrames={durationInFrames}
-		trimBefore={trimBefore}
-		playbackRate={playbackRate}
-		freeze={freeze}
-		hidden={hidden}
-		showInTimeline={showInTimeline ?? false}
-		premountFor={premountFor}
-		postmountFor={postmountFor}
-		name={name ?? '<MapLayer>'}
-	>
-		{() => <MapLayerContent {...props} />}
-	</Internals.PremountedSequence>
-);
+}: MapLayerProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
+
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline ?? false}
+				name={name ?? '<MapLayer>'}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapLayerContent {...props} />
+			</Sequence>
+		</Freeze>
+	);
+};

@@ -1,11 +1,11 @@
 import {Map as MapTilerMap, MapStyle, type MapOptions} from '@maptiler/sdk';
-import '@maptiler/sdk/style.css';
 import type {
 	ComponentType,
 	CSSProperties,
 	ForwardRefRenderFunction,
 	ReactNode,
 } from 'react';
+import '@maptiler/sdk/style.css';
 import {
 	forwardRef,
 	useEffect,
@@ -16,6 +16,8 @@ import {
 } from 'react';
 import {
 	Interactive,
+	Freeze,
+	Sequence,
 	Internals,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
@@ -563,33 +565,53 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		...props
 	},
 	ref,
-) => (
-	<Internals.PremountedSequence
-		style={null}
-		hideWhilePremounted="opacity"
-		durationInFrames={durationInFrames}
-		from={from}
-		trimBefore={trimBefore}
-		playbackRate={playbackRate}
-		freeze={freeze}
-		hidden={hidden}
-		showInTimeline={showInTimeline}
-		controls={controls}
-		premountFor={premountFor}
-		postmountFor={postmountFor}
-		styleWhilePremounted={styleWhilePremounted}
-		styleWhilePostmounted={styleWhilePostmounted}
-		name={name ?? '<MapViewport>'}
-	>
-		{(premountingStyle) => (
-			<MapViewportContent
-				{...props}
-				ref={ref}
-				premountingStyle={premountingStyle}
-			/>
-		)}
-	</Internals.PremountedSequence>
-);
+) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
+
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				durationInFrames={durationInFrames}
+				from={from}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline}
+				controls={controls}
+				name={name ?? '<MapViewport>'}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapViewportContent
+					{...props}
+					ref={ref}
+					premountingStyle={premountingStyle}
+				/>
+			</Sequence>
+		</Freeze>
+	);
+};
 
 const MapViewportInner = forwardRef(MapViewportRefForwardingFunction);
 

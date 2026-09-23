@@ -4,6 +4,7 @@ import type {
 	SequenceControls,
 } from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Freeze} from './freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
@@ -20,9 +21,10 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import {PremountedSequence} from './PremountedSequence.js';
+import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
+import {usePremounting} from './use-premounting.js';
 import {
 	withInteractivitySchema,
 	type WithInteractivitySchemaOptions,
@@ -250,12 +252,31 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		} = propsWithControls as Props & {
 			readonly controls: SequenceControls | undefined;
 		};
+
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: displayName,
 		});
 		const refForOutline = useRef<ElementType | null>(null);
@@ -268,33 +289,32 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		);
 
 		return (
-			<PremountedSequence
-				hideWhilePremounted="opacity"
-				style={croppedStyle}
-				premountFor={premountFor}
-				postmountFor={postmountFor}
-				styleWhilePremounted={styleWhilePremounted}
-				styleWhilePostmounted={styleWhilePostmounted}
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				playbackRate={playbackRate}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? displayName}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
-				outlineRef={refForOutline}
-			>
-				{(premountingStyle) =>
-					React.createElement(tag, {
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? displayName}
+					showInTimeline={showInTimeline ?? true}
+					controls={controls}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
+					outlineRef={refForOutline}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
+					{React.createElement(tag, {
 						...props,
-						style: premountingStyle ?? undefined,
+						style: croppedStyle ?? undefined,
 						ref: callbackRef,
-					})
-				}
-			</PremountedSequence>
+					})}
+				</Sequence>
+			</Freeze>
 		);
 	});
 

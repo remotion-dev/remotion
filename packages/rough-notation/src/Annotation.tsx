@@ -1,6 +1,8 @@
 import React, {useMemo} from 'react';
 import {
 	Interactive,
+	Freeze,
+	Sequence,
 	Internals,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
@@ -408,27 +410,44 @@ const makeAnnotationComponent = ({
 			/>
 		);
 
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = Internals.usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		return (
-			<Internals.PremountedSequence
-				hideWhilePremounted="opacity"
-				style={null}
-				premountFor={premountFor}
-				postmountFor={postmountFor}
-				styleWhilePremounted={styleWhilePremounted}
-				styleWhilePostmounted={styleWhilePostmounted}
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				playbackRate={playbackRate}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? `<${componentName}>`}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
-				outlineRef={outlineRef}
-			>
-				{(premountingStyle) => (
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? `<${componentName}>`}
+					showInTimeline={showInTimeline ?? true}
+					controls={controls}
+					_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
+					outlineRef={outlineRef}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
 					<span
 						ref={outlineRef}
 						style={{
@@ -443,8 +462,8 @@ const makeAnnotationComponent = ({
 							{layer === 'on-top' ? annotationElement : null}
 						</annotation.Container>
 					</span>
-				)}
-			</Internals.PremountedSequence>
+				</Sequence>
+			</Freeze>
 		);
 	};
 

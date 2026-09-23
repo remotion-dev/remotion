@@ -1,7 +1,13 @@
 import type {AnimationItem} from 'lottie-web';
 import lottie from 'lottie-web';
 import {useEffect, useRef, useState} from 'react';
-import {Internals, useCurrentFrame, useDelayRender} from 'remotion';
+import {
+	Freeze,
+	Sequence,
+	Internals,
+	useCurrentFrame,
+	useDelayRender,
+} from 'remotion';
 import type {LottieProps} from './types';
 import {getLottieFrame} from './utils';
 import {validateLoop} from './validate-loop';
@@ -187,25 +193,42 @@ export const Lottie = ({
 	style,
 	...props
 }: LottieProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={style ?? null}
-			from={from}
-			durationInFrames={durationInFrames}
-			trimBefore={trimBefore}
-			freeze={freeze}
-			hidden={hidden}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			styleWhilePremounted={styleWhilePremounted}
-			styleWhilePostmounted={styleWhilePostmounted}
-			name={name ?? '<Lottie>'}
-			showInTimeline={showInTimeline ?? false}
-		>
-			{(premountingStyle) => (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<Lottie>'}
+				showInTimeline={showInTimeline ?? false}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
 				<LottieContent {...props} style={premountingStyle ?? undefined} />
-			)}
-		</Internals.PremountedSequence>
+			</Sequence>
+		</Freeze>
 	);
 };

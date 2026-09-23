@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Freeze} from '../freeze.js';
 import type {
 	InteractiveBaseProps,
 	InteractivePremountProps,
@@ -24,9 +25,10 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
-import {PremountedSequence} from '../PremountedSequence.js';
+import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
@@ -298,38 +300,55 @@ const SolidOuter = forwardRef<
 		useImperativeHandle(ref, () => {
 			return actualRef.current as HTMLCanvasElement;
 		}, []);
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: '<Solid />',
 		});
 
 		return (
-			<PremountedSequence
-				hideWhilePremounted="opacity"
-				style={croppedStyle}
-				premountFor={premountFor}
-				postmountFor={postmountFor}
-				styleWhilePremounted={styleWhilePremounted}
-				styleWhilePostmounted={styleWhilePostmounted}
-				from={from}
-				trimBefore={trimBefore}
-				playbackRate={playbackRate}
-				freeze={freeze}
-				hidden={hidden}
-				showInTimeline={showInTimeline}
-				controls={controls}
-				_remotionInternalEffects={memoizedEffectDefinitions}
-				durationInFrames={durationInFrames}
-				name={name ?? '<Solid>'}
-				outlineRef={actualRef}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
-				{...props}
-			>
-				{(premountingStyle) => (
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					freeze={freeze}
+					hidden={hidden}
+					showInTimeline={showInTimeline}
+					controls={controls}
+					_remotionInternalEffects={memoizedEffectDefinitions}
+					durationInFrames={durationInFrames}
+					name={name ?? '<Solid>'}
+					outlineRef={actualRef}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
+					{...props}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
 					<SolidInner
 						reference={actualRef}
 						overrideId={controls?.overrideId ?? null}
@@ -337,12 +356,12 @@ const SolidOuter = forwardRef<
 						height={height}
 						width={width}
 						className={className}
-						style={premountingStyle ?? undefined}
+						style={croppedStyle ?? undefined}
 						effects={effects}
 						pixelDensity={pixelDensity}
 					/>
-				)}
-			</PremountedSequence>
+				</Sequence>
+			</Freeze>
 		);
 	},
 );

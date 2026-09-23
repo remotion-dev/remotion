@@ -13,6 +13,8 @@ import {
 } from 'react';
 import {
 	Interactive,
+	Freeze,
+	Sequence,
 	Internals,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
@@ -375,24 +377,42 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 
 	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={null}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? `<${feature.properties.name}>`}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			outlineRef={refForOutline}
-		>
-			{() => (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? `<${feature.properties.name}>`}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				outlineRef={refForOutline}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
 				<>
 					<MapRegionDrawing
 						feature={feature}
@@ -406,8 +426,8 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 					/>
 					<MapRegionBounds feature={feature} refForOutline={refForOutline} />
 				</>
-			)}
-		</Internals.PremountedSequence>
+			</Sequence>
+		</Freeze>
 	);
 };
 

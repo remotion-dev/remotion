@@ -8,6 +8,8 @@ import {
 } from 'react';
 import {
 	Interactive,
+	Freeze,
+	Sequence,
 	Internals,
 	type InteractiveBaseProps,
 	type InteractivePremountProps,
@@ -154,26 +156,43 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 
 	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: {opacity, ...style},
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Internals.PremountedSequence
-			hideWhilePremounted="opacity"
-			style={{opacity, ...style}}
-			premountFor={premountFor}
-			postmountFor={postmountFor}
-			styleWhilePremounted={styleWhilePremounted}
-			styleWhilePostmounted={styleWhilePostmounted}
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MapOverlay>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			outlineRef={refForOutline}
-		>
-			{(premountingStyle) => (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<MapOverlay>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				outlineRef={refForOutline}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
 				<div
 					ref={refForOutline}
 					style={{
@@ -190,8 +209,8 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 				>
 					{children}
 				</div>
-			)}
-		</Internals.PremountedSequence>
+			</Sequence>
+		</Freeze>
 	);
 };
 
