@@ -79,7 +79,7 @@ The offset does not apply to sequences that come before, but the sequences that 
 
 Trims frames from the beginning without changing where the sequence starts. See [`trimBefore`](/docs/sequence#trimbefore) on [`<Sequence>`](/docs/sequence).
 
-### `playbackRate?`
+### `playbackRate?`<AvailableFrom v="4.0.528" />
 
 Changes the speed of the children. Defaults to `1` and must remain constant across frames. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
 The sequence's duration and the next sequence's start remain unchanged. Setting `playbackRate` on `<Series>` speeds up the whole series, including transitions between its sequences.
