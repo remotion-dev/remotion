@@ -20,7 +20,7 @@ import {
   translatePath,
   warpPath,
 } from "@remotion/paths";
-import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
 
@@ -70,7 +70,12 @@ const centeredRoutePath = centerPath(ROUTE_PATH, {x: 640, y: 360});
 // internally too) re-centers the route on the canvas as the morph target
 // for interpolatePath(); cutPath() truncates the path data itself at the
 // traveled length -- a genuine alternative technique to evolvePath()'s
-// stroke-dasharray trick, not just another visual layer.
+// stroke-dasharray trick, not just another visual layer. Also covers core
+// remotion's SVG Interactive.* family (Studio-editable SVG elements) across
+// all three of its distinct element factories: Interactive.Svg/G/Path (the
+// generic SVG-element schema), Interactive.Line (its own stroke-only
+// schema), and Interactive.Text (its own text-element schema) -- Interactive
+// .Div/Span (the HTML-element schema) are used in CoreEnvironmentScene.
 export const RouteScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
@@ -99,7 +104,7 @@ export const RouteScene: React.FC = () => {
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 28}}>
         @remotion/paths · evolvePath + getPointAtLength + getTangentAtLength
       </div>
-      <svg width={1280} height={720} style={{position: "absolute", inset: 0}}>
+      <Interactive.Svg name="Route canvas" width={1280} height={720} style={{position: "absolute", inset: 0}}>
         <path d={warpedEcho} fill="none" stroke={palette.accent2} strokeWidth={2} strokeDasharray="4 6" opacity={0.35} />
         <path d={morphedPath} fill="none" stroke={palette.accent2} strokeWidth={2} strokeDasharray="2 6" opacity={0.4} />
         <path d={shadowPath} fill="none" stroke="black" strokeWidth={8} strokeLinecap="round" opacity={0.25} />
@@ -154,20 +159,30 @@ export const RouteScene: React.FC = () => {
           );
         })}
         {marker ? (
-          <g transform={`translate(${marker.x}, ${marker.y}) rotate(${markerAngle})`}>
-            <path d="M -14 -10 L 14 0 L -14 10 Z" fill={palette.text} />
-          </g>
+          <Interactive.G name="Direction marker" transform={`translate(${marker.x}, ${marker.y}) rotate(${markerAngle})`}>
+            <Interactive.Path name="Marker arrow" d="M -14 -10 L 14 0 L -14 10 Z" fill={palette.text} />
+          </Interactive.G>
         ) : null}
         <g transform={`translate(64, 560)`} opacity={0.9}>
-          <text fill={palette.textDim} fontSize={16} fontFamily="monospace">
+          <Interactive.Line
+            name="Readout divider"
+            x1={0}
+            x2={620}
+            y1={-14}
+            y2={-14}
+            stroke={palette.textDim}
+            strokeWidth={1}
+            opacity={0.3}
+          />
+          <Interactive.Text name="Readout line 1" fill={palette.textDim} fontSize={16} fontFamily="monospace">
             getSubpaths: {subpathCount} · reduceInstructions: {reducedInstructions.length} segments ({reducedPath.length} chars) · segment #{segmentIndex}
-          </text>
-          <text y={22} fill={palette.textDim} fontSize={16} fontFamily="monospace">
+          </Interactive.Text>
+          <Interactive.Text name="Readout line 2" y={22} fill={palette.textDim} fontSize={16} fontFamily="monospace">
             normalizePath length: {normalizedPath.length} chars (vs {ROUTE_PATH.length} original)
-          </text>
-          <text y={44} fill={palette.textDim} fontSize={16} fontFamily="monospace">
+          </Interactive.Text>
+          <Interactive.Text name="Readout line 3" y={44} fill={palette.textDim} fontSize={16} fontFamily="monospace">
             cutPath: {cutRoutePath.length} chars at length {currentLength.toFixed(0)} · translatePath + centerPath + interpolatePath
-          </text>
+          </Interactive.Text>
         </g>
         <svg x={1000} y={520} width={180} height={160} viewBox={minimapViewBox} style={{overflow: "visible"}}>
           <rect x={0} y={0} width={minimapBox.x2} height={minimapBox.y2} fill={palette.bgAlt} rx={8} />
@@ -176,7 +191,7 @@ export const RouteScene: React.FC = () => {
         <text x={1090} y={690} textAnchor="middle" fill={palette.textDim} fontSize={14} fontFamily="monospace">
           reversePath + resetPath + scalePath
         </text>
-      </svg>
+      </Interactive.Svg>
     </AbsoluteFill>
   );
 };
