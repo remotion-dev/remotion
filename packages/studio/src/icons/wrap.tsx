@@ -1,29 +1,15 @@
 import type {SVGProps} from 'react';
 
+// Font Awesome Pro v7.3.1, Copyright 2026 Fonticons, Inc.
+// https://fontawesome.com/license (Commercial License)
 export const WrapIcon: React.FC<
 	SVGProps<SVGSVGElement> & {readonly color: string}
 > = ({color, ...props}) => {
 	return (
-		<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-			<rect
-				fill="none"
-				x="2.5"
-				y="2.5"
-				width="19"
-				height="19"
-				rx="2.5"
-				stroke={color}
-				strokeWidth="1.8"
-			/>
-			<rect
-				fill="none"
-				x="6.5"
-				y="6.5"
-				width="11"
-				height="11"
-				rx="1.5"
-				stroke={color}
-				strokeWidth="1.8"
+		<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+			<path
+				fill={color}
+				d="M480 128C497.7 128 512 142.3 512 160L512 224C512 241.7 497.7 256 480 256L160 256C142.3 256 128 241.7 128 224L128 160C128 142.3 142.3 128 160 128L480 128zM208 288L480 288C515.3 288 544 259.3 544 224L544 160C544 124.7 515.3 96 480 96L160 96C124.7 96 96 124.7 96 160L96 224C96 259.3 124.7 288 160 288L176 288L176 384C176 428.2 211.8 464 256 464L288 464L288 480C288 515.3 316.7 544 352 544L480 544C515.3 544 544 515.3 544 480L544 416C544 380.7 515.3 352 480 352L352 352C316.7 352 288 380.7 288 416L288 432L256 432C229.5 432 208 410.5 208 384L208 288zM320 432L320 416C320 398.3 334.3 384 352 384L480 384C497.7 384 512 398.3 512 416L512 480C512 497.7 497.7 512 480 512L352 512C334.3 512 320 497.7 320 480L320 432z"
 			/>
 		</svg>
 	);
