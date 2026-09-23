@@ -1511,7 +1511,7 @@ export const createBrowserStudioOperations = ({
 				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName,
-				mutate: () => result.project,
+				mutate: (current) => applyCodemodChanges(current, result.changes),
 				nodePathMutationFiles: getNodePathMutationFiles(result),
 			});
 			if (nodePathMutation === null) {
