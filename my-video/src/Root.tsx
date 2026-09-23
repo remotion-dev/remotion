@@ -24,6 +24,7 @@ import { AbsoluteFill } from "remotion";
 import { gradientBg, palette } from "./showcase/palette";
 import { poppins } from "./showcase/font";
 import { BrandKitDemo } from "./brand/BrandKitDemo";
+import { EmojiCatalog } from "./brand/EmojiCatalog";
 
 // A single-frame <Still> for a poster image (`npx remotion still Poster`).
 // Deliberately static rather than reusing TitleScene's animated entrance —
@@ -45,6 +46,7 @@ export const RemotionRoot: React.FC = () => {
       <Folder name="Brand">
         {/* The FinHub brand kit in src/brand/, with sample text. */}
         <Composition id="BrandKitDemo" component={BrandKitDemo} durationInFrames={300} fps={30} width={1920} height={1080} />
+        <Composition id="EmojiCatalog" component={EmojiCatalog} durationInFrames={90} fps={30} width={1920} height={1080} />
       </Folder>
       <Folder name="Reels">
         <Composition

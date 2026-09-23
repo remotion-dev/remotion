@@ -79,6 +79,13 @@ Logos of the lenders the owner is accredited with, so they are cleared to appear
 
 Official files come from each lender's broker portal or brand team; SVG or transparent PNG is best. Replace a file under the same name and `LenderRow` picks it up.
 
+## Emoji: `public/emoji/`
+
+39 [Noto animated emoji](https://googlefonts.github.io/noto-emoji-animation/) saved as Lottie JSON (vector, so sharp at any size), picked for FinHub videos: money, calls to action, reactions, hands and celebrations. The set has no house, key or chart emoji. Show one with `<NotoEmoji name="thumbs-up" size={160} loop />` from the brand kit. The `EmojiCatalog` composition ("Brand" folder) shows every saved emoji with its name.
+
+- **Credit:** they're CC BY 4.0, so a video that uses them credits "Noto Emoji Animation by Google, CC BY 4.0" in its description.
+- **More:** `node scripts/fetch-noto-emoji.mjs rocket fire …` saves others by their `@remotion/animated-emoji` name (411 exist; `getAvailableEmojis()` lists them). Here, run it with `NODE_USE_ENV_PROXY=1`; `googlefonts.github.io` itself is blocked, but the files come from `fonts.gstatic.com`.
+
 ## Brand kit: `src/brand/`
 
 Reusable pieces for the owner's real videos; start from these rather than writing new ones. Each animates its own entrance, so wrap it in a `<Sequence>` for timing. `BrandKitDemo` (in the "Brand" folder of the Studio, 1920×1080) shows them all with sample text.
@@ -87,6 +94,7 @@ Reusable pieces for the owner's real videos; start from these rather than writin
 - `LowerThird` (`name`, `roleVi`, `roleEn`): a name with a bilingual role, sliding in from the left.
 - `BadgeRow` (`height`, at most 160): the five badges on a white card, the awards badge 1.5× taller so it stays readable.
 - `LenderRow` (`height`, at most 100): the lender logos from `public/lenders/` on a white card.
+- `NotoEmoji` (`name`, `size`, `loop`): an animated emoji from `public/emoji/` (see "Emoji" above).
 - `EndCard` (`titleVi`, `titleEn`, `website`, `phone`): closing call to action with contact details and the badge row. There are no real contact details in the repo; pass them in.
 - `theme.ts`: placeholder colours; replace them with FinHub's brand guide when there is one.
 
@@ -106,6 +114,7 @@ If a second video project ever needs these, `remotion-dev/library-starter` is Re
 - `public/` — static assets, referenced with `staticFile()`: the showcase's sample media (regenerate with `node scripts/generate-sample-media.mjs`; `sample-clip.webm` is the VP9 copy for anything that decodes through WebCodecs), a font and a three.js typeface. What each file is for is in `docs/findings.md`.
 - `public/badges/` — the owner's accreditation and award badges for real videos (see "Badges and logos" above)
 - `public/lenders/` — logos of the lenders the owner is accredited with (see "Lender logos" above)
+- `public/emoji/` — Noto animated emoji as Lottie JSON (see "Emoji" above); `scripts/fetch-noto-emoji.mjs` adds more
 - `.claude/elements/` — local copy of the [Remotion Elements](https://www.remotion.dev/elements/) gallery, drop-in components to copy into a scene (see "Elements" below)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
 
