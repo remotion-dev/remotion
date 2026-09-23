@@ -17,6 +17,9 @@ const BG_VARIABLE = '--remotion-studio-hoverable-bg';
 const HOVER_BG_VARIABLE = '--remotion-studio-hoverable-hover-bg';
 const COLOR_VARIABLE = '--remotion-studio-hoverable-color';
 const HOVER_COLOR_VARIABLE = '--remotion-studio-hoverable-hover-color';
+const PAINT_COLOR_VARIABLE = '--remotion-studio-hoverable-paint-color';
+
+export const HOVERABLE_PAINT_COLOR = `var(${PAINT_COLOR_VARIABLE})`;
 
 export const NO_HOVER_BACKGROUND_STYLE = {
 	[HOVER_BG_VARIABLE]: TRANSPARENT,
@@ -56,6 +59,7 @@ const reveal = `.${HOVER_GROUP_REVEAL_CLASS_NAME}.${HOVER_GROUP_REVEAL_CLASS_NAM
 export const makeHoverableCSS = () => `
   ${hoverable} {
     background-color: var(${BG_VARIABLE}, ${TRANSPARENT});
+    ${PAINT_COLOR_VARIABLE}: var(${COLOR_VARIABLE}, inherit);
   }
 
   ${hoverable},
@@ -70,6 +74,7 @@ export const makeHoverableCSS = () => `
   @media (hover: hover) {
     ${hoverable}:hover {
       background-color: var(${HOVER_BG_VARIABLE}, var(${BG_VARIABLE}, ${TRANSPARENT}));
+      ${PAINT_COLOR_VARIABLE}: var(${HOVER_COLOR_VARIABLE}, var(${COLOR_VARIABLE}, inherit));
     }
 
     ${hoverable}:hover,
@@ -83,6 +88,10 @@ export const makeHoverableCSS = () => `
     ${hoverable}:hover ${hoverable}:not(:hover),
     ${hoverable}:hover ${hoverable}:not(:hover) * {
       color: var(${COLOR_VARIABLE}, inherit);
+    }
+
+    ${hoverable}:hover ${hoverable}:not(:hover) {
+      ${PAINT_COLOR_VARIABLE}: var(${COLOR_VARIABLE}, inherit);
     }
 
     ${hoverGroup} ${reveal} {

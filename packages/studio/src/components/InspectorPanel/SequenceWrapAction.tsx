@@ -4,7 +4,9 @@ import {isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {HOVERABLE_PAINT_COLOR} from '../../helpers/hoverable';
 import {CaretDown} from '../../icons/caret';
+import {WrapIcon} from '../../icons/wrap';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -28,7 +30,37 @@ const segmentStyle: React.CSSProperties = {
 	width: '100%',
 };
 
-const labelStyle: React.CSSProperties = {flex: 1, textAlign: 'left'};
+const iconStyle: React.CSSProperties = {height: 22, width: 22};
+
+const iconContainerStyle: React.CSSProperties = {
+	flexShrink: 0,
+	height: 22,
+	marginLeft: -2,
+	marginRight: -2,
+	width: 22,
+};
+
+const labelStyle: React.CSSProperties = {
+	color: HOVERABLE_PAINT_COLOR,
+	flex: 1,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textAlign: 'left',
+	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
+	whiteSpace: 'nowrap',
+};
+
+const caretStyle: React.CSSProperties = {
+	display: 'flex',
+	flexShrink: 0,
+	height: 12,
+	width: 12,
+};
 
 export const SequenceWrapAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -133,10 +165,15 @@ export const SequenceWrapAction: React.FC<{
 				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: false,
 				onOpenChange: null,
-				renderContent: (color) => (
+				renderContent: () => (
 					<>
+						<span style={iconContainerStyle}>
+							<WrapIcon color={HOVERABLE_PAINT_COLOR} style={iconStyle} />
+						</span>
 						<span style={labelStyle}>Wrap</span>
-						<CaretDown color={color} />
+						<span style={caretStyle}>
+							<CaretDown color={HOVERABLE_PAINT_COLOR} />
+						</span>
 					</>
 				),
 				segmentId: 'wrap',
