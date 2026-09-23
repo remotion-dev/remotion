@@ -10,6 +10,7 @@ export type NumberFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
+	integer?: boolean;
 	default: number | null | undefined;
 	description?: string;
 	hiddenFromList: boolean;

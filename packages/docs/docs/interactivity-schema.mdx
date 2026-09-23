@@ -286,7 +286,11 @@ The maximum value for numeric controls.
 
 ### `step?`
 
-The increment used by numeric and spatial controls.
+The increment used by numeric and spatial controls when dragging or using arrow keys. It does not restrict values typed into the Inspector.
+
+### `integer?`<AvailableFrom v="4.0.528" />
+
+Applies to `number` fields. Set to `true` if the prop requires a whole number. Remotion Studio rejects fractional values during editing and uses hold interpolation for new keyframes. Default: `false`.
 
 ### `hiddenFromList`
 
