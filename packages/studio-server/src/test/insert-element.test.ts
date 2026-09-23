@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	EventSourceEvent,
 	InsertElementRequest,
@@ -71,6 +72,7 @@ const structuredInitialProps = {
 };
 
 const element: InsertElementRequest['element'] = {
+	assets: [],
 	dependencies: [],
 	dimensions: {width: 900, height: 260},
 	durationInFrames: 72,
@@ -88,6 +90,7 @@ const makeFixture = () => {
 	);
 	const compositionFile = path.join(remotionRoot, 'Root.tsx');
 	const elementFile = path.join(remotionRoot, 'lower-third.element.tsx');
+	const publicDir = path.join(remotionRoot, 'custom-public');
 	writeFileSync(compositionFile, compositionSource);
 	const events: EventSourceEvent[] = [];
 	const contentsAtMutation: string[] = [];
@@ -132,7 +135,7 @@ const makeFixture = () => {
 				cancelJob: () => undefined,
 				removeJob: () => undefined,
 			},
-			publicDir: remotionRoot,
+			publicDir,
 			remotionRoot,
 			request: {} as never,
 			response: {} as never,
@@ -164,11 +167,12 @@ const makeFixture = () => {
 	} as const;
 	const prepareInstall = (
 		destination: PrepareElementInstallRequest['destination'],
+		elementToPrepare: InsertElementRequest['element'] = element,
 	) => {
 		const input: PrepareElementInstallRequest = {
 			installationName: null,
 			destination,
-			element,
+			element: elementToPrepare,
 		};
 
 		return prepareElementInstallHandler({
@@ -184,7 +188,7 @@ const makeFixture = () => {
 				cancelJob: () => undefined,
 				removeJob: () => undefined,
 			},
-			publicDir: remotionRoot,
+			publicDir,
 			remotionRoot,
 			request: {} as never,
 			response: {} as never,
@@ -211,6 +215,7 @@ const makeFixture = () => {
 		elementFile,
 		events,
 		outsideRoot,
+		publicDir,
 		watcherSkipSequencePropsUpdates,
 	};
 };
@@ -233,6 +238,177 @@ test('plans an Element installation without changing the project', async () => {
 			compositionSource,
 		);
 	} finally {
+		fixture.cleanup();
+	}
+});
+
+test.each(['wrapped', 'component-owned-sequence'] as const)(
+	'installs asset props in %s mode and retains assets on undo',
+	async (installationMode) => {
+		const fixture = makeFixture();
+		const originalFetch = globalThis.fetch;
+		let fetches = 0;
+		globalThis.fetch = Object.assign(
+			() => {
+				fetches++;
+				return Promise.resolve(new Response(new Uint8Array([3, 4, 5])));
+			},
+			{preconnect: originalFetch.preconnect},
+		);
+		try {
+			const assetElement = {
+				...element,
+				assets: [
+					{
+						path: 'elements/embedded.bin',
+						type: 'base64' as const,
+						data: 'AAEC',
+					},
+					{
+						path: 'elements/remote.bin',
+						type: 'url' as const,
+						url: 'https://93.184.216.35/remote.bin',
+					},
+				],
+				installationMode,
+				initialProps: {
+					logoSrc: staticFileRef('elements/remote.bin'),
+					media: {sources: [staticFileRef('elements/embedded.bin')]},
+				},
+				sourceCode: `import {Img, Sequence, type SequenceProps} from 'remotion';
+
+export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProps) => (
+	<Sequence {...props}><Img name="Logo" src={logoSrc} /></Sequence>
+);
+`,
+			};
+			const request: InsertElementRequest = {
+				installationName: null,
+				compositionFile: 'Root.tsx',
+				compositionId: 'target',
+				element: assetElement,
+				expectedFileState: null,
+				from: null,
+				overwriteExisting: false,
+				position: null,
+				undoRedoNavigation: null,
+				newComposition: null,
+			};
+			const invalidElement = {
+				...assetElement,
+				initialProps: {logoSrc: staticFileRef('elements/undeclared.bin')},
+			};
+			expect(
+				await fixture.prepareInstall(
+					fixture.currentDestination,
+					invalidElement,
+				),
+			).toMatchObject({success: false});
+			expect(
+				await fixture.callHandlerWithInput({
+					...request,
+					element: invalidElement,
+				}),
+			).toMatchObject({success: false});
+			expect(fetches).toBe(0);
+			expect(existsSync(fixture.publicDir)).toBe(false);
+
+			const preflight = await fixture.prepareInstall(
+				fixture.currentDestination,
+				assetElement,
+			);
+			expect(preflight.success).toBe(true);
+			expect(existsSync(fixture.publicDir)).toBe(false);
+
+			const response = await fixture.callHandlerWithInput(request);
+			expect(response).toMatchObject({success: true});
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+			).toEqual(Buffer.from([0, 1, 2]));
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/remote.bin')),
+			).toEqual(Buffer.from([3, 4, 5]));
+			const installedSource = readFileSync(fixture.elementFile, 'utf8');
+			expect(installedSource).toBe(assetElement.sourceCode);
+			const caller = readFileSync(fixture.compositionFile, 'utf8');
+			expect(caller).toMatch(
+				/logoSrc=\{staticFile\(["']elements\/remote\.bin["']\)\}/,
+			);
+			expect(caller).toMatch(
+				/sources: \[staticFile\(["']elements\/embedded\.bin["']\)\]/,
+			);
+
+			expect(popUndo().success).toBe(true);
+			expect(existsSync(fixture.elementFile)).toBe(false);
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+			).toEqual(Buffer.from([0, 1, 2]));
+			expect(popRedo().success).toBe(true);
+			expect(existsSync(fixture.elementFile)).toBe(true);
+
+			const conflict = await fixture.callHandlerWithInput({
+				...request,
+				installationName: 'second',
+				element: {
+					...assetElement,
+					assets: [
+						{path: 'elements/embedded.bin', type: 'base64', data: 'CQgH'},
+						assetElement.assets[1],
+					],
+				},
+			});
+			expect(conflict).toMatchObject({
+				success: false,
+				type: 'error',
+				reason:
+					'Asset elements/embedded.bin already exists with different contents',
+			});
+			expect(
+				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
+			).toEqual(Buffer.from([0, 1, 2]));
+		} finally {
+			globalThis.fetch = originalFetch;
+			fixture.cleanup();
+		}
+	},
+);
+
+test('rejects oversized mixed Element assets before writing any files, regardless of order', async () => {
+	const fixture = makeFixture();
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = Object.assign(
+		() => Promise.resolve(new Response(new Uint8Array(50 * 1024 * 1024))),
+		{preconnect: originalFetch.preconnect},
+	);
+	const assets: InsertElementRequest['element']['assets'] = [
+		{path: 'remote.bin', type: 'url', url: 'https://93.184.216.35/remote.bin'},
+		{path: 'embedded.bin', type: 'base64', data: 'AAEC'},
+	];
+	try {
+		for (const orderedAssets of [assets, [...assets].reverse()]) {
+			expect(
+				await fixture.callHandlerWithInput({
+					installationName: null,
+					compositionFile: 'Root.tsx',
+					compositionId: 'target',
+					element: {...element, assets: orderedAssets},
+					expectedFileState: null,
+					from: null,
+					overwriteExisting: false,
+					position: null,
+					undoRedoNavigation: null,
+					newComposition: null,
+				}),
+			).toMatchObject({success: false, type: 'error'});
+			expect(existsSync(fixture.publicDir)).toBe(false);
+			expect(existsSync(fixture.elementFile)).toBe(false);
+			expect(readFileSync(fixture.compositionFile, 'utf8')).toBe(
+				compositionSource,
+			);
+			expect(getUndoStack()).toHaveLength(0);
+		}
+	} finally {
+		globalThis.fetch = originalFetch;
 		fixture.cleanup();
 	}
 });

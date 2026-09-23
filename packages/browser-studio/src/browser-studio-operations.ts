@@ -62,11 +62,18 @@ import type {
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {createBrowserStudioProjectController} from './browser-studio-project-controller';
+import {
+	createBrowserStudioProjectController,
+	getCanonicalPublicFiles,
+} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
-import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
+import {
+	downloadRemoteAssetInBrowserStudio,
+	fetchRemoteAssetBytesInBrowserStudio,
+} from './download-remote-asset';
+import {getBrowserStudioStoredPublicFile} from './opfs-public-files';
 import {saveSequencePropsInProject} from './save-sequence-props';
-import type {VirtualProject} from './types';
+import type {VirtualProject, VirtualProjectPublicFile} from './types';
 
 const {
 	basicCaptionsElementSource,
@@ -83,6 +90,7 @@ const {
 	insertVideoLayers: insertVideoLayersCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
+
 	pasteEffects: pasteEffectsCodemod,
 	simpleDiff,
 } = CodemodsInternals;
@@ -2174,6 +2182,9 @@ export const createBrowserStudioOperations = ({
 			),
 		insertElement: async (request) => {
 			try {
+				StudioProtocolInternals.assertElementAssets(request.element.assets);
+				StudioProtocolInternals.assertElementAssetReferences(request.element);
+				const {element} = request;
 				const installationMode = request.element.installationMode ?? 'wrapped';
 				const componentOwnsSequence =
 					installationMode === 'component-owned-sequence';
@@ -2235,7 +2246,7 @@ export const createBrowserStudioOperations = ({
 						compositionFile: request.compositionFile,
 						compositionId: request.compositionId,
 					},
-					element: request.element,
+					element,
 					project,
 				});
 				if (
@@ -2252,7 +2263,7 @@ export const createBrowserStudioOperations = ({
 							conflict: {
 								existingSource: plan.existingSource,
 								filePath: plan.filePath,
-								incomingSource: request.element.sourceCode,
+								incomingSource: element.sourceCode,
 							},
 						};
 					}
@@ -2267,9 +2278,77 @@ export const createBrowserStudioOperations = ({
 						conflict: {
 							existingSource: plan.existingSource,
 							filePath: plan.filePath,
-							incomingSource: request.element.sourceCode,
+							incomingSource: element.sourceCode,
 						},
 					};
+				}
+
+				const resolvedAssets =
+					await StudioProtocolInternals.resolveElementAssets({
+						assets: request.element.assets,
+						downloadAsset: (options) =>
+							fetchRemoteAssetBytesInBrowserStudio({
+								...options,
+								acceptHeader: null,
+							}),
+					});
+				const publicFiles = getCanonicalPublicFiles(originalProject);
+				const newAssetFiles: Record<string, VirtualProjectPublicFile> =
+					Object.create(null);
+				for (const {path: assetPath, contents} of resolvedAssets) {
+					const destination = assetPath.toLowerCase();
+					const conflict = Object.keys(publicFiles).find((filePath) => {
+						const existingPath = filePath.toLowerCase();
+						return (
+							(filePath !== assetPath && existingPath === destination) ||
+							existingPath.startsWith(`${destination}/`) ||
+							destination.startsWith(`${existingPath}/`)
+						);
+					});
+					if (conflict !== undefined) {
+						throw new Error(
+							`Asset ${assetPath} conflicts with existing public file ${conflict}`,
+						);
+					}
+
+					const existing = publicFiles[assetPath];
+					if (existing === undefined) {
+						newAssetFiles[assetPath] = contents;
+						continue;
+					}
+
+					const storage = originalProject.publicFileStorage;
+					if (
+						typeof existing !== 'string' &&
+						!(existing instanceof Uint8Array) &&
+						storage === undefined
+					) {
+						throw new Error(
+							`Stored public file ${assetPath} has no project storage`,
+						);
+					}
+
+					const existingBlob =
+						typeof existing === 'string' || existing instanceof Uint8Array
+							? new Blob([
+									typeof existing === 'string'
+										? existing
+										: existing.slice().buffer,
+								])
+							: await getBrowserStudioStoredPublicFile({
+									file: existing,
+									storage: storage!,
+								});
+					if (
+						existingBlob.size !== contents.byteLength ||
+						!new Uint8Array(await existingBlob.arrayBuffer()).every(
+							(byte, index) => byte === contents[index],
+						)
+					) {
+						throw new Error(
+							`Asset ${assetPath} already exists with different contents`,
+						);
+					}
 				}
 
 				const installedDependencies = await resolveElementDependencies(
@@ -2322,12 +2401,18 @@ export const createBrowserStudioOperations = ({
 					...insertion.project,
 					files: {
 						...insertion.project.files,
-						[plan.elementFilePath]: request.element.sourceCode,
+						[plan.elementFilePath]: element.sourceCode,
 					},
 				};
 				const nextProject = addDependenciesToProject({
 					dependencies: installedDependencies,
-					project: projectWithElement,
+					project: {
+						...projectWithElement,
+						publicFiles: {
+							...(projectWithElement.publicFiles ?? {}),
+							...newAssetFiles,
+						},
+					},
 				});
 				if (getProject() !== originalProject) {
 					throw new Error(
@@ -2367,6 +2452,8 @@ export const createBrowserStudioOperations = ({
 		packageInstallation,
 		prepareElementInstall: async (request) => {
 			try {
+				StudioProtocolInternals.assertElementAssets(request.element.assets);
+				StudioProtocolInternals.assertElementAssetReferences(request.element);
 				const plan = await getElementInstallPlanForProject({
 					...request,
 					project: getProject(),

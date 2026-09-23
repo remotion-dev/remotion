@@ -7644,6 +7644,15 @@ export const articles = [
 		slug: 'studio-protocol/set-studio-drag-data',
 	},
 	{
+		id: 'studio-protocol/static-file-ref',
+		title: 'staticFileRef()',
+		relativePath: 'docs/studio-protocol/static-file-ref.mdx',
+		compId: 'articles-docs-studio-protocol-static-file-ref',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/static-file-ref',
+	},
+	{
 		id: 'studio/api',
 		title: '@remotion/studio',
 		relativePath: 'docs/studio/api.mdx',

@@ -221,14 +221,18 @@ export const installInStudioWithDependencies = async (
 
 	const supportedStudios = discovery.studios.flatMap((studio) => {
 		const capability = getInstallCapability(studio.descriptor);
-		return capability?.payloadVersions.includes(1)
+		return capability?.payloadVersions.includes(payload.version)
 			? [{...studio, capability}]
 			: [];
 	});
 	if (supportedStudios.length === 0) {
 		return failure(
-			'unsupported-protocol',
-			'The running Remotion Studio cannot install this Element payload version.',
+			payload.version === 2
+				? 'studio-upgrade-required'
+				: 'unsupported-protocol',
+			payload.version === 2
+				? 'Upgrade Remotion Studio to install Elements that include assets.'
+				: 'The running Remotion Studio cannot install this Element payload version.',
 		);
 	}
 
