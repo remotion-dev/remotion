@@ -84,19 +84,20 @@ import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const PremountedScene: React.FC = () => {
   return (
-    <AbsoluteFill from={60} durationInFrames={90} premountFor={30} postmountFor={15}>
-      <Img src={staticFile('background.png')} />
+    <AbsoluteFill from={60} durationInFrames={90} premountFor={30}>
+      <Img src={staticFile('logo.png')} width={200} />
+      <h1>Welcome</h1>
     </AbsoluteFill>
   );
 };
 ```
 
-This scene mounts at frame 30, is visible from frame 60 through 149, and stays mounted but hidden from frame 150 through 164. During postmounting, its local frame is frozen at the last frame. It unmounts at frame 165.
+The image and heading mount together at frame 30, become visible at frame 60, and unmount at frame 150.
 
-`premountFor` defaults to `0` in v4 and `fps` (1 second) in v5. `postmountFor` defaults to `0` and needs a finite `durationInFrames`.
-Use `styleWhilePremounted` and `styleWhilePostmounted` to override styles during these ranges, including the default hiding styles.
+`premountFor` defaults to `0` in v4 and `fps` (1 second) in v5.
+Use `styleWhilePremounted` to override styles while premounted, including the default hiding styles.
 
-Premounting and postmounting only apply in the Player and Studio, not during rendering. A parent must also be mounted for its children to premount; set `premountFor` on the outer timed component when preparing a whole scene.
+Premounting only applies in the Player and Studio, not during rendering. A parent must also be mounted for its children to premount; set `premountFor` on the outer timed component when preparing a whole scene.
 
 [`<Img>`](/docs/img), [`<AnimatedImage>`](/docs/animatedimage) and [`<Gif>`](/docs/gif/gif) also support direct premounting. See their API pages for availability and behavior.
 
