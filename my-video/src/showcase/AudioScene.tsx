@@ -54,9 +54,11 @@ export const AudioScene: React.FC = () => {
     frame,
     fps,
     windowInSeconds: 3,
+    // requestInit is passed to fetch(); same-origin is the default, spelled out here.
+    requestInit: {credentials: "same-origin"},
   });
 
-  const fullAudioData = useAudioData(staticFile("sample-tone.wav"));
+  const fullAudioData = useAudioData(staticFile("sample-tone.wav"), {requestInit: {credentials: "same-origin"}});
 
   const [imageSize, setImageSize] = useState<{width: number; height: number} | null>(null);
   const [dataUrl, setDataUrl] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export const AudioScene: React.FC = () => {
       try {
         const dimensions = await getImageDimensions(staticFile("sample-clip.gif"));
         setImageSize(dimensions);
-        setAudioDataDirect(await getAudioData(staticFile("sample-tone.wav")));
+        setAudioDataDirect(await getAudioData(staticFile("sample-tone.wav"), {requestInit: {credentials: "same-origin"}}));
 
         const response = await fetch(staticFile("sample-tone.wav"));
         const arrayBuffer = await response.arrayBuffer();
@@ -119,7 +121,7 @@ export const AudioScene: React.FC = () => {
 
   const spectrum = fullAudioData
     ? // smoothing (on by default) averages neighbouring frames; off shows the raw per-frame FFT.
-      visualizeAudio({fps, frame, audioData: fullAudioData, numberOfSamples: 32, smoothing: false})
+      visualizeAudio({fps, frame, audioData: fullAudioData, numberOfSamples: 32, smoothing: false, optimizeFor: "speed"})
     : null;
 
   const envelope =
@@ -135,6 +137,23 @@ export const AudioScene: React.FC = () => {
   // The same envelope with normalize: false keeps raw amplitudes. This tone is
   // steady and quiet (~0.10 per bar), so drawn at the same scale the bars would
   // be ~2px tall; the value is shown as text instead.
+  // outputRange "minus-one-to-one" returns signed samples instead of 0-1
+  // magnitudes (what an oscilloscope draws), read from channel 0.
+  const signedMin =
+    fullAudioData && fullAudioData.durationInSeconds > 0
+      ? Math.min(
+          ...getWaveformPortion({
+            audioData: fullAudioData,
+            startTimeInSeconds: 1,
+            durationInSeconds: 0.01,
+            numberOfSamples: 32,
+            normalize: false,
+            outputRange: "minus-one-to-one",
+            channel: 0,
+          }).map((bar) => bar.amplitude),
+        )
+      : null;
+
   const rawEnvelopePeak =
     fullAudioData && fullAudioData.durationInSeconds > 0
       ? Math.max(
@@ -171,6 +190,7 @@ export const AudioScene: React.FC = () => {
       {rawEnvelopePeak === null ? null : (
         <div style={{marginTop: 8, textAlign: "center", color: palette.textDim, fontSize: 13, fontFamily: "monospace"}}>
           getWaveformPortion(): peak-normalized bars · with normalize: false the loudest bar is {rawEnvelopePeak.toFixed(2)}
+          {signedMin === null ? "" : ` · outputRange "minus-one-to-one": lowest sample ${signedMin.toFixed(2)}`}
         </div>
       )}
       <div
@@ -188,7 +208,7 @@ export const AudioScene: React.FC = () => {
       </div>
       <div style={{position: "absolute", bottom: 30, width, textAlign: "center", color: palette.textDim, fontSize: 14, fontFamily: "monospace"}}>
         getTargetSampleRate(): {targetSampleRate}Hz
-        {audioDataDirect ? ` · getAudioData(): ${audioDataDirect.numberOfChannels}ch @ ${audioDataDirect.sampleRate}Hz, ${audioDataDirect.durationInSeconds.toFixed(2)}s` : ""}
+        {audioDataDirect ? ` · getAudioData(): ${audioDataDirect.numberOfChannels}ch @ ${audioDataDirect.sampleRate}Hz, ${audioDataDirect.durationInSeconds.toFixed(2)}s, ${audioDataDirect.channelWaveforms.length} channelWaveforms, isRemote=${String(audioDataDirect.isRemote)}` : ""}
       </div>
       <div style={{position: "absolute", bottom: 100, left: (width - 240) / 2, width: 240, height: 8, borderRadius: 4, background: palette.bgAlt}}>
         <div style={{width: `${volumeAt(frame) * 200}%`, height: "100%", borderRadius: 4, background: palette.accent2}} />
@@ -200,7 +220,29 @@ export const AudioScene: React.FC = () => {
           through WebCodecs, so this Chromium never needs the <Html5Audio>
           fallback. As with MediaScene's disallowFallbackToOffthreadVideo, a
           fallback would only warn in the main tab; this makes it fail the render. */}
-      <Audio src={staticFile("sample-tone.wav")} volume={volumeAt} disallowFallbackToHtml5Audio />
+      {/* toneFrequency shifts the pitch while rendering only. playbackRate
+          changes it too: a render of this scene measured the 330 Hz tone at
+          619 Hz, which is 330 x 1.5 x 1.25. trimBefore/trimAfter play source frames 15-75, loop repeats
+          that window, and loopVolumeCurveBehavior="extend" keeps counting the
+          volume callback's frame across loops instead of restarting it. */}
+      <Audio
+        src={staticFile("sample-tone.wav")}
+        volume={volumeAt}
+        disallowFallbackToHtml5Audio
+        toneFrequency={1.5}
+        playbackRate={1.25}
+        trimBefore={15}
+        trimAfter={75}
+        loop
+        loopVolumeCurveBehavior="extend"
+        audioStreamIndex={0}
+        name="Tone"
+        showInTimeline
+        requestInit={{credentials: "same-origin"}}
+        delayRenderTimeoutInMilliseconds={20000}
+        delayRenderRetries={1}
+        onError={() => "fail"}
+      />
       {dataUrl ? <Html5Audio src={dataUrl} muted /> : null}
     </AbsoluteFill>
   );

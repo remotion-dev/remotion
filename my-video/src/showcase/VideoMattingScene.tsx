@@ -46,15 +46,15 @@ export const VideoMattingScene: React.FC = () => {
       try {
         const support = await canUseVideoMatting({model: "modnet"});
         if (!support.supported) {
-          setStatus({state: "unsupported", reason: support.reason ?? "unknown"});
+          setStatus({state: "unsupported", reason: `${support.reason ?? "unknown"}: ${support.detailedReason}`});
           continueRender(handle);
           return;
         }
 
-        const {webGpuDownloadSize} = getAvailableModels().find((m) => m.name === "modnet")!;
+        const {webGpuDownloadSize, modelId, purpose} = getAvailableModels().find((m) => m.name === "modnet")!;
         const cachedBeforeLoad = await isVideoMattingModelCached({model: "modnet"});
 
-        let extra = `cached before load: ${cachedBeforeLoad}`;
+        let extra = `${modelId} (${purpose}) · cached before load: ${cachedBeforeLoad}`;
         try {
           await loadVideoMattingModel({model: "modnet"});
           let separated = false;

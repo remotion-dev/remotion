@@ -1,8 +1,9 @@
 import {buildOpenInRemotionNewUrl, createElementPayload, isInsideStudio, setStudioDragData} from "@remotion/studio-protocol";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {
   AbsoluteFill,
   Artifact,
+  Easing,
   Experimental,
   Interactive,
   Sequence,
@@ -56,6 +57,23 @@ import {poppins} from "./font";
 // The last row comes from inside a <Sequence width height>: useVideoConfig()
 // there reports the Sequence's size, not the composition's. It needs its own
 // component because the hook reads the Sequence's context.
+// A <Sequence from={30} durationInFrames={20}> with premountFor/postmountFor of
+// 20 frames. In the Studio and Player it mounts at frame 10 and stays until
+// frame 70, frozen on its first/last frame, and styleWhilePremounted/
+// styleWhilePostmounted show both phases faintly instead of hidden. A render
+// skips pre/postmounting altogether (Sequence.tsx and use-premounting.ts
+// check isRendering), so in a rendered video the row appears only for frames
+// 30-50. cropTop/cropBottom are ratios of the container's height, and
+// className needs that container, so this Sequence keeps the default layout.
+const PremountRow: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <div style={{color: palette.accent2, fontSize: 17, fontFamily: "monospace", lineHeight: "32px"}}>
+      {`<Sequence from={30} premountFor={20} postmountFor={20}>: its frame ${frame} of 20 (renders skip pre/postmounting)`}
+    </div>
+  );
+};
+
 const SequenceSizeRow: React.FC<{outsideSize: string}> = ({outsideSize}) => {
   const {width, height} = useVideoConfig();
   return (
@@ -67,7 +85,8 @@ const SequenceSizeRow: React.FC<{outsideSize: string}> = ({outsideSize}) => {
 
 export const CoreEnvironmentScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const {width, height, fps, id, defaultCodec, defaultOutName} = useVideoConfig();
+  const {width, height, fps, id, defaultCodec, defaultOutName, defaultSampleRate, defaultProps} = useVideoConfig();
+  const premountRowRef = useRef<HTMLDivElement>(null);
   const scale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
   const pixelDensity = usePixelDensity({dontThrowIfOutsideOfRemotion: true});
   const environment = useRemotionEnvironment();
@@ -90,6 +109,11 @@ export const CoreEnvironmentScene: React.FC = () => {
         dependencies: [],
         dimensions: null,
         durationInFrames: 60,
+        // The props the Studio fills in when it inserts the element, and
+        // whether it wraps the element in its own <Sequence> ("wrapped") or
+        // leaves that to the component ("component-owned-sequence").
+        initialProps: {color: "#22d3ee"},
+        installationMode: "wrapped",
       });
       const dataTransfer = new DataTransfer();
       setStudioDragData({dataTransfer, payload});
@@ -141,7 +165,7 @@ export const CoreEnvironmentScene: React.FC = () => {
   // A looser threshold counts the spring as settled sooner.
   const looseSettleFrames = measureSpring({fps, config: {damping: 200}, threshold: 0.05});
   // Modern color syntaxes and a posterized (stepped) blend between them.
-  const swatchColor = interpolateColors(frame, [0, 75], ["oklch(0.62 0.21 285)", "hsl(188, 85%, 53%)"], {posterize: 5});
+  const swatchColor = interpolateColors(frame, [0, 75], ["oklch(0.62 0.21 285)", "hsl(188, 85%, 53%)"], {posterize: 5, easing: Easing.inOut(Easing.quad)});
 
   const rows = [
     `VERSION: ${VERSION}`,
@@ -151,6 +175,7 @@ export const CoreEnvironmentScene: React.FC = () => {
     `measureSpring({damping: 200}) settles in ${settleFrames} frames (${looseSettleFrames} at threshold 0.05)`,
     `prefetch(sample-clip.mp4): ${prefetchStatus}, ${progressEvents} onProgress events · useBufferState(): playback ${prefetchStatus === "loading" ? "held" : "released"}`,
     `useVideoConfig(): id=${id}, defaultCodec=${defaultCodec}, defaultOutName=${defaultOutName}`,
+    `useVideoConfig(): defaultSampleRate=${String(defaultSampleRate)}, defaultProps keys=${Object.keys(defaultProps).join(", ")}`,
     `getStaticFiles(): ${staticFiles.length} files in public/ (${staticFiles.slice(0, 2).map((f) => f.name).join(", ")}, …)`,
     `watchStaticFile(sample-clip.mp4): ${environment.isStudio ? `watching, ${watchedChanges} edits seen` : "no-op outside the Studio"}`,
     `Experimental.useIsPlayer(): ${String(isPlayer)}`,
@@ -176,6 +201,25 @@ export const CoreEnvironmentScene: React.FC = () => {
         ))}
         <Sequence width={640} height={360} layout="none">
           <SequenceSizeRow outsideSize={`${width}x${height}`} />
+        </Sequence>
+        {/* outlineRef points the Studio's selection outline at the row itself. */}
+        <Sequence
+          from={30}
+          durationInFrames={20}
+          premountFor={20}
+          postmountFor={20}
+          styleWhilePremounted={{opacity: 0.3}}
+          styleWhilePostmounted={{opacity: 0.3}}
+          cropTop={0.1}
+          cropBottom={0.1}
+          className="premount-demo"
+          outlineRef={premountRowRef}
+          name="Premounted row"
+          style={{position: "relative", height: 32, width: "auto", justifyContent: "center", alignItems: "center"}}
+        >
+          <div ref={premountRowRef}>
+            <PremountRow />
+          </div>
         </Sequence>
       </div>
     </AbsoluteFill>

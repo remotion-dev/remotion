@@ -28,6 +28,7 @@ imports for any packages to install first.
 - **Basic Captions** (`captions/basic-captions`) — Simple synchronized captions with white text on a translucent gray background.
 - **Moving Pill Captions** (`captions/moving-pill-captions`) — Synchronized captions with a pill that moves between spoken words.
 - **Popping Word Captions** (`captions/popping-word-captions`) — Synchronized captions that pop each spoken word into focus.
+- **Rounded Captions** (`captions/rounded-captions`) — Synchronized captions on a white rounded text box, fitted with `@remotion/layout-utils`. Copied from the live site's source, since this monorepo's `packages/docs/elements` doesn't have it yet. Its font, Figtree, has no Vietnamese subset, so swap it for a font that has one (see "Language" in `AGENTS.md`).
 - **Word Highlight Captions** (`captions/word-highlight-captions`) — Synchronized captions that highlight each spoken word.
 
 ## commerce

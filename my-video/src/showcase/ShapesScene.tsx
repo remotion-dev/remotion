@@ -145,7 +145,7 @@ export const ShapesScene: React.FC = () => {
         }}
       >
         {SHAPES.map((shape) => {
-          const scale = spring({fps, frame: frame - shape.delay, config: {damping: 12, mass: 0.6}});
+          const scale = spring({fps, frame: frame - shape.delay, config: {damping: 12, mass: 0.6, stiffness: 170}});
 
           const node = (() => {
             switch (shape.name) {

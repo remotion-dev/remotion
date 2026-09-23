@@ -40,7 +40,12 @@ export const LottieScene: React.FC = () => {
       {animationData ? (
         <Lottie
           animationData={animationData}
-          style={{width: 400, height: 400}}
+          // The animation is 400×400; in this 480×300 box, preserveAspectRatio
+          // "xMidYMid slice" fills the width and crops top and bottom
+          // (the default, "xMidYMid meet", would letterbox it instead).
+          style={{width: 480, height: 300}}
+          preserveAspectRatio="xMidYMid slice"
+          className="lottie-demo"
           // Played backwards at 1.5x, looping, drawn to a <canvas> instead of SVG.
           direction="backward"
           playbackRate={1.5}

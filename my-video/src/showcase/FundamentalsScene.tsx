@@ -38,7 +38,9 @@ const EASING_CURVES = [
   {name: "exp", fn: Easing.exp},
   {name: "elastic", fn: Easing.elastic(1)},
   {name: "back", fn: Easing.back()},
-  {name: "spring", fn: Easing.spring()},
+  // Easing.spring() takes a full spring config: allowTail keeps the overshoot
+  // tail instead of clipping it at 1, durationRestThreshold sets when it counts as settled.
+  {name: "spring", fn: Easing.spring({mass: 0.8, stiffness: 110, damping: 14, overshootClamping: false, durationRestThreshold: 0.01, allowTail: true})},
   {name: "bounce", fn: Easing.bounce},
   {name: "bezier", fn: Easing.bezier(0.65, 0, 0.35, 1)},
   {name: "in(quad)", fn: Easing.in(Easing.quad)},

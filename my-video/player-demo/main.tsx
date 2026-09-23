@@ -2,6 +2,7 @@ import {Player, Thumbnail} from "@remotion/player";
 import type {CallbackListener, EventTypes, PlayerRef, RenderPoster} from "@remotion/player";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {createRoot} from "react-dom/client";
+import {AbsoluteFill, useCurrentFrame} from "remotion";
 import {ShowcaseReel, showcaseReelDefaultProps} from "../src/showcase/ShowcaseReel";
 
 // The same settings as the "ShowcaseReel" <Composition> in src/Root.tsx.
@@ -340,7 +341,16 @@ const App: React.FC = () => {
               playerRef.current?.seekTo(c.frame);
             }}
           >
-            <Thumbnail {...reel} frameToDisplay={c.frame} style={{width: "100%"}} />
+            <Thumbnail
+              {...reel}
+              frameToDisplay={c.frame}
+              style={{width: "100%"}}
+              renderLoading={() => <span className="dim">loading…</span>}
+              errorFallback={({error}) => <span>{error.message}</span>}
+              overflowVisible
+              noSuspense
+              logLevel="warn"
+            />
             <span>
               {c.label}{" "}
               <span className="dim">
@@ -350,8 +360,93 @@ const App: React.FC = () => {
           </button>
         ))}
       </div>
+
+      <h2>Interface props</h2>
+      <p className="dim">
+        A second <code>&lt;Player&gt;</code> of the same reel: it starts playing muted (<code>autoPlay</code> needs{" "}
+        <code>initiallyMuted</code> in most browsers), keeps its controls visible, and draws its own play, mute,
+        fullscreen and volume controls through the <code>render*</code> props. Clicking the video doesn't toggle playback
+        (<code>clickToPlay</code> is off) and neither does the space bar; double-clicking goes fullscreen.
+      </p>
+      <Player
+        {...reel}
+        controls
+        autoPlay
+        initiallyMuted
+        loop
+        showVolumeControls
+        allowFullscreen
+        clickToPlay={false}
+        doubleClickToFullscreen
+        spaceKeyToPlayOrPause={false}
+        initiallyShowControls={5000}
+        alwaysShowControls
+        hideControlsWhenPointerDoesntMove={false}
+        numberOfSharedAudioTags={2}
+        sampleRate={48000}
+        bufferStateDelayInMilliseconds={500}
+        renderPoster={() => <AbsoluteFill style={{background: "#0b1120"}} />}
+        showPosterWhenBuffering
+        showPosterWhenBufferingAndPaused
+        renderLoading={() => <AbsoluteFill style={{justifyContent: "center", alignItems: "center", color: "#94a3b8"}}>loading…</AbsoluteFill>}
+        errorFallback={({error}) => <AbsoluteFill style={{justifyContent: "center", alignItems: "center", color: "#f87171"}}>{error.message}</AbsoluteFill>}
+        renderPlayPauseButton={({playing, isBuffering}) => <span style={controlStyle}>{isBuffering ? "wait" : playing ? "pause" : "play"}</span>}
+        renderMuteButton={({muted, volume}) => <span style={controlStyle}>{muted || volume === 0 ? "unmute" : "mute"}</span>}
+        renderFullscreenButton={({isFullscreen}) => <span style={controlStyle}>{isFullscreen ? "exit full" : "full"}</span>}
+        renderVolumeSlider={({volume, setVolume, inputRef, onBlur}) => (
+          <input
+            ref={inputRef}
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={volume}
+            aria-label="Volume"
+            onBlur={onBlur}
+            onChange={(e) => setVolume(Number(e.target.value))}
+          />
+        )}
+        renderCustomControls={() => <span style={controlStyle}>custom control</span>}
+        browserMediaControlsBehavior={{mode: "register-media-session"}}
+        volumePersistenceKey="player-demo-interface"
+        overrideInternalClassName="interface-player"
+        overflowVisible
+        noSuspense
+        logLevel="warn"
+        style={{width: "100%", borderRadius: 8, overflow: "hidden"}}
+      />
+
+      <h2>errorFallback</h2>
+      <p className="dim">
+        This Player's component throws from frame 5, and it opens on frame 5, so <code>errorFallback</code> replaces the
+        video with its message.
+      </p>
+      <Player
+        component={Broken}
+        durationInFrames={30}
+        compositionWidth={320}
+        compositionHeight={180}
+        fps={30}
+        initialFrame={5}
+        controls
+        errorFallback={({error}) => (
+          <AbsoluteFill style={{justifyContent: "center", alignItems: "center", background: "#1f2937", color: "#f87171", font: "14px ui-monospace, monospace"}}>
+            errorFallback: {error.message}
+          </AbsoluteFill>
+        )}
+        style={{width: 320, borderRadius: 8, overflow: "hidden"}}
+      />
     </main>
   );
+};
+
+// Throws on purpose from frame 5, for the errorFallback demo.
+const Broken: React.FC = () => {
+  const frame = useCurrentFrame();
+  if (frame >= 5) {
+    throw new Error("Broken throws at frame 5");
+  }
+  return <AbsoluteFill style={{background: "#111827"}} />;
 };
 
 const container = document.getElementById("root");

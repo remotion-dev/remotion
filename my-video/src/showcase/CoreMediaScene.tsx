@@ -94,7 +94,7 @@ export const CoreMediaScene: React.FC = () => {
       </div>
       <div style={{display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center", maxWidth: 1180}}>
         <Tile label="<Img>">
-          <Img src={staticFile("sample-frame.png")} style={{width: "100%", height: "100%", objectFit: "cover"}} />
+          <Img src={staticFile("sample-frame.png")} style={{width: "100%", height: "100%", objectFit: "cover"}} pauseWhenLoading delayRenderTimeoutInMilliseconds={15000} delayRenderRetries={1} cropTop={0.1} cropBottom={0.1} />
         </Tile>
         <Tile label="<Img effects={[blur({radius: 8})]}>">
           {/* With effects, width/height must be numbers and style.objectFit becomes <CanvasImage>'s fit. */}
@@ -104,7 +104,7 @@ export const CoreMediaScene: React.FC = () => {
           <OffthreadVideo src={staticFile("sample-clip.mp4")} style={{width: "100%", height: "100%", objectFit: "cover"}} muted playbackRate={1.2} />
         </Tile>
         <Tile label="<AnimatedImage fit=contain, 0.5x>">
-          <AnimatedImage src={staticFile("sample-clip.gif")} width={TILE} height={TILE} fit="contain" playbackRate={0.5} loopBehavior="loop" />
+          <AnimatedImage src={staticFile("sample-clip.gif")} width={TILE} height={TILE} fit="contain" playbackRate={0.5} loopBehavior="loop" cropLeft={0.1} cropRight={0.1} />
         </Tile>
         <Tile label="<Html5Video> (see CaptionsScene)">
           <div
@@ -127,7 +127,7 @@ export const CoreMediaScene: React.FC = () => {
           <ImgFallbackTile />
         </Tile>
         <Tile label="<CanvasImage> + createEffect()">
-          <CanvasImage src={staticFile("sample-frame.png")} width={TILE} height={TILE} fit="cover" effects={[sepiaEffect({amount: 1})]} />
+          <CanvasImage src={staticFile("sample-frame.png")} width={TILE} height={TILE} fit="cover" effects={[sepiaEffect({amount: 1})]} className="sepia-tile" id="sepia-canvas" crossOrigin="anonymous" pauseWhenLoading delayRenderTimeoutInMilliseconds={15000} delayRenderRetries={1} cropTop={0.15} />
         </Tile>
         <Tile label="<CanvasImage maxRetries onError>">
           <div style={{position: "relative", width: "100%", height: "100%"}}>
@@ -152,7 +152,7 @@ export const CoreMediaScene: React.FC = () => {
           </div>
         </Tile>
         <Tile label="<IFrame> (local data: URL)">
-          <IFrame src={`data:text/html,${encodeURIComponent(IFRAME_CONTENT)}`} style={{width: "100%", height: "100%", border: "none"}} />
+          <IFrame src={`data:text/html,${encodeURIComponent(IFRAME_CONTENT)}`} style={{width: "100%", height: "100%", border: "none"}} delayRenderTimeoutInMilliseconds={15000} delayRenderRetries={1} />
         </Tile>
         <Tile label={`<HtmlInCanvas> (${htmlInCanvasSupported ? "supported" : "unsupported here"})`}>
           {htmlInCanvasSupported ? (

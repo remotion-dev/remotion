@@ -53,6 +53,14 @@ These came up while adding the less obvious props and options to each scene. Eac
 - **`springTiming({reverse: true})`** plays the spring backwards: progress still goes 0→1, but starts slow and finishes fast. It is pinned with `durationInFrames` for the reason in the section above.
 - **A transition's presentation stays applied to the entering scene for its whole sequence**, at progress 1 (`TransitionSeries.tsx` wraps every sequence that follows a transition). So `pushCut()`'s default `incomingEndScale` of 1.07 leaves the next scene zoomed in and cropped until it ends, not just during the cut; `FullReel` sets `incomingEndScale: 1`.
 
+- **A render skips `premountFor`/`postmountFor` entirely.** `Sequence.tsx` and `use-premounting.ts` only premount when `isRendering` is false, so `styleWhilePremounted`/`styleWhilePostmounted` only show in the Studio and Player. `CoreEnvironmentScene`'s premount row appears only for its 20 live frames in a rendered video.
+- **Transition enter/exit styles last the whole scene, not just the transition.** `TransitionSeries` wraps each scene in its presentation for the scene's entire sequence: the exiting scene at progress 0 from its first frame, the entering one at progress 1 until it ends. An `exitStyle` of `brightness(0.6)` on the first `fade()` darkened the title from frame 0 in a test render. `FullReel` sets every enter and exit style to an opaque background, which changes nothing visible.
+- **In a render, `@remotion/media`'s `<Audio playbackRate>` changes the pitch too.** `AudioScene` plays the 330 Hz `sample-tone.wav` with `toneFrequency={1.5}` and `playbackRate={1.25}`; the rendered audio measured 619 Hz, which is 330 × 1.5 × 1.25. In 4.0.527 `preservePitch`, `useWebAudioApi`, `crossOrigin`, `pauseWhenBuffering` and `acceptableTimeShiftInSeconds` exist on this `<Audio>` only inside `fallbackHtml5AudioProps`, which do nothing here because `AudioScene` disallows the fallback.
+- **`halftone()`/`halftoneLinearGradient()`: `dotColor` is only allowed with `colorMode: "solid"`.** Passing it with `"source"` throws when the effect is created. The catalog switches mode halfway through each tile and passes `dotColor` only in the solid half.
+- **`<Img>`, `<AnimatedImage>` and `<CanvasImage>` take `cropLeft`/`cropRight`/`cropTop`/`cropBottom`** (ratios 0-1) in 4.0.527, like `<Sequence>` and `<Video>`. `CoreMediaScene` crops one of each.
+- **Rounded Captions** (from remotion.dev/elements) loads Figtree from Google Fonts, which crashes renders here. `src/showcase/RoundedCaptions.tsx` is a copy that takes the font family as a prop, and `RoundedTextBoxScene` mounts it in the self-hosted Bangers font once that has loaded; this is the showcase's use of `Interactive.withSchema()`.
+- **Node side:** `renderMedia({codec: "gif", everyNthFrame: 3, numberOfGifLoops: 2})` over 30 frames wrote 10 GIF frames with a NETSCAPE loop count of 2. `videoBitrate` replaces `crf` (150k/ultrafast: 23 KB, 3M/slow: 144 KB for the same 30 frames). `renderFrames({outputDir: null, onFrameBuffer})` writes nothing and hands over each JPEG as a Buffer. `expressWebhook({testing: true})` answers the `OPTIONS` preflight and adds the CORS headers remotion.dev's webhook tester needs.
+
 Options that are wired but have no visible effect here, or are left out on purpose:
 
 - `blur({horizontal, vertical})` in `EffectsScene`: the chain starts from a flat `<Solid>`, so there's nothing to blur along either axis.
@@ -61,6 +69,11 @@ Options that are wired but have no visible effect here, or are left out on purpo
 - `@remotion/media-utils`' `channel` option: picks one channel of a multi-channel file. `sample-tone.wav` is mono (checked: 1 channel, 44.1kHz). `sample-clip.mp4` is stereo, but its AAC track can't be decoded by this Chromium, and `sample-clip.webm` has no audio, so a stereo WAV or Opus asset would be needed to show it.
 - `<Artifact>` with `Uint8Array` content or `downloadBehavior`: `CoreEnvironmentScene` emits a text artifact only. Binary content and download behavior only matter for the file written next to the render, not for anything drawn in the frame.
 - `random(null)`: returns a real `Math.random()` value, which is exactly the nondeterminism the seeded `random()` exists to avoid.
+- The option objects of the canvas-based transitions (`crossZoom({strength})`, `dissolve({spreadColor, hotColor, pow})`, `dreamyZoom`, `filmBurn({seed})`, `linearBlur`, `ripple`, `swap({reflection})`): they all fall back to `fade()` in this Chromium (see above), so their options can't be seen here.
+- `convertMedia({expectedFrameRate, expectedDurationInSeconds})`: they size the metadata section of an MP4 output, and `MediaToolsScene` writes WebM. `convertAudioData({newFormat})` is the docs' newer name; 4.0.527 calls it `format`, which is used.
+- `<Lottie assetsPath>`: only for animations with image layers, and `sample-lottie.json` has none.
+- `installInStudio()`/`addElementLibraryToStudio()` `target`: it names one running Studio, and there is none here.
+- `acknowledgeRemotionLicense` on `<Player>`: it states that the owner has a Remotion license or qualifies for the free one, so it's the owner's decision (see `player-demo/README.md`).
 
 ## `@remotion/effects`: every catalog effect, and the WebGL context budget
 

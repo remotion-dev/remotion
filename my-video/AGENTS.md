@@ -127,7 +127,9 @@ The script copies the skills without their symlinks (which break on Windows chec
 
 ## Elements
 
-`.claude/elements/` is a local copy of the official [Remotion Elements](https://www.remotion.dev/elements/) gallery (vendored from this monorepo's `packages/docs/elements`) — 40 small, self-contained, drop-in components across 11 categories (audio, backgrounds, captions, commerce, data, layouts, maps, overlays, storytelling, text, youtube). `.claude/elements/CATALOG.md` lists every one with its description. Elements are designed to be copied and edited directly (not installed as a dependency): pick one from the catalog, copy its `.tsx` file (and `initial-props.ts` if present) into `src/showcase/`, and adapt it — check the file's own imports for any package to install first.
+`.claude/elements/` is a local copy of the official [Remotion Elements](https://www.remotion.dev/elements/) gallery (vendored from this monorepo's `packages/docs/elements`) — 41 small, self-contained, drop-in components across 11 categories (audio, backgrounds, captions, commerce, data, layouts, maps, overlays, storytelling, text, youtube). `.claude/elements/CATALOG.md` lists every one with its description. Elements are designed to be copied and edited directly (not installed as a dependency): pick one from the catalog, copy its `.tsx` file (and `initial-props.ts` if present) into `src/showcase/`, and adapt it — check the file's own imports for any package to install first.
+
+Two files come from the live site instead, because they are newer than `packages/docs/elements`: `captions/rounded-captions` and `youtube/youtube-subscribe-nudge`. The vendor script deletes and rewrites the whole folder, so after re-vendoring, restore them with `git checkout -- .claude/elements/captions/rounded-captions .claude/elements/youtube/youtube-subscribe-nudge` and re-add their `CATALOG.md` lines, unless upstream has caught up.
 
 Re-vendor after pulling upstream changes to `packages/docs/elements`:
 
