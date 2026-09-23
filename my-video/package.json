@@ -40,6 +40,7 @@
     "@remotion/renderer": "4.0.527",
     "@remotion/rive": "4.0.527",
     "@remotion/rough-notation": "4.0.527",
+    "@remotion/rounded-text-box": "4.0.527",
     "@remotion/sfx": "4.0.527",
     "@remotion/shapes": "4.0.527",
     "@remotion/skia": "4.0.527",
