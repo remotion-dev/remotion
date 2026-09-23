@@ -77,6 +77,7 @@ const TimelineTrackUnmemoized: React.FC<{
 					sequence={track.sequence}
 					nodePathInfo={track.nodePathInfo}
 					keyframeDisplayOffset={track.keyframeDisplayOffset}
+					keyframePlaybackRate={track.keyframePlaybackRate}
 				/>
 			) : null}
 		</div>

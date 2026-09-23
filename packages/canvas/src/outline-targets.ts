@@ -15,6 +15,7 @@ import {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-ke
 export type CanvasSelectableOutline = {
 	readonly depth: number;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly key: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly sequence: TSequence;
@@ -74,6 +75,7 @@ export const getCanvasSelectableOutlines = ({
 				{
 					depth: track.depth,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
 					key: getCanvasSequenceSelectionKey(nodePathInfo),
 					nodePathInfo,
 					sequence,

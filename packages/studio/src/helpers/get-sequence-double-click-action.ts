@@ -47,5 +47,8 @@ export const getConnectedCompositionFrame = ({
 		return null;
 	}
 
-	return sequence.frozenFrame ?? relativeFrame + sequenceFrameOffset;
+	return (
+		sequence.frozenFrame ??
+		relativeFrame * sequence.sequencePlaybackRate + sequenceFrameOffset
+	);
 };

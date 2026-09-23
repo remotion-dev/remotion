@@ -12,6 +12,7 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import type {KeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 
 export type SelectedOutlineContextMenuOpenResult =
 	| false
@@ -107,7 +108,7 @@ export type SelectedOutlineCropDragTarget = {
 	>;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly transformOrigin: {
 		readonly defaultValue: string | undefined;
 		readonly propStatus: CanUpdateSequencePropStatus;
@@ -122,6 +123,7 @@ export type SelectedOutlineDragTarget = {
 	readonly clientId: string;
 	readonly fieldDefault: string | undefined;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 };
@@ -129,6 +131,7 @@ export type SelectedOutlineDragTarget = {
 export type SelectedOutlineTransformOriginDragTarget = {
 	readonly clientId: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly originDefault: string | undefined;
 	readonly originPropStatus:
@@ -138,7 +141,7 @@ export type SelectedOutlineTransformOriginDragTarget = {
 	readonly rotateValue: string;
 	readonly scaleValue: number | string;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly translateDefault: string | undefined;
 	readonly translatePropStatus:
 		| CanUpdateSequencePropStatusStatic
@@ -163,6 +166,7 @@ export type SelectedOutlineScaleDragTarget = {
 	readonly fieldDefault: number | string | undefined;
 	readonly fieldSchema: ScaleFieldSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly linked: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
@@ -176,6 +180,7 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly fieldDefault: string | undefined;
 	readonly fieldSchema: RotationFieldSchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly transform3DMode: boolean;

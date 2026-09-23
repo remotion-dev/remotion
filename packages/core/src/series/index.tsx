@@ -33,7 +33,13 @@ type SeriesSequenceProps = PropsWithChildren<
 		readonly className?: string;
 	} & Pick<
 		SequenceProps,
-		'layout' | 'name' | 'hidden' | 'showInTimeline' | 'freeze' | 'trimBefore'
+		| 'layout'
+		| 'name'
+		| 'hidden'
+		| 'showInTimeline'
+		| 'freeze'
+		| 'trimBefore'
+		| 'playbackRate'
 	> &
 		LayoutAndStyle
 >;
@@ -59,6 +65,7 @@ const seriesSequenceSchema = {
 	showInTimeline: Interactive.sequenceSchema.showInTimeline,
 	freeze: Interactive.baseSchema.freeze,
 	trimBefore: Interactive.sequenceSchema.trimBefore,
+	playbackRate: Interactive.sequenceSchema.playbackRate,
 	layout: Interactive.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 

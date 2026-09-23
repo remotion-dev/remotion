@@ -102,9 +102,9 @@ Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-
 Export the schema-enabled component directly and wire up the common props:
 
 - Add [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) to every `Interactive.withSchema()` schema and pass `controls` unchanged to the component's `<Sequence>`.
-- Pass `from`, `durationInFrames`, `trimBefore`, `freeze`, `hidden`, `name`, and `showInTimeline` to that Sequence.
+- Pass `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name`, and `showInTimeline` to that Sequence.
 - Pass `style` and the ref to the rendered outline. When the Sequence uses `layout="none"`, pass [`outlineRef`](/docs/sequence#outlineref) to it. Set the dimensions in the component because Element metadata does not pass them as props.
-- Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
+- Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, `playbackRate`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
 
 Export the schema-enabled component directly, without a forwarding wrapper. See the [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements.
 

@@ -1,5 +1,26 @@
 import type {TSequence} from 'remotion';
 
+export const getParentSequencePlaybackRate = (
+	sequence: TSequence,
+	sequences: TSequence[],
+): number => {
+	if (sequence.parent === null) {
+		return 1;
+	}
+
+	const parent = sequences.find(
+		(candidate) => candidate.id === sequence.parent,
+	);
+	if (!parent) {
+		throw new TypeError('Parent not found for sequence ' + sequence.id);
+	}
+
+	return (
+		parent.sequencePlaybackRate *
+		getParentSequencePlaybackRate(parent, sequences)
+	);
+};
+
 export const getCascadedStart = (
 	sequence: TSequence,
 	sequences: TSequence[],
@@ -13,27 +34,23 @@ export const getCascadedStart = (
 		throw new TypeError('Parent not found for sequence ' + sequence.id);
 	}
 
-	return getCascadedStart(parent, sequences) + sequence.from;
+	return (
+		getCascadedStart(parent, sequences) +
+		(sequence.from - (parent.trimBefore ?? 0)) /
+			getParentSequencePlaybackRate(sequence, sequences)
+	);
 };
 
 export const getCascadedStartWithTrim = (
 	sequence: TSequence,
 	sequences: TSequence[],
 ): number => {
-	const effectiveFrom =
-		sequence.trimBefore === null
-			? sequence.from
-			: sequence.from - sequence.trimBefore;
-	if (!sequence.parent) {
-		return effectiveFrom;
-	}
-
-	const parent = sequences.find((s) => s.id === sequence.parent);
-	if (!parent) {
-		throw new TypeError('Parent not found for sequence ' + sequence.id);
-	}
-
-	return getCascadedStartWithTrim(parent, sequences) + effectiveFrom;
+	return (
+		getCascadedStart(sequence, sequences) -
+		(sequence.trimBefore ?? 0) /
+			(getParentSequencePlaybackRate(sequence, sequences) *
+				sequence.sequencePlaybackRate)
+	);
 };
 
 export const getTimelineVisibleStart = (
@@ -58,9 +75,12 @@ export const getTimelineVisibleDuration = (
 	sequence: TSequence,
 	sequences: TSequence[],
 ): number => {
-	const visibleDuration = sequence.duration + Math.min(sequence.from, 0);
+	const start = getTimelineVisibleStart(sequence, sequences);
+	const end =
+		getCascadedStart(sequence, sequences) +
+		sequence.duration / getParentSequencePlaybackRate(sequence, sequences);
 	if (!sequence.parent) {
-		return visibleDuration;
+		return Math.max(0, end - start);
 	}
 
 	const parent = sequences.find((s) => s.id === sequence.parent);
@@ -68,8 +88,12 @@ export const getTimelineVisibleDuration = (
 		throw new TypeError('Parent not found for sequence ' + sequence.id);
 	}
 
-	return Math.min(
-		visibleDuration,
-		getTimelineVisibleDuration(parent, sequences),
+	return Math.max(
+		0,
+		Math.min(
+			end,
+			getTimelineVisibleStart(parent, sequences) +
+				getTimelineVisibleDuration(parent, sequences),
+		) - start,
 	);
 };

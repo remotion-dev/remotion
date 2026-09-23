@@ -30,6 +30,7 @@ const TimelineListTrack: React.FC<{
 			sequence={track.sequence}
 			nodePathInfo={track.nodePathInfo}
 			keyframeDisplayOffset={track.keyframeDisplayOffset}
+			keyframePlaybackRate={track.keyframePlaybackRate}
 			sequenceFrameOffset={track.sequenceFrameOffset}
 			numberOfHiddenDuplicates={Math.max(
 				0,

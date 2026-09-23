@@ -16,6 +16,10 @@ import {
 	type SelectedOutline,
 } from './selected-outline-geometry';
 import {
+	resolveKeyframeSourceFrame,
+	type KeyframeSourceFrame,
+} from './Timeline/get-timeline-keyframes';
+import {
 	getTimelineDisplayDecimalPlaces,
 	roundToDecimalPlaces,
 } from './Timeline/timeline-field-utils';
@@ -73,7 +77,7 @@ export type SelectedOutlineUvHandle = {
 	readonly isSelected: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 	readonly value: UvCoordinate;
 };
 
@@ -682,7 +686,7 @@ export const getSelectedUvHandles = ({
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly selectedEffects: Map<number, SelectedEffectFields> | undefined;
 	readonly sequence: TSequence;
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 }): SelectedOutlineUvHandle[] => {
 	if (clientId === null || selectedEffects === undefined) {
 		return [];
@@ -725,7 +729,7 @@ export const getSelectedUvHandles = ({
 				propStatus,
 				dragOverrideValue: dragOverrides[key],
 				defaultValue: undefined,
-				frame: sourceFrame,
+				frame: resolveKeyframeSourceFrame(sourceFrame, propStatus),
 				shouldResortToDefaultValueIfUndefined: false,
 			});
 		});
@@ -747,7 +751,7 @@ export const getSelectedUvHandles = ({
 				propStatus,
 				dragOverrideValue: dragOverrides[fieldKey],
 				defaultValue: fieldSchema.default,
-				frame: sourceFrame,
+				frame: resolveKeyframeSourceFrame(sourceFrame, propStatus),
 				shouldResortToDefaultValueIfUndefined: true,
 			});
 		}

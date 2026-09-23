@@ -51,6 +51,7 @@ const MacOSCursorInner: React.FC<
 	durationInFrames,
 	from,
 	trimBefore,
+	playbackRate,
 	freeze,
 	hidden,
 	name,
@@ -72,6 +73,7 @@ const MacOSCursorInner: React.FC<
 			layout="none"
 			from={from ?? 0}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			durationInFrames={durationInFrames ?? Infinity}
 			freeze={freeze}
 			hidden={hidden}

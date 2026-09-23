@@ -57,6 +57,7 @@ const AudioWaveformInner: React.FC<{
 	readonly muted: boolean;
 	readonly playbackRate: number;
 	readonly loopDisplay: LoopDisplay | undefined;
+	readonly loopDisplayOffsetInFrames: number;
 }> = ({
 	src,
 	height,
@@ -70,6 +71,7 @@ const AudioWaveformInner: React.FC<{
 	muted,
 	playbackRate,
 	loopDisplay,
+	loopDisplayOffsetInFrames,
 }) => {
 	const [peaks, setPeaks] = useState<Float32Array | null>(null);
 	const [error, setError] = useState<Error | null>(null);
@@ -95,16 +97,9 @@ const AudioWaveformInner: React.FC<{
 		return getVisibleWaveformVolume({
 			displayDurationInFrames,
 			displayOffsetInFrames,
-			loopDisplay,
 			volume: parsedVolume,
 		});
-	}, [
-		displayDurationInFrames,
-		displayOffsetInFrames,
-		loopDisplay,
-		muted,
-		parsedVolume,
-	]);
+	}, [displayDurationInFrames, displayOffsetInFrames, muted, parsedVolume]);
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -127,7 +122,7 @@ const AudioWaveformInner: React.FC<{
 
 		return sliceVisibleWaveformPeaks({
 			displayDurationInFrames,
-			displayOffsetInFrames,
+			displayOffsetInFrames: displayOffsetInFrames + loopDisplayOffsetInFrames,
 			durationInFrames,
 			fps: vidConf.fps,
 			loopDisplay,
@@ -141,6 +136,7 @@ const AudioWaveformInner: React.FC<{
 		displayOffsetInFrames,
 		durationInFrames,
 		loopDisplay,
+		loopDisplayOffsetInFrames,
 		peaks,
 		playbackRate,
 		startFrom,

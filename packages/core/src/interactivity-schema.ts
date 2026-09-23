@@ -609,7 +609,28 @@ export const freezeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+const playbackRateField = {
+	type: 'number',
+	default: 1,
+	min: 0.01,
+	step: 0.1,
+	description: 'Playback rate',
+	hiddenFromList: false,
+	keyframable: false,
+} as const satisfies InteractivitySchemaField;
+
 export const baseSchema = {
+	durationInFrames: durationInFramesField,
+	from: fromField,
+	trimBefore: trimBeforeField,
+	playbackRate: playbackRateField,
+	freeze: freezeField,
+	hidden: hiddenField,
+	name: sequenceNameField,
+	showInTimeline: showInTimelineField,
+} as const satisfies InteractivitySchema;
+
+export const baseSchemaWithoutPlaybackRate = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
@@ -635,6 +656,7 @@ export const sequenceSchema = {
 export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
 	trimBefore: trimBeforeField,
+	playbackRate: playbackRateField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
