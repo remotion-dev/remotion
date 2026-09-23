@@ -43,3 +43,7 @@ From `packages/example`:
 - `bunx remotion compositions` — list available compositions.
 - `bunx remotion render <comp-id> --output ../../out/video.mp4` — render a video.
 - `bunx remotion still <comp-id> --output ../../out/still.png` — render a still image.
+
+## Imported agents and skills
+
+`.agents/agents/` (exposed via the `.claude/agents` symlink) and 7 skills in `.agents/skills/` are imported from ECC — see `.agents/ECC.md` for the list, what was left out, and how to re-sync. This file and the Remotion-authored skills take precedence over them where they conflict.
