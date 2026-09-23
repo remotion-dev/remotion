@@ -40,7 +40,7 @@ export const RemotionRoot: React.FC = () => {
         width={1280}
         height={720}
         fps={30}
-        durationInFrames={735}
+        durationInFrames={795}
         schema={extendedReelSchema}
         defaultProps={extendedReelDefaultProps}
         calculateMetadata={calculateExtendedReelMetadata}
@@ -51,7 +51,7 @@ export const RemotionRoot: React.FC = () => {
         width={1280}
         height={720}
         fps={30}
-        durationInFrames={915}
+        durationInFrames={975}
         schema={fullReelSchema}
         defaultProps={fullReelDefaultProps}
         calculateMetadata={calculateFullReelMetadata}

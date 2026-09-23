@@ -18,7 +18,7 @@ Rendering and Studio need Node.js and a Chrome/Chromium download; they work in C
 - `src/index.ts` — entry point, registers the root component
 - `src/Root.tsx` — every `<Composition>` must be registered here
 - `src/Composition.tsx` — the `MyComp` composition (1280×720 @ 30fps)
-- `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions, shapes, motion blur, noise, captions, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, animated-emoji, three, gsap, core-`remotion` fundamentals), and `FullReel` (both combined into one video). Point at a scene here as a worked example before writing a new one from scratch.
+- `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions, shapes, motion blur, noise, captions, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, animated-emoji, three, skia, gsap, core-`remotion` fundamentals), and `FullReel` (both combined into one video). Point at a scene here as a worked example before writing a new one from scratch.
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`, including `sample-clip.mp4`/`.gif`, `sample-tone.wav` and `sample-lottie.json` (locally-generated stand-ins used by `ExtendedReel`; regenerate the media ones with `node scripts/generate-sample-media.mjs`)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
@@ -47,6 +47,18 @@ These both run a real ML model locally in the browser (background removal and sp
 ## `@remotion/animated-emoji` assets are not bundled with the package
 
 Unlike `@remotion/google-fonts` (which fetches from a CDN at build time), `@remotion/animated-emoji`'s video files aren't shipped in the npm package at all — the package only knows how to play them via `<Loop>` + `<OffthreadVideo transparent>`. You have to copy the specific emoji's `.mp4`/`.webm` pair yourself, once, from [remotion-dev/animated-emoji](https://github.com/remotion-dev/animated-emoji)'s `public/` folder into this project's `public/`. Don't `git clone`/sparse-checkout that repo's `public/` folder directly — it's ~2GB of every emoji; fetch only the two files you need (e.g. via the GitHub API or a shallow single-file fetch). `AnimatedEmojiScene` uses `star-struck-0.5x` this way — fully offline at render time, no CDN dependency.
+
+## `@remotion/skia` needs extra bundler aliasing on rspack
+
+The docs' `enableSkia()` setup (`remotion.config.ts` webpack override + `LoadSkia()` before `registerRoot()` in `src/index.ts`) assumes `@shopify/react-native-skia`'s old 0.x line. The version that resolves today (2.x, peer range `>=0.1.191`) publishes a React Native/Metro build as its `main`/`module` entry that unconditionally imports the real `react-native` package — broken in any browser bundle — and only exposes a working web build via its `"react-native"` package.json field, a convention Metro/RN tooling reads automatically but plain webpack/rspack does not. `enableSkia()` only takes care of extension resolution (`.web.tsx` siblings) once you're inside that source tree; getting there at all needs an explicit `resolve.alias` redirecting the bare `@shopify/react-native-skia` import to its own `src` (see `remotion.config.ts`). Even inside `src`, a few cross-platform files (e.g. `Platform/IPlatform.ts`) still import the real `react-native` package for APIs the web build doesn't need — aliased to `react-native-web` (installed as a dependency) for the bundler, and stubbed out for `tsc` via ambient `declare module` shims in `src/skia-shims.d.ts` (ambient shims can't fix a real lint issue like an unused import in a pulled-in third-party file, which is why `src/index.ts` imports `LoadSkia` from the narrower `.../src/web/LoadSkiaWeb` path rather than the `.../src/web` barrel).
+
+None of this needs network access — `canvaskit-wasm`'s ~8MB `.wasm` binary ships in `node_modules` and `enableSkia()`'s webpack plugin emits it as a local bundled asset.
+
+## Third-party API keys (e.g. ElevenLabs voiceover)
+
+`@remotion/elevenlabs` is a Speech-to-Text→`Caption[]` converter (`elevenLabsTranscriptToCaptions()`), not a text-to-speech package — don't confuse the two. For generating voiceover audio, `scripts/generate-voiceover.mjs` calls ElevenLabs' TTS REST API directly and writes MP3s to `public/voiceover/`, following the `voiceover.md` skill guide. Copy `.env.example` to `.env.local` and fill in `ELEVENLABS_API_KEY`, then run `node scripts/generate-voiceover.mjs`.
+
+The API key is only ever read inside that standalone script, never inside a `.tsx` component: components get bundled for the browser, and Remotion's CLI exposes `.env`/`.env.local` to that bundle's `process.env` (see `env-variables.mdx`), so a key referenced from a component would ship inside the render output. This pre-generate-once-then-read-the-static-file pattern is how to wire up any other third-party API (image/video generation, other TTS providers, etc.) safely.
 
 ## Skills
 
