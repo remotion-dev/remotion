@@ -1,1 +1,1 @@
-export {calculateTimeline} from '@remotion/canvas';
+export {calculateTimeline} from '@remotion/canvas/internal';

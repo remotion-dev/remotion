@@ -4,6 +4,7 @@ const external = [
 	'react',
 	'remotion',
 	'@remotion/canvas',
+	'@remotion/canvas/internal',
 	'react-dom',
 	'react',
 	'@remotion/media-utils',

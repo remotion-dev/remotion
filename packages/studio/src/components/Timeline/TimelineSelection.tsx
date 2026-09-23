@@ -8,7 +8,7 @@ import {
 	type CanvasSelectionInteraction,
 	type CanvasSelectionItem,
 	type CanvasSelectionSnapshot,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
 import {
 	canEditEasingForInterpolationFunction,
 	stringifySequenceExpandedRowKey,

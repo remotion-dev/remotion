@@ -1,7 +1,7 @@
 import {
 	getParentSequencePlaybackRate,
 	sortItemsByCommitOrder,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
 import {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,

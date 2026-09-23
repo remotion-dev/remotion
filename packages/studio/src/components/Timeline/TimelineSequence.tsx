@@ -1,8 +1,8 @@
 import {
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
-} from '@remotion/canvas';
-import type {TimelineTrackData} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
+import type {TimelineTrackData} from '@remotion/canvas/internal';
 import React, {
 	useCallback,
 	useContext,

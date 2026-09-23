@@ -81,4 +81,4 @@ export const useRuntimeValueSelector = <T>({
 	);
 };
 
-export {useCanvasRuntimeValueSnapshots as useRuntimeValueSnapshots} from '@remotion/canvas';
+export {useCanvasRuntimeValueSnapshots as useRuntimeValueSnapshots} from '@remotion/canvas/internal';

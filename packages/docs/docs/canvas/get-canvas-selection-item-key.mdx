@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-canvas-get-canvas-selection-item-key.png
+title: getCanvasSelectionItemKey()
+crumb: '@remotion/canvas'
+---
+
+# getCanvasSelectionItemKey()<AvailableFrom v="4.0.527" />
+
+Returns an identity string for a `CanvasSelectionItem`. Import it from `@remotion/canvas`. Use it to compare selection items from different snapshots or construct React list keys.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts title="is-selected.ts"
+import {
+  getCanvasSelectionItemKey,
+  type CanvasSelectionItem,
+  type CanvasSelectionSnapshot,
+} from '@remotion/canvas';
+
+export const isSelected = (
+  item: CanvasSelectionItem,
+  selection: CanvasSelectionSnapshot,
+) => selection.selectedItems.some(
+  (selected) => getCanvasSelectionItemKey(selected) === getCanvasSelectionItemKey(item),
+);
+```
+
+## Parameter
+
+### item
+
+A `CanvasSelectionItem`, such as `{type: 'sequence', nodePathInfo}`. Other item types can represent a property, effect, keyframe, easing segment, or guide.
+
+## Return value
+
+A string that is equal for items with the same selection identity. Treat its format as opaque; it may change while the package is experimental. If an item's `nodePathInfo` uses the fallback mounted sequence ID from [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info), its key can change after a remount.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`useCanvasSelection()`](/docs/canvas/use-canvas-selection)
+- [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info)

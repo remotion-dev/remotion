@@ -1,4 +1,4 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {sortItemsByCommitOrder} from '@remotion/canvas/internal';
 import type {
 	ChangeEventHandler,
 	Dispatch,

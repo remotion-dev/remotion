@@ -1,1 +1,1 @@
-export {getConnectedCompositions} from '@remotion/canvas';
+export {getConnectedCompositions} from '@remotion/canvas/internal';

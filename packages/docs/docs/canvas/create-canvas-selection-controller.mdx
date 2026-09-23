@@ -1,0 +1,59 @@
+---
+image: /generated/articles-docs-canvas-create-canvas-selection-controller.png
+title: createCanvasSelectionController()
+crumb: '@remotion/canvas'
+---
+
+# createCanvasSelectionController()<AvailableFrom v="4.0.527" />
+
+Creates a standalone `CanvasSelectionController`. Import it from `@remotion/canvas`. [`createCanvasController()`](/docs/canvas/create-canvas-controller) already creates one at `controller.selection`; use this function when selection has a separate lifetime.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts title="selection.ts"
+import {createCanvasSelectionController} from '@remotion/canvas';
+
+export const selection = createCanvasSelectionController();
+selection.setSelectedItems([]);
+```
+
+The function takes no arguments. The initial snapshot is `{selectedItems: [], anchor: null}`. Read and subscribe to it with [`useCanvasSelection()`](/docs/canvas/use-canvas-selection), or use `getSnapshot()` and `subscribe(listener)` outside React.
+
+## Methods
+
+### select()
+
+`select(item, interaction, allSelectableItems)` applies a click. The interaction has `shiftKey` and `toggleKey` booleans; the ordered `allSelectableItems` array defines Shift selection ranges. A plain click replaces selection, Shift selects a range of the same item type, and toggle adds or removes compatible items.
+
+### setSelectedItems()
+
+`setSelectedItems(items)` replaces the selection and sets the anchor to the last item, or `null` for an empty array.
+
+### setSnapshot()
+
+`setSnapshot({selectedItems, anchor})` replaces the entire selection state.
+
+### clear()
+
+`clear()` resets the state to an empty selection.
+
+### getSnapshot()
+
+Returns the current `CanvasSelectionSnapshot`.
+
+### subscribe()
+
+`subscribe(listener)` calls `listener` after a selection update and returns an unsubscribe function.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`useCanvasSelection()`](/docs/canvas/use-canvas-selection)
+- [`createCanvasController()`](/docs/canvas/create-canvas-controller)

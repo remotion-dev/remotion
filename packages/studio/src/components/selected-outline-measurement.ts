@@ -1,4 +1,4 @@
-import {getCanvasSelectableOutlines} from '@remotion/canvas';
+import {getCanvasSelectableOutlines} from '@remotion/canvas/internal';
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
@@ -29,7 +29,7 @@ export {
 	cropCanvasOutlinePoints as cropOutlinePoints,
 	getTransformedSvgViewportPoints,
 	measureCanvasOutlineTargets as measureOutlineTargets,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
 
 export const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
 

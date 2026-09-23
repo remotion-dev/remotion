@@ -1,4 +1,4 @@
-import {getCanvasOutlinePoint as getUvHandlePosition} from '@remotion/canvas';
+import {getCanvasOutlinePoint as getUvHandlePosition} from '@remotion/canvas/internal';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
@@ -27,7 +27,7 @@ import {
 export {
 	getCanvasOutlinePoint as getUvHandlePosition,
 	getCanvasOutlineUv as getUvCoordinateForPoint,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
 
 export type UvCoordinate = readonly [number, number];
 

@@ -1,0 +1,83 @@
+---
+image: /generated/articles-docs-canvas-use-canvas-sequence-hover.png
+title: useCanvasSequenceHover()
+crumb: '@remotion/canvas'
+---
+
+# useCanvasSequenceHover()<AvailableFrom v="4.0.527" />
+
+Connects one layer row to the shared canvas hover state. Import it from `@remotion/canvas`.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx title="LayerRow.tsx"
+import {
+  useCanvasSequenceHover,
+  type CanvasController,
+  type TimelineTrackData,
+  getCanvasSequenceNodePathInfo,
+} from '@remotion/canvas';
+
+export const LayerRow = ({controller, track}: {
+  controller: CanvasController;
+  track: TimelineTrackData;
+}) => {
+  const {hovered, onPointerEnter, onPointerLeave} = useCanvasSequenceHover(
+    controller.hover,
+    getCanvasSequenceNodePathInfo(track),
+    'timeline',
+  );
+  return (
+    <button
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onFocus={onPointerEnter}
+      onBlur={onPointerLeave}
+      style={{background: hovered ? '#dbeafe' : 'transparent'}}
+    >
+      {track.sequence.displayName ?? track.sequence.type}
+    </button>
+  );
+};
+```
+
+## Parameters
+
+### controller
+
+The `CanvasHoverController`, normally `controller.hover` from [`useCanvasController()`](/docs/canvas/use-canvas-controller).
+
+### nodePathInfo
+
+The track's `SequenceNodePathInfo`, or `null` for a row that cannot be hovered. Resolve it with [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info) or the same custom resolver passed to [`<Canvas>`](/docs/canvas/canvas#resolvesequencenodepathinfo).
+
+### source
+
+`'timeline'` for a layer list or `'canvas'` for an overlay. The source is used when clearing hover so one surface does not clear the other surface's state.
+
+## Return value
+
+### hovered
+
+A boolean indicating whether this source node is hovered. Multiple mounted instances with the same source identity can be highlighted together.
+
+### onPointerEnter
+
+Call when the pointer enters the row, or when a keyboard focus should highlight it.
+
+### onPointerLeave
+
+Call when the pointer leaves the row or it loses focus. It clears hover only if this hook still owns the current hover state.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`useCanvasHover()`](/docs/canvas/use-canvas-hover)
+- [`<Canvas>`](/docs/canvas/canvas)

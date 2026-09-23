@@ -4,4 +4,4 @@ export {
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';

@@ -1,4 +1,4 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {sortItemsByCommitOrder} from '@remotion/canvas/internal';
 import type {_InternalTypes, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';

@@ -1,1 +1,1 @@
-export {getTimelineNestedLevel} from '@remotion/canvas';
+export {getTimelineNestedLevel} from '@remotion/canvas/internal';

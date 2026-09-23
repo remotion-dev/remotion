@@ -9,12 +9,12 @@ const external = ['@remotion/player', 'react', 'react-dom', 'remotion'];
 
 console.time('Generated.');
 const esmOutput = await build({
-	entrypoints: ['src/index.ts'],
+	entrypoints: ['src/index.ts', 'src/internal.ts'],
 	naming: '[name].mjs',
 	external,
 });
 const cjsOutput = await build({
-	entrypoints: ['src/index.ts'],
+	entrypoints: ['src/index.ts', 'src/internal.ts'],
 	naming: '[name].cjs',
 	format: 'cjs',
 	external,

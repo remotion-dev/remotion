@@ -1,7 +1,7 @@
 import {
 	CanvasOutlinePolygon,
 	handleCanvasOutlinePointerDown,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
 import React, {useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';

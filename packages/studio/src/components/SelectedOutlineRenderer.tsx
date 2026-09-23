@@ -1,4 +1,4 @@
-import {useCanvasOutlines} from '@remotion/canvas';
+import {useCanvasOutlines} from '@remotion/canvas/internal';
 import React, {
 	useCallback,
 	useContext,

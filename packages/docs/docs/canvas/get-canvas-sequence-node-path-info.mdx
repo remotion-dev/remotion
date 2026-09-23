@@ -1,0 +1,71 @@
+---
+image: /generated/articles-docs-canvas-get-canvas-sequence-node-path-info.png
+title: getCanvasSequenceNodePathInfo()
+crumb: '@remotion/canvas'
+---
+
+# getCanvasSequenceNodePathInfo()<AvailableFrom v="4.0.527" />
+
+Returns the selection identity for a timeline track. Import it from `@remotion/canvas`. This is the default resolver used by [`<Canvas>`](/docs/canvas/canvas).
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts title="selection-item.ts"
+import {
+  getCanvasSequenceNodePathInfo,
+  type CanvasSelectionItem,
+  type TimelineTrackData,
+} from '@remotion/canvas';
+
+export const getItem = (track: TimelineTrackData): CanvasSelectionItem => ({
+  type: 'sequence',
+  nodePathInfo: getCanvasSequenceNodePathInfo(track),
+});
+```
+
+## Parameter
+
+### track
+
+A `TimelineTrackData` from [`controller.timeline`](/docs/canvas/create-canvas-controller#timeline).
+
+## Return value
+
+A `SequenceNodePathInfo`. When the track has a registered `nodePathInfo`, that value is returned. Otherwise the function constructs an identity from the mounted sequence ID. The fallback identity is not a persistent source reference across remounts.
+
+### sequenceSubscriptionKey
+
+Identifies the source node and sequence instance. It contains `absolutePath`, `nodePath`, `sequenceKeys`, `effectKeys`, and `videoConfigValues`. The fallback uses the mounted sequence ID in `nodePath`.
+
+### auxiliaryKeys
+
+Additional keys used to distinguish nested selectable parts. The fallback returns an empty array.
+
+### index
+
+The zero-based index of this instance among sequences with the same source node path. The fallback returns `0`.
+
+### numberOfSequencesWithThisNodePath
+
+The number of registered instances with this source node path. The fallback returns `1`.
+
+### supportsEffects
+
+Whether the sequence's registered controls support effects.
+
+## Custom source identity
+
+For an editor that knows which source file and JSX node produced each track, pass a `CanvasSequenceNodePathResolver` to `<Canvas>` and use it to construct layer selection items. The resolver receives `(track, index)` and may return `null` to exclude a track from selection. A stable source identity keeps selection attached to source code after a composition remount.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`<Canvas>`](/docs/canvas/canvas)
+- [`getCanvasSelectionItemKey()`](/docs/canvas/get-canvas-selection-item-key)

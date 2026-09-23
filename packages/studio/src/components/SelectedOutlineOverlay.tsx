@@ -5,7 +5,7 @@ import {
 	getCanvasActiveOutlineTargets,
 	getCanvasOutlineActivity,
 	getCanvasOutlineLayoutTargets,
-} from '@remotion/canvas';
+} from '@remotion/canvas/internal';
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,

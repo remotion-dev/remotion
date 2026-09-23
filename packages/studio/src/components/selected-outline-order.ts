@@ -1,1 +1,1 @@
-export {orderCanvasOutlinesForRendering as orderOutlinesForRendering} from '@remotion/canvas';
+export {orderCanvasOutlinesForRendering as orderOutlinesForRendering} from '@remotion/canvas/internal';

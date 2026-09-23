@@ -582,6 +582,7 @@
         "@remotion/browser-bundler": "workspace:*",
         "@remotion/browser-studio": "workspace:*",
         "@remotion/bundler": "workspace:*",
+        "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
