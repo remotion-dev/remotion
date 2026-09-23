@@ -242,7 +242,7 @@ export const isHtmlInCanvasSupported = (): boolean => {
 
 /** Shown when {@link isHtmlInCanvasSupported} is false: APIs are absent (old Chrome and/or flag off). */
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
-	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
+	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 149 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
 
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,

@@ -65,8 +65,8 @@ We're calling the machine which orchestrates the render the "main routine".
   - Example 2: If your goal is to render a portion of a composition, say `frameRange: [100, 199]`, and you split this up into 4 chunks: `[100, 124], [125, 149], [150, 174], [175, 199]`, every chunk should have `100` as the value for `compositionStart`
 - IF you want to render with the codec `h264` (default and recommended), or you want to render a GIF, **set the codec to `h264-ts` instead of `h264`**.
 - IF you are rendering:
-  - At least 4 frames per chunk AND
-  - NOT with audio codec `aac` (which would be default and recommended),
+  - 4 or fewer frames per chunk OR
+  - with an audio codec other than `aac` (`aac` would be default and recommended),
 - Then:
   - set the [`audioCodec`](/docs/renderer/render-media#audiocodec) to `pcm-16` instead of the audio codec.
   - set the [`forSeamlessAacConcatenation`](/docs/renderer/render-media#forseamlessaacconcatenation) option to `false`.

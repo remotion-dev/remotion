@@ -20,10 +20,10 @@ Combine multiple video or audio chunks into a single output file. This function 
 ```tsx twoslash title="combine.mjs"
 import {combineChunks} from '@remotion/renderer';
 
-// Video files rendered as separate chunks
-const videoFiles = ['/path/to/chunk1.mp4', '/path/to/chunk2.mp4', '/path/to/chunk3.mp4'];
+// Video chunks, rendered with `codec: 'h264-ts'` (not 'h264')
+const videoFiles = ['/path/to/chunk1.ts', '/path/to/chunk2.ts', '/path/to/chunk3.ts'];
 
-// Optional audio files corresponding to each video chunk
+// Audio chunks, rendered with `separateAudioTo` and `forSeamlessAacConcatenation: true`
 const audioFiles = ['/path/to/chunk1.aac', '/path/to/chunk2.aac', '/path/to/chunk3.aac'];
 
 await combineChunks({
@@ -38,6 +38,11 @@ await combineChunks({
   compositionDurationInFrames: 300,
 });
 ```
+
+:::warning
+To combine into `h264`, the video chunks must be rendered with `codec: "h264-ts"` (MPEG-TS, `.ts`). They are joined byte by byte, which does not work with MP4 files: `.mp4` chunks do not throw an error, but the output may only contain the frames of the first chunk.  
+See [Distributed rendering](/docs/distributed-rendering#2-invoking-render-functions) for all the options that the chunks must be rendered with.
+:::
 
 ## Arguments
 
@@ -55,17 +60,26 @@ _string[]_
 
 An array of absolute file paths pointing to the video chunks to be combined. These should be in the correct order for combining.
 
+Which codec the chunks must be rendered with depends on [`codec`](#codec):
+
+- `"h264"`: Render the chunks with `codec: "h264-ts"`. They are concatenated byte by byte without re-encoding, which only works with MPEG-TS files.
+- `"gif"`: Render the chunks with `codec: "h264-ts"`. They are re-encoded to a GIF.
+- Any other video codec: Render the chunks with the same codec. They are joined without re-encoding.
+
 ### `audioFiles`
 
 _string[]_
 
 An array of absolute file paths pointing to the audio chunks to be combined. These should be in the correct order for combining.
 
+If the audio codec is `aac` (the default for `h264`) and [`framesPerChunk`](#framesperchunk) is greater than `4`, the audio chunks are joined without re-encoding. In that case, they must be AAC files rendered using [`separateAudioTo`](/docs/renderer/render-media#separateaudioto) and [`forSeamlessAacConcatenation: true`](/docs/renderer/render-media#forseamlessaacconcatenation).  
+Otherwise, the audio chunks are re-encoded. Render them as `pcm-16` (`.wav`) to avoid a loss in quality, like Remotion Lambda does.
+
 ### `codec`
 
 _"h264" | "h265" | "av1" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | "h264-mkv" | "gif"_
 
-The codec to use for the output file. See the distributed rendering guide to see which parameter to set.
+The codec to use for the output file. Pass the final codec, for example `"h264"`, even if the chunks were rendered with `"h264-ts"`. See the [distributed rendering guide](/docs/distributed-rendering#3-concatenate-the-chunks) to see which parameter to set.
 
 ### `fps`
 

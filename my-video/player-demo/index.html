@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Remotion Player demo</title>
+    <style>
+      /* Colors from src/showcase/palette.ts, so the page matches the reel. */
+      :root {
+        --bg: #0b1120;
+        --bg-alt: #111827;
+        --accent: #6366f1;
+        --accent-2: #22d3ee;
+        --text: #f8fafc;
+        --text-dim: #94a3b8;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, sans-serif;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 32px 0 8px;
+      }
+      p {
+        margin: 0 0 16px;
+        line-height: 1.5;
+      }
+      code {
+        font-size: 0.9em;
+        color: var(--accent-2);
+      }
+      .dim {
+        color: var(--text-dim);
+      }
+      .readout {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: var(--bg-alt);
+        font: 14px/1.6 ui-monospace, monospace;
+        overflow-wrap: anywhere;
+      }
+      .thumbnails {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+      .thumbnail {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 0;
+        border: 1px solid var(--bg-alt);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--bg-alt);
+        color: var(--text);
+        font: 14px system-ui, sans-serif;
+        text-align: left;
+        cursor: pointer;
+      }
+      .thumbnail > span {
+        padding: 0 10px 8px;
+      }
+      .thumbnail:hover,
+      .thumbnail:focus-visible {
+        border-color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Outside Remotion's bundler nothing sets the static base, and
+         staticFile() would return root-relative "/…" URLs. -->
+    <script>
+      window.remotion_staticBase = ".";
+    </script>
+    <script src="./main.js"></script>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {spawnSync} from 'node:child_process';
 import path from 'path';
 import {exampleVideos} from '@remotion/example-videos';
 import {getSilentParts} from '../get-silent-parts';
@@ -67,6 +68,29 @@ test('Inexistent file', async () => {
 		expect((err as Error).message).toContain('No such file or directory');
 	}
 });
+
+test('Should not keep the process alive after rejecting', () => {
+	const script = `
+		import {getSilentParts} from ${JSON.stringify(path.join(__dirname, '..', 'get-silent-parts.ts'))};
+		for (const options of [
+			{src: ${JSON.stringify(exampleVideos.webcam)}, minDurationInSeconds: 0},
+			{src: ${JSON.stringify(exampleVideos.notafile)}},
+		]) {
+			await getSilentParts(options).catch((err) => console.log(err.message));
+		}
+	`;
+	const result = spawnSync(process.execPath, ['-e', script], {
+		encoding: 'utf8',
+		timeout: 10_000,
+	});
+
+	expect(result.stdout).toContain(
+		'minDurationInSeconds must be greater than 0, but was 0',
+	);
+	expect(result.stdout).toContain('No such file or directory');
+	expect(result.signal).toBe(null);
+	expect(result.status).toBe(0);
+}, 20_000);
 
 test('folder', async () => {
 	try {

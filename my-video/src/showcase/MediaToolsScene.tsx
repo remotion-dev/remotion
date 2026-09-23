@@ -24,6 +24,7 @@ import {
   rotateAndResizeVideoFrame,
   webcodecsController,
 } from "@remotion/webcodecs";
+import {getAudioDurationInSeconds, getVideoMetadata} from "@remotion/media-utils";
 import {bufferWriter} from "@remotion/webcodecs/buffer";
 import {webFsWriter} from "@remotion/webcodecs/web-fs";
 import {useEffect, useState} from "react";
@@ -44,13 +45,24 @@ const WAV = staticFile("sample-tone.wav");
 // get an absolute URL instead.
 const absolute = (src: string) => new URL(src, window.location.href).href;
 
+// Each experiment gets its own time limit, so one stalled codec call shows up
+// as a "failed: timed out" row instead of tripping the scene's delayRender()
+// and cancelling the whole render.
+const EXPERIMENT_TIMEOUT_MS = 15000;
+
 // Runs one experiment and records its real outcome: the result text, or the
-// error message if it threw. Nothing here is assumed to work.
+// error message if it threw or timed out. Nothing here is assumed to work.
 const attempt = async (label: string, fn: () => Promise<string>): Promise<Row> => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`timed out after ${EXPERIMENT_TIMEOUT_MS / 1000}s`)), EXPERIMENT_TIMEOUT_MS);
+  });
   try {
-    return {label, value: await fn(), ok: true};
+    return {label, value: await Promise.race([fn(), timeout]), ok: true};
   } catch (err) {
     return {label, value: err instanceof Error ? err.message : String(err), ok: false};
+  } finally {
+    if (timer !== null) clearTimeout(timer);
   }
 };
 
@@ -89,7 +101,10 @@ const audioTrackOf = (tracks: MediaParserTrack[]): MediaParserAudioTrack => {
 export const MediaToolsScene: React.FC = () => {
   const {width} = useVideoConfig();
   const {delayRender, continueRender} = useDelayRender();
-  const [handle] = useState(() => delayRender("Running media-parser / webcodecs experiments"));
+  // ~19 experiments run one after another, each capped at 15s above. They
+  // take a few seconds in total here; the default 30s budget would leave no
+  // room for a slower machine.
+  const [handle] = useState(() => delayRender("Running media-parser / webcodecs experiments", {timeoutInMilliseconds: 120000}));
   const [rows, setRows] = useState<Row[] | null>(null);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
 
@@ -134,6 +149,13 @@ export const MediaToolsScene: React.FC = () => {
         }
       });
       await add("WEBCODECS_TIMESCALE", async () => `${WEBCODECS_TIMESCALE} ticks per second`);
+      // The older media-utils way to read metadata (a hidden media element),
+      // deprecated in favour of Mediabunny like parseMedia() above.
+      await add("media-utils getVideoMetadata(webm) (deprecated)", async () => {
+        const m = await getVideoMetadata(WEBM);
+        return `${m.width}×${m.height} · ${m.durationInSeconds.toFixed(2)}s · aspect ${m.aspectRatio.toFixed(2)}`;
+      });
+      await add("media-utils getAudioDurationInSeconds(wav) (deprecated)", async () => `${(await getAudioDurationInSeconds(WAV)).toFixed(2)}s`);
 
       await add("getAvailableContainers()", async () =>
         getAvailableContainers()
@@ -262,15 +284,23 @@ export const MediaToolsScene: React.FC = () => {
           onVideoTrack: defaultOnVideoTrackHandler,
           onAudioTrack: defaultOnAudioTrackHandler,
         });
-        const blob = await result.save();
-        await result.remove();
-        return `${(blob.size / 1024).toFixed(0)} KB in ${((performance.now() - start) / 1000).toFixed(1)}s`;
+        try {
+          const blob = await result.save();
+          return `${(blob.size / 1024).toFixed(0)} KB in ${((performance.now() - start) / 1000).toFixed(1)}s`;
+        } finally {
+          await result.remove();
+        }
       });
       await add("convertMedia(wav → webm opus, webFsWriter)", async () => {
         const result = await convertMedia({src: WAV, container: "webm", audioCodec: "opus", writer: webFsWriter});
-        const blob = await result.save();
-        await result.remove();
-        return `${(blob.size / 1024).toFixed(1)} KB`;
+        // remove() deletes the file from the origin-private file system,
+        // even if reading it back fails.
+        try {
+          const blob = await result.save();
+          return `${(blob.size / 1024).toFixed(1)} KB`;
+        } finally {
+          await result.remove();
+        }
       });
 
       if (!cancelled) {

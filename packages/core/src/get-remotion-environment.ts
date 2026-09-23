@@ -15,7 +15,10 @@ const getEnvString = (): 'env' => {
  * @see [Documentation](https://remotion.dev/docs/get-remotion-environment)
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
-	const isPlayer = typeof window !== 'undefined' && window.remotion_isPlayer;
+	// The window.remotion_* flags are unset outside of the Studio / Player,
+	// coerce them so that the environment only ever contains booleans.
+	const isPlayer =
+		typeof window !== 'undefined' && Boolean(window.remotion_isPlayer);
 	const isRendering =
 		typeof window !== 'undefined' &&
 		typeof window.process !== 'undefined' &&
@@ -24,9 +27,10 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 			(window.process[getEnvString()][getNodeEnvString()] === 'production' &&
 				typeof window !== 'undefined' &&
 				typeof window.remotion_puppeteerTimeout !== 'undefined'));
-	const isStudio = typeof window !== 'undefined' && window.remotion_isStudio;
+	const isStudio =
+		typeof window !== 'undefined' && Boolean(window.remotion_isStudio);
 	const isReadOnlyStudio =
-		typeof window !== 'undefined' && window.remotion_isReadOnlyStudio;
+		typeof window !== 'undefined' && Boolean(window.remotion_isReadOnlyStudio);
 
 	return {
 		isStudio,

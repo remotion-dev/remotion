@@ -5,6 +5,7 @@ import {
 	fetchReadWholeAsText,
 } from './from-fetch';
 import {
+	isNodeFsAvailable,
 	nodeCreateAdjacentFileSource,
 	nodeReadContent,
 	nodeReadWholeAsText,
@@ -16,17 +17,34 @@ import {
 } from './from-web-file';
 import type {MediaParserReaderInterface} from './reader';
 
+// Returns the URL to fetch, or null if `src` should be read from the file system.
+// In the browser there is no file system, so a relative or root-relative `src`
+// (e.g. from `staticFile()`) is a URL relative to the page.
+const getFetchUrl = (src: string | URL): string | URL | null => {
+	if (src.toString().startsWith('http') || src.toString().startsWith('blob:')) {
+		return src;
+	}
+
+	if (
+		typeof window !== 'undefined' &&
+		typeof window.location !== 'undefined' &&
+		!isNodeFsAvailable()
+	) {
+		return new URL(src, window.location.href).toString();
+	}
+
+	return null;
+};
+
 export const universalReader: MediaParserReaderInterface = {
 	read: (params) => {
 		if (params.src instanceof Blob) {
 			return webFileReadContent(params);
 		}
 
-		if (
-			params.src.toString().startsWith('http') ||
-			params.src.toString().startsWith('blob:')
-		) {
-			return fetchReadContent(params);
+		const fetchUrl = getFetchUrl(params.src);
+		if (fetchUrl !== null) {
+			return fetchReadContent({...params, src: fetchUrl});
 		}
 
 		return nodeReadContent(params);
@@ -36,11 +54,9 @@ export const universalReader: MediaParserReaderInterface = {
 			return webFileReadWholeAsText(src);
 		}
 
-		if (
-			src.toString().startsWith('http') ||
-			src.toString().startsWith('blob:')
-		) {
-			return fetchReadWholeAsText(src);
+		const fetchUrl = getFetchUrl(src);
+		if (fetchUrl !== null) {
+			return fetchReadWholeAsText(fetchUrl);
 		}
 
 		return nodeReadWholeAsText(src);
@@ -50,11 +66,9 @@ export const universalReader: MediaParserReaderInterface = {
 			return webFileCreateAdjacentFileSource(relativePath, src);
 		}
 
-		if (
-			src.toString().startsWith('http') ||
-			src.toString().startsWith('blob:')
-		) {
-			return fetchCreateAdjacentFileSource(relativePath, src);
+		const fetchUrl = getFetchUrl(src);
+		if (fetchUrl !== null) {
+			return fetchCreateAdjacentFileSource(relativePath, fetchUrl);
 		}
 
 		return nodeCreateAdjacentFileSource(relativePath, src);
@@ -64,11 +78,9 @@ export const universalReader: MediaParserReaderInterface = {
 			return;
 		}
 
-		if (
-			src.toString().startsWith('http') ||
-			src.toString().startsWith('blob:')
-		) {
-			return fetchPreload({range, src, logLevel, prefetchCache});
+		const fetchUrl = getFetchUrl(src);
+		if (fetchUrl !== null) {
+			return fetchPreload({range, src: fetchUrl, logLevel, prefetchCache});
 		}
 	},
 };

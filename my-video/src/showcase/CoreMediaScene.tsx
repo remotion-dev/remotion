@@ -45,7 +45,7 @@ const ImgFallbackTile: React.FC = () => {
   return <Img src={staticFile("missing-on-purpose.png")} maxRetries={0} onImageError={(e) => setError(e.message)} />;
 };
 
-// Demonstrates six core remotion media/canvas components in a grid:
+// Demonstrates core remotion's media/canvas components in a grid:
 // <Img> (a plain <img>, sample-frame.png — a static PNG, not the animated
 // gif, since Remotion's own eslint-plugin correctly flags <Img> on an
 // animated GIF and points at <AnimatedImage>/<Gif> instead), <OffthreadVideo>
@@ -59,21 +59,15 @@ const ImgFallbackTile: React.FC = () => {
 // rather than assumed — it needs a recent Chrome with a flag enabled, which
 // this sandbox's headless Chromium 141 predates. When it's unsupported the
 // tile shows HTML_IN_CANVAS_UNSUPPORTED_MESSAGE, the exact text <HtmlInCanvas>
-// would cancel the render with. That message says Chrome 148 while the docs
-// and html-in-canvas.md say 149 — an inconsistency in Remotion itself.
+// would cancel the render with. In the installed 4.0.527 that message says
+// Chrome 148 while the docs say 149; this fork's packages/core now says 149.
 //
 // <Html5Video> (the native <video> element Remotion synchronizes, distinct
-// from @remotion/media's newer WebCodecs-based <Video>) is deliberately not
-// rendered here. Testing it in this sandbox surfaced two separate native
-// decode hangs — Html5Video's own internal delayRender() calls for
-// "loading duration" and, on a full multi-frame render, for "seeking to a
-// later frame's time" — neither of which reaches onError() or
-// onLoadedMetadata(), non-deterministically, so no component-level
-// try/catch or timeout can reliably recover from it without risking an
-// aborted render. See media-playback-error.mdx's "Too many video tags" and
-// general troubleshooting notes; the fix the docs suggest for a broken
-// Html5Video is exactly @remotion/media's <Video>, already used in
-// MediaScene.
+// from @remotion/media's WebCodecs-based <Video>) isn't a tile here: in this
+// headless Chromium a decodable <video> in the frame blanks canvas-based
+// components beside it (<AnimatedImage> and <CanvasImage> came out white),
+// the same thing preloadVideo() did in MediaScene. It plays behind the
+// captions in CaptionsScene instead, which has no canvases. See AGENTS.md.
 export const CoreMediaScene: React.FC = () => {
   const {width} = useVideoConfig();
   const htmlInCanvasSupported = isHtmlInCanvasSupported();
@@ -93,7 +87,7 @@ export const CoreMediaScene: React.FC = () => {
         <Tile label="<AnimatedImage fit=contain, 0.5x>">
           <AnimatedImage src={staticFile("sample-clip.gif")} width={TILE} height={TILE} fit="contain" playbackRate={0.5} loopBehavior="loop" />
         </Tile>
-        <Tile label="<Html5Video> (native decode unreliable here)">
+        <Tile label="<Html5Video> (see CaptionsScene)">
           <div
             style={{
               width: "100%",
@@ -102,12 +96,12 @@ export const CoreMediaScene: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
               color: palette.textDim,
-              fontSize: 16,
+              fontSize: 15,
               textAlign: "center",
               padding: 12,
             }}
           >
-            See MediaScene's &lt;Video&gt; instead
+            A decodable &lt;video&gt; here blanks the canvas tiles, so it plays behind the captions scene instead
           </div>
         </Tile>
         <Tile label="<Img maxRetries onImageError>">

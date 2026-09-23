@@ -14,12 +14,22 @@ use crate::payloads::payloads::{GetSilentPartsResponse, SilentParts};
 fn filter(spec: &str, decoder: &codec::decoder::Audio) -> Result<filter::Graph, ffmpeg::Error> {
     let mut filter = filter::Graph::new();
 
+    // Files without a channel mask (e.g. plain PCM WAV) have an unspecified
+    // channel layout whose mask is 0, and abuffer rejects "channel_layout=0x0".
+    // Fall back to the default layout for the channel count, like FFmpeg's
+    // doc/examples/filtering_audio.c does.
+    let channel_layout = if decoder.channel_layout().is_empty() {
+        ffmpeg::ChannelLayout::default(decoder.channels() as i32)
+    } else {
+        decoder.channel_layout()
+    };
+
     let args = format!(
         "time_base={}:sample_rate={}:sample_fmt={}:channel_layout=0x{:x}",
         decoder.time_base(),
         decoder.rate(),
         decoder.format().name(),
-        decoder.channel_layout().bits()
+        channel_layout.bits()
     );
 
     let abuffer_filter = filter::find("abuffer").expect("Expected abuffer filter");

@@ -131,6 +131,16 @@ export const nodeCreateAdjacentFileSource: CreateAdjacentFileSource = (
 	return result;
 };
 
+// Browser bundlers replace `fs` with an empty module, and some stub it with
+// a proxy that throws on access
+export const isNodeFsAvailable = () => {
+	try {
+		return typeof existsSync === 'function';
+	} catch {
+		return false;
+	}
+};
+
 export const nodeReader: MediaParserReaderInterface = {
 	read: nodeReadContent,
 	readWholeAsText: nodeReadWholeAsText,
