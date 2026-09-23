@@ -29,6 +29,23 @@ The owner's videos are bilingual. The speech may be Vietnamese, English, or a mi
   - For speech that mixes the two, transcribe with the main language and check the English terms in the result; if they come out wrong, split the audio by language and transcribe each part on its own.
 - **Voiceover:** when generating speech (ElevenLabs or similar), pick a model and voice that list Vietnamese support, and generate the Vietnamese and English lines separately. `scripts/generate-voiceover.mjs` hardcodes `model_id: "eleven_multilingual_v2"`; check ElevenLabs' current language list for that model before using it for Vietnamese, and switch the model if Vietnamese isn't on it.
 
+## Badges and logos: `public/badges/`
+
+The owner's accreditation, membership and award badges, saved unchanged for their videos (end cards, lower thirds, "why choose us" slides). No showcase scene uses them. Load one with `<Img src={staticFile("badges/<file>")} />` and size it by `height` with `objectFit: "contain"`, so it never stretches.
+
+| File | What it is | Pixels | Background |
+|---|---|---|---|
+| `commbank-platinum-broker-2026-27.webp` | CommBank Platinum Broker, 2026/2027 financial year | 1077×1093 | transparent; works on light and dark |
+| `small-business-champion-awards-2026-finalist.jpg` | Australian Small Business Champion Awards 2026, Finalist | 500×1039 | solid white (a JPEG has no transparency) |
+| `afca.png` | AFCA, Australian Financial Complaints Authority | 1163×511 | transparent, navy text |
+| `connective.png` | Connective, the owner's aggregator | 1188×351 | transparent, navy text |
+| `mfaa-accredited-finance-broker.png` | MFAA Accredited Finance Broker | 174×161 | transparent, navy wordmark above a navy panel |
+
+- **Four of them need a light background.** A test render on white and on navy (`#0b1b33`) loaded all five. On navy, the Champion Awards JPG sat in a white box, and the navy text of AFCA, Connective and the MFAA wordmark disappeared. Only the CommBank badge works on dark. In a dark video, put the badge row on a white or light card.
+- **The MFAA file is small** (174×161). Keep it near that size: scaled to 300px tall in the test render it was already soft. Ask the owner for a larger file if it has to be big.
+- **Check the year before using one.** The CommBank badge is for the 2026/2027 financial year and the awards badge for 2026. When a new one arrives, save it next to these with its own year in the name.
+- **These are other organisations' marks**, shown as the owner's credentials. Don't recolour, crop, redraw or animate their parts separately; fade, scale or slide each badge as a whole.
+
 ## Project structure
 
 - `src/index.ts` — entry point, registers the root component
@@ -40,6 +57,7 @@ The owner's videos are bilingual. The speech may be Vietnamese, English, or a mi
 - `bundler-override.mjs` — the skia/tailwind bundler override, shared by `remotion.config.ts` and that script's `bundle()` call (the Node APIs don't read `remotion.config.ts`)
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`, including `sample-clip.mp4`/`.gif`/`.webm` (the `.webm` is a VP9 copy for anything that decodes through WebCodecs, see below), `sample-tone.wav`, `sample-lottie.json` (locally-generated stand-ins used by `ExtendedReel`; regenerate the media ones with `node scripts/generate-sample-media.mjs`), `effects-subject.svg`/`effects-greenscreen.svg` (a star on transparency and on a green screen, sources for `EffectsCatalogScene`'s alpha-based effects and `colorKey()`), `bangers.woff2` (a real font file copied from this monorepo's own `packages/example/public/`, used by `RoundedTextBoxScene` to demonstrate `@remotion/fonts`' `loadFont()` — a genuinely different function from `@remotion/google-fonts`' same-named one), and `rubik-bold-typeface.json` (a three.js typeface JSON — Rubik Bold, OFL-licensed, exported from Google's Rubik font — copied from [remotion-dev/3d-text](https://github.com/remotion-dev/3d-text)'s `src/Bold.json`, loaded by `ThreeTextScene` via `FontLoader.loadAsync()`)
+- `public/badges/` — the owner's accreditation and award badges for real videos (see "Badges and logos" above)
 - `.claude/elements/` — local copy of the [Remotion Elements](https://www.remotion.dev/elements/) gallery, drop-in components to copy into a scene (see "Elements" below)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
 
