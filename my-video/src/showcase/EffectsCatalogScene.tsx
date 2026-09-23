@@ -86,18 +86,21 @@ import {poppins} from "./font";
 // its own pair of WebGL2 canvases (core's CanvasPool), and Chrome keeps
 // at most 16 WebGL contexts alive per page before it starts losing the
 // oldest, which cancels the render ("WebGL context was lost during canvas
-// effect rendering"; measured: 8 animated chains pass, 9 fail). So the six tiles stay mounted, keyed by slot, and
-// swap their `effects` and `src` each page: a chain keeps its canvases
-// while its size is unchanged, so this costs 12 contexts however many
-// effects it cycles through.
+// effect rendering"; measured: 8 animated chains pass, 9 fail). So the six
+// tiles stay mounted, keyed by slot, and swap their `effects` and `src` each
+// page: a chain keeps its canvases while its size is unchanged, so this
+// costs 12 contexts however many effects it cycles through.
 //
 // Sources: sample-frame.png for most effects; a star on a transparent
-// background for the ones that work from alpha (dropShadow, glow, outline,
-// lightTrail, roughenEdges, and the maskToSourceAlpha option of
-// checkerboard/rings) and for regionBlur/zoomBlur, which have nothing to
-// smear on the photo's smooth conic gradient; the same star on a pure green
-// screen for colorKey. The tiles' checkerboard background shows where an
-// effect made pixels transparent.
+// background for the ones that work from alpha (dropShadow, outline,
+// roughenEdges, and the maskToSourceAlpha option of checkerboard/rings), for
+// glow and lightTrail, which threshold brightness and read best on a subject,
+// and for regionBlur/zoomBlur, whose smear is easier to see on a hard edge
+// than on the photo's smooth gradient; the same star on a pure green screen
+// for colorKey. The tiles' checkerboard background shows where an effect made
+// pixels transparent. Several entries use a non-default option (evolve's
+// direction, halftone's shape, vignette's alpha mode...) to show one more
+// setting per effect.
 const COLUMNS = 3;
 const ROWS = 2;
 const PER_PAGE = COLUMNS * ROWS;
@@ -170,7 +173,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     source: "photo",
     effects: (t) => [linearGradientTint({start: [0, 0.5], end: [1, 0.5], startColor: "#0b84f3", endColor: "#ff5c8a", amount: at(t, 0, 0.9)})],
   },
-  {name: "thermalVision()", category: "Color", source: "photo", effects: (t) => [thermalVision({amount: at(t, 0.3, 1)})]},
+  {name: "thermalVision()", category: "Color", source: "photo", effects: (t) => [thermalVision({amount: at(t, 0.3, 1), palette: ["#020617", "#7c3aed", "#f472b6", "#fde68a"]})]},
 
   // Blur & Shadow
   {name: "blur()", category: "Blur & Shadow", source: "photo", effects: (t) => [blur({radius: at(t, 0, 10)})]},
@@ -192,7 +195,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     source: "subject",
     effects: (t) => [regionBlur({topLeft: [at(t, 0.05, 0.55), 0.1], bottomRight: [at(t, 0.45, 0.95), 0.9], blurRadius: 12, feather: 4, roundness: 1})],
   },
-  {name: "zoomBlur()", category: "Blur & Shadow", source: "subject", effects: (t) => [zoomBlur({amount: at(t, 0, 0.6), center: [0.5, 0.5]})]},
+  {name: "zoomBlur()", category: "Blur & Shadow", source: "subject", effects: (t) => [zoomBlur({amount: at(t, 0, 60), center: [0.5, 0.5]})]},
   {
     name: "dropShadow()",
     category: "Blur & Shadow",
@@ -205,7 +208,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     source: "subject",
     effects: (t) => [glow({radius: 10, intensity: at(t, 0.5, 2), threshold: 0.2, color: "#00d8ff"})],
   },
-  {name: "outline()", category: "Blur & Shadow", source: "subject", effects: (t) => [outline({width: at(t, 1, 6), color: "#facc15"})]},
+  {name: "outline()", category: "Blur & Shadow", source: "subject", effects: (t) => [outline({width: at(t, 1, 6), edgeSimplification: 4, color: "#facc15"})]},
   {
     name: "lightTrail()",
     category: "Blur & Shadow",
@@ -214,9 +217,9 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
   },
 
   // Reveal
-  {name: "evolve()", category: "Reveal", source: "photo", effects: (t) => [evolve({progress: t, direction: "left", feather: 0.18})]},
-  {name: "tear()", category: "Reveal", source: "photo", effects: (t) => [tear({progress: t, rotation: 20, jaggedness: 8})]},
-  {name: "venetianBlinds()", category: "Reveal", source: "photo", effects: (t) => [venetianBlinds({progress: t, direction: "vertical", slats: 10})]},
+  {name: "evolve()", category: "Reveal", source: "photo", effects: (t) => [evolve({progress: t, direction: "bottom", feather: 0.18})]},
+  {name: "tear()", category: "Reveal", source: "photo", effects: (t) => [tear({progress: t, angle: 60, rotation: 20, jaggedness: 8})]},
+  {name: "venetianBlinds()", category: "Reveal", source: "photo", effects: (t) => [venetianBlinds({progress: t, direction: "horizontal", slats: 10})]},
 
   // Transform
   {name: "mirror()", category: "Transform", source: "photo", effects: (t) => [mirror({direction: "horizontal", position: at(t, 0.3, 0.7)})]},
@@ -236,7 +239,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     source: "photo",
     effects: (t) => [cornerPin({topLeft: [0.08, at(t, 0, 0.12)], topRight: [0.92, 0.04], bottomRight: [0.86, 0.9], bottomLeft: [0.14, 0.96]})],
   },
-  {name: "wave()", category: "Distort", source: "photo", effects: (t) => [wave({phase: t * 6, amplitude: 8, wavelength: 70})]},
+  {name: "wave()", category: "Distort", source: "photo", effects: (t) => [wave({phase: t * 6, direction: "vertical", amplitude: 8, wavelength: 70})]},
   {name: "skew()", category: "Distort", source: "photo", effects: (t) => [skew({x: at(t, -20, 20), y: 0, origin: [0.5, 0.5]})]},
 
   // Stylize
@@ -257,7 +260,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     name: "halftone()",
     category: "Stylize",
     source: "photo",
-    effects: (t) => [halftone({shape: "circle", dotSize: 10, dotSpacing: 10, rotation: at(t, 0, 45), colorMode: "source"})],
+    effects: (t) => [halftone({shape: "square", dotSize: 10, dotSpacing: 10, rotation: at(t, 0, 45), colorMode: "source"})],
   },
   {name: "noise()", category: "Stylize", source: "photo", effects: (t) => [noise({amount: at(t, 0.1, 0.5), seed: 7})]},
   {
@@ -309,7 +312,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     source: "photo",
     effects: (t) => [shrinkwrap({amount: 1, displacement: 5, highlightIntensity: 0.85, wrinkleDensity: 0.48, edgeTension: 0.58, phase: t * 3, seed: 8})],
   },
-  {name: "vignette()", category: "Stylize", source: "photo", effects: (t) => [vignette({amount: at(t, 0, 0.9), radius: 0.55, feather: 0.35, color: "#000000"})]},
+  {name: "vignette()", category: "Stylize", source: "photo", effects: (t) => [vignette({amount: at(t, 0, 0.9), radius: 0.55, feather: 0.35, mode: "alpha"})]},
 
   // Generate
   {
@@ -346,7 +349,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     name: "gridlines()",
     category: "Generate",
     source: "photo",
-    effects: (t) => [gridlines({gridSize: 32, lineWidth: 2, lineColor: "#7cc6ff", rotationX: at(t, 0, 50), perspective: 800})],
+    effects: (t) => [gridlines({gridSize: 32, lineWidth: 2, lineColor: "#7cc6ff", rotation: 15, rotationX: at(t, 0, 50), perspective: 800})],
   },
   {name: "whiteNoise()", category: "Generate", source: "photo", effects: (t) => [whiteNoise({amount: at(t, 0.2, 1), seed: Math.floor(t * 30)})]},
   {name: "tvSignalOff()", category: "Generate", source: "photo", effects: (t) => [tvSignalOff({amount: t})]},
