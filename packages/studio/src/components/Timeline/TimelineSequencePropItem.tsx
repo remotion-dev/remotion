@@ -3,6 +3,7 @@ import {
 	isSchemaFieldKeyframable,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -248,37 +249,39 @@ const Value: React.FC<{
 				playbackRateBaseline.current.lastSavedPlaybackRate = value as number;
 			}
 
-			return saveSequenceProps({
-				addedKeyframes: null,
-				movedKeyframes: null,
-				changes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath,
-						fieldKey: field.key,
-						value,
-						defaultValue,
-						schema,
-						sourceEdit: options?.sourceEdit,
-					},
-					...(adjustedDuration === null
-						? []
-						: [
-								{
-									fileName: validatedLocation.source,
-									nodePath,
-									fieldKey: 'durationInFrames',
-									value: adjustedDuration,
-									defaultValue: null,
-									schema,
-								},
-							]),
-				],
-				setPropStatuses,
-				clientId,
-				undoLabel: `Update ${fieldLabel}`,
-				redoLabel: `Update ${fieldLabel} again`,
-			});
+			return unstable_batchedUpdates(() =>
+				saveSequenceProps({
+					addedKeyframes: null,
+					movedKeyframes: null,
+					changes: [
+						{
+							fileName: validatedLocation.source,
+							nodePath,
+							fieldKey: field.key,
+							value,
+							defaultValue,
+							schema,
+							sourceEdit: options?.sourceEdit,
+						},
+						...(adjustedDuration === null
+							? []
+							: [
+									{
+										fileName: validatedLocation.source,
+										nodePath,
+										fieldKey: 'durationInFrames',
+										value: adjustedDuration,
+										defaultValue: null,
+										schema,
+									},
+								]),
+					],
+					setPropStatuses,
+					clientId,
+					undoLabel: `Update ${fieldLabel}`,
+					redoLabel: `Update ${fieldLabel} again`,
+				}),
+			);
 		},
 		[
 			propStatus,
@@ -301,19 +304,21 @@ const Value: React.FC<{
 				throw new Error('Cannot drag value');
 			}
 
-			setDragOverrides(
-				nodePath,
-				field.key,
-				Internals.makeStaticDragOverride(value),
-			);
 			const adjustedDuration = getAdjustedDuration(value);
-			if (adjustedDuration !== null) {
+			unstable_batchedUpdates(() => {
 				setDragOverrides(
 					nodePath,
-					'durationInFrames',
-					Internals.makeStaticDragOverride(adjustedDuration),
+					field.key,
+					Internals.makeStaticDragOverride(value),
 				);
-			}
+				if (adjustedDuration !== null) {
+					setDragOverrides(
+						nodePath,
+						'durationInFrames',
+						Internals.makeStaticDragOverride(adjustedDuration),
+					);
+				}
+			});
 		},
 		[setDragOverrides, nodePath, field.key, getAdjustedDuration],
 	);
