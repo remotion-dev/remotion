@@ -25,9 +25,7 @@ export const Video: React.FC<{title: string; accent: string}> = ({title, accent}
       backgroundColor: '#0f172a', color: 'white', fontFamily: 'sans-serif',
       justifyContent: 'center', padding: 80,
     }}>
-      <Sequence name="Background" layout="none">
-        <AbsoluteFill style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}} />
-      </Sequence>
+      <AbsoluteFill name="Background" style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}} />
       <Sequence name="Orb" layout="none">
         <Orb accent={accent} />
       </Sequence>

@@ -5,7 +5,26 @@ metadata:
   tags: sequence, series, timing, delay, trim
 ---
 
-Use `<Sequence>` to delay when an element appears in the timeline.
+Use `<Sequence>` to delay when a group or custom component appears in the timeline.
+
+## Use AbsoluteFill directly for layers
+
+`<AbsoluteFill>` already supports `name`, `from`, `durationInFrames`, `trimBefore`, `freeze`, `hidden` and `showInTimeline`.
+Pass these props directly to `<AbsoluteFill>` instead of wrapping it in a `<Sequence>` whose only child is that layer.
+
+```tsx title="Standalone background layer"
+<AbsoluteFill
+  name="Background"
+  from={30}
+  durationInFrames={90}
+  style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}}
+/>
+```
+
+Keep an outer `<Sequence>` when it groups multiple children or supplies features such as premounting, postmounting or `width` / `height` overrides.
+Timing props on `<AbsoluteFill>` apply to its descendants, including their `useCurrentFrame()` calls.
+
+## Timing custom components
 
 ```tsx
 const Main = () => {

@@ -59,6 +59,21 @@ Avoid computed names, hardcode them.
 </>
 ```
 
+## Use AbsoluteFill directly for layers
+
+`<AbsoluteFill>` is already interactive and appears in the timeline.
+Give it a `name` and set `from`, `durationInFrames`, `trimBefore`, `freeze`, `hidden` or `showInTimeline` directly on it.
+Do not add an outer `<Sequence>` just to name or time a single `<AbsoluteFill>`.
+
+```tsx title="Standalone background layer"
+<AbsoluteFill
+  name="Background"
+  from={30}
+  durationInFrames={90}
+  style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}}
+/>
+```
+
 ## Keep all CSS styles inline
 
 The best way is to just pass a plain object to `style` - no referring to constants, no object spreading, no math.
