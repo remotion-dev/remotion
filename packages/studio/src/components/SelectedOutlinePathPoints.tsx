@@ -29,11 +29,15 @@ export const SelectedOutlinePathPoints: React.FC<{
 			let y = 0;
 			let subpathX = 0;
 			let subpathY = 0;
+			let previousCubicControl: {x: number; y: number} | null = null;
+			let previousQuadraticControl: {x: number; y: number} | null = null;
 
 			for (const [instructionIndex, instruction] of instructions.entries()) {
 				if (instruction.type === 'Z') {
 					x = subpathX;
 					y = subpathY;
+					previousCubicControl = null;
+					previousQuadraticControl = null;
 					continue;
 				}
 
@@ -66,15 +70,26 @@ export const SelectedOutlinePathPoints: React.FC<{
 							key: `${instructionIndex}-cp2`,
 						},
 					);
-				} else if (instruction.type === 'Q' || instruction.type === 'S') {
-					if (instruction.type === 'Q') {
-						pathConnections.push({
-							x1: x,
-							y1: y,
-							x2: instruction.cpx,
-							y2: instruction.cpy,
-							key: `${instructionIndex}-start-handle`,
-						});
+					previousCubicControl = {x: instruction.cp2x, y: instruction.cp2y};
+					previousQuadraticControl = null;
+				} else if (instruction.type === 'S') {
+					if (previousCubicControl !== null) {
+						const reflectedX = 2 * x - previousCubicControl.x;
+						const reflectedY = 2 * y - previousCubicControl.y;
+						if (reflectedX !== x || reflectedY !== y) {
+							pathConnections.push({
+								x1: x,
+								y1: y,
+								x2: reflectedX,
+								y2: reflectedY,
+								key: `${instructionIndex}-start-handle`,
+							});
+							pathPoints.push({
+								x: reflectedX,
+								y: reflectedY,
+								key: `${instructionIndex}-reflected-cp`,
+							});
+						}
 					}
 
 					pathConnections.push({
@@ -89,6 +104,69 @@ export const SelectedOutlinePathPoints: React.FC<{
 						y: instruction.cpy,
 						key: `${instructionIndex}-cp`,
 					});
+					previousCubicControl = {x: instruction.cpx, y: instruction.cpy};
+					previousQuadraticControl = null;
+				} else if (instruction.type === 'Q') {
+					pathConnections.push(
+						{
+							x1: x,
+							y1: y,
+							x2: instruction.cpx,
+							y2: instruction.cpy,
+							key: `${instructionIndex}-start-handle`,
+						},
+						{
+							x1: instruction.x,
+							y1: instruction.y,
+							x2: instruction.cpx,
+							y2: instruction.cpy,
+							key: `${instructionIndex}-end-handle`,
+						},
+					);
+					pathPoints.push({
+						x: instruction.cpx,
+						y: instruction.cpy,
+						key: `${instructionIndex}-cp`,
+					});
+					previousQuadraticControl = {x: instruction.cpx, y: instruction.cpy};
+					previousCubicControl = null;
+				} else if (instruction.type === 'T') {
+					const control: {x: number; y: number} =
+						previousQuadraticControl === null
+							? {x, y}
+							: {
+									x: 2 * x - previousQuadraticControl.x,
+									y: 2 * y - previousQuadraticControl.y,
+								};
+					if (control.x !== x || control.y !== y) {
+						pathConnections.push(
+							{
+								x1: x,
+								y1: y,
+								x2: control.x,
+								y2: control.y,
+								key: `${instructionIndex}-start-handle`,
+							},
+							{
+								x1: instruction.x,
+								y1: instruction.y,
+								x2: control.x,
+								y2: control.y,
+								key: `${instructionIndex}-end-handle`,
+							},
+						);
+						pathPoints.push({
+							x: control.x,
+							y: control.y,
+							key: `${instructionIndex}-reflected-cp`,
+						});
+					}
+
+					previousQuadraticControl = control;
+					previousCubicControl = null;
+				} else {
+					previousCubicControl = null;
+					previousQuadraticControl = null;
 				}
 
 				if (instruction.type === 'H') {
