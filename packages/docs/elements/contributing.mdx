@@ -112,7 +112,7 @@ Check in Studio that the exported instance appears as one layer and can be moved
 
 ### Initial props
 
-Follow the [starter props guidance](/docs/studio-protocol/component-library-integration#choose-starter-props) for either installation mode. Put starter values in `initial-props.ts`, type them with `satisfies ComponentProps<typeof YourComponent>`, and register them as `initialProps` in `element-definitions.ts`.
+If the Element needs starter props, put them in `initial-props.ts`, type them with `satisfies ComponentProps<typeof YourComponent>`, and register them as [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in `element-definitions.ts`. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
 
 ### Include assets
 

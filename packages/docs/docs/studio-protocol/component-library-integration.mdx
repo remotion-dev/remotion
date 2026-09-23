@@ -11,7 +11,7 @@ An Element contains the source code for one component. It also contains the data
 
 Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the component library in the target project.
 
-Keep the component self-contained: avoid imports from the preview website and declare its external packages in [`dependencies`](/docs/studio-protocol/create-element-payload#dependencies).
+A component that follows the [Element guidelines](/elements/contributing#element-guidelines) is usually ready for Studio.
 
 Use this procedure to preview and deliver a component:
 
@@ -28,14 +28,6 @@ Show each component in a [`<Player>`](/docs/player). The preview lets users exam
 Import the component normally for the preview. The website bundler then compiles the component.
 
 Use the same dimensions and duration in the Player and the Element payload.
-
-### Choose starter props
-
-Expose replaceable content as component props, keeping rendering and animation in the component source. Set starter values in the payload's [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) and pass the corresponding values to the Player as [`inputProps`](/docs/player/player#inputprops). Both installation modes support this.
-
-Studio writes `initialProps` onto the installed component invocation. Use [`Interactive.withSchema()`](/docs/interactive-with-schema) to make props editable in the Inspector. Content hardcoded inside the component cannot be changed through caller props.
-
-For [`component-owned-sequence`](/docs/studio-protocol/create-element-payload#installationmode), Studio supplies `from`, `durationInFrames`, and `name`. Include `width` and `height` in `initialProps` if the component needs them: Element dimension metadata is not passed as component props.
 
 ### Preview installed assets<AvailableFrom v="4.0.528" />
 
