@@ -399,7 +399,7 @@ export const getSequencesWithSelectableOutlines = ({
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
-	readonly timelinePosition: number;
+	readonly timelinePosition: number | null;
 }): SequenceWithSelectedOutline[] => {
 	return getCanvasSelectableOutlines({
 		tracks: calculateTimeline({

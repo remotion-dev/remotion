@@ -429,3 +429,5 @@ export {
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
 export {isUrl} from './url';
+
+export {emptyCompositionComponent} from './empty-composition-component';

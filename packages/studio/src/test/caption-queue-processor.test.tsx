@@ -307,6 +307,7 @@ test('downloads a model in the queued job before transcribing', async () => {
 			expect(transcriptionCall).toEqual({
 				channelWaveform: resampledWaveform,
 				options: {
+					signal: expect.any(AbortSignal),
 					model: 'tiny',
 					language: 'de',
 					task: 'translate',

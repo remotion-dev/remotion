@@ -1,3 +1,4 @@
+import * as Mediabunny from 'mediabunny';
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import * as ReactDomClient from 'react-dom/client';
@@ -36,6 +37,7 @@ Object.defineProperty(globalThis, '__webpack_hash__', {
 });
 
 globalThis.remotion_browserStudioVendor = {
+	mediabunny: makeMutableNamespace(Mediabunny),
 	react: makeMutableNamespace(React),
 	reactDom: makeMutableNamespace(ReactDom),
 	reactDomClient: makeMutableNamespace(ReactDomClient),
@@ -79,6 +81,7 @@ declare global {
 	};
 	// eslint-disable-next-line no-var
 	var remotion_browserStudioVendor: {
+		mediabunny: typeof Mediabunny;
 		react: typeof React;
 		reactDom: typeof ReactDom;
 		reactDomClient: typeof ReactDomClient;

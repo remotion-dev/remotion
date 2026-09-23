@@ -9,6 +9,81 @@ import {
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
+test('previews and creates a Canvas Capture with both files in undo history', async () => {
+	const initialProject = createBlankTemplateProject();
+	let project = initialProject;
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	const request: Parameters<typeof operations.applyCodemod>[0] = {
+		codemod: {
+			type: 'new-composition',
+			newId: 'Capture',
+			componentName: 'Capture',
+			componentImportPath: './Capture',
+			folderName: null,
+			parentName: null,
+			newDurationInFrames: 90,
+			newFps: 30,
+			newHeight: 720,
+			newWidth: 1280,
+			canvasCapture: {
+				videoFileName: 'capture.mp4',
+				videoHeight: 1080,
+				videoWidth: 1920,
+				keyframeFps: 30,
+				data: {
+					captureMetadata: {density: 2},
+					mouseMovements: [
+						{timeInSeconds: 0, canvasX: 10, canvasY: 20, cursor: 'pointer'},
+					],
+					pointerClicks: [],
+				},
+			},
+		},
+		dryRun: true,
+		undoRedoNavigation: null,
+		symbolicatedStack: null,
+	};
+	const preview = await operations.applyCodemod(request);
+	if (!preview.success) {
+		throw new Error(preview.reason);
+	}
+
+	expect(preview.diff.additions).toBeGreaterThan(0);
+	expect(project).toBe(initialProject);
+	expect(await operations.applyCodemod({...request, dryRun: false})).toEqual(
+		preview,
+	);
+	expect(project.files['/project/src/Root.tsx']).toContain('<Capture />');
+	expect(project.files['/project/src/Root.tsx']).toMatch(
+		/from ["']\.\/Capture["']/,
+	);
+	const generated = project.files['/project/src/Capture.tsx'];
+	expect(generated).toContain("id={'Capture'}");
+	expect(generated).toContain("staticFile('capture.mp4')");
+	expect(generated).toContain('<MacOSCursor');
+	const createdProject = project;
+	expect((await operations.undo()).success).toBe(true);
+	expect(project.files).toEqual(initialProject.files);
+	expect((await operations.redo()).success).toBe(true);
+	expect(project.files).toEqual(createdProject.files);
+	expect(
+		await operations.applyCodemod({...request, dryRun: false}),
+	).toMatchObject({
+		success: false,
+		reason: expect.stringContaining('already exists'),
+	});
+	expect(project.files).toEqual(createdProject.files);
+});
+
 test('mutates virtual files, emits events, and preserves undo and redo history', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project: VirtualProject = {
@@ -393,6 +468,21 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
 	);
+
+	const stillResult = await operations.duplicateComposition({
+		...request,
+		codemod: {...request.codemod, newId: 'MyStill', tag: 'Still'},
+		dryRun: false,
+	});
+	expect(stillResult.success).toBe(true);
+	const stillSource =
+		project.files['/project/src/Composition.tsx'].match(
+			/<Still[\s\S]*?\/>/,
+		)?.[0];
+	expect(stillSource).toContain('id="MyStill"');
+	expect(stillSource).toContain('width={1920}');
+	expect(stillSource).not.toContain('fps=');
+	expect(stillSource).not.toContain('durationInFrames=');
 });
 
 test('imports an Element with pinned Remotion dependencies as one undoable mutation', async () => {

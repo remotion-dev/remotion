@@ -1,10 +1,16 @@
 import {
-	CodemodsInternals,
+	updateJsxNodeKeyframes,
+	updateEffectKeyframes as updateEffectKeyframesInProject,
 	type EffectKeyframeUpdate,
 	type IntroducedKeyframeIdentifiers,
 	type KeyframeOperation,
 	type SequenceKeyframeUpdate,
 } from '@remotion/codemods';
+import type {
+	InteractivitySchema,
+	SequenceNodePath,
+	VideoConfigValues,
+} from 'remotion';
 
 export type {
 	EffectKeyframeUpdate,
@@ -13,26 +19,44 @@ export type {
 	SequenceKeyframeUpdate,
 };
 
-export const {updateEffectKeyframesAst, updateSequenceKeyframesAst} =
-	CodemodsInternals;
+type KeyframeInput = {
+	input: string;
+	updates: SequenceKeyframeUpdate[];
+	schema?: InteractivitySchema;
+	prettierConfigOverride?: Record<string, unknown> | null;
+	videoConfigValues: VideoConfigValues | null;
+};
 
-const {
-	updateEffectKeyframes: updateEffectKeyframesCodemod,
-	updateSequenceKeyframes: updateSequenceKeyframesCodemod,
-} = CodemodsInternals;
+export const updateSequenceKeyframes = async ({
+	input,
+	nodePath,
+	videoConfigValues,
+	...options
+}: KeyframeInput & {nodePath: SequenceNodePath}) => {
+	const result = await updateJsxNodeKeyframes({
+		project: {files: {'source.tsx': input}, rootDir: '/'},
+		node: {filePath: 'source.tsx', nodePath},
+		videoConfig: videoConfigValues ?? undefined,
+		...options,
+	});
+	return {...result, output: result.project.files['source.tsx']};
+};
 
-type UpdateSequenceKeyframesInput = Omit<
-	Parameters<typeof updateSequenceKeyframesCodemod>[0],
-	'formatFile'
->;
-
-type UpdateEffectKeyframesInput = Omit<
-	Parameters<typeof updateEffectKeyframesCodemod>[0],
-	'formatFile'
->;
-
-export const updateSequenceKeyframes = (input: UpdateSequenceKeyframesInput) =>
-	updateSequenceKeyframesCodemod(input);
-
-export const updateEffectKeyframes = (input: UpdateEffectKeyframesInput) =>
-	updateEffectKeyframesCodemod(input);
+export const updateEffectKeyframes = async ({
+	input,
+	sequenceNodePath,
+	effectIndex,
+	videoConfigValues,
+	...options
+}: KeyframeInput & {
+	sequenceNodePath: SequenceNodePath;
+	effectIndex: number;
+}) => {
+	const result = await updateEffectKeyframesInProject({
+		project: {files: {'source.tsx': input}, rootDir: '/'},
+		effect: {filePath: 'source.tsx', nodePath: sequenceNodePath, effectIndex},
+		videoConfig: videoConfigValues ?? undefined,
+		...options,
+	});
+	return {...result, output: result.project.files['source.tsx']};
+};

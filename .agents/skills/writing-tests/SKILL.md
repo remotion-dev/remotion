@@ -1,9 +1,11 @@
 ---
 name: writing-tests
-description: Rules for writing and reviewing tests in the Remotion repository. Use whenever adding, editing, or reviewing tests, especially for Studio UI, rendering, CLI, server, media, and cross-package changes, to prefer complete integration workflows over narrow helper tests and implementation details.
+description: Guidance for explicitly requested test writing, editing, or review in the Remotion repository. Use only when the user asks for test work.
 ---
 
 # Writing Tests
+
+Apply this skill only when the user explicitly requests test work. Do not add or modify tests, fixtures, or snapshots as part of ordinary feature work, bug fixes, refactors, or PR preparation. A request to review tests does not authorize changing them.
 
 The purpose of a test is confidence that a workflow or contract works for a Studio user, CLI user, package consumer, or renderer consumer.
 
@@ -123,7 +125,7 @@ For a cross-layer feature, first add or identify the primary integration workflo
 
 Do not extract or export a trivial helper solely to make it testable. If the helper works but the feature entry point can stop calling it without failing the test, that test is not sufficient primary coverage.
 
-It is acceptable to add no automated test when the only affordable test would assert implementation details and the regression risk is low. Report explicit manual verification rather than adding a misleading green test.
+Even when tests are requested, avoid tests that only assert implementation details. Report the limitation and any manual verification performed.
 
 ## Avoid these anti-patterns
 

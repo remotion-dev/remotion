@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {updateEffectPropsAst} from '../codemods/update-effect-props/update-effect-props';
-import {lineColumnToNodePath} from './test-utils';
+import {updateEffectPropsAst} from '../effect-operations';
+import {lineColumnToNodePath} from './node-path-test-utils';
 
 const tintSchema = {
 	color: {

@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {StudioServerInternals} from '@remotion/studio-server';
+import {updateVisualControls} from '@remotion/codemods';
 
 const contents = `
 import {makeTransform, matrix3d} from '@remotion/animation-utils';
@@ -36,30 +36,30 @@ export const VisualControls = () => {
 };
 `;
 
-test('Should be able to create visual control', () => {
-	const {newContents} = StudioServerInternals.parseAndApplyCodemod({
-		input: contents,
-		codeMod: {
-			type: 'apply-visual-control',
-			changes: [
-				{
-					id: 'my-matrix-4',
-					newValueSerialized: JSON.stringify(123),
-					newValueIsUndefined: false,
-					enumPaths: [],
-				},
-				{
-					id: 'my-matrix-2',
-					newValueSerialized: JSON.stringify(456),
-					newValueIsUndefined: false,
-					enumPaths: [[]],
-				},
-			],
-		},
+test('updates multiple visual controls through the packaged public API', () => {
+	const {project} = updateVisualControls({
+		project: {rootDir: '/', files: {'Root.tsx': contents}},
+		filePath: 'Root.tsx',
+		changes: [
+			{
+				id: 'my-matrix-4',
+				newValueSerialized: JSON.stringify(123),
+				newValueIsUndefined: false,
+				enumPaths: [],
+			},
+			{
+				id: 'my-matrix-2',
+				newValueSerialized: JSON.stringify(456),
+				newValueIsUndefined: false,
+				enumPaths: [[]],
+			},
+		],
 	});
 
-	expect(newContents).toContain(`visualControl('my-matrix-4', 123`);
-	expect(newContents).toContain(
+	expect(project.files['Root.tsx']).toContain(
+		`visualControl('my-matrix-4', 123`,
+	);
+	expect(project.files['Root.tsx']).toContain(
 		'const matrix2 = visualControl(`my-matrix-2`, 456 as const',
 	);
 });

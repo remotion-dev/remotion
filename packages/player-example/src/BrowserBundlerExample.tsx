@@ -3,7 +3,7 @@ import {
 	createBrowserBundler,
 	type VirtualProject,
 } from '@remotion/browser-bundler';
-import {CodemodsInternals, addSolid, deleteJsxNodes} from '@remotion/codemods';
+import {addSolid, deleteJsxNodes, getJsxNodes} from '@remotion/codemods';
 import Link from 'next/link';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import type {
@@ -163,8 +163,13 @@ export const BrowserBundlerExample: React.FC = () => {
 
 				// Coalesce edits before compilation, but never discard a compiled
 				// update: the next HMR update builds on this bundle's module graph.
-				const sourceNodes = CodemodsInternals.getJsxElementsWithNodePaths({
-					source: videoSource,
+				const sourceNodes = getJsxNodes({
+					project: {
+						...project,
+						rootDir: '/',
+						files: {...project.files, 'src/Video.tsx': videoSource},
+					},
+					filePath: 'src/Video.tsx',
 				})
 					.filter(({tagName}) => layerElementNames.has(tagName))
 					.map(({nodePath}) => ({filePath: 'src/Video.tsx', nodePath}));

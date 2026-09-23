@@ -28,7 +28,8 @@ export const getEffectSource = ({
 	);
 	if (
 		lastSpread !== -1 &&
-		(attr === null || jsx.attributes.indexOf(attr) < lastSpread)
+		attr !== null &&
+		jsx.attributes.indexOf(attr) < lastSpread
 	) {
 		throw new Error(
 			'Cannot edit effects that may be overridden by a JSX spread',
@@ -52,24 +53,27 @@ export const getEffectSource = ({
 	return {filePath, input, length};
 };
 
-export const groupEffects = ({
+export const groupEffects = <
+	Effect extends JsxNodeReference & {effectIndex: number | null},
+>({
 	project,
 	effects,
 }: {
 	project: CodemodProject;
-	effects: EffectReference[];
+	effects: Effect[];
 }) => {
 	if (effects.length === 0) {
 		throw new Error('Expected at least one effect');
 	}
 
-	const groups = new Map<string, EffectReference[]>();
+	const groups = new Map<string, Effect[]>();
 	for (const effect of effects) {
 		const {filePath, length} = getEffectSource({project, node: effect});
 		if (
-			!Number.isInteger(effect.effectIndex) ||
-			effect.effectIndex < 0 ||
-			effect.effectIndex >= length
+			effect.effectIndex !== null &&
+			(!Number.isInteger(effect.effectIndex) ||
+				effect.effectIndex < 0 ||
+				effect.effectIndex >= length)
 		) {
 			throw new Error('Effect index is out of range');
 		}

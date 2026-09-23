@@ -40,7 +40,7 @@ export const ExploreSection: React.FC = () => {
 							}
 						}}
 					>
-						{item === 'Rendering' || item === 'Audio' ? (
+						{item === 'Video' || item === 'Rendering' || item === 'Audio' ? (
 							<video
 								className="explore-video pointer-events-none absolute inset-0 h-full w-full object-cover"
 								muted
@@ -50,7 +50,7 @@ export const ExploreSection: React.FC = () => {
 								aria-hidden="true"
 							>
 								<source
-									src={`https://remotion.media/explore-remotion/${item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
+									src={`https://remotion.media/explore-remotion/${item === 'Video' ? 'video-playback-2026-09-22' : item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
 									type="video/mp4"
 								/>
 							</video>
@@ -58,7 +58,7 @@ export const ExploreSection: React.FC = () => {
 						<h3
 							className="relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl"
 							style={
-								item === 'Rendering' || item === 'Audio'
+								item === 'Video' || item === 'Rendering' || item === 'Audio'
 									? {
 											textShadow:
 												'0 1px 2px #000, 0 2px 8px #000, 0 0 16px #000',

@@ -1,6 +1,5 @@
-import type {File} from '@babel/types';
 import {
-	CodemodsInternals,
+	updateMultipleJsxNodeProps,
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
@@ -12,17 +11,11 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 
-const {
-	updateMultipleSequenceProps: updateMultipleSequencePropsCodemod,
-	updateSequencePropsAst,
-} = CodemodsInternals;
-
 export {
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
 	type SequencePropUpdate,
-	updateSequencePropsAst,
 };
 
 type PrettierConfigOverride = Record<string, unknown> | null;
@@ -31,7 +24,6 @@ type UpdateMultipleSequencePropsResult = {
 	output: string;
 	formatted: boolean;
 	results: SequencePropsNodeUpdateResult[];
-	ast: File;
 };
 
 type UpdateSequencePropsResult = {
@@ -46,22 +38,28 @@ export const updateMultipleSequenceProps = ({
 	input,
 	changes,
 	prettierConfigOverride,
-	ast: providedAst,
 }: {
 	input: string;
 	changes: SequencePropsNodeUpdate[];
 	prettierConfigOverride: PrettierConfigOverride;
-	ast?: File;
 }): Promise<UpdateMultipleSequencePropsResult> => {
 	return Promise.resolve().then(() => {
-		const {output, results, ast} = updateMultipleSequencePropsCodemod({
-			input,
-			changes,
-			ast: providedAst,
+		const result = updateMultipleJsxNodeProps({
+			project: {files: {'source.tsx': input}, rootDir: '/'},
+			changes: changes.map(
+				({nodePath, updates, schema, videoConfigValues}) => ({
+					node: {filePath: 'source.tsx', nodePath},
+					updates,
+					schema,
+					videoConfig: videoConfigValues ?? undefined,
+				}),
+			),
 			prettierConfigOverride,
 		});
+		const output = result.project.files['source.tsx'];
+		const {results} = result;
 
-		return {output, formatted: true, results, ast};
+		return {output, formatted: true, results};
 	});
 };
 

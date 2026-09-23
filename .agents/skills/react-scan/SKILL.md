@@ -71,5 +71,5 @@ Require an improvement in the relevant commit/component metrics without a
 regression in behavior. Do not optimize every re-render: cheap necessary renders
 are often preferable to added memoization complexity.
 
-Report the measured before/after change and the focused tests used to protect
+Report the measured before/after change and the checks performed to verify
 behavior.

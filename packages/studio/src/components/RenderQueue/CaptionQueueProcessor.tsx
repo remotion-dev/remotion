@@ -23,19 +23,25 @@ export const CaptionQueueProcessor: React.FC = () => {
 		updateCaptionJobProgress,
 		markCaptionJobDone,
 		markCaptionJobFailed,
+		markCaptionJobCancelled,
+		markCaptionJobSaving,
+		getAbortController,
 		setProcessCaptionJobCallback,
 	} = useContext(RenderQueueContext);
 
 	const processJob = useCallback(
 		async (job: CaptionJob) => {
+			const {signal} = getAbortController(job.id);
 			let captionCount: number | null = null;
 			let processingError: Error | null = null;
 			try {
+				signal.throwIfAborted();
 				updateCaptionJobProgress(job.id, {
 					message: 'Checking WebGPU support...',
 					value: 0,
 				});
 				const support = await canUseWhisperWebGpu();
+				signal.throwIfAborted();
 				if (!support.supported) {
 					throw new Error(support.detailedReason);
 				}
@@ -45,17 +51,20 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.02,
 				});
 				await clearStaleModels();
+				signal.throwIfAborted();
 				await loadModelForJob({
+					signal,
 					model: job.model,
 					progressStart: 0.03,
 					progressSpan: 0.27,
 					isModelCached: (model) => isWhisperModelCached({model}),
 					loadModel: async (model, onProgress) => {
 						await downloadWhisperModel({
+							signal,
 							model,
 							onProgress: (progress) => onProgress(progress.progress),
 						});
-						await loadWhisperModel({model});
+						await loadWhisperModel({model, signal});
 					},
 					updateProgress: (progress) =>
 						updateCaptionJobProgress(job.id, progress),
@@ -66,6 +75,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.3,
 				});
 				const channelWaveform = await resampleMediaTo16Khz({
+					signal,
 					src: job.src,
 					audioStreamIndex: job.audioStreamIndex,
 					requestInit: job.requestInit,
@@ -82,6 +92,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 					value: 0.5,
 				});
 				const transcription = await transcribe({
+					signal,
 					channelWaveform,
 					model: job.model,
 					task: job.task,
@@ -99,6 +110,8 @@ export const CaptionQueueProcessor: React.FC = () => {
 					whisperWebGpuOutput: transcription,
 				});
 
+				signal.throwIfAborted();
+				markCaptionJobSaving(job.id);
 				if (job.target === null) {
 					updateCaptionJobProgress(job.id, {
 						message: `Saving ${job.outName}...`,
@@ -144,13 +157,22 @@ export const CaptionQueueProcessor: React.FC = () => {
 				// A cleanup failure should not hide a successfully written caption file.
 			}
 
-			if (processingError) {
+			if (signal.aborted) {
+				markCaptionJobCancelled(job.id);
+			} else if (processingError) {
 				markCaptionJobFailed(job.id, processingError);
 			} else {
 				markCaptionJobDone(job.id, captionCount ?? 0);
 			}
 		},
-		[markCaptionJobDone, markCaptionJobFailed, updateCaptionJobProgress],
+		[
+			getAbortController,
+			markCaptionJobCancelled,
+			markCaptionJobDone,
+			markCaptionJobFailed,
+			markCaptionJobSaving,
+			updateCaptionJobProgress,
+		],
 	);
 
 	useEffect(() => {
