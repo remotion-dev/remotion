@@ -20,6 +20,7 @@ import {
 import {orderOutlinesForRendering} from './selected-outline-order';
 import type {
 	SelectedOutlineContextMenuOpenHandler,
+	SelectedOutlineDragTarget,
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
@@ -51,6 +52,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly dragging: boolean;
+	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
 	readonly getLatestOutlineTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
@@ -70,6 +72,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	compositionHeight,
 	compositionWidth,
 	dragging,
+	getAllDragTargets,
 	getLatestOutlineTargetByKey,
 	outlineTargets,
 	onDraggingChange,
@@ -314,18 +317,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		targetsRef.current = outlineTargets;
 		outlinesByKeyRef.current = outlinesByKey;
 	}, [outlineTargets, outlinesByKey]);
-	const getAllDragTargets = useCallback(
-		() =>
-			targetsRef.current.flatMap((target) => {
-				if (!target.selected && !target.containsSelection) {
-					return [];
-				}
-
-				const drag = getLatestOutlineTargetByKey(target.key)?.drag ?? null;
-				return drag === null ? [] : [drag];
-			}),
-		[getLatestOutlineTargetByKey],
-	);
 	const getAllDragOutlines = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
