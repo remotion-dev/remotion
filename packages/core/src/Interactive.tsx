@@ -20,8 +20,8 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {PremountedSequence} from './PremountedSequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
-import {Sequence} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {
 	withInteractivitySchema,
@@ -103,7 +103,9 @@ export type InteractivePremountProps = Pick<
 	| 'styleWhilePostmounted'
 >;
 
-type InteractiveManagedProps = InteractiveBaseProps & InteractiveCropProps;
+type InteractiveManagedProps = InteractiveBaseProps &
+	InteractiveCropProps &
+	InteractivePremountProps;
 
 type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
 	React.ComponentPropsWithoutRef<Tag>,
@@ -147,6 +149,7 @@ const makeRemotionComponentIdentity = ({
 
 const interactiveElementSchema = {
 	...baseSchema,
+	...premountSchema,
 	...transformSchema,
 	...cropSchema,
 } as const satisfies InteractivitySchema;
@@ -227,6 +230,10 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		const {
 			durationInFrames,
 			from,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			trimBefore,
 			playbackRate,
 			freeze,
@@ -261,8 +268,13 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		);
 
 		return (
-			<Sequence
-				layout="none"
+			<PremountedSequence
+				hideWhilePremounted="opacity"
+				style={croppedStyle}
+				premountFor={premountFor}
+				postmountFor={postmountFor}
+				styleWhilePremounted={styleWhilePremounted}
+				styleWhilePostmounted={styleWhilePostmounted}
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
@@ -275,12 +287,14 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
 				outlineRef={refForOutline}
 			>
-				{React.createElement(tag, {
-					...props,
-					style: croppedStyle ?? undefined,
-					ref: callbackRef,
-				})}
-			</Sequence>
+				{(premountingStyle) =>
+					React.createElement(tag, {
+						...props,
+						style: premountingStyle ?? undefined,
+						ref: callbackRef,
+					})
+				}
+			</PremountedSequence>
 		);
 	});
 

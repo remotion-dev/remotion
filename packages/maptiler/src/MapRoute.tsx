@@ -13,13 +13,15 @@ import {
 } from 'react';
 import {
 	Interactive,
-	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapRouteFeature = {
 	type: 'Feature';
@@ -27,18 +29,23 @@ export type MapRouteFeature = {
 	geometry: {type: 'LineString'; coordinates: number[][]};
 };
 
-type MapRouteProps = InteractiveBaseProps & {
-	readonly controls?: SequenceControls;
-	readonly feature: MapRouteFeature;
-	readonly glow?: number;
-	readonly id: string;
-	readonly progress?: number;
-	readonly strokeColor?: string;
-	readonly strokeWidth?: number;
-};
+type MapRouteProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly controls?: SequenceControls;
+		readonly feature: MapRouteFeature;
+		readonly glow?: number;
+		readonly id: string;
+		readonly progress?: number;
+		readonly strokeColor?: string;
+		readonly strokeWidth?: number;
+	};
 
 const mapRouteSchema = {
 	...Interactive.baseSchema,
+	...{
+		premountFor: Interactive.premountSchema.premountFor,
+		postmountFor: Interactive.premountSchema.postmountFor,
+	},
 	glow: {
 		type: 'number',
 		min: 0,
@@ -100,6 +107,10 @@ const MapRouteDrawing = ({
 	const routeLength = useMemo(() => getLineLength(route), [route]);
 	const sourceId = `${id}-route`;
 	const glowLayerId = `${id}-route-glow`;
+	const applyPremountVisibility = useMapPremounting(() => [
+		sourceId,
+		glowLayerId,
+	]);
 
 	useEffect(() => {
 		if (!map) {
@@ -154,12 +165,14 @@ const MapRouteDrawing = ({
 		map.setPaintProperty(sourceId, 'line-color', strokeColor);
 		map.setPaintProperty(sourceId, 'line-width', strokeWidth);
 
+		applyPremountVisibility();
 		map.once('idle', () => {
 			setIsReady(true);
 			continueRender(loadingHandle);
 		});
 		map.triggerRepaint();
 	}, [
+		applyPremountVisibility,
 		continueRender,
 		glow,
 		glowLayerId,
@@ -275,6 +288,8 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 		strokeWidth = 9,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -290,8 +305,11 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={null}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -303,16 +321,20 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 			controls={controls}
 			outlineRef={refForOutline}
 		>
-			<MapRouteDrawing
-				feature={feature}
-				glow={glow}
-				id={id}
-				progress={progress}
-				strokeColor={strokeColor}
-				strokeWidth={strokeWidth}
-			/>
-			<MapRouteBounds feature={feature} refForOutline={refForOutline} />
-		</Sequence>
+			{() => (
+				<>
+					<MapRouteDrawing
+						feature={feature}
+						glow={glow}
+						id={id}
+						progress={progress}
+						strokeColor={strokeColor}
+						strokeWidth={strokeWidth}
+					/>
+					<MapRouteBounds feature={feature} refForOutline={refForOutline} />
+				</>
+			)}
+		</Internals.PremountedSequence>
 	);
 };
 

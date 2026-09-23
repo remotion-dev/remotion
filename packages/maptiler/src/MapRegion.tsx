@@ -13,13 +13,15 @@ import {
 } from 'react';
 import {
 	Interactive,
-	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapRegionFeature = {
 	type: 'Feature';
@@ -27,20 +29,25 @@ export type MapRegionFeature = {
 	geometry: {type: 'Polygon'; coordinates: number[][][]};
 };
 
-type MapRegionProps = InteractiveBaseProps & {
-	readonly controls?: SequenceControls;
-	readonly feature: MapRegionFeature;
-	readonly fill?: number;
-	readonly fillColor: string;
-	readonly glow?: number;
-	readonly id: string;
-	readonly progress?: number;
-	readonly strokeColor?: string;
-	readonly strokeWidth?: number;
-};
+type MapRegionProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly controls?: SequenceControls;
+		readonly feature: MapRegionFeature;
+		readonly fill?: number;
+		readonly fillColor: string;
+		readonly glow?: number;
+		readonly id: string;
+		readonly progress?: number;
+		readonly strokeColor?: string;
+		readonly strokeWidth?: number;
+	};
 
 const mapRegionSchema = {
 	...Interactive.baseSchema,
+	...{
+		premountFor: Interactive.premountSchema.premountFor,
+		postmountFor: Interactive.premountSchema.postmountFor,
+	},
 	fill: {
 		type: 'number',
 		min: 0,
@@ -127,6 +134,11 @@ const MapRegionDrawing = ({
 	const fillSourceId = `${id}-fill`;
 	const outlineSourceId = `${id}-outline`;
 	const outlineGlowLayerId = `${id}-outline-glow`;
+	const applyPremountVisibility = useMapPremounting(() => [
+		fillSourceId,
+		outlineSourceId,
+		outlineGlowLayerId,
+	]);
 
 	useEffect(() => {
 		if (!map) {
@@ -204,12 +216,14 @@ const MapRegionDrawing = ({
 		map.setPaintProperty(outlineSourceId, 'line-color', strokeColor);
 		map.setPaintProperty(outlineSourceId, 'line-width', strokeWidth);
 
+		applyPremountVisibility();
 		map.once('idle', () => {
 			setIsReady(true);
 			continueRender(loadingHandle);
 		});
 		map.triggerRepaint();
 	}, [
+		applyPremountVisibility,
 		continueRender,
 		feature,
 		fillColor,
@@ -345,6 +359,8 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 		strokeWidth = 9,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -360,8 +376,11 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={null}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -373,18 +392,22 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 			controls={controls}
 			outlineRef={refForOutline}
 		>
-			<MapRegionDrawing
-				feature={feature}
-				fill={fill}
-				fillColor={fillColor}
-				glow={glow}
-				id={id}
-				progress={progress}
-				strokeColor={strokeColor}
-				strokeWidth={strokeWidth}
-			/>
-			<MapRegionBounds feature={feature} refForOutline={refForOutline} />
-		</Sequence>
+			{() => (
+				<>
+					<MapRegionDrawing
+						feature={feature}
+						fill={fill}
+						fillColor={fillColor}
+						glow={glow}
+						id={id}
+						progress={progress}
+						strokeColor={strokeColor}
+						strokeWidth={strokeWidth}
+					/>
+					<MapRegionBounds feature={feature} refForOutline={refForOutline} />
+				</>
+			)}
+		</Internals.PremountedSequence>
 	);
 };
 

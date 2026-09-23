@@ -2,21 +2,24 @@ import type {CSSProperties} from 'react';
 import React from 'react';
 import type {
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractivitySchema,
 	SequenceControls,
 } from 'remotion';
-import {Interactive, Sequence} from 'remotion';
+import {Interactive, Internals} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
-export type MacOSCursorProps = InteractiveBaseProps & {
-	readonly cursor?: string;
-	readonly customCursor?: string;
-	readonly className?: string;
-	readonly style?: CSSProperties;
-};
+export type MacOSCursorProps = InteractiveBaseProps &
+	InteractivePremountProps & {
+		readonly cursor?: string;
+		readonly customCursor?: string;
+		readonly className?: string;
+		readonly style?: CSSProperties;
+	};
 
 export const macOSCursorSchema: InteractivitySchema = {
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	cursor: {
 		type: 'enum',
 		default: 'default',
@@ -50,6 +53,10 @@ const MacOSCursorInner: React.FC<
 	style,
 	durationInFrames,
 	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	trimBefore,
 	playbackRate,
 	freeze,
@@ -69,8 +76,13 @@ const MacOSCursorInner: React.FC<
 	const height = resolved?.height ?? undefined;
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={style ?? null}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -82,35 +94,37 @@ const MacOSCursorInner: React.FC<
 			controls={controls}
 			outlineRef={refForOutline}
 		>
-			{resolved ? (
-				<svg
-					ref={refForOutline}
-					className={className}
-					width={width}
-					height={height}
-					viewBox={width && height ? `0 0 ${width} ${height}` : undefined}
-					xmlns="http://www.w3.org/2000/svg"
-					style={{
-						display: 'block',
-						position: 'absolute',
-						width,
-						height,
-						overflow: 'visible',
-						marginLeft: -resolved.hotspot.x,
-						marginTop: -resolved.hotspot.y,
-						transformOrigin: `${resolved.hotspot.x}px ${resolved.hotspot.y}px`,
-						...style,
-					}}
-				>
-					<image
-						href={resolved.src}
+			{(premountingStyle) =>
+				resolved ? (
+					<svg
+						ref={refForOutline}
+						className={className}
 						width={width}
 						height={height}
-						preserveAspectRatio="xMinYMin meet"
-					/>
-				</svg>
-			) : null}
-		</Sequence>
+						viewBox={width && height ? `0 0 ${width} ${height}` : undefined}
+						xmlns="http://www.w3.org/2000/svg"
+						style={{
+							display: 'block',
+							position: 'absolute',
+							width,
+							height,
+							overflow: 'visible',
+							marginLeft: -resolved.hotspot.x,
+							marginTop: -resolved.hotspot.y,
+							transformOrigin: `${resolved.hotspot.x}px ${resolved.hotspot.y}px`,
+							...premountingStyle,
+						}}
+					>
+						<image
+							href={resolved.src}
+							width={width}
+							height={height}
+							preserveAspectRatio="xMinYMin meet"
+						/>
+					</svg>
+				) : null
+			}
+		</Internals.PremountedSequence>
 	);
 };
 

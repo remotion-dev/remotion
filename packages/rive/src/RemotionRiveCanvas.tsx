@@ -18,6 +18,7 @@ import React, {
 import type {
 	EffectsProp,
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractiveCropProps,
 	SequenceControls,
 	InteractivitySchema,
@@ -25,7 +26,6 @@ import type {
 import {
 	Internals,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -62,6 +62,7 @@ type RemotionRiveCanvasOwnProps = {
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
 	InteractiveBaseProps &
+	InteractivePremountProps &
 	InteractiveCropProps;
 
 export type RiveCanvasRef = {
@@ -98,6 +99,7 @@ const riveAlignmentVariants: Record<
 
 export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.baseSchema,
+	...Internals.premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'contain',
@@ -441,6 +443,10 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		durationInFrames,
 		name,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -468,8 +474,13 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 	});
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={croppedStyle}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			from={from}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -488,23 +499,25 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 			outlineRef={canvasRef}
 			{...props}
 		>
-			<RemotionRiveCanvasContent
-				ref={ref}
-				src={src}
-				fit={fit}
-				alignment={alignment}
-				artboard={artboard}
-				animation={animation}
-				onLoad={onLoad}
-				assetLoader={assetLoader}
-				enableRiveAssetCdn={enableRiveAssetCdn}
-				className={className}
-				style={croppedStyle ?? undefined}
-				effects={effects}
-				controls={controls}
-				canvasRef={canvasRef}
-			/>
-		</Sequence>
+			{(premountingStyle) => (
+				<RemotionRiveCanvasContent
+					ref={ref}
+					src={src}
+					fit={fit}
+					alignment={alignment}
+					artboard={artboard}
+					animation={animation}
+					onLoad={onLoad}
+					assetLoader={assetLoader}
+					enableRiveAssetCdn={enableRiveAssetCdn}
+					className={className}
+					style={premountingStyle ?? undefined}
+					effects={effects}
+					controls={controls}
+					canvasRef={canvasRef}
+				/>
+			)}
+		</Internals.PremountedSequence>
 	);
 };
 

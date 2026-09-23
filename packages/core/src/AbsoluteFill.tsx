@@ -5,10 +5,14 @@ import {
 } from './AbsoluteFillElement.js';
 import type {SequenceControls} from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import type {InteractiveBaseProps} from './Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
+} from './Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	textContentSchema,
@@ -16,7 +20,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import {Sequence} from './Sequence.js';
+import {PremountedSequence} from './PremountedSequence.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -24,7 +28,8 @@ export type AbsoluteFillProps = Omit<
 	AbsoluteFillElementProps,
 	keyof InteractiveBaseProps
 > &
-	InteractiveBaseProps & {
+	InteractiveBaseProps &
+	InteractivePremountProps & {
 		/**
 		 * @deprecated For internal use only
 		 */
@@ -33,6 +38,7 @@ export type AbsoluteFillProps = Omit<
 
 export const absoluteFillSchema = {
 	...baseSchema,
+	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
@@ -57,6 +63,10 @@ const AbsoluteFillInner: React.FC<
 > = ({
 	ref,
 	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	trimBefore,
 	playbackRate,
 	freeze,
@@ -88,8 +98,13 @@ const AbsoluteFillInner: React.FC<
 	}
 
 	return (
-		<Sequence
-			layout="none"
+		<PremountedSequence
+			hideWhilePremounted="opacity"
+			style={divProps.style ?? null}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -103,10 +118,16 @@ const AbsoluteFillInner: React.FC<
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/absolute-fill"
 			outlineRef={refForOutline}
 		>
-			<AbsoluteFillElement ref={callbackRef} {...divProps}>
-				{children}
-			</AbsoluteFillElement>
-		</Sequence>
+			{(premountingStyle) => (
+				<AbsoluteFillElement
+					ref={callbackRef}
+					{...divProps}
+					style={premountingStyle ?? undefined}
+				>
+					{children}
+				</AbsoluteFillElement>
+			)}
+		</PremountedSequence>
 	);
 };
 

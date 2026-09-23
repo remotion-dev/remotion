@@ -9,6 +9,8 @@ import React, {
 } from 'react';
 import {
 	Internals,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
@@ -16,11 +18,16 @@ import {
 import {SuspenseLoader} from './SuspenseLoader';
 import {validateDimension} from './validate';
 
-export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
-	readonly width: number;
-	readonly height: number;
-	readonly children: React.ReactNode;
-};
+export type ThreeCanvasProps = Omit<
+	React.ComponentProps<typeof Canvas>,
+	keyof InteractiveBaseProps
+> &
+	InteractiveBaseProps &
+	InteractivePremountProps & {
+		readonly width: number;
+		readonly height: number;
+		readonly children: React.ReactNode;
+	};
 
 export type ThreeCanvasFrameRendererProps = {
 	readonly onRendered: () => void;
@@ -60,7 +67,7 @@ const ManualFrameRenderer = ({onRendered}: ThreeCanvasFrameRendererProps) => {
 	return null;
 };
 
-export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
+const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const {
 		children,
 		width,
@@ -143,6 +150,46 @@ export const ThreeCanvasInternals = (props: ThreeCanvasInternalsProps) => {
 				</Internals.RemotionContextProvider>
 			</Canvas>
 		</SuspenseLoader>
+	);
+};
+
+export const ThreeCanvasInternals = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	style,
+	...props
+}: ThreeCanvasInternalsProps) => {
+	return (
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={style ?? null}
+			from={from}
+			durationInFrames={durationInFrames}
+			trimBefore={trimBefore}
+			playbackRate={playbackRate}
+			freeze={freeze}
+			hidden={hidden}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
+			name={name ?? '<ThreeCanvas>'}
+			showInTimeline={showInTimeline ?? false}
+		>
+			{(premountingStyle) => (
+				<ThreeCanvasContent {...props} style={premountingStyle ?? undefined} />
+			)}
+		</Internals.PremountedSequence>
 	);
 };
 

@@ -4,17 +4,23 @@ import type {
 	SourceSpecification,
 } from '@maptiler/sdk';
 import {useContext, useEffect, useRef, type ReactNode} from 'react';
-import {useDelayRender} from 'remotion';
+import {
+	Internals,
+	useDelayRender,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+} from 'remotion';
 import {delayMapRender} from './delay-map-render';
 import {MapTilerContext} from './MapTilerContext';
 
-export type MapSourceProps = {
-	readonly children?: ReactNode;
-	readonly id: string;
-	readonly source: SourceSpecification;
-};
+export type MapSourceProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly children?: ReactNode;
+		readonly id: string;
+		readonly source: SourceSpecification;
+	};
 
-export const MapSource = ({children, id, source}: MapSourceProps) => {
+const MapSourceContent = ({children, id, source}: MapSourceProps) => {
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const sourceRef = useRef(source);
 	const {continueRender, delayRender} = useDelayRender();
@@ -86,3 +92,34 @@ export const MapSource = ({children, id, source}: MapSourceProps) => {
 
 	return children;
 };
+
+export const MapSource = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	...props
+}: MapSourceProps) => (
+	<Internals.PremountedSequence
+		hideWhilePremounted="opacity"
+		style={null}
+		from={from}
+		durationInFrames={durationInFrames}
+		trimBefore={trimBefore}
+		playbackRate={playbackRate}
+		freeze={freeze}
+		hidden={hidden}
+		showInTimeline={showInTimeline ?? false}
+		premountFor={premountFor}
+		postmountFor={postmountFor}
+		name={name ?? '<MapSource>'}
+	>
+		{() => <MapSourceContent {...props} />}
+	</Internals.PremountedSequence>
+);

@@ -130,6 +130,7 @@ import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {PremountContext} from './PremountContext.js';
+import {PremountedSequence} from './PremountedSequence.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -359,6 +360,7 @@ export const Internals = {
 	SequenceContext,
 	PremountContext,
 	usePremounting,
+	PremountedSequence,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,

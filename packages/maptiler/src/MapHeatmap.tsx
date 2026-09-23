@@ -5,15 +5,18 @@ import {
 } from '@maptiler/sdk';
 import {useContext, useEffect, useRef} from 'react';
 import {
-	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
 import {delayMapRender} from './delay-map-render';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapHeatmapProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<HeatmapLayerOptions, 'layerId' | 'sourceId'> & {
 		readonly controls?: SequenceControls;
 		readonly layerId: string;
@@ -43,6 +46,11 @@ const MapHeatmapDrawing = ({
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
 	const layerIdsRef = useRef<MapHeatmapLayerIds | null>(null);
+	const applyPremountVisibility = useMapPremounting(() =>
+		Object.entries(layerIdsRef.current ?? {})
+			.filter(([key]) => key.endsWith('LayerId'))
+			.map(([, value]) => value),
+	);
 	const optionsRef = useRef<HeatmapLayerOptions | null>(null);
 	const intensityIsDynamic = typeof intensity === 'number';
 	const opacityIsDynamic = typeof opacity === 'number';
@@ -94,6 +102,7 @@ const MapHeatmapDrawing = ({
 		};
 
 		layerIdsRef.current = helpers.addHeatmap(map, optionsRef.current);
+		applyPremountVisibility();
 		map.once('idle', finish);
 		map.triggerRepaint();
 
@@ -116,7 +125,15 @@ const MapHeatmapDrawing = ({
 			layerIdsRef.current = null;
 			map.triggerRepaint();
 		};
-	}, [continueRender, delayRender, layerId, map, structuralKey, styleRevision]);
+	}, [
+		applyPremountVisibility,
+		continueRender,
+		delayRender,
+		layerId,
+		map,
+		structuralKey,
+		styleRevision,
+	]);
 
 	useEffect(() => {
 		if (!map || typeof data === 'string') {
@@ -187,6 +204,8 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 		durationInFrames,
 		freeze,
 		from,
+		premountFor,
+		postmountFor,
 		hidden,
 		name,
 		showInTimeline,
@@ -195,8 +214,11 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 	} = props;
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={null}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -207,7 +229,7 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 			showInTimeline={showInTimeline ?? true}
 			controls={controls}
 		>
-			<MapHeatmapDrawing {...props} />
-		</Sequence>
+			{() => <MapHeatmapDrawing {...props} />}
+		</Internals.PremountedSequence>
 	);
 };

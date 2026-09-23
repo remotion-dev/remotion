@@ -6,13 +6,15 @@ import {
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
 import {useContext, useEffect, useRef, useState} from 'react';
 import {
-	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
 import {delayMapRender} from './delay-map-render';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapPolylineFeature = {
 	readonly geometry:
@@ -25,6 +27,7 @@ export type MapPolylineFeature = {
 export type MapPolylineData = MapPolylineFeature | PolylineLayerOptions['data'];
 
 export type MapPolylineProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<PolylineLayerOptions, 'data' | 'layerId' | 'sourceId'> & {
 		readonly controls?: SequenceControls;
 		readonly data: MapPolylineData;
@@ -141,6 +144,11 @@ const MapPolylineDrawing = ({
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const {cancelRender, continueRender, delayRender} = useDelayRender();
 	const layerIdsRef = useRef<MapPolylineLayerIds | null>(null);
+	const applyPremountVisibility = useMapPremounting(() =>
+		Object.entries(layerIdsRef.current ?? {})
+			.filter(([key]) => key.endsWith('LayerId'))
+			.map(([, value]) => value),
+	);
 	const optionsRef = useRef<PolylineLayerOptions | null>(null);
 	const [layerRevision, setLayerRevision] = useState(0);
 	const lineBlurIsDynamic = typeof lineBlur === 'number';
@@ -233,6 +241,7 @@ const MapPolylineDrawing = ({
 				}
 
 				layerIdsRef.current = ids;
+				applyPremountVisibility();
 				setLayerRevision((revision) => revision + 1);
 				map.once('idle', finish);
 				map.triggerRepaint();
@@ -256,6 +265,7 @@ const MapPolylineDrawing = ({
 			}
 		};
 	}, [
+		applyPremountVisibility,
 		cancelRender,
 		continueRender,
 		delayRender,
@@ -428,6 +438,8 @@ export const MapPolyline = (props: MapPolylineProps) => {
 		durationInFrames,
 		freeze,
 		from,
+		premountFor,
+		postmountFor,
 		hidden,
 		name,
 		showInTimeline,
@@ -436,8 +448,11 @@ export const MapPolyline = (props: MapPolylineProps) => {
 	} = props;
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={null}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -448,7 +463,7 @@ export const MapPolyline = (props: MapPolylineProps) => {
 			showInTimeline={showInTimeline ?? true}
 			controls={controls}
 		>
-			<MapPolylineDrawing {...props} />
-		</Sequence>
+			{() => <MapPolylineDrawing {...props} />}
+		</Internals.PremountedSequence>
 	);
 };

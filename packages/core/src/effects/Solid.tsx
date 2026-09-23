@@ -11,18 +11,20 @@ import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import type {
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractiveCropProps,
 } from '../Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
-import {Sequence} from '../Sequence.js';
+import {PremountedSequence} from '../PremountedSequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -75,6 +77,7 @@ export type SolidProps = MandatoryProps &
 
 export const solidSchema = {
 	...baseSchema,
+	...premountSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -254,7 +257,8 @@ const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
-	} & InteractiveBaseProps
+	} & InteractiveBaseProps &
+		InteractivePremountProps
 >(
 	(
 		{
@@ -268,6 +272,10 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			trimBefore,
 			playbackRate,
 			freeze,
@@ -300,8 +308,13 @@ const SolidOuter = forwardRef<
 		});
 
 		return (
-			<Sequence
-				layout="none"
+			<PremountedSequence
+				hideWhilePremounted="opacity"
+				style={croppedStyle}
+				premountFor={premountFor}
+				postmountFor={postmountFor}
+				styleWhilePremounted={styleWhilePremounted}
+				styleWhilePostmounted={styleWhilePostmounted}
 				from={from}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
@@ -316,18 +329,20 @@ const SolidOuter = forwardRef<
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
 				{...props}
 			>
-				<SolidInner
-					reference={actualRef}
-					overrideId={controls?.overrideId ?? null}
-					color={color}
-					height={height}
-					width={width}
-					className={className}
-					style={croppedStyle ?? undefined}
-					effects={effects}
-					pixelDensity={pixelDensity}
-				/>
-			</Sequence>
+				{(premountingStyle) => (
+					<SolidInner
+						reference={actualRef}
+						overrideId={controls?.overrideId ?? null}
+						color={color}
+						height={height}
+						width={width}
+						className={className}
+						style={premountingStyle ?? undefined}
+						effects={effects}
+						pixelDensity={pixelDensity}
+					/>
+				)}
+			</PremountedSequence>
 		);
 	},
 );

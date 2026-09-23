@@ -4,18 +4,19 @@ import {version} from 'react-dom';
 import {
 	HtmlInCanvas,
 	Internals,
-	Sequence,
 	type EffectsProp,
 	type HtmlInCanvasPixelDensity,
 	type HtmlInCanvasProps,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type SequenceControls,
 } from 'remotion';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
-type ShapeSequenceProps = InteractiveBaseProps & {
-	readonly controls?: SequenceControls;
-};
+type ShapeSequenceProps = InteractiveBaseProps &
+	InteractivePremountProps & {
+		readonly controls?: SequenceControls;
+	};
 
 const HtmlInCanvasWithPrivateProps = HtmlInCanvas as React.ComponentType<
 	HtmlInCanvasProps & {
@@ -50,6 +51,11 @@ export const RenderSvg = ({
 	pixelDensity,
 	durationInFrames,
 	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+
 	trimBefore,
 	playbackRate,
 	freeze,
@@ -210,8 +216,13 @@ export const RenderSvg = ({
 	}
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={actualStyle}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			from={from}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -227,7 +238,9 @@ export const RenderSvg = ({
 				name === undefined ? documentationLink : undefined
 			}
 		>
-			{content}
-		</Sequence>
+			{(premountingStyle) =>
+				React.cloneElement(content, {style: premountingStyle ?? undefined})
+			}
+		</Internals.PremountedSequence>
 	);
 };

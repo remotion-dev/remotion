@@ -8,8 +8,9 @@ import {
 } from 'react';
 import {
 	Interactive,
-	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
@@ -28,6 +29,7 @@ export type MapOverlayAnchor =
 	| 'top-right';
 
 export type MapOverlayProps = InteractiveBaseProps &
+	InteractivePremountProps &
 	InteractiveTransformProps & {
 		readonly anchor?: MapOverlayAnchor;
 		readonly children?: ReactNode;
@@ -43,6 +45,7 @@ export type MapOverlayProps = InteractiveBaseProps &
 
 const mapOverlaySchema = {
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	longitude: {
 		type: 'number',
 		min: -180,
@@ -121,6 +124,10 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		style,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -148,8 +155,13 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
 
 	return (
-		<Sequence
-			layout="none"
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={{opacity, ...style}}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			from={from ?? 0}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
@@ -161,23 +173,25 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 			controls={controls}
 			outlineRef={refForOutline}
 		>
-			<div
-				ref={refForOutline}
-				style={{
-					left: (point?.x ?? 0) + offsetX,
-					opacity,
-					pointerEvents: 'none',
-					position: 'absolute',
-					rotate: `${rotation + (rotationAlignment === 'map' ? (map?.getBearing() ?? 0) : 0)}deg`,
-					top: (point?.y ?? 0) + offsetY,
-					translate: `${horizontalAnchor}% ${verticalAnchor}%`,
-					zIndex: 1,
-					...style,
-				}}
-			>
-				{children}
-			</div>
-		</Sequence>
+			{(premountingStyle) => (
+				<div
+					ref={refForOutline}
+					style={{
+						left: (point?.x ?? 0) + offsetX,
+						opacity,
+						pointerEvents: 'none',
+						position: 'absolute',
+						rotate: `${rotation + (rotationAlignment === 'map' ? (map?.getBearing() ?? 0) : 0)}deg`,
+						top: (point?.y ?? 0) + offsetY,
+						translate: `${horizontalAnchor}% ${verticalAnchor}%`,
+						zIndex: 1,
+						...premountingStyle,
+					}}
+				>
+					{children}
+				</div>
+			)}
+		</Internals.PremountedSequence>
 	);
 };
 

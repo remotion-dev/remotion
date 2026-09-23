@@ -1,15 +1,35 @@
 import type {LayerSpecification} from '@maptiler/sdk';
-import {useContext, useEffect, useRef} from 'react';
-import {useDelayRender} from 'remotion';
+import {useContext, useEffect, useRef, useMemo} from 'react';
+import {
+	Internals,
+	useDelayRender,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+} from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
 
-export type MapLayerProps = {
-	readonly beforeId?: string;
-	readonly layer: LayerSpecification;
-};
+export type MapLayerProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly beforeId?: string;
+		readonly layer: LayerSpecification;
+	};
 
-export const MapLayer = ({beforeId, layer}: MapLayerProps) => {
+const MapLayerContent = ({beforeId, layer: passedLayer}: MapLayerProps) => {
 	const {map, styleRevision} = useContext(MapTilerContext);
+	const sequence = useContext(Internals.SequenceContext);
+	const isPremountingOrPostmounting = Boolean(
+		sequence?.premounting || sequence?.postmounting,
+	);
+	const layer = useMemo(
+		(): LayerSpecification =>
+			isPremountingOrPostmounting
+				? {
+						...passedLayer,
+						layout: {...passedLayer.layout, visibility: 'none'},
+					}
+				: passedLayer,
+		[isPremountingOrPostmounting, passedLayer],
+	);
 	const previousLayerRef = useRef<LayerSpecification | null>(null);
 	const {continueRender, delayRender} = useDelayRender();
 
@@ -120,3 +140,34 @@ export const MapLayer = ({beforeId, layer}: MapLayerProps) => {
 
 	return null;
 };
+
+export const MapLayer = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	...props
+}: MapLayerProps) => (
+	<Internals.PremountedSequence
+		hideWhilePremounted="opacity"
+		style={null}
+		from={from}
+		durationInFrames={durationInFrames}
+		trimBefore={trimBefore}
+		playbackRate={playbackRate}
+		freeze={freeze}
+		hidden={hidden}
+		showInTimeline={showInTimeline ?? false}
+		premountFor={premountFor}
+		postmountFor={postmountFor}
+		name={name ?? '<MapLayer>'}
+	>
+		{() => <MapLayerContent {...props} />}
+	</Internals.PremountedSequence>
+);

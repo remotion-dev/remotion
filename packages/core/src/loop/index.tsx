@@ -89,7 +89,6 @@ export const Loop: React.FC<LoopProps> & {
 
 	const maxTimes = Math.ceil(compDuration / durationInFrames);
 	const actualTimes = Math.min(maxTimes, times);
-	const style = props.layout === 'none' ? undefined : props.style;
 	const maxFrame = durationInFrames * (actualTimes - 1);
 	const loopsElapsed = currentFrame / durationInFrames;
 	const nearestIteration = Math.round(loopsElapsed);
@@ -98,9 +97,15 @@ export const Loop: React.FC<LoopProps> & {
 	const isAtBoundary =
 		Math.abs(loopsElapsed - nearestIteration) <=
 		Number.EPSILON * Math.max(1, Math.abs(loopsElapsed)) * 4;
-	const iteration = isAtBoundary ? nearestIteration : Math.floor(loopsElapsed);
+	const iteration = Math.max(
+		0,
+		Math.min(
+			actualTimes - 1,
+			isAtBoundary ? nearestIteration : Math.floor(loopsElapsed),
+		),
+	);
 	const start = isAtBoundary ? currentFrame : iteration * durationInFrames;
-	const from = Math.min(start, maxFrame);
+	const from = Math.max(0, Math.min(start, maxFrame));
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
 		return {
@@ -126,6 +131,10 @@ export const Loop: React.FC<LoopProps> & {
 		[loopStartFrame, firstVisibleFrame, endFrame, parentPlaybackRate],
 	);
 
+	if (actualTimes === 0) {
+		return null;
+	}
+
 	return (
 		<LoopTimelineContext.Provider value={timelineContext}>
 			<LoopContext.Provider value={loopContext}>
@@ -135,8 +144,7 @@ export const Loop: React.FC<LoopProps> & {
 					name={name ?? '<Loop>'}
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/loop"
 					_remotionInternalLoopDisplay={loopDisplay}
-					layout={props.layout}
-					style={style}
+					{...props}
 					showInTimeline={showInTimeline}
 					playbackRate={playbackRate}
 				>

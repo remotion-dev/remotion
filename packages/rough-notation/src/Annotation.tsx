@@ -1,8 +1,9 @@
 import React, {useMemo} from 'react';
 import {
 	Interactive,
-	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -34,7 +35,8 @@ type SharedAnnotationComponentProps = Readonly<
 
 type AnnotationInteractiveProps<Config> = SharedAnnotationComponentProps &
 	Readonly<Config> &
-	InteractiveBaseProps;
+	InteractiveBaseProps &
+	InteractivePremountProps;
 
 export type HighlightProps = AnnotationInteractiveProps<HighlightConfig>;
 export type UnderlineProps = AnnotationInteractiveProps<UnderlineConfig>;
@@ -48,7 +50,8 @@ export type CircleProps = AnnotationInteractiveProps<
 >;
 
 type InternalAnnotationProps = SharedAnnotationComponentProps &
-	InteractiveBaseProps & {
+	InteractiveBaseProps &
+	InteractivePremountProps & {
 		readonly color?: string;
 		readonly strokeWidth?: number;
 		readonly padding?: Partial<Padding>;
@@ -210,6 +213,7 @@ const textContentSchema = {
 
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	progress: {
 		type: 'number',
 		min: 0,
@@ -356,6 +360,10 @@ const makeAnnotationComponent = ({
 		children,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -401,8 +409,13 @@ const makeAnnotationComponent = ({
 		);
 
 		return (
-			<Sequence
-				layout="none"
+			<Internals.PremountedSequence
+				hideWhilePremounted="opacity"
+				style={null}
+				premountFor={premountFor}
+				postmountFor={postmountFor}
+				styleWhilePremounted={styleWhilePremounted}
+				styleWhilePostmounted={styleWhilePostmounted}
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
@@ -415,17 +428,23 @@ const makeAnnotationComponent = ({
 				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
 				outlineRef={outlineRef}
 			>
-				<span
-					ref={outlineRef}
-					style={{display: 'inline-block', position: 'relative'}}
-				>
-					<annotation.Container>
-						{layer === 'behind' ? annotationElement : null}
-						<annotation.Tracker style={style}>{children}</annotation.Tracker>
-						{layer === 'on-top' ? annotationElement : null}
-					</annotation.Container>
-				</span>
-			</Sequence>
+				{(premountingStyle) => (
+					<span
+						ref={outlineRef}
+						style={{
+							display: 'inline-block',
+							position: 'relative',
+							...premountingStyle,
+						}}
+					>
+						<annotation.Container>
+							{layer === 'behind' ? annotationElement : null}
+							<annotation.Tracker style={style}>{children}</annotation.Tracker>
+							{layer === 'on-top' ? annotationElement : null}
+						</annotation.Container>
+					</span>
+				)}
+			</Internals.PremountedSequence>
 		);
 	};
 

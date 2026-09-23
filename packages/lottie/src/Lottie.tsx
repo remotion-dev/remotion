@@ -1,7 +1,7 @@
 import type {AnimationItem} from 'lottie-web';
 import lottie from 'lottie-web';
 import {useEffect, useRef, useState} from 'react';
-import {useCurrentFrame, useDelayRender} from 'remotion';
+import {Internals, useCurrentFrame, useDelayRender} from 'remotion';
 import type {LottieProps} from './types';
 import {getLottieFrame} from './utils';
 import {validateLoop} from './validate-loop';
@@ -11,7 +11,7 @@ import {validatePlaybackRate} from './validate-playbackrate';
  * @description	Part of the @remotion/lottie package.
  * @see [Documentation](https://www.remotion.dev/docs/lottie/lottie)
  */
-export const Lottie = ({
+const LottieContent = ({
 	animationData,
 	className,
 	direction,
@@ -170,4 +170,42 @@ export const Lottie = ({
 	}, [direction, frame, loop, playbackRate, delayRender, continueRender]);
 
 	return <div ref={containerRef} className={className} style={style} />;
+};
+
+export const Lottie = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	style,
+	...props
+}: LottieProps) => {
+	return (
+		<Internals.PremountedSequence
+			hideWhilePremounted="opacity"
+			style={style ?? null}
+			from={from}
+			durationInFrames={durationInFrames}
+			trimBefore={trimBefore}
+			freeze={freeze}
+			hidden={hidden}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
+			name={name ?? '<Lottie>'}
+			showInTimeline={showInTimeline ?? false}
+		>
+			{(premountingStyle) => (
+				<LottieContent {...props} style={premountingStyle ?? undefined} />
+			)}
+		</Internals.PremountedSequence>
+	);
 };
