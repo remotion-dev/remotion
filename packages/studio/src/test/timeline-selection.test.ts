@@ -3769,7 +3769,7 @@ test('Canvas outline rendering preserves unconstrained outline order', () => {
 		key,
 		dimensions: null,
 		uncroppedPoints: null,
-		pathPoints: null,
+		path: null,
 		points: [
 			{x: 0, y: 0},
 			{x: 10, y: 0},
@@ -3817,7 +3817,7 @@ const makeTestOutline = ({
 	key,
 	dimensions: {width, height},
 	uncroppedPoints: null,
-	pathPoints: null,
+	path: null,
 	points: [
 		{x: left, y: top},
 		{x: left + width, y: top},

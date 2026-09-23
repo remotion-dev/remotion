@@ -240,7 +240,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
-		const canRotate = !sourceEditDisabled;
+		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
 		return getSequenceContextMenuItems({
@@ -447,6 +447,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		selectAsset,
 		setSelectedModal,
 		setPropStatuses,
+		outline.path,
 	]);
 	useLayoutEffect(() => {
 		registerContextMenuOpen(outline.key, onContextMenuOpen);
@@ -482,7 +483,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					Boolean(controlTarget?.rotationDrag)
 				}
 			/>
-			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
+			{layoutTarget?.selectedForRotation &&
+			controlTarget?.rotationDrag &&
+			outline.path === null ? (
 				<SelectedOutlineCanvasRotation
 					getLatestTargetByKey={getLatestTargetByKey}
 					layoutTarget={layoutTarget}

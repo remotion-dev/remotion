@@ -25,11 +25,28 @@ export type CanvasOutline = {
 		CanvasOutlinePoint,
 	];
 	/**
-	 * Samples along the actual geometry of an SVG path, in the same space as
-	 * `points` (already cropped). Null for non-path elements, or when the
-	 * geometry cannot be sampled.
+	 * The SVG geometry of a path element, in the same space as
+	 * `uncroppedPoints`. Crop is not baked in — like the CSS `clip-path`
+	 * applied to the element, it clips the geometry at render time. Null for
+	 * non-path elements, or when the geometry cannot be read.
 	 */
-	readonly pathPoints: readonly CanvasOutlinePoint[] | null;
+	readonly path: CanvasOutlinePath | null;
+};
+
+/** Affine transform mapping SVG user units to overlay container pixels. */
+export type CanvasOutlineMatrix = {
+	readonly a: number;
+	readonly b: number;
+	readonly c: number;
+	readonly d: number;
+	readonly e: number;
+	readonly f: number;
+};
+
+/** The exact geometry of an SVG path element, without sampling. */
+export type CanvasOutlinePath = {
+	readonly d: string;
+	readonly matrix: CanvasOutlineMatrix;
 };
 
 const mix = (from: number, to: number, progress: number): number => {

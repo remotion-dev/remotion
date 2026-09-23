@@ -73,31 +73,48 @@ export const handleCanvasOutlinePointerDown = ({
 	const ownerSvg = polygon?.ownerSVGElement;
 	let pointerInsideSelectedOutline = false;
 	if (ownerSvg) {
-		const screenPoint = ownerSvg.createSVGPoint();
-		screenPoint.x = event.clientX;
-		screenPoint.y = event.clientY;
 		pointerInsideSelectedOutline = Array.from(
 			ownerSvg.querySelectorAll<SVGPolygonElement>(
 				'polygon[data-remotion-directly-selected-outline="true"]',
 			),
 		).some((selectedPolygon) => {
-			const screenTransform = selectedPolygon.getScreenCTM();
-			if (screenTransform === null) {
+			// Map the pointer into the polygon's local space without
+			// `getScreenCTM()`: the overlay lives inside Studio's fit-scale
+			// ancestor, whose CSS transform WebKit's getScreenCTM() ignores.
+			// A uniformly-scaled rect (the only case here — the overlay svg is
+			// unscaled and CSS transforms above it are fit scales/translations)
+			// is inverted via the bounding rect.
+			const rect = selectedPolygon.getBoundingClientRect();
+			if (rect.width === 0 && rect.height === 0) {
 				return false;
 			}
 
-			// A collapsed transform has no hittable area and cannot be inverted.
-			if (
-				screenTransform.a * screenTransform.d -
-					screenTransform.b * screenTransform.c ===
-				0
-			) {
+			const bbox = selectedPolygon.getBBox();
+			if (bbox.width === 0 && bbox.height === 0) {
 				return false;
 			}
 
-			const polygonPoint = screenPoint.matrixTransform(
-				screenTransform.inverse(),
-			);
+			const scaleX = rect.width / bbox.width;
+			const scaleY = rect.height / bbox.height;
+			if (!Number.isFinite(scaleX) || !Number.isFinite(scaleY)) {
+				return false;
+			}
+
+			// A collapsed or anisotropically distorted outline has no reliable
+			// inverse; treat it as unhittable, like a collapsed CTM before.
+			if (Math.abs(scaleX) < 1e-6 || Math.abs(scaleY) < 1e-6) {
+				return false;
+			}
+
+			const localX = (event.clientX - rect.left) / scaleX + bbox.x;
+			const localY = (event.clientY - rect.top) / scaleY + bbox.y;
+			if (!Number.isFinite(localX) || !Number.isFinite(localY)) {
+				return false;
+			}
+
+			const polygonPoint = ownerSvg.createSVGPoint();
+			polygonPoint.x = localX;
+			polygonPoint.y = localY;
 			return (
 				selectedPolygon.isPointInFill(polygonPoint) ||
 				selectedPolygon.isPointInStroke(polygonPoint)

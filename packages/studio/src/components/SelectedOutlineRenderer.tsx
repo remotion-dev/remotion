@@ -187,6 +187,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const getAllScaleDragTargets = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
+				const outline = outlinesByKeyRef.current.get(target.key);
+				if (outline !== undefined && outline.path !== null) {
+					// Path outlines do not render scale handles.
+					return [];
+				}
+
 				const scaleDrag = target.selected
 					? (getLatestOutlineTargetByKey(target.key)?.scaleDrag ?? null)
 					: null;
@@ -197,6 +203,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const getAllRotationDragTargets = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
+				const outline = outlinesByKeyRef.current.get(target.key);
+				if (outline !== undefined && outline.path !== null) {
+					// Path outlines do not render rotation handles.
+					return [];
+				}
+
 				const rotationDrag = target.selected
 					? (getLatestOutlineTargetByKey(target.key)?.rotationDrag ?? null)
 					: null;

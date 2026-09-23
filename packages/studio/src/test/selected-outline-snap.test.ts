@@ -27,7 +27,7 @@ const makeOutline = ({
 		key: 'outline',
 		dimensions: {width, height},
 		uncroppedPoints: null,
-		pathPoints: null,
+		path: null,
 		points: [
 			{x: left * scale, y: top * scale},
 			{x: right * scale, y: top * scale},
