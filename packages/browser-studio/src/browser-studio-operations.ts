@@ -81,6 +81,7 @@ const {
 	insertBasicCaptions: insertBasicCaptionsCodemod,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	insertVideoLayers: insertVideoLayersCodemod,
+	replaceVideoSource: replaceVideoSourceCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	pasteEffects: pasteEffectsCodemod,
@@ -2044,6 +2045,48 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const replaceVideoSource: BrowserStudioOperations['replaceVideoSource'] = ({
+		fileName,
+		nodePath,
+		src,
+	}) => {
+		try {
+			const project = getProject();
+			const absolutePath = findProjectFile({filePath: fileName, project});
+			const result = replaceVideoSourceCodemod({
+				input: project.files[absolutePath],
+				nodePath,
+				src,
+			});
+			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
+				timelineSelection: null,
+				fileName: absolutePath,
+				mutate: () => ({
+					...project,
+					files: {...project.files, [absolutePath]: result.output},
+				}),
+				nodePathMutationFiles: [
+					{
+						absolutePath,
+						remappings: result.nodePathRemappings,
+					},
+				],
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not replace video source');
+			}
+
+			return Promise.resolve({success: true as const, nodePathMutation});
+		} catch (error) {
+			return Promise.resolve({
+				success: false as const,
+				reason: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error && error.stack ? error.stack : '',
+			});
+		}
+	};
+
 	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
 		request,
 	) => {
@@ -2500,6 +2543,7 @@ export const createBrowserStudioOperations = ({
 		splitVideoFromAudio,
 		insertBasicCaptions,
 		insertVideoLayers,
+		replaceVideoSource,
 		subscribeToDefaultProps: ({clientId, compositionId}) => {
 			const clients =
 				defaultPropsSubscriptions.get(compositionId) ?? new Set<string>();

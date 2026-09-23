@@ -18,19 +18,29 @@ type VideoMattingJobStatus =
 	| {status: 'done'}
 	| {status: 'failed'; error: {message: string; stack: string | undefined}};
 
-export type AddVideoMattingJobParams = {
+type VideoMattingJobCommon = {
 	src: string;
 	displayName: string;
-	baseOutName: string;
-	foregroundOutName: string;
 	model: VideoMattingModel;
-	audio: VideoLayerAudio;
 	videoBitrate: VideoMattingBitrate;
 	target: {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 	} | null;
 };
+
+export type AddVideoMattingJobParams = VideoMattingJobCommon &
+	(
+		| {
+				outName: string;
+				audio: 'keep' | 'none';
+		  }
+		| {
+				baseOutName: string;
+				foregroundOutName: string;
+				audio: VideoLayerAudio;
+		  }
+	);
 
 export type VideoMattingJob = AddVideoMattingJobParams & {
 	id: string;

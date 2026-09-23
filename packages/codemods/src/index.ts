@@ -21,6 +21,7 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
+import {replaceVideoSource} from './replace-video-source';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
@@ -176,6 +177,7 @@ export const CodemodsInternals = {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	insertVideoLayers,
+	replaceVideoSource,
 	pasteEffects,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,

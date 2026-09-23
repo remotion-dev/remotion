@@ -1,12 +1,12 @@
 ---
 image: /generated/articles-docs-video-matting-index.png
 title: '@remotion/video-matting'
-crumb: 'Separate a video into layers'
+crumb: 'Remove a video background'
 ---
 
 # @remotion/video-matting<AvailableFrom v="4.0.523" />
 
-Separate a video into background and foreground layers, locally in the browser or [Node.js](/docs/video-matting/node) using WebGPU.
+Remove a video's background or separate it into background and foreground layers, locally in the browser or [Node.js](/docs/video-matting/node) using WebGPU.
 
 import {TableOfContents} from './table-of-contents';
 
@@ -16,11 +16,11 @@ import {TableOfContents} from './table-of-contents';
 
 ## Example
 
-```ts twoslash title="separate-video.ts"
+```ts twoslash title="remove-video-background.ts"
 import {
   downloadVideoMattingModel,
   loadVideoMattingModel,
-  separateVideoLayers,
+  removeVideoBackground,
 } from '@remotion/video-matting';
 
 export const matteVideo = async (file: File) => {
@@ -34,20 +34,17 @@ export const matteVideo = async (file: File) => {
   });
   console.log('Model already in memory:', modelHandle.alreadyLoaded);
 
-  await using layers = await separateVideoLayers({
+  await using result = await removeVideoBackground({
     src: file,
     model,
-    onProgress: ({progress}) => console.log('Separating layers:', progress),
+    onProgress: ({progress}) => console.log('Removing background:', progress),
   });
 
-  const [baseBlob, foregroundBlob] = await Promise.all([
-    layers.base.getBlob(),
-    layers.foreground.getBlob(),
-  ]);
-
-  return {baseBlob, foregroundBlob};
+  return result.video.getBlob();
 };
 ```
+
+To preserve the original video alongside the transparent result, duplicate its layer in Studio before removing the background.
 
 ## Model hosting
 
@@ -65,7 +62,7 @@ A GPU is needed for this.
 Use [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) to check whether your system can use video matting.
 
 The browser must also be able to decode the input video and encode VP9 with alpha through WebCodecs.  
-[`separateVideoLayers()`](/docs/video-matting/separate-video-layers) checks these media capabilities for the selected input.
+[`removeVideoBackground()`](/docs/video-matting/remove-video-background) and [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) check these media capabilities for the selected input.
 
 ## License
 

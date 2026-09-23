@@ -3,7 +3,6 @@ import {
 	canUseVideoMatting,
 	getAvailableModels,
 	isVideoMattingModelCached,
-	type VideoLayerAudio,
 	type VideoMattingBitrate,
 	type VideoMattingModel,
 } from '@remotion/video-matting';
@@ -14,7 +13,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {BLUE_DISABLED} from '../../helpers/colors';
+import {BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {ModelsIcon} from '../../icons/models';
 import {SeparationIcon} from '../../icons/separation';
@@ -75,13 +74,18 @@ const modalLayout: React.CSSProperties = {
 };
 const hiddenPanel: React.CSSProperties = {display: 'none'};
 const validationStyle: React.CSSProperties = {padding: '0 16px 8px'};
+const replacementNoticeStyle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 12,
+	padding: '0 16px 12px',
+};
 
 type SupportState =
 	| {type: 'checking'}
 	| {type: 'supported'}
 	| {type: 'unsupported'; message: string};
 
-type Tab = 'separate' | 'models';
+type Tab = 'remove' | 'models';
 
 const makeOptions = <Value extends string>({
 	items,
@@ -110,7 +114,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	src,
 	target,
 }) => {
-	const [tab, setTab] = useState<Tab>('separate');
+	const [tab, setTab] = useState<Tab>('remove');
 	const isModelCached = useCallback(
 		(selectedModel: VideoMattingModel) =>
 			isVideoMattingModelCached({model: selectedModel}),
@@ -125,12 +129,9 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		() => getDefaultOutputBaseName(src, displayName, 'video'),
 		[displayName, src],
 	);
-	const [baseOutName, setBaseOutName] = useState(`${baseName}-base.webm`);
-	const [foregroundOutName, setForegroundOutName] = useState(
-		`${baseName}-foreground.webm`,
-	);
+	const [outName, setOutName] = useState(`${baseName}-no-background.webm`);
 	const [model, setModel] = useState<VideoMattingModel>('modnet');
-	const [audio, setAudio] = useState<VideoLayerAudio>('base');
+	const [audio, setAudio] = useState<'keep' | 'none'>('keep');
 	const [videoBitrate, setVideoBitrate] =
 		useState<VideoMattingBitrate>('very-high');
 	const [support, setSupport] = useState<SupportState>({type: 'checking'});
@@ -156,9 +157,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		};
 	}, [model]);
 
-	const normalizedBase = baseOutName.normalize('NFC').toLowerCase();
-	const normalizedForeground = foregroundOutName.normalize('NFC').toLowerCase();
-	const duplicateOutput = normalizedBase === normalizedForeground;
+	const normalizedOutput = outName.normalize('NFC').toLowerCase();
 	const queuedOutputs = new Set(
 		videoMattingJobs
 			.filter(
@@ -167,36 +166,22 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 					job.status === 'running' ||
 					job.status === 'saving',
 			)
-			.flatMap((job) => [job.baseOutName, job.foregroundOutName])
+			.flatMap((job) =>
+				'outName' in job
+					? [job.outName]
+					: [job.baseOutName, job.foregroundOutName],
+			)
 			.map((name) => name.normalize('NFC').toLowerCase()),
 	);
-	const baseError =
-		validatePublicOutputName({extension: '.webm', outName: baseOutName}) ??
-		(duplicateOutput
-			? 'Base and foreground outputs must be different'
-			: queuedOutputs.has(normalizedBase)
-				? 'Another video matting job is using this output file'
-				: null);
-	const foregroundError =
-		validatePublicOutputName({
-			extension: '.webm',
-			outName: foregroundOutName,
-		}) ??
-		(duplicateOutput
-			? 'Base and foreground outputs must be different'
-			: queuedOutputs.has(normalizedForeground)
-				? 'Another video matting job is using this output file'
-				: null);
-	const baseExists = staticFiles.some(
-		(file) => file.name.normalize('NFC').toLowerCase() === normalizedBase,
+	const outputError =
+		validatePublicOutputName({extension: '.webm', outName}) ??
+		(queuedOutputs.has(normalizedOutput)
+			? 'Another background removal job is using this output file'
+			: null);
+	const outputExists = staticFiles.some(
+		(file) => file.name.normalize('NFC').toLowerCase() === normalizedOutput,
 	);
-	const foregroundExists = staticFiles.some(
-		(file) => file.name.normalize('NFC').toLowerCase() === normalizedForeground,
-	);
-	const canSubmit =
-		support.type === 'supported' &&
-		baseError === null &&
-		foregroundError === null;
+	const canSubmit = support.type === 'supported' && outputError === null;
 
 	const modelOptions = useMemo(
 		() =>
@@ -214,9 +199,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		() =>
 			makeOptions({
 				items: [
-					{id: 'base' as const, label: 'Background layer'},
-					{id: 'foreground' as const, label: 'Foreground layer'},
-					{id: 'both' as const, label: 'Both layers'},
+					{id: 'keep' as const, label: 'Keep original audio'},
 					{id: 'none' as const, label: 'No audio'},
 				],
 				selected: audio,
@@ -245,8 +228,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		addVideoMattingJob({
 			src,
 			displayName,
-			baseOutName,
-			foregroundOutName,
+			outName,
 			model,
 			audio,
 			videoBitrate,
@@ -259,10 +241,9 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	}, [
 		addVideoMattingJob,
 		audio,
-		baseOutName,
 		canSubmit,
 		displayName,
-		foregroundOutName,
+		outName,
 		model,
 		setSelectedModal,
 		setSidebarCollapsedState,
@@ -270,8 +251,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 		target,
 		videoBitrate,
 	]);
-	const title =
-		target === null ? `Track matting ${displayName}` : 'Separate foreground';
+	const title = `Remove background from ${displayName}`;
 
 	return (
 		<DismissableModal ariaLabel={title}>
@@ -290,23 +270,23 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 								: BLUE_DISABLED,
 						}}
 					>
-						Separate
+						Remove background
 					</Button>
 				</div>
 				<div style={modalLayout}>
 					<div style={leftSidebar}>
 						<VerticalTab
 							autoFocus
-							onClick={() => setTab('separate')}
+							onClick={() => setTab('remove')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>
 									<SeparationIcon color={color} style={icon} />
 								</div>
 							)}
-							selected={tab === 'separate'}
+							selected={tab === 'remove'}
 							style={horizontalTab}
 						>
-							Separate
+							Remove background
 						</VerticalTab>
 						<VerticalTab
 							onClick={() => setTab('models')}
@@ -322,38 +302,28 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 						</VerticalTab>
 					</div>
 					<div
-						style={tab === 'separate' ? panelStyle : hiddenPanel}
+						style={tab === 'remove' ? panelStyle : hiddenPanel}
 						className={VERTICAL_SCROLLBAR_CLASSNAME}
 					>
+						{target !== null ? (
+							<div style={replacementNoticeStyle}>
+								This replaces the selected video&apos;s source. Duplicate the
+								layer first to keep the original alongside it.
+							</div>
+						) : null}
 						<RenderModalOutputName
-							ariaLabel="Base video output file"
+							ariaLabel="Video output file"
 							existingOutputPath={
 								window.remotion_publicFolderExists
-									? `${window.remotion_publicFolderExists}/${baseOutName}`
+									? `${window.remotion_publicFolderExists}/${outName}`
 									: null
 							}
-							existence={baseExists}
+							existence={outputExists}
 							inputStyle={input}
-							label="Base output in public/"
-							onValueChange={(event) => setBaseOutName(event.target.value)}
-							outName={baseOutName}
-							validationMessage={baseError}
-						/>
-						<RenderModalOutputName
-							ariaLabel="Foreground video output file"
-							existingOutputPath={
-								window.remotion_publicFolderExists
-									? `${window.remotion_publicFolderExists}/${foregroundOutName}`
-									: null
-							}
-							existence={foregroundExists}
-							inputStyle={input}
-							label="Foreground output in public/"
-							onValueChange={(event) =>
-								setForegroundOutName(event.target.value)
-							}
-							outName={foregroundOutName}
-							validationMessage={foregroundError}
+							label="Output in public/"
+							onValueChange={(event) => setOutName(event.target.value)}
+							outName={outName}
+							validationMessage={outputError}
 						/>
 						<RenderModalHr />
 						<div style={optionRow}>

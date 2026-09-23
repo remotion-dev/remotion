@@ -34,8 +34,13 @@ export type {
 	VideoLayerOutputOptions,
 	VideoLayerOutputTarget,
 } from './output-target';
-export {separateVideoLayers} from './separate-video-layers';
+export {
+	removeVideoBackground,
+	separateVideoLayers,
+} from './separate-video-layers';
 export type {
+	RemoveVideoBackgroundOptions,
+	RemoveVideoBackgroundResult,
 	SeparateVideoLayersOptions,
 	SeparateVideoLayersProgress,
 	SeparateVideoLayersResult,

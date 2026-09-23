@@ -77,6 +77,8 @@ export {
 	InsertBasicCaptionsResponse,
 	InsertVideoLayersRequest,
 	InsertVideoLayersResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,

@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-video-matting-remove-video-background.png
+title: removeVideoBackground()
+crumb: '@remotion/video-matting'
+---
+
+# removeVideoBackground()<AvailableFrom v="4.0.528" />
+
+Removes a video's background and returns one transparent WebM. The original audio is kept by default.
+
+```ts twoslash title="remove-background.ts"
+import {downloadVideoMattingModel, removeVideoBackground} from '@remotion/video-matting';
+
+await downloadVideoMattingModel({model: 'modnet'});
+const file = new File([], 'input.mp4');
+
+await using result = await removeVideoBackground({src: file, model: 'modnet'});
+const transparentVideo = await result.video.getBlob();
+```
+
+## Options
+
+### src
+
+A `string`, `URL`, or `Blob` containing the input video. A `File` may be passed because it extends `Blob`. In [Node.js](/docs/video-matting/node), strings can also be local file paths.
+
+### model?
+
+The model to use. Default: `modnet`. See [`getAvailableModels()`](/docs/video-matting/get-available-models).
+
+### audio?
+
+`keep` retains the input video's primary audio track in the output. `none` produces a silent video. Default: `keep`.
+
+### output?
+
+Configures the output destination using `VideoLayerOutputOptions`. Default: `web-fs` when available, otherwise `arraybuffer`.
+
+#### output.outputTarget?
+
+Set to `arraybuffer` to keep the encoded video in memory, or `web-fs` to store it in the browser's origin-private file system. Default: automatic selection.
+
+#### output.outputWritable?
+
+A `WritableStream<StreamTargetChunk>` receiving the encoded video. It cannot be combined with `outputTarget`. When set, `result.video.getBlob()` rejects because the bytes were sent to the stream.
+
+### videoBitrate?
+
+The VP9 video quality. Default: `very-high`. Accepts `very-low`, `low`, `medium`, `high`, `very-high`, or a positive integer bitrate in bits per second.
+
+### audioBitrate?
+
+The Opus audio quality when transcoding. Default: `medium`.
+
+### keyframeIntervalInSeconds?
+
+The maximum time between video keyframes. Default: `1`.
+
+### signal?
+
+An `AbortSignal` to cancel processing.
+
+### onModelLoadProgress?
+
+Called while initializing a downloaded model.
+
+### onProgress?
+
+Called while processing and finalizing the output. The callback receives the same progress shape as [`separateVideoLayers()`](/docs/video-matting/separate-video-layers).
+
+## Return value
+
+The result includes `video`, a `VideoLayerOutput` with `getBlob()` and `dispose()` methods, plus `model`, `width`, `height`, `durationInSeconds`, and `processedFrames`. Dispose the result after use. `await using` does this automatically.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun="" serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
+
+## See also
+
+- [`separateVideoLayers()`](/docs/video-matting/separate-video-layers)
+- [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting)

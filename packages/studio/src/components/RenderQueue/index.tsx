@@ -100,8 +100,10 @@ export const RenderQueue: React.FC = () => {
 				if (
 					isVideoMattingJob(job) &&
 					job.status === 'done' &&
-					(canvasContent.asset === job.baseOutName ||
-						canvasContent.asset === job.foregroundOutName)
+					('outName' in job
+						? canvasContent.asset === job.outName
+						: canvasContent.asset === job.baseOutName ||
+							canvasContent.asset === job.foregroundOutName)
 				) {
 					return i;
 				}
@@ -116,7 +118,7 @@ export const RenderQueue: React.FC = () => {
 			<div style={explainer}>
 				<Spacing y={5} />
 				<div style={errorExplanation}>
-					Renders, transcriptions and video matting jobs will show up here.
+					Renders, transcriptions and background removal jobs will show up here.
 				</div>
 				<Spacing y={2} block />
 			</div>

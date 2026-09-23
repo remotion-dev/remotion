@@ -51,6 +51,7 @@ import {handleRemoveRender} from './routes/remove-render';
 import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
+import {replaceVideoSourceHandler} from './routes/replace-video-source';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
@@ -132,6 +133,7 @@ export const allApiRoutes: {
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
 	'/api/insert-video-layers': insertVideoLayersHandler,
+	'/api/replace-video-source': replaceVideoSourceHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,

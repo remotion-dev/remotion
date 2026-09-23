@@ -76,6 +76,23 @@ export type SeparateVideoLayersResult = AsyncDisposable & {
 	processedFrames: number;
 };
 
+export type RemoveVideoBackgroundOptions = Omit<
+	SeparateVideoLayersOptions,
+	'audio' | 'outputs'
+> & {
+	audio?: 'keep' | 'none';
+	output?: VideoLayerOutputOptions;
+};
+
+export type RemoveVideoBackgroundResult = AsyncDisposable & {
+	video: VideoLayerOutput;
+	model: VideoMattingModel;
+	width: number;
+	height: number;
+	durationInSeconds: number;
+	processedFrames: number;
+};
+
 const AUDIO_DESTINATIONS: VideoLayerAudio[] = [
 	'base',
 	'foreground',
@@ -88,7 +105,7 @@ const createAbortError = (signal: AbortSignal): unknown => {
 		return signal.reason;
 	}
 
-	const error = new Error('Video layer separation was aborted.');
+	const error = new Error('Video matting was aborted.');
 	error.name = 'AbortError';
 	return error;
 };
@@ -151,9 +168,12 @@ const validateLayerOutputOptions = ({
 	}
 };
 
-const validateOptions = (options: SeparateVideoLayersOptions) => {
+const validateOptions = (
+	options: SeparateVideoLayersOptions,
+	operationName: 'separateVideoLayers' | 'removeVideoBackground',
+) => {
 	if (!options || typeof options !== 'object') {
-		throw new TypeError('separateVideoLayers() expects an options object.');
+		throw new TypeError(`${operationName}() expects an options object.`);
 	}
 
 	const isBlob = typeof Blob !== 'undefined' && options.src instanceof Blob;
@@ -269,9 +289,11 @@ const makeInput = async (src: string | URL | Blob): Promise<Input> => {
 const probeVideoInput = async ({
 	input,
 	videoQuality,
+	includeBase,
 }: {
 	input: Input;
 	videoQuality: Quality;
+	includeBase: boolean;
 }): Promise<{videoTrack: InputVideoTrack; width: number; height: number}> => {
 	if (!(await input.canRead())) {
 		throw new Error('The input is not a supported media file.');
@@ -300,12 +322,14 @@ const probeVideoInput = async ({
 	}
 
 	const [canEncodeBase, canEncodeForeground] = await Promise.all([
-		canEncodeVideo('vp9', {
-			width,
-			height,
-			quality: videoQuality,
-			alpha: 'discard',
-		}),
+		includeBase
+			? canEncodeVideo('vp9', {
+					width,
+					height,
+					quality: videoQuality,
+					alpha: 'discard',
+				})
+			: Promise.resolve(true),
 		canEncodeVideo('vp9', {
 			width,
 			height,
@@ -315,21 +339,25 @@ const probeVideoInput = async ({
 	]);
 	if (!canEncodeBase || !canEncodeForeground) {
 		throw new Error(
-			'This environment cannot encode the VP9 video streams required for video layer separation.',
+			'This environment cannot encode the VP9 video streams required for video matting.',
 		);
 	}
 
 	return {videoTrack, width, height};
 };
 
-export const separateVideoLayers = async (
+const runVideoMatting = async (
 	options: SeparateVideoLayersOptions,
-): Promise<SeparateVideoLayersResult> => {
-	validateOptions(options);
+	includeBase: boolean,
+): Promise<SeparateVideoLayersResult | RemoveVideoBackgroundResult> => {
+	validateOptions(
+		options,
+		includeBase ? 'separateVideoLayers' : 'removeVideoBackground',
+	);
 	throwIfAborted(options.signal);
 
 	const model = options.model ?? 'modnet';
-	const audio = options.audio ?? 'base';
+	const audio = options.audio ?? (includeBase ? 'base' : 'foreground');
 	const videoQuality = resolveVideoMattingQuality(
 		options.videoBitrate ?? 'very-high',
 	);
@@ -346,6 +374,7 @@ export const separateVideoLayers = async (
 		const {videoTrack, width, height} = await probeVideoInput({
 			input,
 			videoQuality,
+			includeBase,
 		});
 		const [inputFirstVideoTimestamp, videoEndTimestamp] = await Promise.all([
 			videoTrack.getFirstTimestamp(),
@@ -405,6 +434,7 @@ export const separateVideoLayers = async (
 						keyframeIntervalInSeconds,
 						videoStartTimestamp,
 						videoEndTimestamp,
+						includeBase,
 					});
 					const iterator = videoFrames.frames;
 					let nextFrame = await iterator.next();
@@ -416,10 +446,13 @@ export const separateVideoLayers = async (
 
 					throwIfAborted(options.signal);
 
-					baseOutput = await createVideoLayerOutput({
-						format: new WebMOutputFormat(),
-						options: options.outputs?.base,
-					});
+					if (includeBase) {
+						baseOutput = await createVideoLayerOutput({
+							format: new WebMOutputFormat(),
+							options: options.outputs?.base,
+						});
+					}
+
 					throwIfAborted(options.signal);
 					foregroundOutput = await createVideoLayerOutput({
 						format: new WebMOutputFormat(),
@@ -427,12 +460,15 @@ export const separateVideoLayers = async (
 					});
 					throwIfAborted(options.signal);
 
-					baseOutput.output.addVideoTrack(videoFrames.baseSource);
+					if (baseOutput && videoFrames.baseSource) {
+						baseOutput.output.addVideoTrack(videoFrames.baseSource);
+					}
+
 					foregroundOutput.output.addVideoTrack(videoFrames.foregroundSource);
 
 					audioWriter = await prepareAudio({
 						input,
-						baseOutput: baseOutput.output,
+						baseOutput: baseOutput?.output ?? null,
 						foregroundOutput: foregroundOutput.output,
 						destination: audio,
 						videoStartTimestamp,
@@ -443,7 +479,7 @@ export const separateVideoLayers = async (
 					throwIfAborted(options.signal);
 
 					await Promise.all([
-						baseOutput.output.start(),
+						baseOutput?.output.start(),
 						foregroundOutput.output.start(),
 					]);
 					throwIfAborted(options.signal);
@@ -514,28 +550,27 @@ export const separateVideoLayers = async (
 						durationInSeconds,
 					});
 					await audioWriter.finishAudio();
-					videoFrames.baseSource.close();
+					videoFrames.baseSource?.close();
 					videoFrames.foregroundSource.close();
 					const [base, foreground] = await Promise.all([
-						baseOutput.finalize(),
+						baseOutput?.finalize() ?? Promise.resolve(null),
 						foregroundOutput.finalize(),
 					]);
 					throwIfAborted(options.signal);
 
 					completed = true;
 					const separated = {
-						base,
-						foreground,
+						...(base ? {base, foreground} : {video: foreground}),
 						model,
 						width,
 						height,
 						durationInSeconds,
 						processedFrames,
-					} as SeparateVideoLayersResult;
+					} as SeparateVideoLayersResult | RemoveVideoBackgroundResult;
 					Object.defineProperty(separated, Symbol.asyncDispose, {
 						enumerable: false,
 						value: async () => {
-							await Promise.all([base.dispose(), foreground.dispose()]);
+							await Promise.all([base?.dispose(), foreground.dispose()]);
 						},
 					});
 					return separated;
@@ -573,3 +608,20 @@ export const separateVideoLayers = async (
 		input.dispose();
 	}
 };
+
+export const separateVideoLayers = async (
+	options: SeparateVideoLayersOptions,
+): Promise<SeparateVideoLayersResult> =>
+	(await runVideoMatting(options, true)) as SeparateVideoLayersResult;
+
+export const removeVideoBackground = async (
+	options: RemoveVideoBackgroundOptions,
+): Promise<RemoveVideoBackgroundResult> =>
+	(await runVideoMatting(
+		{
+			...options,
+			audio: options.audio === 'none' ? 'none' : 'foreground',
+			outputs: {foreground: options.output},
+		},
+		false,
+	)) as RemoveVideoBackgroundResult;
