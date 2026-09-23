@@ -158,8 +158,10 @@ export const ShapesScene: React.FC = () => {
               case "Pie":
                 return <Pie radius={44} progress={0.7} counterClockwise rotation={frame / 12} fill={shape.color} />;
               case "Polygon":
-                // debug draws the path's control points over the shape.
-                return <Polygon points={6} radius={44} fill={shape.color} debug />;
+                // debug draws the Bézier control points of the path's curve
+                // segments; a straight-edged polygon has none, so cornerRadius
+                // is what gives it curves (one per corner) to show.
+                return <Polygon points={6} radius={44} cornerRadius={10} fill={shape.color} debug />;
               case "Ellipse":
                 return <Ellipse rx={56} ry={34} fill={shape.color} />;
               case "Spark":

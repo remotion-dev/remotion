@@ -72,7 +72,8 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
           Claude Chat
         </Box>
         ,{" "}
-        <Circle color={palette.accent2} box="around" roughness={2.5} curveTightness={0.4} progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        {/* box defaults to "around" (circumscribes the text); strokeWidth defaults to 20, which buried the words. */}
+        <Circle color={palette.accent2} strokeWidth={6} roughness={2.5} curveTightness={0.4} progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
           Claude Cowork
         </Circle>
         , or{" "}

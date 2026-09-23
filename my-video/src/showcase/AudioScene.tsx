@@ -129,9 +129,23 @@ export const AudioScene: React.FC = () => {
           startTimeInSeconds: 0,
           durationInSeconds: fullAudioData.durationInSeconds,
           numberOfSamples: 32,
-          // Raw amplitudes instead of the default peak-normalized bars.
-          normalize: false,
         })
+      : null;
+
+  // The same envelope with normalize: false keeps raw amplitudes. This tone is
+  // steady and quiet (~0.10 per bar), so drawn at the same scale the bars would
+  // be ~2px tall; the value is shown as text instead.
+  const rawEnvelopePeak =
+    fullAudioData && fullAudioData.durationInSeconds > 0
+      ? Math.max(
+          ...getWaveformPortion({
+            audioData: fullAudioData,
+            startTimeInSeconds: 0,
+            durationInSeconds: fullAudioData.durationInSeconds,
+            numberOfSamples: 32,
+            normalize: false,
+          }).map((bar) => bar.amplitude),
+        )
       : null;
 
   return (
@@ -154,6 +168,11 @@ export const AudioScene: React.FC = () => {
           <div key={bar.index} style={{width: 6, height: Math.max(2, bar.amplitude * 24), background: palette.textDim, alignSelf: "flex-end"}} />
         ))}
       </div>
+      {rawEnvelopePeak === null ? null : (
+        <div style={{marginTop: 8, textAlign: "center", color: palette.textDim, fontSize: 13, fontFamily: "monospace"}}>
+          getWaveformPortion(): peak-normalized bars · with normalize: false the loudest bar is {rawEnvelopePeak.toFixed(2)}
+        </div>
+      )}
       <div
         style={{
           position: "absolute",
@@ -161,7 +180,7 @@ export const AudioScene: React.FC = () => {
           width,
           textAlign: "center",
           color: palette.text,
-          fontSize: 28,
+          fontSize: 22,
           fontWeight: 600,
         }}
       >

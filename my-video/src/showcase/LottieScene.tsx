@@ -16,7 +16,7 @@ export const LottieScene: React.FC = () => {
   const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("Loading Lottie animation"));
   const [animationData, setAnimationData] = useState<LottieAnimationData | null>(null);
-  const [loadedFrames, setLoadedFrames] = useState<number | null>(null);
+  const [loaded, setLoaded] = useState<{totalFrames: number; frameRate: number} | null>(null);
 
   useEffect(() => {
     fetch(staticFile("sample-lottie.json"))
@@ -46,14 +46,19 @@ export const LottieScene: React.FC = () => {
           playbackRate={1.5}
           loop
           renderer="canvas"
-          onAnimationLoaded={(animation) => setLoadedFrames(animation.totalFrames)}
+          onAnimationLoaded={(animation) => setLoaded({totalFrames: animation.totalFrames, frameRate: animation.frameRate})}
         />
       ) : null}
-      {loadedFrames === null ? null : (
+      {/* Only what the callback reports. It fires before <Lottie> applies
+          direction/playbackRate, so reading those back here would show defaults. */}
+      {loaded === null ? null : (
         <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace", marginTop: 8}}>
-          onAnimationLoaded(): {loadedFrames} frames · direction backward · 1.5x · canvas renderer
+          onAnimationLoaded(): {loaded.totalFrames} frames @ {loaded.frameRate}fps
         </div>
       )}
+      <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace", marginTop: 8}}>
+        props: direction=&quot;backward&quot; · playbackRate=1.5 · loop · renderer=&quot;canvas&quot;
+      </div>
       {metadata ? (
         <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace", marginTop: 8}}>
           getLottieMetadata(): {metadata.width}x{metadata.height} · {metadata.fps}fps · {metadata.durationInSeconds.toFixed(2)}s

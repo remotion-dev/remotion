@@ -74,8 +74,10 @@ export const CoreEnvironmentScene: React.FC = () => {
     // that one is expected, so only a real failure is reported.
     waitUntilDone()
       .then(() => setPrefetchStatus("ready"))
-      .catch(() => {
-        if (!freed) setPrefetchStatus("failed");
+      .catch((err) => {
+        if (freed) return;
+        console.error("prefetch(sample-clip.mp4) failed", err);
+        setPrefetchStatus("failed");
       })
       .finally(() => playback.unblock());
     return () => {

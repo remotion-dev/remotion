@@ -23,7 +23,8 @@ const IFRAME_CONTENT = `<!doctype html><html><body style="margin:0;display:flex;
 const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, children}) => (
   <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 6}}>
     <div style={{width: TILE, height: TILE, overflow: "hidden", borderRadius: 8, background: "#000"}}>{children}</div>
-    <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>{label}</div>
+    {/* Fixed width so a long label wraps instead of widening the column (4 tiles per row). */}
+    <div style={{width: TILE, color: palette.textDim, fontSize: 14, fontFamily: "monospace", textAlign: "center"}}>{label}</div>
   </div>
 );
 
