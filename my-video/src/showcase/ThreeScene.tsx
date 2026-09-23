@@ -20,7 +20,7 @@ import {VideoTexturePlane} from "./VideoTexturePlane";
 // try/catch can recover from it; it aborts the whole render. This is a real
 // gap in the specific WebGPU implementation this sandbox's headless
 // Chromium ships, not a code bug -- see the same environment's
-// AGENTS.md notes on WebGPU/GPU limitations for video-matting/whisper-webgpu.
+// docs/findings.md notes on WebGPU/GPU limitations for video-matting/whisper-webgpu.
 // useVideoTexture()/useOffthreadVideoTexture() are also not used here:
 // both are deprecated. The plane on the right uses their documented
 // replacement instead, a headless @remotion/media <Video> drawn into a

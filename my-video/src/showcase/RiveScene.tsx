@@ -20,7 +20,7 @@ import {poppins} from "./font";
 // handle, so it doesn't fix the hang -- confirmed by testing, not assumed.
 // This is a real gap in this environment (arguably an edge case in
 // @remotion/rive's own error handling too), not a choice to skip the API --
-// see AGENTS.md.
+// see docs/findings.md.
 export const RiveScene: React.FC = () => {
   const {width} = useVideoConfig();
 

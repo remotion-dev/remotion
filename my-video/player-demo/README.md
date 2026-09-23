@@ -21,7 +21,7 @@ The bundle is a classic script, not an ES module, so you can also open `player-d
 
 ## Why this isn't a composition
 
-`<Player>` and `<Thumbnail>` are meant to be embedded in an ordinary React app. They can't be nested inside a composition. `<Thumbnail>` sets the global `window.remotion_isPlayer = true` in a layout effect and never resets it, and the render that contains it depends on that flag being `false` (see "WebCodecs, media decoding and the Node-side APIs" in `../AGENTS.md`). So the demo is a separate page. It imports the reel's component straight from `../src/showcase/ShowcaseReel`.
+`<Player>` and `<Thumbnail>` are meant to be embedded in an ordinary React app. They can't be nested inside a composition. `<Thumbnail>` sets the global `window.remotion_isPlayer = true` in a layout effect and never resets it, and the render that contains it depends on that flag being `false` (see "WebCodecs, media decoding and the Node-side APIs" in `../docs/findings.md`). So the demo is a separate page. It imports the reel's component straight from `../src/showcase/ShowcaseReel`.
 
 Both components take a component directly, not a `<Composition>`, and they never run `calculateMetadata()`. `main.tsx` therefore repeats the reel's settings from `src/Root.tsx`: 1280×720, 30 fps and 315 frames, the value `calculateShowcaseReelMetadata()` computes. Update it if the reel's timing changes.
 

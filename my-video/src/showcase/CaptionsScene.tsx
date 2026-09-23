@@ -112,7 +112,7 @@ export const CaptionsScene: React.FC = () => {
           codec this Chromium decodes (the VP9 .webm), isn't frame-perfect (a
           frame now and then repeats the previous one, per video-tags.mdx), and
           lives here because a decodable <video> blanks canvas components in
-          the same frame. See AGENTS.md. */}
+          the same frame. See docs/findings.md. */}
       <Html5Video
         src={staticFile("sample-clip.webm")}
         muted

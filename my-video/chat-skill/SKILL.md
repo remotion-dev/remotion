@@ -38,3 +38,10 @@ Every video in this project is bilingual. The speech may be Vietnamese, English 
 - **In Claude Cowork / Claude Code (filesystem available):** edit the files directly, run `npm run lint` before finishing, and use `npm run dev` to preview. Prefer the project-local skills in `my-video/.claude/skills/` if present — they are the same guides as this bundle.
 - Animations must be driven by `useCurrentFrame()` / `interpolate()` / `spring()` — never wall-clock time, CSS transitions, or `setTimeout`.
 - Users may have edited files outside the conversation (including visually in Remotion Studio); treat unexpected existing code as intentional.
+
+## Keep it lean
+
+- Reuse before writing: an existing scene, a [Remotion Element](https://www.remotion.dev/elements/), or an installed `@remotion/*` package, in that order. Write new code only when none fits.
+- Build only what was asked: no extra scenes, props or schemas "for later".
+- After the files, at most three short lines: what was skipped and when to add it. Explain more only when asked.
+- With a filesystem, check the work with `npx remotion still <id> out/check.png --frame=<n> --scale=0.5` on the frames that matter, not a full render. An image costs tokens in proportion to its pixels.

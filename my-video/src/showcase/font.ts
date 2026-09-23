@@ -14,6 +14,6 @@
 // unrestricted network access to fonts.gstatic.com from the browser itself.
 // See RoundedTextBoxScene for a real, working @remotion/google-fonts call
 // (getAvailableFonts(), a pure catalog list -- no network needed) and
-// AGENTS.md for the full story.
+// docs/findings.md for the full story.
 export const poppins =
   '"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif';

@@ -46,4 +46,27 @@ From `packages/example`:
 
 ## Imported agents and skills
 
-`.agents/agents/` (exposed via the `.claude/agents` symlink) and 7 skills in `.agents/skills/` are imported from ECC — see `.agents/ECC.md` for the list, what was left out, and how to re-sync. This file and the Remotion-authored skills take precedence over them where they conflict.
+`.agents/agents/` (exposed via the `.claude/agents` symlink) and 7 skills in `.agents/skills/` are imported from ECC — see `.agents/ECC.md` for the list, what was left out, and how to re-sync. The agents run only when asked. The `ponytail-review`, `ponytail-audit` and `ponytail-debt` skills and the "Work lean" rules below come from ponytail — see `.agents/PONYTAIL.md`. This file and the Remotion-authored skills take precedence over all of them where they conflict.
+
+## Work lean
+
+Read the task and the code it touches first. Then, before writing code, stop at the first rung that holds:
+
+1. Does it need to exist? Skip speculative features and say so in one line.
+2. Is it already in this repo? Reuse the helper, util or pattern.
+3. Does the standard library or the platform do it?
+4. Does an installed dependency do it? No new dependency for what a few lines can do.
+5. Only then, write the minimum code that works.
+
+- Fix a bug at its root: grep every caller of the function you touch and fix the shared function once.
+- Shortest correct diff, fewest files, deletion over addition. No abstraction, config or boilerplate nobody asked for.
+- Never cut input validation at trust boundaries, error handling that prevents data loss, security, accessibility, or anything explicitly requested. Non-trivial logic still gets a test (see the `writing-tests` skill).
+- Mark a deliberate shortcut with `// ponytail: <limit>, <when to upgrade>`; `/ponytail-debt` lists them.
+- Report in a few lines: what changed and what was skipped. Explain at length only when asked.
+
+Token habits in this monorepo:
+
+- Build and test only the package you changed (`--filter`), not the whole turbo graph.
+- Search with grep/glob before opening files, and read only the lines you need.
+- Pipe long command output through `tail` or `grep`.
+- Use subagents for broad searches only. Each starts from nothing (a one-question Explore run here used about 48,000 tokens) and an Explore subagent here did not see this file, so put the rules that matter into its prompt.
