@@ -14,17 +14,19 @@ import {
 } from "remotion";
 import {useState} from "react";
 import {sepiaEffect} from "./effects/sepia-effect";
+import {paletteMap} from "./effects/palette-map-effect";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
-const TILE = 220;
+// 180px fits six tiles per row in the 1180px row, so all 11 fit in two rows.
+const TILE = 180;
 
 const IFRAME_CONTENT = `<!doctype html><html><body style="margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#111827;color:#f8fafc;font-family:sans-serif;font-size:20px;">Local &lt;IFrame&gt;</body></html>`;
 
 const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, children}) => (
   <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 6}}>
     <div style={{width: TILE, height: TILE, overflow: "hidden", borderRadius: 8, background: "#000"}}>{children}</div>
-    {/* Fixed width so a long label wraps instead of widening the column (5 tiles per row). */}
+    {/* Fixed width so a long label wraps instead of widening the column. */}
     <div style={{width: TILE, color: palette.textDim, fontSize: 14, fontFamily: "monospace", textAlign: "center"}}>{label}</div>
   </div>
 );
@@ -54,10 +56,11 @@ const ImgFallbackTile: React.FC = () => {
 // <AnimatedImage> (sample-clip.gif, frame-accurate via ImageDecoder, synced
 // to useCurrentFrame() rather than looping on its own like a plain <img>
 // would), <CanvasImage> with a custom createEffect() filter
-// (sepia-effect.ts) applied to sample-frame.png (not the gif: <CanvasImage>
-// loads through new Image() and draws it once, so a gif shows only its
-// first frame), and <IFrame> pointed at a local data: URL so it needs no
-// network.
+// (sepia-effect.ts) and a second one with an array-of-colours param
+// (palette-map-effect.ts), both applied to sample-frame.png (not the gif:
+// <CanvasImage> loads through new Image() and draws it once, so a gif shows
+// only its first frame), and <IFrame> pointed at a local data: URL so it
+// needs no network.
 //
 // <Img effects> renders through <CanvasImage> instead of a native <img>.
 // blur() is a WebGL2 effect, so that tile holds 2 WebGL contexts; this
@@ -128,6 +131,9 @@ export const CoreMediaScene: React.FC = () => {
         </Tile>
         <Tile label="<CanvasImage> + createEffect()">
           <CanvasImage src={staticFile("sample-frame.png")} width={TILE} height={TILE} fit="cover" effects={[sepiaEffect({amount: 1})]} className="sepia-tile" id="sepia-canvas" crossOrigin="anonymous" pauseWhenLoading delayRenderTimeoutInMilliseconds={15000} delayRenderRetries={1} cropTop={0.15} />
+        </Tile>
+        <Tile label="<CanvasImage> + paletteMap()">
+          <CanvasImage src={staticFile("sample-frame.png")} width={TILE} height={TILE} fit="cover" effects={[paletteMap({palette: [palette.bg, palette.accent, palette.accent2, palette.text], amount: 1})]} />
         </Tile>
         <Tile label="<CanvasImage maxRetries onError>">
           <div style={{position: "relative", width: "100%", height: "100%"}}>
