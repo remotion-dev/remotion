@@ -77,7 +77,7 @@ You can pass `premountFor` directly to these components:
 - [Shape components](/docs/shapes), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor) and [rough-notation components](/docs/rough-notation/api).
 - [`<Lottie>`](/docs/lottie/lottie), [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas), [`<ThreeCanvas>`](/docs/three-canvas) and [`<ThreeWebGPUCanvas>`](/docs/three-webgpu-canvas).
 
-These components keep their existing layout while premounted, with `opacity: 0` and `pointerEvents: 'none'`. They do not add a wrapper element. Their local frame stays at the first frame until `from` is reached.
+These components keep their existing layout while premounted, with `opacity: 0` and `pointerEvents: 'none'`. Their local frame stays at the first frame until `from` is reached.
 
 ```tsx twoslash title="PremountedScene.tsx"
 import {AbsoluteFill, Img, staticFile} from 'remotion';
