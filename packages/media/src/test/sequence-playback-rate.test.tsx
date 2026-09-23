@@ -3,7 +3,9 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import {Freeze, Internals, Sequence, useCurrentFrame} from 'remotion';
 import {assert, expect, test, vi} from 'vitest';
+import {extractAudio} from '../audio-extraction/extract-audio';
 import {Audio} from '../audio/audio';
+import {getMaxVideoCacheSize, globalMediaCache} from '../caches';
 import {Video} from '../video/video';
 
 test('nested Sequence rates keep decoded video, looping, and scheduled audio in sync', async () => {
@@ -302,6 +304,103 @@ test('client rendering resamples nested Sequence media at the combined rate', as
 		container.remove();
 		window.remotion_audioEnabled = originalAudioEnabled;
 		window.remotion_videoEnabled = originalVideoEnabled;
+	}
+});
+
+test('client rendering reads the next trimmed audio loop within a frame', async () => {
+	const src = new URL('../../../remotion-media/ding.wav', import.meta.url).href;
+	const environment = {
+		isRendering: true,
+		isClientSideRendering: true,
+		isPlayer: false,
+		isStudio: false,
+		isReadOnlyStudio: false,
+	};
+	const originalAudioEnabled = window.remotion_audioEnabled;
+	window.remotion_audioEnabled = true;
+	let assets: React.ContextType<
+		typeof Internals.RenderAssetManager
+	>['renderAssets'] = [];
+	const ObserveRenderedAssets: React.FC = () => {
+		assets = React.useContext(Internals.RenderAssetManager).renderAssets;
+		return null;
+	};
+
+	const Composition: React.FC = () => (
+		<Internals.RemotionEnvironmentContext.Provider value={environment}>
+			<Internals.RenderAssetManagerProvider collectAssets={null}>
+				{/* Frame 15 reads source frames 34–35, then wraps to 4–5. */}
+				<Audio src={src} trimBefore={4} trimAfter={35} playbackRate={2} loop />
+				<ObserveRenderedAssets />
+			</Internals.RenderAssetManagerProvider>
+		</Internals.RemotionEnvironmentContext.Provider>
+	);
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	try {
+		root.render(
+			<Player
+				acknowledgeRemotionLicense
+				component={Composition}
+				compositionHeight={720}
+				compositionWidth={1280}
+				durationInFrames={60}
+				fps={30}
+				sampleRate={48000}
+				initialFrame={15}
+				inputProps={{}}
+			/>,
+		);
+		await expect
+			.poll(() => assets.filter((item) => item.type === 'inline-audio').length)
+			.toBe(1);
+		const asset = assets.find((item) => item.type === 'inline-audio');
+		assert(asset);
+
+		const referenceOptions = {
+			sampleRate: 48000,
+			src,
+			audioStreamIndex: 0,
+			durationInSeconds: 1 / 60,
+			playbackRate: 2,
+			fps: 30,
+			logLevel: 'info' as const,
+			loop: false,
+			trimBefore: undefined,
+			trimAfter: undefined,
+			maxCacheSize: getMaxVideoCacheSize('info'),
+			credentials: undefined,
+			mediaCache: globalMediaCache,
+		};
+		const beforeWrap = await extractAudio({
+			...referenceOptions,
+			timeInSeconds: 17 / 30,
+		});
+		const afterWrap = await extractAudio({
+			...referenceOptions,
+			timeInSeconds: 2 / 30,
+		});
+		assert(typeof beforeWrap === 'object' && beforeWrap.data);
+		assert(typeof afterWrap === 'object' && afterWrap.data);
+
+		const output = new Int16Array(asset.audio);
+		const firstHalfLength = beforeWrap.data.data.length;
+		expect(output.length).toBe(firstHalfLength + afterWrap.data.data.length);
+		const expected = new Int16Array(output.length);
+		expected.set(beforeWrap.data.data);
+		expected.set(afterWrap.data.data, firstHalfLength);
+		let maximumError = 0;
+		for (let i = 0; i < output.length; i++) {
+			maximumError = Math.max(maximumError, Math.abs(output[i] - expected[i]));
+		}
+
+		expect(maximumError).toBeLessThanOrEqual(2);
+		expect(afterWrap.data.data.some((sample) => sample !== 0)).toBe(true);
+	} finally {
+		root.unmount();
+		container.remove();
+		window.remotion_audioEnabled = originalAudioEnabled;
 	}
 });
 

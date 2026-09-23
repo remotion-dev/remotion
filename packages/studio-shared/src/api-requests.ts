@@ -888,6 +888,25 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+
+export type WrapJsxNodeRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	wrapper: JsxWrapper | null;
+	width: number | null;
+	height: number | null;
+};
+
+export type WrapJsxNodeResponse =
+	| {
+			success: true;
+			canWrap: boolean;
+			canWrapHtmlInCanvas: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
 export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1440,6 +1459,7 @@ export type ApiRoutes = {
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
+	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
 	'/api/split-jsx-sequence': ReqAndRes<
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse

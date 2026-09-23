@@ -13,6 +13,8 @@ import {
 	duplicateComposition as duplicateCompositionCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
 	duplicateJsxNodes as duplicateJsxNodesCodemod,
+	canWrapJsxNode,
+	wrapJsxNode as wrapJsxNodeCodemod,
 	getJsxNodeProps,
 	moveComposition,
 	moveFolder,
@@ -1476,6 +1478,52 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const wrapJsxNode: BrowserStudioOperations['wrapJsxNode'] = ({
+		fileName,
+		nodePath,
+		wrapper,
+		width,
+		height,
+	}) => {
+		try {
+			const project = getProject();
+			const filePath = findProjectFile({project, filePath: fileName});
+			const eligibility = canWrapJsxNode({
+				input: project.files[filePath],
+				nodePath,
+			});
+			if (wrapper === null) {
+				return Promise.resolve({
+					success: true,
+					...eligibility,
+					nodePathMutation: null,
+				});
+			}
+
+			const result = wrapJsxNodeCodemod({
+				project,
+				node: {filePath, nodePath},
+				wrapper,
+				width: width ?? 0,
+				height: height ?? 0,
+			});
+			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
+				timelineSelection: null,
+				fileName,
+				mutate: () => result.project,
+				nodePathMutationFiles: getNodePathMutationFiles(result),
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not wrap JSX node');
+			}
+
+			return Promise.resolve({success: true, ...eligibility, nodePathMutation});
+		} catch (error) {
+			return Promise.resolve(getStructuredError(error));
+		}
+	};
+
 	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
 		sequences,
 	}) => {
@@ -2213,6 +2261,7 @@ export const createBrowserStudioOperations = ({
 			}),
 		duplicateComposition,
 		duplicateJsxNode,
+		wrapJsxNode,
 		effects: effectOperations,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,

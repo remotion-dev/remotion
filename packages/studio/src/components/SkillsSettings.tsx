@@ -1,19 +1,15 @@
 import type {GetRemotionSkillsInfoResponse} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BLACK_ALPHA_22,
-	BLUE,
-	BORDER_WHITE_ALPHA_12,
-	LIGHT_TEXT,
-	WHITE,
-} from '../helpers/colors';
+import {BLACK_ALPHA_22, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
 import {CloudDownloadIcon} from '../icons/cloud-download';
 import {CopyIcon} from '../icons/copy';
+import {SkillsIcon} from '../icons/skills';
 import {TrashIcon} from '../icons/trash';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -71,16 +67,15 @@ const list: React.CSSProperties = {
 
 const skillRow: React.CSSProperties = {
 	alignItems: 'center',
-	borderBottom: BORDER_WHITE_ALPHA_12,
 	display: 'flex',
 	gap: 10,
 	minHeight: 38,
-	padding: '0 10px',
 };
 
-const lastSkillRow: React.CSSProperties = {
-	...skillRow,
-	borderBottom: 'none',
+const skillIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 16,
+	width: 16,
 };
 
 const statusIcon: React.CSSProperties = {
@@ -90,7 +85,7 @@ const statusIcon: React.CSSProperties = {
 };
 
 const skillName: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	flex: 1,
 	fontFamily: 'monospace',
 	fontSize: 13,
@@ -128,9 +123,8 @@ const loading: React.CSSProperties = {
 };
 
 export const SkillSettingsRow: React.FC<{
-	readonly isLast: boolean;
 	readonly skill: GetRemotionSkillsInfoResponse['skills'][number];
-}> = ({isLast, skill}) => {
+}> = ({skill}) => {
 	const {installSkill, removeSkill, skillAction} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canInstall =
@@ -154,7 +148,8 @@ export const SkillSettingsRow: React.FC<{
 	}, []);
 
 	return (
-		<div role="listitem" style={isLast ? lastSkillRow : skillRow}>
+		<div role="listitem" style={skillRow}>
+			<SkillsIcon aria-hidden color={LIGHT_TEXT} style={skillIcon} />
 			<span style={skillName}>/{skill.name}</span>
 			{processingThisSkill ? (
 				<span style={status}>
@@ -171,25 +166,37 @@ export const SkillSettingsRow: React.FC<{
 					<Spinner duration={0.5} size={14} />
 				</span>
 			) : installed && canInstall ? (
-				<InlineAction
-					title={
-						skill.installedInProject
-							? `Remove ${skill.name} from this project`
-							: `Remove ${skill.name} globally`
-					}
-					disabled={skillAction !== null}
-					onClick={() => removeSkill(skill.name)}
-					renderAction={renderRemoveAction}
-					variant={null}
-				/>
+				<ActionTooltip
+					label="Uninstall"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineAction
+						aria-label={`Remove ${skill.name}`}
+						title=""
+						disabled={skillAction !== null}
+						onClick={() => removeSkill(skill.name)}
+						renderAction={renderRemoveAction}
+						variant={null}
+					/>
+				</ActionTooltip>
 			) : canInstall ? (
-				<InlineAction
-					title={`Install ${skill.name} in this project`}
-					disabled={skillAction !== null}
-					onClick={() => installSkill(skill.name)}
-					renderAction={renderInstallAction}
-					variant={null}
-				/>
+				<ActionTooltip
+					label="Install"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineAction
+						aria-label={`Install ${skill.name}`}
+						title=""
+						disabled={skillAction !== null}
+						onClick={() => installSkill(skill.name)}
+						renderAction={renderInstallAction}
+						variant={null}
+					/>
+				</ActionTooltip>
 			) : null}
 		</div>
 	);
@@ -269,14 +276,8 @@ export const SkillsSettings: React.FC = () => {
 			) : null}
 			{remotionSkillsInfo ? (
 				<div style={list} role="list" aria-label="Remotion Agent Skills">
-					{remotionSkillsInfo.skills.map((skill, index) => {
-						return (
-							<SkillSettingsRow
-								key={skill.name}
-								isLast={index === remotionSkillsInfo.skills.length - 1}
-								skill={skill}
-							/>
-						);
+					{remotionSkillsInfo.skills.map((skill) => {
+						return <SkillSettingsRow key={skill.name} skill={skill} />;
 					})}
 				</div>
 			) : null}
