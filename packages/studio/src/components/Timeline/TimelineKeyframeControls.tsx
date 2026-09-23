@@ -550,7 +550,7 @@ export const TimelineKeyframeControls: React.FC<{
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const setFrame = Internals.useTimelineSetFrame();
+	const setFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(

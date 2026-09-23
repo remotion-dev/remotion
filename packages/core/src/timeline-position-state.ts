@@ -121,5 +121,11 @@ export const useTimelineSetFrame = (): ((
 	return setFrame;
 };
 
+// Explicit navigation only. Playback and frame persistence must use setFrame.
+export const useTimelineSeekFrame = () => {
+	const {seek, setFrame} = useContext(SetTimelineContext);
+	return seek?.setFrame ?? setFrame;
+};
+
 export {usePlaying} from './use-playing.js';
 export {useBuffering} from './use-buffering.js';

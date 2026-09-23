@@ -79,6 +79,32 @@ test('audio-only file should initialize without `audioStreamIndex` (regression f
 	await player.dispose();
 });
 
+test('queued playback cannot consume a superseded seek boundary', async () => {
+	const player = makeAudioPlayer(null, null, 'video');
+	try {
+		expect((await player.initialize(0, true, 1)).type).toBe('success');
+		const manager = player.videoIteratorManager!;
+		await player.seekTo(0, {revision: 0, playing: true});
+		await player.seekTo(2, {revision: 0, playing: true});
+		expect(manager.getVideoIteratorsCreated()).toBe(1);
+		expect(manager.getFramesRendered()).toBeGreaterThan(1);
+
+		// Both requests are enqueued before either executes. The first request
+		// goes stale, but the second still needs to establish revision 1.
+		await Promise.all([
+			player.seekTo(8, {revision: 1, playing: true}),
+			player.seekTo(8.1, {revision: 1, playing: true}),
+		]);
+		expect(manager.getVideoIteratorsCreated()).toBe(2);
+		await player.seekTo(8.5, {revision: 1, playing: true});
+		expect(manager.getVideoIteratorsCreated()).toBe(2);
+		await player.seekTo(0, {revision: 1, playing: true});
+		expect(manager.getVideoIteratorsCreated()).toBe(3);
+	} finally {
+		await player.dispose();
+	}
+});
+
 test('uses the initial volume before audio playback is ready', async () => {
 	const sharedAudioContext = makeSharedAudioContext();
 	const mediaGainNodes: GainNode[] = [];
@@ -111,7 +137,7 @@ test('uses the initial volume before audio playback is ready', async () => {
 	}
 });
 
-test('dispose should immediately unblock playback delays', async () => {
+test('dispose should immediately unblock a pending playback catch-up', async () => {
 	let activeBlocks = 0;
 	let delayPlaybackCalled: () => void = () => {};
 
@@ -173,12 +199,13 @@ test('dispose should immediately unblock playback delays', async () => {
 	});
 
 	await player.initialize(0, false, 1);
+	await player.seekTo(0, {revision: 0, playing: true});
 
 	const seekDelayPromise = new Promise<void>((resolve) => {
 		delayPlaybackCalled = resolve;
 	});
 
-	const seekPromise = player.seekTo(9);
+	const seekPromise = player.seekTo(9, {revision: 0, playing: true});
 
 	await seekDelayPromise;
 
@@ -201,9 +228,9 @@ test.each(['video'] as const)(
 		player[`${tagType}IteratorManager`] = {seek, destroy: vi.fn()} as never;
 		player.play();
 
-		await player.seekTo(1);
+		await player.seekTo(1, null);
 		player.play();
-		await player.seekTo(2);
+		await player.seekTo(2, null);
 
 		expect(onError).toHaveBeenCalledOnce();
 		expect(onError).toHaveBeenCalledWith(error);
@@ -252,13 +279,13 @@ test.each(['audio', 'video'] as const)(
 				},
 			);
 		try {
-			await player.seekTo(1);
+			await player.seekTo(1, null);
 			await vi.waitFor(() => expect(rejectRead).toBeDefined());
 			rejectRead(error);
 
 			await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
 			player.play();
-			await player.seekTo(2);
+			await player.seekTo(2, null);
 			expect(onError).toHaveBeenCalledOnce();
 			expect(unblocks).toHaveBeenCalled();
 			expect(buffers).toHaveBeenCalledOnce();
@@ -283,14 +310,14 @@ test('ignores pending seek failures after disposal and skips new seeks', async (
 	);
 	player.videoIteratorManager = {seek} as never;
 
-	const pending = player.seekTo(1);
+	const pending = player.seekTo(1, null);
 	await vi.waitFor(() => expect(seek).toHaveBeenCalledOnce());
 	player.videoIteratorManager = null;
 	await player.dispose();
 	rejectSeek(new TypeError('Failed to fetch'));
 	await pending;
 	player.videoIteratorManager = {seek} as never;
-	await player.seekTo(2);
+	await player.seekTo(2, null);
 
 	expect(onError).not.toHaveBeenCalled();
 	expect(seek).toHaveBeenCalledOnce();
