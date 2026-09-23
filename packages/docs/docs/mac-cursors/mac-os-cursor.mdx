@@ -72,27 +72,11 @@ A CSS class name for the cursor image.
 
 CSS styles for the cursor image. Use `left` and `top` to position it without changing the hotspot correction.
 
-### Timing and display props
+### Inherited props
 
-The component also accepts [`InteractiveBaseProps`](/docs/interactive#interactivebaseprops), including `durationInFrames`, `from`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name`, and `showInTimeline`.
+`<MacOSCursor>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
-### `premountFor?`<AvailableFrom v="4.0.528" />
-
-Mounts the component before its `from` frame, keeping it transparent and frozen at its first frame so assets can load. The value is a number of frames. Defaults to `0` in v4 and `fps` (1 second) in v5. See [premounting](/docs/player/premounting).
-
-### `postmountFor?`<AvailableFrom v="4.0.528" />
-
-Keeps the component mounted after its duration ends, transparent and frozen at its last frame. Defaults to `0` frames. Requires a finite `durationInFrames`.
-
-### `styleWhilePremounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while premounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-### `styleWhilePostmounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while postmounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-Premounting and postmounting apply in the [Player](/docs/player) and [Studio](/docs/studio), and are disabled during rendering. They do not add a wrapper element.
+From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
 ## Compatibility
 

@@ -50,55 +50,11 @@ export default ThreeBasic;
 
 ## Props
 
-### `from?`<AvailableFrom v="4.0.528" />
+### Inherited props<AvailableFrom v="4.0.528" />
 
-The frame at which the component becomes visible, relative to its parent. Defaults to `0`. See [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
+`<ThreeCanvas>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
-### `durationInFrames?`<AvailableFrom v="4.0.528" />
-
-How long the component stays visible. Defaults to `Infinity`, limited by its parent. See [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
-
-### `trimBefore?`<AvailableFrom v="4.0.528" />
-
-Skips this many frames at the beginning of the content. Defaults to `0`. See [`trimBefore`](/docs/sequence#trimbefore) on [`<Sequence>`](/docs/sequence).
-
-### `freeze?`<AvailableFrom v="4.0.528" />
-
-Freezes the content at a local frame. Defaults to no freeze. See [`freeze`](/docs/sequence#freeze) on [`<Sequence>`](/docs/sequence).
-
-### `hidden?`<AvailableFrom v="4.0.528" />
-
-Hides the component and its children. Defaults to `false`. See [`hidden`](/docs/sequence#hidden) on [`<Sequence>`](/docs/sequence).
-
-### `name?`<AvailableFrom v="4.0.528" />
-
-The name shown in the Studio timeline. Defaults to `"<ThreeCanvas>"`. See [`name`](/docs/sequence#name) on [`<Sequence>`](/docs/sequence).
-
-### `showInTimeline?`<AvailableFrom v="4.0.528" />
-
-Whether to show the component in the Studio timeline. Defaults to `false`. See [`showInTimeline`](/docs/sequence#showintimeline) on [`<Sequence>`](/docs/sequence).
-
-### `playbackRate?`<AvailableFrom v="4.0.528" />
-
-Changes the speed of the content. Defaults to `1`. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
-
-### `premountFor?`<AvailableFrom v="4.0.528" />
-
-Mounts the component before its `from` frame, keeping it transparent and frozen at its first frame so assets can load. The value is a number of frames. Defaults to `0` in v4 and `fps` (1 second) in v5. See [premounting](/docs/player/premounting).
-
-### `postmountFor?`<AvailableFrom v="4.0.528" />
-
-Keeps the component mounted after its duration ends, transparent and frozen at its last frame. Defaults to `0` frames. Requires a finite `durationInFrames`.
-
-### `styleWhilePremounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while premounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-### `styleWhilePostmounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while postmounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-Premounting and postmounting apply in the [Player](/docs/player) and [Studio](/docs/studio), and are disabled during rendering. They do not add a wrapper element.
+`showInTimeline` defaults to `false`, and `name` defaults to `"<ThreeCanvas>"`.
 
 ## `frameloop` behavior during rendering
 

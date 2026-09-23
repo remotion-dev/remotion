@@ -65,25 +65,13 @@ Set to `true` to prevent Rough.js from drawing multiple strokes for a line. Defa
 
 Preserves vertices when roughening a shape. Default: `false`.
 
-The components are interactive in Remotion Studio. They support editable text and font controls, as well as the following [`<Sequence>`](/docs/sequence) props: `durationInFrames`, `from`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name` and `showInTimeline`.
+The components are interactive in Remotion Studio and support editable text and font controls.
 
-### `premountFor?`<AvailableFrom v="4.0.528" />
+### Inherited props
 
-Mounts the component before its `from` frame, keeping it transparent and frozen at its first frame so assets can load. The value is a number of frames. Defaults to `0` in v4 and `fps` (1 second) in v5. See [premounting](/docs/player/premounting).
+Every annotation component inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
-### `postmountFor?`<AvailableFrom v="4.0.528" />
-
-Keeps the component mounted after its duration ends, transparent and frozen at its last frame. Defaults to `0` frames. Requires a finite `durationInFrames`.
-
-### `styleWhilePremounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while premounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-### `styleWhilePostmounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while postmounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-Premounting and postmounting apply in the [Player](/docs/player) and [Studio](/docs/studio), and are disabled during rendering. They do not add a wrapper element.
+From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
 ## License
 

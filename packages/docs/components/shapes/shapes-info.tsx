@@ -571,47 +571,32 @@ export const ShapeOptions: React.FC<{
 						</a>{' '}
 						from <a href="/docs/sequence">{'<Sequence>'}</a>.
 					</p>
-					<h3 id="premountfor">
-						<code>premountFor?</code>
-						<AvailableFrom v="4.0.528" />
-					</h3>
 					<p>
-						Mounts the shape before its <code>from</code> frame, transparent and
-						frozen at its first frame. Defaults to <code>0</code> frames in v4
-						and <code>fps</code> (1 second) in v5. See{' '}
-						<a href="/docs/player/premounting">premounting</a>.
-					</p>
-					<h3 id="postmountfor">
-						<code>postmountFor?</code>
-						<AvailableFrom v="4.0.528" />
-					</h3>
-					<p>
-						Keeps the shape mounted after its duration ends, transparent and
-						frozen at its last frame. Defaults to <code>0</code> frames.
-						Requires a finite <code>durationInFrames</code>.
-					</p>
-					<h3 id="stylewhilepremounted">
-						<code>styleWhilePremounted?</code>
-						<AvailableFrom v="4.0.528" />
-					</h3>
-					<p>
-						CSS styles applied while premounted. Defaults to no overrides.
-						Overrides <code>style</code> and the default <code>opacity: 0</code>{' '}
-						and <code>{"pointerEvents: 'none'"}</code>.
-					</p>
-					<h3 id="stylewhilepostmounted">
-						<code>styleWhilePostmounted?</code>
-						<AvailableFrom v="4.0.528" />
-					</h3>
-					<p>
-						CSS styles applied while postmounted. Defaults to no overrides.
-						Overrides <code>style</code> and the default <code>opacity: 0</code>{' '}
-						and <code>{"pointerEvents: 'none'"}</code>.
+						From <AvailableFrom v="4.0.528" inline />, it also inherits{' '}
+						<a href="/docs/sequence#premountfor">
+							<code>premountFor</code>
+						</a>
+						{', '}
+						<a href="/docs/sequence#postmountfor">
+							<code>postmountFor</code>
+						</a>
+						{', '}
+						<a href="/docs/sequence#stylewhilepremounted">
+							<code>styleWhilePremounted</code>
+						</a>
+						{' and '}
+						<a href="/docs/sequence#stylewhilepostmounted">
+							<code>styleWhilePostmounted</code>
+						</a>
+						{' from '}
+						<a href="/docs/sequence">
+							<code>{'<Sequence>'}</code>
+						</a>
+						.
 					</p>
 					<p>
-						Premounting and postmounting apply in the Player and Studio, and are
-						disabled during rendering. The styles apply to the SVG element, or
-						the canvas when using <code>effects</code>.
+						Premounting styles apply to the SVG element, or the canvas when
+						using <code>effects</code>.
 					</p>
 					<h3>Other props</h3>{' '}
 					<p>

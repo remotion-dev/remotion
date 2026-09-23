@@ -59,23 +59,9 @@ If you would like to disable layout side effects, pass `layout="none"`.
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `premountFor?`<AvailableFrom v="4.0.528" />
+### Inherited props<AvailableFrom v="4.0.528" />
 
-Mounts the component before it starts, keeping it transparent and frozen at its first frame so assets can load. The value is a number of frames. Defaults to `0` in v4 and `fps` (1 second) in v5. See [premounting](/docs/player/premounting).
-
-### `postmountFor?`<AvailableFrom v="4.0.528" />
-
-Keeps the component mounted after its duration ends, transparent and frozen at its last frame. Defaults to `0` frames. Requires a finite `times`.
-
-### `styleWhilePremounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while premounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-### `styleWhilePostmounted?`<AvailableFrom v="4.0.528" />
-
-CSS styles applied while postmounted. Defaults to no overrides. These styles override `style` and the default `opacity: 0` and `pointerEvents: 'none'`.
-
-Premounting and postmounting apply in the [Player](/docs/player) and [Studio](/docs/studio), and are disabled during rendering. These props require `layout="absolute-fill"` (the default).
+`<Loop>` inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence). These props require `layout="absolute-fill"` (the default). Postmounting the end of the loop requires a finite `times`.
 
 ## Examples
 
