@@ -8,7 +8,15 @@ import type { Caption } from "@remotion/captions";
 import rawWords from "./words.json";
 
 export const FPS = 30;
-export const SRC = "4.1 Tỷ Đô - Con Số Người Úc Không Ngờ Tới.mp4";
+// A short-GOP render proxy of "4.1 Tỷ Đô - Con Số Người Úc Không Ngờ Tới.mp4".
+// The phone original has a keyframe only every 8.3 s, so each OffthreadVideo
+// seek decodes up to 249 frames; under a parallel render that times out or
+// resets the frame server. Frame-identical (6339 frames, 211.3 s), so every
+// transcript timestamp still applies. Rebuild it with:
+//   ffmpeg -i "public/4.1 Tỷ Đô - Con Số Người Úc Không Ngờ Tới.mp4" -c:v libx264 -crf 16
+//     -g 15 -keyint_min 15 -sc_threshold 0 -pix_fmt yuv420p -c:a aac -b:a 192k -ar 48000
+//     -movflags +faststart public/ty-do-source.mp4
+export const SRC = "ty-do-source.mp4";
 
 export type TransitionKind = "fade" | "slide" | "wipe" | "flip" | "clockWipe";
 
