@@ -48,6 +48,7 @@ import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
 import {MediaToolsScene} from "./MediaToolsScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
+import {EFFECTS_CATALOG_DURATION, EffectsCatalogScene} from "./EffectsCatalogScene";
 import {CutFlash} from "./CutFlash";
 import {palette} from "./palette";
 
@@ -64,11 +65,13 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
+// Scenes of SCENE_DURATION each; EffectsCatalogScene, the one longer
+// sequence, is added separately.
 const SCENE_COUNT = 24;
 // Separators that are <TransitionSeries.Overlay>s rather than Transitions:
 // an overlay sits on the cut without overlapping the scenes, so it doesn't
 // shorten the reel.
-const OVERLAY_COUNT = 1;
+const OVERLAY_COUNT = 2;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -78,7 +81,9 @@ export const fullReelDefaultProps: FullReelProps = {
 };
 
 export const calculateFullReelMetadata: CalculateMetadataFunction<FullReelProps> = () => {
-  const durationInFrames = SCENE_COUNT * SCENE_DURATION - (SCENE_COUNT - 1 - OVERLAY_COUNT) * TRANSITION_DURATION;
+  const sequenceCount = SCENE_COUNT + 1;
+  const durationInFrames =
+    SCENE_COUNT * SCENE_DURATION + EFFECTS_CATALOG_DURATION - (sequenceCount - 1 - OVERLAY_COUNT) * TRANSITION_DURATION;
   // calculateMetadata() can set more than the duration: these become the
   // CLI's defaults for this composition, and scenes can read them back from
   // useVideoConfig() (CoreEnvironmentScene does).
@@ -108,13 +113,14 @@ const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITI
 // internally, so each is wrapped in an isSupported()-gated fallback to
 // fade() (see htmlInCanvasPresentation.ts) rather than throwing where
 // HtmlInCanvas isn't supported. Timings: linearTiming() with and without an
-// easing, and springTiming() with reverse on the last one. One cut uses a
-// <TransitionSeries.Overlay> (CutFlash) instead of a transition. ~49s covering: spring
+// easing, and springTiming() with reverse on the last one. Two cuts use a
+// <TransitionSeries.Overlay> (CutFlash) instead of a transition. ~62s covering: spring
 // animation, staggered text, rough-notation highlights, and
 // useTransitionProgress() reacting to its own exit transition (TitleScene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
 // @remotion/captions (CaptionsScene); @remotion/paths (RouteScene);
-// @remotion/effects chained WebGL2 passes (EffectsScene); @remotion/media +
+// @remotion/effects chained WebGL2 passes (EffectsScene), then every one of
+// its 74 catalog effects on its own (EffectsCatalogScene); @remotion/media +
 // @remotion/gif + @remotion/mac-cursors (MediaScene); @remotion/video-matting
 // AI background removal (VideoMattingScene); @remotion/media-utils real
 // audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
@@ -157,6 +163,16 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <EffectsScene accentColor={accentColor} />
+        </TransitionSeries.Sequence>
+        {/* An overlay, not a transition: a transition mounts both scenes at
+            once, and EffectsScene's WebGL2 contexts plus the catalog's 12
+            would reach Chrome's limit of about 16 (see EffectsCatalogScene). */}
+        <TransitionSeries.Overlay durationInFrames={20}>
+          <CutFlash />
+        </TransitionSeries.Overlay>
+
+        <TransitionSeries.Sequence durationInFrames={EFFECTS_CATALOG_DURATION}>
+          <EffectsCatalogScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={t} />
 
