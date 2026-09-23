@@ -40,6 +40,7 @@ type UndoEntryType =
 	| 'reorder-sequence'
 	| 'delete-jsx-nodes'
 	| 'duplicate-jsx-node'
+	| 'wrap-jsx-node'
 	| 'split-jsx-sequence'
 	| 'split-video-from-audio'
 	| 'insert-basic-captions'

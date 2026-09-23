@@ -29,6 +29,8 @@ import type {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	WrapJsxNodeRequest,
+	WrapJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertElementRequest,
@@ -189,6 +191,7 @@ export type BrowserStudioOperations = {
 	duplicateJsxNode: (
 		request: DuplicateJsxNodeRequest,
 	) => Promise<DuplicateJsxNodeResponse>;
+	wrapJsxNode?: (request: WrapJsxNodeRequest) => Promise<WrapJsxNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
