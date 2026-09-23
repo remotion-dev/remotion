@@ -48,7 +48,12 @@ const ElementCard: React.FC<{
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
 	const elementPayload = useMemo(
-		() => createElementPayloadFromDefinition({definition, sourceCode}),
+		() =>
+			createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+				installAssets: false,
+			}),
 		[definition, sourceCode],
 	);
 

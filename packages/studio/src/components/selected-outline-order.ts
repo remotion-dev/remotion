@@ -1,1 +1,3 @@
-export {orderCanvasOutlinesForRendering as orderOutlinesForRendering} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
+export const {orderCanvasOutlinesForRendering: orderOutlinesForRendering} =
+	CanvasInternals;

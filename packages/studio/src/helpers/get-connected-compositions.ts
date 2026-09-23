@@ -1,1 +1,2 @@
-export {getConnectedCompositions} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
+export const {getConnectedCompositions} = CanvasInternals;

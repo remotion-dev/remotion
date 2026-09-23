@@ -4,6 +4,7 @@ import {StudioProtocolInternals, type ElementDragData} from '../index';
 type ElementInput = Omit<ElementDragData['element'], 'durationInFrames'>;
 
 const validElement = {
+	assets: [],
 	dependencies: [{name: '@remotion/google-fonts', version: null}],
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',

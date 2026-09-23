@@ -1,4 +1,4 @@
-import {getCanvasOutlinePoint as getUvHandlePosition} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
@@ -24,10 +24,10 @@ import {
 	roundToDecimalPlaces,
 } from './Timeline/timeline-field-utils';
 
-export {
-	getCanvasOutlinePoint as getUvHandlePosition,
-	getCanvasOutlineUv as getUvCoordinateForPoint,
-} from '@remotion/canvas';
+export const {
+	getCanvasOutlinePoint: getUvHandlePosition,
+	getCanvasOutlineUv: getUvCoordinateForPoint,
+} = CanvasInternals;
 
 export type UvCoordinate = readonly [number, number];
 

@@ -1,4 +1,4 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import type {
 	ChangeEventHandler,
 	Dispatch,
@@ -42,6 +42,8 @@ import {NewCompDuration} from './NewCompDuration';
 import {RemotionInput} from './RemInput';
 import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
+
+const {sortItemsByCommitOrder} = CanvasInternals;
 
 const content: React.CSSProperties = {
 	padding: 12,

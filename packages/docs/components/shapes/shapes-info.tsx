@@ -571,6 +571,33 @@ export const ShapeOptions: React.FC<{
 						</a>{' '}
 						from <a href="/docs/sequence">{'<Sequence>'}</a>.
 					</p>
+					<p>
+						From <AvailableFrom v="4.0.528" inline />, it also inherits{' '}
+						<a href="/docs/sequence#premountfor">
+							<code>premountFor</code>
+						</a>
+						{', '}
+						<a href="/docs/sequence#postmountfor">
+							<code>postmountFor</code>
+						</a>
+						{', '}
+						<a href="/docs/sequence#stylewhilepremounted">
+							<code>styleWhilePremounted</code>
+						</a>
+						{' and '}
+						<a href="/docs/sequence#stylewhilepostmounted">
+							<code>styleWhilePostmounted</code>
+						</a>
+						{' from '}
+						<a href="/docs/sequence">
+							<code>{'<Sequence>'}</code>
+						</a>
+						.
+					</p>
+					<p>
+						Premounting styles apply to the SVG element, or the canvas when
+						using <code>effects</code>.
+					</p>
 					<h3>Other props</h3>{' '}
 					<p>
 						All other props that can be passed to a <code>{'<path>'}</code> are

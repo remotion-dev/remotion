@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/canvas';
 import {useCallback, useMemo} from 'react';
 import {
 	type RuntimeValueStore,
@@ -81,4 +82,5 @@ export const useRuntimeValueSelector = <T>({
 	);
 };
 
-export {useCanvasRuntimeValueSnapshots as useRuntimeValueSnapshots} from '@remotion/canvas';
+export const {useCanvasRuntimeValueSnapshots: useRuntimeValueSnapshots} =
+	CanvasInternals;

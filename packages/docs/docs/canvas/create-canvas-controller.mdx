@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-canvas-create-canvas-controller.png
+title: createCanvasController()
+crumb: '@remotion/canvas'
+---
+
+# createCanvasController()<AvailableFrom v="4.0.527" />
+
+Creates a `CanvasController` to share between [`<Canvas>`](/docs/canvas/canvas) and your editor UI. In React components, [`useCanvasController()`](/docs/canvas/use-canvas-controller) keeps one controller across renders.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts title="controller.ts"
+import {createCanvasController} from '@remotion/canvas';
+
+export const controller = createCanvasController();
+```
+
+The function takes no arguments.
+
+## Return value
+
+### timeline
+
+An external store of `readonly TimelineTrackData[]`. Subscribe with `timeline.subscribe(listener)` and read with `timeline.getSnapshot()`. In React, pass both to `useSyncExternalStore()` as shown in the [overview](/docs/canvas#basic-example). Tracks are populated while the composition is mounted and cleared when `<Canvas>` unmounts.
+
+Each track includes `sequence` registration data, `depth`, `nodePathInfo`, and timing fields such as `cascadedStart`, `localStart`, `keyframeDisplayOffset`, `keyframePlaybackRate`, and `sequenceFrameOffset`. The sequence's `from` and `duration` are its visible timeline range. `nodePathInfo` may be `null` when no source identity was registered.
+
+### selection
+
+A `CanvasSelectionController` with `getSnapshot()` and `subscribe(listener)` for reading selection. Use [`useCanvasSelection()`](/docs/canvas/use-canvas-selection) in React.
+
+#### select()
+
+`select(item, interaction, allSelectableItems)` applies one selection interaction. `interaction` has `shiftKey` for range selection and `toggleKey` for Command/Ctrl toggling. `allSelectableItems` is the ordered list used to calculate ranges.
+
+#### setSelectedItems()
+
+`setSelectedItems(items)` replaces the selected items and uses the last item as the range anchor.
+
+#### setSnapshot()
+
+`setSnapshot({selectedItems, anchor})` replaces the complete selection state.
+
+#### clear()
+
+`clear()` removes every selection item.
+
+### hover
+
+A `CanvasHoverController` with `getSnapshot()`, `subscribe(listener)`, `setHoveredSequence(valueOrUpdater)`, and `clear(source)`. Use [`useCanvasSequenceHover()`](/docs/canvas/use-canvas-sequence-hover) for a layer row or [`useCanvasHover()`](/docs/canvas/use-canvas-hover) to read the current hover. `clear('canvas')` or `clear('timeline')` only clears hover from that source; `clear(null)` clears either source.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`<Canvas>`](/docs/canvas/canvas)
+- [`useCanvasController()`](/docs/canvas/use-canvas-controller)
+- [`useCanvasSelection()`](/docs/canvas/use-canvas-selection)

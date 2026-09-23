@@ -1,7 +1,9 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import type {_InternalTypes, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
+
+const {sortItemsByCommitOrder} = CanvasInternals;
 
 export type AssetFolder = {
 	name: string;

@@ -18,14 +18,16 @@ import React, {
 import type {
 	EffectsProp,
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractiveCropProps,
 	SequenceControls,
 	InteractivitySchema,
 } from 'remotion';
 import {
+	Freeze,
+	Sequence,
 	Internals,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -62,6 +64,7 @@ type RemotionRiveCanvasOwnProps = {
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
 	InteractiveBaseProps &
+	InteractivePremountProps &
 	InteractiveCropProps;
 
 export type RiveCanvasRef = {
@@ -98,6 +101,7 @@ const riveAlignmentVariants: Record<
 
 export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.baseSchema,
+	...Internals.premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'contain',
@@ -441,6 +445,10 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		durationInFrames,
 		name,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -458,53 +466,77 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	const croppedStyle = Internals.useCropStyle({
 		cropLeft,
 		cropRight,
 		cropTop,
 		cropBottom,
-		style: style ?? null,
+		style: premountingStyle,
 		componentName: '<RemotionRiveCanvas />',
 	});
 
 	return (
-		<Sequence
-			layout="none"
-			from={from}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			freeze={freeze}
-			hidden={hidden}
-			showInTimeline={showInTimeline}
-			name={name ?? '<RemotionRiveCanvas>'}
-			_remotionInternalDocumentationLink={
-				name === undefined
-					? 'https://www.remotion.dev/docs/rive/remotionrivecanvas'
-					: undefined
-			}
-			durationInFrames={durationInFrames}
-			controls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			outlineRef={canvasRef}
-			{...props}
-		>
-			<RemotionRiveCanvasContent
-				ref={ref}
-				src={src}
-				fit={fit}
-				alignment={alignment}
-				artboard={artboard}
-				animation={animation}
-				onLoad={onLoad}
-				assetLoader={assetLoader}
-				enableRiveAssetCdn={enableRiveAssetCdn}
-				className={className}
-				style={croppedStyle ?? undefined}
-				effects={effects}
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline}
+				name={name ?? '<RemotionRiveCanvas>'}
+				_remotionInternalDocumentationLink={
+					name === undefined
+						? 'https://www.remotion.dev/docs/rive/remotionrivecanvas'
+						: undefined
+				}
+				durationInFrames={durationInFrames}
 				controls={controls}
-				canvasRef={canvasRef}
-			/>
-		</Sequence>
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				outlineRef={canvasRef}
+				{...props}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<RemotionRiveCanvasContent
+					ref={ref}
+					src={src}
+					fit={fit}
+					alignment={alignment}
+					artboard={artboard}
+					animation={animation}
+					onLoad={onLoad}
+					assetLoader={assetLoader}
+					enableRiveAssetCdn={enableRiveAssetCdn}
+					className={className}
+					style={croppedStyle ?? undefined}
+					effects={effects}
+					controls={controls}
+					canvasRef={canvasRef}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 
