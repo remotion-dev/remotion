@@ -417,8 +417,7 @@ const Bar: React.FC<{
   color: string;
   label: string;
   value: string;
-  overflow: boolean;
-}> = ({ at, height, color, label, value, overflow }) => {
+}> = ({ at, height, color, label, value }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const g = spring({
@@ -460,21 +459,6 @@ const Bar: React.FC<{
         >
           {g > 0.6 ? value : ""}
         </div>
-        {overflow && g > 0.9 ? (
-          <div
-            style={{
-              position: "absolute",
-              top: -64,
-              left: 0,
-              width: 170,
-              textAlign: "center",
-              fontSize: 56,
-              color,
-            }}
-          >
-            ▲▲
-          </div>
-        ) : null}
       </div>
       <div
         style={{
@@ -522,70 +506,23 @@ const Stamp: React.FC<{ at: number; text: string; color: string }> = ({
   );
 };
 
-// The $1M chart shows no savings figure on purpose: the recording says "1.600",
-// which doesn't match 0.4% of $1M ($4,000). Add the value once the line is re-recorded.
-const LoanBars: React.FC<{ cueMs: number; variant: "100k" | "1m" }> = ({
-  cueMs,
-  variant,
-}) => {
+// $100K example: 0.4% interest saved ($400/yr) equals the $400 annual fee.
+const LoanBars: React.FC<{ cueMs: number }> = ({ cueMs }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const exit = useExit();
-  const is100k = variant === "100k";
   const title = pop(frame, fps, 0);
   return (
     <Panel exit={exit} style={{ minHeight: 560 }}>
-      <div
-        style={{
-          fontSize: 40,
-          fontWeight: 700,
-          color: "#C9D3E6",
-          opacity: title,
-        }}
-      >
-        Khoản vay
+      <div style={{ fontSize: 40, fontWeight: 700, color: "#C9D3E6", opacity: title }}>Khoản vay</div>
+      <div style={{ fontSize: 96, fontWeight: 900, color: HIGHLIGHT, lineHeight: 1, opacity: title }}>
+        $100.000
       </div>
-      <div
-        style={{
-          fontSize: 96,
-          fontWeight: 900,
-          color: HIGHLIGHT,
-          lineHeight: 1,
-          opacity: title,
-        }}
-      >
-        {is100k ? "$100.000" : "$1 TRIỆU"}
+      <div style={{ display: "flex", justifyContent: "center", gap: 60, marginTop: 30 }}>
+        <Bar at={rel(cueMs, 88900)} height={150} color={GREEN} label="Tiền lãi tiết kiệm (0,4%)" value="$400" />
+        <Bar at={rel(cueMs, 91560)} height={150} color={RED} label="Phí năm" value="$400" />
       </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 60,
-          marginTop: is100k ? 30 : 90,
-        }}
-      >
-        <Bar
-          at={rel(cueMs, is100k ? 88900 : 97960)}
-          height={is100k ? 150 : 300}
-          color={GREEN}
-          label="Tiền lãi tiết kiệm (0,4%)"
-          value={is100k ? "$400" : ""}
-          overflow={!is100k}
-        />
-        <Bar
-          at={rel(cueMs, is100k ? 91560 : 106680)}
-          height={150}
-          color={RED}
-          label="Phí năm"
-          value="$400"
-          overflow={false}
-        />
-      </div>
-      {is100k ? (
-        <Stamp at={rel(cueMs, 92300)} text="= HÒA VỐN" color={HIGHLIGHT} />
-      ) : (
-        <Stamp at={rel(cueMs, 108000)} text="✓ HỢP LÝ" color={GREEN} />
-      )}
+      <Stamp at={rel(cueMs, 92300)} text="= HÒA VỐN" color={HIGHLIGHT} />
     </Panel>
   );
 };
@@ -744,12 +681,7 @@ const CUES: Cue[] = [
   {
     fromMs: 87600,
     toMs: 93600,
-    el: (c) => <LoanBars cueMs={c} variant="100k" />,
-  },
-  {
-    fromMs: 97100,
-    toMs: 109000,
-    el: (c) => <LoanBars cueMs={c} variant="1m" />,
+    el: (c) => <LoanBars cueMs={c} />,
   },
   { fromMs: 129080, toMs: 130650, el: () => <Verdict /> },
   { fromMs: 161700, toMs: 166400, el: () => <WinWin /> },
@@ -820,7 +752,6 @@ const SFX: Sfx[] = [
   { atMs: 49380, file: "mouse-click", volume: 0.5 },
   { atMs: 58800, file: "mouse-click", volume: 0.5 },
   { atMs: 92300, file: "shutter-modern", volume: 0.35 },
-  { atMs: 108000, file: "ding", volume: 0.3 },
   { atMs: 129080, file: "vine-boom", volume: 0.3 },
   { atMs: 162400, file: "whoosh", volume: 0.3 },
 ];
