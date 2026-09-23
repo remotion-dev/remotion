@@ -12,7 +12,7 @@ import type {
 } from './browser-bundler-preview/bridge';
 
 const initialSource = `import React, {useState} from 'react';
-import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Orb} from './Orb';
 
 export const Video: React.FC<{title: string; accent: string}> = ({title, accent}) => {
@@ -25,25 +25,19 @@ export const Video: React.FC<{title: string; accent: string}> = ({title, accent}
       backgroundColor: '#0f172a', color: 'white', fontFamily: 'sans-serif',
       justifyContent: 'center', padding: 80,
     }}>
-      <Sequence name="Background" layout="none">
-        <AbsoluteFill style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}} />
-      </Sequence>
-      <Sequence name="Orb" style={{left: 910, top: -80, width: 450, height: 450}}>
-        <Orb accent={accent} />
-      </Sequence>
-      <Sequence name="Content" style={{left: 80, top: 210, width: 1000, height: 300, transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
-        <div style={{position: 'relative'}}>
-          <h1 style={{fontSize: 76, margin: 0}}>{title}</h1>
-          <p style={{fontSize: 28, color: accent}}>Frame {frame} of {durationInFrames}</p>
-          <button type="button" style={{fontSize: 28, padding: '8px 16px'}}
-            onClick={(event) => {
-              event.stopPropagation();
-              setClicks((value) => value + 1);
-            }}>
-            Clicks: {clicks}
-          </button>
-        </div>
-      </Sequence>
+      <AbsoluteFill name="Background" style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}} />
+      <Orb accent={accent} />
+      <Interactive.Div name="Content" style={{position: 'absolute', left: 80, top: 210, width: 1000, height: 300, transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
+        <h1 style={{fontSize: 76, margin: 0}}>{title}</h1>
+        <p style={{fontSize: 28, color: accent}}>Frame {frame} of {durationInFrames}</p>
+        <button type="button" style={{fontSize: 28, padding: '8px 16px'}}
+          onClick={(event) => {
+            event.stopPropagation();
+            setClicks((value) => value + 1);
+          }}>
+          Clicks: {clicks}
+        </button>
+      </Interactive.Div>
     </AbsoluteFill>
   );
 };
@@ -80,13 +74,13 @@ export const Root = () => (
 `,
 		'src/Video.tsx': initialSource,
 		'src/Orb.tsx': `import React from 'react';
-import {useCurrentFrame} from 'remotion';
+import {Interactive, useCurrentFrame} from 'remotion';
 
 export const Orb: React.FC<{accent: string}> = ({accent}) => {
   const frame = useCurrentFrame();
-  return <div style={{
+  return <Interactive.Div name="Orb" style={{
     position: 'absolute', width: 450, height: 450, borderRadius: '50%',
-    right: 0, top: 0, backgroundColor: accent, opacity: 0.3,
+    left: 910, top: -80, backgroundColor: accent, opacity: 0.3,
     transform: \`translateY(\${Math.sin(frame / 25) * 100}px)\`,
   }} />;
 };
@@ -94,7 +88,13 @@ export const Orb: React.FC<{accent: string}> = ({accent}) => {
 	},
 };
 
-const layerElementNames = new Set(['AbsoluteFill', 'Sequence', 'Solid']);
+const layerElementNames = new Set([
+	'AbsoluteFill',
+	'Interactive.Div',
+	'Orb',
+	'Sequence',
+	'Solid',
+]);
 
 const getCompilationErrorMessage = (error: unknown): string => {
 	if (error instanceof BrowserBundlerError) {

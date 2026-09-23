@@ -8,6 +8,8 @@ crumb: '@remotion/video-matting'
 
 Separates a video into an opaque base WebM and a foreground WebM with alpha.
 
+The downloaded model is loaded automatically if needed.
+
 ```ts twoslash title="separate-video.ts"
 import {downloadVideoMattingModel, separateVideoLayers} from '@remotion/video-matting';
 

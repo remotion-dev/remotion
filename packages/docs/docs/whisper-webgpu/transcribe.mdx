@@ -8,6 +8,8 @@ crumb: '@remotion/whisper-webgpu'
 
 Transcribes a 16kHz mono waveform and returns words with start and end timestamps.
 
+The downloaded model is loaded automatically if needed.
+
 ```ts twoslash title="transcribe.ts"
 import {downloadWhisperModel, resampleTo16Khz, transcribe} from '@remotion/whisper-webgpu';
 
