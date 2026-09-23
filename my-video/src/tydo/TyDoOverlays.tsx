@@ -457,7 +457,15 @@ export const Outro: React.FC = () => {
   const d = enter(frame, fps, 38);
   const pulse = 1 + Math.sin(frame / 6) * 0.03;
   const contact = (label: string, value: string) => (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 30, padding: "14px 0", borderTop: `2px solid ${BLUE}22` }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 30,
+        padding: "14px 0",
+        borderTop: `2px solid ${BLUE}22`,
+      }}
+    >
       <span style={{ color: "#5B6B80", fontWeight: 600 }}>{label}</span>
       <span style={{ color: DARK, fontWeight: 800 }}>{value}</span>
     </div>
@@ -472,7 +480,10 @@ export const Outro: React.FC = () => {
         padding: "170px 80px 0",
       }}
     >
-      <Img src={LOGO} style={{ width: 720, transform: `scale(${a})`, opacity: a }} />
+      <Img
+        src={LOGO}
+        style={{ width: 720, transform: `scale(${a})`, opacity: a }}
+      />
       <div
         style={{
           marginTop: 70,
@@ -511,7 +522,16 @@ export const Outro: React.FC = () => {
           transform: `translateY(${interpolate(d, [0, 1], [40, 0])}px)`,
         }}
       >
-        <div style={{ fontSize: 58, fontWeight: 900, color: BLUE, marginBottom: 10 }}>Daniel Nguyen</div>
+        <div
+          style={{
+            fontSize: 58,
+            fontWeight: 900,
+            color: BLUE,
+            marginBottom: 10,
+          }}
+        >
+          Daniel Nguyen
+        </div>
         {contact("Điện thoại", "0430 11 11 88")}
         {contact("Email", "daniel@finhub.net.au")}
         {contact("Website", "finhub.net.au")}
@@ -527,9 +547,21 @@ export const Outro: React.FC = () => {
 // that disclosures must be as prominent as the advert's main content.
 export const ComplianceCard: React.FC = () => {
   const frame = useCurrentFrame();
-  const fadeIn = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
+  const fadeIn = interpolate(frame, [0, 8], [0, 1], {
+    extrapolateRight: "clamp",
+  });
   const line = (text: string, size: number, color: string = DARK) => (
-    <div style={{ fontSize: size, fontWeight: 800, color, lineHeight: 1.35, marginTop: 34 }}>{text}</div>
+    <div
+      style={{
+        fontSize: size,
+        fontWeight: 800,
+        color,
+        lineHeight: 1.35,
+        marginTop: 34,
+      }}
+    >
+      {text}
+    </div>
   );
   return (
     <AbsoluteFill
@@ -544,10 +576,24 @@ export const ComplianceCard: React.FC = () => {
     >
       <Img src={LOGO} style={{ width: 420 }} />
       {line("Finance Hub & Networks Pty Ltd", 50, BLUE)}
-      {line("Finance Hub & Networks Pty Ltd (Credit Representative 369168) is authorised under Australian Credit Licence 573164. ACN 644 141 613.", 44)}
-      {line("Your full financial situation would need to be reviewed prior to acceptance of any offer or product.", 44)}
-      {line("Tình hình tài chính của bạn cần được xem xét đầy đủ trước khi chấp nhận bất kỳ đề nghị hoặc sản phẩm nào.", 42)}
-      {line("Các con số trong video chỉ là ví dụ minh hoạ, không phải đề nghị lãi suất. Examples are illustrative only.", 38, "#33445A")}
+      {line("ACN 644 141 613 | Australian Credit Licence 573164", 44)}
+      {line(
+        "Daniel Nguyen (Credit Representative 369168) is authorised under Australian Credit Licence 573164.",
+        44,
+      )}
+      {line(
+        "Your full financial situation would need to be reviewed prior to acceptance of any offer or product.",
+        44,
+      )}
+      {line(
+        "Tình hình tài chính của bạn cần được xem xét đầy đủ trước khi chấp nhận bất kỳ đề nghị hoặc sản phẩm nào.",
+        42,
+      )}
+      {line(
+        "Các con số trong video chỉ là ví dụ minh hoạ, không phải đề nghị lãi suất. Examples are illustrative only.",
+        38,
+        "#33445A",
+      )}
     </AbsoluteFill>
   );
 };
