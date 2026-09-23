@@ -12,11 +12,13 @@ import {poppins} from "./font";
 
 // Demonstrates: @remotion/effects — chaining six WebGL2 passes (blur,
 // duotone, grayscale, chromaticAberration, vignette, scanlines) on a single
-// canvas-based component, each animated from useCurrentFrame(). See
-// effects.md for the full list of ~75 available effects; this scene and the
-// skill's own inline example (blur()) now overlap deliberately. Effects
-// apply to <Video> (@remotion/media), <Solid>, <CanvasImage> and
-// <HtmlInCanvas>; this scene uses <Solid> since it needs no source asset.
+// canvas-based component, each animated from useCurrentFrame(). The catalog
+// has 74 effects (EffectsCatalogScene shows each one); this scene and the
+// effects.md skill's own inline example (blur()) overlap deliberately.
+// Effects apply to core <Img>, <AnimatedImage>, <CanvasImage>, <Solid> and
+// <HtmlInCanvas>, and to @remotion/media's <Video>, @remotion/gif's <Gif>,
+// @remotion/shapes' shapes and @remotion/rive's <RemotionRiveCanvas>; this
+// scene uses <Solid> since it needs no source asset.
 // Requires --gl (or Config.setChromiumOpenGlRenderer) at render time — see
 // AGENTS.md for this environment's setup note.
 //
