@@ -1,8 +1,13 @@
+import {loadFont} from "@remotion/fonts";
+import {getAvailableFonts} from "@remotion/google-fonts";
 import {fillTextBox, fitText, fitTextOnNLines, measureText} from "@remotion/layout-utils";
 import {createRoundedTextBox} from "@remotion/rounded-text-box";
-import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from "remotion";
+import {useEffect, useMemo, useState} from "react";
+import {AbsoluteFill, cancelRender, continueRender, delayRender, spring, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
+
+const LOCAL_FONT_FAMILY = "Bangers";
 
 const TEXT = "ROUNDED TEXT BOX";
 const OUTER_MAX_WIDTH = 700;
@@ -24,9 +29,24 @@ const CAPTION_FONT_SIZE = 22;
 // lines at a fixed font size -- the opposite problem from fitTextOnNLines
 // (which searches for a font size instead of a line break). All of these
 // only work in the browser, which is exactly where a Remotion render runs.
+// Also demonstrates @remotion/fonts' loadFont() -- self-hosting a font FILE
+// directly (bangers.woff2), rather than fetching a Google Font by name like
+// font.ts's Poppins does via @remotion/google-fonts -- and that package's
+// own getAvailableFonts() catalog-browsing function.
 export const RoundedTextBoxScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
+  const [handle] = useState(() => delayRender(`loading self-hosted ${LOCAL_FONT_FAMILY} font`));
+  const [localFontReady, setLocalFontReady] = useState(false);
+
+  useEffect(() => {
+    loadFont({family: LOCAL_FONT_FAMILY, url: staticFile("bangers.woff2"), format: "woff2"})
+      .then(() => {
+        setLocalFontReady(true);
+        continueRender(handle);
+      })
+      .catch((err) => cancelRender(err));
+  }, [handle]);
 
   const {fontSize, lines} = fitTextOnNLines({
     text: TEXT,
@@ -78,6 +98,12 @@ export const RoundedTextBoxScene: React.FC = () => {
 
   const scale = spring({frame, fps, config: {damping: 12}});
 
+  // getAvailableFonts() is the catalog-browsing half of @remotion/google-fonts
+  // -- font.ts uses the per-font subpath import to load Poppins directly,
+  // this lists every font the package knows about.
+  const availableFonts = useMemo(() => getAvailableFonts(), []);
+  const poppinsListed = availableFonts.some((f) => f.fontFamily === "Poppins");
+
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins, justifyContent: "center", alignItems: "center"}}>
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 26}}>
@@ -120,8 +146,16 @@ export const RoundedTextBoxScene: React.FC = () => {
           ) : null,
         )}
       </div>
+      {localFontReady ? (
+        <div style={{marginTop: 18, fontFamily: LOCAL_FONT_FAMILY, fontSize: 34, color: palette.accent2}}>
+          loadFont(): self-hosted {LOCAL_FONT_FAMILY}
+        </div>
+      ) : null}
+      <div style={{marginTop: 10, fontSize: 14, color: palette.textDim, fontFamily: "monospace"}}>
+        getAvailableFonts(): {availableFonts.length} Google Fonts (Poppins listed: {String(poppinsListed)})
+      </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 32, fontWeight: 600}}>
-        fitTextOnNLines() · measureText() · fitText() · fillTextBox()
+        fitTextOnNLines() · measureText() · fitText() · fillTextBox() · loadFont()
       </div>
     </AbsoluteFill>
   );

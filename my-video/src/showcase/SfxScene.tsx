@@ -1,4 +1,37 @@
-import {ding, mouseClick, pageTurn, recordScratch, vineBoom, whoosh} from "@remotion/sfx";
+import {
+  animeWow,
+  boneCrack,
+  bruh,
+  ding,
+  dramaticBoomer,
+  fah,
+  illuminatiConfirmed,
+  loadingLag,
+  macQuack,
+  minecraftHurt,
+  mouseClick,
+  nellyAhh,
+  ohMyGodVine,
+  omgHellNah,
+  pageTurn,
+  priceIsRightFail,
+  recordScratch,
+  romanceMeme,
+  sanctuaryGuardianWhat,
+  shutterModern,
+  shutterOld,
+  skedaddle,
+  snapchatNotification,
+  spongebobFail,
+  triggered,
+  uiSwitch,
+  vineBoom,
+  whip,
+  whoosh,
+  wilhelmScream,
+  windowsXpError,
+  yippee,
+} from "@remotion/sfx";
 import {useEffect, useState} from "react";
 import {AbsoluteFill, cancelRender, continueRender, delayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
@@ -6,6 +39,8 @@ import {poppins} from "./font";
 
 type Status = "checking" | "reachable" | "blocked";
 
+// The full catalog -- every @remotion/sfx export. Each is just a plain
+// `https://remotion.media/*.wav` string constant.
 const SOUNDS = [
   {name: "whoosh", url: whoosh},
   {name: "ding", url: ding},
@@ -13,16 +48,43 @@ const SOUNDS = [
   {name: "pageTurn", url: pageTurn},
   {name: "mouseClick", url: mouseClick},
   {name: "recordScratch", url: recordScratch},
+  {name: "whip", url: whip},
+  {name: "uiSwitch", url: uiSwitch},
+  {name: "shutterModern", url: shutterModern},
+  {name: "shutterOld", url: shutterOld},
+  {name: "bruh", url: bruh},
+  {name: "windowsXpError", url: windowsXpError},
+  {name: "fah", url: fah},
+  {name: "spongebobFail", url: spongebobFail},
+  {name: "omgHellNah", url: omgHellNah},
+  {name: "priceIsRightFail", url: priceIsRightFail},
+  {name: "romanceMeme", url: romanceMeme},
+  {name: "boneCrack", url: boneCrack},
+  {name: "animeWow", url: animeWow},
+  {name: "yippee", url: yippee},
+  {name: "loadingLag", url: loadingLag},
+  {name: "wilhelmScream", url: wilhelmScream},
+  {name: "macQuack", url: macQuack},
+  {name: "skedaddle", url: skedaddle},
+  {name: "snapchatNotification", url: snapchatNotification},
+  {name: "nellyAhh", url: nellyAhh},
+  {name: "sanctuaryGuardianWhat", url: sanctuaryGuardianWhat},
+  {name: "minecraftHurt", url: minecraftHurt},
+  {name: "ohMyGodVine", url: ohMyGodVine},
+  {name: "illuminatiConfirmed", url: illuminatiConfirmed},
+  {name: "dramaticBoomer", url: dramaticBoomer},
+  {name: "triggered", url: triggered},
 ];
 
-// Demonstrates: @remotion/sfx -- a curated library of royalty-free sound
-// effect URLs (each export is just a `https://remotion.media/*.wav` string,
-// meant to be passed straight to <Audio src={...}> from @remotion/media).
-// The exports themselves need no network access to import and use in
-// code -- only *playing* the actual audio does, and remotion.media is the
-// same host that blocks @remotion/video-matting's/whisper-webgpu's model
-// downloads in this sandbox (see AGENTS.md), so this checks reachability
-// honestly rather than assuming success, the same pattern as those scenes.
+// Demonstrates: @remotion/sfx's full catalog -- every export, all 32 of
+// them, a curated library of royalty-free sound effect URLs (each is just a
+// `https://remotion.media/*.wav` string, meant to be passed straight to
+// <Audio src={...}> from @remotion/media). The exports themselves need no
+// network access to import and use in code -- only *playing* the actual
+// audio does, and remotion.media is the same host that blocks
+// @remotion/video-matting's/whisper-webgpu's model downloads in this
+// sandbox (see AGENTS.md), so this checks reachability honestly rather
+// than assuming success, the same pattern as those scenes.
 export const SfxScene: React.FC = () => {
   const {width} = useVideoConfig();
   const [handle] = useState(() => delayRender("checking sfx reachability", {timeoutInMilliseconds: 10000}));
@@ -60,16 +122,16 @@ export const SfxScene: React.FC = () => {
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 26}}>
         @remotion/sfx · royalty-free sound effect URLs
       </div>
-      <div style={{display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 20, marginBottom: 32, maxWidth: 1100}}>
+      <div style={{display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 20, maxWidth: 1180}}>
         {SOUNDS.map((sound) => (
           <div
             key={sound.name}
             style={{
-              padding: "16px 28px",
-              borderRadius: 12,
+              padding: "6px 12px",
+              borderRadius: 8,
               background: palette.bgAlt,
               color: palette.text,
-              fontSize: 24,
+              fontSize: 14,
               fontWeight: 600,
               fontFamily: "monospace",
             }}
@@ -78,7 +140,7 @@ export const SfxScene: React.FC = () => {
           </div>
         ))}
       </div>
-      <div style={{fontSize: 26, color: palette.text, textAlign: "center", maxWidth: 900, padding: "0 40px"}}>
+      <div style={{fontSize: 24, color: palette.text, textAlign: "center", maxWidth: 900, padding: "0 40px"}}>
         {line}
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.textDim, fontSize: 22}}>

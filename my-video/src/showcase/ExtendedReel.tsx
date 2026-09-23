@@ -19,6 +19,7 @@ import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 import {SkiaScene} from "./SkiaScene";
+import {RiveScene} from "./RiveScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
@@ -37,7 +38,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 17;
+const SCENE_COUNT = 18;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -54,15 +55,17 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 
 // A second reel covering the capabilities the first ShowcaseReel didn't
 // touch: @remotion/effects (chained WebGL2 passes), @remotion/media +
-// @remotion/gif + @remotion/mac-cursors (real embedded/cropped footage),
-// @remotion/video-matting (AI background removal), @remotion/media-utils
-// (a real audio waveform), @remotion/whisper-webgpu (in-browser
-// transcription), @remotion/lottie, @remotion/animated-emoji,
-// @remotion/three, @remotion/skia, @remotion/layout-utils +
-// @remotion/rounded-text-box, @remotion/sfx, @remotion/gsap, core remotion's
-// media/canvas components (CoreMediaScene) and environment/introspection
-// APIs (CoreEnvironmentScene), and core remotion fundamentals (Easing,
-// <Series>, <Loop>, <Freeze>, random()).
+// @remotion/gif + @remotion/preload + @remotion/mac-cursors (real
+// embedded/cropped/preloaded footage), @remotion/video-matting (AI
+// background removal), @remotion/media-utils (a real audio waveform),
+// @remotion/whisper-webgpu (in-browser transcription), @remotion/lottie,
+// @remotion/animated-emoji, @remotion/three, @remotion/skia, @remotion/rive
+// (API surface only -- see RiveScene's own comment for why), @remotion/
+// layout-utils + @remotion/rounded-text-box + @remotion/fonts,
+// @remotion/sfx, @remotion/gsap, core remotion's media/canvas components
+// (CoreMediaScene) and environment/introspection APIs (CoreEnvironmentScene),
+// and core remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>,
+// random()).
 export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, accentColor}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
@@ -118,6 +121,11 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
         <TransitionSeries.Transition presentation={wipe({direction: "from-bottom"})} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <RiveScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <RoundedTextBoxScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
@@ -148,7 +156,7 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
-          <OutroScene />
+          <OutroScene logoMatrix={null} />
         </TransitionSeries.Sequence>
       </TransitionSeries>
     </AbsoluteFill>

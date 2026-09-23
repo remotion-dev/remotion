@@ -1,12 +1,28 @@
 import {fade} from "@remotion/transitions/fade";
 import {slide} from "@remotion/transitions/slide";
-import {wipe} from "@remotion/transitions/wipe";
-import {TransitionSeries, linearTiming} from "@remotion/transitions";
-import {zColor, zTextarea} from "@remotion/zod-types";
+import {clockWipe} from "@remotion/transitions/clock-wipe";
+import {flip} from "@remotion/transitions/flip";
+import {none} from "@remotion/transitions/none";
+import {TransitionSeries, linearTiming, pushCut, springTiming} from "@remotion/transitions";
+import {zColor, zMatrix, zTextarea} from "@remotion/zod-types";
 import type {CalculateMetadataFunction} from "remotion";
 import {AbsoluteFill} from "remotion";
 import {z} from "zod";
-import {irisWipeOrFallback} from "./htmlInCanvasPresentation";
+import {
+  blurSlideOrFallback,
+  bookFlipOrFallback,
+  crossZoomOrFallback,
+  crosswarpOrFallback,
+  dissolveOrFallback,
+  dreamyZoomOrFallback,
+  filmBurnOrFallback,
+  irisWipeOrFallback,
+  linearBlurOrFallback,
+  rippleOrFallback,
+  swapOrFallback,
+  zoomBlurOrFallback,
+  zoomInOutOrFallback,
+} from "./htmlInCanvasPresentation";
 import {TitleScene} from "./TitleScene";
 import {ShapesScene} from "./ShapesScene";
 import {CaptionsScene} from "./CaptionsScene";
@@ -23,6 +39,7 @@ import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 import {SkiaScene} from "./SkiaScene";
+import {RiveScene} from "./RiveScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
@@ -32,18 +49,22 @@ export const fullReelSchema = z.object({
   title: z.string(),
   subtitle: zTextarea(),
   accentColor: zColor(),
+  // A flat square array (2x2 here), Studio-editable as a matrix control --
+  // applied to the outro wordmark as a real CSS matrix() transform.
+  logoMatrix: zMatrix(),
 });
 
 export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 20;
+const SCENE_COUNT = 21;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
   subtitle: "Every capability, one video.",
   accentColor: "#6366f1",
+  logoMatrix: [1, 0.05, 0, 1],
 };
 
 export const calculateFullReelMetadata: CalculateMetadataFunction<FullReelProps> = () => {
@@ -52,15 +73,23 @@ export const calculateFullReelMetadata: CalculateMetadataFunction<FullReelProps>
 };
 
 const t = linearTiming({durationInFrames: TRANSITION_DURATION});
+const springT = springTiming({config: {damping: 200}});
 
 // The single, complete demo reel: every scene from ShowcaseReel and
 // ExtendedReel combined into one video (one title, one outro — the two
-// reels' duplicate bookends are dropped). ~24.5s covering: spring
+// reels' duplicate bookends are dropped). Its transitions alone cover the
+// full @remotion/transitions catalog: flip, clockWipe, none() (a no-op
+// presentation meant to pair with useTransitionProgress() -- see
+// TitleScene), pushCut and springTiming() (as an alternative to
+// linearTiming(), on the last transition) all work standalone; iris-wipe
+// (a custom shader) plus bookFlip, crossZoom, crosswarp, dissolve,
+// dreamyZoom, filmBurn, linearBlur, ripple, swap, zoomBlur, zoomInOut and
+// blurSlide are ALL built with makeHtmlInCanvasPresentation() internally,
+// so every one of them is wrapped in the same isSupported()-gated fallback
+// to fade() as the iris-wipe (see htmlInCanvasPresentation.ts) rather than
+// throwing where HtmlInCanvas isn't supported. ~24.5s covering: spring
 // animation, staggered text, rough-notation highlights, and
 // useTransitionProgress() reacting to its own exit transition (TitleScene);
-// an iris-wipe @remotion/transitions presentation built with
-// makeHtmlInCanvasPresentation() (falling back to fade() where
-// HtmlInCanvas isn't supported, right after this scene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
 // @remotion/captions (CaptionsScene); @remotion/paths (RouteScene);
 // @remotion/effects chained WebGL2 passes (EffectsScene); @remotion/media +
@@ -69,13 +98,15 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
 // transcription (BrowserTranscriptionScene); @remotion/lottie (LottieScene);
 // @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three (ThreeScene);
-// @remotion/skia (SkiaScene); @remotion/layout-utils + @remotion/rounded-text-box
-// (RoundedTextBoxScene); @remotion/sfx (SfxScene); @remotion/gsap (GsapScene);
-// core remotion media/canvas components (CoreMediaScene); core remotion
-// environment/introspection APIs (CoreEnvironmentScene); core remotion
-// Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
-// @remotion/animation-utils + rough-notation (OutroScene).
-export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}) => {
+// @remotion/skia (SkiaScene); @remotion/rive (RiveScene, API surface only —
+// see its own comment for why); @remotion/layout-utils + @remotion/
+// rounded-text-box + @remotion/fonts (RoundedTextBoxScene); @remotion/sfx
+// (SfxScene); @remotion/gsap (GsapScene); core remotion media/canvas
+// components (CoreMediaScene); core remotion environment/introspection APIs
+// (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
+// random() (FundamentalsScene); @remotion/animation-utils + rough-notation
+// (OutroScene).
+export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor, logoMatrix}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
       <TransitionSeries>
@@ -92,12 +123,12 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CaptionsScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({direction: "from-left"})} timing={t} />
+        <TransitionSeries.Transition presentation={flip({direction: "from-left"})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <RouteScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={clockWipe({width: 1280, height: 720})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <EffectsScene accentColor={accentColor} />
@@ -107,22 +138,26 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <MediaScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({direction: "from-top"})} timing={t} />
+        {/* none() has no visual effect of its own -- it's meant to be paired
+            with useTransitionProgress() (see TitleScene) for a fully custom
+            transition. Used here as a plain hard cut, which is the expected
+            look without that hook. */}
+        <TransitionSeries.Transition presentation={none()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <VideoMattingScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={t} />
+        <TransitionSeries.Transition presentation={pushCut()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AudioScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={crossZoomOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <BrowserTranscriptionScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({direction: "from-right"})} timing={t} />
+        <TransitionSeries.Transition presentation={dreamyZoomOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <LottieScene />
@@ -132,50 +167,57 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AnimatedEmojiScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={filmBurnOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ThreeScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={bookFlipOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <SkiaScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({direction: "from-bottom"})} timing={t} />
+        <TransitionSeries.Transition presentation={zoomBlurOrFallback()} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <RiveScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={crosswarpOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <RoundedTextBoxScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={dissolveOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <SfxScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={t} />
+        <TransitionSeries.Transition presentation={linearBlurOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <GsapScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({direction: "from-left"})} timing={t} />
+        <TransitionSeries.Transition presentation={rippleOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CoreMediaScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        <TransitionSeries.Transition presentation={swapOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CoreEnvironmentScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={t} />
+        <TransitionSeries.Transition presentation={zoomInOutOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <FundamentalsScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t} />
+        {/* springTiming() instead of linearTiming() -- any presentation can
+            take either timing function; this one just demonstrates it. */}
+        <TransitionSeries.Transition presentation={blurSlideOrFallback()} timing={springT} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
-          <OutroScene />
+          <OutroScene logoMatrix={logoMatrix} />
         </TransitionSeries.Sequence>
       </TransitionSeries>
     </AbsoluteFill>

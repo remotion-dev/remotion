@@ -1,4 +1,6 @@
 import {
+  centerPath,
+  cutPath,
   evolvePath,
   extendViewBox,
   getBoundingBox,
@@ -7,6 +9,7 @@ import {
   getPointAtLength,
   getSubpaths,
   getTangentAtLength,
+  interpolatePath,
   normalizePath,
   parsePath,
   reduceInstructions,
@@ -14,6 +17,7 @@ import {
   reversePath,
   scalePath,
   serializeInstructions,
+  translatePath,
   warpPath,
 } from "@remotion/paths";
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
@@ -47,15 +51,26 @@ const reducedInstructions = reduceInstructions(parsePath(ROUTE_PATH));
 const reducedPath = serializeInstructions(reducedInstructions);
 const normalizedPath = normalizePath(ROUTE_PATH);
 const subpathCount = getSubpaths(ROUTE_PATH).length;
+// A drop-shadow duplicate of the main route, offset with translatePath().
+const shadowPath = translatePath(ROUTE_PATH, 6, 10);
+// The route re-centered on the canvas middle with centerPath() (which
+// calls translatePath() internally too) -- also the morph target for
+// interpolatePath() below.
+const centeredRoutePath = centerPath(ROUTE_PATH, {x: 640, y: 360});
 
-// Demonstrates most of @remotion/paths: evolvePath() draws the line on,
+// Demonstrates all of @remotion/paths: evolvePath() draws the line on,
 // getPointAtLength() places the travelling marker and stop dots,
 // getTangentAtLength() rotates the marker to face its direction of travel,
 // warpPath() draws the wavy echo, and reversePath()/resetPath()/scalePath()/
 // extendViewBox() build the reversed minimap in the corner. parsePath(),
 // reduceInstructions(), serializeInstructions(), normalizePath() and
 // getSubpaths() feed the info readout — the same technique the
-// remotion-maps skill uses for animated routes.
+// remotion-maps skill uses for animated routes. translatePath() draws a
+// drop-shadow duplicate; centerPath() (which uses translatePath()
+// internally too) re-centers the route on the canvas as the morph target
+// for interpolatePath(); cutPath() truncates the path data itself at the
+// traveled length -- a genuine alternative technique to evolvePath()'s
+// stroke-dasharray trick, not just another visual layer.
 export const RouteScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
@@ -67,6 +82,13 @@ export const RouteScene: React.FC = () => {
 
   const {strokeDasharray, strokeDashoffset} = evolvePath(progress, ROUTE_PATH);
   const currentLength = progress * totalLength;
+  // cutPath() truncates the path DATA itself at a given length -- a real
+  // alternative to evolvePath()'s stroke-dasharray trick above, drawn as a
+  // soft highlight under the traveled portion.
+  const cutRoutePath = cutPath(ROUTE_PATH, currentLength);
+  // interpolatePath() morphs continuously between two path shapes; here it
+  // slides the route toward its re-centered position as the scene plays.
+  const morphedPath = interpolatePath(progress, ROUTE_PATH, centeredRoutePath);
   const marker = getPointAtLength(ROUTE_PATH, currentLength);
   const tangent = getTangentAtLength(ROUTE_PATH, currentLength);
   const markerAngle = tangent ? (Math.atan2(tangent.y, tangent.x) * 180) / Math.PI : 0;
@@ -79,6 +101,9 @@ export const RouteScene: React.FC = () => {
       </div>
       <svg width={1280} height={720} style={{position: "absolute", inset: 0}}>
         <path d={warpedEcho} fill="none" stroke={palette.accent2} strokeWidth={2} strokeDasharray="4 6" opacity={0.35} />
+        <path d={morphedPath} fill="none" stroke={palette.accent2} strokeWidth={2} strokeDasharray="2 6" opacity={0.4} />
+        <path d={shadowPath} fill="none" stroke="black" strokeWidth={8} strokeLinecap="round" opacity={0.25} />
+        <path d={cutRoutePath} fill="none" stroke={palette.accent2} strokeWidth={12} strokeLinecap="round" opacity={0.18} />
         <rect
           x={boundingBox.x1}
           y={boundingBox.y1}
@@ -139,6 +164,9 @@ export const RouteScene: React.FC = () => {
           </text>
           <text y={22} fill={palette.textDim} fontSize={16} fontFamily="monospace">
             normalizePath length: {normalizedPath.length} chars (vs {ROUTE_PATH.length} original)
+          </text>
+          <text y={44} fill={palette.textDim} fontSize={16} fontFamily="monospace">
+            cutPath: {cutRoutePath.length} chars at length {currentLength.toFixed(0)} · translatePath + centerPath + interpolatePath
           </text>
         </g>
         <svg x={1000} y={520} width={180} height={160} viewBox={minimapViewBox} style={{overflow: "visible"}}>

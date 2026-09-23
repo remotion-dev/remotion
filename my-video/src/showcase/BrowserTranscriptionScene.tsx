@@ -1,4 +1,6 @@
 import {
+  WHISPER_WEBGPU_MODELS,
+  WHISPER_WEBGPU_SAMPLE_RATE,
   canUseWhisperWebGpu,
   clearStaleModels,
   disposeWhisperModel,
@@ -30,8 +32,10 @@ type Status =
 // handles a failed load gracefully rather than assuming success. Also
 // exercises the parts of the API that don't need a downloaded model:
 // getAvailableModels()/isWhisperModelCached()/clearStaleModels() (cache
-// bookkeeping, no network), resampleTo16Khz() (a real Web Audio decode of
-// sample-tone.wav), and toCaptions() (a pure Caption[] conversion, fed a
+// bookkeeping, no network), the raw WHISPER_WEBGPU_MODELS id list and
+// WHISPER_WEBGPU_SAMPLE_RATE constant getAvailableModels()/
+// resampleTo16Khz() wrap, resampleTo16Khz() itself (a real Web Audio decode
+// of sample-tone.wav), and toCaptions() (a pure Caption[] conversion, fed a
 // hand-built transcription result rather than a real model's output, since
 // there's no way to get real words without the model). transcribe() is
 // still attempted for real against the resampled waveform — expected to
@@ -69,7 +73,7 @@ export const BrowserTranscriptionScene: React.FC = () => {
           },
         });
 
-        let extra = `${availableModels.length} models, cached: ${cachedBeforeLoad}, resampled: ${waveform.length} samples, toCaptions(): ${captions.length} captions`;
+        let extra = `${availableModels.length} models (${WHISPER_WEBGPU_MODELS.length} raw ids), cached: ${cachedBeforeLoad}, resampled: ${waveform.length} samples @ ${WHISPER_WEBGPU_SAMPLE_RATE}Hz, toCaptions(): ${captions.length} captions`;
 
         try {
           await loadWhisperModel({model: "small.en"});
