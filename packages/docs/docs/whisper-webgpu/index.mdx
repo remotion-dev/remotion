@@ -35,8 +35,6 @@ export const transcribeFile = async (file: File) => {
 };
 ```
 
-[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache. [`transcribe()`](/docs/whisper-webgpu/transcribe) loads the model automatically. Use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) with `await using` when you want to initialize it before transcription and release it when the scope ends. Call [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) when you want to release a model loaded automatically.
-
 ## Model hosting
 
 We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
