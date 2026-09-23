@@ -13,7 +13,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE_DISABLED} from '../../helpers/colors';
 import {Checkmark} from '../../icons/Checkmark';
 import {ModelsIcon} from '../../icons/models';
 import {SeparationIcon} from '../../icons/separation';
@@ -74,11 +74,6 @@ const modalLayout: React.CSSProperties = {
 };
 const hiddenPanel: React.CSSProperties = {display: 'none'};
 const validationStyle: React.CSSProperties = {padding: '0 16px 8px'};
-const replacementNoticeStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 12,
-	padding: '0 16px 12px',
-};
 
 type SupportState =
 	| {type: 'checking'}
@@ -305,12 +300,6 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 						style={tab === 'remove' ? panelStyle : hiddenPanel}
 						className={VERTICAL_SCROLLBAR_CLASSNAME}
 					>
-						{target !== null ? (
-							<div style={replacementNoticeStyle}>
-								This replaces the selected video&apos;s source. Duplicate the
-								layer first to keep the original alongside it.
-							</div>
-						) : null}
 						<RenderModalOutputName
 							ariaLabel="Video output file"
 							existingOutputPath={
