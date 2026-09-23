@@ -27,6 +27,7 @@ import {
 	updateEffectKeyframes,
 	updateEffectProps as updateEffectPropsCodemod,
 	updateJsxNodeKeyframes,
+	updateJsxNodeProps,
 	type CodemodNodeResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
@@ -62,6 +63,7 @@ import type {
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
 import {downloadRemoteAssetInBrowserStudio} from './download-remote-asset';
@@ -80,7 +82,6 @@ const {
 	getRootFileForProject,
 	insertBasicCaptions: insertBasicCaptionsCodemod,
 	insertJsxElementIntoProjectWithNodePathRemappings,
-	replaceVideoSource: replaceVideoSourceCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 	pasteEffects: pasteEffectsCodemod,
@@ -2008,25 +2009,23 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({filePath: fileName, project});
-			const result = replaceVideoSourceCodemod({
-				input: project.files[absolutePath],
-				nodePath,
-				src,
+			const result = updateJsxNodeProps({
+				project,
+				node: {filePath: absolutePath, nodePath},
+				updates: [
+					{
+						key: 'src',
+						value: `${NoReactInternals.FILE_TOKEN}${src.split('/').map(encodeURIComponent).join('/')}`,
+						defaultValue: null,
+					},
+				],
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {...project.files, [absolutePath]: result.output},
-				}),
-				nodePathMutationFiles: [
-					{
-						absolutePath,
-						remappings: result.nodePathRemappings,
-					},
-				],
+				mutate: () => result.project,
+				nodePathMutationFiles: getNodePathMutationFiles(result),
 			});
 			if (nodePathMutation === null) {
 				throw new Error('Could not replace video source');

@@ -1,10 +1,11 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {updateJsxNodeProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReplaceVideoSourceRequest,
 	ReplaceVideoSourceResponse,
 } from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -32,12 +33,25 @@ export const replaceVideoSourceHandler: ApiHandler<
 				action: 'modify',
 			});
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, logLine, nodePathRemappings} =
-				CodemodsInternals.replaceVideoSource({
-					input: fileContents,
-					nodePath,
-					src,
-				});
+			const result = updateJsxNodeProps({
+				project: {
+					files: {[absolutePath]: fileContents},
+					rootDir: remotionRoot,
+				},
+				node: {filePath: absolutePath, nodePath},
+				updates: [
+					{
+						key: 'src',
+						value: `${NoReactInternals.FILE_TOKEN}${src.split('/').map(encodeURIComponent).join('/')}`,
+						defaultValue: null,
+					},
+				],
+			});
+			const output = result.project.files[absolutePath];
+			const {logLine} = result;
+			const nodePathRemappings = result.nodePathRemappings.map(
+				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: nodePathRemappings}],
 				null,
