@@ -2,7 +2,7 @@ import type {
 	CanvasOutlineCrop,
 	CanvasOutlineLayoutTarget,
 	CanvasSelectableOutline,
-} from '@remotion/canvas/internal';
+} from '@remotion/canvas';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,

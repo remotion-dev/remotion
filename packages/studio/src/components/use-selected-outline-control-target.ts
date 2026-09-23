@@ -1,4 +1,4 @@
-import {useCanvasSequenceHover} from '@remotion/canvas/internal';
+import {useCanvasSequenceHover} from '@remotion/canvas';
 import React, {useContext, useLayoutEffect, useRef} from 'react';
 import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import type {

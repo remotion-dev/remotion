@@ -1,1 +1,2 @@
-export {getTimelineNestedLevel} from '@remotion/canvas/internal';
+import {CanvasInternals} from '@remotion/canvas';
+export const {getTimelineNestedLevel} = CanvasInternals;

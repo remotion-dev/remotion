@@ -1,4 +1,4 @@
-import {getCanvasSelectableOutlines} from '@remotion/canvas/internal';
+import {CanvasInternals} from '@remotion/canvas';
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
@@ -22,14 +22,16 @@ import {
 	parseTransformOrigin,
 } from './Timeline/transform-origin-utils';
 
-export {
-	getCanvasOutlineSelectionInteraction as getOutlineSelectionInteraction,
-	getCanvasSelectedSequenceKeys as getSelectedSequenceKeys,
-	getCanvasSequenceKeysContainingSelection as getSequenceKeysContainingSelection,
-	cropCanvasOutlinePoints as cropOutlinePoints,
+const {getCanvasSelectableOutlines} = CanvasInternals;
+
+export const {
+	getCanvasOutlineSelectionInteraction: getOutlineSelectionInteraction,
+	getCanvasSelectedSequenceKeys: getSelectedSequenceKeys,
+	getCanvasSequenceKeysContainingSelection: getSequenceKeysContainingSelection,
+	cropCanvasOutlinePoints: cropOutlinePoints,
 	getTransformedSvgViewportPoints,
-	measureCanvasOutlineTargets as measureOutlineTargets,
-} from '@remotion/canvas/internal';
+	measureCanvasOutlineTargets: measureOutlineTargets,
+} = CanvasInternals;
 
 export const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
 

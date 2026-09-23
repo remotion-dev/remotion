@@ -1,9 +1,9 @@
-import type {CanvasOutlinePoint as OutlinePoint} from '@remotion/canvas/internal';
+import type {CanvasOutlinePoint as OutlinePoint} from '@remotion/canvas';
 
 export type {
 	CanvasOutline as SelectedOutline,
 	CanvasOutlinePoint as OutlinePoint,
-} from '@remotion/canvas/internal';
+} from '@remotion/canvas';
 
 export const clamp = (value: number, min: number, max: number): number => {
 	return Math.min(max, Math.max(min, value));

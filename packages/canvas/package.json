@@ -33,12 +33,6 @@
 	},
 	"exports": {
 		"./package.json": "./package.json",
-		"./internal": {
-			"types": "./dist/internal.d.ts",
-			"require": "./dist/internal.cjs",
-			"module": "./dist/esm/internal.mjs",
-			"import": "./dist/esm/internal.mjs"
-		},
 		".": {
 			"types": "./dist/index.d.ts",
 			"require": "./dist/index.cjs",

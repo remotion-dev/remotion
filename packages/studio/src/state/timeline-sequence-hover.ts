@@ -1,15 +1,14 @@
-import type {
-	CanvasHover,
-	CanvasHoverController,
-} from '@remotion/canvas/internal';
 import {
+	CanvasInternals,
 	createCanvasHoverController,
 	useCanvasHover,
 	useCanvasSequenceHover,
-	useIsCanvasSequenceHovered,
-} from '@remotion/canvas/internal';
+} from '@remotion/canvas';
+import type {CanvasHover, CanvasHoverController} from '@remotion/canvas';
 import {createContext, useContext} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+
+const {useIsCanvasSequenceHovered} = CanvasInternals;
 
 export type TimelineSequenceHover = CanvasHover;
 

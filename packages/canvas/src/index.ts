@@ -1,3 +1,6 @@
+import * as internals from './canvas-internals';
+
+export const CanvasInternals = internals;
 export {Canvas} from './canvas';
 export type {CanvasProps} from './canvas';
 export {createCanvasController, useCanvasController} from './canvas-controller';
@@ -25,3 +28,19 @@ export type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from './get-timeline-sequence-sort-key';
+export type {
+	CanvasOutline,
+	CanvasOutlinePoint,
+	CanvasOutlineUv,
+	CanvasOutlineCrop,
+	CanvasOutlineTarget,
+	CanvasOutlineOrderTarget,
+	CanvasOutlineSequenceParent,
+	CanvasOutlineRenderTarget,
+	CanvasOutlinePolygonProps,
+	CanvasOutlinePointerDownDecision,
+	CanvasSelectableOutline,
+	CanvasOutlineLayoutTarget,
+	TimelineLoopDisplay,
+	TimelineTrackWithOriginalTimings,
+} from './canvas-internals';

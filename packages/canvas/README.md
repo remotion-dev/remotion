@@ -4,4 +4,4 @@ Experimental primitives for building a Remotion authoring interface around [`@re
 
 See the [Canvas documentation](https://www.remotion.dev/docs/canvas) for installation, a complete example, and the supported API.
 
-The `@remotion/canvas/internal` entry point is used by Remotion Studio and may change without notice.
+`CanvasInternals` is used by Remotion Studio and may change without notice.
