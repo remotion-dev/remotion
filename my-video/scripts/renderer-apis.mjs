@@ -22,7 +22,7 @@
 
 import {execFileSync} from "node:child_process";
 import {createHmac} from "node:crypto";
-import {mkdirSync, rmSync, statSync} from "node:fs";
+import {mkdirSync, readFileSync, readdirSync, rmSync, statSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import {getRegions as getCloudRunRegions, speculateServiceName} from "@remotion/cloudrun";
@@ -51,6 +51,7 @@ import {
   stitchFramesToVideo,
 } from "@remotion/renderer";
 import {addElementLibraryToStudio, createElementPayload, installInStudio} from "@remotion/studio-protocol";
+import {VERSION} from "remotion/version";
 import {bundlerOverride} from "../bundler-override.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -74,10 +75,11 @@ const step = async (label, fn) => {
   }
 };
 const kb = (path) => `${(statSync(path).size / 1024).toFixed(0)} KB`;
+const probe = (src, fields) => parseMedia({src, reader: nodeReader, acknowledgeRemotionLicense: true, fields});
 // A render resolving isn't proof it produced the right file, so outputs are
 // checked against the number of frames they should contain.
 const assertDuration = async (path, frames, fps) => {
-  const {durationInSeconds} = await parseMedia({src: path, reader: nodeReader, acknowledgeRemotionLicense: true, fields: {durationInSeconds: true}});
+  const {durationInSeconds} = await probe(path, {durationInSeconds: true});
   if (Math.abs(durationInSeconds - frames / fps) > 0.05) {
     throw new Error(`${path} is ${durationInSeconds.toFixed(2)}s, expected ${(frames / fps).toFixed(2)}s (${frames} frames)`);
   }
@@ -104,6 +106,9 @@ await step("lambda validateWebhookSignature() (tampered)", () => {
   try {
     validateWebhookSignature({secret, body: {...payload, renderId: "forged"}, signatureHeader: signature});
   } catch (err) {
+    // It also throws for a missing secret, body or header, so only this
+    // message proves the signature check itself rejected the forged body.
+    if (err.message !== "Signatures do not match") throw err;
     return `rejected: ${err.message}`;
   }
   throw new Error("a tampered body was accepted");
@@ -226,9 +231,18 @@ await step("renderer openBrowser()", async () => {
 });
 const shared = {serveUrl, puppeteerInstance: browser, browserExecutable, chromiumOptions};
 
-await step("renderer getCompositions()", async () => (await getCompositions(serveUrl, shared)).map((c) => `${c.id} (${c.durationInFrames}f)`).join(", "));
+// inputProps is optional for getCompositions()/selectComposition() in v4 and
+// required from v5, so it's always passed. The positional
+// getCompositions(serveUrl, options) form is the pre-4.0.497 signature.
+await step("renderer getCompositions()", async () => {
+  const compositions = await getCompositions({...shared, inputProps: {}});
+  const showcase = compositions.find((c) => c.id === "ShowcaseReel");
+  // Registered with durationInFrames={300}; its calculateMetadata() returns 315.
+  if (showcase?.durationInFrames !== 315) throw new Error(`ShowcaseReel is ${showcase?.durationInFrames} frames, expected 315 from calculateMetadata()`);
+  return compositions.map((c) => `${c.id} (${c.durationInFrames}f)`).join(", ");
+});
 await step("renderer selectComposition() + renderStill()", async () => {
-  const composition = await selectComposition({...shared, id: "Poster"});
+  const composition = await selectComposition({...shared, id: "Poster", inputProps: {}});
   const output = join(out, "poster.png");
   await renderStill({...shared, composition, output});
   return `Poster ${composition.width}×${composition.height} → out/renderer-apis/poster.png (${kb(output)})`;
@@ -238,8 +252,15 @@ await step("renderer selectComposition() + renderStill()", async () => {
 // nothing: blank frames can't show that the right frames came out.
 let reel = null;
 await step("renderer selectComposition(ShowcaseReel)", async () => {
-  reel = await selectComposition({...shared, id: "ShowcaseReel"});
+  reel = await selectComposition({...shared, id: "ShowcaseReel", inputProps: {}});
   return `${reel.width}×${reel.height}, ${reel.fps}fps, ${reel.durationInFrames} frames`;
+});
+await step("renderer selectComposition({inputProps})", async () => {
+  const {props} = await selectComposition({...shared, id: "ShowcaseReel", inputProps: {title: "Hello"}});
+  // inputProps are merged over defaultProps: title is replaced, subtitle keeps
+  // its default.
+  if (props.title !== "Hello" || props.subtitle !== reel.props.subtitle) throw new Error(`got props ${JSON.stringify(props)}`);
+  return `props ${JSON.stringify(props)}`;
 });
 await step("renderer renderFrames() + stitchFramesToVideo()", async () => {
   const framesDir = join(out, "frames");
@@ -257,6 +278,25 @@ await step("renderer renderFrames() + stitchFramesToVideo()", async () => {
   await stitchFramesToVideo({assetsInfo, fps: reel.fps, width: reel.width, height: reel.height, outputLocation: output});
   const duration = await assertDuration(output, frameCount, reel.fps);
   return `${frameCount} JPEG frames stitched → out/renderer-apis/stitched.mp4 (${duration}, ${kb(output)})`;
+});
+await step("renderer renderFrames({frames})", async () => {
+  const framesDir = join(out, "selected-frames");
+  let started = null;
+  const {frameCount} = await renderFrames({
+    ...shared,
+    composition: reel,
+    inputProps: {},
+    outputDir: framesDir,
+    imageFormat: "jpeg",
+    frames: [0, 30, 60],
+    onStart: (data) => (started = data.frameCount),
+    onFrameUpdate: () => undefined,
+  });
+  // The files keep the source frame numbers rather than counting 0, 1, 2.
+  const files = readdirSync(framesDir).sort();
+  const numbers = files.map((f) => Number(/(\d+)\.jpeg$/.exec(f)?.[1]));
+  if (frameCount !== 3 || started !== 3 || numbers.join() !== "0,30,60") throw new Error(`frameCount ${frameCount}, onStart ${started}, files ${files.join(", ")}`);
+  return `${frameCount} frames → ${files.join(", ")}`;
 });
 
 // h264 chunks are combined by byte-level concatenation (ffmpeg's concat:
@@ -293,6 +333,124 @@ await step("renderer renderMedia() ×2 chunks + combineChunks()", async () => {
   const duration = await assertDuration(output, framesPerChunk * chunks.length, reel.fps);
   return `2 h264-ts chunks of ${framesPerChunk} frames → out/renderer-apis/combined.mp4 (${duration}, ${kb(output)})`;
 });
+
+// Encoding options, 30 frames each. Options whose effects can be read back
+// independently share one render.
+await step("renderer renderMedia() scale, pixelFormat, colorSpace, gopSize, metadata, enforceAudioTrack + sampleRate", async () => {
+  const output = join(out, "options.mp4");
+  await renderMedia({
+    ...shared,
+    composition: reel,
+    codec: "h264",
+    frameRange: [0, 29],
+    scale: 0.5,
+    pixelFormat: "yuv444p",
+    colorSpace: "bt709",
+    gopSize: 10,
+    metadata: {title: "Remotion showcase"},
+    // ShowcaseReel has no audio, so there is no audio track unless enforced.
+    enforceAudioTrack: true,
+    sampleRate: 44100,
+    outputLocation: output,
+  });
+  // Without these options, 4.0.527 writes 1280×720 yuvj420p tagged bt470bg,
+  // with one keyframe, no title tag, and no audio track (48000Hz when enforced).
+  const {dimensions, slowKeyframes, metadata, audioCodec, sampleRate} = await probe(output, {
+    dimensions: true,
+    slowKeyframes: true,
+    metadata: true,
+    audioCodec: true,
+    sampleRate: true,
+  });
+  const {pixelFormat, colorSpace} = await getVideoMetadata(output);
+  const keyframes = slowKeyframes.map((k) => k.presentationTimeInSeconds.toFixed(2)).join(", ");
+  const title = metadata.find((m) => m.key === "title")?.value;
+  if (dimensions.width !== 640 || dimensions.height !== 360) throw new Error(`scale 0.5 gave ${dimensions.width}×${dimensions.height}, expected 640×360`);
+  if (pixelFormat !== "yuv444p") throw new Error(`pixelFormat is ${pixelFormat}, expected yuv444p`);
+  if (colorSpace !== "bt709") throw new Error(`colorSpace is ${colorSpace}, expected bt709`);
+  // gopSize 10 over 30 frames at 30fps: a keyframe every 1/3s.
+  if (keyframes !== "0.00, 0.33, 0.67") throw new Error(`keyframes at ${keyframes}s, expected 0.00, 0.33, 0.67`);
+  if (title !== "Remotion showcase") throw new Error(`title tag is ${title}`);
+  if (audioCodec !== "aac" || sampleRate !== 44100) throw new Error(`audio track is ${audioCodec} at ${sampleRate}Hz, expected aac at 44100Hz`);
+  return `${dimensions.width}×${dimensions.height}, ${pixelFormat}, ${colorSpace}, keyframes at ${keyframes}s, title "${title}", ${audioCodec} ${sampleRate}Hz`;
+});
+await step("renderer renderMedia() vp9 + opus, multi-range frameRange", async () => {
+  const output = join(out, "vp9-opus.webm");
+  await renderMedia({
+    ...shared,
+    composition: reel,
+    codec: "vp9",
+    audioCodec: "opus",
+    enforceAudioTrack: true,
+    frameRange: [
+      [0, 14],
+      [30, 44],
+    ],
+    outputLocation: output,
+  });
+  const {container, videoCodec, audioCodec} = await probe(output, {container: true, videoCodec: true, audioCodec: true});
+  if (container !== "webm" || videoCodec !== "vp9" || audioCodec !== "opus") throw new Error(`got ${container} with ${videoCodec}/${audioCodec}, expected webm with vp9/opus`);
+  // Two 15-frame ranges: 30 frames in total.
+  const duration = await assertDuration(output, 30, reel.fps);
+  return `${container} with ${videoCodec}/${audioCodec}, frames 0-14 + 30-44 → ${duration} (${kb(output)})`;
+});
+await step("renderer renderMedia() crf 10 vs 40", async () => {
+  const sizes = {};
+  for (const crf of [10, 40]) {
+    const output = join(out, `crf-${crf}.mp4`);
+    await renderMedia({...shared, composition: reel, codec: "h264", muted: true, crf, frameRange: [0, 29], outputLocation: output});
+    sizes[crf] = statSync(output).size;
+  }
+  // Same 30 frames; a lower crf means higher quality and a bigger file.
+  if (sizes[10] < sizes[40] * 2) throw new Error(`crf 10 is ${sizes[10]} bytes, crf 40 is ${sizes[40]} bytes`);
+  return `crf 10: ${(sizes[10] / 1024).toFixed(0)} KB, crf 40: ${(sizes[40] / 1024).toFixed(0)} KB`;
+});
+await step("renderer renderStill() frame + scale", async () => {
+  const still = async (name, frame) => {
+    const output = join(out, `reel-${name}.png`);
+    await renderStill({...shared, composition: reel, frame, scale: 0.5, output});
+    return readFileSync(output);
+  };
+  const first = await still("first", 0);
+  const last = await still("last", reel.durationInFrames - 1);
+  const minusOne = await still("minus-one", -1);
+  // A PNG's IHDR chunk holds its width and height at bytes 16-23.
+  const [width, height] = [first.readUInt32BE(16), first.readUInt32BE(20)];
+  if (width !== 640 || height !== 360) throw new Error(`scale 0.5 gave ${width}×${height}, expected 640×360`);
+  if (first.equals(last)) throw new Error("frame 0 and the last frame are identical");
+  // Negative frames count back from the end.
+  if (!minusOne.equals(last)) throw new Error(`frame -1 differs from frame ${reel.durationInFrames - 1}`);
+  return `${width}×${height} PNGs; frame -1 is byte-identical to frame ${reel.durationInFrames - 1}, frame 0 differs`;
+});
+await step("renderer renderStill() imageFormat jpeg/webp/pdf", async () => {
+  const formats = {
+    jpeg: ["image/jpeg", (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff],
+    webp: ["image/webp", (b) => b.toString("latin1", 0, 4) === "RIFF" && b.toString("latin1", 8, 12) === "WEBP"],
+    pdf: ["application/pdf", (b) => b.toString("latin1", 0, 5) === "%PDF-"],
+  };
+  const results = [];
+  for (const [imageFormat, [expectedType, hasMagic]] of Object.entries(formats)) {
+    const output = join(out, `reel-frame-100.${imageFormat}`);
+    const {contentType} = await renderStill({...shared, composition: reel, frame: 100, imageFormat, output});
+    if (contentType !== expectedType || !hasMagic(readFileSync(output))) throw new Error(`${imageFormat}: contentType ${contentType}, starts with ${readFileSync(output).subarray(0, 12).toString("hex")}`);
+    results.push(`${imageFormat} (${contentType}, ${kb(output)})`);
+  }
+  return results.join(", ");
+});
+await step("renderer renderStill() onArtifact", async () => {
+  // ShowcaseReel emits no artifacts. ExtendedReel's CoreEnvironmentScene
+  // (scene 17, starting at 17 × (75 - 15) = 1020) emits an <Artifact> on its
+  // first frame.
+  const extended = await selectComposition({...shared, id: "ExtendedReel", inputProps: {}});
+  const artifacts = [];
+  await renderStill({...shared, composition: extended, frame: 1020, output: join(out, "extended-1020.png"), onArtifact: (a) => artifacts.push(a)});
+  const [artifact] = artifacts;
+  const version = artifact ? JSON.parse(String(artifact.content)).version : null;
+  if (artifacts.length !== 1 || artifact.filename !== "core-api-scene-env.json" || version !== VERSION) {
+    throw new Error(`got ${artifacts.length} artifact(s): ${artifacts.map((a) => a.filename).join(", ")} (version ${version})`);
+  }
+  return `${artifact.filename}, version ${version}`;
+});
 await step("renderer makeCancelSignal()", async () => {
   const {cancelSignal, cancel} = makeCancelSignal();
   try {
@@ -324,7 +482,10 @@ await step("renderer getVideoMetadata() (deprecated)", async () => {
 // AGENTS.md.
 await step("renderer getSilentParts()", async () => {
   const {audibleParts, silentParts, durationInSeconds} = await getSilentParts({src: join(publicDir, "sample-clip.mp4")});
-  return `sample-clip.mp4 (${durationInSeconds.toFixed(2)}s): ${audibleParts.length} audible, ${silentParts.length} silent part(s) (its audio track is silence)`;
+  // Its audio track is silence, so all of it should be one silent part.
+  if (audibleParts.length !== 0 || silentParts.length !== 1) throw new Error(`${audibleParts.length} audible, ${silentParts.length} silent part(s), expected 0 and 1`);
+  const [{startInSeconds, endInSeconds}] = silentParts;
+  return `sample-clip.mp4 (${durationInSeconds.toFixed(2)}s): 0 audible, 1 silent part (${startInSeconds.toFixed(2)}-${endInSeconds.toFixed(2)}s)`;
 });
 
 await browser?.close({silent: true});
