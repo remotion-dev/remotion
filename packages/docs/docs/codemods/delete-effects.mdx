@@ -30,6 +30,8 @@ console.log(result);
 
 Indices of later effects shift after deletion. Read effects again with [`getJsxNodeProps()`](/docs/codemods/get-jsx-node-props) before using old effect indices. Imports are preserved.
 
+The `effects` attribute must contain an inline array. An attribute followed by a JSX spread is rejected because the spread may override it.
+
 ## Options
 
 ### project
@@ -38,7 +40,21 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### effects
 
-Effect references to remove. References may span files and nodes; indices refer to the input project. Duplicate references are deduplicated.
+A non-empty array of effect references to remove. References may span files and nodes; indices refer to the input project. Duplicate references are deduplicated.
+
+Set `effectIndex: null` to remove the entire `effects` attribute from a node, including spread entries in its inline array. The node must have at least one effect. Selecting every effect individually also removes the attribute when its array becomes empty.
+
+```ts twoslash title="delete-all-effects.ts"
+import {deleteEffects, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: JsxNodeReference;
+// ---cut---
+const result = await deleteEffects({
+  project,
+  effects: [{...node, effectIndex: null}],
+});
+```
 
 ## Return value
 
@@ -55,6 +71,26 @@ An array of `{filePath, previousContents, nextContents}` file changes. A `null` 
 ### nodePathRemappings
 
 An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### editDetails
+
+An array with one entry per edited file.
+
+#### filePath
+
+The file's path in the project.
+
+#### effectLabels
+
+Display labels for the removed effects, such as `'blur()'`. Unsupported entries removed by `effectIndex: null` use `'effect'`.
+
+#### logLines
+
+One-based source lines for the removed effects, in the same order as `effectLabels`.
+
+#### formatted
+
+Whether the generated edit was formatted.
 
 ## Errors
 

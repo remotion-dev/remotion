@@ -1,8 +1,13 @@
 import type {AddFolderOptions} from './add-folder';
 import type {CodemodProject} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
-import {editCompositionProject} from './composition-editing';
 import {getTreeEntries, requireTreeItem} from './folder-editing';
+import {findProjectFile} from './internals';
+import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	getJsxStringAttributeValueSourceEdit,
+} from './source-edits';
 
 export type RenameFolderOptions<Project extends CodemodProject> =
 	AddFolderOptions<Project> & {newName: string};
@@ -13,8 +18,10 @@ export const renameFolder = <Project extends CodemodProject>({
 	folder,
 	newName,
 }: RenameFolderOptions<Project>) => {
-	const entries = getTreeEntries({project, compositionFile});
-	requireTreeItem(entries, {type: 'folder', ...folder});
+	const filePath = findProjectFile({project, filePath: compositionFile});
+	const input = project.files[filePath];
+	const entries = getTreeEntries({ast: parseAst(input)});
+	const located = requireTreeItem(entries, {type: 'folder', ...folder});
 	if (newName === folder.name) {
 		return getCodemodResult({project, nextProject: project});
 	}
@@ -34,14 +41,30 @@ export const renameFolder = <Project extends CodemodProject>({
 		throw new Error('A folder with this name already exists in the parent');
 	}
 
-	return editCompositionProject({
+	const attribute = located.node.openingElement.attributes.find(
+		(candidate) =>
+			candidate.type === 'JSXAttribute' &&
+			candidate.name.type === 'JSXIdentifier' &&
+			candidate.name.name === 'name',
+	);
+	if (attribute?.type !== 'JSXAttribute')
+		throw new Error('Could not locate the folder name');
+	const nextContents = applySourceEdits({
+		input,
+		edits: [
+			getJsxStringAttributeValueSourceEdit({
+				attribute,
+				input,
+				newValue: newName,
+			}),
+		],
+	});
+	parseAst(nextContents);
+	return getCodemodResult({
 		project,
-		compositionFile,
-		codemod: {
-			type: 'rename-folder',
-			folderName: folder.name,
-			parentName: folder.parentName,
-			newName,
+		nextProject: {
+			...project,
+			files: {...project.files, [filePath]: nextContents},
 		},
 	});
 };

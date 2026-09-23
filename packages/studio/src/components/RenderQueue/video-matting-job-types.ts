@@ -13,7 +13,8 @@ export type VideoMattingJobProgress = {
 
 type VideoMattingJobStatus =
 	| {status: 'idle'}
-	| {status: 'running'; progress: VideoMattingJobProgress}
+	| {status: 'cancelled'}
+	| {status: 'running' | 'saving'; progress: VideoMattingJobProgress}
 	| {status: 'done'}
 	| {status: 'failed'; error: {message: string; stack: string | undefined}};
 

@@ -3478,8 +3478,10 @@ test('Timeline from drag removes the prop at the default value', () => {
 	});
 });
 
-test('Timeline colors use the outlines palette', () => {
-	expect(TIMELINE_BACKGROUND).toBe('#15181B');
+test('Timeline colors use the Studio palette', () => {
+	expect(TIMELINE_BACKGROUND).toBe(
+		'var(--remotion-studio-timeline-background-color)',
+	);
 	expect(TIMELINE_TICKS_BACKGROUND).not.toBe(TIMELINE_BACKGROUND);
 });
 

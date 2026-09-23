@@ -20,6 +20,7 @@ export type UpdateJsxNodeKeyframesOptions<Project extends CodemodProject> = {
 	updates: JsxNodeKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	videoConfig?: VideoConfigValues;
+	prettierConfigOverride?: Record<string, unknown> | null;
 };
 
 export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
@@ -28,6 +29,7 @@ export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
 	updates,
 	schema,
 	videoConfig,
+	prettierConfigOverride,
 }: UpdateJsxNodeKeyframesOptions<Project>) => {
 	if (updates.length === 0) {
 		throw new Error('Expected at least one keyframe update');
@@ -35,12 +37,13 @@ export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
 
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const {output} = await updateSequenceKeyframes({
+	const {output, ...details} = await updateSequenceKeyframes({
 		input,
 		nodePath: node.nodePath,
 		updates,
 		schema,
 		videoConfigValues: videoConfig ?? null,
+		prettierConfigOverride,
 	});
 	const result = getNodeEditResult({
 		project,
@@ -52,5 +55,9 @@ export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
 			},
 		],
 	});
-	return {...result, updatedNode: getUpdatedNodeReference({...result, node})};
+	return {
+		...result,
+		...details,
+		updatedNode: getUpdatedNodeReference({...result, node}),
+	};
 };

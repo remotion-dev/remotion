@@ -18,37 +18,45 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 	const {
 		markVideoMattingJobDone,
 		markVideoMattingJobFailed,
+		markVideoMattingJobCancelled,
+		markVideoMattingJobSaving,
+		getAbortController,
 		setProcessVideoMattingJobCallback,
 		updateVideoMattingJobProgress,
 	} = useContext(RenderQueueContext);
 
 	const processJob = useCallback(
 		async (job: VideoMattingJob) => {
+			const {signal} = getAbortController(job.id);
 			let outputs: Awaited<ReturnType<typeof separateVideoLayers>> | null =
 				null;
 			let processingError: Error | null = null;
 			try {
+				signal.throwIfAborted();
 				updateVideoMattingJobProgress(job.id, {
 					detail: null,
 					message: 'Checking WebGPU support...',
 					value: 0,
 				});
 				const support = await canUseVideoMatting({model: job.model});
+				signal.throwIfAborted();
 				if (!support.supported) {
 					throw new Error(support.detailedReason);
 				}
 
 				await loadModelForJob({
+					signal,
 					model: job.model,
 					progressStart: 0,
 					progressSpan: 0.2,
 					isModelCached: (model) => isVideoMattingModelCached({model}),
 					loadModel: async (model, onProgress) => {
 						await downloadVideoMattingModel({
+							signal,
 							model,
 							onProgress: (progress) => onProgress(progress.progress),
 						});
-						await loadVideoMattingModel({model});
+						await loadVideoMattingModel({model, signal});
 					},
 					updateProgress: (progress) =>
 						updateVideoMattingJobProgress(job.id, {
@@ -58,6 +66,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 				});
 
 				outputs = await separateVideoLayers({
+					signal,
 					src: job.src,
 					model: job.model,
 					audio: job.audio,
@@ -77,6 +86,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					},
 				});
 
+				signal.throwIfAborted();
 				updateVideoMattingJobProgress(job.id, {
 					detail: null,
 					message: 'Saving video layers...',
@@ -86,6 +96,8 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					outputs.base.getBlob(),
 					outputs.foreground.getBlob(),
 				]);
+				signal.throwIfAborted();
+				markVideoMattingJobSaving(job.id);
 				await Promise.all([
 					base
 						.arrayBuffer()
@@ -124,23 +136,28 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 					error instanceof Error ? error : new Error(String(error));
 			}
 
+			await Promise.allSettled([
+				outputs?.base.dispose(),
+				outputs?.foreground.dispose(),
+			]);
 			try {
-				await Promise.all([
-					outputs?.base.dispose(),
-					outputs?.foreground.dispose(),
-				]);
 				await disposeVideoMattingModel({model: job.model});
 			} catch {
 				// Cleanup errors must not hide successfully written outputs.
 			}
 
-			if (processingError) {
+			if (signal.aborted) {
+				markVideoMattingJobCancelled(job.id);
+			} else if (processingError) {
 				markVideoMattingJobFailed(job.id, processingError);
 			} else {
 				markVideoMattingJobDone(job.id);
 			}
 		},
 		[
+			getAbortController,
+			markVideoMattingJobCancelled,
+			markVideoMattingJobSaving,
 			markVideoMattingJobDone,
 			markVideoMattingJobFailed,
 			updateVideoMattingJobProgress,

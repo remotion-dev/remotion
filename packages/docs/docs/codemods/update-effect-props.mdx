@@ -41,9 +41,29 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 An [`EffectReference`](/docs/codemods#effect-references): `filePath`, `nodePath`, and a zero-based `effectIndex` in the node's inline `effects` array.
 
-### props
+### props?
 
-A non-empty record of serializable values. Keys must be JavaScript identifiers. Computed values are rejected; recognized keyframed values are replaced with static values.
+A non-empty record of serializable values. Keys must be JavaScript identifiers. Computed values are rejected; recognized keyframed values are replaced with static values. Provide exactly one of `props` or `updates`.
+
+### updates?
+
+A non-empty array of explicit effect prop edits. Use this form to reset a prop to its default or paste a structured animation. Unlike `props`, this form permits replacing computed prop values. The effect call and its configuration must still be editable.
+
+#### key
+
+The effect prop name. Must be a JavaScript identifier.
+
+#### value
+
+The replacement value. Provide exactly one of `value` or `effectParam` for each update.
+
+#### effectParam
+
+A structured static or keyframed parameter to paste instead of `value`. Required animation imports are added.
+
+#### defaultValue
+
+The effect prop's default value, or `null` when no default is known. An explicit prop is removed when `value` equals a non-null default.
 
 ### schema?
 
@@ -68,6 +88,38 @@ An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path i
 ### updatedEffect
 
 The effect reference in the updated project.
+
+### results
+
+One entry per prop update, in input order.
+
+#### oldValueString
+
+The previous source value, or the supplied default when the prop was absent.
+
+#### newValueString
+
+The replacement expression, or the supplied default when an explicit prop was removed.
+
+#### removedProps
+
+An array of `{key, valueString}` entries for additional props removed when a schema enum changes variants.
+
+#### effectCallee
+
+The effect call's name in the source.
+
+#### logLine
+
+The one-based line of the effect call in the source before this update.
+
+#### output
+
+The file contents after this prop update. The final project contains the result after all updates.
+
+#### formatted
+
+Whether the generated edit was formatted.
 
 ## Errors
 

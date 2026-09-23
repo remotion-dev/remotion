@@ -5,6 +5,12 @@ import {TOCItem} from '../../components/TableOfContents/TOCItem';
 export const TableOfContents: React.FC = () => {
 	return (
 		<Grid>
+			<TOCItem link="/docs/codemods/add-canvas-capture-composition">
+				<strong>addCanvasCaptureComposition()</strong>
+				<div>
+					Creates and registers an interactive Canvas Capture component.
+				</div>
+			</TOCItem>
 			<TOCItem link="/docs/codemods/add-component">
 				<strong>addComponent()</strong>
 				<div>
@@ -163,6 +169,16 @@ export const TableOfContents: React.FC = () => {
 				<div>
 					Updates JSX props, nested object properties, and supported text
 					children.
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/update-multiple-jsx-node-props">
+				<strong>updateMultipleJsxNodeProps()</strong>
+				<div>Updates props on multiple JSX nodes in one operation.</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/update-visual-controls">
+				<strong>updateVisualControls()</strong>
+				<div>
+					Updates visual control defaults while preserving surrounding source.
 				</div>
 			</TOCItem>
 		</Grid>

@@ -5,7 +5,7 @@ import type {
 } from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
-import {BLUE, TRANSPARENT} from '../../helpers/colors';
+import {BLUE, BLUE_HOVERED, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {
 	isPointerSessionRelease,
@@ -531,7 +531,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			color: dragging ? 'var(--remotion-cli-internals-blue-hovered)' : BLUE,
+			color: dragging ? BLUE_HOVERED : BLUE,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			WebkitUserSelect: 'none',

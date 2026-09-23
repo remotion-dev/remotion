@@ -15,7 +15,7 @@ import {RenderQueueContext} from '../components/RenderQueue/context';
 import {QueueJobErrorModal} from '../components/RenderQueue/QueueJobErrorModal';
 import type {VideoMattingJob} from '../components/RenderQueue/video-matting-job-types';
 import {VideoMattingQueueItem} from '../components/RenderQueue/VideoMattingQueueItem';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {studioCssVariables} from '../helpers/studio-css-variables';
 import {SelectedModalContext} from '../state/modals';
 
 const originalClipboard = Object.getOwnPropertyDescriptor(
@@ -97,6 +97,7 @@ test('opens and copies transcription and video matting errors', async () => {
 
 	render(
 		<ModalsProvider>
+			<style>{studioCssVariables}</style>
 			<RenderQueueContext.Provider
 				value={
 					{
@@ -123,7 +124,7 @@ test('opens and copies transcription and video matting errors', async () => {
 		'The job failed because of the following error:',
 	);
 	const descriptionStyle = getComputedStyle(description);
-	expect(descriptionStyle.color).toBe(LIGHT_TEXT);
+	expect(descriptionStyle.color).toBe('#A6A7A9');
 	expect(descriptionStyle.fontFamily).toBe('sans-serif');
 	expect(descriptionStyle.fontSize).toBe('14px');
 	expect(descriptionStyle.lineHeight).toBe('1.5');

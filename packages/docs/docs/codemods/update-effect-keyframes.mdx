@@ -34,6 +34,8 @@ console.log(result);
 
 The effect must be a call in an inline effects array with a supported configuration. Required interpolation imports and frame hooks are added. Frame coordinates belong to the interpolation expression's local frame clock.
 
+Creating an animation that needs a new [`useCurrentFrame()`](/docs/use-current-frame) hook requires an enclosing function. Existing supported interpolation expressions can be edited outside functions. Static effect prop edits outside functions remain supported by [`updateEffectProps()`](/docs/codemods/update-effect-props).
+
 ## Options
 
 ### project

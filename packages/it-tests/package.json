@@ -22,6 +22,7 @@
 		"@types/node": "catalog:",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",
 		"@remotion/compositor-darwin-arm64": "workspace:*",

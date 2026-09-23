@@ -1,10 +1,7 @@
 import {expect, test} from 'bun:test';
-import {CodemodsInternals} from '@remotion/codemods';
-import {parseAst} from '../codemods/parse-ast';
-import {lineColumnToNodePath as getNodePathAtPosition} from '../preview-server/routes/can-update-sequence-props';
-import {lineColumnToNodePath} from './test-utils';
-
-const {reorderSequence} = CodemodsInternals;
+import {getJsxNodes} from '../get-jsx-nodes';
+import {reorderSequence} from '../reorder-sequence';
+import {lineColumnToNodePath} from './node-path-test-utils';
 
 const sequenceContaining = (input: string, search: string) => {
 	const searchOffset = input.indexOf(search);
@@ -20,12 +17,14 @@ const sequenceContaining = (input: string, search: string) => {
 	}
 
 	const sourceBeforeOpening = input.slice(0, openingOffset).split('\n');
-	const nodePath = getNodePathAtPosition(
-		parseAst(input),
-		sourceBeforeOpening.length,
-		sourceBeforeOpening.at(-1)?.length ?? 0,
-		input,
-	);
+	const nodePath = getJsxNodes({
+		project: {rootDir: '/', files: {'/test.tsx': input}},
+		filePath: '/test.tsx',
+	}).find(
+		(node) =>
+			node.location?.line === sourceBeforeOpening.length &&
+			node.location.column === (sourceBeforeOpening.at(-1)?.length ?? 0),
+	)?.nodePath;
 	if (!nodePath) {
 		throw new Error(
 			`Could not resolve a Sequence containing ${JSON.stringify(search)}`,

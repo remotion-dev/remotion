@@ -4,7 +4,6 @@ import type {
 	CanUpdateSequencePropStatusStatic,
 } from 'remotion';
 import {
-	BLACK_FULL_HEX,
 	BORDER_WHITE_ALPHA_12,
 	WHITE,
 	WHITE_ALPHA_08,
@@ -93,7 +92,7 @@ const getFallbackItemValue = (field: ArrayFieldSchema): unknown => {
 	}
 
 	if (field.item.type === 'color') {
-		return BLACK_FULL_HEX;
+		return '#000000';
 	}
 
 	if (field.item.type === 'enum') {

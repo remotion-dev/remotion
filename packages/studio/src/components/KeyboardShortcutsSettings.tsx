@@ -19,6 +19,7 @@ import {
 	BORDER_WHITE_ALPHA_12,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
 import {canEditStudioConfig} from '../helpers/settings-tab-availability';
@@ -128,7 +129,7 @@ const key: React.CSSProperties = {
 
 const chordButton: React.CSSProperties = {
 	alignItems: 'center',
-	background: 'transparent',
+	background: TRANSPARENT,
 	border: 0,
 	cursor: 'pointer',
 	display: 'flex',

@@ -11,7 +11,8 @@ export type CaptionJobProgress = {
 
 type CaptionJobStatus =
 	| {status: 'idle'}
-	| {status: 'running'; progress: CaptionJobProgress}
+	| {status: 'cancelled'}
+	| {status: 'running' | 'saving'; progress: CaptionJobProgress}
 	| {status: 'done'; captionCount: number}
 	| {
 			status: 'failed';

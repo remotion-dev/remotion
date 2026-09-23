@@ -33,7 +33,7 @@ const staticSectionTitle: React.CSSProperties = {
 const collapsibleSectionHeaderButton: React.CSSProperties = {
 	...sectionTitle,
 	appearance: 'none',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 	border: 'none',
 	borderRadius: 3,
 	cursor: 'default',

@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {deleteJsxNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DeleteJsxNodesRequest,
 	DeleteJsxNodesResponse,
 } from '@remotion/studio-shared';
-import {deleteJsxNodes} from '../../codemods/delete-jsx-nodes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -67,11 +67,21 @@ export const deleteJsxNodesHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const {output, nodeLabels, logLines, nodePathRemappings} =
-						await deleteJsxNodes({
-							input: fileContents,
-							nodePaths: fileItems.map((item) => item.nodePath),
-						});
+					const result = await deleteJsxNodes({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						nodes: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.nodePath,
+						})),
+					});
+					const output = result.project.files[absolutePath];
+					const {nodeLabels, logLines} = result.editDetails[0];
+					const nodePathRemappings = result.nodePathRemappings.map(
+						({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+					);
 
 					return {
 						absolutePath,

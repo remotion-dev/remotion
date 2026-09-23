@@ -1,12 +1,8 @@
-import type {
-	Expression,
-	JSXAttribute,
-	JSXElement,
-	JSXIdentifier,
-	JSXOpeningElement,
-} from '@babel/types';
-import type {RecastCodemod} from '@remotion/studio-shared';
+import type {JSXAttribute, JSXElement, JSXOpeningElement} from '@babel/types';
 import * as recast from 'recast';
+import type {SequenceNodePath} from 'remotion';
+import type {CompositionMetadata} from './composition-editing';
+import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
@@ -21,75 +17,20 @@ import {
 
 const b = recast.types.builders;
 
-type DuplicateCompositionCodemod = Extract<
-	RecastCodemod,
-	{type: 'duplicate-composition'}
->;
-
-export const getCompositionId = (jsxElement: JSXElement) => {
-	const {openingElement} = jsxElement;
-	if (
-		openingElement.name.type !== 'JSXIdentifier' ||
-		(openingElement.name.name !== 'Composition' &&
-			openingElement.name.name !== 'Still')
-	) {
-		return null;
-	}
-
-	for (const attribute of openingElement.attributes) {
-		const value = attribute.type === 'JSXAttribute' ? attribute.value : null;
-		if (
-			attribute.type !== 'JSXAttribute' ||
-			attribute.name.type !== 'JSXIdentifier' ||
-			attribute.name.name !== 'id' ||
-			!value
-		) {
-			continue;
-		}
-
-		if (value.type === 'StringLiteral') {
-			return value.value;
-		}
-
-		if (
-			value.type === 'JSXExpressionContainer' &&
-			value.expression.type === 'StringLiteral'
-		) {
-			return value.expression.value;
-		}
-	}
-
-	return null;
-};
-
-const jsxId = (name: string): JSXIdentifier => ({type: 'JSXIdentifier', name});
-
-const jsxAttributeWithExpression = (
-	name: string,
-	expression: Expression,
-): JSXAttribute => ({
-	type: 'JSXAttribute',
-	name: jsxId(name),
-	value: {
-		type: 'JSXExpressionContainer',
-		expression,
-	},
-});
-
 const changeComposition = ({
 	jsxElement,
-	codemod,
-	changesMade,
+	newId,
+	tag,
+	tagName,
+	metadata,
 }: {
 	jsxElement: JSXElement;
-	codemod: DuplicateCompositionCodemod;
-	changesMade: {description: string}[];
+	newId: string;
+	tag: 'Composition' | 'Still';
+	tagName: string;
+	metadata: Partial<CompositionMetadata>;
 }): JSXElement => {
 	const {openingElement} = jsxElement;
-	const {name} = openingElement;
-	if (name.type !== 'JSXIdentifier') {
-		return jsxElement;
-	}
 
 	const attributes = openingElement.attributes
 		.map((attribute) => {
@@ -101,11 +42,10 @@ const changeComposition = ({
 			}
 
 			if (
-				codemod.tag === 'Still' &&
+				tag === 'Still' &&
 				(attribute.name.name === 'fps' ||
 					attribute.name.name === 'durationInFrames')
 			) {
-				changesMade.push({description: `Removed ${attribute.name.name}`});
 				return null;
 			}
 
@@ -113,10 +53,9 @@ const changeComposition = ({
 				attribute.name.name === 'id' &&
 				attribute.value?.type === 'StringLiteral'
 			) {
-				changesMade.push({description: 'Replaced composition id'});
 				return {
 					...attribute,
-					value: {...attribute.value, value: codemod.newId},
+					value: {...attribute.value, value: newId},
 				};
 			}
 
@@ -125,14 +64,13 @@ const changeComposition = ({
 				attribute.value?.type === 'JSXExpressionContainer' &&
 				attribute.value.expression.type === 'StringLiteral'
 			) {
-				changesMade.push({description: 'Replaced composition id'});
 				return {
 					...attribute,
 					value: {
 						...attribute.value,
 						expression: {
 							...attribute.value.expression,
-							value: codemod.newId,
+							value: newId,
 						},
 					},
 				};
@@ -140,19 +78,18 @@ const changeComposition = ({
 
 			const newValue =
 				attribute.name.name === 'fps'
-					? codemod.newFps
+					? (metadata.fps ?? null)
 					: attribute.name.name === 'durationInFrames'
-						? codemod.newDurationInFrames
+						? (metadata.durationInFrames ?? null)
 						: attribute.name.name === 'width'
-							? codemod.newWidth
+							? (metadata.width ?? null)
 							: attribute.name.name === 'height'
-								? codemod.newHeight
+								? (metadata.height ?? null)
 								: null;
 			if (newValue === null) {
 				return attribute;
 			}
 
-			changesMade.push({description: `Replaced ${attribute.name.name}`});
 			return {
 				...attribute,
 				value: b.jsxExpressionContainer(
@@ -165,14 +102,14 @@ const changeComposition = ({
 		) as JSXOpeningElement['attributes'];
 
 	for (const [nameToAdd, value] of [
-		['fps', codemod.newFps],
-		['durationInFrames', codemod.newDurationInFrames],
-		['width', codemod.newWidth],
-		['height', codemod.newHeight],
+		['fps', metadata.fps ?? null],
+		['durationInFrames', metadata.durationInFrames ?? null],
+		['width', metadata.width ?? null],
+		['height', metadata.height ?? null],
 	] as const) {
 		if (
 			value === null ||
-			(codemod.tag === 'Still' &&
+			(tag === 'Still' &&
 				(nameToAdd === 'fps' || nameToAdd === 'durationInFrames')) ||
 			attributes.some(
 				(attribute) =>
@@ -184,27 +121,25 @@ const changeComposition = ({
 			continue;
 		}
 
-		changesMade.push({description: `Added ${nameToAdd}`});
 		attributes.push(
-			jsxAttributeWithExpression(
-				nameToAdd,
-				b.numericLiteral(value) as Expression,
-			),
+			b.jsxAttribute(
+				b.jsxIdentifier(nameToAdd),
+				b.jsxExpressionContainer(b.numericLiteral(value)),
+			) as JSXAttribute,
 		);
-	}
-
-	if (codemod.tag !== name.name) {
-		changesMade.push({description: 'Changed tag'});
 	}
 
 	return {
 		...jsxElement,
 		closingElement: jsxElement.closingElement
-			? {...jsxElement.closingElement, name: {...name, name: codemod.tag}}
+			? {
+					...jsxElement.closingElement,
+					name: {type: 'JSXIdentifier', name: tagName},
+				}
 			: null,
 		openingElement: {
 			...openingElement,
-			name: {...name, name: codemod.tag},
+			name: {type: 'JSXIdentifier', name: tagName},
 			attributes,
 		},
 	};
@@ -212,97 +147,80 @@ const changeComposition = ({
 
 export const duplicateCompositionInSource = ({
 	input,
-	codemod,
+	nodePath,
+	newId,
+	tag,
+	metadata,
 }: {
 	input: string;
-	codemod: DuplicateCompositionCodemod;
-}): {newContents: string; changesMade: {description: string}[]} => {
+	nodePath: SequenceNodePath;
+	newId: string;
+	tag: 'Composition' | 'Still';
+	metadata: Partial<CompositionMetadata>;
+}): string => {
 	const ast = parseAst(input);
-	const changesMade: {description: string}[] = [];
-	const edits: SourceEdit[] = [];
 	const snapshots = captureImportSnapshots(ast);
-
-	recast.types.visit(ast, {
-		visitJSXElement(astPath) {
-			const original = astPath.node as unknown as JSXElement;
-			if (getCompositionId(original) !== codemod.idToDuplicate) {
-				this.traverse(astPath);
-				return undefined;
-			}
-
-			const duplicate = changeComposition({
-				jsxElement: original,
-				codemod,
-				changesMade,
-			});
-			if (!original.loc) {
-				throw new Error('Could not locate the composition to duplicate');
-			}
-
-			const insertion = printInsertedJsx({
-				element: duplicate as never,
-				input,
-				prettierConfigOverride: null,
-			});
-			const parent = astPath.parentPath?.node;
-			if (
-				parent &&
-				(parent.type === 'JSXElement' || parent.type === 'JSXFragment')
-			) {
-				const end = recastLocToOffset(input, original.loc.end);
-				const start = recastLocToOffset(input, original.loc.start);
-				const lineStart = input.lastIndexOf('\n', start - 1) + 1;
-				const indent =
-					input.slice(lineStart, start).match(/^[\t ]*/)?.[0] ?? '';
-				const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-				edits.push({
-					start: end,
-					end,
-					replacement: endOfLine + indentInsertedJsx({indent, insertion}),
-				});
-			} else {
-				edits.push(
-					getInsertionRootSourceEdit({
-						input,
-						insertion,
-						root: original as never,
-						nullRoot: null,
-						prettierConfigOverride: null,
-						insertInside: false,
-					}),
-				);
-			}
-
-			return false;
-		},
-	});
-
-	if (changesMade.length === 0) {
-		throw new Error(
-			`Could not find composition "${codemod.idToDuplicate}" to duplicate`,
-		);
+	const astPath = findJsxElementPathForDeletion(ast, nodePath);
+	const original = astPath?.node as JSXElement | undefined;
+	if (!astPath || !original?.loc) {
+		throw new Error('Could not locate the composition to duplicate');
 	}
 
-	ensureNamedImport({
+	const tagName = ensureNamedImport({
 		ast,
-		importedName: codemod.tag,
+		importedName: tag,
 		sourcePath: 'remotion',
-		localName: codemod.tag,
+		localName: tag,
 	});
-
-	return {
-		newContents: applySourceEdits({
+	const duplicate = changeComposition({
+		jsxElement: original,
+		newId,
+		tag,
+		tagName,
+		metadata,
+	});
+	const insertion = printInsertedJsx({
+		element: duplicate as never,
+		input,
+		prettierConfigOverride: null,
+	});
+	const parent = astPath.parentPath?.node;
+	let insertionEdit: SourceEdit;
+	if (
+		parent &&
+		(parent.type === 'JSXElement' || parent.type === 'JSXFragment')
+	) {
+		const end = recastLocToOffset(input, original.loc.end);
+		const start = recastLocToOffset(input, original.loc.start);
+		const lineStart = input.lastIndexOf('\n', start - 1) + 1;
+		const indent = input.slice(lineStart, start).match(/^[\t ]*/)?.[0] ?? '';
+		const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
+		insertionEdit = {
+			start: end,
+			end,
+			replacement: endOfLine + indentInsertedJsx({indent, insertion}),
+		};
+	} else {
+		insertionEdit = getInsertionRootSourceEdit({
 			input,
-			edits: [
-				...edits,
-				...getInsertImportSourceEdits({
-					ast,
-					input,
-					snapshots,
-					prettierConfigOverride: null,
-				}),
-			],
-		}),
-		changesMade,
-	};
+			insertion,
+			root: original as never,
+			nullRoot: null,
+			prettierConfigOverride: null,
+			insertInside: false,
+		});
+	}
+
+	return applySourceEdits({
+		input,
+		edits: [
+			insertionEdit,
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				snapshots,
+				prettierConfigOverride: null,
+			}),
+		],
+	});
 };

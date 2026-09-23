@@ -10,6 +10,7 @@ import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
+import {resolveStudioColor} from '../helpers/resolve-studio-color';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -165,7 +166,10 @@ const AudioWaveformInner: React.FC<{
 		drawBars({
 			canvas: canvasElement,
 			peaks: portionPeaks ?? EMPTY_PEAKS,
-			color: WHITE_ALPHA_60,
+			color: resolveStudioColor(
+				WHITE_ALPHA_60,
+				getComputedStyle(canvasElement),
+			),
 			volume: visibleVolume,
 			width: drawingWidth,
 		});
@@ -214,7 +218,10 @@ const AudioWaveformInner: React.FC<{
 				context.lineTo(x, y);
 			}
 		});
-		context.strokeStyle = WHITE_ALPHA_70;
+		context.strokeStyle = resolveStudioColor(
+			WHITE_ALPHA_70,
+			getComputedStyle(volumeCanvasElement),
+		);
 		context.lineWidth = pixelRatio;
 		context.stroke();
 	}, [height, shouldRenderVolumeOverlay, visibleVolume, visualizationWidth]);

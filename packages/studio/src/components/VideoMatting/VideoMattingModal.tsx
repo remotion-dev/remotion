@@ -161,7 +161,12 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 	const duplicateOutput = normalizedBase === normalizedForeground;
 	const queuedOutputs = new Set(
 		videoMattingJobs
-			.filter((job) => job.status === 'idle' || job.status === 'running')
+			.filter(
+				(job) =>
+					job.status === 'idle' ||
+					job.status === 'running' ||
+					job.status === 'saving',
+			)
 			.flatMap((job) => [job.baseOutName, job.foregroundOutName])
 			.map((name) => name.normalize('NFC').toLowerCase()),
 	);

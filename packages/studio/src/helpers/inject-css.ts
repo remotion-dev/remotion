@@ -17,8 +17,6 @@ const makeDefaultGlobalCSS = () => {
 
 	return `
 	  html {
-	    --remotion-cli-internals-blue: ${BLUE};
-	    --remotion-cli-internals-blue-hovered: ${BLUE_HOVERED};
 	    overscroll-behavior-y: none;
 	  }
 
@@ -105,7 +103,7 @@ const makeDefaultGlobalCSS = () => {
 
 	  .__remotion_thumb {
 	    appearance: none;
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 100%;
 	    left: 0;
@@ -120,13 +118,13 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
 	  .__remotion_thumb::-moz-range-track {
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 6px;
 	  }
 
 	  .__remotion_thumb::-webkit-slider-runnable-track {
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 6px;
 	  }
@@ -158,11 +156,11 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
 	.__remotion_input_dragger:hover > span:first-child {
-    color: var(--remotion-cli-internals-blue-hovered) !important;
+    color: ${BLUE_HOVERED} !important;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
-    color: var(--remotion-cli-internals-blue) !important;
+    color: ${BLUE} !important;
     transition: color 0.2s ease-in-out;
   }
 

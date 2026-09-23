@@ -1,0 +1,104 @@
+---
+image: /generated/articles-docs-codemods-update-multiple-jsx-node-props.png
+title: 'updateMultipleJsxNodeProps()'
+crumb: '@remotion/codemods'
+---
+
+# updateMultipleJsxNodeProps()<AvailableFrom v="4.0.528" />
+
+Updates props on multiple JSX nodes across project files in one operation. Node references refer to the input project; the result includes their new paths.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="update-multiple-jsx-node-props.ts"
+import {updateMultipleJsxNodeProps, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const title: JsxNodeReference;
+declare const background: JsxNodeReference;
+
+const result = updateMultipleJsxNodeProps({
+  project,
+  changes: [
+    {node: title, props: {children: 'Hello'}},
+    {node: background, props: {'style.opacity': 0.5}},
+  ],
+});
+
+console.log(result.project, result.updatedNodes);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### changes
+
+A non-empty array of node edits.
+
+#### node
+
+The [`JsxNodeReference`](/docs/codemods#node-references) to edit, containing `filePath` and `nodePath`.
+
+#### props?
+
+A non-empty record of prop values, such as `{from: 30, 'style.opacity': 0.5}`. A value of `undefined` removes a prop. Only one level of nested keys is supported. Computed props, including values potentially overridden by a spread, are rejected. Supply exactly one of `props` or `updates` for each edit.
+
+#### updates?
+
+A non-empty array of [structured prop updates](/docs/codemods/update-jsx-node-props#updates) for edits that need default values or other update metadata. This form permits explicitly replacing computed prop values. Supply this instead of `props`.
+
+#### schema?
+
+A Remotion `InteractivitySchema` for schema-specific defaults and enum variants. By default, no schema-specific behavior is applied.
+
+#### videoConfig?
+
+The composition's `width`, `height`, `fps`, and `durationInFrames`, for evaluating supported expressions. By default, those runtime values are unknown.
+
+### prettierConfigOverride?
+
+Formatting options for inserted or changed source. By default, formatting is inferred from the source.
+
+If any edit fails, no updated project is returned and the input project remains unchanged.
+
+## Return value
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. See [node references](/docs/codemods#node-references).
+
+### updatedNodes
+
+Updated node references in the same order as the requested edits.
+
+### results
+
+Per-node edit details in the same order as the requested edits: `oldValueStrings`, `logLine`, `removedProps`, and `newNodePath`. See [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props).
+
+### formatted
+
+`true` when the operation succeeds.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-jsx-node-props.ts)
+- [`@remotion/codemods`](/docs/codemods)

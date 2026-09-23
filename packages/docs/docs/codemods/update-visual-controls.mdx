@@ -1,0 +1,93 @@
+---
+image: /generated/articles-docs-codemods-update-visual-controls.png
+title: 'updateVisualControls()'
+crumb: '@remotion/codemods'
+---
+
+# updateVisualControls()<AvailableFrom v="4.0.528" />
+
+Updates the default values of [`visualControl()`](/docs/studio/visual-control) calls in a source file while preserving surrounding source.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="update-visual-controls.ts"
+import {updateVisualControls, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = updateVisualControls({
+  project,
+  filePath: 'src/Video.tsx',
+  changes: [
+    {
+      id: 'opacity',
+      newValueSerialized: JSON.stringify(0.5),
+      newValueIsUndefined: false,
+      enumPaths: [],
+    },
+  ],
+});
+
+console.log(result.project, result.updatedControls);
+```
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### filePath
+
+The project source file containing the `visualControl()` calls. Calls must use this name directly; aliased imports and namespace calls are not matched.
+
+### changes
+
+An array of requested value changes. Calls are matched by a static string or template-literal identifier. If an identifier has multiple requested changes, the last value wins. Identifiers with no matching call leave the source unchanged.
+
+#### id
+
+The visual control identifier.
+
+#### newValueSerialized
+
+The new value serialized as JSON. Ignored when `newValueIsUndefined` is `true`.
+
+#### newValueIsUndefined
+
+Whether to write `undefined` as the default value.
+
+#### enumPaths
+
+Paths within the value to preserve as enum literals with `as const`. Each path is an array of string keys or numeric indices. Use `[]` for no enum values, or `[[]]` when the whole value is an enum literal.
+
+## Return value
+
+### project
+
+The updated project. Unchanged files and extra project fields are preserved.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### updatedControls
+
+An array of `{id, line}` entries for the requested changes that matched a call. `line` is the call's one-based source line. Multiple matching calls produce separate entries. A matched call can be reported even if its value was already equal to the requested value.
+
+## Errors
+
+Throws if a `visualControl()` call has a dynamic identifier, a matched change contains invalid serialized JSON, or the source cannot be parsed. Failed operations leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-visual-controls.ts)
+- [`@remotion/codemods`](/docs/codemods)

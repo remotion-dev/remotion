@@ -2053,6 +2053,7 @@ const sidebars: SidebarsConfig = {
 				id: 'codemods/index',
 			},
 			items: [
+				'codemods/add-canvas-capture-composition',
 				'codemods/add-component',
 				'codemods/add-composition',
 				'codemods/add-effect',
@@ -2083,6 +2084,8 @@ const sidebars: SidebarsConfig = {
 				'codemods/update-effect-props',
 				'codemods/update-jsx-node-keyframes',
 				'codemods/update-jsx-node-props',
+				'codemods/update-multiple-jsx-node-props',
+				'codemods/update-visual-controls',
 			],
 		},
 	],

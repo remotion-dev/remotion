@@ -28,12 +28,14 @@ export const reorderEffect = async <Project extends CodemodProject>({
 		throw new Error('Effect index is out of range');
 	}
 
-	const {output} = await reorderEffectInSource({
-		input,
-		sequenceNodePath: effect.nodePath,
-		fromIndex: effect.effectIndex,
-		toIndex,
-	});
+	const {output, formatted, effectLabel, logLine} = await reorderEffectInSource(
+		{
+			input,
+			sequenceNodePath: effect.nodePath,
+			fromIndex: effect.effectIndex,
+			toIndex,
+		},
+	);
 	const result = getNodeEditResult({
 		project,
 		edits: [
@@ -46,6 +48,7 @@ export const reorderEffect = async <Project extends CodemodProject>({
 	});
 	return {
 		...result,
+		editDetails: [{filePath, formatted, effectLabel, logLine}],
 		updatedEffect: {
 			...getUpdatedNodeReference({...result, node: effect}),
 			effectIndex: toIndex,

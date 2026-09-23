@@ -3,8 +3,8 @@ import type {InteractivitySchema} from 'remotion';
 import {
 	updateEffectKeyframesAst,
 	updateSequenceKeyframesAst,
-} from '../codemods/update-keyframes/update-keyframes';
-import {lineColumnToNodePath} from './test-utils';
+} from '../update-keyframes';
+import {lineColumnToNodePath} from './node-path-test-utils';
 
 const getLine = (input: string, needle: string): number => {
 	const lineIndex = input

@@ -25,11 +25,7 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {makeNewCompositionComponentSource, simpleDiff} = CodemodsInternals;
-
-export const formatNewCompositionFile = (
-	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
-) => makeNewCompositionComponentSource(codemod);
+const {simpleDiff} = CodemodsInternals;
 
 const getFolderPath = (parentName: string | null, folderName: string) => {
 	return parentName ? `${parentName}/${folderName}` : folderName;
@@ -246,10 +242,12 @@ export const applyCodemodHandler: ApiHandler<
 			}
 
 			const input = readFileSync(filePath, 'utf-8');
-			const formatted = await applyCodemodToFile({
+			const nextProject = await applyCodemodToFile({
 				filePath,
 				codeMod: codemod,
 			});
+
+			const formatted = nextProject.files[filePath];
 
 			const diff = simpleDiff({
 				oldLines: input.split('\n'),
@@ -279,7 +277,7 @@ export const applyCodemodHandler: ApiHandler<
 						throw new Error('Could not determine the new component file path');
 					}
 
-					componentFileContents = await formatNewCompositionFile(codemod);
+					componentFileContents = nextProject.files[componentFilePath];
 					snapshots.push({
 						filePath: componentFilePath,
 						oldContents: null,
