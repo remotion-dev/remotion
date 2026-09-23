@@ -1,23 +1,35 @@
 import type {PlayerProps, PlayerRef} from '@remotion/player';
 import {Player, PlayerInternals} from '@remotion/player';
 import type {RefObject} from 'react';
-import React, {forwardRef, useCallback, useEffect} from 'react';
+import React, {forwardRef, useCallback, useEffect, useMemo} from 'react';
 import type {AnyZodObject, TSequence} from 'remotion';
 import type {CanvasController} from './canvas-controller';
 import {getCanvasControllerInternals} from './canvas-controller';
+import {CanvasOutlineOverlay} from './canvas-outline-overlay';
+import type {CanvasSequenceNodePathResolver} from './sequence-node-path';
+import {getCanvasSequenceNodePathInfo} from './sequence-node-path';
 
 export type CanvasProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 > = PlayerProps<Schema, Props> & {
 	readonly controller: CanvasController;
+	/** Enable hover and selection on the composition. Defaults to false. */
+	readonly showOutlines?: boolean;
+	/** Use the same resolver for your layer list and canvas selection. */
+	readonly resolveSequenceNodePathInfo?: CanvasSequenceNodePathResolver;
 };
 
 const CanvasFn = <
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>,
 >(
-	{controller, ...playerProps}: CanvasProps<Schema, Props>,
+	{
+		controller,
+		showOutlines = false,
+		resolveSequenceNodePathInfo = getCanvasSequenceNodePathInfo,
+		...playerProps
+	}: CanvasProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
 ) => {
 	const internals = getCanvasControllerInternals(controller);
@@ -29,16 +41,30 @@ const CanvasFn = <
 	useEffect(() => {
 		return () => internals.clear();
 	}, [internals]);
+	const overlay = useMemo(
+		() =>
+			showOutlines ? (
+				<CanvasOutlineOverlay
+					controller={controller}
+					resolveSequenceNodePathInfo={resolveSequenceNodePathInfo}
+				/>
+			) : null,
+		[controller, resolveSequenceNodePathInfo, showOutlines],
+	);
 
 	return React.createElement(
 		PlayerInternals.TimelineSequenceObserverContext.Provider,
 		{value: onTimelineSequenceChange},
 		React.createElement(
-			Player as React.ComponentType,
-			{
-				...(playerProps as Record<string, unknown>),
-				ref,
-			} as Record<string, unknown>,
+			PlayerInternals.CanvasOverlayContext.Provider,
+			{value: overlay},
+			React.createElement(
+				Player as React.ComponentType,
+				{
+					...(playerProps as Record<string, unknown>),
+					ref,
+				} as Record<string, unknown>,
+			),
 		),
 	);
 };
