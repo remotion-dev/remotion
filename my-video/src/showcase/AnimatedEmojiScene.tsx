@@ -1,15 +1,18 @@
-import {AnimatedEmoji} from "@remotion/animated-emoji";
+import {AnimatedEmoji, getAvailableEmojis} from "@remotion/animated-emoji";
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
 // Demonstrates: @remotion/animated-emoji — Google Fonts' animated emoji as
-// a <Loop>+<OffthreadVideo transparent> component. Fully self-hosted: no
+// a <Loop>+<OffthreadVideo transparent> component, plus getAvailableEmojis()
+// (the full catalog this package ships metadata for). Fully self-hosted: no
 // runtime fetch from any CDN, unlike @remotion/google-fonts. The video
 // files aren't bundled with the npm package itself (by design, to keep it
 // small) — copy the ones you need, once, from remotion-dev/animated-emoji's
 // public/ folder on GitHub into this project's public/. star-struck-0.5x
 // (mp4+webm, ~750KB) was copied in that way for this scene.
+const availableEmojis = getAvailableEmojis();
+
 export const AnimatedEmojiScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
@@ -25,6 +28,9 @@ export const AnimatedEmojiScene: React.FC = () => {
       </div>
       <div style={{transform: `scale(${scale})`, width: 260, height: 260}}>
         <AnimatedEmoji emoji="star-struck" scale="0.5" style={{width: 260, height: 260}} />
+      </div>
+      <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace", marginTop: 8}}>
+        getAvailableEmojis(): {availableEmojis.length} emoji catalogued
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 32, fontWeight: 600}}>
         Google Fonts' animated emoji, frame-accurate and offline

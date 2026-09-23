@@ -1,4 +1,21 @@
-import {evolvePath, getLength, getPointAtLength} from "@remotion/paths";
+import {
+  evolvePath,
+  extendViewBox,
+  getBoundingBox,
+  getInstructionIndexAtLength,
+  getLength,
+  getPointAtLength,
+  getSubpaths,
+  getTangentAtLength,
+  normalizePath,
+  parsePath,
+  reduceInstructions,
+  resetPath,
+  reversePath,
+  scalePath,
+  serializeInstructions,
+  warpPath,
+} from "@remotion/paths";
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
@@ -13,10 +30,32 @@ const STOPS = [
 ] as const;
 
 const totalLength = getLength(ROUTE_PATH);
+const boundingBox = getBoundingBox(ROUTE_PATH);
+// A faint wavy echo behind the main route, remapping every point's y
+// coordinate with warpPath() — purely decorative, but a real use of the API
+// rather than a manually-drawn second path.
+const warpedEcho = warpPath(ROUTE_PATH, (point) => ({...point, y: point.y + Math.sin(point.x / 45) * 14}));
+// A small "minimap" duplicate: reversed (traversed start-to-end backwards),
+// reset to a 0,0 origin, then scaled down to fit a corner inset.
+const minimapPath = scalePath(resetPath(reversePath(ROUTE_PATH)), 0.22, 0.22);
+const minimapBox = getBoundingBox(minimapPath);
+const minimapViewBox = extendViewBox(`0 0 ${minimapBox.x2} ${minimapBox.y2}`, 1.3);
+// parsePath -> reduceInstructions -> serializeInstructions round-trip,
+// simplifying curves to line segments; normalizePath makes every
+// instruction absolute. Both just feed the info readout below.
+const reducedInstructions = reduceInstructions(parsePath(ROUTE_PATH));
+const reducedPath = serializeInstructions(reducedInstructions);
+const normalizedPath = normalizePath(ROUTE_PATH);
+const subpathCount = getSubpaths(ROUTE_PATH).length;
 
-// Demonstrates: @remotion/paths driving a "draw the line" stroke animation
-// (evolvePath) and a marker travelling along it (getPointAtLength) — the
-// same technique the remotion-maps skill uses for animated routes.
+// Demonstrates most of @remotion/paths: evolvePath() draws the line on,
+// getPointAtLength() places the travelling marker and stop dots,
+// getTangentAtLength() rotates the marker to face its direction of travel,
+// warpPath() draws the wavy echo, and reversePath()/resetPath()/scalePath()/
+// extendViewBox() build the reversed minimap in the corner. parsePath(),
+// reduceInstructions(), serializeInstructions(), normalizePath() and
+// getSubpaths() feed the info readout — the same technique the
+// remotion-maps skill uses for animated routes.
 export const RouteScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
@@ -27,14 +66,30 @@ export const RouteScene: React.FC = () => {
   });
 
   const {strokeDasharray, strokeDashoffset} = evolvePath(progress, ROUTE_PATH);
-  const marker = getPointAtLength(ROUTE_PATH, progress * totalLength);
+  const currentLength = progress * totalLength;
+  const marker = getPointAtLength(ROUTE_PATH, currentLength);
+  const tangent = getTangentAtLength(ROUTE_PATH, currentLength);
+  const markerAngle = tangent ? (Math.atan2(tangent.y, tangent.x) * 180) / Math.PI : 0;
+  const segmentIndex = getInstructionIndexAtLength(ROUTE_PATH, currentLength)?.index ?? 0;
 
   return (
     <AbsoluteFill style={{background: gradientBg, fontFamily: poppins}}>
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 28}}>
-        @remotion/paths · evolvePath + getPointAtLength
+        @remotion/paths · evolvePath + getPointAtLength + getTangentAtLength
       </div>
       <svg width={1280} height={720} style={{position: "absolute", inset: 0}}>
+        <path d={warpedEcho} fill="none" stroke={palette.accent2} strokeWidth={2} strokeDasharray="4 6" opacity={0.35} />
+        <rect
+          x={boundingBox.x1}
+          y={boundingBox.y1}
+          width={boundingBox.x2 - boundingBox.x1}
+          height={boundingBox.y2 - boundingBox.y1}
+          fill="none"
+          stroke={palette.textDim}
+          strokeWidth={1}
+          strokeDasharray="6 6"
+          opacity={0.3}
+        />
         <path
           d={ROUTE_PATH}
           fill="none"
@@ -73,7 +128,26 @@ export const RouteScene: React.FC = () => {
             </g>
           );
         })}
-        {marker ? <circle cx={marker.x} cy={marker.y} r={14} fill={palette.text} /> : null}
+        {marker ? (
+          <g transform={`translate(${marker.x}, ${marker.y}) rotate(${markerAngle})`}>
+            <path d="M -14 -10 L 14 0 L -14 10 Z" fill={palette.text} />
+          </g>
+        ) : null}
+        <g transform={`translate(64, 560)`} opacity={0.9}>
+          <text fill={palette.textDim} fontSize={16} fontFamily="monospace">
+            getSubpaths: {subpathCount} · reduceInstructions: {reducedInstructions.length} segments ({reducedPath.length} chars) · segment #{segmentIndex}
+          </text>
+          <text y={22} fill={palette.textDim} fontSize={16} fontFamily="monospace">
+            normalizePath length: {normalizedPath.length} chars (vs {ROUTE_PATH.length} original)
+          </text>
+        </g>
+        <svg x={1000} y={520} width={180} height={160} viewBox={minimapViewBox} style={{overflow: "visible"}}>
+          <rect x={0} y={0} width={minimapBox.x2} height={minimapBox.y2} fill={palette.bgAlt} rx={8} />
+          <path d={minimapPath} fill="none" stroke={palette.accent2} strokeWidth={2} strokeLinecap="round" />
+        </svg>
+        <text x={1090} y={690} textAnchor="middle" fill={palette.textDim} fontSize={14} fontFamily="monospace">
+          reversePath + resetPath + scalePath
+        </text>
       </svg>
     </AbsoluteFill>
   );

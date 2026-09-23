@@ -18,7 +18,7 @@ Rendering and Studio need Node.js and a Chrome/Chromium download; they work in C
 - `src/index.ts` — entry point, registers the root component
 - `src/Root.tsx` — every `<Composition>` must be registered here
 - `src/Composition.tsx` — the `MyComp` composition (1280×720 @ 30fps)
-- `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions, shapes, motion blur, noise, captions, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, animated-emoji, three, skia, layout-utils/rounded-text-box, sfx, gsap, core-`remotion` fundamentals), and `FullReel` (both combined into one video). Point at a scene here as a worked example before writing a new one from scratch.
+- `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions incl. `useTransitionProgress()`, shapes, motion blur, noise, captions incl. SRT parse/serialize, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, animated-emoji, three, skia, layout-utils/rounded-text-box, sfx, gsap, core `remotion` fundamentals, core media/canvas components, core environment/introspection APIs), and `FullReel` (both combined into one video, plus a `makeHtmlInCanvasPresentation()`-built iris-wipe transition). Point at a scene here as a worked example before writing a new one from scratch.
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`, including `sample-clip.mp4`/`.gif`, `sample-tone.wav` and `sample-lottie.json` (locally-generated stand-ins used by `ExtendedReel`; regenerate the media ones with `node scripts/generate-sample-media.mjs`)
 - `.claude/elements/` — local copy of the [Remotion Elements](https://www.remotion.dev/elements/) gallery, drop-in components to copy into a scene (see "Elements" below)
@@ -40,6 +40,12 @@ npx remotion render ExtendedReel out/extended-reel.mp4 --browser-executable=/tmp
 ```
 
 Without this, effects/`<ThreeCanvas>` scenes render as solid black — Chromium accepts the render silently rather than erroring, so check with `--log=verbose` for the "Automatic fallback to software WebGL has been deprecated" warning if a canvas-based scene comes out blank.
+
+## `<ThreeWebGPUCanvas>` and HTML-in-canvas need a newer Chrome than this sandbox ships
+
+`@remotion/three/webgpu`'s `<ThreeWebGPUCanvas>` (Three.js's experimental WebGPU renderer) throws a real `GPUTextureViewDescriptor`/`swizzle` API-mismatch error inside Three.js's own async `compileAsync()` under this sandbox's software WebGPU implementation. It happens outside React's render lifecycle, so no error boundary or try/catch can recover from it — it aborts the whole render. `ThreeScene` therefore only uses `<ThreeCanvas>`; see its header comment for the full story of the (unsuccessful) error-boundary attempt.
+
+Core `HtmlInCanvas` and anything built on it (`@remotion/transitions`' `makeHtmlInCanvasPresentation()`) need Chrome 149+ with `chrome://flags/#canvas-draw-element` enabled (see `html-in-canvas.md`) — this sandbox's headless Chromium is 141. `CoreMediaScene` checks `HtmlInCanvas.isSupported()` before rendering it; `FullReel`'s `makeHtmlInCanvasPresentation()`-built iris-wipe transition (`src/showcase/htmlInCanvasPresentation.ts`) checks the same capability and falls back to a plain `fade()` when it's unsupported, rather than throwing mid-render — the same honest-fallback pattern as the network-dependent packages below.
 
 ## `@remotion/video-matting`, `@remotion/whisper-webgpu` and `@remotion/sfx` all need network access to `remotion.media`
 

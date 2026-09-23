@@ -1,4 +1,4 @@
-import {ding, vineBoom, whoosh} from "@remotion/sfx";
+import {ding, mouseClick, pageTurn, recordScratch, vineBoom, whoosh} from "@remotion/sfx";
 import {useEffect, useState} from "react";
 import {AbsoluteFill, cancelRender, continueRender, delayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
@@ -10,6 +10,9 @@ const SOUNDS = [
   {name: "whoosh", url: whoosh},
   {name: "ding", url: ding},
   {name: "vineBoom", url: vineBoom},
+  {name: "pageTurn", url: pageTurn},
+  {name: "mouseClick", url: mouseClick},
+  {name: "recordScratch", url: recordScratch},
 ];
 
 // Demonstrates: @remotion/sfx -- a curated library of royalty-free sound
@@ -57,7 +60,7 @@ export const SfxScene: React.FC = () => {
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 26}}>
         @remotion/sfx · royalty-free sound effect URLs
       </div>
-      <div style={{display: "flex", gap: 24, marginBottom: 32}}>
+      <div style={{display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 20, marginBottom: 32, maxWidth: 1100}}>
         {SOUNDS.map((sound) => (
           <div
             key={sound.name}

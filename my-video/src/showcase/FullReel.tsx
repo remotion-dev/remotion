@@ -6,6 +6,7 @@ import {zColor, zTextarea} from "@remotion/zod-types";
 import type {CalculateMetadataFunction} from "remotion";
 import {AbsoluteFill} from "remotion";
 import {z} from "zod";
+import {irisWipeOrFallback} from "./htmlInCanvasPresentation";
 import {TitleScene} from "./TitleScene";
 import {ShapesScene} from "./ShapesScene";
 import {CaptionsScene} from "./CaptionsScene";
@@ -24,6 +25,8 @@ import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 import {SkiaScene} from "./SkiaScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
+import {CoreMediaScene} from "./CoreMediaScene";
+import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
 
 export const fullReelSchema = z.object({
   title: z.string(),
@@ -35,7 +38,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 18;
+const SCENE_COUNT = 20;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -53,7 +56,11 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // The single, complete demo reel: every scene from ShowcaseReel and
 // ExtendedReel combined into one video (one title, one outro — the two
 // reels' duplicate bookends are dropped). ~24.5s covering: spring
-// animation, staggered text, rough-notation highlights (TitleScene);
+// animation, staggered text, rough-notation highlights, and
+// useTransitionProgress() reacting to its own exit transition (TitleScene);
+// an iris-wipe @remotion/transitions presentation built with
+// makeHtmlInCanvasPresentation() (falling back to fade() where
+// HtmlInCanvas isn't supported, right after this scene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
 // @remotion/captions (CaptionsScene); @remotion/paths (RouteScene);
 // @remotion/effects chained WebGL2 passes (EffectsScene); @remotion/media +
@@ -64,7 +71,9 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three (ThreeScene);
 // @remotion/skia (SkiaScene); @remotion/layout-utils + @remotion/rounded-text-box
 // (RoundedTextBoxScene); @remotion/sfx (SfxScene); @remotion/gsap (GsapScene);
-// core remotion Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
+// core remotion media/canvas components (CoreMediaScene); core remotion
+// environment/introspection APIs (CoreEnvironmentScene); core remotion
+// Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
 // @remotion/animation-utils + rough-notation (OutroScene).
 export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}) => {
   return (
@@ -78,7 +87,7 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ShapesScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({direction: "from-right"})} timing={t} />
+        <TransitionSeries.Transition presentation={irisWipeOrFallback()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CaptionsScene />
@@ -149,6 +158,16 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
           <GsapScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({direction: "from-left"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <CoreMediaScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <CoreEnvironmentScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <FundamentalsScene />

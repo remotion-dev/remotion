@@ -1,18 +1,36 @@
-import {Gif} from "@remotion/gif";
+import {Gif, getGifDurationInSeconds, preloadGif} from "@remotion/gif";
 import {MacOSCursor} from "@remotion/mac-cursors";
 import {Video} from "@remotion/media";
-import {AbsoluteFill, interpolate, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
+import {useEffect, useState} from "react";
+import {AbsoluteFill, cancelRender, continueRender, delayRender, interpolate, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
 // Demonstrates: @remotion/media's <Video> (trimBefore + animated cropLeft/
 // cropRight on real footage), @remotion/gif's <Gif> (also croppable per the
-// cropping guide), and @remotion/mac-cursors overlaid to suggest a UI
-// interaction. sample-clip.mp4/.gif are locally rendered stand-ins for real
-// footage — see scripts/generate-sample-media.mjs.
+// cropping guide) plus its preloadGif()/getGifDurationInSeconds() helpers,
+// and @remotion/mac-cursors overlaid to suggest a UI interaction.
+// sample-clip.mp4/.gif are locally rendered stand-ins for real footage —
+// see scripts/generate-sample-media.mjs.
 export const MediaScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
+  const [handle] = useState(() => delayRender("preloading gif + reading its duration"));
+  const [gifDuration, setGifDuration] = useState<number | null>(null);
+
+  useEffect(() => {
+    const {waitUntilDone, free} = preloadGif(staticFile("sample-clip.gif"));
+    (async () => {
+      try {
+        await waitUntilDone();
+        setGifDuration(await getGifDurationInSeconds(staticFile("sample-clip.gif")));
+        continueRender(handle);
+      } catch (err) {
+        cancelRender(err);
+      }
+    })();
+    return () => free();
+  }, [handle]);
 
   const crop = interpolate(frame, [15, 45], [0, 0.18], {
     extrapolateLeft: "clamp",
@@ -45,8 +63,13 @@ export const MediaScene: React.FC = () => {
             muted
           />
         </div>
-        <div style={{borderRadius: 20, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.4)"}}>
-          <Gif src={staticFile("sample-clip.gif")} width={300} height={169} fit="cover" />
+        <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 10}}>
+          <div style={{borderRadius: 20, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.4)"}}>
+            <Gif src={staticFile("sample-clip.gif")} width={300} height={169} fit="cover" />
+          </div>
+          <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>
+            {gifDuration === null ? "measuring gif…" : `getGifDurationInSeconds(): ${gifDuration.toFixed(2)}s`}
+          </div>
         </div>
       </div>
       <MacOSCursor

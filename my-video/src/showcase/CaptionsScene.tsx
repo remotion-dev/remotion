@@ -1,4 +1,4 @@
-import {createTikTokStyleCaptions} from "@remotion/captions";
+import {createTikTokStyleCaptions, parseSrt, serializeSrt} from "@remotion/captions";
 import type {TikTokPage} from "@remotion/captions";
 import {useMemo} from "react";
 import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from "remotion";
@@ -33,7 +33,9 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 };
 
 // Demonstrates: @remotion/captions turning a Caption[] transcript into
-// TikTok-style pages with per-word highlighting, driven by useCurrentFrame().
+// TikTok-style pages with per-word highlighting, driven by useCurrentFrame(),
+// plus a serializeSrt() -> parseSrt() round-trip (the interchange format
+// used to hand captions to/from other tools) on that same transcript.
 export const CaptionsScene: React.FC = () => {
   const {fps, width} = useVideoConfig();
 
@@ -46,10 +48,18 @@ export const CaptionsScene: React.FC = () => {
     [],
   );
 
+  const roundTrippedCount = useMemo(() => {
+    const srt = serializeSrt({lines: sampleCaptions.map((caption) => [caption])});
+    return parseSrt({input: srt}).captions.length;
+  }, []);
+
   return (
     <AbsoluteFill style={{background: gradientBg, fontFamily: poppins}}>
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 28}}>
         @remotion/captions · TikTok-style word highlighting
+      </div>
+      <div style={{position: "absolute", top: 104, width, textAlign: "center", color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>
+        serializeSrt() → parseSrt(): {roundTrippedCount} cue{roundTrippedCount === 1 ? "" : "s"} recovered
       </div>
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;

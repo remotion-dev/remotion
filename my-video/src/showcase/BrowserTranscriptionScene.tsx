@@ -1,14 +1,25 @@
-import {canUseWhisperWebGpu, loadWhisperModel} from "@remotion/whisper-webgpu";
+import {
+  canUseWhisperWebGpu,
+  clearStaleModels,
+  disposeWhisperModel,
+  getAvailableModels,
+  isWhisperModelCached,
+  loadWhisperModel,
+  removeWhisperModel,
+  resampleTo16Khz,
+  toCaptions,
+  transcribe,
+} from "@remotion/whisper-webgpu";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, useVideoConfig} from "remotion";
+import {AbsoluteFill, cancelRender, continueRender, delayRender, staticFile, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
 type Status =
   | {state: "checking"}
   | {state: "unsupported"; reason: string}
-  | {state: "ready"}
-  | {state: "load-failed"};
+  | {state: "ready"; extra: string}
+  | {state: "load-failed"; extra: string};
 
 // Demonstrates: @remotion/whisper-webgpu — transcribing audio locally in
 // the browser over WebGPU (Transformers.js), no server round-trip and no
@@ -16,7 +27,15 @@ type Status =
 // toCaptions(). See browser-transcription.md. Like the video-matting
 // scene, the model download from remotion.media can fail for real users
 // too (network, an unsupported browser), so this checks support and
-// handles a failed load gracefully rather than assuming success.
+// handles a failed load gracefully rather than assuming success. Also
+// exercises the parts of the API that don't need a downloaded model:
+// getAvailableModels()/isWhisperModelCached()/clearStaleModels() (cache
+// bookkeeping, no network), resampleTo16Khz() (a real Web Audio decode of
+// sample-tone.wav), and toCaptions() (a pure Caption[] conversion, fed a
+// hand-built transcription result rather than a real model's output, since
+// there's no way to get real words without the model). transcribe() is
+// still attempted for real against the resampled waveform — expected to
+// fail here since no model loaded.
 export const BrowserTranscriptionScene: React.FC = () => {
   const {width} = useVideoConfig();
   const [handle] = useState(() => delayRender("checking whisper-webgpu support", {timeoutInMilliseconds: 20000}));
@@ -32,11 +51,39 @@ export const BrowserTranscriptionScene: React.FC = () => {
           return;
         }
 
+        await clearStaleModels();
+        const availableModels = getAvailableModels();
+        const cachedBeforeLoad = await isWhisperModelCached({model: "small.en"});
+
+        const response = await fetch(staticFile("sample-tone.wav"));
+        const waveform = await resampleTo16Khz({file: await response.blob()});
+
+        const {captions} = toCaptions({
+          whisperWebGpuOutput: {
+            text: "hello world",
+            model: "small.en",
+            words: [
+              {text: "hello", startInSeconds: 0, endInSeconds: 0.4},
+              {text: "world", startInSeconds: 0.4, endInSeconds: 0.9},
+            ],
+          },
+        });
+
+        let extra = `${availableModels.length} models, cached: ${cachedBeforeLoad}, resampled: ${waveform.length} samples, toCaptions(): ${captions.length} captions`;
+
         try {
           await loadWhisperModel({model: "small.en"});
-          setStatus({state: "ready"});
+          try {
+            await transcribe({channelWaveform: waveform, model: "small.en"});
+            extra += ", transcribe: succeeded";
+          } catch {
+            extra += ", transcribe: failed";
+          }
+          await removeWhisperModel({model: "small.en"});
+          setStatus({state: "ready", extra});
         } catch {
-          setStatus({state: "load-failed"});
+          await disposeWhisperModel({model: "small.en"});
+          setStatus({state: "load-failed", extra});
         }
         continueRender(handle);
       } catch (err) {
@@ -66,6 +113,11 @@ export const BrowserTranscriptionScene: React.FC = () => {
       <div style={{fontSize: 30, fontWeight: 600, color: palette.text, textAlign: "center", maxWidth: 1000, padding: "0 40px"}}>
         {line}
       </div>
+      {status.state === "ready" || status.state === "load-failed" ? (
+        <div style={{fontSize: 16, color: palette.textDim, marginTop: 16, fontFamily: "monospace", textAlign: "center"}}>
+          {status.extra}
+        </div>
+      ) : null}
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.textDim, fontSize: 22}}>
         Speech to @remotion/captions, entirely client-side
       </div>
