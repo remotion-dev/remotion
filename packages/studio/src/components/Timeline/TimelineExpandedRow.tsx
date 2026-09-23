@@ -23,6 +23,7 @@ import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequencePropItem} from './TimelineSequencePropItem';
@@ -67,6 +68,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
 	const isInspector = keyframeControlsMode === 'inspector';
 	const selection = useTimelineRowSelection(node.nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...rowLabel,
@@ -124,7 +126,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				selectable={selection.selectable}
 				onSelect={selection.onSelect}
 				showSelectedBackground
-				containsSelection={false}
+				containsSelection={containsSelection}
 				outerHeight={null}
 			>
 				<span style={labelStyle}>{node.label}</span>
