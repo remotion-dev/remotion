@@ -22,7 +22,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutPlaybackRate,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -49,7 +49,7 @@ export const canvasImageSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
 	...premountSchema,
 	fit: {
@@ -543,7 +543,6 @@ const CanvasImageInner = forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
-			playbackRate,
 			freeze,
 			premountFor,
 			postmountFor,
@@ -614,7 +613,6 @@ const CanvasImageInner = forwardRef<
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
-					playbackRate={playbackRate}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}

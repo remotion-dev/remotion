@@ -630,6 +630,16 @@ export const baseSchema = {
 	showInTimeline: showInTimelineField,
 } as const satisfies InteractivitySchema;
 
+export const baseSchemaWithoutPlaybackRate = {
+	durationInFrames: durationInFramesField,
+	from: fromField,
+	trimBefore: trimBeforeField,
+	freeze: freezeField,
+	hidden: hiddenField,
+	name: sequenceNameField,
+	showInTimeline: showInTimelineField,
+} as const satisfies InteractivitySchema;
+
 export const sequenceSchema = {
 	...baseSchema,
 	layout: {
