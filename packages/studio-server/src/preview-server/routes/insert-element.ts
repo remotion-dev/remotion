@@ -8,7 +8,6 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
-import {CodemodsInternals} from '@remotion/codemods';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	ElementInstallExpectedFileState,
