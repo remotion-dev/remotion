@@ -73,6 +73,27 @@ run(ffmpeg, [
   join(publicDir, "sample-clip.gif"),
 ]);
 
+// 2b. A VP9 WebM copy. This environment's headless Chromium can't decode
+// H.264 through WebCodecs, so @remotion/media's <Video> (and anything else
+// built on WebCodecs: media-parser, webcodecs, a video texture) needs a
+// royalty-free codec. Given the mp4, <Video> quietly falls back to
+// <OffthreadVideo>. See AGENTS.md.
+run(ffmpeg, [
+  "-y",
+  "-i",
+  join(publicDir, "sample-clip.mp4"),
+  "-c:v",
+  "libvpx-vp9",
+  "-b:v",
+  "0",
+  "-crf",
+  "34",
+  "-row-mt",
+  "1",
+  "-an",
+  join(publicDir, "sample-clip.webm"),
+]);
+
 // 3. Synthesize a two-tone sine wave as a stand-in for a real voice/music
 // track.
 run(ffmpeg, [

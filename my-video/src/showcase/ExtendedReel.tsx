@@ -25,6 +25,7 @@ import {RiveScene} from "./RiveScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
+import {MediaToolsScene} from "./MediaToolsScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
 import {canvasCircleRevealOrFallback} from "./htmlInCanvasPresentation";
 
@@ -41,7 +42,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 20;
+const SCENE_COUNT = 21;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -70,7 +71,8 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 // (API surface only -- see RiveScene's own comment for why), @remotion/
 // layout-utils + @remotion/rounded-text-box + @remotion/fonts,
 // @remotion/sfx, @remotion/gsap, core remotion's media/canvas components
-// (CoreMediaScene) and environment/introspection APIs (CoreEnvironmentScene),
+// (CoreMediaScene), @remotion/media-parser + @remotion/webcodecs run in the
+// browser (MediaToolsScene) and environment/introspection APIs (CoreEnvironmentScene),
 // core remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>,
 // random()), and every interpolate() option (InterpolateScene).
 export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, accentColor}) => {
@@ -156,6 +158,11 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CoreMediaScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <MediaToolsScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
 

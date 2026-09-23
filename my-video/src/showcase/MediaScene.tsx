@@ -3,7 +3,7 @@ import {MacOSCursor, macOSCursorNames, macOSCursorSchema, resolveCursor} from "@
 import {Video} from "@remotion/media";
 import {preloadAudio, preloadFont, preloadImage, preloadVideo, resolveRedirect} from "@remotion/preload";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, Sequence, interpolate, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from "remotion";
+import {AbsoluteFill, Sequence, interpolate, staticFile, useCurrentFrame, useDelayRender, useRemotionEnvironment, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -32,7 +32,7 @@ export const MediaScene: React.FC = () => {
       try {
         await waitUntilDone();
         setGifDuration(await getGifDurationInSeconds(staticFile("sample-clip.gif")));
-        setResolvedUrl(await resolveRedirect(staticFile("sample-clip.mp4")));
+        setResolvedUrl(await resolveRedirect(staticFile("sample-clip.webm")));
         continueRender(handle);
       } catch (err) {
         cancelRender(err);
@@ -41,15 +41,24 @@ export const MediaScene: React.FC = () => {
     return () => free();
   }, [handle, continueRender, cancelRender]);
 
+  const {isRendering} = useRemotionEnvironment();
   useEffect(() => {
+    // Preloading warms the browser cache for Studio/Player playback; a render
+    // seeks frame by frame and gains nothing from it. It isn't harmless here
+    // either: preloadVideo() leaves a hidden <video preload="auto"> in the
+    // page, and with a clip this Chromium can decode, every canvas-based
+    // component in the scene (<Gif>, <Video>) rendered blank. See AGENTS.md.
+    if (isRendering) {
+      return;
+    }
     const unpreload = [
-      preloadVideo(staticFile("sample-clip.mp4")),
+      preloadVideo(staticFile("sample-clip.webm")),
       preloadImage(staticFile("sample-frame.png")),
       preloadAudio(staticFile("sample-tone.wav")),
       preloadFont(staticFile("bangers.woff2")),
     ];
     return () => unpreload.forEach((free) => free());
-  }, []);
+  }, [isRendering]);
 
   const crop = interpolate(frame, [15, 45], [0, 0.18], {
     extrapolateLeft: "clamp",
@@ -83,8 +92,13 @@ export const MediaScene: React.FC = () => {
       </div>
       <div style={{position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", gap: 40}}>
         <div style={{borderRadius: 20, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.4)"}}>
+          {/* The VP9 .webm, not the H.264 .mp4: this environment's Chromium can't
+              decode H.264 through WebCodecs, so given the .mp4 <Video> quietly
+              falls back to <OffthreadVideo> (a warning in the main tab only).
+              disallowFallbackToOffthreadVideo turns that into a render error. */}
           <Video
-            src={staticFile("sample-clip.mp4")}
+            src={staticFile("sample-clip.webm")}
+            disallowFallbackToOffthreadVideo
             trimBefore={Math.round(0.3 * fps)}
             // trimAfter ends the window at 2.4s; at 1.5x that 63-frame window
             // plays in 42 frames, and loop restarts it within the scene.

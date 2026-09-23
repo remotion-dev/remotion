@@ -1,5 +1,6 @@
 import {loadFont} from "@remotion/fonts";
 import {getAvailableFonts} from "@remotion/google-fonts";
+import {getInfo} from "@remotion/google-fonts/Poppins";
 import {fillTextBox, fitText, fitTextOnNLines, measureText} from "@remotion/layout-utils";
 import {createRoundedTextBox} from "@remotion/rounded-text-box";
 import {useEffect, useMemo, useState} from "react";
@@ -133,6 +134,10 @@ export const RoundedTextBoxScene: React.FC = () => {
   // this lists every font the package knows about.
   const availableFonts = useMemo(() => getAvailableFonts(), []);
   const poppinsListed = availableFonts.some((f) => f.fontFamily === "Poppins");
+  // getInfo() is the per-font metadata loadFont() works from: every weight,
+  // style and subset, with its fonts.gstatic.com URL. Reading it fetches
+  // nothing, so unlike loadFont() it works in this sandbox.
+  const poppinsInfo = useMemo(() => getInfo(), []);
 
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins, justifyContent: "center", alignItems: "center"}}>
@@ -184,7 +189,8 @@ export const RoundedTextBoxScene: React.FC = () => {
         </div>
       ) : null}
       <div style={{marginTop: 10, fontSize: 14, color: palette.textDim, fontFamily: "monospace"}}>
-        getAvailableFonts(): {availableFonts.length} Google Fonts (Poppins listed: {String(poppinsListed)})
+        getAvailableFonts(): {availableFonts.length} Google Fonts (Poppins listed: {String(poppinsListed)}) · Poppins getInfo():{" "}
+        {Object.keys(poppinsInfo.fonts.normal).length} weights × {Object.keys(poppinsInfo.fonts).length} styles, {Object.keys(poppinsInfo.unicodeRanges).join("/")}
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 32, fontWeight: 600}}>
         fitTextOnNLines() · measureText() · fitText() · fillTextBox() · loadFont()

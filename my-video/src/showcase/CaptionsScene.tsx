@@ -2,6 +2,8 @@ import {createTikTokStyleCaptions, parseSrt, serializeSrt} from "@remotion/capti
 import type {TikTokPage} from "@remotion/captions";
 import {elevenLabsTranscriptToCaptions} from "@remotion/elevenlabs";
 import type {ElevenLabsTranscript} from "@remotion/elevenlabs";
+import {openAiWhisperApiToCaptions} from "@remotion/openai-whisper";
+import type {OpenAiVerboseTranscription} from "@remotion/openai-whisper";
 import {useMemo} from "react";
 import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
@@ -27,6 +29,22 @@ const sampleElevenLabsTranscript: ElevenLabsTranscript = {
     {text: "to", start: 0.74, end: 0.9, type: "word", logprob: -0.01},
     {text: " ", start: 0.9, end: 0.94, type: "spacing", logprob: 0},
     {text: "text.", start: 0.94, end: 1.3, type: "word", logprob: -0.03},
+  ],
+};
+
+// The same sentence as an OpenAI Whisper API response
+// (response_format: "verbose_json", timestamp_granularities: ["word"]),
+// hand-built for the same no-network reason.
+const sampleOpenAiTranscript: OpenAiVerboseTranscription = {
+  task: "transcribe",
+  language: "english",
+  duration: 1.3,
+  text: "Real speech to text.",
+  words: [
+    {word: "Real", start: 0, end: 0.3},
+    {word: "speech", start: 0.34, end: 0.7},
+    {word: "to", start: 0.74, end: 0.9},
+    {word: "text.", start: 0.94, end: 1.3},
   ],
 };
 
@@ -57,8 +75,12 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 // TikTok-style pages with per-word highlighting, driven by useCurrentFrame(),
 // a serializeSrt() -> parseSrt() round-trip (the interchange format used to
 // hand captions to/from other tools) on that same transcript, and
-// @remotion/elevenlabs' elevenLabsTranscriptToCaptions() converting a
-// different STT provider's transcript shape into the same Caption[] format.
+// @remotion/elevenlabs' elevenLabsTranscriptToCaptions() and
+// @remotion/openai-whisper's openAiWhisperApiToCaptions() converting two
+// other STT providers' transcript shapes into the same Caption[] format.
+// (@remotion/install-whisper-cpp's toCaptions() does the same for
+// whisper.cpp output, but that package imports node:fs at load time, so it
+// runs in scripts/renderer-apis.mjs rather than in a scene.)
 export const CaptionsScene: React.FC = () => {
   const {fps, width} = useVideoConfig();
 
@@ -82,6 +104,7 @@ export const CaptionsScene: React.FC = () => {
     () => elevenLabsTranscriptToCaptions({transcript: sampleElevenLabsTranscript}).captions.length,
     [],
   );
+  const openAiCaptions = useMemo(() => openAiWhisperApiToCaptions({transcription: sampleOpenAiTranscript}).captions, []);
 
   return (
     <AbsoluteFill style={{background: gradientBg, fontFamily: poppins}}>
@@ -90,6 +113,9 @@ export const CaptionsScene: React.FC = () => {
       </div>
       <div style={{position: "absolute", top: 104, width, textAlign: "center", color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>
         serializeSrt() → parseSrt(): {roundTrippedCount} cue{roundTrippedCount === 1 ? "" : "s"} recovered · elevenLabsTranscriptToCaptions(): {elevenLabsCaptionCount} captions
+      </div>
+      <div style={{position: "absolute", top: 128, width, textAlign: "center", color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>
+        openAiWhisperApiToCaptions(): {openAiCaptions.length} captions, last ends at {openAiCaptions[openAiCaptions.length - 1]?.endMs}ms
       </div>
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;

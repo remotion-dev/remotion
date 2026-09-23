@@ -2,6 +2,7 @@ import {ThreeCanvas} from "@remotion/three";
 import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
+import {VideoTexturePlane} from "./VideoTexturePlane";
 
 // Demonstrates: @remotion/three's <ThreeCanvas>, a react-three-fiber root
 // that (unlike a plain <Canvas>) is driven by useCurrentFrame() instead of
@@ -20,9 +21,10 @@ import {poppins} from "./font";
 // gap in the specific WebGPU implementation this sandbox's headless
 // Chromium ships, not a code bug -- see the same environment's
 // AGENTS.md notes on WebGPU/GPU limitations for video-matting/whisper-webgpu.
-// useVideoTexture()/useOffthreadVideoTexture() are also not used here --
-// both are deprecated in favor of using @remotion/media's <Video> as a
-// Three.js texture directly.
+// useVideoTexture()/useOffthreadVideoTexture() are also not used here:
+// both are deprecated. The plane on the right uses their documented
+// replacement instead, a headless @remotion/media <Video> drawn into a
+// CanvasTexture (see VideoTexturePlane.tsx).
 export const ThreeScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
@@ -37,11 +39,12 @@ export const ThreeScene: React.FC = () => {
       <ThreeCanvas width={1280} height={720}>
         <Sequence layout="none">
           <ambientLight intensity={0.6} />
-          <pointLight position={[4, 4, 4]} intensity={40} color="#22d3ee" />
-          <mesh rotation={[rotationX, rotationY, 0]}>
-            <boxGeometry args={[2.4, 2.4, 2.4]} />
+          <pointLight position={[-1, 3, 4]} intensity={40} color="#22d3ee" />
+          <mesh position={[-1.9, 0, 0]} rotation={[rotationX, rotationY, 0]}>
+            <boxGeometry args={[2, 2, 2]} />
             <meshStandardMaterial color="#6366f1" />
           </mesh>
+          <VideoTexturePlane rotationY={Math.sin(frame / 20) * 0.35} />
         </Sequence>
       </ThreeCanvas>
       <div
@@ -55,7 +58,7 @@ export const ThreeScene: React.FC = () => {
           fontWeight: 600,
         }}
       >
-        Full 3D scenes, frame-accurate
+        Full 3D scenes, frame-accurate, with video as a texture
       </div>
     </AbsoluteFill>
   );
