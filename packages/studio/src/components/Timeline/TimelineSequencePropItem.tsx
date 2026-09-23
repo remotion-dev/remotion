@@ -2,7 +2,7 @@ import {
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -103,7 +103,91 @@ const Value: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
-}> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	readonly durationPropStatus: CanUpdateSequencePropStatus | null;
+}> = ({
+	field,
+	nodePath,
+	validatedLocation,
+	schema,
+	propStatus,
+	durationPropStatus,
+}) => {
+	const playbackRateBaseline = useRef<{
+		durationInFrames: number;
+		playbackRate: number;
+		lastSavedDurationInFrames: number;
+		lastSavedPlaybackRate: number;
+	} | null>(null);
+	const getAdjustedDuration = useCallback(
+		(playbackRate: unknown): number | null => {
+			if (
+				field.key !== 'playbackRate' ||
+				!schema.durationInFrames ||
+				durationPropStatus?.status !== 'static' ||
+				typeof durationPropStatus.codeValue !== 'number' ||
+				!Number.isFinite(durationPropStatus.codeValue) ||
+				typeof playbackRate !== 'number' ||
+				!Number.isFinite(playbackRate) ||
+				playbackRate <= 0
+			) {
+				return null;
+			}
+
+			const currentPlaybackRate =
+				typeof propStatus.codeValue === 'number'
+					? propStatus.codeValue
+					: field.fieldSchema.default;
+			if (
+				typeof currentPlaybackRate !== 'number' ||
+				!Number.isFinite(currentPlaybackRate) ||
+				currentPlaybackRate <= 0
+			) {
+				return null;
+			}
+
+			const currentDuration = durationPropStatus.codeValue;
+			let baseline = playbackRateBaseline.current;
+			// Keep the first duration and rate across successive rate edits. A change
+			// to either prop outside this control starts a new baseline.
+			if (
+				baseline === null ||
+				!(
+					(currentDuration === baseline.durationInFrames &&
+						currentPlaybackRate === baseline.playbackRate) ||
+					(currentDuration === baseline.lastSavedDurationInFrames &&
+						currentPlaybackRate === baseline.lastSavedPlaybackRate)
+				)
+			) {
+				baseline = {
+					durationInFrames: currentDuration,
+					playbackRate: currentPlaybackRate,
+					lastSavedDurationInFrames: currentDuration,
+					lastSavedPlaybackRate: currentPlaybackRate,
+				};
+				playbackRateBaseline.current = baseline;
+			}
+
+			const adjustedDuration =
+				(baseline.durationInFrames * baseline.playbackRate) / playbackRate;
+			if (!Number.isFinite(adjustedDuration) || adjustedDuration <= 0) {
+				return null;
+			}
+
+			const nearestInteger = Math.round(adjustedDuration);
+			return nearestInteger > 0 &&
+				Math.abs(adjustedDuration - nearestInteger) <=
+					Number.EPSILON * Math.max(1, Math.abs(adjustedDuration)) * 2
+				? nearestInteger
+				: adjustedDuration;
+		},
+		[
+			durationPropStatus,
+			field.fieldSchema.default,
+			field.key,
+			propStatus.codeValue,
+			schema.durationInFrames,
+		],
+	);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -145,6 +229,7 @@ const Value: React.FC<{
 
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
+			const adjustedDuration = getAdjustedDuration(value);
 
 			if (value === propStatus.codeValue) {
 				return Promise.resolve();
@@ -155,6 +240,12 @@ const Value: React.FC<{
 				propStatus.codeValue === undefined
 			) {
 				return Promise.resolve();
+			}
+
+			if (adjustedDuration !== null && playbackRateBaseline.current) {
+				playbackRateBaseline.current.lastSavedDurationInFrames =
+					adjustedDuration;
+				playbackRateBaseline.current.lastSavedPlaybackRate = value as number;
 			}
 
 			return saveSequenceProps({
@@ -170,6 +261,18 @@ const Value: React.FC<{
 						schema,
 						sourceEdit: options?.sourceEdit,
 					},
+					...(adjustedDuration === null
+						? []
+						: [
+								{
+									fileName: validatedLocation.source,
+									nodePath,
+									fieldKey: 'durationInFrames',
+									value: adjustedDuration,
+									defaultValue: null,
+									schema,
+								},
+							]),
 				],
 				setPropStatuses,
 				clientId,
@@ -184,6 +287,7 @@ const Value: React.FC<{
 			field.fieldSchema.default,
 			field.fieldSchema.type,
 			field.key,
+			getAdjustedDuration,
 			nodePath,
 			schema,
 			setPropStatuses,
@@ -202,8 +306,16 @@ const Value: React.FC<{
 				field.key,
 				Internals.makeStaticDragOverride(value),
 			);
+			const adjustedDuration = getAdjustedDuration(value);
+			if (adjustedDuration !== null) {
+				setDragOverrides(
+					nodePath,
+					'durationInFrames',
+					Internals.makeStaticDragOverride(adjustedDuration),
+				);
+			}
 		},
-		[setDragOverrides, nodePath, field.key],
+		[setDragOverrides, nodePath, field.key, getAdjustedDuration],
 	);
 
 	const onDragEnd = useCallback(() => {
@@ -629,6 +741,7 @@ export const TimelineSequencePropItem: React.FC<{
 	) : propStatus.status === 'static' ? (
 		<Value
 			field={field}
+			durationPropStatus={propStatusesForOverride?.durationInFrames ?? null}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
 			schema={schema}
