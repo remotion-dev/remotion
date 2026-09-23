@@ -67,6 +67,7 @@ import {
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -227,6 +228,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
@@ -282,9 +284,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			...style,
 			background: negativeStart ? TRANSPARENT : style.background,
 			border: negativeStart ? 'none' : style.border,
-			opacity: selected || isAsset ? 1 : 0.75,
+			opacity: selected || containsSelection || isAsset ? 1 : 0.75,
 		};
-	}, [isAsset, negativeStart, selected, style]);
+	}, [containsSelection, isAsset, negativeStart, selected, style]);
 
 	const content = (
 		<>
