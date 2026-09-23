@@ -3,7 +3,6 @@ import {
 	AbsoluteFill,
 	continueRender,
 	delayRender,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
@@ -60,9 +59,7 @@ export const NumberedChapter: React.FC<NumberedChapterProps> = ({
 
 	return (
 		<AbsoluteFill>
-			<Sequence from={30} layout="none">
-				<Audio src={assetUrl('chime.mp3')} volume={0.05} />
-			</Sequence>
+			<Audio from={30} src={assetUrl('chime.mp3')} volume={0.05} />
 
 			<AbsoluteFill
 				style={{
