@@ -5,17 +5,13 @@ import {TOCItem} from '../../components/TableOfContents/TOCItem';
 export const TableOfContents: React.FC = () => {
 	return (
 		<Grid>
-			<TOCItem link="/docs/whisper-webgpu/node">
-				<strong>Using in Node.js</strong>
-				<div>Decode media and transcribe it in Node.js</div>
-			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/can-use-whisper-webgpu">
 				<strong>canUseWhisperWebGpu()</strong>
-				<div>Check whether WebGPU is available</div>
+				<div>Check whether transcription is possible</div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/get-available-models">
 				<strong>getAvailableModels()</strong>
-				<div>List timestamped models and their download sizes</div>
+				<div>List models and their download sizes</div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/clear-stale-models">
 				<strong>clearStaleModels()</strong>
@@ -32,6 +28,10 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/whisper-webgpu/load-whisper-model">
 				<strong>loadWhisperModel()</strong>
 				<div>Initialize a downloaded model</div>
+      </TOCItem>
+      <TOCItem link="/docs/whisper-webgpu/dispose-whisper-model">
+				<strong>disposeWhisperModel()</strong>
+				<div>Release model memory</div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/remove-whisper-model">
 				<strong>removeWhisperModel()</strong>
@@ -43,15 +43,11 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/to-captions">
 				<strong>toCaptions()</strong>
-				<div>Convert a transcription to Remotion captions</div>
+				<div>Convert a transcription to <code>@remotion/captions</code></div>
 			</TOCItem>
 			<TOCItem link="/docs/whisper-webgpu/resample-to-16khz">
 				<strong>resampleTo16Khz()</strong>
 				<div>Decode and resample browser audio</div>
-			</TOCItem>
-			<TOCItem link="/docs/whisper-webgpu/dispose-whisper-model">
-				<strong>disposeWhisperModel()</strong>
-				<div>Release model memory</div>
 			</TOCItem>
 		</Grid>
 	);

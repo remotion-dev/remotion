@@ -357,6 +357,7 @@ const makeAnnotationComponent = ({
 		durationInFrames,
 		from,
 		trimBefore,
+		playbackRate,
 		freeze,
 		hidden,
 		name,
@@ -404,6 +405,7 @@ const makeAnnotationComponent = ({
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

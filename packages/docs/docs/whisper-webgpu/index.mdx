@@ -35,13 +35,18 @@ const {captions} = toCaptions({whisperWebGpuOutput: transcription});
 console.log(captions);
 ```
 
-[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) when you want to initialize the model explicitly.
-
-See [Using `@remotion/whisper-webgpu` in Node.js](/docs/whisper-webgpu/node) for a complete Node.js example.
+[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache.  
+Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) when you want to initialize the model explicitly.
 
 ## Model hosting
 
-We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face. Therefore, we mirrored the models to `remotion.media`, keeping them byte-identical.
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
+We mirrored the models to `remotion.media`, keeping them byte-identical.  
+We also notified Hugging Face and they are investigating the issue. We may migrate back to the official hosting in the future.
+
+## On the server
+
+See [`@remotion/whisper-webgpu` in Node.js](/docs/whisper-webgpu/node) for a complete Node.js example.
 
 ## APIs
 
@@ -49,7 +54,8 @@ We noticed that hosting the models on R2 leads to faster downloading than throug
 
 ## Requirements
 
-WebGPU requires HTTPS in production or `localhost` during development. Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to check for a usable adapter.
+You obviously need a GPU.  
+Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to determine if it is supported.  
 
 ## License
 

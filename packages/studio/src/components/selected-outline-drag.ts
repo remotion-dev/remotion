@@ -40,6 +40,10 @@ import {
 } from './selected-outline-types';
 import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
 import type {AddSequenceKeyframeChange} from './Timeline/call-add-keyframe';
+import {
+	getKeyframeSourceFrame,
+	resolveKeyframeSourceFrame,
+} from './Timeline/get-timeline-keyframes';
 import type {SaveSequencePropChange} from './Timeline/save-sequence-prop';
 import {
 	getTimelineDisplayDecimalPlaces,
@@ -102,7 +106,12 @@ export const getSelectedOutlineDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			translateFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			keyframeDisplayOffset: target.keyframeDisplayOffset,
+			keyframePlaybackRate: target.keyframePlaybackRate,
+			propStatus: target.propStatus,
+		});
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
@@ -388,7 +397,10 @@ export const getSelectedOutlineCropDragChanges = ({
 				fileName: target.nodePath.absolutePath,
 				nodePath: target.nodePath,
 				fieldKey,
-				sourceFrame: target.sourceFrame,
+				sourceFrame: resolveKeyframeSourceFrame(
+					target.sourceFrame,
+					field.propStatus,
+				),
 				value,
 				schema: target.schema,
 				clientId: target.clientId,
@@ -586,7 +598,12 @@ export const getSelectedOutlineScaleDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			scaleFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			keyframeDisplayOffset: target.keyframeDisplayOffset,
+			keyframePlaybackRate: target.keyframePlaybackRate,
+			propStatus: target.propStatus,
+		});
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
@@ -733,7 +750,12 @@ export const getSelectedOutlineRotationDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			rotateFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			keyframeDisplayOffset: target.keyframeDisplayOffset,
+			keyframePlaybackRate: target.keyframePlaybackRate,
+			propStatus: target.propStatus,
+		});
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
@@ -1039,7 +1061,10 @@ export const getSelectedOutlineTransformOriginDragChanges = ({
 				fileName: target.nodePath.absolutePath,
 				nodePath: target.nodePath,
 				fieldKey: transformOriginFieldKey,
-				sourceFrame: target.sourceFrame,
+				sourceFrame: resolveKeyframeSourceFrame(
+					target.sourceFrame,
+					target.originPropStatus,
+				),
 				value: origin,
 				schema: target.schema,
 			});
@@ -1082,7 +1107,10 @@ export const getSelectedOutlineTransformOriginDragChanges = ({
 			fileName: target.nodePath.absolutePath,
 			nodePath: target.nodePath,
 			fieldKey: translateFieldKey,
-			sourceFrame: target.sourceFrame,
+			sourceFrame: resolveKeyframeSourceFrame(
+				target.sourceFrame,
+				target.translatePropStatus,
+			),
 			value: translate,
 			schema: target.schema,
 		});

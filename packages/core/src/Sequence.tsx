@@ -17,6 +17,7 @@ import type {
 import type {EffectDefinition} from './effects/effect-types.js';
 import {getStackForControls} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
+import {getSequenceBoundaryTolerance} from './get-sequence-boundary-tolerance.js';
 import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
@@ -73,6 +74,7 @@ export type SequencePropsWithoutDuration = {
 	readonly cropBottom?: number;
 	readonly from?: number;
 	readonly trimBefore?: number;
+	readonly playbackRate?: number;
 	readonly freeze?: number | null;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
@@ -141,6 +143,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	{
 		from = 0,
 		trimBefore = 0,
+		playbackRate = 1,
 		freeze,
 		durationInFrames = Infinity,
 		children,
@@ -171,6 +174,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
+	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
+	const cumulativePlaybackRate = parentPlaybackRate * playbackRate;
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -276,10 +281,31 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	const absoluteFrame = useTimelinePosition();
+	const lastPlaybackRate = useRef({playbackRate, frame: absoluteFrame});
+	if (
+		typeof playbackRate !== 'number' ||
+		!Number.isFinite(playbackRate) ||
+		playbackRate <= 0
+	) {
+		throw new TypeError(
+			`The "playbackRate" prop of <Sequence /> must be a positive finite number, but got ${playbackRate}.`,
+		);
+	}
+
+	if (
+		lastPlaybackRate.current.frame !== absoluteFrame &&
+		lastPlaybackRate.current.playbackRate !== playbackRate
+	) {
+		throw new Error(
+			'The "playbackRate" prop of <Sequence /> must be constant. Animating playbackRate is not supported.',
+		);
+	}
+
+	lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
 	const videoConfig = useVideoConfig();
-	const effectiveRelativeFrom = from - trimBefore;
-	const absoluteFrom =
-		(parentSequence?.absoluteFrom ?? 0) + effectiveRelativeFrom;
+	const effectiveRelativeFrom = from - trimBefore / playbackRate;
+	const relativeFrom = effectiveRelativeFrom / parentPlaybackRate;
+	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + relativeFrom;
 
 	const parentSequenceDuration = parentSequence
 		? Math.min(
@@ -327,23 +353,30 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// 10-frame pre-roll, because the positive child offset cancels part of the
 	// negative parent offset. But <Sequence from={10}><Sequence from={-5}>
 	// should still trim 5 frames from the media once the parent starts.
-	const currentSequenceStart = cumulatedFrom + effectiveRelativeFrom;
+	const currentSequenceStart = cumulatedFrom + relativeFrom;
 	const parentSequenceStart = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
 	const parentFirstFrame = parentSequence
-		? parentSequenceStart - parentSequence.cumulatedNegativeFrom
+		? parentSequenceStart -
+			parentSequence.cumulatedNegativeFrom / parentPlaybackRate
 		: 0;
-	const firstFrame = Math.max(0, parentFirstFrame, currentSequenceStart);
-	const cumulatedNegativeFrom = currentSequenceStart - firstFrame;
+	const firstFrame = Math.max(
+		0,
+		parentFirstFrame,
+		cumulatedFrom + from / parentPlaybackRate,
+	);
+	const cumulatedNegativeFrom =
+		(currentSequenceStart - firstFrame) * cumulativePlaybackRate;
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
+			playbackRate: cumulativePlaybackRate,
 			absoluteFrom,
 			cumulatedFrom,
-			relativeFrom: effectiveRelativeFrom,
+			relativeFrom,
 			cumulatedNegativeFrom,
-			durationInFrames: actualDurationInFrames,
+			durationInFrames: actualDurationInFrames * playbackRate + trimBefore,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
 			id,
 			height: height ?? parentSequence?.height ?? null,
@@ -356,7 +389,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [
 		cumulatedFrom,
 		absoluteFrom,
-		effectiveRelativeFrom,
+		relativeFrom,
+		cumulativePlaybackRate,
+		playbackRate,
+		trimBefore,
 		actualDurationInFrames,
 		parentSequence,
 		id,
@@ -463,6 +499,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		if (isMedia) {
 			if (isMedia.type === 'image') {
 				return {
+					sequencePlaybackRate: playbackRate,
 					type: 'image',
 					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
@@ -490,6 +527,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 			return {
 				type: isMedia.type,
+				sequencePlaybackRate: playbackRate,
 				controls: registrationControls,
 				effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 				effectRuntimeValues,
@@ -523,6 +561,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		return {
 			from,
+			sequencePlaybackRate: playbackRate,
 			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
 			id,
@@ -547,6 +586,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [
 		id,
 		timelineClipName,
+		playbackRate,
 		parentSequence?.id,
 		actualDurationInFrames,
 		from,
@@ -576,13 +616,20 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		id,
 	});
 
-	// Ceil to support floats
-	// https://github.com/remotion-dev/remotion/issues/2958
-	const endThreshold = Math.ceil(cumulatedFrom + from + durationInFrames - 1);
+	// Use an exclusive end so fractional clocks and frozen subframes remain visible.
+	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
+	const endThreshold = from + durationInFrames;
+	const boundaryTolerance = getSequenceBoundaryTolerance({
+		absoluteFrame,
+		cumulatedFrom,
+		from,
+		parentPlaybackRate,
+		durationInFrames,
+	});
 	const content =
-		absoluteFrame < cumulatedFrom + from
+		frameInParent - from < -boundaryTolerance
 			? null
-			: absoluteFrame > endThreshold
+			: frameInParent - endThreshold >= -boundaryTolerance
 				? null
 				: children;
 	const frozenContent =

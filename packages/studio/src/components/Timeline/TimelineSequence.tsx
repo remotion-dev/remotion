@@ -2,6 +2,7 @@ import {
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
 } from '@remotion/canvas';
+import type {TimelineTrackData} from '@remotion/canvas';
 import React, {
 	useCallback,
 	useContext,
@@ -92,7 +93,7 @@ import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const TimelineSequenceFn: React.FC<{
-	readonly s: TSequence;
+	readonly s: TimelineTrackData['sequence'];
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
@@ -256,7 +257,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	);
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
-	const sequenceFrame = relativeFrame + sequenceFrameOffset;
+	const sequenceFrame =
+		relativeFrame * s.sequencePlaybackRate + sequenceFrameOffset;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
 	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
 
@@ -417,7 +419,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 };
 
 const TimelineSequenceInner: React.FC<{
-	readonly s: TSequence;
+	readonly s: TimelineTrackData['sequence'];
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -455,6 +457,21 @@ const TimelineSequenceInner: React.FC<{
 		s.type === 'audio' || s.type === 'video' ? s.src : null,
 	);
 	const extendVideoLastFrame = isVideoWithLastFrameHold(s);
+	const mediaStartFrame =
+		s.type === 'audio' || s.type === 'video'
+			? getTimelineMediaStartFrame({
+					startMediaFrom: s.startMediaFrom,
+					mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
+					sequenceFrameOffset,
+					playbackRate: s.playbackRate,
+				})
+			: 0;
+	const mediaLoopStartFrame =
+		mediaStartFrame -
+		(s.loopDisplay?.mediaOffsetInFrames ?? 0) *
+			(s.type === 'audio' || s.type === 'video'
+				? s.playbackRate * s.sequencePlaybackRate
+				: 0);
 	const naturalMediaDuration =
 		(s.type === 'audio' || s.type === 'video') &&
 		mediaMetadata !== null &&
@@ -468,7 +485,7 @@ const TimelineSequenceInner: React.FC<{
 							sequenceFrameOffset,
 							playbackRate: s.playbackRate,
 						})) /
-						s.playbackRate,
+						(s.playbackRate * s.sequencePlaybackRate),
 				)
 			: null;
 	const maxMediaDuration =
@@ -967,7 +984,10 @@ const TimelineSequenceInner: React.FC<{
 				displayDurationInFrames: s.duration,
 				displayStart: s.from,
 				effectiveMaxMediaDuration,
-				explicitDurationInFrames,
+				explicitDurationInFrames:
+					explicitDurationInFrames === null
+						? null
+						: explicitDurationInFrames / s.sequencePlaybackRate,
 				hasImplicitDuration: hasImplicitMediaDuration,
 				naturalMediaDuration,
 				timelineDurationInFrames: video.durationInFrames,
@@ -1122,13 +1142,14 @@ const TimelineSequenceInner: React.FC<{
 						doesVolumeChange={s.doesVolumeChange}
 						muted={s.muted}
 						visualizationWidth={visibleLayout.media.width}
-						startFrom={s.startMediaFrom}
+						startFrom={mediaLoopStartFrame}
 						durationInFrames={s.duration}
 						displayOffsetInFrames={mediaDisplayOffsetInFrames}
 						displayDurationInFrames={mediaDisplayDurationInFrames}
 						volume={s.volume}
-						playbackRate={s.playbackRate}
+						playbackRate={s.playbackRate * s.sequencePlaybackRate}
 						loopDisplay={s.loopDisplay}
+						loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
 					/>
 				</div>
 			) : null}
@@ -1139,14 +1160,15 @@ const TimelineSequenceInner: React.FC<{
 					displayOffsetInFrames={mediaDisplayOffsetInFrames}
 					displayDurationInFrames={mediaDisplayDurationInFrames}
 					startMediaFrom={s.startMediaFrom}
-					mediaFrameAtSequenceZero={s.mediaFrameAtSequenceZero}
-					sequenceFrameOffset={sequenceFrameOffset}
-					playbackRate={s.playbackRate}
+					mediaFrameAtSequenceZero={mediaLoopStartFrame}
+					sequenceFrameOffset={0}
+					playbackRate={s.playbackRate * s.sequencePlaybackRate}
 					volume={s.volume}
 					muted={s.muted}
 					doesVolumeChange={s.doesVolumeChange}
 					marginLeft={visibleLayout.media.left}
 					loopDisplay={s.loopDisplay}
+					loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
 					frozenMediaFrame={s.frozenMediaFrame}
 					extendLastFrame={extendVideoLastFrame}
 				/>
@@ -1162,6 +1184,9 @@ const TimelineSequenceInner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator
 					loops={s.loopDisplay.numberOfTimes}
+					phase={
+						s.loopDisplay.phaseOffsetInFrames / s.loopDisplay.durationInFrames
+					}
 					fullWidth={width}
 					visibleOffset={visibleLayout.cropLeft}
 					visibleWidth={visibleLayout.width}

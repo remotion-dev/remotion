@@ -56,6 +56,7 @@ export {getCanvasSequenceNodePathInfo} from './sequence-node-path';
 export type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 export {getConnectedCompositions} from './get-connected-compositions';
 export {
+	getParentSequencePlaybackRate,
 	getCascadedStart,
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,
@@ -65,6 +66,7 @@ export {getTimelineNestedLevel} from './get-timeline-nestedness';
 export {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
 export type {
 	SequenceNodePathInfo,
+	TimelineLoopDisplay,
 	TimelineTrackData,
 	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';

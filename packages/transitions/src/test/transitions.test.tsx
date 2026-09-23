@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {fade} from '../presentations/fade.js';
 import {linearTiming} from '../timings/linear-timing.js';
 import {TransitionSeries} from '../TransitionSeries.js';
@@ -7,6 +7,26 @@ import {renderForFrame} from './render-for-frame.js';
 
 const ABS_FILL =
 	'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex">';
+
+const Frame = () => <span>{useCurrentFrame()}</span>;
+
+test('TransitionSeries playback rates cascade without moving sequence boundaries', () => {
+	const markup = (
+		<TransitionSeries playbackRate={2}>
+			<TransitionSeries.Sequence durationInFrames={20} playbackRate={0.5}>
+				<Frame />
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Sequence durationInFrames={20} playbackRate={3}>
+				<Frame />
+			</TransitionSeries.Sequence>
+		</TransitionSeries>
+	);
+
+	expect(renderForFrame(9, markup)).toContain('<span>9</span>');
+	expect(renderForFrame(10, markup)).toContain('<span>0</span>');
+	expect(renderForFrame(12, markup)).toContain('<span>12</span>');
+	expect(renderForFrame(20, markup)).not.toContain('<span>');
+});
 
 const Letter: React.FC<{
 	children: React.ReactNode;

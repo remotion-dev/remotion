@@ -216,6 +216,34 @@ export const MyVideo = () => {
 
 In the example above, `Child` mounts at composition frame `30` and receives frame `15`.
 
+### `playbackRate?`<AvailableFrom v="4.0.528" />
+
+Changes the speed of the children, including their animations and media. Default: `1`.
+Use `2` for double speed or `0.5` for half speed. The value must be positive and finite, and must remain constant across frames.
+
+`from` and `durationInFrames` are measured in the parent timeline. Changing `playbackRate` does not change when the sequence mounts or unmounts.
+`trimBefore` is measured in the children's frames and is applied after the speed change:
+
+```tsx twoslash title="MyVideo.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Child = () => <div>{useCurrentFrame()}</div>;
+
+export const MyVideo = () => (
+  <Sequence from={30} durationInFrames={60} trimBefore={10} playbackRate={2}>
+    <Child />
+  </Sequence>
+);
+```
+
+At composition frame `30`, `Child` receives frame `10`. At frame `40`, it receives frame `30`: `(40 - 30) * 2 + 10`.
+The sequence remains visible through composition frame `89`.
+
+Nested playback rates multiply. A sequence with `playbackRate={2}` inside one with `playbackRate={0.5}` plays at the original speed.
+A media component's own `playbackRate` also multiplies with its parent sequences' rates.
+
+The rate applies to [`useCurrentFrame()`](/docs/use-current-frame) called inside descendant components. Animations calculated in the parent and passed as the sequence's `style` or as child props keep the parent's clock.
+
 ### `freeze?`<AvailableFrom v="4.0.476" />
 
 Freezes the children of the sequence at the specified frame.

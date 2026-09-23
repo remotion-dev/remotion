@@ -20,6 +20,7 @@ import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
 import {SharedAudioTagsContext} from './shared-audio-tags.js';
+import {Html5MediaTrimContext} from './use-audio-frame.js';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
@@ -119,8 +120,13 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		trimAfter,
 	});
 
-	if (loop && durationFetched !== undefined) {
-		if (!Number.isFinite(durationFetched)) {
+	// An explicit trim end defines the loop before metadata has loaded. Waiting
+	// for metadata would leave the media unmounted when seeking into later loops.
+	const loopDuration =
+		trimAfterValue ??
+		(durationFetched === undefined ? undefined : durationFetched * fps);
+	if (loop && loopDuration !== undefined) {
+		if (!Number.isFinite(loopDuration)) {
 			return (
 				<Html5Audio
 					{...propsOtherThanLoop}
@@ -130,14 +136,12 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			);
 		}
 
-		const duration = durationFetched * fps;
-
 		return (
 			<Loop
 				layout="none"
 				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
-					mediaDurationInFrames: duration,
+					mediaDurationInFrames: loopDuration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
 				})}
@@ -156,20 +160,28 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
-			<Sequence
-				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
-				showInTimeline={false}
-				durationInFrames={trimAfterValue}
-				name={name}
-			>
-				<Html5Audio
-					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
-					pauseWhenBuffering={shouldPauseWhenBuffering}
-					{...otherProps}
-					ref={ref}
-				/>
-			</Sequence>
+			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
+				<Sequence
+					layout="none"
+					from={0 - (trimBeforeValue ?? 0)}
+					showInTimeline={false}
+					durationInFrames={
+						trimAfterValue === undefined
+							? undefined
+							: (trimBeforeValue ?? 0) +
+								(trimAfterValue - (trimBeforeValue ?? 0)) /
+									(props.playbackRate ?? 1)
+					}
+					name={name}
+				>
+					<Html5Audio
+						_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+						pauseWhenBuffering={shouldPauseWhenBuffering}
+						{...otherProps}
+						ref={ref}
+					/>
+				</Sequence>
+			</Html5MediaTrimContext.Provider>
 		);
 	}
 

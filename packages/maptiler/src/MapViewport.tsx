@@ -237,6 +237,7 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		durationInFrames,
 		from,
 		trimBefore,
+		playbackRate,
 		freeze,
 		hidden,
 		name,
@@ -512,6 +513,7 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 			layout="none"
 			from={from ?? 0}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			durationInFrames={durationInFrames ?? Infinity}
 			freeze={freeze}
 			hidden={hidden}

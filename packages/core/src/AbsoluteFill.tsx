@@ -58,6 +58,7 @@ const AbsoluteFillInner: React.FC<
 	ref,
 	from,
 	trimBefore,
+	playbackRate,
 	freeze,
 	durationInFrames,
 	hidden,
@@ -91,6 +92,7 @@ const AbsoluteFillInner: React.FC<
 			layout="none"
 			from={from ?? 0}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			freeze={freeze}
 			durationInFrames={durationInFrames ?? Infinity}
 			hidden={hidden}

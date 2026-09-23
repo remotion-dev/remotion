@@ -1,4 +1,7 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {
+	getParentSequencePlaybackRate,
+	sortItemsByCommitOrder,
+} from '@remotion/canvas';
 import {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
@@ -169,6 +172,7 @@ const baseStyle: React.CSSProperties = {
 };
 
 export type TimelineSequenceDurationDragTarget = {
+	readonly parentPlaybackRate: number;
 	readonly fileName: string;
 	readonly initialDuration: number;
 	readonly maximumDuration: number;
@@ -178,6 +182,7 @@ export type TimelineSequenceDurationDragTarget = {
 };
 
 export type TimelineSequenceLeftEdgeDragTarget = {
+	readonly parentPlaybackRate: number;
 	readonly fileName: string;
 	readonly initialDuration: number;
 	readonly initialFrom: number;
@@ -190,6 +195,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 };
 
 export type TimelineSequenceFromDragTarget = {
+	readonly parentPlaybackRate: number;
 	readonly canSnapToTimelineStart: boolean;
 	readonly minimumDeltaFrames: number;
 	readonly initialTimelineStart: number;
@@ -201,6 +207,7 @@ export type TimelineSequenceFromDragTarget = {
 };
 
 type TimelineSequenceKeyframeDragTarget = {
+	readonly parentPlaybackRate: number;
 	readonly fileName: string;
 	readonly fieldKey: string;
 	readonly isDescendant: boolean;
@@ -217,11 +224,13 @@ type TimelineSequenceEffectKeyframeDragTarget =
 const getKeyframedSequenceDragTargets = ({
 	nodePath,
 	sequence,
+	sequences,
 	propStatuses,
 	isDescendant,
 }: {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly sequence: TSequence;
+	readonly sequences: TSequence[];
 	readonly propStatuses: PropStatuses;
 	readonly isDescendant: boolean;
 }): {
@@ -243,6 +252,10 @@ const getKeyframedSequenceDragTargets = ({
 					(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
 						? [
 								{
+									parentPlaybackRate: getParentSequencePlaybackRate(
+										sequence,
+										sequences,
+									),
 									fileName: nodePath.absolutePath,
 									fieldKey,
 									isDescendant,
@@ -271,6 +284,10 @@ const getKeyframedSequenceDragTargets = ({
 					? [
 							{
 								effectIndex: effectStatus.effectIndex,
+								parentPlaybackRate: getParentSequencePlaybackRate(
+									sequence,
+									sequences,
+								),
 								fileName: nodePath.absolutePath,
 								fieldKey,
 								isDescendant,
@@ -460,7 +477,7 @@ const getTrimBeforePlaybackRate = (sequence: TSequence) => {
 		componentIdentity === undefined ||
 		!playbackRateComponentIdentities.has(componentIdentity)
 	) {
-		return 1;
+		return sequence.sequencePlaybackRate;
 	}
 
 	const runtimePlaybackRate =
@@ -557,7 +574,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			initialDuration: target.initialDuration,
 			initialFrom: target.initialFrom,
 			initialTrimBefore: target.initialTrimBefore,
-			deltaFrames,
+			deltaFrames: deltaFrames * target.parentPlaybackRate,
 			playbackRate: target.playbackRate,
 			minimumDuration: target.minimumDuration,
 		});
@@ -613,7 +630,7 @@ export const getTimelineSequenceDurationDragChanges = ({
 	return targets.flatMap((target) => {
 		const nextValue = getTimelineSequenceDurationDragValue({
 			initialDuration: target.initialDuration,
-			deltaFrames,
+			deltaFrames: deltaFrames * target.parentPlaybackRate,
 			maximumDuration: target.maximumDuration,
 			minimumDuration: target.minimumDuration,
 		});
@@ -669,9 +686,11 @@ export const getTimelineSequenceFromDragDelta = ({
 
 		const nextFrom = getTimelineSequenceFromDragValue({
 			initialFrom: target.initialFrom,
-			deltaFrames,
+			deltaFrames: deltaFrames * target.parentPlaybackRate,
 		});
-		const distancePx = Math.abs(nextFrom * pxPerFrame);
+		const distancePx = Math.abs(
+			(nextFrom / target.parentPlaybackRate) * pxPerFrame,
+		);
 		if (
 			distancePx > timelineSequenceFromDragSnapThresholdPx ||
 			(closestSnap && closestSnap.distancePx <= distancePx)
@@ -680,7 +699,7 @@ export const getTimelineSequenceFromDragDelta = ({
 		}
 
 		closestSnap = {
-			deltaFrames: -target.initialFrom,
+			deltaFrames: -target.initialFrom / target.parentPlaybackRate,
 			distancePx,
 		};
 	}
@@ -710,7 +729,7 @@ export const getTimelineSequenceFromDragChanges = ({
 	return targets.flatMap((target) => {
 		const nextValue = getTimelineSequenceFromDragValue({
 			initialFrom: target.initialFrom,
-			deltaFrames,
+			deltaFrames: deltaFrames * target.parentPlaybackRate,
 		});
 
 		if (nextValue === target.initialFrom) {
@@ -752,10 +771,11 @@ export const getTimelineSequenceFromDragKeyframeMoves = ({
 					nodePath: keyframeTarget.nodePath,
 					fieldKey: keyframeTarget.fieldKey,
 					fromFrame: keyframe.frame,
-					toFrame: keyframe.frame + deltaFrames,
+					toFrame:
+						keyframe.frame + deltaFrames * keyframeTarget.parentPlaybackRate,
 					schema: keyframeTarget.schema,
 					keyframeDisplayOffsetAdjustmentDelta: keyframeTarget.isDescendant
-						? -deltaFrames
+						? -deltaFrames * keyframeTarget.parentPlaybackRate
 						: undefined,
 				})),
 			),
@@ -768,10 +788,11 @@ export const getTimelineSequenceFromDragKeyframeMoves = ({
 					effectIndex: keyframeTarget.effectIndex,
 					fieldKey: keyframeTarget.fieldKey,
 					fromFrame: keyframe.frame,
-					toFrame: keyframe.frame + deltaFrames,
+					toFrame:
+						keyframe.frame + deltaFrames * keyframeTarget.parentPlaybackRate,
 					schema: keyframeTarget.schema,
 					keyframeDisplayOffsetAdjustmentDelta: keyframeTarget.isDescendant
-						? -deltaFrames
+						? -deltaFrames * keyframeTarget.parentPlaybackRate
 						: undefined,
 				})),
 			),
@@ -902,17 +923,25 @@ export const getTimelineSequenceDurationDragTargets = ({
 				1 - originalSequence.from,
 				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
 			);
-			const initialDuration =
-				mediaDurationDragLimits?.initialDuration ?? originalSequence.duration;
+			const initialDuration = mediaDurationDragLimits
+				? mediaDurationDragLimits.initialDuration * track.keyframePlaybackRate
+				: originalSequence.duration;
 			const constrainedMaximumDuration = Math.min(
-				mediaDurationDragLimits?.maximumDuration ?? Infinity,
-				timelineDurationInFrames - track.cascadedStart,
+				mediaDurationDragLimits
+					? mediaDurationDragLimits.maximumDuration * track.keyframePlaybackRate
+					: Infinity,
+				(timelineDurationInFrames - track.cascadedStart) *
+					track.keyframePlaybackRate,
 			);
 			const maximumDuration = isMedia
 				? Math.max(minimumDuration, initialDuration, constrainedMaximumDuration)
 				: Math.max(minimumDuration, constrainedMaximumDuration);
 
 			targets.set(key, {
+				parentPlaybackRate: getParentSequencePlaybackRate(
+					originalSequence,
+					sequences,
+				),
 				fileName: nodePath.absolutePath,
 				initialDuration,
 				maximumDuration,
@@ -1000,6 +1029,10 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
 			targets.set(key, {
+				parentPlaybackRate: getParentSequencePlaybackRate(
+					originalSequence,
+					sequences,
+				),
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
 				initialFrom: positionField === 'from' ? originalSequence.from : 0,
@@ -1150,6 +1183,7 @@ export const getTimelineSequenceFromDragTargets = ({
 					getKeyframedSequenceDragTargets({
 						nodePath: descendantNodePath,
 						sequence,
+						sequences,
 						propStatuses,
 						isDescendant: sequence.id !== originalSequence.id,
 					}),
@@ -1162,9 +1196,14 @@ export const getTimelineSequenceFromDragTargets = ({
 				(descendant) => descendant.sequenceKeyframes,
 			);
 			targets.set(key, {
+				parentPlaybackRate: getParentSequencePlaybackRate(
+					originalSequence,
+					sequences,
+				),
 				canSnapToTimelineStart: originalSequence.parent === null,
 				minimumDeltaFrames:
-					1 - originalSequence.duration - originalSequence.from,
+					(1 - originalSequence.duration - originalSequence.from) /
+					getParentSequencePlaybackRate(originalSequence, sequences),
 				initialTimelineStart,
 				effectKeyframes,
 				fileName: nodePath.absolutePath,
@@ -1445,7 +1484,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						initialDuration: target.initialDuration,
 						initialFrom: target.initialFrom,
 						initialTrimBefore: target.initialTrimBefore,
-						deltaFrames,
+						deltaFrames: deltaFrames * target.parentPlaybackRate,
 						playbackRate: target.playbackRate,
 						minimumDuration: target.minimumDuration,
 					});
@@ -1761,7 +1800,7 @@ export const useTimelineSequenceFromDrag = ({
 					for (const target of dragState.targets) {
 						const nextFrom = getTimelineSequenceFromDragValue({
 							initialFrom: target.initialFrom,
-							deltaFrames,
+							deltaFrames: deltaFrames * target.parentPlaybackRate,
 						});
 						latestRef.current.setDragOverrides(
 							target.nodePath,
@@ -1776,7 +1815,8 @@ export const useTimelineSequenceFromDrag = ({
 									type: 'keyframed',
 									status: shiftKeyframedStatus({
 										status: keyframeTarget.status,
-										deltaFrames,
+										deltaFrames:
+											deltaFrames * keyframeTarget.parentPlaybackRate,
 										isDescendant: keyframeTarget.isDescendant,
 									}),
 								},
@@ -1792,7 +1832,8 @@ export const useTimelineSequenceFromDrag = ({
 									type: 'keyframed',
 									status: shiftKeyframedStatus({
 										status: keyframeTarget.status,
-										deltaFrames,
+										deltaFrames:
+											deltaFrames * keyframeTarget.parentPlaybackRate,
 										isDescendant: keyframeTarget.isDescendant,
 									}),
 								},
@@ -2047,7 +2088,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				for (const target of dragState.targets) {
 					const previewValue = getTimelineSequenceDurationDragValue({
 						initialDuration: target.initialDuration,
-						deltaFrames,
+						deltaFrames: deltaFrames * target.parentPlaybackRate,
 						maximumDuration: target.maximumDuration,
 						minimumDuration: target.minimumDuration,
 					});

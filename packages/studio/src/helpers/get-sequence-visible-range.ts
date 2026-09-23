@@ -1,4 +1,5 @@
 export {
+	getParentSequencePlaybackRate,
 	getCascadedStart,
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,

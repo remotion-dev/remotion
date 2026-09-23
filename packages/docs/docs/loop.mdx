@@ -41,6 +41,10 @@ The Loop component is a high order component and accepts, besides it's children,
 
 How many frames one iteration of the loop should be long.
 
+### `playbackRate?`<AvailableFrom v="4.0.528" />
+
+Changes the speed of the children within each iteration. Defaults to `1` and must remain constant across frames. Each iteration still lasts `durationInFrames` frames in the parent timeline. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
+
 ### `times?`
 
 How many times to loop the content. Default: `Infinity`.

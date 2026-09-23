@@ -45,6 +45,7 @@ type TimelineExpandedRowProps = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 };
 
@@ -59,6 +60,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 	nodePath,
 	schema,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 }) => {
 	const rowDepth =
@@ -140,6 +142,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode={keyframeControlsMode}
 					revealInInspector={!isInspector}
 					runtimeValueStore={node.runtimeValueStore}
@@ -157,6 +160,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode={keyframeControlsMode}
 					runtimeValue={node.runtimeValue}
 				/>

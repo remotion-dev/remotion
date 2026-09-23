@@ -81,6 +81,7 @@ export type InteractiveBaseProps = Pick<
 	| 'durationInFrames'
 	| 'from'
 	| 'trimBefore'
+	| 'playbackRate'
 	| 'freeze'
 	| 'hidden'
 	| 'name'
@@ -227,6 +228,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			durationInFrames,
 			from,
 			trimBefore,
+			playbackRate,
 			freeze,
 			hidden,
 			name,
@@ -263,6 +265,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

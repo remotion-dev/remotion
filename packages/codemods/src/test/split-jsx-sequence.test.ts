@@ -80,6 +80,32 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 	).toHaveLength(2);
 });
 
+test('splitting a sped-up sequence preserves its child clock across a fractional parent frame', async () => {
+	const input =
+		'export const Comp = () => <Sequence from={10} durationInFrames={50} trimBefore={5} playbackRate={2} />;';
+	const ast = parseAst(input);
+	let nodePath = null;
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(path) {
+			nodePath = getNodePathForRecastPath(path, ast);
+			return false;
+		},
+	});
+	if (!nodePath) throw new Error('Could not find Sequence');
+	const {output} = await splitJsxSequence({
+		input,
+		nodePath,
+		sequenceKeys: ['from', 'durationInFrames', 'trimBefore', 'playbackRate'],
+		splitFrame: 22.5,
+	});
+	expect(output.replace(/\s+/g, ' ')).toContain(
+		'from={10} durationInFrames={12.5} trimBefore={5} playbackRate={2}',
+	);
+	expect(output.replace(/\s+/g, ' ')).toContain(
+		'from={22.5} durationInFrames={37.5} trimBefore={30} playbackRate={2}',
+	);
+});
+
 const wrap = (
 	sequence: string,
 ) => `import {AbsoluteFill, Img, Interactive, Sequence, Series, Solid} from 'remotion';
@@ -298,7 +324,16 @@ test('splitJsxSequence splits sequence-backed components', async () => {
 	);
 });
 
-test('splitJsxSequence rejects boundary and dynamic splits', async () => {
+test('splitJsxSequence allows fractional splits and rejects invalid positions', async () => {
+	const output = await split(
+		'<Sequence from={10} durationInFrames={20} />',
+		10.5,
+	);
+	expect(output).toContain('<Sequence from={10} durationInFrames={0.5} />');
+	expect(output).toContain(
+		'<Sequence from={10.5} durationInFrames={19.5} trimBefore={0.5} />',
+	);
+
 	await expect(
 		split('<Sequence from={10} durationInFrames={20} />', 10),
 	).rejects.toThrow(/sequence start/);
@@ -308,9 +343,6 @@ test('splitJsxSequence rejects boundary and dynamic splits', async () => {
 	await expect(
 		split('<Sequence from={10} durationInFrames={20} />', 8),
 	).rejects.toThrow(/sequence start/);
-	await expect(
-		split('<Sequence from={10} durationInFrames={20} />', 10.5),
-	).rejects.toThrow(/integer/);
 	await expect(
 		split('<Sequence from={start} durationInFrames={20} />', 15),
 	).rejects.toThrow(/dynamic from/);

@@ -1,7 +1,8 @@
-import React, {createContext, useMemo} from 'react';
+import React, {createContext, useContext, useMemo} from 'react';
 import type {LoopDisplay} from '../CompositionManager.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
@@ -14,7 +15,7 @@ export type LoopProps = {
 	readonly name?: string;
 	readonly children: React.ReactNode;
 } & LayoutAndStyle &
-	Pick<SequenceProps, 'showInTimeline'>;
+	Pick<SequenceProps, 'showInTimeline' | 'playbackRate'>;
 
 type LoopContextType = {
 	iteration: number;
@@ -22,6 +23,13 @@ type LoopContextType = {
 };
 
 const LoopContext = createContext<LoopContextType | null>(null);
+
+export const LoopTimelineContext = createContext<{
+	startFrame: number;
+	firstVisibleFrame: number;
+	endFrame: number;
+	playbackRate: number;
+} | null>(null);
 
 const useLoop = () => {
 	return React.useContext(LoopContext);
@@ -39,10 +47,22 @@ export const Loop: React.FC<LoopProps> & {
 	children,
 	name,
 	showInTimeline,
+	playbackRate,
 	...props
 }) => {
 	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
+	const parentSequence = useContext(SequenceContext);
+	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
+	const loopStartFrame = parentSequence
+		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
+		: 0;
+	const firstVisibleFrame =
+		loopStartFrame -
+		(parentSequence?.cumulatedNegativeFrom ?? 0) / parentPlaybackRate;
+	const endFrame =
+		loopStartFrame +
+		Math.min(compDuration, durationInFrames * times) / parentPlaybackRate;
 
 	validateDurationInFrames(durationInFrames, {
 		component: 'of the <Loop /> component',
@@ -71,8 +91,15 @@ export const Loop: React.FC<LoopProps> & {
 	const actualTimes = Math.min(maxTimes, times);
 	const style = props.layout === 'none' ? undefined : props.style;
 	const maxFrame = durationInFrames * (actualTimes - 1);
-	const iteration = Math.floor(currentFrame / durationInFrames);
-	const start = iteration * durationInFrames;
+	const loopsElapsed = currentFrame / durationInFrames;
+	const nearestIteration = Math.round(loopsElapsed);
+	// Fractional durations and nested playback rates can put an exact loop
+	// boundary a few floating-point units before the next iteration.
+	const isAtBoundary =
+		Math.abs(loopsElapsed - nearestIteration) <=
+		Number.EPSILON * Math.max(1, Math.abs(loopsElapsed)) * 4;
+	const iteration = isAtBoundary ? nearestIteration : Math.floor(loopsElapsed);
+	const start = isAtBoundary ? currentFrame : iteration * durationInFrames;
 	const from = Math.min(start, maxFrame);
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
@@ -85,26 +112,38 @@ export const Loop: React.FC<LoopProps> & {
 
 	const loopContext: LoopContextType = useMemo(() => {
 		return {
-			iteration: Math.floor(currentFrame / durationInFrames),
+			iteration,
 			durationInFrames,
 		};
-	}, [currentFrame, durationInFrames]);
+	}, [iteration, durationInFrames]);
+	const timelineContext = useMemo(
+		() => ({
+			startFrame: loopStartFrame,
+			firstVisibleFrame,
+			endFrame,
+			playbackRate: parentPlaybackRate,
+		}),
+		[loopStartFrame, firstVisibleFrame, endFrame, parentPlaybackRate],
+	);
 
 	return (
-		<LoopContext.Provider value={loopContext}>
-			<Sequence
-				durationInFrames={durationInFrames}
-				from={from}
-				name={name ?? '<Loop>'}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/loop"
-				_remotionInternalLoopDisplay={loopDisplay}
-				layout={props.layout}
-				style={style}
-				showInTimeline={showInTimeline}
-			>
-				{children}
-			</Sequence>
-		</LoopContext.Provider>
+		<LoopTimelineContext.Provider value={timelineContext}>
+			<LoopContext.Provider value={loopContext}>
+				<Sequence
+					durationInFrames={durationInFrames}
+					from={from}
+					name={name ?? '<Loop>'}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/loop"
+					_remotionInternalLoopDisplay={loopDisplay}
+					layout={props.layout}
+					style={style}
+					showInTimeline={showInTimeline}
+					playbackRate={playbackRate}
+				>
+					{children}
+				</Sequence>
+			</LoopContext.Provider>
+		</LoopTimelineContext.Provider>
 	);
 };
 

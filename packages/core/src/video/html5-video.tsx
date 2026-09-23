@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
+import {Html5MediaTrimContext} from '../audio/use-audio-frame.js';
 import {calculateMediaDuration} from '../calculate-media-duration.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
@@ -89,8 +90,13 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		trimAfter,
 	});
 
-	if (loop && durationFetched !== undefined) {
-		if (!Number.isFinite(durationFetched)) {
+	// An explicit trim end defines the loop before metadata has loaded. Waiting
+	// for metadata would leave the media unmounted when seeking into later loops.
+	const loopDuration =
+		trimAfterValue ??
+		(durationFetched === undefined ? undefined : durationFetched * fps);
+	if (loop && loopDuration !== undefined) {
+		if (!Number.isFinite(loopDuration)) {
 			return (
 				<Html5Video
 					{...propsOtherThanLoop}
@@ -101,13 +107,11 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			);
 		}
 
-		const mediaDuration = durationFetched * fps;
-
 		return (
 			<Loop
 				durationInFrames={calculateMediaDuration({
 					trimAfter: trimAfterValue,
-					mediaDurationInFrames: mediaDuration,
+					mediaDurationInFrames: loopDuration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
 				})}
@@ -130,25 +134,29 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
-			<Sequence
-				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
-				showInTimeline={false}
-				durationInFrames={
-					trimAfterValue === undefined
-						? undefined
-						: trimAfterValue / (props.playbackRate ?? 1)
-				}
-				name={name}
-			>
-				<Html5Video
-					pauseWhenBuffering={shouldPauseWhenBuffering}
-					onVideoFrame={onVideoFrame}
-					{...otherProps}
-					ref={ref}
-					_remotionInternalStack={_remotionInternalStack}
-				/>
-			</Sequence>
+			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
+				<Sequence
+					layout="none"
+					from={0 - (trimBeforeValue ?? 0)}
+					showInTimeline={false}
+					durationInFrames={
+						trimAfterValue === undefined
+							? undefined
+							: (trimBeforeValue ?? 0) +
+								(trimAfterValue - (trimBeforeValue ?? 0)) /
+									(props.playbackRate ?? 1)
+					}
+					name={name}
+				>
+					<Html5Video
+						pauseWhenBuffering={shouldPauseWhenBuffering}
+						onVideoFrame={onVideoFrame}
+						{...otherProps}
+						ref={ref}
+						_remotionInternalStack={_remotionInternalStack}
+					/>
+				</Sequence>
+			</Html5MediaTrimContext.Provider>
 		);
 	}
 

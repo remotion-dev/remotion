@@ -17,12 +17,14 @@ const hasOverride = (
 const withDragOverrideKeyframe = ({
 	propStatus,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	timelinePosition,
 	dragOverrideValue,
 	hasDragOverride,
 }: {
 	propStatus: Parameters<typeof getTimelineKeyframes>[0];
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 	timelinePosition: number;
 	dragOverrideValue: DragOverrideValue | undefined;
 	hasDragOverride: boolean;
@@ -31,10 +33,15 @@ const withDragOverrideKeyframe = ({
 		return getTimelineKeyframes(
 			dragOverrideValue.status,
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 		);
 	}
 
-	const keyframes = getTimelineKeyframes(propStatus, keyframeDisplayOffset);
+	const keyframes = getTimelineKeyframes(
+		propStatus,
+		keyframeDisplayOffset,
+		keyframePlaybackRate,
+	);
 
 	if (!hasDragOverride || propStatus?.status !== 'keyframed') {
 		return keyframes;
@@ -64,6 +71,7 @@ export const getNodeKeyframes = ({
 	nodePath,
 	propStatuses,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	getDragOverrides,
 	getEffectDragOverrides,
 	timelinePosition,
@@ -72,6 +80,7 @@ export const getNodeKeyframes = ({
 	nodePath: SequencePropsSubscriptionKey;
 	propStatuses: PropStatuses;
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 	getDragOverrides: GetDragOverrides;
 	getEffectDragOverrides: GetEffectDragOverrides;
 	timelinePosition: number;
@@ -87,6 +96,7 @@ export const getNodeKeyframes = ({
 				node.field.key
 			],
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 			timelinePosition,
 			dragOverrideValue: dragOverrides[node.field.key],
 			hasDragOverride: hasOverride(dragOverrides, node.field.key),
@@ -109,6 +119,7 @@ export const getNodeKeyframes = ({
 				? effectStatus.props?.[node.field.key]
 				: null,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 		timelinePosition,
 		dragOverrideValue: effectDragOverrides[node.field.key],
 		hasDragOverride: hasOverride(effectDragOverrides, node.field.key),

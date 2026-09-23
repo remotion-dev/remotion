@@ -121,10 +121,12 @@ export const useExpandedTrackKeyframeRows = ({
 	sequence,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	keyframeDisplayOffset: number;
+	keyframePlaybackRate: number;
 }): {
 	readonly rows: ExpandedTrackKeyframeRow[];
 	readonly expandedHeight: number;
@@ -217,6 +219,7 @@ export const useExpandedTrackKeyframeRows = ({
 						nodePath: nodePathInfo.sequenceSubscriptionKey,
 						propStatuses,
 						keyframeDisplayOffset,
+						keyframePlaybackRate,
 						getDragOverrides,
 						getEffectDragOverrides,
 						timelinePosition: getCurrentFrame(),
@@ -228,6 +231,7 @@ export const useExpandedTrackKeyframeRows = ({
 			getDragOverrides,
 			getEffectDragOverrides,
 			keyframeDisplayOffset,
+			keyframePlaybackRate,
 			nodePathInfo.sequenceSubscriptionKey,
 			propStatuses,
 		],

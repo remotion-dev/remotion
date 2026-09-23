@@ -20,9 +20,17 @@ console.log(models);
 | `modnet`    | People                      | 25.9 MB              | Default                          |
 | `ben2-base` | General foreground subjects | 219.1 MB             | Experimental and higher-resource |
 
-The [`modnet` model](https://huggingface.co/Xenova/modnet) is Apache-2.0 licensed. The [`ben2-base` model](https://huggingface.co/onnx-community/BEN2-ONNX) is the MIT-licensed BEN2 Base export.
+The [`modnet` model](https://huggingface.co/Xenova/modnet) is Apache-2.0 licensed.  
+The [`ben2-base` model](https://huggingface.co/onnx-community/BEN2-ONNX) is the MIT-licensed BEN2 Base export.
 
-The `modelId` values identify these upstream Hugging Face models for provenance. Runtime files are downloaded from immutable paths on `remotion.media` and are byte-identical to files from the pinned upstream revisions.
+## Model hosting
+
+The `modelId` values identify the upstream Hugging Face models.  
+
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
+We mirrored the models to `remotion.media`, keeping them byte-identical.  
+We also notified Hugging Face and they are investigating the issue. We may migrate back to the official hosting in the future.
+
 
 ## Return value
 
@@ -46,7 +54,7 @@ The total size in bytes of all runtime files downloaded for WebGPU.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

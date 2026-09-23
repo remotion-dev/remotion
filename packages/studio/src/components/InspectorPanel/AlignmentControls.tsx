@@ -15,7 +15,10 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
 import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
-import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from '../Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {
 	parseTranslate,
@@ -118,12 +121,16 @@ export const AlignmentControls: React.FC<{
 			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
 				(status) => status.status === 'keyframed',
 			);
-			const sourceFrame =
-				timelinePosition -
-				getKeyframeDisplayOffset({
-					propStatus: firstKeyframedStatus,
+			const sourceFrame = getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				propStatus: firstKeyframedStatus ?? null,
+				keyframeDisplayOffset: getKeyframeDisplayOffset({
+					propStatus: firstKeyframedStatus ?? null,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
-				});
+					keyframePlaybackRate: track.keyframePlaybackRate,
+				}),
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -229,7 +236,16 @@ export const AlignmentControls: React.FC<{
 					fileName: nodePath.absolutePath,
 					nodePath,
 					fieldKey: translateFieldKey,
-					sourceFrame,
+					sourceFrame: getKeyframeSourceFrame({
+						displayFrame: timelinePosition,
+						keyframeDisplayOffset: getKeyframeDisplayOffset({
+							propStatus,
+							keyframeDisplayOffset: track.keyframeDisplayOffset,
+							keyframePlaybackRate: track.keyframePlaybackRate,
+						}),
+						keyframePlaybackRate: track.keyframePlaybackRate,
+						propStatus,
+					}),
 					value: newValue,
 					schema: track.sequence.controls.schema,
 					setPropStatuses,
@@ -267,12 +283,16 @@ export const AlignmentControls: React.FC<{
 	const firstRenderKeyframedStatus = Object.values(
 		renderNodePropStatuses ?? {},
 	).find((status) => status.status === 'keyframed');
-	const renderSourceFrame =
-		timelinePosition -
-		getKeyframeDisplayOffset({
-			propStatus: firstRenderKeyframedStatus,
+	const renderSourceFrame = getKeyframeSourceFrame({
+		displayFrame: timelinePosition,
+		propStatus: firstRenderKeyframedStatus ?? null,
+		keyframeDisplayOffset: getKeyframeDisplayOffset({
+			propStatus: firstRenderKeyframedStatus ?? null,
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
-		});
+			keyframePlaybackRate: track.keyframePlaybackRate,
+		}),
+		keyframePlaybackRate: track.keyframePlaybackRate,
+	});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({

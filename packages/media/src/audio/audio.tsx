@@ -9,6 +9,7 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
+import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {AudioForPreview} from './audio-for-preview';
@@ -89,10 +90,24 @@ const AudioInner: React.FC<
 		durationInFrames ?? Infinity,
 		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
+	const volume = useLoopedVolume({
+		volume: props.volume,
+		loop: props.loop ?? false,
+		behavior: props.loopVolumeCurveBehavior ?? 'repeat',
+		assetDurationInSeconds: mediaDurationInSeconds,
+		fps: videoConfig.fps,
+		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
+		playbackRate: props.playbackRate ?? 1,
+		trimBefore: props.trimBefore,
+		trimAfter: props.trimAfter,
+	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src: props.src,
-		volume: props.volume,
+		volume,
 		playbackRate: props.playbackRate ?? 1,
 		trimBefore: props.trimBefore,
 		trimAfter: props.trimAfter,
@@ -101,14 +116,10 @@ const AudioInner: React.FC<
 		displayName: name ?? '<Audio>',
 		mediaVolume,
 		mediaStartsAt,
+		mediaFrom: from ?? 0,
 		loop: props.loop ?? false,
 		muted: props.muted ?? false,
 	});
-
-	// TODO: Redundant with what we do in the Studio
-	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
-		number | null
-	>(null);
 
 	const loopDisplay = useMemo(
 		() =>

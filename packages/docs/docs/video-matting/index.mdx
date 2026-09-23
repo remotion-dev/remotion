@@ -6,7 +6,7 @@ crumb: 'Separate a video into layers'
 
 # @remotion/video-matting<AvailableFrom v="4.0.523" />
 
-Separate a video into an opaque base layer and a foreground layer with alpha, locally in the browser or [Node.js](/docs/video-matting/node) using WebGPU.
+Separate a video into background and foreground layers, locally in the browser or [Node.js](/docs/video-matting/node) using WebGPU.
 
 import {TableOfContents} from './table-of-contents';
 
@@ -49,11 +49,11 @@ export const matteVideo = async (file: File) => {
 };
 ```
 
-Pass a `File` from a file input to `matteVideo()`. On return, `await using` releases the model from memory and removes temporary output files. The returned blobs remain usable, and downloaded model files stay cached for future runs.
-
 ## Model hosting
 
-Model files are downloaded from immutable paths on `remotion.media`. We find that downloads are faster from a R2 mirror than from Hugging Face directly. The models are byte-identical to the ones you can find from Hugging Face.
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
+We mirrored the models to `remotion.media`, keeping them byte-identical.  
+We also notified Hugging Face and they are investigating the issue. We may migrate back to the official hosting in the future.
 
 ## APIs
 
@@ -61,12 +61,13 @@ Model files are downloaded from immutable paths on `remotion.media`. We find tha
 
 ## Requirements
 
-WebGPU requires HTTPS in production or `localhost` during development. Use [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) to check whether the selected model is supported.
+A GPU is needed for this.
+Use [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) to check whether your system can use video matting.
 
-If the page uses a strict Content Security Policy, add `https://remotion.media` to its `connect-src` directive, for example `connect-src 'self' https://remotion.media`.
-
-The browser must also be able to decode the input video and encode VP9 with alpha through WebCodecs. [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) checks these media capabilities for the selected input.
+The browser must also be able to decode the input video and encode VP9 with alpha through WebCodecs.  
+[`separateVideoLayers()`](/docs/video-matting/separate-video-layers) checks these media capabilities for the selected input.
 
 ## License
 
-The package is MIT licensed. Downloaded model weights retain the licenses listed under [`getAvailableModels()`](/docs/video-matting/get-available-models).
+The package is MIT licensed.  
+Models retain the licenses listed under [`getAvailableModels()`](/docs/video-matting/get-available-models).

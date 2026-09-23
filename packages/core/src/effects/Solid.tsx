@@ -269,6 +269,7 @@ const SolidOuter = forwardRef<
 			name,
 			from,
 			trimBefore,
+			playbackRate,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -303,6 +304,7 @@ const SolidOuter = forwardRef<
 				layout="none"
 				from={from}
 				trimBefore={trimBefore}
+				playbackRate={playbackRate}
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}

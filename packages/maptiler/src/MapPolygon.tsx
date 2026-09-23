@@ -355,6 +355,7 @@ export const MapPolygon = (props: MapPolygonProps) => {
 		name,
 		showInTimeline,
 		trimBefore,
+		playbackRate,
 	} = props;
 
 	return (
@@ -362,6 +363,7 @@ export const MapPolygon = (props: MapPolygonProps) => {
 			layout="none"
 			from={from ?? 0}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			durationInFrames={durationInFrames ?? Infinity}
 			freeze={freeze}
 			hidden={hidden}

@@ -51,6 +51,7 @@ export const RenderSvg = ({
 	durationInFrames,
 	from,
 	trimBefore,
+	playbackRate,
 	freeze,
 	hidden,
 	name,
@@ -213,6 +214,7 @@ export const RenderSvg = ({
 			layout="none"
 			from={from}
 			trimBefore={trimBefore}
+			playbackRate={playbackRate}
 			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}
