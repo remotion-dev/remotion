@@ -98,14 +98,13 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
         );
 
         return (
-          <Sequence
+          <Audio
             key={`element-${index}`}
             from={startFrame}
             durationInFrames={duration}
             premountFor={3 * FPS}
-          >
-            <Audio src={staticFile(getAudioPath(id, element.audioUrl))} />
-          </Sequence>
+            src={staticFile(getAudioPath(id, element.audioUrl))}
+          />
         );
       })}
     </AbsoluteFill>

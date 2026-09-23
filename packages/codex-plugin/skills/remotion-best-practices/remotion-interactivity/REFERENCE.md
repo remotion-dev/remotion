@@ -59,11 +59,13 @@ Avoid computed names, hardcode them.
 </>
 ```
 
-## Use AbsoluteFill directly for layers
+## Set timing and names directly on supported components
 
 `<AbsoluteFill>` is already interactive and appears in the timeline.
 Give it a `name` and set `from`, `durationInFrames`, `trimBefore`, `freeze`, `hidden` or `showInTimeline` directly on it.
-Do not add an outer `<Sequence>` just to name or time a single `<AbsoluteFill>`.
+The same applies to `<Interactive.Div>`, `<Img>`, `<CanvasImage>`, `<AnimatedImage>`, `<Gif>` and `<Audio>` / `<Video>` from `@remotion/media`.
+Pass supported timing and naming props directly to these components instead of adding an outer `<Sequence>` for a single child.
+The legacy `<Html5Audio>`, `<Html5Video>` and `<OffthreadVideo>` still need a `<Sequence>` for timing.
 
 ```tsx title="Standalone background layer"
 <AbsoluteFill

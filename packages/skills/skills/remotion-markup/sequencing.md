@@ -7,10 +7,12 @@ metadata:
 
 Use `<Sequence>` to delay when a group or custom component appears in the timeline.
 
-## Use AbsoluteFill directly for layers
+## Set timing and names directly on supported components
 
 `<AbsoluteFill>` already supports `name`, `from`, `durationInFrames`, `trimBefore`, `freeze`, `hidden` and `showInTimeline`.
-Pass these props directly to `<AbsoluteFill>` instead of wrapping it in a `<Sequence>` whose only child is that layer.
+The same applies to `<Interactive.Div>`, `<Img>`, `<CanvasImage>`, `<AnimatedImage>`, `<Gif>` and `<Audio>` / `<Video>` from `@remotion/media`.
+Pass supported timing and naming props directly to these components instead of adding an outer `<Sequence>` for a single child.
+The legacy `<Html5Audio>`, `<Html5Video>` and `<OffthreadVideo>` still need a `<Sequence>` for timing.
 
 ```tsx title="Standalone background layer"
 <AbsoluteFill
@@ -21,7 +23,7 @@ Pass these props directly to `<AbsoluteFill>` instead of wrapping it in a `<Sequ
 />
 ```
 
-Keep an outer `<Sequence>` when it groups multiple children or supplies features such as premounting, postmounting or `width` / `height` overrides.
+Keep an outer `<Sequence>` when it groups multiple children or supplies layout or props that the child does not support. For example, `<AbsoluteFill>` needs a wrapper for premounting, postmounting or `width` / `height` overrides, while `<Audio>` and `<Video>` from `@remotion/media` support `premountFor` and `postmountFor` directly.
 Timing props on `<AbsoluteFill>` apply to its descendants, including their `useCurrentFrame()` calls.
 
 ## Timing custom components
