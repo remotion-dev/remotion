@@ -1109,6 +1109,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceLeftEdgeDragHandle
+							cursor={isCascadingSequence(s) ? 'ew-resize' : 'e-resize'}
 							nodePathInfo={nodePathInfo}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
@@ -1122,6 +1123,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
+							cursor={isCascadingSequence(s) ? 'ew-resize' : 'w-resize'}
 							nodePathInfo={nodePathInfo}
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}

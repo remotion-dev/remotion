@@ -166,7 +166,6 @@ const baseStyle: React.CSSProperties = {
 	bottom: 0,
 	// Keep the middle half of narrow layers available for moving.
 	width: `calc(${HANDLE_OUTSET}px + min(${HANDLE_INSET}px, 25%))`,
-	cursor: 'ew-resize',
 	zIndex: 1,
 	touchAction: 'none',
 };
@@ -1276,6 +1275,7 @@ const clearFromDragOverrides = ({
 };
 
 const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
+	readonly cursor: 'e-resize' | 'ew-resize';
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
@@ -1283,6 +1283,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
 }> = ({
+	cursor,
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
@@ -1458,7 +1459,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
-			forceSpecificCursor('ew-resize');
+			forceSpecificCursor(cursor);
 
 			const onMove = (pointerEvent: PointerEvent) => {
 				const dragState = dragStateRef.current;
@@ -1547,6 +1548,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		},
 		[
 			currentSelection,
+			cursor,
 			finishDrag,
 			propStatusesRef,
 			selected,
@@ -1566,6 +1568,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		left: -HANDLE_OUTSET,
+		cursor,
 		background: TRANSPARENT,
 	};
 
@@ -1870,6 +1873,7 @@ export const useTimelineSequenceFromDrag = ({
 };
 
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
+	readonly cursor: 'w-resize' | 'ew-resize';
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
 	readonly windowWidth: number;
@@ -1878,6 +1882,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
 }> = ({
+	cursor,
 	nodePathInfo,
 	mediaDurationDragLimits,
 	windowWidth,
@@ -2064,7 +2069,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			};
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
-			forceSpecificCursor('ew-resize');
+			forceSpecificCursor(cursor);
 
 			const onMove = (pointerEvent: PointerEvent) => {
 				const dragState = dragStateRef.current;
@@ -2139,6 +2144,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		},
 		[
 			currentSelection,
+			cursor,
 			finishDrag,
 			mediaDurationDragLimitsRegistry,
 			propStatusesRef,
@@ -2159,6 +2165,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const style: React.CSSProperties = {
 		...baseStyle,
 		right: -HANDLE_OUTSET,
+		cursor,
 		background: TRANSPARENT,
 	};
 
