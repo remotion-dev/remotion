@@ -63,6 +63,18 @@ The owner's accreditation, membership and award badges, saved unchanged for thei
 - **Check the year before using one.** The CommBank badge is for the 2026/2027 financial year and the awards badge for 2026. When a new one arrives, save it next to these with its own year in the name.
 - **These are other organisations' marks**, shown as the owner's credentials. Don't recolour, crop, redraw or animate their parts separately; fade, scale or slide each badge as a whole.
 
+## Brand kit: `src/brand/`
+
+Reusable pieces for the owner's real videos; start from these rather than writing new ones. Each animates its own entrance, so wrap it in a `<Sequence>` for timing. `BrandKitDemo` (in the "Brand" folder of the Studio, 1920×1080) shows them all with sample text.
+
+- `BilingualCaption` (`vi`, `en`): Vietnamese main line and English line under it, following "Language" above.
+- `LowerThird` (`name`, `roleVi`, `roleEn`): a name with a bilingual role, sliding in from the left.
+- `BadgeRow` (`height`, at most 160): the five badges on a white card, the awards badge 1.5× taller so it stays readable.
+- `EndCard` (`titleVi`, `titleEn`, `website`, `phone`): closing call to action with contact details and the badge row. There are no real contact details in the repo; pass them in.
+- `theme.ts`: placeholder colours; replace them with FinHub's brand guide when there is one.
+
+If a second video project ever needs these, `remotion-dev/library-starter` is Remotion's template for publishing them as a package; it pins Remotion 4.0.46, so upgrade it first.
+
 ## Project structure
 
 - `src/index.ts` — entry point, registers the root component
