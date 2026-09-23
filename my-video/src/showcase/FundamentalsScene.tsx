@@ -21,30 +21,66 @@ const Label: React.FC<{children: string}> = ({children}) => {
   );
 };
 
-// Beat 1: three dots racing the same distance under three different
-// Easing curves, to make the curve differences visible rather than abstract.
+// Every static method on Easing, resolved to a plain (t: number) => number
+// curve. poly/elastic/back/spring/bezier take their own params first;
+// in/out/inOut are modifiers, applied here to quad to show how they reshape
+// an existing curve rather than being curves of their own.
+const EASING_CURVES = [
+  {name: "step0", fn: Easing.step0},
+  {name: "step1", fn: Easing.step1},
+  {name: "linear", fn: Easing.linear},
+  {name: "ease", fn: Easing.ease},
+  {name: "quad", fn: Easing.quad},
+  {name: "cubic", fn: Easing.cubic},
+  {name: "poly(4)", fn: Easing.poly(4)},
+  {name: "sin", fn: Easing.sin},
+  {name: "circle", fn: Easing.circle},
+  {name: "exp", fn: Easing.exp},
+  {name: "elastic", fn: Easing.elastic(1)},
+  {name: "back", fn: Easing.back()},
+  {name: "spring", fn: Easing.spring()},
+  {name: "bounce", fn: Easing.bounce},
+  {name: "bezier", fn: Easing.bezier(0.65, 0, 0.35, 1)},
+  {name: "in(quad)", fn: Easing.in(Easing.quad)},
+  {name: "out(quad)", fn: Easing.out(Easing.quad)},
+  {name: "inOut(quad)", fn: Easing.inOut(Easing.quad)},
+] as const;
+
+const CURVE_SAMPLES = 24;
+const TILE_WIDTH = 190;
+const TILE_HEIGHT = 90;
+
+// Beat 1: every Easing curve plotted as its own small sparkline (t on x,
+// easing(t) on y, clamped to a visible range since elastic/back/spring
+// overshoot [0, 1]), with a dot riding each curve in sync with the same
+// shared progress -- eighteen curves side by side make the differences
+// between them obvious in a way a single animated dot per curve wouldn't.
 const EasingBeat: React.FC = () => {
   const frame = useCurrentFrame();
-  const curves = [
-    {name: "linear", ease: Easing.linear, color: palette.accent},
-    {name: "ease", ease: Easing.ease, color: palette.accent2},
-    {name: "bounce", ease: Easing.bounce, color: "#f472b6"},
-  ];
+  const t = interpolate(frame, [0, 24], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"});
 
   return (
-    <AbsoluteFill style={{justifyContent: "center"}}>
-      <Label>Easing curves</Label>
-      <div style={{display: "flex", flexDirection: "column", gap: 40, alignItems: "flex-start", marginLeft: 340}}>
-        {curves.map((c) => {
-          const x = interpolate(frame, [0, 24], [0, 600], {
-            easing: c.ease,
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          });
+    <AbsoluteFill style={{justifyContent: "center", alignItems: "center"}}>
+      <Label>Easing — every curve</Label>
+      <div style={{display: "grid", gridTemplateColumns: `repeat(6, ${TILE_WIDTH}px)`, gap: 8}}>
+        {EASING_CURVES.map(({name, fn}) => {
+          const toY = (value: number) => TILE_HEIGHT - 14 - Math.min(1, Math.max(0, value)) * (TILE_HEIGHT - 28);
+          const points = Array.from({length: CURVE_SAMPLES + 1}, (_, i) => {
+            const x = (i / CURVE_SAMPLES) * (TILE_WIDTH - 16) + 8;
+            return `${x},${toY(fn(i / CURVE_SAMPLES))}`;
+          }).join(" ");
+          const dotX = t * (TILE_WIDTH - 16) + 8;
+          const dotY = toY(fn(t));
+
           return (
-            <div key={c.name} style={{display: "flex", alignItems: "center", gap: 16}}>
-              <div style={{width: 24, height: 24, borderRadius: "50%", background: c.color, transform: `translateX(${x}px)`}} />
-              <span style={{color: palette.textDim, fontSize: 20, position: "absolute", left: 0}}>{c.name}</span>
+            <div key={name} style={{background: palette.bgAlt, borderRadius: 8, padding: "4px 0"}}>
+              <svg width={TILE_WIDTH} height={TILE_HEIGHT}>
+                <polyline points={points} fill="none" stroke={palette.accent2} strokeWidth={2} />
+                <circle cx={dotX} cy={dotY} r={4} fill={palette.accent} />
+                <text x={8} y={16} fill={palette.textDim} fontSize={13} fontFamily="monospace">
+                  {name}
+                </text>
+              </svg>
             </div>
           );
         })}
@@ -114,8 +150,10 @@ const RandomBeat: React.FC = () => {
   );
 };
 
-// Demonstrates: Easing, <Series>, <Loop>, <Freeze>, and random() from core
-// `remotion` — none of them need an extra package.
+// Demonstrates: every static method on Easing (step0/step1/linear/ease/
+// quad/cubic/poly/sin/circle/exp/elastic/back/spring/bounce/bezier and the
+// in/out/inOut modifiers), <Series>, <Loop>, <Freeze>, and random() from
+// core `remotion` — none of them need an extra package.
 export const FundamentalsScene: React.FC = () => {
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins}}>

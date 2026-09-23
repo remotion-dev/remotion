@@ -30,9 +30,12 @@ const CAPTION_FONT_SIZE = 22;
 // (which searches for a font size instead of a line break). All of these
 // only work in the browser, which is exactly where a Remotion render runs.
 // Also demonstrates @remotion/fonts' loadFont() -- self-hosting a font FILE
-// directly (bangers.woff2), rather than fetching a Google Font by name like
-// font.ts's Poppins does via @remotion/google-fonts -- and that package's
-// own getAvailableFonts() catalog-browsing function.
+// directly (bangers.woff2), rather than fetching a Google Font by name the
+// way @remotion/google-fonts' own loadFont() does -- and that package's
+// getAvailableFonts() catalog-browsing function. font.ts's Poppins does NOT
+// use @remotion/google-fonts' loadFont() -- a real render test showed
+// fonts.gstatic.com fails inside this sandbox's actual rendering Chromium
+// even though it answers a plain curl; see font.ts and AGENTS.md.
 export const RoundedTextBoxScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
