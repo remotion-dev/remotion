@@ -3,6 +3,35 @@ export {Canvas} from './canvas';
 export type {CanvasProps} from './canvas';
 export {createCanvasController, useCanvasController} from './canvas-controller';
 export type {CanvasController} from './canvas-controller';
+export {
+	createCanvasHoverController,
+	useCanvasHover,
+	useCanvasSequenceHover,
+	useIsCanvasSequenceHovered,
+} from './hover';
+export type {CanvasHover, CanvasHoverController} from './hover';
+export type {
+	CanvasOutline,
+	CanvasOutlinePoint,
+	CanvasOutlineUv,
+	CanvasOutlineCrop,
+	CanvasOutlineTarget,
+} from './outline-geometry';
+export {getCanvasOutlinePoint, getCanvasOutlineUv} from './outline-geometry';
+export {
+	measureCanvasOutlineTargets,
+	cropCanvasOutlinePoints,
+	canvasOutlinesAreEqual,
+	getTransformedSvgViewportPoints,
+} from './outline-measurement';
+export {orderCanvasOutlinesForRendering} from './outline-order';
+export type {
+	CanvasOutlineOrderTarget,
+	CanvasOutlineSequenceParent,
+} from './outline-order';
+export {useCanvasOutlineMeasurements} from './use-canvas-outline-measurements';
+export {getCanvasSequenceNodePathInfo} from './sequence-node-path';
+export type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 export {getConnectedCompositions} from './get-connected-compositions';
 export {
 	getCascadedStart,
@@ -34,3 +63,4 @@ export type {
 } from './selection';
 export {sortItemsByCommitOrder} from './sort-by-commit-order';
 export {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';
+export {useCanvasRuntimeValueSnapshots} from './use-runtime-value-snapshots';

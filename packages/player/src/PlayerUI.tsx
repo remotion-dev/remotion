@@ -19,6 +19,7 @@ import {
 	calculateOuter,
 	calculateOuterStyle,
 } from './calculate-scale.js';
+import {CanvasOverlayContext} from './canvas-overlay-context.js';
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
@@ -185,6 +186,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	);
 
 	const {playerMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	const canvasOverlay = useContext(CanvasOverlayContext);
 
 	useEffect(() => {
 		player.emitter.dispatchVolumeChange(mediaVolume);
@@ -662,10 +664,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.CurrentScaleContext.Provider value={currentScale}>
-								<VideoComponent
-									{...(video?.props ?? {})}
-									{...(inputProps ?? {})}
-								/>
+								<CanvasOverlayContext.Provider value={null}>
+									<VideoComponent
+										{...(video?.props ?? {})}
+										{...(inputProps ?? {})}
+									/>
+								</CanvasOverlayContext.Provider>
 							</Internals.CurrentScaleContext.Provider>
 						</ErrorBoundary>
 					) : null}
@@ -686,6 +690,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					) : null}
 				</div>
 				<RenderWarningIfBlacklist />
+				{canvasOverlay}
 			</div>
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div
