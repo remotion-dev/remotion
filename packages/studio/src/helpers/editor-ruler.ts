@@ -8,6 +8,7 @@ import {
 } from './colors';
 import type {RulerGuideHighlight} from './editor-guide-selection';
 import {resolveStudioColor} from './resolve-studio-color';
+import {getStudioPixelRatio} from './studio-pixel-ratio';
 
 type Orientation = 'horizontal' | 'vertical';
 
@@ -182,7 +183,8 @@ export const drawMarkingOnRulerCanvas = ({
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
 
-	context.scale(window.devicePixelRatio, window.devicePixelRatio);
+	const pixelRatio = getStudioPixelRatio();
+	context.scale(pixelRatio, pixelRatio);
 
 	context.clearRect(0, 0, canvasWidth, canvasHeight);
 

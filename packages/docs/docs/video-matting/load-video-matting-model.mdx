@@ -8,7 +8,7 @@ crumb: '@remotion/video-matting'
 
 Initializes a previously downloaded video matting model on WebGPU. Call [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first.
 
-Call it before [`separateVideoLayers()`](/docs/video-matting/separate-video-layers).
+[`separateVideoLayers()`](/docs/video-matting/separate-video-layers) loads the model automatically; call `loadVideoMattingModel()` when you want to initialize it before processing.
 
 ```ts twoslash title="load-model.ts"
 import {downloadVideoMattingModel, loadVideoMattingModel} from '@remotion/video-matting';

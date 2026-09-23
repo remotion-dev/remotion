@@ -7,6 +7,7 @@ import {
 	WHITE_ALPHA_15,
 } from '../../helpers/colors';
 import {resolveStudioColor} from '../../helpers/resolve-studio-color';
+import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
@@ -282,7 +283,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			const tickColor = resolveStudioColor(WHITE_ALPHA_15, computedStyle);
 			const labelColor = resolveStudioColor(LIGHT_TEXT, computedStyle);
 			const {clientWidth: width, scrollLeft} = scrollable;
-			const pixelRatio = window.devicePixelRatio;
+			const pixelRatio = getStudioPixelRatio();
 			const canvasWidth = Math.ceil(width * pixelRatio);
 			const canvasHeight = TIMELINE_TIME_INDICATOR_HEIGHT * pixelRatio;
 
