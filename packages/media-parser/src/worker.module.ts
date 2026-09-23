@@ -36,8 +36,18 @@ export const parseMediaOnWebWorker: ParseMediaOnWorker = <
 
 	const worker = new Worker(new URL('./worker-web-entry.mjs', import.meta.url));
 
+	// The worker has no page URL to resolve a relative `src`
+	// (e.g. from `staticFile()`) against, so resolve it here.
+	const src =
+		typeof params.src === 'string' &&
+		!/^[a-z][a-z\d+.-]*:/i.test(params.src) &&
+		typeof window !== 'undefined' &&
+		typeof window.location !== 'undefined'
+			? new URL(params.src, window.location.href).toString()
+			: params.src;
+
 	return parseMediaOnWorkerImplementation(
-		params,
+		{...params, src},
 		worker,
 		'parseMediaOnWebWorker',
 	);
