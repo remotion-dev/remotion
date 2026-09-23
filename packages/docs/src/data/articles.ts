@@ -8995,15 +8995,6 @@ export const articles = [
 		slug: 'video-matting/node',
 	},
 	{
-		id: 'video-matting/remove-video-background',
-		title: 'removeVideoBackground()',
-		relativePath: 'docs/video-matting/remove-video-background.mdx',
-		compId: 'articles-docs-video-matting-remove-video-background',
-		crumb: '@remotion/video-matting',
-		noAi: false,
-		slug: 'video-matting/remove-video-background',
-	},
-	{
 		id: 'video-matting/remove-video-matting-model',
 		title: 'removeVideoMattingModel()',
 		relativePath: 'docs/video-matting/remove-video-matting-model.mdx',

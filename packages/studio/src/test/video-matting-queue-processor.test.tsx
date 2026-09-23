@@ -27,23 +27,25 @@ mock.module('@remotion/video-matting', () => ({
 		calls.push('load-model');
 		return Promise.resolve({alreadyLoaded: false});
 	},
-	removeVideoBackground: ({
-		onProgress,
-	}: {
-		onProgress: (progress: {
-			stage: string;
-			progress: number;
-			processedFrames: number;
-		}) => void;
-	}) => {
-		calls.push('remove-background');
-		onProgress({stage: 'processing', progress: 0.5, processedFrames: 42});
-		return Promise.resolve({
-			video: {
-				getBlob: () => Promise.resolve(new Blob(['video'])),
-				dispose: () => Promise.resolve(),
-			},
-		});
+	VideoMattingInternals: {
+		removeVideoBackground: ({
+			onProgress,
+		}: {
+			onProgress: (progress: {
+				stage: string;
+				progress: number;
+				processedFrames: number;
+			}) => void;
+		}) => {
+			calls.push('remove-background');
+			onProgress({stage: 'processing', progress: 0.5, processedFrames: 42});
+			return Promise.resolve({
+				video: {
+					getBlob: () => Promise.resolve(new Blob(['video'])),
+					dispose: () => Promise.resolve(),
+				},
+			});
+		},
 	},
 	disposeVideoMattingModel: () => {
 		calls.push('dispose-model');

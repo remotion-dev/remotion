@@ -33,10 +33,6 @@ export const TableOfContents: React.FC = () => {
 				<strong>separateVideoLayers()</strong>
 				<div>Create base and foreground WebM layers</div>
 			</TOCItem>
-			<TOCItem link="/docs/video-matting/remove-video-background">
-				<strong>removeVideoBackground()</strong>
-				<div>Create a transparent WebM</div>
-			</TOCItem>
 			<TOCItem link="/docs/video-matting/dispose-video-matting-model">
 				<strong>disposeVideoMattingModel()</strong>
 				<div>Release model memory</div>

@@ -4,8 +4,7 @@ import {
 	downloadVideoMattingModel,
 	isVideoMattingModelCached,
 	loadVideoMattingModel,
-	removeVideoBackground,
-	type RemoveVideoBackgroundResult,
+	VideoMattingInternals,
 	type SeparateVideoLayersProgress,
 } from '@remotion/video-matting';
 import {useCallback, useContext, useEffect} from 'react';
@@ -30,7 +29,9 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 	const processJob = useCallback(
 		async (job: VideoMattingJob) => {
 			const {signal} = getAbortController(job.id);
-			let output: RemoveVideoBackgroundResult | null = null;
+			let output: Awaited<
+				ReturnType<typeof VideoMattingInternals.removeVideoBackground>
+			> | null = null;
 			let processingError: Error | null = null;
 			try {
 				signal.throwIfAborted();
@@ -85,7 +86,7 @@ export const VideoMattingQueueProcessor: React.FC = () => {
 						});
 					},
 				};
-				output = await removeVideoBackground({
+				output = await VideoMattingInternals.removeVideoBackground({
 					...mattingOptions,
 					audio: job.audio,
 				});

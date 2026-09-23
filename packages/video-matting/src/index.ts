@@ -34,13 +34,11 @@ export type {
 	VideoLayerOutputOptions,
 	VideoLayerOutputTarget,
 } from './output-target';
-export {
-	removeVideoBackground,
-	separateVideoLayers,
-} from './separate-video-layers';
+import {removeVideoBackground} from './separate-video-layers';
+
+export const VideoMattingInternals = {removeVideoBackground};
+export {separateVideoLayers} from './separate-video-layers';
 export type {
-	RemoveVideoBackgroundOptions,
-	RemoveVideoBackgroundResult,
 	SeparateVideoLayersOptions,
 	SeparateVideoLayersProgress,
 	SeparateVideoLayersResult,
