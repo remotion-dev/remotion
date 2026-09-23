@@ -19,6 +19,7 @@ import {
   fullReelDefaultProps,
   fullReelSchema,
 } from "./showcase/FullReel";
+import {EFFECTS_CATALOG_DURATION, EffectsCatalogScene} from "./showcase/EffectsCatalogScene";
 import { AbsoluteFill } from "remotion";
 import { gradientBg, palette } from "./showcase/palette";
 import { poppins } from "./showcase/font";
@@ -68,10 +69,21 @@ export const RemotionRoot: React.FC = () => {
           width={1280}
           height={720}
           fps={30}
-          durationInFrames={1470}
+          durationInFrames={1860}
           schema={fullReelSchema}
           defaultProps={fullReelDefaultProps}
           calculateMetadata={calculateFullReelMetadata}
+        />
+      </Folder>
+      <Folder name="Catalogs">
+        {/* Every @remotion/effects effect on its own; FullReel plays it too. */}
+        <Composition
+          id="EffectsCatalog"
+          component={EffectsCatalogScene}
+          width={1280}
+          height={720}
+          fps={30}
+          durationInFrames={EFFECTS_CATALOG_DURATION}
         />
       </Folder>
       <Folder name="Utilities">

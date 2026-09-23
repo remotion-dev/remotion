@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+  <!-- The same subject on a pure green screen, for colorKey({keyColor: "#00ff00"}). -->
+  <rect width="960" height="540" fill="#00ff00"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.5" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#g)" d="M480 70 L535 205 L680 215 L568 305 L605 450 L480 372 L355 450 L392 305 L280 215 L425 205 Z"/>
+</svg>
