@@ -59,8 +59,8 @@ const ImgFallbackTile: React.FC = () => {
 // rather than assumed — it needs a recent Chrome with a flag enabled, which
 // this sandbox's headless Chromium 141 predates. When it's unsupported the
 // tile shows HTML_IN_CANVAS_UNSUPPORTED_MESSAGE, the exact text <HtmlInCanvas>
-// would cancel the render with. That message says Chrome 148 while the docs
-// and html-in-canvas.md say 149 — an inconsistency in Remotion itself.
+// would cancel the render with. In the installed 4.0.527 that message says
+// Chrome 148 while the docs say 149; this fork's packages/core now says 149.
 //
 // <Html5Video> (the native <video> element Remotion synchronizes, distinct
 // from @remotion/media's newer WebCodecs-based <Video>) is deliberately not
