@@ -46,6 +46,7 @@ import {RiveScene} from "./RiveScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
+import {MediaToolsScene} from "./MediaToolsScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
 import {CutFlash} from "./CutFlash";
 import {palette} from "./palette";
@@ -63,7 +64,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 23;
+const SCENE_COUNT = 24;
 // Separators that are <TransitionSeries.Overlay>s rather than Transitions:
 // an overlay sits on the cut without overlapping the scenes, so it doesn't
 // shorten the reel.
@@ -108,7 +109,7 @@ const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITI
 // fade() (see htmlInCanvasPresentation.ts) rather than throwing where
 // HtmlInCanvas isn't supported. Timings: linearTiming() with and without an
 // easing, and springTiming() with reverse on the last one. One cut uses a
-// <TransitionSeries.Overlay> (CutFlash) instead of a transition. ~47s covering: spring
+// <TransitionSeries.Overlay> (CutFlash) instead of a transition. ~49s covering: spring
 // animation, staggered text, rough-notation highlights, and
 // useTransitionProgress() reacting to its own exit transition (TitleScene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
@@ -230,6 +231,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CoreMediaScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <MediaToolsScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={swapOrFallback()} timing={t} />
 
