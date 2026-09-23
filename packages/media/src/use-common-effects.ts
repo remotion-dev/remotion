@@ -52,13 +52,6 @@ export const useCommonEffects = ({
 	readonly label: string;
 }) => {
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
-	const {seek} = useContext(Internals.SetTimelineContext);
-	const revision = seek?.revision.current ?? null;
-	const lastRequest = useRef<{
-		player: MediaPlayer;
-		time: number;
-		revision: number | null;
-	} | null>(null);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -218,6 +211,14 @@ export const useCommonEffects = ({
 
 		mediaPlayer.setSequenceOffset(sequenceOffset, currentTimeRef.current);
 	}, [sequenceOffset, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+
+	const {seek} = useContext(Internals.SetTimelineContext);
+	const revision = seek?.revision.current ?? null;
+	const lastRequest = useRef<{
+		player: MediaPlayer;
+		time: number;
+		revision: number | null;
+	} | null>(null);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
