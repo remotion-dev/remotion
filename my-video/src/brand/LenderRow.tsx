@@ -9,6 +9,7 @@ import {brand} from "./theme";
 // Add a lender here when its logo is saved (see "Lender logos" in AGENTS.md).
 const LENDERS = [
   {file: "lenders/commbank.png", alt: "CommBank", scale: 1.3},
+  {file: "lenders/westpac.png", alt: "Westpac", scale: 0.7},
   {file: "lenders/anz.webp", alt: "ANZ", scale: 0.9},
   {file: "lenders/nab.png", alt: "NAB", scale: 0.8},
   {file: "lenders/st-george.png", alt: "St.George", scale: 1.3},

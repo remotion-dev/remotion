@@ -70,6 +70,7 @@ Logos of the lenders the owner is accredited with, so they are cleared to appear
 | File | Pixels | Notes |
 |---|---|---|
 | `commbank.png` | 532×434 | transparent; the stacked version (diamond above the black "CommBank" wordmark), cropped around the logo. The black wordmark needs a light background |
+| `westpac.png` | 632×264 | transparent; the red "W" symbol on its own, cropped around it |
 | `anz.webp` | 632×356 | transparent |
 | `firstmac.png` | 300×102 | transparent; small, so keep it at or below about 100px tall |
 | `st-george.png` | 400×340 | white background. A stock-site copy whose fake transparency (a grey checkerboard in the pixels) was whitened; replace it with the official file from St.George's broker portal |
