@@ -63,6 +63,18 @@ The owner's accreditation, membership and award badges, saved unchanged for thei
 - **Check the year before using one.** The CommBank badge is for the 2026/2027 financial year and the awards badge for 2026. When a new one arrives, save it next to these with its own year in the name.
 - **These are other organisations' marks**, shown as the owner's credentials. Don't recolour, crop, redraw or animate their parts separately; fade, scale or slide each badge as a whole.
 
+## Lender logos: `public/lenders/`
+
+Logos of the lenders the owner is accredited with, so they are cleared to appear in the owner's videos; follow each lender's broker brand guidelines (clear space, minimum size, no recolouring). Show them with `LenderRow` from the brand kit, and add each new file to its `LENDERS` list.
+
+| File | Pixels | Notes |
+|---|---|---|
+| `anz.webp` | 632×356 | transparent |
+| `firstmac.png` | 300×102 | transparent; small, so keep it at or below about 100px tall |
+| `st-george.png` | 400×340 | white background. A stock-site copy whose fake transparency (a grey checkerboard in the pixels) was whitened; replace it with the official file from St.George's broker portal |
+
+Still missing: NAB (the copy received came from a stock-image site, with a checkerboard and a "cleanpng" watermark across the logo, so it wasn't saved) and an orange ribbon symbol whose lender wasn't named. Official files come from each lender's broker portal or brand team; SVG or transparent PNG is best.
+
 ## Brand kit: `src/brand/`
 
 Reusable pieces for the owner's real videos; start from these rather than writing new ones. Each animates its own entrance, so wrap it in a `<Sequence>` for timing. `BrandKitDemo` (in the "Brand" folder of the Studio, 1920×1080) shows them all with sample text.
@@ -70,6 +82,7 @@ Reusable pieces for the owner's real videos; start from these rather than writin
 - `BilingualCaption` (`vi`, `en`): Vietnamese main line and English line under it, following "Language" above.
 - `LowerThird` (`name`, `roleVi`, `roleEn`): a name with a bilingual role, sliding in from the left.
 - `BadgeRow` (`height`, at most 160): the five badges on a white card, the awards badge 1.5× taller so it stays readable.
+- `LenderRow` (`height`, at most 100): the lender logos from `public/lenders/` on a white card.
 - `EndCard` (`titleVi`, `titleEn`, `website`, `phone`): closing call to action with contact details and the badge row. There are no real contact details in the repo; pass them in.
 - `theme.ts`: placeholder colours; replace them with FinHub's brand guide when there is one.
 
@@ -88,6 +101,7 @@ If a second video project ever needs these, `remotion-dev/library-starter` is Re
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`: the showcase's sample media (regenerate with `node scripts/generate-sample-media.mjs`; `sample-clip.webm` is the VP9 copy for anything that decodes through WebCodecs), a font and a three.js typeface. What each file is for is in `docs/findings.md`.
 - `public/badges/` — the owner's accreditation and award badges for real videos (see "Badges and logos" above)
+- `public/lenders/` — logos of the lenders the owner is accredited with (see "Lender logos" above)
 - `.claude/elements/` — local copy of the [Remotion Elements](https://www.remotion.dev/elements/) gallery, drop-in components to copy into a scene (see "Elements" below)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
 

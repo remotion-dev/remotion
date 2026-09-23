@@ -1,6 +1,7 @@
 import {AbsoluteFill, Sequence} from "remotion";
 import {BilingualCaption} from "./BilingualCaption";
 import {EndCard} from "./EndCard";
+import {LenderRow} from "./LenderRow";
 import {LowerThird} from "./LowerThird";
 import {brand} from "./theme";
 
@@ -14,8 +15,11 @@ export const BrandKitDemo: React.FC = () => (
     <Sequence from={20} durationInFrames={60} name="Caption 1">
       <BilingualCaption vi="Chúng tôi giúp bạn so sánh các khoản vay mua nhà" en="We help you compare home loans" />
     </Sequence>
-    <Sequence from={80} durationInFrames={70} name="Caption 2">
-      <BilingualCaption vi="Từ hồ sơ đến ngày nhận nhà" en="From application to settlement" />
+    <Sequence from={80} durationInFrames={70} name="Lenders">
+      <AbsoluteFill style={{justifyContent: "center", alignItems: "center", paddingBottom: 200}}>
+        <LenderRow height={90} />
+      </AbsoluteFill>
+      <BilingualCaption vi="Chúng tôi làm việc với nhiều ngân hàng" en="We work with many lenders" />
     </Sequence>
     <Sequence from={150} name="End card">
       <EndCard titleVi="Liên hệ với chúng tôi" titleEn="Get in touch" website="[website]" phone="[phone]" />
