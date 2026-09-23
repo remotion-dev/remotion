@@ -22,6 +22,8 @@ import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 import {SkiaScene} from "./SkiaScene";
+import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
+import {SfxScene} from "./SfxScene";
 
 export const fullReelSchema = z.object({
   title: z.string(),
@@ -33,7 +35,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 16;
+const SCENE_COUNT = 18;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -60,8 +62,9 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
 // transcription (BrowserTranscriptionScene); @remotion/lottie (LottieScene);
 // @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three (ThreeScene);
-// @remotion/skia (SkiaScene); @remotion/gsap (GsapScene); core remotion
-// Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
+// @remotion/skia (SkiaScene); @remotion/layout-utils + @remotion/rounded-text-box
+// (RoundedTextBoxScene); @remotion/sfx (SfxScene); @remotion/gsap (GsapScene);
+// core remotion Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
 // @remotion/animation-utils + rough-notation (OutroScene).
 export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}) => {
   return (
@@ -131,6 +134,16 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
           <SkiaScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({direction: "from-bottom"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <RoundedTextBoxScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <SfxScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <GsapScene />
