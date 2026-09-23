@@ -33,7 +33,7 @@ import {
   yippee,
 } from "@remotion/sfx";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, useVideoConfig} from "remotion";
+import {AbsoluteFill, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -87,6 +87,7 @@ const SOUNDS = [
 // than assuming success, the same pattern as those scenes.
 export const SfxScene: React.FC = () => {
   const {width} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("checking sfx reachability", {timeoutInMilliseconds: 10000}));
   const [status, setStatus] = useState<Status>("checking");
 
@@ -104,7 +105,7 @@ export const SfxScene: React.FC = () => {
         cancelRender(err);
       }
     })();
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   const line = (() => {
     switch (status) {

@@ -36,6 +36,7 @@ import {ThreeScene} from "./ThreeScene";
 import {ThreeTextScene} from "./ThreeTextScene";
 import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
+import {InterpolateScene} from "./InterpolateScene";
 import {OutroScene} from "./OutroScene";
 import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
@@ -60,7 +61,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 22;
+const SCENE_COUNT = 23;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -75,7 +76,10 @@ export const calculateFullReelMetadata: CalculateMetadataFunction<FullReelProps>
 };
 
 const t = linearTiming({durationInFrames: TRANSITION_DURATION});
-const springT = springTiming({config: {damping: 200}});
+// Pinned to TRANSITION_DURATION: left to settle naturally, a damping: 200
+// spring takes ~23 frames, which the duration formula above doesn't account
+// for — the reel used to end on 8 blank frames because of it.
+const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITION_DURATION});
 
 // The single, complete demo reel: every scene from ShowcaseReel and
 // ExtendedReel combined into one video (one title, one outro — the two
@@ -89,7 +93,7 @@ const springT = springTiming({config: {damping: 200}});
 // blurSlide are ALL built with makeHtmlInCanvasPresentation() internally,
 // so every one of them is wrapped in the same isSupported()-gated fallback
 // to fade() as the iris-wipe (see htmlInCanvasPresentation.ts) rather than
-// throwing where HtmlInCanvas isn't supported. ~25.5s covering: spring
+// throwing where HtmlInCanvas isn't supported. ~46.5s covering: spring
 // animation, staggered text, rough-notation highlights, and
 // useTransitionProgress() reacting to its own exit transition (TitleScene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
@@ -108,7 +112,8 @@ const springT = springTiming({config: {damping: 200}});
 // (SfxScene); @remotion/gsap (GsapScene); core remotion media/canvas
 // components (CoreMediaScene); core remotion environment/introspection APIs
 // (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
-// random() (FundamentalsScene); @remotion/animation-utils + rough-notation
+// random() (FundamentalsScene); every interpolate() option and its exported
+// validators (InterpolateScene); @remotion/animation-utils + rough-notation
 // (OutroScene).
 export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor, logoMatrix}) => {
   return (
@@ -220,6 +225,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <FundamentalsScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-left"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <InterpolateScene />
         </TransitionSeries.Sequence>
         {/* springTiming() instead of linearTiming() -- any presentation can
             take either timing function; this one just demonstrates it. */}

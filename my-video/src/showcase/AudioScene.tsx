@@ -14,11 +14,9 @@ import {useEffect, useState} from "react";
 import {
   AbsoluteFill,
   Html5Audio,
-  cancelRender,
-  continueRender,
-  delayRender,
   staticFile,
   useCurrentFrame,
+  useDelayRender,
   useVideoConfig,
 } from "remotion";
 import {palette} from "./palette";
@@ -65,6 +63,7 @@ export const AudioScene: React.FC = () => {
   // above -- same decode, but callable outside a component's render (a
   // preprocessing script, for example) rather than tied to a frame.
   const [audioDataDirect, setAudioDataDirect] = useState<Awaited<ReturnType<typeof getAudioData>> | null>(null);
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("loading media-utils extras"));
   // The sample rate Remotion's audio pipeline will actually resample to for
   // this render (48kHz by default, or Config.setAudioSampleRate()'s value).
@@ -87,7 +86,7 @@ export const AudioScene: React.FC = () => {
         cancelRender(err);
       }
     })();
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   const waveform = windowedAudioData
     ? visualizeAudioWaveform({

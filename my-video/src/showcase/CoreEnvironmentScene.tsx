@@ -2,19 +2,23 @@ import {useEffect, useState} from "react";
 import {
   AbsoluteFill,
   Artifact,
+  Experimental,
   Interactive,
   VERSION,
   getInputProps,
   getRemotionEnvironment,
+  getStaticFiles,
   interpolateColors,
   measureSpring,
   prefetch,
   staticFile,
+  useBufferState,
   useCurrentFrame,
   useCurrentScale,
   usePixelDensity,
   useRemotionEnvironment,
   useVideoConfig,
+  watchStaticFile,
 } from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
@@ -29,6 +33,16 @@ import {poppins} from "./font";
 // file alongside the video on frame 0). Interactive.Div/Span wrap the
 // heading purely to exercise that API — see interactive.mdx.
 //
+// Also: getStaticFiles() lists public/ at runtime; watchStaticFile()
+// subscribes to edits of one file but is a no-op (plus a console warning)
+// anywhere except the Studio, so its change counter only moves there;
+// useBufferState().delayPlayback() holds Studio/Player playback while the
+// prefetch above is in flight (it's a deliberate no-op during a CLI render,
+// so it can't stall one); Experimental.useIsPlayer() reports whether this
+// tree is inside <Player>. getStaticFiles()/watchStaticFile() move to
+// @remotion/studio in v5. Experimental.Clipper/Null are not used: both are
+// removed-API stubs that unconditionally throw (see AGENTS.md).
+//
 // Interactive.withSchema() is intentionally not used here: it's a
 // component-authoring API for building reusable Studio-integrated
 // component libraries (see @remotion/skia's SkiaCanvas-style components),
@@ -40,12 +54,28 @@ export const CoreEnvironmentScene: React.FC = () => {
   const pixelDensity = usePixelDensity({dontThrowIfOutsideOfRemotion: true});
   const environment = useRemotionEnvironment();
   const [inputProps] = useState(() => getInputProps());
+  const [staticFiles] = useState(() => getStaticFiles());
+  const [watchedChanges, setWatchedChanges] = useState(0);
   const [prefetchStatus, setPrefetchStatus] = useState<"loading" | "ready">("loading");
+  const buffer = useBufferState();
+  const isPlayer = Experimental.useIsPlayer();
 
   useEffect(() => {
+    const playback = buffer.delayPlayback();
     const {free, waitUntilDone} = prefetch(staticFile("sample-clip.mp4"), {method: "blob-url"});
-    waitUntilDone().then(() => setPrefetchStatus("ready"));
-    return () => free();
+    waitUntilDone().then(() => {
+      playback.unblock();
+      setPrefetchStatus("ready");
+    });
+    return () => {
+      playback.unblock();
+      free();
+    };
+  }, [buffer]);
+
+  useEffect(() => {
+    const {cancel} = watchStaticFile(staticFile("sample-clip.mp4"), () => setWatchedChanges((n) => n + 1));
+    return cancel;
   }, []);
 
   const settleFrames = measureSpring({fps, config: {damping: 200}});
@@ -57,7 +87,10 @@ export const CoreEnvironmentScene: React.FC = () => {
     `getInputProps(): ${JSON.stringify(inputProps)}`,
     `useCurrentScale(): ${scale.toFixed(2)} · usePixelDensity(): ${pixelDensity.toFixed(2)}`,
     `measureSpring({damping: 200}) settles in ${settleFrames} frames`,
-    `prefetch(sample-clip.mp4): ${prefetchStatus}`,
+    `prefetch(sample-clip.mp4): ${prefetchStatus} · useBufferState(): playback ${prefetchStatus === "ready" ? "released" : "held"}`,
+    `getStaticFiles(): ${staticFiles.length} files in public/ (${staticFiles.slice(0, 2).map((f) => f.name).join(", ")}, …)`,
+    `watchStaticFile(sample-clip.mp4): ${environment.isStudio ? `watching, ${watchedChanges} edits seen` : "no-op outside the Studio"}`,
+    `Experimental.useIsPlayer(): ${String(isPlayer)}`,
   ];
 
   return (

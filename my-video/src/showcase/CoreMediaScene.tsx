@@ -2,10 +2,12 @@ import {
   AbsoluteFill,
   AnimatedImage,
   CanvasImage,
+  HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
   HtmlInCanvas,
   IFrame,
   Img,
   OffthreadVideo,
+  isHtmlInCanvasSupported,
   staticFile,
   useVideoConfig,
 } from "remotion";
@@ -33,9 +35,13 @@ const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, chil
 // to useCurrentFrame() rather than looping on its own like a plain <img>
 // would), <CanvasImage> with a custom createEffect() filter
 // (sepia-effect.ts) applied, and <IFrame> pointed at a local data: URL so
-// it needs no network. <HtmlInCanvas> is checked with
-// HtmlInCanvas.isSupported() rather than assumed — it needs Chrome 149+
-// with a flag enabled, which this sandbox's headless Chromium predates.
+// it needs no network. <HtmlInCanvas> is checked with the standalone
+// isHtmlInCanvasSupported() (the same function as HtmlInCanvas.isSupported())
+// rather than assumed — it needs a recent Chrome with a flag enabled, which
+// this sandbox's headless Chromium 141 predates. When it's unsupported the
+// tile shows HTML_IN_CANVAS_UNSUPPORTED_MESSAGE, the exact text <HtmlInCanvas>
+// would cancel the render with. That message says Chrome 148 while the docs
+// and html-in-canvas.md say 149 — an inconsistency in Remotion itself.
 //
 // <Html5Video> (the native <video> element Remotion synchronizes, distinct
 // from @remotion/media's newer WebCodecs-based <Video>) is deliberately not
@@ -51,7 +57,7 @@ const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, chil
 // MediaScene.
 export const CoreMediaScene: React.FC = () => {
   const {width} = useVideoConfig();
-  const htmlInCanvasSupported = HtmlInCanvas.isSupported();
+  const htmlInCanvasSupported = isHtmlInCanvasSupported();
 
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins, flexDirection: "column", alignItems: "center", paddingTop: 48}}>
@@ -91,7 +97,7 @@ export const CoreMediaScene: React.FC = () => {
         <Tile label="<IFrame> (local data: URL)">
           <IFrame src={`data:text/html,${encodeURIComponent(IFRAME_CONTENT)}`} style={{width: "100%", height: "100%", border: "none"}} />
         </Tile>
-        <Tile label={`<HtmlInCanvas> (${htmlInCanvasSupported ? "supported" : "needs Chrome 149+"})`}>
+        <Tile label={`<HtmlInCanvas> (${htmlInCanvasSupported ? "supported" : "unsupported here"})`}>
           {htmlInCanvasSupported ? (
             <HtmlInCanvas width={TILE} height={TILE}>
               <div style={{fontSize: 24, color: palette.text, display: "flex", alignItems: "center", justifyContent: "center", height: "100%"}}>
@@ -107,12 +113,13 @@ export const CoreMediaScene: React.FC = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 color: palette.textDim,
-                fontSize: 16,
+                fontSize: 11,
+                lineHeight: 1.35,
                 textAlign: "center",
                 padding: 12,
               }}
             >
-              Falls back gracefully
+              {HTML_IN_CANVAS_UNSUPPORTED_MESSAGE}
             </div>
           )}
         </Tile>

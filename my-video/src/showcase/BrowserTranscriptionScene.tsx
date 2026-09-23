@@ -13,7 +13,7 @@ import {
   transcribe,
 } from "@remotion/whisper-webgpu";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, staticFile, useVideoConfig} from "remotion";
+import {AbsoluteFill, staticFile, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -42,6 +42,7 @@ type Status =
 // fail here since no model loaded.
 export const BrowserTranscriptionScene: React.FC = () => {
   const {width} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("checking whisper-webgpu support", {timeoutInMilliseconds: 20000}));
   const [status, setStatus] = useState<Status>({state: "checking"});
 
@@ -94,7 +95,7 @@ export const BrowserTranscriptionScene: React.FC = () => {
         cancelRender(err);
       }
     })();
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   const line = (() => {
     switch (status.state) {

@@ -1,6 +1,6 @@
 import {ThreeCanvas} from "@remotion/three";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
+import {AbsoluteFill, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from "remotion";
 import {FontLoader, type Font} from "three-stdlib";
 import {palette} from "./palette";
 import {poppins} from "./font";
@@ -22,6 +22,7 @@ import {ThreeTextMesh} from "./ThreeTextMesh";
 export const ThreeTextScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, width} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("loading Rubik Bold three.js typeface"));
   const [font, setFont] = useState<Font | null>(null);
 
@@ -33,7 +34,7 @@ export const ThreeTextScene: React.FC = () => {
         continueRender(handle);
       })
       .catch((err) => cancelRender(err));
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   return (
     <AbsoluteFill style={{background: "#0b1120", fontFamily: poppins}}>

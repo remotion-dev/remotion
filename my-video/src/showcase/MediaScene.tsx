@@ -3,7 +3,7 @@ import {MacOSCursor, macOSCursorNames, macOSCursorSchema, resolveCursor} from "@
 import {Video} from "@remotion/media";
 import {preloadAudio, preloadFont, preloadImage, preloadVideo, resolveRedirect} from "@remotion/preload";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, interpolate, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
+import {AbsoluteFill, interpolate, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -20,6 +20,7 @@ import {poppins} from "./font";
 export const MediaScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("preloading gif + reading its duration"));
   const [gifDuration, setGifDuration] = useState<number | null>(null);
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export const MediaScene: React.FC = () => {
       }
     })();
     return () => free();
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   useEffect(() => {
     const unpreload = [
