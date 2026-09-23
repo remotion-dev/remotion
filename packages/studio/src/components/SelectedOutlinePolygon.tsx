@@ -1,7 +1,4 @@
-import {
-	CanvasOutlinePolygon,
-	handleCanvasOutlinePointerDown,
-} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import React, {useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -62,6 +59,8 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+
+const {CanvasOutlinePolygon, handleCanvasOutlinePointerDown} = CanvasInternals;
 
 export const SELECTED_OUTLINE_KEY_ATTR =
 	'data-remotion-studio-selected-outline-key';

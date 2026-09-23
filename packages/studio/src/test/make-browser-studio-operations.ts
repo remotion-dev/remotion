@@ -16,6 +16,7 @@ export const makeBrowserStudioOperations = (
 		downloadProject: () => unusedOperation('downloadProject'),
 		duplicateComposition: () => unusedOperation('duplicateComposition'),
 		duplicateJsxNode: () => unusedOperation('duplicateJsxNode'),
+		wrapJsxNode: () => unusedOperation('wrapJsxNode'),
 		effects: {
 			addEffect: () => unusedOperation('effects'),
 			deleteEffects: () => unusedOperation('effects'),
@@ -54,7 +55,6 @@ export const makeBrowserStudioOperations = (
 		splitJsxSequence: () => unusedOperation('splitJsxSequence'),
 		splitVideoFromAudio: () => unusedOperation('splitVideoFromAudio'),
 		insertBasicCaptions: () => unusedOperation('insertBasicCaptions'),
-		insertVideoLayers: () => unusedOperation('insertVideoLayers'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
 		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),

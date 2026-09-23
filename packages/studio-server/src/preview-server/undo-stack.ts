@@ -40,10 +40,11 @@ type UndoEntryType =
 	| 'reorder-sequence'
 	| 'delete-jsx-nodes'
 	| 'duplicate-jsx-node'
+	| 'wrap-jsx-node'
 	| 'split-jsx-sequence'
 	| 'split-video-from-audio'
 	| 'insert-basic-captions'
-	| 'insert-video-layers'
+	| 'replace-video-source'
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
@@ -622,6 +623,25 @@ export function getUndoStack(): readonly UndoEntry[] {
 
 export function getRedoStack(): readonly UndoEntry[] {
 	return redoStack;
+}
+
+export function discardLastUndoEntryAfterFailedCommit() {
+	const entry = undoStack.pop();
+	if (!entry) {
+		return;
+	}
+
+	for (const filePath of getEntryFilePaths(entry)) {
+		const count = suppressedWrites.get(filePath) ?? 0;
+		if (count <= 1) {
+			suppressedWrites.delete(filePath);
+		} else {
+			suppressedWrites.set(filePath, count - 1);
+		}
+	}
+
+	cleanupWatchers();
+	broadcastState();
 }
 
 export function clearUndoStackForTests() {

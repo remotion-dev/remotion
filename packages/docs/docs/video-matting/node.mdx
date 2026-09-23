@@ -14,17 +14,11 @@ Register [`@mediabunny/server`](https://mediabunny.dev/guide/extensions/server) 
 
 <Installation pkg="@remotion/video-matting @huggingface/transformers mediabunny @mediabunny/server" />
 
-## Example
+## Setup
 
-```ts twoslash title="separate-video.ts"
+```ts twoslash title="video-matting-setup.ts"
 import {registerMediabunnyServer} from '@mediabunny/server';
-import {
-  canUseVideoMatting,
-  downloadVideoMattingModel,
-  loadVideoMattingModel,
-  separateVideoLayers,
-} from '@remotion/video-matting';
-import {writeFile} from 'node:fs/promises';
+import {canUseVideoMatting} from '@remotion/video-matting';
 
 registerMediabunnyServer();
 
@@ -34,26 +28,6 @@ if (!support.supported) {
   throw new Error(support.detailedReason);
 }
 
-await downloadVideoMattingModel({model});
-
-// In long-running apps, put this code in an async function so resources
-// are released when that function finishes.
-await using modelHandle = await loadVideoMattingModel({model});
-await using layers = await separateVideoLayers({
-  src: './input.mp4',
-  model,
-  audio: 'base',
-  onProgress: ({processedFrames}) => console.log(processedFrames),
-});
-
-await writeFile(
-  'base.webm',
-  new Uint8Array(await (await layers.base.getBlob()).arrayBuffer()),
-);
-await writeFile(
-  'foreground.webm',
-  new Uint8Array(await (await layers.foreground.getBlob()).arrayBuffer()),
-);
 ```
 
 [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) accepts local file paths, `file:` URLs, remote URLs, and `Blob` inputs. Outputs are held in memory by default. Use `outputWritable` to stream large outputs; handle each chunk's `position` because writes are not necessarily append-only.

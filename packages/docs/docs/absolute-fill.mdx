@@ -51,6 +51,8 @@ The layers that get rendered last appear on top - this is because of how HTML wo
 
 `<AbsoluteFill>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
+From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
+
 ```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
 import {AbsoluteFill} from 'remotion';
 

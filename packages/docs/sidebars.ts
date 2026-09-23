@@ -830,6 +830,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
+				'studio-protocol/static-file-ref',
 				'studio-protocol/build-open-in-remotion-new-url',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
@@ -2041,6 +2042,28 @@ const sidebars: SidebarsConfig = {
 				'browser-bundler/create-browser-bundle-runtime',
 				'browser-bundler/get-browser-composition',
 				'browser-bundler/create-browser-composition-observer',
+			],
+		},
+	],
+	canvasSidebar: [
+		{
+			type: 'category',
+			label: '@remotion/canvas',
+			link: {
+				type: 'doc',
+				id: 'canvas/index',
+			},
+			items: [
+				'canvas/canvas',
+				'canvas/create-canvas-controller',
+				'canvas/use-canvas-controller',
+				'canvas/create-canvas-selection-controller',
+				'canvas/create-canvas-hover-controller',
+				'canvas/use-canvas-selection',
+				'canvas/use-canvas-sequence-hover',
+				'canvas/use-canvas-hover',
+				'canvas/get-canvas-sequence-node-path-info',
+				'canvas/get-canvas-selection-item-key',
 			],
 		},
 	],

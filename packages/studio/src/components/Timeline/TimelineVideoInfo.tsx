@@ -18,6 +18,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
+import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
@@ -108,7 +109,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		}
 
 		const controller = new AbortController();
-		const pixelRatio = window.devicePixelRatio;
+		const pixelRatio = getStudioPixelRatio();
 
 		const canvas = document.createElement('canvas');
 		canvas.width = Math.ceil(visualizationWidth * pixelRatio);

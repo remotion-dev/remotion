@@ -1,7 +1,4 @@
-import {
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import type {TimelineTrackData} from '@remotion/canvas';
 import React, {
 	useCallback,
@@ -91,6 +88,8 @@ import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
+
+const {getTimelineVisibleDuration, getTimelineVisibleStart} = CanvasInternals;
 
 const TimelineSequenceFn: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
@@ -1109,6 +1108,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceLeftEdgeDragHandle
+							cursor={isCascadingSequence(s) ? 'ew-resize' : 'e-resize'}
 							nodePathInfo={nodePathInfo}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
@@ -1122,6 +1122,7 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
+							cursor={isCascadingSequence(s) ? 'ew-resize' : 'w-resize'}
 							nodePathInfo={nodePathInfo}
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}

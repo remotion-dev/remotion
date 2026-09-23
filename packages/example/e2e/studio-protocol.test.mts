@@ -53,6 +53,12 @@ test('installs an Element from a website into a clean Studio project', async ({
 	const temporaryProject = fs.mkdtempSync(
 		path.join(os.tmpdir(), 'remotion-studio-protocol-'),
 	);
+	const installedAsset = path.join(
+		temporaryProject,
+		'public',
+		'protocol-element',
+		'data.bin',
+	);
 	fs.cpSync(path.join(packagesDirectory, 'template-blank'), temporaryProject, {
 		recursive: true,
 	});
@@ -168,6 +174,11 @@ const CloseupPlaceholder = () => {
 		path.join(packagesDirectory, 'studio-protocol', 'dist', 'esm', 'index.mjs'),
 		'utf8',
 	);
+	const protocolElementSource = `export const ProtocolElement = ({assetSrc}: {assetSrc: string}) => (
+	<div data-asset={assetSrc}>
+		Installed through protocol
+	</div>
+);`;
 	const senderServer = createServer((request, response) => {
 		if (request.url === '/protocol.js') {
 			response.writeHead(200, {'Content-Type': 'text/javascript'});
@@ -183,15 +194,21 @@ const CloseupPlaceholder = () => {
 			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {addElementLibraryToStudio, createElementPayload, installInStudio, isInsideStudio, setStudioDragData, StudioProtocolInternals} from '/protocol.js';
+				import {addElementLibraryToStudio, createElementPayload, staticFileRef, installInStudio, isInsideStudio, setStudioDragData, StudioProtocolInternals} from '/protocol.js';
 				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
-					sourceCode: 'export const ProtocolElement = () => <div>Installed through protocol</div>;',
+					sourceCode: ${JSON.stringify(protocolElementSource)},
 					dependencies: [],
 					dimensions: {width: 640, height: 120},
 					durationInFrames: 30,
+					initialProps: {assetSrc: staticFileRef('protocol-element/data.bin')},
+					assets: [{
+						path: 'protocol-element/data.bin',
+						type: 'base64',
+						data: 'AAEC',
+					}],
 				});
 				const dragHandle = document.createElement('div');
 				dragHandle.id = 'drag-element';
@@ -379,6 +396,14 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
+		await dialog.getByRole('button', {name: 'Cancel'}).click();
+		expect(fs.existsSync(installedAsset)).toBe(false);
+		await browseElements.click();
+		await expect(externalLibraryItem).toBeVisible();
+		await externalLibraryItem.click();
+		await expect(elementsIframe).toBeVisible();
+		await installInStudio.click();
+		await expect(dialog).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
 			name: 'Current composition',
 		});
@@ -440,17 +465,16 @@ const CloseupPlaceholder = () => {
 			'protocol-element.element.tsx',
 		);
 		await waitForFile(elementFile);
-		expect(fs.readFileSync(elementFile, 'utf8')).toContain(
-			'export const ProtocolElement',
-		);
+		const installedElementSource = fs.readFileSync(elementFile, 'utf8');
+		expect(installedElementSource).toBe(protocolElementSource);
 		const compositionSource = fs.readFileSync(
 			path.join(temporaryProject, 'src', 'Composition.tsx'),
 			'utf8',
 		);
-		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 		expect(compositionSource).toMatch(
-			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s*\/>\s*<\/Sequence>/,
+			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s+assetSrc=\{staticFile\(["']protocol-element\/data\.bin["']\)\}\s*\/>\s*<\/Sequence>/,
 		);
 
 		const suppliedSource = fs.readFileSync(elementFile, 'utf8');
@@ -802,6 +826,7 @@ const CloseupPlaceholder = () => {
 		expect(
 			fs.readFileSync(path.join(closeupDirectory, 'Closeup.tsx'), 'utf8'),
 		).not.toContain('id="ProtocolElementScene"');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.getByRole('button', {name: /^Redo/}).click();
 		await expect(studioPage).toHaveURL(`${studioUrl}/ProtocolElementScene`, {
@@ -819,6 +844,7 @@ const CloseupPlaceholder = () => {
 		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
 			'export const ProtocolElement',
 		);
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.bringToFront();
 		await studioPage.keyboard.press('Escape');

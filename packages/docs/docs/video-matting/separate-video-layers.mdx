@@ -8,24 +8,7 @@ crumb: '@remotion/video-matting'
 
 Separates a video into an opaque base WebM and a foreground WebM with alpha.
 
-```ts twoslash title="separate-video.ts"
-import {downloadVideoMattingModel, separateVideoLayers} from '@remotion/video-matting';
-
-await downloadVideoMattingModel({model: 'modnet'});
-const file = new File([], 'input.mp4');
-
-await using result = await separateVideoLayers({
-  src: file,
-  model: 'modnet',
-  audio: 'base',
-  onProgress: (progress) => {
-    console.log(progress);
-  },
-});
-
-const baseBlob = await result.base.getBlob();
-const foregroundBlob = await result.foreground.getBlob();
-```
+The downloaded model is loaded automatically if needed. Call [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first to cache the model files.
 
 Place inserted content between the base and foreground. The base remains opaque and includes the original subject; the foreground repeats the subject with alpha so it appears in front of the inserted content.
 

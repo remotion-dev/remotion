@@ -1,6 +1,11 @@
 import {Map as MapTilerMap, MapStyle, type MapOptions} from '@maptiler/sdk';
+import type {
+	ComponentType,
+	CSSProperties,
+	ForwardRefRenderFunction,
+	ReactNode,
+} from 'react';
 import '@maptiler/sdk/style.css';
-import type {ComponentType, ForwardRefRenderFunction, ReactNode} from 'react';
 import {
 	forwardRef,
 	useEffect,
@@ -11,8 +16,11 @@ import {
 } from 'react';
 import {
 	Interactive,
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	useDelayRender,
@@ -39,30 +47,31 @@ export type MapViewportMapOptions = Omit<
 
 export type MapAdministrativeBorders = 'all' | 'country-only' | 'none';
 
-export type MapViewportProps = InteractiveBaseProps & {
-	readonly apiKey: string | null;
-	readonly backgroundColor?: string;
-	readonly bearing?: number;
-	readonly centerLatitude?: number;
-	readonly centerLongitude?: number;
-	readonly children?: ReactNode;
-	readonly controls?: SequenceControls;
-	readonly language?: MapOptions['language'];
-	readonly mapOptions?: MapViewportMapOptions;
-	readonly mapStyle?: MapOptions['style'];
-	readonly onMapReady?: (map: MapTilerMap) => void;
-	readonly paddingBottom?: number;
-	readonly paddingLeft?: number;
-	readonly paddingRight?: number;
-	readonly paddingTop?: number;
-	readonly pitch?: number;
-	readonly projection?: MapOptions['projection'];
-	readonly showLabels?: boolean;
-	readonly administrativeBorders?: MapAdministrativeBorders;
-	readonly terrain?: boolean;
-	readonly terrainExaggeration?: number;
-	readonly zoom?: number;
-};
+export type MapViewportProps = InteractiveBaseProps &
+	InteractivePremountProps & {
+		readonly apiKey: string | null;
+		readonly backgroundColor?: string;
+		readonly bearing?: number;
+		readonly centerLatitude?: number;
+		readonly centerLongitude?: number;
+		readonly children?: ReactNode;
+		readonly controls?: SequenceControls;
+		readonly language?: MapOptions['language'];
+		readonly mapOptions?: MapViewportMapOptions;
+		readonly mapStyle?: MapOptions['style'];
+		readonly onMapReady?: (map: MapTilerMap) => void;
+		readonly paddingBottom?: number;
+		readonly paddingLeft?: number;
+		readonly paddingRight?: number;
+		readonly paddingTop?: number;
+		readonly pitch?: number;
+		readonly projection?: MapOptions['projection'];
+		readonly showLabels?: boolean;
+		readonly administrativeBorders?: MapAdministrativeBorders;
+		readonly terrain?: boolean;
+		readonly terrainExaggeration?: number;
+		readonly zoom?: number;
+	};
 
 const stripStyleLayers = ({
 	administrativeBorders,
@@ -88,6 +97,7 @@ const stripStyleLayers = ({
 
 const mapViewportSchema = {
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	centerLongitude: {
 		type: 'number',
 		min: -180,
@@ -209,12 +219,15 @@ const MissingApiKey = () => {
 	);
 };
 
-const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
+const MapViewportContentRefForwardingFunction: ForwardRefRenderFunction<
 	HTMLDivElement,
-	MapViewportProps
+	MapViewportProps & {
+		readonly premountingStyle: CSSProperties | null;
+	}
 > = (
 	{
 		apiKey,
+		premountingStyle,
 		backgroundColor = '#dfe7e2',
 		bearing = 0,
 		centerLatitude = 0,
@@ -234,16 +247,7 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		administrativeBorders = 'all',
 		terrain = false,
 		terrainExaggeration = 1,
-		durationInFrames,
-		from,
-		trimBefore,
-		playbackRate,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
 		zoom = 4,
-		controls,
 	},
 	ref,
 ) => {
@@ -509,45 +513,103 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 	}, [map, projection]);
 
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MapViewport>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
+		<div
+			ref={viewportRef}
+			style={{
+				backgroundColor,
+				inset: 0,
+				overflow: 'hidden',
+				position: 'absolute',
+				...premountingStyle,
+			}}
 		>
-			<div
-				ref={viewportRef}
-				style={{
-					backgroundColor,
-					inset: 0,
-					overflow: 'hidden',
-					position: 'absolute',
-				}}
+			{apiKey ? (
+				<>
+					<div
+						ref={mapContainerRef}
+						style={{
+							inset: 0,
+							position: 'absolute',
+						}}
+					/>
+					<MapTilerContext.Provider value={contextValue}>
+						{children}
+					</MapTilerContext.Provider>
+				</>
+			) : (
+				<MissingApiKey />
+			)}
+		</div>
+	);
+};
+
+const MapViewportContent = forwardRef(MapViewportContentRefForwardingFunction);
+const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
+	HTMLDivElement,
+	MapViewportProps
+> = (
+	{
+		durationInFrames,
+		from,
+		trimBefore,
+		playbackRate,
+		freeze,
+		hidden,
+		name,
+		showInTimeline,
+		controls,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
+		...props
+	},
+	ref,
+) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
+
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				durationInFrames={durationInFrames}
+				from={from}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline}
+				controls={controls}
+				name={name ?? '<MapViewport>'}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				{apiKey ? (
-					<>
-						<div
-							ref={mapContainerRef}
-							style={{
-								inset: 0,
-								position: 'absolute',
-							}}
-						/>
-						<MapTilerContext.Provider value={contextValue}>
-							{children}
-						</MapTilerContext.Provider>
-					</>
-				) : (
-					<MissingApiKey />
-				)}
-			</div>
-		</Sequence>
+				<MapViewportContent
+					{...props}
+					ref={ref}
+					premountingStyle={premountingStyle}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 

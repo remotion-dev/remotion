@@ -1,4 +1,4 @@
-import {useCanvasOutlines} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import React, {
 	useCallback,
 	useContext,
@@ -33,6 +33,8 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+
+const {useCanvasOutlines} = CanvasInternals;
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',

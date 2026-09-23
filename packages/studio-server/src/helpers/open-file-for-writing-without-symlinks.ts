@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const assertNoSymlinks = ({
+export const assertNoSymlinks = ({
 	rootDirectory,
 	absolutePath,
 }: {
@@ -40,9 +40,11 @@ const assertNoSymlinks = ({
 export const openFileForWritingWithoutSymlinks = ({
 	rootDirectory,
 	absolutePath,
+	exclusive,
 }: {
 	rootDirectory: string;
 	absolutePath: string;
+	exclusive: boolean;
 }) => {
 	const resolvedRootDirectory = path.resolve(rootDirectory);
 	const resolvedAbsolutePath = path.resolve(absolutePath);
@@ -59,10 +61,12 @@ export const openFileForWritingWithoutSymlinks = ({
 
 	const flags =
 		process.platform === 'win32'
-			? 'w'
+			? exclusive
+				? 'wx'
+				: 'w'
 			: fs.constants.O_CREAT |
 				fs.constants.O_WRONLY |
-				fs.constants.O_TRUNC |
+				(exclusive ? fs.constants.O_EXCL : fs.constants.O_TRUNC) |
 				fs.constants.O_NOFOLLOW;
 
 	return fs.openSync(resolvedAbsolutePath, flags);

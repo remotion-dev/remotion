@@ -5,15 +5,20 @@ import {
 } from '@maptiler/sdk';
 import {useContext, useEffect, useRef} from 'react';
 import {
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
 import {delayMapRender} from './delay-map-render';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapPointProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<PointLayerOptions, 'layerId' | 'sourceId'> & {
 		readonly controls?: SequenceControls;
 		readonly layerId: string;
@@ -54,6 +59,11 @@ const MapPointDrawing = ({
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
 	const layerIdsRef = useRef<MapPointLayerIds | null>(null);
+	const applyPremountVisibility = useMapPremounting(() =>
+		Object.entries(layerIdsRef.current ?? {})
+			.filter(([key]) => key.endsWith('LayerId'))
+			.map(([, value]) => value),
+	);
 	const optionsRef = useRef<PointLayerOptions | null>(null);
 	const outlineColorIsDynamic = typeof outlineColor === 'string';
 	const outlineOpacityIsDynamic = typeof outlineOpacity === 'number';
@@ -126,6 +136,7 @@ const MapPointDrawing = ({
 		};
 
 		layerIdsRef.current = helpers.addPoint(map, optionsRef.current);
+		applyPremountVisibility();
 		map.once('idle', finish);
 		map.triggerRepaint();
 
@@ -154,7 +165,15 @@ const MapPointDrawing = ({
 			layerIdsRef.current = null;
 			map.triggerRepaint();
 		};
-	}, [continueRender, delayRender, layerId, map, structuralKey, styleRevision]);
+	}, [
+		applyPremountVisibility,
+		continueRender,
+		delayRender,
+		layerId,
+		map,
+		structuralKey,
+		styleRevision,
+	]);
 
 	useEffect(() => {
 		if (!map || typeof data === 'string') {
@@ -261,6 +280,8 @@ export const MapPoint = (props: MapPointProps) => {
 		durationInFrames,
 		freeze,
 		from,
+		premountFor,
+		postmountFor,
 		hidden,
 		name,
 		showInTimeline,
@@ -268,20 +289,43 @@ export const MapPoint = (props: MapPointProps) => {
 		playbackRate,
 	} = props;
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			playbackRate={playbackRate}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MapPoint>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-		>
-			<MapPointDrawing {...props} />
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<MapPoint>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapPointDrawing {...props} />
+			</Sequence>
+		</Freeze>
 	);
 };

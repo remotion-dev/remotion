@@ -66,10 +66,9 @@ const mattingJob: VideoMattingJob = {
 	startedAt: 0,
 	src: '/video.mp4',
 	displayName: 'video.mp4',
-	baseOutName: 'video-base.webm',
-	foregroundOutName: 'video-foreground.webm',
+	outName: 'video-no-background.webm',
 	model: 'ben2-base',
-	audio: 'base',
+	audio: 'keep',
 	videoBitrate: 'medium',
 	target: null,
 	status: 'failed',
@@ -142,7 +141,7 @@ test('opens and copies transcription and video matting errors', async () => {
 
 	fireEvent.click(screen.getByRole('button', {name: mattingJob.error.message}));
 	const mattingDialog = screen.getByRole('dialog', {
-		name: 'Video matting failed',
+		name: 'Background removal failed',
 	});
 	expect(mattingDialog.textContent).toContain(
 		`${mattingJob.error.message}\n${mattingJob.error.stack}`,
