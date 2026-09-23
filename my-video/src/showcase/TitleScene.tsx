@@ -9,8 +9,8 @@ export type TitleSceneProps = {
   readonly subtitle: string;
 };
 
-// Demonstrates: spring() entrances, per-word staggered interpolate(), an
-// animated rough-notation highlight synced to useCurrentFrame(), and
+// Demonstrates: spring() entrances, per-word staggered interpolate(),
+// animated rough-notation highlights synced to useCurrentFrame(), and
 // @remotion/transitions' useTransitionProgress() -- read inside a child of
 // <TransitionSeries.Sequence> to directly manipulate the scene beyond what
 // its Transition's presentation itself does, here a slight extra shrink as
@@ -30,6 +30,7 @@ export const TitleScene: React.FC<TitleSceneProps> = ({title, subtitle}) => {
 
   const words = subtitle.split(" ");
   const highlightIndex = words.findIndex((word) => word.toLowerCase() === "every");
+  const lastIndex = words.length - 1;
 
   return (
     <AbsoluteFill
@@ -65,20 +66,29 @@ export const TitleScene: React.FC<TitleSceneProps> = ({title, subtitle}) => {
             extrapolateRight: "clamp",
           });
 
-          const content =
-            i === highlightIndex ? (
-              <Highlight
-                color="rgba(99, 102, 241, 0.55)"
-                progress={interpolate(frame, [delay + 10, delay + 30], [0, 1], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                })}
-              >
-                {word}
-              </Highlight>
-            ) : (
-              word
-            );
+          // Every word is wrapped, and `disabled` switches the marker off
+          // for all but two, so each word has the same structure. The last
+          // word is marked right-to-left (`rtl`). Disabled ones are kept out
+          // of the Studio timeline; the two live ones get a readable `name`.
+          const highlighted = i === highlightIndex || i === lastIndex;
+          const content = (
+            <Highlight
+              color={i === lastIndex ? "rgba(34, 211, 238, 0.4)" : "rgba(99, 102, 241, 0.55)"}
+              disabled={!highlighted}
+              rtl={i === lastIndex}
+              iterations={1}
+              roughness={2}
+              padding={{left: 4, right: 4}}
+              name={`Highlight "${word}"`}
+              showInTimeline={highlighted}
+              progress={interpolate(frame, [delay + 10, delay + 30], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              })}
+            >
+              {word}
+            </Highlight>
+          );
 
           return (
             <span
