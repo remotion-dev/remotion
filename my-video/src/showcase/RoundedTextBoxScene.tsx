@@ -55,9 +55,12 @@ export const RoundedTextBoxScene: React.FC = () => {
       family: LOCAL_FONT_FAMILY,
       url: staticFile("bangers.woff2"),
       format: "woff2",
-      // Bangers ships a single regular face; declaring it keeps the browser
-      // from synthesizing bold/italic. unicodeRange limits this @font-face
-      // to printable ASCII, so other characters fall back to the next font.
+      // weight/style say which face of the family this file is. 400/normal
+      // match the FontFace defaults, so here they only document it; a family
+      // with several files needs one loadFont() per weight/style. display
+      // "block" hides text until the font loads instead of flashing a
+      // fallback. unicodeRange limits this face to printable ASCII, so any
+      // other character silently falls back to the next font in the stack.
       weight: "400",
       style: "normal",
       display: "block",

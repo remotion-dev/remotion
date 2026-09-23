@@ -101,7 +101,7 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
           manual editing
         </StrikeThrough>
         , no{" "}
-        <CrossedOff color={palette.textDim} maxRandomnessOffset={4} iterations={1} progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <CrossedOff color={palette.textDim} maxRandomnessOffset={4} iterations={2} progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
           timelines
         </CrossedOff>
         .

@@ -59,10 +59,11 @@ export const EffectsScene: React.FC<EffectsSceneProps> = ({accentColor = palette
           duotone({darkColor: "#0b1120", lightColor: accentColor, threshold: 0.4}),
           grayscale({amount: desaturate}),
           chromaticAberration({amount: aberration, angle: 0}),
-          // An off-centre, softer, rounder vignette. mode: "alpha" (fade to
-          // transparent instead of to a color) would look the same here, since
-          // the page behind the <Solid> is the same dark color.
-          vignette({amount: vignetteAmount, color: "#0b1120", center: [0.4, 0.5], radius: 0.55, feather: 0.6, roundness: 0.8}),
+          // An off-centre, softer, squarer vignette: roundness goes from 0 (the
+          // frame's rectangle) to 1 (an ellipse, the default). mode: "alpha"
+          // (fade to transparent instead of to a color) would look the same
+          // here, since the page behind the <Solid> is the same dark color.
+          vignette({amount: vignetteAmount, color: "#0b1120", center: [0.4, 0.5], radius: 0.55, feather: 0.6, roundness: 0.4}),
           scanlines({amount: 0.25, spacing: 3, offset: frame * 2}),
         ]}
       />
