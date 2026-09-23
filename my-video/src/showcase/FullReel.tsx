@@ -23,6 +23,7 @@ import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 import {SkiaScene} from "./SkiaScene";
+import {RiveScene} from "./RiveScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
@@ -38,7 +39,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 20;
+const SCENE_COUNT = 21;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -69,12 +70,14 @@ const t = linearTiming({durationInFrames: TRANSITION_DURATION});
 // audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
 // transcription (BrowserTranscriptionScene); @remotion/lottie (LottieScene);
 // @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three (ThreeScene);
-// @remotion/skia (SkiaScene); @remotion/layout-utils + @remotion/rounded-text-box
-// (RoundedTextBoxScene); @remotion/sfx (SfxScene); @remotion/gsap (GsapScene);
-// core remotion media/canvas components (CoreMediaScene); core remotion
-// environment/introspection APIs (CoreEnvironmentScene); core remotion
-// Easing/<Series>/<Loop>/<Freeze>/random() (FundamentalsScene);
-// @remotion/animation-utils + rough-notation (OutroScene).
+// @remotion/skia (SkiaScene); @remotion/rive (RiveScene, API surface only —
+// see its own comment for why); @remotion/layout-utils + @remotion/
+// rounded-text-box + @remotion/fonts (RoundedTextBoxScene); @remotion/sfx
+// (SfxScene); @remotion/gsap (GsapScene); core remotion media/canvas
+// components (CoreMediaScene); core remotion environment/introspection APIs
+// (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
+// random() (FundamentalsScene); @remotion/animation-utils + rough-notation
+// (OutroScene).
 export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
@@ -143,6 +146,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor}
           <SkiaScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({direction: "from-bottom"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <RiveScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <RoundedTextBoxScene />
