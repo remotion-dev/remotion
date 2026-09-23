@@ -113,6 +113,7 @@ import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
 import {RenderModalCodec} from './RenderModalCodec';
+import {RenderOnWeb} from './RenderOnWeb';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -783,6 +784,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<Composition3DRotation />
 				<KeyframeMove />
 				<PitchCorrection />
+				<RenderOnWeb />
 			</Folder>
 
 			<Folder name="StudioAssets">
