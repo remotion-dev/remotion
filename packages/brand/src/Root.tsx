@@ -105,10 +105,11 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
+import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
-import './index.css';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
 import {RenderModalCodec} from './RenderModalCodec';
@@ -781,6 +782,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<QuickSwitcher />
 				<Composition3DRotation />
 				<KeyframeMove />
+				<PitchCorrection />
 			</Folder>
 
 			<Folder name="StudioAssets">
