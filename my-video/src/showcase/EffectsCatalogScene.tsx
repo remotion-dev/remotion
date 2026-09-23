@@ -84,9 +84,9 @@ import {poppins} from "./font";
 //
 // Why pages instead of one grid of 74: every component with effects owns
 // its own pair of WebGL2 canvases (core's CanvasPool), and Chrome keeps
-// only about 16 WebGL contexts alive per page before it starts losing the
+// at most 16 WebGL contexts alive per page before it starts losing the
 // oldest, which cancels the render ("WebGL context was lost during canvas
-// effect rendering"). So the six tiles stay mounted, keyed by slot, and
+// effect rendering"; measured: 8 animated chains pass, 9 fail). So the six tiles stay mounted, keyed by slot, and
 // swap their `effects` and `src` each page: a chain keeps its canvases
 // while its size is unchanged, so this costs 12 contexts however many
 // effects it cycles through.
