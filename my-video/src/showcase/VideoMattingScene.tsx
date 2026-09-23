@@ -8,7 +8,7 @@ import {
   separateVideoLayers,
 } from "@remotion/video-matting";
 import {useEffect, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, staticFile, useVideoConfig} from "remotion";
+import {AbsoluteFill, staticFile, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -35,6 +35,7 @@ type Status =
 // called regardless of whether the load itself succeeded.
 export const VideoMattingScene: React.FC = () => {
   const {width} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("checking video matting support", {timeoutInMilliseconds: 20000}));
   const [status, setStatus] = useState<Status>({state: "checking"});
 
@@ -71,7 +72,7 @@ export const VideoMattingScene: React.FC = () => {
         cancelRender(err);
       }
     })();
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   const line = (() => {
     switch (status.state) {

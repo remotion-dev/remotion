@@ -1,17 +1,19 @@
 import {Lottie, LottieAnimationData, getLottieMetadata} from "@remotion/lottie";
 import {useEffect, useMemo, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, staticFile, useVideoConfig} from "remotion";
+import {AbsoluteFill, staticFile, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
 // Demonstrates: @remotion/lottie loading a Bodymovin/Lottie JSON via
-// delayRender()/continueRender() (the guide's documented pattern), reading
+// delayRender()/continueRender() (the guide's documented pattern, taken from
+// the scoped useDelayRender() hook the core docs recommend), reading
 // its dimensions/duration/framerate with getLottieMetadata(), and playing
 // it in sync with Remotion's timeline. sample-lottie.json is a
 // hand-authored two-shape animation (no lottiefiles.com fetch needed, since
 // this sandbox has no network access) — see public/sample-lottie.json.
 export const LottieScene: React.FC = () => {
   const {width} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender("Loading Lottie animation"));
   const [animationData, setAnimationData] = useState<LottieAnimationData | null>(null);
 
@@ -25,7 +27,7 @@ export const LottieScene: React.FC = () => {
       .catch((err) => {
         cancelRender(err);
       });
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   const metadata = useMemo(() => (animationData ? getLottieMetadata(animationData) : null), [animationData]);
 

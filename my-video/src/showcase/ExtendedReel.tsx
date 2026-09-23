@@ -16,6 +16,7 @@ import {ThreeScene} from "./ThreeScene";
 import {ThreeTextScene} from "./ThreeTextScene";
 import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
+import {InterpolateScene} from "./InterpolateScene";
 import {VideoMattingScene} from "./VideoMattingScene";
 import {BrowserTranscriptionScene} from "./BrowserTranscriptionScene";
 import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
@@ -39,7 +40,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 19;
+const SCENE_COUNT = 20;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -66,8 +67,8 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 // layout-utils + @remotion/rounded-text-box + @remotion/fonts,
 // @remotion/sfx, @remotion/gsap, core remotion's media/canvas components
 // (CoreMediaScene) and environment/introspection APIs (CoreEnvironmentScene),
-// and core remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>,
-// random()).
+// core remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>,
+// random()), and every interpolate() option (InterpolateScene).
 export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, accentColor}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
@@ -159,6 +160,11 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <FundamentalsScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-right"})} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <InterpolateScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
 

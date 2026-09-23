@@ -3,7 +3,7 @@ import {getAvailableFonts} from "@remotion/google-fonts";
 import {fillTextBox, fitText, fitTextOnNLines, measureText} from "@remotion/layout-utils";
 import {createRoundedTextBox} from "@remotion/rounded-text-box";
 import {useEffect, useMemo, useState} from "react";
-import {AbsoluteFill, cancelRender, continueRender, delayRender, spring, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
+import {AbsoluteFill, spring, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -39,6 +39,7 @@ const CAPTION_FONT_SIZE = 22;
 export const RoundedTextBoxScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
+  const {delayRender, continueRender, cancelRender} = useDelayRender();
   const [handle] = useState(() => delayRender(`loading self-hosted ${LOCAL_FONT_FAMILY} font`));
   const [localFontReady, setLocalFontReady] = useState(false);
 
@@ -49,7 +50,7 @@ export const RoundedTextBoxScene: React.FC = () => {
         continueRender(handle);
       })
       .catch((err) => cancelRender(err));
-  }, [handle]);
+  }, [handle, continueRender, cancelRender]);
 
   const {fontSize, lines} = fitTextOnNLines({
     text: TEXT,
