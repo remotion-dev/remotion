@@ -44,6 +44,22 @@ test('Long duration', async () => {
 	expect(audibleParts[0].endInSeconds).toEqual(2.789);
 });
 
+test('WAV files without a channel mask', async () => {
+	// Plain PCM WAVs have no channel mask, so FFmpeg reports an unknown
+	// channel layout for them
+	const stereo = await getSilentParts({src: exampleVideos.junk});
+	expect(stereo.silentParts).toEqual([
+		{startInSeconds: 1.736871, endInSeconds: 3.328277},
+	]);
+	expect(stereo.audibleParts).toEqual([
+		{startInSeconds: 0, endInSeconds: 1.736871},
+	]);
+
+	const mono = await getSilentParts({src: exampleVideos.chirp});
+	expect(mono.silentParts).toEqual([]);
+	expect(mono.audibleParts).toEqual([{startInSeconds: 0, endInSeconds: 30}]);
+});
+
 test('Wrong file', async () => {
 	try {
 		await getSilentParts({
