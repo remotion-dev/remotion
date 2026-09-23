@@ -1,4 +1,4 @@
-import React, {forwardRef, memo, useCallback, useId, useMemo} from 'react';
+import React, {forwardRef, memo, useCallback, useMemo} from 'react';
 import type {CanvasOutline} from './outline-geometry';
 
 export type CanvasOutlinePolygonProps = Omit<
@@ -46,23 +46,6 @@ export const CanvasOutlinePolygon = memo(
 				() => outline.points.map((point) => `${point.x},${point.y}`).join(' '),
 				[outline.points],
 			);
-			// `useId()` contains characters that are unsafe inside `url(#...)`.
-			const clipId = `clip-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
-			// Like the element's own CSS `clip-path`, only clip the geometry when a
-			// crop is actually applied - otherwise a path running along its
-			// bounding box edge would lose half its stroke.
-			const isCropped = useMemo(() => {
-				const uncropped = outline.uncroppedPoints;
-				if (uncropped === null) {
-					return false;
-				}
-
-				return outline.points.some(
-					(point, index) =>
-						Math.abs(point.x - uncropped[index].x) > 0.01 ||
-						Math.abs(point.y - uncropped[index].y) > 0.01,
-				);
-			}, [outline.points, outline.uncroppedPoints]);
 			const matrixTransform = useMemo(
 				() =>
 					outline.path === null
@@ -83,13 +66,6 @@ export const CanvasOutlinePolygon = memo(
 
 			return (
 				<g>
-					{matrixTransform === null || !isCropped ? null : (
-						<defs>
-							<clipPath id={clipId}>
-								<polygon points={points} />
-							</clipPath>
-						</defs>
-					)}
 					<polygon
 						{...props}
 						ref={ref}
@@ -111,7 +87,6 @@ export const CanvasOutlinePolygon = memo(
 						<path
 							d={outline.path?.d ?? ''}
 							transform={matrixTransform}
-							clipPath={isCropped ? `url(#${clipId})` : undefined}
 							fill="none"
 							stroke={stroke}
 							strokeOpacity={visible ? 1 : 0}

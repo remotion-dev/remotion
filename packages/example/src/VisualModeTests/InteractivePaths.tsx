@@ -26,6 +26,7 @@ export const InteractivePaths: React.FC = () => {
 					stroke="#facc15"
 					strokeWidth={26}
 					strokeLinecap="round"
+					cropRight={0.5318}
 				/>
 				<text x={90} y={470} style={labelStyle}>
 					open curve

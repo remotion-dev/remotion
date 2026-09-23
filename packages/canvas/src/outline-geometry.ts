@@ -26,9 +26,9 @@ export type CanvasOutline = {
 	];
 	/**
 	 * The SVG geometry of a path element, in the same space as
-	 * `uncroppedPoints`. Crop is not baked in — like the CSS `clip-path`
-	 * applied to the element, it clips the geometry at render time. Null for
-	 * non-path elements, or when the geometry cannot be read.
+	 * `uncroppedPoints`. Crop is not baked in — the outline always shows the
+	 * full geometry. Null for non-path elements, or when the geometry cannot
+	 * be read.
 	 */
 	readonly path: CanvasOutlinePath | null;
 };
