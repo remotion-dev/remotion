@@ -50,6 +50,7 @@ import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
+import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
@@ -332,6 +333,11 @@ const SequenceSourceQuickActions: React.FC<{
 			>
 				Duplicate
 			</InspectorQuickAction>
+			<SequenceWrapAction
+				nodePathInfo={selection.nodePathInfo}
+				sequence={track.sequence}
+				sourceActionsDisabled={sourceActionsDisabled}
+			/>
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				onClick={onDelete}

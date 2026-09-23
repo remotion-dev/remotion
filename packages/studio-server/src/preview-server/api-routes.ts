@@ -72,6 +72,7 @@ import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyfra
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
+import {wrapJsxNodeHandler} from './routes/wrap-jsx-node';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
@@ -128,6 +129,7 @@ export const allApiRoutes: {
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-nodes': deleteJsxNodesHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
+	'/api/wrap-jsx-node': wrapJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
