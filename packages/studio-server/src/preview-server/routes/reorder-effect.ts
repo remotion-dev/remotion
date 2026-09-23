@@ -52,7 +52,7 @@ export const reorderEffectHandler: ApiHandler<
 				},
 				toIndex,
 			});
-			const output = result.project.files[absolutePath];
+			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
 			pushToUndoStack({

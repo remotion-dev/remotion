@@ -6,6 +6,7 @@ import {
 	renameFolder,
 	unwrapFolder,
 } from '../index';
+import {getChangedContents} from './get-changed-contents';
 
 const compositionFile = 'Root.tsx';
 
@@ -21,12 +22,13 @@ export const Root = () => (
   </Folder>
 );
 `;
-	const output = renameFolder({
+	const outputResult = renameFolder({
 		project: {rootDir: '/', files: {[compositionFile]: input}},
 		compositionFile,
 		folder: {name: 'Old name', parentName: null},
 		newName: 'New name',
-	}).project.files[compositionFile];
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(input.replace("'Old name'", "'New name'"));
 });
@@ -44,11 +46,12 @@ test('creates top-level and nested folders without formatting the file', () => {
 		')',
 		'',
 	].join('\r\n');
-	const topLevel = addFolder({
+	const topLevelResult = addFolder({
 		project: {rootDir: '/', files: {[compositionFile]: input}},
 		compositionFile,
 		folder: {name: 'Top level', parentName: null},
-	}).project.files[compositionFile];
+	});
+	const topLevel = getChangedContents(topLevelResult, compositionFile);
 	expect(topLevel).toBe(
 		input
 			.replace(
@@ -61,11 +64,12 @@ test('creates top-level and nested folders without formatting the file', () => {
 			),
 	);
 
-	const nested = addFolder({
+	const nestedResult = addFolder({
 		project: {rootDir: '/', files: {[compositionFile]: topLevel}},
 		compositionFile,
 		folder: {name: 'Nested', parentName: 'Existing'},
-	}).project.files[compositionFile];
+	});
+	const nested = getChangedContents(nestedResult, compositionFile);
 	expect(nested).toBe(
 		topLevel.replace(
 			'    <Folder name="Existing" />',
@@ -94,11 +98,12 @@ export const Root = () => (
   </>
 );
 `;
-	const output = unwrapFolder({
+	const outputResult = unwrapFolder({
 		project: {rootDir: '/', files: {[compositionFile]: input}},
 		compositionFile,
 		folder: {name: 'Remove', parentName: null},
-	}).project.files[compositionFile];
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(
 		input.replace(
@@ -136,12 +141,13 @@ export const Root = () => {
   );
 };
 `;
-	const output = moveComposition({
+	const outputResult = moveComposition({
 		project: {rootDir: '/', files: {[compositionFile]: input}},
 		compositionFile,
 		compositionId: 'Move',
 		destination: {type: 'folder', folder: {name: 'Target', parentName: null}},
-	}).project.files[compositionFile];
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(
 		input
@@ -180,7 +186,7 @@ export const Root = () => {
   );
 };
 `;
-	const output = moveFolder({
+	const outputResult = moveFolder({
 		project: {rootDir: '/', files: {[compositionFile]: input}},
 		compositionFile,
 		folder: {name: 'Move', parentName: null},
@@ -188,7 +194,8 @@ export const Root = () => {
 			type: 'after',
 			target: {type: 'folder', name: 'Target', parentName: null},
 		},
-	}).project.files[compositionFile];
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(
 		input
@@ -258,7 +265,7 @@ export const Standalone = () => <Composition id="Standalone" />;
 		compositionId: 'Move',
 		destination: {type: 'folder', folder: {name: 'Parent', parentName: null}},
 	});
-	expect(moved.project.files[compositionFile]).toContain(
+	expect(getChangedContents(moved, compositionFile)).toContain(
 		'<Folder name="Child" />\n    <Composition id="Move" />\n  </Folder>',
 	);
 	expect(project.files[compositionFile]).toBe(input);

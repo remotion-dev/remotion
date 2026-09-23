@@ -32,7 +32,7 @@ const result = updateVisualControls({
   ],
 });
 
-console.log(result.project, result.updatedControls);
+console.log(result.changes, result.updatedControls);
 ```
 
 ## Options
@@ -66,10 +66,6 @@ Whether to write `undefined` as the default value.
 Paths within the value to preserve as enum literals with `as const`. Each path is an array of string keys or numeric indices. Use `[]` for no enum values, or `[[]]` when the whole value is an enum literal.
 
 ## Return value
-
-### project
-
-The updated project. Unchanged files and extra project fields are preserved.
 
 ### changes
 

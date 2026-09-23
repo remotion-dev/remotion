@@ -6,6 +6,7 @@ import {
 	parseCanvasCaptureData,
 } from '@remotion/studio-shared';
 import {addCanvasCaptureComposition, type CodemodProject} from '../index';
+import {getChangedContents} from './get-changed-contents';
 
 test('creates and registers an interactive Canvas Capture composition', () => {
 	const fixtureDirectory = path.join(__dirname, 'fixtures');
@@ -55,11 +56,11 @@ test('creates and registers an interactive Canvas Capture composition', () => {
 		.replaceAll('\r\n', '\n')
 		.replaceAll('\r', '\n');
 
-	expect(result.project.files[componentFile]).toBe(expected);
-	expect(result.project.files[compositionFile]).toContain(
+	expect(getChangedContents(result, componentFile)).toBe(expected);
+	expect(getChangedContents(result, compositionFile)).toContain(
 		"import {CanvasCaptureComposition} from './CanvasCaptureComposition';",
 	);
-	expect(result.project.files[compositionFile]).toMatch(
+	expect(getChangedContents(result, compositionFile)).toMatch(
 		/<Folder name="Captures">\s*<CanvasCaptureComposition \/>\s*<\/Folder>/,
 	);
 	expect(result.changes.map((change) => change.filePath)).toEqual([

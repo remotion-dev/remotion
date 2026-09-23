@@ -1,5 +1,10 @@
 import {expect, test} from 'bun:test';
-import {addSolid, deleteJsxNodes} from '../index';
+import {
+	addSolid,
+	applyCodemodChanges,
+	deleteJsxNodes,
+	type CodemodProject,
+} from '../index';
 
 const makeProject = () => ({
 	entryPoint: 'src/index.ts',
@@ -35,11 +40,12 @@ test('addSolid() immutably updates a virtual project', () => {
 		project,
 		width: 1280,
 	});
+	const updated = applyCodemodChanges(project, result.changes);
 
-	expect(result.project.entryPoint).toBe('src/index.ts');
-	expect(result.project).not.toBe(project);
+	expect(updated.entryPoint).toBe('src/index.ts');
+	expect(updated).not.toBe(project);
 	expect(project.files['src/Video.tsx']).not.toContain('<Solid');
-	expect(result.project.files['src/Video.tsx']).toContain(
+	expect(updated.files['src/Video.tsx']).toContain(
 		'<Solid width={1280} height={720}',
 	);
 	expect(result.insertedNode.filePath).toBe('src/Video.tsx');
@@ -48,7 +54,7 @@ test('addSolid() immutably updates a virtual project', () => {
 		{
 			filePath: 'src/Video.tsx',
 			previousContents: project.files['src/Video.tsx'],
-			nextContents: result.project.files['src/Video.tsx'],
+			nextContents: updated.files['src/Video.tsx'],
 		},
 	]);
 });
@@ -62,20 +68,23 @@ test('deleteJsxNodes() deletes nodes from multiple files', async () => {
 		project,
 		width: 1280,
 	});
+	const afterFirst = applyCodemodChanges(project, first.changes);
 	const second = addSolid({
 		compositionFile: 'src/Root2.tsx',
 		compositionId: 'Demo2',
 		height: 720,
-		project: first.project,
+		project: afterFirst,
 		width: 1280,
 	});
+	const afterSecond = applyCodemodChanges(afterFirst, second.changes);
 	const result = await deleteJsxNodes({
 		nodes: [first.insertedNode, second.insertedNode],
-		project: second.project,
+		project: afterSecond,
 	});
+	const updated = applyCodemodChanges(afterSecond, result.changes);
 
-	expect(result.project.files['src/Video.tsx']).not.toContain('<Solid');
-	expect(result.project.files['src/Video2.tsx']).not.toContain('<Solid');
+	expect(updated.files['src/Video.tsx']).not.toContain('<Solid');
+	expect(updated.files['src/Video2.tsx']).not.toContain('<Solid');
 	expect(result.changes.map((change) => change.filePath)).toEqual([
 		'src/Video.tsx',
 		'src/Video2.tsx',
@@ -92,7 +101,8 @@ test('deleteJsxNodes() deletes the Sequence wrapper identified by a node path', 
 		project,
 		width: 1280,
 	});
-	const sourceWithSolid = added.project.files['src/Video.tsx'];
+	const afterAdd = applyCodemodChanges(project, added.changes);
+	const sourceWithSolid = afterAdd.files['src/Video.tsx'];
 	expect(sourceWithSolid).toContain('<Sequence from={10}');
 	const result = await deleteJsxNodes({
 		nodes: [
@@ -101,18 +111,54 @@ test('deleteJsxNodes() deletes the Sequence wrapper identified by a node path', 
 				nodePath: added.insertedNode.nodePath,
 			},
 		],
-		project: added.project,
+		project: afterAdd,
 	});
+	const updated = applyCodemodChanges(afterAdd, result.changes);
 
-	expect(result.project.entryPoint).toBe('src/index.ts');
-	expect(result.project).not.toBe(added.project);
-	expect(added.project.files['src/Video.tsx']).toContain('<Solid');
-	expect(result.project.files['src/Video.tsx']).not.toContain('<Solid');
+	expect(updated.entryPoint).toBe('src/index.ts');
+	expect(updated).not.toBe(afterAdd);
+	expect(afterAdd.files['src/Video.tsx']).toContain('<Solid');
+	expect(updated.files['src/Video.tsx']).not.toContain('<Solid');
 	expect(result.changes).toEqual([
 		{
 			filePath: 'src/Video.tsx',
 			previousContents: sourceWithSolid,
-			nextContents: result.project.files['src/Video.tsx'],
+			nextContents: updated.files['src/Video.tsx'],
 		},
 	]);
+});
+
+test('applyCodemodChanges checks every file before applying a transaction', () => {
+	const project: CodemodProject & {entryPoint: string} = makeProject();
+	const changes = [
+		{
+			filePath: 'src/Video.tsx',
+			previousContents: project.files['src/Video.tsx'],
+			nextContents: 'updated video',
+		},
+		{
+			filePath: 'src/New.tsx',
+			previousContents: null,
+			nextContents: 'new component',
+		},
+	];
+	const updated = applyCodemodChanges(project, changes);
+	expect(updated.files['src/Video.tsx']).toBe('updated video');
+	expect(updated.files['src/New.tsx']).toBe('new component');
+	expect(project.files['src/New.tsx']).toBeUndefined();
+
+	const undo = changes.map((change) => ({
+		...change,
+		previousContents: change.nextContents,
+		nextContents: change.previousContents,
+	}));
+	expect(applyCodemodChanges(updated, undo).files).toEqual(project.files);
+
+	expect(() =>
+		applyCodemodChanges(project, [
+			changes[0],
+			{...changes[1], previousContents: 'stale'},
+		]),
+	).toThrow('Source changed before applying codemod: src/New.tsx');
+	expect(project.files['src/Video.tsx']).not.toBe('updated video');
 });

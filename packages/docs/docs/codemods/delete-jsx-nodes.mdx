@@ -26,7 +26,6 @@ const result = await deleteJsxNodes({
   nodes: [{filePath: 'src/Video.tsx', nodePath}],
 });
 
-console.log(result.project.files);
 console.log(result.changes);
 ```
 
@@ -55,10 +54,6 @@ The `SequenceNodePath` identifying the JSX element to delete. Obtain it from [`g
 ## Return value
 
 A promise resolving to an object with the following properties.
-
-### project
-
-A new project containing the transformed source. Unchanged project fields are preserved.
 
 ### changes
 

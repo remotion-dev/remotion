@@ -127,6 +127,7 @@ export type {
 	CodemodProject,
 	CodemodResult,
 } from './codemod-project';
+export {applyCodemodChanges} from './codemod-project';
 export {deleteJsxNodes, type DeleteJsxNodesOptions} from './delete-jsx-nodes';
 export type {
 	EffectArrayElement,

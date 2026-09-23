@@ -18,9 +18,7 @@ export type SplitSequencesOptions<Project extends CodemodProject> = {
 export const splitSequences = async <Project extends CodemodProject>({
 	project,
 	splits,
-}: SplitSequencesOptions<Project>): Promise<
-	DuplicateJsxNodesResult<Project>
-> => {
+}: SplitSequencesOptions<Project>): Promise<DuplicateJsxNodesResult> => {
 	if (splits.length === 0) {
 		throw new Error('Expected at least one sequence to split');
 	}

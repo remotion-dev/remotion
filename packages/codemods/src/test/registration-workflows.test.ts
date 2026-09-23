@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	addComposition,
+	applyCodemodChanges,
 	moveComposition,
 	moveFolder,
 	renameFolder,
@@ -39,14 +40,17 @@ export const Root = () => (
 		}),
 	).toThrow('A folder named "Shared" already exists in the destination');
 
-	let {project} = addComposition({
-		project: original,
-		compositionFile,
-		compositionId: 'Fresh',
-		component: {importName: 'Fresh', importPath: './Fresh'},
-		metadata: {durationInFrames: 90, fps: 30, width: 1920, height: 1080},
-		folder: {name: 'Shared', parentName: 'Other'},
-	});
+	let project = applyCodemodChanges(
+		original,
+		addComposition({
+			project: original,
+			compositionFile,
+			compositionId: 'Fresh',
+			component: {importName: 'Fresh', importPath: './Fresh'},
+			metadata: {durationInFrames: 90, fps: 30, width: 1920, height: 1080},
+			folder: {name: 'Shared', parentName: 'Other'},
+		}).changes,
+	);
 	const added = project.files[compositionFile];
 	expect(added).toContain(`    <Folder name="Other">
       <Folder name="Shared">
@@ -54,20 +58,26 @@ export const Root = () => (
         <Composition
           id="Fresh"`);
 
-	project = renameFolder({
+	project = applyCodemodChanges(
 		project,
-		compositionFile,
-		folder: {name: 'Shared', parentName: 'Parent'},
-		newName: 'Renamed',
-	}).project;
+		renameFolder({
+			project,
+			compositionFile,
+			folder: {name: 'Shared', parentName: 'Parent'},
+			newName: 'Renamed',
+		}).changes,
+	);
 	expect(project.files[compositionFile]).toBe(
 		added.replace('<Folder name="Shared">', '<Folder name="Renamed">'),
 	);
-	project = unwrapFolder({
+	project = applyCodemodChanges(
 		project,
-		compositionFile,
-		folder: {name: 'Renamed', parentName: 'Parent'},
-	}).project;
+		unwrapFolder({
+			project,
+			compositionFile,
+			folder: {name: 'Renamed', parentName: 'Parent'},
+		}).changes,
+	);
 	expect(project.files[compositionFile]).toContain(`    <Folder name="Parent">
       <Composition id="NestedA" component={Video} />
     </Folder>`);
@@ -93,12 +103,16 @@ export const Root = () => {
   );
 };
 `;
-	const {project} = moveComposition({
-		project: {rootDir: '/', files: {[compositionFile]: input}},
-		compositionFile,
-		compositionId: 'Nested',
-		destination: {type: 'root'},
-	});
+	const original = {rootDir: '/', files: {[compositionFile]: input}};
+	const project = applyCodemodChanges(
+		original,
+		moveComposition({
+			project: original,
+			compositionFile,
+			compositionId: 'Nested',
+			destination: {type: 'root'},
+		}).changes,
+	);
 	expect(project.files[compositionFile]).toBe(
 		input
 			.replace(

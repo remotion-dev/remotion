@@ -902,16 +902,13 @@ const getNodePathRemappings = ({
 	return remappings;
 };
 
-const insertSolidIntoProjectWithoutNodePathRemappings = <
-	Project extends CodemodProject,
->({
+const insertSolidIntoProjectWithoutNodePathRemappings = ({
 	project,
 	request,
 }: {
-	project: Project;
+	project: CodemodProject;
 	request: InsertJsxElementRequest;
 }): {
-	project: Project;
 	filePath: string;
 	previousSource: string;
 	nextSource: string;
@@ -960,27 +957,18 @@ const insertSolidIntoProjectWithoutNodePathRemappings = <
 		filePath: resolved.filePath,
 		nextSource: output,
 		previousSource: resolved.source,
-		project: {
-			...project,
-			files: {
-				...project.files,
-				[resolved.filePath]: output,
-			},
-		},
 	};
 };
 
-export const insertSolidIntoProjectWithNodePathRemappings = <
-	Project extends CodemodProject,
->({
+export const insertSolidIntoProjectWithNodePathRemappings = ({
 	project,
 	request,
 }: {
-	project: Project;
+	project: CodemodProject;
 	request: InsertJsxElementRequest;
 }): {
-	project: Project;
 	filePath: string;
+	nextSource: string;
 	nodePathRemappings: SequenceNodePathRemapping[];
 } => {
 	const result = insertSolidIntoProjectWithoutNodePathRemappings({
@@ -990,11 +978,11 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 
 	return {
 		filePath: result.filePath,
+		nextSource: result.nextSource,
 		nodePathRemappings: getNodePathRemappings({
 			afterSource: result.nextSource,
 			beforeSource: result.previousSource,
 		}),
-		project: result.project,
 	};
 };
 

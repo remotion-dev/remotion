@@ -47,7 +47,7 @@ export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 	metadata,
 	folder,
 	capture,
-}: AddCanvasCaptureCompositionOptions<Project>): CodemodResult<Project> => {
+}: AddCanvasCaptureCompositionOptions<Project>): CodemodResult => {
 	assertNewCompositionId({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (!/^[A-Z_$][\w$]*$/.test(component.importName)) {
@@ -115,13 +115,9 @@ export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 	parseAst(componentSource);
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {
-				...project.files,
-				[filePath]: output,
-				[component.filePath]: componentSource,
-			},
-		},
+		edits: [
+			{filePath, nextContents: output},
+			{filePath: component.filePath, nextContents: componentSource},
+		],
 	});
 };

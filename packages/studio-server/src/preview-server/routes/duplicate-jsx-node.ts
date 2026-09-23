@@ -60,7 +60,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 							nodePath: item.nodePath,
 						})),
 					});
-					const output = result.project.files[absolutePath];
+					const output = result.changes[0]?.nextContents ?? fileContents;
 					const {nodeLabels, logLines} = result.editDetails[0];
 					const nodePathRemappings = result.nodePathRemappings.map(
 						({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),

@@ -36,5 +36,8 @@ export const updateEffectProps = async ({
 		updates: [update],
 		schema,
 	});
-	return {...result.results[0], output: result.project.files['source.tsx']};
+	return {
+		...result.results[0],
+		output: result.changes[0]?.nextContents ?? input,
+	};
 };

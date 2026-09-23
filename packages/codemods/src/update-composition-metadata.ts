@@ -24,7 +24,7 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 	compositionFile,
 	compositionId,
 	metadata,
-}: UpdateCompositionMetadataOptions<Project>): CodemodResult<Project> => {
+}: UpdateCompositionMetadataOptions<Project>): CodemodResult => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (
@@ -35,7 +35,7 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 	}
 
 	if (Object.values(metadata).every((value) => value === undefined)) {
-		return getCodemodResult({project, nextProject: project});
+		return {changes: []};
 	}
 
 	const input = project.files[node.filePath];
@@ -145,9 +145,6 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 	parseAst(output);
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [node.filePath]: output},
-		},
+		edits: [{filePath: node.filePath, nextContents: output}],
 	});
 };

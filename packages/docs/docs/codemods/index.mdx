@@ -15,7 +15,7 @@ _Draft API_: This API is not yet stable. We are in the experimental phase of thi
 
 :::
 
-The package accepts file paths and source code and returns a new project together with the files that changed. It does not read or write the filesystem, execute the project, download media, or install packages. You control how changes are previewed, saved, and compiled.
+The package accepts file paths and source code and returns the files that changed. It does not read or write the filesystem, execute the project, download media, or install packages. You control how changes are previewed, saved, and compiled.
 
 ## Installation
 
@@ -49,14 +49,14 @@ export const Root = () => <Composition id="Demo" component={Video} width={1920} 
 };
 ```
 
-Mutations preserve additional project fields, such as an `entryPoint`. Treat each returned project as the next source snapshot.
+Include the files needed for the edit. A JSX prop edit needs its target file; resolving an imported composition component also needs the files along the import path. Mutations leave the input project unchanged.
 
 ## Editing a node<AvailableFrom v="4.0.528" />
 
 Find a node, inspect the properties you want to edit, and pass its reference to a mutation.
 
 ```ts twoslash title="edit.ts"
-import {getJsxNodes, getJsxNodeProps, updateJsxNodeProps, type CodemodProject} from '@remotion/codemods';
+import {applyCodemodChanges, getJsxNodes, getJsxNodeProps, updateJsxNodeProps, type CodemodProject} from '@remotion/codemods';
 
 declare const project: CodemodProject;
 
@@ -70,7 +70,8 @@ if (node) {
       node,
       props: {'style.opacity': 0.5},
     });
-    console.log(result.project, result.changes, result.updatedNode);
+    const nextProject = applyCodemodChanges(project, result.changes);
+    console.log(nextProject.files, result.updatedNode);
   }
 }
 ```
@@ -105,17 +106,13 @@ Adding, deleting, duplicating, or reordering effects can shift effect indices. N
 
 Every mutation returns a `CodemodResult`, synchronously or through a promise as documented on its page.
 
-### project
-
-A project with the modified source files. The input project remains unchanged.
-
 ### changes
 
 An array of `CodemodFileChange` objects.
 
 #### filePath
 
-The changed file's key in `project.files`.
+The changed file's key in the input project's `files` map, or the path of a newly created file.
 
 #### previousContents
 
@@ -128,6 +125,12 @@ The next source, or `null` if the file was deleted.
 ### nodePathRemappings<AvailableFrom v="4.0.528" />
 
 JSX, effect, and keyframe mutations return these mappings in addition to the shared result. See [node references](#node-references).
+
+## Applying changes
+
+Use [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes) to produce a new project. The function checks every `previousContents` value before applying any changes, throws if a file has changed since the codemod ran, and preserves other project fields. An empty `changes` array returns the input project.
+
+For undo and redo, store the file changes as one transaction. Swap `previousContents` and `nextContents` to undo it, and apply the original changes to redo it. Apply changes in the reverse order when undoing multiple transactions.
 
 ## Supported edits
 

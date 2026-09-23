@@ -1,5 +1,6 @@
 import {
 	CodemodsInternals,
+	applyCodemodChanges,
 	getJsxNodeProps,
 	updateMultipleJsxNodeProps,
 } from '@remotion/codemods';
@@ -82,7 +83,9 @@ export const saveSequencePropsInProject = ({
 					})),
 				})
 			: null;
-	const nextFiles = {...(updateResult?.project.files ?? project.files)};
+	const nextFiles = {
+		...applyCodemodChanges(project, updateResult?.changes ?? []).files,
+	};
 	const updatedNodePaths = new Map<string, SequenceNodePath>();
 	for (const [index, node] of (updateResult?.updatedNodes ?? []).entries()) {
 		updatedNodePaths.set(

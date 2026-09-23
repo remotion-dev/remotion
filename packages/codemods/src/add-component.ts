@@ -15,7 +15,7 @@ export const addComponent = <Project extends CodemodProject>({
 	importPath,
 	props = {},
 	...options
-}: AddComponentOptions<Project>): Promise<CodemodInsertionResult<Project>> => {
+}: AddComponentOptions<Project>): Promise<CodemodInsertionResult> => {
 	if (!/^[A-Z_$][\w$]*$/.test(importName) || importName === 'default') {
 		throw new Error(
 			'importName must be a named component export beginning with an uppercase letter, _ or $',

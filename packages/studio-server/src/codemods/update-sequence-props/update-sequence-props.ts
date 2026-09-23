@@ -56,7 +56,7 @@ export const updateMultipleSequenceProps = ({
 			),
 			prettierConfigOverride,
 		});
-		const output = result.project.files['source.tsx'];
+		const output = result.changes[0]?.nextContents ?? input;
 		const {results} = result;
 
 		return {output, formatted: true, results};

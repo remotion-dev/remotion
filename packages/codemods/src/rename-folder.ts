@@ -23,7 +23,7 @@ export const renameFolder = <Project extends CodemodProject>({
 	const entries = getTreeEntries({ast: parseAst(input)});
 	const located = requireTreeItem(entries, {type: 'folder', ...folder});
 	if (newName === folder.name) {
-		return getCodemodResult({project, nextProject: project});
+		return {changes: []};
 	}
 
 	if (!newName || newName.includes('/')) {
@@ -62,9 +62,6 @@ export const renameFolder = <Project extends CodemodProject>({
 	parseAst(nextContents);
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [filePath]: nextContents},
-		},
+		edits: [{filePath, nextContents}],
 	});
 };

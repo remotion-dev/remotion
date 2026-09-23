@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {readFileSync} from 'fs';
 import {resolve} from 'path';
 import {
+	applyCodemodChanges,
 	deleteComposition,
 	duplicateComposition,
 	getJsxNodeProps,
@@ -22,30 +23,39 @@ const contents = readFileSync(compositionFile, 'utf-8');
 const original = {rootDir: '/', files: {[compositionFile]: contents}};
 
 test('edits composition registrations through the packaged public API', () => {
-	let {project} = renameComposition({
-		project: original,
-		compositionFile,
-		compositionId: 'one',
-		newId: 'Renamed',
-	});
+	let project = applyCodemodChanges(
+		original,
+		renameComposition({
+			project: original,
+			compositionFile,
+			compositionId: 'one',
+			newId: 'Renamed',
+		}).changes,
+	);
 	expect(project.files[compositionFile]).toBe(
 		contents.replace('id="one"', 'id="Renamed"'),
 	);
-	project = duplicateComposition({
+	project = applyCodemodChanges(
 		project,
-		compositionFile,
-		compositionId: 'Renamed',
-		newId: 'Copy',
-		metadata: {width: 998, height: 999, fps: 24, durationInFrames: 200},
-	}).project;
-	project = duplicateComposition({
+		duplicateComposition({
+			project,
+			compositionFile,
+			compositionId: 'Renamed',
+			newId: 'Copy',
+			metadata: {width: 998, height: 999, fps: 24, durationInFrames: 200},
+		}).changes,
+	);
+	project = applyCodemodChanges(
 		project,
-		compositionFile,
-		compositionId: 'Copy',
-		newId: 'Poster',
-		tag: 'Still',
-		metadata: {width: 500, height: 400},
-	}).project;
+		duplicateComposition({
+			project,
+			compositionFile,
+			compositionId: 'Copy',
+			newId: 'Poster',
+			tag: 'Still',
+			metadata: {width: 500, height: 400},
+		}).changes,
+	);
 
 	const registrations = getJsxNodes({project, filePath: compositionFile})
 		.filter(
@@ -82,11 +92,14 @@ test('edits composition registrations through the packaged public API', () => {
 			}),
 		}),
 	});
-	project = deleteComposition({
+	project = applyCodemodChanges(
 		project,
-		compositionFile,
-		compositionId: 'Renamed',
-	}).project;
+		deleteComposition({
+			project,
+			compositionFile,
+			compositionId: 'Renamed',
+		}).changes,
+	);
 	expect(project.files[compositionFile]).not.toContain('id="Renamed"');
 	expect(project.files[compositionFile]).toContain('id="Copy"');
 	expect(project.files[compositionFile]).toContain('id="Poster"');
@@ -101,12 +114,15 @@ test('renames registrations in functions, variables, and expression attributes',
 		['six', 'Variable', 'id="six"', 'id="Variable"'],
 		['seven', 'Expression', "id={'seven'}", "id={'Expression'}"],
 	]) {
-		project = renameComposition({
+		project = applyCodemodChanges(
 			project,
-			compositionFile,
-			compositionId,
-			newId,
-		}).project;
+			renameComposition({
+				project,
+				compositionFile,
+				compositionId,
+				newId,
+			}).changes,
+		);
 		expected = expected.replace(before, after);
 		expect(project.files[compositionFile]).toBe(expected);
 	}

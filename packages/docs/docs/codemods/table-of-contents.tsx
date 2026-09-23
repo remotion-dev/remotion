@@ -47,6 +47,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>addSolid()</strong>
 				<div>Add a solid to a composition.</div>
 			</TOCItem>
+			<TOCItem link="/docs/codemods/apply-codemod-changes">
+				<strong>applyCodemodChanges()</strong>
+				<div>Applies file changes to an in-memory project.</div>
+			</TOCItem>
 			<TOCItem link="/docs/codemods/delete-composition">
 				<strong>deleteComposition()</strong>
 				<div>Removes a composition or still registration.</div>

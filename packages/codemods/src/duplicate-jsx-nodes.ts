@@ -13,18 +13,15 @@ export type DuplicateJsxNodesOptions<Project extends CodemodProject> = {
 	nodes: JsxNodeReference[];
 };
 
-export type DuplicateJsxNodesResult<Project extends CodemodProject> =
-	CodemodNodeResult<Project> & {
-		insertedNodes: JsxNodeReference[];
-		editDetails: {filePath: string; nodeLabels: string[]; logLines: number[]}[];
-	};
+export type DuplicateJsxNodesResult = CodemodNodeResult & {
+	insertedNodes: JsxNodeReference[];
+	editDetails: {filePath: string; nodeLabels: string[]; logLines: number[]}[];
+};
 
 export const duplicateJsxNodes = async <Project extends CodemodProject>({
 	project,
 	nodes,
-}: DuplicateJsxNodesOptions<Project>): Promise<
-	DuplicateJsxNodesResult<Project>
-> => {
+}: DuplicateJsxNodesOptions<Project>): Promise<DuplicateJsxNodesResult> => {
 	const groups = groupNodeReferencesByFile({project, nodes});
 	const edits = await Promise.all(
 		[...groups].map(async ([filePath, nodePaths]) => ({
