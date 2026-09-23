@@ -208,7 +208,7 @@ export const EFFECTS_CATALOG: readonly CatalogEntry[] = [
     source: "subject",
     effects: (t) => [glow({radius: 10, intensity: at(t, 0.5, 2), threshold: 0.2, color: "#00d8ff"})],
   },
-  {name: "outline()", category: "Blur & Shadow", source: "subject", effects: (t) => [outline({width: at(t, 1, 6), edgeSimplification: 4, color: "#facc15", outlineOnly: t > 0.5})]},
+  {name: "outline()", category: "Blur & Shadow", source: "subject", effects: (t) => [outline({width: at(t, 1, 6), edgeSimplification: 4, color: "#facc15", opacity: at(t, 0.4, 1), outlineOnly: t > 0.5})]},
   {
     name: "lightTrail()",
     category: "Blur & Shadow",
