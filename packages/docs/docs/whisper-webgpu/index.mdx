@@ -17,12 +17,11 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="transcribe.ts"
-import {clearStaleModels, downloadWhisperModel, loadWhisperModel, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
+import {clearStaleModels, downloadWhisperModel, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
 
 export const transcribeFile = async (file: File) => {
   await clearStaleModels();
   await downloadWhisperModel({model: 'small.en'});
-  await using modelHandle = await loadWhisperModel({model: 'small.en'});
 
   const channelWaveform = await resampleTo16Khz({file});
   const transcription = await transcribe({
@@ -36,7 +35,7 @@ export const transcribeFile = async (file: File) => {
 };
 ```
 
-[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache. [`transcribe()`](/docs/whisper-webgpu/transcribe) loads the model automatically; use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) with `await using` when you want to initialize it before transcription and release it when the scope ends. Call [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) when you want to release a model loaded automatically.
+[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache. [`transcribe()`](/docs/whisper-webgpu/transcribe) loads the model automatically. Use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) with `await using` when you want to initialize it before transcription and release it when the scope ends. Call [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) when you want to release a model loaded automatically.
 
 ## Model hosting
 
