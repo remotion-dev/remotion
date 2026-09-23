@@ -41,7 +41,12 @@ The file has to be a 16-bit, 16KHz, WAVE file. See [Resample audio to 16kHz](/do
 ### `whisperPath`
 
 The path to your `whisper.cpp` folder.  
-If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same `folder`.
+If you haven't installed Whisper.cpp, you can do so for example through [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp) and use the same [`to`](/docs/install-whisper-cpp/install-whisper-cpp#to) path.
+
+### `whisperCppVersion`
+
+The version of Whisper.cpp that is installed in `whisperPath`, for example `'1.5.5'`. Pass the same [`version`](/docs/install-whisper-cpp/install-whisper-cpp#version) that you passed to [`installWhisperCpp()`](/docs/install-whisper-cpp/install-whisper-cpp).  
+From version `1.7.4`, the `build/bin/whisper-cli` executable is used instead of `main`.
 
 ### `tokenLevelTimestamps`<AvailableFrom v="4.0.131"/>
 
@@ -49,9 +54,7 @@ Passes the `--dtw` flag to Whisper.cpp to generate more accurate timestamps, whi
 Recommended to get actually accurate timings, but only available from Whisper.cpp versions later than 1.0.55.  
 Set to `false` if you use an older version of Whisper.cpp.
 
-### `model?`
-
-_default: `base.en`_
+### `model`
 
 Specify a specific Whisper model for the transcription.
 

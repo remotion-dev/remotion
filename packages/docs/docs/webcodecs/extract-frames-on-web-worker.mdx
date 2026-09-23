@@ -36,7 +36,7 @@ await extractFramesOnWebWorker({
 
 ### `src`
 
-A URL or `File`/`Blob`.
+A URL string.
 
 If it is a remote URL, it must support CORS.
 
@@ -88,7 +88,7 @@ An optional [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/Abo
 
 _string_ <TsType type="LogLevel" source="@remotion/media-parser"/>
 
-One of `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`.  
+One of `"error"`, `"warn"`, `"info"`, `"verbose"`, `"trace"`.  
 Default value: `"info"`, which logs only important information.
 
 ## See also

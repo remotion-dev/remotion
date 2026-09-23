@@ -45,6 +45,6 @@ Because all frames are rendered in SDR, **it doesn't make sense to output an HDR
 
 It is better to accept the loss and output an SDR video, rather than trying to convert the frames to HDR again, which would lead to more loss.
 
-That being said, there is an option [`--color-space`](/docs/lambda/cli/render#--color-space) which can be set to `bt2020-ncl` or `bt2020-cl` to output an HDR video.  
+That being said, there is an option [`--color-space`](/docs/lambda/cli/render#--color-space) which can be set to `bt2020-ncl` to output an HDR video.  
 **This was a mistake and is not recommended.**  
 This option will lead to the video being tagged as being HDR, but the content inside the video is not actually HDR. You will experience the picture to be overly bright and overexposed.

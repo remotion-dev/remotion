@@ -143,6 +143,10 @@ Choose the encoding of your audio.
 
 Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
+### `preferLossless?`
+
+<Options id="prefer-lossless" />
+
 ### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
 <Options id="audio-bitrate" />
@@ -161,11 +165,11 @@ The constant rate factor, controlling the quality. See: [Controlling quality usi
 If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`videoBitrate`](#videobitrate) option instead.
 :::
 
-### `bufferSize?`<AvailableFrom v="4.0.78" />
+### `encodingBufferSize?`<AvailableFrom v="4.0.78" />
 
 <Options id="buffer-size" />
 
-### `maxRate?`<AvailableFrom v="4.0.78" />
+### `encodingMaxRate?`<AvailableFrom v="4.0.78" />
 
 <Options id="max-rate" />
 
