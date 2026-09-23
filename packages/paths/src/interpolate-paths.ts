@@ -20,6 +20,16 @@ export type InterpolatePathsOptions = Pick<
 	extrapolateRight?: Exclude<ExtrapolateType, 'identity'>;
 };
 
+const normalizeInterpolatedPath = (path: string): string => {
+	// Remove floating-point artifacts without rounding small coordinates to zero.
+	return path.replace(/-?\d*\.?\d+(?:e[+-]?\d+)?/gi, (value) => {
+		const number = Number(value);
+		return Number.isInteger(number)
+			? value
+			: String(Number(number.toPrecision(15)));
+	});
+};
+
 /*
  * @description Interpolates between multiple SVG paths, with keyframes, easing, and extrapolation.
  * @see [Documentation](https://www.remotion.dev/docs/paths/interpolate-paths)
@@ -79,10 +89,12 @@ export const interpolatePaths = (
 		.map((path, index) => ({path, weight: weights[index]}))
 		.filter(({weight}) => weight !== 0);
 	if (contributingPaths.length === 2) {
-		return interpolatePath(
-			contributingPaths[1].weight,
-			contributingPaths[0].path,
-			contributingPaths[1].path,
+		return normalizeInterpolatedPath(
+			interpolatePath(
+				contributingPaths[1].weight,
+				contributingPaths[0].path,
+				contributingPaths[1].path,
+			),
 		);
 	}
 
@@ -155,13 +167,24 @@ export const interpolatePaths = (
 					]
 				: [command.x, command.y];
 		});
-		const values = coordinates[0].map((__, coordinateIndex) =>
-			coordinates.reduce(
+		const values = coordinates[0].map((base, coordinateIndex) => {
+			const interpolated = coordinates.reduce(
 				(value, path, pathIndex) =>
-					value + path[coordinateIndex] * contributingPaths[pathIndex].weight,
+					value +
+					(path[coordinateIndex] - base) * contributingPaths[pathIndex].weight,
+				base,
+			);
+			if (Number.isFinite(interpolated)) {
+				return interpolated;
+			}
+
+			// Opposite large coordinates can overflow when subtracting the base.
+			return coordinates.reduce(
+				(sum, path, pathIndex) =>
+					sum + path[coordinateIndex] * contributingPaths[pathIndex].weight,
 				0,
-			),
-		);
+			);
+		});
 		if (target.type === 'C') {
 			return {
 				type: 'C',
@@ -180,5 +203,5 @@ export const interpolatePaths = (
 		result.push({type: 'Z'});
 	}
 
-	return serializeInstructions(result);
+	return normalizeInterpolatedPath(serializeInstructions(result));
 };
