@@ -281,7 +281,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 							selected={tab === 'remove'}
 							style={horizontalTab}
 						>
-							Remove background
+							General
 						</VerticalTab>
 						<VerticalTab
 							onClick={() => setTab('models')}
