@@ -1,5 +1,4 @@
 import {
-
 	basicCaptionsElementSource,
 	getBasicCaptionsElementFile,
 } from './basic-captions-element-source';
