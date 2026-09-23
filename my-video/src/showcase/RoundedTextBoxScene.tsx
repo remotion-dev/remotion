@@ -43,7 +43,7 @@ const CAPTION_FONT_SIZE = 22;
 // getAvailableFonts() catalog-browsing function. font.ts's Poppins does NOT
 // use @remotion/google-fonts' loadFont() -- a real render test showed
 // fonts.gstatic.com fails inside this sandbox's actual rendering Chromium
-// even though it answers a plain curl; see font.ts and AGENTS.md.
+// even though it answers a plain curl; see font.ts and docs/findings.md.
 export const RoundedTextBoxScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();

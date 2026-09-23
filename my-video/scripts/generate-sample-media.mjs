@@ -77,7 +77,7 @@ run(ffmpeg, [
 // H.264 through WebCodecs, so @remotion/media's <Video> (and anything else
 // built on WebCodecs: media-parser, webcodecs, a video texture) needs a
 // royalty-free codec. Given the mp4, <Video> quietly falls back to
-// <OffthreadVideo>. See AGENTS.md.
+// <OffthreadVideo>. See docs/findings.md.
 run(ffmpeg, [
   "-y",
   "-i",

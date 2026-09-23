@@ -33,7 +33,7 @@ const Tile: React.FC<{label: string; children: React.ReactNode}> = ({label, chil
 // onImageError. That callback must unmount the <Img> (here: swap in a
 // fallback) -- its load delayRender() is only released on unmount, so an
 // onImageError that leaves the <Img> mounted times the render out after 28s
-// (confirmed with a real render; see AGENTS.md).
+// (confirmed with a real render; see docs/findings.md).
 const ImgFallbackTile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   if (error !== null) {
@@ -62,7 +62,7 @@ const ImgFallbackTile: React.FC = () => {
 // <Img effects> renders through <CanvasImage> instead of a native <img>.
 // blur() is a WebGL2 effect, so that tile holds 2 WebGL contexts; this
 // scene's neighbors in FullReel (GsapScene, MediaToolsScene) hold none, so
-// that stays well inside Chrome's 16 (see AGENTS.md). Given a missing file,
+// that stays well inside Chrome's 16 (see docs/findings.md). Given a missing file,
 // <CanvasImage maxRetries onError> releases its own delayRender() when it
 // calls onError, so unlike <Img onImageError> it can stay mounted.
 //
@@ -79,7 +79,7 @@ const ImgFallbackTile: React.FC = () => {
 // headless Chromium a decodable <video> in the frame blanks canvas-based
 // components beside it (<AnimatedImage> and <CanvasImage> came out white),
 // the same thing preloadVideo() did in MediaScene. It plays behind the
-// captions in CaptionsScene instead, which has no canvases. See AGENTS.md.
+// captions in CaptionsScene instead, which has no canvases. See docs/findings.md.
 export const CoreMediaScene: React.FC = () => {
   const {width} = useVideoConfig();
   const htmlInCanvasSupported = isHtmlInCanvasSupported();

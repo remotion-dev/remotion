@@ -50,7 +50,7 @@ export const MediaScene: React.FC = () => {
     // seeks frame by frame and gains nothing from it. It isn't harmless here
     // either: preloadVideo() leaves a hidden <video preload="auto"> in the
     // page, and with a clip this Chromium can decode, every canvas-based
-    // component in the scene (<Gif>, <Video>) rendered blank. See AGENTS.md.
+    // component in the scene (<Gif>, <Video>) rendered blank. See docs/findings.md.
     if (isRendering) {
       return;
     }
@@ -120,7 +120,7 @@ export const MediaScene: React.FC = () => {
             // Only 2D-backend effects here: they draw on plain 2D canvases and
             // take no WebGL context. This scene is mounted together with
             // EffectsCatalogScene (12 WebGL contexts) during the transition
-            // between them, and Chrome keeps only 16 (see AGENTS.md).
+            // between them, and Chrome keeps only 16 (see docs/findings.md).
             effects={[hue({degrees: frame * 2}), grayscale({amount: desaturate})]}
             muted
           />

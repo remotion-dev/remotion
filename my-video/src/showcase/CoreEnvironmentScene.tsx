@@ -43,7 +43,7 @@ import {poppins} from "./font";
 // so it can't stall one); Experimental.useIsPlayer() reports whether this
 // tree is inside <Player>. getStaticFiles()/watchStaticFile() move to
 // @remotion/studio in v5. Experimental.Clipper/Null are not used: both are
-// removed-API stubs that unconditionally throw (see AGENTS.md).
+// removed-API stubs that unconditionally throw (see docs/findings.md).
 //
 // Interactive.withSchema() is intentionally not used here: it's a
 // component-authoring API for building reusable Studio-integrated

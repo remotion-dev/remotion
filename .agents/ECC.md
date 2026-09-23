@@ -18,7 +18,7 @@ accessibility, bun-runtime, codebase-onboarding, error-handling, react-patterns,
 
 Remotion's own guidance wins where they conflict: the root `AGENTS.md` (coding style, nullable-not-optional params) and the Remotion-authored skills in `.agents/skills/` (e.g. `writing-tests`, `formatting`, `remotion-best-practices`) override anything in these imported files.
 
-Several agents describe themselves as "Use PROACTIVELY" or "MUST BE USED" (e.g. `code-reviewer`, `typescript-reviewer`, `planner`, `architect`), so Claude Code will delegate to them automatically. Edit the `description:` line of an agent to make it opt-in only.
+**One local edit:** 11 agents described themselves as "Use PROACTIVELY", "MUST BE USED" or "Automatically activated" (a11y-architect, architect, build-error-resolver, code-reviewer, performance-optimizer, planner, react-build-resolver, react-reviewer, refactor-cleaner, security-reviewer, typescript-reviewer), which makes Claude Code start them on its own. Each run is a whole extra agent that re-reads files, so their `description:` lines were rewritten as "Use when asked…" to make them opt-in, keeping what each one does. Everything else in these files is verbatim. After a re-sync, re-apply this: `grep -liE "PROACTIVELY|MUST BE USED|automatically activated" .agents/agents/*.md` should print nothing.
 
 The "Related" footers in `react-reviewer`, `react-build-resolver` and `typescript-reviewer` mention ECC rules, commands and skills that were deliberately not imported. Those references are dangling by design.
 

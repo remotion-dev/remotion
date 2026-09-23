@@ -479,7 +479,7 @@ await step("renderer getVideoMetadata() (deprecated)", async () => {
 // Run on the .mp4's AAC track, not sample-tone.wav: in 4.0.527 the compositor
 // fails on plain WAV files ("Invalid argument") because it hands ffmpeg's
 // abuffer a channel_layout of 0x0 when the header has no channel mask. See
-// AGENTS.md.
+// docs/findings.md.
 await step("renderer getSilentParts()", async () => {
   const {audibleParts, silentParts, durationInSeconds} = await getSilentParts({src: join(publicDir, "sample-clip.mp4")});
   // Its audio track is silence, so all of it should be one silent part.
