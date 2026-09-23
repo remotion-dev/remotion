@@ -20,14 +20,13 @@ import {TableOfContents} from './table-of-contents';
 import {downloadVideoMattingModel, separateVideoLayers} from '@remotion/video-matting';
 
 export const matteVideo = async (file: File) => {
-  const model = 'modnet';
   await downloadVideoMattingModel({
-    model,
+    model: 'modnet',
     onProgress: ({progress}) => console.log('Downloading model:', progress),
   });
   await using layers = await separateVideoLayers({
     src: file,
-    model,
+    model: 'modnet',
     onProgress: ({progress}) => console.log('Separating layers:', progress),
   });
 
