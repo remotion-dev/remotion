@@ -185,6 +185,16 @@ const interactiveSvgElementSchema = {
 	...svgPaintSchema,
 } as const satisfies InteractivitySchema;
 
+const interactiveSvgPathElementSchema = {
+	...interactiveSvgElementSchema,
+	d: {
+		type: 'svg-path',
+		default: undefined,
+		description: 'Path',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
 const interactiveSvgStrokeElementSchema = {
 	...interactiveElementSchema,
 	...svgStrokeSchema,
@@ -404,7 +414,11 @@ export const Interactive = {
 	Nav: makeInteractiveTextElement('nav', '<Interactive.Nav>'),
 	Ol: makeInteractiveTextElement('ol', '<Interactive.Ol>'),
 	P: makeInteractiveTextElement('p', '<Interactive.P>'),
-	Path: makeInteractiveSvgElement('path', '<Interactive.Path>'),
+	Path: makeInteractiveElement(
+		'path',
+		'<Interactive.Path>',
+		interactiveSvgPathElementSchema,
+	),
 	Pre: makeInteractiveTextElement('pre', '<Interactive.Pre>'),
 	Rect: makeInteractiveSvgElement('rect', '<Interactive.Rect>'),
 	Section: makeInteractiveTextElement('section', '<Interactive.Section>'),

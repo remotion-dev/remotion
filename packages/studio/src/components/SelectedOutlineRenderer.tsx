@@ -19,6 +19,7 @@ import type {
 } from './selected-outline-types';
 import {SelectedOutlineEditingHandles} from './SelectedOutlineEditingHandles';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
+import {SelectedOutlinePathPoints} from './SelectedOutlinePathPoints';
 import {SELECTED_OUTLINE_KEY_ATTR} from './SelectedOutlinePolygon';
 import {
 	SelectedOutlineSnapIndicators,
@@ -263,6 +264,20 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
+			{outlinesForRendering.map((outline) => {
+				const target = targetsByKey.get(outline.key);
+				const pathDrag = target?.selected
+					? (getLatestOutlineTargetByKey(outline.key)?.pathDrag ?? null)
+					: null;
+				return outline.path !== null && pathDrag !== null ? (
+					<SelectedOutlinePathPoints
+						key={`${outline.key}-path-points`}
+						outline={outline}
+						pathDrag={pathDrag}
+						onDraggingChange={onDraggingChange}
+					/>
+				) : null;
+			})}
 			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
 			{outlinesForEditingHandles.map((outline) => (
 				<SelectedOutlineEditingHandles

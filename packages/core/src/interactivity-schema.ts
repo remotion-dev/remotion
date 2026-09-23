@@ -106,6 +106,13 @@ export type TextContentFieldSchema = {
 	keyframable?: false;
 };
 
+export type SvgPathFieldSchema = {
+	type: 'svg-path';
+	default: string | undefined;
+	description?: string;
+	keyframable?: false;
+};
+
 export type FontFamilyFieldSchema = {
 	type: 'font-family';
 	default: string | undefined;
@@ -219,6 +226,7 @@ export type VisibleFieldSchema =
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
 	| TextContentFieldSchema
+	| SvgPathFieldSchema
 	| FontFamilyFieldSchema
 	| FontWeightFieldSchema
 	| AssetFieldSchema

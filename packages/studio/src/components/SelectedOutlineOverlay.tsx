@@ -366,6 +366,8 @@ const calculateOutlineTargets = ({
 		const selectedForRotation = selectedRotationInfo?.sequenceKey === key;
 		const selectedForUvHandles = selectedEffectsBySequenceKey.has(key);
 		const fieldSchema = activeSchema?.[translateFieldKey];
+		const pathFieldSchema = activeSchema?.d;
+		const pathPropStatus = nodePropStatuses?.d;
 		const propStatus = nodePropStatuses?.[translateFieldKey];
 		const scaleFieldSchema = activeSchema?.[scaleFieldKey];
 		const scalePropStatus = nodePropStatuses?.[scaleFieldKey];
@@ -491,6 +493,18 @@ const calculateOutlineTargets = ({
 		return [
 			{
 				...layoutTarget,
+				pathDrag:
+					previewInteractive &&
+					controls !== null &&
+					pathFieldSchema?.type === 'svg-path' &&
+					pathPropStatus?.status === 'static' &&
+					typeof pathPropStatus.codeValue === 'string'
+						? {
+								clientId: connectedClientId,
+								nodePath,
+								schema: controls.schema,
+							}
+						: null,
 				canCrop: previewInteractive && controls !== null && cropFields !== null,
 				cropDrag: canCropDrag
 					? {

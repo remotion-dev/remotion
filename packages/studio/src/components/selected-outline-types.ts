@@ -33,11 +33,18 @@ export type SelectedOutlineLayoutTarget = CanvasOutlineLayoutTarget & {
 
 export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
 	readonly canCrop: boolean;
+	readonly pathDrag: SelectedOutlinePathDragTarget | null;
 	readonly cropDrag: SelectedOutlineCropDragTarget | null;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
+};
+
+export type SelectedOutlinePathDragTarget = {
+	readonly clientId: string;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
 };
 
 export const cropFieldKeys = {
