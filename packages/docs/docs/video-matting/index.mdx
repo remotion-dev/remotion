@@ -32,7 +32,6 @@ export const matteVideo = async (file: File) => {
   await using modelHandle = await loadVideoMattingModel({
     model,
   });
-  console.log('Model already in memory:', modelHandle.alreadyLoaded);
 
   await using layers = await separateVideoLayers({
     src: file,
@@ -48,6 +47,8 @@ export const matteVideo = async (file: File) => {
   return {baseBlob, foregroundBlob};
 };
 ```
+
+[`separateVideoLayers()`](/docs/video-matting/separate-video-layers) loads the model automatically; use [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model) with `await using` when you want to initialize it before processing and release it when the scope ends. Call [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model) when you want to release a model loaded automatically. `await using` also removes the temporary output files when `matteVideo()` returns; the blobs remain usable.
 
 ## Model hosting
 

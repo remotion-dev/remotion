@@ -8,6 +8,8 @@ crumb: '@remotion/video-matting'
 
 Releases the memory used by initialized video matting models. Persistent cached model files are not deleted.
 
+Use `await using` with [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model) for cleanup at the end of a scope; call `disposeVideoMattingModel()` when you want to release a model loaded automatically.
+
 ```ts twoslash title="dispose.ts"
 import {disposeVideoMattingModel} from '@remotion/video-matting';
 

@@ -17,26 +17,26 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="transcribe.ts"
-import {clearStaleModels, downloadWhisperModel, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
+import {clearStaleModels, downloadWhisperModel, loadWhisperModel, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
 
-await clearStaleModels();
-await downloadWhisperModel({model: 'small.en'});
+export const transcribeFile = async (file: File) => {
+  await clearStaleModels();
+  await downloadWhisperModel({model: 'small.en'});
+  await using modelHandle = await loadWhisperModel({model: 'small.en'});
 
-const file = new File([], 'audio.wav');
-const channelWaveform = await resampleTo16Khz({file});
+  const channelWaveform = await resampleTo16Khz({file});
+  const transcription = await transcribe({
+    channelWaveform,
+    model: 'small.en',
+    language: 'en',
+  });
 
-const transcription = await transcribe({
-  channelWaveform,
-  model: 'small.en',
-  language: 'en',
-});
-
-const {captions} = toCaptions({whisperWebGpuOutput: transcription});
-console.log(captions);
+  const {captions} = toCaptions({whisperWebGpuOutput: transcription});
+  return captions;
+};
 ```
 
-[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache.  
-Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) when you want to initialize the model explicitly.
+[`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) stores model files in the persistent cache. [`transcribe()`](/docs/whisper-webgpu/transcribe) loads the model automatically; use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) with `await using` when you want to initialize it before transcription and release it when the scope ends. Call [`disposeWhisperModel()`](/docs/whisper-webgpu/dispose-whisper-model) when you want to release a model loaded automatically.
 
 ## Model hosting
 
@@ -55,7 +55,7 @@ See [`@remotion/whisper-webgpu` in Node.js](/docs/whisper-webgpu/node) for a com
 ## Requirements
 
 You obviously need a GPU.  
-Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to determine if it is supported.  
+Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to determine if it is supported.
 
 ## License
 
