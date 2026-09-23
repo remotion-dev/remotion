@@ -28,11 +28,11 @@ export const Video: React.FC<{title: string; accent: string}> = ({title, accent}
       <Sequence name="Background" layout="none">
         <AbsoluteFill style={{background: 'linear-gradient(135deg, #0f172a, #312e81)'}} />
       </Sequence>
-      <Sequence name="Orb" layout="none">
+      <Sequence name="Orb" style={{left: 910, top: -80, width: 450, height: 450}}>
         <Orb accent={accent} />
       </Sequence>
-      <Sequence name="Content" layout="none">
-        <div style={{position: 'relative', transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
+      <Sequence name="Content" style={{left: 80, top: 210, width: 1000, height: 300, transform: \`translateY(\${Math.sin(frame / fps) * 12}px)\`}}>
+        <div style={{position: 'relative'}}>
           <h1 style={{fontSize: 76, margin: 0}}>{title}</h1>
           <p style={{fontSize: 28, color: accent}}>Frame {frame} of {durationInFrames}</p>
           <button type="button" style={{fontSize: 28, padding: '8px 16px'}}
@@ -86,7 +86,7 @@ export const Orb: React.FC<{accent: string}> = ({accent}) => {
   const frame = useCurrentFrame();
   return <div style={{
     position: 'absolute', width: 450, height: 450, borderRadius: '50%',
-    right: -80, top: -80, backgroundColor: accent, opacity: 0.3,
+    right: 0, top: 0, backgroundColor: accent, opacity: 0.3,
     transform: \`translateY(\${Math.sin(frame / 25) * 100}px)\`,
   }} />;
 };
