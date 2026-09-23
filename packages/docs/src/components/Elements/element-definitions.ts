@@ -19,6 +19,8 @@ import {movingPillCaptionsInitialProps} from '../../../elements/captions/moving-
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {poppingWordCaptionsInitialProps} from '../../../elements/captions/popping-word-captions/initial-props';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
+import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-captions/initial-props';
+import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
 import {
@@ -345,6 +347,36 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: basicCaptionsInitialProps,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
+		slug: 'captions/rounded-captions',
+		component: RoundedCaptions,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'Static synchronized captions with a rounded background that follows each line.',
+		dependencies: [
+			{name: '@remotion/captions', version: null},
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/layout-utils', version: null},
+			{name: '@remotion/rounded-text-box', version: null},
+		],
+		durationInFrames: 210,
+		elementHeight: 220,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.png',
+			videoUrl:
+				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.mp4',
+		},
+		safeArea: 120,
+		initialProps: roundedCaptionsInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
