@@ -944,14 +944,13 @@ export type InsertBasicCaptionsResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
-export type InsertVideoLayersRequest = {
+export type ReplaceVideoSourceRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
-	baseSrc: string;
-	foregroundSrc: string;
+	src: string;
 };
 
-export type InsertVideoLayersResponse =
+export type ReplaceVideoSourceResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
@@ -1453,9 +1452,9 @@ export type ApiRoutes = {
 		InsertBasicCaptionsRequest,
 		InsertBasicCaptionsResponse
 	>;
-	'/api/insert-video-layers': ReqAndRes<
-		InsertVideoLayersRequest,
-		InsertVideoLayersResponse
+	'/api/replace-video-source': ReqAndRes<
+		ReplaceVideoSourceRequest,
+		ReplaceVideoSourceResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

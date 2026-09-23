@@ -5,9 +5,9 @@ import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-k
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
+import {BackgroundRemovalIcon} from '../../icons/background-removal';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
-import {SeparationIcon} from '../../icons/separation';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
@@ -173,7 +173,7 @@ const SequenceSourceQuickActions: React.FC<{
 	const videoMattingDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
-			? 'Programmatically duplicated videos cannot be separated from source'
+			? 'Programmatically duplicated videos cannot have their background removed from source'
 			: undefined;
 	const onGenerateCaptions = useCallback(() => {
 		if (transcriptionDisabledReason !== undefined || mediaSequence === null) {
@@ -204,7 +204,7 @@ const SequenceSourceQuickActions: React.FC<{
 		mediaSequence,
 		transcriptionDisabledReason,
 	]);
-	const onSeparateForeground = useCallback(() => {
+	const onRemoveBackground = useCallback(() => {
 		if (
 			videoMattingDisabledReason !== undefined ||
 			track.sequence.type !== 'video'
@@ -290,13 +290,13 @@ const SequenceSourceQuickActions: React.FC<{
 			{track.sequence.type === 'video' ? (
 				<InspectorQuickAction
 					disabled={videoMattingDisabledReason !== undefined}
-					onClick={onSeparateForeground}
+					onClick={onRemoveBackground}
 					title={videoMattingDisabledReason}
 					renderIcon={(color) => (
-						<SeparationIcon style={actionIconStyle} color={color} />
+						<BackgroundRemovalIcon style={actionIconStyle} color={color} />
 					)}
 				>
-					Separate foreground
+					Remove background
 				</InspectorQuickAction>
 			) : null}
 			{track.sequence.type === 'video' ? (

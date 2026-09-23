@@ -11,7 +11,6 @@ import {
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
 } from './insert-jsx-element';
-import {insertVideoLayers} from './insert-video-layers';
 import {
 	computeCanUpdateDefaultPropsFromContent,
 	findProjectFile,
@@ -175,7 +174,6 @@ export const CodemodsInternals = {
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertVideoLayers,
 	pasteEffects,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,

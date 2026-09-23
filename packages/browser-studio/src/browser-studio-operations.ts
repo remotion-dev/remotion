@@ -27,6 +27,7 @@ import {
 	updateEffectKeyframes,
 	updateEffectProps as updateEffectPropsCodemod,
 	updateJsxNodeKeyframes,
+	updateJsxNodeProps,
 	type CodemodNodeResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
@@ -62,6 +63,7 @@ import type {
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	createBrowserStudioProjectController,
 	getCanonicalPublicFiles,
@@ -87,10 +89,8 @@ const {
 	getRootFileForProject,
 	insertBasicCaptions: insertBasicCaptionsCodemod,
 	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertVideoLayers: insertVideoLayersCodemod,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
-
 	pasteEffects: pasteEffectsCodemod,
 	simpleDiff,
 } = CodemodsInternals;
@@ -2008,38 +2008,34 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const insertVideoLayers: BrowserStudioOperations['insertVideoLayers'] = ({
+	const replaceVideoSource: BrowserStudioOperations['replaceVideoSource'] = ({
 		fileName,
 		nodePath,
-		baseSrc,
-		foregroundSrc,
+		src,
 	}) => {
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({filePath: fileName, project});
-			const result = insertVideoLayersCodemod({
-				input: project.files[absolutePath],
-				nodePath,
-				baseSrc,
-				foregroundSrc,
+			const result = updateJsxNodeProps({
+				project,
+				node: {filePath: absolutePath, nodePath},
+				updates: [
+					{
+						key: 'src',
+						value: `${NoReactInternals.FILE_TOKEN}${src.split('/').map(encodeURIComponent).join('/')}`,
+						defaultValue: null,
+					},
+				],
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection: null,
 				fileName: absolutePath,
-				mutate: () => ({
-					...project,
-					files: {...project.files, [absolutePath]: result.output},
-				}),
-				nodePathMutationFiles: [
-					{
-						absolutePath,
-						remappings: result.nodePathRemappings,
-					},
-				],
+				mutate: () => result.project,
+				nodePathMutationFiles: getNodePathMutationFiles(result),
 			});
 			if (nodePathMutation === null) {
-				throw new Error('Could not insert separated video layers');
+				throw new Error('Could not replace video source');
 			}
 
 			return Promise.resolve({success: true as const, nodePathMutation});
@@ -2586,7 +2582,7 @@ export const createBrowserStudioOperations = ({
 		},
 		splitVideoFromAudio,
 		insertBasicCaptions,
-		insertVideoLayers,
+		replaceVideoSource,
 		subscribeToDefaultProps: ({clientId, compositionId}) => {
 			const clients =
 				defaultPropsSubscriptions.get(compositionId) ?? new Set<string>();

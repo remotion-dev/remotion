@@ -25,7 +25,7 @@ Agents can:
 - See, add and remove guides
 - Install packages into the current project
 - Transcribe audio and video assets
-- Separate video assets into background and foreground layers
+- Remove the background from video assets
 - Restart or shut down the Studio server
 
 ## Requirements
@@ -117,19 +117,18 @@ This tool is always exposed. If `@remotion/whisper-webgpu` is not installed, it 
 
 Call `install_package` with the returned package name and retry. Studio also installs the recommended `@huggingface/transformers` version.
 
-### `separate_video_layers`<AvailableFrom v="4.0.523" />
+### `remove_video_background`<AvailableFrom v="4.0.523" />
 
-Separates a video asset from the `public/` folder into background and foreground WebM files and adds the work to the Jobs queue.
+Removes a video asset's background and saves a transparent WebM file in the `public/` folder. The work is added to the Jobs queue.
 
 If `assetPath` is omitted, the video asset currently open in the Studio is used.
 
 ```ts title="Input"
 {
   assetPath?: string;
-  baseOutputPath?: string;
-  foregroundOutputPath?: string;
+  outputPath?: string;
   model?: string;
-  audio?: 'base' | 'foreground' | 'both' | 'none';
+  audio?: 'keep' | 'none';
   videoBitrate?:
     | 'very-low'
     | 'low'
@@ -140,14 +139,13 @@ If `assetPath` is omitted, the video asset currently open in the Studio is used.
 }
 ```
 
-The default model is `ben2-base`, audio is kept in the background layer, and video quality defaults to `very-high`. Output names default to `<asset>-base.webm` and `<asset>-foreground.webm`.
+The default model is `ben2-base`, the input audio is kept, and video quality defaults to `very-high`. The output name defaults to `<asset>-no-background.webm`.
 
 ```ts title="Output"
 {
   success: true;
   jobId: string;
-  baseOutputPath: string;
-  foregroundOutputPath: string;
+  outputPath: string;
 }
 ```
 
@@ -729,7 +727,7 @@ You can ask a browser agent:
 - "Add a vertical guide at 640 pixels."
 - "Mute the preview."
 - "Transcribe the audio asset that is currently open."
-- "Separate `product-shot.mp4` into background and foreground layers."
+- "Remove the background from `product-shot.mp4`."
 
 The agent chooses and invokes the matching tools. Tool calls affect the open Studio tab immediately.
 

@@ -6,7 +6,7 @@ crumb: 'Separate a video into layers'
 
 # @remotion/video-matting<AvailableFrom v="4.0.523" />
 
-Separate a video into background and foreground layers, locally in the browser or [Node.js](/docs/video-matting/node) using WebGPU.
+Separate a video into opaque base and transparent foreground layers, locally in the browser or [Node.js](/docs/video-matting/node) using WebGPU.
 
 import {TableOfContents} from './table-of-contents';
 
@@ -14,30 +14,11 @@ import {TableOfContents} from './table-of-contents';
 
 <Installation pkg="@remotion/video-matting @huggingface/transformers" />
 
-## Example
+## Studio
 
-```ts twoslash title="separate-video.ts"
-import {downloadVideoMattingModel, separateVideoLayers} from '@remotion/video-matting';
+Remotion Studio offers **Remove background** for a selected video. It replaces the video's source with a transparent WebM. Duplicate the layer first if you want to keep the original alongside it.
 
-export const matteVideo = async (file: File) => {
-  await downloadVideoMattingModel({
-    model: 'modnet',
-    onProgress: ({progress}) => console.log('Downloading model:', progress),
-  });
-  await using layers = await separateVideoLayers({
-    src: file,
-    model: 'modnet',
-    onProgress: ({progress}) => console.log('Separating layers:', progress),
-  });
-
-  const [baseBlob, foregroundBlob] = await Promise.all([
-    layers.base.getBlob(),
-    layers.foreground.getBlob(),
-  ]);
-
-  return {baseBlob, foregroundBlob};
-};
-```
+For programmatic base and foreground outputs, see [`separateVideoLayers()`](/docs/video-matting/separate-video-layers).
 
 ## Model hosting
 
