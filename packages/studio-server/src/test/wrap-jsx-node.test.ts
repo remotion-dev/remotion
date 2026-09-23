@@ -8,10 +8,11 @@ import {
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
 import {wrapJsxNodeHandler} from '../preview-server/routes/wrap-jsx-node';
-import {getUndoStack} from '../preview-server/undo-stack';
+import {clearUndoStackForTests} from '../preview-server/undo-stack';
 import {lineContainingToNodePath} from './test-utils';
 
 test('wrapping JSX writes the child on a new line with aligned indentation', async () => {
+	clearUndoStackForTests();
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-wrap-jsx-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -25,7 +26,6 @@ test('wrapping JSX writes the child on a new line with aligned indentation', asy
 	});
 
 	try {
-		(getUndoStack() as unknown as unknown[]).length = 0;
 		const entryPoint = path.join(remotionRoot, 'NewComposition.tsx');
 		const input = `import {AbsoluteFill, HtmlInCanvas} from 'remotion';
 
@@ -67,15 +67,19 @@ export const Comp = () => {
 		});
 
 		expect(result.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8'))
-			.toContain(`        <HtmlInCanvas width={2560} height={1248}>
-            <AbsoluteFill
-                style={{width: 2560, height: 1248}}
-            >
-                <div data-role="child" />
-            </AbsoluteFill>
-        </HtmlInCanvas>`);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain(
+			[
+				'        <HtmlInCanvas width={2560} height={1248}>',
+				'            <AbsoluteFill',
+				'                style={{width: 2560, height: 1248}}',
+				'            >',
+				'                <div data-role="child" />',
+				'            </AbsoluteFill>',
+				'        </HtmlInCanvas>',
+			].join('\n'),
+		);
 	} finally {
+		clearUndoStackForTests();
 		cleanupFileWatcher();
 		cleanupLiveEvents();
 		rmSync(remotionRoot, {recursive: true, force: true});
