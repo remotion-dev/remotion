@@ -1,5 +1,6 @@
 import {fade} from "@remotion/transitions/fade";
 import {slide} from "@remotion/transitions/slide";
+import {wipe} from "@remotion/transitions/wipe";
 import {clockWipe} from "@remotion/transitions/clock-wipe";
 import {flip} from "@remotion/transitions/flip";
 import {none} from "@remotion/transitions/none";
@@ -32,6 +33,7 @@ import {MediaScene} from "./MediaScene";
 import {AudioScene} from "./AudioScene";
 import {LottieScene} from "./LottieScene";
 import {ThreeScene} from "./ThreeScene";
+import {ThreeTextScene} from "./ThreeTextScene";
 import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
 import {OutroScene} from "./OutroScene";
@@ -58,7 +60,7 @@ export type FullReelProps = z.infer<typeof fullReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 21;
+const SCENE_COUNT = 22;
 
 export const fullReelDefaultProps: FullReelProps = {
   title: "Remotion",
@@ -78,8 +80,8 @@ const springT = springTiming({config: {damping: 200}});
 // The single, complete demo reel: every scene from ShowcaseReel and
 // ExtendedReel combined into one video (one title, one outro — the two
 // reels' duplicate bookends are dropped). Its transitions alone cover the
-// full @remotion/transitions catalog: flip, clockWipe, none() (a no-op
-// presentation meant to pair with useTransitionProgress() -- see
+// full @remotion/transitions catalog: flip, clockWipe, wipe, none() (a
+// no-op presentation meant to pair with useTransitionProgress() -- see
 // TitleScene), pushCut and springTiming() (as an alternative to
 // linearTiming(), on the last transition) all work standalone; iris-wipe
 // (a custom shader) plus bookFlip, crossZoom, crosswarp, dissolve,
@@ -87,7 +89,7 @@ const springT = springTiming({config: {damping: 200}});
 // blurSlide are ALL built with makeHtmlInCanvasPresentation() internally,
 // so every one of them is wrapped in the same isSupported()-gated fallback
 // to fade() as the iris-wipe (see htmlInCanvasPresentation.ts) rather than
-// throwing where HtmlInCanvas isn't supported. ~24.5s covering: spring
+// throwing where HtmlInCanvas isn't supported. ~25.5s covering: spring
 // animation, staggered text, rough-notation highlights, and
 // useTransitionProgress() reacting to its own exit transition (TitleScene);
 // @remotion/shapes, @remotion/motion-blur, @remotion/noise (ShapesScene);
@@ -97,7 +99,9 @@ const springT = springTiming({config: {damping: 200}});
 // AI background removal (VideoMattingScene); @remotion/media-utils real
 // audio waveform (AudioScene); @remotion/whisper-webgpu in-browser
 // transcription (BrowserTranscriptionScene); @remotion/lottie (LottieScene);
-// @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three (ThreeScene);
+// @remotion/animated-emoji (AnimatedEmojiScene); @remotion/three, a rotating
+// mesh (ThreeScene) then extruded 3D typography via TextGeometry +
+// FontLoader (ThreeTextScene, adapted from remotion-dev/3d-text);
 // @remotion/skia (SkiaScene); @remotion/rive (RiveScene, API surface only —
 // see its own comment for why); @remotion/layout-utils + @remotion/
 // rounded-text-box + @remotion/fonts (RoundedTextBoxScene); @remotion/sfx
@@ -171,6 +175,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ThreeScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={wipe({direction: "from-left"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <ThreeTextScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={bookFlipOrFallback()} timing={t} />
 
