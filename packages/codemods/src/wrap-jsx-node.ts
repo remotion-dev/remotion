@@ -9,8 +9,16 @@ import {
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
 import {getNodeEditResult, type JsxNodeReference} from './node-references';
+import {printJsxOpeningElement} from './print-jsx';
+import {recastLocToOffset} from './recast-loc-to-offset';
 import {ensureNamedImport, getImportedName} from './sequence-props/imports';
-import {parseAst, serializeAst} from './sequence-props/parse-ast';
+import {parseAst} from './sequence-props/parse-ast';
+import {
+	applySourceEdits,
+	captureImportSnapshots,
+	getInsertImportSourceEdits,
+} from './source-edits';
+import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
 type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
@@ -115,13 +123,113 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 
 	const ast = parseAst(input);
 	const captured = captureJsxNodePaths(ast);
+	const importSnapshots = captureImportSnapshots(ast);
 	const path = findJsxElementPathForDeletion(ast, node.nodePath);
 	if (!path) {
 		throw new Error('Could not find the JSX element to wrap');
 	}
 
 	const original = path.node as JSXElement;
+	if (!original.loc) {
+		throw new Error('Could not locate the JSX element to wrap');
+	}
+
 	const logLine = original.openingElement.loc?.start.line ?? 1;
+	const start = recastLocToOffset(input, original.loc.start);
+	const end = recastLocToOffset(input, original.loc.end);
+	const indent = getLineIndent({input, offset: start});
+	const unit = getIndentationUnit(input, null);
+	const endOfLine = getEndOfLine(input);
+	// Generated JSX can place the closing tag deeper than the opening tag.
+	// Align both tags in the wrapper without reformatting the child's contents.
+	const closingStart = original.closingElement?.loc
+		? recastLocToOffset(input, original.closingElement.loc.start)
+		: null;
+	const closingLineStart =
+		closingStart === null
+			? null
+			: input.lastIndexOf('\n', closingStart - 1) + 1;
+	const closingIndent =
+		closingStart !== null &&
+		closingLineStart !== null &&
+		/^[\t ]*$/.test(input.slice(closingLineStart, closingStart))
+			? getLineIndent({input, offset: closingStart})
+			: indent;
+	const childIndent = `${indent}${unit}`;
+	const source = input.slice(start, end);
+	// Keep whitespace that belongs to literal content byte-for-byte.
+	const preservedRanges: {
+		start: number;
+		end: number;
+		preserveWhitespace: boolean;
+	}[] = [];
+	recast.types.visit(original, {
+		visitTemplateLiteral(templatePath) {
+			if (templatePath.node.loc) {
+				preservedRanges.push({
+					start: recastLocToOffset(input, templatePath.node.loc.start),
+					end: recastLocToOffset(input, templatePath.node.loc.end),
+					preserveWhitespace: true,
+				});
+			}
+
+			this.traverse(templatePath);
+		},
+		visitJSXText(textPath) {
+			if (textPath.node.loc && textPath.node.value.trim().length > 0) {
+				preservedRanges.push({
+					start: recastLocToOffset(input, textPath.node.loc.start),
+					end: recastLocToOffset(input, textPath.node.loc.end),
+					preserveWhitespace: false,
+				});
+			}
+
+			this.traverse(textPath);
+		},
+		visitStringLiteral(stringPath) {
+			if (
+				stringPath.node.loc &&
+				stringPath.node.loc.start.line !== stringPath.node.loc.end.line
+			) {
+				preservedRanges.push({
+					start: recastLocToOffset(input, stringPath.node.loc.start),
+					end: recastLocToOffset(input, stringPath.node.loc.end),
+					preserveWhitespace: true,
+				});
+			}
+
+			this.traverse(stringPath);
+		},
+	});
+	let sourceOffset = 0;
+	const childLines = source.split(/\r?\n/).map((line, index) => {
+		const lineStart = start + sourceOffset;
+		const nextLineBreak = source.indexOf('\n', sourceOffset);
+		sourceOffset = nextLineBreak === -1 ? source.length : nextLineBreak + 1;
+		if (index === 0) {
+			return `${childIndent}${line}`;
+		}
+
+		if (
+			preservedRanges.some(
+				(range) =>
+					lineStart >= range.start &&
+					lineStart < range.end &&
+					(range.preserveWhitespace ||
+						input
+							.slice(lineStart, Math.min(range.end, lineStart + line.length))
+							.trim().length > 0),
+			)
+		) {
+			return line;
+		}
+
+		if (line.trim().length === 0) {
+			return '';
+		}
+
+		return `${childIndent}${line.startsWith(closingIndent) ? line.slice(closingIndent.length) : line.trimStart()}`;
+	});
 	const occupiedNames = new Set<string>();
 	recast.types.visit(ast, {
 		visitIdentifier(identifierPath) {
@@ -159,15 +267,36 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 					),
 				]
 			: [];
+	const opening = b.jsxOpeningElement(name, attributes, false);
+	const openingLines = printJsxOpeningElement({
+		openingElement: opening,
+		input,
+		prettierConfigOverride: null,
+	}).split(/\r?\n/);
+	const replacement = [
+		openingLines[0],
+		...openingLines.slice(1).map((line) => `${indent}${line}`),
+		...childLines,
+		`${indent}</${localName}>`,
+	].join(endOfLine);
 	path.replace(
-		b.jsxElement(
-			b.jsxOpeningElement(name, attributes, false),
-			b.jsxClosingElement(b.jsxIdentifier(localName)),
-			[stripParenthesizedExtra(original) as never],
-		) as never,
+		b.jsxElement(opening, b.jsxClosingElement(b.jsxIdentifier(localName)), [
+			stripParenthesizedExtra(original) as never,
+		]) as never,
 	);
 
-	const output = serializeAst(ast);
+	const output = applySourceEdits({
+		input,
+		edits: [
+			{start, end, replacement},
+			...getInsertImportSourceEdits({
+				ast,
+				input,
+				prettierConfigOverride: null,
+				snapshots: importSnapshots,
+			}),
+		],
+	});
 	const {nodePathRemappings} = getNodePathRemappings({ast, captured, output});
 	return {
 		...getNodeEditResult({
