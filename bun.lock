@@ -1440,6 +1440,9 @@
     "packages/paths": {
       "name": "@remotion/paths",
       "version": "4.0.527",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",

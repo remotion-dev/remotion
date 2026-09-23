@@ -14,6 +14,7 @@ export type ClipboardParamRemotionImportName =
 	| 'Easing'
 	| 'interpolate'
 	| 'interpolateColors'
+	| 'interpolatePaths'
 	| 'useCurrentFrame';
 
 export type ClipboardParamRemotionLocalNames = Partial<
@@ -51,7 +52,8 @@ export const ensureClipboardParamRemotionImports = ({
 		localNames[importedName] = ensureNamedImport({
 			ast,
 			importedName,
-			sourcePath: 'remotion',
+			sourcePath:
+				importedName === 'interpolatePaths' ? '@remotion/paths' : 'remotion',
 			localName: importedName,
 		});
 	}
@@ -164,7 +166,10 @@ const makeOptionsExpression = ({
 			);
 		}
 
-		if (param.output === 'perceptual-scale') {
+		if (
+			param.interpolationFunction === 'interpolate' &&
+			param.output === 'perceptual-scale'
+		) {
 			properties.push(
 				b.objectProperty(
 					b.identifier('output'),

@@ -497,12 +497,25 @@ const calculateOutlineTargets = ({
 					previewInteractive &&
 					controls !== null &&
 					pathFieldSchema?.type === 'svg-path' &&
-					pathPropStatus?.status === 'static' &&
-					typeof pathPropStatus.codeValue === 'string'
+					((pathPropStatus?.status === 'static' &&
+						typeof pathPropStatus.codeValue === 'string') ||
+						(pathPropStatus?.status === 'keyframed' &&
+							pathFieldSchema.keyframable !== false &&
+							pathPropStatus.interpolationFunction === 'interpolatePaths'))
 						? {
 								clientId: connectedClientId,
 								nodePath,
+								propStatus: pathPropStatus,
 								schema: controls.schema,
+								sourceFrame: {
+									displayFrame: targetTimelinePosition,
+									keyframeDisplayOffset: getKeyframeDisplayOffset({
+										propStatus: pathPropStatus,
+										keyframeDisplayOffset,
+										keyframePlaybackRate,
+									}),
+									keyframePlaybackRate,
+								},
 							}
 						: null,
 				canCrop: previewInteractive && controls !== null && cropFields !== null,

@@ -44,7 +44,11 @@ export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
 export type SelectedOutlinePathDragTarget = {
 	readonly clientId: string;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
 	readonly schema: InteractivitySchema;
+	readonly sourceFrame: KeyframeSourceFrame;
 };
 
 export const cropFieldKeys = {

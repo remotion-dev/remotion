@@ -20,10 +20,7 @@ import {
 } from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
-import {
-	isKeyframeInterpolationFunction,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
@@ -443,7 +440,11 @@ const getInterpolationMetadata = (
 			}
 
 			const extrapolateType = getExtrapolateType(value);
-			if (!extrapolateType) {
+			if (
+				!extrapolateType ||
+				(interpolationFunction === 'interpolatePaths' &&
+					extrapolateType === 'identity')
+			) {
 				return null;
 			}
 
@@ -469,7 +470,7 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'output') {
-			if (interpolationFunction === 'interpolateColors') {
+			if (interpolationFunction !== 'interpolate') {
 				return null;
 			}
 
@@ -484,7 +485,7 @@ const getInterpolationMetadata = (
 
 		if (key === 'outputType') {
 			if (
-				interpolationFunction === 'interpolateColors' ||
+				interpolationFunction !== 'interpolate' ||
 				getInterpolateOutputType(value) === null
 			) {
 				return null;
@@ -559,14 +560,18 @@ const getInterpolationKeyframes = (
 	}
 
 	const callExpression = node as CallExpression;
-	if (
-		callExpression.callee.type !== 'Identifier' ||
-		!isKeyframeInterpolationFunction(callExpression.callee.name)
-	) {
+	if (callExpression.callee.type !== 'Identifier') {
 		return undefined;
 	}
 
-	const interpolationFunction = callExpression.callee.name;
+	const interpolationFunction =
+		CodemodsInternals.getKeyframeInterpolationFunctionForCallee({
+			ast,
+			callee: callExpression.callee,
+		});
+	if (interpolationFunction === null) {
+		return undefined;
+	}
 
 	const frameArg = callExpression.arguments[0];
 	const inputArg = callExpression.arguments[1];

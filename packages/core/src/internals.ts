@@ -113,7 +113,10 @@ import {
 	type InteractivitySchema,
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
-import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
+import {
+	interpolateKeyframedStatus,
+	setInterpolatePaths,
+} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
@@ -457,6 +460,7 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	setInterpolatePaths,
 	makeStaticDragOverride,
 	makeKeyframedDragOverride,
 	resolveDragOverrideValue,
