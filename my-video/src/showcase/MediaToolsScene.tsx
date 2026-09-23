@@ -32,7 +32,7 @@ import {AbsoluteFill, Img, staticFile, useDelayRender, useVideoConfig} from "rem
 import {palette} from "./palette";
 import {poppins} from "./font";
 
-type Row = {label: string; value: string; ok: boolean};
+export type Row = {label: string; value: string; ok: boolean};
 
 const MP4 = staticFile("sample-clip.mp4");
 const WEBM = staticFile("sample-clip.webm");
@@ -43,7 +43,7 @@ const WAV = staticFile("sample-tone.wav");
 // ("... is not a URL"), and universalReader takes a leading "/" for a
 // filesystem path and calls Node's fs (which fails in the browser). Both
 // get an absolute URL instead.
-const absolute = (src: string) => new URL(src, window.location.href).href;
+export const absolute = (src: string) => new URL(src, window.location.href).href;
 
 // Each experiment gets its own time limit, so one stalled codec call shows up
 // as a "failed: timed out" row instead of tripping the scene's delayRender()
@@ -52,7 +52,7 @@ const EXPERIMENT_TIMEOUT_MS = 15000;
 
 // Runs one experiment and records its real outcome: the result text, or the
 // error message if it threw or timed out. Nothing here is assumed to work.
-const attempt = async (label: string, fn: () => Promise<string>): Promise<Row> => {
+export const attempt = async (label: string, fn: () => Promise<string>): Promise<Row> => {
   let timer: ReturnType<typeof setTimeout> | null = null;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error(`timed out after ${EXPERIMENT_TIMEOUT_MS / 1000}s`)), EXPERIMENT_TIMEOUT_MS);
@@ -84,15 +84,17 @@ const audioTrackOf = (tracks: MediaParserTrack[]): MediaParserAudioTrack => {
 // - media-parser: parseMedia() with webReader, universalReader and on a web
 //   worker (parseMediaOnWebWorker), a mediaParserController() aborted on
 //   purpose and recognised with hasBeenAborted(), another one's
-//   getSeekingHints() after a full parse, and WEBCODECS_TIMESCALE.
+//   getSeekingHints() after a full parse, one paused and resumed with
+//   add/removeEventListener() and onParseProgress, and WEBCODECS_TIMESCALE.
 // - webcodecs: the container/codec catalog functions, the can*Track()
 //   checks, extractFrames() + rotateAndResizeVideoFrame() (the thumbnails),
 //   createVideoDecoder()/createAudioDecoder() fed by parseMedia(),
 //   getPartialAudioData() + convertAudioData() (resampled and converted to
 //   s16), and two convertMedia() runs, one per writer (bufferWriter in
 //   memory, rotated and resized, with onProgress and finalState; webFsWriter
-//   to the origin-private file system), with webcodecsController() and the
-//   default track handlers.
+//   to the origin-private file system), with a paused and resumed
+//   webcodecsController(), onVideoFrame/onAudioData and the default track
+//   handlers.
 //
 // This Chromium can't decode H.264 or AAC through WebCodecs, which is why the
 // .mp4 checks come out false and the decoding work uses the VP9 .webm and the
@@ -122,15 +124,34 @@ export const MediaToolsScene: React.FC = () => {
       let mp4Tracks: MediaParserTrack[] = [];
       let webmTracks: MediaParserTrack[] = [];
       await add("parseMedia(mp4, webReader)", async () => {
-        const r = await parseMedia({
+        // The controller is paused before parsing starts and resumed 50ms
+        // later; its listeners record both events, and a removed listener
+        // never runs. progressIntervalInMs: 0 calls onParseProgress unthrottled.
+        const controller = mediaParserController();
+        const events: string[] = [];
+        const removed = () => events.push("removed listener ran");
+        controller.addEventListener("pause", () => events.push("pause"));
+        controller.addEventListener("resume", () => events.push("resume"));
+        controller.addEventListener("pause", removed);
+        controller.removeEventListener("pause", removed);
+        let progressCalls = 0;
+        controller.pause();
+        const parsing = parseMedia({
           src: MP4,
           reader: webReader,
-          controller: mediaParserController(),
+          controller,
           acknowledgeRemotionLicense: true,
+          onParseProgress: () => {
+            progressCalls++;
+          },
+          progressIntervalInMs: 0,
+          logLevel: "warn",
           fields: {container: true, durationInSeconds: true, dimensions: true, fps: true, videoCodec: true, audioCodec: true, tracks: true},
         });
+        setTimeout(() => controller.resume(), 50);
+        const r = await parsing;
         mp4Tracks = r.tracks;
-        return `${r.container} · ${r.videoCodec}/${r.audioCodec} · ${r.dimensions?.width}×${r.dimensions?.height} · ${r.fps}fps · ${r.durationInSeconds?.toFixed(2)}s`;
+        return `${r.container} · ${r.videoCodec}/${r.audioCodec} · ${r.dimensions?.width}×${r.dimensions?.height} · ${r.fps}fps · ${r.durationInSeconds?.toFixed(2)}s · controller ${events.join("→")} · ${progressCalls} onParseProgress`;
       });
       await add("parseMediaOnWebWorker(webm)", async () => {
         const r = await parseMediaOnWebWorker({src: absolute(WEBM), acknowledgeRemotionLicense: true, fields: {container: true, videoCodec: true, tracks: true}});
@@ -192,7 +213,8 @@ export const MediaToolsScene: React.FC = () => {
           timestampsInSeconds: [0.5, 1.5, 2.5],
           acknowledgeRemotionLicense: true,
           onFrame: (frame) => {
-            const small = rotateAndResizeVideoFrame({frame, rotation: 0, resizeOperation: {mode: "width", width: 160}});
+            // needsToBeMultipleOfTwo rounds the size to even numbers, which most encoders require.
+            const small = rotateAndResizeVideoFrame({frame, rotation: 0, resizeOperation: {mode: "width", width: 160}, needsToBeMultipleOfTwo: true});
             const canvas = document.createElement("canvas");
             canvas.width = small.displayWidth;
             canvas.height = small.displayHeight;
@@ -295,12 +317,28 @@ export const MediaToolsScene: React.FC = () => {
       });
       await add("convertMedia(vp8, rotate, resize, bufferWriter)", async () => {
         const start = performance.now();
+        // The same pause/resume check as above, on a webcodecsController().
+        // onVideoFrame sees every decoded frame before it is re-encoded and
+        // returns it unchanged here; it could also draw on it or swap it.
+        const controller = webcodecsController();
+        const events: string[] = [];
+        controller.addEventListener("pause", () => events.push("pause"));
+        controller.addEventListener("resume", () => events.push("resume"));
+        let framesSeen = 0;
+        controller.pause();
+        setTimeout(() => controller.resume(), 50);
         const result = await convertMedia({
           src: WEBM,
           container: "webm",
           videoCodec: "vp8",
           writer: bufferWriter,
-          controller: webcodecsController(),
+          controller,
+          onVideoFrame: ({frame}) => {
+            framesSeen++;
+            return frame;
+          },
+          progressIntervalInMs: 50,
+          logLevel: "warn",
           onVideoTrack: defaultOnVideoTrackHandler,
           onAudioTrack: defaultOnAudioTrackHandler,
           rotate: 90,
@@ -314,18 +352,29 @@ export const MediaToolsScene: React.FC = () => {
           // Parse the output back, so the size shown is what was written.
           const {dimensions} = await parseMedia({src: blob, acknowledgeRemotionLicense: true, fields: {dimensions: true}});
           const {encodedVideoFrames, millisecondsWritten} = result.finalState;
-          return `${dimensions?.width}×${dimensions?.height} · ${encodedVideoFrames} frames, ${millisecondsWritten}ms · ${(blob.size / 1024).toFixed(0)} KB in ${((performance.now() - start) / 1000).toFixed(1)}s`;
+          return `${dimensions?.width}×${dimensions?.height} · ${encodedVideoFrames} frames (${framesSeen} via onVideoFrame), ${millisecondsWritten}ms · ${(blob.size / 1024).toFixed(0)} KB in ${((performance.now() - start) / 1000).toFixed(1)}s · ${events.join("→")}`;
         } finally {
           await result.remove();
         }
       });
       await add("convertMedia(wav → webm opus, webFsWriter)", async () => {
-        const result = await convertMedia({src: WAV, container: "webm", audioCodec: "opus", writer: webFsWriter});
+        let audioChunks = 0;
+        const result = await convertMedia({
+          src: WAV,
+          container: "webm",
+          audioCodec: "opus",
+          writer: webFsWriter,
+          // Like onVideoFrame, for decoded audio before it is re-encoded.
+          onAudioData: ({audioData}) => {
+            audioChunks++;
+            return audioData;
+          },
+        });
         // remove() deletes the file from the origin-private file system,
         // even if reading it back fails.
         try {
           const blob = await result.save();
-          return `${(blob.size / 1024).toFixed(1)} KB`;
+          return `${(blob.size / 1024).toFixed(1)} KB · ${audioChunks} chunks via onAudioData`;
         } finally {
           await result.remove();
         }

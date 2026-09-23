@@ -33,7 +33,7 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
 
   // delay replaces a hand-shifted frame; durationInFrames stretches the
   // spring to settle in exactly 24 frames.
-  const wordmarkScale = spring({fps, frame, delay: 30, durationInFrames: 24, config: {damping: 200}});
+  const wordmarkScale = spring({fps, frame, delay: 30, durationInFrames: 24, durationRestThreshold: 0.001, config: {damping: 200}});
 
   return (
     <AbsoluteFill

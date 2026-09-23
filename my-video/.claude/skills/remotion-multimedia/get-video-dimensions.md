@@ -42,14 +42,14 @@ console.log(dimensions.height); // e.g. 1080
 
 ## Using with local files
 
-For local files, use `FileSource` instead of `UrlSource`:
+In Node.js and Bun, read a file path with `FilePathSource` instead of `UrlSource`. For a `File` from an `<input>` or drag-and-drop, use `BlobSource`. (Mediabunny 1.56.1 has no `FileSource`.)
 
 ```tsx
-import { Input, ALL_FORMATS, FileSource } from "mediabunny";
+import { Input, ALL_FORMATS, FilePathSource } from "mediabunny";
 
 const input = new Input({
   formats: ALL_FORMATS,
-  source: new FileSource(file), // File object from input or drag-drop
+  source: new FilePathSource("public/video.mp4"),
 });
 
 const videoTrack = await input.getPrimaryVideoTrack();

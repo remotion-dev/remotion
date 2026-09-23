@@ -63,6 +63,43 @@ The owner's accreditation, membership and award badges, saved unchanged for thei
 - **Check the year before using one.** The CommBank badge is for the 2026/2027 financial year and the awards badge for 2026. When a new one arrives, save it next to these with its own year in the name.
 - **These are other organisations' marks**, shown as the owner's credentials. Don't recolour, crop, redraw or animate their parts separately; fade, scale or slide each badge as a whole.
 
+## Lender logos: `public/lenders/`
+
+Logos of the lenders the owner is accredited with, so they are cleared to appear in the owner's videos; follow each lender's broker brand guidelines (clear space, minimum size, no recolouring). Show them with `LenderRow` from the brand kit, and add each new file to its `LENDERS` list.
+
+| File | Pixels | Notes |
+|---|---|---|
+| `commbank.png` | 532×434 | transparent; the stacked version (diamond above the black "CommBank" wordmark), cropped around the logo. The black wordmark needs a light background |
+| `westpac.png` | 632×264 | transparent; the red "W" symbol on its own, cropped around it |
+| `anz.webp` | 632×356 | transparent |
+| `firstmac.png` | 300×102 | transparent; small, so keep it at or below about 100px tall |
+| `st-george.png` | 400×340 | white background. A stock-site copy whose fake transparency (a grey checkerboard in the pixels) was whitened; replace it with the official file from St.George's broker portal |
+| `nab.png` | 703×289 | NAB's white-on-black version, cropped to its black box (the file around it had a fake checkerboard) |
+| `bankwest.png` | 688×252 | Bankwest's new logo, orange on its dark grey background, cropped around the logo. The orange ribbon symbol on its own is Bankwest's old logo; don't use it |
+
+Official files come from each lender's broker portal or brand team; SVG or transparent PNG is best. Replace a file under the same name and `LenderRow` picks it up.
+
+## Emoji: `public/emoji/`
+
+39 [Noto animated emoji](https://googlefonts.github.io/noto-emoji-animation/) saved as Lottie JSON (vector, so sharp at any size), picked for FinHub videos: money, calls to action, reactions, hands and celebrations. The set has no house, key or chart emoji. Show one with `<NotoEmoji name="thumbs-up" size={160} loop />` from the brand kit. The `EmojiCatalog` composition ("Brand" folder) shows every saved emoji with its name.
+
+- **Credit:** they're CC BY 4.0, so a video that uses them credits "Noto Emoji Animation by Google, CC BY 4.0" in its description.
+- **More:** `node scripts/fetch-noto-emoji.mjs rocket fire …` saves others by their `@remotion/animated-emoji` name (411 exist; `getAvailableEmojis()` lists them). Here, run it with `NODE_USE_ENV_PROXY=1`; `googlefonts.github.io` itself is blocked, but the files come from `fonts.gstatic.com`.
+
+## Brand kit: `src/brand/`
+
+Reusable pieces for the owner's real videos; start from these rather than writing new ones. Each animates its own entrance, so wrap it in a `<Sequence>` for timing. `BrandKitDemo` (in the "Brand" folder of the Studio, 1920×1080) shows them all with sample text.
+
+- `BilingualCaption` (`vi`, `en`): Vietnamese main line and English line under it, following "Language" above.
+- `LowerThird` (`name`, `roleVi`, `roleEn`): a name with a bilingual role, sliding in from the left.
+- `BadgeRow` (`height`, at most 160): the five badges on a white card, the awards badge 1.5× taller so it stays readable.
+- `LenderRow` (`height`, at most 100): the lender logos from `public/lenders/` on a white card.
+- `NotoEmoji` (`name`, `size`, `loop`): an animated emoji from `public/emoji/` (see "Emoji" above).
+- `EndCard` (`titleVi`, `titleEn`, `website`, `phone`): closing call to action with contact details and the badge row. There are no real contact details in the repo; pass them in.
+- `theme.ts`: placeholder colours; replace them with FinHub's brand guide when there is one.
+
+If a second video project ever needs these, `remotion-dev/library-starter` is Remotion's template for publishing them as a package; it pins Remotion 4.0.46, so upgrade it first.
+
 ## Project structure
 
 - `src/index.ts` — entry point, registers the root component
@@ -76,6 +113,8 @@ The owner's accreditation, membership and award badges, saved unchanged for thei
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`: the showcase's sample media (regenerate with `node scripts/generate-sample-media.mjs`; `sample-clip.webm` is the VP9 copy for anything that decodes through WebCodecs), a font and a three.js typeface. What each file is for is in `docs/findings.md`.
 - `public/badges/` — the owner's accreditation and award badges for real videos (see "Badges and logos" above)
+- `public/lenders/` — logos of the lenders the owner is accredited with (see "Lender logos" above)
+- `public/emoji/` — Noto animated emoji as Lottie JSON (see "Emoji" above); `scripts/fetch-noto-emoji.mjs` adds more
 - `.claude/elements/` — local copy of the [Remotion Elements](https://www.remotion.dev/elements/) gallery, drop-in components to copy into a scene (see "Elements" below)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
 
@@ -101,7 +140,7 @@ Without this, effects/`<ThreeCanvas>` scenes render as solid black — Chromium 
 Each was confirmed with a real render. The details, and how the showcase works around each one, are in `docs/findings.md`.
 
 - **The render browser can't reach** `remotion.media` (`@remotion/sfx` sounds, the video-matting and whisper-webgpu models), `fonts.gstatic.com` (`@remotion/google-fonts` crashes the render, so use `font.ts`'s system font stack here) or `unpkg.com` (`@remotion/rive` hangs the render rather than failing). Files copied into `public/` work.
-- **No H.264 or AAC decoding through WebCodecs.** `@remotion/media`'s `<Video>` quietly falls back to `<OffthreadVideo>`; give WebCodecs-based code a VP9 `.webm`.
+- **No H.264, HEVC or AAC decoding through WebCodecs.** `@remotion/media`'s `<Video>` quietly falls back to `<OffthreadVideo>` and `<Audio>` to `<Html5Audio>`; give WebCodecs-based code a VP9 `.webm` (with Opus for sound). `MediabunnyScene` lists what decodes here.
 - **Chromium 141, so no `HtmlInCanvas`** (it needs 149+). Most `@remotion/transitions` presentations are built on it; only `fade`, `slide`, `wipe`, `flip`, `clockWipe`, `iris`, `none` and `pushCut` render here. `<ThreeWebGPUCanvas>` crashes the render.
 - **At most 16 WebGL contexts per page**, and each component with `effects` uses two, so keep eight or fewer mounted at once.
 
@@ -127,7 +166,9 @@ The script copies the skills without their symlinks (which break on Windows chec
 
 ## Elements
 
-`.claude/elements/` is a local copy of the official [Remotion Elements](https://www.remotion.dev/elements/) gallery (vendored from this monorepo's `packages/docs/elements`) — 40 small, self-contained, drop-in components across 11 categories (audio, backgrounds, captions, commerce, data, layouts, maps, overlays, storytelling, text, youtube). `.claude/elements/CATALOG.md` lists every one with its description. Elements are designed to be copied and edited directly (not installed as a dependency): pick one from the catalog, copy its `.tsx` file (and `initial-props.ts` if present) into `src/showcase/`, and adapt it — check the file's own imports for any package to install first.
+`.claude/elements/` is a local copy of the official [Remotion Elements](https://www.remotion.dev/elements/) gallery (vendored from this monorepo's `packages/docs/elements`) — 41 small, self-contained, drop-in components across 11 categories (audio, backgrounds, captions, commerce, data, layouts, maps, overlays, storytelling, text, youtube). `.claude/elements/CATALOG.md` lists every one with its description. Elements are designed to be copied and edited directly (not installed as a dependency): pick one from the catalog, copy its `.tsx` file (and `initial-props.ts` if present) into `src/showcase/`, and adapt it — check the file's own imports for any package to install first.
+
+Two files come from the live site instead, because they are newer than `packages/docs/elements`: `captions/rounded-captions` and `youtube/youtube-subscribe-nudge`. The vendor script deletes and rewrites the whole folder, so after re-vendoring, restore them with `git checkout -- .claude/elements/captions/rounded-captions .claude/elements/youtube/youtube-subscribe-nudge` and re-add their `CATALOG.md` lines, unless upstream has caught up.
 
 Re-vendor after pulling upstream changes to `packages/docs/elements`:
 
@@ -143,3 +184,5 @@ node scripts/vendor-elements.mjs   # defaults to ../packages/docs/elements; pass
 - In components, take `delayRender`/`continueRender`/`cancelRender` from `useDelayRender()` (render-scoped, the documented recommendation) rather than importing the global functions; every scene here does.
 - Users may edit files between conversations (including visually in Remotion Studio); treat surprising diffs as intentional and don't overwrite them.
 - Run `npm run lint` before committing.
+- Read a media file's duration, size or codecs with Mediabunny (`Input` with `UrlSource(staticFile(…))`, or `FilePathSource` in Node), as in the `remotion-multimedia` skill, not with the deprecated `parseMedia()`/`getVideoMetadata()`. It's a direct dependency, pinned to the version `@remotion/media` uses.
+- The owner uses Remotion's free license (individuals, for-profit companies with up to 3 employees, and non-profits qualify; see the monorepo's `LICENSE.md`). Pass `acknowledgeRemotionLicense` where an API takes it (`<Player>`, `parseMedia()`, `convertMedia()` and others); it only hides Remotion's license notice.

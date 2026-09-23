@@ -47,6 +47,7 @@ import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
 import {MediaToolsScene} from "./MediaToolsScene";
+import {MediabunnyScene} from "./MediabunnyScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
 import {EFFECTS_CATALOG_DURATION, EffectsCatalogScene} from "./EffectsCatalogScene";
 import {CutFlash} from "./CutFlash";
@@ -67,7 +68,7 @@ const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
 // Scenes of SCENE_DURATION each; EffectsCatalogScene, the one longer
 // sequence, is added separately.
-const SCENE_COUNT = 24;
+const SCENE_COUNT = 25;
 // Separators that are <TransitionSeries.Overlay>s rather than Transitions:
 // an overlay sits on the cut without overlapping the scenes, so it doesn't
 // shorten the reel.
@@ -98,7 +99,7 @@ const tEased = linearTiming({durationInFrames: TRANSITION_DURATION, easing: Easi
 // for — the reel used to end on 8 blank frames because of it.
 // reverse runs the spring backwards in time: progress still goes 0 -> 1, but
 // starts slow and finishes fast instead of the usual quick start.
-const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITION_DURATION, reverse: true});
+const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITION_DURATION, durationRestThreshold: 0.001, reverse: true});
 
 // The single, complete demo reel: every scene from ShowcaseReel and
 // ExtendedReel combined into one video (one title, one outro — the two
@@ -132,8 +133,10 @@ const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITI
 // see its own comment for why); @remotion/layout-utils + @remotion/
 // rounded-text-box + @remotion/fonts (RoundedTextBoxScene); @remotion/sfx
 // (SfxScene); @remotion/gsap (GsapScene); core remotion media/canvas
-// components (CoreMediaScene); core remotion environment/introspection APIs
-// (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
+// components (CoreMediaScene); @remotion/media-parser + @remotion/webcodecs
+// (MediaToolsScene); Mediabunny called directly, the library under
+// @remotion/media (MediabunnyScene); core remotion environment/introspection
+// APIs (CoreEnvironmentScene); core remotion Easing/<Series>/<Loop>/<Freeze>/
 // random() (FundamentalsScene); every interpolate() option and its exported
 // validators (InterpolateScene); @remotion/animation-utils + rough-notation
 // (OutroScene).
@@ -144,22 +147,31 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <TitleScene title={title} subtitle={subtitle} />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade({shouldFadeOutExitingScene: true})} timing={t} />
+        {/* A presentation wraps each scene for its whole sequence, not just
+            the transition: the entering scene at progress 1 until it ends
+            (see incomingEndScale below), and the exiting one at progress 0
+            from its first frame. So enter/exit styles are static styles for
+            the whole scene; a dimming exitStyle darkened the title from frame
+            0 in a test render. They only set an opaque background here. */}
+        <TransitionSeries.Transition
+          presentation={fade({shouldFadeOutExitingScene: true, enterStyle: {backgroundColor: palette.bg}, exitStyle: {backgroundColor: palette.bg}})}
+          timing={t}
+        />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ShapesScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={iris({width: 1280, height: 720})} timing={tEased} />
+        <TransitionSeries.Transition presentation={iris({width: 1280, height: 720, outerEnterStyle: {backgroundColor: palette.bg}, innerEnterStyle: {backgroundColor: palette.bg}, outerExitStyle: {}, innerExitStyle: {backgroundColor: palette.bg}})} timing={tEased} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <CaptionsScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={flip({direction: "from-left", perspective: 500})} timing={t} />
+        <TransitionSeries.Transition presentation={flip({direction: "from-left", perspective: 500, outerEnterStyle: {}, innerEnterStyle: {backgroundColor: palette.bg}, outerExitStyle: {}, innerExitStyle: {backgroundColor: palette.bg}})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <RouteScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={clockWipe({width: 1280, height: 720})} timing={t} />
+        <TransitionSeries.Transition presentation={clockWipe({width: 1280, height: 720, outerEnterStyle: {backgroundColor: palette.bg}, innerEnterStyle: {}, outerExitStyle: {}, innerExitStyle: {backgroundColor: palette.bg}})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <EffectsScene accentColor={accentColor} />
@@ -175,7 +187,7 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={EFFECTS_CATALOG_DURATION}>
           <EffectsCatalogScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={t} />
+        <TransitionSeries.Transition presentation={slide({direction: "from-bottom", enterStyle: {backgroundColor: palette.bg}, exitStyle: {backgroundColor: palette.bg}})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <MediaScene />
@@ -204,6 +216,12 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
             // the default, 1.07, would leave AudioScene zoomed in and cropped
             // until it ends, not just during the cut.
             incomingEndScale: 1,
+            // Scale around a point above the centre, where the titles sit.
+            transformOrigin: "50% 35%",
+            outerEnterStyle: {backgroundColor: palette.bg},
+            innerEnterStyle: {},
+            outerExitStyle: {},
+            innerExitStyle: {backgroundColor: palette.bg},
           })}
           timing={t}
         />
@@ -231,7 +249,7 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ThreeScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({direction: "from-left"})} timing={t} />
+        <TransitionSeries.Transition presentation={wipe({direction: "from-left", outerEnterStyle: {backgroundColor: palette.bg}, innerEnterStyle: {}, outerExitStyle: {}, innerExitStyle: {backgroundColor: palette.bg}})} timing={t} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <ThreeTextScene />
@@ -270,6 +288,11 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <MediaToolsScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-top"})} timing={t} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <MediabunnyScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={swapOrFallback()} timing={t} />
 

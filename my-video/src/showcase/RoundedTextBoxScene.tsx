@@ -7,6 +7,8 @@ import {useEffect, useMemo, useState} from "react";
 import {AbsoluteFill, spring, staticFile, useCurrentFrame, useDelayRender, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
+import {RoundedCaptions} from "./RoundedCaptions";
+import {sampleCaptions} from "./sampleCaptions";
 
 const LOCAL_FONT_FAMILY = "Bangers";
 
@@ -193,6 +195,20 @@ export const RoundedTextBoxScene: React.FC = () => {
           loadFont(): self-hosted {LOCAL_FONT_FAMILY}, weight 400, U+0020-007E
         </div>
       ) : null}
+      {/* The Rounded Captions Element, built on Interactive.withSchema(), in
+          the self-hosted font. Mounted only once that font has loaded, since
+          its fitTextOnNLines()/measureText() calls set validateFontIsLoaded. */}
+      {localFontReady ? (
+        <RoundedCaptions
+          captions={sampleCaptions}
+          playbackRate={null}
+          combineTokensWithinMilliseconds={1200}
+          fontFamily={LOCAL_FONT_FAMILY}
+          width={620}
+          height={64}
+          style={{marginTop: 12}}
+        />
+      ) : null}
       <div style={{marginTop: 10, fontSize: 14, color: palette.textDim, fontFamily: "monospace", textAlign: "center"}}>
         <div>
           getAvailableFonts(): {availableFonts.length} Google Fonts (Poppins listed: {String(poppinsListed)})
@@ -200,6 +216,9 @@ export const RoundedTextBoxScene: React.FC = () => {
         <div>
           Poppins getInfo(): {Object.keys(poppinsInfo.fonts.normal).length} weights × {Object.keys(poppinsInfo.fonts).length} styles ·
           subsets: {poppinsInfo.subsets.join(", ")} · includes "vietnamese": {String(poppinsVietnamese)}
+        </div>
+        <div>
+          importName {poppinsInfo.importName} · version {poppinsInfo.version} · {Object.keys(poppinsInfo.unicodeRanges).length} unicodeRanges (Poppins isn't variable, so no axes)
         </div>
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 32, fontWeight: 600}}>

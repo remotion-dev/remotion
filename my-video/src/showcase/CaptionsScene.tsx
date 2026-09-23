@@ -119,6 +119,8 @@ export const CaptionsScene: React.FC = () => {
         loop
         playbackRate={1.5}
         trimBefore={15}
+        // trimAfter ends the window at source frame 60, so loop repeats frames 15-60.
+        trimAfter={60}
         style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.22}}
       />
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 28}}>

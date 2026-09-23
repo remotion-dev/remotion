@@ -60,6 +60,13 @@ export const BrowserTranscriptionScene: React.FC = () => {
         const multilingual = models.filter((m) => m.multilingual);
         const translating = models.filter((m) => m.supportsTranslation);
         rows.push({label: "getAvailableModels() multilingual", value: `${multilingual.length} of ${models.length} (${WHISPER_WEBGPU_MODELS.length} raw ids): ${names(multilingual)}`});
+        // parameters (the model's size) and modelId (the Hugging Face repo it downloads from).
+        const byParameters = [...models].sort((x, y) => x.parameters - y.parameters);
+        const [smallest, largest] = [byParameters[0], byParameters[byParameters.length - 1]];
+        rows.push({
+          label: "parameters · modelId",
+          value: `${smallest.name} ${(smallest.parameters / 1e6).toFixed(0)}M (${smallest.modelId}) … ${largest.name} ${(largest.parameters / 1e6).toFixed(0)}M (${largest.modelId})`,
+        });
         rows.push({
           label: "supportsTranslation",
           value: `${translating.length} of ${models.length}: ${names(translating)} · multilingual without it: ${names(multilingual.filter((m) => !m.supportsTranslation))}`,

@@ -1,5 +1,6 @@
-// Regenerates public/sample-clip.mp4, public/sample-clip.gif and
-// public/sample-tone.wav — locally-synthesized stand-ins for real footage
+// Regenerates public/sample-clip.mp4 (with .gif and .webm copies),
+// public/sample-tone.wav (with .m4a and sample-clip-tone.webm copies) —
+// locally-synthesized stand-ins for real footage
 // and audio, used by the ExtendedReel composition's MediaScene and
 // AudioScene. They exist so those scenes don't depend on network access to
 // stock media; if you have real footage/audio to demo instead, just point
@@ -115,4 +116,32 @@ run(ffmpeg, [
   join(publicDir, "sample-tone.wav"),
 ]);
 
-console.log("Done. Regenerated public/sample-clip.mp4, sample-clip.gif and sample-tone.wav.");
+// 4. The tone in two containers, so the media props that only matter with
+// sound can be heard and measured (the mp4's own AAC track is silent):
+// VP9 + Opus in WebM, which <Video> decodes through Mediabunny, and AAC in
+// .m4a, which this Chromium can't decode, so <Audio> falls back to
+// <Html5Audio> (MediabunnyScene).
+run(ffmpeg, [
+  "-y",
+  "-i",
+  join(publicDir, "sample-clip.webm"),
+  "-i",
+  join(publicDir, "sample-tone.wav"),
+  "-map",
+  "0:v",
+  "-map",
+  "1:a",
+  "-c:v",
+  "copy",
+  "-c:a",
+  "libopus",
+  "-b:a",
+  "64k",
+  "-shortest",
+  join(publicDir, "sample-clip-tone.webm"),
+]);
+// Remotion's bundled ffmpeg doesn't map the .m4a extension to a muxer, so the
+// (MP4) format is named explicitly.
+run(ffmpeg, ["-y", "-i", join(publicDir, "sample-tone.wav"), "-c:a", "aac", "-b:a", "96k", "-f", "mp4", join(publicDir, "sample-tone.m4a")]);
+
+console.log("Done. Regenerated public/sample-clip.mp4, sample-clip.gif, sample-clip.webm, sample-tone.wav, sample-clip-tone.webm and sample-tone.m4a.");

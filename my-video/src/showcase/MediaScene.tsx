@@ -30,11 +30,11 @@ export const MediaScene: React.FC = () => {
   const [gifInfo, setGifInfo] = useState<string | null>(null);
 
   useEffect(() => {
-    const {waitUntilDone, free} = preloadGif(staticFile("sample-clip.gif"));
+    const {waitUntilDone, free} = preloadGif(staticFile("sample-clip.gif"), {requestInit: {credentials: "same-origin"}});
     (async () => {
       try {
         await waitUntilDone();
-        setGifDuration(await getGifDurationInSeconds(staticFile("sample-clip.gif")));
+        setGifDuration(await getGifDurationInSeconds(staticFile("sample-clip.gif"), {requestInit: {credentials: "same-origin"}}));
         setResolvedUrl(await resolveRedirect(staticFile("sample-clip.webm")));
         continueRender(handle);
       } catch (err) {
@@ -117,6 +117,11 @@ export const MediaScene: React.FC = () => {
             objectFit="cover"
             cropLeft={crop}
             cropRight={crop}
+            cropTop={crop / 2}
+            cropBottom={crop / 2}
+            requestInit={{credentials: "same-origin"}}
+            delayRenderTimeoutInMilliseconds={20000}
+            delayRenderRetries={1}
             // Only 2D-backend effects here: they draw on plain 2D canvases and
             // take no WebGL context. This scene is mounted together with
             // EffectsCatalogScene (12 WebGL contexts) during the transition
@@ -153,6 +158,7 @@ export const MediaScene: React.FC = () => {
       <MacOSCursor
         cursor={useCustomCursor ? "custom" : cursorName}
         customCursor="grabbing"
+        className="demo-cursor"
         style={{position: "absolute", left: cursorX, top: cursorY, zIndex: 3}}
       />
       <div style={{position: "absolute", top: 100, width, textAlign: "center", color: palette.textDim, fontSize: 14, fontFamily: "monospace"}}>

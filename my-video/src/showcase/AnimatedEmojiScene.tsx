@@ -1,5 +1,5 @@
 import {AnimatedEmoji, getAvailableEmojis} from "@remotion/animated-emoji";
-import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
+import {AbsoluteFill, interpolate, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
 import {palette} from "./palette";
 import {poppins} from "./font";
 
@@ -27,7 +27,16 @@ export const AnimatedEmojiScene: React.FC = () => {
         @remotion/animated-emoji · self-hosted, no CDN at render time
       </div>
       <div style={{transform: `scale(${scale})`, width: 260, height: 260}}>
-        <AnimatedEmoji emoji="star-struck" scale="0.5" playbackRate={1.5} style={{width: 260, height: 260}} />
+        {/* calculateSrc picks the file for each emoji, scale and format. This is
+            the package's default spelled out (a staticFile() in public/);
+            return a CDN URL instead to host the files elsewhere. */}
+        <AnimatedEmoji
+          emoji="star-struck"
+          scale="0.5"
+          playbackRate={1.5}
+          calculateSrc={({emoji, scale: emojiScale, format}) => staticFile(`${emoji}-${emojiScale}x.${format === "hevc" ? "mp4" : "webm"}`)}
+          style={{width: 260, height: 260}}
+        />
       </div>
       <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace", marginTop: 8}}>
         getAvailableEmojis(): {availableEmojis.length} emoji catalogued

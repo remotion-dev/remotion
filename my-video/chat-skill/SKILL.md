@@ -19,6 +19,8 @@ Code you write targets the `my-video/` project in the `danielnguyenfinhub/remoti
 - `src/Composition.tsx` — existing `MyComp` composition (1280×720 @ 30fps)
 - `src/index.css` — Tailwind v4 is enabled
 - `public/` — static assets, referenced with `staticFile()`
+- `src/brand/` — the FinHub brand kit, to reuse in every video: `BilingualCaption`, `LowerThird`, `BadgeRow`, `LenderRow`, `NotoEmoji`, `EndCard`, with placeholder colours in `theme.ts`
+- `public/emoji/` — 39 Noto animated emoji as Lottie JSON (money, calls to action, reactions, hands, celebrations); `<NotoEmoji name="thumbs-up" size={160} loop />` shows one, and the `EmojiCatalog` composition lists their names. Credit "Noto Emoji Animation by Google, CC BY 4.0" in the video's description.
 - `public/badges/` — the owner's badges, for end cards and "why choose us" slides: `commbank-platinum-broker-2026-27.webp`, `small-business-champion-awards-2026-finalist.jpg`, `afca.png`, `connective.png`, `mfaa-accredited-finance-broker.png`. Only the CommBank badge works on a dark background; put the others on a white or light card. Keep the MFAA one small (the file is 174×161).
 - Remotion and every `@remotion/*` package are installed at 4.0.517 — all of them may be imported
 

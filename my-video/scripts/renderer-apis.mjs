@@ -52,6 +52,7 @@ import {
 } from "@remotion/renderer";
 import {addElementLibraryToStudio, createElementPayload, installInStudio} from "@remotion/studio-protocol";
 import {VERSION} from "remotion/version";
+import {ALL_FORMATS, FilePathSource, Input} from "mediabunny";
 import {bundlerOverride} from "../bundler-override.mjs";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -88,7 +89,7 @@ const assertDuration = async (path, frames, fps) => {
 
 // --- Offline helpers from the cloud packages -------------------------------
 
-await step("lambda getRegions()", () => `${getLambdaRegions().length} AWS regions`);
+await step("lambda getRegions()", () => `${getLambdaRegions().length} AWS regions, ${getLambdaRegions({enabledByDefaultOnly: true}).length} of them enabled by default in a new account`);
 await step("lambda speculateFunctionName()", () => speculateFunctionName({memorySizeInMb: 2048, diskSizeInMb: 2048, timeoutInSeconds: 120}));
 await step("lambda estimatePrice()", () => {
   const usd = estimatePrice({region: "us-east-1", memorySizeInMb: 2048, diskSizeInMb: 2048, lambdasInvoked: 10, durationInMilliseconds: 60_000});
@@ -124,6 +125,40 @@ await step("lambda expressWebhook()", async () => {
   // resolving proves nothing; check the status and the callback.
   if (status !== 200 || received !== payload.renderId) throw new Error(`HTTP ${status}, onSuccess got ${received}`);
   return `HTTP ${status}, onSuccess got ${received}`;
+});
+await step("lambda expressWebhook({testing, extraHeaders, onError, onTimeout})", async () => {
+  const calls = [];
+  const headers = {};
+  const handler = expressWebhook({
+    secret,
+    // testing adds the CORS headers remotion.dev's webhook tester needs and
+    // answers its OPTIONS preflight; extraHeaders go on every response.
+    testing: true,
+    extraHeaders: {"X-Showcase": "renderer-apis"},
+    onSuccess: () => calls.push("success"),
+    onError: (p) => calls.push(`onError(${p.renderId})`),
+    onTimeout: (p) => calls.push(`onTimeout(${p.renderId})`),
+  });
+  const send = async (method, body) => {
+    let status = null;
+    const sig = `sha512=${createHmac("sha512", secret).update(JSON.stringify(body)).digest("hex")}`;
+    const res = {setHeader: (k, v) => (headers[k] = v), status: (s) => ((status = s), res), json: () => res, end: () => res};
+    await handler({method, body, header: (name) => (name === "X-Remotion-Signature" ? sig : undefined)}, res);
+    return status;
+  };
+  const preflight = await send("OPTIONS", {});
+  const errorStatus = await send("POST", {...payload, type: "error", errors: []});
+  const timeoutStatus = await send("POST", {...payload, type: "timeout"});
+  const summary = `OPTIONS ${preflight}, error ${errorStatus}, timeout ${timeoutStatus} · ${calls.join(", ")} · X-Showcase: ${headers["X-Showcase"]}, Access-Control-Allow-Origin: ${headers["Access-Control-Allow-Origin"]}`;
+  const ok =
+    preflight === 200 &&
+    errorStatus === 200 &&
+    timeoutStatus === 200 &&
+    calls.join() === `onError(${payload.renderId}),onTimeout(${payload.renderId})` &&
+    headers["X-Showcase"] === "renderer-apis" &&
+    headers["Access-Control-Allow-Origin"] === "https://www.remotion.dev";
+  if (!ok) throw new Error(summary);
+  return summary;
 });
 await step("lambda appRouterWebhook()", async () => {
   let received = null;
@@ -279,6 +314,42 @@ await step("renderer renderFrames() + stitchFramesToVideo()", async () => {
   const duration = await assertDuration(output, frameCount, reel.fps);
   return `${frameCount} JPEG frames stitched → out/renderer-apis/stitched.mp4 (${duration}, ${kb(output)})`;
 });
+await step("renderer renderFrames({imageSequencePattern, onFrameBuffer})", async () => {
+  const framesDir = join(out, "pattern-frames");
+  await renderFrames({
+    ...shared,
+    composition: reel,
+    inputProps: {},
+    outputDir: framesDir,
+    imageFormat: "jpeg",
+    frameRange: [0, 4],
+    imageSequencePattern: "reel-[frame].[ext]",
+    onStart: () => undefined,
+    onFrameUpdate: () => undefined,
+  });
+  const files = readdirSync(framesDir).sort();
+  // With outputDir null, nothing is written: each frame arrives as a Buffer.
+  let buffers = 0;
+  let magic = null;
+  await renderFrames({
+    ...shared,
+    composition: reel,
+    inputProps: {},
+    outputDir: null,
+    imageFormat: "jpeg",
+    frameRange: [0, 2],
+    onFrameBuffer: (buffer) => {
+      buffers++;
+      magic ??= buffer.subarray(0, 3).toString("hex");
+    },
+    onStart: () => undefined,
+    onFrameUpdate: () => undefined,
+  });
+  if (files.length !== 5 || !files.every((f) => /^reel-\d+\.jpeg$/.test(f)) || buffers !== 3 || magic !== "ffd8ff") {
+    throw new Error(`files ${files.join(", ")}; ${buffers} buffers starting ${magic}`);
+  }
+  return `imageSequencePattern → ${files[0]} … ${files.at(-1)}; onFrameBuffer got ${buffers} JPEG buffers (ff d8 ff)`;
+});
 await step("renderer renderFrames({frames})", async () => {
   const framesDir = join(out, "selected-frames");
   let started = null;
@@ -394,6 +465,29 @@ await step("renderer renderMedia() vp9 + opus, multi-range frameRange", async ()
   const duration = await assertDuration(output, 30, reel.fps);
   return `${container} with ${videoCodec}/${audioCodec}, frames 0-14 + 30-44 → ${duration} (${kb(output)})`;
 });
+await step("renderer renderMedia() videoBitrate + x264Preset + audioBitrate", async () => {
+  const sizes = {};
+  for (const [label, videoBitrate, x264Preset, audioBitrate] of [["low", "150k", "ultrafast", "32k"], ["high", "3M", "slow", "192k"]]) {
+    const output = join(out, `bitrate-${label}.mp4`);
+    // videoBitrate replaces crf; the two can't be combined.
+    await renderMedia({...shared, composition: reel, codec: "h264", videoBitrate, x264Preset, audioBitrate, enforceAudioTrack: true, frameRange: [0, 29], outputLocation: output});
+    sizes[label] = statSync(output).size;
+  }
+  if (sizes.high < sizes.low * 3) throw new Error(`3M/slow is ${sizes.high} bytes, 150k/ultrafast is ${sizes.low} bytes`);
+  return `150k ultrafast: ${(sizes.low / 1024).toFixed(0)} KB, 3M slow: ${(sizes.high / 1024).toFixed(0)} KB`;
+});
+await step("renderer renderMedia() gif, everyNthFrame, numberOfGifLoops", async () => {
+  const output = join(out, "reel.gif");
+  await renderMedia({...shared, composition: reel, codec: "gif", everyNthFrame: 3, numberOfGifLoops: 2, frameRange: [0, 29], outputLocation: output});
+  const gif = readFileSync(output);
+  // Every frame of a GIF starts with a Graphic Control Extension (21 f9 04),
+  // and the NETSCAPE2.0 block stores the loop count as a little-endian uint16.
+  const frames = gif.toString("hex").split("21f904").length - 1;
+  const netscape = gif.indexOf("NETSCAPE2.0");
+  const loops = netscape === -1 ? "none" : gif.readUInt16LE(netscape + 13);
+  if (gif.toString("ascii", 0, 6) !== "GIF89a" || frames !== 10) throw new Error(`header ${gif.toString("ascii", 0, 6)}, ${frames} frames`);
+  return `GIF89a, 30 frames at everyNthFrame 3 → ${frames} frames, NETSCAPE loop count ${loops} (${kb(output)})`;
+});
 await step("renderer renderMedia() crf 10 vs 40", async () => {
   const sizes = {};
   for (const crf of [10, 40]) {
@@ -481,11 +575,31 @@ await step("renderer getVideoMetadata() (deprecated)", async () => {
 // abuffer a channel_layout of 0x0 when the header has no channel mask. See
 // docs/findings.md.
 await step("renderer getSilentParts()", async () => {
-  const {audibleParts, silentParts, durationInSeconds} = await getSilentParts({src: join(publicDir, "sample-clip.mp4")});
+  const {audibleParts, silentParts, durationInSeconds} = await getSilentParts({
+    src: join(publicDir, "sample-clip.mp4"),
+    // Quieter than -30dB for at least 0.5s counts as silence (defaults: -20dB, 1s).
+    noiseThresholdInDecibels: -30,
+    minDurationInSeconds: 0.5,
+  });
   // Its audio track is silence, so all of it should be one silent part.
   if (audibleParts.length !== 0 || silentParts.length !== 1) throw new Error(`${audibleParts.length} audible, ${silentParts.length} silent part(s), expected 0 and 1`);
   const [{startInSeconds, endInSeconds}] = silentParts;
   return `sample-clip.mp4 (${durationInSeconds.toFixed(2)}s): 0 audible, 1 silent part (${startInSeconds.toFixed(2)}-${endInSeconds.toFixed(2)}s)`;
+});
+
+// Mediabunny reads a local file in Node with FilePathSource. The bundled
+// remotion-multimedia skill's Node example uses FileSource, which 1.56.1
+// doesn't export (BlobSource takes a File or Blob). See docs/findings.md.
+await step("mediabunny Input + FilePathSource", async () => {
+  const input = new Input({formats: ALL_FORMATS, source: new FilePathSource(join(publicDir, "sample-clip-tone.webm"))});
+  try {
+    const video = await input.getPrimaryVideoTrack();
+    const audio = await input.getPrimaryAudioTrack();
+    if (!video || !audio) throw new Error("expected a video and an audio track");
+    return `sample-clip-tone.webm: ${await input.getMimeType()}, ${video.displayWidth}×${video.displayHeight}, ${(await input.computeDuration()).toFixed(2)}s, canDecode() ${await video.canDecode()}/${await audio.canDecode()} (Node has no WebCodecs)`;
+  } finally {
+    input.dispose();
+  }
 });
 
 await browser?.close({silent: true});
