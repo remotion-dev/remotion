@@ -11,6 +11,7 @@ import {Internals} from 'remotion';
 import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {resolveStudioColor} from '../helpers/resolve-studio-color';
+import {getStudioPixelRatio} from '../helpers/studio-pixel-ratio';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -153,7 +154,7 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const pixelRatio = window.devicePixelRatio;
+		const pixelRatio = getStudioPixelRatio();
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
 		const drawingWidth = visualizationWidth * pixelRatio;
@@ -185,7 +186,7 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const pixelRatio = window.devicePixelRatio;
+		const pixelRatio = getStudioPixelRatio();
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
 		const drawingWidth = visualizationWidth * pixelRatio;
