@@ -107,7 +107,7 @@ const springT = springTiming({config: {damping: 200}, durationInFrames: TRANSITI
 // clockWipe, iris, none() (a no-op meant to pair with
 // useTransitionProgress() -- see TitleScene) and pushCut render with CSS,
 // several with their tuning options set (fade's shouldFadeOutExitingScene,
-// flip's perspective, pushCut's flash). bookFlip, crossZoom, crosswarp,
+// flip's perspective, pushCut's flash and scales). bookFlip, crossZoom, crosswarp,
 // dissolve, dreamyZoom, filmBurn, linearBlur, ripple, swap, zoomBlur,
 // zoomInOut and blurSlide are built with makeHtmlInCanvasPresentation()
 // internally, so each is wrapped in an isSupported()-gated fallback to
@@ -189,7 +189,24 @@ export const FullReel: React.FC<FullReelProps> = ({title, subtitle, accentColor,
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <VideoMattingScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={pushCut({flashColor: palette.accent2, flashOpacity: 0.6, flashFrames: 4})} timing={t} />
+        <TransitionSeries.Transition
+          presentation={pushCut({
+            flashColor: palette.accent2,
+            flashOpacity: 0.6,
+            flashFrames: 4,
+            // Cut a little earlier than the default (5/11), and push further
+            // into the outgoing scene than the default 1.04.
+            cutProgress: 0.4,
+            outgoingScale: 1.15,
+            incomingStartScale: 1.1,
+            // TransitionSeries keeps the entering scene inside the
+            // presentation, at progress 1, for the rest of its sequence. So
+            // the default, 1.07, would leave AudioScene zoomed in and cropped
+            // until it ends, not just during the cut.
+            incomingEndScale: 1,
+          })}
+          timing={t}
+        />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AudioScene />
