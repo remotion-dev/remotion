@@ -56,18 +56,25 @@ export const CoreEnvironmentScene: React.FC = () => {
   const [inputProps] = useState(() => getInputProps());
   const [staticFiles] = useState(() => getStaticFiles());
   const [watchedChanges, setWatchedChanges] = useState(0);
-  const [prefetchStatus, setPrefetchStatus] = useState<"loading" | "ready">("loading");
+  const [prefetchStatus, setPrefetchStatus] = useState<"loading" | "ready" | "failed">("loading");
   const buffer = useBufferState();
   const isPlayer = Experimental.useIsPlayer();
 
   useEffect(() => {
     const playback = buffer.delayPlayback();
     const {free, waitUntilDone} = prefetch(staticFile("sample-clip.mp4"), {method: "blob-url"});
-    waitUntilDone().then(() => {
-      playback.unblock();
-      setPrefetchStatus("ready");
-    });
+    let freed = false;
+    // Playback must be released on failure too, or the Studio/Player sits
+    // "buffering" forever. free() on unmount rejects with "free() called";
+    // that one is expected, so only a real failure is reported.
+    waitUntilDone()
+      .then(() => setPrefetchStatus("ready"))
+      .catch(() => {
+        if (!freed) setPrefetchStatus("failed");
+      })
+      .finally(() => playback.unblock());
     return () => {
+      freed = true;
       playback.unblock();
       free();
     };
