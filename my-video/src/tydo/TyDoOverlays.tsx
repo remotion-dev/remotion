@@ -544,7 +544,7 @@ export const ComplianceCard: React.FC = () => {
     >
       <Img src={LOGO} style={{ width: 420 }} />
       {line("Finance Hub & Networks Pty Ltd", 50, BLUE)}
-      {line("ACN 644 141 613 | Australian Credit Licence 369168", 44)}
+      {line("Finance Hub & Networks Pty Ltd (Credit Representative 369168) is authorised under Australian Credit Licence 573164. ACN 644 141 613.", 44)}
       {line("Your full financial situation would need to be reviewed prior to acceptance of any offer or product.", 44)}
       {line("Tình hình tài chính của bạn cần được xem xét đầy đủ trước khi chấp nhận bất kỳ đề nghị hoặc sản phẩm nào.", 42)}
       {line("Các con số trong video chỉ là ví dụ minh hoạ, không phải đề nghị lãi suất. Examples are illustrative only.", 38, "#33445A")}
