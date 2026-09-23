@@ -176,8 +176,24 @@ export const internalCreateAudioDecoder = async ({
 				.then(() => {
 					return audioDecoder.flush();
 				})
-				.catch(() => {
-					// Firefox might throw "Needs to be configured first"
+				.catch((err) => {
+					// reset() and close() reject a pending flush with an AbortError.
+					// Firefox throws InvalidStateError "Decoder must be configured first"
+					// if the decoder is not in the "configured" state.
+					if (
+						err instanceof DOMException &&
+						(err.name === 'AbortError' || err.name === 'InvalidStateError')
+					) {
+						return;
+					}
+
+					// The decoder closed itself because of an error,
+					// which was already passed to onError() through error()
+					if (audioDecoder.state === 'closed') {
+						return;
+					}
+
+					onError(err as Error);
 				})
 				.finally(() => {
 					pendingFlush.resolve();
