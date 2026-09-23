@@ -17,26 +17,16 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="remove-video-background.ts"
-import {
-  downloadVideoMattingModel,
-  loadVideoMattingModel,
-  removeVideoBackground,
-} from '@remotion/video-matting';
+import {downloadVideoMattingModel, removeVideoBackground} from '@remotion/video-matting';
 
 export const matteVideo = async (file: File) => {
-  const model = 'modnet';
   await downloadVideoMattingModel({
-    model,
+    model: 'modnet',
     onProgress: ({progress}) => console.log('Downloading model:', progress),
   });
-  await using modelHandle = await loadVideoMattingModel({
-    model,
-  });
-  console.log('Model already in memory:', modelHandle.alreadyLoaded);
-
   await using result = await removeVideoBackground({
     src: file,
-    model,
+    model: 'modnet',
     onProgress: ({progress}) => console.log('Removing background:', progress),
   });
 

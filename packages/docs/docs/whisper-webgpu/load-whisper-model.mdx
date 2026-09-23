@@ -8,6 +8,8 @@ crumb: '@remotion/whisper-webgpu'
 
 Initializes a previously downloaded Whisper model on WebGPU. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first.
 
+[`transcribe()`](/docs/whisper-webgpu/transcribe) loads the model automatically; call `loadWhisperModel()` when you want to initialize it before transcription.
+
 ```ts twoslash title="load-model.ts"
 import {downloadWhisperModel, loadWhisperModel} from '@remotion/whisper-webgpu';
 
