@@ -16,6 +16,7 @@ export const isTimelineFieldStacked = ({
 }) => {
 	return (
 		field.typeName === 'text-content' ||
+		field.typeName === 'svg-path' ||
 		(transform3DMode &&
 			(field.typeName === 'translate' ||
 				field.typeName === 'rotation-css' ||

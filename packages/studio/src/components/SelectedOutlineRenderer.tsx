@@ -264,14 +264,20 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
-			{outlinesForRendering.map((outline) =>
-				outline.path !== null && targetsByKey.get(outline.key)?.selected ? (
+			{outlinesForRendering.map((outline) => {
+				const target = targetsByKey.get(outline.key);
+				const pathDrag = target?.selected
+					? (getLatestOutlineTargetByKey(outline.key)?.pathDrag ?? null)
+					: null;
+				return outline.path !== null && pathDrag !== null ? (
 					<SelectedOutlinePathPoints
 						key={`${outline.key}-path-points`}
 						outline={outline}
+						pathDrag={pathDrag}
+						onDraggingChange={onDraggingChange}
 					/>
-				) : null,
-			)}
+				) : null;
+			})}
 			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
 			{outlinesForEditingHandles.map((outline) => (
 				<SelectedOutlineEditingHandles
