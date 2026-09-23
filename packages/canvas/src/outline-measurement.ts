@@ -172,33 +172,6 @@ const getPathPoints = ({
 	return points;
 };
 
-const cropPathPoints = (
-	pathPoints: readonly CanvasOutlinePoint[],
-	uncroppedPoints: CanvasOutline['uncroppedPoints'],
-	crop: CanvasOutlineTarget['crop'],
-): readonly CanvasOutlinePoint[] => {
-	if (
-		crop.left === 0 &&
-		crop.right === 0 &&
-		crop.top === 0 &&
-		crop.bottom === 0
-	) {
-		return pathPoints;
-	}
-
-	if (uncroppedPoints === null) {
-		return pathPoints;
-	}
-
-	return pathPoints.map((point) => {
-		const uv = getCanvasOutlineUv(uncroppedPoints, point);
-		return getCanvasOutlinePoint(
-			cropCanvasOutlinePoints(uncroppedPoints, crop),
-			uv,
-		);
-	});
-};
-
 const getElementOutlinePoints = (
 	element: Element,
 	containerRect: DOMRect,
@@ -258,6 +231,33 @@ export const cropCanvasOutlinePoints = (
 		getCanvasOutlinePoint(points, [right, bottom]),
 		getCanvasOutlinePoint(points, [left, bottom]),
 	];
+};
+
+const cropPathPoints = (
+	pathPoints: readonly CanvasOutlinePoint[],
+	uncroppedPoints: CanvasOutline['uncroppedPoints'],
+	crop: CanvasOutlineTarget['crop'],
+): readonly CanvasOutlinePoint[] => {
+	if (
+		crop.left === 0 &&
+		crop.right === 0 &&
+		crop.top === 0 &&
+		crop.bottom === 0
+	) {
+		return pathPoints;
+	}
+
+	if (uncroppedPoints === null) {
+		return pathPoints;
+	}
+
+	return pathPoints.map((point) => {
+		const uv = getCanvasOutlineUv(uncroppedPoints, point);
+		return getCanvasOutlinePoint(
+			cropCanvasOutlinePoints(uncroppedPoints, crop),
+			uv,
+		);
+	});
 };
 
 /**
