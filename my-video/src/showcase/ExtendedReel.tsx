@@ -13,6 +13,7 @@ import {MediaScene} from "./MediaScene";
 import {AudioScene} from "./AudioScene";
 import {LottieScene} from "./LottieScene";
 import {ThreeScene} from "./ThreeScene";
+import {ThreeTextScene} from "./ThreeTextScene";
 import {GsapScene} from "./GsapScene";
 import {FundamentalsScene} from "./FundamentalsScene";
 import {VideoMattingScene} from "./VideoMattingScene";
@@ -38,7 +39,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 18;
+const SCENE_COUNT = 19;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -59,7 +60,8 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 // embedded/cropped/preloaded footage), @remotion/video-matting (AI
 // background removal), @remotion/media-utils (a real audio waveform),
 // @remotion/whisper-webgpu (in-browser transcription), @remotion/lottie,
-// @remotion/animated-emoji, @remotion/three, @remotion/skia, @remotion/rive
+// @remotion/animated-emoji, @remotion/three (a rotating mesh, then a second
+// scene of real extruded 3D typography), @remotion/skia, @remotion/rive
 // (API surface only -- see RiveScene's own comment for why), @remotion/
 // layout-utils + @remotion/rounded-text-box + @remotion/fonts,
 // @remotion/sfx, @remotion/gsap, core remotion's media/canvas components
@@ -114,6 +116,11 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
           <ThreeScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <ThreeTextScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-right"})} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <SkiaScene />
