@@ -1,14 +1,21 @@
 import type {RefObject} from 'react';
 import React, {useEffect, useCallback, useMemo, useRef, useState} from 'react';
-import {Internals} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import type {CanvasController} from './canvas-controller';
-import type {
-	SequenceNodePathInfo,
-	TimelineTrackData,
-} from './get-timeline-sequence-sort-key';
-import {useCanvasHover} from './hover';
-import type {CanvasOutlineTarget} from './outline-geometry';
-import {orderCanvasOutlinesForRendering} from './outline-order';
+import {CanvasOutlinePolygon} from './canvas-outline-polygon';
+import {useCanvasHover, useCanvasSequenceHover} from './hover';
+import type {CanvasOutline} from './outline-geometry';
+import {handleCanvasOutlinePointerDown} from './outline-interaction';
+import {
+	getCanvasActiveOutlineTargets,
+	getCanvasOutlineActivity,
+	getCanvasOutlineLayoutTargets,
+	getCanvasSelectableOutlines,
+	getCanvasSelectedSequenceKeys,
+	getCanvasSequenceKeysContainingSelection,
+	getCanvasVisibleOutlineTargets,
+	type CanvasSelectableOutline,
+} from './outline-targets';
 import {
 	getCanvasSequenceSelectionKey,
 	useCanvasSelection,
@@ -16,17 +23,9 @@ import {
 } from './selection';
 import type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 import {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';
-import {useCanvasOutlineMeasurements} from './use-canvas-outline-measurements';
+import {useCanvasOutlines} from './use-canvas-outlines';
 import {useCanvasRuntimeValueSnapshots} from './use-runtime-value-snapshots';
 import {useSyncExternalStore} from './use-sync-external-store';
-
-type OutlineLayer = {
-	readonly track: TimelineTrackData;
-	readonly key: string;
-	readonly nodePathKey: string;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly selection: CanvasSelectionItem;
-};
 
 const overlayStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -36,65 +35,133 @@ const overlayStyle: React.CSSProperties = {
 	outline: 'none',
 };
 
+const CanvasOutlineElement = React.memo(
+	({
+		controller,
+		containerRef,
+		outline,
+		target,
+		selectableItems,
+	}: {
+		readonly controller: CanvasController;
+		readonly containerRef: RefObject<SVGSVGElement | null>;
+		readonly outline: CanvasOutline;
+		readonly target: ReturnType<typeof getCanvasOutlineLayoutTargets>[number];
+		readonly selectableItems: readonly CanvasSelectionItem[];
+	}) => {
+		const {hovered, onPointerEnter, onPointerLeave} = useCanvasSequenceHover(
+			controller.hover,
+			target.nodePathInfo,
+			'canvas',
+		);
+		const onHoverChange = useCallback(
+			(key: string | null) => {
+				if (key === null) {
+					onPointerLeave();
+				} else {
+					onPointerEnter();
+				}
+			},
+			[onPointerEnter, onPointerLeave],
+		);
+		const onPointerDown = useCallback(
+			(event: React.PointerEvent<SVGPolygonElement>) => {
+				const decision = handleCanvasOutlinePointerDown({
+					event,
+					polygon: event.currentTarget,
+					hasTarget: true,
+					selected: target.selected,
+					containsSelection: target.containsSelection,
+					translateWithCommandKey: false,
+					isMac: false,
+				});
+				if (decision === null) {
+					return;
+				}
+
+				containerRef.current?.focus({preventScroll: true});
+				// A host with dragging may defer this selection until pointer release.
+				if (decision.shouldUpdateSelection) {
+					controller.selection.select(
+						target.selection,
+						decision.interaction,
+						selectableItems,
+					);
+				}
+			},
+			[containerRef, controller.selection, selectableItems, target],
+		);
+		return (
+			<CanvasOutlinePolygon
+				outline={outline}
+				directlySelected={target.selected}
+				data-selected={target.selected}
+				dragging={false}
+				visible={target.showSelectedOutline || hovered}
+				interactive
+				stroke="#0b84f3"
+				fill="transparent"
+				onHoverChange={onHoverChange}
+				onPointerDown={onPointerDown}
+			/>
+		);
+	},
+);
+
 // Only this leaf subscribes to the frame. An idle, unselected Canvas does not
 // measure its composition or render its layer list on every playback frame.
 const ActiveCanvasOutlines = React.memo(
 	({
 		controller,
 		containerRef,
-		layers,
+		selectableOutlines,
+		sequences,
+		selectableItems,
 		measureAll,
 	}: {
 		readonly controller: CanvasController;
 		readonly containerRef: RefObject<SVGSVGElement | null>;
-		readonly layers: readonly OutlineLayer[];
+		readonly selectableOutlines: readonly CanvasSelectableOutline[];
+		readonly sequences: readonly TSequence[];
+		readonly selectableItems: readonly CanvasSelectionItem[];
 		readonly measureAll: boolean;
 	}) => {
 		const frame = Internals.Timeline.useTimelinePosition();
-		const selection = useCanvasSelection(controller.selection);
+		const {selectedItems} = useCanvasSelection(controller.selection);
 		const hover = useCanvasHover(controller.hover);
-		const selectedSourceKeys = useMemo(
-			() =>
-				new Set(
-					selection.selectedItems.flatMap((item) =>
-						item.type === 'guide'
-							? []
-							: [
-									timelineSequenceNodePathToKey(
-										item.nodePathInfo.sequenceSubscriptionKey,
-									),
-								],
-					),
-				),
-			[selection.selectedItems],
+		const selectedSequenceKeys = useMemo(
+			() => getCanvasSelectedSequenceKeys(selectedItems),
+			[selectedItems],
 		);
-		const selectedKeys = useMemo(
-			() =>
-				new Set(
-					selection.selectedItems.flatMap((item) =>
-						item.type === 'guide'
-							? []
-							: [getCanvasSequenceSelectionKey(item.nodePathInfo)],
-					),
-				),
-			[selection.selectedItems],
+		const sequenceKeysContainingSelection = useMemo(
+			() => getCanvasSequenceKeysContainingSelection(selectedItems),
+			[selectedItems],
 		);
+		const hoveredTimelineNodePathKey =
+			hover?.source === 'timeline' ? hover.nodePathKey : null;
 		const activeLayers = useMemo(
 			() =>
-				layers.filter(
-					({track, nodePathKey}) =>
-						track.sequence.refForOutline !== null &&
-						track.sequence.showInTimeline &&
-						(measureAll ||
-							selectedSourceKeys.has(nodePathKey) ||
-							hover?.nodePathKey === nodePathKey),
-				),
-			[hover?.nodePathKey, layers, measureAll, selectedSourceKeys],
+				getCanvasActiveOutlineTargets({
+					targets: selectableOutlines,
+					selectedSequenceKeys,
+					sequenceKeysContainingSelection,
+					hoveredNodePathKey: hoveredTimelineNodePathKey,
+					measureAll,
+				}),
+			[
+				hoveredTimelineNodePathKey,
+				measureAll,
+				selectableOutlines,
+				selectedSequenceKeys,
+				sequenceKeysContainingSelection,
+			],
 		);
+		// Subscribe before filtering by the playback frame to avoid resubscribing
+		// every frame when sequences enter or leave the composition.
 		const runtimeControls = useMemo(
 			() =>
-				activeLayers.flatMap(({track}) =>
-					track.sequence.controls ? [track.sequence.controls] : [],
+				activeLayers.flatMap(({sequence}) =>
+					sequence.controls ? [sequence.controls] : [],
 				),
 			[activeLayers],
 		);
@@ -109,144 +176,64 @@ const ActiveCanvasOutlines = React.memo(
 				),
 			[runtimeControls, runtimeSnapshots],
 		);
-		const visibleLayers = useMemo(
-			() =>
-				activeLayers.filter(
-					({track: {sequence}}) =>
-						frame >= sequence.from && frame < sequence.from + sequence.duration,
-				),
-			[activeLayers, frame],
-		);
 		const targets = useMemo(
 			() =>
-				visibleLayers.map((layer) => {
-					const {sequence} = layer.track;
-					const values = sequence.controls
-						? (valuesByStore.get(sequence.controls.runtimeValues) ?? {})
+				getCanvasOutlineLayoutTargets({
+					selectableOutlines: getCanvasVisibleOutlineTargets({
+						targets: activeLayers,
+						timelinePosition: frame,
+					}),
+					selectedSequenceKeys,
+					sequenceKeysContainingSelection,
+					targetKey: null,
+				}).map((target) => {
+					const values = target.sequence.controls
+						? (valuesByStore.get(target.sequence.controls.runtimeValues) ?? {})
 						: {};
 					const cropValue = (key: string) =>
 						typeof values[key] === 'number' && Number.isFinite(values[key])
 							? values[key]
 							: 0;
 					return {
-						...layer,
-						sequence,
-						ref: sequence.refForOutline!,
+						...target,
 						crop: Internals.resolveSequenceCrop({
 							cropLeft: cropValue('cropLeft'),
 							cropRight: cropValue('cropRight'),
 							cropTop: cropValue('cropTop'),
 							cropBottom: cropValue('cropBottom'),
 						}),
-						selected: selectedKeys.has(layer.key),
-						containsSelection: selectedKeys.has(layer.key),
-						includeOutsideContainer:
-							selectedSourceKeys.has(layer.nodePathKey) ||
-							hover?.nodePathKey === layer.nodePathKey,
 					};
 				}),
 			[
-				hover?.nodePathKey,
+				activeLayers,
+				frame,
+				selectedSequenceKeys,
+				sequenceKeysContainingSelection,
 				valuesByStore,
-				selectedKeys,
-				selectedSourceKeys,
-				visibleLayers,
 			],
 		);
-		const outlines = useCanvasOutlineMeasurements({
+		const {outlinesForRendering, targetsByKey} = useCanvasOutlines({
 			containerRef,
-			targets: targets satisfies readonly CanvasOutlineTarget[],
+			targets,
+			sequences,
+			hoverController: controller.hover,
+			freezeOrder: false,
 			updateOutlinesRef: null,
 		});
-		const targetsByKey = useMemo(
-			() => new Map(targets.map((target) => [target.key, target])),
-			[targets],
-		);
-		const sequences = useMemo(
-			() => layers.map(({track}) => track.sequence),
-			[layers],
-		);
-		const orderedOutlines = useMemo(
-			() =>
-				orderCanvasOutlinesForRendering({
-					outlines,
-					sequences,
-					targetsByKey,
-				}),
-			[outlines, sequences, targetsByKey],
-		);
-		const selectableItems = useMemo(
-			() => layers.map((layer) => layer.selection),
-			[layers],
-		);
-		useEffect(() => {
-			const current = controller.hover.getSnapshot();
-			if (
-				current?.source === 'canvas' &&
-				!outlines.some((outline) => outline.key === current.key)
-			) {
-				controller.hover.clear('canvas');
-			}
-		}, [controller.hover, outlines]);
-
 		return (
 			<>
-				{orderedOutlines.map((outline) => {
+				{outlinesForRendering.map((outline) => {
 					const target = targetsByKey.get(outline.key);
-					if (!target) {
-						return null;
-					}
-
-					const visible =
-						selectedSourceKeys.has(target.nodePathKey) ||
-						hover?.nodePathKey === target.nodePathKey;
-					return (
-						<polygon
+					return target ? (
+						<CanvasOutlineElement
 							key={outline.key}
-							data-remotion-canvas-outline-key={outline.key}
-							data-selected={target.selected}
-							points={outline.points
-								.map((point) => `${point.x},${point.y}`)
-								.join(' ')}
-							fill="transparent"
-							stroke="#0b84f3"
-							strokeWidth={2}
-							strokeOpacity={visible ? 1 : 0}
-							vectorEffect="non-scaling-stroke"
-							pointerEvents="all"
-							onPointerEnter={() =>
-								controller.hover.setHoveredSequence({
-									key: target.key,
-									nodePathKey: target.nodePathKey,
-									source: 'canvas',
-								})
-							}
-							onPointerLeave={() =>
-								controller.hover.setHoveredSequence((current) =>
-									current?.source === 'canvas' && current.key === target.key
-										? null
-										: current,
-								)
-							}
-							onPointerDown={(event) => {
-								if (event.button !== 0) {
-									return;
-								}
-
-								event.preventDefault();
-								event.stopPropagation();
-								containerRef.current?.focus({preventScroll: true});
-								controller.selection.select(
-									target.selection,
-									{
-										shiftKey: event.shiftKey,
-										toggleKey: event.metaKey || event.ctrlKey,
-									},
-									selectableItems,
-								);
-							}}
+							controller={controller}
+							containerRef={containerRef}
+							outline={outline}
+							target={target}
+							selectableItems={selectableItems}
 						/>
-					);
+					) : null;
 				})}
 			</>
 		);
@@ -275,30 +262,35 @@ export const CanvasOutlineOverlay = React.memo(
 		);
 		const selection = useCanvasSelection(controller.selection);
 		const hover = useCanvasHover(controller.hover);
-		const layers = useMemo(
+		const sequences = useMemo(
+			() => tracks.map(({sequence}) => sequence),
+			[tracks],
+		);
+		const resolvedTracks = useMemo(
 			() =>
-				tracks.flatMap((track, index): OutlineLayer[] => {
-					const nodePathInfo = resolveSequenceNodePathInfo(track, index);
-					if (
-						nodePathInfo === null ||
-						nodePathInfo.auxiliaryKeys.length !== 0
-					) {
-						return [];
-					}
-
-					return [
-						{
-							track,
-							key: getCanvasSequenceSelectionKey(nodePathInfo),
-							nodePathKey: timelineSequenceNodePathToKey(
-								nodePathInfo.sequenceSubscriptionKey,
-							),
-							nodePathInfo,
-							selection: {type: 'sequence', nodePathInfo},
-						},
-					];
-				}),
+				tracks.map((track, index) => ({
+					...track,
+					nodePathInfo: resolveSequenceNodePathInfo(track, index),
+				})),
 			[resolveSequenceNodePathInfo, tracks],
+		);
+		const selectableOutlines = useMemo(
+			() =>
+				getCanvasSelectableOutlines({
+					tracks: resolvedTracks,
+					timelinePosition: null,
+					resolveSequenceNodePathInfo: null,
+				}),
+			[resolvedTracks],
+		);
+		const selectableItems = useMemo(
+			() =>
+				resolvedTracks.flatMap(({nodePathInfo}): CanvasSelectionItem[] =>
+					nodePathInfo === null || nodePathInfo.auxiliaryKeys.length !== 0
+						? []
+						: [{type: 'sequence', nodePathInfo}],
+				),
+			[resolvedTracks],
 		);
 		useEffect(() => {
 			controller.hover.setHoveredSequence((current) => {
@@ -306,15 +298,20 @@ export const CanvasOutlineOverlay = React.memo(
 					return current;
 				}
 
-				return layers.some((layer) =>
-					current.source === 'timeline'
-						? layer.nodePathKey === current.nodePathKey
-						: layer.key === current.key,
+				return selectableItems.some(
+					(item) =>
+						item.type !== 'guide' &&
+						(current.source === 'timeline'
+							? timelineSequenceNodePathToKey(
+									item.nodePathInfo.sequenceSubscriptionKey,
+								) === current.nodePathKey
+							: getCanvasSequenceSelectionKey(item.nodePathInfo) ===
+								current.key),
 				)
 					? current
 					: null;
 			});
-		}, [controller.hover, layers]);
+		}, [controller.hover, selectableItems]);
 		useEffect(() => {
 			const ownerWindow = containerRef.current?.ownerDocument.defaultView;
 			const clearHover = () => {
@@ -329,10 +326,15 @@ export const CanvasOutlineOverlay = React.memo(
 				controller.hover.clear('canvas');
 			};
 		}, [controller.hover]);
-		const active =
-			hovered ||
-			selection.selectedItems.some((item) => item.type !== 'guide') ||
-			hover?.source === 'timeline';
+		const {measurementActive, measureAllOutlines} = getCanvasOutlineActivity({
+			canvasHovered: hovered,
+			dragging: false,
+			contextMenuOpen: false,
+			hasSelection: selection.selectedItems.some(
+				(item) => item.type !== 'guide',
+			),
+			hoveredSequence: hover,
+		});
 		return (
 			<svg
 				ref={attachContainer}
@@ -366,12 +368,14 @@ export const CanvasOutlineOverlay = React.memo(
 					}
 				}}
 			>
-				{active && container !== null ? (
+				{measurementActive && container !== null ? (
 					<ActiveCanvasOutlines
 						controller={controller}
 						containerRef={containerRef}
-						layers={layers}
-						measureAll={hovered}
+						selectableOutlines={selectableOutlines}
+						sequences={sequences}
+						selectableItems={selectableItems}
+						measureAll={measureAllOutlines}
 					/>
 				) : null}
 			</svg>

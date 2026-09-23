@@ -1,19 +1,16 @@
-import {useCanvasOutlineMeasurements} from '@remotion/canvas';
+import {useCanvasOutlines} from '@remotion/canvas';
 import React, {
 	useCallback,
-	useEffect,
+	useContext,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
-import {
-	useSetTimelineSequenceHover,
-	useTimelineSequenceHoverState,
-} from '../state/timeline-sequence-hover';
+import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
 import type {SelectedOutline} from './selected-outline-geometry';
-import {orderOutlinesForRendering} from './selected-outline-order';
+import type {orderOutlinesForRendering} from './selected-outline-order';
 import type {
 	SelectedOutlineContextMenuOpenHandler,
 	SelectedOutlineLayoutTarget,
@@ -111,79 +108,20 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		},
 		[getContextMenuOpenByKey],
 	);
-	const hoveredSequence = useTimelineSequenceHoverState();
-	const setHoveredSequence = useSetTimelineSequenceHover();
-	const hoveredNodePathKey = hoveredSequence?.nodePathKey ?? null;
-	const hoveredTimelineNodePathKey =
-		hoveredSequence?.source === 'timeline' ? hoveredNodePathKey : null;
-
-	const measurementTargets = useMemo(
-		() =>
-			outlineTargets.map((target) => ({
-				crop: target.crop,
-				includeOutsideContainer:
-					target.showSelectedOutline ||
-					timelineSequenceNodePathToKey(
-						target.nodePathInfo.sequenceSubscriptionKey,
-					) === hoveredTimelineNodePathKey,
-				key: target.key,
-				ref: target.ref,
-			})),
-		[hoveredTimelineNodePathKey, outlineTargets],
-	);
-	const outlines = useCanvasOutlineMeasurements({
+	const hoverController = useContext(TimelineSequenceHoverContext);
+	const {
+		outlinesForRendering,
+		outlinesByKey,
+		targetsByKey,
+		hoveredNodePathKey,
+	} = useCanvasOutlines({
 		containerRef: overlayRef,
-		targets: measurementTargets,
+		targets: outlineTargets,
+		sequences,
+		hoverController,
+		freezeOrder: dragging,
 		updateOutlinesRef,
 	});
-
-	const targetsByKey = useMemo(() => {
-		return new Map(outlineTargets.map((target) => [target.key, target]));
-	}, [outlineTargets]);
-	useEffect(() => {
-		if (
-			hoveredSequence?.source === 'canvas' &&
-			!outlineTargets.some((target) => target.key === hoveredSequence.key)
-		) {
-			setHoveredSequence((currentHover) =>
-				currentHover?.source === 'canvas' ? null : currentHover,
-			);
-		}
-	}, [hoveredSequence, outlineTargets, setHoveredSequence]);
-	// Reordering a captured SVG target can cancel the active pointer session.
-	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
-	const outlinesForRendering = useMemo(() => {
-		if (!dragging || outlineRenderingOrderRef.current.length === 0) {
-			const orderedOutlines = orderOutlinesForRendering({
-				outlines,
-				sequences,
-				targetsByKey,
-			});
-			outlineRenderingOrderRef.current = orderedOutlines.map(
-				(outline) => outline.key,
-			);
-			return orderedOutlines;
-		}
-
-		const currentOutlinesByKey = new Map(
-			outlines.map((outline) => [outline.key, outline]),
-		);
-		const frozenKeys = new Set(outlineRenderingOrderRef.current);
-		const newOutlines = outlines.filter(
-			(outline) => !frozenKeys.has(outline.key),
-		);
-		outlineRenderingOrderRef.current = [
-			...outlineRenderingOrderRef.current,
-			...newOutlines.map((outline) => outline.key),
-		];
-		return outlineRenderingOrderRef.current.flatMap((key) => {
-			const outline = currentOutlinesByKey.get(key);
-			return outline === undefined ? [] : [outline];
-		});
-	}, [dragging, outlines, sequences, targetsByKey]);
-	const outlinesByKey = useMemo(() => {
-		return new Map(outlines.map((outline) => [outline.key, outline]));
-	}, [outlines]);
 	const {
 		outlinesForEditingHandles,
 		outlinesForTransformOrigin,

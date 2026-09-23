@@ -1,15 +1,17 @@
 import type {
+	CanvasOutlineCrop,
+	CanvasOutlineLayoutTarget,
+	CanvasSelectableOutline,
+} from '@remotion/canvas';
+import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	InteractivitySchema,
 	InteractivitySchemaField,
 	SequencePropsSubscriptionKey,
-	TSequence,
 } from 'remotion';
-import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import type {TimelineSelection} from './Timeline/TimelineSelection';
 
 export type SelectedOutlineContextMenuOpenResult =
 	| false
@@ -19,27 +21,13 @@ export type SelectedOutlineContextMenuOpenHandler = () =>
 	| SelectedOutlineContextMenuOpenResult
 	| Promise<SelectedOutlineContextMenuOpenResult>;
 
-export type SelectedOutlineLayoutTarget = {
-	readonly key: string;
-	readonly containsSelection: boolean;
-	readonly keyframeDisplayOffset: number;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly ref: React.RefObject<Element | null>;
-	readonly selected: boolean;
+export type SelectedOutlineLayoutTarget = CanvasOutlineLayoutTarget & {
 	readonly selectedForCrop: boolean;
 	readonly selectedForRotation: boolean;
 	readonly selectedForTransformOrigin: boolean;
 	readonly selectedForUvHandles: boolean;
-	readonly showSelectedOutline: boolean;
 	readonly transformOriginValue: string;
-	readonly selection: TimelineSelection;
-	readonly sequence: TSequence;
-	readonly crop: {
-		readonly left: number;
-		readonly right: number;
-		readonly top: number;
-		readonly bottom: number;
-	};
+	readonly crop: CanvasOutlineCrop;
 };
 
 export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
@@ -224,13 +212,7 @@ export type SelectedOutlineRotationDragState = {
 	readonly target: SelectedOutlineRotationDragTarget;
 };
 
-export type SequenceWithSelectedOutline = {
-	readonly depth: number;
-	readonly keyframeDisplayOffset: number;
-	readonly key: string;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TSequence;
-};
+export type SequenceWithSelectedOutline = CanvasSelectableOutline;
 
 export const translateFieldKey = 'style.translate';
 export const scaleFieldKey = 'style.scale';

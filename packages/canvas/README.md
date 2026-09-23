@@ -39,14 +39,38 @@ falls back to the mounted sequence ID; that fallback is not a persistent source
 reference across remounts. Outlines require a registered DOM ref, so a
 `Sequence` with `layout="none"` has no outline of its own.
 
-For custom authoring UIs, `createCanvasHoverController()`,
-`measureCanvasOutlineTargets()`, `useCanvasOutlineMeasurements()`, and
-`orderCanvasOutlinesForRendering()` are independent primitives also consumed by
-Studio. Measurements include transformed HTML/SVG bounds and cropping, in
+For custom authoring UIs, Studio and Canvas consume the same outline APIs:
+
+- `getCanvasSelectableOutlines()` discovers registered outline targets;
+  `getCanvasVisibleOutlineTargets()` filters them by frame.
+- `getCanvasOutlineActivity()` gates active measurement, and
+  `getCanvasActiveOutlineTargets()` keeps selected or hovered source groups
+  active when the pointer leaves the canvas.
+- `getCanvasOutlineLayoutTargets()` distinguishes direct sequence selection
+  from selected properties, highlights matching source instances, and resolves
+  clicks to the first visible instance of a source node.
+- `useCanvasOutlines()` measures targets, clears stale canvas hover, and returns
+  `outlinesForRendering`, `outlinesByKey`, `targetsByKey`, and
+  `hoveredNodePathKey`. Set `freezeOrder` during a captured drag to keep SVG
+  nodes in place. Supply `crop` alongside the layout target fields.
+- `CanvasOutlinePolygon` renders the SVG polygon with shared geometry and hover
+  behavior. Render it inside your overlay's `<svg>`, pass visibility, selection,
+  colors, and `onHoverChange`, and compose editing handlers through normal SVG
+  props. It forwards its ref for pointer capture and hit testing.
+- `handleCanvasOutlinePointerDown()` consumes a primary pointer event and
+  returns a selection decision, preserving an existing multiselection on plain
+  clicks. Dragging hosts honor `deferSelection` until release; selection-only
+  hosts apply `shouldUpdateSelection` immediately. Studio adds its drag and
+  source-editing behavior around this decision.
+
+Lower-level `createCanvasHoverController()`, `measureCanvasOutlineTargets()`,
+`useCanvasOutlineMeasurements()`, and `orderCanvasOutlinesForRendering()` remain
+available independently. Measurements include transformed HTML/SVG bounds and cropping, in
 unscaled overlay pixels. The overlay must share the elements' document and
 must not have a CSS transform or SVG viewBox scaling. The measurement hook
 observes element sizes; invoke its `updateOutlinesRef` after position, transform,
 frame, or viewport changes. Keep frame subscriptions in the active overlay and
-omit inactive targets to avoid unnecessary layout reads.
+omit inactive targets to avoid unnecessary layout reads. `useCanvasOutlines()`
+also accepts this ref and does not subscribe to playback itself.
 
 Source writes and transform editing handles remain the host's responsibility.

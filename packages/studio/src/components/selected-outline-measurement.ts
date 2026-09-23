@@ -1,3 +1,4 @@
+import {getCanvasSelectableOutlines} from '@remotion/canvas';
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
@@ -15,7 +16,6 @@ import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-fr
 import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
-	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {
 	parsedTransformOriginToUv,
@@ -23,6 +23,9 @@ import {
 } from './Timeline/transform-origin-utils';
 
 export {
+	getCanvasOutlineSelectionInteraction as getOutlineSelectionInteraction,
+	getCanvasSelectedSequenceKeys as getSelectedSequenceKeys,
+	getCanvasSequenceKeysContainingSelection as getSequenceKeysContainingSelection,
 	cropCanvasOutlinePoints as cropOutlinePoints,
 	getTransformedSvgViewportPoints,
 	measureCanvasOutlineTargets as measureOutlineTargets,
@@ -174,39 +177,6 @@ export const getSelectedOutlineRotationPivot = ({
 
 	return getUvHandlePosition(points, uv);
 };
-
-export const getSelectedSequenceKeys = (
-	selectedItems: readonly TimelineSelection[],
-): Set<string> => {
-	return new Set(
-		selectedItems
-			.filter((item) => item.type === 'sequence')
-			.map((item) => getTimelineSequenceSelectionKey(item.nodePathInfo)),
-	);
-};
-
-export const getSequenceKeysContainingSelection = (
-	selectedItems: readonly TimelineSelection[],
-): Set<string> => {
-	return new Set(
-		selectedItems
-			.filter((item) => item.type !== 'guide')
-			.map((item) => getTimelineSequenceSelectionKey(item.nodePathInfo)),
-	);
-};
-
-export const getOutlineSelectionInteraction = ({
-	shiftKey,
-	metaKey,
-	ctrlKey,
-}: {
-	readonly shiftKey: boolean;
-	readonly metaKey: boolean;
-	readonly ctrlKey: boolean;
-}): TimelineSelectionInteraction => ({
-	shiftKey,
-	toggleKey: metaKey || ctrlKey,
-});
 
 type SelectedEffectFields = {
 	allFields: boolean;
@@ -431,36 +401,13 @@ export const getSequencesWithSelectableOutlines = ({
 	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
 	readonly timelinePosition: number;
 }): SequenceWithSelectedOutline[] => {
-	return calculateTimeline({
-		sequences: [...sequences],
-		overrideIdsToNodePaths,
-		compositions,
-	})
-		.filter((track) => {
-			if (track.nodePathInfo === null) {
-				return false;
-			}
-
-			return (
-				track.sequence.showInTimeline &&
-				timelinePosition >= track.sequence.from &&
-				timelinePosition < track.sequence.from + track.sequence.duration &&
-				track.nodePathInfo.auxiliaryKeys.length === 0
-			);
-		})
-		.filter((track) => track.sequence.refForOutline !== null)
-		.sort((a, b) => a.depth - b.depth)
-		.map((track) => {
-			if (track.nodePathInfo === null) {
-				throw new Error('Expected selected outline to have a node path');
-			}
-
-			return {
-				depth: track.depth,
-				keyframeDisplayOffset: track.keyframeDisplayOffset,
-				key: getTimelineSequenceSelectionKey(track.nodePathInfo),
-				nodePathInfo: track.nodePathInfo,
-				sequence: track.sequence,
-			};
-		});
+	return getCanvasSelectableOutlines({
+		tracks: calculateTimeline({
+			sequences: [...sequences],
+			overrideIdsToNodePaths,
+			compositions,
+		}),
+		timelinePosition,
+		resolveSequenceNodePathInfo: null,
+	});
 };

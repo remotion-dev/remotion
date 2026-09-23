@@ -30,6 +30,28 @@ export type {
 	CanvasOutlineSequenceParent,
 } from './outline-order';
 export {useCanvasOutlineMeasurements} from './use-canvas-outline-measurements';
+export {useCanvasOutlines} from './use-canvas-outlines';
+export type {CanvasOutlineRenderTarget} from './use-canvas-outlines';
+export {CanvasOutlinePolygon} from './canvas-outline-polygon';
+export type {CanvasOutlinePolygonProps} from './canvas-outline-polygon';
+export {
+	getCanvasOutlineSelectionInteraction,
+	handleCanvasOutlinePointerDown,
+} from './outline-interaction';
+export type {CanvasOutlinePointerDownDecision} from './outline-interaction';
+export {
+	getCanvasActiveOutlineTargets,
+	getCanvasOutlineActivity,
+	getCanvasOutlineLayoutTargets,
+	getCanvasSelectableOutlines,
+	getCanvasSelectedSequenceKeys,
+	getCanvasSequenceKeysContainingSelection,
+	getCanvasVisibleOutlineTargets,
+} from './outline-targets';
+export type {
+	CanvasSelectableOutline,
+	CanvasOutlineLayoutTarget,
+} from './outline-targets';
 export {getCanvasSequenceNodePathInfo} from './sequence-node-path';
 export type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 export {getConnectedCompositions} from './get-connected-compositions';
