@@ -21,6 +21,7 @@ Rendering and Studio need Node.js and a Chrome/Chromium download; they work in C
 - `src/showcase/` — reference reels exercising most of the installed `@remotion/*` packages: `ShowcaseReel` (transitions, shapes, motion blur, noise, captions, paths, rough-notation, animation-utils), `ExtendedReel` (effects, media/gif/mac-cursors, video-matting, media-utils audio, whisper-webgpu, lottie, animated-emoji, three, skia, layout-utils/rounded-text-box, sfx, gsap, core-`remotion` fundamentals), and `FullReel` (both combined into one video). Point at a scene here as a worked example before writing a new one from scratch.
 - `src/index.css` — Tailwind v4 is enabled (`@import "tailwindcss"`)
 - `public/` — static assets, referenced with `staticFile()`, including `sample-clip.mp4`/`.gif`, `sample-tone.wav` and `sample-lottie.json` (locally-generated stand-ins used by `ExtendedReel`; regenerate the media ones with `node scripts/generate-sample-media.mjs`)
+- `.claude/elements/` — local copy of the [Remotion Elements](https://www.remotion.dev/elements/) gallery, drop-in components to copy into a scene (see "Elements" below)
 - `out/`, `build/`, `node_modules/`, `remotion-video-skill.zip` — generated, never commit
 
 ## Rendering environments without a GPU
@@ -73,6 +74,16 @@ node scripts/vendor-skills.mjs   # defaults to ../packages/skills/skills; pass a
 The script copies the skills without their symlinks (which break on Windows checkouts and inflate zip bundles), rewrites sibling-skill links accordingly, and fails if any relative link is broken. Do not copy the skills by hand.
 
 `node scripts/build-chat-skill.mjs` packages `chat-skill/SKILL.md` plus these skills into `remotion-video-skill.zip` for upload to claude.ai (Claude Chat and account-wide Cowork). Rebuild it after re-vendoring.
+
+## Elements
+
+`.claude/elements/` is a local copy of the official [Remotion Elements](https://www.remotion.dev/elements/) gallery (vendored from this monorepo's `packages/docs/elements`) — 40 small, self-contained, drop-in components across 11 categories (audio, backgrounds, captions, commerce, data, layouts, maps, overlays, storytelling, text, youtube). `.claude/elements/CATALOG.md` lists every one with its description. Elements are designed to be copied and edited directly (not installed as a dependency): pick one from the catalog, copy its `.tsx` file (and `initial-props.ts` if present) into `src/showcase/`, and adapt it — check the file's own imports for any package to install first.
+
+Re-vendor after pulling upstream changes to `packages/docs/elements`:
+
+```console
+node scripts/vendor-elements.mjs   # defaults to ../packages/docs/elements; pass another source path if needed
+```
 
 ## Conventions
 
