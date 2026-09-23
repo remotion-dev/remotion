@@ -200,6 +200,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			current.addEventListener('loadeddata', loadedDataHandler, {once: true});
 			return () => {
 				current.removeEventListener('loadeddata', loadedDataHandler);
+				continueRender(handle);
 			};
 		}
 
@@ -221,35 +222,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 		current.addEventListener('ended', endedHandler, {once: true});
 
-		const errorHandler = () => {
-			if (current?.error) {
-				// eslint-disable-next-line no-console
-				console.error('Error occurred in video', current?.error);
-
-				// If user is handling the error, we don't cause an unhandled exception
-				if (onError) {
-					return;
-				}
-
-				throw new MediaPlaybackError({
-					message: `The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
-					src: props.src as string,
-				});
-			} else {
-				throw new MediaPlaybackError({
-					message: 'The browser threw an error',
-					src: props.src as string,
-				});
-			}
-		};
-
-		current.addEventListener('error', errorHandler, {once: true});
-
 		// If video skips to another frame or unmounts, we clear the created handle
 		return () => {
 			seek.cancel();
 			current.removeEventListener('ended', endedHandler);
-			current.removeEventListener('error', errorHandler);
 			continueRender(handle);
 		};
 	}, [
@@ -259,7 +235,6 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoConfig.fps,
 		frame,
 		mediaStartsAt,
-		onError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
@@ -267,6 +242,63 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		continueRender,
 		delayRender,
 	]);
+
+	// Listening once per mount rather than per frame, so that errors which
+	// happen before any seek (e.g. an unsupported codec on frame 0) are caught.
+	// Like <Img>, a handled error keeps this component's delayRender() handles:
+	// onError() must unmount the video or change `src`, or the render times out.
+	useEffect(() => {
+		if (!window.remotion_videoEnabled) {
+			return;
+		}
+
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		const errorHandler = () => {
+			if (current.error) {
+				// eslint-disable-next-line no-console
+				console.error('Error occurred in video', current?.error);
+
+				// If user is handling the error, we don't cause an unhandled exception
+				if (onError) {
+					const err = new MediaPlaybackError({
+						message: `Code ${current.error.code}: ${current.error.message}`,
+						src: props.src as string,
+					});
+					onError(err);
+					return;
+				}
+
+				throw new MediaPlaybackError({
+					message: `The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
+					src: props.src as string,
+				});
+			} else {
+				// If user is handling the error, we don't cause an unhandled exception
+				if (onError) {
+					const err = new MediaPlaybackError({
+						message: `The browser threw an error while playing the video ${props.src}`,
+						src: props.src as string,
+					});
+					onError(err);
+					return;
+				}
+
+				throw new MediaPlaybackError({
+					message: 'The browser threw an error while playing the video',
+					src: props.src as string,
+				});
+			}
+		};
+
+		current.addEventListener('error', errorHandler, {once: true});
+		return () => {
+			current.removeEventListener('error', errorHandler);
+		};
+	}, [onError, props.src]);
 
 	const {src} = props;
 
