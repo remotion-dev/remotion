@@ -12,7 +12,6 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
-import {cancelRender} from '../cancel-render.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
 import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {Img} from '../Img.js';
@@ -167,7 +166,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	useLayoutEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -254,8 +253,12 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			controller.abort();
 		});
 
+		// If the frame changes or the video unmounts, we clear the created handle.
+		// Aborting alone won't: after an error that onError() handled, the fetch
+		// has already settled. Like <Img>, the handle stays pending until then.
 		return () => {
 			cleanup.forEach((c) => c());
+			continueRender(newHandle);
 		};
 	}, [
 		actualSrc,
@@ -264,6 +267,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		onError,
 		continueRender,
 		delayRender,
+		cancelRender,
 	]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
@@ -273,7 +277,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			} else {
 				cancelRender('Failed to load image with src ' + imageSrc);
 			}
-		}, [imageSrc, onError]);
+		}, [imageSrc, onError, cancelRender]);
 
 	const className = useMemo(() => {
 		return [OBJECTFIT_CONTAIN_CLASS_NAME, props.className]
