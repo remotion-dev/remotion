@@ -33,7 +33,10 @@ async function getFiles(
 				return [dirent, res];
 			})
 			.filter(([dirent, res]) => {
-				const relative = path.relative(originalDirectory, res);
+				const relative = path
+					.relative(originalDirectory, res)
+					.split(path.sep)
+					.join('/');
 				if (dirent.isDirectory()) {
 					return true;
 				}

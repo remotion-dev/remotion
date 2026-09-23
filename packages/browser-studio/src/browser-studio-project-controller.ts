@@ -28,6 +28,7 @@ type ProjectNodePathMutationFiles = SequenceNodePathMutation['files'];
 type HistoryEntry = {
 	before: VirtualProject;
 	after: VirtualProject;
+	publicFilePaths: string[];
 	fileName: string;
 	nodePathMutationFiles: ProjectNodePathMutationFiles | null;
 	undoRedoNavigation: UndoRedoNavigation | null;
@@ -67,8 +68,9 @@ const normalizePublicFilePath = (path: string) => {
 	return withoutLeadingSlash;
 };
 
-const getCanonicalPublicFiles = (project: VirtualProject) => {
-	const canonicalFiles: Record<string, VirtualProjectPublicFile> = {};
+export const getCanonicalPublicFiles = (project: VirtualProject) => {
+	const canonicalFiles: Record<string, VirtualProjectPublicFile> =
+		Object.create(null);
 
 	for (const [path, contents] of Object.entries(project.publicFiles ?? {})) {
 		const canonicalPath = normalizePublicFilePath(path);
@@ -265,7 +267,12 @@ export const createBrowserStudioPublicFileManager = ({
 			: new Blob([
 					typeof contents === 'string' ? contents : contents.slice().buffer,
 				]);
-		const url = resolvedCreateObjectUrl(blob);
+		// Unlike raster images, SVGs need a MIME type to render from a Blob URL.
+		const url = resolvedCreateObjectUrl(
+			name.toLowerCase().endsWith('.svg')
+				? blob.slice(0, blob.size, 'image/svg+xml')
+				: blob,
+		);
 		objectUrls.set(name, {
 			contents:
 				typeof contents === 'string' || isStoredPublicFile(contents)
@@ -528,13 +535,16 @@ export const createBrowserStudioProjectController = ({
 		return nodePathMutation;
 	};
 
-	const applyMutation = ({
-		fileName,
-		mutate,
-		nodePathMutationFiles,
-		timelineSelection,
-		undoRedoNavigation,
-	}: ProjectMutation) => {
+	const applyProjectMutation = (
+		{
+			fileName,
+			mutate,
+			nodePathMutationFiles,
+			timelineSelection,
+			undoRedoNavigation,
+		}: ProjectMutation,
+		trackPublicFiles: boolean,
+	) => {
 		const before = getProject();
 		const after = mutate(before);
 
@@ -546,6 +556,9 @@ export const createBrowserStudioProjectController = ({
 		undoStack.push({
 			before,
 			after,
+			publicFilePaths: trackPublicFiles
+				? getChangedPublicFilePaths(before, after)
+				: [],
 			fileName,
 			nodePathMutationFiles,
 			undoRedoNavigation,
@@ -573,6 +586,29 @@ export const createBrowserStudioProjectController = ({
 		return nodePathMutation;
 	};
 
+	const restoreProject = (
+		snapshot: VirtualProject,
+		publicFilePaths: string[],
+	) => {
+		const current = getProject();
+		const publicFiles = getCanonicalPublicFiles(current);
+		const previousFiles = getCanonicalPublicFiles(snapshot);
+		// Replay only explicit public-file edits, not stale whole-project snapshots.
+		for (const filePath of publicFilePaths) {
+			if (Object.hasOwn(previousFiles, filePath)) {
+				publicFiles[filePath] = previousFiles[filePath];
+			} else {
+				delete publicFiles[filePath];
+			}
+		}
+
+		return {
+			...snapshot,
+			publicFiles,
+			publicFileStorage: current.publicFileStorage,
+		};
+	};
+
 	const undo = (): Promise<UndoResponse> => {
 		const entry = undoStack.pop();
 		if (!entry) {
@@ -591,7 +627,7 @@ export const createBrowserStudioProjectController = ({
 		}));
 		const nodePathMutation = commitProject({
 			previousProject: getProject(),
-			nextProject: entry.before,
+			nextProject: restoreProject(entry.before, entry.publicFilePaths),
 			nodePathMutationFiles: files ?? null,
 			timelineSelection: null,
 		});
@@ -611,7 +647,7 @@ export const createBrowserStudioProjectController = ({
 		undoStack.push(entry);
 		const nodePathMutation = commitProject({
 			previousProject: getProject(),
-			nextProject: entry.after,
+			nextProject: restoreProject(entry.after, entry.publicFilePaths),
 			nodePathMutationFiles: entry.nodePathMutationFiles,
 			timelineSelection: null,
 		});
@@ -623,7 +659,8 @@ export const createBrowserStudioProjectController = ({
 	};
 
 	return {
-		applyMutation,
+		// Source mutations retain assets, just like source-file undo in desktop Studio.
+		applyMutation: (mutation) => applyProjectMutation(mutation, false),
 		deleteStaticFile: ({relativePath}) => {
 			try {
 				const canonicalPath = normalizePublicFilePath(relativePath);
@@ -633,17 +670,20 @@ export const createBrowserStudioProjectController = ({
 					return Promise.resolve({success: true, existed: false});
 				}
 
-				applyMutation({
-					fileName: canonicalPath,
-					nodePathMutationFiles: null,
-					timelineSelection: null,
-					undoRedoNavigation: null,
-					mutate: (project) => {
-						const nextPublicFiles = getCanonicalPublicFiles(project);
-						delete nextPublicFiles[canonicalPath];
-						return {...project, publicFiles: nextPublicFiles};
+				applyProjectMutation(
+					{
+						fileName: canonicalPath,
+						nodePathMutationFiles: null,
+						timelineSelection: null,
+						undoRedoNavigation: null,
+						mutate: (project) => {
+							const nextPublicFiles = getCanonicalPublicFiles(project);
+							delete nextPublicFiles[canonicalPath];
+							return {...project, publicFiles: nextPublicFiles};
+						},
 					},
-				});
+					true,
+				);
 				return Promise.resolve({success: true, existed: true});
 			} catch (error) {
 				return Promise.reject(error);
@@ -691,18 +731,21 @@ export const createBrowserStudioProjectController = ({
 					throw new Error(`${newRelativePath} already exists`);
 				}
 
-				applyMutation({
-					fileName: oldPath,
-					nodePathMutationFiles: null,
-					timelineSelection: null,
-					undoRedoNavigation: null,
-					mutate: (project) => {
-						const nextPublicFiles = getCanonicalPublicFiles(project);
-						nextPublicFiles[newPath] = nextPublicFiles[oldPath];
-						delete nextPublicFiles[oldPath];
-						return {...project, publicFiles: nextPublicFiles};
+				applyProjectMutation(
+					{
+						fileName: oldPath,
+						nodePathMutationFiles: null,
+						timelineSelection: null,
+						undoRedoNavigation: null,
+						mutate: (project) => {
+							const nextPublicFiles = getCanonicalPublicFiles(project);
+							nextPublicFiles[newPath] = nextPublicFiles[oldPath];
+							delete nextPublicFiles[oldPath];
+							return {...project, publicFiles: nextPublicFiles};
+						},
 					},
-				});
+					true,
+				);
 				return Promise.resolve({success: true});
 			} catch (error) {
 				return Promise.reject(error);
@@ -745,20 +788,23 @@ export const createBrowserStudioProjectController = ({
 					: typeof contents === 'string'
 						? contents
 						: new Uint8Array(contents.slice(0));
-				applyMutation({
-					fileName: canonicalPath,
-					nodePathMutationFiles: null,
-					timelineSelection: null,
-					undoRedoNavigation: null,
-					mutate: (project) => ({
-						...project,
-						publicFileStorage: storage ?? project.publicFileStorage,
-						publicFiles: {
-							...getCanonicalPublicFiles(project),
-							[canonicalPath]: nextContents,
-						},
-					}),
-				});
+				applyProjectMutation(
+					{
+						fileName: canonicalPath,
+						nodePathMutationFiles: null,
+						timelineSelection: null,
+						undoRedoNavigation: null,
+						mutate: (project) => ({
+							...project,
+							publicFileStorage: storage ?? project.publicFileStorage,
+							publicFiles: {
+								...getCanonicalPublicFiles(project),
+								[canonicalPath]: nextContents,
+							},
+						}),
+					},
+					true,
+				);
 				if (storage) {
 					queueGarbageCollection(storage);
 				}

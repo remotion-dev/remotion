@@ -15,7 +15,15 @@ loadFont('normal', {
 	weights: ['500', '600', '700', '800'],
 });
 
-export const YouTubeSubscribeNudge: React.FC = () => {
+export const YouTubeSubscribeNudge: React.FC<{
+	readonly clickSrc?: string;
+	readonly dingSrc?: string;
+	readonly avatarSrc?: string;
+}> = ({
+	clickSrc = mouseClick,
+	dingSrc = ding,
+	avatarSrc = 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -30,7 +38,7 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 				durationInFrames={12}
 				from={61}
 				name="Subscribe click"
-				src={mouseClick}
+				src={clickSrc}
 				trimBefore={3}
 				volume={0.5}
 			/>
@@ -38,7 +46,7 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 				durationInFrames={39}
 				from={81}
 				name="Bell chime"
-				src={ding}
+				src={dingSrc}
 				trimBefore={4}
 				volume={0.24}
 			/>
@@ -105,7 +113,7 @@ export const YouTubeSubscribeNudge: React.FC = () => {
 						fit="cover"
 						height={88}
 						name="Avatar"
-						src="https://remotion.media/elements/social-endcard-remotion-logo.png"
+						src={avatarSrc}
 						style={{
 							backgroundColor: '#ffffff',
 							border: '1px solid rgba(255, 255, 255, 0.12)',

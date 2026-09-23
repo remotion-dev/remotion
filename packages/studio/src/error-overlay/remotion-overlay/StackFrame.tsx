@@ -2,7 +2,7 @@ import type {
 	EditorPickerId,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
 import {Button} from '../../components/Button';
 import {CodeFrame} from '../../components/CodeFrame';
 import {
@@ -23,7 +23,18 @@ import {formatLocation} from './format-location';
 const location: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'monospace',
-	overflowWrap: 'anywhere',
+	textAlign: 'left',
+	whiteSpace: 'nowrap',
+};
+
+const locationMask =
+	'linear-gradient(to right, black calc(100% - 20px), transparent)';
+
+const locationContainer: React.CSSProperties = {
+	...location,
+	maskImage: locationMask,
+	overflow: 'hidden',
+	WebkitMaskImage: locationMask,
 };
 
 const header: React.CSSProperties = {
@@ -72,6 +83,30 @@ export const StackElement: React.FC<{
 				!s.originalFileName?.startsWith('webpack/')) ||
 			isFirst,
 	);
+	const locationRef = useRef<HTMLDivElement>(null);
+	const [locationOverflows, setLocationOverflows] = useState(false);
+	const fileLocation = s.originalFileName
+		? `${formatLocation(s.originalFileName)}:${s.originalLineNumber}`
+		: null;
+	useLayoutEffect(() => {
+		const element = locationRef.current;
+		if (!element) {
+			return;
+		}
+
+		const update = () => {
+			setLocationOverflows(element.scrollWidth > element.clientWidth);
+		};
+
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(element);
+		if (element.firstElementChild) {
+			observer.observe(element.firstElementChild);
+		}
+
+		return () => observer.disconnect();
+	}, [fileLocation, fontSize]);
 	const canOpenFileLocation = Boolean(editorId && s.originalFileName);
 	const onOpenFileLocation = useCallback(() => {
 		if (!canOpenFileLocation) {
@@ -106,8 +141,12 @@ export const StackElement: React.FC<{
 					{functionName === null ? null : (
 						<div style={{...fnName, fontSize}}>{functionName}</div>
 					)}
-					{s.originalFileName ? (
-						<div style={{...location, fontSize}}>
+					{fileLocation ? (
+						<div
+							ref={locationRef}
+							style={{...locationContainer, fontSize}}
+							title={locationOverflows ? fileLocation : undefined}
+						>
 							{canOpenFileLocation ? (
 								<button
 									type="button"
@@ -129,14 +168,10 @@ export const StackElement: React.FC<{
 										padding: 0,
 									}}
 								>
-									{formatLocation(s.originalFileName as string)}:
-									{s.originalLineNumber}
+									{fileLocation}
 								</button>
 							) : (
-								<>
-									{formatLocation(s.originalFileName as string)}:
-									{s.originalLineNumber}
-								</>
+								fileLocation
 							)}
 						</div>
 					) : null}

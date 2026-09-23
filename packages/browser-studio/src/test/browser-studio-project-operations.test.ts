@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import type {ElementDragData} from '@remotion/studio-protocol';
+import {staticFileRef, type ElementDragData} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {
@@ -508,6 +508,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		},
 	});
 	const element = {
+		assets: [{path: 'elements/lower-third.bin', type: 'base64', data: 'AAEC'}],
 		dependencies: [
 			{name: '@remotion/shapes', version: null},
 			{name: 'zod', version: '4.1.5'},
@@ -515,12 +516,19 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 		dimensions: {width: 640, height: 180},
 		displayName: 'Lower Third',
 		durationInFrames: 90,
-		initialProps: {label: 'Starter'},
+		initialProps: {
+			label: 'Starter',
+			logoSrc: staticFileRef('elements/lower-third.bin'),
+		},
 		installationMode: 'wrapped' as const,
 		slug: 'titles/lower-third',
 		sourceCode: `import {Rect} from '@remotion/shapes';
+import {Img} from 'remotion';
 
-export const LowerThird = () => <Rect width={640} height={180} />;
+export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
+	<Rect width={640} height={180} />
+	<Img name="Logo" src={logoSrc} />
+</>;
 `,
 	} satisfies ElementDragData['element'];
 	const preflight = await operations.prepareElementInstall({
@@ -570,6 +578,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		undoRedoNavigation: null,
 		newComposition: null,
 	});
+
 	if (!inserted.success) {
 		throw new Error(
 			inserted.type === 'error' ? inserted.reason : 'Unexpected file conflict',
@@ -577,8 +586,14 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	}
 
 	expect(resolvedDependencyNames).toEqual([['@remotion/shapes', 'zod']]);
-	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
-		element.sourceCode,
+	const installedElementSource =
+		project.files['/project/src/lower-third.element.tsx'];
+	expect(installedElementSource).toBe(element.sourceCode);
+	expect(project.files['/project/src/Composition.tsx']).toMatch(
+		/logoSrc=\{staticFile\(["']elements\/lower-third\.bin["']\)\}/,
+	);
+	expect(project.publicFiles?.['elements/lower-third.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
 	);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'import { LowerThird } from "./lower-third.element";',
@@ -610,7 +625,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	);
 	expect((await operations.redo()).success).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 
 	const installRequest = {
@@ -628,8 +643,9 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 	expect(await operations.insertElement(installRequest)).toMatchObject({
 		success: false,
 		type: 'file-conflict',
+		conflict: {incomingSource: installedElementSource},
 	});
-	const customizedSource = `${element.sourceCode}\n// Customized\n`;
+	const customizedSource = `${installedElementSource}\n// Customized\n`;
 	project = {
 		...project,
 		files: {
@@ -646,7 +662,7 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		).success,
 	).toBe(true);
 	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		customizedSource,
@@ -666,16 +682,153 @@ export const LowerThird = () => <Rect width={640} height={180} />;
 		).success,
 	).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 	expect((await operations.undo()).success).toBe(true);
 	expect(project.files['/project/src/lower-third.element.tsx']).toBe(
 		customizedSource,
 	);
 	expect(project.files['/project/src/speaker-name.element.tsx']).toBe(
-		element.sourceCode,
+		installedElementSource,
 	);
 });
+
+const makeElementAssetFixture = () => {
+	let project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		initialElement: null,
+		onProjectChange: (nextProject) => {
+			project = nextProject;
+		},
+		resolveDependencies: null,
+	});
+	return {
+		getProject: () => project,
+		operations,
+		install: (
+			assets: ElementDragData['element']['assets'],
+			installationName: string | null,
+		) =>
+			operations.insertElement({
+				installationName,
+				compositionFile: '/project/src/Composition.tsx',
+				compositionId: 'MyComp',
+				element: {
+					assets,
+					dependencies: [],
+					dimensions: null,
+					displayName: 'Asset Element',
+					durationInFrames: 30,
+					initialProps: null,
+					installationMode: 'wrapped',
+					slug: 'asset-element',
+					sourceCode: 'export const AssetElement = () => <div />;',
+				},
+				expectedFileState: null,
+				from: null,
+				overwriteExisting: false,
+				position: null,
+				undoRedoNavigation: null,
+				newComposition: null,
+			}),
+	};
+};
+
+test('retains installed assets across earlier history while allowing explicit asset undo and redo', async () => {
+	const {getProject, install, operations} = makeElementAssetFixture();
+	const originalSource = getProject().files['/project/src/Composition.tsx'];
+	await operations.writeStaticFile({
+		filePath: 'upload.txt',
+		contents: 'Uploaded',
+	});
+	for (const [name, assetPath] of [
+		['first', 'first.bin'],
+		['second', '__proto__'],
+	]) {
+		expect(
+			(await install([{path: assetPath, type: 'base64', data: 'AAEC'}], name))
+				.success,
+		).toBe(true);
+	}
+
+	const installedAssets = {
+		'first.bin': new Uint8Array([0, 1, 2]),
+		['__proto__']: new Uint8Array([0, 1, 2]),
+	};
+	for (let i = 0; i < 3; i++) {
+		expect((await operations.undo()).success).toBe(true);
+	}
+
+	expect(getProject().files['/project/src/Composition.tsx']).toBe(
+		originalSource,
+	);
+	expect(getProject().publicFiles).toEqual(installedAssets);
+	for (let i = 0; i < 3; i++) {
+		expect((await operations.redo()).success).toBe(true);
+	}
+
+	expect(getProject().publicFiles).toEqual({
+		...installedAssets,
+		'upload.txt': 'Uploaded',
+	});
+	expect(getProject().files['/project/src/Composition.tsx']).toContain(
+		'<AssetElement2',
+	);
+	const events: EventSourceEvent[] = [];
+	const unsubscribe = operations.subscribeToEvent((event) =>
+		events.push(event),
+	);
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	unsubscribe();
+	expect(
+		events.findLast((event) => event.type === 'new-public-folder'),
+	).toMatchObject({
+		files: expect.arrayContaining([
+			expect.objectContaining({
+				name: '__proto__',
+				sizeInBytes: 3,
+				src: '/__proto__',
+			}),
+		]),
+	});
+
+	await operations.deleteStaticFile({relativePath: '__proto__'});
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
+	expect((await operations.undo()).success).toBe(true);
+	expect(Object.entries(getProject().publicFiles ?? {})).toContainEqual([
+		'__proto__',
+		new Uint8Array([0, 1, 2]),
+	]);
+	expect((await operations.redo()).success).toBe(true);
+	expect(Object.hasOwn(getProject().publicFiles ?? {}, '__proto__')).toBe(
+		false,
+	);
+});
+
+test.each([
+	['folder', 'folder/asset.bin'],
+	['folder/asset.bin', 'folder'],
+	['Asset.bin', 'asset.bin'],
+])(
+	'rejects installation of %s conflicting with public path %s',
+	async (existingPath, assetPath) => {
+		const {getProject, install, operations} = makeElementAssetFixture();
+		await operations.writeStaticFile({
+			filePath: existingPath,
+			contents: 'Existing',
+		});
+		const before = getProject();
+		expect(
+			await install([{path: assetPath, type: 'base64', data: 'AAEC'}], null),
+		).toMatchObject({success: false, type: 'error'});
+		expect(getProject()).toBe(before);
+	},
+);
 
 test('installs an Element into a new composition as one undoable mutation', async () => {
 	const initialProject = createBlankTemplateProject();
@@ -691,6 +844,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		resolveDependencies: null,
 	});
 	const element = {
+		assets: [],
 		dependencies: [],
 		dimensions: {width: 640, height: 180},
 		displayName: 'Browser Element',
@@ -790,12 +944,20 @@ test('installs component-owned Element timing and initial props', async () => {
 		resolveDependencies: null,
 	});
 	const element = {
+		assets: [{path: 'captions/sound.bin', type: 'base64', data: 'AAEC'}],
 		dependencies: [],
 		dimensions: {width: 640, height: 180},
 		displayName: 'Captions',
 		durationInFrames: 90,
 		initialProps: {
-			captions: [{text: 'Starter', startMs: 0, endMs: 1000}],
+			captions: [
+				{
+					text: 'Starter',
+					startMs: 0,
+					endMs: 1000,
+					sound: staticFileRef('captions/sound.bin'),
+				},
+			],
 			style: {
 				color: 'red',
 				position: 'relative',
@@ -845,6 +1007,9 @@ test('installs component-owned Element timing and initial props', async () => {
 	expect(composition).not.toContain('<Sequence');
 	expect(composition).toContain('<Captions');
 	expect(composition).toContain('captions={[');
+	expect(project.publicFiles?.['captions/sound.bin']).toEqual(
+		new Uint8Array([0, 1, 2]),
+	);
 	expect(composition).toContain('text: "Starter"');
 	expect(composition).toContain('width={640}');
 	expect(composition).toContain('durationInFrames={90}');
@@ -901,6 +1066,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			compositionFile: '/project/src/Composition.tsx',
 			compositionId: 'MyComp',
 			element: {
+				assets: [],
 				dependencies: [],
 				dimensions: {width: 640, height: 180},
 				displayName: 'Captions',

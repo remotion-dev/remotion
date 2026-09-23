@@ -89,6 +89,10 @@ export type ElementDependency =
 	  };
 
 export type InstallableElement = {
+	assets: Array<
+		| {path: string; type: 'url'; url: string}
+		| {path: string; type: 'base64'; data: string}
+	>;
 	dependencies: ElementDependency[];
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
@@ -884,6 +888,25 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+
+export type WrapJsxNodeRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	wrapper: JsxWrapper | null;
+	width: number | null;
+	height: number | null;
+};
+
+export type WrapJsxNodeResponse =
+	| {
+			success: true;
+			canWrap: boolean;
+			canWrapHtmlInCanvas: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
 export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -940,14 +963,13 @@ export type InsertBasicCaptionsResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
-export type InsertVideoLayersRequest = {
+export type ReplaceVideoSourceRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
-	baseSrc: string;
-	foregroundSrc: string;
+	src: string;
 };
 
-export type InsertVideoLayersResponse =
+export type ReplaceVideoSourceResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
@@ -1437,6 +1459,7 @@ export type ApiRoutes = {
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
+	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
 	'/api/split-jsx-sequence': ReqAndRes<
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse
@@ -1449,9 +1472,9 @@ export type ApiRoutes = {
 		InsertBasicCaptionsRequest,
 		InsertBasicCaptionsResponse
 	>;
-	'/api/insert-video-layers': ReqAndRes<
-		InsertVideoLayersRequest,
-		InsertVideoLayersResponse
+	'/api/replace-video-source': ReqAndRes<
+		ReplaceVideoSourceRequest,
+		ReplaceVideoSourceResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

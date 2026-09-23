@@ -11,7 +11,6 @@ import {
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
 } from './insert-jsx-element';
-import {insertVideoLayers} from './insert-video-layers';
 import {
 	computeCanUpdateDefaultPropsFromContent,
 	findProjectFile,
@@ -129,6 +128,7 @@ export type {
 	CodemodResult,
 } from './codemod-project';
 export {deleteJsxNodes, type DeleteJsxNodesOptions} from './delete-jsx-nodes';
+export {canWrapJsxNode, wrapJsxNode} from './wrap-jsx-node';
 export type {
 	EffectArrayElement,
 	EffectDeletionTarget,
@@ -175,7 +175,6 @@ export const CodemodsInternals = {
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertVideoLayers,
 	pasteEffects,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,

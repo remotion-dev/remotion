@@ -46,11 +46,21 @@ export const PlaygroundControls: React.FC = () => {
 					setInstalling(true);
 					setError(null);
 					try {
+						const legacyPayload = createElementPayloadFromDefinition({
+							definition,
+							sourceCode,
+							installAssets: false,
+						});
 						const result = await installInStudio({
-							payload: createElementPayloadFromDefinition({
-								definition,
-								sourceCode,
-							}),
+							payload:
+								definition.assets.length === 0
+									? legacyPayload
+									: createElementPayloadFromDefinition({
+											definition,
+											sourceCode,
+											installAssets: true,
+										}),
+							fallbackPayload: legacyPayload,
 						});
 						if (!result.success) setError(result.message);
 					} catch (err) {

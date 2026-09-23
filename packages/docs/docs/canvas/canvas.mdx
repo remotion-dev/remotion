@@ -1,0 +1,66 @@
+---
+image: /generated/articles-docs-canvas-canvas.png
+title: '<Canvas>'
+slug: /canvas/canvas
+crumb: '@remotion/canvas'
+---
+
+# &lt;Canvas&gt;<AvailableFrom v="4.0.527" />
+
+Renders a Remotion composition using [`<Player>`](/docs/player/player), registers its timeline tracks, and optionally overlays selection outlines.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx title="Preview.tsx"
+import {Canvas, useCanvasController} from '@remotion/canvas';
+import {Video} from './Video';
+
+export const Preview = () => {
+  const controller = useCanvasController();
+  return (
+    <Canvas
+      controller={controller}
+      showOutlines
+      component={Video}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      durationInFrames={150}
+      fps={30}
+    />
+  );
+};
+```
+
+## Props
+
+`CanvasProps` includes the [`<Player>` props](/docs/player/player) and the props below. `<Canvas>` forwards its ref to the Player.
+
+### controller
+
+A [`CanvasController`](/docs/canvas/create-canvas-controller) shared with your timeline and selection UI. Keep it stable while the Canvas is mounted.
+
+### showOutlines?
+
+Whether to draw hover and selection outlines over the composition. Default: `false`. When enabled, pointer events select outlines instead of reaching interactive controls inside the composition. Set it to `false` for an interaction mode that lets users operate those controls.
+
+Clicking empty canvas space or pressing Escape while the overlay is focused clears selection. Shift-click selects a range; Command-click on macOS or Ctrl-click elsewhere toggles an item.
+
+### resolveSequenceNodePathInfo?
+
+A `CanvasSequenceNodePathResolver` called with a [`TimelineTrackData`](/docs/canvas/create-canvas-controller#timeline) and its index. It returns a `SequenceNodePathInfo` identity or `null` to make the track unselectable. The default is [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info).
+
+Use the same resolver when constructing selection items for the layer list. Keep its function identity stable where possible, for example with `useCallback()`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [Canvas overview and layer list example](/docs/canvas)
+- [`useCanvasController()`](/docs/canvas/use-canvas-controller)
+- [`useCanvasSelection()`](/docs/canvas/use-canvas-selection)

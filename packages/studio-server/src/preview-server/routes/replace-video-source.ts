@@ -1,10 +1,11 @@
 import {readFileSync} from 'node:fs';
+import {updateJsxNodeProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	InsertVideoLayersRequest,
-	InsertVideoLayersResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 } from '@remotion/studio-shared';
-import {insertVideoLayers} from '../../codemods/insert-video-layers';
+import {NoReactInternals} from 'remotion/no-react';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -20,15 +21,11 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-export const insertVideoLayersHandler: ApiHandler<
-	InsertVideoLayersRequest,
-	InsertVideoLayersResponse
-> = ({
-	input: {fileName, nodePath, baseSrc, foregroundSrc},
-	remotionRoot,
-	logLevel,
-}) =>
-	withSourceFileWriteQueue<InsertVideoLayersResponse>(() => {
+export const replaceVideoSourceHandler: ApiHandler<
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse
+> = ({input: {fileName, nodePath, src}, remotionRoot, logLevel}) =>
+	withSourceFileWriteQueue<ReplaceVideoSourceResponse>(() => {
 		try {
 			const {absolutePath} = resolveFileInsideProject({
 				remotionRoot,
@@ -36,12 +33,25 @@ export const insertVideoLayersHandler: ApiHandler<
 				action: 'modify',
 			});
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, logLine, nodePathRemappings} = insertVideoLayers({
-				input: fileContents,
-				nodePath,
-				baseSrc,
-				foregroundSrc,
+			const result = updateJsxNodeProps({
+				project: {
+					files: {[absolutePath]: fileContents},
+					rootDir: remotionRoot,
+				},
+				node: {filePath: absolutePath, nodePath},
+				updates: [
+					{
+						key: 'src',
+						value: `${NoReactInternals.FILE_TOKEN}${src.split('/').map(encodeURIComponent).join('/')}`,
+						defaultValue: null,
+					},
+				],
 			});
+			const output = result.project.files[absolutePath];
+			const {logLine} = result;
+			const nodePathRemappings = result.nodePathRemappings.map(
+				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: nodePathRemappings}],
 				null,
@@ -55,10 +65,10 @@ export const insertVideoLayersHandler: ApiHandler<
 				remotionRoot,
 				logLine,
 				description: {
-					undoMessage: '↩️  Insertion of separated video layers',
-					redoMessage: '↪️  Insertion of separated video layers',
+					undoMessage: '↩️  Removed video background',
+					redoMessage: '↪️  Removed video background',
 				},
-				entryType: 'insert-video-layers',
+				entryType: 'replace-video-source',
 				suppressHmrOnFileRestore: false,
 				nodePathRemappings,
 			});
@@ -77,7 +87,7 @@ export const insertVideoLayersHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(locationLabel)} Inserted separated video layers`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(locationLabel)} Replaced video source`,
 			);
 			printUndoHint(logLevel);
 			return Promise.resolve({success: true as const, nodePathMutation});

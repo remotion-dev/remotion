@@ -69,6 +69,38 @@ A premounted [`<Sequence>`](/docs/sequence) does carry the styles `opacity: 0` a
 
 It is not possible to premount a [`<Sequence>`](/docs/sequence) with `layout="none"` because such a sequence does not have a container to apply the styles to.
 
+## Premounting visual components<AvailableFrom v="4.0.528" />
+
+You can pass `premountFor` directly to these components:
+
+- [`<AbsoluteFill>`](/docs/absolute-fill), [`Interactive` HTML and SVG components](/docs/interactive), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+- [Shape components](/docs/shapes), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor) and [rough-notation components](/docs/rough-notation/api).
+- [`<Lottie>`](/docs/lottie/lottie), [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas), [`<ThreeCanvas>`](/docs/three-canvas) and [`<ThreeWebGPUCanvas>`](/docs/three-webgpu-canvas).
+
+These components keep their existing layout while premounted, with `opacity: 0` and `pointerEvents: 'none'`. Their local frame stays at the first frame until `from` is reached.
+
+```tsx twoslash title="PremountedScene.tsx"
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+
+export const PremountedScene: React.FC = () => {
+  return (
+    <AbsoluteFill from={60} durationInFrames={90} premountFor={30}>
+      <Img src={staticFile('logo.png')} width={200} />
+      <h1>Welcome</h1>
+    </AbsoluteFill>
+  );
+};
+```
+
+The image and heading mount together at frame 30, become visible at frame 60, and unmount at frame 150.
+
+`premountFor` defaults to `0` in v4 and `fps` (1 second) in v5.
+Use `styleWhilePremounted` to override styles while premounted, including the default hiding styles.
+
+Premounting only applies in the Player and Studio, not during rendering. A parent must also be mounted for its children to premount; set `premountFor` on the outer timed component when preparing a whole scene.
+
+[`<Img>`](/docs/img), [`<AnimatedImage>`](/docs/animatedimage) and [`<Gif>`](/docs/gif/gif) also support direct premounting. See their API pages for availability and behavior.
+
 ## With `<Series>` and `<TransitionSeries>`
 
 `premountFor` is also available on [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries).  

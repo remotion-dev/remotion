@@ -59,6 +59,10 @@ If you would like to disable layout side effects, pass `layout="none"`.
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
+### Inherited props<AvailableFrom v="4.0.528" />
+
+`<Loop>` inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence). These props require `layout="absolute-fill"` (the default). Postmounting the end of the loop requires a finite `times`.
+
 ## Examples
 
 All the examples below are based on the following animation of a blue square:

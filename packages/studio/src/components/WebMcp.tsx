@@ -634,10 +634,10 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
-					name: 'separate_video_layers',
-					title: 'Separate Studio video layers',
+					name: 'remove_video_background',
+					title: 'Remove video background',
 					description:
-						'Separate a video asset from the public folder into background and foreground WebM files and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+						'Remove the background from a video asset in the public folder and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -646,15 +646,10 @@ export const WebMcp: FC = () => {
 								description:
 									'Optional path relative to public/. Defaults to the asset currently open in Studio.',
 							},
-							baseOutputPath: {
+							outputPath: {
 								type: 'string',
 								description:
-									'Optional background output path relative to public/.',
-							},
-							foregroundOutputPath: {
-								type: 'string',
-								description:
-									'Optional foreground output path relative to public/.',
+									'Optional transparent video output path relative to public/.',
 							},
 							model: {
 								type: 'string',
@@ -662,8 +657,8 @@ export const WebMcp: FC = () => {
 							},
 							audio: {
 								type: 'string',
-								enum: ['base', 'foreground', 'both', 'none'],
-								default: 'base',
+								enum: ['keep', 'none'],
+								default: 'keep',
 							},
 							videoBitrate: {
 								oneOf: [
@@ -690,7 +685,7 @@ export const WebMcp: FC = () => {
 							staticFiles: staticFilesRef.current,
 						});
 						if (getPreviewFileType(assetPath) !== 'video') {
-							throw new Error('The separation asset must be a video.');
+							throw new Error('The input asset must be a video.');
 						}
 
 						const videoMatting = await import('@remotion/video-matting');
@@ -706,14 +701,9 @@ export const WebMcp: FC = () => {
 							throw new Error(`Unknown video matting model: ${modelName}.`);
 						}
 
-						const audio = input.audio ?? 'base';
-						if (
-							audio !== 'base' &&
-							audio !== 'foreground' &&
-							audio !== 'both' &&
-							audio !== 'none'
-						) {
-							throw new Error('audio must be base, foreground, both, or none.');
+						const audio = input.audio ?? 'keep';
+						if (audio !== 'keep' && audio !== 'none') {
+							throw new Error('audio must be keep or none.');
 						}
 
 						const videoBitrate = input.videoBitrate ?? 'very-high';
@@ -737,53 +727,31 @@ export const WebMcp: FC = () => {
 							displayName,
 							'video',
 						);
-						const baseOutputPath =
-							input.baseOutputPath ?? `${baseName}-base.webm`;
-						const foregroundOutputPath =
-							input.foregroundOutputPath ?? `${baseName}-foreground.webm`;
-						if (
-							typeof baseOutputPath !== 'string' ||
-							typeof foregroundOutputPath !== 'string'
-						) {
-							throw new Error('Output paths must be strings.');
+						const outputPath =
+							input.outputPath ?? `${baseName}-no-background.webm`;
+						if (typeof outputPath !== 'string') {
+							throw new Error('Output path must be a string.');
 						}
 
-						const baseError = validatePublicOutputName({
+						const outputError = validatePublicOutputName({
 							extension: '.webm',
-							outName: baseOutputPath,
+							outName: outputPath,
 						});
-						const foregroundError = validatePublicOutputName({
-							extension: '.webm',
-							outName: foregroundOutputPath,
-						});
-						if (baseError !== null || foregroundError !== null) {
-							throw new Error(
-								baseError ?? foregroundError ?? 'Invalid output path.',
-							);
-						}
-
-						if (
-							baseOutputPath.normalize('NFC').toLowerCase() ===
-							foregroundOutputPath.normalize('NFC').toLowerCase()
-						) {
-							throw new Error(
-								'Background and foreground outputs must be different.',
-							);
+						if (outputError !== null) {
+							throw new Error(outputError);
 						}
 
 						const jobId = addVideoMattingJob({
 							audio,
-							baseOutName: baseOutputPath,
 							displayName,
-							foregroundOutName: foregroundOutputPath,
+							outName: outputPath,
 							model,
 							src,
 							target: null,
 							videoBitrate,
 						});
 						return {
-							baseOutputPath,
-							foregroundOutputPath,
+							outputPath,
 							jobId,
 							success: true,
 						};

@@ -1,8 +1,11 @@
 import React, {useMemo} from 'react';
 import {
 	Interactive,
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -34,7 +37,8 @@ type SharedAnnotationComponentProps = Readonly<
 
 type AnnotationInteractiveProps<Config> = SharedAnnotationComponentProps &
 	Readonly<Config> &
-	InteractiveBaseProps;
+	InteractiveBaseProps &
+	InteractivePremountProps;
 
 export type HighlightProps = AnnotationInteractiveProps<HighlightConfig>;
 export type UnderlineProps = AnnotationInteractiveProps<UnderlineConfig>;
@@ -48,7 +52,8 @@ export type CircleProps = AnnotationInteractiveProps<
 >;
 
 type InternalAnnotationProps = SharedAnnotationComponentProps &
-	InteractiveBaseProps & {
+	InteractiveBaseProps &
+	InteractivePremountProps & {
 		readonly color?: string;
 		readonly strokeWidth?: number;
 		readonly padding?: Partial<Padding>;
@@ -210,6 +215,7 @@ const textContentSchema = {
 
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	progress: {
 		type: 'number',
 		min: 0,
@@ -356,6 +362,10 @@ const makeAnnotationComponent = ({
 		children,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
 		freeze,
@@ -400,32 +410,60 @@ const makeAnnotationComponent = ({
 			/>
 		);
 
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = Internals.usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				playbackRate={playbackRate}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? `<${componentName}>`}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
-				outlineRef={outlineRef}
-			>
-				<span
-					ref={outlineRef}
-					style={{display: 'inline-block', position: 'relative'}}
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? `<${componentName}>`}
+					showInTimeline={showInTimeline ?? true}
+					controls={controls}
+					_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
+					outlineRef={outlineRef}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<annotation.Container>
-						{layer === 'behind' ? annotationElement : null}
-						<annotation.Tracker style={style}>{children}</annotation.Tracker>
-						{layer === 'on-top' ? annotationElement : null}
-					</annotation.Container>
-				</span>
-			</Sequence>
+					<span
+						ref={outlineRef}
+						style={{
+							display: 'inline-block',
+							position: 'relative',
+							...premountingStyle,
+						}}
+					>
+						<annotation.Container>
+							{layer === 'behind' ? annotationElement : null}
+							<annotation.Tracker style={style}>{children}</annotation.Tracker>
+							{layer === 'on-top' ? annotationElement : null}
+						</annotation.Container>
+					</span>
+				</Sequence>
+			</Freeze>
 		);
 	};
 

@@ -1,7 +1,4 @@
-import {
-	getParentSequencePlaybackRate,
-	sortItemsByCommitOrder,
-} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
@@ -48,6 +45,8 @@ import {
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
+
+const {getParentSequencePlaybackRate, sortItemsByCommitOrder} = CanvasInternals;
 
 const HANDLE_INSET = 6;
 const HANDLE_OUTSET = 8;

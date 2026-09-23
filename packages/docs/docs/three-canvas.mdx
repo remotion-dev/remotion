@@ -48,6 +48,14 @@ const ThreeBasic: React.FC = () => {
 export default ThreeBasic;
 ```
 
+## Props
+
+### Inherited props<AvailableFrom v="4.0.528" />
+
+`<ThreeCanvas>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline), [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
+
+`showInTimeline` defaults to `false`, and `name` defaults to `"<ThreeCanvas>"`.
+
 ## `frameloop` behavior during rendering
 
 During rendering, `<ThreeCanvas>` overrides the `frameloop` prop to `'never'` regardless of what you pass. This means the Three.js scene will not re-render on its own — it is only re-rendered on demand via `advance()`.

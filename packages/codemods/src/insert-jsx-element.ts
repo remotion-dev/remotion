@@ -15,6 +15,7 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	isUrl,
 	type InsertJsxElementRequest,
@@ -23,6 +24,7 @@ import {
 	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
+import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -1001,10 +1003,48 @@ const createStaticFileSrcAttribute = ({
 	);
 };
 
+const createComponentPropValue = (
+	value: unknown,
+	getStaticFileLocalName: () => string,
+): ExpressionKind => {
+	const b = recast.types.builders;
+	if (StudioProtocolInternals.isStaticFileRef(value)) {
+		return b.callExpression(b.identifier(getStaticFileLocalName()), [
+			b.stringLiteral(value.__remotion_element_asset),
+		]);
+	}
+
+	if (Array.isArray(value)) {
+		return b.arrayExpression(
+			value.map((item) =>
+				createComponentPropValue(item, getStaticFileLocalName),
+			),
+		);
+	}
+
+	if (value !== null && typeof value === 'object') {
+		return b.objectExpression(
+			Object.entries(value).map(([key, item]) => {
+				const property = b.objectProperty(
+					b.stringLiteral(key),
+					createComponentPropValue(item, getStaticFileLocalName),
+				);
+				property.computed = key === '__proto__';
+				return property;
+			}),
+		);
+	}
+
+	return parseValueExpression(value);
+};
+
 const createComponentProp = ({
 	name,
 	value,
-}: ComponentProp): namedTypes.JSXAttribute => {
+	getStaticFileLocalName,
+}: ComponentProp & {
+	getStaticFileLocalName: () => string;
+}): namedTypes.JSXAttribute => {
 	if (typeof value === 'string') {
 		return createStringAttribute(name, value);
 	}
@@ -1012,7 +1052,7 @@ const createComponentProp = ({
 	return recast.types.builders.jsxAttribute(
 		recast.types.builders.jsxIdentifier(name),
 		recast.types.builders.jsxExpressionContainer(
-			parseValueExpression(value) as never,
+			createComponentPropValue(value, getStaticFileLocalName) as never,
 		),
 	) as unknown as namedTypes.JSXAttribute;
 };
@@ -1052,12 +1092,14 @@ const createSolidElement = ({
 };
 
 const createComponentElement = ({
+	getStaticFileLocalName,
 	addPositionStyle,
 	from,
 	localName,
 	props,
 	position,
 }: {
+	getStaticFileLocalName: () => string;
 	addPositionStyle: boolean;
 	from: number | null;
 	localName: string;
@@ -1073,7 +1115,7 @@ const createComponentElement = ({
 		const styleExpression =
 			styleProp === undefined
 				? recast.types.builders.objectExpression([])
-				: parseValueExpression(styleProp.value);
+				: createComponentPropValue(styleProp.value, getStaticFileLocalName);
 		if (styleExpression.type !== 'ObjectExpression') {
 			throw new Error('Component style must be an object to add a position');
 		}
@@ -1104,7 +1146,9 @@ const createComponentElement = ({
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
-				...propsWithoutStyle.map(createComponentProp),
+				...propsWithoutStyle.map((prop) =>
+					createComponentProp({...prop, getStaticFileLocalName}),
+				),
 				...(from === null ? [] : [createNumberAttribute('from', from)]),
 				...(styleAttribute === null ? [] : [styleAttribute]),
 			],
@@ -1506,7 +1550,7 @@ const ensureOfficialNamedImport = ({
 				getImportedName(specifier) === importedName,
 		);
 		if (existing) {
-			return existing.local.name;
+			return existing.local?.name ?? importedName;
 		}
 	}
 
@@ -2667,6 +2711,7 @@ const createInsertableJsxElement = ({
 		});
 
 		return createComponentElement({
+			getStaticFileLocalName: () => ensureStaticFileImport(ast),
 			addPositionStyle: addPositionStyleToComponent,
 			from,
 			localName: componentLocalName,

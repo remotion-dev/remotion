@@ -1,0 +1,53 @@
+---
+image: /generated/articles-docs-canvas-use-canvas-selection.png
+title: useCanvasSelection()
+crumb: '@remotion/canvas'
+---
+
+# useCanvasSelection()<AvailableFrom v="4.0.527" />
+
+Subscribes a React component to a canvas selection controller.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx title="SelectionCount.tsx"
+import {useCanvasSelection, type CanvasController} from '@remotion/canvas';
+
+export const SelectionCount = ({controller}: {controller: CanvasController}) => {
+  const {selectedItems} = useCanvasSelection(controller.selection);
+  return <span>{selectedItems.length} selected</span>;
+};
+```
+
+## Parameter
+
+### controller
+
+A `CanvasSelectionController`, usually `controller.selection` from [`useCanvasController()`](/docs/canvas/use-canvas-controller).
+
+## Return value
+
+A `CanvasSelectionSnapshot` with the following properties.
+
+### selectedItems
+
+A readonly array of `CanvasSelectionItem` values. An item has a `type` discriminator. The `sequence` variant contains `nodePathInfo`; other variants represent a sequence property, effect, keyframe, easing segment, or guide. Use [`getCanvasSelectionItemKey()`](/docs/canvas/get-canvas-selection-item-key) to compare items by identity.
+
+### anchor
+
+The `CanvasSelectionItem` used as the starting point for a subsequent Shift selection, or `null` when there is no anchor.
+
+The controller's `select()` method accepts `shiftKey`, `toggleKey`, and the ordered selectable items. See [`createCanvasController()`](/docs/canvas/create-canvas-controller#select).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`createCanvasController()`](/docs/canvas/create-canvas-controller)
+- [`getCanvasSelectionItemKey()`](/docs/canvas/get-canvas-selection-item-key)

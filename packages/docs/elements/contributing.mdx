@@ -51,7 +51,7 @@ Include:
 - A working PNG and MP4 preview
 - Links to inspiration, if any
 
-Keep “Allow edits from maintainers” enabled on the pull request. After approval, a repository maintainer uploads the assets to static storage.
+Keep “Allow edits from maintainers” enabled on the pull request. After approval, a repository maintainer uploads the gallery previews to static storage.
 
 ## Element Guidelines
 
@@ -74,7 +74,7 @@ The caption Elements show the distinction: moving a pill between words, popping 
 - Keep the implementation self-contained, using HTML, CSS, and React where possible.
 - Avoid global styles, layout side effects, and fullscreen assumptions unless the Element is a background.
 - Set explicit defaults for inherited visual properties. In particular, set text colors on the Element root or the nearest visual surface instead of relying on browser or host-page defaults. Ensure every use of `currentColor` resolves from an ancestor with an explicit color so the Element looks the same under light and dark host themes.
-- Use stable remote asset URLs and Google Fonts for non-websafe fonts.
+- [Include assets](#include-assets) that should be copied into the user's project. Use Google Fonts for non-websafe fonts.
 - Avoid project-specific branding or footage, and make colors easy to change.
 - Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
 - Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
@@ -110,15 +110,17 @@ Export the schema-enabled component directly, without a forwarding wrapper. See 
 
 Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for the gallery preview.
 
-##### Initial props
+### Initial props
 
-[`Interactive.withSchema()`](/docs/interactive-with-schema) makes a component's props editable in Studio. Content declared inside the component is not a prop, so users cannot edit it per instance.
+If the Element needs starter props, put them in `initial-props.ts`, type them with `satisfies ComponentProps<typeof YourComponent>`, and register them as [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in `element-definitions.ts`. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
 
-For a `component-owned-sequence` Element with replaceable starter content, put those values in `initial-props.ts`. Register them as `initialProps` with the component in `element-definitions.ts`, and type them with `satisfies ComponentProps<typeof YourComponent>`.
+### Include assets
 
-Pass these props to the previews too. Studio writes them onto the installed component, and Inspector edits them there. Keep rendering and animation in the copied Element file.
+Follow the [asset integration guidance](/docs/studio-protocol/component-library-integration#preview-installed-assets). Installed assets are separate from the PNG and MP4 gallery previews in [Prepare previews](#2-prepare-previews).
 
-Studio supplies `from`, `durationInFrames`, and `name`. Pass `width` and `height` in `initialProps` when the component needs them. Element dimension metadata is not passed as component props.
+In `element-definitions.ts`, declare `assets` and put [`staticFileRef()`](/docs/studio-protocol/static-file-ref) references in `installationProps`. Keep preview URLs in `initialProps`.
+
+`installationProps` shallowly overrides `initialProps` only for installation; an overridden object or array replaces that entire prop. For Elements without installed assets, use `assets: []` and `installationProps: null`.
 
 ### Animate temporary Elements in and out
 

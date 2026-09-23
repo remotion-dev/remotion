@@ -67,7 +67,9 @@ export const RenderQueueCancelButton: React.FC<{
 					job.type === 'caption'
 						? 'Cancel transcription'
 						: job.type === 'video-matting'
-							? 'Cancel video matting'
+							? 'outName' in job
+								? 'Cancel background removal'
+								: 'Cancel video matting'
 							: 'Cancel render'
 				}
 				renderAction={renderAction}

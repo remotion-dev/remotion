@@ -1,5 +1,4 @@
 import type {
-	VideoLayerAudio,
 	VideoMattingBitrate,
 	VideoMattingModel,
 } from '@remotion/video-matting';
@@ -18,19 +17,20 @@ type VideoMattingJobStatus =
 	| {status: 'done'}
 	| {status: 'failed'; error: {message: string; stack: string | undefined}};
 
-export type AddVideoMattingJobParams = {
+type VideoMattingJobCommon = {
 	src: string;
 	displayName: string;
-	baseOutName: string;
-	foregroundOutName: string;
 	model: VideoMattingModel;
-	audio: VideoLayerAudio;
 	videoBitrate: VideoMattingBitrate;
+	outName: string;
+	audio: 'keep' | 'none';
 	target: {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 	} | null;
 };
+
+export type AddVideoMattingJobParams = VideoMattingJobCommon;
 
 export type VideoMattingJob = AddVideoMattingJobParams & {
 	id: string;

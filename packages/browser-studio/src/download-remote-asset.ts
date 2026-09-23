@@ -21,19 +21,15 @@ const getPublicFileSize = (contents: VirtualProjectPublicFile) => {
 		: contents.sizeInBytes;
 };
 
-export const downloadRemoteAssetInBrowserStudio = async ({
-	getProject,
-	request,
-	writeStaticFile,
+export const fetchRemoteAssetBytesInBrowserStudio = async ({
+	acceptHeader,
+	maxSize,
+	url,
 }: {
-	getProject: () => VirtualProject;
-	request: DownloadRemoteAssetRequest;
-	writeStaticFile: (request: {
-		contents: string | ArrayBuffer;
-		filePath: string;
-	}) => Promise<void>;
-}): Promise<DownloadRemoteAssetResponse> => {
-	const url = new URL(request.url);
+	acceptHeader: string | null;
+	maxSize: number;
+	url: URL;
+}) => {
 	if (url.protocol !== 'http:' && url.protocol !== 'https:') {
 		throw new Error('Only HTTP(S) URLs can be imported');
 	}
@@ -43,16 +39,15 @@ export const downloadRemoteAssetInBrowserStudio = async ({
 	}
 
 	const abortController = new AbortController();
-	const timeout = setTimeout(() => {
-		abortController.abort();
-	}, remoteAssetDownloadTimeout);
-
-	let contents: Uint8Array;
+	const timeout = setTimeout(
+		() => abortController.abort(),
+		remoteAssetDownloadTimeout,
+	);
 	try {
 		let response: Response;
 		try {
 			response = await fetch(url, {
-				headers: {accept: remoteAssetAcceptHeader},
+				headers: acceptHeader === null ? undefined : {accept: acceptHeader},
 				signal: abortController.signal,
 			});
 		} catch (error) {
@@ -72,50 +67,45 @@ export const downloadRemoteAssetInBrowserStudio = async ({
 		}
 
 		const contentLength = response.headers.get('content-length');
-		if (contentLength !== null && Number(contentLength) > maxRemoteAssetSize) {
+		if (contentLength !== null && Number(contentLength) > maxSize) {
 			abortController.abort();
 			throw new Error('Remote asset exceeds the 50MB size limit');
 		}
 
 		if (!response.body) {
 			const buffer = await response.arrayBuffer();
-			if (buffer.byteLength > maxRemoteAssetSize) {
+			if (buffer.byteLength > maxSize) {
 				throw new Error('Remote asset exceeds the 50MB size limit');
 			}
 
-			contents = new Uint8Array(buffer);
-		} else {
-			const reader = response.body.getReader();
-			const chunks: Uint8Array[] = [];
-			let size = 0;
-
-			while (true) {
-				const {done, value} = await reader.read();
-				if (done) {
-					break;
-				}
-
-				if (!value) {
-					continue;
-				}
-
-				size += value.byteLength;
-				if (size > maxRemoteAssetSize) {
-					abortController.abort();
-					await reader.cancel();
-					throw new Error('Remote asset exceeds the 50MB size limit');
-				}
-
-				chunks.push(value);
-			}
-
-			contents = new Uint8Array(size);
-			let offset = 0;
-			for (const chunk of chunks) {
-				contents.set(chunk, offset);
-				offset += chunk.byteLength;
-			}
+			return new Uint8Array(buffer);
 		}
+
+		const reader = response.body.getReader();
+		const chunks: Uint8Array[] = [];
+		let size = 0;
+		while (true) {
+			const {done, value} = await reader.read();
+			if (done) break;
+			if (!value) continue;
+			size += value.byteLength;
+			if (size > maxSize) {
+				abortController.abort();
+				await reader.cancel();
+				throw new Error('Remote asset exceeds the 50MB size limit');
+			}
+
+			chunks.push(value);
+		}
+
+		const contents = new Uint8Array(size);
+		let offset = 0;
+		for (const chunk of chunks) {
+			contents.set(chunk, offset);
+			offset += chunk.byteLength;
+		}
+
+		return contents;
 	} catch (error) {
 		if (error instanceof Error && error.name === 'AbortError') {
 			throw new Error('Timed out downloading remote asset');
@@ -125,6 +115,26 @@ export const downloadRemoteAssetInBrowserStudio = async ({
 	} finally {
 		clearTimeout(timeout);
 	}
+};
+
+export const downloadRemoteAssetInBrowserStudio = async ({
+	getProject,
+	request,
+	writeStaticFile,
+}: {
+	getProject: () => VirtualProject;
+	request: DownloadRemoteAssetRequest;
+	writeStaticFile: (request: {
+		contents: string | ArrayBuffer;
+		filePath: string;
+	}) => Promise<void>;
+}): Promise<DownloadRemoteAssetResponse> => {
+	const url = new URL(request.url);
+	const contents = await fetchRemoteAssetBytesInBrowserStudio({
+		acceptHeader: remoteAssetAcceptHeader,
+		maxSize: maxRemoteAssetSize,
+		url,
+	});
 
 	const fileType = detectFileType(contents);
 	if (!isImageFileType(fileType)) {

@@ -68,7 +68,7 @@ const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
 			<div
 				style={statusIcon}
 				role="progressbar"
-				aria-label="Video matting progress"
+				aria-label="Background removal progress"
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={Math.round(job.progress.value * 100)}
@@ -121,7 +121,7 @@ export const VideoMattingQueueItem: React.FC<{
 	);
 	const messages =
 		job.status === 'idle'
-			? ['Queued for video matting']
+			? ['Queued for background removal']
 			: job.status === 'running' || job.status === 'saving'
 				? [job.progress.message, job.progress.detail].filter(
 						(message): message is string => message !== null,
@@ -130,7 +130,7 @@ export const VideoMattingQueueItem: React.FC<{
 					? [job.error.message]
 					: job.status === 'cancelled'
 						? ['Cancelled']
-						: [job.baseOutName, job.foregroundOutName];
+						: [job.outName];
 	const tooltip = messages.join('\n');
 	const revealAsset = useCallback(
 		(assetName: string) => {
@@ -139,38 +139,27 @@ export const VideoMattingQueueItem: React.FC<{
 		},
 		[selectAsset],
 	);
+	const outputName = job.outName;
 	const onClick = useCallback(() => {
 		if (!done) return;
-		revealAsset(job.foregroundOutName);
-	}, [done, job.foregroundOutName, revealAsset]);
+		revealAsset(outputName);
+	}, [done, outputName, revealAsset]);
 	const revealItems = useMemo((): ComboboxValue[] => {
 		return [
 			{
 				disabled: false,
-				id: 'reveal-foreground',
+				id: 'reveal-output',
 				keyHint: null,
-				label: 'Reveal foreground',
+				label: 'Reveal output',
 				leftItem: null,
-				onClick: () => revealAsset(job.foregroundOutName),
+				onClick: () => revealAsset(outputName),
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item',
-				value: 'reveal-foreground',
-			},
-			{
-				disabled: false,
-				id: 'reveal-background',
-				keyHint: null,
-				label: 'Reveal background',
-				leftItem: null,
-				onClick: () => revealAsset(job.baseOutName),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'reveal-background',
+				value: 'reveal-output',
 			},
 		];
-	}, [job.baseOutName, job.foregroundOutName, revealAsset]);
+	}, [outputName, revealAsset]);
 	const onRemove: React.MouseEventHandler = useCallback(
 		(event) => {
 			event.stopPropagation();
@@ -208,7 +197,7 @@ export const VideoMattingQueueItem: React.FC<{
 					) : job.status === 'failed' ? (
 						<QueueJobError
 							error={job.error}
-							modalTitle="Video matting failed"
+							modalTitle="Background removal failed"
 						/>
 					) : (
 						messages.map((message) => (
@@ -222,7 +211,7 @@ export const VideoMattingQueueItem: React.FC<{
 			<Spacing x={1} />
 			{done ? (
 				<ActionTooltip
-					label="Reveal video layer"
+					label="Reveal output"
 					shortcut={null}
 					delay={800}
 					dismissOnClick
@@ -231,7 +220,7 @@ export const VideoMattingQueueItem: React.FC<{
 						renderAction={(color) => (
 							<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
 						)}
-						aria-label="Reveal video layer"
+						aria-label="Reveal output"
 						values={revealItems}
 						variant={null}
 					/>

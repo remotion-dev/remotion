@@ -1,11 +1,4 @@
-import {
-	calculateTimeline,
-	getCanvasSelectableOutlines,
-	getCanvasVisibleOutlineTargets,
-	getCanvasActiveOutlineTargets,
-	getCanvasOutlineActivity,
-	getCanvasOutlineLayoutTargets,
-} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
@@ -73,6 +66,15 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
+
+const {
+	calculateTimeline,
+	getCanvasSelectableOutlines,
+	getCanvasVisibleOutlineTargets,
+	getCanvasActiveOutlineTargets,
+	getCanvasOutlineActivity,
+	getCanvasOutlineLayoutTargets,
+} = CanvasInternals;
 
 export {orderOutlinesForRendering};
 

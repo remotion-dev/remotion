@@ -12,14 +12,17 @@ export const createNodeVideoMattingFrames = ({
 	keyframeIntervalInSeconds,
 	videoStartTimestamp,
 	videoEndTimestamp,
+	includeBase,
 }: VideoMattingFramesOptions): VideoMattingFrames => {
 	const sink = new VideoSampleSink(videoTrack);
-	const baseSource = new VideoSampleSource({
-		codec: 'vp9',
-		quality: videoQuality,
-		keyFrameInterval: keyframeIntervalInSeconds,
-		alpha: 'discard',
-	});
+	const baseSource = includeBase
+		? new VideoSampleSource({
+				codec: 'vp9',
+				quality: videoQuality,
+				keyFrameInterval: keyframeIntervalInSeconds,
+				alpha: 'discard',
+			})
+		: null;
 	const foregroundSource = new VideoSampleSource({
 		codec: 'vp9',
 		quality: videoQuality,
@@ -64,7 +67,7 @@ export const createNodeVideoMattingFrames = ({
 				throw new Error('Expected an RGBA frame.');
 			}
 
-			const baseData = frame.image.data.slice();
+			const baseData = includeBase ? frame.image.data.slice() : null;
 			let foregroundData: Uint8ClampedArray<ArrayBuffer>;
 			if (foreground.width === width && foreground.height === height) {
 				foregroundData = foreground.data.slice();
@@ -93,23 +96,28 @@ export const createNodeVideoMattingFrames = ({
 				}
 			}
 
-			for (let i = 0; i < baseData.length; i += 4) {
-				const alpha = baseData[i + 3]! / 255;
+			for (let i = 0; i < foregroundData.length; i += 4) {
+				const alpha = frame.image.data[i + 3]! / 255;
 				// Match the browser's opaque black base and destination-in foreground.
-				baseData[i] = Math.round(baseData[i]! * alpha);
-				baseData[i + 1] = Math.round(baseData[i + 1]! * alpha);
-				baseData[i + 2] = Math.round(baseData[i + 2]! * alpha);
-				baseData[i + 3] = 255;
+				if (baseData) {
+					baseData[i] = Math.round(baseData[i]! * alpha);
+					baseData[i + 1] = Math.round(baseData[i + 1]! * alpha);
+					baseData[i + 2] = Math.round(baseData[i + 2]! * alpha);
+					baseData[i + 3] = 255;
+				}
+
 				foregroundData[i + 3] = Math.round(foregroundData[i + 3]! * alpha);
 			}
 
-			const base = new VideoSample(baseData, {
-				format: 'RGBA',
-				codedWidth: width,
-				codedHeight: height,
-				timestamp,
-				duration,
-			});
+			const base = baseData
+				? new VideoSample(baseData, {
+						format: 'RGBA',
+						codedWidth: width,
+						codedHeight: height,
+						timestamp,
+						duration,
+					})
+				: null;
 			const foregroundFrame = new VideoSample(foregroundData, {
 				format: 'RGBA',
 				codedWidth: width,
@@ -119,7 +127,7 @@ export const createNodeVideoMattingFrames = ({
 			});
 			try {
 				const results = await Promise.allSettled([
-					baseSource.add(base),
+					baseSource?.add(base!),
 					foregroundSource.add(foregroundFrame),
 				]);
 				for (const result of results) {
@@ -128,7 +136,7 @@ export const createNodeVideoMattingFrames = ({
 					}
 				}
 			} finally {
-				base.close();
+				base?.close();
 				foregroundFrame.close();
 			}
 		},

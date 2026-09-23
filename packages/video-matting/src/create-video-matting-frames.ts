@@ -25,11 +25,12 @@ export type VideoMattingFramesOptions = {
 	keyframeIntervalInSeconds: number;
 	videoStartTimestamp: number;
 	videoEndTimestamp: number;
+	includeBase: boolean;
 };
 
 export type VideoMattingFrames = {
 	frames: AsyncGenerator<VideoMattingFrame, void, unknown>;
-	baseSource: VideoSource;
+	baseSource: VideoSource | null;
 	foregroundSource: VideoSource;
 	addFrame: (options: {
 		frame: VideoMattingFrame;
@@ -60,6 +61,7 @@ export const createVideoMattingFrames = async (
 		keyframeIntervalInSeconds,
 		videoStartTimestamp,
 		videoEndTimestamp,
+		includeBase,
 	} = options;
 	const sink = new CanvasSink(videoTrack, {
 		alpha: true,
@@ -68,16 +70,22 @@ export const createVideoMattingFrames = async (
 		fit: 'fill',
 		poolSize: 1,
 	});
-	const baseCanvas = createVideoMattingCanvas({width, height});
+	const baseCanvas = includeBase
+		? createVideoMattingCanvas({width, height})
+		: null;
 	const foregroundCanvas = createVideoMattingCanvas({width, height});
-	const baseContext = getVideoMattingCanvasContext(baseCanvas);
+	const baseContext = baseCanvas
+		? getVideoMattingCanvasContext(baseCanvas)
+		: null;
 	const foregroundContext = getVideoMattingCanvasContext(foregroundCanvas);
-	const baseSource = new CanvasSource(baseCanvas, {
-		codec: 'vp9',
-		quality: videoQuality,
-		keyFrameInterval: keyframeIntervalInSeconds,
-		alpha: 'discard',
-	});
+	const baseSource = baseCanvas
+		? new CanvasSource(baseCanvas, {
+				codec: 'vp9',
+				quality: videoQuality,
+				keyFrameInterval: keyframeIntervalInSeconds,
+				alpha: 'discard',
+			})
+		: null;
 	const foregroundSource = new CanvasSource(foregroundCanvas, {
 		codec: 'vp9',
 		quality: videoQuality,
@@ -105,12 +113,15 @@ export const createVideoMattingFrames = async (
 				throw new Error('Expected a canvas frame.');
 			}
 
-			drawOpaqueBaseFrame({
-				context: baseContext,
-				source: frame.image,
-				width,
-				height,
-			});
+			if (baseContext) {
+				drawOpaqueBaseFrame({
+					context: baseContext,
+					source: frame.image,
+					width,
+					height,
+				});
+			}
+
 			drawForegroundFrame({
 				context: foregroundContext,
 				result: foreground,
@@ -119,7 +130,7 @@ export const createVideoMattingFrames = async (
 				targetHeight: height,
 			});
 			await Promise.all([
-				baseSource.add(timestamp, duration),
+				baseSource?.add(timestamp, duration),
 				foregroundSource.add(timestamp, duration),
 			]);
 		},
