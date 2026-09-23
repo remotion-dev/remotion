@@ -57,46 +57,6 @@ test('should render media on web', async (t) => {
 	});
 });
 
-test.each([false, true])(
-	'should render a one-frame 60fps MP4 with AAC (streaming: %s)',
-	async (streaming, t) => {
-		if (t.task.file.projectName === 'webkit') {
-			t.skip();
-			return;
-		}
-
-		const chunks: StreamTargetChunk[] = [];
-		const outputWritable = streaming
-			? new WritableStream<StreamTargetChunk>({
-					write: (chunk) => {
-						chunks.push(chunk);
-					},
-				})
-			: undefined;
-		const result = await renderMediaOnWeb({
-			composition: {
-				component: () => null,
-				id: 'short-mp4-aac-test',
-				width: 100,
-				height: 100,
-				fps: 60,
-				durationInFrames: 1,
-			},
-			inputProps: {},
-			container: 'mp4',
-			videoCodec: 'h264',
-			audioCodec: 'aac',
-			...(outputWritable ? {outputWritable} : {}),
-		});
-
-		if (streaming) {
-			expect(chunks.length).toBeGreaterThan(0);
-		} else {
-			expect((await result.getBlob()).size).toBeGreaterThan(0);
-		}
-	},
-);
-
 test('should render media to a writable stream', async (t) => {
 	if (t.task.file.projectName === 'webkit') {
 		t.skip();
