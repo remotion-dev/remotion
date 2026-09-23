@@ -21,6 +21,16 @@ Code you write targets the `my-video/` project in the `danielnguyenfinhub/remoti
 - `public/` — static assets, referenced with `staticFile()`
 - Remotion and every `@remotion/*` package are installed at 4.0.517 — all of them may be imported
 
+## Language: Vietnamese + English
+
+Every video in this project is bilingual. The speech may be Vietnamese, English or a mix, and on-screen text is written in both. Unless the user says otherwise:
+
+- Write real Vietnamese with every diacritic ("Lãi suất vay", never "Lai suat vay"), and `.normalize("NFC")` text that comes from transcripts or APIs.
+- Put Vietnamese on the main line and English on a smaller line under it, with the same timing, as separate strings or caption tracks.
+- Use fonts with Vietnamese glyphs. The Google Font Poppins has no `vietnamese` subset; use e.g. Be Vietnam Pro or Montserrat with `loadFont("normal", {weights: ["400", "700"], subsets: ["vietnamese", "latin"]})`.
+- Use a `lineHeight` of about 1.3 or more, and don't clip text boxes, because Vietnamese marks stack above and below letters.
+- For captions, never use English-only `.en` Whisper models. Use a multilingual one (`small`, `medium`, `large-v3`) with `language: "vi"`; the translate option (`task: "translate"` or `translateToEnglish: true`) gives the English line.
+
 ## Environment rules
 
 - **In claude.ai chat (no filesystem):** you cannot run `npm`, Remotion Studio, or a render. Deliver complete, ready-to-save files (full file contents, with the exact target path such as `my-video/src/MyScene.tsx`), never fragments. Remind the user to preview/render in Claude Code, Claude Cowork, or a terminal: `npm run dev` to preview, `npx remotion render` to export.

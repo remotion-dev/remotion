@@ -13,6 +13,21 @@ npx remotion render   # render a composition to a video file
 
 Rendering and Studio need Node.js and a Chrome/Chromium download; they work in Claude Code, Claude Cowork and local terminals, but not in claude.ai chat.
 
+## Language: every video is Vietnamese + English
+
+The owner's videos are bilingual. The speech may be Vietnamese, English, or a mix of both, and on-screen text (titles, captions, lower thirds, end cards) is written in both languages. Assume this for every new video unless told otherwise; if it isn't clear which language leads, ask. The showcase scenes are English-only API demos and are the exception.
+
+- **Write real Vietnamese.** Keep every diacritic ("Lãi suất vay", never "Lai suat vay"), and normalize text that comes from a transcript, an API or a file with `.normalize("NFC")`, so each accented letter is one character.
+- **Default bilingual layout:** Vietnamese as the main line and English as a smaller line under it, sharing the same timing. Keep the two as separate strings or caption tracks, not one mixed sentence, so either can be restyled or dropped.
+- **Fonts must include Vietnamese glyphs.** `font.ts`'s `poppins` is a system font stack, and in this sandbox it renders all of Vietnamese correctly (checked with "Nguyễn Thị Hằng", "ơ ư ạ ế ồ ữ ỷ ặ ộ Đ"; the glyphs come from DejaVu Sans). The real Google Font Poppins has no `vietnamese` subset (only `latin`, `latin-ext`, `devanagari`), so with it, letters such as ế and ữ fall back to another font in the middle of a word. When loading a Google Font, pick one that has the subset, such as Be Vietnam Pro or Montserrat, and request it: `loadFont("normal", {weights: ["400", "700"], subsets: ["vietnamese", "latin"]})`. Google Fonts can't load inside this sandbox's renderer (see below), so check them on a machine with open network access.
+- **Leave room for stacked marks.** Vietnamese letters carry marks above and below (ế, ỗ, ặ), so use a `lineHeight` of about 1.3 or more and don't clip text containers tightly with `overflow: hidden`, which cuts off the top of the marks.
+- **Speech-to-text: never use an English-only model.** The `.en` models (`tiny.en`, `base.en`, `small.en`, `medium.en`) only know English, and `BrowserTranscriptionScene`'s `small.en` is a demo, not a default. Use a multilingual model and set the language per clip:
+  - `@remotion/whisper-webgpu`: `tiny`, `base`, `small` or `medium`, with `language: "vi"` or `"en"`. `task: "translate"` produces English text from Vietnamese speech, which can feed the English caption line.
+  - `@remotion/install-whisper-cpp`: `medium`, `large-v3` or `large-v3-turbo`, with `language: "vi"`; `translateToEnglish: true` does the same translation.
+  - OpenAI's Whisper API: pass `language: "vi"` for Vietnamese audio.
+  - For speech that mixes the two, transcribe with the main language and check the English terms in the result; if they come out wrong, split the audio by language and transcribe each part on its own.
+- **Voiceover:** when generating speech (ElevenLabs or similar), pick a model and voice that list Vietnamese support, and generate the Vietnamese and English lines separately.
+
 ## Project structure
 
 - `src/index.ts` — entry point, registers the root component
@@ -181,6 +196,7 @@ node scripts/vendor-elements.mjs   # defaults to ../packages/docs/elements; pass
 
 ## Conventions
 
+- Videos are bilingual, Vietnamese + English: see "Language" near the top of this file before writing any on-screen text or captions.
 - Register new compositions in `src/Root.tsx`; one component per file under `src/`.
 - Drive all animation from `useCurrentFrame()`/`interpolate()`/`spring()` — never from wall-clock time.
 - In components, take `delayRender`/`continueRender`/`cancelRender` from `useDelayRender()` (render-scoped, the documented recommendation) rather than importing the global functions; every scene here does.
