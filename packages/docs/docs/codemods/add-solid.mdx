@@ -27,7 +27,6 @@ const result = addSolid({
   height: 1080,
 });
 
-console.log(result.project.files);
 console.log(result.changes);
 console.log(result.insertedNode);
 ```
@@ -69,10 +68,6 @@ Positions the solid at `{x, y}` pixels and adds a CSS translation. By default, t
 ## Return value
 
 An object with the following properties.
-
-### project
-
-A new project containing the transformed source. Unchanged project fields are preserved.
 
 ### changes
 

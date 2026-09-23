@@ -53,6 +53,6 @@ export const detachAudio = async <Project extends CodemodProject>({
 			},
 		],
 		insertedNode: {filePath, nodePath},
-		updatedNode: getUpdatedNodeReference({...result, node}),
+		updatedNode: getUpdatedNodeReference({project, ...result, node}),
 	};
 };

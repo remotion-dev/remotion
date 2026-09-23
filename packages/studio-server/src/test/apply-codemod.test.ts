@@ -116,7 +116,9 @@ export const Root = () => <Folder name="Before" />;
 			},
 		});
 
-		expect(output.files[filePath]).toBe(input.replace('"Before"', '"After"'));
+		expect(output.changes[0].nextContents).toBe(
+			input.replace('"Before"', '"After"'),
+		);
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
@@ -144,7 +146,8 @@ export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 			},
 		});
 
-		expect(output.files[filePath]).toBe(`import {Composition} from 'remotion';
+		expect(output.changes[0].nextContents)
+			.toBe(`import {Composition} from 'remotion';
 const untouched  =  { value : "keep" };
 export const Root=()=> <Composition id='Comp' width = {1920} durationInFrames={90} height={1080}/>;
 `);
@@ -177,7 +180,9 @@ export const Root=()=> visualControl('opacity', OPACITY);
 			},
 		});
 
-		expect(output.files[filePath]).toBe(input.replace('OPACITY', '0.5'));
+		expect(output.changes[0].nextContents).toBe(
+			input.replace('OPACITY', '0.5'),
+		);
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}

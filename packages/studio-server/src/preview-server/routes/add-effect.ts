@@ -57,7 +57,7 @@ export const addEffectHandler: ApiHandler<
 				importPath: effectImportPath,
 				props: effectConfig,
 			});
-			const output = result.project.files[absolutePath];
+			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {formatted, effectLabel, nodeLabel, logLine} =
 				result.editDetails[0];
 

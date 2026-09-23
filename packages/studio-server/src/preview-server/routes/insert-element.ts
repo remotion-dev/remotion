@@ -211,13 +211,25 @@ export const insertElementHandler: ApiHandler<
 					registrationFilePath,
 					'utf-8',
 				);
-				const nextProject = await applyCodemodToFile({
+				const codemodResult = await applyCodemodToFile({
 					filePath: registrationFilePath,
 					codeMod: newComposition.codemod,
 				});
 				const registrationFileNewContents =
-					nextProject.files[registrationFilePath];
-				const componentFileContents = nextProject.files[componentFilePath];
+					codemodResult.changes.find(
+						(change) => change.filePath === registrationFilePath,
+					)?.nextContents ?? registrationFileOldContents;
+				const componentFileContents = codemodResult.changes.find(
+					(change) => change.filePath === componentFilePath,
+				)?.nextContents;
+
+				if (
+					componentFileContents === null ||
+					componentFileContents === undefined
+				) {
+					throw new Error('Could not create the composition component');
+				}
+
 				compositionCreation = {
 					componentFileContents,
 					componentFilePath,

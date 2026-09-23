@@ -59,7 +59,9 @@ export const setCompositionDefaultProps = <Project extends CodemodProject>({
 			node,
 			props: {defaultProps: {}},
 		});
-		input = inserted.project.files[node.filePath];
+		input =
+			inserted.changes.find((change) => change.filePath === node.filePath)
+				?.nextContents ?? input;
 		element = findJsxElementPathForDeletion(
 			parseAst(input),
 			inserted.updatedNode.nodePath,
@@ -115,6 +117,6 @@ export const setCompositionDefaultProps = <Project extends CodemodProject>({
 	return {
 		...result,
 		logLine,
-		updatedNode: getUpdatedNodeReference({...result, node}),
+		updatedNode: getUpdatedNodeReference({project, ...result, node}),
 	};
 };

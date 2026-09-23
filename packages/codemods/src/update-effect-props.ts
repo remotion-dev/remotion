@@ -100,7 +100,7 @@ export const updateEffectProps = async <Project extends CodemodProject>({
 		...result,
 		results,
 		updatedEffect: {
-			...getUpdatedNodeReference({...result, node: effect}),
+			...getUpdatedNodeReference({project, ...result, node: effect}),
 			effectIndex: effect.effectIndex,
 		},
 	};

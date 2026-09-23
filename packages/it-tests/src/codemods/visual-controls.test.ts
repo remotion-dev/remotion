@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {updateVisualControls} from '@remotion/codemods';
+import {applyCodemodChanges, updateVisualControls} from '@remotion/codemods';
 
 const contents = `
 import {makeTransform, matrix3d} from '@remotion/animation-utils';
@@ -37,8 +37,9 @@ export const VisualControls = () => {
 `;
 
 test('updates multiple visual controls through the packaged public API', () => {
-	const {project} = updateVisualControls({
-		project: {rootDir: '/', files: {'Root.tsx': contents}},
+	const original = {rootDir: '/', files: {'Root.tsx': contents}};
+	const result = updateVisualControls({
+		project: original,
 		filePath: 'Root.tsx',
 		changes: [
 			{
@@ -55,6 +56,7 @@ test('updates multiple visual controls through the packaged public API', () => {
 			},
 		],
 	});
+	const project = applyCodemodChanges(original, result.changes);
 
 	expect(project.files['Root.tsx']).toContain(
 		`visualControl('my-matrix-4', 123`,

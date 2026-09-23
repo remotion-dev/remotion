@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import {
+  applyCodemodChanges,
   duplicateComposition,
   setCompositionDefaultProps,
 } from "@remotion/codemods";
@@ -63,13 +64,16 @@ export const registerComposition = async ({
       newId: projectName,
     });
     const result = setCompositionDefaultProps({
-      project: duplicated.project,
+      project: applyCodemodChanges(
+        { rootDir, files: { [rootPath]: src } },
+        duplicated.changes,
+      ),
       compositionFile: rootPath,
       compositionId: projectName,
       defaultProps: getDefaultPropsForNewProject(),
     });
-    const withDefaultScene = result.project.files[rootPath];
-    if (withDefaultScene === undefined) {
+    const withDefaultScene = result.changes[0]?.nextContents;
+    if (withDefaultScene === undefined || withDefaultScene === null) {
       throw new Error("Could not find the updated composition file");
     }
 

@@ -1567,6 +1567,15 @@ export const articles = [
 		slug: 'codemods/add-solid',
 	},
 	{
+		id: 'codemods/apply-codemod-changes',
+		title: 'applyCodemodChanges()',
+		relativePath: 'docs/codemods/apply-codemod-changes.mdx',
+		compId: 'articles-docs-codemods-apply-codemod-changes',
+		crumb: '@remotion/codemods',
+		noAi: false,
+		slug: 'codemods/apply-codemod-changes',
+	},
+	{
 		id: 'codemods/delete-composition',
 		title: 'deleteComposition()',
 		relativePath: 'docs/codemods/delete-composition.mdx',

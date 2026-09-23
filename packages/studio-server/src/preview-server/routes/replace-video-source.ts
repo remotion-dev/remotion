@@ -47,7 +47,7 @@ export const replaceVideoSourceHandler: ApiHandler<
 					},
 				],
 			});
-			const output = result.project.files[absolutePath];
+			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {logLine} = result;
 			const nodePathRemappings = result.nodePathRemappings.map(
 				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),

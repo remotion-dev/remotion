@@ -71,7 +71,7 @@ export const duplicateEffectHandler: ApiHandler<
 							effectIndex: item.effectIndex,
 						})),
 					});
-					const output = result.project.files[absolutePath];
+					const output = result.changes[0]?.nextContents ?? fileContents;
 					const {formatted, effectLabels, logLines} = result.editDetails[0];
 
 					return {

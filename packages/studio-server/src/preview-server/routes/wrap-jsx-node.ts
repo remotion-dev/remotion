@@ -59,7 +59,17 @@ export const wrapJsxNodeHandler: ApiHandler<
 				width: width ?? 0,
 				height: height ?? 0,
 			});
-			const output = result.project.files[absolutePath];
+			const change = result.changes.find(
+				({filePath}) => filePath === absolutePath,
+			);
+			if (
+				change?.previousContents !== fileContents ||
+				change.nextContents === null
+			) {
+				throw new Error('Could not wrap JSX node');
+			}
+
+			const output = change.nextContents;
 			const remappings = result.nodePathRemappings.map(
 				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
 			);

@@ -25,7 +25,7 @@ export const duplicateComposition = <Project extends CodemodProject>({
 	newId,
 	tag,
 	metadata = {},
-}: DuplicateCompositionOptions<Project>): CodemodResult<Project> => {
+}: DuplicateCompositionOptions<Project>): CodemodResult => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	assertNewCompositionId({project, compositionFile, compositionId: newId});
 	validateMetadata(metadata);
@@ -47,9 +47,6 @@ export const duplicateComposition = <Project extends CodemodProject>({
 	parseAst(output);
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [node.filePath]: output},
-		},
+		edits: [{filePath: node.filePath, nextContents: output}],
 	});
 };

@@ -39,7 +39,7 @@ export const updateSequenceKeyframes = async ({
 		videoConfig: videoConfigValues ?? undefined,
 		...options,
 	});
-	return {...result, output: result.project.files['source.tsx']};
+	return {...result, output: result.changes[0]?.nextContents ?? input};
 };
 
 export const updateEffectKeyframes = async ({
@@ -58,5 +58,5 @@ export const updateEffectKeyframes = async ({
 		videoConfig: videoConfigValues ?? undefined,
 		...options,
 	});
-	return {...result, output: result.project.files['source.tsx']};
+	return {...result, output: result.changes[0]?.nextContents ?? input};
 };

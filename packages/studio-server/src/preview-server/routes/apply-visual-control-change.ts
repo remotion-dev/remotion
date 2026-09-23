@@ -42,7 +42,7 @@ export const applyVisualControlHandler: ApiHandler<
 			filePath: absolutePath,
 			changes,
 		});
-		const output = result.project.files[absolutePath];
+		const output = result.changes[0]?.nextContents ?? fileContents;
 		const logLine =
 			result.updatedControls.findLast(
 				(control) => control.id === changes[0]?.id,

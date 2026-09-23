@@ -49,7 +49,7 @@ export const reorderSequenceHandler: ApiHandler<
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
 				position,
 			});
-			const output = result.project.files[absolutePath];
+			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {sequenceLabel, logLine} = result.editDetails[0];
 			const nodePathRemappings = result.nodePathRemappings.map(
 				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),

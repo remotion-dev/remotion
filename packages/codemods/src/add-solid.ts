@@ -13,8 +13,7 @@ export type AddSolidOptions<Project extends CodemodProject> = {
 	position?: {x: number; y: number};
 };
 
-export type AddSolidResult<Project extends CodemodProject> =
-	CodemodInsertionResult<Project>;
+export type AddSolidResult = CodemodInsertionResult;
 
 export const addSolid = <Project extends CodemodProject>({
 	project,
@@ -24,7 +23,7 @@ export const addSolid = <Project extends CodemodProject>({
 	height,
 	from,
 	position,
-}: AddSolidOptions<Project>): AddSolidResult<Project> => {
+}: AddSolidOptions<Project>): AddSolidResult => {
 	const insertion = insertSolidIntoProjectWithNodePathRemappings({
 		project,
 		request: {
@@ -47,7 +46,12 @@ export const addSolid = <Project extends CodemodProject>({
 	}
 
 	return {
-		...getCodemodResult({nextProject: insertion.project, project}),
+		...getCodemodResult({
+			project,
+			edits: [
+				{filePath: insertion.filePath, nextContents: insertion.nextSource},
+			],
+		}),
 		nodePathRemappings: insertion.nodePathRemappings.map((remapping) => ({
 			filePath: insertion.filePath,
 			...remapping,

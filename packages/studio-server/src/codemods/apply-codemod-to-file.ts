@@ -4,7 +4,7 @@ import path from 'node:path';
 import {
 	addCanvasCaptureComposition,
 	updateVisualControls,
-	type CodemodProject,
+	type CodemodResult,
 	addComposition,
 	addFolder,
 	deleteComposition,
@@ -54,7 +54,7 @@ export const applyCodemodToFile = async ({
 }: {
 	filePath: string;
 	codeMod: RecastCodemod;
-}): Promise<CodemodProject> => {
+}): Promise<CodemodResult> => {
 	checkIfTypeScriptFile(filePath);
 
 	const input = await readFile(filePath, 'utf-8');
@@ -67,7 +67,7 @@ export const applyCodemodToFile = async ({
 			...options,
 			filePath,
 			changes: codeMod.changes,
-		}).project;
+		});
 	}
 
 	if (codeMod.type === 'new-composition') {
@@ -104,16 +104,20 @@ export const applyCodemodToFile = async ({
 			return addCanvasCaptureComposition({
 				...composition,
 				capture: codeMod.canvasCapture,
-			}).project;
+			});
 		}
 
-		const result = addComposition(composition).project;
+		const result = addComposition(composition);
 		return {
 			...result,
-			files: {
-				...result.files,
-				[componentFilePath]: emptyCompositionComponent(codeMod.componentName),
-			},
+			changes: [
+				...result.changes,
+				{
+					filePath: componentFilePath,
+					previousContents: null,
+					nextContents: emptyCompositionComponent(codeMod.componentName),
+				},
+			],
 		};
 	}
 
@@ -122,12 +126,11 @@ export const applyCodemodToFile = async ({
 			...options,
 			compositionId: codeMod.idToRename,
 			newId: codeMod.newId,
-		}).project;
+		});
 	}
 
 	if (codeMod.type === 'delete-composition') {
-		return deleteComposition({...options, compositionId: codeMod.idToDelete})
-			.project;
+		return deleteComposition({...options, compositionId: codeMod.idToDelete});
 	}
 
 	if (
@@ -160,7 +163,7 @@ export const applyCodemodToFile = async ({
 						compositionId: codeMod.idToUpdate,
 						metadata,
 					});
-		return result.project;
+		return result;
 	}
 
 	if (codeMod.type === 'move-composition-to-folder') {
@@ -177,7 +180,7 @@ export const applyCodemodToFile = async ({
 								parentName: codeMod.parentName,
 							},
 						},
-		}).project;
+		});
 	}
 
 	if (codeMod.type === 'move-composition-or-folder') {
@@ -216,7 +219,7 @@ export const applyCodemodToFile = async ({
 						},
 						destination,
 					});
-		return result.project;
+		return result;
 	}
 
 	const folder = {name: codeMod.folderName, parentName: codeMod.parentName};
@@ -226,5 +229,5 @@ export const applyCodemodToFile = async ({
 			: codeMod.type === 'rename-folder'
 				? renameFolder({...options, folder, newName: codeMod.newName})
 				: unwrapFolder({...options, folder});
-	return folderResult.project;
+	return folderResult;
 };

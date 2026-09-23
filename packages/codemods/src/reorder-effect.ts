@@ -50,7 +50,7 @@ export const reorderEffect = async <Project extends CodemodProject>({
 		...result,
 		editDetails: [{filePath, formatted, effectLabel, logLine}],
 		updatedEffect: {
-			...getUpdatedNodeReference({...result, node: effect}),
+			...getUpdatedNodeReference({project, ...result, node: effect}),
 			effectIndex: toIndex,
 		},
 	};

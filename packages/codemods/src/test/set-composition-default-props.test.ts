@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {setCompositionDefaultProps} from '../index';
+import {getChangedContents} from './get-changed-contents';
 
 test('updates default props without changing surrounding source', () => {
 	const input = readFileSync(
@@ -21,7 +22,7 @@ test('updates default props without changing surrounding source', () => {
 		enumPaths: [],
 	});
 
-	expect(result.project.files['Root.tsx']).toBe(expected);
+	expect(getChangedContents(result, 'Root.tsx')).toBe(expected);
 	expect(result.logLine).toBe(27);
 });
 
@@ -44,7 +45,7 @@ test('replaces multiline default props with a compact value', () => {
 		enumPaths: [],
 	});
 
-	expect(result.project.files['Root.tsx']).toBe(expected);
+	expect(getChangedContents(result, 'Root.tsx')).toBe(expected);
 });
 
 test('formats multiline default props without Prettier', () => {
@@ -72,7 +73,7 @@ export const Root=()=>(
 		enumPaths: [['mode']],
 	});
 
-	expect(result.project.files['Root.tsx'])
+	expect(getChangedContents(result, 'Root.tsx'))
 		.toBe(`import {Composition} from 'remotion'
 
 const untouched    = {keep:"this spacing"}
@@ -114,7 +115,7 @@ test('preserves CRLF, spaces, double quotes, and bracket spacing', () => {
 		enumPaths: [],
 	});
 
-	expect(result.project.files['Root.tsx']).toBe(
+	expect(getChangedContents(result, 'Root.tsx')).toBe(
 		input.replace(
 			'defaultProps={{ old: "value" }}',
 			'defaultProps={{ title: "Hello" }}',
@@ -143,7 +144,7 @@ export const Root = () => (
 		enumPaths: [['items', '[]', 'mode']],
 	});
 
-	expect(result.project.files['Root.tsx'])
+	expect(getChangedContents(result, 'Root.tsx'))
 		.toBe(`import {Composition} from "remotion";
 export const Root = () => (
   <Composition id="Comp" defaultProps={{

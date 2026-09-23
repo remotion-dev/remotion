@@ -53,7 +53,7 @@ export const updateEffectKeyframes = async <Project extends CodemodProject>({
 		...result,
 		...details,
 		updatedEffect: {
-			...getUpdatedNodeReference({...result, node: effect}),
+			...getUpdatedNodeReference({project, ...result, node: effect}),
 			effectIndex: effect.effectIndex,
 		},
 	};

@@ -148,7 +148,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 		((destination.type === 'folder' || destination.type === 'root') &&
 			entry.parentName === destinationParentName)
 	) {
-		return getCodemodResult({project, nextProject: project});
+		return {changes: []};
 	}
 
 	if (!entry.directJsxChild)
@@ -171,9 +171,6 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	parseAst(nextContents);
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [filePath]: nextContents},
-		},
+		edits: [{filePath, nextContents}],
 	});
 };

@@ -47,7 +47,7 @@ export const addEffect = async <Project extends CodemodProject>({
 		...result,
 		editDetails: [{filePath, formatted, effectLabel, nodeLabel, logLine}],
 		insertedEffect: {
-			...getUpdatedNodeReference({...result, node}),
+			...getUpdatedNodeReference({project, ...result, node}),
 			effectIndex: length,
 		},
 	};

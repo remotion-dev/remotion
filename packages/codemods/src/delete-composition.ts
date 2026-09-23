@@ -18,7 +18,7 @@ export const deleteComposition = <Project extends CodemodProject>({
 	project,
 	compositionFile,
 	compositionId,
-}: DeleteCompositionOptions<Project>): CodemodResult<Project> => {
+}: DeleteCompositionOptions<Project>): CodemodResult => {
 	const node = requireComposition({project, compositionFile, compositionId});
 	const input = project.files[node.filePath];
 	const ast = parseAst(input);
@@ -33,9 +33,6 @@ export const deleteComposition = <Project extends CodemodProject>({
 	});
 	return getCodemodResult({
 		project,
-		nextProject: {
-			...project,
-			files: {...project.files, [node.filePath]: output},
-		},
+		edits: [{filePath: node.filePath, nextContents: output}],
 	});
 };

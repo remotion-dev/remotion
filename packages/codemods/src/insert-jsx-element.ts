@@ -2966,15 +2966,13 @@ export const insertJsxElementIntoComposition = async ({
 	};
 };
 
-export const insertJsxElementIntoProjectWithNodePathRemappings = async <
-	Project extends {files: Record<string, string>; rootDir: string},
->({
+export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 	project,
 	request,
 	svgMarkupToJsx,
 	wrapInSequence,
 }: {
-	project: Project;
+	project: {files: Record<string, string>; rootDir: string};
 	request: InsertJsxElementRequest;
 	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
 	wrapInSequence: {
@@ -2988,7 +2986,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async <
 	filePath: string;
 	insertedNodePath: SequenceNodePath | null;
 	nodePathRemappings: SequenceNodePathRemapping[];
-	project: Project;
+	output: string;
 }> => {
 	const result = await insertJsxElementIntoComposition({
 		compositionFile: request.compositionFile,
@@ -3007,9 +3005,6 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async <
 		filePath: result.fileName,
 		insertedNodePath: result.insertedNodePath,
 		nodePathRemappings: result.nodePathRemappings,
-		project: {
-			...project,
-			files: {...project.files, [result.fileName]: result.output},
-		},
+		output: result.output,
 	};
 };

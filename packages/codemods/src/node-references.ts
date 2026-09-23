@@ -16,11 +16,13 @@ export type JsxNodePathRemapping = {
 	newNodePath: SequenceNodePath | null;
 };
 
-export type CodemodNodeResult<Project extends CodemodProject> =
-	CodemodResult<Project> & {nodePathRemappings: JsxNodePathRemapping[]};
+export type CodemodNodeResult = CodemodResult & {
+	nodePathRemappings: JsxNodePathRemapping[];
+};
 
-export type CodemodInsertionResult<Project extends CodemodProject> =
-	CodemodNodeResult<Project> & {insertedNode: JsxNodeReference};
+export type CodemodInsertionResult = CodemodNodeResult & {
+	insertedNode: JsxNodeReference;
+};
 
 export type NodeSourceEdit = {
 	filePath: string;
@@ -52,25 +54,20 @@ export const getInsertedNodeReferences = (
 	);
 };
 
-export const getNodeEditResult = <Project extends CodemodProject>({
+export const getNodeEditResult = ({
 	project,
 	edits,
 }: {
-	project: Project;
+	project: CodemodProject;
 	edits: NodeSourceEdit[];
-}): CodemodNodeResult<Project> => {
+}): CodemodNodeResult => {
 	return {
 		...getCodemodResult({
 			project,
-			nextProject: {
-				...project,
-				files: {
-					...project.files,
-					...Object.fromEntries(
-						edits.map(({filePath, output}) => [filePath, output]),
-					),
-				},
-			},
+			edits: edits.map(({filePath, output}) => ({
+				filePath,
+				nextContents: output,
+			})),
 		}),
 		nodePathRemappings: edits.flatMap(({filePath, nodePathRemappings}) =>
 			nodePathRemappings.map((remapping) => ({filePath, ...remapping})),

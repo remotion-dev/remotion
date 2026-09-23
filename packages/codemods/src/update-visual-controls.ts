@@ -45,16 +45,15 @@ export type UpdateVisualControlsOptions<Project extends CodemodProject> = {
 	changes: VisualControlChange[];
 };
 
-export type UpdateVisualControlsResult<Project extends CodemodProject> =
-	CodemodResult<Project> & {
-		updatedControls: {id: string; line: number}[];
-	};
+export type UpdateVisualControlsResult = CodemodResult & {
+	updatedControls: {id: string; line: number}[];
+};
 
 export const updateVisualControls = <Project extends CodemodProject>({
 	project,
 	filePath,
 	changes,
-}: UpdateVisualControlsOptions<Project>): UpdateVisualControlsResult<Project> => {
+}: UpdateVisualControlsOptions<Project>): UpdateVisualControlsResult => {
 	const resolvedFilePath = findProjectFile({project, filePath});
 	const input = project.files[resolvedFilePath];
 	const file = parseAst(input);
@@ -149,13 +148,12 @@ export const updateVisualControls = <Project extends CodemodProject>({
 	return {
 		...getCodemodResult({
 			project,
-			nextProject: {
-				...project,
-				files: {
-					...project.files,
-					[resolvedFilePath]: applySourceEdits({input, edits}),
+			edits: [
+				{
+					filePath: resolvedFilePath,
+					nextContents: applySourceEdits({input, edits}),
 				},
-			},
+			],
 		}),
 		updatedControls,
 	};

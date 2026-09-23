@@ -58,6 +58,6 @@ export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
 	return {
 		...result,
 		...details,
-		updatedNode: getUpdatedNodeReference({...result, node}),
+		updatedNode: getUpdatedNodeReference({project, ...result, node}),
 	};
 };

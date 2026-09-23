@@ -26,7 +26,7 @@ export const insertContent = async <Project extends CodemodProject>({
 	element,
 }: AddContentOptions<Project> & {
 	element: InsertableCompositionElement;
-}): Promise<CodemodInsertionResult<Project>> => {
+}): Promise<CodemodInsertionResult> => {
 	if (from !== undefined && (!Number.isInteger(from) || from < 0)) {
 		throw new Error('from must be a non-negative integer');
 	}
@@ -78,7 +78,7 @@ export const insertContent = async <Project extends CodemodProject>({
 			edits: [
 				{
 					filePath,
-					output: insertion.project.files[insertion.filePath],
+					output: insertion.output,
 					nodePathRemappings: insertion.nodePathRemappings,
 				},
 			],

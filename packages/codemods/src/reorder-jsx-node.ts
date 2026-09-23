@@ -44,6 +44,6 @@ export const reorderJsxNode = async <Project extends CodemodProject>({
 				logLine: edit.logLine,
 			},
 		],
-		updatedNode: getUpdatedNodeReference({...result, node}),
+		updatedNode: getUpdatedNodeReference({project, ...result, node}),
 	};
 };
