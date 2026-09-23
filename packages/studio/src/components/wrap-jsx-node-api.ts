@@ -10,14 +10,6 @@ export const wrapJsxNode = (
 ): Promise<WrapJsxNodeResponse> => {
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations) {
-		if (!browserStudioOperations.wrapJsxNode) {
-			return Promise.resolve({
-				success: false,
-				reason: 'Wrapping JSX is unavailable in this Browser Studio',
-				stack: '',
-			});
-		}
-
 		return browserStudioOperations.wrapJsxNode(request);
 	}
 

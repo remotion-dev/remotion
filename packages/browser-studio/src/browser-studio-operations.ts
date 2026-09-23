@@ -1440,7 +1440,7 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const wrapJsxNode: NonNullable<BrowserStudioOperations['wrapJsxNode']> = ({
+	const wrapJsxNode: BrowserStudioOperations['wrapJsxNode'] = ({
 		fileName,
 		nodePath,
 		wrapper,
