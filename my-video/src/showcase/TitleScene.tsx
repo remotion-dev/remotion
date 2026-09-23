@@ -1,4 +1,5 @@
 import {Highlight} from "@remotion/rough-notation";
+import {useTransitionProgress} from "@remotion/transitions";
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
@@ -8,11 +9,16 @@ export type TitleSceneProps = {
   readonly subtitle: string;
 };
 
-// Demonstrates: spring() entrances, per-word staggered interpolate(),
-// and an animated rough-notation highlight synced to useCurrentFrame().
+// Demonstrates: spring() entrances, per-word staggered interpolate(), an
+// animated rough-notation highlight synced to useCurrentFrame(), and
+// @remotion/transitions' useTransitionProgress() -- read inside a child of
+// <TransitionSeries.Sequence> to directly manipulate the scene beyond what
+// its Transition's presentation itself does, here a slight extra shrink as
+// the scene exits into the next one.
 export const TitleScene: React.FC<TitleSceneProps> = ({title, subtitle}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const {exiting} = useTransitionProgress();
 
   const titleScale = spring({fps, frame, config: {damping: 200}});
   const titleOpacity = interpolate(frame, [0, 15], [0, 1], {
@@ -30,6 +36,7 @@ export const TitleScene: React.FC<TitleSceneProps> = ({title, subtitle}) => {
         justifyContent: "center",
         alignItems: "center",
         fontFamily: poppins,
+        transform: `scale(${1 - exiting * 0.04})`,
       }}
     >
       <div

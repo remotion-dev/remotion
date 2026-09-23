@@ -1,12 +1,14 @@
 import {interpolateStyles} from "@remotion/animation-utils";
-import {Underline} from "@remotion/rough-notation";
+import {Box, Bracket, Circle, CrossedOff, StrikeThrough, Underline} from "@remotion/rough-notation";
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
 
 // Demonstrates: @remotion/animation-utils' interpolateStyles() for combining
-// multiple animated CSS properties in one call, plus a rough-notation
-// <Underline> as a closing flourish.
+// multiple animated CSS properties in one call, plus rough-notation's six
+// annotation styles as a closing flourish: <Underline>, <Box>, <Circle>,
+// <Bracket>, <StrikeThrough> and <CrossedOff> (<Highlight> is used in
+// TitleScene).
 export const OutroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, width} = useVideoConfig();
@@ -52,7 +54,42 @@ export const OutroScene: React.FC = () => {
           marginTop: 20,
         }}
       >
-        Ask in Claude Chat, Claude Cowork, or Claude Code.
+        Ask in{" "}
+        <Box color={palette.accent} progress={interpolate(frame, [18, 34], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+          Claude Chat
+        </Box>
+        ,{" "}
+        <Circle color={palette.accent2} progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+          Claude Cowork
+        </Circle>
+        , or{" "}
+        <Bracket
+          color={palette.accent}
+          bracketLeft
+          bracketRight
+          progress={interpolate(frame, [30, 46], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
+        >
+          Claude Code
+        </Bracket>
+        .
+      </div>
+      <div
+        style={{
+          opacity: interpolate(frame, [45, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"}),
+          fontSize: 22,
+          color: palette.textDim,
+          marginTop: 16,
+        }}
+      >
+        No{" "}
+        <StrikeThrough color={palette.textDim} progress={interpolate(frame, [48, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+          manual editing
+        </StrikeThrough>
+        , no{" "}
+        <CrossedOff color={palette.textDim} progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+          timelines
+        </CrossedOff>
+        .
       </div>
       <div
         style={{
@@ -67,7 +104,7 @@ export const OutroScene: React.FC = () => {
         MY-VIDEO
       </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.textDim, fontSize: 24}}>
-        @remotion/animation-utils · @remotion/rough-notation
+        @remotion/animation-utils · @remotion/rough-notation (6 annotation styles)
       </div>
     </AbsoluteFill>
   );

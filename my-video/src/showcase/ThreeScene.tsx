@@ -8,6 +8,21 @@ import {poppins} from "./font";
 // requestAnimationFrame — required so a render captures each frame
 // deterministically rather than whatever state the R3F clock happened to be
 // in. Sequences inside it need layout="none" per the 3d.md guide.
+//
+// <ThreeWebGPUCanvas> (a separate `@remotion/three/webgpu` entry point,
+// Three.js's experimental WebGPU renderer) is deliberately not rendered
+// here. It throws a real error under this sandbox's software WebGPU
+// implementation -- "Failed to read the 'swizzle' property from
+// GPUTextureViewDescriptor" -- inside Three.js's own async compileAsync()
+// call, outside React's render lifecycle, so no error boundary (tried:
+// WebGpuBoundary, an actual React error boundary class component) or
+// try/catch can recover from it; it aborts the whole render. This is a real
+// gap in the specific WebGPU implementation this sandbox's headless
+// Chromium ships, not a code bug -- see the same environment's
+// AGENTS.md notes on WebGPU/GPU limitations for video-matting/whisper-webgpu.
+// useVideoTexture()/useOffthreadVideoTexture() are also not used here --
+// both are deprecated in favor of using @remotion/media's <Video> as a
+// Three.js texture directly.
 export const ThreeScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();

@@ -1,4 +1,4 @@
-import {fitTextOnNLines, measureText} from "@remotion/layout-utils";
+import {fillTextBox, fitText, fitTextOnNLines, measureText} from "@remotion/layout-utils";
 import {createRoundedTextBox} from "@remotion/rounded-text-box";
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from "remotion";
 import {palette} from "./palette";
@@ -9,16 +9,21 @@ const OUTER_MAX_WIDTH = 700;
 const HORIZONTAL_PADDING = 40;
 const BORDER_RADIUS = 28;
 const LINE_HEIGHT = 1.2;
+const LABEL = "fitText() sizes this label to the box width";
+const CAPTION_WORDS =
+  "fillTextBox() wraps arbitrary text word by word into a fixed number of lines at a fixed font size".split(" ");
+const CAPTION_BOX_WIDTH = 620;
+const CAPTION_FONT_SIZE = 22;
 
-// Demonstrates: @remotion/layout-utils' fitTextOnNLines()/measureText() +
-// @remotion/rounded-text-box's createRoundedTextBox() -- the TikTok/
-// Instagram-style rounded caption background, sized from real text
-// measurements rather than a fixed box. fitTextOnNLines() finds the font
-// size that fits TEXT on one line; measureText() re-measures the resulting
-// line at that size; createRoundedTextBox() turns those measurements into
-// an SVG path (via @remotion/paths' bounding-box shape) sized exactly to
-// the text. Both measuring functions only work in the browser, which is
-// exactly where a Remotion render already runs.
+// Demonstrates every @remotion/layout-utils measuring function:
+// fitTextOnNLines()/measureText() + @remotion/rounded-text-box's
+// createRoundedTextBox() size the TikTok/Instagram-style rounded box from
+// real text measurements; fitText() finds the font size that fits a single
+// line of text into a fixed width (used for the label above the box);
+// fillTextBox() wraps arbitrary text word-by-word into a fixed number of
+// lines at a fixed font size -- the opposite problem from fitTextOnNLines
+// (which searches for a font size instead of a line break). All of these
+// only work in the browser, which is exactly where a Remotion render runs.
 export const RoundedTextBoxScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, fps} = useVideoConfig();
@@ -31,6 +36,28 @@ export const RoundedTextBoxScene: React.FC = () => {
     fontWeight: "700",
     maxFontSize: 64,
   });
+
+  const {fontSize: labelFontSize} = fitText({
+    text: LABEL,
+    withinWidth: OUTER_MAX_WIDTH,
+    fontFamily: poppins,
+    fontWeight: "500",
+  });
+
+  const captionBox = fillTextBox({maxBoxWidth: CAPTION_BOX_WIDTH, maxLines: 2});
+  const captionLines: string[][] = [[], []];
+  let captionLineIndex = 0;
+  for (const word of CAPTION_WORDS) {
+    const {exceedsBox, newLine} = captionBox.add({
+      text: ` ${word}`,
+      fontFamily: poppins,
+      fontWeight: "500",
+      fontSize: CAPTION_FONT_SIZE,
+    });
+    if (exceedsBox) break;
+    if (newLine) captionLineIndex += 1;
+    captionLines[captionLineIndex].push(word);
+  }
 
   const textMeasurements = lines.map((line) =>
     measureText({
@@ -56,6 +83,7 @@ export const RoundedTextBoxScene: React.FC = () => {
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 26}}>
         @remotion/rounded-text-box · sized from real text measurements
       </div>
+      <div style={{fontSize: labelFontSize, fontWeight: 500, color: palette.textDim, marginBottom: 12}}>{LABEL}</div>
       <div style={{transform: `scale(${scale})`, width: boundingBox.width, height: boundingBox.height, position: "relative"}}>
         <svg
           viewBox={boundingBox.viewBox}
@@ -83,8 +111,17 @@ export const RoundedTextBoxScene: React.FC = () => {
           ))}
         </div>
       </div>
+      <div style={{marginTop: 16, textAlign: "center"}}>
+        {captionLines.map((line, i) =>
+          line.length > 0 ? (
+            <div key={i} style={{fontSize: CAPTION_FONT_SIZE, fontWeight: 500, color: palette.textDim}}>
+              {line.join(" ")}
+            </div>
+          ) : null,
+        )}
+      </div>
       <div style={{position: "absolute", bottom: 56, width, textAlign: "center", color: palette.text, fontSize: 32, fontWeight: 600}}>
-        fitTextOnNLines() + measureText() + createRoundedTextBox()
+        fitTextOnNLines() · measureText() · fitText() · fillTextBox()
       </div>
     </AbsoluteFill>
   );

@@ -21,6 +21,8 @@ import {AnimatedEmojiScene} from "./AnimatedEmojiScene";
 import {SkiaScene} from "./SkiaScene";
 import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
+import {CoreMediaScene} from "./CoreMediaScene";
+import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
 
 // A zod schema (vs. ShowcaseReel's plain `type`) gets Studio-generated,
 // validated controls: zTextarea() for a multi-line field, zColor() for a
@@ -35,7 +37,7 @@ export type ExtendedReelProps = z.infer<typeof extendedReelSchema>;
 
 const SCENE_DURATION = 75;
 const TRANSITION_DURATION = 15;
-const SCENE_COUNT = 15;
+const SCENE_COUNT = 17;
 
 export const extendedReelDefaultProps: ExtendedReelProps = {
   title: "Remotion, extended",
@@ -57,8 +59,10 @@ const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
 // (a real audio waveform), @remotion/whisper-webgpu (in-browser
 // transcription), @remotion/lottie, @remotion/animated-emoji,
 // @remotion/three, @remotion/skia, @remotion/layout-utils +
-// @remotion/rounded-text-box, @remotion/sfx, @remotion/gsap, and core
-// remotion fundamentals (Easing, <Series>, <Loop>, <Freeze>, random()).
+// @remotion/rounded-text-box, @remotion/sfx, @remotion/gsap, core remotion's
+// media/canvas components (CoreMediaScene) and environment/introspection
+// APIs (CoreEnvironmentScene), and core remotion fundamentals (Easing,
+// <Series>, <Loop>, <Freeze>, random()).
 export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, accentColor}) => {
   return (
     <AbsoluteFill style={{backgroundColor: "#0b1120"}}>
@@ -127,6 +131,16 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
           <GsapScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({direction: "from-top"})} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <CoreMediaScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
+          <CoreEnvironmentScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({direction: "from-bottom"})} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <FundamentalsScene />
