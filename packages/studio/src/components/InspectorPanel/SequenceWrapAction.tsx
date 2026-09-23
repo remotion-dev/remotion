@@ -4,7 +4,6 @@ import {isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {HOVERABLE_PAINT_COLOR} from '../../helpers/hoverable';
 import {CaretDown} from '../../icons/caret';
 import {WrapIcon} from '../../icons/wrap';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -41,7 +40,6 @@ const iconContainerStyle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-	color: HOVERABLE_PAINT_COLOR,
 	flex: 1,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
@@ -165,14 +163,14 @@ export const SequenceWrapAction: React.FC<{
 				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: false,
 				onOpenChange: null,
-				renderContent: () => (
+				renderContent: (color) => (
 					<>
 						<span style={iconContainerStyle}>
-							<WrapIcon color={HOVERABLE_PAINT_COLOR} style={iconStyle} />
+							<WrapIcon color={color} style={iconStyle} />
 						</span>
 						<span style={labelStyle}>Wrap</span>
 						<span style={caretStyle}>
-							<CaretDown color={HOVERABLE_PAINT_COLOR} />
+							<CaretDown color={color} />
 						</span>
 					</>
 				),
