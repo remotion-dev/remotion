@@ -5,7 +5,7 @@ import type {ElevenLabsTranscript} from "@remotion/elevenlabs";
 import {openAiWhisperApiToCaptions} from "@remotion/openai-whisper";
 import type {OpenAiVerboseTranscription} from "@remotion/openai-whisper";
 import {useMemo} from "react";
-import {AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig} from "remotion";
+import {AbsoluteFill, Html5Video, Sequence, staticFile, useCurrentFrame, useVideoConfig} from "remotion";
 import {gradientBg, palette} from "./palette";
 import {poppins} from "./font";
 import {sampleCaptions} from "./sampleCaptions";
@@ -108,6 +108,19 @@ export const CaptionsScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{background: gradientBg, fontFamily: poppins}}>
+      {/* Core remotion's <Html5Video>, dimmed behind the captions. It needs a
+          codec this Chromium decodes (the VP9 .webm), isn't frame-perfect (a
+          frame now and then repeats the previous one, per video-tags.mdx), and
+          lives here because a decodable <video> blanks canvas components in
+          the same frame. See AGENTS.md. */}
+      <Html5Video
+        src={staticFile("sample-clip.webm")}
+        muted
+        loop
+        playbackRate={1.5}
+        trimBefore={15}
+        style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.22}}
+      />
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 28}}>
         @remotion/captions · TikTok-style word highlighting
       </div>
@@ -115,7 +128,7 @@ export const CaptionsScene: React.FC = () => {
         serializeSrt() → parseSrt(): {roundTrippedCount} cue{roundTrippedCount === 1 ? "" : "s"} recovered · elevenLabsTranscriptToCaptions(): {elevenLabsCaptionCount} captions
       </div>
       <div style={{position: "absolute", top: 128, width, textAlign: "center", color: palette.textDim, fontSize: 16, fontFamily: "monospace"}}>
-        openAiWhisperApiToCaptions(): {openAiCaptions.length} captions, last ends at {openAiCaptions[openAiCaptions.length - 1]?.endMs}ms
+        openAiWhisperApiToCaptions(): {openAiCaptions.length} captions, last ends at {openAiCaptions[openAiCaptions.length - 1]?.endMs}ms · background: &lt;Html5Video&gt; (not frame-perfect)
       </div>
       {pages.map((page, index) => {
         const nextPage = pages[index + 1] ?? null;

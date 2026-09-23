@@ -82,6 +82,11 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Outside Remotion's bundler nothing sets the static base, and
+         staticFile() would return root-relative "/…" URLs. -->
+    <script>
+      window.remotion_staticBase = ".";
+    </script>
     <script src="./main.js"></script>
   </body>
 </html>

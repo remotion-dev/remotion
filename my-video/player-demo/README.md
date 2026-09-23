@@ -14,9 +14,9 @@ node player-demo/build.mjs           # bundle into player-demo/dist/
 node player-demo/build.mjs --serve   # bundle, then serve dist/ at http://localhost:4000/
 ```
 
-`build.mjs` uses the `esbuild` already in `node_modules`, which comes in as a dependency of `@remotion/bundler`, so it adds no new packages. It writes `dist/index.html`, `dist/main.js` and a source map. `dist/` is gitignored.
+`build.mjs` uses the `esbuild` already in `node_modules`, which comes in as a dependency of `@remotion/bundler`, so it adds no new packages. It writes `dist/index.html`, `dist/main.js` and a source map, and copies `sample-clip.webm` from `public/`. `dist/` is gitignored.
 
-The bundle is a classic script, not an ES module, so you can also open `player-demo/dist/index.html` straight from disk. Any static server works as well, for example `python3 -m http.server -d player-demo/dist`.
+The bundle is a classic script, not an ES module, so you can also open `player-demo/dist/index.html` straight from disk. Another static server works only if it answers HTTP Range requests: `CaptionsScene` plays a video, and a `<video>` can't seek without them. `python3 -m http.server` and esbuild's own server don't; `--serve` uses a small Node server that does.
 
 ## Why this isn't a composition
 
@@ -26,6 +26,6 @@ Both components take a component directly, not a `<Composition>`, and they never
 
 ## Notes
 
-- **Why `ShowcaseReel`:** all of its scenes are plain React, SVG and `@remotion/*` code, with no CSS imports, fonts or `staticFile()` assets, so a stock esbuild bundles them. `ExtendedReel` and `FullReel` weren't tried. They rely on setup that Remotion's own bundler and server provide: the skia alias and `LoadSkia()`, and files in `public/` served for `staticFile()`.
+- **Why `ShowcaseReel`:** all of its scenes are plain React, SVG and `@remotion/*` code with no CSS imports or fonts, so a stock esbuild bundles them. Its one `staticFile()` asset, `CaptionsScene`'s `sample-clip.webm`, is copied into `dist/`, and `index.html` sets `window.remotion_staticBase = "."` so that `staticFile()` returns a relative URL. `ExtendedReel` and `FullReel` weren't tried. They rely on setup that Remotion's own bundler and server provide: the skia alias and `LoadSkia()`, and files in `public/` served for `staticFile()`.
 - **Console:** the only message is the Player's license notice, a `console.warn` ("Some companies are required to obtain a license…"). Passing the `acknowledgeRemotionLicense` prop to `<Player>` silences it. That's for the project owner to decide, so the demo doesn't pass it.
 - **`react-dom-client.d.ts`:** the root `tsconfig.json` also type-checks this folder, and the project has no `@types/react-dom` dependency. This file types the single `createRoot()` call so `npm run lint` passes in a standalone checkout. If `@types/react-dom` is added, delete this file.
