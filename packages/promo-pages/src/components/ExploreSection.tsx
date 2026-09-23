@@ -11,7 +11,7 @@ export const ExploreSection: React.FC = () => {
 				Our mission is to explode the world of video creation into pieces and
 				let you assemble them.
 			</p>
-			<div className="grid grid-cols-3 border-t border-l border-[#353b40]">
+			<div className="grid grid-cols-2 border-t border-l border-[#353b40] min-[700px]:grid-cols-3">
 				{[
 					'Video',
 					'Audio',
@@ -22,6 +22,13 @@ export const ExploreSection: React.FC = () => {
 					'Effects',
 					'Transitions',
 					'Elements',
+					'Color Correction',
+					'Keyframes',
+					'Background removal',
+					'Fonts',
+					'Integrations',
+					'Editor Starter',
+					'Convert',
 				].map((item) => (
 					<div
 						key={item}
