@@ -161,7 +161,12 @@ export const isSchemaFieldHoldOnly = ({
 	key: string;
 }): boolean => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return field?.type === 'enum' && field.keyframable === true;
+	return (
+		(field?.type === 'enum' && field.keyframable === true) ||
+		(field?.type === 'number' &&
+			field.integer === true &&
+			field.keyframable !== false)
+	);
 };
 
 export const getKeyframeInterpolationFunctionForSchemaField = ({

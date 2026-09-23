@@ -76,6 +76,7 @@ const lightTrailSchema = {
 		min: 1,
 		max: MAX_SAMPLES,
 		step: 1,
+		integer: true,
 		default: DEFAULT_SAMPLES,
 		description: 'Samples',
 		hiddenFromList: false,
