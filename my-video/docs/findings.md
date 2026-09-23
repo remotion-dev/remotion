@@ -73,7 +73,6 @@ Options that are wired but have no visible effect here, or are left out on purpo
 - `convertMedia({expectedFrameRate, expectedDurationInSeconds})`: they size the metadata section of an MP4 output, and `MediaToolsScene` writes WebM. `convertAudioData({newFormat})` is the docs' newer name; 4.0.527 calls it `format`, which is used.
 - `<Lottie assetsPath>`: only for animations with image layers, and `sample-lottie.json` has none.
 - `installInStudio()`/`addElementLibraryToStudio()` `target`: it names one running Studio, and there is none here.
-- `acknowledgeRemotionLicense` on `<Player>`: it states that the owner has a Remotion license or qualifies for the free one, so it's the owner's decision (see `player-demo/README.md`).
 
 ## `@remotion/effects`: every catalog effect, and the WebGL context budget
 

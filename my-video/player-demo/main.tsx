@@ -241,6 +241,8 @@ const App: React.FC = () => {
         ref={playerRef}
         {...reel}
         controls
+        // The owner uses Remotion's free license (see AGENTS.md); this hides the console notice.
+        acknowledgeRemotionLicense
         loop={loop}
         // Only matters with loop off. The Player then stays on the frame it
         // ended on instead of jumping back to the start, and that's what
@@ -371,6 +373,8 @@ const App: React.FC = () => {
       <Player
         {...reel}
         controls
+        // The owner uses Remotion's free license (see AGENTS.md); this hides the console notice.
+        acknowledgeRemotionLicense
         autoPlay
         initiallyMuted
         loop
@@ -429,6 +433,8 @@ const App: React.FC = () => {
         fps={30}
         initialFrame={5}
         controls
+        // The owner uses Remotion's free license (see AGENTS.md); this hides the console notice.
+        acknowledgeRemotionLicense
         errorFallback={({error}) => (
           <AbsoluteFill style={{justifyContent: "center", alignItems: "center", background: "#1f2937", color: "#f87171", font: "14px ui-monospace, monospace"}}>
             errorFallback: {error.message}

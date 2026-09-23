@@ -145,3 +145,4 @@ node scripts/vendor-elements.mjs   # defaults to ../packages/docs/elements; pass
 - In components, take `delayRender`/`continueRender`/`cancelRender` from `useDelayRender()` (render-scoped, the documented recommendation) rather than importing the global functions; every scene here does.
 - Users may edit files between conversations (including visually in Remotion Studio); treat surprising diffs as intentional and don't overwrite them.
 - Run `npm run lint` before committing.
+- The owner uses Remotion's free license (individuals, for-profit companies with up to 3 employees, and non-profits qualify; see the monorepo's `LICENSE.md`). Pass `acknowledgeRemotionLicense` where an API takes it (`<Player>`, `parseMedia()`, `convertMedia()` and others); it only hides Remotion's license notice.
