@@ -26,6 +26,7 @@ import {RoundedTextBoxScene} from "./RoundedTextBoxScene";
 import {SfxScene} from "./SfxScene";
 import {CoreMediaScene} from "./CoreMediaScene";
 import {CoreEnvironmentScene} from "./CoreEnvironmentScene";
+import {canvasCircleRevealOrFallback} from "./htmlInCanvasPresentation";
 
 // A zod schema (vs. ShowcaseReel's plain `type`) gets Studio-generated,
 // validated controls: zTextarea() for a multi-line field, zColor() for a
@@ -50,7 +51,10 @@ export const extendedReelDefaultProps: ExtendedReelProps = {
 
 export const calculateExtendedReelMetadata: CalculateMetadataFunction<ExtendedReelProps> = () => {
   const durationInFrames = SCENE_COUNT * SCENE_DURATION - (SCENE_COUNT - 1) * TRANSITION_DURATION;
-  return {durationInFrames};
+  // calculateMetadata() can set more than the duration: these become the
+  // CLI's defaults for this composition, and scenes can read them back from
+  // useVideoConfig() (CoreEnvironmentScene does).
+  return {durationInFrames, defaultCodec: "h264", defaultOutName: "extended-reel"};
 };
 
 const transitionTiming = linearTiming({durationInFrames: TRANSITION_DURATION});
@@ -91,7 +95,9 @@ export const ExtendedReel: React.FC<ExtendedReelProps> = ({title, subtitle, acce
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <VideoMattingScene />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={transitionTiming} />
+        {/* A custom makeHtmlInCanvasPresentation() shader; renders as its fade()
+            fallback wherever HtmlInCanvas isn't supported, as here. */}
+        <TransitionSeries.Transition presentation={canvasCircleRevealOrFallback()} timing={transitionTiming} />
 
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATION}>
           <AudioScene />

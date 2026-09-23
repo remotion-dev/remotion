@@ -9,12 +9,19 @@ import {poppins} from "./font";
 
 const LOCAL_FONT_FAMILY = "Bangers";
 
-const TEXT = "ROUNDED TEXT BOX";
+// Lowercase on purpose: textTransform uppercases it, and the measuring
+// functions get the same textTransform/letterSpacing as the CSS below, so
+// the box is sized to the text as it is actually drawn.
+const TEXT = "rounded text box";
+const TEXT_TRANSFORM = "uppercase";
+const LETTER_SPACING = "0.06em";
 const OUTER_MAX_WIDTH = 700;
 const HORIZONTAL_PADDING = 40;
 const BORDER_RADIUS = 28;
 const LINE_HEIGHT = 1.2;
-const LABEL = "fitText() sizes this label to the box width";
+const LABEL = "fitText() sizes this label to 700px";
+// Tabular digits change the width of "700", so fitText() is told about it too.
+const LABEL_NUMERIC = "tabular-nums";
 const CAPTION_WORDS =
   "fillTextBox() wraps arbitrary text word by word into a fixed number of lines at a fixed font size".split(" ");
 const CAPTION_BOX_WIDTH = 620;
@@ -44,7 +51,18 @@ export const RoundedTextBoxScene: React.FC = () => {
   const [localFontReady, setLocalFontReady] = useState(false);
 
   useEffect(() => {
-    loadFont({family: LOCAL_FONT_FAMILY, url: staticFile("bangers.woff2"), format: "woff2"})
+    loadFont({
+      family: LOCAL_FONT_FAMILY,
+      url: staticFile("bangers.woff2"),
+      format: "woff2",
+      // Bangers ships a single regular face; declaring it keeps the browser
+      // from synthesizing bold/italic. unicodeRange limits this @font-face
+      // to printable ASCII, so other characters fall back to the next font.
+      weight: "400",
+      style: "normal",
+      display: "block",
+      unicodeRange: "U+0020-007E",
+    })
       .then(() => {
         setLocalFontReady(true);
         continueRender(handle);
@@ -58,6 +76,8 @@ export const RoundedTextBoxScene: React.FC = () => {
     maxLines: 1,
     fontFamily: poppins,
     fontWeight: "700",
+    textTransform: TEXT_TRANSFORM,
+    letterSpacing: LETTER_SPACING,
     maxFontSize: 64,
   });
 
@@ -66,6 +86,7 @@ export const RoundedTextBoxScene: React.FC = () => {
     withinWidth: OUTER_MAX_WIDTH,
     fontFamily: poppins,
     fontWeight: "500",
+    fontVariantNumeric: LABEL_NUMERIC,
   });
 
   const captionBox = fillTextBox({maxBoxWidth: CAPTION_BOX_WIDTH, maxLines: 2});
@@ -89,6 +110,8 @@ export const RoundedTextBoxScene: React.FC = () => {
       fontFamily: poppins,
       fontSize,
       fontWeight: "700",
+      textTransform: TEXT_TRANSFORM,
+      letterSpacing: LETTER_SPACING,
       additionalStyles: {lineHeight: LINE_HEIGHT},
     }),
   );
@@ -113,7 +136,7 @@ export const RoundedTextBoxScene: React.FC = () => {
       <div style={{position: "absolute", top: 64, width, textAlign: "center", color: palette.textDim, fontSize: 26}}>
         @remotion/rounded-text-box · sized from real text measurements
       </div>
-      <div style={{fontSize: labelFontSize, fontWeight: 500, color: palette.textDim, marginBottom: 12}}>{LABEL}</div>
+      <div style={{fontSize: labelFontSize, fontWeight: 500, fontVariantNumeric: LABEL_NUMERIC, color: palette.textDim, marginBottom: 12}}>{LABEL}</div>
       <div style={{transform: `scale(${scale})`, width: boundingBox.width, height: boundingBox.height, position: "relative"}}>
         <svg
           viewBox={boundingBox.viewBox}
@@ -129,6 +152,8 @@ export const RoundedTextBoxScene: React.FC = () => {
                 fontSize,
                 fontWeight: 700,
                 fontFamily: poppins,
+                textTransform: TEXT_TRANSFORM,
+                letterSpacing: LETTER_SPACING,
                 lineHeight: LINE_HEIGHT,
                 textAlign: "center",
                 paddingLeft: HORIZONTAL_PADDING,
@@ -152,7 +177,7 @@ export const RoundedTextBoxScene: React.FC = () => {
       </div>
       {localFontReady ? (
         <div style={{marginTop: 18, fontFamily: LOCAL_FONT_FAMILY, fontSize: 34, color: palette.accent2}}>
-          loadFont(): self-hosted {LOCAL_FONT_FAMILY}
+          loadFont(): self-hosted {LOCAL_FONT_FAMILY}, weight 400, U+0020-007E
         </div>
       ) : null}
       <div style={{marginTop: 10, fontSize: 14, color: palette.textDim, fontFamily: "monospace"}}>

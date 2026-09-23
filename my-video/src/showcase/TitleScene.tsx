@@ -20,7 +20,9 @@ export const TitleScene: React.FC<TitleSceneProps> = ({title, subtitle}) => {
   const {fps} = useVideoConfig();
   const {exiting} = useTransitionProgress();
 
-  const titleScale = spring({fps, frame, config: {damping: 200}});
+  // A bouncy spring (damping 8) whose overshoot is clamped, starting from
+  // 0.8 rather than 0 so the title grows in instead of popping from nothing.
+  const titleScale = spring({fps, frame, from: 0.8, to: 1, config: {damping: 8, overshootClamping: true}});
   const titleOpacity = interpolate(frame, [0, 15], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",

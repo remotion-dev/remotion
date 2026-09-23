@@ -31,7 +31,9 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
     ],
   );
 
-  const wordmarkScale = spring({fps, frame: frame - 30, config: {damping: 200}});
+  // delay replaces a hand-shifted frame; durationInFrames stretches the
+  // spring to settle in exactly 24 frames.
+  const wordmarkScale = spring({fps, frame, delay: 30, durationInFrames: 24, config: {damping: 200}});
 
   return (
     <AbsoluteFill
@@ -45,6 +47,8 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
       <div style={{...intro, fontSize: 64, fontWeight: 700, color: palette.text, textAlign: "center"}}>
         <Underline
           color={palette.accent2}
+          rtl
+          bowing={3}
           progress={interpolate(frame, [12, 32], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
         >
           Ready
@@ -64,11 +68,11 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
         }}
       >
         Ask in{" "}
-        <Box color={palette.accent} progress={interpolate(frame, [18, 34], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <Box color={palette.accent} strokeWidth={3} padding={{left: 8, right: 8}} progress={interpolate(frame, [18, 34], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
           Claude Chat
         </Box>
         ,{" "}
-        <Circle color={palette.accent2} progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <Circle color={palette.accent2} box="around" roughness={2.5} curveTightness={0.4} progress={interpolate(frame, [24, 40], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
           Claude Cowork
         </Circle>
         , or{" "}
@@ -76,6 +80,7 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
           color={palette.accent}
           bracketLeft
           bracketRight
+          bracketBottom
           progress={interpolate(frame, [30, 46], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}
         >
           Claude Code
@@ -91,11 +96,11 @@ export const OutroScene: React.FC<OutroSceneProps> = ({logoMatrix}) => {
         }}
       >
         No{" "}
-        <StrikeThrough color={palette.textDim} progress={interpolate(frame, [48, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <StrikeThrough color={palette.textDim} seed={7} disableMultiStroke progress={interpolate(frame, [48, 60], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
           manual editing
         </StrikeThrough>
         , no{" "}
-        <CrossedOff color={palette.textDim} progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
+        <CrossedOff color={palette.textDim} maxRandomnessOffset={4} iterations={1} progress={interpolate(frame, [54, 66], [0, 1], {extrapolateLeft: "clamp", extrapolateRight: "clamp"})}>
           timelines
         </CrossedOff>
         .

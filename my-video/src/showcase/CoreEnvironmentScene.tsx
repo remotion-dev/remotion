@@ -49,7 +49,7 @@ import {poppins} from "./font";
 // not something a content scene like this one would reach for.
 export const CoreEnvironmentScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const {width, fps} = useVideoConfig();
+  const {width, fps, id, defaultCodec, defaultOutName} = useVideoConfig();
   const scale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
   const pixelDensity = usePixelDensity({dontThrowIfOutsideOfRemotion: true});
   const environment = useRemotionEnvironment();
@@ -57,12 +57,17 @@ export const CoreEnvironmentScene: React.FC = () => {
   const [staticFiles] = useState(() => getStaticFiles());
   const [watchedChanges, setWatchedChanges] = useState(0);
   const [prefetchStatus, setPrefetchStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [progressEvents, setProgressEvents] = useState(0);
   const buffer = useBufferState();
   const isPlayer = Experimental.useIsPlayer();
 
   useEffect(() => {
     const playback = buffer.delayPlayback();
-    const {free, waitUntilDone} = prefetch(staticFile("sample-clip.mp4"), {method: "blob-url"});
+    const {free, waitUntilDone} = prefetch(staticFile("sample-clip.mp4"), {
+      method: "blob-url",
+      // Never fires in a CLI render: prefetch() resolves immediately there.
+      onProgress: () => setProgressEvents((n) => n + 1),
+    });
     let freed = false;
     // Playback must be released on failure too, or the Studio/Player sits
     // "buffering" forever. free() on unmount rejects with "free() called";
@@ -86,15 +91,19 @@ export const CoreEnvironmentScene: React.FC = () => {
   }, []);
 
   const settleFrames = measureSpring({fps, config: {damping: 200}});
-  const swatchColor = interpolateColors(frame, [0, 75], [palette.accent, palette.accent2]);
+  // A looser threshold counts the spring as settled sooner.
+  const looseSettleFrames = measureSpring({fps, config: {damping: 200}, threshold: 0.05});
+  // Modern color syntaxes and a posterized (stepped) blend between them.
+  const swatchColor = interpolateColors(frame, [0, 75], ["oklch(0.62 0.21 285)", "hsl(188, 85%, 53%)"], {posterize: 5});
 
   const rows = [
     `VERSION: ${VERSION}`,
     `useRemotionEnvironment(): isStudio=${String(environment.isStudio)}, isRendering=${String(environment.isRendering)}`,
     `getInputProps(): ${JSON.stringify(inputProps)}`,
     `useCurrentScale(): ${scale.toFixed(2)} · usePixelDensity(): ${pixelDensity.toFixed(2)}`,
-    `measureSpring({damping: 200}) settles in ${settleFrames} frames`,
-    `prefetch(sample-clip.mp4): ${prefetchStatus} · useBufferState(): playback ${prefetchStatus === "ready" ? "released" : "held"}`,
+    `measureSpring({damping: 200}) settles in ${settleFrames} frames (${looseSettleFrames} at threshold 0.05)`,
+    `prefetch(sample-clip.mp4): ${prefetchStatus}, ${progressEvents} onProgress events · useBufferState(): playback ${prefetchStatus === "loading" ? "held" : "released"}`,
+    `useVideoConfig(): id=${id}, defaultCodec=${defaultCodec}, defaultOutName=${defaultOutName}`,
     `getStaticFiles(): ${staticFiles.length} files in public/ (${staticFiles.slice(0, 2).map((f) => f.name).join(", ")}, …)`,
     `watchStaticFile(sample-clip.mp4): ${environment.isStudio ? `watching, ${watchedChanges} edits seen` : "no-op outside the Studio"}`,
     `Experimental.useIsPlayer(): ${String(isPlayer)}`,

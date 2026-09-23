@@ -27,7 +27,7 @@ export const AnimatedEmojiScene: React.FC = () => {
         @remotion/animated-emoji · self-hosted, no CDN at render time
       </div>
       <div style={{transform: `scale(${scale})`, width: 260, height: 260}}>
-        <AnimatedEmoji emoji="star-struck" scale="0.5" style={{width: 260, height: 260}} />
+        <AnimatedEmoji emoji="star-struck" scale="0.5" playbackRate={1.5} style={{width: 260, height: 260}} />
       </div>
       <div style={{color: palette.textDim, fontSize: 16, fontFamily: "monospace", marginTop: 8}}>
         getAvailableEmojis(): {availableEmojis.length} emoji catalogued

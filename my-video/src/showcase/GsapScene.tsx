@@ -8,6 +8,10 @@ import {poppins} from "./font";
 // from Remotion's own frame instead of letting GSAP's ticker drive it (a
 // ticker-driven timeline would not render the same frame twice, breaking
 // still exports and parallel/out-of-order rendering).
+//
+// Its one option, {dependencies}, rebuilds the timeline when those values
+// change (e.g. props edited in the Studio). This timeline reads no props or
+// state, so it passes none: a rebuild would be invisible in a render anyway.
 export const GsapScene: React.FC = () => {
   const {width} = useVideoConfig();
 

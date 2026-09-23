@@ -19,7 +19,11 @@ import {HtmlInCanvas} from "remotion";
 // capability check (Chrome 149+), so -- exactly like that scene -- it's
 // only used when HtmlInCanvas.isSupported() confirms the browser can do it,
 // falling back to a plain fade() otherwise rather than throwing mid-render.
-const irisWipeShader: HtmlInCanvasShader<Record<string, never>> = (canvas) => {
+// It's a canvas-drawn circular reveal -- the same look as the built-in,
+// CSS-based iris() from @remotion/transitions/iris, which FullReel uses and
+// which needs no HtmlInCanvas support. This one exists to show how a custom
+// presentation is authored.
+const circleRevealShader: HtmlInCanvasShader<Record<string, never>> = (canvas) => {
   const ctx = canvas.getContext("2d")!;
   return {
     clear: () => ctx.clearRect(0, 0, canvas.width, canvas.height),
@@ -44,7 +48,7 @@ const irisWipeShader: HtmlInCanvasShader<Record<string, never>> = (canvas) => {
   };
 };
 
-const irisWipe = makeHtmlInCanvasPresentation(irisWipeShader);
+const circleReveal = makeHtmlInCanvasPresentation(circleRevealShader);
 
 // @remotion/transitions ships a whole family of *other* built-in
 // presentations beyond fade()/slide()/wipe(): bookFlip, crossZoom,
@@ -52,7 +56,7 @@ const irisWipe = makeHtmlInCanvasPresentation(irisWipeShader);
 // zoomBlur, zoomInOut and blurSlide. Every one of them is ALSO built with
 // makeHtmlInCanvasPresentation() internally (see each's source under
 // packages/transitions/src/presentations/), so they all need the exact
-// same Chrome 149+ HTML-in-canvas support as the custom iris-wipe above --
+// same Chrome 149+ HTML-in-canvas support as the custom circle reveal above --
 // this one shared helper wraps any such presentation factory with the same
 // isSupported()-gated fallback to fade(), rather than repeating the same
 // three-line check twelve times.
@@ -62,7 +66,7 @@ const orFallback = <TPassedProps extends Record<string, unknown>>(
 ) => (): TransitionPresentation<Record<string, unknown>> =>
   (HtmlInCanvas.isSupported() ? presentation(props) : fade()) as TransitionPresentation<Record<string, unknown>>;
 
-export const irisWipeOrFallback = orFallback(irisWipe, {});
+export const canvasCircleRevealOrFallback = orFallback(circleReveal, {});
 export const bookFlipOrFallback = orFallback(bookFlip, {});
 export const crossZoomOrFallback = orFallback(crossZoom, {});
 export const crosswarpOrFallback = orFallback(crosswarp, {});
