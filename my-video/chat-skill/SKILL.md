@@ -29,7 +29,7 @@ Every video in this project is bilingual. The speech may be Vietnamese, English 
 - Put Vietnamese on the main line and English on a smaller line under it, with the same timing, as separate strings or caption tracks.
 - Use fonts with Vietnamese glyphs. The Google Font Poppins has no `vietnamese` subset; use e.g. Be Vietnam Pro or Montserrat with `loadFont("normal", {weights: ["400", "700"], subsets: ["vietnamese", "latin"]})`.
 - Use a `lineHeight` of about 1.3 or more, and don't clip text boxes, because Vietnamese marks stack above and below letters.
-- For captions, never use English-only `.en` Whisper models. Use a multilingual one (`small`, `medium`, `large-v3`) with `language: "vi"`; the translate option (`task: "translate"` or `translateToEnglish: true`) gives the English line.
+- For captions, never use English-only `.en` Whisper models. Use a multilingual one (`small`, `medium`, `large-v3`, `large-v3-turbo`) with `language: "vi"`. The translate option (`task: "translate"` or `translateToEnglish: true`) gives the English line, but not on `large-v3-turbo`, which can't translate.
 
 ## Environment rules
 
