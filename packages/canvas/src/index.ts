@@ -33,6 +33,8 @@ export type {
 	CanvasOutlinePoint,
 	CanvasOutlineUv,
 	CanvasOutlineCrop,
+	CanvasOutlineMatrix,
+	CanvasOutlinePath,
 	CanvasOutlineTarget,
 	CanvasOutlineOrderTarget,
 	CanvasOutlineSequenceParent,

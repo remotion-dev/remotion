@@ -59,6 +59,7 @@ export const snapCompositionDropPosition = ({
 		key: 'composition-drop-preview',
 		dimensions: compositionDimensions,
 		uncroppedPoints: null,
+		path: null,
 		points: [
 			{x: left * scale, y: top * scale},
 			{x: right * scale, y: top * scale},
