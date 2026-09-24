@@ -355,10 +355,11 @@ const AssetFolderItem: React.FC<{
 			<ContextMenu getItems={getContextMenuItems}>
 				<Row align="center">
 					<div
+						role="group"
 						style={folderStyle}
 						className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 						tabIndex={tabIndex}
-						title={item.name}
+						aria-label={item.name}
 						onClick={onClick}
 						onDragEnter={(event) => {
 							if (!isAssetUploadDragEvent(event)) {
@@ -391,7 +392,7 @@ const AssetFolderItem: React.FC<{
 							<Spacing x={0.5} />
 							<InlineDropdown
 								variant={null}
-								title="More actions"
+								aria-label="More actions"
 								renderAction={renderContextMenuAction}
 								getItems={getContextMenuItems}
 								style={NO_HOVER_BACKGROUND_STYLE}
@@ -626,6 +627,7 @@ const AssetSelectorItem: React.FC<{
 			<Row align="center">
 				<div
 					ref={rowRef}
+					role="group"
 					style={style}
 					className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 					onClick={onClick}
@@ -633,7 +635,7 @@ const AssetSelectorItem: React.FC<{
 					onDragStart={onDragStart}
 					onDragEnd={onDragEnd}
 					tabIndex={tabIndex}
-					title={item.name}
+					aria-label={item.name}
 				>
 					<AssetFileIcon
 						fileType={previewFileType}
@@ -650,7 +652,7 @@ const AssetSelectorItem: React.FC<{
 							<Spacing x={0.5} />
 							<InlineDropdown
 								variant={null}
-								title="More actions"
+								aria-label="More actions"
 								renderAction={renderContextMenuAction}
 								getItems={getContextMenuItems}
 								style={NO_HOVER_BACKGROUND_STYLE}
@@ -661,7 +663,7 @@ const AssetSelectorItem: React.FC<{
 									<Spacing x={0.5} />
 									<InlineAction
 										variant={null}
-										title={`Show in ${fileManagerName}`}
+										aria-label={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}
 										style={NO_HOVER_BACKGROUND_STYLE}

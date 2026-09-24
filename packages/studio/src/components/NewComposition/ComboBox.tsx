@@ -113,14 +113,14 @@ export const Combobox: React.FC<{
 	readonly values: ComboboxValue[];
 	readonly selectedId: string | number;
 	readonly style?: React.CSSProperties;
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly size?: ComboboxSize;
 	readonly unhoveredIconColor?: string;
 }> = ({
 	values,
 	selectedId,
 	style: customStyle,
-	title,
+	'aria-label': ariaLabel,
 	size: controlSize = 'default',
 	unhoveredIconColor = LIGHT_TEXT,
 }) => {
@@ -308,7 +308,7 @@ export const Combobox: React.FC<{
 		<>
 			<button
 				ref={ref}
-				title={title}
+				aria-label={ariaLabel}
 				tabIndex={tabIndex}
 				type="button"
 				style={style}
@@ -316,7 +316,8 @@ export const Combobox: React.FC<{
 			>
 				{selected ? (
 					<div
-						title={
+						role="group"
+						aria-label={
 							typeof selected.label === 'string' ? selected.label : undefined
 						}
 						style={selectedLabelStyle}

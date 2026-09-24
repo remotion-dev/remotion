@@ -31,7 +31,7 @@ export const RenderQueueError: React.FC<{
 			type="button"
 			style={outputLocation}
 			tabIndex={tabIndex}
-			title={job.error.message}
+			aria-label={job.error.message}
 		>
 			{job.error.message}
 		</button>

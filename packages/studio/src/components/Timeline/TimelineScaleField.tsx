@@ -127,7 +127,6 @@ const LinkToggle: React.FC<{
 			type="button"
 			style={toggleStyle}
 			onPointerDown={onPointerDown}
-			title={linked ? 'Unlink scale axes' : 'Link scale axes'}
 			aria-label={linked ? 'Unlink scale axes' : 'Link scale axes'}
 		>
 			{linked ? (

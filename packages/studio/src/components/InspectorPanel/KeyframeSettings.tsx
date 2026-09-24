@@ -214,7 +214,7 @@ export const KeyframeSettings: React.FC<{
 							<Combobox
 								values={leftValues}
 								selectedId={propStatus.clamping.left}
-								title="Extrapolate left"
+								aria-label="Extrapolate left"
 								style={comboStyle}
 								size="small"
 							/>
@@ -223,7 +223,7 @@ export const KeyframeSettings: React.FC<{
 							<Combobox
 								values={rightValues}
 								selectedId={propStatus.clamping.right}
-								title="Extrapolate right"
+								aria-label="Extrapolate right"
 								style={comboStyle}
 								size="small"
 							/>
@@ -232,7 +232,7 @@ export const KeyframeSettings: React.FC<{
 							<Combobox
 								values={outputValues}
 								selectedId={propStatus.output ?? 'linear'}
-								title="Output"
+								aria-label="Output"
 								style={comboStyle}
 								size="small"
 							/>

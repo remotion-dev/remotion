@@ -13,7 +13,7 @@ export type RenderInlineAction = (color: string) => React.ReactNode;
 
 export type InlineActionProps = Omit<
 	React.ButtonHTMLAttributes<HTMLButtonElement>,
-	'children' | 'onClick' | 'style'
+	'children' | 'onClick' | 'style' | 'title'
 > & {
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderAction: RenderInlineAction;
@@ -27,7 +27,6 @@ export const InlineAction = ({
 	renderAction,
 	onClick,
 	disabled,
-	title,
 	hoveredColor = WHITE,
 	unhoveredColor = LIGHT_TEXT,
 	variant,
@@ -91,8 +90,6 @@ export const InlineAction = ({
 			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
-			title={title}
-			aria-label={buttonProps['aria-label'] ?? title}
 		>
 			{renderAction(CURRENT_COLOR)}
 		</button>

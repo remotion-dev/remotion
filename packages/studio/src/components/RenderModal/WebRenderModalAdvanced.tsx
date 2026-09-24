@@ -285,7 +285,7 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 						<Combobox
 							values={hardwareAccelerationOptions}
 							selectedId={hardwareAcceleration}
-							title="Hardware Acceleration"
+							aria-label="Hardware Acceleration"
 						/>
 					</div>
 				</div>
@@ -324,7 +324,7 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 							<Combobox
 								values={pageResponsivenessOptions}
 								selectedId={selectedPageResponsiveness}
-								title="Page Responsiveness"
+								aria-label="Page Responsiveness"
 							/>
 						</div>
 					</div>

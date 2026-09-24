@@ -94,7 +94,7 @@ const ConfigNumber = ({
 					onClick={() => onChangeEnd(null)}
 					size="compact"
 					style={{color: LIGHT_TEXT}}
-					title={`Use default (${defaultValue})`}
+					aria-label={`Use default (${defaultValue})`}
 				>
 					<UndoIcon style={resetIcon} />
 				</Button>
@@ -225,7 +225,7 @@ export const StudioSettings: React.FC = () => {
 				<div style={label}>
 					Cross-site isolation
 					<InfoBubble
-						title="About cross-site isolation"
+						aria-label="About cross-site isolation"
 						horizontalAlignment="right"
 					>
 						<div

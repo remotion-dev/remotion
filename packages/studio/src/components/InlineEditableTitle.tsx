@@ -113,7 +113,7 @@ export const InlineEditableTitle: React.FC<{
 	readonly onClick?: () => void;
 	readonly onCommit: (newValue: string) => void;
 	readonly size?: 'default' | 'inspector';
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 }> = ({
 	value,
 	canRename,
@@ -121,7 +121,7 @@ export const InlineEditableTitle: React.FC<{
 	onClick,
 	onCommit,
 	size = 'default',
-	title,
+	'aria-label': ariaLabel,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
@@ -242,7 +242,8 @@ export const InlineEditableTitle: React.FC<{
 	return (
 		<div
 			style={isInspectorSize ? inspectorTitleWrapper : titleWrapper}
-			title={title ?? value}
+			aria-label={ariaLabel ?? value}
+			role="group"
 		>
 			<span
 				style={innerStyle}
@@ -262,6 +263,7 @@ export const InlineEditableTitle: React.FC<{
 				{isEditing ? (
 					<input
 						ref={focusInput}
+						aria-label={ariaLabel ?? value}
 						style={{...gridItemStyle, ...inputStyle}}
 						value={draftValue}
 						onChange={onChange}

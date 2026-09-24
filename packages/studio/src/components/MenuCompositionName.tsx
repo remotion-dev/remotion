@@ -117,7 +117,6 @@ export const MenuCompositionName: React.FC = () => {
 						hoveredColor={WHITE}
 						renderAction={() => composition.id}
 						style={compositionNameStyle}
-						title="Open composition menu"
 						unhoveredColor={WHITE_ALPHA_80}
 						variant={null}
 					/>

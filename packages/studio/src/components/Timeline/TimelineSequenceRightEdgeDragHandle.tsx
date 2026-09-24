@@ -1483,7 +1483,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		<div
 			role="separator"
 			aria-orientation="vertical"
-			title="Drag to trim start"
+			aria-label="Drag to trim start"
 			style={style}
 			onPointerDown={onPointerDown}
 		/>
@@ -2080,7 +2080,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		<div
 			role="separator"
 			aria-orientation="vertical"
-			title="Drag to change duration"
+			aria-label="Drag to change duration"
 			style={style}
 			onPointerDown={onPointerDown}
 		/>

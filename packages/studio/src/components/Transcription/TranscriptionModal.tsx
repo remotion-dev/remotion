@@ -198,7 +198,7 @@ const TranscriptionSettingLabel: React.FC<{
 				</label>
 			)}
 			<Spacing x={0.5} />
-			<InfoBubble title={`Learn more about ${name}`}>
+			<InfoBubble aria-label={`Learn more about ${name}`}>
 				<div style={tooltipContent}>{children}</div>
 			</InfoBubble>
 		</div>
@@ -326,7 +326,7 @@ const ModelSettings: React.FC<{
 					<Combobox
 						values={modelOptions}
 						selectedId={selectedModel}
-						title="Whisper model"
+						aria-label="Whisper model"
 						style={controlStyle}
 					/>
 				</div>
@@ -338,7 +338,7 @@ const ModelSettings: React.FC<{
 						<Combobox
 							values={languageOptions}
 							selectedId={selectedLanguage}
-							title="Spoken language"
+							aria-label="Spoken language"
 							style={controlStyle}
 						/>
 					</div>
@@ -351,7 +351,7 @@ const ModelSettings: React.FC<{
 						<Combobox
 							values={taskOptions}
 							selectedId={effectiveTask}
-							title="Task"
+							aria-label="Task"
 							style={controlStyle}
 						/>
 					</div>
@@ -447,7 +447,7 @@ const OutputSettings: React.FC<{
 												<InlineAction
 													onClick={openExistingOutput}
 													renderAction={renderOpenIcon}
-													title={`Open in ${fileManagerName}`}
+													aria-label={`Open in ${fileManagerName}`}
 													variant={null}
 												/>
 											)}
@@ -896,7 +896,7 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 					<Button
 						onClick={onAddToQueue}
 						disabled={!canTranscribe}
-						title={transcribeDisabledReason}
+						aria-label={transcribeDisabledReason}
 						style={{
 							...buttonStyle,
 							backgroundColor: canTranscribe

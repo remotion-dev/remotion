@@ -77,7 +77,7 @@ const TimelineZoomSlider: React.FC<{
 	return (
 		<input
 			style={maxWidth === undefined ? undefined : {maxWidth}}
-			title={`Timeline zoom (${roundedZoom}px/frame)`}
+			aria-label={`Timeline zoom (${roundedZoom}px/frame)`}
 			alt={`Timeline zoom (${roundedZoom}px/frame)`}
 			type="range"
 			min={TIMELINE_ZOOM_SLIDER_PROPS.min}
@@ -146,7 +146,6 @@ const TimelineZoomControlsInner: React.FC<{
 				<ControlButton
 					onClick={onMinusClicked}
 					style={buttonStyle}
-					title=""
 					aria-label="Zoom out timeline"
 					type="button"
 				>
@@ -164,7 +163,6 @@ const TimelineZoomControlsInner: React.FC<{
 				<ControlButton
 					onClick={onPlusClicked}
 					style={buttonStyle}
-					title=""
 					aria-label="Zoom in timeline"
 					type="button"
 				>

@@ -316,7 +316,7 @@ export const NewCompositionFields: React.FC<{
 						values={folderValues}
 						selectedId={selectedFolderId}
 						style={folderSelectStyle}
-						title="Folder"
+						aria-label="Folder"
 					/>
 				</div>
 			</div>

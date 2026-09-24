@@ -70,7 +70,7 @@ export const WebRenderModalPicture: React.FC<WebRenderModalPictureProps> = ({
 							<Combobox
 								values={qualityOptions}
 								selectedId={videoBitrate}
-								title="Quality"
+								aria-label="Quality"
 							/>
 						</div>
 					</div>

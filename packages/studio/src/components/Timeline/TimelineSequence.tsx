@@ -355,9 +355,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	return (
 		<div
 			ref={ref}
+			role="group"
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
-			title={s.displayName}
+			aria-label={s.displayName}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}

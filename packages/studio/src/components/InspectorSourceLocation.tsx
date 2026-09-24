@@ -114,7 +114,7 @@ export const InspectorSourceLocation: React.FC<{
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
 				style={quickActionStyle}
-				title={fileLocation ?? undefined}
+				aria-label={fileLocation ?? undefined}
 			>
 				{label}
 			</InspectorQuickAction>
@@ -125,7 +125,7 @@ export const InspectorSourceLocation: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={fileLocation ?? undefined}
+			aria-label={fileLocation ?? undefined}
 			onClick={onClick}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}

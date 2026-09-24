@@ -234,7 +234,7 @@ const DuplicateCompositionLoaded: React.FC<{
 							<div style={label}>Type</div>
 							<div style={rightRow}>
 								<Combobox
-									title="Type of composition"
+									aria-label="Type of composition"
 									style={comboBoxStyle}
 									values={typeValues}
 									selectedId={type}

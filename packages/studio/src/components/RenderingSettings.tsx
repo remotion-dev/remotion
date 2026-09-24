@@ -446,7 +446,7 @@ export const RenderingSettings: React.FC = () => {
 					<Combobox
 						values={codecValues}
 						selectedId={codec ?? REMOTION_DEFAULT}
-						title="Codec"
+						aria-label="Codec"
 					/>
 				</div>
 			</div>
@@ -463,7 +463,7 @@ export const RenderingSettings: React.FC = () => {
 					<Combobox
 						values={stillFormatValues}
 						selectedId={stillImageFormat ?? REMOTION_DEFAULT}
-						title="Still image format"
+						aria-label="Still image format"
 					/>
 				</div>
 			</div>
@@ -473,7 +473,7 @@ export const RenderingSettings: React.FC = () => {
 					<Combobox
 						values={videoFormatValues}
 						selectedId={videoImageFormat ?? REMOTION_DEFAULT}
-						title="Video frame format"
+						aria-label="Video frame format"
 					/>
 				</div>
 			</div>
@@ -521,7 +521,7 @@ export const RenderingSettings: React.FC = () => {
 						<Combobox
 							values={profileValues}
 							selectedId={proResProfile ?? REMOTION_DEFAULT}
-							title="ProRes profile"
+							aria-label="ProRes profile"
 						/>
 					</div>
 				</div>
@@ -533,7 +533,7 @@ export const RenderingSettings: React.FC = () => {
 						<Combobox
 							values={presetValues}
 							selectedId={x264Preset ?? REMOTION_DEFAULT}
-							title="x264 preset"
+							aria-label="x264 preset"
 						/>
 					</div>
 				</div>
@@ -546,7 +546,7 @@ export const RenderingSettings: React.FC = () => {
 					<Combobox
 						values={audioCodecValues}
 						selectedId={audioCodec ?? REMOTION_DEFAULT}
-						title="Audio codec"
+						aria-label="Audio codec"
 					/>
 				</div>
 			</div>

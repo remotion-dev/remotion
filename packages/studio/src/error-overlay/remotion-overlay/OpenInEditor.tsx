@@ -145,7 +145,6 @@ export const OpenInEditor: React.FC<{
 			onClick={openPreferredEditor}
 			size={size}
 			style={null}
-			title={`Open in ${editorName}`}
 		>
 			<EditorIcon editorId={editorId} size={size === 'default' ? 14 : 18} />
 			Open in {editorName}

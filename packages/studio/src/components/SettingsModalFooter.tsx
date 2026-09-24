@@ -99,7 +99,7 @@ export const SettingsModalFooter: React.FC<{
 						disabled={restarting}
 						onClick={restart}
 						size="compact"
-						title="Restart Studio to apply config file changes"
+						aria-label="Restart Studio to apply config file changes"
 					>
 						{restarting ? 'Restarting...' : 'Restart Studio'}
 					</ModalButton>
@@ -108,7 +108,7 @@ export const SettingsModalFooter: React.FC<{
 						disabled={false}
 						onClick={openLicenseFaq}
 						style={{flex: 'none', width: 'fit-content'}}
-						title="Open the Remotion License FAQ in a new tab"
+						aria-label="Open the Remotion License FAQ in a new tab"
 					>
 						License FAQ
 						<svg

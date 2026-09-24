@@ -661,7 +661,11 @@ const EasingGraphScaffold: React.FC<{
 				width={topLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				<div style={getEasingGraphLabelStyle('left')} title={labels.end}>
+				<div
+					role="group"
+					style={getEasingGraphLabelStyle('left')}
+					aria-label={labels.end}
+				>
 					{labels.end}
 				</div>
 			</foreignObject>
@@ -676,7 +680,11 @@ const EasingGraphScaffold: React.FC<{
 				width={bottomLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				<div style={getEasingGraphLabelStyle('right')} title={labels.start}>
+				<div
+					role="group"
+					style={getEasingGraphLabelStyle('right')}
+					aria-label={labels.start}
+				>
 					{labels.start}
 				</div>
 			</foreignObject>
@@ -715,7 +723,6 @@ const EasingPresetButton: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={preset.label}
 			aria-label={`Apply ${preset.label} easing`}
 			disabled={disabled}
 			onClick={handleClick}

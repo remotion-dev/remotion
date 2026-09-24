@@ -68,7 +68,7 @@ export const ConfigSelect = <T extends string | boolean>({
 						value === null ? DEFAULT_VALUE : `${name}-${String(value)}`
 					}
 					style={controlWidth}
-					title={name}
+					aria-label={name}
 				/>
 			</div>
 		</div>

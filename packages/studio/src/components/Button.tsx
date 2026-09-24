@@ -31,7 +31,7 @@ export type ButtonProps = {
 	readonly style?: React.CSSProperties;
 	readonly buttonContainerStyle?: React.CSSProperties;
 	readonly autoFocus?: boolean;
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 	readonly id?: string;
 	readonly onPointerDown?: React.PointerEventHandler<HTMLButtonElement>;
 };
@@ -43,7 +43,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 	{
 		children,
 		onClick,
-		title,
+		'aria-label': ariaLabel,
 		disabled,
 		size = 'default',
 		style,
@@ -98,7 +98,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 			onClick={onClick}
 			onPointerDown={onPointerDown}
 			autoFocus={autoFocus}
-			title={title}
+			aria-label={ariaLabel}
 		>
 			<div className="css-reset" style={buttonContainer}>
 				{children}

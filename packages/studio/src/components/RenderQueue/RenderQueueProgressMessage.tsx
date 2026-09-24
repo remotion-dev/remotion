@@ -39,7 +39,7 @@ export const RenderQueueProgressMessage: React.FC<{
 			type="button"
 			style={outputLocation}
 			tabIndex={tabIndex}
-			title={message}
+			aria-label={message}
 		>
 			{message}
 		</button>

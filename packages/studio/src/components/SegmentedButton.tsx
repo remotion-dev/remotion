@@ -37,7 +37,6 @@ type SegmentedButtonSegmentCommon = {
 	readonly renderContent: (color: string) => React.ReactNode;
 	readonly segmentId: string;
 	readonly style: React.CSSProperties | null;
-	readonly title: string | null;
 	readonly tooltipLabel: string | null;
 };
 
@@ -189,7 +188,6 @@ const SegmentedButtonAction: React.FC<{
 			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
-			title={segment.title ?? undefined}
 			type="button"
 		>
 			{segment.renderContent(CURRENT_COLOR)}
@@ -349,7 +347,6 @@ const SegmentedButtonMenu: React.FC<{
 			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
-			title={segment.title ?? undefined}
 			type="button"
 		>
 			{segment.renderContent(CURRENT_COLOR)}
@@ -410,10 +407,9 @@ const SegmentedButtonMenu: React.FC<{
 export const SegmentedButton: React.FC<{
 	readonly segments: SegmentedButtonSegment[];
 	readonly style: React.CSSProperties | null;
-	readonly title: string | null;
-}> = ({segments, style, title}) => {
+}> = ({segments, style}) => {
 	return (
-		<div style={{...containerStyle, ...style}} title={title ?? undefined}>
+		<div style={{...containerStyle, ...style}}>
 			{segments.map((segment, index) => {
 				if (segment.type === 'action') {
 					return (
