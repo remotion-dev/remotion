@@ -46,8 +46,8 @@ const libraryRow: React.CSSProperties = {
 
 const libraryIcon: React.CSSProperties = {
 	flexShrink: 0,
-	height: 16,
-	width: 16,
+	height: 22,
+	width: 22,
 };
 
 const libraryDetails: React.CSSProperties = {
