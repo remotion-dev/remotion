@@ -13,8 +13,9 @@ type BrandOverlayProps = z.infer<typeof brandOverlaySchema>;
 
 export const brandOverlayDefaultProps: BrandOverlayProps = {
   name: "Daniel Nguyen",
-  roleVi: "Chuyên viên tư vấn vay",
-  roleEn: "Mortgage Broker · Finance Hub",
+  // The owner's banner: name, then "Mortgage Broker" alone.
+  roleVi: "",
+  roleEn: "Mortgage Broker",
 };
 
 const LOWER_THIRD_FROM = 30;
