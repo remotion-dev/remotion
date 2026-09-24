@@ -90,8 +90,8 @@ const keyboardIcon: React.CSSProperties = {
 
 const elementsIcon: React.CSSProperties = {
 	...icon,
-	height: 20,
-	width: 20,
+	height: 22,
+	width: 22,
 };
 
 export const SettingsModal: React.FC<{
