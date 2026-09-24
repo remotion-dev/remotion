@@ -7,63 +7,71 @@ crumb: 'Getting started'
 
 import {TimingTimeline} from '../components/TimingTimeline';
 
-Use [`from`](/docs/sequence#from) to place a sequence on the parent timeline. Use [`trimBefore`](/docs/sequence#trimbefore) to choose the first frame of its content, and [`durationInFrames`](/docs/sequence#durationinframes) to choose how long it appears.
+## Components
 
-These props are available on [`<Sequence>`](/docs/sequence) and components such as [`<AbsoluteFill>`](/docs/absolute-fill), [`<Gif>`](/docs/gif/gif) and [`Interactive` components](/docs/interactive). Media also has source trimming props, explained below.
+The [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore) and [`durationInFrames`](/docs/sequence#durationinframes) props apply to these timeline components:
+
+- [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
+- [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+- [`<Gif>`](/docs/gif/gif), [`<Lottie>`](/docs/lottie), [`<ThreeCanvas>`](/docs/three-canvas) and [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas).
+- [`@remotion/shapes` components](/docs/shapes), [`<LightLeak>`](/docs/light-leaks/light-leak), [`<Starburst>`](/docs/starburst/starburst), [Rough Notation components](/docs/rough-notation/api), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor) and [MapTiler components](/docs/maps).
+- Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
+
+[`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) also accept these props, but their `trimBefore` selects a frame in the source file, as explained below.
 
 ## Position with `from`
 
-`from` moves a sequence on its parent timeline. By default, its children start at frame `0` when it appears:
+`from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
 <TimingTimeline from={30} durationInFrames={60} />
 
 ```tsx twoslash title="MyComposition.tsx"
-import {Sequence, useCurrentFrame} from 'remotion';
+import {Interactive, useCurrentFrame} from 'remotion';
 
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Sequence from={30} durationInFrames={60}>
+  <Interactive.Div from={30} durationInFrames={60}>
     <Counter />
-  </Sequence>
+  </Interactive.Div>
 );
 ```
 
-The sequence occupies composition frames `30` through `89`. Its counter runs from `0` through `59`.
+The element occupies composition frames `30` through `89`. Its counter runs from `0` through `59`.
 
 ## Trim the beginning and end
 
-`trimBefore` advances the frame seen by the sequence's children when they first appear. It is available from <AvailableFrom v="4.0.482" inline />. Shorten `durationInFrames` to stop rendering the children earlier:
+`trimBefore` skips frames at the start of an item's content. For `<Interactive.Div>`, it advances the frame seen by its children when they first appear. It is available from <AvailableFrom v="4.0.482" inline />. Shorten `durationInFrames` to stop rendering the children earlier:
 
 <TimingTimeline from={30} durationInFrames={45} />
 
 ```tsx twoslash title="MyComposition.tsx"
-import {Sequence, useCurrentFrame} from 'remotion';
+import {Interactive, useCurrentFrame} from 'remotion';
 
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Sequence from={30} trimBefore={15} durationInFrames={45}>
+  <Interactive.Div from={30} trimBefore={15} durationInFrames={45}>
     <Counter />
-  </Sequence>
+  </Interactive.Div>
 );
 ```
 
-The sequence now occupies composition frames `30` through `74`. Its counter runs from `15` through `59`. To trim the end of a sequence, set `durationInFrames`; `<Sequence>` has no `trimAfter` prop.
+The element now occupies composition frames `30` through `74`. Its counter runs from `15` through `59`. To trim the end of `<Interactive.Div>`, set `durationInFrames`; it has no `trimAfter` prop.
 
 ## Change playback speed
 
-From <AvailableFrom v="4.0.528" inline />, `playbackRate` changes how quickly the children's frame advances. At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the sequence returns:
+From <AvailableFrom v="4.0.528" inline />, `playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances. At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the element returns:
 
 ```text
 (t - from) * playbackRate + trimBefore
 ```
 
-For example, adding `playbackRate={2}` to the preceding sequence makes the counter read `15` at composition frame `30` and `35` at frame `40`. The sequence still lasts 45 frames on the parent timeline. Nested sequences apply their timing from the outer sequence to the inner one; their playback rates multiply.
+For example, adding `playbackRate={2}` to the preceding `<Interactive.Div>` makes the counter read `15` at composition frame `30` and `35` at frame `40`. The element still lasts 45 frames on the parent timeline. Nested `<Interactive.Div>` elements apply their timing from the outer element to the inner one; their playback rates multiply.
 
 ## Trimming a media source
 
-[`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media` use their own `trimBefore` and `trimAfter` props to select a range of the source file. `trimAfter` is the frame at which the source range ends, not a number of frames to remove. This differs from `<Sequence trimBefore>`, which advances the timeline seen by all its children.
+[`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media` use their own `trimBefore` and `trimAfter` props to select a range of the source file. `trimAfter` is the frame at which the source range ends, not a number of frames to remove. This differs from `<Interactive.Div trimBefore>`, which advances the timeline seen by all its children.
 
 At 30 FPS, this video plays source frames `45` through `104` (1.5 to 3.5 seconds). At double speed, it takes 30 composition frames and appears from frame `30` through `59`:
 

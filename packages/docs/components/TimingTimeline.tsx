@@ -7,7 +7,7 @@ export const TimingTimeline: React.FC<{
 	return (
 		<div
 			role="img"
-			aria-label={`A sequence on the timeline from frame ${from} through frame ${from + durationInFrames - 1}`}
+			aria-label={`A timeline item from frame ${from} through frame ${from + durationInFrames - 1}`}
 			style={{
 				backgroundColor: '#15181B',
 				borderRadius: 4,
