@@ -22,7 +22,7 @@ The listed components also accept `playbackRate`, except [`<Img>`](/docs/img) an
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
-<TimingTimeline from={30} durationInFrames={30} trimBefore={0} playbackRate={1} />
+<TimingTimeline from={30} trimBefore={0} playbackRate={1} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -30,13 +30,13 @@ import {Interactive, useCurrentFrame} from 'remotion';
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Interactive.Div from={30} durationInFrames={30}>
+  <Interactive.Div from={30}>
     <Counter />
   </Interactive.Div>
 );
 ```
 
-Drag the playhead across the element. The counter on the left shows composition frames `30` through `59`. The label inside the element shows its local frame, `0` through `29`, matching `<Counter>`.
+Drag the playhead across the element. At composition frame `30`, the counter on the left shows `30`, while the label inside the element and `<Counter>` show `0`. At composition frame `40`, the left counter shows `40` and the local frame is `10`.
 
 ## `durationInFrames`: Limit an item
 

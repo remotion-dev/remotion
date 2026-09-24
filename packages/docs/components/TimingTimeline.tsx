@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 
 export const TimingTimeline: React.FC<{
 	readonly from: number;
-	readonly durationInFrames: number;
+	readonly durationInFrames?: number;
 	readonly trimBefore: number;
 	readonly playbackRate: number;
 }> = ({from, durationInFrames, trimBefore, playbackRate}) => {
@@ -10,8 +10,9 @@ export const TimingTimeline: React.FC<{
 	const scrubbingPointer = useRef<number | null>(null);
 	const totalFrames = 90;
 	const fps = 30;
+	const displayedDuration = durationInFrames ?? totalFrames - from;
 	const localFrame =
-		frame >= from && frame < from + durationInFrames
+		frame >= from && frame < from + displayedDuration
 			? (frame - from) * playbackRate + trimBefore
 			: null;
 	const seconds = Math.floor(frame / fps);
@@ -168,7 +169,7 @@ export const TimingTimeline: React.FC<{
 							style={{
 								position: 'absolute',
 								left: `${(from / totalFrames) * 100}%`,
-								width: `${(durationInFrames / totalFrames) * 100}%`,
+								width: `${(displayedDuration / totalFrames) * 100}%`,
 								height: 21,
 								boxSizing: 'border-box',
 								border: '1px solid rgba(255, 255, 255, 0.2)',
