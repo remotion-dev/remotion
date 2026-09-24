@@ -237,7 +237,7 @@ export const CaptionQueueItem: React.FC<{
 							modalTitle="Transcription failed"
 						/>
 					) : (
-						<span style={subtitle} title={message}>
+						<span role="group" style={subtitle} aria-label={message}>
 							{message}
 						</span>
 					)}

@@ -58,14 +58,14 @@ const verticalSpacer: React.CSSProperties = {
 
 const AlignmentButton: React.FC<{
 	readonly onClick: () => void;
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly Icon: React.FC<React.SVGProps<SVGSVGElement>>;
 	readonly disabled: boolean;
-}> = ({onClick, title, Icon, disabled}) => {
+}> = ({onClick, 'aria-label': ariaLabel, Icon, disabled}) => {
 	return (
 		<InlineAction
 			variant={null}
-			title={title}
+			aria-label={ariaLabel}
 			onClick={onClick}
 			renderAction={(color) => <Icon style={iconStyle} color={color} />}
 			disabled={disabled}
@@ -315,38 +315,38 @@ export const AlignmentControls: React.FC<{
 	return (
 		<div style={container}>
 			<AlignmentButton
-				title="Align left"
+				aria-label="Align left"
 				onClick={() => handleAlign('left')}
 				Icon={AlignLeftIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align center horizontally"
+				aria-label="Align center horizontally"
 				onClick={() => handleAlign('center-h')}
 				Icon={AlignCenterHorizontalIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align right"
+				aria-label="Align right"
 				onClick={() => handleAlign('right')}
 				Icon={AlignRightIcon}
 				disabled={alignmentDisabled}
 			/>
 			<div style={verticalSpacer} />
 			<AlignmentButton
-				title="Align top"
+				aria-label="Align top"
 				onClick={() => handleAlign('top')}
 				Icon={AlignTopIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align center vertically"
+				aria-label="Align center vertically"
 				onClick={() => handleAlign('center-v')}
 				Icon={AlignCenterVerticalIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align bottom"
+				aria-label="Align bottom"
 				onClick={() => handleAlign('bottom')}
 				Icon={AlignBottomIcon}
 				disabled={alignmentDisabled}

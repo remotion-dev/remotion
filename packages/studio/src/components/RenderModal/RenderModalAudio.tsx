@@ -159,7 +159,7 @@ export const RenderModalAudio: React.FC<{
 						<Combobox
 							values={audioCodecOptions(codec)}
 							selectedId={audioCodec}
-							title="AudioCodec"
+							aria-label="AudioCodec"
 						/>
 					</div>
 				</div>
@@ -246,7 +246,7 @@ export const RenderModalAudio: React.FC<{
 						<Combobox
 							values={sampleRateOptions}
 							selectedId={String(sampleRate)}
-							title="Sample Rate"
+							aria-label="Sample Rate"
 						/>
 					</div>
 				</div>

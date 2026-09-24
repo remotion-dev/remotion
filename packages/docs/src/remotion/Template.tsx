@@ -67,9 +67,7 @@ export const TemplateComp: React.FC<{
 							alignItems: 'center',
 						}}
 					>
-						{template!.cliId === 'next' ||
-						template!.cliId === 'next-tailwind' ||
-						template!.cliId === 'next-pages-dir' ? null : (
+						{template!.cliId === 'next' ? null : (
 							<>
 								<IconForTemplate scale={1.6} template={template!} />{' '}
 								<div

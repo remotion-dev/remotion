@@ -327,7 +327,8 @@ export const InspectorSequenceSection: React.FC<{
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
-	const {inspectorRevealRequest, selectedItems} = useTimelineSelection();
+	const {inspectorRevealRequest, selectedItems, selectItems} =
+		useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -392,7 +393,7 @@ export const InspectorSequenceSection: React.FC<{
 							style={assetSelectorIcon}
 						/>
 					),
-					title: linkInfo.assetPath,
+					'aria-label': linkInfo.assetPath,
 				};
 			}
 
@@ -408,7 +409,7 @@ export const InspectorSequenceSection: React.FC<{
 					),
 					disabled: false,
 					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
-					title: linkInfo.href,
+					'aria-label': linkInfo.href,
 				};
 			}
 
@@ -757,14 +758,16 @@ export const InspectorSequenceSection: React.FC<{
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
-			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			nodePathInfo,
+			selectItems,
 		});
 	}, [
 		canAddEffect,
-		nodePathInfo.sequenceSubscriptionKey,
+		nodePathInfo,
 		previewServerState,
 		setAdditionalSectionExpanded,
 		setSelectedModal,
+		selectItems,
 		validatedLocation.source,
 	]);
 
@@ -812,7 +815,7 @@ export const InspectorSequenceSection: React.FC<{
 				previewServerState.type !== 'connected'
 			}
 			onClick={onConvertBorderRadius}
-			title={
+			aria-label={
 				borderRadiusConversion === null
 					? borderRadiusUsesShorthand
 						? 'A static border radius is required to use individual corners'
@@ -836,7 +839,7 @@ export const InspectorSequenceSection: React.FC<{
 			variant={null}
 			disabled={automaticallyEnabled3DTransform}
 			onClick={onToggle3DTransform}
-			title={
+			aria-label={
 				automaticallyEnabled3DTransform
 					? '3D controls are required by the current transform values'
 					: show3DTransformControls
@@ -858,7 +861,7 @@ export const InspectorSequenceSection: React.FC<{
 					variant={null}
 					disabled={!canAddEffect}
 					onClick={onAddEffect}
-					title={canAddEffect ? 'Add effect' : undefined}
+					aria-label={canAddEffect ? 'Add effect' : undefined}
 					renderAction={(color) => <Plus color={color} style={plusIcon} />}
 				/>
 			}

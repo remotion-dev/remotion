@@ -175,7 +175,6 @@ export const TimelineLayerChildrenToggle: React.FC<{
 			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			aria-label={label}
 			aria-expanded={!isCollapsed}
-			title={label}
 			onClick={onClick}
 			onPointerDown={stopPropagation}
 			onDoubleClick={stopPropagation}

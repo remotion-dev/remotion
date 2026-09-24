@@ -6,11 +6,11 @@ crumb: '@remotion/studio-protocol'
 
 # addElementLibraryToStudio()<AvailableFrom v="4.0.518" />
 
-Requests that the Element catalog for a third-party Element library is added to a recently focused Remotion Studio project.
+Requests that a third-party Element Library is added to a recently focused Remotion Studio project.
 
 ## Example
 
-```ts twoslash title="add-catalog.ts"
+```ts twoslash title="add-element-library.ts"
 import {addElementLibraryToStudio} from '@remotion/studio-protocol';
 
 const result = await addElementLibraryToStudio({
@@ -31,7 +31,7 @@ Local Studio ports are probed and the most recently focused compatible writable 
 
 ### url
 
-An absolute HTTP or HTTPS URL for the Element catalog. The URL is normalized before it is stored.
+An absolute HTTP or HTTPS URL for the Element Library. The URL is normalized before it is stored.
 
 ### displayName?
 
@@ -77,17 +77,17 @@ A human-readable failure message. Use `code` for application logic.
 
 ## Persistence
 
-After confirmation, Studio adds an object-form [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call to the loaded `remotion.config.ts`. Existing config source and catalog entries are preserved.
+After confirmation, Studio adds an object-form [`Config.addElementLibrary()`](/docs/config#addelementlibrary) call to the loaded `remotion.config.ts`. Existing config source and library entries are preserved.
 
-Catalogs are identified by their normalized URL. Requesting an already configured URL does not add another call or replace its display name.
+Element Libraries are identified by their normalized URL. Requesting an already configured URL does not add another call or replace its display name.
 
 A project without a loaded `remotion.config.ts` returns `no-config-file`.
 
 ## Supported origins
 
-The function supports HTTPS websites. HTTP is supported only on `localhost` and `127.0.0.1` for local development. The catalog itself must use HTTP or HTTPS.
+The function supports HTTPS websites. HTTP is supported only on `localhost` and `127.0.0.1` for local development. The Element Library itself must use HTTP or HTTPS.
 
-The confirmation shows the requesting website, catalog URL, and display name. The catalog is not added or loaded before confirmation. Adding a catalog does not install Element source code or dependencies; each Element installation keeps its own confirmation.
+The confirmation shows the requesting website, Element Library URL, and display name. The Element Library is not added or loaded before confirmation. Adding an Element Library does not install Element source code or dependencies; each Element installation keeps its own confirmation.
 
 ## Compatibility
 

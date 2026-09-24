@@ -89,15 +89,15 @@ export const InspectorBackAction: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly title: string;
-}> = ({children, disabled, onClick, title}) => {
+	readonly 'aria-label': string;
+}> = ({children, disabled, onClick, 'aria-label': ariaLabel}) => {
 	return (
 		<div style={inspectorQuickActionsSection}>
 			<InspectorQuickAction
 				disabled={disabled}
 				onClick={onClick}
 				renderIcon={(color) => <BackArrow color={color} />}
-				title={title}
+				aria-label={ariaLabel}
 			>
 				{children}
 			</InspectorQuickAction>
@@ -189,7 +189,7 @@ export type InspectorQuickActionProps = {
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly size?: 'default' | 'compact';
 	readonly style?: React.CSSProperties;
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 };
 
 export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
@@ -200,7 +200,7 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	renderIcon,
 	size = 'default',
 	style,
-	title,
+	'aria-label': ariaLabel,
 }) => {
 	const showsHover = !disabled && onClick !== null;
 	const buttonStyle = React.useMemo(
@@ -236,13 +236,18 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 			type="button"
 			disabled={disabled}
 			style={buttonStyle}
-			title={title}
+			aria-label={ariaLabel}
 			onClick={onClick}
 		>
 			{mainContent}
 		</button>
 	) : (
-		<div className={HOVERABLE_CLASS_NAME} style={buttonStyle} title={title}>
+		<div
+			className={HOVERABLE_CLASS_NAME}
+			style={buttonStyle}
+			aria-label={ariaLabel}
+			role="group"
+		>
 			{mainContent}
 		</div>
 	);

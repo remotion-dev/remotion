@@ -343,7 +343,7 @@ export const TimelineArrayField: React.FC<{
 							disabled={!canRemove}
 							onClick={() => onRemove(index)}
 							style={canRemove ? button : disabledButton}
-							title={`Remove item ${index}`}
+							aria-label={`Remove item ${index}`}
 							type="button"
 						>
 							-
@@ -353,7 +353,12 @@ export const TimelineArrayField: React.FC<{
 			})}
 			{canAdd ? (
 				<span style={addButtonRow}>
-					<button type="button" style={button} onClick={onAdd} title="Add item">
+					<button
+						type="button"
+						style={button}
+						onClick={onAdd}
+						aria-label="Add item"
+					>
 						+
 					</button>
 				</span>

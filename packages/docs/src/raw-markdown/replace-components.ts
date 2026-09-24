@@ -191,7 +191,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 				thirdPartyElementLibraries
 					.map(
 						(library) =>
-							`- [${library.displayName}](${library.browseUrl})\n  - Element catalog: \`${library.catalogUrl}\``,
+							`- [${library.displayName}](${library.browseUrl})\n  - Element Library: \`${library.libraryUrl}\``,
 					)
 					.join('\n'),
 			removeImport:

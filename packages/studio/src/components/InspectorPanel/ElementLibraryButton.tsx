@@ -110,7 +110,6 @@ export const ElementLibraryButton: React.FC = () => {
 				segmentId: 'element-library',
 				selectedId: null,
 				style: elementLibraryDropdownSegmentStyle,
-				title: 'Choose an Element library to browse inside Studio.',
 				tooltipLabel: null,
 				type: 'menu',
 				values: [
@@ -155,7 +154,6 @@ export const ElementLibraryButton: React.FC = () => {
 			<SegmentedButton
 				segments={elementLibraryDropdownSegments}
 				style={elementLibraryDropdownStyle}
-				title={null}
 			/>
 		);
 	}
@@ -168,7 +166,7 @@ export const ElementLibraryButton: React.FC = () => {
 			renderIcon={(color) => (
 				<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
 			)}
-			title="Browse the Remotion Elements library inside Studio."
+			aria-label="Browse the Remotion Elements library inside Studio."
 		>
 			Browse Elements
 		</InspectorQuickAction>

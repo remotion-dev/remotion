@@ -73,9 +73,8 @@ const containerStyle = (options: {
 	return {
 		transform: `scale(${options.scale})`,
 		// Keep the scaled composition on its own layer so the checkerboard does
-		// not bleed through its edges at fractional preview scales. Using
-		// 'transform' caches the rasterization scale and blurs content after zooming.
-		willChange: 'opacity',
+		// not bleed through its edges at fractional preview scales.
+		willChange: 'transform',
 		marginLeft: options.xCorrection,
 		marginTop: options.yCorrection,
 		width: options.width,

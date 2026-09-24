@@ -227,7 +227,7 @@ const RenderedReleaseNotes: React.FC<{
 					scrolling="no"
 					srcDoc={document}
 					style={{...releaseNotesFrame, height}}
-					title={`Release notes for Remotion v${release.version}`}
+					aria-label={`Release notes for Remotion v${release.version}`}
 				/>
 			)}
 		</>
@@ -437,7 +437,7 @@ export const UpdatesSettings: React.FC = () => {
 					variant={null}
 					onClick={onClick}
 					renderAction={renderCopyAction}
-					title="Copy command"
+					aria-label="Copy command"
 				/>
 			</div>
 			{info.updateAvailable ? (

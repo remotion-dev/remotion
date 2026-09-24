@@ -303,6 +303,32 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
 });
 
+test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={120}
+				height={80}
+				_remotionInternalCanvasSiblings={
+					<div data-testid="second-sample">Second sample</div>
+				}
+			>
+				<div data-testid="first-sample">First sample</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas).not.toBeNull();
+	expect(canvas?.children.length).toBe(2);
+	expect(
+		canvas?.children[0]?.querySelector('[data-testid="first-sample"]'),
+	).not.toBeNull();
+	expect(canvas?.children[1]?.getAttribute('data-testid')).toBe(
+		'second-sample',
+	);
+});
+
 test('<HtmlInCanvas> applies crop props to its canvas', () => {
 	const {container} = render(
 		<SequenceTestWrapper onRegisterSequence={() => undefined}>

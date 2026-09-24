@@ -6,7 +6,13 @@ import type {
 	InteractivitySchema,
 	SequenceControls,
 } from 'remotion';
-import {Freeze, Sequence, Interactive, Internals} from 'remotion';
+import {
+	Freeze,
+	Sequence,
+	Interactive,
+	Internals,
+	useCurrentScale,
+} from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps &
@@ -74,6 +80,7 @@ const MacOSCursorInner: React.FC<
 	const refForOutline = React.useRef<SVGSVGElement | null>(null);
 	const width = resolved?.width ?? undefined;
 	const height = resolved?.height ?? undefined;
+	const currentScale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
 
 	const {
 		effectivePremountFor,
@@ -132,7 +139,9 @@ const MacOSCursorInner: React.FC<
 							...premountingStyle,
 						}}
 					>
+						{/* Reload custom SVG images when the preview scale changes. */}
 						<image
+							key={cursor === 'custom' ? currentScale : undefined}
 							href={resolved.src}
 							width={width}
 							height={height}

@@ -1583,10 +1583,13 @@ export const Root = () => {
 
 	const result = await operations.applyCodemod({
 		codemod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'MyComp',
-			folderName: 'target-folder',
-			parentName: null,
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'MyComp'},
+			destination: {
+				type: 'folder',
+				folderName: 'target-folder',
+				parentName: null,
+			},
 		},
 		dryRun: false,
 		undoRedoNavigation: null,
@@ -1953,7 +1956,13 @@ export const Comp = () => (
 		effectConfig: {color: 'red'},
 		clientId: 'browser-studio',
 	});
-	expect(addResult).toEqual({success: true});
+	expect(addResult).toEqual({
+		success: true,
+		insertedEffect: {
+			effectIndex: 2,
+			nodePath: expect.any(Array),
+		},
+	});
 	expect(currentProject.files[fileName]).toContain('tint({');
 	expect(currentProject.files['/project/package.json']).toContain(
 		'"@remotion/effects": "4.0.514"',

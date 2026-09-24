@@ -247,10 +247,6 @@ const getCodemodTargetCompositionId = (
 		return codemod.idToDelete;
 	}
 
-	if (codemod.type === 'move-composition-to-folder') {
-		return codemod.idToMove;
-	}
-
 	if (
 		codemod.type === 'move-composition-or-folder' &&
 		codemod.source.type === 'composition'
@@ -451,23 +447,6 @@ const applyCompositionCodemod = ({
 				unwrapFolder({
 					...target,
 					folder: {name: codemod.folderName, parentName: codemod.parentName},
-				}),
-			);
-		case 'move-composition-to-folder':
-			return apply(
-				moveComposition({
-					...target,
-					compositionId: codemod.idToMove,
-					destination:
-						codemod.folderName === null
-							? {type: 'root'}
-							: {
-									type: 'folder',
-									folder: {
-										name: codemod.folderName,
-										parentName: codemod.parentName,
-									},
-								},
 				}),
 			);
 		case 'move-composition-or-folder': {
@@ -1120,7 +1099,13 @@ export const createBrowserStudioOperations = ({
 							result.changes,
 						),
 				});
-				return {success: true};
+				return {
+					success: true,
+					insertedEffect: {
+						effectIndex: result.insertedEffect.effectIndex,
+						nodePath: result.insertedEffect.nodePath,
+					},
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}

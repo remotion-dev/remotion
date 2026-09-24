@@ -144,7 +144,6 @@ export const saveSequencePropsInProject = ({
 		project: nextProject,
 		response: {
 			canUpdate: true,
-			props: firstResult.props,
 			results,
 		},
 	};

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/codemods",
-	"version": "4.0.527",
+	"version": "4.0.528",
 	"description": "Codemods for Remotion projects",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",

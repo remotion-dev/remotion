@@ -129,10 +129,10 @@ test('escapes line separators before writing a config value', () => {
 	);
 });
 
-test('adds Element catalogs without replacing or duplicating existing calls', () => {
+test('adds Element Libraries without replacing or duplicating existing calls', () => {
 	const configContents = [
 		"import {Config} from '@remotion/cli/config';",
-		'// Keep this catalog and comment.',
+		'// Keep this library and comment.',
 		"Config.addElementLibrary({url: 'https://existing.example.com/'});",
 		'Config.setOverwriteOutput(true);',
 		'',
@@ -145,21 +145,21 @@ test('adds Element catalogs without replacing or duplicating existing calls', ()
 				setter: 'addElementLibrary',
 				type: 'set',
 				value: {
-					url: 'https://new.example.com/catalog',
-					displayName: " O'Reilly \\ Catalog\u2028Name ",
+					url: 'https://new.example.com/library',
+					displayName: " O'Reilly \\ Library\u2028Name ",
 				},
 			},
 		],
 	});
 
-	expect(updated).toContain('// Keep this catalog and comment.');
+	expect(updated).toContain('// Keep this library and comment.');
 	expect(updated).toContain(
 		"Config.addElementLibrary({url: 'https://existing.example.com/'});",
 	);
 	expect(updated).toContain('Config.setOverwriteOutput(true);');
-	expect(updated).toContain("'url': 'https://new.example.com/catalog'");
+	expect(updated).toContain("'url': 'https://new.example.com/library'");
 	expect(updated).toContain(
-		"'displayName': 'O\\'Reilly \\\\ Catalog\\u2028Name'",
+		"'displayName': 'O\\'Reilly \\\\ Library\\u2028Name'",
 	);
 
 	const repeated = updateConfigFile({
@@ -169,7 +169,7 @@ test('adds Element catalogs without replacing or duplicating existing calls', ()
 			{
 				setter: 'addElementLibrary',
 				type: 'set',
-				value: {url: 'https://new.example.com/catalog'},
+				value: {url: 'https://new.example.com/library'},
 			},
 		],
 	});
@@ -191,7 +191,7 @@ test('adds Element catalogs without replacing or duplicating existing calls', ()
 	).toBe(configContents);
 });
 
-test('uses runtime catalogs for dynamic config deduplication and skips no-op writes', async () => {
+test('uses runtime Element Libraries for dynamic config deduplication and skips no-op writes', async () => {
 	const directory = mkdtempSync(join(tmpdir(), 'remotion-config-update-'));
 	const configFile = join(directory, 'remotion.config.ts');
 	const configContents = [
@@ -245,7 +245,7 @@ test('uses runtime catalogs for dynamic config deduplication and skips no-op wri
 						type: 'set',
 						value: {
 							url: 'https://new.example.com',
-							displayName: ' New catalog ',
+							displayName: ' New library ',
 						},
 					},
 				],
@@ -255,7 +255,7 @@ test('uses runtime catalogs for dynamic config deduplication and skips no-op wri
 		expect(additionResponse).toEqual({success: true});
 		const addedContents = readFileSync(configFile, 'utf8');
 		expect(addedContents).toContain("'url': 'https://new.example.com/'");
-		expect(addedContents).toContain("'displayName': 'New catalog'");
+		expect(addedContents).toContain("'displayName': 'New library'");
 		expect(configChangeEvent).toMatchObject({
 			originatorClientId: 'settings-client',
 			type: 'changed',
@@ -395,7 +395,7 @@ test('rejects invalid updates without changing the config', async () => {
 				{
 					setter: 'addElementLibrary',
 					type: 'set' as const,
-					value: {url: 'file:///tmp/catalog'},
+					value: {url: 'file:///tmp/library'},
 				},
 			],
 			[
@@ -403,7 +403,7 @@ test('rejects invalid updates without changing the config', async () => {
 					setter: 'addElementLibrary',
 					type: 'set' as const,
 					value: {
-						url: 'https://catalog.example.com',
+						url: 'https://library.example.com',
 						displayName: '  ',
 					},
 				},

@@ -116,7 +116,7 @@ const SplitSequenceQuickAction: React.FC<{
 		<InspectorQuickAction
 			disabled={!canSplit}
 			onClick={onSplit}
-			title={disabledReason}
+			aria-label={disabledReason}
 			renderIcon={(color) => (
 				<ScissorsIcon style={actionIconStyle} color={color} />
 			)}
@@ -292,7 +292,7 @@ const SequenceSourceQuickActions: React.FC<{
 				<InspectorQuickAction
 					disabled={videoMattingDisabledReason !== undefined}
 					onClick={onRemoveBackground}
-					title={videoMattingDisabledReason}
+					aria-label={videoMattingDisabledReason}
 					renderIcon={(color) => (
 						<BackgroundRemovalIcon style={actionIconStyle} color={color} />
 					)}
@@ -304,7 +304,7 @@ const SequenceSourceQuickActions: React.FC<{
 				<InspectorQuickAction
 					disabled={splitVideoFromAudioDisabledReason !== undefined}
 					onClick={onSplitVideoFromAudio}
-					title={splitVideoFromAudioDisabledReason}
+					aria-label={splitVideoFromAudioDisabledReason}
 					renderIcon={(color) => (
 						<AudioIcon style={actionIconStyle} color={color} />
 					)}
@@ -316,7 +316,7 @@ const SequenceSourceQuickActions: React.FC<{
 				<InspectorQuickAction
 					disabled={transcriptionDisabledReason !== undefined}
 					onClick={onGenerateCaptions}
-					title={transcriptionDisabledReason}
+					aria-label={transcriptionDisabledReason}
 					renderIcon={(color) => (
 						<TranscriptionIcon style={actionIconStyle} color={color} />
 					)}

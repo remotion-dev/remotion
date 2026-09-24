@@ -94,7 +94,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 							valid={zodValidation.success}
 						/>
 						<Combobox
-							title="Select type"
+							aria-label="Select type"
 							values={comboBoxValues}
 							selectedId={value[discriminator] as string}
 							size="small"

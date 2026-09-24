@@ -80,7 +80,7 @@ type Props = {
 	readonly width?: number;
 	readonly height?: number;
 	readonly borderRadius?: number;
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 	readonly name?: string;
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
@@ -94,7 +94,7 @@ export const ColorPicker: React.FC<Props> = ({
 	width = 45,
 	height = 25,
 	borderRadius = 3,
-	title,
+	'aria-label': ariaLabel,
 	name,
 	className,
 	style: customStyle,
@@ -296,7 +296,7 @@ export const ColorPicker: React.FC<Props> = ({
 						.join(' ')}
 					disabled={disabled}
 					name={name}
-					title={title ?? value}
+					aria-label={ariaLabel ?? value}
 					tabIndex={tabIndex}
 					style={swatchStyle}
 					onPointerDown={onTriggerPointerDown}
@@ -312,7 +312,6 @@ export const ColorPicker: React.FC<Props> = ({
 						onPointerDown={onEyeDropperPointerDown}
 						onClick={onPickWithEyeDropper}
 						tabIndex={tabIndex}
-						title="Pick color from screen"
 						aria-label="Pick color from screen"
 					>
 						<EyedropperIcon style={eyedropperIconStyle} color={CURRENT_COLOR} />

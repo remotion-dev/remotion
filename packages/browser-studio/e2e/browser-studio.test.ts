@@ -221,7 +221,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				.toBe(true);
 			const studio = page.frameLocator('iframe');
 			await expect(
-				studio.getByTitle('/project').getByText('MyComp'),
+				studio
+					.getByRole('group', {name: '/project', exact: true})
+					.getByText('MyComp'),
 			).toBeVisible();
 			await expect(
 				studio.locator('.remotion-studio-composition-container'),
@@ -305,7 +307,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await secondQuickSwitcherInput.press('Escape');
 
 			await studio.locator('[data-compname="MyComp"]').click();
-			await studio.getByRole('button', {name: 'Render in browser'}).click();
+			await studio
+				.getByRole('button', {name: /Export the current composition/})
+				.click();
 			await expect(
 				studio.getByText('Input Props', {exact: true}),
 			).toBeVisible();
@@ -328,7 +332,7 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await inspector.click();
 			await studio.getByRole('button', {name: 'Add Solid'}).click();
 			const solid = studio.locator(
-				'[data-timeline-marquee-item][title="<Solid>"]',
+				'[data-timeline-marquee-item][aria-label="<Solid>"]',
 			);
 			await expect(solid).toBeVisible();
 			await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
@@ -365,7 +369,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(studio.getByText(/addition/)).toBeVisible();
 			await studio.getByRole('button', {name: /^Add to /}).click();
 			await expect(
-				studio.getByTitle('/project').getByText('测试'),
+				studio
+					.getByRole('group', {name: '/project', exact: true})
+					.getByText('测试'),
 			).toBeVisible();
 			await expect
 				.poll(() => new URL(page.url()).search)
@@ -380,7 +386,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				'MyComp / template-blank - Remotion Studio',
 				{timeout: 5000},
 			);
-			await studio.getByRole('button', {name: 'Render in browser'}).click();
+			await studio
+				.getByRole('button', {name: /Export the current composition/})
+				.click();
 			await expect(
 				studio.getByText('Render MyComp in the browser', {exact: true}),
 			).toBeVisible();
@@ -532,7 +540,11 @@ test('loads Browser Studio from one immutable release artifact set', async ({
 
 	await page.goto('/?source=release');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await studio.locator('[data-compname="MyComp"]').click();
 	await expect(
 		studio.locator('.remotion-studio-composition-container'),
@@ -604,7 +616,9 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	await page.goto('/?github=1');
 	const studio = page.frameLocator('iframe');
 	await expect(
-		studio.getByTitle('/project').getByText('OpfsComp'),
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('OpfsComp'),
 	).toBeVisible();
 	await expect.poll(() => new URL(page.url()).search).toBe('?/OpfsComp');
 	await studio.locator('[data-compname="OpfsComp"]').click();
@@ -762,7 +776,7 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	await expect(
 		secondPage
 			.frameLocator('iframe')
-			.getByTitle('/project')
+			.getByRole('group', {name: '/project', exact: true})
 			.getByText('OpfsComp'),
 	).toBeVisible();
 	expect(
@@ -782,7 +796,9 @@ export const Root = () => <Composition id="OpfsComp" component={OpfsComposition}
 	const previousDirectoryName = projectStorage.storage?.directoryName;
 	await page.goto('/?github=1');
 	await expect(
-		studio.getByTitle('/project').getByText('OpfsComp'),
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('OpfsComp'),
 	).toBeVisible();
 	const reloadedStorage = await page.evaluate(
 		() => window.__browserStudioProject.publicFileStorage,
@@ -826,7 +842,11 @@ test('drops a local image onto the canvas and imports it into the virtual projec
 
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await waitForBrowserStudioOperations(studio);
 	await studio.locator('[data-compname="MyComp"]').click();
 	const canvas = studio.locator('.remotion-studio-composition-container');
@@ -903,7 +923,11 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await waitForBrowserStudioOperations(studio);
 	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
 	const assetSelector = studio.locator('[data-asset-selector]');
@@ -968,7 +992,11 @@ test('installs packages without a server API and preserves undo, redo, and HMR',
 
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await waitForBrowserStudioOperations(studio);
 	await studio.locator('body').evaluate(() => {
 		(
@@ -1070,7 +1098,11 @@ test('fetches each HTTP module once when the vendor bundle is overridden', async
 
 	await page.goto('/?source=fallback');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await expect(
 		studio.locator('.remotion-studio-composition-container'),
 	).toBeVisible();
@@ -1131,7 +1163,11 @@ test('loads the local Transformers bundle on demand from the vendor Blob bundle'
 
 	await page.goto('/?source=transformers-vendor');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	expect(vendorBundleRequests).toHaveLength(1);
 	expect(
 		await studio.locator('script[type="module"]').getAttribute('src'),
@@ -1191,7 +1227,11 @@ test('uses a custom Transformers resolution in the fallback bundle', async ({
 
 	await page.goto('/?source=transformers-override');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	expect(vendorBundleRequests).toEqual([]);
 	expect(fakeTransformersRequests).toEqual([]);
 
@@ -1216,7 +1256,11 @@ test('drops and imports an Element payload with the deployment Remotion version'
 }) => {
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await studio.locator('[data-compname="MyComp"]').click();
 	const canvas = studio.locator('.remotion-studio-composition-container');
 	await expect(canvas).toBeVisible();
@@ -1365,7 +1409,11 @@ export const LinkedElement = () => <Rect width={320} height={180} fill="red" />;
 
 	await page.goto(url);
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 
 	await expect(
 		studio.getByText('Install Linked Element', {exact: true}),
@@ -1447,7 +1495,11 @@ test('reports inline SVG imports as unsupported without changing the project', a
 }) => {
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await studio.locator('[data-compname="MyComp"]').click();
 	const canvas = studio.locator('.remotion-studio-composition-container');
 	await expect(canvas).toBeVisible();
@@ -1499,7 +1551,11 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 }) => {
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
-	await expect(studio.getByTitle('/project').getByText('MyComp')).toBeVisible();
+	await expect(
+		studio
+			.getByRole('group', {name: '/project', exact: true})
+			.getByText('MyComp'),
+	).toBeVisible();
 	await waitForBrowserStudioOperations(studio);
 	await studio.locator('[data-compname="MyComp"]').click();
 	await studio.locator('[data-sidebar-toggle="right"]').click();
@@ -1531,7 +1587,9 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	const neutralArea = studio.locator('[data-sidebar-toggle="right"]');
 
 	await addSolid.click();
-	const solid = studio.locator('[data-timeline-marquee-item][title="<Solid>"]');
+	const solid = studio.locator(
+		'[data-timeline-marquee-item][aria-label="<Solid>"]',
+	);
 	await expect(solid).toBeVisible();
 	await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
 	await studio.locator('body').press('Escape');
@@ -1563,7 +1621,10 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await neutralArea.hover();
 
 	await studio.getByRole('button', {name: 'Assets', exact: true}).click();
-	const assetFolder = studio.getByTitle('hover-folder', {exact: true});
+	const assetFolder = studio.getByRole('group', {
+		name: 'hover-folder',
+		exact: true,
+	});
 	await expect(assetFolder).toBeVisible();
 	await assetFolder.hover();
 	const folderActions = assetFolder.getByRole('button', {
@@ -1578,7 +1639,10 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect(studio.getByText(/^Show in /)).toHaveCount(0);
 	await page.keyboard.press('Escape');
 
-	const assetItem = studio.getByTitle('hover-test.txt', {exact: true});
+	const assetItem = studio.getByRole('group', {
+		name: 'hover-test.txt',
+		exact: true,
+	});
 	await expect(assetItem).toBeVisible();
 	await assetItem.hover();
 	await expect

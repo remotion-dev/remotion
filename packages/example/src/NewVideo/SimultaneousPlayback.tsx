@@ -1,5 +1,10 @@
 import {Video} from '@remotion/media';
-import {CalculateMetadataFunction, Composition, random} from 'remotion';
+import {
+	CalculateMetadataFunction,
+	Composition,
+	Html5Video,
+	random,
+} from 'remotion';
 import {z} from 'zod';
 import {getMediaMetadata} from '../get-media-metadata';
 
@@ -18,6 +23,7 @@ const sourcePool = [
 export const simultaneousPlaybackSchema = z.object({
 	instances: z.number().int().min(1).max(64),
 	differentSources: z.boolean(),
+	mediaTag: z.enum(['Video', 'Html5Video']),
 });
 
 type SimultaneousPlaybackProps = z.infer<typeof simultaneousPlaybackSchema>;
@@ -47,6 +53,7 @@ const calculateMetadata: CalculateMetadataFunction<
 const SimultaneousPlayback = ({
 	instances,
 	differentSources,
+	mediaTag,
 }: SimultaneousPlaybackProps) => {
 	const columns = Math.ceil(Math.sqrt(instances));
 	const rows = Math.ceil(instances / columns);
@@ -72,20 +79,26 @@ const SimultaneousPlayback = ({
 								random(`simultaneous-playback-${index}`) * sourcePool.length,
 							);
 
-				return (
+				const videoSrc = differentSources ? sourcePool[sourceIndex] : src;
+				const style = {
+					height: '100%',
+					minHeight: 0,
+					minWidth: 0,
+					width: '100%',
+					objectFit: 'cover' as const,
+				};
+
+				return mediaTag === 'Video' ? (
 					<Video
 						key={index}
-						src={differentSources ? sourcePool[sourceIndex] : src}
+						src={videoSrc}
 						muted
 						debugOverlay
 						objectFit="cover"
-						style={{
-							height: '100%',
-							minHeight: 0,
-							minWidth: 0,
-							width: '100%',
-						}}
+						style={style}
 					/>
+				) : (
+					<Html5Video key={index} src={videoSrc} muted style={style} />
 				);
 			})}
 		</div>
@@ -102,6 +115,7 @@ export const SimultaneousPlaybackComp = () => {
 			defaultProps={{
 				instances: 4,
 				differentSources: true,
+				mediaTag: 'Video',
 			}}
 		/>
 	);

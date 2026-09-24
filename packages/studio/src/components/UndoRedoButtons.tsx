@@ -166,7 +166,7 @@ export const UndoRedoButtons: React.FC = () => {
 				variant={null}
 				onClick={onUndo}
 				renderAction={renderUndo}
-				title={undoTooltip}
+				aria-label={undoTooltip}
 				disabled={!canUndo}
 				unhoveredColor={WHITE_ALPHA_80}
 			/>
@@ -174,7 +174,7 @@ export const UndoRedoButtons: React.FC = () => {
 				variant={null}
 				onClick={onRedo}
 				renderAction={renderRedo}
-				title={redoTooltip}
+				aria-label={redoTooltip}
 				disabled={!canRedo}
 				unhoveredColor={WHITE_ALPHA_80}
 			/>

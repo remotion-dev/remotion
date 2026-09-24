@@ -414,15 +414,13 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
-export type SubscribeToSequencePropsBatchRequest =
-	SubscribeToSequencePropsRequest & {
-		requests?: SubscribeToSequencePropsRequest[];
-	};
+export type SubscribeToSequencePropsBatchRequest = {
+	requests: SubscribeToSequencePropsRequest[];
+};
 
-export type SubscribeToSequencePropsBatchResponse =
-	SubscribeToSequencePropsResponse & {
-		results: SubscribeToSequencePropsResponse[];
-	};
+export type SubscribeToSequencePropsBatchResponse = {
+	results: SubscribeToSequencePropsResponse[];
+};
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
@@ -517,7 +515,6 @@ export type SaveSequencePropsResult = {
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
 			results: SaveSequencePropsResult[];
 	  }
 	| {
@@ -581,6 +578,10 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			insertedEffect: {
+				effectIndex: number;
+				nodePath: SequencePropsSubscriptionKey['nodePath'];
+			};
 	  }
 	| {
 			success: false;
@@ -1248,6 +1249,7 @@ export type ConfigUpdate =
 	| {
 			setter: string;
 			type: 'delete';
+			value?: string;
 	  }
 	| {
 			setter: string;

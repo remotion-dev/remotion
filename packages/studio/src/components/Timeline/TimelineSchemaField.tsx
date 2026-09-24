@@ -112,10 +112,13 @@ export const UnsupportedStatus: React.FC<{
 
 	return (
 		<span
+			role="group"
 			style={unsupportedStatusWrapper}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
-			title={formattedValue && typeof label === 'string' ? label : undefined}
+			aria-label={
+				formattedValue && typeof label === 'string' ? label : undefined
+			}
 		>
 			<span
 				style={formattedValue ? computedValue : unsupportedLabel}
@@ -128,7 +131,7 @@ export const UnsupportedStatus: React.FC<{
 					type="button"
 					className={`${FOCUS_VISIBLE_ONLY_CLASS_NAME} ${HOVERABLE_CLASS_NAME}`}
 					style={fixLink}
-					title="Fix computed Studio value"
+					aria-label="Fix computed Studio value"
 					onClick={(event) => {
 						stopMousePropagation(event);
 						onFix();
