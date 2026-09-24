@@ -63,6 +63,7 @@ const makeRawFrame = (
 	type: 'remotion-shared-memory',
 	poolId: 4,
 	sharedMemoryName: '/rmshm-123',
+	backend: 'posix-shm',
 	slotCount: 2,
 	slotCapacity: 1088,
 	slot: 1,
@@ -285,6 +286,7 @@ test('signals pool retirement before waiting for an unhanded frame to drain', as
 		height: 16,
 		indent: false,
 		logLevel: 'error',
+		backingDirectory: null,
 	});
 	await capture.ensurePage(page);
 	const reservation = await capture.acquire(page);
@@ -380,6 +382,7 @@ test('releases a published frame if transparent background reset fails', async (
 		height: 16,
 		indent: false,
 		logLevel: 'error',
+		backingDirectory: null,
 	});
 	await capture.ensurePage(page);
 
@@ -452,6 +455,7 @@ test('uses raw viewport capture for every video image format and falls back on v
 		height: 16,
 		indent: false,
 		logLevel: 'error',
+		backingDirectory: null,
 	});
 	await rawCapture.ensurePage(rawPage);
 
@@ -516,6 +520,7 @@ test('uses raw viewport capture for every video image format and falls back on v
 		height: 16,
 		indent: false,
 		logLevel: 'error',
+		backingDirectory: null,
 	});
 	await fallbackCapture.ensurePage(vanillaPage);
 	const encoded = await screenshotTask({

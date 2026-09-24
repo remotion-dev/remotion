@@ -95,8 +95,14 @@ export const getExpectedVersion = ({
 		return version;
 	}
 
-	if (chromeMode === 'headless-shell' && platform === 'mac-arm64') {
-		return `${TESTED_VERSION}-remotion-v2`;
+	// Remotion-patched builds get their own cache marker so an existing stock or
+	// older patched download of the same Chromium version is replaced once.
+	if (
+		chromeMode === 'headless-shell' &&
+		(platform === 'mac-arm64' ||
+			(platform === 'linux-arm64' && isAmazonLinux2023()))
+	) {
+		return `${TESTED_VERSION}-remotion-v3`;
 	}
 
 	return TESTED_VERSION;

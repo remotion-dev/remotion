@@ -108,7 +108,9 @@ export function getChromeDownloadUrl({
 		// Amazon Linux 2023 on arm64 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && chromeMode === 'headless-shell' && !version) {
-			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0.zip?clear';
+			// v3 of the Remotion shared-memory patch: file-backed frame pools for hosts
+			// without /dev/shm, such as AWS Lambda.
+			return 'https://remotion.media/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0-v3.zip?clear';
 		}
 
 		if (chromeMode === 'chrome-for-testing') {
@@ -130,7 +132,7 @@ export function getChromeDownloadUrl({
 
 	if (chromeMode === 'headless-shell') {
 		if (platform === 'mac-arm64' && version === null) {
-			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`;
+			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}-v3.zip?clear`;
 		}
 
 		// Amazon Linux 2023 needs a special build.

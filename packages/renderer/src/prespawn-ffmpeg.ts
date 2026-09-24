@@ -67,11 +67,24 @@ type PreStitcherOptions = {
 	hardwareAcceleration: HardwareAccelerationOption;
 	onLog: OnLog;
 	inputMode: 'encoded-image' | 'remotion-shared-memory';
+	// Private per-render directory passed as -pool_dir so FFmpeg may open
+	// file-backed pools created there. null when unsupported or unused.
+	remotionSharedMemoryPoolDirectory: string | null;
 };
 
-const remotionSharedMemorySupport = new Map<string, Promise<boolean>>();
+export type RemotionSharedMemoryFfmpegSupport = {
+	sharedMemory: boolean;
+	// The remotionshm device accepts -pool_dir and file-backed pools, which
+	// hosts without /dev/shm (such as AWS Lambda) need.
+	filePools: boolean;
+};
 
-export const ffmpegSupportsRemotionSharedMemory = ({
+const remotionSharedMemorySupport = new Map<
+	string,
+	Promise<RemotionSharedMemoryFfmpegSupport>
+>();
+
+export const probeRemotionSharedMemoryFfmpegSupport = ({
 	binariesDirectory,
 	indent,
 	logLevel,
@@ -86,9 +99,9 @@ export const ffmpegSupportsRemotionSharedMemory = ({
 		return cached;
 	}
 
-	const result = (async () => {
+	const result = (async (): Promise<RemotionSharedMemoryFfmpegSupport> => {
 		try {
-			const task = callFf({
+			const devices = await callFf({
 				bin: 'ffmpeg',
 				args: ['-hide_banner', '-devices'],
 				indent,
@@ -96,12 +109,30 @@ export const ffmpegSupportsRemotionSharedMemory = ({
 				binariesDirectory,
 				cancelSignal: undefined,
 			});
-			const output = await task;
-			return /(?:^|\n)\s*D\s{2}remotionshm(?:\s|$)/.test(
-				`${output.stdout}\n${output.stderr}`,
-			);
+			if (
+				!/(?:^|\n)\s*D\s{2}remotionshm(?:\s|$)/.test(
+					`${devices.stdout}\n${devices.stderr}`,
+				)
+			) {
+				return {sharedMemory: false, filePools: false};
+			}
+
+			const help = await callFf({
+				bin: 'ffmpeg',
+				args: ['-hide_banner', '-h', 'demuxer=remotionshm'],
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignal: undefined,
+			});
+			return {
+				sharedMemory: true,
+				filePools: /(?:^|\n)\s*-pool_dir\s/.test(
+					`${help.stdout}\n${help.stderr}`,
+				),
+			};
 		} catch {
-			return false;
+			return {sharedMemory: false, filePools: false};
 		}
 	})();
 	remotionSharedMemorySupport.set(key, result);
@@ -202,6 +233,9 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 					['-framerate', fpsAsFraction(options.fps)],
 					['-control_fd', '3'],
 					['-ack_fd', '4'],
+					options.remotionSharedMemoryPoolDirectory === null
+						? null
+						: ['-pool_dir', options.remotionSharedMemoryPoolDirectory],
 					['-i', 'remotion'],
 				]
 			: [

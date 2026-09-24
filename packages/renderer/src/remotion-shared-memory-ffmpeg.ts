@@ -31,8 +31,10 @@ type PendingFrame = {
 
 const pendingKey = (poolId: number, slot: number) => `${poolId}:${slot}`;
 
+// The optional sixth field names the backend. It is omitted for POSIX shared
+// memory so FFmpeg binaries that predate file-backed pools keep working.
 export const serializeRemotionSharedMemoryPool = (frame: RemotionRawFrame) =>
-	`P\t${frame.poolId}\t${frame.sharedMemoryName}\t${frame.slotCount}\t${frame.slotCapacity}\n`;
+	`P\t${frame.poolId}\t${frame.sharedMemoryName}\t${frame.slotCount}\t${frame.slotCapacity}${frame.backend === 'file' ? '\tfile' : ''}\n`;
 
 export const serializeRemotionSharedMemoryFrame = ({
 	frame,

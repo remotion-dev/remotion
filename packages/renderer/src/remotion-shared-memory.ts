@@ -1,5 +1,8 @@
 import type {Page} from './browser/BrowserPage';
-import type {RemotionRawFrame as CdpRemotionRawFrame} from './browser/devtools-types';
+import type {
+	RemotionRawFrame as CdpRemotionRawFrame,
+	RemotionFramePoolBackend,
+} from './browser/devtools-types';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -7,10 +10,24 @@ import {Log} from './logger';
 const encoderPadding = 64;
 const slotsPerPage = 1;
 
+// Escape hatch for testing a specific backend, for example the file backend on
+// a host that also has POSIX shared memory. Unset means "auto".
+export const getPreferredRemotionSharedMemoryBackend = ():
+	| 'auto'
+	| RemotionFramePoolBackend => {
+	const value = process.env.REMOTION_SHARED_MEMORY_BACKEND;
+	if (value === 'posix-shm' || value === 'file') {
+		return value;
+	}
+
+	return 'auto';
+};
+
 type FramePool = {
 	page: Page;
 	poolId: number;
 	sharedMemoryName: string;
+	backend: RemotionFramePoolBackend;
 	slotCount: number;
 	slotCapacity: number;
 	availableSlots: number[];
@@ -36,6 +53,7 @@ export type RemotionRawFrame = CdpRemotionRawFrame & {
 	type: 'remotion-shared-memory';
 	poolId: number;
 	sharedMemoryName: string;
+	backend: RemotionFramePoolBackend;
 	slotCount: number;
 	slotCapacity: number;
 	poolLifetime: RemotionSharedMemoryPoolLifetime;
@@ -69,6 +87,9 @@ export class RemotionSharedMemoryCapture {
 		height: number;
 		indent: boolean;
 		logLevel: LogLevel;
+		// Private per-render directory for file-backed pools, or null when the
+		// FFmpeg binary cannot open them (then only POSIX shared memory is tried).
+		backingDirectory: string | null;
 	};
 
 	constructor(options: {
@@ -76,6 +97,7 @@ export class RemotionSharedMemoryCapture {
 		height: number;
 		indent: boolean;
 		logLevel: LogLevel;
+		backingDirectory: string | null;
 	}) {
 		this.#options = options;
 	}
@@ -112,7 +134,7 @@ export class RemotionSharedMemoryCapture {
 				this.#supported = false;
 				Log.verbose(
 					{indent: this.#options.indent, logLevel: this.#options.logLevel},
-					'Remotion shared-memory capture is unavailable. Falling back to encoded screenshots.',
+					`Remotion shared-memory capture is unavailable. Falling back to encoded screenshots. Reason: ${error instanceof Error ? error.message : String(error)}`,
 				);
 			}
 		})();
@@ -221,6 +243,7 @@ export class RemotionSharedMemoryCapture {
 					type: 'remotion-shared-memory',
 					poolId: pool.poolId,
 					sharedMemoryName: pool.sharedMemoryName,
+					backend: pool.backend,
 					slotCount: pool.slotCount,
 					slotCapacity: pool.slotCapacity,
 					poolLifetime: pool.poolLifetime,
@@ -299,17 +322,43 @@ export class RemotionSharedMemoryCapture {
 			);
 		}
 
+		const preferredBackend = getPreferredRemotionSharedMemoryBackend();
+		const {backingDirectory} = this.#options;
+		if (preferredBackend === 'file' && backingDirectory === null) {
+			throw new Error(
+				'REMOTION_SHARED_MEMORY_BACKEND=file requires an FFmpeg binary that supports file-backed pools (-pool_dir).',
+			);
+		}
+
 		const {value} = await page._client().send('Page.remotionCreateFramePool', {
 			slotCount: slotsPerPage,
 			slotCapacity,
+			...(backingDirectory === null ? {} : {backingDirectory}),
+			...(preferredBackend === 'auto' ? {} : {preferredBackend}),
 		});
+		// Chromium builds before v3 of the patch only know POSIX shared memory and
+		// omit the backend field.
+		const backend = value.backend ?? 'posix-shm';
 		if (
 			!value.sharedMemoryName ||
 			value.slotCount !== slotsPerPage ||
-			value.slotCapacity !== slotCapacity
+			value.slotCapacity !== slotCapacity ||
+			(backend !== 'posix-shm' && backend !== 'file') ||
+			(backend === 'posix-shm' &&
+				!/^\/rmshm-[A-Za-z0-9._-]+$/.test(value.sharedMemoryName)) ||
+			(backend === 'file' &&
+				(backingDirectory === null ||
+					!value.sharedMemoryName.startsWith(`${backingDirectory}/rmshm-`)))
 		) {
 			throw new Error(
-				'Chromium returned invalid Remotion frame pool metadata.',
+				`Chromium returned invalid Remotion frame pool metadata: ${JSON.stringify(value)}`,
+			);
+		}
+
+		if (this.#pools.size === 0) {
+			Log.verbose(
+				{indent: this.#options.indent, logLevel: this.#options.logLevel},
+				`Remotion shared-memory capture uses the ${backend === 'file' ? `file backend in ${backingDirectory}` : 'POSIX shared-memory backend'}.`,
 			);
 		}
 
@@ -350,6 +399,7 @@ export class RemotionSharedMemoryCapture {
 			page,
 			poolId: this.#nextPoolId++,
 			sharedMemoryName: value.sharedMemoryName,
+			backend,
 			slotCount: value.slotCount,
 			slotCapacity: value.slotCapacity,
 			availableSlots: Array.from(

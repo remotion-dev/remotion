@@ -771,15 +771,37 @@ export interface RemotionRawFrame {
 	capturePath: string;
 }
 
+export type RemotionFramePoolBackend = 'posix-shm' | 'file';
+
 export interface RemotionCreateFramePoolRequest {
 	slotCount: number;
 	slotCapacity: number;
+	/**
+	 * Absolute path of a private directory. Chromium creates the pool as a
+	 * regular file inside it when POSIX shared memory is unavailable, for
+	 * example on AWS Lambda where `/dev/shm` does not exist. Ignored by
+	 * Chromium builds that only support POSIX shared memory.
+	 */
+	backingDirectory?: string;
+	/**
+	 * `auto` (default) prefers POSIX shared memory and falls back to
+	 * `backingDirectory`; `posix-shm` and `file` require that backend.
+	 */
+	preferredBackend?: 'auto' | RemotionFramePoolBackend;
 }
 
 export interface RemotionCreateFramePoolResponse {
+	/**
+	 * A POSIX shared-memory name such as `/rmshm-123`, or for the `file`
+	 * backend the absolute path of the created pool file.
+	 */
 	sharedMemoryName: string;
 	slotCount: number;
 	slotCapacity: number;
+	/**
+	 * Absent in Chromium builds that only support POSIX shared memory.
+	 */
+	backend?: RemotionFramePoolBackend;
 }
 
 export interface RemotionReleaseFrameRequest {

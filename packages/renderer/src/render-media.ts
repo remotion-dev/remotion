@@ -58,8 +58,8 @@ import {
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {
-	ffmpegSupportsRemotionSharedMemory,
 	prespawnFfmpeg,
+	probeRemotionSharedMemoryFfmpegSupport,
 } from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
@@ -495,19 +495,28 @@ const internalRenderMediaRaw = async ({
 		});
 	const actualWidth = widthEvenDimensions * scale;
 	const actualHeight = heightEvenDimensions * scale;
-	const canUseRemotionSharedMemory =
-		preEncodedFileLocation !== null &&
-		(await ffmpegSupportsRemotionSharedMemory({
-			binariesDirectory,
-			indent,
-			logLevel,
-		}));
-	const remotionSharedMemory = canUseRemotionSharedMemory
+	const remotionSharedMemorySupport =
+		preEncodedFileLocation === null
+			? null
+			: await probeRemotionSharedMemoryFfmpegSupport({
+					binariesDirectory,
+					indent,
+					logLevel,
+				});
+	// Chromium creates file-backed frame pools in this private directory when
+	// POSIX shared memory is unavailable (no /dev/shm, as on AWS Lambda). It is
+	// only offered when the FFmpeg binary can open such pools via -pool_dir.
+	const remotionSharedMemoryPoolDirectory =
+		remotionSharedMemorySupport?.filePools
+			? fs.mkdtempSync(path.join(workingDir, 'shm-pools-'))
+			: null;
+	const remotionSharedMemory = remotionSharedMemorySupport?.sharedMemory
 		? new RemotionSharedMemoryCapture({
 				width: Math.round(actualWidth),
 				height: Math.round(actualHeight),
 				indent,
 				logLevel,
+				backingDirectory: remotionSharedMemoryPoolDirectory,
 			})
 		: null;
 
@@ -598,6 +607,10 @@ const internalRenderMediaRaw = async ({
 				hardwareAcceleration,
 				onLog,
 				inputMode,
+				remotionSharedMemoryPoolDirectory:
+					inputMode === 'remotion-shared-memory'
+						? remotionSharedMemoryPoolDirectory
+						: null,
 			});
 			preStitcherInputMode = inputMode;
 			stitcherFfmpeg = preStitcher.task;
