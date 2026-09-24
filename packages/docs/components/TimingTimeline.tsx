@@ -139,9 +139,7 @@ export const TimingTimeline: React.FC<{
 											backgroundColor: 'rgba(255, 255, 255, 0.15)',
 										}}
 									/>
-									{tickFrame > 0 &&
-									tickFrame % fps === 0 &&
-									tickFrame < totalFrames ? (
+									{tickFrame % fps === 0 && tickFrame < totalFrames ? (
 										<span
 											style={{
 												position: 'absolute',
