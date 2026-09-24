@@ -4,14 +4,15 @@ export const TimingTimeline: React.FC<{
 	readonly from: number;
 	readonly durationInFrames: number;
 	readonly trimBefore: number;
-}> = ({from, durationInFrames, trimBefore}) => {
+	readonly playbackRate: number;
+}> = ({from, durationInFrames, trimBefore, playbackRate}) => {
 	const [frame, setFrame] = useState(from);
 	const scrubbingPointer = useRef<number | null>(null);
 	const totalFrames = 90;
 	const fps = 30;
 	const localFrame =
 		frame >= from && frame < from + durationInFrames
-			? frame - from + trimBefore
+			? (frame - from) * playbackRate + trimBefore
 			: null;
 	const seconds = Math.floor(frame / fps);
 	const timecode = `00:${String(seconds).padStart(2, '0')}.${String(frame % fps).padStart(2, '0')}`;

@@ -22,7 +22,7 @@ The listed components also accept `playbackRate`, except [`<Img>`](/docs/img) an
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
-<TimingTimeline from={30} durationInFrames={30} trimBefore={0} />
+<TimingTimeline from={30} durationInFrames={30} trimBefore={0} playbackRate={1} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -42,7 +42,7 @@ Drag the playhead across the element. The counter on the left shows composition 
 
 `trimBefore` skips the beginning of an item's content without moving the item from its `from` position. Set `durationInFrames` to control how long it remains on the parent timeline. For `<Interactive.Div>`, `trimBefore` advances the frame seen by its children when they first appear. It is available on `<Interactive.Div>` from <AvailableFrom v="4.0.482" inline />:
 
-<TimingTimeline from={30} durationInFrames={45} trimBefore={15} />
+<TimingTimeline from={30} durationInFrames={45} trimBefore={15} playbackRate={1} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -64,13 +64,34 @@ The element now occupies composition frames `30` through `74`. The counter on th
 
 ## Change playback speed
 
-From <AvailableFrom v="4.0.528" inline />, `playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances. At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the element returns:
+From <AvailableFrom v="4.0.528" inline />, `playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances. At `2×` speed, the child advances two frames for each composition frame:
+
+<TimingTimeline from={30} durationInFrames={45} trimBefore={15} playbackRate={2} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div
+    from={30}
+    trimBefore={15}
+    durationInFrames={45}
+    playbackRate={2}
+  >
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+At composition frame `30`, the label inside the element and `<Counter>` show `15`. At frame `40`, they show `35`. The element still lasts 45 frames on the parent timeline. At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the element returns:
 
 ```text
 (t - from) * playbackRate + trimBefore
 ```
 
-For example, adding `playbackRate={2}` to the preceding `<Interactive.Div>` makes the counter read `15` at composition frame `30` and `35` at frame `40`. The element still lasts 45 frames on the parent timeline. Nested `<Interactive.Div>` elements apply their timing from the outer element to the inner one; their playback rates multiply.
+Nested `<Interactive.Div>` elements apply their timing from the outer element to the inner one; their playback rates multiply.
 
 ## Trim a media source with `trimAfter`
 
