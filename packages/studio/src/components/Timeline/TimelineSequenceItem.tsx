@@ -146,61 +146,122 @@ type SequenceReorderDragData = {
 	readonly fileName: string;
 };
 
-type TimelineSequenceExpandArrowProps = {
+type TimelineSequenceLabelProps = {
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
-	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly sequence: TSequence;
+	readonly canHaveExpandableContent: boolean;
+	readonly displayName: string;
+	readonly fallbackDisplayName: string;
+	readonly selected: boolean;
+	readonly containsSelection: boolean;
+	readonly editing: boolean;
+	readonly onCancelEditing: () => void;
+	readonly onSaveName: (name: string) => Promise<void>;
+	readonly numberOfHiddenDuplicates: number;
 };
 
-const TimelineSequenceExpandArrowInner: React.FC<
-	TimelineSequenceExpandArrowProps
-> = ({disabled, isExpanded, nodePathInfo, selectedItems, sequence}) => {
+const TimelineSequenceLabelInner: React.FC<TimelineSequenceLabelProps> = ({
+	disabled,
+	isExpanded,
+	nodePathInfo,
+	selectedItems,
+	sequence,
+	canHaveExpandableContent,
+	displayName,
+	fallbackDisplayName,
+	selected,
+	containsSelection,
+	editing,
+	onCancelEditing,
+	onSaveName,
+	numberOfHiddenDuplicates,
+}) => {
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const hasExpandableContent = useTimelineSequenceHasExpandableContent({
 		sequence,
 		nodePathInfo,
 		selectedItems,
 	});
-	const onToggleExpand = useCallback(
-		() => toggleTrack(nodePathInfo),
-		[nodePathInfo, toggleTrack],
-	);
-
-	if (!hasExpandableContent) {
-		return <TimelineExpandArrowSpacer />;
-	}
+	const showChevronSlot = canHaveExpandableContent && nodePathInfo !== null;
+	const showChevron = showChevronSlot && hasExpandableContent;
+	const onToggleExpand = useCallback(() => {
+		if (nodePathInfo !== null) {
+			toggleTrack(nodePathInfo);
+		}
+	}, [nodePathInfo, toggleTrack]);
 
 	return (
-		<TimelineExpandArrowButton
-			isExpanded={isExpanded}
-			onClick={onToggleExpand}
-			label="track properties"
-			disabled={disabled}
-		/>
+		<>
+			<TimelineSequenceName
+				displayName={displayName}
+				fallbackDisplayName={fallbackDisplayName}
+				selected={selected}
+				containsSelection={containsSelection}
+				editing={editing}
+				onCancelEditing={onCancelEditing}
+				onSaveName={onSaveName}
+				chevronSlot={
+					showChevronSlot && !editing && numberOfHiddenDuplicates === 0
+						? showChevron
+							? 'occupied'
+							: 'empty'
+						: 'none'
+				}
+			/>
+			{numberOfHiddenDuplicates > 0 ? (
+				<>
+					<Spacing x={0.5} />
+					<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
+				</>
+			) : null}
+			{showChevronSlot ? (
+				<>
+					<Spacing x={0.5} />
+					{showChevron ? (
+						<TimelineExpandArrowButton
+							isExpanded={isExpanded}
+							onClick={onToggleExpand}
+							label="track properties"
+							disabled={disabled}
+						/>
+					) : (
+						<TimelineExpandArrowSpacer />
+					)}
+				</>
+			) : null}
+		</>
 	);
 };
 
-const areTimelineSequenceExpandArrowPropsEqual = (
-	first: TimelineSequenceExpandArrowProps,
-	second: TimelineSequenceExpandArrowProps,
-) => {
-	return (
+const TimelineSequenceLabel = React.memo(
+	TimelineSequenceLabelInner,
+	(first, second) =>
 		first.disabled === second.disabled &&
 		first.isExpanded === second.isExpanded &&
 		first.selectedItems === second.selectedItems &&
+		first.canHaveExpandableContent === second.canHaveExpandableContent &&
+		first.displayName === second.displayName &&
+		first.fallbackDisplayName === second.fallbackDisplayName &&
+		first.selected === second.selected &&
+		first.containsSelection === second.containsSelection &&
+		first.editing === second.editing &&
+		first.onCancelEditing === second.onCancelEditing &&
+		first.onSaveName === second.onSaveName &&
+		first.numberOfHiddenDuplicates === second.numberOfHiddenDuplicates &&
 		first.sequence.controls?.schema === second.sequence.controls?.schema &&
 		first.sequence.controls?.runtimeValues ===
 			second.sequence.controls?.runtimeValues &&
 		first.sequence.effects === second.sequence.effects &&
-		areSequenceNodePathInfosEqual(first.nodePathInfo, second.nodePathInfo)
-	);
-};
-
-const TimelineSequenceExpandArrow = React.memo(
-	TimelineSequenceExpandArrowInner,
-	areTimelineSequenceExpandArrowPropsEqual,
+		(first.nodePathInfo === second.nodePathInfo ||
+			(first.nodePathInfo !== null &&
+				second.nodePathInfo !== null &&
+				areSequenceNodePathInfosEqual(
+					first.nodePathInfo,
+					second.nodePathInfo,
+				))),
 );
 
 const sequenceReorderWrapper: React.CSSProperties = {
@@ -1488,7 +1549,7 @@ const TimelineSequenceItemInner: React.FC<{
 						<Spacing x={0.5} />
 					</>
 				) : null}
-				<TimelineSequenceName
+				<TimelineSequenceLabel
 					displayName={timelineDisplayName}
 					fallbackDisplayName={fallbackDisplayName}
 					selected={selected}
@@ -1496,25 +1557,14 @@ const TimelineSequenceItemInner: React.FC<{
 					editing={isRenaming}
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
+					numberOfHiddenDuplicates={numberOfHiddenDuplicates}
+					canHaveExpandableContent={hasExpandableContent}
+					disabled={!previewInteractive}
+					isExpanded={isExpanded}
+					nodePathInfo={nodePathInfo}
+					selectedItems={selectedItems}
+					sequence={sequence}
 				/>
-				{numberOfHiddenDuplicates > 0 ? (
-					<>
-						<Spacing x={0.5} />
-						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
-					</>
-				) : null}
-				{hasExpandableContent && nodePathInfo !== null ? (
-					<>
-						<Spacing x={0.5} />
-						<TimelineSequenceExpandArrow
-							disabled={!previewInteractive}
-							isExpanded={isExpanded}
-							nodePathInfo={nodePathInfo}
-							selectedItems={selectedItems}
-							sequence={sequence}
-						/>
-					</>
-				) : null}
 				{mediaSrc ? (
 					<>
 						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />

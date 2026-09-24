@@ -27,7 +27,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 	selectedItems,
 }: {
 	readonly sequence: TSequence;
-	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly selectedItems: readonly TimelineSelection[];
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
@@ -42,6 +42,10 @@ export const useTimelineSequenceHasExpandableContent = ({
 	);
 	const selectHasExpandableContent = useCallback(
 		(runtimeValues: Readonly<Record<string, unknown>>) => {
+			if (nodePathInfo === null) {
+				return false;
+			}
+
 			const tree = buildTimelineTree({
 				sequence,
 				nodePathInfo,

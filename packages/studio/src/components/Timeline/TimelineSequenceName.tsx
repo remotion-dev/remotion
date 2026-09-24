@@ -9,6 +9,9 @@ import {
 const MAX_DISPLAY_NAME_LENGTH = 1000;
 const MAX_RENAME_INPUT_WIDTH = 240;
 const RENAME_INPUT_CLASS_NAME = 'remotion-timeline-sequence-name-input';
+const LABEL_FONT_FAMILY = 'Arial, Helvetica, sans-serif';
+// 4px gap + 12px chevron + 4px chevron margin.
+const CHEVRON_SLOT_WIDTH = 20;
 
 const getTruncatedDisplayName = (displayName: string): string => {
 	if (displayName.length > MAX_DISPLAY_NAME_LENGTH) {
@@ -26,6 +29,7 @@ export const TimelineSequenceName: React.FC<{
 	readonly editing: boolean;
 	readonly onCancelEditing: () => void;
 	readonly onSaveName: (name: string) => Promise<void>;
+	readonly chevronSlot: 'none' | 'empty' | 'occupied';
 }> = ({
 	displayName,
 	fallbackDisplayName,
@@ -34,6 +38,7 @@ export const TimelineSequenceName: React.FC<{
 	editing,
 	onCancelEditing,
 	onSaveName,
+	chevronSlot,
 }) => {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [draftName, setDraftName] = useState(displayName);
@@ -45,11 +50,12 @@ export const TimelineSequenceName: React.FC<{
 			...getTimelineSelectedLabelStyle(selected, false),
 			display: 'inline-flex',
 			flexShrink: 1,
-			fontFamily: 'inherit',
+			fontFamily: LABEL_FONT_FAMILY,
 			fontSize: 12,
 			lineHeight: 'normal',
 			minWidth: 0,
-			overflow: 'hidden',
+			overflow: chevronSlot === 'none' ? 'hidden' : 'visible',
+			position: chevronSlot === 'none' ? undefined : 'relative',
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			color: getTimelineColor(selected, false),
@@ -61,7 +67,7 @@ export const TimelineSequenceName: React.FC<{
 					? `inset 0 0 0 2px ${TIMELINE_SELECTED_LABEL_BACKGROUND}`
 					: undefined,
 		};
-	}, [selected, containsSelection]);
+	}, [selected, containsSelection, chevronSlot]);
 
 	const inputStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -69,7 +75,7 @@ export const TimelineSequenceName: React.FC<{
 			background: TRANSPARENT,
 			border: 0,
 			color: getTimelineColor(false, false),
-			fontFamily: 'inherit',
+			fontFamily: LABEL_FONT_FAMILY,
 			fontSize: 12,
 			outline: 'none',
 			paddingBottom: 0,
@@ -148,6 +154,70 @@ export const TimelineSequenceName: React.FC<{
 					style={inputStyle}
 				/>
 			</>
+		);
+	}
+
+	if (chevronSlot !== 'none') {
+		// Keep the name's flex width fixed while its visible text uses the empty slot.
+		return (
+			<div
+				title={text}
+				style={{...style, backgroundColor: undefined, boxShadow: undefined}}
+			>
+				<div
+					aria-hidden
+					style={{
+						fontFamily: LABEL_FONT_FAMILY,
+						fontSize: 12,
+						lineHeight: 'normal',
+						visibility: 'hidden',
+					}}
+				>
+					{text}
+				</div>
+				<div
+					style={{
+						...style,
+						backgroundColor: undefined,
+						boxShadow: undefined,
+						boxSizing: 'border-box',
+						clipPath:
+							chevronSlot === 'occupied'
+								? `inset(0 ${CHEVRON_SLOT_WIDTH}px 0 0)`
+								: undefined,
+						height: '100%',
+						left: 0,
+						overflow: 'hidden',
+						paddingLeft: 0,
+						paddingRight: 0,
+						pointerEvents: 'none',
+						position: 'absolute',
+						top: 0,
+						width: `calc(100% + ${CHEVRON_SLOT_WIDTH}px)`,
+					}}
+				>
+					<div
+						style={{
+							...getTimelineSelectedLabelStyle(selected, false),
+							alignItems: 'center',
+							boxShadow: style.boxShadow,
+							boxSizing: 'border-box',
+							color: getTimelineColor(selected, false),
+							display: 'inline-flex',
+							fontFamily: LABEL_FONT_FAMILY,
+							fontSize: 12,
+							height: '100%',
+							lineHeight: 'normal',
+							maxWidth: '100%',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						{text}
+					</div>
+				</div>
+			</div>
 		);
 	}
 
