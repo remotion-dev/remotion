@@ -5,21 +5,15 @@ title: Timing and trimming
 crumb: 'Getting started'
 ---
 
-An item's position in the composition and the frame of its content are separate. Use [`from`](/docs/sequence#from) and [`durationInFrames`](/docs/sequence#durationinframes) to control when it appears. Use [`trimBefore`](/docs/sequence#trimbefore) and [`playbackRate`](/docs/sequence#playbackrate) to control which frame its children see.
+import {TimingTimeline} from '../components/TimingTimeline';
 
-These timing props are available on [`<Sequence>`](/docs/sequence) and components such as [`<AbsoluteFill>`](/docs/absolute-fill), [`<Gif>`](/docs/gif/gif) and [`Interactive` components](/docs/interactive). Media also has source trimming props, which work differently from a sequence's `trimBefore`.
+Use [`trimBefore`](/docs/sequence#trimbefore) to choose the first frame of a sequence's content, and [`durationInFrames`](/docs/sequence#durationinframes) to choose how long it appears. Use [`from`](/docs/sequence#from) to place it on the parent timeline.
 
-## Position, trim and speed
+These props are available on [`<Sequence>`](/docs/sequence) and components such as [`<AbsoluteFill>`](/docs/absolute-fill), [`<Gif>`](/docs/gif/gif) and [`Interactive` components](/docs/interactive). Media also has source trimming props, explained below.
 
-For a `<Sequence>`, `from` and `durationInFrames` are measured in the parent timeline. A finite `durationInFrames` unmounts the children at the end of that interval, without changing their frame number.
+## Trim the beginning and end
 
-From <AvailableFrom v="4.0.482" inline />, `trimBefore` advances the children's frame when they first appear. From <AvailableFrom v="4.0.528" inline />, `playbackRate` changes how quickly that frame advances. At parent frame `t`, the frame returned by [`useCurrentFrame()`](/docs/use-current-frame) inside the sequence is:
-
-```text
-(t - from) * playbackRate + trimBefore
-```
-
-For example:
+`trimBefore` advances the frame seen by a sequence's children when they first appear. It is available from <AvailableFrom v="4.0.482" inline />. Set `durationInFrames` to stop rendering the children after a given number of frames.
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Sequence, useCurrentFrame} from 'remotion';
@@ -27,15 +21,45 @@ import {Sequence, useCurrentFrame} from 'remotion';
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Sequence from={30} durationInFrames={60} trimBefore={10} playbackRate={2}>
+  <Sequence trimBefore={15} durationInFrames={45}>
     <Counter />
   </Sequence>
 );
 ```
 
-The counter appears at composition frame `30` and reads `10`. At composition frame `40`, it reads `30`. It remains visible through frame `89`; changing the speed does not change its 60-frame duration in the parent timeline.
+<TimingTimeline from={0} durationInFrames={45} />
 
-Nested sequences apply their timing in order from the outer sequence to the inner one. Their playback rates multiply. To trim the end of a sequence, set `durationInFrames`; `<Sequence>` has no `trimAfter` prop.
+The sequence occupies composition frames `0` through `44`. Its counter starts at `15` and ends at `59`. To trim the end of a sequence, set `durationInFrames`; `<Sequence>` has no `trimAfter` prop.
+
+## Position with `from`
+
+`from` moves the sequence on its parent timeline. It does not change the first frame seen by its children:
+
+```tsx twoslash title="MyComposition.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Sequence from={30} trimBefore={15} durationInFrames={45}>
+    <Counter />
+  </Sequence>
+);
+```
+
+<TimingTimeline from={30} durationInFrames={45} />
+
+The sequence now occupies composition frames `30` through `74`. Its counter still runs from `15` through `59`.
+
+## Change playback speed
+
+From <AvailableFrom v="4.0.528" inline />, `playbackRate` changes how quickly the children's frame advances. At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the sequence returns:
+
+```text
+(t - from) * playbackRate + trimBefore
+```
+
+For example, adding `playbackRate={2}` to the preceding sequence makes the counter read `15` at composition frame `30` and `35` at frame `40`. The sequence still lasts 45 frames on the parent timeline. Nested sequences apply their timing from the outer sequence to the inner one; their playback rates multiply.
 
 ## Trimming a media source
 
