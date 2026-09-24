@@ -63,7 +63,7 @@ test('Player seeks publish boundaries before frame updates and stay local to eac
 
 	// The animation path updates frames without publishing navigation intent.
 	act(() =>
-		timelines[0].setFrame((frames) => ({
+		timelines[0].setFrameWithoutSeek((frames) => ({
 			...frames,
 			[Object.keys(frames)[0]]: 90,
 		})),

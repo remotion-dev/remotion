@@ -550,7 +550,7 @@ export const TimelineKeyframeControls: React.FC<{
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const setFrame = Internals.Timeline.useTimelineSeekFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -718,7 +718,7 @@ export const TimelineKeyframeControls: React.FC<{
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number, direction: 'fit-left' | 'fit-right') => {
-			setFrame((current) => {
+			seekFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
@@ -729,7 +729,7 @@ export const TimelineKeyframeControls: React.FC<{
 				frame,
 			});
 		},
-		[setFrame, videoConfig.durationInFrames, videoConfig.id],
+		[seekFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 
 	const onPrevious = useCallback(
