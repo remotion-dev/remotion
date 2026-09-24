@@ -36,7 +36,7 @@ export const MyComposition = () => (
 );
 ```
 
-The element occupies composition frames `30` through `59`. Its counter runs from `0` through `29`.
+Drag the playhead across the element. The Studio counter shows composition frames `30` through `59`, while `<Counter>` inside the element runs from `0` through `29`.
 
 ## Trim the beginning and end
 
@@ -60,7 +60,7 @@ export const MyComposition = () => (
 );
 ```
 
-The element now occupies composition frames `30` through `74`. Its counter runs from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`. To trim the end of `<Interactive.Div>`, set `durationInFrames`; it has no `trimAfter` prop.
+The element now occupies composition frames `30` through `74`. The Studio counter shows those frames, while `<Counter>` inside the element runs from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`. To trim the end of `<Interactive.Div>`, set `durationInFrames`; it has no `trimAfter` prop.
 
 ## Change playback speed
 
