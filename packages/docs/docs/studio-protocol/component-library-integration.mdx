@@ -1,15 +1,15 @@
 ---
 image: /generated/articles-docs-studio-protocol-component-library-integration.png
-title: 'Integrating a component library with Studio'
-sidebar_label: 'Component library integration'
+title: 'Integrating an Element Library with Studio'
+sidebar_label: 'Element Library integration'
 crumb: '@remotion/studio-protocol'
 ---
 
-# Integrating a component library with Studio
+# Integrating an Element Library with Studio
 
 An Element contains the source code for one component. It also contains the data that Studio needs to insert the component.
 
-Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the component library in the target project.
+Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the Element Library in the target project.
 
 A component that follows the [Element guidelines](/elements/contributing#element-guidelines) is usually ready for Studio.
 
@@ -66,7 +66,7 @@ export const LowerThirdGalleryItem = () => {
 };
 ```
 
-The shape of `lowerThirdElementDefinition` is specific to the component library. The Studio Protocol does not require this object.
+The shape of `lowerThirdElementDefinition` is specific to the Element Library. The Studio Protocol does not require this object.
 
 ### Next.js
 
@@ -98,7 +98,7 @@ When Studio embeds the library through Browse Elements, use [`isInsideStudio()`]
 
 ## See also
 
-- [Third-party Element libraries](/elements/libraries)
+- [Third-party Element Libraries](/elements/libraries)
 - [Element guidelines](/elements/contributing#element-guidelines)
 - [`<Player>`](/docs/player)
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)

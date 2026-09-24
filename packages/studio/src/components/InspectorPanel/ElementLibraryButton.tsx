@@ -110,7 +110,7 @@ export const ElementLibraryButton: React.FC = () => {
 				segmentId: 'element-library',
 				selectedId: null,
 				style: elementLibraryDropdownSegmentStyle,
-				title: 'Choose an Element library to browse inside Studio.',
+				title: 'Choose an Element Library to browse inside Studio.',
 				tooltipLabel: null,
 				type: 'menu',
 				values: [

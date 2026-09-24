@@ -94,7 +94,7 @@ export type ElementDefinition = {
 	readonly width: number;
 };
 
-// Array order defines the order of categories and cards in the Element library.
+// Array order defines the order of categories and cards in the Element Library.
 const elementImplementations = [
 	{
 		slug: 'audio/oscilloscope',

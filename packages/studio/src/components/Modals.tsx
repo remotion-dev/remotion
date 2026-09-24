@@ -76,7 +76,7 @@ export const Modals: React.FC<{
 
 			(async () => {
 				const confirmed = await confirm({
-					title: 'Add Element catalog',
+					title: 'Add Element Library',
 					message: (
 						<ElementLibraryAddConfirmation
 							displayName={event.displayName}
@@ -84,7 +84,7 @@ export const Modals: React.FC<{
 							url={event.url}
 						/>
 					),
-					confirmLabel: 'Add catalog',
+					confirmLabel: 'Add Element Library',
 					cancelLabel: 'Cancel',
 				});
 				if (!confirmed) {
@@ -92,7 +92,10 @@ export const Modals: React.FC<{
 				}
 
 				if (previewServerState.type !== 'connected') {
-					showNotification('Could not add catalog: Studio disconnected', 4000);
+					showNotification(
+						'Could not add Element Library: Studio disconnected',
+						4000,
+					);
 					return;
 				}
 
@@ -111,11 +114,14 @@ export const Modals: React.FC<{
 						],
 					});
 					if (!result.success) {
-						showNotification(`Could not add catalog: ${result.reason}`, 4000);
+						showNotification(
+							`Could not add Element Library: ${result.reason}`,
+							4000,
+						);
 					}
 				} catch (error) {
 					showNotification(
-						`Could not add catalog: ${(error as Error).message}`,
+						`Could not add Element Library: ${(error as Error).message}`,
 						4000,
 					);
 				}
