@@ -1,12 +1,17 @@
-// FinHub brand tokens for real videos. The colours are placeholders picked to
-// sit well with the badges (see "Badges and logos" in AGENTS.md); replace them
-// with FinHub's brand guide when there is one.
+import {ACCENT, BLUE, DARK, FONT} from "../tydo/TyDoOverlays";
+
+// FinHub brand tokens for real videos: Finance Hub's own logo blue, web-brand
+// navy and amber accent, as TyDoReel defines them, and Be Vietnam Pro, which
+// has every Vietnamese diacritic. Call useTyDoFont() in a composition that
+// shows text so the font's local files load before a frame renders.
 export const brand = {
-  background: "#0b1b33",
-  panel: "rgba(11, 27, 51, 0.82)",
+  background: DARK,
+  panel: "rgba(11, 31, 61, 0.88)",
   card: "#ffffff",
   text: "#ffffff",
   textDim: "#c7d2e0",
-  textOnCard: "#0b1b33",
-  accent: "#2dd4bf",
+  textOnCard: DARK,
+  accent: ACCENT,
+  blue: BLUE,
+  font: FONT,
 } as const;

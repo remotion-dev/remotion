@@ -1,5 +1,4 @@
 import {AbsoluteFill, spring, useCurrentFrame, useVideoConfig} from "remotion";
-import {poppins} from "../showcase/font";
 import {BadgeRow} from "./BadgeRow";
 import {brand} from "./theme";
 
@@ -11,7 +10,7 @@ export const EndCard: React.FC<{titleVi: string; titleEn: string; website: strin
   const enter = spring({frame, fps, durationInFrames: 20, config: {damping: 200}});
 
   return (
-    <AbsoluteFill style={{background: brand.background, justifyContent: "center", alignItems: "center", fontFamily: poppins}}>
+    <AbsoluteFill style={{background: brand.background, justifyContent: "center", alignItems: "center", fontFamily: brand.font}}>
       <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 28, opacity: enter, scale: String(0.95 + enter * 0.05)}}>
         <div style={{color: brand.text, fontSize: 76, fontWeight: 700, lineHeight: 1.35}}>{titleVi.normalize("NFC")}</div>
         <div style={{color: brand.textDim, fontSize: 40, lineHeight: 1.35, marginTop: -20}}>{titleEn}</div>

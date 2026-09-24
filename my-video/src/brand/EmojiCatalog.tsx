@@ -1,5 +1,4 @@
 import {AbsoluteFill, getStaticFiles} from "remotion";
-import {poppins} from "../showcase/font";
 import {NotoEmoji} from "./NotoEmoji";
 import {brand} from "./theme";
 
@@ -13,7 +12,7 @@ export const EmojiCatalog: React.FC = () => {
     .sort();
 
   return (
-    <AbsoluteFill style={{background: brand.background, fontFamily: poppins, padding: "40px 60px"}}>
+    <AbsoluteFill style={{background: brand.background, fontFamily: brand.font, padding: "40px 60px"}}>
       <div style={{color: brand.textDim, fontSize: 28, marginBottom: 24}}>
         {`public/emoji/: ${names.length} Noto animated emoji · <NotoEmoji name="…" size={…} loop />`}
       </div>
