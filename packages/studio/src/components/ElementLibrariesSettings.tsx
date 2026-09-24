@@ -6,6 +6,7 @@ import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
 import {callApi} from './call-api';
 import {InlineAction} from './InlineAction';
+import {sectionHeader} from './InspectorPanel/styles';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
@@ -24,6 +25,12 @@ const description: React.CSSProperties = {
 	fontSize: 13,
 	lineHeight: 1.5,
 	margin: '16px 16px 12px',
+};
+
+const addLibraryHeading: React.CSSProperties = {
+	...sectionHeader,
+	margin: '12px 0 0',
+	padding: '4px 16px',
 };
 
 const libraryRow: React.CSSProperties = {
@@ -202,6 +209,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 					</div>
 				))}
 			</div>
+			<h3 style={addLibraryHeading}>Add new library</h3>
 			<div style={inputRow}>
 				<RemotionInput
 					aria-label="Element Library URL"
