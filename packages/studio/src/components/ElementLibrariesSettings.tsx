@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {BrowseElementsIcon} from '../icons/browse-elements';
 import {TrashIcon} from '../icons/trash';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
@@ -39,15 +40,21 @@ const libraryRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	gap: 10,
-	minHeight: 42,
+	minHeight: 38,
 	padding: '4px 16px',
+};
+
+const libraryIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 16,
+	width: 16,
 };
 
 const libraryDetails: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flex: 1,
-	gap: 8,
+	gap: 4,
 	minWidth: 0,
 };
 
@@ -192,6 +199,11 @@ export const ElementLibrariesSettings: React.FC = () => {
 			</p>
 			<div role="list" aria-label="Element Libraries">
 				<div role="listitem" style={libraryRow}>
+					<BrowseElementsIcon
+						aria-hidden
+						color={LIGHT_TEXT}
+						style={libraryIcon}
+					/>
 					<div style={libraryDetails}>
 						<div style={libraryName}>Remotion Elements</div>
 						<a
@@ -212,6 +224,11 @@ export const ElementLibrariesSettings: React.FC = () => {
 				</div>
 				{libraries.map((library) => (
 					<div key={library.url} role="listitem" style={libraryRow}>
+						<BrowseElementsIcon
+							aria-hidden
+							color={LIGHT_TEXT}
+							style={libraryIcon}
+						/>
 						<div style={libraryDetails}>
 							<div style={libraryName}>
 								{library.displayName ?? new URL(library.url).host}
