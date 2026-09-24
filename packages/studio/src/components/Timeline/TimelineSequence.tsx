@@ -1114,6 +1114,8 @@ const TimelineSequenceInner: React.FC<{
 							nodePathInfo={nodePathInfo}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
+							initialEdgeFrame={s.from}
+							fps={video.fps}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}
 							onSelect={onSelect}
 							selected={selected}
@@ -1129,6 +1131,18 @@ const TimelineSequenceInner: React.FC<{
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
+							initialEdgeFrame={
+								s.from +
+								Math.max(
+									0,
+									Math.min(
+										displayDurationInFrames,
+										effectiveMaxMediaDuration ?? Infinity,
+										video.durationInFrames - s.from,
+									),
+								)
+							}
+							fps={video.fps}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}
 							onSelect={onSelect}
 							selected={selected}
