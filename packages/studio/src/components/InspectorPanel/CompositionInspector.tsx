@@ -50,6 +50,8 @@ import {
 	InspectorSectionBody,
 	InspectorSectionHeader,
 	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
 import {CompositionMetadata} from './CompositionMetadata';
@@ -201,9 +203,13 @@ const CompositionActions: React.FC = () => {
 				{canShowGenerateWithAgent ? (
 					<InspectorQuickAction
 						disabled={false}
+						iconContainerStyle={largeInspectorActionIconContainerStyle}
 						onClick={generateWithAgent}
 						renderIcon={(color) => (
-							<SparklesIcon color={color} style={inspectorActionIconStyle} />
+							<SparklesIcon
+								color={color}
+								style={largeInspectorActionIconStyle}
+							/>
 						)}
 					>
 						Generate with agent...

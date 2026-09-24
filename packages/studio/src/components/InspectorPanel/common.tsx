@@ -189,6 +189,18 @@ export const inspectorActionIconContainerStyle: React.CSSProperties = {
 	width: INSPECTOR_ACTION_ICON_SIZE,
 };
 
+export const largeInspectorActionIconStyle: React.CSSProperties = {
+	height: 22,
+	width: 22,
+};
+
+export const largeInspectorActionIconContainerStyle: React.CSSProperties = {
+	height: 22,
+	marginLeft: -2,
+	marginRight: -2,
+	width: 22,
+};
+
 export type InspectorQuickActionProps = {
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
