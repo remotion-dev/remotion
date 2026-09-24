@@ -7591,7 +7591,7 @@ export const articles = [
 	},
 	{
 		id: 'studio-protocol/component-library-integration',
-		title: 'Integrating a component library with Studio',
+		title: 'Integrating an Element Library with Studio',
 		relativePath: 'docs/studio-protocol/component-library-integration.mdx',
 		compId: 'articles-docs-studio-protocol-component-library-integration',
 		crumb: '@remotion/studio-protocol',

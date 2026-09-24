@@ -129,7 +129,7 @@ const CloseupPlaceholder = () => {
 	const externalLibraryUrl = 'https://external-elements.example.com/library';
 	const reloadedExternalLibraryUrl =
 		'https://second-elements.example.com/components';
-	const protocolLibraryUrl = 'https://protocol-catalog.example.com/library';
+	const protocolLibraryUrl = 'https://protocol-library.example.com/library';
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
@@ -189,7 +189,7 @@ const CloseupPlaceholder = () => {
 		response.writeHead(200, {'Content-Type': 'text/html'});
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
-			<button id="add-library">Add catalog to Studio</button>
+			<button id="add-library">Add Element Library to Studio</button>
 			<button id="license">Configure license in Studio</button>
 			<p id="environment"></p>
 			<p id="status"></p>
@@ -227,7 +227,7 @@ const CloseupPlaceholder = () => {
 					document.querySelector('#status').textContent = '';
 					const result = await addElementLibraryToStudio({
 						url: '${protocolLibraryUrl}',
-						displayName: 'Protocol Catalog',
+						displayName: 'Protocol Library',
 					});
 					document.querySelector('#status').textContent = JSON.stringify(result);
 				};
@@ -871,9 +871,9 @@ const CloseupPlaceholder = () => {
 		await senderPage.locator('#status').evaluate((element) => {
 			element.textContent = '';
 		});
-		const configBeforeCatalogConfirmation = fs.readFileSync(configFile, 'utf8');
+		const configBeforeLibraryConfirmation = fs.readFileSync(configFile, 'utf8');
 		await senderPage
-			.getByRole('button', {name: 'Add catalog to Studio'})
+			.getByRole('button', {name: 'Add Element Library to Studio'})
 			.click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -883,30 +883,34 @@ const CloseupPlaceholder = () => {
 		);
 
 		await studioPage.bringToFront();
-		const addCatalogDialog = studioPage.getByRole('dialog');
+		const addLibraryDialog = studioPage.getByRole('dialog');
 		await expect(
-			addCatalogDialog.getByText('Add Element catalog', {exact: true}),
+			addLibraryDialog.getByText('Add Element Library', {exact: true}),
 		).toBeVisible();
 		await expect(
-			addCatalogDialog.getByText(senderUrl, {exact: true}),
+			addLibraryDialog.getByText(senderUrl, {exact: true}),
 		).toBeVisible();
 		await expect(
-			addCatalogDialog.getByText(protocolLibraryUrl, {exact: true}),
+			addLibraryDialog.getByText(protocolLibraryUrl, {exact: true}),
 		).toBeVisible();
-		const catalogDetails = addCatalogDialog.getByLabel('Catalog details');
+		const libraryDetails = addLibraryDialog.getByLabel(
+			'Element Library details',
+		);
 		await expect(
-			catalogDetails.getByText('Display name', {exact: true}),
+			libraryDetails.getByText('Display name', {exact: true}),
 		).toBeVisible();
 		await expect(
-			catalogDetails.getByText('Protocol Catalog', {exact: true}),
+			libraryDetails.getByText('Protocol Library', {exact: true}),
 		).toBeVisible();
-		await expect(decoyStudioPage.getByText('Add Element catalog')).toHaveCount(
+		await expect(decoyStudioPage.getByText('Add Element Library')).toHaveCount(
 			0,
 		);
 		expect(fs.readFileSync(configFile, 'utf8')).toBe(
-			configBeforeCatalogConfirmation,
+			configBeforeLibraryConfirmation,
 		);
-		await addCatalogDialog.getByRole('button', {name: /^Add catalog/}).click();
+		await addLibraryDialog
+			.getByRole('button', {name: /^Add Element Library/})
+			.click();
 		await expect
 			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
 			.toContain(protocolLibraryUrl);
@@ -914,7 +918,7 @@ const CloseupPlaceholder = () => {
 		await browseElements.click();
 		await expect(
 			studioPage.getByRole('button', {
-				name: 'Protocol Catalog',
+				name: 'Protocol Library',
 				exact: true,
 			}),
 		).toBeVisible({timeout: 30_000});
@@ -924,7 +928,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.mouse.click(500, 300);
 		await senderPage.bringToFront();
 		await senderPage
-			.getByRole('button', {name: 'Add catalog to Studio'})
+			.getByRole('button', {name: 'Add Element Library to Studio'})
 			.click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -932,7 +936,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.bringToFront();
 		await studioPage
 			.getByRole('dialog')
-			.getByRole('button', {name: /^Add catalog/})
+			.getByRole('button', {name: /^Add Element Library/})
 			.click();
 		await expect
 			.poll(
