@@ -99,7 +99,8 @@ const elementsIconContainer: React.CSSProperties = {
 	...iconContainer,
 	flexShrink: 0,
 	height: 22,
-	marginRight: 4,
+	marginLeft: -2,
+	marginRight: 6,
 	width: 22,
 };
 
