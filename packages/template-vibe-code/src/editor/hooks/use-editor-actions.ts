@@ -36,7 +36,8 @@ import type {
 import type { CompositionInfo } from "../model/compositions";
 import { formatSource } from "../model/format";
 import { areSiblingNodes, type Layer } from "../model/layers";
-import { toCodemodProject } from "../model/project";
+import { getFileName, toCodemodProject } from "../model/project";
+import { resolveProjectPathInput } from "@/lib/project-paths";
 import type { PlaybackStore } from "./use-playback";
 import { getErrorMessage } from "./use-preview-host";
 import type {
@@ -49,6 +50,7 @@ const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
 
 type ActionContext = {
   state: EditorState;
+  entryPoint: string;
   host: PreviewHost | null;
   layers: Layer[];
   compositions: CompositionInfo[];
@@ -168,12 +170,31 @@ export const useEditorActions = ({
           coalesceKey: `edit:${filePath}`,
         });
       },
-      createFile: (filePath: string, contents: string) => {
+      // File names are validated with the same rules as /api/project, so a
+      // single bad name cannot make every later save fail.
+      createFile: (input: string) => {
+        const resolved = resolveProjectPathInput(input);
+        if (resolved.error !== null) {
+          notifyError(new Error(resolved.error));
+          return;
+        }
+
+        const filePath = resolved.path;
         if (filePath in ref.current.state.files) {
           notifyError(new Error(`${filePath} already exists.`));
           return;
         }
 
+        const componentName = getFileName(filePath).replace(/\.\w+$/, "");
+        const contents = /\.(tsx|jsx)$/.test(filePath)
+          ? `import React from "react";
+import { AbsoluteFill } from "remotion";
+
+export const ${componentName}: React.FC = () => {
+  return <AbsoluteFill />;
+};
+`
+          : "";
         dispatch({
           type: "set-files",
           files: { ...ref.current.state.files, [filePath]: contents },
@@ -182,12 +203,37 @@ export const useEditorActions = ({
         dispatch({ type: "open-file", filePath });
       },
       deleteFile: (filePath: string) => {
+        if (filePath === ref.current.entryPoint) {
+          notifyError(
+            new Error(`${filePath} is the entry point and cannot be deleted.`),
+          );
+          return;
+        }
+
         const files = { ...ref.current.state.files };
         delete files[filePath];
         dispatch({ type: "set-files", files, coalesceKey: null });
       },
-      renameFile: (filePath: string, nextPath: string) => {
+      renameFile: (filePath: string, input: string) => {
+        if (filePath === ref.current.entryPoint) {
+          notifyError(
+            new Error(`${filePath} is the entry point and cannot be renamed.`),
+          );
+          return;
+        }
+
+        const resolved = resolveProjectPathInput(input);
+        if (resolved.error !== null) {
+          notifyError(new Error(resolved.error));
+          return;
+        }
+
+        const nextPath = resolved.path;
         const { files } = ref.current.state;
+        if (nextPath === filePath) {
+          return;
+        }
+
         if (nextPath in files) {
           notifyError(new Error(`${nextPath} already exists.`));
           return;

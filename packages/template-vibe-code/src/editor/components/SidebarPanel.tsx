@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PROJECT_DIR } from "@/lib/project-paths";
 import { cn } from "@/lib/utils";
 import type { CompositionInfo } from "../model/compositions";
 import { getFileName, sortFilePaths } from "../model/project";
@@ -149,10 +150,10 @@ const FileRow: React.FC<{
   readonly filePath: string;
   readonly active: boolean;
 }> = ({ filePath, active }) => {
-  const { actions, state } = useEditor();
+  const { actions, entryPoint } = useEditor();
   const [renaming, setRenaming] = useState(false);
-  const isEntry =
-    Object.keys(state.files).length > 1 && /index\.tsx?$/.test(filePath);
+  // The entry point calls registerRoot(); without it nothing compiles.
+  const isEntry = filePath === entryPoint;
 
   if (renaming) {
     return (
@@ -177,7 +178,11 @@ const FileRow: React.FC<{
           type="button"
           aria-pressed={active}
           onClick={() => actions.openFile(filePath)}
-          onDoubleClick={() => setRenaming(true)}
+          onDoubleClick={() => {
+            if (!isEntry) {
+              setRenaming(true);
+            }
+          }}
           className={cn(
             "flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs outline-none",
             active
@@ -199,7 +204,7 @@ const FileRow: React.FC<{
         </button>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem onSelect={() => setRenaming(true)}>
+        <ContextMenuItem disabled={isEntry} onSelect={() => setRenaming(true)}>
           Rename
         </ContextMenuItem>
         <ContextMenuSeparator />
@@ -219,8 +224,6 @@ export const SidebarPanel: React.FC = () => {
   const { state, dispatch, actions, compositions, activeComposition } =
     useEditor();
   const [creating, setCreating] = useState<"composition" | "file" | null>(null);
-  const directory =
-    Object.keys(state.files)[0]?.split("/").slice(0, -1).join("/") ?? "src";
 
   return (
     <Tabs
@@ -289,23 +292,11 @@ export const SidebarPanel: React.FC = () => {
       <TabsContent value="files" className="min-h-0 overflow-y-auto py-1">
         {creating === "file" ? (
           <InlineInput
-            placeholder={`${directory}/NewComponent.tsx`}
-            initialValue={`${directory}/`}
+            placeholder={`${PROJECT_DIR}/NewComponent.tsx`}
+            initialValue={`${PROJECT_DIR}/`}
             onSubmit={(filePath) => {
               setCreating(null);
-              const componentName = getFileName(filePath).replace(/\.\w+$/, "");
-              actions.createFile(
-                filePath,
-                /\.tsx$/.test(filePath)
-                  ? `import React from "react";
-import { AbsoluteFill } from "remotion";
-
-export const ${componentName}: React.FC = () => {
-  return <AbsoluteFill />;
-};
-`
-                  : "",
-              );
+              actions.createFile(filePath);
             }}
             onCancel={() => setCreating(null)}
           />

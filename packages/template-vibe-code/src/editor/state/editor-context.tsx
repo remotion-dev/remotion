@@ -13,6 +13,8 @@ import type { EditorAction, EditorState } from "./editor-store";
 export type EditorContextValue = {
   state: EditorState;
   dispatch: React.Dispatch<EditorAction>;
+  /** The file that calls registerRoot(); it cannot be renamed or deleted. */
+  entryPoint: string;
   canSave: boolean;
   host: PreviewHost | null;
   hostError: string | null;

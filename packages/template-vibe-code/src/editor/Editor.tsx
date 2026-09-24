@@ -209,6 +209,7 @@ export const Editor: React.FC<{
   const actions = useEditorActions({
     context: {
       state,
+      entryPoint,
       host,
       layers,
       compositions,
@@ -260,6 +261,7 @@ export const Editor: React.FC<{
   const value: EditorContextValue = {
     state,
     dispatch,
+    entryPoint,
     canSave,
     host,
     hostError,

@@ -1,41 +1,14 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { isAllowedProjectPath, PROJECT_DIR } from "@/lib/project-paths";
 
 // The Remotion project that is loaded into the editor lives in src/remotion.
 // It is a regular Remotion project: `npx remotion studio` and
 // `npx remotion render` work on the same files.
-export const PROJECT_DIR = "src/remotion";
-export const PROJECT_ENTRY_POINT = `${PROJECT_DIR}/index.ts`;
-
+//
 // Keeping the folder literal lets Next.js trace only these files into the
 // server bundle instead of the whole project.
 const projectRoot = path.join(process.cwd(), "src", "remotion");
-
-const allowedExtensions = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-  ".css",
-  ".json",
-]);
-
-export const isAllowedProjectPath = (filePath: string) => {
-  if (filePath.includes("\\") || filePath.includes("\0")) {
-    return false;
-  }
-
-  const normalized = path.posix.normalize(filePath);
-  if (
-    normalized !== filePath ||
-    !normalized.startsWith(`${PROJECT_DIR}/`) ||
-    normalized.split("/").some((segment) => segment === "..")
-  ) {
-    return false;
-  }
-
-  return allowedExtensions.has(path.posix.extname(normalized));
-};
 
 const resolveProjectPath = (filePath: string) => {
   if (!isAllowedProjectPath(filePath)) {

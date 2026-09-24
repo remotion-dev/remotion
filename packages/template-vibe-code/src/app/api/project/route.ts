@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  isAllowedProjectPath,
-  readProjectFiles,
-  writeProjectFiles,
-} from "@/server/project-files";
+import { isAllowedProjectPath } from "@/lib/project-paths";
+import { readProjectFiles, writeProjectFiles } from "@/server/project-files";
 
 // Saving writes to src/remotion on disk, which only makes sense while
 // developing locally. Deployed instances keep edits in memory.
