@@ -3,11 +3,16 @@ import React, {useRef, useState} from 'react';
 export const TimingTimeline: React.FC<{
 	readonly from: number;
 	readonly durationInFrames: number;
-}> = ({from, durationInFrames}) => {
+	readonly trimBefore: number;
+}> = ({from, durationInFrames, trimBefore}) => {
 	const [frame, setFrame] = useState(from);
 	const scrubbingPointer = useRef<number | null>(null);
 	const totalFrames = 90;
 	const fps = 30;
+	const localFrame =
+		frame >= from && frame < from + durationInFrames
+			? frame - from + trimBefore
+			: null;
 	const seconds = Math.floor(frame / fps);
 	const timecode = `00:${String(seconds).padStart(2, '0')}.${String(frame % fps).padStart(2, '0')}`;
 
@@ -170,8 +175,27 @@ export const TimingTimeline: React.FC<{
 								border: '1px solid rgba(255, 255, 255, 0.2)',
 								borderRadius: 2,
 								backgroundColor: '#0b84f3',
+								display: 'flex',
+								alignItems: 'center',
+								paddingLeft: 5,
 							}}
-						/>
+						>
+							{localFrame === null ? null : (
+								<span
+									style={{
+										fontSize: 11,
+										fontFamily: 'Arial, Helvetica, sans-serif',
+										color: '#fff',
+										opacity: 0.5,
+										whiteSpace: 'nowrap',
+										pointerEvents: 'none',
+										userSelect: 'none',
+									}}
+								>
+									{localFrame}
+								</span>
+							)}
+						</div>
 					</div>
 				</div>
 				<div

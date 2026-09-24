@@ -22,7 +22,7 @@ The listed components also accept `playbackRate`, except [`<Img>`](/docs/img) an
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
-<TimingTimeline from={30} durationInFrames={30} />
+<TimingTimeline from={30} durationInFrames={30} trimBefore={0} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -36,13 +36,13 @@ export const MyComposition = () => (
 );
 ```
 
-Drag the playhead across the element. The Studio counter shows composition frames `30` through `59`, while `<Counter>` inside the element runs from `0` through `29`.
+Drag the playhead across the element. The counter on the left shows composition frames `30` through `59`. The label inside the element shows its local frame, `0` through `29`, matching `<Counter>`.
 
 ## Trim the beginning and end
 
 `trimBefore` skips the beginning of an item's content without moving the item from its `from` position. Set `durationInFrames` to control how long it remains on the parent timeline. For `<Interactive.Div>`, `trimBefore` advances the frame seen by its children when they first appear. It is available on `<Interactive.Div>` from <AvailableFrom v="4.0.482" inline />:
 
-<TimingTimeline from={30} durationInFrames={45} />
+<TimingTimeline from={30} durationInFrames={45} trimBefore={15} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -60,7 +60,7 @@ export const MyComposition = () => (
 );
 ```
 
-The element now occupies composition frames `30` through `74`. The Studio counter shows those frames, while `<Counter>` inside the element runs from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`. To trim the end of `<Interactive.Div>`, set `durationInFrames`; it has no `trimAfter` prop.
+The element now occupies composition frames `30` through `74`. The counter on the left shows those frames, while the label inside the element and `<Counter>` run from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`. To trim the end of `<Interactive.Div>`, set `durationInFrames`; it has no `trimAfter` prop.
 
 ## Change playback speed
 
