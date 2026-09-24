@@ -28,10 +28,7 @@ Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use 
 
 ## Outside a composition
 
-The built-in `Interactive` elements also render in a regular React tree, without a Remotion composition or [`<Player>`](/docs/player).
-For example, `<Interactive.Div>` renders a `<div>` and forwards its HTML props, styles, and ref. SVG elements likewise render their corresponding SVG tags.
-
-Outside a composition, Remotion timing and Studio props such as `from`, `durationInFrames`, `name`, and `cropLeft` have no effect. `hidden` still hides the element. Children that use Remotion hooks still require a composition or `<Player>`.
+`Interactive` elements require a Remotion composition or [`<Player>`](/docs/player). They throw an error in a regular React tree. Use native HTML or SVG elements outside Remotion.
 
 ## Components
 

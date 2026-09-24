@@ -18,11 +18,10 @@ import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
-import {
-	stripRemotionElementProps,
-	type InteractiveBaseProps,
-	type InteractiveCropProps,
-	type InteractivePremountProps,
+import type {
+	InteractiveBaseProps,
+	InteractiveCropProps,
+	InteractivePremountProps,
 } from './Interactive.js';
 import {
 	backgroundSchema,
@@ -681,16 +680,6 @@ const ImgInner: React.FC<
 	);
 };
 
-const remotionImgProps = [
-	'effects',
-	'maxRetries',
-	'pauseWhenLoading',
-	'delayRenderRetries',
-	'delayRenderTimeoutInMilliseconds',
-	'onImageFrame',
-	'onImageError',
-] as const;
-
 /*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
@@ -701,17 +690,5 @@ export const Img = withInteractivitySchema({
 	componentIdentity: 'dev.remotion.remotion.Img',
 	schema: imgSchema,
 	supportsEffects: true,
-	renderOutsideRemotion: (props, ref) => {
-		if (!props.src) {
-			throw new Error('No "src" prop was passed to <Img>.');
-		}
-
-		return props.hidden
-			? null
-			: React.createElement('img', {
-					...stripRemotionElementProps(props, remotionImgProps),
-					ref,
-				});
-	},
 });
 addSequenceStackTraces(Img);

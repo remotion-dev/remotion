@@ -109,26 +109,6 @@ type InteractiveManagedProps = InteractiveBaseProps &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
-const remotionElementProps = [
-	...Object.keys(baseSchema),
-	...Object.keys(cropSchema),
-	...Object.keys(premountSchema),
-	'styleWhilePremounted',
-	'styleWhilePostmounted',
-] as const;
-
-export const stripRemotionElementProps = (
-	props: Record<string, unknown>,
-	additionalProps: readonly string[],
-): Record<string, unknown> => {
-	const nativeProps = {...props};
-	for (const key of [...remotionElementProps, ...additionalProps]) {
-		delete nativeProps[key];
-	}
-
-	return nativeProps;
-};
-
 type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
 	React.ComponentPropsWithoutRef<Tag>,
 	keyof InteractiveManagedProps
@@ -359,13 +339,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		}),
 		schema,
 		supportsEffects: false,
-		renderOutsideRemotion: (props, ref) =>
-			(props as Props).hidden
-				? null
-				: React.createElement(tag, {
-						...stripRemotionElementProps(props, []),
-						ref,
-					}),
 	}) as InteractiveElementComponent<Tag>;
 
 	Wrapped.displayName = displayName;
