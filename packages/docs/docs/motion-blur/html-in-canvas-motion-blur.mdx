@@ -15,7 +15,9 @@ crumb: '@remotion/motion-blur'
 It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
 
 ```tsx twoslash title="MyComposition.tsx"
-import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
+import {
+  HtmlInCanvasMotionBlur,
+} from '@remotion/motion-blur';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 
 const MovingBox = () => {
@@ -39,7 +41,12 @@ export const MyComposition = () => {
   const {width, height} = useVideoConfig();
 
   return (
-    <HtmlInCanvasMotionBlur width={width} height={height} samples={8} shutterAngle={180}>
+    <HtmlInCanvasMotionBlur
+      width={width}
+      height={height}
+      samples={8}
+      shutterAngle={180}
+    >
       <MovingBox />
     </HtmlInCanvasMotionBlur>
   );
