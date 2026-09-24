@@ -110,7 +110,7 @@ export type SvgPathFieldSchema = {
 	type: 'svg-path';
 	default: string | undefined;
 	description?: string;
-	keyframable?: false;
+	keyframable?: boolean;
 };
 
 export type FontFamilyFieldSchema = {

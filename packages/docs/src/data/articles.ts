@@ -5779,6 +5779,15 @@ export const articles = [
 		slug: 'paths/interpolate-path',
 	},
 	{
+		id: 'paths/interpolate-paths',
+		title: 'interpolatePaths()',
+		relativePath: 'docs/paths/interpolate-paths.mdx',
+		compId: 'articles-docs-paths-interpolate-paths',
+		crumb: '@remotion/paths',
+		noAi: false,
+		slug: 'paths/interpolate-paths',
+	},
+	{
 		id: 'paths/normalize-path',
 		title: 'normalizePath()',
 		relativePath: 'docs/paths/normalize-path.mdx',

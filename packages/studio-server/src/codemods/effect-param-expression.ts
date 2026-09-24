@@ -15,6 +15,7 @@ export type RemotionImportName =
 	| 'Easing'
 	| 'interpolate'
 	| 'interpolateColors'
+	| 'interpolatePaths'
 	| 'useCurrentFrame';
 
 export type RemotionLocalNames = Partial<Record<RemotionImportName, string>>;
@@ -67,7 +68,8 @@ export const ensureRemotionImportLocalNames = ({
 		localNames[importedName] = ensureNamedImport({
 			ast,
 			importedName,
-			sourcePath: 'remotion',
+			sourcePath:
+				importedName === 'interpolatePaths' ? '@remotion/paths' : 'remotion',
 			localName: importedName,
 		});
 	}
@@ -181,7 +183,10 @@ const makeKeyframedOptions = ({
 			);
 		}
 
-		if (param.output === 'perceptual-scale') {
+		if (
+			param.interpolationFunction === 'interpolate' &&
+			param.output === 'perceptual-scale'
+		) {
 			properties.push(
 				b.objectProperty(
 					b.identifier('output'),

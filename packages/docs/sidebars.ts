@@ -602,6 +602,7 @@ const sidebars: SidebarsConfig = {
 				'paths/reverse-path',
 				'paths/normalize-path',
 				'paths/interpolate-path',
+				'paths/interpolate-paths',
 				'paths/evolve-path',
 				'paths/reset-path',
 				'paths/center-path',
