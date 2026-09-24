@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {TrashIcon} from '../icons/trash';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
@@ -44,22 +44,27 @@ const libraryRow: React.CSSProperties = {
 };
 
 const libraryDetails: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
 	flex: 1,
+	gap: 8,
 	minWidth: 0,
 };
 
 const libraryName: React.CSSProperties = {
 	fontSize: 13,
+	maxWidth: '50%',
 	overflow: 'hidden',
+	flexShrink: 0,
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
 };
 
 const libraryUrlStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
 	cursor: 'pointer',
-	display: 'block',
 	fontSize: 12,
+	minWidth: 0,
+	outline: 'none',
 	overflow: 'hidden',
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
@@ -93,6 +98,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const [displayName, setDisplayName] = useState('');
 	const [busy, setBusy] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
 	const libraries = (studioRuntimeConfig?.elementLibraries ?? []).filter(
 		(library) => library.url !== REMOTION_ELEMENTS_URL,
 	);
@@ -193,7 +199,13 @@ export const ElementLibrariesSettings: React.FC = () => {
 							href={REMOTION_ELEMENTS_URL}
 							target="_blank"
 							rel="noopener noreferrer"
-							style={libraryUrlStyle}
+							style={{
+								...libraryUrlStyle,
+								color:
+									hoveredUrl === REMOTION_ELEMENTS_URL ? WHITE : LIGHT_TEXT,
+							}}
+							onMouseEnter={() => setHoveredUrl(REMOTION_ELEMENTS_URL)}
+							onMouseLeave={() => setHoveredUrl(null)}
 						>
 							{REMOTION_ELEMENTS_URL.replace(/^https?:\/\//, '')}
 						</a>
@@ -209,7 +221,12 @@ export const ElementLibrariesSettings: React.FC = () => {
 								href={library.url}
 								target="_blank"
 								rel="noopener noreferrer"
-								style={libraryUrlStyle}
+								style={{
+									...libraryUrlStyle,
+									color: hoveredUrl === library.url ? WHITE : LIGHT_TEXT,
+								}}
+								onMouseEnter={() => setHoveredUrl(library.url)}
+								onMouseLeave={() => setHoveredUrl(null)}
 							>
 								{library.url.replace(/^https?:\/\//, '')}
 							</a>
