@@ -576,11 +576,16 @@ export type AddEffectRequest = {
 	effectImportPath: string;
 	effectConfig: EffectConfig;
 	clientId: string;
+	includeInsertedEffect?: boolean;
 };
 
 export type AddEffectResponse =
 	| {
 			success: true;
+			insertedEffect?: {
+				effectIndex: number;
+				nodePath: SequencePropsSubscriptionKey['nodePath'];
+			};
 	  }
 	| {
 			success: false;

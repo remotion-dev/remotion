@@ -6,11 +6,12 @@ import {
 	type EffectDefinition,
 	getRequiredPackageForEffectImportPath,
 } from '@remotion/studio-shared';
-import type {SequencePropsSubscriptionKey} from 'remotion';
 import {getBrowserStudioEffectOperations} from '../helpers/browser-studio-operations';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
+import type {useTimelineSelection} from './Timeline/TimelineSelection';
 
 export const hasEffectDragType = (dataTransfer: DataTransfer) => {
 	return (
@@ -34,18 +35,21 @@ export const addEffectFromDragData = ({
 	clientId,
 	dragData,
 	fileName,
-	nodePath,
+	nodePathInfo,
+	selectItems,
 }: {
 	readonly clientId: string;
 	readonly dragData: EffectDragData;
 	readonly fileName: string;
-	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 }) => {
 	return addEffectToSequence({
 		clientId,
 		effect: dragData.effect,
 		fileName,
-		nodePath,
+		nodePathInfo,
+		selectItems,
 	});
 };
 
@@ -53,12 +57,14 @@ export const addEffectToSequence = async ({
 	clientId,
 	effect,
 	fileName,
-	nodePath,
+	nodePathInfo,
+	selectItems,
 }: {
 	readonly clientId: string;
 	readonly effect: EffectDefinition;
 	readonly fileName: string;
-	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 }) => {
 	try {
 		const requiredPackage = getRequiredPackageForEffectImportPath(
@@ -72,16 +78,39 @@ export const addEffectToSequence = async ({
 
 		const result = await addEffect({
 			fileName,
-			sequenceNodePath: nodePath,
+			sequenceNodePath: nodePathInfo.sequenceSubscriptionKey,
 			effectName: effect.name,
 			effectImportPath: effect.importPath,
 			effectConfig: effect.config,
 			clientId,
+			includeInsertedEffect: true,
 		});
 
 		if (!result.success) {
 			showNotification(result.reason, 4000);
+			return;
 		}
+
+		selectItems(
+			[
+				{
+					type: 'sequence-effect',
+					nodePathInfo: {
+						...nodePathInfo,
+						sequenceSubscriptionKey: {
+							...nodePathInfo.sequenceSubscriptionKey,
+							nodePath:
+								result.insertedEffect?.nodePath ??
+								nodePathInfo.sequenceSubscriptionKey.nodePath,
+						},
+					},
+					i:
+						result.insertedEffect?.effectIndex ??
+						nodePathInfo.sequenceSubscriptionKey.effectKeys.length,
+				},
+			],
+			{revealInInspector: true},
+		);
 	} catch (err) {
 		showNotification((err as Error).message, 4000);
 	}

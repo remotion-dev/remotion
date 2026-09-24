@@ -32,6 +32,7 @@ export const addEffectHandler: ApiHandler<
 		effectImportPath,
 		effectConfig,
 		clientId,
+		includeInsertedEffect,
 	},
 	remotionRoot,
 	logLevel,
@@ -106,6 +107,14 @@ export const addEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				...(includeInsertedEffect
+					? {
+							insertedEffect: {
+								effectIndex: result.insertedEffect.effectIndex,
+								nodePath: result.insertedEffect.nodePath,
+							},
+						}
+					: {}),
 			};
 		} catch (err) {
 			return {

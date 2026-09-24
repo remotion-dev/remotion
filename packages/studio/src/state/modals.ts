@@ -33,6 +33,8 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
+import type {useTimelineSelection} from '../components/Timeline/TimelineSelection';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -136,8 +138,9 @@ export type SvgImportDialogState = {
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
-	nodePath: SequencePropsSubscriptionKey;
+	nodePathInfo: SequenceNodePathInfo;
 	clientId: string;
+	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 };
 
 export type AssetSelectionModalState = {

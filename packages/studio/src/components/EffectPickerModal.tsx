@@ -246,10 +246,17 @@ const EffectPickerContent: React.FC<{
 				clientId: state.clientId,
 				effect: item.effect,
 				fileName: state.fileName,
-				nodePath: state.nodePath,
+				nodePathInfo: state.nodePathInfo,
+				selectItems: state.selectItems,
 			});
 		},
-		[setSelectedModal, state.clientId, state.fileName, state.nodePath],
+		[
+			setSelectedModal,
+			state.clientId,
+			state.fileName,
+			state.nodePathInfo,
+			state.selectItems,
+		],
 	);
 
 	const onArrowDown = useCallback(() => {
