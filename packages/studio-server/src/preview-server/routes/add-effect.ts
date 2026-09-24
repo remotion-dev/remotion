@@ -103,15 +103,10 @@ export const addEffectHandler: ApiHandler<
 
 			return {
 				success: true,
-				...('includeInsertedEffect' in request &&
-				request.includeInsertedEffect === true
-					? {
-							insertedEffect: {
-								effectIndex: result.insertedEffect.effectIndex,
-								nodePath: result.insertedEffect.nodePath,
-							},
-						}
-					: {}),
+				insertedEffect: {
+					effectIndex: result.insertedEffect.effectIndex,
+					nodePath: result.insertedEffect.nodePath,
+				},
 			};
 		} catch (err) {
 			return {

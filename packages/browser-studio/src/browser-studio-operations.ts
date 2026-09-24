@@ -1122,15 +1122,10 @@ export const createBrowserStudioOperations = ({
 				});
 				return {
 					success: true,
-					...('includeInsertedEffect' in request &&
-					request.includeInsertedEffect === true
-						? {
-								insertedEffect: {
-									effectIndex: result.insertedEffect.effectIndex,
-									nodePath: result.insertedEffect.nodePath,
-								},
-							}
-						: {}),
+					insertedEffect: {
+						effectIndex: result.insertedEffect.effectIndex,
+						nodePath: result.insertedEffect.nodePath,
+					},
 				};
 			} catch (error) {
 				return getStructuredError(error);

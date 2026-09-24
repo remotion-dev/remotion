@@ -83,16 +83,12 @@ export const addEffectToSequence = async ({
 			effectImportPath: effect.importPath,
 			effectConfig: effect.config,
 			clientId,
-			includeInsertedEffect: true,
 		});
 
 		if (!result.success) {
 			showNotification(result.reason, 4000);
 			return;
 		}
-
-		const insertedEffect =
-			'insertedEffect' in result ? result.insertedEffect : null;
 
 		selectItems(
 			[
@@ -102,14 +98,10 @@ export const addEffectToSequence = async ({
 						...nodePathInfo,
 						sequenceSubscriptionKey: {
 							...nodePathInfo.sequenceSubscriptionKey,
-							nodePath:
-								insertedEffect?.nodePath ??
-								nodePathInfo.sequenceSubscriptionKey.nodePath,
+							nodePath: result.insertedEffect.nodePath,
 						},
 					},
-					i:
-						insertedEffect?.effectIndex ??
-						nodePathInfo.sequenceSubscriptionKey.effectKeys.length,
+					i: result.insertedEffect.effectIndex,
 				},
 			],
 			{revealInInspector: true},
