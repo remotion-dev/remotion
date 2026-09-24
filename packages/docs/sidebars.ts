@@ -1542,7 +1542,6 @@ const sidebars: SidebarsConfig = {
 				'ai/generate',
 				'ai/dynamic-compilation',
 				'ai/ai-saas-template',
-				'ai/system-prompt',
 				'ai/mcp',
 			],
 		},
