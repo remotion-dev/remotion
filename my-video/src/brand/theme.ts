@@ -1,12 +1,18 @@
-// FinHub brand tokens for real videos. The colours are placeholders picked to
-// sit well with the badges (see "Badges and logos" in AGENTS.md); replace them
-// with FinHub's brand guide when there is one.
+// FinHub brand tokens for real videos, set by the owner (2026-09-24): the logo
+// blue (#0064A8, sampled from finhub-logo.png) with the web brand's navy and an
+// amber accent. The logo's "NETWORKS" wordmark is black, so the logo always sits
+// on a white card; four of the five badges need a light background too (see
+// "Badges and logos" in AGENTS.md).
 export const brand = {
-  background: "#0b1b33",
-  panel: "rgba(11, 27, 51, 0.82)",
+  background: "#0B1F3D",
+  panel: "rgba(11, 31, 61, 0.9)",
   card: "#ffffff",
   text: "#ffffff",
-  textDim: "#c7d2e0",
-  textOnCard: "#0b1b33",
-  accent: "#2dd4bf",
+  textDim: "#c9d3e6",
+  textOnCard: "#0B1F3D",
+  accent: "#F5A524",
+  primary: "#0064A8",
+  highlight: "#FFB938",
+  good: "#3DDC97",
+  bad: "#FF5A5F",
 } as const;

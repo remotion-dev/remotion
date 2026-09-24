@@ -16,7 +16,7 @@ export const FPS = 30;
 //   ffmpeg -i "public/4.1 Tỷ Đô - Con Số Người Úc Không Ngờ Tới.mp4" -c:v libx264 -crf 16
 //     -g 15 -keyint_min 15 -sc_threshold 0 -pix_fmt yuv420p -c:a aac -b:a 192k -ar 48000
 //     -movflags +faststart public/ty-do-source.mp4
-export const SRC = "ty-do-source.mp4";
+export const SRC = "videos/ty-do/source.mp4";
 
 export type TransitionKind = "fade" | "slide" | "wipe" | "flip" | "clockWipe";
 

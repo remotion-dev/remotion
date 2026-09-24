@@ -25,6 +25,12 @@ import {
 } from "./showcase/EffectsCatalogScene";
 import { AbsoluteFill } from "remotion";
 import { TyDoReel, tyDoComposition } from "./tydo/TyDoReel";
+import {
+  MortgageReel,
+  calculateMortgageReelMetadata,
+  mortgageReelComposition,
+  mortgageReelSchema,
+} from "./mortgage/MortgageReel";
 import { gradientBg, palette } from "./showcase/palette";
 import { poppins } from "./showcase/font";
 import { BrandKitDemo } from "./brand/BrandKitDemo";
@@ -65,6 +71,14 @@ export const RemotionRoot: React.FC = () => {
       <MyComposition />
       <Folder name="FinanceHub">
         <Composition {...tyDoComposition} component={TyDoReel} />
+        {/* The reusable talking-head template: one public/videos/<slug>/ per video. */}
+        <Composition
+          {...mortgageReelComposition}
+          component={MortgageReel}
+          schema={mortgageReelSchema}
+          defaultProps={{ slug: "ty-do", reel: null }}
+          calculateMetadata={calculateMortgageReelMetadata}
+        />
       </Folder>
       <Folder name="Brand">
         {/* The FinHub brand kit in src/brand/, with sample text. */}

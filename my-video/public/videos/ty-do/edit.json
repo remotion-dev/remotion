@@ -1,0 +1,105 @@
+{
+  "notes": [
+    "4.1 Tỷ Đô - Con Số Người Úc Không Ngờ Tới: the approved TyDoReel v7 edit, expressed as template data.",
+    "remove[0] = the $1M example (misspoken figure '1.600'), cut at Daniel's request; remove[1] = 'Họ có,' false start before 'các ngân hàng có thể…'.",
+    "exemptions: the kinetic cue strikes out 'Lãi suất rẻ nhất' as the thing NOT to chase, a negation."
+  ],
+  "title": "4,1 Tỷ Đô - Con Số Người Úc Không Ngờ Tới",
+  "coverFrameMs": 5600,
+  "hook": {
+    "big": "4,1 TỶ ĐÔ",
+    "countTo": 4.1,
+    "decimals": 1,
+    "suffix": "TỶ ĐÔ",
+    "sub": "Con số người Úc không ngờ tới"
+  },
+  "remove": [
+    [93740, 108700],
+    [188480, 188960]
+  ],
+  "chapters": [
+    { "atMs": 20560, "title": "Chi phí thật sự", "effect": "slide" },
+    { "atMs": 45480, "title": "Ví dụ thực tế", "effect": "wipe" },
+    { "atMs": 79060, "title": "Tuỳ số tiền bạn vay", "effect": "flip" },
+    { "atMs": 130780, "title": "Vì sao broker quan tâm", "effect": "clockWipe" },
+    { "atMs": 183680, "title": "Ngân hàng cũng chọn khách", "effect": "slide" },
+    { "atMs": 199340, "title": "Lời khuyên", "effect": "fade" }
+  ],
+  "stats": [
+    { "atMs": 4700, "durMs": 3600, "big": "$4,1 TỶ", "label": "Phí người Úc trả ngân hàng trong 1 năm" },
+    { "atMs": 12900, "durMs": 3000, "big": "~$400", "label": "cho mỗi hộ gia đình" },
+    { "atMs": 124600, "durMs": 3600, "big": "NỢ NHỎ", "label": "Trả phí năm thường không hợp lý" },
+    { "atMs": 202800, "durMs": 3800, "big": "TỔNG CHI PHÍ", "label": "Không chỉ nhìn lãi suất thấp nhất" }
+  ],
+  "cues": [
+    { "kind": "emoji", "fromMs": 18600, "toMs": 20400, "name": "star-struck", "position": "right" },
+    {
+      "kind": "kinetic",
+      "fromMs": 30100,
+      "toMs": 40200,
+      "kicker": "KHÔNG CHỈ LÀ",
+      "struck": [
+        { "text": "Lệ phí thấp nhất", "atMs": 31040, "strikeMs": 31700 },
+        { "text": "Lãi suất rẻ nhất", "atMs": 32680, "strikeMs": 33700 }
+      ],
+      "slam": { "kicker": "MÀ LÀ", "text": "TỔNG CHI PHÍ", "atMs": 34280 },
+      "sub": { "text": "phù hợp với bạn", "atMs": 37260 }
+    },
+    {
+      "kind": "compare",
+      "fromMs": 49200,
+      "toMs": 78550,
+      "cards": [
+        {
+          "title": "GÓI BASIC",
+          "atMs": 49200,
+          "rows": [
+            { "label": "Phí tháng", "value": "$0", "tone": "good", "atMs": 51060 },
+            { "label": "Phí năm", "value": "$0", "tone": "good", "atMs": 52060 },
+            { "label": "Lãi suất", "value": "+0,4%", "tone": "bad", "atMs": 56560 }
+          ]
+        },
+        {
+          "title": "GÓI CÓ PHÍ",
+          "atMs": 58800,
+          "highlightAtMs": 65720,
+          "rows": [
+            { "label": "Phí năm", "value": "$400", "tone": "bad", "atMs": 62060 },
+            { "label": "Lãi suất", "value": "−0,4%", "tone": "good", "atMs": 65720 }
+          ]
+        }
+      ],
+      "question": { "text": "Nên chọn gói nào?", "atMs": 71500 }
+    },
+    {
+      "kind": "bars",
+      "fromMs": 87600,
+      "toMs": 93600,
+      "kicker": "Khoản vay",
+      "title": "$100.000",
+      "bars": [
+        { "label": "Tiền lãi tiết kiệm (0,4%)", "value": "$400", "height": 0.5, "tone": "good", "atMs": 88900 },
+        { "label": "Phí năm", "value": "$400", "height": 0.5, "tone": "bad", "atMs": 91560 }
+      ],
+      "stamp": { "text": "= HÒA VỐN", "tone": "neutral", "atMs": 92300 }
+    },
+    { "kind": "verdict", "fromMs": 129080, "toMs": 130650, "ok": false, "text": "NỢ NHỎ → KHÔNG HỢP LÝ" },
+    { "kind": "venn", "fromMs": 161700, "toMs": 166400, "left": "Broker", "right": "Bạn", "label": "LỢI ÍCH CHUNG" }
+  ],
+  "cta": { "question": "Bạn đang trả bao nhiêu phí cho ngân hàng?" },
+  "compliance": { "illustrativeNumbers": true },
+  "exemptions": [
+    {
+      "field": "cues[1]",
+      "term": "lãi suất rẻ nhất",
+      "reason": "negation",
+      "note": "Struck through on screen: the cheapest rate is named as NOT the thing to chase (total cost is)."
+    },
+    {
+      "field": "cues[1]",
+      "term": "rẻ nhất",
+      "reason": "negation",
+      "note": "Same struck-through line: 'Lãi suất rẻ nhất' shown as what not to optimise for."
+    }
+  ]
+}
