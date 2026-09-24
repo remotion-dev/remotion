@@ -7,7 +7,7 @@ crumb: 'Getting started'
 
 import {TimingTimeline} from '../components/TimingTimeline';
 
-The [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore) and [`durationInFrames`](/docs/sequence#durationinframes) props apply to these timeline components:
+The [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes) and [`trimBefore`](/docs/sequence#trimbefore) props apply to these timeline components:
 
 - [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
 - [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
@@ -18,7 +18,7 @@ The [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore) and
 
 The listed components also accept `playbackRate`, except [`<Img>`](/docs/img) and [`<CanvasImage>`](/docs/canvasimage). Custom components must expose it in their schema.
 
-## Position with `from`
+## `from`: Move an item
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
@@ -38,9 +38,29 @@ export const MyComposition = () => (
 
 Drag the playhead across the element. The counter on the left shows composition frames `30` through `59`. The label inside the element shows its local frame, `0` through `29`, matching `<Counter>`.
 
-## Trim the beginning and end
+## `durationInFrames`: Limit an item
 
-`trimBefore` skips the beginning of an item's content without moving the item from its `from` position. Set `durationInFrames` to control how long it remains on the parent timeline. For `<Interactive.Div>`, `trimBefore` advances the frame seen by its children when they first appear. It is available on `<Interactive.Div>` from <AvailableFrom v="4.0.482" inline />:
+`durationInFrames` sets how long an item stays on its parent timeline, starting at `from`. It does not change the frame seen by its children:
+
+<TimingTimeline from={30} durationInFrames={45} trimBefore={0} playbackRate={1} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30} durationInFrames={45}>
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+The item appears at composition frames `30` through `74`. The label inside the item and `<Counter>` run from `0` through `44`. Use `durationInFrames` to trim the end of `<Interactive.Div>`; it has no `trimAfter` prop.
+
+## `trimBefore`: Trim the beginning
+
+`trimBefore` skips the beginning of an item's content without moving it from its `from` position. For `<Interactive.Div>`, it advances the frame seen by its children when they first appear. It is available on `<Interactive.Div>` from <AvailableFrom v="4.0.482" inline />:
 
 <TimingTimeline from={30} durationInFrames={45} trimBefore={15} playbackRate={1} />
 
@@ -60,9 +80,9 @@ export const MyComposition = () => (
 );
 ```
 
-The element now occupies composition frames `30` through `74`. The counter on the left shows those frames, while the label inside the element and `<Counter>` run from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`. To trim the end of `<Interactive.Div>`, set `durationInFrames`; it has no `trimAfter` prop.
+The element still occupies composition frames `30` through `74`. The counter on the left shows those frames, while the label inside the element and `<Counter>` run from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`.
 
-## Change playback speed
+## `playbackRate`: Change speed of an item
 
 From <AvailableFrom v="4.0.528" inline />, `playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances. At `2×` speed, the child advances two frames for each composition frame:
 
@@ -85,13 +105,22 @@ export const MyComposition = () => (
 );
 ```
 
-At composition frame `30`, the label inside the element and `<Counter>` show `15`. At frame `40`, they show `35`. The element still lasts 45 frames on the parent timeline. At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the element returns:
+At composition frame `30`, the label inside the element and `<Counter>` show `15`. At frame `40`, they show `35`. The element still lasts 45 frames on the parent timeline. Nested `<Interactive.Div>` elements apply their timing from the outer element to the inner one; their playback rates multiply. See [Order of operations](#order-of-operations) for how the timing props combine.
+
+## Order of operations
+
+For an item with children, the timing props apply in this order:
+
+1. Use `from` and `durationInFrames` to determine whether the item appears on the parent timeline.
+2. Subtract `from` from the parent frame.
+3. Multiply by `playbackRate`.
+4. Add `trimBefore`.
+
+At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the item returns:
 
 ```text
 (t - from) * playbackRate + trimBefore
 ```
-
-Nested `<Interactive.Div>` elements apply their timing from the outer element to the inner one; their playback rates multiply.
 
 ## Trim a media source with `trimAfter`
 
