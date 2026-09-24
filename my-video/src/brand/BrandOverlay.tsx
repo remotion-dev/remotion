@@ -20,6 +20,8 @@ export const brandOverlayDefaultProps: BrandOverlayProps = {
 const LOWER_THIRD_FROM = 30;
 const LOWER_THIRD_DURATION = 150;
 const FADE = 15;
+// 2.5x the 78px TyDoReel uses, so the logo stands out in a corner.
+const LOGO_HEIGHT = 195;
 
 // A transparent overlay to lay over footage in a video editor: the Finance Hub
 // logo on a white pill in the top-right corner for the whole clip (its
@@ -42,16 +44,16 @@ export const BrandOverlay: React.FC<BrandOverlayProps> = ({name, roleVi, roleEn}
       <div
         style={{
           position: "absolute",
-          top: 36,
-          right: 36,
-          padding: "10px 16px",
-          borderRadius: 18,
+          top: 48,
+          right: 48,
+          padding: "22px 34px",
+          borderRadius: 36,
           background: "rgba(255,255,255,0.94)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
           opacity: logoOpacity,
         }}
       >
-        <Img src={staticFile("ty-do/finhub-logo.png")} style={{height: 78, display: "block"}} />
+        <Img src={staticFile("ty-do/finhub-logo.png")} style={{height: LOGO_HEIGHT, display: "block"}} />
       </div>
       <Sequence from={LOWER_THIRD_FROM} durationInFrames={LOWER_THIRD_DURATION} name="Lower third">
         <AbsoluteFill style={{opacity: lowerThirdOpacity}}>
