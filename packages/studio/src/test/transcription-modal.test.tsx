@@ -155,10 +155,14 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		screen.getByRole('dialog', {
 			name: 'Transcribe interview.wav',
 		});
+		await waitFor(() => {
+			const buttons = screen.getAllByRole('button', {name: /^Transcribe$/});
+			expect(buttons).toHaveLength(2);
+			expect((buttons[0] as HTMLButtonElement).disabled).toBe(false);
+		});
 		const [submit] = screen.getAllByRole('button', {
 			name: /^Transcribe$/,
 		}) as HTMLButtonElement[];
-		await waitFor(() => expect(submit.disabled).toBe(false));
 		expect(
 			screen.queryByText('Runs locally as a background job using WebGPU'),
 		).toBeNull();
@@ -168,7 +172,9 @@ test('serializes transcription modal settings into caption jobs', async () => {
 			outputLabel.compareDocumentPosition(modelLabel) &
 				Node.DOCUMENT_POSITION_FOLLOWING,
 		).not.toBe(0);
-		const outputHelp = screen.getByTitle('Learn more about Output in public/');
+		const outputHelp = screen.getByRole('button', {
+			name: 'Learn more about Output in public/',
+		});
 		expect(screen.queryByText('Caption[]')).toBeNull();
 		fireEvent.pointerUp(outputHelp);
 		const captionType = screen.getByText('Caption[]');
@@ -179,12 +185,18 @@ test('serializes transcription modal settings into caption jobs', async () => {
 		expect(
 			screen.queryByRole('checkbox', {name: 'Force full sequences'}),
 		).toBeNull();
-		expect(screen.queryByTitle('Task')).toBeNull();
+		expect(screen.queryByRole('button', {name: 'Task'})).toBeNull();
 
-		await selectComboboxItem(screen.getByTitle('Whisper model'), /^tiny ·/);
-		await selectComboboxItem(screen.getByTitle('Spoken language'), 'German');
 		await selectComboboxItem(
-			screen.getByRole('button', {name: 'Task: Transcribe'}),
+			screen.getByRole('button', {name: 'Whisper model'}),
+			/^tiny ·/,
+		);
+		await selectComboboxItem(
+			screen.getByRole('button', {name: 'Spoken language'}),
+			'German',
+		);
+		await selectComboboxItem(
+			screen.getByRole('button', {name: 'Task'}),
 			'Task: Translate to English',
 		);
 		const taskLabel = screen.getByText('Translate to English', {
@@ -216,15 +228,23 @@ test('serializes transcription modal settings into caption jobs', async () => {
 			target: {value: 'captions/interview.json'},
 		});
 		screen.getByText('Exists, will be overwritten');
-		screen.getByTitle(/^Open in (Finder|File Explorer|File Manager)$/);
+		screen.getByRole('button', {
+			name: /^Open in (Finder|File Explorer|File Manager)$/,
+		});
 
 		fireEvent.click(screen.getByRole('button', {name: 'Advanced'}));
-		screen.getByTitle('Learn more about Chunk length');
-		screen.getByTitle('Learn more about Stride length');
-		screen.getByTitle('Learn more about Force full sequences');
-		screen.getByTitle('Learn more about Use sampling');
-		screen.getByTitle('Learn more about Repetition penalty');
-		screen.getByTitle('Learn more about No-repeat n-gram size');
+		screen.getByRole('button', {name: 'Learn more about Chunk length'});
+		screen.getByRole('button', {name: 'Learn more about Stride length'});
+		screen.getByRole('button', {
+			name: 'Learn more about Force full sequences',
+		});
+		screen.getByRole('button', {name: 'Learn more about Use sampling'});
+		screen.getByRole('button', {
+			name: 'Learn more about Repetition penalty',
+		});
+		screen.getByRole('button', {
+			name: 'Learn more about No-repeat n-gram size',
+		});
 
 		const forceFullSequences = screen.getByRole('checkbox', {
 			name: 'Force full sequences',
@@ -244,8 +264,8 @@ test('serializes transcription modal settings into caption jobs', async () => {
 
 		act(() => forceFullSequences.click());
 		act(() => useSampling.click());
-		screen.getByTitle('Learn more about Temperature');
-		screen.getByTitle('Learn more about Top K');
+		screen.getByRole('button', {name: 'Learn more about Temperature'});
+		screen.getByRole('button', {name: 'Learn more about Top K'});
 
 		setNumberSetting(/^Chunk length:/, 22);
 		setNumberSetting(/^Stride length:/, 4);

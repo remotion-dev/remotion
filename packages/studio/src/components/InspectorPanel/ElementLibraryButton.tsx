@@ -85,7 +85,7 @@ export const ElementLibraryButton: React.FC = () => {
 	const elementLibraryDropdownSegments = useMemo<SegmentedButtonSegment[]>(
 		() => [
 			{
-				ariaLabel: 'Choose an Element Library to browse inside Studio.',
+				ariaLabel: 'Browse Elements',
 				buttonId: null,
 				disabled: false,
 				idleColor: LIGHT_TEXT,

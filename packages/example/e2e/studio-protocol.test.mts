@@ -344,7 +344,7 @@ const CloseupPlaceholder = () => {
 		await officialLibraryItem.click();
 
 		const officialElementsIframe = studioPage.locator(
-			'iframe[title="Remotion Elements library"]',
+			'iframe[aria-label="Remotion Elements library"]',
 		);
 		await expect(officialElementsIframe).toBeVisible();
 		expect(officialLibraryRequests).toEqual([
@@ -367,7 +367,7 @@ const CloseupPlaceholder = () => {
 		).toBeVisible({timeout: 30_000});
 		await externalLibraryItem.click();
 		const elementsIframe = studioPage.locator(
-			`iframe[title="${externalLibraryLabel} library"]`,
+			`iframe[aria-label="${externalLibraryLabel} library"]`,
 		);
 		await expect(elementsIframe).toBeVisible();
 		await expect(elementsIframe).toHaveAttribute(
@@ -380,7 +380,7 @@ const CloseupPlaceholder = () => {
 		]);
 		expect(context.pages()).toHaveLength(2);
 		const elementsFrame = studioPage.frameLocator(
-			`iframe[title="${externalLibraryLabel} library"]`,
+			`iframe[aria-label="${externalLibraryLabel} library"]`,
 		);
 		await expect(
 			elementsFrame.getByText('Inside Remotion Studio', {exact: true}),
@@ -735,7 +735,7 @@ const CloseupPlaceholder = () => {
 		await newCompositionDialog
 			.getByPlaceholder('Composition ID')
 			.fill('ProtocolElementScene');
-		await newCompositionDialog.getByTitle('Folder').click();
+		await newCompositionDialog.getByRole('button', {name: 'Folder'}).click();
 		await studioPage
 			.getByRole('button', {name: 'Closeup', exact: true})
 			.last()
