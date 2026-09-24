@@ -373,7 +373,10 @@ export const config: VercelConfig = {
 		routes.redirect('/editor-starter', '/docs/editor-starter', {
 			permanent: false,
 		}),
-		routes.redirect('/docs/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/docs/system-prompt', '/system-prompt.txt', {
+			permanent: false,
+		}),
+		routes.redirect('/docs/ai/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/media-parser/', '/docs/media-parser', {
@@ -446,7 +449,7 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/vercel', '/docs/vercel', {
 			permanent: false,
 		}),
-		routes.redirect('/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/investors', '/docs/investors', {permanent: false}),

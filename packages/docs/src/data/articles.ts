@@ -234,15 +234,6 @@ export const articles = [
 		slug: 'ai/skills',
 	},
 	{
-		id: 'ai/system-prompt',
-		title: 'Remotion System Prompt for LLMs',
-		relativePath: 'docs/ai/system-prompt.mdx',
-		compId: 'articles-docs-ai-system-prompt',
-		crumb: 'AI',
-		noAi: false,
-		slug: 'ai/system-prompt',
-	},
-	{
 		id: 'ai/webmcp',
 		title: 'WebMCP',
 		relativePath: 'docs/ai/webmcp.mdx',
