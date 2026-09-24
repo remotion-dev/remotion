@@ -1,0 +1,33 @@
+{
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".react-router/types/**/*",
+    "app/remotion/constants.mjs",
+    "deploy.mjs"
+  ],
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "strict": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "baseUrl": ".",
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "~/*": ["./app/*"]
+    },
+    "noEmit": true,
+    "types": ["@react-router/node", "vite/client"],
+    "rootDirs": [".", "./.react-router/types"],
+    "module": "ESNext"
+  },
+  "exclude": ["remotion.config.ts"]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "my-next-pages-dir",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.527",
+    "@remotion/google-fonts": "4.0.527",
+    "@remotion/bundler": "4.0.527",
+    "@remotion/lambda": "4.0.527",
+    "@remotion/paths": "4.0.527",
+    "@remotion/player": "4.0.527",
+    "@remotion/shapes": "4.0.527",
+    "next": "16.3.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.527",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.1.0",
+    "@eslint/js": "9.38.0",
+    "@next/eslint-plugin-next": "15.1.6",
+    "@remotion/eslint-plugin": "4.0.527",
+    "@types/node": "20.12.14",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@types/web": "0.0.166",
+    "@typescript-eslint/eslint-plugin": "8.46.0",
+    "@typescript-eslint/parser": "8.46.0",
+    "dotenv": "17.3.1",
+    "eslint": "9.19.0",
+    "eslint-config-next": "15.1.6",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "remotion": "remotion studio",
+    "render": "remotion render",
+    "deploy": "node deploy.mjs"
+  }
+}

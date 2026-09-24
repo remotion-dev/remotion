@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fff;
+  --foreground: #000;
+  --unfocused-border-color: #eaeaea;
+  --focused-border-color: #666;
+
+  --button-disabled-color: #fafafa;
+  --disabled-text-color: #999;
+
+  --geist-border-radius: 5px;
+  --geist-quarter-pad: 6px;
+  --geist-half-pad: 12px;
+  --geist-pad: 24px;
+  --geist-font: "Inter";
+
+  --geist-error: #e00;
+
+  --subtitle: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000000;
+    --unfocused-border-color: #333;
+    --focused-border-color: #888;
+    --foreground: #fff;
+    --button-disabled-color: #111;
+    --geist-error: red;
+    --subtitle: #8d8d8d;
+  }
+}
+
+@theme {
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-unfocused-border-color: var(--unfocused-border-color);
+  --color-focused-border-color: var(--focused-border-color);
+  --color-button-disabled-color: var(--button-disabled-color);
+  --color-disabled-text-color: var(--disabled-text-color);
+  --color-geist-error: var(--geist-error);
+  --color-subtitle: var(--subtitle);
+  --padding-geist-quarter: var(--geist-quarter-pad);
+  --padding-geist-half: var(--geist-half-pad);
+  --padding-geist: var(--geist-pad);
+  --spacing-geist: var(--geist-pad);
+  --spacing-geist-half: var(--geist-half-pad);
+  --spacing-geist-quarter: var(--geist-quarter-pad);
+  --radius-geist: var(--geist-border-radius);
+  --font-geist: var(--geist-font);
+  --animate-spinner: spinner 1.2s linear infinite;
+
+  @keyframes spinner {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.15;
+    }
+  }
+}

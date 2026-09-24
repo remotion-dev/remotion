@@ -1,0 +1,45 @@
+{
+  "name": "my-still",
+  "version": "1.0.0",
+  "description": "A template for designing still images with dynamic data with built-in server for deploying to the cloud.",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.986.0",
+    "@remotion/bundler": "4.0.527",
+    "@remotion/cli": "4.0.527",
+    "@remotion/renderer": "4.0.527",
+    "@remotion/zod-types": "4.0.527",
+    "@types/express": "4.17.13",
+    "@types/express-rate-limit": "5.1.3",
+    "@types/node": "20.12.14",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "dotenv": "17.3.1",
+    "express": "4.21.0",
+    "express-rate-limit": "5.3.0",
+    "p-limit": "3.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.527",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.527",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "bun": "1.3.3",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "start": "node dist/server/index.js",
+    "make": "tsc -d",
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "render": "remotion still PreviewCard out/still.png",
+    "upgrade": "remotion upgrade",
+    "server": "bun src/server/index.ts",
+    "lint": "eslint src && tsc"
+  }
+}

@@ -1,0 +1,40 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  font-family: Inter;
+}
+
+.item {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  padding: 10px;
+}
+
+.icon {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.item:hover {
+  transform: translateY(-2px);
+  .icon {
+    opacity: 1;
+  }
+}
+
+.p {
+  font-size: 14px;
+  margin-top: 0;
+  line-height: 1.5;
+  color: var(--subtitle);
+}
+
+.flex {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+}

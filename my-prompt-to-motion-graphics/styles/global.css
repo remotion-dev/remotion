@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --unfocused-border-color: #333;
+
+  --geist-border-radius: 5px;
+  --geist-quarter-pad: 6px;
+  --geist-half-pad: 12px;
+  --geist-pad: 24px;
+  --geist-font: "Inter";
+
+  --geist-error: #dc2626;
+
+  --radius: 0.625rem;
+
+  /* Dark theme colors */
+  --background: #0a0a0a;
+  --background-elevated: #1a1a1a;
+  --background-editor: #1e1e1e;
+  --background-editor-header: #2d2d2d;
+  --background-error: #2a1a1a;
+  --foreground: #ffffff;
+  --primary: #0B84F3;
+  --primary-hover: #0a75d9;
+  --primary-foreground: #ffffff;
+  --secondary: #333;
+  --secondary-foreground: #ffffff;
+  --muted: #111;
+  --muted-foreground: #888;
+  --muted-foreground-dim: #666;
+  --accent: #2a2a2a;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #f87171;
+  --border: #333;
+  --border-dim: #222;
+  --input: #0f0f0f;
+  --ring: #333;
+}
+
+@theme {
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-unfocused-border-color: var(--unfocused-border-color);
+  --color-geist-error: var(--geist-error);
+  --padding-geist-quarter: var(--geist-quarter-pad);
+  --padding-geist-half: var(--geist-half-pad);
+  --padding-geist: var(--geist-pad);
+  --spacing-geist: var(--geist-pad);
+  --spacing-geist-half: var(--geist-half-pad);
+  --spacing-geist-quarter: var(--geist-quarter-pad);
+  --radius-geist: var(--geist-border-radius);
+  --font-geist: var(--geist-font);
+  --animate-spinner: spinner 1.2s linear infinite;
+  --animate-spin: spin 1s linear infinite;
+
+  @keyframes spinner {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.15;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-editor: var(--background-editor);
+  --color-background-editor-header: var(--background-editor-header);
+  --color-background-error: var(--background-error);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground-dim: var(--muted-foreground-dim);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-dim: var(--border-dim);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

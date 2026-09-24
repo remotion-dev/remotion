@@ -1,0 +1,149 @@
+[
+  {
+    "text": "To",
+    "startMs": 0,
+    "endMs": 250,
+    "timestampMs": 340,
+    "confidence": 0.976738
+  },
+  {
+    "text": " learn",
+    "startMs": 250,
+    "endMs": 540,
+    "timestampMs": 640,
+    "confidence": 0.998586
+  },
+  {
+    "text": " everything",
+    "startMs": 540,
+    "endMs": 1310,
+    "timestampMs": 1080,
+    "confidence": 0.971988
+  },
+  {
+    "text": " about",
+    "startMs": 1310,
+    "endMs": 1700,
+    "timestampMs": 1460,
+    "confidence": 0.994416
+  },
+  {
+    "text": " how",
+    "startMs": 1700,
+    "endMs": 1930,
+    "timestampMs": 1760,
+    "confidence": 0.994112
+  },
+  {
+    "text": " to",
+    "startMs": 1930,
+    "endMs": 2140,
+    "timestampMs": 1920,
+    "confidence": 0.997699
+  },
+  {
+    "text": " use",
+    "startMs": 2140,
+    "endMs": 2310,
+    "timestampMs": 2100,
+    "confidence": 0.997525
+  },
+  {
+    "text": " the",
+    "startMs": 2310,
+    "endMs": 2540,
+    "timestampMs": 2300,
+    "confidence": 0.977706
+  },
+  {
+    "text": " Recorder,",
+    "startMs": 2540,
+    "endMs": 3480,
+    "timestampMs": 2520,
+    "confidence": 0.389211
+  },
+  {
+    "text": " go",
+    "startMs": 3480,
+    "endMs": 3720,
+    "timestampMs": 3620,
+    "confidence": 0.663689
+  },
+  {
+    "text": " to",
+    "startMs": 3720,
+    "endMs": 3920,
+    "timestampMs": 3900,
+    "confidence": 0.99594
+  },
+  {
+    "text": " remotion.dev/recorder",
+    "startMs": 3920,
+    "endMs": 6720,
+    "timestampMs": 4120,
+    "confidence": 0.855024
+  },
+  {
+    "text": " and",
+    "startMs": 6720,
+    "endMs": 6940,
+    "timestampMs": 7080,
+    "confidence": 0.97201
+  },
+  {
+    "text": " join",
+    "startMs": 6940,
+    "endMs": 7230,
+    "timestampMs": 7440,
+    "confidence": 0.994287
+  },
+  {
+    "text": " our",
+    "startMs": 7230,
+    "endMs": 7450,
+    "timestampMs": 7800,
+    "confidence": 0.992949
+  },
+  {
+    "text": " Discord",
+    "startMs": 7450,
+    "endMs": 8070,
+    "timestampMs": 8200,
+    "confidence": 0.785039
+  },
+  {
+    "text": " if",
+    "startMs": 8070,
+    "endMs": 8100,
+    "timestampMs": 8580,
+    "confidence": 0.904597
+  },
+  {
+    "text": " you",
+    "startMs": 8100,
+    "endMs": 8360,
+    "timestampMs": 8680,
+    "confidence": 0.998666
+  },
+  {
+    "text": " have",
+    "startMs": 8360,
+    "endMs": 8610,
+    "timestampMs": 8860,
+    "confidence": 0.998548
+  },
+  {
+    "text": " any",
+    "startMs": 8610,
+    "endMs": 8860,
+    "timestampMs": 9140,
+    "confidence": 0.991639
+  },
+  {
+    "text": " questions.",
+    "startMs": 8860,
+    "endMs": 9520,
+    "timestampMs": 9500,
+    "confidence": 0.996993
+  }
+]

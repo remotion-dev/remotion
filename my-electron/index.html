@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*; font-src 'self' data:;"
+    />
+    <title>Remotion + Electron</title>
+  </head>
+  <body>
+    <div id="react-root"></div>
+    <script type="module" src="/src/renderer.ts"></script>
+  </body>
+</html>

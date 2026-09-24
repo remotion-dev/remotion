@@ -1,0 +1,12 @@
+@keyframes spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.line {
+  animation: spinner 1.2s linear infinite;
+}
