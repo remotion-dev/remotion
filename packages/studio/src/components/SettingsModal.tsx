@@ -90,7 +90,16 @@ const keyboardIcon: React.CSSProperties = {
 
 const elementsIcon: React.CSSProperties = {
 	...icon,
+	flexShrink: 0,
 	height: 22,
+	width: 22,
+};
+
+const elementsIconContainer: React.CSSProperties = {
+	...iconContainer,
+	flexShrink: 0,
+	height: 22,
+	marginRight: 4,
 	width: 22,
 };
 
@@ -249,7 +258,7 @@ export const SettingsModal: React.FC<{
 									setStudioPane('elements');
 								}}
 								renderIcon={(color) => (
-									<div style={iconContainer}>
+									<div style={elementsIconContainer}>
 										<BrowseElementsIcon color={color} style={elementsIcon} />
 									</div>
 								)}
