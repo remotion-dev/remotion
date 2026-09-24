@@ -164,49 +164,36 @@ export const TimelineSequenceName: React.FC<{
 				className="remotion-timeline-sequence-name-measure"
 				data-name={text}
 				title={text}
-				style={{...style, backgroundColor: undefined, boxShadow: undefined}}
+				style={{
+					...style,
+					backgroundColor: undefined,
+					boxShadow: undefined,
+					clipPath: chevronSlot === 'occupied' ? 'inset(0)' : undefined,
+				}}
 			>
 				<div
 					style={{
-						...style,
-						backgroundColor: undefined,
-						boxShadow: undefined,
+						...getTimelineSelectedLabelStyle(selected, false),
+						alignItems: 'center',
+						boxShadow: style.boxShadow,
 						boxSizing: 'border-box',
-						clipPath:
-							chevronSlot === 'occupied'
-								? `inset(0 ${CHEVRON_SLOT_WIDTH}px 0 0)`
-								: undefined,
+						color: getTimelineColor(selected, false),
+						display: 'inline-flex',
+						fontFamily: LABEL_FONT_FAMILY,
+						fontSize: 12,
 						height: '100%',
 						left: 0,
+						lineHeight: 'normal',
+						maxWidth: `calc(100% + ${CHEVRON_SLOT_WIDTH}px)`,
 						overflow: 'hidden',
-						paddingLeft: 0,
-						paddingRight: 0,
-						pointerEvents: 'none',
 						position: 'absolute',
+						textOverflow: 'ellipsis',
 						top: 0,
-						width: `calc(100% + ${CHEVRON_SLOT_WIDTH}px)`,
+						whiteSpace: 'nowrap',
+						width: 'max-content',
 					}}
 				>
-					<div
-						style={{
-							...getTimelineSelectedLabelStyle(selected, false),
-							alignItems: 'center',
-							boxShadow: style.boxShadow,
-							boxSizing: 'border-box',
-							color: getTimelineColor(selected, false),
-							display: 'inline-flex',
-							fontFamily: LABEL_FONT_FAMILY,
-							fontSize: 12,
-							height: '100%',
-							lineHeight: 'normal',
-							maxWidth: '100%',
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							whiteSpace: 'nowrap',
-						}}
-					>
-						{text}
-					</div>
+					{text}
 				</div>
 			</div>
 		);
