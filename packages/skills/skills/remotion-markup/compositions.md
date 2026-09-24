@@ -113,7 +113,10 @@ When the nested scene should have its own editable Studio timeline, use the [con
 ```tsx
 <>
   <Video src="https://remotion.media/video.mp4" />
-  <Sequence width={1920} height={1080}>
+  <Sequence
+    width={1920}
+    height={1080}
+  >
     <OverlayComponent />
   </Sequence>
 </>

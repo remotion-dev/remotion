@@ -16,10 +16,16 @@ import {FeatureScene} from './FeatureScene';
 
 export const MyVideo = () => (
   <Series>
-    <Series.Sequence name="Opening" durationInFrames={90}>
+    <Series.Sequence
+      name="Opening"
+      durationInFrames={90}
+    >
       <OpeningScene />
     </Series.Sequence>
-    <Series.Sequence name="Feature" durationInFrames={120}>
+    <Series.Sequence
+      name="Feature"
+      durationInFrames={120}
+    >
       <FeatureScene />
     </Series.Sequence>
   </Series>
@@ -36,10 +42,31 @@ import {FeatureScene} from './FeatureScene';
 export const RemotionRoot = () => (
   <>
     <Folder name="MyVideo-Scenes">
-      <Composition id="Opening" component={OpeningScene} width={1920} height={1080} fps={30} durationInFrames={90} />
-      <Composition id="Feature" component={FeatureScene} width={1920} height={1080} fps={30} durationInFrames={120} />
+      <Composition
+        id="Opening"
+        component={OpeningScene}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={90}
+      />
+      <Composition
+        id="Feature"
+        component={FeatureScene}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={120}
+      />
     </Folder>
-    <Composition id="MyVideo" component={MyVideo} width={1920} height={1080} fps={30} durationInFrames={210} />
+    <Composition
+      id="MyVideo"
+      component={MyVideo}
+      width={1920}
+      height={1080}
+      fps={30}
+      durationInFrames={210}
+    />
   </>
 );
 ```

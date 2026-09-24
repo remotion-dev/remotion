@@ -12,10 +12,16 @@ import {FeatureScene} from './FeatureScene';
 
 export const MyVideo = () => (
   <TransitionSeries>
-    <TransitionSeries.Sequence name="Opening" durationInFrames={90}>
+    <TransitionSeries.Sequence
+      name="Opening"
+      durationInFrames={90}
+    >
       <OpeningScene />
     </TransitionSeries.Sequence>
-    <TransitionSeries.Sequence name="Feature" durationInFrames={120}>
+    <TransitionSeries.Sequence
+      name="Feature"
+      durationInFrames={120}
+    >
       <FeatureScene />
     </TransitionSeries.Sequence>
   </TransitionSeries>
