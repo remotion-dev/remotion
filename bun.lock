@@ -122,6 +122,7 @@
         "@remotion/mac-cursors": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
+        "@remotion/motion-blur": "workspace:*",
         "@remotion/noise": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/rough-notation": "workspace:*",

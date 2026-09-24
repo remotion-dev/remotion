@@ -89,6 +89,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasMotionBlurExample,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -1242,6 +1243,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-motion-blur"
+						component={HtmlInCanvasMotionBlurExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={76}
+					/>
 					<Composition
 						id="html-in-canvas-changing-size"
 						component={HtmlInCanvasDemo}
