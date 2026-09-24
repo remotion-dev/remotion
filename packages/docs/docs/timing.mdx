@@ -20,7 +20,7 @@ The [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore) and
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
-<TimingTimeline from={30} durationInFrames={60} />
+<TimingTimeline from={30} durationInFrames={30} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -28,13 +28,13 @@ import {Interactive, useCurrentFrame} from 'remotion';
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Interactive.Div from={30} durationInFrames={60}>
+  <Interactive.Div from={30} durationInFrames={30}>
     <Counter />
   </Interactive.Div>
 );
 ```
 
-The element occupies composition frames `30` through `89`. Its counter runs from `0` through `59`.
+The element occupies composition frames `30` through `59`. Its counter runs from `0` through `29`.
 
 ## Trim the beginning and end
 
