@@ -40,6 +40,8 @@ import {
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
 	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -267,11 +269,15 @@ const SequenceSourceQuickActions: React.FC<{
 			{freezeFrameMenuItem?.type === 'item' ? (
 				<InspectorQuickAction
 					disabled={Boolean(freezeFrameMenuItem.disabled)}
+					iconContainerStyle={largeInspectorActionIconContainerStyle}
 					onClick={() =>
 						freezeFrameMenuItem.onClick(freezeFrameMenuItem.id, null)
 					}
 					renderIcon={(color) => (
-						<SnowflakeIcon style={inspectorActionIconStyle} color={color} />
+						<SnowflakeIcon
+							style={largeInspectorActionIconStyle}
+							color={color}
+						/>
 					)}
 				>
 					{freezeFrameMenuItem.label}
