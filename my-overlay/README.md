@@ -37,6 +37,16 @@ npx remotion render
 npx remotion upgrade
 ```
 
+## Using the overlay in a video editor
+
+`remotion.config.ts` already exports a transparent Apple ProRes 4444 file, which Final Cut Pro, Adobe Premiere Pro and DaVinci Resolve import with its transparency ([Remotion's overlay guide](https://www.remotion.dev/docs/overlay)).
+
+1. Keep the composition's background empty. In the Studio, the transparency toggle shows a checkerboard wherever the overlay is see-through.
+2. Render it: `npx remotion render Overlay out/overlay.mov`
+3. Import `out/overlay.mov` into your editor and put it on a track above your footage.
+
+To check a render before importing it, run `npx remotion ffprobe out/overlay.mov`. It should report `prores` and a pixel format starting with `yuva`; the `a` is the transparency channel.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
