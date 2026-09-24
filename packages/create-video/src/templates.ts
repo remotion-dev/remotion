@@ -44,6 +44,7 @@ export type Template = {
 		| 'render-server'
 		| 'recorder'
 		| 'prompt-to-motion-graphics'
+		| 'vibe-code'
 		| 'electron'
 		| 'vercel';
 	defaultBranch: string;
@@ -255,6 +256,30 @@ export const FEATURED_TEMPLATES: Template[] = [
 		templateInMonorepo: 'template-prompt-to-motion-graphics',
 		allowEnableTailwind: false,
 		contributedBy: 'ASchwad',
+		showStackblitz: false,
+	},
+	{
+		homePageLabel: 'Vibe Code',
+		shortName: 'Vibe Code (Next.js)',
+		org: 'remotion-dev',
+		repoName: 'template-vibe-code',
+		description: 'A motion graphics editor that runs in the browser',
+		longerDescription:
+			'Write Remotion code and watch it compile instantly in the browser, then edit the result on the canvas, in the timeline and in the inspector. Built with <code>@remotion/browser-bundler</code>, <code>@remotion/canvas</code>, <code>@remotion/codemods</code> and <code>@remotion/web-renderer</code>.',
+		promoBanner: {
+			width: 1920,
+			height: 1080,
+			src: '/img/template-vibe-code.png',
+		},
+		cliId: 'vibe-code' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		previewLabel: null,
+		templateInMonorepo: 'template-vibe-code',
+		allowEnableTailwind: false,
+		contributedBy: null,
 		showStackblitz: false,
 	},
 	{
