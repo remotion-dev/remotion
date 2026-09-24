@@ -29,7 +29,8 @@ import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
-	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {
 	MultiSequenceField,
@@ -221,10 +222,11 @@ export const MultiSequenceInspector: React.FC<{
 				<InspectorQuickActionsSection>
 					<InspectorQuickAction
 						disabled={!canSplit}
+						iconContainerStyle={largeInspectorActionIconContainerStyle}
 						onClick={onSplit}
 						aria-label={canSplit ? undefined : 'Studio is read-only'}
 						renderIcon={(color) => (
-							<SplitIcon style={inspectorActionIconStyle} color={color} />
+							<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 						)}
 					>
 						Split selected
