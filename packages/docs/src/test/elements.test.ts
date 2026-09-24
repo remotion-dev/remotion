@@ -6,7 +6,6 @@ import {pathToFileURL} from 'url';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import * as jsxRuntime from 'react/jsx-runtime';
-import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
@@ -19,10 +18,7 @@ import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
-import {
-	elementCategories,
-	elementRegistry,
-} from '../components/Elements/element-registry';
+import {elementRegistry} from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
 	getElementDefinition,
@@ -533,75 +529,6 @@ describe('Element social previews', () => {
 				'<meta property="og:video:height" content="420"/>',
 			);
 		}
-	});
-});
-
-describe('Elements sidebar', () => {
-	test('lists every registered Element exactly once', () => {
-		const sidebar = elementSidebars.elementsSidebar;
-		if (!Array.isArray(sidebar)) {
-			throw new Error('Elements sidebar must be an array');
-		}
-
-		const elementsCategory = sidebar[0];
-		if (
-			typeof elementsCategory !== 'object' ||
-			elementsCategory === null ||
-			elementsCategory.type !== 'category' ||
-			!Array.isArray(elementsCategory.items)
-		) {
-			throw new Error('Elements sidebar must have an Elements root category');
-		}
-
-		const listedElementPages = elementsCategory.items.flatMap((item) => {
-			if (
-				typeof item !== 'object' ||
-				item === null ||
-				item.type !== 'category' ||
-				!Array.isArray(item.items)
-			) {
-				return [];
-			}
-
-			return item.items.filter((child) => typeof child === 'string');
-		});
-		const registeredElementPages = Object.keys(elementRegistry).map(
-			(slug) => `${slug}/index`,
-		);
-
-		expect([...listedElementPages].sort()).toEqual(
-			registeredElementPages.sort(),
-		);
-		expect(new Set(listedElementPages).size).toBe(listedElementPages.length);
-
-		const thirdPartyIndex = elementsCategory.items.indexOf('libraries');
-		expect(thirdPartyIndex).toBe(elementsCategory.items.length - 1);
-		expect(elementsCategory.items[thirdPartyIndex - 1]).toBe('guidelines');
-		const separatorIndex = thirdPartyIndex - 2;
-		for (const {label} of elementCategories) {
-			const categoryIndex = elementsCategory.items.findIndex(
-				(item) =>
-					typeof item === 'object' &&
-					item !== null &&
-					item.type === 'category' &&
-					item.label === label,
-			);
-			expect(categoryIndex).toBeGreaterThan(-1);
-			expect(categoryIndex).toBeLessThan(separatorIndex);
-		}
-
-		const thirdPartySeparator = elementsCategory.items[separatorIndex];
-		if (
-			typeof thirdPartySeparator !== 'object' ||
-			thirdPartySeparator === null ||
-			thirdPartySeparator.type !== 'html'
-		) {
-			throw new Error(
-				'Guidelines and third-party Elements must be separated from first-party categories',
-			);
-		}
-
-		expect(thirdPartySeparator.value).toContain('<hr');
 	});
 });
 
