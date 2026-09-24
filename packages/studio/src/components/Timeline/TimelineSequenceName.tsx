@@ -161,20 +161,11 @@ export const TimelineSequenceName: React.FC<{
 		// Keep the name's flex width fixed while its visible text uses the empty slot.
 		return (
 			<div
+				className="remotion-timeline-sequence-name-measure"
+				data-name={text}
 				title={text}
 				style={{...style, backgroundColor: undefined, boxShadow: undefined}}
 			>
-				<div
-					aria-hidden
-					style={{
-						fontFamily: LABEL_FONT_FAMILY,
-						fontSize: 12,
-						lineHeight: 'normal',
-						visibility: 'hidden',
-					}}
-				>
-					{text}
-				</div>
 				<div
 					style={{
 						...style,
