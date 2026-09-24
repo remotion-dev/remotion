@@ -124,6 +124,7 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {MotionBlurSlideIn} from './Showcase/MotionBlurSlideIn';
 import {
 	Skills2AnnouncementComposition,
 	skills2AnnouncementSchema,
@@ -447,6 +448,15 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 
 			<Folder name="Showcases">
+				<Composition
+					id="MotionBlurSlideIn"
+					component={MotionBlurSlideIn}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+					defaultProps={{text: 'Remotion'}}
+				/>
 				<Composition
 					id="SoundEffectShowcases"
 					component={SfxShowcase}
