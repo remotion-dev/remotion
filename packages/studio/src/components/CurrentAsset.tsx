@@ -328,7 +328,7 @@ export const AssetInfo: React.FC<{
 					onClick={onAssetClick}
 					onCommit={onRename}
 					size={contentSized ? 'default' : 'inspector'}
-					title={assetName}
+					aria-label={assetName}
 				/>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (

@@ -393,7 +393,7 @@ export const InspectorSequenceSection: React.FC<{
 							style={assetSelectorIcon}
 						/>
 					),
-					title: linkInfo.assetPath,
+					'aria-label': linkInfo.assetPath,
 				};
 			}
 
@@ -409,7 +409,7 @@ export const InspectorSequenceSection: React.FC<{
 					),
 					disabled: false,
 					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
-					title: linkInfo.href,
+					'aria-label': linkInfo.href,
 				};
 			}
 
@@ -815,7 +815,7 @@ export const InspectorSequenceSection: React.FC<{
 				previewServerState.type !== 'connected'
 			}
 			onClick={onConvertBorderRadius}
-			title={
+			aria-label={
 				borderRadiusConversion === null
 					? borderRadiusUsesShorthand
 						? 'A static border radius is required to use individual corners'
@@ -839,7 +839,7 @@ export const InspectorSequenceSection: React.FC<{
 			variant={null}
 			disabled={automaticallyEnabled3DTransform}
 			onClick={onToggle3DTransform}
-			title={
+			aria-label={
 				automaticallyEnabled3DTransform
 					? '3D controls are required by the current transform values'
 					: show3DTransformControls
@@ -861,7 +861,7 @@ export const InspectorSequenceSection: React.FC<{
 					variant={null}
 					disabled={!canAddEffect}
 					onClick={onAddEffect}
-					title={canAddEffect ? 'Add effect' : undefined}
+					aria-label={canAddEffect ? 'Add effect' : undefined}
 					renderAction={(color) => <Plus color={color} style={plusIcon} />}
 				/>
 			}

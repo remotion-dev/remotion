@@ -144,8 +144,9 @@ export const StackElement: React.FC<{
 					{fileLocation ? (
 						<div
 							ref={locationRef}
+							role="group"
 							style={{...locationContainer, fontSize}}
-							title={locationOverflows ? fileLocation : undefined}
+							aria-label={locationOverflows ? fileLocation : undefined}
 						>
 							{canOpenFileLocation ? (
 								<button

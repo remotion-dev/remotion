@@ -45,7 +45,11 @@ export const TimelineMediaInfo: React.FC<{
 	const {linkInfo, fileNameStyle} = useAssetLink(src);
 
 	return (
-		<div style={fileNameStyle} title={linkInfo ? linkInfo.title : fileName}>
+		<div
+			role="group"
+			style={fileNameStyle}
+			aria-label={linkInfo ? linkInfo.title : fileName}
+		>
 			{fileName}
 		</div>
 	);

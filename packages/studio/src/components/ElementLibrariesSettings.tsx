@@ -258,7 +258,6 @@ export const ElementLibrariesSettings: React.FC = () => {
 							>
 								<InlineAction
 									aria-label={`Remove ${library.displayName ?? library.url}`}
-									title=""
 									disabled={!canSave}
 									onClick={() => removeLibrary(library.url)}
 									renderAction={renderTrash}

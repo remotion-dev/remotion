@@ -43,11 +43,9 @@ const compactHelpIconPath: CSSProperties = {
 const CompactHelpLink = ({
 	href,
 	ariaLabel,
-	title,
 }: {
 	readonly href: string;
 	readonly ariaLabel: string;
-	readonly title: string;
 }) => {
 	const [hovered, setHovered] = useState(false);
 
@@ -58,7 +56,6 @@ const CompactHelpLink = ({
 			rel="noopener noreferrer"
 			style={hovered ? compactHelpLinkHovered : compactHelpLink}
 			aria-label={ariaLabel}
-			title={title}
 			onMouseEnter={() => setHovered(true)}
 			onMouseLeave={() => setHovered(false)}
 		>
@@ -96,7 +93,6 @@ export const CompactExplanation = ({
 				<CompactHelpLink
 					href={learnMoreHref}
 					ariaLabel={learnMoreAriaLabel ?? learnMoreTitle}
-					title={learnMoreTitle}
 				/>
 			) : null}
 		</div>

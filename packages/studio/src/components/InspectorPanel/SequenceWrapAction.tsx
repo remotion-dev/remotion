@@ -157,7 +157,10 @@ export const SequenceWrapAction: React.FC<{
 	const segments = useMemo<SegmentedButtonSegment[]>(
 		() => [
 			{
-				ariaLabel: 'Wrap',
+				ariaLabel:
+					nodePathInfo.numberOfSequencesWithThisNodePath > 1
+						? `Wrap all ${nodePathInfo.numberOfSequencesWithThisNodePath} instances of this JSX element`
+						: 'Wrap this JSX element',
 				buttonId: null,
 				disabled: busy,
 				idleColor: LIGHT_TEXT,
@@ -177,10 +180,6 @@ export const SequenceWrapAction: React.FC<{
 				segmentId: 'wrap',
 				selectedId: null,
 				style: segmentStyle,
-				title:
-					nodePathInfo.numberOfSequencesWithThisNodePath > 1
-						? `Wrap all ${nodePathInfo.numberOfSequencesWithThisNodePath} instances of this JSX element`
-						: 'Wrap this JSX element',
 				tooltipLabel: null,
 				type: 'menu',
 				values,
@@ -193,7 +192,5 @@ export const SequenceWrapAction: React.FC<{
 		return null;
 	}
 
-	return (
-		<SegmentedButton segments={segments} style={buttonStyle} title={null} />
-	);
+	return <SegmentedButton segments={segments} style={buttonStyle} />;
 };

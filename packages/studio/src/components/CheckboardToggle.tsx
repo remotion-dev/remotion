@@ -33,7 +33,6 @@ export const CheckboardToggle: React.FC = () => {
 			dismissOnClick={false}
 		>
 			<ControlButton
-				title=""
 				aria-label={accessibilityLabel}
 				aria-pressed={checkerboard}
 				aria-keyshortcuts={

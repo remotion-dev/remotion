@@ -30,7 +30,10 @@ const selectScalePrecisionAndWaitFor = async ({
 	readonly locator: Locator;
 }) => {
 	await expect(async () => {
-		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await page
+			.getByRole('group', {name: 'Scale precision', exact: true})
+			.first()
+			.click();
 		await expect(locator).toBeVisible({timeout: 1_000});
 	}).toPass({timeout: 15_000});
 };
@@ -60,7 +63,7 @@ test.describe('effect keyframes', () => {
 		const opacity = page.getByText('Opacity', {exact: true});
 		await expect(async () => {
 			await page
-				.getByTitle('Timeline expansion', {exact: true})
+				.getByRole('group', {name: 'Timeline expansion', exact: true})
 				.first()
 				.click();
 			await expect(opacity).toHaveCount(1, {timeout: 1_000});
@@ -168,7 +171,7 @@ test.describe('effect keyframes', () => {
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*40,\s*60,\s*89\]/);
 		await expect(
-			page.getByTitle('Back to property', {exact: true}),
+			page.getByRole('button', {name: 'Back to property', exact: true}),
 		).toHaveCount(0);
 		await expect(opacity).toHaveCount(2);
 
@@ -188,7 +191,7 @@ test.describe('effect keyframes', () => {
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*60,\s*89\]/);
 		await expect(
-			page.getByTitle('Back to property', {exact: true}),
+			page.getByRole('button', {name: 'Back to property', exact: true}),
 		).toHaveCount(0);
 		await expect(opacity).toHaveCount(2);
 
@@ -205,7 +208,7 @@ test.describe('effect keyframes', () => {
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*89\]/);
 		await expect(
-			page.getByTitle('Back to property', {exact: true}),
+			page.getByRole('button', {name: 'Back to property', exact: true}),
 		).toHaveCount(0);
 		await expect(opacity).toHaveCount(2);
 
@@ -216,7 +219,9 @@ test.describe('effect keyframes', () => {
 			.not.toContain('opacity:');
 		await page.reload();
 		await expect(
-			page.getByTitle('Timeline expansion', {exact: true}).first(),
+			page
+				.getByRole('group', {name: 'Timeline expansion', exact: true})
+				.first(),
 		).toBeVisible();
 		await expect(keyframes).toHaveCount(0);
 	});
@@ -236,7 +241,7 @@ test.describe('effect keyframes', () => {
 		const factorDragger = page.getByRole('button', {name: '0.75', exact: true});
 		await expect(async () => {
 			await page
-				.getByTitle('Effect scale precision', {exact: true})
+				.getByRole('group', {name: 'Effect scale precision', exact: true})
 				.first()
 				.click();
 			await expect(page.getByText('Factor', {exact: true})).toBeVisible({
@@ -289,7 +294,7 @@ test.describe('effect keyframes', () => {
 		await page.reload();
 		await expect(async () => {
 			await page
-				.getByTitle('Effect scale precision', {exact: true})
+				.getByRole('group', {name: 'Effect scale precision', exact: true})
 				.first()
 				.click();
 			await expect(
@@ -306,7 +311,7 @@ test.describe('effect keyframes', () => {
 		const opacityRow = page.getByText('Opacity', {exact: true});
 		await expect(async () => {
 			await page
-				.getByTitle('Timeline expansion', {exact: true})
+				.getByRole('group', {name: 'Timeline expansion', exact: true})
 				.first()
 				.click();
 			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
@@ -328,7 +333,10 @@ test.describe('effect keyframes', () => {
 
 		const waveRow = page.getByText('wave()', {exact: true});
 		await expect(async () => {
-			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await page
+				.getByRole('group', {name: 'Scale precision', exact: true})
+				.first()
+				.click();
 			await expect(waveRow).toHaveCount(1, {timeout: 1_000});
 		}).toPass({timeout: 15_000});
 

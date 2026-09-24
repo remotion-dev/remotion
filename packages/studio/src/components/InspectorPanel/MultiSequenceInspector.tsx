@@ -227,7 +227,7 @@ export const MultiSequenceInspector: React.FC<{
 					<InspectorQuickAction
 						disabled={!canSplit}
 						onClick={onSplit}
-						title={canSplit ? undefined : 'Studio is read-only'}
+						aria-label={canSplit ? undefined : 'Studio is read-only'}
 						renderIcon={(color) => (
 							<ScissorsIcon style={actionIconStyle} color={color} />
 						)}

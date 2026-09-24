@@ -152,7 +152,7 @@ export const TimelineSequenceName: React.FC<{
 	}
 
 	return (
-		<div title={text} style={style}>
+		<div role="group" aria-label={text} style={style}>
 			{text}
 		</div>
 	);

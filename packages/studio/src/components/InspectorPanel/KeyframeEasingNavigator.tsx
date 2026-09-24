@@ -143,11 +143,6 @@ const TimelineNavigatorItem: React.FC<{
 			type="button"
 			style={buttonStyle}
 			onClick={onClick}
-			title={
-				item.type === 'keyframe'
-					? `Keyframe at frame ${item.selection.frame}`
-					: `Easing from frame ${item.selection.fromFrame} to ${item.selection.toFrame}`
-			}
 			aria-label={
 				item.type === 'keyframe'
 					? `Select keyframe at frame ${item.selection.frame}`
@@ -252,7 +247,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				variant={null}
 				disabled={previousItem === null}
 				onClick={selectPrevious}
-				title="Previous animation item"
+				aria-label="Previous animation item"
 				renderAction={(color) => (
 					<NavigationChevron
 						color={previousItem === null ? disabledChevronColor : color}
@@ -289,7 +284,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				variant={null}
 				disabled={nextItem === null}
 				onClick={selectNext}
-				title="Next animation item"
+				aria-label="Next animation item"
 				renderAction={(color) => (
 					<NavigationChevron
 						color={nextItem === null ? disabledChevronColor : color}
