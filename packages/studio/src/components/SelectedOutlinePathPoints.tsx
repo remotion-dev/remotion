@@ -542,7 +542,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 						fill="transparent"
 						pointerEvents="all"
 						onPointerDown={(event) => onPointPointerDown(event, point)}
-						style={{cursor: 'pointer'}}
+						style={{cursor: 'default'}}
 					/>
 					<circle
 						cx={point.x}
