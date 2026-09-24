@@ -57,8 +57,11 @@ const libraryName: React.CSSProperties = {
 
 const libraryUrlStyle: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	cursor: 'pointer',
+	display: 'block',
 	fontSize: 12,
 	overflow: 'hidden',
+	textDecoration: 'none',
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
 };
@@ -192,7 +195,14 @@ export const ElementLibrariesSettings: React.FC = () => {
 				<div role="listitem" style={libraryRow}>
 					<div style={libraryDetails}>
 						<div style={libraryName}>Remotion Elements</div>
-						<div style={libraryUrlStyle}>{REMOTION_ELEMENTS_URL}</div>
+						<a
+							href={REMOTION_ELEMENTS_URL}
+							target="_blank"
+							rel="noopener noreferrer"
+							style={libraryUrlStyle}
+						>
+							{REMOTION_ELEMENTS_URL.replace(/^https?:\/\//, '')}
+						</a>
 					</div>
 					<span style={builtInLabel}>Built in</span>
 				</div>
@@ -202,9 +212,14 @@ export const ElementLibrariesSettings: React.FC = () => {
 							<div style={libraryName}>
 								{library.displayName ?? new URL(library.url).host}
 							</div>
-							<div style={libraryUrlStyle} title={library.url}>
-								{library.url}
-							</div>
+							<a
+								href={library.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								style={libraryUrlStyle}
+							>
+								{library.url.replace(/^https?:\/\//, '')}
+							</a>
 						</div>
 						{busy === library.url ? (
 							<Spinner duration={0.5} size={14} />
