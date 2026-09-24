@@ -188,8 +188,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	return (
 		<section style={container}>
 			<p style={description}>
-				Add libraries to browse their elements in Studio. Changes save to
-				remotion.config.ts.
+				Add libraries to browse their elements in Studio.
 			</p>
 			<div role="list" aria-label="Element Libraries">
 				<div role="listitem" style={libraryRow}>
