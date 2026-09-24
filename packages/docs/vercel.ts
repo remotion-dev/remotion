@@ -50,6 +50,12 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/order-of-operations.md', '/docs/timing.md', {
+			permanent: true,
+		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
 		routes.redirect(
 			'/elements/submit-an-element',
