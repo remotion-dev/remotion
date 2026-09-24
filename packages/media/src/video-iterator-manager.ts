@@ -78,6 +78,7 @@ export const videoIteratorManager = async ({
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
+	let destroyed = false;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -180,6 +181,15 @@ export const videoIteratorManager = async ({
 			prewarmedVideoIteratorCache,
 		);
 		videoIteratorsCreated++;
+
+		// destroy() may have run while the first frame was decoding. It could
+		// not reach this iterator yet, and nothing else references it, so it
+		// would keep pre-decoding samples that are never closed.
+		if (destroyed) {
+			iterator.destroy();
+			return;
+		}
+
 		videoFrameIterator = iterator;
 
 		if (iterator.isDestroyed()) {
@@ -301,6 +311,7 @@ export const videoIteratorManager = async ({
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			destroyed = true;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
