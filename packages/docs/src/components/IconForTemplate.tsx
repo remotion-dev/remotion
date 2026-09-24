@@ -19,7 +19,6 @@ import {StillIcon} from './icons/still';
 import {TikTok} from './icons/tiktok';
 import {TypeScriptIcon} from './icons/ts';
 import {VercelIcon} from './icons/vercel';
-import {VibeCodeIcon} from './icons/vibe-code';
 import {Waveform} from './icons/waveform';
 
 export const IconForTemplate: React.FC<{
@@ -159,10 +158,6 @@ export const IconForTemplate: React.FC<{
 
 	if (template.cliId === 'prompt-to-motion-graphics') {
 		return <BrainIcon style={{height: scale * 36}} />;
-	}
-
-	if (template.cliId === 'vibe-code') {
-		return <VibeCodeIcon style={{height: scale * 36}} />;
 	}
 
 	if (template.cliId === 'vercel') {
