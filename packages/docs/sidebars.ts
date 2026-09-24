@@ -565,6 +565,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'motion-blur/trail',
 				'motion-blur/camera-motion-blur',
+				'motion-blur/html-in-canvas-motion-blur',
 				'motion-blur/common-mistake',
 			],
 		},
@@ -1156,6 +1157,7 @@ const sidebars: SidebarsConfig = {
 				'assets',
 				'fonts',
 				'transitioning',
+				'motion-blur-guide',
 				'html-in-canvas',
 				'shaders',
 				'effects',
@@ -1586,8 +1588,8 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
 			],
-    },
-    {
+		},
+		{
 			type: 'category',
 			label: 'Terminology',
 			link: {

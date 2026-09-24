@@ -359,6 +359,8 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
+		// captureElementImage() only accepts immediate children of the layout canvas.
+		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
 	};
 /* eslint-enable react/require-default-props */
 
@@ -369,6 +371,7 @@ type HtmlInCanvasContentProps = {
 	readonly height: number;
 	readonly effects: EffectsProp;
 	readonly children: React.ReactNode;
+	readonly canvasSiblings: React.ReactNode | null;
 	readonly onPaint: HtmlInCanvasOnPaint | undefined;
 	readonly onInit: HtmlInCanvasOnInit | undefined;
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
@@ -386,6 +389,7 @@ const HtmlInCanvasContent = forwardRef<
 			height,
 			effects,
 			children,
+			canvasSiblings,
 			onPaint,
 			onInit,
 			pixelDensity,
@@ -716,6 +720,7 @@ const HtmlInCanvasContent = forwardRef<
 					<div ref={divRef} style={innerStyle}>
 						{children}
 					</div>
+					{canvasSiblings}
 				</canvas>
 			</HtmlInCanvasAncestorContext.Provider>
 		);
@@ -739,6 +744,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
+			_remotionInternalCanvasSiblings,
 			controls,
 			style,
 			cropLeft,
@@ -792,6 +798,7 @@ const HtmlInCanvasInner = forwardRef<
 					onPaint={onPaint}
 					onInit={onInit}
 					pixelDensity={pixelDensity}
+					canvasSiblings={_remotionInternalCanvasSiblings ?? null}
 					controls={controls}
 					style={croppedStyle ?? undefined}
 				>

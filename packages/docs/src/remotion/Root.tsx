@@ -2,6 +2,7 @@ import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {Composition, Folder, Still} from 'remotion';
+import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
@@ -139,6 +140,14 @@ const DEFAULT_THERMAL_PALETTE = [
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="motion-blur-html-in-canvas-demo"
+				component={MotionBlurHtmlInCanvasLiveDemo}
+				durationInFrames={90}
+				fps={30}
+				width={960}
+				height={540}
+			/>
 			<Folder name="elements">
 				<Composition
 					id="elements-install-playground"

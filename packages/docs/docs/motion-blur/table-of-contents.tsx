@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<CameraMotionBlur>'}</strong>
 					<div>Add a natural camera motion blur effect to children</div>
 				</TOCItem>
+				<TOCItem link="/docs/motion-blur/html-in-canvas-motion-blur">
+					<strong>{'<HtmlInCanvasMotionBlur>'}</strong>
+					<div>Sample HTML across a frame for motion blur</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

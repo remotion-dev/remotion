@@ -29,6 +29,11 @@ import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
 import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
 import {LightLeakDemoComp} from './LightLeakDemo';
 import {LinearBlurDocsDemo} from './LinearBlurDemo';
+import {
+	MotionBlurCameraDocsDemo,
+	MotionBlurHtmlInCanvasDocsDemo,
+	MotionBlurTrailDocsDemo,
+} from './MotionBlurDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
@@ -1697,5 +1702,44 @@ export const htmlInCanvasDemoWebGPU: DemoType = {
 	autoPlay: true,
 	controls: true,
 	logLevel: 'trace',
+	options: [],
+};
+
+export const motionBlurTrailDemo: DemoType = {
+	comp: MotionBlurTrailDocsDemo,
+	compHeight: 540,
+	compWidth: 960,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'motion-blur-trail',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const motionBlurCameraDemo: DemoType = {
+	comp: MotionBlurCameraDocsDemo,
+	compHeight: 540,
+	compWidth: 960,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'motion-blur-camera',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const motionBlurHtmlInCanvasDemo: DemoType = {
+	comp: MotionBlurHtmlInCanvasDocsDemo,
+	compHeight: 540,
+	compWidth: 960,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'motion-blur-html-in-canvas',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
 	options: [],
 };
