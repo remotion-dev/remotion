@@ -48,13 +48,13 @@ const sidebars: SidebarsConfig = {
 						)
 						.map(([slug]) => `${slug}/index`),
 				})),
+				'guidelines',
 				{
 					type: 'html',
 					value:
 						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 					defaultStyle: true,
 				},
-				'guidelines',
 				'libraries',
 			],
 		},

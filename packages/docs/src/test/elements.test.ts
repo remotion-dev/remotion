@@ -588,8 +588,7 @@ describe('Elements sidebar', () => {
 			expect(categoryIndex).toBeLessThan(thirdPartyIndex - 1);
 		}
 
-		expect(elementsCategory.items[thirdPartyIndex - 1]).toBe('guidelines');
-		const thirdPartySeparator = elementsCategory.items[thirdPartyIndex - 2];
+		const thirdPartySeparator = elementsCategory.items[thirdPartyIndex - 1];
 		if (
 			typeof thirdPartySeparator !== 'object' ||
 			thirdPartySeparator === null ||
