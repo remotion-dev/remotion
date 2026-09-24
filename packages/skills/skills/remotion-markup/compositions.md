@@ -106,7 +106,8 @@ Use [`calculateMetadata`](./calculate-metadata.md) to make dimensions, duration,
 
 ## Nesting compositions within another
 
-To add a composition within another composition, you can use the `<Sequence>` component with a `width` and `height` prop to specify the size of the composition.
+To render a composition's component inside another composition, use `<Sequence>` with `width` and `height` when the nested content needs its own dimensions.
+When the nested scene should have its own editable Studio timeline, use the [connected composition structure](connected-compositions.md): the sequence directly renders the same component that is registered as a `<Composition>` in the root.
 
 ```tsx
 <AbsoluteFill>

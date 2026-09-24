@@ -222,6 +222,10 @@ See [text-highlights.md](text-highlights.md) for text highlights (highlight mark
 
 See [multi-scene-video.md](multi-scene-video.md) if planning to make a video with multiple subsequent scenes.
 
+## Connected compositions
+
+When a scene or group of layers deserves its own editable timeline, follow [connected-compositions.md](connected-compositions.md). Prefer this structure for substantial scenes in a multi-scene video.
+
 ## Voiceover
 
 See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
@@ -327,7 +331,7 @@ See [calculate-metadata.md](calculate-metadata.md) for dynamically set compositi
 
 ## Advanced compositions
 
-See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions.
+See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions. For Studio navigation into a scene's own timeline, use [connected compositions](connected-compositions.md).
 
 ## Advanced sequencing
 
