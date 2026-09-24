@@ -12,8 +12,8 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {SegmentedButton, type SegmentedButtonSegment} from '../SegmentedButton';
 import {wrapJsxNode} from '../wrap-jsx-node-api';
 import {
-	inspectorActionIconContainerStyle,
-	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 
 const wrapperNames: JsxWrapper[] = ['AbsoluteFill', 'Sequence', 'HtmlInCanvas'];
@@ -162,8 +162,8 @@ export const SequenceWrapAction: React.FC<{
 				onOpenChange: null,
 				renderContent: (color) => (
 					<>
-						<span style={inspectorActionIconContainerStyle}>
-							<WrapIcon color={color} style={inspectorActionIconStyle} />
+						<span style={largeInspectorActionIconContainerStyle}>
+							<WrapIcon color={color} style={largeInspectorActionIconStyle} />
 						</span>
 						<span style={labelStyle}>Wrap</span>
 						<span style={caretStyle}>
