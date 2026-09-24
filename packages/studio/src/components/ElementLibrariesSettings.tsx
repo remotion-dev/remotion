@@ -12,6 +12,8 @@ import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
+const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
+
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
 	boxSizing: 'border-box',
@@ -61,6 +63,12 @@ const libraryUrlStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+const builtInLabel: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 12,
+	whiteSpace: 'nowrap',
+};
+
 const inputRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 8,
@@ -88,7 +96,9 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const [displayName, setDisplayName] = useState('');
 	const [busy, setBusy] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const libraries = studioRuntimeConfig?.elementLibraries ?? [];
+	const libraries = (studioRuntimeConfig?.elementLibraries ?? []).filter(
+		(library) => library.url !== REMOTION_ELEMENTS_URL,
+	);
 	let normalizedUrl: string | null = null;
 	try {
 		const parsedUrl = new URL(url.trim());
@@ -99,7 +109,9 @@ export const ElementLibrariesSettings: React.FC = () => {
 		// Keep the Add button disabled until a valid URL is entered.
 	}
 
-	const duplicate = libraries.some((library) => library.url === normalizedUrl);
+	const duplicate =
+		normalizedUrl === REMOTION_ELEMENTS_URL ||
+		libraries.some((library) => library.url === normalizedUrl);
 	const canSave = previewServerState.type === 'connected' && busy === null;
 	const addLibrary = useCallback(async () => {
 		if (!canSave || normalizedUrl === null || duplicate) {
@@ -177,6 +189,13 @@ export const ElementLibrariesSettings: React.FC = () => {
 				remotion.config.ts.
 			</p>
 			<div role="list" aria-label="Element Libraries">
+				<div role="listitem" style={libraryRow}>
+					<div style={libraryDetails}>
+						<div style={libraryName}>Remotion Elements</div>
+						<div style={libraryUrlStyle}>{REMOTION_ELEMENTS_URL}</div>
+					</div>
+					<span style={builtInLabel}>Built in</span>
+				</div>
 				{libraries.map((library) => (
 					<div key={library.url} role="listitem" style={libraryRow}>
 						<div style={libraryDetails}>
