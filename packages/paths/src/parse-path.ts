@@ -59,13 +59,45 @@ const makeInstructions = (
 
 const segmentRegExp = /([astvzqmhlc])([^astvzqmhlc]*)/gi;
 const numberRegExp = /-?[0-9]*\.?[0-9]+(?:e[-+]?\d+)?/gi;
+const arcNumberRegExp =
+	/[\s,]*([-+]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:e[-+]?\d+)?)/iy;
+const arcFlagRegExp = /[\s,]*([01])/y;
 
 const parseValues = (
 	args: string,
 	instructionType: Instruction['type'] | 'z',
 ) => {
-	const numbers = args.match(numberRegExp);
-	if (!numbers) {
+	let numbers: string[] | null;
+	if (instructionType === 'A' || instructionType === 'a') {
+		// Arc flags are a single "0" or "1" and don't need a separator,
+		// e.g. "A1 1 0 011 1" (https://www.w3.org/TR/SVG2/paths.html#PathDataBNF)
+		numbers = [];
+		let match: RegExpExecArray | null;
+		let lastIndex = 0;
+		do {
+			const regExp =
+				numbers.length % 7 === 3 || numbers.length % 7 === 4
+					? arcFlagRegExp
+					: arcNumberRegExp;
+			regExp.lastIndex = lastIndex;
+			match = regExp.exec(args);
+			if (match) {
+				numbers.push(match[1]);
+				lastIndex = regExp.lastIndex;
+			}
+		} while (match);
+
+		const rest = args.slice(lastIndex);
+		if (!/^[\s,]*$/.test(rest)) {
+			throw new Error(
+				`Malformed path data: ${instructionType} has an invalid value at "${rest.trim()}"`,
+			);
+		}
+	} else {
+		numbers = args.match(numberRegExp);
+	}
+
+	if (!numbers || numbers.length === 0) {
 		if (instructionType === 'Z' || instructionType === 'z') {
 			return [];
 		}
