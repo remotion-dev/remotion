@@ -168,12 +168,12 @@ export const FOCUS_BOX_SHADOW =
 export const CHECKERBOARD_BACKGROUND_IMAGE = `
      linear-gradient(
         45deg,
-        ${BLACK_ALPHA_10} 25%,
+        ${WHITE_ALPHA_15} 25%,
         ${TRANSPARENT} 25%
       ),
-      linear-gradient(135deg, ${BLACK_ALPHA_10} 25%, ${TRANSPARENT} 25%),
-      linear-gradient(45deg, ${TRANSPARENT} 75%, ${BLACK_ALPHA_10} 75%),
-      linear-gradient(135deg, ${TRANSPARENT} 75%, ${BLACK_ALPHA_10} 75%)
+      linear-gradient(135deg, ${WHITE_ALPHA_15} 25%, ${TRANSPARENT} 25%),
+      linear-gradient(45deg, ${TRANSPARENT} 75%, ${WHITE_ALPHA_15} 75%),
+      linear-gradient(135deg, ${TRANSPARENT} 75%, ${WHITE_ALPHA_15} 75%)
     `;
 
 export const COLOR_PICKER_CHECKER_BACKGROUND_IMAGE =
