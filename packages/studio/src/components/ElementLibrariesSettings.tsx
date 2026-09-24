@@ -6,7 +6,6 @@ import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
 import {callApi} from './call-api';
 import {InlineAction} from './InlineAction';
-import {sectionHeader} from './InspectorPanel/styles';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
@@ -20,17 +19,11 @@ const container: React.CSSProperties = {
 	width: '100%',
 };
 
-const heading: React.CSSProperties = {
-	...sectionHeader,
-	margin: '16px 0 0',
-	padding: '4px 16px',
-};
-
 const description: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 13,
 	lineHeight: 1.5,
-	margin: '4px 16px 12px',
+	margin: '16px 16px 12px',
 };
 
 const libraryRow: React.CSSProperties = {
@@ -172,7 +165,6 @@ export const ElementLibrariesSettings: React.FC = () => {
 
 	return (
 		<section style={container}>
-			<h3 style={heading}>Element Libraries</h3>
 			<p style={description}>
 				Add libraries to browse their elements in Studio. Changes save to
 				remotion.config.ts.
