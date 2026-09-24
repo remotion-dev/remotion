@@ -123,7 +123,7 @@ export function getChromeDownloadUrl({
 
 		// Regular arm64 binary requires glibc 2.35+
 		if (canUseRemotionMediaBinaries()) {
-			return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}.zip?clear`;
+			return `https://remotion.media/chromium-headless-shell-linux-arm64-${TESTED_VERSION}-v3.zip?clear`;
 		}
 
 		// Fall back to Playwright for older glibc (non-Amazon Linux systems)
@@ -138,12 +138,12 @@ export function getChromeDownloadUrl({
 		// Amazon Linux 2023 needs a special build.
 		// This binary is compatible with older glibc (no 2.35 requirement).
 		if (isAmazonLinux2023() && platform === 'linux64' && !version) {
-			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-149.0.7790.0.zip?clear`;
+			return `https://remotion.media/chromium-headless-shell-amazon-linux-x64-149.0.7790.0-v3.zip?clear`;
 		}
 
 		if (platform === 'linux64' && version === null) {
 			if (canUseRemotionMediaBinaries()) {
-				return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}.zip?clear`;
+				return `https://remotion.media/chromium-headless-shell-linux-x64-${TESTED_VERSION}-v3.zip?clear`;
 			}
 
 			// Fall back to Google's CDN for older glibc

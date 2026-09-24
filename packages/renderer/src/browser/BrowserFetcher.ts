@@ -97,10 +97,13 @@ export const getExpectedVersion = ({
 
 	// Remotion-patched builds get their own cache marker so an existing stock or
 	// older patched download of the same Chromium version is replaced once.
+	// Every default headless-shell download served from remotion.media is a v3
+	// build; the Playwright/Chrome for Testing fallbacks are stock Chromium.
 	if (
 		chromeMode === 'headless-shell' &&
-		(platform === 'mac-arm64' ||
-			(platform === 'linux-arm64' && isAmazonLinux2023()))
+		getChromeDownloadUrl({platform, version: null, chromeMode}).startsWith(
+			'https://remotion.media/',
+		)
 	) {
 		return `${TESTED_VERSION}-remotion-v3`;
 	}
