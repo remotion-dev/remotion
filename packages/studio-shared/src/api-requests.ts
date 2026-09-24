@@ -569,23 +569,31 @@ export type SaveMultipleEffectPropsResponse = {
 	results: SaveMultipleEffectPropsResult[];
 };
 
-export type AddEffectRequest = {
+type AddEffectRequestBase = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectName: string;
 	effectImportPath: string;
 	effectConfig: EffectConfig;
 	clientId: string;
-	includeInsertedEffect?: boolean;
 };
+
+// Keep the original shape for older Studio hosts; new callers request insertion
+// metadata with an explicit value.
+export type AddEffectRequest =
+	| AddEffectRequestBase
+	| (AddEffectRequestBase & {includeInsertedEffect: boolean | null});
 
 export type AddEffectResponse =
 	| {
 			success: true;
-			insertedEffect?: {
+	  }
+	| {
+			success: true;
+			insertedEffect: {
 				effectIndex: number;
 				nodePath: SequencePropsSubscriptionKey['nodePath'];
-			};
+			} | null;
 	  }
 	| {
 			success: false;

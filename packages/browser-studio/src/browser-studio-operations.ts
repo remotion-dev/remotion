@@ -1122,7 +1122,8 @@ export const createBrowserStudioOperations = ({
 				});
 				return {
 					success: true,
-					...(request.includeInsertedEffect
+					...('includeInsertedEffect' in request &&
+					request.includeInsertedEffect === true
 						? {
 								insertedEffect: {
 									effectIndex: result.insertedEffect.effectIndex,

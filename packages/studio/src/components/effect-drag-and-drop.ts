@@ -91,6 +91,9 @@ export const addEffectToSequence = async ({
 			return;
 		}
 
+		const insertedEffect =
+			'insertedEffect' in result ? result.insertedEffect : null;
+
 		selectItems(
 			[
 				{
@@ -100,12 +103,12 @@ export const addEffectToSequence = async ({
 						sequenceSubscriptionKey: {
 							...nodePathInfo.sequenceSubscriptionKey,
 							nodePath:
-								result.insertedEffect?.nodePath ??
+								insertedEffect?.nodePath ??
 								nodePathInfo.sequenceSubscriptionKey.nodePath,
 						},
 					},
 					i:
-						result.insertedEffect?.effectIndex ??
+						insertedEffect?.effectIndex ??
 						nodePathInfo.sequenceSubscriptionKey.effectKeys.length,
 				},
 			],
