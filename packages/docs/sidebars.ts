@@ -1151,6 +1151,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'getting-started',
 				'the-fundamentals',
+				'timing',
 				'animating-properties',
 				'reusability',
 				'preview',
@@ -1225,7 +1226,6 @@ const sidebars: SidebarsConfig = {
 				'audio/visualization',
 				'audio/sfx',
 				'audio/exporting',
-				'audio/order-of-operations',
 			],
 		},
 		{

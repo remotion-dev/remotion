@@ -423,15 +423,6 @@ export const articles = [
 		slug: 'audio/muting',
 	},
 	{
-		id: 'order-of-operations',
-		title: 'Order of Operations',
-		relativePath: 'docs/audio/order-of-operations.mdx',
-		compId: 'articles-docs-audio-order-of-operations',
-		crumb: 'Audio',
-		noAi: false,
-		slug: 'audio/order-of-operations',
-	},
-	{
 		id: 'pitch',
 		title: 'Controlling Pitch',
 		relativePath: 'docs/audio/pitch.mdx',
@@ -8281,6 +8272,15 @@ export const articles = [
 		crumb: 'Troubleshooting',
 		noAi: false,
 		slug: 'timeout',
+	},
+	{
+		id: 'timing',
+		title: 'Timing and trimming',
+		relativePath: 'docs/timing.mdx',
+		compId: 'articles-docs-timing',
+		crumb: 'Getting started',
+		noAi: false,
+		slug: 'timing',
 	},
 	{
 		id: 'transforms',

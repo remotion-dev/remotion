@@ -1,0 +1,165 @@
+---
+image: /generated/articles-docs-timing.png
+id: timing
+title: Timing and trimming
+crumb: 'Getting started'
+---
+
+import {TimingTimeline} from '../components/TimingTimeline';
+
+The way timing works is standardized across these components:
+
+- [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
+- [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+- [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) from `@remotion/motion-blur`.
+- [`<Gif>`](/docs/gif/gif), [`<Lottie>`](/docs/lottie), [`<ThreeCanvas>`](/docs/three-canvas) and [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas).
+- [`@remotion/shapes`](/docs/shapes), [`@remotion/rough-notation`](/docs/rough-notation/api), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor).
+- [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
+- Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
+
+## `from`: Move an item
+
+`from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
+
+<TimingTimeline from={30} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30}>
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `durationInFrames`: Limit an item
+
+`durationInFrames` sets how long an item stays on its parent timeline, starting at `from`.
+
+<TimingTimeline from={30} durationInFrames={45} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30} durationInFrames={45}>
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `trimBefore`: Trim the beginning
+
+`trimBefore` skips the beginning of an item's content without moving it from its `from` position.
+
+<TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30} trimBefore={15}>
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `playbackRate`: Change speed of an item
+
+`playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances.
+
+<TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={2} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div
+    from={30}
+    trimBefore={15}
+    playbackRate={2}
+  >
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `trimAfter`: Trim video or audio
+
+`<Audio>` and `<Video>` also accept `trimAfter` to select where playback stops in the video or audio.
+
+At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
+
+<TimingTimeline from={30} trimBefore={45} trimAfter={105} playbackRate={2} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => (
+  <Video
+    src={staticFile('video.mp4')}
+    from={30}
+    trimBefore={45}
+    trimAfter={105}
+    playbackRate={2}
+  />
+);
+```
+
+## `loop`: Repeat video or audio
+
+`loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`.
+
+If `trimAfter` is omitted, it loops from `trimBefore` after the end of the source.
+
+<TimingTimeline from={30} durationInFrames={90} trimBefore={45} trimAfter={105} playbackRate={2} loop />
+
+```tsx twoslash title="MyComposition.tsx"
+import {staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => (
+  <Video
+    src={staticFile('video.mp4')}
+    from={30}
+    trimBefore={45}
+    trimAfter={105}
+    playbackRate={2}
+    loop
+    durationInFrames={90}
+  />
+);
+```
+
+At 30 FPS, this repeats the selected 60 source frames three times over 90 composition frames.
+
+## Order of operations
+
+Think of the timing props as applying to the content in this order:
+
+1. `from`, `trimBefore` and `trimAfter` defines the selected source range
+2. `playbackRate` stretches or compresses the selected range
+3. `loop` (on `<Audio>` and `<Video>`) loops the stretched range
+4. `durationInFrames` is applied last and defines the duration of the item in the timeline.
+
+For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` is:
+
+```
+trimBefore + (t - from) * playbackRate
+```
+
+## See also
+
+- [`<Sequence>`](/docs/sequence)
+- [Trimming audio](/docs/audio/trimming)
+- [Adding a video](/docs/videos/)

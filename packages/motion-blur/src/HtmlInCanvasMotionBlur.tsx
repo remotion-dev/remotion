@@ -2,17 +2,70 @@ import React, {useCallback} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
+	type HtmlInCanvasProps,
 	type HtmlInCanvasOnPaint,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 
-export type HtmlInCanvasMotionBlurProps = {
+export type HtmlInCanvasMotionBlurProps = Pick<
+	HtmlInCanvasProps,
+	'from' | 'durationInFrames' | 'trimBefore' | 'playbackRate'
+> & {
 	readonly children: React.ReactNode;
 	readonly width: number;
 	readonly height: number;
 	readonly shutterAngle?: number;
 	readonly samples?: number;
+};
+
+type MotionBlurSampleProps = {
+	readonly children: React.ReactNode;
+	readonly width: number;
+	readonly height: number;
+	readonly index: number;
+	readonly count: number;
+	readonly shutterInFrames: number;
+	readonly firstFrame: number;
+	readonly lastFrame: number;
+};
+
+const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
+	children,
+	width,
+	height,
+	index,
+	count,
+	shutterInFrames,
+	firstFrame,
+	lastFrame,
+}) => {
+	const frame = useCurrentFrame();
+	const sampleFrame = Math.max(
+		firstFrame,
+		Math.min(
+			lastFrame,
+			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
+		),
+	);
+
+	return (
+		<div
+			aria-hidden={index !== Math.floor(count / 2)}
+			// Each sample has its own paint record so it can be captured separately.
+			{...{drawable: ''}}
+			style={{
+				position: 'absolute',
+				inset: 0,
+				width,
+				height,
+				isolation: 'isolate',
+				pointerEvents: index === Math.floor(count / 2) ? 'auto' : 'none',
+			}}
+		>
+			<Freeze frame={sampleFrame}>{children}</Freeze>
+		</div>
+	);
 };
 
 /**
@@ -27,9 +80,12 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	height,
 	shutterAngle = 180,
 	samples = 8,
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
 }) => {
-	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 
 	if (!Number.isInteger(samples) || samples < 1 || samples > 64) {
 		throw new TypeError(
@@ -49,7 +105,17 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	}
 
 	const actualSamples = shutterAngle === 0 ? 1 : samples;
-	const shutterInFrames = shutterAngle / 360;
+	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
+	const firstFrame = trimBefore ?? 0;
+	const visibleDuration = Math.max(
+		0,
+		Math.min(
+			durationInFrames ?? Infinity,
+			compositionDurationInFrames - (from ?? 0),
+		),
+	);
+	const lastFrame =
+		firstFrame + Math.max(0, visibleDuration - 1) * (playbackRate ?? 1);
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
 		({canvas, element, elementImage}) => {
@@ -97,32 +163,19 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	);
 
 	const sampleElements = Array.from({length: actualSamples}, (_, index) => {
-		const sampleFrame = Math.max(
-			0,
-			Math.min(
-				durationInFrames - 1,
-				frame + ((index + 0.5) / actualSamples - 0.5) * shutterInFrames,
-			),
-		);
-
 		return (
-			<div
+			<MotionBlurSample
 				key={index}
-				aria-hidden={index !== Math.floor(actualSamples / 2)}
-				// Each sample has its own paint record so it can be captured separately.
-				{...{drawable: ''}}
-				style={{
-					position: 'absolute',
-					inset: 0,
-					width,
-					height,
-					isolation: 'isolate',
-					pointerEvents:
-						index === Math.floor(actualSamples / 2) ? 'auto' : 'none',
-				}}
+				width={width}
+				height={height}
+				index={index}
+				count={actualSamples}
+				shutterInFrames={shutterInFrames}
+				firstFrame={firstFrame}
+				lastFrame={lastFrame}
 			>
-				<Freeze frame={sampleFrame}>{children}</Freeze>
-			</div>
+				{children}
+			</MotionBlurSample>
 		);
 	});
 
@@ -131,6 +184,11 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 		<HtmlInCanvas
 			width={width}
 			height={height}
+			from={from}
+			durationInFrames={durationInFrames}
+			trimBefore={trimBefore}
+			playbackRate={playbackRate}
+			name="<HtmlInCanvasMotionBlur>"
 			onPaint={onPaint}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}
 		>
