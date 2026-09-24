@@ -29,6 +29,7 @@ import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
+	inspectorActionIconStyle,
 } from './common';
 import {
 	MultiSequenceField,
@@ -46,12 +47,6 @@ const selectionCountStyle: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
-};
-
-const actionIconStyle: React.CSSProperties = {
-	display: 'block',
-	height: 22,
-	width: 22,
 };
 
 export const MultiSequenceInspector: React.FC<{
@@ -229,7 +224,7 @@ export const MultiSequenceInspector: React.FC<{
 						onClick={onSplit}
 						aria-label={canSplit ? undefined : 'Studio is read-only'}
 						renderIcon={(color) => (
-							<SplitIcon style={actionIconStyle} color={color} />
+							<SplitIcon style={inspectorActionIconStyle} color={color} />
 						)}
 					>
 						Split selected

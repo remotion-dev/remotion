@@ -39,6 +39,7 @@ import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
+	inspectorActionIconStyle,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -53,24 +54,6 @@ import {
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
-
-const actionIconStyle: React.CSSProperties = {
-	display: 'block',
-	height: 16,
-	width: 16,
-};
-
-const splitActionIconStyle: React.CSSProperties = {
-	...actionIconStyle,
-	height: 22,
-	width: 22,
-};
-
-const largeActionIconStyle: React.CSSProperties = {
-	...actionIconStyle,
-	height: 20,
-	width: 20,
-};
 
 const SplitSequenceQuickAction: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
@@ -124,7 +107,7 @@ const SplitSequenceQuickAction: React.FC<{
 			onClick={onSplit}
 			aria-label={disabledReason}
 			renderIcon={(color) => (
-				<SplitIcon style={splitActionIconStyle} color={color} />
+				<SplitIcon style={inspectorActionIconStyle} color={color} />
 			)}
 		>
 			Split clip
@@ -288,7 +271,7 @@ const SequenceSourceQuickActions: React.FC<{
 						freezeFrameMenuItem.onClick(freezeFrameMenuItem.id, null)
 					}
 					renderIcon={(color) => (
-						<SnowflakeIcon style={largeActionIconStyle} color={color} />
+						<SnowflakeIcon style={inspectorActionIconStyle} color={color} />
 					)}
 				>
 					{freezeFrameMenuItem.label}
@@ -300,7 +283,10 @@ const SequenceSourceQuickActions: React.FC<{
 					onClick={onRemoveBackground}
 					aria-label={videoMattingDisabledReason}
 					renderIcon={(color) => (
-						<BackgroundRemovalIcon style={actionIconStyle} color={color} />
+						<BackgroundRemovalIcon
+							style={inspectorActionIconStyle}
+							color={color}
+						/>
 					)}
 				>
 					Remove background
@@ -312,7 +298,7 @@ const SequenceSourceQuickActions: React.FC<{
 					onClick={onSplitVideoFromAudio}
 					aria-label={splitVideoFromAudioDisabledReason}
 					renderIcon={(color) => (
-						<AudioIcon style={actionIconStyle} color={color} />
+						<AudioIcon style={inspectorActionIconStyle} color={color} />
 					)}
 				>
 					Split video from audio
@@ -324,7 +310,7 @@ const SequenceSourceQuickActions: React.FC<{
 					onClick={onGenerateCaptions}
 					aria-label={transcriptionDisabledReason}
 					renderIcon={(color) => (
-						<TranscriptionIcon style={actionIconStyle} color={color} />
+						<TranscriptionIcon style={inspectorActionIconStyle} color={color} />
 					)}
 				>
 					Generate captions
@@ -334,7 +320,7 @@ const SequenceSourceQuickActions: React.FC<{
 				disabled={sourceActionsDisabled}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
-					<DuplicateIcon style={largeActionIconStyle} color={color} />
+					<DuplicateIcon style={inspectorActionIconStyle} color={color} />
 				)}
 			>
 				Duplicate
@@ -348,7 +334,7 @@ const SequenceSourceQuickActions: React.FC<{
 				disabled={sourceActionsDisabled}
 				onClick={onDelete}
 				renderIcon={(color) => (
-					<TrashIcon style={actionIconStyle} color={color} />
+					<TrashIcon style={inspectorActionIconStyle} color={color} />
 				)}
 			>
 				Delete

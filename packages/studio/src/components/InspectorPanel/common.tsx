@@ -172,13 +172,21 @@ const inlineLabelText: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const inlineLabelIcon: React.CSSProperties = {
+const INSPECTOR_ACTION_ICON_SIZE = 18;
+
+export const inspectorActionIconStyle: React.CSSProperties = {
+	display: 'block',
+	height: INSPECTOR_ACTION_ICON_SIZE,
+	width: INSPECTOR_ACTION_ICON_SIZE,
+};
+
+export const inspectorActionIconContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	height: 18,
+	height: INSPECTOR_ACTION_ICON_SIZE,
 	justifyContent: 'center',
-	width: 18,
+	width: INSPECTOR_ACTION_ICON_SIZE,
 };
 
 export type InspectorQuickActionProps = {
@@ -223,7 +231,9 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	const mainContent = (
 		<>
 			{renderIcon ? (
-				<span style={{...inlineLabelIcon, ...iconContainerStyle}}>
+				<span
+					style={{...inspectorActionIconContainerStyle, ...iconContainerStyle}}
+				>
 					{renderIcon(CURRENT_COLOR)}
 				</span>
 			) : null}

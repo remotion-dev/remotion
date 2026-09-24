@@ -49,6 +49,7 @@ import {
 	InspectorQuickActionsSection,
 	InspectorSectionBody,
 	InspectorSectionHeader,
+	inspectorActionIconStyle,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
 import {CompositionMetadata} from './CompositionMetadata';
@@ -62,11 +63,6 @@ import {
 } from './styles';
 import {useCompositionActions} from './use-composition-actions';
 import {useInspectorSectionExpanded} from './use-inspector-section-expanded';
-
-const actionIconStyle: React.CSSProperties = {
-	height: 18,
-	width: 18,
-};
 
 const downloadLicenseAgreement: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -174,7 +170,7 @@ const CompositionActions: React.FC = () => {
 						disabled={!canInsertSolid}
 						onClick={insertSolid}
 						renderIcon={(color) => (
-							<SolidIcon color={color} style={actionIconStyle} />
+							<SolidIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Add Solid
@@ -185,7 +181,7 @@ const CompositionActions: React.FC = () => {
 						disabled={!canInsertAsset}
 						onClick={insertAsset}
 						renderIcon={(color) => (
-							<PicIcon color={color} style={actionIconStyle} />
+							<PicIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Add asset...
@@ -196,7 +192,7 @@ const CompositionActions: React.FC = () => {
 						disabled={!canInsertComposition}
 						onClick={insertComposition}
 						renderIcon={(color) => (
-							<FilmIcon color={color} style={actionIconStyle} />
+							<FilmIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Add composition...
@@ -207,7 +203,7 @@ const CompositionActions: React.FC = () => {
 						disabled={false}
 						onClick={generateWithAgent}
 						renderIcon={(color) => (
-							<SparklesIcon color={color} style={actionIconStyle} />
+							<SparklesIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Generate with agent...
@@ -219,7 +215,10 @@ const CompositionActions: React.FC = () => {
 						disabled={false}
 						onClick={onDownloadProject}
 						renderIcon={(color) => (
-							<CloudDownloadIcon color={color} style={actionIconStyle} />
+							<CloudDownloadIcon
+								color={color}
+								style={inspectorActionIconStyle}
+							/>
 						)}
 					>
 						Download project

@@ -11,6 +11,10 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {SegmentedButton, type SegmentedButtonSegment} from '../SegmentedButton';
 import {wrapJsxNode} from '../wrap-jsx-node-api';
+import {
+	inspectorActionIconContainerStyle,
+	inspectorActionIconStyle,
+} from './common';
 
 const wrapperNames: JsxWrapper[] = ['AbsoluteFill', 'Sequence', 'HtmlInCanvas'];
 
@@ -27,16 +31,6 @@ const segmentStyle: React.CSSProperties = {
 	justifyContent: 'flex-start',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
 	width: '100%',
-};
-
-const iconStyle: React.CSSProperties = {height: 22, width: 22};
-
-const iconContainerStyle: React.CSSProperties = {
-	flexShrink: 0,
-	height: 22,
-	marginLeft: -2,
-	marginRight: -2,
-	width: 22,
 };
 
 const labelStyle: React.CSSProperties = {
@@ -168,8 +162,8 @@ export const SequenceWrapAction: React.FC<{
 				onOpenChange: null,
 				renderContent: (color) => (
 					<>
-						<span style={iconContainerStyle}>
-							<WrapIcon color={color} style={iconStyle} />
+						<span style={inspectorActionIconContainerStyle}>
+							<WrapIcon color={color} style={inspectorActionIconStyle} />
 						</span>
 						<span style={labelStyle}>Wrap</span>
 						<span style={caretStyle}>
