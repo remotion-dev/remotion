@@ -105,12 +105,15 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import {Logo} from './Logo';
 import './index.css';
+import {KeyframeMove} from './KeyframeMove';
+import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
 import {RenderModalCodec} from './RenderModalCodec';
+import {RenderOnWeb} from './RenderOnWeb';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -121,6 +124,7 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {MotionBlurSlideIn} from './Showcase/MotionBlurSlideIn';
 import {
 	Skills2AnnouncementComposition,
 	skills2AnnouncementSchema,
@@ -444,6 +448,15 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 
 			<Folder name="Showcases">
+				<Composition
+					id="MotionBlurSlideIn"
+					component={MotionBlurSlideIn}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+					defaultProps={{text: 'Remotion'}}
+				/>
 				<Composition
 					id="SoundEffectShowcases"
 					component={SfxShowcase}
@@ -779,6 +792,9 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<CompositionList />
 				<QuickSwitcher />
 				<Composition3DRotation />
+				<KeyframeMove />
+				<PitchCorrection />
+				<RenderOnWeb />
 			</Folder>
 
 			<Folder name="StudioAssets">

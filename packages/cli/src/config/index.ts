@@ -631,7 +631,7 @@ declare global {
 type FlatConfig = RemotionConfigObject &
 	RemotionBundlingOptions & {
 		/**
-		 * Add an Element library to the Remotion Studio.
+		 * Add an Element Library to the Remotion Studio.
 		 */
 		addElementLibrary: (options: AddElementLibraryOptions) => void;
 		/**

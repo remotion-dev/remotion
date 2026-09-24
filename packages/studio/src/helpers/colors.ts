@@ -38,7 +38,6 @@ export const WHITE_ALPHA_70 = 'var(--remotion-studio-white-alpha-70)';
 export const WHITE_ALPHA_72 = 'var(--remotion-studio-white-alpha-72)';
 export const WHITE_ALPHA_80 = 'var(--remotion-studio-white-alpha-80)';
 export const WHITE_ALPHA_90 = 'var(--remotion-studio-white-alpha-90)';
-export const BLACK_ALPHA_10 = 'var(--remotion-studio-black-alpha-10)';
 export const BLACK_ALPHA_28 = 'var(--remotion-studio-black-alpha-28)';
 export const BLACK_ALPHA_30 = 'var(--remotion-studio-black-alpha-30)';
 export const BLACK_ALPHA_40 = 'var(--remotion-studio-black-alpha-40)';
@@ -168,12 +167,12 @@ export const FOCUS_BOX_SHADOW =
 export const CHECKERBOARD_BACKGROUND_IMAGE = `
      linear-gradient(
         45deg,
-        ${BLACK_ALPHA_10} 25%,
+        ${WHITE_ALPHA_15} 25%,
         ${TRANSPARENT} 25%
       ),
-      linear-gradient(135deg, ${BLACK_ALPHA_10} 25%, ${TRANSPARENT} 25%),
-      linear-gradient(45deg, ${TRANSPARENT} 75%, ${BLACK_ALPHA_10} 75%),
-      linear-gradient(135deg, ${TRANSPARENT} 75%, ${BLACK_ALPHA_10} 75%)
+      linear-gradient(135deg, ${WHITE_ALPHA_15} 25%, ${TRANSPARENT} 25%),
+      linear-gradient(45deg, ${TRANSPARENT} 75%, ${WHITE_ALPHA_15} 75%),
+      linear-gradient(135deg, ${TRANSPARENT} 75%, ${WHITE_ALPHA_15} 75%)
     `;
 
 export const COLOR_PICKER_CHECKER_BACKGROUND_IMAGE =

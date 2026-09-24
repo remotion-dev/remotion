@@ -79,7 +79,7 @@ export const ZodEnumEditor: React.FC<{
 				<Combobox
 					values={comboBoxValues}
 					selectedId={value}
-					title={value}
+					aria-label={value}
 					size="small"
 				/>
 			</div>

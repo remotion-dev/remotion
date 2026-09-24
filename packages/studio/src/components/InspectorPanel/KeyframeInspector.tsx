@@ -531,7 +531,7 @@ export const KeyframeInspector: React.FC<{
 			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
-				title="Back to property"
+				aria-label="Back to property"
 			>
 				{details.fieldLabel}
 			</InspectorBackAction>

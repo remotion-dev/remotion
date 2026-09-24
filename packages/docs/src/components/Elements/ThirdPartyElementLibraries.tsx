@@ -33,7 +33,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 		try {
 			const result = await requestLibraryAddition({
 				displayName: library.displayName,
-				url: library.catalogUrl,
+				url: library.libraryUrl,
 			});
 			if (!result.success) {
 				setAddState({
@@ -56,7 +56,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 				type: 'error',
 			});
 		}
-	}, [library.catalogUrl, library.displayName, requestLibraryAddition]);
+	}, [library.libraryUrl, library.displayName, requestLibraryAddition]);
 
 	let status: React.ReactNode = null;
 	if (addState.type === 'awaiting-confirmation') {
@@ -153,7 +153,7 @@ export const ThirdPartyElementLibraryList: React.FC<{
 			<ul className={styles.list} role="list">
 				{thirdPartyElementLibraries.map((library) => (
 					<ThirdPartyElementLibraryItem
-						key={library.catalogUrl}
+						key={library.libraryUrl}
 						library={library}
 						requestLibraryAddition={requestLibraryAddition}
 					/>

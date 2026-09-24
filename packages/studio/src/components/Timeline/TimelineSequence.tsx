@@ -355,9 +355,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	return (
 		<div
 			ref={ref}
+			role="group"
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
-			title={s.displayName}
+			aria-label={s.displayName}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
@@ -1114,6 +1115,8 @@ const TimelineSequenceInner: React.FC<{
 							nodePathInfo={nodePathInfo}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
+							initialEdgeFrame={s.from}
+							fps={video.fps}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}
 							onSelect={onSelect}
 							selected={selected}
@@ -1129,6 +1132,18 @@ const TimelineSequenceInner: React.FC<{
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
+							initialEdgeFrame={
+								s.from +
+								Math.max(
+									0,
+									Math.min(
+										displayDurationInFrames,
+										effectiveMaxMediaDuration ?? Infinity,
+										video.durationInFrames - s.from,
+									),
+								)
+							}
+							fps={video.fps}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}
 							onSelect={onSelect}
 							selected={selected}

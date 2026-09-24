@@ -563,8 +563,9 @@ const sidebars: SidebarsConfig = {
 				id: 'motion-blur/index',
 			},
 			items: [
-				'motion-blur/trail',
+				'motion-blur/html-in-canvas-motion-blur',
 				'motion-blur/camera-motion-blur',
+				'motion-blur/trail',
 				'motion-blur/common-mistake',
 			],
 		},
@@ -1170,6 +1171,7 @@ const sidebars: SidebarsConfig = {
 				'assets',
 				'fonts',
 				'transitioning',
+				'motion-blur-guide',
 				'html-in-canvas',
 				'shaders',
 				'effects',

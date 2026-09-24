@@ -550,7 +550,7 @@ export const TimelineKeyframeControls: React.FC<{
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const setFrame = Internals.useTimelineSetFrame();
+	const setFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -892,7 +892,6 @@ export const TimelineKeyframeControls: React.FC<{
 				disabled={previousDisabled}
 				onPointerDown={previousDisabled ? undefined : onPrevious}
 				aria-label="Go to previous keyframe"
-				title="Previous keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
@@ -908,7 +907,6 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label={
 					hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'
 				}
-				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
 			>
 				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
 			</button>
@@ -918,7 +916,6 @@ export const TimelineKeyframeControls: React.FC<{
 				disabled={nextDisabled}
 				onPointerDown={nextDisabled ? undefined : onNext}
 				aria-label="Go to next keyframe"
-				title="Next keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />

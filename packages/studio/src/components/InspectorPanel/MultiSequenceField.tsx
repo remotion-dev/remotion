@@ -176,7 +176,7 @@ export const MultiSequenceField: React.FC<{
 					fontSize: 12,
 					padding: 0,
 				}}
-				title="Set a value for all selected sequences"
+				aria-label="Set a value for all selected sequences"
 				onClick={() => setEditingMixed(true)}
 			>
 				Mixed

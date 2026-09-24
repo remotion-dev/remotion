@@ -191,7 +191,7 @@ export const VideoMattingQueueItem: React.FC<{
 			<Spacing x={1} />
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
-				<div style={subtitles} title={tooltip}>
+				<div role="group" style={subtitles} aria-label={tooltip}>
 					{job.status === 'cancelled' ? (
 						<RenderQueueCancelledMessage />
 					) : job.status === 'failed' ? (

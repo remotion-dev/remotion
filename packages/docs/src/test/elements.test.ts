@@ -211,7 +211,7 @@ describe('Element MDX pages', () => {
 	});
 });
 
-describe('Element library', () => {
+describe('Element Library', () => {
 	test('injects the exact source files needed by each listing', () => {
 		const completeSourceCodeBySlug = getRemotionElementSourceMap({
 			elementsRoot,

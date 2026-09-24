@@ -40,6 +40,14 @@ export type MediaPlayerInitResult =
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
 
+export type MediaSeekIntent =
+	| {readonly revision: number; readonly playing: boolean}
+	// An internal resync after media configuration changes, not a timeline seek.
+	// Invalidate the satisfied revision so the next video request cannot be
+	// mistaken for continuous playback. This does not always restart the iterator.
+	| 'discontinuity'
+	| null;
+
 export class MediaPlayer {
 	private tagType: 'audio' | 'video';
 	private canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -61,6 +69,8 @@ export class MediaPlayer {
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
+	private lastSeekIntent: MediaSeekIntent = null;
+	private satisfiedSeekRevision: number | null = null;
 	private loop = false;
 	private fps: number;
 
@@ -488,6 +498,7 @@ export class MediaPlayer {
 	private seekToWithQueue = async (
 		newTime: number,
 		unloopedNewTime: number,
+		intent: MediaSeekIntent,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
@@ -496,11 +507,12 @@ export class MediaPlayer {
 			newTime,
 			unloopedNewTime,
 			nonce,
+			intent,
 		);
 		await this.seekPromiseChain;
 	};
 
-	public async seekTo(time: number): Promise<void> {
+	public async seekTo(time: number, intent: MediaSeekIntent): Promise<void> {
 		if (this.terminalError || this.isDisposalError()) {
 			return;
 		}
@@ -511,13 +523,20 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime, time);
+		this.lastSeekIntent = intent;
+		if (intent === 'discontinuity') {
+			// A mapping change may supersede a queued timeline request.
+			this.satisfiedSeekRevision = null;
+		}
+
+		await this.seekToWithQueue(newTime, time, intent);
 	}
 
 	private async seekToDoNotCallDirectly(
 		newTime: number,
 		unloopedNewTime: number,
 		nonce: Nonce,
+		intent: MediaSeekIntent,
 	): Promise<void> {
 		if (nonce.isStale() || this.terminalError || this.isDisposalError()) {
 			return;
@@ -531,6 +550,12 @@ export class MediaPlayer {
 					fps: this.fps,
 					playbackRate: this.playbackRate,
 					isPlaying: this.playing,
+					continuousPlayback:
+						intent === null
+							? null
+							: intent !== 'discontinuity' &&
+								intent.playing &&
+								intent.revision === this.satisfiedSeekRevision,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -551,6 +576,10 @@ export class MediaPlayer {
 						this.sharedAudioContext!.audioContext.currentTime,
 				}),
 			]);
+			// Superseded work must not consume an explicit seek boundary.
+			if (!nonce.isStale() && intent !== null && intent !== 'discontinuity') {
+				this.satisfiedSeekRevision = intent.revision;
+			}
 		} catch (error) {
 			if (this.isDisposalError()) {
 				return;
@@ -619,7 +648,7 @@ export class MediaPlayer {
 		if (this.trimBefore !== trimBefore) {
 			this.trimBefore = trimBefore;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -630,7 +659,7 @@ export class MediaPlayer {
 		if (this.trimAfter !== trimAfter) {
 			this.trimAfter = trimAfter;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -647,7 +676,7 @@ export class MediaPlayer {
 		if (previousRate !== rate) {
 			this.playbackRate = rate;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -663,7 +692,7 @@ export class MediaPlayer {
 
 			this.audioIteratorManager.setToneFrequency(toneFrequency);
 			this.audioIteratorManager.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -675,7 +704,7 @@ export class MediaPlayer {
 		if (previousRate !== rate) {
 			this.globalPlaybackRate = rate;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -687,7 +716,7 @@ export class MediaPlayer {
 		if (previousFps !== fps) {
 			this.fps = fps;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -709,7 +738,7 @@ export class MediaPlayer {
 		if (previousLoop !== loop) {
 			this.loop = loop;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -721,7 +750,7 @@ export class MediaPlayer {
 		if (previousOffset !== offset) {
 			this.sequenceOffset = offset;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -732,7 +761,7 @@ export class MediaPlayer {
 		const previousDuration = this.sequenceDurationInFrames;
 		if (previousDuration !== sequenceDurationInFrames) {
 			this.sequenceDurationInFrames = sequenceDurationInFrames;
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -904,6 +933,15 @@ export class MediaPlayer {
 		this.audioIteratorManager.destroyIterator();
 		// An anchor can change while paused, when no frame update will restart
 		// scheduling. Refill the queue against the new anchor immediately.
-		await this.seekTo(unloopedTimeInSeconds);
+		// Re-anchoring is not navigation. Preserve the captured revision so an
+		// outstanding explicit seek still takes the restart path, but don't let
+		// an audio-clock pause turn ordinary video catch-up into a scrub.
+		const intent = this.lastSeekIntent;
+		await this.seekTo(
+			unloopedTimeInSeconds,
+			intent !== null && intent !== 'discontinuity'
+				? {...intent, playing: true}
+				: intent,
+		);
 	};
 }

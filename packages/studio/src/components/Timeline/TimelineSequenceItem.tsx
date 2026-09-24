@@ -107,6 +107,7 @@ import {
 	type TimelineSelection,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
+	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
@@ -343,6 +344,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
+	const {selectItems} = useTimelineSelection();
 	const selectedSequenceNodePathInfos = useMemo(() => {
 		if (
 			!selected ||
@@ -1109,7 +1111,7 @@ const TimelineSequenceItemInner: React.FC<{
 		if (
 			!canAddEffect ||
 			previewServerState.type !== 'connected' ||
-			!nodePath ||
+			nodePathInfo === null ||
 			!validatedLocation?.source
 		) {
 			return;
@@ -1119,13 +1121,15 @@ const TimelineSequenceItemInner: React.FC<{
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
-			nodePath,
+			nodePathInfo,
+			selectItems,
 		});
 	}, [
 		canAddEffect,
-		nodePath,
+		nodePathInfo,
 		previewServerState,
 		setSelectedModal,
+		selectItems,
 		validatedLocation?.source,
 	]);
 
@@ -1412,7 +1416,7 @@ const TimelineSequenceItemInner: React.FC<{
 			if (
 				!canDropEffect ||
 				previewServerState.type !== 'connected' ||
-				nodePath === null ||
+				nodePathInfo === null ||
 				validatedLocation === null ||
 				!hasEffectDragType(e.dataTransfer)
 			) {
@@ -1438,11 +1442,18 @@ const TimelineSequenceItemInner: React.FC<{
 			await addEffectFromDragData({
 				dragData,
 				fileName: validatedLocation.source,
-				nodePath,
+				nodePathInfo,
 				clientId: previewServerState.clientId,
+				selectItems,
 			});
 		},
-		[canDropEffect, nodePath, previewServerState, validatedLocation],
+		[
+			canDropEffect,
+			nodePathInfo,
+			previewServerState,
+			selectItems,
+			validatedLocation,
+		],
 	);
 
 	const trackRow = (

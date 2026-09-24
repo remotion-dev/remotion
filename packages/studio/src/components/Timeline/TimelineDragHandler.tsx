@@ -135,7 +135,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 		shouldApplyCssTransforms: true,
 	});
 	const {isHighestContext} = useZIndex();
-	const setFrame = Internals.useTimelineSetFrame();
+	const setFrame = Internals.Timeline.useTimelineSeekFrame();
 
 	const width = getTimelineContentWidth();
 	const left = size?.left ?? 0;

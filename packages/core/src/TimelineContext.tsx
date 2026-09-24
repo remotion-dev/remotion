@@ -13,6 +13,8 @@ import {
 	type PlayableMediaTag,
 } from './timeline-position-state';
 import {useDelayRender} from './use-delay-render';
+import {useRemotionEnvironment} from './use-remotion-environment';
+import {useTimelineSeek, type TimelineSeek} from './use-timeline-seek';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
@@ -35,6 +37,8 @@ export type BufferingState = Readonly<{
 }>;
 
 export type SetTimelineContextValue = {
+	// Null in rendering and thumbnails, which do not publish preview seek intent.
+	seek: TimelineSeek | null;
 	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 	setBuffering: (buffering: boolean) => void;
@@ -53,6 +57,7 @@ const missingSetTimelineContext = (): never => {
 };
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
+	seek: null,
 	setFrame: missingSetTimelineContext,
 	setPlaying: missingSetTimelineContext,
 	setBuffering: missingSetTimelineContext,
@@ -92,6 +97,9 @@ export const TimelineContextProvider: React.FC<{
 		getInitialFrameState(),
 	);
 
+	const timelineSeek = useTimelineSeek(setFrame);
+	const {isStudio} = useRemotionEnvironment();
+	const seek = isStudio ? timelineSeek : null;
 	const frame = frameState ?? _frame;
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
@@ -161,6 +169,7 @@ export const TimelineContextProvider: React.FC<{
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
 			setFrame,
+			seek,
 			setPlaying: (updater) => {
 				const current = playingStore.store.getSnapshot().playing;
 				const next = typeof updater === 'function' ? updater(current) : updater;
@@ -180,7 +189,7 @@ export const TimelineContextProvider: React.FC<{
 			frameRef,
 			audioAndVideoTags,
 		};
-	}, [bufferingStore, playingStore, readIsBuffering, readIsPlaying]);
+	}, [bufferingStore, playingStore, readIsBuffering, readIsPlaying, seek]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>

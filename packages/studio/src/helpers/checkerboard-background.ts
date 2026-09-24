@@ -1,4 +1,4 @@
-import {BLACK, CHECKERBOARD_BACKGROUND_IMAGE, WHITE} from './colors';
+import {BACKGROUND, BLACK, CHECKERBOARD_BACKGROUND_IMAGE} from './colors';
 
 export const getCheckerboardBackgroundSize = (size: number) =>
 	`${size}px ${size}px`;
@@ -7,7 +7,7 @@ export const getCheckerboardBackgroundPos = (size: number) =>
 
 export const checkerboardBackgroundColor = (checkerboard: boolean) => {
 	if (checkerboard) {
-		return WHITE;
+		return BACKGROUND;
 	}
 
 	return BLACK;

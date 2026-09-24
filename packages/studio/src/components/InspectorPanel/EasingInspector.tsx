@@ -295,7 +295,7 @@ export const EasingInspector: React.FC<{
 				<InspectorBackAction
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
-					title="Back to property"
+					aria-label="Back to property"
 				>
 					{fieldLabel}
 				</InspectorBackAction>

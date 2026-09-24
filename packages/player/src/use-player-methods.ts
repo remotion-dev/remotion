@@ -20,8 +20,8 @@ export type UsePlayerMethods = {
 };
 
 export const usePlayerMethods = (): UsePlayerMethods => {
-	const setFrame = Internals.Timeline.useTimelineSetFrame();
-	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
+	const setFrame = Internals.Timeline.useTimelineSeekFrame();
+	const setTimelinePosition = setFrame;
 	const {
 		setPlaying,
 		frameRef,
@@ -77,18 +77,17 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			fallbackFrame.current = frameToSeekTo;
 
 			if (video?.id) {
+				setTimelinePosition((currentFrames) =>
+					currentFrames[video.id] === frameToSeekTo
+						? currentFrames
+						: {...currentFrames, [video.id]: frameToSeekTo},
+				);
 				if (frameRef.current[video.id] !== frameToSeekTo) {
 					frameRef.current = {
 						...frameRef.current,
 						[video.id]: frameToSeekTo,
 					};
 				}
-
-				setTimelinePosition((currentFrames) =>
-					currentFrames[video.id] === frameToSeekTo
-						? currentFrames
-						: {...currentFrames, [video.id]: frameToSeekTo},
-				);
 			}
 
 			emitter.dispatchSeek(frameToSeekTo);
@@ -165,14 +164,14 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			setPlaying(false);
 			fallbackFrame.current = playStart.current;
 			if (config) {
-				frameRef.current = {
-					...frameRef.current,
-					[config.id]: playStart.current,
-				};
 				setTimelinePosition((currentFrames) => ({
 					...currentFrames,
 					[config.id]: playStart.current,
 				}));
+				frameRef.current = {
+					...frameRef.current,
+					[config.id]: playStart.current,
+				};
 				emitter.dispatchPause();
 			}
 		}
@@ -205,15 +204,15 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			frameRef.current = {
-				...frameRef.current,
-				[videoId]: newFrame,
-			};
 			setFrame((currentFrames) =>
 				currentFrames[videoId] === newFrame
 					? currentFrames
 					: {...currentFrames, [videoId]: newFrame},
 			);
+			frameRef.current = {
+				...frameRef.current,
+				[videoId]: newFrame,
+			};
 		},
 		[frameRef, readIsPlaying, setFrame, videoId],
 	);
@@ -235,15 +234,15 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			frameRef.current = {
-				...frameRef.current,
-				[videoId]: newFrame,
-			};
 			setFrame((currentFrames) =>
 				currentFrames[videoId] === newFrame
 					? currentFrames
 					: {...currentFrames, [videoId]: newFrame},
 			);
+			frameRef.current = {
+				...frameRef.current,
+				[videoId]: newFrame,
+			};
 		},
 		[frameRef, lastFrame, readIsPlaying, setFrame, videoId],
 	);

@@ -16,10 +16,12 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 	try {
 		await page.goto(`${STUDIO_URL}/sequence-playback-rate`);
 		const row = page.locator(
-			'[data-timeline-marquee-item][title="Retimed child"]',
+			'[data-timeline-marquee-item][aria-label="Retimed child"]',
 		);
 		await expect(
-			page.getByTitle('Double speed parent', {exact: true}).first(),
+			page
+				.getByRole('group', {name: 'Double speed parent', exact: true})
+				.first(),
 		).toBeVisible({timeout: 30_000});
 		await page.keyboard.press('g');
 		const frameInput = page.locator('input:focus');
@@ -30,7 +32,9 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 			page.getByText('Local frame: 14', {exact: true}),
 		).toBeVisible();
 
-		const rotation = page.getByTitle('Rotation', {exact: true}).first();
+		const rotation = page
+			.getByRole('group', {name: 'Rotation', exact: true})
+			.first();
 		await expect(async () => {
 			await row.click();
 			await expect(rotation).toBeVisible({timeout: 1_000});
@@ -47,10 +51,10 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 		// Child duration 100 parent frames occupies 50 composition frames.
 		await row.click();
 		const trim = page
-			.getByTitle('Drag to trim start', {exact: true})
+			.getByRole('separator', {name: 'Drag to trim start', exact: true})
 			.filter({visible: true});
 		const duration = page
-			.getByTitle('Drag to change duration', {exact: true})
+			.getByRole('separator', {name: 'Drag to change duration', exact: true})
 			.filter({visible: true});
 		const trimBox = await trim.last().boundingBox();
 		const durationBox = await duration.last().boundingBox();

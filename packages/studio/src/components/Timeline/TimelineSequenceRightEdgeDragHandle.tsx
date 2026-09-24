@@ -3,7 +3,13 @@ import {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useEffect, useRef} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -50,6 +56,10 @@ import {
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
+import {
+	TimelineTrimTooltip,
+	type TimelineTrimTooltipState,
+} from './TimelineTrimTooltip';
 
 const {getParentSequencePlaybackRate, sortItemsByCommitOrder} = CanvasInternals;
 
@@ -1186,6 +1196,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
+	readonly initialEdgeFrame: number;
+	readonly fps: number;
 	readonly onDragEnd: (wasDragged: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
@@ -1194,6 +1206,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	nodePathInfo,
 	windowWidth,
 	timelineDurationInFrames,
+	initialEdgeFrame,
+	fps,
 	onDragEnd,
 	onSelect,
 	selected,
@@ -1210,6 +1224,8 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const [trimTooltip, setTrimTooltip] =
+		useState<TimelineTrimTooltipState | null>(null);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -1224,6 +1240,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 
 	const latestRef = useRef({
 		nodePathInfo,
+		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
@@ -1234,6 +1251,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	});
 	latestRef.current = {
 		nodePathInfo,
+		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
@@ -1250,6 +1268,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		setTrimTooltip(null);
 		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
@@ -1353,6 +1372,16 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						propStatuses: propStatusesRef.current,
 					}) ?? [])
 				: [];
+			const draggedKey = stringifySequenceSubscriptionKey(
+				latestNodePathInfo.sequenceSubscriptionKey,
+			);
+			const draggedTarget = targets.find(
+				(target) =>
+					stringifySequenceSubscriptionKey(target.nodePath) === draggedKey,
+			);
+			const handleRect = e.currentTarget.getBoundingClientRect();
+			const initialEdgeClientY = handleRect.top;
+			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			stopPointerSessionRef.current?.();
 			dragStateRef.current = {
@@ -1414,6 +1443,26 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						'trimBefore',
 						Internals.makeStaticDragOverride(nextValues.trimBefore),
 					);
+				}
+
+				if (dragState.didMove && draggedTarget) {
+					const values = getTimelineSequenceLeftEdgeDragValues({
+						initialDuration: draggedTarget.initialDuration,
+						initialFrom: draggedTarget.initialFrom,
+						initialTrimBefore: draggedTarget.initialTrimBefore,
+						deltaFrames,
+						playbackRate: draggedTarget.playbackRate,
+						minimumDuration: draggedTarget.minimumDuration,
+					});
+					const appliedDelta = values.from - draggedTarget.initialFrom;
+					const edgeDelta =
+						draggedTarget.positionField === null ? 0 : appliedDelta;
+					setTrimTooltip({
+						deltaFrames: appliedDelta,
+						edgeFrame: initialTimelineEdge + edgeDelta,
+						x: pointerEvent.clientX,
+						y: initialEdgeClientY,
+					});
 				}
 			};
 
@@ -1480,13 +1529,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	};
 
 	return (
-		<div
-			role="separator"
-			aria-orientation="vertical"
-			title="Drag to trim start"
-			style={style}
-			onPointerDown={onPointerDown}
-		/>
+		<>
+			<div
+				role="separator"
+				aria-orientation="vertical"
+				aria-label="Drag to trim start"
+				style={style}
+				onPointerDown={onPointerDown}
+			/>
+			{trimTooltip === null ? null : (
+				<TimelineTrimTooltip state={trimTooltip} fps={fps} />
+			)}
+		</>
 	);
 };
 
@@ -1785,6 +1839,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
+	readonly initialEdgeFrame: number;
+	readonly fps: number;
 	readonly onDragEnd: (wasDragged: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
@@ -1794,6 +1850,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	mediaDurationDragLimits,
 	windowWidth,
 	timelineDurationInFrames,
+	initialEdgeFrame,
+	fps,
 	onDragEnd,
 	onSelect,
 	selected,
@@ -1813,6 +1871,8 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const mediaDurationDragLimitsRegistry = useContext(
 		TimelineSequenceMediaDurationDragLimitsContext,
 	);
+	const [trimTooltip, setTrimTooltip] =
+		useState<TimelineTrimTooltipState | null>(null);
 
 	const stopPointerSessionRef = useRef<(() => void) | null>(null);
 	const dragStateRef = useRef<{
@@ -1829,6 +1889,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const latestRef = useRef({
 		nodePathInfo,
 		mediaDurationDragLimits,
+		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
@@ -1840,6 +1901,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	latestRef.current = {
 		nodePathInfo,
 		mediaDurationDragLimits,
+		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
 		clearDragOverrides,
@@ -1856,6 +1918,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		}
 
 		dragStateRef.current = null;
+		setTrimTooltip(null);
 		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
@@ -1963,6 +2026,16 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						timelineDurationInFrames,
 					}) ?? [])
 				: [];
+			const draggedKey = stringifySequenceSubscriptionKey(
+				latestNodePathInfo.sequenceSubscriptionKey,
+			);
+			const draggedTarget = targets.find(
+				(target) =>
+					stringifySequenceSubscriptionKey(target.nodePath) === draggedKey,
+			);
+			const handleRect = e.currentTarget.getBoundingClientRect();
+			const initialEdgeClientY = handleRect.top;
+			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			stopPointerSessionRef.current?.();
 			dragStateRef.current = {
@@ -2010,6 +2083,22 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						'durationInFrames',
 						Internals.makeStaticDragOverride(previewValue),
 					);
+				}
+
+				if (dragState.didMove && draggedTarget) {
+					const previewValue = getTimelineSequenceDurationDragValue({
+						initialDuration: draggedTarget.initialDuration,
+						deltaFrames,
+						maximumDuration: draggedTarget.maximumDuration,
+						minimumDuration: draggedTarget.minimumDuration,
+					});
+					const appliedDelta = previewValue - draggedTarget.initialDuration;
+					setTrimTooltip({
+						deltaFrames: appliedDelta,
+						edgeFrame: initialTimelineEdge + appliedDelta,
+						x: pointerEvent.clientX,
+						y: initialEdgeClientY,
+					});
 				}
 			};
 
@@ -2077,13 +2166,18 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	};
 
 	return (
-		<div
-			role="separator"
-			aria-orientation="vertical"
-			title="Drag to change duration"
-			style={style}
-			onPointerDown={onPointerDown}
-		/>
+		<>
+			<div
+				role="separator"
+				aria-orientation="vertical"
+				aria-label="Drag to change duration"
+				style={style}
+				onPointerDown={onPointerDown}
+			/>
+			{trimTooltip === null ? null : (
+				<TimelineTrimTooltip state={trimTooltip} fps={fps} />
+			)}
+		</>
 	);
 };
 

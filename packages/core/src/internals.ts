@@ -251,6 +251,7 @@ import {
 	type PropStatuses,
 } from './use-schema.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
+import {useTimelineSeek} from './use-timeline-seek.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -441,6 +442,7 @@ export const Internals = {
 	useAudioEnabled,
 	useBuffering,
 	TimelinePosition,
+	useTimelineSeek,
 	DelayRenderContextType,
 	TimelineContext,
 	usePlaying,

@@ -195,7 +195,7 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 ## `addElementLibrary()`<AvailableFrom v="4.0.517" />
 
-Adds a third-party Element library to Remotion Studio from an externally hosted Element catalog.
+Adds a third-party Element Library to Remotion Studio from an externally hosted URL.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -206,11 +206,11 @@ Config.addElementLibrary({
 });
 ```
 
-Call `addElementLibrary()` once for each third-party Element library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
+Call `addElementLibrary()` once for each third-party Element Library. The `displayName` property is optional. If it is omitted, the URL host and path are shown instead.
 
 When at least one library is configured, Browse Elements shows a dropdown containing Remotion Elements and every configured library. All libraries open in an embedded Studio modal.
 
-Registering the catalog does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
+Registering the Element Library does not install an individual Element's source code or dependencies. The URL must be an absolute HTTP or HTTPS URL. Remotion Elements remains available without adding it to the configuration.
 
 ## `setMaxTimelineTracks()`<AvailableFrom v="2.1.10" />
 

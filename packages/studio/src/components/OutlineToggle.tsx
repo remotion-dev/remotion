@@ -36,7 +36,6 @@ export const OutlineToggle: React.FC = () => {
 			dismissOnClick={false}
 		>
 			<ControlButton
-				title=""
 				aria-label={accessibilityLabel}
 				aria-keyshortcuts={
 					shortcutsDisabled ? undefined : ariaShortcut || undefined

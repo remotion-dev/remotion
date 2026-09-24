@@ -5473,6 +5473,15 @@ export const articles = [
 		slug: 'miscellaneous/video-formats',
 	},
 	{
+		id: 'motion-blur-guide',
+		title: 'Motion blur',
+		relativePath: 'docs/motion-blur-guide.mdx',
+		compId: 'articles-docs-motion-blur-guide',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'motion-blur-guide',
+	},
+	{
 		id: 'motion-blur/camera-motion-blur',
 		title: '<CameraMotionBlur>',
 		relativePath: 'docs/motion-blur/camera-motion-blur.mdx',
@@ -5489,6 +5498,15 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'motion-blur/common-mistake',
+	},
+	{
+		id: 'motion-blur/html-in-canvas-motion-blur',
+		title: '<HtmlInCanvasMotionBlur>',
+		relativePath: 'docs/motion-blur/html-in-canvas-motion-blur.mdx',
+		compId: 'articles-docs-motion-blur-html-in-canvas-motion-blur',
+		crumb: '@remotion/motion-blur',
+		noAi: false,
+		slug: 'motion-blur/html-in-canvas-motion-blur',
 	},
 	{
 		id: 'motion-blur/index',
@@ -7600,7 +7618,7 @@ export const articles = [
 	},
 	{
 		id: 'studio-protocol/component-library-integration',
-		title: 'Integrating a component library with Studio',
+		title: 'Integrating an Element Library with Studio',
 		relativePath: 'docs/studio-protocol/component-library-integration.mdx',
 		compId: 'articles-docs-studio-protocol-component-library-integration',
 		crumb: '@remotion/studio-protocol',

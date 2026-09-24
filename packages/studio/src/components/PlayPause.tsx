@@ -284,7 +284,6 @@ const PlayPauseInner: React.FC<{
 					<ControlButton
 						aria-label="Go to beginning"
 						aria-keyshortcuts={jumpToBeginningAriaShortcut || undefined}
-						title=""
 						disabled={!videoConfig}
 						onClick={jumpToStart}
 					>
@@ -302,7 +301,6 @@ const PlayPauseInner: React.FC<{
 					<ControlButton
 						aria-label="Go back 1 frame"
 						aria-keyshortcuts="ArrowLeft"
-						title=""
 						disabled={!videoConfig}
 						onClick={oneFrameBack}
 					>
@@ -320,7 +318,6 @@ const PlayPauseInner: React.FC<{
 				<ControlButton
 					aria-label={playing ? 'Pause' : 'Play'}
 					aria-keyshortcuts={playPauseAriaShortcut || undefined}
-					title=""
 					onClick={playing ? pause : play}
 					disabled={!videoConfig}
 				>
@@ -351,7 +348,6 @@ const PlayPauseInner: React.FC<{
 					<ControlButton
 						aria-label="Go forward 1 frame"
 						aria-keyshortcuts="ArrowRight"
-						title=""
 						disabled={!videoConfig}
 						onClick={oneFrameForward}
 					>

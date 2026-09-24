@@ -35,7 +35,6 @@ export const SnappingToggle: React.FC = () => {
 			dismissOnClick={false}
 		>
 			<ControlButton
-				title=""
 				aria-label={accessibilityLabel}
 				aria-pressed={editorSnapping}
 				aria-keyshortcuts={
