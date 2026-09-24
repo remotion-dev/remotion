@@ -24,9 +24,9 @@ const FADE = 15;
 const LOGO_HEIGHT = 195;
 
 // A transparent overlay to lay over footage in a video editor: the Finance Hub
-// logo on a white pill in the top-right corner for the whole clip (its
-// "NETWORKS" is black, so it sits on white, as in TyDoReel), and the lower
-// third from 1s to 6s. Nothing draws a background, so everything else stays
+// logo in the top-right corner for the whole clip, straight on the footage
+// with no backing (its "NETWORKS" is black, so it reads best over light or
+// mid-tone footage), and the lower third from 1s to 6s. Nothing draws a background, so everything else stays
 // see-through. The name and roles are props, editable in the Studio.
 export const BrandOverlay: React.FC<BrandOverlayProps> = ({name, roleVi, roleEn}) => {
   useTyDoFont();
@@ -41,20 +41,7 @@ export const BrandOverlay: React.FC<BrandOverlayProps> = ({name, roleVi, roleEn}
 
   return (
     <AbsoluteFill>
-      <div
-        style={{
-          position: "absolute",
-          top: 48,
-          right: 48,
-          padding: "22px 34px",
-          borderRadius: 36,
-          background: "rgba(255,255,255,0.94)",
-          boxShadow: "0 6px 20px rgba(0,0,0,0.3)",
-          opacity: logoOpacity,
-        }}
-      >
-        <Img src={staticFile("ty-do/finhub-logo.png")} style={{height: LOGO_HEIGHT, display: "block"}} />
-      </div>
+      <Img src={staticFile("ty-do/finhub-logo.png")} style={{position: "absolute", top: 48, right: 48, height: LOGO_HEIGHT, opacity: logoOpacity}} />
       <Sequence from={LOWER_THIRD_FROM} durationInFrames={LOWER_THIRD_DURATION} name="Lower third">
         <AbsoluteFill style={{opacity: lowerThirdOpacity}}>
           <LowerThird name={name} roleVi={roleVi} roleEn={roleEn} />
