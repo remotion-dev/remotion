@@ -264,6 +264,7 @@ const SequenceSourceQuickActions: React.FC<{
 			});
 	}, [selection.nodePathInfo, splitVideoFromAudioDisabledReason]);
 
+	// Pad the larger SVG glyphs so they have similar visible bounds at 22px.
 	return (
 		<>
 			{freezeFrameMenuItem?.type === 'item' ? (
@@ -293,6 +294,7 @@ const SequenceSourceQuickActions: React.FC<{
 						<BackgroundRemovalIcon
 							style={largeInspectorActionIconStyle}
 							color={color}
+							viewBox="-32 -32 704 704"
 						/>
 					)}
 				>
@@ -306,7 +308,12 @@ const SequenceSourceQuickActions: React.FC<{
 					onClick={onSplitVideoFromAudio}
 					aria-label={splitVideoFromAudioDisabledReason}
 					renderIcon={(color) => (
-						<AudioIcon style={largeInspectorActionIconStyle} color={color} />
+						<AudioIcon
+							style={largeInspectorActionIconStyle}
+							color={color}
+							viewBox="-96 -64 704 640"
+							preserveAspectRatio="none"
+						/>
 					)}
 				>
 					Split video from audio
@@ -322,6 +329,8 @@ const SequenceSourceQuickActions: React.FC<{
 						<TranscriptionIcon
 							style={largeInspectorActionIconStyle}
 							color={color}
+							viewBox="-96 -16 704 544"
+							preserveAspectRatio="none"
 						/>
 					)}
 				>
@@ -333,7 +342,11 @@ const SequenceSourceQuickActions: React.FC<{
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
-					<DuplicateIcon style={largeInspectorActionIconStyle} color={color} />
+					<DuplicateIcon
+						style={largeInspectorActionIconStyle}
+						color={color}
+						viewBox="-32 -32 704 704"
+					/>
 				)}
 			>
 				Duplicate
@@ -348,7 +361,11 @@ const SequenceSourceQuickActions: React.FC<{
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={onDelete}
 				renderIcon={(color) => (
-					<TrashIcon style={largeInspectorActionIconStyle} color={color} />
+					<TrashIcon
+						style={largeInspectorActionIconStyle}
+						color={color}
+						viewBox="-120 -96 688 688"
+					/>
 				)}
 			>
 				Delete
