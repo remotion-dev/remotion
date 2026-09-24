@@ -66,12 +66,6 @@ const libraryUrlStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const builtInLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 12,
-	whiteSpace: 'nowrap',
-};
-
 const inputRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 8,
@@ -204,7 +198,6 @@ export const ElementLibrariesSettings: React.FC = () => {
 							{REMOTION_ELEMENTS_URL.replace(/^https?:\/\//, '')}
 						</a>
 					</div>
-					<span style={builtInLabel}>Built in</span>
 				</div>
 				{libraries.map((library) => (
 					<div key={library.url} role="listitem" style={libraryRow}>
