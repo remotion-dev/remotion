@@ -1,11 +1,11 @@
 ---
 name: writing-tests
-description: Guidance for explicitly requested test writing, editing, or review in the Remotion repository. Use only when the user asks for test work.
+description: Guidance for explicitly requested new tests and for updating or reviewing existing tests in the Remotion repository.
 ---
 
 # Writing Tests
 
-Apply this skill only when the user explicitly requests test work. Do not add or modify tests, fixtures, or snapshots as part of ordinary feature work, bug fixes, refactors, or PR preparation. A request to review tests does not authorize changing them.
+Apply this skill when the user explicitly requests new tests or when existing tests, fixtures, or snapshots need updates for feature work, bug fixes, refactors, or PR preparation. Do not add new tests, including new test cases in existing files, unless the user explicitly requests them. A request to review tests does not authorize changing them.
 
 The purpose of a test is confidence that a workflow or contract works for a Studio user, CLI user, package consumer, or renderer consumer.
 
