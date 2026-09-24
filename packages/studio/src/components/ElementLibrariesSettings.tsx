@@ -51,18 +51,17 @@ const libraryIcon: React.CSSProperties = {
 };
 
 const libraryDetails: React.CSSProperties = {
-	alignItems: 'center',
+	alignItems: 'flex-start',
 	display: 'flex',
 	flex: 1,
-	gap: 4,
+	flexDirection: 'column',
 	minWidth: 0,
 };
 
 const libraryName: React.CSSProperties = {
 	fontSize: 13,
-	maxWidth: '50%',
+	maxWidth: '100%',
 	overflow: 'hidden',
-	flexShrink: 0,
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
 };
@@ -70,6 +69,7 @@ const libraryName: React.CSSProperties = {
 const libraryUrlStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	fontSize: 12,
+	maxWidth: '100%',
 	minWidth: 0,
 	outline: 'none',
 	overflow: 'hidden',
