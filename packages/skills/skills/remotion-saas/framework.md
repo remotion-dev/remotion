@@ -9,7 +9,7 @@ Remotion can be used with any React framework.
 
 We offer the following templates:
 
-- Next.js App Router with Tailwind: https://github.com/remotion-dev/template-next-app-dir-tailwind. Uses Lambda as default rendering choice.
+- Next.js: https://github.com/remotion-dev/template-next-app-dir-tailwind. Uses Lambda as default rendering choice.
 - Vercel Sandbox rendering: https://github.com/remotion-dev/template-vercel. Uses Vercel as default rendering choice.
 - React Router 7: https://github.com/remotion-dev/template-react-router. Uses Lambda as default rendering choice.
 - Express.js render server: `packages/template-render-server`: https://github.com/remotion-dev/template-render-server. Uses Node.js as default rendering choice.
