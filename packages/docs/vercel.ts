@@ -52,16 +52,6 @@ export const config: VercelConfig = {
 	redirects: [
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
 		routes.redirect(
-			'/elements/guidelines',
-			'/elements/contributing#element-guidelines',
-			{permanent: true},
-		),
-		routes.redirect(
-			'/elements/guidelines.md',
-			'/elements/contributing.md#element-guidelines',
-			{permanent: true},
-		),
-		routes.redirect(
 			'/elements/submit-an-element',
 			'/elements/contributing#submit-an-element',
 			{permanent: true},
