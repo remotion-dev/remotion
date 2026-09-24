@@ -173,7 +173,7 @@ export const TimingTimeline: React.FC<{
 								height: 21,
 								boxSizing: 'border-box',
 								border: '1px solid rgba(255, 255, 255, 0.2)',
-								borderRadius: 2,
+								borderRadius: trimBefore > 0 ? '0 2px 2px 0' : 2,
 								backgroundColor: '#0b84f3',
 								display: 'flex',
 								alignItems: 'center',
