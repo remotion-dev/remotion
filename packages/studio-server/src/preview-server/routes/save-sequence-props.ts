@@ -738,7 +738,6 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		return {
 			canUpdate: true,
-			props: firstResult.props,
 			results,
 		};
 	});

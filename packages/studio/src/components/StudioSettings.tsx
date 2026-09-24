@@ -347,7 +347,6 @@ export const StudioSettings: React.FC = () => {
 					/>
 				</div>
 			</label>
-
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />

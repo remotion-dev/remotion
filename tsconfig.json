@@ -157,12 +157,6 @@
 			"path": "./packages/template-electron"
 		},
 		{
-			"path": "./packages/template-next-pages"
-		},
-		{
-			"path": "./packages/template-next-app"
-		},
-		{
 			"path": "./packages/template-next-app-tailwind"
 		},
 		{

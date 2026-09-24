@@ -1583,10 +1583,13 @@ export const Root = () => {
 
 	const result = await operations.applyCodemod({
 		codemod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'MyComp',
-			folderName: 'target-folder',
-			parentName: null,
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'MyComp'},
+			destination: {
+				type: 'folder',
+				folderName: 'target-folder',
+				parentName: null,
+			},
 		},
 		dryRun: false,
 		undoRedoNavigation: null,

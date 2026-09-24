@@ -74,6 +74,26 @@ const validateUpdates = (updates: unknown): string | null => {
 
 		setters.add(setter);
 		if (setter === 'addElementLibrary') {
+			if (type === 'delete') {
+				if (typeof update.value !== 'string') {
+					return 'Deleting an Element Library requires its URL.';
+				}
+
+				try {
+					const parsedUrl = new URL(update.value);
+					if (
+						parsedUrl.protocol !== 'http:' &&
+						parsedUrl.protocol !== 'https:'
+					) {
+						return 'Deleting an Element Library requires an HTTP or HTTPS URL.';
+					}
+				} catch {
+					return 'Deleting an Element Library requires an HTTP or HTTPS URL.';
+				}
+
+				continue;
+			}
+
 			if (
 				type !== 'set' ||
 				!('value' in update) ||
@@ -110,6 +130,10 @@ const validateUpdates = (updates: unknown): string | null => {
 		}
 
 		if (type === 'delete') {
+			if (update.value !== undefined) {
+				return `Config.${setter}() does not accept a value when deleting.`;
+			}
+
 			continue;
 		}
 
@@ -135,6 +159,14 @@ export const updateConfigFile = ({
 	readonly updates: ConfigUpdate[];
 }) => {
 	const setters = new Set(updates.map(({setter}) => setter));
+	const deletedElementLibraryValue = updates.find(
+		(update) =>
+			update.setter === 'addElementLibrary' && update.type === 'delete',
+	)?.value;
+	const deletedElementLibraryUrl =
+		typeof deletedElementLibraryValue === 'string'
+			? new URL(deletedElementLibraryValue).href
+			: null;
 	const elementLibraryUrls = new Set<string>();
 	for (const url of existingElementLibraryUrls) {
 		try {
@@ -183,6 +215,15 @@ export const updateConfigFile = ({
 					) {
 						try {
 							const parsedUrl = new URL(urlProperty.value.value);
+							if (
+								deletedElementLibraryUrl !== null &&
+								parsedUrl.href === deletedElementLibraryUrl
+							) {
+								path.prune();
+								changed = true;
+								return false;
+							}
+
 							if (
 								parsedUrl.protocol === 'http:' ||
 								parsedUrl.protocol === 'https:'
@@ -347,6 +388,19 @@ export const updateConfigHandler = async ({
 		updates: input.updates,
 	});
 	if (updatedConfig === configContents) {
+		if (
+			input.updates.some(
+				(update) =>
+					update.setter === 'addElementLibrary' && update.type === 'delete',
+			)
+		) {
+			return {
+				success: false,
+				reason:
+					'Could not find a matching literal Element Library URL in the config file.',
+			};
+		}
+
 		return {success: true};
 	}
 

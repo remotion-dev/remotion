@@ -166,23 +166,6 @@ export const applyCodemodToFile = async ({
 		return result;
 	}
 
-	if (codeMod.type === 'move-composition-to-folder') {
-		return moveComposition({
-			...options,
-			compositionId: codeMod.idToMove,
-			destination:
-				codeMod.folderName === null
-					? {type: 'root'}
-					: {
-							type: 'folder',
-							folder: {
-								name: codeMod.folderName,
-								parentName: codeMod.parentName,
-							},
-						},
-		});
-	}
-
 	if (codeMod.type === 'move-composition-or-folder') {
 		const target = codeMod.destination;
 		const destination: CompositionDestination =

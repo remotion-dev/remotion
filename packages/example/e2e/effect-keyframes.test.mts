@@ -485,23 +485,39 @@ test.describe('effect keyframes', () => {
 		const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
 		const solidLine = getLine(content, '<Solid');
 
-		const subscription = await apiCall('/api/subscribe-to-sequence-props', {
-			fileName: 'src/EffectKeyframeE2e.tsx',
-			line: solidLine,
-			column: 0,
-			nodePath: null,
-			componentIdentity: 'dev.remotion.remotion.Solid',
-			keys: [],
-			effects: [getAllSchemaKeys(schema)],
-			clientId: 'effect-keyframe-subscribe',
-		});
+		const subscriptionResponse = await apiCall(
+			'/api/subscribe-to-sequence-props',
+			{
+				requests: [
+					{
+						fileName: 'src/EffectKeyframeE2e.tsx',
+						line: solidLine,
+						column: 0,
+						nodePath: null,
+						componentIdentity: 'dev.remotion.remotion.Solid',
+						keys: [],
+						assetKeys: [],
+						effects: [getAllSchemaKeys(schema)],
+						clientId: 'effect-keyframe-subscribe',
+						videoConfigValues: {
+							durationInFrames: 90,
+							fps: 30,
+							height: 1080,
+							width: 1920,
+						},
+					},
+				],
+			},
+		);
+		expect(subscriptionResponse.success).toBe(true);
+		assert(subscriptionResponse.success);
+		const subscription = subscriptionResponse.data.results[0];
+		assert(subscription);
 		expect(subscription.success).toBe(true);
 		assert(subscription.success);
-		expect(subscription.data.success).toBe(true);
-		assert(subscription.data.success);
-		expect(subscription.data.status.canUpdate).toBe(true);
-		assert(subscription.data.status.canUpdate);
-		const [effectStatus] = subscription.data.status.effects;
+		expect(subscription.status.canUpdate).toBe(true);
+		assert(subscription.status.canUpdate);
+		const [effectStatus] = subscription.status.effects;
 		assert(effectStatus);
 		expect(effectStatus.canUpdate).toBe(true);
 		assert(effectStatus.canUpdate);
@@ -513,7 +529,7 @@ test.describe('effect keyframes', () => {
 
 		const keyframe = await apiCall('/api/add-effect-keyframe', {
 			fileName: 'src/EffectKeyframeE2e.tsx',
-			sequenceNodePath: subscription.data.nodePath,
+			sequenceNodePath: subscription.nodePath,
 			effectIndex: 0,
 			key: 'phase',
 			frame: 30,
