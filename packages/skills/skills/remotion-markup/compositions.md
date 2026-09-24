@@ -107,12 +107,14 @@ Use [`calculateMetadata`](./calculate-metadata.md) to make dimensions, duration,
 ## Nesting compositions within another
 
 To render a composition's component inside another composition, use `<Sequence>` with `width` and `height` when the nested content needs its own dimensions.
-When the nested scene should have its own editable Studio timeline, use the [connected composition structure](connected-compositions.md): the sequence directly renders the same component that is registered as a `<Composition>` in the root.
+
+When the nested scene should have its own editable Studio timeline, use the [connected composition structure](connected-compositions.md).
 
 ```tsx
-<AbsoluteFill>
-  <Sequence width={COMPOSITION_WIDTH} height={COMPOSITION_HEIGHT}>
-    <CompositionComponent />
+<>
+  <Video src="https://remotion.media/video.mp4" />
+  <Sequence width={1920} height={1080}>
+    <OverlayComponent />
   </Sequence>
-</AbsoluteFill>
+</>
 ```
