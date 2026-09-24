@@ -16,6 +16,8 @@ The [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore) and
 - [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
 - Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
 
+The listed components also accept `playbackRate`, except [`<Img>`](/docs/img) and [`<CanvasImage>`](/docs/canvasimage). Custom components must expose it in their schema.
+
 ## Position with `from`
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
