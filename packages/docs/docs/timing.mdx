@@ -7,7 +7,7 @@ crumb: 'Getting started'
 
 import {TimingTimeline} from '../components/TimingTimeline';
 
-The [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes) and [`trimBefore`](/docs/sequence#trimbefore) props apply to these timeline components:
+The way timing works is standardized across these components:
 
 - [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
 - [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
@@ -15,8 +15,6 @@ The [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationi
 - [`@remotion/shapes`](/docs/shapes), [`@remotion/rough-notation`](/docs/rough-notation/api), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor).
 - [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
 - Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
-
-The listed components also accept `playbackRate`, except [`<Img>`](/docs/img) and [`<CanvasImage>`](/docs/canvasimage). Custom components must expose it in their schema.
 
 ## `from`: Move an item
 
@@ -36,11 +34,11 @@ export const MyComposition = () => (
 );
 ```
 
-Drag the playhead across the element. At composition frame `30`, the counter on the left shows `30`, while the label inside the element and `<Counter>` show `0`. At composition frame `40`, the left counter shows `40` and the local frame is `10`.
+At composition frame `30`, the children of `<Interactive.Div>` start at their local frame `0`.
 
 ## `durationInFrames`: Limit an item
 
-`durationInFrames` sets how long an item stays on its parent timeline, starting at `from`. It does not change the frame seen by its children:
+`durationInFrames` sets how long an item stays on its parent timeline, starting at `from`.
 
 <TimingTimeline from={30} durationInFrames={45} trimBefore={0} playbackRate={1} />
 
@@ -56,11 +54,9 @@ export const MyComposition = () => (
 );
 ```
 
-The item appears at composition frames `30` through `74`. The label inside the item and `<Counter>` run from `0` through `44`. Use `durationInFrames` to trim the end of `<Interactive.Div>`; it has no `trimAfter` prop.
-
 ## `trimBefore`: Trim the beginning
 
-`trimBefore` skips the beginning of an item's content without moving it from its `from` position. For `<Interactive.Div>`, it advances the frame seen by its children when they first appear. It is available on `<Interactive.Div>` from <AvailableFrom v="4.0.482" inline />:
+`trimBefore` skips the beginning of an item's content without moving it from its `from` position.
 
 <TimingTimeline from={30} trimBefore={15} playbackRate={1} />
 
@@ -78,9 +74,9 @@ export const MyComposition = () => (
 
 ## `playbackRate`: Change speed of an item
 
-From <AvailableFrom v="4.0.528" inline />, `playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances. At `2×` speed, the child advances two frames for each composition frame:
+`playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances.
 
-<TimingTimeline from={30} durationInFrames={45} trimBefore={15} playbackRate={2} />
+<TimingTimeline from={30} trimBefore={15} playbackRate={2} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -91,7 +87,6 @@ export const MyComposition = () => (
   <Interactive.Div
     from={30}
     trimBefore={15}
-    durationInFrames={45}
     playbackRate={2}
   >
     <Counter />
@@ -99,28 +94,11 @@ export const MyComposition = () => (
 );
 ```
 
-At composition frame `30`, the label inside the element and `<Counter>` show `15`. At frame `40`, they show `35`. The element still lasts 45 frames on the parent timeline. Nested `<Interactive.Div>` elements apply their timing from the outer element to the inner one; their playback rates multiply. See [Order of operations](#order-of-operations) for how the timing props combine.
+## `trimAfter`: Trim a media source
 
-## Order of operations
+`<Audio>` and `<Video>` also accept `trimAfter` to select where playback stops in the source media.
 
-For an item with children, the timing props apply in this order:
-
-1. Use `from` and `durationInFrames` to determine whether the item appears on the parent timeline.
-2. Subtract `from` from the parent frame.
-3. Multiply by `playbackRate`.
-4. Add `trimBefore`.
-
-At parent frame `t`, [`useCurrentFrame()`](/docs/use-current-frame) inside the item returns:
-
-```text
-(t - from) * playbackRate + trimBefore
-```
-
-## Trim a media source with `trimAfter`
-
-`<Audio>` and `<Video>` also accept `trimAfter` to select where playback stops in the source. Together with `trimBefore`, it selects a source range. `trimAfter` is the frame at which that range ends, not a number of frames to remove.
-
-At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds. At double speed, it lasts 30 composition frames and appears from frame `30` through `59`:
+At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
 
 ```tsx twoslash title="MyComposition.tsx"
 import {staticFile} from 'remotion';
@@ -137,12 +115,49 @@ export const MyComposition = () => (
 );
 ```
 
-When `loop` is set, the selected source range repeats. Use `durationInFrames` to limit how long the loop remains on the composition timeline. Without a loop, `trimAfter` also limits how long the media can play.
+Without `loop`, playback stops when it reaches `trimAfter`.
 
-The legacy [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video) and [`<OffthreadVideo>`](/docs/offthreadvideo) components also support source trimming. Wrap them in a `<Sequence>` to position them or limit their duration.
+## `loop`: Repeat a media source
+
+`loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`. If `trimAfter` is omitted, the range ends at the end of the source. Use `durationInFrames` to limit how long the loop remains on the composition timeline:
+
+```tsx twoslash title="MyComposition.tsx"
+import {staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => (
+  <Video
+    src={staticFile('video.mp4')}
+    from={30}
+    trimBefore={45}
+    trimAfter={105}
+    playbackRate={2}
+    loop
+    durationInFrames={90}
+  />
+);
+```
+
+At 30 FPS, this repeats the selected 60 source frames three times over 90 composition frames.
 
 ## See also
 
 - [`<Sequence>`](/docs/sequence)
 - [Trimming audio](/docs/audio/trimming)
 - [Adding a video](/docs/videos/)
+
+## Order of operations
+
+The timing props apply in this order:
+
+1. Use `from` and `durationInFrames` to determine whether the item appears on the timeline.
+2. Subtract `from` from the parent frame.
+3. Multiply by `playbackRate`.
+4. For `<Audio>` and `<Video>`, `trimAfter` (or the source end) sets the end of the selected range. If `loop` is set, wrap the advanced frame within that range; otherwise stop playback when it reaches the end.
+5. Add `trimBefore` to get the frame seen by children or the frame played from the media source.
+
+For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` returns:
+
+```text
+(t - from) * playbackRate + trimBefore
+```
