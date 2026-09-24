@@ -1249,6 +1249,7 @@ export type ConfigUpdate =
 	| {
 			setter: string;
 			type: 'delete';
+			value?: string;
 	  }
 	| {
 			setter: string;
