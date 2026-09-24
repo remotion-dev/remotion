@@ -11,6 +11,7 @@ The way timing works is standardized across these components:
 
 - [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
 - [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+- [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) from `@remotion/motion-blur`.
 - [`<Gif>`](/docs/gif/gif), [`<Lottie>`](/docs/lottie), [`<ThreeCanvas>`](/docs/three-canvas) and [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas).
 - [`@remotion/shapes`](/docs/shapes), [`@remotion/rough-notation`](/docs/rough-notation/api), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor).
 - [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
@@ -33,8 +34,6 @@ export const MyComposition = () => (
   </Interactive.Div>
 );
 ```
-
-At composition frame `30`, the children of `<Interactive.Div>` start at their local frame `0`.
 
 ## `durationInFrames`: Limit an item
 
@@ -121,7 +120,7 @@ export const MyComposition = () => (
 
 `loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`.
 
-If `trimAfter` is omitted, it `loops` from `trimBefore` after the end of the source.
+If `trimAfter` is omitted, it loops from `trimBefore` after the end of the source.
 
 <TimingTimeline from={30} durationInFrames={90} trimBefore={45} trimAfter={105} playbackRate={2} loop />
 
@@ -148,19 +147,16 @@ At 30 FPS, this repeats the selected 60 source frames three times over 90 compos
 
 Think of the timing props as applying to the content in this order:
 
-1. Trim the beginning with `trimBefore`. For `<Audio>` and `<Video>`, `trimAfter` also sets where the selected range ends.
-2. Place the trimmed content on the parent timeline with `from`. The first selected frame appears at `from`.
-3. Change its speed with `playbackRate`. A rate of `2` plays two selected frames per timeline frame without moving the starting position.
-4. For `<Audio>` and `<Video>`, `loop` repeats the selected range after it finishes. Without `loop`, playback stops at `trimAfter` or the end of the file.
-5. Limit the item on the parent timeline with `durationInFrames`, measured from `from`. Video or audio can end sooner if it does not loop.
+1. `from`, `trimBefore` and `trimAfter` defines the selected source range
+2. `playbackRate` stretches or compresses the selected range
+3. `loop` (on `<Audio>` and `<Video>`) loops the stretched range
+4. `durationInFrames` is applied last and defines the duration of the item in the timeline.
 
 For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` is:
 
-```text
+```
 trimBefore + (t - from) * playbackRate
 ```
-
-For the video examples above, frames `45` through `104` are selected. At `2×` speed, they play from composition frames `30` through `59`. With `loop` and `durationInFrames={90}`, the same range repeats at frames `60` and `90`, and the video occupies frames `30` through `119`.
 
 ## See also
 
