@@ -1,0 +1,61 @@
+---
+image: /generated/articles-docs-timing.png
+id: timing
+title: Timing and trimming
+crumb: 'Getting started'
+---
+
+An item's position in the composition and the frame of its content are separate. Use [`from`](/docs/sequence#from) and [`durationInFrames`](/docs/sequence#durationinframes) to control when it appears. Use [`trimBefore`](/docs/sequence#trimbefore) and [`playbackRate`](/docs/sequence#playbackrate) to control which frame its children see.
+
+These timing props are available on [`<Sequence>`](/docs/sequence) and components such as [`<AbsoluteFill>`](/docs/absolute-fill), [`<Gif>`](/docs/gif/gif) and [`Interactive` components](/docs/interactive). Media also has source trimming props, which work differently from a sequence's `trimBefore`.
+
+## Position, trim and speed
+
+For a `<Sequence>`, `from` and `durationInFrames` are measured in the parent timeline. A finite `durationInFrames` unmounts the children at the end of that interval, without changing their frame number.
+
+From <AvailableFrom v="4.0.482" inline />, `trimBefore` advances the children's frame when they first appear. From <AvailableFrom v="4.0.528" inline />, `playbackRate` changes how quickly that frame advances. At parent frame `t`, the frame returned by [`useCurrentFrame()`](/docs/use-current-frame) inside the sequence is:
+
+```text
+(t - from) * playbackRate + trimBefore
+```
+
+For example:
+
+```tsx twoslash title="MyComposition.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Sequence from={30} durationInFrames={60} trimBefore={10} playbackRate={2}>
+    <Counter />
+  </Sequence>
+);
+```
+
+The counter appears at composition frame `30` and reads `10`. At composition frame `40`, it reads `30`. It remains visible through frame `89`; changing the speed does not change its 60-frame duration in the parent timeline.
+
+Nested sequences apply their timing in order from the outer sequence to the inner one. Their playback rates multiply. To trim the end of a sequence, set `durationInFrames`; `<Sequence>` has no `trimAfter` prop.
+
+## Trimming a media source
+
+[`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media` use their own `trimBefore` and `trimAfter` props to select a range of the source file. `trimAfter` is the frame at which the source range ends, not a number of frames to remove. This differs from `<Sequence trimBefore>`, which advances the timeline seen by all its children.
+
+At 30 FPS, this video plays source frames `45` through `104` (1.5 to 3.5 seconds). At double speed, it takes 30 composition frames and appears from frame `30` through `59`:
+
+```tsx twoslash title="MyComposition.tsx"
+import {staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => <Video src={staticFile('video.mp4')} from={30} trimBefore={45} trimAfter={105} playbackRate={2} />;
+```
+
+When `loop` is set, the selected source range repeats. Use `durationInFrames` to limit how long the loop remains on the composition timeline. Without a loop, `trimAfter` also limits how long the media can play.
+
+The legacy [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video) and [`<OffthreadVideo>`](/docs/offthreadvideo) components also support source trimming. Wrap them in a `<Sequence>` to position them or limit their duration.
+
+## See also
+
+- [`<Sequence>`](/docs/sequence)
+- [Trimming audio](/docs/audio/trimming)
+- [Adding a video](/docs/videos/)
