@@ -1,5 +1,4 @@
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from "remotion";
-import {poppins} from "../showcase/font";
 import {brand} from "./theme";
 
 // A name with a bilingual role under it, sliding in from the left over its
@@ -20,7 +19,7 @@ export const LowerThird: React.FC<{name: string; roleVi: string; roleEn: string}
         padding: "18px 32px 18px 20px",
         borderRadius: 16,
         background: brand.panel,
-        fontFamily: poppins,
+        fontFamily: brand.font,
         opacity: enter,
         translate: `${interpolate(enter, [0, 1], [-60, 0])}px 0`,
       }}
