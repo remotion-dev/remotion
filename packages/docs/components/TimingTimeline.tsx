@@ -102,7 +102,7 @@ export const TimingTimeline: React.FC<{
 					gridColumn: 2,
 					gridRow: '1 / 3',
 					position: 'relative',
-					cursor: 'ew-resize',
+					cursor: 'default',
 					touchAction: 'none',
 					userSelect: 'none',
 				}}
