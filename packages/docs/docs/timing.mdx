@@ -50,7 +50,11 @@ import {Interactive, useCurrentFrame} from 'remotion';
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Interactive.Div from={30} trimBefore={15} durationInFrames={45}>
+  <Interactive.Div
+    from={30}
+    trimBefore={15}
+    durationInFrames={45}
+  >
     <Counter />
   </Interactive.Div>
 );
@@ -78,7 +82,15 @@ At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source
 import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
-export const MyComposition = () => <Video src={staticFile('video.mp4')} from={30} trimBefore={45} trimAfter={105} playbackRate={2} />;
+export const MyComposition = () => (
+  <Video
+    src={staticFile('video.mp4')}
+    from={30}
+    trimBefore={45}
+    trimAfter={105}
+    playbackRate={2}
+  />
+);
 ```
 
 When `loop` is set, the selected source range repeats. Use `durationInFrames` to limit how long the loop remains on the composition timeline. Without a loop, `trimAfter` also limits how long the media can play.
