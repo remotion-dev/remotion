@@ -327,7 +327,8 @@ export const InspectorSequenceSection: React.FC<{
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
-	const {inspectorRevealRequest, selectedItems} = useTimelineSelection();
+	const {inspectorRevealRequest, selectedItems, selectItems} =
+		useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -757,14 +758,16 @@ export const InspectorSequenceSection: React.FC<{
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
-			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			nodePathInfo,
+			selectItems,
 		});
 	}, [
 		canAddEffect,
-		nodePathInfo.sequenceSubscriptionKey,
+		nodePathInfo,
 		previewServerState,
 		setAdditionalSectionExpanded,
 		setSelectedModal,
+		selectItems,
 		validatedLocation.source,
 	]);
 

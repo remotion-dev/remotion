@@ -29,7 +29,10 @@ import {
 	type GetEffectDragOverrides,
 	type PropStatuses,
 } from 'remotion';
-import {canUseKeyframeOperations} from '../../helpers/browser-studio-operations';
+import {
+	canUseEffectOperations,
+	canUseKeyframeOperations,
+} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -984,6 +987,7 @@ export const TimelineSelectionProvider: React.FC<{
 		(previewServerState.type === 'connected' ||
 			window.remotion_isReadOnlyStudio);
 	const keyframeOperationsAvailable = canUseKeyframeOperations();
+	const effectOperationsAvailable = canUseEffectOperations();
 	const selectionController = useCanvasSelectionController();
 	const selectionState = useCanvasSelection(selectionController);
 	const selectionScope = useRef<string | null>(null);
@@ -1018,8 +1022,9 @@ export const TimelineSelectionProvider: React.FC<{
 			canSelect &&
 			(!window.remotion_isReadOnlyStudio ||
 				keyframeOperationsAvailable ||
+				(effectOperationsAvailable && item.type === 'sequence-effect') ||
 				item.type === 'sequence'),
-		[canSelect, keyframeOperationsAvailable],
+		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
 	);
 
 	const availableSelectionState =

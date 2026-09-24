@@ -24,20 +24,17 @@ import {
 export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
 	AddEffectResponse
-> = ({
-	input: {
-		fileName,
-		sequenceNodePath,
-		effectName,
-		effectImportPath,
-		effectConfig,
-		clientId,
-	},
-	remotionRoot,
-	logLevel,
-}) => {
+> = ({input: request, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			const {
+				fileName,
+				sequenceNodePath,
+				effectName,
+				effectImportPath,
+				effectConfig,
+				clientId,
+			} = request;
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
 				`[add-effect] Received request for fileName="${fileName}" effect="${effectName}"`,
@@ -106,6 +103,10 @@ export const addEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				insertedEffect: {
+					effectIndex: result.insertedEffect.effectIndex,
+					nodePath: result.insertedEffect.nodePath,
+				},
 			};
 		} catch (err) {
 			return {
