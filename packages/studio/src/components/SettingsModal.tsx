@@ -413,7 +413,10 @@ export const SettingsModal: React.FC<{
 				  tab === 'models' ||
 				  tab === 'updates' ||
 				  tab === 'skills' ? null : (
-					<SettingsModalFooter showLicenseFaq={tab === 'license'} />
+					<SettingsModalFooter
+						showAboutElements={tab === 'studio' && studioPane === 'elements'}
+						showLicenseFaq={tab === 'license'}
+					/>
 				)}
 			</>
 		</DismissableModal>
