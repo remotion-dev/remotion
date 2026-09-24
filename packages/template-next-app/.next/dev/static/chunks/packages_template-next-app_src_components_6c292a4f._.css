@@ -1,0 +1,98 @@
+/* [project]/packages/template-next-app/src/components/Spinner/styles.module.css [app-client] (css) */
+@keyframes styles-module__cAE03a__spinner {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: .15;
+  }
+}
+
+.styles-module__cAE03a__line {
+  animation: 1.2s linear infinite styles-module__cAE03a__spinner;
+}
+
+/* [project]/packages/template-next-app/src/components/Button/styles.module.css [app-client] (css) */
+.styles-module__Vs2VwG__button {
+  border: 1px solid var(--foreground);
+  border-radius: var(--geist-border-radius);
+  background-color: var(--foreground);
+  color: var(--background);
+  padding-left: var(--geist-half-pad);
+  padding-right: var(--geist-half-pad);
+  height: 40px;
+  font-family: var(--geist-font);
+  appearance: none;
+  flex-direction: row;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all .15s;
+  display: inline-flex;
+}
+
+.styles-module__Vs2VwG__secondarybutton {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--unfocused-border-color);
+}
+
+.styles-module__Vs2VwG__button:hover {
+  background-color: var(--background);
+  cursor: pointer;
+  color: var(--foreground);
+  border-color: var(--focused-border-color);
+}
+
+.styles-module__Vs2VwG__button:disabled {
+  background-color: var(--button-disabled-color);
+  color: var(--disabled-text-color);
+  border-color: var(--unfocused-border-color);
+  cursor: not-allowed;
+}
+
+/* [project]/packages/template-next-app/src/components/Tips/styles.module.css [app-client] (css) */
+.styles-module__ci6Qta__row {
+  flex-direction: row;
+  font-family: Inter;
+  display: flex;
+}
+
+.styles-module__ci6Qta__item {
+  cursor: pointer;
+  padding: 10px;
+  transition: transform .2s ease-in-out;
+}
+
+.styles-module__ci6Qta__icon {
+  opacity: 0;
+  transition: opacity .2s ease-in-out;
+}
+
+.styles-module__ci6Qta__item:hover {
+  transform: translateY(-2px);
+}
+
+.styles-module__ci6Qta__item:hover .styles-module__ci6Qta__icon {
+  opacity: 1;
+}
+
+.styles-module__ci6Qta__p {
+  color: var(--subtitle);
+  margin-top: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.styles-module__ci6Qta__flex {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .styles-module__ci6Qta__row {
+    flex-direction: column;
+  }
+}
+
+/*# sourceMappingURL=packages_template-next-app_src_components_6c292a4f._.css.map*/

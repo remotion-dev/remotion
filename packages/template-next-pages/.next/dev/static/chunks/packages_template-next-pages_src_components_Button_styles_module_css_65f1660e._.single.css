@@ -1,0 +1,40 @@
+/* [project]/packages/template-next-pages/src/components/Button/styles.module.css [client] (css) */
+.styles-module__yRwBbG__button {
+  border: 1px solid var(--foreground);
+  border-radius: var(--geist-border-radius);
+  background-color: var(--foreground);
+  color: var(--background);
+  padding-left: var(--geist-half-pad);
+  padding-right: var(--geist-half-pad);
+  height: 40px;
+  font-family: var(--geist-font);
+  appearance: none;
+  flex-direction: row;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all .15s;
+  display: inline-flex;
+}
+
+.styles-module__yRwBbG__secondarybutton {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--unfocused-border-color);
+}
+
+.styles-module__yRwBbG__button:hover {
+  background-color: var(--background);
+  cursor: pointer;
+  color: var(--foreground);
+  border-color: var(--focused-border-color);
+}
+
+.styles-module__yRwBbG__button:disabled {
+  background-color: var(--button-disabled-color);
+  color: var(--disabled-text-color);
+  border-color: var(--unfocused-border-color);
+  cursor: not-allowed;
+}
+
+/*# sourceMappingURL=packages_template-next-pages_src_components_Button_styles_module_css_65f1660e._.single.css.map*/

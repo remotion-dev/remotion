@@ -1,0 +1,3 @@
+module.exports=[97100,a=>{"use strict";var b=a.i(90464);function c({children:a}){return(0,b.jsx)("html",{lang:"en",children:(0,b.jsx)("body",{children:a})})}a.s(["default",()=>c,"metadata",0,{title:"Remotion and Next.js",description:"Remotion and Next.js"},"viewport",0,{width:"device-width",initialScale:1,maximumScale:1}])}];
+
+//# sourceMappingURL=packages_template-next-app_src_app_layout_tsx_a1dda01a._.js.map

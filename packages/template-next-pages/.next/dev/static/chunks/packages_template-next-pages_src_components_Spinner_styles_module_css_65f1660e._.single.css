@@ -1,0 +1,16 @@
+/* [project]/packages/template-next-pages/src/components/Spinner/styles.module.css [client] (css) */
+@keyframes styles-module__40vUwa__spinner {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: .15;
+  }
+}
+
+.styles-module__40vUwa__line {
+  animation: 1.2s linear infinite styles-module__40vUwa__spinner;
+}
+
+/*# sourceMappingURL=packages_template-next-pages_src_components_Spinner_styles_module_css_65f1660e._.single.css.map*/

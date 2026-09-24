@@ -1,0 +1,8 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/lambda/progress/route": "/api/lambda/progress",
+  "/api/lambda/render/route": "/api/lambda/render",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}

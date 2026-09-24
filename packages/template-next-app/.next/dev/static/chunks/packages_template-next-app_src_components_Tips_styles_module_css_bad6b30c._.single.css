@@ -1,0 +1,44 @@
+/* [project]/packages/template-next-app/src/components/Tips/styles.module.css [app-client] (css) */
+.styles-module__ci6Qta__row {
+  flex-direction: row;
+  font-family: Inter;
+  display: flex;
+}
+
+.styles-module__ci6Qta__item {
+  cursor: pointer;
+  padding: 10px;
+  transition: transform .2s ease-in-out;
+}
+
+.styles-module__ci6Qta__icon {
+  opacity: 0;
+  transition: opacity .2s ease-in-out;
+}
+
+.styles-module__ci6Qta__item:hover {
+  transform: translateY(-2px);
+}
+
+.styles-module__ci6Qta__item:hover .styles-module__ci6Qta__icon {
+  opacity: 1;
+}
+
+.styles-module__ci6Qta__p {
+  color: var(--subtitle);
+  margin-top: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.styles-module__ci6Qta__flex {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .styles-module__ci6Qta__row {
+    flex-direction: column;
+  }
+}
+
+/*# sourceMappingURL=packages_template-next-app_src_components_Tips_styles_module_css_bad6b30c._.single.css.map*/

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":["file:///Users/jonathanburger/remotion/node_modules/.bun/next%4016.0.0%2B1eeaf37cadfdd01a/node_modules/next/head.js"],"sourcesContent":["module.exports = require('./dist/shared/lib/head')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0],"debugId":null}},
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/jonathanburger/remotion/node_modules/.bun/next%4016.0.0%2B1eeaf37cadfdd01a/node_modules/next/link.js"],"sourcesContent":["module.exports = require('./dist/client/link')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0],"debugId":null}}]
+}

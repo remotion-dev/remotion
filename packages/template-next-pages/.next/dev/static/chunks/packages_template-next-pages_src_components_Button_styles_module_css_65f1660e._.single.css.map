@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/packages/template-next-pages/src/components/Button/styles.module.css"],"sourcesContent":[".button {\n  border: 1px solid var(--foreground);\n  border-radius: var(--geist-border-radius);\n  background-color: var(--foreground);\n  color: var(--background);\n  padding-left: var(--geist-half-pad);\n  padding-right: var(--geist-half-pad);\n  height: 40px;\n  font-family: var(--geist-font);\n  font-weight: 500;\n  transition: all 0.15s ease;\n  display: inline-flex;\n  flex-direction: row;\n  align-items: center;\n  appearance: none;\n  font-size: 14px;\n}\n\n.secondarybutton {\n  background-color: var(--background);\n  color: var(--foreground);\n  border-color: var(--unfocused-border-color);\n}\n\n.button:hover {\n  background-color: var(--background);\n  cursor: pointer;\n  color: var(--foreground);\n  border-color: var(--focused-border-color);\n}\n\n.button:disabled {\n  background-color: var(--button-disabled-color);\n  color: var(--disabled-text-color);\n  border-color: var(--unfocused-border-color);\n  cursor: not-allowed;\n}\n"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;;;;AAkBA;;;;;;AAMA;;;;;;;AAOA"}}]
+}

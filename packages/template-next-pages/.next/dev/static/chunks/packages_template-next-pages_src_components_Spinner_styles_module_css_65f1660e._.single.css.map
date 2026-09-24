@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/packages/template-next-pages/src/components/Spinner/styles.module.css"],"sourcesContent":["@keyframes spinner {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0.15;\n  }\n}\n\n.line {\n  animation: spinner 1.2s linear infinite;\n}\n"],"names":[],"mappings":"AAAA;;;;;;;;;;AASA"}}]
+}

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///Users/jonathanburger/remotion/packages/template-next-pages/src/pages/_app.tsx"],"sourcesContent":["import \"../../styles/global.css\";\nimport type { AppProps } from \"next/app\";\n\nfunction MyApp({ Component, pageProps }: AppProps) {\n  return <Component {...pageProps} />;\n}\n\nexport default MyApp;\n"],"names":[],"mappings":";;;;;;;AAGA,SAAS,MAAM,EAAE,SAAS,EAAE,SAAS,EAAY;IAC/C,qBAAO,qKAAC;QAAW,GAAG,SAAS;;;;;;AACjC;uCAEe","debugId":null}}]
+}

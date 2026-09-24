@@ -1,0 +1,3 @@
+{
+  "/api/lambda/progress/route": "app/api/lambda/progress/route.js"
+}

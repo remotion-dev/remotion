@@ -1,0 +1,9 @@
+{
+  "/": "pages/index.html",
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/_error": "pages/_error.js",
+  "/api/lambda/progress": "pages/api/lambda/progress.js",
+  "/api/lambda/render": "pages/api/lambda/render.js",
+  "/404": "pages/404.html"
+}

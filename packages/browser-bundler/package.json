@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/browser-bundler",
-	"version": "4.0.527",
+	"version": "4.0.528",
 	"description": "Compile virtual Remotion projects in the browser",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

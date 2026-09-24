@@ -1,0 +1,44 @@
+/* [project]/packages/template-next-pages/src/components/Tips/styles.module.css [client] (css) */
+.styles-module__6v-dRq__row {
+  flex-direction: row;
+  font-family: Inter;
+  display: flex;
+}
+
+.styles-module__6v-dRq__item {
+  cursor: pointer;
+  padding: 10px;
+  transition: transform .2s ease-in-out;
+}
+
+.styles-module__6v-dRq__icon {
+  opacity: 0;
+  transition: opacity .2s ease-in-out;
+}
+
+.styles-module__6v-dRq__item:hover {
+  transform: translateY(-2px);
+}
+
+.styles-module__6v-dRq__item:hover .styles-module__6v-dRq__icon {
+  opacity: 1;
+}
+
+.styles-module__6v-dRq__p {
+  color: var(--subtitle);
+  margin-top: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.styles-module__6v-dRq__flex {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .styles-module__6v-dRq__row {
+    flex-direction: column;
+  }
+}
+
+/*# sourceMappingURL=packages_template-next-pages_src_components_Tips_styles_module_css_65f1660e._.single.css.map*/

@@ -1,0 +1,1 @@
+{"version":3,"sources":["turbopack:///[project]/packages/template-next-app/src/app/favicon.ico.mjs (structured image object)"],"sourcesContent":["import src from \"IMAGE\";\nexport default { src, width: 256, height: 256 }\n"],"names":[],"mappings":"uGACe,CAAE,IADjB,AACiB,EADjB,CAAA,CAAA,OACiB,OAAG,CAAE,MAAO,IAAK,OAAQ,GAAI"}

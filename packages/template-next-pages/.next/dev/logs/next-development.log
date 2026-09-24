@@ -1,0 +1,11 @@
+[00:00:00.274] Server  LOG     
+[00:00:00.274] Server  LOG        We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+[00:00:00.274] Server  LOG        The following mandatory changes were made to your tsconfig.json:
+
+[00:00:00.274] Server  LOG        	- jsx was set to react-jsx (next.js uses the React automatic runtime)
+[00:00:00.274] Server  LOG     
+[00:00:00.334] Server  LOG      ✓ Ready in 220ms
+[00:00:02.708] Server  WARN    Note: Some companies are required to obtain a license to use Remotion. See: https://remotion.dev/license
+Pass the `acknowledgeRemotionLicense` prop to `<Player />` function to make this message disappear.
+[00:00:03.016] Browser WARN    Note: Some companies are required to obtain a license to use Remotion. See: https://remotion.dev/license
+Pass the `acknowledgeRemotionLicense` prop to `<Player />` function to make this message disappear.

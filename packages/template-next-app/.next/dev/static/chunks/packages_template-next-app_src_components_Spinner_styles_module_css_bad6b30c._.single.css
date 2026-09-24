@@ -1,0 +1,16 @@
+/* [project]/packages/template-next-app/src/components/Spinner/styles.module.css [app-client] (css) */
+@keyframes styles-module__cAE03a__spinner {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: .15;
+  }
+}
+
+.styles-module__cAE03a__line {
+  animation: 1.2s linear infinite styles-module__cAE03a__spinner;
+}
+
+/*# sourceMappingURL=packages_template-next-app_src_components_Spinner_styles_module_css_bad6b30c._.single.css.map*/

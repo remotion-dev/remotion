@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/packages/template-next-app/src/components/Tips/styles.module.css"],"sourcesContent":[".row {\n  display: flex;\n  flex-direction: row;\n  font-family: Inter;\n}\n\n.item {\n  cursor: pointer;\n  transition: transform 0.2s ease-in-out;\n  padding: 10px;\n}\n\n.icon {\n  opacity: 0;\n  transition: opacity 0.2s ease-in-out;\n}\n\n.item:hover {\n  transform: translateY(-2px);\n  .icon {\n    opacity: 1;\n  }\n}\n\n.p {\n  font-size: 14px;\n  margin-top: 0;\n  line-height: 1.5;\n  color: var(--subtitle);\n}\n\n.flex {\n  flex: 1;\n}\n\n@media (max-width: 768px) {\n  .row {\n    flex-direction: column;\n  }\n}\n"],"names":[],"mappings":"AAAA;;;;;;AAMA;;;;;;AAMA;;;;;AAKA;;;;AAEE;;;;AAKF;;;;;;;AAOA;;;;AAIA;EACE"}}]
+}

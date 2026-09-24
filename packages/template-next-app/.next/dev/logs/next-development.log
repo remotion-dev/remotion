@@ -1,0 +1,16 @@
+[00:00:02.084] Server  LOG     
+[00:00:02.084] Server  LOG        We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+[00:00:02.084] Server  LOG        The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+[00:00:02.084] Server  LOG        	- include was updated to add '.next/dev/types/**/*.ts'
+[00:00:02.084] Server  LOG     
+[00:00:02.084] Server  LOG        The following mandatory changes were made to your tsconfig.json:
+
+[00:00:02.084] Server  LOG        	- jsx was set to react-jsx (next.js uses the React automatic runtime)
+[00:00:02.084] Server  LOG     
+[00:00:02.199] Server  LOG      ✓ Ready in 2s
+[00:00:03.043] Server  WARN    Note: Some companies are required to obtain a license to use Remotion. See: https://remotion.dev/license
+Pass the `acknowledgeRemotionLicense` prop to `<Player />` function to make this message disappear.
+[00:00:03.186] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:03.295] Browser WARN    Note: Some companies are required to obtain a license to use Remotion. See: https://remotion.dev/license
+Pass the `acknowledgeRemotionLicense` prop to `<Player />` function to make this message disappear.
