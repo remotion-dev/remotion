@@ -7,7 +7,6 @@ import {getEndPosition} from './get-end-position';
 import type {ReducedInstruction} from './helpers/types';
 import {convertToSameInstructionType} from './interpolate-path/convert-to-same-instruction-type';
 import {extendInstruction} from './interpolate-path/extend-command';
-import {interpolatePath} from './interpolate-path/interpolate-path';
 import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
 import {serializeInstructions} from './serialize-instructions';
@@ -88,16 +87,6 @@ export const interpolatePaths = (
 	const contributingPaths = outputRange
 		.map((path, index) => ({path, weight: weights[index]}))
 		.filter(({weight}) => weight !== 0);
-	if (contributingPaths.length === 2) {
-		return normalizeInterpolatedPath(
-			interpolatePath(
-				contributingPaths[1].weight,
-				contributingPaths[0].path,
-				contributingPaths[1].path,
-			),
-		);
-	}
-
 	const paths = contributingPaths.map(({path}) => {
 		const commands = reduceInstructions(parsePath(path));
 		if (commands.length === 0) {

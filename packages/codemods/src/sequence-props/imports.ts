@@ -104,7 +104,7 @@ export const ensureNamedImport = ({
 	if (existingImport) {
 		const importSpecifier = b.importSpecifier(
 			b.identifier(importedName),
-			localName === importedName ? null : b.identifier(localName),
+			b.identifier(localName),
 		) as unknown as ImportSpecifier;
 
 		existingImport.specifiers = [
@@ -116,7 +116,7 @@ export const ensureNamedImport = ({
 
 	const specifier = b.importSpecifier(
 		b.identifier(importedName),
-		localName === importedName ? null : b.identifier(localName),
+		b.identifier(localName),
 	) as unknown as ImportSpecifier;
 	const importDeclaration = b.importDeclaration(
 		[specifier as never],

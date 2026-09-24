@@ -53,7 +53,7 @@ A non-empty array of finite numbers in strictly increasing order. Each value cor
 
 An array of valid SVG path strings with the same length as `inputRange`. Paths may have different numbers of points. A single keyframe returns its path for every input.
 
-When spring tails blend more than two paths at once, their subpaths must have matching move and close commands after normalization.
+Interpolated paths must have matching move and close commands in their subpaths after normalization. When interpolating between a curve and a line, the curve gradually straightens into the line.
 
 ### options?
 
