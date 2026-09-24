@@ -149,16 +149,15 @@ const translateY = interpolate(frame, [0, 30], [0, 120]); // ❌ Math should be 
 
 ## Keep SVG paths editable with `Interactive.Path`
 
-Use `Interactive.Path` from `remotion` inside an SVG to make path anchors and Bézier handles editable on the Studio canvas.
-Install `@remotion/paths` for path interpolation and Studio path keyframes, keeping its version aligned with `remotion`:
+Use `<Interactive.Path>` from `remotion` instead of `<path>` inside an SVG to make the path visually editable.
+
+Install `@remotion/paths` for path interpolation and Studio path keyframes:
 
 ```sh
 bunx remotion add @remotion/paths
 ```
 
-### Inline static path data
-
-If the geometry is meant to be static, put the path string directly in the `d` prop. Do not extract it into a constant, construct it with a template literal, or call a path-generating helper in the prop. For a generated shape that should stay static, generate the data once and inline the resulting string.
+If the geometry is meant to be static, put the path string directly in the `d` prop. Do not extract it into a constant.
 
 ```tsx title="Editable static path"
 import {Interactive} from 'remotion';
@@ -174,8 +173,10 @@ import {Interactive} from 'remotion';
 
 ### Morph paths using inline `interpolatePaths()`
 
-Use `interpolatePaths()` from `@remotion/paths` (available from Remotion 4.0.529) directly in `d`. It accepts a frame, an input range, an equally sized array of path strings, and options for easing, extrapolation, and posterization.
-Keep the output paths, ranges, and options inline, following the same input-range rules as `interpolate()` above. Do not use the pairwise `interpolatePath()` API or extract the interpolated result into a variable when the path keyframes should remain editable in Studio.
+Use `interpolatePaths()` from `@remotion/paths` directly in `d`.  
+It accepts a frame, an input range, an equally sized array of path strings, and options for easing, extrapolation, and posterization.
+Keep the output paths, ranges, and options inline, following the same input-range rules as `interpolate()` above.  
+Do not use `interpolatePath()` API or extract the interpolated result into a variable when the path keyframes should remain editable in Studio.
 
 ```tsx title="Editable path keyframes"
 import {interpolatePaths} from '@remotion/paths';
@@ -200,7 +201,6 @@ export const MorphingPath = () => {
             easing: Easing.bezier(0.42, 0, 0.58, 1),
             extrapolateLeft: 'clamp',
             extrapolateRight: 'clamp',
-            posterize: 2,
           },
         )}
         fill="#0b84f3"
@@ -210,42 +210,8 @@ export const MorphingPath = () => {
 };
 ```
 
-Studio can edit the path at the current frame, add or move keyframes, and adjust their easing. Omit `posterize` when the animation should update every frame.
-
-### Reveal a stroke without making the path computed
-
-For a line-drawing animation, keep `d` inline and animate `strokeDashoffset`. Set `pathLength={1}` and `strokeDasharray="1 1"`, then interpolate the offset from `1` (hidden) to `0` (fully drawn). These are unitless values, not percentages. The browser normalizes the dash lengths to the path, so edits to its geometry do not require recalculating its length. See the [SVG pathLength specification](https://www.w3.org/TR/SVG2/paths.html#PathLengthAttribute).
-
-```tsx title="Stroke reveal with editable geometry"
-import {Interactive, interpolate, useCurrentFrame} from 'remotion';
-
-export const DrawingPath = () => {
-  const frame = useCurrentFrame();
-
-  return (
-    <Interactive.Svg width={300} height={300} viewBox="0 0 300 300">
-      <Interactive.Path
-        name="Drawing curve"
-        d="M 30 230 C 60 40 240 40 270 230"
-        fill="none"
-        stroke="#0b84f3"
-        strokeWidth={6}
-        strokeLinecap="butt"
-        pathLength={1}
-        strokeDasharray="1 1"
-        strokeDashoffset={interpolate(frame, [0, 30], [1, 0], {
-          extrapolateLeft: 'clamp',
-          extrapolateRight: 'clamp',
-        })}
-      />
-    </Interactive.Svg>
-  );
-};
-```
-
-Use this pattern instead of `evolvePath()` for interactive paths. `evolvePath()` returns computed dash properties; it does not modify `d`. Extracting `d` into a shared variable or spreading the returned object into the element prevents Studio from editing those values directly. Keeping `d` inline preserves canvas geometry editing. The dash props currently have no built-in Studio controls, so the reveal timing is edited in code.
-
-This technique reveals the stroke, not the fill. Use separate `Interactive.Path` elements for subpaths that should draw independently. Round or square line caps can leave a dot visible at the hidden endpoint; the example uses butt caps.
+Studio can edit the path at the current frame, add or move keyframes, and adjust their easing.  
+Use `strokeDasharray` and `strokeDashoffset` to evolve paths.
 
 ## Use `scale`, `translate`, `rotate` CSS properties
 
