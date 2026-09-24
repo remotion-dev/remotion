@@ -62,7 +62,7 @@ The item appears at composition frames `30` through `74`. The label inside the i
 
 `trimBefore` skips the beginning of an item's content without moving it from its `from` position. For `<Interactive.Div>`, it advances the frame seen by its children when they first appear. It is available on `<Interactive.Div>` from <AvailableFrom v="4.0.482" inline />:
 
-<TimingTimeline from={30} durationInFrames={45} trimBefore={15} playbackRate={1} />
+<TimingTimeline from={30} trimBefore={15} playbackRate={1} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -70,17 +70,11 @@ import {Interactive, useCurrentFrame} from 'remotion';
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Interactive.Div
-    from={30}
-    trimBefore={15}
-    durationInFrames={45}
-  >
+  <Interactive.Div from={30} trimBefore={15}>
     <Counter />
   </Interactive.Div>
 );
 ```
-
-The element still occupies composition frames `30` through `74`. The counter on the left shows those frames, while the label inside the element and `<Counter>` run from `15` through `59`. On `<Audio>` and `<Video>`, the same `trimBefore={15}` starts playback 15 frames into the source while leaving the item at frame `30`.
 
 ## `playbackRate`: Change speed of an item
 
