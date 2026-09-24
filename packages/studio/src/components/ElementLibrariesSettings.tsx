@@ -12,6 +12,14 @@ import {ValidationMessage} from './NewComposition/ValidationMessage';
 import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
+const container: React.CSSProperties = {
+	alignSelf: 'flex-start',
+	boxSizing: 'border-box',
+	flex: 1,
+	minWidth: 0,
+	width: '100%',
+};
+
 const heading: React.CSSProperties = {
 	...sectionHeader,
 	margin: '16px 0 0',
@@ -163,7 +171,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	}, []);
 
 	return (
-		<section>
+		<section style={container}>
 			<h3 style={heading}>Element Libraries</h3>
 			<p style={description}>
 				Add libraries to browse their elements in Studio. Changes save to

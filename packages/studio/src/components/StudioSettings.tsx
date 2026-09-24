@@ -10,7 +10,6 @@ import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
 import {Checkbox} from './Checkbox';
 import {ConfigSelect} from './ConfigSelect';
-import {ElementLibrariesSettings} from './ElementLibrariesSettings';
 import {sectionHeader} from './InspectorPanel/styles';
 import {Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
@@ -348,8 +347,6 @@ export const StudioSettings: React.FC = () => {
 					/>
 				</div>
 			</label>
-			<ElementLibrariesSettings />
-
 			{(error ?? settingsError) ? (
 				<>
 					<Spacing y={1} block />
