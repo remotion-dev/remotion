@@ -18,10 +18,11 @@ import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
-import type {
-	InteractiveBaseProps,
-	InteractiveCropProps,
-	InteractivePremountProps,
+import {
+	stripRemotionElementProps,
+	type InteractiveBaseProps,
+	type InteractiveCropProps,
+	type InteractivePremountProps,
 } from './Interactive.js';
 import {
 	backgroundSchema,
@@ -42,7 +43,6 @@ import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {resolveV5Default} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -681,59 +681,37 @@ const ImgInner: React.FC<
 	);
 };
 
-const ImgWithWebFallback: React.FC<
-	ImgProps & {readonly controls: SequenceControls | undefined}
-> = (props) => {
-	const videoConfig = useUnsafeVideoConfig();
-
-	if (videoConfig === null) {
-		const {
-			effects: _effects,
-			maxRetries: _maxRetries,
-			pauseWhenLoading: _pauseWhenLoading,
-			delayRenderRetries: _delayRenderRetries,
-			delayRenderTimeoutInMilliseconds: _delayRenderTimeoutInMilliseconds,
-			onImageFrame: _onImageFrame,
-			onImageError: _onImageError,
-			showInTimeline: _showInTimeline,
-			name: _name,
-			durationInFrames: _durationInFrames,
-			from: _from,
-			trimBefore: _trimBefore,
-			freeze: _freeze,
-			premountFor: _premountFor,
-			postmountFor: _postmountFor,
-			styleWhilePremounted: _styleWhilePremounted,
-			styleWhilePostmounted: _styleWhilePostmounted,
-			cropLeft: _cropLeft,
-			cropRight: _cropRight,
-			cropTop: _cropTop,
-			cropBottom: _cropBottom,
-			controls: _controls,
-			hidden,
-			src,
-			...imgProps
-		} = props;
-
-		if (!src) {
-			throw new Error('No "src" prop was passed to <Img>.');
-		}
-
-		return hidden ? null : <img {...imgProps} src={src} />;
-	}
-
-	return <ImgInner {...props} />;
-};
+const remotionImgProps = [
+	'effects',
+	'maxRetries',
+	'pauseWhenLoading',
+	'delayRenderRetries',
+	'delayRenderTimeoutInMilliseconds',
+	'onImageFrame',
+	'onImageError',
+] as const;
 
 /*
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
 export const Img = withInteractivitySchema({
-	Component: ImgWithWebFallback,
+	Component: ImgInner,
 	componentName: '<Img>',
 	componentIdentity: 'dev.remotion.remotion.Img',
 	schema: imgSchema,
 	supportsEffects: true,
+	renderOutsideRemotion: (props, ref) => {
+		if (!props.src) {
+			throw new Error('No "src" prop was passed to <Img>.');
+		}
+
+		return props.hidden
+			? null
+			: React.createElement('img', {
+					...stripRemotionElementProps(props, remotionImgProps),
+					ref,
+				});
+	},
 });
 addSequenceStackTraces(Img);

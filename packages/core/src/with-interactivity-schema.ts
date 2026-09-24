@@ -169,6 +169,11 @@ export type WithInteractivitySchemaOptions<
 	componentIdentity?: JsxComponentIdentity | null;
 	schema: S;
 	supportsEffects: boolean;
+	/** @internal */
+	renderOutsideRemotion?: (
+		props: Props,
+		ref: React.ForwardedRef<unknown>,
+	) => React.ReactNode;
 };
 
 const DisableInteractivityContext = createContext(false);
@@ -192,6 +197,7 @@ export const withInteractivitySchema = <
 	componentIdentity = null,
 	schema,
 	supportsEffects,
+	renderOutsideRemotion,
 }: WithInteractivitySchemaOptions<S, Props>): React.ComponentType<Props> => {
 	// Schema is static for a component, so we move this outside
 	const schemaWithSequenceName = extendSchemaWithSequenceName(schema);
@@ -207,6 +213,9 @@ export const withInteractivitySchema = <
 		const env = useRemotionEnvironment();
 		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 		const disableInteractivity = useContext(DisableInteractivityContext);
+		if (!canUseRemotionHooks && renderOutsideRemotion) {
+			return renderOutsideRemotion(cleanProps, ref);
+		}
 
 		if (
 			!env.isStudio ||
