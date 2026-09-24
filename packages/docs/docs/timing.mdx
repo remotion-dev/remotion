@@ -94,9 +94,9 @@ export const MyComposition = () => (
 );
 ```
 
-## `trimAfter`: Trim a media source
+## `trimAfter`: Trim video or audio
 
-`<Audio>` and `<Video>` also accept `trimAfter` to select where playback stops in the source media.
+`<Audio>` and `<Video>` also accept `trimAfter` to select where playback stops in the video or audio.
 
 At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
 
@@ -117,7 +117,7 @@ export const MyComposition = () => (
 
 Without `loop`, playback stops when it reaches `trimAfter`.
 
-## `loop`: Repeat a media source
+## `loop`: Repeat video or audio
 
 `loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`. If `trimAfter` is omitted, the range ends at the end of the source. Use `durationInFrames` to limit how long the loop remains on the composition timeline:
 
@@ -154,7 +154,7 @@ The timing props apply in this order:
 2. Subtract `from` from the parent frame.
 3. Multiply by `playbackRate`.
 4. For `<Audio>` and `<Video>`, `trimAfter` (or the source end) sets the end of the selected range. If `loop` is set, wrap the advanced frame within that range; otherwise stop playback when it reaches the end.
-5. Add `trimBefore` to get the frame seen by children or the frame played from the media source.
+5. Add `trimBefore` to get the frame seen by children or the frame played from the video or audio.
 
 For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` returns:
 
