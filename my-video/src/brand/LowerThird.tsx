@@ -1,9 +1,9 @@
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from "remotion";
-import {poppins} from "../showcase/font";
 import {brand} from "./theme";
 
 // A name with a bilingual role under it, sliding in from the left over its
-// first 15 frames. Put it in a <Sequence> for its timing.
+// first 15 frames. Put it in a <Sequence> for its timing. Pass "" for either
+// role to show only the other.
 export const LowerThird: React.FC<{name: string; roleVi: string; roleEn: string}> = ({name, roleVi, roleEn}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -20,7 +20,7 @@ export const LowerThird: React.FC<{name: string; roleVi: string; roleEn: string}
         padding: "18px 32px 18px 20px",
         borderRadius: 16,
         background: brand.panel,
-        fontFamily: poppins,
+        fontFamily: brand.font,
         opacity: enter,
         translate: `${interpolate(enter, [0, 1], [-60, 0])}px 0`,
       }}
@@ -29,7 +29,7 @@ export const LowerThird: React.FC<{name: string; roleVi: string; roleEn: string}
       <div>
         <div style={{color: brand.text, fontSize: 44, fontWeight: 700, lineHeight: 1.35}}>{name.normalize("NFC")}</div>
         <div style={{color: brand.textDim, fontSize: 30, lineHeight: 1.35}}>
-          {roleVi.normalize("NFC")} · {roleEn}
+          {[roleVi.normalize("NFC"), roleEn].filter((role) => role !== "").join(" · ")}
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from "remotion";
-import {poppins} from "../showcase/font";
 import {brand} from "./theme";
 
 // Vietnamese on the main line, English smaller underneath, sharing one timing
@@ -24,7 +23,7 @@ export const BilingualCaption: React.FC<{vi: string; en: string}> = ({vi, en}) =
         translate: `0 ${interpolate(enter, [0, 1], [20, 0])}px`,
       }}
     >
-      <div style={{maxWidth: "80%", padding: "16px 36px", borderRadius: 18, background: brand.panel, textAlign: "center", fontFamily: poppins}}>
+      <div style={{maxWidth: "80%", padding: "16px 36px", borderRadius: 18, background: brand.panel, textAlign: "center", fontFamily: brand.font}}>
         <div style={{color: brand.text, fontSize: 48, fontWeight: 700, lineHeight: 1.35}}>{vi.normalize("NFC")}</div>
         <div style={{color: brand.textDim, fontSize: 30, lineHeight: 1.35, marginTop: 4}}>{en}</div>
       </div>

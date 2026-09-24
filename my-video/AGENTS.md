@@ -96,7 +96,8 @@ Reusable pieces for the owner's real videos; start from these rather than writin
 - `LenderRow` (`height`, at most 100): the lender logos from `public/lenders/` on a white card.
 - `NotoEmoji` (`name`, `size`, `loop`): an animated emoji from `public/emoji/` (see "Emoji" above).
 - `EndCard` (`titleVi`, `titleEn`, `website`, `phone`): closing call to action with contact details and the badge row. There are no real contact details in the repo; pass them in.
-- `theme.ts`: placeholder colours; replace them with FinHub's brand guide when there is one.
+- `theme.ts`: Finance Hub's brand, taken from `TyDoReel` (`src/tydo/TyDoOverlays.tsx`): logo blue, navy, amber accent and the Be Vietnam Pro font. A composition that shows brand text calls `useTyDoFont()` so the font's local files load.
+- `BrandOverlay` / `BrandOverlayVertical` (`name`, `roleVi`, `roleEn`, editable in the Studio's props panel): a transparent overlay for video editors, with the logo on a white pill top-right for the whole 8 s and the lower third from 1 s to 6 s. `npx remotion render BrandOverlay` (or `BrandOverlayVertical` for 1080×1920 reels) writes `out/brand-overlay.mov` as ProRes 4444 with transparency, which Final Cut Pro, Premiere Pro and DaVinci Resolve import; put it on a track above the footage.
 
 If a second video project ever needs these, `remotion-dev/library-starter` is Remotion's template for publishing them as a package; it pins Remotion 4.0.46, so upgrade it first.
 
