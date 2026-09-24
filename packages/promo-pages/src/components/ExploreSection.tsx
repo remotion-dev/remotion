@@ -11,7 +11,7 @@ export const ExploreSection: React.FC = () => {
 				Our mission is to explode the world of video creation into pieces and
 				let you assemble them.
 			</p>
-			<div className="grid grid-cols-3 border-t border-l border-[#353b40]">
+			<div className="grid grid-cols-2 border-t border-l border-[#353b40] min-[700px]:grid-cols-3">
 				{[
 					'Video',
 					'Audio',
@@ -22,6 +22,13 @@ export const ExploreSection: React.FC = () => {
 					'Effects',
 					'Transitions',
 					'Elements',
+					'Color Correction',
+					'Keyframes',
+					'Background removal',
+					'Fonts',
+					'Integrations',
+					'Editor Starter',
+					'Convert',
 				].map((item) => (
 					<div
 						key={item}
@@ -40,7 +47,7 @@ export const ExploreSection: React.FC = () => {
 							}
 						}}
 					>
-						{item === 'Rendering' || item === 'Audio' ? (
+						{item === 'Video' || item === 'Rendering' || item === 'Audio' ? (
 							<video
 								className="explore-video pointer-events-none absolute inset-0 h-full w-full object-cover"
 								muted
@@ -50,7 +57,7 @@ export const ExploreSection: React.FC = () => {
 								aria-hidden="true"
 							>
 								<source
-									src={`https://remotion.media/explore-remotion/${item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
+									src={`https://remotion.media/explore-remotion/${item === 'Video' ? 'video-playback-2026-09-22' : item === 'Rendering' ? 'render-modal-codec' : 'audio-waveform'}.mp4`}
 									type="video/mp4"
 								/>
 							</video>
@@ -58,7 +65,7 @@ export const ExploreSection: React.FC = () => {
 						<h3
 							className="relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl"
 							style={
-								item === 'Rendering' || item === 'Audio'
+								item === 'Video' || item === 'Rendering' || item === 'Audio'
 									? {
 											textShadow:
 												'0 1px 2px #000, 0 2px 8px #000, 0 0 16px #000',

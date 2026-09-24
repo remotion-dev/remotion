@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # deleteJsxNodes()<AvailableFrom v="4.0.527" />
 
-Deletes one or more JSX elements identified by mounted layer node paths. It works with any JSX layer, including [`<Sequence>`](/docs/sequence) and [`<Solid>`](/docs/solid).
+Deletes one or more JSX elements identified by source node references. It works with any JSX layer, including [`<Sequence>`](/docs/sequence) and [`<Solid>`](/docs/solid).
 
 :::warning
 
@@ -26,7 +26,6 @@ const result = await deleteJsxNodes({
   nodes: [{filePath: 'src/Video.tsx', nodePath}],
 });
 
-console.log(result.project.files);
 console.log(result.changes);
 ```
 
@@ -50,19 +49,19 @@ The source file containing the JSX element. Absolute paths emitted by a mounted 
 
 #### nodePath
 
-The `SequenceNodePath` identifying the JSX element to delete. Canvas layers expose it as `nodePathInfo.sequenceSubscriptionKey.nodePath`.
+The `SequenceNodePath` identifying the JSX element to delete. Obtain it from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes), an insertion result, or a mounted layer. Canvas layers expose it as `nodePathInfo.sequenceSubscriptionKey.nodePath`.
 
 ## Return value
 
 A promise resolving to an object with the following properties.
 
-### project
-
-A new project containing the transformed source. Unchanged project fields are preserved.
-
 ### changes
 
 An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
+
+### nodePathRemappings<AvailableFrom v="4.0.528" />
+
+File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node references after the edit. A `null` old path indicates an insertion; a `null` new path indicates removal. See [node references](/docs/codemods#node-references).
 
 ## Compatibility
 

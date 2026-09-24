@@ -1,7 +1,9 @@
 ---
 name: web-renderer-test
-description: Add a test case to the web renderer
+description: Add or update web renderer tests when the user explicitly requests test changes.
 ---
+
+Use this skill only when the user explicitly requests web renderer test changes.
 
 The web renderer is in `packages/web-renderer` and the test suite is in `packages/web-renderer/src/test`.
 

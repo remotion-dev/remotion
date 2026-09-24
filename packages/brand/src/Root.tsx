@@ -31,6 +31,8 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {Composition3DRotation} from './Composition3DRotation';
+import {CompositionList} from './CompositionList';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
 	DesignSystemsResponsive,
@@ -82,7 +84,11 @@ import {
 	expertsGraphicDurationInFrames,
 } from './HomepageAssets/ExpertsGraphic';
 import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
+import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
+import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
+import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
+import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
@@ -99,11 +105,15 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import {Logo} from './Logo';
 import './index.css';
+import {KeyframeMove} from './KeyframeMove';
+import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
+import {QuickSwitcher} from './QuickSwitcher';
 import {RenderModalCodec} from './RenderModalCodec';
+import {RenderOnWeb} from './RenderOnWeb';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -150,6 +160,7 @@ import {StudioCodeHandoff} from './video-elements/StudioCodeHandoff';
 import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
+import {VideoPlayback} from './VideoPlayback';
 import {
 	MacBookAppScene,
 	MacBookDesktopScene,
@@ -249,6 +260,30 @@ export const RemotionRoot: React.FC = () => {
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
 					<Composition
+						id="ExploreRemotion3DRotation"
+						component={ExploreRemotion3DRotation}
+						durationInFrames={1115}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionQuickSwitcher"
+						component={ExploreRemotionQuickSwitcher}
+						durationInFrames={419}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionCompositionList"
+						component={ExploreRemotionCompositionList}
+						durationInFrames={120}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
 						id="ExploreRemotionAudioWaveform"
 						component={ExploreRemotionAudioWaveform}
 						durationInFrames={200}
@@ -260,6 +295,14 @@ export const RemotionRoot: React.FC = () => {
 						id="ExploreRemotionRenderModalCodec"
 						component={ExploreRemotionRenderModalCodec}
 						durationInFrames={127}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionVideoPlayback"
+						component={ExploreRemotionVideoPlayback}
+						durationInFrames={120}
 						fps={60}
 						width={1080}
 						height={1080}
@@ -735,6 +778,13 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				/>
 				<RenderModalCodec />
 				<AudioWaveform />
+				<VideoPlayback />
+				<CompositionList />
+				<QuickSwitcher />
+				<Composition3DRotation />
+				<KeyframeMove />
+				<PitchCorrection />
+				<RenderOnWeb />
 			</Folder>
 
 			<Folder name="StudioAssets">

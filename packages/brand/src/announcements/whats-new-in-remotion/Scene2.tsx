@@ -78,15 +78,13 @@ export const Scene2: React.FC = () => {
 				})()}
 			</Sequence>
 			{llOpacity > 0 && (
-				<Sequence
+				<AbsoluteFill
 					from={Math.floor(llStart)}
 					durationInFrames={Math.ceil(llEnd - llStart)}
-					layout="none"
+					style={{opacity: llOpacity}}
 				>
-					<AbsoluteFill style={{opacity: llOpacity}}>
-						<LightLeakGrid durationInFrames={Math.ceil(llEnd - llStart)} />
-					</AbsoluteFill>
-				</Sequence>
+					<LightLeakGrid durationInFrames={Math.ceil(llEnd - llStart)} />
+				</AbsoluteFill>
 			)}
 		</AbsoluteFill>
 	);

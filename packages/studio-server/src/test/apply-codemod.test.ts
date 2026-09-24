@@ -8,7 +8,6 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
 import type {RecastCodemod} from '@remotion/studio-shared';
 import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
 import {
@@ -24,8 +23,6 @@ import {applyVisualControlHandler} from '../preview-server/routes/apply-visual-c
 import {redoHandler} from '../preview-server/routes/redo';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
-
-const {parseAndApplyCodemod} = CodemodsInternals;
 
 const rootContents = `import React from 'react';
 import {Composition} from 'remotion';
@@ -93,97 +90,6 @@ export const RemotionRoot: React.FC = () => {
 };
 `;
 
-const selfClosingFolderRootContents = `import React from 'react';
-import {Composition, Folder} from 'remotion';
-
-const Component = () => null;
-
-export const RemotionRoot: React.FC = () => {
-	return (
-		<>
-			<Folder name="Empty" />
-			<Composition
-				id="KeepMe"
-				component={Component}
-				durationInFrames={120}
-				fps={30}
-				width={1280}
-				height={720}
-			/>
-		</>
-	);
-};
-`;
-
-const attributeFolderRootContents = `import React from 'react';
-import {Composition, Folder} from 'remotion';
-
-const Component = () => null;
-
-export const RemotionRoot: React.FC = () => {
-	return (
-		<>
-			<Folder
-				name="Parent"
-				preview={<Folder name="Shared" />}
-			/>
-			<Composition
-				id="MoveMe"
-				component={Component}
-				durationInFrames={120}
-				fps={30}
-				width={1280}
-				height={720}
-			/>
-		</>
-	);
-};
-`;
-
-const standaloneCompositionRootContents = `import React from 'react';
-import {Composition} from 'remotion';
-
-const Component = () => null;
-
-export const RemotionRoot: React.FC = () => {
-	return (
-		<Composition
-			id="Standalone"
-			component={Component}
-			durationInFrames={120}
-			fps={30}
-			width={1280}
-			height={720}
-		/>
-	);
-};
-`;
-
-const folderRootWithEarlierComponentContents = `import React from 'react';
-import {Composition, Folder} from 'remotion';
-
-const Component = () => {
-	return <><div>Content</div></>;
-};
-
-export const RemotionRoot: React.FC = () => {
-	return (
-		<>
-			<Folder name="Parent">
-				<Composition
-					id="Nested"
-					component={Component}
-					durationInFrames={120}
-					fps={30}
-					width={1280}
-					height={720}
-				/>
-			</Folder>
-		</>
-	);
-};
-`;
-
 const clearUndoRedoStacks = () => {
 	(getUndoStack() as unknown as unknown[]).length = 0;
 	(getRedoStack() as unknown as unknown[]).length = 0;
@@ -210,7 +116,9 @@ export const Root = () => <Folder name="Before" />;
 			},
 		});
 
-		expect(output).toBe(input.replace('"Before"', '"After"'));
+		expect(output.changes[0].nextContents).toBe(
+			input.replace('"Before"', '"After"'),
+		);
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
@@ -219,7 +127,8 @@ export const Root = () => <Folder name="Before" />;
 test('metadata codemods do not run Prettier after applying source edits', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const filePath = path.join(remotionRoot, 'Root.tsx');
-	const input = `const untouched  =  { value : "keep" };
+	const input = `import {Composition} from 'remotion';
+const untouched  =  { value : "keep" };
 export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 `;
 
@@ -237,7 +146,9 @@ export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 			},
 		});
 
-		expect(output).toBe(`const untouched  =  { value : "keep" };
+		expect(output.changes[0].nextContents)
+			.toBe(`import {Composition} from 'remotion';
+const untouched  =  { value : "keep" };
 export const Root=()=> <Composition id='Comp' width = {1920} durationInFrames={90} height={1080}/>;
 `);
 	} finally {
@@ -269,7 +180,9 @@ export const Root=()=> visualControl('opacity', OPACITY);
 			},
 		});
 
-		expect(output).toBe(input.replace('OPACITY', '0.5'));
+		expect(output.changes[0].nextContents).toBe(
+			input.replace('OPACITY', '0.5'),
+		);
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
@@ -631,26 +544,34 @@ test('applyCodemodHandler logs composition renames and pushes them to the undo a
 	});
 });
 
-test('applyCodemodHandler pushes composition duplications to undo and redo stacks', async () => {
-	await runCompositionCodemodUndoRedoTest({
-		codemod: {
-			type: 'duplicate-composition',
-			idToDuplicate: 'DeleteMe',
-			newId: 'Duplicated',
-			newDurationInFrames: null,
-			newFps: null,
-			newHeight: null,
-			newWidth: null,
-			tag: 'Composition',
-		},
-		assertApplied: (contents) => {
-			expect(contents).toContain('id="DeleteMe"');
-			expect(contents).toContain('id="Duplicated"');
-			expect(contents).toContain('id="KeepMe"');
-		},
-		expectedUndoMessage:
-			'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
-	});
+test('applyCodemodHandler pushes composition and still duplications to undo and redo stacks', async () => {
+	for (const tag of ['Composition', 'Still'] as const) {
+		await runCompositionCodemodUndoRedoTest({
+			codemod: {
+				type: 'duplicate-composition',
+				idToDuplicate: 'DeleteMe',
+				newId: 'Duplicated',
+				newDurationInFrames: 120,
+				newFps: 30,
+				newHeight: null,
+				newWidth: null,
+				tag,
+			},
+			assertApplied: (contents) => {
+				expect(contents).toContain('id="DeleteMe"');
+				expect(contents).toContain('id="Duplicated"');
+				expect(contents).toContain('id="KeepMe"');
+				if (tag === 'Still') {
+					const still = contents.match(/<Still[\s\S]*?\/>/)?.[0];
+					expect(still).toContain('id="Duplicated"');
+					expect(still).not.toContain('fps=');
+					expect(still).not.toContain('durationInFrames=');
+				}
+			},
+			expectedUndoMessage:
+				'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
+		});
+	}
 });
 
 test('applyCodemodHandler pushes folder creations to undo and redo stacks', async () => {
@@ -984,7 +905,9 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		expect(componentContents).toContain(
 			'url("data:image/svg+xml,%3Csvg%20width%3D%2224%22%2F%3E") 6 7, alias',
 		);
-		expect(componentContents).toContain("src={staticFile('capture.mp4')}");
+		expect(componentContents).toMatch(
+			/<Video\s+src=\{staticFile\('capture\.mp4'\)\}\s+durationInFrames=\{90\}/,
+		);
 		expect(componentContents).toContain('width: 1920');
 		expect(componentContents).toContain('height: 1080');
 		expect(componentContents).toContain("id={'FreshCapture'}");
@@ -1003,412 +926,4 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
-});
-
-test('creates a composition in a top-level folder', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'new-composition',
-			canvasCapture: null,
-			newId: 'FreshVideo',
-			componentName: 'FreshVideo',
-			componentImportPath: './FreshVideo',
-			folderName: 'Parent',
-			parentName: null,
-			newDurationInFrames: 150,
-			newFps: 30,
-			newHeight: 1080,
-			newWidth: 1920,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('id="FreshVideo"');
-	expect(newContents).toContain('component={FreshVideo}');
-	expect(newContents.indexOf('<Folder name="Parent">')).toBeLessThan(
-		newContents.indexOf('id="FreshVideo"'),
-	);
-	expect(newContents.indexOf('id="FreshVideo"')).toBeLessThan(
-		newContents.indexOf('<Folder name="Other">'),
-	);
-});
-
-test('creates a composition in a nested folder by parent path', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'new-composition',
-			canvasCapture: null,
-			newId: 'FreshVideo',
-			componentName: 'FreshVideo',
-			componentImportPath: './FreshVideo',
-			folderName: 'Shared',
-			parentName: 'Other',
-			newDurationInFrames: 150,
-			newFps: 30,
-			newHeight: 1080,
-			newWidth: 1920,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('id="FreshVideo"');
-	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
-		newContents.indexOf('id="FreshVideo"'),
-	);
-	expect(newContents.indexOf('id="NestedA"')).toBeLessThan(
-		newContents.indexOf('id="NestedB"'),
-	);
-});
-
-test('creates a top-level folder', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: rootContents,
-		codeMod: {
-			type: 'new-folder',
-			folderName: 'FreshFolder',
-			parentName: null,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toMatch(
-		/import\s*\{[^}]*Folder[^}]*\}\s*from\s*['"]remotion['"]/,
-	);
-	expect(newContents).toContain('<Folder name="FreshFolder" />');
-	expect(newContents.indexOf('id="KeepMe"')).toBeLessThan(
-		newContents.indexOf('<Folder name="FreshFolder" />'),
-	);
-});
-
-test('creates a folder in a nested folder by parent path', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'new-folder',
-			folderName: 'FreshFolder',
-			parentName: 'Parent/Shared',
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('<Folder name="FreshFolder" />');
-	expect(newContents.indexOf('id="NestedA"')).toBeLessThan(
-		newContents.indexOf('<Folder name="FreshFolder" />'),
-	);
-	expect(newContents.indexOf('<Folder name="FreshFolder" />')).toBeLessThan(
-		newContents.indexOf('<Folder name="Other">'),
-	);
-});
-
-test('creates a composition in a self-closing folder', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: selfClosingFolderRootContents,
-		codeMod: {
-			type: 'new-composition',
-			canvasCapture: null,
-			newId: 'FreshVideo',
-			componentName: 'FreshVideo',
-			componentImportPath: './FreshVideo',
-			folderName: 'Empty',
-			parentName: null,
-			newDurationInFrames: 150,
-			newFps: 30,
-			newHeight: 1080,
-			newWidth: 1920,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('<Folder name="Empty">');
-	expect(newContents).toContain('id="FreshVideo"');
-	expect(newContents.indexOf('<Folder name="Empty">')).toBeLessThan(
-		newContents.indexOf('id="FreshVideo"'),
-	);
-	expect(newContents.indexOf('id="FreshVideo"')).toBeLessThan(
-		newContents.indexOf('id="KeepMe"'),
-	);
-});
-
-test('moves a composition into a nested folder', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'NestedA',
-			folderName: 'Shared',
-			parentName: 'Other',
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
-		newContents.indexOf('id="NestedA"'),
-	);
-	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
-	expect(newContents.indexOf('<Folder name="Parent">')).toBeLessThan(
-		newContents.indexOf('<Folder name="Other">'),
-	);
-});
-
-test('moves a composition to root', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'NestedA',
-			folderName: null,
-			parentName: null,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
-		newContents.indexOf('id="NestedA"'),
-	);
-	expect(newContents.match(/id="NestedA"/g)?.length).toBe(1);
-});
-
-test('moves a composition to its registration root when another component appears first', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootWithEarlierComponentContents,
-		codeMod: {
-			type: 'move-composition-or-folder',
-			source: {type: 'composition', compositionId: 'Nested'},
-			destination: {type: 'root'},
-		},
-	});
-
-	expect(changesMade).toHaveLength(1);
-	expect(newContents.match(/id="Nested"/g)).toHaveLength(1);
-	expect(newContents.indexOf('id="Nested"')).toBeGreaterThan(
-		newContents.indexOf('export const RemotionRoot'),
-	);
-	expect(newContents.indexOf('id="Nested"')).toBeGreaterThan(
-		newContents.indexOf('</Folder>'),
-	);
-});
-
-test('visually reorders compositions and folders', () => {
-	const compositionBeforeFolder = parseAndApplyCodemod({
-		input: selfClosingFolderRootContents,
-		codeMod: {
-			type: 'move-composition-or-folder',
-			source: {type: 'composition', compositionId: 'KeepMe'},
-			destination: {
-				type: 'before',
-				target: {type: 'folder', folderName: 'Empty', parentName: null},
-			},
-		},
-	});
-
-	expect(compositionBeforeFolder.changesMade).toHaveLength(1);
-	expect(
-		compositionBeforeFolder.newContents.indexOf('id="KeepMe"'),
-	).toBeLessThan(
-		compositionBeforeFolder.newContents.indexOf('<Folder name="Empty"'),
-	);
-
-	const folderAfterComposition = parseAndApplyCodemod({
-		input: selfClosingFolderRootContents,
-		codeMod: {
-			type: 'move-composition-or-folder',
-			source: {type: 'folder', folderName: 'Empty', parentName: null},
-			destination: {
-				type: 'after',
-				target: {type: 'composition', compositionId: 'KeepMe'},
-			},
-		},
-	});
-
-	expect(folderAfterComposition.changesMade).toHaveLength(1);
-	expect(
-		folderAfterComposition.newContents.indexOf('id="KeepMe"'),
-	).toBeLessThan(
-		folderAfterComposition.newContents.indexOf('<Folder name="Empty"'),
-	);
-});
-
-test('moves a folder into another folder with its descendants', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'move-composition-or-folder',
-			source: {type: 'folder', folderName: 'Parent', parentName: null},
-			destination: {
-				type: 'folder',
-				folderName: 'Shared',
-				parentName: 'Other',
-			},
-		},
-	});
-
-	expect(changesMade).toHaveLength(1);
-	expect(newContents.match(/<Folder name="Parent">/g)).toHaveLength(1);
-	expect(newContents.match(/id="NestedA"/g)).toHaveLength(1);
-	expect(newContents.indexOf('id="NestedB"')).toBeLessThan(
-		newContents.indexOf('<Folder name="Parent">'),
-	);
-});
-
-test('rejects moving a folder into its descendant', () => {
-	expect(() =>
-		parseAndApplyCodemod({
-			input: folderRootContents,
-			codeMod: {
-				type: 'move-composition-or-folder',
-				source: {type: 'folder', folderName: 'Parent', parentName: null},
-				destination: {
-					type: 'folder',
-					folderName: 'Shared',
-					parentName: 'Parent',
-				},
-			},
-		}),
-	).toThrow('A folder cannot be moved inside itself');
-});
-
-test('rejects duplicate folder names at the destination', () => {
-	expect(() =>
-		parseAndApplyCodemod({
-			input: folderRootContents,
-			codeMod: {
-				type: 'move-composition-or-folder',
-				source: {
-					type: 'folder',
-					folderName: 'Shared',
-					parentName: 'Parent',
-				},
-				destination: {
-					type: 'folder',
-					folderName: 'Other',
-					parentName: null,
-				},
-			},
-		}),
-	).toThrow('A folder named "Shared" already exists in the destination');
-});
-
-test('does not use folders inside JSX attributes as move targets', () => {
-	expect(() =>
-		parseAndApplyCodemod({
-			input: attributeFolderRootContents,
-			codeMod: {
-				type: 'move-composition-to-folder',
-				idToMove: 'MoveMe',
-				folderName: 'Shared',
-				parentName: 'Parent',
-			},
-		}),
-	).toThrow('Could not find folder "Parent/Shared"');
-});
-
-test('rejects moving a composition from a standalone JSX position', () => {
-	expect(() =>
-		parseAndApplyCodemod({
-			input: standaloneCompositionRootContents,
-			codeMod: {
-				type: 'move-composition-to-folder',
-				idToMove: 'Standalone',
-				folderName: null,
-				parentName: null,
-			},
-		}),
-	).toThrow(
-		'Cannot move composition "Standalone" because it is not a direct JSX child',
-	);
-});
-
-test('moves a composition into a self-closing folder', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: selfClosingFolderRootContents,
-		codeMod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'KeepMe',
-			folderName: 'Empty',
-			parentName: null,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('<Folder name="Empty">');
-	expect(newContents).toContain('</Folder>');
-	expect(newContents.indexOf('<Folder name="Empty">')).toBeLessThan(
-		newContents.indexOf('id="KeepMe"'),
-	);
-	expect(newContents.match(/id="KeepMe"/g)?.length).toBe(1);
-});
-
-test('creates a folder in a self-closing folder', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: selfClosingFolderRootContents,
-		codeMod: {
-			type: 'new-folder',
-			folderName: 'Nested',
-			parentName: 'Empty',
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('<Folder name="Empty">');
-	expect(newContents).toContain('<Folder name="Nested" />');
-	expect(newContents.indexOf('<Folder name="Empty">')).toBeLessThan(
-		newContents.indexOf('<Folder name="Nested" />'),
-	);
-	expect(newContents.indexOf('<Folder name="Nested" />')).toBeLessThan(
-		newContents.indexOf('id="KeepMe"'),
-	);
-});
-
-test('renames a nested folder by parent path', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'rename-folder',
-			folderName: 'Shared',
-			parentName: 'Parent',
-			newName: 'Renamed',
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).toContain('<Folder name="Renamed">');
-	expect(newContents.match(/<Folder name="Shared">/g)?.length).toBe(1);
-	expect(newContents).toContain('id="NestedA"');
-	expect(newContents).toContain('id="NestedB"');
-});
-
-test('deletes a nested folder by unwrapping its children', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'delete-folder',
-			folderName: 'Shared',
-			parentName: 'Parent',
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents.match(/<Folder name="Shared">/g)?.length).toBe(1);
-	expect(newContents).toContain('<Folder name="Parent">');
-	expect(newContents).toContain('id="NestedA"');
-	expect(newContents).toContain('id="NestedB"');
-});
-
-test('deletes a top-level folder by unwrapping its children', () => {
-	const {changesMade, newContents} = parseAndApplyCodemod({
-		input: folderRootContents,
-		codeMod: {
-			type: 'delete-folder',
-			folderName: 'Parent',
-			parentName: null,
-		},
-	});
-
-	expect(changesMade.length).toBe(1);
-	expect(newContents).not.toContain('<Folder name="Parent">');
-	expect(newContents.match(/<Folder name="Shared">/g)?.length).toBe(2);
-	expect(newContents).toContain('id="NestedA"');
-	expect(newContents).toContain('id="NestedB"');
 });

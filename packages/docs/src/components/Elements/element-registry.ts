@@ -55,6 +55,10 @@ export const elementRegistry = {
 		category: 'captions',
 		displayName: 'Basic Captions',
 	},
+	'captions/rounded-captions': {
+		category: 'captions',
+		displayName: 'Rounded Captions',
+	},
 	'captions/moving-pill-captions': {
 		category: 'captions',
 		displayName: 'Moving Pill Captions',

@@ -22,6 +22,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {getTimeInSeconds} from '../get-time-in-seconds';
+import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
@@ -128,6 +129,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
+	const [knownDuration, setKnownDuration] = useState<number | null>(null);
+	const [terminalError, setTerminalError] = useState<Error | null>(null);
 	const [shouldFallbackToNativeVideo, setShouldFallbackToNativeVideo] =
 		useState(false);
 
@@ -153,7 +156,23 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const [mediaVolume] = useMediaVolumeState();
 
-	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
+	const unloopedVolumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior,
+	);
+	const volumePropFrame =
+		loop && videoConfig
+			? frameForVolumeProp({
+					behavior: loopVolumeCurveBehavior,
+					loop,
+					assetDurationInSeconds: knownDuration,
+					fps: videoConfig.fps,
+					frame,
+					startsAt: unloopedVolumePropFrame - frame,
+					playbackRate,
+					trimBefore,
+					trimAfter,
+				})
+			: unloopedVolumePropFrame;
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -174,6 +193,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const onErrorRef = useRef(onError);
 	onErrorRef.current = onError;
+	const disallowFallbackRef = useRef(disallowFallbackToOffthreadVideo);
+	disallowFallbackRef.current = disallowFallbackToOffthreadVideo;
 
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
@@ -183,7 +204,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const isPostmounting = Boolean(parentSequence?.postmounting);
 	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
-	const currentTime = frame / videoConfig.fps;
+	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
+	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const sequenceDurationInFrames =
+		videoConfig.durationInFrames / sequencePlaybackRate;
+	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
 
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
@@ -201,11 +226,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialIsPremounting = useRef(isPremounting);
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
-	const initialPlaybackRate = useRef(playbackRate);
+	const initialPlaybackRate = useRef(effectivePlaybackRate);
 	const initialToneFrequency = useRef(toneFrequency);
 	const initialMuted = useRef(effectiveMuted);
 	const initialVolume = useRef(userPreferredVolume);
-	const initialSequenceDuration = useRef(videoConfig.durationInFrames);
+	const initialSequenceDuration = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
 	const hasDrawnRealFrameRef = useRef(false);
 	const isPremountingRef = useRef(isPremounting);
@@ -298,6 +323,20 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
+				onError: (error) => {
+					const [action, errorToUse] = callOnErrorAndResolve({
+						onError: onErrorRef.current,
+						error,
+						disallowFallback: disallowFallbackRef.current,
+						isClientSideRendering: false,
+						clientSideError: error,
+					});
+					if (action === 'fallback') {
+						setShouldFallbackToNativeVideo(true);
+					} else {
+						setTerminalError(errorToUse);
+					}
+				},
 			});
 
 			mediaPlayerRef.current = player;
@@ -374,6 +413,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
+						setKnownDuration(result.durationInSeconds);
 
 						hasDrawnRealFrameRef.current = true;
 					}
@@ -473,13 +513,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 		trimAfter,
 		effectiveMuted,
 		userPreferredVolume,
-		playbackRate,
+		playbackRate: effectivePlaybackRate,
 		toneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
 		loop,
-		durationInFrames: videoConfig.durationInFrames,
+		durationInFrames: sequenceDurationInFrames,
 		isPremounting,
 		isPostmounting,
 		currentTime,
@@ -523,6 +563,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 			objectFit: objectFitProp,
 		};
 	}, [objectFitProp, style]);
+
+	if (terminalError) {
+		throw terminalError;
+	}
 
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway

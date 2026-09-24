@@ -408,6 +408,12 @@ datetime of when the crash was detected, in UTC format - "2020-01-01T00:00:00+02
 
 Seconds elapsed between the request start and crash time. Can be checked against the timeout limit to understand if this was the likely cause of the crash.
 
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering player="" studio="" hideBrowsers />
+
+For serverless functions, use the [light client](/docs/cloudrun/light-client).
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/render-media-on-cloudrun.ts)

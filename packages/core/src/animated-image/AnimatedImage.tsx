@@ -57,16 +57,6 @@ export const animatedImageSchema = {
 	...baseSchema,
 	...cropSchema,
 	...premountSchema,
-	playbackRate: {
-		type: 'number',
-		min: 0,
-		max: 10,
-		step: 0.1,
-		default: 1,
-		description: 'Playback rate',
-		hiddenFromList: false,
-		keyframable: false,
-	},
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
@@ -368,7 +358,6 @@ const AnimatedImageInner = ({
 		height,
 		onError,
 		fit,
-		playbackRate,
 		loopBehavior,
 		id,
 		className,
@@ -382,6 +371,7 @@ const AnimatedImageInner = ({
 			<Sequence
 				layout="none"
 				from={from ?? 0}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames ?? Infinity}
 				name="<AnimatedImage>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"

@@ -7,7 +7,6 @@ import type {
 	FunctionDeclaration,
 	ImportDeclaration,
 	ImportDefaultSpecifier,
-	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
 	JSXOpeningElement,
@@ -16,6 +15,7 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	isUrl,
 	type InsertJsxElementRequest,
@@ -24,6 +24,7 @@ import {
 	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
+import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -137,7 +138,7 @@ export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
 }): InsertJsxElementCodemodEnvironment => {
 	const filesByNormalizedPath = new Map(
 		Object.entries(project.files).map(([fileName, contents]) => [
-			normalizeVirtualPath(fileName),
+			resolveVirtualPath(project.rootDir, fileName),
 			contents,
 		]),
 	);
@@ -1002,10 +1003,48 @@ const createStaticFileSrcAttribute = ({
 	);
 };
 
+const createComponentPropValue = (
+	value: unknown,
+	getStaticFileLocalName: () => string,
+): ExpressionKind => {
+	const b = recast.types.builders;
+	if (StudioProtocolInternals.isStaticFileRef(value)) {
+		return b.callExpression(b.identifier(getStaticFileLocalName()), [
+			b.stringLiteral(value.__remotion_element_asset),
+		]);
+	}
+
+	if (Array.isArray(value)) {
+		return b.arrayExpression(
+			value.map((item) =>
+				createComponentPropValue(item, getStaticFileLocalName),
+			),
+		);
+	}
+
+	if (value !== null && typeof value === 'object') {
+		return b.objectExpression(
+			Object.entries(value).map(([key, item]) => {
+				const property = b.objectProperty(
+					b.stringLiteral(key),
+					createComponentPropValue(item, getStaticFileLocalName),
+				);
+				property.computed = key === '__proto__';
+				return property;
+			}),
+		);
+	}
+
+	return parseValueExpression(value);
+};
+
 const createComponentProp = ({
 	name,
 	value,
-}: ComponentProp): namedTypes.JSXAttribute => {
+	getStaticFileLocalName,
+}: ComponentProp & {
+	getStaticFileLocalName: () => string;
+}): namedTypes.JSXAttribute => {
 	if (typeof value === 'string') {
 		return createStringAttribute(name, value);
 	}
@@ -1013,7 +1052,7 @@ const createComponentProp = ({
 	return recast.types.builders.jsxAttribute(
 		recast.types.builders.jsxIdentifier(name),
 		recast.types.builders.jsxExpressionContainer(
-			parseValueExpression(value) as never,
+			createComponentPropValue(value, getStaticFileLocalName) as never,
 		),
 	) as unknown as namedTypes.JSXAttribute;
 };
@@ -1053,12 +1092,14 @@ const createSolidElement = ({
 };
 
 const createComponentElement = ({
+	getStaticFileLocalName,
 	addPositionStyle,
 	from,
 	localName,
 	props,
 	position,
 }: {
+	getStaticFileLocalName: () => string;
 	addPositionStyle: boolean;
 	from: number | null;
 	localName: string;
@@ -1074,7 +1115,7 @@ const createComponentElement = ({
 		const styleExpression =
 			styleProp === undefined
 				? recast.types.builders.objectExpression([])
-				: parseValueExpression(styleProp.value);
+				: createComponentPropValue(styleProp.value, getStaticFileLocalName);
 		if (styleExpression.type !== 'ObjectExpression') {
 			throw new Error('Component style must be an object to add a position');
 		}
@@ -1105,7 +1146,9 @@ const createComponentElement = ({
 		recast.types.builders.jsxOpeningElement(
 			recast.types.builders.jsxIdentifier(localName),
 			[
-				...propsWithoutStyle.map(createComponentProp),
+				...propsWithoutStyle.map((prop) =>
+					createComponentProp({...prop, getStaticFileLocalName}),
+				),
 				...(from === null ? [] : [createNumberAttribute('from', from)]),
 				...(styleAttribute === null ? [] : [styleAttribute]),
 			],
@@ -1486,88 +1529,38 @@ const getImportDeclarations = ({
 	);
 };
 
-const importDeclarationHasNamespaceSpecifier = (
-	importDeclaration: ImportDeclaration,
-) => {
-	return importDeclaration.specifiers?.some(
-		(specifier) => specifier.type === 'ImportNamespaceSpecifier',
-	);
-};
-
-const hasOfficialLocalImport = ({
-	ast,
-	importedName,
-	sourcePath,
-}: {
-	ast: File;
-	importedName: string;
-	sourcePath: string;
-}) => {
-	return getImportDeclarations({ast, sourcePath}).some((importDeclaration) => {
-		return importDeclaration.specifiers?.some((specifier) => {
-			return (
-				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === importedName &&
-				(specifier.local?.name ?? importedName) === importedName
-			);
-		});
-	});
-};
-
-const addOfficialNamedImport = ({
-	ast,
-	importedName,
-	sourcePath,
-}: {
-	ast: File;
-	importedName: string;
-	sourcePath: string;
-}) => {
-	const existingImport = getImportDeclarations({ast, sourcePath}).find(
-		(candidate) => !importDeclarationHasNamespaceSpecifier(candidate),
-	);
-	const importSpecifier = recast.types.builders.importSpecifier(
-		recast.types.builders.identifier(importedName),
-	) as unknown as ImportSpecifier;
-
-	if (existingImport) {
-		existingImport.specifiers = [
-			...(existingImport.specifiers ?? []),
-			importSpecifier,
-		];
-		return;
-	}
-
-	const importDeclaration = recast.types.builders.importDeclaration(
-		[importSpecifier as never],
-		recast.types.builders.stringLiteral(sourcePath),
-	) as unknown as ImportDeclaration;
-	insertImportDeclaration(ast, importDeclaration);
-};
-
 const ensureOfficialNamedImport = ({
 	ast,
 	importedName,
 	sourcePath,
-	label,
 }: {
 	ast: File;
 	importedName: string;
 	sourcePath: string;
-	label: string;
 }) => {
-	if (hasOfficialLocalImport({ast, importedName, sourcePath})) {
-		return importedName;
-	}
+	for (const declaration of getImportDeclarations({ast, sourcePath})) {
+		if (declaration.importKind === 'type') {
+			continue;
+		}
 
-	if (hasTopLevelBinding({ast, name: importedName})) {
-		throw new Error(
-			`Cannot add ${label} because ${importedName} is already defined`,
+		const existing = declaration.specifiers.find(
+			(specifier) =>
+				specifier.type === 'ImportSpecifier' &&
+				specifier.importKind !== 'type' &&
+				getImportedName(specifier) === importedName,
 		);
+		if (existing) {
+			return existing.local?.name ?? importedName;
+		}
 	}
 
-	addOfficialNamedImport({ast, importedName, sourcePath});
-	return importedName;
+	let localName = importedName;
+	let suffix = 2;
+	while (hasTopLevelBinding({ast, name: localName})) {
+		localName = `${importedName}${suffix++}`;
+	}
+
+	return ensureNamedImport({ast, importedName, sourcePath, localName});
 };
 
 const ensureStaticFileImport = (ast: File) => {
@@ -1575,7 +1568,6 @@ const ensureStaticFileImport = (ast: File) => {
 		ast,
 		importedName: 'staticFile',
 		sourcePath: 'remotion',
-		label: 'staticFile()',
 	});
 };
 
@@ -1584,7 +1576,6 @@ const ensureCanvasImageImport = (ast: File) => {
 		ast,
 		importedName: 'CanvasImage',
 		sourcePath: 'remotion',
-		label: '<CanvasImage>',
 	});
 };
 
@@ -1593,7 +1584,6 @@ const ensureAnimatedImageImport = (ast: File) => {
 		ast,
 		importedName: 'AnimatedImage',
 		sourcePath: 'remotion',
-		label: '<AnimatedImage>',
 	});
 };
 
@@ -1602,7 +1592,6 @@ const ensureVideoImport = (ast: File) => {
 		ast,
 		importedName: 'Video',
 		sourcePath: '@remotion/media',
-		label: '<Video>',
 	});
 };
 
@@ -1611,7 +1600,6 @@ const ensureAudioImport = (ast: File) => {
 		ast,
 		importedName: 'Audio',
 		sourcePath: '@remotion/media',
-		label: '<Audio>',
 	});
 };
 
@@ -1620,7 +1608,6 @@ const ensureGifImport = (ast: File) => {
 		ast,
 		importedName: 'Gif',
 		sourcePath: '@remotion/gif',
-		label: '<Gif>',
 	});
 };
 
@@ -2724,6 +2711,7 @@ const createInsertableJsxElement = ({
 		});
 
 		return createComponentElement({
+			getStaticFileLocalName: () => ensureStaticFileImport(ast),
 			addPositionStyle: addPositionStyleToComponent,
 			from,
 			localName: componentLocalName,
@@ -2978,15 +2966,13 @@ export const insertJsxElementIntoComposition = async ({
 	};
 };
 
-export const insertJsxElementIntoProjectWithNodePathRemappings = async <
-	Project extends {files: Record<string, string>; rootDir: string},
->({
+export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 	project,
 	request,
 	svgMarkupToJsx,
 	wrapInSequence,
 }: {
-	project: Project;
+	project: {files: Record<string, string>; rootDir: string};
 	request: InsertJsxElementRequest;
 	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
 	wrapInSequence: {
@@ -3000,7 +2986,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async <
 	filePath: string;
 	insertedNodePath: SequenceNodePath | null;
 	nodePathRemappings: SequenceNodePathRemapping[];
-	project: Project;
+	output: string;
 }> => {
 	const result = await insertJsxElementIntoComposition({
 		compositionFile: request.compositionFile,
@@ -3019,9 +3005,6 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async <
 		filePath: result.fileName,
 		insertedNodePath: result.insertedNodePath,
 		nodePathRemappings: result.nodePathRemappings,
-		project: {
-			...project,
-			files: {...project.files, [result.fileName]: result.output},
-		},
+		output: result.output,
 	};
 };

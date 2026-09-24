@@ -41,6 +41,9 @@ export const config: VercelConfig = {
 			},
 		]),
 		routes.header('/new(.*)', browserStudioIsolationHeaders),
+		...['/new', '/new/', '/new.html', '/new/index.html'].map((source) =>
+			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
+		),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},

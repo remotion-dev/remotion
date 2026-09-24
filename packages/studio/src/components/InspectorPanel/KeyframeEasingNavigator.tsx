@@ -181,7 +181,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 }> = ({currentSelection, includeEasings, keyframes, nodePathInfo}) => {
 	const {isSelected, selectItems} = useTimelineSelection();
-	const setFrame = Internals.useTimelineSetFrame();
+	const setFrame = Internals.Timeline.useTimelineSeekFrame();
 	const videoConfig = useVideoConfig();
 	const items = useMemo(
 		() =>

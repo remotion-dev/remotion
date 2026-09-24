@@ -7,7 +7,7 @@ crumb: '@remotion/codemods'
 
 # @remotion/codemods<AvailableFrom v="4.0.527" />
 
-Apply source-to-source transforms to an in-memory Remotion project.
+Edit Remotion source in memory. Discover JSX nodes, insert content, edit props and animations, and manage composition registrations.
 
 :::warning
 
@@ -15,7 +15,7 @@ _Draft API_: This API is not yet stable. We are in the experimental phase of thi
 
 :::
 
-The package accepts a record of file paths and source code and returns a new project together with the files that changed. It does not read from or write to the filesystem, so it can run in browsers and server-side JavaScript runtimes.
+The package accepts file paths and source code and returns the files that changed. It does not read or write the filesystem, execute the project, download media, or install packages. You control how changes are previewed, saved, and compiled.
 
 ## Installation
 
@@ -25,7 +25,15 @@ Keep the version aligned with the other Remotion packages in the project.
 
 ## Project model
 
-A codemod project contains a `rootDir` and a `files` record. File paths may be project-relative or absolute, but they must consistently identify imports within the project.
+A `CodemodProject` contains the following properties.
+
+### rootDir
+
+The project's root directory, used to resolve imports and file paths.
+
+### files
+
+A `Record<string, string>` mapping file paths to source code. Paths may be project-relative or absolute, but must consistently identify files within the project. Include the project files needed to resolve imported components.
 
 ```ts twoslash title="project.ts"
 import type {CodemodProject} from '@remotion/codemods';
@@ -33,10 +41,108 @@ import type {CodemodProject} from '@remotion/codemods';
 export const project: CodemodProject = {
   rootDir: '/',
   files: {
-    'src/Root.tsx': `export const Root = () => null;`,
+    'src/Root.tsx': `import {Composition} from 'remotion';
+import {Video} from './Video';
+export const Root = () => <Composition id="Demo" component={Video} width={1920} height={1080} fps={30} durationInFrames={90} />;`,
+    'src/Video.tsx': `export const Video = () => <div style={{opacity: 1}}>Hello</div>;`,
   },
 };
 ```
+
+Include the files needed for the edit. A JSX prop edit needs its target file; resolving an imported composition component also needs the files along the import path. Mutations leave the input project unchanged.
+
+## Editing a node<AvailableFrom v="4.0.528" />
+
+Find a node, inspect the properties you want to edit, and pass its reference to a mutation.
+
+```ts twoslash title="edit.ts"
+import {applyCodemodChanges, getJsxNodes, getJsxNodeProps, updateJsxNodeProps, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const node = getJsxNodes({project, filePath: 'src/Video.tsx'}).find((candidate) => candidate.tagName === 'div');
+
+if (node) {
+  const {props} = getJsxNodeProps({project, node, keys: ['style.opacity']});
+  if (props['style.opacity'].status === 'static') {
+    const result = updateJsxNodeProps({
+      project,
+      node,
+      props: {'style.opacity': 0.5},
+    });
+    const nextProject = applyCodemodChanges(project, result.changes);
+    console.log(nextProject.files, result.updatedNode);
+  }
+}
+```
+
+## Node references<AvailableFrom v="4.0.528" />
+
+A `JsxNodeReference` contains the following properties.
+
+### filePath
+
+The file containing the JSX element.
+
+### nodePath
+
+The `SequenceNodePath` identifying the element in the current source snapshot. Obtain it from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes), an insertion result, or a mounted layer's `nodePathInfo.sequenceSubscriptionKey.nodePath`. Treat its contents as opaque.
+
+A reference identifies source, not a particular rendered instance. Editing a component used by several compositions changes that shared component. Editing a node inside a loop changes the source used by every iteration.
+
+### Keeping references after edits
+
+JSX mutations return `nodePathRemappings`. Each entry contains `filePath`, `oldNodePath`, and `newNodePath`. Apply a mapping once to references from the input project, matching both the file and old path. A `null` old path means insertion; a `null` new path means removal. An omitted reference keeps its path.
+
+Use `insertedNode`, `insertedNodes`, or `updatedNode` when returned instead of trying to reconstruct a path. Adding hooks, duplicating elements, or changing wrappers can move other nodes as well. After manual source changes or composition-tree edits, discover nodes again.
+
+## Effect references<AvailableFrom v="4.0.528" />
+
+An `EffectReference` extends a node reference with `effectIndex`, the zero-based position in its inline `effects` array. [`getJsxNodeProps()`](/docs/codemods/get-jsx-node-props) inspects effects, and effect mutations return `insertedEffect`, `insertedEffects`, or `updatedEffect` where applicable.
+
+Adding, deleting, duplicating, or reordering effects can shift effect indices. Node-path remappings do not remap effect indices. Inspect the updated effects before reusing other effect references.
+
+## Mutation results
+
+Every mutation returns a `CodemodResult`, synchronously or through a promise as documented on its page.
+
+### changes
+
+An array of `CodemodFileChange` objects.
+
+#### filePath
+
+The changed file's key in the input project's `files` map, or the path of a newly created file.
+
+#### previousContents
+
+The previous source, or `null` if the file was created.
+
+#### nextContents
+
+The next source, or `null` if the file was deleted.
+
+### nodePathRemappings<AvailableFrom v="4.0.528" />
+
+JSX, effect, and keyframe mutations return these mappings in addition to the shared result. See [node references](#node-references).
+
+## Applying changes
+
+Use [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes) to produce a new project. The function checks every `previousContents` value before applying any changes, throws if a file has changed since the codemod ran, and preserves other project fields. An empty `changes` array returns the input project.
+
+For undo and redo, store the file changes as one transaction. Swap `previousContents` and `nextContents` to undo it, and apply the original changes to redo it. Apply changes in the reverse order when undoing multiple transactions.
+
+## Supported edits
+
+Code must be valid JavaScript or TypeScript with supported JSX structures. Prop inspection distinguishes static values, recognized keyframes, and computed expressions. The package does not evaluate arbitrary JavaScript. The `props` form of prop updates rejects computed values; [structured `updates`](/docs/codemods/update-jsx-node-props#updates) permit explicit replacement. Setting a recognized keyframed prop to a static value replaces its animation.
+
+Registration edits use explicit composition files and static IDs. They support `Composition`, `Still`, and `Folder` from `remotion`, including aliased and namespace imports. Component insertion and resolution support additional import patterns, as documented on their pages.
+
+`CodemodValue` represents serializable strings, numbers, booleans, `null`, arrays, and objects. Strings are values, not executable expressions. [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props) also accepts `undefined` to remove a property.
+
+Unsupported edits throw or reject without mutating the input project. Batch operations resolve their references against the same input snapshot. Unrelated source formatting and comments are preserved; edited regions use the surrounding source style.
+
+## APIs
 
 import {TableOfContents} from './table-of-contents';
 

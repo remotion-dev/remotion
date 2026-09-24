@@ -29,6 +29,7 @@ import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
+import {QueueJobErrorModal} from './RenderQueue/QueueJobErrorModal';
 import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
@@ -265,6 +266,12 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'render-progress' && (
 				<RenderStatusModal jobId={modalContextType.jobId} />
 			)}
+			{modalContextType && modalContextType.type === 'queue-job-error' ? (
+				<QueueJobErrorModal
+					title={modalContextType.title}
+					error={modalContextType.error}
+				/>
+			) : null}
 			{modalContextType && modalContextType.type === 'transcribe' ? (
 				<TranscriptionModalWithOptionalWhisper state={modalContextType} />
 			) : null}

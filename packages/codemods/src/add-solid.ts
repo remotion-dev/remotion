@@ -1,7 +1,7 @@
-import type {SequenceNodePath} from 'remotion';
-import type {CodemodProject, CodemodResult} from './codemod-project';
+import type {CodemodProject} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
 import {insertSolidIntoProjectWithNodePathRemappings} from './internals';
+import type {CodemodInsertionResult} from './node-references';
 
 export type AddSolidOptions<Project extends CodemodProject> = {
 	project: Project;
@@ -13,13 +13,7 @@ export type AddSolidOptions<Project extends CodemodProject> = {
 	position?: {x: number; y: number};
 };
 
-export type AddSolidResult<Project extends CodemodProject> =
-	CodemodResult<Project> & {
-		insertedNode: {
-			filePath: string;
-			nodePath: SequenceNodePath;
-		};
-	};
+export type AddSolidResult = CodemodInsertionResult;
 
 export const addSolid = <Project extends CodemodProject>({
 	project,
@@ -29,7 +23,7 @@ export const addSolid = <Project extends CodemodProject>({
 	height,
 	from,
 	position,
-}: AddSolidOptions<Project>): AddSolidResult<Project> => {
+}: AddSolidOptions<Project>): AddSolidResult => {
 	const insertion = insertSolidIntoProjectWithNodePathRemappings({
 		project,
 		request: {
@@ -52,7 +46,16 @@ export const addSolid = <Project extends CodemodProject>({
 	}
 
 	return {
-		...getCodemodResult({nextProject: insertion.project, project}),
+		...getCodemodResult({
+			project,
+			edits: [
+				{filePath: insertion.filePath, nextContents: insertion.nextSource},
+			],
+		}),
+		nodePathRemappings: insertion.nodePathRemappings.map((remapping) => ({
+			filePath: insertion.filePath,
+			...remapping,
+		})),
 		insertedNode: {
 			filePath: insertion.filePath,
 			nodePath: insertedNodePath,

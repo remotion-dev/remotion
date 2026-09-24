@@ -128,6 +128,7 @@ import {
 	TIMELINE_SELECTED_BACKGROUND,
 	TIMELINE_TICKS_BACKGROUND,
 	timelineMarqueeRectsIntersect,
+	type TimelineSelection,
 } from '../components/Timeline/TimelineSelection';
 import {
 	getTimelineSequenceDurationDragChanges,
@@ -293,6 +294,7 @@ const makeTimelineSequence = ({
 		isInsideSeries,
 		effects,
 		effectRuntimeValues: null,
+		sequencePlaybackRate: 1,
 		frozenFrame: null,
 		startMediaFrom,
 	}) as TSequence;
@@ -1994,6 +1996,7 @@ test('Timeline duration drag supports interactive video clips', () => {
 	).toEqual([
 		{
 			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+			parentPlaybackRate: 1,
 			initialDuration: 78,
 			maximumDuration: 1000,
 			minimumDuration: 1,
@@ -3290,6 +3293,7 @@ test('Timeline from drag supports negative offsets', () => {
 test('Timeline from drag snaps a root sequence to frame 0', () => {
 	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
 	const target = {
+		parentPlaybackRate: 1,
 		canSnapToTimelineStart: true,
 		minimumDeltaFrames: -100,
 		initialTimelineStart: 8,
@@ -3341,6 +3345,7 @@ test('Timeline from drag does not snap nested sequences to the timeline start', 
 			snappingEnabled: true,
 			targets: [
 				{
+					parentPlaybackRate: 1,
 					canSnapToTimelineStart: false,
 					minimumDeltaFrames: -100,
 					initialTimelineStart: 8,
@@ -3449,6 +3454,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 	const [change] = getTimelineSequenceFromDragChanges({
 		targets: [
 			{
+				parentPlaybackRate: 1,
 				canSnapToTimelineStart: true,
 				minimumDeltaFrames: -100,
 				initialTimelineStart: 8,
@@ -3472,8 +3478,10 @@ test('Timeline from drag removes the prop at the default value', () => {
 	});
 });
 
-test('Timeline colors use the outlines palette', () => {
-	expect(TIMELINE_BACKGROUND).toBe('#15181B');
+test('Timeline colors use the Studio palette', () => {
+	expect(TIMELINE_BACKGROUND).toBe(
+		'var(--remotion-studio-timeline-background-color)',
+	);
 	expect(TIMELINE_TICKS_BACKGROUND).not.toBe(TIMELINE_BACKGROUND);
 });
 
@@ -3761,6 +3769,7 @@ test('Canvas outline rendering preserves unconstrained outline order', () => {
 		key,
 		dimensions: null,
 		uncroppedPoints: null,
+		path: null,
 		points: [
 			{x: 0, y: 0},
 			{x: 10, y: 0},
@@ -3808,6 +3817,7 @@ const makeTestOutline = ({
 	key,
 	dimensions: {width, height},
 	uncroppedPoints: null,
+	path: null,
 	points: [
 		{x: left, y: top},
 		{x: left + width, y: top},
@@ -4899,6 +4909,7 @@ const makeTransformOriginDragTarget = ({
 }): SelectedOutlineTransformOriginDragTarget => ({
 	clientId: 'client-id',
 	keyframeDisplayOffset: 0,
+	keyframePlaybackRate: 1,
 	nodePath: makeKey(['program', 'body', 0]),
 	originDefault: '50% 50%',
 	originPropStatus: originKeyframed
@@ -6306,8 +6317,9 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 					localStart: 0,
 					depth: 0,
 					keyframeDisplayOffset: 0,
+					keyframePlaybackRate: 1,
 					nodePathInfo: sequenceNodePathInfo,
-					sequence: makeTimelineSequence({schema}),
+					sequence: {...makeTimelineSequence({schema}), loopDisplay: undefined},
 					sequenceFrameOffset: 0,
 				},
 			],
@@ -6766,6 +6778,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath: firstNodePath,
 				schema,
 			},
@@ -6786,6 +6799,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath: secondNodePath,
 				schema,
 			},
@@ -6905,6 +6919,7 @@ test('Selected outline keyboard nudging moves by one or ten pixels', () => {
 				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 			},
@@ -7061,6 +7076,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 			},
@@ -7122,6 +7138,7 @@ test('Selected outline edge dragging scales one axis when scale is unlinked', ()
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
 				keyframeDisplayOffset: 0,
+				keyframePlaybackRate: 1,
 				linked: false,
 				nodePath,
 				schema,
@@ -7185,6 +7202,7 @@ test('Selected outline edge dragging rounds scale values', () => {
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
 				keyframeDisplayOffset: 0,
+				keyframePlaybackRate: 1,
 				linked: false,
 				nodePath,
 				schema,
@@ -7224,6 +7242,7 @@ test('Selected outline edge dragging preserves aspect ratio when scale is linked
 				fieldDefault: 1,
 				fieldSchema: schema['style.scale'],
 				keyframeDisplayOffset: 0,
+				keyframePlaybackRate: 1,
 				linked: true,
 				nodePath,
 				schema,
@@ -7264,6 +7283,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath: firstNodePath,
 				schema,
 				transform3DMode: false,
@@ -7287,6 +7307,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath: secondNodePath,
 				schema,
 				transform3DMode: false,
@@ -7352,6 +7373,7 @@ test('Selected outline corner dragging rounds rotation values', () => {
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 				transform3DMode: false,
@@ -7391,6 +7413,7 @@ test('Selected outline canvas dragging changes X and Y rotation while preserving
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 				transform3DMode: true,
@@ -7434,6 +7457,7 @@ test('Selected outline corner dragging changes Z rotation while preserving X and
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 				transform3DMode: true,
@@ -7482,6 +7506,7 @@ test('Selected outline corner dragging snaps rotation to 15 degree increments', 
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 				transform3DMode: false,
@@ -7527,6 +7552,7 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath: firstNodePath,
 				schema,
 				transform3DMode: false,
@@ -7550,6 +7576,7 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath: secondNodePath,
 				schema,
 				transform3DMode: false,
@@ -7603,6 +7630,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
 				keyframeDisplayOffset: 30,
+				keyframePlaybackRate: 1,
 				nodePath,
 				schema,
 				transform3DMode: false,
@@ -8397,37 +8425,11 @@ test('Deleting selected sequences still clears selection', () => {
 	).toEqual([]);
 });
 
-test('Deleting selected keyframe selects remaining easing under playhead', () => {
-	const schema = {
-		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies InteractivitySchema;
+test('Deleting a selected keyframe selects its property', () => {
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
 		['controls', 'opacity'],
 	);
-	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
-	const propStatuses = {
-		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
-			canUpdate: true,
-			props: {
-				opacity: {
-					status: 'keyframed',
-					keyframeDisplayOffsetAdjustment: null,
-					interpolationFunction: 'interpolate',
-					keyframes: [
-						{frame: 0, value: 0},
-						{frame: 10, value: 0.5},
-						{frame: 20, value: 1},
-					],
-					easing: [{type: 'linear'}, {type: 'linear'}],
-					clamping: {left: 'extend', right: 'extend'},
-					posterize: undefined,
-					output: undefined,
-				},
-			},
-			effects: [],
-		},
-	} satisfies PropStatuses;
 
 	expect(
 		getTimelineSelectionAfterDeletingItems({
@@ -8438,69 +8440,55 @@ test('Deleting selected keyframe selects remaining easing under playhead', () =>
 					frame: 10,
 				},
 			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
-			propStatuses,
-			timelinePosition: 10,
 		}),
 	).toEqual([
 		{
-			type: 'easing',
+			type: 'sequence-prop',
 			nodePathInfo: opacityNodePathInfo,
-			fromFrame: 0,
-			toFrame: 20,
-			segmentIndex: 0,
+			key: 'opacity',
 		},
 	]);
 });
 
-test('Deleting selected keyframe clears selection when playhead is not between remaining keyframes', () => {
-	const schema = {
-		opacity: {type: 'number', default: 1, hiddenFromList: false},
-	} satisfies InteractivitySchema;
+test('Deleting keyframes across properties selects each affected property once', () => {
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
-		['controls', 'opacity'],
+		['controls', 'style.opacity'],
 	);
-	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
-	const propStatuses = {
-		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
-			canUpdate: true,
-			props: {
-				opacity: {
-					status: 'keyframed',
-					keyframeDisplayOffsetAdjustment: null,
-					interpolationFunction: 'interpolate',
-					keyframes: [
-						{frame: 0, value: 0},
-						{frame: 10, value: 0.5},
-						{frame: 20, value: 1},
-					],
-					easing: [{type: 'linear'}, {type: 'linear'}],
-					clamping: {left: 'extend', right: 'extend'},
-					posterize: undefined,
-					output: undefined,
-				},
-			},
-			effects: [],
-		},
-	} satisfies PropStatuses;
+	const effectNodePathInfo = makeNodePathInfo(
+		['body', 1],
+		['effects', '1', 'radius'],
+	);
 
 	expect(
 		getTimelineSelectionAfterDeletingItems({
-			selections: [
-				{
-					type: 'keyframe',
-					nodePathInfo: opacityNodePathInfo,
-					frame: 0,
-				},
-			],
-			sequences: [makeTimelineSequence({schema})],
-			overrideIdsToNodePaths: {override: nodePath},
-			propStatuses,
-			timelinePosition: 0,
+			selections: [opacityNodePathInfo, effectNodePathInfo].flatMap(
+				(nodePathInfo): TimelineSelection[] => [
+					{type: 'keyframe', nodePathInfo, frame: 10},
+					{type: 'keyframe', nodePathInfo, frame: 20},
+					{
+						type: 'easing',
+						nodePathInfo,
+						fromFrame: 10,
+						toFrame: 20,
+						segmentIndex: 1,
+					},
+				],
+			),
 		}),
-	).toEqual([]);
+	).toEqual([
+		{
+			type: 'sequence-prop',
+			nodePathInfo: opacityNodePathInfo,
+			key: 'style.opacity',
+		},
+		{
+			type: 'sequence-effect-prop',
+			nodePathInfo: effectNodePathInfo,
+			i: 1,
+			key: 'radius',
+		},
+	]);
 });
 
 test('Deleting selected keyframes ignores selected easings', async () => {

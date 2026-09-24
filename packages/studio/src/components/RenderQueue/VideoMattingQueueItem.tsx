@@ -20,6 +20,10 @@ import {
 } from './CircularProgress';
 import {RenderQueueContext} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
+import {QueueJobError} from './QueueJobError';
+import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
+import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
+import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {SuccessIcon} from './SuccessIcon';
 import type {VideoMattingJob} from './video-matting-job-types';
 
@@ -59,12 +63,12 @@ const ellipsisIconStyle: React.SVGProps<SVGSVGElement> = {
 };
 
 const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
-	if (job.status === 'running') {
+	if (job.status === 'running' || job.status === 'saving') {
 		return (
 			<div
 				style={statusIcon}
 				role="progressbar"
-				aria-label="Video matting progress"
+				aria-label="Background removal progress"
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={Math.round(job.progress.value * 100)}
@@ -76,7 +80,7 @@ const Status: React.FC<{readonly job: VideoMattingJob}> = ({job}) => {
 	}
 
 	if (job.status === 'done') return <SuccessIcon />;
-	if (job.status === 'failed')
+	if (job.status === 'failed' || job.status === 'cancelled')
 		return (
 			<svg style={statusIcon} viewBox="0 0 512 512">
 				<path
@@ -117,14 +121,16 @@ export const VideoMattingQueueItem: React.FC<{
 	);
 	const messages =
 		job.status === 'idle'
-			? ['Queued for video matting']
-			: job.status === 'running'
+			? ['Queued for background removal']
+			: job.status === 'running' || job.status === 'saving'
 				? [job.progress.message, job.progress.detail].filter(
 						(message): message is string => message !== null,
 					)
 				: job.status === 'failed'
 					? [job.error.message]
-					: [job.baseOutName, job.foregroundOutName];
+					: job.status === 'cancelled'
+						? ['Cancelled']
+						: [job.outName];
 	const tooltip = messages.join('\n');
 	const revealAsset = useCallback(
 		(assetName: string) => {
@@ -133,38 +139,27 @@ export const VideoMattingQueueItem: React.FC<{
 		},
 		[selectAsset],
 	);
+	const outputName = job.outName;
 	const onClick = useCallback(() => {
 		if (!done) return;
-		revealAsset(job.foregroundOutName);
-	}, [done, job.foregroundOutName, revealAsset]);
+		revealAsset(outputName);
+	}, [done, outputName, revealAsset]);
 	const revealItems = useMemo((): ComboboxValue[] => {
 		return [
 			{
 				disabled: false,
-				id: 'reveal-foreground',
+				id: 'reveal-output',
 				keyHint: null,
-				label: 'Reveal foreground',
+				label: 'Reveal output',
 				leftItem: null,
-				onClick: () => revealAsset(job.foregroundOutName),
+				onClick: () => revealAsset(outputName),
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item',
-				value: 'reveal-foreground',
-			},
-			{
-				disabled: false,
-				id: 'reveal-background',
-				keyHint: null,
-				label: 'Reveal background',
-				leftItem: null,
-				onClick: () => revealAsset(job.baseOutName),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: 'reveal-background',
+				value: 'reveal-output',
 			},
 		];
-	}, [job.baseOutName, job.foregroundOutName, revealAsset]);
+	}, [outputName, revealAsset]);
 	const onRemove: React.MouseEventHandler = useCallback(
 		(event) => {
 			event.stopPropagation();
@@ -197,17 +192,26 @@ export const VideoMattingQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
 				<div style={subtitles} title={tooltip}>
-					{messages.map((message) => (
-						<span key={message} style={subtitle}>
-							{message}
-						</span>
-					))}
+					{job.status === 'cancelled' ? (
+						<RenderQueueCancelledMessage />
+					) : job.status === 'failed' ? (
+						<QueueJobError
+							error={job.error}
+							modalTitle="Background removal failed"
+						/>
+					) : (
+						messages.map((message) => (
+							<span key={message} style={subtitle}>
+								{message}
+							</span>
+						))
+					)}
 				</div>
 			</div>
 			<Spacing x={1} />
 			{done ? (
 				<ActionTooltip
-					label="Reveal video layer"
+					label="Reveal output"
 					shortcut={null}
 					delay={800}
 					dismissOnClick
@@ -216,13 +220,20 @@ export const VideoMattingQueueItem: React.FC<{
 						renderAction={(color) => (
 							<EllipsisIcon fill={color} svgProps={ellipsisIconStyle} />
 						)}
-						aria-label="Reveal video layer"
+						aria-label="Reveal output"
 						values={revealItems}
 						variant={null}
 					/>
 				</ActionTooltip>
 			) : null}
-			{job.status === 'running' ? null : (
+			{job.status === 'done' ||
+			job.status === 'failed' ||
+			job.status === 'cancelled' ? (
+				<RenderQueueRepeatItem job={job} />
+			) : null}
+			{job.status === 'running' ? (
+				<RenderQueueCancelButton job={job} />
+			) : job.status === 'saving' ? null : (
 				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
 					<InlineAction
 						renderAction={renderRemove}

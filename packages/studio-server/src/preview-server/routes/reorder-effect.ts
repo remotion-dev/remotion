@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {reorderEffect} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderEffectRequest,
@@ -20,8 +20,6 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
-
-const {reorderEffect} = CodemodsInternals;
 
 export const reorderEffectHandler: ApiHandler<
 	ReorderEffectRequest,
@@ -45,12 +43,17 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabel, logLine} = await reorderEffect({
-				input: fileContents,
-				sequenceNodePath: sequenceNodePath.nodePath,
-				fromIndex,
+			const result = await reorderEffect({
+				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
+				effect: {
+					filePath: absolutePath,
+					nodePath: sequenceNodePath.nodePath,
+					effectIndex: fromIndex,
+				},
 				toIndex,
 			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
 			pushToUndoStack({
 				filePath: absolutePath,

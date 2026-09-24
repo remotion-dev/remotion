@@ -11,7 +11,7 @@ import React, {
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
-	useMediaStartsAt,
+	Html5MediaTrimContext,
 } from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
@@ -70,7 +70,9 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
-	const mediaStartsAt = useMediaStartsAt();
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
+	const audioStartFrame = useContext(Html5MediaTrimContext);
+
 	const environment = useRemotionEnvironment();
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
@@ -127,13 +129,12 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			mediaFrame: frame,
-			playbackRate: playbackRate ?? 1,
+			// Render assets use composition frames; source trimming stays in media frames.
+			mediaFrame:
+				audioStartFrame + (frame - audioStartFrame) / sequencePlaybackRate,
+			playbackRate: (playbackRate ?? 1) * sequencePlaybackRate,
 			toneFrequency: toneFrequency ?? 1,
-			audioStartFrame: Math.max(
-				0,
-				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
-			),
+			audioStartFrame,
 			audioStreamIndex: audioStreamIndex ?? 0,
 		});
 
@@ -149,7 +150,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		absoluteFrame,
 		playbackRate,
 		toneFrequency,
-		sequenceContext?.cumulatedNegativeFrom,
+		audioStartFrame,
+		sequencePlaybackRate,
 		audioStreamIndex,
 	]);
 
@@ -172,7 +174,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		const currentTime = getMediaTime({
 			frame,
 			playbackRate: playbackRate || 1,
-			startFrom: -mediaStartsAt,
+			startFrom: audioStartFrame,
 			fps: videoConfig.fps,
 		});
 		const handle = delayRender(
@@ -258,7 +260,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		videoConfig.fps,
 		frame,
-		mediaStartsAt,
+		audioStartFrame,
 		onError,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,

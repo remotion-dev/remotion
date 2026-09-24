@@ -6,6 +6,8 @@ import {
 	TIMELINE_TRACK_SEPARATOR,
 	WHITE_ALPHA_15,
 } from '../../helpers/colors';
+import {resolveStudioColor} from '../../helpers/resolve-studio-color';
+import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
@@ -277,8 +279,11 @@ const TimelineTimeIndicatorsInner = React.memo<{
 		});
 
 		const draw = () => {
+			const computedStyle = getComputedStyle(canvas);
+			const tickColor = resolveStudioColor(WHITE_ALPHA_15, computedStyle);
+			const labelColor = resolveStudioColor(LIGHT_TEXT, computedStyle);
 			const {clientWidth: width, scrollLeft} = scrollable;
-			const pixelRatio = window.devicePixelRatio;
+			const pixelRatio = getStudioPixelRatio();
 			const canvasWidth = Math.ceil(width * pixelRatio);
 			const canvasHeight = TIMELINE_TIME_INDICATOR_HEIGHT * pixelRatio;
 
@@ -292,7 +297,7 @@ const TimelineTimeIndicatorsInner = React.memo<{
 			context.resetTransform();
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.scale(pixelRatio, pixelRatio);
-			context.fillStyle = WHITE_ALPHA_15;
+			context.fillStyle = tickColor;
 
 			const firstFrame = Math.max(
 				0,
@@ -321,15 +326,15 @@ const TimelineTimeIndicatorsInner = React.memo<{
 				const frame = second * fps;
 				drawTick(frame, 15);
 				if (second > 0) {
-					context.fillStyle = LIGHT_TEXT;
-					context.font = `${TICK_LABEL_FONT_SIZE}px ${getComputedStyle(canvas).fontFamily}`;
+					context.fillStyle = labelColor;
+					context.font = `${TICK_LABEL_FONT_SIZE}px ${computedStyle.fontFamily}`;
 					context.textBaseline = 'top';
 					context.fillText(
 						showFrames ? `${Math.round(frame)}f` : renderFrame(frame, fps),
 						xForFrame(frame) + TICK_LABEL_MARGIN_LEFT,
 						7,
 					);
-					context.fillStyle = WHITE_ALPHA_15;
+					context.fillStyle = tickColor;
 				}
 			}
 

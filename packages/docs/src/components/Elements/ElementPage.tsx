@@ -70,7 +70,23 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			return null;
 		}
 
-		return createElementPayloadFromDefinition({definition, sourceCode});
+		return createElementPayloadFromDefinition({
+			definition,
+			sourceCode,
+			installAssets: false,
+		});
+	}, [definition, sourceCode]);
+
+	const assetPayload = useMemo(() => {
+		if (!sourceCode || definition.assets.length === 0) {
+			return null;
+		}
+
+		return createElementPayloadFromDefinition({
+			definition,
+			sourceCode,
+			installAssets: true,
+		});
 	}, [definition, sourceCode]);
 
 	useLayoutEffect(() => {
@@ -130,7 +146,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			setInstallStatus({type: 'installing'});
 		}
 
-		const result = await installInStudio({payload: elementPayload});
+		const result = await installInStudio({
+			payload: assetPayload ?? elementPayload,
+			fallbackPayload: assetPayload === null ? undefined : elementPayload,
+		});
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
@@ -155,7 +174,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
 			);
 		}
-	}, [definition.slug, elementPayload, isEmbeddedInStudio]);
+	}, [assetPayload, definition.slug, elementPayload, isEmbeddedInStudio]);
 
 	const openInBrowserStudio = useCallback(() => {
 		if (elementPayload === null) {

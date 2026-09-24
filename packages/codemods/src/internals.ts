@@ -13,109 +13,6 @@ import {resolveCompositionComponentInProject} from './resolve-composition-compon
 import {getNodePathForRecastPath} from './sequence-props';
 import {parseAst} from './sequence-props/parse-ast';
 
-export {applyVisualControl} from './apply-visual-control';
-export {
-	basicCaptionsElementSource,
-	getBasicCaptionsElementFile,
-} from './basic-captions-element-source';
-export {
-	deleteJsxElementAtPath,
-	deleteJsxNodes,
-	findJsxElementPathForDeletion,
-	getJsxElementTagLabel,
-} from './delete-jsx-nodes-internal';
-export {duplicateCompositionInSource} from './duplicate-composition';
-export {
-	duplicateJsxElementAtPath,
-	duplicateJsxNodes,
-} from './duplicate-jsx-node';
-export {
-	addEffect,
-	assertValidEffect,
-	deleteEffect,
-	deleteEffects,
-	duplicateEffect,
-	duplicateEffects,
-	ensureEffectImport,
-	enumerateEffectArrayElements,
-	findEffectCallExpression,
-	findEffectsAttr,
-	makeConfigObjectExpression,
-	pasteEffects,
-	reorderEffect,
-	updateEffectProps,
-	updateEffectPropsAst,
-	type EffectArrayElement,
-	type EffectDeletionTarget,
-	type EffectPropUpdate,
-	type EffectTarget,
-	type FormatEffectFile,
-	type PropDelta,
-	type UpdateEffectPropsResult,
-} from './effect-operations';
-export {
-	ensureRemotionImports,
-	ensureUseCurrentFrameHook,
-	findEnclosingFunctionPath,
-} from './ensure-imports-and-frame-hook';
-export {findSearchPosition} from './find-search-position';
-export {
-	generateCanvasCaptureComposition,
-	makeNewCompositionComponentSource,
-} from './generate-canvas-capture-composition';
-export {getJsxElementsWithNodePaths} from './get-jsx-elements-with-node-paths';
-export {insertBasicCaptions} from './insert-basic-captions';
-export {
-	insertJsxElementIntoComposition,
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	makeInMemoryInsertJsxElementCodemodEnvironment,
-	resolveCompositionComponent,
-	resolveCompositionComponentWithFile,
-	type InsertJsxElementCodemodEnvironment,
-	type ResolvedCompositionComponent,
-	type ResolvedCompositionComponentWithFile,
-} from './insert-jsx-element';
-export {parseAndApplyCodemod} from './parse-and-apply-codemod';
-export {
-	applyCodemod,
-	type ApplyCodeModReturnType,
-	type Change,
-} from './recast-mods';
-export {reorderSequence} from './reorder-sequence';
-export {
-	computeSequencePropsStatusFromContent,
-	computeSequencePropsSubscriptionFromContent,
-} from './sequence-props';
-export {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
-export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
-export {simpleDiff} from './simple-diff';
-export {splitJsxSequence, splitJsxSequences} from './split-jsx-sequence';
-export {splitVideoFromAudio} from './split-video-from-audio';
-export {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from './update-default-props';
-export {updateInlineCaptionPatches} from './update-inline-caption-patches';
-export {
-	updateEffectKeyframes,
-	updateEffectKeyframesAst,
-	updateSequenceKeyframes,
-	updateSequenceKeyframesAst,
-	type EffectKeyframeUpdate,
-	type FormatKeyframesFile,
-	type IntroducedKeyframeIdentifiers,
-	type KeyframeOperation,
-	type SequenceKeyframeUpdate,
-} from './update-keyframes';
-export {
-	updateMultipleSequenceProps,
-	updateSequencePropsAst,
-	type RemovedProp,
-	type SequencePropsNodeUpdate,
-	type SequencePropsNodeUpdateResult,
-	type SequencePropUpdate,
-} from './update-sequence-props';
-
 type AstNode = {
 	type: string;
 	start?: number | null;
@@ -263,6 +160,9 @@ export const findProjectFile = ({
 	const rootDir = normalizePath(project.rootDir);
 	const candidates = [
 		normalizedInput,
+		...(normalizedInput.startsWith(`${rootDir}/`)
+			? [normalizedInput.slice(rootDir.length + 1)]
+			: []),
 		normalizePath(normalizedInput.replace(/^\/+/, '')),
 		normalizePath(`/${normalizedInput}`),
 		normalizePath(`${rootDir}/${normalizedInput.replace(/^\//, '')}`),
@@ -1002,16 +902,13 @@ const getNodePathRemappings = ({
 	return remappings;
 };
 
-const insertSolidIntoProjectWithoutNodePathRemappings = <
-	Project extends CodemodProject,
->({
+const insertSolidIntoProjectWithoutNodePathRemappings = ({
 	project,
 	request,
 }: {
-	project: Project;
+	project: CodemodProject;
 	request: InsertJsxElementRequest;
 }): {
-	project: Project;
 	filePath: string;
 	previousSource: string;
 	nextSource: string;
@@ -1060,27 +957,18 @@ const insertSolidIntoProjectWithoutNodePathRemappings = <
 		filePath: resolved.filePath,
 		nextSource: output,
 		previousSource: resolved.source,
-		project: {
-			...project,
-			files: {
-				...project.files,
-				[resolved.filePath]: output,
-			},
-		},
 	};
 };
 
-export const insertSolidIntoProjectWithNodePathRemappings = <
-	Project extends CodemodProject,
->({
+export const insertSolidIntoProjectWithNodePathRemappings = ({
 	project,
 	request,
 }: {
-	project: Project;
+	project: CodemodProject;
 	request: InsertJsxElementRequest;
 }): {
-	project: Project;
 	filePath: string;
+	nextSource: string;
 	nodePathRemappings: SequenceNodePathRemapping[];
 } => {
 	const result = insertSolidIntoProjectWithoutNodePathRemappings({
@@ -1090,23 +978,12 @@ export const insertSolidIntoProjectWithNodePathRemappings = <
 
 	return {
 		filePath: result.filePath,
+		nextSource: result.nextSource,
 		nodePathRemappings: getNodePathRemappings({
 			afterSource: result.nextSource,
 			beforeSource: result.previousSource,
 		}),
-		project: result.project,
 	};
-};
-
-export const insertSolidIntoProject = <Project extends CodemodProject>({
-	project,
-	request,
-}: {
-	project: Project;
-	request: InsertJsxElementRequest;
-}): Project => {
-	return insertSolidIntoProjectWithoutNodePathRemappings({project, request})
-		.project;
 };
 
 const relativeToRoot = (filePath: string, rootDir: string) => {

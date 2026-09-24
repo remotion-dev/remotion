@@ -25,11 +25,7 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {makeNewCompositionComponentSource, simpleDiff} = CodemodsInternals;
-
-export const formatNewCompositionFile = (
-	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
-) => makeNewCompositionComponentSource(codemod);
+const {simpleDiff} = CodemodsInternals;
 
 const getFolderPath = (parentName: string | null, folderName: string) => {
 	return parentName ? `${parentName}/${folderName}` : folderName;
@@ -246,10 +242,14 @@ export const applyCodemodHandler: ApiHandler<
 			}
 
 			const input = readFileSync(filePath, 'utf-8');
-			const formatted = await applyCodemodToFile({
+			const result = await applyCodemodToFile({
 				filePath,
 				codeMod: codemod,
 			});
+
+			const formatted =
+				result.changes.find((change) => change.filePath === filePath)
+					?.nextContents ?? input;
 
 			const diff = simpleDiff({
 				oldLines: input.split('\n'),
@@ -257,6 +257,23 @@ export const applyCodemodHandler: ApiHandler<
 			});
 
 			if (!dryRun) {
+				if (readFileSync(filePath, 'utf-8') !== input) {
+					throw new Error(
+						`Source changed before applying codemod: ${filePath}`,
+					);
+				}
+
+				for (const change of result.changes) {
+					const currentContents = existsSync(change.filePath)
+						? readFileSync(change.filePath, 'utf-8')
+						: null;
+					if (currentContents !== change.previousContents) {
+						throw new Error(
+							`Source changed before applying codemod: ${change.filePath}`,
+						);
+					}
+				}
+
 				const {entryType, undoMessage, redoMessage} =
 					getCodemodUndoDescription(codemod);
 				const snapshots: Parameters<
@@ -279,7 +296,14 @@ export const applyCodemodHandler: ApiHandler<
 						throw new Error('Could not determine the new component file path');
 					}
 
-					componentFileContents = await formatNewCompositionFile(codemod);
+					componentFileContents =
+						result.changes.find(
+							(change) => change.filePath === componentFilePath,
+						)?.nextContents ?? null;
+					if (componentFileContents === null) {
+						throw new Error('Could not create the composition component');
+					}
+
 					snapshots.push({
 						filePath: componentFilePath,
 						oldContents: null,

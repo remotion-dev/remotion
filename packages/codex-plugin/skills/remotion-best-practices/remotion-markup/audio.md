@@ -58,18 +58,16 @@ The audio still starts playing at the beginning of the composition - only the sp
 
 ## Delaying
 
-Wrap the audio in a `<Sequence>` to delay when it starts:
+Set `from` directly on `<Audio>` to delay when it starts:
 
 ```tsx
-import { Sequence, staticFile } from "remotion";
+import { staticFile, useVideoConfig } from "remotion";
 import { Audio } from "@remotion/media";
 
 const { fps } = useVideoConfig();
 
 return (
-  <Sequence from={1 * fps}>
-    <Audio src={staticFile("audio.mp3")} />
-  </Sequence>
+  <Audio from={fps} src={staticFile("audio.mp3")} />
 );
 ```
 

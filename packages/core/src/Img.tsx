@@ -25,7 +25,7 @@ import type {
 } from './Interactive.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutPlaybackRate,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -68,7 +68,7 @@ export type ImgProps = NativeImgProps & {
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
-} & InteractiveBaseProps &
+} & Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
@@ -466,7 +466,7 @@ export const imgSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,

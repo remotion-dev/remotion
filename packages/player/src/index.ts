@@ -1,6 +1,7 @@
 import './_check-rsc.js';
 import {BufferingIndicator} from './BufferingIndicator.js';
 import {calculateCanvasTransformation} from './calculate-scale.js';
+import {CanvasOverlayContext} from './canvas-overlay-context.js';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
@@ -47,4 +48,5 @@ export const PlayerInternals = {
 	PlayerEmitterProvider,
 	BufferingIndicator,
 	TimelineSequenceObserverContext,
+	CanvasOverlayContext,
 };

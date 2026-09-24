@@ -39,6 +39,7 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/codemods": "workspace:*",

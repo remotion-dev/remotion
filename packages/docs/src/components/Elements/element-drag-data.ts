@@ -7,9 +7,11 @@ import type {ElementDefinition} from './element-definitions';
 export const createElementPayloadFromDefinition = ({
 	definition,
 	sourceCode,
+	installAssets,
 }: {
 	readonly definition: ElementDefinition;
 	readonly sourceCode: string;
+	readonly installAssets: boolean;
 }): StudioElementPayload => {
 	const dimensions =
 		definition.elementWidth !== null && definition.elementHeight !== null
@@ -20,11 +22,15 @@ export const createElementPayloadFromDefinition = ({
 			: null;
 
 	return createElementPayload({
+		assets: installAssets ? definition.assets : [],
 		dependencies: definition.dependencies,
 		dimensions,
 		displayName: definition.displayName,
 		durationInFrames: definition.durationInFrames,
-		initialProps: definition.initialProps,
+		initialProps:
+			!installAssets || definition.installationProps === null
+				? definition.initialProps
+				: {...definition.initialProps, ...definition.installationProps},
 		installationMode: definition.installationMode,
 		slug: definition.slug,
 		sourceCode,

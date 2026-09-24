@@ -10,10 +10,6 @@
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {hotMiddlewareOptions, stripAnsi} from '@remotion/studio-shared';
 import {markErrorMessageAsLoggedByServer} from '../error-overlay/error-origin';
-import {
-	HOT_MIDDLEWARE_ERROR_STYLE,
-	HOT_MIDDLEWARE_WARNING_STYLE,
-} from '../helpers/colors';
 import {subscribeToPreviewServerEvents} from '../helpers/preview-server-events';
 import {processUpdate} from './process-update';
 
@@ -25,6 +21,10 @@ declare global {
 }
 
 type Reporter = ReturnType<typeof createReporter>;
+
+// DevTools console styles cannot inherit CSS variables from the page.
+const HOT_MIDDLEWARE_ERROR_STYLE = 'color: #ff0000;';
+const HOT_MIDDLEWARE_WARNING_STYLE = 'color: #999933;';
 
 function createReporter() {
 	const styles = {

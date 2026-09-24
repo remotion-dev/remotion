@@ -20,6 +20,7 @@
     "@remotion/animation-utils": "workspace:*",
     "@remotion/captions": "workspace:*",
     "@remotion/cli": "workspace:*",
+    "@remotion/codemods": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/install-whisper-cpp": "workspace:*",
     "@remotion/lambda": "workspace:*",

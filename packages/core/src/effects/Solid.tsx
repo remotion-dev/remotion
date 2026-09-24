@@ -9,13 +9,16 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Freeze} from '../freeze.js';
 import type {
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractiveCropProps,
 } from '../Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -25,6 +28,7 @@ import {
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
@@ -75,6 +79,7 @@ export type SolidProps = MandatoryProps &
 
 export const solidSchema = {
 	...baseSchema,
+	...premountSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -254,7 +259,8 @@ const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
-	} & InteractiveBaseProps
+	} & InteractiveBaseProps &
+		InteractivePremountProps
 >(
 	(
 		{
@@ -268,7 +274,12 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			trimBefore,
+			playbackRate,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -289,43 +300,68 @@ const SolidOuter = forwardRef<
 		useImperativeHandle(ref, () => {
 			return actualRef.current as HTMLCanvasElement;
 		}, []);
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: '<Solid />',
 		});
 
 		return (
-			<Sequence
-				layout="none"
-				from={from}
-				trimBefore={trimBefore}
-				freeze={freeze}
-				hidden={hidden}
-				showInTimeline={showInTimeline}
-				controls={controls}
-				_remotionInternalEffects={memoizedEffectDefinitions}
-				durationInFrames={durationInFrames}
-				name={name ?? '<Solid>'}
-				outlineRef={actualRef}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
-				{...props}
-			>
-				<SolidInner
-					reference={actualRef}
-					overrideId={controls?.overrideId ?? null}
-					color={color}
-					height={height}
-					width={width}
-					className={className}
-					style={croppedStyle ?? undefined}
-					effects={effects}
-					pixelDensity={pixelDensity}
-				/>
-			</Sequence>
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					freeze={freeze}
+					hidden={hidden}
+					showInTimeline={showInTimeline}
+					controls={controls}
+					_remotionInternalEffects={memoizedEffectDefinitions}
+					durationInFrames={durationInFrames}
+					name={name ?? '<Solid>'}
+					outlineRef={actualRef}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
+					{...props}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
+					<SolidInner
+						reference={actualRef}
+						overrideId={controls?.overrideId ?? null}
+						color={color}
+						height={height}
+						width={width}
+						className={className}
+						style={croppedStyle ?? undefined}
+						effects={effects}
+						pixelDensity={pixelDensity}
+					/>
+				</Sequence>
+			</Freeze>
 		);
 	},
 );

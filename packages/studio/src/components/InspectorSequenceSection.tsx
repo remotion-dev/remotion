@@ -310,6 +310,7 @@ export const InspectorSequenceSection: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
@@ -317,6 +318,7 @@ export const InspectorSequenceSection: React.FC<{
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	renderTransformControls,
 }) => {
 	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
@@ -883,6 +885,7 @@ export const InspectorSequenceSection: React.FC<{
 					nodePath={nodePathInfo.sequenceSubscriptionKey}
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode="inspector"
 				/>
 			</TimelineRowLayoutContext.Provider>

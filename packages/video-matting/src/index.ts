@@ -10,6 +10,12 @@ export {
 	disposeVideoMattingModel,
 	loadVideoMattingModel,
 } from './load-video-matting-model';
+export {downloadVideoMattingModel} from './download-video-matting-model';
+export type {
+	DownloadVideoMattingModelOptions,
+	DownloadVideoMattingModelResult,
+	VideoMattingModelDownloadProgress,
+} from './download-video-matting-model';
 export type {
 	DisposeVideoMattingModelOptions,
 	LoadVideoMattingModelOptions,
@@ -28,6 +34,9 @@ export type {
 	VideoLayerOutputOptions,
 	VideoLayerOutputTarget,
 } from './output-target';
+import {removeVideoBackground} from './separate-video-layers';
+
+export const VideoMattingInternals = {removeVideoBackground};
 export {separateVideoLayers} from './separate-video-layers';
 export type {
 	SeparateVideoLayersOptions,

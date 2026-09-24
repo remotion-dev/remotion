@@ -29,6 +29,8 @@ import type {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	WrapJsxNodeRequest,
+	WrapJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertElementRequest,
@@ -62,6 +64,8 @@ import type {
 	SplitVideoFromAudioResponse,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -187,6 +191,7 @@ export type BrowserStudioOperations = {
 	duplicateJsxNode: (
 		request: DuplicateJsxNodeRequest,
 	) => Promise<DuplicateJsxNodeResponse>;
+	wrapJsxNode: (request: WrapJsxNodeRequest) => Promise<WrapJsxNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
@@ -227,6 +232,9 @@ export type BrowserStudioOperations = {
 	insertBasicCaptions: (
 		request: InsertBasicCaptionsRequest,
 	) => Promise<InsertBasicCaptionsResponse>;
+	replaceVideoSource?: (
+		request: ReplaceVideoSourceRequest,
+	) => Promise<ReplaceVideoSourceResponse>;
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;

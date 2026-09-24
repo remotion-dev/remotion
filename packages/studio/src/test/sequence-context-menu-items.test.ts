@@ -546,6 +546,7 @@ test('sequence freeze context menu item is hidden for audio', () => {
 
 test('sequence freeze frame accounts for trimBefore', () => {
 	const sequence = {
+		sequencePlaybackRate: 1,
 		duration: 120,
 		from: 0,
 	} as TSequence;
@@ -575,6 +576,7 @@ test('sequence freeze frame accounts for trimBefore', () => {
 
 test('sequence freeze frame can only be toggled while the sequence is visible', () => {
 	const sequence = {
+		sequencePlaybackRate: 1,
 		from: 20,
 		duration: 40,
 		premountDisplay: 10,
@@ -599,6 +601,7 @@ test('video freeze preserves the media frame under the playhead at different pla
 	const mediaFrameAtSequenceZero = 5;
 	const playbackRate = 2;
 	const sequence = {
+		sequencePlaybackRate: 1,
 		duration: 120,
 		from: 0,
 		mediaFrameAtSequenceZero,
@@ -622,4 +625,26 @@ test('video freeze preserves the media frame under the playhead at different pla
 
 	expect(freezeFrame).toBe(timelinePosition);
 	expect(mediaFrameAfterFreeze).toBe(mediaFrameUnderPlayhead);
+});
+
+test('freezing a slowed sequence preserves fractional local frames at its visible boundaries', () => {
+	const sequence = {
+		from: 0.5,
+		duration: 3.75,
+		sequencePlaybackRate: 0.5,
+	} as TSequence;
+	for (const [timelinePosition, expectedFrame] of [
+		[0, 0.25],
+		[3, 1.25],
+		[4, 1.75],
+		[5, 1.75],
+	]) {
+		expect(
+			calculateSequenceFreezeFrame({
+				sequence,
+				sequenceFrameOffset: 0,
+				timelinePosition,
+			}),
+		).toBe(expectedFrame);
+	}
 });

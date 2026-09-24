@@ -9,7 +9,7 @@ import React, {
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
-	useMediaStartsAt,
+	Html5MediaTrimContext,
 } from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
 import {cancelRender} from '../cancel-render.js';
@@ -64,7 +64,8 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	const volumePropsFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
-	const mediaStartsAt = useMediaStartsAt();
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
+	const audioStartFrame = useContext(Html5MediaTrimContext);
 
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -121,13 +122,12 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			id,
 			frame: absoluteFrame,
 			volume,
-			mediaFrame: frame,
-			playbackRate,
+			// Render assets use composition frames; source trimming stays in media frames.
+			mediaFrame:
+				audioStartFrame + (frame - audioStartFrame) / sequencePlaybackRate,
+			playbackRate: playbackRate * sequencePlaybackRate,
 			toneFrequency,
-			audioStartFrame: Math.max(
-				0,
-				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
-			),
+			audioStartFrame,
 			audioStreamIndex,
 		});
 
@@ -143,7 +143,8 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		absoluteFrame,
 		playbackRate,
 		toneFrequency,
-		sequenceContext?.cumulatedNegativeFrom,
+		audioStartFrame,
+		sequencePlaybackRate,
 		audioStreamIndex,
 	]);
 
@@ -152,10 +153,10 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			getExpectedMediaFrameUncorrected({
 				frame,
 				playbackRate: playbackRate || 1,
-				startFrom: -mediaStartsAt,
+				startFrom: audioStartFrame,
 			}) / videoConfig.fps
 		);
-	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
+	}, [frame, audioStartFrame, playbackRate, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
 		return getOffthreadVideoSource({

@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/canvas",
 	"version": "4.0.527",
-	"description": "Headless primitives for Remotion authoring interfaces",
+	"description": "Experimental primitives for building Remotion authoring interfaces",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -56,5 +56,6 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"homepage": "https://www.remotion.dev/docs/canvas"
 }

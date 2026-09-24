@@ -12,7 +12,7 @@ test('keeps the scaled composition on its own compositing layer', async ({
 			'.remotion-studio-composition-container > div',
 		);
 		await expect(preview).toBeVisible();
-		await expect(preview).toHaveCSS('will-change', 'transform');
+		await expect(preview).toHaveCSS('will-change', 'opacity');
 	} finally {
 		await stopStudio();
 	}
