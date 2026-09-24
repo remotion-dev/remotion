@@ -38,7 +38,6 @@ export const WHITE_ALPHA_70 = 'var(--remotion-studio-white-alpha-70)';
 export const WHITE_ALPHA_72 = 'var(--remotion-studio-white-alpha-72)';
 export const WHITE_ALPHA_80 = 'var(--remotion-studio-white-alpha-80)';
 export const WHITE_ALPHA_90 = 'var(--remotion-studio-white-alpha-90)';
-export const BLACK_ALPHA_10 = 'var(--remotion-studio-black-alpha-10)';
 export const BLACK_ALPHA_28 = 'var(--remotion-studio-black-alpha-28)';
 export const BLACK_ALPHA_30 = 'var(--remotion-studio-black-alpha-30)';
 export const BLACK_ALPHA_40 = 'var(--remotion-studio-black-alpha-40)';

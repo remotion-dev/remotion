@@ -31,7 +31,6 @@ export const studioCssVariables = `
   --remotion-studio-white-alpha-72: rgba(255, 255, 255, 0.72);
   --remotion-studio-white-alpha-80: rgba(255, 255, 255, 0.8);
   --remotion-studio-white-alpha-90: rgba(255, 255, 255, 0.9);
-  --remotion-studio-black-alpha-10: rgba(0, 0, 0, 0.1);
   --remotion-studio-black-alpha-28: rgba(0, 0, 0, 0.28);
   --remotion-studio-black-alpha-30: rgba(0, 0, 0, 0.3);
   --remotion-studio-black-alpha-40: rgba(0, 0, 0, 0.4);
@@ -77,7 +76,7 @@ export const studioCssVariables = `
   --remotion-studio-timeline-audio-gradient: linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%);
   --remotion-studio-timeline-video-gradient: linear-gradient(to top, #8e44ad, #9b59b6);
   --remotion-studio-focus-color: #555;
-  --remotion-studio-color-picker-checker-color: rgba(255, 255, 255, 0.15);
+  --remotion-studio-color-picker-checker-color: var(--remotion-studio-white-alpha-15);
   --remotion-studio-info-blue-border-color: rgba(59, 130, 246, 0.4);
   --remotion-studio-black-alpha-22: rgba(0, 0, 0, 0.22);
   --remotion-studio-font-family-error-color: #ff8a8a;
