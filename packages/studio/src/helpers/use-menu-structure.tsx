@@ -38,7 +38,6 @@ import {checkFullscreenSupport} from './check-fullscreen-support';
 import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
-import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {canEditStudioConfig} from './settings-tab-availability';
@@ -298,6 +297,7 @@ const getRenderMenuItems = ({
 export const useMenuStructure = (
 	closeMenu: () => void,
 	readOnlyStudio: boolean,
+	compact: boolean,
 ) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
@@ -357,7 +357,6 @@ export const useMenuStructure = (
 		(s) => String(size.size) === String(s.size),
 	);
 
-	const mobileLayout = useMobileLayout();
 	const currentComposition = useMemo(() => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
 			return null;
@@ -1050,7 +1049,7 @@ export const useMenuStructure = (
 					{
 						id: 'discord',
 						value: 'discord',
-						label: 'Join Discord community',
+						label: 'Ask on Discord',
 						onClick: () => {
 							closeMenu();
 							openExternal('https://discord.com/invite/6VzzNDwUwV');
@@ -1138,28 +1137,84 @@ export const useMenuStructure = (
 				],
 			},
 		].filter(Internals.truthy);
-		if (mobileLayout) {
+		if (compact) {
+			const helpItems = struct.find((section) => section.id === 'help')?.items;
+			const viewItems = struct.find((section) => section.id === 'view')?.items;
+			if (!helpItems || !viewItems) {
+				throw new Error('Compact menu section not found');
+			}
+
 			struct = [
 				{
 					...struct[0],
 					items: [
-						...struct.slice(1).map((s) => {
-							return {
-								...s,
-								keyHint: null,
-								onClick: () => undefined,
-								type: 'item' as const,
-								value: s.id,
-								leftItem: null,
-								subMenu: {
-									items: s.items,
-									leaveLeftSpace: true,
-									preselectIndex: 0,
-								},
-								quickSwitcherLabel: null,
-							} as SelectionItem;
-						}),
-						...struct[0].items,
+						{
+							id: 'view',
+							label: 'View',
+							keyHint: null,
+							onClick: () => undefined,
+							type: 'item' as const,
+							value: 'view',
+							leftItem: null,
+							subMenu: {
+								items: viewItems,
+								leaveLeftSpace: true,
+								preselectIndex: 0,
+							},
+							quickSwitcherLabel: null,
+						} as SelectionItem,
+						{
+							id: 'help',
+							label: 'Help',
+							keyHint: null,
+							onClick: () => undefined,
+							type: 'item' as const,
+							value: 'help',
+							leftItem: null,
+							subMenu: {
+								items: helpItems.filter((item) =>
+									['shortcuts', 'docs', 'file-issue', 'discord'].includes(
+										item.id,
+									),
+								),
+								leaveLeftSpace: true,
+								preselectIndex: 0,
+							},
+							quickSwitcherLabel: null,
+						} as SelectionItem,
+						{
+							id: 'remotion',
+							label: 'Remotion',
+							keyHint: null,
+							onClick: () => undefined,
+							type: 'item' as const,
+							value: 'remotion',
+							leftItem: null,
+							subMenu: {
+								items: [
+									...struct[0].items.filter((item) =>
+										['about', 'changelog', 'acknowledgements'].includes(
+											item.id,
+										),
+									),
+									{
+										id: 'compact-remotion-socials-divider',
+										type: 'divider' as const,
+									},
+									...helpItems.filter((item) =>
+										['insta', 'x', 'youtube', 'linkedin', 'tiktok'].includes(
+											item.id,
+										),
+									),
+								],
+								leaveLeftSpace: true,
+								preselectIndex: 0,
+							},
+							quickSwitcherLabel: null,
+						} as SelectionItem,
+						...struct[0].items.filter((item) =>
+							['timeline-divider-1', 'restart-studio'].includes(item.id),
+						),
 					],
 				},
 			];
@@ -1184,7 +1239,7 @@ export const useMenuStructure = (
 		checkerboard,
 		isFullscreenSupported,
 		remotion_packageManager,
-		mobileLayout,
+		compact,
 		defaultEditorId,
 		defaultEditorName,
 		openInApps,
