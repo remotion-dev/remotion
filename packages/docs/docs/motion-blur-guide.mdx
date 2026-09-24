@@ -7,31 +7,21 @@ crumb: 'Designing visuals'
 
 # Motion blur
 
-Motion blur shows where an object moved during a frame. For the best result, start with [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) when you can preview in Chrome with HTML-in-canvas enabled. [`@remotion/motion-blur`](/docs/motion-blur) also offers two effects that work in regular browsers.
+To realize a realistic motion blur, a frame needs to be duplicated multiple times and blended together.
 
-<Installation pkg="@remotion/motion-blur" />
+Remotion provides a [`@remotion/motion-blur`](/docs/motion-blur) package to achieve this.
 
-| Component                                                                  | Appearance                                      | Preview                 |
-| -------------------------------------------------------------------------- | ----------------------------------------------- | ----------------------- |
-| [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) | Captured pixels averaged across part of a frame | Chrome 149+ with a flag |
-| [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur)               | Blended layers across part of a frame           | No special setup        |
-| [`<Trail>`](/docs/motion-blur/trail)                                       | Echoes of earlier positions                     | No special setup        |
+## Recommended: HTML-in-canvas motion blur
 
-Animate the content inside the component with [`useCurrentFrame()`](/docs/use-current-frame). The component samples that animation at different times within a frame. See the [common mistake](/docs/motion-blur/common-mistake) if the blur does not follow your animation.
+[`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) is the state-of-the-art implementation of motion blur.
 
-## HTML-in-canvas motion blur<AvailableFrom v="4.0.528" />
-
-[`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) captures the HTML at multiple fractional frames and averages the pixels in a canvas. This is the state of the art for motion blur in Remotion: it preserves the appearance of the sampled content better than stacking translucent DOM copies.
+It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
 
 <Demo type="motion-blur-html-in-canvas" />
 
-Live preview requires Chrome 149 or later with `chrome://flags/#canvas-draw-element` enabled. See the [HTML-in-canvas setup](/docs/html-in-canvas#enabling-the-flag-in-chrome). Other browsers show a rendered video of the demo. Remotion's bundled Chrome supports rendering without manual flag setup. [Nested HTML-in-canvas components](/docs/html-in-canvas#nested-html-in-canvas) are not supported yet.
-
-Set `width` and `height` to the canvas size, `shutterAngle` to the exposure length, and `samples` to the smoothness. See the [component reference](/docs/motion-blur/html-in-canvas-motion-blur) for defaults and ranges.
-
 ## Camera motion blur
 
-[`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) blends several copies of the content sampled at different times. It works in regular browsers, but layered blending can change colors and opacity. Use a low `samples` value and inspect the result.
+[`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but layered blending can change colors and opacity.
 
 <Demo type="motion-blur-camera" />
 
@@ -39,11 +29,11 @@ Set `shutterAngle` to control the exposure length and `samples` to control smoot
 
 ## Trail
 
-[`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one. Choose it for a stylized echo or a long streak. It does not aim to reproduce a camera exposure.
+[`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one.
+
+It does not aim to reproduce a realistic camera exposure.
 
 <Demo type="motion-blur-trail" />
-
-Set `layers`, `lagInFrames`, and `trailOpacity` to control the number, spacing, and visibility of the echoes.
 
 ## See also
 

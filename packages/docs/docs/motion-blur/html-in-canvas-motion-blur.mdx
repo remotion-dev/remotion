@@ -11,7 +11,8 @@ crumb: '@remotion/motion-blur'
   <p>This component uses the experimental HTML-in-canvas browser API.</p>
 </ExperimentalBadge>
 
-`<HtmlInCanvasMotionBlur>` averages snapshots of its children at different points within a frame. It works during preview in a [supported Chrome browser](/docs/html-in-canvas#enabling-the-flag-in-chrome).
+`<HtmlInCanvasMotionBlur>` is the state-of-the-art recommended way to achieve motion blur in Remotion.  
+It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
 
 ```tsx twoslash title="MyComposition.tsx"
 import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
