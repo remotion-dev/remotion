@@ -7,13 +7,15 @@ crumb: 'Getting started'
 
 import {TimingTimeline} from '../components/TimingTimeline';
 
-Use [`trimBefore`](/docs/sequence#trimbefore) to choose the first frame of a sequence's content, and [`durationInFrames`](/docs/sequence#durationinframes) to choose how long it appears. Use [`from`](/docs/sequence#from) to place it on the parent timeline.
+Use [`from`](/docs/sequence#from) to place a sequence on the parent timeline. Use [`trimBefore`](/docs/sequence#trimbefore) to choose the first frame of its content, and [`durationInFrames`](/docs/sequence#durationinframes) to choose how long it appears.
 
 These props are available on [`<Sequence>`](/docs/sequence) and components such as [`<AbsoluteFill>`](/docs/absolute-fill), [`<Gif>`](/docs/gif/gif) and [`Interactive` components](/docs/interactive). Media also has source trimming props, explained below.
 
-## Trim the beginning and end
+## Position with `from`
 
-`trimBefore` advances the frame seen by a sequence's children when they first appear. It is available from <AvailableFrom v="4.0.482" inline />. Set `durationInFrames` to stop rendering the children after a given number of frames.
+`from` moves a sequence on its parent timeline. By default, its children start at frame `0` when it appears:
+
+<TimingTimeline from={30} durationInFrames={60} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Sequence, useCurrentFrame} from 'remotion';
@@ -21,19 +23,19 @@ import {Sequence, useCurrentFrame} from 'remotion';
 const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Sequence trimBefore={15} durationInFrames={45}>
+  <Sequence from={30} durationInFrames={60}>
     <Counter />
   </Sequence>
 );
 ```
 
-<TimingTimeline from={0} durationInFrames={45} />
+The sequence occupies composition frames `30` through `89`. Its counter runs from `0` through `59`.
 
-The sequence occupies composition frames `0` through `44`. Its counter starts at `15` and ends at `59`. To trim the end of a sequence, set `durationInFrames`; `<Sequence>` has no `trimAfter` prop.
+## Trim the beginning and end
 
-## Position with `from`
+`trimBefore` advances the frame seen by the sequence's children when they first appear. It is available from <AvailableFrom v="4.0.482" inline />. Shorten `durationInFrames` to stop rendering the children earlier:
 
-`from` moves the sequence on its parent timeline. It does not change the first frame seen by its children:
+<TimingTimeline from={30} durationInFrames={45} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Sequence, useCurrentFrame} from 'remotion';
@@ -47,9 +49,7 @@ export const MyComposition = () => (
 );
 ```
 
-<TimingTimeline from={30} durationInFrames={45} />
-
-The sequence now occupies composition frames `30` through `74`. Its counter still runs from `15` through `59`.
+The sequence now occupies composition frames `30` through `74`. Its counter runs from `15` through `59`. To trim the end of a sequence, set `durationInFrames`; `<Sequence>` has no `trimAfter` prop.
 
 ## Change playback speed
 
