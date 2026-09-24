@@ -57,7 +57,8 @@ export const MyComposition = () => {
 
 ### `children`
 
-The content to blur. Animate it with [`useCurrentFrame()`](/docs/use-current-frame) so it can be sampled between frames.
+The content to blur.  
+Make sure to call [`useCurrentFrame()`](/docs/use-current-frame) from a child component, so `<HtmlInCanvasMotionBlur>` can override the time context correctly.
 
 ### `width`
 
@@ -69,17 +70,19 @@ The canvas height in pixels. Must be a positive integer. Use the composition hei
 
 ### `samples?`
 
-How many snapshots are averaged. Default: `8`. Accepts an integer from `1` to `64`. Higher values make the blur smoother but cost more work during preview and rendering. `1` produces a sharp image.
+How many snapshots are averaged. Default: `8`, min: `1`, max: `64`.  
+Higher values make the blur smoother but cost more work during preview and rendering.
 
 ### `shutterAngle?`
 
-How long the exposure is, expressed as an angle from `0` to `360`. Default: `180`. At `180`, samples span half a frame centered on the current frame. At `0`, no motion blur is applied. Samples outside the composition are clamped to its first or last frame.
+How long the exposure is, expressed as an angle from `0` to `360`. Default: `180`.  
+At `180`, samples span half a frame centered on the current frame.  
+At `0`, no motion blur is applied.  
+Samples outside the composition are clamped to its first or last frame.
 
-## Preview and rendering
+## Nested HTML-in-canvas caveat
 
-For preview in Studio or a Player, use Chrome 149 or later and enable `chrome://flags/#canvas-draw-element`. See the [HTML-in-canvas setup guide](/docs/html-in-canvas#enabling-the-flag-in-chrome). Remotion's bundled Chrome enables the feature for rendering.
-
-Nested [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components are currently unsupported, so children of `<HtmlInCanvasMotionBlur>` cannot contain another `<HtmlInCanvas>` component. Client-side rendering uses the built-in DOM composer for compositions containing this component; [HTML-in-canvas frame capture](/docs/client-side-rendering/html-in-canvas) falls back to that composer.
+Nested [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components are currently unsupported, so children of `<HtmlInCanvasMotionBlur>` cannot contain another `<HtmlInCanvas>` component or vice versa.
 
 ## Compatibility
 
