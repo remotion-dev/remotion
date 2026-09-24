@@ -25,6 +25,7 @@ import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {usePremounting} from './use-premounting.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {
 	withInteractivitySchema,
 	type WithInteractivitySchemaOptions,
@@ -233,7 +234,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 	type ElementType = ElementForTag<Tag>;
 	type Props = InteractiveElementProps<Tag>;
 
-	const Inner = forwardRef<
+	const TimedElement = forwardRef<
 		ElementType,
 		Props & {
 			readonly controls: SequenceControls | undefined;
@@ -326,6 +327,42 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				</Sequence>
 			</Freeze>
 		);
+	});
+
+	TimedElement.displayName = displayName;
+
+	const Inner = forwardRef<
+		ElementType,
+		Props & {readonly controls: SequenceControls | undefined}
+	>((props, ref) => {
+		const videoConfig = useUnsafeVideoConfig();
+
+		if (videoConfig === null) {
+			const {
+				durationInFrames: _durationInFrames,
+				from: _from,
+				premountFor: _premountFor,
+				postmountFor: _postmountFor,
+				styleWhilePremounted: _styleWhilePremounted,
+				styleWhilePostmounted: _styleWhilePostmounted,
+				trimBefore: _trimBefore,
+				playbackRate: _playbackRate,
+				freeze: _freeze,
+				hidden,
+				name: _name,
+				showInTimeline: _showInTimeline,
+				cropLeft: _cropLeft,
+				cropRight: _cropRight,
+				cropTop: _cropTop,
+				cropBottom: _cropBottom,
+				controls: _controls,
+				...elementProps
+			} = props as Props & {readonly controls: SequenceControls | undefined};
+
+			return hidden ? null : React.createElement(tag, {...elementProps, ref});
+		}
+
+		return <TimedElement {...props} ref={ref} />;
 	});
 
 	Inner.displayName = displayName;

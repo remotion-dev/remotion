@@ -7,7 +7,13 @@ crumb: 'API'
 
 The `<Img>` tag can be used like a regular `<img>` HTML tag.
 
-If you use `<Img>`, Remotion will ensure that the image is loaded before rendering the frame. That way you can avoid flickers if the image does not load immediately during rendering.
+Inside a composition, Remotion ensures that the image is loaded before rendering the frame. That way you can avoid flickers if the image does not load immediately during rendering.
+
+## Outside a composition
+
+`<Img>` also renders in a regular React tree, without a Remotion composition or [`<Player>`](/docs/player). In that case it renders a native `<img>` with the `src`, HTML image props, styles, and ref you pass.
+
+Remotion-specific behavior does not apply outside a composition: image loading does not block rendering, failed loads are not retried, and `effects`, timing, premounting, cropping, and Studio props have no effect. Use the native `onLoad` and `onError` callbacks to handle image loading there. `hidden` still hides the image.
 
 ## API
 
