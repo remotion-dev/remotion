@@ -199,7 +199,7 @@ import {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
 import {
 	AbsoluteTimeContext,
@@ -406,7 +406,7 @@ export const Internals = {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,

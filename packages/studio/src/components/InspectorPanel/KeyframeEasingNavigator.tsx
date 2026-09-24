@@ -176,7 +176,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 }> = ({currentSelection, includeEasings, keyframes, nodePathInfo}) => {
 	const {isSelected, selectItems} = useTimelineSelection();
-	const setFrame = Internals.Timeline.useTimelineSeekFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const videoConfig = useVideoConfig();
 	const items = useMemo(
 		() =>
@@ -207,7 +207,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	const seekToItem = useCallback(
 		(item: NavigatorItem, direction: 'fit-left' | 'fit-right') => {
 			const frame = getNavigatorItemPlayheadFrame(item);
-			setFrame((current) => {
+			seekFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
@@ -218,7 +218,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				frame,
 			});
 		},
-		[setFrame, videoConfig.durationInFrames, videoConfig.id],
+		[seekFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 	const selectPrevious = useCallback(() => {
 		if (previousItem === null) {
