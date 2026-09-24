@@ -68,14 +68,8 @@ export const TimingTimeline: React.FC<{
 							border: '1px solid rgba(255, 255, 255, 0.2)',
 							borderRadius: 2,
 							backgroundColor: '#0b84f3',
-							color: 'white',
-							fontSize: 11,
-							lineHeight: '19px',
-							paddingLeft: 6,
 						}}
-					>
-						Sequence
-					</div>
+					/>
 				</div>
 			</div>
 		</div>
