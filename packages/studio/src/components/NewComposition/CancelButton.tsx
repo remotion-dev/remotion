@@ -49,7 +49,7 @@ export const CancelButton: React.FC<
 	const {tabIndex} = useZIndex();
 	return (
 		<button
-			aria-label="Close"
+			aria-label="Close dialog"
 			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			tabIndex={tabIndex}
 			style={style}
