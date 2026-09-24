@@ -7,8 +7,8 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
 import {BackgroundRemovalIcon} from '../../icons/background-removal';
 import {DuplicateIcon} from '../../icons/duplicate';
-import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
+import {SplitIcon} from '../../icons/split';
 import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -58,6 +58,12 @@ const actionIconStyle: React.CSSProperties = {
 	display: 'block',
 	height: 16,
 	width: 16,
+};
+
+const splitActionIconStyle: React.CSSProperties = {
+	...actionIconStyle,
+	height: 22,
+	width: 22,
 };
 
 const largeActionIconStyle: React.CSSProperties = {
@@ -118,7 +124,7 @@ const SplitSequenceQuickAction: React.FC<{
 			onClick={onSplit}
 			aria-label={disabledReason}
 			renderIcon={(color) => (
-				<ScissorsIcon style={actionIconStyle} color={color} />
+				<SplitIcon style={splitActionIconStyle} color={color} />
 			)}
 		>
 			Split clip

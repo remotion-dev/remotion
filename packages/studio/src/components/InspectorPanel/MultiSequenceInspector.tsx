@@ -13,7 +13,7 @@ import {
 	getFieldsToShow,
 	SCHEMA_FIELD_GROUPS,
 } from '../../helpers/timeline-layout';
-import {ScissorsIcon} from '../../icons/scissors';
+import {SplitIcon} from '../../icons/split';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
@@ -50,8 +50,8 @@ const selectionCountStyle: React.CSSProperties = {
 
 const actionIconStyle: React.CSSProperties = {
 	display: 'block',
-	height: 16,
-	width: 16,
+	height: 22,
+	width: 22,
 };
 
 export const MultiSequenceInspector: React.FC<{
@@ -229,7 +229,7 @@ export const MultiSequenceInspector: React.FC<{
 						onClick={onSplit}
 						aria-label={canSplit ? undefined : 'Studio is read-only'}
 						renderIcon={(color) => (
-							<ScissorsIcon style={actionIconStyle} color={color} />
+							<SplitIcon style={actionIconStyle} color={color} />
 						)}
 					>
 						Split selected
