@@ -4,16 +4,26 @@ export const TimingTimeline: React.FC<{
 	readonly from: number;
 	readonly durationInFrames?: number;
 	readonly trimBefore: number;
+	readonly trimAfter: number | null;
 	readonly playbackRate: number;
-}> = ({from, durationInFrames, trimBefore, playbackRate}) => {
+	readonly loop: boolean;
+}> = ({from, durationInFrames, trimBefore, trimAfter, playbackRate, loop}) => {
 	const [frame, setFrame] = useState(from);
 	const scrubbingPointer = useRef<number | null>(null);
-	const totalFrames = 90;
+	const totalFrames = loop ? 120 : 90;
 	const fps = 30;
-	const displayedDuration = durationInFrames ?? totalFrames - from;
+	const sourceRange = trimAfter === null ? null : trimAfter - trimBefore;
+	const cycleDuration =
+		sourceRange === null ? null : sourceRange / playbackRate;
+	const displayedDuration = Math.min(
+		durationInFrames ?? totalFrames - from,
+		loop || cycleDuration === null ? Infinity : cycleDuration,
+	);
 	const localFrame =
 		frame >= from && frame < from + displayedDuration
-			? (frame - from) * playbackRate + trimBefore
+			? (loop && sourceRange !== null
+					? ((frame - from) * playbackRate) % sourceRange
+					: (frame - from) * playbackRate) + trimBefore
 			: null;
 	const seconds = Math.floor(frame / fps);
 	const timecode = `00:${String(seconds).padStart(2, '0')}.${String(frame % fps).padStart(2, '0')}`;
@@ -124,7 +134,7 @@ export const TimingTimeline: React.FC<{
 					}}
 				>
 					<div style={{position: 'relative', height: '100%', margin: '0 16px'}}>
-						{Array.from({length: 7}, (_, index) => {
+						{Array.from({length: totalFrames / 15 + 1}, (_, index) => {
 							const tickFrame = index * 15;
 							return (
 								<div
@@ -141,12 +151,13 @@ export const TimingTimeline: React.FC<{
 											backgroundColor: 'rgba(255, 255, 255, 0.15)',
 										}}
 									/>
-									{tickFrame % fps === 0 && tickFrame < totalFrames ? (
+									{tickFrame % fps === 0 &&
+									(tickFrame < totalFrames || loop) ? (
 										<span
 											style={{
 												position: 'absolute',
 												top: 7,
-												left: 8,
+												left: tickFrame === totalFrames ? -32 : 8,
 												color: '#A6A7A9',
 												fontSize: 12,
 												whiteSpace: 'nowrap',
@@ -180,6 +191,29 @@ export const TimingTimeline: React.FC<{
 								paddingLeft: 5,
 							}}
 						>
+							{loop && cycleDuration !== null
+								? Array.from(
+										{
+											length: Math.max(
+												0,
+												Math.ceil(displayedDuration / cycleDuration) - 1,
+											),
+										},
+										(_, index) => (
+											<div
+												key={index}
+												style={{
+													position: 'absolute',
+													left: `${(((index + 1) * cycleDuration) / displayedDuration) * 100}%`,
+													top: 0,
+													bottom: 0,
+													width: 1,
+													backgroundColor: 'rgba(255, 255, 255, 0.22)',
+												}}
+											/>
+										),
+									)
+								: null}
 							{localFrame === null ? null : (
 								<span
 									style={{

@@ -20,7 +20,7 @@ The way timing works is standardized across these components:
 
 `from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
 
-<TimingTimeline from={30} trimBefore={0} playbackRate={1} />
+<TimingTimeline from={30} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -40,7 +40,7 @@ At composition frame `30`, the children of `<Interactive.Div>` start at their lo
 
 `durationInFrames` sets how long an item stays on its parent timeline, starting at `from`.
 
-<TimingTimeline from={30} durationInFrames={45} trimBefore={0} playbackRate={1} />
+<TimingTimeline from={30} durationInFrames={45} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -58,7 +58,7 @@ export const MyComposition = () => (
 
 `trimBefore` skips the beginning of an item's content without moving it from its `from` position.
 
-<TimingTimeline from={30} trimBefore={15} playbackRate={1} />
+<TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={1} loop={false} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -76,7 +76,7 @@ export const MyComposition = () => (
 
 `playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances.
 
-<TimingTimeline from={30} trimBefore={15} playbackRate={2} />
+<TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={2} loop={false} />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {Interactive, useCurrentFrame} from 'remotion';
@@ -100,6 +100,8 @@ export const MyComposition = () => (
 
 At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
 
+<TimingTimeline from={30} trimBefore={45} trimAfter={105} playbackRate={2} loop={false} />
+
 ```tsx twoslash title="MyComposition.tsx"
 import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
@@ -120,6 +122,8 @@ Without `loop`, playback stops when it reaches `trimAfter`.
 ## `loop`: Repeat video or audio
 
 `loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`. If `trimAfter` is omitted, the range ends at the end of the source. Use `durationInFrames` to limit how long the loop remains on the composition timeline:
+
+<TimingTimeline from={30} durationInFrames={90} trimBefore={45} trimAfter={105} playbackRate={2} loop />
 
 ```tsx twoslash title="MyComposition.tsx"
 import {staticFile} from 'remotion';
