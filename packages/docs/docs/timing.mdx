@@ -117,11 +117,11 @@ export const MyComposition = () => (
 );
 ```
 
-Without `loop`, playback stops when it reaches `trimAfter`.
-
 ## `loop`: Repeat video or audio
 
-`loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`. If `trimAfter` is omitted, the range ends at the end of the source. Use `durationInFrames` to limit how long the loop remains on the composition timeline:
+`loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`.
+
+If `trimAfter` is omitted, it `loops` from `trimBefore` after the end of the source.
 
 <TimingTimeline from={30} durationInFrames={90} trimBefore={45} trimAfter={105} playbackRate={2} loop />
 
@@ -144,24 +144,26 @@ export const MyComposition = () => (
 
 At 30 FPS, this repeats the selected 60 source frames three times over 90 composition frames.
 
+## Order of operations
+
+Think of the timing props as applying to the content in this order:
+
+1. Trim the beginning with `trimBefore`. For `<Audio>` and `<Video>`, `trimAfter` also sets where the selected range ends.
+2. Place the trimmed content on the parent timeline with `from`. The first selected frame appears at `from`.
+3. Change its speed with `playbackRate`. A rate of `2` plays two selected frames per timeline frame without moving the starting position.
+4. For `<Audio>` and `<Video>`, `loop` repeats the selected range after it finishes. Without `loop`, playback stops at `trimAfter` or the end of the file.
+5. Limit the item on the parent timeline with `durationInFrames`, measured from `from`. Video or audio can end sooner if it does not loop.
+
+For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` is:
+
+```text
+trimBefore + (t - from) * playbackRate
+```
+
+For the video examples above, frames `45` through `104` are selected. At `2×` speed, they play from composition frames `30` through `59`. With `loop` and `durationInFrames={90}`, the same range repeats at frames `60` and `90`, and the video occupies frames `30` through `119`.
+
 ## See also
 
 - [`<Sequence>`](/docs/sequence)
 - [Trimming audio](/docs/audio/trimming)
 - [Adding a video](/docs/videos/)
-
-## Order of operations
-
-The timing props apply in this order:
-
-1. Use `from` and `durationInFrames` to determine whether the item appears on the timeline.
-2. Subtract `from` from the parent frame.
-3. Multiply by `playbackRate`.
-4. For `<Audio>` and `<Video>`, `trimAfter` (or the source end) sets the end of the selected range. If `loop` is set, wrap the advanced frame within that range; otherwise stop playback when it reaches the end.
-5. Add `trimBefore` to get the frame seen by children or the frame played from the video or audio.
-
-For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` returns:
-
-```text
-(t - from) * playbackRate + trimBefore
-```
