@@ -51,7 +51,6 @@ type UndoEntryType =
 	| 'update-composition-metadata'
 	| 'new-composition'
 	| 'duplicate-composition'
-	| 'move-composition-to-folder'
 	| 'move-composition-or-folder'
 	| 'new-folder'
 	| 'delete-folder'

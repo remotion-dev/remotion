@@ -11,12 +11,11 @@ export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsBatchRequest,
 	SubscribeToSequencePropsBatchResponse
 > = ({input, remotionRoot, logLevel}) => {
-	const requests = input.requests ?? [input];
 	const unresolvedByFile = new Map<
 		string,
 		{index: number; line: number; column: number}[]
 	>();
-	for (const [index, request] of requests.entries()) {
+	for (const [index, request] of input.requests.entries()) {
 		if (request.nodePath !== null) {
 			continue;
 		}
@@ -44,7 +43,7 @@ export const subscribeToSequenceProps: ApiHandler<
 		}
 	}
 
-	const results = requests.map(
+	const results = input.requests.map(
 		(
 			{
 				fileName,
@@ -53,7 +52,7 @@ export const subscribeToSequenceProps: ApiHandler<
 				nodePath,
 				componentIdentity,
 				keys,
-				assetKeys = [],
+				assetKeys,
 				effects,
 				clientId,
 				videoConfigValues,
@@ -76,8 +75,5 @@ export const subscribeToSequenceProps: ApiHandler<
 				logLevel,
 			}),
 	);
-	return Promise.resolve({
-		...results[0],
-		results,
-	});
+	return Promise.resolve({results});
 };

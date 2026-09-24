@@ -91,7 +91,7 @@ export const Second = () => {
 			entryPoint: join(remotionRoot, firstFileName),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			input: {...requests[0], requests},
+			input: {requests},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -226,7 +226,7 @@ export default InteractiveDivStressTest;
 			entryPoint: join(remotionRoot, fileName),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			input: {...requests[0], requests},
+			input: {requests},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
