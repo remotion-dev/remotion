@@ -30,15 +30,14 @@ import { z } from "zod";
 import { Captions, Chapters, StatCards } from "./Captions";
 import { assertCompliantCopy, assertRateGate } from "./compliance";
 import { MotionTrack } from "./Cues";
+import { ComplianceCard, Outro } from "./EndCards";
 import {
   Chrome,
-  ComplianceCard,
   Cover,
   HookBurst,
   HookSfx,
   HookTitle,
   MoneyRain,
-  Outro,
 } from "./Frame";
 import {
   DEFAULT_CTA_QUESTION,
