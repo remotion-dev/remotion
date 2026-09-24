@@ -133,9 +133,12 @@ export const createBrowserBundleRuntime = (): BrowserBundleRuntime => {
 						);
 					}
 
-					const initialScope = createBrowserModuleScope(
-						new Map([['react-refresh/runtime', refresh]]),
-					);
+					// Development bundles carry JSX source locations, which let
+					// authoring UIs trace mounted sequences back to their source.
+					const initialScope = createBrowserModuleScope({
+						additionalModules: new Map([['react-refresh/runtime', refresh]]),
+						addSourceLocations: true,
+					});
 					Internals.setComponentIdentityResolver(
 						(component) => refresh.getFamilyByType(component) ?? component,
 					);

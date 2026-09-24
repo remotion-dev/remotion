@@ -42,6 +42,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>getCanvasSequenceNodePathInfo()</strong>
 					<div>Resolve a timeline track's selection identity</div>
 				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-sequence-source-location">
+					<strong>getCanvasSequenceSourceLocation()</strong>
+					<div>Find where a timeline track's JSX element was written</div>
+				</TOCItem>
 				<TOCItem link="/docs/canvas/get-canvas-selection-item-key">
 					<strong>getCanvasSelectionItemKey()</strong>
 					<div>Compare selection items by identity</div>

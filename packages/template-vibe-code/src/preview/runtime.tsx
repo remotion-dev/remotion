@@ -38,7 +38,6 @@ const defaultOptions: PreviewOptions = {
   playbackRate: 1,
   inFrame: null,
   outFrame: null,
-  resolveSequenceNodePathInfo: null,
 };
 
 const createPreviewStore = () => {
@@ -160,9 +159,6 @@ const PreviewApp: React.FC<{
           ref={setPlayer}
           controller={controller}
           showOutlines={options.showOutlines}
-          resolveSequenceNodePathInfo={
-            options.resolveSequenceNodePathInfo ?? undefined
-          }
           component={composition.component}
           inputProps={composition.props}
           compositionWidth={composition.width}
