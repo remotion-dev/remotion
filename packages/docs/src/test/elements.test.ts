@@ -576,6 +576,8 @@ describe('Elements sidebar', () => {
 
 		const thirdPartyIndex = elementsCategory.items.indexOf('libraries');
 		expect(thirdPartyIndex).toBe(elementsCategory.items.length - 1);
+		expect(elementsCategory.items[thirdPartyIndex - 1]).toBe('guidelines');
+		const separatorIndex = thirdPartyIndex - 2;
 		for (const {label} of elementCategories) {
 			const categoryIndex = elementsCategory.items.findIndex(
 				(item) =>
@@ -585,17 +587,17 @@ describe('Elements sidebar', () => {
 					item.label === label,
 			);
 			expect(categoryIndex).toBeGreaterThan(-1);
-			expect(categoryIndex).toBeLessThan(thirdPartyIndex - 1);
+			expect(categoryIndex).toBeLessThan(separatorIndex);
 		}
 
-		const thirdPartySeparator = elementsCategory.items[thirdPartyIndex - 1];
+		const thirdPartySeparator = elementsCategory.items[separatorIndex];
 		if (
 			typeof thirdPartySeparator !== 'object' ||
 			thirdPartySeparator === null ||
 			thirdPartySeparator.type !== 'html'
 		) {
 			throw new Error(
-				'Third-party Elements must be separated from first-party categories',
+				'Guidelines and third-party Elements must be separated from first-party categories',
 			);
 		}
 
