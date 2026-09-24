@@ -5,9 +5,17 @@ import ReactDOM from 'react-dom';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {
 	BACKGROUND,
+	BLACK_ALPHA_60,
+	BORDER_WHITE_ALPHA_12,
+	FONT_FAMILY_ERROR_COLOR,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	SELECTED_BACKGROUND,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_05,
+	WHITE_ALPHA_06,
+	WHITE_ALPHA_08,
 } from '../../helpers/colors';
 import {installRequiredPackages} from '../../helpers/install-required-package';
 import type {
@@ -36,9 +44,9 @@ const ROW_HEIGHT = 30;
 const LIST_HEIGHT = 280;
 const OVERSCAN = 10;
 const POPOVER_WIDTH = 280;
-const CLEAR_HOVER = 'rgba(255, 255, 255, 0.06)';
-const INPUT_BORDER_COLOR_UNHOVERED = 'rgba(0, 0, 0, 0.6)';
-const INPUT_BORDER_COLOR_HOVERED = 'rgba(255, 255, 255, 0.05)';
+const CLEAR_HOVER = WHITE_ALPHA_06;
+const INPUT_BORDER_COLOR_UNHOVERED = BLACK_ALPHA_60;
+const INPUT_BORDER_COLOR_HOVERED = WHITE_ALPHA_05;
 
 const googleFonts = GOOGLE_FONTS_LIST.map((font) => ({
 	id: `google-${font.importName}`,
@@ -96,7 +104,7 @@ const triggerStyle: React.CSSProperties = {
 	borderWidth: 1,
 	borderStyle: 'solid',
 	maxWidth: 140,
-	color: 'white',
+	color: WHITE,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
@@ -114,18 +122,18 @@ const popover: React.CSSProperties = {
 	position: 'fixed',
 	width: POPOVER_WIDTH,
 	backgroundColor: BACKGROUND,
-	color: 'white',
+	color: WHITE,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
-	border: '1px solid rgba(255, 255, 255, 0.08)',
+	border: `1px solid ${WHITE_ALPHA_08}`,
 };
 
 const searchInput: React.CSSProperties = {
 	boxSizing: 'border-box',
 	width: '100%',
 	backgroundColor: INPUT_BACKGROUND,
-	border: '1px solid rgba(255, 255, 255, 0.12)',
-	color: 'white',
+	border: BORDER_WHITE_ALPHA_12,
+	color: WHITE,
 	fontSize: 12,
 	outline: 'none',
 	padding: '6px 8px',
@@ -148,8 +156,8 @@ const optionButton: React.CSSProperties = {
 	height: ROW_HEIGHT,
 	width: '100%',
 	border: 'none',
-	background: 'transparent',
-	color: 'white',
+	background: TRANSPARENT,
+	color: WHITE,
 	display: 'flex',
 	alignItems: 'center',
 	padding: '0 8px',
@@ -174,7 +182,7 @@ const optionSource: React.CSSProperties = {
 
 const errorText: React.CSSProperties = {
 	padding: '6px 8px',
-	color: '#ff8a8a',
+	color: FONT_FAMILY_ERROR_COLOR,
 	fontSize: 10,
 };
 
@@ -797,7 +805,7 @@ export const TimelineFontFamilyField: React.FC<{
 																	? CLEAR_HOVER
 																	: isSelected
 																		? SELECTED_BACKGROUND
-																		: 'transparent',
+																		: TRANSPARENT,
 															}}
 															onPointerEnter={() =>
 																setHighlightedIndex(actualIndex)

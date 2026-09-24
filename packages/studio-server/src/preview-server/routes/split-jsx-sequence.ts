@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {splitSequences} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,
 } from '@remotion/studio-shared';
-import {splitJsxSequences} from '../../codemods/split-jsx-sequence';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -49,17 +49,24 @@ export const splitJsxSequenceHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, nodeLabels, logLines, nodePathRemappings} =
-						await splitJsxSequences({
-							input: fileContents,
-							splits: fileSequences.map(
-								({nodePath, sequenceKeys, splitFrame}) => ({
-									nodePath,
-									sequenceKeys,
-									splitFrame,
-								}),
-							),
-						});
+					const result = await splitSequences({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						splits: fileSequences.map(
+							({nodePath, sequenceKeys, splitFrame}) => ({
+								node: {filePath: absolutePath, nodePath},
+								sequenceKeys,
+								frame: splitFrame,
+							}),
+						),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {nodeLabels, logLines} = result.editDetails[0];
+					const nodePathRemappings = result.nodePathRemappings.map(
+						({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+					);
 
 					return {
 						absolutePath,

@@ -26,6 +26,8 @@ type VideoSinks = {
 
 type AudioSinks = {
 	sampleSink: AudioSampleSink;
+	sampleRate: number;
+	numberOfChannels: number;
 };
 
 export type AudioSinkResult =
@@ -193,6 +195,8 @@ export const makeSinks = (
 
 			return {
 				sampleSink: new AudioSampleSink(audioTrack),
+				sampleRate: await audioTrack.getSampleRate(),
+				numberOfChannels: await audioTrack.getNumberOfChannels(),
 			};
 		};
 

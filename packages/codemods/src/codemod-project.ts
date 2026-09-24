@@ -9,29 +9,63 @@ export type CodemodFileChange = {
 	nextContents: string | null;
 };
 
-export type CodemodResult<Project extends CodemodProject> = {
-	project: Project;
+export type CodemodResult = {
 	changes: CodemodFileChange[];
 };
 
-export const getCodemodResult = <Project extends CodemodProject>({
+export const getCodemodResult = ({
 	project,
-	nextProject,
+	edits,
 }: {
-	project: Project;
-	nextProject: Project;
-}): CodemodResult<Project> => {
-	const filePaths = new Set([
-		...Object.keys(project.files),
-		...Object.keys(nextProject.files),
-	]);
-	const changes = [...filePaths].flatMap((filePath): CodemodFileChange[] => {
-		const previousContents = project.files[filePath] ?? null;
-		const nextContents = nextProject.files[filePath] ?? null;
-		return previousContents === nextContents
-			? []
-			: [{filePath, previousContents, nextContents}];
-	});
+	project: CodemodProject;
+	edits: {filePath: string; nextContents: string | null}[];
+}): CodemodResult => {
+	const seen = new Set<string>();
+	const changes = edits.flatMap(
+		({filePath, nextContents}): CodemodFileChange[] => {
+			if (seen.has(filePath)) {
+				throw new Error(`Multiple edits for ${filePath}`);
+			}
 
-	return {changes, project: nextProject};
+			seen.add(filePath);
+			const previousContents = project.files[filePath] ?? null;
+			return previousContents === nextContents
+				? []
+				: [{filePath, previousContents, nextContents}];
+		},
+	);
+
+	return {changes};
+};
+
+export const applyCodemodChanges = <Project extends CodemodProject>(
+	project: Project,
+	changes: readonly CodemodFileChange[],
+): Project => {
+	if (changes.length === 0) {
+		return project;
+	}
+
+	const seen = new Set<string>();
+	for (const {filePath, previousContents} of changes) {
+		if (seen.has(filePath)) {
+			throw new Error(`Multiple changes for ${filePath}`);
+		}
+
+		seen.add(filePath);
+		if ((project.files[filePath] ?? null) !== previousContents) {
+			throw new Error(`Source changed before applying codemod: ${filePath}`);
+		}
+	}
+
+	const files = {...project.files};
+	for (const {filePath, nextContents} of changes) {
+		if (nextContents === null) {
+			delete files[filePath];
+		} else {
+			files[filePath] = nextContents;
+		}
+	}
+
+	return {...project, files};
 };

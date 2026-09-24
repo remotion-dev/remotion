@@ -500,9 +500,13 @@ const internalRenderMediaOnWeb = async <
 			outputWithCleanup.output.addAudioTrack(
 				audioSampleSource.audioSampleSource,
 				{
-					// ~1 packet per 10ms, + 33% buffer
+					// ~1 packet per 10ms, + 33% buffer; short AAC renders
+					// need room for encoder flush packets beyond their duration.
 					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
-					maximumPacketCount: Math.ceil(durationInSeconds * 100 * 1.33),
+					maximumPacketCount: Math.max(
+						8,
+						Math.ceil(durationInSeconds * 100 * 1.33),
+					),
 				},
 			);
 		}

@@ -50,6 +50,7 @@ import {handleRemoveRender} from './routes/remove-render';
 import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
+import {replaceVideoSourceHandler} from './routes/replace-video-source';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
@@ -71,6 +72,7 @@ import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyfra
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
+import {wrapJsxNodeHandler} from './routes/wrap-jsx-node';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
@@ -127,9 +129,11 @@ export const allApiRoutes: {
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-nodes': deleteJsxNodesHandler,
 	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
+	'/api/wrap-jsx-node': wrapJsxNodeHandler,
 	'/api/split-jsx-sequence': splitJsxSequenceHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
+	'/api/replace-video-source': replaceVideoSourceHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,

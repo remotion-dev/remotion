@@ -5,20 +5,25 @@ import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob} from './actions';
+import type {CaptionJob} from './caption-job-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob, RenderQueueContext} from './context';
+import type {VideoMattingJob} from './video-matting-job-types';
 
 export const RenderQueueCancelButton: React.FC<{
-	readonly job: AnyRenderJob;
+	readonly job: AnyRenderJob | CaptionJob | VideoMattingJob;
 }> = ({job}) => {
-	const isClientJob = isClientRenderJob(job);
 	const {cancelClientJob} = useContext(RenderQueueContext);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
 
-			if (isClientJob) {
+			if (
+				job.type === 'caption' ||
+				job.type === 'video-matting' ||
+				isClientRenderJob(job)
+			) {
 				cancelClientJob(job.id);
 				return;
 			}
@@ -27,7 +32,7 @@ export const RenderQueueCancelButton: React.FC<{
 				showNotification(`Could not cancel job: ${err.message}`, 2000);
 			});
 		},
-		[job, isClientJob, cancelClientJob],
+		[job, cancelClientJob],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
@@ -58,7 +63,15 @@ export const RenderQueueCancelButton: React.FC<{
 	return (
 		<ActionTooltip label="Cancel" shortcut={null} delay={800} dismissOnClick>
 			<InlineAction
-				aria-label="Cancel render"
+				aria-label={
+					job.type === 'caption'
+						? 'Cancel transcription'
+						: job.type === 'video-matting'
+							? 'outName' in job
+								? 'Cancel background removal'
+								: 'Cancel video matting'
+							: 'Cancel render'
+				}
 				renderAction={renderAction}
 				onClick={onClick}
 				variant={null}

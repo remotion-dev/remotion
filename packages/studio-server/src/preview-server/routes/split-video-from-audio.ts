@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {detachAudio} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SplitVideoFromAudioRequest,
@@ -21,8 +21,6 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const {splitVideoFromAudio} = CodemodsInternals;
-
 export const splitVideoFromAudioHandler: ApiHandler<
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse
@@ -41,11 +39,15 @@ export const splitVideoFromAudioHandler: ApiHandler<
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 
-			const {output, formatted, nodeLabel, logLine, nodePathRemappings} =
-				await splitVideoFromAudio({
-					input: fileContents,
-					nodePath,
-				});
+			const result = await detachAudio({
+				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
+				node: {filePath: absolutePath, nodePath},
+			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {formatted, nodeLabel, logLine} = result.editDetails[0];
+			const nodePathRemappings = result.nodePathRemappings.map(
+				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[
 					{

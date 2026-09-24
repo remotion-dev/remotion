@@ -5,11 +5,13 @@ import type {TimelineEasingSelection} from '../Timeline/TimelineSelection';
 
 export const getEasingSelectionFromCurrentKeyframes = ({
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	nodePathInfo,
 	propStatus,
 	segmentIndex,
 }: {
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly segmentIndex: number;
@@ -23,13 +25,16 @@ export const getEasingSelectionFromCurrentKeyframes = ({
 	const resolvedKeyframeDisplayOffset = resolveKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	return {
 		type: 'easing',
 		nodePathInfo,
-		fromFrame: fromKeyframe.frame + resolvedKeyframeDisplayOffset,
-		toFrame: toKeyframe.frame + resolvedKeyframeDisplayOffset,
+		fromFrame:
+			fromKeyframe.frame / keyframePlaybackRate + resolvedKeyframeDisplayOffset,
+		toFrame:
+			toKeyframe.frame / keyframePlaybackRate + resolvedKeyframeDisplayOffset,
 		segmentIndex,
 	};
 };

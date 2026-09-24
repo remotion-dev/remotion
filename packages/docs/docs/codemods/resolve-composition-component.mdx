@@ -1,0 +1,79 @@
+---
+image: /generated/articles-docs-codemods-resolve-composition-component.png
+title: 'resolveCompositionComponent()'
+crumb: '@remotion/codemods'
+---
+
+# resolveCompositionComponent()<AvailableFrom v="4.0.528" />
+
+Locates the component used by a composition, following supported project imports and re-exports.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="resolve-composition-component.ts"
+import {resolveCompositionComponent, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = resolveCompositionComponent({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+});
+
+console.log(result);
+```
+
+The component must return supported JSX. Dynamic component expressions and unresolved imports throw an error. This function does not load or execute components.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The file registering the composition.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+## Return value
+
+Returns an object with the following properties.
+
+### filePath
+
+The component source file, using its key in `project.files`.
+
+### exportName
+
+The resolved export name, or `default`.
+
+### location
+
+The declaration's `{line, column}` location. Lines are one-based; columns are zero-based.
+
+### canAddContent
+
+Whether the component's returned JSX structure supports content insertion.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/resolve-composition-component.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

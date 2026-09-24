@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {duplicateJsxNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DuplicateJsxNodeRequest,
@@ -19,8 +19,6 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
-
-const {duplicateJsxNodes} = CodemodsInternals;
 
 export const duplicateJsxNodeHandler: ApiHandler<
 	DuplicateJsxNodeRequest,
@@ -52,11 +50,21 @@ export const duplicateJsxNodeHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, nodeLabels, logLines, nodePathRemappings} =
-						await duplicateJsxNodes({
-							input: fileContents,
-							nodePaths: fileItems.map((item) => item.nodePath),
-						});
+					const result = await duplicateJsxNodes({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						nodes: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.nodePath,
+						})),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {nodeLabels, logLines} = result.editDetails[0];
+					const nodePathRemappings = result.nodePathRemappings.map(
+						({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+					);
 
 					return {
 						absolutePath,

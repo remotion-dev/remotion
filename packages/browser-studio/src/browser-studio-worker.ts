@@ -48,6 +48,7 @@ const postResponse = (response: BrowserStudioWorkerCompileResponse) => {
 };
 
 const browserStudioVendorExternals = {
+	mediabunny: 'globalThis.remotion_browserStudioVendor.mediabunny',
 	react: 'globalThis.remotion_browserStudioVendor.react',
 	'react-dom': 'globalThis.remotion_browserStudioVendor.reactDom',
 	'react-dom/client': 'globalThis.remotion_browserStudioVendor.reactDomClient',

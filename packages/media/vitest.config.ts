@@ -3,6 +3,18 @@ import {webdriverio} from '@vitest/browser-webdriverio';
 import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
+	resolve: {dedupe: ['react', 'react-dom', 'remotion']},
+	// Avoid discovering another React runtime midway through browser tests.
+	optimizeDeps: {
+		include: [
+			'react',
+			'react/jsx-runtime',
+			'react/jsx-dev-runtime',
+			'react-dom/client',
+			'remotion',
+			'@remotion/player',
+		],
+	},
 	test: {
 		browser: {
 			provider: webdriverio(),

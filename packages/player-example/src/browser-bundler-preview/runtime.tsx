@@ -8,11 +8,20 @@ import {
 	getCanvasSelectionItemKey,
 	useCanvasController,
 	useCanvasSelection,
+	useCanvasSequenceHover,
+	type CanvasController,
 	type CanvasSelectionItem,
 	type SequenceNodePathInfo,
 	type TimelineTrackData,
 } from '@remotion/canvas';
-import React, {useEffect, useMemo, useSyncExternalStore} from 'react';
+import React, {
+	memo,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	useSyncExternalStore,
+} from 'react';
 import {createRoot} from 'react-dom/client';
 import type {
 	BrowserBundlerPreviewNode,
@@ -42,6 +51,102 @@ const getExampleNodePathInfo = (
 	);
 };
 
+const LayerRow = memo(function LayerRow({
+	controller,
+	layer,
+	layerSelection,
+	selectableLayers,
+	selected,
+	durationInFrames,
+}: {
+	readonly controller: CanvasController;
+	readonly layer: TimelineTrackData;
+	readonly layerSelection: Extract<CanvasSelectionItem, {type: 'sequence'}>;
+	readonly selectableLayers: readonly CanvasSelectionItem[];
+	readonly selected: boolean;
+	readonly durationInFrames: number;
+}) {
+	const {hovered, onPointerEnter, onPointerLeave} = useCanvasSequenceHover(
+		controller.hover,
+		layerSelection.nodePathInfo,
+		'timeline',
+	);
+
+	return (
+		<li style={{borderBottom: '1px solid #242a34'}}>
+			<button
+				type="button"
+				aria-pressed={selected}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
+				onFocus={onPointerEnter}
+				onBlur={onPointerLeave}
+				onClick={(event) => {
+					controller.selection.select(
+						layerSelection,
+						{
+							shiftKey: event.shiftKey,
+							toggleKey: event.metaKey || event.ctrlKey,
+						},
+						selectableLayers,
+					);
+				}}
+				style={{
+					alignItems: 'center',
+					backgroundColor: selected
+						? '#242c48'
+						: hovered
+							? '#1c2637'
+							: 'transparent',
+					border: 0,
+					color: '#e5e7eb',
+					display: 'grid',
+					fontSize: 11,
+					gridTemplateColumns: 'minmax(100px, 26%) minmax(0, 1fr)',
+					padding: '4px 14px',
+					textAlign: 'left',
+					width: '100%',
+				}}
+			>
+				<strong style={{paddingLeft: layer.depth * 12}}>
+					{layer.sequence.displayName ?? layer.sequence.type}
+				</strong>
+				<div
+					style={{
+						backgroundColor: '#0b0f16',
+						borderRadius: 3,
+						height: 22,
+						overflow: 'hidden',
+						position: 'relative',
+					}}
+				>
+					<div
+						style={{
+							alignItems: 'center',
+							backgroundColor: selected
+								? '#6366f1'
+								: hovered
+									? '#4b6383'
+									: '#374151',
+							borderRadius: 3,
+							boxSizing: 'border-box',
+							display: 'flex',
+							height: '100%',
+							left: `${(Math.max(0, layer.sequence.from) / durationInFrames) * 100}%`,
+							padding: '0 7px',
+							position: 'absolute',
+							whiteSpace: 'nowrap',
+							width: `${(Math.min(layer.sequence.duration, durationInFrames) / durationInFrames) * 100}%`,
+						}}
+					>
+						frame {layer.sequence.from} · {layer.sequence.duration}f
+					</div>
+				</div>
+			</button>
+		</li>
+	);
+});
+
 const Preview: React.FC<{
 	readonly composition: BrowserComposition;
 	readonly revision: number;
@@ -58,6 +163,14 @@ const Preview: React.FC<{
 	onReady,
 }) => {
 	const controller = useCanvasController();
+	const [interactionMode, setInteractionMode] = useState<'select' | 'interact'>(
+		'select',
+	);
+	const resolveSequenceNodePathInfo = useCallback(
+		(layer: TimelineTrackData, index: number) =>
+			getExampleNodePathInfo(layer, sourceNodes[index]),
+		[sourceNodes],
+	);
 	const layers = useSyncExternalStore(
 		controller.timeline.subscribe,
 		controller.timeline.getSnapshot,
@@ -68,20 +181,20 @@ const Preview: React.FC<{
 		() => new Set(selection.selectedItems.map(getCanvasSelectionItemKey)),
 		[selection.selectedItems],
 	);
-	const selectableLayers: CanvasSelectionItem[] = layers.map(
-		(layer, index) => ({
-			type: 'sequence',
-			nodePathInfo: getExampleNodePathInfo(layer, sourceNodes[index]),
-		}),
+	const selectableLayers = useMemo(
+		() =>
+			layers.map(
+				(layer, index): Extract<CanvasSelectionItem, {type: 'sequence'}> => ({
+					type: 'sequence',
+					nodePathInfo: resolveSequenceNodePathInfo(layer, index),
+				}),
+			),
+		[layers, resolveSequenceNodePathInfo],
 	);
 	const selectedNodes = useMemo(() => {
 		const nodes = new Map<string, BrowserBundlerPreviewNode>();
-		for (let index = 0; index < layers.length; index++) {
-			const layer = layers[index];
-			const layerSelection: CanvasSelectionItem = {
-				type: 'sequence',
-				nodePathInfo: getExampleNodePathInfo(layer, sourceNodes[index]),
-			};
+		for (let index = 0; index < selectableLayers.length; index++) {
+			const layerSelection = selectableLayers[index];
 			if (!selectedKeys.has(getCanvasSelectionItemKey(layerSelection))) {
 				continue;
 			}
@@ -95,7 +208,7 @@ const Preview: React.FC<{
 		}
 
 		return Array.from(nodes.values());
-	}, [layers, selectedKeys, sourceNodes]);
+	}, [selectableLayers, selectedKeys, sourceNodes]);
 
 	useEffect(() => onReady(revision), [onReady, preview, revision]);
 	useEffect(() => {
@@ -143,7 +256,7 @@ const Preview: React.FC<{
 				overflow: 'hidden',
 			}}
 		>
-			<p
+			<header
 				style={{
 					alignItems: 'center',
 					backgroundColor: '#141820',
@@ -155,9 +268,36 @@ const Preview: React.FC<{
 					padding: '0 14px',
 				}}
 			>
-				{preview.width} x {preview.height} / {preview.fps} fps /{' '}
-				{preview.durationInFrames} frames
-			</p>
+				<span>
+					{preview.width} x {preview.height} / {preview.fps} fps /{' '}
+					{preview.durationInFrames} frames
+				</span>
+				<div
+					role="group"
+					aria-label="Canvas interaction mode"
+					style={{display: 'flex', gap: 4, marginLeft: 'auto'}}
+				>
+					{(['select', 'interact'] as const).map((mode) => (
+						<button
+							key={mode}
+							type="button"
+							aria-pressed={interactionMode === mode}
+							onClick={() => setInteractionMode(mode)}
+							style={{
+								backgroundColor:
+									interactionMode === mode ? '#374151' : 'transparent',
+								border: '1px solid #374151',
+								borderRadius: 4,
+								color: '#e5e7eb',
+								fontSize: 11,
+								padding: '4px 9px',
+							}}
+						>
+							{mode === 'select' ? 'Select' : 'Interact'}
+						</button>
+					))}
+				</div>
+			</header>
 			<div
 				style={{
 					alignItems: 'center',
@@ -171,6 +311,8 @@ const Preview: React.FC<{
 			>
 				<Canvas
 					controller={controller}
+					showOutlines={interactionMode === 'select'}
+					resolveSequenceNodePathInfo={resolveSequenceNodePathInfo}
 					component={preview.component}
 					inputProps={preview.props}
 					compositionWidth={preview.width}
@@ -259,88 +401,19 @@ const Preview: React.FC<{
 							padding: 0,
 						}}
 					>
-						{layers.map((layer, index) => {
-							const nodePathInfo = getExampleNodePathInfo(
-								layer,
-								sourceNodes[index],
-							);
-							const layerSelection: CanvasSelectionItem = {
-								type: 'sequence',
-								nodePathInfo,
-							};
-							const layerSelected = selectedKeys.has(
-								getCanvasSelectionItemKey(layerSelection),
-							);
-
-							return (
-								<li
-									key={layer.sequence.id}
-									style={{borderBottom: '1px solid #242a34'}}
-								>
-									<button
-										type="button"
-										aria-pressed={layerSelected}
-										onClick={(event) => {
-											controller.selection.select(
-												layerSelection,
-												{
-													shiftKey: event.shiftKey,
-													toggleKey: event.metaKey || event.ctrlKey,
-												},
-												selectableLayers,
-											);
-										}}
-										style={{
-											alignItems: 'center',
-											backgroundColor: layerSelected
-												? '#242c48'
-												: 'transparent',
-											border: 0,
-											color: '#e5e7eb',
-											display: 'grid',
-											fontSize: 11,
-											gridTemplateColumns: 'minmax(100px, 26%) minmax(0, 1fr)',
-											padding: '4px 14px',
-											textAlign: 'left',
-											width: '100%',
-										}}
-									>
-										<strong style={{paddingLeft: layer.depth * 12}}>
-											{layer.sequence.displayName ?? layer.sequence.type}
-										</strong>
-										<div
-											style={{
-												backgroundColor: '#0b0f16',
-												borderRadius: 3,
-												height: 22,
-												overflow: 'hidden',
-												position: 'relative',
-											}}
-										>
-											<div
-												style={{
-													alignItems: 'center',
-													backgroundColor: layerSelected
-														? '#6366f1'
-														: '#374151',
-													borderRadius: 3,
-													boxSizing: 'border-box',
-													display: 'flex',
-													height: '100%',
-													left: `${(Math.max(0, layer.sequence.from) / preview.durationInFrames) * 100}%`,
-													padding: '0 7px',
-													position: 'absolute',
-													whiteSpace: 'nowrap',
-													width: `${(Math.min(layer.sequence.duration, preview.durationInFrames) / preview.durationInFrames) * 100}%`,
-												}}
-											>
-												frame {layer.sequence.from} · {layer.sequence.duration}f
-											</div>
-										</div>
-									</button>
-								</li>
-							);
-						})}
+						{layers.map((layer, index) => (
+							<LayerRow
+								key={layer.sequence.id}
+								controller={controller}
+								layer={layer}
+								layerSelection={selectableLayers[index]}
+								selectableLayers={selectableLayers}
+								selected={selectedKeys.has(
+									getCanvasSelectionItemKey(selectableLayers[index]),
+								)}
+								durationInFrames={preview.durationInFrames}
+							/>
+						))}
 					</ol>
 				)}
 			</section>

@@ -53,6 +53,12 @@ const videoTexture = useVideoTexture(videoRef);
 }
 ```
 
+## Compatibility
+
+<CompatibilityTable chrome="Video frame callbacks" firefox="Video frame callbacks" safari="Video frame callbacks" nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+Requires `HTMLVideoElement.requestVideoFrameCallback()` and a browser-decodable video.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/three/src/use-video-texture.ts)

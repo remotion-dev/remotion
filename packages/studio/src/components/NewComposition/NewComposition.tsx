@@ -1,4 +1,4 @@
-import {sortItemsByCommitOrder} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
 import type {
 	ChangeEventHandler,
 	Dispatch,
@@ -43,6 +43,8 @@ import {RemotionInput} from './RemInput';
 import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
+const {sortItemsByCommitOrder} = CanvasInternals;
+
 const content: React.CSSProperties = {
 	padding: 12,
 	paddingRight: 12,
@@ -84,18 +86,18 @@ const folderLabelTextStyle: React.CSSProperties = {
 
 const FolderDropdownLabel: React.FC<{
 	readonly indentation: number;
-	readonly folderPath: string | null;
-}> = ({folderPath, indentation}) => {
+	readonly folderName: string | null;
+}> = ({folderName, indentation}) => {
 	return (
 		<div style={folderLabelStyle}>
 			<Spacing x={indentation * 1.5} />
-			{folderPath === null ? (
+			{folderName === null ? (
 				<div style={folderIconStyle} />
 			) : (
 				<CollapsedFolderIcon color={LIGHT_TEXT} style={folderIconStyle} />
 			)}
 			<Spacing x={1} />
-			<span style={folderLabelTextStyle}>{folderPath ?? 'None'}</span>
+			<span style={folderLabelTextStyle}>{folderName ?? 'None'}</span>
 		</div>
 	);
 };
@@ -170,7 +172,7 @@ export const NewCompositionFields: React.FC<{
 			{
 				id: rootFolderId,
 				keyHint: null,
-				label: <FolderDropdownLabel folderPath={null} indentation={0} />,
+				label: <FolderDropdownLabel folderName={null} indentation={0} />,
 				leftItem: values.folder.folderName === null ? <Checkmark /> : null,
 				onClick: () => {
 					setValues((current) => ({
@@ -207,7 +209,7 @@ export const NewCompositionFields: React.FC<{
 					keyHint: null,
 					label: (
 						<FolderDropdownLabel
-							folderPath={folderPath}
+							folderName={folder.name}
 							indentation={indentation}
 						/>
 					),
@@ -222,7 +224,7 @@ export const NewCompositionFields: React.FC<{
 							},
 						}));
 					},
-					quickSwitcherLabel: folderPath,
+					quickSwitcherLabel: folder.name,
 					subMenu: null,
 					type: 'item',
 					value: id,

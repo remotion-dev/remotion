@@ -397,6 +397,7 @@ export const formatTimelineFieldValueForDisplay = ({
 			);
 
 		case 'text-content':
+		case 'svg-path':
 			return String(value);
 
 		case 'asset':

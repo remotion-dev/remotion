@@ -12,9 +12,9 @@ export const VideoMattingModalWithOptionalPackage: React.FC<{
 	readonly state: VideoMattingModalState;
 }> = ({state}) => (
 	<OptionalPackageModal
-		ariaLabel="Install video matting package"
+		ariaLabel="Install video matting package to remove background"
 		packageName={VIDEO_MATTING_PACKAGE}
-		title="Track matting"
+		title="Remove background"
 	>
 		<Suspense fallback={null}>
 			<LazyVideoMattingModal {...state} />

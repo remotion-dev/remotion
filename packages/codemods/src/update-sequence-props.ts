@@ -28,7 +28,11 @@ import {
 	getFunctionSourceEditsForPrependedStatements,
 	type FunctionNode,
 } from './function-source-edits';
-import {printInsertedJsx, printJsxOpeningElement} from './print-jsx';
+import {
+	captureJsxAttributeSources,
+	printInsertedJsx,
+	printJsxOpeningElement,
+} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	findNodePathForJsxElement,
@@ -1417,6 +1421,11 @@ export const updateMultipleSequenceProps = ({
 			updates.some((update) => update.key === 'children') ? [jsxElement] : [],
 		),
 	);
+	const originalAttributeSources = new Map(
+		resolvedChanges.flatMap(({jsxElement}) => [
+			...captureJsxAttributeSources(jsxElement),
+		]),
+	);
 	const openingElementLocations = new Map(
 		resolvedChanges.flatMap(({jsxElement}) =>
 			elementsWithChildrenUpdates.has(jsxElement)
@@ -1507,6 +1516,7 @@ export const updateMultipleSequenceProps = ({
 				indent: getJsxSourceIndent(start),
 				input,
 				printed: printJsxOpeningElement({
+					originalAttributeSources,
 					openingElement:
 						openingElement as unknown as AstNamedTypes.JSXOpeningElement,
 					input,
@@ -1539,6 +1549,7 @@ export const updateMultipleSequenceProps = ({
 				indent: getJsxSourceIndent(start),
 				input,
 				printed: printInsertedJsx({
+					originalAttributeSources,
 					element: element as unknown as AstNamedTypes.JSXElement,
 					input,
 					prettierConfigOverride: jsxFormattingConfig,

@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {duplicateEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DuplicateEffectRequest,
@@ -20,8 +20,6 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
-
-const {duplicateEffects} = CodemodsInternals;
 
 const getDuplicatedEffectDescription = (effectLabels: string[]): string => {
 	if (effectLabels.length === 1) {
@@ -62,14 +60,19 @@ export const duplicateEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, effectLabels, logLines} =
-						await duplicateEffects({
-							input: fileContents,
-							effects: fileItems.map((item) => ({
-								sequenceNodePath: item.sequenceNodePath.nodePath,
-								effectIndex: item.effectIndex,
-							})),
-						});
+					const result = await duplicateEffects({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						effects: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.sequenceNodePath.nodePath,
+							effectIndex: item.effectIndex,
+						})),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {formatted, effectLabels, logLines} = result.editDetails[0];
 
 					return {
 						absolutePath,

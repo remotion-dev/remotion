@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@babel/parser": "7.24.1",
 		"@babel/types": "7.24.0",
+		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"ast-types": "0.16.1",
 		"recast": "0.23.21",

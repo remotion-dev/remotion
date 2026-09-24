@@ -1,0 +1,72 @@
+---
+image: /generated/articles-docs-codemods-rename-composition.png
+title: 'renameComposition()'
+crumb: '@remotion/codemods'
+---
+
+# renameComposition()<AvailableFrom v="4.0.528" />
+
+Changes a composition registration's ID.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="rename-composition.ts"
+import {renameComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = renameComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  newId: 'RenamedComposition',
+});
+
+console.log(result);
+```
+
+Changes the ID in source. It does not rename component exports, files, or references elsewhere. Passing the existing ID returns an unchanged project.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### newId
+
+The new ID, containing only ASCII letters, numbers, CJK characters, or hyphens. It must be unused in this file.
+
+## Return value
+
+Returns an object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/rename-composition.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

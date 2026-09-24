@@ -16,6 +16,7 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Freeze} from './freeze.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -23,16 +24,18 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
+	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
+import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
+import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -343,14 +346,7 @@ const defaultOnPaint = ({
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
 export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	InteractiveCropProps &
-	Omit<
-		AbsoluteFillLayout,
-		| 'layout'
-		| 'styleWhilePostmounted'
-		| 'postmountFor'
-		| 'premountFor'
-		| 'styleWhilePremounted'
-	> & {
+	Omit<AbsoluteFillLayout, 'layout'> & {
 		readonly durationInFrames?: number;
 		readonly width: number;
 		readonly height: number;
@@ -752,6 +748,10 @@ const HtmlInCanvasInner = forwardRef<
 			cropTop,
 			cropBottom,
 			durationInFrames,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			name,
 			...sequenceProps
 		},
@@ -770,41 +770,66 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
+
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: sequenceProps.from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: '<HtmlInCanvas />',
 		});
 
 		return (
-			<Sequence
-				durationInFrames={durationInFrames}
-				name={name ?? '<HtmlInCanvas>'}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
-				controls={controls}
-				_remotionInternalEffects={memoizedEffectDefinitions}
-				outlineRef={actualRef}
-				layout="none"
-				{...sequenceProps}
-			>
-				<HtmlInCanvasContent
-					ref={setCanvasRef}
-					width={width}
-					height={height}
-					effects={effects}
-					onPaint={onPaint}
-					onInit={onInit}
-					pixelDensity={pixelDensity}
-					canvasSiblings={_remotionInternalCanvasSiblings ?? null}
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					durationInFrames={durationInFrames}
+					name={name ?? '<HtmlInCanvas>'}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 					controls={controls}
-					style={croppedStyle ?? undefined}
+					_remotionInternalEffects={memoizedEffectDefinitions}
+					outlineRef={actualRef}
+					{...sequenceProps}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					{children}
-				</HtmlInCanvasContent>
-			</Sequence>
+					<HtmlInCanvasContent
+						ref={setCanvasRef}
+						width={width}
+						height={height}
+						effects={effects}
+						onPaint={onPaint}
+						onInit={onInit}
+						pixelDensity={pixelDensity}
+						canvasSiblings={_remotionInternalCanvasSiblings ?? null}
+						controls={controls}
+						style={croppedStyle ?? undefined}
+					>
+						{children}
+					</HtmlInCanvasContent>
+				</Sequence>
+			</Freeze>
 		);
 	},
 );
@@ -813,6 +838,7 @@ HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 export const htmlInCanvasSchema = {
 	...baseSchema,
+	...premountSchema,
 	pixelDensity: {
 		type: 'number',
 		min: 1,

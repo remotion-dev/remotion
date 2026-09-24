@@ -1,13 +1,29 @@
+import type {JSXElement, JSXOpeningElement} from '@babel/types';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
-	getIndentationUnit,
-	getObjectCurlySpacing,
-	getPreferredQuote,
+	getSourceFormattingConfig,
+	normalizePrintedIndentation,
 } from './source-style';
 
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+
+export const captureJsxAttributeSources = (
+	node: JSXElement | JSXOpeningElement,
+): Map<object, string> => {
+	const sources = new Map<object, string>();
+	recast.types.visit(node, {
+		visitJSXOpeningElement(path) {
+			for (const attribute of path.node.attributes ?? []) {
+				sources.set(attribute, recast.print(attribute).code);
+			}
+
+			this.traverse(path);
+		},
+	});
+	return sources;
+};
 
 const escapeJsxStringAttribute = (value: string) => {
 	return value.replace(/[&"<>{}\t\r\n]/g, (character) => {
@@ -45,7 +61,7 @@ export const indentInsertedJsx = ({
 }) => {
 	return insertion
 		.split(/\r?\n/)
-		.map((line) => `${indent}${line}`)
+		.map((line) => (line.length === 0 ? line : `${indent}${line}`))
 		.join(insertion.includes('\r\n') ? '\r\n' : '\n');
 };
 
@@ -60,44 +76,44 @@ export const printInsertedJsx = ({
 	originalAttributeSources?: ReadonlyMap<object, string>;
 	prettierConfigOverride: Record<string, unknown> | null;
 }): string => {
-	const endOfLine = input.includes('\r\n') ? '\r\n' : '\n';
-	const unit = getIndentationUnit(input, prettierConfigOverride);
-	const printWidth = prettierConfigOverride?.printWidth;
-	const configuredTabWidth = prettierConfigOverride?.tabWidth;
-	const tabWidth =
-		typeof configuredTabWidth === 'number' &&
-		Number.isInteger(configuredTabWidth) &&
-		configuredTabWidth > 0
-			? configuredTabWidth
-			: 2;
-	recast.types.visit(element, {
-		visitObjectProperty(path) {
-			const {node} = path;
-			if (
-				!node.computed &&
-				node.key.type === 'StringLiteral' &&
-				identifierRegex.test(node.key.value)
-			) {
-				node.key = recast.types.builders.identifier(node.key.value);
-			}
-
-			this.traverse(path);
-			return undefined;
-		},
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride,
 	});
-	const printNode = (node: namedTypes.Node, wrapColumn: number) => {
+	const {
+		endOfLine,
+		indentationUnit: unit,
+		printWidth,
+		tabWidth,
+	} = formattingConfig;
+	const printNode = (printableNode: namedTypes.Node, wrapColumn: number) => {
+		recast.types.visit(printableNode, {
+			visitObjectProperty(path) {
+				const {node} = path;
+				if (
+					!node.computed &&
+					node.key.type === 'StringLiteral' &&
+					identifierRegex.test(node.key.value)
+				) {
+					node.key = recast.types.builders.identifier(node.key.value);
+				}
+
+				this.traverse(path);
+				return undefined;
+			},
+		});
 		// The generic printer drops comments inside empty JSX expressions.
 		if (
-			node.type === 'JSXExpressionContainer' &&
-			(node as namedTypes.JSXExpressionContainer).expression.type ===
+			printableNode.type === 'JSXExpressionContainer' &&
+			(printableNode as namedTypes.JSXExpressionContainer).expression.type ===
 				'JSXEmptyExpression'
 		) {
-			return recast.print(node).code;
+			return recast.print(printableNode).code;
 		}
 
-		return recast.prettyPrint(node, {
-			objectCurlySpacing: prettierConfigOverride?.bracketSpacing !== false,
-			quote: prettierConfigOverride?.singleQuote === true ? 'single' : 'double',
+		return recast.prettyPrint(printableNode, {
+			objectCurlySpacing: formattingConfig.bracketSpacing,
+			quote: formattingConfig.quote,
 			tabWidth,
 			useTabs: false,
 			wrapColumn,
@@ -105,21 +121,16 @@ export const printInsertedJsx = ({
 	};
 
 	const normalizeIndentation = (code: string) => {
-		return code
-			.split(/\r?\n/)
-			.map((line) => {
-				const spaces = line.match(/^ */)?.[0].length ?? 0;
-				const indentationLevels = Math.floor(spaces / tabWidth);
-				const remainingSpaces = spaces % tabWidth;
-				return `${unit.repeat(indentationLevels)}${' '.repeat(remainingSpaces)}${line.slice(spaces)}`;
-			})
-			.join(endOfLine);
+		return normalizePrintedIndentation({
+			endOfLine,
+			indentationUnit: unit,
+			printed: code,
+			tabWidth,
+		});
 	};
 
 	const printOpeningElement = (opening: namedTypes.JSXOpeningElement) => {
-		const effectivePrintWidth =
-			typeof printWidth === 'number' ? printWidth : 80;
-		const name = printNode(opening.name, effectivePrintWidth);
+		const name = printNode(opening.name, printWidth);
 		const attributes = (opening.attributes ?? []).map((attribute) => {
 			const originalAttributeSource = originalAttributeSources?.get(attribute);
 			if (
@@ -128,7 +139,14 @@ export const printInsertedJsx = ({
 			) {
 				const start = recastLocToOffset(input, attribute.loc.start);
 				const end = recastLocToOffset(input, attribute.loc.end);
-				const original = input.slice(start, end);
+				// Preserve the value's source, while normalizing the attribute syntax.
+				const original =
+					attribute.type === 'JSXAttribute' && attribute.value?.loc
+						? `${printNode(attribute.name, printWidth)}=${input.slice(
+								recastLocToOffset(input, attribute.value.loc.start),
+								end,
+							)}`
+						: input.slice(start, end);
 				const lines = original.split(/\r?\n/);
 				const nonBlankContinuationLines = lines
 					.slice(1)
@@ -164,16 +182,15 @@ export const printInsertedJsx = ({
 			const unwrapped = normalizeIndentation(
 				printNode(attribute, Number.POSITIVE_INFINITY),
 			);
-			return !unwrapped.includes(endOfLine) &&
-				unwrapped.length <= effectivePrintWidth
+			return !unwrapped.includes(endOfLine) && unwrapped.length <= printWidth
 				? unwrapped
-				: normalizeIndentation(printNode(attribute, effectivePrintWidth));
+				: normalizeIndentation(printNode(attribute, printWidth));
 		});
 		const suffix = opening.selfClosing ? ' />' : '>';
 		const singleLine = `<${name}${attributes.length === 0 ? '' : ` ${attributes.join(' ')}`}${suffix}`;
 		if (
 			!attributes.some((attribute) => attribute.includes(endOfLine)) &&
-			singleLine.length <= effectivePrintWidth
+			singleLine.length <= printWidth
 		) {
 			return singleLine;
 		}
@@ -200,11 +217,7 @@ export const printInsertedJsx = ({
 					return [];
 				}
 
-				return [
-					normalizeIndentation(
-						printNode(child, typeof printWidth === 'number' ? printWidth : 80),
-					),
-				];
+				return [normalizeIndentation(printNode(child, printWidth))];
 			});
 			return [
 				'<>',
@@ -221,12 +234,7 @@ export const printInsertedJsx = ({
 		}
 
 		const closing = node.closingElement
-			? normalizeIndentation(
-					printNode(
-						node.closingElement,
-						typeof printWidth === 'number' ? printWidth : 80,
-					),
-				)
+			? normalizeIndentation(printNode(node.closingElement, printWidth))
 			: '';
 		const children = node.children ?? [];
 		if (
@@ -243,10 +251,7 @@ export const printInsertedJsx = ({
 			children[0].expression.type === 'StringLiteral'
 		) {
 			return `${opening}${normalizeIndentation(
-				printNode(
-					children[0],
-					typeof printWidth === 'number' ? printWidth : 80,
-				),
+				printNode(children[0], printWidth),
 			)}${closing}`;
 		}
 
@@ -259,11 +264,7 @@ export const printInsertedJsx = ({
 				return [];
 			}
 
-			return [
-				normalizeIndentation(
-					printNode(child, typeof printWidth === 'number' ? printWidth : 80),
-				),
-			];
+			return [normalizeIndentation(printNode(child, printWidth))];
 		});
 		if (printedChildren.length === 0) {
 			return `${opening}${closing}`;
@@ -306,12 +307,7 @@ export const printJsxOpeningElement = ({
 		element: printableElement,
 		input,
 		originalAttributeSources,
-		prettierConfigOverride: {
-			bracketSpacing: getObjectCurlySpacing(input, prettierConfigOverride),
-			singleQuote:
-				getPreferredQuote(input, prettierConfigOverride) === 'single',
-			...prettierConfigOverride,
-		},
+		prettierConfigOverride,
 	});
 	if (wasSelfClosing) {
 		return printed;

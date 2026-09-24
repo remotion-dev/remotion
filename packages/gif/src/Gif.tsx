@@ -34,16 +34,6 @@ export type GifProps = InteractiveBaseProps &
 export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
 	...Internals.premountSchema,
-	playbackRate: {
-		type: 'number',
-		min: 0,
-		max: 10,
-		step: 0.1,
-		default: 1,
-		description: 'Playback rate',
-		hiddenFromList: false,
-		keyframable: false,
-	},
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
@@ -126,7 +116,6 @@ const GifInner = ({
 		onLoad,
 		onError,
 		fit,
-		playbackRate,
 		loopBehavior,
 		id,
 		delayRenderTimeoutInMilliseconds,
@@ -146,6 +135,7 @@ const GifInner = ({
 			<Sequence
 				layout="none"
 				from={from ?? 0}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames ?? Infinity}
 				name="<Gif>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"

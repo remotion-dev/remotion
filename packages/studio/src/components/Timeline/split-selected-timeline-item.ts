@@ -248,7 +248,10 @@ export const splitSelectedTimelineItems = ({
 		if (eligibility.canSplit) {
 			eligible.push({
 				nodePathInfo: eligibility.nodePathInfo,
-				splitFrame,
+				splitFrame: track
+					? (splitFrame - track.keyframeDisplayOffset) *
+						track.keyframePlaybackRate
+					: splitFrame,
 			});
 		} else {
 			skippedReasons.push(eligibility.reason);

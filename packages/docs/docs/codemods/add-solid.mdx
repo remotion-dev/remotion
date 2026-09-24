@@ -27,7 +27,6 @@ const result = addSolid({
   height: 1080,
 });
 
-console.log(result.project.files);
 console.log(result.changes);
 console.log(result.insertedNode);
 ```
@@ -70,10 +69,6 @@ Positions the solid at `{x, y}` pixels and adds a CSS translation. By default, t
 
 An object with the following properties.
 
-### project
-
-A new project containing the transformed source. Unchanged project fields are preserved.
-
 ### changes
 
 An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
@@ -81,6 +76,10 @@ An array describing each changed file with its `filePath`, `previousContents`, a
 ### insertedNode
 
 The `filePath` and `nodePath` of the inserted JSX element. Pass these values as an item in `nodes` to [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes) to remove the element again.
+
+### nodePathRemappings<AvailableFrom v="4.0.528" />
+
+File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node references after the edit. A `null` old path indicates an insertion; a `null` new path indicates removal. See [node references](/docs/codemods#node-references).
 
 ## Compatibility
 

@@ -89,6 +89,10 @@ export type ElementDependency =
 	  };
 
 export type InstallableElement = {
+	assets: Array<
+		| {path: string; type: 'url'; url: string}
+		| {path: string; type: 'base64'; data: string}
+	>;
 	dependencies: ElementDependency[];
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
@@ -884,6 +888,25 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
+export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+
+export type WrapJsxNodeRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	wrapper: JsxWrapper | null;
+	width: number | null;
+	height: number | null;
+};
+
+export type WrapJsxNodeResponse =
+	| {
+			success: true;
+			canWrap: boolean;
+			canWrapHtmlInCanvas: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
 export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -937,6 +960,16 @@ export type InsertBasicCaptionsRequest = {
 };
 
 export type InsertBasicCaptionsResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
+export type ReplaceVideoSourceRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	src: string;
+};
+
+export type ReplaceVideoSourceResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
@@ -1426,6 +1459,7 @@ export type ApiRoutes = {
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
+	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
 	'/api/split-jsx-sequence': ReqAndRes<
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse
@@ -1437,6 +1471,10 @@ export type ApiRoutes = {
 	'/api/insert-basic-captions': ReqAndRes<
 		InsertBasicCaptionsRequest,
 		InsertBasicCaptionsResponse
+	>;
+	'/api/replace-video-source': ReqAndRes<
+		ReplaceVideoSourceRequest,
+		ReplaceVideoSourceResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

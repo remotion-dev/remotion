@@ -294,6 +294,7 @@ const handleAddAsset = ({
 		const fileDescriptor = openFileForWritingWithoutSymlinks({
 			rootDirectory: publicDir,
 			absolutePath,
+			exclusive: false,
 		});
 		const writeStream = createWriteStream(absolutePath, {
 			fd: fileDescriptor,
@@ -344,6 +345,7 @@ const handleUploadOutput = ({
 		const fileDescriptor = openFileForWritingWithoutSymlinks({
 			rootDirectory: remotionRoot,
 			absolutePath,
+			exclusive: false,
 		});
 		const writeStream = createWriteStream(absolutePath, {
 			fd: fileDescriptor,

@@ -1,6 +1,14 @@
 import {expect, test} from 'bun:test';
-import {parseAndApplyCodemod} from '../parse-and-apply-codemod';
-import {parseAst} from '../sequence-props/parse-ast';
+import {
+	addFolder,
+	moveComposition,
+	moveFolder,
+	renameFolder,
+	unwrapFolder,
+} from '../index';
+import {getChangedContents} from './get-changed-contents';
+
+const compositionFile = 'Root.tsx';
 
 const untouched = 'const untouched  =  { value : "keep" }; // preserve';
 
@@ -14,18 +22,15 @@ export const Root = () => (
   </Folder>
 );
 `;
-	const output = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'rename-folder',
-			folderName: 'Old name',
-			parentName: null,
-			newName: 'New name',
-		},
-	}).newContents;
+	const outputResult = renameFolder({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		folder: {name: 'Old name', parentName: null},
+		newName: 'New name',
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(input.replace("'Old name'", "'New name'"));
-	parseAst(output);
 });
 
 test('creates top-level and nested folders without formatting the file', () => {
@@ -41,14 +46,12 @@ test('creates top-level and nested folders without formatting the file', () => {
 		')',
 		'',
 	].join('\r\n');
-	const topLevel = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'new-folder',
-			folderName: 'Top level',
-			parentName: null,
-		},
-	}).newContents;
+	const topLevelResult = addFolder({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		folder: {name: 'Top level', parentName: null},
+	});
+	const topLevel = getChangedContents(topLevelResult, compositionFile);
 	expect(topLevel).toBe(
 		input
 			.replace(
@@ -61,14 +64,12 @@ test('creates top-level and nested folders without formatting the file', () => {
 			),
 	);
 
-	const nested = parseAndApplyCodemod({
-		input: topLevel,
-		codeMod: {
-			type: 'new-folder',
-			folderName: 'Nested',
-			parentName: 'Existing',
-		},
-	}).newContents;
+	const nestedResult = addFolder({
+		project: {rootDir: '/', files: {[compositionFile]: topLevel}},
+		compositionFile,
+		folder: {name: 'Nested', parentName: 'Existing'},
+	});
+	const nested = getChangedContents(nestedResult, compositionFile);
 	expect(nested).toBe(
 		topLevel.replace(
 			'    <Folder name="Existing" />',
@@ -79,7 +80,6 @@ test('creates top-level and nested folders without formatting the file', () => {
 			].join('\r\n'),
 		),
 	);
-	parseAst(nested);
 });
 
 test('deletes a folder by unwrapping its source without formatting it', () => {
@@ -98,14 +98,12 @@ export const Root = () => (
   </>
 );
 `;
-	const output = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'delete-folder',
-			folderName: 'Remove',
-			parentName: null,
-		},
-	}).newContents;
+	const outputResult = unwrapFolder({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		folder: {name: 'Remove', parentName: null},
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(
 		input.replace(
@@ -123,7 +121,6 @@ export const Root = () => (
 `,
 		),
 	);
-	parseAst(output);
 });
 
 test('moves a composition into a folder without formatting either node', () => {
@@ -144,15 +141,13 @@ export const Root = () => {
   );
 };
 `;
-	const output = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'Move',
-			folderName: 'Target',
-			parentName: null,
-		},
-	}).newContents;
+	const outputResult = moveComposition({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		compositionId: 'Move',
+		destination: {type: 'folder', folder: {name: 'Target', parentName: null}},
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(
 		input
@@ -173,7 +168,6 @@ export const Root = () => {
       </Folder>`,
 			),
 	);
-	parseAst(output);
 });
 
 test('moves a folder next to another item without formatting it', () => {
@@ -192,17 +186,16 @@ export const Root = () => {
   );
 };
 `;
-	const output = parseAndApplyCodemod({
-		input,
-		codeMod: {
-			type: 'move-composition-or-folder',
-			source: {type: 'folder', folderName: 'Move', parentName: null},
-			destination: {
-				type: 'after',
-				target: {type: 'folder', folderName: 'Target', parentName: null},
-			},
+	const outputResult = moveFolder({
+		project: {rootDir: '/', files: {[compositionFile]: input}},
+		compositionFile,
+		folder: {name: 'Move', parentName: null},
+		destination: {
+			type: 'after',
+			target: {type: 'folder', name: 'Target', parentName: null},
 		},
-	}).newContents;
+	});
+	const output = getChangedContents(outputResult, compositionFile);
 
 	expect(output).toBe(
 		input
@@ -221,5 +214,59 @@ export const Root = () => {
       </Folder>`,
 			),
 	);
-	parseAst(output);
+});
+
+test('folder moves reject self, descendants, attribute targets, and standalone sources atomically', () => {
+	const input = `import {Composition, Folder} from 'remotion';
+export const Root = () => <>
+  <Folder name="Parent"><Folder name="Child" /></Folder>
+  <Wrapper content={<Folder name="Attribute" />} />
+  <Composition id="Move" />
+</>;
+export const Standalone = () => <Composition id="Standalone" />;
+`;
+	const project = {rootDir: '/', files: {[compositionFile]: input}};
+	for (const folder of [
+		{name: 'Parent', parentName: null},
+		{name: 'Child', parentName: 'Parent'},
+	]) {
+		expect(() =>
+			moveFolder({
+				project,
+				compositionFile,
+				folder: {name: 'Parent', parentName: null},
+				destination: {type: 'folder', folder},
+			}),
+		).toThrow('inside itself');
+	}
+
+	expect(() =>
+		moveComposition({
+			project,
+			compositionFile,
+			compositionId: 'Move',
+			destination: {
+				type: 'folder',
+				folder: {name: 'Attribute', parentName: null},
+			},
+		}),
+	).toThrow('direct JSX child');
+	expect(() =>
+		moveComposition({
+			project,
+			compositionFile,
+			compositionId: 'Standalone',
+			destination: {type: 'folder', folder: {name: 'Parent', parentName: null}},
+		}),
+	).toThrow('direct JSX child');
+	const moved = moveComposition({
+		project,
+		compositionFile,
+		compositionId: 'Move',
+		destination: {type: 'folder', folder: {name: 'Parent', parentName: null}},
+	});
+	expect(getChangedContents(moved, compositionFile)).toContain(
+		'<Folder name="Child" />\n    <Composition id="Move" />\n  </Folder>',
+	);
+	expect(project.files[compositionFile]).toBe(input);
 });

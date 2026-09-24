@@ -2,6 +2,7 @@ import {useState} from 'react';
 import type {TSequence} from 'remotion';
 import {calculateTimeline} from './calculate-timeline';
 import type {TimelineTrackData} from './get-timeline-sequence-sort-key';
+import {createCanvasHoverController, type CanvasHoverController} from './hover';
 import {
 	createCanvasSelectionController,
 	type CanvasSelectionController,
@@ -13,6 +14,7 @@ export type CanvasController = {
 		readonly subscribe: (listener: () => void) => () => void;
 	};
 	readonly selection: CanvasSelectionController;
+	readonly hover: CanvasHoverController;
 };
 
 type CanvasControllerInternals = {
@@ -47,6 +49,7 @@ export const createCanvasController = (): CanvasController => {
 			},
 		},
 		selection: createCanvasSelectionController(),
+		hover: createCanvasHoverController(),
 	};
 
 	controllerInternals.set(controller, {
@@ -58,7 +61,10 @@ export const createCanvasController = (): CanvasController => {
 				}),
 			);
 		},
-		clear: () => updateTimelineSnapshot([]),
+		clear: () => {
+			updateTimelineSnapshot([]);
+			controller.hover.clear(null);
+		},
 	});
 
 	return controller;

@@ -53,6 +53,9 @@ export {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeRequestItem,
 	DuplicateJsxNodeResponse,
+	JsxWrapper,
+	WrapJsxNodeRequest,
+	WrapJsxNodeResponse,
 	EditorPickerId,
 	EffectDefinition,
 	ElementInstallDestination,
@@ -75,6 +78,8 @@ export {
 	InsertElementFileConflict,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
@@ -427,3 +432,5 @@ export {
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
 export {isUrl} from './url';
+
+export {emptyCompositionComponent} from './empty-composition-component';

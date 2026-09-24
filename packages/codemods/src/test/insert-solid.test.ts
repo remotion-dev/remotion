@@ -1,10 +1,6 @@
 import {expect, test} from 'bun:test';
-import {CodemodsInternals} from '..';
-
-const {
-	insertJsxElementIntoProjectWithNodePathRemappings,
-	insertSolidIntoSource,
-} = CodemodsInternals;
+import {insertJsxElementIntoProjectWithNodePathRemappings} from '../insert-jsx-element';
+import {insertSolidIntoSource} from '../internals';
 
 test('inserts a Solid into a component source file', () => {
 	const result = insertSolidIntoSource({
@@ -102,7 +98,7 @@ export const Root = () => <Composition id = "MyComp" component={MyComposition}/>
 		wrapInSequence: null,
 	});
 
-	expect(result.project.files['/project/src/index.tsx'])
+	expect(result.output)
 		.toBe(`import {Composition, AbsoluteFill, Solid} from 'remotion';
 
 // Keep the deliberately non-Prettier formatting in this file.
@@ -182,13 +178,7 @@ export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
 			wrapInSequence: null,
 		});
 
-	expect(assetResult.project.files['/project/src/index.tsx']).toContain(
-		'<CanvasImage\n',
-	);
-	expect(componentResult.project.files['/project/src/index.tsx']).toContain(
-		'<Chart\n',
-	);
-	expect(componentResult.project.files['/project/src/index.tsx']).toContain(
-		'title="Revenue"',
-	);
+	expect(assetResult.output).toContain('<CanvasImage\n');
+	expect(componentResult.output).toContain('<Chart\n');
+	expect(componentResult.output).toContain('title="Revenue"');
 });

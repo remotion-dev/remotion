@@ -1,11 +1,12 @@
-import type {JSXAttribute} from '@babel/types';
 import {
 	CodemodsInternals,
+	updateEffectProps as updateEffectPropsInProject,
 	type EffectArrayElement,
 	type EffectPropUpdate,
 	type PropDelta,
 	type UpdateEffectPropsResult,
 } from '@remotion/codemods';
+import type {InteractivitySchema, SequenceNodePath} from 'remotion';
 
 export type {
 	EffectArrayElement,
@@ -14,19 +15,29 @@ export type {
 	UpdateEffectPropsResult,
 };
 
-export const {
-	enumerateEffectArrayElements,
-	findEffectCallExpression,
-	updateEffectProps,
-	updateEffectPropsAst,
-} = CodemodsInternals;
+export const {enumerateEffectArrayElements} = CodemodsInternals;
 
-const {findEffectsAttr: findEffectsAttrCodemod} = CodemodsInternals;
-
-export const findEffectsAttr = (
-	attrs: readonly (JSXAttribute | unknown)[],
-): JSXAttribute | null => {
-	return findEffectsAttrCodemod(
-		attrs as Parameters<typeof findEffectsAttrCodemod>[0],
-	);
+export const updateEffectProps = async ({
+	input,
+	sequenceNodePath,
+	effectIndex,
+	update,
+	schema,
+}: {
+	input: string;
+	sequenceNodePath: SequenceNodePath;
+	effectIndex: number;
+	update: EffectPropUpdate;
+	schema: InteractivitySchema;
+}): Promise<UpdateEffectPropsResult> => {
+	const result = await updateEffectPropsInProject({
+		project: {files: {'source.tsx': input}, rootDir: '/'},
+		effect: {filePath: 'source.tsx', nodePath: sequenceNodePath, effectIndex},
+		updates: [update],
+		schema,
+	});
+	return {
+		...result.results[0],
+		output: result.changes[0]?.nextContents ?? input,
+	};
 };

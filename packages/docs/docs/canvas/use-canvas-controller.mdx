@@ -1,0 +1,36 @@
+---
+image: /generated/articles-docs-canvas-use-canvas-controller.png
+title: useCanvasController()
+crumb: '@remotion/canvas'
+---
+
+# useCanvasController()<AvailableFrom v="4.0.527" />
+
+Creates one [`CanvasController`](/docs/canvas/create-canvas-controller) for a React component and returns the same object on later renders.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx title="Preview.tsx"
+import {Canvas, useCanvasController} from '@remotion/canvas';
+import {Video} from './Video';
+
+export const Preview = () => {
+  const controller = useCanvasController();
+  return <Canvas controller={controller} component={Video} compositionWidth={1920} compositionHeight={1080} durationInFrames={150} fps={30} />;
+};
+```
+
+The hook takes no arguments. Share its returned controller with your layer list and other editor controls. Mount one `<Canvas>` per controller: the Canvas owns that controller's timeline snapshot and clears it on unmount.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`createCanvasController()`](/docs/canvas/create-canvas-controller)
+- [`<Canvas>`](/docs/canvas/canvas)

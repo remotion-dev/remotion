@@ -10,12 +10,24 @@ import {
 } from './pkg-managers';
 import type {Template} from './templates';
 
+// Templates name it README.md or readme.md; only case-insensitive filesystems treat those as the same file
+export const findReadme = (projectRoot: string): string | null => {
+	const readme = fs
+		.readdirSync(projectRoot)
+		.find((f) => f.toLowerCase() === 'readme.md');
+
+	return readme === undefined ? null : path.join(projectRoot, readme);
+};
+
 export const patchReadmeMd = (
 	projectRoot: string,
 	packageManager: PackageManager,
 	template: Template,
 ) => {
-	const fileName = path.join(projectRoot, 'README.md');
+	const fileName = findReadme(projectRoot);
+	if (fileName === null) {
+		return;
+	}
 
 	const contents = fs.readFileSync(fileName, 'utf8');
 	const newContents = contents

@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {CodemodsInternals} from '@remotion/codemods';
+import {deleteEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DeleteEffectRequest,
@@ -20,8 +20,6 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
-
-const {deleteEffects} = CodemodsInternals;
 
 const getDeletedEffectDescription = (effectLabels: string[]): string => {
 	if (effectLabels.length === 1) {
@@ -62,22 +60,20 @@ export const deleteEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, effectLabels, logLines} =
-						await deleteEffects({
-							input: fileContents,
-							effects: fileItems.map((item) =>
-								item.type === 'single-effect'
-									? {
-											type: 'single-effect',
-											sequenceNodePath: item.sequenceNodePath.nodePath,
-											effectIndex: item.effectIndex,
-										}
-									: {
-											type: 'all-effects',
-											sequenceNodePath: item.sequenceNodePath.nodePath,
-										},
-							),
-						});
+					const result = await deleteEffects({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						effects: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.sequenceNodePath.nodePath,
+							effectIndex:
+								item.type === 'all-effects' ? null : item.effectIndex,
+						})),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {formatted, effectLabels, logLines} = result.editDetails[0];
 
 					return {
 						absolutePath,

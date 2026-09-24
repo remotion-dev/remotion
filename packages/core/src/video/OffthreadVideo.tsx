@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import {Html5MediaTrimContext} from '../audio/use-audio-frame.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -64,25 +65,33 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		typeof trimAfterValue !== 'undefined'
 	) {
 		return (
-			<Sequence
-				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
-				showInTimeline={false}
-				durationInFrames={trimAfterValue}
-				name={name}
-			>
-				<InnerOffthreadVideo
-					pauseWhenBuffering={shouldPauseWhenBuffering}
-					{...otherProps}
-					trimAfter={undefined}
-					name={undefined}
-					showInTimeline={showInTimeline}
-					trimBefore={undefined}
-					_remotionInternalStack={undefined}
-					startFrom={undefined}
-					endAt={undefined}
-				/>
-			</Sequence>
+			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
+				<Sequence
+					layout="none"
+					from={0 - (trimBeforeValue ?? 0)}
+					showInTimeline={false}
+					durationInFrames={
+						trimAfterValue === undefined
+							? undefined
+							: (trimBeforeValue ?? 0) +
+								(trimAfterValue - (trimBeforeValue ?? 0)) /
+									(props.playbackRate ?? 1)
+					}
+					name={name}
+				>
+					<InnerOffthreadVideo
+						pauseWhenBuffering={shouldPauseWhenBuffering}
+						{...otherProps}
+						trimAfter={undefined}
+						name={undefined}
+						showInTimeline={showInTimeline}
+						trimBefore={undefined}
+						_remotionInternalStack={undefined}
+						startFrom={undefined}
+						endAt={undefined}
+					/>
+				</Sequence>
+			</Html5MediaTrimContext.Provider>
 		);
 	}
 

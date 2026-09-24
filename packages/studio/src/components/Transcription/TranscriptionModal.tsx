@@ -773,7 +773,9 @@ export const TranscriptionModal: React.FC<TranscriptionModalState> = ({
 	const queuedOutputExists = captionJobs.some(
 		(job) =>
 			job.target === null &&
-			(job.status === 'idle' || job.status === 'running') &&
+			(job.status === 'idle' ||
+				job.status === 'running' ||
+				job.status === 'saving') &&
 			job.outName.normalize('NFC').toLowerCase() === normalizedOutName,
 	);
 	const outputValidationMessage =

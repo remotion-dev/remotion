@@ -36,6 +36,7 @@ let hasVideoConfig = true;
 
 mock.module('remotion', () => {
 	return {
+		Freeze: ({children}: {readonly children: React.ReactNode}) => children,
 		HtmlInCanvas: ({
 			children,
 			width,
@@ -94,6 +95,19 @@ mock.module('remotion', () => {
 				showInTimeline: {},
 			},
 			transformSchema: {},
+			usePremounting: ({
+				style,
+			}: {
+				readonly style: React.CSSProperties | null;
+			}) => ({
+				effectivePremountFor: 0,
+				effectivePostmountFor: 0,
+				freezeFrame: 0,
+				isPremountingOrPostmounting: false,
+				premountingActive: false,
+				postmountingActive: false,
+				premountingStyle: style,
+			}),
 			useUnsafeVideoConfig: mock(() =>
 				hasVideoConfig
 					? {

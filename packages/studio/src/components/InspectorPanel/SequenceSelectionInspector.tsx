@@ -5,6 +5,7 @@ import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-k
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
+import {BackgroundRemovalIcon} from '../../icons/background-removal';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
@@ -49,6 +50,7 @@ import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
+import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
@@ -169,6 +171,11 @@ const SequenceSourceQuickActions: React.FC<{
 		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
 			? 'Programmatically duplicated media cannot be transcribed from source'
 			: undefined;
+	const videoMattingDisabledReason = sourceActionsDisabled
+		? 'Studio is read-only'
+		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+			? 'Programmatically duplicated videos cannot have their background removed from source'
+			: undefined;
 	const onGenerateCaptions = useCallback(() => {
 		if (transcriptionDisabledReason !== undefined || mediaSequence === null) {
 			return;
@@ -197,6 +204,33 @@ const SequenceSourceQuickActions: React.FC<{
 		setSelectedModal,
 		mediaSequence,
 		transcriptionDisabledReason,
+	]);
+	const onRemoveBackground = useCallback(() => {
+		if (
+			videoMattingDisabledReason !== undefined ||
+			track.sequence.type !== 'video'
+		) {
+			return;
+		}
+
+		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		setSelectedModal({
+			type: 'video-matting',
+			src: track.sequence.src,
+			displayName: getMediaFileName(
+				track.sequence.src,
+				track.sequence.displayName,
+			),
+			target: {
+				fileName: nodePath.absolutePath,
+				nodePath,
+			},
+		});
+	}, [
+		selection.nodePathInfo,
+		setSelectedModal,
+		track.sequence,
+		videoMattingDisabledReason,
 	]);
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
@@ -256,6 +290,18 @@ const SequenceSourceQuickActions: React.FC<{
 			) : null}
 			{track.sequence.type === 'video' ? (
 				<InspectorQuickAction
+					disabled={videoMattingDisabledReason !== undefined}
+					onClick={onRemoveBackground}
+					title={videoMattingDisabledReason}
+					renderIcon={(color) => (
+						<BackgroundRemovalIcon style={actionIconStyle} color={color} />
+					)}
+				>
+					Remove background
+				</InspectorQuickAction>
+			) : null}
+			{track.sequence.type === 'video' ? (
+				<InspectorQuickAction
 					disabled={splitVideoFromAudioDisabledReason !== undefined}
 					onClick={onSplitVideoFromAudio}
 					title={splitVideoFromAudioDisabledReason}
@@ -287,6 +333,11 @@ const SequenceSourceQuickActions: React.FC<{
 			>
 				Duplicate
 			</InspectorQuickAction>
+			<SequenceWrapAction
+				nodePathInfo={selection.nodePathInfo}
+				sequence={track.sequence}
+				sourceActionsDisabled={sourceActionsDisabled}
+			/>
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				onClick={onDelete}
@@ -389,6 +440,7 @@ const SequenceExpandedInspector: React.FC<{
 						validatedLocation={validatedLocation}
 						nodePathInfo={track.nodePathInfo}
 						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						keyframePlaybackRate={track.keyframePlaybackRate}
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
 					<CollapsibleInspectorSection

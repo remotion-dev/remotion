@@ -1,0 +1,90 @@
+---
+image: /generated/articles-docs-codemods-update-composition-metadata.png
+title: 'updateCompositionMetadata()'
+crumb: '@remotion/codemods'
+---
+
+# updateCompositionMetadata()<AvailableFrom v="4.0.528" />
+
+Updates width, height, FPS, or duration on a composition registration.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="update-composition-metadata.ts"
+import {updateCompositionMetadata, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = updateCompositionMetadata({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  metadata: {width: 1080, height: 1920},
+});
+
+console.log(result);
+```
+
+Edits the registration props directly, replacing existing expressions for the specified fields. It does not execute or change [`calculateMetadata()`](/docs/calculate-metadata), which may override those values at runtime.
+
+[`<Still>`](/docs/still) registrations only support width and height overrides; supplying FPS or duration throws an error.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### metadata
+
+A partial object containing the metadata fields to replace. Omitted fields are unchanged.
+
+#### width?
+
+A positive integer width in pixels. Omitted values are unchanged.
+
+#### height?
+
+A positive integer height in pixels. Omitted values are unchanged.
+
+#### fps?
+
+A positive, finite frame rate. Omitted values are unchanged.
+
+#### durationInFrames?
+
+A positive integer duration in frames. Omitted values are unchanged.
+
+## Return value
+
+Returns an object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-composition-metadata.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

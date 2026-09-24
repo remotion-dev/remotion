@@ -1,0 +1,108 @@
+---
+image: /generated/articles-docs-codemods-add-media.png
+title: 'addMedia()'
+crumb: '@remotion/codemods'
+---
+
+# addMedia()<AvailableFrom v="4.0.528" />
+
+Adds an image, video, audio, GIF, or animated image to a composition component and adds the required imports.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="add-media.ts"
+import {addMedia, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = await addMedia({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  type: 'video',
+  src: 'clip.mp4',
+  srcType: 'static',
+  from: 30,
+  durationInFrames: 90,
+});
+
+console.log(result);
+```
+
+Media files are not copied or downloaded, metadata is not probed, and packages are not installed. The project must already contain the dependencies needed by the generated imports. Relative paths refer to the public directory for `static` media.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The file registering the composition. The component may be imported from another project file.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### type
+
+One of `image`, `video`, `audio`, `gif`, or `animated-image`.
+
+### src
+
+The URL or public-directory-relative media path.
+
+### srcType
+
+Use `static` to generate a `staticFile(src)` expression, or `remote` for a URL.
+
+### dimensions?
+
+The media's `{width, height}` in pixels. Both must be positive finite numbers. By default, dimensions are not specified.
+
+### from?
+
+The start frame. When supplied, wraps the inserted content in a [`<Sequence>`](/docs/sequence). Must be a non-negative integer. By default, no start frame is set.
+
+### durationInFrames?
+
+A positive integer duration for the wrapper [`<Sequence>`](/docs/sequence). Supplying only a duration creates a wrapper starting at frame `0`. By default, no duration is set.
+
+### position?
+
+An `{x, y}` position in pixels. By default, content starts at the composition origin.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### insertedNode
+
+The inserted element's reference, or the wrapper [`<Sequence>`](/docs/sequence) reference when timing is supplied.
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-media.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

@@ -8,6 +8,7 @@ import {
 	isElementInitialProps,
 	makeElementFileNameFromSlug,
 	parseElementDragData,
+	type ElementAsset,
 	type ElementDependency,
 	type ElementDragData,
 	type ElementInitialProps,
@@ -19,6 +20,7 @@ const MAX_SOURCE_CODE_SIZE = 200_000;
 const MAX_DEPENDENCIES = 100;
 
 export type CreateElementPayloadInput = {
+	readonly assets?: readonly ElementAsset[];
 	readonly displayName: string;
 	readonly slug: string;
 	readonly sourceCode: string;
@@ -36,7 +38,7 @@ export type StudioElementPayload = ElementDragData & {
 const durationSchema = z.int().check(z.positive(), z.lte(100_000_000));
 const studioElementPayloadEnvelopeSchema = z.object({
 	type: z.literal('remotion-element'),
-	version: z.literal(1),
+	version: z.union([z.literal(1), z.literal(2)]),
 	durationInFrames: durationSchema,
 	element: z.unknown(),
 });
@@ -117,6 +119,7 @@ export const createElementPayload = (
 	assertCreateElementPayloadInput(input);
 	const constructed = makeDragData({
 		type: 'element',
+		assets: [...(input.assets ?? [])],
 		dependencies: [...input.dependencies],
 		dimensions: input.dimensions,
 		displayName: input.displayName,

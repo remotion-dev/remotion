@@ -10,6 +10,8 @@ import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
+import {resolveStudioColor} from '../helpers/resolve-studio-color';
+import {getStudioPixelRatio} from '../helpers/studio-pixel-ratio';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -56,6 +58,7 @@ const AudioWaveformInner: React.FC<{
 	readonly muted: boolean;
 	readonly playbackRate: number;
 	readonly loopDisplay: LoopDisplay | undefined;
+	readonly loopDisplayOffsetInFrames: number;
 }> = ({
 	src,
 	height,
@@ -69,6 +72,7 @@ const AudioWaveformInner: React.FC<{
 	muted,
 	playbackRate,
 	loopDisplay,
+	loopDisplayOffsetInFrames,
 }) => {
 	const [peaks, setPeaks] = useState<Float32Array | null>(null);
 	const [error, setError] = useState<Error | null>(null);
@@ -94,16 +98,9 @@ const AudioWaveformInner: React.FC<{
 		return getVisibleWaveformVolume({
 			displayDurationInFrames,
 			displayOffsetInFrames,
-			loopDisplay,
 			volume: parsedVolume,
 		});
-	}, [
-		displayDurationInFrames,
-		displayOffsetInFrames,
-		loopDisplay,
-		muted,
-		parsedVolume,
-	]);
+	}, [displayDurationInFrames, displayOffsetInFrames, muted, parsedVolume]);
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -126,7 +123,7 @@ const AudioWaveformInner: React.FC<{
 
 		return sliceVisibleWaveformPeaks({
 			displayDurationInFrames,
-			displayOffsetInFrames,
+			displayOffsetInFrames: displayOffsetInFrames + loopDisplayOffsetInFrames,
 			durationInFrames,
 			fps: vidConf.fps,
 			loopDisplay,
@@ -140,6 +137,7 @@ const AudioWaveformInner: React.FC<{
 		displayOffsetInFrames,
 		durationInFrames,
 		loopDisplay,
+		loopDisplayOffsetInFrames,
 		peaks,
 		playbackRate,
 		startFrom,
@@ -156,7 +154,7 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const pixelRatio = window.devicePixelRatio;
+		const pixelRatio = getStudioPixelRatio();
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
 		const drawingWidth = visualizationWidth * pixelRatio;
@@ -169,7 +167,10 @@ const AudioWaveformInner: React.FC<{
 		drawBars({
 			canvas: canvasElement,
 			peaks: portionPeaks ?? EMPTY_PEAKS,
-			color: WHITE_ALPHA_60,
+			color: resolveStudioColor(
+				WHITE_ALPHA_60,
+				getComputedStyle(canvasElement),
+			),
 			volume: visibleVolume,
 			width: drawingWidth,
 		});
@@ -185,7 +186,7 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const pixelRatio = window.devicePixelRatio;
+		const pixelRatio = getStudioPixelRatio();
 		const h = Math.ceil(height * pixelRatio);
 		const w = Math.ceil(visualizationWidth * pixelRatio);
 		const drawingWidth = visualizationWidth * pixelRatio;
@@ -218,7 +219,10 @@ const AudioWaveformInner: React.FC<{
 				context.lineTo(x, y);
 			}
 		});
-		context.strokeStyle = WHITE_ALPHA_70;
+		context.strokeStyle = resolveStudioColor(
+			WHITE_ALPHA_70,
+			getComputedStyle(volumeCanvasElement),
+		);
 		context.lineWidth = pixelRatio;
 		context.stroke();
 	}, [height, shouldRenderVolumeOverlay, visibleVolume, visualizationWidth]);

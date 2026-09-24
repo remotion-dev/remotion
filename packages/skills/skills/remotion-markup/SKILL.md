@@ -347,23 +347,8 @@ npx remotion add @remotion/media
 
 This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and `@huggingface/transformers`.
 
-## Previewing markup
+## Visual checks
 
-```
-npx remotion studio --no-open
-```
+When a visual check is useful, open the [Remotion Studio](../remotion-studio/SKILL.md) for an interactive preview.
 
-This will start a long-running process and print the server URL for the preview.  
-If server is already started, it will print the URL.
-You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
-
-## Optional: one-frame render check
-
-You can render a single frame with the CLI to sanity-check layout, colors, or timing.  
-Skip it for trivial edits, pure refactors, or when you already have enough confidence from Studio or prior renders.
-
-```bash
-npx remotion still [composition-id] --scale=0.25 --frame=30
-```
-
-At 30 fps, `--frame=30` is the one-second mark (`--frame` is zero-based).
+You can also use [Rendering](../remotion-render/SKILL.md) to inspect one or several frames as images.

@@ -53,6 +53,12 @@ test('installs an Element from a website into a clean Studio project', async ({
 	const temporaryProject = fs.mkdtempSync(
 		path.join(os.tmpdir(), 'remotion-studio-protocol-'),
 	);
+	const installedAsset = path.join(
+		temporaryProject,
+		'public',
+		'protocol-element',
+		'data.bin',
+	);
 	fs.cpSync(path.join(packagesDirectory, 'template-blank'), temporaryProject, {
 		recursive: true,
 	});
@@ -123,7 +129,7 @@ const CloseupPlaceholder = () => {
 	const externalLibraryUrl = 'https://external-elements.example.com/library';
 	const reloadedExternalLibraryUrl =
 		'https://second-elements.example.com/components';
-	const protocolLibraryUrl = 'https://protocol-catalog.example.com/library';
+	const protocolLibraryUrl = 'https://protocol-library.example.com/library';
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
@@ -168,6 +174,11 @@ const CloseupPlaceholder = () => {
 		path.join(packagesDirectory, 'studio-protocol', 'dist', 'esm', 'index.mjs'),
 		'utf8',
 	);
+	const protocolElementSource = `export const ProtocolElement = ({assetSrc}: {assetSrc: string}) => (
+	<div data-asset={assetSrc}>
+		Installed through protocol
+	</div>
+);`;
 	const senderServer = createServer((request, response) => {
 		if (request.url === '/protocol.js') {
 			response.writeHead(200, {'Content-Type': 'text/javascript'});
@@ -178,20 +189,26 @@ const CloseupPlaceholder = () => {
 		response.writeHead(200, {'Content-Type': 'text/html'});
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
-			<button id="add-library">Add catalog to Studio</button>
+			<button id="add-library">Add Element Library to Studio</button>
 			<button id="license">Configure license in Studio</button>
 			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {addElementLibraryToStudio, createElementPayload, installInStudio, isInsideStudio, setStudioDragData, StudioProtocolInternals} from '/protocol.js';
+				import {addElementLibraryToStudio, createElementPayload, staticFileRef, installInStudio, isInsideStudio, setStudioDragData, StudioProtocolInternals} from '/protocol.js';
 				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
-					sourceCode: 'export const ProtocolElement = () => <div>Installed through protocol</div>;',
+					sourceCode: ${JSON.stringify(protocolElementSource)},
 					dependencies: [],
 					dimensions: {width: 640, height: 120},
 					durationInFrames: 30,
+					initialProps: {assetSrc: staticFileRef('protocol-element/data.bin')},
+					assets: [{
+						path: 'protocol-element/data.bin',
+						type: 'base64',
+						data: 'AAEC',
+					}],
 				});
 				const dragHandle = document.createElement('div');
 				dragHandle.id = 'drag-element';
@@ -210,7 +227,7 @@ const CloseupPlaceholder = () => {
 					document.querySelector('#status').textContent = '';
 					const result = await addElementLibraryToStudio({
 						url: '${protocolLibraryUrl}',
-						displayName: 'Protocol Catalog',
+						displayName: 'Protocol Library',
 					});
 					document.querySelector('#status').textContent = JSON.stringify(result);
 				};
@@ -379,6 +396,14 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
+		await dialog.getByRole('button', {name: 'Cancel'}).click();
+		expect(fs.existsSync(installedAsset)).toBe(false);
+		await browseElements.click();
+		await expect(externalLibraryItem).toBeVisible();
+		await externalLibraryItem.click();
+		await expect(elementsIframe).toBeVisible();
+		await installInStudio.click();
+		await expect(dialog).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
 			name: 'Current composition',
 		});
@@ -440,17 +465,16 @@ const CloseupPlaceholder = () => {
 			'protocol-element.element.tsx',
 		);
 		await waitForFile(elementFile);
-		expect(fs.readFileSync(elementFile, 'utf8')).toContain(
-			'export const ProtocolElement',
-		);
+		const installedElementSource = fs.readFileSync(elementFile, 'utf8');
+		expect(installedElementSource).toBe(protocolElementSource);
 		const compositionSource = fs.readFileSync(
 			path.join(temporaryProject, 'src', 'Composition.tsx'),
 			'utf8',
 		);
-		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 		expect(compositionSource).toMatch(
-			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s*\/>\s*<\/Sequence>/,
+			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s+assetSrc=\{staticFile\(["']protocol-element\/data\.bin["']\)\}\s*\/>\s*<\/Sequence>/,
 		);
 
 		const suppliedSource = fs.readFileSync(elementFile, 'utf8');
@@ -802,6 +826,7 @@ const CloseupPlaceholder = () => {
 		expect(
 			fs.readFileSync(path.join(closeupDirectory, 'Closeup.tsx'), 'utf8'),
 		).not.toContain('id="ProtocolElementScene"');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.getByRole('button', {name: /^Redo/}).click();
 		await expect(studioPage).toHaveURL(`${studioUrl}/ProtocolElementScene`, {
@@ -819,6 +844,7 @@ const CloseupPlaceholder = () => {
 		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
 			'export const ProtocolElement',
 		);
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.bringToFront();
 		await studioPage.keyboard.press('Escape');
@@ -845,9 +871,9 @@ const CloseupPlaceholder = () => {
 		await senderPage.locator('#status').evaluate((element) => {
 			element.textContent = '';
 		});
-		const configBeforeCatalogConfirmation = fs.readFileSync(configFile, 'utf8');
+		const configBeforeLibraryConfirmation = fs.readFileSync(configFile, 'utf8');
 		await senderPage
-			.getByRole('button', {name: 'Add catalog to Studio'})
+			.getByRole('button', {name: 'Add Element Library to Studio'})
 			.click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -857,30 +883,34 @@ const CloseupPlaceholder = () => {
 		);
 
 		await studioPage.bringToFront();
-		const addCatalogDialog = studioPage.getByRole('dialog');
+		const addLibraryDialog = studioPage.getByRole('dialog');
 		await expect(
-			addCatalogDialog.getByText('Add Element catalog', {exact: true}),
+			addLibraryDialog.getByText('Add Element Library', {exact: true}),
 		).toBeVisible();
 		await expect(
-			addCatalogDialog.getByText(senderUrl, {exact: true}),
+			addLibraryDialog.getByText(senderUrl, {exact: true}),
 		).toBeVisible();
 		await expect(
-			addCatalogDialog.getByText(protocolLibraryUrl, {exact: true}),
+			addLibraryDialog.getByText(protocolLibraryUrl, {exact: true}),
 		).toBeVisible();
-		const catalogDetails = addCatalogDialog.getByLabel('Catalog details');
+		const libraryDetails = addLibraryDialog.getByLabel(
+			'Element Library details',
+		);
 		await expect(
-			catalogDetails.getByText('Display name', {exact: true}),
+			libraryDetails.getByText('Display name', {exact: true}),
 		).toBeVisible();
 		await expect(
-			catalogDetails.getByText('Protocol Catalog', {exact: true}),
+			libraryDetails.getByText('Protocol Library', {exact: true}),
 		).toBeVisible();
-		await expect(decoyStudioPage.getByText('Add Element catalog')).toHaveCount(
+		await expect(decoyStudioPage.getByText('Add Element Library')).toHaveCount(
 			0,
 		);
 		expect(fs.readFileSync(configFile, 'utf8')).toBe(
-			configBeforeCatalogConfirmation,
+			configBeforeLibraryConfirmation,
 		);
-		await addCatalogDialog.getByRole('button', {name: /^Add catalog/}).click();
+		await addLibraryDialog
+			.getByRole('button', {name: /^Add Element Library/})
+			.click();
 		await expect
 			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
 			.toContain(protocolLibraryUrl);
@@ -888,7 +918,7 @@ const CloseupPlaceholder = () => {
 		await browseElements.click();
 		await expect(
 			studioPage.getByRole('button', {
-				name: 'Protocol Catalog',
+				name: 'Protocol Library',
 				exact: true,
 			}),
 		).toBeVisible({timeout: 30_000});
@@ -898,7 +928,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.mouse.click(500, 300);
 		await senderPage.bringToFront();
 		await senderPage
-			.getByRole('button', {name: 'Add catalog to Studio'})
+			.getByRole('button', {name: 'Add Element Library to Studio'})
 			.click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -906,7 +936,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.bringToFront();
 		await studioPage
 			.getByRole('dialog')
-			.getByRole('button', {name: /^Add catalog/})
+			.getByRole('button', {name: /^Add Element Library/})
 			.click();
 		await expect
 			.poll(

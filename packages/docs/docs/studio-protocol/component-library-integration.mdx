@@ -1,15 +1,15 @@
 ---
 image: /generated/articles-docs-studio-protocol-component-library-integration.png
-title: 'Integrating a component library with Studio'
-sidebar_label: 'Component library integration'
+title: 'Integrating an Element Library with Studio'
+sidebar_label: 'Element Library integration'
 crumb: '@remotion/studio-protocol'
 ---
 
-# Integrating a component library with Studio
+# Integrating an Element Library with Studio
 
 An Element contains the source code for one component. It also contains the data that Studio needs to insert the component.
 
-Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the component library in the target project.
+Studio writes the source code to an `.element.tsx` file. Studio installs only the packages in the Element's `dependencies` list. You do not have to publish or install the Element Library in the target project.
 
 A component that follows the [Element guidelines](/elements/contributing#element-guidelines) is usually ready for Studio.
 
@@ -27,7 +27,21 @@ Show each component in a [`<Player>`](/docs/player). The preview lets users exam
 
 Import the component normally for the preview. The website bundler then compiles the component.
 
-Use the same dimensions and duration in the Player and the Element payload. For a `component-owned-sequence` Element with replaceable starter content, set [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in the payload and pass the same object to the Player as `inputProps`.
+Use the same dimensions and duration in the Player and the Element payload.
+
+### Preview installed assets<AvailableFrom v="4.0.528" />
+
+Accept image, audio, and video URLs as component props, rather than hardcoding preview URLs or installed file paths in the source.
+
+Pass normal URL strings to the Player. These may point to assets served by your preview website or, if you prefer, hosted elsewhere. The preview location does not need to match the installed asset path.
+
+For assets that should be copied into the user's project, declare them in the payload's [`assets`](/docs/studio-protocol/create-element-payload#assets). Choose public-relative paths scoped to the component, such as `my-element/logo.png`, to reduce collisions with other components.
+
+In the payload's `initialProps`, replace each corresponding URL with [`staticFileRef()`](/docs/studio-protocol/static-file-ref), referencing the declared asset path. Keep these references out of the Player's `inputProps`: they are installation metadata, not runtime URLs. See the [`staticFileRef()` example](/docs/studio-protocol/static-file-ref#example) for the complete payload and generated code.
+
+Studio saves the assets into the public directory and generates [`staticFile()`](/docs/staticfile) expressions on the component invocation. The Element source stays unchanged. This works in both installation modes.
+
+For assets that should remain remote after installation, keep URL strings in `initialProps` instead of using references. Those assets continue to depend on the remote host.
 
 ## Reuse component code
 
@@ -66,7 +80,7 @@ export const LowerThirdGalleryItem = () => {
 };
 ```
 
-The shape of `lowerThirdElementDefinition` is specific to the component library. The Studio Protocol does not require this object.
+The shape of `lowerThirdElementDefinition` is specific to the Element Library. The Studio Protocol does not require this object.
 
 ### Next.js
 
@@ -92,16 +106,18 @@ When Studio embeds the library through Browse Elements, use [`isInsideStudio()`]
 - Compare the Player preview with the installed Element.
 - Validate each payload with `createElementPayload()`.
 - Test installation and cross-tab drag-and-drop from the production website.
-- Install the Element in a clean Remotion project. Check for unresolved imports, package dependencies, and assets.
+- Install the Element in a clean Remotion project. Check for unresolved imports and package dependencies.
+- Verify that installed assets appear in the public directory and render or play from local files. Confirm that assets intended to stay remote still use their URLs.
 - Treat the source code as public. The browser receives it, and Studio shows it.
 - Serve the production website through HTTPS. HTTP is supported only on `localhost` and `127.0.0.1`.
 
 ## See also
 
-- [Third-party Element libraries](/elements/libraries)
+- [Third-party Element Libraries](/elements/libraries)
 - [Element guidelines](/elements/contributing#element-guidelines)
 - [`<Player>`](/docs/player)
 - [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`staticFileRef()`](/docs/studio-protocol/static-file-ref)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)
 - [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)

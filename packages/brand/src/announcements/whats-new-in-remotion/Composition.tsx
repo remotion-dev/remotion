@@ -1,7 +1,7 @@
 import {LightLeak} from '@remotion/light-leaks';
 import {Audio} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
 import {Scene1} from './Scene1';
 import {Scene2} from './Scene2';
@@ -79,9 +79,11 @@ export const MyComposition: React.FC<MyCompositionProps> = ({platform}) => {
 					<AbsoluteFill>
 						<LightLeak seed={10} style={{opacity: 0.7}} />
 					</AbsoluteFill>
-					<Sequence name="Light leak whoosh" layout="none">
-						<Audio src="https://remotion.media/whoosh.wav" volume={0.1} />
-					</Sequence>
+					<Audio
+						name="Light leak whoosh"
+						src="https://remotion.media/whoosh.wav"
+						volume={0.1}
+					/>
 				</TransitionSeries.Overlay>
 				<TransitionSeries.Sequence
 					durationInFrames={1266}
@@ -97,9 +99,11 @@ export const MyComposition: React.FC<MyCompositionProps> = ({platform}) => {
 					<AbsoluteFill>
 						<LightLeak seed={19} style={{opacity: 0.7}} />
 					</AbsoluteFill>
-					<Sequence name="Light leak whoosh" layout="none">
-						<Audio src="https://remotion.media/whoosh.wav" volume={0.1} />
-					</Sequence>
+					<Audio
+						name="Light leak whoosh"
+						src="https://remotion.media/whoosh.wav"
+						volume={0.1}
+					/>
 				</TransitionSeries.Overlay>
 				<TransitionSeries.Sequence
 					durationInFrames={1119}

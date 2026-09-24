@@ -114,6 +114,8 @@ const NumericAxis: React.FC<{
 				min={min}
 				max={max}
 				step={step}
+				allowStepMismatch
+				integerOnly={schema.type === 'number' && schema.integer === true}
 				snapToStep={axis === null}
 				dragDecimalPlaces={decimalPlaces}
 				dragSensitivity={axis === null ? 1 : 3}

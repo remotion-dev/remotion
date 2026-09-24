@@ -1351,7 +1351,7 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 	}
 });
 
-test('rejects inserting a Video asset if Video is already defined', async () => {
+test('aliases an inserted Video asset when Video is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1379,25 +1379,31 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 			].join('\n'),
 		);
 
-		await expect(
-			insertJsxElementIntoComposition({
-				remotionRoot: tempDir,
-				compositionFile: 'Root.tsx',
-				compositionId: 'test',
-				element: {
-					type: 'asset',
-					assetType: 'video',
-					src: 'clip.mp4',
-					srcType: 'static',
-					dimensions: null,
-					durationInFrames: null,
-					position: null,
-				},
-				from: null,
-				prettierConfigOverride: {singleQuote: true, useTabs: true},
-				sourceFileOverrides: null,
-			}),
-		).rejects.toThrow('Cannot add <Video> because Video is already defined');
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'video',
+				src: 'clip.mp4',
+				srcType: 'static',
+				dimensions: null,
+				durationInFrames: null,
+				position: null,
+			},
+			from: null,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
+		});
+
+		expect(result.output).toContain(
+			"import {Video as Video2} from '@remotion/media';",
+		);
+		expect(result.output).toMatch(
+			/<Video2\s+src=\{staticFile\('clip\.mp4'\)\}/,
+		);
+		expect(result.output).toContain('export const Video = () => null;');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1583,7 +1589,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 	}
 });
 
-test('rejects inserting an Audio asset if Audio is already defined', async () => {
+test('aliases an inserted Audio asset when Audio is already defined', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1611,25 +1617,31 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 			].join('\n'),
 		);
 
-		await expect(
-			insertJsxElementIntoComposition({
-				remotionRoot: tempDir,
-				compositionFile: 'Root.tsx',
-				compositionId: 'test',
-				element: {
-					type: 'asset',
-					assetType: 'audio',
-					src: 'audio.mp3',
-					srcType: 'static',
-					dimensions: null,
-					durationInFrames: null,
-					position: null,
-				},
-				from: null,
-				prettierConfigOverride: {singleQuote: true, useTabs: true},
-				sourceFileOverrides: null,
-			}),
-		).rejects.toThrow('Cannot add <Audio> because Audio is already defined');
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'audio',
+				src: 'audio.mp3',
+				srcType: 'static',
+				dimensions: null,
+				durationInFrames: null,
+				position: null,
+			},
+			from: null,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+			sourceFileOverrides: null,
+		});
+
+		expect(result.output).toContain(
+			"import {Audio as Audio2} from '@remotion/media';",
+		);
+		expect(result.output).toMatch(
+			/<Audio2\s+src=\{staticFile\('audio\.mp3'\)\}/,
+		);
+		expect(result.output).toContain('export const Audio = () => null;');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
