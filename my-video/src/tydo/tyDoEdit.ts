@@ -32,6 +32,7 @@ export const CHAPTER_TRANSITION_FRAMES = 10;
 // Source-time spans (ms) to drop: false starts, repeated takes, verbal tics.
 // Sentence-initial "thì" after a pause is dropped automatically (see below).
 const REMOVE: [number, number][] = [
+  [93740, 108700], // the $1M example — misspoken figure ("1.600"), cut at Daniel's request
   [188480, 188960], // "Họ có," — false start before "các ngân hàng có thể…"
 ];
 
@@ -50,7 +51,7 @@ export const CHAPTERS: {
 ];
 
 // Stat cards, keyed to the source-time ms where the number is spoken. The
-// product comparison and the $100K/$1M examples are full infographics in
+// product comparison and the $100K example are full infographics in
 // TyDoMotion.tsx instead.
 export type StatCard = {
   atMs: number;
