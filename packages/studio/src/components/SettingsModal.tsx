@@ -186,23 +186,6 @@ export const SettingsModal: React.FC<{
 								Studio
 							</VerticalTab>
 						) : null}
-						{availableTabs.includes('studio') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'studio' && studioPane === 'elements'}
-								onClick={() => {
-									selectTab('studio');
-									setStudioPane('elements');
-								}}
-								renderIcon={(color) => (
-									<div style={iconContainer}>
-										<BrowseElementsIcon color={color} style={elementsIcon} />
-									</div>
-								)}
-							>
-								Elements
-							</VerticalTab>
-						) : null}
 						{availableTabs.includes('rendering') ? (
 							<VerticalTab
 								style={horizontalTab}
@@ -255,6 +238,23 @@ export const SettingsModal: React.FC<{
 								)}
 							>
 								Skills
+							</VerticalTab>
+						) : null}
+						{availableTabs.includes('studio') ? (
+							<VerticalTab
+								style={horizontalTab}
+								selected={tab === 'studio' && studioPane === 'elements'}
+								onClick={() => {
+									selectTab('studio');
+									setStudioPane('elements');
+								}}
+								renderIcon={(color) => (
+									<div style={iconContainer}>
+										<BrowseElementsIcon color={color} style={elementsIcon} />
+									</div>
+								)}
+							>
+								Elements
 							</VerticalTab>
 						) : null}
 						{availableTabs.includes('models') ? (
