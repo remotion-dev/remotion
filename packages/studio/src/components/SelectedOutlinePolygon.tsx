@@ -59,6 +59,7 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+import {useTimelineSelection} from './Timeline/TimelineSelection';
 
 const {CanvasOutlinePolygon, handleCanvasOutlinePointerDown} = CanvasInternals;
 
@@ -132,6 +133,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
+	const {selectItems} = useTimelineSelection();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	const visible = showSelectedOutline || hovered;
 	const getEffectDropTarget = React.useCallback(() => {
@@ -151,7 +153,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		return {
 			clientId: previewServerState.clientId,
 			fileName: nodePath.absolutePath,
-			nodePath,
+			nodePathInfo: target.nodePathInfo,
 		};
 	}, [getLayoutTarget, previewServerState]);
 
@@ -558,11 +560,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			await addEffectFromDragData({
 				dragData,
 				fileName: effectDrop.fileName,
-				nodePath: effectDrop.nodePath,
+				nodePathInfo: effectDrop.nodePathInfo,
 				clientId: effectDrop.clientId,
+				selectItems,
 			});
 		},
-		[getEffectDropTarget],
+		[getEffectDropTarget, selectItems],
 	);
 
 	return (

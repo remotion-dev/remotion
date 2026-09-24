@@ -1120,7 +1120,13 @@ export const createBrowserStudioOperations = ({
 							result.changes,
 						),
 				});
-				return {success: true};
+				return {
+					success: true,
+					insertedEffect: {
+						effectIndex: result.insertedEffect.effectIndex,
+						nodePath: result.insertedEffect.nodePath,
+					},
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}

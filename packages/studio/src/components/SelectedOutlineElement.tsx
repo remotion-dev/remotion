@@ -41,6 +41,7 @@ import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
+	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
@@ -114,6 +115,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {selectItems} = useTimelineSelection();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
 		useSelectedOutlineControlTarget({
@@ -353,7 +355,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 												type: 'add-effect',
 												clientId: previewServerState.clientId,
 												fileName: nodePath.absolutePath,
-												nodePath,
+												nodePathInfo: contextMenuTarget.nodePathInfo,
+												selectItems,
 											});
 										},
 										quickSwitcherLabel: null,
@@ -445,6 +448,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,
+		selectItems,
 		setSelectedModal,
 		setPropStatuses,
 		outline.path,
