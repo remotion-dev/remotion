@@ -15,7 +15,7 @@ import {
   fieldGroupOrder,
   getFieldGroup,
   getFieldLabel,
-  getSchemaForTag,
+  getLayerSchema,
   getVisibleFields,
   type FieldGroup,
 } from "../../model/schemas";
@@ -64,9 +64,13 @@ const PropEditor: React.FC<{
   readonly field: VisibleField["field"];
   readonly status: PropStatus | undefined;
   readonly onUpdate: (updates: SequencePropUpdate[]) => void;
-}> = ({ fieldKey, field, status, onUpdate }) => {
+  /** Shows a value on the canvas while it is being dragged. */
+  readonly onPreview: (values: Record<string, unknown>) => void;
+  readonly onCancelPreview: () => void;
+}> = ({ fieldKey, field, status, onUpdate, onPreview, onCancelPreview }) => {
   const label = getFieldLabel(fieldKey, field);
   const ariaLabel = label;
+  const preview = (value: unknown) => onPreview({ [fieldKey]: value });
 
   if (status && status.status !== "static") {
     return (
@@ -118,6 +122,8 @@ const PropEditor: React.FC<{
             integer={field.integer}
             allowEmpty
             onCommit={(value) => commit(value === null ? undefined : value)}
+            onLiveChange={preview}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -150,6 +156,10 @@ const PropEditor: React.FC<{
             onCommit={(x) =>
               commit(serializeTranslate({ x: x ?? 0, y: current.y }))
             }
+            onLiveChange={(x) =>
+              preview(serializeTranslate({ x, y: current.y }))
+            }
+            onCancel={onCancelPreview}
           />
           <NumberField
             ariaLabel={`${label} Y`}
@@ -159,6 +169,10 @@ const PropEditor: React.FC<{
             onCommit={(y) =>
               commit(serializeTranslate({ x: current.x, y: y ?? 0 }))
             }
+            onLiveChange={(y) =>
+              preview(serializeTranslate({ x: current.x, y }))
+            }
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -174,6 +188,8 @@ const PropEditor: React.FC<{
             max={field.max}
             step={field.step ?? 0.01}
             onCommit={(value) => commit(value ?? 1)}
+            onLiveChange={preview}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -187,6 +203,8 @@ const PropEditor: React.FC<{
             unit="°"
             step={field.step ?? 1}
             onCommit={(value) => commit(serializeRotation(value ?? 0))}
+            onLiveChange={(value) => preview(serializeRotation(value))}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -202,6 +220,8 @@ const PropEditor: React.FC<{
             max={field.max}
             step={field.step ?? 1}
             onCommit={(value) => commit(value ?? 0)}
+            onLiveChange={preview}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -216,6 +236,7 @@ const PropEditor: React.FC<{
               typeof schemaDefault === "string" ? schemaDefault : undefined
             }
             onCommit={(value) => commit(value === "" ? undefined : value)}
+            onLiveChange={preview}
           />
         </FieldRow>
       );
@@ -304,7 +325,7 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
   const { project, actions, composition } = useEditor();
   const node = getNodeReference(layer.selectionItem);
   const source = layer.source;
-  const schema = source ? getSchemaForTag(source.tagName) : null;
+  const schema = getLayerSchema(layer);
   const displayName = layer.track.sequence.displayName;
   const label = getLayerLabel(layer);
 
@@ -375,8 +396,11 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
 
   const onUpdate = (updates: SequencePropUpdate[]) => {
     if (node) {
-      void actions.updateNodeProps(node, updates, schema);
+      void actions.commitLayerProps(layer, updates, schema);
     }
+  };
+  const onPreview = (values: Record<string, unknown>) => {
+    actions.previewLayerProps(layer, values);
   };
 
   return (
@@ -406,9 +430,7 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
         {node ? (
           <TextField
             ariaLabel="Layer name"
-            value={
-              source?.name ?? (displayName.startsWith("<") ? "" : displayName)
-            }
+            value={displayName.startsWith("<") ? "" : displayName}
             placeholder={label}
             onCommit={(name) => void actions.renameNode(node, name)}
           />
@@ -420,10 +442,9 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
         <LayerActionBar layer={layer} />
       ) : (
         <p className="text-muted-foreground bg-muted/50 rounded-md p-2 text-[11px] leading-relaxed">
-          This layer could not be matched to a JSX element in the source code,
-          so it cannot be edited here. Layers are matched by their{" "}
-          <code className="font-mono">name</code> prop first and by element type
-          in source order second — give it a unique name to link it.
+          This layer is not linked to a JSX element in the source code, so it
+          cannot be edited here. Elements rendered by dependencies do not carry
+          a source location.
         </p>
       )}
       {source && !schema ? (
@@ -445,6 +466,8 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
               field={field}
               status={statuses?.[key]}
               onUpdate={onUpdate}
+              onPreview={onPreview}
+              onCancelPreview={() => actions.cancelLayerPreview(layer)}
             />
           ))}
         </section>

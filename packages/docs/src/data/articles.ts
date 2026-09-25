@@ -694,6 +694,15 @@ export const articles = [
 		slug: 'canvas/get-canvas-sequence-node-path-info',
 	},
 	{
+		id: 'canvas/get-canvas-sequence-source-location',
+		title: 'getCanvasSequenceSourceLocation()',
+		relativePath: 'docs/canvas/get-canvas-sequence-source-location.mdx',
+		compId: 'articles-docs-canvas-get-canvas-sequence-source-location',
+		crumb: '@remotion/canvas',
+		noAi: false,
+		slug: 'canvas/get-canvas-sequence-source-location',
+	},
+	{
 		id: 'canvas/index',
 		title: '@remotion/canvas',
 		relativePath: 'docs/canvas/index.mdx',

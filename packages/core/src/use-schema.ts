@@ -313,7 +313,16 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 
 		let value: unknown;
 		if (status === null) {
-			value = currentValue[key];
+			// Without a source status (for example outside the Studio), an
+			// override still previews on top of the runtime value.
+			const dragOverride = resolveDragOverrideValue({
+				dragOverrideValue: overrideValues[key],
+				frame,
+			});
+			value =
+				dragOverride.type === 'resolved'
+					? dragOverride.value
+					: currentValue[key];
 		} else if (isKeyframedStatus(status)) {
 			if (field?.type === 'array' || field?.keyframable === false) {
 				value = currentValue[key];

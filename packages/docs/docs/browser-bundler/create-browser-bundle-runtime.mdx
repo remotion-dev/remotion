@@ -71,6 +71,12 @@ The returned root registers compositions; it is not the video component for the 
 
 Calling [`getBrowserComposition()`](/docs/browser-bundler/get-browser-composition) again for every edit creates fresh component wrappers and does not preserve that tree.
 
+## Source locations<AvailableFrom v="4.0.529" />
+
+Development bundles record the file, line and column of every JSX element. The runtime forwards this location to Remotion's built-in elements and to components wrapped with [`Interactive.withSchema()`](/docs/interactive-with-schema) when the bundle renders them. Rendering the composition with [`<Canvas>`](/docs/canvas/canvas) exposes the location of each mounted sequence through [`getCanvasSequenceSourceLocation()`](/docs/canvas/get-canvas-sequence-source-location), so an editor can map a track to its source node.
+
+Only the bundle's own JSX carries locations. Elements created by dependencies resolved over HTTP do not, and their location is `null`. The host's React is not modified.
+
 ## Return value
 
 A `BrowserBundleRuntime` with the following methods. Use one runtime per preview document.

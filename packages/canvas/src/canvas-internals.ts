@@ -1,4 +1,8 @@
 // Shared with Remotion Studio through CanvasInternals on the package root.
+export {
+	collectCommitOrderFromFiber,
+	installFiberCommitOrderObserver,
+} from './install-fiber-sequence-order-observer';
 export {calculateTimeline} from './calculate-timeline';
 export {useIsCanvasSequenceHovered} from './hover';
 export type {

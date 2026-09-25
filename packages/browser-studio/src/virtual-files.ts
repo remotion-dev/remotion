@@ -54,7 +54,6 @@ Internals.setComponentIdentityResolver((component) => {
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
 
 const originalCreateElement = React.createElement;
 
@@ -75,14 +74,11 @@ export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
           typeof source.fileName === 'string' &&
           typeof source.lineNumber === 'number' &&
           typeof source.columnNumber === 'number'
-            ? 'Error\\n    at browserStudioOriginal (' +
-              browserStudioOriginalSourcePrefix +
-              encodeURIComponent(source.fileName) +
-              ':' +
-              source.lineNumber +
-              ':' +
-              source.columnNumber +
-              ')'
+            ? Internals.makeOriginalSourceStack({
+                fileName: source.fileName,
+                lineNumber: source.lineNumber,
+                columnNumber: source.columnNumber,
+              })
             : new Error().stack;
         const newProps = props?.[internalStackProp]
           ? {...props}
