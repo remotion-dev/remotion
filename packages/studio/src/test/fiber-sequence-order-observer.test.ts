@@ -11,6 +11,9 @@ type TestFiber = {
 	memoizedProps: unknown;
 	sibling: TestFiber | null;
 	type: unknown;
+	tag: number | null;
+	stateNode: unknown;
+	memoizedState: unknown;
 };
 
 const makeFiber = ({
@@ -32,6 +35,9 @@ const makeFiber = ({
 		memoizedProps: props,
 		sibling: null,
 		type,
+		tag: null,
+		stateNode: null,
+		memoizedState: null,
 	};
 };
 

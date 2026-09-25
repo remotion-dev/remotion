@@ -29,6 +29,7 @@ import {
 	validateSequenceCrop,
 } from './sequence-crop.js';
 import {SequenceOrderMarker} from './sequence-order-marker.js';
+import {SequenceOutlineInternals} from './sequence-outline.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
@@ -318,10 +319,18 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
+	const env = useRemotionEnvironment();
+	const automaticOutlineRef = useMemo(
+		() =>
+			env.isStudio && layout === 'none' && !passedRefForOutline
+				? SequenceOutlineInternals.createRef()
+				: null,
+		[env.isStudio, layout, passedRefForOutline],
+	);
 	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
 	const refForOutline =
 		other.layout === 'none'
-			? (passedRefForOutline ?? null)
+			? (passedRefForOutline ?? automaticOutlineRef)
 			: (passedRefForOutline ?? wrapperRefForOutline);
 
 	const premounting = useMemo(() => {
@@ -411,8 +420,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const resolvedDocumentationLink =
 		documentationLink ?? 'https://www.remotion.dev/docs/sequence';
-
-	const env = useRemotionEnvironment();
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
@@ -683,7 +690,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (hidden) {
 		return env.isStudio ? (
-			<SequenceOrderMarker sequenceId={id}>{null}</SequenceOrderMarker>
+			<SequenceOrderMarker
+				sequenceId={id}
+				outlineChildrenRef={automaticOutlineRef}
+			>
+				{null}
+			</SequenceOrderMarker>
 		) : null;
 	}
 
@@ -704,7 +716,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	return env.isStudio ? (
-		<SequenceOrderMarker sequenceId={id}>{sequence}</SequenceOrderMarker>
+		<SequenceOrderMarker
+			sequenceId={id}
+			outlineChildrenRef={automaticOutlineRef}
+		>
+			{sequence}
+		</SequenceOrderMarker>
 	) : (
 		sequence
 	);

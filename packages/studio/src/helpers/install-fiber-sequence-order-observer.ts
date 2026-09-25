@@ -1,3 +1,4 @@
+import type {RefObject} from 'react';
 import {Internals} from 'remotion';
 
 type Fiber = {
@@ -6,6 +7,9 @@ type Fiber = {
 	readonly memoizedProps: unknown;
 	readonly sibling: Fiber | null;
 	readonly type: unknown;
+	readonly tag: number | null;
+	readonly stateNode: unknown;
+	readonly memoizedState: unknown;
 };
 
 type FiberRoot = {
@@ -58,6 +62,10 @@ const hasFiberMarker = (fiber: Fiber, marker: symbol) =>
 	hasMarker(fiber.type, marker) || hasMarker(fiber.elementType, marker);
 
 export const collectCommitOrderFromFiber = (root: FiberRoot) => {
+	const outlineNodesByRef = new Map<
+		RefObject<Element | null>,
+		(Element | Text)[]
+	>();
 	const sequencesByManager = new Map<string, string[]>();
 	const compositionsAndFoldersByManager = new Map<
 		string,
@@ -68,7 +76,19 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 		fiber: Fiber,
 		currentSequenceManagerId: string | null,
 		currentCompositionManagerId: string | null,
+		outlineCollectors: readonly (Element | Text)[][] | null,
 	) => {
+		// A portal ends the current DOM group, but can contain new sequences:
+		// Studio itself renders the composition through a portal. Hidden
+		// Offscreen trees must not contribute geometry, including new groups.
+		const skipOutline =
+			outlineCollectors === null ||
+			(fiber.tag === 22 && fiber.memoizedState !== null);
+		let childOutlineCollectors = skipOutline
+			? null
+			: fiber.tag === 4
+				? []
+				: outlineCollectors;
 		const isSequenceManagerMarker = hasFiberMarker(
 			fiber,
 			Internals.CommitOrderInternals.sequenceManagerMarker,
@@ -108,6 +128,22 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 			if (sequenceId !== null) {
 				sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
 			}
+
+			const props = fiber.memoizedProps;
+			const outlineRef =
+				typeof props === 'object' && props !== null
+					? (Reflect.get(props, 'outlineChildrenRef') as
+							| RefObject<Element | null>
+							| null
+							| undefined)
+					: null;
+			if (outlineRef) {
+				const nodes: (Element | Text)[] = [];
+				outlineNodesByRef.set(outlineRef, nodes);
+				if (childOutlineCollectors !== null) {
+					childOutlineCollectors = [...childOutlineCollectors, nodes];
+				}
+			}
 		}
 
 		if (
@@ -134,14 +170,38 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 			}
 		}
 
+		if (
+			childOutlineCollectors !== null &&
+			childOutlineCollectors.length > 0 &&
+			(fiber.tag === 5 || fiber.tag === 6) &&
+			fiber.stateNode !== null
+		) {
+			for (const collector of childOutlineCollectors) {
+				collector.push(fiber.stateNode as Element | Text);
+			}
+
+			// Only first-level DOM nodes belong to this group. Keep traversing
+			// for sequence order and for new groups nested inside this element.
+			childOutlineCollectors = [];
+		}
+
 		let {child} = fiber;
 		while (child !== null) {
-			visit(child, sequenceManagerId, compositionManagerId);
+			visit(
+				child,
+				sequenceManagerId,
+				compositionManagerId,
+				childOutlineCollectors,
+			);
 			child = child.sibling;
 		}
 	};
 
-	visit(root.current, null, null);
+	visit(root.current, null, null, []);
+	for (const [ref, nodes] of outlineNodesByRef) {
+		Internals.SequenceOutlineInternals.setNodes(ref, nodes);
+	}
+
 	return {
 		sequenceManagers: [...sequencesByManager].map(
 			([managerId, sequenceIds]) => ({managerId, sequenceIds}),

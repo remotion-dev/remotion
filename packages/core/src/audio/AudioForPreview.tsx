@@ -280,7 +280,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	if (initialShouldPreMountAudioElements) {
 		return isStudio ? (
-			<SequenceOrderMarker sequenceId={timelineId}>{null}</SequenceOrderMarker>
+			<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+				{null}
+			</SequenceOrderMarker>
 		) : null;
 	}
 
@@ -294,7 +296,9 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	);
 
 	return isStudio ? (
-		<SequenceOrderMarker sequenceId={timelineId}>{audio}</SequenceOrderMarker>
+		<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+			{audio}
+		</SequenceOrderMarker>
 	) : (
 		audio
 	);
