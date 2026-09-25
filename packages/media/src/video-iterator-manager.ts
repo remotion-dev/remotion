@@ -124,7 +124,9 @@ export const videoIteratorManager = async ({
 				});
 			} else {
 				context.clearRect(0, 0, canvas.width, canvas.height);
-				context.drawImage(frame.canvas, 0, 0);
+				// HtmlInCanvas may enlarge the bitmap to compensate for nested canvas
+				// capture in Chrome. Fill that bitmap on every decoded frame.
+				context.drawImage(frame.canvas, 0, 0, canvas.width, canvas.height);
 			}
 		}
 	};
