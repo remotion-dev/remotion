@@ -30,6 +30,7 @@ import type {MediaRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+import type {PreviewSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
@@ -93,6 +94,9 @@ export class MediaPlayer {
 		width: number,
 		height: number,
 	) => EffectChainState | null;
+
+	// Preview-only. Headless and rendering consumers leave this unset.
+	public previewSize: PreviewSize | null = null;
 
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
@@ -386,6 +390,7 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					previewSize: this.previewSize,
 				});
 			}
 

@@ -31,6 +31,7 @@ import {useCommonEffects} from '../use-common-effects';
 import type {
 	FallbackOffthreadVideoProps,
 	NativeVideoProps,
+	PreviewSize,
 	VideoObjectFit,
 } from './props';
 import {cacheVideoFrame, getCachedVideoFrame} from './video-frame-cache';
@@ -78,6 +79,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly objectFit: VideoObjectFit;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
+	readonly previewSize: PreviewSize | null;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
@@ -112,6 +114,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	requestInit,
 	objectFit: objectFitProp,
 	_experimentalInitiallyDrawCachedFrame,
+	previewSize,
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
@@ -126,6 +129,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialTrimBeforeRef = useRef(trimBefore);
 	const initialTrimAfterRef = useRef(trimAfter);
 	const initialOnVideoFrameRef = useRef(onVideoFrame);
+	// Keep inline objects and zoom updates from restarting the decoder.
+	const initialPreviewSize = useRef(headless ? null : previewSize);
 	const [initialRequestInit] = useState(requestInit);
 
 	const [mediaPlayerReady, setMediaPlayerReady] = useState(false);
@@ -338,6 +343,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				},
 			});
+
+			player.previewSize = initialPreviewSize.current;
 
 			mediaPlayerRef.current = player;
 			player

@@ -106,6 +106,7 @@ const InnerVideo: React.FC<
 	controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
+	previewSize,
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
@@ -137,6 +138,18 @@ const InnerVideo: React.FC<
 
 	validateMediaProps({playbackRate, volume}, 'Video');
 	validateToneFrequency({toneFrequency, component: 'Video'});
+	if (previewSize !== null) {
+		for (const dimension of ['width', 'height'] as const) {
+			if (
+				!Number.isInteger(previewSize[dimension]) ||
+				previewSize[dimension] <= 0
+			) {
+				throw new TypeError(
+					`Video previewSize.${dimension} must be a positive integer, got ${previewSize[dimension]}`,
+				);
+			}
+		}
+	}
 
 	if (environment.isRendering) {
 		return (
@@ -209,6 +222,7 @@ const InnerVideo: React.FC<
 				_experimentalInitiallyDrawCachedFrame
 			}
 			refForOutline={refForOutline}
+			previewSize={previewSize}
 		/>
 	);
 };
@@ -246,6 +260,7 @@ const VideoInner: React.FC<
 	controls,
 	objectFit,
 	_experimentalInitiallyDrawCachedFrame,
+	previewSize,
 	effects,
 	durationInFrames,
 	from,
@@ -437,6 +452,7 @@ const VideoInner: React.FC<
 					requestInit={requestInit}
 					controls={controls}
 					objectFit={objectFit ?? 'contain'}
+					previewSize={previewSize ?? null}
 					_experimentalInitiallyDrawCachedFrame={
 						_experimentalInitiallyDrawCachedFrame ?? false
 					}
