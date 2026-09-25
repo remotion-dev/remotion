@@ -2,11 +2,20 @@ import { expect, test } from "bun:test";
 import {
   DIMENSIONS,
   PORTRAIT_BOTTOM_SAFE_SPACE,
+  PORTRAIT_CAPTION_LANE_HEIGHT,
   PORTRAIT_CAPTION_SIDE_SAFE_SPACE,
 } from "../config/layout";
-import type { SceneVideos, WebcamPosition } from "../config/scenes";
-import type { VideoSceneAndMetadata } from "../config/scenes";
+import type {
+  SceneVideos,
+  VideoSceneAndMetadata,
+  WebcamPosition,
+} from "../config/scenes";
 import { getSubtitleTransform } from "../remotion/animations/caption-transitions/subtitle-transitions";
+import {
+  getSquareChapterTop,
+  SQUARE_CHAPTER_HEIGHT,
+} from "../remotion/chapters/square/get-chapter-top";
+import { shouldEnableSceneBackgroundBlur } from "../remotion/layout/blur";
 import type { Layout } from "../remotion/layout/layout-types";
 import { getVideoSceneLayout } from "../remotion/layout/get-layout";
 
@@ -81,6 +90,41 @@ test("portrait camera-only scenes fill the canvas and retain a caption lane", ()
     (layout.subtitleLayout?.top ?? 0) + (layout.subtitleLayout?.height ?? 0),
   ).toBeLessThanOrEqual(
     DIMENSIONS.portrait.height - PORTRAIT_BOTTOM_SAFE_SPACE,
+  );
+});
+
+test("portrait camera-only scenes blur a landscape webcam source", () => {
+  const cameraOnlyScene = {
+    type: "video-scene",
+    videos: {
+      webcam: { width: 1920, height: 1080 },
+      display: null,
+    },
+    layout: {
+      webcamLayout: { left: 0, top: 0, width: 1080, height: 1920 },
+      displayLayout: null,
+    },
+  } as VideoSceneAndMetadata;
+
+  expect(shouldEnableSceneBackgroundBlur(cameraOnlyScene, "portrait")).toBe(
+    true,
+  );
+  expect(shouldEnableSceneBackgroundBlur(cameraOnlyScene, "landscape")).toBe(
+    false,
+  );
+});
+
+test("portrait camera-only chapter titles stay above the caption lane", () => {
+  const top = getSquareChapterTop({
+    layoutHeight: DIMENSIONS.portrait.height,
+    canvasLayout: "portrait",
+    hasDisplay: false,
+  });
+
+  expect(top + SQUARE_CHAPTER_HEIGHT).toBeLessThanOrEqual(
+    DIMENSIONS.portrait.height -
+      PORTRAIT_BOTTOM_SAFE_SPACE -
+      PORTRAIT_CAPTION_LANE_HEIGHT,
   );
 });
 

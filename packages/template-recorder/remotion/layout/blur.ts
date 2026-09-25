@@ -26,9 +26,11 @@ export const shouldEnableSceneBackgroundBlur = (
     return false;
   }
 
-  const sameAspectRatio =
-    scene.layout.webcamLayout.width / scene.layout.webcamLayout.height ===
+  const webcamAspectRatio =
+    scene.videos.webcam.width / scene.videos.webcam.height;
+  const canvasAspectRatio =
     DIMENSIONS[canvasLayout].width / DIMENSIONS[canvasLayout].height;
+  const sameAspectRatio = Math.abs(webcamAspectRatio - canvasAspectRatio) < 0.000001;
 
   return !sameAspectRatio;
 };
