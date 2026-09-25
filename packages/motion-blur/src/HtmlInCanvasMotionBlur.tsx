@@ -235,7 +235,10 @@ const HtmlInCanvasMotionBlurInner: React.FC<
  * the experimental HTML-in-canvas flag enabled. Nested HtmlInCanvas components
  * are currently unsupported.
  */
-export const HtmlInCanvasMotionBlur = Interactive.withSchema({
+export const HtmlInCanvasMotionBlur = Interactive.withSchema<
+	typeof htmlInCanvasMotionBlurSchema,
+	HtmlInCanvasMotionBlurProps
+>({
 	Component: HtmlInCanvasMotionBlurInner,
 	componentName: '<HtmlInCanvasMotionBlur>',
 	componentIdentity: 'dev.remotion.motionBlur.HtmlInCanvasMotionBlur',
