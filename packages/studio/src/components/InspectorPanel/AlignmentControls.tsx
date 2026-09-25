@@ -118,19 +118,6 @@ export const AlignmentControls: React.FC<{
 				propStatuses,
 				nodePath,
 			);
-			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
-				(status) => status.status === 'keyframed',
-			);
-			const sourceFrame = getKeyframeSourceFrame({
-				displayFrame: timelinePosition,
-				propStatus: firstKeyframedStatus ?? null,
-				keyframeDisplayOffset: getKeyframeDisplayOffset({
-					propStatus: firstKeyframedStatus ?? null,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-					keyframePlaybackRate: track.keyframePlaybackRate,
-				}),
-				keyframePlaybackRate: track.keyframePlaybackRate,
-			});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -138,7 +125,9 @@ export const AlignmentControls: React.FC<{
 				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
-				frame: sourceFrame,
+				frame:
+					(timelinePosition - track.keyframeDisplayOffset) *
+					track.keyframePlaybackRate,
 			});
 
 			const fieldSchema = activeSchema?.[translateFieldKey];
@@ -177,7 +166,9 @@ export const AlignmentControls: React.FC<{
 							propStatus: propStatus as any,
 							dragOverrideValue: dragOverrides[translateFieldKey],
 							defaultValue: fieldSchema.default,
-							frame: sourceFrame,
+							frame:
+								(timelinePosition - track.keyframeDisplayOffset) *
+								track.keyframePlaybackRate,
 							shouldResortToDefaultValueIfUndefined: true,
 						}) ??
 							fieldSchema.default ??
@@ -280,19 +271,6 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const firstRenderKeyframedStatus = Object.values(
-		renderNodePropStatuses ?? {},
-	).find((status) => status.status === 'keyframed');
-	const renderSourceFrame = getKeyframeSourceFrame({
-		displayFrame: timelinePosition,
-		propStatus: firstRenderKeyframedStatus ?? null,
-		keyframeDisplayOffset: getKeyframeDisplayOffset({
-			propStatus: firstRenderKeyframedStatus ?? null,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-			keyframePlaybackRate: track.keyframePlaybackRate,
-		}),
-		keyframePlaybackRate: track.keyframePlaybackRate,
-	});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
@@ -300,7 +278,9 @@ export const AlignmentControls: React.FC<{
 		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
-		frame: renderSourceFrame,
+		frame:
+			(timelinePosition - track.keyframeDisplayOffset) *
+			track.keyframePlaybackRate,
 	});
 
 	const renderFieldSchema = renderActiveSchema?.[translateFieldKey];

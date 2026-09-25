@@ -518,6 +518,7 @@ const getInterpolationKeyframes = (
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
 			keyframeDisplayOffsetAdjustment: number | null;
+			keyframePlaybackRateAdjustment: number;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -648,6 +649,7 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
+		keyframePlaybackRateAdjustment: frameDisplayOffset.playbackRateAdjustment,
 		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
 			? frameDisplayOffset.adjustment
 			: null,
@@ -790,12 +792,14 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	let current: recast.types.NodePath | null = startPath;
 	let hasSeenControlledElement = false;
 	let hasEnclosingElement = false;
 	let adjustment = 0;
+	let playbackRateAdjustment = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
 		if (
@@ -825,18 +829,35 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 					defaultValue: 0,
 					videoConfigValues,
 				});
-				if (from === null || trimBefore === null) {
+				const playbackRate = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'playbackRate',
+					defaultValue: 1,
+					videoConfigValues,
+				});
+				if (
+					from === null ||
+					trimBefore === null ||
+					playbackRate === null ||
+					!Number.isFinite(playbackRate) ||
+					playbackRate <= 0
+				) {
 					return null;
 				}
 
-				adjustment -= from - trimBefore;
+				// Walk from the controlled element back to the hook's scope.
+				// A sequence maps parent time to (parent - from) * rate + trimBefore.
+				adjustment = (adjustment + trimBefore) / playbackRate - from;
+				playbackRateAdjustment /= playbackRate;
 			}
 		}
 
 		current = current.parentPath;
 	}
 
-	return current ? {adjustment, hasEnclosingElement} : null;
+	return current
+		? {adjustment, playbackRateAdjustment, hasEnclosingElement}
+		: null;
 };
 
 type ResolvedCurrentFrameExpression = {
@@ -977,6 +998,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	if (node.type === 'TSAsExpression') {
@@ -1029,6 +1051,12 @@ export const getComputedStatus = (
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframeDisplayOffsetAdjustment:
 			interpolation.keyframeDisplayOffsetAdjustment,
+		...(interpolation.keyframePlaybackRateAdjustment === 1
+			? {}
+			: {
+					keyframePlaybackRateAdjustment:
+						interpolation.keyframePlaybackRateAdjustment,
+				}),
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,

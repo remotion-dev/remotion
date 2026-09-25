@@ -41,6 +41,7 @@ import {
 import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
 import type {AddSequenceKeyframeChange} from './Timeline/call-add-keyframe';
 import {
+	getKeyframeLocalFrame,
 	getKeyframeSourceFrame,
 	resolveKeyframeSourceFrame,
 } from './Timeline/get-timeline-keyframes';
@@ -116,7 +117,7 @@ export const getSelectedOutlineDragStates = ({
 			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
-			frame: sourceFrame,
+			frame: getKeyframeLocalFrame(sourceFrame, target.propStatus),
 			shouldResortToDefaultValueIfUndefined: true,
 		});
 		const [startX, startY, startZ] = parseTranslate(
@@ -608,7 +609,7 @@ export const getSelectedOutlineScaleDragStates = ({
 			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
-			frame: sourceFrame,
+			frame: getKeyframeLocalFrame(sourceFrame, target.propStatus),
 			shouldResortToDefaultValueIfUndefined: true,
 		});
 		const [startX, startY, startZ] =
@@ -760,7 +761,7 @@ export const getSelectedOutlineRotationDragStates = ({
 			propStatus: target.propStatus,
 			dragOverrideValue,
 			defaultValue: target.fieldDefault,
-			frame: sourceFrame,
+			frame: getKeyframeLocalFrame(sourceFrame, target.propStatus),
 			shouldResortToDefaultValueIfUndefined: true,
 		});
 		const startValue = String(effectiveValue ?? '0deg');

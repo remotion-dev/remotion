@@ -40,6 +40,7 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 	getTimelineKeyframes,
@@ -374,8 +375,9 @@ const getAddChange = (
 	const value = getCurrentKeyframeValue({
 		propStatus: target.propStatus,
 		jsxFrame:
-			target.sourceFrame +
-			(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0),
+			(target.sourceFrame +
+				(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0)) /
+			(target.propStatus.keyframePlaybackRateAdjustment ?? 1),
 		defaultValue: target.defaultValue,
 		dragOverrideValue: target.dragOverrideValue,
 	});
@@ -823,7 +825,11 @@ export const TimelineKeyframeControls: React.FC<{
 						type: 'keyframe' as const,
 						nodePathInfo: target.nodePathInfo,
 						frame:
-							target.sourceFrame / target.keyframePlaybackRate +
+							target.sourceFrame /
+								getKeyframePlaybackRate(
+									target.propStatus,
+									target.keyframePlaybackRate,
+								) +
 							target.keyframeDisplayOffset,
 					})),
 					{reveal: true},
