@@ -20,8 +20,7 @@ export type UsePlayerMethods = {
 };
 
 export const usePlayerMethods = (): UsePlayerMethods => {
-	const setFrame = Internals.Timeline.useTimelineSeekFrame();
-	const setTimelinePosition = setFrame;
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {
 		setPlaying,
 		frameRef,
@@ -77,7 +76,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			fallbackFrame.current = frameToSeekTo;
 
 			if (video?.id) {
-				setTimelinePosition((currentFrames) =>
+				seekFrame((currentFrames) =>
 					currentFrames[video.id] === frameToSeekTo
 						? currentFrames
 						: {...currentFrames, [video.id]: frameToSeekTo},
@@ -92,7 +91,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 
 			emitter.dispatchSeek(frameToSeekTo);
 		},
-		[config, emitter, frameRef, setTimelinePosition, video?.id],
+		[config, emitter, frameRef, seekFrame, video?.id],
 	);
 
 	const play = useCallback(
@@ -164,7 +163,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			setPlaying(false);
 			fallbackFrame.current = playStart.current;
 			if (config) {
-				setTimelinePosition((currentFrames) => ({
+				seekFrame((currentFrames) => ({
 					...currentFrames,
 					[config.id]: playStart.current,
 				}));
@@ -175,14 +174,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				emitter.dispatchPause();
 			}
 		}
-	}, [
-		config,
-		emitter,
-		frameRef,
-		readIsPlaying,
-		setPlaying,
-		setTimelinePosition,
-	]);
+	}, [config, emitter, frameRef, readIsPlaying, setPlaying, seekFrame]);
 
 	const videoId = video?.id;
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;
@@ -204,7 +196,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			setFrame((currentFrames) =>
+			seekFrame((currentFrames) =>
 				currentFrames[videoId] === newFrame
 					? currentFrames
 					: {...currentFrames, [videoId]: newFrame},
@@ -214,7 +206,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				[videoId]: newFrame,
 			};
 		},
-		[frameRef, readIsPlaying, setFrame, videoId],
+		[frameRef, readIsPlaying, seekFrame, videoId],
 	);
 
 	const frameForward = useCallback(
@@ -234,7 +226,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			setFrame((currentFrames) =>
+			seekFrame((currentFrames) =>
 				currentFrames[videoId] === newFrame
 					? currentFrames
 					: {...currentFrames, [videoId]: newFrame},
@@ -244,7 +236,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				[videoId]: newFrame,
 			};
 		},
-		[frameRef, lastFrame, readIsPlaying, setFrame, videoId],
+		[frameRef, lastFrame, readIsPlaying, seekFrame, videoId],
 	);
 
 	const toggle = useCallback(

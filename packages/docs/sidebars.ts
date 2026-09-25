@@ -602,6 +602,7 @@ const sidebars: SidebarsConfig = {
 				'paths/reverse-path',
 				'paths/normalize-path',
 				'paths/interpolate-path',
+				'paths/interpolate-paths',
 				'paths/evolve-path',
 				'paths/reset-path',
 				'paths/center-path',
@@ -1151,6 +1152,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'getting-started',
 				'the-fundamentals',
+				'timing',
 				'animating-properties',
 				'reusability',
 				'preview',
@@ -1225,7 +1227,6 @@ const sidebars: SidebarsConfig = {
 				'audio/visualization',
 				'audio/sfx',
 				'audio/exporting',
-				'audio/order-of-operations',
 			],
 		},
 		{
@@ -1542,7 +1543,6 @@ const sidebars: SidebarsConfig = {
 				'ai/generate',
 				'ai/dynamic-compilation',
 				'ai/ai-saas-template',
-				'ai/system-prompt',
 				'ai/mcp',
 			],
 		},

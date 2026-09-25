@@ -30,6 +30,9 @@
 		"eslint": "catalog:",
 		"@typescript/native-preview": "catalog:"
 	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
 	"exports": {
 		"./package.json": "./package.json",
 		".": {

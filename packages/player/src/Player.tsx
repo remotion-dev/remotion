@@ -446,7 +446,7 @@ const PlayerFn = <
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
-			setFrame,
+			setFrameWithoutSeek: setFrame,
 			seek,
 			setPlaying: (updater) => {
 				const current = playingStore.store.getSnapshot().playing;

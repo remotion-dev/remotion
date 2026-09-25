@@ -113,7 +113,10 @@ import {
 	type InteractivitySchema,
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
-import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
+import {
+	interpolateKeyframedStatus,
+	setInterpolatePaths,
+} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
@@ -196,7 +199,7 @@ import {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
 import {
 	AbsoluteTimeContext,
@@ -403,7 +406,7 @@ export const Internals = {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
@@ -459,6 +462,7 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	setInterpolatePaths,
 	makeStaticDragOverride,
 	makeKeyframedDragOverride,
 	resolveDragOverrideValue,

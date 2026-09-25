@@ -234,15 +234,6 @@ export const articles = [
 		slug: 'ai/skills',
 	},
 	{
-		id: 'ai/system-prompt',
-		title: 'Remotion System Prompt for LLMs',
-		relativePath: 'docs/ai/system-prompt.mdx',
-		compId: 'articles-docs-ai-system-prompt',
-		crumb: 'AI',
-		noAi: false,
-		slug: 'ai/system-prompt',
-	},
-	{
 		id: 'ai/webmcp',
 		title: 'WebMCP',
 		relativePath: 'docs/ai/webmcp.mdx',
@@ -430,15 +421,6 @@ export const articles = [
 		crumb: 'Audio',
 		noAi: false,
 		slug: 'audio/muting',
-	},
-	{
-		id: 'order-of-operations',
-		title: 'Order of Operations',
-		relativePath: 'docs/audio/order-of-operations.mdx',
-		compId: 'articles-docs-audio-order-of-operations',
-		crumb: 'Audio',
-		noAi: false,
-		slug: 'audio/order-of-operations',
 	},
 	{
 		id: 'pitch',
@@ -5797,6 +5779,15 @@ export const articles = [
 		slug: 'paths/interpolate-path',
 	},
 	{
+		id: 'paths/interpolate-paths',
+		title: 'interpolatePaths()',
+		relativePath: 'docs/paths/interpolate-paths.mdx',
+		compId: 'articles-docs-paths-interpolate-paths',
+		crumb: '@remotion/paths',
+		noAi: false,
+		slug: 'paths/interpolate-paths',
+	},
+	{
 		id: 'paths/normalize-path',
 		title: 'normalizePath()',
 		relativePath: 'docs/paths/normalize-path.mdx',
@@ -8290,6 +8281,15 @@ export const articles = [
 		crumb: 'Troubleshooting',
 		noAi: false,
 		slug: 'timeout',
+	},
+	{
+		id: 'timing',
+		title: 'Timing and trimming',
+		relativePath: 'docs/timing.mdx',
+		compId: 'articles-docs-timing',
+		crumb: 'Getting started',
+		noAi: false,
+		slug: 'timing',
 	},
 	{
 		id: 'transforms',

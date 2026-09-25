@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #050608;
+        color: #8b93a7;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        overflow: hidden;
+      }
+      #preview-root {
+        position: absolute;
+        inset: 0;
+      }
+      .preview-loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+    </style>
+    <script defer src="/preview.js"></script>
+  </head>
+  <body>
+    <main id="preview-root">
+      <p class="preview-loading" role="status">Loading preview…</p>
+    </main>
+  </body>
+</html>

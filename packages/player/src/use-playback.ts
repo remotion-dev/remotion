@@ -52,7 +52,8 @@ export const usePlayback = ({
 	const frame = Internals.Timeline.useTimelinePosition();
 	const playing = Internals.usePlaying();
 	const {pause, emitter, isPlaying} = usePlayerMethods();
-	const setFrame = Internals.Timeline.useTimelineSetFrame();
+	const setFrameFromPlayback =
+		Internals.Timeline.useTimelineSetFrameWithoutSeek();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const {isBuffering, subscribeBuffering} = useContext(
@@ -254,7 +255,7 @@ export const usePlayback = ({
 				(!hasEnded || moveToBeginningWhenEnded) &&
 				!isBuffering()
 			) {
-				setFrame((c) => ({...c, [config.id]: nextFrame}));
+				setFrameFromPlayback((c) => ({...c, [config.id]: nextFrame}));
 			}
 
 			if (hasEnded) {
@@ -357,7 +358,7 @@ export const usePlayback = ({
 		loop,
 		pause,
 		playing,
-		setFrame,
+		setFrameFromPlayback,
 		emitter,
 		playbackRate,
 		inFrame,

@@ -50,17 +50,13 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/order-of-operations.md', '/docs/timing.md', {
+			permanent: true,
+		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
-		routes.redirect(
-			'/elements/guidelines',
-			'/elements/contributing#element-guidelines',
-			{permanent: true},
-		),
-		routes.redirect(
-			'/elements/guidelines.md',
-			'/elements/contributing.md#element-guidelines',
-			{permanent: true},
-		),
 		routes.redirect(
 			'/elements/submit-an-element',
 			'/elements/contributing#submit-an-element',
@@ -367,7 +363,10 @@ export const config: VercelConfig = {
 		routes.redirect('/editor-starter', '/docs/editor-starter', {
 			permanent: false,
 		}),
-		routes.redirect('/docs/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/docs/system-prompt', '/system-prompt.txt', {
+			permanent: false,
+		}),
+		routes.redirect('/docs/ai/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/media-parser/', '/docs/media-parser', {
@@ -440,7 +439,7 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/vercel', '/docs/vercel', {
 			permanent: false,
 		}),
-		routes.redirect('/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/investors', '/docs/investors', {permanent: false}),
