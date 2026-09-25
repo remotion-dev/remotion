@@ -14,7 +14,6 @@ import type {
 } from '@babel/types';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-presets';
-import {isKeyframeInterpolationFunction} from '@remotion/studio-shared/keyframe-interpolation-function';
 import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
@@ -39,6 +38,7 @@ import {
 	JsxElementIdentityMismatchError,
 } from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
+import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {parseVideoConfigNumericExpression} from './sequence-props/video-config-numeric-expression';
@@ -453,7 +453,11 @@ const getInterpolationMetadata = (
 			}
 
 			const extrapolateType = getExtrapolateType(value);
-			if (!extrapolateType) {
+			if (
+				!extrapolateType ||
+				(interpolationFunction === 'interpolatePaths' &&
+					extrapolateType === 'identity')
+			) {
 				return null;
 			}
 
@@ -479,7 +483,7 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'output') {
-			if (interpolationFunction === 'interpolateColors') {
+			if (interpolationFunction !== 'interpolate') {
 				return null;
 			}
 
@@ -494,7 +498,7 @@ const getInterpolationMetadata = (
 
 		if (key === 'outputType') {
 			if (
-				interpolationFunction === 'interpolateColors' ||
+				interpolationFunction !== 'interpolate' ||
 				getInterpolateOutputType(value) === null
 			) {
 				return null;
@@ -964,14 +968,17 @@ const getInterpolationKeyframes = (
 	}
 
 	const callExpression = node as CallExpression;
-	if (
-		callExpression.callee.type !== 'Identifier' ||
-		!isKeyframeInterpolationFunction(callExpression.callee.name)
-	) {
+	if (callExpression.callee.type !== 'Identifier') {
 		return undefined;
 	}
 
-	const interpolationFunction = callExpression.callee.name;
+	const interpolationFunction = getKeyframeInterpolationFunctionForCallee({
+		ast,
+		callee: callExpression.callee,
+	});
+	if (interpolationFunction === null) {
+		return undefined;
+	}
 
 	const frameArg = callExpression.arguments[0];
 	const inputArg = callExpression.arguments[1];

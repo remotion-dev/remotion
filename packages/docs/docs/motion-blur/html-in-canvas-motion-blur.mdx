@@ -68,6 +68,24 @@ The canvas width in pixels. Must be a positive integer. Use the composition widt
 
 The canvas height in pixels. Must be a positive integer. Use the composition height from [`useVideoConfig()`](/docs/use-video-config) to cover the full frame.
 
+### `from?`
+
+Moves the blurred content on its parent timeline. Default: `0`.
+
+### `durationInFrames?`
+
+Limits how long the blurred content appears on its parent timeline, starting at `from`. By default, it lasts until the composition ends.
+
+### `trimBefore?`
+
+Skips the beginning of the content without moving its `from` position. Default: `0`.
+
+### `playbackRate?`
+
+Changes how quickly the child frames advance. Default: `1`. The motion blur samples follow this speed.
+
+See [Timing and trimming](/docs/timing) for how these props combine.
+
 ### `samples?`
 
 How many snapshots are averaged. Default: `8`, min: `1`, max: `64`.  

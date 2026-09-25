@@ -191,7 +191,7 @@ const interactiveSvgPathElementSchema = {
 		type: 'svg-path',
 		default: undefined,
 		description: 'Path',
-		keyframable: false,
+		keyframable: true,
 	},
 } as const satisfies InteractivitySchema;
 

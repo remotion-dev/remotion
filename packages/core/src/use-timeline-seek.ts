@@ -3,7 +3,7 @@ import {useMemo, useRef} from 'react';
 
 export type TimelineSeek = {
 	readonly revision: RefObject<number>;
-	readonly setFrame: (frame: SetStateAction<Record<string, number>>) => void;
+	readonly seekFrame: (frame: SetStateAction<Record<string, number>>) => void;
 };
 
 // One instance per timeline, shared by Studio and Player. Keep the revision
@@ -15,7 +15,7 @@ export const useTimelineSeek = (
 	return useMemo(
 		() => ({
 			revision,
-			setFrame: (frame) => {
+			seekFrame: (frame) => {
 				// Even a same-frame seek is a boundary for the next media update.
 				revision.current++;
 				setFrame(frame);

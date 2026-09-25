@@ -37,6 +37,7 @@ import {
 import {saveSequenceProps} from './save-sequence-prop';
 import {isTimelineFieldStacked} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
 	shouldShowTimelineKeyframeControls,
@@ -738,11 +739,14 @@ export const TimelineSequencePropItem: React.FC<{
 			/>
 		) : null;
 
+	const hidePathValue =
+		keyframeControlsMode === 'timeline' && field.typeName === 'svg-path';
+
 	const style = useMemo((): React.CSSProperties => {
-		return isTimelineFieldStacked({field, transform3DMode})
+		return !hidePathValue && isTimelineFieldStacked({field, transform3DMode})
 			? fieldRowBase
 			: {...fieldRowBase, height: field.rowHeight};
-	}, [field, transform3DMode]);
+	}, [field, hidePathValue, transform3DMode]);
 
 	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
@@ -979,13 +983,21 @@ export const TimelineSequencePropItem: React.FC<{
 			containsSelection={containsSelection}
 			outerHeight={null}
 		>
-			<TimelineFieldRowContent
-				field={field}
-				rowDepth={rowDepth}
-				selected={selection.selected || containsSelection}
-			>
-				{fieldValue}
-			</TimelineFieldRowContent>
+			{hidePathValue ? (
+				<TimelineFieldLabel
+					rowDepth={rowDepth}
+					selected={selection.selected || containsSelection}
+					label={field.description ?? field.key}
+				/>
+			) : (
+				<TimelineFieldRowContent
+					field={field}
+					rowDepth={rowDepth}
+					selected={selection.selected || containsSelection}
+				>
+					{fieldValue}
+				</TimelineFieldRowContent>
+			)}
 		</TimelineRowChrome>
 	);
 

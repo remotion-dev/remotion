@@ -16,11 +16,13 @@ import {
 import {HtmlInCanvasDocsVideoFallback} from './HtmlInCanvasDocsVideoFallback';
 import {useHtmlInCanvasDocsDemoBranch} from './useHtmlInCanvasDocsDemoBranch';
 
-loadFont({
-	family: 'GT Planar',
-	url: staticFile('img/gt-planar-bold.woff2'),
-	weight: '700',
-});
+if (typeof window !== 'undefined') {
+	loadFont({
+		family: 'GT Planar',
+		url: staticFile('img/gt-planar-bold.woff2'),
+		weight: '700',
+	});
+}
 
 type MotionBlurDemoProps = {
 	readonly darkMode?: boolean;

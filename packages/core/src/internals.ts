@@ -69,8 +69,11 @@ import {
 	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
+	makeOriginalSourceStack,
+	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 	setComponentIdentityResolver,
+	type OriginalSourceLocation,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -113,7 +116,10 @@ import {
 	type InteractivitySchema,
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
-import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
+import {
+	interpolateKeyframedStatus,
+	setInterpolatePaths,
+} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
@@ -196,7 +202,7 @@ import {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
 import {
 	AbsoluteTimeContext,
@@ -283,7 +289,10 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
-import {DisableInteractivityProvider} from './with-interactivity-schema.js';
+import {
+	DisableInteractivityProvider,
+	EnableInteractivityProvider,
+} from './with-interactivity-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -385,6 +394,7 @@ export const Internals = {
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	DisableInteractivityProvider,
+	EnableInteractivityProvider,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,
@@ -403,7 +413,7 @@ export const Internals = {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
@@ -414,6 +424,8 @@ export const Internals = {
 	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
+	makeOriginalSourceStack,
+	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 	setComponentIdentityResolver,
 	CurrentScaleContext,
@@ -459,6 +471,7 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	setInterpolatePaths,
 	makeStaticDragOverride,
 	makeKeyframedDragOverride,
 	resolveDragOverrideValue,
@@ -510,6 +523,7 @@ export type {
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
+	OriginalSourceLocation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	OverrideIdToNodePaths,

@@ -190,6 +190,9 @@
 			"path": "./packages/template-prompt-to-motion-graphics"
 		},
 		{
+			"path": "./packages/template-vibe-code"
+		},
+		{
 			"path": "./packages/template-stargazer"
 		},
 		{
