@@ -245,6 +245,7 @@ export const ${previewComponentName} = () => {
 
 	return (
 		<AbsoluteFill
+			durationInFrames={${durationInFrames}}
 			style={{
 				width: ${videoWidth},
 				height: ${videoHeight},
