@@ -156,15 +156,6 @@ All other items require `trimAfter` to loop, because they have no intrinsic end.
 
 [`<Loop>`](/docs/loop) is a shorthand for the same behavior with a period measured in the parent timeline: `<Loop durationInFrames={50} times={3}>` is equivalent to `trimAfter={50}`, `durationInFrames={150}` and `loop`.
 
-## Why both `trimAfter` and `durationInFrames`?
-
-`trimAfter` is a position in the child clock, `durationInFrames` is a length in the parent timeline.
-
-They only coincide if `trimBefore` is `0`, `playbackRate` is `1` and the item does not loop.
-
-`loop` needs both: the trim range defines one cycle, `durationInFrames` defines how long the item stays.
-A range of 60 child frames repeated over 90 parent frames cannot be expressed with one prop.
-
 ## Order of operations
 
 Think of the timing props as applying to the content in this order:
