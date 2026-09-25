@@ -1,3 +1,5 @@
+export {detectElevenLabsTranscriptFormat} from './detect-elevenlabs-transcript-format';
+
 export {
 	ElevenLabsTranscriptToCaptionsInput,
 	ElevenLabsTranscriptToCaptionsOutput,

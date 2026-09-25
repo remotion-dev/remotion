@@ -61,7 +61,7 @@ test('imports captions from a JSON file in the public folder', async () => {
 
 		const {assetSelection} = modal;
 
-		expect(assetSelection.initialQuery).toBe('type:json');
+		expect(assetSelection.initialQuery).toBe('');
 		await act(async () => {
 			await (assetSelection.onSelected({
 				lastModified: 0,

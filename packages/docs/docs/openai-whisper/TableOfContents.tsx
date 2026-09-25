@@ -13,6 +13,10 @@ export const TableOfContents: React.FC = () => {
 						<code>Caption</code>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/openai-whisper/is-openai-whisper-transcript">
+					<strong>{'isOpenAiWhisperTranscript()'}</strong>
+					<div>Recognize OpenAI Whisper transcript signatures</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

@@ -16,7 +16,9 @@ import {ElementLibrary} from '@site/src/components/Elements/ElementLibrary';
 <Step>2</Step> Select its caption layer in Studio.
 </div>
 <div>
-<Step>3</Step> In the Captions inspector, click <kbd>Import</kbd> and choose a JSON file containing [`Caption`](/docs/captions/caption) elements.
+<Step>3</Step> In the Captions inspector, click <kbd>Import</kbd> and choose a Remotion [`Caption[]`](/docs/captions/caption) JSON, SRT, ElevenLabs Speech-to-Text or segmented JSON, or OpenAI Whisper verbose JSON file.
 </div>
+
+<AvailableFrom v="4.0.530" /> Studio detects the format and converts it locally. Timed words retain word-level timing; exports with only timed segments produce segment-level captions. Invalid or unsupported files show an error and leave existing captions unchanged. You can choose a local file or a public asset.
 
 <ElementLibrary category="captions" />

@@ -43,8 +43,7 @@ An object with the following property:
 
 #### `transcript`
 
-The response from the [ElevenLabs Speech to Text API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert).
-Must include a `words` array with word-level timing — ensure the API is called with `timestamps_granularity` set to `"word"`.
+A Speech-to-Text response with a `words` array (request `timestamps_granularity: "word"`), or a segmented JSON export with `segments` containing `text`, `start_time`, `end_time`, and optionally timed `words`. <AvailableFrom v="4.0.530" inline /> Segmented exports use absolute seconds; when timed words are available they are preserved, otherwise each segment becomes one caption.
 
 The `words` array should contain objects with the following fields:
 
@@ -52,6 +51,8 @@ The `words` array should contain objects with the following fields:
 - `type`: `"word"`, `"spacing"`, or `"audio_event"` — only `"word"` entries are used
 - `start`: Start time in seconds
 - `end`: End time in seconds
+
+Invalid consumed fields, negative or reversed timings, and unknown entry types throw an error naming the field. Audio events are intentionally omitted; spacing entries inform the timing of subsequent words. The converter runs locally and does not call the ElevenLabs API.
 
 ### Return value
 

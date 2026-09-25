@@ -13,6 +13,10 @@ export const TableOfContents: React.FC = () => {
 						<code>Caption</code>
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/elevenlabs/detect-elevenlabs-transcript-format">
+					<strong>{'detectElevenLabsTranscriptFormat()'}</strong>
+					<div>Recognize ElevenLabs transcript format signatures</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

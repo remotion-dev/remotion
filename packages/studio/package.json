@@ -37,6 +37,8 @@
 		"@jridgewell/trace-mapping": "0.3.31",
 		"@remotion/canvas": "workspace:*",
 		"@remotion/captions": "workspace:*",
+		"@remotion/elevenlabs": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/paths": "workspace:*",
