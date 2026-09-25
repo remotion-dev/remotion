@@ -1,5 +1,5 @@
 import type {Instruction} from '@remotion/paths';
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useMemo} from 'react';
 import {version} from 'react-dom';
 import {
 	HtmlInCanvas,
@@ -53,7 +53,6 @@ const RenderSvgWithTiming = ({
 	durationInFrames,
 	name,
 	defaultName,
-	outlineRef,
 	documentationLink,
 	memoizedEffectDefinitions,
 	content,
@@ -63,7 +62,6 @@ const RenderSvgWithTiming = ({
 	readonly documentationLink: string;
 	readonly content: React.ReactElement<Pick<AllShapesProps, 'style'>>;
 	readonly actualStyle: React.CSSProperties;
-	readonly outlineRef: React.RefObject<Element | null>;
 	readonly memoizedEffectDefinitions: ReturnType<
 		typeof Internals.useMemoizedEffectDefinitions
 	>;
@@ -100,7 +98,6 @@ const RenderSvgWithTiming = ({
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? defaultName}
-				outlineRef={outlineRef}
 				_remotionInternalDocumentationLink={
 					name === undefined ? documentationLink : undefined
 				}
@@ -165,15 +162,6 @@ export const RenderSvg = ({
 		};
 	}, [pathStyle]);
 
-	const outlineRef = useRef<Element | null>(null);
-	const setSvgRef = useCallback((node: SVGSVGElement | null) => {
-		outlineRef.current = node;
-	}, []);
-
-	const setCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
-		outlineRef.current = canvas;
-	}, []);
-
 	const memoizedEffectDefinitions =
 		Internals.useMemoizedEffectDefinitions(effects);
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -183,7 +171,6 @@ export const RenderSvg = ({
 
 	const svg = (
 		<svg
-			ref={effects.length === 0 || !videoConfig ? setSvgRef : undefined}
 			width={width}
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
@@ -276,7 +263,6 @@ export const RenderSvg = ({
 			svg
 		) : (
 			<HtmlInCanvasWithPrivateProps
-				ref={setCanvasRef}
 				width={Math.ceil(width)}
 				height={Math.ceil(height)}
 				effects={effects}
@@ -309,7 +295,6 @@ export const RenderSvg = ({
 			durationInFrames={durationInFrames}
 			name={name}
 			defaultName={defaultName}
-			outlineRef={outlineRef}
 			documentationLink={documentationLink}
 			memoizedEffectDefinitions={memoizedEffectDefinitions}
 			content={content}

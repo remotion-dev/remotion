@@ -7,7 +7,6 @@ import {
 	useMemo,
 	useRef,
 	useState,
-	type RefObject,
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
@@ -203,7 +202,6 @@ type CanvasImageContentProps = Pick<
 > & {
 	readonly effects: EffectsProp;
 	readonly controls: SequenceControls | undefined;
-	readonly refForOutline: RefObject<HTMLElement | null> | null;
 } & CanvasImageCanvasProps;
 
 const CanvasImageContent = forwardRef<
@@ -227,7 +225,6 @@ const CanvasImageContent = forwardRef<
 			maxRetries = 2,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			refForOutline,
 			...canvasProps
 		},
 		ref,
@@ -279,9 +276,6 @@ const CanvasImageContent = forwardRef<
 		const canvasRef = useCallback(
 			(canvas: HTMLCanvasElement | null) => {
 				setOutputCanvas(canvas);
-				if (refForOutline) {
-					refForOutline.current = canvas;
-				}
 
 				if (typeof ref === 'function') {
 					ref(canvas);
@@ -289,7 +283,7 @@ const CanvasImageContent = forwardRef<
 					ref.current = canvas;
 				}
 			},
-			[ref, refForOutline],
+			[ref],
 		);
 
 		useLayoutEffect(() => {
@@ -558,7 +552,6 @@ const CanvasImageInner = forwardRef<
 			controls,
 			_remotionInternalDocumentationLink,
 			_remotionInternalCropComponentName,
-			outlineRef,
 			...canvasProps
 		},
 		ref,
@@ -629,7 +622,6 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
-					outlineRef={outlineRef ?? actualRef}
 				>
 					<CanvasImageContent
 						ref={actualRef}
@@ -648,7 +640,6 @@ const CanvasImageInner = forwardRef<
 						maxRetries={maxRetries}
 						delayRenderRetries={delayRenderRetries}
 						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-						refForOutline={outlineRef ?? null}
 						{...canvasProps}
 					/>
 				</Sequence>

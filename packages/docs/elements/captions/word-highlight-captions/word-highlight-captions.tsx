@@ -287,7 +287,6 @@ const WordHighlightCaptionsInner = forwardRef<
 				controls={controls}
 				name={name ?? '<WordHighlightCaptions>'}
 				trimBefore={trimBefore}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

@@ -382,7 +382,6 @@ const AnimatedImageInner = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
-				outlineRef={actualRef}
 			>
 				<AnimatedImageContent
 					{...animatedImageProps}

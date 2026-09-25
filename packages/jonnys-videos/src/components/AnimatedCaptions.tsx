@@ -460,7 +460,6 @@ const AnimatedCaptionsInner = forwardRef<
 			{...interactiveProps}
 			controls={controls}
 			name={name ?? '<AnimatedCaptions>'}
-			outlineRef={outlineRef}
 		>
 			<AbsoluteFill ref={outlineRef}>
 				{captions ? (

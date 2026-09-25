@@ -1,5 +1,4 @@
 import React, {
-	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
@@ -79,7 +78,6 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -114,7 +112,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
-	refForOutline,
 	...props
 }) => {
 	const src = usePreload(unpreloadedSrc);
@@ -138,21 +135,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
-
-	const canvasRefCallback = useCallback(
-		(canvas: HTMLCanvasElement | null) => {
-			canvasRef.current = canvas;
-			refForOutline.current = canvas;
-		},
-		[refForOutline],
-	);
-
-	const fallbackVideoRef = useCallback(
-		(video: HTMLVideoElement | null) => {
-			refForOutline.current = video;
-		},
-		[refForOutline],
-	);
 
 	const [mediaVolume] = useMediaVolumeState();
 
@@ -268,8 +250,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
+		const currentCanvasRef = canvasRef;
 		return () => {
-			const canvas = canvasRef.current;
+			const canvas = currentCanvasRef.current;
 
 			if (
 				!canvas ||
@@ -574,7 +557,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		return (
 			<Html5Video
 				{...props}
-				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
@@ -601,7 +583,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			{...props}
-			ref={canvasRefCallback}
+			ref={canvasRef}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.

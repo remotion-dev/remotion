@@ -206,7 +206,6 @@ const AudioWaveformProgressInner = forwardRef<
 				controls={controls}
 				durationInFrames={durationInFrames}
 				name={name ?? 'Audio waveform progress'}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

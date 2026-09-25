@@ -251,7 +251,6 @@ const RoundedCaptionsInner = forwardRef<
 				controls={controls}
 				name={name ?? '<RoundedCaptions>'}
 				trimBefore={trimBefore}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

@@ -963,7 +963,7 @@ test('Img with effects delegates premounting to one CanvasImage owner', async ()
 	).toContain('display: none');
 });
 
-test('AnimatedImage registers its canvas ref for the Studio outline', () => {
+test('AnimatedImage registers an automatic Studio outline', () => {
 	const registeredSequences: TSequence[] = [];
 	const ref = React.createRef<HTMLCanvasElement>();
 
@@ -977,11 +977,12 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 		</SequenceTestWrapper>,
 	);
 
-	const refForOutline = registeredSequences[0]
-		?.refForOutline as React.RefObject<HTMLCanvasElement | null>;
-
-	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
-	expect(ref.current).toBe(refForOutline.current);
+	expect(ref.current).toBeInstanceOf(HTMLCanvasElement);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
@@ -1317,7 +1318,7 @@ test('Video media registration keeps frozen frame sequence-local for negative fr
 	expect(videoSequence?.frozenMediaFrame).toBe(17);
 });
 
-test('Img registers a refForOutline pointing to the rendered image element', () => {
+test('Img registers an automatic outline for its image element', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -1330,10 +1331,14 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 		</SequenceTestWrapper>,
 	);
 
-	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('IMG');
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
-test('Interactive elements register their rendered element for Studio outlines', () => {
+test('Interactive elements register automatic Studio outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const divRef = React.createRef<HTMLDivElement>();
 	const rectRef = React.createRef<SVGRectElement>();
@@ -1394,30 +1399,27 @@ test('Interactive elements register their rendered element for Studio outlines',
 			(sequence) => sequence.displayName === displayName,
 		);
 
-	expect(getByName('<Interactive.Div>')?.refForOutline?.current?.tagName).toBe(
-		'DIV',
-	);
-	expect(getByName('<Interactive.Span>')?.refForOutline?.current?.tagName).toBe(
-		'SPAN',
-	);
-	expect(getByName('<Interactive.Svg>')?.refForOutline?.current?.tagName).toBe(
-		'svg',
-	);
-	expect(getByName('<Interactive.Rect>')?.refForOutline?.current?.tagName).toBe(
-		'rect',
-	);
-	expect(getByName('<Interactive.Text>')?.refForOutline?.current?.tagName).toBe(
-		'text',
-	);
+	for (const displayName of [
+		'<Interactive.Div>',
+		'<Interactive.Span>',
+		'<Interactive.Svg>',
+		'<Interactive.Rect>',
+		'<Interactive.Text>',
+	]) {
+		expect(
+			Internals.SequenceOutlineInternals.getNodes(
+				getByName(displayName)!.refForOutline!,
+			),
+		).toEqual([]);
+	}
+
 	expect(getByName('<Interactive.Div>')?.documentationLink).toBe(
 		documentationLink,
 	);
 	expect(getByName('<Interactive.Rect>')?.documentationLink).toBe(
 		documentationLink,
 	);
-	expect(getByName('<Interactive.Div>')?.refForOutline?.current).toBe(
-		divRef.current,
-	);
+	expect(divRef.current?.tagName).toBe('DIV');
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
 	expect(divRef.current?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
 	expect(divRef.current?.getAttributeNames()).not.toContain('cropleft');
@@ -1541,7 +1543,11 @@ test('AbsoluteFill is an interactive sequence while preserving its div contract'
 		duration: 12,
 		showInTimeline: true,
 	});
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(element);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
 		'dev.remotion.remotion.AbsoluteFill',
 	);

@@ -143,7 +143,6 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        outlineRef={outlineRef}
       >
         <div
           ref={outlineRef}
@@ -167,7 +166,7 @@ const BadgeInner = forwardRef<
 
 The exported component should not expose `controls` as a public prop.
 
-Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
+With `<Sequence layout="none">`, the Studio discovers the rendered element automatically. Pass [`outlineRef`](/docs/sequence#outlineref) when you need to select a specific element.
 
 ## Wrap the component
 
@@ -235,7 +234,6 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        outlineRef={outlineRef}
       >
         <div
           ref={outlineRef}

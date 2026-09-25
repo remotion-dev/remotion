@@ -179,7 +179,6 @@ const AudioOscilloscopeInner = forwardRef<
 				{...sequenceProps}
 				controls={controls}
 				name={name ?? 'Audio oscilloscope'}
-				outlineRef={outlineRef}
 			>
 				<AudioOscilloscopeContent
 					amplitude={amplitude}

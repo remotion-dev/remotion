@@ -329,7 +329,6 @@ const PoppingWordCaptionsInner = forwardRef<
 				controls={controls}
 				name={name ?? '<PoppingWordCaptions>'}
 				trimBefore={trimBefore}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

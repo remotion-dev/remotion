@@ -141,7 +141,6 @@ const AnimatedCaptionsInner = forwardRef<
 			name={name ?? '<AnimatedCaptions>'}
 			style={style}
 			controls={controls}
-			outlineRef={outlineRef}
 		>
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];

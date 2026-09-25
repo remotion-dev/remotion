@@ -45,7 +45,6 @@ const SocialSafeZonesInner = forwardRef<
 			{...sequenceProps}
 			controls={controls}
 			name={name ?? 'Social Safe Zones'}
-			outlineRef={outlineRef}
 		>
 			<div
 				ref={outlineRef}

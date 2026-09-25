@@ -1,4 +1,4 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback} from 'react';
 import {
 	AbsoluteFillElement,
 	type AbsoluteFillElementProps,
@@ -63,11 +63,9 @@ const setRef = <ElementType,>(
 const AbsoluteFillWithTiming: React.FC<
 	AbsoluteFillProps & {
 		readonly controls: SequenceControls | undefined;
-		readonly outlineRef: React.RefObject<HTMLDivElement | null>;
 	}
 > = ({
 	ref: callbackRef,
-	outlineRef: refForOutline,
 	from,
 	premountFor,
 	postmountFor,
@@ -118,7 +116,6 @@ const AbsoluteFillWithTiming: React.FC<
 				controls={controls}
 				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/absolute-fill"
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -158,10 +155,8 @@ const AbsoluteFillInner: React.FC<
 	...divProps
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
-	const refForOutline = useRef<HTMLDivElement | null>(null);
 	const callbackRef = useCallback(
 		(element: HTMLDivElement | null) => {
-			refForOutline.current = element;
 			setRef(ref, element);
 		},
 		[ref],
@@ -179,7 +174,6 @@ const AbsoluteFillInner: React.FC<
 		<AbsoluteFillWithTiming
 			{...divProps}
 			ref={callbackRef}
-			outlineRef={refForOutline}
 			from={from}
 			premountFor={premountFor}
 			postmountFor={postmountFor}

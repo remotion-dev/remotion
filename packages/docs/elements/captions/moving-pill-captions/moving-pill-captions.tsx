@@ -418,7 +418,6 @@ const MovingPillCaptionsInner = forwardRef<
 				controls={controls}
 				name={name ?? '<MovingPillCaptions>'}
 				trimBefore={trimBefore}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

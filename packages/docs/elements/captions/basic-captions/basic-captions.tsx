@@ -145,7 +145,6 @@ const BasicCaptionsInner = forwardRef<
 				controls={controls}
 				name={name ?? '<BasicCaptions>'}
 				trimBefore={trimBefore}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

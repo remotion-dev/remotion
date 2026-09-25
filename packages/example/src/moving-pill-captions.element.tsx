@@ -421,7 +421,6 @@ const MovingPillCaptionsInner = forwardRef<
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<MovingPillCaptions>'}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}

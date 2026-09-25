@@ -636,7 +636,6 @@ const MapFlyoverLayerInner = forwardRef<
 				{...sequenceProps}
 				controls={controls}
 				name={name ?? 'A-to-B Map Flyover'}
-				outlineRef={outlineRef}
 			>
 				<MapFlyoverContent
 					destination={destination}

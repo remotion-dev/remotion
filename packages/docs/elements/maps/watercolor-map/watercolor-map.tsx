@@ -433,7 +433,6 @@ const WatercolorMapInner = forwardRef<
 				{...sequenceProps}
 				controls={controls}
 				name={name ?? 'Watercolor map'}
-				outlineRef={outlineRef}
 			>
 				<WatercolorMapContent
 					destination={destination}

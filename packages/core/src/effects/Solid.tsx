@@ -341,7 +341,6 @@ const SolidOuter = forwardRef<
 					_remotionInternalEffects={memoizedEffectDefinitions}
 					durationInFrames={durationInFrames}
 					name={name ?? '<Solid>'}
-					outlineRef={actualRef}
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
 					{...props}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}

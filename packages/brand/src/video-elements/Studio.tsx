@@ -1712,7 +1712,6 @@ const StudioInner = React.forwardRef<
 				hidden={hidden}
 				layout="none"
 				name={name ?? '<Studio>'}
-				outlineRef={outlineRef}
 				showInTimeline={showInTimeline ?? true}
 				trimBefore={trimBefore}
 			>

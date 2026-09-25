@@ -153,7 +153,6 @@ const MirroredAudioSpectrumInner = forwardRef<
 				{...sequenceProps}
 				controls={controls}
 				name={name ?? 'Mirrored audio spectrum'}
-				outlineRef={outlineRef}
 			>
 				<MirroredAudioSpectrumContent
 					audioSrc={audioSrc}

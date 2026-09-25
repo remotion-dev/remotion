@@ -139,7 +139,6 @@ const BasicCaptionsInner = forwardRef<
 				from={from}
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={outlineRef}
