@@ -45,6 +45,7 @@ export const getFolderOrderId = ({
 export const SequenceOrderMarker: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sequenceId: string;
+	readonly outlineChildrenRef: React.RefObject<Element | null> | null;
 }> = ({children}) => children;
 
 Object.defineProperty(SequenceOrderMarker, SEQUENCE_ORDER_MARKER, {

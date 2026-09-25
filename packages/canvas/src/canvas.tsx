@@ -6,6 +6,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 } from 'react';
 import type {AnyZodObject, TSequence} from 'remotion';
@@ -13,6 +14,7 @@ import {Internals} from 'remotion';
 import type {CanvasController} from './canvas-controller';
 import {getCanvasControllerInternals} from './canvas-controller';
 import {CanvasOutlineOverlay} from './canvas-outline-overlay';
+import {installFiberCommitOrderObserver} from './install-fiber-sequence-order-observer';
 import type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 import {getCanvasSequenceNodePathInfo} from './sequence-node-path';
 import {useSyncExternalStore} from './use-sync-external-store';
@@ -74,6 +76,14 @@ const CanvasFn = <
 	useEffect(() => {
 		return () => internals.clear();
 	}, [internals]);
+	// React Refresh (used by Browser Studio) or React DevTools must have
+	// registered the renderer before this commit. Install before the commit hook
+	// fires so the initial outline nodes are discovered as well.
+	useLayoutEffect(() => {
+		if (showOutlines && typeof window !== 'undefined') {
+			installFiberCommitOrderObserver(window);
+		}
+	}, [showOutlines]);
 	const overlay = useMemo(
 		() => (
 			<>
@@ -93,20 +103,24 @@ const CanvasFn = <
 		Internals.EnableInteractivityProvider,
 		null,
 		React.createElement(
-			Internals.OverrideIdsToNodePathsGettersContext.Provider,
-			{value: nodePathGetters},
+			Internals.SequenceOutlineContext.Provider,
+			{value: showOutlines},
 			React.createElement(
-				PlayerInternals.TimelineSequenceObserverContext.Provider,
-				{value: onTimelineSequenceChange},
+				Internals.OverrideIdsToNodePathsGettersContext.Provider,
+				{value: nodePathGetters},
 				React.createElement(
-					PlayerInternals.CanvasOverlayContext.Provider,
-					{value: overlay},
+					PlayerInternals.TimelineSequenceObserverContext.Provider,
+					{value: onTimelineSequenceChange},
 					React.createElement(
-						Player as React.ComponentType,
-						{
-							...(playerProps as Record<string, unknown>),
-							ref,
-						} as Record<string, unknown>,
+						PlayerInternals.CanvasOverlayContext.Provider,
+						{value: overlay},
+						React.createElement(
+							Player as React.ComponentType,
+							{
+								...(playerProps as Record<string, unknown>),
+								ref,
+							} as Record<string, unknown>,
+						),
 					),
 				),
 			),

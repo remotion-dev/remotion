@@ -373,7 +373,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	return isStudio ? (
-		<SequenceOrderMarker sequenceId={timelineId}>{video}</SequenceOrderMarker>
+		<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+			{video}
+		</SequenceOrderMarker>
 	) : (
 		video
 	);

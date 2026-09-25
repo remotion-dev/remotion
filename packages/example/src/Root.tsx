@@ -250,6 +250,7 @@ import {
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LayoutNoneOutlines} from './LayoutNoneOutlines';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
@@ -3114,6 +3115,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={2340}
+				/>
+				<Composition
+					id="layout-none-outlines"
+					component={LayoutNoneOutlines}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
 				/>
 				<Composition
 					id="fast-updates"
