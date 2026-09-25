@@ -29,7 +29,10 @@ import {
 	validateSequenceCrop,
 } from './sequence-crop.js';
 import {SequenceOrderMarker} from './sequence-order-marker.js';
-import {SequenceOutlineInternals} from './sequence-outline.js';
+import {
+	SequenceOutlineContext,
+	SequenceOutlineInternals,
+} from './sequence-outline.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
@@ -319,13 +322,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
+	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
 	const env = useRemotionEnvironment();
+	const shouldDiscoverOutline = env.isStudio || canvasOutlinesEnabled;
 	const automaticOutlineRef = useMemo(
 		() =>
-			env.isStudio && layout === 'none' && !passedRefForOutline
+			shouldDiscoverOutline && layout === 'none' && !passedRefForOutline
 				? SequenceOutlineInternals.createRef()
 				: null,
-		[env.isStudio, layout, passedRefForOutline],
+		[shouldDiscoverOutline, layout, passedRefForOutline],
 	);
 	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
 	const refForOutline =
@@ -689,7 +694,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	if (hidden) {
-		return env.isStudio ? (
+		return shouldDiscoverOutline ? (
 			<SequenceOrderMarker
 				sequenceId={id}
 				outlineChildrenRef={automaticOutlineRef}
@@ -715,7 +720,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		</SequenceContext.Provider>
 	);
 
-	return env.isStudio ? (
+	return shouldDiscoverOutline ? (
 		<SequenceOrderMarker
 			sequenceId={id}
 			outlineChildrenRef={automaticOutlineRef}

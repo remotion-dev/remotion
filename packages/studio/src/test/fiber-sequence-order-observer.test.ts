@@ -1,9 +1,9 @@
 import {afterEach, expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/canvas';
 import {Internals} from 'remotion';
-import {
-	collectCommitOrderFromFiber,
-	installFiberCommitOrderObserver,
-} from '../helpers/install-fiber-sequence-order-observer';
+
+const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =
+	CanvasInternals;
 
 type TestFiber = {
 	child: TestFiber | null;
@@ -113,6 +113,7 @@ test('collects sequence, composition, and folder order per manager', () => {
 	};
 
 	expect(collectCommitOrderFromFiber(root)).toEqual({
+		outlineCount: 0,
 		sequenceManagers: [
 			{managerId: 'sequences', sequenceIds: ['left', 'right']},
 		],

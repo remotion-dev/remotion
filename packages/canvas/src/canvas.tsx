@@ -1,11 +1,18 @@
 import type {PlayerProps, PlayerRef} from '@remotion/player';
 import {Player, PlayerInternals} from '@remotion/player';
 import type {RefObject} from 'react';
-import React, {forwardRef, useCallback, useEffect, useMemo} from 'react';
-import type {AnyZodObject, TSequence} from 'remotion';
+import React, {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+} from 'react';
+import {Internals, type AnyZodObject, type TSequence} from 'remotion';
 import type {CanvasController} from './canvas-controller';
 import {getCanvasControllerInternals} from './canvas-controller';
 import {CanvasOutlineOverlay} from './canvas-outline-overlay';
+import {installFiberCommitOrderObserver} from './install-fiber-sequence-order-observer';
 import type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 import {getCanvasSequenceNodePathInfo} from './sequence-node-path';
 
@@ -41,6 +48,14 @@ const CanvasFn = <
 	useEffect(() => {
 		return () => internals.clear();
 	}, [internals]);
+	// React Refresh (used by Browser Studio) or React DevTools must have
+	// registered the renderer before this commit. Install before the commit hook
+	// fires so the initial outline nodes are discovered as well.
+	useLayoutEffect(() => {
+		if (showOutlines && typeof window !== 'undefined') {
+			installFiberCommitOrderObserver(window);
+		}
+	}, [showOutlines]);
 	const overlay = useMemo(
 		() =>
 			showOutlines ? (
@@ -56,14 +71,18 @@ const CanvasFn = <
 		PlayerInternals.TimelineSequenceObserverContext.Provider,
 		{value: onTimelineSequenceChange},
 		React.createElement(
-			PlayerInternals.CanvasOverlayContext.Provider,
-			{value: overlay},
+			Internals.SequenceOutlineContext.Provider,
+			{value: showOutlines},
 			React.createElement(
-				Player as React.ComponentType,
-				{
-					...(playerProps as Record<string, unknown>),
-					ref,
-				} as Record<string, unknown>,
+				PlayerInternals.CanvasOverlayContext.Provider,
+				{value: overlay},
+				React.createElement(
+					Player as React.ComponentType,
+					{
+						...(playerProps as Record<string, unknown>),
+						ref,
+					} as Record<string, unknown>,
+				),
 			),
 		),
 	);

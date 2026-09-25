@@ -167,7 +167,10 @@ import {
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
 import {CommitOrderInternals} from './sequence-order-marker.js';
-import {SequenceOutlineInternals} from './sequence-outline.js';
+import {
+	SequenceOutlineContext,
+	SequenceOutlineInternals,
+} from './sequence-outline.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceWithoutSchema} from './Sequence.js';
@@ -340,6 +343,7 @@ export const Internals = {
 	SequenceRegistrationContext,
 	CommitOrderInternals,
 	SequenceOutlineInternals,
+	SequenceOutlineContext,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,

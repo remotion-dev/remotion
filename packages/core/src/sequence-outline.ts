@@ -1,7 +1,10 @@
 import type {RefObject} from 'react';
+import React from 'react';
 
 type OutlineNode = Element | Text;
 type OutlineRef = RefObject<Element | null>;
+
+export const SequenceOutlineContext = React.createContext(false);
 
 // Keep automatic groups separate from the public, single-element outlineRef.
 // A group only exposes .current when it has exactly one element, so consumers

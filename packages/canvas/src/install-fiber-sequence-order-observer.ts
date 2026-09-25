@@ -120,13 +120,12 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 			compositionsAndFoldersByManager.set(compositionManagerId, []);
 		}
 
-		if (
-			hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker) &&
-			sequenceManagerId !== null
-		) {
-			const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
-			if (sequenceId !== null) {
-				sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
+		if (hasFiberMarker(fiber, Internals.CommitOrderInternals.sequenceMarker)) {
+			if (sequenceManagerId !== null) {
+				const sequenceId = getStringProp(fiber.memoizedProps, 'sequenceId');
+				if (sequenceId !== null) {
+					sequencesByManager.get(sequenceManagerId)?.push(sequenceId);
+				}
 			}
 
 			const props = fiber.memoizedProps;
@@ -203,6 +202,7 @@ export const collectCommitOrderFromFiber = (root: FiberRoot) => {
 	}
 
 	return {
+		outlineCount: outlineNodesByRef.size,
 		sequenceManagers: [...sequencesByManager].map(
 			([managerId, sequenceIds]) => ({managerId, sequenceIds}),
 		),
@@ -233,17 +233,21 @@ export const installFiberCommitOrderObserver = (
 			const [, root] = args;
 			const order = collectCommitOrderFromFiber(root);
 			if (
+				order.outlineCount > 0 ||
 				order.sequenceManagers.length > 0 ||
 				order.compositionManagers.length > 0
 			) {
 				target.dispatchEvent(
 					new CustomEvent(Internals.CommitOrderInternals.eventName, {
-						detail: order,
+						detail: {
+							sequenceManagers: order.sequenceManagers,
+							compositionManagers: order.compositionManagers,
+						},
 					}),
 				);
 			}
 		} catch {
-			// Fiber is private React API. An unsupported shape must not break Studio.
+			// Fiber is private React API. An unsupported shape must not break the host.
 		}
 
 		return previousOnCommitFiberRoot?.apply(this, args);
