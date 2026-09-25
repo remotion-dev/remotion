@@ -891,7 +891,11 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+export type JsxWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
 
 export type WrapJsxNodeRequest = {
 	fileName: string;

@@ -21,7 +21,11 @@ import {
 import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
-type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+type JsxWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
 
 export const canWrapJsxNode = ({
 	input,
@@ -36,11 +40,12 @@ export const canWrapJsxNode = ({
 		return {canWrap: false, canWrapHtmlInCanvas: false};
 	}
 
-	const htmlInCanvasNames = new Set(['HtmlInCanvas']);
+	const htmlInCanvasNames = new Set(['HtmlInCanvas', 'HtmlInCanvasMotionBlur']);
 	for (const statement of ast.program.body) {
 		if (
 			statement.type !== 'ImportDeclaration' ||
-			statement.source.value !== 'remotion'
+			(statement.source.value !== 'remotion' &&
+				statement.source.value !== '@remotion/motion-blur')
 		) {
 			continue;
 		}
@@ -48,9 +53,12 @@ export const canWrapJsxNode = ({
 		for (const specifier of statement.specifiers ?? []) {
 			if (
 				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === 'HtmlInCanvas'
+				(getImportedName(specifier) === 'HtmlInCanvas' ||
+					getImportedName(specifier) === 'HtmlInCanvasMotionBlur')
 			) {
-				htmlInCanvasNames.add(specifier.local?.name ?? 'HtmlInCanvas');
+				htmlInCanvasNames.add(
+					specifier.local?.name ?? getImportedName(specifier),
+				);
 			}
 		}
 	}
@@ -104,21 +112,23 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
 	const eligibility = canWrapJsxNode({input, nodePath: node.nodePath});
+	const requiresHtmlInCanvas =
+		wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur';
 	if (
 		!eligibility.canWrap ||
-		(wrapper === 'HtmlInCanvas' && !eligibility.canWrapHtmlInCanvas)
+		(requiresHtmlInCanvas && !eligibility.canWrapHtmlInCanvas)
 	) {
 		throw new Error('This JSX element cannot be wrapped');
 	}
 
 	if (
-		wrapper === 'HtmlInCanvas' &&
+		requiresHtmlInCanvas &&
 		(!Number.isInteger(width) ||
 			width <= 0 ||
 			!Number.isInteger(height) ||
 			height <= 0)
 	) {
-		throw new Error('HtmlInCanvas requires positive integer dimensions');
+		throw new Error(`${wrapper} requires positive integer dimensions`);
 	}
 
 	const ast = parseAst(input);
@@ -250,23 +260,25 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 		ast,
 		importedName: wrapper,
 		localName: suggestedName,
-		sourcePath: 'remotion',
+		sourcePath:
+			wrapper === 'HtmlInCanvasMotionBlur'
+				? '@remotion/motion-blur'
+				: 'remotion',
 	});
 	const b = recast.types.builders;
 	const name = b.jsxIdentifier(localName);
-	const attributes =
-		wrapper === 'HtmlInCanvas'
-			? [
-					b.jsxAttribute(
-						b.jsxIdentifier('width'),
-						b.jsxExpressionContainer(b.numericLiteral(width)),
-					),
-					b.jsxAttribute(
-						b.jsxIdentifier('height'),
-						b.jsxExpressionContainer(b.numericLiteral(height)),
-					),
-				]
-			: [];
+	const attributes = requiresHtmlInCanvas
+		? [
+				b.jsxAttribute(
+					b.jsxIdentifier('width'),
+					b.jsxExpressionContainer(b.numericLiteral(width)),
+				),
+				b.jsxAttribute(
+					b.jsxIdentifier('height'),
+					b.jsxExpressionContainer(b.numericLiteral(height)),
+				),
+			]
+		: [];
 	const opening = b.jsxOpeningElement(name, attributes, false);
 	const openingLines = printJsxOpeningElement({
 		openingElement: opening,
