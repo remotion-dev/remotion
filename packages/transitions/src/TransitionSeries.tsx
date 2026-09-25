@@ -132,7 +132,9 @@ type SeriesSequenceProps = PropsWithChildren<
 			| 'freeze'
 			| 'hidden'
 			| 'trimBefore'
+			| 'trimAfter'
 			| 'playbackRate'
+			| 'loop'
 		>
 >;
 
@@ -153,7 +155,9 @@ const transitionSeriesSequenceSchema = {
 	showInTimeline: Internals.sequenceSchema.showInTimeline,
 	freeze: Internals.freezeField,
 	trimBefore: Internals.sequenceSchema.trimBefore,
+	trimAfter: Internals.sequenceSchema.trimAfter,
 	playbackRate: Internals.sequenceSchema.playbackRate,
+	loop: Internals.sequenceSchema.loop,
 	layout: Internals.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 

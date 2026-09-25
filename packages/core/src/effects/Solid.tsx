@@ -17,7 +17,7 @@ import type {
 } from '../Interactive.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutLoop,
 	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
@@ -25,6 +25,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -77,8 +78,9 @@ export type SolidProps = MandatoryProps &
 	Partial<OptionalProps> &
 	InteractiveCropProps;
 
+// A solid color does not change with the frame, so looping it would be inert.
 export const solidSchema = {
-	...baseSchema,
+	...baseSchemaWithoutLoop,
 	...premountSchema,
 	color: {
 		type: 'color',
@@ -259,7 +261,7 @@ const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
-	} & InteractiveBaseProps &
+	} & Omit<InteractiveBaseProps, 'loop'> &
 		InteractivePremountProps
 >(
 	(
@@ -279,6 +281,7 @@ const SolidOuter = forwardRef<
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			trimBefore,
+			trimAfter,
 			playbackRate,
 			freeze,
 			hidden,
@@ -310,7 +313,13 @@ const SolidOuter = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate,
+				loop: undefined,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -333,6 +342,7 @@ const SolidOuter = forwardRef<
 					layout="none"
 					from={from}
 					trimBefore={trimBefore}
+					trimAfter={trimAfter}
 					playbackRate={playbackRate}
 					freeze={freeze}
 					hidden={hidden}

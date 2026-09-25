@@ -97,6 +97,7 @@ import {
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {
 	baseSchema,
+	baseSchemaWithoutLoop,
 	durationInFramesField,
 	freezeField,
 	fromField,
@@ -148,6 +149,7 @@ import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
 } from './RenderAssetManager.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
@@ -352,6 +354,7 @@ export const Internals = {
 	SequenceOutlineContext,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
+	baseSchemaWithoutLoop,
 	sequenceSchema,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,
@@ -375,6 +378,7 @@ export const Internals = {
 	SequenceContext,
 	PremountContext,
 	usePremounting,
+	resolveSequenceDuration,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,

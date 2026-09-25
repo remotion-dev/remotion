@@ -57,7 +57,6 @@ export const audioSchema: InteractivitySchema = {
 		keyframable: false,
 	},
 	muted: {type: 'boolean', default: false, description: 'Muted'},
-	loop: {type: 'boolean', default: false, description: 'Loop'},
 } as const satisfies InteractivitySchema;
 
 const AudioInner: React.FC<

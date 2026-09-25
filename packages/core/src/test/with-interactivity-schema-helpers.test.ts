@@ -149,7 +149,9 @@ test('baseSchema exposes common timeline fields', () => {
 			'name',
 			'showInTimeline',
 			'trimBefore',
+			'trimAfter',
 			'playbackRate',
+			'loop',
 		].sort(),
 	);
 });
@@ -241,7 +243,9 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'from',
 			'freeze',
 			'trimBefore',
+			'trimAfter',
 			'playbackRate',
+			'loop',
 		].sort(),
 	);
 });
@@ -562,7 +566,9 @@ test('selectActiveKeys returns only the hidden + layout keys when layout=none', 
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'trimAfter',
 			'playbackRate',
+			'loop',
 			'freeze',
 		].sort(),
 	);
@@ -584,7 +590,9 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'trimAfter',
 			'playbackRate',
+			'loop',
 			'freeze',
 			'style.translate',
 			'style.scale',
@@ -616,7 +624,9 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'trimAfter',
 			'playbackRate',
+			'loop',
 			'freeze',
 		].sort(),
 	);
@@ -668,7 +678,9 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 			'durationInFrames',
 			'from',
 			'trimBefore',
+			'trimAfter',
 			'playbackRate',
+			'loop',
 			'freeze',
 		].sort(),
 	);

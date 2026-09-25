@@ -37,7 +37,9 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 ### `Interactive.baseSchema`
 
-Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`trimAfter`](/docs/sequence#trimafter), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+
+Use [`Interactive.baseSchemaWithoutLoop`](/docs/interactive#interactivebaseschemawithoutloop) for components whose output does not change with the frame.
 
 ### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
 

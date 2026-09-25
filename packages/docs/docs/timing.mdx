@@ -93,63 +93,89 @@ export const MyComposition = () => (
 );
 ```
 
-## `trimAfter`: Trim video or audio
+## `trimAfter`: Trim the end<AvailableFrom v="4.0.530" />
 
-`<Audio>` and `<Video>` also accept `trimAfter` to select where playback stops in the video or audio.
+`trimAfter` selects where the content ends, measured in the same clock as `trimBefore`: the frame that the children receive from [`useCurrentFrame()`](/docs/use-current-frame).
 
-At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
+The item shows the child frames from `trimBefore` up to, but not including, `trimAfter`. It therefore ends after `(trimAfter - trimBefore) / playbackRate` parent frames, unless `durationInFrames` or the parent ends it earlier.
 
 <TimingTimeline from={30} trimBefore={45} trimAfter={105} playbackRate={2} loop={false} />
 
 ```tsx twoslash title="MyComposition.tsx"
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Video
-    src={staticFile('video.mp4')}
+  <Interactive.Div
     from={30}
     trimBefore={45}
     trimAfter={105}
     playbackRate={2}
-  />
+  >
+    <Counter />
+  </Interactive.Div>
 );
 ```
 
-## `loop`: Repeat video or audio
+For `<Video>` and `<Audio>`, the child clock is the position in the source file in composition frames.
+At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
+If `trimAfter` is omitted, playback continues until the end of the file.
 
-`loop` on `<Audio>` and `<Video>` repeats the source range selected by `trimBefore` and `trimAfter`.
+Before 4.0.530, `trimAfter` was only available on `<Video>` and `<Audio>`.
 
-If `trimAfter` is omitted, it loops from `trimBefore` after the end of the source.
+## `loop`: Repeat an item<AvailableFrom v="4.0.530" />
+
+`loop` repeats the range selected by `trimBefore` and `trimAfter`.
+
+`durationInFrames` limits the total length of the item. Without it, the item loops until its parent ends.
 
 <TimingTimeline from={30} durationInFrames={90} trimBefore={45} trimAfter={105} playbackRate={2} loop />
 
 ```tsx twoslash title="MyComposition.tsx"
-import {staticFile} from 'remotion';
-import {Video} from '@remotion/media';
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
 
 export const MyComposition = () => (
-  <Video
-    src={staticFile('video.mp4')}
+  <Interactive.Div
     from={30}
     trimBefore={45}
     trimAfter={105}
     playbackRate={2}
     loop
     durationInFrames={90}
-  />
+  >
+    <Counter />
+  </Interactive.Div>
 );
 ```
 
-At 30 FPS, this repeats the selected 60 source frames three times over 90 composition frames.
+This repeats the selected 60 child frames three times over 90 composition frames.
+
+`<Video>` and `<Audio>` have an intrinsic duration, so they may omit `trimAfter` and loop the whole file after `trimBefore`.
+All other items require `trimAfter` to loop, because they have no intrinsic end.
+
+[`<Loop>`](/docs/loop) is a shorthand for the same behavior with a period measured in the parent timeline: `<Loop durationInFrames={50} times={3}>` is equivalent to `trimAfter={50}`, `durationInFrames={150}` and `loop`.
+
+Before 4.0.530, `loop` was only available on `<Video>` and `<Audio>`.
+
+## Why both `trimAfter` and `durationInFrames`?
+
+`trimAfter` is a position in the child clock, `durationInFrames` is a length in the parent timeline.
+
+They only coincide if `trimBefore` is `0`, `playbackRate` is `1` and the item does not loop.
+
+`loop` needs both: the trim range defines one cycle, `durationInFrames` defines how long the item stays.
+A range of 60 child frames repeated over 90 parent frames cannot be expressed with one prop.
 
 ## Order of operations
 
 Think of the timing props as applying to the content in this order:
 
-1. `from`, `trimBefore` and `trimAfter` defines the selected source range
+1. `from`, `trimBefore` and `trimAfter` define the selected range
 2. `playbackRate` stretches or compresses the selected range
-3. `loop` (on `<Audio>` and `<Video>`) loops the stretched range
+3. `loop` repeats the stretched range
 4. `durationInFrames` is applied last and defines the duration of the item in the timeline.
 
 For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` is:
@@ -158,8 +184,15 @@ For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at par
 trimBefore + (t - from) * playbackRate
 ```
 
+If the item loops, the elapsed child frames wrap around at the end of the range:
+
+```
+trimBefore + ((t - from) * playbackRate) % (trimAfter - trimBefore)
+```
+
 ## See also
 
 - [`<Sequence>`](/docs/sequence)
+- [`<Loop>`](/docs/loop)
 - [Trimming audio](/docs/audio/trimming)
 - [Adding a video](/docs/videos/)

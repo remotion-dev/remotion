@@ -81,6 +81,15 @@ export const getTimelineSequenceSplitEligibility = ({
 		};
 	}
 
+	// `trimBefore` is both where playback starts and where the loop restarts,
+	// so the right half could not resume mid-cycle.
+	if (sequence.loopDisplay) {
+		return {
+			canSplit: false,
+			reason: 'Looping sequences cannot be split',
+		};
+	}
+
 	if (
 		!hasSequenceTimingTraits(
 			selection.nodePathInfo.sequenceSubscriptionKey.sequenceKeys,

@@ -31,6 +31,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -781,7 +782,13 @@ const HtmlInCanvasInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: sequenceProps.from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				trimBefore: sequenceProps.trimBefore,
+				trimAfter: sequenceProps.trimAfter,
+				playbackRate: sequenceProps.playbackRate,
+				loop: sequenceProps.loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,

@@ -305,7 +305,7 @@ Render separate elements if one version should have effects and another should n
 
 ## Making your own component interactive
 
-When using `Interactive.withSchema()`, include `Interactive.baseSchema` in the schema so standard timeline controls such as trimming and visibility remain available.
+When using `Interactive.withSchema()`, include `Interactive.baseSchema` in the schema so standard timeline controls such as trimming, looping and visibility remain available, and forward `from`, `durationInFrames`, `trimBefore`, `trimAfter`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline` to the `<Sequence>` the component renders. Use `Interactive.baseSchemaWithoutLoop` if the output does not change with the frame.
 
 To make a custom userland component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)

@@ -19,7 +19,7 @@ import type {RemotionGifProps} from './props';
 
 const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
-export type GifProps = InteractiveBaseProps &
+export type GifProps = Omit<InteractiveBaseProps, 'loop'> &
 	InteractiveCropProps &
 	InteractivePremountProps &
 	InteractiveTransformProps &
@@ -32,7 +32,8 @@ export type GifProps = InteractiveBaseProps &
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
 export const gifSchema: InteractivitySchema = {
-	...Internals.baseSchema,
+	// Looping is controlled by `loopBehavior`, which repeats the intrinsic duration.
+	...Internals.baseSchemaWithoutLoop,
 	...Internals.premountSchema,
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
@@ -84,7 +85,13 @@ const GifInner = ({
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore: sequenceProps.trimBefore,
+			trimAfter: sequenceProps.trimAfter,
+			playbackRate,
+			loop: undefined,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,

@@ -6,6 +6,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
+import {LoopContext, type LoopContextType} from './loop-context.js';
 
 export type LoopProps = {
 	// The duration of the content to be looped
@@ -16,13 +17,6 @@ export type LoopProps = {
 	readonly children: React.ReactNode;
 } & LayoutAndStyle &
 	Pick<SequenceProps, 'showInTimeline' | 'playbackRate'>;
-
-type LoopContextType = {
-	iteration: number;
-	durationInFrames: number;
-};
-
-const LoopContext = createContext<LoopContextType | null>(null);
 
 export const LoopTimelineContext = createContext<{
 	startFrame: number;

@@ -15,7 +15,7 @@ import {
 } from 'remotion';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
-type ShapeSequenceProps = InteractiveBaseProps &
+type ShapeSequenceProps = Omit<InteractiveBaseProps, 'loop'> &
 	InteractivePremountProps & {
 		readonly controls?: SequenceControls;
 	};
@@ -45,6 +45,7 @@ const RenderSvgWithTiming = ({
 	styleWhilePostmounted,
 	from,
 	trimBefore,
+	trimAfter,
 	playbackRate,
 	freeze,
 	hidden,
@@ -78,7 +79,13 @@ const RenderSvgWithTiming = ({
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop: undefined,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: actualStyle,
@@ -92,6 +99,7 @@ const RenderSvgWithTiming = ({
 				layout="none"
 				from={from}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				freeze={freeze}
 				hidden={hidden}
@@ -135,6 +143,7 @@ export const RenderSvg = ({
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
+	trimAfter,
 	playbackRate,
 	freeze,
 	hidden,
@@ -301,6 +310,7 @@ export const RenderSvg = ({
 			styleWhilePostmounted={styleWhilePostmounted}
 			from={from}
 			trimBefore={trimBefore}
+			trimAfter={trimAfter}
 			playbackRate={playbackRate}
 			freeze={freeze}
 			hidden={hidden}

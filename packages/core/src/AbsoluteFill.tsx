@@ -21,6 +21,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import {usePremounting} from './use-premounting.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
@@ -74,7 +75,9 @@ const AbsoluteFillWithTiming: React.FC<
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
+	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	durationInFrames,
 	hidden,
@@ -95,7 +98,13 @@ const AbsoluteFillWithTiming: React.FC<
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: divProps.style ?? null,
@@ -109,7 +118,9 @@ const AbsoluteFillWithTiming: React.FC<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				durationInFrames={durationInFrames ?? Infinity}
 				hidden={hidden}
@@ -146,7 +157,9 @@ const AbsoluteFillInner: React.FC<
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
+	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	durationInFrames,
 	hidden,
@@ -186,7 +199,9 @@ const AbsoluteFillInner: React.FC<
 			styleWhilePremounted={styleWhilePremounted}
 			styleWhilePostmounted={styleWhilePostmounted}
 			trimBefore={trimBefore}
+			trimAfter={trimAfter}
 			playbackRate={playbackRate}
+			loop={loop}
 			freeze={freeze}
 			durationInFrames={durationInFrames}
 			hidden={hidden}

@@ -72,9 +72,11 @@ Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
 Controls inherited from [`<Sequence>`](/docs/sequence):
 
-`durationInFrames`, `from`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name` and `showInTimeline`.
+`durationInFrames`, `from`, `trimBefore`, `trimAfter`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
-Use it for components that render a `<Sequence>` internally.
+`trimAfter` and `loop` are included since <AvailableFrom v="4.0.530" inline />.
+
+Use it for components that render a `<Sequence>` internally and forward these props to it.
 
 ```tsx twoslash title="schema.ts"
 import {Interactive, type InteractivitySchema} from 'remotion';
@@ -89,6 +91,12 @@ export const shapeSchema = {
   },
 } as const satisfies InteractivitySchema;
 ```
+
+### `Interactive.baseSchemaWithoutLoop`<AvailableFrom v="4.0.530" />
+
+The same controls as [`Interactive.baseSchema`](#interactivebaseschema) without `loop`.
+
+Use it for components whose output does not change with the frame, such as a static image or shape, so that the Studio does not show a `Loop` toggle that has no effect.
 
 ### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
 

@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
+	Internals,
 	type HtmlInCanvasProps,
 	type HtmlInCanvasOnPaint,
 	useCurrentFrame,
@@ -10,7 +11,7 @@ import {
 
 export type HtmlInCanvasMotionBlurProps = Pick<
 	HtmlInCanvasProps,
-	'from' | 'durationInFrames' | 'trimBefore' | 'playbackRate'
+	'from' | 'durationInFrames' | 'trimBefore' | 'trimAfter' | 'playbackRate'
 > & {
 	readonly children: React.ReactNode;
 	readonly width: number;
@@ -83,6 +84,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	from,
 	durationInFrames,
 	trimBefore,
+	trimAfter,
 	playbackRate,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
@@ -110,7 +112,13 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	const visibleDuration = Math.max(
 		0,
 		Math.min(
-			durationInFrames ?? Infinity,
+			Internals.resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate,
+				loop: undefined,
+			}),
 			compositionDurationInFrames - (from ?? 0),
 		),
 	);
@@ -187,6 +195,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 			from={from}
 			durationInFrames={durationInFrames}
 			trimBefore={trimBefore}
+			trimAfter={trimAfter}
 			playbackRate={playbackRate}
 			name="<HtmlInCanvasMotionBlur>"
 			onPaint={onPaint}

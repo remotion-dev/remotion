@@ -31,6 +31,7 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -543,6 +544,7 @@ const CanvasImageInner = forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
+			trimAfter,
 			freeze,
 			premountFor,
 			postmountFor,
@@ -590,7 +592,13 @@ const CanvasImageInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate: undefined,
+				loop: undefined,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -613,6 +621,7 @@ const CanvasImageInner = forwardRef<
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
+					trimAfter={trimAfter}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}

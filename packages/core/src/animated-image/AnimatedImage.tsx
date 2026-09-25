@@ -18,7 +18,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutLoop,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -26,6 +26,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -54,7 +55,8 @@ export const animatedImageSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	// Looping is controlled by `loopBehavior`, which repeats the intrinsic duration.
+	...baseSchemaWithoutLoop,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,
@@ -333,7 +335,13 @@ const AnimatedImageInner = ({
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			trimBefore: sequenceProps.trimBefore,
+			trimAfter: sequenceProps.trimAfter,
+			playbackRate,
+			loop: undefined,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,

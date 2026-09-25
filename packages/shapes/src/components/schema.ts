@@ -85,7 +85,8 @@ export const makeShapeSchema = (
 	shapeFields: InteractivitySchema,
 ): InteractivitySchema => {
 	return {
-		...Internals.baseSchema,
+		// Shapes do not advance with the frame, so a loop control would be inert.
+		...Internals.baseSchemaWithoutLoop,
 		...Internals.premountSchema,
 		...shapeFields,
 		fill: colorField({

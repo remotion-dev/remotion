@@ -2002,6 +2002,7 @@ test('Timeline duration drag supports interactive video clips', () => {
 			minimumDuration: 1,
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
+			endField: {fieldKey: 'durationInFrames', trimBefore: 0, playbackRate: 1},
 		},
 	]);
 });

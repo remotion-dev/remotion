@@ -203,6 +203,29 @@ Useful for components whose internal clock should start later:
 <Sequence trimBefore={10 * fps} {/* ... */} />
 ```
 
+### `trimAfter`
+
+Ends the internal clock at a frame. Measured in the same clock as `trimBefore`, so the layer lasts `(trimAfter - trimBefore) / playbackRate` frames in the timeline unless `durationInFrames` is shorter:
+
+```tsx
+// Play the footage from second 2 to second 5
+<Video trimBefore={2 * fps} trimAfter={5 * fps} {/* ... */} />
+
+// Children see frames `10 * fps` through `15 * fps - 1`
+<Sequence trimBefore={10 * fps} trimAfter={15 * fps} {/* ... */} />
+```
+
+### `loop`
+
+Repeats the range between `trimBefore` and `trimAfter`. `durationInFrames` sets the total length. `<Video>` and `<Audio>` may omit `trimAfter` and loop the whole file; other layers need `trimAfter` because they have no intrinsic end:
+
+```tsx
+<Video loop durationInFrames={20 * fps} {/* ... */} />
+<Sequence trimAfter={2 * fps} durationInFrames={20 * fps} loop {/* ... */} />
+```
+
+`<Img>`, `<CanvasImage>`, `<Solid>` and shapes do not support `loop` because their output does not change over time.
+
 ### Fallback
 
 If a component does not support these props, wrap it in`<Sequence>` from `remotion`, which has them.

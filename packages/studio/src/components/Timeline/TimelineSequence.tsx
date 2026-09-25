@@ -40,6 +40,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
+import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {SetSelectedModalContext} from '../../state/modals';
 import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -73,6 +74,7 @@ import {
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	canResizeTimelineSequenceDuration,
+	getTimelineSequenceEndField,
 	getTimelineSequenceMediaDurationDragLimits,
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
@@ -534,10 +536,19 @@ const TimelineSequenceInner: React.FC<{
 		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
 	);
+	const endField = useRuntimeValueSelector({
+		controls: s.controls,
+		selector: (runtimeValues) =>
+			getTimelineSequenceEndField({sequence: s, runtimeValues}),
+		isEqual: (first, second) =>
+			first.fieldKey === second.fieldKey &&
+			first.trimBefore === second.trimBefore &&
+			first.playbackRate === second.playbackRate,
+	});
 	const durationCanResize = Boolean(
 		isStudioInteractivityEnabled() &&
 		canResizeTimelineSequenceDuration({
-			status: propStatusesForOverride?.durationInFrames,
+			status: propStatusesForOverride?.[endField.fieldKey],
 		}),
 	);
 	const fromCanUpdate = Boolean(
@@ -1064,7 +1075,7 @@ const TimelineSequenceInner: React.FC<{
 		nodePath !== null &&
 		validatedLocation !== null &&
 		durationCanResize &&
-		(!isMedia || mediaDurationDragLimits !== null);
+		(!isMedia || Boolean(s.loopDisplay) || mediaDurationDragLimits !== null);
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&

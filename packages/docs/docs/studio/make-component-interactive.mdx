@@ -15,9 +15,10 @@ For code that remains editable after visual changes, follow [Interactivity best 
 
 An [`InteractivitySchema`](/docs/interactivity-schema) describes which props the Studio may edit.
 
-Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`trimAfter`](/docs/sequence#trimafter), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
-As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming and visibility controls remain available.
+As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming, looping and visibility controls remain available. Forward all of these props to the `<Sequence>` your component renders.
+If the output of your component does not change with the frame, use [`Interactive.baseSchemaWithoutLoop`](/docs/interactive#interactivebaseschemawithoutloop) instead so that no inert `Loop` control is shown.
 
 Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if your component accepts a `style` prop and applies it to the rendered element.
 
@@ -293,6 +294,10 @@ The component now has a timeline row, inherits the common `<Sequence>` props and
 ### `Interactive.baseSchema`
 
 Use it when the component renders a `<Sequence>` internally.
+
+### `Interactive.baseSchemaWithoutLoop`<AvailableFrom v="4.0.530" />
+
+Use it instead of `Interactive.baseSchema` when the output of the component does not change with the frame, so that no `Loop` control is shown.
 
 ### `Interactive.transformSchema`
 

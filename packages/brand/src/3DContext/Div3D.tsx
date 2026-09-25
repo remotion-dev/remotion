@@ -413,6 +413,8 @@ const ExtrudeDivInner = React.forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
+			trimAfter,
+			loop,
 			freeze,
 			hidden,
 			name,
@@ -486,6 +488,8 @@ const ExtrudeDivInner = React.forwardRef<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

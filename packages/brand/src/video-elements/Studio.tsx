@@ -1656,7 +1656,9 @@ const StudioInner = React.forwardRef<
 			showInTimeline,
 			showTimelineZoom,
 			timelineOffset,
+			trimAfter,
 			trimBefore,
+			loop,
 			viewportHeight,
 			viewportWidth,
 		},
@@ -1714,7 +1716,9 @@ const StudioInner = React.forwardRef<
 				name={name ?? '<Studio>'}
 				outlineRef={outlineRef}
 				showInTimeline={showInTimeline ?? true}
+				trimAfter={trimAfter}
 				trimBefore={trimBefore}
+				loop={loop}
 			>
 				<div
 					ref={outlineRef}

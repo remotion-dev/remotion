@@ -7,7 +7,10 @@ import type {
 	InteractivePremountProps,
 } from '../Interactive.js';
 
-type CanvasImageSequenceProps = Omit<InteractiveBaseProps, 'playbackRate'> &
+type CanvasImageSequenceProps = Omit<
+	InteractiveBaseProps,
+	'playbackRate' | 'loop'
+> &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
