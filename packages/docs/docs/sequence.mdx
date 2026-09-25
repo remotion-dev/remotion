@@ -216,7 +216,7 @@ export const MyVideo = () => {
 
 In the example above, `Child` mounts at composition frame `30` and receives frame `15`.
 
-### `trimAfter?`<AvailableFrom v="4.0.530" />
+### `trimAfter?`
 
 Ends the child timeline at the specified frame, measured in the same clock as [`trimBefore`](#trimbefore).
 Children receive frames from `trimBefore` up to, but not including, `trimAfter`.
@@ -243,7 +243,7 @@ In the example above, `Child` receives frames `15` through `44` and the sequence
 
 See [Timing and trimming](/docs/timing#why-both-trimafter-and-durationinframes) for how `trimAfter` and `durationInFrames` differ.
 
-### `loop?`<AvailableFrom v="4.0.530" />
+### `loop?`
 
 Repeats the child range selected by [`trimBefore`](#trimbefore) and [`trimAfter`](#trimafter). Default: `false`.
 

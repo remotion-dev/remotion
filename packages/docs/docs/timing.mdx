@@ -93,7 +93,7 @@ export const MyComposition = () => (
 );
 ```
 
-## `trimAfter`: Trim the end<AvailableFrom v="4.0.530" />
+## `trimAfter`: Trim the end
 
 `trimAfter` selects where the content ends, measured in the same clock as `trimBefore`: the frame that the children receive from [`useCurrentFrame()`](/docs/use-current-frame).
 
@@ -122,9 +122,7 @@ For `<Video>` and `<Audio>`, the child clock is the position in the source file 
 At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
 If `trimAfter` is omitted, playback continues until the end of the file.
 
-Before 4.0.530, `trimAfter` was only available on `<Video>` and `<Audio>`.
-
-## `loop`: Repeat an item<AvailableFrom v="4.0.530" />
+## `loop`: Repeat an item
 
 `loop` repeats the range selected by `trimBefore` and `trimAfter`.
 
@@ -157,8 +155,6 @@ This repeats the selected 60 child frames three times over 90 composition frames
 All other items require `trimAfter` to loop, because they have no intrinsic end.
 
 [`<Loop>`](/docs/loop) is a shorthand for the same behavior with a period measured in the parent timeline: `<Loop durationInFrames={50} times={3}>` is equivalent to `trimAfter={50}`, `durationInFrames={150}` and `loop`.
-
-Before 4.0.530, `loop` was only available on `<Video>` and `<Audio>`.
 
 ## Why both `trimAfter` and `durationInFrames`?
 

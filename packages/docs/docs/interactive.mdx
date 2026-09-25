@@ -74,8 +74,6 @@ Controls inherited from [`<Sequence>`](/docs/sequence):
 
 `durationInFrames`, `from`, `trimBefore`, `trimAfter`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
-`trimAfter` and `loop` are included since <AvailableFrom v="4.0.530" inline />.
-
 Use it for components that render a `<Sequence>` internally and forward these props to it.
 
 ```tsx twoslash title="schema.ts"
@@ -92,7 +90,7 @@ export const shapeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-### `Interactive.baseSchemaWithoutLoop`<AvailableFrom v="4.0.530" />
+### `Interactive.baseSchemaWithoutLoop`
 
 The same controls as [`Interactive.baseSchema`](#interactivebaseschema) without `loop`.
 
