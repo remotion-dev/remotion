@@ -47,7 +47,8 @@ export const wrapJsxNodeHandler: ApiHandler<
 
 			if (
 				!eligibility.canWrap ||
-				(wrapper === 'HtmlInCanvas' && !eligibility.canWrapHtmlInCanvas)
+				((wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur') &&
+					!eligibility.canWrapHtmlInCanvas)
 			) {
 				throw new Error('This JSX element cannot be wrapped');
 			}
