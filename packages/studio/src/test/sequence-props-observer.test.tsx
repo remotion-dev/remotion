@@ -240,18 +240,20 @@ test('keeps the selected sequence selected after its node path changes', () => {
 		]);
 	});
 
-	queueSequenceNodePathMutation({
-		mutationId: 'reorder-selection-test',
-		timelineSelection: null,
-		files: [
-			{
-				absolutePath,
-				remappings: [
-					{oldNodePath: ['body', 0], newNodePath: ['body', 1]},
-					{oldNodePath: ['body', 1], newNodePath: ['body', 0]},
-				],
-			},
-		],
+	act(() => {
+		queueSequenceNodePathMutation({
+			mutationId: 'reorder-selection-test',
+			timelineSelection: null,
+			files: [
+				{
+					absolutePath,
+					remappings: [
+						{oldNodePath: ['body', 0], newNodePath: ['body', 1]},
+						{oldNodePath: ['body', 1], newNodePath: ['body', 0]},
+					],
+				},
+			],
+		});
 	});
 	rendered.rerender(renderTree(1));
 

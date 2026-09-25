@@ -6,7 +6,11 @@ import type {
 	AddKeyframesRequest,
 	AddKeyframesResponse,
 	AddSequenceKeyframe,
+	SequenceNodePathMutation,
+	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
+import {captureJsxNodePaths} from '../../codemods/get-node-path-remappings';
+import {parseAst} from '../../codemods/parse-ast';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -14,6 +18,7 @@ import {
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushTransactionToUndoStack,
@@ -47,6 +52,7 @@ type UndoSnapshot = {
 	readonly oldContents: string;
 	readonly newContents: string;
 	readonly logLine: number;
+	readonly nodePathRemappings: SequenceNodePathRemapping[];
 };
 
 type SequenceLog = {
@@ -109,7 +115,7 @@ export const addKeyframes = async ({
 }: AddKeyframesRequest & {
 	readonly remotionRoot: string;
 	readonly logLevel: LogLevel;
-}): Promise<void> => {
+}): Promise<SequenceNodePathMutation | null> => {
 	const totalKeyframes = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalKeyframes === 0) {
 		throw new Error('No keyframes were specified for adding');
@@ -165,6 +171,28 @@ export const addKeyframes = async ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		let output = fileContents;
 		let firstLogLine = Number.POSITIVE_INFINITY;
+		const originalNodes = captureJsxNodePaths(parseAst(fileContents));
+
+		// Keyframe codemods may wrap a concise arrow in a return statement.
+		// JSX nodes remain in order, but their node paths can all change.
+		const currentPathFor = (
+			originalPath: ResolvedSequenceKeyframe['nodePath']['nodePath'],
+		) => {
+			const index = originalNodes.findIndex(
+				({nodePath}) =>
+					JSON.stringify(nodePath) === JSON.stringify(originalPath),
+			);
+			if (index === -1) {
+				throw new Error('Could not find the original JSX node for keyframing');
+			}
+
+			const currentNodes = captureJsxNodePaths(parseAst(output));
+			if (currentNodes.length !== originalNodes.length) {
+				throw new Error('Could not remap JSX nodes after keyframing');
+			}
+
+			return currentNodes[index].nodePath;
+		};
 
 		for (const keyframeGroup of groupBy(group.sequenceKeyframes, (keyframe) =>
 			JSON.stringify(keyframe.nodePath.nodePath),
@@ -176,7 +204,7 @@ export const addKeyframes = async ({
 
 			const result = await updateSequenceKeyframes({
 				input: output,
-				nodePath: firstSequenceKeyframe.nodePath.nodePath,
+				nodePath: currentPathFor(firstSequenceKeyframe.nodePath.nodePath),
 				schema: firstSequenceKeyframe.schema,
 				videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 				updates: keyframeGroup.map((keyframe) => ({
@@ -217,7 +245,9 @@ export const addKeyframes = async ({
 
 			const result = await updateEffectKeyframes({
 				input: output,
-				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
+				sequenceNodePath: currentPathFor(
+					firstEffectKeyframe.sequenceNodePath.nodePath,
+				),
 				effectIndex: firstEffectKeyframe.effectIndex,
 				schema: firstEffectKeyframe.schema,
 				videoConfigValues:
@@ -247,11 +277,22 @@ export const addKeyframes = async ({
 			}
 		}
 
+		const finalNodes = captureJsxNodePaths(parseAst(output));
+		if (finalNodes.length !== originalNodes.length) {
+			throw new Error('Could not remap JSX nodes after keyframing');
+		}
+
 		snapshots.push({
 			filePath: absolutePath,
 			oldContents: fileContents,
 			newContents: output,
 			logLine: Number.isFinite(firstLogLine) ? firstLogLine : 1,
+			nodePathRemappings: originalNodes.flatMap(({nodePath}, index) => {
+				const newNodePath = finalNodes[index].nodePath;
+				return JSON.stringify(nodePath) === JSON.stringify(newNodePath)
+					? []
+					: [{oldNodePath: nodePath, newNodePath}];
+			}),
 		});
 	}
 
@@ -261,10 +302,18 @@ export const addKeyframes = async ({
 		throw new Error('No keyframes were specified for adding');
 	}
 
+	const filesWithRemappings = snapshots
+		.filter((snapshot) => snapshot.nodePathRemappings.length > 0)
+		.map((snapshot) => ({
+			absolutePath: snapshot.filePath,
+			remappings: snapshot.nodePathRemappings,
+		}));
 	pushTransactionToUndoStack({
 		snapshots: snapshots.map((snapshot) => ({
 			...snapshot,
-			nodePathRemappings: null,
+			nodePathRemappings: snapshot.nodePathRemappings.length
+				? snapshot.nodePathRemappings
+				: null,
 		})),
 		logLevel,
 		remotionRoot,
@@ -277,20 +326,29 @@ export const addKeyframes = async ({
 				: sequenceKeyframes.length > 0
 					? 'sequence-props'
 					: 'effect-props',
-		suppressHmrOnFileRestore: true,
+		suppressHmrOnFileRestore: filesWithRemappings.length === 0,
 		undoRedoNavigation: null,
 	});
 
 	for (const snapshot of snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
-		suppressBundlerUpdateForFile(snapshot.filePath);
+		if (snapshot.nodePathRemappings.length === 0) {
+			suppressBundlerUpdateForFile(snapshot.filePath);
+		}
+
 		writeFileAndNotifyFileWatchers({
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: clientId,
-			metadata: null,
+			metadata: snapshot.nodePathRemappings.length
+				? {skipSequencePropsUpdate: true}
+				: null,
 		});
 	}
+
+	const nodePathMutation = filesWithRemappings.length
+		? broadcastSequenceNodePathMutation(filesWithRemappings, null)
+		: null;
 
 	for (const log of sequenceLogs) {
 		logUpdate({
@@ -324,6 +382,7 @@ export const addKeyframes = async ({
 	}
 
 	printUndoHint(logLevel);
+	return nodePathMutation;
 };
 
 export const addKeyframesHandler: ApiHandler<
@@ -342,7 +401,7 @@ export const addKeyframesHandler: ApiHandler<
 			} keyframe(s)`,
 		);
 
-		await addKeyframes({
+		const nodePathMutation = await addKeyframes({
 			sequenceKeyframes,
 			effectKeyframes,
 			clientId,
@@ -350,5 +409,5 @@ export const addKeyframesHandler: ApiHandler<
 			logLevel,
 		});
 
-		return {success: true};
+		return {success: true, nodePathMutation};
 	});

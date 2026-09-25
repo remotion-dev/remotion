@@ -1,5 +1,5 @@
 import {type EventSourceEvent} from '@remotion/studio-shared';
-import {useContext, useEffect, useLayoutEffect, useRef} from 'react';
+import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import type {
 	SequencePropsStatusRemapping,
 	SequencePropsSubscriptionKey,
@@ -7,7 +7,10 @@ import type {
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
+import {
+	subscribeToSequenceNodePathMutations,
+	takePendingSequenceNodePathMutations,
+} from '../../helpers/sequence-node-path-mutations';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 import {useTimelineSelection} from './TimelineSelection';
@@ -29,6 +32,14 @@ export const SequencePropsObserver = () => {
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	const [mutationVersion, setMutationVersion] = useState(0);
+	useEffect(
+		() =>
+			subscribeToSequenceNodePathMutations(() =>
+				setMutationVersion((version) => version + 1),
+			),
+		[],
+	);
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
 	);
@@ -155,7 +166,7 @@ export const SequencePropsObserver = () => {
 
 			overrideUpdates.push({
 				overrideId,
-				nodePath: runtimeNodePathExists ? previousNodePath : null,
+				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
 			if (runtimeNodePathExists && runtimeNodePathNeedsRefresh) {
 				overrideIdsToRefresh.add(overrideId);
@@ -184,6 +195,7 @@ export const SequencePropsObserver = () => {
 		}
 	}, [
 		fastRefreshes,
+		mutationVersion,
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
 		remapSelectionNodePaths,
