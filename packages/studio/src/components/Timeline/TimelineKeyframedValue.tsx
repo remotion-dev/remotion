@@ -11,6 +11,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {getKeyframeLocalFrame} from './get-timeline-keyframes';
 import {TimelineFieldValue} from './TimelineSchemaField';
 
 const valuesEqual = (left: unknown, right: unknown): boolean => {
@@ -62,11 +63,17 @@ export const TimelineKeyframedValue: React.FC<{
 		return Internals.getEffectiveVisualModeValue({
 			propStatus: fakeStatus,
 			dragOverrideValue,
-			frame: sourceFrame,
+			frame: getKeyframeLocalFrame(sourceFrame, propStatus),
 			defaultValue: field.fieldSchema.default,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
-	}, [dragOverrideValue, fakeStatus, field.fieldSchema.default, sourceFrame]);
+	}, [
+		dragOverrideValue,
+		fakeStatus,
+		field.fieldSchema.default,
+		sourceFrame,
+		propStatus,
+	]);
 
 	const onSaveIfChanged = useCallback<TimelineFieldOnSave>(
 		(value) => {

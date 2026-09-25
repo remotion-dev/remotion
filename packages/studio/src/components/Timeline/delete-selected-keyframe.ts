@@ -13,6 +13,7 @@ import {
 } from './call-delete-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 } from './get-timeline-keyframes';
@@ -104,7 +105,10 @@ const getSelectedKeyframeDeletion = ({
 		});
 		const effectPlayheadSourceFrame =
 			(timelinePosition - effectKeyframeDisplayOffset) *
-			(track?.keyframePlaybackRate ?? 1);
+			getKeyframePlaybackRate(
+				effectPropStatus,
+				track?.keyframePlaybackRate ?? 1,
+			);
 		const effectValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 			propStatus: effectPropStatus,
 			playheadSourceFrame: effectPlayheadSourceFrame,
@@ -139,7 +143,10 @@ const getSelectedKeyframeDeletion = ({
 	});
 	const playheadSourceFrame =
 		(timelinePosition - keyframeDisplayOffset) *
-		(track?.keyframePlaybackRate ?? 1);
+		getKeyframePlaybackRate(
+			sequencePropStatus,
+			track?.keyframePlaybackRate ?? 1,
+		);
 	const sequenceValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 		propStatus: sequencePropStatus ?? null,
 		playheadSourceFrame,

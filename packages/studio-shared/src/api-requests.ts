@@ -440,6 +440,7 @@ export type GoogleFontSourceEdit = {
 };
 
 export type SaveSequencePropSourceEdit =
+	| {type: 'playback-rate'}
 	| {
 			type: 'google-font';
 			font: GoogleFontSourceEdit;

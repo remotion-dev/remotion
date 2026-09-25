@@ -358,7 +358,6 @@ const Value: React.FC<{
 			const fieldLabel = field.description ?? field.key;
 			const adjustedDuration = getAdjustedDuration(value);
 			const loopTrimAfter = getLoopTrimAfter(value);
-			const keyframeChanges = getPlaybackRateChanges(value);
 
 			if (value === propStatus.codeValue) {
 				return Promise.resolve();
@@ -380,12 +379,7 @@ const Value: React.FC<{
 			return unstable_batchedUpdates(() =>
 				saveSequenceProps({
 					addedKeyframes: null,
-					movedKeyframes: keyframeChanges
-						? {
-								sequenceKeyframes: keyframeChanges.sequenceKeyframes,
-								effectKeyframes: keyframeChanges.effectKeyframes,
-							}
-						: null,
+					movedKeyframes: null,
 					changes: [
 						{
 							fileName: validatedLocation.source,
@@ -394,7 +388,10 @@ const Value: React.FC<{
 							value,
 							defaultValue,
 							schema,
-							sourceEdit: options?.sourceEdit,
+							sourceEdit:
+								field.key === 'playbackRate'
+									? {type: 'playback-rate'}
+									: options?.sourceEdit,
 						},
 						...(adjustedDuration === null
 							? []
@@ -437,7 +434,6 @@ const Value: React.FC<{
 			field.key,
 			getAdjustedDuration,
 			getLoopTrimAfter,
-			getPlaybackRateChanges,
 			nodePath,
 			schema,
 			setPropStatuses,
@@ -750,13 +746,7 @@ export const TimelineSequencePropItem: React.FC<{
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
-	const propStatusesRef = useContext(
-		Internals.VisualModePropStatusesRefContext,
-	);
-	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
+
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -863,16 +853,7 @@ export const TimelineSequencePropItem: React.FC<{
 			typeof nextPlaybackRate === 'number' &&
 			Number.isFinite(nextPlaybackRate) &&
 			nextPlaybackRate > 0;
-		const keyframeChanges = canRetime
-			? getPlaybackRateKeyframeChanges({
-					nodePath,
-					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-					propStatuses: propStatusesRef.current,
-					previousPlaybackRate,
-					playbackRate: nextPlaybackRate,
-				})
-			: null;
+
 		const durationStatus = propStatusesForOverride?.durationInFrames;
 		const adjustedDuration =
 			canRetime &&
@@ -889,12 +870,7 @@ export const TimelineSequencePropItem: React.FC<{
 
 		saveSequenceProps({
 			addedKeyframes: null,
-			movedKeyframes: keyframeChanges
-				? {
-						sequenceKeyframes: keyframeChanges.sequenceKeyframes,
-						effectKeyframes: keyframeChanges.effectKeyframes,
-					}
-				: null,
+			movedKeyframes: null,
 			changes: [
 				...getSequencePropResetChanges({
 					fileName: validatedLocation.source,
@@ -903,7 +879,11 @@ export const TimelineSequencePropItem: React.FC<{
 					value: field.fieldSchema.default,
 					defaultValue,
 					schema,
-				}),
+				}).map((change) =>
+					change.fieldKey === 'playbackRate'
+						? {...change, sourceEdit: {type: 'playback-rate' as const}}
+						: change,
+				),
 				...(adjustedDuration !== null
 					? [
 							{
@@ -929,12 +909,9 @@ export const TimelineSequencePropItem: React.FC<{
 		field.fieldSchema.default,
 		field.key,
 		nodePath,
-		overrideIdToNodePathMappings,
 		previewServerState,
 		propStatusesForOverride?.durationInFrames,
-		propStatusesRef,
 		schema,
-		sequencesRef,
 		setPropStatuses,
 		validatedLocation.source,
 		propStatus,

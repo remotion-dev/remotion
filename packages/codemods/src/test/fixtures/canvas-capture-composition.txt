@@ -14,6 +14,7 @@ export const CanvasCapturePreview = () => {
 
 	return (
 		<AbsoluteFill
+			durationInFrames={500}
 			style={{
 				width: 3026,
 				height: 1386,
