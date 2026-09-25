@@ -4,6 +4,7 @@ import {isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {installRequiredPackages} from '../../helpers/install-required-package';
 import {CaretDown} from '../../icons/caret';
 import {WrapIcon} from '../../icons/wrap';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
@@ -16,7 +17,12 @@ import {
 	largeInspectorActionIconStyle,
 } from './common';
 
-const wrapperNames: JsxWrapper[] = ['AbsoluteFill', 'Sequence', 'HtmlInCanvas'];
+const wrapperNames: JsxWrapper[] = [
+	'AbsoluteFill',
+	'Sequence',
+	'HtmlInCanvas',
+	'HtmlInCanvasMotionBlur',
+];
 
 const buttonStyle: React.CSSProperties = {
 	borderRadius: 4,
@@ -99,7 +105,7 @@ export const SequenceWrapAction: React.FC<{
 	}, [nodePathKey, sequence, sourceActionsDisabled]);
 
 	const onWrap = useCallback(
-		(wrapper: JsxWrapper) => {
+		async (wrapper: JsxWrapper) => {
 			if (busy || sourceActionsDisabled || !eligibility?.canWrap) {
 				return;
 			}
@@ -108,22 +114,28 @@ export const SequenceWrapAction: React.FC<{
 			const nodePath = JSON.parse(
 				nodePathKey,
 			) as SequenceNodePathInfo['sequenceSubscriptionKey'];
-			wrapJsxNode({
-				fileName: nodePath.absolutePath,
-				nodePath: nodePath.nodePath,
-				wrapper,
-				width,
-				height,
-			})
-				.then((result) => {
-					if (!result.success) {
-						showNotification(result.reason, 4000);
-					}
-				})
-				.catch((error) => {
-					showNotification((error as Error).message, 4000);
-				})
-				.finally(() => setBusy(false));
+			try {
+				if (wrapper === 'HtmlInCanvasMotionBlur') {
+					await installRequiredPackages([
+						{name: '@remotion/motion-blur', version: null},
+					]);
+				}
+
+				const result = await wrapJsxNode({
+					fileName: nodePath.absolutePath,
+					nodePath: nodePath.nodePath,
+					wrapper,
+					width,
+					height,
+				});
+				if (!result.success) {
+					showNotification(result.reason, 4000);
+				}
+			} catch (error) {
+				showNotification((error as Error).message, 4000);
+			} finally {
+				setBusy(false);
+			}
 		},
 		[busy, eligibility, height, nodePathKey, sourceActionsDisabled, width],
 	);
@@ -142,7 +154,8 @@ export const SequenceWrapAction: React.FC<{
 				quickSwitcherLabel: null,
 				disabled:
 					busy ||
-					(wrapper === 'HtmlInCanvas' &&
+					((wrapper === 'HtmlInCanvas' ||
+						wrapper === 'HtmlInCanvasMotionBlur') &&
 						(!eligibility?.canWrapHtmlInCanvas || !isHtmlInCanvasSupported())),
 			})),
 		[busy, eligibility, onWrap],

@@ -1,5 +1,6 @@
-import {setStudioDragData} from '@remotion/studio-protocol';
+import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
@@ -43,6 +44,8 @@ const ElementCard: React.FC<{
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
+	const [isInstalling, setIsInstalling] = useState(false);
+	const [wasSentToStudio, setWasSentToStudio] = useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
@@ -56,6 +59,26 @@ const ElementCard: React.FC<{
 			}),
 		[definition, sourceCode],
 	);
+	const assetPayload = useMemo(
+		() =>
+			definition.assets.length === 0
+				? null
+				: createElementPayloadFromDefinition({
+						definition,
+						sourceCode,
+						installAssets: true,
+					}),
+		[definition, sourceCode],
+	);
+
+	useEffect(() => {
+		if (!wasSentToStudio) {
+			return;
+		}
+
+		const timeout = window.setTimeout(() => setWasSentToStudio(false), 3000);
+		return () => window.clearTimeout(timeout);
+	}, [wasSentToStudio]);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -78,9 +101,7 @@ const ElementCard: React.FC<{
 		};
 	}, [shouldPlay]);
 
-	const activateFromPointer = (
-		event: React.PointerEvent<HTMLAnchorElement>,
-	) => {
+	const activateFromPointer = (event: React.PointerEvent<HTMLLIElement>) => {
 		if (event.pointerType === 'touch') {
 			return;
 		}
@@ -89,8 +110,51 @@ const ElementCard: React.FC<{
 		setIsPointerOver(true);
 	};
 
+	const installElement = async () => {
+		setWasSentToStudio(false);
+		setIsInstalling(true);
+		try {
+			const result = await installInStudio({
+				payload: assetPayload ?? elementPayload,
+				fallbackPayload: assetPayload === null ? undefined : elementPayload,
+			});
+			if (!result.success) {
+				// eslint-disable-next-line no-alert
+				window.alert(result.message);
+				return;
+			}
+
+			setWasSentToStudio(true);
+
+			if (window.location.origin === 'https://www.remotion.dev') {
+				navigator.sendBeacon(
+					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
+				);
+			}
+		} catch (error) {
+			// eslint-disable-next-line no-alert
+			window.alert(
+				error instanceof Error
+					? error.message
+					: 'Could not install this Element in Studio.',
+			);
+		} finally {
+			setIsInstalling(false);
+		}
+	};
+
+	const installButtonLabel = isInstalling
+		? 'Finding Studio…'
+		: wasSentToStudio
+			? 'Sent to Studio'
+			: 'Install in Studio';
+
 	return (
-		<li className={styles.cardItem}>
+		<li
+			className={styles.cardItem}
+			onPointerEnter={activateFromPointer}
+			onPointerLeave={() => setIsPointerOver(false)}
+		>
 			<a
 				className={styles.card}
 				draggable
@@ -107,8 +171,6 @@ const ElementCard: React.FC<{
 					});
 					setElementDragImage(event.dataTransfer, posterRef.current);
 				}}
-				onPointerEnter={activateFromPointer}
-				onPointerLeave={() => setIsPointerOver(false)}
 			>
 				<div
 					aria-hidden="true"
@@ -142,6 +204,19 @@ const ElementCard: React.FC<{
 					<span className={styles.title}>{definition.displayName}</span>
 				</div>
 			</a>
+			<div aria-live="polite" className={styles.installAction}>
+				<BlueButton
+					aria-label={`${installButtonLabel} – ${definition.displayName}`}
+					fullWidth={false}
+					loading={isInstalling}
+					onClick={installElement}
+					size="sm"
+					style={{padding: '5px 8px'}}
+					title="Install in the most recently focused Remotion Studio"
+				>
+					{installButtonLabel}
+				</BlueButton>
+			</div>
 		</li>
 	);
 };

@@ -3,6 +3,14 @@ import {requestInsertedElementSelection} from './inserted-element-selection';
 
 const pendingMutations: SequenceNodePathMutation[] = [];
 const seenMutationIds = new Set<string>();
+const mutationListeners = new Set<() => void>();
+
+export const subscribeToSequenceNodePathMutations = (listener: () => void) => {
+	mutationListeners.add(listener);
+	return () => {
+		mutationListeners.delete(listener);
+	};
+};
 
 export const queueSequenceNodePathMutation = (
 	mutation: SequenceNodePathMutation,
@@ -13,6 +21,10 @@ export const queueSequenceNodePathMutation = (
 
 	seenMutationIds.add(mutation.mutationId);
 	pendingMutations.push(mutation);
+	for (const listener of mutationListeners) {
+		listener();
+	}
+
 	if (mutation.timelineSelection !== null) {
 		requestInsertedElementSelection({
 			compositionId: mutation.timelineSelection.compositionId,

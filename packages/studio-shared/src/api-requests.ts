@@ -742,6 +742,7 @@ export type AddKeyframesRequest = {
 
 export type AddKeyframesResponse = {
 	success: true;
+	nodePathMutation: SequenceNodePathMutation | null;
 };
 
 export type KeyframeSettings =
@@ -890,7 +891,11 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+export type JsxWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
 
 export type WrapJsxNodeRequest = {
 	fileName: string;
