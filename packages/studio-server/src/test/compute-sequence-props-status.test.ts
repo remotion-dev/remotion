@@ -1399,6 +1399,78 @@ export const Example: React.FC = () => {
 	expect(result.props['style.backgroundColor']).toEqual({status: 'computed'});
 });
 
+test('computeSequencePropsStatus does not treat an outer frame clock as local across a loop', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill loop trimAfter={20}>
+			<Interactive.Div
+				name="Title"
+				style={{
+					opacity: interpolate(frame, [5, 26], [0, 1]),
+					translate: interpolate(frame, [5, 26], ['0px 22px', '0px 0px']),
+				}}
+			/>
+		</AbsoluteFill>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['name', 'style.opacity', 'style.translate'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.name).toEqual({
+		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
+		codeValue: 'Title',
+		canKeyframe: false,
+	});
+	expect(result.props['style.opacity']).toEqual({status: 'computed'});
+	expect(result.props['style.translate']).toEqual({status: 'computed'});
+});
+
+test('computeSequencePropsStatus keeps an outer frame clock editable when looping is disabled', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill loop={false} trimAfter={20}>
+			<Interactive.Div style={{opacity: interpolate(frame, [5, 26], [0, 1])}} />
+		</AbsoluteFill>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: 0,
+	});
+});
+
 test('computeSequencePropsStatus should return keyframes for String-wrapped interpolated translate props', () => {
 	const input = `import React from 'react';
 import {Easing, Sequence, interpolate, useCurrentFrame} from 'remotion';

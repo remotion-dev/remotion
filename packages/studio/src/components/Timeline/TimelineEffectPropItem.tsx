@@ -491,10 +491,12 @@ export const TimelineEffectPropItem: React.FC<{
 		return overrides[field.key];
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema: field.effectSchema,
-		key: field.key,
-	});
+	const keyframable =
+		!(propStatus?.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema: field.effectSchema,
+			key: field.key,
+		});
 	const keyframeControls =
 		propStatus !== null &&
 		(keyframeControlsMode === 'inspector'

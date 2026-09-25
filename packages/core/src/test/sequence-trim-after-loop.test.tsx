@@ -145,6 +145,24 @@ test('loop respects nested playback rates and a parent cutting an iteration shor
 	expect(cutoffView.container.textContent).toBe('');
 });
 
+test('a frame read outside a looping Sequence keeps the parent clock', () => {
+	const ParentClock = () => {
+		const frame = useCurrentFrame();
+		return (
+			<Sequence layout="none" trimAfter={20} loop>
+				<div>parent frame {frame}</div>
+			</Sequence>
+		);
+	};
+
+	const content = <ParentClock />;
+	const view = render(renderFrame({frame: 5, children: content}));
+
+	expect(view.getByText('parent frame 5')).toBeTruthy();
+	view.rerender(renderFrame({frame: 25, children: content}));
+	expect(view.getByText('parent frame 25')).toBeTruthy();
+});
+
 test('Sequence loop matches Loop and timed wrappers forward the props', () => {
 	const content = (
 		<>

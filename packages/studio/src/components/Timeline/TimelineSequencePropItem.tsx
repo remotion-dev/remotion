@@ -768,10 +768,12 @@ export const TimelineSequencePropItem: React.FC<{
 		return (getDragOverrides(nodePath) ?? {})[field.key];
 	}, [getDragOverrides, nodePath, field.key]);
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema,
-		key: field.key,
-	});
+	const keyframable =
+		!(propStatus?.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema,
+			key: field.key,
+		});
 	const keyframeControls =
 		propStatus !== null &&
 		(keyframeControlsMode === 'inspector'
