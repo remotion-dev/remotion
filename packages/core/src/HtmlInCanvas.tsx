@@ -219,6 +219,107 @@ const getTransferredOffscreenCanvas = (
 	return offscreen;
 };
 
+let nestedCanvasScalingProbe: {
+	readonly devicePixelRatio: number;
+	readonly result: Promise<boolean>;
+} | null = null;
+
+const hasNestedCanvasScalingBug = (): Promise<boolean> => {
+	const devicePixelRatio = window.devicePixelRatio || 1;
+	if (devicePixelRatio <= 1) {
+		return Promise.resolve(false);
+	}
+
+	if (nestedCanvasScalingProbe?.devicePixelRatio === devicePixelRatio) {
+		return nestedCanvasScalingProbe.result;
+	}
+
+	const result = new Promise<boolean>((resolve) => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 32;
+		canvas.height = 32;
+		canvas.layoutSubtree = true;
+		Object.assign(canvas.style, {
+			position: 'fixed',
+			top: '0',
+			left: '0',
+			width: '32px',
+			height: '32px',
+			opacity: '0.001',
+			pointerEvents: 'none',
+			zIndex: '2147483647',
+		});
+
+		const wrapper = document.createElement('div');
+		wrapper.style.width = '32px';
+		wrapper.style.height = '32px';
+		const inner = document.createElement('canvas');
+		inner.width = 32;
+		inner.height = 32;
+		inner.style.display = 'block';
+		inner.style.width = '32px';
+		inner.style.height = '32px';
+		const innerContext = inner.getContext('2d')!;
+		innerContext.fillStyle = 'red';
+		innerContext.fillRect(0, 0, 16, 16);
+		innerContext.fillStyle = 'lime';
+		innerContext.fillRect(16, 0, 16, 16);
+		innerContext.fillStyle = 'cyan';
+		innerContext.fillRect(0, 16, 16, 16);
+		innerContext.fillStyle = 'yellow';
+		innerContext.fillRect(16, 16, 16, 16);
+		wrapper.appendChild(inner);
+		canvas.appendChild(wrapper);
+
+		let finished = false;
+		let timeout: number | null = null;
+		const finish = (bugPresent: boolean) => {
+			if (finished) {
+				return;
+			}
+
+			finished = true;
+			if (timeout !== null) {
+				window.clearTimeout(timeout);
+			}
+
+			canvas.remove();
+			resolve(bugPresent);
+		};
+
+		canvas.addEventListener(
+			'paint',
+			() => {
+				try {
+					const image = canvas.captureElementImage(wrapper);
+					try {
+						const context = canvas.getContext('2d')!;
+						context.reset();
+						context.drawElementImage(image, 0, 0);
+						const topLeft = context.getImageData(8, 8, 1, 1).data;
+						const bottomRight = context.getImageData(30, 30, 1, 1).data;
+						// Affected Chrome shrinks the child canvas pixels into the
+						// top-left; the sampled color depends on the device pixel ratio.
+						finish(topLeft[3] === 255 && bottomRight[3] === 0);
+					} finally {
+						image.close();
+					}
+				} catch {
+					finish(false);
+				}
+			},
+			{once: true},
+		);
+
+		timeout = window.setTimeout(() => finish(false), 3000);
+		document.body.appendChild(canvas);
+		canvas.requestPaint?.();
+	});
+
+	nestedCanvasScalingProbe = {devicePixelRatio, result};
+	return result;
+};
+
 // Memoize the support check across the session — neither the platform
 // capability nor the chrome://flags toggle can change between calls.
 // SSR results are not cached so the check runs again once `document` exists.
@@ -451,6 +552,19 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const correctedNestedCanvasesRef = useRef(
+			new WeakMap<
+				HTMLCanvasElement,
+				{
+					sourceWidth: number;
+					sourceHeight: number;
+					correctedWidth: number;
+					correctedHeight: number;
+					originalStyleWidth: string;
+					originalStyleHeight: string;
+				}
+			>(),
+		);
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -479,6 +593,102 @@ const HtmlInCanvasContent = forwardRef<
 				}
 
 				const handle = delayRender('onPaint');
+				const needsNestedCanvasCorrection =
+					window.devicePixelRatio > 1 && (await hasNestedCanvasScalingBug());
+				for (const childCanvas of element.querySelectorAll('canvas')) {
+					const corrected = correctedNestedCanvasesRef.current.get(childCanvas);
+					if (!needsNestedCanvasCorrection && !corrected) {
+						continue;
+					}
+
+					const stillCorrected =
+						corrected?.correctedWidth === childCanvas.width &&
+						corrected.correctedHeight === childCanvas.height;
+					const sourceWidth = stillCorrected
+						? corrected.sourceWidth
+						: childCanvas.width;
+					const sourceHeight = stillCorrected
+						? corrected.sourceHeight
+						: childCanvas.height;
+
+					// Video canvases start at the browser's 300×150 default and
+					// receive their real size when the first frame is decoded.
+					if (
+						needsNestedCanvasCorrection &&
+						!corrected &&
+						sourceWidth === 300 &&
+						sourceHeight === 150 &&
+						!childCanvas.hasAttribute('width') &&
+						!childCanvas.hasAttribute('height')
+					) {
+						continue;
+					}
+
+					const targetWidth = needsNestedCanvasCorrection
+						? Math.round(sourceWidth * window.devicePixelRatio)
+						: sourceWidth;
+					const targetHeight = needsNestedCanvasCorrection
+						? Math.round(sourceHeight * window.devicePixelRatio)
+						: sourceHeight;
+					const originalStyleWidth =
+						corrected?.originalStyleWidth ?? childCanvas.style.width;
+					const originalStyleHeight =
+						corrected?.originalStyleHeight ?? childCanvas.style.height;
+					if (
+						targetWidth !== childCanvas.width ||
+						targetHeight !== childCanvas.height
+					) {
+						const context = childCanvas.getContext('2d');
+						if (
+							!context ||
+							childCanvas.width === 0 ||
+							childCanvas.height === 0
+						) {
+							continue;
+						}
+
+						const copy = document.createElement('canvas');
+						copy.width = childCanvas.width;
+						copy.height = childCanvas.height;
+						const copyContext = copy.getContext('2d');
+						if (!copyContext) {
+							continue;
+						}
+
+						copyContext.drawImage(childCanvas, 0, 0);
+						if (needsNestedCanvasCorrection && !corrected) {
+							// Keep the CSS box unchanged when it is sized by the bitmap.
+							const computedStyle = window.getComputedStyle(childCanvas);
+							if (!childCanvas.style.width) {
+								childCanvas.style.width = computedStyle.width;
+							}
+
+							if (!childCanvas.style.height) {
+								childCanvas.style.height = computedStyle.height;
+							}
+						}
+
+						childCanvas.width = targetWidth;
+						childCanvas.height = targetHeight;
+						context.drawImage(copy, 0, 0, targetWidth, targetHeight);
+					}
+
+					if (needsNestedCanvasCorrection) {
+						correctedNestedCanvasesRef.current.set(childCanvas, {
+							sourceWidth,
+							sourceHeight,
+							correctedWidth: targetWidth,
+							correctedHeight: targetHeight,
+							originalStyleWidth,
+							originalStyleHeight,
+						});
+					} else if (corrected) {
+						childCanvas.style.width = corrected.originalStyleWidth;
+						childCanvas.style.height = corrected.originalStyleHeight;
+						correctedNestedCanvasesRef.current.delete(childCanvas);
+					}
+				}
+
 				if (!initializedRef.current) {
 					const currentOnInit = onInitRef.current;
 					if (!currentOnInit) {
