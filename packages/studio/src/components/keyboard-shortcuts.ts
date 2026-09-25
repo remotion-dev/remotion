@@ -63,7 +63,7 @@ export const defaultKeyboardShortcuts: Record<
 	zoomIn: [{key: '+', shift: true}, {key: '+'}],
 	zoomOut: [{key: '-'}],
 	resetZoom: [{key: '0'}],
-	undo: [{key: 'z', commandOrControl: true}],
+	undo: [{key: 'z', commandOrControl: true, shift: false}],
 	redo: [
 		...(isMac ? [] : [{key: 'y', commandOrControl: true}]),
 		{key: 'z', commandOrControl: true, shift: true},
