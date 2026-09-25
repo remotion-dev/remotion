@@ -29,8 +29,23 @@ export type WrapJsxNodeOptions<Project extends CodemodProject> = {
 	wrapper: CodemodElement;
 };
 
-const isHtmlInCanvasWrapper = (wrapper: CodemodElement) =>
-	wrapper.importPath === 'remotion' && wrapper.component === 'HtmlInCanvas';
+const getHtmlInCanvasWrapperName = (wrapper: CodemodElement) => {
+	if (
+		wrapper.importPath === 'remotion' &&
+		wrapper.component === 'HtmlInCanvas'
+	) {
+		return 'HtmlInCanvas';
+	}
+
+	if (
+		wrapper.importPath === '@remotion/motion-blur' &&
+		wrapper.component === 'HtmlInCanvasMotionBlur'
+	) {
+		return 'HtmlInCanvasMotionBlur';
+	}
+
+	return null;
+};
 
 export const canWrapJsxNode = ({
 	input,
@@ -45,11 +60,12 @@ export const canWrapJsxNode = ({
 		return {canWrap: false, canWrapHtmlInCanvas: false};
 	}
 
-	const htmlInCanvasNames = new Set(['HtmlInCanvas']);
+	const htmlInCanvasNames = new Set(['HtmlInCanvas', 'HtmlInCanvasMotionBlur']);
 	for (const statement of ast.program.body) {
 		if (
 			statement.type !== 'ImportDeclaration' ||
-			statement.source.value !== 'remotion'
+			(statement.source.value !== 'remotion' &&
+				statement.source.value !== '@remotion/motion-blur')
 		) {
 			continue;
 		}
@@ -57,9 +73,12 @@ export const canWrapJsxNode = ({
 		for (const specifier of statement.specifiers ?? []) {
 			if (
 				specifier.type === 'ImportSpecifier' &&
-				getImportedName(specifier) === 'HtmlInCanvas'
+				(getImportedName(specifier) === 'HtmlInCanvas' ||
+					getImportedName(specifier) === 'HtmlInCanvasMotionBlur')
 			) {
-				htmlInCanvasNames.add(specifier.local?.name ?? 'HtmlInCanvas');
+				htmlInCanvasNames.add(
+					specifier.local?.name ?? getImportedName(specifier),
+				);
 			}
 		}
 	}
@@ -115,16 +134,16 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
 	const eligibility = canWrapJsxNode({input, nodePath: node.nodePath});
-	const htmlInCanvas = isHtmlInCanvasWrapper(wrapper);
+	const htmlInCanvasWrapper = getHtmlInCanvasWrapperName(wrapper);
 	if (
 		!eligibility.canWrap ||
-		(htmlInCanvas && !eligibility.canWrapHtmlInCanvas)
+		(htmlInCanvasWrapper !== null && !eligibility.canWrapHtmlInCanvas)
 	) {
 		throw new Error('This JSX element cannot be wrapped');
 	}
 
 	if (
-		htmlInCanvas &&
+		htmlInCanvasWrapper !== null &&
 		[wrapper.props.width, wrapper.props.height].some(
 			(dimension) =>
 				typeof dimension !== 'number' ||
@@ -132,7 +151,9 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 				dimension <= 0,
 		)
 	) {
-		throw new Error('HtmlInCanvas requires positive integer dimensions');
+		throw new Error(
+			`${htmlInCanvasWrapper} requires positive integer dimensions`,
+		);
 	}
 
 	const ast = parseAst(input);

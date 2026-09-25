@@ -1,5 +1,23 @@
 import type {CanUpdateSequencePropStatus} from 'remotion';
 
+export const getKeyframePlaybackRate = (
+	propStatus: CanUpdateSequencePropStatus | null | undefined,
+	keyframePlaybackRate: number,
+): number =>
+	keyframePlaybackRate *
+	(propStatus && propStatus.status !== 'computed'
+		? (propStatus.keyframePlaybackRateAdjustment ?? 1)
+		: 1);
+
+export const getKeyframeLocalFrame = (
+	sourceFrame: number,
+	propStatus: CanUpdateSequencePropStatus,
+): number =>
+	propStatus.status === 'computed'
+		? sourceFrame
+		: (sourceFrame + (propStatus.keyframeDisplayOffsetAdjustment ?? 0)) /
+			(propStatus.keyframePlaybackRateAdjustment ?? 1);
+
 // Keep display-clock inputs until the edited property is known, so resolving its
 // original source keyframe accounts for rounding introduced by the full offset.
 export type KeyframeSourceFrame =
@@ -21,8 +39,11 @@ export const getKeyframeSourceFrame = ({
 	keyframePlaybackRate: number;
 	propStatus: CanUpdateSequencePropStatus | null;
 }): number => {
-	const sourceFrame =
-		(displayFrame - keyframeDisplayOffset) * keyframePlaybackRate;
+	const playbackRate = getKeyframePlaybackRate(
+		propStatus,
+		keyframePlaybackRate,
+	);
+	const sourceFrame = (displayFrame - keyframeDisplayOffset) * playbackRate;
 	if (propStatus?.status !== 'keyframed') {
 		return sourceFrame;
 	}
@@ -33,7 +54,7 @@ export const getKeyframeSourceFrame = ({
 	const tolerance =
 		Number.EPSILON *
 		Math.max(1, Math.abs(displayFrame), Math.abs(keyframeDisplayOffset)) *
-		keyframePlaybackRate *
+		playbackRate *
 		8;
 	let closestFrame = sourceFrame;
 	let closestDistance = Infinity;
@@ -57,7 +78,7 @@ export const resolveKeyframeSourceFrame = (
 			? {
 					displayFrame: sourceFrame,
 					keyframeDisplayOffset: 0,
-					keyframePlaybackRate: 1,
+					keyframePlaybackRate: 1 / getKeyframePlaybackRate(propStatus, 1),
 				}
 			: sourceFrame),
 		propStatus,
@@ -78,19 +99,22 @@ export const getTimelineKeyframes = (
 	}
 
 	const {keyframes} = propStatus;
+	const playbackRate = getKeyframePlaybackRate(
+		propStatus,
+		keyframePlaybackRate,
+	);
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
 		keyframePlaybackRate,
 	});
-	if (resolvedKeyframeDisplayOffset === 0 && keyframePlaybackRate === 1) {
+	if (resolvedKeyframeDisplayOffset === 0 && playbackRate === 1) {
 		return keyframes;
 	}
 
 	return keyframes.map((keyframe) => ({
 		...keyframe,
-		frame:
-			keyframe.frame / keyframePlaybackRate + resolvedKeyframeDisplayOffset,
+		frame: keyframe.frame / playbackRate + resolvedKeyframeDisplayOffset,
 	}));
 };
 
@@ -108,7 +132,8 @@ export const getKeyframeDisplayOffset = ({
 		(propStatus?.status === 'keyframed' || propStatus?.status === 'static'
 			? propStatus.keyframeDisplayOffsetAdjustment === null
 				? 0
-				: propStatus.keyframeDisplayOffsetAdjustment / keyframePlaybackRate
+				: propStatus.keyframeDisplayOffsetAdjustment /
+					getKeyframePlaybackRate(propStatus, keyframePlaybackRate)
 			: 0)
 	);
 };

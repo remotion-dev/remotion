@@ -47,7 +47,8 @@ export const wrapJsxNodeHandler: ApiHandler<
 
 			if (
 				!eligibility.canWrap ||
-				(wrapper === 'HtmlInCanvas' && !eligibility.canWrapHtmlInCanvas)
+				((wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur') &&
+					!eligibility.canWrapHtmlInCanvas)
 			) {
 				throw new Error('This JSX element cannot be wrapped');
 			}
@@ -57,9 +58,12 @@ export const wrapJsxNodeHandler: ApiHandler<
 				node: {filePath: absolutePath, nodePath},
 				wrapper: createElement({
 					component: wrapper,
-					importPath: 'remotion',
+					importPath:
+						wrapper === 'HtmlInCanvasMotionBlur'
+							? '@remotion/motion-blur'
+							: 'remotion',
 					props:
-						wrapper === 'HtmlInCanvas'
+						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
 							? {width: width ?? 0, height: height ?? 0}
 							: {},
 				}),

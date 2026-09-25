@@ -63,6 +63,9 @@ export const saveSequencePropsInProject = ({
 						updates: [
 							{
 								key: edit.key,
+								...(edit.sourceEdit?.type === 'playback-rate'
+									? {retimeKeyframes: true}
+									: {}),
 								value: parseSequencePropEditValue(edit.value),
 								defaultValue:
 									edit.defaultValue === null

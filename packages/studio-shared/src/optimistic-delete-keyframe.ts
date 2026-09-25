@@ -44,6 +44,12 @@ const removeKeyframeFromPropStatus = ({
 		return {
 			status: 'static',
 			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
+			...(status.keyframePlaybackRateAdjustment === undefined
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							status.keyframePlaybackRateAdjustment,
+					}),
 			codeValue:
 				valueWhenLastKeyframeDeleted === null
 					? status.keyframes[index].value
