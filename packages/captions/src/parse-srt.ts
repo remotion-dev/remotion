@@ -91,8 +91,19 @@ export const parseSrt = ({
 
 			i++;
 			const timingLine = inputLines[i];
-			const timing = timingLine?.match(/^\s*(\S+)\s+-->\s+(\S+)\s*$/);
-			if (!timing) {
+			const timing = timingLine?.match(/^\s*(\S+)\s+-->\s+(\S+)(.*)$/);
+			const settings = timing?.[3].trim();
+			if (
+				!timing ||
+				(settings &&
+					!settings
+						.split(/\s+/)
+						.every((setting) =>
+							/^(?:(?:X[12]|Y[12]):\d+|(?:align|position|line|size|vertical):\S+)$/.test(
+								setting,
+							),
+						))
+			) {
 				throw new Error(
 					`SRT cue ${cue}, line ${i + 1}: expected start --> end timestamps.`,
 				);

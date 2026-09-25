@@ -43,7 +43,23 @@ An object with the following property:
 
 #### `transcript`
 
-A Speech-to-Text response with a `words` array (request `timestamps_granularity: "word"`), or a segmented JSON export with `segments` containing `text`, `start_time`, `end_time`, and optionally timed `words`. <AvailableFrom v="4.0.530" inline /> Segmented exports use absolute seconds; when timed words are available they are preserved, otherwise each segment becomes one caption.
+A Speech-to-Text response with a `words` array (request `timestamps_granularity: "word"`), or a segmented JSON export with a top-level `language_code` field (which can be `null`) and `segments` containing `text`, `start_time`, `end_time`, and optionally timed `words`. <AvailableFrom v="4.0.530" inline /> Segmented exports use absolute seconds; when timed words are available they are preserved, otherwise each segment becomes one caption.
+
+A segmented export uses this structure (example text and times are illustrative):
+
+```json title="Segmented JSON export"
+{
+  "language_code": null,
+  "segments": [
+    {
+      "text": "Hello",
+      "start_time": 0,
+      "end_time": 0.5,
+      "words": [{"text": "Hello", "start_time": 0, "end_time": 0.5}]
+    }
+  ]
+}
+```
 
 The `words` array should contain objects with the following fields:
 
