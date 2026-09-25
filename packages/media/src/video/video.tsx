@@ -63,6 +63,7 @@ export const videoSchema: InteractivitySchema = {
 		keyframable: false,
 	},
 	muted: {type: 'boolean', default: false, description: 'Muted'},
+	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
