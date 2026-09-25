@@ -1,4 +1,3 @@
-import {numericLiteral} from '@babel/types';
 import type {
 	CallExpression,
 	Expression,
@@ -8,6 +7,7 @@ import type {
 	JSXOpeningElement,
 	NewExpression,
 	Node,
+	NumericLiteral,
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
@@ -1204,16 +1204,18 @@ export const retimeSequenceKeyframes = ({
 				return this.traverse(p);
 			}
 
-			inputRange.elements = interpolation.keyframes.map((keyframe) => {
-				const frame = anchor + (keyframe.frame - anchor) * ratio;
-				const nearestInteger = Math.round(frame);
-				const value =
-					Math.abs(frame - nearestInteger) <=
-					Number.EPSILON * Math.max(1, Math.abs(frame)) * 2
-						? nearestInteger
-						: frame;
-				return numericLiteral(value);
-			});
+			inputRange.elements = interpolation.keyframes.map<NumericLiteral>(
+				(keyframe) => {
+					const frame = anchor + (keyframe.frame - anchor) * ratio;
+					const nearestInteger = Math.round(frame);
+					const value =
+						Math.abs(frame - nearestInteger) <=
+						Number.EPSILON * Math.max(1, Math.abs(frame)) * 2
+							? nearestInteger
+							: frame;
+					return {type: 'NumericLiteral', value};
+				},
+			);
 			return false;
 		},
 	});
