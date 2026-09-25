@@ -15,7 +15,7 @@ export const REMOTION_INTERNAL_STACK_PROP = '_remotionInternalStack';
 // location as a synthetic stack frame, so consumers can skip symbolication.
 const ORIGINAL_SOURCE_STACK_PREFIX = 'studio-original://';
 const originalSourceStackPattern =
-	/\(studio-original:\/\/([^\s:)]*):(\d+):(\d+)\)/;
+	/\(studio-original:\/\/([^\r\n]+):(\d+):(\d+)\)/;
 
 export type OriginalSourceLocation = {
 	fileName: string;

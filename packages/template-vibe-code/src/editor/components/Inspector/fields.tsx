@@ -70,6 +70,7 @@ export const NumberField: React.FC<{
   readonly disabled?: boolean;
   readonly onCommit: (value: number | null) => void;
   readonly onLiveChange?: (value: number) => void;
+  readonly onCancel: (() => void) | null;
   readonly ariaLabel: string;
   readonly className?: string;
   readonly allowEmpty?: boolean;
@@ -84,6 +85,7 @@ export const NumberField: React.FC<{
   disabled,
   onCommit,
   onLiveChange,
+  onCancel,
   ariaLabel,
   className,
   allowEmpty = false,
@@ -122,6 +124,14 @@ export const NumberField: React.FC<{
     if (Number.isFinite(parsed) && parsed !== value) {
       onCommit(normalize(parsed));
     }
+  };
+
+  const cancelDrag = () => {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag) return;
+    setDraft(null);
+    if (drag.previewed) onCancel?.();
   };
 
   return (
@@ -169,6 +179,8 @@ export const NumberField: React.FC<{
             onCommit(next);
           }
         }}
+        onPointerCancel={cancelDrag}
+        onLostPointerCapture={cancelDrag}
       />
       <Input
         aria-label={ariaLabel}

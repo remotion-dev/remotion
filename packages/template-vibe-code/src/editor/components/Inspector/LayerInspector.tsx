@@ -66,7 +66,8 @@ const PropEditor: React.FC<{
   readonly onUpdate: (updates: SequencePropUpdate[]) => void;
   /** Shows a value on the canvas while it is being dragged. */
   readonly onPreview: (values: Record<string, unknown>) => void;
-}> = ({ fieldKey, field, status, onUpdate, onPreview }) => {
+  readonly onCancelPreview: () => void;
+}> = ({ fieldKey, field, status, onUpdate, onPreview, onCancelPreview }) => {
   const label = getFieldLabel(fieldKey, field);
   const ariaLabel = label;
   const preview = (value: unknown) => onPreview({ [fieldKey]: value });
@@ -122,6 +123,7 @@ const PropEditor: React.FC<{
             allowEmpty
             onCommit={(value) => commit(value === null ? undefined : value)}
             onLiveChange={preview}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -157,6 +159,7 @@ const PropEditor: React.FC<{
             onLiveChange={(x) =>
               preview(serializeTranslate({ x, y: current.y }))
             }
+            onCancel={onCancelPreview}
           />
           <NumberField
             ariaLabel={`${label} Y`}
@@ -169,6 +172,7 @@ const PropEditor: React.FC<{
             onLiveChange={(y) =>
               preview(serializeTranslate({ x: current.x, y }))
             }
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -185,6 +189,7 @@ const PropEditor: React.FC<{
             step={field.step ?? 0.01}
             onCommit={(value) => commit(value ?? 1)}
             onLiveChange={preview}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -199,6 +204,7 @@ const PropEditor: React.FC<{
             step={field.step ?? 1}
             onCommit={(value) => commit(serializeRotation(value ?? 0))}
             onLiveChange={(value) => preview(serializeRotation(value))}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -215,6 +221,7 @@ const PropEditor: React.FC<{
             step={field.step ?? 1}
             onCommit={(value) => commit(value ?? 0)}
             onLiveChange={preview}
+            onCancel={onCancelPreview}
           />
         </FieldRow>
       );
@@ -460,6 +467,7 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
               status={statuses?.[key]}
               onUpdate={onUpdate}
               onPreview={onPreview}
+              onCancelPreview={() => actions.cancelLayerPreview(layer)}
             />
           ))}
         </section>
