@@ -143,6 +143,12 @@ const ElementCard: React.FC<{
 		}
 	};
 
+	const installButtonLabel = isInstalling
+		? 'Finding Studio…'
+		: wasSentToStudio
+			? 'Sent to Studio'
+			: 'Install in Studio';
+
 	return (
 		<li
 			className={styles.cardItem}
@@ -200,11 +206,7 @@ const ElementCard: React.FC<{
 			</a>
 			<div aria-live="polite" className={styles.installAction}>
 				<BlueButton
-					aria-label={
-						wasSentToStudio
-							? `${definition.displayName} sent to Studio`
-							: `Install ${definition.displayName} in Studio`
-					}
+					aria-label={`${installButtonLabel} – ${definition.displayName}`}
 					fullWidth={false}
 					loading={isInstalling}
 					onClick={installElement}
@@ -212,11 +214,7 @@ const ElementCard: React.FC<{
 					style={{padding: '5px 8px'}}
 					title="Install in the most recently focused Remotion Studio"
 				>
-					{isInstalling
-						? 'Finding Studio…'
-						: wasSentToStudio
-							? 'Sent to Studio'
-							: 'Install in Studio'}
+					{installButtonLabel}
 				</BlueButton>
 			</div>
 		</li>
