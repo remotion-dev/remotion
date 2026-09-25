@@ -1124,6 +1124,10 @@ export const retimeSequenceKeyframes = ({
 	playbackRate: number;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): void => {
+	if (!Number.isFinite(playbackRate) || playbackRate <= 0) {
+		throw new Error('Cannot retime keyframes with an invalid playback rate');
+	}
+
 	const {openingElement} = jsxElement;
 	const previousPlaybackRate = getJsxNumericAttribute({
 		openingElement,
@@ -1142,11 +1146,11 @@ export const retimeSequenceKeyframes = ({
 		!Number.isFinite(previousPlaybackRate) ||
 		from === null ||
 		!Number.isFinite(from) ||
-		!Number.isFinite(playbackRate) ||
-		playbackRate <= 0 ||
 		previousPlaybackRate <= 0
 	) {
-		throw new Error('Cannot retime keyframes with an unknown sequence clock');
+		// Retiming requires a known source clock, but changing the rate itself
+		// must still work for dynamic timing props and spread attributes.
+		return;
 	}
 
 	if (previousPlaybackRate === playbackRate) {
