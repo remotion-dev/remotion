@@ -742,6 +742,7 @@ export type AddKeyframesRequest = {
 
 export type AddKeyframesResponse = {
 	success: true;
+	nodePathMutation: SequenceNodePathMutation | null;
 };
 
 export type KeyframeSettings =

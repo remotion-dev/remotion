@@ -1743,7 +1743,7 @@ export const createBrowserStudioOperations = ({
 					],
 				})),
 			});
-			return {success: true};
+			return {success: true, nodePathMutation: null};
 		},
 		deleteKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
 			await commitKeyframeMutations({

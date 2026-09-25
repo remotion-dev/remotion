@@ -176,7 +176,7 @@ test('refreshes prop statuses for inserted and in-place updated nodes', () => {
 	}
 });
 
-test('keeps the selected sequence selected after its node path changes', () => {
+test('remaps selection and refreshes the subscription after a JSX node path changes', () => {
 	const absolutePath = '/project/src/BarChart.tsx';
 	const originalNodePath: SequencePropsSubscriptionKey = {
 		absolutePath,
@@ -185,6 +185,10 @@ test('keeps the selected sequence selected after its node path changes', () => {
 		sequenceKeys: ['hidden', 'name'],
 		videoConfigValues: null,
 	};
+	const refreshedOverrideIds: string[] = [];
+	const unsubscribeRefresh = subscribeToSequencePropsRefresh('card', () =>
+		refreshedOverrideIds.push('card'),
+	);
 	const selectionRef: {
 		current: ReturnType<typeof useTimelineSelection> | null;
 	} = {current: null};
@@ -206,7 +210,9 @@ test('keeps the selected sequence selected after its node path changes', () => {
 					toggleTrack: () => undefined,
 					migrateExpandedTracksForSubscriptionKey: () => undefined,
 				} as never,
-				overrideIdsGetter: {overrideIdToNodePathMappings: {}},
+				overrideIdsGetter: {
+					overrideIdToNodePathMappings: {card: originalNodePath},
+				},
 				overrideIdsSetter: {setOverrideIdToNodePath: () => undefined},
 				propStatusesRef: {current: {}},
 				visualModeSetters: {
@@ -240,18 +246,17 @@ test('keeps the selected sequence selected after its node path changes', () => {
 		]);
 	});
 
-	queueSequenceNodePathMutation({
-		mutationId: 'reorder-selection-test',
-		timelineSelection: null,
-		files: [
-			{
-				absolutePath,
-				remappings: [
-					{oldNodePath: ['body', 0], newNodePath: ['body', 1]},
-					{oldNodePath: ['body', 1], newNodePath: ['body', 0]},
-				],
-			},
-		],
+	act(() => {
+		queueSequenceNodePathMutation({
+			mutationId: 'reorder-selection-test',
+			timelineSelection: null,
+			files: [
+				{
+					absolutePath,
+					remappings: [{oldNodePath: ['body', 0], newNodePath: ['body', 1]}],
+				},
+			],
+		});
 	});
 	rendered.rerender(renderTree(1));
 
@@ -262,4 +267,6 @@ test('keeps the selected sequence selected after its node path changes', () => {
 					.sequenceSubscriptionKey.nodePath
 			: null,
 	).toEqual(['body', 1]);
+	expect(refreshedOverrideIds).toEqual(['card']);
+	unsubscribeRefresh();
 });
