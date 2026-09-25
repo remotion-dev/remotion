@@ -656,26 +656,13 @@ export const baseSchema = {
 	showInTimeline: showInTimelineField,
 } as const satisfies InteractivitySchema;
 
-// For components whose content does not advance with the frame, or which
-// implement their own looping, so that a `loop` control is never inert.
-export const baseSchemaWithoutLoop = {
-	durationInFrames: durationInFramesField,
-	from: fromField,
-	trimBefore: trimBeforeField,
-	trimAfter: trimAfterField,
-	playbackRate: playbackRateField,
-	freeze: freezeField,
-	hidden: hiddenField,
-	name: sequenceNameField,
-	showInTimeline: showInTimelineField,
-} as const satisfies InteractivitySchema;
-
-// For static images: neither speed nor looping changes what they show.
+// For static images: speed does not change what they show.
 export const baseSchemaWithoutPlaybackRate = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
 	trimAfter: trimAfterField,
+	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,

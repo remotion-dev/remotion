@@ -183,6 +183,7 @@ export const Lottie = ({
 	durationInFrames,
 	trimBefore,
 	trimAfter,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -194,6 +195,7 @@ export const Lottie = ({
 	style,
 	...props
 }: LottieProps) => {
+	const sequenceLoop = loop === true && trimAfter !== undefined;
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -209,7 +211,7 @@ export const Lottie = ({
 			trimBefore,
 			trimAfter,
 			playbackRate: undefined,
-			loop: undefined,
+			loop: sequenceLoop,
 		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
@@ -226,6 +228,7 @@ export const Lottie = ({
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
 				trimAfter={trimAfter}
+				loop={sequenceLoop}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<Lottie>'}
@@ -235,7 +238,11 @@ export const Lottie = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				<LottieContent {...props} style={premountingStyle ?? undefined} />
+				<LottieContent
+					{...props}
+					loop={loop}
+					style={premountingStyle ?? undefined}
+				/>
 			</Sequence>
 		</Freeze>
 	);

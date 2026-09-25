@@ -20,7 +20,7 @@ export type AspectRatioConstraint =
 	| 'xMinYMax'
 	| 'xMidYMax';
 
-export type LottieProps = Omit<InteractiveBaseProps, 'playbackRate' | 'loop'> &
+export type LottieProps = Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractivePremountProps & {
 		/**
 		 * JSON object with the animation data.

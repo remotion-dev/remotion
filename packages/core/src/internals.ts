@@ -97,7 +97,6 @@ import {
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {
 	baseSchema,
-	baseSchemaWithoutLoop,
 	durationInFramesField,
 	freezeField,
 	fromField,
@@ -354,7 +353,6 @@ export const Internals = {
 	SequenceOutlineContext,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
-	baseSchemaWithoutLoop,
 	sequenceSchema,
 	SequenceWithoutSchema,
 	sequenceStyleSchema,

@@ -15,7 +15,7 @@ import {
 } from 'remotion';
 import {doesReactSupportTransformOriginProperty} from '../utils/does-react-support-canary';
 
-type ShapeSequenceProps = Omit<InteractiveBaseProps, 'loop'> &
+type ShapeSequenceProps = InteractiveBaseProps &
 	InteractivePremountProps & {
 		readonly controls?: SequenceControls;
 	};
@@ -47,6 +47,7 @@ const RenderSvgWithTiming = ({
 	trimBefore,
 	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	showInTimeline,
@@ -84,7 +85,7 @@ const RenderSvgWithTiming = ({
 			trimBefore,
 			trimAfter,
 			playbackRate,
-			loop: undefined,
+			loop,
 		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
@@ -101,6 +102,7 @@ const RenderSvgWithTiming = ({
 				trimBefore={trimBefore}
 				trimAfter={trimAfter}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}
@@ -145,6 +147,7 @@ export const RenderSvg = ({
 	trimBefore,
 	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -312,6 +315,7 @@ export const RenderSvg = ({
 			trimBefore={trimBefore}
 			trimAfter={trimAfter}
 			playbackRate={playbackRate}
+			loop={loop}
 			freeze={freeze}
 			hidden={hidden}
 			showInTimeline={showInTimeline}

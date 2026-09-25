@@ -8,7 +8,6 @@ import {Freeze} from './freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
-	baseSchemaWithoutLoop,
 	borderRadiusSchema,
 	captionsSchema,
 	borderSchema,
@@ -390,7 +389,6 @@ const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
  */
 export const Interactive = {
 	baseSchema,
-	baseSchemaWithoutLoop,
 	captionsSchema,
 	transformSchema,
 	textSchema,

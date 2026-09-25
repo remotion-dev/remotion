@@ -18,7 +18,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
-	baseSchemaWithoutLoop,
+	baseSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -55,8 +55,7 @@ export const animatedImageSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	// Looping is controlled by `loopBehavior`, which repeats the intrinsic duration.
-	...baseSchemaWithoutLoop,
+	...baseSchema,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,
@@ -340,7 +339,7 @@ const AnimatedImageInner = ({
 			trimBefore: sequenceProps.trimBefore,
 			trimAfter: sequenceProps.trimAfter,
 			playbackRate,
-			loop: undefined,
+			loop: sequenceProps.loop,
 		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,

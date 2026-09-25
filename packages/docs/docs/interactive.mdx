@@ -90,12 +90,6 @@ export const shapeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-### `Interactive.baseSchemaWithoutLoop`
-
-The same controls as [`Interactive.baseSchema`](#interactivebaseschema) without `loop`.
-
-Use it for components whose output does not change with the frame, such as a static image or shape, so that the Studio does not show a `Loop` toggle that has no effect.
-
 ### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
 
 Controls for transform-related style props:

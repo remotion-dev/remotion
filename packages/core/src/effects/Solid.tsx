@@ -17,7 +17,7 @@ import type {
 } from '../Interactive.js';
 import {
 	backgroundSchema,
-	baseSchemaWithoutLoop,
+	baseSchema,
 	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
@@ -78,9 +78,8 @@ export type SolidProps = MandatoryProps &
 	Partial<OptionalProps> &
 	InteractiveCropProps;
 
-// A solid color does not change with the frame, so looping it would be inert.
 export const solidSchema = {
-	...baseSchemaWithoutLoop,
+	...baseSchema,
 	...premountSchema,
 	color: {
 		type: 'color',
@@ -261,7 +260,7 @@ const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
-	} & Omit<InteractiveBaseProps, 'loop'> &
+	} & InteractiveBaseProps &
 		InteractivePremountProps
 >(
 	(
@@ -283,6 +282,7 @@ const SolidOuter = forwardRef<
 			trimBefore,
 			trimAfter,
 			playbackRate,
+			loop,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -318,7 +318,7 @@ const SolidOuter = forwardRef<
 				trimBefore,
 				trimAfter,
 				playbackRate,
-				loop: undefined,
+				loop,
 			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
@@ -344,6 +344,7 @@ const SolidOuter = forwardRef<
 					trimBefore={trimBefore}
 					trimAfter={trimAfter}
 					playbackRate={playbackRate}
+					loop={loop}
 					freeze={freeze}
 					hidden={hidden}
 					showInTimeline={showInTimeline}

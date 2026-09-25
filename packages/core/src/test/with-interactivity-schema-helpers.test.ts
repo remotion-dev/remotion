@@ -154,6 +154,14 @@ test('baseSchema exposes common timeline fields', () => {
 			'loop',
 		].sort(),
 	);
+	for (const schema of [
+		imgSchema,
+		animatedImageSchema,
+		canvasImageSchema,
+		solidSchema,
+	]) {
+		expect(schema.loop).toBe(baseSchema.loop);
+	}
 });
 
 test('pixelDensity is exposed only by canvas-backed component schemas', () => {

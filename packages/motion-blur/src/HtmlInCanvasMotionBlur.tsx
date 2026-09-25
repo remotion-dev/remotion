@@ -11,7 +11,12 @@ import {
 
 export type HtmlInCanvasMotionBlurProps = Pick<
 	HtmlInCanvasProps,
-	'from' | 'durationInFrames' | 'trimBefore' | 'trimAfter' | 'playbackRate'
+	| 'from'
+	| 'durationInFrames'
+	| 'trimBefore'
+	| 'trimAfter'
+	| 'playbackRate'
+	| 'loop'
 > & {
 	readonly children: React.ReactNode;
 	readonly width: number;
@@ -86,6 +91,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	trimBefore,
 	trimAfter,
 	playbackRate,
+	loop,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 
@@ -117,7 +123,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 				trimBefore,
 				trimAfter,
 				playbackRate,
-				loop: undefined,
+				loop,
 			}),
 			compositionDurationInFrames - (from ?? 0),
 		),
@@ -197,6 +203,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 			trimBefore={trimBefore}
 			trimAfter={trimAfter}
 			playbackRate={playbackRate}
+			loop={loop}
 			name="<HtmlInCanvasMotionBlur>"
 			onPaint={onPaint}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}

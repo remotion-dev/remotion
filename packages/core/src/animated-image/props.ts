@@ -28,7 +28,7 @@ export type RemotionAnimatedImageProps = {
 	requestInit?: RequestInit;
 } & AnimatedImageCanvasProps;
 
-export type AnimatedImageProps = Omit<InteractiveBaseProps, 'loop'> &
+export type AnimatedImageProps = InteractiveBaseProps &
 	InteractiveCropProps &
 	InteractivePremountProps &
 	RemotionAnimatedImageProps & {

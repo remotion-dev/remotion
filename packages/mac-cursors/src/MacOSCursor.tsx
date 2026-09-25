@@ -15,7 +15,7 @@ import {
 } from 'remotion';
 import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
-export type MacOSCursorProps = Omit<InteractiveBaseProps, 'loop'> &
+export type MacOSCursorProps = InteractiveBaseProps &
 	InteractivePremountProps & {
 		readonly cursor?: string;
 		readonly customCursor?: string;
@@ -24,8 +24,7 @@ export type MacOSCursorProps = Omit<InteractiveBaseProps, 'loop'> &
 	};
 
 export const macOSCursorSchema: InteractivitySchema = {
-	// A cursor image does not advance with the frame, so looping it would be inert.
-	...Interactive.baseSchemaWithoutLoop,
+	...Interactive.baseSchema,
 	...Interactive.premountSchema,
 	cursor: {
 		type: 'enum',
@@ -67,6 +66,7 @@ const MacOSCursorInner: React.FC<
 	trimBefore,
 	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -99,7 +99,7 @@ const MacOSCursorInner: React.FC<
 			trimBefore,
 			trimAfter,
 			playbackRate,
-			loop: undefined,
+			loop,
 		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
@@ -116,6 +116,7 @@ const MacOSCursorInner: React.FC<
 				trimBefore={trimBefore}
 				trimAfter={trimAfter}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

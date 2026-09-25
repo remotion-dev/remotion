@@ -96,16 +96,6 @@ mock.module('remotion', () => {
 				name: {},
 				showInTimeline: {},
 			},
-			baseSchemaWithoutLoop: {
-				durationInFrames: {},
-				from: {},
-				trimBefore: {},
-				trimAfter: {},
-				freeze: {},
-				hidden: {},
-				name: {},
-				showInTimeline: {},
-			},
 			transformSchema: {},
 			resolveSequenceDuration: ({
 				durationInFrames,

@@ -437,7 +437,7 @@ export const getTimelineSequenceEndField = ({
 		typeof trimAfter === 'number' &&
 		Number.isFinite(trimAfter) &&
 		(typeof durationInFrames !== 'number' ||
-			(trimAfter - trimBefore) / playbackRate <= durationInFrames);
+			(trimAfter - trimBefore) / playbackRate < durationInFrames);
 
 	return {
 		fieldKey: endsAtTrimAfter ? 'trimAfter' : 'durationInFrames',

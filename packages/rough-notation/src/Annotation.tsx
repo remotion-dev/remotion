@@ -37,7 +37,7 @@ type SharedAnnotationComponentProps = Readonly<
 
 type AnnotationInteractiveProps<Config> = SharedAnnotationComponentProps &
 	Readonly<Config> &
-	Omit<InteractiveBaseProps, 'loop'> &
+	InteractiveBaseProps &
 	InteractivePremountProps;
 
 export type HighlightProps = AnnotationInteractiveProps<HighlightConfig>;
@@ -52,7 +52,7 @@ export type CircleProps = AnnotationInteractiveProps<
 >;
 
 type InternalAnnotationProps = SharedAnnotationComponentProps &
-	Omit<InteractiveBaseProps, 'loop'> &
+	InteractiveBaseProps &
 	InteractivePremountProps & {
 		readonly color?: string;
 		readonly strokeWidth?: number;
@@ -216,8 +216,7 @@ const textContentSchema = {
 } as const satisfies InteractivitySchema;
 
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
-	// The drawing is driven by `progress`, so a loop control would be inert.
-	...Interactive.baseSchemaWithoutLoop,
+	...Interactive.baseSchema,
 	...Interactive.premountSchema,
 	progress: {
 		type: 'number',
@@ -372,6 +371,7 @@ const makeAnnotationComponent = ({
 		trimBefore,
 		trimAfter,
 		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -429,7 +429,7 @@ const makeAnnotationComponent = ({
 				trimBefore,
 				trimAfter,
 				playbackRate,
-				loop: undefined,
+				loop,
 			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
@@ -446,6 +446,7 @@ const makeAnnotationComponent = ({
 					trimBefore={trimBefore}
 					trimAfter={trimAfter}
 					playbackRate={playbackRate}
+					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}

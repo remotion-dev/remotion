@@ -545,6 +545,7 @@ const CanvasImageInner = forwardRef<
 			from,
 			trimBefore,
 			trimAfter,
+			loop,
 			freeze,
 			premountFor,
 			postmountFor,
@@ -597,7 +598,7 @@ const CanvasImageInner = forwardRef<
 				trimBefore,
 				trimAfter,
 				playbackRate: undefined,
-				loop: undefined,
+				loop,
 			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
@@ -622,6 +623,7 @@ const CanvasImageInner = forwardRef<
 					from={from ?? 0}
 					trimBefore={trimBefore}
 					trimAfter={trimAfter}
+					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}

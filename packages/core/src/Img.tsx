@@ -69,7 +69,7 @@ export type ImgProps = NativeImgProps & {
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
-} & Omit<InteractiveBaseProps, 'playbackRate' | 'loop'> &
+} & Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
@@ -86,6 +86,7 @@ type ImgContentProps = Omit<
 	| 'from'
 	| 'trimBefore'
 	| 'trimAfter'
+	| 'loop'
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
@@ -369,6 +370,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	from,
 	trimBefore,
 	trimAfter,
+	loop,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -411,7 +413,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 			trimBefore,
 			trimAfter,
 			playbackRate: undefined,
-			loop: undefined,
+			loop,
 		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
@@ -436,6 +438,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				trimAfter={trimAfter}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
