@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.528
+version: 4.0.529
 ---
 
 ## Preserve user changes

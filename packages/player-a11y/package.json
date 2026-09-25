@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-a11y",
-	"version": "4.0.528",
+	"version": "4.0.529",
 	"description": "Internal accessibility wrapper around @remotion/player",
 	"private": true,
 	"main": "dist/index.js",
