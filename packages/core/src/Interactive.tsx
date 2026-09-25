@@ -4,6 +4,7 @@ import type {
 	SequenceControls,
 } from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Freeze} from './freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
@@ -20,9 +21,10 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
-import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
+import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
+import {usePremounting} from './use-premounting.js';
 import {
 	withInteractivitySchema,
 	type WithInteractivitySchemaOptions,
@@ -81,6 +83,7 @@ export type InteractiveBaseProps = Pick<
 	| 'durationInFrames'
 	| 'from'
 	| 'trimBefore'
+	| 'playbackRate'
 	| 'freeze'
 	| 'hidden'
 	| 'name'
@@ -102,7 +105,9 @@ export type InteractivePremountProps = Pick<
 	| 'styleWhilePostmounted'
 >;
 
-type InteractiveManagedProps = InteractiveBaseProps & InteractiveCropProps;
+type InteractiveManagedProps = InteractiveBaseProps &
+	InteractiveCropProps &
+	InteractivePremountProps;
 
 type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
 	React.ComponentPropsWithoutRef<Tag>,
@@ -146,6 +151,7 @@ const makeRemotionComponentIdentity = ({
 
 const interactiveElementSchema = {
 	...baseSchema,
+	...premountSchema,
 	...transformSchema,
 	...cropSchema,
 } as const satisfies InteractivitySchema;
@@ -177,6 +183,16 @@ const interactiveSvgTextElementSchema = {
 const interactiveSvgElementSchema = {
 	...interactiveElementSchema,
 	...svgPaintSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgPathElementSchema = {
+	...interactiveSvgElementSchema,
+	d: {
+		type: 'svg-path',
+		default: undefined,
+		description: 'Path',
+		keyframable: true,
+	},
 } as const satisfies InteractivitySchema;
 
 const interactiveSvgStrokeElementSchema = {
@@ -226,7 +242,12 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		const {
 			durationInFrames,
 			from,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			trimBefore,
+			playbackRate,
 			freeze,
 			hidden,
 			name,
@@ -241,12 +262,31 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		} = propsWithControls as Props & {
 			readonly controls: SequenceControls | undefined;
 		};
+
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft,
 			cropRight,
 			cropTop,
 			cropBottom,
-			style: style ?? null,
+			style: premountingStyle,
 			componentName: displayName,
 		});
 		const refForOutline = useRef<ElementType | null>(null);
@@ -259,25 +299,32 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 		);
 
 		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? displayName}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
-				outlineRef={refForOutline}
-			>
-				{React.createElement(tag, {
-					...props,
-					style: croppedStyle ?? undefined,
-					ref: callbackRef,
-				})}
-			</Sequence>
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? displayName}
+					showInTimeline={showInTimeline ?? true}
+					controls={controls}
+					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
+					outlineRef={refForOutline}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
+					{React.createElement(tag, {
+						...props,
+						style: croppedStyle ?? undefined,
+						ref: callbackRef,
+					})}
+				</Sequence>
+			</Freeze>
 		);
 	});
 
@@ -367,7 +414,11 @@ export const Interactive = {
 	Nav: makeInteractiveTextElement('nav', '<Interactive.Nav>'),
 	Ol: makeInteractiveTextElement('ol', '<Interactive.Ol>'),
 	P: makeInteractiveTextElement('p', '<Interactive.P>'),
-	Path: makeInteractiveSvgElement('path', '<Interactive.Path>'),
+	Path: makeInteractiveElement(
+		'path',
+		'<Interactive.Path>',
+		interactiveSvgPathElementSchema,
+	),
 	Pre: makeInteractiveTextElement('pre', '<Interactive.Pre>'),
 	Rect: makeInteractiveSvgElement('rect', '<Interactive.Rect>'),
 	Section: makeInteractiveTextElement('section', '<Interactive.Section>'),

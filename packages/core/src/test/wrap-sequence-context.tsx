@@ -130,7 +130,8 @@ export const WrapSequenceContext: React.FC<{
 	);
 	const setTimelineContext = useMemo<SetTimelineContextValue>(
 		() => ({
-			setFrame: () => undefined,
+			setFrameWithoutSeek: () => undefined,
+			seek: null,
 			setPlaying: () => undefined,
 			setBuffering: (buffering) => {
 				if (bufferingStore.store.getSnapshot().buffering !== buffering) {

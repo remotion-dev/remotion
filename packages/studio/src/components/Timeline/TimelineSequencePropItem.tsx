@@ -2,7 +2,8 @@ import {
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
@@ -27,11 +28,16 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
+import {getPlaybackRateKeyframeChanges} from './get-playback-rate-keyframe-changes';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
-import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {saveSequenceProps} from './save-sequence-prop';
 import {isTimelineFieldStacked} from './timeline-field-row-layout';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
+import {TimelineFieldLabel} from './TimelineFieldLabel';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
 	shouldShowTimelineKeyframeControls,
@@ -45,7 +51,10 @@ import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowContainsSelection,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const fieldRowBase: React.CSSProperties = {};
@@ -91,19 +100,173 @@ const isResettableStatus = ({
 	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
+const getPlaybackRateAdjustedDuration = ({
+	durationInFrames,
+	previousPlaybackRate,
+	playbackRate,
+}: {
+	readonly durationInFrames: number;
+	readonly previousPlaybackRate: number;
+	readonly playbackRate: number;
+}): number | null => {
+	const adjustedDuration =
+		(durationInFrames * previousPlaybackRate) / playbackRate;
+	if (!Number.isFinite(adjustedDuration) || adjustedDuration <= 0) {
+		return null;
+	}
+
+	const nearestInteger = Math.round(adjustedDuration);
+	return nearestInteger > 0 &&
+		Math.abs(adjustedDuration - nearestInteger) <=
+			Number.EPSILON * Math.max(1, Math.abs(adjustedDuration)) * 2
+		? nearestInteger
+		: adjustedDuration;
+};
+
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
-}> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	readonly durationPropStatus: CanUpdateSequencePropStatus | null;
+}> = ({
+	field,
+	nodePath,
+	validatedLocation,
+	schema,
+	propStatus,
+	durationPropStatus,
+}) => {
+	const playbackRateBaseline = useRef<{
+		durationInFrames: number;
+		playbackRate: number;
+		lastSavedDurationInFrames: number;
+		lastSavedPlaybackRate: number;
+	} | null>(null);
+	const previewedKeyframes = useRef<
+		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
+	>([]);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const getPlaybackRateChanges = useCallback(
+		(value: unknown) => {
+			if (
+				field.key !== 'playbackRate' ||
+				nodePath === null ||
+				typeof value !== 'number'
+			) {
+				return null;
+			}
+
+			const currentStatus = Internals.getPropStatusesCtx(
+				propStatusesRef.current,
+				nodePath,
+			)?.playbackRate;
+			const previousPlaybackRate =
+				currentStatus?.status === 'static' &&
+				typeof currentStatus.codeValue === 'number'
+					? currentStatus.codeValue
+					: field.fieldSchema.default;
+			if (typeof previousPlaybackRate !== 'number') {
+				return null;
+			}
+
+			return getPlaybackRateKeyframeChanges({
+				nodePath,
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				propStatuses: propStatusesRef.current,
+				previousPlaybackRate,
+				playbackRate: value,
+			});
+		},
+		[
+			field.fieldSchema.default,
+			field.key,
+			nodePath,
+			overrideIdToNodePathMappings,
+			propStatusesRef,
+			sequencesRef,
+		],
+	);
+	const getAdjustedDuration = useCallback(
+		(playbackRate: unknown): number | null => {
+			if (
+				field.key !== 'playbackRate' ||
+				!schema.durationInFrames ||
+				durationPropStatus?.status !== 'static' ||
+				typeof durationPropStatus.codeValue !== 'number' ||
+				!Number.isFinite(durationPropStatus.codeValue) ||
+				typeof playbackRate !== 'number' ||
+				!Number.isFinite(playbackRate) ||
+				playbackRate <= 0
+			) {
+				return null;
+			}
+
+			const currentPlaybackRate =
+				typeof propStatus.codeValue === 'number'
+					? propStatus.codeValue
+					: field.fieldSchema.default;
+			if (
+				typeof currentPlaybackRate !== 'number' ||
+				!Number.isFinite(currentPlaybackRate) ||
+				currentPlaybackRate <= 0
+			) {
+				return null;
+			}
+
+			const currentDuration = durationPropStatus.codeValue;
+			let baseline = playbackRateBaseline.current;
+			// Keep the first duration and rate across successive rate edits. A change
+			// to either prop outside this control starts a new baseline.
+			if (
+				baseline === null ||
+				!(
+					(currentDuration === baseline.durationInFrames &&
+						currentPlaybackRate === baseline.playbackRate) ||
+					(currentDuration === baseline.lastSavedDurationInFrames &&
+						currentPlaybackRate === baseline.lastSavedPlaybackRate)
+				)
+			) {
+				baseline = {
+					durationInFrames: currentDuration,
+					playbackRate: currentPlaybackRate,
+					lastSavedDurationInFrames: currentDuration,
+					lastSavedPlaybackRate: currentPlaybackRate,
+				};
+				playbackRateBaseline.current = baseline;
+			}
+
+			return getPlaybackRateAdjustedDuration({
+				durationInFrames: baseline.durationInFrames,
+				previousPlaybackRate: baseline.playbackRate,
+				playbackRate,
+			});
+		},
+		[
+			durationPropStatus,
+			field.fieldSchema.default,
+			field.key,
+			propStatus.codeValue,
+			schema.durationInFrames,
+		],
+	);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const {setDragOverrides, clearDragOverrides} = useContext(
-		Internals.VisualModeSettersContext,
-	);
+	const {
+		setDragOverrides,
+		clearDragOverrides,
+		setEffectDragOverrides,
+		clearEffectDragOverrides,
+	} = useContext(Internals.VisualModeSettersContext);
 	const dragOverrideValue = useMemo(() => {
 		return nodePath === null
 			? undefined
@@ -139,6 +302,8 @@ const Value: React.FC<{
 
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
+			const adjustedDuration = getAdjustedDuration(value);
+			const keyframeChanges = getPlaybackRateChanges(value);
 
 			if (value === propStatus.codeValue) {
 				return Promise.resolve();
@@ -151,25 +316,50 @@ const Value: React.FC<{
 				return Promise.resolve();
 			}
 
-			return saveSequenceProps({
-				addedKeyframes: null,
-				movedKeyframes: null,
-				changes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath,
-						fieldKey: field.key,
-						value,
-						defaultValue,
-						schema,
-						sourceEdit: options?.sourceEdit,
-					},
-				],
-				setPropStatuses,
-				clientId,
-				undoLabel: `Update ${fieldLabel}`,
-				redoLabel: `Update ${fieldLabel} again`,
-			});
+			if (adjustedDuration !== null && playbackRateBaseline.current) {
+				playbackRateBaseline.current.lastSavedDurationInFrames =
+					adjustedDuration;
+				playbackRateBaseline.current.lastSavedPlaybackRate = value as number;
+			}
+
+			return unstable_batchedUpdates(() =>
+				saveSequenceProps({
+					addedKeyframes: null,
+					movedKeyframes: keyframeChanges
+						? {
+								sequenceKeyframes: keyframeChanges.sequenceKeyframes,
+								effectKeyframes: keyframeChanges.effectKeyframes,
+							}
+						: null,
+					changes: [
+						{
+							fileName: validatedLocation.source,
+							nodePath,
+							fieldKey: field.key,
+							value,
+							defaultValue,
+							schema,
+							sourceEdit: options?.sourceEdit,
+						},
+						...(adjustedDuration === null
+							? []
+							: [
+									{
+										fileName: validatedLocation.source,
+										nodePath,
+										fieldKey: 'durationInFrames',
+										value: adjustedDuration,
+										defaultValue: null,
+										schema,
+									},
+								]),
+					],
+					setPropStatuses,
+					clientId,
+					undoLabel: `Update ${fieldLabel}`,
+					redoLabel: `Update ${fieldLabel} again`,
+				}),
+			);
 		},
 		[
 			propStatus,
@@ -178,6 +368,8 @@ const Value: React.FC<{
 			field.fieldSchema.default,
 			field.fieldSchema.type,
 			field.key,
+			getAdjustedDuration,
+			getPlaybackRateChanges,
 			nodePath,
 			schema,
 			setPropStatuses,
@@ -191,13 +383,58 @@ const Value: React.FC<{
 				throw new Error('Cannot drag value');
 			}
 
-			setDragOverrides(
-				nodePath,
-				field.key,
-				Internals.makeStaticDragOverride(value),
-			);
+			const adjustedDuration = getAdjustedDuration(value);
+			const keyframeChanges = getPlaybackRateChanges(value);
+			unstable_batchedUpdates(() => {
+				for (const preview of previewedKeyframes.current) {
+					if (preview.effectIndex === null) {
+						clearDragOverrides(preview.nodePath);
+					} else {
+						clearEffectDragOverrides(preview.nodePath, preview.effectIndex);
+					}
+				}
+
+				previewedKeyframes.current = keyframeChanges?.previews ?? [];
+				setDragOverrides(
+					nodePath,
+					field.key,
+					Internals.makeStaticDragOverride(value),
+				);
+				if (adjustedDuration !== null) {
+					setDragOverrides(
+						nodePath,
+						'durationInFrames',
+						Internals.makeStaticDragOverride(adjustedDuration),
+					);
+				}
+
+				for (const preview of previewedKeyframes.current) {
+					if (preview.effectIndex === null) {
+						setDragOverrides(preview.nodePath, preview.fieldKey, {
+							type: 'keyframed',
+							status: preview.status,
+						});
+					} else {
+						setEffectDragOverrides(
+							preview.nodePath,
+							preview.effectIndex,
+							preview.fieldKey,
+							{type: 'keyframed', status: preview.status},
+						);
+					}
+				}
+			});
 		},
-		[setDragOverrides, nodePath, field.key],
+		[
+			clearDragOverrides,
+			clearEffectDragOverrides,
+			setDragOverrides,
+			setEffectDragOverrides,
+			nodePath,
+			field.key,
+			getAdjustedDuration,
+			getPlaybackRateChanges,
+		],
 	);
 
 	const onDragEnd = useCallback(() => {
@@ -206,7 +443,16 @@ const Value: React.FC<{
 		}
 
 		clearDragOverrides(nodePath);
-	}, [clearDragOverrides, nodePath]);
+		for (const preview of previewedKeyframes.current) {
+			if (preview.effectIndex === null) {
+				clearDragOverrides(preview.nodePath);
+			} else {
+				clearEffectDragOverrides(preview.nodePath, preview.effectIndex);
+			}
+		}
+
+		previewedKeyframes.current = [];
+	}, [clearDragOverrides, clearEffectDragOverrides, nodePath]);
 
 	return (
 		<TimelineFieldValue
@@ -235,10 +481,12 @@ type TimelineSequenceKeyframedValueProps =
 			| {
 					readonly sourceFrame: number;
 					readonly keyframeDisplayOffset?: never;
+					readonly keyframePlaybackRate?: never;
 			  }
 			| {
 					readonly sourceFrame?: never;
 					readonly keyframeDisplayOffset: number;
+					readonly keyframePlaybackRate: number;
 			  }
 		);
 
@@ -292,18 +540,25 @@ const TimelineSequenceKeyframedValueAtSourceFrame: React.FC<
 const TimelineSequenceKeyframedValueAtCurrentFrame: React.FC<
 	Omit<TimelineSequenceKeyframedValueAtSourceFrameProps, 'sourceFrame'> & {
 		readonly keyframeDisplayOffset: number;
+		readonly keyframePlaybackRate: number;
 	}
-> = ({keyframeDisplayOffset, ...props}) => {
+> = ({keyframeDisplayOffset, keyframePlaybackRate, ...props}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus: props.propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	return (
 		<TimelineSequenceKeyframedValueAtSourceFrame
 			{...props}
-			sourceFrame={timelinePosition - resolvedKeyframeDisplayOffset}
+			sourceFrame={getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				keyframeDisplayOffset: resolvedKeyframeDisplayOffset,
+				keyframePlaybackRate,
+				propStatus: props.propStatus,
+			})}
 		/>
 	);
 };
@@ -392,6 +647,7 @@ const TimelineSequenceKeyframedValueUnmemoized: React.FC<
 		<TimelineSequenceKeyframedValueAtCurrentFrame
 			{...valueProps}
 			keyframeDisplayOffset={props.keyframeDisplayOffset}
+			keyframePlaybackRate={props.keyframePlaybackRate}
 		/>
 	);
 };
@@ -408,6 +664,7 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 	readonly runtimeValue: unknown;
 }> = ({
@@ -418,11 +675,19 @@ export const TimelineSequencePropItem: React.FC<{
 	nodePathInfo,
 	schema,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 	runtimeValue,
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -433,6 +698,7 @@ export const TimelineSequencePropItem: React.FC<{
 		previewServerState.type === 'connected',
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const transform3DMode = useContext(Transform3DModeContext);
 	const propStatusesForOverride = Internals.getPropStatusesCtx(
 		visualModePropStatuses,
@@ -463,6 +729,7 @@ export const TimelineSequencePropItem: React.FC<{
 				nodePath={nodePath}
 				fileName={validatedLocation.source}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				keyframePlaybackRate={keyframePlaybackRate}
 				defaultValue={field.fieldSchema.default}
 				dragOverrideValue={dragOverrideValue}
 				schema={schema}
@@ -472,11 +739,14 @@ export const TimelineSequencePropItem: React.FC<{
 			/>
 		) : null;
 
+	const hidePathValue =
+		keyframeControlsMode === 'timeline' && field.typeName === 'svg-path';
+
 	const style = useMemo((): React.CSSProperties => {
-		return isTimelineFieldStacked({field, transform3DMode})
+		return !hidePathValue && isTimelineFieldStacked({field, transform3DMode})
 			? fieldRowBase
 			: {...fieldRowBase, height: field.rowHeight};
-	}, [field, transform3DMode]);
+	}, [field, hidePathValue, transform3DMode]);
 
 	const canResetToDefault = useMemo(() => {
 		if (!propStatus || propStatus.status === 'computed') {
@@ -511,18 +781,74 @@ export const TimelineSequencePropItem: React.FC<{
 				? JSON.stringify(field.fieldSchema.default)
 				: null;
 		const fieldLabel = field.description ?? field.key;
+		const previousPlaybackRate =
+			field.key === 'playbackRate' &&
+			propStatus.status === 'static' &&
+			typeof propStatus.codeValue === 'number'
+				? propStatus.codeValue
+				: null;
+		const nextPlaybackRate = field.fieldSchema.default;
+		const canRetime =
+			previousPlaybackRate !== null &&
+			Number.isFinite(previousPlaybackRate) &&
+			previousPlaybackRate > 0 &&
+			typeof nextPlaybackRate === 'number' &&
+			Number.isFinite(nextPlaybackRate) &&
+			nextPlaybackRate > 0;
+		const keyframeChanges = canRetime
+			? getPlaybackRateKeyframeChanges({
+					nodePath,
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					propStatuses: propStatusesRef.current,
+					previousPlaybackRate,
+					playbackRate: nextPlaybackRate,
+				})
+			: null;
+		const durationStatus = propStatusesForOverride?.durationInFrames;
+		const adjustedDuration =
+			canRetime &&
+			schema.durationInFrames &&
+			durationStatus?.status === 'static' &&
+			typeof durationStatus.codeValue === 'number' &&
+			Number.isFinite(durationStatus.codeValue)
+				? getPlaybackRateAdjustedDuration({
+						durationInFrames: durationStatus.codeValue,
+						previousPlaybackRate,
+						playbackRate: nextPlaybackRate,
+					})
+				: null;
 
 		saveSequenceProps({
 			addedKeyframes: null,
-			movedKeyframes: null,
-			changes: getSequencePropResetChanges({
-				fileName: validatedLocation.source,
-				nodePath,
-				fieldKey: field.key,
-				value: field.fieldSchema.default,
-				defaultValue,
-				schema,
-			}),
+			movedKeyframes: keyframeChanges
+				? {
+						sequenceKeyframes: keyframeChanges.sequenceKeyframes,
+						effectKeyframes: keyframeChanges.effectKeyframes,
+					}
+				: null,
+			changes: [
+				...getSequencePropResetChanges({
+					fileName: validatedLocation.source,
+					nodePath,
+					fieldKey: field.key,
+					value: field.fieldSchema.default,
+					defaultValue,
+					schema,
+				}),
+				...(adjustedDuration !== null
+					? [
+							{
+								fileName: validatedLocation.source,
+								nodePath,
+								fieldKey: 'durationInFrames',
+								value: adjustedDuration,
+								defaultValue: null,
+								schema,
+							},
+						]
+					: []),
+			],
 			setPropStatuses,
 			clientId: previewServerState.clientId,
 			undoLabel: `Reset ${fieldLabel}`,
@@ -535,8 +861,12 @@ export const TimelineSequencePropItem: React.FC<{
 		field.fieldSchema.default,
 		field.key,
 		nodePath,
+		overrideIdToNodePathMappings,
 		previewServerState,
+		propStatusesForOverride?.durationInFrames,
+		propStatusesRef,
 		schema,
+		sequencesRef,
 		setPropStatuses,
 		validatedLocation.source,
 		propStatus,
@@ -604,10 +934,12 @@ export const TimelineSequencePropItem: React.FC<{
 			schema={schema}
 			propStatus={propStatus}
 			keyframeDisplayOffset={keyframeDisplayOffset}
+			keyframePlaybackRate={keyframePlaybackRate}
 		/>
 	) : propStatus.status === 'static' ? (
 		<Value
 			field={field}
+			durationPropStatus={propStatusesForOverride?.durationInFrames ?? null}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
 			schema={schema}
@@ -648,16 +980,24 @@ export const TimelineSequencePropItem: React.FC<{
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
-			containsSelection={false}
+			containsSelection={containsSelection}
 			outerHeight={null}
 		>
-			<TimelineFieldRowContent
-				field={field}
-				rowDepth={rowDepth}
-				selected={selection.selected}
-			>
-				{fieldValue}
-			</TimelineFieldRowContent>
+			{hidePathValue ? (
+				<TimelineFieldLabel
+					rowDepth={rowDepth}
+					selected={selection.selected || containsSelection}
+					label={field.description ?? field.key}
+				/>
+			) : (
+				<TimelineFieldRowContent
+					field={field}
+					rowDepth={rowDepth}
+					selected={selection.selected || containsSelection}
+				>
+					{fieldValue}
+				</TimelineFieldRowContent>
+			)}
 		</TimelineRowChrome>
 	);
 

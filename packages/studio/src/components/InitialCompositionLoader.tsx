@@ -19,7 +19,9 @@ import {useStaticFiles} from './use-static-files';
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
-	const setFrame = Internals.useTimelineSetFrame();
+	// A supplied frame is explicit navigation (for example, opening a nested
+	// composition at its sequence's frame). Plain selection does not seek.
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 
 	return useCallback(
 		(
@@ -36,7 +38,7 @@ export const useSelectComposition = () => {
 
 			explorerSidebarTabs.current?.selectCompositionPanel();
 			if (frame !== null) {
-				setFrame((current) => ({...current, [c.id]: frame}));
+				seekFrame((current) => ({...current, [c.id]: frame}));
 			}
 
 			setCanvasContent({type: 'composition', compositionId: c.id});
@@ -59,7 +61,7 @@ export const useSelectComposition = () => {
 				});
 			}
 		},
-		[setCanvasContent, setCompositionFoldersExpanded, setFrame],
+		[setCanvasContent, setCompositionFoldersExpanded, seekFrame],
 	);
 };
 

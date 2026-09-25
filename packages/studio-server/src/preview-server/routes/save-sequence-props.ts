@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import type {File} from '@babel/types';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddSequenceKeyframe,
@@ -13,7 +13,6 @@ import type {
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
-import {updateInlineCaptionPatches} from '../../codemods/update-inline-caption-patches';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -32,14 +31,12 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {
-	computeSequencePropsStatusFromAst,
-	computeSequencePropsStatusFromContent,
-	takeCachedSequencePropsStatusAst,
-} from './can-update-sequence-props';
+import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
+
+const {updateInlineCaptionPatches} = CodemodsInternals;
 
 type ResolvedSequencePropEdit = {
 	index: number;
@@ -358,7 +355,6 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const snapshots: SequencePropUndoSnapshot[] = [];
 		const outputByPath = new Map<string, string>();
-		const statusAstByPath = new Map<string, File>();
 		const resultByIndex = new Map<number, SequencePropEditResult>();
 		const updatedNodePaths = new Map<string, SequenceNodePath>();
 		const sequenceKeyframeLogs: SequenceKeyframeLog[] = [];
@@ -368,11 +364,6 @@ export const saveSequencePropsHandler: ApiHandler<
 		for (const [absolutePath, group] of editGroups) {
 			const fileContents = readFileSync(absolutePath, 'utf-8');
 			let output = fileContents;
-			const cachedStatusAst =
-				group.edits.length > 0
-					? takeCachedSequencePropsStatusAst(fileContents)
-					: null;
-			let sequencePropsAst: File | null = null;
 			let firstLogLine = Number.POSITIVE_INFINITY;
 
 			if (group.edits.length > 0) {
@@ -380,15 +371,12 @@ export const saveSequencePropsHandler: ApiHandler<
 					output: sequencePropsOutput,
 					formatted,
 					results: updateResults,
-					ast,
 				} = await updateMultipleSequenceProps({
 					input: output,
 					changes: group.edits.map(convertSequencePropEditToCodemodChange),
 					prettierConfigOverride: null,
-					ast: cachedStatusAst ?? undefined,
 				});
 				output = sequencePropsOutput;
-				sequencePropsAst = ast;
 				const firstUpdate = updateResults[0];
 				if (firstUpdate) {
 					firstLogLine = Math.min(firstLogLine, firstUpdate.logLine);
@@ -590,16 +578,6 @@ export const saveSequencePropsHandler: ApiHandler<
 				}
 			}
 
-			if (
-				sequencePropsAst &&
-				group.captionPatches.length === 0 &&
-				group.addedKeyframes.length === 0 &&
-				group.movedSequenceKeyframes.length === 0 &&
-				group.effectKeyframes.length === 0
-			) {
-				statusAstByPath.set(absolutePath, sequencePropsAst);
-			}
-
 			outputByPath.set(absolutePath, output);
 			snapshots.push({
 				filePath: absolutePath,
@@ -742,16 +720,10 @@ export const saveSequencePropsHandler: ApiHandler<
 				effects: [],
 				videoConfigValues: target.nodePath.videoConfigValues,
 			};
-			const statusAst = statusAstByPath.get(absolutePath);
-			const newStatus = statusAst
-				? computeSequencePropsStatusFromAst({
-						...statusInput,
-						ast: statusAst,
-					})
-				: computeSequencePropsStatusFromContent({
-						...statusInput,
-						fileContents: output,
-					});
+			const newStatus = computeSequencePropsStatusFromContent({
+				...statusInput,
+				fileContents: output,
+			});
 
 			return {
 				fileName: target.fileName,
@@ -766,7 +738,6 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		return {
 			canUpdate: true,
-			props: firstResult.props,
 			results,
 		};
 	});

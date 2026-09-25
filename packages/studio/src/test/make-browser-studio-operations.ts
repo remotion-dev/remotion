@@ -10,12 +10,13 @@ export const makeBrowserStudioOperations = (
 	return {
 		applyCodemod: () => unusedOperation('applyCodemod'),
 		consumeInitialElement: () => null,
-		deleteJsxNode: () => unusedOperation('deleteJsxNode'),
+		deleteJsxNodes: () => unusedOperation('deleteJsxNodes'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
 		downloadRemoteAsset: () => unusedOperation('downloadRemoteAsset'),
 		downloadProject: () => unusedOperation('downloadProject'),
 		duplicateComposition: () => unusedOperation('duplicateComposition'),
 		duplicateJsxNode: () => unusedOperation('duplicateJsxNode'),
+		wrapJsxNode: () => unusedOperation('wrapJsxNode'),
 		effects: {
 			addEffect: () => unusedOperation('effects'),
 			deleteEffects: () => unusedOperation('effects'),

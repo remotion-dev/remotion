@@ -18,6 +18,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
+import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
@@ -56,6 +57,7 @@ const TimelineVideoInfoSegment: React.FC<{
 	readonly tiledLoop: {
 		readonly displayDurationInFrames: number;
 		readonly displayOffsetInFrames: number;
+		readonly loopDisplayOffsetInFrames: number;
 		readonly loopDisplay: LoopDisplay;
 		readonly loopWidth: number;
 	} | null;
@@ -107,7 +109,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		}
 
 		const controller = new AbortController();
-		const pixelRatio = window.devicePixelRatio;
+		const pixelRatio = getStudioPixelRatio();
 
 		const canvas = document.createElement('canvas');
 		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
@@ -267,7 +269,8 @@ const TimelineVideoInfoSegment: React.FC<{
 			}
 
 			const phase =
-				(tiledLoop.displayOffsetInFrames %
+				((tiledLoop.displayOffsetInFrames +
+					tiledLoop.loopDisplayOffsetInFrames) %
 					tiledLoop.loopDisplay.durationInFrames) *
 				((tiledLoop.loopWidth * pixelRatio) /
 					tiledLoop.loopDisplay.durationInFrames);
@@ -482,6 +485,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					startFrom={mediaStartFrame}
 					durationInFrames={durationInFrames}
 					displayOffsetInFrames={tiledLoop?.displayOffsetInFrames ?? 0}
+					loopDisplayOffsetInFrames={tiledLoop?.loopDisplayOffsetInFrames ?? 0}
 					displayDurationInFrames={
 						tiledLoop?.displayDurationInFrames ?? durationInFrames
 					}
@@ -505,11 +509,7 @@ const getVisibleSegments = ({
 	readonly displayOffsetInFrames: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 }) => {
-	if (
-		!loopDisplay ||
-		loopDisplay.numberOfTimes <= 1 ||
-		loopDisplay.durationInFrames <= 0
-	) {
+	if (!loopDisplay || loopDisplay.durationInFrames <= 0) {
 		return [
 			{
 				key: 'single',
@@ -548,6 +548,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly muted: boolean;
 	readonly marginLeft: number;
 	readonly loopDisplay: LoopDisplay | undefined;
+	readonly loopDisplayOffsetInFrames: number;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
 }> = ({
@@ -564,6 +565,7 @@ const TimelineVideoInfoInner: React.FC<{
 	muted,
 	marginLeft,
 	loopDisplay,
+	loopDisplayOffsetInFrames,
 	frozenMediaFrame,
 	extendLastFrame,
 }) => {
@@ -583,12 +585,14 @@ const TimelineVideoInfoInner: React.FC<{
 		return {
 			displayDurationInFrames,
 			displayOffsetInFrames,
+			loopDisplayOffsetInFrames,
 			loopDisplay,
 			loopWidth,
 		};
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
+		loopDisplayOffsetInFrames,
 		loopDisplay,
 		loopWidth,
 		shouldTileLoop,
@@ -600,12 +604,13 @@ const TimelineVideoInfoInner: React.FC<{
 
 		return getVisibleSegments({
 			displayDurationInFrames,
-			displayOffsetInFrames,
+			displayOffsetInFrames: displayOffsetInFrames + loopDisplayOffsetInFrames,
 			loopDisplay,
 		});
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
+		loopDisplayOffsetInFrames,
 		loopDisplay,
 		shouldTileLoop,
 	]);
@@ -662,7 +667,7 @@ const TimelineVideoInfoInner: React.FC<{
 						tiledLoop={null}
 						playbackRate={playbackRate}
 						volume={getSegmentVolume(
-							segment.sourceOffsetInFrames,
+							segment.displayOffsetInFrames - loopDisplayOffsetInFrames,
 							segment.durationInFrames,
 						)}
 						doesVolumeChange={doesVolumeChange}

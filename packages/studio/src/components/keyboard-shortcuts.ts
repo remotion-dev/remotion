@@ -73,7 +73,8 @@ export const defaultKeyboardShortcuts: Record<
 	selectOpacityProp: [{key: 't'}],
 	selectRotateProp: [{key: 'r', shift: false}],
 	selectScaleProp: [{key: 's'}],
-	duplicateSequences: [{key: 'd', commandOrControl: true}],
+	duplicateSequences: [{key: 'd', commandOrControl: true, shift: false}],
+	splitSequences: [{key: 'd', commandOrControl: true, shift: true}],
 	copyEffectsAndValues: [{key: 'c', commandOrControl: true}],
 	cutEffects: [{key: 'x', commandOrControl: true}],
 	deleteSelection: [{key: 'Backspace'}, {key: 'Delete'}],
@@ -195,6 +196,7 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 			shortcut('Select rotate prop', 'selectRotateProp'),
 			shortcut('Select scale prop', 'selectScaleProp'),
 			shortcut('Duplicate sequences', 'duplicateSequences'),
+			shortcut('Split sequences at playhead', 'splitSequences'),
 			shortcut('Copy effects / values', 'copyEffectsAndValues'),
 			shortcut('Cut effects', 'cutEffects'),
 			fixedShortcut(

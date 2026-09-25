@@ -25,6 +25,9 @@
 			"path": "./packages/bundler"
 		},
 		{
+			"path": "./packages/browser-bundler"
+		},
+		{
 			"path": "./packages/browser-studio"
 		},
 		{
@@ -154,12 +157,6 @@
 			"path": "./packages/template-electron"
 		},
 		{
-			"path": "./packages/template-next-pages"
-		},
-		{
-			"path": "./packages/template-next-app"
-		},
-		{
 			"path": "./packages/template-next-app-tailwind"
 		},
 		{
@@ -193,6 +190,9 @@
 			"path": "./packages/template-prompt-to-motion-graphics"
 		},
 		{
+			"path": "./packages/template-vibe-code"
+		},
+		{
 			"path": "./packages/template-stargazer"
 		},
 		{
@@ -205,7 +205,7 @@
 			"path": "./packages/studio"
 		},
 		{
-			"path": "./packages/studio-codemods"
+			"path": "./packages/codemods"
 		},
 		{
 			"path": "./packages/studio-server"

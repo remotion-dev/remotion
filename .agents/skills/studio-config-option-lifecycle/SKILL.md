@@ -73,15 +73,15 @@ Ensure config reload resets the option before executing the changed file, so del
 
 Preserve transactional reload behavior: an invalid changed config must leave the previous valid configuration active.
 
-## Test the lifecycle
+## Verify the lifecycle
 
-Add tests that prove the classification:
+Use existing checks or a manual workflow to verify the classification:
 
-- Reloadable: change the option after the initial read, cross the intended reload/request boundary, and assert the new value is observed.
-- Startup-fixed: capture the initial value, change config state, and assert the initialized consumer still receives the original value.
-- Cross-consumer: assert every Studio consumer receives the same startup snapshot when any one consumer requires it.
-- Reset: omit a previously set option on reload and assert its default is restored.
-- Nullable internal inputs: pass `null` explicitly in fixtures and call sites.
+- Reloadable: change the option after the initial read, cross the intended reload/request boundary, and confirm the new value is observed.
+- Startup-fixed: capture the initial value, change config state, and confirm the initialized consumer still receives the original value.
+- Cross-consumer: confirm every Studio consumer receives the same startup snapshot when any one consumer requires it.
+- Reset: omit a previously set option on reload and confirm its default is restored.
+- Nullable internal inputs: verify call sites pass `null` explicitly when no value exists.
 
 Run focused builds and checks for the affected packages:
 

@@ -14,12 +14,15 @@ export const resampleMediaTo16Khz = async ({
 	audioStreamIndex,
 	requestInit,
 	onProgress,
+	signal,
 }: {
 	readonly src: string;
 	readonly audioStreamIndex: number | null;
 	readonly requestInit: Omit<RequestInit, 'signal'> | null;
 	readonly onProgress: (progress: number) => void;
+	readonly signal: AbortSignal;
 }): Promise<Float32Array> => {
+	signal.throwIfAborted();
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, requestInit === null ? {} : {requestInit}),
@@ -28,6 +31,14 @@ export const resampleMediaTo16Khz = async ({
 		readonly startFrame: number;
 		readonly waveform: Float32Array;
 	}> = [];
+	let conversion: Conversion | null = null;
+	let cancellation: Promise<void> | null = null;
+	const onAbort = () => {
+		cancellation = conversion?.cancel().catch(() => undefined) ?? null;
+		input.dispose();
+	};
+
+	signal.addEventListener('abort', onAbort, {once: true});
 
 	try {
 		onProgress(0);
@@ -52,7 +63,8 @@ export const resampleMediaTo16Khz = async ({
 			format: new WavOutputFormat(),
 			target: new NullTarget(),
 		});
-		const conversion = await Conversion.init({
+		signal.throwIfAborted();
+		conversion = await Conversion.init({
 			input,
 			output,
 			tracks: 'all',
@@ -67,6 +79,7 @@ export const resampleMediaTo16Khz = async ({
 					forceTranscode: true,
 					numberOfChannels: 1,
 					process: (sample) => {
+						signal.throwIfAborted();
 						const floats = new Float32Array(
 							sample.allocationSize({format: 'f32', planeIndex: 0}) /
 								Float32Array.BYTES_PER_ELEMENT,
@@ -86,6 +99,7 @@ export const resampleMediaTo16Khz = async ({
 			},
 		});
 
+		signal.throwIfAborted();
 		if (!conversion.isValid) {
 			throw new Error(
 				'The audio track cannot be decoded in this browser. Try converting the media to WAV first.',
@@ -94,8 +108,15 @@ export const resampleMediaTo16Khz = async ({
 
 		conversion.onProgress = (progress) => onProgress(progress);
 		await conversion.execute();
+		signal.throwIfAborted();
 		onProgress(1);
 	} finally {
+		signal.removeEventListener('abort', onAbort);
+		await cancellation;
+		if (signal.aborted && conversion && cancellation === null) {
+			await conversion.cancel().catch(() => undefined);
+		}
+
 		input.dispose();
 	}
 

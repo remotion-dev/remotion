@@ -1,6 +1,6 @@
 ---
 name: add-effect
-description: Add a new effect to @remotion/effects, including implementation, package exports, docs, demos, preview images, Remotion skill updates, tests, formatting, and builds.
+description: Add a new effect to @remotion/effects, including implementation, package exports, docs, demos, preview images, Remotion skill updates, formatting, and builds.
 ---
 
 # Add a new `@remotion/effects` effect
@@ -193,18 +193,9 @@ If using a folder implementation, add a top-level file that re-exports from the 
 export {myEffect, type MyEffectParams} from './my-effect/index.js';
 ```
 
-## 4. Add tests
+## 4. Build and verify
 
-Update `packages/effects/src/test/effect-params.test.ts`:
-
-- Import the new effect.
-- Add it to the documentation link test.
-- Test default params when all fields are optional.
-- Test required params if any are required.
-- Test invalid values and exact error substrings.
-- Test that meaningful params produce distinct `effectKey` values.
-
-Run:
+Run the existing tests and build:
 
 ```bash
 cd packages/effects

@@ -1,10 +1,7 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
-import {
-	makeNewCompositionComponentSource,
-	simpleDiff,
-} from '@remotion/studio-codemods';
 import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
@@ -28,9 +25,7 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-export const formatNewCompositionFile = (
-	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
-) => makeNewCompositionComponentSource(codemod);
+const {simpleDiff} = CodemodsInternals;
 
 const getFolderPath = (parentName: string | null, folderName: string) => {
 	return parentName ? `${parentName}/${folderName}` : folderName;
@@ -60,13 +55,6 @@ export const getCodemodLogMessage = (
 
 	if (codemod.type === 'delete-composition') {
 		return `Deleted composition "${codemod.idToDelete}"`;
-	}
-
-	if (codemod.type === 'move-composition-to-folder') {
-		const destination = codemod.folderName
-			? `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`
-			: 'to root';
-		return `Moved composition "${codemod.idToMove}" ${destination}`;
 	}
 
 	if (codemod.type === 'move-composition-or-folder') {
@@ -132,19 +120,6 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		return {
 			undoMessage: `↩️  Duplication of ${label}`,
 			redoMessage: `↪️  Duplication of ${label}`,
-			entryType: codemod.type,
-		};
-	}
-
-	if (codemod.type === 'move-composition-to-folder') {
-		const destination =
-			codemod.folderName === null
-				? 'to root'
-				: `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
-		const label = `composition "${codemod.idToMove}" ${destination}`;
-		return {
-			undoMessage: `↩️  Move of ${label}`,
-			redoMessage: `↪️  Move of ${label}`,
 			entryType: codemod.type,
 		};
 	}
@@ -247,10 +222,14 @@ export const applyCodemodHandler: ApiHandler<
 			}
 
 			const input = readFileSync(filePath, 'utf-8');
-			const formatted = await applyCodemodToFile({
+			const result = await applyCodemodToFile({
 				filePath,
 				codeMod: codemod,
 			});
+
+			const formatted =
+				result.changes.find((change) => change.filePath === filePath)
+					?.nextContents ?? input;
 
 			const diff = simpleDiff({
 				oldLines: input.split('\n'),
@@ -258,6 +237,23 @@ export const applyCodemodHandler: ApiHandler<
 			});
 
 			if (!dryRun) {
+				if (readFileSync(filePath, 'utf-8') !== input) {
+					throw new Error(
+						`Source changed before applying codemod: ${filePath}`,
+					);
+				}
+
+				for (const change of result.changes) {
+					const currentContents = existsSync(change.filePath)
+						? readFileSync(change.filePath, 'utf-8')
+						: null;
+					if (currentContents !== change.previousContents) {
+						throw new Error(
+							`Source changed before applying codemod: ${change.filePath}`,
+						);
+					}
+				}
+
 				const {entryType, undoMessage, redoMessage} =
 					getCodemodUndoDescription(codemod);
 				const snapshots: Parameters<
@@ -280,7 +276,14 @@ export const applyCodemodHandler: ApiHandler<
 						throw new Error('Could not determine the new component file path');
 					}
 
-					componentFileContents = await formatNewCompositionFile(codemod);
+					componentFileContents =
+						result.changes.find(
+							(change) => change.filePath === componentFilePath,
+						)?.nextContents ?? null;
+					if (componentFileContents === null) {
+						throw new Error('Could not create the composition component');
+					}
+
 					snapshots.push({
 						filePath: componentFilePath,
 						oldContents: null,

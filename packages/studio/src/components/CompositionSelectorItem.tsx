@@ -773,7 +773,7 @@ export const CompositionSelectorItem: React.FC<{
 								onDragOver={onRowDragOver}
 								onDragLeave={onRowDragLeave}
 								onDrop={onRowDrop}
-								title={item.folderName}
+								aria-label={item.folderName}
 								role="button"
 								aria-expanded={item.expanded}
 							>
@@ -850,7 +850,7 @@ export const CompositionSelectorItem: React.FC<{
 						onDragLeave={onRowDragLeave}
 						onDrop={onRowDrop}
 						type="button"
-						title={item.composition.id}
+						aria-label={item.composition.id}
 						className={`__remotion-composition __remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 						data-compname={item.composition.id}
 					>

@@ -96,13 +96,14 @@ test(
 			composition: {
 				component: ThreeTestComponent,
 				id: 'three-duplicate-test',
-				width: 400,
-				height: 400,
+				width: 100,
+				height: 100,
 				fps: 60,
 				durationInFrames: 30,
 			},
 			inputProps: {},
 			licenseKey: 'free-license',
+			muted: true,
 			onFrame: async (videoFrame) => {
 				const pixelData = await extractPixelData(videoFrame);
 				framePixelData.push(pixelData);
@@ -110,6 +111,7 @@ test(
 			},
 		});
 
+		expect(framePixelData).toHaveLength(30);
 		const duplicates: number[] = [];
 		for (let i = 1; i < framePixelData.length; i++) {
 			if (framesAreIdentical(framePixelData[i - 1], framePixelData[i])) {

@@ -19,6 +19,7 @@ import {MacCursorsExample} from './MacCursors';
 import {MovingPillCaptionsComposition} from './MovingPillCaptionsComposition';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {SequencePlaybackRateE2e} from './SequencePlaybackRateE2e';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
@@ -31,6 +32,14 @@ import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="sequence-playback-rate"
+				component={SequencePlaybackRateE2e}
+				width={1200}
+				height={630}
+				fps={30}
+				durationInFrames={120}
+			/>
 			<Folder name="Schema">
 				<Composition
 					id="schema-test"

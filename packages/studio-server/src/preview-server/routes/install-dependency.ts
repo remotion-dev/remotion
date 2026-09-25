@@ -107,6 +107,7 @@ export const handleInstallPackage = async ({
 					YARN_ENABLE_SCRIPTS: 'false',
 				},
 			});
+			let stderr = '';
 			cmd.on('error', reject);
 			cmd.stdout.on('data', (d: Buffer) =>
 				d
@@ -117,16 +118,24 @@ export const handleInstallPackage = async ({
 						RenderInternals.Log.info({indent: true, logLevel}, line),
 					),
 			);
-			cmd.stdout.on('end', resolve);
-			cmd.on('close', (code, signal) =>
-				code === 0
-					? resolve()
-					: reject(
-							new Error(
-								`Command exited with code ${code} and signal ${signal}`,
-							),
-						),
-			);
+			cmd.stderr.on('data', (data: Buffer) => {
+				stderr += data.toString();
+			});
+			cmd.on('close', (code, signal) => {
+				if (code === 0) {
+					resolve();
+					return;
+				}
+
+				const packageManagerError = stderr.trim();
+				reject(
+					new Error(
+						packageManagerError.length > 0
+							? `Package installation failed:\n${packageManagerError}`
+							: `Package installation failed: Command exited with code ${code} and signal ${signal}`,
+					),
+				);
+			});
 		});
 		await invalidateBundle();
 		RenderInternals.Log.info(

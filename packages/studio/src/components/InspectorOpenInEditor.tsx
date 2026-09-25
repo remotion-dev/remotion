@@ -5,6 +5,7 @@ import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-so
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import {copyText} from '../helpers/copy-text';
 import {
 	getDefaultOpenInTarget,
 	openGitSource,
@@ -100,6 +101,17 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[contextForAgents],
 	);
+	const copyPath = useCallback(() => {
+		if (!location?.source) {
+			return;
+		}
+
+		copyText(location.source)
+			.then(() => showNotification('Copied path', 1500))
+			.catch((err: Error) => {
+				showNotification(`Could not copy path: ${err.message}`, 2000);
+			});
+	}, [location]);
 	const defaultAppName =
 		defaultOpenInTarget === 'git-source'
 			? 'GitHub'
@@ -136,6 +148,8 @@ export const InspectorOpenInEditor: React.FC<{
 			folder: locationType === 'folder',
 			gitSourceDisabled: location === null,
 			onConfigureApps: configureDefaultApps,
+			onCopyPath:
+				locationType === 'folder' && location?.source ? copyPath : undefined,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -196,6 +210,7 @@ export const InspectorOpenInEditor: React.FC<{
 		canConfigureApps,
 		canOpenInEditor,
 		configureDefaultApps,
+		copyPath,
 		defaultEditorId,
 		defaultOpenInTarget,
 		editorInfo,
@@ -229,7 +244,6 @@ export const InspectorOpenInEditor: React.FC<{
 				),
 				segmentId: 'default-editor',
 				style: mainSegmentStyle,
-				title: showTooltips ? '' : `Open in ${defaultAppName}`,
 				tooltipLabel: showTooltips ? `Open in ${defaultAppName}` : null,
 				type: 'action',
 			},
@@ -247,7 +261,6 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'another-app',
 				selectedId: null,
 				style: dropdownSegmentStyle,
-				title: showTooltips ? '' : 'Open in another app',
 				tooltipLabel: showTooltips ? 'Open in another app' : null,
 				type: 'menu',
 				values: menuItems,
@@ -274,5 +287,5 @@ export const InspectorOpenInEditor: React.FC<{
 		return null;
 	}
 
-	return <SegmentedButton segments={segments} style={null} title={null} />;
+	return <SegmentedButton segments={segments} style={null} />;
 };

@@ -82,11 +82,7 @@ export const CanvasOrLoading: React.FC<{
 		if (route === '') {
 			return (
 				<div style={container} className="css-reset">
-					<div style={welcomeLabel}>
-						Welcome to Remotion Studio.
-						<br />
-						Select a composition to get started.
-					</div>
+					<div style={welcomeLabel}>Select a composition to get started.</div>
 				</div>
 			);
 		}

@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {addEffect} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddEffectRequest,
 	AddEffectResponse,
 } from '@remotion/studio-shared';
-import {addEffect} from '../../codemods/add-effect';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -24,20 +24,17 @@ import {
 export const addEffectHandler: ApiHandler<
 	AddEffectRequest,
 	AddEffectResponse
-> = ({
-	input: {
-		fileName,
-		sequenceNodePath,
-		effectName,
-		effectImportPath,
-		effectConfig,
-		clientId,
-	},
-	remotionRoot,
-	logLevel,
-}) => {
+> = ({input: request, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			const {
+				fileName,
+				sequenceNodePath,
+				effectName,
+				effectImportPath,
+				effectConfig,
+				clientId,
+			} = request;
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
 				`[add-effect] Received request for fileName="${fileName}" effect="${effectName}"`,
@@ -50,14 +47,16 @@ export const addEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabel, nodeLabel, logLine} =
-				await addEffect({
-					input: fileContents,
-					sequenceNodePath: sequenceNodePath.nodePath,
-					effectName,
-					effectImportPath,
-					effectConfig,
-				});
+			const result = await addEffect({
+				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
+				node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
+				importName: effectName,
+				importPath: effectImportPath,
+				props: effectConfig,
+			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {formatted, effectLabel, nodeLabel, logLine} =
+				result.editDetails[0];
 
 			pushToUndoStack({
 				filePath: absolutePath,
@@ -104,6 +103,10 @@ export const addEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				insertedEffect: {
+					effectIndex: result.insertedEffect.effectIndex,
+					nodePath: result.insertedEffect.nodePath,
+				},
 			};
 		} catch (err) {
 			return {

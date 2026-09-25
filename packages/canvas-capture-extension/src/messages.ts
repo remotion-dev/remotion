@@ -64,6 +64,10 @@ export type CaptureControllerRequest =
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;
+			readonly command: 'open-in-new';
+	  }
+	| {
+			readonly type: typeof captureControllerMessageType;
 			readonly command: 'download-recording';
 	  };
 

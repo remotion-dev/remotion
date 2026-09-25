@@ -13,8 +13,8 @@ import type {
 	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeResponse,
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteEffectRequest,
@@ -29,6 +29,8 @@ import type {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	WrapJsxNodeRequest,
+	WrapJsxNodeResponse,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
 	InsertElementRequest,
@@ -62,6 +64,8 @@ import type {
 	SplitVideoFromAudioResponse,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToSequencePropsRequest,
@@ -168,9 +172,9 @@ export type BrowserStudioOperations = {
 		sourceOrigin: string | null;
 	} | null;
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
-	deleteJsxNode: (
-		request: DeleteJsxNodeRequest,
-	) => Promise<DeleteJsxNodeResponse>;
+	deleteJsxNodes: (
+		request: DeleteJsxNodesRequest,
+	) => Promise<DeleteJsxNodesResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
 	) => Promise<DeleteStaticFileResponse>;
@@ -187,6 +191,7 @@ export type BrowserStudioOperations = {
 	duplicateJsxNode: (
 		request: DuplicateJsxNodeRequest,
 	) => Promise<DuplicateJsxNodeResponse>;
+	wrapJsxNode: (request: WrapJsxNodeRequest) => Promise<WrapJsxNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
@@ -227,6 +232,9 @@ export type BrowserStudioOperations = {
 	insertBasicCaptions: (
 		request: InsertBasicCaptionsRequest,
 	) => Promise<InsertBasicCaptionsResponse>;
+	replaceVideoSource?: (
+		request: ReplaceVideoSourceRequest,
+	) => Promise<ReplaceVideoSourceResponse>;
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;

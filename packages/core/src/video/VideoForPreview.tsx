@@ -178,6 +178,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay: undefined,
+		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
 		documentationLink: onlyWarnForMediaSeekingError
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
@@ -372,7 +373,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 
 	return isStudio ? (
-		<SequenceOrderMarker sequenceId={timelineId}>{video}</SequenceOrderMarker>
+		<SequenceOrderMarker sequenceId={timelineId} outlineChildrenRef={null}>
+			{video}
+		</SequenceOrderMarker>
 	) : (
 		video
 	);

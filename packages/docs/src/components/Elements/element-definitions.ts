@@ -1,4 +1,7 @@
+import {ding, mouseClick} from '@remotion/sfx';
+import {staticFileRef} from '@remotion/studio-protocol';
 import type {
+	ElementAsset,
 	ElementDependency,
 	ElementInitialProps,
 	ElementInstallationMode,
@@ -6,6 +9,10 @@ import type {
 import type {ComponentType} from 'react';
 import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
+import {
+	audioOscilloscopeAudio,
+	audioOscilloscopeInitialProps,
+} from '../../../elements/audio/oscilloscope/initial-props';
 import {AudioWaveformProgress} from '../../../elements/audio/waveform-progress/audio-waveform-progress';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {MovingWaves} from '../../../elements/backgrounds/moving-waves/moving-waves';
@@ -19,6 +26,8 @@ import {movingPillCaptionsInitialProps} from '../../../elements/captions/moving-
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {poppingWordCaptionsInitialProps} from '../../../elements/captions/popping-word-captions/initial-props';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
+import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-captions/initial-props';
+import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
 import {
@@ -73,6 +82,7 @@ export type ElementPreviewMetadata = {
 };
 
 export type ElementDefinition = {
+	readonly assets: readonly ElementAsset[];
 	readonly category: ElementCategory;
 	readonly component: ComponentType<never>;
 	readonly contributors: readonly Contributor[];
@@ -85,6 +95,8 @@ export type ElementDefinition = {
 	readonly fps: number;
 	readonly height: number;
 	readonly initialProps: ElementInitialProps | null;
+	// Shallow overrides for installation only; previews use initialProps unchanged.
+	readonly installationProps: ElementInitialProps | null;
 	readonly posterFrame: number;
 	readonly preview: ElementPreviewMetadata;
 	readonly previewUsesHtmlInCanvas: boolean;
@@ -94,10 +106,32 @@ export type ElementDefinition = {
 	readonly width: number;
 };
 
-// Array order defines the order of categories and cards in the Element library.
+const youtubeSubscribeNudgeAssets = {
+	click: {
+		path: 'elements/youtube-subscribe-nudge/mouse-click.wav',
+		type: 'url',
+		url: mouseClick,
+	},
+	ding: {
+		path: 'elements/youtube-subscribe-nudge/ding.wav',
+		type: 'url',
+		url: ding,
+	},
+	avatar: {
+		path: 'elements/youtube-subscribe-nudge/remotion-logo.png',
+		type: 'url',
+		url: 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+	},
+} as const satisfies Record<string, ElementAsset>;
+
+// Array order defines the order of categories and cards in the Element Library.
 const elementImplementations = [
 	{
 		slug: 'audio/oscilloscope',
+		assets: [audioOscilloscopeAudio],
+		installationProps: {
+			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+		} as ElementInitialProps,
 		component: AudioOscilloscope,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description: 'Suitable for visualizing speech.',
@@ -119,12 +153,16 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-oscilloscope-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: null,
+		initialProps: audioOscilloscopeInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
 		slug: 'audio/waveform-progress',
+		assets: [audioOscilloscopeAudio],
+		installationProps: {
+			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+		} as ElementInitialProps,
 		component: AudioWaveformProgress,
 		contributors: [{username: 'samohovets', contribution: 'Author'}],
 		description: 'A static audio waveform with playback progress.',
@@ -146,12 +184,16 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: null,
+		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
 		slug: 'audio/mirrored-spectrum',
+		assets: [audioOscilloscopeAudio],
+		installationProps: {
+			audioSrc: staticFileRef(audioOscilloscopeAudio.path),
+		} as ElementInitialProps,
 		component: MirroredAudioSpectrum,
 		contributors: [{username: 'JonnyBurger', contribution: 'Author'}],
 		description: 'Suitable for both music and speech visualization.',
@@ -173,12 +215,14 @@ const elementImplementations = [
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
 		safeArea: 120,
-		initialProps: null,
+		initialProps: {audioSrc: audioOscilloscopeAudio.url} as ElementInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
 		slug: 'backgrounds/notebook-paper',
+		assets: [],
+		installationProps: null,
 		component: NotebookPaper,
 		contributors: [],
 		description: 'A white paper background with subtle blue gridlines.',
@@ -203,6 +247,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/paper-texture',
+		assets: [],
+		installationProps: null,
 		component: PaperTexture,
 		contributors: [],
 		description:
@@ -228,6 +274,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/rotating-starburst',
+		assets: [],
+		installationProps: null,
 		component: RotatingStarburst,
 		contributors: [],
 		description: 'A solid background with a slowly rotating starburst effect.',
@@ -252,6 +300,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/moving-waves',
+		assets: [],
+		installationProps: null,
 		component: MovingWaves,
 		contributors: [],
 		description: 'A seamless wave background that flows upward.',
@@ -276,6 +326,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/moving-zigzags',
+		assets: [],
+		installationProps: null,
 		component: MovingZigzags,
 		contributors: [],
 		description: 'A seamless zigzag background that flows upward.',
@@ -300,6 +352,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'backgrounds/liquid-contours',
+		assets: [],
+		installationProps: null,
 		component: LiquidContours,
 		contributors: [],
 		description:
@@ -325,6 +379,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/basic-captions',
+		assets: [],
+		installationProps: null,
 		component: BasicCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description:
@@ -349,7 +405,41 @@ const elementImplementations = [
 		width: 1920,
 	},
 	{
+		slug: 'captions/rounded-captions',
+		assets: [],
+		installationProps: null,
+		component: RoundedCaptions,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'Static synchronized captions with a rounded background that follows each line.',
+		dependencies: [
+			{name: '@remotion/captions', version: null},
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/layout-utils', version: null},
+			{name: '@remotion/rounded-text-box', version: null},
+		],
+		durationInFrames: 210,
+		elementHeight: 220,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.png',
+			videoUrl:
+				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.mp4',
+		},
+		safeArea: 120,
+		initialProps: roundedCaptionsInitialProps,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
 		slug: 'captions/moving-pill-captions',
+		assets: [],
+		installationProps: null,
 		component: MovingPillCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description:
@@ -379,6 +469,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/popping-word-captions',
+		assets: [],
+		installationProps: null,
 		component: PoppingWordCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description: 'Synchronized captions that pop each spoken word into focus.',
@@ -407,6 +499,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'captions/word-highlight-captions',
+		assets: [],
+		installationProps: null,
 		component: WordHighlightCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description: 'Synchronized captions that highlight each spoken word.',
@@ -435,6 +529,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/product-collection',
+		assets: [],
+		installationProps: null,
 		component: ProductCollection,
 		contributors: [],
 		description: 'Three cards which each take center once.',
@@ -459,6 +555,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/product-discount-callout',
+		assets: [],
+		installationProps: null,
 		component: ProductDiscountCallout,
 		contributors: [],
 		description: 'An attention-grabbing speech bubble.',
@@ -486,6 +584,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/shine',
+		assets: [],
+		installationProps: null,
 		component: Shine,
 		contributors: [],
 		description: 'Adds a diagonal shine sweep to any content.',
@@ -508,6 +608,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'commerce/tear',
+		assets: [],
+		installationProps: null,
 		component: Tear,
 		contributors: [],
 		description: 'A tear effect that can be applied to any content.',
@@ -530,6 +632,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/horizontal-bar-chart',
+		assets: [],
+		installationProps: null,
 		component: HorizontalBarChart,
 		contributors: [],
 		description: 'A bold bar chart with three directly labeled data points.',
@@ -554,6 +658,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/line-chart',
+		assets: [],
+		installationProps: null,
 		component: LineChart,
 		contributors: [],
 		description: 'A bold animated line chart with a directly labeled trend.',
@@ -576,6 +682,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/number-counter',
+		assets: [],
+		installationProps: null,
 		component: NumberCounter,
 		contributors: [
 			{
@@ -606,6 +714,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/pie-chart',
+		assets: [],
+		installationProps: null,
 		component: PieChart,
 		contributors: [],
 		description:
@@ -629,6 +739,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'data/vertical-bar-chart',
+		assets: [],
+		installationProps: null,
 		component: VerticalBarChart,
 		contributors: [],
 		description:
@@ -654,6 +766,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'layouts/picture-in-picture-transition',
+		assets: [],
+		installationProps: null,
 		component: PictureInPictureTransition,
 		contributors: [],
 		description:
@@ -679,6 +793,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'layouts/slide-to-split-screen',
+		assets: [],
+		installationProps: null,
 		component: SlideToSplitScreen,
 		contributors: [],
 		description:
@@ -704,6 +820,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'maps/map-flyover',
+		assets: [],
+		installationProps: null,
 		component: MapFlyover,
 		contributors: [],
 		description:
@@ -730,6 +848,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'maps/watercolor-map',
+		assets: [],
+		installationProps: null,
 		component: WatercolorMap,
 		contributors: [
 			{username: 'JonnyBurger', contribution: 'Author'},
@@ -758,6 +878,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'overlays/location-lower-third',
+		assets: [],
+		installationProps: null,
 		component: LocationLowerThird,
 		contributors: [],
 		description: 'An animated lower third for an event location and venue.',
@@ -782,6 +904,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'overlays/name-lower-third',
+		assets: [],
+		installationProps: null,
 		component: NameLowerThird,
 		contributors: [],
 		description:
@@ -807,6 +931,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'overlays/social-safe-zones',
+		assets: [],
+		installationProps: null,
 		component: SocialSafeZones,
 		contributors: [],
 		description:
@@ -832,6 +958,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/news-article-highlight',
+		assets: [],
+		installationProps: null,
 		component: NewsArticleHighlight,
 		contributors: [],
 		description: 'A centered news headline with animated passage highlights.',
@@ -856,6 +984,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'storytelling/on-screen-messages',
+		assets: [],
+		installationProps: null,
 		component: OnScreenMessages,
 		contributors: [],
 		description:
@@ -881,6 +1011,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'storytelling/polaroid-pictures',
+		assets: [],
+		installationProps: null,
 		component: PolaroidPictures,
 		contributors: [],
 		description:
@@ -906,6 +1038,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/circle-marker',
+		assets: [],
+		installationProps: null,
 		component: CircleMarker,
 		contributors: [],
 		description:
@@ -934,6 +1068,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/crossed-off',
+		assets: [],
+		installationProps: null,
 		component: CrossedOffText,
 		contributors: [],
 		description:
@@ -960,6 +1096,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/spinning-text-wheel',
+		assets: [],
+		installationProps: null,
 		component: SpinningTextWheel,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description:
@@ -985,6 +1123,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/strike-through',
+		assets: [],
+		installationProps: null,
 		component: StrikeThroughText,
 		contributors: [],
 		description:
@@ -1013,6 +1153,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'text/text-marker',
+		assets: [],
+		installationProps: null,
 		component: TextMarker,
 		contributors: [],
 		description:
@@ -1039,6 +1181,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-comment-highlight',
+		assets: [],
+		installationProps: null,
 		component: YouTubeCommentHighlight,
 		contributors: [],
 		description: 'A YouTube-style card for featuring a viewer comment.',
@@ -1063,6 +1207,8 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-end-card',
+		assets: [],
+		installationProps: null,
 		component: YouTubeEndCard,
 		contributors: [],
 		description:
@@ -1088,6 +1234,16 @@ const elementImplementations = [
 	},
 	{
 		slug: 'youtube/youtube-subscribe-nudge',
+		assets: [
+			youtubeSubscribeNudgeAssets.click,
+			youtubeSubscribeNudgeAssets.ding,
+			youtubeSubscribeNudgeAssets.avatar,
+		],
+		installationProps: {
+			clickSrc: staticFileRef(youtubeSubscribeNudgeAssets.click.path),
+			dingSrc: staticFileRef(youtubeSubscribeNudgeAssets.ding.path),
+			avatarSrc: staticFileRef(youtubeSubscribeNudgeAssets.avatar.path),
+		} as ElementInitialProps,
 		component: YouTubeSubscribeNudge,
 		contributors: [],
 		description:
@@ -1111,7 +1267,11 @@ const elementImplementations = [
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},
 		safeArea: 240,
-		initialProps: null,
+		initialProps: {
+			clickSrc: youtubeSubscribeNudgeAssets.click.url,
+			dingSrc: youtubeSubscribeNudgeAssets.ding.url,
+			avatarSrc: youtubeSubscribeNudgeAssets.avatar.url,
+		} as ElementInitialProps,
 		installationMode: 'wrapped',
 		width: 1920,
 	},

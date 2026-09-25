@@ -5,11 +5,13 @@ id: get-can-extract-frames-fast
 crumb: '@remotion/renderer'
 ---
 
+# getCanExtractFramesFast()<AvailableFrom v="3.3.2" />
+
 :::warning
 From v4.0 on, frames can always be extracted fast and therefore the function has been removed. The information in this document only applies to older versions of Remotion and is preserved for people who are still using them.
 :::
 
-_Available since v3.3.2, removed in v4.0 - Part of the `@remotion/renderer` package._
+_Removed in v4.0 - Part of the `@remotion/renderer` package._
 
 Probes whether frames of a video can be efficiently extracted when using [`<OffthreadVideo>`](/docs/offthreadvideo).
 
@@ -74,3 +76,9 @@ Returns a promise which resolves to an object with the following parameters:
 
 - `canExtractFramesFast`: _boolean_ Whether it will be fast to extract a frame from a video.
 - `shouldReencode`: _boolean_ Whether the video can be re-encoded to make the render faster.
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs="Remotion 3" bun="Not verified" serverlessFunctions={false} clientSideRendering="" serverSideRendering="Remotion 3" player="" studio="" hideBrowsers />
+
+This table describes the historical API. It was removed in Remotion 4.0.

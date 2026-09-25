@@ -538,23 +538,22 @@ export const WhatIsRemotion = ({
 									alignItems: 'center',
 								}}
 							>
-								<Sequence layout="none" from={100}>
-									<Interactive.Div
-										style={{
-											width: 393.75,
-											height: 700,
-											position: 'relative',
-										}}
-									>
-										{interpolate(frame, [175, 200], [0, 1], {
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-											easing: Easing.bezier(0.42, 0, 0.58, 1),
-										}) ? (
-											<EndCard cornerRadius={10} />
-										) : null}
-									</Interactive.Div>
-								</Sequence>
+								<Interactive.Div
+									from={100}
+									style={{
+										width: 393.75,
+										height: 700,
+										position: 'relative',
+									}}
+								>
+									{interpolate(frame, [175, 200], [0, 1], {
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+										easing: Easing.bezier(0.42, 0, 0.58, 1),
+									}) ? (
+										<EndCard cornerRadius={10} />
+									) : null}
+								</Interactive.Div>
 							</Interactive.Div>
 						</TranslateX>
 					</Interactive.Div>

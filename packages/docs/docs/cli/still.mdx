@@ -5,7 +5,7 @@ sidebar_label: still
 crumb: CLI Reference
 ---
 
-<AvailableFrom v="2.3" />
+# npx remotion still<AvailableFrom v="2.3" />
 
 Render a still frame based on the entry point, the composition ID and save it to the output location.
 
@@ -67,6 +67,12 @@ Sets the output file path, as an alternative to the `output-location` positional
 ### `--frame`
 
 <Options id="frame" />
+
+To render multiple stills, use [`remotion render` with `--frames`](/docs/cli/render#--frames) instead:<AvailableFrom v="4.0.502" inline />
+
+```bash title="Render frames 0, 30, and 90"
+npx remotion render MyComp out/frames --frames=0,30,90 --image-format=png
+```
 
 ### `--bundle-cache`
 

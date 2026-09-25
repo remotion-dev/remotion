@@ -137,7 +137,7 @@ By passing `trimAfter={120}`, any video after the 4 second mark in the file will
 
 The video will play the range from `00:02:00` to `00:04:00`, meaning the video will play for 2 seconds.
 
-For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
+For exact behavior, see [Timing and trimming](/docs/timing).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
@@ -500,6 +500,12 @@ When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side render
 ### `debugOverlay?`
 
 Shows a debug overlay on the video. This is useful for debugging the video playback.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="Supported codecs" serverSideRendering player studio hideServers />
+
+See [supported media](/docs/media/support). Unsupported codecs may use a [fallback](/docs/media/fallback) during preview and server-side rendering; client-side rendering requires a decodable source and cannot fall back.
 
 ## See also
 

@@ -1,11 +1,7 @@
-import type {
-	_InternalTypes,
-	LoopDisplay,
-	OverrideIdToNodePaths,
-	TSequence,
-} from 'remotion';
+import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {getConnectedCompositions} from './get-connected-compositions';
 import {
+	getParentSequencePlaybackRate,
 	getCascadedStart,
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,
@@ -15,6 +11,7 @@ import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import type {
 	TimelineTrackData,
 	TimelineTrackWithOriginalTimings,
+	TimelineLoopDisplay,
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
 import {sortItemsByCommitOrder} from './sort-by-commit-order';
@@ -23,21 +20,54 @@ import {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-ke
 const getInheritedLoopDisplay = (
 	sequence: TSequence,
 	sequences: TSequence[],
-): LoopDisplay | undefined => {
-	if (sequence.loopDisplay) {
-		return sequence.loopDisplay;
+): TimelineLoopDisplay | undefined => {
+	let owner: TSequence | undefined = sequence;
+	while (owner && !owner.loopDisplay) {
+		const parentId: string | null = owner.parent;
+		owner = sequences.find((candidate) => candidate.id === parentId);
 	}
 
-	if (!sequence.parent) {
-		return undefined;
+	if (!owner?.loopDisplay) return undefined;
+
+	const parentRate = getParentSequencePlaybackRate(owner, sequences);
+	const durationInFrames = owner.loopDisplay.durationInFrames / parentRate;
+	const iterationStart = getCascadedStart(owner, sequences);
+	let mediaIterationStart = iterationStart;
+	let descendant = sequence;
+	while (descendant.id !== owner.id) {
+		mediaIterationStart = Math.max(
+			mediaIterationStart,
+			getCascadedStart(descendant, sequences),
+		);
+		const parentId = descendant.parent;
+		descendant = sequences.find((candidate) => candidate.id === parentId)!;
 	}
 
-	const parent = sequences.find((s) => s.id === sequence.parent);
-	if (!parent) {
-		return undefined;
+	const origin =
+		mediaIterationStart + owner.loopDisplay.startOffset / parentRate;
+	let start = Math.max(0, origin);
+	let end = origin + durationInFrames * owner.loopDisplay.numberOfTimes;
+	if (owner.parent) {
+		const parent = sequences.find(
+			(candidate) => candidate.id === owner.parent,
+		)!;
+		const parentStart = getTimelineVisibleStart(parent, sequences);
+		start = Math.max(start, parentStart);
+		end = Math.min(
+			end,
+			parentStart + getTimelineVisibleDuration(parent, sequences),
+		);
 	}
 
-	return getInheritedLoopDisplay(parent, sequences);
+	const visibleStart = getTimelineVisibleStart(sequence, sequences);
+
+	return {
+		durationInFrames,
+		numberOfTimes: Math.max(0, end - start) / durationInFrames,
+		startOffset: start - visibleStart,
+		phaseOffsetInFrames: (start - origin) % durationInFrames,
+		mediaOffsetInFrames: visibleStart - mediaIterationStart,
+	};
 };
 
 export const calculateTimeline = ({
@@ -96,10 +126,12 @@ export const calculateTimeline = ({
 			sequence,
 			sortedSequences,
 		);
-		const effectiveFrom =
-			sequence.trimBefore === null
-				? sequence.from
-				: sequence.from - sequence.trimBefore;
+		const parentPlaybackRate = getParentSequencePlaybackRate(
+			sequence,
+			sortedSequences,
+		);
+		const sequencePlaybackRate =
+			parentPlaybackRate * sequence.sequencePlaybackRate;
 
 		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
 		const visibleDuration = getTimelineVisibleDuration(
@@ -119,20 +151,33 @@ export const calculateTimeline = ({
 			sequence: {
 				...sequence,
 				from: visibleStart,
+				sequencePlaybackRate,
+				premountDisplay:
+					sequence.premountDisplay === null
+						? null
+						: sequence.premountDisplay / parentPlaybackRate,
+				postmountDisplay:
+					sequence.postmountDisplay === null
+						? null
+						: sequence.postmountDisplay / parentPlaybackRate,
 				duration: visibleDuration,
 				loopDisplay:
-					sequence.type === 'audio' || sequence.type === 'video'
+					sequence.loopDisplay ||
+					sequence.type === 'audio' ||
+					sequence.type === 'video'
 						? getInheritedLoopDisplay(sequence, sortedSequences)
-						: sequence.loopDisplay,
+						: undefined,
 			},
 			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
 			cascadedStart,
 			localStart: sequence.from,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
-				? cascadedStartWithTrim - effectiveFrom
+				? cascadedStart - sequence.from / parentPlaybackRate
 				: 0,
-			sequenceFrameOffset: visibleStart - cascadedStartWithTrim,
+			sequenceFrameOffset:
+				(visibleStart - cascadedStartWithTrim) * sequencePlaybackRate,
+			keyframePlaybackRate: parentPlaybackRate,
 			nodePathInfo: nodePath
 				? {
 						sequenceSubscriptionKey: nodePath,

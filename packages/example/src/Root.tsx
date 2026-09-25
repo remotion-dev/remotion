@@ -89,6 +89,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasMotionBlurExample,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -249,6 +250,7 @@ import {
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LayoutNoneOutlines} from './LayoutNoneOutlines';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
@@ -256,6 +258,7 @@ import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
+import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
@@ -286,6 +289,9 @@ import {
 	RoughNotationStrikeThrough,
 	RoughNotationUnderline,
 } from './RoughNotation';
+import {SequencePlaybackRateKeyframes} from './SequencePlaybackRateKeyframes';
+import {SequencePlaybackRateLoops} from './SequencePlaybackRateLoops';
+import {SequencePlaybackRateTestbed} from './SequencePlaybackRateTestbed';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -321,7 +327,9 @@ import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
+import {InteractivePaths} from './VisualModeTests/InteractivePaths';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {KeyframeDeleteFlash} from './VisualModeTests/KeyframeDeleteFlash';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceDurationInterpolation} from './VisualModeTests/SequenceDurationInterpolation';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
@@ -1217,6 +1225,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<SimultaneousPlaybackComp />
 				<PremountSequenceVideoComp />
 				<ObjectFitTestComp />
 				<NewVideoBufferStateComp />
@@ -1235,6 +1244,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-motion-blur"
+						component={HtmlInCanvasMotionBlurExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={76}
+					/>
 					<Composition
 						id="html-in-canvas-changing-size"
 						component={HtmlInCanvasDemo}
@@ -2029,6 +2046,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					width={100}
 					height={100}
+				/>
+				<Composition
+					id="gsap-parity"
+					lazyComponent={() => import('./Gsap/ParityFixture')}
+					durationInFrames={90}
+					fps={30}
+					width={640}
+					height={300}
 				/>
 			</Folder>
 			<Folder name="lottie">
@@ -3026,7 +3051,39 @@ export const Index: React.FC = () => {
 				fps={60}
 				durationInFrames={180}
 			/>
+			<Composition
+				id="sequence-playback-rate-testbed"
+				component={SequencePlaybackRateTestbed}
+				width={1440}
+				height={1080}
+				fps={30}
+				durationInFrames={240}
+			/>
+			<Composition
+				id="sequence-playback-rate-keyframes"
+				component={SequencePlaybackRateKeyframes}
+				width={1440}
+				height={1080}
+				fps={30}
+				durationInFrames={180}
+			/>
+			<Composition
+				id="sequence-playback-rate-loops"
+				component={SequencePlaybackRateLoops}
+				width={1440}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="keyframe-delete-flash"
+					component={KeyframeDeleteFlash}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={420}
+				/>
 				<Composition
 					id="constant-multiplication"
 					component={ConstantMultiplication}
@@ -3058,6 +3115,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={2340}
+				/>
+				<Composition
+					id="layout-none-outlines"
+					component={LayoutNoneOutlines}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
 				/>
 				<Composition
 					id="fast-updates"
@@ -3094,6 +3159,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="interactive-svg-elements"
 					component={InteractiveSvgElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="interactive-paths"
+					component={InteractivePaths}
 					width={1080}
 					height={1080}
 					fps={30}

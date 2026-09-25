@@ -260,7 +260,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				variant={null}
 				renderAction={renderAction}
 				values={values}
-				title="More actions"
+				aria-label="More actions"
 				unhoveredColor={WHITE_ALPHA_80}
 			/>
 		</ActionTooltip>

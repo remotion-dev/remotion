@@ -317,7 +317,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			variant={null}
 			onClick={openAssetSelection}
 			disabled={window.remotion_isReadOnlyStudio}
-			title="Change source"
+			aria-label="Change source"
 			renderAction={(color) => <PenIcon color={color} style={penIcon} />}
 		/>
 	);
@@ -350,7 +350,8 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			linkInfo.kind === 'local' &&
 			inlineSourceAction !== null &&
 			inlineSourceAction.onClick !== null;
-		const title = inlineSourceAction?.title ?? linkInfo.title;
+		const sourceDescription =
+			inlineSourceAction?.['aria-label'] ?? linkInfo.title;
 		const onPreviewClick = opensSource
 			? inlineSourceAction.onClick
 			: openAssetSelection;
@@ -372,11 +373,11 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		const previewAction = (
 			<button
 				aria-label={previewLabel}
+				aria-description={sourceDescription}
 				className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 				disabled={previewDisabled}
 				onClick={onPreviewClick}
 				style={previewButtonStyle}
-				title={title}
 				type="button"
 			>
 				<span style={thumbnailContainer}>

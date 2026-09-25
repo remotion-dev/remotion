@@ -89,6 +89,10 @@ export type ElementDependency =
 	  };
 
 export type InstallableElement = {
+	assets: Array<
+		| {path: string; type: 'url'; url: string}
+		| {path: string; type: 'base64'; data: string}
+	>;
 	dependencies: ElementDependency[];
 	durationInFrames: number | null;
 	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
@@ -410,15 +414,13 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
-export type SubscribeToSequencePropsBatchRequest =
-	SubscribeToSequencePropsRequest & {
-		requests?: SubscribeToSequencePropsRequest[];
-	};
+export type SubscribeToSequencePropsBatchRequest = {
+	requests: SubscribeToSequencePropsRequest[];
+};
 
-export type SubscribeToSequencePropsBatchResponse =
-	SubscribeToSequencePropsResponse & {
-		results: SubscribeToSequencePropsResponse[];
-	};
+export type SubscribeToSequencePropsBatchResponse = {
+	results: SubscribeToSequencePropsResponse[];
+};
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
@@ -513,7 +515,6 @@ export type SaveSequencePropsResult = {
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
 			results: SaveSequencePropsResult[];
 	  }
 	| {
@@ -577,6 +578,10 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			insertedEffect: {
+				effectIndex: number;
+				nodePath: SequencePropsSubscriptionKey['nodePath'];
+			};
 	  }
 	| {
 			success: false;
@@ -844,16 +849,16 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodeRequestItem = {
+export type DeleteJsxNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodeRequest = {
-	nodes: DeleteJsxNodeRequestItem[];
+export type DeleteJsxNodesRequest = {
+	nodes: DeleteJsxNodesRequestItem[];
 };
 
-export type DeleteJsxNodeResponse =
+export type DeleteJsxNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -884,11 +889,34 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type SplitJsxSequenceRequest = {
+export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+
+export type WrapJsxNodeRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	wrapper: JsxWrapper | null;
+	width: number | null;
+	height: number | null;
+};
+
+export type WrapJsxNodeResponse =
+	| {
+			success: true;
+			canWrap: boolean;
+			canWrapHtmlInCanvas: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
+};
+
+export type SplitJsxSequenceRequest = {
+	sequences: SplitJsxSequenceRequestItem[];
 };
 
 export type SplitJsxSequenceResponse =
@@ -933,6 +961,16 @@ export type InsertBasicCaptionsRequest = {
 };
 
 export type InsertBasicCaptionsResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
+export type ReplaceVideoSourceRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	src: string;
+};
+
+export type ReplaceVideoSourceResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
@@ -1211,6 +1249,7 @@ export type ConfigUpdate =
 	| {
 			setter: string;
 			type: 'delete';
+			value?: string;
 	  }
 	| {
 			setter: string;
@@ -1414,14 +1453,15 @@ export type ApiRoutes = {
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-node': ReqAndRes<
-		DeleteJsxNodeRequest,
-		DeleteJsxNodeResponse
+	'/api/delete-jsx-nodes': ReqAndRes<
+		DeleteJsxNodesRequest,
+		DeleteJsxNodesResponse
 	>;
 	'/api/duplicate-jsx-node': ReqAndRes<
 		DuplicateJsxNodeRequest,
 		DuplicateJsxNodeResponse
 	>;
+	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
 	'/api/split-jsx-sequence': ReqAndRes<
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse
@@ -1433,6 +1473,10 @@ export type ApiRoutes = {
 	'/api/insert-basic-captions': ReqAndRes<
 		InsertBasicCaptionsRequest,
 		InsertBasicCaptionsResponse
+	>;
+	'/api/replace-video-source': ReqAndRes<
+		ReplaceVideoSourceRequest,
+		ReplaceVideoSourceResponse
 	>;
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,

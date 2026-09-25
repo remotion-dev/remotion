@@ -1,6 +1,14 @@
-import {existsSync, readFileSync} from 'node:fs';
+import {
+	closeSync,
+	existsSync,
+	lstatSync,
+	readFileSync,
+	unlinkSync,
+	writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	ElementInstallExpectedFileState,
 	InsertElementRequest,
@@ -11,18 +19,23 @@ import {
 	resolveFilePathFromSymbolicatedStack,
 } from '../../codemods/apply-codemod-to-file';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {
+	assertNoSymlinks,
+	openFileForWritingWithoutSymlinks,
+} from '../../helpers/open-file-for-writing-without-symlinks';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {getProjectInfo} from '../project-info';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
+	discardLastUndoEntryAfterFailedCommit,
 	printUndoHint,
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
-import {formatNewCompositionFile} from './apply-codemod';
 import {checkIfTypeScriptFile} from './can-update-default-props';
+import {downloadRemoteAssetBytes} from './download-remote-asset';
 import {
 	getElementInstallPlan,
 	validateElementInstallPosition,
@@ -57,7 +70,7 @@ const hasExpectedFileState = ({
 export const insertElementHandler: ApiHandler<
 	InsertElementRequest,
 	InsertElementResponse
-> = ({
+> = async ({
 	input: {
 		compositionFile,
 		compositionId,
@@ -73,8 +86,35 @@ export const insertElementHandler: ApiHandler<
 	entryPoint,
 	remotionRoot,
 	logLevel,
-}) =>
-	withSourceFileWriteQueue(async () => {
+	publicDir,
+}) => {
+	let resolvedAssets: Array<{contents: Uint8Array; path: string}>;
+	try {
+		StudioProtocolInternals.assertElementAssets(element.assets);
+		StudioProtocolInternals.assertElementAssetReferences(element);
+		resolvedAssets = await StudioProtocolInternals.resolveElementAssets({
+			assets: element.assets,
+			downloadAsset: (options) =>
+				downloadRemoteAssetBytes({...options, acceptHeader: null}),
+		});
+	} catch (err) {
+		return {
+			success: false,
+			type: 'error',
+			reason: (err as Error).message,
+			stack: (err as Error).stack ?? '',
+		};
+	}
+
+	return withSourceFileWriteQueue(async () => {
+		const createdAssets: Array<{absolutePath: string; contents: Uint8Array}> =
+			[];
+		const changedSources: Array<{
+			filePath: string;
+			newContents: string;
+			oldContents: string | null;
+		}> = [];
+		let undoEntryPushed = false;
 		try {
 			validateElementInstallPosition(position);
 			if (
@@ -171,13 +211,25 @@ export const insertElementHandler: ApiHandler<
 					registrationFilePath,
 					'utf-8',
 				);
-				const registrationFileNewContents = await applyCodemodToFile({
+				const codemodResult = await applyCodemodToFile({
 					filePath: registrationFilePath,
 					codeMod: newComposition.codemod,
 				});
-				const componentFileContents = await formatNewCompositionFile(
-					newComposition.codemod,
-				);
+				const registrationFileNewContents =
+					codemodResult.changes.find(
+						(change) => change.filePath === registrationFilePath,
+					)?.nextContents ?? registrationFileOldContents;
+				const componentFileContents = codemodResult.changes.find(
+					(change) => change.filePath === componentFilePath,
+				)?.nextContents;
+
+				if (
+					componentFileContents === null ||
+					componentFileContents === undefined
+				) {
+					throw new Error('Could not create the composition component');
+				}
+
 				compositionCreation = {
 					componentFileContents,
 					componentFilePath,
@@ -351,6 +403,56 @@ export const insertElementHandler: ApiHandler<
 				);
 			}
 
+			const assetsToCreate: Array<{
+				absolutePath: string;
+				contents: Uint8Array;
+			}> = [];
+			for (const asset of resolvedAssets) {
+				const absolutePath = path.resolve(publicDir, ...asset.path.split('/'));
+				assertNoSymlinks({
+					absolutePath,
+					rootDirectory: path.resolve(publicDir),
+				});
+				if (existsSync(absolutePath)) {
+					if (!lstatSync(absolutePath).isFile()) {
+						throw new Error(
+							`Asset ${asset.path} already exists and is not a file`,
+						);
+					}
+
+					if (!readFileSync(absolutePath).equals(asset.contents)) {
+						throw new Error(
+							`Asset ${asset.path} already exists with different contents`,
+						);
+					}
+				} else {
+					assetsToCreate.push({absolutePath, contents: asset.contents});
+				}
+			}
+
+			for (const asset of assetsToCreate) {
+				const fileDescriptor = openFileForWritingWithoutSymlinks({
+					absolutePath: asset.absolutePath,
+					exclusive: true,
+					rootDirectory: publicDir,
+				});
+				try {
+					writeFileSync(fileDescriptor, asset.contents);
+				} catch (error) {
+					closeSync(fileDescriptor);
+					try {
+						unlinkSync(asset.absolutePath);
+					} catch {
+						// Keep the original write error.
+					}
+
+					throw error;
+				}
+
+				closeSync(fileDescriptor);
+				createdAssets.push(asset);
+			}
+
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[
 					{
@@ -360,6 +462,31 @@ export const insertElementHandler: ApiHandler<
 				],
 				null,
 			);
+
+			const writeSource = ({
+				content,
+				file,
+				metadata,
+			}: {
+				content: string;
+				file: string;
+				metadata: {skipSequencePropsUpdate: true} | null;
+			}) => {
+				const oldContents = existsSync(file)
+					? readFileSync(file, 'utf8')
+					: null;
+				changedSources.push({
+					filePath: file,
+					newContents: content,
+					oldContents,
+				});
+				writeFileAndNotifyFileWatchers({
+					file,
+					content,
+					originatorClientId: undefined,
+					metadata,
+				});
+			};
 
 			pushTransactionToUndoStack({
 				snapshots: [
@@ -411,6 +538,7 @@ export const insertElementHandler: ApiHandler<
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation,
 			});
+			undoEntryPushed = true;
 			if (compositionCreation !== null) {
 				suppressUndoStackInvalidation(compositionCreation.registrationFilePath);
 			}
@@ -422,27 +550,24 @@ export const insertElementHandler: ApiHandler<
 			suppressUndoStackInvalidation(inserted.fileName);
 
 			if (compositionCreation !== null) {
-				writeFileAndNotifyFileWatchers({
+				writeSource({
 					file: compositionCreation.registrationFilePath,
 					content: compositionCreation.registrationFileNewContents,
-					originatorClientId: undefined,
 					metadata: null,
 				});
 			}
 
 			if (shouldWriteElementFile) {
-				writeFileAndNotifyFileWatchers({
+				writeSource({
 					file: plan.elementFileName,
 					content: element.sourceCode,
-					originatorClientId: undefined,
 					metadata: null,
 				});
 			}
 
-			writeFileAndNotifyFileWatchers({
+			writeSource({
 				file: inserted.fileName,
 				content: inserted.output,
-				originatorClientId: undefined,
 				metadata: {skipSequencePropsUpdate: true},
 			});
 
@@ -486,6 +611,41 @@ export const insertElementHandler: ApiHandler<
 
 			return {success: true, nodePathMutation};
 		} catch (err) {
+			if (undoEntryPushed) {
+				discardLastUndoEntryAfterFailedCommit();
+			}
+
+			for (const source of changedSources.reverse()) {
+				try {
+					if (readFileSync(source.filePath, 'utf8') !== source.newContents) {
+						continue;
+					}
+
+					if (source.oldContents === null) {
+						unlinkSync(source.filePath);
+					} else {
+						writeFileAndNotifyFileWatchers({
+							file: source.filePath,
+							content: source.oldContents,
+							originatorClientId: undefined,
+							metadata: null,
+						});
+					}
+				} catch {
+					// Preserve subsequent user changes and the original installation error.
+				}
+			}
+
+			for (const asset of createdAssets.reverse()) {
+				try {
+					if (readFileSync(asset.absolutePath).equals(asset.contents)) {
+						unlinkSync(asset.absolutePath);
+					}
+				} catch {
+					// Preserve subsequent user changes and the original installation error.
+				}
+			}
+
 			return {
 				success: false,
 				type: 'error',
@@ -494,3 +654,4 @@ export const insertElementHandler: ApiHandler<
 			};
 		}
 	});
+};

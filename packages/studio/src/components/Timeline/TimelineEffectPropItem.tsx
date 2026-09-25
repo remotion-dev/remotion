@@ -26,7 +26,10 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
-import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
@@ -44,7 +47,10 @@ import {
 	TimelineNonEditableStatus,
 	UnsupportedStatus,
 } from './TimelineSchemaField';
-import {useTimelineRowSelection} from './TimelineSelection';
+import {
+	useTimelineRowContainsSelection,
+	useTimelineRowSelection,
+} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -389,12 +395,16 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
+	readonly propStatus: CanUpdateSequencePropStatus | null;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	nodePath,
 	validatedLocation,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
+	propStatus,
 	runtimeValueStore,
 }) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -404,7 +414,12 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 			field={field}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
-			sourceFrame={timelinePosition - keyframeDisplayOffset}
+			sourceFrame={getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+				propStatus,
+			})}
 			runtimeValueStore={runtimeValueStore}
 		/>
 	);
@@ -417,6 +432,7 @@ export const TimelineEffectPropItem: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 	readonly revealInInspector: boolean;
 	readonly runtimeValueStore: RuntimeValueStore | null;
@@ -427,6 +443,7 @@ export const TimelineEffectPropItem: React.FC<{
 	nodePath,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 	revealInInspector,
 	runtimeValueStore,
@@ -441,6 +458,7 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const style = useMemo((): React.CSSProperties => {
 		return field.typeName === 'text-content'
 			? fieldRowBase
@@ -464,6 +482,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	const dragOverrideValue = useMemo(() => {
@@ -490,6 +509,7 @@ export const TimelineEffectPropItem: React.FC<{
 				nodePath={nodePath}
 				fileName={validatedLocation.source}
 				keyframeDisplayOffset={keyframeDisplayOffset}
+				keyframePlaybackRate={keyframePlaybackRate}
 				defaultValue={field.fieldSchema.default}
 				dragOverrideValue={dragOverrideValue}
 				schema={field.effectSchema}
@@ -618,19 +638,21 @@ export const TimelineEffectPropItem: React.FC<{
 			onSelect={selection.onSelect}
 			onDoubleClick={onPropertyDoubleClick}
 			showSelectedBackground
-			containsSelection={false}
+			containsSelection={containsSelection}
 			outerHeight={null}
 		>
 			<TimelineFieldRowContent
 				field={field}
 				rowDepth={rowDepth}
-				selected={selection.selected}
+				selected={selection.selected || containsSelection}
 			>
 				<TimelineEffectPropValueAtCurrentFrame
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					keyframeDisplayOffset={resolvedKeyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
+					propStatus={propStatus}
 					runtimeValueStore={runtimeValueStore}
 				/>
 			</TimelineFieldRowContent>

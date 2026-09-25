@@ -14,36 +14,38 @@ let processJob: ((job: VideoMattingJob) => Promise<void>) | null = null;
 mock.module('@remotion/video-matting', () => ({
 	canUseVideoMatting: () => Promise.resolve({supported: true}),
 	isVideoMattingModelCached: () => Promise.resolve(false),
-	loadVideoMattingModel: ({
+	downloadVideoMattingModel: ({
 		onProgress,
 	}: {
 		onProgress: (progress: {progress: number}) => void;
 	}) => {
-		calls.push('load-model');
+		calls.push('download-model');
 		onProgress({progress: 1});
+		return Promise.resolve({alreadyDownloaded: false});
+	},
+	loadVideoMattingModel: () => {
+		calls.push('load-model');
 		return Promise.resolve({alreadyLoaded: false});
 	},
-	separateVideoLayers: ({
-		onProgress,
-	}: {
-		onProgress: (progress: {
-			stage: string;
-			progress: number;
-			processedFrames: number;
-		}) => void;
-	}) => {
-		calls.push('separate');
-		onProgress({stage: 'processing', progress: 0.5, processedFrames: 42});
-		return Promise.resolve({
-			base: {
-				getBlob: () => Promise.resolve(new Blob(['base'])),
-				dispose: () => Promise.resolve(),
-			},
-			foreground: {
-				getBlob: () => Promise.resolve(new Blob(['foreground'])),
-				dispose: () => Promise.resolve(),
-			},
-		});
+	VideoMattingInternals: {
+		removeVideoBackground: ({
+			onProgress,
+		}: {
+			onProgress: (progress: {
+				stage: string;
+				progress: number;
+				processedFrames: number;
+			}) => void;
+		}) => {
+			calls.push('remove-background');
+			onProgress({stage: 'processing', progress: 0.5, processedFrames: 42});
+			return Promise.resolve({
+				video: {
+					getBlob: () => Promise.resolve(new Blob(['video'])),
+					dispose: () => Promise.resolve(),
+				},
+			});
+		},
 	},
 	disposeVideoMattingModel: () => {
 		calls.push('dispose-model');
@@ -57,7 +59,7 @@ afterEach(() => {
 	processJob = null;
 });
 
-test('loads the model, separates the layers and writes both outputs', async () => {
+test('writes the transparent video and replaces the selected video source', async () => {
 	const originalBrowserStudio = Object.getOwnPropertyDescriptor(
 		window,
 		'remotion_browserStudio',
@@ -65,6 +67,13 @@ test('loads the model, separates the layers and writes both outputs', async () =
 	Object.defineProperty(window, 'remotion_browserStudio', {
 		configurable: true,
 		value: makeBrowserStudioOperations({
+			replaceVideoSource: ({src, fileName, nodePath}) => {
+				calls.push(`replace:${fileName}:${nodePath.join('.')}:${src}`);
+				return Promise.resolve({
+					success: true,
+					nodePathMutation: {} as never,
+				});
+			},
 			writeStaticFile: ({filePath}) => {
 				calls.push(`write:${filePath}`);
 				return Promise.resolve();
@@ -75,6 +84,7 @@ test('loads the model, separates the layers and writes both outputs', async () =
 	let done = false;
 	let failed: Error | null = null;
 	const value = {
+		getAbortController: () => new AbortController(),
 		setProcessVideoMattingJobCallback: (callback: typeof processJob) => {
 			processJob = callback;
 		},
@@ -87,6 +97,7 @@ test('loads the model, separates the layers and writes both outputs', async () =
 		markVideoMattingJobDone: () => {
 			done = true;
 		},
+		markVideoMattingJobSaving: () => undefined,
 		markVideoMattingJobFailed: (_id: string, error: Error) => {
 			failed = error;
 		},
@@ -109,10 +120,19 @@ test('loads the model, separates the layers and writes both outputs', async () =
 			startedAt: 1,
 			src: '/input.webm',
 			displayName: 'input.webm',
-			baseOutName: 'input-base.webm',
-			foregroundOutName: 'input-foreground.webm',
+			outName: 'input-no-background.webm',
 			model: 'modnet',
-			audio: 'base',
+			audio: 'keep',
+			target: {
+				fileName: '/project/Composition.tsx',
+				nodePath: {
+					absolutePath: '/project/Composition.tsx',
+					effectKeys: [],
+					nodePath: ['Comp', 0],
+					sequenceKeys: [],
+					videoConfigValues: null,
+				},
+			},
 			videoBitrate: 'very-high',
 		}),
 	);
@@ -120,10 +140,11 @@ test('loads the model, separates the layers and writes both outputs', async () =
 	expect(failed).toBeNull();
 	expect(done).toBe(true);
 	expect(calls).toEqual([
+		'download-model',
 		'load-model',
-		'separate',
-		'write:input-base.webm',
-		'write:input-foreground.webm',
+		'remove-background',
+		'write:input-no-background.webm',
+		'replace:/project/Composition.tsx:Comp.0:input-no-background.webm',
 		'dispose-model',
 	]);
 	expect(progress).toContainEqual({
@@ -133,7 +154,7 @@ test('loads the model, separates the layers and writes both outputs', async () =
 	});
 	expect(progress).toContainEqual({
 		detail: 'Processed 42 frames · 50%',
-		message: 'Separating foreground...',
+		message: 'Removing background...',
 		value: 0.525,
 	});
 	if (originalBrowserStudio) {

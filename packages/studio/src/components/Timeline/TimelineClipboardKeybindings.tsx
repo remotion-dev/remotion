@@ -947,7 +947,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 							const nextSelection = getTimelineSelectionAfterDeletingItems({
 								selections: selectedItems,
-								propStatuses,
 							});
 							if (nextSelection.length === 0) {
 								clearSelection();

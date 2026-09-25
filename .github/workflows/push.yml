@@ -193,6 +193,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: packages/lambda-go/go.mod
+          cache-dependency-path: packages/lambda-go/go.sum
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -286,6 +287,8 @@ jobs:
           bun run checkskills
       - name: Test CI planning contract
         run: bun test ./.github/scripts/ci.test.ts
+      - name: Check docs version headings
+        run: bun .github/scripts/check-docs-available-from.ts
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     needs: affected

@@ -44,7 +44,7 @@ export const OpenIssueButton: React.FC<{link: string}> = ({link}) => {
 
 	return (
 		<button
-			title={buttonTooltip}
+			aria-label={buttonTooltip}
 			type="button"
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}

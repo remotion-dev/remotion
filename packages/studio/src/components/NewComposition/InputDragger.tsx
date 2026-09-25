@@ -5,7 +5,7 @@ import type {
 } from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
-import {BLUE, TRANSPARENT} from '../../helpers/colors';
+import {BLUE, BLUE_HOVERED, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {
 	isPointerSessionRelease,
@@ -20,7 +20,7 @@ import {
 import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
+type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'title'> & {
 	readonly onValueChange: (newVal: number, source: 'input' | 'drag') => void;
 	readonly onValueChangeEnd?: (
 		newVal: number,
@@ -36,6 +36,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly allowStepMismatch?: boolean;
+	readonly integerOnly?: boolean;
 	readonly snapToStep?: boolean;
 	readonly dragDecimalPlaces?: number;
 	readonly dragSensitivity?: number;
@@ -332,11 +333,13 @@ export const validateInputDraggerValue = ({
 	min,
 	step,
 	value,
+	integerOnly = false,
 }: {
 	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
 	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
 	readonly step: React.InputHTMLAttributes<HTMLInputElement>['step'];
 	readonly value: string;
+	readonly integerOnly?: boolean;
 }): InputDraggerValidationResult => {
 	const parsed = parseInputDraggerNumber(value);
 	if (parsed === null) {
@@ -359,6 +362,13 @@ export const validateInputDraggerValue = ({
 		return {
 			valid: false,
 			message: `Value must be less than or equal to ${numericMax}.`,
+		};
+	}
+
+	if (integerOnly && !Number.isInteger(parsed)) {
+		return {
+			valid: false,
+			message: 'Value must be an integer.',
 		};
 	}
 
@@ -508,6 +518,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		rightAlign,
 		small,
 		allowStepMismatch = false,
+		integerOnly = false,
 		snapToStep = true,
 		dragDecimalPlaces,
 		dragSensitivity = 1,
@@ -527,11 +538,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			step: _step,
 		});
 	}, [_min, _step, snapToStep]);
-	const validationStep = allowStepMismatch ? 'any' : deriveStep;
+	const validationStep = allowStepMismatch || integerOnly ? 'any' : deriveStep;
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			color: dragging ? 'var(--remotion-cli-internals-blue-hovered)' : BLUE,
+			color: dragging ? BLUE_HOVERED : BLUE,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
@@ -589,6 +600,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			const parsed = parseInputDraggerNumber(e.target.value);
 			if (
 				parsed !== null &&
+				(!integerOnly || Number.isInteger(parsed)) &&
 				isInputDraggerValueInRange({
 					max: _max,
 					min: _min,
@@ -598,7 +610,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				onValueChange(parsed, 'input');
 			}
 		},
-		[_max, _min, onValueChange],
+		[_max, _min, integerOnly, onValueChange],
 	);
 
 	const onBlur = useCallback(() => {
@@ -617,6 +629,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			min: _min,
 			step: validationStep,
 			value: newValue,
+			integerOnly,
 		});
 
 		if (validation.valid) {
@@ -628,7 +641,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			fallbackRef.current.setCustomValidity(validation.message);
 			fallbackRef.current.reportValidity();
 		}
-	}, [_max, _min, onEscape, onValueChangeEnd, validationStep]);
+	}, [_max, _min, integerOnly, onEscape, onValueChangeEnd, validationStep]);
 
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
@@ -655,19 +668,26 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 						min: _min,
 						value,
 					});
-				const nextValue = deriveInputDraggerArrowValue({
+				const steppedValue = deriveInputDraggerArrowValue({
 					direction: e.key === 'ArrowUp' ? 1 : -1,
 					max: _max,
 					min: _min,
 					step: deriveStep,
 					value: currentValue,
 				});
+				const nextValue = integerOnly ? Math.round(steppedValue) : steppedValue;
+				if (
+					integerOnly &&
+					!isInputDraggerValueInRange({max: _max, min: _min, value: nextValue})
+				) {
+					return;
+				}
 
 				e.currentTarget.value = String(nextValue);
 				e.currentTarget.setCustomValidity('');
 				onValueChange(nextValue, 'input');
 			},
-			[_max, _min, deriveStep, onValueChange, value],
+			[_max, _min, deriveStep, integerOnly, onValueChange, value],
 		);
 
 	const roundToStep = (val: number, stepSize: number) => {
@@ -713,11 +733,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					xDistance,
 				});
 				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
-				const nextValue = snapToStep
+				const steppedValue = snapToStep
 					? roundToStep(newValue, step)
 					: dragDecimalPlaces === undefined
 						? newValue
 						: roundToDecimalPlaces(newValue, dragDecimalPlaces);
+				const nextValue = integerOnly ? Math.round(steppedValue) : steppedValue;
+				if (
+					integerOnly &&
+					!isInputDraggerValueInRange({max: _max, min: _min, value: nextValue})
+				) {
+					return;
+				}
+
 				lastDragValue = nextValue;
 				onValueChange(nextValue, 'drag');
 			};
@@ -746,6 +774,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			_min,
 			_max,
 			value,
+			integerOnly,
 			onValueChange,
 			onValueChangeEnd,
 			snapToStep,
@@ -797,7 +826,6 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			aria-label={props['aria-label']}
-			title={props.title}
 			className={'__remotion_input_dragger'}
 			style={
 				buttonStyle

@@ -1,7 +1,6 @@
 import {Audio} from '@remotion/media';
 import {
 	AbsoluteFill,
-	Sequence,
 	interpolate,
 	spring,
 	useCurrentFrame,
@@ -80,9 +79,11 @@ export const AnimatedList: React.FC<AnimatedListProps> = ({title, items}) => {
 						}}
 					>
 						{!isImmediate && (
-							<Sequence from={item.appearFrame} layout="none">
-								<Audio src={assetUrl('list-item-sfx.m4a')} volume={0.8} />
-							</Sequence>
+							<Audio
+								from={item.appearFrame}
+								src={assetUrl('list-item-sfx.m4a')}
+								volume={0.8}
+							/>
 						)}
 						{item.label}
 					</div>

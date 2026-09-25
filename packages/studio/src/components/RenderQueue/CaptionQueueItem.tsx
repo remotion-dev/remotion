@@ -27,6 +27,10 @@ import {
 	renderQueueItemSubtitleStyle,
 	RENDER_QUEUE_ITEM_SELECTED_CLASSNAME,
 } from './item-style';
+import {QueueJobError} from './QueueJobError';
+import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
+import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
+import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {SuccessIcon} from './SuccessIcon';
 
 const container: React.CSSProperties = {
@@ -76,7 +80,7 @@ const removeIcon: React.CSSProperties = {
 };
 
 const CaptionJobStatus: React.FC<{readonly job: CaptionJob}> = ({job}) => {
-	if (job.status === 'running') {
+	if (job.status === 'running' || job.status === 'saving') {
 		return (
 			<div
 				style={statusIcon}
@@ -96,7 +100,7 @@ const CaptionJobStatus: React.FC<{readonly job: CaptionJob}> = ({job}) => {
 		return <SuccessIcon />;
 	}
 
-	if (job.status === 'failed') {
+	if (job.status === 'failed' || job.status === 'cancelled') {
 		return (
 			<svg style={statusIcon} viewBox="0 0 512 512">
 				<path
@@ -195,8 +199,12 @@ export const CaptionQueueItem: React.FC<{
 			return 'Queued for transcription';
 		}
 
-		if (job.status === 'running') {
+		if (job.status === 'running' || job.status === 'saving') {
 			return job.progress.message;
+		}
+
+		if (job.status === 'cancelled') {
+			return 'Cancelled';
 		}
 
 		if (job.status === 'failed') {
@@ -221,13 +229,29 @@ export const CaptionQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.displayName}</div>
 				<div style={subtitleContainer}>
-					<span style={subtitle} title={message}>
-						{message}
-					</span>
+					{job.status === 'cancelled' ? (
+						<RenderQueueCancelledMessage />
+					) : job.status === 'failed' ? (
+						<QueueJobError
+							error={job.error}
+							modalTitle="Transcription failed"
+						/>
+					) : (
+						<span role="group" style={subtitle} aria-label={message}>
+							{message}
+						</span>
+					)}
 				</div>
 			</div>
 			<Spacing x={1} />
-			{job.status === 'running' ? null : (
+			{job.status === 'done' ||
+			job.status === 'failed' ||
+			job.status === 'cancelled' ? (
+				<RenderQueueRepeatItem job={job} />
+			) : null}
+			{job.status === 'running' ? (
+				<RenderQueueCancelButton job={job} />
+			) : job.status === 'saving' ? null : (
 				<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
 					<InlineAction
 						renderAction={renderRemoveAction}

@@ -141,14 +141,18 @@ describe('video layer output targets', () => {
 		});
 
 		await created.output.start();
-		const result = await created.finalize();
-		const blob = await result.getBlob();
-		const [filename, file] = [...files.entries()][0];
+		let filename: string;
+		{
+			await using result = await created.finalize();
+			const blob = await result.getBlob();
+			const [name, file] = [...files.entries()][0];
+			filename = name;
 
-		expect(file.closed).toBe(true);
-		expect(file.seekPositions.length).toBeGreaterThan(0);
-		expect(blob.size).toBeGreaterThan(0);
-		await result.dispose();
+			expect(file.closed).toBe(true);
+			expect(file.seekPositions.length).toBeGreaterThan(0);
+			expect(blob.size).toBeGreaterThan(0);
+		}
+
 		expect(files.size).toBe(0);
 		expect(removedNames.at(-1)).toBe(filename);
 	});

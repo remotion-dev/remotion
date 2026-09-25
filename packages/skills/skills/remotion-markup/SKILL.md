@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.526
+version: 4.0.529
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -222,6 +222,10 @@ See [text-highlights.md](text-highlights.md) for text highlights (highlight mark
 
 See [multi-scene-video.md](multi-scene-video.md) if planning to make a video with multiple subsequent scenes.
 
+## Connected compositions
+
+When a scene or group of layers deserves its own editable timeline, follow [connected-compositions.md](connected-compositions.md). Prefer this structure for substantial scenes in a multi-scene video.
+
 ## Voiceover
 
 See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
@@ -245,6 +249,10 @@ See [cropping.md](cropping.md) if needing to crop the visible rectangle of a com
 ## Transitions
 
 See [transitions.md](transitions.md) for scene transition patterns.
+
+## Motion blur
+
+When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.md) for the preferred HTML-in-canvas approach, preview requirements, and alternatives.
 
 ## Visual and pixel effects
 
@@ -327,7 +335,7 @@ See [calculate-metadata.md](calculate-metadata.md) for dynamically set compositi
 
 ## Advanced compositions
 
-See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions.
+See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions. For Studio navigation into a scene's own timeline, use [connected compositions](connected-compositions.md).
 
 ## Advanced sequencing
 
@@ -343,23 +351,8 @@ npx remotion add @remotion/media
 
 This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and `@huggingface/transformers`.
 
-## Previewing markup
+## Visual checks
 
-```
-npx remotion studio --no-open
-```
+When a visual check is useful, open the [Remotion Studio](../remotion-studio/SKILL.md) for an interactive preview.
 
-This will start a long-running process and print the server URL for the preview.  
-If server is already started, it will print the URL.
-You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
-
-## Optional: one-frame render check
-
-You can render a single frame with the CLI to sanity-check layout, colors, or timing.  
-Skip it for trivial edits, pure refactors, or when you already have enough confidence from Studio or prior renders.
-
-```bash
-npx remotion still [composition-id] --scale=0.25 --frame=30
-```
-
-At 30 fps, `--frame=30` is the one-second mark (`--frame` is zero-based).
+You can also use [Rendering](../remotion-render/SKILL.md) to inspect one or several frames as images.

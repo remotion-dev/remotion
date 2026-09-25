@@ -1,15 +1,37 @@
 import type {LayerSpecification} from '@maptiler/sdk';
-import {useContext, useEffect, useRef} from 'react';
-import {useDelayRender} from 'remotion';
+import {useContext, useEffect, useRef, useMemo} from 'react';
+import {
+	Freeze,
+	Sequence,
+	Internals,
+	useDelayRender,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+} from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
 
-export type MapLayerProps = {
-	readonly beforeId?: string;
-	readonly layer: LayerSpecification;
-};
+export type MapLayerProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly beforeId?: string;
+		readonly layer: LayerSpecification;
+	};
 
-export const MapLayer = ({beforeId, layer}: MapLayerProps) => {
+const MapLayerContent = ({beforeId, layer: passedLayer}: MapLayerProps) => {
 	const {map, styleRevision} = useContext(MapTilerContext);
+	const sequence = useContext(Internals.SequenceContext);
+	const isPremountingOrPostmounting = Boolean(
+		sequence?.premounting || sequence?.postmounting,
+	);
+	const layer = useMemo(
+		(): LayerSpecification =>
+			isPremountingOrPostmounting
+				? {
+						...passedLayer,
+						layout: {...passedLayer.layout, visibility: 'none'},
+					}
+				: passedLayer,
+		[isPremountingOrPostmounting, passedLayer],
+	);
 	const previousLayerRef = useRef<LayerSpecification | null>(null);
 	const {continueRender, delayRender} = useDelayRender();
 
@@ -119,4 +141,58 @@ export const MapLayer = ({beforeId, layer}: MapLayerProps) => {
 	}, [layer.id, map]);
 
 	return null;
+};
+
+export const MapLayer = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	...props
+}: MapLayerProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
+
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline ?? false}
+				name={name ?? '<MapLayer>'}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapLayerContent {...props} />
+			</Sequence>
+		</Freeze>
+	);
 };

@@ -37,9 +37,9 @@ export {
 	DeleteEffectRequest,
 	DeleteEffectRequestItem,
 	DeleteEffectResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeRequestItem,
-	DeleteJsxNodeResponse,
+	DeleteJsxNodesRequest,
+	DeleteJsxNodesRequestItem,
+	DeleteJsxNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteSequenceKeyframe,
@@ -53,6 +53,9 @@ export {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeRequestItem,
 	DuplicateJsxNodeResponse,
+	JsxWrapper,
+	WrapJsxNodeRequest,
+	WrapJsxNodeResponse,
 	EditorPickerId,
 	EffectDefinition,
 	ElementInstallDestination,
@@ -75,6 +78,8 @@ export {
 	InsertElementFileConflict,
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
@@ -133,6 +138,7 @@ export {
 	SaveSequencePropsResult,
 	SimpleDiff,
 	SplitJsxSequenceRequest,
+	SplitJsxSequenceRequestItem,
 	SplitJsxSequenceResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
@@ -426,3 +432,5 @@ export {
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
 export {isUrl} from './url';
+
+export {emptyCompositionComponent} from './empty-composition-component';

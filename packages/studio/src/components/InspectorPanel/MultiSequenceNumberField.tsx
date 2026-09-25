@@ -101,19 +101,21 @@ const NumericAxis: React.FC<{
 		>
 			<InputDragger
 				type="number"
+				aria-description="Type to set all values; drag to adjust each value"
 				value={dragValue ?? coordinates[0]}
 				aria-label={
 					axis === null
 						? (field.description ?? field.key)
 						: `Offset ${['X', 'Y', 'Z'][axis]}`
 				}
-				title="Type to set all values; drag to adjust each value"
 				status="ok"
 				small
 				rightAlign={false}
 				min={min}
 				max={max}
 				step={step}
+				allowStepMismatch
+				integerOnly={schema.type === 'number' && schema.integer === true}
 				snapToStep={axis === null}
 				dragDecimalPlaces={decimalPlaces}
 				dragSensitivity={axis === null ? 1 : 3}

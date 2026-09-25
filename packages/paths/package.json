@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/paths"
 	},
 	"name": "@remotion/paths",
-	"version": "4.0.526",
+	"version": "4.0.529",
 	"description": "Utilities for working with SVG paths",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -29,6 +29,9 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@typescript/native-preview": "catalog:"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
 	},
 	"exports": {
 		"./package.json": "./package.json",

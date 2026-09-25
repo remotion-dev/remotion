@@ -247,7 +247,7 @@ export const loadCompositionComponentInfo = async ({
 						}
 
 						const {resolveCompositionComponentLocation} =
-							await import('@remotion/studio-codemods/resolve-composition-component-location');
+							await import('@remotion/codemods/resolve-composition-component-location');
 						return {
 							canAddSequence: false,
 							location: resolveCompositionComponentLocation({

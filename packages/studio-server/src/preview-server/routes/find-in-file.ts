@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {findSearchPosition} from '@remotion/studio-codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import type {
 	FindInFileRequest,
 	FindInFileResponse,
 } from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
 
-export {findSearchPosition} from '@remotion/studio-codemods';
+export const {findSearchPosition} = CodemodsInternals;
 
 export const findInFileHandler: ApiHandler<
 	FindInFileRequest,

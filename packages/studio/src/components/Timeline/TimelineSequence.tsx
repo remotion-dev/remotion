@@ -1,7 +1,5 @@
-import {
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
+import type {TimelineTrackData} from '@remotion/canvas';
 import React, {
 	useCallback,
 	useContext,
@@ -47,6 +45,7 @@ import {AudioWaveform} from '../AudioWaveform';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -59,6 +58,7 @@ import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
@@ -67,6 +67,7 @@ import {
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -89,8 +90,10 @@ import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
+const {getTimelineVisibleDuration, getTimelineVisibleStart} = CanvasInternals;
+
 const TimelineSequenceFn: React.FC<{
-	readonly s: TSequence;
+	readonly s: TimelineTrackData['sequence'];
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
@@ -225,6 +228,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	useTimelineMarqueeSelectableItem(selectionItem, ref);
 
 	const onPointerDown = useCallback(
@@ -254,7 +258,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	);
 	const frame = useCurrentFrame();
 	const relativeFrame = frame - s.from;
-	const sequenceFrame = relativeFrame + sequenceFrameOffset;
+	const sequenceFrame =
+		relativeFrame * s.sequencePlaybackRate + sequenceFrameOffset;
 	const relativeFrameWithPremount = relativeFrame + (s.premountDisplay ?? 0);
 	const relativeFrameWithPostmount = relativeFrame - displayDurationInFrames;
 
@@ -279,9 +284,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			...style,
 			background: negativeStart ? TRANSPARENT : style.background,
 			border: negativeStart ? 'none' : style.border,
-			opacity: selected || isAsset ? 1 : 0.75,
+			opacity: selected || containsSelection || isAsset ? 1 : 0.75,
 		};
-	}, [isAsset, negativeStart, selected, style]);
+	}, [containsSelection, isAsset, negativeStart, selected, style]);
 
 	const content = (
 		<>
@@ -350,9 +355,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	return (
 		<div
 			ref={ref}
+			role="group"
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
-			title={s.displayName}
+			aria-label={s.displayName}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
@@ -415,7 +421,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 };
 
 const TimelineSequenceInner: React.FC<{
-	readonly s: TSequence;
+	readonly s: TimelineTrackData['sequence'];
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -437,6 +443,9 @@ const TimelineSequenceInner: React.FC<{
 
 	const video = Internals.useVideo();
 	const {sequences} = useContext(Internals.SequenceManager);
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
+	);
 	const renderWindow = useContext(TimelineViewportContext);
 	const mediaDurationDragLimitsRegistry = useContext(
 		TimelineSequenceMediaDurationDragLimitsContext,
@@ -450,6 +459,21 @@ const TimelineSequenceInner: React.FC<{
 		s.type === 'audio' || s.type === 'video' ? s.src : null,
 	);
 	const extendVideoLastFrame = isVideoWithLastFrameHold(s);
+	const mediaStartFrame =
+		s.type === 'audio' || s.type === 'video'
+			? getTimelineMediaStartFrame({
+					startMediaFrom: s.startMediaFrom,
+					mediaFrameAtSequenceZero: s.mediaFrameAtSequenceZero,
+					sequenceFrameOffset,
+					playbackRate: s.playbackRate,
+				})
+			: 0;
+	const mediaLoopStartFrame =
+		mediaStartFrame -
+		(s.loopDisplay?.mediaOffsetInFrames ?? 0) *
+			(s.type === 'audio' || s.type === 'video'
+				? s.playbackRate * s.sequencePlaybackRate
+				: 0);
 	const naturalMediaDuration =
 		(s.type === 'audio' || s.type === 'video') &&
 		mediaMetadata !== null &&
@@ -463,7 +487,7 @@ const TimelineSequenceInner: React.FC<{
 							sequenceFrameOffset,
 							playbackRate: s.playbackRate,
 						})) /
-						s.playbackRate,
+						(s.playbackRate * s.sequencePlaybackRate),
 				)
 			: null;
 	const maxMediaDuration =
@@ -639,6 +663,26 @@ const TimelineSequenceInner: React.FC<{
 			() => undefined,
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
+	const onSplitSelectedSequences = useCallback(() => {
+		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+			return;
+		}
+
+		splitSelectedTimelineItems({
+			selections: selectedItems,
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+			propStatuses,
+			splitFrame: getCurrentFrame(),
+		})?.catch(() => undefined);
+	}, [
+		overrideIdToNodePathMappingsRef,
+		previewInteractive,
+		propStatuses,
+		selectedItems,
+		selectedSequenceNodePathInfos,
+		sequences,
+	]);
 	const onDeleteSequenceFromSource = useCallback(() => {
 		if (
 			!validatedLocation?.source ||
@@ -705,8 +749,10 @@ const TimelineSequenceInner: React.FC<{
 			return getMultiSequenceContextMenuItems({
 				deleteDisabled: !previewInteractive,
 				duplicateDisabled: !previewInteractive,
+				splitDisabled: !previewInteractive,
 				onDeleteSelectedSequences,
 				onDuplicateSelectedSequences,
+				onSplitSelectedSequences,
 			});
 		}
 
@@ -788,6 +834,7 @@ const TimelineSequenceInner: React.FC<{
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onDuplicateSelectedSequences,
+		onSplitSelectedSequences,
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,
@@ -939,7 +986,10 @@ const TimelineSequenceInner: React.FC<{
 				displayDurationInFrames: s.duration,
 				displayStart: s.from,
 				effectiveMaxMediaDuration,
-				explicitDurationInFrames,
+				explicitDurationInFrames:
+					explicitDurationInFrames === null
+						? null
+						: explicitDurationInFrames / s.sequencePlaybackRate,
 				hasImplicitDuration: hasImplicitMediaDuration,
 				naturalMediaDuration,
 				timelineDurationInFrames: video.durationInFrames,
@@ -1061,9 +1111,12 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceLeftEdgeDragHandle
+							cursor={isCascadingSequence(s) ? 'ew-resize' : 'e-resize'}
 							nodePathInfo={nodePathInfo}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
+							initialEdgeFrame={s.from}
+							fps={video.fps}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}
 							onSelect={onSelect}
 							selected={selected}
@@ -1074,10 +1127,23 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
+							cursor={isCascadingSequence(s) ? 'ew-resize' : 'w-resize'}
 							nodePathInfo={nodePathInfo}
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
+							initialEdgeFrame={
+								s.from +
+								Math.max(
+									0,
+									Math.min(
+										displayDurationInFrames,
+										effectiveMaxMediaDuration ?? Infinity,
+										video.durationInFrames - s.from,
+									),
+								)
+							}
+							fps={video.fps}
 							onDragEnd={dragAwareDoubleClick.endPointerGesture}
 							onSelect={onSelect}
 							selected={selected}
@@ -1094,13 +1160,14 @@ const TimelineSequenceInner: React.FC<{
 						doesVolumeChange={s.doesVolumeChange}
 						muted={s.muted}
 						visualizationWidth={visibleLayout.media.width}
-						startFrom={s.startMediaFrom}
+						startFrom={mediaLoopStartFrame}
 						durationInFrames={s.duration}
 						displayOffsetInFrames={mediaDisplayOffsetInFrames}
 						displayDurationInFrames={mediaDisplayDurationInFrames}
 						volume={s.volume}
-						playbackRate={s.playbackRate}
+						playbackRate={s.playbackRate * s.sequencePlaybackRate}
 						loopDisplay={s.loopDisplay}
+						loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
 					/>
 				</div>
 			) : null}
@@ -1111,14 +1178,15 @@ const TimelineSequenceInner: React.FC<{
 					displayOffsetInFrames={mediaDisplayOffsetInFrames}
 					displayDurationInFrames={mediaDisplayDurationInFrames}
 					startMediaFrom={s.startMediaFrom}
-					mediaFrameAtSequenceZero={s.mediaFrameAtSequenceZero}
-					sequenceFrameOffset={sequenceFrameOffset}
-					playbackRate={s.playbackRate}
+					mediaFrameAtSequenceZero={mediaLoopStartFrame}
+					sequenceFrameOffset={0}
+					playbackRate={s.playbackRate * s.sequencePlaybackRate}
 					volume={s.volume}
 					muted={s.muted}
 					doesVolumeChange={s.doesVolumeChange}
 					marginLeft={visibleLayout.media.left}
 					loopDisplay={s.loopDisplay}
+					loopDisplayOffsetInFrames={s.loopDisplay?.phaseOffsetInFrames ?? 0}
 					frozenMediaFrame={s.frozenMediaFrame}
 					extendLastFrame={extendVideoLastFrame}
 				/>
@@ -1134,6 +1202,9 @@ const TimelineSequenceInner: React.FC<{
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator
 					loops={s.loopDisplay.numberOfTimes}
+					phase={
+						s.loopDisplay.phaseOffsetInFrames / s.loopDisplay.durationInFrames
+					}
 					fullWidth={width}
 					visibleOffset={visibleLayout.cropLeft}
 					visibleWidth={visibleLayout.width}

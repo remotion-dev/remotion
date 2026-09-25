@@ -151,13 +151,29 @@ export const splitTimelineSequenceFromSource = ({
 	nodePathInfo: SequenceNodePathInfo;
 	splitFrame: number;
 }): Promise<boolean> => {
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	return splitTimelineSequencesFromSource({
+		sequences: [{nodePathInfo, splitFrame}],
+	});
+};
 
+export const splitTimelineSequencesFromSource = ({
+	sequences,
+}: {
+	sequences: Array<{
+		nodePathInfo: SequenceNodePathInfo;
+		splitFrame: number;
+	}>;
+}): Promise<boolean> => {
 	return splitJsxSequence({
-		fileName: nodePath.absolutePath,
-		nodePath: nodePath.nodePath,
-		sequenceKeys: nodePath.sequenceKeys,
-		splitFrame,
+		sequences: sequences.map(({nodePathInfo, splitFrame}) => {
+			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+			return {
+				fileName: nodePath.absolutePath,
+				nodePath: nodePath.nodePath,
+				sequenceKeys: nodePath.sequenceKeys,
+				splitFrame,
+			};
+		}),
 	})
 		.then((result) => {
 			if (result.success) {
@@ -173,70 +189,93 @@ export const splitTimelineSequenceFromSource = ({
 		});
 };
 
-export const shouldHandleTimelineDuplicateShortcut = ({
-	shiftKey,
-}: {
-	readonly shiftKey: boolean;
-}) => !shiftKey;
-
-export const shouldHandleTimelineSplitShortcut = ({
-	shiftKey,
-}: {
-	readonly shiftKey: boolean;
-}) => shiftKey;
-
 export const splitSelectedTimelineItems = ({
 	selections,
 	sequences,
 	overrideIdsToNodePaths,
 	propStatuses,
 	splitFrame,
-	splitSequence = splitTimelineSequenceFromSource,
+	splitSequences = splitTimelineSequencesFromSource,
+	notify = showNotification,
 }: {
 	selections: readonly TimelineSelection[];
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	propStatuses: PropStatuses | undefined;
 	splitFrame: number;
-	splitSequence?: (options: {
+	splitSequences?: (options: {
+		sequences: Array<{
+			nodePathInfo: SequenceNodePathInfo;
+			splitFrame: number;
+		}>;
+	}) => Promise<boolean>;
+	notify?: (message: string, durationInMs: number) => void;
+}): Promise<boolean> | null => {
+	if (
+		selections.length === 0 ||
+		selections.some((selection) => selection.type !== 'sequence')
+	) {
+		return null;
+	}
+
+	const eligible: Array<{
 		nodePathInfo: SequenceNodePathInfo;
 		splitFrame: number;
-	}) => Promise<boolean>;
-}): Promise<boolean> | null => {
-	if (selections.length !== 1) {
-		return null;
+	}> = [];
+	const skippedReasons: string[] = [];
+	for (const selection of selections) {
+		if (selection.type !== 'sequence') {
+			continue;
+		}
+
+		const track = findTrackForNodePathInfo({
+			sequences,
+			overrideIdsToNodePaths,
+			nodePathInfo: selection.nodePathInfo,
+		});
+		const sequencePropStatuses = propStatuses
+			? Internals.getPropStatusesCtx(
+					propStatuses,
+					selection.nodePathInfo.sequenceSubscriptionKey,
+				)
+			: undefined;
+		const eligibility = getTimelineSequenceSplitEligibility({
+			selection,
+			sequence: track?.sequence ?? null,
+			splitFrame,
+			propStatuses: sequencePropStatuses,
+		});
+		if (eligibility.canSplit) {
+			eligible.push({
+				nodePathInfo: eligibility.nodePathInfo,
+				splitFrame: track
+					? (splitFrame - track.keyframeDisplayOffset) *
+						track.keyframePlaybackRate
+					: splitFrame,
+			});
+		} else {
+			skippedReasons.push(eligibility.reason);
+		}
 	}
 
-	const [selection] = selections;
-	if (selection.type !== 'sequence') {
-		return null;
-	}
-
-	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
-		nodePathInfo: selection.nodePathInfo,
-	});
-	const sequencePropStatuses = propStatuses
-		? Internals.getPropStatusesCtx(
-				propStatuses,
-				selection.nodePathInfo.sequenceSubscriptionKey,
-			)
-		: undefined;
-	const eligibility = getTimelineSequenceSplitEligibility({
-		selection,
-		sequence: track?.sequence ?? null,
-		splitFrame,
-		propStatuses: sequencePropStatuses,
-	});
-
-	if (!eligibility.canSplit) {
-		showNotification(eligibility.reason, 4000);
+	if (eligible.length === 0) {
+		notify(
+			selections.length === 1
+				? skippedReasons[0]
+				: `None of the ${selections.length} selected clips can be split at the playhead`,
+			4000,
+		);
 		return Promise.resolve(false);
 	}
 
-	return splitSequence({
-		nodePathInfo: eligibility.nodePathInfo,
-		splitFrame,
+	return splitSequences({sequences: eligible}).then((success) => {
+		if (success && skippedReasons.length > 0) {
+			notify(
+				`Split ${eligible.length} ${eligible.length === 1 ? 'clip' : 'clips'}. Skipped ${skippedReasons.length} ${skippedReasons.length === 1 ? 'clip' : 'clips'} that could not be split.`,
+				4000,
+			);
+		}
+
+		return success;
 	});
 };

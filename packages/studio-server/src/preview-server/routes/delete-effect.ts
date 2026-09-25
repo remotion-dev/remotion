@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {deleteEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DeleteEffectRequest,
 	DeleteEffectResponse,
 } from '@remotion/studio-shared';
-import {deleteEffects} from '../../codemods/delete-effect';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -60,22 +60,20 @@ export const deleteEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, effectLabels, logLines} =
-						await deleteEffects({
-							input: fileContents,
-							effects: fileItems.map((item) =>
-								item.type === 'single-effect'
-									? {
-											type: 'single-effect',
-											sequenceNodePath: item.sequenceNodePath.nodePath,
-											effectIndex: item.effectIndex,
-										}
-									: {
-											type: 'all-effects',
-											sequenceNodePath: item.sequenceNodePath.nodePath,
-										},
-							),
-						});
+					const result = await deleteEffects({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						effects: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.sequenceNodePath.nodePath,
+							effectIndex:
+								item.type === 'all-effects' ? null : item.effectIndex,
+						})),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {formatted, effectLabels, logLines} = result.editDetails[0];
 
 					return {
 						absolutePath,

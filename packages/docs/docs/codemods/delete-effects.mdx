@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-codemods-delete-effects.png
+title: 'deleteEffects()'
+crumb: '@remotion/codemods'
+---
+
+# deleteEffects()<AvailableFrom v="4.0.528" />
+
+Deletes selected effects from one or more JSX nodes.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="delete-effects.ts"
+import {deleteEffects, type CodemodProject, type EffectReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const effect: EffectReference;
+
+const result = await deleteEffects({
+  project,
+  effects: [effect],
+});
+
+console.log(result);
+```
+
+Indices of later effects shift after deletion. Read effects again with [`getJsxNodeProps()`](/docs/codemods/get-jsx-node-props) before using old effect indices. Imports are preserved.
+
+The `effects` attribute must contain an inline array. An attribute followed by a JSX spread is rejected because the spread may override it.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### effects
+
+A non-empty array of effect references to remove. References may span files and nodes; indices refer to the input project. Duplicate references are deduplicated.
+
+Set `effectIndex: null` to remove the entire `effects` attribute from a node, including spread entries in its inline array. The node must have at least one effect. Selecting every effect individually also removes the attribute when its array becomes empty.
+
+```ts twoslash title="delete-all-effects.ts"
+import {deleteEffects, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const node: JsxNodeReference;
+// ---cut---
+const result = await deleteEffects({
+  project,
+  effects: [{...node, effectIndex: null}],
+});
+```
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### editDetails
+
+An array with one entry per edited file.
+
+#### filePath
+
+The file's path in the project.
+
+#### effectLabels
+
+Display labels for the removed effects, such as `'blur()'`. Unsupported entries removed by `effectIndex: null` use `'effect'`.
+
+#### logLines
+
+One-based source lines for the removed effects, in the same order as `effectLabels`.
+
+#### formatted
+
+Whether the generated edit was formatted.
+
+## Errors
+
+Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/delete-effects.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

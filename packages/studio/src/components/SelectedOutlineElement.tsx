@@ -41,6 +41,7 @@ import {
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	type TimelineSelectionInteraction,
+	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
@@ -114,6 +115,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {selectItems} = useTimelineSelection();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
 		useSelectedOutlineControlTarget({
@@ -240,7 +242,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
-		const canRotate = !sourceEditDisabled;
+		const canRotate = !sourceEditDisabled && outline.path === null;
 		const outlineElement =
 			contextMenuTarget.sequence.refForOutline?.current ?? null;
 		return getSequenceContextMenuItems({
@@ -353,7 +355,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 												type: 'add-effect',
 												clientId: previewServerState.clientId,
 												fileName: nodePath.absolutePath,
-												nodePath,
+												nodePathInfo: contextMenuTarget.nodePathInfo,
+												selectItems,
 											});
 										},
 										quickSwitcherLabel: null,
@@ -445,8 +448,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,
+		selectItems,
 		setSelectedModal,
 		setPropStatuses,
+		outline.path,
 	]);
 	useLayoutEffect(() => {
 		registerContextMenuOpen(outline.key, onContextMenuOpen);
@@ -482,7 +487,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					Boolean(controlTarget?.rotationDrag)
 				}
 			/>
-			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
+			{layoutTarget?.selectedForRotation &&
+			controlTarget?.rotationDrag &&
+			outline.path === null ? (
 				<SelectedOutlineCanvasRotation
 					getLatestTargetByKey={getLatestTargetByKey}
 					layoutTarget={layoutTarget}

@@ -14,6 +14,7 @@ import {
 	getOutputConfig,
 	getResolveConfig,
 	getSharedModuleRules,
+	transformersImportMetaWarning,
 } from './shared-bundler-config';
 
 export type {RspackConfiguration, RspackOverrideFn} from './override-types';
@@ -96,6 +97,7 @@ export const rspackConfig = async ({
 					{incremental: {buildChunkGraph: true}}
 				: {}),
 		},
+		ignoreWarnings: [transformersImportMetaWarning],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',

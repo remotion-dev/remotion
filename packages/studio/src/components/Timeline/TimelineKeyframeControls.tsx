@@ -34,7 +34,6 @@ import {
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
-import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
 import {
 	getNextKeyframeDisplayFrame,
 	getPreviousKeyframeDisplayFrame,
@@ -42,6 +41,7 @@ import {
 } from './get-keyframe-navigation';
 import {
 	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
 import {normalizeFontWeightForKeyframe} from './normalize-font-weight-for-keyframe';
@@ -54,7 +54,6 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
-import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const NAV_BUTTON_SIZE = 14;
 const INSPECTOR_NAV_BUTTON_WIDTH = NAV_BUTTON_SIZE / 2;
@@ -123,6 +122,7 @@ type KeyframeControlTarget = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly sourceFrame: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
@@ -279,16 +279,22 @@ const resolveKeyframeControlTarget = ({
 			propStatus: sequenceSelectedPropStatus,
 			nodePath,
 			fileName: nodePath.absolutePath,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: sequenceSelectedPropStatus,
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
 			}),
-			sourceFrame:
-				timelinePosition -
-				getKeyframeDisplayOffset({
+			sourceFrame: getKeyframeSourceFrame({
+				displayFrame: timelinePosition,
+				propStatus: sequenceSelectedPropStatus,
+				keyframeDisplayOffset: getKeyframeDisplayOffset({
 					propStatus: sequenceSelectedPropStatus,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
 				}),
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
 			defaultValue: fieldNode.field.fieldSchema.default,
 			dragOverrideValue: (getDragOverrides(nodePath) ?? {})[
 				fieldNode.field.key
@@ -317,16 +323,22 @@ const resolveKeyframeControlTarget = ({
 		propStatus: effectSelectedPropStatus,
 		nodePath,
 		fileName: nodePath.absolutePath,
+		keyframePlaybackRate: track.keyframePlaybackRate,
 		keyframeDisplayOffset: getKeyframeDisplayOffset({
 			propStatus: effectSelectedPropStatus,
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 		}),
-		sourceFrame:
-			timelinePosition -
-			getKeyframeDisplayOffset({
+		sourceFrame: getKeyframeSourceFrame({
+			displayFrame: timelinePosition,
+			propStatus: effectSelectedPropStatus,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: effectSelectedPropStatus,
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
 			}),
+			keyframePlaybackRate: track.keyframePlaybackRate,
+		}),
 		defaultValue: fieldNode.field.fieldSchema.default,
 		dragOverrideValue: getEffectDragOverrides(
 			nodePath,
@@ -515,6 +527,7 @@ export const TimelineKeyframeControls: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly fileName: string;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly defaultValue: unknown;
 	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly schema: InteractivitySchema;
@@ -527,6 +540,7 @@ export const TimelineKeyframeControls: React.FC<{
 	nodePath,
 	fileName,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	defaultValue,
 	dragOverrideValue,
 	schema,
@@ -536,7 +550,7 @@ export const TimelineKeyframeControls: React.FC<{
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const setFrame = Internals.useTimelineSetFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -555,11 +569,22 @@ export const TimelineKeyframeControls: React.FC<{
 	const resolvedKeyframeDisplayOffset = getKeyframeDisplayOffset({
 		propStatus,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
-	const jsxFrame = timelinePosition - resolvedKeyframeDisplayOffset;
+	const jsxFrame = getKeyframeSourceFrame({
+		displayFrame: timelinePosition,
+		keyframeDisplayOffset: resolvedKeyframeDisplayOffset,
+		keyframePlaybackRate,
+		propStatus,
+	});
 	const keyframes = useMemo(
-		() => getTimelineKeyframes(propStatus, keyframeDisplayOffset),
-		[propStatus, keyframeDisplayOffset],
+		() =>
+			getTimelineKeyframes(
+				propStatus,
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+			),
+		[propStatus, keyframeDisplayOffset, keyframePlaybackRate],
 	);
 
 	const hasKeyframeAtCurrentFrame = useMemo(() => {
@@ -636,6 +661,7 @@ export const TimelineKeyframeControls: React.FC<{
 			nodePath,
 			fileName,
 			keyframeDisplayOffset: resolvedKeyframeDisplayOffset,
+			keyframePlaybackRate,
 			sourceFrame: jsxFrame,
 			defaultValue,
 			dragOverrideValue,
@@ -650,6 +676,7 @@ export const TimelineKeyframeControls: React.FC<{
 			fileName,
 			jsxFrame,
 			resolvedKeyframeDisplayOffset,
+			keyframePlaybackRate,
 			nodePath,
 			nodePathInfo,
 			propStatus,
@@ -691,7 +718,7 @@ export const TimelineKeyframeControls: React.FC<{
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number, direction: 'fit-left' | 'fit-right') => {
-			setFrame((current) => {
+			seekFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
@@ -702,7 +729,7 @@ export const TimelineKeyframeControls: React.FC<{
 				frame,
 			});
 		},
-		[setFrame, videoConfig.durationInFrames, videoConfig.id],
+		[seekFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 
 	const onPrevious = useCallback(
@@ -737,23 +764,19 @@ export const TimelineKeyframeControls: React.FC<{
 					const change = getDeleteChange(target);
 					return change === null ? [] : [{target, change}];
 				});
-				const singleDeleteTarget = deleteTargets[0];
-				const easingSelection =
-					deleteTargets.length === 1 &&
-					singleDeleteTarget &&
-					isKeyframedStatus(singleDeleteTarget.target.propStatus) &&
-					canEditEasingForInterpolationFunction(
-						singleDeleteTarget.target.propStatus.interpolationFunction,
-					)
-						? getEasingSelectionAfterKeyframeDelete({
-								deletedSourceFrames: [singleDeleteTarget.target.sourceFrame],
-								keyframeDisplayOffset:
-									singleDeleteTarget.target.keyframeDisplayOffset,
-								nodePathInfo: singleDeleteTarget.target.nodePathInfo,
-								propStatus: singleDeleteTarget.target.propStatus,
-								timelinePosition,
-							})
-						: null;
+				if (deleteTargets.length === 0) {
+					return;
+				}
+
+				selectItems(
+					deleteTargets.flatMap(({target}) => {
+						const propertySelection = getTimelineSelectionFromNodePathInfo(
+							target.nodePathInfo,
+						);
+						return propertySelection === null ? [] : [propertySelection];
+					}),
+					{reveal: true},
+				);
 				const deleteChanges = deleteTargets.map(({change}) => change);
 				await callDeleteKeyframes({
 					sequenceKeyframes: deleteChanges.filter(
@@ -767,10 +790,6 @@ export const TimelineKeyframeControls: React.FC<{
 					setPropStatuses,
 					clientId,
 				});
-				if (mode === 'timeline' && easingSelection !== null) {
-					selectItems([easingSelection], {reveal: true});
-				}
-
 				return;
 			}
 
@@ -803,7 +822,9 @@ export const TimelineKeyframeControls: React.FC<{
 					addChanges.map(({target}) => ({
 						type: 'keyframe' as const,
 						nodePathInfo: target.nodePathInfo,
-						frame: target.sourceFrame + target.keyframeDisplayOffset,
+						frame:
+							target.sourceFrame / target.keyframePlaybackRate +
+							target.keyframeDisplayOffset,
 					})),
 					{reveal: true},
 				);
@@ -818,7 +839,6 @@ export const TimelineKeyframeControls: React.FC<{
 			mode,
 			selectItems,
 			setPropStatuses,
-			timelinePosition,
 		],
 	);
 
@@ -872,7 +892,6 @@ export const TimelineKeyframeControls: React.FC<{
 				disabled={previousDisabled}
 				onPointerDown={previousDisabled ? undefined : onPrevious}
 				aria-label="Go to previous keyframe"
-				title="Previous keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
@@ -888,7 +907,6 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label={
 					hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'
 				}
-				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
 			>
 				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
 			</button>
@@ -898,7 +916,6 @@ export const TimelineKeyframeControls: React.FC<{
 				disabled={nextDisabled}
 				onPointerDown={nextDisabled ? undefined : onNext}
 				aria-label="Go to next keyframe"
-				title="Next keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />

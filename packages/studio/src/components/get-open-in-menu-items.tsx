@@ -8,7 +8,9 @@ import type {
 } from '@remotion/studio-shared';
 import React from 'react';
 import {NoReactInternals} from 'remotion/no-react';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
+import {ClipboardIcon} from '../icons/clipboard';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
 import {GitClientIcon} from '../icons/git-client';
@@ -23,6 +25,8 @@ const menuLabel: React.CSSProperties = {
 	fontSize: 13,
 	lineHeight: '16px',
 };
+
+const copyIcon: React.CSSProperties = {height: 16, width: 16};
 
 export const getConfigureDefaultAppsMenuItems = ({
 	hasPreviousItems,
@@ -65,6 +69,7 @@ export const getOpenInMenuItems = ({
 	folder,
 	gitSourceDisabled,
 	onConfigureApps,
+	onCopyPath,
 	onOpenInCodingAgent,
 	onOpenInEditor,
 	onOpenInFileExplorer,
@@ -83,6 +88,7 @@ export const getOpenInMenuItems = ({
 	readonly folder: boolean;
 	readonly gitSourceDisabled: boolean;
 	readonly onConfigureApps: (() => void) | null;
+	readonly onCopyPath?: () => void;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
 		codingAgentName: string,
@@ -179,6 +185,19 @@ export const getOpenInMenuItems = ({
 					subMenu: null,
 					type: 'item' as const,
 					value: 'file-explorer',
+				}
+			: null,
+		onCopyPath
+			? {
+					id: 'copy-path',
+					keyHint: null,
+					label: <span style={menuLabel}>Copy path</span>,
+					leftItem: <ClipboardIcon color={LIGHT_TEXT} style={copyIcon} />,
+					onClick: onCopyPath,
+					quickSwitcherLabel: 'Copy path',
+					subMenu: null,
+					type: 'item' as const,
+					value: 'copy-path',
 				}
 			: null,
 	].filter(NoReactInternals.truthy);

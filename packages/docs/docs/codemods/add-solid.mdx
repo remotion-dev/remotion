@@ -1,0 +1,93 @@
+---
+image: /generated/articles-docs-codemods-add-solid.png
+title: 'addSolid()'
+crumb: '@remotion/codemods'
+---
+
+# addSolid()<AvailableFrom v="4.0.527" />
+
+Adds a [`<Solid>`](/docs/solid) to a composition component and adds the required imports.
+
+:::warning
+
+_Draft API_: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+```ts twoslash title="add-solid.ts"
+import {addSolid, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = addSolid({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  width: 1920,
+  height: 1080,
+});
+
+console.log(result.changes);
+console.log(result.insertedNode);
+```
+
+The input project is not mutated.
+
+## Options
+
+Pass an object with the following properties.
+
+### project
+
+An in-memory Remotion project containing `rootDir` and a `files` record.
+
+### compositionFile
+
+The path to the file that registers the composition. The component may be declared in that file or imported from another project file.
+
+### compositionId
+
+The ID of the [`<Composition>`](/docs/composition) to edit.
+
+### width
+
+The width of the inserted [`<Solid>`](/docs/solid).
+
+### height
+
+The height of the inserted [`<Solid>`](/docs/solid).
+
+### from?
+
+Wraps the [`<Solid>`](/docs/solid) in a [`<Sequence>`](/docs/sequence) starting at this frame. By default, the solid is not wrapped in a sequence.
+
+### position?
+
+Positions the solid at `{x, y}` pixels and adds a CSS translation. By default, the solid starts at the composition origin.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
+
+### insertedNode
+
+The `filePath` and `nodePath` of the inserted JSX element. Pass these values as an item in `nodes` to [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes) to remove the element again.
+
+### nodePathRemappings<AvailableFrom v="4.0.528" />
+
+File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node references after the edit. A `null` old path indicates an insertion; a `null` new path indicates removal. See [node references](/docs/codemods#node-references).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-solid.ts)
+- [`<Solid>`](/docs/solid)
+- [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes)
+- [`@remotion/browser-bundler`](/docs/browser-bundler)

@@ -135,7 +135,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 		shouldApplyCssTransforms: true,
 	});
 	const {isHighestContext} = useZIndex();
-	const setFrame = Internals.useTimelineSetFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 
 	const width = getTimelineContentWidth();
 	const left = size?.left ?? 0;
@@ -294,7 +294,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			setFrame((c) => {
+			seekFrame((c) => {
 				if (c[videoConfig.id] === frame) {
 					return c;
 				}
@@ -308,7 +308,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, setFrame, width],
+		[dragging, left, play, videoConfig, seekFrame, width],
 	);
 
 	const onPointerCancelScrubbing = useCallback(() => {

@@ -1,10 +1,11 @@
 import type {SVGProps} from 'react';
 import React from 'react';
+import {CURRENT_COLOR} from '../helpers/colors';
 
 export const AlignCenterHorizontalIcon: React.FC<SVGProps<SVGSVGElement>> = (
 	props,
 ) => {
-	const color = props.color ?? 'currentColor';
+	const color = props.color ?? CURRENT_COLOR;
 
 	return (
 		<svg

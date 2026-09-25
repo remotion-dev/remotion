@@ -26,6 +26,12 @@ The current Remotion version can be found in `packages/core/src/version.ts`. The
 - Keep things in one function unless they are composable or reusable.
 - Do not extract single-use helpers preemptively. Inline the logic at the call site unless the helper is reused, hides a genuinely complex boundary, or has a clear independent name that improves the caller.
 
+## Test changes
+
+Do not add new tests, including new test cases in existing files, unless the user explicitly asks for them. Edit or remove existing tests, fixtures, and snapshots as needed for feature work, bug fixes, refactors, and PR preparation. Preserve pre-existing user changes.
+
+Running existing tests for validation is allowed.
+
 ## Internal API optionality
 
 When adding or reviewing TypeScript parameters, React props, or type/interface members, make new internal inputs preferrably nullable (`T | null`), not optional (`?:`). Public exported APIs are exempt when requiring the input would be breaking.

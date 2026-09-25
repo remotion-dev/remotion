@@ -1,35 +1,34 @@
 import {expect, test} from 'bun:test';
-import {basicCaptionsElementSource} from '@remotion/studio-codemods';
+import {
+	addSolid,
+	applyCodemodChanges,
+	CodemodsInternals,
+	getJsxNodes,
+} from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {
-	createBrowserStudioOperations,
-	insertSolidIntoProject,
-	insertSolidIntoProjectWithNodePathRemappings,
-} from '../browser-studio-operations';
+import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
+
+const {basicCaptionsElementSource} = CodemodsInternals;
 
 const insertSolid = (
 	project: VirtualProject,
 	compositionFile = '/project/src/Composition.tsx',
 ) => {
-	return insertSolidIntoProject({
+	return applyCodemodChanges(
 		project,
-		request: {
+		addSolid({
+			project,
 			compositionFile,
 			compositionId: 'MyComp',
-			element: {
-				type: 'solid',
-				width: 1280,
-				height: 720,
-				position: null,
-			},
-			from: null,
-		},
-	});
+			width: 1280,
+			height: 720,
+		}).changes,
+	);
 };
 
 test('consumes an initial Element payload only once', () => {
@@ -89,20 +88,18 @@ test('adds multiple Solids without duplicating the import', () => {
 
 test('adds a Solid at a timeline frame', () => {
 	const project = createBlankTemplateProject();
-	const updated = insertSolidIntoProject({
+	const updated = applyCodemodChanges(
 		project,
-		request: {
+		addSolid({
+			project,
 			compositionFile: '/project/src/Composition.tsx',
 			compositionId: 'MyComp',
 			from: 42,
-			element: {
-				type: 'solid',
-				width: 1280,
-				height: 720,
-				position: {x: 100, y: 50},
-			},
-		},
-	});
+			width: 1280,
+			height: 720,
+			position: {x: 100, y: 50},
+		}).changes,
+	);
 	const composition = updated.files['/project/src/Composition.tsx'];
 
 	expect(composition).toContain('<Sequence from={42}');
@@ -199,21 +196,15 @@ registerRoot(Root);
 `,
 		},
 	};
-	const {project: updated, nodePathRemappings} =
-		insertSolidIntoProjectWithNodePathRemappings({
-			project,
-			request: {
-				compositionFile: '/project/src/index.tsx',
-				compositionId: 'MyComp',
-				from: null,
-				element: {
-					type: 'solid',
-					width: 1280,
-					height: 720,
-					position: null,
-				},
-			},
-		});
+	const result = addSolid({
+		project,
+		compositionFile: '/project/src/index.tsx',
+		compositionId: 'MyComp',
+		width: 1280,
+		height: 720,
+	});
+	const updated = applyCodemodChanges(project, result.changes);
+	const {nodePathRemappings} = result;
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
@@ -874,10 +865,14 @@ registerRoot(Root);`,
 	}
 
 	const failure = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
-		splitFrame: 10,
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				splitFrame: 10,
+			},
+		],
 	});
 	expect(failure).toMatchObject({
 		success: false,
@@ -887,10 +882,14 @@ registerRoot(Root);`,
 	expect(currentProject.files[fileName]).toBe(initialContents);
 
 	const splitResult = await operations.splitJsxSequence({
-		fileName: 'src/Composition.tsx',
-		nodePath: subscription.nodePath.nodePath,
-		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
-		splitFrame: 15,
+		sequences: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath: subscription.nodePath.nodePath,
+				sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
+				splitFrame: 15,
+			},
+		],
 	});
 	if (!splitResult.success) {
 		throw new Error(splitResult.reason);
@@ -939,6 +938,40 @@ const makeOperationsForProject = (project: VirtualProject) => {
 	});
 	return {operations, getProject: () => currentProject};
 };
+
+test('wraps JSX as an undoable virtual project mutation', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	const initialContents = `import {AbsoluteFill} from 'remotion';
+
+export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
+	const project: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: fileName,
+		files: {[fileName]: initialContents},
+	};
+	const {operations, getProject} = makeOperationsForProject(project);
+	const nodePath = getJsxNodes({project, filePath: fileName}).find(
+		({tagName}) => tagName === 'AbsoluteFill',
+	)?.nodePath;
+	if (!nodePath) {
+		throw new Error('Expected an AbsoluteFill node');
+	}
+
+	const result = await operations.wrapJsxNode({
+		fileName,
+		nodePath,
+		wrapper: 'Sequence',
+		width: null,
+		height: null,
+	});
+	expect(result.success).toBe(true);
+	expect(getProject().files[fileName]).toContain('<Sequence>');
+	expect(getProject().files[fileName]).toContain('<AbsoluteFill>');
+	expect(await operations.undo()).toMatchObject({success: true});
+	expect(getProject().files[fileName]).toBe(initialContents);
+	expect(await operations.redo()).toMatchObject({success: true});
+	expect(getProject().files[fileName]).toContain('<Sequence>');
+});
 
 test('duplicates a JSX sequence as an undoable project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
@@ -1550,10 +1583,13 @@ export const Root = () => {
 
 	const result = await operations.applyCodemod({
 		codemod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'MyComp',
-			folderName: 'target-folder',
-			parentName: null,
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'MyComp'},
+			destination: {
+				type: 'folder',
+				folderName: 'target-folder',
+				parentName: null,
+			},
 		},
 		dryRun: false,
 		undoRedoNavigation: null,
@@ -1803,7 +1839,7 @@ export const Root = () => (
 	expect(getProject().files[fileName]).not.toContain('\t');
 });
 
-test('reports a structured error when a composition has no defaultProps', async () => {
+test('adds missing composition defaultProps and restores them through undo and redo', async () => {
 	const {operations, getProject} = makeOperationsForProject(
 		createBlankTemplateProject(),
 	);
@@ -1814,13 +1850,15 @@ test('reports a structured error when a composition has no defaultProps', async 
 		defaultProps: JSON.stringify({title: 'Hello'}),
 		enumPaths: [],
 	});
-	expect(result).toEqual({
-		success: false,
-		reason:
-			'No `defaultProps` prop found in the <Composition/> tag with the ID "MyComp".',
-		stack: expect.any(String),
-	});
+	expect(result).toEqual({success: true});
+	const updatedFiles = getProject().files;
+	expect(updatedFiles['/project/src/Composition.tsx']).toContain(
+		'title: "Hello"',
+	);
+	expect((await operations.undo()).success).toBe(true);
 	expect(getProject().files).toEqual(initialFiles);
+	expect((await operations.redo()).success).toBe(true);
+	expect(getProject().files).toEqual(updatedFiles);
 });
 
 test('reports structured failures for unsupported codemods', async () => {
@@ -1918,7 +1956,13 @@ export const Comp = () => (
 		effectConfig: {color: 'red'},
 		clientId: 'browser-studio',
 	});
-	expect(addResult).toEqual({success: true});
+	expect(addResult).toEqual({
+		success: true,
+		insertedEffect: {
+			effectIndex: 2,
+			nodePath: expect.any(Array),
+		},
+	});
 	expect(currentProject.files[fileName]).toContain('tint({');
 	expect(currentProject.files['/project/package.json']).toContain(
 		'"@remotion/effects": "4.0.514"',
@@ -2043,7 +2087,7 @@ export const Comp = () => (
 		]),
 	).toEqual({
 		success: false,
-		reason: 'Cannot duplicate effect: not-found',
+		reason: 'Effect index is out of range',
 		stack: expect.any(String),
 	});
 	expect(

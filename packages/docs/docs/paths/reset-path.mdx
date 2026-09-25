@@ -4,7 +4,9 @@ title: resetPath()
 crumb: "@remotion/paths"
 ---
 
-_Part of the [`@remotion/paths`](/docs/paths) package. Available from v3.3.40_
+# resetPath()<AvailableFrom v="3.3.40" />
+
+_Part of the [`@remotion/paths`](/docs/paths) package._
 
 Translates an SVG path so that the top-left corner of the [bounding box](/docs/paths/get-bounding-box) is at `0, 0`. Useful for simplifying the math when transforming the coordinates of an SVG path.
 
@@ -15,6 +17,10 @@ const newPath = resetPath("M 10 10 L 20 20"); // M 0 0 L 10 10
 ```
 
 This function will throw if the SVG path is invalid.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 

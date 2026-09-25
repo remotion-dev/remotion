@@ -101,7 +101,7 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 			</button>
 			<InlineDropdown
 				variant={null}
-				title={moreActionsTitle}
+				aria-label={moreActionsTitle}
 				renderAction={renderMoreActions}
 				getItems={getActions}
 				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
