@@ -3,11 +3,13 @@ import {
   type InteractivitySchema,
   type InteractivitySchemaField,
 } from "remotion";
+import type { Layer } from "./layers";
 
-// The inspector is driven by the same schema fragments that Remotion Studio
-// uses. `Interactive.*Schema` are public, so composing them per element type
-// gives the editor real knowledge of which props exist, their ranges and
-// their default values.
+// The inspector is driven by the interactivity schema of the mounted element,
+// which the Canvas reports through `track.sequence.controls`. This covers
+// components made interactive with `Interactive.withSchema()` as well. The
+// schemas composed below from the public `Interactive.*Schema` fragments are
+// the fallback for elements that are not mounted, e.g. while hidden.
 
 const textContentSchema: InteractivitySchema = {
   children: {
@@ -205,6 +207,14 @@ export const getSchemaForTag = (
   }
 
   return null;
+};
+
+/** The editable props of a layer, as reported by the mounted element. */
+export const getLayerSchema = (layer: Layer): InteractivitySchema | null => {
+  return (
+    layer.track.sequence.controls?.schema ??
+    (layer.source ? getSchemaForTag(layer.source.tagName) : null)
+  );
 };
 
 export type FieldGroup =

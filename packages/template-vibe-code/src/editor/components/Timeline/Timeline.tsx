@@ -24,12 +24,13 @@ import React, {
 } from "react";
 import { cn } from "@/lib/utils";
 import { usePlaybackFrame } from "../../hooks/use-playback";
+import { getErrorMessage } from "../../hooks/use-preview-host";
 import {
   getLayerLabel,
   getNodeReference,
   type Layer,
 } from "../../model/layers";
-import { getSchemaForTag, hasTimingProps } from "../../model/schemas";
+import { getLayerSchema, hasTimingProps } from "../../model/schemas";
 import { clamp, formatTimecode } from "../../model/values";
 import { useEditor } from "../../state/editor-context";
 import { fallbackSelectionController } from "../../state/fallback-selection";
@@ -46,6 +47,10 @@ type DragState = {
   mode: "move" | "start" | "end";
   startX: number;
   deltaFrames: number;
+  // Timeline geometry when the drag started. The preview moves the sequence
+  // live, so the bar is drawn from these values instead of the live track.
+  startFrom: number;
+  startDuration: number;
 };
 
 const getTickInterval = (pxPerFrame: number, fps: number) => {
@@ -135,18 +140,20 @@ const TrackRow = memo(function TrackRow({
     "timeline",
   );
   const { sequence, depth } = layer.track;
-  const schema = layer.source ? getSchemaForTag(layer.source.tagName) : null;
+  const schema = getLayerSchema(layer);
   const editable = layer.source !== null && hasTimingProps(schema);
   const isDragging = drag?.layerId === sequence.id;
   const delta = isDragging ? drag.deltaFrames : 0;
-  const from = sequence.from + (isDragging && drag.mode !== "end" ? delta : 0);
+  const baseFrom = isDragging ? drag.startFrom : sequence.from;
+  const baseDuration = isDragging ? drag.startDuration : sequence.duration;
+  const from = baseFrom + (isDragging && drag.mode !== "end" ? delta : 0);
   const duration = Math.max(
     1,
     isDragging && drag.mode === "start"
-      ? sequence.duration - delta
+      ? baseDuration - delta
       : isDragging && drag.mode === "end"
-        ? sequence.duration + delta
-        : sequence.duration,
+        ? baseDuration + delta
+        : baseDuration,
   );
   const label = getLayerLabel(layer);
   const select = (event: React.MouseEvent) =>
@@ -199,7 +206,7 @@ const TrackRow = memo(function TrackRow({
           {!layer.source ? (
             <span
               className="text-muted-foreground-dim shrink-0 text-[9px] uppercase"
-              title="Could not find this layer in the source code. Give it a unique name to make it editable."
+              title="This layer has no source location, so it cannot be edited here."
             >
               no source
             </span>
@@ -353,6 +360,8 @@ export const Timeline: React.FC = () => {
         mode,
         startX: event.clientX,
         deltaFrames: 0,
+        startFrom: layer.track.sequence.from,
+        startDuration: layer.track.sequence.duration,
       };
       dragRef.current = start;
       const target = event.currentTarget as HTMLElement;
@@ -363,6 +372,69 @@ export const Timeline: React.FC = () => {
         // pointer either way.
       }
 
+      // The props as written in the source. Dragging previews and then
+      // commits these values shifted by the dragged distance.
+      const node = getNodeReference(layer.selectionItem);
+      let sourceFrom = 0;
+      let sourceDuration = layer.track.sequence.duration;
+      let blocked: string | null = null;
+      if (node) {
+        try {
+          const { props } = getJsxNodeProps({
+            project,
+            node,
+            keys: ["from", "durationInFrames"],
+          });
+          const fromStatus = props.from;
+          const durationStatus = props.durationInFrames;
+          if (fromStatus?.status === "computed" && mode !== "end") {
+            blocked = `The "from" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`;
+          } else if (durationStatus?.status === "computed" && mode !== "move") {
+            blocked = `The "durationInFrames" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`;
+          }
+
+          if (
+            fromStatus?.status === "static" &&
+            typeof fromStatus.codeValue === "number"
+          ) {
+            sourceFrom = fromStatus.codeValue;
+          }
+
+          if (
+            durationStatus?.status === "static" &&
+            typeof durationStatus.codeValue === "number"
+          ) {
+            sourceDuration = durationStatus.codeValue;
+          }
+        } catch (error) {
+          blocked = getErrorMessage(error);
+        }
+      }
+
+      const getUpdates = (deltaFrames: number) =>
+        mode === "move"
+          ? [{ key: "from", value: sourceFrom + deltaFrames, defaultValue: 0 }]
+          : mode === "end"
+            ? [
+                {
+                  key: "durationInFrames",
+                  value: Math.max(1, sourceDuration + deltaFrames),
+                  defaultValue: null,
+                },
+              ]
+            : [
+                {
+                  key: "from",
+                  value: sourceFrom + deltaFrames,
+                  defaultValue: 0,
+                },
+                {
+                  key: "durationInFrames",
+                  value: Math.max(1, sourceDuration - deltaFrames),
+                  defaultValue: null,
+                },
+              ];
+
       const onMove = (move: PointerEvent) => {
         const current = dragRef.current;
         if (!current) {
@@ -372,9 +444,21 @@ export const Timeline: React.FC = () => {
         const deltaFrames = Math.round(
           (move.clientX - current.startX) / pxPerFrame,
         );
+        if (deltaFrames === current.deltaFrames) {
+          return;
+        }
+
         const next = { ...current, deltaFrames };
         dragRef.current = next;
         setDrag(deltaFrames === 0 ? null : next);
+        if (node && blocked === null) {
+          actions.previewLayerProps(
+            layer,
+            Object.fromEntries(
+              getUpdates(deltaFrames).map(({ key, value }) => [key, value]),
+            ),
+          );
+        }
       };
 
       const onUp = () => {
@@ -384,82 +468,21 @@ export const Timeline: React.FC = () => {
         const current = dragRef.current;
         dragRef.current = null;
         setDrag(null);
-        if (!current || current.deltaFrames === 0 || !layer.source) {
+        if (!current || current.deltaFrames === 0 || !node || !layer.source) {
+          actions.cancelLayerPreview(layer);
           return;
         }
 
-        const node = getNodeReference(layer.selectionItem);
-        const schema = getSchemaForTag(layer.source.tagName);
-        if (!node) {
+        if (blocked !== null) {
+          actions.notifyError(new Error(blocked));
           return;
         }
 
-        try {
-          const { props } = getJsxNodeProps({
-            project,
-            node,
-            keys: ["from", "durationInFrames"],
-          });
-          const fromStatus = props.from;
-          const durationStatus = props.durationInFrames;
-          if (fromStatus?.status === "computed" && current.mode !== "end") {
-            throw new Error(
-              `The "from" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`,
-            );
-          }
-
-          if (
-            durationStatus?.status === "computed" &&
-            current.mode !== "move"
-          ) {
-            throw new Error(
-              `The "durationInFrames" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`,
-            );
-          }
-
-          const currentFrom =
-            fromStatus?.status === "static" &&
-            typeof fromStatus.codeValue === "number"
-              ? fromStatus.codeValue
-              : 0;
-          const currentDuration =
-            durationStatus?.status === "static" &&
-            typeof durationStatus.codeValue === "number"
-              ? durationStatus.codeValue
-              : layer.track.sequence.duration;
-          const updates =
-            current.mode === "move"
-              ? [
-                  {
-                    key: "from",
-                    value: currentFrom + current.deltaFrames,
-                    defaultValue: 0,
-                  },
-                ]
-              : current.mode === "end"
-                ? [
-                    {
-                      key: "durationInFrames",
-                      value: Math.max(1, currentDuration + current.deltaFrames),
-                      defaultValue: null,
-                    },
-                  ]
-                : [
-                    {
-                      key: "from",
-                      value: currentFrom + current.deltaFrames,
-                      defaultValue: 0,
-                    },
-                    {
-                      key: "durationInFrames",
-                      value: Math.max(1, currentDuration - current.deltaFrames),
-                      defaultValue: null,
-                    },
-                  ];
-          void actions.updateNodeProps(node, updates, schema);
-        } catch (error) {
-          actions.notifyError(error);
-        }
+        void actions.commitLayerProps(
+          layer,
+          getUpdates(current.deltaFrames),
+          getLayerSchema(layer),
+        );
       };
 
       window.addEventListener("pointermove", onMove);
@@ -686,8 +709,8 @@ export const Timeline: React.FC = () => {
             })
           }
         >
-          Some layers could not be matched to the source code. Give them a
-          unique <code>name</code> prop to edit them here.
+          Some layers have no source location and cannot be edited here. They
+          are rendered by dependencies or by code the compiler did not process.
         </button>
       ) : null}
     </div>

@@ -7,10 +7,7 @@
 
 import type { BrowserBundle } from "@remotion/browser-bundler";
 import type { BrowserComposition } from "@remotion/browser-bundler/runtime";
-import type {
-  CanvasController,
-  CanvasSequenceNodePathResolver,
-} from "@remotion/canvas";
+import type { CanvasController } from "@remotion/canvas";
 import type { PlayerRef } from "@remotion/player";
 import type {
   CanRenderMediaOnWebResult,
@@ -29,7 +26,6 @@ export type PreviewOptions = {
   playbackRate: number;
   inFrame: number | null;
   outFrame: number | null;
-  resolveSequenceNodePathInfo: CanvasSequenceNodePathResolver | null;
 };
 
 export type PreviewCompositionSelection = {

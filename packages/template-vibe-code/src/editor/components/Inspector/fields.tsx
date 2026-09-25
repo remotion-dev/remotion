@@ -56,8 +56,8 @@ export const StatusBadge: React.FC<{
 
 /**
  * A numeric input whose label can be dragged horizontally to scrub the value,
- * like in motion graphics tools. Commits while dragging (throttled) and on
- * blur / Enter.
+ * like in motion graphics tools. While dragging, `onLiveChange` previews the
+ * value; the value is committed when the drag ends and on blur / Enter.
  */
 export const NumberField: React.FC<{
   readonly value: number | null;
@@ -70,6 +70,7 @@ export const NumberField: React.FC<{
   readonly disabled?: boolean;
   readonly onCommit: (value: number | null) => void;
   readonly onLiveChange?: (value: number) => void;
+  readonly onCancel: (() => void) | null;
   readonly ariaLabel: string;
   readonly className?: string;
   readonly allowEmpty?: boolean;
@@ -83,13 +84,18 @@ export const NumberField: React.FC<{
   unit,
   disabled,
   onCommit,
+  onLiveChange,
+  onCancel,
   ariaLabel,
   className,
   allowEmpty = false,
 }) => {
   const [draft, setDraft] = useState<string | null>(null);
-  const dragRef = useRef<{ startX: number; startValue: number } | null>(null);
-  const lastCommit = useRef(0);
+  const dragRef = useRef<{
+    startX: number;
+    startValue: number;
+    previewed: boolean;
+  } | null>(null);
 
   const normalize = (raw: number) => {
     let next = raw;
@@ -120,6 +126,14 @@ export const NumberField: React.FC<{
     }
   };
 
+  const cancelDrag = () => {
+    const drag = dragRef.current;
+    dragRef.current = null;
+    if (!drag) return;
+    setDraft(null);
+    if (drag.previewed) onCancel?.();
+  };
+
   return (
     <div className={cn("relative flex min-w-0 flex-1 items-center", className)}>
       <div
@@ -131,7 +145,11 @@ export const NumberField: React.FC<{
         onPointerDown={(event) => {
           if (disabled) return;
           event.preventDefault();
-          dragRef.current = { startX: event.clientX, startValue: value ?? 0 };
+          dragRef.current = {
+            startX: event.clientX,
+            startValue: value ?? 0,
+            previewed: false,
+          };
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
@@ -141,10 +159,9 @@ export const NumberField: React.FC<{
           const multiplier = event.shiftKey ? 10 : event.altKey ? 0.1 : 1;
           const next = normalize(drag.startValue + pixels * step * multiplier);
           setDraft(String(next));
-          const now = Date.now();
-          if (now - lastCommit.current > 150) {
-            lastCommit.current = now;
-            onCommit(next);
+          if (onLiveChange) {
+            drag.previewed = true;
+            onLiveChange(next);
           }
         }}
         onPointerUp={(event) => {
@@ -156,10 +173,14 @@ export const NumberField: React.FC<{
           const multiplier = event.shiftKey ? 10 : event.altKey ? 0.1 : 1;
           const next = normalize(drag.startValue + pixels * step * multiplier);
           setDraft(null);
-          if (next !== value) {
+          // A previewed value is committed even if it ends up unchanged so
+          // that the preview is released.
+          if (next !== value || drag.previewed) {
             onCommit(next);
           }
         }}
+        onPointerCancel={cancelDrag}
+        onLostPointerCapture={cancelDrag}
       />
       <Input
         aria-label={ariaLabel}
@@ -309,9 +330,10 @@ export const ColorField: React.FC<{
   readonly disabled?: boolean;
   readonly ariaLabel: string;
   readonly onCommit: (value: string) => void;
-}> = ({ value, placeholder, disabled, ariaLabel, onCommit }) => {
+  readonly onLiveChange?: (value: string) => void;
+}> = ({ value, placeholder, disabled, ariaLabel, onCommit, onLiveChange }) => {
   const hex = toHexColor(value || placeholder || "") ?? "#000000";
-  const lastCommit = useRef(0);
+  const previewed = useRef(false);
 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-1.5">
@@ -335,14 +357,17 @@ export const ColorField: React.FC<{
           className="absolute inset-0 size-full cursor-pointer opacity-0"
           value={hex}
           onChange={(event) => {
-            const now = Date.now();
-            if (now - lastCommit.current > 150) {
-              lastCommit.current = now;
-              onCommit(event.target.value);
+            // The picker fires continuously while a color is being chosen.
+            // Preview it and commit once the picker closes.
+            if (onLiveChange) {
+              previewed.current = true;
+              onLiveChange(event.target.value);
             }
           }}
           onBlur={(event) => {
-            if (event.target.value !== toHexColor(value)) {
+            const wasPreviewed = previewed.current;
+            previewed.current = false;
+            if (wasPreviewed || event.target.value !== toHexColor(value)) {
               onCommit(event.target.value);
             }
           }}

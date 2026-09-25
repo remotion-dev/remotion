@@ -46,7 +46,7 @@ npx remotion render      # render it with the CLI
 ```
 
 - `src/app` – the Next.js App Router page and the dev-only `/api/project` route that saves files to disk.
-- `src/editor` – the editor UI. `state/` holds the reducer (files, history, layout, playback settings), `hooks/` connect the preview iframe, the compiler and the player, `model/` contains the pure logic (composition parsing, layer ↔ source matching, schemas) and `components/` the panels.
+- `src/editor` – the editor UI. `state/` holds the reducer (files, history, layout, playback settings), `hooks/` connect the preview iframe, the compiler and the player, `model/` contains the pure logic (composition parsing, layer ↔ source resolution, schemas) and `components/` the panels.
 - `src/preview` – the code that runs inside the preview iframe. It is bundled separately by `scripts/build-preview.mjs` (esbuild) because Fast Refresh needs a development build of React, which Next.js does not ship to the browser. `bridge.ts` defines the API the editor uses to talk to the iframe. The same script copies the compiler worker and WebAssembly files to `public/compiler`.
 - `src/remotion` – the Remotion project.
 
@@ -58,9 +58,13 @@ Fast Refresh requires the React Refresh runtime to be installed before React DOM
 
 The browser bundler compiles with WebAssembly and shared memory, which requires the page to be [cross-origin isolated](https://web.dev/articles/coop-coep). `next.config.mjs` sets the `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers. Every cross-origin resource you load (fonts, images, scripts) needs to either support CORS or send a `Cross-Origin-Resource-Policy` header.
 
-### How layers are matched to code
+### How layers are linked to code
 
-The Canvas reports the sequences that are mounted at runtime, but not where they were written. The editor matches them to JSX elements heuristically: first by the `name` prop, then by element type in source order. Give your layers unique `name` props to make the mapping robust — this is also what the Remotion Studio [recommends](https://www.remotion.dev/docs/studio/interactivity-best-practices). Layers that cannot be matched are shown but not editable.
+The browser bundler records where every JSX element was written, and the Canvas exposes that location for each mounted sequence through [`getCanvasSequenceSourceLocation()`](https://www.remotion.dev/docs/canvas/get-canvas-sequence-source-location). The editor looks the location up in the compiled files with `getJsxNodes()` and registers the resulting node paths with [`controller.setSequenceNodePaths()`](https://www.remotion.dev/docs/canvas/create-canvas-controller#setsequencenodepaths), so selection, the timeline and the inspector all refer to the same source node — also for elements rendered in a `.map()` loop. Elements created by dependencies have no source location and are shown but not editable.
+
+### Live previews
+
+Dragging a value in the inspector or a track in the timeline does not rewrite the source on every pointer move. The editor previews the value on the canvas with [`controller.overrides`](https://www.remotion.dev/docs/canvas/create-canvas-controller#overrides) and writes it with a codemod once the gesture ends. The preview stays in place until the recompiled project is running, so the canvas never flashes the old value.
 
 ## Commands
 

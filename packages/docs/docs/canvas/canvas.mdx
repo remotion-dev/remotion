@@ -9,6 +9,8 @@ crumb: '@remotion/canvas'
 
 Renders a Remotion composition using [`<Player>`](/docs/player/player), registers its timeline tracks, and optionally overlays selection outlines.
 
+Unlike a plain `<Player>`, the Canvas enables the interactivity of the mounted elements: each track exposes its [`controls`](/docs/canvas/create-canvas-controller#sequencecontrols) and the controller can [preview prop values](/docs/canvas/create-canvas-controller#overrides) without changing the source.
+
 :::warning
 
 _Experimental API_: This package is not stable. Its public API may change without a major version bump.
@@ -51,7 +53,7 @@ Clicking empty canvas space or pressing Escape while the overlay is focused clea
 
 ### resolveSequenceNodePathInfo?
 
-A `CanvasSequenceNodePathResolver` called with a [`TimelineTrackData`](/docs/canvas/create-canvas-controller#timeline) and its index. It returns a `SequenceNodePathInfo` identity or `null` to make the track unselectable. The default is [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info).
+A `CanvasSequenceNodePathResolver` called with a [`TimelineTrackData`](/docs/canvas/create-canvas-controller#timeline) and its index. It returns a `SequenceNodePathInfo` identity or `null` to make the track unselectable. The default is [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info), which uses the identities registered with [`setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths).
 
 Use the same resolver when constructing selection items for the layer list. Keep its function identity stable where possible, for example with `useCallback()`.
 
