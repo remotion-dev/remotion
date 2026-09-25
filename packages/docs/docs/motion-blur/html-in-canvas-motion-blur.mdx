@@ -80,9 +80,17 @@ Limits how long the blurred content appears on its parent timeline, starting at 
 
 Skips the beginning of the content without moving its `from` position. Default: `0`.
 
+### `trimAfter?`
+
+Ends the content at this child frame, unless `durationInFrames` ends it earlier. The frame is measured in the same clock as `trimBefore`.
+
 ### `playbackRate?`
 
 Changes how quickly the child frames advance. Default: `1`. The motion blur samples follow this speed.
+
+### `loop?`
+
+Repeats the range from `trimBefore` up to `trimAfter`. Set a finite `trimAfter` when enabling `loop`. `durationInFrames` can limit the total time the loop appears. Default: `false`.
 
 See [Timing and trimming](/docs/timing) for how these props combine.
 
