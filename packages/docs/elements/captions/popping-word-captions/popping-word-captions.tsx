@@ -305,10 +305,10 @@ const PoppingWordCaptionsInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
+		const elementRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		useEffect(() => {
 			waitUntilDone()
@@ -331,7 +331,7 @@ const PoppingWordCaptionsInner = forwardRef<
 				trimBefore={trimBefore}
 			>
 				<div
-					ref={outlineRef}
+					ref={elementRef}
 					style={{
 						height,
 						marginInline: 'auto',

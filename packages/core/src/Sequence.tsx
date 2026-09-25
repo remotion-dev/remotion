@@ -130,8 +130,8 @@ export type SequencePropsWithoutDuration = {
 				src: string;
 		  };
 	/**
-	 * A React ref pointing to the element that Remotion Studio should use for
-	 * drawing the selection outline in the preview.
+	 * @deprecated Remotion Studio discovers rendered elements automatically.
+	 * Remove this prop.
 	 */
 	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;

@@ -65,9 +65,9 @@ const CircleInner = forwardRef<
     },
     ref,
   ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
     return (
       <Sequence
@@ -77,7 +77,7 @@ const CircleInner = forwardRef<
         controls={controls}
       >
         <div
-          ref={outlineRef}
+          ref={elementRef}
           style={{
             ...style,
             width: radius * 2,
@@ -101,7 +101,7 @@ export const Circle = Interactive.withSchema({
 
 The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded unchanged to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline. It also preserves the outer component's source location for Studio edits.
 
-With `<Sequence layout="none">`, the Studio discovers the rendered element automatically. Pass [`outlineRef`](/docs/sequence#outlineref) when you need to select a specific element.
+With `<Sequence layout="none">`, the Studio discovers the rendered element automatically.
 
 ## API
 

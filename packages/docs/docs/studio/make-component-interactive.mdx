@@ -133,9 +133,9 @@ const BadgeInner = forwardRef<
     },
     ref,
   ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
     return (
       <Sequence
@@ -145,7 +145,7 @@ const BadgeInner = forwardRef<
         controls={controls}
       >
         <div
-          ref={outlineRef}
+          ref={elementRef}
           style={{
             ...style,
             display: 'inline-flex',
@@ -166,7 +166,7 @@ const BadgeInner = forwardRef<
 
 The exported component should not expose `controls` as a public prop.
 
-With `<Sequence layout="none">`, the Studio discovers the rendered element automatically. Pass [`outlineRef`](/docs/sequence#outlineref) when you need to select a specific element.
+With `<Sequence layout="none">`, the Studio discovers the rendered element automatically.
 
 ## Wrap the component
 
@@ -224,9 +224,9 @@ const BadgeInner = forwardRef<
     },
     ref,
   ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
     return (
       <Sequence
@@ -236,7 +236,7 @@ const BadgeInner = forwardRef<
         controls={controls}
       >
         <div
-          ref={outlineRef}
+          ref={elementRef}
           style={{
             ...style,
             display: 'inline-flex',

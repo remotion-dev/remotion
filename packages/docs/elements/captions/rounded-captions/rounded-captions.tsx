@@ -233,10 +233,10 @@ const RoundedCaptionsInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
+		const elementRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		useEffect(() => {
 			waitUntilDone()
@@ -253,7 +253,7 @@ const RoundedCaptionsInner = forwardRef<
 				trimBefore={trimBefore}
 			>
 				<div
-					ref={outlineRef}
+					ref={elementRef}
 					style={{
 						alignItems: 'center',
 						display: 'flex',

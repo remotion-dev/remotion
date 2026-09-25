@@ -284,7 +284,7 @@ const MapFlyoverContent: React.FC<{
 	readonly lineWidth: number;
 	readonly origin: readonly [number, number];
 	readonly originLabel: string;
-	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly elementRef: React.RefObject<HTMLDivElement | null>;
 	readonly routeColor: string;
 	readonly style: React.CSSProperties | null;
 }> = ({
@@ -293,7 +293,7 @@ const MapFlyoverContent: React.FC<{
 	lineWidth,
 	origin,
 	originLabel,
-	outlineRef,
+	elementRef,
 	routeColor,
 	style,
 }) => {
@@ -481,7 +481,7 @@ const MapFlyoverContent: React.FC<{
 
 	return (
 		<div
-			ref={outlineRef}
+			ref={elementRef}
 			style={{
 				backgroundColor: '#dbe4e8',
 				height,
@@ -627,8 +627,8 @@ const MapFlyoverLayerInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		const elementRef = useRef<HTMLDivElement>(null);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -643,7 +643,7 @@ const MapFlyoverLayerInner = forwardRef<
 					lineWidth={lineWidth}
 					origin={origin}
 					originLabel={originLabel}
-					outlineRef={outlineRef}
+					elementRef={elementRef}
 					routeColor={routeColor}
 					style={style ?? null}
 				/>

@@ -60,10 +60,10 @@ const MirroredAudioSpectrumContent: React.FC<{
 	readonly audioSrc: string;
 	readonly barColor: string;
 	readonly numberOfBars: number;
-	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly elementRef: React.RefObject<HTMLDivElement | null>;
 	readonly sensitivity: number;
 	readonly style: MirroredAudioSpectrumProps['style'];
-}> = ({audioSrc, barColor, numberOfBars, outlineRef, sensitivity, style}) => {
+}> = ({audioSrc, barColor, numberOfBars, elementRef, sensitivity, style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -95,7 +95,7 @@ const MirroredAudioSpectrumContent: React.FC<{
 
 	return (
 		<div
-			ref={outlineRef}
+			ref={elementRef}
 			style={{
 				alignItems: 'center',
 				boxSizing: 'border-box',
@@ -144,8 +144,8 @@ const MirroredAudioSpectrumInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		const elementRef = useRef<HTMLDivElement>(null);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -158,7 +158,7 @@ const MirroredAudioSpectrumInner = forwardRef<
 					audioSrc={audioSrc}
 					barColor={barColor}
 					numberOfBars={numberOfBars}
-					outlineRef={outlineRef}
+					elementRef={elementRef}
 					sensitivity={sensitivity}
 					style={style}
 				/>

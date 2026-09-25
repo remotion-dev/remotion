@@ -134,9 +134,9 @@ const BasicCaptionsInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
+		const elementRef = useRef<HTMLDivElement>(null);
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -147,7 +147,7 @@ const BasicCaptionsInner = forwardRef<
 				trimBefore={trimBefore}
 			>
 				<div
-					ref={outlineRef}
+					ref={elementRef}
 					style={{
 						alignItems: 'center',
 						display: 'flex',

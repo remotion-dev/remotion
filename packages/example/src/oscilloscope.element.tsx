@@ -74,7 +74,7 @@ const AudioOscilloscopeContent: React.FC<{
 	readonly audioSrc: string;
 	readonly lineColor: string;
 	readonly lineWidth: number;
-	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly elementRef: React.RefObject<HTMLDivElement | null>;
 	readonly style: AudioOscilloscopeProps['style'];
 	readonly windowInSeconds: number;
 }> = ({
@@ -82,7 +82,7 @@ const AudioOscilloscopeContent: React.FC<{
 	audioSrc,
 	lineColor,
 	lineWidth,
-	outlineRef,
+	elementRef,
 	style,
 	windowInSeconds,
 }) => {
@@ -116,7 +116,7 @@ const AudioOscilloscopeContent: React.FC<{
 
 	return (
 		<div
-			ref={outlineRef}
+			ref={elementRef}
 			style={{
 				boxSizing: 'border-box',
 				height: 300,
@@ -169,9 +169,9 @@ const AudioOscilloscopeInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
+		const elementRef = useRef<HTMLDivElement>(null);
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -185,7 +185,7 @@ const AudioOscilloscopeInner = forwardRef<
 					audioSrc={audioSrc}
 					lineColor={lineColor}
 					lineWidth={lineWidth}
-					outlineRef={outlineRef}
+					elementRef={elementRef}
 					style={style}
 					windowInSeconds={windowInSeconds}
 				/>
