@@ -1,0 +1,132 @@
+---
+image: /generated/articles-docs-codemods-add-element.png
+title: 'addElement()'
+crumb: '@remotion/codemods'
+---
+
+# addElement()<AvailableFrom v="4.0.530" />
+
+Inserts an element created with [`createElement()`](/docs/codemods/create-element) into a composition component or relative to an existing JSX node, and adds the imports it needs.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="add-element.ts"
+import {addElement, createElement, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = addElement({
+  project,
+  element: createElement({
+    component: 'Solid',
+    importPath: 'remotion',
+    props: {width: 1920, height: 1080, color: 'gray'},
+  }),
+  target: {
+    type: 'composition',
+    compositionFile: 'src/Root.tsx',
+    compositionId: 'MyComposition',
+  },
+});
+
+console.log(result.changes);
+console.log(result.insertedNode);
+```
+
+To place the element on the timeline, wrap it in a [`<Sequence>`](/docs/sequence):
+
+```ts twoslash title="add-timed-element.ts"
+import {addElement, createElement, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const video = createElement({
+  component: 'Video',
+  importPath: '@remotion/media',
+  props: {src: 'https://example.com/video.mp4'},
+});
+
+const result = addElement({
+  project,
+  element: createElement({
+    component: 'Sequence',
+    importPath: 'remotion',
+    props: {from: 30, durationInFrames: 90},
+    children: [video],
+  }),
+  target: {
+    type: 'composition',
+    compositionFile: 'src/Root.tsx',
+    compositionId: 'MyComposition',
+  },
+});
+```
+
+Media files are not copied or downloaded, metadata is not probed, and packages are not installed. The project must already contain the dependencies needed by the generated imports.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### element
+
+The element to insert, created with [`createElement()`](/docs/codemods/create-element).
+
+### target
+
+Where to insert the element. One of the following objects.
+
+#### `{type: 'composition', compositionFile, compositionId}`
+
+Appends the element to the component of the composition with the static ID `compositionId`, registered in `compositionFile`. The component may be imported from another project file. If the component returns a single element, both are grouped in a fragment. If it returns `null`, the element becomes its content.
+
+#### `{type: 'inside', node}`
+
+Appends the element as the last child of the JSX element referenced by `node`. Self-closing elements are expanded.
+
+#### `{type: 'before', node}`
+
+Inserts the element before the JSX element referenced by `node`. If the node has no JSX parent, for example because it is returned directly, both are grouped in a fragment.
+
+#### `{type: 'after', node}`
+
+Inserts the element after the JSX element referenced by `node`, following the same rules as `before`.
+
+Obtain a `node` from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous result. See [node references](/docs/codemods#node-references).
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Every inserted element, including children of the inserted element, is listed with a `null` old path. See [node references](/docs/codemods#node-references).
+
+### insertedNode
+
+The reference of the outermost inserted element. Use [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) and its `parentNodePath` to find inserted children.
+
+## Errors
+
+Throws when the target cannot be resolved, the composition component cannot receive content, or the element is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-element.ts)
+- [`createElement()`](/docs/codemods/create-element)
+- [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes)
+- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)

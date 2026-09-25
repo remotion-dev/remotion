@@ -27,10 +27,18 @@ import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyfra
 import {simpleDiff} from './simple-diff';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
 
-export {addSolid, type AddSolidOptions, type AddSolidResult} from './add-solid';
-export {addMedia, type AddMediaOptions} from './add-media';
-export {addComponent, type AddComponentOptions} from './add-component';
-export {type AddContentOptions} from './insert-content';
+export {
+	CodemodElement,
+	createElement,
+	staticFileValue,
+	type CodemodElementChild,
+	type CodemodElementOptions,
+} from './codemod-element';
+export {
+	addElement,
+	type AddElementOptions,
+	type AddElementTarget,
+} from './add-element';
 export {type CodemodValue} from './codemod-value';
 export {
 	getJsxNodes,
@@ -130,7 +138,11 @@ export type {
 } from './codemod-project';
 export {applyCodemodChanges} from './codemod-project';
 export {deleteJsxNodes, type DeleteJsxNodesOptions} from './delete-jsx-nodes';
-export {canWrapJsxNode, wrapJsxNode} from './wrap-jsx-node';
+export {
+	canWrapJsxNode,
+	wrapJsxNode,
+	type WrapJsxNodeOptions,
+} from './wrap-jsx-node';
 export type {
 	EffectArrayElement,
 	EffectDeletionTarget,

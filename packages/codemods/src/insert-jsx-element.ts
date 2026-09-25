@@ -687,7 +687,7 @@ const findDefaultExportLocation = (ast: File): SourceLocation | null => {
 	return location;
 };
 
-type LocalComponentDeclaration =
+export type LocalComponentDeclaration =
 	| namedTypes.VariableDeclarator
 	| namedTypes.FunctionDeclaration
 	| namedTypes.ClassDeclaration;
@@ -697,7 +697,7 @@ type FunctionLikeNode =
 	| namedTypes.FunctionExpression
 	| namedTypes.FunctionDeclaration;
 
-type DefaultExportDeclaration =
+export type DefaultExportDeclaration =
 	namedTypes.ExportDefaultDeclaration['declaration'];
 
 const findLocalComponentDeclaration = ({
@@ -833,7 +833,7 @@ const findRenderMethod = (
 	return renderMethod?.type === 'ClassMethod' ? renderMethod : null;
 };
 
-const getComponentRootNode = (
+export const getComponentRootNode = (
 	declaration: LocalComponentDeclaration | DefaultExportDeclaration,
 ): namedTypes.JSXElement | namedTypes.JSXFragment | null => {
 	if (declaration.type === 'VariableDeclarator') {
@@ -1529,7 +1529,7 @@ const getImportDeclarations = ({
 	);
 };
 
-const ensureOfficialNamedImport = ({
+export const ensureOfficialNamedImport = ({
 	ast,
 	importedName,
 	sourcePath,
@@ -1932,7 +1932,7 @@ const getDefaultExportDeclaration = (
 	return declaration;
 };
 
-const getDeclarationByExportName = ({
+export const getDeclarationByExportName = ({
 	ast,
 	exportName,
 }: {
@@ -1946,7 +1946,7 @@ const getDeclarationByExportName = ({
 	return findLocalComponentDeclaration({ast, name: exportName});
 };
 
-const addElementToComponentRoot = ({
+export const addElementToComponentRoot = ({
 	ast,
 	exportName,
 	element,
@@ -2039,7 +2039,7 @@ const getNullRootFromFunctionLike = (
 		: null;
 };
 
-const getNullComponentRoot = (
+export const getNullComponentRoot = (
 	declaration: LocalComponentDeclaration | DefaultExportDeclaration,
 ): NullLiteral | null => {
 	if (declaration.type === 'VariableDeclarator') {
@@ -2293,7 +2293,12 @@ export const getInsertionRootSourceEdit = ({
 				start: openingStart,
 				end: openingEnd,
 				replacement: [
-					input.slice(openingStart, openingEnd).replace(/\s*\/>$/, '>'),
+					// Keep a `>` that closed the tag on its own line where it was.
+					input
+						.slice(openingStart, openingEnd)
+						.replace(/(\s*)\/>$/, (_, whitespace: string) =>
+							whitespace.includes('\n') ? `${whitespace}>` : '>',
+						),
 					indentInsertedJsx({indent: `${openingIndent}${unit}`, insertion}),
 					`${openingIndent}</${recast.print(root.openingElement.name).code}>`,
 				].join(endOfLine),

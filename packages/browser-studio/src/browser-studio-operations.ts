@@ -5,7 +5,7 @@ import {
 	addCanvasCaptureComposition,
 	addEffect as addEffectCodemod,
 	addFolder,
-	addSolid,
+	createElement,
 	deleteComposition,
 	deleteEffects as deleteEffectsCodemod,
 	deleteJsxNodes as deleteJsxNodesCodemod,
@@ -1488,9 +1488,14 @@ export const createBrowserStudioOperations = ({
 			const result = wrapJsxNodeCodemod({
 				project,
 				node: {filePath, nodePath},
-				wrapper,
-				width: width ?? 0,
-				height: height ?? 0,
+				wrapper: createElement({
+					component: wrapper,
+					importPath: 'remotion',
+					props:
+						wrapper === 'HtmlInCanvas'
+							? {width: width ?? 0, height: height ?? 0}
+							: {},
+				}),
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
@@ -2128,43 +2133,19 @@ export const createBrowserStudioOperations = ({
 				dependencies: installedDependencies,
 				project: getProject(),
 			});
-			const insertion =
-				request.element.type === 'solid'
-					? addSolid({
-							project,
-							compositionId: request.compositionId,
-							compositionFile: request.compositionFile,
-							width: request.element.width,
-							height: request.element.height,
-							position: request.element.position ?? undefined,
-							from: request.from ?? undefined,
-						})
-					: null;
-			const result = insertion
-				? {
-						changes: insertion.changes,
-						filePath: insertion.insertedNode.filePath,
-						insertedNodePath: insertion.insertedNode.nodePath,
-						nodePathRemappings: insertion.nodePathRemappings.map(
-							({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
-						),
-					}
-				: await insertJsxElementIntoProjectWithNodePathRemappings({
-						project,
-						request,
-						svgMarkupToJsx,
-						wrapInSequence: null,
-					});
-			const changes =
-				'changes' in result
-					? result.changes
-					: [
-							{
-								filePath: result.filePath,
-								previousContents: project.files[result.filePath] ?? null,
-								nextContents: result.output,
-							},
-						];
+			const result = await insertJsxElementIntoProjectWithNodePathRemappings({
+				project,
+				request,
+				svgMarkupToJsx,
+				wrapInSequence: null,
+			});
+			const changes = [
+				{
+					filePath: result.filePath,
+					previousContents: project.files[result.filePath] ?? null,
+					nextContents: result.output,
+				},
+			];
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection:

@@ -1,5 +1,5 @@
 import * as recast from 'recast';
-import type {JsxComponentIdentity} from 'remotion';
+import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import {captureJsxNodePaths} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
@@ -12,6 +12,7 @@ export type JsxNode = JsxNodeReference & {
 	tagName: string;
 	componentIdentity: JsxComponentIdentity | null;
 	location: {line: number; column: number} | null;
+	parentNodePath: SequenceNodePath | null;
 };
 
 export type GetJsxNodesOptions = {
@@ -26,7 +27,11 @@ export const getJsxNodes = ({
 	const resolvedFilePath = findProjectFile({project, filePath});
 	const input = project.files[resolvedFilePath];
 	const {ast} = getReadOnlySourceSnapshot(input);
-	return captureJsxNodePaths(ast).map(({node, nodePath}) => {
+	const captured = captureJsxNodePaths(ast);
+	const nodePathByNode = new Map(
+		captured.map(({node, nodePath}) => [node, nodePath]),
+	);
+	return captured.map(({node, nodePath, parentNode}) => {
 		const offset = node.loc ? recastLocToOffset(input, node.loc.start) : null;
 		return {
 			filePath: resolvedFilePath,
@@ -43,6 +48,8 @@ export const getJsxNodes = ({
 								.at(-1)!.length,
 						}
 					: null,
+			parentNodePath:
+				parentNode === null ? null : (nodePathByNode.get(parentNode) ?? null),
 		};
 	});
 };

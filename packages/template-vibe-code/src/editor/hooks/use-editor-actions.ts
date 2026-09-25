@@ -6,11 +6,10 @@ import {
   type SequenceNodePathInfo,
 } from "@remotion/canvas";
 import {
-  addComponent,
   addComposition,
-  addMedia,
-  addSolid,
+  addElement,
   applyCodemodChanges,
+  createElement,
   deleteComposition,
   deleteJsxNodes,
   duplicateComposition,
@@ -23,6 +22,7 @@ import {
   updateCompositionMetadata,
   updateJsxNodeProps,
   wrapJsxNode,
+  type CodemodElement,
   type CodemodProject,
   type CodemodResult,
   type CodemodValue,
@@ -164,6 +164,34 @@ export const useEditorActions = ({
     };
 
     const currentFrame = () => playback.getSnapshot().frame;
+
+    // Adds an element to the active composition, starting at the playhead.
+    // Element creation validates its input, so it happens inside the guard.
+    const addElementAtPlayhead = (getElement: () => CodemodElement) => {
+      try {
+        const { activeComposition, compositionFile } = requireComposition();
+        const sequence = createElement({
+          component: "Sequence",
+          importPath: "remotion",
+          props: { from: currentFrame() },
+          children: [getElement()],
+        });
+        return applyCodemod((project) =>
+          addElement({
+            project,
+            element: sequence,
+            target: {
+              type: "composition",
+              compositionFile,
+              compositionId: activeComposition.id,
+            },
+          }),
+        );
+      } catch (error) {
+        notifyError(error);
+        return Promise.resolve(false);
+      }
+    };
 
     const setZoom = (zoom: PreviewZoom) => {
       dispatch({ type: "set-playback", patch: { zoom } });
@@ -338,9 +366,10 @@ export const ${componentName}: React.FC = () => {
             wrapJsxNode({
               project,
               node,
-              wrapper,
-              width: ref.current.compositionWidth,
-              height: ref.current.compositionHeight,
+              wrapper: createElement({
+                component: wrapper,
+                importPath: "remotion",
+              }),
             }),
           { clearSelection: true },
         ),
@@ -486,61 +515,37 @@ export const ${componentName}: React.FC = () => {
             ],
           }),
         ),
-      addSolid: () => {
-        try {
-          const { activeComposition, compositionFile } = requireComposition();
-          return applyCodemod((project) =>
-            addSolid({
-              project,
-              compositionFile,
-              compositionId: activeComposition.id,
+      addSolid: () =>
+        addElementAtPlayhead(() =>
+          createElement({
+            component: "Solid",
+            importPath: "remotion",
+            props: {
               width: ref.current.compositionWidth,
               height: ref.current.compositionHeight,
-              from: currentFrame(),
-            }),
-          );
-        } catch (error) {
-          notifyError(error);
-          return Promise.resolve(false);
-        }
-      },
-      addMedia: (type: "image" | "video" | "audio", src: string) => {
-        try {
-          const { activeComposition, compositionFile } = requireComposition();
-          return applyCodemod((project) =>
-            addMedia({
-              project,
-              compositionFile,
-              compositionId: activeComposition.id,
-              type,
-              src,
-              srcType: "remote",
-              from: currentFrame(),
-            }),
-          );
-        } catch (error) {
-          notifyError(error);
-          return Promise.resolve(false);
-        }
-      },
-      addComponent: (importName: string, importPath: string) => {
-        try {
-          const { activeComposition, compositionFile } = requireComposition();
-          return applyCodemod((project) =>
-            addComponent({
-              project,
-              compositionFile,
-              compositionId: activeComposition.id,
-              importName,
-              importPath,
-              from: currentFrame(),
-            }),
-          );
-        } catch (error) {
-          notifyError(error);
-          return Promise.resolve(false);
-        }
-      },
+              color: "gray",
+              style: { position: "absolute" },
+            },
+          }),
+        ),
+      addMedia: (type: "image" | "video" | "audio", src: string) =>
+        addElementAtPlayhead(() =>
+          type === "image"
+            ? createElement({
+                component: "CanvasImage",
+                importPath: "remotion",
+                props: { src },
+              })
+            : createElement({
+                component: type === "video" ? "Video" : "Audio",
+                importPath: "@remotion/media",
+                props: { src },
+              }),
+        ),
+      addComponent: (importName: string, importPath: string) =>
+        addElementAtPlayhead(() =>
+          createElement({ component: importName, importPath }),
+        ),
       resolveCompositionSource: () => {
         try {
           const { activeComposition, compositionFile } = requireComposition();

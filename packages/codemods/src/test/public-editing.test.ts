@@ -1,12 +1,11 @@
 import {expect, test} from 'bun:test';
 import {
-	addComponent,
 	addComposition,
 	addEffect,
+	addElement,
 	addFolder,
-	addMedia,
-	addSolid,
 	applyCodemodChanges,
+	createElement,
 	deleteComposition,
 	deleteEffects,
 	deleteJsxNodes,
@@ -25,6 +24,7 @@ import {
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences,
+	staticFileValue,
 	unwrapFolder,
 	updateCompositionMetadata,
 	updateEffectKeyframes,
@@ -32,12 +32,18 @@ import {
 	updateJsxNodeKeyframes,
 	updateJsxNodeProps,
 	updateMultipleJsxNodeProps,
+	wrapJsxNode,
 	type CodemodProject,
 } from '../index';
 import {getChangedContents} from './get-changed-contents';
 
 const compositionFile = 'src/Root.tsx';
 const filePath = 'src/Video.tsx';
+const compositionTarget = {
+	type: 'composition' as const,
+	compositionFile,
+	compositionId: 'Demo',
+};
 const makeProject = () => ({
 	rootDir: '/',
 	entryPoint: 'src/index.ts',
@@ -152,19 +158,28 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 
 test('insert media and components, reorder copies, and delete nodes across files', async () => {
 	const project = makeProject();
-	const media = await addMedia({
+	const image = createElement({
+		component: 'Img',
+		importPath: 'remotion',
+		props: {
+			src: staticFileValue('photo.png'),
+			style: {width: 100, height: 100},
+		},
+	});
+	const media = addElement({
 		project,
-		compositionFile,
-		compositionId: 'Demo',
-		type: 'image',
-		src: 'photo.png',
-		srcType: 'static',
-		from: 10,
-		durationInFrames: 30,
-		dimensions: {width: 100, height: 100},
+		element: createElement({
+			component: 'Sequence',
+			importPath: 'remotion',
+			props: {from: 10, durationInFrames: 30},
+		}).withChild(image),
+		target: compositionTarget,
 	});
 	expect(getChangedContents(media, filePath)).toMatch(
 		/staticFile\(["']photo\.png["']\)/,
+	);
+	expect(getChangedContents(media, filePath)).toContain(
+		"import {AbsoluteFill, Sequence, Img, staticFile} from 'remotion';",
 	);
 	const afterMedia = applyCodemodChanges(project, media.changes);
 	expect(
@@ -174,15 +189,23 @@ test('insert media and components, reorder copies, and delete nodes across files
 			keys: ['from'],
 		}).props.from,
 	).toMatchObject({codeValue: 10});
-	const added = await addComponent({
+	const imageNode = getJsxNodes({project: afterMedia, filePath}).find(
+		(node) => node.tagName === 'Img',
+	)!;
+	expect(imageNode.parentNodePath).toEqual(media.insertedNode.nodePath);
+	const added = addElement({
 		project: afterMedia,
-		compositionFile,
-		compositionId: 'Demo',
-		importName: 'Title',
-		importPath: './Title',
-		props: {text: 'A title'},
+		element: createElement({
+			component: 'Title',
+			importPath: './Title',
+			props: {text: 'A title'},
+		}),
+		target: compositionTarget,
 	});
 	expect(getChangedContents(added, filePath)).toContain("from './Title'");
+	expect(getChangedContents(added, filePath)).toContain(
+		'<Title text="A title" />',
+	);
 	const afterAdd = applyCodemodChanges(afterMedia, added.changes);
 	const duplicated = await duplicateJsxNodes({
 		project: afterAdd,
@@ -563,15 +586,22 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 	expect(project.files).toEqual(original);
 });
 
-test('existing addSolid returns remappings usable by public discovery', () => {
+test('addElement returns remappings usable by public discovery and targets nodes', () => {
 	const project = makeProject();
-	const inserted = addSolid({
+	const solid = createElement({
+		component: 'Solid',
+		importPath: 'remotion',
+		props: {width: 100, height: 100, color: 'gray'},
+	});
+	const inserted = addElement({
 		project,
-		compositionFile,
-		compositionId: 'Demo',
-		width: 100,
-		height: 100,
-		from: 15,
+		element: createElement({
+			component: 'Sequence',
+			importPath: 'remotion',
+			props: {from: 15},
+			children: [solid],
+		}),
+		target: compositionTarget,
 	});
 	const afterInsert = applyCodemodChanges(project, inserted.changes);
 	expect(
@@ -589,20 +619,118 @@ test('existing addSolid returns remappings usable by public discovery', () => {
 			keys: ['from'],
 		}).props.from,
 	).toMatchObject({status: 'static', codeValue: 15});
+
+	const nodes = getJsxNodes({project: afterInsert, filePath});
+	const sequence = nodes.find((node) => node.tagName === 'Sequence')!;
+	const div = nodes.find((node) => node.tagName === 'div')!;
+	const caption = createElement({
+		component: 'p',
+		props: {className: 'caption', 'data-testid': 'caption'},
+		children: ['Hello {world} & friends', {component: 'br'}],
+	});
+	const inside = addElement({
+		project: afterInsert,
+		element: caption,
+		target: {type: 'inside', node: sequence},
+	});
+	expect(getChangedContents(inside, filePath)).toContain(
+		`<p className="caption" data-testid="caption">`,
+	);
+	expect(getChangedContents(inside, filePath)).toContain(
+		"{'Hello {world} & friends'}",
+	);
+	const afterInside = applyCodemodChanges(afterInsert, inside.changes);
+	expect(
+		getJsxNodes({project: afterInside, filePath})
+			.filter(
+				(node) =>
+					JSON.stringify(node.parentNodePath) ===
+					JSON.stringify(inside.insertedNode.nodePath),
+			)
+			.map((node) => node.tagName),
+	).toEqual(['br']);
+	const before = addElement({
+		project: afterInside,
+		element: createElement({component: 'span', children: ['first']}),
+		target: {
+			type: 'before',
+			node: getJsxNodes({project: afterInside, filePath}).find(
+				(node) => node.tagName === 'div',
+			)!,
+		},
+	});
+	const afterBefore = applyCodemodChanges(afterInside, before.changes);
+	expect(
+		getJsxNodes({project: afterBefore, filePath}).map((node) => node.tagName),
+	).toEqual(['AbsoluteFill', 'span', 'div', 'Sequence', 'Solid', 'p', 'br']);
+	expect(afterBefore.files[filePath]).toContain('<span>first</span>');
+	const wrapped = wrapJsxNode({
+		project: afterBefore,
+		node: getJsxNodes({project: afterBefore, filePath}).find(
+			(node) => node.tagName === 'div',
+		)!,
+		wrapper: createElement({
+			component: 'Sequence',
+			importPath: 'remotion',
+			props: {from: 5, name: 'Wrapped'},
+		}),
+	});
+	expect(getChangedContents(wrapped, filePath)).toContain(
+		'<Sequence from={5} name="Wrapped">',
+	);
+	expect(() =>
+		wrapJsxNode({
+			project: afterBefore,
+			node: div,
+			wrapper: createElement({component: 'div', children: ['x']}),
+		}),
+	).toThrow('cannot have children');
+	expect(() =>
+		createElement({component: 'div', importPath: 'remotion'}),
+	).toThrow('uppercase');
+	expect(() => createElement({component: '1Bad'})).toThrow('tag name');
+	expect(() =>
+		createElement({component: 'div', props: {'bad name': 1}}),
+	).toThrow('prop name');
+	expect(solid.withProp('width', 200).props.width).toBe(200);
+	expect(solid.props.width).toBe(100);
+	expect(solid.withoutProp('color').props).toEqual({width: 100, height: 100});
+	expect(JSON.parse(JSON.stringify(caption))).toEqual({
+		component: 'p',
+		importPath: null,
+		props: {className: 'caption', 'data-testid': 'caption'},
+		children: [
+			'Hello {world} & friends',
+			{component: 'br', importPath: null, props: {}, children: []},
+		],
+	});
 });
 
 test('nested copies return root references and insertion preserves relative keys under a project root', async () => {
 	const original = {...makeProject(), rootDir: '/project'};
-	const media = await addMedia({
+	const media = addElement({
 		project: original,
-		compositionFile,
-		compositionId: 'Demo',
-		type: 'video',
-		src: 'https://example.com/video.mp4',
-		srcType: 'remote',
-		from: 0,
-		durationInFrames: 60,
+		element: createElement({
+			component: 'Sequence',
+			importPath: 'remotion',
+			props: {from: 0, durationInFrames: 60},
+			children: [
+				{
+					component: 'Video',
+					importPath: '@remotion/media',
+					props: {src: 'https://example.com/video.mp4'},
+				},
+			],
+		}),
+		target: compositionTarget,
 	});
+	// The component file already declares `Video`, so the import is aliased.
+	expect(getChangedContents(media, filePath)).toContain(
+		"import {Video as Video2} from '@remotion/media';",
+	);
+	expect(getChangedContents(media, filePath)).toContain(
+		'<Video2 src="https://example.com/video.mp4" />',
+	);
 	expect(media.insertedNode.filePath).toBe(filePath);
 	const afterMedia = applyCodemodChanges(original, media.changes);
 	expect(Object.keys(afterMedia.files)).toEqual(Object.keys(original.files));

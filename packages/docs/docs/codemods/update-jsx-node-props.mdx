@@ -43,7 +43,7 @@ A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/d
 
 ### props?
 
-A non-empty record of new values, such as `{from: 30, 'style.opacity': 0.5}`. A value of `undefined` removes the prop or nested property. Only one level of nested keys is supported. Use `children` to replace static text. Provide exactly one of `props` or `updates`.
+A non-empty record of new values, such as `{from: 30, 'style.opacity': 0.5}`. A value of `undefined` removes the prop or nested property. Only one level of nested keys is supported. Use `children` to replace static text. Use [`staticFileValue()`](/docs/codemods/static-file-value) to write a [`staticFile()`](/docs/staticfile) call. Provide exactly one of `props` or `updates`.
 
 ### updates?
 

@@ -1,0 +1,104 @@
+---
+image: /generated/articles-docs-codemods-create-element.png
+title: 'createElement()'
+crumb: '@remotion/codemods'
+---
+
+# createElement()<AvailableFrom v="4.0.530" />
+
+Describes a JSX element to insert into source code. Pass the result to [`addElement()`](/docs/codemods/add-element) to add it to a composition or next to an existing node, or to [`wrapJsxNode()`](/docs/codemods/wrap-jsx-node) to wrap an existing node.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="create-element.ts"
+import {createElement} from '@remotion/codemods';
+
+const solid = createElement({
+  component: 'Solid',
+  importPath: 'remotion',
+  props: {width: 1920, height: 1080, color: 'gray'},
+});
+
+const sequence = createElement({
+  component: 'Sequence',
+  importPath: 'remotion',
+  props: {from: 30, durationInFrames: 60},
+}).withChild(solid);
+```
+
+Inserting `sequence` produces the following JSX and adds `import {Sequence, Solid} from 'remotion'` if the imports are missing:
+
+```tsx title="Generated JSX"
+<Sequence from={30} durationInFrames={60}>
+  <Solid width={1920} height={1080} color="gray" />
+</Sequence>
+```
+
+An element is a description, not source code. Imports, local names, and formatting are decided when the element is inserted into a file. If the file already declares a binding with the same name, the import is aliased, for example `import {Solid as Solid2} from 'remotion'`.
+
+## Options
+
+Pass an object with the following properties.
+
+### component
+
+The JSX tag name. Use a component name such as `Solid`, a member expression such as `Interactive.Div`, or an HTML tag such as `div`.
+
+### importPath?
+
+The module to import `component` from, such as `remotion`, `@remotion/media`, or a relative path such as `./Title`. The first identifier of `component` is imported as a named export. Relative paths are resolved from the file that receives the element. Omit it for HTML tags and identifiers that are already in scope.
+
+### props?
+
+A record of prop values. Strings become string attributes, other values become JSX expressions. Values must be strings, finite numbers, booleans, `null`, arrays, or plain objects. Use [`staticFileValue()`](/docs/codemods/static-file-value) to reference a file in the public folder. Defaults to `{}`.
+
+### children?
+
+An array of children. Each child is a string, an element created with `createElement()`, or a plain element description with the same shape as these options. Text that JSX cannot hold verbatim, such as text containing braces, is wrapped in a string expression. Defaults to `[]`.
+
+## Return value
+
+A `CodemodElement`. It is immutable: the following methods return a new element and leave the original unchanged, so an element can be reused as a template.
+
+### component, importPath, props, children
+
+The values passed to `createElement()`, with `importPath` defaulting to `null`. `JSON.stringify()` serializes an element to a plain description that `createElement()` accepts again.
+
+### withProp(name, value)
+
+Returns a copy with the prop set to the value.
+
+### withProps(props)
+
+Returns a copy with the props merged into the existing props.
+
+### withoutProp(name)
+
+Returns a copy without the prop.
+
+### withChild(child)
+
+Returns a copy with the child appended after the existing children.
+
+### withChildren(children)
+
+Returns a copy whose children are replaced.
+
+## Errors
+
+Throws when the tag name, a prop name, or a prop value is invalid, or when `importPath` is set for a tag that does not start with an uppercase letter, `_`, or `$`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/codemod-element.ts)
+- [`addElement()`](/docs/codemods/add-element)
+- [`wrapJsxNode()`](/docs/codemods/wrap-jsx-node)
+- [`staticFileValue()`](/docs/codemods/static-file-value)

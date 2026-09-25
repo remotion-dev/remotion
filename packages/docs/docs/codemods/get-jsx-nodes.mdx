@@ -63,6 +63,10 @@ The recognized component identity, or `null` when it cannot be determined. Impor
 
 The opening tag's `{line, column}` location, or `null`. Lines are one-based; columns are zero-based.
 
+### parentNodePath<AvailableFrom v="4.0.530" />
+
+The `nodePath` of the closest enclosing JSX element in the same file, or `null` for top-level elements. Elements rendered through expressions, such as `{condition && <div />}` or a `.map()` callback, report the enclosing element. Compare it with the `nodePath` of other entries to build a tree or to find the children of a node.
+
 ## Errors
 
 Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.

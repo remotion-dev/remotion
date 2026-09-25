@@ -1,8 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
-	addSolid,
+	addElement,
 	applyCodemodChanges,
 	CodemodsInternals,
+	createElement,
 	getJsxNodes,
 } from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
@@ -15,18 +16,27 @@ import type {VirtualProject} from '../types';
 
 const {basicCaptionsElementSource} = CodemodsInternals;
 
+const solid = createElement({
+	component: 'Solid',
+	importPath: 'remotion',
+	props: {
+		width: 1280,
+		height: 720,
+		color: 'gray',
+		style: {position: 'absolute'},
+	},
+});
+
 const insertSolid = (
 	project: VirtualProject,
 	compositionFile = '/project/src/Composition.tsx',
 ) => {
 	return applyCodemodChanges(
 		project,
-		addSolid({
+		addElement({
 			project,
-			compositionFile,
-			compositionId: 'MyComp',
-			width: 1280,
-			height: 720,
+			element: solid,
+			target: {type: 'composition', compositionFile, compositionId: 'MyComp'},
 		}).changes,
 	);
 };
@@ -70,10 +80,10 @@ test('adds a Solid to the blank Browser Studio project', () => {
 	expect(composition).toContain(
 		'import { CalculateMetadataFunction, Composition, Solid } from "remotion";',
 	);
-	expect(composition).toContain(
-		'<Solid width={1280} height={720} color="gray"',
+	expect(composition).toMatch(
+		/<Solid\s+width=\{1280\}\s+height=\{720\}\s+color="gray"/,
 	);
-	expect(composition).toContain("style={{position: 'absolute'}}");
+	expect(composition).toMatch(/position: ["']absolute["']/);
 	expect(project.files['/project/src/Composition.tsx']).not.toContain('<Solid');
 });
 
@@ -83,28 +93,36 @@ test('adds multiple Solids without duplicating the import', () => {
 	const composition = twice.files['/project/src/Composition.tsx'];
 
 	expect(composition.match(/\bSolid\b/g)).toHaveLength(3);
-	expect(composition.match(/<Solid /g)).toHaveLength(2);
+	expect(composition.match(/<Solid\s/g)).toHaveLength(2);
 });
 
 test('adds a Solid at a timeline frame', () => {
 	const project = createBlankTemplateProject();
 	const updated = applyCodemodChanges(
 		project,
-		addSolid({
+		addElement({
 			project,
-			compositionFile: '/project/src/Composition.tsx',
-			compositionId: 'MyComp',
-			from: 42,
-			width: 1280,
-			height: 720,
-			position: {x: 100, y: 50},
+			element: createElement({
+				component: 'Sequence',
+				importPath: 'remotion',
+				props: {
+					from: 42,
+					style: {position: 'absolute', translate: '100px 50px'},
+				},
+				children: [solid],
+			}),
+			target: {
+				type: 'composition',
+				compositionFile: '/project/src/Composition.tsx',
+				compositionId: 'MyComp',
+			},
 		}).changes,
 	);
 	const composition = updated.files['/project/src/Composition.tsx'];
 
-	expect(composition).toContain('<Sequence from={42}');
-	expect(composition).toContain("translate: '100px 50px'");
-	expect(composition).toContain('<Solid width={1280} height={720}');
+	expect(composition).toMatch(/<Sequence\s+from=\{42\}/);
+	expect(composition).toContain('translate: "100px 50px"');
+	expect(composition).toMatch(/<Solid\s+width=\{1280\}\s+height=\{720\}/);
 });
 
 test('resolves an imported composition component', async () => {
@@ -129,8 +147,8 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	expect(updated.files['/project/src/index.tsx']).toBe(
 		project.files['/project/src/index.tsx'],
 	);
-	expect(updated.files['/project/src/MyComponent.tsx']).toContain(
-		'<Solid width={1280}',
+	expect(updated.files['/project/src/MyComponent.tsx']).toMatch(
+		/<Solid\s+width=\{1280\}/,
 	);
 
 	let currentProject = project;
@@ -196,23 +214,25 @@ registerRoot(Root);
 `,
 		},
 	};
-	const result = addSolid({
+	const result = addElement({
 		project,
-		compositionFile: '/project/src/index.tsx',
-		compositionId: 'MyComp',
-		width: 1280,
-		height: 720,
+		element: solid,
+		target: {
+			type: 'composition',
+			compositionFile: '/project/src/index.tsx',
+			compositionId: 'MyComp',
+		},
 	});
 	const updated = applyCodemodChanges(project, result.changes);
 	const {nodePathRemappings} = result;
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
-		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid} from 'remotion';",
+		"import {AbsoluteFill, Composition, registerRoot, Solid as Solid2} from 'remotion';",
 	);
-	expect(output).not.toContain('<RemotionSequence>');
+	expect(output).not.toContain('<Sequence');
 	expect(output).toContain('<AbsoluteFill />');
-	expect(output).toContain('<RemotionSolid width={1280}');
+	expect(output).toMatch(/<Solid2\s+width=\{1280\}/);
 	expect(nodePathRemappings).toHaveLength(2);
 	expect(nodePathRemappings).toEqual(
 		expect.arrayContaining([

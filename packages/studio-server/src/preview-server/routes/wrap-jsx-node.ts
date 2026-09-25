@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {canWrapJsxNode, wrapJsxNode} from '@remotion/codemods';
+import {canWrapJsxNode, createElement, wrapJsxNode} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	WrapJsxNodeRequest,
@@ -55,9 +55,14 @@ export const wrapJsxNodeHandler: ApiHandler<
 			const result = wrapJsxNode({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
-				wrapper,
-				width: width ?? 0,
-				height: height ?? 0,
+				wrapper: createElement({
+					component: wrapper,
+					importPath: 'remotion',
+					props:
+						wrapper === 'HtmlInCanvas'
+							? {width: width ?? 0, height: height ?? 0}
+							: {},
+				}),
 			});
 			const change = result.changes.find(
 				({filePath}) => filePath === absolutePath,

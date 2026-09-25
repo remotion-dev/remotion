@@ -1,61 +1,115 @@
 import {expect, test} from 'bun:test';
+import {addElement, applyCodemodChanges, createElement} from '../index';
 import {insertJsxElementIntoProjectWithNodePathRemappings} from '../insert-jsx-element';
-import {insertSolidIntoSource} from '../internals';
+
+const solid = createElement({
+	component: 'Solid',
+	importPath: 'remotion',
+	props: {width: 1280, height: 720, color: 'gray'},
+});
 
 test('inserts a Solid into a component source file', () => {
-	const result = insertSolidIntoSource({
-		exportName: 'MyComposition',
-		height: 720,
-		position: null,
-		source: `import {AbsoluteFill} from 'remotion';
+	const project = {
+		rootDir: '/',
+		files: {
+			'src/index.tsx': `import {AbsoluteFill, Composition} from 'remotion';
 
 export const MyComposition = () => <AbsoluteFill>Existing</AbsoluteFill>;
+export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 `,
-		width: 1280,
+		},
+	};
+	const result = addElement({
+		project,
+		element: solid,
+		target: {
+			type: 'composition',
+			compositionFile: 'src/index.tsx',
+			compositionId: 'MyComp',
+		},
 	});
+	const output = applyCodemodChanges(project, result.changes).files[
+		'src/index.tsx'
+	];
 
-	expect(result.output).toContain(
-		"import {AbsoluteFill, Solid} from 'remotion';",
+	expect(output).toContain(
+		"import {AbsoluteFill, Composition, Solid} from 'remotion';",
 	);
-	expect(result.output).toContain(
-		'<Solid width={1280} height={720} color="gray"',
-	);
-	expect(result.line).toBe(3);
+	expect(output).toContain('<Solid width={1280} height={720} color="gray" />');
+	expect(result.insertedNode.filePath).toBe('src/index.tsx');
 });
 
 test('inserts a timeline Solid in a positioned Sequence', () => {
-	const result = insertSolidIntoSource({
-		exportName: 'MyComposition',
-		from: 42,
-		height: 720,
-		position: {x: 120.25, y: 80},
-		source: `export const MyComposition = () => null;\n`,
-		width: 1280,
+	const project = {
+		rootDir: '/',
+		files: {
+			'src/index.tsx': `import {Composition} from 'remotion';
+export const MyComposition = () => null;
+export const Root = () => <Composition id="MyComp" component={MyComposition} />;
+`,
+		},
+	};
+	const sequence = createElement({
+		component: 'Sequence',
+		importPath: 'remotion',
+		props: {from: 42, style: {position: 'absolute', translate: '120.3px 80px'}},
+	}).withChild(solid);
+	const result = addElement({
+		project,
+		element: sequence,
+		target: {
+			type: 'composition',
+			compositionFile: 'src/index.tsx',
+			compositionId: 'MyComp',
+		},
 	});
+	const output = applyCodemodChanges(project, result.changes).files[
+		'src/index.tsx'
+	];
 
-	expect(result.output).toContain("import {Solid, Sequence} from 'remotion';");
-	expect(result.output).toContain('<Sequence from={42}');
-	expect(result.output).toContain("translate: '120.3px 80px'");
-	expect(result.output).toContain('<Solid width={1280} height={720}');
+	expect(output).toContain(
+		"import {Composition, Sequence, Solid} from 'remotion';",
+	);
+	expect(output).toContain('<Sequence');
+	expect(output).toContain('from={42}');
+	expect(output).toContain("translate: '120.3px 80px'");
+	expect(output).toContain('<Solid width={1280} height={720} color="gray" />');
+	expect(output.indexOf('<Sequence')).toBeLessThan(output.indexOf('<Solid'));
+	expect(
+		result.nodePathRemappings.filter((entry) => entry.oldNodePath === null),
+	).toHaveLength(2);
 });
 
 test('inserts a Solid as a sibling of a component root', () => {
-	const result = insertSolidIntoSource({
-		exportName: 'MyComposition',
-		height: 720,
-		position: null,
-		source: `export const MyComposition = () => (
+	const project = {
+		rootDir: '/',
+		files: {
+			'src/index.tsx': `import {Composition} from 'remotion';
+export const MyComposition = () => (
 	<MapViewport>
 		<MapRegion />
 	</MapViewport>
 );
+export const Root = () => <Composition id="MyComp" component={MyComposition} />;
 `,
-		width: 1280,
+		},
+	};
+	const result = addElement({
+		project,
+		element: solid,
+		target: {
+			type: 'composition',
+			compositionFile: 'src/index.tsx',
+			compositionId: 'MyComp',
+		},
 	});
+	const output = applyCodemodChanges(project, result.changes).files[
+		'src/index.tsx'
+	];
 
-	const rootEnd = result.output.indexOf('</MapViewport>');
-	const solidStart = result.output.indexOf('<Solid');
-	expect(result.output).toContain('<>');
+	const rootEnd = output.indexOf('</MapViewport>');
+	const solidStart = output.indexOf('<Solid');
+	expect(output).toContain('<>');
 	expect(rootEnd).toBeGreaterThan(-1);
 	expect(solidStart).toBeGreaterThan(rootEnd);
 });

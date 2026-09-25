@@ -1,6 +1,8 @@
 import type {JSXElement, Node} from '@babel/types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
+import {buildJsxElement} from './build-jsx-element';
+import {CodemodElement} from './codemod-element';
 import type {CodemodProject} from './codemod-project';
 import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
 import {
@@ -11,7 +13,7 @@ import {findProjectFile} from './internals';
 import {getNodeEditResult, type JsxNodeReference} from './node-references';
 import {printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
-import {ensureNamedImport, getImportedName} from './sequence-props/imports';
+import {getImportedName} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
 import {
 	applySourceEdits,
@@ -21,7 +23,14 @@ import {
 import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
-type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+export type WrapJsxNodeOptions<Project extends CodemodProject> = {
+	project: Project;
+	node: JsxNodeReference;
+	wrapper: CodemodElement;
+};
+
+const isHtmlInCanvasWrapper = (wrapper: CodemodElement) =>
+	wrapper.importPath === 'remotion' && wrapper.component === 'HtmlInCanvas';
 
 export const canWrapJsxNode = ({
 	input,
@@ -92,31 +101,36 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 	project,
 	node,
 	wrapper,
-	width,
-	height,
-}: {
-	project: Project;
-	node: JsxNodeReference;
-	wrapper: JsxWrapper;
-	width: number;
-	height: number;
-}) => {
+}: WrapJsxNodeOptions<Project>) => {
+	if (!(wrapper instanceof CodemodElement)) {
+		throw new Error('wrapper must be created with createElement()');
+	}
+
+	if (wrapper.children.length > 0) {
+		throw new Error(
+			'The wrapper element cannot have children of its own; the wrapped node becomes its only child',
+		);
+	}
+
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
 	const eligibility = canWrapJsxNode({input, nodePath: node.nodePath});
+	const htmlInCanvas = isHtmlInCanvasWrapper(wrapper);
 	if (
 		!eligibility.canWrap ||
-		(wrapper === 'HtmlInCanvas' && !eligibility.canWrapHtmlInCanvas)
+		(htmlInCanvas && !eligibility.canWrapHtmlInCanvas)
 	) {
 		throw new Error('This JSX element cannot be wrapped');
 	}
 
 	if (
-		wrapper === 'HtmlInCanvas' &&
-		(!Number.isInteger(width) ||
-			width <= 0 ||
-			!Number.isInteger(height) ||
-			height <= 0)
+		htmlInCanvas &&
+		[wrapper.props.width, wrapper.props.height].some(
+			(dimension) =>
+				typeof dimension !== 'number' ||
+				!Number.isInteger(dimension) ||
+				dimension <= 0,
+		)
 	) {
 		throw new Error('HtmlInCanvas requires positive integer dimensions');
 	}
@@ -230,44 +244,11 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 
 		return `${childIndent}${line.startsWith(closingIndent) ? line.slice(closingIndent.length) : line.trimStart()}`;
 	});
-	const occupiedNames = new Set<string>();
-	recast.types.visit(ast, {
-		visitIdentifier(identifierPath) {
-			occupiedNames.add(identifierPath.node.name);
-			this.traverse(identifierPath);
-		},
-		visitJSXIdentifier(identifierPath) {
-			occupiedNames.add(identifierPath.node.name);
-			this.traverse(identifierPath);
-		},
-	});
-	let suggestedName: string = wrapper;
-	for (let suffix = 1; occupiedNames.has(suggestedName); suffix++) {
-		suggestedName = `${wrapper}FromRemotion${suffix}`;
-	}
-
-	const localName = ensureNamedImport({
-		ast,
-		importedName: wrapper,
-		localName: suggestedName,
-		sourcePath: 'remotion',
-	});
 	const b = recast.types.builders;
-	const name = b.jsxIdentifier(localName);
-	const attributes =
-		wrapper === 'HtmlInCanvas'
-			? [
-					b.jsxAttribute(
-						b.jsxIdentifier('width'),
-						b.jsxExpressionContainer(b.numericLiteral(width)),
-					),
-					b.jsxAttribute(
-						b.jsxIdentifier('height'),
-						b.jsxExpressionContainer(b.numericLiteral(height)),
-					),
-				]
-			: [];
-	const opening = b.jsxOpeningElement(name, attributes, false);
+	const wrapperElement = buildJsxElement({ast, element: wrapper});
+	const opening = wrapperElement.openingElement;
+	opening.selfClosing = false;
+	const localName = recast.print(opening.name).code;
 	const openingLines = printJsxOpeningElement({
 		openingElement: opening,
 		input,
@@ -280,7 +261,7 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 		`${indent}</${localName}>`,
 	].join(endOfLine);
 	path.replace(
-		b.jsxElement(opening, b.jsxClosingElement(b.jsxIdentifier(localName)), [
+		b.jsxElement(opening, b.jsxClosingElement(opening.name), [
 			stripParenthesizedExtra(original) as never,
 		]) as never,
 	);

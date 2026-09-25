@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-codemods-wrap-jsx-node.png
+title: 'wrapJsxNode()'
+crumb: '@remotion/codemods'
+---
+
+# wrapJsxNode()<AvailableFrom v="4.0.530" />
+
+Wraps an existing JSX element in an element created with [`createElement()`](/docs/codemods/create-element). The wrapped element becomes the only child of the wrapper, and the wrapper's imports are added.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="wrap-jsx-node.ts"
+import {createElement, getJsxNodes, wrapJsxNode, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const node = getJsxNodes({project, filePath: 'src/Video.tsx'}).find((candidate) => candidate.tagName === 'div');
+
+if (node) {
+  const result = wrapJsxNode({
+    project,
+    node,
+    wrapper: createElement({
+      component: 'Sequence',
+      importPath: 'remotion',
+      props: {from: 30, durationInFrames: 60},
+    }),
+  });
+  console.log(result.changes);
+}
+```
+
+The wrapped element keeps its source formatting.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### node
+
+The reference of the JSX element to wrap. See [node references](/docs/codemods#node-references).
+
+### wrapper
+
+The wrapper element, created with [`createElement()`](/docs/codemods/create-element). It must not have children. Wrapping in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) requires positive integer `width` and `height` props and is rejected inside or around another `<HtmlInCanvas>`.
+
+## Return value
+
+An object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes.
+
+### nodePathRemappings
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. The wrapped element and its descendants receive new paths, and the wrapper is listed with a `null` old path. See [node references](/docs/codemods#node-references).
+
+### logLine
+
+The one-based line of the wrapped element's opening tag in the input source.
+
+## Errors
+
+Throws when the node cannot be found, cannot be wrapped, or the wrapper is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/wrap-jsx-node.ts)
+- [`createElement()`](/docs/codemods/create-element)
+- [`addElement()`](/docs/codemods/add-element)
