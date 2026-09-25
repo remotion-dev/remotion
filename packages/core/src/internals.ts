@@ -69,8 +69,11 @@ import {
 	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
+	makeOriginalSourceStack,
+	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 	setComponentIdentityResolver,
+	type OriginalSourceLocation,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -290,7 +293,10 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
-import {DisableInteractivityProvider} from './with-interactivity-schema.js';
+import {
+	DisableInteractivityProvider,
+	EnableInteractivityProvider,
+} from './with-interactivity-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -394,6 +400,7 @@ export const Internals = {
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	DisableInteractivityProvider,
+	EnableInteractivityProvider,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,
@@ -423,6 +430,8 @@ export const Internals = {
 	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
+	makeOriginalSourceStack,
+	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 	setComponentIdentityResolver,
 	CurrentScaleContext,
@@ -520,6 +529,7 @@ export type {
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
+	OriginalSourceLocation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	OverrideIdToNodePaths,

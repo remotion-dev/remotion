@@ -63,6 +63,10 @@ export const Editor: React.FC<{
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const project = useMemo(() => toCodemodProject(state.files), [state.files]);
+  const compiledProject = useMemo(
+    () => (state.appliedFiles ? toCodemodProject(state.appliedFiles) : project),
+    [project, state.appliedFiles],
+  );
   const compositionFile = useMemo(
     () => findCompositionFile(project),
     [project],
@@ -139,7 +143,7 @@ export const Editor: React.FC<{
     () => host?.getSnapshot().composition ?? null,
     () => null,
   );
-  const layers = useLayers({ host, project, mainFile });
+  const layers = useLayers({ host, compiledProject });
 
   const selection = useMemo(
     () =>
@@ -230,6 +234,16 @@ export const Editor: React.FC<{
     playback,
     context: { state, host, layers, compositions, fps: compositionFps },
   });
+
+  // Previewed values are released once the preview runs the committed source
+  // or the compilation failed, so they never linger over stale output.
+  const previewUpToDate = state.appliedFiles === state.files;
+  const compileFailed = state.compile.type === "error";
+  useEffect(() => {
+    if (previewUpToDate || compileFailed) {
+      actions.releasePreviews();
+    }
+  }, [actions, compileFailed, previewUpToDate]);
 
   useEffect(() => {
     if (state.notices.length === 0) {

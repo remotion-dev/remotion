@@ -7,21 +7,13 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {SegmentedButtonSegment} from '../SegmentedButton';
 import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
-import {InspectorQuickAction} from './common';
+import {
+	InspectorQuickAction,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
+} from './common';
 
 const noElementLibraries = [] as const;
-
-const browseElementsIconStyle: React.CSSProperties = {
-	height: 22,
-	width: 22,
-};
-
-const browseElementsIconContainerStyle: React.CSSProperties = {
-	height: 22,
-	marginLeft: -2,
-	marginRight: -2,
-	width: 22,
-};
 
 const elementLibraryDropdownStyle: React.CSSProperties = {
 	borderRadius: 4,
@@ -93,10 +85,10 @@ export const ElementLibraryButton: React.FC = () => {
 				onOpenChange: null,
 				renderContent: (color) => (
 					<>
-						<span style={browseElementsIconContainerStyle}>
+						<span style={largeInspectorActionIconContainerStyle}>
 							<BrowseElementsIcon
 								color={color}
-								style={browseElementsIconStyle}
+								style={largeInspectorActionIconStyle}
 							/>
 						</span>
 						<span style={elementLibraryDropdownLabelStyle}>
@@ -161,10 +153,13 @@ export const ElementLibraryButton: React.FC = () => {
 	return (
 		<InspectorQuickAction
 			disabled={false}
-			iconContainerStyle={browseElementsIconContainerStyle}
+			iconContainerStyle={largeInspectorActionIconContainerStyle}
 			onClick={openElementsLibrary}
 			renderIcon={(color) => (
-				<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
+				<BrowseElementsIcon
+					color={color}
+					style={largeInspectorActionIconStyle}
+				/>
 			)}
 			aria-label="Browse the Remotion Elements library inside Studio."
 		>

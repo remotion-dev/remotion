@@ -7,8 +7,8 @@ import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {AudioIcon} from '../../icons/audio';
 import {BackgroundRemovalIcon} from '../../icons/background-removal';
 import {DuplicateIcon} from '../../icons/duplicate';
-import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
+import {SplitIcon} from '../../icons/split';
 import {TranscriptionIcon} from '../../icons/transcription';
 import {TrashIcon} from '../../icons/trash';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -39,6 +39,8 @@ import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {
 	ConnectedCompositionsSection,
@@ -53,18 +55,6 @@ import {
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
-
-const actionIconStyle: React.CSSProperties = {
-	display: 'block',
-	height: 16,
-	width: 16,
-};
-
-const largeActionIconStyle: React.CSSProperties = {
-	...actionIconStyle,
-	height: 20,
-	width: 20,
-};
 
 const SplitSequenceQuickAction: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
@@ -115,10 +105,11 @@ const SplitSequenceQuickAction: React.FC<{
 	return (
 		<InspectorQuickAction
 			disabled={!canSplit}
+			iconContainerStyle={largeInspectorActionIconContainerStyle}
 			onClick={onSplit}
 			aria-label={disabledReason}
 			renderIcon={(color) => (
-				<ScissorsIcon style={actionIconStyle} color={color} />
+				<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 			)}
 		>
 			Split clip
@@ -273,16 +264,21 @@ const SequenceSourceQuickActions: React.FC<{
 			});
 	}, [selection.nodePathInfo, splitVideoFromAudioDisabledReason]);
 
+	// Pad the larger SVG glyphs so they have similar visible bounds at 22px.
 	return (
 		<>
 			{freezeFrameMenuItem?.type === 'item' ? (
 				<InspectorQuickAction
 					disabled={Boolean(freezeFrameMenuItem.disabled)}
+					iconContainerStyle={largeInspectorActionIconContainerStyle}
 					onClick={() =>
 						freezeFrameMenuItem.onClick(freezeFrameMenuItem.id, null)
 					}
 					renderIcon={(color) => (
-						<SnowflakeIcon style={largeActionIconStyle} color={color} />
+						<SnowflakeIcon
+							style={largeInspectorActionIconStyle}
+							color={color}
+						/>
 					)}
 				>
 					{freezeFrameMenuItem.label}
@@ -291,10 +287,15 @@ const SequenceSourceQuickActions: React.FC<{
 			{track.sequence.type === 'video' ? (
 				<InspectorQuickAction
 					disabled={videoMattingDisabledReason !== undefined}
+					iconContainerStyle={largeInspectorActionIconContainerStyle}
 					onClick={onRemoveBackground}
 					aria-label={videoMattingDisabledReason}
 					renderIcon={(color) => (
-						<BackgroundRemovalIcon style={actionIconStyle} color={color} />
+						<BackgroundRemovalIcon
+							style={largeInspectorActionIconStyle}
+							color={color}
+							viewBox="-32 -32 704 704"
+						/>
 					)}
 				>
 					Remove background
@@ -303,10 +304,16 @@ const SequenceSourceQuickActions: React.FC<{
 			{track.sequence.type === 'video' ? (
 				<InspectorQuickAction
 					disabled={splitVideoFromAudioDisabledReason !== undefined}
+					iconContainerStyle={largeInspectorActionIconContainerStyle}
 					onClick={onSplitVideoFromAudio}
 					aria-label={splitVideoFromAudioDisabledReason}
 					renderIcon={(color) => (
-						<AudioIcon style={actionIconStyle} color={color} />
+						<AudioIcon
+							style={largeInspectorActionIconStyle}
+							color={color}
+							viewBox="-96 -64 704 640"
+							preserveAspectRatio="none"
+						/>
 					)}
 				>
 					Split video from audio
@@ -315,10 +322,16 @@ const SequenceSourceQuickActions: React.FC<{
 			{mediaSequence !== null && mediaMetadata?.hasAudioTrack !== false ? (
 				<InspectorQuickAction
 					disabled={transcriptionDisabledReason !== undefined}
+					iconContainerStyle={largeInspectorActionIconContainerStyle}
 					onClick={onGenerateCaptions}
 					aria-label={transcriptionDisabledReason}
 					renderIcon={(color) => (
-						<TranscriptionIcon style={actionIconStyle} color={color} />
+						<TranscriptionIcon
+							style={largeInspectorActionIconStyle}
+							color={color}
+							viewBox="-96 -16 704 544"
+							preserveAspectRatio="none"
+						/>
 					)}
 				>
 					Generate captions
@@ -326,9 +339,14 @@ const SequenceSourceQuickActions: React.FC<{
 			) : null}
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
+				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
-					<DuplicateIcon style={largeActionIconStyle} color={color} />
+					<DuplicateIcon
+						style={largeInspectorActionIconStyle}
+						color={color}
+						viewBox="-32 -32 704 704"
+					/>
 				)}
 			>
 				Duplicate
@@ -340,9 +358,14 @@ const SequenceSourceQuickActions: React.FC<{
 			/>
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
+				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={onDelete}
 				renderIcon={(color) => (
-					<TrashIcon style={actionIconStyle} color={color} />
+					<TrashIcon
+						style={largeInspectorActionIconStyle}
+						color={color}
+						viewBox="-120 -96 688 688"
+					/>
 				)}
 			>
 				Delete

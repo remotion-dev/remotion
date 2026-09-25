@@ -13,7 +13,7 @@ import {
 	getFieldsToShow,
 	SCHEMA_FIELD_GROUPS,
 } from '../../helpers/timeline-layout';
-import {ScissorsIcon} from '../../icons/scissors';
+import {SplitIcon} from '../../icons/split';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
@@ -29,6 +29,8 @@ import {
 	InspectorMessage,
 	InspectorQuickAction,
 	InspectorQuickActionsSection,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {
 	MultiSequenceField,
@@ -46,12 +48,6 @@ const selectionCountStyle: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
-};
-
-const actionIconStyle: React.CSSProperties = {
-	display: 'block',
-	height: 16,
-	width: 16,
 };
 
 export const MultiSequenceInspector: React.FC<{
@@ -226,10 +222,11 @@ export const MultiSequenceInspector: React.FC<{
 				<InspectorQuickActionsSection>
 					<InspectorQuickAction
 						disabled={!canSplit}
+						iconContainerStyle={largeInspectorActionIconContainerStyle}
 						onClick={onSplit}
 						aria-label={canSplit ? undefined : 'Studio is read-only'}
 						renderIcon={(color) => (
-							<ScissorsIcon style={actionIconStyle} color={color} />
+							<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 						)}
 					>
 						Split selected

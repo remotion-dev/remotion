@@ -2065,6 +2065,7 @@ const sidebars: SidebarsConfig = {
 				'canvas/use-canvas-sequence-hover',
 				'canvas/use-canvas-hover',
 				'canvas/get-canvas-sequence-node-path-info',
+				'canvas/get-canvas-sequence-source-location',
 				'canvas/get-canvas-selection-item-key',
 			],
 		},

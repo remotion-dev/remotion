@@ -1,6 +1,10 @@
 "use client";
 
-import type { CanvasSelectionInteraction } from "@remotion/canvas";
+import {
+  getCanvasSelectionItemKey,
+  type CanvasSelectionInteraction,
+  type SequenceNodePathInfo,
+} from "@remotion/canvas";
 import {
   addComponent,
   addComposition,
@@ -35,8 +39,8 @@ import type {
 } from "@/preview/bridge";
 import type { CompositionInfo } from "../model/compositions";
 import { formatSource } from "../model/format";
-import { areSiblingNodes, type Layer } from "../model/layers";
-import { getFileName, toCodemodProject } from "../model/project";
+import { areSiblingNodes, getNodeReference, type Layer } from "../model/layers";
+import { filesAreEqual, getFileName, toCodemodProject } from "../model/project";
 import { resolveProjectPathInput } from "@/lib/project-paths";
 import type { PlaybackStore } from "./use-playback";
 import { getErrorMessage } from "./use-preview-host";
@@ -94,7 +98,13 @@ export const useEditorActions = ({
 
     const applyCodemod = async (
       run: (project: CodemodProject) => Promise<CodemodResult> | CodemodResult,
-      { clearSelection = false }: { clearSelection?: boolean } = {},
+      {
+        clearSelection = false,
+        onApplied,
+      }: {
+        clearSelection?: boolean;
+        onApplied?: (changed: boolean) => void;
+      } = {},
     ) => {
       try {
         const project = getProject();
@@ -110,16 +120,27 @@ export const useEditorActions = ({
           }
         }
 
+        const changed = !filesAreEqual(project.files, files);
         dispatch({ type: "set-files", files, coalesceKey: null });
         if (clearSelection) {
           ref.current.host?.controller.selection.clear();
         }
 
+        onApplied?.(changed);
         return true;
       } catch (error) {
         notifyError(error);
         return false;
       }
+    };
+
+    // Values previewed on the canvas through overrides. They stay in place
+    // until the preview has compiled the committed source, so the canvas does
+    // not flash the old value while the bundler works.
+    const pendingPreviews = new Map<string, SequenceNodePathInfo>();
+    const clearPreview = (layer: Layer) => {
+      pendingPreviews.delete(getCanvasSelectionItemKey(layer.selectionItem));
+      ref.current.host?.controller.overrides.clear(layer.nodePathInfo);
     };
 
     const getPlayer = () => playback.getPlayer();
@@ -378,6 +399,79 @@ export const ${componentName}: React.FC = () => {
             },
           }),
         ),
+      /**
+       * Shows prop values on the canvas without touching the source, e.g.
+       * while a value is being scrubbed. Commit them with `commitLayerProps`.
+       */
+      previewLayerProps: (layer: Layer, values: Record<string, unknown>) => {
+        const controller = ref.current.host?.controller;
+        if (!controller || layer.track.nodePathInfo === null) {
+          return;
+        }
+
+        for (const [key, value] of Object.entries(values)) {
+          controller.overrides.set(layer.nodePathInfo, key, {
+            type: "static",
+            value,
+          });
+        }
+
+        pendingPreviews.set(
+          getCanvasSelectionItemKey(layer.selectionItem),
+          layer.nodePathInfo,
+        );
+      },
+      /** Drops a preview without writing to the source. */
+      cancelLayerPreview: (layer: Layer) => clearPreview(layer),
+      /** Writes previewed values to the source and releases the preview. */
+      commitLayerProps: async (
+        layer: Layer,
+        updates: SequencePropUpdate[],
+        schema: InteractivitySchema | null,
+      ) => {
+        const node = getNodeReference(layer.selectionItem);
+        if (!node) {
+          clearPreview(layer);
+          return false;
+        }
+
+        const ok = await applyCodemod(
+          (project) =>
+            updateJsxNodeProps({
+              project,
+              node,
+              updates,
+              schema: schema ?? undefined,
+              videoConfig: {
+                width: ref.current.compositionWidth,
+                height: ref.current.compositionHeight,
+                fps: ref.current.compositionFps,
+                durationInFrames: ref.current.compositionDurationInFrames,
+              },
+            }),
+          {
+            onApplied: (changed) => {
+              if (!changed) {
+                clearPreview(layer);
+              }
+            },
+          },
+        );
+        if (!ok) {
+          clearPreview(layer);
+        }
+
+        return ok;
+      },
+      /** Called once the preview shows the committed source again. */
+      releasePreviews: () => {
+        const controller = ref.current.host?.controller;
+        for (const nodePathInfo of pendingPreviews.values()) {
+          controller?.overrides.clear(nodePathInfo);
+        }
+
+        pendingPreviews.clear();
+      },
       renameNode: (node: JsxNodeReference, name: string) =>
         applyCodemod((project) =>
           updateJsxNodeProps({

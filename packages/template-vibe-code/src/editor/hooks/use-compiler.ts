@@ -147,6 +147,7 @@ export const useCompiler = ({
           // applied because the next Fast Refresh update builds on it.
           await host.applyBundle(bundle);
           session.hasBundle = true;
+          dispatch({ type: "set-applied-files", files: nextFiles });
           const desired = selectionRef.current;
           if (desired && !sameSelection(desired, session.appliedSelection)) {
             session.appliedSelection = desired;

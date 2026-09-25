@@ -168,7 +168,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		estimateSize,
 		getItemKey,
 		getScrollElement,
-		overscan: 8,
+		overscan: 20,
 		paddingEnd,
 		paddingStart,
 		rangeExtractor,
