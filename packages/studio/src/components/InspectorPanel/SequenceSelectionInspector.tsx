@@ -1,11 +1,4 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
@@ -473,41 +466,12 @@ export const SequenceSelectionInspector: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({selection, readOnlyStudio}) => {
 	const track = useTrackForSelection(selection);
-	const selectionKey = getTimelineSelectionKey(selection);
-	const lastTrack = useRef<{key: string; track: TimelineTrackData} | null>(
-		null,
-	);
-	const [keepPreviousTrack, setKeepPreviousTrack] = useState(true);
-	if (track !== null) {
-		lastTrack.current = {key: selectionKey, track};
-	}
 
-	useEffect(() => {
-		if (track !== null) {
-			setKeepPreviousTrack(true);
-			return;
-		}
-
-		// Fast Refresh briefly unregisters the old Sequence before registering the
-		// new one. Keep its controls visible during that handoff, but still show
-		// the unavailable state if the track does not come back.
-		const timeout = setTimeout(() => setKeepPreviousTrack(false), 300);
-		return () => clearTimeout(timeout);
-	}, [track, selectionKey]);
-
-	const visibleTrack =
-		track ??
-		(keepPreviousTrack && lastTrack.current?.key === selectionKey
-			? lastTrack.current.track
-			: null);
-	if (visibleTrack === null) {
+	if (!track) {
 		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
 	}
 
 	return (
-		<SequenceExpandedInspector
-			track={visibleTrack}
-			readOnlyStudio={readOnlyStudio}
-		/>
+		<SequenceExpandedInspector track={track} readOnlyStudio={readOnlyStudio} />
 	);
 };

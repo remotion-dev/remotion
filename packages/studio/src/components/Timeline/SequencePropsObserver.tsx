@@ -91,10 +91,10 @@ export const SequencePropsObserver = () => {
 						continue;
 					}
 
-					// Prop statuses follow source nodes to their new paths. Override IDs,
-					// however, follow React's runtime instances. Structural edits may reuse
-					// the instance already at a path, so only remove mappings from paths
-					// which are sources without also being destinations.
+					// Prop statuses follow source nodes to their new paths. Override IDs
+					// normally follow React's runtime instances, which may be reused at an
+					// old path. If the old path has no runtime replacement, move its mapping
+					// to the new source path and resubscribe without remounting the instance.
 					const runtimeNodePathIsSource = file.remappings.some(
 						(item) =>
 							item.oldNodePath !== null &&
@@ -168,7 +168,10 @@ export const SequencePropsObserver = () => {
 				overrideId,
 				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
-			if (runtimeNodePathExists && runtimeNodePathNeedsRefresh) {
+			if (
+				!wasDeleted &&
+				(!runtimeNodePathExists || runtimeNodePathNeedsRefresh)
+			) {
 				overrideIdsToRefresh.add(overrideId);
 			}
 		}

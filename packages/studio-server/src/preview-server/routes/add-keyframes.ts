@@ -326,15 +326,15 @@ export const addKeyframes = async ({
 				: sequenceKeyframes.length > 0
 					? 'sequence-props'
 					: 'effect-props',
-		suppressHmrOnFileRestore: filesWithRemappings.length === 0,
+		suppressHmrOnFileRestore: true,
 		undoRedoNavigation: null,
 	});
 
+	// Visual Mode evaluates keyframes from prop statuses. Remap and refresh the
+	// subscriptions instead of remounting the composition when a hook is added.
 	for (const snapshot of snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
-		if (snapshot.nodePathRemappings.length === 0) {
-			suppressBundlerUpdateForFile(snapshot.filePath);
-		}
+		suppressBundlerUpdateForFile(snapshot.filePath);
 
 		writeFileAndNotifyFileWatchers({
 			file: snapshot.filePath,
