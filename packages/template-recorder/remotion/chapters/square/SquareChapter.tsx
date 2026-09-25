@@ -6,7 +6,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { TITLE_FONT } from "../../../config/fonts";
-import { getSafeSpace } from "../../../config/layout";
+import { getSafeSpace, type CanvasLayout } from "../../../config/layout";
 import { SCENE_TRANSITION_DURATION } from "../../../config/transitions";
 import { borderRadius } from "../../layout/get-layout";
 import type { Layout } from "../../layout/layout-types";
@@ -30,14 +30,21 @@ export const SquareChapter: React.FC<{
   didTransitionIn: boolean;
   displayLayout: Layout | null;
   webcamLayout: Layout;
-}> = ({ title, webcamLayout, didTransitionIn, displayLayout }) => {
+  canvasLayout: CanvasLayout;
+}> = ({
+  title,
+  webcamLayout,
+  didTransitionIn,
+  displayLayout,
+  canvasLayout,
+}) => {
   const layout = useMemo(() => {
     return displayLayout ?? webcamLayout;
   }, [displayLayout, webcamLayout]);
 
   const top = useMemo(() => {
-    return layout.height - HEIGHT - getSafeSpace("square");
-  }, [layout.height]);
+    return layout.height - HEIGHT - getSafeSpace(canvasLayout);
+  }, [canvasLayout, layout.height]);
 
   const frame = useCurrentFrame();
   const { fps, width } = useVideoConfig();
@@ -59,7 +66,7 @@ export const SquareChapter: React.FC<{
     },
     delay: 70,
   });
-  const toTop = (1 - enter) * (HEIGHT + getSafeSpace("square"));
+  const toTop = (1 - enter) * (HEIGHT + getSafeSpace(canvasLayout));
   const toLeft = exit * -width;
 
   return (
@@ -87,7 +94,7 @@ export const SquareChapter: React.FC<{
             position: "absolute",
             top: top + toTop,
             height: HEIGHT,
-            left: getSafeSpace("square"),
+            left: getSafeSpace(canvasLayout),
             borderRadius,
             fontSize: 40,
             ...TITLE_FONT,

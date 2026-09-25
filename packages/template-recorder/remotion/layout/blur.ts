@@ -8,8 +8,8 @@ import type { SceneAndMetadata } from "../../config/scenes";
 import { fitElementSizeInContainer } from "./fit-element";
 import type { Layout } from "./layout-types";
 
-// Background blur should only be enabled in landscape layout
-// when the webcam is in fullscreen
+// Background blur should be enabled when the webcam is fullscreen and its
+// source aspect ratio does not match the landscape or portrait canvas.
 export const shouldEnableSceneBackgroundBlur = (
   scene: SceneAndMetadata,
   canvasLayout: CanvasLayout,
@@ -22,7 +22,7 @@ export const shouldEnableSceneBackgroundBlur = (
     return false;
   }
 
-  if (canvasLayout !== "landscape") {
+  if (canvasLayout === "square") {
     return false;
   }
 
