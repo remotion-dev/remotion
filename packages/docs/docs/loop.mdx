@@ -56,11 +56,11 @@ The Loop component is a high order component and accepts, besides it's children,
 
 ### `durationInFrames`
 
-How many frames of the child timeline one iteration of the loop should contain. An iteration occupies `durationInFrames / playbackRate` frames in the parent timeline.
+How many frames one iteration of the loop should be long.
 
 ### `playbackRate?`<AvailableFrom v="4.0.528" />
 
-Changes the speed of the children within each iteration. Defaults to `1` and must remain constant across frames. Each iteration lasts `durationInFrames / playbackRate` frames in the parent timeline. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
+Changes the speed of the children within each iteration. Defaults to `1` and must remain constant across frames. Each iteration still lasts `durationInFrames` frames in the parent timeline. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
 
 ### `times?`
 
@@ -194,5 +194,6 @@ const Child = () => {
 
 ## See also
 
+- [Order of operations](/docs/timing#order-of-operations)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/loop/index.tsx)
 - [`<Sequence>`](/docs/sequence)
