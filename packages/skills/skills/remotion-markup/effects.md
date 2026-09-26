@@ -47,7 +47,8 @@ Config.setChromiumOpenGlRenderer('angle');
 Example:
 
 ```tsx
-import {brightness} from "@remotion/effects";
+import {Video} from '@remotion/media';
+import {brightness} from '@remotion/effects/brightness';
 
 <Video
   src="https://remotion.media/video.mp4"
