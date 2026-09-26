@@ -73,10 +73,12 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
+	const content = <Freeze frame={sampleFrame}>{children}</Freeze>;
+	const isRepresentativeSample = index === Math.floor(count / 2);
 
 	return (
 		<div
-			aria-hidden={index !== Math.floor(count / 2)}
+			aria-hidden={!isRepresentativeSample}
 			// Each sample has its own paint record so it can be captured separately.
 			{...{drawable: ''}}
 			style={{
@@ -85,10 +87,16 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				width,
 				height,
 				isolation: 'isolate',
-				pointerEvents: index === Math.floor(count / 2) ? 'auto' : 'none',
+				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			<Freeze frame={sampleFrame}>{children}</Freeze>
+			{isRepresentativeSample ? (
+				content
+			) : (
+				<Internals.DisableSequenceRegistrationProvider>
+					{content}
+				</Internals.DisableSequenceRegistrationProvider>
+			)}
 		</div>
 	);
 };
