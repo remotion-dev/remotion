@@ -914,6 +914,34 @@ export type WrapJsxNodeResponse =
 	  }
 	| {success: false; reason: string; stack: string};
 
+export type PrecomposeJsxNodesRequestItem = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type PrecomposeJsxNodesRequest = {
+	nodes: PrecomposeJsxNodesRequestItem[];
+	compositionFile: string;
+	compositionId: string;
+	existingCompositionIds: string[];
+	metadata: {
+		width: number;
+		height: number;
+		fps: number;
+		durationInFrames: number;
+	};
+	dryRun: boolean;
+};
+
+export type PrecomposeJsxNodesResponse =
+	| {
+			success: true;
+			canPrecompose: boolean;
+			reason: string | null;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
 export type SplitJsxSequenceRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1468,6 +1496,10 @@ export type ApiRoutes = {
 		DuplicateJsxNodeResponse
 	>;
 	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
+	'/api/precompose-jsx-nodes': ReqAndRes<
+		PrecomposeJsxNodesRequest,
+		PrecomposeJsxNodesResponse
+	>;
 	'/api/split-jsx-sequence': ReqAndRes<
 		SplitJsxSequenceRequest,
 		SplitJsxSequenceResponse

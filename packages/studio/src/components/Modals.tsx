@@ -25,6 +25,7 @@ import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
 import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
+import {PrecomposeRefactorModal} from './PrecomposeRefactorModal';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
@@ -281,6 +282,9 @@ export const Modals: React.FC<{
 
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'precompose-refactor' && (
+				<PrecomposeRefactorModal state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />

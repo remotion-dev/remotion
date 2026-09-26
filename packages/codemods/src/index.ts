@@ -136,6 +136,10 @@ export type {
 export {applyCodemodChanges} from './codemod-project';
 export {deleteNodes, type DeleteNodesOptions} from './delete-nodes';
 export {canWrapNode, wrapNode, type WrapNodeOptions} from './wrap-node';
+export {
+	canPrecomposeJsxNodes,
+	precomposeJsxNodes,
+} from './precompose-jsx-nodes';
 export type {
 	EffectArrayElement,
 	EffectDeletionTarget,

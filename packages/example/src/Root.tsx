@@ -11,7 +11,7 @@ import {
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import {UseanimatedEmojis} from './AnimatedEmojis';
-import {BarChart} from './BarChart';
+import {AmbientGlow, BarChart, PeakBadge, Eyebrow} from './BarChart';
 import BetaText, {betaTextSchema} from './BetaText';
 import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
@@ -464,6 +464,14 @@ export const Index: React.FC = () => {
 			<Composition
 				id="AnimatedBarChart"
 				component={BarChart}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="AmbientGlow"
+				component={AmbientGlow}
 				durationInFrames={180}
 				fps={30}
 				width={1280}
@@ -3239,6 +3247,22 @@ export const Index: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={180}
+			/>
+			<Composition
+				id="PeakBadge"
+				component={PeakBadge}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="Eyebrow"
+				component={Eyebrow}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
 			/>
 		</>
 	);

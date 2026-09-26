@@ -17,6 +17,8 @@ import {
 	canWrapNode,
 	wrapNode as wrapNodeCodemod,
 	getNodeProps,
+	canPrecomposeJsxNodes,
+	precomposeJsxNodes as precomposeJsxNodesCodemod,
 	moveComposition,
 	moveFolder,
 	renameComposition,
@@ -1585,6 +1587,76 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
+	const precomposeJsxNodes: BrowserStudioOperations['precomposeJsxNodes'] = ({
+		nodes,
+		dryRun,
+		compositionFile,
+		compositionId,
+		metadata,
+		existingCompositionIds,
+	}) => {
+		try {
+			if (nodes.length === 0) {
+				throw new Error('No JSX sequences were selected');
+			}
+
+			const project = getProject();
+			const resolved = nodes.map(({fileName, nodePath}) => ({
+				filePath: findProjectFile({project, filePath: fileName}),
+				nodePath,
+			}));
+			const {filePath} = resolved[0];
+			if (resolved.some((node) => node.filePath !== filePath)) {
+				throw new Error('Selected sequences must be in the same source file');
+			}
+
+			const resolvedCompositionFile = findProjectFile({
+				project,
+				filePath: compositionFile,
+			});
+			const options = {
+				project,
+				nodes: resolved,
+				compositionFile: resolvedCompositionFile,
+				compositionId,
+				metadata,
+				existingCompositionIds,
+			};
+			const eligibility = canPrecomposeJsxNodes(options);
+			if (dryRun) {
+				return Promise.resolve({
+					success: true,
+					...eligibility,
+					nodePathMutation: null,
+				});
+			}
+
+			if (!eligibility.canPrecompose) {
+				throw new Error(
+					eligibility.reason ?? 'Cannot pre-compose this selection',
+				);
+			}
+
+			const result = precomposeJsxNodesCodemod(options);
+			const nodePathMutation = controller.applyMutation({
+				undoRedoNavigation: null,
+				timelineSelection: null,
+				fileName: result.changes
+					.map(({filePath: changed}) => changed)
+					.join(', '),
+				mutate: (current) => applyCodemodChanges(current, result.changes),
+				nodePathMutationFiles: getNodePathMutationFiles(result),
+			});
+			if (nodePathMutation === null) {
+				throw new Error('Could not pre-compose selected sequences');
+			}
+
+			return Promise.resolve({success: true, ...eligibility, nodePathMutation});
+		} catch (error) {
+			return Promise.resolve(getStructuredError(error));
+		}
+	};
+
 	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
 		sequences,
 	}) => {
@@ -2292,6 +2364,7 @@ export const createBrowserStudioOperations = ({
 		duplicateComposition,
 		duplicateJsxNode,
 		wrapJsxNode,
+		precomposeJsxNodes,
 		effects: effectOperations,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
