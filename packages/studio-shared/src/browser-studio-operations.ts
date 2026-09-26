@@ -13,8 +13,8 @@ import type {
 	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
-	DeleteJsxNodesRequest,
-	DeleteJsxNodesResponse,
+	DeleteNodesRequest,
+	DeleteNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteEffectRequest,
@@ -27,12 +27,12 @@ import type {
 	FindInFileResponse,
 	DuplicateEffectRequest,
 	DuplicateEffectResponse,
-	DuplicateJsxNodeRequest,
-	DuplicateJsxNodeResponse,
-	WrapJsxNodeRequest,
-	WrapJsxNodeResponse,
-	InsertJsxElementRequest,
-	InsertJsxElementResponse,
+	DuplicateNodesRequest,
+	DuplicateNodesResponse,
+	WrapNodeRequest,
+	WrapNodeResponse,
+	InsertCompositionElementRequest,
+	InsertCompositionElementResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InstallPackageRequest,
@@ -58,8 +58,8 @@ import type {
 	SaveMultipleEffectPropsRequest,
 	SaveMultipleEffectPropsResponse,
 	SimpleDiff,
-	SplitJsxSequenceRequest,
-	SplitJsxSequenceResponse,
+	SplitSequencesRequest,
+	SplitSequencesResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
 	InsertBasicCaptionsRequest,
@@ -172,9 +172,7 @@ export type BrowserStudioOperations = {
 		sourceOrigin: string | null;
 	} | null;
 	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
-	deleteJsxNodes: (
-		request: DeleteJsxNodesRequest,
-	) => Promise<DeleteJsxNodesResponse>;
+	deleteNodes: (request: DeleteNodesRequest) => Promise<DeleteNodesResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
 	) => Promise<DeleteStaticFileResponse>;
@@ -188,10 +186,10 @@ export type BrowserStudioOperations = {
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
-	duplicateJsxNode: (
-		request: DuplicateJsxNodeRequest,
-	) => Promise<DuplicateJsxNodeResponse>;
-	wrapJsxNode: (request: WrapJsxNodeRequest) => Promise<WrapJsxNodeResponse>;
+	duplicateNodes: (
+		request: DuplicateNodesRequest,
+	) => Promise<DuplicateNodesResponse>;
+	wrapNode: (request: WrapNodeRequest) => Promise<WrapNodeResponse>;
 	effects: BrowserStudioEffectOperations;
 	findInFile: (request: FindInFileRequest) => Promise<FindInFileResponse>;
 	getFileSource: (fileName: string) => Promise<string | null>;
@@ -199,15 +197,12 @@ export type BrowserStudioOperations = {
 	getCompositionComponentInfo: (
 		request: CompositionComponentInfoRequest,
 	) => Promise<CompositionComponentInfoResponse>;
-	insertSolid: (
-		request: InsertJsxElementRequest,
-	) => Promise<InsertJsxElementResponse>;
 	insertElement: (
 		request: InsertElementRequest,
 	) => Promise<InsertElementResponse>;
-	insertJsxElement: (
-		request: InsertJsxElementRequest,
-	) => Promise<InsertJsxElementResponse>;
+	insertCompositionElement: (
+		request: InsertCompositionElementRequest,
+	) => Promise<InsertCompositionElementResponse>;
 	keyframes: BrowserStudioKeyframeOperations;
 	packageInstallation: BrowserStudioPackageInstallationOperations;
 	prepareElementInstall: (
@@ -223,9 +218,9 @@ export type BrowserStudioOperations = {
 	saveSequenceProps: (
 		request: SaveSequencePropsRequest,
 	) => Promise<SaveSequencePropsResponse>;
-	splitJsxSequence: (
-		request: SplitJsxSequenceRequest,
-	) => Promise<SplitJsxSequenceResponse>;
+	splitSequences: (
+		request: SplitSequencesRequest,
+	) => Promise<SplitSequencesResponse>;
 	splitVideoFromAudio: (
 		request: SplitVideoFromAudioRequest,
 	) => Promise<SplitVideoFromAudioResponse>;

@@ -1,9 +1,9 @@
 import {readFileSync} from 'node:fs';
-import {splitSequences} from '@remotion/codemods';
+import {duplicateNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	SplitJsxSequenceRequest,
-	SplitJsxSequenceResponse,
+	DuplicateNodesRequest,
+	DuplicateNodesResponse,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
@@ -20,47 +20,45 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-export const splitJsxSequenceHandler: ApiHandler<
-	SplitJsxSequenceRequest,
-	SplitJsxSequenceResponse
-> = ({input: {sequences}, remotionRoot, logLevel}) =>
-	withSourceFileWriteQueue(async () => {
+export const duplicateNodesHandler: ApiHandler<
+	DuplicateNodesRequest,
+	DuplicateNodesResponse
+> = ({input: {nodes}, remotionRoot, logLevel}) => {
+	return withSourceFileWriteQueue(async () => {
 		try {
-			if (sequences.length === 0) {
-				throw new Error('No JSX sequences were specified for splitting');
+			if (nodes.length === 0) {
+				throw new Error('No JSX nodes were specified for duplication');
 			}
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[split-jsx-sequence] Received request to split ${sequences.length} JSX sequence${sequences.length === 1 ? '' : 's'}`,
+				`[duplicate-nodes] Received request to duplicate ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
 			);
-			const sequencesByFileName = new Map<string, typeof sequences>();
-			for (const sequence of sequences) {
-				const fileSequences = sequencesByFileName.get(sequence.fileName) ?? [];
-				fileSequences.push(sequence);
-				sequencesByFileName.set(sequence.fileName, fileSequences);
+
+			const itemsByFileName = new Map<string, typeof nodes>();
+			for (const item of nodes) {
+				const fileItems = itemsByFileName.get(item.fileName) ?? [];
+				fileItems.push(item);
+				itemsByFileName.set(item.fileName, fileItems);
 			}
 
 			const updates = await Promise.all(
-				[...sequencesByFileName].map(async ([fileName, fileSequences]) => {
+				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await splitSequences({
+					const result = await duplicateNodes({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,
 						},
-						splits: fileSequences.map(
-							({nodePath, sequenceKeys, splitFrame}) => ({
-								node: {filePath: absolutePath, nodePath},
-								sequenceKeys,
-								frame: splitFrame,
-							}),
-						),
+						nodes: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.nodePath,
+						})),
 					});
 					const output = result.changes[0]?.nextContents ?? fileContents;
 					const {nodeLabels, logLines} = result.editDetails[0];
@@ -70,8 +68,8 @@ export const splitJsxSequenceHandler: ApiHandler<
 
 					return {
 						absolutePath,
-						fileContents,
 						fileRelativeToRoot,
+						fileContents,
 						logLine: Math.min(...logLines),
 						nodeLabels,
 						nodePathRemappings,
@@ -86,10 +84,10 @@ export const splitJsxSequenceHandler: ApiHandler<
 				})),
 				null,
 			);
-			const splitDescription =
-				sequences.length === 1
+			const duplicatedNodeDescription =
+				nodes.length === 1
 					? updates[0].nodeLabels[0]
-					: `${sequences.length} JSX sequences`;
+					: `${nodes.length} JSX nodes`;
 
 			pushTransactionToUndoStack({
 				snapshots: updates.map((update) => ({
@@ -102,10 +100,10 @@ export const splitJsxSequenceHandler: ApiHandler<
 				logLevel,
 				remotionRoot,
 				description: {
-					undoMessage: `↩️  Split of ${splitDescription}`,
-					redoMessage: `↪️  Split of ${splitDescription}`,
+					undoMessage: `↩️  Duplication of ${duplicatedNodeDescription}`,
+					redoMessage: `↪️  Duplication of ${duplicatedNodeDescription}`,
 				},
-				entryType: 'split-jsx-sequence',
+				entryType: 'duplicate-nodes',
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation: null,
 			});
@@ -127,16 +125,15 @@ export const splitJsxSequenceHandler: ApiHandler<
 				const fileDescription =
 					update.nodeLabels.length === 1
 						? update.nodeLabels[0]
-						: `${update.nodeLabels.length} JSX sequences`;
+						: `${update.nodeLabels.length} JSX nodes`;
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
-						`${locationLabel}`,
-					)} Split ${fileDescription}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${fileDescription}`,
 				);
+
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[split-jsx-sequence] Wrote ${update.fileRelativeToRoot}`,
+					`[duplicate-nodes] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 
@@ -154,3 +151,4 @@ export const splitJsxSequenceHandler: ApiHandler<
 			};
 		}
 	});
+};

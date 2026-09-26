@@ -129,7 +129,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		}),
 	).toEqual({lineNumber: 14, columnNumber: 7});
 
-	const insertResult = await operations.insertSolid({
+	const insertResult = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -194,7 +194,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		throw new Error('Expected the inserted Solid to have a node path');
 	}
 
-	const deleteResult = await operations.deleteJsxNodes({
+	const deleteResult = await operations.deleteNodes({
 		nodes: [
 			{
 				fileName: '/project/src/Composition.tsx',
@@ -1173,7 +1173,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 		},
 		resolveDependencies: null,
 	});
-	const result = await operations.insertJsxElement({
+	const result = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1213,7 +1213,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 		},
 		resolveDependencies: null,
 	});
-	const result = await operations.insertJsxElement({
+	const result = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {

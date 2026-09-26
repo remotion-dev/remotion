@@ -8,7 +8,7 @@ import type {
 import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {splitJsxSequence} from '../split-jsx-sequence-api';
+import {splitSequences as splitSequencesApi} from '../split-sequences-api';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -173,7 +173,7 @@ export const splitTimelineSequencesFromSource = ({
 		splitFrame: number;
 	}>;
 }): Promise<boolean> => {
-	return splitJsxSequence({
+	return splitSequencesApi({
 		sequences: sequences.map(({nodePathInfo, splitFrame}) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			return {

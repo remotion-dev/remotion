@@ -1,15 +1,15 @@
 import type {
-	DeleteJsxNodesRequest,
-	DeleteJsxNodesResponse,
+	DeleteNodesRequest,
+	DeleteNodesResponse,
 } from '@remotion/studio-shared';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {callApi} from './call-api';
 
-export const deleteJsxNodes = (
-	request: DeleteJsxNodesRequest,
-): Promise<DeleteJsxNodesResponse> => {
+export const deleteNodes = (
+	request: DeleteNodesRequest,
+): Promise<DeleteNodesResponse> => {
 	const browserStudioOperations = getBrowserStudioOperations();
 	return browserStudioOperations
-		? browserStudioOperations.deleteJsxNodes(request)
-		: callApi('/api/delete-jsx-nodes', request);
+		? browserStudioOperations.deleteNodes(request)
+		: callApi('/api/delete-nodes', request);
 };

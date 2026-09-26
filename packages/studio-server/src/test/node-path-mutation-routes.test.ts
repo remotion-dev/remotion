@@ -11,10 +11,10 @@ import {
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {duplicateJsxNodeHandler} from '../preview-server/routes/duplicate-jsx-node';
-import {insertJsxElementHandler} from '../preview-server/routes/insert-jsx-element';
+import {duplicateNodesHandler} from '../preview-server/routes/duplicate-nodes';
+import {insertCompositionElementHandler} from '../preview-server/routes/insert-composition-element';
 import {reorderSequenceHandler} from '../preview-server/routes/reorder-sequence';
-import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequence';
+import {splitSequencesHandler} from '../preview-server/routes/split-sequences';
 import {
 	clearUndoStackForTests,
 	popRedo,
@@ -156,7 +156,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		).toBe(true);
 
 		before = readFileSync(filePath, 'utf-8');
-		const duplicateResponse = await duplicateJsxNodeHandler({
+		const duplicateResponse = await duplicateNodesHandler({
 			...handlerContext,
 			input: {
 				nodes: [
@@ -187,7 +187,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		expect(readFileSync(filePath, 'utf-8')).toContain('name="c-copy"');
 
 		before = readFileSync(filePath, 'utf-8');
-		const splitResponse = await splitJsxSequenceHandler({
+		const splitResponse = await splitSequencesHandler({
 			...handlerContext,
 			input: {
 				sequences: [
@@ -214,7 +214,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		).toBe(true);
 
 		before = readFileSync(filePath, 'utf-8');
-		const insertResponse = await insertJsxElementHandler({
+		const insertResponse = await insertCompositionElementHandler({
 			...handlerContext,
 			input: {
 				compositionFile: fileName,

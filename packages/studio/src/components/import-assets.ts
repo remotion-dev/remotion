@@ -694,8 +694,8 @@ const insertCompositionElement = async ({
 
 	const request = {compositionFile, compositionId, element, from};
 	const result = browserStudioOperations
-		? await browserStudioOperations.insertJsxElement(request)
-		: await callApi('/api/insert-jsx-element', request);
+		? await browserStudioOperations.insertCompositionElement(request)
+		: await callApi('/api/insert-composition-element', request);
 
 	if (!result.success) {
 		showNotification(result.reason, 4000);

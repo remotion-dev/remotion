@@ -1,4 +1,4 @@
-import type {JsxWrapper} from '@remotion/studio-shared';
+import type {NodeWrapper} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
@@ -11,13 +11,13 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {SegmentedButton, type SegmentedButtonSegment} from '../SegmentedButton';
-import {wrapJsxNode} from '../wrap-jsx-node-api';
+import {wrapNode} from '../wrap-node-api';
 import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
 
-const wrapperNames: JsxWrapper[] = [
+const wrapperNames: NodeWrapper[] = [
 	'AbsoluteFill',
 	'Sequence',
 	'HtmlInCanvas',
@@ -83,7 +83,7 @@ export const SequenceWrapAction: React.FC<{
 		const nodePath = JSON.parse(
 			nodePathKey,
 		) as SequenceNodePathInfo['sequenceSubscriptionKey'];
-		wrapJsxNode({
+		wrapNode({
 			fileName: nodePath.absolutePath,
 			nodePath: nodePath.nodePath,
 			wrapper: null,
@@ -105,7 +105,7 @@ export const SequenceWrapAction: React.FC<{
 	}, [nodePathKey, sequence, sourceActionsDisabled]);
 
 	const onWrap = useCallback(
-		async (wrapper: JsxWrapper) => {
+		async (wrapper: NodeWrapper) => {
 			if (busy || sourceActionsDisabled || !eligibility?.canWrap) {
 				return;
 			}
@@ -121,7 +121,7 @@ export const SequenceWrapAction: React.FC<{
 					]);
 				}
 
-				const result = await wrapJsxNode({
+				const result = await wrapNode({
 					fileName: nodePath.absolutePath,
 					nodePath: nodePath.nodePath,
 					wrapper,

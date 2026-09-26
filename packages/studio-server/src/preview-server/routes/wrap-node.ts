@@ -1,10 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {canWrapNode, createElement, wrapNode} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
-import type {
-	WrapJsxNodeRequest,
-	WrapJsxNodeResponse,
-} from '@remotion/studio-shared';
+import type {WrapNodeRequest, WrapNodeResponse} from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -20,15 +17,12 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-export const wrapJsxNodeHandler: ApiHandler<
-	WrapJsxNodeRequest,
-	WrapJsxNodeResponse
-> = ({
+export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 	input: {fileName, nodePath, wrapper, width, height},
 	remotionRoot,
 	logLevel,
 }) => {
-	return withSourceFileWriteQueue((): Promise<WrapJsxNodeResponse> => {
+	return withSourceFileWriteQueue((): Promise<WrapNodeResponse> => {
 		try {
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
@@ -103,7 +97,7 @@ export const wrapJsxNodeHandler: ApiHandler<
 					undoMessage: `↩️  Wrapping in ${wrapper}`,
 					redoMessage: `↪️  Wrapping in ${wrapper}`,
 				},
-				entryType: 'wrap-jsx-node',
+				entryType: 'wrap-node',
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation: null,
 			});
@@ -125,7 +119,7 @@ export const wrapJsxNodeHandler: ApiHandler<
 			);
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[wrap-jsx-node] Wrote ${fileRelativeToRoot}`,
+				`[wrap-node] Wrote ${fileRelativeToRoot}`,
 			);
 			printUndoHint(logLevel);
 			return Promise.resolve({success: true, ...eligibility, nodePathMutation});

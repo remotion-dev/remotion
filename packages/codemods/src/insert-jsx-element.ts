@@ -13,7 +13,7 @@ import type {
 	ObjectProperty,
 } from '@babel/types';
 import type {
-	InsertJsxElementRequest,
+	InsertCompositionElementRequest,
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
 	SequenceNodePathRemapping,
@@ -2296,7 +2296,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 	wrapInSequence,
 }: {
 	project: {files: Record<string, string>; rootDir: string};
-	request: InsertJsxElementRequest;
+	request: InsertCompositionElementRequest;
 	svgMarkupToJsx: CodemodEnvironment['svgMarkupToJsx'];
 	wrapInSequence: {
 		dimensions: {width: number; height: number} | null;

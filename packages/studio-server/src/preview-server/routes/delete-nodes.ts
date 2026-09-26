@@ -1,18 +1,19 @@
 import {readFileSync} from 'node:fs';
-import {duplicateNodes} from '@remotion/codemods';
+import {deleteNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	DuplicateJsxNodeRequest,
-	DuplicateJsxNodeResponse,
+	DeleteNodesRequest,
+	DeleteNodesResponse,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {logHmrTiming} from '../hmr-timing';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
-	pushTransactionToUndoStack,
+	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {
@@ -20,19 +21,33 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-export const duplicateJsxNodeHandler: ApiHandler<
-	DuplicateJsxNodeRequest,
-	DuplicateJsxNodeResponse
+const getDeletedNodeDescription = (nodeLabels: string[]): string => {
+	if (nodeLabels.length === 1) {
+		return nodeLabels[0];
+	}
+
+	return `${nodeLabels.length} JSX nodes`;
+};
+
+export const deleteNodesHandler: ApiHandler<
+	DeleteNodesRequest,
+	DeleteNodesResponse
 > = ({input: {nodes}, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			logHmrTiming({
+				detail: null,
+				logLevel,
+				stage: 'delete-nodes-request-start',
+			});
+
 			if (nodes.length === 0) {
-				throw new Error('No JSX nodes were specified for duplication');
+				throw new Error('No JSX nodes were specified for deletion');
 			}
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[duplicate-jsx-node] Received request to duplicate ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
+				`[delete-nodes] Received request to delete ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
 			);
 
 			const itemsByFileName = new Map<string, typeof nodes>();
@@ -49,8 +64,10 @@ export const duplicateJsxNodeHandler: ApiHandler<
 						fileName,
 						action: 'modify',
 					});
+
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await duplicateNodes({
+
+					const result = await deleteNodes({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,
@@ -70,13 +87,18 @@ export const duplicateJsxNodeHandler: ApiHandler<
 						absolutePath,
 						fileRelativeToRoot,
 						fileContents,
-						logLine: Math.min(...logLines),
+						output,
 						nodeLabels,
 						nodePathRemappings,
-						output,
+						logLine: Math.min(...logLines),
 					};
 				}),
 			);
+			logHmrTiming({
+				detail: `files=${updates.length}`,
+				logLevel,
+				stage: 'delete-nodes-codemod-complete',
+			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
@@ -84,37 +106,43 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				})),
 				null,
 			);
-			const duplicatedNodeDescription =
-				nodes.length === 1
-					? updates[0].nodeLabels[0]
-					: `${nodes.length} JSX nodes`;
 
-			pushTransactionToUndoStack({
-				snapshots: updates.map((update) => ({
+			for (const update of updates) {
+				const deletedNodeDescription = getDeletedNodeDescription(
+					update.nodeLabels,
+				);
+
+				pushToUndoStack({
 					filePath: update.absolutePath,
 					oldContents: update.fileContents,
 					newContents: null,
+					logLevel,
+					remotionRoot,
 					logLine: update.logLine,
+					description: {
+						undoMessage: `↩️  Deletion of ${deletedNodeDescription}`,
+						redoMessage: `↪️  Deletion of ${deletedNodeDescription}`,
+					},
+					entryType: 'delete-nodes',
+					suppressHmrOnFileRestore: false,
 					nodePathRemappings: update.nodePathRemappings,
-				})),
-				logLevel,
-				remotionRoot,
-				description: {
-					undoMessage: `↩️  Duplication of ${duplicatedNodeDescription}`,
-					redoMessage: `↪️  Duplication of ${duplicatedNodeDescription}`,
-				},
-				entryType: 'duplicate-jsx-node',
-				suppressHmrOnFileRestore: false,
-				undoRedoNavigation: null,
-			});
-
-			for (const update of updates) {
+				});
 				suppressUndoStackInvalidation(update.absolutePath);
+				logHmrTiming({
+					detail: `file=${update.fileRelativeToRoot}`,
+					logLevel,
+					stage: 'source-file-write-start',
+				});
 				writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
 					metadata: {skipSequencePropsUpdate: true},
+				});
+				logHmrTiming({
+					detail: `file=${update.fileRelativeToRoot}`,
+					logLevel,
+					stage: 'source-file-write-complete',
 				});
 
 				const locationLabel = formatLogFileLocation({
@@ -122,18 +150,13 @@ export const duplicateJsxNodeHandler: ApiHandler<
 					absolutePath: update.absolutePath,
 					line: update.logLine,
 				});
-				const fileDescription =
-					update.nodeLabels.length === 1
-						? update.nodeLabels[0]
-						: `${update.nodeLabels.length} JSX nodes`;
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Duplicated ${fileDescription}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${deletedNodeDescription}`,
 				);
-
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[duplicate-jsx-node] Wrote ${update.fileRelativeToRoot}`,
+					`[delete-nodes] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 

@@ -11,7 +11,7 @@ import {
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {deleteJsxNodesHandler} from '../preview-server/routes/delete-jsx-nodes';
+import {deleteNodesHandler} from '../preview-server/routes/delete-nodes';
 import {subscribeToSequenceProps} from '../preview-server/routes/subscribe-to-sequence-props';
 import {unsubscribeClientSequencePropsWatchers} from '../preview-server/sequence-props-watchers';
 import {
@@ -117,7 +117,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		});
 		expect(subscription.results.every((result) => result.success)).toBe(true);
 
-		const response = await deleteJsxNodesHandler({
+		const response = await deleteNodesHandler({
 			...apiHandlerContext,
 			input: {
 				nodes: [
