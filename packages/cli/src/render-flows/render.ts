@@ -658,6 +658,8 @@ export const renderVideoFlow = async ({
 			sampleRate: resolvedSampleRate,
 			onBrowserLog: null,
 			onFrameBuffer: null,
+			onFrame: null,
+			remotionSharedMemory: null,
 			logLevel,
 			serializedResolvedPropsWithCustomSchema:
 				NoReactInternals.serializeJSONWithSpecialTypes({

@@ -57,9 +57,16 @@ import {
 } from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
-import {prespawnFfmpeg} from './prespawn-ffmpeg';
+import {
+	prespawnFfmpeg,
+	probeRemotionSharedMemoryFfmpegSupport,
+} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import {
+	isRemotionRawFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
 import {
@@ -80,7 +87,6 @@ import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
-import {writeWithBackpressure} from './write-with-backpressure';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -228,7 +234,7 @@ type RenderMediaResult = {
 	contentType: string;
 };
 
-const internalRenderMediaRaw = ({
+const internalRenderMediaRaw = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
@@ -489,6 +495,30 @@ const internalRenderMediaRaw = ({
 		});
 	const actualWidth = widthEvenDimensions * scale;
 	const actualHeight = heightEvenDimensions * scale;
+	const remotionSharedMemorySupport =
+		preEncodedFileLocation === null
+			? null
+			: await probeRemotionSharedMemoryFfmpegSupport({
+					binariesDirectory,
+					indent,
+					logLevel,
+				});
+	// Chromium creates file-backed frame pools in this private directory when
+	// POSIX shared memory is unavailable (no /dev/shm, as on AWS Lambda). It is
+	// only offered when the FFmpeg binary can open such pools via -pool_dir.
+	const remotionSharedMemoryPoolDirectory =
+		remotionSharedMemorySupport?.filePools
+			? fs.mkdtempSync(path.join(workingDir, 'shm-pools-'))
+			: null;
+	const remotionSharedMemory = remotionSharedMemorySupport?.sharedMemory
+		? new RemotionSharedMemoryCapture({
+				width: Math.round(actualWidth),
+				height: Math.round(actualHeight),
+				indent,
+				logLevel,
+				backingDirectory: remotionSharedMemoryPoolDirectory,
+			})
+		: null;
 
 	const composition = {
 		...compositionWithPossibleUnevenDimensions,
@@ -539,8 +569,16 @@ const internalRenderMediaRaw = ({
 
 	validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
-	const createPrestitcherIfNecessary = () => {
-		if (preEncodedFileLocation) {
+	let preStitcherInputMode: 'encoded-image' | 'remotion-shared-memory' | null =
+		null;
+	let notifyPreStitcherStarted: () => void;
+	const preStitcherStarted = new Promise<void>((resolve) => {
+		notifyPreStitcherStarted = resolve;
+	});
+	const createPrestitcherIfNecessary = (
+		inputMode: 'encoded-image' | 'remotion-shared-memory',
+	) => {
+		if (preEncodedFileLocation && !preStitcher) {
 			preStitcher = prespawnFfmpeg({
 				width: actualWidth,
 				height: actualHeight,
@@ -568,17 +606,34 @@ const internalRenderMediaRaw = ({
 				binariesDirectory,
 				hardwareAcceleration,
 				onLog,
+				inputMode,
+				remotionSharedMemoryPoolDirectory:
+					inputMode === 'remotion-shared-memory'
+						? remotionSharedMemoryPoolDirectory
+						: null,
 			});
+			preStitcherInputMode = inputMode;
 			stitcherFfmpeg = preStitcher.task;
+			notifyPreStitcherStarted!();
+		}
+
+		if (preStitcherInputMode !== inputMode) {
+			throw new Error(
+				`Cannot mix ${inputMode} frames with ${preStitcherInputMode} FFmpeg input.`,
+			);
 		}
 	};
 
 	const waitForPrestitcherIfNecessary = async (): Promise<{
 		usesParallelEncoding: boolean;
 	}> => {
+		if (preEncodedFileLocation) {
+			await preStitcherStarted;
+		}
+
 		if (stitcherFfmpeg) {
 			await waitForFinish();
-			stitcherFfmpeg?.stdin?.end();
+			await preStitcher?.finishInput();
 			try {
 				await stitcherFfmpeg;
 			} catch {
@@ -626,7 +681,7 @@ const internalRenderMediaRaw = ({
 		Promise.resolve(undefined);
 
 	const happyPath = new Promise<RenderMediaResult>((resolve, reject) => {
-		Promise.resolve(createPrestitcherIfNecessary())
+		Promise.resolve()
 			.then(() => {
 				return makeOrReuseServer(
 					reusedServer,
@@ -699,43 +754,101 @@ const internalRenderMediaRaw = ({
 					outputFramesInSequence: true,
 					puppeteerInstance,
 					everyNthFrame,
-					onFrameBuffer: parallelEncoding
-						? async (buffer, frame) => {
-								await waitForRightTimeOfFrameToBeInserted(frame);
-								if (cancelled) {
-									return;
-								}
+					onFrameBuffer: null,
+					onFrame: parallelEncoding
+						? async (capturedFrame, frame) => {
+								let handedToFfmpeg = false;
+								try {
+									if (isRemotionRawFrame(capturedFrame)) {
+										let notifyRetirement!: () => void;
+										const retirement = new Promise<boolean>(
+											(resolveRetirement) => {
+												notifyRetirement = () => resolveRetirement(true);
+											},
+										);
+										const unsubscribeFromRetirement =
+											capturedFrame.poolLifetime.onRetired(() => {
+												notifyRetirement();
+												return Promise.resolve();
+											});
+										if (!unsubscribeFromRetirement) {
+											notifyRetirement();
+										}
 
-								const id = startPerfMeasure('piping');
-								const exitStatus = preStitcher?.getExitStatus();
-								if (exitStatus?.type === 'quit-successfully') {
-									throw new Error(
-										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}`,
+										let retiredBeforeItsTurn: boolean;
+										try {
+											retiredBeforeItsTurn = await Promise.race([
+												waitForRightTimeOfFrameToBeInserted(frame).then(
+													() => false,
+												),
+												retirement,
+											]);
+										} finally {
+											unsubscribeFromRetirement?.();
+										}
+
+										if (retiredBeforeItsTurn) {
+											throw new Error(
+												'Target closed while a raw frame was waiting for its FFmpeg turn.',
+											);
+										}
+
+										if (capturedFrame.poolLifetime.isRetired()) {
+											throw new Error(
+												'Target closed before a raw frame was sent to FFmpeg.',
+											);
+										}
+									} else {
+										await waitForRightTimeOfFrameToBeInserted(frame);
+									}
+
+									if (cancelled) {
+										return;
+									}
+
+									const id = startPerfMeasure('piping');
+									const exitStatus = preStitcher?.getExitStatus();
+									if (exitStatus?.type === 'quit-successfully') {
+										throw new Error(
+											`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}`,
+										);
+									}
+
+									if (exitStatus?.type === 'quit-with-error') {
+										throw new Error(
+											`FFmpeg quit with code ${exitStatus.exitCode}${exitStatus.signal ? ` (signal ${exitStatus.signal})` : ''} while piping frame ${frame}. Stderr: ${exitStatus.stderr}`,
+										);
+									}
+
+									const inputMode = isRemotionRawFrame(capturedFrame)
+										? 'remotion-shared-memory'
+										: 'encoded-image';
+									createPrestitcherIfNecessary(inputMode);
+									const frameIndex = framesToRender.indexOf(frame);
+									const writeResult = await preStitcher?.writeFrame({
+										frame: capturedFrame,
+										pts: frameIndex,
+									});
+									if (!writeResult) {
+										throw new Error(
+											`FFmpeg is not available while trying to pipe frame ${frame} to it.`,
+										);
+									}
+
+									handedToFfmpeg = true;
+									stopPerfMeasure(id);
+									setFrameToStitch(
+										framesToRender[frameIndex + 1] ?? lastFrameToRender + 1,
 									);
+									await writeResult.waitForAck;
+								} finally {
+									if (!handedToFfmpeg && isRemotionRawFrame(capturedFrame)) {
+										await capturedFrame.release();
+									}
 								}
-
-								if (exitStatus?.type === 'quit-with-error') {
-									throw new Error(
-										`FFmpeg quit with code ${exitStatus.exitCode}${exitStatus.signal ? ` (signal ${exitStatus.signal})` : ''} while piping frame ${frame}. Stderr: ${exitStatus.stderr}`,
-									);
-								}
-
-								const stdin = stitcherFfmpeg?.stdin;
-								if (!stdin) {
-									throw new Error(
-										`FFmpeg stdin is not available while trying to pipe frame ${frame} to it.`,
-									);
-								}
-
-								await writeWithBackpressure({data: buffer, writable: stdin});
-								stopPerfMeasure(id);
-
-								const frameIndex = framesToRender.indexOf(frame);
-								setFrameToStitch(
-									framesToRender[frameIndex + 1] ?? lastFrameToRender + 1,
-								);
 							}
 						: null,
+					remotionSharedMemory,
 					webpackBundleOrServeUrl: serveUrl,
 					onBrowserLog,
 					onDownload,
@@ -773,7 +886,8 @@ const internalRenderMediaRaw = ({
 					waitForPrestitcherIfNecessary(),
 				]);
 			})
-			.then(([{assetsInfo}]) => {
+			.then(async ([{assetsInfo}]) => {
+				await remotionSharedMemory?.destroy();
 				renderedDoneIn = Date.now() - renderStart;
 
 				Log.verbose(
@@ -908,6 +1022,7 @@ const internalRenderMediaRaw = ({
 				 * Therefore we first kill the FFMPEG process before deleting the file
 				 */
 				cancelled = true;
+				preStitcher?.abortInput(err as Error);
 				cancelRenderFrames.cancel();
 				cancelStitcher.cancel();
 				cancelPrestitcher.cancel();
@@ -934,7 +1049,8 @@ const internalRenderMediaRaw = ({
 
 				reject(err);
 			})
-			.finally(() => {
+			.finally(async () => {
+				await remotionSharedMemory?.dispose();
 				if (
 					preEncodedFileLocation !== null &&
 					fs.existsSync(preEncodedFileLocation)

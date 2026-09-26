@@ -10,7 +10,14 @@ export const canUseParallelEncoding = (codec: Codec) => {
 		return false;
 	}
 
-	return codec === 'h264' || codec === 'h264-mkv' || codec === 'h265';
+	// h264-ts is the chunk codec for seamless H.264 renders on Lambda. Its
+	// pre-encoded MPEG-TS file is remuxed with the audio like the others.
+	return (
+		codec === 'h264' ||
+		codec === 'h264-mkv' ||
+		codec === 'h264-ts' ||
+		codec === 'h265'
+	);
 };
 
 export const getShouldUsePartitionedRendering = () => {
