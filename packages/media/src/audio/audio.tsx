@@ -12,6 +12,10 @@ import {
 import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
+import {
+	getMediaTrimAfter,
+	getVideoSequenceDuration,
+} from '../video/get-video-sequence-duration';
 import {AudioForPreview} from './audio-for-preview';
 import {AudioForRendering} from './audio-for-rendering';
 import type {AudioProps} from './props';
@@ -27,6 +31,7 @@ export const audioSchema: InteractivitySchema = {
 		keyframable: false,
 	},
 	...Internals.baseSchema,
+	trimAfter: Internals.trimAfterField,
 	...Internals.premountSchema,
 	volume: {
 		type: 'number',
@@ -86,8 +91,20 @@ const AudioInner: React.FC<
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
+	const effectiveTrimAfter = getMediaTrimAfter({
+		durationInFrames,
+		trimAfter: props.trimAfter,
+		trimBefore: props.trimBefore,
+	});
+	const audioSequenceDuration = getVideoSequenceDuration({
+		durationInFrames,
+		loop: props.loop ?? false,
+		playbackRate: props.playbackRate ?? 1,
+		trimAfter: effectiveTrimAfter,
+		trimBefore: props.trimBefore,
+	});
 	const sequenceDurationInFrames = Math.min(
-		durationInFrames ?? Infinity,
+		audioSequenceDuration ?? Infinity,
 		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
@@ -102,7 +119,7 @@ const AudioInner: React.FC<
 		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
 		playbackRate: props.playbackRate ?? 1,
 		trimBefore: props.trimBefore,
-		trimAfter: props.trimAfter,
+		trimAfter: effectiveTrimAfter,
 	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
@@ -110,7 +127,7 @@ const AudioInner: React.FC<
 		volume,
 		playbackRate: props.playbackRate ?? 1,
 		trimBefore: props.trimBefore,
-		trimAfter: props.trimAfter,
+		trimAfter: effectiveTrimAfter,
 		sequenceDurationInFrames,
 		mediaType: 'audio',
 		displayName: name ?? '<Audio>',
@@ -127,7 +144,7 @@ const AudioInner: React.FC<
 				loop: props.loop ?? false,
 				mediaDurationInSeconds,
 				playbackRate: props.playbackRate ?? 1,
-				trimAfter: props.trimAfter,
+				trimAfter: effectiveTrimAfter,
 				trimBefore: props.trimBefore,
 				sequenceDurationInFrames,
 				compFps: videoConfig.fps,
@@ -136,7 +153,7 @@ const AudioInner: React.FC<
 			props.loop,
 			mediaDurationInSeconds,
 			props.playbackRate,
-			props.trimAfter,
+			effectiveTrimAfter,
 			props.trimBefore,
 			sequenceDurationInFrames,
 			videoConfig.fps,
@@ -216,12 +233,14 @@ const AudioInner: React.FC<
 				{environment.isRendering ? (
 					<AudioForRendering
 						{...otherProps}
+						trimAfter={effectiveTrimAfter}
 						style={premountingStyle ?? undefined}
 					/>
 				) : (
 					<AudioForPreview
 						name={name}
 						{...otherProps}
+						trimAfter={effectiveTrimAfter}
 						style={premountingStyle}
 						_remotionInternalStack={sourceStack}
 						setMediaDurationInSeconds={setMediaDurationInSeconds}

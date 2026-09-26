@@ -369,7 +369,6 @@ const makeAnnotationComponent = ({
 		styleWhilePremounted,
 		styleWhilePostmounted,
 		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 		freeze,
@@ -425,8 +424,6 @@ const makeAnnotationComponent = ({
 			from: from ?? 0,
 			durationInFrames: Internals.resolveSequenceDuration({
 				durationInFrames,
-				trimBefore,
-				trimAfter,
 				playbackRate,
 				loop,
 			}),
@@ -443,7 +440,6 @@ const makeAnnotationComponent = ({
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
-					trimAfter={trimAfter}
 					playbackRate={playbackRate}
 					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}

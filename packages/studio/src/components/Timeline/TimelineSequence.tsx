@@ -1050,7 +1050,7 @@ const TimelineSequenceInner: React.FC<{
 				explicitDurationInFrames:
 					explicitDurationInFrames === null
 						? null
-						: explicitDurationInFrames / s.sequencePlaybackRate,
+						: explicitDurationInFrames / s.playbackRate,
 				hasImplicitDuration: hasImplicitMediaDuration,
 				naturalMediaDuration,
 				timelineDurationInFrames: video.durationInFrames,

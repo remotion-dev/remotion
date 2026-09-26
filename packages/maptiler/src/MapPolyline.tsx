@@ -446,7 +446,6 @@ export const MapPolyline = (props: MapPolylineProps) => {
 		name,
 		showInTimeline,
 		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 	} = props;
@@ -462,8 +461,6 @@ export const MapPolyline = (props: MapPolylineProps) => {
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -480,7 +477,6 @@ export const MapPolyline = (props: MapPolylineProps) => {
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}

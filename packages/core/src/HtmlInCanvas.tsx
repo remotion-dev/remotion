@@ -788,8 +788,6 @@ const HtmlInCanvasInner = forwardRef<
 			from: sequenceProps.from ?? 0,
 			durationInFrames: resolveSequenceDuration({
 				durationInFrames,
-				trimBefore: sequenceProps.trimBefore,
-				trimAfter: sequenceProps.trimAfter,
 				playbackRate: sequenceProps.playbackRate,
 				loop: sequenceProps.loop,
 			}),

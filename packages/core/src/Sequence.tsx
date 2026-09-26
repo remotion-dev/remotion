@@ -23,7 +23,10 @@ import {
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {LoopContext, type LoopContextType} from './loop/loop-context.js';
-import {resolveSequenceDuration} from './resolve-sequence-duration.js';
+import {
+	resolveSequenceContentDuration,
+	resolveSequenceDuration,
+} from './resolve-sequence-duration.js';
 import type {RuntimeValueStore} from './runtime-value-store.js';
 import {
 	getSequenceCropClipPath,
@@ -80,7 +83,6 @@ export type SequencePropsWithoutDuration = {
 	readonly cropBottom?: number;
 	readonly from?: number;
 	readonly trimBefore?: number;
-	readonly trimAfter?: number;
 	readonly playbackRate?: number;
 	readonly loop?: boolean;
 	readonly freeze?: number | null;
@@ -151,11 +153,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	{
 		from = 0,
 		trimBefore = 0,
-		trimAfter,
 		playbackRate = 1,
 		loop = false,
 		freeze,
-		durationInFrames = Infinity,
+		durationInFrames,
 		children,
 		name,
 		height,
@@ -222,15 +223,19 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof durationInFrames !== 'number') {
+	const contentDurationInFrames = resolveSequenceContentDuration({
+		durationInFrames,
+	});
+
+	if (typeof contentDurationInFrames !== 'number') {
 		throw new TypeError(
-			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`,
+			`You passed to durationInFrames an argument of type ${typeof contentDurationInFrames}, but it must be a number.`,
 		);
 	}
 
-	if (durationInFrames <= 0) {
+	if (contentDurationInFrames <= 0) {
 		throw new TypeError(
-			`durationInFrames must be positive, but got ${durationInFrames}`,
+			`durationInFrames must be positive, but got ${contentDurationInFrames}`,
 		);
 	}
 
@@ -270,38 +275,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	if (typeof trimAfter !== 'undefined') {
-		if (typeof trimAfter !== 'number') {
-			throw new TypeError(
-				`The "trimAfter" prop of <Sequence /> must be a number, but is of type ${typeof trimAfter}.`,
-			);
-		}
-
-		if (Number.isNaN(trimAfter)) {
-			throw new TypeError(
-				'The "trimAfter" prop of <Sequence /> must be a real number, but it is NaN.',
-			);
-		}
-
-		if (trimAfter <= trimBefore) {
-			throw new TypeError(
-				`The "trimAfter" prop of <Sequence /> must be greater than "trimBefore" (${trimBefore}), but got ${trimAfter}.`,
-			);
-		}
-	}
-
 	if (typeof loop !== 'boolean') {
 		throw new TypeError(
 			`The "loop" prop of <Sequence /> must be a boolean, but is of type ${typeof loop}.`,
 		);
 	}
 
-	if (
-		loop &&
-		(typeof trimAfter === 'undefined' || !Number.isFinite(trimAfter))
-	) {
+	if (loop && !Number.isFinite(contentDurationInFrames)) {
 		throw new Error(
-			'The "loop" prop of <Sequence /> requires a finite "trimAfter" prop, because a <Sequence /> has no intrinsic duration. Set "trimAfter" to the frame at which the children should start over, or use <Loop /> to repeat a duration measured in the parent timeline.',
+			'The "loop" prop of <Sequence /> requires a finite "durationInFrames" prop, because a <Sequence /> has no intrinsic duration.',
 		);
 	}
 
@@ -350,8 +332,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useVideoConfig();
 	const effectiveDurationInFrames = resolveSequenceDuration({
 		durationInFrames,
-		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 	});
@@ -368,13 +348,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 
-	// A looped sequence repeats the child range [trimBefore, trimAfter). Each
+	// A looped sequence repeats the child range selected by `durationInFrames`. Each
 	// iteration lasts `loopPeriod` parent frames and moves the clock origin,
 	// while the visible window stays at [from, from + effectiveDurationInFrames).
 	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
 	const loopPeriod =
-		loop && typeof trimAfter === 'number'
-			? (trimAfter - trimBefore) / playbackRate
+		loop && Number.isFinite(contentDurationInFrames)
+			? contentDurationInFrames / playbackRate
 			: null;
 	let loopIteration = 0;
 	if (loopPeriod !== null) {
@@ -400,8 +380,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const effectiveRelativeFrom = clockFrom - trimBefore / playbackRate;
 	const relativeFrom = effectiveRelativeFrom / parentPlaybackRate;
 	const absoluteFrom = (parentSequence?.absoluteFrom ?? 0) + relativeFrom;
-	// Inside a loop, the local clock ends at `trimAfter`, except in a final
-	// iteration that `durationInFrames` or the parent cuts short.
+	// Inside a loop, the local clock ends after `durationInFrames`, except in a final
+	// iteration that the parent cuts short.
 	const localClockEnd =
 		loopPeriod === null
 			? actualDurationInFrames * playbackRate + trimBefore
@@ -509,8 +489,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			return null;
 		}
 
-		return {iteration: loopIteration, durationInFrames: loopPeriod};
-	}, [loopIteration, loopPeriod]);
+		return {
+			iteration: loopIteration,
+			durationInFrames: contentDurationInFrames,
+		};
+	}, [contentDurationInFrames, loopIteration, loopPeriod]);
 
 	const resolvedLoopDisplay = useMemo((): LoopDisplay | undefined => {
 		if (loopDisplay || loopPeriod === null) {
@@ -859,7 +842,7 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	const {
 		style: passedStyle,
 		from = 0,
-		durationInFrames = Infinity,
+		durationInFrames,
 		premountFor = 0,
 		postmountFor = 0,
 		styleWhilePremounted,
@@ -877,8 +860,6 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		from,
 		durationInFrames: resolveSequenceDuration({
 			durationInFrames,
-			trimBefore: otherProps.trimBefore,
-			trimAfter: otherProps.trimAfter,
 			playbackRate: otherProps.playbackRate,
 			loop: otherProps.loop,
 		}),

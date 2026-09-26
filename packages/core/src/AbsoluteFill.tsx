@@ -73,7 +73,6 @@ const AbsoluteFillWithTiming: React.FC<
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -98,8 +97,6 @@ const AbsoluteFillWithTiming: React.FC<
 		from: from ?? 0,
 		durationInFrames: resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -116,11 +113,10 @@ const AbsoluteFillWithTiming: React.FC<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				freeze={freeze}
-				durationInFrames={durationInFrames ?? Infinity}
+				durationInFrames={durationInFrames}
 				hidden={hidden}
 				name={name ?? '<AbsoluteFill>'}
 				showInTimeline={showInTimeline ?? true}
@@ -154,7 +150,6 @@ const AbsoluteFillInner: React.FC<
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -193,7 +188,6 @@ const AbsoluteFillInner: React.FC<
 			styleWhilePremounted={styleWhilePremounted}
 			styleWhilePostmounted={styleWhilePostmounted}
 			trimBefore={trimBefore}
-			trimAfter={trimAfter}
 			playbackRate={playbackRate}
 			loop={loop}
 			freeze={freeze}

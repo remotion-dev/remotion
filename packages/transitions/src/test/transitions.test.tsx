@@ -10,7 +10,7 @@ const ABS_FILL =
 
 const Frame = () => <span>{useCurrentFrame()}</span>;
 
-test('TransitionSeries playback rates cascade without moving sequence boundaries', () => {
+test('TransitionSeries playback rates cascade and determine sequence boundaries', () => {
 	const markup = (
 		<TransitionSeries playbackRate={2}>
 			<TransitionSeries.Sequence durationInFrames={20} playbackRate={0.5}>
@@ -23,9 +23,10 @@ test('TransitionSeries playback rates cascade without moving sequence boundaries
 	);
 
 	expect(renderForFrame(9, markup)).toContain('<span>9</span>');
-	expect(renderForFrame(10, markup)).toContain('<span>0</span>');
-	expect(renderForFrame(12, markup)).toContain('<span>12</span>');
-	expect(renderForFrame(20, markup)).not.toContain('<span>');
+	expect(renderForFrame(10, markup)).toContain('<span>10</span>');
+	expect(renderForFrame(20, markup)).toContain('<span>0</span>');
+	expect(renderForFrame(23, markup)).toContain('<span>18</span>');
+	expect(renderForFrame(24, markup)).not.toContain('<span>');
 });
 
 const Letter: React.FC<{

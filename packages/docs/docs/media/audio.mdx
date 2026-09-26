@@ -44,13 +44,13 @@ export const MyComposition = () => {
 
 The URL of the audio to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
-### `from?`<AvailableFrom v="4.0.445" />
+### `from?`<AvailableFrom v="4.0.446" />
 
 At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
 
-### `durationInFrames?`<AvailableFrom v="4.0.445" />
+### `durationInFrames?`<AvailableFrom v="4.0.446" />
 
-For how many frames the clip stays mounted. Default is `Infinity`. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
+Selects this many source frames starting at `trimBefore`. The clip occupies `durationInFrames / playbackRate` frames on the parent timeline, or uses this range as its loop when `loop` is enabled. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
 
 :::note
 You can still wrap `<Audio>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
@@ -84,7 +84,7 @@ Will remove a portion of the audio at the beginning (left side).
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
-By passing `trimAfter={120}`, any audio after the 4 second mark in the file will be trimmed away.
+By passing `durationInFrames={60}`, the audio plays for 60 source frames.
 
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
@@ -98,15 +98,19 @@ import {Audio} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+      <Audio src={staticFile('audio.mp3')} trimBefore={60} durationInFrames={60} />
     </AbsoluteFill>
   );
 };
 ```
 
-### `trimAfter?`
+### ~~`trimAfter?`~~
 
-Removes a portion of the audio at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
+:::info Deprecated
+Use [`durationInFrames`](#durationinframes) instead. See [PR #11685](https://github.com/remotion-dev/remotion/pull/11685).
+:::
+
+Removes a portion of the audio at the end (right side). If `durationInFrames` ends the range earlier, the shorter range is used. See [`trimBefore`](#trimbefore) for an explanation.
 
 ### `volume?`
 

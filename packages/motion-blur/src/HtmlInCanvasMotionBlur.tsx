@@ -106,7 +106,6 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	from,
 	durationInFrames,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -142,8 +141,6 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 		Math.min(
 			Internals.resolveSequenceDuration({
 				durationInFrames,
-				trimBefore,
-				trimAfter,
 				playbackRate,
 				loop,
 			}),
@@ -224,7 +221,6 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			from={from}
 			durationInFrames={durationInFrames}
 			trimBefore={trimBefore}
-			trimAfter={trimAfter}
 			playbackRate={playbackRate}
 			loop={loop}
 			freeze={freeze}

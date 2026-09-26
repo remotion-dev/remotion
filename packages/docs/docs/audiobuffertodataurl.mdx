@@ -72,7 +72,7 @@ export const OfflineAudioBufferExample: React.FC = () => {
   return audioBuffer ? (
     <Audio
       src={audioBuffer}
-      trimAfter={100}
+      durationInFrames={100}
       volume={(f) =>
         interpolate(f, [0, 50, 100], [0, 1, 0], {
           extrapolateLeft: 'clamp',

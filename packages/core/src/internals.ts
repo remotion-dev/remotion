@@ -108,6 +108,7 @@ import {
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
+	trimAfterField,
 	transformSchema,
 	type AssetFieldSchema,
 	type ArrayFieldSchema,
@@ -494,6 +495,7 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	trimAfterField,
 	resolveSequenceCrop,
 	useCropStyle,
 } as const;

@@ -159,7 +159,6 @@ export const ThreeCanvasInternals = ({
 	from,
 	durationInFrames,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -185,8 +184,6 @@ export const ThreeCanvasInternals = ({
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -204,7 +201,6 @@ export const ThreeCanvasInternals = ({
 				from={from}
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				freeze={freeze}

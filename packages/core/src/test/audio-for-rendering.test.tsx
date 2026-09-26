@@ -175,7 +175,7 @@ test('nested Sequence rates preserve source trims when collecting media for rend
 	);
 
 	const {rerender} = render(composition(10));
-	for (const frame of [10, 25, 26, 49, 50]) {
+	for (const frame of [10, 25, 26, 29, 30]) {
 		if (frame !== 10) {
 			rerender(composition(frame));
 		}
@@ -184,7 +184,7 @@ test('nested Sequence rates preserve source trims when collecting media for rend
 		act(() => {
 			assets = collectAssets.current!.collectAssets();
 		});
-		expect(assets, `frame ${frame}`).toHaveLength(frame === 50 ? 0 : 3);
+		expect(assets, `frame ${frame}`).toHaveLength(frame === 30 ? 0 : 3);
 		for (const asset of assets) {
 			if (asset.type !== 'audio' && asset.type !== 'video') {
 				throw new Error(`Unexpected asset type: ${asset.type}`);
