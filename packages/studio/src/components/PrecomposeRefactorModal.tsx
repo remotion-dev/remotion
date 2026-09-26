@@ -66,15 +66,15 @@ export const PrecomposeRefactorModal: React.FC<{readonly state: State}> = ({
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
-			<ModalHeader title="Pre-compose needs a refactor" />
+			<ModalHeader title="Pre-compose" />
 			<div style={container}>
 				<div style={text}>
-					The item cannot be automatically pre-composed because the code is too
-					complex.
+					Move these items into their own composition and re-import them into
+					this composition.
 				</div>
 				{canSuggestAgent ? (
 					<AgentPrompt
-						availableText="You can pre-compose it using an agent:"
+						availableText="You can pre-compose using an agent:"
 						promptDetails={promptDetails}
 						skillId="remotion-markup"
 					/>
