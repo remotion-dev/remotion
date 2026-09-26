@@ -41,6 +41,7 @@ type UndoEntryType =
 	| 'delete-nodes'
 	| 'duplicate-nodes'
 	| 'wrap-node'
+	| 'precompose-jsx-nodes'
 	| 'split-sequences'
 	| 'split-video-from-audio'
 	| 'insert-basic-captions'

@@ -52,6 +52,7 @@ import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
+import {SequencePrecomposeAction} from './SequencePrecomposeAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
@@ -121,7 +122,8 @@ const SequenceSourceQuickActions: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
 	readonly track: TimelineTrackData;
 	readonly validatedSource: string;
-}> = ({selection, track, validatedSource}) => {
+	readonly sourceLine: number;
+}> = ({selection, track, validatedSource, sourceLine}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -356,6 +358,17 @@ const SequenceSourceQuickActions: React.FC<{
 				sequence={track.sequence}
 				sourceActionsDisabled={sourceActionsDisabled}
 			/>
+			<SequencePrecomposeAction
+				targets={[
+					{
+						nodePathInfo: selection.nodePathInfo,
+						displayName: track.sequence.displayName,
+						line: sourceLine,
+						singleChildComponent: track.sequence.singleChildComponent,
+					},
+				]}
+				sourceActionsDisabled={sourceActionsDisabled}
+			/>
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
@@ -480,12 +493,38 @@ const SequenceExpandedInspector: React.FC<{
 								selection={sequenceSelection}
 								track={track}
 								validatedSource={validatedLocation.source}
+								sourceLine={validatedLocation.line}
 							/>
 						</InspectorQuickActionsSection>
 					</CollapsibleInspectorSection>
 				</>
 			) : (
-				<InspectorMessage>Source controls unavailable</InspectorMessage>
+				<>
+					<InspectorMessage>Source controls unavailable</InspectorMessage>
+					<CollapsibleInspectorSection
+						collapsible
+						label="Actions"
+						sectionId="sequence-actions"
+					>
+						<InspectorQuickActionsSection>
+							<SequencePrecomposeAction
+								targets={[
+									{
+										nodePathInfo: sequenceSelection.nodePathInfo,
+										displayName: track.sequence.displayName,
+										line: null,
+										singleChildComponent: track.sequence.singleChildComponent,
+									},
+								]}
+								sourceActionsDisabled={
+									previewServerState.type !== 'connected' ||
+									readOnlyStudio ||
+									!isStudioInteractivityEnabled()
+								}
+							/>
+						</InspectorQuickActionsSection>
+					</CollapsibleInspectorSection>
+				</>
 			)}
 		</div>
 	);

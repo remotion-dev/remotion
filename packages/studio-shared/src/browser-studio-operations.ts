@@ -27,6 +27,8 @@ import type {
 	FindInFileResponse,
 	DuplicateEffectRequest,
 	DuplicateEffectResponse,
+	PrecomposeJsxNodesRequest,
+	PrecomposeJsxNodesResponse,
 	DuplicateNodesRequest,
 	DuplicateNodesResponse,
 	WrapNodeRequest,
@@ -186,6 +188,9 @@ export type BrowserStudioOperations = {
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
 	) => Promise<DuplicateCompositionResponse>;
+	precomposeJsxNodes: (
+		request: PrecomposeJsxNodesRequest,
+	) => Promise<PrecomposeJsxNodesResponse>;
 	duplicateNodes: (
 		request: DuplicateNodesRequest,
 	) => Promise<DuplicateNodesResponse>;

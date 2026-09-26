@@ -40,6 +40,7 @@ import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {openInGitClientHandler} from './routes/open-in-git-client';
 import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {precomposeJsxNodesHandler} from './routes/precompose-jsx-nodes';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
@@ -130,6 +131,7 @@ export const allApiRoutes: {
 	'/api/delete-nodes': deleteNodesHandler,
 	'/api/duplicate-nodes': duplicateNodesHandler,
 	'/api/wrap-node': wrapNodeHandler,
+	'/api/precompose-jsx-nodes': precomposeJsxNodesHandler,
 	'/api/split-sequences': splitSequencesHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
