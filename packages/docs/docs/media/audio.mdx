@@ -50,7 +50,7 @@ At which frame this clip should start relative to the parent timeline. Default i
 
 ### `durationInFrames?`<AvailableFrom v="4.0.446" />
 
-Selects this many source frames starting at `trimBefore`, unless `trimAfter` ends the range earlier. The clip occupies `durationInFrames / playbackRate` frames on the parent timeline, or uses this range as its loop when `loop` is enabled. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
+Selects this many source frames starting at `trimBefore`. The clip occupies `durationInFrames / playbackRate` frames on the parent timeline, or uses this range as its loop when `loop` is enabled. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
 
 :::note
 You can still wrap `<Audio>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
@@ -104,7 +104,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `trimAfter?`
+### ~~`trimAfter?`~~
+
+:::info Deprecated
+Use [`durationInFrames`](#durationinframes) instead. See [PR #11685](https://github.com/remotion-dev/remotion/pull/11685).
+:::
 
 Removes a portion of the audio at the end (right side). If `durationInFrames` ends the range earlier, the shorter range is used. See [`trimBefore`](#trimbefore) for an explanation.
 
