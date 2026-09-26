@@ -14,9 +14,13 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
-import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {RedoIcon} from '../icons/redo';
 import {UndoIcon} from '../icons/undo';
+import {ActionTooltip} from './ActionTooltip';
 import {callApi} from './call-api';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -135,15 +139,9 @@ export const UndoRedoButtons: React.FC = () => {
 
 	const undoShortcut = useKeyboardShortcutLabel('undo');
 	const redoShortcut = useKeyboardShortcutLabel('redo');
-	const undoTooltip =
-		areKeyboardShortcutsDisabled() || undoShortcut === ''
-			? 'Undo'
-			: `Undo (${undoShortcut})`;
-
-	const redoTooltip =
-		areKeyboardShortcutsDisabled() || redoShortcut === ''
-			? 'Redo'
-			: `Redo (${redoShortcut})`;
+	const undoAriaShortcut = useKeyboardShortcutAriaKeyShortcuts('undo');
+	const redoAriaShortcut = useKeyboardShortcutAriaKeyShortcuts('redo');
+	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 
 	const renderUndo: RenderInlineAction = useCallback((color) => {
 		return <UndoIcon style={iconStyle} color={color} />;
@@ -162,22 +160,42 @@ export const UndoRedoButtons: React.FC = () => {
 
 	return (
 		<>
-			<InlineAction
-				variant={null}
-				onClick={onUndo}
-				renderAction={renderUndo}
-				aria-label={undoTooltip}
-				disabled={!canUndo}
-				unhoveredColor={WHITE_ALPHA_80}
-			/>
-			<InlineAction
-				variant={null}
-				onClick={onRedo}
-				renderAction={renderRedo}
-				aria-label={redoTooltip}
-				disabled={!canRedo}
-				unhoveredColor={WHITE_ALPHA_80}
-			/>
+			<ActionTooltip
+				label="Undo"
+				shortcut={shortcutsDisabled ? null : undoShortcut}
+				delay={800}
+				dismissOnClick
+			>
+				<InlineAction
+					variant={null}
+					onClick={onUndo}
+					renderAction={renderUndo}
+					aria-label="Undo"
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : undoAriaShortcut || undefined
+					}
+					disabled={!canUndo}
+					unhoveredColor={WHITE_ALPHA_80}
+				/>
+			</ActionTooltip>
+			<ActionTooltip
+				label="Redo"
+				shortcut={shortcutsDisabled ? null : redoShortcut}
+				delay={800}
+				dismissOnClick
+			>
+				<InlineAction
+					variant={null}
+					onClick={onRedo}
+					renderAction={renderRedo}
+					aria-label="Redo"
+					aria-keyshortcuts={
+						shortcutsDisabled ? undefined : redoAriaShortcut || undefined
+					}
+					disabled={!canRedo}
+					unhoveredColor={WHITE_ALPHA_80}
+				/>
+			</ActionTooltip>
 		</>
 	);
 };

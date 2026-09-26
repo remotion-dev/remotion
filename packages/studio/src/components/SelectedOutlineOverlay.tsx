@@ -55,10 +55,7 @@ import {
 } from './selected-outline-types';
 import {SelectedOutlineKeyboardControls} from './SelectedOutlineKeyboardControls';
 import {SelectedOutlineRenderer} from './SelectedOutlineRenderer';
-import {
-	getKeyframeDisplayOffset,
-	getKeyframeSourceFrame,
-} from './Timeline/get-timeline-keyframes';
+import {getKeyframeDisplayOffset} from './Timeline/get-timeline-keyframes';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -305,12 +302,7 @@ const calculateOutlineTargets = ({
 			keyframeDisplayOffset,
 			keyframePlaybackRate,
 		});
-		const sourceFrame = getKeyframeSourceFrame({
-			displayFrame: targetTimelinePosition,
-			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
-			keyframePlaybackRate,
-			propStatus: firstKeyframedStatus ?? null,
-		});
+
 		const dragOverrides = getDragOverrides(nodePath) ?? {};
 		const runtimeValues = controls
 			? (runtimeValuesByStore.get(controls.runtimeValues) ??
@@ -322,7 +314,9 @@ const calculateOutlineTargets = ({
 					currentRuntimeValueDotNotation: runtimeValues,
 					dragOverrides,
 					propStatus: nodePropStatuses,
-					frame: sourceFrame,
+					frame:
+						(targetTimelinePosition - keyframeDisplayOffset) *
+						keyframePlaybackRate,
 				})
 			: null;
 		const cropValues = {
@@ -330,7 +324,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.left,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -338,7 +334,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.right,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -346,7 +344,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.top,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -354,7 +354,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.bottom,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -385,7 +387,9 @@ const calculateOutlineTargets = ({
 							propStatus: transformOriginPropStatus ?? null,
 							dragOverrideValue: dragOverrides[transformOriginFieldKey],
 							defaultValue: transformOriginFieldSchema.default,
-							frame: sourceFrame,
+							frame:
+								(targetTimelinePosition - keyframeDisplayOffset) *
+								keyframePlaybackRate,
 							shouldResortToDefaultValueIfUndefined: true,
 						}) ?? transformOriginFieldSchema.default,
 					)
@@ -450,20 +454,10 @@ const calculateOutlineTargets = ({
 					runtimeValue: runtimeValues[fieldKey],
 				}),
 			);
-		const transformOriginSourceFrame =
-			selectedTransformOriginInfo?.displayFrame === null ||
-			selectedTransformOriginInfo?.displayFrame === undefined
-				? sourceFrame
-				: getKeyframeSourceFrame({
-						displayFrame: selectedTransformOriginInfo.displayFrame,
-						propStatus: transformOriginPropStatus ?? null,
-						keyframeDisplayOffset: getKeyframeDisplayOffset({
-							propStatus: transformOriginPropStatus ?? null,
-							keyframeDisplayOffset,
-							keyframePlaybackRate,
-						}),
-						keyframePlaybackRate,
-					});
+		const transformOriginLocalFrame =
+			((selectedTransformOriginInfo?.displayFrame ?? targetTimelinePosition) -
+				keyframeDisplayOffset) *
+			keyframePlaybackRate;
 		const canTransformOriginStatus =
 			transformOriginPropStatus?.status === 'static' ||
 			(transformOriginPropStatus?.status === 'keyframed' &&
@@ -619,7 +613,7 @@ const calculateOutlineTargets = ({
 									propStatus: transformOriginPropStatus ?? null,
 									dragOverrideValue: dragOverrides[transformOriginFieldKey],
 									defaultValue: transformOriginFieldSchema.default,
-									frame: transformOriginSourceFrame,
+									frame: transformOriginLocalFrame,
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? transformOriginFieldSchema.default,
 							),
@@ -633,7 +627,7 @@ const calculateOutlineTargets = ({
 												rotationFieldSchema?.type === 'rotation-css'
 													? rotationFieldSchema.default
 													: '0deg',
-											frame: transformOriginSourceFrame,
+											frame: transformOriginLocalFrame,
 											shouldResortToDefaultValueIfUndefined: true,
 										}) ?? '0deg')
 									: '0deg',
@@ -649,7 +643,7 @@ const calculateOutlineTargets = ({
 													scaleFieldSchema?.type === 'scale'
 														? scaleFieldSchema.default
 														: 1,
-												frame: transformOriginSourceFrame,
+												frame: transformOriginLocalFrame,
 												shouldResortToDefaultValueIfUndefined: true,
 											}) ?? 1,
 										)
@@ -673,7 +667,7 @@ const calculateOutlineTargets = ({
 									propStatus,
 									dragOverrideValue: dragOverrides[translateFieldKey],
 									defaultValue: fieldSchema.default,
-									frame: transformOriginSourceFrame,
+									frame: transformOriginLocalFrame,
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? fieldSchema.default,
 							),

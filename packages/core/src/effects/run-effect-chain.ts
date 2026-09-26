@@ -15,6 +15,7 @@ export type EffectChainState = {
 	cleanupRegistry: Array<{
 		definition: EffectDefinition<unknown, unknown>;
 		state: unknown;
+		target: HTMLCanvasElement;
 	}>;
 	currentRunId: number;
 };
@@ -22,17 +23,47 @@ export type EffectChainState = {
 export const createEffectChainState = (
 	width: number,
 	height: number,
-): EffectChainState => ({
-	pool: new CanvasPool(width, height),
-	setupCache: new WeakMap(),
-	cleanupRegistry: [],
-	currentRunId: 0,
-});
+): EffectChainState => {
+	const state: EffectChainState = {
+		pool: new CanvasPool(width, height, (canvas) => {
+			// The GL objects these setups hold died with the context and stay
+			// invalid on a restored one, so the next run has to recreate them.
+			// While the context is lost, GL calls are no-ops, which makes this
+			// the moment to run the cleanups without side effects on the
+			// context's error state.
+			const dead = state.cleanupRegistry.filter(
+				(entry) => entry.target === canvas,
+			);
+			state.cleanupRegistry = state.cleanupRegistry.filter(
+				(entry) => entry.target !== canvas,
+			);
+			for (const entry of dead) {
+				state.setupCache.get(entry.definition)?.delete(canvas);
+			}
 
+			for (const entry of dead) {
+				entry.definition.cleanup(entry.state);
+			}
+		}),
+		setupCache: new WeakMap(),
+		cleanupRegistry: [],
+		currentRunId: 0,
+	};
+
+	return state;
+};
+
+// Cancels in-flight runs, releases per-effect resources and then the pool's
+// canvases and contexts. The state must not be used afterwards.
 export const cleanupEffectChainState = (state: EffectChainState): void => {
 	state.currentRunId++;
-	for (const entry of state.cleanupRegistry) {
-		entry.definition.cleanup(entry.state);
+	try {
+		for (const entry of state.cleanupRegistry) {
+			entry.definition.cleanup(entry.state);
+		}
+	} finally {
+		state.cleanupRegistry.length = 0;
+		state.pool.dispose();
 	}
 };
 
@@ -54,7 +85,7 @@ const ensureSetup = <S>(
 
 	const setupState = def.setup(target);
 	cacheForDefinition.set(target, setupState);
-	state.cleanupRegistry.push({definition: widened, state: setupState});
+	state.cleanupRegistry.push({definition: widened, state: setupState, target});
 	return setupState;
 };
 
@@ -138,6 +169,12 @@ export const runEffectChain = async ({
 
 		for (const eff of run.effects) {
 			const def = eff.definition as EffectDefinition<unknown, unknown>;
+			if (run.backend === 'webgl2') {
+				// Checked before `setup()`: a lost context cannot compile shaders,
+				// and this surfaces the dedicated error instead of an effect's own.
+				state.pool.assertContextNotLost(dst);
+			}
+
 			const setupState = ensureSetup(state, def, dst);
 
 			def.apply({
@@ -156,7 +193,6 @@ export const runEffectChain = async ({
 				// through `texImage2D()`. That source is still a DOM canvas, so the
 				// next upload also needs to be flipped.
 				flipWebGLSourceY = true;
-				state.pool.assertContextNotLost(dst);
 			}
 
 			currentImage = dst;

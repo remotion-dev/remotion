@@ -14,6 +14,7 @@ import {
 } from '../helpers/hoverable';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
+import {Checkmark} from '../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {ActionTooltip} from './ActionTooltip';
 import {MENU_INITIATOR_CLASSNAME} from './Menu/is-menu-item';
@@ -383,13 +384,13 @@ const SegmentedButtonMenu: React.FC<{
 											onHide={onHide}
 											onNextMenu={noop}
 											onPreviousMenu={noop}
-											preselectIndex={
-												segment.selectedId === null
-													? false
-													: segment.values.findIndex(
-															(value) => value.id === segment.selectedId,
-														)
-											}
+											preselectIndex={segment.values.findIndex(
+												(value) =>
+													value.type === 'item' &&
+													value.id === segment.selectedId &&
+													React.isValidElement(value.leftItem) &&
+													value.leftItem.type === Checkmark,
+											)}
 											topItemCanBeUnselected={false}
 											values={segment.values}
 										/>

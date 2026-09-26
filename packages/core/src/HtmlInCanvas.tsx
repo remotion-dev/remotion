@@ -585,14 +585,18 @@ const HtmlInCanvasContent = forwardRef<
 						});
 					}
 
-					await runEffectChain({
-						state: chainState.get(canvasWidth, canvasHeight)!,
-						source: paintTarget,
-						effects: effectsRef.current,
-						output: paintTarget,
-						width: canvasWidth,
-						height: canvasHeight,
-					});
+					// `null` once unmounted, e.g. when an async `onPaint` resolves late.
+					const state = chainState.get(canvasWidth, canvasHeight);
+					if (state) {
+						await runEffectChain({
+							state,
+							source: paintTarget,
+							effects: effectsRef.current,
+							output: paintTarget,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+					}
 				} finally {
 					elImage.close();
 				}

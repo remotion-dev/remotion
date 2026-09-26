@@ -33,6 +33,7 @@ import {
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
 import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 } from '../Timeline/get-timeline-keyframes';
@@ -543,7 +544,11 @@ export const KeyframeInspector: React.FC<{
 				keyframes={details.propStatus.keyframes.map((keyframe) => ({
 					...keyframe,
 					frame:
-						keyframe.frame / details.keyframePlaybackRate +
+						keyframe.frame /
+							getKeyframePlaybackRate(
+								details.propStatus,
+								details.keyframePlaybackRate,
+							) +
 						details.keyframeDisplayOffset,
 				}))}
 				nodePathInfo={selection.nodePathInfo}

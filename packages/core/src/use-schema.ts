@@ -23,6 +23,8 @@ export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
 	keyframeDisplayOffsetAdjustment: number | null;
+	/** Multiplies the element's local frame to recover the source frame clock. */
+	keyframePlaybackRateAdjustment?: number;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
@@ -131,12 +133,14 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	/**
-	 * Added to the timeline track's keyframe display offset and subtracted from
-	 * the controlled element's local frame when evaluating the interpolation.
+	 * Subtracted after applying keyframePlaybackRateAdjustment to the controlled
+	 * element's local frame when evaluating the interpolation.
 	 * This is non-zero when the useCurrentFrame() call is outside a timing
 	 * element that wraps the controlled element.
 	 */
 	keyframeDisplayOffsetAdjustment: number | null;
+	/** Defaults to 1 for statuses produced without a playback rate conversion. */
+	keyframePlaybackRateAdjustment?: number;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;

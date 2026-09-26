@@ -1558,9 +1558,12 @@ export const createBrowserStudioOperations = ({
 				node: {filePath, nodePath},
 				wrapper: createElement({
 					component: wrapper,
-					importPath: 'remotion',
+					importPath:
+						wrapper === 'HtmlInCanvasMotionBlur'
+							? '@remotion/motion-blur'
+							: 'remotion',
 					props:
-						wrapper === 'HtmlInCanvas'
+						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
 							? {width: width ?? 0, height: height ?? 0}
 							: {},
 				}),
@@ -1816,7 +1819,7 @@ export const createBrowserStudioOperations = ({
 					],
 				})),
 			});
-			return {success: true};
+			return {success: true, nodePathMutation: null};
 		},
 		deleteKeyframes: async ({sequenceKeyframes, effectKeyframes}) => {
 			await commitKeyframeMutations({

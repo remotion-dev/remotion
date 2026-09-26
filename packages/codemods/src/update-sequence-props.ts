@@ -40,6 +40,7 @@ import {
 	getStaticJsxChildrenAttribute,
 	getStaticJsxTextContent,
 	hasJsxChildrenAttribute,
+	retimeSequenceKeyframes,
 } from './sequence-props';
 import {
 	ensureClipboardParamRemotionImports,
@@ -86,6 +87,7 @@ export type SequencePropUpdate = {
 	defaultValue: unknown | null;
 	googleFont?: GoogleFontSourceEdit | null;
 	clipboardParam?: EffectClipboardParam | null;
+	retimeKeyframes?: boolean;
 };
 
 const ensureImportsForUpdates = ({
@@ -1421,13 +1423,29 @@ export const updateMultipleSequenceProps = ({
 			updates.some((update) => update.key === 'children') ? [jsxElement] : [],
 		),
 	);
+	const elementsToPrint = new Set(
+		resolvedChanges.map(({jsxElement}) => jsxElement),
+	);
+	for (const {jsxElement, updates} of resolvedChanges) {
+		if (!updates.some((update) => update.retimeKeyframes)) {
+			continue;
+		}
+
+		recast.types.visit(jsxElement, {
+			visitJSXElement(p) {
+				elementsToPrint.add(p.node as unknown as JSXElement);
+				return this.traverse(p);
+			},
+		});
+	}
+
 	const originalAttributeSources = new Map(
-		resolvedChanges.flatMap(({jsxElement}) => [
+		[...elementsToPrint].flatMap((jsxElement) => [
 			...captureJsxAttributeSources(jsxElement),
 		]),
 	);
 	const openingElementLocations = new Map(
-		resolvedChanges.flatMap(({jsxElement}) =>
+		[...elementsToPrint].flatMap((jsxElement) =>
 			elementsWithChildrenUpdates.has(jsxElement)
 				? []
 				: [[jsxElement.openingElement, jsxElement.openingElement.loc] as const],
@@ -1440,6 +1458,22 @@ export const updateMultipleSequenceProps = ({
 				: [],
 		),
 	);
+	for (const {jsxElement, updates, videoConfigValues} of resolvedChanges) {
+		for (const update of updates) {
+			if (update.key === 'playbackRate' && update.retimeKeyframes) {
+				retimeSequenceKeyframes({
+					ast,
+					jsxElement,
+					playbackRate: typeof update.value === 'number' ? update.value : 1,
+					videoConfigValues: getVideoConfigIdentifierValues({
+						ast,
+						videoConfigValues,
+					}),
+				});
+			}
+		}
+	}
+
 	const clipboardParamLocalNames = prepareClipboardParamSourceEdits({
 		ast,
 		changes: resolvedChanges,

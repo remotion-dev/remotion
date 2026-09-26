@@ -16,6 +16,7 @@ import {
 	type SelectedOutline,
 } from './selected-outline-geometry';
 import {
+	getKeyframeLocalFrame,
 	resolveKeyframeSourceFrame,
 	type KeyframeSourceFrame,
 } from './Timeline/get-timeline-keyframes';
@@ -729,7 +730,10 @@ export const getSelectedUvHandles = ({
 				propStatus,
 				dragOverrideValue: dragOverrides[key],
 				defaultValue: undefined,
-				frame: resolveKeyframeSourceFrame(sourceFrame, propStatus),
+				frame: getKeyframeLocalFrame(
+					resolveKeyframeSourceFrame(sourceFrame, propStatus),
+					propStatus,
+				),
 				shouldResortToDefaultValueIfUndefined: false,
 			});
 		});
@@ -751,7 +755,10 @@ export const getSelectedUvHandles = ({
 				propStatus,
 				dragOverrideValue: dragOverrides[fieldKey],
 				defaultValue: fieldSchema.default,
-				frame: resolveKeyframeSourceFrame(sourceFrame, propStatus),
+				frame: getKeyframeLocalFrame(
+					resolveKeyframeSourceFrame(sourceFrame, propStatus),
+					propStatus,
+				),
 				shouldResortToDefaultValueIfUndefined: true,
 			});
 		}
