@@ -42,6 +42,13 @@ const RULER_HEIGHT = 26;
 const ROW_HEIGHT = 30;
 const EDGE_WIDTH = 7;
 
+const playbackRateComponentIdentities = new Set([
+  "dev.remotion.gif.Gif",
+  "dev.remotion.media.Audio",
+  "dev.remotion.media.Video",
+  "dev.remotion.remotion.AnimatedImage",
+]);
+
 type DragState = {
   layerId: string;
   mode: "move" | "start" | "end";
@@ -375,22 +382,43 @@ export const Timeline: React.FC = () => {
       // The props as written in the source. Dragging previews and then
       // commits these values shifted by the dragged distance.
       const node = getNodeReference(layer.selectionItem);
+      const { sequence } = layer.track;
+      const runtimeValues =
+        sequence.controls?.runtimeValues.getSnapshot() ?? {};
+      const runtimePlaybackRate = runtimeValues.playbackRate;
+      const playbackRate = playbackRateComponentIdentities.has(
+        sequence.controls?.componentIdentity ?? "",
+      )
+        ? typeof runtimePlaybackRate === "number"
+          ? runtimePlaybackRate
+          : 1
+        : sequence.sequencePlaybackRate;
       let sourceFrom = 0;
-      let sourceDuration = layer.track.sequence.duration;
+      let sourceDuration = sequence.duration * playbackRate;
+      let sourceTrimBefore =
+        typeof runtimeValues.trimBefore === "number"
+          ? runtimeValues.trimBefore
+          : 0;
       let blocked: string | null = null;
       if (node) {
         try {
           const { props } = getNodeProps({
             project,
             node,
-            keys: ["from", "durationInFrames"],
+            keys: ["from", "durationInFrames", "trimBefore"],
           });
           const fromStatus = props.from;
           const durationStatus = props.durationInFrames;
+          const trimBeforeStatus = props.trimBefore;
           if (fromStatus?.status === "computed" && mode !== "end") {
             blocked = `The "from" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`;
           } else if (durationStatus?.status === "computed" && mode !== "move") {
             blocked = `The "durationInFrames" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`;
+          } else if (
+            trimBeforeStatus?.status === "computed" &&
+            mode === "start"
+          ) {
+            blocked = `The "trimBefore" prop of ${getLayerLabel(layer)} is computed. Edit it in the code instead.`;
           }
 
           if (
@@ -406,34 +434,54 @@ export const Timeline: React.FC = () => {
           ) {
             sourceDuration = durationStatus.codeValue;
           }
+
+          if (
+            trimBeforeStatus?.status === "static" &&
+            typeof trimBeforeStatus.codeValue === "number"
+          ) {
+            sourceTrimBefore = trimBeforeStatus.codeValue;
+          }
         } catch (error) {
           blocked = getErrorMessage(error);
         }
       }
 
-      const getUpdates = (deltaFrames: number) =>
-        mode === "move"
-          ? [{ key: "from", value: sourceFrom + deltaFrames, defaultValue: 0 }]
-          : mode === "end"
-            ? [
-                {
-                  key: "durationInFrames",
-                  value: Math.max(1, sourceDuration + deltaFrames),
-                  defaultValue: null,
-                },
-              ]
-            : [
-                {
-                  key: "from",
-                  value: sourceFrom + deltaFrames,
-                  defaultValue: 0,
-                },
-                {
-                  key: "durationInFrames",
-                  value: Math.max(1, sourceDuration - deltaFrames),
-                  defaultValue: null,
-                },
-              ];
+      const getUpdates = (deltaFrames: number) => {
+        const childDeltaFrames = deltaFrames * playbackRate;
+        if (mode === "move") {
+          return [
+            { key: "from", value: sourceFrom + deltaFrames, defaultValue: 0 },
+          ];
+        }
+
+        if (mode === "end") {
+          return [
+            {
+              key: "durationInFrames",
+              value: Math.max(1, sourceDuration + childDeltaFrames),
+              defaultValue: null,
+            },
+          ];
+        }
+
+        return [
+          {
+            key: "from",
+            value: sourceFrom + deltaFrames,
+            defaultValue: 0,
+          },
+          {
+            key: "durationInFrames",
+            value: Math.max(1, sourceDuration - childDeltaFrames),
+            defaultValue: null,
+          },
+          {
+            key: "trimBefore",
+            value: Math.max(0, sourceTrimBefore + childDeltaFrames),
+            defaultValue: 0,
+          },
+        ];
+      };
 
       const onMove = (move: PointerEvent) => {
         const current = dragRef.current;
