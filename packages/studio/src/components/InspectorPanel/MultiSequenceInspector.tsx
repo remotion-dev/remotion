@@ -127,6 +127,7 @@ export const MultiSequenceInspector: React.FC<{
 				nodePathInfo,
 				displayName: track?.sequence.displayName ?? null,
 				line: null,
+				singleChildComponent: track?.sequence.singleChildComponent ?? null,
 			};
 		});
 	}, [overrideIdToNodePathMappings, selections, sequences]);

@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -20,6 +21,7 @@ export const SequencePrecomposeAction: React.FC<{
 		readonly nodePathInfo: SequenceNodePathInfo;
 		readonly displayName: string | null;
 		readonly line: number | null;
+		readonly singleChildComponent: unknown;
 	}[];
 	readonly sourceActionsDisabled: boolean;
 }> = ({targets, sourceActionsDisabled}) => {
@@ -33,6 +35,10 @@ export const SequencePrecomposeAction: React.FC<{
 	const compositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const composition = compositions.find((item) => item.id === compositionId);
+	const hasConnectedComposition = targets.some(
+		({singleChildComponent}) =>
+			getConnectedCompositions({compositions, singleChildComponent}).length > 0,
+	);
 	const resolvedCompositionLocation = useResolvedStack(
 		composition?.stack ?? null,
 	);
@@ -47,7 +53,12 @@ export const SequencePrecomposeAction: React.FC<{
 			typeof browserStudioOperations.precomposeJsxNodes === 'function');
 
 	const onPrecompose = useCallback(() => {
-		if (busy || !canChangeSource || targets.length === 0) {
+		if (
+			busy ||
+			!canChangeSource ||
+			hasConnectedComposition ||
+			targets.length === 0
+		) {
 			return;
 		}
 
@@ -144,13 +155,14 @@ export const SequencePrecomposeAction: React.FC<{
 		compositions,
 		durationInFrames,
 		fps,
+		hasConnectedComposition,
 		height,
 		setSelectedModal,
 		targets,
 		width,
 	]);
 
-	if (!canChangeSource || targets.length === 0) {
+	if (!canChangeSource || hasConnectedComposition || targets.length === 0) {
 		return null;
 	}
 

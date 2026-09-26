@@ -364,6 +364,7 @@ const SequenceSourceQuickActions: React.FC<{
 						nodePathInfo: selection.nodePathInfo,
 						displayName: track.sequence.displayName,
 						line: sourceLine,
+						singleChildComponent: track.sequence.singleChildComponent,
 					},
 				]}
 				sourceActionsDisabled={sourceActionsDisabled}
@@ -512,6 +513,7 @@ const SequenceExpandedInspector: React.FC<{
 										nodePathInfo: sequenceSelection.nodePathInfo,
 										displayName: track.sequence.displayName,
 										line: null,
+										singleChildComponent: track.sequence.singleChildComponent,
 									},
 								]}
 								sourceActionsDisabled={
