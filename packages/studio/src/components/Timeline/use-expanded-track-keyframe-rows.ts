@@ -205,7 +205,8 @@ export const useExpandedTrackKeyframeRows = ({
 			(sum, {node}) => sum + getTreeRowHeight(node),
 			0,
 		);
-		return totalRowsHeight;
+		const separators = Math.max(0, flat.length - 1);
+		return totalRowsHeight + separators;
 	}, [flat]);
 
 	const nodeKeyframes = useMemo(

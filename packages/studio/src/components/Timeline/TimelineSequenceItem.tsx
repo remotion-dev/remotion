@@ -39,6 +39,7 @@ import {
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -984,7 +985,7 @@ const TimelineSequenceItemInner: React.FC<{
 	);
 
 	const outerHeight = useMemo(
-		() => getTimelineLayerHeight(sequence.type),
+		() => getTimelineLayerHeight(sequence.type) + TIMELINE_ITEM_BORDER_BOTTOM,
 		[sequence.type],
 	);
 

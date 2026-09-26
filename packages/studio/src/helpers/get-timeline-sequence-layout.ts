@@ -1,8 +1,6 @@
 import type {VideoConfig} from 'remotion';
 import {TIMELINE_PADDING} from './timeline-layout';
 
-export const SEQUENCE_BORDER_WIDTH = 1;
-
 const getWidthOfTrack = ({
 	durationInFrames,
 	timelineDuration,
@@ -22,7 +20,7 @@ const getWidthOfTrack = ({
 			? fullWidth
 			: (spatialDuration / timelineDuration) * fullWidth;
 
-	return Math.max(0, base - SEQUENCE_BORDER_WIDTH + nonNegativeMarginLeft);
+	return Math.max(0, base + nonNegativeMarginLeft);
 };
 
 export const getTimelineSequenceLayout = ({

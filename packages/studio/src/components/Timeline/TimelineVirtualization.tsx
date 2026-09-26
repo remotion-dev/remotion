@@ -13,6 +13,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
@@ -57,7 +58,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 	const trackHeights = useTimelineTrackHeights({timeline});
 	const {revealRequest, selectedItems} = useTimelineSelection();
 	const paddingStart = isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT;
-	const paddingEnd = hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0;
+	const paddingEnd =
+		TIMELINE_ITEM_BORDER_BOTTOM +
+		(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0);
 
 	const layout = useMemo(() => {
 		const siblingIndexes = new Array<number>(timeline.length);

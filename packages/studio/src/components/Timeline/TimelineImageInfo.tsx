@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 
-const HEIGHT = getTimelineLayerHeight('image') - 2;
+const HEIGHT = getTimelineLayerHeight('image');
 
 const containerStyle: React.CSSProperties = {
 	height: HEIGHT,

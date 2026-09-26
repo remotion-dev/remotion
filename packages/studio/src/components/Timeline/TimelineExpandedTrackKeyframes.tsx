@@ -24,13 +24,14 @@ const TimelineExpandedTrackKeyframesInner: React.FC<
 
 	return (
 		<div style={{height: expandedHeight}}>
-			{rows.map((row) => (
+			{rows.map((row, index) => (
 				<TimelineExpandedKeyframeRow
 					key={row.rowKey}
 					height={row.height}
 					keyframes={row.keyframes}
 					canEditEasing={row.canEditEasing}
 					nodePathInfo={row.nodePathInfo}
+					showSeparator={index > 0}
 				/>
 			))}
 		</div>

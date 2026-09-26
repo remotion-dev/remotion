@@ -1,5 +1,5 @@
 import React from 'react';
-import {BACKGROUND, TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
+import {BACKGROUND} from '../../helpers/colors';
 import {TimelineSequenceItem} from './TimelineSequenceItem';
 import {
 	type TimelineVirtualRow,
@@ -48,24 +48,7 @@ export const TimelineList: React.FC = () => {
 
 	return (
 		<div style={{...container, height: tracksEnd}}>
-			<style>{`.remotion-timeline-list-row-border::after,
-			.remotion-timeline-list-expanded-section::before {
-				content: '';
-				position: absolute;
-				left: 0;
-				right: 0;
-				height: 0;
-				border-bottom: 1px solid ${TIMELINE_TRACK_SEPARATOR};
-				pointer-events: none;
-				z-index: 1;
-			}
-			.remotion-timeline-list-row-border::after {
-				bottom: 0;
-			}
-			.remotion-timeline-list-expanded-section::before {
-				top: 0;
-			}
-			.remotion-timeline-sequence-name-measure::before {
+			<style>{`.remotion-timeline-sequence-name-measure::before {
 				content: attr(data-name);
 				display: block;
 				font-family: Arial, Helvetica, sans-serif;
@@ -76,7 +59,6 @@ export const TimelineList: React.FC = () => {
 			{virtualItems.map((virtualItem) => (
 				<div
 					key={virtualItem.key}
-					className="remotion-timeline-list-row-border"
 					style={{
 						height: virtualItem.size,
 						left: 0,

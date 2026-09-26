@@ -1,9 +1,6 @@
 import {expect, test} from 'bun:test';
 import type {VideoConfig} from 'remotion';
-import {
-	SEQUENCE_BORDER_WIDTH,
-	getTimelineSequenceLayout,
-} from '../helpers/get-timeline-sequence-layout';
+import {getTimelineSequenceLayout} from '../helpers/get-timeline-sequence-layout';
 
 const makeVideoConfig = (durationInFrames: number): VideoConfig => ({
 	durationInFrames,
@@ -48,8 +45,8 @@ test('Should test timeline sequence layout without max media duration', () => {
 		postmountWidth: null,
 		negativeStartWidth: 0,
 		negativeStartClipped: false,
-		width: 227.18045810978126,
-		naturalWidth: 227.18045810978126,
+		width: 228.18045810978126,
+		naturalWidth: 228.18045810978126,
 	});
 });
 test('Should test timeline sequence layout with max media duration', () => {
@@ -84,8 +81,8 @@ test('Should test timeline sequence layout with max media duration', () => {
 		postmountWidth: null,
 		negativeStartWidth: 0,
 		negativeStartClipped: false,
-		width: 221.47594665703676,
-		naturalWidth: 221.47594665703676,
+		width: 222.47594665703676,
+		naturalWidth: 222.47594665703676,
 	});
 });
 
@@ -138,8 +135,8 @@ test('one-frame segments have a one-frame width', () => {
 		windowWidth: 1000,
 	});
 
-	expect(result.width).toBe(2.226666666666667);
-	expect(result.naturalWidth).toBe(2.226666666666667);
+	expect(result.width).toBe(3.226666666666667);
+	expect(result.naturalWidth).toBe(3.226666666666667);
 });
 
 test('adjacent sequences have no visual gap', () => {
@@ -166,9 +163,7 @@ test('adjacent sequences have no visual gap', () => {
 		windowWidth: 1000,
 	});
 
-	expect(first.marginLeft + first.width + SEQUENCE_BORDER_WIDTH).toBe(
-		second.marginLeft,
-	);
+	expect(first.marginLeft + first.width).toBe(second.marginLeft);
 });
 
 test('media trimmed past its duration has zero width', () => {
@@ -290,7 +285,7 @@ test('negative starts use the left timeline gutter without shifting frame zero',
 	expect(oneFrameBeforeZero.marginLeft).toBe(-10);
 	expect(oneFrameBeforeZero.negativeStartWidth).toBe(10);
 	expect(oneFrameBeforeZero.negativeStartClipped).toBe(false);
-	expect(oneFrameBeforeZero.width).toBe(999);
+	expect(oneFrameBeforeZero.width).toBe(1000);
 
 	const clippedToGutter = getTimelineSequenceLayout({
 		durationInFrames: 80,

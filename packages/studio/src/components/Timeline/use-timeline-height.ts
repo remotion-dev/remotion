@@ -7,6 +7,7 @@ import {
 	flattenVisibleTreeNodes,
 	getTimelineLayerHeight,
 	getTreeRowHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {useRuntimeValueSnapshots} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
@@ -70,7 +71,9 @@ export const useTimelineTrackHeights = ({
 				previewServerConnected &&
 				track.nodePathInfo !== null &&
 				getIsExpanded(track.nodePathInfo);
-			const layerHeight = getTimelineLayerHeight(track.sequence.type);
+			const layerHeight =
+				getTimelineLayerHeight(track.sequence.type) +
+				TIMELINE_ITEM_BORDER_BOTTOM;
 			const expandedHeight = (() => {
 				if (!isExpanded || track.nodePathInfo === null) {
 					return 0;
@@ -119,7 +122,8 @@ export const useTimelineTrackHeights = ({
 					(sum, {node}) => sum + getTreeRowHeight(node),
 					0,
 				);
-				return totalRowsHeight;
+				const separators = Math.max(0, flat.length - 1);
+				return totalRowsHeight + separators + TIMELINE_ITEM_BORDER_BOTTOM;
 			})();
 			return layerHeight + expandedHeight;
 		});

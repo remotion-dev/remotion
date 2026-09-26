@@ -1,11 +1,12 @@
 import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {WHITE} from '../../helpers/colors';
+import {TIMELINE_TRACK_SEPARATOR, WHITE} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	flattenVisibleTreeNodes,
 	getTreeRowHeight,
+	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 import {TimelineRowSelectedBackgroundContext} from './TimelineRowChrome';
@@ -22,7 +23,12 @@ const expandedSectionBase: React.CSSProperties = {
 	fontSize: 12,
 	display: 'flex',
 	flexDirection: 'column',
-	position: 'relative',
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+};
+
+const separator: React.CSSProperties = {
+	height: 0,
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 export const TimelineExpandedSection: React.FC<{
@@ -57,13 +63,14 @@ export const TimelineExpandedSection: React.FC<{
 			(sum, {node}) => sum + getTreeRowHeight(node),
 			0,
 		);
-		return totalRowsHeight;
+		const separators = Math.max(0, flat.length - 1);
+		return totalRowsHeight + separators;
 	}, [flat]);
 
 	const style = useMemo(() => {
 		return {
 			...expandedSectionBase,
-			height: expandedHeight,
+			height: expandedHeight + TIMELINE_ITEM_BORDER_BOTTOM,
 		};
 	}, [expandedHeight]);
 
@@ -77,18 +84,11 @@ export const TimelineExpandedSection: React.FC<{
 		<TimelineRowSelectedBackgroundContext.Provider
 			value={TIMELINE_EXPANDED_SELECTED_BACKGROUND}
 		>
-			<div style={style} className="remotion-timeline-list-expanded-section">
-				{flat.map(({node, depth}, index) => {
+			<div style={style}>
+				{flat.map(({node, depth}, i) => {
 					return (
-						<div
-							key={JSON.stringify(node.nodePathInfo)}
-							className={
-								index < flat.length - 1
-									? 'remotion-timeline-list-row-border'
-									: undefined
-							}
-							style={{height: getTreeRowHeight(node), position: 'relative'}}
-						>
+						<React.Fragment key={JSON.stringify(node.nodePathInfo)}>
+							{i > 0 ? <div style={separator} /> : null}
 							<TimelineExpandedRow
 								node={node}
 								depth={depth}
@@ -102,7 +102,7 @@ export const TimelineExpandedSection: React.FC<{
 								keyframePlaybackRate={keyframePlaybackRate}
 								keyframeControlsMode="timeline"
 							/>
-						</div>
+						</React.Fragment>
 					);
 				})}
 			</div>

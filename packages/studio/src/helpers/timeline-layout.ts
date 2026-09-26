@@ -43,6 +43,7 @@ export type {
 
 export const TIMELINE_PADDING = 16;
 export const TIMELINE_BORDER = 1;
+export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
@@ -278,19 +279,20 @@ export const getExpandedTrackHeight = ({
 		(sum, {node}) => sum + getTreeRowHeight(node),
 		0,
 	);
-	return totalRowsHeight;
+	const separators = Math.max(0, flat.length - 1);
+	return totalRowsHeight + separators;
 };
 
 export const TIMELINE_LAYER_FILMSTRIP_HEIGHT = 26;
 // The waveform stripe rendered underneath the filmstrip in TimelineVideoInfo.
-export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 18;
+export const TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT = 19;
 export const TIMELINE_LAYER_HEIGHT_VIDEO =
-	2 + TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
+	TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
 
-export const TIMELINE_LAYER_HEIGHT_AUDIO = 35;
-export const TIMELINE_LAYER_HEIGHT_DEFAULT = 22;
+export const TIMELINE_LAYER_HEIGHT_AUDIO = 34;
+export const TIMELINE_LAYER_HEIGHT_DEFAULT = 21;
 // The horizontal row inside a timeline list item (eye + arrow + label).
-export const TIMELINE_LIST_ITEM_ROW_HEIGHT = 22;
+export const TIMELINE_LIST_ITEM_ROW_HEIGHT = 21;
 
 export const getTimelineLayerHeight = (
 	type: 'video' | 'image' | 'audio' | 'sequence' | 'other',

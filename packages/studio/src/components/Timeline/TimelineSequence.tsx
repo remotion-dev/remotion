@@ -28,10 +28,7 @@ import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
-import {
-	getTimelineSequenceLayout,
-	SEQUENCE_BORDER_WIDTH,
-} from '../../helpers/get-timeline-sequence-layout';
+import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
@@ -95,7 +92,7 @@ import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const {getTimelineVisibleDuration, getTimelineVisibleStart} = CanvasInternals;
-const TIMELINE_SEQUENCE_BORDER_COLOR = '#151515';
+const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 
 const TimelineSequenceFn: React.FC<{
@@ -159,10 +156,10 @@ const TimelineSequenceNegativeStartInner: React.FC<{
 
 		return {
 			backgroundColor: TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
-			border: `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
+			border: `${NEGATIVE_START_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
 			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
 			borderLeft: showLeftEdge
-				? `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
+				? `${NEGATIVE_START_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
 				: 'none',
 			borderRight: 'none',
 			borderTopLeftRadius: showLeftEdge ? 2 : 0,
@@ -296,7 +293,6 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		return {
 			...style,
 			background: negativeStart ? TRANSPARENT : sequenceBackground,
-			border: negativeStart ? 'none' : style.border,
 			opacity:
 				activeTrimEdge !== null || selected || containsSelection || isAsset
 					? 1
@@ -414,11 +410,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					<div
 						style={{
 							background: sequenceBackground,
-							border: style.border,
 							borderBottomLeftRadius: 0,
 							borderBottomRightRadius: style.borderBottomRightRadius,
-							borderLeft: 'none',
-							borderRightColor: style.borderRightColor,
 							borderTopLeftRadius: 0,
 							borderTopRightRadius: style.borderTopRightRadius,
 							boxSizing: 'border-box',
@@ -1083,14 +1076,6 @@ const TimelineSequenceInner: React.FC<{
 					: s.type === 'video'
 						? TIMELINE_VIDEO_GRADIENT
 						: BLUE,
-			border: `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_SEQUENCE_BORDER_COLOR}`,
-			borderLeftColor:
-				visibleLayout?.leftEdgeVisible && !negativeStartClipped
-					? TIMELINE_SEQUENCE_BORDER_COLOR
-					: TRANSPARENT,
-			borderRightColor: visibleLayout?.rightEdgeVisible
-				? TIMELINE_SEQUENCE_BORDER_COLOR
-				: TRANSPARENT,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
@@ -1103,13 +1088,7 @@ const TimelineSequenceInner: React.FC<{
 			// Edge handles extend outside the layer; media is clipped separately.
 			overflow: 'visible',
 		};
-	}, [
-		negativeStartClipped,
-		s.type,
-		showLeftBorderRadius,
-		showRightBorderRadius,
-		visibleLayout,
-	]);
+	}, [s.type, showLeftBorderRadius, showRightBorderRadius, visibleLayout]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&
