@@ -5,32 +5,32 @@ import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
 	getUpdatedNodeReference,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 import {
 	updateSequenceKeyframes,
 	type SequenceKeyframeUpdate,
 } from './update-keyframes';
 
-export type JsxNodeKeyframeUpdate = SequenceKeyframeUpdate;
+export type NodeKeyframeUpdate = SequenceKeyframeUpdate;
 
-export type UpdateJsxNodeKeyframesOptions<Project extends CodemodProject> = {
+export type UpdateNodeKeyframesOptions<Project extends CodemodProject> = {
 	project: Project;
-	node: JsxNodeReference;
-	updates: JsxNodeKeyframeUpdate[];
+	node: NodeReference;
+	updates: NodeKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	videoConfig?: VideoConfigValues;
 	prettierConfigOverride?: Record<string, unknown> | null;
 };
 
-export const updateJsxNodeKeyframes = async <Project extends CodemodProject>({
+export const updateNodeKeyframes = async <Project extends CodemodProject>({
 	project,
 	node,
 	updates,
 	schema,
 	videoConfig,
 	prettierConfigOverride,
-}: UpdateJsxNodeKeyframesOptions<Project>) => {
+}: UpdateNodeKeyframesOptions<Project>) => {
 	if (updates.length === 0) {
 		throw new Error('Expected at least one keyframe update');
 	}

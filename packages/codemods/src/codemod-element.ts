@@ -175,7 +175,7 @@ export const createElement = (options: CodemodElementOptions): CodemodElement =>
 /**
  * Returns a value that is written as `staticFile(path)` when inserted into
  * source code. Pass it as a prop value to `createElement()` or
- * `updateJsxNodeProps()`.
+ * `updateNodeProps()`.
  */
 export const staticFileValue = (path: string): string => {
 	if (typeof path !== 'string' || path === '' || path.includes('\\')) {

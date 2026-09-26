@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {reorderJsxNode} from '@remotion/codemods';
+import {reorderNode} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderSequenceRequest,
@@ -43,7 +43,7 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderJsxNode({
+			const result = await reorderNode({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},

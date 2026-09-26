@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-update-multiple-jsx-node-props.png
-title: 'updateMultipleJsxNodeProps()'
+image: /generated/articles-docs-codemods-update-multiple-node-props.png
+title: 'updateMultipleNodeProps()'
 crumb: '@remotion/codemods'
 ---
 
-# updateMultipleJsxNodeProps()<AvailableFrom v="4.0.528" />
+# updateMultipleNodeProps()<AvailableFrom v="4.0.530" />
 
-Updates props on multiple JSX nodes across project files in one operation. Node references refer to the input project; the result includes their new paths.
+Updates props on multiple nodes across project files in one operation. Node references refer to the input project; the result includes their new paths.
 
 :::warning
 
@@ -14,14 +14,14 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="update-multiple-jsx-node-props.ts"
-import {updateMultipleJsxNodeProps, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+```ts twoslash title="update-multiple-node-props.ts"
+import {updateMultipleNodeProps, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const title: JsxNodeReference;
-declare const background: JsxNodeReference;
+declare const title: NodeReference;
+declare const background: NodeReference;
 
-const result = updateMultipleJsxNodeProps({
+const result = updateMultipleNodeProps({
   project,
   changes: [
     {node: title, props: {children: 'Hello'}},
@@ -44,7 +44,7 @@ A non-empty array of node edits.
 
 #### node
 
-The [`JsxNodeReference`](/docs/codemods#node-references) to edit, containing `filePath` and `nodePath`.
+The [`NodeReference`](/docs/codemods#node-references) to edit, containing `filePath` and `nodePath`.
 
 #### props?
 
@@ -52,7 +52,7 @@ A non-empty record of prop values, such as `{from: 30, 'style.opacity': 0.5}`. A
 
 #### updates?
 
-A non-empty array of [structured prop updates](/docs/codemods/update-jsx-node-props#updates) for edits that need default values or other update metadata. This form permits explicitly replacing computed prop values. Supply this instead of `props`.
+A non-empty array of [structured prop updates](/docs/codemods/update-node-props#updates) for edits that need default values or other update metadata. This form permits explicitly replacing computed prop values. Supply this instead of `props`.
 
 #### schema?
 
@@ -84,7 +84,7 @@ Updated node references in the same order as the requested edits.
 
 ### results
 
-Per-node edit details in the same order as the requested edits: `oldValueStrings`, `logLine`, `removedProps`, and `newNodePath`. See [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props).
+Per-node edit details in the same order as the requested edits: `oldValueStrings`, `logLine`, `removedProps`, and `newNodePath`. See [`updateNodeProps()`](/docs/codemods/update-node-props).
 
 ### formatted
 
@@ -96,5 +96,5 @@ Per-node edit details in the same order as the requested edits: `oldValueStrings
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-jsx-node-props.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-node-props.ts)
 - [`@remotion/codemods`](/docs/codemods)

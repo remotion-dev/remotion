@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {deleteJsxNodes} from '@remotion/codemods';
+import {deleteNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DeleteJsxNodesRequest,
@@ -67,7 +67,7 @@ export const deleteJsxNodesHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const result = await deleteJsxNodes({
+					const result = await deleteNodes({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

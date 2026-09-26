@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
-import {getJsxNodes} from '../index';
+import {getNodes} from '../index';
 
 test('lists JSX nodes with their deletion paths in source order', () => {
-	const elements = getJsxNodes({
+	const elements = getNodes({
 		filePath: 'Video.tsx',
 		project: {
 			rootDir: '/',

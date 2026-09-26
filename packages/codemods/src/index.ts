@@ -41,34 +41,30 @@ export {
 	type AddElementTarget,
 } from './add-element';
 export {type CodemodValue} from './codemod-value';
+export {getNodes, type GetNodesOptions, type CodemodNode} from './get-nodes';
 export {
-	getJsxNodes,
-	type GetJsxNodesOptions,
-	type JsxNode,
-} from './get-jsx-nodes';
+	getNodeProps,
+	type GetNodePropsOptions,
+	type NodeProps,
+} from './get-node-props';
 export {
-	getJsxNodeProps,
-	type GetJsxNodePropsOptions,
-	type JsxNodeProps,
-} from './get-jsx-node-props';
+	updateNodeProps,
+	updateMultipleNodeProps,
+	type NodePropChange,
+	type UpdateMultipleNodePropsOptions,
+	type UpdateNodePropsOptions,
+} from './update-node-props';
 export {
-	updateJsxNodeProps,
-	updateMultipleJsxNodeProps,
-	type JsxNodePropChange,
-	type UpdateMultipleJsxNodePropsOptions,
-	type UpdateJsxNodePropsOptions,
-} from './update-jsx-node-props';
-export {
-	duplicateJsxNodes,
-	type DuplicateJsxNodesOptions,
-	type DuplicateJsxNodesResult,
-} from './duplicate-jsx-nodes';
-export {reorderJsxNode, type ReorderJsxNodeOptions} from './reorder-jsx-node';
+	duplicateNodes,
+	type DuplicateNodesOptions,
+	type DuplicateNodesResult,
+} from './duplicate-nodes';
+export {reorderNode, type ReorderNodeOptions} from './reorder-node';
 export {splitSequences, type SplitSequencesOptions} from './split-sequences';
 export {detachAudio, type DetachAudioOptions} from './detach-audio';
 export type {
-	JsxNodeReference,
-	JsxNodePathRemapping,
+	NodeReference,
+	NodePathRemapping,
 	CodemodNodeResult,
 	CodemodInsertionResult,
 } from './node-references';
@@ -124,10 +120,10 @@ export {
 export {reorderEffect, type ReorderEffectOptions} from './reorder-effect';
 export {type EffectReference} from './effect-references';
 export {
-	updateJsxNodeKeyframes,
-	type JsxNodeKeyframeUpdate,
-	type UpdateJsxNodeKeyframesOptions,
-} from './update-jsx-node-keyframes';
+	updateNodeKeyframes,
+	type NodeKeyframeUpdate,
+	type UpdateNodeKeyframesOptions,
+} from './update-node-keyframes';
 export {
 	updateEffectKeyframes,
 	type UpdateEffectKeyframesOptions,
@@ -138,12 +134,8 @@ export type {
 	CodemodResult,
 } from './codemod-project';
 export {applyCodemodChanges} from './codemod-project';
-export {deleteJsxNodes, type DeleteJsxNodesOptions} from './delete-jsx-nodes';
-export {
-	canWrapJsxNode,
-	wrapJsxNode,
-	type WrapJsxNodeOptions,
-} from './wrap-jsx-node';
+export {deleteNodes, type DeleteNodesOptions} from './delete-nodes';
+export {canWrapNode, wrapNode, type WrapNodeOptions} from './wrap-node';
 export type {
 	EffectArrayElement,
 	EffectDeletionTarget,
@@ -161,7 +153,7 @@ export type {
 	SequenceKeyframeUpdate,
 } from './update-keyframes';
 export type {
-	InsertJsxElementCodemodEnvironment,
+	CodemodEnvironment,
 	PipelineInsertableElement,
 	ResolvedCompositionComponent,
 	ResolvedCompositionComponentWithFile,

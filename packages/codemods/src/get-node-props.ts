@@ -5,7 +5,7 @@ import type {
 } from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import {findProjectFile} from './internals';
-import {type JsxNodeReference} from './node-references';
+import {type NodeReference} from './node-references';
 import {
 	computeSequencePropsStatusFromContent,
 	findJsxElementAtNodePath,
@@ -13,9 +13,9 @@ import {
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {findEffectsAttr} from './sequence-props/can-update-effect-props';
 
-export type GetJsxNodePropsOptions = {
+export type GetNodePropsOptions = {
 	project: CodemodProject;
-	node: JsxNodeReference;
+	node: NodeReference;
 	keys: string[];
 	effectKeys?: string[][];
 	assetKeys?: string[];
@@ -23,12 +23,12 @@ export type GetJsxNodePropsOptions = {
 	videoConfig?: VideoConfigValues;
 };
 
-export type JsxNodeProps = Pick<
+export type NodeProps = Pick<
 	CanUpdateSequencePropsResponseTrue,
 	'canUpdate' | 'props' | 'effects'
 >;
 
-export const getJsxNodeProps = ({
+export const getNodeProps = ({
 	project,
 	node,
 	keys,
@@ -36,7 +36,7 @@ export const getJsxNodeProps = ({
 	assetKeys,
 	componentIdentity,
 	videoConfig,
-}: GetJsxNodePropsOptions): JsxNodeProps => {
+}: GetNodePropsOptions): NodeProps => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	let effects = effectKeys;
 	if (effects === undefined) {

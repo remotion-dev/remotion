@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # addElement()<AvailableFrom v="4.0.530" />
 
-Inserts an element created with [`createElement()`](/docs/codemods/create-element) into a composition component or relative to an existing JSX node, and adds the imports it needs.
+Inserts an element created with [`createElement()`](/docs/codemods/create-element) into a composition component or relative to an existing node, and adds the imports it needs.
 
 :::warning
 
@@ -88,21 +88,21 @@ Appends the element to the component of the composition with the static ID `comp
 
 #### `{type: 'component', filePath, exportName}`
 
-Appends the element to the JSX returned by the component that `filePath` exports as `exportName`, or as its default export when `exportName` is `'default'`. Use it when the component is already known, for example from [`resolveCompositionComponent()`](/docs/codemods/resolve-composition-component). Follows the same rules as the `composition` target.
+Appends the element to the root returned by the component that `filePath` exports as `exportName`, or as its default export when `exportName` is `'default'`. Use it when the component is already known, for example from [`resolveCompositionComponent()`](/docs/codemods/resolve-composition-component). Follows the same rules as the `composition` target.
 
 #### `{type: 'inside', node}`
 
-Appends the element as the last child of the JSX element referenced by `node`. Self-closing elements are expanded.
+Appends the element as the last child of `node`. Self-closing elements are expanded.
 
 #### `{type: 'before', node}`
 
-Inserts the element before the JSX element referenced by `node`. If the node has no JSX parent, for example because it is returned directly, both are grouped in a fragment.
+Inserts the element before `node`. If the node has no parent element, for example because it is returned directly, both are grouped in a fragment.
 
 #### `{type: 'after', node}`
 
-Inserts the element after the JSX element referenced by `node`, following the same rules as `before`.
+Inserts the element after `node`, following the same rules as `before`.
 
-Obtain a `node` from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous result. See [node references](/docs/codemods#node-references).
+Obtain a `node` from [`getNodes()`](/docs/codemods/get-nodes) or a previous result. See [node references](/docs/codemods#node-references).
 
 ### prettierConfigOverride?
 
@@ -122,7 +122,7 @@ An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path i
 
 ### insertedNode
 
-The reference of the outermost inserted element. Use [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) and its `parentNodePath` to find inserted children.
+The reference of the outermost inserted element. Use [`getNodes()`](/docs/codemods/get-nodes) and its `parentNodePath` to find inserted children.
 
 ## Errors
 
@@ -136,5 +136,5 @@ Throws when the target cannot be resolved, the composition component cannot rece
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-element.ts)
 - [`createElement()`](/docs/codemods/create-element)
-- [`deleteJsxNodes()`](/docs/codemods/delete-jsx-nodes)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`deleteNodes()`](/docs/codemods/delete-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

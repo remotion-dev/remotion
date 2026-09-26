@@ -4,7 +4,7 @@ import {
 	applyCodemodChanges,
 	CodemodsInternals,
 	createElement,
-	getJsxNodes,
+	getNodes,
 } from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
@@ -970,7 +970,7 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 		files: {[fileName]: initialContents},
 	};
 	const {operations, getProject} = makeOperationsForProject(project);
-	const nodePath = getJsxNodes({project, filePath: fileName}).find(
+	const nodePath = getNodes({project, filePath: fileName}).find(
 		({tagName}) => tagName === 'AbsoluteFill',
 	)?.nodePath;
 	if (!nodePath) {

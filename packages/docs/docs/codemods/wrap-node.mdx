@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-wrap-jsx-node.png
-title: 'wrapJsxNode()'
+image: /generated/articles-docs-codemods-wrap-node.png
+title: 'wrapNode()'
 crumb: '@remotion/codemods'
 ---
 
-# wrapJsxNode()<AvailableFrom v="4.0.530" />
+# wrapNode()<AvailableFrom v="4.0.530" />
 
-Wraps an existing JSX element in an element created with [`createElement()`](/docs/codemods/create-element). The wrapped element becomes the only child of the wrapper, and the wrapper's imports are added.
+Wraps an existing node in an element created with [`createElement()`](/docs/codemods/create-element). The wrapped element becomes the only child of the wrapper, and the wrapper's imports are added.
 
 :::warning
 
@@ -14,15 +14,15 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="wrap-jsx-node.ts"
-import {createElement, getJsxNodes, wrapJsxNode, type CodemodProject} from '@remotion/codemods';
+```ts twoslash title="wrap-node.ts"
+import {createElement, getNodes, wrapNode, type CodemodProject} from '@remotion/codemods';
 
 declare const project: CodemodProject;
 
-const node = getJsxNodes({project, filePath: 'src/Video.tsx'}).find((candidate) => candidate.tagName === 'div');
+const node = getNodes({project, filePath: 'src/Video.tsx'}).find((candidate) => candidate.tagName === 'div');
 
 if (node) {
-  const result = wrapJsxNode({
+  const result = wrapNode({
     project,
     node,
     wrapper: createElement({
@@ -45,7 +45,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-The reference of the JSX element to wrap. See [node references](/docs/codemods#node-references).
+The reference of the node to wrap. See [node references](/docs/codemods#node-references).
 
 ### wrapper
 
@@ -77,6 +77,6 @@ Throws when the node cannot be found, cannot be wrapped, or the wrapper is inval
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/wrap-jsx-node.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/wrap-node.ts)
 - [`createElement()`](/docs/codemods/create-element)
 - [`addElement()`](/docs/codemods/add-element)

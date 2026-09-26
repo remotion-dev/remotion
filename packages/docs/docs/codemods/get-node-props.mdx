@@ -1,10 +1,10 @@
 ---
-image: /generated/articles-docs-codemods-get-jsx-node-props.png
-title: 'getJsxNodeProps()'
+image: /generated/articles-docs-codemods-get-node-props.png
+title: 'getNodeProps()'
 crumb: '@remotion/codemods'
 ---
 
-# getJsxNodeProps()<AvailableFrom v="4.0.528" />
+# getNodeProps()<AvailableFrom v="4.0.530" />
 
 Inspects props and inline effects without executing the project.
 
@@ -14,13 +14,13 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="get-jsx-node-props.ts"
-import {getJsxNodeProps, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+```ts twoslash title="get-node-props.ts"
+import {getNodeProps, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
-const result = getJsxNodeProps({
+const result = getNodeProps({
   project,
   node,
   keys: ['children', 'style.opacity'],
@@ -39,11 +39,11 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/codemods/get-nodes) or a previous operation. It contains `filePath` and `nodePath`.
 
 ### keys
 
-The JSX props to inspect. Use `children` for static text or a one-level path such as `style.opacity`.
+The props to inspect. Use `children` for static text or a one-level path such as `style.opacity`.
 
 ### effectKeys?
 
@@ -87,6 +87,6 @@ Throws when the target cannot be resolved, its component identity does not match
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-jsx-node-props.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-node-props.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

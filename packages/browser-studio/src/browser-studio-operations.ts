@@ -9,20 +9,20 @@ import {
 	createElement,
 	deleteComposition,
 	deleteEffects as deleteEffectsCodemod,
-	deleteJsxNodes as deleteJsxNodesCodemod,
+	deleteNodes as deleteNodesCodemod,
 	detachAudio,
 	duplicateComposition as duplicateCompositionCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
-	duplicateJsxNodes as duplicateJsxNodesCodemod,
-	canWrapJsxNode,
-	wrapJsxNode as wrapJsxNodeCodemod,
-	getJsxNodeProps,
+	duplicateNodes as duplicateNodesCodemod,
+	canWrapNode,
+	wrapNode as wrapNodeCodemod,
+	getNodeProps,
 	moveComposition,
 	moveFolder,
 	renameComposition,
 	renameFolder,
 	reorderEffect as reorderEffectCodemod,
-	reorderJsxNode,
+	reorderNode,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences,
@@ -30,8 +30,8 @@ import {
 	updateCompositionMetadata,
 	updateEffectKeyframes,
 	updateEffectProps as updateEffectPropsCodemod,
-	updateJsxNodeKeyframes,
-	updateJsxNodeProps,
+	updateNodeKeyframes,
+	updateNodeProps,
 	type CodemodFileChange,
 	type CodemodNodeResult,
 	type CodemodResult,
@@ -831,7 +831,7 @@ export const createBrowserStudioOperations = ({
 				filePath: mutation.fileName,
 				project,
 			});
-			const result = await updateJsxNodeKeyframes({
+			const result = await updateNodeKeyframes({
 				project: nextProject,
 				node: {filePath: absolutePath, nodePath: mutation.nodePath.nodePath},
 				updates: mutation.updates,
@@ -909,7 +909,7 @@ export const createBrowserStudioOperations = ({
 		mutation: AppliedSequenceKeyframeMutation;
 		project: VirtualProject;
 	}) => {
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project,
 			node: {
 				filePath: mutation.absolutePath,
@@ -943,7 +943,7 @@ export const createBrowserStudioOperations = ({
 		const effects = Array.from({length: mutation.effectIndex + 1}, (_, index) =>
 			index === mutation.effectIndex ? getAllSchemaKeys(mutation.schema) : [],
 		);
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project,
 			node: {
 				filePath: mutation.absolutePath,
@@ -1024,7 +1024,7 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const nextStatus = getJsxNodeProps({
+				const nextStatus = getNodeProps({
 					project,
 					node: {filePath: absolutePath, nodePath: result.nodePath.nodePath},
 					componentIdentity: request.componentIdentity,
@@ -1107,7 +1107,7 @@ export const createBrowserStudioOperations = ({
 		sequenceNodePath: SequencePropsSubscriptionKey;
 	}) => {
 		const absolutePath = findProjectFile({filePath: fileName, project});
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project,
 			node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
 			componentIdentity: null,
@@ -1470,7 +1470,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await deleteJsxNodesCodemod({
+			const result = await deleteNodesCodemod({
 				project,
 				nodes: nodes.map((node) => ({
 					filePath: node.fileName,
@@ -1507,7 +1507,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await duplicateJsxNodesCodemod({
+			const result = await duplicateNodesCodemod({
 				project,
 				nodes: nodes.map((node) => ({
 					filePath: node.fileName,
@@ -1541,7 +1541,7 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const filePath = findProjectFile({project, filePath: fileName});
-			const eligibility = canWrapJsxNode({
+			const eligibility = canWrapNode({
 				input: project.files[filePath],
 				nodePath,
 			});
@@ -1553,7 +1553,7 @@ export const createBrowserStudioOperations = ({
 				});
 			}
 
-			const result = wrapJsxNodeCodemod({
+			const result = wrapNodeCodemod({
 				project,
 				node: {filePath, nodePath},
 				wrapper: createElement({
@@ -1697,7 +1697,7 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderJsxNode({
+			const result = await reorderNode({
 				project,
 				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
@@ -2155,7 +2155,7 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({filePath: fileName, project});
-			const result = updateJsxNodeProps({
+			const result = updateNodeProps({
 				project,
 				node: {filePath: absolutePath, nodePath},
 				updates: [

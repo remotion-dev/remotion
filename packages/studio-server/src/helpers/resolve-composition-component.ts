@@ -4,8 +4,8 @@ import {
 	addElement,
 	applyCodemodChanges,
 	CodemodsInternals,
-	getJsxNodes,
-	type InsertJsxElementCodemodEnvironment,
+	getNodes,
+	type CodemodEnvironment,
 	type ResolvedCompositionComponent,
 	type ResolvedCompositionComponentWithFile,
 } from '@remotion/codemods';
@@ -28,7 +28,7 @@ const {
 const makeCodemodEnvironment = (
 	remotionRoot: string,
 	sourceFileOverrides: ReadonlyMap<string, string> | null,
-): InsertJsxElementCodemodEnvironment => ({
+): CodemodEnvironment => ({
 	dirname: path.dirname,
 	extname: path.extname,
 	fileExists: (fileName) =>
@@ -173,7 +173,7 @@ export const insertJsxElementIntoComposition = async ({
 		prettierConfigOverride,
 	});
 	const nextProject = applyCodemodChanges(project, result.changes);
-	const insertedNode = getJsxNodes({
+	const insertedNode = getNodes({
 		project: nextProject,
 		filePath: location.fileName,
 	}).find(

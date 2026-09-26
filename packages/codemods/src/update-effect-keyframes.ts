@@ -5,11 +5,11 @@ import {
 	getUnchangedStructureRemappings,
 	getUpdatedNodeReference,
 } from './node-references';
-import type {UpdateJsxNodeKeyframesOptions} from './update-jsx-node-keyframes';
 import {updateEffectKeyframes as updateEffectKeyframesInSource} from './update-keyframes';
+import type {UpdateNodeKeyframesOptions} from './update-node-keyframes';
 
 export type UpdateEffectKeyframesOptions<Project extends CodemodProject> = Omit<
-	UpdateJsxNodeKeyframesOptions<Project>,
+	UpdateNodeKeyframesOptions<Project>,
 	'node'
 > & {effect: EffectReference};
 

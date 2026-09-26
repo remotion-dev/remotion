@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-reorder-jsx-node.png
-title: 'reorderJsxNode()'
+image: /generated/articles-docs-codemods-reorder-node.png
+title: 'reorderNode()'
 crumb: '@remotion/codemods'
 ---
 
-# reorderJsxNode()<AvailableFrom v="4.0.528" />
+# reorderNode()<AvailableFrom v="4.0.530" />
 
-Moves a JSX element before or after a sibling.
+Moves a node before or after a sibling.
 
 :::warning
 
@@ -14,14 +14,14 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="reorder-jsx-node.ts"
-import {reorderJsxNode, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+```ts twoslash title="reorder-node.ts"
+import {reorderNode, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
-declare const target: JsxNodeReference;
+declare const node: NodeReference;
+declare const target: NodeReference;
 
-const result = await reorderJsxNode({
+const result = await reorderNode({
   project,
   node,
   target,
@@ -31,7 +31,7 @@ const result = await reorderJsxNode({
 console.log(result);
 ```
 
-Both nodes must be direct JSX siblings in the same file. This changes source order and stacking order, not timeline timing. Moving into a different parent or file is unsupported.
+Both nodes must be direct siblings in the same file. This changes source order and stacking order, not timeline timing. Moving into a different parent or file is unsupported.
 
 ## Options
 
@@ -41,7 +41,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/codemods/get-nodes) or a previous operation. It contains `filePath` and `nodePath`.
 
 ### target
 
@@ -77,6 +77,6 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/reorder-jsx-node.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/reorder-node.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

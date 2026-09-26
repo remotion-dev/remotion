@@ -1,5 +1,5 @@
 import {
-	updateJsxNodeKeyframes,
+	updateNodeKeyframes,
 	updateEffectKeyframes as updateEffectKeyframesInProject,
 	type EffectKeyframeUpdate,
 	type IntroducedKeyframeIdentifiers,
@@ -33,7 +33,7 @@ export const updateSequenceKeyframes = async ({
 	videoConfigValues,
 	...options
 }: KeyframeInput & {nodePath: SequenceNodePath}) => {
-	const result = await updateJsxNodeKeyframes({
+	const result = await updateNodeKeyframes({
 		project: {files: {'source.tsx': input}, rootDir: '/'},
 		node: {filePath: 'source.tsx', nodePath},
 		videoConfig: videoConfigValues ?? undefined,

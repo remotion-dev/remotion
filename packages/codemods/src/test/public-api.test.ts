@@ -3,7 +3,7 @@ import {
 	addElement,
 	applyCodemodChanges,
 	createElement,
-	deleteJsxNodes,
+	deleteNodes,
 	type CodemodProject,
 } from '../index';
 
@@ -89,7 +89,7 @@ test('addElement() immutably updates a virtual project', () => {
 	]);
 });
 
-test('deleteJsxNodes() deletes nodes from multiple files', async () => {
+test('deleteNodes() deletes nodes from multiple files', async () => {
 	const project = makeProject();
 	const first = addSolid({
 		compositionFile: 'src/Root.tsx',
@@ -103,7 +103,7 @@ test('deleteJsxNodes() deletes nodes from multiple files', async () => {
 		project: afterFirst,
 	});
 	const afterSecond = applyCodemodChanges(afterFirst, second.changes);
-	const result = await deleteJsxNodes({
+	const result = await deleteNodes({
 		nodes: [first.insertedNode, second.insertedNode],
 		project: afterSecond,
 	});
@@ -117,7 +117,7 @@ test('deleteJsxNodes() deletes nodes from multiple files', async () => {
 	]);
 });
 
-test('deleteJsxNodes() deletes the Sequence wrapper identified by a node path', async () => {
+test('deleteNodes() deletes the Sequence wrapper identified by a node path', async () => {
 	const project = makeProject();
 	const added = addSolid({
 		compositionFile: 'src/Root.tsx',
@@ -128,7 +128,7 @@ test('deleteJsxNodes() deletes the Sequence wrapper identified by a node path', 
 	const afterAdd = applyCodemodChanges(project, added.changes);
 	const sourceWithSolid = afterAdd.files['src/Video.tsx'];
 	expect(sourceWithSolid).toContain('<Sequence from={10}');
-	const result = await deleteJsxNodes({
+	const result = await deleteNodes({
 		nodes: [
 			{
 				filePath: `/${added.insertedNode.filePath}`,

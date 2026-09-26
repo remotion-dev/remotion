@@ -1,5 +1,5 @@
 import type {SequenceNodePath} from 'remotion';
-import {getJsxNodes} from '../get-jsx-nodes';
+import {getNodes} from '../get-nodes';
 import {lineColumnToNodePath as _lineColumnToNodePath} from '../sequence-props';
 import {parseAst} from '../sequence-props/parse-ast';
 
@@ -29,7 +29,7 @@ export const lineContainingToNodePath = (
 	}
 
 	const column = sourceLines[line].indexOf(search);
-	const result = getJsxNodes({
+	const result = getNodes({
 		project: {rootDir: '/', files: {'/test.tsx': input}},
 		filePath: '/test.tsx',
 	}).findLast(

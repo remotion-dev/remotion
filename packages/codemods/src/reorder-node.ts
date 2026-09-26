@@ -3,23 +3,23 @@ import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
 	getUpdatedNodeReference,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 import {reorderSequence} from './reorder-sequence';
 
-export type ReorderJsxNodeOptions<Project extends CodemodProject> = {
+export type ReorderNodeOptions<Project extends CodemodProject> = {
 	project: Project;
-	node: JsxNodeReference;
-	target: JsxNodeReference;
+	node: NodeReference;
+	target: NodeReference;
 	position: 'before' | 'after';
 };
 
-export const reorderJsxNode = async <Project extends CodemodProject>({
+export const reorderNode = async <Project extends CodemodProject>({
 	project,
 	node,
 	target,
 	position,
-}: ReorderJsxNodeOptions<Project>) => {
+}: ReorderNodeOptions<Project>) => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	if (filePath !== findProjectFile({project, filePath: target.filePath})) {
 		throw new Error(

@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-update-jsx-node-props.png
-title: 'updateJsxNodeProps()'
+image: /generated/articles-docs-codemods-update-node-props.png
+title: 'updateNodeProps()'
 crumb: '@remotion/codemods'
 ---
 
-# updateJsxNodeProps()<AvailableFrom v="4.0.528" />
+# updateNodeProps()<AvailableFrom v="4.0.530" />
 
-Updates JSX props, nested object properties, and supported text children.
+Updates node props, nested object properties, and supported text children.
 
 :::warning
 
@@ -14,13 +14,13 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="update-jsx-node-props.ts"
-import {updateJsxNodeProps, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+```ts twoslash title="update-node-props.ts"
+import {updateNodeProps, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
-const result = updateJsxNodeProps({
+const result = updateNodeProps({
   project,
   node,
   props: {'style.opacity': 0.5, title: 'Preview'},
@@ -29,7 +29,7 @@ const result = updateJsxNodeProps({
 console.log(result);
 ```
 
-The `props` form rejects computed props, including props potentially overridden by a spread. Setting a keyframed prop replaces the animation with the supplied static value; use [`updateJsxNodeKeyframes()`](/docs/codemods/update-jsx-node-keyframes) to edit its animation. Unchanged surrounding source is preserved.
+The `props` form rejects computed props, including props potentially overridden by a spread. Setting a keyframed prop replaces the animation with the supplied static value; use [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes) to edit its animation. Unchanged surrounding source is preserved.
 
 ## Options
 
@@ -39,7 +39,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/codemods/get-nodes) or a previous operation. It contains `filePath` and `nodePath`.
 
 ### props?
 
@@ -107,7 +107,7 @@ An array of `{key, valueString}` entries for additional props removed when a sch
 
 ### logLine
 
-The one-based line of the JSX opening tag in the input source.
+The one-based line of the node's opening tag in the input source.
 
 ### newNodePath
 
@@ -119,7 +119,7 @@ The edited node's path in the updated source.
 
 ### results
 
-A one-element array containing `oldValueStrings`, `removedProps`, `logLine`, and `newNodePath`. This matches the per-node results returned by [`updateMultipleJsxNodeProps()`](/docs/codemods/update-multiple-jsx-node-props).
+A one-element array containing `oldValueStrings`, `removedProps`, `logLine`, and `newNodePath`. This matches the per-node results returned by [`updateMultipleNodeProps()`](/docs/codemods/update-multiple-node-props).
 
 ### updatedNodes
 
@@ -135,6 +135,6 @@ Throws when the target cannot be resolved, the requested edit is unsupported, or
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-jsx-node-props.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-node-props.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

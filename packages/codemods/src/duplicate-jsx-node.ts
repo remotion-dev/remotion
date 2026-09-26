@@ -318,7 +318,7 @@ const getDuplicateSourceEdit = ({
 	};
 };
 
-export const duplicateJsxNodes = ({
+export const duplicateNodes = ({
 	input,
 	nodePaths,
 }: {

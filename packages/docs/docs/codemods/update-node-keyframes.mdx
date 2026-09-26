@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-update-jsx-node-keyframes.png
-title: 'updateJsxNodeKeyframes()'
+image: /generated/articles-docs-codemods-update-node-keyframes.png
+title: 'updateNodeKeyframes()'
 crumb: '@remotion/codemods'
 ---
 
-# updateJsxNodeKeyframes()<AvailableFrom v="4.0.528" />
+# updateNodeKeyframes()<AvailableFrom v="4.0.530" />
 
-Adds, removes, moves, or configures keyframes on a JSX prop.
+Adds, removes, moves, or configures keyframes on a node prop.
 
 :::warning
 
@@ -14,13 +14,13 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="update-jsx-node-keyframes.ts"
-import {updateJsxNodeKeyframes, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+```ts twoslash title="update-node-keyframes.ts"
+import {updateNodeKeyframes, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
-const result = await updateJsxNodeKeyframes({
+const result = await updateNodeKeyframes({
   project,
   node,
   updates: [
@@ -34,7 +34,7 @@ console.log(result);
 
 Adds the required interpolation imports and frame hook. Supports recognized inline interpolation expressions; unsupported dynamic expressions throw. Frame coordinates belong to the interpolation expression's local frame clock.
 
-Creating an animation that needs a new [`useCurrentFrame()`](/docs/use-current-frame) hook requires an enclosing function. Existing supported interpolation expressions can be edited outside functions. Static prop edits outside functions remain supported by [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props).
+Creating an animation that needs a new [`useCurrentFrame()`](/docs/use-current-frame) hook requires an enclosing function. Existing supported interpolation expressions can be edited outside functions. Static prop edits outside functions remain supported by [`updateNodeProps()`](/docs/codemods/update-node-props).
 
 ## Options
 
@@ -44,11 +44,11 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/codemods/get-nodes) or a previous operation. It contains `filePath` and `nodePath`.
 
 ### updates
 
-An array of `{key, operation}` objects, applied in order. JSX prop keys may use paths such as `style.opacity`. Effect keys name configuration properties.
+An array of `{key, operation}` objects, applied in order. Node prop keys may use paths such as `style.opacity`. Effect keys name configuration properties.
 
 #### operation
 
@@ -76,7 +76,7 @@ An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path i
 
 ### updatedNode
 
-The edited JSX node reference. Adding a frame hook can change node paths throughout the component.
+The edited node reference. Adding a frame hook can change node paths throughout the component.
 
 ## Errors
 
@@ -88,6 +88,6 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-jsx-node-keyframes.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/update-node-keyframes.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

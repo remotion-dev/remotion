@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-duplicate-jsx-nodes.png
-title: 'duplicateJsxNodes()'
+image: /generated/articles-docs-codemods-duplicate-nodes.png
+title: 'duplicateNodes()'
 crumb: '@remotion/codemods'
 ---
 
-# duplicateJsxNodes()<AvailableFrom v="4.0.528" />
+# duplicateNodes()<AvailableFrom v="4.0.530" />
 
-Duplicates one or more JSX elements beside their originals.
+Duplicates one or more nodes beside their originals.
 
 :::warning
 
@@ -14,13 +14,13 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="duplicate-jsx-nodes.ts"
-import {duplicateJsxNodes, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+```ts twoslash title="duplicate-nodes.ts"
+import {duplicateNodes, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
-const result = await duplicateJsxNodes({
+const result = await duplicateNodes({
   project,
   nodes: [node],
 });
@@ -28,7 +28,7 @@ const result = await duplicateJsxNodes({
 console.log(result);
 ```
 
-Copies JSX source, including props and children. Imported component implementations remain shared. Overlapping ancestor/descendant selections are unsupported.
+Copies the node's source, including props and children. Imported component implementations remain shared. Overlapping ancestor/descendant selections are unsupported.
 
 ## Options
 
@@ -66,6 +66,6 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/duplicate-jsx-nodes.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/duplicate-nodes.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

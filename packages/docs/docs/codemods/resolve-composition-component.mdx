@@ -62,7 +62,7 @@ The declaration's `{line, column}` location. Lines are one-based; columns are ze
 
 ### canAddContent
 
-Whether the component's returned JSX structure supports content insertion. Pass `filePath` and `exportName` as a `{type: 'component'}` target to [`addElement()`](/docs/codemods/add-element) to insert into the resolved component.
+Whether the component's return value supports content insertion. Pass `filePath` and `exportName` as a `{type: 'component'}` target to [`addElement()`](/docs/codemods/add-element) to insert into the resolved component.
 
 ## Errors
 
@@ -77,4 +77,4 @@ Throws when the target cannot be resolved, the requested edit is unsupported, or
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/resolve-composition-component.ts)
 - [`@remotion/codemods`](/docs/codemods)
 - [`addElement()`](/docs/codemods/add-element)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

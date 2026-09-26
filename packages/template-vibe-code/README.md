@@ -60,7 +60,7 @@ The browser bundler compiles with WebAssembly and shared memory, which requires 
 
 ### How layers are linked to code
 
-The browser bundler records where every JSX element was written, and the Canvas exposes that location for each mounted sequence through [`getCanvasSequenceSourceLocation()`](https://www.remotion.dev/docs/canvas/get-canvas-sequence-source-location). The editor looks the location up in the compiled files with `getJsxNodes()` and registers the resulting node paths with [`controller.setSequenceNodePaths()`](https://www.remotion.dev/docs/canvas/create-canvas-controller#setsequencenodepaths), so selection, the timeline and the inspector all refer to the same source node — also for elements rendered in a `.map()` loop. Elements created by dependencies have no source location and are shown but not editable.
+The browser bundler records where every JSX element was written, and the Canvas exposes that location for each mounted sequence through [`getCanvasSequenceSourceLocation()`](https://www.remotion.dev/docs/canvas/get-canvas-sequence-source-location). The editor looks the location up in the compiled files with `getNodes()` and registers the resulting node paths with [`controller.setSequenceNodePaths()`](https://www.remotion.dev/docs/canvas/create-canvas-controller#setsequencenodepaths), so selection, the timeline and the inspector all refer to the same source node — also for elements rendered in a `.map()` loop. Elements created by dependencies have no source location and are shown but not editable.
 
 ### Live previews
 

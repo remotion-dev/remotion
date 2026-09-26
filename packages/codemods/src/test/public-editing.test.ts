@@ -8,19 +8,19 @@ import {
 	createElement,
 	deleteComposition,
 	deleteEffects,
-	deleteJsxNodes,
+	deleteNodes,
 	detachAudio,
 	duplicateComposition,
 	duplicateEffects,
-	duplicateJsxNodes,
-	getJsxNodeProps,
-	getJsxNodes,
+	duplicateNodes,
+	getNodeProps,
+	getNodes,
 	moveComposition,
 	moveFolder,
 	renameComposition,
 	renameFolder,
 	reorderEffect,
-	reorderJsxNode,
+	reorderNode,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences,
@@ -29,10 +29,10 @@ import {
 	updateCompositionMetadata,
 	updateEffectKeyframes,
 	updateEffectProps,
-	updateJsxNodeKeyframes,
-	updateJsxNodeProps,
-	updateMultipleJsxNodeProps,
-	wrapJsxNode,
+	updateNodeKeyframes,
+	updateNodeProps,
+	updateMultipleNodeProps,
+	wrapNode,
 	type CodemodProject,
 } from '../index';
 import {getChangedContents} from './get-changed-contents';
@@ -69,7 +69,7 @@ const findNode = (
 	tagName: string,
 	sourceFile = filePath,
 ) => {
-	const node = getJsxNodes({project, filePath: sourceFile}).find(
+	const node = getNodes({project, filePath: sourceFile}).find(
 		(item) => item.tagName === tagName,
 	);
 	if (!node) throw new Error(`No ${tagName} in ${sourceFile}`);
@@ -88,9 +88,9 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 	const node = findNode(project, 'div');
 	expect(node.location?.line).toBe(4);
 	expect(
-		getJsxNodeProps({project, node, keys: ['children']}).props.children,
+		getNodeProps({project, node, keys: ['children']}).props.children,
 	).toMatchObject({status: 'static', codeValue: 'Hello'});
-	const changed = updateJsxNodeProps({
+	const changed = updateNodeProps({
 		project,
 		node,
 		props: {children: 'Goodbye', 'style.opacity': 0.75, title: 'Example'},
@@ -102,7 +102,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 	expect(getChangedContents(changed, filePath)).toContain(
 		'const unrelated  =  {value:"keep"};',
 	);
-	const animated = await updateJsxNodeKeyframes({
+	const animated = await updateNodeKeyframes({
 		project: afterChange,
 		node: changed.updatedNode,
 		updates: [
@@ -119,7 +119,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 		),
 	).toBe(true);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterAnimation,
 			node: animated.updatedNode,
 			keys: ['style.opacity'],
@@ -131,7 +131,7 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 			{frame: 30, value: 1},
 		],
 	});
-	const withoutTitle = updateJsxNodeProps({
+	const withoutTitle = updateNodeProps({
 		project: afterAnimation,
 		node: animated.updatedNode,
 		props: {title: undefined},
@@ -141,12 +141,12 @@ test('discover, inspect, edit, animate, and remove JSX through the public API', 
 		afterAnimation,
 		withoutTitle.changes,
 	);
-	const deleted = await deleteJsxNodes({
+	const deleted = await deleteNodes({
 		project: afterRemoveTitle,
 		nodes: [withoutTitle.updatedNode],
 	});
 	expect(
-		getJsxNodes({
+		getNodes({
 			project: applyCodemodChanges(afterRemoveTitle, deleted.changes),
 			filePath,
 		}).map((entry) => entry.tagName),
@@ -183,13 +183,13 @@ test('insert media and components, reorder copies, and delete nodes across files
 	);
 	const afterMedia = applyCodemodChanges(project, media.changes);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterMedia,
 			node: media.insertedNode,
 			keys: ['from'],
 		}).props.from,
 	).toMatchObject({codeValue: 10});
-	const imageNode = getJsxNodes({project: afterMedia, filePath}).find(
+	const imageNode = getNodes({project: afterMedia, filePath}).find(
 		(node) => node.tagName === 'Img',
 	)!;
 	expect(imageNode.parentNodePath).toEqual(media.insertedNode.nodePath);
@@ -207,7 +207,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 		'<Title text="A title" />',
 	);
 	const afterAdd = applyCodemodChanges(afterMedia, added.changes);
-	const duplicated = await duplicateJsxNodes({
+	const duplicated = await duplicateNodes({
 		project: afterAdd,
 		nodes: [added.insertedNode, findNode(afterAdd, 'div', 'src/Title.tsx')],
 	});
@@ -220,14 +220,14 @@ test('insert media and components, reorder copies, and delete nodes across files
 		(node) => node.filePath === filePath,
 	)!;
 	const afterDuplicate = applyCodemodChanges(afterAdd, duplicated.changes);
-	const reordered = await reorderJsxNode({
+	const reordered = await reorderNode({
 		project: afterDuplicate,
 		node: copiedTitle,
 		target: added.insertedNode,
 		position: 'before',
 	});
 	const afterReorder = applyCodemodChanges(afterDuplicate, reordered.changes);
-	const updatedCopy = updateJsxNodeProps({
+	const updatedCopy = updateNodeProps({
 		project: afterReorder,
 		node: reordered.updatedNode,
 		props: {text: 'Copied title'},
@@ -236,7 +236,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 		getChangedContents(updatedCopy, filePath).indexOf('Copied title'),
 	).toBeLessThan(getChangedContents(updatedCopy, filePath).indexOf('A title'));
 	const afterUpdate = applyCodemodChanges(afterReorder, updatedCopy.changes);
-	const deleted = await deleteJsxNodes({
+	const deleted = await deleteNodes({
 		project: afterUpdate,
 		nodes: [
 			updatedCopy.updatedNode,
@@ -247,7 +247,7 @@ test('insert media and components, reorder copies, and delete nodes across files
 	});
 	const afterDelete = applyCodemodChanges(afterUpdate, deleted.changes);
 	expect(
-		getJsxNodes({project: afterDelete, filePath}).filter(
+		getNodes({project: afterDelete, filePath}).filter(
 			(node) => node.tagName === 'Title',
 		),
 	).toHaveLength(1);
@@ -270,7 +270,7 @@ export const VideoComposition = () => <><Video src="video.mp4" from={10} duratio
 	const secondVideo = split.insertedNodes[0];
 	const afterSplit = applyCodemodChanges(project, split.changes);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterSplit,
 			node: secondVideo,
 			keys: ['from', 'durationInFrames', 'trimBefore'],
@@ -286,14 +286,14 @@ export const VideoComposition = () => <><Video src="video.mp4" from={10} duratio
 	});
 	const afterDetach = applyCodemodChanges(afterSplit, detached.changes);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterDetach,
 			node: detached.updatedNode,
 			keys: ['muted'],
 		}).props.muted,
 	).toMatchObject({codeValue: true});
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterDetach,
 			node: detached.insertedNode,
 			keys: ['src', 'trimBefore'],
@@ -424,14 +424,14 @@ test('manage composition registrations and nested folders without changing compo
 	);
 	expect(project.files[compositionFile]).not.toContain('name="Social"');
 	expect(project.files[compositionFile]).toContain('name="Published"');
-	const composition = getJsxNodes({project, filePath: compositionFile}).find(
+	const composition = getNodes({project, filePath: compositionFile}).find(
 		(node) => {
-			const status = getJsxNodeProps({project, node, keys: ['id']}).props.id;
+			const status = getNodeProps({project, node, keys: ['id']}).props.id;
 			return status.status === 'static' && status.codeValue === 'Vertical';
 		},
 	)!;
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project,
 			node: composition,
 			keys: ['width', 'height', 'fps', 'durationInFrames', 'defaultProps'],
@@ -505,7 +505,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		],
 	});
 	const afterAnimation = applyCodemodChanges(afterEdit, animated.changes);
-	const status = getJsxNodeProps({
+	const status = getNodeProps({
 		project: afterAnimation,
 		node: animated.updatedEffect,
 		keys: [],
@@ -525,7 +525,7 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 	});
 	const afterDelete = applyCodemodChanges(afterAnimation, deleted.changes);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterDelete,
 			node: animated.updatedEffect,
 			keys: [],
@@ -545,13 +545,13 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 	const original = {...project.files};
 	const node = findNode(project, 'div');
 	expect(
-		getJsxNodeProps({project, node, keys: ['from', 'style.opacity']}).props,
+		getNodeProps({project, node, keys: ['from', 'style.opacity']}).props,
 	).toEqual({
 		from: {status: 'computed'},
 		'style.opacity': {status: 'computed'},
 	});
 	expect(() =>
-		updateJsxNodeProps({project, node, props: {'style.opacity': 1}}),
+		updateNodeProps({project, node, props: {'style.opacity': 1}}),
 	).toThrow('computed');
 	expect(() =>
 		duplicateComposition({
@@ -570,13 +570,13 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 		}),
 	).toThrow('positive');
 	await expect(
-		deleteJsxNodes({
+		deleteNodes({
 			project,
 			nodes: [node, {filePath: 'missing.tsx', nodePath: []}],
 		}),
 	).rejects.toThrow();
 	await expect(
-		reorderJsxNode({
+		reorderNode({
 			project,
 			node,
 			target: findNode(project, 'Composition', compositionFile),
@@ -613,14 +613,14 @@ test('addElement returns remappings usable by public discovery and targets nodes
 		),
 	).toBe(true);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: afterInsert,
 			node: inserted.insertedNode,
 			keys: ['from'],
 		}).props.from,
 	).toMatchObject({status: 'static', codeValue: 15});
 
-	const nodes = getJsxNodes({project: afterInsert, filePath});
+	const nodes = getNodes({project: afterInsert, filePath});
 	const sequence = nodes.find((node) => node.tagName === 'Sequence')!;
 	const div = nodes.find((node) => node.tagName === 'div')!;
 	const caption = createElement({
@@ -641,7 +641,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 	);
 	const afterInside = applyCodemodChanges(afterInsert, inside.changes);
 	expect(
-		getJsxNodes({project: afterInside, filePath})
+		getNodes({project: afterInside, filePath})
 			.filter(
 				(node) =>
 					JSON.stringify(node.parentNodePath) ===
@@ -654,19 +654,19 @@ test('addElement returns remappings usable by public discovery and targets nodes
 		element: createElement({component: 'span', children: ['first']}),
 		target: {
 			type: 'before',
-			node: getJsxNodes({project: afterInside, filePath}).find(
+			node: getNodes({project: afterInside, filePath}).find(
 				(node) => node.tagName === 'div',
 			)!,
 		},
 	});
 	const afterBefore = applyCodemodChanges(afterInside, before.changes);
 	expect(
-		getJsxNodes({project: afterBefore, filePath}).map((node) => node.tagName),
+		getNodes({project: afterBefore, filePath}).map((node) => node.tagName),
 	).toEqual(['AbsoluteFill', 'span', 'div', 'Sequence', 'Solid', 'p', 'br']);
 	expect(afterBefore.files[filePath]).toContain('<span>first</span>');
-	const wrapped = wrapJsxNode({
+	const wrapped = wrapNode({
 		project: afterBefore,
-		node: getJsxNodes({project: afterBefore, filePath}).find(
+		node: getNodes({project: afterBefore, filePath}).find(
 			(node) => node.tagName === 'div',
 		)!,
 		wrapper: createElement({
@@ -679,7 +679,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 		'<Sequence from={5} name="Wrapped">',
 	);
 	expect(() =>
-		wrapJsxNode({
+		wrapNode({
 			project: afterBefore,
 			node: div,
 			wrapper: createElement({component: 'div', children: ['x']}),
@@ -687,7 +687,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 	).toThrow('cannot have children');
 	// Canvas wrappers are validated even when they reuse an existing import.
 	expect(() =>
-		wrapJsxNode({
+		wrapNode({
 			project: afterBefore,
 			node: div,
 			wrapper: createElement({
@@ -710,7 +710,7 @@ test('addElement returns remappings usable by public discovery and targets nodes
 		}),
 		target: {
 			type: 'inside',
-			node: getJsxNodes({project: conflicting, filePath: 'svg.tsx'})[0],
+			node: getNodes({project: conflicting, filePath: 'svg.tsx'})[0],
 		},
 	});
 	expect(getChangedContents(escaped, 'svg.tsx')).toContain(
@@ -720,9 +720,9 @@ test('addElement returns remappings usable by public discovery and targets nodes
 		"import {staticFile as staticFile2} from 'remotion';",
 	);
 	expect(() =>
-		updateJsxNodeProps({
+		updateNodeProps({
 			project: conflicting,
-			node: getJsxNodes({project: conflicting, filePath: 'svg.tsx'})[0],
+			node: getNodes({project: conflicting, filePath: 'svg.tsx'})[0],
 			props: {href: staticFileValue('x.png')},
 		}),
 	).toThrow('already bound');
@@ -782,7 +782,7 @@ test('nested copies return root references and insertion preserves relative keys
 	expect(media.insertedNode.filePath).toBe(filePath);
 	const afterMedia = applyCodemodChanges(original, media.changes);
 	expect(Object.keys(afterMedia.files)).toEqual(Object.keys(original.files));
-	const copy = await duplicateJsxNodes({
+	const copy = await duplicateNodes({
 		project: afterMedia,
 		nodes: [media.insertedNode],
 	});
@@ -797,12 +797,12 @@ test('nested copies return root references and insertion preserves relative keys
 	});
 	expect(split.insertedNodes).toHaveLength(1);
 	const afterSplit = applyCodemodChanges(afterCopy, split.changes);
-	const deleted = await deleteJsxNodes({
+	const deleted = await deleteNodes({
 		project: afterSplit,
 		nodes: split.insertedNodes,
 	});
 	expect(
-		getJsxNodes({
+		getNodes({
 			project: applyCodemodChanges(afterSplit, deleted.changes),
 			filePath,
 		}).filter((node) => node.tagName === 'Sequence'),
@@ -835,7 +835,7 @@ test('node discovery and edits use original source locations with tabs and CRLF'
 		'\uFEFFexport const Video = () => (\r\n\t<div style={{opacity: 1}}>Hello</div>\r\n);\r\n';
 	const node = findNode(project, 'div');
 	expect(node.location).toEqual({line: 2, column: 1});
-	const edited = updateJsxNodeProps({
+	const edited = updateNodeProps({
 		project,
 		node,
 		props: {'style.opacity': 0.25},
@@ -854,9 +854,9 @@ test('batch structured prop edits across files and preserve edit results in requ
 			'second.tsx': 'export const Second = () => <div title="second" />;',
 		},
 	};
-	const first = getJsxNodes({project, filePath: 'first.tsx'})[0];
-	const second = getJsxNodes({project, filePath: 'second.tsx'})[0];
-	const result = updateMultipleJsxNodeProps({
+	const first = getNodes({project, filePath: 'first.tsx'})[0];
+	const second = getNodes({project, filePath: 'second.tsx'})[0];
+	const result = updateMultipleNodeProps({
 		project,
 		changes: [
 			{
@@ -877,7 +877,7 @@ test('batch structured prop edits across files and preserve edit results in requ
 	]);
 	const updated = applyCodemodChanges(project, result.changes);
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: updated,
 			node: result.updatedNodes[0],
 			keys: ['style.opacity', 'title'],
@@ -887,7 +887,7 @@ test('batch structured prop edits across files and preserve edit results in requ
 		title: {codeValue: 'updated first'},
 	});
 	expect(
-		getJsxNodeProps({
+		getNodeProps({
 			project: updated,
 			node: result.updatedNodes[1],
 			keys: ['title'],
@@ -948,7 +948,7 @@ test('default prop enum serialization shares node lookup, insertion, and spread 
 			});
 			const afterUpdate = applyCodemodChanges(afterInsert, updated.changes);
 			expect(
-				getJsxNodeProps({
+				getNodeProps({
 					project: afterUpdate,
 					node: updated.updatedNode,
 					keys: ['defaultProps'],

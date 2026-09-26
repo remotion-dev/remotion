@@ -48,7 +48,7 @@ import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 import {parseValueExpression} from './update-nested-prop';
 
-export type InsertJsxElementCodemodEnvironment = {
+export type CodemodEnvironment = {
 	rootDir: string;
 	dirname: (fileName: string) => string;
 	extname: (fileName: string) => string;
@@ -122,13 +122,13 @@ const relativeVirtualPath = (from: string, to: string) => {
 	].join('/');
 };
 
-export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
+export const makeInMemoryCodemodEnvironment = ({
 	project,
 	svgMarkupToJsx,
 }: {
 	project: {files: Record<string, string>; rootDir: string};
-	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
-}): InsertJsxElementCodemodEnvironment => {
+	svgMarkupToJsx: CodemodEnvironment['svgMarkupToJsx'];
+}): CodemodEnvironment => {
 	const filesByNormalizedPath = new Map(
 		Object.entries(project.files).map(([fileName, contents]) => [
 			resolveVirtualPath(project.rootDir, fileName),
@@ -209,7 +209,7 @@ const isInRemotionRoot = ({
 	environment,
 	fileName,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 }) => {
 	const relativePath = environment.relative(environment.rootDir, fileName);
@@ -222,7 +222,7 @@ const readSourceFile = ({
 	environment,
 	fileName,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 }) => {
 	const resolved = environment.resolve(environment.rootDir, fileName);
@@ -552,7 +552,7 @@ const resolveImportPath = ({
 	importPath,
 	fromFile,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	importPath: string;
 	fromFile: string;
 }) => {
@@ -1007,7 +1007,7 @@ const createSvgElement = async ({
 	markup,
 	position,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	from: number | null;
 	interactiveLocalName: string;
 	markup: string;
@@ -1252,7 +1252,7 @@ const getImportPathBetweenFiles = ({
 	fromFile,
 	toFile,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fromFile: string;
 	toFile: string;
 }) => {
@@ -1777,7 +1777,7 @@ const getComponentLocationInFile = async ({
 	exportName,
 	ast: providedAst,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 	exportName: string | 'default';
 	ast?: File;
@@ -1809,7 +1809,7 @@ const getComponentLocationRecursively = async ({
 	exportName,
 	visited,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 	exportName: string | 'default';
 	visited: Set<string>;
@@ -1883,7 +1883,7 @@ export async function resolveCompositionComponentWithFile({
 	compositionFile,
 	compositionId,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	compositionFile: string;
 	compositionId: string;
 }): Promise<ResolvedCompositionComponentWithFile> {
@@ -1951,7 +1951,7 @@ export const resolveCompositionComponent = async ({
 	compositionFile,
 	compositionId,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	compositionFile: string;
 	compositionId: string;
 }): Promise<ResolvedCompositionComponent> => {
@@ -1981,7 +1981,7 @@ const ensureCompositionComponentImport = async ({
 	compositionFile: string;
 	compositionId: string;
 	destinationFileName: string;
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 }) => {
 	const sourceLocation = await resolveCompositionComponentWithFile({
 		environment,
@@ -2093,7 +2093,7 @@ const createInsertableJsxElement = ({
 	ast: File;
 	destinationFileName: string;
 	element: PipelineInsertableElement;
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	from: number | null;
 }): Promise<namedTypes.JSXElement> => {
 	if (element.type === 'svg') {
@@ -2136,7 +2136,7 @@ export const insertJsxElementIntoComposition = async ({
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	from: number | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence: {
@@ -2297,7 +2297,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 }: {
 	project: {files: Record<string, string>; rootDir: string};
 	request: InsertJsxElementRequest;
-	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
+	svgMarkupToJsx: CodemodEnvironment['svgMarkupToJsx'];
 	wrapInSequence: {
 		dimensions: {width: number; height: number} | null;
 		durationInFrames: number | null;
@@ -2315,7 +2315,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 		compositionFile: request.compositionFile,
 		compositionId: request.compositionId,
 		element: request.element,
-		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
+		environment: makeInMemoryCodemodEnvironment({
 			project,
 			svgMarkupToJsx,
 		}),

@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {canWrapJsxNode, createElement, wrapJsxNode} from '@remotion/codemods';
+import {canWrapNode, createElement, wrapNode} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	WrapJsxNodeRequest,
@@ -36,7 +36,7 @@ export const wrapJsxNodeHandler: ApiHandler<
 				action: 'modify',
 			});
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const eligibility = canWrapJsxNode({input: fileContents, nodePath});
+			const eligibility = canWrapNode({input: fileContents, nodePath});
 			if (wrapper === null) {
 				return Promise.resolve({
 					success: true,
@@ -53,7 +53,7 @@ export const wrapJsxNodeHandler: ApiHandler<
 				throw new Error('This JSX element cannot be wrapped');
 			}
 
-			const result = wrapJsxNode({
+			const result = wrapNode({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
 				wrapper: createElement({

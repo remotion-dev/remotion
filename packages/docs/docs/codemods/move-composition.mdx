@@ -29,7 +29,7 @@ const result = moveComposition({
 console.log(result);
 ```
 
-The composition and destination must be in the same registration file. Their source must allow a direct JSX-child move. The component implementation and composition ID stay unchanged.
+The composition and destination must be in the same registration file. Their source must allow a direct child move. The component implementation and composition ID stay unchanged.
 
 ## Options
 
@@ -69,4 +69,4 @@ Throws when the target cannot be resolved, the requested edit is unsupported, or
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/move-composition.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

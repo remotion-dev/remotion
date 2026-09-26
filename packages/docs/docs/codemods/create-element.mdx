@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # createElement()<AvailableFrom v="4.0.530" />
 
-Describes a JSX element to insert into source code. Pass the result to [`addElement()`](/docs/codemods/add-element) to add it to a composition or next to an existing node, or to [`wrapJsxNode()`](/docs/codemods/wrap-jsx-node) to wrap an existing node.
+Describes an element to insert into source code. Pass the result to [`addElement()`](/docs/codemods/add-element) to add it to a composition or next to an existing node, or to [`wrapNode()`](/docs/codemods/wrap-node) to wrap an existing node.
 
 :::warning
 
@@ -46,7 +46,7 @@ Pass an object with the following properties.
 
 ### component
 
-The JSX tag name. Use a component name such as `Solid`, a member expression such as `Interactive.Div`, or an HTML tag such as `div`.
+The tag name. Use a component name such as `Solid`, a member expression such as `Interactive.Div`, or an HTML tag such as `div`.
 
 ### importPath?
 
@@ -58,7 +58,7 @@ The named export to import when it differs from `component`. For example, `{comp
 
 ### props?
 
-A record of prop values. Strings become string attributes, other values become JSX expressions. Values must be strings, finite numbers, booleans, `null`, arrays, or plain objects. Use [`staticFileValue()`](/docs/codemods/static-file-value) to reference a file in the public folder. Defaults to `{}`.
+A record of prop values. Strings become string attributes, other values become expressions. Values must be strings, finite numbers, booleans, `null`, arrays, or plain objects. Use [`staticFileValue()`](/docs/codemods/static-file-value) to reference a file in the public folder. Defaults to `{}`.
 
 ### children?
 
@@ -104,5 +104,5 @@ Throws when the tag name, a prop name, or a prop value is invalid, or when `impo
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/codemod-element.ts)
 - [`addElement()`](/docs/codemods/add-element)
-- [`wrapJsxNode()`](/docs/codemods/wrap-jsx-node)
+- [`wrapNode()`](/docs/codemods/wrap-node)
 - [`staticFileValue()`](/docs/codemods/static-file-value)

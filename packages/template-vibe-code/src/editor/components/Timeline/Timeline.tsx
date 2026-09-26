@@ -5,7 +5,7 @@ import {
   useCanvasSelection,
   useCanvasSequenceHover,
 } from "@remotion/canvas";
-import { getJsxNodeProps } from "@remotion/codemods";
+import { getNodeProps } from "@remotion/codemods";
 import {
   FilmIcon,
   ImageIcon,
@@ -380,7 +380,7 @@ export const Timeline: React.FC = () => {
       let blocked: string | null = null;
       if (node) {
         try {
-          const { props } = getJsxNodeProps({
+          const { props } = getNodeProps({
             project,
             node,
             keys: ["from", "durationInFrames"],

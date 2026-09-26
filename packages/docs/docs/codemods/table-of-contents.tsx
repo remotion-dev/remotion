@@ -43,7 +43,7 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/codemods/create-element">
 				<strong>createElement()</strong>
 				<div>
-					Describes a JSX element with props and children to insert into source
+					Describes an element with props and children to insert into source
 					code.
 				</div>
 			</TOCItem>
@@ -53,11 +53,11 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/codemods/delete-effects">
 				<strong>deleteEffects()</strong>
-				<div>Deletes selected effects from one or more JSX nodes.</div>
+				<div>Deletes selected effects from one or more nodes.</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/delete-jsx-nodes">
-				<strong>deleteJsxNodes()</strong>
-				<div>Delete JSX nodes across project files.</div>
+			<TOCItem link="/docs/codemods/delete-nodes">
+				<strong>deleteNodes()</strong>
+				<div>Deletes nodes across project files.</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/detach-audio">
 				<strong>detachAudio()</strong>
@@ -74,19 +74,19 @@ export const TableOfContents: React.FC = () => {
 				<strong>duplicateEffects()</strong>
 				<div>Copies selected effects immediately after their originals.</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/duplicate-jsx-nodes">
-				<strong>duplicateJsxNodes()</strong>
-				<div>Duplicates one or more JSX elements beside their originals.</div>
+			<TOCItem link="/docs/codemods/duplicate-nodes">
+				<strong>duplicateNodes()</strong>
+				<div>Duplicates one or more nodes beside their originals.</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/get-jsx-node-props">
-				<strong>getJsxNodeProps()</strong>
+			<TOCItem link="/docs/codemods/get-node-props">
+				<strong>getNodeProps()</strong>
 				<div>
 					Inspects props and inline effects without executing the project.
 				</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/get-jsx-nodes">
-				<strong>getJsxNodes()</strong>
-				<div>Lists the JSX elements in a project file in source order.</div>
+			<TOCItem link="/docs/codemods/get-nodes">
+				<strong>getNodes()</strong>
+				<div>Lists the nodes in a project file in source order.</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/move-composition">
 				<strong>moveComposition()</strong>
@@ -111,9 +111,9 @@ export const TableOfContents: React.FC = () => {
 				<strong>reorderEffect()</strong>
 				<div>Moves an effect to another index in the same effects array.</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/reorder-jsx-node">
-				<strong>reorderJsxNode()</strong>
-				<div>Moves a JSX element before or after a sibling.</div>
+			<TOCItem link="/docs/codemods/reorder-node">
+				<strong>reorderNode()</strong>
+				<div>Moves a node before or after a sibling.</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/resolve-composition-component">
 				<strong>resolveCompositionComponent()</strong>
@@ -131,9 +131,7 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/codemods/split-sequences">
 				<strong>splitSequences()</strong>
-				<div>
-					Splits supported timing elements into two adjacent JSX elements.
-				</div>
+				<div>Splits supported timing elements into two adjacent nodes.</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/static-file-value">
 				<strong>staticFileValue()</strong>
@@ -164,20 +162,20 @@ export const TableOfContents: React.FC = () => {
 					Updates explicit properties in an inline effect configuration.
 				</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/update-jsx-node-keyframes">
-				<strong>updateJsxNodeKeyframes()</strong>
-				<div>Adds, removes, moves, or configures keyframes on a JSX prop.</div>
+			<TOCItem link="/docs/codemods/update-multiple-node-props">
+				<strong>updateMultipleNodeProps()</strong>
+				<div>Updates props on multiple nodes in one operation.</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/update-jsx-node-props">
-				<strong>updateJsxNodeProps()</strong>
+			<TOCItem link="/docs/codemods/update-node-keyframes">
+				<strong>updateNodeKeyframes()</strong>
+				<div>Adds, removes, moves, or configures keyframes on a node prop.</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/update-node-props">
+				<strong>updateNodeProps()</strong>
 				<div>
-					Updates JSX props, nested object properties, and supported text
+					Updates node props, nested object properties, and supported text
 					children.
 				</div>
-			</TOCItem>
-			<TOCItem link="/docs/codemods/update-multiple-jsx-node-props">
-				<strong>updateMultipleJsxNodeProps()</strong>
-				<div>Updates props on multiple JSX nodes in one operation.</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/update-visual-controls">
 				<strong>updateVisualControls()</strong>
@@ -185,9 +183,9 @@ export const TableOfContents: React.FC = () => {
 					Updates visual control defaults while preserving surrounding source.
 				</div>
 			</TOCItem>
-			<TOCItem link="/docs/codemods/wrap-jsx-node">
-				<strong>wrapJsxNode()</strong>
-				<div>Wraps an existing JSX element in a new element.</div>
+			<TOCItem link="/docs/codemods/wrap-node">
+				<strong>wrapNode()</strong>
+				<div>Wraps an existing node in a new element.</div>
 			</TOCItem>
 		</Grid>
 	);

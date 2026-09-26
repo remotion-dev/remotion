@@ -1,21 +1,21 @@
 import type {CodemodProject} from './codemod-project';
-import {deleteJsxNodes as deleteJsxNodesFromSource} from './delete-jsx-nodes-internal';
+import {deleteNodes as deleteJsxNodesFromSource} from './delete-jsx-nodes-internal';
 import {
 	getNodeEditResult,
 	groupNodeReferencesByFile,
 	type CodemodNodeResult,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 
-export type DeleteJsxNodesOptions<Project extends CodemodProject> = {
+export type DeleteNodesOptions<Project extends CodemodProject> = {
 	project: Project;
-	nodes: JsxNodeReference[];
+	nodes: NodeReference[];
 };
 
-export const deleteJsxNodes = async <Project extends CodemodProject>({
+export const deleteNodes = async <Project extends CodemodProject>({
 	project,
 	nodes,
-}: DeleteJsxNodesOptions<Project>): Promise<
+}: DeleteNodesOptions<Project>): Promise<
 	CodemodNodeResult & {
 		editDetails: {
 			filePath: string;

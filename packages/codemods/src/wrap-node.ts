@@ -10,7 +10,7 @@ import {
 	getNodePathRemappings,
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
-import {getNodeEditResult, type JsxNodeReference} from './node-references';
+import {getNodeEditResult, type NodeReference} from './node-references';
 import {printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {getImportedName} from './sequence-props/imports';
@@ -23,9 +23,9 @@ import {
 import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
-export type WrapJsxNodeOptions<Project extends CodemodProject> = {
+export type WrapNodeOptions<Project extends CodemodProject> = {
 	project: Project;
-	node: JsxNodeReference;
+	node: NodeReference;
 	wrapper: CodemodElement;
 };
 
@@ -51,7 +51,7 @@ const getHtmlInCanvasWrapperName = (wrapper: CodemodElement) => {
 	return null;
 };
 
-export const canWrapJsxNode = ({
+export const canWrapNode = ({
 	input,
 	nodePath,
 }: {
@@ -120,11 +120,11 @@ export const canWrapJsxNode = ({
 	return {canWrap: true, canWrapHtmlInCanvas: !containsHtmlInCanvas};
 };
 
-export const wrapJsxNode = <Project extends CodemodProject>({
+export const wrapNode = <Project extends CodemodProject>({
 	project,
 	node,
 	wrapper,
-}: WrapJsxNodeOptions<Project>) => {
+}: WrapNodeOptions<Project>) => {
 	if (!(wrapper instanceof CodemodElement)) {
 		throw new Error('wrapper must be created with createElement()');
 	}
@@ -137,7 +137,7 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
-	const eligibility = canWrapJsxNode({input, nodePath: node.nodePath});
+	const eligibility = canWrapNode({input, nodePath: node.nodePath});
 	const htmlInCanvasWrapper = getHtmlInCanvasWrapperName(wrapper);
 	if (
 		!eligibility.canWrap ||

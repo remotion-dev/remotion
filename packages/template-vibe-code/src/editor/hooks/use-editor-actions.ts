@@ -11,23 +11,23 @@ import {
   applyCodemodChanges,
   createElement,
   deleteComposition,
-  deleteJsxNodes,
+  deleteNodes as deleteNodesCodemod,
   duplicateComposition,
-  duplicateJsxNodes,
+  duplicateNodes as duplicateNodesCodemod,
   renameComposition,
-  reorderJsxNode,
+  reorderNode as reorderNodeCodemod,
   resolveCompositionComponent,
   setCompositionDefaultProps,
   splitSequences,
   updateCompositionMetadata,
-  updateJsxNodeProps,
-  wrapJsxNode,
+  updateNodeProps,
+  wrapNode,
   type CodemodElement,
   type CodemodProject,
   type CodemodResult,
   type CodemodValue,
   type CompositionMetadata,
-  type JsxNodeReference,
+  type NodeReference,
   type SequencePropUpdate,
 } from "@remotion/codemods";
 import { useMemo, useRef } from "react";
@@ -338,15 +338,15 @@ export const ${componentName}: React.FC = () => {
       },
 
       // Layers
-      deleteNodes: (nodes: JsxNodeReference[]) =>
-        applyCodemod((project) => deleteJsxNodes({ project, nodes }), {
+      deleteNodes: (nodes: NodeReference[]) =>
+        applyCodemod((project) => deleteNodesCodemod({ project, nodes }), {
           clearSelection: true,
         }),
-      duplicateNodes: (nodes: JsxNodeReference[]) =>
-        applyCodemod((project) => duplicateJsxNodes({ project, nodes }), {
+      duplicateNodes: (nodes: NodeReference[]) =>
+        applyCodemod((project) => duplicateNodesCodemod({ project, nodes }), {
           clearSelection: true,
         }),
-      splitNodesAtPlayhead: (nodes: JsxNodeReference[]) => {
+      splitNodesAtPlayhead: (nodes: NodeReference[]) => {
         const frame = currentFrame();
         return applyCodemod(
           (project) =>
@@ -357,13 +357,10 @@ export const ${componentName}: React.FC = () => {
           { clearSelection: true },
         );
       },
-      wrapNode: (
-        node: JsxNodeReference,
-        wrapper: "Sequence" | "AbsoluteFill",
-      ) =>
+      wrapNode: (node: NodeReference, wrapper: "Sequence" | "AbsoluteFill") =>
         applyCodemod(
           (project) =>
-            wrapJsxNode({
+            wrapNode({
               project,
               node,
               wrapper: createElement({
@@ -373,7 +370,7 @@ export const ${componentName}: React.FC = () => {
             }),
           { clearSelection: true },
         ),
-      reorderNode: (node: JsxNodeReference, direction: "up" | "down") => {
+      reorderNode: (node: NodeReference, direction: "up" | "down") => {
         const siblings = ref.current.layers
           .map((layer) => layer.source)
           .filter(
@@ -400,7 +397,7 @@ export const ${componentName}: React.FC = () => {
 
         return applyCodemod(
           (project) =>
-            reorderJsxNode({
+            reorderNodeCodemod({
               project,
               node,
               target,
@@ -410,12 +407,12 @@ export const ${componentName}: React.FC = () => {
         );
       },
       updateNodeProps: (
-        node: JsxNodeReference,
+        node: NodeReference,
         updates: SequencePropUpdate[],
         schema: InteractivitySchema | null,
       ) =>
         applyCodemod((project) =>
-          updateJsxNodeProps({
+          updateNodeProps({
             project,
             node,
             updates,
@@ -466,7 +463,7 @@ export const ${componentName}: React.FC = () => {
 
         const ok = await applyCodemod(
           (project) =>
-            updateJsxNodeProps({
+            updateNodeProps({
               project,
               node,
               updates,
@@ -501,9 +498,9 @@ export const ${componentName}: React.FC = () => {
 
         pendingPreviews.clear();
       },
-      renameNode: (node: JsxNodeReference, name: string) =>
+      renameNode: (node: NodeReference, name: string) =>
         applyCodemod((project) =>
-          updateJsxNodeProps({
+          updateNodeProps({
             project,
             node,
             updates: [

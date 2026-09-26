@@ -13,11 +13,7 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import {
-	CodemodsInternals,
-	getJsxNodeProps,
-	getJsxNodes,
-} from '@remotion/codemods';
+import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
@@ -1357,7 +1353,7 @@ export const resolveSequencePropsNodePathsFromFilename = ({
 		action: 'read',
 	});
 	const fileContents = readFileSync(absolutePath, 'utf-8');
-	const nodes = getJsxNodes({
+	const nodes = getNodes({
 		project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
 		filePath: absolutePath,
 	});
@@ -1391,7 +1387,7 @@ export const computeSequencePropsStatusFromContent = ({
 	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	try {
-		return getJsxNodeProps({
+		return getNodeProps({
 			project: {rootDir: '/', files: {'source.tsx': fileContents}},
 			node: {filePath: 'source.tsx', nodePath},
 			componentIdentity,

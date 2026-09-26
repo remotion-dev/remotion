@@ -3,27 +3,27 @@ import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import {captureJsxNodePaths} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
-import type {JsxNodeReference} from './node-references';
+import type {NodeReference} from './node-references';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
 
-export type JsxNode = JsxNodeReference & {
+export type CodemodNode = NodeReference & {
 	tagName: string;
 	componentIdentity: JsxComponentIdentity | null;
 	location: {line: number; column: number} | null;
 	parentNodePath: SequenceNodePath | null;
 };
 
-export type GetJsxNodesOptions = {
+export type GetNodesOptions = {
 	project: CodemodProject;
 	filePath: string;
 };
 
-export const getJsxNodes = ({
+export const getNodes = ({
 	project,
 	filePath,
-}: GetJsxNodesOptions): JsxNode[] => {
+}: GetNodesOptions): CodemodNode[] => {
 	const resolvedFilePath = findProjectFile({project, filePath});
 	const input = project.files[resolvedFilePath];
 	const {ast} = getReadOnlySourceSnapshot(input);

@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-codemods-get-jsx-nodes.png
-title: 'getJsxNodes()'
+image: /generated/articles-docs-codemods-get-nodes.png
+title: 'getNodes()'
 crumb: '@remotion/codemods'
 ---
 
-# getJsxNodes()<AvailableFrom v="4.0.528" />
+# getNodes()<AvailableFrom v="4.0.530" />
 
-Lists the JSX elements in a project file in source order.
+Lists the nodes of a project file in source order. A node is an element in the source code, identified by its file and node path.
 
 :::warning
 
@@ -14,12 +14,12 @@ _Draft API_: This API is experimental and may change.
 
 :::
 
-```ts twoslash title="get-jsx-nodes.ts"
-import {getJsxNodes, type CodemodProject} from '@remotion/codemods';
+```ts twoslash title="get-nodes.ts"
+import {getNodes, type CodemodProject} from '@remotion/codemods';
 
 declare const project: CodemodProject;
 
-const result = getJsxNodes({
+const result = getNodes({
   project,
   filePath: 'src/Video.tsx',
 });
@@ -41,7 +41,7 @@ The project-relative or absolute source file path.
 
 ## Return value
 
-Returns an array. Each entry has the following properties.
+Returns an array of `CodemodNode` objects. Each entry has the following properties.
 
 ### filePath
 
@@ -49,11 +49,11 @@ The matching key in `project.files`.
 
 ### nodePath
 
-An opaque path identifying this JSX element in the current source snapshot.
+An opaque path identifying this node in the current source snapshot.
 
 ### tagName
 
-The JSX tag name, such as `Sequence`, `div`, or `Interactive.Div`.
+The tag name, such as `Sequence`, `div`, or `Interactive.Div`.
 
 ### componentIdentity
 
@@ -63,9 +63,9 @@ The recognized component identity, or `null` when it cannot be determined. Impor
 
 The opening tag's `{line, column}` location, or `null`. Lines are one-based; columns are zero-based.
 
-### parentNodePath<AvailableFrom v="4.0.530" />
+### parentNodePath
 
-The `nodePath` of the closest enclosing JSX element in the same file, or `null` for top-level elements. Elements rendered through expressions, such as `{condition && <div />}` or a `.map()` callback, report the enclosing element. Compare it with the `nodePath` of other entries to build a tree or to find the children of a node.
+The `nodePath` of the closest enclosing node in the same file, or `null` for top-level elements. Elements rendered through expressions, such as `{condition && <div />}` or a `.map()` callback, report the enclosing element. Compare it with the `nodePath` of other entries to build a tree or to find the children of a node.
 
 ## Errors
 
@@ -77,6 +77,6 @@ Throws when the target cannot be resolved, the requested edit is unsupported, or
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-jsx-nodes.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-nodes.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

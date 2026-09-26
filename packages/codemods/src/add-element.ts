@@ -21,7 +21,7 @@ import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
 	type CodemodInsertionResult,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
@@ -46,9 +46,9 @@ import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 export type AddElementTarget =
 	| ({type: 'composition'} & CompositionTarget)
 	| {type: 'component'; filePath: string; exportName: string | 'default'}
-	| {type: 'inside'; node: JsxNodeReference}
-	| {type: 'before'; node: JsxNodeReference}
-	| {type: 'after'; node: JsxNodeReference};
+	| {type: 'inside'; node: NodeReference}
+	| {type: 'before'; node: NodeReference}
+	| {type: 'after'; node: NodeReference};
 
 export type AddElementOptions<Project extends CodemodProject> = {
 	project: Project;
@@ -97,7 +97,7 @@ const getNodeTargetSourceEdit = ({
 	prettierConfigOverride,
 	target,
 }: SourceEditInput & {
-	target: Extract<AddElementTarget, {node: JsxNodeReference}>;
+	target: Extract<AddElementTarget, {node: NodeReference}>;
 }): SourceEdit => {
 	const targetPath = findJsxElementPathForDeletion(ast, target.node.nodePath);
 	if (!targetPath) {

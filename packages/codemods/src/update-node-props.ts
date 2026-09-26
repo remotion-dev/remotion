@@ -1,16 +1,16 @@
 import type {InteractivitySchema, VideoConfigValues} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import type {CodemodValue} from './codemod-value';
-import {getJsxNodeProps} from './get-jsx-node-props';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
+import {getNodeProps} from './get-node-props';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
 	getUpdatedNodeReference,
-	type JsxNodeReference,
+	type NodeReference,
 	type NodeSourceEdit,
 } from './node-references';
 import {takeSourceSnapshotForEdit} from './sequence-props-snapshot';
@@ -24,38 +24,34 @@ type JsxNodePropValues =
 	| {props: Record<string, CodemodValue | undefined>; updates?: never}
 	| {updates: SequencePropUpdate[]; props?: never};
 
-export type JsxNodePropChange = JsxNodePropValues & {
-	node: JsxNodeReference;
+export type NodePropChange = JsxNodePropValues & {
+	node: NodeReference;
 	schema?: InteractivitySchema;
 	videoConfig?: VideoConfigValues;
 };
 
-export type UpdateJsxNodePropsOptions<Project extends CodemodProject> =
-	JsxNodePropChange & {
+export type UpdateNodePropsOptions<Project extends CodemodProject> =
+	NodePropChange & {
 		project: Project;
 		prettierConfigOverride?: Record<string, unknown> | null;
 	};
 
-export type UpdateMultipleJsxNodePropsOptions<Project extends CodemodProject> =
-	{
-		project: Project;
-		changes: JsxNodePropChange[];
-		prettierConfigOverride?: Record<string, unknown> | null;
-	};
+export type UpdateMultipleNodePropsOptions<Project extends CodemodProject> = {
+	project: Project;
+	changes: NodePropChange[];
+	prettierConfigOverride?: Record<string, unknown> | null;
+};
 
-export const updateMultipleJsxNodeProps = <Project extends CodemodProject>({
+export const updateMultipleNodeProps = <Project extends CodemodProject>({
 	project,
 	changes,
 	prettierConfigOverride,
-}: UpdateMultipleJsxNodePropsOptions<Project>) => {
+}: UpdateMultipleNodePropsOptions<Project>) => {
 	if (changes.length === 0) {
 		throw new Error('Expected at least one node to update');
 	}
 
-	const groups = new Map<
-		string,
-		{change: JsxNodePropChange; index: number}[]
-	>();
+	const groups = new Map<string, {change: NodePropChange; index: number}[]>();
 	for (const [index, change] of changes.entries()) {
 		const filePath = findProjectFile({project, filePath: change.node.filePath});
 		const group = groups.get(filePath) ?? [];
@@ -82,7 +78,7 @@ export const updateMultipleJsxNodeProps = <Project extends CodemodProject>({
 			const keys = updates.map(({key}) => key);
 			const status = change.updates
 				? null
-				: getJsxNodeProps({
+				: getNodeProps({
 						project,
 						node: change.node,
 						keys,
@@ -141,12 +137,12 @@ export const updateMultipleJsxNodeProps = <Project extends CodemodProject>({
 	};
 };
 
-export const updateJsxNodeProps = <Project extends CodemodProject>({
+export const updateNodeProps = <Project extends CodemodProject>({
 	project,
 	prettierConfigOverride,
 	...change
-}: UpdateJsxNodePropsOptions<Project>) => {
-	const result = updateMultipleJsxNodeProps({
+}: UpdateNodePropsOptions<Project>) => {
+	const result = updateMultipleNodeProps({
 		project,
 		changes: [change],
 		prettierConfigOverride,
