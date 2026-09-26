@@ -1,5 +1,6 @@
 import type {EditorPickerId} from '@remotion/studio-shared';
 import {useContext, useEffect, useMemo} from 'react';
+import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {restartStudio} from '../api/restart-studio';
@@ -35,6 +36,7 @@ import {
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
+import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
@@ -57,7 +59,7 @@ const inheritColor: React.CSSProperties = {
 };
 const ICON_SIZE = 14;
 
-const getFileMenu = ({
+export const getFileMenu = ({
 	readOnlyStudio,
 	closeMenu,
 	editorName,
@@ -226,7 +228,7 @@ const getFileMenu = ({
 	};
 };
 
-const getRenderMenuItems = ({
+export const getRenderMenuItems = ({
 	closeMenu,
 	previewServerState,
 	readOnlyStudio,
@@ -295,10 +297,60 @@ const getRenderMenuItems = ({
 	].filter(NoReactInternals.truthy);
 };
 
-export const useMenuStructure = (
-	closeMenu: () => void,
-	readOnlyStudio: boolean,
-) => {
+export const useCurrentCompositionMenuData = () => {
+	const {canvasContent, compositions} = useContext(
+		Internals.CompositionManager,
+	);
+	const currentComposition = useMemo(() => {
+		if (canvasContent === null || canvasContent.type !== 'composition') {
+			return null;
+		}
+
+		return (
+			compositions.find((c) => c.id === canvasContent.compositionId) ?? null
+		);
+	}, [canvasContent, compositions]);
+	const resolvedCompositionLocation = useResolvedStack(
+		currentComposition?.stack ?? null,
+	);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+
+	useEffect(() => {
+		if (
+			connectionStatus !== 'connected' ||
+			!currentComposition ||
+			!resolvedCompositionLocation?.source
+		) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile: resolvedCompositionLocation.source,
+			compositionId: currentComposition.id,
+		});
+	}, [
+		currentComposition,
+		resolvedCompositionLocation?.source,
+		connectionStatus,
+	]);
+
+	return {currentComposition, resolvedCompositionLocation};
+};
+
+const useMenuStructureBase = ({
+	closeMenu,
+	readOnlyStudio,
+	currentComposition,
+	resolvedCompositionLocation,
+	buildCompositionMenu,
+}: {
+	closeMenu: () => void;
+	readOnlyStudio: boolean;
+	currentComposition: _InternalTypes['AnyComposition'] | null;
+	resolvedCompositionLocation: ResolvedStackLocation | null;
+	buildCompositionMenu: boolean;
+}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
@@ -315,9 +367,6 @@ export const useMenuStructure = (
 	);
 	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
-	const {canvasContent, compositions} = useContext(
-		Internals.CompositionManager,
-	);
 	const {connectionStatus: type, openInApps} = useOpenInMenuApps();
 	const {defaultEditorId, defaultEditorName} = openInApps;
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
@@ -358,34 +407,6 @@ export const useMenuStructure = (
 	);
 
 	const mobileLayout = useMobileLayout();
-	const currentComposition = useMemo(() => {
-		if (canvasContent === null || canvasContent.type !== 'composition') {
-			return null;
-		}
-
-		return (
-			compositions.find((c) => c.id === canvasContent.compositionId) ?? null
-		);
-	}, [canvasContent, compositions]);
-	const resolvedCompositionLocation = useResolvedStack(
-		currentComposition?.stack ?? null,
-	);
-
-	useEffect(() => {
-		if (
-			type !== 'connected' ||
-			!currentComposition ||
-			!resolvedCompositionLocation?.source
-		) {
-			return;
-		}
-
-		preloadCompositionComponentInfo({
-			compositionFile: resolvedCompositionLocation.source,
-			compositionId: currentComposition.id,
-		});
-	}, [currentComposition, resolvedCompositionLocation?.source, type]);
-
 	const structure = useMemo((): Structure => {
 		let struct: Structure = [
 			{
@@ -899,23 +920,27 @@ export const useMenuStructure = (
 				label: 'Composition',
 				leaveLeftPadding: false,
 				items: [
-					...getRenderMenuItems({
-						closeMenu,
-						previewServerState: type,
-						readOnlyStudio,
-						renderShortcut,
-						compositionSelected: currentComposition !== null,
-					}),
-					...getCompositionMenuItems({
-						closeMenu,
-						composition: currentComposition,
-						connectionStatus: type,
-						includeCompositionManagementItems: true,
-						openInApps,
-						resolvedLocation: resolvedCompositionLocation,
-						setSelectedModal,
-						readOnlyStudio,
-					}),
+					...(buildCompositionMenu
+						? [
+								...getRenderMenuItems({
+									closeMenu,
+									previewServerState: type,
+									readOnlyStudio,
+									renderShortcut,
+									compositionSelected: currentComposition !== null,
+								}),
+								...getCompositionMenuItems({
+									closeMenu,
+									composition: currentComposition,
+									connectionStatus: type,
+									includeCompositionManagementItems: true,
+									openInApps,
+									resolvedLocation: resolvedCompositionLocation,
+									setSelectedModal,
+									readOnlyStudio,
+								}),
+							]
+						: []),
 				],
 				quickSwitcherLabel: null,
 			},
@@ -1174,6 +1199,7 @@ export const useMenuStructure = (
 		sizes,
 		currentComposition,
 		resolvedCompositionLocation,
+		buildCompositionMenu,
 		editorZoomGestures,
 		editorShowPixelGrid,
 		editorShowRulers,
@@ -1218,6 +1244,33 @@ export const useMenuStructure = (
 
 	return structure;
 };
+
+export const useMenuStructure = (
+	closeMenu: () => void,
+	readOnlyStudio: boolean,
+) => {
+	const {currentComposition, resolvedCompositionLocation} =
+		useCurrentCompositionMenuData();
+	return useMenuStructureBase({
+		closeMenu,
+		readOnlyStudio,
+		currentComposition,
+		resolvedCompositionLocation,
+		buildCompositionMenu: true,
+	});
+};
+
+export const useToolbarMenuStructure = (
+	closeMenu: () => void,
+	readOnlyStudio: boolean,
+) =>
+	useMenuStructureBase({
+		closeMenu,
+		readOnlyStudio,
+		currentComposition: null,
+		resolvedCompositionLocation: null,
+		buildCompositionMenu: false,
+	});
 
 const getItemLabel = (item: SelectionItem) => {
 	if (item.quickSwitcherLabel !== null) {
