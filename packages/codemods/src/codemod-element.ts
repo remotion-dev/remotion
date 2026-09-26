@@ -6,12 +6,13 @@ export type CodemodElementChild = CodemodElement | string;
 export type CodemodElementOptions = {
 	component: string;
 	importPath?: string | null;
+	importName?: string | null;
 	props?: Record<string, CodemodValue>;
 	children?: readonly (CodemodElement | CodemodElementOptions | string)[];
 };
 
 const componentRegex = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/;
-const importedComponentRegex = /^[A-Z_$]/;
+const importedComponentRegex = /^[A-Z_$][\w$]*$/;
 const propNameRegex = /^[A-Za-z_$][\w$-]*(:[A-Za-z_$][\w$-]*)?$/;
 
 const isCodemodValue = (value: unknown): value is CodemodValue => {
@@ -45,12 +46,14 @@ const isCodemodValue = (value: unknown): value is CodemodValue => {
 export class CodemodElement {
 	readonly component: string;
 	readonly importPath: string | null;
+	readonly importName: string | null;
 	readonly props: Readonly<Record<string, CodemodValue>>;
 	readonly children: readonly CodemodElementChild[];
 
 	constructor({
 		component,
 		importPath = null,
+		importName = null,
 		props = {},
 		children = [],
 	}: CodemodElementOptions) {
@@ -65,9 +68,24 @@ export class CodemodElement {
 				throw new Error('importPath must be a non-empty module specifier');
 			}
 
-			if (!importedComponentRegex.test(component)) {
+			if (!importedComponentRegex.test(component.split('.')[0])) {
 				throw new Error(
 					`Imported components must start with an uppercase letter, _ or $. Omit importPath to use the HTML tag "${component}"`,
+				);
+			}
+		}
+
+		if (importName !== null) {
+			if (importPath === null) {
+				throw new Error('importName requires an importPath');
+			}
+
+			if (
+				typeof importName !== 'string' ||
+				!importedComponentRegex.test(importName)
+			) {
+				throw new Error(
+					`${JSON.stringify(importName)} is not a valid named export to import`,
 				);
 			}
 		}
@@ -86,6 +104,7 @@ export class CodemodElement {
 
 		this.component = component;
 		this.importPath = importPath;
+		this.importName = importName;
 		this.props = {...props};
 		this.children = children.map((child) => {
 			if (typeof child === 'string' || child instanceof CodemodElement) {
@@ -112,6 +131,7 @@ export class CodemodElement {
 		return new CodemodElement({
 			component: this.component,
 			importPath: this.importPath,
+			importName: this.importName,
 			props: {...this.props, ...props},
 			children: this.children,
 		});
@@ -122,6 +142,7 @@ export class CodemodElement {
 		return new CodemodElement({
 			component: this.component,
 			importPath: this.importPath,
+			importName: this.importName,
 			props: Object.fromEntries(
 				Object.entries(this.props).filter(([key]) => key !== name),
 			),
@@ -141,6 +162,7 @@ export class CodemodElement {
 		return new CodemodElement({
 			component: this.component,
 			importPath: this.importPath,
+			importName: this.importName,
 			props: this.props,
 			children,
 		});

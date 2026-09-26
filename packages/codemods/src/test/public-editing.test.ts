@@ -698,10 +698,17 @@ test('addElement returns remappings usable by public discovery and targets nodes
 	expect(JSON.parse(JSON.stringify(caption))).toEqual({
 		component: 'p',
 		importPath: null,
+		importName: null,
 		props: {className: 'caption', 'data-testid': 'caption'},
 		children: [
 			'Hello {world} & friends',
-			{component: 'br', importPath: null, props: {}, children: []},
+			{
+				component: 'br',
+				importPath: null,
+				importName: null,
+				props: {},
+				children: [],
+			},
 		],
 	});
 });

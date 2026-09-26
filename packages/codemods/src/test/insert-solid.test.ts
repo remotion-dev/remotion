@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {addElement, applyCodemodChanges, createElement} from '../index';
 import {insertJsxElementIntoProjectWithNodePathRemappings} from '../insert-jsx-element';
+import {createElementFromInsertable} from '../insertable-element';
 
 const solid = createElement({
 	component: 'Solid',
@@ -128,32 +129,29 @@ export const MyComposition = () => {
 
 export const Root = () => <Composition id = "MyComp" component={MyComposition}/>;
 `;
-	const result = await insertJsxElementIntoProjectWithNodePathRemappings({
-		project: {
-			files: {'/project/src/index.tsx': source},
-			rootDir: '/project',
-		},
-		request: {
+	const project = {
+		files: {'/project/src/index.tsx': source},
+		rootDir: '/project',
+	};
+	const result = addElement({
+		project,
+		element: createElementFromInsertable({
+			element: {height: 720, position: null, type: 'solid', width: 1280},
+			from: null,
+			wrapInSequence: null,
+		}),
+		target: {
+			type: 'composition',
 			compositionFile: '/project/src/index.tsx',
 			compositionId: 'MyComp',
-			element: {
-				height: 720,
-				position: null,
-				type: 'solid',
-				width: 1280,
-			},
-			from: null,
 		},
-		svgMarkupToJsx: () => {
-			throw new Error(
-				'SVG conversion should not be called when inserting a Solid',
-			);
-		},
-		wrapInSequence: null,
 	});
 
-	expect(result.output)
-		.toBe(`import {Composition, AbsoluteFill, Solid} from 'remotion';
+	expect(
+		applyCodemodChanges(project, result.changes).files[
+			'/project/src/index.tsx'
+		],
+	).toBe(`import {Composition, AbsoluteFill, Solid} from 'remotion';
 
 // Keep the deliberately non-Prettier formatting in this file.
 export const MyComposition = () => {
@@ -162,77 +160,110 @@ export const MyComposition = () => {
       <AbsoluteFill>
         <div>Existing</div>
       </AbsoluteFill>
-      <Solid
-        width={1280}
-        height={720}
-        color="gray"
-        style={{ position: "absolute" }}
-      />
+      <Solid width={1280} height={720} color="gray" style={{position: 'absolute'}} />
     </>
   )
 }
 
 export const Root = () => <Composition id = "MyComp" component={MyComposition}/>;
 `);
-	expect(result.insertedNodePath).not.toBeNull();
-});
-
-test('asset and component insertions also avoid the full-file formatter', async () => {
-	const source = `import {Composition, AbsoluteFill} from 'remotion';
-
-export const MyComposition = () => <><AbsoluteFill /></>;
-export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
-`;
-	const assetResult = await insertJsxElementIntoProjectWithNodePathRemappings({
-		project: {
-			files: {'/project/src/index.tsx': source},
-			rootDir: '/project',
-		},
-		request: {
-			compositionFile: '/project/src/index.tsx',
-			compositionId: 'MyComp',
-			element: {
-				assetType: 'image',
-				dimensions: {height: 720, width: 1280},
-				durationInFrames: null,
-				position: null,
-				src: 'image.png',
-				srcType: 'static',
-				type: 'asset',
-			},
-			from: null,
-		},
-		svgMarkupToJsx: () => {
-			throw new Error('SVG conversion should not be called');
-		},
-		wrapInSequence: null,
-	});
-	const componentResult =
-		await insertJsxElementIntoProjectWithNodePathRemappings({
-			project: {
-				files: {'/project/src/index.tsx': source},
-				rootDir: '/project',
-			},
+	expect(result.insertedNode.nodePath.length).toBeGreaterThan(0);
+	await expect(
+		insertJsxElementIntoProjectWithNodePathRemappings({
+			project,
 			request: {
 				compositionFile: '/project/src/index.tsx',
 				compositionId: 'MyComp',
-				element: {
-					componentName: 'Chart',
-					importName: 'Chart',
-					importPath: './Chart',
-					position: null,
-					props: [{name: 'title', value: 'Revenue'}],
-					type: 'component',
-				},
+				element: {height: 720, position: null, type: 'solid', width: 1280},
 				from: null,
 			},
 			svgMarkupToJsx: () => {
 				throw new Error('SVG conversion should not be called');
 			},
 			wrapInSequence: null,
-		});
+		}),
+	).rejects.toThrow('addElement()');
+});
 
-	expect(assetResult.output).toContain('<CanvasImage\n');
-	expect(componentResult.output).toContain('<Chart\n');
-	expect(componentResult.output).toContain('title="Revenue"');
+test('asset and component insertions also avoid the full-file formatter', () => {
+	const source = `import {Composition, AbsoluteFill} from 'remotion';
+
+export const MyComposition = () => <><AbsoluteFill /></>;
+export const Root = () => <Composition id="MyComp" component={MyComposition}/>;
+`;
+	const project = {
+		files: {'/project/src/index.tsx': source},
+		rootDir: '/project',
+	};
+	const target = {
+		type: 'composition' as const,
+		compositionFile: '/project/src/index.tsx',
+		compositionId: 'MyComp',
+	};
+	const assetResult = addElement({
+		project,
+		element: createElementFromInsertable({
+			element: {
+				assetType: 'image',
+				dimensions: {height: 720, width: 1280},
+				durationInFrames: null,
+				position: {x: 10, y: 20.25},
+				src: 'image.png',
+				srcType: 'static',
+				type: 'asset',
+			},
+			from: null,
+			wrapInSequence: null,
+		}),
+		target,
+	});
+	const componentResult = addElement({
+		project,
+		element: createElementFromInsertable({
+			element: {
+				componentName: 'RevenueChart',
+				importName: 'Chart',
+				importPath: './Chart',
+				position: null,
+				props: [
+					{name: 'title', value: 'Revenue'},
+					{name: 'style', value: {position: 'relative', opacity: 0.5} as never},
+				],
+				type: 'component',
+			},
+			from: 12,
+			wrapInSequence: {
+				dimensions: {width: 400, height: 300},
+				durationInFrames: 60,
+				from: 12,
+				name: 'Chart',
+				position: {x: 1, y: 2},
+			},
+		}),
+		target,
+	});
+	const assetOutput = applyCodemodChanges(project, assetResult.changes).files[
+		'/project/src/index.tsx'
+	];
+	const componentOutput = applyCodemodChanges(project, componentResult.changes)
+		.files['/project/src/index.tsx'];
+
+	expect(assetOutput).toContain(
+		"import {Composition, AbsoluteFill, CanvasImage, staticFile} from 'remotion';",
+	);
+	expect(assetOutput).toContain('<CanvasImage\n');
+	expect(assetOutput).toContain("src={staticFile('image.png')}");
+	// Too long for one line, so the style object keeps its expanded layout.
+	expect(assetOutput).toMatch(
+		/style=\{\{\n\s+position: 'absolute',\n\s+translate: '10px 20\.3px',\n\s+width: 1280,\n\s+height: 720\n\s+\}\}/,
+	);
+	expect(componentOutput).toContain(
+		"import {Chart as RevenueChart} from './Chart';",
+	);
+	expect(componentOutput).toContain(
+		`<Sequence\n    from={12}\n    name="Chart"\n    width={400}\n    height={300}\n    durationInFrames={60}\n    style={{position: 'absolute', translate: '1px 2px'}}\n  >`,
+	);
+	expect(componentOutput).toContain(
+		`<RevenueChart\n      title="Revenue"\n      style={{position: 'relative', opacity: 0.5}}\n      from={12}\n    />`,
+	);
 });

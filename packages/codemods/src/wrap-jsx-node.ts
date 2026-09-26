@@ -250,6 +250,7 @@ export const wrapJsxNode = <Project extends CodemodProject>({
 	opening.selfClosing = false;
 	const localName = recast.print(opening.name).code;
 	const openingLines = printJsxOpeningElement({
+		compactLiteralProps: true,
 		openingElement: opening,
 		input,
 		prettierConfigOverride: null,

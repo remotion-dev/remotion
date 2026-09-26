@@ -69,12 +69,13 @@ export const buildJsxElement = ({
 }): namedTypes.JSXElement => {
 	let localName = element.component;
 	if (element.importPath !== null) {
-		const [importedName, ...members] = element.component.split('.');
+		const [preferredLocalName, ...members] = element.component.split('.');
 		localName = [
 			ensureOfficialNamedImport({
 				ast,
-				importedName,
+				importedName: element.importName ?? preferredLocalName,
 				sourcePath: element.importPath,
+				preferredLocalName,
 			}),
 			...members,
 		].join('.');

@@ -226,6 +226,7 @@ export const getRegistrationInsertionSourceEdit = ({
 	return getInsertionRootSourceEdit({
 		input,
 		insertion: printInsertedJsx({
+			compactLiteralProps: false,
 			element: insertion as never,
 			input,
 			prettierConfigOverride: null,

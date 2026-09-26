@@ -1516,6 +1516,7 @@ export const updateMultipleSequenceProps = ({
 				indent: getJsxSourceIndent(start),
 				input,
 				printed: printJsxOpeningElement({
+					compactLiteralProps: false,
 					originalAttributeSources,
 					openingElement:
 						openingElement as unknown as AstNamedTypes.JSXOpeningElement,
@@ -1549,6 +1550,7 @@ export const updateMultipleSequenceProps = ({
 				indent: getJsxSourceIndent(start),
 				input,
 				printed: printInsertedJsx({
+					compactLiteralProps: false,
 					originalAttributeSources,
 					element: element as unknown as AstNamedTypes.JSXElement,
 					input,

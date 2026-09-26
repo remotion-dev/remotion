@@ -11,6 +11,7 @@ import {
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
 } from './insert-jsx-element';
+import {createElementFromInsertable} from './insertable-element';
 import {
 	computeCanUpdateDefaultPropsFromContent,
 	findProjectFile,
@@ -161,9 +162,11 @@ export type {
 } from './update-keyframes';
 export type {
 	InsertJsxElementCodemodEnvironment,
+	PipelineInsertableElement,
 	ResolvedCompositionComponent,
 	ResolvedCompositionComponentWithFile,
 } from './insert-jsx-element';
+export type {InsertableSequenceWrapper} from './insertable-element';
 export type {
 	RemovedProp,
 	SequencePropUpdate,
@@ -177,6 +180,7 @@ export const CodemodsInternals = {
 	basicCaptionsElementSource,
 	computeCanUpdateDefaultPropsFromContent,
 	computeSequencePropsSubscriptionFromContent,
+	createElementFromInsertable,
 	enumerateEffectArrayElements,
 	findProjectFile,
 	findSearchPosition,

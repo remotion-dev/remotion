@@ -45,6 +45,7 @@ import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
 export type AddElementTarget =
 	| ({type: 'composition'} & CompositionTarget)
+	| {type: 'component'; filePath: string; exportName: string | 'default'}
 	| {type: 'inside'; node: JsxNodeReference}
 	| {type: 'before'; node: JsxNodeReference}
 	| {type: 'after'; node: JsxNodeReference};
@@ -53,6 +54,7 @@ export type AddElementOptions<Project extends CodemodProject> = {
 	project: Project;
 	element: CodemodElement;
 	target: AddElementTarget;
+	prettierConfigOverride?: Record<string, unknown> | null;
 };
 
 const b = recast.types.builders;
@@ -62,6 +64,7 @@ type SourceEditInput = {
 	input: string;
 	insertion: string;
 	jsx: namedTypes.JSXElement;
+	prettierConfigOverride: Record<string, unknown> | null;
 };
 
 const getCompositionRootSourceEdit = ({
@@ -70,6 +73,7 @@ const getCompositionRootSourceEdit = ({
 	input,
 	insertion,
 	jsx,
+	prettierConfigOverride,
 }: SourceEditInput & {exportName: string | 'default'}): SourceEdit => {
 	const declaration = getDeclarationByExportName({ast, exportName});
 	const root = declaration ? getComponentRootNode(declaration) : null;
@@ -80,7 +84,7 @@ const getCompositionRootSourceEdit = ({
 		input,
 		insertion,
 		nullRoot,
-		prettierConfigOverride: null,
+		prettierConfigOverride,
 		root,
 	});
 };
@@ -90,9 +94,10 @@ const getNodeTargetSourceEdit = ({
 	input,
 	insertion,
 	jsx,
+	prettierConfigOverride,
 	target,
 }: SourceEditInput & {
-	target: Exclude<AddElementTarget, {type: 'composition'}>;
+	target: Extract<AddElementTarget, {node: JsxNodeReference}>;
 }): SourceEdit => {
 	const targetPath = findJsxElementPathForDeletion(ast, target.node.nodePath);
 	if (!targetPath) {
@@ -106,7 +111,7 @@ const getNodeTargetSourceEdit = ({
 			input,
 			insertion,
 			nullRoot: null,
-			prettierConfigOverride: null,
+			prettierConfigOverride,
 			root: targetElement as never,
 		});
 		targetElement.children.push(jsx as never);
@@ -159,7 +164,7 @@ const getNodeTargetSourceEdit = ({
 			target.type === 'after' ? [existing, jsx] : [jsx, existing],
 		),
 	);
-	const unit = getIndentationUnit(input, null);
+	const unit = getIndentationUnit(input, prettierConfigOverride);
 	const children =
 		target.type === 'after' ? [original, insertion] : [insertion, original];
 	return {
@@ -183,11 +188,13 @@ const insertElementIntoFile = ({
 	element,
 	filePath,
 	getSourceEdit,
+	prettierConfigOverride,
 	project,
 }: {
 	element: CodemodElement;
 	filePath: string;
 	getSourceEdit: (context: SourceEditInput) => SourceEdit;
+	prettierConfigOverride: Record<string, unknown> | null;
 	project: CodemodProject;
 }): CodemodInsertionResult => {
 	const input = project.files[filePath];
@@ -196,18 +203,25 @@ const insertElementIntoFile = ({
 	const importSnapshots = captureImportSnapshots(ast);
 	const jsx = buildJsxElement({ast, element});
 	const insertion = printInsertedJsx({
+		compactLiteralProps: true,
 		element: jsx,
 		input,
-		prettierConfigOverride: null,
+		prettierConfigOverride,
 	});
-	const edit = getSourceEdit({ast, input, insertion, jsx});
+	const edit = getSourceEdit({
+		ast,
+		input,
+		insertion,
+		jsx,
+		prettierConfigOverride,
+	});
 	const output = applySourceEdits({
 		input,
 		edits: [
 			...getInsertImportSourceEdits({
 				ast,
 				input,
-				prettierConfigOverride: null,
+				prettierConfigOverride,
 				snapshots: importSnapshots,
 			}),
 			edit,
@@ -236,6 +250,7 @@ export const addElement = <Project extends CodemodProject>({
 	project,
 	element,
 	target,
+	prettierConfigOverride = null,
 }: AddElementOptions<Project>): CodemodInsertionResult => {
 	if (!(element instanceof CodemodElement)) {
 		throw new Error('element must be created with createElement()');
@@ -261,6 +276,21 @@ export const addElement = <Project extends CodemodProject>({
 					...context,
 					exportName: resolved.exportName,
 				}),
+			prettierConfigOverride,
+			project,
+		});
+	}
+
+	if (target.type === 'component') {
+		return insertElementIntoFile({
+			element,
+			filePath: findProjectFile({project, filePath: target.filePath}),
+			getSourceEdit: (context) =>
+				getCompositionRootSourceEdit({
+					...context,
+					exportName: target.exportName,
+				}),
+			prettierConfigOverride,
 			project,
 		});
 	}
@@ -269,6 +299,7 @@ export const addElement = <Project extends CodemodProject>({
 		element,
 		filePath: findProjectFile({project, filePath: target.node.filePath}),
 		getSourceEdit: (context) => getNodeTargetSourceEdit({...context, target}),
+		prettierConfigOverride,
 		project,
 	});
 };

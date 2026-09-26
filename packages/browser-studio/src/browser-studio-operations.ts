@@ -4,6 +4,7 @@ import {
 	addComposition,
 	addCanvasCaptureComposition,
 	addEffect as addEffectCodemod,
+	addElement,
 	addFolder,
 	createElement,
 	deleteComposition,
@@ -31,10 +32,12 @@ import {
 	updateEffectProps as updateEffectPropsCodemod,
 	updateJsxNodeKeyframes,
 	updateJsxNodeProps,
+	type CodemodFileChange,
 	type CodemodNodeResult,
 	type CodemodResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
+	type InsertableSequenceWrapper,
 	type SequenceKeyframeUpdate,
 } from '@remotion/codemods';
 import {
@@ -53,7 +56,9 @@ import {
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
 	type InsertElementResponse,
+	type InsertJsxElementRequest,
 	type RecastCodemod,
+	type SequenceNodePathRemapping,
 	type SubscribeToSequencePropsRequest,
 	type SubscribeToSequencePropsResponse,
 	type SymbolicatedStackFrame,
@@ -84,6 +89,7 @@ import type {VirtualProject, VirtualProjectPublicFile} from './types';
 const {
 	basicCaptionsElementSource,
 	computeSequencePropsSubscriptionFromContent,
+	createElementFromInsertable,
 	findProjectFile,
 	getBasicCaptionsElementFile,
 	getCanUpdateDefaultPropsForProject,
@@ -107,6 +113,68 @@ const svgMarkupToJsx = (): Promise<never> =>
 	Promise.reject(
 		new Error('Importing SVG markup is not supported in Browser Studio'),
 	);
+
+const insertIntoProject = async ({
+	project,
+	request,
+	wrapInSequence,
+}: {
+	project: VirtualProject;
+	request: InsertJsxElementRequest;
+	wrapInSequence: InsertableSequenceWrapper | null;
+}): Promise<{
+	changes: CodemodFileChange[];
+	filePath: string;
+	insertedNodePath: SequenceNodePath | null;
+	nodePathRemappings: SequenceNodePathRemapping[];
+}> => {
+	// SVG markup and compositions need the dedicated insertion pipeline.
+	if (
+		request.element.type === 'svg' ||
+		request.element.type === 'composition'
+	) {
+		const inserted = await insertJsxElementIntoProjectWithNodePathRemappings({
+			project,
+			request,
+			svgMarkupToJsx,
+			wrapInSequence,
+		});
+		return {
+			changes: [
+				{
+					filePath: inserted.filePath,
+					previousContents: project.files[inserted.filePath] ?? null,
+					nextContents: inserted.output,
+				},
+			],
+			filePath: inserted.filePath,
+			insertedNodePath: inserted.insertedNodePath,
+			nodePathRemappings: inserted.nodePathRemappings,
+		};
+	}
+
+	const result = addElement({
+		project,
+		element: createElementFromInsertable({
+			element: request.element,
+			from: request.from,
+			wrapInSequence,
+		}),
+		target: {
+			type: 'composition',
+			compositionFile: request.compositionFile,
+			compositionId: request.compositionId,
+		},
+	});
+	return {
+		changes: result.changes,
+		filePath: result.insertedNode.filePath,
+		insertedNodePath: result.insertedNode.nodePath,
+		nodePathRemappings: result.nodePathRemappings.map(
+			({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+		),
+	};
+};
 
 const formatCodemodFile = async ({contents}: {contents: string}) => ({
 	formatted: true,
@@ -2133,19 +2201,12 @@ export const createBrowserStudioOperations = ({
 				dependencies: installedDependencies,
 				project: getProject(),
 			});
-			const result = await insertJsxElementIntoProjectWithNodePathRemappings({
+			const result = await insertIntoProject({
 				project,
 				request,
-				svgMarkupToJsx,
 				wrapInSequence: null,
 			});
-			const changes = [
-				{
-					filePath: result.filePath,
-					previousContents: project.files[result.filePath] ?? null,
-					nextContents: result.output,
-				},
-			];
+			const {changes} = result;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection:
@@ -2413,54 +2474,48 @@ export const createBrowserStudioOperations = ({
 					request.element.dependencies,
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
-				const insertion =
-					await insertJsxElementIntoProjectWithNodePathRemappings({
-						project,
-						request: {
-							compositionFile: request.compositionFile,
-							compositionId: request.compositionId,
-							element: {
-								componentName: plan.componentName,
-								importName: plan.componentName,
-								importPath: plan.importPath,
-								position: componentOwnsSequence ? request.position : null,
-								props: [
-									...Object.entries(request.element.initialProps ?? {}).map(
-										([name, value]) => ({name, value}),
-									),
-									...(componentOwnsSequence && durationInFrames !== null
-										? [
-												{
-													name: 'durationInFrames',
-													value: durationInFrames,
-												},
-											]
-										: []),
-									...(componentOwnsSequence
-										? [{name: 'name', value: request.element.displayName}]
-										: []),
-								],
-								type: 'component',
-							},
-							from: componentOwnsSequence ? request.from : null,
+				const insertion = await insertIntoProject({
+					project,
+					request: {
+						compositionFile: request.compositionFile,
+						compositionId: request.compositionId,
+						element: {
+							componentName: plan.componentName,
+							importName: plan.componentName,
+							importPath: plan.importPath,
+							position: componentOwnsSequence ? request.position : null,
+							props: [
+								...Object.entries(request.element.initialProps ?? {}).map(
+									([name, value]) => ({name, value}),
+								),
+								...(componentOwnsSequence && durationInFrames !== null
+									? [
+											{
+												name: 'durationInFrames',
+												value: durationInFrames,
+											},
+										]
+									: []),
+								...(componentOwnsSequence
+									? [{name: 'name', value: request.element.displayName}]
+									: []),
+							],
+							type: 'component',
 						},
-						svgMarkupToJsx,
-						wrapInSequence: componentOwnsSequence
-							? null
-							: {
-									dimensions: request.element.dimensions,
-									durationInFrames,
-									from: request.from,
-									name: request.element.displayName,
-									position: request.position,
-								},
-					});
-				const projectWithElement = applyCodemodChanges(project, [
-					{
-						filePath: insertion.filePath,
-						previousContents: project.files[insertion.filePath] ?? null,
-						nextContents: insertion.output,
+						from: componentOwnsSequence ? request.from : null,
 					},
+					wrapInSequence: componentOwnsSequence
+						? null
+						: {
+								dimensions: request.element.dimensions,
+								durationInFrames,
+								from: request.from,
+								name: request.element.displayName,
+								position: request.position,
+							},
+				});
+				const projectWithElement = applyCodemodChanges(project, [
+					...insertion.changes,
 					{
 						filePath: plan.elementFilePath,
 						previousContents: project.files[plan.elementFilePath] ?? null,

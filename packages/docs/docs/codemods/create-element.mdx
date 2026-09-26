@@ -52,6 +52,10 @@ The JSX tag name. Use a component name such as `Solid`, a member expression such
 
 The module to import `component` from, such as `remotion`, `@remotion/media`, or a relative path such as `./Title`. The first identifier of `component` is imported as a named export. Relative paths are resolved from the file that receives the element. Omit it for HTML tags and identifiers that are already in scope.
 
+### importName?
+
+The named export to import when it differs from `component`. For example, `{component: 'Title', importName: 'AnimatedTitle', importPath: './Title'}` adds `import {AnimatedTitle as Title} from './Title'` and renders `<Title />`. Requires `importPath`. By default, the first identifier of `component` is imported.
+
 ### props?
 
 A record of prop values. Strings become string attributes, other values become JSX expressions. Values must be strings, finite numbers, booleans, `null`, arrays, or plain objects. Use [`staticFileValue()`](/docs/codemods/static-file-value) to reference a file in the public folder. Defaults to `{}`.
@@ -64,9 +68,9 @@ An array of children. Each child is a string, an element created with `createEle
 
 A `CodemodElement`. It is immutable: the following methods return a new element and leave the original unchanged, so an element can be reused as a template.
 
-### component, importPath, props, children
+### component, importPath, importName, props, children
 
-The values passed to `createElement()`, with `importPath` defaulting to `null`. `JSON.stringify()` serializes an element to a plain description that `createElement()` accepts again.
+The values passed to `createElement()`, with `importPath` and `importName` defaulting to `null`. `JSON.stringify()` serializes an element to a plain description that `createElement()` accepts again.
 
 ### withProp(name, value)
 

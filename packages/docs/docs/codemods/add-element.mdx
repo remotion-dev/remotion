@@ -86,6 +86,10 @@ Where to insert the element. One of the following objects.
 
 Appends the element to the component of the composition with the static ID `compositionId`, registered in `compositionFile`. The component may be imported from another project file. If the component returns a single element, both are grouped in a fragment. If it returns `null`, the element becomes its content.
 
+#### `{type: 'component', filePath, exportName}`
+
+Appends the element to the JSX returned by the component that `filePath` exports as `exportName`, or as its default export when `exportName` is `'default'`. Use it when the component is already known, for example from [`resolveCompositionComponent()`](/docs/codemods/resolve-composition-component). Follows the same rules as the `composition` target.
+
 #### `{type: 'inside', node}`
 
 Appends the element as the last child of the JSX element referenced by `node`. Self-closing elements are expanded.
@@ -99,6 +103,10 @@ Inserts the element before the JSX element referenced by `node`. If the node has
 Inserts the element after the JSX element referenced by `node`, following the same rules as `before`.
 
 Obtain a `node` from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous result. See [node references](/docs/codemods#node-references).
+
+### prettierConfigOverride?
+
+Formatting options for generated source, such as `singleQuote`, `useTabs`, `tabWidth`, `printWidth`, and `bracketSpacing`. Defaults to `null`, which follows the existing source style.
 
 ## Return value
 
