@@ -42,7 +42,11 @@ type PrecompositionPlan = {
 	children: JSXFragment['children'];
 	end: number;
 	firstIndex: number;
-	hookProps: {name: string; hookName: string; kind: 'frame' | 'duration'}[];
+	hookProps: {
+		name: string;
+		hookName: string;
+		kind: 'frame' | 'duration' | 'fps';
+	}[];
 	logLine: number;
 	parent: JSXElement | JSXFragment | null;
 	rootPath: recast.types.NodePath | null;
@@ -397,7 +401,7 @@ const getPrecompositionPlan = ({
 	// component falls back to its own hooks when opened as a composition.
 	const hookProps = new Map<
 		string,
-		{name: string; hookName: string; kind: 'frame' | 'duration'}
+		{name: string; hookName: string; kind: 'frame' | 'duration' | 'fps'}
 	>();
 	const easingMethods = new Set([
 		'back',
@@ -438,6 +442,10 @@ const getPrecompositionPlan = ({
 						remotionImport === 'interpolate' &&
 						p.parentPath.node.type === 'CallExpression' &&
 						p.parentPath.node.callee === p.node;
+					const isSpringCall =
+						remotionImport === 'spring' &&
+						p.parentPath.node.type === 'CallExpression' &&
+						p.parentPath.node.callee === p.node;
 					const isEasingMember =
 						remotionImport === 'Easing' &&
 						p.parentPath.node.type === 'MemberExpression' &&
@@ -459,7 +467,7 @@ const getPrecompositionPlan = ({
 					let hookProp: {
 						name: string;
 						hookName: string;
-						kind: 'frame' | 'duration';
+						kind: 'frame' | 'duration' | 'fps';
 					} | null = null;
 					const functionNode = binding?.path.node as Node | undefined;
 					if (
@@ -509,24 +517,28 @@ const getPrecompositionPlan = ({
 										return false;
 									}
 
-									const matches = declaration.id.properties.some(
-										(property) =>
-											property.type === 'ObjectProperty' &&
-											!property.computed &&
-											property.key.type === 'Identifier' &&
-											property.key.name === 'durationInFrames' &&
-											property.value.type === 'Identifier' &&
-											property.value.name === p.node.name,
+									const property = declaration.id.properties.find(
+										(item) =>
+											item.type === 'ObjectProperty' &&
+											!item.computed &&
+											item.key.type === 'Identifier' &&
+											(item.key.name === 'durationInFrames' ||
+												item.key.name === 'fps') &&
+											item.value.type === 'Identifier' &&
+											item.value.name === p.node.name,
 									);
-									if (matches) {
+									if (
+										property?.type === 'ObjectProperty' &&
+										property.key.type === 'Identifier'
+									) {
 										hookProp = {
 											name: p.node.name,
 											hookName: init.callee.name,
-											kind: 'duration',
+											kind: property.key.name === 'fps' ? 'fps' : 'duration',
 										};
 									}
 
-									return matches;
+									return Boolean(property);
 								}),
 						);
 					}
@@ -542,6 +554,7 @@ const getPrecompositionPlan = ({
 								isStaticFileCallee ||
 								isStaticFileNamespace ||
 								isInterpolating ||
+								isSpringCall ||
 								isEasingMember)
 						) &&
 						!hookProp &&
@@ -661,6 +674,10 @@ const getPrecompositionPlan = ({
 					callee.type === 'Identifier' &&
 					remotionImports.get(callee.name) === 'interpolate' &&
 					p.scope.lookup(callee.name)?.path.node === ast.program;
+				const isNamedSpring =
+					callee.type === 'Identifier' &&
+					remotionImports.get(callee.name) === 'spring' &&
+					p.scope.lookup(callee.name)?.path.node === ast.program;
 				const isEasingMethod =
 					callee.type === 'MemberExpression' &&
 					!callee.computed &&
@@ -685,7 +702,12 @@ const getPrecompositionPlan = ({
 					(isNamedStaticFile || isNamespacedStaticFile) &&
 					args.length === 1 &&
 					args[0].type === 'StringLiteral';
-				if (!isSafeStaticFile && !isNamedInterpolate && !isEasingMethod) {
+				if (
+					!isSafeStaticFile &&
+					!isNamedInterpolate &&
+					!isNamedSpring &&
+					!isEasingMethod
+				) {
 					unsafeReason =
 						'The selected JSX contains a call that may change behavior';
 				}
@@ -730,7 +752,7 @@ const getPrecompositionPlan = ({
 				return false;
 			},
 			visitTemplateLiteral(p) {
-				if (p.node.loc?.start.line !== p.node.loc?.end.line) {
+				if (p.node.quasis.some((quasi) => /\r|\n/.test(quasi.value.raw))) {
 					unsafeReason = 'The selected JSX contains a multiline template';
 				}
 
@@ -1115,7 +1137,9 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		({name: propName, parentAlias, standaloneAlias, hookName, kind}) => [
 			kind === 'frame'
 				? `const ${standaloneAlias} = ${hookName}();`
-				: `const ${standaloneAlias} = ${metadata.durationInFrames};`,
+				: kind === 'fps'
+					? `const ${standaloneAlias} = ${hookName}().fps;`
+					: `const ${standaloneAlias} = ${metadata.durationInFrames};`,
 			`const ${propName} = ${parentAlias} ?? ${standaloneAlias};`,
 		],
 	);
