@@ -86,6 +86,7 @@ export const precomposeJsxNodesHandler: ApiHandler<
 					success: true,
 					...eligibility,
 					nodePathMutation: null,
+					newCompositionId: null,
 				});
 			}
 
@@ -154,7 +155,10 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				},
 				entryType: 'precompose-jsx-nodes',
 				suppressHmrOnFileRestore: false,
-				undoRedoNavigation: null,
+				undoRedoNavigation: {
+					undoRoute: `/${compositionId}`,
+					redoRoute: `/${result.newCompositionId}`,
+				},
 			});
 			for (const change of changes) {
 				const output = change.nextContents;
@@ -199,7 +203,12 @@ export const precomposeJsxNodesHandler: ApiHandler<
 			}
 
 			printUndoHint(logLevel);
-			return Promise.resolve({success: true, ...eligibility, nodePathMutation});
+			return Promise.resolve({
+				success: true,
+				...eligibility,
+				nodePathMutation,
+				newCompositionId: result.newCompositionId,
+			});
 		} catch (err) {
 			return Promise.resolve({
 				success: false,

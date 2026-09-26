@@ -939,6 +939,7 @@ export type PrecomposeJsxNodesResponse =
 			canPrecompose: boolean;
 			reason: string | null;
 			nodePathMutation: SequenceNodePathMutation | null;
+			newCompositionId: string | null;
 	  }
 	| {success: false; reason: string; stack: string};
 

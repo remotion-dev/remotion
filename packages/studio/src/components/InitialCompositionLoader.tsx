@@ -16,6 +16,14 @@ import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 import {useSelectAsset} from './use-select-asset';
 import {useStaticFiles} from './use-static-files';
 
+const pendingCompositionSelectionEvent =
+	'remotion-pending-composition-selection';
+
+export const selectCompositionWhenReady = (id: string) => {
+	pushUrl(`/${id}`);
+	window.dispatchEvent(new Event(pendingCompositionSelectionEvent));
+};
+
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
@@ -181,8 +189,12 @@ export const InitialCompositionLoader: React.FC = () => {
 
 		const navigationWindow = getNavigationWindow();
 		navigationWindow.addEventListener('popstate', onchange);
+		window.addEventListener(pendingCompositionSelectionEvent, onchange);
 
-		return () => navigationWindow.removeEventListener('popstate', onchange);
+		return () => {
+			navigationWindow.removeEventListener('popstate', onchange);
+			window.removeEventListener(pendingCompositionSelectionEvent, onchange);
+		};
 	}, [
 		compositions,
 		selectAsset,

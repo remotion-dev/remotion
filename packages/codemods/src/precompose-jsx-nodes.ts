@@ -1869,7 +1869,11 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		});
 	}
 
-	return {...getNodeEditResult({project, edits}), logLine};
+	return {
+		...getNodeEditResult({project, edits}),
+		logLine,
+		newCompositionId: name,
+	};
 };
 
 export const canPrecomposeJsxNodes = <Project extends CodemodProject>(

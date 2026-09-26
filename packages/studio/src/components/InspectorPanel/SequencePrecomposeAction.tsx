@@ -5,6 +5,7 @@ import {getConnectedCompositions} from '../../helpers/get-connected-compositions
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
+import {selectCompositionWhenReady} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {precomposeJsxNodes} from '../precompose-jsx-nodes-api';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
@@ -126,6 +127,10 @@ export const SequencePrecomposeAction: React.FC<{
 					dryRun: false,
 				});
 				if (result.success) {
+					if (result.newCompositionId !== null) {
+						selectCompositionWhenReady(result.newCompositionId);
+					}
+
 					return;
 				}
 

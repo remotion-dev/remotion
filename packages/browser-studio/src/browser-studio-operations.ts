@@ -1628,6 +1628,7 @@ export const createBrowserStudioOperations = ({
 					success: true,
 					...eligibility,
 					nodePathMutation: null,
+					newCompositionId: null,
 				});
 			}
 
@@ -1639,7 +1640,10 @@ export const createBrowserStudioOperations = ({
 
 			const result = precomposeJsxNodesCodemod(options);
 			const nodePathMutation = controller.applyMutation({
-				undoRedoNavigation: null,
+				undoRedoNavigation: {
+					undoRoute: `/${compositionId}`,
+					redoRoute: `/${result.newCompositionId}`,
+				},
 				timelineSelection: null,
 				fileName: result.changes
 					.map(({filePath: changed}) => changed)
@@ -1651,7 +1655,12 @@ export const createBrowserStudioOperations = ({
 				throw new Error('Could not pre-compose selected sequences');
 			}
 
-			return Promise.resolve({success: true, ...eligibility, nodePathMutation});
+			return Promise.resolve({
+				success: true,
+				...eligibility,
+				nodePathMutation,
+				newCompositionId: result.newCompositionId,
+			});
 		} catch (error) {
 			return Promise.resolve(getStructuredError(error));
 		}
