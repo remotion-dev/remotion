@@ -30,6 +30,10 @@ const transcription = await openai.audio.transcriptions.create({
 const {captions} = openAiWhisperApiToCaptions({transcription});
 ```
 
+## Input<AvailableFrom v="4.0.530" />
+
+Accepts a verbose JSON transcription with `text` and timed `words` (`word`, `start`, `end` in seconds). Word-level conversion reconstructs punctuation from the full text. If words are absent or empty, timed `segments` (`text`, `start`, `end` in seconds) produce one caption per segment, without invented word timings. Invalid supplied word timings throw an error rather than falling back to segments. A transcription without timed entries throws an actionable error. Conversion is local and never calls OpenAI.
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />

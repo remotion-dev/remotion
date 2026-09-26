@@ -3007,6 +3007,15 @@ export const articles = [
 		slug: 'electron',
 	},
 	{
+		id: 'elevenlabs/detect-elevenlabs-transcript-format',
+		title: 'detectElevenLabsTranscriptFormat()',
+		relativePath: 'docs/elevenlabs/detect-elevenlabs-transcript-format.mdx',
+		compId: 'articles-docs-elevenlabs-detect-elevenlabs-transcript-format',
+		crumb: '@remotion/elevenlabs',
+		noAi: false,
+		slug: 'elevenlabs/detect-elevenlabs-transcript-format',
+	},
+	{
 		id: 'elevenlabs/elevenlabs-transcript-to-captions',
 		title: 'elevenLabsTranscriptToCaptions()',
 		relativePath: 'docs/elevenlabs/elevenlabs-transcript-to-captions.mdx',
@@ -5624,6 +5633,15 @@ export const articles = [
 		crumb: 'Subtitle videos',
 		noAi: false,
 		slug: 'openai-whisper/index',
+	},
+	{
+		id: 'openai-whisper/is-openai-whisper-transcript',
+		title: 'isOpenAiWhisperTranscript()',
+		relativePath: 'docs/openai-whisper/is-openai-whisper-transcript.mdx',
+		compId: 'articles-docs-openai-whisper-is-openai-whisper-transcript',
+		crumb: '@remotion/openai-whisper',
+		noAi: false,
+		slug: 'openai-whisper/is-openai-whisper-transcript',
 	},
 	{
 		id: 'openai-whisper/openai-whisper-api-to-captions',

@@ -1,0 +1,34 @@
+---
+image: /generated/articles-docs-openai-whisper-is-openai-whisper-transcript.png
+title: isOpenAiWhisperTranscript()
+crumb: '@remotion/openai-whisper'
+---
+
+# isOpenAiWhisperTranscript()<AvailableFrom v="4.0.530" />
+
+Recognizes structural signatures of an OpenAI Whisper verbose JSON transcription. This function does not validate a transcript: recognizable malformed input may return `true`. Use [`openAiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) to validate and convert it.
+
+```ts title="recognize.ts"
+import {isOpenAiWhisperTranscript} from '@remotion/openai-whisper';
+
+const recognized = isOpenAiWhisperTranscript(input);
+// boolean
+```
+
+## API
+
+### `input`
+
+An unknown value, such as parsed JSON. Recognition does not depend on the file name and does not throw for malformed values.
+
+## Return value
+
+A boolean indicating whether a Whisper verbose transcription signature was recognized. `true` does not establish that its fields or timings are valid.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`openAiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions)

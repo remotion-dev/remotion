@@ -373,7 +373,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							<p className={styles.description} style={{marginTop: 8}}>
 								Have captions?{' '}
 								<a href="/elements/captions/#importing-captions-into-studio">
-									Import Remotion Caption[] JSON from Studio.
+									Import captions from JSON or SRT in Studio.
 								</a>
 							</p>
 						) : null}

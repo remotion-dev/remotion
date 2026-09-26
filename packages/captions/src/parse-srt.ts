@@ -33,19 +33,118 @@ function toMilliseconds(time: string) {
 
 export type ParseSrtInput = {
 	input: string;
+	strict?: boolean;
 };
 
 export type ParseSrtOutput = {
 	captions: Caption[];
 };
 
-export const parseSrt = ({input}: ParseSrtInput): ParseSrtOutput => {
+export const parseSrt = ({
+	input,
+	strict = false,
+}: ParseSrtInput): ParseSrtOutput => {
 	const inputLines = input
 		.replace(/^\uFEFF/, '')
 		.replace(/\r\n/g, '\n')
 		.replace(/\r/g, '\n')
 		.split('\n');
 	const captions: Caption[] = [];
+
+	if (strict) {
+		const timestamp = (token: string, cue: number, line: number): number => {
+			const match = /^(\d+):(\d{2}):(\d{2})[,.](\d{3})$/.exec(token);
+			if (!match || Number(match[2]) > 59 || Number(match[3]) > 59) {
+				throw new Error(
+					`SRT cue ${cue}, line ${line}: invalid timestamp "${token}". Use HH:MM:SS,mmm.`,
+				);
+			}
+
+			const value =
+				Number(match[1]) * 3600000 +
+				Number(match[2]) * 60000 +
+				Number(match[3]) * 1000 +
+				Number(match[4]);
+			if (!Number.isFinite(value)) {
+				throw new Error(
+					`SRT cue ${cue}, line ${line}: timestamp is too large.`,
+				);
+			}
+
+			return value;
+		};
+
+		let i = 0;
+		while (i < inputLines.length) {
+			if (inputLines[i].trim() === '') {
+				i++;
+				continue;
+			}
+
+			const cue = captions.length + 1;
+			const headerLine = i + 1;
+			if (!/^\d+$/.test(inputLines[i].trim())) {
+				throw new Error(
+					`SRT cue ${cue}, line ${headerLine}: expected a numeric cue index.`,
+				);
+			}
+
+			i++;
+			const timingLine = inputLines[i];
+			const timing = timingLine?.match(/^\s*(\S+)\s+-->\s+(\S+)(.*)$/);
+			const settings = timing?.[3].trim();
+			if (
+				!timing ||
+				(settings &&
+					!settings
+						.split(/\s+/)
+						.every((setting) =>
+							/^(?:(?:X[12]|Y[12]):\d+|(?:align|position|line|size|vertical):\S+)$/.test(
+								setting,
+							),
+						))
+			) {
+				throw new Error(
+					`SRT cue ${cue}, line ${i + 1}: expected start --> end timestamps.`,
+				);
+			}
+
+			const startMs = timestamp(timing[1], cue, i + 1);
+			const endMs = timestamp(timing[2], cue, i + 1);
+			if (endMs < startMs) {
+				throw new Error(
+					`SRT cue ${cue}, line ${i + 1}: end must not be earlier than start.`,
+				);
+			}
+
+			i++;
+			const text: string[] = [];
+			while (i < inputLines.length && inputLines[i].trim() !== '') {
+				text.push(inputLines[i]);
+				i++;
+			}
+
+			if (text.length === 0) {
+				throw new Error(`SRT cue ${cue}, line ${i + 1}: expected cue text.`);
+			}
+
+			captions.push({
+				text: text.join('\n').trimEnd(),
+				startMs,
+				endMs,
+				timestampMs: (startMs + endMs) / 2,
+				confidence: 1,
+			});
+		}
+
+		if (captions.length === 0) {
+			throw new Error(
+				'SRT: No timed captions found. Provide numbered cues with timestamps and text.',
+			);
+		}
+
+		return {captions};
+	}
 
 	for (let i = 0; i < inputLines.length; i++) {
 		const line = inputLines[i];

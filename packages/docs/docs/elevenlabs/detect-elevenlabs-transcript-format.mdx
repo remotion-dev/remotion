@@ -1,0 +1,34 @@
+---
+image: /generated/articles-docs-elevenlabs-detect-elevenlabs-transcript-format.png
+title: detectElevenLabsTranscriptFormat()
+crumb: '@remotion/elevenlabs'
+---
+
+# detectElevenLabsTranscriptFormat()<AvailableFrom v="4.0.530" />
+
+Recognizes the structure of an ElevenLabs Speech-to-Text response or segmented JSON export. This function does not validate a transcript: identifiable malformed data may be recognized. Use [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions) to validate and convert it.
+
+```ts title="recognize.ts"
+import {detectElevenLabsTranscriptFormat} from '@remotion/elevenlabs';
+
+const format = detectElevenLabsTranscriptFormat(input);
+// 'speech-to-text' | 'segmented' | null
+```
+
+## API
+
+### `input`
+
+An unknown value, such as parsed JSON. Recognition does not depend on the file name and does not throw for malformed values.
+
+## Return value
+
+`'speech-to-text'`, `'segmented'`, or `null` for unrecognized values. A non-null result does not imply valid timestamps or a valid transcript.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions)
