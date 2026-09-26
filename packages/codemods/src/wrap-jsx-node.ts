@@ -29,17 +29,21 @@ export type WrapJsxNodeOptions<Project extends CodemodProject> = {
 	wrapper: CodemodElement;
 };
 
+// Recognizes canvas wrappers whether they are imported by the wrapper or
+// already in scope in the file (no importPath).
 const getHtmlInCanvasWrapperName = (wrapper: CodemodElement) => {
+	const exportName = wrapper.importName ?? wrapper.component;
 	if (
-		wrapper.importPath === 'remotion' &&
-		wrapper.component === 'HtmlInCanvas'
+		exportName === 'HtmlInCanvas' &&
+		(wrapper.importPath === null || wrapper.importPath === 'remotion')
 	) {
 		return 'HtmlInCanvas';
 	}
 
 	if (
-		wrapper.importPath === '@remotion/motion-blur' &&
-		wrapper.component === 'HtmlInCanvasMotionBlur'
+		exportName === 'HtmlInCanvasMotionBlur' &&
+		(wrapper.importPath === null ||
+			wrapper.importPath === '@remotion/motion-blur')
 	) {
 		return 'HtmlInCanvasMotionBlur';
 	}

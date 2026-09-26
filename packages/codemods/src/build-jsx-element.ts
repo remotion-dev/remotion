@@ -4,8 +4,7 @@ import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import type {CodemodElement} from './codemod-element';
 import type {CodemodValue} from './codemod-value';
-import {ensureOfficialNamedImport} from './insert-jsx-element';
-import {ensureNamedImports} from './sequence-props/imports';
+import {ensureOfficialNamedImport} from './sequence-props/imports';
 import {parseValueExpression} from './update-nested-prop';
 
 const b = recast.types.builders;
@@ -86,17 +85,33 @@ export const buildJsxElement = ({
 			return b.jsxAttribute(buildAttributeName(name), b.stringLiteral(value));
 		}
 
+		const expression = parseValueExpression(value);
 		if (containsFileToken(value)) {
-			ensureNamedImports({
+			// The serializer writes `staticFile(...)`; point the calls at the
+			// import's local name if that name is taken in this file.
+			const staticFileLocalName = ensureOfficialNamedImport({
 				ast,
-				importedNames: new Set(['staticFile']),
+				importedName: 'staticFile',
 				sourcePath: 'remotion',
+				preferredLocalName: 'staticFile',
 			});
+			if (staticFileLocalName !== 'staticFile') {
+				recast.types.visit(expression, {
+					visitCallExpression(path) {
+						const {callee} = path.node;
+						if (callee.type === 'Identifier' && callee.name === 'staticFile') {
+							callee.name = staticFileLocalName;
+						}
+
+						this.traverse(path);
+					},
+				});
+			}
 		}
 
 		return b.jsxAttribute(
 			buildAttributeName(name),
-			b.jsxExpressionContainer(parseValueExpression(value)),
+			b.jsxExpressionContainer(expression),
 		);
 	});
 	const children = element.children.map(

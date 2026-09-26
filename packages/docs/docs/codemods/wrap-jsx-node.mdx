@@ -49,7 +49,7 @@ The reference of the JSX element to wrap. See [node references](/docs/codemods#n
 
 ### wrapper
 
-The wrapper element, created with [`createElement()`](/docs/codemods/create-element). It must not have children. Wrapping in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) requires positive integer `width` and `height` props and is rejected inside or around another `<HtmlInCanvas>`.
+The wrapper element, created with [`createElement()`](/docs/codemods/create-element). It must not have children. Wrapping in [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) or [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) requires positive integer `width` and `height` props and is rejected inside or around another canvas wrapper, whether the wrapper is imported by the element or already in scope.
 
 ## Return value
 

@@ -1,10 +1,8 @@
 import type {
-	ClassDeclaration,
 	ExportAllDeclaration,
 	ExportNamedDeclaration,
 	ExportSpecifier,
 	File,
-	FunctionDeclaration,
 	ImportDeclaration,
 	ImportDefaultSpecifier,
 	JSXAttribute,
@@ -13,7 +11,6 @@ import type {
 	JSXSpreadAttribute,
 	NullLiteral,
 	ObjectProperty,
-	VariableDeclaration,
 } from '@babel/types';
 import type {
 	InsertJsxElementRequest,
@@ -32,8 +29,12 @@ import {
 import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
+	declarationBindsName,
 	ensureNamedImport,
+	ensureStaticFileBinding,
+	getImportDeclarations,
 	getImportedName,
+	hasTopLevelBinding,
 	insertImportDeclaration,
 } from './sequence-props/imports';
 import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
@@ -1139,53 +1140,6 @@ const addElementToNullComponentReturn = ({
 	return returnStatement.loc?.start.line ?? 1;
 };
 
-const declarationBindsName = (
-	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
-	name: string,
-) => {
-	if (
-		declaration.type === 'FunctionDeclaration' ||
-		declaration.type === 'ClassDeclaration'
-	) {
-		return declaration.id?.name === name;
-	}
-
-	return declaration.declarations.some((variableDeclaration) => {
-		return (
-			variableDeclaration.id.type === 'Identifier' &&
-			variableDeclaration.id.name === name
-		);
-	});
-};
-
-const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
-	return ast.program.body.some((node) => {
-		if (
-			node.type === 'FunctionDeclaration' ||
-			node.type === 'ClassDeclaration' ||
-			node.type === 'VariableDeclaration'
-		) {
-			return declarationBindsName(node, name);
-		}
-
-		if (
-			node.type === 'ExportNamedDeclaration' &&
-			node.declaration &&
-			(node.declaration.type === 'FunctionDeclaration' ||
-				node.declaration.type === 'ClassDeclaration' ||
-				node.declaration.type === 'VariableDeclaration')
-		) {
-			return declarationBindsName(node.declaration, name);
-		}
-
-		if (node.type !== 'ImportDeclaration') {
-			return false;
-		}
-
-		return node.specifiers?.some((specifier) => specifier.local?.name === name);
-	});
-};
-
 const getAvailableSequenceLocalName = (ast: File) => {
 	const candidates = ['Sequence', 'RemotionSequence'];
 	const available = candidates.find((candidate) => {
@@ -1245,68 +1199,6 @@ const ensureInteractiveImport = (ast: File) => {
 		importedName: 'Interactive',
 		sourcePath: 'remotion',
 		localName,
-	});
-};
-
-const getImportDeclarations = ({
-	ast,
-	sourcePath,
-}: {
-	ast: File;
-	sourcePath: string;
-}) => {
-	return ast.program.body.filter(
-		(node): node is ImportDeclaration =>
-			node.type === 'ImportDeclaration' &&
-			node.source.type === 'StringLiteral' &&
-			node.source.value === sourcePath,
-	);
-};
-
-// Reuses an existing import of the export, otherwise imports it under the
-// preferred local name, adding a numeric suffix when that name is taken.
-export const ensureOfficialNamedImport = ({
-	ast,
-	importedName,
-	sourcePath,
-	preferredLocalName,
-}: {
-	ast: File;
-	importedName: string;
-	sourcePath: string;
-	preferredLocalName: string;
-}) => {
-	for (const declaration of getImportDeclarations({ast, sourcePath})) {
-		if (declaration.importKind === 'type') {
-			continue;
-		}
-
-		const existing = declaration.specifiers.find(
-			(specifier) =>
-				specifier.type === 'ImportSpecifier' &&
-				specifier.importKind !== 'type' &&
-				getImportedName(specifier) === importedName,
-		);
-		if (existing) {
-			return existing.local?.name ?? importedName;
-		}
-	}
-
-	let localName = preferredLocalName;
-	let suffix = 2;
-	while (hasTopLevelBinding({ast, name: localName})) {
-		localName = `${preferredLocalName}${suffix++}`;
-	}
-
-	return ensureNamedImport({ast, importedName, sourcePath, localName});
-};
-
-const ensureStaticFileImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'staticFile',
-		sourcePath: 'remotion',
-		preferredLocalName: 'staticFile',
 	});
 };
 
@@ -2225,7 +2117,7 @@ const createInsertableJsxElement = ({
 			element.serializedResolvedPropsWithCustomSchema,
 		);
 		if (containsFileToken(props)) {
-			ensureStaticFileImport(ast);
+			ensureStaticFileBinding(ast);
 		}
 
 		return createCompositionComponentElement({localName, props});

@@ -241,12 +241,13 @@ export const printInsertedJsx = ({
 					.join(endOfLine);
 			}
 
+			// String attributes need JSX entity escaping, which the generic
+			// printer does not apply. This covers `xlink:href` style names too.
 			if (
 				attribute.type === 'JSXAttribute' &&
-				attribute.name.type === 'JSXIdentifier' &&
 				attribute.value?.type === 'StringLiteral'
 			) {
-				return `${attribute.name.name}="${escapeJsxStringAttribute(attribute.value.value)}"`;
+				return `${printNode(attribute.name, printWidth)}="${escapeJsxStringAttribute(attribute.value.value)}"`;
 			}
 
 			const printed = normalizeIndentation(

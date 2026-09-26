@@ -685,6 +685,47 @@ test('addElement returns remappings usable by public discovery and targets nodes
 			wrapper: createElement({component: 'div', children: ['x']}),
 		}),
 	).toThrow('cannot have children');
+	// Canvas wrappers are validated even when they reuse an existing import.
+	expect(() =>
+		wrapJsxNode({
+			project: afterBefore,
+			node: div,
+			wrapper: createElement({
+				component: 'HtmlInCanvas',
+				props: {width: 0, height: 0},
+			}),
+		}),
+	).toThrow('positive integer dimensions');
+	const conflicting = {
+		rootDir: '/',
+		files: {
+			'svg.tsx': `import {staticFile} from './util';\nexport const Icon = () => <svg />;\n`,
+		},
+	};
+	const escaped = addElement({
+		project: conflicting,
+		element: createElement({
+			component: 'use',
+			props: {'xlink:href': 'a"b&amp;<c>', href: staticFileValue('x.png')},
+		}),
+		target: {
+			type: 'inside',
+			node: getJsxNodes({project: conflicting, filePath: 'svg.tsx'})[0],
+		},
+	});
+	expect(getChangedContents(escaped, 'svg.tsx')).toContain(
+		`<use xlink:href="a&quot;b&amp;amp;&lt;c&gt;" href={staticFile2('x.png')} />`,
+	);
+	expect(getChangedContents(escaped, 'svg.tsx')).toContain(
+		"import {staticFile as staticFile2} from 'remotion';",
+	);
+	expect(() =>
+		updateJsxNodeProps({
+			project: conflicting,
+			node: getJsxNodes({project: conflicting, filePath: 'svg.tsx'})[0],
+			props: {href: staticFileValue('x.png')},
+		}),
+	).toThrow('already bound');
 	expect(() =>
 		createElement({component: 'div', importPath: 'remotion'}),
 	).toThrow('uppercase');
