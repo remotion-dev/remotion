@@ -181,6 +181,7 @@ import {SequenceWithoutSchema} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
+	DisableSequenceRegistrationProvider,
 	makeSequencePropsSubscriptionKey,
 	SequenceManager,
 	SequenceManagerProvider,
@@ -348,6 +349,7 @@ export const Internals = {
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
 	SequenceRegistrationContext,
+	DisableSequenceRegistrationProvider,
 	CommitOrderInternals,
 	SequenceOutlineInternals,
 	SequenceOutlineContext,
