@@ -83,13 +83,13 @@ Crops the video from the top by a ratio between `0` and `1`. See [`cropTop`](/do
 
 Crops the video from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
 
-### `from?`<AvailableFrom v="4.0.445" />
+### `from?`<AvailableFrom v="4.0.446" />
 
 At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
 
-### `durationInFrames?`<AvailableFrom v="4.0.445" />
+### `durationInFrames?`<AvailableFrom v="4.0.446" />
 
-For how many frames the clip stays mounted. Default is `Infinity`. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
+Selects this many source frames starting at `trimBefore`, unless `trimAfter` ends the range earlier. The clip occupies `durationInFrames / playbackRate` frames on the parent timeline, or uses this range as its loop when `loop` is enabled. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
 
 :::note
 You can still wrap `<Video>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
@@ -155,7 +155,7 @@ export const MyComposition = () => {
 
 ### `trimAfter?`
 
-Removes a portion of the video at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
+Removes a portion of the video at the end (right side). If `durationInFrames` ends the range earlier, the shorter range is used. See [`trimBefore`](#trimbefore) for an explanation.
 
 ### `volume?`
 

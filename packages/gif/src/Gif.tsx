@@ -85,8 +85,6 @@ const GifInner = ({
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore: sequenceProps.trimBefore,
-			trimAfter: sequenceProps.trimAfter,
 			playbackRate,
 			loop: sequenceProps.loop,
 		}),
@@ -141,7 +139,7 @@ const GifInner = ({
 				layout="none"
 				from={from ?? 0}
 				playbackRate={playbackRate}
-				durationInFrames={durationInFrames ?? Infinity}
+				durationInFrames={durationInFrames}
 				name="<Gif>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
 				controls={controls}

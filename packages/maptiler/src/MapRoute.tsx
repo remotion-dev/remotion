@@ -293,7 +293,6 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 		premountFor,
 		postmountFor,
 		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 		freeze,
@@ -319,8 +318,6 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -337,7 +334,6 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}

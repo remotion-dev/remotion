@@ -131,7 +131,7 @@ test('preserves the Player media playback rate across source changes and reloads
 				shortSequence && 'volume' in shortSequence
 					? shortSequence.volume
 					: null,
-			).toBe('0.25,0.5');
+			).toBe('0.25,0.5,1.25,2.5');
 			playerRef.current!.seekTo(11);
 			await expect.poll(() => shortVideoRef.current?.volume).toBe(0.5);
 			playerRef.current!.seekTo(30);
@@ -259,7 +259,7 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 				.toBe(4);
 
 			const frames = useThreeLevels
-				? [50, 49, 50, 80, 81, 110, 111, 141, 142, 154, 20, 50]
+				? [50, 49, 50, 20, 21, 48, 49, 50, 51, 65, 66, 20, 50]
 				: [7, 26, 27, 28, 51, 52, 53, 126, 127, 128, 377, 376, 27, 7];
 			for (const frame of frames) {
 				playerRef.current!.seekTo(frame);
@@ -291,7 +291,7 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 					const samples = String(layer && 'volume' in layer ? layer.volume : '')
 						.split(',')
 						.map(Number);
-					expect(samples).toHaveLength(useThreeLevels ? 135 : 493);
+					expect(samples).toHaveLength(useThreeLevels ? 47 : 493);
 					expect(
 						samples[frame - (useThreeLevels ? 20 : 7)],
 						`${type} timeline volume at frame ${frame}, media rate ${mediaRate}`,
@@ -305,7 +305,7 @@ test('seeks trimmed HTML5 loops across fractional boundaries under nested sequen
 			}
 
 			if (useThreeLevels) {
-				playerRef.current!.seekTo(155);
+				playerRef.current!.seekTo(67);
 				await expect.poll(() => videoRef.current).toBeNull();
 				await expect.poll(() => audioRef.current).toBeNull();
 			}

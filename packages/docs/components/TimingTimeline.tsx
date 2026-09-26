@@ -4,21 +4,19 @@ export const TimingTimeline: React.FC<{
 	readonly from: number;
 	readonly durationInFrames?: number;
 	readonly trimBefore: number;
-	readonly trimAfter: number | null;
 	readonly playbackRate: number;
 	readonly loop: boolean;
-}> = ({from, durationInFrames, trimBefore, trimAfter, playbackRate, loop}) => {
+}> = ({from, durationInFrames, trimBefore, playbackRate, loop}) => {
 	const [frame, setFrame] = useState(from);
 	const scrubbingPointer = useRef<number | null>(null);
 	const totalFrames = loop ? 120 : 90;
 	const fps = 30;
-	const sourceRange = trimAfter === null ? null : trimAfter - trimBefore;
+	const sourceRange = durationInFrames ?? null;
 	const cycleDuration =
 		sourceRange === null ? null : sourceRange / playbackRate;
-	const displayedDuration = Math.min(
-		durationInFrames ?? totalFrames - from,
-		loop || cycleDuration === null ? Infinity : cycleDuration,
-	);
+	const displayedDuration = loop
+		? totalFrames - from
+		: Math.min(cycleDuration ?? Infinity, totalFrames - from);
 	const localFrame =
 		frame >= from && frame < from + displayedDuration
 			? (loop && sourceRange !== null

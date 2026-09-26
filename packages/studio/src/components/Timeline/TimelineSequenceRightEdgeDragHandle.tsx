@@ -184,11 +184,10 @@ const baseStyle: React.CSSProperties = {
 	touchAction: 'none',
 };
 
-// The right edge edits whichever prop currently defines the end of the item.
-// `trimAfter` is measured in the child clock, so parent-frame drags are
-// converted through `trimBefore` and `playbackRate`.
+// `durationInFrames` is measured in the child clock, so parent-frame drags are
+// converted through `playbackRate`.
 export type TimelineSequenceEndField = {
-	readonly fieldKey: 'durationInFrames' | 'trimAfter';
+	readonly fieldKey: 'durationInFrames';
 	readonly trimBefore: number;
 	readonly playbackRate: number;
 };
@@ -215,9 +214,6 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly playbackRate: number;
 	readonly positionField: 'from' | null;
 	readonly schema: InteractivitySchema;
-	// When `trimAfter` defines the end, moving `trimBefore` keeps the end in
-	// place by itself and `durationInFrames` stays untouched.
-	readonly writesDuration: boolean;
 };
 
 export type TimelineSequenceFromDragTarget = {
@@ -359,10 +355,11 @@ const getMinimumSequenceDuration = ({
 	);
 };
 
-// Only `<Loop>` registers a loop display without controls. Items with controls
-// own their `loop` prop, so their edges stay editable while looping.
 export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 	const isInteractiveCascadingSequence = isCascadingSequence(sequence);
+	if (sequence.loopDisplay) {
+		return false;
+	}
 
 	return (
 		(sequence.type === 'sequence' ||
@@ -430,20 +427,7 @@ export const getTimelineSequenceEndField = ({
 	const playbackRate = getTrimPlaybackRate({sequence, runtimeValues});
 	const trimBefore =
 		typeof runtimeValues.trimBefore === 'number' ? runtimeValues.trimBefore : 0;
-	const {trimAfter, durationInFrames} = runtimeValues;
-	// A looped item repeats its trim range, so its end is always the duration.
-	const endsAtTrimAfter =
-		runtimeValues.loop !== true &&
-		typeof trimAfter === 'number' &&
-		Number.isFinite(trimAfter) &&
-		(typeof durationInFrames !== 'number' ||
-			(trimAfter - trimBefore) / playbackRate < durationInFrames);
-
-	return {
-		fieldKey: endsAtTrimAfter ? 'trimAfter' : 'durationInFrames',
-		trimBefore,
-		playbackRate,
-	};
+	return {fieldKey: 'durationInFrames', trimBefore, playbackRate};
 };
 
 export const getTimelineSequenceEndFieldValue = ({
@@ -453,11 +437,7 @@ export const getTimelineSequenceEndFieldValue = ({
 	readonly endField: TimelineSequenceEndField;
 	readonly durationInFrames: number;
 }) => {
-	if (endField.fieldKey === 'durationInFrames') {
-		return durationInFrames;
-	}
-
-	return endField.trimBefore + durationInFrames * endField.playbackRate;
+	return durationInFrames * endField.playbackRate;
 };
 
 const isFromDraggableSequence = (sequence: TSequence) => {
@@ -565,15 +545,12 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			});
 		}
 
-		if (
-			target.writesDuration &&
-			nextValues.durationInFrames !== target.initialDuration
-		) {
+		if (nextValues.durationInFrames !== target.initialDuration) {
 			changes.push({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
 				fieldKey: 'durationInFrames',
-				value: nextValues.durationInFrames,
+				value: nextValues.durationInFrames * target.playbackRate,
 				defaultValue: null,
 				schema: target.schema,
 			});
@@ -1038,11 +1015,6 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				}),
 				positionField,
 				schema: controls.schema,
-				writesDuration:
-					getTimelineSequenceEndField({
-						sequence: originalSequence,
-						runtimeValues,
-					}).fieldKey === 'durationInFrames',
 			});
 		}
 	}
@@ -1512,13 +1484,13 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						);
 					}
 
-					if (target.writesDuration) {
-						latestRef.current.setDragOverrides(
-							target.nodePath,
-							'durationInFrames',
-							Internals.makeStaticDragOverride(nextValues.durationInFrames),
-						);
-					}
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						'durationInFrames',
+						Internals.makeStaticDragOverride(
+							nextValues.durationInFrames * target.playbackRate,
+						),
+					);
 
 					latestRef.current.setDragOverrides(
 						target.nodePath,

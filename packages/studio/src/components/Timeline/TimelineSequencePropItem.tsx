@@ -101,50 +101,13 @@ const isResettableStatus = ({
 	return JSON.stringify(effectiveCodeValue) !== JSON.stringify(defaultValue);
 };
 
-const getPlaybackRateAdjustedDuration = ({
-	durationInFrames,
-	previousPlaybackRate,
-	playbackRate,
-}: {
-	readonly durationInFrames: number;
-	readonly previousPlaybackRate: number;
-	readonly playbackRate: number;
-}): number | null => {
-	const adjustedDuration =
-		(durationInFrames * previousPlaybackRate) / playbackRate;
-	if (!Number.isFinite(adjustedDuration) || adjustedDuration <= 0) {
-		return null;
-	}
-
-	const nearestInteger = Math.round(adjustedDuration);
-	return nearestInteger > 0 &&
-		Math.abs(adjustedDuration - nearestInteger) <=
-			Number.EPSILON * Math.max(1, Math.abs(adjustedDuration)) * 2
-		? nearestInteger
-		: adjustedDuration;
-};
-
 const Value: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly validatedLocation: CodePosition;
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
-	readonly durationPropStatus: CanUpdateSequencePropStatus | null;
-}> = ({
-	field,
-	nodePath,
-	validatedLocation,
-	schema,
-	propStatus,
-	durationPropStatus,
-}) => {
-	const playbackRateBaseline = useRef<{
-		durationInFrames: number;
-		playbackRate: number;
-		lastSavedDurationInFrames: number;
-		lastSavedPlaybackRate: number;
-	} | null>(null);
+}> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
 	const previewedKeyframes = useRef<
 		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
 	>([]);
@@ -196,21 +159,21 @@ const Value: React.FC<{
 			sequencesRef,
 		],
 	);
-	// Items without an intrinsic duration need `trimAfter` to loop. Filling it
+	// Items without an intrinsic duration need a finite loop range. Filling it
 	// with the current end keeps the output unchanged until the clip is extended.
-	const getLoopTrimAfter = useCallback(
+	const getLoopDurationChange = useCallback(
 		(value: unknown): number | null => {
-			if (field.key !== 'loop' || value !== true || !schema.trimAfter) {
+			if (field.key !== 'loop' || value !== true || !schema.durationInFrames) {
 				return null;
 			}
 
-			const trimAfterStatus = Internals.getPropStatusesCtx(
+			const durationStatus = Internals.getPropStatusesCtx(
 				propStatusesRef.current,
 				nodePath,
-			)?.trimAfter;
+			)?.durationInFrames;
 			if (
-				trimAfterStatus?.status !== 'static' ||
-				trimAfterStatus.codeValue !== undefined
+				durationStatus?.status !== 'static' ||
+				durationStatus.codeValue !== undefined
 			) {
 				return null;
 			}
@@ -233,83 +196,15 @@ const Value: React.FC<{
 				return null;
 			}
 
-			const runtimeTrimBefore =
-				sequence.controls?.runtimeValues.getSnapshot().trimBefore;
-			const trimBefore =
-				typeof runtimeTrimBefore === 'number' ? runtimeTrimBefore : 0;
-
-			return trimBefore + sequence.duration * sequence.sequencePlaybackRate;
+			return sequence.duration * sequence.sequencePlaybackRate;
 		},
 		[
 			field.key,
 			nodePath,
 			overrideIdToNodePathMappings,
 			propStatusesRef,
-			schema.trimAfter,
+			schema,
 			sequencesRef,
-		],
-	);
-	const getAdjustedDuration = useCallback(
-		(playbackRate: unknown): number | null => {
-			if (
-				field.key !== 'playbackRate' ||
-				!schema.durationInFrames ||
-				durationPropStatus?.status !== 'static' ||
-				typeof durationPropStatus.codeValue !== 'number' ||
-				!Number.isFinite(durationPropStatus.codeValue) ||
-				typeof playbackRate !== 'number' ||
-				!Number.isFinite(playbackRate) ||
-				playbackRate <= 0
-			) {
-				return null;
-			}
-
-			const currentPlaybackRate =
-				typeof propStatus.codeValue === 'number'
-					? propStatus.codeValue
-					: field.fieldSchema.default;
-			if (
-				typeof currentPlaybackRate !== 'number' ||
-				!Number.isFinite(currentPlaybackRate) ||
-				currentPlaybackRate <= 0
-			) {
-				return null;
-			}
-
-			const currentDuration = durationPropStatus.codeValue;
-			let baseline = playbackRateBaseline.current;
-			// Keep the first duration and rate across successive rate edits. A change
-			// to either prop outside this control starts a new baseline.
-			if (
-				baseline === null ||
-				!(
-					(currentDuration === baseline.durationInFrames &&
-						currentPlaybackRate === baseline.playbackRate) ||
-					(currentDuration === baseline.lastSavedDurationInFrames &&
-						currentPlaybackRate === baseline.lastSavedPlaybackRate)
-				)
-			) {
-				baseline = {
-					durationInFrames: currentDuration,
-					playbackRate: currentPlaybackRate,
-					lastSavedDurationInFrames: currentDuration,
-					lastSavedPlaybackRate: currentPlaybackRate,
-				};
-				playbackRateBaseline.current = baseline;
-			}
-
-			return getPlaybackRateAdjustedDuration({
-				durationInFrames: baseline.durationInFrames,
-				previousPlaybackRate: baseline.playbackRate,
-				playbackRate,
-			});
-		},
-		[
-			durationPropStatus,
-			field.fieldSchema.default,
-			field.key,
-			propStatus.codeValue,
-			schema.durationInFrames,
 		],
 	);
 	const {getDragOverrides} = useContext(
@@ -356,8 +251,7 @@ const Value: React.FC<{
 
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
-			const adjustedDuration = getAdjustedDuration(value);
-			const loopTrimAfter = getLoopTrimAfter(value);
+			const loopDurationChange = getLoopDurationChange(value);
 
 			if (value === propStatus.codeValue) {
 				return Promise.resolve();
@@ -368,12 +262,6 @@ const Value: React.FC<{
 				propStatus.codeValue === undefined
 			) {
 				return Promise.resolve();
-			}
-
-			if (adjustedDuration !== null && playbackRateBaseline.current) {
-				playbackRateBaseline.current.lastSavedDurationInFrames =
-					adjustedDuration;
-				playbackRateBaseline.current.lastSavedPlaybackRate = value as number;
 			}
 
 			return unstable_batchedUpdates(() =>
@@ -393,26 +281,14 @@ const Value: React.FC<{
 									? {type: 'playback-rate'}
 									: options?.sourceEdit,
 						},
-						...(adjustedDuration === null
+						...(loopDurationChange === null
 							? []
 							: [
 									{
 										fileName: validatedLocation.source,
 										nodePath,
 										fieldKey: 'durationInFrames',
-										value: adjustedDuration,
-										defaultValue: null,
-										schema,
-									},
-								]),
-						...(loopTrimAfter === null
-							? []
-							: [
-									{
-										fileName: validatedLocation.source,
-										nodePath,
-										fieldKey: 'trimAfter',
-										value: loopTrimAfter,
+										value: loopDurationChange,
 										defaultValue: null,
 										schema,
 									},
@@ -432,8 +308,7 @@ const Value: React.FC<{
 			field.fieldSchema.default,
 			field.fieldSchema.type,
 			field.key,
-			getAdjustedDuration,
-			getLoopTrimAfter,
+			getLoopDurationChange,
 			nodePath,
 			schema,
 			setPropStatuses,
@@ -447,7 +322,6 @@ const Value: React.FC<{
 				throw new Error('Cannot drag value');
 			}
 
-			const adjustedDuration = getAdjustedDuration(value);
 			const keyframeChanges = getPlaybackRateChanges(value);
 			unstable_batchedUpdates(() => {
 				for (const preview of previewedKeyframes.current) {
@@ -464,14 +338,6 @@ const Value: React.FC<{
 					field.key,
 					Internals.makeStaticDragOverride(value),
 				);
-				if (adjustedDuration !== null) {
-					setDragOverrides(
-						nodePath,
-						'durationInFrames',
-						Internals.makeStaticDragOverride(adjustedDuration),
-					);
-				}
-
 				for (const preview of previewedKeyframes.current) {
 					if (preview.effectIndex === null) {
 						setDragOverrides(preview.nodePath, preview.fieldKey, {
@@ -496,7 +362,6 @@ const Value: React.FC<{
 			setEffectDragOverrides,
 			nodePath,
 			field.key,
-			getAdjustedDuration,
 			getPlaybackRateChanges,
 		],
 	);
@@ -841,34 +706,6 @@ export const TimelineSequencePropItem: React.FC<{
 				? JSON.stringify(field.fieldSchema.default)
 				: null;
 		const fieldLabel = field.description ?? field.key;
-		const previousPlaybackRate =
-			field.key === 'playbackRate' &&
-			propStatus.status === 'static' &&
-			typeof propStatus.codeValue === 'number'
-				? propStatus.codeValue
-				: null;
-		const nextPlaybackRate = field.fieldSchema.default;
-		const canRetime =
-			previousPlaybackRate !== null &&
-			Number.isFinite(previousPlaybackRate) &&
-			previousPlaybackRate > 0 &&
-			typeof nextPlaybackRate === 'number' &&
-			Number.isFinite(nextPlaybackRate) &&
-			nextPlaybackRate > 0;
-
-		const durationStatus = propStatusesForOverride?.durationInFrames;
-		const adjustedDuration =
-			canRetime &&
-			schema.durationInFrames &&
-			durationStatus?.status === 'static' &&
-			typeof durationStatus.codeValue === 'number' &&
-			Number.isFinite(durationStatus.codeValue)
-				? getPlaybackRateAdjustedDuration({
-						durationInFrames: durationStatus.codeValue,
-						previousPlaybackRate,
-						playbackRate: nextPlaybackRate,
-					})
-				: null;
 
 		saveSequenceProps({
 			addedKeyframes: null,
@@ -886,18 +723,6 @@ export const TimelineSequencePropItem: React.FC<{
 						? {...change, sourceEdit: {type: 'playback-rate' as const}}
 						: change,
 				),
-				...(adjustedDuration !== null
-					? [
-							{
-								fileName: validatedLocation.source,
-								nodePath,
-								fieldKey: 'durationInFrames',
-								value: adjustedDuration,
-								defaultValue: null,
-								schema,
-							},
-						]
-					: []),
 			],
 			setPropStatuses,
 			clientId: previewServerState.clientId,
@@ -912,7 +737,6 @@ export const TimelineSequencePropItem: React.FC<{
 		field.key,
 		nodePath,
 		previewServerState,
-		propStatusesForOverride?.durationInFrames,
 		schema,
 		setPropStatuses,
 		validatedLocation.source,
@@ -986,7 +810,6 @@ export const TimelineSequencePropItem: React.FC<{
 	) : propStatus.status === 'static' ? (
 		<Value
 			field={field}
-			durationPropStatus={propStatusesForOverride?.durationInFrames ?? null}
 			nodePath={nodePath}
 			validatedLocation={validatedLocation}
 			schema={schema}

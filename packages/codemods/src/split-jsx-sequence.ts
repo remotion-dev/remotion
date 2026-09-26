@@ -442,10 +442,10 @@ export const splitJsxSequences = ({
 		}
 
 		const timing = readSequenceTiming(jsxElement);
+		const contentDuration = timing.durationInFrames;
+		const timelineDuration = contentDuration / timing.playbackRate;
 		const finiteEnd =
-			timing.durationInFrames === Infinity
-				? Infinity
-				: timing.from + timing.durationInFrames;
+			timelineDuration === Infinity ? Infinity : timing.from + timelineDuration;
 
 		if (splitFrame <= timing.from) {
 			throw new Error('Cannot split at or before the sequence start');
@@ -455,21 +455,32 @@ export const splitJsxSequences = ({
 			throw new Error('Cannot split at or after the sequence end');
 		}
 
-		return {finiteEnd, jsxElement, jsxPath, splitFrame, timing};
+		return {
+			contentDuration,
+			jsxElement,
+			jsxPath,
+			splitFrame,
+			timing,
+		};
 	});
 	const nodeLabels: string[] = [];
 	const logLines: number[] = [];
 	const sourceEdits = targets.map(
-		({finiteEnd, jsxElement, jsxPath, splitFrame, timing}) => {
+		({contentDuration, jsxElement, jsxPath, splitFrame, timing}) => {
 			const right = cloneJsxElement(jsxElement);
 			// Match Studio's numeric dragger precision while retaining fractional frames.
-			const leftDuration = normalizeComputedTiming(splitFrame - timing.from);
+			const leftTimelineDuration = normalizeComputedTiming(
+				splitFrame - timing.from,
+			);
+			const leftDuration = normalizeComputedTiming(
+				leftTimelineDuration * timing.playbackRate,
+			);
 			const rightDuration =
-				timing.durationInFrames === Infinity
+				contentDuration === Infinity
 					? Infinity
-					: normalizeComputedTiming(finiteEnd - splitFrame);
+					: normalizeComputedTiming(contentDuration - leftDuration);
 			const rightTrimBefore = normalizeComputedTiming(
-				timing.trimBefore + leftDuration * timing.playbackRate,
+				timing.trimBefore + leftDuration,
 			);
 
 			setNumericAttribute({
@@ -488,7 +499,7 @@ export const splitJsxSequences = ({
 				element: right,
 				name: 'durationInFrames',
 				value: rightDuration === Infinity ? null : rightDuration,
-				omitIfMissing: !timing.hasDurationInFrames,
+				omitIfMissing: false,
 			});
 			setNumericAttribute({
 				element: right,

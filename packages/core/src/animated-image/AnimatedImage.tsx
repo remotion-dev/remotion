@@ -336,8 +336,6 @@ const AnimatedImageInner = ({
 		from: from ?? 0,
 		durationInFrames: resolveSequenceDuration({
 			durationInFrames,
-			trimBefore: sequenceProps.trimBefore,
-			trimAfter: sequenceProps.trimAfter,
 			playbackRate,
 			loop: sequenceProps.loop,
 		}),
@@ -379,7 +377,7 @@ const AnimatedImageInner = ({
 				layout="none"
 				from={from ?? 0}
 				playbackRate={playbackRate}
-				durationInFrames={durationInFrames ?? Infinity}
+				durationInFrames={durationInFrames}
 				name="<AnimatedImage>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
 				controls={controls}

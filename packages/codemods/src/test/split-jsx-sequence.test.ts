@@ -99,10 +99,10 @@ test('splitting a sped-up sequence preserves its child clock across a fractional
 		splitFrame: 22.5,
 	});
 	expect(output.replace(/\s+/g, ' ')).toContain(
-		'from={10} durationInFrames={12.5} trimBefore={5} playbackRate={2}',
+		'from={10} durationInFrames={25} trimBefore={5} playbackRate={2}',
 	);
 	expect(output.replace(/\s+/g, ' ')).toContain(
-		'from={22.5} durationInFrames={37.5} trimBefore={30} playbackRate={2}',
+		'from={22.5} durationInFrames={25} trimBefore={30} playbackRate={2}',
 	);
 });
 

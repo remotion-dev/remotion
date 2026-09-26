@@ -280,7 +280,6 @@ const SolidOuter = forwardRef<
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 			freeze,
@@ -315,8 +314,6 @@ const SolidOuter = forwardRef<
 			from: from ?? 0,
 			durationInFrames: resolveSequenceDuration({
 				durationInFrames,
-				trimBefore,
-				trimAfter,
 				playbackRate,
 				loop,
 			}),
@@ -342,7 +339,6 @@ const SolidOuter = forwardRef<
 					layout="none"
 					from={from}
 					trimBefore={trimBefore}
-					trimAfter={trimAfter}
 					playbackRate={playbackRate}
 					loop={loop}
 					freeze={freeze}

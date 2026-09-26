@@ -15,7 +15,7 @@ For code that remains editable after visual changes, follow [Interactivity best 
 
 An [`InteractivitySchema`](/docs/interactivity-schema) describes which props the Studio may edit.
 
-Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`trimAfter`](/docs/sequence#trimafter), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
 As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming, looping and visibility controls remain available. Forward all of these props to the `<Sequence>` your component renders.
 

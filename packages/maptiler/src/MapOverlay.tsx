@@ -131,7 +131,6 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		styleWhilePremounted,
 		styleWhilePostmounted,
 		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 		freeze,
@@ -170,8 +169,6 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -188,7 +185,6 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}

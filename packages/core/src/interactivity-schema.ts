@@ -647,7 +647,6 @@ export const baseSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
-	trimAfter: trimAfterField,
 	playbackRate: playbackRateField,
 	loop: loopField,
 	freeze: freezeField,
@@ -661,7 +660,6 @@ export const baseSchemaWithoutPlaybackRate = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
-	trimAfter: trimAfterField,
 	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
@@ -685,7 +683,6 @@ export const sequenceSchema = {
 export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
 	trimBefore: trimBeforeField,
-	trimAfter: trimAfterField,
 	playbackRate: playbackRateField,
 	loop: loopField,
 	freeze: freezeField,

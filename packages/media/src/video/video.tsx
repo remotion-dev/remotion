@@ -12,7 +12,10 @@ import {
 import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
-import {getVideoSequenceDuration} from './get-video-sequence-duration';
+import {
+	getMediaTrimAfter,
+	getVideoSequenceDuration,
+} from './get-video-sequence-duration';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
@@ -33,6 +36,7 @@ export const videoSchema: InteractivitySchema = {
 		keyframable: false,
 	},
 	...Internals.baseSchema,
+	trimAfter: Internals.trimAfterField,
 	...Internals.premountSchema,
 	volume: {
 		type: 'number',
@@ -265,17 +269,22 @@ const VideoInner: React.FC<
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
-	const sequenceDurationInFrames = Math.min(
-		durationInFrames ?? Infinity,
-		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
-	);
+	const effectiveTrimAfter = getMediaTrimAfter({
+		durationInFrames,
+		trimAfter,
+		trimBefore,
+	});
 	const videoSequenceDuration = getVideoSequenceDuration({
 		durationInFrames,
 		loop: loop ?? false,
 		playbackRate: playbackRate ?? 1,
-		trimAfter,
+		trimAfter: effectiveTrimAfter,
 		trimBefore,
 	});
+	const sequenceDurationInFrames = Math.min(
+		videoSequenceDuration ?? Infinity,
+		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
+	);
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
 	>(null);
@@ -288,7 +297,7 @@ const VideoInner: React.FC<
 		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
 		playbackRate: playbackRate ?? 1,
 		trimBefore,
-		trimAfter,
+		trimAfter: effectiveTrimAfter,
 	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
@@ -296,7 +305,7 @@ const VideoInner: React.FC<
 		volume: loopedVolume,
 		playbackRate: playbackRate ?? 1,
 		trimBefore,
-		trimAfter,
+		trimAfter: effectiveTrimAfter,
 		sequenceDurationInFrames,
 		mediaType: 'video',
 		displayName: name ?? '<Video>',
@@ -313,7 +322,7 @@ const VideoInner: React.FC<
 				loop: loop ?? false,
 				mediaDurationInSeconds,
 				playbackRate: playbackRate ?? 1,
-				trimAfter,
+				trimAfter: effectiveTrimAfter,
 				trimBefore,
 				sequenceDurationInFrames,
 				compFps: videoConfig.fps,
@@ -322,7 +331,7 @@ const VideoInner: React.FC<
 			loop,
 			mediaDurationInSeconds,
 			playbackRate,
-			trimAfter,
+			effectiveTrimAfter,
 			trimBefore,
 			sequenceDurationInFrames,
 			videoConfig.fps,
@@ -420,7 +429,7 @@ const VideoInner: React.FC<
 					showInTimeline={showInTimeline ?? true}
 					src={src}
 					style={croppedStyle ?? {}}
-					trimAfter={trimAfter}
+					trimAfter={effectiveTrimAfter}
 					trimBefore={trimBefore}
 					volume={volume ?? 1}
 					toneFrequency={toneFrequency ?? 1}

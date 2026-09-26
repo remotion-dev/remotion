@@ -35,15 +35,17 @@ You can nest loops within each other and they will cascade.
 
 [Many components](/docs/timing) accept a [`loop`](/docs/timing#loop-repeat-an-item) nowadays.
 
-It is useful if you want to mix it with other props such as `trimAfter` or `playbackRate`.
+It is useful if you want to mix it with other props such as `trimBefore` or `playbackRate`.
 
 ```tsx twoslash
 // @include: example-BlueSquare
 import {Sequence} from 'remotion';
 // ---cut---
 const WithSequence = () => (
-  <Sequence trimAfter={50} durationInFrames={150} loop>
-    <BlueSquare />
+  <Sequence durationInFrames={150}>
+    <Sequence durationInFrames={50} loop>
+      <BlueSquare />
+    </Sequence>
   </Sequence>
 );
 ```
@@ -54,11 +56,11 @@ The Loop component is a high order component and accepts, besides it's children,
 
 ### `durationInFrames`
 
-How many frames one iteration of the loop should be long.
+How many frames of the child timeline one iteration of the loop should contain. An iteration occupies `durationInFrames / playbackRate` frames in the parent timeline.
 
 ### `playbackRate?`<AvailableFrom v="4.0.528" />
 
-Changes the speed of the children within each iteration. Defaults to `1` and must remain constant across frames. Each iteration still lasts `durationInFrames` frames in the parent timeline. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
+Changes the speed of the children within each iteration. Defaults to `1` and must remain constant across frames. Each iteration lasts `durationInFrames / playbackRate` frames in the parent timeline. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
 
 ### `times?`
 

@@ -2010,98 +2010,58 @@ test('Timeline duration drag supports interactive video clips', () => {
 	]);
 });
 
-test('Timeline edge drags edit the prop that defines the visible end', () => {
+test('Timeline edge drags edit durationInFrames in the child clock', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
-	const makePropStatuses = (
-		fieldKey: 'durationInFrames' | 'trimAfter',
-	): PropStatuses => ({
+	const propStatuses: PropStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 			canUpdate: true,
 			props: {
-				[fieldKey]: {
+				durationInFrames: {
 					status: 'static',
 					keyframeDisplayOffsetAdjustment: null,
-					codeValue: fieldKey === 'trimAfter' ? 24 : 10,
+					codeValue: 20,
 				},
 			},
 			effects: [],
 		},
+	};
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema: Internals.baseSchema,
+				duration: 10,
+				sequencePlaybackRate: 2,
+				currentRuntimeValueDotNotation: {
+					durationInFrames: 20,
+					playbackRate: 2,
+					trimBefore: 4,
+				},
+			}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+		timelineDurationInFrames: 1000,
 	});
-	const makeTargets = ({
-		durationInFrames,
-		loop,
-		endField,
-	}: {
-		readonly durationInFrames: number;
-		readonly loop: boolean;
-		readonly endField: 'durationInFrames' | 'trimAfter';
-	}) =>
-		getTimelineSequenceDurationDragTargets({
-			draggedNodePathInfo: nodePathInfo,
-			draggedSequenceMediaDurationDragLimits: null,
-			selectedSequenceMediaDurationDragLimits: null,
-			selectedItems: [{type: 'sequence', nodePathInfo}],
-			sequences: [
-				makeTimelineSequence({
-					schema: Internals.baseSchema,
-					duration: loop ? durationInFrames : Math.min(10, durationInFrames),
-					sequencePlaybackRate: 2,
-					currentRuntimeValueDotNotation: {
-						durationInFrames,
-						loop,
-						playbackRate: 2,
-						trimAfter: 24,
-						trimBefore: 4,
-					},
-				}),
-			],
-			overrideIdsToNodePaths: {override: nodePath},
-			propStatuses: makePropStatuses(endField),
-			timelineDurationInFrames: 1000,
-		});
 
-	const trimAfterTargets = makeTargets({
-		durationInFrames: 11,
-		loop: false,
-		endField: 'trimAfter',
-	});
-	expect(trimAfterTargets?.[0].endField).toEqual({
-		fieldKey: 'trimAfter',
+	expect(targets?.[0].endField).toEqual({
+		fieldKey: 'durationInFrames',
 		trimBefore: 4,
 		playbackRate: 2,
 	});
 	expect(
 		getTimelineSequenceDurationDragChanges({
-			targets: trimAfterTargets ?? [],
+			targets: targets ?? [],
 			deltaFrames: 2,
 		})[0],
-	).toMatchObject({fieldKey: 'trimAfter', value: 28});
-
-	// If both props end at the same frame, extending trimAfter alone would not
-	// move the edge because durationInFrames would still cap the item.
-	const equalEndTargets = makeTargets({
-		durationInFrames: 10,
-		loop: false,
-		endField: 'durationInFrames',
-	});
-	expect(equalEndTargets?.[0].endField.fieldKey).toBe('durationInFrames');
-	expect(
-		getTimelineSequenceDurationDragChanges({
-			targets: equalEndTargets ?? [],
-			deltaFrames: 2,
-		})[0],
-	).toMatchObject({fieldKey: 'durationInFrames', value: 12});
-
-	const loopTargets = makeTargets({
-		durationInFrames: 20,
-		loop: true,
-		endField: 'durationInFrames',
-	});
-	expect(loopTargets?.[0].endField.fieldKey).toBe('durationInFrames');
+	).toMatchObject({fieldKey: 'durationInFrames', value: 24});
 });
 
-test('Left edge trim leaves duration untouched when trimAfter defines the end', () => {
+test('Left edge trim updates durationInFrames in the child clock', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const sequence = makeTimelineSequence({
@@ -2110,9 +2070,8 @@ test('Left edge trim leaves duration untouched when trimAfter defines the end', 
 		sequencePlaybackRate: 2,
 		trimBefore: 4,
 		currentRuntimeValueDotNotation: {
-			durationInFrames: 11,
+			durationInFrames: 20,
 			playbackRate: 2,
-			trimAfter: 24,
 			trimBefore: 4,
 		},
 	});
@@ -2124,7 +2083,6 @@ test('Left edge trim leaves duration untouched when trimAfter defines the end', 
 		propStatuses: makeLeftEdgePropStatuses([nodePath], true),
 	});
 
-	expect(targets?.[0].writesDuration).toBe(false);
 	expect(
 		getTimelineSequenceLeftEdgeDragChanges({
 			targets: targets ?? [],
@@ -2132,11 +2090,12 @@ test('Left edge trim leaves duration untouched when trimAfter defines the end', 
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
 		['from', 2],
+		['durationInFrames', 16],
 		['trimBefore', 8],
 	]);
 });
 
-test('Looping timeline items stay resizable but cannot be split', () => {
+test('Looping timeline items cannot be resized or split', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const loopedSequence = {
 		...makeTimelineSequence({
@@ -2154,7 +2113,7 @@ test('Looping timeline items stay resizable but cannot be split', () => {
 		nodePathInfo,
 	};
 
-	expect(isTimelineSequenceDurationDraggable(loopedSequence)).toBe(true);
+	expect(isTimelineSequenceDurationDraggable(loopedSequence)).toBe(false);
 	const loopedVideo = {
 		...loopedSequence,
 		type: 'video',
@@ -2181,10 +2140,7 @@ test('Looping timeline items stay resizable but cannot be split', () => {
 		]),
 		timelineDurationInFrames: 1000,
 	});
-	expect(resizeTargets?.[0]).toMatchObject({
-		initialDuration: 20,
-		maximumDuration: 1000,
-	});
+	expect(resizeTargets).toBeNull();
 	expect(
 		getTimelineSequenceSplitEligibility({
 			selection,
