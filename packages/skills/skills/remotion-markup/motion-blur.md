@@ -57,4 +57,4 @@ No configuration for rendering is necessary.
 
 Do not nest `<HtmlInCanvas>` or `<HtmlInCanvasMotionBlur>` components; nested HTML-in-canvas is unsupported.
 
-If HTML-in-canvas is unavailable, see the [motion blur guide](https://www.remotion.dev/docs/motion-blur-guide) for other options. See the [`<HtmlInCanvasMotionBlur>` reference](https://www.remotion.dev/docs/motion-blur/html-in-canvas-motion-blur) for API details.
+If HTML-in-canvas is unavailable, see the [motion blur guide](https://www.remotion.dev/docs/motion-blur) for other options. See the [`<HtmlInCanvasMotionBlur>` reference](https://www.remotion.dev/docs/motion-blur/html-in-canvas-motion-blur) for API details.

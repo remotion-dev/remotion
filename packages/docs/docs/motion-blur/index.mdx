@@ -1,22 +1,44 @@
 ---
 image: /generated/articles-docs-motion-blur-index.png
-title: '@remotion/motion-blur'
+title: Motion blur
+crumb: 'Designing visuals'
 ---
 
-# @remotion/motion-blur<AvailableFrom v="3.2.31" />
+# Motion blur
 
-Higher order components that create a motion blur and trail effects.
+To realize a realistic motion blur, a frame needs to be duplicated multiple times and blended together.
 
-See [Motion blur](/docs/motion-blur-guide) for a comparison of the three approaches and live demos.
+Remotion provides a [`@remotion/motion-blur`](/docs/motion-blur/api) package to achieve this.
 
-import {TableOfContents} from './table-of-contents';
+Ask an agent with [Remotion Skills](/docs/ai/skills) installed to add motion blur to a component:
 
-<Installation pkg="@remotion/motion-blur" />
+<SuggestedPrompt prompt="/remotion-markup Add motion blur to my text animation" />
 
-## Components
+## Recommended: HTML-in-canvas motion blur
 
-<TableOfContents />
+[`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) is the state-of-the-art implementation of motion blur.
 
-## License
+It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
 
-MIT
+<Demo type="motion-blur-html-in-canvas" />
+
+## Camera motion blur
+
+[`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur) works in browsers that don't have HTML-in-canvas enabled, but layered blending can change colors and opacity.
+
+<Demo type="motion-blur-camera" />
+
+Set `shutterAngle` to control the exposure length and `samples` to control smoothness.
+
+## Trail
+
+[`<Trail>`](/docs/motion-blur/trail) repeats earlier positions behind the current one.
+
+It does not aim to reproduce a realistic camera exposure.
+
+<Demo type="motion-blur-trail" />
+
+## See also
+
+- [`@remotion/motion-blur`](/docs/motion-blur/api)
+- [HTML-in-canvas](/docs/html-in-canvas)

@@ -449,7 +449,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	'rounded-text-box': 'https://www.remotion.dev/docs/rounded-text-box',
 	noise: 'https://www.remotion.dev/docs/noise',
 	mcp: 'https://www.remotion.dev/docs/ai/mcp',
-	'motion-blur': 'https://www.remotion.dev/docs/motion-blur',
+	'motion-blur': 'https://www.remotion.dev/docs/motion-blur/api',
 	preload: 'https://www.remotion.dev/docs/preload',
 	shapes: 'https://www.remotion.dev/docs/shapes',
 	'zod-types': 'https://www.remotion.dev/docs/zod-types',
