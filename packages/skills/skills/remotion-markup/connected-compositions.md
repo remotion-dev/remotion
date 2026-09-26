@@ -77,3 +77,7 @@ Editing the shared component changes both views.
 
 If the scene takes props, pass the intended values in the parent and use matching `defaultProps` on its standalone registration; registration does not automatically copy the parent's props.
 Keep scene and parent fps and dimensions aligned unless their difference is intentional.
+
+For a selection wrapped in a new `<Sequence layout="none">` with default timing, move a captured `useCurrentFrame()` call into the extracted component. Its clock is unchanged, and later `from` and `trimBefore` edits can control the local animation. `from` sets when the sequence appears; `trimBefore` sets the frame its children see at that start. Preserve timing props on any selected element inside the wrapper.
+
+When extracting children from an existing timed sequence, compare the clock where a frame was originally read with the clock inside the extracted component. A child sees `(parentFrame - from) * playbackRate + trimBefore`. Do not add `trimBefore` just to make a parent frame expression match: it also changes the clock of every descendant. If the clocks differ and the timing or descendant behavior cannot be proven safe, use an agent refactor rather than the codemod. A registered composition must last through the highest child frame used by its parent sequence.

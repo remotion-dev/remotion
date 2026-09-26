@@ -46,6 +46,7 @@ import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 type PrecompositionPlan = {
 	ast: File;
 	children: JSXFragment['children'];
+	containingFunctionPath: recast.types.NodePath | null;
 	end: number;
 	firstIndex: number;
 	hookProps: {
@@ -489,8 +490,8 @@ const getPrecompositionPlan = ({
 		input,
 		(selectedPaths[0].node as JSXElement).loc!.start,
 	);
-	// Captured hook values are passed from the original render. The extracted
-	// component falls back to its own hooks when opened as a composition.
+	// Captured video config values are passed from the original render. Frames
+	// are read inside the extracted component only when the clock is unchanged.
 	const hookProps = new Map<
 		string,
 		{name: string; hookName: string; kind: 'frame' | 'duration' | 'fps'}
@@ -1178,6 +1179,8 @@ const getPrecompositionPlan = ({
 		primitiveDerivedNames.add(name);
 	}
 
+	// The new wrapper has an identity clock. Moving the hook is safe only if
+	// the selected JSX is not already below a clock-changing parent.
 	if (
 		hookProps.size > 0 &&
 		[...hookProps.values()].some((prop) => prop.kind === 'frame')
@@ -1185,16 +1188,62 @@ const getPrecompositionPlan = ({
 		let frameAncestor = selectedPaths[0].parentPath;
 		while (frameAncestor) {
 			if (frameAncestor.node.type === 'JSXElement') {
-				const {name} = frameAncestor.node.openingElement;
-				const isSequence =
+				const {name, attributes} = frameAncestor.node.openingElement;
+				const isKnownIdentityParent =
 					(name.type === 'JSXIdentifier' &&
-						(remotionImports.get(name.name) === 'Sequence' ||
-							name.name === 'Sequence')) ||
+						(/^[a-z]/.test(name.name) ||
+							(['AbsoluteFill', 'Sequence'].includes(
+								remotionImports.get(name.name) ?? '',
+							) &&
+								frameAncestor.scope.lookup(name.name)?.path.node ===
+									ast.program))) ||
 					(name.type === 'JSXMemberExpression' &&
-						name.property.name === 'Sequence');
-				if (isSequence) {
+						name.object.type === 'JSXIdentifier' &&
+						remotionNamespaces.has(name.object.name) &&
+						frameAncestor.scope.lookup(name.object.name)?.path.node ===
+							ast.program &&
+						['AbsoluteFill', 'Sequence'].includes(name.property.name));
+				const mayChangeClock = attributes.some(
+					(attribute: JSXElement['openingElement']['attributes'][number]) => {
+						if (attribute.type === 'JSXSpreadAttribute') {
+							return true;
+						}
+
+						if (attribute.name.type !== 'JSXIdentifier') {
+							return true;
+						}
+
+						const timingExpression =
+							attribute.value?.type === 'JSXExpressionContainer'
+								? attribute.value.expression
+								: null;
+						switch (attribute.name.name) {
+							case 'from':
+							case 'trimBefore':
+								return (
+									timingExpression?.type !== 'NumericLiteral' ||
+									timingExpression.value !== 0
+								);
+							case 'playbackRate':
+								return (
+									timingExpression?.type !== 'NumericLiteral' ||
+									timingExpression.value !== 1
+								);
+							case 'loop':
+								return (
+									timingExpression?.type !== 'BooleanLiteral' ||
+									timingExpression.value
+								);
+							case 'freeze':
+								return timingExpression?.type !== 'NullLiteral';
+							default:
+								return false;
+						}
+					},
+				);
+				if (!isKnownIdentityParent || mayChangeClock) {
 					throw new Error(
-						'The selected markup captures a frame outside its sequence',
+						'The selected markup captures a frame across a timing boundary',
 					);
 				}
 			}
@@ -1294,6 +1343,7 @@ const getPrecompositionPlan = ({
 	return {
 		ast,
 		children,
+		containingFunctionPath,
 		derivedProps: [...derivedProps]
 			.sort((left, right) => left[1].start - right[1].start)
 			.map(([name, {initSource}]) => ({
@@ -1433,6 +1483,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const {
 		ast,
 		children,
+		containingFunctionPath,
 		derivedProps,
 		end,
 		firstIndex,
@@ -1508,58 +1559,59 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		throw new Error('Could not choose a unique composition name');
 	}
 
-	const resolvedProps = [
-		...hookProps.map((prop) => ({...prop, propKind: 'hook' as const})),
-		...derivedProps.map((prop) => ({...prop, propKind: 'derived' as const})),
-	].map((prop) => {
-		const suffix = prop.name.charAt(0).toUpperCase() + prop.name.slice(1);
-		let parentAlias = `precomposeParent${suffix}`;
-		for (let index = 2; occupiedNames.has(parentAlias); index++) {
-			parentAlias = `precomposeParent${suffix}${index}`;
-		}
+	const frameProps = hookProps.filter((prop) => prop.kind === 'frame');
+	const resolvedProps = hookProps
+		.filter((prop) => prop.kind !== 'frame')
+		.map((prop) => {
+			const suffix = prop.name.charAt(0).toUpperCase() + prop.name.slice(1);
+			let parentAlias = `precomposeParent${suffix}`;
+			for (let index = 2; occupiedNames.has(parentAlias); index++) {
+				parentAlias = `precomposeParent${suffix}${index}`;
+			}
 
-		occupiedNames.add(parentAlias);
-		let standaloneAlias = `precomposeStandalone${suffix}`;
-		for (let index = 2; occupiedNames.has(standaloneAlias); index++) {
-			standaloneAlias = `precomposeStandalone${suffix}${index}`;
-		}
+			occupiedNames.add(parentAlias);
+			let standaloneAlias = `precomposeStandalone${suffix}`;
+			for (let index = 2; occupiedNames.has(standaloneAlias); index++) {
+				standaloneAlias = `precomposeStandalone${suffix}${index}`;
+			}
 
-		occupiedNames.add(standaloneAlias);
-		return {...prop, parentAlias, standaloneAlias};
-	});
+			occupiedNames.add(standaloneAlias);
+			return {...prop, parentAlias, standaloneAlias};
+		});
 	const destructuredProps = resolvedProps
 		.map(({name: propName, parentAlias}) => `${propName}: ${parentAlias}`)
 		.join(', ');
 	const typedProps = resolvedProps
-		.map(
-			({name: propName, propKind}) =>
-				`${propName}?: ${propKind === 'hook' ? 'number | null' : 'unknown'}`,
-		)
+		.map(({name: propName}) => `${propName}?: number | null`)
 		.join('; ');
 	const parameters =
 		resolvedProps.length === 0
 			? ''
 			: `{${destructuredProps}}${filePath.endsWith('.tsx') ? `: {${typedProps}}` : ''}`;
 	const signature = `export function ${name}(${parameters}) {`;
-	const valueStatements = resolvedProps.flatMap((prop) => {
-		const {name: propName, parentAlias, standaloneAlias} = prop;
-		if (prop.propKind === 'derived') {
+	const valueStatements = [
+		...frameProps.map(
+			({name: propName, hookName}) => `const ${propName} = ${hookName}();`,
+		),
+		...resolvedProps.flatMap((prop) => {
+			const {
+				name: propName,
+				parentAlias,
+				standaloneAlias,
+				hookName,
+				kind,
+			} = prop;
 			return [
-				`const ${standaloneAlias} = () => ${prop.initSource};`,
-				`const ${propName} = ${parentAlias} === undefined ? ${standaloneAlias}() : ${filePath.endsWith('.tsx') ? `(${parentAlias} as ReturnType<typeof ${standaloneAlias}>)` : `/** @type {ReturnType<typeof ${standaloneAlias}>} */ (${parentAlias})`};`,
-			];
-		}
-
-		const {hookName, kind} = prop;
-		return [
-			kind === 'frame'
-				? `const ${standaloneAlias} = ${hookName}();`
-				: kind === 'fps'
+				kind === 'fps'
 					? `const ${standaloneAlias} = ${hookName}().fps;`
 					: `const ${standaloneAlias} = ${metadata.durationInFrames};`,
-			`const ${propName} = ${parentAlias} ?? ${standaloneAlias};`,
-		];
-	});
+				`const ${propName} = ${parentAlias} ?? ${standaloneAlias};`,
+			];
+		}),
+		...derivedProps.map(
+			({name: propName, initSource}) => `const ${propName} = ${initSource};`,
+		),
+	];
 
 	const snapshots = captureImportSnapshots(ast);
 	const sequenceImport = [...ast.program.body]
@@ -1648,6 +1700,69 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	}
 
 	ast.program.body.push(declarationStatement);
+	const removableLocalNames = new Set([
+		...frameProps.map(({name: propName}) => propName),
+		...derivedProps.map(({name: propName}) => propName),
+	]);
+	const unusedLocalEdits: {start: number; end: number; replacement: string}[] =
+		[];
+	const containingFunction = containingFunctionPath?.node as Node | undefined;
+	const functionBody =
+		containingFunction?.type === 'FunctionDeclaration' ||
+		containingFunction?.type === 'FunctionExpression' ||
+		containingFunction?.type === 'ArrowFunctionExpression'
+			? containingFunction.body
+			: null;
+	if (functionBody?.type === 'BlockStatement') {
+		while (true) {
+			const referencedNames = new Set<string>();
+			recast.visit(functionBody, {
+				visitIdentifier(path) {
+					if (
+						isReferenced(
+							path.node as Node,
+							path.parentPath.node as Node,
+							path.parentPath.parentPath?.node as Node | undefined,
+						)
+					) {
+						referencedNames.add(path.node.name);
+					}
+
+					this.traverse(path);
+				},
+			});
+			const unusedIndex = functionBody.body.findIndex(
+				(statement) =>
+					statement.type === 'VariableDeclaration' &&
+					statement.kind === 'const' &&
+					statement.declarations.length === 1 &&
+					statement.declarations[0].id.type === 'Identifier' &&
+					removableLocalNames.has(statement.declarations[0].id.name) &&
+					!referencedNames.has(statement.declarations[0].id.name) &&
+					Boolean(statement.loc),
+			);
+			if (unusedIndex === -1) {
+				break;
+			}
+
+			const [unused] = functionBody.body.splice(unusedIndex, 1);
+			const statementStart = recastLocToOffset(input, unused.loc!.start);
+			const statementEnd = recastLocToOffset(input, unused.loc!.end);
+			const lineStart = input.lastIndexOf('\n', statementStart - 1) + 1;
+			const lineEnd = input.indexOf('\n', statementEnd);
+			const isOwnLine =
+				input.slice(lineStart, statementStart).trim() === '' &&
+				input
+					.slice(statementEnd, lineEnd === -1 ? undefined : lineEnd)
+					.trim() === '';
+			unusedLocalEdits.push({
+				start: isOwnLine ? lineStart : statementStart,
+				end: isOwnLine && lineEnd !== -1 ? lineEnd + 1 : statementEnd,
+				replacement: '',
+			});
+		}
+	}
+
 	const source = input.slice(start, end);
 	const sourceLines = source.split(/\r?\n/);
 	if (selectedSequence) {
@@ -1688,8 +1803,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 						),
 						`}: {`,
 						...resolvedProps.map(
-							({name: propName, propKind}) =>
-								`${unit}${propName}?: ${propKind === 'hook' ? 'number | null' : 'unknown'};`,
+							({name: propName}) => `${unit}${propName}?: number | null;`,
 						),
 						'}) {',
 					].join(endOfLine)
@@ -1704,7 +1818,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const component = [
 		...(resolvedProps.length > 0 && !filePath.endsWith('.tsx')
 			? [
-					`/** @param {{${resolvedProps.map(({name: propName, propKind}) => `${propName}?: ${propKind === 'hook' ? 'number | null' : 'unknown'}`).join(', ')}}} props */`,
+					`/** @param {{${resolvedProps.map(({name: propName}) => `${propName}?: number | null`).join(', ')}}} props */`,
 				]
 			: []),
 		componentSignature,
@@ -1719,6 +1833,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const sourceOutput = applySourceEdits({
 		input,
 		edits: [
+			...unusedLocalEdits,
 			{start, end, replacement: replacementSource},
 			{
 				start: input.length,
