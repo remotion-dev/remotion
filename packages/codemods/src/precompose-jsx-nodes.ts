@@ -1,4 +1,5 @@
 import {
+	VISITOR_KEYS,
 	isReferenced,
 	type File,
 	type JSXElement,
@@ -27,6 +28,11 @@ import {
 	type NodeReference,
 	type NodeSourceEdit,
 } from './node-references';
+import {
+	getPureTopLevelFunctionAnalysis,
+	isPureMathConstant,
+	isPureMathMethod,
+} from './precompose-pure-functions';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {ensureNamedImport, getImportedName} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -47,6 +53,7 @@ type PrecompositionPlan = {
 		hookName: string;
 		kind: 'frame' | 'duration' | 'fps';
 	}[];
+	derivedProps: {name: string; initSource: string}[];
 	logLine: number;
 	parent: JSXElement | JSXFragment | null;
 	rootPath: recast.types.NodePath | null;
@@ -288,6 +295,15 @@ const getPrecompositionPlan = ({
 		}
 	}
 
+	const {
+		pureFunctionNames: pureTopLevelFunctions,
+		primitiveFunctionNames: primitiveTopLevelFunctions,
+	} = getPureTopLevelFunctionAnalysis({
+		ast,
+		remotionImports,
+		stablePrimitiveNames,
+	});
+
 	const sequenceBinding = [...remotionImports].find(
 		([, imported]) => imported === 'Sequence',
 	)?.[0];
@@ -397,6 +413,82 @@ const getPrecompositionPlan = ({
 	}
 
 	let unsafeReason: string | null = null;
+	let containingFunctionPath = selectedPaths[0].parentPath;
+	while (
+		containingFunctionPath &&
+		containingFunctionPath.node.type !== 'FunctionDeclaration' &&
+		containingFunctionPath.node.type !== 'FunctionExpression' &&
+		containingFunctionPath.node.type !== 'ArrowFunctionExpression'
+	) {
+		containingFunctionPath = containingFunctionPath.parentPath;
+	}
+
+	const localConstants = new Map<
+		string,
+		{
+			id: Node;
+			initPath: recast.types.NodePath;
+			start: number;
+			initSource: string;
+		}
+	>();
+	if (containingFunctionPath?.node.body.type === 'BlockStatement') {
+		for (
+			let index = 0;
+			index < containingFunctionPath.node.body.body.length;
+			index++
+		) {
+			const statement = containingFunctionPath.node.body.body[index];
+			if (
+				statement.type !== 'VariableDeclaration' ||
+				statement.kind !== 'const' ||
+				statement.declarations.length !== 1 ||
+				!statement.loc
+			) {
+				continue;
+			}
+
+			const declaration = statement.declarations[0];
+			if (
+				declaration.id.type !== 'Identifier' ||
+				!declaration.init?.loc ||
+				declaration.id.typeAnnotation ||
+				['key', 'ref', '__proto__', '__self', '__source'].includes(
+					declaration.id.name,
+				)
+			) {
+				continue;
+			}
+
+			localConstants.set(declaration.id.name, {
+				id: declaration.id,
+				initPath: containingFunctionPath.get(
+					'body',
+					'body',
+					index,
+					'declarations',
+					0,
+					'init',
+				),
+				start: recastLocToOffset(input, statement.loc.start),
+				initSource: input.slice(
+					recastLocToOffset(input, declaration.init.loc.start),
+					recastLocToOffset(input, declaration.init.loc.end),
+				),
+			});
+		}
+	}
+
+	const derivedProps = new Map<
+		string,
+		NonNullable<ReturnType<typeof localConstants.get>>
+	>();
+	const pendingDerivedProps: string[] = [];
+	let currentDerivedProp: string | null = null;
+	const selectedStart = recastLocToOffset(
+		input,
+		(selectedPaths[0].node as JSXElement).loc!.start,
+	);
 	// Captured hook values are passed from the original render. The extracted
 	// component falls back to its own hooks when opened as a composition.
 	const hookProps = new Map<
@@ -423,7 +515,50 @@ const getPrecompositionPlan = ({
 		'step0',
 		'step1',
 	]);
-	for (const path of selectedPaths) {
+	const unsupportedSyntax = new Set([
+		'ThrowExpression',
+		'PipelineExpression',
+		'BindExpression',
+		'ImportExpression',
+		'DoExpression',
+		'TSAsExpression',
+		'TSTypeAssertion',
+		'TSSatisfiesExpression',
+		'TSInstantiationExpression',
+		'TSTypeParameterInstantiation',
+	]);
+	const containsUnsupportedSyntax = (node: Node): boolean => {
+		if (unsupportedSyntax.has(node.type)) {
+			return true;
+		}
+
+		return (VISITOR_KEYS[node.type] ?? []).some((key) => {
+			const child = (node as unknown as Record<string, unknown>)[key];
+			if (Array.isArray(child)) {
+				return child.some(
+					(item) =>
+						item !== null &&
+						typeof item === 'object' &&
+						'type' in item &&
+						containsUnsupportedSyntax(item as Node),
+				);
+			}
+
+			return (
+				child !== null &&
+				typeof child === 'object' &&
+				'type' in child &&
+				containsUnsupportedSyntax(child as Node)
+			);
+		});
+	};
+
+	const scanSafePath = (path: recast.types.NodePath) => {
+		if (containsUnsupportedSyntax(path.node as Node)) {
+			unsafeReason = 'The selected JSX contains unsupported syntax';
+			return;
+		}
+
 		recast.visit(path as unknown as Parameters<typeof recast.visit>[0], {
 			visitIdentifier(p) {
 				if (
@@ -434,6 +569,7 @@ const getPrecompositionPlan = ({
 					)
 				) {
 					const binding = p.scope.lookup(p.node.name);
+					const bindings = binding?.getBindings()[p.node.name] ?? [];
 					const remotionImport =
 						binding?.path.node === ast.program
 							? remotionImports.get(p.node.name)
@@ -444,6 +580,14 @@ const getPrecompositionPlan = ({
 						p.parentPath.node.callee === p.node;
 					const isSpringCall =
 						remotionImport === 'spring' &&
+						p.parentPath.node.type === 'CallExpression' &&
+						p.parentPath.node.callee === p.node;
+					const isInterpolateColorsCall =
+						remotionImport === 'interpolateColors' &&
+						p.parentPath.node.type === 'CallExpression' &&
+						p.parentPath.node.callee === p.node;
+					const isRandomCall =
+						remotionImport === 'random' &&
 						p.parentPath.node.type === 'CallExpression' &&
 						p.parentPath.node.callee === p.node;
 					const isEasingMember =
@@ -464,6 +608,19 @@ const getPrecompositionPlan = ({
 						!p.parentPath.node.computed &&
 						p.parentPath.node.property.type === 'Identifier' &&
 						p.parentPath.node.property.name === 'staticFile';
+					const isPureFunctionCall =
+						pureTopLevelFunctions.has(p.node.name) &&
+						p.parentPath.node.type === 'CallExpression' &&
+						p.parentPath.node.callee === p.node;
+					const isMathMember =
+						!binding &&
+						p.node.name === 'Math' &&
+						p.parentPath.node.type === 'MemberExpression' &&
+						p.parentPath.node.object === p.node &&
+						!p.parentPath.node.computed &&
+						p.parentPath.node.property.type === 'Identifier' &&
+						(isPureMathMethod(p.parentPath.node.property.name) ||
+							isPureMathConstant(p.parentPath.node.property.name));
 					let hookProp: {
 						name: string;
 						hookName: string;
@@ -473,6 +630,7 @@ const getPrecompositionPlan = ({
 					if (
 						p.node.name !== 'key' &&
 						p.node.name !== 'ref' &&
+						bindings.length === 1 &&
 						functionNode &&
 						(functionNode.type === 'FunctionDeclaration' ||
 							functionNode.type === 'FunctionExpression' ||
@@ -498,7 +656,7 @@ const getPrecompositionPlan = ({
 									if (hook === 'useCurrentFrame') {
 										const isMatchingFrame =
 											declaration.id.type === 'Identifier' &&
-											declaration.id.name === p.node.name;
+											declaration.id === bindings[0].node;
 										if (isMatchingFrame) {
 											hookProp = {
 												name: p.node.name,
@@ -525,7 +683,7 @@ const getPrecompositionPlan = ({
 											(item.key.name === 'durationInFrames' ||
 												item.key.name === 'fps') &&
 											item.value.type === 'Identifier' &&
-											item.value.name === p.node.name,
+											item.value === bindings[0].node,
 									);
 									if (
 										property?.type === 'ObjectProperty' &&
@@ -547,6 +705,27 @@ const getPrecompositionPlan = ({
 						hookProps.set(p.node.name, hookProp);
 					}
 
+					const localConstant = localConstants.get(p.node.name);
+					const isLocalConstant =
+						hookProp === null &&
+						localConstant !== undefined &&
+						binding?.path.node === containingFunctionPath?.node &&
+						bindings.length === 1 &&
+						bindings[0].node === localConstant.id;
+					if (isLocalConstant) {
+						if (
+							localConstant.start >=
+							(currentDerivedProp === null
+								? selectedStart
+								: localConstants.get(currentDerivedProp)!.start)
+						) {
+							unsafeReason = `The selected JSX reads ${p.node.name} before it is initialized`;
+						} else if (!derivedProps.has(p.node.name)) {
+							derivedProps.set(p.node.name, localConstant);
+							pendingDerivedProps.push(p.node.name);
+						}
+					}
+
 					if (
 						!(
 							binding?.path.node === ast.program &&
@@ -555,12 +734,16 @@ const getPrecompositionPlan = ({
 								isStaticFileNamespace ||
 								isInterpolating ||
 								isSpringCall ||
-								isEasingMember)
+								isInterpolateColorsCall ||
+								isRandomCall ||
+								isEasingMember ||
+								isPureFunctionCall)
 						) &&
 						!hookProp &&
+						!isLocalConstant &&
+						!isMathMember &&
 						!(
-							binding === undefined &&
-							['undefined', 'Infinity', 'NaN'].includes(p.node.name)
+							!binding && ['undefined', 'Infinity', 'NaN'].includes(p.node.name)
 						)
 					) {
 						unsafeReason = `The selected JSX reads ${p.node.name} from an unstable scope`;
@@ -678,6 +861,19 @@ const getPrecompositionPlan = ({
 					callee.type === 'Identifier' &&
 					remotionImports.get(callee.name) === 'spring' &&
 					p.scope.lookup(callee.name)?.path.node === ast.program;
+				const isNamedInterpolateColors =
+					callee.type === 'Identifier' &&
+					remotionImports.get(callee.name) === 'interpolateColors' &&
+					p.scope.lookup(callee.name)?.path.node === ast.program &&
+					(args.length === 3 || args.length === 4);
+				const isNamedSeededRandom =
+					callee.type === 'Identifier' &&
+					remotionImports.get(callee.name) === 'random' &&
+					p.scope.lookup(callee.name)?.path.node === ast.program &&
+					args.length === 1 &&
+					(args[0].type === 'StringLiteral' ||
+						args[0].type === 'NumericLiteral' ||
+						args[0].type === 'TemplateLiteral');
 				const isEasingMethod =
 					callee.type === 'MemberExpression' &&
 					!callee.computed &&
@@ -686,6 +882,18 @@ const getPrecompositionPlan = ({
 					easingMethods.has(callee.property.name) &&
 					remotionImports.get(callee.object.name) === 'Easing' &&
 					p.scope.lookup(callee.object.name)?.path.node === ast.program;
+				const isMathMethod =
+					callee.type === 'MemberExpression' &&
+					!callee.computed &&
+					callee.object.type === 'Identifier' &&
+					callee.object.name === 'Math' &&
+					callee.property.type === 'Identifier' &&
+					isPureMathMethod(callee.property.name) &&
+					!p.scope.lookup('Math');
+				const isPureFunction =
+					callee.type === 'Identifier' &&
+					pureTopLevelFunctions.has(callee.name) &&
+					p.scope.lookup(callee.name)?.path.node === ast.program;
 				const isNamedStaticFile =
 					callee.type === 'Identifier' &&
 					staticFileNames.has(callee.name) &&
@@ -703,10 +911,15 @@ const getPrecompositionPlan = ({
 					args.length === 1 &&
 					args[0].type === 'StringLiteral';
 				if (
-					!isSafeStaticFile &&
-					!isNamedInterpolate &&
-					!isNamedSpring &&
-					!isEasingMethod
+					args.some((argument) => argument.type === 'SpreadElement') ||
+					(!isSafeStaticFile &&
+						!isNamedInterpolate &&
+						!isNamedSpring &&
+						!isNamedInterpolateColors &&
+						!isNamedSeededRandom &&
+						!isEasingMethod &&
+						!isMathMethod &&
+						!isPureFunction)
 				) {
 					unsafeReason =
 						'The selected JSX contains a call that may change behavior';
@@ -719,8 +932,31 @@ const getPrecompositionPlan = ({
 					'The selected JSX contains a call that may change behavior';
 				return false;
 			},
+			visitDoExpression() {
+				unsafeReason = 'The selected JSX contains a do expression';
+				return false;
+			},
+			visitExpression(p) {
+				if (
+					[
+						'ThrowExpression',
+						'PipelineExpression',
+						'BindExpression',
+						'ImportExpression',
+					].includes((p.node as {type: string}).type)
+				) {
+					unsafeReason = 'The selected JSX contains an unsupported expression';
+					return false;
+				}
+
+				this.traverse(p);
+			},
 			visitNewExpression() {
 				unsafeReason = 'The selected JSX contains a constructor call';
+				return false;
+			},
+			visitThrowStatement() {
+				unsafeReason = 'The selected JSX contains a throw statement';
 				return false;
 			},
 			visitAssignmentExpression() {
@@ -746,6 +982,57 @@ const getPrecompositionPlan = ({
 			visitObjectMethod() {
 				unsafeReason = 'The selected JSX contains a function';
 				return false;
+			},
+			visitJSXElement(p) {
+				if (currentDerivedProp !== null) {
+					unsafeReason = 'A captured value renders JSX';
+					return false;
+				}
+
+				this.traverse(p);
+			},
+			visitJSXFragment(p) {
+				if (currentDerivedProp !== null) {
+					unsafeReason = 'A captured value renders JSX';
+					return false;
+				}
+
+				this.traverse(p);
+			},
+			visitSpreadElement() {
+				unsafeReason = 'The selected JSX contains a spread';
+				return false;
+			},
+			visitJSXSpreadAttribute() {
+				unsafeReason = 'The selected JSX contains spread props';
+				return false;
+			},
+			visitJSXSpreadChild() {
+				unsafeReason = 'The selected JSX contains a spread child';
+				return false;
+			},
+			visitUnaryExpression(p) {
+				if (
+					p.node.operator === 'delete' ||
+					String(p.node.operator) === 'throw'
+				) {
+					unsafeReason = 'The selected JSX contains an unsafe operator';
+					return false;
+				}
+
+				this.traverse(p);
+			},
+			visitBinaryExpression(p) {
+				if (
+					p.node.operator === 'in' ||
+					p.node.operator === 'instanceof' ||
+					String(p.node.operator) === '|>'
+				) {
+					unsafeReason = 'The selected JSX contains an unsafe operator';
+					return false;
+				}
+
+				this.traverse(p);
 			},
 			visitClassExpression() {
 				unsafeReason = 'The selected JSX contains a class';
@@ -777,10 +1064,118 @@ const getPrecompositionPlan = ({
 				this.traverse(p);
 			},
 		});
+	};
+
+	for (const path of selectedPaths) {
+		scanSafePath(path);
+	}
+
+	for (let index = 0; index < pendingDerivedProps.length; index++) {
+		currentDerivedProp = pendingDerivedProps[index];
+		scanSafePath(localConstants.get(currentDerivedProp)!.initPath);
 	}
 
 	if (unsafeReason !== null) {
 		throw new Error(unsafeReason);
+	}
+
+	const primitiveDerivedNames = new Set<string>();
+	const isPrimitiveDerivedExpression = (node: Node): boolean => {
+		switch (node.type) {
+			case 'StringLiteral':
+			case 'NumericLiteral':
+			case 'BooleanLiteral':
+			case 'NullLiteral':
+			case 'BigIntLiteral':
+				return true;
+			case 'Identifier':
+				return (
+					primitiveDerivedNames.has(node.name) ||
+					hookProps.has(node.name) ||
+					stablePrimitiveNames.has(node.name) ||
+					['undefined', 'Infinity', 'NaN'].includes(node.name)
+				);
+			case 'ParenthesizedExpression':
+			case 'TSAsExpression':
+			case 'TSTypeAssertion':
+			case 'TSNonNullExpression':
+			case 'TSSatisfiesExpression':
+				return isPrimitiveDerivedExpression(node.expression);
+			case 'UnaryExpression':
+				return (
+					node.operator !== 'delete' &&
+					isPrimitiveDerivedExpression(node.argument)
+				);
+			case 'BinaryExpression':
+				return (
+					node.operator !== 'in' &&
+					node.operator !== 'instanceof' &&
+					isPrimitiveDerivedExpression(node.left) &&
+					isPrimitiveDerivedExpression(node.right)
+				);
+			case 'LogicalExpression':
+				return (
+					isPrimitiveDerivedExpression(node.left) &&
+					isPrimitiveDerivedExpression(node.right)
+				);
+			case 'ConditionalExpression':
+				return (
+					isPrimitiveDerivedExpression(node.test) &&
+					isPrimitiveDerivedExpression(node.consequent) &&
+					isPrimitiveDerivedExpression(node.alternate)
+				);
+			case 'TemplateLiteral':
+				return node.expressions.every(isPrimitiveDerivedExpression);
+			case 'MemberExpression':
+				return (
+					!node.computed &&
+					node.object.type === 'Identifier' &&
+					node.object.name === 'Math' &&
+					node.property.type === 'Identifier' &&
+					isPureMathConstant(node.property.name)
+				);
+			case 'CallExpression': {
+				const {callee} = node;
+				if (callee.type === 'Identifier') {
+					return (
+						primitiveTopLevelFunctions.has(callee.name) ||
+						[
+							'interpolate',
+							'spring',
+							'interpolateColors',
+							'random',
+							'staticFile',
+						].includes(remotionImports.get(callee.name) ?? '')
+					);
+				}
+
+				return (
+					callee.type === 'MemberExpression' &&
+					!callee.computed &&
+					callee.object.type === 'Identifier' &&
+					callee.property.type === 'Identifier' &&
+					((callee.object.name === 'Math' &&
+						isPureMathMethod(callee.property.name)) ||
+						(remotionNamespaces.has(callee.object.name) &&
+							callee.property.name === 'staticFile'))
+				);
+			}
+
+			default:
+				return false;
+		}
+	};
+
+	for (const [name, candidate] of [...derivedProps].sort(
+		(left, right) => left[1].start - right[1].start,
+	)) {
+		if (!isPrimitiveDerivedExpression(candidate.initPath.node as Node)) {
+			throw new Error(
+				`The selected JSX captures a non-primitive value: ${name}`,
+			);
+		}
+
+		primitiveDerivedNames.add(name);
 	}
 
 	if (
@@ -899,6 +1294,12 @@ const getPrecompositionPlan = ({
 	return {
 		ast,
 		children,
+		derivedProps: [...derivedProps]
+			.sort((left, right) => left[1].start - right[1].start)
+			.map(([name, {initSource}]) => ({
+				name,
+				initSource,
+			})),
 		end: recastLocToOffset(input, sequenceEnd ?? last.loc!.end),
 		firstIndex,
 		hookProps: [...hookProps.values()].sort((left, right) =>
@@ -1032,6 +1433,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const {
 		ast,
 		children,
+		derivedProps,
 		end,
 		firstIndex,
 		hookProps,
@@ -1106,7 +1508,10 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		throw new Error('Could not choose a unique composition name');
 	}
 
-	const resolvedHookProps = hookProps.map((prop) => {
+	const resolvedProps = [
+		...hookProps.map((prop) => ({...prop, propKind: 'hook' as const})),
+		...derivedProps.map((prop) => ({...prop, propKind: 'derived' as const})),
+	].map((prop) => {
 		const suffix = prop.name.charAt(0).toUpperCase() + prop.name.slice(1);
 		let parentAlias = `precomposeParent${suffix}`;
 		for (let index = 2; occupiedNames.has(parentAlias); index++) {
@@ -1122,27 +1527,39 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		occupiedNames.add(standaloneAlias);
 		return {...prop, parentAlias, standaloneAlias};
 	});
-	const destructuredProps = resolvedHookProps
+	const destructuredProps = resolvedProps
 		.map(({name: propName, parentAlias}) => `${propName}: ${parentAlias}`)
 		.join(', ');
-	const typedProps = resolvedHookProps
-		.map(({name: propName}) => `${propName}?: number | null`)
+	const typedProps = resolvedProps
+		.map(
+			({name: propName, propKind}) =>
+				`${propName}?: ${propKind === 'hook' ? 'number | null' : 'unknown'}`,
+		)
 		.join('; ');
 	const parameters =
-		resolvedHookProps.length === 0
+		resolvedProps.length === 0
 			? ''
 			: `{${destructuredProps}}${filePath.endsWith('.tsx') ? `: {${typedProps}}` : ''}`;
 	const signature = `export function ${name}(${parameters}) {`;
-	const hookStatements = resolvedHookProps.flatMap(
-		({name: propName, parentAlias, standaloneAlias, hookName, kind}) => [
+	const valueStatements = resolvedProps.flatMap((prop) => {
+		const {name: propName, parentAlias, standaloneAlias} = prop;
+		if (prop.propKind === 'derived') {
+			return [
+				`const ${standaloneAlias} = () => ${prop.initSource};`,
+				`const ${propName} = ${parentAlias} === undefined ? ${standaloneAlias}() : ${filePath.endsWith('.tsx') ? `(${parentAlias} as ReturnType<typeof ${standaloneAlias}>)` : `/** @type {ReturnType<typeof ${standaloneAlias}>} */ (${parentAlias})`};`,
+			];
+		}
+
+		const {hookName, kind} = prop;
+		return [
 			kind === 'frame'
 				? `const ${standaloneAlias} = ${hookName}();`
 				: kind === 'fps'
 					? `const ${standaloneAlias} = ${hookName}().fps;`
 					: `const ${standaloneAlias} = ${metadata.durationInFrames};`,
 			`const ${propName} = ${parentAlias} ?? ${standaloneAlias};`,
-		],
-	);
+		];
+	});
 
 	const snapshots = captureImportSnapshots(ast);
 	const sequenceImport = [...ast.program.body]
@@ -1176,7 +1593,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const unit = getIndentationUnit(input, null);
 	const originalIndent = getLineIndent({input, offset: start});
 	const wrapperName = sequenceName ?? name;
-	const childSource = `<${name}${resolvedHookProps.map(({name: propName}) => ` ${propName}={${propName}}`).join('')} />`;
+	const childSource = `<${name}${resolvedProps.map(({name: propName}) => ` ${propName}={${propName}}`).join('')} />`;
 	const replacementSource = selectedSequence
 		? `${endOfLine}${originalIndent}${unit}${childSource}${endOfLine}${originalIndent}`
 		: [
@@ -1199,7 +1616,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	}
 
 	const declarationStatement = parseAst(
-		`${signature} ${hookStatements.join(' ')} return <></>; }`,
+		`${signature} ${valueStatements.join(' ')} return <></>; }`,
 	).program.body[0];
 	if (
 		declarationStatement.type !== 'ExportNamedDeclaration' ||
@@ -1260,37 +1677,38 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		})
 		.join(endOfLine);
 	const componentSignature =
-		signature.length <= 80 || resolvedHookProps.length === 0
+		signature.length <= 80 || resolvedProps.length === 0
 			? signature
 			: filePath.endsWith('.tsx')
 				? [
 						`export function ${name}({`,
-						...resolvedHookProps.map(
+						...resolvedProps.map(
 							({name: propName, parentAlias}) =>
 								`${unit}${propName}: ${parentAlias},`,
 						),
 						`}: {`,
-						...resolvedHookProps.map(
-							({name: propName}) => `${unit}${propName}?: number | null;`,
+						...resolvedProps.map(
+							({name: propName, propKind}) =>
+								`${unit}${propName}?: ${propKind === 'hook' ? 'number | null' : 'unknown'};`,
 						),
 						'}) {',
 					].join(endOfLine)
 				: [
 						`export function ${name}({`,
-						...resolvedHookProps.map(
+						...resolvedProps.map(
 							({name: propName, parentAlias}) =>
 								`${unit}${propName}: ${parentAlias},`,
 						),
 						'}) {',
 					].join(endOfLine);
 	const component = [
-		...(resolvedHookProps.length > 0 && !filePath.endsWith('.tsx')
+		...(resolvedProps.length > 0 && !filePath.endsWith('.tsx')
 			? [
-					`/** @param {{${resolvedHookProps.map(({name: propName}) => `${propName}?: number | null`).join(', ')}}} props */`,
+					`/** @param {{${resolvedProps.map(({name: propName, propKind}) => `${propName}?: ${propKind === 'hook' ? 'number | null' : 'unknown'}`).join(', ')}}} props */`,
 				]
 			: []),
 		componentSignature,
-		...hookStatements.map((statement) => `${unit}${statement}`),
+		...valueStatements.map((statement) => `${unit}${statement}`),
 		`${unit}return (`,
 		`${unit}${unit}<>`,
 		movedSource,
