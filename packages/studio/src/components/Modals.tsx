@@ -34,6 +34,7 @@ import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
 import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
+import {WrapRefactorModal} from './WrapRefactorModal';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
@@ -284,6 +285,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
+			) : null}
+			{modalContextType && modalContextType.type === 'wrap-refactor' ? (
+				<WrapRefactorModal state={modalContextType} />
 			) : null}
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
