@@ -992,13 +992,22 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
 			const runtimeValues = controls.runtimeValues.getSnapshot();
+			const playbackRate = getTrimPlaybackRate({
+				sequence: originalSequence,
+				runtimeValues,
+			});
+			const runtimeDuration = runtimeValues.durationInFrames;
 			targets.set(key, {
 				parentPlaybackRate: getParentSequencePlaybackRate(
 					originalSequence,
 					sequences,
 				),
 				fileName: nodePath.absolutePath,
-				initialDuration: originalSequence.duration,
+				initialDuration:
+					typeof runtimeDuration === 'number' &&
+					Number.isFinite(runtimeDuration)
+						? runtimeDuration / playbackRate
+						: originalSequence.duration,
 				initialFrom: positionField === 'from' ? originalSequence.from : 0,
 				initialTrimBefore: trimsMedia
 					? (originalSequence.trimBefore ??
@@ -1009,10 +1018,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					sequences,
 				}),
 				nodePath,
-				playbackRate: getTrimPlaybackRate({
-					sequence: originalSequence,
-					runtimeValues,
-				}),
+				playbackRate,
 				positionField,
 				schema: controls.schema,
 			});

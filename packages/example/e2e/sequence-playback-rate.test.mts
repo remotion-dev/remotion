@@ -48,7 +48,7 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 			.poll(() => fs.readFileSync(fixture, 'utf-8'))
 			.toMatch(/interpolate\(\s*frame,\s*\[20,\s*40,\s*80\]/);
 
-		// Child duration 100 parent frames occupies 50 composition frames.
+		// The parent ends at frame 65, so the child is visible for 45 frames.
 		await row.click();
 		const trim = page
 			.getByRole('separator', {name: 'Drag to trim start', exact: true})
@@ -60,7 +60,7 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 		const durationBox = await duration.last().boundingBox();
 		if (!trimBox || !durationBox)
 			throw new Error('Expected sequence edge handles');
-		const pixelsPerFrame = (durationBox.x - trimBox.x) / 50;
+		const pixelsPerFrame = (durationBox.x - trimBox.x) / 45;
 		const trimX = trimBox.x + trimBox.width / 2;
 		const trimY = trimBox.y + trimBox.height / 2;
 		await page.mouse.move(trimX, trimY);
@@ -70,7 +70,7 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 		await expect
 			.poll(() => fs.readFileSync(fixture, 'utf-8'))
 			.toMatch(
-				/from=\{30\}[\s\S]*durationInFrames=\{90\}[\s\S]*trimBefore=\{9\}/,
+				/from=\{30\}[\s\S]*durationInFrames=\{95\}[\s\S]*trimBefore=\{9\}/,
 			);
 		await expect(
 			page.getByText('Local frame: 14', {exact: true}),
@@ -107,7 +107,7 @@ test('retimed nested sequences preserve local frames when trimming, moving, and 
 		await page.mouse.up();
 		await expect
 			.poll(() => fs.readFileSync(fixture, 'utf-8'))
-			.toMatch(/durationInFrames=\{80\}/);
+			.toMatch(/durationInFrames=\{30\}/);
 	} finally {
 		await stopStudio();
 		fs.writeFileSync(fixture, original);
