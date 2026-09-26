@@ -22,6 +22,7 @@ const expandedSectionBase: React.CSSProperties = {
 	fontSize: 12,
 	display: 'flex',
 	flexDirection: 'column',
+	position: 'relative',
 };
 
 export const TimelineExpandedSection: React.FC<{
@@ -76,23 +77,32 @@ export const TimelineExpandedSection: React.FC<{
 		<TimelineRowSelectedBackgroundContext.Provider
 			value={TIMELINE_EXPANDED_SELECTED_BACKGROUND}
 		>
-			<div style={style}>
-				{flat.map(({node, depth}) => {
+			<div style={style} className="remotion-timeline-list-expanded-section">
+				{flat.map(({node, depth}, index) => {
 					return (
-						<TimelineExpandedRow
+						<div
 							key={JSON.stringify(node.nodePathInfo)}
-							node={node}
-							depth={depth}
-							nestedDepth={nestedDepth}
-							getIsExpanded={getIsExpanded}
-							toggleTrack={toggleTrack}
-							validatedLocation={validatedLocation}
-							nodePath={nodePathInfo.sequenceSubscriptionKey}
-							schema={schema}
-							keyframeDisplayOffset={keyframeDisplayOffset}
-							keyframePlaybackRate={keyframePlaybackRate}
-							keyframeControlsMode="timeline"
-						/>
+							className={
+								index < flat.length - 1
+									? 'remotion-timeline-list-row-border'
+									: undefined
+							}
+							style={{height: getTreeRowHeight(node), position: 'relative'}}
+						>
+							<TimelineExpandedRow
+								node={node}
+								depth={depth}
+								nestedDepth={nestedDepth}
+								getIsExpanded={getIsExpanded}
+								toggleTrack={toggleTrack}
+								validatedLocation={validatedLocation}
+								nodePath={nodePathInfo.sequenceSubscriptionKey}
+								schema={schema}
+								keyframeDisplayOffset={keyframeDisplayOffset}
+								keyframePlaybackRate={keyframePlaybackRate}
+								keyframeControlsMode="timeline"
+							/>
+						</div>
 					);
 				})}
 			</div>
