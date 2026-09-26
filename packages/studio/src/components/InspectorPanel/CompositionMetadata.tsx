@@ -158,10 +158,10 @@ const frameRatePresets = [23.976, 24, 25, 29.97, 30, 50, 60] as const;
 
 const PresetDropdown: React.FC<{
 	readonly disabled: boolean;
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly values: ComboboxValue[];
 	readonly visible: boolean;
-}> = ({disabled, title, values, visible}) => {
+}> = ({disabled, 'aria-label': ariaLabel, values, visible}) => {
 	const renderAction = useCallback((color: string) => {
 		return (
 			<span style={presetButtonIcon}>
@@ -180,7 +180,7 @@ const PresetDropdown: React.FC<{
 			<InlineDropdown
 				disabled={disabled}
 				renderAction={renderAction}
-				title={title}
+				aria-label={ariaLabel}
 				values={values}
 				variant="compact"
 			/>
@@ -490,7 +490,7 @@ export const CompositionMetadata: React.FC<{
 									pendingValues.width !== undefined ||
 									pendingValues.height !== undefined
 								}
-								title="Choose dimension preset"
+								aria-label="Choose dimension preset"
 								values={dimensionPresetValues}
 								visible={hovered}
 							/>
@@ -526,7 +526,7 @@ export const CompositionMetadata: React.FC<{
 								{disabled || fpsIsComputed ? null : (
 									<PresetDropdown
 										disabled={pendingValues.fps !== undefined}
-										title="Choose frame rate preset"
+										aria-label="Choose frame rate preset"
 										values={frameRatePresetValues}
 										visible={hovered}
 									/>

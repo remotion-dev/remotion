@@ -4,17 +4,25 @@ import type {
 	SourceSpecification,
 } from '@maptiler/sdk';
 import {useContext, useEffect, useRef, type ReactNode} from 'react';
-import {useDelayRender} from 'remotion';
+import {
+	Freeze,
+	Sequence,
+	Internals,
+	useDelayRender,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+} from 'remotion';
 import {delayMapRender} from './delay-map-render';
 import {MapTilerContext} from './MapTilerContext';
 
-export type MapSourceProps = {
-	readonly children?: ReactNode;
-	readonly id: string;
-	readonly source: SourceSpecification;
-};
+export type MapSourceProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly children?: ReactNode;
+		readonly id: string;
+		readonly source: SourceSpecification;
+	};
 
-export const MapSource = ({children, id, source}: MapSourceProps) => {
+const MapSourceContent = ({children, id, source}: MapSourceProps) => {
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const sourceRef = useRef(source);
 	const {continueRender, delayRender} = useDelayRender();
@@ -85,4 +93,68 @@ export const MapSource = ({children, id, source}: MapSourceProps) => {
 	}, [continueRender, delayRender, id, map, source]);
 
 	return children;
+};
+
+export const MapSource = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	trimAfter,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	...props
+}: MapSourceProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
+
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				playbackRate={playbackRate}
+				loop={loop}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline ?? false}
+				name={name ?? '<MapSource>'}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapSourceContent {...props} />
+			</Sequence>
+		</Freeze>
+	);
 };

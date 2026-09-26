@@ -6,6 +6,7 @@ import {
 } from '../components/Timeline/imperative-state';
 import {scrollableRef} from '../components/Timeline/timeline-refs';
 import {prepareToPreserveTimelineCursor} from '../components/Timeline/timeline-scroll-logic';
+import {syncTimelineViewport} from '../components/Timeline/TimelineViewport';
 import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
 import {
 	clampTimelineZoom,
@@ -74,6 +75,9 @@ export const TimelineZoomContext: React.FC<{
 			// The new scroll range exists now, so the browser will not clamp the offset
 			// against the previous width.
 			preserveTimelineCursor();
+			// A large zoom can move beyond the old horizontal render window. Commit
+			// the new window before the browser paints the new scroll position.
+			flushSync(syncTimelineViewport);
 		},
 		[],
 	);

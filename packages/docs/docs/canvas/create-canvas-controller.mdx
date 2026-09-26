@@ -1,0 +1,116 @@
+---
+image: /generated/articles-docs-canvas-create-canvas-controller.png
+title: createCanvasController()
+crumb: '@remotion/canvas'
+---
+
+# createCanvasController()<AvailableFrom v="4.0.527" />
+
+Creates a `CanvasController` to share between [`<Canvas>`](/docs/canvas/canvas) and your editor UI. In React components, [`useCanvasController()`](/docs/canvas/use-canvas-controller) keeps one controller across renders.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts title="controller.ts"
+import {createCanvasController} from '@remotion/canvas';
+
+export const controller = createCanvasController();
+```
+
+The function takes no arguments.
+
+## Return value
+
+### timeline
+
+An external store of `readonly TimelineTrackData[]`. Subscribe with `timeline.subscribe(listener)` and read with `timeline.getSnapshot()`. In React, pass both to `useSyncExternalStore()` as shown in the [overview](/docs/canvas#basic-example). Tracks are populated while the composition is mounted and cleared when `<Canvas>` unmounts.
+
+Each track includes `sequence` registration data, `depth`, `nodePathInfo`, and timing fields such as `cascadedStart`, `localStart`, `keyframeDisplayOffset`, `keyframePlaybackRate`, and `sequenceFrameOffset`. The sequence's `from` and `duration` are its visible timeline range. `nodePathInfo` is `null` until a source identity is registered with [`setSequenceNodePaths()`](#setsequencenodepaths).
+
+#### sequence.controls<AvailableFrom v="4.0.529" />
+
+The interactivity data of the mounted element, or `null` for elements that do not register any. The `<Canvas>` populates it for built-in elements and for components wrapped with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+`schema` is the element's interactivity schema, describing the editable props, their types, ranges and defaults. `runtimeValues` is a store of the current prop values in dot notation, for example `style.opacity`; read it with `getSnapshot()` and `subscribe()`. `supportsEffects` tells whether effects can be added to the element, `componentIdentity` identifies the component and `overrideId` identifies the JSX element the sequence was created from. Sequences rendered from the same element, for example in a `.map()` loop, share an `overrideId`.
+
+### selection
+
+A `CanvasSelectionController` with `getSnapshot()` and `subscribe(listener)` for reading selection. Use [`useCanvasSelection()`](/docs/canvas/use-canvas-selection) in React.
+
+#### select()
+
+`select(item, interaction, allSelectableItems)` applies one selection interaction. `interaction` has `shiftKey` for range selection and `toggleKey` for Command/Ctrl toggling. `allSelectableItems` is the ordered list used to calculate ranges.
+
+#### setSelectedItems()
+
+`setSelectedItems(items)` replaces the selected items and uses the last item as the range anchor.
+
+#### setSnapshot()
+
+`setSnapshot({selectedItems, anchor})` replaces the complete selection state.
+
+#### clear()
+
+`clear()` removes every selection item.
+
+### hover
+
+A `CanvasHoverController` with `getSnapshot()`, `subscribe(listener)`, `setHoveredSequence(valueOrUpdater)`, and `clear(source)`. Use [`useCanvasSequenceHover()`](/docs/canvas/use-canvas-sequence-hover) for a layer row or [`useCanvasHover()`](/docs/canvas/use-canvas-hover) to read the current hover. `clear('canvas')` or `clear('timeline')` only clears hover from that source; `clear(null)` clears either source.
+
+### setSequenceNodePaths()<AvailableFrom v="4.0.529" />
+
+`setSequenceNodePaths(nodePaths)` tells the Canvas which source node each mounted sequence was created from. `nodePaths` is a `Record<string, SequencePropsSubscriptionKey>` keyed by `track.sequence.controls.overrideId`. Import the `SequencePropsSubscriptionKey` type from `remotion`; its `absolutePath` and `nodePath` identify the JSX node, as returned by [`getNodes()`](/docs/codemods/get-nodes). Pass empty arrays for `sequenceKeys` and `effectKeys`, and `track.sequence.controls.videoConfigValues` or `null` for `videoConfigValues`.
+
+Afterwards, the affected tracks carry a `nodePathInfo` with that `sequenceSubscriptionKey`. Tracks rendered from the same source node are numbered through `index` and `numberOfSequencesWithThisNodePath`. [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info) returns the registered identity, so selection and hover stay attached to the source node across remounts.
+
+Passing an unchanged mapping is a no-op, so the function may be called from a `timeline` subscription. Call it again after the source changed. [`getCanvasSequenceSourceLocation()`](/docs/canvas/get-canvas-sequence-source-location) shows how to derive the mapping from the compiled source locations.
+
+### overrides<AvailableFrom v="4.0.529" />
+
+Preview prop values on mounted sequences without changing the source. Overrides are applied to sequences that have a `nodePathInfo`, so register node paths first. They are kept while the composition stays mounted and are not persisted; write the final value to the source, for example with [`updateNodeProps()`](/docs/codemods/update-node-props), and clear the override once the update has been applied.
+
+#### set()
+
+`set(nodePathInfo, key, value)` overrides one prop of the sequence identified by `nodePathInfo`, a `SequenceNodePathInfo` from a track or a selection item. `key` is a key of the element's interactivity schema in dot notation, such as `'style.translate'`, `'from'` or `'durationInFrames'`.
+
+`value` is either `{type: 'static', value}` to show a fixed value, or `{type: 'keyframed', status}` where `status` is a keyframed prop status as returned by [`getNodeProps()`](/docs/codemods/get-node-props) with the keyframes you want to preview. A keyframed override is evaluated at the current frame.
+
+```tsx twoslash title="Scrubbing a value"
+// @moduleResolution: bundler
+import type {CanvasController, SequenceNodePathInfo} from '@remotion/canvas';
+declare const controller: CanvasController;
+declare const nodePathInfo: SequenceNodePathInfo;
+declare const persist: (value: number) => Promise<void>;
+// ---cut---
+export const onScrub = (value: number) => {
+  controller.overrides.set(nodePathInfo, 'style.opacity', {
+    type: 'static',
+    value,
+  });
+};
+
+export const onScrubEnd = async (value: number) => {
+  await persist(value);
+  controller.overrides.clear(nodePathInfo);
+};
+```
+
+The `runtimeValues` of the track keep reporting the values from the source while an override is active.
+
+#### clear()
+
+`clear(nodePathInfo)` removes every override of the sequence.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`<Canvas>`](/docs/canvas/canvas)
+- [`useCanvasController()`](/docs/canvas/use-canvas-controller)
+- [`useCanvasSelection()`](/docs/canvas/use-canvas-selection)
+- [`getCanvasSequenceSourceLocation()`](/docs/canvas/get-canvas-sequence-source-location)

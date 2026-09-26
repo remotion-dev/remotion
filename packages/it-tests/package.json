@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/it-tests"
 	},
 	"name": "@remotion/it-tests",
-	"version": "4.0.526",
+	"version": "4.0.529",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"scripts": {
 		"test": " node --test src/node-version/media-parser.mjs && bun test src/rendering --run --timeout 60000",
@@ -22,6 +22,7 @@
 		"@types/node": "catalog:",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",
 		"@remotion/compositor-darwin-arm64": "workspace:*",

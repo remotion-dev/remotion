@@ -1,12 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BLACK_ALPHA_30,
-	BLUE,
-	BORDER_WHITE_ALPHA_12,
-	LIGHT_TEXT,
-	WHITE,
-} from '../helpers/colors';
+import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
@@ -67,7 +61,6 @@ const promptHeader: React.CSSProperties = {
 	justifyContent: 'space-between',
 };
 const skillRowContainer: React.CSSProperties = {
-	borderTop: BORDER_WHITE_ALPHA_12,
 	marginTop: 10,
 };
 const skillError: React.CSSProperties = {marginTop: 10};
@@ -126,7 +119,7 @@ export const AgentPrompt: React.FC<{
 							role="list"
 							style={skillRowContainer}
 						>
-							<SkillSettingsRow isLast={false} skill={skill} />
+							<SkillSettingsRow skill={skill} />
 						</div>
 					) : (
 						<div style={commandField}>
@@ -135,7 +128,7 @@ export const AgentPrompt: React.FC<{
 								onClick={() => copy(installCommand, markInstallCopied)}
 								renderAction={renderInstallCopy}
 								style={copyAction}
-								title="Copy command"
+								aria-label="Copy command"
 								variant={null}
 							/>
 						</div>
@@ -186,7 +179,7 @@ export const AgentPrompt: React.FC<{
 					onClick={() => copy(prompt, markPromptCopied)}
 					renderAction={renderPromptCopy}
 					style={copyAction}
-					title="Copy prompt"
+					aria-label="Copy prompt"
 					variant={null}
 				/>
 			</div>

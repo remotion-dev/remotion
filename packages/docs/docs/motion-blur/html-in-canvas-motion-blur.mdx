@@ -1,0 +1,122 @@
+---
+image: /generated/articles-docs-motion-blur-html-in-canvas-motion-blur.png
+title: '<HtmlInCanvasMotionBlur>'
+slug: html-in-canvas-motion-blur
+crumb: '@remotion/motion-blur'
+---
+
+# &lt;HtmlInCanvasMotionBlur&gt;<AvailableFrom v="4.0.529" />
+
+<ExperimentalBadge>
+  <p>This component uses the experimental HTML-in-canvas browser API.</p>
+</ExperimentalBadge>
+
+`<HtmlInCanvasMotionBlur>` is the state-of-the-art recommended way to achieve motion blur in Remotion.  
+It requires [HTML-in-canvas](/docs/html-in-canvas#enabling-the-flag-in-chrome) to be enabled during preview. Rendering needs no configuration.
+
+```tsx twoslash title="MyComposition.tsx"
+import {
+  HtmlInCanvasMotionBlur,
+} from '@remotion/motion-blur';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+
+const MovingBox = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: frame * 10,
+        top: 300,
+        width: 120,
+        height: 120,
+        backgroundColor: '#ff6b6b',
+      }}
+    />
+  );
+};
+
+export const MyComposition = () => {
+  const {width, height} = useVideoConfig();
+
+  return (
+    <HtmlInCanvasMotionBlur
+      width={width}
+      height={height}
+      samples={8}
+      shutterAngle={180}
+    >
+      <MovingBox />
+    </HtmlInCanvasMotionBlur>
+  );
+};
+```
+
+## Props
+
+### `children`
+
+The content to blur.  
+Make sure to call [`useCurrentFrame()`](/docs/use-current-frame) from a child component, so `<HtmlInCanvasMotionBlur>` can override the time context correctly.
+
+### `width`
+
+The canvas width in pixels. Must be a positive integer. Use the composition width from [`useVideoConfig()`](/docs/use-video-config) to cover the full frame.
+
+### `height`
+
+The canvas height in pixels. Must be a positive integer. Use the composition height from [`useVideoConfig()`](/docs/use-video-config) to cover the full frame.
+
+### `from?`
+
+Moves the blurred content on its parent timeline. Default: `0`.
+
+### `durationInFrames?`
+
+Limits how long the blurred content appears on its parent timeline, starting at `from`. By default, it lasts until the composition ends.
+
+### `trimBefore?`
+
+Skips the beginning of the content without moving its `from` position. Default: `0`.
+
+### `trimAfter?`
+
+Ends the content at this child frame, unless `durationInFrames` ends it earlier. The frame is measured in the same clock as `trimBefore`.
+
+### `playbackRate?`
+
+Changes how quickly the child frames advance. Default: `1`. The motion blur samples follow this speed.
+
+### `loop?`
+
+Repeats the range from `trimBefore` up to `trimAfter`. Set a finite `trimAfter` when enabling `loop`. `durationInFrames` can limit the total time the loop appears. Default: `false`.
+
+See [Timing and trimming](/docs/timing) for how these props combine.
+
+### `samples?`
+
+How many snapshots are averaged. Default: `8`, min: `1`, max: `64`.  
+Higher values make the blur smoother but cost more work during preview and rendering.
+
+### `shutterAngle?`
+
+How long the exposure is, expressed as an angle from `0` to `360`. Default: `180`.  
+At `180`, samples span half a frame centered on the current frame.  
+At `0`, no motion blur is applied.  
+Samples outside the composition are clamped to its first or last frame.
+
+## Nested HTML-in-canvas caveat
+
+Nested [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components are currently unsupported, so children of `<HtmlInCanvasMotionBlur>` cannot contain another `<HtmlInCanvas>` component or vice versa.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox={false} safari={false} nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Motion blur guide](/docs/motion-blur)
+- [`<CameraMotionBlur>`](/docs/motion-blur/camera-motion-blur)
+- [HTML-in-canvas](/docs/html-in-canvas)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/motion-blur/src/HtmlInCanvasMotionBlur.tsx)

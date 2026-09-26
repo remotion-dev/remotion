@@ -18,6 +18,7 @@ import {
 	getOutputConfig,
 	getResolveConfig,
 	getSharedModuleRules,
+	transformersImportMetaWarning,
 } from './shared-bundler-config';
 import esbuild = require('esbuild');
 export type {WebpackConfiguration, WebpackOverrideFn} from './override-types';
@@ -64,6 +65,7 @@ export const webpackConfig = async ({
 
 	const baseConfig: WebpackConfiguration = {
 		...getBaseConfig(environment, poll),
+		ignoreWarnings: [transformersImportMetaWarning],
 		entry: getStudioEntryPoints({
 			fastRefreshRuntime:
 				environment === 'development'

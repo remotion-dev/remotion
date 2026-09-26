@@ -135,6 +135,8 @@ const make3DTransform = <ValueKey extends string>({
 				durationInFrames,
 				from,
 				trimBefore,
+				trimAfter,
+				loop,
 				freeze,
 				hidden,
 				name,
@@ -149,6 +151,8 @@ const make3DTransform = <ValueKey extends string>({
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
+					trimAfter={trimAfter}
+					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}

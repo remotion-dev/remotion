@@ -431,7 +431,6 @@ export const ColorPickerPopup: React.FC<{
 						style={eyedropperButtonStyle}
 						onClick={onPickWithEyeDropper}
 						tabIndex={tabIndex}
-						title="Pick color from screen"
 						aria-label="Pick color from screen"
 					>
 						<EyedropperIcon
@@ -440,7 +439,7 @@ export const ColorPickerPopup: React.FC<{
 						/>
 					</button>
 				) : null}
-				<div style={previewSwatchStyle} title={formatted}>
+				<div role="group" style={previewSwatchStyle} aria-label={formatted}>
 					<div style={previewFill} />
 				</div>
 				<div style={slidersColumnStyle}>

@@ -8,32 +8,19 @@ export type UpdateSelectedOutlineSnapPoints = (
 	snapPoints: readonly SelectedOutlineSnapPoint[],
 ) => void;
 
-export const SelectedOutlineSnapIndicators: React.FC<{
+export const SelectedOutlineSnapLines: React.FC<{
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly scale: number;
-	readonly updateSnapPointsRef: React.MutableRefObject<UpdateSelectedOutlineSnapPoints>;
-}> = ({compositionHeight, compositionWidth, scale, updateSnapPointsRef}) => {
-	const [activeSnapPoints, setActiveSnapPoints] = useState<
-		readonly SelectedOutlineSnapPoint[]
-	>([]);
-
-	useLayoutEffect(() => {
-		updateSnapPointsRef.current = setActiveSnapPoints;
-		return () => {
-			if (updateSnapPointsRef.current === setActiveSnapPoints) {
-				updateSnapPointsRef.current = () => undefined;
-			}
-		};
-	}, [updateSnapPointsRef]);
-
-	if (activeSnapPoints.length === 0) {
+	readonly snapPoints: readonly SelectedOutlineSnapPoint[];
+}> = ({compositionHeight, compositionWidth, scale, snapPoints}) => {
+	if (snapPoints.length === 0) {
 		return null;
 	}
 
 	return (
 		<g pointerEvents="none">
-			{activeSnapPoints.map((snapPoint) => {
+			{snapPoints.map((snapPoint) => {
 				if (snapPoint.target.axis === 'x') {
 					const x = snapPoint.target.position * scale;
 					return (
@@ -65,5 +52,34 @@ export const SelectedOutlineSnapIndicators: React.FC<{
 				);
 			})}
 		</g>
+	);
+};
+
+export const SelectedOutlineSnapIndicators: React.FC<{
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
+	readonly scale: number;
+	readonly updateSnapPointsRef: React.MutableRefObject<UpdateSelectedOutlineSnapPoints>;
+}> = ({compositionHeight, compositionWidth, scale, updateSnapPointsRef}) => {
+	const [activeSnapPoints, setActiveSnapPoints] = useState<
+		readonly SelectedOutlineSnapPoint[]
+	>([]);
+
+	useLayoutEffect(() => {
+		updateSnapPointsRef.current = setActiveSnapPoints;
+		return () => {
+			if (updateSnapPointsRef.current === setActiveSnapPoints) {
+				updateSnapPointsRef.current = () => undefined;
+			}
+		};
+	}, [updateSnapPointsRef]);
+
+	return (
+		<SelectedOutlineSnapLines
+			compositionHeight={compositionHeight}
+			compositionWidth={compositionWidth}
+			scale={scale}
+			snapPoints={activeSnapPoints}
+		/>
 	);
 };

@@ -300,7 +300,37 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const canvas = container.querySelector('canvas');
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
+});
+
+test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={120}
+				height={80}
+				_remotionInternalCanvasSiblings={
+					<div data-testid="second-sample">Second sample</div>
+				}
+			>
+				<div data-testid="first-sample">First sample</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas).not.toBeNull();
+	expect(canvas?.children.length).toBe(2);
+	expect(
+		canvas?.children[0]?.querySelector('[data-testid="first-sample"]'),
+	).not.toBeNull();
+	expect(canvas?.children[1]?.getAttribute('data-testid')).toBe(
+		'second-sample',
+	);
 });
 
 test('<HtmlInCanvas> applies crop props to its canvas', () => {
@@ -387,7 +417,11 @@ test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	const nextCanvas = container.querySelector('canvas');
 	expect(nextCanvas).not.toBeNull();
 	expect(canvasRef.current).toBe(nextCanvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(nextCanvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<HtmlInCanvas> can use a higher backing density', async () => {

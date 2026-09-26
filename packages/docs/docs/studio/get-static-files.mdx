@@ -14,7 +14,7 @@ Prefer this API over the old one.
 :::
 
 :::note
-In environments outside the Remotion Studio, this API returns an empty array.  
+In the Player or when called directly in Node.js or Bun, this API returns an empty array. It is available in Remotion Studio and inside compositions during [server-side rendering](/docs/ssr).
 :::
 
 :::note
@@ -74,6 +74,10 @@ Takes no arguments and returns an array of object, each of which have four entri
 ## Maximum files
 
 For performance, only the first 10000 items are fetched and displayed.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player="Returns an empty array" studio hideServers />
 
 ## See also
 

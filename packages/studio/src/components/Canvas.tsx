@@ -87,6 +87,7 @@ import {SPACING_UNIT} from './layout';
 import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {SelectedOutlineSnapLines} from './SelectedOutlineSnapIndicators';
 import {useSvgImportDialog} from './SvgImportDialog';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -241,7 +242,7 @@ export const Canvas: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
-	const {editorShowGuides} = useContext(EditorShowGuidesContext);
+	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
@@ -1154,41 +1155,55 @@ export const Canvas: React.FC<{
 			);
 			if (
 				(metadata?.type !== 'composition' && metadata?.type !== 'element') ||
-				metadata.width === undefined ||
-				metadata.height === undefined
+				(metadata.type === 'composition' &&
+					(metadata.width === undefined || metadata.height === undefined))
 			) {
 				setCompositionDropPreview(null);
 				return;
 			}
 
-			let dropPosition = getDropPosition({
-				addFitPadding,
-				clientX: event.clientX,
-				clientY: event.clientY,
-				contentDimensions,
-				unbounded: metadata.type === 'composition',
-				previewSize,
-				size,
-			});
+			const isFullscreenElement =
+				metadata.type === 'element' &&
+				(metadata.width === undefined || metadata.height === undefined);
+			let dropPosition = isFullscreenElement
+				? {
+						centerX: contentDimensions.width / 2,
+						centerY: contentDimensions.height / 2,
+					}
+				: getDropPosition({
+						addFitPadding,
+						clientX: event.clientX,
+						clientY: event.clientY,
+						contentDimensions,
+						unbounded: metadata.type === 'composition',
+						previewSize,
+						size,
+					});
 			if (dropPosition === null) {
 				setCompositionDropPreview(null);
 				return;
 			}
 
-			const compositionDimensions = {
-				width: metadata.width,
-				height: metadata.height,
-			};
+			const compositionDimensions =
+				metadata.width === undefined || metadata.height === undefined
+					? contentDimensions
+					: {width: metadata.width, height: metadata.height};
+			let snapPoints: CompositionDropPreview['snapPoints'] = [];
 			if (
-				metadata.type === 'composition' &&
+				!isFullscreenElement &&
 				editorSnapping &&
 				!event.metaKey &&
 				!event.ctrlKey
 			) {
-				dropPosition = snapCompositionDropPosition({
+				const snapped = snapCompositionDropPosition({
 					compositionDimensions,
 					destinationDimensions: contentDimensions,
 					dropPosition,
+					guides: editorShowGuides
+						? guidesList.filter(
+								(guide) => guide.compositionId === currentCompositionId,
+							)
+						: [],
 					scale: calculateCanvasScale({
 						addFitPadding,
 						canvasSize: size,
@@ -1197,6 +1212,8 @@ export const Canvas: React.FC<{
 						previewSize: previewSize.size,
 					}),
 				});
+				dropPosition = snapped.dropPosition;
+				snapPoints = snapped.snapPoints;
 			}
 
 			setCompositionDropPreview((currentPreview) => {
@@ -1206,15 +1223,21 @@ export const Canvas: React.FC<{
 					currentPreview.compositionDimensions.height ===
 						compositionDimensions.height &&
 					currentPreview.dropPosition.centerX === dropPosition.centerX &&
-					currentPreview.dropPosition.centerY === dropPosition.centerY
+					currentPreview.dropPosition.centerY === dropPosition.centerY &&
+					currentPreview.snapPoints.length === snapPoints.length &&
+					snapPoints.every((snapPoint, index) => {
+						const currentPoint = currentPreview.snapPoints[index];
+						return (
+							currentPoint.edge === snapPoint.edge &&
+							currentPoint.target.type === snapPoint.target.type &&
+							currentPoint.target.position === snapPoint.target.position
+						);
+					})
 				) {
 					return currentPreview;
 				}
 
-				return {
-					compositionDimensions,
-					dropPosition,
-				};
+				return {compositionDimensions, dropPosition, snapPoints};
 			});
 		},
 		[
@@ -1223,7 +1246,10 @@ export const Canvas: React.FC<{
 			cannotAddSequence,
 			canReceiveElementInstallRequest,
 			contentDimensions,
+			currentCompositionId,
+			editorShowGuides,
 			editorSnapping,
+			guidesList,
 			isAddingAsset,
 			previewSize,
 			size,
@@ -1338,7 +1364,7 @@ export const Canvas: React.FC<{
 				});
 				if (
 					dropPosition !== null &&
-					isComposition &&
+					(metadata?.type === 'composition' || metadata?.type === 'element') &&
 					metadata.width !== undefined &&
 					metadata.height !== undefined &&
 					contentDimensions !== null &&
@@ -1354,6 +1380,11 @@ export const Canvas: React.FC<{
 						},
 						destinationDimensions: contentDimensions,
 						dropPosition,
+						guides: editorShowGuides
+							? guidesList.filter(
+									(guide) => guide.compositionId === currentCompositionId,
+								)
+							: [],
 						scale: calculateCanvasScale({
 							addFitPadding,
 							canvasSize: size,
@@ -1361,7 +1392,7 @@ export const Canvas: React.FC<{
 							compositionWidth: contentDimensions.width,
 							previewSize: previewSize.size,
 						}),
-					});
+					}).dropPosition;
 				}
 
 				await handleDrop({
@@ -1391,7 +1422,9 @@ export const Canvas: React.FC<{
 			config,
 			contentDimensions,
 			currentCompositionId,
+			editorShowGuides,
 			editorSnapping,
+			guidesList,
 			isAddingAsset,
 			previewSize,
 			size,
@@ -1561,6 +1594,62 @@ export const Canvas: React.FC<{
 				zIndex: 1,
 			};
 		}, [compositionDropPreview, contentDimensions, previewSize, size]);
+	const compositionDropSnapLines = useMemo(() => {
+		if (
+			compositionDropPreview === null ||
+			compositionDropPreview.snapPoints.length === 0 ||
+			contentDimensions === null ||
+			contentDimensions === 'none'
+		) {
+			return null;
+		}
+
+		const scale = calculateCanvasScale({
+			addFitPadding,
+			canvasSize: size,
+			compositionHeight: contentDimensions.height,
+			compositionWidth: contentDimensions.width,
+			previewSize: previewSize.size,
+		});
+		const left =
+			size.width / 2 -
+			(contentDimensions.width * scale) / 2 -
+			previewSize.translation.x;
+		const top =
+			size.height / 2 -
+			(contentDimensions.height * scale) / 2 -
+			previewSize.translation.y;
+
+		return (
+			<svg
+				aria-hidden="true"
+				data-testid="canvas-drop-snap-lines"
+				style={{
+					position: 'absolute',
+					left,
+					top,
+					width: contentDimensions.width * scale,
+					height: contentDimensions.height * scale,
+					pointerEvents: 'none',
+					overflow: 'visible',
+					zIndex: 2,
+				}}
+			>
+				<SelectedOutlineSnapLines
+					compositionHeight={contentDimensions.height}
+					compositionWidth={contentDimensions.width}
+					scale={scale}
+					snapPoints={compositionDropPreview.snapPoints}
+				/>
+			</svg>
+		);
+	}, [
+		addFitPadding,
+		compositionDropPreview,
+		contentDimensions,
+		previewSize,
+		size,
+	]);
 
 	return (
 		<>
@@ -1581,6 +1670,7 @@ export const Canvas: React.FC<{
 						style={compositionDropPreviewStyle}
 					/>
 				)}
+				{compositionDropSnapLines}
 				{isFit ? null : (
 					<div style={resetZoom} className="css-reset">
 						<ResetZoomButton onClick={onReset} />

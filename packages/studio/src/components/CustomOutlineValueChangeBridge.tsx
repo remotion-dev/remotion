@@ -60,6 +60,7 @@ export const CustomOutlineValueChangeBridge: React.FC<{
 										getKeyframeDisplayOffset({
 											propStatus: status,
 											keyframeDisplayOffset: target.keyframeDisplayOffset,
+											keyframePlaybackRate: target.keyframePlaybackRate,
 										}),
 									value,
 								}),
@@ -94,6 +95,7 @@ export const CustomOutlineValueChangeBridge: React.FC<{
 								getKeyframeDisplayOffset({
 									propStatus: status,
 									keyframeDisplayOffset: target.keyframeDisplayOffset,
+									keyframePlaybackRate: target.keyframePlaybackRate,
 								}),
 							value,
 							schema: controls.schema,

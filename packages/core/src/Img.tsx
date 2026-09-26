@@ -25,7 +25,7 @@ import type {
 } from './Interactive.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutPlaybackRate,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -34,6 +34,7 @@ import {
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {usePreload} from './prefetch.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
@@ -68,7 +69,7 @@ export type ImgProps = NativeImgProps & {
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
-} & InteractiveBaseProps &
+} & Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
@@ -84,6 +85,8 @@ type ImgContentProps = Omit<
 	| 'showInTimeline'
 	| 'from'
 	| 'trimBefore'
+	| 'trimAfter'
+	| 'loop'
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
@@ -95,9 +98,7 @@ type ImgContentProps = Omit<
 	| 'cropRight'
 	| 'cropTop'
 	| 'cropBottom'
-> & {
-	readonly refForOutline: React.RefObject<HTMLElement | null>;
-};
+>;
 
 const ImgContent: React.FC<ImgContentProps> = ({
 	onError,
@@ -111,7 +112,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	crossOrigin,
 	decoding,
 	ref,
-	refForOutline,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
@@ -129,7 +129,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	const imageCallbackRef = useCallback(
 		(img: HTMLImageElement | null) => {
 			imageRef.current = img;
-			refForOutline.current = img;
 
 			if (typeof ref === 'function') {
 				ref(img);
@@ -137,7 +136,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				ref.current = img;
 			}
 		},
-		[ref, refForOutline],
+		[ref],
 	);
 
 	const actualSrc = usePreload(src as string);
@@ -356,7 +355,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 
 type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
 	readonly controls: SequenceControls | undefined;
-	readonly outlineRef: React.RefObject<HTMLElement | null>;
 };
 
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
@@ -366,6 +364,8 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	src,
 	from,
 	trimBefore,
+	trimAfter,
+	loop,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -378,7 +378,6 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	cropTop,
 	cropBottom,
 	controls,
-	outlineRef: refForOutline,
 	...props
 }) => {
 	if (!src) {
@@ -403,7 +402,13 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate: undefined,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -426,6 +431,8 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
@@ -438,14 +445,8 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				controls={controls}
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
-				outlineRef={refForOutline}
 			>
-				<ImgContent
-					src={src}
-					refForOutline={refForOutline}
-					style={croppedStyle ?? undefined}
-					{...props}
-				/>
+				<ImgContent src={src} style={croppedStyle ?? undefined} {...props} />
 			</Sequence>
 		</Freeze>
 	);
@@ -454,7 +455,6 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
 		readonly controls?: SequenceControls | undefined;
-		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
 
@@ -466,7 +466,7 @@ export const imgSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,
@@ -562,6 +562,7 @@ const ImgInner: React.FC<
 	src,
 	from,
 	trimBefore,
+	trimAfter,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -585,7 +586,6 @@ const ImgInner: React.FC<
 	onImageError,
 	...props
 }) => {
-	const refForOutline = useRef<HTMLElement | null>(null);
 	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
 
 	if (effects.length === 0) {
@@ -599,6 +599,7 @@ const ImgInner: React.FC<
 				src={src}
 				from={from}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
 				durationInFrames={durationInFrames}
 				freeze={freeze}
 				premountFor={premountFor}
@@ -620,7 +621,6 @@ const ImgInner: React.FC<
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 				onImageError={onImageError}
-				outlineRef={refForOutline}
 			/>
 		);
 	}
@@ -662,6 +662,7 @@ const ImgInner: React.FC<
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
 			trimBefore={trimBefore}
+			trimAfter={trimAfter}
 			durationInFrames={durationInFrames}
 			freeze={freeze}
 			premountFor={premountFor}
@@ -674,7 +675,6 @@ const ImgInner: React.FC<
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalCropComponentName="<Img />"
 			controls={controls}
-			outlineRef={refForOutline}
 			{...canvasProps}
 		/>
 	);

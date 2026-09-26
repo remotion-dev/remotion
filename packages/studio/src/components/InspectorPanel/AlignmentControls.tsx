@@ -15,7 +15,10 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
 import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
-import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from '../Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {
 	parseTranslate,
@@ -55,14 +58,14 @@ const verticalSpacer: React.CSSProperties = {
 
 const AlignmentButton: React.FC<{
 	readonly onClick: () => void;
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly Icon: React.FC<React.SVGProps<SVGSVGElement>>;
 	readonly disabled: boolean;
-}> = ({onClick, title, Icon, disabled}) => {
+}> = ({onClick, 'aria-label': ariaLabel, Icon, disabled}) => {
 	return (
 		<InlineAction
 			variant={null}
-			title={title}
+			aria-label={ariaLabel}
 			onClick={onClick}
 			renderAction={(color) => <Icon style={iconStyle} color={color} />}
 			disabled={disabled}
@@ -115,15 +118,6 @@ export const AlignmentControls: React.FC<{
 				propStatuses,
 				nodePath,
 			);
-			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
-				(status) => status.status === 'keyframed',
-			);
-			const sourceFrame =
-				timelinePosition -
-				getKeyframeDisplayOffset({
-					propStatus: firstKeyframedStatus,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-				});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -131,7 +125,9 @@ export const AlignmentControls: React.FC<{
 				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
-				frame: sourceFrame,
+				frame:
+					(timelinePosition - track.keyframeDisplayOffset) *
+					track.keyframePlaybackRate,
 			});
 
 			const fieldSchema = activeSchema?.[translateFieldKey];
@@ -170,7 +166,9 @@ export const AlignmentControls: React.FC<{
 							propStatus: propStatus as any,
 							dragOverrideValue: dragOverrides[translateFieldKey],
 							defaultValue: fieldSchema.default,
-							frame: sourceFrame,
+							frame:
+								(timelinePosition - track.keyframeDisplayOffset) *
+								track.keyframePlaybackRate,
 							shouldResortToDefaultValueIfUndefined: true,
 						}) ??
 							fieldSchema.default ??
@@ -229,7 +227,16 @@ export const AlignmentControls: React.FC<{
 					fileName: nodePath.absolutePath,
 					nodePath,
 					fieldKey: translateFieldKey,
-					sourceFrame,
+					sourceFrame: getKeyframeSourceFrame({
+						displayFrame: timelinePosition,
+						keyframeDisplayOffset: getKeyframeDisplayOffset({
+							propStatus,
+							keyframeDisplayOffset: track.keyframeDisplayOffset,
+							keyframePlaybackRate: track.keyframePlaybackRate,
+						}),
+						keyframePlaybackRate: track.keyframePlaybackRate,
+						propStatus,
+					}),
 					value: newValue,
 					schema: track.sequence.controls.schema,
 					setPropStatuses,
@@ -264,15 +271,6 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const firstRenderKeyframedStatus = Object.values(
-		renderNodePropStatuses ?? {},
-	).find((status) => status.status === 'keyframed');
-	const renderSourceFrame =
-		timelinePosition -
-		getKeyframeDisplayOffset({
-			propStatus: firstRenderKeyframedStatus,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-		});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
@@ -280,7 +278,9 @@ export const AlignmentControls: React.FC<{
 		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
-		frame: renderSourceFrame,
+		frame:
+			(timelinePosition - track.keyframeDisplayOffset) *
+			track.keyframePlaybackRate,
 	});
 
 	const renderFieldSchema = renderActiveSchema?.[translateFieldKey];
@@ -295,38 +295,38 @@ export const AlignmentControls: React.FC<{
 	return (
 		<div style={container}>
 			<AlignmentButton
-				title="Align left"
+				aria-label="Align left"
 				onClick={() => handleAlign('left')}
 				Icon={AlignLeftIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align center horizontally"
+				aria-label="Align center horizontally"
 				onClick={() => handleAlign('center-h')}
 				Icon={AlignCenterHorizontalIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align right"
+				aria-label="Align right"
 				onClick={() => handleAlign('right')}
 				Icon={AlignRightIcon}
 				disabled={alignmentDisabled}
 			/>
 			<div style={verticalSpacer} />
 			<AlignmentButton
-				title="Align top"
+				aria-label="Align top"
 				onClick={() => handleAlign('top')}
 				Icon={AlignTopIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align center vertically"
+				aria-label="Align center vertically"
 				onClick={() => handleAlign('center-v')}
 				Icon={AlignCenterVerticalIcon}
 				disabled={alignmentDisabled}
 			/>
 			<AlignmentButton
-				title="Align bottom"
+				aria-label="Align bottom"
 				onClick={() => handleAlign('bottom')}
 				Icon={AlignBottomIcon}
 				disabled={alignmentDisabled}

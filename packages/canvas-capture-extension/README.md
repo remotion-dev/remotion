@@ -62,18 +62,19 @@ extension, so its path and extension ID remain stable across worktrees.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.
 
 Click the extension icon on a webpage to toggle the in-page controls. Select an
-area or choose **Whole page**, then choose HD (1280×720), 2K (2560×1440), 4K
-(3840×2160), 6K (5760×3240), or 8K (7680×4320) and start recording. The
-capture scale adapts to the selected area, so smaller areas are enlarged more
-while preserving their aspect ratio. The
+area or choose **Entire page** to target the full browser viewport, then start
+recording. Captures default to a 2K (2560×1440) bounding resolution. Click the
+zoom value next to the selected area to expose a slider and adjust the capture
+scale directly. The default capture scale adapts to the selected area, so
+smaller areas are enlarged more while preserving their aspect ratio. The
 controls display the selected format and rounded output dimensions and only
 enable recording after the browser confirms that Mediabunny's exact
 high-quality, realtime configuration is supported. The whole page subtree is
 drawn at the display's native pixel density, then the selected crop is copied
 into a reusable, correctly sized `OffscreenCanvas`. The controls are mounted
 outside the captured body subtree, so they do not appear in area or whole-page
-recordings. Stop the recording, then open it in
-[remotion.dev/convert](https://remotion.dev/convert) without downloading it
-first or save it directly.
+recordings. Stop the recording, then open it directly in
+[remotion.dev/new](https://remotion.dev/new), inspect it in
+[remotion.dev/convert](https://remotion.dev/convert), or save it to disk.
 
 The page contents are temporarily placed inside a `layoutSubtree` canvas while recording and restored afterward. Websites that rely on direct-child CSS selectors may look different during capture. Chrome's own pages and the Chrome Web Store do not allow extension script injection.

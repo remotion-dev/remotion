@@ -21,6 +21,14 @@ export const shouldUseReactDomClient =
 		? true
 		: parseInt(reactDomVersion, 10) >= 18;
 
+// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
+export const transformersImportMetaWarning = {
+	module:
+		/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
+	message:
+		/Accessing import\.meta directly is unsupported|'import\.meta' cannot be used as a standalone expression/,
+};
+
 export const getResolveConfig = () => ({
 	extensions: ['.ts', '.tsx', '.web.js', '.js', '.jsx', '.mjs', '.cjs'],
 	alias: {

@@ -232,6 +232,7 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	'rotation-css': true,
 	'rotation-degrees': true,
 	scale: true,
+	'svg-path': true,
 	'text-content': true,
 	'transform-origin': true,
 	translate: true,

@@ -6,7 +6,6 @@ import {pathToFileURL} from 'url';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import * as jsxRuntime from 'react/jsx-runtime';
-import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
@@ -19,10 +18,7 @@ import {
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
-import {
-	elementCategories,
-	elementRegistry,
-} from '../components/Elements/element-registry';
+import {elementRegistry} from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
 	getElementDefinition,
@@ -211,7 +207,7 @@ describe('Element MDX pages', () => {
 	});
 });
 
-describe('Element library', () => {
+describe('Element Library', () => {
 	test('injects the exact source files needed by each listing', () => {
 		const completeSourceCodeBySlug = getRemotionElementSourceMap({
 			elementsRoot,
@@ -346,17 +342,110 @@ describe('Element library', () => {
 		}
 	});
 
-	test('creates canonical fixed-size and adaptive drag payloads', () => {
-		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+	test('installs visualizer audio and subscribe sounds locally without breaking remote-URL installs', () => {
+		const sources = getRemotionElementSourceMap({elementsRoot});
 		for (const slug of [
-			'overlays/name-lower-third',
-			'backgrounds/paper-texture',
+			'audio/oscilloscope',
+			'audio/waveform-progress',
+			'audio/mirrored-spectrum',
 		] as const) {
 			const definition = getElementDefinition(slug);
+			const legacy = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: sources[slug],
+				installAssets: false,
+			});
+			const modern = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: sources[slug],
+				installAssets: true,
+			});
+			expect(legacy.version).toBe(1);
+			expect(legacy.element.initialProps).toMatchObject({
+				audioSrc:
+					'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+			});
+			expect(modern.version).toBe(2);
+			expect(modern.element.assets).toEqual([
+				{
+					path: 'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
+					type: 'url',
+					url: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+				},
+			]);
+			expect(modern.element.initialProps).toMatchObject({
+				audioSrc: {
+					__remotion_element_asset:
+						'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
+				},
+			});
+		}
+
+		const nudgeSlug = 'youtube/youtube-subscribe-nudge';
+		const nudgeDefinition = getElementDefinition(nudgeSlug);
+		const nudgeLegacy = createElementPayloadFromDefinition({
+			definition: nudgeDefinition,
+			sourceCode: sources[nudgeSlug],
+			installAssets: false,
+		});
+		const nudgeModern = createElementPayloadFromDefinition({
+			definition: nudgeDefinition,
+			sourceCode: sources[nudgeSlug],
+			installAssets: true,
+		});
+		expect(nudgeLegacy.version).toBe(1);
+		expect(nudgeLegacy.element.assets).toEqual([]);
+		expect(nudgeLegacy.element.initialProps).toMatchObject({
+			clickSrc: 'https://remotion.media/mouse-click.wav',
+			dingSrc: 'https://remotion.media/ding.wav',
+		});
+		expect(nudgeModern.version).toBe(2);
+		expect(nudgeModern.element.assets).toEqual(
+			expect.arrayContaining([
+				{
+					path: 'elements/youtube-subscribe-nudge/ding.wav',
+					type: 'url',
+					url: 'https://remotion.media/ding.wav',
+				},
+				{
+					path: 'elements/youtube-subscribe-nudge/mouse-click.wav',
+					type: 'url',
+					url: 'https://remotion.media/mouse-click.wav',
+				},
+				{
+					path: 'elements/youtube-subscribe-nudge/remotion-logo.png',
+					type: 'url',
+					url: 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+				},
+			]),
+		);
+		expect(nudgeModern.element.initialProps).toMatchObject({
+			clickSrc: {
+				__remotion_element_asset:
+					'elements/youtube-subscribe-nudge/mouse-click.wav',
+			},
+			dingSrc: {
+				__remotion_element_asset: 'elements/youtube-subscribe-nudge/ding.wav',
+			},
+			avatarSrc: {
+				__remotion_element_asset:
+					'elements/youtube-subscribe-nudge/remotion-logo.png',
+			},
+		});
+		expect(nudgeModern.element.sourceCode).toContain('src={clickSrc}');
+		expect(nudgeModern.element.sourceCode).toContain('src={dingSrc}');
+		expect(nudgeModern.element.sourceCode).toContain('src={avatarSrc}');
+	});
+
+	test('creates canonical drag payloads for every gallery Element', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		for (const definition of elementDefinitionList) {
+			const {slug} = definition;
 			const sourceCode = sourceCodeBySlug[slug];
 			const payload = createElementPayloadFromDefinition({
 				definition,
 				sourceCode,
+				installAssets: false,
 			});
 
 			expect(payload).toMatchObject({
@@ -364,6 +453,7 @@ describe('Element library', () => {
 				version: 1,
 				durationInFrames: definition.durationInFrames,
 				element: {
+					assets: [],
 					dependencies: definition.dependencies,
 					displayName: definition.displayName,
 					durationInFrames: definition.durationInFrames,
@@ -380,6 +470,21 @@ describe('Element library', () => {
 						}
 					: null;
 			expect(payload.element.dimensions).toEqual(expectedDimensions);
+			expect(payload.element.initialProps).toEqual(definition.initialProps);
+
+			if (definition.assets.length > 0) {
+				const assetPayload = createElementPayloadFromDefinition({
+					definition,
+					sourceCode,
+					installAssets: true,
+				});
+				expect(assetPayload.version).toBe(2);
+				expect(assetPayload.element.assets).toEqual(definition.assets);
+				expect(assetPayload.element.initialProps).toEqual({
+					...definition.initialProps,
+					...definition.installationProps,
+				});
+			}
 		}
 	});
 });
@@ -424,73 +529,6 @@ describe('Element social previews', () => {
 				'<meta property="og:video:height" content="420"/>',
 			);
 		}
-	});
-});
-
-describe('Elements sidebar', () => {
-	test('lists every registered Element exactly once', () => {
-		const sidebar = elementSidebars.elementsSidebar;
-		if (!Array.isArray(sidebar)) {
-			throw new Error('Elements sidebar must be an array');
-		}
-
-		const elementsCategory = sidebar[0];
-		if (
-			typeof elementsCategory !== 'object' ||
-			elementsCategory === null ||
-			elementsCategory.type !== 'category' ||
-			!Array.isArray(elementsCategory.items)
-		) {
-			throw new Error('Elements sidebar must have an Elements root category');
-		}
-
-		const listedElementPages = elementsCategory.items.flatMap((item) => {
-			if (
-				typeof item !== 'object' ||
-				item === null ||
-				item.type !== 'category' ||
-				!Array.isArray(item.items)
-			) {
-				return [];
-			}
-
-			return item.items.filter((child) => typeof child === 'string');
-		});
-		const registeredElementPages = Object.keys(elementRegistry).map(
-			(slug) => `${slug}/index`,
-		);
-
-		expect([...listedElementPages].sort()).toEqual(
-			registeredElementPages.sort(),
-		);
-		expect(new Set(listedElementPages).size).toBe(listedElementPages.length);
-
-		const thirdPartyIndex = elementsCategory.items.indexOf('libraries');
-		expect(thirdPartyIndex).toBe(elementsCategory.items.length - 1);
-		for (const {label} of elementCategories) {
-			const categoryIndex = elementsCategory.items.findIndex(
-				(item) =>
-					typeof item === 'object' &&
-					item !== null &&
-					item.type === 'category' &&
-					item.label === label,
-			);
-			expect(categoryIndex).toBeGreaterThan(-1);
-			expect(categoryIndex).toBeLessThan(thirdPartyIndex - 1);
-		}
-
-		const thirdPartySeparator = elementsCategory.items[thirdPartyIndex - 1];
-		if (
-			typeof thirdPartySeparator !== 'object' ||
-			thirdPartySeparator === null ||
-			thirdPartySeparator.type !== 'html'
-		) {
-			throw new Error(
-				'Third-party Elements must be separated from first-party categories',
-			);
-		}
-
-		expect(thirdPartySeparator.value).toContain('<hr');
 	});
 });
 

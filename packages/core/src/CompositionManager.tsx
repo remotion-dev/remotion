@@ -180,6 +180,8 @@ export type CustomSequenceLocalAxis = {
 };
 
 export type TSequence = {
+	/** This sequence's clock multiplier; ancestor rates are applied by the timeline. */
+	sequencePlaybackRate: number;
 	from: number;
 	trimBefore: number | null;
 	duration: number;

@@ -72,9 +72,9 @@ Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
 Controls inherited from [`<Sequence>`](/docs/sequence):
 
-`durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name` and `showInTimeline`.
+`durationInFrames`, `from`, `trimBefore`, `trimAfter`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
-Use it for components that render a `<Sequence>` internally.
+Use it for components that render a `<Sequence>` internally and forward these props to it.
 
 ```tsx twoslash title="schema.ts"
 import {Interactive, type InteractivitySchema} from 'remotion';
@@ -199,7 +199,9 @@ The prop type matching `Interactive.premountSchema`.
 
 ### Inherited props
 
-Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+
+From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence).
 
 Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from <AvailableFrom v="4.0.506" inline />.
 

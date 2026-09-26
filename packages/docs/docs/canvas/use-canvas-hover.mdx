@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-canvas-use-canvas-hover.png
+title: useCanvasHover()
+crumb: '@remotion/canvas'
+---
+
+# useCanvasHover()<AvailableFrom v="4.0.527" />
+
+Subscribes to the current hovered sequence in a React component.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx title="HoverStatus.tsx"
+import {useCanvasHover, type CanvasController} from '@remotion/canvas';
+
+export const HoverStatus = ({controller}: {controller: CanvasController}) => {
+  const hover = useCanvasHover(controller.hover);
+  return <span>{hover ? `Hover from ${hover.source}` : 'No hover'}</span>;
+};
+```
+
+## Parameter
+
+### controller
+
+A `CanvasHoverController`, usually `controller.hover` from [`useCanvasController()`](/docs/canvas/use-canvas-controller).
+
+## Return value
+
+A `CanvasHover` object or `null`.
+
+### key
+
+The identity of the hovered mounted sequence instance.
+
+### nodePathKey
+
+The source node identity shared by instances of that source node.
+
+### source
+
+`'canvas'` or `'timeline'`, indicating which surface set the hover.
+
+For a single layer row, use [`useCanvasSequenceHover()`](/docs/canvas/use-canvas-sequence-hover) instead. It returns a boolean and pointer handlers for that row.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`useCanvasSequenceHover()`](/docs/canvas/use-canvas-sequence-hover)
+- [`createCanvasController()`](/docs/canvas/create-canvas-controller)

@@ -18,16 +18,16 @@ import {
 } from './routes/default-coding-agent';
 import {getDefaultEditorInfoHandler} from './routes/default-editor';
 import {deleteEffectHandler} from './routes/delete-effect';
-import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
+import {deleteNodesHandler} from './routes/delete-nodes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
-import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {duplicateNodesHandler} from './routes/duplicate-nodes';
 import {findInFileHandler} from './routes/find-in-file';
 import {insertBasicCaptionsHandler} from './routes/insert-basic-captions';
+import {insertCompositionElementHandler} from './routes/insert-composition-element';
 import {insertElementHandler} from './routes/insert-element';
-import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {
 	installRemotionSkillHandler,
 	removeRemotionSkillHandler,
@@ -50,12 +50,13 @@ import {handleRemoveRender} from './routes/remove-render';
 import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
+import {replaceVideoSourceHandler} from './routes/replace-video-source';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
 import {handleShutdownStudio} from './routes/shutdown-studio';
-import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
+import {splitSequencesHandler} from './routes/split-sequences';
 import {splitVideoFromAudioHandler} from './routes/split-video-from-audio';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
@@ -71,6 +72,7 @@ import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyfra
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 import {handleUpgradeRemotion} from './routes/upgrade-remotion';
+import {wrapNodeHandler} from './routes/wrap-node';
 
 type StandardApiRoute = Exclude<
 	keyof ApiRoutes,
@@ -125,11 +127,13 @@ export const allApiRoutes: {
 	'/api/batch-update-keyframe-settings': batchUpdateKeyframeSettingsHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/paste-effects': pasteEffectsHandler,
-	'/api/delete-jsx-node': deleteJsxNodeHandler,
-	'/api/duplicate-jsx-node': duplicateJsxNodeHandler,
-	'/api/split-jsx-sequence': splitJsxSequenceHandler,
+	'/api/delete-nodes': deleteNodesHandler,
+	'/api/duplicate-nodes': duplicateNodesHandler,
+	'/api/wrap-node': wrapNodeHandler,
+	'/api/split-sequences': splitSequencesHandler,
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
+	'/api/replace-video-source': replaceVideoSourceHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,
@@ -143,7 +147,7 @@ export const allApiRoutes: {
 	'/api/restart-studio': handleRestartStudio,
 	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
 	'/api/default-editor-info': getDefaultEditorInfoHandler,
-	'/api/insert-jsx-element': insertJsxElementHandler,
+	'/api/insert-composition-element': insertCompositionElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/prepare-element-install': prepareElementInstallHandler,
 	'/api/update-element-install-target': updateElementInstallTargetHandler,

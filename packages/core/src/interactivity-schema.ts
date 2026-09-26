@@ -10,6 +10,7 @@ export type NumberFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
+	integer?: boolean;
 	default: number | null | undefined;
 	description?: string;
 	hiddenFromList: boolean;
@@ -104,6 +105,13 @@ export type TextContentFieldSchema = {
 	default: string;
 	description?: string;
 	keyframable?: false;
+};
+
+export type SvgPathFieldSchema = {
+	type: 'svg-path';
+	default: string | undefined;
+	description?: string;
+	keyframable?: boolean;
 };
 
 export type FontFamilyFieldSchema = {
@@ -219,6 +227,7 @@ export type VisibleFieldSchema =
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
 	| TextContentFieldSchema
+	| SvgPathFieldSchema
 	| FontFamilyFieldSchema
 	| FontWeightFieldSchema
 	| AssetFieldSchema
@@ -603,6 +612,21 @@ export const trimBeforeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+export const trimAfterField = {
+	type: 'number',
+	default: undefined,
+	min: 1,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies InteractivitySchemaField;
+
+export const loopField = {
+	type: 'boolean',
+	default: false,
+	description: 'Loop',
+	keyframable: false,
+} as const satisfies InteractivitySchemaField;
+
 export const freezeField = {
 	type: 'number',
 	default: null,
@@ -610,10 +634,36 @@ export const freezeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+const playbackRateField = {
+	type: 'number',
+	default: 1,
+	min: 0.01,
+	step: 0.1,
+	description: 'Playback rate',
+	hiddenFromList: false,
+	keyframable: false,
+} as const satisfies InteractivitySchemaField;
+
 export const baseSchema = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
+	trimAfter: trimAfterField,
+	playbackRate: playbackRateField,
+	loop: loopField,
+	freeze: freezeField,
+	hidden: hiddenField,
+	name: sequenceNameField,
+	showInTimeline: showInTimelineField,
+} as const satisfies InteractivitySchema;
+
+// For static images: speed does not change what they show.
+export const baseSchemaWithoutPlaybackRate = {
+	durationInFrames: durationInFramesField,
+	from: fromField,
+	trimBefore: trimBeforeField,
+	trimAfter: trimAfterField,
+	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
@@ -636,6 +686,9 @@ export const sequenceSchema = {
 export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
 	trimBefore: trimBeforeField,
+	trimAfter: trimAfterField,
+	playbackRate: playbackRateField,
+	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,

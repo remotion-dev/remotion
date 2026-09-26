@@ -38,18 +38,19 @@ type UndoEntryType =
 	| 'paste-effects'
 	| 'reorder-effect'
 	| 'reorder-sequence'
-	| 'delete-jsx-node'
-	| 'duplicate-jsx-node'
-	| 'split-jsx-sequence'
+	| 'delete-nodes'
+	| 'duplicate-nodes'
+	| 'wrap-node'
+	| 'split-sequences'
 	| 'split-video-from-audio'
 	| 'insert-basic-captions'
-	| 'insert-jsx-element'
+	| 'replace-video-source'
+	| 'insert-composition-element'
 	| 'delete-composition'
 	| 'rename-composition'
 	| 'update-composition-metadata'
 	| 'new-composition'
 	| 'duplicate-composition'
-	| 'move-composition-to-folder'
 	| 'move-composition-or-folder'
 	| 'new-folder'
 	| 'delete-folder'
@@ -621,6 +622,25 @@ export function getUndoStack(): readonly UndoEntry[] {
 
 export function getRedoStack(): readonly UndoEntry[] {
 	return redoStack;
+}
+
+export function discardLastUndoEntryAfterFailedCommit() {
+	const entry = undoStack.pop();
+	if (!entry) {
+		return;
+	}
+
+	for (const filePath of getEntryFilePaths(entry)) {
+		const count = suppressedWrites.get(filePath) ?? 0;
+		if (count <= 1) {
+			suppressedWrites.delete(filePath);
+		} else {
+			suppressedWrites.set(filePath, count - 1);
+		}
+	}
+
+	cleanupWatchers();
+	broadcastState();
 }
 
 export function clearUndoStackForTests() {

@@ -9,6 +9,10 @@ import {
 } from 'bun:test';
 import {cleanup, renderHook} from '@testing-library/react';
 import React, {useMemo} from 'react';
+import {
+	SequenceOutlineContext,
+	SequenceOutlineInternals,
+} from '../sequence-outline.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
@@ -83,8 +87,8 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 				premountDisplay: null,
 				postmountDisplay: null,
 				loopDisplay: undefined,
+				loopVolumeCurveBehavior: 'repeat',
 				documentationLink: null,
-				refForOutline: null,
 				muted,
 			}),
 		{
@@ -94,8 +98,9 @@ test('useMediaInTimeline registers muted changes and unregisters the sequence', 
 	);
 	expect(registerSequence).toHaveBeenCalled();
 	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
-		mediaFrameAtSequenceZero: null,
+		mediaFrameAtSequenceZero: 0,
 		muted: false,
+		refForOutline: null,
 	});
 
 	rerender({muted: true});
@@ -123,15 +128,17 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 		}, []);
 
 		return (
-			<WrapSequenceContext>
-				<SequenceManager.Provider value={sequenceManagerContext}>
-					{children}
-				</SequenceManager.Provider>
-			</WrapSequenceContext>
+			<SequenceOutlineContext.Provider value>
+				<WrapSequenceContext>
+					<SequenceManager.Provider value={sequenceManagerContext}>
+						{children}
+					</SequenceManager.Provider>
+				</WrapSequenceContext>
+			</SequenceOutlineContext.Provider>
 		);
 	};
 
-	renderHook(
+	const {result} = renderHook(
 		() =>
 			useMediaInTimeline({
 				volume: 1,
@@ -146,8 +153,8 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 				premountDisplay: null,
 				postmountDisplay: null,
 				loopDisplay: undefined,
+				loopVolumeCurveBehavior: 'repeat',
 				documentationLink: 'https://www.remotion.dev/docs/html5-video',
-				refForOutline: null,
 				muted: false,
 			}),
 		{
@@ -158,5 +165,7 @@ test('useMediaInTimeline keeps documentation links for custom display names', ()
 	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
 		displayName: 'Intro',
 		documentationLink: 'https://www.remotion.dev/docs/html5-video',
+		refForOutline: result.current,
 	});
+	expect(SequenceOutlineInternals.getNodes(result.current!)).toEqual([]);
 });

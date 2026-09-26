@@ -88,7 +88,7 @@ By passing `trimAfter={120}`, any audio after the 4 second mark in the file will
 
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
-For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
+For exact behavior, see [Timing and trimming](/docs/timing).
 
 ```tsx twoslash
 import {AbsoluteFill, staticFile} from 'remotion';
@@ -360,6 +360,12 @@ Pass this prop to disable the fallback and fail the render instead.
 :::note
 When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the audio cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
 :::
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="Supported codecs" serverSideRendering player studio hideServers />
+
+See [supported media](/docs/media/support). Unsupported codecs may use a [fallback](/docs/media/fallback) during preview and server-side rendering; client-side rendering requires a decodable source and cannot fall back.
 
 ## See also
 

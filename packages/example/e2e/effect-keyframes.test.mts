@@ -30,7 +30,10 @@ const selectScalePrecisionAndWaitFor = async ({
 	readonly locator: Locator;
 }) => {
 	await expect(async () => {
-		await page.getByTitle('Scale precision', {exact: true}).first().click();
+		await page
+			.getByRole('group', {name: 'Scale precision', exact: true})
+			.first()
+			.click();
 		await expect(locator).toBeVisible({timeout: 1_000});
 	}).toPass({timeout: 15_000});
 };
@@ -42,6 +45,185 @@ test.describe('effect keyframes', () => {
 
 	test.afterEach(async () => {
 		await stopStudio();
+	});
+
+	test('deletes keyframes without flashing and keeps their property selected', async ({
+		page,
+	}) => {
+		test.setTimeout(120_000);
+		const originalContent = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+		fs.writeFileSync(
+			effectKeyframeE2eFile,
+			originalContent.replace(
+				'opacity: interpolate(frame, [0, 30], [0, 1])',
+				'opacity: interpolate(frame, [0, 10, 20, 30, 40, 60, 89], [0, 1, 0, 1, 0, 1, 0])',
+			),
+		);
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		const opacity = page.getByText('Opacity', {exact: true});
+		await expect(async () => {
+			await page
+				.getByRole('group', {name: 'Timeline expansion', exact: true})
+				.first()
+				.click();
+			await expect(opacity).toHaveCount(1, {timeout: 1_000});
+		}).toPass({timeout: 30_000});
+		await opacity.click();
+
+		const keyframes = page.getByRole('button', {
+			name: /^Select keyframe at frame /,
+		});
+		await expect(keyframes).toHaveCount(7);
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 10', exact: true})
+			.scrollIntoViewIfNeeded();
+		const propertyLabel = opacity.last().locator('..');
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 10', exact: true})
+			.click();
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+		await page.keyboard.press('Escape');
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(0, 0, 0, 0)',
+		);
+		await page
+			.getByRole('button', {
+				name: 'Select easing from frame 10 to 20',
+				exact: true,
+			})
+			.click();
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+		const first = await page
+			.getByRole('button', {name: 'Select keyframe at frame 10', exact: true})
+			.last()
+			.boundingBox();
+		const second = await page
+			.getByRole('button', {name: 'Select keyframe at frame 20', exact: true})
+			.last()
+			.boundingBox();
+		assert(first && second);
+		await page.mouse.move(first.x - 2, first.y - 2);
+		await page.mouse.down();
+		await page.mouse.move(
+			second.x + second.width + 2,
+			second.y + second.height + 2,
+			{
+				steps: 5,
+			},
+		);
+		await page.mouse.up();
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+
+		// Hold the real save request so the optimistic timeline update is visible.
+		let resumeDelete: () => void = () => undefined;
+		const deleteGate = new Promise<void>((resolve) => {
+			resumeDelete = resolve;
+		});
+		await page.route('**/api/delete-keyframes', async (route) => {
+			await deleteGate;
+			await route.continue();
+		});
+		const deleteRequest = page.waitForRequest('**/api/delete-keyframes', {
+			timeout: 10_000,
+		});
+		try {
+			await page.keyboard.press('Backspace');
+			await deleteRequest;
+			await expect(keyframes).toHaveCount(5);
+			const easings = page.getByRole('button', {
+				name: /^Select easing from frame /,
+			});
+			await expect(easings).toHaveCount(4);
+			for (const easing of await easings.all()) {
+				await expect(easing.locator('div')).toHaveCSS('outline-style', 'none');
+			}
+
+			await expect(opacity).toHaveCount(2);
+		} finally {
+			resumeDelete();
+			await page.unrouteAll({behavior: 'wait'});
+		}
+
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*30,\s*40,\s*60,\s*89\]/);
+
+		// Single-keyframe deletion also selects the property, even at the playhead.
+		await page
+			.getByRole('button', {name: 'Go to next keyframe'})
+			.last()
+			.click();
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 30', exact: true})
+			.click();
+		await page.keyboard.press('Backspace');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*40,\s*60,\s*89\]/);
+		await expect(
+			page.getByRole('button', {name: 'Back to property', exact: true}),
+		).toHaveCount(0);
+		await expect(opacity).toHaveCount(2);
+
+		// Removing from the keyframe inspector has the same result.
+		await page
+			.getByRole('button', {name: 'Go to next keyframe'})
+			.last()
+			.click();
+		await page
+			.getByRole('button', {name: 'Select keyframe at frame 40', exact: true})
+			.click();
+		await page
+			.getByRole('button', {name: 'Remove keyframe', exact: true})
+			.first()
+			.click();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*60,\s*89\]/);
+		await expect(
+			page.getByRole('button', {name: 'Back to property', exact: true}),
+		).toHaveCount(0);
+		await expect(opacity).toHaveCount(2);
+
+		// The timeline's keyframe toggle also keeps the property selected.
+		await page
+			.getByRole('button', {name: 'Go to next keyframe'})
+			.last()
+			.click();
+		await page
+			.getByRole('button', {name: 'Remove keyframe', exact: true})
+			.last()
+			.click();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*89\]/);
+		await expect(
+			page.getByRole('button', {name: 'Back to property', exact: true}),
+		).toHaveCount(0);
+		await expect(opacity).toHaveCount(2);
+
+		// The property remains selected, so another Backspace resets its value.
+		await page.keyboard.press('Backspace');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.not.toContain('opacity:');
+		await page.reload();
+		await expect(
+			page
+				.getByRole('group', {name: 'Timeline expansion', exact: true})
+				.first(),
+		).toBeVisible();
+		await expect(keyframes).toHaveCount(0);
 	});
 
 	test('edits precise inspector values and adds effect keyframes', async ({
@@ -59,7 +241,7 @@ test.describe('effect keyframes', () => {
 		const factorDragger = page.getByRole('button', {name: '0.75', exact: true});
 		await expect(async () => {
 			await page
-				.getByTitle('Effect scale precision', {exact: true})
+				.getByRole('group', {name: 'Effect scale precision', exact: true})
 				.first()
 				.click();
 			await expect(page.getByText('Factor', {exact: true})).toBeVisible({
@@ -112,7 +294,7 @@ test.describe('effect keyframes', () => {
 		await page.reload();
 		await expect(async () => {
 			await page
-				.getByTitle('Effect scale precision', {exact: true})
+				.getByRole('group', {name: 'Effect scale precision', exact: true})
 				.first()
 				.click();
 			await expect(
@@ -129,7 +311,7 @@ test.describe('effect keyframes', () => {
 		const opacityRow = page.getByText('Opacity', {exact: true});
 		await expect(async () => {
 			await page
-				.getByTitle('Timeline expansion', {exact: true})
+				.getByRole('group', {name: 'Timeline expansion', exact: true})
 				.first()
 				.click();
 			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
@@ -151,7 +333,10 @@ test.describe('effect keyframes', () => {
 
 		const waveRow = page.getByText('wave()', {exact: true});
 		await expect(async () => {
-			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await page
+				.getByRole('group', {name: 'Scale precision', exact: true})
+				.first()
+				.click();
 			await expect(waveRow).toHaveCount(1, {timeout: 1_000});
 		}).toPass({timeout: 15_000});
 
@@ -300,23 +485,39 @@ test.describe('effect keyframes', () => {
 		const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
 		const solidLine = getLine(content, '<Solid');
 
-		const subscription = await apiCall('/api/subscribe-to-sequence-props', {
-			fileName: 'src/EffectKeyframeE2e.tsx',
-			line: solidLine,
-			column: 0,
-			nodePath: null,
-			componentIdentity: 'dev.remotion.remotion.Solid',
-			keys: [],
-			effects: [getAllSchemaKeys(schema)],
-			clientId: 'effect-keyframe-subscribe',
-		});
+		const subscriptionResponse = await apiCall(
+			'/api/subscribe-to-sequence-props',
+			{
+				requests: [
+					{
+						fileName: 'src/EffectKeyframeE2e.tsx',
+						line: solidLine,
+						column: 0,
+						nodePath: null,
+						componentIdentity: 'dev.remotion.remotion.Solid',
+						keys: [],
+						assetKeys: [],
+						effects: [getAllSchemaKeys(schema)],
+						clientId: 'effect-keyframe-subscribe',
+						videoConfigValues: {
+							durationInFrames: 90,
+							fps: 30,
+							height: 1080,
+							width: 1920,
+						},
+					},
+				],
+			},
+		);
+		expect(subscriptionResponse.success).toBe(true);
+		assert(subscriptionResponse.success);
+		const subscription = subscriptionResponse.data.results[0];
+		assert(subscription);
 		expect(subscription.success).toBe(true);
 		assert(subscription.success);
-		expect(subscription.data.success).toBe(true);
-		assert(subscription.data.success);
-		expect(subscription.data.status.canUpdate).toBe(true);
-		assert(subscription.data.status.canUpdate);
-		const [effectStatus] = subscription.data.status.effects;
+		expect(subscription.status.canUpdate).toBe(true);
+		assert(subscription.status.canUpdate);
+		const [effectStatus] = subscription.status.effects;
 		assert(effectStatus);
 		expect(effectStatus.canUpdate).toBe(true);
 		assert(effectStatus.canUpdate);
@@ -328,7 +529,7 @@ test.describe('effect keyframes', () => {
 
 		const keyframe = await apiCall('/api/add-effect-keyframe', {
 			fileName: 'src/EffectKeyframeE2e.tsx',
-			sequenceNodePath: subscription.data.nodePath,
+			sequenceNodePath: subscription.nodePath,
 			effectIndex: 0,
 			key: 'phase',
 			frame: 30,

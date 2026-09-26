@@ -1,0 +1,107 @@
+---
+image: /generated/articles-docs-codemods-add-composition.png
+title: 'addComposition()'
+crumb: '@remotion/codemods'
+---
+
+# addComposition()<AvailableFrom v="4.0.528" />
+
+Adds a [`<Composition>`](/docs/composition) registration referencing an existing named component export.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="add-composition.ts"
+import {addComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = addComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  component: {importName: 'Video', importPath: './Video'},
+  metadata: {width: 1920, height: 1080, fps: 30, durationInFrames: 90},
+});
+
+console.log(result);
+```
+
+Adds the registration and required imports to `compositionFile` only. It does not create a component file: the component implementation must already exist. To generate and register a Canvas Capture component together, use [`addCanvasCaptureComposition()`](/docs/codemods/add-canvas-capture-composition).
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
+
+When `folder` is omitted, the file must have one component containing registrations, or a single component if no registrations exist yet. The first JSX return in the selected component is used; returns in nested functions are ignored.
+
+### compositionId
+
+The new composition ID. Must contain only ASCII letters, numbers, CJK characters, or hyphens and be unused in this file.
+
+### component
+
+The component to register.
+
+#### importName
+
+The named component export, beginning with an uppercase letter, `_`, or `$`.
+
+#### importPath
+
+Its module specifier, relative to the registration file for relative imports.
+
+### metadata
+
+The initial composition metadata.
+
+#### width
+
+A positive integer width in pixels.
+
+#### height
+
+A positive integer height in pixels.
+
+#### fps
+
+A positive, finite frame rate.
+
+#### durationInFrames
+
+A positive integer duration in frames.
+
+### folder?
+
+An existing folder reference `{name, parentName}`. By default, adds the composition at the registration root.
+
+## Return value
+
+Returns an object with the following properties.
+
+### changes
+
+An array containing the registration file's `{filePath, previousContents, nextContents}` change. No component-file change is returned.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-composition.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

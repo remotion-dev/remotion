@@ -1,7 +1,7 @@
 import {
+	downloadVideoMattingModel,
 	getAvailableModels,
 	isVideoMattingModelCached,
-	loadVideoMattingModel,
 	removeVideoMattingModel,
 	type VideoMattingModel,
 } from '@remotion/video-matting';
@@ -21,7 +21,7 @@ export const Models: React.FC<{
 	);
 	const loadModel = useCallback(
 		(model: VideoMattingModel, onProgress: (progress: number | null) => void) =>
-			loadVideoMattingModel({
+			downloadVideoMattingModel({
 				model,
 				onProgress: (progress) => onProgress(progress.progress),
 			}),

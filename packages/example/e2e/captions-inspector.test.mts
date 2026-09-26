@@ -106,7 +106,7 @@ test.describe('captions inspector', () => {
 		);
 
 		const defaultCaptionsSequence = page
-			.getByTitle('Moving Pill Captions', {exact: true})
+			.getByRole('group', {name: 'Moving Pill Captions', exact: true})
 			.first();
 		const defaultCaption = page.getByRole('textbox', {name: 'Caption 1'});
 		await expect(async () => {

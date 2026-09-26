@@ -103,6 +103,69 @@ describe('Composition-validation render should throw with invalid props', () => 
 			);
 		});
 	});
+	describe('Throw with invalid trimAfter and loop props', () => {
+		test('trimAfter must be a number greater than trimBefore', () => {
+			for (const [trimBefore, trimAfter, expected] of [
+				[
+					0,
+					'30',
+					/The "trimAfter" prop of <Sequence \/> must be a number, but is of type string./,
+				],
+				[
+					0,
+					NaN,
+					/The "trimAfter" prop of <Sequence \/> must be a real number, but it is NaN./,
+				],
+				[
+					10,
+					10,
+					/The "trimAfter" prop of <Sequence \/> must be greater than "trimBefore" \(10\), but got 10./,
+				],
+				[
+					10,
+					9,
+					/The "trimAfter" prop of <Sequence \/> must be greater than "trimBefore" \(10\), but got 9./,
+				],
+			] as const) {
+				expectToThrow(
+					() =>
+						render(
+							<WrapSequenceContext>
+								<Sequence
+									trimBefore={trimBefore}
+									trimAfter={trimAfter as number}
+								/>
+							</WrapSequenceContext>,
+						),
+					expected,
+				);
+			}
+		});
+
+		test('loop must be boolean and requires a finite trimAfter', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence loop={'true' as unknown as boolean} trimAfter={30} />
+						</WrapSequenceContext>,
+					),
+				/The "loop" prop of <Sequence \/> must be a boolean, but is of type string./,
+			);
+
+			for (const trimAfter of [undefined, Infinity]) {
+				expectToThrow(
+					() =>
+						render(
+							<WrapSequenceContext>
+								<Sequence loop trimAfter={trimAfter} durationInFrames={30} />
+							</WrapSequenceContext>,
+						),
+					/requires a finite "trimAfter" prop/,
+				);
+			}
+		});
+	});
 	describe('Throw with invalid freeze props', () => {
 		test('It should throw if "freeze" prop is not a number', () => {
 			expectToThrow(

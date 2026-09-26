@@ -1,4 +1,5 @@
-export {getTimelineSequenceSortKey} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/canvas';
+export const {getTimelineSequenceSortKey} = CanvasInternals;
 export type {
 	SequenceNodePathInfo,
 	TimelineTrackData,

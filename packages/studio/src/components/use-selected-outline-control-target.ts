@@ -1,9 +1,6 @@
-import React, {useLayoutEffect, useMemo, useRef} from 'react';
-import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
-import {
-	useIsTimelineSequenceHovered,
-	useSetTimelineSequenceHover,
-} from '../state/timeline-sequence-hover';
+import {useCanvasSequenceHover} from '@remotion/canvas';
+import React, {useContext, useLayoutEffect, useRef} from 'react';
+import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
@@ -18,7 +15,7 @@ export const useSelectedOutlineControlTarget = ({
 	) => SelectedOutlineTarget | undefined;
 	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
 }) => {
-	const setHoveredSequence = useSetTimelineSequenceHover();
+	const hoverController = useContext(TimelineSequenceHoverContext);
 	const targetRef = useRef(layoutTarget);
 	useLayoutEffect(() => {
 		targetRef.current = layoutTarget;
@@ -32,42 +29,24 @@ export const useSelectedOutlineControlTarget = ({
 		return getLatestTargetByKey(currentTarget.key);
 	}, [getLatestTargetByKey]);
 	const getLayoutTarget = React.useCallback(() => targetRef.current, []);
-	const hoveredNodePathKey = useMemo(
-		() =>
-			layoutTarget === undefined
-				? null
-				: timelineSequenceNodePathToKey(
-						layoutTarget.nodePathInfo.sequenceSubscriptionKey,
-					),
-		[layoutTarget],
+	const {hovered, onPointerEnter, onPointerLeave} = useCanvasSequenceHover(
+		hoverController,
+		layoutTarget?.nodePathInfo ?? null,
+		'canvas',
 	);
-	const hovered = useIsTimelineSequenceHovered(hoveredNodePathKey);
 	const controlTarget =
 		layoutTarget !== undefined && (layoutTarget.containsSelection || hovered)
 			? getLatestTargetByKey(layoutTarget.key)
 			: undefined;
 	const onHoverChange = React.useCallback(
 		(key: string | null) => {
-			setHoveredSequence((currentHover) => {
-				if (key !== null) {
-					const hoverTarget = targetRef.current;
-					if (hoverTarget === undefined || hoverTarget.key !== key) {
-						return currentHover;
-					}
-
-					return {
-						key,
-						nodePathKey: timelineSequenceNodePathToKey(
-							hoverTarget.nodePathInfo.sequenceSubscriptionKey,
-						),
-						source: 'canvas',
-					};
-				}
-
-				return currentHover?.source === 'canvas' ? null : currentHover;
-			});
+			if (key === null) {
+				onPointerLeave();
+			} else if (targetRef.current?.key === key) {
+				onPointerEnter();
+			}
 		},
-		[setHoveredSequence],
+		[onPointerEnter, onPointerLeave],
 	);
 
 	return {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange};

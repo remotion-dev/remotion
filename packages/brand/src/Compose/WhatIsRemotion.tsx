@@ -74,6 +74,8 @@ const LabelInner = React.forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
+			trimAfter,
+			loop,
 			freeze,
 			hidden,
 			name,
@@ -84,10 +86,8 @@ const LabelInner = React.forwardRef<
 		ref,
 	) => {
 		const opacity = useLabelOpacity();
-		const outlineRef = React.useRef<HTMLDivElement | null>(null);
 		const callbackRef = React.useCallback(
 			(element: HTMLDivElement | null) => {
-				outlineRef.current = element;
 				setRef(ref, element);
 			},
 			[ref],
@@ -98,6 +98,8 @@ const LabelInner = React.forwardRef<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
@@ -105,7 +107,6 @@ const LabelInner = React.forwardRef<
 				showInTimeline={showInTimeline ?? true}
 				controls={controls ?? undefined}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={callbackRef}
@@ -538,23 +539,22 @@ export const WhatIsRemotion = ({
 									alignItems: 'center',
 								}}
 							>
-								<Sequence layout="none" from={100}>
-									<Interactive.Div
-										style={{
-											width: 393.75,
-											height: 700,
-											position: 'relative',
-										}}
-									>
-										{interpolate(frame, [175, 200], [0, 1], {
-											extrapolateLeft: 'clamp',
-											extrapolateRight: 'clamp',
-											easing: Easing.bezier(0.42, 0, 0.58, 1),
-										}) ? (
-											<EndCard cornerRadius={10} />
-										) : null}
-									</Interactive.Div>
-								</Sequence>
+								<Interactive.Div
+									from={100}
+									style={{
+										width: 393.75,
+										height: 700,
+										position: 'relative',
+									}}
+								>
+									{interpolate(frame, [175, 200], [0, 1], {
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+										easing: Easing.bezier(0.42, 0, 0.58, 1),
+									}) ? (
+										<EndCard cornerRadius={10} />
+									) : null}
+								</Interactive.Div>
 							</Interactive.Div>
 						</TranslateX>
 					</Interactive.Div>

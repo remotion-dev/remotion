@@ -112,6 +112,7 @@ const studioEnv = {
 };
 
 const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	playbackRate: 1,
 	absoluteFrom: 0,
 	cumulatedFrom: 0,
 	cumulatedNegativeFrom: 0,
@@ -262,10 +263,10 @@ test('<CanvasImage> forwards a canvas ref', async () => {
 	});
 });
 
-test('<CanvasImage> registers its canvas as the outline ref', async () => {
+test('<CanvasImage> registers an automatic canvas outline', async () => {
 	const registeredSequences: TSequence[] = [];
 
-	render(
+	const {container} = render(
 		<SequenceRegistrationWrapper
 			onRegisterSequence={(sequence) => {
 				registeredSequences.push(sequence);
@@ -275,11 +276,13 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 		</SequenceRegistrationWrapper>,
 	);
 
-	await waitFor(() => {
-		expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe(
-			'CANVAS',
-		);
-	});
+	await waitFor(() => expect(registeredSequences).toHaveLength(1));
+	expect(container.querySelector('canvas')).not.toBeNull();
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {

@@ -1,10 +1,18 @@
 import {afterEach, beforeEach, describe, expect, mock, test} from 'bun:test';
-import {cleanup, render} from '@testing-library/react';
+import {act, cleanup, render} from '@testing-library/react';
 import React from 'react';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
+import {Html5Audio} from '../audio/index.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Freeze} from '../freeze.js';
+import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
+import type {CollectAssetsRef} from '../RenderAssetManager.js';
+import {RenderAssetManagerProvider} from '../RenderAssetManager.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
+import {Sequence} from '../Sequence.js';
+import {MediaEnabledProvider} from '../use-media-enabled.js';
+import {Html5Video} from '../video/index.js';
+import {OffthreadVideo} from '../video/OffthreadVideo.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -119,4 +127,76 @@ describe('Register and unregister asset', () => {
 		expect(mockContext.registerRenderAsset).not.toHaveBeenCalled();
 		expect(mockContext.unregisterRenderAsset).not.toHaveBeenCalled();
 	});
+});
+
+test('nested Sequence rates preserve source trims when collecting media for rendering', () => {
+	const collectAssets = React.createRef<CollectAssetsRef>();
+	const environment = {
+		isRendering: true,
+		isPlayer: false,
+		isStudio: false,
+		isReadOnlyStudio: false,
+		isClientSideRendering: false,
+	};
+
+	const composition = (currentFrame: number) => (
+		<RemotionEnvironmentContext.Provider value={environment}>
+			<MediaEnabledProvider audioEnabled videoEnabled={false}>
+				<WrapSequenceContext currentFrame={currentFrame}>
+					<RenderAssetManagerProvider collectAssets={collectAssets}>
+						<Sequence
+							from={10}
+							playbackRate={2}
+							trimBefore={24}
+							durationInFrames={40}
+						>
+							<Sequence from={12} playbackRate={0.75} durationInFrames={100}>
+								<Html5Audio
+									src="audio.wav"
+									playbackRate={0.5}
+									trimBefore={15}
+								/>
+								<Html5Video
+									src="video.mp4"
+									playbackRate={0.5}
+									trimBefore={15}
+								/>
+								<OffthreadVideo
+									src="offthread.mp4"
+									playbackRate={0.5}
+									trimBefore={15}
+								/>
+							</Sequence>
+						</Sequence>
+					</RenderAssetManagerProvider>
+				</WrapSequenceContext>
+			</MediaEnabledProvider>
+		</RemotionEnvironmentContext.Provider>
+	);
+
+	const {rerender} = render(composition(10));
+	for (const frame of [10, 25, 26, 49, 50]) {
+		if (frame !== 10) {
+			rerender(composition(frame));
+		}
+
+		let assets: ReturnType<CollectAssetsRef['collectAssets']> = [];
+		act(() => {
+			assets = collectAssets.current!.collectAssets();
+		});
+		expect(assets, `frame ${frame}`).toHaveLength(frame === 50 ? 0 : 3);
+		for (const asset of assets) {
+			if (asset.type !== 'audio' && asset.type !== 'video') {
+				throw new Error(`Unexpected asset type: ${asset.type}`);
+			}
+
+			expect(asset.frame).toBe(frame);
+			expect(asset.playbackRate).toBe(0.75);
+			// This is the source frame the renderer samples after preserving trimBefore.
+			expect(
+				asset.audioStartFrame +
+					(asset.mediaFrame - asset.audioStartFrame) * asset.playbackRate,
+			).toBe(30.75 + (frame - 25) * 0.75);
+		}
+	}
 });

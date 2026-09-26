@@ -1,4 +1,5 @@
 import {TraceMap, type SourceMapInput} from '@jridgewell/trace-mapping';
+import {Internals} from 'remotion';
 import {getOriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {
 	getLocationOfFunctionCall,
@@ -9,8 +10,6 @@ const traceMapCache: Partial<Record<string, TraceMap>> = {};
 const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 const traceMapsByOriginalSource = new Map<string, TraceMap>();
 const sourceMapFilesCache = new WeakMap<TraceMap, Record<string, string>>();
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
-const studioOriginalSourcePrefix = 'studio-original://';
 
 const getSourceMapCache = (fileName: string): Promise<TraceMap> => {
 	if (traceMapCache[fileName]) {
@@ -82,18 +81,13 @@ export const getOriginalLocationFromStack = async (
 		return null;
 	}
 
-	const originalSourcePrefix = [
-		browserStudioOriginalSourcePrefix,
-		studioOriginalSourcePrefix,
-	].find((prefix) => location.fileName.startsWith(prefix));
-
-	if (originalSourcePrefix) {
+	// Bundlers that record the JSX source location skip symbolication.
+	const originalSource = Internals.parseOriginalSourceStack(stack);
+	if (originalSource) {
 		return {
-			column: location.columnNumber,
-			line: location.lineNumber,
-			source: decodeURIComponent(
-				location.fileName.slice(originalSourcePrefix.length),
-			),
+			column: originalSource.column,
+			line: originalSource.line,
+			source: originalSource.fileName,
 		};
 	}
 

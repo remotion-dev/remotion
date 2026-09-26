@@ -34,16 +34,6 @@ export type GifProps = InteractiveBaseProps &
 export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
 	...Internals.premountSchema,
-	playbackRate: {
-		type: 'number',
-		min: 0,
-		max: 10,
-		step: 0.1,
-		default: 1,
-		description: 'Playback rate',
-		hiddenFromList: false,
-		keyframable: false,
-	},
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
@@ -83,7 +73,6 @@ const GifInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
-	const refForOutline = React.useRef<HTMLElement | null>(null);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -94,7 +83,13 @@ const GifInner = ({
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore: sequenceProps.trimBefore,
+			trimAfter: sequenceProps.trimAfter,
+			playbackRate,
+			loop: sequenceProps.loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -126,7 +121,6 @@ const GifInner = ({
 		onLoad,
 		onError,
 		fit,
-		playbackRate,
 		loopBehavior,
 		id,
 		delayRenderTimeoutInMilliseconds,
@@ -138,7 +132,7 @@ const GifInner = ({
 	const inner = env.isRendering ? (
 		<GifForRendering {...gifProps} ref={ref} />
 	) : (
-		<GifForDevelopment {...gifProps} ref={ref} refForOutline={refForOutline} />
+		<GifForDevelopment {...gifProps} ref={ref} />
 	);
 
 	return (
@@ -146,6 +140,7 @@ const GifInner = ({
 			<Sequence
 				layout="none"
 				from={from ?? 0}
+				playbackRate={playbackRate}
 				durationInFrames={durationInFrames ?? Infinity}
 				name="<Gif>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
@@ -156,7 +151,6 @@ const GifInner = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
-				outlineRef={refForOutline}
 			>
 				{inner}
 			</Sequence>

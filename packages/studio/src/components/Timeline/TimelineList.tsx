@@ -30,6 +30,7 @@ const TimelineListTrack: React.FC<{
 			sequence={track.sequence}
 			nodePathInfo={track.nodePathInfo}
 			keyframeDisplayOffset={track.keyframeDisplayOffset}
+			keyframePlaybackRate={track.keyframePlaybackRate}
 			sequenceFrameOffset={track.sequenceFrameOffset}
 			numberOfHiddenDuplicates={Math.max(
 				0,
@@ -47,6 +48,14 @@ export const TimelineList: React.FC = () => {
 
 	return (
 		<div style={{...container, height: tracksEnd}}>
+			<style>{`.remotion-timeline-sequence-name-measure::before {
+				content: attr(data-name);
+				display: block;
+				font-family: Arial, Helvetica, sans-serif;
+				font-size: 12px;
+				line-height: normal;
+				visibility: hidden;
+			}`}</style>
 			{virtualItems.map((virtualItem) => (
 				<div
 					key={virtualItem.key}

@@ -147,6 +147,72 @@ const translateY = interpolate(frame, [0, 30], [0, 120]); // ❌ Math should be 
 />
 ```
 
+## Keep SVG paths editable with `Interactive.Path`
+
+Use `<Interactive.Path>` from `remotion` instead of `<path>` inside an SVG to make the path visually editable.
+
+Install `@remotion/paths` for path interpolation and Studio path keyframes:
+
+```sh
+bunx remotion add @remotion/paths
+```
+
+If the geometry is meant to be static, put the path string directly in the `d` prop. Do not extract it into a constant.
+
+```tsx title="Editable static path"
+import {Interactive} from 'remotion';
+
+<Interactive.Svg width={300} height={300} viewBox="0 0 300 300">
+  <Interactive.Path
+    name="Triangle"
+    d="M 40 40 L 260 40 L 150 260 Z"
+    fill="#0b84f3"
+  />
+</Interactive.Svg>
+```
+
+### Morph paths using inline `interpolatePaths()`
+
+Use `interpolatePaths()` from `@remotion/paths` directly in `d`.  
+It accepts a frame, an input range, an equally sized array of path strings, and options for easing, extrapolation, and posterization.
+Keep the output paths, ranges, and options inline, following the same input-range rules as `interpolate()` above.  
+Do not use `interpolatePath()` API or extract the interpolated result into a variable when the path keyframes should remain editable in Studio.
+
+```tsx title="Editable path keyframes"
+import {interpolatePaths} from '@remotion/paths';
+import {Easing, Interactive, useCurrentFrame} from 'remotion';
+
+export const MorphingPath = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Svg width={300} height={300} viewBox="0 0 300 300">
+      <Interactive.Path
+        name="Morphing triangle"
+        d={interpolatePaths(
+          frame,
+          [0, 30, 60],
+          [
+            'M 40 40 L 260 40 L 150 260 Z',
+            'M 40 150 L 150 40 L 260 150 Z',
+            'M 40 260 L 150 40 L 260 260 Z',
+          ],
+          {
+            easing: Easing.bezier(0.42, 0, 0.58, 1),
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          },
+        )}
+        fill="#0b84f3"
+      />
+    </Interactive.Svg>
+  );
+};
+```
+
+Studio can edit the path at the current frame, add or move keyframes, and adjust their easing.  
+Use `strokeDasharray` and `strokeDashoffset` to evolve paths.
+
 ## Use `scale`, `translate`, `rotate` CSS properties
 
 Avoid the `transform` CSS property.  

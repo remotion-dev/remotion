@@ -69,6 +69,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	const [initialRequestInit] = useState(requestInit);
 
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const startInVideo = sequenceContext
 		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 		: 0;
@@ -99,7 +100,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	});
 
 	useLayoutEffect(() => {
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
 		if (!shouldUseAudio) {
@@ -110,6 +111,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			return;
 		}
 
+		let cancelled = false;
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -120,7 +122,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate: playbackRate ?? 1,
+			playbackRate: (playbackRate ?? 1) * sequencePlaybackRate,
 			logLevel,
 			includeAudio: shouldUseAudio,
 			includeVideo: false,
@@ -136,7 +138,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			mediaCache,
 		})
 			.then((result) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -218,6 +220,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					fps,
 					frame,
 					startsAt,
+					playbackRate: playbackRate ?? 1,
+					trimBefore,
+					trimAfter,
 				});
 				const volume = Internals.evaluateVolume({
 					volume: volumeProp,
@@ -246,7 +251,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((error) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -254,6 +259,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
@@ -274,6 +280,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		loopVolumeCurveBehavior,
 		shouldUseAudio,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
 		startInVideo,

@@ -34,6 +34,7 @@ export const isSequentialMediaTimeAdvance = ({
 		return false;
 	}
 
+	// Legacy fallback for hosts without explicit preview seek intent.
 	const maximumSequentialAdvance = Math.abs(playbackRate) / fps;
 	return (
 		roundTo4Digits(newTime - previousTime) <=
@@ -77,6 +78,7 @@ export const videoIteratorManager = async ({
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
+	let destroyed = false;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -179,6 +181,15 @@ export const videoIteratorManager = async ({
 			prewarmedVideoIteratorCache,
 		);
 		videoIteratorsCreated++;
+
+		// destroy() may have run while the first frame was decoding. It could
+		// not reach this iterator yet, and nothing else references it, so it
+		// would keep pre-decoding samples that are never closed.
+		if (destroyed) {
+			iterator.destroy();
+			return;
+		}
+
 		videoFrameIterator = iterator;
 
 		if (iterator.isDestroyed()) {
@@ -214,12 +225,14 @@ export const videoIteratorManager = async ({
 		fps,
 		playbackRate,
 		isPlaying,
+		continuousPlayback,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		fps: number;
 		playbackRate: number;
 		isPlaying: boolean;
+		continuousPlayback: boolean | null;
 	}) => {
 		if (!videoFrameIterator) {
 			return;
@@ -233,7 +246,6 @@ export const videoIteratorManager = async ({
 		}
 
 		const previousTime = currentSeek;
-		currentSeek = newTime;
 
 		if (getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
@@ -246,36 +258,52 @@ export const videoIteratorManager = async ({
 
 		const pendingFrameBehavior =
 			previousTime !== null &&
-			isSequentialMediaTimeAdvance({
-				previousTime,
-				newTime,
-				fps,
-				playbackRate,
-				isPlaying,
-			})
+			newTime >= previousTime &&
+			(continuousPlayback ??
+				isSequentialMediaTimeAdvance({
+					previousTime,
+					newTime,
+					fps,
+					playbackRate,
+					isPlaying,
+				}))
 				? 'wait'
 				: 'restart-iterator';
-		const videoSatisfyResult = await videoFrameIterator.tryToSatisfySeek(
-			newTime,
-			{
+		const iterator = videoFrameIterator;
+		const pending: {handle: DelayPlaybackIfNotPremounting | null} = {
+			handle: null,
+		};
+		try {
+			const result = await iterator.tryToSatisfySeek(newTime, {
 				pendingFrameBehavior,
-				shouldContinue: () => !nonce.isStale(),
-			},
-		);
+				onWait: () => {
+					pending.handle ??= delayPlaybackHandleIfNotPremounting();
+					currentDelayHandle = pending.handle;
+				},
+				shouldContinue: () => !nonce.isStale() && !iterator.isDestroyed(),
+			});
 
-		// Doing this before the staleness check, because
-		// frame might be better than what we currently have
-		// TODO: check if this is actually true
-		if (videoSatisfyResult.type === 'satisfied') {
-			await drawFrame(videoSatisfyResult.frame);
-			return;
+			if (nonce.isStale() || iterator.isDestroyed()) {
+				return;
+			}
+
+			if (result.type === 'satisfied') {
+				await drawFrame(result.frame);
+				currentSeek = newTime;
+				return;
+			}
+
+			// The replacement iterator owns its own buffering handle.
+			pending.handle?.unblock();
+			pending.handle = null;
+			currentDelayHandle = null;
+			await startVideoIterator(newTime, nonce);
+		} finally {
+			pending.handle?.unblock();
+			if (currentDelayHandle === pending.handle) {
+				currentDelayHandle = null;
+			}
 		}
-
-		if (nonce.isStale()) {
-			return;
-		}
-
-		await startVideoIterator(newTime, nonce);
 	};
 
 	return {
@@ -283,6 +311,7 @@ export const videoIteratorManager = async ({
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			destroyed = true;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();

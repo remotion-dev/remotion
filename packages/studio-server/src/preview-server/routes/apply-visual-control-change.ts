@@ -1,13 +1,10 @@
 import {readFileSync} from 'node:fs';
-import type {File} from '@babel/types';
+import {updateVisualControls} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
-import {applyVisualControl} from '@remotion/studio-codemods';
 import type {
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
 } from '@remotion/studio-shared';
-import * as recast from 'recast';
-import {parseAst} from '../../codemods/parse-ast';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -23,29 +20,6 @@ import {
 	getCodemodTimingPrefix,
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
-
-const getVisualControlChangeLine = (file: File, changeId: string): number => {
-	let line = 1;
-	recast.types.visit(file.program, {
-		visitCallExpression(callPath) {
-			const {node} = callPath;
-			if (
-				node.callee.type === 'Identifier' &&
-				node.callee.name === 'visualControl'
-			) {
-				const firstArg = node.arguments[0];
-				if (firstArg?.type === 'StringLiteral' && firstArg.value === changeId) {
-					line = node.loc?.start.line ?? 1;
-					return false;
-				}
-			}
-
-			this.traverse(callPath);
-		},
-	});
-
-	return line;
-};
 
 export const applyVisualControlHandler: ApiHandler<
 	ApplyVisualControlRequest,
@@ -63,19 +37,18 @@ export const applyVisualControlHandler: ApiHandler<
 		});
 
 		const fileContents = readFileSync(absolutePath, 'utf-8');
-		const ast = parseAst(fileContents);
-		const logLine =
-			changes.length > 0 ? getVisualControlChangeLine(ast, changes[0].id) : 1;
-
-		const {newContents: output, changesMade} = applyVisualControl({
-			input: fileContents,
-			transformation: {
-				type: 'apply-visual-control',
-				changes,
-			},
+		const result = updateVisualControls({
+			project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
+			filePath: absolutePath,
+			changes,
 		});
+		const output = result.changes[0]?.nextContents ?? fileContents;
+		const logLine =
+			result.updatedControls.findLast(
+				(control) => control.id === changes[0]?.id,
+			)?.line ?? 1;
 
-		if (changesMade.length === 0) {
+		if (result.updatedControls.length === 0) {
 			throw new Error('No changes were made to the file');
 		}
 

@@ -127,7 +127,14 @@ type SeriesSequenceProps = PropsWithChildren<
 	} & LayoutBasedProps &
 		Pick<
 			SequencePropsWithoutDuration,
-			'name' | 'showInTimeline' | 'freeze' | 'hidden' | 'trimBefore'
+			| 'name'
+			| 'showInTimeline'
+			| 'freeze'
+			| 'hidden'
+			| 'trimBefore'
+			| 'trimAfter'
+			| 'playbackRate'
+			| 'loop'
 		>
 >;
 
@@ -148,6 +155,9 @@ const transitionSeriesSequenceSchema = {
 	showInTimeline: Internals.sequenceSchema.showInTimeline,
 	freeze: Internals.freezeField,
 	trimBefore: Internals.sequenceSchema.trimBefore,
+	trimAfter: Internals.sequenceSchema.trimAfter,
+	playbackRate: Internals.sequenceSchema.playbackRate,
+	loop: Internals.sequenceSchema.loop,
 	layout: Internals.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 
@@ -186,6 +196,7 @@ const transitionSeriesSchema = {
 	hidden: Internals.sequenceSchema.hidden,
 	showInTimeline: Internals.sequenceSchema.showInTimeline,
 	from: Internals.fromField,
+	playbackRate: Internals.sequenceSchema.playbackRate,
 	freeze: Internals.freezeField,
 	layout: Internals.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;

@@ -11,11 +11,13 @@ Creates a validated, versioned Element payload for [`buildOpenInRemotionNewUrl()
 ## Example
 
 ```ts twoslash title="element-payload.ts"
-import {createElementPayload} from '@remotion/studio-protocol';
+import {createElementPayload, staticFileRef} from '@remotion/studio-protocol';
 
 const elementSourceCode = `
-export const MyElement = () => {
-  return <div>Hello world</div>;
+import {Img} from 'remotion';
+
+export const MyElement = ({logoSrc}: {logoSrc: string}) => {
+  return <Img name="Logo" src={logoSrc} />;
 };
 `;
 
@@ -29,6 +31,19 @@ const payload = createElementPayload({
   ],
   dimensions: {width: 900, height: 260},
   durationInFrames: 90,
+  initialProps: {logoSrc: staticFileRef('my-element/logo.png')},
+  assets: [
+    {
+      path: 'my-element/logo.png',
+      type: 'url',
+      url: 'https://example.com/logo.png',
+    },
+    {
+      path: 'my-element/data.json',
+      type: 'base64',
+      data: 'eyJvayI6dHJ1ZX0=',
+    },
+  ],
 });
 ```
 
@@ -48,7 +63,7 @@ A lowercase Element identifier. Its final path segment is used to create the `.e
 
 A string containing the complete Element source code. It must contain exactly one exported named component.
 
-See [Integrating a component library with Studio](/docs/studio-protocol/component-library-integration) for recommended ways to preview a component and represent it as Element source in Vite-based projects and Next.js.
+See [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration) for recommended ways to preview a component and represent it as Element source in Vite-based projects and Next.js.
 
 ### dependencies
 
@@ -57,6 +72,20 @@ An array of npm packages needed by the Element. Declare each dependency as an ob
 For `@remotion/*` packages, set `version` to `null`. Studio installs the version matching the Remotion project. Every non-Remotion package must specify an exact semantic version. Version ranges and tags are not accepted.
 
 Do not declare `react`, `react-dom`, or `remotion`; every Remotion project already provides them.
+
+### assets?<AvailableFrom v="4.0.528" />
+
+Files to install in the project's public directory. The default is `[]`.
+
+Set `path` to a forward-slash path relative to the public directory. Use [`staticFileRef()`](/docs/studio-protocol/static-file-ref) in `initialProps` to pass the installed asset to your component. Studio generates a [`staticFile()`](/docs/staticfile) expression on the component invocation and leaves the Element source unchanged. Paths cannot be absolute, contain traversal or platform-unsafe segments, or conflict with another declared asset path.
+
+For a remote file, set `type` to `'url'` and provide an HTTP(S) `url` without credentials. For an embedded file, set `type` to `'base64'` and provide strictly encoded `data`. Browser Studio requires remote servers to allow cross-origin requests (CORS).
+
+An installation can contain at most 100 assets and 50MB of downloaded or decoded data in total. The complete Element payload remains limited to 250,000 JSON characters, including embedded base64 data. Use remote URLs for larger files.
+
+Studio fetches assets only after you confirm the installation. An existing file is reused when its bytes match. Different contents cause the installation to fail, even when you approve replacing an existing Element source file. Undo removes installed source changes but retains successfully installed assets; redo does not download them again.
+
+Assets use Element payload version 2. Asset-free payloads continue to use version 1. A Studio that only supports version 1 asks you to upgrade instead of installing source without its assets.
 
 ### dimensions
 
@@ -70,13 +99,13 @@ The preferred duration shown while dragging. It must be a positive integer.
 
 ### initialProps?<AvailableFrom v="4.0.524" />
 
-Use `initialProps` when a `component-owned-sequence` Element needs replaceable starter content. Studio writes each property onto the installed component. The default is `null`.
+Props to write onto the installed component invocation, in both installation modes. The default is `null`. In `'wrapped'` mode, the component invocation is inside the generated Sequence.
 
-Use JSON-compatible values and valid JSX attribute names. For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
+Use JSON-compatible values and valid JSX attribute names. Asset props can use [`staticFileRef()`](/docs/studio-protocol/static-file-ref), including inside nested objects and arrays. Studio turns these references into `staticFile()` expressions on the caller, not inside the Element source.
 
-Pass the same props to the component preview. Element dimensions are not passed as component props, so include `width` and `height` when the component needs them.
+For `component-owned-sequence`, omit `from`, `durationInFrames`, and `name` because Studio supplies them. In this mode, `style` must be an object.
 
-In `'wrapped'` mode, Studio also passes `initialProps` to the component inside the generated Sequence. Most wrapped Elements do not need this because their editable values can stay on internal `Interactive` call sites in the copied source.
+Pass the corresponding values to the component preview, using hosted URLs instead of asset references. Element dimensions are not passed as component props in `component-owned-sequence` mode, so include `width` and `height` when the component needs them.
 
 ### installationMode?<AvailableFrom v="4.0.506" />
 
@@ -86,11 +115,11 @@ With `'wrapped'`, Studio generates a [`<Sequence>`](/docs/sequence) around the c
 
 With `'component-owned-sequence'`, Studio puts timing, name, and absolute positioning props on the component call without adding an outer Sequence. The component must provide its own Studio-editable Sequence and rendered dimensions.
 
-See [Design it for composition](/elements/contributing#design-it-for-composition) for guidance on choosing a mode and wiring the component.
+See [Design it for composition](/elements/guidelines#design-it-for-composition) for guidance on choosing a mode and wiring the component.
 
 ## Return value
 
-A `StudioElementPayload` with payload version `1`. Pass the returned object unchanged to a transport API instead of serializing it manually.
+A `StudioElementPayload`. Asset-free payloads use version `1`; payloads with assets use version `2`. Pass the returned object unchanged to a transport API instead of serializing it manually.
 
 Invalid input throws a `TypeError`.
 
@@ -100,6 +129,7 @@ Invalid input throws a `TypeError`.
 
 ## See also
 
+- [`staticFileRef()`](/docs/studio-protocol/static-file-ref)
 - [`buildOpenInRemotionNewUrl()`](/docs/studio-protocol/build-open-in-remotion-new-url)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)

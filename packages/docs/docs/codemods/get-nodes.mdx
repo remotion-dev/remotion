@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-codemods-get-nodes.png
+title: 'getNodes()'
+crumb: '@remotion/codemods'
+---
+
+# getNodes()<AvailableFrom v="4.0.530" />
+
+Lists the nodes of a project file in source order. A node is an element in the source code, identified by its file and node path.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="get-nodes.ts"
+import {getNodes, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = getNodes({
+  project,
+  filePath: 'src/Video.tsx',
+});
+
+console.log(result);
+```
+
+This inspects source without executing it. A node rendered multiple times, for example inside `.map()`, still has one source reference. JSX fragments are not listed.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### filePath
+
+The project-relative or absolute source file path.
+
+## Return value
+
+Returns an array of `CodemodNode` objects. Each entry has the following properties.
+
+### filePath
+
+The matching key in `project.files`.
+
+### nodePath
+
+An opaque path identifying this node in the current source snapshot.
+
+### tagName
+
+The tag name, such as `Sequence`, `div`, or `Interactive.Div`.
+
+### componentIdentity
+
+The recognized component identity, or `null` when it cannot be determined. Import aliases are resolved where supported.
+
+### location
+
+The opening tag's `{line, column}` location, or `null`. Lines are one-based; columns are zero-based.
+
+### parentNodePath
+
+The `nodePath` of the closest enclosing node in the same file, or `null` for top-level elements. Elements rendered through expressions, such as `{condition && <div />}` or a `.map()` callback, report the enclosing element. Compare it with the `nodePath` of other entries to build a tree or to find the children of a node.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/get-nodes.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

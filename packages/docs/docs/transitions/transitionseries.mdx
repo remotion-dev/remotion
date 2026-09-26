@@ -83,7 +83,7 @@ export const OverlayExample: React.FC = () => {
 
 ### `<TransitionSeries>`
 
-Inherits the [`from`](/docs/sequence#from), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`from`](/docs/sequence#from), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), and [`style`](/docs/sequence#style) props from [`<Sequence>`](/docs/sequence).
 
 The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>`, `<TransitionSeries.Transition>`, and `<TransitionSeries.Overlay>` components.  
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
@@ -91,7 +91,7 @@ Transition scenes must stay absolutely positioned. Remove the `layout` prop or k
 
 ### `<TransitionSeries.Sequence>`
 
-Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
+Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
 
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
 Transition scenes must stay absolutely positioned. Remove the `layout` prop or keep the default `absolute-fill`. See the [v5 migration guide](/docs/5-0-migration).
@@ -304,6 +304,10 @@ springTiming({config: {damping: 200}}).getDurationInFrames({fps: 30}); // 23
 <Step>4</Step> A transition and an overlay cannot be adjacent — they occupy the same slot between sequences.
 
 <Step>5</Step> There must be at least one sequence before or after a transition or overlay.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

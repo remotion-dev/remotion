@@ -9,6 +9,7 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
+import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {getVideoSequenceDuration} from './get-video-sequence-duration';
@@ -74,7 +75,6 @@ const InnerVideo: React.FC<
 	InnerVideoProps & {
 		readonly controls: SequenceControls | undefined;
 		readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
-		readonly refForOutline: React.RefObject<HTMLElement | null>;
 	}
 > = ({
 	src,
@@ -107,7 +107,6 @@ const InnerVideo: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
-	refForOutline,
 	...props
 }) => {
 	const environment = useRemotionEnvironment();
@@ -207,7 +206,6 @@ const InnerVideo: React.FC<
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
-			refForOutline={refForOutline}
 		/>
 	);
 };
@@ -278,10 +276,24 @@ const VideoInner: React.FC<
 		trimAfter,
 		trimBefore,
 	});
+	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
+		number | null
+	>(null);
+	const loopedVolume = useLoopedVolume({
+		volume,
+		loop: loop ?? false,
+		behavior: loopVolumeCurveBehavior ?? 'repeat',
+		assetDurationInSeconds: mediaDurationInSeconds,
+		fps: videoConfig.fps,
+		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
+		playbackRate: playbackRate ?? 1,
+		trimBefore,
+		trimAfter,
+	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src,
-		volume,
+		volume: loopedVolume,
 		playbackRate: playbackRate ?? 1,
 		trimBefore,
 		trimAfter,
@@ -290,14 +302,10 @@ const VideoInner: React.FC<
 		displayName: name ?? '<Video>',
 		mediaVolume,
 		mediaStartsAt,
+		mediaFrom: from ?? 0,
 		loop: loop ?? false,
 		muted: muted ?? false,
 	});
-
-	// TODO: Redundant with what we do in the Studio
-	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
-		number | null
-	>(null);
 
 	const loopDisplay = useMemo(
 		() =>
@@ -336,7 +344,6 @@ const VideoInner: React.FC<
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
 		effects ?? [],
 	);
-	const refForOutline = React.useRef<HTMLElement | null>(null);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -389,7 +396,6 @@ const VideoInner: React.FC<
 				controls={controls}
 				_remotionInternalLoopDisplay={loopDisplay}
 				_remotionInternalEffects={memoizedEffectDefinitions}
-				outlineRef={refForOutline}
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
@@ -431,7 +437,6 @@ const VideoInner: React.FC<
 					}
 					effects={memoizedEffects}
 					setMediaDurationInSeconds={setMediaDurationInSeconds}
-					refForOutline={refForOutline}
 				/>
 			</Sequence>
 		</Freeze>

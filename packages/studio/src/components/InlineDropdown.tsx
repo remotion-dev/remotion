@@ -1,11 +1,16 @@
 import {PlayerInternals} from '@remotion/player';
-import {useCallback, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {InlineAction, type InlineActionProps} from './InlineAction';
+import {
+	getNextMenuTreeId,
+	isNodeInMenuTree,
+	MenuTreeContext,
+} from './Menu/menu-tree-context';
 import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
@@ -47,6 +52,7 @@ export const InlineDropdown = ({
 	readonly onOpenChange?: (open: boolean) => void;
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const [menuTreeId] = useState(getNextMenuTreeId);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 
 	const {currentZIndex} = useZIndex();
@@ -139,6 +145,37 @@ export const InlineDropdown = ({
 		onOpenChange?.(false);
 	}, [onOpenChange]);
 
+	useEffect(() => {
+		if (opened.type === 'not-open') {
+			return;
+		}
+
+		const dismissWithoutClickThrough = (event: PointerEvent) => {
+			if (event.button !== 0) {
+				return;
+			}
+
+			const target = event.target as Node;
+			if (isNodeInMenuTree(target, menuTreeId)) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
+			onHide();
+		};
+
+		window.addEventListener('pointerdown', dismissWithoutClickThrough, true);
+		return () => {
+			window.removeEventListener(
+				'pointerdown',
+				dismissWithoutClickThrough,
+				true,
+			);
+		};
+	}, [menuTreeId, onHide, opened.type]);
+
 	return (
 		<>
 			<div ref={ref} style={container}>
@@ -146,6 +183,7 @@ export const InlineDropdown = ({
 					onClick={onClick}
 					unhoveredColor={opened.type === 'open' ? WHITE : unhoveredColor}
 					{...props}
+					aria-expanded={opened.type === 'open'}
 				/>
 			</div>
 			{portalStyle && opened.type === 'open'
@@ -153,17 +191,23 @@ export const InlineDropdown = ({
 						<div style={fullScreenOverlay}>
 							<div style={outerPortal} className="css-reset">
 								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-									<div style={portalStyle}>
-										<MenuContent
-											onNextMenu={noop}
-											onPreviousMenu={noop}
-											values={opened.values ?? values ?? []}
-											onHide={onHide}
-											leaveLeftSpace
-											preselectIndex={false}
-											topItemCanBeUnselected={false}
-											fixedHeight={null}
-										/>
+									<div
+										data-remotion-menu-tree-id={menuTreeId}
+										style={portalStyle}
+										onPointerDown={(event) => event.stopPropagation()}
+									>
+										<MenuTreeContext.Provider value={menuTreeId}>
+											<MenuContent
+												onNextMenu={noop}
+												onPreviousMenu={noop}
+												values={opened.values ?? values ?? []}
+												onHide={onHide}
+												leaveLeftSpace
+												preselectIndex={false}
+												topItemCanBeUnselected={false}
+												fixedHeight={null}
+											/>
+										</MenuTreeContext.Provider>
 									</div>
 								</HigherZIndex>
 							</div>

@@ -24,7 +24,12 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
-import {getKeyframeDisplayOffset} from './get-timeline-keyframes';
+import {
+	getKeyframePlaybackRate,
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+	resolveKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	getTimelineKeyframeDragKey,
@@ -48,6 +53,7 @@ type TimelineKeyframeDragTargetBase = {
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly schema: InteractivitySchema;
 	readonly sourceFrame: number;
+	readonly keyframePlaybackRate: number;
 };
 
 type TimelineKeyframeDragTarget =
@@ -256,12 +262,16 @@ const getTimelineKeyframeDragTarget = ({
 			return null;
 		}
 
-		const effectSourceFrame =
-			displayFrame -
-			getKeyframeDisplayOffset({
+		const effectSourceFrame = getKeyframeSourceFrame({
+			displayFrame,
+			propStatus: effectPropStatus,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
 				propStatus: effectPropStatus,
 				keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
-			});
+				keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+			}),
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+		});
 
 		if (
 			!effectPropStatus.keyframes.some(
@@ -282,6 +292,7 @@ const getTimelineKeyframeDragTarget = ({
 			propStatus: effectPropStatus,
 			schema: effect.schema,
 			sourceFrame: effectSourceFrame,
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
 		};
 	}
 
@@ -290,12 +301,16 @@ const getTimelineKeyframeDragTarget = ({
 		return null;
 	}
 
-	const sourceFrame =
-		displayFrame -
-		getKeyframeDisplayOffset({
+	const sourceFrame = getKeyframeSourceFrame({
+		displayFrame,
+		propStatus: sequencePropStatus,
+		keyframeDisplayOffset: getKeyframeDisplayOffset({
 			propStatus: sequencePropStatus,
 			keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
-		});
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+		}),
+		keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+	});
 
 	if (
 		!sequencePropStatus.keyframes.some(
@@ -315,6 +330,7 @@ const getTimelineKeyframeDragTarget = ({
 		propStatus: sequencePropStatus,
 		schema: sequence.controls.schema,
 		sourceFrame,
+		keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
 	};
 };
 
@@ -339,17 +355,26 @@ const groupTargets = (targets: readonly TimelineKeyframeDragTarget[]) => {
 	return [...groups.values()];
 };
 
+const getMoveForTarget = (
+	target: TimelineKeyframeDragTarget,
+	delta: number,
+) => ({
+	fromFrame: target.sourceFrame,
+	toFrame: resolveKeyframeSourceFrame(
+		target.sourceFrame +
+			delta *
+				getKeyframePlaybackRate(target.propStatus, target.keyframePlaybackRate),
+		target.propStatus,
+	),
+});
+
 const getMovesForGroup = ({
 	group,
 	delta,
 }: {
 	readonly group: readonly TimelineKeyframeDragTarget[];
 	readonly delta: number;
-}) =>
-	group.map((target) => ({
-		fromFrame: target.sourceFrame,
-		toFrame: target.sourceFrame + delta,
-	}));
+}) => group.map((target) => getMoveForTarget(target, delta));
 
 const canMoveTimelineKeyframeDragTargets = ({
 	targets,
@@ -710,8 +735,7 @@ export const useTimelineKeyframeDrag = ({
 							fileName: target.fileName,
 							nodePath: target.nodePath,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getMoveForTarget(target, lastDelta),
 							schema: target.schema,
 						})),
 					effectKeyframes: targets
@@ -727,8 +751,7 @@ export const useTimelineKeyframeDrag = ({
 							nodePath: target.nodePath,
 							effectIndex: target.effectIndex,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getMoveForTarget(target, lastDelta),
 							schema: target.schema,
 						})),
 					setPropStatuses,
@@ -988,8 +1011,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							fileName: target.fileName,
 							nodePath: target.nodePath,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getMoveForTarget(target, lastDelta),
 							schema: target.schema,
 						})),
 					effectKeyframes: targets
@@ -1005,8 +1027,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							nodePath: target.nodePath,
 							effectIndex: target.effectIndex,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getMoveForTarget(target, lastDelta),
 							schema: target.schema,
 						})),
 					setPropStatuses,

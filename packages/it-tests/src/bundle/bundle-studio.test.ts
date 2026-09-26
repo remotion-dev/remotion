@@ -75,7 +75,9 @@ test(
 		const initialState = await tab.evaluateHandle(async () => {
 			for (let attempt = 0; attempt < 100; attempt++) {
 				if (
-					document.body.textContent?.includes('Welcome to Remotion Studio') &&
+					document.body.textContent?.includes(
+						'Select a composition to get started.',
+					) &&
 					window.location.search === ''
 				) {
 					return 'ready';
@@ -142,7 +144,9 @@ test(
 		expect(sourceLocation.toString()).toMatch(/Root\.tsx:\d+/);
 		expect(sourceLocation.toString()).toMatch(/WidthHeightSequences\.tsx:\d+/);
 		const sequenceSourceLocation = await tab.evaluateHandle(async () => {
-			const label = document.querySelector<HTMLElement>('[title="<Sequence>"]');
+			const label = document.querySelector<HTMLElement>(
+				'[aria-label="<Sequence>"]',
+			);
 			label?.parentElement?.parentElement?.dispatchEvent(
 				new PointerEvent('pointerdown', {bubbles: true, button: 0}),
 			);

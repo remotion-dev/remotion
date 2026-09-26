@@ -1,0 +1,83 @@
+---
+image: /generated/articles-docs-codemods-duplicate-composition.png
+title: 'duplicateComposition()'
+crumb: '@remotion/codemods'
+---
+
+# duplicateComposition()<AvailableFrom v="4.0.528" />
+
+Copies a composition or still registration with a new ID.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="duplicate-composition.ts"
+import {duplicateComposition, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const result = duplicateComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'MyComposition',
+  newId: 'Portrait',
+  metadata: {width: 1080, height: 1920},
+});
+
+console.log(result);
+```
+
+Both registrations reference the same component implementation. Default props and other registration props are copied. By default, the original registration kind is preserved: a [`<Still>`](/docs/still) remains a [`<Still>`](/docs/still).
+
+[`<Still>`](/docs/still) registrations only support width and height overrides; supplying FPS or duration throws an error.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The project file containing the [`<Composition>`](/docs/composition) or [`<Still>`](/docs/still) registration. Static IDs, named import aliases, and namespace imports from `remotion` are supported.
+
+### compositionId
+
+The static ID of the composition to edit.
+
+### newId
+
+The new ID, containing only ASCII letters, numbers, CJK characters, or hyphens. It must be unused in this file.
+
+### metadata?
+
+Overrides for `width`, `height`, `fps`, and `durationInFrames`. Omitted values are copied from the original.
+
+### tag?
+
+`'Composition'` or `'Still'`. Defaults to the original registration kind. Choosing `'Still'` removes `fps` and `durationInFrames` from the copy. When converting a still to a composition, provide these values through `metadata`.
+
+## Return value
+
+Returns an object with the following properties.
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
+
+## Errors
+
+Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/duplicate-composition.ts)
+- [`@remotion/codemods`](/docs/codemods)
+- [`getNodes()`](/docs/codemods/get-nodes)

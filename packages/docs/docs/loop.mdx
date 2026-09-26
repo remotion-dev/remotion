@@ -7,12 +7,12 @@ crumb: 'API'
 
 import {LoopExamples, BlueSquare} from '../components/LoopExamples/LoopExamples';
 
+# &lt;Loop&gt;<AvailableFrom v="2.5.0" />
+
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
-
-<AvailableFrom v="2.5.0" />
 
 The `<Loop />` component allows you to quickly lay out an animation so it repeats itself.
 
@@ -29,9 +29,24 @@ const MyComp = () => {
 };
 ```
 
-:::note
-Good to know: You can nest loops within each other and they will cascade.
-:::
+You can nest loops within each other and they will cascade.
+
+## New alternative: `loop` prop
+
+[Many components](/docs/timing) accept a [`loop`](/docs/timing#loop-repeat-an-item) nowadays.
+
+It is useful if you want to mix it with other props such as `trimAfter` or `playbackRate`.
+
+```tsx twoslash
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const WithSequence = () => (
+  <Sequence trimAfter={50} durationInFrames={150} loop>
+    <BlueSquare />
+  </Sequence>
+);
+```
 
 ## API
 
@@ -40,6 +55,10 @@ The Loop component is a high order component and accepts, besides it's children,
 ### `durationInFrames`
 
 How many frames one iteration of the loop should be long.
+
+### `playbackRate?`<AvailableFrom v="4.0.528" />
+
+Changes the speed of the children within each iteration. Defaults to `1` and must remain constant across frames. Each iteration still lasts `durationInFrames` frames in the parent timeline. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
 
 ### `times?`
 
@@ -54,6 +73,10 @@ If you would like to disable layout side effects, pass `layout="none"`.
 ### `style?`<AvailableFrom v="3.3.4"/>
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### Inherited props<AvailableFrom v="4.0.528" />
+
+`<Loop>` inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence). These props require `layout="absolute-fill"` (the default). Postmounting the end of the loop requires a finite `times`.
 
 ## Examples
 

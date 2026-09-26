@@ -48,7 +48,7 @@ export const ElementLibraryModal: React.FC<{
 				allow="local-network-access; loopback-network"
 				data-remotion-element-library=""
 				style={iframeStyle}
-				title={`${name} library`}
+				aria-label={`${name} library`}
 			/>
 		</DismissableModal>
 	);

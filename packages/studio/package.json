@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.526",
+	"version": "4.0.529",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"scripts": {
@@ -39,9 +39,10 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/studio-codemods": "workspace:*",
+		"@remotion/codemods": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/timeline-utils": "workspace:*",

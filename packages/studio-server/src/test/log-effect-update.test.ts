@@ -1,7 +1,7 @@
 import {afterAll, beforeAll, expect, spyOn, test} from 'bun:test';
 
 const originalForceColor = process.env.FORCE_COLOR;
-process.env.FORCE_COLOR = '1';
+const originalNoColor = process.env.NO_COLOR;
 
 import {RenderInternals} from '@remotion/renderer';
 import {formatEffectPropChange} from '../preview-server/routes/log-updates/format-effect-prop-change';
@@ -17,6 +17,7 @@ const {chalk} = RenderInternals;
 
 beforeAll(() => {
 	process.env.FORCE_COLOR = '1';
+	delete process.env.NO_COLOR;
 });
 
 afterAll(() => {
@@ -24,6 +25,12 @@ afterAll(() => {
 		delete process.env.FORCE_COLOR;
 	} else {
 		process.env.FORCE_COLOR = originalForceColor;
+	}
+
+	if (originalNoColor === undefined) {
+		delete process.env.NO_COLOR;
+	} else {
+		process.env.NO_COLOR = originalNoColor;
 	}
 });
 

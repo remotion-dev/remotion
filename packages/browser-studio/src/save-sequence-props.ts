@@ -1,10 +1,9 @@
 import {
-	computeSequencePropsStatusFromContent,
-	findProjectFile,
-	updateInlineCaptionPatches,
-	type SequencePropsNodeUpdate,
-	updateMultipleSequenceProps,
-} from '@remotion/studio-codemods';
+	CodemodsInternals,
+	applyCodemodChanges,
+	getNodeProps,
+	updateMultipleNodeProps,
+} from '@remotion/codemods';
 import type {
 	SaveSequencePropEdit,
 	SaveSequencePropsRequest,
@@ -15,6 +14,8 @@ import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import type {VirtualProject} from './types';
 
+const {findProjectFile, updateInlineCaptionPatches} = CodemodsInternals;
+
 const parseSequencePropEditValue = (
 	value: SaveSequencePropEdit['value'],
 ): unknown => {
@@ -23,25 +24,6 @@ const parseSequencePropEditValue = (
 	}
 
 	return JSON.parse(value.serialized);
-};
-
-type FileMutation = {
-	edits: SaveSequencePropEdit[];
-	captionPatches: NonNullable<SaveSequencePropsRequest['captionPatches']>;
-};
-
-const getFileMutation = (
-	mutations: Map<string, FileMutation>,
-	absolutePath: string,
-) => {
-	const existing = mutations.get(absolutePath);
-	if (existing) {
-		return existing;
-	}
-
-	const created: FileMutation = {edits: [], captionPatches: []};
-	mutations.set(absolutePath, created);
-	return created;
 };
 
 const getStatusTargets = (request: SaveSequencePropsRequest) => {
@@ -72,13 +54,47 @@ export const saveSequencePropsInProject = ({
 		throw new Error('No sequence prop edits to save');
 	}
 
-	const mutations = new Map<string, FileMutation>();
-	for (const edit of request.edits) {
-		const absolutePath = findProjectFile({
-			filePath: edit.fileName,
-			project,
-		});
-		getFileMutation(mutations, absolutePath).edits.push(edit);
+	const updateResult =
+		request.edits.length > 0
+			? updateMultipleNodeProps({
+					project,
+					changes: request.edits.map((edit) => ({
+						node: {filePath: edit.fileName, nodePath: edit.nodePath.nodePath},
+						updates: [
+							{
+								key: edit.key,
+								...(edit.sourceEdit?.type === 'playback-rate'
+									? {retimeKeyframes: true}
+									: {}),
+								value: parseSequencePropEditValue(edit.value),
+								defaultValue:
+									edit.defaultValue === null
+										? null
+										: JSON.parse(edit.defaultValue),
+								googleFont:
+									edit.sourceEdit?.type === 'google-font'
+										? edit.sourceEdit.font
+										: null,
+								clipboardParam:
+									edit.sourceEdit?.type === 'clipboard-param'
+										? edit.sourceEdit.param
+										: null,
+							},
+						],
+						schema: edit.schema,
+						videoConfig: edit.nodePath.videoConfigValues ?? undefined,
+					})),
+				})
+			: null;
+	const nextFiles = {
+		...applyCodemodChanges(project, updateResult?.changes ?? []).files,
+	};
+	const updatedNodePaths = new Map<string, SequenceNodePath>();
+	for (const [index, node] of (updateResult?.updatedNodes ?? []).entries()) {
+		updatedNodePaths.set(
+			`${node.filePath}:${JSON.stringify(request.edits[index].nodePath.nodePath)}`,
+			node.nodePath,
+		);
 	}
 
 	for (const captionPatch of request.captionPatches ?? []) {
@@ -86,62 +102,11 @@ export const saveSequencePropsInProject = ({
 			filePath: captionPatch.fileName,
 			project,
 		});
-		getFileMutation(mutations, absolutePath).captionPatches.push(captionPatch);
-	}
-
-	const nextFiles = {...project.files};
-	const updatedNodePaths = new Map<string, SequenceNodePath>();
-	for (const [absolutePath, mutation] of mutations) {
-		let output = project.files[absolutePath];
-		if (output === undefined) {
-			throw new Error(`Could not find ${absolutePath}`);
-		}
-
-		if (mutation.edits.length > 0) {
-			const changes: SequencePropsNodeUpdate[] = mutation.edits.map((edit) => ({
-				nodePath: edit.nodePath.nodePath,
-				updates: [
-					{
-						key: edit.key,
-						value: parseSequencePropEditValue(edit.value),
-						defaultValue:
-							edit.defaultValue === null ? null : JSON.parse(edit.defaultValue),
-						googleFont:
-							edit.sourceEdit?.type === 'google-font'
-								? edit.sourceEdit.font
-								: null,
-						clipboardParam:
-							edit.sourceEdit?.type === 'clipboard-param'
-								? edit.sourceEdit.param
-								: null,
-					},
-				],
-				schema: edit.schema,
-				videoConfigValues: edit.nodePath.videoConfigValues,
-			}));
-			const updateResult = updateMultipleSequenceProps({
-				input: output,
-				changes,
-			});
-			output = updateResult.output;
-			for (const [index, result] of updateResult.results.entries()) {
-				const edit = mutation.edits[index];
-				updatedNodePaths.set(
-					`${absolutePath}:${JSON.stringify(edit.nodePath.nodePath)}`,
-					result.newNodePath,
-				);
-			}
-		}
-
-		for (const captionPatch of mutation.captionPatches) {
-			output = updateInlineCaptionPatches({
-				input: output,
-				nodePath: captionPatch.nodePath.nodePath,
-				patches: captionPatch.patches,
-			}).output;
-		}
-
-		nextFiles[absolutePath] = output;
+		nextFiles[absolutePath] = updateInlineCaptionPatches({
+			input: nextFiles[absolutePath],
+			nodePath: captionPatch.nodePath.nodePath,
+			patches: captionPatch.patches,
+		}).output;
 	}
 
 	const nextProject = {...project, files: nextFiles};
@@ -151,17 +116,20 @@ export const saveSequencePropsInProject = ({
 			filePath: target.fileName,
 			project: nextProject,
 		});
-		const status = computeSequencePropsStatusFromContent({
-			fileContents: nextFiles[absolutePath],
+		const status = getNodeProps({
+			project: nextProject,
 			keys: getAllSchemaKeys(target.schema),
 			assetKeys: getAssetSchemaKeys(target.schema),
-			nodePath:
-				updatedNodePaths.get(
-					`${absolutePath}:${JSON.stringify(target.nodePath.nodePath)}`,
-				) ?? target.nodePath.nodePath,
+			node: {
+				filePath: absolutePath,
+				nodePath:
+					updatedNodePaths.get(
+						`${absolutePath}:${JSON.stringify(target.nodePath.nodePath)}`,
+					) ?? target.nodePath.nodePath,
+			},
 			componentIdentity: null,
-			effects: [],
-			videoConfigValues: target.nodePath.videoConfigValues,
+			effectKeys: [],
+			videoConfig: target.nodePath.videoConfigValues ?? undefined,
 		});
 
 		return {
@@ -179,7 +147,6 @@ export const saveSequencePropsInProject = ({
 		project: nextProject,
 		response: {
 			canUpdate: true,
-			props: firstResult.props,
 			results,
 		},
 	};

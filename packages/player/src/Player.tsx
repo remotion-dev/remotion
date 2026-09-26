@@ -246,6 +246,7 @@ const PlayerFn = <
 	const [frame, setFrame] = useState<Record<string, number>>(() => ({
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
+	const seek = Internals.useTimelineSeek(setFrame);
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 	const rootRef = useRef<PlayerRef>(null);
@@ -445,7 +446,8 @@ const PlayerFn = <
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
-			setFrame,
+			setFrameWithoutSeek: setFrame,
+			seek,
 			setPlaying: (updater) => {
 				const current = playingStore.store.getSnapshot().playing;
 				const next = typeof updater === 'function' ? updater(current) : updater;
@@ -467,6 +469,7 @@ const PlayerFn = <
 		};
 	}, [
 		bufferingStore,
+		seek,
 		setFrame,
 		frameRef,
 		playingStore,

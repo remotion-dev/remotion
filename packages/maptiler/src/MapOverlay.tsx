@@ -8,8 +8,11 @@ import {
 } from 'react';
 import {
 	Interactive,
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
@@ -28,6 +31,7 @@ export type MapOverlayAnchor =
 	| 'top-right';
 
 export type MapOverlayProps = InteractiveBaseProps &
+	InteractivePremountProps &
 	InteractiveTransformProps & {
 		readonly anchor?: MapOverlayAnchor;
 		readonly children?: ReactNode;
@@ -43,6 +47,7 @@ export type MapOverlayProps = InteractiveBaseProps &
 
 const mapOverlaySchema = {
 	...Interactive.baseSchema,
+	...Interactive.premountSchema,
 	longitude: {
 		type: 'number',
 		min: -180,
@@ -121,7 +126,14 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		style,
 		durationInFrames,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
+		trimAfter,
+		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -131,7 +143,7 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 	ref,
 ) => {
 	const {map} = useContext(MapTilerContext);
-	const refForOutline = useRef<HTMLDivElement>(null);
+	const elementRef = useRef<HTMLDivElement>(null);
 	const point = map?.project([longitude, latitude]);
 	const horizontalAnchor = anchor.includes('left')
 		? 0
@@ -144,38 +156,70 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 			? -100
 			: -50;
 
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: {opacity, ...style},
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MapOverlay>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-			outlineRef={refForOutline}
-		>
-			<div
-				ref={refForOutline}
-				style={{
-					left: (point?.x ?? 0) + offsetX,
-					opacity,
-					pointerEvents: 'none',
-					position: 'absolute',
-					rotate: `${rotation + (rotationAlignment === 'map' ? (map?.getBearing() ?? 0) : 0)}deg`,
-					top: (point?.y ?? 0) + offsetY,
-					translate: `${horizontalAnchor}% ${verticalAnchor}%`,
-					zIndex: 1,
-					...style,
-				}}
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				playbackRate={playbackRate}
+				loop={loop}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<MapOverlay>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				{children}
-			</div>
-		</Sequence>
+				<div
+					ref={elementRef}
+					style={{
+						left: (point?.x ?? 0) + offsetX,
+						opacity,
+						pointerEvents: 'none',
+						position: 'absolute',
+						rotate: `${rotation + (rotationAlignment === 'map' ? (map?.getBearing() ?? 0) : 0)}deg`,
+						top: (point?.y ?? 0) + offsetY,
+						translate: `${horizontalAnchor}% ${verticalAnchor}%`,
+						zIndex: 1,
+						...premountingStyle,
+					}}
+				>
+					{children}
+				</div>
+			</Sequence>
+		</Freeze>
 	);
 };
 

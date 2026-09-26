@@ -1,24 +1,9 @@
-export type OutlinePoint = {
-	readonly x: number;
-	readonly y: number;
-};
+import type {CanvasOutlinePoint as OutlinePoint} from '@remotion/canvas';
 
-export type SelectedOutline = {
-	readonly key: string;
-	readonly dimensions: {
-		readonly width: number;
-		readonly height: number;
-	} | null;
-	readonly uncroppedPoints:
-		| readonly [OutlinePoint, OutlinePoint, OutlinePoint, OutlinePoint]
-		| null;
-	readonly points: readonly [
-		OutlinePoint,
-		OutlinePoint,
-		OutlinePoint,
-		OutlinePoint,
-	];
-};
+export type {
+	CanvasOutline as SelectedOutline,
+	CanvasOutlinePoint as OutlinePoint,
+} from '@remotion/canvas';
 
 export const clamp = (value: number, min: number, max: number): number => {
 	return Math.min(max, Math.max(min, value));

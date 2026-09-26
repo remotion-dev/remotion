@@ -1,6 +1,8 @@
-export {
+import {CanvasInternals} from '@remotion/canvas';
+export const {
+	getParentSequencePlaybackRate,
 	getCascadedStart,
 	getCascadedStartWithTrim,
 	getTimelineVisibleDuration,
 	getTimelineVisibleStart,
-} from '@remotion/canvas';
+} = CanvasInternals;

@@ -7,7 +7,6 @@ import {
 	useMemo,
 	useRef,
 	useState,
-	type RefObject,
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
@@ -22,7 +21,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutPlaybackRate,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -31,6 +30,7 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -49,7 +49,7 @@ export const canvasImageSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
 	...premountSchema,
 	fit: {
@@ -203,7 +203,6 @@ type CanvasImageContentProps = Pick<
 > & {
 	readonly effects: EffectsProp;
 	readonly controls: SequenceControls | undefined;
-	readonly refForOutline: RefObject<HTMLElement | null> | null;
 } & CanvasImageCanvasProps;
 
 const CanvasImageContent = forwardRef<
@@ -227,7 +226,6 @@ const CanvasImageContent = forwardRef<
 			maxRetries = 2,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			refForOutline,
 			...canvasProps
 		},
 		ref,
@@ -279,9 +277,6 @@ const CanvasImageContent = forwardRef<
 		const canvasRef = useCallback(
 			(canvas: HTMLCanvasElement | null) => {
 				setOutputCanvas(canvas);
-				if (refForOutline) {
-					refForOutline.current = canvas;
-				}
 
 				if (typeof ref === 'function') {
 					ref(canvas);
@@ -289,7 +284,7 @@ const CanvasImageContent = forwardRef<
 					ref.current = canvas;
 				}
 			},
-			[ref, refForOutline],
+			[ref],
 		);
 
 		useLayoutEffect(() => {
@@ -543,6 +538,8 @@ const CanvasImageInner = forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
+			trimAfter,
+			loop,
 			freeze,
 			premountFor,
 			postmountFor,
@@ -558,7 +555,6 @@ const CanvasImageInner = forwardRef<
 			controls,
 			_remotionInternalDocumentationLink,
 			_remotionInternalCropComponentName,
-			outlineRef,
 			...canvasProps
 		},
 		ref,
@@ -590,7 +586,13 @@ const CanvasImageInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate: undefined,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -613,6 +615,8 @@ const CanvasImageInner = forwardRef<
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
+					trimAfter={trimAfter}
+					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}
@@ -629,7 +633,6 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
-					outlineRef={outlineRef ?? actualRef}
 				>
 					<CanvasImageContent
 						ref={actualRef}
@@ -648,7 +651,6 @@ const CanvasImageInner = forwardRef<
 						maxRetries={maxRetries}
 						delayRenderRetries={delayRenderRetries}
 						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-						refForOutline={outlineRef ?? null}
 						{...canvasProps}
 					/>
 				</Sequence>

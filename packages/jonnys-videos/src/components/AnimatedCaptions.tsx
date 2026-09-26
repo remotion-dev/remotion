@@ -450,9 +450,9 @@ const AnimatedCaptionsInner = forwardRef<
 		voiceoverSrc,
 		...interactiveProps
 	} = props;
-	const outlineRef = useRef<HTMLDivElement>(null);
+	const elementRef = useRef<HTMLDivElement>(null);
 
-	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 	return (
 		<Sequence
@@ -460,9 +460,8 @@ const AnimatedCaptionsInner = forwardRef<
 			{...interactiveProps}
 			controls={controls}
 			name={name ?? '<AnimatedCaptions>'}
-			outlineRef={outlineRef}
 		>
-			<AbsoluteFill ref={outlineRef}>
+			<AbsoluteFill ref={elementRef}>
 				{captions ? (
 					<AnimatedCaptionsContent
 						captions={captions}

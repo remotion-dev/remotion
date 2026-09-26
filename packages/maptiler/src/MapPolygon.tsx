@@ -5,8 +5,11 @@ import {
 } from '@maptiler/sdk';
 import {useContext, useEffect, useMemo, useRef} from 'react';
 import {
+	Freeze,
 	Sequence,
+	Internals,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type SequenceControls,
 	useDelayRender,
 } from 'remotion';
@@ -17,6 +20,7 @@ import {
 	type MapPolylineFeature,
 } from './MapPolyline';
 import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
 
 export type MapPolygonFeature = {
 	readonly geometry:
@@ -29,6 +33,7 @@ export type MapPolygonFeature = {
 export type MapPolygonData = MapPolygonFeature | PolygonLayerOptions['data'];
 
 export type MapPolygonProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<
 		PolygonLayerOptions,
 		'data' | 'fillOpacity' | 'layerId' | 'outlinePosition' | 'sourceId'
@@ -118,6 +123,11 @@ const MapPolygonDrawing = ({
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const {continueRender, delayRender} = useDelayRender();
 	const layerIdsRef = useRef<MapPolygonLayerIds | null>(null);
+	const applyPremountVisibility = useMapPremounting(() =>
+		Object.entries(layerIdsRef.current ?? {})
+			.filter(([key]) => key.endsWith('LayerId'))
+			.map(([, value]) => value),
+	);
 	const optionsRef = useRef<PolygonLayerOptions | null>(null);
 	const fillColorIsDynamic = typeof fillColor === 'string';
 	const fillOpacityIsDynamic = typeof fillOpacity === 'number';
@@ -195,6 +205,7 @@ const MapPolygonDrawing = ({
 		};
 
 		layerIdsRef.current = helpers.addPolygon(map, optionsRef.current);
+		applyPremountVisibility();
 		map.once('idle', finish);
 		map.triggerRepaint();
 
@@ -219,7 +230,15 @@ const MapPolygonDrawing = ({
 			layerIdsRef.current = null;
 			map.triggerRepaint();
 		};
-	}, [continueRender, delayRender, layerId, map, structuralKey, styleRevision]);
+	}, [
+		applyPremountVisibility,
+		continueRender,
+		delayRender,
+		layerId,
+		map,
+		structuralKey,
+		styleRevision,
+	]);
 
 	useEffect(() => {
 		if (!map || typeof data === 'string') {
@@ -351,25 +370,62 @@ export const MapPolygon = (props: MapPolygonProps) => {
 		durationInFrames,
 		freeze,
 		from,
+		premountFor,
+		postmountFor,
 		hidden,
 		name,
 		showInTimeline,
 		trimBefore,
+		trimAfter,
+		playbackRate,
+		loop,
 	} = props;
 
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			hidden={hidden}
-			name={name ?? '<MapPolygon>'}
-			showInTimeline={showInTimeline ?? true}
-			controls={controls}
-		>
-			<MapPolygonDrawing {...props} />
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				playbackRate={playbackRate}
+				loop={loop}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? '<MapPolygon>'}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapPolygonDrawing {...props} />
+			</Sequence>
+		</Freeze>
 	);
 };

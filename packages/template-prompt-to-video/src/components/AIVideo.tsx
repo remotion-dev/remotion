@@ -25,34 +25,33 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
-      <Sequence durationInFrames={INTRO_DURATION}>
-        <AbsoluteFill
+      <AbsoluteFill
+        durationInFrames={INTRO_DURATION}
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          display: "flex",
+          zIndex: 10,
+        }}
+      >
+        <div
           style={{
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            display: "flex",
-            zIndex: 10,
+            fontSize: 120,
+            lineHeight: "122px",
+            width: "87%",
+            color: "black",
+            fontFamily,
+            textTransform: "uppercase",
+            backgroundColor: "yellow",
+            paddingTop: 20,
+            paddingBottom: 20,
+            border: "10px solid black",
           }}
         >
-          <div
-            style={{
-              fontSize: 120,
-              lineHeight: "122px",
-              width: "87%",
-              color: "black",
-              fontFamily,
-              textTransform: "uppercase",
-              backgroundColor: "yellow",
-              paddingTop: 20,
-              paddingBottom: 20,
-              border: "10px solid black",
-            }}
-          >
-            {timeline.shortTitle}
-          </div>
-        </AbsoluteFill>
-      </Sequence>
+          {timeline.shortTitle}
+        </div>
+      </AbsoluteFill>
 
       {timeline.elements.map((element, index) => {
         const { startFrame, duration } = calculateFrameTiming(
@@ -99,14 +98,13 @@ export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
         );
 
         return (
-          <Sequence
+          <Audio
             key={`element-${index}`}
             from={startFrame}
             durationInFrames={duration}
             premountFor={3 * FPS}
-          >
-            <Audio src={staticFile(getAudioPath(id, element.audioUrl))} />
-          </Sequence>
+            src={staticFile(getAudioPath(id, element.audioUrl))}
+          />
         );
       })}
     </AbsoluteFill>

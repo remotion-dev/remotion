@@ -5,11 +5,15 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals, type PropStatuses} from 'remotion';
+import {getInspectorKeyframeSourceFrame} from '../components/InspectorPanel/keyframe-inspector-frame';
 import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
 import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
-import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getTimelineKeyframes,
+} from '../components/Timeline/get-timeline-keyframes';
 import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {
@@ -64,6 +68,7 @@ const makeSequence = ({
 	timelineOrder: number;
 }): TSequence => ({
 	type: 'sequence',
+	sequencePlaybackRate: 1,
 	from,
 	trimBefore,
 	duration: 120,
@@ -270,6 +275,85 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	]);
 });
 
+test('keyframes retain their source frames across nested rates and trimmed clocks', () => {
+	const nodePath = makeNodePath('child');
+	const timeline = calculateTimeline({
+		sequences: [
+			{
+				...makeSequence({
+					id: 'outer',
+					from: 30,
+					trimBefore: 10,
+					timelineOrder: 0,
+				}),
+				sequencePlaybackRate: 2,
+			},
+			{
+				...makeSequence({
+					id: 'inner',
+					from: 20,
+					trimBefore: 3,
+					parent: 'outer',
+					timelineOrder: 1,
+				}),
+				sequencePlaybackRate: 0.75,
+			},
+			{
+				...makeSequence({
+					id: 'child',
+					from: 5,
+					trimBefore: null,
+					parent: 'inner',
+					overrideId: 'child',
+					timelineOrder: 2,
+				}),
+				sequencePlaybackRate: 3,
+			},
+		],
+		overrideIdsToNodePaths: {child: nodePath},
+	});
+	const track = timeline.find(
+		(candidate) => candidate.sequence.id === 'child',
+	)!;
+	const status = {
+		...makeKeyframedStatus(),
+		keyframeDisplayOffsetAdjustment: -6,
+	};
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {'style.scale': status},
+			effects: [],
+		},
+	};
+	const keyframes = getNodeKeyframes({
+		node: makeSequenceFieldNode('style.scale'),
+		nodePath,
+		propStatuses,
+		keyframeDisplayOffset: track.keyframeDisplayOffset,
+		keyframePlaybackRate: track.keyframePlaybackRate,
+		getDragOverrides: () => ({}),
+		getEffectDragOverrides: () => ({}),
+		timelinePosition: 49,
+	});
+
+	expect(keyframes).toEqual([
+		{frame: 29, value: 2},
+		{frame: 69, value: 4},
+	]);
+	expect(
+		getInspectorKeyframeSourceFrame({
+			displayFrame: 49,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: status,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
+			keyframePlaybackRate: track.keyframePlaybackRate,
+		}),
+	).toBe(30);
+});
+
 test('track lookup survives effect key changes', () => {
 	const sequences = [
 		makeSequence({
@@ -473,6 +557,7 @@ test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides',
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({
 				'style.scale': Internals.makeStaticDragOverride(3),
 			}),
@@ -495,6 +580,7 @@ test('getNodeKeyframes shows a temporary effect keyframe from drag overrides', (
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({}),
 			getEffectDragOverrides: () => ({
 				amount: Internals.makeStaticDragOverride(5),
@@ -516,6 +602,7 @@ test('getNodeKeyframes shows sequence keyframes from keyframed drag overrides', 
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({
 				'style.scale': Internals.makeKeyframedDragOverride({
 					status: makeKeyframedStatus(),
@@ -542,6 +629,7 @@ test('getNodeKeyframes replaces existing keyframes from keyframed drag overrides
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({}),
 			getEffectDragOverrides: () => ({
 				amount: Internals.makeKeyframedDragOverride({

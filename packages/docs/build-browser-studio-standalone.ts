@@ -2,7 +2,6 @@ import {copyFileSync, cpSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from '../browser-studio/src/dev/get-dependency-versions-for-build';
-import {getBrowserStudioReactRefreshFilesForBuild} from '../browser-studio/src/dev/get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from '../browser-studio/src/dev/get-setup-environment-for-build';
 import {getBrowserStudioWorkspacePackageExportsForBuild} from '../browser-studio/src/dev/get-workspace-package-exports-for-build';
 import {getBrowserStudioWorkspaceCommit} from './get-browser-studio-workspace-commit';
@@ -18,7 +17,6 @@ const outputDir = path.join(
 );
 const publicAssetPath = `/assets/experimental-new/${commit}`;
 const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
-const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 const workspacePackageExports =
 	getBrowserStudioWorkspacePackageExportsForBuild();
@@ -46,7 +44,6 @@ copyFileSync(
 const output = await build({
 	define: {
 		__BROWSER_STUDIO_DEPENDENCY_VERSIONS__: JSON.stringify(dependencyVersions),
-		__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 		__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
 		__BROWSER_STUDIO_WORKSPACE_COMMIT__: JSON.stringify(commit),
 		__BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__: JSON.stringify(

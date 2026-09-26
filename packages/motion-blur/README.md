@@ -15,4 +15,4 @@ Remove the `^` character from the version number to use the exact version.
 
 ## Usage
 
-See the [documentation](https://www.remotion.dev/docs/motion-blur) for more information.
+See the [documentation](https://www.remotion.dev/docs/motion-blur/api) for more information.

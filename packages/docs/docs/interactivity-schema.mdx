@@ -37,7 +37,7 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 ### `Interactive.baseSchema`
 
-Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`trimAfter`](/docs/sequence#trimafter), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
 ### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
 
@@ -286,7 +286,11 @@ The maximum value for numeric controls.
 
 ### `step?`
 
-The increment used by numeric and spatial controls.
+The increment used by numeric and spatial controls when dragging or using arrow keys. It does not restrict values typed into the Inspector.
+
+### `integer?`<AvailableFrom v="4.0.528" />
+
+Set to `true` if the prop is a `number` and requires a whole number. Remotion Studio will reject non-integer values. Default: `false`.
 
 ### `hiddenFromList`
 
@@ -345,6 +349,12 @@ The minimum number of items.
 ### `maxLength?`
 
 The maximum number of items.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+The schema describes plain data. Editing its controls requires Remotion Studio.
 
 ## See also
 

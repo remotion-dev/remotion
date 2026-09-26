@@ -16,9 +16,9 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
+import {BackgroundRemovalIcon} from '../icons/background-removal';
 import {ExpandedFolderIcon} from '../icons/folder';
 import {RemotionConvertIcon} from '../icons/remotion-convert';
-import {SeparationIcon} from '../icons/separation';
 import {TranscriptionIcon} from '../icons/transcription';
 import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
@@ -239,6 +239,7 @@ export const AssetInfo: React.FC<{
 			type: 'video-matting',
 			src,
 			displayName: fileName,
+			target: null,
 		});
 	}, [fileName, fileType, mutationsDisabled, setSelectedModal, src]);
 	const canRename =
@@ -327,7 +328,7 @@ export const AssetInfo: React.FC<{
 					onClick={onAssetClick}
 					onCommit={onRename}
 					size={contentSized ? 'default' : 'inspector'}
-					title={assetName}
+					aria-label={assetName}
 				/>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
@@ -417,7 +418,7 @@ export const AssetInfo: React.FC<{
 							Show in {fileManagerName}
 						</InspectorQuickAction>
 					) : null}
-					{src ? (
+					{src && mediaMetadata?.hasAudioTrack !== false ? (
 						<InspectorQuickAction
 							disabled={mutationsDisabled}
 							onClick={onTranscribe}
@@ -433,10 +434,13 @@ export const AssetInfo: React.FC<{
 							disabled={mutationsDisabled}
 							onClick={onTrackMatting}
 							renderIcon={(color) => (
-								<SeparationIcon color={color} style={quickActionIconStyle} />
+								<BackgroundRemovalIcon
+									color={color}
+									style={quickActionIconStyle}
+								/>
 							)}
 						>
-							Separate foreground
+							Remove background
 						</InspectorQuickAction>
 					) : null}
 					{src ? (

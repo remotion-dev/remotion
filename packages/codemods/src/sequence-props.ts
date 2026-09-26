@@ -1,0 +1,2331 @@
+import type {
+	CallExpression,
+	Expression,
+	File,
+	JSXAttribute,
+	JSXElement,
+	JSXOpeningElement,
+	NewExpression,
+	Node,
+	NumericLiteral,
+	ObjectExpression,
+	ObjectProperty,
+	TSAsExpression,
+	UnaryExpression,
+} from '@babel/types';
+import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-presets';
+import * as recast from 'recast';
+import type {
+	CanUpdateSequencePropsResponseTrue,
+	CanUpdateSequencePropStatus,
+	ExtrapolateType,
+	InterpolateOutputOption,
+	InterpolateOutputType,
+	JsxComponentIdentity,
+	SequenceNodePath,
+	VideoConfigNumericExpression,
+	VideoConfigValues,
+} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
+import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
+import {computeEffectPropStatus} from './sequence-props/can-update-effect-props';
+import {getCssShorthandForLonghand} from './sequence-props/css-shorthand-properties';
+import {getAstNodePath} from './sequence-props/get-ast-node-path';
+import {toImportAgnosticNodePath} from './sequence-props/import-agnostic-node-path';
+import {
+	getJsxComponentIdentity,
+	jsxComponentIdentitiesMatch,
+	JsxElementIdentityMismatchError,
+} from './sequence-props/jsx-component-identity';
+import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
+import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
+import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
+import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
+import {parseVideoConfigNumericExpression} from './sequence-props/video-config-numeric-expression';
+import {
+	getVideoConfigIdentifierValues,
+	type VideoConfigIdentifierValues,
+} from './sequence-props/video-config-values';
+
+type CanUpdatePropStatus = CanUpdateSequencePropStatus;
+type KeyframedPropStatus = Extract<CanUpdatePropStatus, {status: 'keyframed'}>;
+type PropKeyframes = KeyframedPropStatus['keyframes'];
+type PropEasing = KeyframedPropStatus['easing'];
+type PropClamping = KeyframedPropStatus['clamping'];
+type PropPosterize = KeyframedPropStatus['posterize'];
+type PropOutput = KeyframedPropStatus['output'];
+type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
+
+const staticStatus = (
+	codeValue: unknown,
+	numericExpression: VideoConfigNumericExpression | null,
+): CanUpdatePropStatus => ({
+	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
+	codeValue,
+	...(numericExpression === null || numericExpression.type === 'literal'
+		? {}
+		: {numericExpression}),
+});
+
+const computedStatus = (): CanUpdatePropStatus => ({
+	status: 'computed',
+});
+
+// Mirrors the encoding that staticFile() from "remotion" applies at runtime
+const encodeStaticFilePath = (path: string): string => {
+	return path.split('/').map(encodeURIComponent).join('/');
+};
+
+type SpecialValueCall =
+	| {type: 'static-file'; value: string}
+	| {type: 'date'; value: string};
+
+// Detects calls that the Studio knows how to serialize back to source:
+// staticFile("...") and new Date("...")
+const getSpecialValueCall = (node: Expression): SpecialValueCall | null => {
+	if (node.type === 'CallExpression') {
+		const call = node as CallExpression;
+		if (
+			call.callee.type === 'Identifier' &&
+			call.callee.name === 'staticFile' &&
+			call.arguments.length === 1 &&
+			call.arguments[0].type === 'StringLiteral'
+		) {
+			return {type: 'static-file', value: call.arguments[0].value};
+		}
+
+		return null;
+	}
+
+	if (node.type === 'NewExpression') {
+		const newExpr = node as NewExpression;
+		if (
+			newExpr.callee.type === 'Identifier' &&
+			newExpr.callee.name === 'Date' &&
+			newExpr.arguments.length === 1 &&
+			newExpr.arguments[0].type === 'StringLiteral'
+		) {
+			return {type: 'date', value: newExpr.arguments[0].value};
+		}
+
+		return null;
+	}
+
+	return null;
+};
+
+type StaticValueOptions = {
+	allowSpecialValues: boolean;
+};
+
+const defaultStaticValueOptions: StaticValueOptions = {
+	allowSpecialValues: false,
+};
+
+export const isStaticValue = (
+	node: Expression,
+	options: StaticValueOptions = defaultStaticValueOptions,
+): boolean => {
+	if (options.allowSpecialValues && getSpecialValueCall(node) !== null) {
+		return true;
+	}
+
+	switch (node.type) {
+		case 'NumericLiteral':
+		case 'StringLiteral':
+		case 'BooleanLiteral':
+		case 'NullLiteral':
+			return true;
+		case 'UnaryExpression':
+			return (
+				((node as UnaryExpression).operator === '-' ||
+					(node as UnaryExpression).operator === '+') &&
+				(node as UnaryExpression).argument.type === 'NumericLiteral'
+			);
+		case 'TSAsExpression':
+			return isStaticValue(
+				(node as TSAsExpression).expression as Expression,
+				options,
+			);
+		case 'ArrayExpression':
+			return (
+				node as Extract<Expression, {type: 'ArrayExpression'}>
+			).elements.every(
+				(el) =>
+					el !== null &&
+					el.type !== 'SpreadElement' &&
+					isStaticValue(el, options),
+			);
+		case 'ObjectExpression':
+			return (node as ObjectExpression).properties.every(
+				(prop) =>
+					prop.type === 'ObjectProperty' &&
+					isStaticValue((prop as ObjectProperty).value as Expression, options),
+			);
+		default:
+			return false;
+	}
+};
+
+export const extractStaticValue = (
+	node: Expression,
+	options: StaticValueOptions = defaultStaticValueOptions,
+): unknown => {
+	if (options.allowSpecialValues) {
+		const specialValue = getSpecialValueCall(node);
+		if (specialValue !== null) {
+			if (specialValue.type === 'static-file') {
+				return `${NoReactInternals.FILE_TOKEN}${encodeStaticFilePath(specialValue.value)}`;
+			}
+
+			return `${NoReactInternals.DATE_TOKEN}${specialValue.value}`;
+		}
+	}
+
+	switch (node.type) {
+		case 'NumericLiteral':
+		case 'StringLiteral':
+		case 'BooleanLiteral':
+			return (node as {value: unknown}).value;
+		case 'NullLiteral':
+			return null;
+		case 'UnaryExpression': {
+			const un = node as UnaryExpression;
+			if (un.argument.type === 'NumericLiteral') {
+				const val = (un.argument as {value: number}).value;
+				return un.operator === '-' ? -val : val;
+			}
+
+			return undefined;
+		}
+
+		case 'TSAsExpression':
+			return extractStaticValue(
+				(node as TSAsExpression).expression as Expression,
+				options,
+			);
+		case 'ArrayExpression':
+			return (
+				node as Extract<Expression, {type: 'ArrayExpression'}>
+			).elements.map((el) => {
+				if (el === null || el.type === 'SpreadElement') {
+					return undefined;
+				}
+
+				return extractStaticValue(el, options);
+			});
+		case 'ObjectExpression': {
+			const obj = node as ObjectExpression;
+			const result: Record<string, unknown> = {};
+			for (const prop of obj.properties) {
+				if (prop.type === 'ObjectProperty') {
+					const p = prop as ObjectProperty;
+					const key =
+						p.key.type === 'Identifier'
+							? (p.key as {name: string}).name
+							: p.key.type === 'StringLiteral' ||
+								  p.key.type === 'NumericLiteral'
+								? String((p.key as {value: unknown}).value)
+								: undefined;
+					if (key !== undefined) {
+						result[key] = extractStaticValue(p.value as Expression, options);
+					}
+				}
+			}
+
+			return result;
+		}
+
+		default:
+			return undefined;
+	}
+};
+
+const getNumericValue = (node: Expression): number | null => {
+	if (node.type === 'NumericLiteral') {
+		return node.value;
+	}
+
+	if (
+		node.type === 'UnaryExpression' &&
+		(node.operator === '-' || node.operator === '+') &&
+		node.argument.type === 'NumericLiteral'
+	) {
+		return node.operator === '-' ? -node.argument.value : node.argument.value;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getNumericValue(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getExtrapolateType = (node: Expression): ExtrapolateType | null => {
+	if (node.type === 'StringLiteral') {
+		if (
+			node.value === 'extend' ||
+			node.value === 'identity' ||
+			node.value === 'clamp' ||
+			node.value === 'wrap'
+		) {
+			return node.value;
+		}
+
+		return null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getExtrapolateType(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getInterpolateOutputOption = (
+	node: Expression,
+): InterpolateOutputOption | null => {
+	if (node.type === 'StringLiteral') {
+		if (node.value === 'linear' || node.value === 'perceptual-scale') {
+			return node.value;
+		}
+
+		return null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getInterpolateOutputOption(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getInterpolateOutputType = (
+	node: Expression,
+): InterpolateOutputType | null => {
+	if (node.type === 'StringLiteral') {
+		if (
+			node.value === 'font-weight' ||
+			node.value === 'scale' ||
+			node.value === 'translate' ||
+			node.value === 'rotate' ||
+			node.value === 'transform-origin'
+		) {
+			return node.value;
+		}
+
+		return null;
+	}
+
+	if (node.type === 'TSAsExpression') {
+		return getInterpolateOutputType(node.expression as Expression);
+	}
+
+	return null;
+};
+
+const getKeyframeEasing = (node: Expression): PropEasing[number] | null =>
+	parseKeyframeEasingExpression(node);
+
+const getKeyframeEasingArray = ({
+	easingNode,
+	segments,
+}: {
+	easingNode: Expression;
+	segments: number;
+}): PropEasing | null => {
+	if (segments === 0) {
+		return [];
+	}
+
+	if (easingNode.type === 'TSAsExpression') {
+		return getKeyframeEasingArray({
+			easingNode: easingNode.expression as Expression,
+			segments,
+		});
+	}
+
+	if (easingNode.type === 'ArrayExpression') {
+		if (easingNode.elements.length !== segments) {
+			return null;
+		}
+
+		const parsed = easingNode.elements.map((element) => {
+			if (!element || element.type === 'SpreadElement') {
+				return null;
+			}
+
+			return getKeyframeEasing(element);
+		});
+
+		if (parsed.some((value) => value === null)) {
+			return null;
+		}
+
+		return parsed as PropEasing;
+	}
+
+	const easing = getKeyframeEasing(easingNode);
+	if (!easing) {
+		return null;
+	}
+
+	return new Array(segments).fill(easing) as PropEasing;
+};
+
+const getInterpolationMetadata = (
+	interpolationFunction: PropInterpolationFunction,
+	callExpression: CallExpression,
+	keyframeCount: number,
+): {
+	easing: PropEasing;
+	clamping: PropClamping;
+	posterize: PropPosterize;
+	output: PropOutput;
+} | null => {
+	const segments = Math.max(0, keyframeCount - 1);
+	const defaultClamping: PropClamping =
+		interpolationFunction === 'interpolateColors'
+			? {
+					left: 'clamp',
+					right: 'clamp',
+				}
+			: {
+					left: 'extend',
+					right: 'extend',
+				};
+	const defaults = {
+		easing: Array.from({length: segments}, () => LINEAR_KEYFRAME_EASING),
+		clamping: defaultClamping,
+		posterize: undefined,
+		output: undefined,
+	};
+
+	const optionsArg = callExpression.arguments[3];
+	if (!optionsArg) {
+		return defaults;
+	}
+
+	if (optionsArg.type !== 'ObjectExpression') {
+		return null;
+	}
+
+	let {easing} = defaults;
+	let {clamping}: {clamping: PropClamping} = defaults;
+	let posterize: PropPosterize;
+	let {output}: {output: PropOutput} = defaults;
+
+	for (const property of optionsArg.properties) {
+		if (property.type !== 'ObjectProperty' || property.computed) {
+			return null;
+		}
+
+		const key =
+			property.key.type === 'Identifier'
+				? property.key.name
+				: property.key.type === 'StringLiteral'
+					? property.key.value
+					: null;
+
+		if (!key) {
+			return null;
+		}
+
+		const value = property.value as Expression;
+
+		if (key === 'easing') {
+			const parsedEasing = getKeyframeEasingArray({
+				easingNode: value,
+				segments,
+			});
+			if (!parsedEasing) {
+				return null;
+			}
+
+			easing = parsedEasing;
+			continue;
+		}
+
+		if (key === 'extrapolateLeft' || key === 'extrapolateRight') {
+			if (interpolationFunction === 'interpolateColors') {
+				return null;
+			}
+
+			const extrapolateType = getExtrapolateType(value);
+			if (
+				!extrapolateType ||
+				(interpolationFunction === 'interpolatePaths' &&
+					extrapolateType === 'identity')
+			) {
+				return null;
+			}
+
+			clamping =
+				key === 'extrapolateLeft'
+					? {...clamping, left: extrapolateType}
+					: {...clamping, right: extrapolateType};
+			continue;
+		}
+
+		if (key === 'posterize') {
+			const parsedPosterize = getNumericValue(value);
+			if (
+				parsedPosterize === null ||
+				!Number.isFinite(parsedPosterize) ||
+				parsedPosterize <= 0
+			) {
+				return null;
+			}
+
+			posterize = parsedPosterize;
+			continue;
+		}
+
+		if (key === 'output') {
+			if (interpolationFunction !== 'interpolate') {
+				return null;
+			}
+
+			const parsedOutput = getInterpolateOutputOption(value);
+			if (!parsedOutput) {
+				return null;
+			}
+
+			output = parsedOutput;
+			continue;
+		}
+
+		if (key === 'outputType') {
+			if (
+				interpolationFunction !== 'interpolate' ||
+				getInterpolateOutputType(value) === null
+			) {
+				return null;
+			}
+
+			continue;
+		}
+
+		return null;
+	}
+
+	return {
+		easing,
+		clamping,
+		posterize,
+		output,
+	};
+};
+
+const getRemotionImportNames = ({
+	ast,
+	importedName,
+}: {
+	ast: File;
+	importedName: string;
+}): {direct: Set<string>; namespaces: Set<string>} => {
+	const direct = new Set<string>();
+	const namespaces = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				((specifier.imported.type === 'Identifier' &&
+					specifier.imported.name === importedName) ||
+					(specifier.imported.type === 'StringLiteral' &&
+						specifier.imported.value === importedName))
+			) {
+				direct.add(specifier.local?.name ?? importedName);
+			}
+
+			if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaces.add(specifier.local.name);
+			}
+		}
+	}
+
+	return {direct, namespaces};
+};
+
+const isUseCurrentFrameCall = (node: Expression, ast: File): boolean => {
+	if (node.type !== 'CallExpression' || node.arguments.length !== 0) {
+		return false;
+	}
+
+	const imports = getRemotionImportNames({
+		ast,
+		importedName: 'useCurrentFrame',
+	});
+	if (node.callee.type === 'Identifier') {
+		return imports.direct.has(node.callee.name);
+	}
+
+	return (
+		node.callee.type === 'MemberExpression' &&
+		!node.callee.computed &&
+		node.callee.object.type === 'Identifier' &&
+		node.callee.property.type === 'Identifier' &&
+		imports.namespaces.has(node.callee.object.name) &&
+		node.callee.property.name === 'useCurrentFrame'
+	);
+};
+
+const findNodePath = (
+	ast: File,
+	target: Node,
+): recast.types.NodePath | null => {
+	let found: recast.types.NodePath | null = null;
+	recast.types.visit(ast, {
+		visitNode(p) {
+			if (p.node === target) {
+				found = p as unknown as recast.types.NodePath;
+				return false;
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return found;
+};
+
+const getJsxNumericAttribute = ({
+	openingElement,
+	name,
+	defaultValue,
+	videoConfigValues,
+}: {
+	openingElement: JSXOpeningElement;
+	name: string;
+	defaultValue: number;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	if (
+		openingElement.attributes.some(
+			(attribute) => attribute.type === 'JSXSpreadAttribute',
+		)
+	) {
+		return null;
+	}
+
+	for (let index = openingElement.attributes.length - 1; index >= 0; index--) {
+		const attribute = openingElement.attributes[index];
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier' ||
+			attribute.name.name !== name
+		) {
+			continue;
+		}
+
+		if (
+			attribute.value?.type !== 'JSXExpressionContainer' ||
+			attribute.value.expression.type === 'JSXEmptyExpression'
+		) {
+			return null;
+		}
+
+		return (
+			parseVideoConfigNumericExpression({
+				node: attribute.value.expression,
+				videoConfigValues,
+			})?.value ?? null
+		);
+	}
+
+	return defaultValue;
+};
+
+const getJsxBooleanAttribute = ({
+	openingElement,
+	name,
+	defaultValue,
+}: {
+	openingElement: JSXOpeningElement;
+	name: string;
+	defaultValue: boolean;
+}): boolean | null => {
+	for (let index = openingElement.attributes.length - 1; index >= 0; index--) {
+		const attribute = openingElement.attributes[index];
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier' ||
+			attribute.name.name !== name
+		) {
+			continue;
+		}
+
+		const {value} = attribute;
+		if (value === null || value === undefined) {
+			return true;
+		}
+
+		if (
+			value.type === 'JSXExpressionContainer' &&
+			value.expression.type === 'BooleanLiteral'
+		) {
+			return value.expression.value;
+		}
+
+		return null;
+	}
+
+	return defaultValue;
+};
+
+const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
+	startPath,
+	endPath,
+	videoConfigValues,
+}: {
+	startPath: recast.types.NodePath;
+	endPath: recast.types.NodePath;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): {
+	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
+	readonly hasEnclosingElement: boolean;
+} | null => {
+	let current: recast.types.NodePath | null = startPath;
+	let hasSeenControlledElement = false;
+	let hasEnclosingElement = false;
+	let adjustment = 0;
+	let playbackRateAdjustment = 1;
+	while (current && current.value !== endPath.value) {
+		const currentNode = current.value as Node;
+		if (
+			currentNode.type === 'FunctionDeclaration' ||
+			currentNode.type === 'FunctionExpression' ||
+			currentNode.type === 'ArrowFunctionExpression'
+		) {
+			return null;
+		}
+
+		if (currentNode.type === 'JSXElement') {
+			if (!hasSeenControlledElement) {
+				hasSeenControlledElement = true;
+			} else {
+				hasEnclosingElement = true;
+				// Sequence-backed built-ins and userland components can both shift
+				// their children, so the prop names are the semantic boundary.
+				const from = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'from',
+					defaultValue: 0,
+					videoConfigValues,
+				});
+				const trimBefore = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'trimBefore',
+					defaultValue: 0,
+					videoConfigValues,
+				});
+				const playbackRate = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'playbackRate',
+					defaultValue: 1,
+					videoConfigValues,
+				});
+				const loop = getJsxBooleanAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'loop',
+					defaultValue: false,
+				});
+				if (
+					from === null ||
+					trimBefore === null ||
+					playbackRate === null ||
+					loop === null ||
+					loop ||
+					!Number.isFinite(playbackRate) ||
+					playbackRate <= 0
+				) {
+					return null;
+				}
+
+				// Walk from the controlled element back to the hook's scope.
+				// A sequence maps parent time to (parent - from) * rate + trimBefore.
+				adjustment = (adjustment + trimBefore) / playbackRate - from;
+				playbackRateAdjustment /= playbackRate;
+			}
+		}
+
+		current = current.parentPath;
+	}
+
+	return current
+		? {adjustment, playbackRateAdjustment, hasEnclosingElement}
+		: null;
+};
+
+const getDefaultFrameDisplayOffsetAdjustment = ({
+	jsxPath,
+	videoConfigValues,
+}: {
+	jsxPath: recast.types.NodePath;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): {
+	adjustment: number;
+	playbackRateAdjustment: number;
+	canKeyframe: boolean;
+} | null => {
+	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
+	while (functionPath) {
+		const node = functionPath.value as Node;
+		if (
+			node.type === 'FunctionDeclaration' ||
+			node.type === 'FunctionExpression' ||
+			node.type === 'ArrowFunctionExpression'
+		) {
+			break;
+		}
+
+		functionPath = functionPath.parentPath;
+	}
+
+	if (!functionPath) {
+		// Module-level JSX still has editable static props. There is no local
+		// frame clock to adjust; keyframe insertion validates its own hook scope.
+		return {adjustment: 0, playbackRateAdjustment: 1, canKeyframe: true};
+	}
+
+	let current: recast.types.NodePath | null = jsxPath;
+	let hasSeenControlledElement = false;
+	while (current && current.value !== functionPath.value) {
+		const currentNode = current.value as Node;
+		if (currentNode.type === 'JSXElement') {
+			if (!hasSeenControlledElement) {
+				hasSeenControlledElement = true;
+			} else {
+				const loop = getJsxBooleanAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'loop',
+					defaultValue: false,
+				});
+				if (loop === null) {
+					return null;
+				}
+
+				if (loop) {
+					return {
+						adjustment: 0,
+						playbackRateAdjustment: 1,
+						canKeyframe: false,
+					};
+				}
+			}
+		}
+
+		current = current.parentPath;
+	}
+
+	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
+		startPath: jsxPath,
+		endPath: functionPath,
+		videoConfigValues,
+	});
+	return result ? {...result, canKeyframe: true} : null;
+};
+
+type ResolvedCurrentFrameExpression = {
+	readonly bindingScopePath: recast.types.NodePath;
+	readonly offset: number;
+};
+
+const resolveCurrentFrameExpression = ({
+	node,
+	ast,
+	seenDeclarations,
+}: {
+	node: Expression;
+	ast: File;
+	seenDeclarations: Set<object>;
+}): ResolvedCurrentFrameExpression | null => {
+	if (node.type === 'TSAsExpression') {
+		return resolveCurrentFrameExpression({
+			node: node.expression as Expression,
+			ast,
+			seenDeclarations,
+		});
+	}
+
+	if (
+		node.type === 'BinaryExpression' &&
+		(node.operator === '+' || node.operator === '-')
+	) {
+		const rightValue = getNumericValue(node.right as Expression);
+		if (rightValue !== null && Number.isFinite(rightValue)) {
+			const resolvedLeft = resolveCurrentFrameExpression({
+				node: node.left as Expression,
+				ast,
+				seenDeclarations,
+			});
+			if (resolvedLeft !== null) {
+				return {
+					...resolvedLeft,
+					offset:
+						resolvedLeft.offset +
+						(node.operator === '+' ? rightValue : -rightValue),
+				};
+			}
+		}
+
+		if (node.operator === '+') {
+			const leftValue = getNumericValue(node.left as Expression);
+			if (leftValue !== null && Number.isFinite(leftValue)) {
+				const resolvedRight = resolveCurrentFrameExpression({
+					node: node.right as Expression,
+					ast,
+					seenDeclarations,
+				});
+				if (resolvedRight !== null) {
+					return {
+						...resolvedRight,
+						offset: resolvedRight.offset + leftValue,
+					};
+				}
+			}
+		}
+
+		return null;
+	}
+
+	if (node.type !== 'Identifier') {
+		return null;
+	}
+
+	const nodePath = findNodePath(ast, node);
+	const bindingScope = nodePath?.scope?.lookup(node.name);
+	if (!nodePath || !bindingScope) {
+		return null;
+	}
+
+	let matchingDeclarations = 0;
+	let matchingDeclaration: object | null = null;
+	let initializer: Expression | null = null;
+	let isConstDeclaration = false;
+	recast.types.visit(bindingScope.path, {
+		visitVariableDeclarator(p) {
+			const {id, init} = p.node;
+			if (
+				id.type !== 'Identifier' ||
+				id.name !== node.name ||
+				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
+			) {
+				return this.traverse(p);
+			}
+
+			matchingDeclarations++;
+			const declaration = p.parentPath.node;
+			if (init) {
+				matchingDeclaration = p.node;
+				initializer = init as Expression;
+				isConstDeclaration =
+					declaration.type === 'VariableDeclaration' &&
+					declaration.kind === 'const';
+			}
+
+			return false;
+		},
+	});
+
+	if (
+		matchingDeclarations !== 1 ||
+		matchingDeclaration === null ||
+		initializer === null ||
+		seenDeclarations.has(matchingDeclaration)
+	) {
+		return null;
+	}
+
+	if (isUseCurrentFrameCall(initializer, ast)) {
+		return {bindingScopePath: bindingScope.path, offset: 0};
+	}
+
+	if (!isConstDeclaration) {
+		return null;
+	}
+
+	const nextSeenDeclarations = new Set(seenDeclarations);
+	nextSeenDeclarations.add(matchingDeclaration);
+	return resolveCurrentFrameExpression({
+		node: initializer,
+		ast,
+		seenDeclarations: nextSeenDeclarations,
+	});
+};
+
+const getCurrentFrameDisplayOffsetAdjustment = ({
+	node,
+	ast,
+	videoConfigValues,
+}: {
+	node: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): {
+	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
+	readonly hasEnclosingElement: boolean;
+} | null => {
+	if (node.type === 'TSAsExpression') {
+		return getCurrentFrameDisplayOffsetAdjustment({
+			node: node.expression as Expression,
+			ast,
+			videoConfigValues,
+		});
+	}
+
+	const nodePath = findNodePath(ast, node);
+	const resolved = resolveCurrentFrameExpression({
+		node,
+		ast,
+		seenDeclarations: new Set(),
+	});
+	if (!nodePath || resolved === null) {
+		return null;
+	}
+
+	const frameDisplayOffset = getFrameDisplayOffsetAdjustmentBetweenPaths({
+		startPath: nodePath,
+		endPath: resolved.bindingScopePath,
+		videoConfigValues,
+	});
+	if (frameDisplayOffset === null) {
+		return null;
+	}
+
+	return {
+		...frameDisplayOffset,
+		// interpolate(frame + offset, [keyframe], ...) reaches the keyframe at
+		// composition frame `keyframe - offset`.
+		adjustment: frameDisplayOffset.adjustment - resolved.offset,
+	};
+};
+
+const getInterpolationKeyframes = (
+	node: Expression,
+	ast: File,
+	videoConfigValues: VideoConfigIdentifierValues,
+):
+	| {
+			keyframes: PropKeyframes;
+			easing: PropEasing;
+			clamping: PropClamping;
+			posterize: PropPosterize;
+			output: PropOutput;
+			interpolationFunction: PropInterpolationFunction;
+			keyframeDisplayOffsetAdjustment: number | null;
+			keyframePlaybackRateAdjustment: number;
+	  }
+	| undefined => {
+	if (node.type === 'TSAsExpression') {
+		return getInterpolationKeyframes(
+			node.expression as Expression,
+			ast,
+			videoConfigValues,
+		);
+	}
+
+	if (
+		node.type === 'CallExpression' &&
+		node.callee.type === 'Identifier' &&
+		node.callee.name === 'String' &&
+		node.arguments.length === 1 &&
+		node.arguments[0].type !== 'ArgumentPlaceholder' &&
+		node.arguments[0].type !== 'JSXNamespacedName' &&
+		node.arguments[0].type !== 'SpreadElement'
+	) {
+		const interpolation = getInterpolationKeyframes(
+			node.arguments[0] as Expression,
+			ast,
+			videoConfigValues,
+		);
+		if (!interpolation) {
+			return undefined;
+		}
+
+		return {
+			...interpolation,
+			keyframes: interpolation.keyframes.map((keyframe) => ({
+				...keyframe,
+				value: String(keyframe.value),
+			})),
+		};
+	}
+
+	if (node.type !== 'CallExpression') {
+		return undefined;
+	}
+
+	const callExpression = node as CallExpression;
+	if (callExpression.callee.type !== 'Identifier') {
+		return undefined;
+	}
+
+	const interpolationFunction = getKeyframeInterpolationFunctionForCallee({
+		ast,
+		callee: callExpression.callee,
+	});
+	if (interpolationFunction === null) {
+		return undefined;
+	}
+
+	const frameArg = callExpression.arguments[0];
+	const inputArg = callExpression.arguments[1];
+	const outputArg = callExpression.arguments[2];
+	if (
+		!frameArg ||
+		frameArg.type === 'SpreadElement' ||
+		!inputArg ||
+		!outputArg ||
+		inputArg.type !== 'ArrayExpression' ||
+		outputArg.type !== 'ArrayExpression'
+	) {
+		return undefined;
+	}
+
+	const frameDisplayOffset = getCurrentFrameDisplayOffsetAdjustment({
+		node: frameArg as Expression,
+		ast,
+		videoConfigValues,
+	});
+	if (frameDisplayOffset === null) {
+		return undefined;
+	}
+
+	if (inputArg.elements.length !== outputArg.elements.length) {
+		return undefined;
+	}
+
+	const keyframes: PropKeyframes = [];
+	for (let i = 0; i < inputArg.elements.length; i++) {
+		const inputElement = inputArg.elements[i];
+		const outputElement = outputArg.elements[i];
+		if (
+			!inputElement ||
+			!outputElement ||
+			inputElement.type === 'SpreadElement' ||
+			outputElement.type === 'SpreadElement'
+		) {
+			return undefined;
+		}
+
+		const frameExpression = parseVideoConfigNumericExpression({
+			node: inputElement,
+			videoConfigValues,
+		});
+		if (frameExpression === null || !isStaticValue(outputElement)) {
+			return undefined;
+		}
+
+		keyframes.push({
+			frame: frameExpression.value,
+			value: extractStaticValue(outputElement),
+			...(frameExpression.type === 'literal' ? {} : {frameExpression}),
+		});
+	}
+
+	if (keyframes.length === 0) {
+		return undefined;
+	}
+
+	const metadata = getInterpolationMetadata(
+		interpolationFunction,
+		callExpression,
+		keyframes.length,
+	);
+	if (!metadata) {
+		return undefined;
+	}
+
+	return {
+		interpolationFunction,
+		keyframes,
+		easing: metadata.easing,
+		clamping: metadata.clamping,
+		posterize: metadata.posterize,
+		output: metadata.output,
+		keyframePlaybackRateAdjustment: frameDisplayOffset.playbackRateAdjustment,
+		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
+			? frameDisplayOffset.adjustment
+			: null,
+	};
+};
+
+export const getComputedStatus = (
+	node: Expression,
+	ast: File,
+	videoConfigValues: VideoConfigIdentifierValues,
+): CanUpdatePropStatus => {
+	const interpolation = getInterpolationKeyframes(node, ast, videoConfigValues);
+	if (!interpolation) {
+		return computedStatus();
+	}
+
+	return {
+		status: 'keyframed',
+		interpolationFunction: interpolation.interpolationFunction,
+		keyframeDisplayOffsetAdjustment:
+			interpolation.keyframeDisplayOffsetAdjustment,
+		...(interpolation.keyframePlaybackRateAdjustment === 1
+			? {}
+			: {
+					keyframePlaybackRateAdjustment:
+						interpolation.keyframePlaybackRateAdjustment,
+				}),
+		keyframes: interpolation.keyframes,
+		easing: interpolation.easing,
+		clamping: interpolation.clamping,
+		posterize: interpolation.posterize,
+		output: interpolation.output,
+	};
+};
+
+export const retimeSequenceKeyframes = ({
+	ast,
+	jsxElement,
+	playbackRate,
+	videoConfigValues,
+}: {
+	ast: File;
+	jsxElement: JSXElement;
+	playbackRate: number;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): void => {
+	if (!Number.isFinite(playbackRate) || playbackRate <= 0) {
+		throw new Error('Cannot retime keyframes with an invalid playback rate');
+	}
+
+	const {openingElement} = jsxElement;
+	const previousPlaybackRate = getJsxNumericAttribute({
+		openingElement,
+		name: 'playbackRate',
+		defaultValue: 1,
+		videoConfigValues,
+	});
+	const from = getJsxNumericAttribute({
+		openingElement,
+		name: 'from',
+		defaultValue: 0,
+		videoConfigValues,
+	});
+	if (
+		previousPlaybackRate === null ||
+		!Number.isFinite(previousPlaybackRate) ||
+		from === null ||
+		!Number.isFinite(from) ||
+		previousPlaybackRate <= 0
+	) {
+		// Retiming requires a known source clock, but changing the rate itself
+		// must still work for dynamic timing props and spread attributes.
+		return;
+	}
+
+	if (previousPlaybackRate === playbackRate) {
+		return;
+	}
+
+	const rootPath = findNodePath(ast, openingElement);
+	if (!rootPath) {
+		throw new Error('Could not find the sequence clock');
+	}
+
+	const ratio = previousPlaybackRate / playbackRate;
+	recast.types.visit(jsxElement, {
+		visitCallExpression(p) {
+			const call = p.node as unknown as CallExpression;
+			const interpolation = getInterpolationKeyframes(
+				call,
+				ast,
+				videoConfigValues,
+			);
+			if (!interpolation) {
+				return this.traverse(p);
+			}
+
+			const resolved = resolveCurrentFrameExpression({
+				node: call.arguments[0] as Expression,
+				ast,
+				seenDeclarations: new Set(),
+			});
+			if (!resolved) {
+				return this.traverse(p);
+			}
+
+			// Only outer frame bindings need source edits. A hook inside this
+			// sequence already inherits its changed playback rate at runtime.
+			const clock = getFrameDisplayOffsetAdjustmentBetweenPaths({
+				startPath: rootPath,
+				endPath: resolved.bindingScopePath,
+				videoConfigValues,
+			});
+			if (!clock) {
+				return this.traverse(p);
+			}
+
+			const anchor =
+				from * clock.playbackRateAdjustment -
+				clock.adjustment +
+				resolved.offset;
+			const inputRange = call.arguments[1];
+			if (inputRange.type !== 'ArrayExpression') {
+				return this.traverse(p);
+			}
+
+			inputRange.elements = interpolation.keyframes.map<NumericLiteral>(
+				(keyframe) => {
+					const frame = anchor + (keyframe.frame - anchor) * ratio;
+					const nearestInteger = Math.round(frame);
+					const value =
+						Math.abs(frame - nearestInteger) <=
+						Number.EPSILON * Math.max(1, Math.abs(frame)) * 2
+							? nearestInteger
+							: frame;
+					return {type: 'NumericLiteral', value};
+				},
+			);
+			return false;
+		},
+	});
+};
+
+const getPropsStatus = (
+	jsxElement: JSXOpeningElement,
+	ast: File,
+	videoConfigValues: VideoConfigIdentifierValues,
+	assetKeys: string[],
+): Record<string, CanUpdatePropStatus> => {
+	const props: Record<string, CanUpdatePropStatus> = {};
+
+	for (const attr of jsxElement.attributes) {
+		if (attr.type === 'JSXSpreadAttribute') {
+			// The spread may override every prop written before it
+			for (const key of Object.keys(props)) {
+				props[key] = computedStatus();
+			}
+
+			continue;
+		}
+
+		if (attr.name.type === 'JSXNamespacedName') {
+			continue;
+		}
+
+		const {name} = attr.name;
+		if (typeof name !== 'string') {
+			continue;
+		}
+
+		const {value} = attr as JSXAttribute;
+
+		if (!value) {
+			props[name] = staticStatus(true, null);
+			continue;
+		}
+
+		if (value.type === 'StringLiteral') {
+			props[name] = staticStatus((value as {value: string}).value, null);
+			continue;
+		}
+
+		if (value.type === 'JSXExpressionContainer') {
+			const {expression} = value;
+			const staticValueOptions = {
+				allowSpecialValues: assetKeys.includes(name),
+			};
+			if (expression.type === 'JSXEmptyExpression') {
+				props[name] = computedStatus();
+				continue;
+			}
+
+			if (!isStaticValue(expression, staticValueOptions)) {
+				const numericExpression = parseVideoConfigNumericExpression({
+					node: expression,
+					videoConfigValues,
+				});
+				props[name] = numericExpression
+					? staticStatus(numericExpression.value, numericExpression)
+					: getComputedStatus(expression, ast, videoConfigValues);
+				continue;
+			}
+
+			props[name] = staticStatus(
+				extractStaticValue(expression, staticValueOptions),
+				null,
+			);
+			continue;
+		}
+
+		props[name] = computedStatus();
+	}
+
+	return props;
+};
+
+export const getNodePathForRecastPath = (
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	recastPath: any,
+	ast: File,
+): SequenceNodePath => {
+	const segments: Array<string | number> = [];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let current: any = recastPath;
+	while (current && current.parentPath) {
+		segments.unshift(current.name);
+		current = current.parentPath;
+	}
+
+	// Recast paths start with "root" which doesn't correspond to a real AST property
+	if (segments.length > 0 && segments[0] === 'root') {
+		return toImportAgnosticNodePath({ast, nodePath: segments.slice(1)});
+	}
+
+	return toImportAgnosticNodePath({ast, nodePath: segments});
+};
+
+export const findJsxElementPathAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+) => {
+	const current = getAstNodePath(ast, nodePath);
+	if (!current) {
+		return null;
+	}
+
+	if (recast.types.namedTypes.JSXOpeningElement.check(current.value)) {
+		return current;
+	}
+
+	return null;
+};
+
+export const findJsxElementAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXOpeningElement | null => {
+	const current = findJsxElementPathAtNodePath(ast, nodePath);
+	return current ? (current.value as unknown as JSXOpeningElement) : null;
+};
+
+const getJsxElementNodeFromJsxPath = (
+	jsxPath: recast.types.NodePath,
+): JSXElement | null => {
+	if (recast.types.namedTypes.JSXElement.check(jsxPath.parentPath?.value)) {
+		return jsxPath.parentPath.value as unknown as JSXElement;
+	}
+
+	return null;
+};
+
+export const findJsxElementNodeAtNodePath = (
+	ast: File,
+	nodePath: SequenceNodePath,
+): JSXElement | null => {
+	const current = findJsxElementPathAtNodePath(ast, nodePath);
+	return current ? getJsxElementNodeFromJsxPath(current) : null;
+};
+
+export type StaticJsxTextContent =
+	| {kind: 'jsx-text'; value: string}
+	| {kind: 'string-expression'; value: string};
+
+const findJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): JSXAttribute | null => {
+	const childrenAttr = jsxElement.attributes.find((attr) => {
+		return (
+			attr.type === 'JSXAttribute' &&
+			attr.name.type === 'JSXIdentifier' &&
+			attr.name.name === 'children'
+		);
+	});
+
+	return childrenAttr && childrenAttr.type === 'JSXAttribute'
+		? childrenAttr
+		: null;
+};
+
+export const getStaticJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): StaticJsxTextContent | null => {
+	const childrenAttr = findJsxChildrenAttribute(jsxElement);
+	if (!childrenAttr?.value) {
+		return null;
+	}
+
+	if (childrenAttr.value.type === 'StringLiteral') {
+		return {kind: 'jsx-text', value: childrenAttr.value.value};
+	}
+
+	if (
+		childrenAttr.value.type === 'JSXExpressionContainer' &&
+		childrenAttr.value.expression.type === 'StringLiteral'
+	) {
+		return {
+			kind: 'string-expression',
+			value: childrenAttr.value.expression.value,
+		};
+	}
+
+	return null;
+};
+
+export const hasJsxChildrenAttribute = (
+	jsxElement: JSXOpeningElement,
+): boolean => findJsxChildrenAttribute(jsxElement) !== null;
+
+export const getStaticJsxTextContent = (
+	jsxElement: JSXElement,
+): StaticJsxTextContent | null => {
+	const meaningfulChildren = jsxElement.children.filter((candidate) => {
+		return !(candidate.type === 'JSXText' && candidate.value.trim() === '');
+	});
+
+	if (meaningfulChildren.length === 0) {
+		return {kind: 'jsx-text', value: ''};
+	}
+
+	if (meaningfulChildren.length !== 1) {
+		return null;
+	}
+
+	const child = meaningfulChildren[0];
+	if (child.type === 'JSXText') {
+		return {
+			kind: 'jsx-text',
+			value: child.value.includes('\n') ? child.value.trim() : child.value,
+		};
+	}
+
+	if (
+		child.type === 'JSXExpressionContainer' &&
+		child.expression.type === 'StringLiteral'
+	) {
+		return {kind: 'string-expression', value: child.expression.value};
+	}
+
+	return null;
+};
+
+export const findNodePathForJsxElement = (
+	ast: File,
+	target: JSXOpeningElement,
+): SequenceNodePath | null => {
+	let foundPath: SequenceNodePath | null = null;
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			if (p.node === target) {
+				foundPath = getNodePathForRecastPath(p, ast);
+				return false;
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return foundPath;
+};
+
+const RECAST_TAB_WIDTH = 4;
+
+const sourceColumnToRecastColumn = ({
+	sourceLine,
+	column,
+}: {
+	sourceLine: string | undefined;
+	column: number;
+}) => {
+	if (sourceLine === undefined) {
+		return column;
+	}
+
+	let recastColumn = 0;
+	for (let index = 0; index < column; index++) {
+		if (sourceLine[index] === '\t') {
+			recastColumn += RECAST_TAB_WIDTH - (recastColumn % RECAST_TAB_WIDTH);
+		} else {
+			recastColumn++;
+		}
+	}
+
+	return recastColumn;
+};
+
+export const lineColumnToNodePath = (
+	ast: File,
+	targetLine: number,
+	targetColumn?: number,
+	fileContents?: string,
+): SequenceNodePath | null => {
+	const lineMatches: SequenceNodePath[] = [];
+	const exactMatches: SequenceNodePath[] = [];
+	const recastTargetColumn =
+		targetColumn === undefined || fileContents === undefined
+			? targetColumn
+			: sourceColumnToRecastColumn({
+					sourceLine: fileContents.split('\n')[targetLine - 1],
+					column: targetColumn,
+				});
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			const {node} = p;
+			if (node.loc && node.loc.start.line === targetLine) {
+				const nodePath = getNodePathForRecastPath(p, ast);
+				lineMatches.push(nodePath);
+				if (node.loc.start.column === recastTargetColumn) {
+					exactMatches.push(nodePath);
+				}
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	if (exactMatches.length === 1) {
+		return exactMatches[0];
+	}
+
+	return lineMatches.at(-1) ?? null;
+};
+
+export const lineColumnsToNodePaths = ({
+	ast,
+	targets,
+	fileContents,
+}: {
+	ast: File;
+	targets: {line: number; column: number}[];
+	fileContents: string;
+}): (SequenceNodePath | null)[] => {
+	const sourceLines = fileContents.split('\n');
+	const targetIndicesByLine = new Map<number, number[]>();
+	const recastTargetColumns = targets.map(({line, column}, index) => {
+		const indices = targetIndicesByLine.get(line) ?? [];
+		indices.push(index);
+		targetIndicesByLine.set(line, indices);
+		return sourceColumnToRecastColumn({
+			sourceLine: sourceLines[line - 1],
+			column,
+		});
+	});
+	const lineMatches: (SequenceNodePath | null)[] = targets.map(() => null);
+	const exactMatches: (SequenceNodePath | null)[] = targets.map(() => null);
+	const exactMatchCounts = targets.map(() => 0);
+
+	recast.types.visit(ast, {
+		visitJSXOpeningElement(p) {
+			const {node} = p;
+			const line = node.loc?.start.line;
+			const targetIndices = line ? targetIndicesByLine.get(line) : undefined;
+			if (targetIndices) {
+				const nodePath = getNodePathForRecastPath(p, ast);
+				for (const index of targetIndices) {
+					lineMatches[index] = nodePath;
+					if (node.loc?.start.column === recastTargetColumns[index]) {
+						exactMatches[index] = nodePath;
+						exactMatchCounts[index]++;
+					}
+				}
+			}
+
+			return this.traverse(p);
+		},
+	});
+
+	return targets.map((_, index) =>
+		exactMatchCounts[index] === 1 ? exactMatches[index] : lineMatches[index],
+	);
+};
+
+const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+
+const isSupportedTranslateValue = (value: string): boolean => {
+	const parts = value.split(/\s+/);
+	if (parts.length >= 1 && parts.length <= 3) {
+		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+	}
+
+	return false;
+};
+
+const validateStyleValue = (childKey: string, value: unknown): boolean => {
+	if (childKey === 'translate' && typeof value === 'string') {
+		return isSupportedTranslateValue(value);
+	}
+
+	return true;
+};
+
+const getObjectPropertyName = (property: ObjectProperty): string | null => {
+	if (property.key.type === 'Identifier') {
+		return property.key.name;
+	}
+
+	if (property.key.type === 'StringLiteral') {
+		return property.key.value;
+	}
+
+	return null;
+};
+
+const BORDER_RADIUS_SHORTHAND = 'borderRadius';
+const BORDER_RADIUS_LONGHANDS = [
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomRightRadius',
+	'borderBottomLeftRadius',
+] as const;
+const BORDER_RADIUS_PROPERTIES = new Set<string>([
+	BORDER_RADIUS_SHORTHAND,
+	...BORDER_RADIUS_LONGHANDS,
+]);
+
+const hasMixedBorderRadiusRepresentation = (
+	jsxElement: JSXOpeningElement,
+): boolean => {
+	const style = jsxElement.attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type !== 'JSXNamespacedName' &&
+			attribute.name.name === 'style',
+	);
+	if (
+		!style ||
+		style.type !== 'JSXAttribute' ||
+		style.value?.type !== 'JSXExpressionContainer' ||
+		style.value.expression.type !== 'ObjectExpression'
+	) {
+		return false;
+	}
+
+	let hasShorthand = false;
+	let hasLonghand = false;
+	for (const property of style.value.expression.properties) {
+		if (property.type !== 'ObjectProperty') {
+			continue;
+		}
+
+		const name = getObjectPropertyName(property);
+		hasShorthand ||= name === BORDER_RADIUS_SHORTHAND;
+		hasLonghand ||= BORDER_RADIUS_LONGHANDS.some(
+			(longhand) => longhand === name,
+		);
+	}
+
+	return hasShorthand && hasLonghand;
+};
+
+const getUniformBorderRadius = (value: unknown): number | null => {
+	const parsed = parseBorderRadiusShorthand(value);
+	if (!parsed) {
+		return null;
+	}
+
+	const values = Object.values(parsed);
+	return values.every((radius) => radius === values[0]) ? values[0] : null;
+};
+
+const getBorderRadiusShorthandStatus = ({
+	propValue,
+	ast,
+	videoConfigValues,
+}: {
+	propValue: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): CanUpdatePropStatus => {
+	if (isStaticValue(propValue)) {
+		const uniform = getUniformBorderRadius(extractStaticValue(propValue));
+		return uniform === null ? computedStatus() : staticStatus(uniform, null);
+	}
+
+	const numericExpression = parseVideoConfigNumericExpression({
+		node: propValue,
+		videoConfigValues,
+	});
+	if (numericExpression !== null && numericExpression.value >= 0) {
+		return staticStatus(numericExpression.value, numericExpression);
+	}
+
+	const computed = getComputedStatus(propValue, ast, videoConfigValues);
+	if (
+		computed.status === 'keyframed' &&
+		computed.interpolationFunction === 'interpolate' &&
+		computed.keyframes.every(
+			(keyframe) =>
+				typeof keyframe.value === 'number' &&
+				Number.isFinite(keyframe.value) &&
+				keyframe.value >= 0,
+		)
+	) {
+		return computed;
+	}
+
+	return computedStatus();
+};
+
+const getNestedPropStatus = ({
+	jsxElement,
+	ast,
+	parentKey,
+	childKey,
+	videoConfigValues,
+	allowSpecialValues,
+	lastSpreadIndex,
+}: {
+	jsxElement: JSXOpeningElement;
+	ast: File;
+	parentKey: string;
+	childKey: string;
+	videoConfigValues: VideoConfigIdentifierValues;
+	allowSpecialValues: boolean;
+	lastSpreadIndex: number;
+}): CanUpdatePropStatus => {
+	const attrIndex = jsxElement.attributes.findIndex(
+		(a) =>
+			a.type !== 'JSXSpreadAttribute' &&
+			a.name.type !== 'JSXNamespacedName' &&
+			a.name.name === parentKey,
+	);
+	const attr =
+		attrIndex === -1
+			? undefined
+			: (jsxElement.attributes[attrIndex] as JSXAttribute);
+
+	if (attrIndex !== -1 && attrIndex < lastSpreadIndex) {
+		// A later spread may replace the whole parent object
+		return computedStatus();
+	}
+
+	if (!attr) {
+		if (lastSpreadIndex !== -1) {
+			// The spread may provide the parent object
+			return computedStatus();
+		}
+
+		// Parent attribute doesn't exist, nested prop can be added
+		return staticStatus(undefined, null);
+	}
+
+	if (!attr.value) {
+		return staticStatus(undefined, null);
+	}
+
+	if (attr.value.type !== 'JSXExpressionContainer') {
+		return computedStatus();
+	}
+
+	const {expression} = attr.value;
+	if (
+		expression.type === 'JSXEmptyExpression' ||
+		expression.type !== 'ObjectExpression'
+	) {
+		// Parent is not an object literal (e.g. style={myStyles})
+		return computedStatus();
+	}
+
+	const objExpr = expression as ObjectExpression;
+	const cssShorthand = getCssShorthandForLonghand({
+		parentKey,
+		longhand: childKey,
+	});
+	if (
+		cssShorthand &&
+		objExpr.properties.some((property) => {
+			if (property.type !== 'ObjectProperty') {
+				return false;
+			}
+
+			const propertyName = getObjectPropertyName(property);
+			return (
+				propertyName !== null &&
+				cssShorthand.isUnsupportedProperty(propertyName)
+			);
+		})
+	) {
+		return computedStatus();
+	}
+
+	let prop: ObjectProperty | undefined;
+	for (let index = objExpr.properties.length - 1; index >= 0; index--) {
+		const candidate = objExpr.properties[index];
+		if (candidate.type === 'SpreadElement') {
+			return computedStatus();
+		}
+
+		if (
+			candidate.type === 'ObjectProperty' &&
+			(getObjectPropertyName(candidate) === childKey ||
+				getObjectPropertyName(candidate) === cssShorthand?.shorthand)
+		) {
+			prop = candidate;
+			break;
+		}
+	}
+
+	if (
+		prop &&
+		cssShorthand &&
+		getObjectPropertyName(prop) === cssShorthand.shorthand
+	) {
+		const shorthandValue = prop.value as Expression;
+		if (!isStaticValue(shorthandValue, {allowSpecialValues: false})) {
+			return computedStatus();
+		}
+
+		const staticShorthandValue = extractStaticValue(shorthandValue, {
+			allowSpecialValues: false,
+		});
+		const parsed = cssShorthand.parse(staticShorthandValue);
+		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
+	}
+
+	if (!prop) {
+		// Property not set in the object, can be added
+		return staticStatus(undefined, null);
+	}
+
+	const propValue = prop.value as Expression;
+	if (parentKey === 'style' && childKey === BORDER_RADIUS_SHORTHAND) {
+		return getBorderRadiusShorthandStatus({
+			propValue,
+			ast,
+			videoConfigValues,
+		});
+	}
+
+	const staticValueOptions = {allowSpecialValues};
+	if (!isStaticValue(propValue, staticValueOptions)) {
+		const numericExpression = parseVideoConfigNumericExpression({
+			node: propValue,
+			videoConfigValues,
+		});
+		return numericExpression
+			? staticStatus(numericExpression.value, numericExpression)
+			: getComputedStatus(propValue, ast, videoConfigValues);
+	}
+
+	const propStatus = extractStaticValue(propValue, staticValueOptions);
+	if (!validateStyleValue(childKey, propStatus)) {
+		return computedStatus();
+	}
+
+	return staticStatus(propStatus, null);
+};
+
+const computeEffectsForJsx = ({
+	ast,
+	jsxElement,
+	effects,
+	videoConfigValues,
+}: {
+	ast: File;
+	jsxElement: JSXOpeningElement;
+	effects: string[][];
+	videoConfigValues: VideoConfigIdentifierValues;
+}) => {
+	return effects.map((effect, effectIndex) =>
+		computeEffectPropStatus({
+			ast,
+			jsx: jsxElement,
+			effectIndex,
+			keys: effect,
+			videoConfigValues,
+		}),
+	);
+};
+
+const computeSequenceOnlyPropsRecord = ({
+	jsxElement,
+	jsxElementNode,
+	ast,
+	keys,
+	assetKeys,
+	videoConfigValues,
+}: {
+	jsxElement: JSXOpeningElement;
+	jsxElementNode: JSXElement;
+	ast: File;
+	keys: string[];
+	assetKeys: string[];
+	videoConfigValues: VideoConfigIdentifierValues;
+}): Record<string, CanUpdatePropStatus> => {
+	// A JSX spread attribute ({...props}) is invisible to the parser and may
+	// set or override every prop that is not explicitly written after it.
+	// Affected props are treated as computed so the runtime values pass
+	// through untouched and Visual Mode does not offer to edit them.
+	// Attributes written after the last spread win at runtime and can be
+	// parsed as usual.
+	const lastSpreadIndex = jsxElement.attributes.reduce(
+		(highest, attr, index) =>
+			attr.type === 'JSXSpreadAttribute' ? index : highest,
+		-1,
+	);
+	const allProps = getPropsStatus(
+		jsxElement,
+		ast,
+		videoConfigValues,
+		assetKeys,
+	);
+	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	const mixedBorderRadius = hasMixedBorderRadiusRepresentation(jsxElement);
+	for (const key of keys) {
+		if (
+			mixedBorderRadius &&
+			key.startsWith('style.') &&
+			BORDER_RADIUS_PROPERTIES.has(key.slice('style.'.length))
+		) {
+			filteredProps[key] = computedStatus();
+			continue;
+		}
+
+		if (key === 'children') {
+			const childrenAttrIndex = jsxElement.attributes.findIndex(
+				(attr) =>
+					attr.type === 'JSXAttribute' &&
+					attr.name.type === 'JSXIdentifier' &&
+					attr.name.name === 'children',
+			);
+			if (childrenAttrIndex !== -1 && childrenAttrIndex < lastSpreadIndex) {
+				// A later spread may override the children attribute
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
+			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
+			if (staticChildrenAttribute) {
+				filteredProps[key] = staticStatus(staticChildrenAttribute.value, null);
+				continue;
+			}
+
+			if (hasJsxChildrenAttribute(jsxElement)) {
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
+			// JSX element children are compiled after any spread and win over
+			// it. Only if the element body is empty may the spread provide the
+			// children.
+			const hasMeaningfulJsxChildren = jsxElementNode.children.some(
+				(candidate) =>
+					!(candidate.type === 'JSXText' && candidate.value.trim() === ''),
+			);
+			if (!hasMeaningfulJsxChildren && lastSpreadIndex !== -1) {
+				filteredProps[key] = computedStatus();
+				continue;
+			}
+
+			const staticTextContent = getStaticJsxTextContent(jsxElementNode);
+			filteredProps[key] = staticTextContent
+				? staticStatus(staticTextContent.value, null)
+				: computedStatus();
+			continue;
+		}
+
+		const dotIndex = key.indexOf('.');
+		if (dotIndex !== -1) {
+			const status = getNestedPropStatus({
+				jsxElement,
+				ast,
+				parentKey: key.slice(0, dotIndex),
+				childKey: key.slice(dotIndex + 1),
+				videoConfigValues,
+				allowSpecialValues: assetKeys.includes(key),
+				lastSpreadIndex,
+			});
+			filteredProps[key] =
+				key === 'style.translate' &&
+				((status.status === 'static' &&
+					typeof status.codeValue === 'string' &&
+					status.codeValue.includes('%')) ||
+					(status.status === 'keyframed' &&
+						status.keyframes.some(
+							(keyframe) =>
+								typeof keyframe.value === 'string' &&
+								keyframe.value.includes('%'),
+						)))
+					? computedStatus()
+					: status;
+		} else if (key in allProps) {
+			filteredProps[key] = allProps[key];
+		} else if (lastSpreadIndex !== -1) {
+			// The spread may provide this prop
+			filteredProps[key] = computedStatus();
+		} else {
+			filteredProps[key] = staticStatus(undefined, null);
+		}
+	}
+
+	return filteredProps;
+};
+
+const computeSequencePropsStatusFromAstAndIdentifiers = ({
+	ast,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys,
+	effects,
+	videoConfigIdentifierValues,
+}: {
+	ast: File;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys: string[];
+	effects: string[][];
+	videoConfigIdentifierValues: VideoConfigIdentifierValues;
+}): CanUpdateSequencePropsResponseTrue => {
+	const jsxPath = findJsxElementPathAtNodePath(ast, nodePath);
+	const jsxElementNode = jsxPath ? getJsxElementNodeFromJsxPath(jsxPath) : null;
+	const jsxElement = jsxElementNode?.openingElement ?? null;
+
+	if (!jsxPath || !jsxElement || !jsxElementNode) {
+		throw new JsxElementNotFoundAtLocationError();
+	}
+
+	if (
+		!jsxComponentIdentitiesMatch({
+			expected: componentIdentity,
+			actual: getJsxComponentIdentity({ast, jsxElement}),
+		})
+	) {
+		throw new JsxElementIdentityMismatchError();
+	}
+
+	const filteredProps = computeSequenceOnlyPropsRecord({
+		jsxElement,
+		jsxElementNode,
+		ast,
+		keys,
+		assetKeys,
+		videoConfigValues: videoConfigIdentifierValues,
+	});
+	const effectsStatuses = computeEffectsForJsx({
+		ast,
+		jsxElement,
+		effects,
+		videoConfigValues: videoConfigIdentifierValues,
+	});
+	const defaultKeyframeDisplayOffsetAdjustment =
+		getDefaultFrameDisplayOffsetAdjustment({
+			jsxPath,
+			videoConfigValues: videoConfigIdentifierValues,
+		});
+	const addDefaultKeyframeDisplayOffsetAdjustment = (
+		status: CanUpdateSequencePropStatus,
+	): CanUpdateSequencePropStatus => {
+		if (status.status !== 'static') {
+			return status;
+		}
+
+		if (defaultKeyframeDisplayOffsetAdjustment === null) {
+			return computedStatus();
+		}
+
+		if (!defaultKeyframeDisplayOffsetAdjustment.canKeyframe) {
+			return {...status, canKeyframe: false};
+		}
+
+		if (
+			defaultKeyframeDisplayOffsetAdjustment.adjustment === 0 &&
+			defaultKeyframeDisplayOffsetAdjustment.playbackRateAdjustment === 1
+		) {
+			return status;
+		}
+
+		return {
+			...status,
+			keyframeDisplayOffsetAdjustment:
+				defaultKeyframeDisplayOffsetAdjustment.adjustment,
+			...(defaultKeyframeDisplayOffsetAdjustment.playbackRateAdjustment === 1
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							defaultKeyframeDisplayOffsetAdjustment.playbackRateAdjustment,
+					}),
+		};
+	};
+
+	return {
+		canUpdate: true as const,
+		props: Object.fromEntries(
+			Object.entries(filteredProps).map(([key, status]) => [
+				key,
+				addDefaultKeyframeDisplayOffsetAdjustment(status),
+			]),
+		),
+		effects: effectsStatuses.map((effectStatus) =>
+			effectStatus.canUpdate
+				? {
+						...effectStatus,
+						props: Object.fromEntries(
+							Object.entries(effectStatus.props).map(([key, status]) => [
+								key,
+								addDefaultKeyframeDisplayOffsetAdjustment(status),
+							]),
+						),
+					}
+				: effectStatus,
+		),
+	};
+};
+
+export const computeSequencePropsStatusFromContent = ({
+	fileContents,
+	nodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	fileContents: string;
+	nodePath: SequenceNodePath;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
+}): CanUpdateSequencePropsResponseTrue => {
+	const cachedAst = getReadOnlySourceSnapshot(fileContents);
+	const {ast} = cachedAst;
+	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
+	let videoConfigIdentifierValues =
+		cachedAst.videoConfigIdentifierValues.get(videoConfigCacheKey);
+	if (videoConfigIdentifierValues === undefined) {
+		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		});
+	}
+
+	// A source snapshot may outlive many composition metadata changes. Bound
+	// derived values as well, retaining the configurations most recently read.
+	cachedAst.videoConfigIdentifierValues.delete(videoConfigCacheKey);
+	cachedAst.videoConfigIdentifierValues.set(
+		videoConfigCacheKey,
+		videoConfigIdentifierValues,
+	);
+	if (cachedAst.videoConfigIdentifierValues.size > 8) {
+		cachedAst.videoConfigIdentifierValues.delete(
+			cachedAst.videoConfigIdentifierValues.keys().next().value!,
+		);
+	}
+
+	return computeSequencePropsStatusFromAstAndIdentifiers({
+		ast,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys,
+		effects,
+		videoConfigIdentifierValues,
+	});
+};
+
+export const computeSequencePropsSubscriptionFromContent = ({
+	fileContents,
+	absolutePath,
+	line,
+	preferredNodePath,
+	componentIdentity,
+	keys,
+	assetKeys = [],
+	effects,
+	videoConfigValues,
+}: {
+	fileContents: string;
+	absolutePath: string;
+	line: number;
+	preferredNodePath: SequenceNodePath | null;
+	componentIdentity: JsxComponentIdentity | null;
+	keys: string[];
+	assetKeys?: string[];
+	effects: string[][];
+	videoConfigValues: VideoConfigValues;
+}): SubscribeToSequencePropsResponse => {
+	if (preferredNodePath) {
+		try {
+			return {
+				success: true,
+				status: computeSequencePropsStatusFromContent({
+					fileContents,
+					nodePath: preferredNodePath,
+					componentIdentity,
+					keys,
+					assetKeys,
+					effects,
+					videoConfigValues,
+				}),
+				nodePath: {
+					absolutePath,
+					nodePath: preferredNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+					videoConfigValues,
+				},
+			};
+		} catch (error) {
+			if (
+				!(
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				)
+			) {
+				return {
+					success: false,
+					status: {canUpdate: false, reason: 'error'},
+				};
+			}
+		}
+	}
+
+	try {
+		const {ast} = getReadOnlySourceSnapshot(fileContents);
+		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		if (!resolvedNodePath) {
+			return {
+				success: false,
+				status: {canUpdate: false, reason: 'not-found'},
+			};
+		}
+
+		return {
+			success: true,
+			status: computeSequencePropsStatusFromContent({
+				fileContents,
+				nodePath: resolvedNodePath,
+				componentIdentity,
+				keys,
+				assetKeys,
+				effects,
+				videoConfigValues,
+			}),
+			nodePath: {
+				absolutePath,
+				nodePath: resolvedNodePath,
+				sequenceKeys: keys,
+				effectKeys: effects,
+				videoConfigValues,
+			},
+		};
+	} catch {
+		return {
+			success: false,
+			status: {canUpdate: false, reason: 'error'},
+		};
+	}
+};

@@ -30,6 +30,10 @@ const transcription = await openai.audio.transcriptions.create({
 const {captions} = openAiWhisperApiToCaptions({transcription});
 ```
 
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/openai-whisper/src/openai-whisper-api-to-captions.ts)

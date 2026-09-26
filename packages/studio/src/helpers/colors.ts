@@ -1,86 +1,143 @@
-export const BLACK = 'black';
-export const WHITE = 'white';
-export const RED = 'red';
-export const TRANSPARENT = 'transparent';
-export const CURRENT_COLOR = 'currentColor';
-export const CURRENT_COLOR_LOWERCASE = 'currentcolor';
-export const WHITE_HEX = '#fff';
-export const WHITE_FULL_HEX = '#ffffff';
-export const BLACK_HEX = '#000';
-export const BLACK_FULL_HEX = '#000000';
+// The palette lives in studio-css-variables.ts. Equivalent legacy names share
+// one variable so changing a color updates every Studio consumer.
+export const BLACK = 'var(--remotion-studio-black)';
+export const WHITE = 'var(--remotion-studio-white)';
+export const RED = 'var(--remotion-studio-red)';
+export const TRANSPARENT = 'var(--remotion-studio-transparent)';
+export const CURRENT_COLOR = 'var(--remotion-studio-current-color)';
+export const CURRENT_COLOR_LOWERCASE = 'var(--remotion-studio-current-color)';
+export const WHITE_HEX = 'var(--remotion-studio-white)';
+export const WHITE_FULL_HEX = 'var(--remotion-studio-white)';
+export const BLACK_HEX = 'var(--remotion-studio-black)';
+export const BLACK_FULL_HEX = 'var(--remotion-studio-black)';
 
-export const BACKGROUND = 'rgb(31,36,40)';
-export const BACKGROUND_HEX = '#1f2428';
-export const BACKGROUND__TRANSPARENT = 'rgba(31,36,40, 0)';
-export const INPUT_BACKGROUND = '#2f363d';
-export const LIGHT_COLOR = '#ddd';
-export const SELECTED_BACKGROUND = 'hsla(0, 0%, 100%, 0.15)';
-export const LIGHT_TEXT = '#A6A7A9';
-export const RULER_COLOR = '#808080';
-export const WHITE_ALPHA_05 = 'rgba(255, 255, 255, 0.05)';
-export const WHITE_ALPHA_06 = 'rgba(255, 255, 255, 0.06)';
-export const WHITE_ALPHA_08 = 'rgba(255, 255, 255, 0.08)';
-export const WHITE_ALPHA_10 = 'rgba(255, 255, 255, 0.1)';
-export const WHITE_ALPHA_12 = 'rgba(255, 255, 255, 0.12)';
-export const WHITE_ALPHA_15 = 'rgba(255, 255, 255, 0.15)';
-export const WHITE_ALPHA_20 = 'rgba(255, 255, 255, 0.2)';
-export const WHITE_ALPHA_25 = 'rgba(255, 255, 255, 0.25)';
-export const WHITE_ALPHA_30 = 'rgba(255, 255, 255, 0.3)';
-export const WHITE_ALPHA_35 = 'rgba(255, 255, 255, 0.35)';
-export const WHITE_ALPHA_40 = 'rgba(255, 255, 255, 0.4)';
-export const WHITE_ALPHA_45 = 'rgba(255, 255, 255, 0.45)';
-export const WHITE_ALPHA_50 = 'rgba(255, 255, 255, 0.5)';
-export const WHITE_ALPHA_60 = 'rgba(255, 255, 255, 0.6)';
-export const WHITE_ALPHA_70 = 'rgba(255, 255, 255, 0.7)';
-export const WHITE_ALPHA_72 = 'rgba(255, 255, 255, 0.72)';
-export const WHITE_ALPHA_80 = 'rgba(255, 255, 255, 0.8)';
-export const WHITE_ALPHA_90 = 'rgba(255, 255, 255, 0.9)';
-export const BLACK_ALPHA_10 = 'rgba(0, 0, 0, 0.1)';
-export const BLACK_ALPHA_28 = 'rgba(0, 0, 0, 0.28)';
-export const BLACK_ALPHA_30 = 'rgba(0, 0, 0, 0.3)';
-export const BLACK_ALPHA_40 = 'rgba(0, 0, 0, 0.4)';
-export const BLACK_ALPHA_50 = 'rgba(0, 0, 0, 0.5)';
-export const BLACK_ALPHA_60 = 'rgba(0, 0, 0, 0.6)';
-export const BLACK_ALPHA_80 = 'rgba(0, 0, 0, 0.8)';
-export const BLACK_ALPHA_85 = 'rgba(0, 0, 0, 0.85)';
-export const BLACK_ALPHA_90 = 'rgba(0, 0, 0, 0.9)';
-export const BLACK_OPAQUE = 'rgba(0, 0, 0, 1)';
-const SELECTED_HOVER_BACKGROUND = 'hsla(0, 0%, 100%, 0.25)';
-export const FAIL_COLOR = '#ff3232';
-export const WARNING_COLOR = '#f1c40f';
-export const BLUE = '#0b84f3';
-export const BLUE_HOVERED = '#4da3f7';
-export const BLUE_DISABLED = '#284f73';
-export const UNSELECTED_GUIDE = '#7e1219';
-export const SELECTED_GUIDE = '#d22d3a';
-export const LINE_COLOR = '#363A3E';
-export const TIMELINE_TRACK_SEPARATOR = '#13161B';
+export const BACKGROUND = 'var(--remotion-studio-background)';
+export const BACKGROUND_HEX = 'var(--remotion-studio-background)';
+export const BACKGROUND__TRANSPARENT =
+	'var(--remotion-studio-background-transparent)';
+export const INPUT_BACKGROUND = 'var(--remotion-studio-input-background)';
+export const LIGHT_COLOR = 'var(--remotion-studio-light-color)';
+export const SELECTED_BACKGROUND = 'var(--remotion-studio-white-alpha-15)';
+export const LIGHT_TEXT = 'var(--remotion-studio-light-text)';
+export const RULER_COLOR = 'var(--remotion-studio-ruler-color)';
+export const WHITE_ALPHA_05 = 'var(--remotion-studio-white-alpha-05)';
+export const WHITE_ALPHA_06 = 'var(--remotion-studio-white-alpha-06)';
+export const WHITE_ALPHA_08 = 'var(--remotion-studio-white-alpha-08)';
+export const WHITE_ALPHA_10 = 'var(--remotion-studio-white-alpha-10)';
+export const WHITE_ALPHA_12 = 'var(--remotion-studio-white-alpha-12)';
+export const WHITE_ALPHA_15 = 'var(--remotion-studio-white-alpha-15)';
+export const WHITE_ALPHA_20 = 'var(--remotion-studio-white-alpha-20)';
+export const WHITE_ALPHA_25 = 'var(--remotion-studio-white-alpha-25)';
+export const WHITE_ALPHA_30 = 'var(--remotion-studio-white-alpha-30)';
+export const WHITE_ALPHA_35 = 'var(--remotion-studio-white-alpha-35)';
+export const WHITE_ALPHA_40 = 'var(--remotion-studio-white-alpha-40)';
+export const WHITE_ALPHA_45 = 'var(--remotion-studio-white-alpha-45)';
+export const WHITE_ALPHA_50 = 'var(--remotion-studio-white-alpha-50)';
+export const WHITE_ALPHA_60 = 'var(--remotion-studio-white-alpha-60)';
+export const WHITE_ALPHA_70 = 'var(--remotion-studio-white-alpha-70)';
+export const WHITE_ALPHA_72 = 'var(--remotion-studio-white-alpha-72)';
+export const WHITE_ALPHA_80 = 'var(--remotion-studio-white-alpha-80)';
+export const WHITE_ALPHA_90 = 'var(--remotion-studio-white-alpha-90)';
+export const BLACK_ALPHA_28 = 'var(--remotion-studio-black-alpha-28)';
+export const BLACK_ALPHA_30 = 'var(--remotion-studio-black-alpha-30)';
+export const BLACK_ALPHA_40 = 'var(--remotion-studio-black-alpha-40)';
+export const BLACK_ALPHA_50 = 'var(--remotion-studio-black-alpha-50)';
+export const BLACK_ALPHA_60 = 'var(--remotion-studio-black-alpha-60)';
+export const BLACK_ALPHA_80 = 'var(--remotion-studio-black-alpha-80)';
+export const BLACK_ALPHA_85 = 'var(--remotion-studio-black-alpha-85)';
+export const BLACK_ALPHA_90 = 'var(--remotion-studio-black-alpha-90)';
+export const BLACK_OPAQUE = 'var(--remotion-studio-black)';
+const SELECTED_HOVER_BACKGROUND = 'var(--remotion-studio-white-alpha-25)';
+export const FAIL_COLOR = 'var(--remotion-studio-fail-color)';
+export const WARNING_COLOR = 'var(--remotion-studio-warning-color)';
+export const BLUE = 'var(--remotion-studio-blue)';
+export const BLUE_HOVERED = 'var(--remotion-studio-blue-hovered)';
+export const BLUE_DISABLED = 'var(--remotion-studio-blue-disabled)';
+export const UNSELECTED_GUIDE = 'var(--remotion-studio-unselected-guide)';
+export const SELECTED_GUIDE = 'var(--remotion-studio-selected-guide)';
+export const LINE_COLOR = 'var(--remotion-studio-line-color)';
+export const TIMELINE_TRACK_SEPARATOR =
+	'var(--remotion-studio-timeline-track-separator)';
 
-export const LIGHT_GRAY = '#ccc';
-export const KEYBOARD_SHORTCUT_KEY_COLOR = '#eee';
-export const NOTIFICATION_BACKGROUND = '#111111';
-export const RENDER_STATUS_BACKGROUND = '#222';
-export const ERROR_CODE_FRAME_BACKGROUND = '#070707';
-export const ERROR_CODE_FRAME_LINE_BACKGROUND = '#121212';
-export const ERROR_LINK_COLOR = '#58a6ff';
-export const INFO_BLUE = '#60a5fa';
-export const SERVER_DISCONNECTED_BACKGROUND = '#e74c3c';
-export const TIMELINE_BACKGROUND_COLOR = '#15181B';
+export const LIGHT_GRAY = 'var(--remotion-studio-light-gray)';
+export const KEYBOARD_SHORTCUT_KEY_COLOR =
+	'var(--remotion-studio-keyboard-shortcut-key-color)';
+export const NOTIFICATION_BACKGROUND =
+	'var(--remotion-studio-notification-background)';
+export const RENDER_STATUS_BACKGROUND =
+	'var(--remotion-studio-render-status-background)';
+export const ERROR_CODE_FRAME_BACKGROUND =
+	'var(--remotion-studio-error-code-frame-background)';
+export const ERROR_CODE_FRAME_LINE_BACKGROUND =
+	'var(--remotion-studio-error-code-frame-line-background)';
+export const ERROR_LINK_COLOR = 'var(--remotion-studio-error-link-color)';
+export const INFO_BLUE = 'var(--remotion-studio-info-blue)';
+export const SERVER_DISCONNECTED_BACKGROUND =
+	'var(--remotion-studio-server-disconnected-background)';
+export const TIMELINE_BACKGROUND_COLOR =
+	'var(--remotion-studio-timeline-background-color)';
 // WHITE_ALPHA_10 composited over TIMELINE_BACKGROUND_COLOR.
-export const TIMELINE_NEGATIVE_START_BACKGROUND_COLOR = '#2C2F32';
+export const TIMELINE_NEGATIVE_START_BACKGROUND_COLOR =
+	'var(--remotion-studio-timeline-negative-start-background-color)';
 // WHITE_ALPHA_10 composited over TIMELINE_NEGATIVE_START_BACKGROUND_COLOR.
-export const TIMELINE_NEGATIVE_START_BORDER_COLOR = '#414446';
-export const TIMELINE_SELECTED_BACKGROUND_COLOR = '#3B3F42';
-export const TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR = '#B0B0B0';
-export const TIMELINE_BLUE = '#0b84ff';
-export const TIMELINE_PLAYHEAD_COLOR = '#f02c00';
-export const TIMELINE_DROP_BLUE_ALPHA_12 = 'rgba(0, 155, 255, 0.12)';
-export const TIMELINE_DROP_BLUE_ALPHA_16 = 'rgba(0, 155, 255, 0.16)';
-export const TIMELINE_DROP_BLUE_ALPHA_75 = 'rgba(0, 155, 255, 0.75)';
-export const TIMELINE_MARQUEE_BLUE_ALPHA_16 = 'rgba(70, 130, 255, 0.16)';
-export const TIMELINE_MARQUEE_BLUE_ALPHA_75 = 'rgba(70, 130, 255, 0.75)';
-export const EASING_SELECTED_BACKGROUND = 'rgba(11, 132, 243, 0.18)';
-export const INFO_BLUE_BACKGROUND = 'rgba(59, 130, 246, 0.15)';
+export const TIMELINE_NEGATIVE_START_BORDER_COLOR =
+	'var(--remotion-studio-timeline-negative-start-border-color)';
+export const TIMELINE_SELECTED_BACKGROUND_COLOR =
+	'var(--remotion-studio-timeline-selected-background-color)';
+export const TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR =
+	'var(--remotion-studio-timeline-selected-label-background-color)';
+export const TIMELINE_BLUE = 'var(--remotion-studio-timeline-blue)';
+export const TIMELINE_PLAYHEAD_COLOR =
+	'var(--remotion-studio-timeline-playhead-color)';
+export const TIMELINE_DROP_BLUE_ALPHA_12 =
+	'var(--remotion-studio-timeline-drop-blue-alpha-12)';
+export const TIMELINE_DROP_BLUE_ALPHA_16 =
+	'var(--remotion-studio-timeline-drop-blue-alpha-16)';
+export const TIMELINE_DROP_BLUE_ALPHA_75 =
+	'var(--remotion-studio-timeline-drop-blue-alpha-75)';
+export const TIMELINE_MARQUEE_BLUE_ALPHA_16 =
+	'var(--remotion-studio-timeline-marquee-blue-alpha-16)';
+export const TIMELINE_MARQUEE_BLUE_ALPHA_75 =
+	'var(--remotion-studio-timeline-marquee-blue-alpha-75)';
+export const EASING_SELECTED_BACKGROUND =
+	'var(--remotion-studio-easing-selected-background)';
+export const INFO_BLUE_BACKGROUND =
+	'var(--remotion-studio-info-blue-background)';
+
+export const FOCUS_COLOR = 'var(--remotion-studio-focus-color)';
+export const COLOR_PICKER_CHECKER_COLOR =
+	'var(--remotion-studio-color-picker-checker-color)';
+export const INFO_BLUE_BORDER_COLOR =
+	'var(--remotion-studio-info-blue-border-color)';
+export const BLACK_ALPHA_22 = 'var(--remotion-studio-black-alpha-22)';
+export const FONT_FAMILY_ERROR_COLOR =
+	'var(--remotion-studio-font-family-error-color)';
+export const SELECTED_OUTLINE_SNAP_COLOR =
+	'var(--remotion-studio-selected-outline-snap-color)';
+export const PRISM_TEXT_COLOR = 'var(--remotion-studio-prism-text-color)';
+export const PRISM_SELECTION_BACKGROUND =
+	'var(--remotion-studio-prism-selection-background)';
+export const PRISM_BACKGROUND = 'var(--remotion-studio-prism-background)';
+export const PRISM_INLINE_COLOR = 'var(--remotion-studio-prism-inline-color)';
+export const PRISM_KEYWORD_COLOR = 'var(--remotion-studio-prism-keyword-color)';
+export const PRISM_VARIABLE_COLOR =
+	'var(--remotion-studio-prism-variable-color)';
+export const PRISM_COMMENT_COLOR = 'var(--remotion-studio-prism-comment-color)';
+export const PRISM_NUMBER_COLOR = 'var(--remotion-studio-prism-number-color)';
+export const PRISM_STRING_COLOR = 'var(--remotion-studio-prism-string-color)';
+export const PRISM_CONTROL_FLOW_COLOR =
+	'var(--remotion-studio-prism-control-flow-color)';
+export const PRISM_FUNCTION_COLOR =
+	'var(--remotion-studio-prism-function-color)';
+export const PRISM_REGEX_COLOR = 'var(--remotion-studio-prism-regex-color)';
+export const PRISM_CLASS_NAME_COLOR =
+	'var(--remotion-studio-prism-class-name-color)';
+export const PRISM_SELECTOR_COLOR =
+	'var(--remotion-studio-prism-selector-color)';
+export const PRISM_LINE_HIGHLIGHT_BACKGROUND =
+	'var(--remotion-studio-prism-line-highlight-background)';
+export const PRISM_LINE_HIGHLIGHT_BORDER_COLOR =
+	'var(--remotion-studio-prism-line-highlight-border-color)';
 
 export const BORDER_BLACK = `1px solid ${BLACK_HEX}`;
 export const BORDER_WHITE = `1px solid ${WHITE_HEX}`;
@@ -91,7 +148,7 @@ export const BORDER_BLACK_ALPHA_50 = `1px solid ${BLACK_ALPHA_50}`;
 export const BORDER_BLACK_ALPHA_60 = `1px solid ${BLACK_ALPHA_60}`;
 export const BORDER_WHITE_ALPHA_12 = `1px solid ${WHITE_ALPHA_12}`;
 export const BORDER_WHITE_ALPHA_20 = `1px solid ${WHITE_ALPHA_20}`;
-export const BORDER_INFO_BLUE = '1px solid rgba(59, 130, 246, 0.4)';
+export const BORDER_INFO_BLUE = `1px solid ${INFO_BLUE_BORDER_COLOR}`;
 export const BORDER_TIMELINE_DROP_BLUE = `1px solid ${TIMELINE_DROP_BLUE_ALPHA_75}`;
 export const BORDER_TIMELINE_MARQUEE_BLUE = `1px solid ${TIMELINE_MARQUEE_BLUE_ALPHA_75}`;
 export const SHADOW_BLACK = `0 0 4px ${BLACK}`;
@@ -103,34 +160,34 @@ export const COLOR_PICKER_POPUP_SHADOW = `0 4px 16px ${BLACK_ALPHA_50}`;
 export const COLOR_PICKER_HANDLE_SHADOW = `0 0 0 1px ${BLACK_ALPHA_60}`;
 export const NOTIFICATION_BORDER = `0.25px solid ${WHITE_ALPHA_10}`;
 
-export const HOT_MIDDLEWARE_ERROR_STYLE = 'color: #ff0000;';
-export const HOT_MIDDLEWARE_WARNING_STYLE = 'color: #999933;';
 export const FOCUS_BOX_SHADOW =
-	`inset 1px 1px #555, inset -1px -1px #555, ` +
-	`inset 1px -1px #555, inset -1px 1px #555`;
+	`inset 1px 1px ${FOCUS_COLOR}, inset -1px -1px ${FOCUS_COLOR}, ` +
+	`inset 1px -1px ${FOCUS_COLOR}, inset -1px 1px ${FOCUS_COLOR}`;
 
 export const CHECKERBOARD_BACKGROUND_IMAGE = `
      linear-gradient(
         45deg,
-        ${BLACK_ALPHA_10} 25%,
+        ${WHITE_ALPHA_15} 25%,
         ${TRANSPARENT} 25%
       ),
-      linear-gradient(135deg, ${BLACK_ALPHA_10} 25%, ${TRANSPARENT} 25%),
-      linear-gradient(45deg, ${TRANSPARENT} 75%, ${BLACK_ALPHA_10} 75%),
-      linear-gradient(135deg, ${TRANSPARENT} 75%, ${BLACK_ALPHA_10} 75%)
+      linear-gradient(135deg, ${WHITE_ALPHA_15} 25%, ${TRANSPARENT} 25%),
+      linear-gradient(45deg, ${TRANSPARENT} 75%, ${WHITE_ALPHA_15} 75%),
+      linear-gradient(135deg, ${TRANSPARENT} 75%, ${WHITE_ALPHA_15} 75%)
     `;
 
 export const COLOR_PICKER_CHECKER_BACKGROUND_IMAGE =
-	`linear-gradient(45deg, #888 25%, ${TRANSPARENT} 25%), ` +
-	`linear-gradient(-45deg, #888 25%, ${TRANSPARENT} 25%), ` +
-	`linear-gradient(45deg, ${TRANSPARENT} 75%, #888 75%), ` +
-	`linear-gradient(-45deg, ${TRANSPARENT} 75%, #888 75%)`;
-export const COLOR_PICKER_CHECKER_BACKGROUND_COLOR = '#444';
+	`linear-gradient(45deg, ${COLOR_PICKER_CHECKER_COLOR} 25%, ${TRANSPARENT} 25%), ` +
+	`linear-gradient(-45deg, ${COLOR_PICKER_CHECKER_COLOR} 25%, ${TRANSPARENT} 25%), ` +
+	`linear-gradient(45deg, ${TRANSPARENT} 75%, ${COLOR_PICKER_CHECKER_COLOR} 75%), ` +
+	`linear-gradient(-45deg, ${TRANSPARENT} 75%, ${COLOR_PICKER_CHECKER_COLOR} 75%)`;
+export const COLOR_PICKER_CHECKER_BACKGROUND_COLOR =
+	'var(--remotion-studio-color-picker-checker-background-color)';
 export const COLOR_PICKER_SATURATION_VALUE_GRADIENT = `linear-gradient(to right, ${WHITE_HEX}, ${TRANSPARENT})`;
 export const COLOR_PICKER_SATURATION_BLACK_GRADIENT = `linear-gradient(to top, ${BLACK_HEX}, ${TRANSPARENT})`;
-export const COLOR_PICKER_ALPHA_TRANSPARENT = 'rgba(0, 0, 0, 0)';
+export const COLOR_PICKER_ALPHA_TRANSPARENT =
+	'var(--remotion-studio-transparent)';
 export const COLOR_PICKER_HUE_GRADIENT =
-	'linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)';
+	'var(--remotion-studio-color-picker-hue-gradient)';
 
 export const ERROR_MESSAGE_MASK_IMAGE = `linear-gradient(to bottom, ${WHITE} 60%, ${TRANSPARENT})`;
 export const SELECTED_OUTLINE_DROP_SHADOW = `drop-shadow(0 0 1px ${WHITE_ALPHA_20})`;
@@ -140,9 +197,9 @@ export const LOOPED_INDICATOR_DROP_SHADOW =
 	`drop-shadow(0 1px 2px ${BLACK_ALPHA_80})`;
 
 export const TIMELINE_AUDIO_GRADIENT =
-	'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
+	'var(--remotion-studio-timeline-audio-gradient)';
 export const TIMELINE_VIDEO_GRADIENT =
-	'linear-gradient(to top, #8e44ad, #9b59b6)';
+	'var(--remotion-studio-timeline-video-gradient)';
 
 export const getBackgroundFromHoverState = ({
 	selected,

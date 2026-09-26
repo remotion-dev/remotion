@@ -23,6 +23,10 @@ export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
 	keyframeDisplayOffsetAdjustment: number | null;
+	/** Multiplies the element's local frame to recover the source frame clock. */
+	keyframePlaybackRateAdjustment?: number;
+	/** False when the source frame clock cannot be represented by the Studio. */
+	canKeyframe?: false;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
@@ -120,7 +124,8 @@ export type CanUpdateSequencePropStatusClamping = {
 
 export type CanUpdateSequencePropStatusInterpolationFunction =
 	| 'interpolate'
-	| 'interpolateColors';
+	| 'interpolateColors'
+	| 'interpolatePaths';
 
 export type CanUpdateSequencePropStatusComputed = {
 	status: 'computed';
@@ -130,12 +135,14 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	/**
-	 * Added to the timeline track's keyframe display offset and subtracted from
-	 * the controlled element's local frame when evaluating the interpolation.
+	 * Subtracted after applying keyframePlaybackRateAdjustment to the controlled
+	 * element's local frame when evaluating the interpolation.
 	 * This is non-zero when the useCurrentFrame() call is outside a timing
 	 * element that wraps the controlled element.
 	 */
 	keyframeDisplayOffsetAdjustment: number | null;
+	/** Defaults to 1 for statuses produced without a playback rate conversion. */
+	keyframePlaybackRateAdjustment?: number;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
@@ -312,7 +319,16 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 
 		let value: unknown;
 		if (status === null) {
-			value = currentValue[key];
+			// Without a source status (for example outside the Studio), an
+			// override still previews on top of the runtime value.
+			const dragOverride = resolveDragOverrideValue({
+				dragOverrideValue: overrideValues[key],
+				frame,
+			});
+			value =
+				dragOverride.type === 'resolved'
+					? dragOverride.value
+					: currentValue[key];
 		} else if (isKeyframedStatus(status)) {
 			if (field?.type === 'array' || field?.keyframable === false) {
 				value = currentValue[key];

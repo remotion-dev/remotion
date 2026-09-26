@@ -1,23 +1,37 @@
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
-import React, {useContext, useMemo, useSyncExternalStore} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useMemo,
+	useSyncExternalStore,
+} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {LIGHT_TEXT} from '../../helpers/colors';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {
 	getFieldsToShow,
 	SCHEMA_FIELD_GROUPS,
 } from '../../helpers/timeline-layout';
+import {SplitIcon} from '../../icons/split';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {splitSelectedTimelineItems} from '../Timeline/split-selected-timeline-item';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
 	TimelineRowLayoutContext,
 } from '../Timeline/TimelineRowLayoutContext';
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
 import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
-import {InspectorMessage} from './common';
+import {
+	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
+} from './common';
 import {
 	MultiSequenceField,
 	type MultiSequenceTarget,
@@ -44,6 +58,7 @@ export const MultiSequenceInspector: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({selections, readOnlyStudio}) => {
 	const {sequences} = useContext(Internals.SequenceManager);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -134,6 +149,27 @@ export const MultiSequenceInspector: React.FC<{
 			),
 		);
 	}, [getDragOverrides, propStatuses, runtimeValues, targets]);
+	const canSplit = !readOnlyStudio && isStudioInteractivityEnabled();
+	const onSplit = useCallback(() => {
+		if (!canSplit) {
+			return;
+		}
+
+		splitSelectedTimelineItems({
+			selections,
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			propStatuses,
+			splitFrame: timelinePosition,
+		})?.catch(() => undefined);
+	}, [
+		canSplit,
+		overrideIdToNodePathMappings,
+		propStatuses,
+		selections,
+		sequences,
+		timelinePosition,
+	]);
 
 	return (
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
@@ -178,6 +214,25 @@ export const MultiSequenceInspector: React.FC<{
 					})}
 				</TimelineRowLayoutContext.Provider>
 			)}
+			<CollapsibleInspectorSection
+				collapsible
+				label="Actions"
+				sectionId="multi-sequence-actions"
+			>
+				<InspectorQuickActionsSection>
+					<InspectorQuickAction
+						disabled={!canSplit}
+						iconContainerStyle={largeInspectorActionIconContainerStyle}
+						onClick={onSplit}
+						aria-label={canSplit ? undefined : 'Studio is read-only'}
+						renderIcon={(color) => (
+							<SplitIcon style={largeInspectorActionIconStyle} color={color} />
+						)}
+					>
+						Split selected
+					</InspectorQuickAction>
+				</InspectorQuickActionsSection>
+			</CollapsibleInspectorSection>
 		</div>
 	);
 };

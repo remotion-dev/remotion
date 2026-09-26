@@ -6,7 +6,7 @@ description: Create and submit a Remotion Element for the Elements gallery.
 
 # Contributing an Element
 
-Have a small, remixable Remotion Element? We'd like to see it.
+Have a small, remixable Remotion Element? We'd like to see it. Before submitting, read the [Element guidelines](/elements/guidelines). They apply to Elements in the official gallery and third-party libraries alike.
 
 ## 1. Develop the Element
 
@@ -19,6 +19,12 @@ cd packages/docs && bun remotion
 ```
 
 The **scaffold-element skill** is an [Agent Skill](https://agentskills.io/) that can set up the template and Studio composition.
+
+Declare the Element's dependencies in `element-definitions.ts` as described in the [Element guidelines](/elements/guidelines#make-it-portable).
+
+If the Element needs starter props, put them in `initial-props.ts`, type them with `satisfies ComponentProps<typeof YourComponent>`, and register them as `initialProps` in `element-definitions.ts`.
+
+For installed assets, declare `assets` in `element-definitions.ts` and put `staticFileRef()` references in `installationProps`. Keep preview URLs in `initialProps`. For Elements without installed assets, use `assets: []` and `installationProps: null`.
 
 ## 2. Prepare previews
 
@@ -51,95 +57,4 @@ Include:
 - A working PNG and MP4 preview
 - Links to inspiration, if any
 
-Keep “Allow edits from maintainers” enabled on the pull request. After approval, a repository maintainer uploads the assets to static storage.
-
-## Element Guidelines
-
-A Remotion Element should be a focused, reusable video building block that can be copied and remixed.
-
-### Use real videos as references
-
-Start with a technique from a published video. Save its link and timestamp, then identify the reusable purpose—for example, emphasizing a phrase or introducing a speaker.
-
-Web components, Remotion libraries, and AI-generated ideas may help with implementation, but they are not evidence that an idea works in a video. Create an original visual treatment; do not copy branding, footage, or proprietary assets.
-
-### Keep it focused
-
-An Element should represent one coherent visual treatment, technique, or workflow. It should work without configuration and be useful across projects.
-
-The caption Elements show the distinction: moving a pill between words, popping words, and highlighting words all serve the same purpose but use distinct visual techniques that users would choose separately. Do not create Elements for arbitrary presets, minor CSS differences, or Studio-control configurations.
-
-### Make it portable
-
-- Keep the implementation self-contained, using HTML, CSS, and React where possible.
-- Avoid global styles, layout side effects, and fullscreen assumptions unless the Element is a background.
-- Set explicit defaults for inherited visual properties. In particular, set text colors on the Element root or the nearest visual surface instead of relying on browser or host-page defaults. Ensure every use of `currentColor` resolves from an ancestor with an explicit color so the Element looks the same under light and dark host themes.
-- Use stable remote asset URLs and Google Fonts for non-websafe fonts.
-- Avoid project-specific branding or footage, and make colors easy to change.
-- Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
-- Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
-
-### Design it for composition
-
-Prefer exposing the Element's layers so users can inspect and edit them with [Studio interactivity](/docs/studio/interactivity). Use one of the following installation modes based on what the user should see in Studio.
-
-#### Separate editable layers
-
-Use `installationMode: 'wrapped'` when the Element's layers can be edited separately. This is the default mode. Studio wraps the component in a [`<Sequence>`](/docs/sequence) for placement and duration. The top-level group may expose multiple child timeline rows. Editable values can stay on internal `Interactive` call sites in the copied source, where Studio edits them.
-
-Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
-
-#### One interactive object
-
-Use `installationMode: 'component-owned-sequence'` when Studio interactivity does not make sense for the Element's internal parts. Examples include:
-
-- Generative programmed effects
-- Canvas-based Elements where individual outlines cannot be passed to Studio
-- Single-image overlays where the image itself cannot be edited
-
-Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema). The user gets one timeline layer that they can move on the canvas and trim in the timeline. The implementation does not appear as separate editable layers.
-
-Export the schema-enabled component directly and wire up the common props:
-
-- Add [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) to every `Interactive.withSchema()` schema and pass `controls` unchanged to the component's `<Sequence>`.
-- Pass `from`, `durationInFrames`, `trimBefore`, `freeze`, `hidden`, `name`, and `showInTimeline` to that Sequence.
-- Pass `style` and the ref to the rendered outline. When the Sequence uses `layout="none"`, pass [`outlineRef`](/docs/sequence#outlineref) to it. Set the dimensions in the component because Element metadata does not pass them as props.
-- Render frame-dependent animation in a child below the Sequence. This makes [`useCurrentFrame()`](/docs/use-current-frame) respect `from`, `trimBefore`, and `freeze`. If the component that returns the Sequence calls it, it reads the parent clock.
-
-Export the schema-enabled component directly, without a forwarding wrapper. See the [oscilloscope](/elements/audio/oscilloscope), [waveform progress](/elements/audio/waveform-progress), and [mirrored spectrum](/elements/audio/mirrored-spectrum) Elements.
-
-Check in Studio that the exported instance appears as one layer and can be moved and trimmed. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for the gallery preview.
-
-##### Initial props
-
-[`Interactive.withSchema()`](/docs/interactive-with-schema) makes a component's props editable in Studio. Content declared inside the component is not a prop, so users cannot edit it per instance.
-
-For a `component-owned-sequence` Element with replaceable starter content, put those values in `initial-props.ts`. Register them as `initialProps` with the component in `element-definitions.ts`, and type them with `satisfies ComponentProps<typeof YourComponent>`.
-
-Pass these props to the previews too. Studio writes them onto the installed component, and Inspector edits them there. Keep rendering and animation in the copied Element file.
-
-Studio supplies `from`, `durationInFrames`, and `name`. Pass `width` and `height` in `initialProps` when the component needs them. Element dimension metadata is not passed as component props.
-
-### Animate temporary Elements in and out
-
-If an Element is intended to appear temporarily over other content—such as an overlay, lower third, label, or callout—include both an entrance and an exit animation.
-
-Backgrounds, loops, full-scene treatments, and other Elements that are not expected to enter and leave independently do not need these animations.
-
-Animate properties within the Element, such as translation, scale, and opacity; leave placement to the generated wrapper or the component-owned Sequence.
-
-### Expose useful Studio controls
-
-Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
-
-Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
-
-Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
-
-Follow the [interactivity best practices](/docs/studio/interactivity-best-practices).
-
-### Choose a representative preview
-
-Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
-
-When ready, [open a pull request](#3-open-the-pull-request).
+Keep “Allow edits from maintainers” enabled on the pull request. After approval, a repository maintainer uploads the gallery previews to static storage.

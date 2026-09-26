@@ -79,7 +79,6 @@ export const SettingsButton: React.FC<{
 				onClick={openModal}
 				renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
 				unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
-				title=""
 				aria-label={label}
 			/>
 		</ActionTooltip>

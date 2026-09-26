@@ -165,7 +165,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return _remotionInternalStack ?? null;
 	}, [_remotionInternalStack]);
 
-	useMediaInTimeline({
+	const automaticOutlineRef = useMediaInTimeline({
 		volume,
 		mediaVolume,
 		mediaType: 'video',
@@ -178,10 +178,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay: undefined,
+		loopVolumeCurveBehavior: loopVolumeCurveBehavior ?? 'repeat',
 		documentationLink: onlyWarnForMediaSeekingError
 			? 'https://www.remotion.dev/docs/offthreadvideo'
 			: 'https://www.remotion.dev/docs/html5-video',
-		refForOutline: videoRef,
 		muted: isMutedForTimeline,
 	});
 
@@ -371,8 +371,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		/>
 	);
 
-	return isStudio ? (
-		<SequenceOrderMarker sequenceId={timelineId}>{video}</SequenceOrderMarker>
+	return isStudio || automaticOutlineRef ? (
+		<SequenceOrderMarker
+			sequenceId={timelineId}
+			outlineChildrenRef={automaticOutlineRef}
+		>
+			{video}
+		</SequenceOrderMarker>
 	) : (
 		video
 	);

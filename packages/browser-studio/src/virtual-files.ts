@@ -1,3 +1,4 @@
+import {getBrowserReactRefreshVirtualFiles} from '@remotion/browser-bundler/compiler';
 import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
 
 export const browserStudioVirtualFilePaths = {
@@ -16,13 +17,6 @@ export const browserStudioVirtualFilePaths = {
 };
 
 declare const __BROWSER_STUDIO_SETUP_ENVIRONMENT__: string | undefined;
-declare const __BROWSER_STUDIO_REACT_REFRESH_FILES__:
-	| {
-			entry: string;
-			runtime: string;
-			utils: string;
-	  }
-	| undefined;
 
 const getInjectedSetupEnvironment = () => {
 	if (typeof __BROWSER_STUDIO_SETUP_ENVIRONMENT__ === 'undefined') {
@@ -30,14 +24,6 @@ const getInjectedSetupEnvironment = () => {
 	}
 
 	return __BROWSER_STUDIO_SETUP_ENVIRONMENT__;
-};
-
-const getInjectedReactRefreshFiles = () => {
-	if (typeof __BROWSER_STUDIO_REACT_REFRESH_FILES__ === 'undefined') {
-		throw new Error('Browser Studio React Refresh files were not injected');
-	}
-
-	return __BROWSER_STUDIO_REACT_REFRESH_FILES__;
 };
 
 const notifyOnRefresh = `const RemotionRefreshRuntime = require('react-refresh/runtime');
@@ -68,7 +54,6 @@ Internals.setComponentIdentityResolver((component) => {
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
 
 const originalCreateElement = React.createElement;
 
@@ -89,14 +74,11 @@ export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
           typeof source.fileName === 'string' &&
           typeof source.lineNumber === 'number' &&
           typeof source.columnNumber === 'number'
-            ? 'Error\\n    at browserStudioOriginal (' +
-              browserStudioOriginalSourcePrefix +
-              encodeURIComponent(source.fileName) +
-              ':' +
-              source.lineNumber +
-              ':' +
-              source.columnNumber +
-              ')'
+            ? Internals.makeOriginalSourceStack({
+                fileName: source.fileName,
+                lineNumber: source.lineNumber,
+                columnNumber: source.columnNumber,
+              })
             : new Error().stack;
         const newProps = props?.[internalStackProp]
           ? {...props}
@@ -182,14 +164,16 @@ void globalThis.remotion_browserStudioVendor.startStudio();
 `;
 
 export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
-	const reactRefreshFiles = getInjectedReactRefreshFiles();
+	const reactRefreshFiles = getBrowserReactRefreshVirtualFiles({
+		entry: browserStudioVirtualFilePaths.reactRefreshEntry,
+		runtime: browserStudioVirtualFilePaths.reactRefreshRuntime,
+		utils: browserStudioVirtualFilePaths.reactRefreshUtils,
+	});
 
 	return {
+		...reactRefreshFiles,
 		[browserStudioVirtualFilePaths.browserRequireShim]: browserRequireShim,
-		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles.entry}\n${notifyOnRefresh}`,
-		[browserStudioVirtualFilePaths.reactRefreshRuntime]:
-			reactRefreshFiles.runtime,
-		[browserStudioVirtualFilePaths.reactRefreshUtils]: reactRefreshFiles.utils,
+		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles[browserStudioVirtualFilePaths.reactRefreshEntry]}\n${notifyOnRefresh}`,
 		[browserStudioVirtualFilePaths.setupEnvironment]:
 			getInjectedSetupEnvironment(),
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:

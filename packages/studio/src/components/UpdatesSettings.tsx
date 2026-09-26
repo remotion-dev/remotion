@@ -12,6 +12,7 @@ import {
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {studioCssVariables} from '../helpers/studio-css-variables';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import type {RenderInlineAction} from './InlineAction';
@@ -158,6 +159,7 @@ const RenderedReleaseNotes: React.FC<{
 		}
 
 		return `<!doctype html><html><head><base href="https://github.com/remotion-dev/remotion/" target="_blank"><style>
+			${studioCssVariables}
 			:root { color-scheme: dark; }
 			html, body { overflow: hidden; }
 			body { background: ${BACKGROUND}; color: ${LIGHT_TEXT}; font-family: sans-serif; font-size: 13px; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
@@ -225,7 +227,7 @@ const RenderedReleaseNotes: React.FC<{
 					scrolling="no"
 					srcDoc={document}
 					style={{...releaseNotesFrame, height}}
-					title={`Release notes for Remotion v${release.version}`}
+					aria-label={`Release notes for Remotion v${release.version}`}
 				/>
 			)}
 		</>
@@ -435,7 +437,7 @@ export const UpdatesSettings: React.FC = () => {
 					variant={null}
 					onClick={onClick}
 					renderAction={renderCopyAction}
-					title="Copy command"
+					aria-label="Copy command"
 				/>
 			</div>
 			{info.updateAvailable ? (

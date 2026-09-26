@@ -41,23 +41,22 @@ export const config: VercelConfig = {
 			},
 		]),
 		routes.header('/new(.*)', browserStudioIsolationHeaders),
+		...['/new', '/new/', '/new.html', '/new/index.html'].map((source) =>
+			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
+		),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/order-of-operations.md', '/docs/timing.md', {
+			permanent: true,
+		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
-		routes.redirect(
-			'/elements/guidelines',
-			'/elements/contributing#element-guidelines',
-			{permanent: true},
-		),
-		routes.redirect(
-			'/elements/guidelines.md',
-			'/elements/contributing.md#element-guidelines',
-			{permanent: true},
-		),
 		routes.redirect(
 			'/elements/submit-an-element',
 			'/elements/contributing#submit-an-element',
@@ -142,6 +141,12 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/motion-blur', '/docs/motion-blur', {permanent: false}),
+		routes.redirect('/docs/motion-blur-guide', '/docs/motion-blur', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/motion-blur-guide.md', '/docs/motion-blur.md', {
+			permanent: true,
+		}),
 		routes.redirect('/noise', '/docs/noise', {permanent: false}),
 		routes.redirect(
 			'/docs/get-audio-duration',
@@ -364,7 +369,10 @@ export const config: VercelConfig = {
 		routes.redirect('/editor-starter', '/docs/editor-starter', {
 			permanent: false,
 		}),
-		routes.redirect('/docs/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/docs/system-prompt', '/system-prompt.txt', {
+			permanent: false,
+		}),
+		routes.redirect('/docs/ai/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/media-parser/', '/docs/media-parser', {
@@ -437,7 +445,7 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/vercel', '/docs/vercel', {
 			permanent: false,
 		}),
-		routes.redirect('/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/investors', '/docs/investors', {permanent: false}),
@@ -452,10 +460,14 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/terms.pdf', '/docs/terms.pdf', {permanent: true}),
 		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
+		routes.redirect('/privacy.pdf', '/docs/privacy.pdf', {permanent: true}),
 		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
 		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),
 		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect('/dpia.pdf', '/docs/dpia.pdf', {permanent: true}),
 		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
 		routes.redirect('/docs/license/privacy', '/docs/privacy', {
 			permanent: true,

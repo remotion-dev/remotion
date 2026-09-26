@@ -103,12 +103,12 @@ export const addElementLibraryToStudioWithDependencies = async (
 	if (!isAllowedStudioProtocolPageOrigin(dependencies.pageOrigin)) {
 		return failure(
 			'unsupported-origin',
-			'Adding an Element catalog is only supported on HTTPS websites and local development origins.',
+			'Adding an Element Library is only supported on HTTPS websites and local development origins.',
 		);
 	}
 
 	if (typeof url !== 'string') {
-		return failure('invalid-url', 'The Element catalog URL must be a string.');
+		return failure('invalid-url', 'The Element Library URL must be a string.');
 	}
 
 	let normalizedUrl: string;
@@ -117,7 +117,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 		if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
 			return failure(
 				'invalid-url',
-				'The Element catalog URL must use HTTP or HTTPS.',
+				'The Element Library URL must use HTTP or HTTPS.',
 			);
 		}
 
@@ -125,14 +125,14 @@ export const addElementLibraryToStudioWithDependencies = async (
 	} catch {
 		return failure(
 			'invalid-url',
-			'The Element catalog URL must be an absolute HTTP or HTTPS URL.',
+			'The Element Library URL must be an absolute HTTP or HTTPS URL.',
 		);
 	}
 
 	if (displayName !== null && typeof displayName !== 'string') {
 		return failure(
 			'invalid-display-name',
-			'The Element catalog display name must be a string.',
+			'The Element Library display name must be a string.',
 		);
 	}
 
@@ -140,7 +140,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 	if (normalizedDisplayName === '') {
 		return failure(
 			'invalid-display-name',
-			'The Element catalog display name must not be empty.',
+			'The Element Library display name must not be empty.',
 		);
 	}
 
@@ -173,7 +173,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 	if (supportedStudios.length === 0) {
 		return failure(
 			'studio-upgrade-required',
-			'This Remotion Studio cannot add an Element catalog through Studio Protocol. Upgrade Remotion to 4.0.518 or newer.',
+			'This Remotion Studio cannot add an Element Library through Studio Protocol. Upgrade Remotion to 4.0.518 or newer.',
 		);
 	}
 
@@ -238,7 +238,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 	} catch {
 		return failure(
 			'invalid-response',
-			'Remotion Studio returned an invalid Element catalog response.',
+			'Remotion Studio returned an invalid Element Library response.',
 		);
 	}
 
@@ -268,7 +268,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 
 	return failure(
 		'invalid-response',
-		'Remotion Studio returned an invalid Element catalog response.',
+		'Remotion Studio returned an invalid Element Library response.',
 	);
 };
 

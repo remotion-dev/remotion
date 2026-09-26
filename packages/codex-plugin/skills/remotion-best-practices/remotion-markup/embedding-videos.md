@@ -54,18 +54,16 @@ return (
 
 ## Delaying
 
-Wrap the video in a `<Sequence>` to delay when it appears:
+Set `from` directly on `<Video>` to delay when it appears:
 
 ```tsx
-import { Sequence, staticFile } from "remotion";
+import { staticFile, useVideoConfig } from "remotion";
 import { Video } from "@remotion/media";
 
 const { fps } = useVideoConfig();
 
 return (
-  <Sequence from={1 * fps}>
-    <Video src={staticFile("video.mp4")} />
-  </Sequence>
+  <Video from={fps} src={staticFile("video.mp4")} />
 );
 ```
 

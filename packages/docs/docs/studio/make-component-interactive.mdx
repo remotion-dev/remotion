@@ -15,9 +15,9 @@ For code that remains editable after visual changes, follow [Interactivity best 
 
 An [`InteractivitySchema`](/docs/interactivity-schema) describes which props the Studio may edit.
 
-Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`trimAfter`](/docs/sequence#trimafter), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
-As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming and visibility controls remain available.
+As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming, looping and visibility controls remain available. Forward all of these props to the `<Sequence>` your component renders.
 
 Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if your component accepts a `style` prop and applies it to the rendered element.
 
@@ -133,9 +133,9 @@ const BadgeInner = forwardRef<
     },
     ref,
   ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
     return (
       <Sequence
@@ -143,10 +143,9 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        outlineRef={outlineRef}
       >
         <div
-          ref={outlineRef}
+          ref={elementRef}
           style={{
             ...style,
             display: 'inline-flex',
@@ -167,7 +166,7 @@ const BadgeInner = forwardRef<
 
 The exported component should not expose `controls` as a public prop.
 
-Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
+With `<Sequence layout="none">`, the Studio discovers the rendered element automatically.
 
 ## Wrap the component
 
@@ -225,9 +224,9 @@ const BadgeInner = forwardRef<
     },
     ref,
   ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
     return (
       <Sequence
@@ -235,10 +234,9 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        outlineRef={outlineRef}
       >
         <div
-          ref={outlineRef}
+          ref={elementRef}
           style={{
             ...style,
             display: 'inline-flex',

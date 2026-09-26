@@ -60,7 +60,7 @@ const currentTimeButtonStyle = {
 	padding: 0,
 	border: 'none',
 	lineHeight: '21px',
-	'--remotion-cli-internals-blue-hovered': WHITE,
+	'--remotion-studio-blue-hovered': WHITE,
 } as React.CSSProperties;
 
 const currentTimeSubtitle: React.CSSProperties = {
@@ -175,11 +175,6 @@ export const TimeValue: React.FC = () => {
 					onClick={toggleTickFormat}
 					aria-label="Show timeline ticks as frames"
 					aria-pressed={showFrames}
-					title={
-						showFrames
-							? 'Show timeline ticks as timecode'
-							: 'Show timeline ticks as frames'
-					}
 				>
 					{frame}
 				</button>

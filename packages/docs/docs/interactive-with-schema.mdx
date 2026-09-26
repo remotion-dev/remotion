@@ -65,9 +65,9 @@ const CircleInner = forwardRef<
     },
     ref,
   ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
+    const elementRef = useRef<HTMLDivElement>(null);
 
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
     return (
       <Sequence
@@ -75,10 +75,9 @@ const CircleInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Circle>'}
         controls={controls}
-        outlineRef={outlineRef}
       >
         <div
-          ref={outlineRef}
+          ref={elementRef}
           style={{
             ...style,
             width: radius * 2,
@@ -102,7 +101,7 @@ export const Circle = Interactive.withSchema({
 
 The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded unchanged to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline. It also preserves the outer component's source location for Studio edits.
 
-If you use `<Sequence layout="none">`, pass [`outlineRef`](/docs/sequence#outlineref) so the Studio can draw a canvas outline around the rendered element.
+With `<Sequence layout="none">`, the Studio discovers the rendered element automatically.
 
 ## API
 
@@ -146,6 +145,12 @@ Returns a component with the public props of `Component`.
 During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` renders the component with the original props.
 
 In editable Studio sessions, it reads the current prop values, applies timeline overrides and passes the merged props to the inner component.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+Rendering support depends on the wrapped component. Editing timeline controls requires an editable Remotion Studio session.
 
 ## See also
 

@@ -13,6 +13,24 @@ import {FEATURED_TEMPLATES} from './packages/create-video/src/templates';
 import {shouldReleasePackage} from './packages/studio-shared/src/release-package-policy';
 
 const p = limit(4);
+const args = process.argv.slice(2);
+const listOnly = args.includes('--list');
+const tagArg = args.find((arg) => arg.startsWith('--tag='));
+const releaseTag = tagArg?.slice('--tag='.length) ?? null;
+const onlyArg = args.find((arg) => arg.startsWith('--only='));
+const onlyPackage = onlyArg?.slice('--only='.length) ?? null;
+
+if (
+	args.some((arg) => arg !== '--list' && arg !== tagArg && arg !== onlyArg) ||
+	(listOnly && (releaseTag !== null || onlyPackage !== null)) ||
+	(onlyPackage !== null && releaseTag === null) ||
+	releaseTag === '' ||
+	onlyPackage === ''
+) {
+	throw new Error(
+		'Usage: bun publish.ts [--list | --tag=<dist-tag> [--only=<package>]]',
+	);
+}
 
 const releaseVersion = JSON.parse(
 	readFileSync(
@@ -30,6 +48,7 @@ const dirs = readdirSync('packages')
 	);
 
 const promises: Promise<unknown>[] = [];
+let foundOnlyPackage = false;
 
 for (const dir of dirs) {
 	const localTemplates = FEATURED_TEMPLATES.map(
@@ -54,6 +73,14 @@ for (const dir of dirs) {
 	) {
 		continue;
 	}
+	if (onlyPackage !== null && packageJson.name !== onlyPackage) {
+		continue;
+	}
+	foundOnlyPackage = true;
+	if (listOnly) {
+		console.log(packageJson.name);
+		continue;
+	}
 
 	promises.push(
 		p(async () => {
@@ -66,7 +93,11 @@ for (const dir of dirs) {
 			}
 
 			try {
-				await $`bun publish --tolerate-republish`.cwd(packagePath);
+				if (releaseTag === null) {
+					await $`bun publish --tolerate-republish`.cwd(packagePath);
+				} else {
+					await $`bun publish --tag=${releaseTag}`.cwd(packagePath);
+				}
 			} finally {
 				if (copiedLicense) {
 					unlinkSync(licensePath);
@@ -74,6 +105,10 @@ for (const dir of dirs) {
 			}
 		}),
 	);
+}
+
+if (onlyPackage !== null && !foundOnlyPackage) {
+	throw new Error(`No releasable package named ${onlyPackage}`);
 }
 
 await Promise.all(promises);

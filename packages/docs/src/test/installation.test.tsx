@@ -21,5 +21,5 @@ test('pins auxiliary packages in every installation command', async () => {
 	expect(markup).toContain(
 		'npx remotion add @remotion/whisper-webgpu @huggingface/transformers',
 	);
-	expect(markup).toContain('@huggingface/transformers@4.3.0');
+	expect(markup).toContain('@huggingface/transformers@4.2.0');
 });

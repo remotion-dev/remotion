@@ -1,13 +1,12 @@
 import {
-	EMPTY_CANVAS_SELECTION,
-	getCanvasSelectionAfterInteraction,
+	CanvasInternals,
 	getCanvasSelectionItemKey,
-	getCanvasSequenceSelectionKey,
 	useCanvasSelection,
-	useCanvasSelectionController,
-	type CanvasSelectionInteraction,
-	type CanvasSelectionItem,
-	type CanvasSelectionSnapshot,
+} from '@remotion/canvas';
+import type {
+	CanvasSelectionInteraction,
+	CanvasSelectionItem,
+	CanvasSelectionSnapshot,
 } from '@remotion/canvas';
 import {
 	canEditEasingForInterpolationFunction,
@@ -30,7 +29,10 @@ import {
 	type GetEffectDragOverrides,
 	type PropStatuses,
 } from 'remotion';
-import {canUseKeyframeOperations} from '../../helpers/browser-studio-operations';
+import {
+	canUseEffectOperations,
+	canUseKeyframeOperations,
+} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -87,6 +89,13 @@ import {
 } from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
+
+const {
+	EMPTY_CANVAS_SELECTION,
+	getCanvasSelectionAfterInteraction,
+	getCanvasSequenceSelectionKey,
+	useCanvasSelectionController,
+} = CanvasInternals;
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
 export const TIMELINE_EXPANDED_SELECTED_BACKGROUND = BACKGROUND;
@@ -613,6 +622,16 @@ const nodePathDescendsFrom = (
 	);
 };
 
+const timelineRowContainsSelection = (
+	nodePathInfo: SequenceNodePathInfo,
+	selection: TimelineSelection,
+): boolean =>
+	selection.type !== 'guide' &&
+	(nodePathDescendsFrom(selection.nodePathInfo, nodePathInfo) ||
+		((selection.type === 'keyframe' || selection.type === 'easing') &&
+			timelineNodePathInfoToKey(selection.nodePathInfo) ===
+				timelineNodePathInfoToKey(nodePathInfo)));
+
 export const getSelectableTimelineSequenceSelections = (
 	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
 ): TimelineSelection[] => {
@@ -751,6 +770,7 @@ export const getSelectableTimelineItems = ({
 					nodePath: nodePathInfo.sequenceSubscriptionKey,
 					propStatuses,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
 					getDragOverrides,
 					getEffectDragOverrides,
 					timelinePosition,
@@ -967,6 +987,7 @@ export const TimelineSelectionProvider: React.FC<{
 		(previewServerState.type === 'connected' ||
 			window.remotion_isReadOnlyStudio);
 	const keyframeOperationsAvailable = canUseKeyframeOperations();
+	const effectOperationsAvailable = canUseEffectOperations();
 	const selectionController = useCanvasSelectionController();
 	const selectionState = useCanvasSelection(selectionController);
 	const selectionScope = useRef<string | null>(null);
@@ -1001,8 +1022,9 @@ export const TimelineSelectionProvider: React.FC<{
 			canSelect &&
 			(!window.remotion_isReadOnlyStudio ||
 				keyframeOperationsAvailable ||
+				(effectOperationsAvailable && item.type === 'sequence-effect') ||
 				item.type === 'sequence'),
-		[canSelect, keyframeOperationsAvailable],
+		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
 	);
 
 	const availableSelectionState =
@@ -1224,10 +1246,8 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			return availableSelectedItems.some(
-				(selected) =>
-					selected.type !== 'guide' &&
-					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
+			return availableSelectedItems.some((selected) =>
+				timelineRowContainsSelection(nodePathInfo, selected),
 			);
 		},
 		[availableSelectedItems],
@@ -1794,10 +1814,8 @@ export const useTimelineRowContainsSelection = (
 
 		return selectionContext
 			.getSnapshot()
-			.selectedItems.some(
-				(selected) =>
-					selected.type !== 'guide' &&
-					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
+			.selectedItems.some((selected) =>
+				timelineRowContainsSelection(nodePathInfo, selected),
 			);
 	}, [nodePathInfo, selectionContext]);
 

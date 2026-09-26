@@ -69,8 +69,11 @@ import {
 	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
+	makeOriginalSourceStack,
+	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 	setComponentIdentityResolver,
+	type OriginalSourceLocation,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -113,7 +116,10 @@ import {
 	type InteractivitySchema,
 	type VisibleFieldSchema,
 } from './interactivity-schema.js';
-import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
+import {
+	interpolateKeyframedStatus,
+	setInterpolatePaths,
+} from './interpolate-keyframed-status.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import type {LoggingContextValue} from './log-level-context.js';
 import {LogLevelContext, useLogLevel} from './log-level-context.js';
@@ -142,6 +148,7 @@ import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
 } from './RenderAssetManager.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
@@ -164,6 +171,10 @@ import {
 	OverrideIdsToNodePathsSettersContext,
 } from './sequence-node-path.js';
 import {CommitOrderInternals} from './sequence-order-marker.js';
+import {
+	SequenceOutlineContext,
+	SequenceOutlineInternals,
+} from './sequence-outline.js';
 import type {ResolvedStackLocation} from './sequence-stack-traces.js';
 import {SequenceStackTracesUpdateContext} from './sequence-stack-traces.js';
 import {SequenceWithoutSchema} from './Sequence.js';
@@ -196,7 +207,7 @@ import {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
 import {
 	AbsoluteTimeContext,
@@ -248,6 +259,7 @@ import {
 	type PropStatuses,
 } from './use-schema.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
+import {useTimelineSeek} from './use-timeline-seek.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {useVideo} from './use-video.js';
 import {validateMediaProps} from './validate-media-props.js';
@@ -282,7 +294,10 @@ import {evaluateVolume} from './volume-prop.js';
 import {warnAboutTooHighVolume} from './volume-safeguard.js';
 import type {WatchRemotionStaticFilesPayload} from './watch-static-file.js';
 import {WATCH_REMOTION_STATIC_FILES} from './watch-static-file.js';
-import {DisableInteractivityProvider} from './with-interactivity-schema.js';
+import {
+	DisableInteractivityProvider,
+	EnableInteractivityProvider,
+} from './with-interactivity-schema.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
@@ -334,6 +349,8 @@ export const Internals = {
 	SequenceManagerRefContext,
 	SequenceRegistrationContext,
 	CommitOrderInternals,
+	SequenceOutlineInternals,
+	SequenceOutlineContext,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,
@@ -359,6 +376,7 @@ export const Internals = {
 	SequenceContext,
 	PremountContext,
 	usePremounting,
+	resolveSequenceDuration,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
@@ -384,6 +402,7 @@ export const Internals = {
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	DisableInteractivityProvider,
+	EnableInteractivityProvider,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,
@@ -402,7 +421,7 @@ export const Internals = {
 	persistCurrentFrame,
 	usePlaybackRate,
 	useTimelineContext,
-	useTimelineSetFrame,
+	useTimelineSetFrameWithoutSeek,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
 	addSequenceStackTraces,
@@ -413,6 +432,8 @@ export const Internals = {
 	getSequenceComponent,
 	getSingleChildComponent,
 	getStackForControls,
+	makeOriginalSourceStack,
+	parseOriginalSourceStack,
 	REMOTION_INTERNAL_STACK_PROP,
 	setComponentIdentityResolver,
 	CurrentScaleContext,
@@ -438,6 +459,7 @@ export const Internals = {
 	useAudioEnabled,
 	useBuffering,
 	TimelinePosition,
+	useTimelineSeek,
 	DelayRenderContextType,
 	TimelineContext,
 	usePlaying,
@@ -457,6 +479,7 @@ export const Internals = {
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,
 	interpolateKeyframedStatus,
+	setInterpolatePaths,
 	makeStaticDragOverride,
 	makeKeyframedDragOverride,
 	resolveDragOverrideValue,
@@ -508,6 +531,7 @@ export type {
 	JsxComponentIdentity,
 	LoggingContextValue,
 	MediaVolumeContextValue,
+	OriginalSourceLocation,
 	OverrideIdsToNodePathsGettersContext,
 	OverrideIdsToNodePathsSettersContext,
 	OverrideIdToNodePaths,

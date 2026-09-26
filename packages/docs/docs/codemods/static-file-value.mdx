@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-codemods-static-file-value.png
+title: 'staticFileValue()'
+crumb: '@remotion/codemods'
+---
+
+# staticFileValue()<AvailableFrom v="4.0.530" />
+
+Returns a `CodemodValue` that is written as a [`staticFile()`](/docs/staticfile) call when it is inserted into source code. The `staticFile` import is added if it is missing.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="static-file-value.ts"
+import {createElement, staticFileValue} from '@remotion/codemods';
+
+const image = createElement({
+  component: 'Img',
+  importPath: 'remotion',
+  props: {src: staticFileValue('photo.png')},
+});
+```
+
+Inserting `image` produces `<Img src={staticFile('photo.png')} />`.
+
+The value is also accepted by [`updateNodeProps()`](/docs/codemods/update-node-props) and [`setCompositionDefaultProps()`](/docs/codemods/set-composition-default-props), and it can be nested inside arrays and objects.
+
+## Arguments
+
+### path
+
+The path of the file relative to the public folder, using forward slashes.
+
+## Return value
+
+A string. Treat it as opaque and pass it as a prop value.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/codemod-element.ts)
+- [`createElement()`](/docs/codemods/create-element)
+- [`staticFile()`](/docs/staticfile)
