@@ -26,7 +26,6 @@ type SequenceCall = {
 	readonly controls: unknown;
 	readonly _remotionInternalDocumentationLink: string | undefined;
 	readonly _remotionInternalEffects: unknown;
-	readonly outlineRef: React.RefObject<Element | null> | undefined;
 };
 
 const htmlInCanvasCalls: HtmlInCanvasCall[] = [];
@@ -248,7 +247,7 @@ test('Should render a shape with effects in HtmlInCanvas', async () => {
 			'https://www.remotion.dev/docs/shapes/circle',
 		_remotionInternalEffects: effectDefinitions,
 	});
-	expect(sequenceCalls[0].outlineRef?.current?.tagName).toBe('CANVAS');
+	expect(sequenceCalls[0]).not.toHaveProperty('outlineRef');
 });
 
 test('Should keep rendering SVG directly with no effects', async () => {
@@ -281,7 +280,7 @@ test('Should keep rendering SVG directly with no effects', async () => {
 		_remotionInternalDocumentationLink:
 			'https://www.remotion.dev/docs/shapes/circle',
 	});
-	expect(sequenceCalls[0].outlineRef?.current?.tagName).toBe('svg');
+	expect(sequenceCalls[0]).not.toHaveProperty('outlineRef');
 });
 
 test('Should pass integer dimensions to HtmlInCanvas', async () => {

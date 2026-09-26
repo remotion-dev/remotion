@@ -123,7 +123,7 @@ const AnimatedCaptionsInner = forwardRef<
 	HTMLDivElement,
 	AnimatedCaptionsProps & {readonly controls: SequenceControls | undefined}
 >(({captions, controls, name, style, ...sequenceProps}, ref) => {
-	const outlineRef = useRef<HTMLDivElement>(null);
+	const elementRef = useRef<HTMLDivElement>(null);
 	const {fps} = useVideoConfig();
 	const pages = useMemo(() => {
 		return createTikTokStyleCaptions({
@@ -132,16 +132,15 @@ const AnimatedCaptionsInner = forwardRef<
 		}).pages;
 	}, [captions]);
 
-	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 	return (
 		<Sequence
-			ref={outlineRef}
+			ref={elementRef}
 			{...sequenceProps}
 			name={name ?? '<AnimatedCaptions>'}
 			style={style}
 			controls={controls}
-			outlineRef={outlineRef}
 		>
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];

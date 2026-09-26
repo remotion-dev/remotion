@@ -73,7 +73,6 @@ const GifInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
-	const refForOutline = React.useRef<HTMLElement | null>(null);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -127,7 +126,7 @@ const GifInner = ({
 	const inner = env.isRendering ? (
 		<GifForRendering {...gifProps} ref={ref} />
 	) : (
-		<GifForDevelopment {...gifProps} ref={ref} refForOutline={refForOutline} />
+		<GifForDevelopment {...gifProps} ref={ref} />
 	);
 
 	return (
@@ -146,7 +145,6 @@ const GifInner = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
-				outlineRef={refForOutline}
 			>
 				{inner}
 			</Sequence>

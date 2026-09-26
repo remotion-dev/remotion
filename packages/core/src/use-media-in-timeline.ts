@@ -8,6 +8,10 @@ import type {LoopDisplay, TSequence} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {getTimelineDuration} from './get-timeline-duration.js';
 import {Loop, LoopTimelineContext} from './loop/index.js';
+import {
+	SequenceOutlineContext,
+	SequenceOutlineInternals,
+} from './sequence-outline.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -169,7 +173,6 @@ export const useMediaInTimeline = ({
 	loopDisplay,
 	loopVolumeCurveBehavior,
 	documentationLink,
-	refForOutline,
 	muted,
 }: {
 	volume: VolumeProp | undefined;
@@ -186,7 +189,6 @@ export const useMediaInTimeline = ({
 	loopDisplay: LoopDisplay | undefined;
 	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	documentationLink: string | null;
-	refForOutline: React.RefObject<Element | null> | null;
 	muted: boolean;
 }) => {
 	const parentSequence = useContext(SequenceContext);
@@ -196,6 +198,15 @@ export const useMediaInTimeline = ({
 	const mediaStartsAt = useMediaStartsAt();
 	const loopContext = Loop.useLoop();
 	const loopTimeline = useContext(LoopTimelineContext);
+	const canvasOutlinesEnabled = useContext(SequenceOutlineContext);
+	const {isStudio} = useRemotionEnvironment();
+	const automaticOutlineRef = useMemo(
+		() =>
+			mediaType === 'video' && (isStudio || canvasOutlinesEnabled)
+				? SequenceOutlineInternals.createRef()
+				: null,
+		[canvasOutlinesEnabled, isStudio, mediaType],
+	);
 
 	const {
 		volumes: basicVolumes,
@@ -280,8 +291,6 @@ export const useMediaInTimeline = ({
 		loopVolumeCurveBehavior,
 	]);
 
-	const {isStudio} = useRemotionEnvironment();
-
 	const getSequenceForRegistration = useCallback((): TSequence => {
 		if (!src) {
 			throw new Error('No src passed');
@@ -313,7 +322,7 @@ export const useMediaInTimeline = ({
 			postmountDisplay,
 			controls: null,
 			effects: [],
-			refForOutline,
+			refForOutline: automaticOutlineRef,
 			isInsideSeries: false,
 			frozenFrame: null,
 			frozenMediaFrame: null,
@@ -334,7 +343,7 @@ export const useMediaInTimeline = ({
 		loopDisplay,
 		documentationLink,
 		finalDisplayName,
-		refForOutline,
+		automaticOutlineRef,
 		muted,
 	]);
 	const registrationEnabled =
@@ -346,4 +355,5 @@ export const useMediaInTimeline = ({
 			registrationEnabled && showInTimeline ? getSequenceForRegistration : null,
 		id,
 	});
+	return automaticOutlineRef;
 };

@@ -35,9 +35,9 @@ const SocialSafeZonesInner = forwardRef<
 		readonly controls: SequenceControls | undefined;
 	}
 >(({controls, name, platform = 'instagram', style, ...sequenceProps}, ref) => {
-	const outlineRef = useRef<HTMLDivElement>(null);
+	const elementRef = useRef<HTMLDivElement>(null);
 
-	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 	return (
 		<Sequence
@@ -45,10 +45,9 @@ const SocialSafeZonesInner = forwardRef<
 			{...sequenceProps}
 			controls={controls}
 			name={name ?? 'Social Safe Zones'}
-			outlineRef={outlineRef}
 		>
 			<div
-				ref={outlineRef}
+				ref={elementRef}
 				style={{
 					...style,
 					height: 1920,

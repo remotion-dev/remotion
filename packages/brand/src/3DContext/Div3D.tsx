@@ -133,17 +133,6 @@ const extrudeDivSchema = {
 	...Interactive.borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
-const setRef = <ElementType,>(
-	ref: React.ForwardedRef<ElementType>,
-	value: ElementType | null,
-) => {
-	if (typeof ref === 'function') {
-		ref(value);
-	} else if (ref) {
-		ref.current = value;
-	}
-};
-
 const numberWithUnitPattern =
 	/^([+-]?(?:\d+\.?\d*|\.\d+))(px|%|deg|rad|turn|grad)$/i;
 const numberPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
@@ -469,17 +458,6 @@ const ExtrudeDivInner = React.forwardRef<
 			return transformPoint({matrix: localTransform, point: parentCenterPoint});
 		}, [localTransform, parentCenterPoint]);
 		const frontFace = isBacksideVisible(combinedTransform);
-		const outlineRef = React.useRef<HTMLDivElement | null>(null);
-		const callbackRef = React.useCallback(
-			(element: HTMLDivElement | null) => {
-				if (depth === 0) {
-					outlineRef.current = element;
-				}
-
-				setRef(ref, element);
-			},
-			[depth, ref],
-		);
 
 		return (
 			<Sequence
@@ -493,7 +471,6 @@ const ExtrudeDivInner = React.forwardRef<
 				showInTimeline={showInTimeline ?? true}
 				controls={controls ?? undefined}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
-				outlineRef={outlineRef}
 			>
 				<TransformContext.Provider value={combinedTransform}>
 					<CenterPointContext.Provider value={combinedCenterPoint}>
@@ -503,7 +480,7 @@ const ExtrudeDivInner = React.forwardRef<
 							cornerRadius={cornerRadius}
 						>
 							<div
-								ref={callbackRef}
+								ref={ref}
 								style={{
 									...style,
 									width,
@@ -521,11 +498,11 @@ const ExtrudeDivInner = React.forwardRef<
 							>
 								{depth > 0 ? <DivExtrusion depth={depth} /> : children}
 								{depth === 0 ? null : !frontFace ? (
-									<Face type="front" depth={depth} outlineRef={outlineRef}>
+									<Face type="front" depth={depth}>
 										{children}
 									</Face>
 								) : (
-									<Face type="back" depth={depth} outlineRef={outlineRef}>
+									<Face type="back" depth={depth}>
 										{backFace}
 									</Face>
 								)}

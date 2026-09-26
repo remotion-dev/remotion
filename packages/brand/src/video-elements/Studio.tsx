@@ -1662,10 +1662,10 @@ const StudioInner = React.forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = React.useRef<HTMLDivElement>(null);
+		const elementRef = React.useRef<HTMLDivElement>(null);
 		React.useImperativeHandle(
 			ref,
-			() => outlineRef.current as HTMLDivElement,
+			() => elementRef.current as HTMLDivElement,
 			[],
 		);
 		const {height: videoHeight, fps} = useVideoConfig();
@@ -1712,12 +1712,11 @@ const StudioInner = React.forwardRef<
 				hidden={hidden}
 				layout="none"
 				name={name ?? '<Studio>'}
-				outlineRef={outlineRef}
 				showInTimeline={showInTimeline ?? true}
 				trimBefore={trimBefore}
 			>
 				<div
-					ref={outlineRef}
+					ref={elementRef}
 					style={{
 						backgroundColor: BACKGROUND,
 						color: WHITE,
