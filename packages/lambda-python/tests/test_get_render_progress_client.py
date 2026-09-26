@@ -10,7 +10,8 @@ class TestRemotionClient(TestCase):
         )
 
         print(
-            client.construct_render_progress_request(
+            "REMOTION_PAYLOAD:"
+            + client.construct_render_progress_request(
                 render_id="abcdef",
                 bucket_name="remotion-render",
                 s3_output_provider=CustomCredentials(
