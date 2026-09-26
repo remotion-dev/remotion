@@ -84,7 +84,7 @@ Will remove a portion of the audio at the beginning (left side).
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
-By passing `trimAfter={120}`, any audio after the 4 second mark in the file will be trimmed away.
+By passing `durationInFrames={60}`, the audio plays for 60 source frames.
 
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
@@ -98,7 +98,7 @@ import {Audio} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+      <Audio src={staticFile('audio.mp3')} trimBefore={60} durationInFrames={60} />
     </AbsoluteFill>
   );
 };

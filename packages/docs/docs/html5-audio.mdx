@@ -79,17 +79,19 @@ Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"`
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
-By passing `trimAfter={120}`, any audio after the 4 second mark in the file will be trimmed away.
+By wrapping the audio in a [`<Sequence>`](/docs/sequence) with `durationInFrames={60}`, it plays for 60 frames.
 
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
+import {AbsoluteFill, Html5Audio, Sequence, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
     <AbsoluteFill>
-      <Html5Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+      <Sequence durationInFrames={60}>
+        <Html5Audio src={staticFile('audio.mp3')} trimBefore={60} />
+      </Sequence>
     </AbsoluteFill>
   );
 };
