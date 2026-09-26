@@ -25,7 +25,7 @@ import {
 	reorderNode,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
-	splitSequences,
+	splitSequences as splitSequencesCodemod,
 	unwrapFolder,
 	updateCompositionMetadata,
 	updateEffectKeyframes,
@@ -56,7 +56,7 @@ import {
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
 	type InsertElementResponse,
-	type InsertJsxElementRequest,
+	type InsertCompositionElementRequest,
 	type RecastCodemod,
 	type SequenceNodePathRemapping,
 	type SubscribeToSequencePropsRequest,
@@ -120,7 +120,7 @@ const insertIntoProject = async ({
 	wrapInSequence,
 }: {
 	project: VirtualProject;
-	request: InsertJsxElementRequest;
+	request: InsertCompositionElementRequest;
 	wrapInSequence: InsertableSequenceWrapper | null;
 }): Promise<{
 	changes: CodemodFileChange[];
@@ -1461,7 +1461,7 @@ export const createBrowserStudioOperations = ({
 		},
 	};
 
-	const deleteJsxNodes: BrowserStudioOperations['deleteJsxNodes'] = async ({
+	const deleteNodes: BrowserStudioOperations['deleteNodes'] = async ({
 		nodes,
 	}) => {
 		try {
@@ -1498,7 +1498,7 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const duplicateJsxNode: BrowserStudioOperations['duplicateJsxNode'] = async ({
+	const duplicateNodes: BrowserStudioOperations['duplicateNodes'] = async ({
 		nodes,
 	}) => {
 		try {
@@ -1531,7 +1531,7 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const wrapJsxNode: BrowserStudioOperations['wrapJsxNode'] = ({
+	const wrapNode: BrowserStudioOperations['wrapNode'] = ({
 		fileName,
 		nodePath,
 		wrapper,
@@ -1585,7 +1585,7 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const splitJsxSequence: BrowserStudioOperations['splitJsxSequence'] = async ({
+	const splitSequences: BrowserStudioOperations['splitSequences'] = async ({
 		sequences,
 	}) => {
 		try {
@@ -1594,7 +1594,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await splitSequences({
+			const result = await splitSequencesCodemod({
 				project,
 				splits: sequences.map((sequence) => ({
 					node: {filePath: sequence.fileName, nodePath: sequence.nodePath},
@@ -2187,78 +2187,77 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	const insertJsxElement: BrowserStudioOperations['insertJsxElement'] = async (
-		request,
-	) => {
-		try {
-			const requiredPackage = getRequiredPackageForInsertableElement(
-				request.element,
-			);
-			const installedDependencies =
-				requiredPackage === null
-					? {}
-					: await resolveElementDependencies([
-							{name: requiredPackage, version: null},
-						]);
-			const project = addDependenciesToProject({
-				dependencies: installedDependencies,
-				project: getProject(),
-			});
-			const result = await insertIntoProject({
-				project,
-				request,
-				wrapInSequence: null,
-			});
-			const {changes} = result;
-			const nodePathMutation = controller.applyMutation({
-				undoRedoNavigation: null,
-				timelineSelection:
-					result.insertedNodePath === null
-						? null
-						: {
-								absolutePath: result.filePath,
-								compositionId: request.compositionId,
-								nodePath: result.insertedNodePath,
-							},
-				fileName: result.filePath,
-				mutate: (current) =>
-					applyCodemodChanges(
-						addDependenciesToProject({
-							dependencies: installedDependencies,
-							project: current,
-						}),
-						changes,
-					),
-				nodePathMutationFiles: [
-					{
-						absolutePath: result.filePath,
-						remappings: result.nodePathRemappings,
-					},
-				],
-			});
-			if (nodePathMutation === null) {
-				throw new Error('Could not insert JSX element');
-			}
+	const insertCompositionElement: BrowserStudioOperations['insertCompositionElement'] =
+		async (request) => {
+			try {
+				const requiredPackage = getRequiredPackageForInsertableElement(
+					request.element,
+				);
+				const installedDependencies =
+					requiredPackage === null
+						? {}
+						: await resolveElementDependencies([
+								{name: requiredPackage, version: null},
+							]);
+				const project = addDependenciesToProject({
+					dependencies: installedDependencies,
+					project: getProject(),
+				});
+				const result = await insertIntoProject({
+					project,
+					request,
+					wrapInSequence: null,
+				});
+				const {changes} = result;
+				const nodePathMutation = controller.applyMutation({
+					undoRedoNavigation: null,
+					timelineSelection:
+						result.insertedNodePath === null
+							? null
+							: {
+									absolutePath: result.filePath,
+									compositionId: request.compositionId,
+									nodePath: result.insertedNodePath,
+								},
+					fileName: result.filePath,
+					mutate: (current) =>
+						applyCodemodChanges(
+							addDependenciesToProject({
+								dependencies: installedDependencies,
+								project: current,
+							}),
+							changes,
+						),
+					nodePathMutationFiles: [
+						{
+							absolutePath: result.filePath,
+							remappings: result.nodePathRemappings,
+						},
+					],
+				});
+				if (nodePathMutation === null) {
+					throw new Error('Could not insert JSX element');
+				}
 
-			return {
-				success: true,
-				insertedNodePath:
-					result.insertedNodePath === null
-						? null
-						: {
-								absolutePath: result.filePath,
-								nodePath: result.insertedNodePath,
-							},
-				nodePathMutation,
-			};
-		} catch (error) {
-			return {
-				success: false,
-				reason: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error && error.stack ? error.stack : '',
-			};
-		}
-	};
+				return {
+					success: true,
+					insertedNodePath:
+						result.insertedNodePath === null
+							? null
+							: {
+									absolutePath: result.filePath,
+									nodePath: result.insertedNodePath,
+								},
+					nodePathMutation,
+				};
+			} catch (error) {
+				return {
+					success: false,
+					reason: error instanceof Error ? error.message : String(error),
+					stack: error instanceof Error && error.stack ? error.stack : '',
+				};
+			}
+		};
 
 	return {
 		applyCodemod,
@@ -2276,7 +2275,7 @@ export const createBrowserStudioOperations = ({
 						sourceOrigin: value.sourceOrigin,
 					};
 		},
-		deleteJsxNodes,
+		deleteNodes,
 		deleteStaticFile: controller.deleteStaticFile,
 		downloadRemoteAsset: (request) =>
 			downloadRemoteAssetInBrowserStudio({
@@ -2290,8 +2289,8 @@ export const createBrowserStudioOperations = ({
 				project: getProject(),
 			}),
 		duplicateComposition,
-		duplicateJsxNode,
-		wrapJsxNode,
+		duplicateNodes,
+		wrapNode,
 		effects: effectOperations,
 		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
@@ -2567,8 +2566,7 @@ export const createBrowserStudioOperations = ({
 				} satisfies InsertElementResponse;
 			}
 		},
-		insertJsxElement,
-		insertSolid: insertJsxElement,
+		insertCompositionElement,
 		keyframes,
 		packageInstallation,
 		prepareElementInstall: async (request) => {
@@ -2717,7 +2715,7 @@ export const createBrowserStudioOperations = ({
 			lastDefaultPropsResults.set(compositionId, JSON.stringify(result));
 			return Promise.resolve(result);
 		},
-		splitJsxSequence,
+		splitSequences,
 		subscribeToEvent: controller.subscribeToEvent,
 		subscribeToSequenceProps: (request) => {
 			const result = getSequencePropsSubscription(request);

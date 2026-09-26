@@ -1,6 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {DuplicateJsxNodeRequest} from '@remotion/studio-shared';
-import {duplicateJsxNode} from '../components/duplicate-jsx-node-api';
+import type {DuplicateNodesRequest} from '@remotion/studio-shared';
+import {duplicateNodes} from '../components/duplicate-nodes-api';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
@@ -19,12 +19,12 @@ afterEach(() => {
 
 test('routes JSX duplication through Browser Studio', async () => {
 	const nodePath = ['program', 'body', 1];
-	const receivedRequests: DuplicateJsxNodeRequest[] = [];
+	const receivedRequests: DuplicateNodesRequest[] = [];
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
 		value: {
 			remotion_browserStudio: makeBrowserStudioOperations({
-				duplicateJsxNode: (request) => {
+				duplicateNodes: (request) => {
 					receivedRequests.push(request);
 					return Promise.resolve({
 						success: true,
@@ -39,7 +39,7 @@ test('routes JSX duplication through Browser Studio', async () => {
 		},
 	});
 
-	const result = await duplicateJsxNode({
+	const result = await duplicateNodes({
 		nodes: [
 			{
 				fileName: '/project/src/Composition.tsx',

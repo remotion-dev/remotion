@@ -7,7 +7,7 @@ import {
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequence';
+import {splitSequencesHandler} from '../preview-server/routes/split-sequences';
 import {getUndoStack} from '../preview-server/undo-stack';
 import {lineContainingToNodePath} from './test-utils';
 
@@ -58,7 +58,7 @@ const getHandlerOptions = <T>({
 	getDefaultEditor: () => null,
 });
 
-test('splitJsxSequenceHandler writes success and failure responses', async () => {
+test('splitSequencesHandler writes success and failure responses', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-split-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -79,7 +79,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 		);
 		writeFileSync(entryPoint, input);
 
-		const success = await splitJsxSequenceHandler(
+		const success = await splitSequencesHandler(
 			getHandlerOptions({
 				input: {
 					sequences: [
@@ -111,7 +111,7 @@ test('splitJsxSequenceHandler writes success and failure responses', async () =>
 		);
 		expect(getUndoStack().length).toBe(1);
 
-		const failure = await splitJsxSequenceHandler(
+		const failure = await splitSequencesHandler(
 			getHandlerOptions({
 				input: {
 					sequences: [

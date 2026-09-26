@@ -534,7 +534,7 @@ export const insertElementHandler: ApiHandler<
 								undoMessage: `↩️  Installation of ${element.displayName} into composition "${compositionId}"`,
 								redoMessage: `↪️  Installation of ${element.displayName} into composition "${compositionId}"`,
 							},
-				entryType: 'insert-jsx-element',
+				entryType: 'insert-composition-element',
 				suppressHmrOnFileRestore: false,
 				undoRedoNavigation,
 			});

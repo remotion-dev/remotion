@@ -7,7 +7,7 @@ import {
 	insertJsxElementIntoComposition,
 	resolveCompositionComponent,
 } from '../helpers/resolve-composition-component';
-import {insertJsxElementHandler} from '../preview-server/routes/insert-jsx-element';
+import {insertCompositionElementHandler} from '../preview-server/routes/insert-composition-element';
 import {lineContainingToNodePath} from './test-utils';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
@@ -1995,7 +1995,7 @@ test('rejects inserting a composition whose component is not exported', async ()
 		const targetFile = path.join(tempDir, 'Target.tsx');
 		await fs.writeFile(targetFile, targetContents);
 
-		const response = await insertJsxElementHandler({
+		const response = await insertCompositionElementHandler({
 			input: {
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
@@ -2189,7 +2189,7 @@ test('rejects array payloads for resolved composition props', async () => {
 test('rejects composition insertion requests that traverse out of the project root', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
-		const response = await insertJsxElementHandler({
+		const response = await insertCompositionElementHandler({
 			input: {
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
