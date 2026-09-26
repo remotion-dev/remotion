@@ -50,6 +50,9 @@ const firstEncodingStepOnly = ({
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		// Without row-based multithreading, libvpx only splits VP9 work by
+		// tile columns (4 at 1080p), which leaves most cores idle
+		codec === 'vp9' ? ['-row-mt', '1'] : null,
 		x264Preset ? ['-preset', x264Preset] : null,
 		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
