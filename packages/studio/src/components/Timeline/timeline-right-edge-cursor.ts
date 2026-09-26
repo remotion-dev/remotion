@@ -1,0 +1,14 @@
+const timelineRightEdgeCursorSvg = `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g transform="translate(32 0) scale(-1 1)" filter="url(#shadow)">
+<path d="M3 16L12 10V22L3 16Z" fill="black" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M23 4.5H18C16.9 4.5 16 5.4 16 6.5V25.5C16 26.6 16.9 27.5 18 27.5H23" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M23 4.5H18C16.9 4.5 16 5.4 16 6.5V25.5C16 26.6 16.9 27.5 18 27.5H23" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<filter id="shadow" x="0" y="0" width="32" height="32" filterUnits="userSpaceOnUse">
+<feDropShadow dx="0" dy="1.5" stdDeviation="1" flood-color="black" flood-opacity="0.35"/>
+</filter>
+</defs>
+</svg>`;
+
+export const timelineRightEdgeCursor = `url("data:image/svg+xml,${encodeURIComponent(timelineRightEdgeCursorSvg)}") 12 12`;

@@ -6,6 +6,7 @@ import React, {
 	useEffect,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
@@ -27,10 +28,7 @@ import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
-import {
-	getTimelineSequenceLayout,
-	SEQUENCE_BORDER_WIDTH,
-} from '../../helpers/get-timeline-sequence-layout';
+import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
@@ -61,6 +59,9 @@ import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
+import {timelineRightEdgeCursor} from './timeline-right-edge-cursor';
+import {timelineRippleEdgeCursor} from './timeline-ripple-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
 	getTimelineSequenceSelectionKey,
@@ -93,6 +94,8 @@ import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const {getTimelineVisibleDuration, getTimelineVisibleStart} = CanvasInternals;
+const NEGATIVE_START_BORDER_WIDTH = 1;
+const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 
 const TimelineSequenceFn: React.FC<{
 	readonly s: TimelineTrackData['sequence'];
@@ -155,10 +158,10 @@ const TimelineSequenceNegativeStartInner: React.FC<{
 
 		return {
 			backgroundColor: TIMELINE_NEGATIVE_START_BACKGROUND_COLOR,
-			border: `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
+			border: `${NEGATIVE_START_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`,
 			borderBottomLeftRadius: showLeftEdge ? 2 : 0,
 			borderLeft: showLeftEdge
-				? `${SEQUENCE_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
+				? `${NEGATIVE_START_BORDER_WIDTH}px solid ${TIMELINE_NEGATIVE_START_BORDER_COLOR}`
 				: 'none',
 			borderRight: 'none',
 			borderTopLeftRadius: showLeftEdge ? 2 : 0,
@@ -185,6 +188,7 @@ const TimelineSequenceNegativeStart = React.memo(
 
 const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
+	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly displayDurationInFrames: number;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
@@ -208,6 +212,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onClick: React.MouseEventHandler<HTMLDivElement> | null;
 }> = ({
 	s,
+	activeTrimEdge,
 	displayDurationInFrames,
 	premount,
 	postmount,
@@ -280,15 +285,30 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const negativeStartEnd = negativeStart
 		? negativeStart.left + negativeStart.width
 		: 0;
+	// Back the antialiased rounded edge so the layer color does not show through the glow.
+	const sequenceBackground =
+		activeTrimEdge === null
+			? style.background
+			: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, #00E500 0 2px, #00E50000 2px), ${style.background ?? TRANSPARENT}`;
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
-			background: negativeStart ? TRANSPARENT : style.background,
-			border: negativeStart ? 'none' : style.border,
-			opacity: selected || containsSelection || isAsset ? 1 : 0.75,
+			background: negativeStart ? TRANSPARENT : sequenceBackground,
+			opacity:
+				activeTrimEdge !== null || selected || containsSelection || isAsset
+					? 1
+					: 0.75,
 		};
-	}, [containsSelection, isAsset, negativeStart, selected, style]);
+	}, [
+		activeTrimEdge,
+		containsSelection,
+		isAsset,
+		negativeStart,
+		selected,
+		sequenceBackground,
+		style,
+	]);
 
 	const content = (
 		<>
@@ -351,6 +371,22 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					/>
 				</div>
 			) : null}
+
+			{activeTrimEdge === null ? null : (
+				<div
+					aria-hidden="true"
+					style={{
+						position: 'absolute',
+						top: 0,
+						bottom: 0,
+						left: activeTrimEdge === 'left' ? 0 : undefined,
+						right: activeTrimEdge === 'right' ? 0 : undefined,
+						width: `min(${EDGE_DRAG_HIGHLIGHT_WIDTH}px, 100%)`,
+						pointerEvents: 'none',
+						background: `linear-gradient(to ${activeTrimEdge === 'left' ? 'right' : 'left'}, #00E500, #00E50000)`,
+					}}
+				/>
+			)}
 		</>
 	);
 
@@ -375,12 +411,9 @@ const TimelineSequenceCurrentFrame: React.FC<{
 					/>
 					<div
 						style={{
-							background: style.background,
-							border: style.border,
+							background: sequenceBackground,
 							borderBottomLeftRadius: 0,
 							borderBottomRightRadius: style.borderBottomRightRadius,
-							borderLeft: 'none',
-							borderRightColor: style.borderRightColor,
 							borderTopLeftRadius: 0,
 							borderTopRightRadius: style.borderTopRightRadius,
 							boxSizing: 'border-box',
@@ -455,6 +488,18 @@ const TimelineSequenceInner: React.FC<{
 	const dragAwareDoubleClick = useMemo(
 		() => createDragAwareDoubleClickTracker(),
 		[],
+	);
+	const [activeTrimEdge, setActiveTrimEdge] = useState<'left' | 'right' | null>(
+		null,
+	);
+	const startLeftEdgeDrag = useCallback(() => setActiveTrimEdge('left'), []);
+	const startRightEdgeDrag = useCallback(() => setActiveTrimEdge('right'), []);
+	const endEdgeDrag = useCallback(
+		(wasDragged: boolean) => {
+			setActiveTrimEdge(null);
+			dragAwareDoubleClick.endPointerGesture(wasDragged);
+		},
+		[dragAwareDoubleClick],
 	);
 
 	const mediaMetadata = useMediaMetadata(
@@ -1047,14 +1092,6 @@ const TimelineSequenceInner: React.FC<{
 					: s.type === 'video'
 						? TIMELINE_VIDEO_GRADIENT
 						: BLUE,
-			border: `${SEQUENCE_BORDER_WIDTH}px solid ${WHITE_ALPHA_20}`,
-			borderLeftColor:
-				visibleLayout?.leftEdgeVisible && !negativeStartClipped
-					? WHITE_ALPHA_20
-					: TRANSPARENT,
-			borderRightColor: visibleLayout?.rightEdgeVisible
-				? WHITE_ALPHA_20
-				: TRANSPARENT,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
@@ -1067,13 +1104,7 @@ const TimelineSequenceInner: React.FC<{
 			// Edge handles extend outside the layer; media is clipped separately.
 			overflow: 'visible',
 		};
-	}, [
-		negativeStartClipped,
-		s.type,
-		showLeftBorderRadius,
-		showRightBorderRadius,
-		visibleLayout,
-	]);
+	}, [s.type, showLeftBorderRadius, showRightBorderRadius, visibleLayout]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&
@@ -1105,6 +1136,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
+			activeTrimEdge={activeTrimEdge}
 			displayDurationInFrames={displayDurationInFrames}
 			premount={visibleLayout.premount}
 			postmount={visibleLayout.postmount}
@@ -1127,13 +1159,14 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceLeftEdgeDragHandle
-							cursor={isCascadingSequence(s) ? 'ew-resize' : 'e-resize'}
+							cursor={`${timelineLeftEdgeCursor}, e-resize`}
 							nodePathInfo={nodePathInfo}
 							windowWidth={windowWidth}
 							timelineDurationInFrames={video.durationInFrames ?? 1}
 							initialEdgeFrame={s.from}
 							fps={video.fps}
-							onDragEnd={dragAwareDoubleClick.endPointerGesture}
+							onDragStart={startLeftEdgeDrag}
+							onDragEnd={endEdgeDrag}
 							onSelect={onSelect}
 							selected={selected}
 						/>
@@ -1143,7 +1176,11 @@ const TimelineSequenceInner: React.FC<{
 					nodePathInfo &&
 					validatedLocation ? (
 						<TimelineSequenceRightEdgeDragHandle
-							cursor={isCascadingSequence(s) ? 'ew-resize' : 'w-resize'}
+							cursor={
+								isCascadingSequence(s)
+									? `${timelineRippleEdgeCursor}, ew-resize`
+									: `${timelineRightEdgeCursor}, w-resize`
+							}
 							nodePathInfo={nodePathInfo}
 							mediaDurationDragLimits={mediaDurationDragLimits}
 							windowWidth={windowWidth}
@@ -1160,7 +1197,8 @@ const TimelineSequenceInner: React.FC<{
 								)
 							}
 							fps={video.fps}
-							onDragEnd={dragAwareDoubleClick.endPointerGesture}
+							onDragStart={startRightEdgeDrag}
+							onDragEnd={endEdgeDrag}
 							onSelect={onSelect}
 							selected={selected}
 						/>

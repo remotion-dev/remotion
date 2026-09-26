@@ -1271,12 +1271,13 @@ const clearFromDragOverrides = ({
 };
 
 const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
-	readonly cursor: 'e-resize' | 'ew-resize';
+	readonly cursor: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 	readonly initialEdgeFrame: number;
 	readonly fps: number;
+	readonly onDragStart: () => void;
 	readonly onDragEnd: (wasDragged: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
@@ -1287,6 +1288,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	timelineDurationInFrames,
 	initialEdgeFrame,
 	fps,
+	onDragStart,
 	onDragEnd,
 	onSelect,
 	selected,
@@ -1463,6 +1465,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			stopPointerSessionRef.current?.();
+			onDragStart();
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
@@ -1588,6 +1591,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			currentSelection,
 			cursor,
 			finishDrag,
+			onDragStart,
 			propStatusesRef,
 			selected,
 			sequencesRef,
@@ -1916,13 +1920,14 @@ export const useTimelineSequenceFromDrag = ({
 };
 
 const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
-	readonly cursor: 'w-resize' | 'ew-resize';
+	readonly cursor: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly mediaDurationDragLimits: TimelineSequenceMediaDurationDragLimits | null;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
 	readonly initialEdgeFrame: number;
 	readonly fps: number;
+	readonly onDragStart: () => void;
 	readonly onDragEnd: (wasDragged: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
@@ -1934,6 +1939,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	timelineDurationInFrames,
 	initialEdgeFrame,
 	fps,
+	onDragStart,
 	onDragEnd,
 	onSelect,
 	selected,
@@ -2120,6 +2126,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			stopPointerSessionRef.current?.();
+			onDragStart();
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
@@ -2230,6 +2237,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			cursor,
 			finishDrag,
 			mediaDurationDragLimitsRegistry,
+			onDragStart,
 			propStatusesRef,
 			selected,
 			sequencesRef,
