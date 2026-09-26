@@ -536,10 +536,15 @@ const TimelineSequenceInner: React.FC<{
 		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
 	);
+	// calculateTimeline replaces this rate with the cumulative ancestor rate.
+	const originalSequence = sequences.find((candidate) => candidate.id === s.id);
 	const endField = useRuntimeValueSelector({
 		controls: s.controls,
 		selector: (runtimeValues) =>
-			getTimelineSequenceEndField({sequence: s, runtimeValues}),
+			getTimelineSequenceEndField({
+				sequence: originalSequence ?? s,
+				runtimeValues,
+			}),
 		isEqual: (first, second) =>
 			first.fieldKey === second.fieldKey &&
 			first.trimBefore === second.trimBefore &&
