@@ -21,6 +21,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -83,7 +84,9 @@ export type InteractiveBaseProps = Pick<
 	| 'durationInFrames'
 	| 'from'
 	| 'trimBefore'
+	| 'trimAfter'
 	| 'playbackRate'
+	| 'loop'
 	| 'freeze'
 	| 'hidden'
 	| 'name'
@@ -247,7 +250,9 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			trimBefore,
+			trimAfter,
 			playbackRate,
+			loop,
 			freeze,
 			hidden,
 			name,
@@ -273,7 +278,13 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -302,7 +313,9 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
+					trimAfter={trimAfter}
 					playbackRate={playbackRate}
+					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}

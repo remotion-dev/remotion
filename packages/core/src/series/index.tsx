@@ -39,7 +39,9 @@ type SeriesSequenceProps = PropsWithChildren<
 		| 'showInTimeline'
 		| 'freeze'
 		| 'trimBefore'
+		| 'trimAfter'
 		| 'playbackRate'
+		| 'loop'
 	> &
 		LayoutAndStyle
 >;
@@ -65,7 +67,9 @@ const seriesSequenceSchema = {
 	showInTimeline: Interactive.sequenceSchema.showInTimeline,
 	freeze: Interactive.baseSchema.freeze,
 	trimBefore: Interactive.sequenceSchema.trimBefore,
+	trimAfter: Interactive.sequenceSchema.trimAfter,
 	playbackRate: Interactive.sequenceSchema.playbackRate,
+	loop: Interactive.sequenceSchema.loop,
 	layout: Interactive.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 

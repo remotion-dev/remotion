@@ -65,6 +65,7 @@ test('cursor schema exposes named cursors as a keyframable enum', () => {
 	expect(macOSCursorSchema['style.translate'].type).toBe('translate');
 	expect(macOSCursorSchema['style.scale'].type).toBe('scale');
 	expect(macOSCursorSchema['style.rotate'].type).toBe('rotation-css');
+	expect(macOSCursorSchema.loop).toBe(Internals.baseSchema.loop);
 });
 
 test('<MacOSCursor> renders the default cursor when the cursor prop is omitted', () => {

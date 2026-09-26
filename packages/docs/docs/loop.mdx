@@ -29,9 +29,24 @@ const MyComp = () => {
 };
 ```
 
-:::note
-Good to know: You can nest loops within each other and they will cascade.
-:::
+You can nest loops within each other and they will cascade.
+
+## New alternative: `loop` prop
+
+[Many components](/docs/timing) accept a [`loop`](/docs/timing#loop-repeat-an-item) nowadays.
+
+It is useful if you want to mix it with other props such as `trimAfter` or `playbackRate`.
+
+```tsx twoslash
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const WithSequence = () => (
+  <Sequence trimAfter={50} durationInFrames={150} loop>
+    <BlueSquare />
+  </Sequence>
+);
+```
 
 ## API
 

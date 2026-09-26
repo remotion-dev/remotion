@@ -34,6 +34,7 @@ import {
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {usePreload} from './prefetch.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
@@ -84,6 +85,8 @@ type ImgContentProps = Omit<
 	| 'showInTimeline'
 	| 'from'
 	| 'trimBefore'
+	| 'trimAfter'
+	| 'loop'
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
@@ -361,6 +364,8 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	src,
 	from,
 	trimBefore,
+	trimAfter,
+	loop,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -397,7 +402,13 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate: undefined,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -420,6 +431,8 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
@@ -549,6 +562,7 @@ const ImgInner: React.FC<
 	src,
 	from,
 	trimBefore,
+	trimAfter,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -585,6 +599,7 @@ const ImgInner: React.FC<
 				src={src}
 				from={from}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
 				durationInFrames={durationInFrames}
 				freeze={freeze}
 				premountFor={premountFor}
@@ -647,6 +662,7 @@ const ImgInner: React.FC<
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
 			trimBefore={trimBefore}
+			trimAfter={trimAfter}
 			durationInFrames={durationInFrames}
 			freeze={freeze}
 			premountFor={premountFor}

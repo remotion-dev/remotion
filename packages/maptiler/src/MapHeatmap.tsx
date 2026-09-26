@@ -212,7 +212,9 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 		name,
 		showInTimeline,
 		trimBefore,
+		trimAfter,
 		playbackRate,
+		loop,
 	} = props;
 
 	const {
@@ -224,7 +226,13 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 		postmountingActive,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -238,7 +246,9 @@ export const MapHeatmap = (props: MapHeatmapProps) => {
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

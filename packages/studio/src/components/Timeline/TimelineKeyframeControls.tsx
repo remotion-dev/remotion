@@ -366,6 +366,8 @@ const getAddChange = (
 ): AddSequenceKeyframeChange | AddEffectKeyframeChange | null => {
 	if (
 		target.propStatus.status === 'computed' ||
+		(target.propStatus.status === 'static' &&
+			target.propStatus.canKeyframe === false) ||
 		!isSchemaFieldKeyframable({schema: target.schema, key: target.fieldKey}) ||
 		hasTargetKeyframeAtCurrentFrame(target)
 	) {
@@ -636,10 +638,12 @@ export const TimelineKeyframeControls: React.FC<{
 		selected: propertySelected,
 	});
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema,
-		key: fieldKey,
-	});
+	const keyframable =
+		!(propStatus.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema,
+			key: fieldKey,
+		});
 	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		canUseKeyframeOperations() &&

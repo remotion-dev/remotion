@@ -72,9 +72,9 @@ Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
 Controls inherited from [`<Sequence>`](/docs/sequence):
 
-`durationInFrames`, `from`, `trimBefore`, `playbackRate`, `freeze`, `hidden`, `name` and `showInTimeline`.
+`durationInFrames`, `from`, `trimBefore`, `trimAfter`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`.
 
-Use it for components that render a `<Sequence>` internally.
+Use it for components that render a `<Sequence>` internally and forward these props to it.
 
 ```tsx twoslash title="schema.ts"
 import {Interactive, type InteractivitySchema} from 'remotion';

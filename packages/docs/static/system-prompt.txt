@@ -168,6 +168,8 @@ export const MyComp: React.FC = () => {
 
 The "from" prop specifies the frame number where the element should appear.
 The "trimBefore" prop trims the start of the component timeline by a number of frames.
+The "trimAfter" prop ends the component timeline at a frame, measured in the same clock as "trimBefore".
+The "loop" prop repeats the range between "trimBefore" and "trimAfter"; it requires "trimAfter" except on <Video> and <Audio>, which loop the whole file.
 
 The "durationInFrames" prop specifies how long the element should appear.
 

@@ -645,6 +645,43 @@ const getJsxNumericAttribute = ({
 	return defaultValue;
 };
 
+const getJsxBooleanAttribute = ({
+	openingElement,
+	name,
+	defaultValue,
+}: {
+	openingElement: JSXOpeningElement;
+	name: string;
+	defaultValue: boolean;
+}): boolean | null => {
+	for (let index = openingElement.attributes.length - 1; index >= 0; index--) {
+		const attribute = openingElement.attributes[index];
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier' ||
+			attribute.name.name !== name
+		) {
+			continue;
+		}
+
+		const {value} = attribute;
+		if (value === null || value === undefined) {
+			return true;
+		}
+
+		if (
+			value.type === 'JSXExpressionContainer' &&
+			value.expression.type === 'BooleanLiteral'
+		) {
+			return value.expression.value;
+		}
+
+		return null;
+	}
+
+	return defaultValue;
+};
+
 const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	startPath,
 	endPath,
@@ -698,10 +735,17 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 					defaultValue: 1,
 					videoConfigValues,
 				});
+				const loop = getJsxBooleanAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'loop',
+					defaultValue: false,
+				});
 				if (
 					from === null ||
 					trimBefore === null ||
 					playbackRate === null ||
+					loop === null ||
+					loop ||
 					!Number.isFinite(playbackRate) ||
 					playbackRate <= 0
 				) {
@@ -729,7 +773,11 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 }: {
 	jsxPath: recast.types.NodePath;
 	videoConfigValues: VideoConfigIdentifierValues;
-}): {adjustment: number; playbackRateAdjustment: number} | null => {
+}): {
+	adjustment: number;
+	playbackRateAdjustment: number;
+	canKeyframe: boolean;
+} | null => {
 	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
 	while (functionPath) {
 		const node = functionPath.value as Node;
@@ -747,7 +795,37 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	if (!functionPath) {
 		// Module-level JSX still has editable static props. There is no local
 		// frame clock to adjust; keyframe insertion validates its own hook scope.
-		return {adjustment: 0, playbackRateAdjustment: 1};
+		return {adjustment: 0, playbackRateAdjustment: 1, canKeyframe: true};
+	}
+
+	let current: recast.types.NodePath | null = jsxPath;
+	let hasSeenControlledElement = false;
+	while (current && current.value !== functionPath.value) {
+		const currentNode = current.value as Node;
+		if (currentNode.type === 'JSXElement') {
+			if (!hasSeenControlledElement) {
+				hasSeenControlledElement = true;
+			} else {
+				const loop = getJsxBooleanAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'loop',
+					defaultValue: false,
+				});
+				if (loop === null) {
+					return null;
+				}
+
+				if (loop) {
+					return {
+						adjustment: 0,
+						playbackRateAdjustment: 1,
+						canKeyframe: false,
+					};
+				}
+			}
+		}
+
+		current = current.parentPath;
 	}
 
 	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
@@ -755,7 +833,7 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 		endPath: functionPath,
 		videoConfigValues,
 	});
-	return result;
+	return result ? {...result, canKeyframe: true} : null;
 };
 
 type ResolvedCurrentFrameExpression = {
@@ -2055,6 +2133,10 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 		if (defaultKeyframeDisplayOffsetAdjustment === null) {
 			return computedStatus();
+		}
+
+		if (!defaultKeyframeDisplayOffsetAdjustment.canKeyframe) {
+			return {...status, canKeyframe: false};
 		}
 
 		if (

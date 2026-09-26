@@ -1,6 +1,7 @@
 import {
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
+	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {unstable_batchedUpdates} from 'react-dom';
@@ -195,6 +196,59 @@ const Value: React.FC<{
 			sequencesRef,
 		],
 	);
+	// Items without an intrinsic duration need `trimAfter` to loop. Filling it
+	// with the current end keeps the output unchanged until the clip is extended.
+	const getLoopTrimAfter = useCallback(
+		(value: unknown): number | null => {
+			if (field.key !== 'loop' || value !== true || !schema.trimAfter) {
+				return null;
+			}
+
+			const trimAfterStatus = Internals.getPropStatusesCtx(
+				propStatusesRef.current,
+				nodePath,
+			)?.trimAfter;
+			if (
+				trimAfterStatus?.status !== 'static' ||
+				trimAfterStatus.codeValue !== undefined
+			) {
+				return null;
+			}
+
+			const key = stringifySequenceSubscriptionKey(nodePath);
+			const sequence = sequencesRef.current.find((candidate) => {
+				const overrideId = candidate.controls?.overrideId;
+				const path = overrideId
+					? overrideIdToNodePathMappings[overrideId]
+					: undefined;
+				return path && stringifySequenceSubscriptionKey(path) === key;
+			});
+			if (
+				!sequence ||
+				sequence.type === 'audio' ||
+				sequence.type === 'video' ||
+				!Number.isFinite(sequence.duration) ||
+				sequence.duration <= 0
+			) {
+				return null;
+			}
+
+			const runtimeTrimBefore =
+				sequence.controls?.runtimeValues.getSnapshot().trimBefore;
+			const trimBefore =
+				typeof runtimeTrimBefore === 'number' ? runtimeTrimBefore : 0;
+
+			return trimBefore + sequence.duration * sequence.sequencePlaybackRate;
+		},
+		[
+			field.key,
+			nodePath,
+			overrideIdToNodePathMappings,
+			propStatusesRef,
+			schema.trimAfter,
+			sequencesRef,
+		],
+	);
 	const getAdjustedDuration = useCallback(
 		(playbackRate: unknown): number | null => {
 			if (
@@ -303,6 +357,7 @@ const Value: React.FC<{
 			const stringifiedValue = JSON.stringify(value);
 			const fieldLabel = field.description ?? field.key;
 			const adjustedDuration = getAdjustedDuration(value);
+			const loopTrimAfter = getLoopTrimAfter(value);
 
 			if (value === propStatus.codeValue) {
 				return Promise.resolve();
@@ -350,6 +405,18 @@ const Value: React.FC<{
 										schema,
 									},
 								]),
+						...(loopTrimAfter === null
+							? []
+							: [
+									{
+										fileName: validatedLocation.source,
+										nodePath,
+										fieldKey: 'trimAfter',
+										value: loopTrimAfter,
+										defaultValue: null,
+										schema,
+									},
+								]),
 					],
 					setPropStatuses,
 					clientId,
@@ -366,6 +433,7 @@ const Value: React.FC<{
 			field.fieldSchema.type,
 			field.key,
 			getAdjustedDuration,
+			getLoopTrimAfter,
 			nodePath,
 			schema,
 			setPropStatuses,
@@ -700,10 +768,12 @@ export const TimelineSequencePropItem: React.FC<{
 		return (getDragOverrides(nodePath) ?? {})[field.key];
 	}, [getDragOverrides, nodePath, field.key]);
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema,
-		key: field.key,
-	});
+	const keyframable =
+		!(propStatus?.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema,
+			key: field.key,
+		});
 	const keyframeControls =
 		propStatus !== null &&
 		(keyframeControlsMode === 'inspector'

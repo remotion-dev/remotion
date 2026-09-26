@@ -88,12 +88,19 @@ mock.module('remotion', () => {
 				durationInFrames: {},
 				from: {},
 				trimBefore: {},
+				trimAfter: {},
+				loop: {},
 				freeze: {},
 				hidden: {},
 				name: {},
 				showInTimeline: {},
 			},
 			transformSchema: {},
+			resolveSequenceDuration: ({
+				durationInFrames,
+			}: {
+				readonly durationInFrames: number | undefined;
+			}) => durationInFrames ?? Infinity,
 			usePremounting: ({
 				style,
 			}: {

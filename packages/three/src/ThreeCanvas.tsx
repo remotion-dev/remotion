@@ -159,7 +159,9 @@ export const ThreeCanvasInternals = ({
 	from,
 	durationInFrames,
 	trimBefore,
+	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -181,7 +183,13 @@ export const ThreeCanvasInternals = ({
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			trimBefore,
+			trimAfter,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -196,7 +204,9 @@ export const ThreeCanvasInternals = ({
 				from={from}
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
+				trimAfter={trimAfter}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<ThreeCanvas>'}

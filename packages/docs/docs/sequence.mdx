@@ -216,13 +216,66 @@ export const MyVideo = () => {
 
 In the example above, `Child` mounts at composition frame `30` and receives frame `15`.
 
+### `trimAfter?`
+
+Ends the child timeline at the specified frame, measured in the same clock as [`trimBefore`](#trimbefore).
+Children receive frames from `trimBefore` up to, but not including, `trimAfter`.
+
+The sequence unmounts after `(trimAfter - trimBefore) / playbackRate` frames in the parent timeline, unless [`durationInFrames`](#durationinframes) or the parent ends it earlier.
+Must be greater than `trimBefore`.
+
+```tsx twoslash title="MyVideo.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Child = () => <div>{useCurrentFrame()}</div>;
+
+// ---cut---
+export const MyVideo = () => {
+  return (
+    <Sequence from={30} trimBefore={15} trimAfter={45}>
+      <Child />
+    </Sequence>
+  );
+};
+```
+
+In the example above, `Child` receives frames `15` through `44` and the sequence is visible from composition frame `30` through `59`.
+
+### `loop?`
+
+Repeats the child range selected by [`trimBefore`](#trimbefore) and [`trimAfter`](#trimafter). Default: `false`.
+
+Requires a finite `trimAfter`, because a sequence has no intrinsic duration.
+Each cycle lasts `(trimAfter - trimBefore) / playbackRate` frames in the parent timeline.
+[`durationInFrames`](#durationinframes) limits the total length; without it, the sequence loops until its parent ends.
+
+```tsx twoslash title="MyVideo.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Child = () => <div>{useCurrentFrame()}</div>;
+
+// ---cut---
+export const MyVideo = () => {
+  return (
+    <Sequence trimBefore={30} trimAfter={60} playbackRate={2} durationInFrames={90} loop>
+      <Child />
+    </Sequence>
+  );
+};
+```
+
+In the example above, `Child` receives frames `30` through `59` in a cycle of `15` composition frames, repeated six times.
+
+[`Loop.useLoop()`](/docs/loop#useloop) returns the current iteration inside a looping sequence.
+To repeat a duration measured in the parent timeline, use [`<Loop>`](/docs/loop).
+
 ### `playbackRate?`<AvailableFrom v="4.0.528" />
 
 Changes the speed of the children, including their animations and media. Default: `1`.
 Use `2` for double speed or `0.5` for half speed. The value must be positive and finite, and must remain constant across frames.
 
 `from` and `durationInFrames` are measured in the parent timeline. Changing `playbackRate` does not change when the sequence mounts or unmounts.
-`trimBefore` is measured in the children's frames and is applied after the speed change:
+`trimBefore` and `trimAfter` are measured in the children's frames and are applied after the speed change:
 
 ```tsx twoslash title="MyVideo.tsx"
 import {Sequence, useCurrentFrame} from 'remotion';

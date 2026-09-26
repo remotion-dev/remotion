@@ -25,6 +25,8 @@ export type CanUpdateSequencePropStatusStatic = {
 	keyframeDisplayOffsetAdjustment: number | null;
 	/** Multiplies the element's local frame to recover the source frame clock. */
 	keyframePlaybackRateAdjustment?: number;
+	/** False when the source frame clock cannot be represented by the Studio. */
+	canKeyframe?: false;
 	numericExpression?: VideoConfigNumericExpression;
 };
 

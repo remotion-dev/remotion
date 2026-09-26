@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
+	Internals,
 	Interactive,
 	type InteractiveBaseProps,
 	type InteractivitySchema,
@@ -105,7 +106,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	from,
 	durationInFrames,
 	trimBefore,
+	trimAfter,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -137,7 +140,13 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	const visibleDuration = Math.max(
 		0,
 		Math.min(
-			durationInFrames ?? Infinity,
+			Internals.resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate,
+				loop,
+			}),
 			compositionDurationInFrames - (from ?? 0),
 		),
 	);
@@ -215,7 +224,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			from={from}
 			durationInFrames={durationInFrames}
 			trimBefore={trimBefore}
+			trimAfter={trimAfter}
 			playbackRate={playbackRate}
+			loop={loop}
 			freeze={freeze}
 			hidden={hidden}
 			name={name ?? '<HtmlInCanvasMotionBlur>'}

@@ -25,6 +25,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -279,7 +280,9 @@ const SolidOuter = forwardRef<
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			trimBefore,
+			trimAfter,
 			playbackRate,
+			loop,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -310,7 +313,13 @@ const SolidOuter = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				trimBefore,
+				trimAfter,
+				playbackRate,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -333,7 +342,9 @@ const SolidOuter = forwardRef<
 					layout="none"
 					from={from}
 					trimBefore={trimBefore}
+					trimAfter={trimAfter}
 					playbackRate={playbackRate}
+					loop={loop}
 					freeze={freeze}
 					hidden={hidden}
 					showInTimeline={showInTimeline}
