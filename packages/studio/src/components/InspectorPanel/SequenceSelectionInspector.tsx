@@ -330,7 +330,6 @@ const SequenceSourceQuickActions: React.FC<{
 							style={largeInspectorActionIconStyle}
 							color={color}
 							viewBox="-96 -16 704 544"
-							preserveAspectRatio="none"
 						/>
 					)}
 				>
