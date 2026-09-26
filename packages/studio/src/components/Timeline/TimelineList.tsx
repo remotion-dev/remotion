@@ -76,11 +76,7 @@ export const TimelineList: React.FC = () => {
 			{virtualItems.map((virtualItem) => (
 				<div
 					key={virtualItem.key}
-					className={
-						virtualItem.index < rows.length - 1
-							? 'remotion-timeline-list-row-border'
-							: undefined
-					}
+					className="remotion-timeline-list-row-border"
 					style={{
 						height: virtualItem.size,
 						left: 0,
