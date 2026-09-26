@@ -857,13 +857,13 @@ export const WebMcp: FC = () => {
 					name: 'select_composition',
 					title: 'Select Studio composition',
 					description:
-						'Open a registered composition in Remotion Studio by name.',
+						'Open a registered composition in Remotion Studio by ID.',
 					inputSchema: {
 						type: 'object',
 						properties: {
 							compositionName: {
 								type: 'string',
-								description: 'The name of the composition to open.',
+								description: 'The ID of the composition to open.',
 							},
 						},
 						required: ['compositionName'],
@@ -983,7 +983,7 @@ export const WebMcp: FC = () => {
 					name: 'get_composition',
 					title: 'Get Studio composition',
 					description:
-						'Read the name, source stack, duration, dimensions, frame rate, and current frame of the composition open in Remotion Studio. All fields are null when the canvas is not showing a composition.',
+						'Read the ID, source stack, duration, dimensions, frame rate, and current frame of the composition open in Remotion Studio. All fields are null when the canvas is not showing a composition.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
