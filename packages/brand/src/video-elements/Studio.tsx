@@ -580,7 +580,7 @@ const RightSidebar: React.FC<{
 			</div>
 			<div style={{padding: '4px 0'}}>
 				<Interactive.Div
-					name="Composition name"
+					name="Composition ID"
 					style={{
 						alignItems: 'center',
 						color: WHITE,
