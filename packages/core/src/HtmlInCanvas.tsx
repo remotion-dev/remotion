@@ -818,7 +818,6 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
-					outlineRef={actualRef}
 					{...sequenceProps}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}

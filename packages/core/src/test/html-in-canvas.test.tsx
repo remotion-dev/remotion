@@ -300,7 +300,11 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const canvas = container.querySelector('canvas');
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {
@@ -413,7 +417,11 @@ test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	const nextCanvas = container.querySelector('canvas');
 	expect(nextCanvas).not.toBeNull();
 	expect(canvasRef.current).toBe(nextCanvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(nextCanvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<HtmlInCanvas> can use a higher backing density', async () => {

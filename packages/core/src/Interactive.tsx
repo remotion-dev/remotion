@@ -1,4 +1,4 @@
-import React, {forwardRef, useCallback, useRef} from 'react';
+import React, {forwardRef, useCallback} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
@@ -300,10 +300,8 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			style: premountingStyle,
 			componentName: displayName,
 		});
-		const refForOutline = useRef<ElementType | null>(null);
 		const callbackRef = useCallback(
 			(element: ElementType | null) => {
-				refForOutline.current = element;
 				setRef(ref, element);
 			},
 			[ref],
@@ -325,7 +323,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 					showInTimeline={showInTimeline ?? true}
 					controls={controls}
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
-					outlineRef={refForOutline}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}

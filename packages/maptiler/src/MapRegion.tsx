@@ -310,15 +310,15 @@ const MapRegionDrawing = ({
 
 const MapRegionBounds = ({
 	feature,
-	refForOutline,
+	boundsRef,
 }: {
 	readonly feature: MapRegionFeature;
-	readonly refForOutline: RefObject<HTMLDivElement | null>;
+	readonly boundsRef: RefObject<HTMLDivElement | null>;
 }) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={refForOutline} />;
+		return <div ref={boundsRef} />;
 	}
 
 	const points = feature.geometry.coordinates
@@ -331,7 +331,7 @@ const MapRegionBounds = ({
 
 	return (
 		<div
-			ref={refForOutline}
+			ref={boundsRef}
 			style={{
 				height: bottom - top,
 				left,
@@ -375,9 +375,9 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 	},
 	ref,
 ) => {
-	const refForOutline = useRef<HTMLDivElement>(null);
+	const boundsRef = useRef<HTMLDivElement>(null);
 
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => boundsRef.current as HTMLDivElement, []);
 
 	const {
 		effectivePremountFor,
@@ -417,7 +417,6 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 				name={name ?? `<${feature.properties.name}>`}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -434,7 +433,7 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 					/>
-					<MapRegionBounds feature={feature} refForOutline={refForOutline} />
+					<MapRegionBounds feature={feature} boundsRef={boundsRef} />
 				</>
 			</Sequence>
 		</Freeze>

@@ -75,7 +75,6 @@ const InnerVideo: React.FC<
 	InnerVideoProps & {
 		readonly controls: SequenceControls | undefined;
 		readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
-		readonly refForOutline: React.RefObject<HTMLElement | null>;
 	}
 > = ({
 	src,
@@ -108,7 +107,6 @@ const InnerVideo: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
-	refForOutline,
 	...props
 }) => {
 	const environment = useRemotionEnvironment();
@@ -208,7 +206,6 @@ const InnerVideo: React.FC<
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
-			refForOutline={refForOutline}
 		/>
 	);
 };
@@ -347,7 +344,6 @@ const VideoInner: React.FC<
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(
 		effects ?? [],
 	);
-	const refForOutline = React.useRef<HTMLElement | null>(null);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -400,7 +396,6 @@ const VideoInner: React.FC<
 				controls={controls}
 				_remotionInternalLoopDisplay={loopDisplay}
 				_remotionInternalEffects={memoizedEffectDefinitions}
-				outlineRef={refForOutline}
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
@@ -442,7 +437,6 @@ const VideoInner: React.FC<
 					}
 					effects={memoizedEffects}
 					setMediaDurationInSeconds={setMediaDurationInSeconds}
-					refForOutline={refForOutline}
 				/>
 			</Sequence>
 		</Freeze>

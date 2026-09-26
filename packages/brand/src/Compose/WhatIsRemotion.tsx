@@ -86,10 +86,8 @@ const LabelInner = React.forwardRef<
 		ref,
 	) => {
 		const opacity = useLabelOpacity();
-		const outlineRef = React.useRef<HTMLDivElement | null>(null);
 		const callbackRef = React.useCallback(
 			(element: HTMLDivElement | null) => {
-				outlineRef.current = element;
 				setRef(ref, element);
 			},
 			[ref],
@@ -109,7 +107,6 @@ const LabelInner = React.forwardRef<
 				showInTimeline={showInTimeline ?? true}
 				controls={controls ?? undefined}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
-				outlineRef={outlineRef}
 			>
 				<div
 					ref={callbackRef}

@@ -522,7 +522,6 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 				durationInFrames={durationInFrames}
 				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
-				outlineRef={canvasRef}
 				{...props}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}

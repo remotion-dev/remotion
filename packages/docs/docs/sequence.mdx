@@ -387,26 +387,13 @@ export const MyVideo = () => {
 };
 ```
 
-### `outlineRef?`<AvailableFrom v="4.0.479" />
+### ~~`outlineRef?`~~<AvailableFrom v="4.0.479" />
 
-A React ref pointing to the element that the Remotion Studio should use for drawing the selection outline in the preview.
+:::info Deprecated
+Remotion Studio discovers selection outlines automatically. Remove this prop.
+:::
 
-By default, the Studio outlines the wrapper created by `<Sequence>`. If you use `layout="none"`, no wrapper exists, so pass `outlineRef` to make the rendered element selectable in the preview.
-
-```tsx twoslash title="MyVideo.tsx"
-import {useRef} from 'react';
-import {Sequence} from 'remotion';
-
-export const MyVideo = () => {
-  const outlineRef = useRef<HTMLDivElement>(null);
-
-  return (
-    <Sequence layout="none" outlineRef={outlineRef}>
-      <div ref={outlineRef}>Selectable in the Studio preview</div>
-    </Sequence>
-  );
-};
-```
+By default, the Studio outlines the wrapper created by `<Sequence>`. With `layout="none"`, it outlines the rendered element or the bounds of multiple rendered roots.
 
 ### `style?`<AvailableFrom v="3.0.27"/>
 
