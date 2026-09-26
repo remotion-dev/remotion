@@ -7,7 +7,7 @@ import {
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {wrapJsxNodeHandler} from '../preview-server/routes/wrap-jsx-node';
+import {wrapNodeHandler} from '../preview-server/routes/wrap-node';
 import {clearUndoStackForTests} from '../preview-server/undo-stack';
 import {lineContainingToNodePath} from './test-utils';
 
@@ -41,7 +41,7 @@ export const Comp = () => {
 `;
 		writeFileSync(entryPoint, input);
 
-		const result = await wrapJsxNodeHandler({
+		const result = await wrapNodeHandler({
 			input: {
 				fileName: entryPoint,
 				nodePath: lineContainingToNodePath(input, '<AbsoluteFill'),

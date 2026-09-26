@@ -560,7 +560,7 @@ const sidebars: SidebarsConfig = {
 			label: '@remotion/motion-blur',
 			link: {
 				type: 'doc',
-				id: 'motion-blur/index',
+				id: 'motion-blur/api',
 			},
 			items: [
 				'motion-blur/html-in-canvas-motion-blur',
@@ -1172,7 +1172,7 @@ const sidebars: SidebarsConfig = {
 				'assets',
 				'fonts',
 				'transitioning',
-				'motion-blur-guide',
+				'motion-blur/index',
 				'html-in-canvas',
 				'shaders',
 				'effects',

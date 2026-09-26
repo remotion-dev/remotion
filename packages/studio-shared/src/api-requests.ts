@@ -851,16 +851,16 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodesRequestItem = {
+export type DeleteNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodesRequest = {
-	nodes: DeleteJsxNodesRequestItem[];
+export type DeleteNodesRequest = {
+	nodes: DeleteNodesRequestItem[];
 };
 
-export type DeleteJsxNodesResponse =
+export type DeleteNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -871,16 +871,16 @@ export type DeleteJsxNodesResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequestItem = {
+export type DuplicateNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DuplicateJsxNodeRequest = {
-	nodes: DuplicateJsxNodeRequestItem[];
+export type DuplicateNodesRequest = {
+	nodes: DuplicateNodesRequestItem[];
 };
 
-export type DuplicateJsxNodeResponse =
+export type DuplicateNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -891,21 +891,21 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type JsxWrapper =
+export type NodeWrapper =
 	| 'AbsoluteFill'
 	| 'Sequence'
 	| 'HtmlInCanvas'
 	| 'HtmlInCanvasMotionBlur';
 
-export type WrapJsxNodeRequest = {
+export type WrapNodeRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
-	wrapper: JsxWrapper | null;
+	wrapper: NodeWrapper | null;
 	width: number | null;
 	height: number | null;
 };
 
-export type WrapJsxNodeResponse =
+export type WrapNodeResponse =
 	| {
 			success: true;
 			canWrap: boolean;
@@ -943,18 +943,18 @@ export type PrecomposeJsxNodesResponse =
 	  }
 	| {success: false; reason: string; stack: string};
 
-export type SplitJsxSequenceRequestItem = {
+export type SplitSequencesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
 };
 
-export type SplitJsxSequenceRequest = {
-	sequences: SplitJsxSequenceRequestItem[];
+export type SplitSequencesRequest = {
+	sequences: SplitSequencesRequestItem[];
 };
 
-export type SplitJsxSequenceResponse =
+export type SplitSequencesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -1057,14 +1057,14 @@ export type InsertableCompositionElementPosition = {
 	y: number;
 };
 
-export type InsertJsxElementRequest = {
+export type InsertCompositionElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
 };
 
-export type InsertJsxElementResponse =
+export type InsertCompositionElementResponse =
 	| {
 			success: true;
 			insertedNodePath: Pick<
@@ -1488,22 +1488,19 @@ export type ApiRoutes = {
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-nodes': ReqAndRes<
-		DeleteJsxNodesRequest,
-		DeleteJsxNodesResponse
+	'/api/delete-nodes': ReqAndRes<DeleteNodesRequest, DeleteNodesResponse>;
+	'/api/duplicate-nodes': ReqAndRes<
+		DuplicateNodesRequest,
+		DuplicateNodesResponse
 	>;
-	'/api/duplicate-jsx-node': ReqAndRes<
-		DuplicateJsxNodeRequest,
-		DuplicateJsxNodeResponse
-	>;
-	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
 	'/api/precompose-jsx-nodes': ReqAndRes<
 		PrecomposeJsxNodesRequest,
 		PrecomposeJsxNodesResponse
 	>;
-	'/api/split-jsx-sequence': ReqAndRes<
-		SplitJsxSequenceRequest,
-		SplitJsxSequenceResponse
+	'/api/wrap-node': ReqAndRes<WrapNodeRequest, WrapNodeResponse>;
+	'/api/split-sequences': ReqAndRes<
+		SplitSequencesRequest,
+		SplitSequencesResponse
 	>;
 	'/api/split-video-from-audio': ReqAndRes<
 		SplitVideoFromAudioRequest,
@@ -1517,9 +1514,9 @@ export type ApiRoutes = {
 		ReplaceVideoSourceRequest,
 		ReplaceVideoSourceResponse
 	>;
-	'/api/insert-jsx-element': ReqAndRes<
-		InsertJsxElementRequest,
-		InsertJsxElementResponse
+	'/api/insert-composition-element': ReqAndRes<
+		InsertCompositionElementRequest,
+		InsertCompositionElementResponse
 	>;
 	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
 		ConvertFigmaClipboardToSvgRequest,

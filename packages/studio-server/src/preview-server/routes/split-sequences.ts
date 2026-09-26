@@ -1,19 +1,18 @@
 import {readFileSync} from 'node:fs';
-import {deleteNodes} from '@remotion/codemods';
+import {splitSequences} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
-	DeleteJsxNodesRequest,
-	DeleteJsxNodesResponse,
+	SplitSequencesRequest,
+	SplitSequencesResponse,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
-import {logHmrTiming} from '../hmr-timing';
 import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
-	pushToUndoStack,
+	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {
@@ -21,61 +20,47 @@ import {
 	withSourceFileWriteQueue,
 } from './source-file-write-queue';
 
-const getDeletedNodeDescription = (nodeLabels: string[]): string => {
-	if (nodeLabels.length === 1) {
-		return nodeLabels[0];
-	}
-
-	return `${nodeLabels.length} JSX nodes`;
-};
-
-export const deleteJsxNodesHandler: ApiHandler<
-	DeleteJsxNodesRequest,
-	DeleteJsxNodesResponse
-> = ({input: {nodes}, remotionRoot, logLevel}) => {
-	return withSourceFileWriteQueue(async () => {
+export const splitSequencesHandler: ApiHandler<
+	SplitSequencesRequest,
+	SplitSequencesResponse
+> = ({input: {sequences}, remotionRoot, logLevel}) =>
+	withSourceFileWriteQueue(async () => {
 		try {
-			logHmrTiming({
-				detail: null,
-				logLevel,
-				stage: 'delete-jsx-nodes-request-start',
-			});
-
-			if (nodes.length === 0) {
-				throw new Error('No JSX nodes were specified for deletion');
+			if (sequences.length === 0) {
+				throw new Error('No JSX sequences were specified for splitting');
 			}
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[delete-jsx-nodes] Received request to delete ${nodes.length} JSX node${nodes.length === 1 ? '' : 's'}`,
+				`[split-sequences] Received request to split ${sequences.length} JSX sequence${sequences.length === 1 ? '' : 's'}`,
 			);
-
-			const itemsByFileName = new Map<string, typeof nodes>();
-			for (const item of nodes) {
-				const fileItems = itemsByFileName.get(item.fileName) ?? [];
-				fileItems.push(item);
-				itemsByFileName.set(item.fileName, fileItems);
+			const sequencesByFileName = new Map<string, typeof sequences>();
+			for (const sequence of sequences) {
+				const fileSequences = sequencesByFileName.get(sequence.fileName) ?? [];
+				fileSequences.push(sequence);
+				sequencesByFileName.set(sequence.fileName, fileSequences);
 			}
 
 			const updates = await Promise.all(
-				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
+				[...sequencesByFileName].map(async ([fileName, fileSequences]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
 						fileName,
 						action: 'modify',
 					});
-
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-
-					const result = await deleteNodes({
+					const result = await splitSequences({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,
 						},
-						nodes: fileItems.map((item) => ({
-							filePath: absolutePath,
-							nodePath: item.nodePath,
-						})),
+						splits: fileSequences.map(
+							({nodePath, sequenceKeys, splitFrame}) => ({
+								node: {filePath: absolutePath, nodePath},
+								sequenceKeys,
+								frame: splitFrame,
+							}),
+						),
 					});
 					const output = result.changes[0]?.nextContents ?? fileContents;
 					const {nodeLabels, logLines} = result.editDetails[0];
@@ -85,20 +70,15 @@ export const deleteJsxNodesHandler: ApiHandler<
 
 					return {
 						absolutePath,
-						fileRelativeToRoot,
 						fileContents,
-						output,
+						fileRelativeToRoot,
+						logLine: Math.min(...logLines),
 						nodeLabels,
 						nodePathRemappings,
-						logLine: Math.min(...logLines),
+						output,
 					};
 				}),
 			);
-			logHmrTiming({
-				detail: `files=${updates.length}`,
-				logLevel,
-				stage: 'delete-jsx-nodes-codemod-complete',
-			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				updates.map((update) => ({
 					absolutePath: update.absolutePath,
@@ -106,43 +86,37 @@ export const deleteJsxNodesHandler: ApiHandler<
 				})),
 				null,
 			);
+			const splitDescription =
+				sequences.length === 1
+					? updates[0].nodeLabels[0]
+					: `${sequences.length} JSX sequences`;
 
-			for (const update of updates) {
-				const deletedNodeDescription = getDeletedNodeDescription(
-					update.nodeLabels,
-				);
-
-				pushToUndoStack({
+			pushTransactionToUndoStack({
+				snapshots: updates.map((update) => ({
 					filePath: update.absolutePath,
 					oldContents: update.fileContents,
 					newContents: null,
-					logLevel,
-					remotionRoot,
 					logLine: update.logLine,
-					description: {
-						undoMessage: `↩️  Deletion of ${deletedNodeDescription}`,
-						redoMessage: `↪️  Deletion of ${deletedNodeDescription}`,
-					},
-					entryType: 'delete-jsx-nodes',
-					suppressHmrOnFileRestore: false,
 					nodePathRemappings: update.nodePathRemappings,
-				});
+				})),
+				logLevel,
+				remotionRoot,
+				description: {
+					undoMessage: `↩️  Split of ${splitDescription}`,
+					redoMessage: `↪️  Split of ${splitDescription}`,
+				},
+				entryType: 'split-sequences',
+				suppressHmrOnFileRestore: false,
+				undoRedoNavigation: null,
+			});
+
+			for (const update of updates) {
 				suppressUndoStackInvalidation(update.absolutePath);
-				logHmrTiming({
-					detail: `file=${update.fileRelativeToRoot}`,
-					logLevel,
-					stage: 'source-file-write-start',
-				});
 				writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
 					metadata: {skipSequencePropsUpdate: true},
-				});
-				logHmrTiming({
-					detail: `file=${update.fileRelativeToRoot}`,
-					logLevel,
-					stage: 'source-file-write-complete',
 				});
 
 				const locationLabel = formatLogFileLocation({
@@ -150,13 +124,19 @@ export const deleteJsxNodesHandler: ApiHandler<
 					absolutePath: update.absolutePath,
 					line: update.logLine,
 				});
+				const fileDescription =
+					update.nodeLabels.length === 1
+						? update.nodeLabels[0]
+						: `${update.nodeLabels.length} JSX sequences`;
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Deleted ${deletedNodeDescription}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(
+						`${locationLabel}`,
+					)} Split ${fileDescription}`,
 				);
 				RenderInternals.Log.verbose(
 					{indent: false, logLevel},
-					`[delete-jsx-nodes] Wrote ${update.fileRelativeToRoot}`,
+					`[split-sequences] Wrote ${update.fileRelativeToRoot}`,
 				);
 			}
 
@@ -174,4 +154,3 @@ export const deleteJsxNodesHandler: ApiHandler<
 			};
 		}
 	});
-};

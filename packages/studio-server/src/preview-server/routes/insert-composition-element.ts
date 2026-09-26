@@ -3,8 +3,8 @@ import {RenderInternals} from '@remotion/renderer';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	isUrl,
-	type InsertJsxElementRequest,
-	type InsertJsxElementResponse,
+	type InsertCompositionElementRequest,
+	type InsertCompositionElementResponse,
 	type InsertableCompositionElementPosition,
 	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
@@ -217,9 +217,9 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 	throw new Error('Unsupported element type');
 };
 
-export const insertJsxElementHandler: ApiHandler<
-	InsertJsxElementRequest,
-	InsertJsxElementResponse
+export const insertCompositionElementHandler: ApiHandler<
+	InsertCompositionElementRequest,
+	InsertCompositionElementResponse
 > = ({
 	input: {compositionFile, compositionId, element, from},
 	remotionRoot,
@@ -239,7 +239,7 @@ export const insertJsxElementHandler: ApiHandler<
 
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
-				`[insert-jsx-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.type}"`,
+				`[insert-composition-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.type}"`,
 			);
 
 			const {
@@ -292,7 +292,7 @@ export const insertJsxElementHandler: ApiHandler<
 					undoMessage: `↩️  Added ${elementLabel}`,
 					redoMessage: `↪️  Added ${elementLabel}`,
 				},
-				entryType: 'insert-jsx-element',
+				entryType: 'insert-composition-element',
 				suppressHmrOnFileRestore: false,
 				nodePathRemappings,
 			});
@@ -315,7 +315,7 @@ export const insertJsxElementHandler: ApiHandler<
 			);
 			RenderInternals.Log.verbose(
 				{indent: false, logLevel},
-				`[insert-jsx-element] Wrote ${source}`,
+				`[insert-composition-element] Wrote ${source}`,
 			);
 
 			printUndoHint(logLevel);

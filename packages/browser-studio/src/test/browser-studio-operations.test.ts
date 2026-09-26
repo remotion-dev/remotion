@@ -179,7 +179,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		},
 	});
 
-	const result = await operations.insertSolid({
+	const result = await operations.insertCompositionElement({
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,
@@ -290,7 +290,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	}
 
 	events.length = 0;
-	const result = await operations.insertSolid({
+	const result = await operations.insertCompositionElement({
 		compositionFile: fileName,
 		compositionId: 'MyComp',
 		from: null,
@@ -531,7 +531,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		resolveDependencies: null,
 	});
 
-	const result = await operations.insertSolid({
+	const result = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		from: 1.5,
@@ -884,7 +884,7 @@ registerRoot(Root);`,
 		throw new Error('Expected sequence props subscription to succeed');
 	}
 
-	const failure = await operations.splitJsxSequence({
+	const failure = await operations.splitSequences({
 		sequences: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -901,7 +901,7 @@ registerRoot(Root);`,
 	});
 	expect(currentProject.files[fileName]).toBe(initialContents);
 
-	const splitResult = await operations.splitJsxSequence({
+	const splitResult = await operations.splitSequences({
 		sequences: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -977,7 +977,7 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 		throw new Error('Expected an AbsoluteFill node');
 	}
 
-	const result = await operations.wrapJsxNode({
+	const result = await operations.wrapNode({
 		fileName,
 		nodePath,
 		wrapper: 'Sequence',
@@ -1037,7 +1037,7 @@ registerRoot(Root);`,
 		throw new Error('Expected sequence props subscription to succeed');
 	}
 
-	const failure = await operations.duplicateJsxNode({
+	const failure = await operations.duplicateNodes({
 		nodes: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -1053,7 +1053,7 @@ registerRoot(Root);`,
 	});
 	expect(getProject().files[fileName]).toBe(initialContents);
 
-	const result = await operations.duplicateJsxNode({
+	const result = await operations.duplicateNodes({
 		nodes: [
 			{
 				fileName: 'src/Composition.tsx',

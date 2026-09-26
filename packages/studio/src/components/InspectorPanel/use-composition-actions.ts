@@ -1,4 +1,4 @@
-import type {InsertJsxElementRequest} from '@remotion/studio-shared';
+import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
@@ -95,7 +95,7 @@ export const useCompositionActions = () => {
 
 		setIsAddingSolid(true);
 		try {
-			const request: InsertJsxElementRequest = {
+			const request: InsertCompositionElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -107,8 +107,8 @@ export const useCompositionActions = () => {
 				},
 			};
 			const result = browserStudioOperations
-				? await browserStudioOperations.insertSolid(request)
-				: await callApi('/api/insert-jsx-element', request);
+				? await browserStudioOperations.insertCompositionElement(request)
+				: await callApi('/api/insert-composition-element', request);
 
 			if (result.success) {
 				return;
