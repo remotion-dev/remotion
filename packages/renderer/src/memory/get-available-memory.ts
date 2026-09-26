@@ -3,6 +3,7 @@ import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import {getAvailableMemoryFromCgroup} from './from-docker-cgroup';
 import {getMaxLambdaMemory} from './from-lambda-env';
+import {getAvailableMemoryFromMacOSSysctl} from './from-macos-sysctl';
 import {getFreeMemoryFromProcMeminfo} from './from-proc-meminfo';
 
 export const getAvailableMemory = (logLevel: LogLevel) => {
@@ -60,6 +61,12 @@ export const getAvailableMemory = (logLevel: LogLevel) => {
 
 	if (procInfo !== null) {
 		return Math.min(freemem(), procInfo);
+	}
+
+	const macOSMemory = getAvailableMemoryFromMacOSSysctl(logLevel);
+
+	if (macOSMemory !== null) {
+		return macOSMemory;
 	}
 
 	return freemem();
