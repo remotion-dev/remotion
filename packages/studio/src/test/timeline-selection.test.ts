@@ -9,6 +9,8 @@ import {
 	type SequencePropsSubscriptionKey,
 	type TSequence,
 } from 'remotion';
+
+type CustomSequenceOutline = _InternalTypes['CustomSequenceOutline'];
 import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
 import {getSelectedOutlineControlLayout} from '../components/selected-outline-control-layout';
@@ -17,6 +19,7 @@ import {
 	cropOutlinePoints,
 	getSelectedCropInfo,
 	getSelectedTransformOriginInfo,
+	measureOutlineTargets,
 } from '../components/selected-outline-measurement';
 import type {
 	SelectedOutlineCropDragTarget,
@@ -3889,6 +3892,56 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	expect(outlines.map((outline) => outline.key)).toEqual([
 		getTimelineSequenceSelectionKey(parentNodePathInfo),
 		getTimelineSequenceSelectionKey(childNodePathInfo),
+	]);
+});
+
+test('Custom canvas outlines use client coordinates relative to the preview', () => {
+	const container = document.createElement('div');
+	container.getBoundingClientRect = () => ({left: 100, top: 50}) as DOMRect;
+	const outline: CustomSequenceOutline = {
+		type: 'custom',
+		positionControls: null,
+		measure: () => ({
+			points: [
+				{x: 110, y: 60},
+				{x: 210, y: 60},
+				{x: 210, y: 110},
+				{x: 110, y: 110},
+			],
+			dimensions: {width: 100, height: 50},
+		}),
+		setSelected: () => undefined,
+		subscribeToOutlineChanges: () => () => undefined,
+		subscribeToValueChanges: () => () => undefined,
+	};
+
+	expect(
+		measureOutlineTargets(container, [
+			{
+				crop: {left: 0, right: 0, top: 0, bottom: 0},
+				includeOutsideContainer: true,
+				key: 'three-group',
+				ref: {current: outline},
+			},
+		]),
+	).toEqual([
+		{
+			key: 'three-group',
+			dimensions: {width: 100, height: 50},
+			uncroppedPoints: [
+				{x: 10, y: 10},
+				{x: 110, y: 10},
+				{x: 110, y: 60},
+				{x: 10, y: 60},
+			],
+			points: [
+				{x: 10, y: 10},
+				{x: 110, y: 10},
+				{x: 110, y: 60},
+				{x: 10, y: 60},
+			],
+			path: null,
+		},
 	]);
 });
 

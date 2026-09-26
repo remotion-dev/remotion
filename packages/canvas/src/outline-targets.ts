@@ -5,6 +5,7 @@ import type {
 	TimelineTrackData,
 } from './get-timeline-sequence-sort-key';
 import type {CanvasHover} from './hover';
+import type {CanvasCustomOutline} from './outline-geometry';
 import {
 	getCanvasSequenceSelectionKey,
 	type CanvasSelectionItem,
@@ -23,7 +24,7 @@ export type CanvasSelectableOutline = {
 
 export type CanvasOutlineLayoutTarget = CanvasSelectableOutline & {
 	readonly nodePathKey: string;
-	readonly ref: RefObject<Element | null>;
+	readonly ref: RefObject<Element | CanvasCustomOutline | null>;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
 	readonly showSelectedOutline: boolean;
@@ -59,7 +60,12 @@ export const getCanvasSelectableOutlines = ({
 	const selectableOutlines = tracks
 		.flatMap((track, index): CanvasSelectableOutline[] => {
 			const {sequence} = track;
-			if (!sequence.showInTimeline || sequence.refForOutline === null) {
+			if (
+				!sequence.showInTimeline ||
+				(sequence.refForOutline === null &&
+					(sequence.customOutlineRef === null ||
+						sequence.customOutlineRef === undefined))
+			) {
 				return [];
 			}
 
@@ -187,7 +193,8 @@ export const getCanvasOutlineLayoutTargets = ({
 			return [];
 		}
 
-		if (sequence.refForOutline === null) {
+		const outlineRef = sequence.customOutlineRef ?? sequence.refForOutline;
+		if (outlineRef === null) {
 			throw new Error('Expected sequence to have a ref for outline');
 		}
 
@@ -205,7 +212,7 @@ export const getCanvasOutlineLayoutTargets = ({
 			{
 				...selectableOutline,
 				nodePathKey,
-				ref: sequence.refForOutline,
+				ref: outlineRef,
 				selected: selectedSequenceKeys.has(key),
 				containsSelection,
 				showSelectedOutline:

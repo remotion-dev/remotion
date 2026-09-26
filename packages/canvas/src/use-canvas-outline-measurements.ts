@@ -103,8 +103,19 @@ export const useCanvasOutlineMeasurements = ({
 		const ownerWindow = containerRef.current?.ownerDocument.defaultView;
 		const hasAutomaticTargets = targets.some(
 			(target) =>
-				Internals.SequenceOutlineInternals.getNodes(target.ref) !== null,
+				target.ref.current instanceof Element &&
+				Internals.SequenceOutlineInternals.getNodes(
+					target.ref as RefObject<Element | null>,
+				) !== null,
 		);
+		const customOutlineCleanups = targets.flatMap((target) => {
+			const outline = target.ref.current;
+			if (outline === null || outline instanceof Element) {
+				return [];
+			}
+
+			return [outline.subscribeToOutlineChanges(scheduleUpdate)];
+		});
 		if (hasAutomaticTargets) {
 			latestUpdateRef.current = scheduleUpdate;
 			ownerWindow?.addEventListener(
@@ -118,6 +129,7 @@ export const useCanvasOutlineMeasurements = ({
 
 		return () => {
 			active = false;
+			customOutlineCleanups.forEach((cleanup) => cleanup());
 			ownerWindow?.removeEventListener(
 				Internals.CommitOrderInternals.eventName,
 				scheduleUpdate,

@@ -6,9 +6,12 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import type {_InternalTypes} from 'remotion';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import {ContextMenuForTarget} from './ContextMenu';
+import {CustomOutlinePositionControls} from './CustomOutlinePositionControls';
+import {CustomOutlineValueChangeBridge} from './CustomOutlineValueChangeBridge';
 import type {SelectedOutline} from './selected-outline-geometry';
 import type {orderOutlinesForRendering} from './selected-outline-order';
 import type {
@@ -36,6 +39,7 @@ import type {
 } from './Timeline/TimelineSelection';
 
 const {useCanvasOutlines} = CanvasInternals;
+type CustomSequenceOutline = _InternalTypes['CustomSequenceOutline'];
 
 const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -79,6 +83,9 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	updateOutlinesRef,
 }) => {
 	const overlayRef = useRef<SVGSVGElement>(null);
+	const selectedCustomOutlinesRef = useRef<ReadonlySet<CustomSequenceOutline>>(
+		new Set(),
+	);
 	const contextMenuOpenHandlersRef = useRef(
 		new Map<string, SelectedOutlineContextMenuOpenHandler>(),
 	);
@@ -128,6 +135,37 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		freezeOrder: dragging,
 		updateOutlinesRef,
 	});
+	useLayoutEffect(() => {
+		const nextSelectedCustomOutlines = new Set<CustomSequenceOutline>();
+		for (const target of outlineTargets) {
+			const outline = target.ref.current;
+			if (outline === null || outline instanceof Element) continue;
+			if (target.selected || target.containsSelection) {
+				nextSelectedCustomOutlines.add(outline);
+			}
+		}
+
+		for (const outline of selectedCustomOutlinesRef.current) {
+			if (!nextSelectedCustomOutlines.has(outline)) {
+				outline.setSelected(false);
+			}
+		}
+
+		for (const outline of nextSelectedCustomOutlines) {
+			if (!selectedCustomOutlinesRef.current.has(outline)) {
+				outline.setSelected(true);
+			}
+		}
+
+		selectedCustomOutlinesRef.current = nextSelectedCustomOutlines;
+	}, [outlineTargets]);
+	useLayoutEffect(() => {
+		return () => {
+			for (const outline of selectedCustomOutlinesRef.current) {
+				outline.setSelected(false);
+			}
+		};
+	}, []);
 	const {
 		outlinesForEditingHandles,
 		outlinesForTransformOrigin,
@@ -138,12 +176,19 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		const uvHandles: SelectedOutline[] = [];
 		for (const outline of outlinesForRendering) {
 			const target = targetsByKey.get(outline.key);
+			const targetOutline = target?.ref.current;
+			const hasCustomPositionControls =
+				targetOutline !== null &&
+				targetOutline !== undefined &&
+				!(targetOutline instanceof Element) &&
+				targetOutline.positionControls !== null;
 			if (
-				target?.containsSelection === true ||
-				(target !== undefined &&
-					timelineSequenceNodePathToKey(
-						target.nodePathInfo.sequenceSubscriptionKey,
-					) === hoveredNodePathKey)
+				!hasCustomPositionControls &&
+				(target?.containsSelection === true ||
+					(target !== undefined &&
+						timelineSequenceNodePathToKey(
+							target.nodePathInfo.sequenceSubscriptionKey,
+						) === hoveredNodePathKey))
 			) {
 				editingHandles.push(outline);
 			}
@@ -175,8 +220,12 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const getAllDragOutlines = useCallback(
 		() =>
 			targetsRef.current.flatMap((target) => {
+				const customOutline = target.ref.current;
 				if (
 					(!target.selected && !target.containsSelection) ||
+					(customOutline !== null &&
+						!(customOutline instanceof Element) &&
+						customOutline.positionControls !== null) ||
 					(getLatestOutlineTargetByKey(target.key)?.drag ?? null) === null
 				) {
 					return [];
@@ -235,6 +284,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			height="100%"
 			aria-hidden="true"
 		>
+			<CustomOutlineValueChangeBridge targets={outlineTargets} />
 			<ContextMenuForTarget
 				triggerRef={overlayRef}
 				getItems={getDelegatedContextMenuItems}
@@ -277,6 +327,27 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 						onDraggingChange={onDraggingChange}
 					/>
 				) : null;
+			})}
+			{outlinesForRendering.map((outline) => {
+				const target = targetsByKey.get(outline.key);
+				return (
+					<CustomOutlinePositionControls
+						key={`${outline.key}-custom-position-controls`}
+						compositionHeight={compositionHeight}
+						compositionWidth={compositionWidth}
+						onDraggingChange={onDraggingChange}
+						onSelect={onSelect}
+						outline={outline}
+						scale={scale}
+						target={target}
+						visible={
+							target !== undefined &&
+							timelineSequenceNodePathToKey(
+								target.nodePathInfo.sequenceSubscriptionKey,
+							) === hoveredNodePathKey
+						}
+					/>
+				);
 			})}
 			{/* Render editing handles after all outline polygons so selected controls stay visible and hit-testable over unrelated sequences. */}
 			{outlinesForEditingHandles.map((outline) => (

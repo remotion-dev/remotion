@@ -61,6 +61,7 @@ export type TransformOriginFieldSchema = {
 
 export type ScaleFieldSchema = {
 	type: 'scale';
+	dimensions?: 2 | 3;
 	min?: number;
 	max?: number;
 	step?: number;
