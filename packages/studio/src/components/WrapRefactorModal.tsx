@@ -55,6 +55,10 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 	const target = state.displayName
 		? `${state.displayName} (${location})`
 		: location;
+	const wrapperImportPath =
+		state.wrapper === 'HtmlInCanvasMotionBlur'
+			? '@remotion/motion-blur'
+			: 'remotion';
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
@@ -67,7 +71,7 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 				{canSuggestAgent ? (
 					<AgentPrompt
 						availableText="You can wrap it using an agent:"
-						promptDetails={` Wrap ${target} in <${state.wrapper}>`}
+						promptDetails={` Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'`}
 						skillId="remotion-markup"
 					/>
 				) : (

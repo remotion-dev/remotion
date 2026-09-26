@@ -78,18 +78,6 @@ style={{
 }}
 ```
 
-## Wrapping an item
-
-For a Studio request such as `Wrap Title (src/MyComp.tsx:42) in <Sequence>`, locate the JSX element at the given source location and make that exact element the wrapper's only direct child. Preserve the selected element, its props, its children, sibling order, and surrounding conditions or iteration. Do not move timing or styling props from the selected element to the wrapper.
-
-Import the requested wrapper and use this shape:
-
-- `AbsoluteFill` and `Sequence` come from `remotion` and need no props merely to wrap the item.
-- `HtmlInCanvas` comes from `remotion`; pass the current composition's `width` and `height` as explicit props.
-- `HtmlInCanvasMotionBlur` comes from `@remotion/motion-blur`; install that package if necessary and pass the current composition's `width` and `height` as explicit props.
-
-Do not wrap an ancestor or every matching component when the source location identifies one JSX expression. If that expression is inside a loop or conditional, wrap the expression in place so its existing runtime behavior is preserved.
-
 ## Assets
 
 Place assets in the `public/` folder at your project root.
