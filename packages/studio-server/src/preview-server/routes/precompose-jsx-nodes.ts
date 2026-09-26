@@ -80,8 +80,8 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				metadata,
 				existingCompositionIds,
 			};
-			const eligibility = canPrecomposeJsxNodes(codemodInput);
 			if (dryRun) {
+				const eligibility = canPrecomposeJsxNodes(codemodInput);
 				return Promise.resolve({
 					success: true,
 					...eligibility,
@@ -90,13 +90,19 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				});
 			}
 
-			if (!eligibility.canPrecompose) {
-				throw new Error(
-					eligibility.reason ?? 'Cannot pre-compose this selection',
-				);
+			let result;
+			try {
+				result = precomposeJsxNodes(codemodInput);
+			} catch (error) {
+				return Promise.resolve({
+					success: true,
+					canPrecompose: false,
+					reason: error instanceof Error ? error.message : String(error),
+					nodePathMutation: null,
+					newCompositionId: null,
+				});
 			}
 
-			const result = precomposeJsxNodes(codemodInput);
 			const changes = [...result.changes].sort(
 				(a, b) =>
 					Number(b.filePath === absolutePath) -
@@ -205,7 +211,8 @@ export const precomposeJsxNodesHandler: ApiHandler<
 			printUndoHint(logLevel);
 			return Promise.resolve({
 				success: true,
-				...eligibility,
+				canPrecompose: true,
+				reason: null,
 				nodePathMutation,
 				newCompositionId: result.newCompositionId,
 			});

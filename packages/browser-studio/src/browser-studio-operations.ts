@@ -1622,8 +1622,8 @@ export const createBrowserStudioOperations = ({
 				metadata,
 				existingCompositionIds,
 			};
-			const eligibility = canPrecomposeJsxNodes(options);
 			if (dryRun) {
+				const eligibility = canPrecomposeJsxNodes(options);
 				return Promise.resolve({
 					success: true,
 					...eligibility,
@@ -1632,13 +1632,19 @@ export const createBrowserStudioOperations = ({
 				});
 			}
 
-			if (!eligibility.canPrecompose) {
-				throw new Error(
-					eligibility.reason ?? 'Cannot pre-compose this selection',
-				);
+			let result: ReturnType<typeof precomposeJsxNodesCodemod>;
+			try {
+				result = precomposeJsxNodesCodemod(options);
+			} catch (error) {
+				return Promise.resolve({
+					success: true,
+					canPrecompose: false,
+					reason: error instanceof Error ? error.message : String(error),
+					nodePathMutation: null,
+					newCompositionId: null,
+				});
 			}
 
-			const result = precomposeJsxNodesCodemod(options);
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: {
 					undoRoute: `/${compositionId}`,
@@ -1657,7 +1663,8 @@ export const createBrowserStudioOperations = ({
 
 			return Promise.resolve({
 				success: true,
-				...eligibility,
+				canPrecompose: true,
+				reason: null,
 				nodePathMutation,
 				newCompositionId: result.newCompositionId,
 			});

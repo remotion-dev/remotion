@@ -109,44 +109,21 @@ export const SequencePrecomposeAction: React.FC<{
 		}
 
 		setBusy(true);
-		precomposeJsxNodes({...request, nodes, dryRun: true})
-			.then(async (eligibility) => {
-				if (!eligibility.success) {
-					showNotification(eligibility.reason, 4000);
+		precomposeJsxNodes({...request, nodes, dryRun: false})
+			.then((result) => {
+				if (!result.success) {
+					showNotification(result.reason, 4000);
 					return;
 				}
 
-				if (!eligibility.canPrecompose) {
+				if (!result.canPrecompose) {
 					openRefactorModal();
 					return;
 				}
 
-				const result = await precomposeJsxNodes({
-					...request,
-					nodes,
-					dryRun: false,
-				});
-				if (result.success) {
-					if (result.newCompositionId !== null) {
-						selectCompositionWhenReady(result.newCompositionId);
-					}
-
-					return;
+				if (result.newCompositionId !== null) {
+					selectCompositionWhenReady(result.newCompositionId);
 				}
-
-				// The file can change between eligibility and the write. Distinguish a
-				// newly ineligible selection from a transport or filesystem error.
-				const currentEligibility = await precomposeJsxNodes({
-					...request,
-					nodes,
-					dryRun: true,
-				});
-				if (currentEligibility.success && !currentEligibility.canPrecompose) {
-					openRefactorModal();
-					return;
-				}
-
-				showNotification(result.reason, 4000);
 			})
 			.catch((error) => {
 				showNotification((error as Error).message, 4000);
