@@ -19,7 +19,8 @@ The way timing works is standardized across these components:
 
 ## `from`: Move an item
 
-`from` moves an item on its parent timeline. By default, its children start at frame `0` when it appears:
+`from` moves an item on the timeline.  
+By default, its children start at frame `0` when it appears:
 
 <TimingTimeline from={30} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
 
@@ -35,27 +36,9 @@ export const MyComposition = () => (
 );
 ```
 
-## `durationInFrames`: Limit an item
-
-`durationInFrames` sets how long an item stays on its parent timeline, starting at `from`.
-
-<TimingTimeline from={30} durationInFrames={45} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
-
-```tsx twoslash title="MyComposition.tsx"
-import {Interactive, useCurrentFrame} from 'remotion';
-
-const Counter = () => <div>{useCurrentFrame()}</div>;
-
-export const MyComposition = () => (
-  <Interactive.Div from={30} durationInFrames={45}>
-    <Counter />
-  </Interactive.Div>
-);
-```
-
 ## `trimBefore`: Trim the beginning
 
-`trimBefore` skips the beginning of an item's content without moving it from its `from` position.
+`trimBefore` trims the beginning of an item.
 
 <TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={1} loop={false} />
 
@@ -71,33 +54,9 @@ export const MyComposition = () => (
 );
 ```
 
-## `playbackRate`: Change speed of an item
-
-`playbackRate` on `<Interactive.Div>` changes how quickly its children's frame advances.
-
-<TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={2} loop={false} />
-
-```tsx twoslash title="MyComposition.tsx"
-import {Interactive, useCurrentFrame} from 'remotion';
-
-const Counter = () => <div>{useCurrentFrame()}</div>;
-
-export const MyComposition = () => (
-  <Interactive.Div
-    from={30}
-    trimBefore={15}
-    playbackRate={2}
-  >
-    <Counter />
-  </Interactive.Div>
-);
-```
-
 ## `trimAfter`: Trim the end
 
-`trimAfter` selects where the content ends, measured in the same clock as `trimBefore`: the frame that the children receive from [`useCurrentFrame()`](/docs/use-current-frame).
-
-The item shows the child frames from `trimBefore` up to, but not including, `trimAfter`. It therefore ends after `(trimAfter - trimBefore) / playbackRate` parent frames, unless `durationInFrames` or the parent ends it earlier.
+`trimAfter` trims an item to end early.
 
 <TimingTimeline from={30} trimBefore={45} trimAfter={105} playbackRate={2} loop={false} />
 
@@ -118,15 +77,31 @@ export const MyComposition = () => (
 );
 ```
 
-For `<Video>` and `<Audio>`, the child clock is the position in the source file in composition frames.
-At 30 composition FPS, `trimBefore={45}` and `trimAfter={105}` select the source from 1.5 to 3.5 seconds.
-If `trimAfter` is omitted, playback continues until the end of the file.
+## `playbackRate`: Change speed of an item
+
+`playbackRate` changes the speed of its children.
+
+<TimingTimeline from={30} trimBefore={15} trimAfter={null} playbackRate={2} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div
+    from={30}
+    trimBefore={15}
+    playbackRate={2}
+  >
+    <Counter />
+  </Interactive.Div>
+);
+```
 
 ## `loop`: Repeat an item
 
 `loop` repeats the range selected by `trimBefore` and `trimAfter`.
-
-`durationInFrames` limits the total length of the item. Without it, the item loops until its parent ends.
 
 <TimingTimeline from={30} durationInFrames={90} trimBefore={45} trimAfter={105} playbackRate={2} loop />
 
@@ -149,12 +124,27 @@ export const MyComposition = () => (
 );
 ```
 
-This repeats the selected 60 child frames three times over 90 composition frames.
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) have an intrinsic duration, so they may omit `trimAfter` when passing `loop`.  
+All other items require `trimAfter` to loop.
 
-`<Video>` and `<Audio>` have an intrinsic duration, so they may omit `trimAfter` and loop the whole file after `trimBefore`.
-All other items require `trimAfter` to loop, because they have no intrinsic end.
+## `durationInFrames`: Limit an item
 
-[`<Loop>`](/docs/loop) is a shorthand for the same behavior with a period measured in the parent timeline: `<Loop durationInFrames={50} times={3}>` is equivalent to `trimAfter={50}`, `durationInFrames={150}` and `loop`.
+`durationInFrames` sets how long an item stays on the timeline, starting at `from`.  
+It is not affected by `playbackRate` and `loop`.
+
+<TimingTimeline from={30} durationInFrames={45} trimBefore={0} trimAfter={null} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30} durationInFrames={45}>
+    <Counter />
+  </Interactive.Div>
+);
+```
 
 ## Order of operations
 
@@ -165,16 +155,18 @@ Think of the timing props as applying to the content in this order:
 3. `loop` repeats the stretched range
 4. `durationInFrames` is applied last and defines the duration of the item in the timeline.
 
-For an item with children, [`useCurrentFrame()`](/docs/use-current-frame) at parent frame `t` is:
+## Formula
 
-```
-trimBefore + (t - from) * playbackRate
+Child components calling [`useCurrentFrame()`](/docs/use-current-frame) get:
+
+```md
+trimBefore + (frame - from) * playbackRate
 ```
 
-If the item loops, the elapsed child frames wrap around at the end of the range:
+If the item loops:
 
-```
-trimBefore + ((t - from) * playbackRate) % (trimAfter - trimBefore)
+```md
+trimBefore + ((frame - from) * playbackRate) % (trimAfter - trimBefore)
 ```
 
 ## See also
