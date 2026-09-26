@@ -1,10 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {
-	getTimelineLayerHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
-} from '../../helpers/timeline-layout';
+import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
@@ -39,7 +36,6 @@ const TimelineTrackUnmemoized: React.FC<{
 	const layerStyle = useMemo(
 		(): React.CSSProperties => ({
 			height: getTimelineLayerHeight(track.sequence.type),
-			marginBottom: TIMELINE_ITEM_BORDER_BOTTOM,
 			position: 'relative',
 		}),
 		[track.sequence.type],

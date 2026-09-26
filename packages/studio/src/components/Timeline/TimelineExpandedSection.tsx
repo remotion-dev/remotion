@@ -1,12 +1,11 @@
 import React, {useMemo} from 'react';
 import type {TSequence} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {TIMELINE_TRACK_SEPARATOR, WHITE} from '../../helpers/colors';
+import {WHITE} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	flattenVisibleTreeNodes,
 	getTreeRowHeight,
-	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 import {TimelineRowSelectedBackgroundContext} from './TimelineRowChrome';
@@ -23,12 +22,6 @@ const expandedSectionBase: React.CSSProperties = {
 	fontSize: 12,
 	display: 'flex',
 	flexDirection: 'column',
-	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
-};
-
-const separator: React.CSSProperties = {
-	height: 0,
-	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 export const TimelineExpandedSection: React.FC<{
@@ -63,14 +56,13 @@ export const TimelineExpandedSection: React.FC<{
 			(sum, {node}) => sum + getTreeRowHeight(node),
 			0,
 		);
-		const separators = Math.max(0, flat.length - 1);
-		return totalRowsHeight + separators;
+		return totalRowsHeight;
 	}, [flat]);
 
 	const style = useMemo(() => {
 		return {
 			...expandedSectionBase,
-			height: expandedHeight + TIMELINE_ITEM_BORDER_BOTTOM,
+			height: expandedHeight,
 		};
 	}, [expandedHeight]);
 
@@ -85,24 +77,22 @@ export const TimelineExpandedSection: React.FC<{
 			value={TIMELINE_EXPANDED_SELECTED_BACKGROUND}
 		>
 			<div style={style}>
-				{flat.map(({node, depth}, i) => {
+				{flat.map(({node, depth}) => {
 					return (
-						<React.Fragment key={JSON.stringify(node.nodePathInfo)}>
-							{i > 0 ? <div style={separator} /> : null}
-							<TimelineExpandedRow
-								node={node}
-								depth={depth}
-								nestedDepth={nestedDepth}
-								getIsExpanded={getIsExpanded}
-								toggleTrack={toggleTrack}
-								validatedLocation={validatedLocation}
-								nodePath={nodePathInfo.sequenceSubscriptionKey}
-								schema={schema}
-								keyframeDisplayOffset={keyframeDisplayOffset}
-								keyframePlaybackRate={keyframePlaybackRate}
-								keyframeControlsMode="timeline"
-							/>
-						</React.Fragment>
+						<TimelineExpandedRow
+							key={JSON.stringify(node.nodePathInfo)}
+							node={node}
+							depth={depth}
+							nestedDepth={nestedDepth}
+							getIsExpanded={getIsExpanded}
+							toggleTrack={toggleTrack}
+							validatedLocation={validatedLocation}
+							nodePath={nodePathInfo.sequenceSubscriptionKey}
+							schema={schema}
+							keyframeDisplayOffset={keyframeDisplayOffset}
+							keyframePlaybackRate={keyframePlaybackRate}
+							keyframeControlsMode="timeline"
+						/>
 					);
 				})}
 			</div>

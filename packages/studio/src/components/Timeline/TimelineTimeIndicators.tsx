@@ -8,10 +8,7 @@ import {
 } from '../../helpers/colors';
 import {resolveStudioColor} from '../../helpers/resolve-studio-color';
 import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
-import {
-	TIMELINE_ITEM_BORDER_BOTTOM,
-	TIMELINE_PADDING,
-} from '../../helpers/timeline-layout';
+import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
 import {scrollableRef} from './timeline-refs';
@@ -27,7 +24,7 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	backgroundColor: TIMELINE_TICKS_BACKGROUND,
 	top: 0,
-	borderBottom: `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`,
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 const TICK_LABEL_FONT_SIZE = 12;
@@ -47,7 +44,7 @@ const timeValue: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	backgroundColor: BACKGROUND,
-	borderBottom: `${TIMELINE_ITEM_BORDER_BOTTOM}px solid ${TIMELINE_TRACK_SEPARATOR}`,
+	borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 };
 
 export const TimelineTimePlaceholders: React.FC = () => {

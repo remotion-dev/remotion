@@ -1,5 +1,4 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {Padder} from './Padder';
 import {
@@ -73,9 +72,8 @@ export const TimelineRowChrome: React.FC<{
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
 	readonly hovered?: boolean;
-	// When set, the chrome is wrapped in an outer container of this height with a
-	// bottom track separator. The background highlight and click target span the
-	// outer (used by sequence rows whose layer is taller than the chrome row).
+	// When set, the chrome is wrapped in an outer container of this height. The
+	// highlight and click target span the full layer, including taller media rows.
 	readonly outerHeight: number | null;
 	readonly onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -210,7 +208,6 @@ export const TimelineRowChrome: React.FC<{
 
 		return {
 			height: outerHeight,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'center',

@@ -43,7 +43,6 @@ export type {
 
 export const TIMELINE_PADDING = 16;
 export const TIMELINE_BORDER = 1;
-export const TIMELINE_ITEM_BORDER_BOTTOM = 1;
 
 export const TIMELINE_TRACK_EXPANDED_HEIGHT = 100;
 
@@ -279,8 +278,7 @@ export const getExpandedTrackHeight = ({
 		(sum, {node}) => sum + getTreeRowHeight(node),
 		0,
 	);
-	const separators = Math.max(0, flat.length - 1);
-	return totalRowsHeight + separators;
+	return totalRowsHeight;
 };
 
 export const TIMELINE_LAYER_FILMSTRIP_HEIGHT = 26;
