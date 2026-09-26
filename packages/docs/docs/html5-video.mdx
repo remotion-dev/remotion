@@ -83,7 +83,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `trimAfter?`<AvailableFrom v="4.0.319"/>
+### ~~`trimAfter?`~~<AvailableFrom v="4.0.319"/>
+
+:::info Deprecated
+Wrap the component in a [`<Sequence>`](/docs/sequence) and use [`durationInFrames`](/docs/sequence#durationinframes) instead. See [PR #11685](https://github.com/remotion-dev/remotion/pull/11685).
+:::
 
 Removes a portion of the video at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
 

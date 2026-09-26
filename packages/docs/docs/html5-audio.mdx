@@ -69,12 +69,9 @@ Controls the `frame` which is returned when using the [`volume`](#volume) callba
 
 Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
 
-### `trimBefore?` / `trimAfter?`<AvailableFrom v="4.0.319"/>
+### `trimBefore?`<AvailableFrom v="4.0.319"/>
 
-`<Html5Audio>` has two helper props you can use to trim audio:
-
-- `trimBefore` will remove a portion of the audio at the beginning (left side)
-- `trimAfter` will remove a portion of the audio at the end (right side)
+Removes a portion of the audio at the beginning (left side).
 
 In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
@@ -97,10 +94,18 @@ export const MyVideo = () => {
 };
 ```
 
+### ~~`trimAfter?`~~<AvailableFrom v="4.0.319"/>
+
+:::info Deprecated
+Wrap the component in a [`<Sequence>`](/docs/sequence) and use [`durationInFrames`](/docs/sequence#durationinframes) instead. See [PR #11685](https://github.com/remotion-dev/remotion/pull/11685).
+:::
+
+Removes a portion of the audio at the end (right side).
+
 ### ~~`startFrom?` / `endAt?`~~
 
 :::info Deprecated
-These props have been renamed to [`trimBefore`](#trimbefore--trimafter) and [`trimAfter`](#trimbefore--trimafter) in 4.0.319. They will continue to work but you cannot use them together with the new props.
+These props have been renamed to [`trimBefore`](#trimbefore) and [`trimAfter`](#trimafter) in 4.0.319. They will continue to work but you cannot use them together with the new props.
 :::
 
 ### `playbackRate?`<AvailableFrom v="2.2.0"/>
