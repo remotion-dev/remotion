@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {calculateMediaDuration} from '../calculate-media-duration.js';
+import {
+	calculateMediaDuration,
+	getMediaTrimAfter,
+} from '../calculate-media-duration.js';
 import {cancelRender} from '../cancel-render.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
@@ -15,6 +18,7 @@ import {
 	resolveTrimProps,
 	validateMediaTrimProps,
 } from '../validate-start-from-props.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {DurationsContext} from '../video/duration-state.js';
 import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
@@ -39,6 +43,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		endAt,
 		trimBefore,
 		trimAfter,
+		durationInFrames,
 		name,
 		_remotionInternalStack,
 		pauseWhenBuffering,
@@ -112,6 +117,12 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(props.src)];
 
 	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+	if (durationInFrames !== undefined) {
+		validateDurationInFrames(durationInFrames, {
+			component: 'of the <Html5Audio /> component',
+			allowFloats: true,
+		});
+	}
 
 	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
 		startFrom,
@@ -119,11 +130,16 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		trimBefore,
 		trimAfter,
 	});
+	const effectiveTrimAfter = getMediaTrimAfter({
+		durationInFrames,
+		trimAfter: trimAfterValue,
+		trimBefore: trimBeforeValue,
+	});
 
 	// An explicit trim end defines the loop before metadata has loaded. Waiting
 	// for metadata would leave the media unmounted when seeking into later loops.
 	const loopDuration =
-		trimAfterValue ??
+		effectiveTrimAfter ??
 		(durationFetched === undefined ? undefined : durationFetched * fps);
 	if (loop && loopDuration !== undefined) {
 		if (!Number.isFinite(loopDuration)) {
@@ -140,7 +156,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			<Loop
 				layout="none"
 				durationInFrames={calculateMediaDuration({
-					trimAfter: trimAfterValue,
+					trimAfter: effectiveTrimAfter,
 					mediaDurationInFrames: loopDuration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
@@ -157,7 +173,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (
 		typeof trimBeforeValue !== 'undefined' ||
-		typeof trimAfterValue !== 'undefined'
+		typeof effectiveTrimAfter !== 'undefined'
 	) {
 		return (
 			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
@@ -166,10 +182,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 					from={0 - (trimBeforeValue ?? 0)}
 					showInTimeline={false}
 					durationInFrames={
-						trimAfterValue === undefined
+						effectiveTrimAfter === undefined
 							? undefined
 							: (trimBeforeValue ?? 0) +
-								(trimAfterValue - (trimBeforeValue ?? 0)) /
+								(effectiveTrimAfter - (trimBeforeValue ?? 0)) /
 									(props.playbackRate ?? 1)
 					}
 					name={name}
