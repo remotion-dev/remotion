@@ -29,9 +29,24 @@ const MyComp = () => {
 };
 ```
 
-:::note
-Good to know: You can nest loops within each other and they will cascade.
-:::
+You can nest loops within each other and they will cascade.
+
+## New alternative: `loop` prop
+
+[Many components](/docs/timing) accept a [`loop`](/docs/timing#loop-repeat-an-item) nowadays.
+
+It is useful if you want to mix it with other props such as `trimAfter` or `playbackRate`.
+
+```tsx twoslash
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const WithSequence = () => (
+  <Sequence trimAfter={50} durationInFrames={150} loop>
+    <BlueSquare />
+  </Sequence>
+);
+```
 
 ## API
 
@@ -62,31 +77,6 @@ CSS styles to be applied to the container. If `layout` is set to `none`, there i
 ### Inherited props<AvailableFrom v="4.0.528" />
 
 `<Loop>` inherits [`premountFor`](/docs/sequence#premountfor), [`postmountFor`](/docs/sequence#postmountfor), [`styleWhilePremounted`](/docs/sequence#stylewhilepremounted) and [`styleWhilePostmounted`](/docs/sequence#stylewhilepostmounted) from [`<Sequence>`](/docs/sequence). These props require `layout="absolute-fill"` (the default). Postmounting the end of the loop requires a finite `times`.
-
-## Relation to `<Sequence loop>`
-
-[`<Sequence>`](/docs/sequence#loop) and other timed components accept a [`loop`](/docs/timing#loop-repeat-an-item) prop that repeats the range selected by `trimBefore` and `trimAfter`.
-
-`<Loop>` measures its period in the parent timeline and counts iterations with `times`:
-
-```tsx twoslash
-// @include: example-BlueSquare
-import {Loop, Sequence} from 'remotion';
-// ---cut---
-const WithLoop = () => (
-  <Loop durationInFrames={50} times={3}>
-    <BlueSquare />
-  </Loop>
-);
-
-const WithSequence = () => (
-  <Sequence trimAfter={50} durationInFrames={150} loop>
-    <BlueSquare />
-  </Sequence>
-);
-```
-
-Both render the same frames. Use `<Sequence loop>` if the content should start at a `trimBefore` offset or play at a `playbackRate`.
 
 ## Examples
 
