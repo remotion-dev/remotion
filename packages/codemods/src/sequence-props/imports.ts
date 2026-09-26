@@ -1,7 +1,61 @@
-import type {File, ImportDeclaration, ImportSpecifier} from '@babel/types';
+import type {
+	ClassDeclaration,
+	File,
+	FunctionDeclaration,
+	ImportDeclaration,
+	ImportSpecifier,
+	VariableDeclaration,
+} from '@babel/types';
 import * as recast from 'recast';
 
 const b = recast.types.builders;
+
+export const declarationBindsName = (
+	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
+	name: string,
+) => {
+	if (
+		declaration.type === 'FunctionDeclaration' ||
+		declaration.type === 'ClassDeclaration'
+	) {
+		return declaration.id?.name === name;
+	}
+
+	return declaration.declarations.some((variableDeclaration) => {
+		return (
+			variableDeclaration.id.type === 'Identifier' &&
+			variableDeclaration.id.name === name
+		);
+	});
+};
+
+export const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
+	return ast.program.body.some((node) => {
+		if (
+			node.type === 'FunctionDeclaration' ||
+			node.type === 'ClassDeclaration' ||
+			node.type === 'VariableDeclaration'
+		) {
+			return declarationBindsName(node, name);
+		}
+
+		if (
+			node.type === 'ExportNamedDeclaration' &&
+			node.declaration &&
+			(node.declaration.type === 'FunctionDeclaration' ||
+				node.declaration.type === 'ClassDeclaration' ||
+				node.declaration.type === 'VariableDeclaration')
+		) {
+			return declarationBindsName(node.declaration, name);
+		}
+
+		if (node.type !== 'ImportDeclaration') {
+			return false;
+		}
+
+		return node.specifiers?.some((specifier) => specifier.local?.name === name);
+	});
+};
 
 export const getImportedName = (specifier: ImportSpecifier) => {
 	if (specifier.imported.type === 'Identifier') {
@@ -206,4 +260,100 @@ export const ensureNamedImports = ({
 		b.stringLiteral(sourcePath),
 	) as unknown as ImportDeclaration;
 	insertImportDeclaration(ast, importDeclaration);
+};
+
+export const getImportDeclarations = ({
+	ast,
+	sourcePath,
+}: {
+	ast: File;
+	sourcePath: string;
+}) => {
+	return ast.program.body.filter(
+		(node): node is ImportDeclaration =>
+			node.type === 'ImportDeclaration' &&
+			node.source.type === 'StringLiteral' &&
+			node.source.value === sourcePath,
+	);
+};
+
+const findImportedLocalName = ({
+	ast,
+	importedName,
+	sourcePath,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+}) => {
+	for (const declaration of getImportDeclarations({ast, sourcePath})) {
+		if (declaration.importKind === 'type') {
+			continue;
+		}
+
+		const existing = declaration.specifiers.find(
+			(specifier) =>
+				specifier.type === 'ImportSpecifier' &&
+				specifier.importKind !== 'type' &&
+				getImportedName(specifier) === importedName,
+		);
+		if (existing) {
+			return existing.local?.name ?? importedName;
+		}
+	}
+
+	return null;
+};
+
+// Reuses an existing import of the export, otherwise imports it under the
+// preferred local name, adding a numeric suffix when that name is taken.
+export const ensureOfficialNamedImport = ({
+	ast,
+	importedName,
+	sourcePath,
+	preferredLocalName,
+}: {
+	ast: File;
+	importedName: string;
+	sourcePath: string;
+	preferredLocalName: string;
+}) => {
+	const existing = findImportedLocalName({ast, importedName, sourcePath});
+	if (existing !== null) {
+		return existing;
+	}
+
+	let localName = preferredLocalName;
+	let suffix = 2;
+	while (hasTopLevelBinding({ast, name: localName})) {
+		localName = `${preferredLocalName}${suffix++}`;
+	}
+
+	return ensureNamedImport({ast, importedName, sourcePath, localName});
+};
+
+// Serialized values are written as literal `staticFile(...)` calls, so the
+// binding must be named exactly `staticFile`.
+export const ensureStaticFileBinding = (ast: File) => {
+	if (
+		findImportedLocalName({
+			ast,
+			importedName: 'staticFile',
+			sourcePath: 'remotion',
+		}) === 'staticFile'
+	) {
+		return;
+	}
+
+	if (hasTopLevelBinding({ast, name: 'staticFile'})) {
+		throw new Error(
+			'Cannot write staticFile() because "staticFile" is already bound to something else in this file',
+		);
+	}
+
+	ensureNamedImports({
+		ast,
+		importedNames: new Set(['staticFile']),
+		sourcePath: 'remotion',
+	});
 };

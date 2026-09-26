@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {deleteJsxNodes} from '../delete-jsx-nodes-internal';
+import {deleteNodes} from '../delete-jsx-nodes-internal';
 import {
 	lineColumnToNodePath,
 	lineContainingToNodePath,
@@ -17,8 +17,8 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNodes removes a JSX child from a parent element', async () => {
-	const {output} = await deleteJsxNodes({
+test('deleteNodes removes a JSX child from a parent element', async () => {
+	const {output} = await deleteNodes({
 		input: sample,
 		nodePaths: [lineColumnToNodePath(sample, 7)],
 	});
@@ -34,8 +34,8 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNodes replaces sole return JSX with null', async () => {
-	const {output} = await deleteJsxNodes({
+test('deleteNodes replaces sole return JSX with null', async () => {
+	const {output} = await deleteNodes({
 		input: onlyReturn,
 		nodePaths: [lineColumnToNodePath(onlyReturn, 4)],
 	});
@@ -51,8 +51,8 @@ export const X: React.FC<{show: boolean}> = ({show}) => {
 };
 `;
 
-test('deleteJsxNodes turns conditional JSX into null', async () => {
-	const {output} = await deleteJsxNodes({
+test('deleteNodes turns conditional JSX into null', async () => {
+	const {output} = await deleteNodes({
 		input: conditional,
 		nodePaths: [lineColumnToNodePath(conditional, 4)],
 	});
@@ -68,8 +68,8 @@ export const X: React.FC<{show: boolean}> = ({show}) => {
 };
 `;
 
-test('deleteJsxNodes replaces JSX in ternary consequent with null', async () => {
-	const {output} = await deleteJsxNodes({
+test('deleteNodes replaces JSX in ternary consequent with null', async () => {
+	const {output} = await deleteNodes({
 		input: ternary,
 		nodePaths: [lineColumnToNodePath(ternary, 4)],
 	});
@@ -91,8 +91,8 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNodes replaces JSX inside map callback', async () => {
-	const {output} = await deleteJsxNodes({
+test('deleteNodes replaces JSX inside map callback', async () => {
+	const {output} = await deleteNodes({
 		input: mapCase,
 		nodePaths: [lineColumnToNodePath(mapCase, 7)],
 	});
@@ -115,8 +115,8 @@ export const X: React.FC = () => {
 };
 `;
 
-test('deleteJsxNodes removes multiple JSX children in one transform', async () => {
-	const {output, nodeLabels, logLines} = await deleteJsxNodes({
+test('deleteNodes removes multiple JSX children in one transform', async () => {
+	const {output, nodeLabels, logLines} = await deleteNodes({
 		input: multipleSiblings,
 		nodePaths: [
 			lineColumnToNodePath(multipleSiblings, 7),
@@ -131,7 +131,7 @@ test('deleteJsxNodes removes multiple JSX children in one transform', async () =
 	expect(logLines).toEqual([7, 8]);
 });
 
-test('deleteJsxNodes preserves source formatting and removes standalone JSX lines', async () => {
+test('deleteNodes preserves source formatting and removes standalone JSX lines', async () => {
 	const cases = [
 		{
 			input: `export const Comp = () => {
@@ -277,7 +277,7 @@ test('deleteJsxNodes preserves source formatting and removes standalone JSX line
 	] as const;
 
 	for (const item of cases) {
-		const {output, formatted} = await deleteJsxNodes({
+		const {output, formatted} = await deleteNodes({
 			input: item.input,
 			nodePaths: item.markers.map((marker) =>
 				lineContainingToNodePath(item.input, marker),

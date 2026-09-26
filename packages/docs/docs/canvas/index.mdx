@@ -122,7 +122,7 @@ The timeline contains registered [`<Sequence>`](/docs/sequence) and other sequen
 
 The built-in [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info) uses a source identity when available. Otherwise it falls back to a mounted sequence ID, which can change after a remount.
 
-If your editor has the source code, register the source node of each sequence with [`setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths). For projects compiled with [`@remotion/browser-bundler`](/docs/browser-bundler), [`getCanvasSequenceSourceLocation()`](/docs/canvas/get-canvas-sequence-source-location) returns the file and position of each sequence's JSX element, which [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) maps to a node path. Alternatively, pass a custom `resolveSequenceNodePathInfo` to `<Canvas>` and use the same resolver for layer items. Return `null` for tracks that should not be selectable.
+If your editor has the source code, register the source node of each sequence with [`setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths). For projects compiled with [`@remotion/browser-bundler`](/docs/browser-bundler), [`getCanvasSequenceSourceLocation()`](/docs/canvas/get-canvas-sequence-source-location) returns the file and position of each sequence's JSX element, which [`getNodes()`](/docs/codemods/get-nodes) maps to a node path. Alternatively, pass a custom `resolveSequenceNodePathInfo` to `<Canvas>` and use the same resolver for layer items. Return `null` for tracks that should not be selectable.
 
 An outline requires a registered DOM element. A `<Sequence layout="none">` has no outline of its own.
 

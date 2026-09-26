@@ -65,12 +65,82 @@ export const indentInsertedJsx = ({
 		.join(insertion.includes('\r\n') ? '\r\n' : '\n');
 };
 
+// Node types that Recast always prints across several lines but that read
+// fine on one line, such as the object in `style={{position: 'absolute'}}`.
+const compactableNodeTypes = new Set([
+	'ArrayExpression',
+	'BooleanLiteral',
+	'CallExpression',
+	'Identifier',
+	'JSXAttribute',
+	'JSXExpressionContainer',
+	'JSXIdentifier',
+	'JSXNamespacedName',
+	'MemberExpression',
+	'NewExpression',
+	'NullLiteral',
+	'NumericLiteral',
+	'ObjectExpression',
+	'ObjectProperty',
+	'StringLiteral',
+	'TSAsExpression',
+	'TSTypeReference',
+	'UnaryExpression',
+]);
+
+const canCompactAttribute = (attribute: namedTypes.Node) => {
+	let compactable = true;
+	recast.types.visit(attribute, {
+		visitNode(path) {
+			const {node} = path;
+			if (
+				!compactableNodeTypes.has(node.type) ||
+				(node.comments ?? []).length > 0
+			) {
+				compactable = false;
+				return false;
+			}
+
+			this.traverse(path);
+		},
+	});
+	return compactable;
+};
+
+const compactPrintedAttribute = ({
+	bracketSpacing,
+	printed,
+}: {
+	bracketSpacing: boolean;
+	printed: string;
+}) => {
+	return printed
+		.split(/\r?\n/)
+		.map((line) => line.trim())
+		.filter((line) => line.length > 0)
+		.reduce((result, line) => {
+			if (result.length === 0) {
+				return line;
+			}
+
+			const omitSeparator =
+				result.endsWith('[') ||
+				line.startsWith(']') ||
+				(!bracketSpacing && (result.endsWith('{') || line.startsWith('}')));
+			return `${result}${omitSeparator ? '' : ' '}${line}`;
+		}, '');
+};
+
 export const printInsertedJsx = ({
+	compactLiteralProps,
 	element,
 	input,
 	originalAttributeSources,
 	prettierConfigOverride,
 }: {
+	// Whether generated object and array props may be printed on one line
+	// when they fit. Edits of existing source keep Recast's expanded layout.
+	compactLiteralProps: boolean;
 	element: namedTypes.JSXElement | namedTypes.JSXFragment;
 	input: string;
 	originalAttributeSources?: ReadonlyMap<object, string>;
@@ -171,17 +241,27 @@ export const printInsertedJsx = ({
 					.join(endOfLine);
 			}
 
+			// String attributes need JSX entity escaping, which the generic
+			// printer does not apply. This covers `xlink:href` style names too.
 			if (
 				attribute.type === 'JSXAttribute' &&
-				attribute.name.type === 'JSXIdentifier' &&
 				attribute.value?.type === 'StringLiteral'
 			) {
-				return `${attribute.name.name}="${escapeJsxStringAttribute(attribute.value.value)}"`;
+				return `${printNode(attribute.name, printWidth)}="${escapeJsxStringAttribute(attribute.value.value)}"`;
 			}
 
-			const unwrapped = normalizeIndentation(
+			const printed = normalizeIndentation(
 				printNode(attribute, Number.POSITIVE_INFINITY),
 			);
+			const unwrapped =
+				compactLiteralProps &&
+				printed.includes(endOfLine) &&
+				canCompactAttribute(attribute)
+					? compactPrintedAttribute({
+							bracketSpacing: formattingConfig.bracketSpacing,
+							printed,
+						})
+					: printed;
 			return !unwrapped.includes(endOfLine) && unwrapped.length <= printWidth
 				? unwrapped
 				: normalizeIndentation(printNode(attribute, printWidth));
@@ -283,11 +363,13 @@ export const printInsertedJsx = ({
 };
 
 export const printJsxOpeningElement = ({
+	compactLiteralProps,
 	openingElement,
 	input,
 	originalAttributeSources,
 	prettierConfigOverride,
 }: {
+	compactLiteralProps: boolean;
 	openingElement: namedTypes.JSXOpeningElement;
 	input: string;
 	originalAttributeSources?: ReadonlyMap<object, string>;
@@ -304,6 +386,7 @@ export const printJsxOpeningElement = ({
 		[],
 	);
 	const printed = printInsertedJsx({
+		compactLiteralProps,
 		element: printableElement,
 		input,
 		originalAttributeSources,

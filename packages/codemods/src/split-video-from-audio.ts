@@ -478,6 +478,7 @@ export const splitVideoFromAudio = ({
 		children: [],
 	};
 	const audioSource = printInsertedJsx({
+		compactLiteralProps: false,
 		element: audioElement as never,
 		input,
 		originalAttributeSources,

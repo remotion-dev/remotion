@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {canWrapJsxNode, wrapJsxNode} from '@remotion/codemods';
+import {canWrapNode, createElement, wrapNode} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	WrapJsxNodeRequest,
@@ -36,7 +36,7 @@ export const wrapJsxNodeHandler: ApiHandler<
 				action: 'modify',
 			});
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const eligibility = canWrapJsxNode({input: fileContents, nodePath});
+			const eligibility = canWrapNode({input: fileContents, nodePath});
 			if (wrapper === null) {
 				return Promise.resolve({
 					success: true,
@@ -53,12 +53,20 @@ export const wrapJsxNodeHandler: ApiHandler<
 				throw new Error('This JSX element cannot be wrapped');
 			}
 
-			const result = wrapJsxNode({
+			const result = wrapNode({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
 				node: {filePath: absolutePath, nodePath},
-				wrapper,
-				width: width ?? 0,
-				height: height ?? 0,
+				wrapper: createElement({
+					component: wrapper,
+					importPath:
+						wrapper === 'HtmlInCanvasMotionBlur'
+							? '@remotion/motion-blur'
+							: 'remotion',
+					props:
+						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
+							? {width: width ?? 0, height: height ?? 0}
+							: {},
+				}),
 			});
 			const change = result.changes.find(
 				({filePath}) => filePath === absolutePath,

@@ -1,7 +1,7 @@
 import {Internals} from 'remotion';
 import type {CodemodProject} from './codemod-project';
-import {getJsxNodeProps} from './get-jsx-node-props';
-import {getJsxNodes} from './get-jsx-nodes';
+import {getNodeProps} from './get-node-props';
+import {getNodes} from './get-nodes';
 import type {ResolveCompositionComponentOptions} from './resolve-composition-component';
 
 export type CompositionTarget = {
@@ -28,14 +28,14 @@ const getCompositionNodes = ({
 	project: CodemodProject;
 	compositionFile: string;
 }) => {
-	return getJsxNodes({project, filePath: compositionFile})
+	return getNodes({project, filePath: compositionFile})
 		.filter(
 			(node) =>
 				node.componentIdentity === 'dev.remotion.remotion.Composition' ||
 				node.componentIdentity === 'dev.remotion.remotion.Still',
 		)
 		.map((node) => {
-			const status = getJsxNodeProps({project, node, keys: ['id']}).props.id;
+			const status = getNodeProps({project, node, keys: ['id']}).props.id;
 			return {
 				node: {
 					...node,

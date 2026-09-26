@@ -15,10 +15,10 @@ _Draft API_: This API is experimental and may change.
 :::
 
 ```ts twoslash title="add-effect.ts"
-import {addEffect, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+import {addEffect, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
 const result = await addEffect({
   project,
@@ -31,7 +31,7 @@ const result = await addEffect({
 console.log(result);
 ```
 
-Creates the `effects` attribute if missing. The JSX component must support effects at runtime. Computed effects arrays and potentially overriding spreads are rejected; packages are not installed.
+Creates the `effects` attribute if missing. The component must support effects at runtime. Computed effects arrays and potentially overriding spreads are rejected; packages are not installed.
 
 ## Options
 
@@ -41,7 +41,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/codemods/get-nodes) or a previous operation. It contains `filePath` and `nodePath`.
 
 ### importName
 
@@ -83,4 +83,4 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-effect.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

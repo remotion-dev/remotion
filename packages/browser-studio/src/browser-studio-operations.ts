@@ -4,24 +4,25 @@ import {
 	addComposition,
 	addCanvasCaptureComposition,
 	addEffect as addEffectCodemod,
+	addElement,
 	addFolder,
-	addSolid,
+	createElement,
 	deleteComposition,
 	deleteEffects as deleteEffectsCodemod,
-	deleteJsxNodes as deleteJsxNodesCodemod,
+	deleteNodes as deleteNodesCodemod,
 	detachAudio,
 	duplicateComposition as duplicateCompositionCodemod,
 	duplicateEffects as duplicateEffectsCodemod,
-	duplicateJsxNodes as duplicateJsxNodesCodemod,
-	canWrapJsxNode,
-	wrapJsxNode as wrapJsxNodeCodemod,
-	getJsxNodeProps,
+	duplicateNodes as duplicateNodesCodemod,
+	canWrapNode,
+	wrapNode as wrapNodeCodemod,
+	getNodeProps,
 	moveComposition,
 	moveFolder,
 	renameComposition,
 	renameFolder,
 	reorderEffect as reorderEffectCodemod,
-	reorderJsxNode,
+	reorderNode,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences,
@@ -29,12 +30,14 @@ import {
 	updateCompositionMetadata,
 	updateEffectKeyframes,
 	updateEffectProps as updateEffectPropsCodemod,
-	updateJsxNodeKeyframes,
-	updateJsxNodeProps,
+	updateNodeKeyframes,
+	updateNodeProps,
+	type CodemodFileChange,
 	type CodemodNodeResult,
 	type CodemodResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
+	type InsertableSequenceWrapper,
 	type SequenceKeyframeUpdate,
 } from '@remotion/codemods';
 import {
@@ -53,7 +56,9 @@ import {
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
 	type InsertElementResponse,
+	type InsertJsxElementRequest,
 	type RecastCodemod,
+	type SequenceNodePathRemapping,
 	type SubscribeToSequencePropsRequest,
 	type SubscribeToSequencePropsResponse,
 	type SymbolicatedStackFrame,
@@ -84,6 +89,7 @@ import type {VirtualProject, VirtualProjectPublicFile} from './types';
 const {
 	basicCaptionsElementSource,
 	computeSequencePropsSubscriptionFromContent,
+	createElementFromInsertable,
 	findProjectFile,
 	getBasicCaptionsElementFile,
 	getCanUpdateDefaultPropsForProject,
@@ -107,6 +113,68 @@ const svgMarkupToJsx = (): Promise<never> =>
 	Promise.reject(
 		new Error('Importing SVG markup is not supported in Browser Studio'),
 	);
+
+const insertIntoProject = async ({
+	project,
+	request,
+	wrapInSequence,
+}: {
+	project: VirtualProject;
+	request: InsertJsxElementRequest;
+	wrapInSequence: InsertableSequenceWrapper | null;
+}): Promise<{
+	changes: CodemodFileChange[];
+	filePath: string;
+	insertedNodePath: SequenceNodePath | null;
+	nodePathRemappings: SequenceNodePathRemapping[];
+}> => {
+	// SVG markup and compositions need the dedicated insertion pipeline.
+	if (
+		request.element.type === 'svg' ||
+		request.element.type === 'composition'
+	) {
+		const inserted = await insertJsxElementIntoProjectWithNodePathRemappings({
+			project,
+			request,
+			svgMarkupToJsx,
+			wrapInSequence,
+		});
+		return {
+			changes: [
+				{
+					filePath: inserted.filePath,
+					previousContents: project.files[inserted.filePath] ?? null,
+					nextContents: inserted.output,
+				},
+			],
+			filePath: inserted.filePath,
+			insertedNodePath: inserted.insertedNodePath,
+			nodePathRemappings: inserted.nodePathRemappings,
+		};
+	}
+
+	const result = addElement({
+		project,
+		element: createElementFromInsertable({
+			element: request.element,
+			from: request.from,
+			wrapInSequence,
+		}),
+		target: {
+			type: 'composition',
+			compositionFile: request.compositionFile,
+			compositionId: request.compositionId,
+		},
+	});
+	return {
+		changes: result.changes,
+		filePath: result.insertedNode.filePath,
+		insertedNodePath: result.insertedNode.nodePath,
+		nodePathRemappings: result.nodePathRemappings.map(
+			({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+		),
+	};
+};
 
 const formatCodemodFile = async ({contents}: {contents: string}) => ({
 	formatted: true,
@@ -763,7 +831,7 @@ export const createBrowserStudioOperations = ({
 				filePath: mutation.fileName,
 				project,
 			});
-			const result = await updateJsxNodeKeyframes({
+			const result = await updateNodeKeyframes({
 				project: nextProject,
 				node: {filePath: absolutePath, nodePath: mutation.nodePath.nodePath},
 				updates: mutation.updates,
@@ -841,7 +909,7 @@ export const createBrowserStudioOperations = ({
 		mutation: AppliedSequenceKeyframeMutation;
 		project: VirtualProject;
 	}) => {
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project,
 			node: {
 				filePath: mutation.absolutePath,
@@ -875,7 +943,7 @@ export const createBrowserStudioOperations = ({
 		const effects = Array.from({length: mutation.effectIndex + 1}, (_, index) =>
 			index === mutation.effectIndex ? getAllSchemaKeys(mutation.schema) : [],
 		);
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project,
 			node: {
 				filePath: mutation.absolutePath,
@@ -956,7 +1024,7 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const nextStatus = getJsxNodeProps({
+				const nextStatus = getNodeProps({
 					project,
 					node: {filePath: absolutePath, nodePath: result.nodePath.nodePath},
 					componentIdentity: request.componentIdentity,
@@ -1039,7 +1107,7 @@ export const createBrowserStudioOperations = ({
 		sequenceNodePath: SequencePropsSubscriptionKey;
 	}) => {
 		const absolutePath = findProjectFile({filePath: fileName, project});
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project,
 			node: {filePath: absolutePath, nodePath: sequenceNodePath.nodePath},
 			componentIdentity: null,
@@ -1402,7 +1470,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await deleteJsxNodesCodemod({
+			const result = await deleteNodesCodemod({
 				project,
 				nodes: nodes.map((node) => ({
 					filePath: node.fileName,
@@ -1439,7 +1507,7 @@ export const createBrowserStudioOperations = ({
 			}
 
 			const project = getProject();
-			const result = await duplicateJsxNodesCodemod({
+			const result = await duplicateNodesCodemod({
 				project,
 				nodes: nodes.map((node) => ({
 					filePath: node.fileName,
@@ -1473,7 +1541,7 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const filePath = findProjectFile({project, filePath: fileName});
-			const eligibility = canWrapJsxNode({
+			const eligibility = canWrapNode({
 				input: project.files[filePath],
 				nodePath,
 			});
@@ -1485,12 +1553,20 @@ export const createBrowserStudioOperations = ({
 				});
 			}
 
-			const result = wrapJsxNodeCodemod({
+			const result = wrapNodeCodemod({
 				project,
 				node: {filePath, nodePath},
-				wrapper,
-				width: width ?? 0,
-				height: height ?? 0,
+				wrapper: createElement({
+					component: wrapper,
+					importPath:
+						wrapper === 'HtmlInCanvasMotionBlur'
+							? '@remotion/motion-blur'
+							: 'remotion',
+					props:
+						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
+							? {width: width ?? 0, height: height ?? 0}
+							: {},
+				}),
 			});
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
@@ -1621,7 +1697,7 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderJsxNode({
+			const result = await reorderNode({
 				project,
 				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
@@ -2079,7 +2155,7 @@ export const createBrowserStudioOperations = ({
 		try {
 			const project = getProject();
 			const absolutePath = findProjectFile({filePath: fileName, project});
-			const result = updateJsxNodeProps({
+			const result = updateNodeProps({
 				project,
 				node: {filePath: absolutePath, nodePath},
 				updates: [
@@ -2128,43 +2204,12 @@ export const createBrowserStudioOperations = ({
 				dependencies: installedDependencies,
 				project: getProject(),
 			});
-			const insertion =
-				request.element.type === 'solid'
-					? addSolid({
-							project,
-							compositionId: request.compositionId,
-							compositionFile: request.compositionFile,
-							width: request.element.width,
-							height: request.element.height,
-							position: request.element.position ?? undefined,
-							from: request.from ?? undefined,
-						})
-					: null;
-			const result = insertion
-				? {
-						changes: insertion.changes,
-						filePath: insertion.insertedNode.filePath,
-						insertedNodePath: insertion.insertedNode.nodePath,
-						nodePathRemappings: insertion.nodePathRemappings.map(
-							({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
-						),
-					}
-				: await insertJsxElementIntoProjectWithNodePathRemappings({
-						project,
-						request,
-						svgMarkupToJsx,
-						wrapInSequence: null,
-					});
-			const changes =
-				'changes' in result
-					? result.changes
-					: [
-							{
-								filePath: result.filePath,
-								previousContents: project.files[result.filePath] ?? null,
-								nextContents: result.output,
-							},
-						];
+			const result = await insertIntoProject({
+				project,
+				request,
+				wrapInSequence: null,
+			});
+			const {changes} = result;
 			const nodePathMutation = controller.applyMutation({
 				undoRedoNavigation: null,
 				timelineSelection:
@@ -2432,54 +2477,48 @@ export const createBrowserStudioOperations = ({
 					request.element.dependencies,
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
-				const insertion =
-					await insertJsxElementIntoProjectWithNodePathRemappings({
-						project,
-						request: {
-							compositionFile: request.compositionFile,
-							compositionId: request.compositionId,
-							element: {
-								componentName: plan.componentName,
-								importName: plan.componentName,
-								importPath: plan.importPath,
-								position: componentOwnsSequence ? request.position : null,
-								props: [
-									...Object.entries(request.element.initialProps ?? {}).map(
-										([name, value]) => ({name, value}),
-									),
-									...(componentOwnsSequence && durationInFrames !== null
-										? [
-												{
-													name: 'durationInFrames',
-													value: durationInFrames,
-												},
-											]
-										: []),
-									...(componentOwnsSequence
-										? [{name: 'name', value: request.element.displayName}]
-										: []),
-								],
-								type: 'component',
-							},
-							from: componentOwnsSequence ? request.from : null,
+				const insertion = await insertIntoProject({
+					project,
+					request: {
+						compositionFile: request.compositionFile,
+						compositionId: request.compositionId,
+						element: {
+							componentName: plan.componentName,
+							importName: plan.componentName,
+							importPath: plan.importPath,
+							position: componentOwnsSequence ? request.position : null,
+							props: [
+								...Object.entries(request.element.initialProps ?? {}).map(
+									([name, value]) => ({name, value}),
+								),
+								...(componentOwnsSequence && durationInFrames !== null
+									? [
+											{
+												name: 'durationInFrames',
+												value: durationInFrames,
+											},
+										]
+									: []),
+								...(componentOwnsSequence
+									? [{name: 'name', value: request.element.displayName}]
+									: []),
+							],
+							type: 'component',
 						},
-						svgMarkupToJsx,
-						wrapInSequence: componentOwnsSequence
-							? null
-							: {
-									dimensions: request.element.dimensions,
-									durationInFrames,
-									from: request.from,
-									name: request.element.displayName,
-									position: request.position,
-								},
-					});
-				const projectWithElement = applyCodemodChanges(project, [
-					{
-						filePath: insertion.filePath,
-						previousContents: project.files[insertion.filePath] ?? null,
-						nextContents: insertion.output,
+						from: componentOwnsSequence ? request.from : null,
 					},
+					wrapInSequence: componentOwnsSequence
+						? null
+						: {
+								dimensions: request.element.dimensions,
+								durationInFrames,
+								from: request.from,
+								name: request.element.displayName,
+								position: request.position,
+							},
+				});
+				const projectWithElement = applyCodemodChanges(project, [
+					...insertion.changes,
 					{
 						filePath: plan.elementFilePath,
 						previousContents: project.files[plan.elementFilePath] ?? null,

@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-codemods-delete-nodes.png
+title: 'deleteNodes()'
+crumb: '@remotion/codemods'
+---
+
+# deleteNodes()<AvailableFrom v="4.0.530" />
+
+Deletes one or more nodes identified by their references. It works with any element, including [`<Sequence>`](/docs/sequence) and [`<Solid>`](/docs/solid).
+
+:::warning
+
+_Draft API_: This API is not yet stable. We are in the experimental phase of this package and reserve to change it at any time.
+
+:::
+
+```ts twoslash title="delete-nodes.ts"
+import {deleteNodes, type CodemodProject} from '@remotion/codemods';
+import type {SequenceNodePath} from 'remotion';
+
+declare const project: CodemodProject;
+declare const nodePath: SequenceNodePath;
+
+const result = await deleteNodes({
+  project,
+  nodes: [{filePath: 'src/Video.tsx', nodePath}],
+});
+
+console.log(result.changes);
+```
+
+The input project is not mutated.
+
+## Options
+
+Pass an object with the following properties.
+
+### project
+
+An in-memory Remotion project containing `rootDir` and a `files` record.
+
+### nodes
+
+The nodes to delete. Nodes may belong to different project files.
+
+#### filePath
+
+The source file containing the node. Absolute paths emitted by a mounted layer and project-relative paths are both accepted.
+
+#### nodePath
+
+The `SequenceNodePath` identifying the node to delete. Obtain it from [`getNodes()`](/docs/codemods/get-nodes), an insertion result, or a mounted layer. Canvas layers expose it as `nodePathInfo.sequenceSubscriptionKey.nodePath`.
+
+## Return value
+
+A promise resolving to an object with the following properties.
+
+### changes
+
+An array describing each changed file with its `filePath`, `previousContents`, and `nextContents`.
+
+### nodePathRemappings
+
+File-qualified `{filePath, oldNodePath, newNodePath}` mappings for keeping node references after the edit. A `null` old path indicates an insertion; a `null` new path indicates removal. See [node references](/docs/codemods#node-references).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/delete-nodes.ts)
+- [`addElement()`](/docs/codemods/add-element)
+- [`<Sequence>`](/docs/sequence)

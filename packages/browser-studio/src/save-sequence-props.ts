@@ -1,8 +1,8 @@
 import {
 	CodemodsInternals,
 	applyCodemodChanges,
-	getJsxNodeProps,
-	updateMultipleJsxNodeProps,
+	getNodeProps,
+	updateMultipleNodeProps,
 } from '@remotion/codemods';
 import type {
 	SaveSequencePropEdit,
@@ -56,7 +56,7 @@ export const saveSequencePropsInProject = ({
 
 	const updateResult =
 		request.edits.length > 0
-			? updateMultipleJsxNodeProps({
+			? updateMultipleNodeProps({
 					project,
 					changes: request.edits.map((edit) => ({
 						node: {filePath: edit.fileName, nodePath: edit.nodePath.nodePath},
@@ -116,7 +116,7 @@ export const saveSequencePropsInProject = ({
 			filePath: target.fileName,
 			project: nextProject,
 		});
-		const status = getJsxNodeProps({
+		const status = getNodeProps({
 			project: nextProject,
 			keys: getAllSchemaKeys(target.schema),
 			assetKeys: getAssetSchemaKeys(target.schema),

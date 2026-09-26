@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {duplicateJsxNodes} from '@remotion/codemods';
+import {duplicateNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DuplicateJsxNodeRequest,
@@ -50,7 +50,7 @@ export const duplicateJsxNodeHandler: ApiHandler<
 						action: 'modify',
 					});
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const result = await duplicateJsxNodes({
+					const result = await duplicateNodes({
 						project: {
 							files: {[absolutePath]: fileContents},
 							rootDir: remotionRoot,

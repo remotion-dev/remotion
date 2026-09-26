@@ -1,10 +1,8 @@
 import type {
-	ClassDeclaration,
 	ExportAllDeclaration,
 	ExportNamedDeclaration,
 	ExportSpecifier,
 	File,
-	FunctionDeclaration,
 	ImportDeclaration,
 	ImportDefaultSpecifier,
 	JSXAttribute,
@@ -13,18 +11,14 @@ import type {
 	JSXSpreadAttribute,
 	NullLiteral,
 	ObjectProperty,
-	VariableDeclaration,
 } from '@babel/types';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {
-	isUrl,
-	type InsertJsxElementRequest,
-	type InsertableCompositionElement,
-	type InsertableCompositionElementPosition,
-	type SequenceNodePathRemapping,
+import type {
+	InsertJsxElementRequest,
+	InsertableCompositionElement,
+	InsertableCompositionElementPosition,
+	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
-import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -35,8 +29,12 @@ import {
 import {indentInsertedJsx, printInsertedJsx} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
+	declarationBindsName,
 	ensureNamedImport,
+	ensureStaticFileBinding,
+	getImportDeclarations,
 	getImportedName,
+	hasTopLevelBinding,
 	insertImportDeclaration,
 } from './sequence-props/imports';
 import {parseAst, parseAstForReadOnly} from './sequence-props/parse-ast';
@@ -50,12 +48,7 @@ import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
 import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 import {parseValueExpression} from './update-nested-prop';
 
-type ComponentProp = Extract<
-	InsertableCompositionElement,
-	{type: 'component'}
->['props'][number];
-
-export type InsertJsxElementCodemodEnvironment = {
+export type CodemodEnvironment = {
 	rootDir: string;
 	dirname: (fileName: string) => string;
 	extname: (fileName: string) => string;
@@ -129,13 +122,13 @@ const relativeVirtualPath = (from: string, to: string) => {
 	].join('/');
 };
 
-export const makeInMemoryInsertJsxElementCodemodEnvironment = ({
+export const makeInMemoryCodemodEnvironment = ({
 	project,
 	svgMarkupToJsx,
 }: {
 	project: {files: Record<string, string>; rootDir: string};
-	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
-}): InsertJsxElementCodemodEnvironment => {
+	svgMarkupToJsx: CodemodEnvironment['svgMarkupToJsx'];
+}): CodemodEnvironment => {
 	const filesByNormalizedPath = new Map(
 		Object.entries(project.files).map(([fileName, contents]) => [
 			resolveVirtualPath(project.rootDir, fileName),
@@ -216,7 +209,7 @@ const isInRemotionRoot = ({
 	environment,
 	fileName,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 }) => {
 	const relativePath = environment.relative(environment.rootDir, fileName);
@@ -229,7 +222,7 @@ const readSourceFile = ({
 	environment,
 	fileName,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 }) => {
 	const resolved = environment.resolve(environment.rootDir, fileName);
@@ -559,7 +552,7 @@ const resolveImportPath = ({
 	importPath,
 	fromFile,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	importPath: string;
 	fromFile: string;
 }) => {
@@ -687,7 +680,7 @@ const findDefaultExportLocation = (ast: File): SourceLocation | null => {
 	return location;
 };
 
-type LocalComponentDeclaration =
+export type LocalComponentDeclaration =
 	| namedTypes.VariableDeclarator
 	| namedTypes.FunctionDeclaration
 	| namedTypes.ClassDeclaration;
@@ -697,7 +690,7 @@ type FunctionLikeNode =
 	| namedTypes.FunctionExpression
 	| namedTypes.FunctionDeclaration;
 
-type DefaultExportDeclaration =
+export type DefaultExportDeclaration =
 	namedTypes.ExportDefaultDeclaration['declaration'];
 
 const findLocalComponentDeclaration = ({
@@ -833,7 +826,7 @@ const findRenderMethod = (
 	return renderMethod?.type === 'ClassMethod' ? renderMethod : null;
 };
 
-const getComponentRootNode = (
+export const getComponentRootNode = (
 	declaration: LocalComponentDeclaration | DefaultExportDeclaration,
 ): namedTypes.JSXElement | namedTypes.JSXFragment | null => {
 	if (declaration.type === 'VariableDeclarator') {
@@ -919,7 +912,10 @@ const roundTranslateCoordinate = (value: number): number => {
 	return Object.is(rounded, -0) ? 0 : rounded;
 };
 
-const formatTranslateValue = ({x, y}: InsertableCompositionElementPosition) =>
+export const formatTranslateValue = ({
+	x,
+	y,
+}: InsertableCompositionElementPosition) =>
 	`${roundTranslateCoordinate(x)}px ${roundTranslateCoordinate(y)}px`;
 
 const createStyleAttribute = (
@@ -959,204 +955,6 @@ const createPositionAbsoluteStyleAttribute = (
 	position: InsertableCompositionElementPosition | null,
 ): namedTypes.JSXAttribute => {
 	return createStyleAttribute(getPositionStyleProperties(position));
-};
-
-const createAssetStyleAttribute = ({
-	dimensions,
-	position,
-}: {
-	dimensions: {width: number; height: number} | null;
-	position: InsertableCompositionElementPosition | null;
-}): namedTypes.JSXAttribute => {
-	return createStyleAttribute([
-		...getPositionStyleProperties(position),
-		...(dimensions
-			? [
-					recast.types.builders.objectProperty(
-						recast.types.builders.identifier('width'),
-						recast.types.builders.numericLiteral(dimensions.width),
-					),
-					recast.types.builders.objectProperty(
-						recast.types.builders.identifier('height'),
-						recast.types.builders.numericLiteral(dimensions.height),
-					),
-				]
-			: []),
-	]);
-};
-
-const createStaticFileSrcAttribute = ({
-	staticFileLocalName,
-	src,
-}: {
-	staticFileLocalName: string;
-	src: string;
-}): namedTypes.JSXAttribute => {
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier('src'),
-		recast.types.builders.jsxExpressionContainer(
-			recast.types.builders.callExpression(
-				recast.types.builders.identifier(staticFileLocalName),
-				[recast.types.builders.stringLiteral(src)],
-			),
-		),
-	);
-};
-
-const createComponentPropValue = (
-	value: unknown,
-	getStaticFileLocalName: () => string,
-): ExpressionKind => {
-	const b = recast.types.builders;
-	if (StudioProtocolInternals.isStaticFileRef(value)) {
-		return b.callExpression(b.identifier(getStaticFileLocalName()), [
-			b.stringLiteral(value.__remotion_element_asset),
-		]);
-	}
-
-	if (Array.isArray(value)) {
-		return b.arrayExpression(
-			value.map((item) =>
-				createComponentPropValue(item, getStaticFileLocalName),
-			),
-		);
-	}
-
-	if (value !== null && typeof value === 'object') {
-		return b.objectExpression(
-			Object.entries(value).map(([key, item]) => {
-				const property = b.objectProperty(
-					b.stringLiteral(key),
-					createComponentPropValue(item, getStaticFileLocalName),
-				);
-				property.computed = key === '__proto__';
-				return property;
-			}),
-		);
-	}
-
-	return parseValueExpression(value);
-};
-
-const createComponentProp = ({
-	name,
-	value,
-	getStaticFileLocalName,
-}: ComponentProp & {
-	getStaticFileLocalName: () => string;
-}): namedTypes.JSXAttribute => {
-	if (typeof value === 'string') {
-		return createStringAttribute(name, value);
-	}
-
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier(name),
-		recast.types.builders.jsxExpressionContainer(
-			createComponentPropValue(value, getStaticFileLocalName) as never,
-		),
-	) as unknown as namedTypes.JSXAttribute;
-};
-
-const createStringSrcAttribute = (src: string): namedTypes.JSXAttribute => {
-	return recast.types.builders.jsxAttribute(
-		recast.types.builders.jsxIdentifier('src'),
-		recast.types.builders.stringLiteral(src),
-	);
-};
-
-const createSolidElement = ({
-	localName,
-	width,
-	height,
-	position,
-}: {
-	localName: string;
-	width: number;
-	height: number;
-	position: InsertableCompositionElementPosition | null;
-}): namedTypes.JSXElement => {
-	return recast.types.builders.jsxElement(
-		recast.types.builders.jsxOpeningElement(
-			recast.types.builders.jsxIdentifier(localName),
-			[
-				createNumberAttribute('width', width),
-				createNumberAttribute('height', height),
-				createStringAttribute('color', 'gray'),
-				createPositionAbsoluteStyleAttribute(position),
-			],
-			true,
-		),
-		null,
-		[],
-	);
-};
-
-const createComponentElement = ({
-	getStaticFileLocalName,
-	addPositionStyle,
-	from,
-	localName,
-	props,
-	position,
-}: {
-	getStaticFileLocalName: () => string;
-	addPositionStyle: boolean;
-	from: number | null;
-	localName: string;
-	props: ComponentProp[];
-	position: InsertableCompositionElementPosition | null;
-}): namedTypes.JSXElement => {
-	const styleProp = props.find((prop) => prop.name === 'style');
-	const propsWithoutStyle = addPositionStyle
-		? props.filter((prop) => prop.name !== 'style')
-		: props;
-	let styleAttribute: namedTypes.JSXAttribute | null = null;
-	if (addPositionStyle) {
-		const styleExpression =
-			styleProp === undefined
-				? recast.types.builders.objectExpression([])
-				: createComponentPropValue(styleProp.value, getStaticFileLocalName);
-		if (styleExpression.type !== 'ObjectExpression') {
-			throw new Error('Component style must be an object to add a position');
-		}
-
-		styleExpression.properties = styleExpression.properties.filter(
-			(property) => {
-				if (property.type !== 'ObjectProperty') {
-					return true;
-				}
-
-				const key =
-					property.key.type === 'Identifier'
-						? property.key.name
-						: property.key.type === 'StringLiteral'
-							? property.key.value
-							: null;
-				return key !== 'position' && (position === null || key !== 'translate');
-			},
-		);
-		styleExpression.properties.push(...getPositionStyleProperties(position));
-		styleAttribute = recast.types.builders.jsxAttribute(
-			recast.types.builders.jsxIdentifier('style'),
-			recast.types.builders.jsxExpressionContainer(styleExpression as never),
-		) as unknown as namedTypes.JSXAttribute;
-	}
-
-	return recast.types.builders.jsxElement(
-		recast.types.builders.jsxOpeningElement(
-			recast.types.builders.jsxIdentifier(localName),
-			[
-				...propsWithoutStyle.map((prop) =>
-					createComponentProp({...prop, getStaticFileLocalName}),
-				),
-				...(from === null ? [] : [createNumberAttribute('from', from)]),
-				...(styleAttribute === null ? [] : [styleAttribute]),
-			],
-			true,
-		),
-		null,
-		[],
-	);
 };
 
 const createSequenceWrappedElement = ({
@@ -1202,47 +1000,6 @@ const createSequenceWrappedElement = ({
 	);
 };
 
-const createAssetElement = ({
-	addPositionStyle,
-	durationInFrames,
-	from,
-	localName,
-	staticFileLocalName,
-	src,
-	dimensions,
-	position,
-}: {
-	addPositionStyle: boolean;
-	durationInFrames: number | null;
-	from: number | null;
-	localName: string;
-	staticFileLocalName: string | null;
-	src: string;
-	dimensions: {width: number; height: number} | null;
-	position: InsertableCompositionElementPosition | null;
-}): namedTypes.JSXElement => {
-	return recast.types.builders.jsxElement(
-		recast.types.builders.jsxOpeningElement(
-			recast.types.builders.jsxIdentifier(localName),
-			[
-				staticFileLocalName === null
-					? createStringSrcAttribute(src)
-					: createStaticFileSrcAttribute({staticFileLocalName, src}),
-				...(durationInFrames === null
-					? []
-					: [createNumberAttribute('durationInFrames', durationInFrames)]),
-				...(from === null ? [] : [createNumberAttribute('from', from)]),
-				...(addPositionStyle
-					? [createAssetStyleAttribute({dimensions, position})]
-					: []),
-			],
-			true,
-		),
-		null,
-		[],
-	);
-};
-
 const createSvgElement = async ({
 	environment,
 	from,
@@ -1250,7 +1007,7 @@ const createSvgElement = async ({
 	markup,
 	position,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	from: number | null;
 	interactiveLocalName: string;
 	markup: string;
@@ -1383,75 +1140,6 @@ const addElementToNullComponentReturn = ({
 	return returnStatement.loc?.start.line ?? 1;
 };
 
-const declarationBindsName = (
-	declaration: FunctionDeclaration | ClassDeclaration | VariableDeclaration,
-	name: string,
-) => {
-	if (
-		declaration.type === 'FunctionDeclaration' ||
-		declaration.type === 'ClassDeclaration'
-	) {
-		return declaration.id?.name === name;
-	}
-
-	return declaration.declarations.some((variableDeclaration) => {
-		return (
-			variableDeclaration.id.type === 'Identifier' &&
-			variableDeclaration.id.name === name
-		);
-	});
-};
-
-const hasTopLevelBinding = ({ast, name}: {ast: File; name: string}) => {
-	return ast.program.body.some((node) => {
-		if (
-			node.type === 'FunctionDeclaration' ||
-			node.type === 'ClassDeclaration' ||
-			node.type === 'VariableDeclaration'
-		) {
-			return declarationBindsName(node, name);
-		}
-
-		if (
-			node.type === 'ExportNamedDeclaration' &&
-			node.declaration &&
-			(node.declaration.type === 'FunctionDeclaration' ||
-				node.declaration.type === 'ClassDeclaration' ||
-				node.declaration.type === 'VariableDeclaration')
-		) {
-			return declarationBindsName(node.declaration, name);
-		}
-
-		if (node.type !== 'ImportDeclaration') {
-			return false;
-		}
-
-		return node.specifiers?.some((specifier) => specifier.local?.name === name);
-	});
-};
-
-const getAvailableSolidLocalName = (ast: File) => {
-	const candidates = ['Solid', 'RemotionSolid'];
-	const available = candidates.find((candidate) => {
-		return !hasTopLevelBinding({ast, name: candidate});
-	});
-
-	if (!available) {
-		throw new Error('Cannot add <Solid> because Solid is already defined');
-	}
-
-	return available;
-};
-
-const ensureSolidImport = (ast: File) => {
-	return ensureNamedImport({
-		ast,
-		importedName: 'Solid',
-		sourcePath: 'remotion',
-		localName: getAvailableSolidLocalName(ast),
-	});
-};
-
 const getAvailableSequenceLocalName = (ast: File) => {
 	const candidates = ['Sequence', 'RemotionSequence'];
 	const available = candidates.find((candidate) => {
@@ -1514,169 +1202,6 @@ const ensureInteractiveImport = (ast: File) => {
 	});
 };
 
-const getImportDeclarations = ({
-	ast,
-	sourcePath,
-}: {
-	ast: File;
-	sourcePath: string;
-}) => {
-	return ast.program.body.filter(
-		(node): node is ImportDeclaration =>
-			node.type === 'ImportDeclaration' &&
-			node.source.type === 'StringLiteral' &&
-			node.source.value === sourcePath,
-	);
-};
-
-const ensureOfficialNamedImport = ({
-	ast,
-	importedName,
-	sourcePath,
-}: {
-	ast: File;
-	importedName: string;
-	sourcePath: string;
-}) => {
-	for (const declaration of getImportDeclarations({ast, sourcePath})) {
-		if (declaration.importKind === 'type') {
-			continue;
-		}
-
-		const existing = declaration.specifiers.find(
-			(specifier) =>
-				specifier.type === 'ImportSpecifier' &&
-				specifier.importKind !== 'type' &&
-				getImportedName(specifier) === importedName,
-		);
-		if (existing) {
-			return existing.local?.name ?? importedName;
-		}
-	}
-
-	let localName = importedName;
-	let suffix = 2;
-	while (hasTopLevelBinding({ast, name: localName})) {
-		localName = `${importedName}${suffix++}`;
-	}
-
-	return ensureNamedImport({ast, importedName, sourcePath, localName});
-};
-
-const ensureStaticFileImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'staticFile',
-		sourcePath: 'remotion',
-	});
-};
-
-const ensureCanvasImageImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'CanvasImage',
-		sourcePath: 'remotion',
-	});
-};
-
-const ensureAnimatedImageImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'AnimatedImage',
-		sourcePath: 'remotion',
-	});
-};
-
-const ensureVideoImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'Video',
-		sourcePath: '@remotion/media',
-	});
-};
-
-const ensureAudioImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'Audio',
-		sourcePath: '@remotion/media',
-	});
-};
-
-const ensureGifImport = (ast: File) => {
-	return ensureOfficialNamedImport({
-		ast,
-		importedName: 'Gif',
-		sourcePath: '@remotion/gif',
-	});
-};
-
-const hasComponentLocalImport = ({
-	ast,
-	importName,
-	importPath,
-}: {
-	ast: File;
-	importName: string;
-	importPath: string;
-}) => {
-	for (const importDeclaration of getImportDeclarations({
-		ast,
-		sourcePath: importPath,
-	})) {
-		if (importDeclaration.importKind === 'type') {
-			continue;
-		}
-
-		for (const specifier of importDeclaration.specifiers ?? []) {
-			if (
-				specifier.type === 'ImportSpecifier' &&
-				specifier.importKind !== 'type' &&
-				getImportedName(specifier) === importName
-			) {
-				return specifier.local?.name ?? importName;
-			}
-		}
-	}
-
-	return null;
-};
-
-const ensureComponentImport = ({
-	ast,
-	componentName,
-	importName,
-	importPath,
-}: {
-	ast: File;
-	componentName: string;
-	importName: string;
-	importPath: string;
-}) => {
-	const existingLocalName = hasComponentLocalImport({
-		ast,
-		importName,
-		importPath,
-	});
-
-	if (existingLocalName) {
-		return existingLocalName;
-	}
-
-	let localName = componentName;
-	let suffix = 2;
-	while (hasTopLevelBinding({ast, name: localName})) {
-		localName = `${componentName}${suffix++}`;
-	}
-
-	return ensureNamedImport({
-		ast,
-		importedName: importName,
-		sourcePath: importPath,
-		localName,
-	});
-};
-
 const identifierRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
 const toPascalCaseIdentifier = (value: string) => {
@@ -1727,7 +1252,7 @@ const getImportPathBetweenFiles = ({
 	fromFile,
 	toFile,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fromFile: string;
 	toFile: string;
 }) => {
@@ -1932,7 +1457,7 @@ const getDefaultExportDeclaration = (
 	return declaration;
 };
 
-const getDeclarationByExportName = ({
+export const getDeclarationByExportName = ({
 	ast,
 	exportName,
 }: {
@@ -1946,7 +1471,7 @@ const getDeclarationByExportName = ({
 	return findLocalComponentDeclaration({ast, name: exportName});
 };
 
-const addElementToComponentRoot = ({
+export const addElementToComponentRoot = ({
 	ast,
 	exportName,
 	element,
@@ -2039,7 +1564,7 @@ const getNullRootFromFunctionLike = (
 		: null;
 };
 
-const getNullComponentRoot = (
+export const getNullComponentRoot = (
 	declaration: LocalComponentDeclaration | DefaultExportDeclaration,
 ): NullLiteral | null => {
 	if (declaration.type === 'VariableDeclarator') {
@@ -2096,137 +1621,6 @@ const indentExistingJsx = ({
 			return `${indent}${line.startsWith(originalIndent) ? line.slice(originalIndent.length) : line.trimStart()}`;
 		})
 		.join(getEndOfLine(original));
-};
-
-const getJsxIdentifierName = (element: namedTypes.JSXElement) => {
-	const {name} = element.openingElement;
-	if (name.type !== 'JSXIdentifier') {
-		throw new Error('Expected the inserted Solid to have an identifier name');
-	}
-
-	return name.name;
-};
-
-const getPositionStyleSource = (
-	position: InsertableCompositionElementPosition | null,
-	prettierConfigOverride: Record<string, unknown> | null,
-) => {
-	const quote = prettierConfigOverride?.singleQuote === true ? "'" : '"';
-	const spacing = prettierConfigOverride?.bracketSpacing === false ? '' : ' ';
-	const translate = position
-		? `, translate: ${quote}${formatTranslateValue(position)}${quote}`
-		: '';
-	return `style={{${spacing}position: ${quote}absolute${quote}${translate}${spacing}}}`;
-};
-
-const getSolidInsertionSource = ({
-	element,
-	finalElement,
-	height,
-	input,
-	position,
-	prettierConfigOverride,
-	sequenceWrapper,
-	width,
-}: {
-	element: namedTypes.JSXElement;
-	finalElement: namedTypes.JSXElement;
-	height: number;
-	input: string;
-	position: InsertableCompositionElementPosition | null;
-	prettierConfigOverride: Record<string, unknown> | null;
-	sequenceWrapper: {
-		dimensions: {width: number; height: number} | null;
-		durationInFrames: number | null;
-		from: number | null;
-		name: string | null;
-		position: InsertableCompositionElementPosition | null;
-	} | null;
-	width: number;
-}) => {
-	const endOfLine = getEndOfLine(input);
-	const unit = getIndentationUnit(input, prettierConfigOverride);
-	const solid = [
-		`<${getJsxIdentifierName(element)}`,
-		`${unit}width={${width}}`,
-		`${unit}height={${height}}`,
-		`${unit}color="gray"`,
-		`${unit}${getPositionStyleSource(position, prettierConfigOverride)}`,
-		'/>',
-	].join(endOfLine);
-	if (finalElement === element) {
-		return solid;
-	}
-
-	if (sequenceWrapper === null) {
-		throw new Error('Expected insertion Sequence metadata');
-	}
-
-	const attributes = [
-		...(sequenceWrapper.from === null
-			? []
-			: [`from={${sequenceWrapper.from}}`]),
-		...(sequenceWrapper.name === null
-			? []
-			: [`name=${JSON.stringify(sequenceWrapper.name)}`]),
-		...(sequenceWrapper.dimensions === null
-			? []
-			: [
-					`width={${sequenceWrapper.dimensions.width}}`,
-					`height={${sequenceWrapper.dimensions.height}}`,
-				]),
-		...(sequenceWrapper.durationInFrames === null
-			? []
-			: [`durationInFrames={${sequenceWrapper.durationInFrames}}`]),
-		getPositionStyleSource(sequenceWrapper.position, prettierConfigOverride),
-	];
-	const sequenceName = getJsxIdentifierName(finalElement);
-	return [
-		`<${sequenceName} ${attributes.join(' ')}>`,
-		...solid.split(/\r?\n/).map((line) => `${unit}${line}`),
-		`</${sequenceName}>`,
-	].join(endOfLine);
-};
-
-const getInsertionSource = ({
-	element,
-	elementToInsert,
-	finalElementToInsert,
-	input,
-	prettierConfigOverride,
-	sequenceWrapper,
-}: {
-	element: InsertableCompositionElement;
-	elementToInsert: namedTypes.JSXElement;
-	finalElementToInsert: namedTypes.JSXElement;
-	input: string;
-	prettierConfigOverride: Record<string, unknown> | null;
-	sequenceWrapper: {
-		dimensions: {width: number; height: number} | null;
-		durationInFrames: number | null;
-		from: number | null;
-		name: string | null;
-		position: InsertableCompositionElementPosition | null;
-	} | null;
-}) => {
-	if (element.type === 'solid') {
-		return getSolidInsertionSource({
-			element: elementToInsert,
-			finalElement: finalElementToInsert,
-			height: element.height,
-			input,
-			position: element.position,
-			prettierConfigOverride,
-			sequenceWrapper,
-			width: element.width,
-		});
-	}
-
-	return printInsertedJsx({
-		element: finalElementToInsert,
-		input,
-		prettierConfigOverride,
-	});
 };
 
 export const getInsertionRootSourceEdit = ({
@@ -2293,7 +1687,12 @@ export const getInsertionRootSourceEdit = ({
 				start: openingStart,
 				end: openingEnd,
 				replacement: [
-					input.slice(openingStart, openingEnd).replace(/\s*\/>$/, '>'),
+					// Keep a `>` that closed the tag on its own line where it was.
+					input
+						.slice(openingStart, openingEnd)
+						.replace(/(\s*)\/>$/, (_, whitespace: string) =>
+							whitespace.includes('\n') ? `${whitespace}>` : '>',
+						),
 					indentInsertedJsx({indent: `${openingIndent}${unit}`, insertion}),
 					`${openingIndent}</${recast.print(root.openingElement.name).code}>`,
 				].join(endOfLine),
@@ -2378,7 +1777,7 @@ const getComponentLocationInFile = async ({
 	exportName,
 	ast: providedAst,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 	exportName: string | 'default';
 	ast?: File;
@@ -2410,7 +1809,7 @@ const getComponentLocationRecursively = async ({
 	exportName,
 	visited,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	fileName: string;
 	exportName: string | 'default';
 	visited: Set<string>;
@@ -2484,7 +1883,7 @@ export async function resolveCompositionComponentWithFile({
 	compositionFile,
 	compositionId,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	compositionFile: string;
 	compositionId: string;
 }): Promise<ResolvedCompositionComponentWithFile> {
@@ -2552,7 +1951,7 @@ export const resolveCompositionComponent = async ({
 	compositionFile,
 	compositionId,
 }: {
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	compositionFile: string;
 	compositionId: string;
 }): Promise<ResolvedCompositionComponent> => {
@@ -2582,7 +1981,7 @@ const ensureCompositionComponentImport = async ({
 	compositionFile: string;
 	compositionId: string;
 	destinationFileName: string;
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 }) => {
 	const sourceLocation = await resolveCompositionComponentWithFile({
 		environment,
@@ -2676,50 +2075,27 @@ const ensureCompositionComponentImport = async ({
 	});
 };
 
+// Elements that cannot be described with `createElement()`: SVG markup needs
+// an SVG-to-JSX conversion, and compositions need their component resolved
+// and imported from another project file.
+export type PipelineInsertableElement = Extract<
+	InsertableCompositionElement,
+	{type: 'svg' | 'composition'}
+>;
+
 const createInsertableJsxElement = ({
-	addPositionStyleToComponent,
 	ast,
 	destinationFileName,
 	element,
 	environment,
 	from,
 }: {
-	addPositionStyleToComponent: boolean;
 	ast: File;
 	destinationFileName: string;
-	element: InsertableCompositionElement;
-	environment: InsertJsxElementCodemodEnvironment;
+	element: PipelineInsertableElement;
+	environment: CodemodEnvironment;
 	from: number | null;
-}): Promise<namedTypes.JSXElement> | namedTypes.JSXElement => {
-	if (element.type === 'solid') {
-		const solidLocalName = ensureSolidImport(ast);
-
-		return createSolidElement({
-			localName: solidLocalName,
-			width: element.width,
-			height: element.height,
-			position: element.position,
-		});
-	}
-
-	if (element.type === 'component') {
-		const componentLocalName = ensureComponentImport({
-			ast,
-			componentName: element.componentName,
-			importName: element.importName,
-			importPath: element.importPath,
-		});
-
-		return createComponentElement({
-			getStaticFileLocalName: () => ensureStaticFileImport(ast),
-			addPositionStyle: addPositionStyleToComponent,
-			from,
-			localName: componentLocalName,
-			props: element.props,
-			position: element.position,
-		});
-	}
-
+}): Promise<namedTypes.JSXElement> => {
 	if (element.type === 'svg') {
 		return createSvgElement({
 			environment,
@@ -2730,67 +2106,22 @@ const createInsertableJsxElement = ({
 		});
 	}
 
-	if (element.type === 'composition') {
-		return Promise.resolve(
-			ensureCompositionComponentImport({
-				ast,
-				compositionFile: element.compositionFile,
-				compositionId: element.compositionId,
-				destinationFileName,
-				environment,
-			}),
-		).then((localName) => {
-			const props = parseSerializedCompositionProps(
-				element.serializedResolvedPropsWithCustomSchema,
-			);
-			if (containsFileToken(props)) {
-				ensureStaticFileImport(ast);
-			}
-
-			return createCompositionComponentElement({localName, props});
-		});
-	}
-
-	if (element.type === 'asset') {
-		if (element.srcType === 'remote' && !isUrl(element.src)) {
-			throw new Error('Remote asset source must be a URL');
+	return ensureCompositionComponentImport({
+		ast,
+		compositionFile: element.compositionFile,
+		compositionId: element.compositionId,
+		destinationFileName,
+		environment,
+	}).then((localName) => {
+		const props = parseSerializedCompositionProps(
+			element.serializedResolvedPropsWithCustomSchema,
+		);
+		if (containsFileToken(props)) {
+			ensureStaticFileBinding(ast);
 		}
 
-		const staticFileLocalName =
-			element.srcType === 'remote' ? null : ensureStaticFileImport(ast);
-		let localName: string;
-		if (element.assetType === 'image') {
-			localName = ensureCanvasImageImport(ast);
-		} else if (element.assetType === 'video') {
-			localName = ensureVideoImport(ast);
-		} else if (element.assetType === 'gif') {
-			localName = ensureGifImport(ast);
-		} else if (element.assetType === 'animated-image') {
-			localName = ensureAnimatedImageImport(ast);
-		} else if (element.assetType === 'audio') {
-			localName = ensureAudioImport(ast);
-		} else {
-			throw new Error('Unsupported asset type');
-		}
-
-		return createAssetElement({
-			addPositionStyle:
-				addPositionStyleToComponent && element.assetType !== 'audio',
-			durationInFrames:
-				element.assetType === 'image' ? null : element.durationInFrames,
-			from,
-			localName,
-			staticFileLocalName,
-			src: element.src,
-			dimensions:
-				element.assetType === 'image' && from !== null
-					? null
-					: element.dimensions,
-			position: element.position,
-		});
-	}
-
-	throw new Error('Unsupported element type');
+		return createCompositionComponentElement({localName, props});
+	});
 };
 
 export const insertJsxElementIntoComposition = async ({
@@ -2805,7 +2136,7 @@ export const insertJsxElementIntoComposition = async ({
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
-	environment: InsertJsxElementCodemodEnvironment;
+	environment: CodemodEnvironment;
 	from: number | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence: {
@@ -2824,6 +2155,12 @@ export const insertJsxElementIntoComposition = async ({
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;
 }> => {
+	if (element.type !== 'svg' && element.type !== 'composition') {
+		throw new Error(
+			`Insert ${element.type} elements with addElement() and createElementFromInsertable()`,
+		);
+	}
+
 	if (
 		from !== null &&
 		(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
@@ -2883,20 +2220,8 @@ export const insertJsxElementIntoComposition = async ({
 					position: element.position,
 					from,
 				}
-			: from === null ||
-				  element.type === 'asset' ||
-				  element.type === 'svg' ||
-				  element.type === 'component'
-				? wrapInSequence
-				: {
-						dimensions: null,
-						durationInFrames: null,
-						name: null,
-						position: element.position,
-						from,
-					};
+			: wrapInSequence;
 	const elementToInsert = await createInsertableJsxElement({
-		addPositionStyleToComponent: sequenceWrapper === null,
 		ast,
 		destinationFileName: location.fileName,
 		element,
@@ -2930,13 +2255,11 @@ export const insertJsxElementIntoComposition = async ({
 			getInsertionRootSourceEdit({
 				insertInside: rootBeforeInsertion?.type === 'JSXFragment',
 				input,
-				insertion: getInsertionSource({
-					element,
-					elementToInsert,
-					finalElementToInsert,
+				insertion: printInsertedJsx({
+					compactLiteralProps: true,
+					element: finalElementToInsert,
 					input,
 					prettierConfigOverride,
-					sequenceWrapper,
 				}),
 				nullRoot: nullRootBeforeInsertion,
 				prettierConfigOverride,
@@ -2974,7 +2297,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 }: {
 	project: {files: Record<string, string>; rootDir: string};
 	request: InsertJsxElementRequest;
-	svgMarkupToJsx: InsertJsxElementCodemodEnvironment['svgMarkupToJsx'];
+	svgMarkupToJsx: CodemodEnvironment['svgMarkupToJsx'];
 	wrapInSequence: {
 		dimensions: {width: number; height: number} | null;
 		durationInFrames: number | null;
@@ -2992,7 +2315,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 		compositionFile: request.compositionFile,
 		compositionId: request.compositionId,
 		element: request.element,
-		environment: makeInMemoryInsertJsxElementCodemodEnvironment({
+		environment: makeInMemoryCodemodEnvironment({
 			project,
 			svgMarkupToJsx,
 		}),

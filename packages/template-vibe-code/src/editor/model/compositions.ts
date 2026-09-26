@@ -1,15 +1,15 @@
 import {
-  getJsxNodeProps,
-  getJsxNodes,
+  getNodeProps,
+  getNodes,
   type CodemodProject,
-  type JsxNodeReference,
+  type NodeReference,
 } from "@remotion/codemods";
 
 export type CompositionInfo = {
   id: string;
   tagName: "Composition" | "Still";
   filePath: string;
-  node: JsxNodeReference;
+  node: NodeReference;
   line: number | null;
   width: number | null;
   height: number | null;
@@ -21,7 +21,7 @@ export type CompositionInfo = {
 const compositionTags = new Set(["Composition", "Still"]);
 
 const readStatic = <T>(
-  props: ReturnType<typeof getJsxNodeProps>["props"],
+  props: ReturnType<typeof getNodeProps>["props"],
   key: string,
   guard: (value: unknown) => value is T,
 ): T | null => {
@@ -59,7 +59,7 @@ export const findCompositionFile = (project: CodemodProject): string | null => {
 
     try {
       if (
-        getJsxNodes({ project, filePath }).some((node) =>
+        getNodes({ project, filePath }).some((node) =>
           compositionTags.has(node.tagName),
         )
       ) {
@@ -82,10 +82,10 @@ export const getCompositions = (
   }
 
   try {
-    return getJsxNodes({ project, filePath: compositionFile })
+    return getNodes({ project, filePath: compositionFile })
       .filter((node) => compositionTags.has(node.tagName))
       .flatMap((node): CompositionInfo[] => {
-        const { props } = getJsxNodeProps({
+        const { props } = getNodeProps({
           project,
           node,
           keys: [

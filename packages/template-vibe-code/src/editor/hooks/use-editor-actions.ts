@@ -6,28 +6,28 @@ import {
   type SequenceNodePathInfo,
 } from "@remotion/canvas";
 import {
-  addComponent,
   addComposition,
-  addMedia,
-  addSolid,
+  addElement,
   applyCodemodChanges,
+  createElement,
   deleteComposition,
-  deleteJsxNodes,
+  deleteNodes as deleteNodesCodemod,
   duplicateComposition,
-  duplicateJsxNodes,
+  duplicateNodes as duplicateNodesCodemod,
   renameComposition,
-  reorderJsxNode,
+  reorderNode as reorderNodeCodemod,
   resolveCompositionComponent,
   setCompositionDefaultProps,
   splitSequences,
   updateCompositionMetadata,
-  updateJsxNodeProps,
-  wrapJsxNode,
+  updateNodeProps,
+  wrapNode,
+  type CodemodElement,
   type CodemodProject,
   type CodemodResult,
   type CodemodValue,
   type CompositionMetadata,
-  type JsxNodeReference,
+  type NodeReference,
   type SequencePropUpdate,
 } from "@remotion/codemods";
 import { useMemo, useRef } from "react";
@@ -164,6 +164,34 @@ export const useEditorActions = ({
     };
 
     const currentFrame = () => playback.getSnapshot().frame;
+
+    // Adds an element to the active composition, starting at the playhead.
+    // Element creation validates its input, so it happens inside the guard.
+    const addElementAtPlayhead = (getElement: () => CodemodElement) => {
+      try {
+        const { activeComposition, compositionFile } = requireComposition();
+        const sequence = createElement({
+          component: "Sequence",
+          importPath: "remotion",
+          props: { from: currentFrame() },
+          children: [getElement()],
+        });
+        return applyCodemod((project) =>
+          addElement({
+            project,
+            element: sequence,
+            target: {
+              type: "composition",
+              compositionFile,
+              compositionId: activeComposition.id,
+            },
+          }),
+        );
+      } catch (error) {
+        notifyError(error);
+        return Promise.resolve(false);
+      }
+    };
 
     const setZoom = (zoom: PreviewZoom) => {
       dispatch({ type: "set-playback", patch: { zoom } });
@@ -310,15 +338,15 @@ export const ${componentName}: React.FC = () => {
       },
 
       // Layers
-      deleteNodes: (nodes: JsxNodeReference[]) =>
-        applyCodemod((project) => deleteJsxNodes({ project, nodes }), {
+      deleteNodes: (nodes: NodeReference[]) =>
+        applyCodemod((project) => deleteNodesCodemod({ project, nodes }), {
           clearSelection: true,
         }),
-      duplicateNodes: (nodes: JsxNodeReference[]) =>
-        applyCodemod((project) => duplicateJsxNodes({ project, nodes }), {
+      duplicateNodes: (nodes: NodeReference[]) =>
+        applyCodemod((project) => duplicateNodesCodemod({ project, nodes }), {
           clearSelection: true,
         }),
-      splitNodesAtPlayhead: (nodes: JsxNodeReference[]) => {
+      splitNodesAtPlayhead: (nodes: NodeReference[]) => {
         const frame = currentFrame();
         return applyCodemod(
           (project) =>
@@ -329,22 +357,20 @@ export const ${componentName}: React.FC = () => {
           { clearSelection: true },
         );
       },
-      wrapNode: (
-        node: JsxNodeReference,
-        wrapper: "Sequence" | "AbsoluteFill",
-      ) =>
+      wrapNode: (node: NodeReference, wrapper: "Sequence" | "AbsoluteFill") =>
         applyCodemod(
           (project) =>
-            wrapJsxNode({
+            wrapNode({
               project,
               node,
-              wrapper,
-              width: ref.current.compositionWidth,
-              height: ref.current.compositionHeight,
+              wrapper: createElement({
+                component: wrapper,
+                importPath: "remotion",
+              }),
             }),
           { clearSelection: true },
         ),
-      reorderNode: (node: JsxNodeReference, direction: "up" | "down") => {
+      reorderNode: (node: NodeReference, direction: "up" | "down") => {
         const siblings = ref.current.layers
           .map((layer) => layer.source)
           .filter(
@@ -371,7 +397,7 @@ export const ${componentName}: React.FC = () => {
 
         return applyCodemod(
           (project) =>
-            reorderJsxNode({
+            reorderNodeCodemod({
               project,
               node,
               target,
@@ -381,12 +407,12 @@ export const ${componentName}: React.FC = () => {
         );
       },
       updateNodeProps: (
-        node: JsxNodeReference,
+        node: NodeReference,
         updates: SequencePropUpdate[],
         schema: InteractivitySchema | null,
       ) =>
         applyCodemod((project) =>
-          updateJsxNodeProps({
+          updateNodeProps({
             project,
             node,
             updates,
@@ -437,7 +463,7 @@ export const ${componentName}: React.FC = () => {
 
         const ok = await applyCodemod(
           (project) =>
-            updateJsxNodeProps({
+            updateNodeProps({
               project,
               node,
               updates,
@@ -472,9 +498,9 @@ export const ${componentName}: React.FC = () => {
 
         pendingPreviews.clear();
       },
-      renameNode: (node: JsxNodeReference, name: string) =>
+      renameNode: (node: NodeReference, name: string) =>
         applyCodemod((project) =>
-          updateJsxNodeProps({
+          updateNodeProps({
             project,
             node,
             updates: [
@@ -486,61 +512,37 @@ export const ${componentName}: React.FC = () => {
             ],
           }),
         ),
-      addSolid: () => {
-        try {
-          const { activeComposition, compositionFile } = requireComposition();
-          return applyCodemod((project) =>
-            addSolid({
-              project,
-              compositionFile,
-              compositionId: activeComposition.id,
+      addSolid: () =>
+        addElementAtPlayhead(() =>
+          createElement({
+            component: "Solid",
+            importPath: "remotion",
+            props: {
               width: ref.current.compositionWidth,
               height: ref.current.compositionHeight,
-              from: currentFrame(),
-            }),
-          );
-        } catch (error) {
-          notifyError(error);
-          return Promise.resolve(false);
-        }
-      },
-      addMedia: (type: "image" | "video" | "audio", src: string) => {
-        try {
-          const { activeComposition, compositionFile } = requireComposition();
-          return applyCodemod((project) =>
-            addMedia({
-              project,
-              compositionFile,
-              compositionId: activeComposition.id,
-              type,
-              src,
-              srcType: "remote",
-              from: currentFrame(),
-            }),
-          );
-        } catch (error) {
-          notifyError(error);
-          return Promise.resolve(false);
-        }
-      },
-      addComponent: (importName: string, importPath: string) => {
-        try {
-          const { activeComposition, compositionFile } = requireComposition();
-          return applyCodemod((project) =>
-            addComponent({
-              project,
-              compositionFile,
-              compositionId: activeComposition.id,
-              importName,
-              importPath,
-              from: currentFrame(),
-            }),
-          );
-        } catch (error) {
-          notifyError(error);
-          return Promise.resolve(false);
-        }
-      },
+              color: "gray",
+              style: { position: "absolute" },
+            },
+          }),
+        ),
+      addMedia: (type: "image" | "video" | "audio", src: string) =>
+        addElementAtPlayhead(() =>
+          type === "image"
+            ? createElement({
+                component: "CanvasImage",
+                importPath: "remotion",
+                props: { src },
+              })
+            : createElement({
+                component: type === "video" ? "Video" : "Audio",
+                importPath: "@remotion/media",
+                props: { src },
+              }),
+        ),
+      addComponent: (importName: string, importPath: string) =>
+        addElementAtPlayhead(() =>
+          createElement({ component: importName, importPath }),
+        ),
       resolveCompositionSource: () => {
         try {
           const { activeComposition, compositionFile } = requireComposition();

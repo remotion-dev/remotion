@@ -382,6 +382,7 @@ const getSplitSourceEdit = ({
 			indent: lineIndent,
 			input,
 			printed: printInsertedJsx({
+				compactLiteralProps: false,
 				element: element as unknown as
 					| AstNamedTypes.JSXElement
 					| AstNamedTypes.JSXFragment,

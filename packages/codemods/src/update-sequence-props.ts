@@ -52,7 +52,7 @@ import {
 	getCssShorthandsForUpdates,
 	type CssShorthandProperty,
 } from './sequence-props/css-shorthand-properties';
-import {ensureNamedImports} from './sequence-props/imports';
+import {ensureStaticFileBinding} from './sequence-props/imports';
 import {parseAst, serializeAst} from './sequence-props/parse-ast';
 import {
 	parseVideoConfigNumericExpression,
@@ -106,11 +106,7 @@ const ensureImportsForUpdates = ({
 					JSON.stringify(value) !== JSON.stringify(defaultValue)),
 		)
 	) {
-		ensureNamedImports({
-			ast,
-			importedNames: new Set(['staticFile']),
-			sourcePath: 'remotion',
-		});
+		ensureStaticFileBinding(ast);
 	}
 };
 
@@ -1550,6 +1546,7 @@ export const updateMultipleSequenceProps = ({
 				indent: getJsxSourceIndent(start),
 				input,
 				printed: printJsxOpeningElement({
+					compactLiteralProps: false,
 					originalAttributeSources,
 					openingElement:
 						openingElement as unknown as AstNamedTypes.JSXOpeningElement,
@@ -1583,6 +1580,7 @@ export const updateMultipleSequenceProps = ({
 				indent: getJsxSourceIndent(start),
 				input,
 				printed: printInsertedJsx({
+					compactLiteralProps: false,
 					originalAttributeSources,
 					element: element as unknown as AstNamedTypes.JSXElement,
 					input,

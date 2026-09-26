@@ -243,6 +243,7 @@ const getEffectSourceOutput = ({
 			indent: getJsxSourceIndent(start),
 			input,
 			printed: printJsxOpeningElement({
+				compactLiteralProps: false,
 				openingElement: openingElement as never,
 				input,
 				originalAttributeSources: snapshots.originalAttributeSources,

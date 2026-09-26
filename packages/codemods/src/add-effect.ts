@@ -6,12 +6,12 @@ import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
 	getUpdatedNodeReference,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 
 export type AddEffectOptions<Project extends CodemodProject> = {
 	project: Project;
-	node: JsxNodeReference;
+	node: NodeReference;
 	importName: string;
 	importPath: string;
 	props?: Record<string, CodemodValue>;

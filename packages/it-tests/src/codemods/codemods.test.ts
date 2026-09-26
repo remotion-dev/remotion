@@ -5,8 +5,8 @@ import {
 	applyCodemodChanges,
 	deleteComposition,
 	duplicateComposition,
-	getJsxNodeProps,
-	getJsxNodes,
+	getNodeProps,
+	getNodes,
 	renameComposition,
 } from '@remotion/codemods';
 
@@ -57,13 +57,13 @@ test('edits composition registrations through the packaged public API', () => {
 		}).changes,
 	);
 
-	const registrations = getJsxNodes({project, filePath: compositionFile})
+	const registrations = getNodes({project, filePath: compositionFile})
 		.filter(
 			(node) => node.tagName === 'Composition' || node.tagName === 'Still',
 		)
 		.map((node) => ({
 			tagName: node.tagName,
-			props: getJsxNodeProps({
+			props: getNodeProps({
 				project,
 				node,
 				keys: ['id', 'width', 'height', 'fps', 'durationInFrames'],

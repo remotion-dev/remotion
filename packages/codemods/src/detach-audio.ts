@@ -1,16 +1,16 @@
 import type {CodemodProject} from './codemod-project';
-import {getJsxNodes} from './get-jsx-nodes';
+import {getNodes} from './get-nodes';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
 	getUpdatedNodeReference,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 import {splitVideoFromAudio} from './split-video-from-audio';
 
 export type DetachAudioOptions<Project extends CodemodProject> = {
 	project: Project;
-	node: JsxNodeReference;
+	node: NodeReference;
 };
 
 export const detachAudio = async <Project extends CodemodProject>({
@@ -18,7 +18,7 @@ export const detachAudio = async <Project extends CodemodProject>({
 	node,
 }: DetachAudioOptions<Project>) => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
-	const target = getJsxNodes({project, filePath}).find(
+	const target = getNodes({project, filePath}).find(
 		(entry) => JSON.stringify(entry.nodePath) === JSON.stringify(node.nodePath),
 	);
 	if (

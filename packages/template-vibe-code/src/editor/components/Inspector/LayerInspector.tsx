@@ -1,6 +1,6 @@
 "use client";
 
-import { getJsxNodeProps, type SequencePropUpdate } from "@remotion/codemods";
+import { getNodeProps, type SequencePropUpdate } from "@remotion/codemods";
 import { RotateCcwIcon } from "lucide-react";
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ import {
 } from "./fields";
 
 type VisibleField = ReturnType<typeof getVisibleFields>[number];
-type PropStatus = ReturnType<typeof getJsxNodeProps>["props"][string];
+type PropStatus = ReturnType<typeof getNodeProps>["props"][string];
 
 // Radix Select items cannot have an empty string as value.
 const defaultOption = "__default__";
@@ -336,9 +336,9 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
 
     let visible = getVisibleFields(schema);
     const keys = visible.map(({ key }) => key);
-    let props: ReturnType<typeof getJsxNodeProps>["props"] | null = null;
+    let props: ReturnType<typeof getNodeProps>["props"] | null = null;
     try {
-      props = getJsxNodeProps({
+      props = getNodeProps({
         project,
         node,
         keys,
@@ -367,7 +367,7 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
       if (variantFields.length > 0) {
         visible = [...visible, ...variantFields];
         try {
-          const extra = getJsxNodeProps({
+          const extra = getNodeProps({
             project,
             node,
             keys: variantFields.map((item) => item.key),

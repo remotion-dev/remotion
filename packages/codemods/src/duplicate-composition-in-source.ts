@@ -180,6 +180,7 @@ export const duplicateCompositionInSource = ({
 		metadata,
 	});
 	const insertion = printInsertedJsx({
+		compactLiteralProps: false,
 		element: duplicate as never,
 		input,
 		prettierConfigOverride: null,

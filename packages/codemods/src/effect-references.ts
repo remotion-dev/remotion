@@ -1,18 +1,18 @@
 import type {CodemodProject} from './codemod-project';
 import {findProjectFile} from './internals';
-import {type JsxNodeReference} from './node-references';
+import {type NodeReference} from './node-references';
 import {findJsxElementAtNodePath} from './sequence-props';
 import {findEffectsAttr} from './sequence-props/can-update-effect-props';
 import {parseAst} from './sequence-props/parse-ast';
 
-export type EffectReference = JsxNodeReference & {effectIndex: number};
+export type EffectReference = NodeReference & {effectIndex: number};
 
 export const getEffectSource = ({
 	project,
 	node,
 }: {
 	project: CodemodProject;
-	node: JsxNodeReference;
+	node: NodeReference;
 }) => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const input = project.files[filePath];
@@ -54,7 +54,7 @@ export const getEffectSource = ({
 };
 
 export const groupEffects = <
-	Effect extends JsxNodeReference & {effectIndex: number | null},
+	Effect extends NodeReference & {effectIndex: number | null},
 >({
 	project,
 	effects,

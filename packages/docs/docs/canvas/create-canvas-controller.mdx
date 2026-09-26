@@ -62,7 +62,7 @@ A `CanvasHoverController` with `getSnapshot()`, `subscribe(listener)`, `setHover
 
 ### setSequenceNodePaths()<AvailableFrom v="4.0.529" />
 
-`setSequenceNodePaths(nodePaths)` tells the Canvas which source node each mounted sequence was created from. `nodePaths` is a `Record<string, SequencePropsSubscriptionKey>` keyed by `track.sequence.controls.overrideId`. Import the `SequencePropsSubscriptionKey` type from `remotion`; its `absolutePath` and `nodePath` identify the JSX node, as returned by [`getJsxNodes()`](/docs/codemods/get-jsx-nodes). Pass empty arrays for `sequenceKeys` and `effectKeys`, and `track.sequence.controls.videoConfigValues` or `null` for `videoConfigValues`.
+`setSequenceNodePaths(nodePaths)` tells the Canvas which source node each mounted sequence was created from. `nodePaths` is a `Record<string, SequencePropsSubscriptionKey>` keyed by `track.sequence.controls.overrideId`. Import the `SequencePropsSubscriptionKey` type from `remotion`; its `absolutePath` and `nodePath` identify the JSX node, as returned by [`getNodes()`](/docs/codemods/get-nodes). Pass empty arrays for `sequenceKeys` and `effectKeys`, and `track.sequence.controls.videoConfigValues` or `null` for `videoConfigValues`.
 
 Afterwards, the affected tracks carry a `nodePathInfo` with that `sequenceSubscriptionKey`. Tracks rendered from the same source node are numbered through `index` and `numberOfSequencesWithThisNodePath`. [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info) returns the registered identity, so selection and hover stay attached to the source node across remounts.
 
@@ -70,13 +70,13 @@ Passing an unchanged mapping is a no-op, so the function may be called from a `t
 
 ### overrides<AvailableFrom v="4.0.529" />
 
-Preview prop values on mounted sequences without changing the source. Overrides are applied to sequences that have a `nodePathInfo`, so register node paths first. They are kept while the composition stays mounted and are not persisted; write the final value to the source, for example with [`updateJsxNodeProps()`](/docs/codemods/update-jsx-node-props), and clear the override once the update has been applied.
+Preview prop values on mounted sequences without changing the source. Overrides are applied to sequences that have a `nodePathInfo`, so register node paths first. They are kept while the composition stays mounted and are not persisted; write the final value to the source, for example with [`updateNodeProps()`](/docs/codemods/update-node-props), and clear the override once the update has been applied.
 
 #### set()
 
 `set(nodePathInfo, key, value)` overrides one prop of the sequence identified by `nodePathInfo`, a `SequenceNodePathInfo` from a track or a selection item. `key` is a key of the element's interactivity schema in dot notation, such as `'style.translate'`, `'from'` or `'durationInFrames'`.
 
-`value` is either `{type: 'static', value}` to show a fixed value, or `{type: 'keyframed', status}` where `status` is a keyframed prop status as returned by [`getJsxNodeProps()`](/docs/codemods/get-jsx-node-props) with the keyframes you want to preview. A keyframed override is evaluated at the current frame.
+`value` is either `{type: 'static', value}` to show a fixed value, or `{type: 'keyframed', status}` where `status` is a keyframed prop status as returned by [`getNodeProps()`](/docs/codemods/get-node-props) with the keyframes you want to preview. A keyframed override is evaluated at the current frame.
 
 ```tsx twoslash title="Scrubbing a value"
 // @moduleResolution: bundler
