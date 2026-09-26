@@ -2,7 +2,6 @@ import {
 	AbsoluteFill,
 	Easing,
 	Interactive,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
@@ -132,13 +131,46 @@ export const BarChart: React.FC = () => {
 				overflow: 'hidden',
 			}}
 		>
-			<Sequence layout="none" name="Ambient glow">
-				<AmbientGlow frame={frame} durationInFrames={durationInFrames} />
-			</Sequence>
+			<Interactive.Div
+				name="Ambient glow"
+				style={{
+					position: 'absolute',
+					width: 520,
+					height: 520,
+					right: -150,
+					top: -230,
+					borderRadius: 999,
+					background: 'rgba(115, 91, 255, 0.18)',
+					filter: 'blur(90px)',
+					scale: interpolate(frame, [0, durationInFrames - 1], [0.92, 1.08], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						easing: Easing.inOut(Easing.sin),
+						output: 'perceptual-scale',
+					}),
+				}}
+			/>
 
-			<Sequence layout="none" name={'Eyebrow'}>
-				<Eyebrow frame={frame} />
-			</Sequence>
+			<Interactive.Div
+				name="Eyebrow"
+				style={{
+					position: 'absolute',
+					left: 86,
+					top: 66,
+					color: '#8E9AB8',
+					fontSize: 20,
+					fontWeight: 750,
+					letterSpacing: 4.4,
+					textTransform: 'uppercase',
+					opacity: interpolate(frame, [3, 20], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						easing: Easing.bezier(0.16, 1, 0.3, 1),
+					}),
+				}}
+			>
+				Performance overview
+			</Interactive.Div>
 
 			<Interactive.Div
 				name="Title"
@@ -251,58 +283,6 @@ export const BarChart: React.FC = () => {
 				</Interactive.Div>
 			</Interactive.Div>
 
-			<Sequence layout="none" name={'Peak badge'}>
-				<PeakBadge frame={frame} />
-			</Sequence>
-		</AbsoluteFill>
-	);
-};
-
-export function AmbientGlow({
-	frame: parentFrame,
-	durationInFrames: parentDurationInFrames,
-}: {
-	frame?: number | null;
-	durationInFrames?: number | null;
-}) {
-	const standaloneFrame = useCurrentFrame();
-	const {durationInFrames: standaloneDurationInFrames} = useVideoConfig();
-	const frame = parentFrame ?? standaloneFrame;
-	const durationInFrames = parentDurationInFrames ?? standaloneDurationInFrames;
-	return (
-		<>
-			<Interactive.Div
-				name="Ambient glow"
-				style={{
-					position: 'absolute',
-					width: 520,
-					height: 520,
-					right: -150,
-					top: -230,
-					borderRadius: 999,
-					background: 'rgba(115, 91, 255, 0.18)',
-					filter: 'blur(90px)',
-					scale: interpolate(frame, [0, durationInFrames - 1], [0.92, 1.08], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						easing: Easing.inOut(Easing.sin),
-						output: 'perceptual-scale',
-					}),
-				}}
-			/>
-		</>
-	);
-}
-
-export function PeakBadge({
-	frame: precomposeParentFrame,
-}: {
-	frame?: number | null;
-}) {
-	const precomposeStandaloneFrame = useCurrentFrame();
-	const frame = precomposeParentFrame ?? precomposeStandaloneFrame;
-	return (
-		<>
 			<Interactive.Div
 				name="Peak badge"
 				style={{
@@ -334,39 +314,6 @@ export function PeakBadge({
 			>
 				<span style={{fontSize: 13}}>●</span> West leads at 87%
 			</Interactive.Div>
-		</>
+		</AbsoluteFill>
 	);
-}
-
-export function Eyebrow({
-	frame: precomposeParentFrame2,
-}: {
-	frame?: number | null;
-}) {
-	const precomposeStandaloneFrame2 = useCurrentFrame();
-	const frame = precomposeParentFrame2 ?? precomposeStandaloneFrame2;
-	return (
-		<>
-			<Interactive.Div
-				name="Eyebrow"
-				style={{
-					position: 'absolute',
-					left: 86,
-					top: 66,
-					color: '#8E9AB8',
-					fontSize: 20,
-					fontWeight: 750,
-					letterSpacing: 4.4,
-					textTransform: 'uppercase',
-					opacity: interpolate(frame, [3, 20], [0, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						easing: Easing.bezier(0.16, 1, 0.3, 1),
-					}),
-				}}
-			>
-				Performance overview
-			</Interactive.Div>
-		</>
-	);
-}
+};
