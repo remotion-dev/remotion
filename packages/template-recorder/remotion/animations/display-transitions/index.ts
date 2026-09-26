@@ -6,6 +6,7 @@ import type {
 import type { Layout, LayoutAndFade } from "../../layout/layout-types";
 import { interpolateLayoutAndFade } from "../interpolate-layout";
 import { getLandscapeDisplayEnterOrExit } from "./landscape";
+import { getPortraitDisplayEnterOrExit } from "./portrait";
 import { getSquareDisplayEnterOrExit } from "./square";
 
 const getDisplayStartOrEndLayout = ({
@@ -25,6 +26,14 @@ const getDisplayStartOrEndLayout = ({
     return getLandscapeDisplayEnterOrExit({
       currentScene,
       otherScene,
+    });
+  }
+
+  if (canvasLayout === "portrait") {
+    return getPortraitDisplayEnterOrExit({
+      currentScene,
+      otherScene,
+      canvasHeight,
     });
   }
 

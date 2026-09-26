@@ -17,7 +17,10 @@ export const getFinalWebcamPosition = ({
   cameras: Cameras;
   canvasLayout: CanvasLayout;
 }): WebcamPosition => {
-  if (!cameras.display && canvasLayout === "landscape") {
+  if (
+    !cameras.display &&
+    (canvasLayout === "landscape" || canvasLayout === "portrait")
+  ) {
     return "center";
   }
 

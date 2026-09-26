@@ -6,12 +6,14 @@ import {
   useVideoConfig,
 } from "remotion";
 import { TITLE_FONT } from "../../../config/fonts";
-import { getSafeSpace } from "../../../config/layout";
+import { getSafeSpace, type CanvasLayout } from "../../../config/layout";
 import { SCENE_TRANSITION_DURATION } from "../../../config/transitions";
 import { borderRadius } from "../../layout/get-layout";
 import type { Layout } from "../../layout/layout-types";
-
-const HEIGHT = 78;
+import {
+  getSquareChapterTop,
+  SQUARE_CHAPTER_HEIGHT,
+} from "./get-chapter-top";
 
 const gradientSteps = [
   0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
@@ -30,14 +32,25 @@ export const SquareChapter: React.FC<{
   didTransitionIn: boolean;
   displayLayout: Layout | null;
   webcamLayout: Layout;
-}> = ({ title, webcamLayout, didTransitionIn, displayLayout }) => {
+  canvasLayout: CanvasLayout;
+}> = ({
+  title,
+  webcamLayout,
+  didTransitionIn,
+  displayLayout,
+  canvasLayout,
+}) => {
   const layout = useMemo(() => {
     return displayLayout ?? webcamLayout;
   }, [displayLayout, webcamLayout]);
 
   const top = useMemo(() => {
-    return layout.height - HEIGHT - getSafeSpace("square");
-  }, [layout.height]);
+    return getSquareChapterTop({
+      layoutHeight: layout.height,
+      canvasLayout,
+      hasDisplay: displayLayout !== null,
+    });
+  }, [canvasLayout, displayLayout, layout.height]);
 
   const frame = useCurrentFrame();
   const { fps, width } = useVideoConfig();
@@ -59,7 +72,8 @@ export const SquareChapter: React.FC<{
     },
     delay: 70,
   });
-  const toTop = (1 - enter) * (HEIGHT + getSafeSpace("square"));
+  const toTop =
+    (1 - enter) * (SQUARE_CHAPTER_HEIGHT + getSafeSpace(canvasLayout));
   const toLeft = exit * -width;
 
   return (
@@ -86,8 +100,8 @@ export const SquareChapter: React.FC<{
             background: "black",
             position: "absolute",
             top: top + toTop,
-            height: HEIGHT,
-            left: getSafeSpace("square"),
+            height: SQUARE_CHAPTER_HEIGHT,
+            left: getSafeSpace(canvasLayout),
             borderRadius,
             fontSize: 40,
             ...TITLE_FONT,
