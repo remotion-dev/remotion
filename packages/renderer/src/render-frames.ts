@@ -47,6 +47,10 @@ import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import {renderFrameAndRetryTargetClose} from './render-frame-and-retry-target-close';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
@@ -88,6 +92,10 @@ type InternalRenderFramesOptions = {
 	onFrameBuffer:
 		| null
 		| ((buffer: Buffer, frame: number) => void | Promise<void>);
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onDownload: RenderMediaOnDownload | null;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -127,6 +135,10 @@ type InnerRenderFramesOptions = {
 	onFrameBuffer:
 		| null
 		| ((buffer: Buffer, frame: number) => void | Promise<void>);
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
@@ -229,6 +241,8 @@ const innerRenderFrames = async ({
 	envVariables,
 	onBrowserLog,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onDownload,
 	pagesArray,
 	serveUrl,
@@ -308,8 +322,8 @@ const innerRenderFrames = async ({
 		resolvedConcurrency,
 	);
 
-	const makeNewPage = (frame: number, pageIndex: number) => {
-		return makePage({
+	const makeNewPage = async (frame: number, pageIndex: number) => {
+		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
 			browserReplacer,
@@ -334,6 +348,8 @@ const innerRenderFrames = async ({
 			darkMode,
 			sampleRate,
 		});
+		await remotionSharedMemory?.ensurePage(page);
+		return page;
 	};
 
 	const getPool = async () => {
@@ -447,6 +463,8 @@ const innerRenderFrames = async ({
 				lastFrame,
 				makeNewPage,
 				onFrameBuffer,
+				onFrame,
+				remotionSharedMemory,
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
@@ -498,6 +516,8 @@ const internalRenderFramesRaw = ({
 	onBrowserLog,
 	onDownload,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onFrameUpdate,
 	onStart,
 	outputDir,
@@ -641,6 +661,8 @@ const internalRenderFramesRaw = ({
 					muted,
 					onBrowserLog,
 					onFrameBuffer,
+					onFrame,
+					remotionSharedMemory,
 					onFrameUpdate,
 					onStart,
 					outputDir,
@@ -848,6 +870,8 @@ export const renderFrames = (
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,
 		onFrameBuffer: onFrameBuffer ?? null,
+		onFrame: null,
+		remotionSharedMemory: null,
 		onFrameUpdate,
 		onStart,
 		outputDir,

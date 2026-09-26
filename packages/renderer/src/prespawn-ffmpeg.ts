@@ -1,3 +1,4 @@
+import type {Readable, Writable} from 'node:stream';
 import type {_InternalTypes} from 'remotion';
 import type {OnLog} from './browser/BrowserPage';
 import {callFf} from './call-ffmpeg';
@@ -20,8 +21,11 @@ import {
 	validateSelectedPixelFormatAndCodecCombination,
 } from './pixel-format';
 import {resolveHardwareAcceleration} from './probe-encoder';
+import type {RemotionRawFrame} from './remotion-shared-memory';
+import {createRemotionSharedMemoryFfmpegBridge} from './remotion-shared-memory-ffmpeg';
 import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {writeWithBackpressure} from './write-with-backpressure';
 
 type RunningStatus =
 	| {
@@ -62,6 +66,94 @@ type PreStitcherOptions = {
 	binariesDirectory: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	onLog: OnLog;
+	inputMode: 'encoded-image' | 'remotion-shared-memory';
+	// Private per-render directory passed as -pool_dir so FFmpeg may open
+	// file-backed pools created there. null when unsupported or unused.
+	remotionSharedMemoryPoolDirectory: string | null;
+};
+
+export type RemotionSharedMemoryFfmpegSupport = {
+	sharedMemory: boolean;
+	// The remotionshm device accepts -pool_dir and file-backed pools, which
+	// hosts without /dev/shm (such as AWS Lambda) need.
+	filePools: boolean;
+};
+
+const remotionSharedMemorySupport = new Map<
+	string,
+	Promise<RemotionSharedMemoryFfmpegSupport>
+>();
+
+export const probeRemotionSharedMemoryFfmpegSupport = ({
+	binariesDirectory,
+	indent,
+	logLevel,
+}: {
+	binariesDirectory: string | null;
+	indent: boolean;
+	logLevel: LogLevel;
+}) => {
+	const key = binariesDirectory ?? '<bundled>';
+	const cached = remotionSharedMemorySupport.get(key);
+	if (cached) {
+		return cached;
+	}
+
+	const result = (async (): Promise<RemotionSharedMemoryFfmpegSupport> => {
+		try {
+			const devices = await callFf({
+				bin: 'ffmpeg',
+				args: ['-hide_banner', '-devices'],
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignal: undefined,
+			});
+			if (
+				!/(?:^|\n)\s*D\s{2}remotionshm(?:\s|$)/.test(
+					`${devices.stdout}\n${devices.stderr}`,
+				)
+			) {
+				return {sharedMemory: false, filePools: false};
+			}
+
+			const help = await callFf({
+				bin: 'ffmpeg',
+				args: ['-hide_banner', '-h', 'demuxer=remotionshm'],
+				indent,
+				logLevel,
+				binariesDirectory,
+				cancelSignal: undefined,
+			});
+			return {
+				sharedMemory: true,
+				filePools: /(?:^|\n)\s*-pool_dir\s/.test(
+					`${help.stdout}\n${help.stderr}`,
+				),
+			};
+		} catch {
+			return {sharedMemory: false, filePools: false};
+		}
+	})();
+	remotionSharedMemorySupport.set(key, result);
+	return result;
+};
+
+const fpsAsFraction = (fps: number) => {
+	const denominator = 1_000_000;
+	let numerator = Math.round(fps * denominator);
+	let divisor = denominator;
+	let left = numerator;
+	let right = divisor;
+	while (right !== 0) {
+		const remainder = left % right;
+		left = right;
+		right = remainder;
+	}
+
+	numerator /= left;
+	divisor /= left;
+	return `${numerator}/${divisor}`;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -104,32 +196,61 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		onLog: options.onLog,
 	});
 
+	const encodingArgs = generateFfmpegArgs({
+		hasPreencoded: false,
+		proResProfileName,
+		pixelFormat,
+		x264Preset: options.x264Preset,
+		gopSize: options.gopSize,
+		codec,
+		crf: options.crf,
+		videoBitrate: options.videoBitrate,
+		encodingMaxRate: options.encodingMaxRate,
+		encodingBufferSize: options.encodingBufferSize,
+		colorSpace: options.colorSpace,
+		hardwareAcceleration: resolvedHardwareAcceleration,
+		indent: options.indent,
+		logLevel: options.logLevel,
+	});
+	const encodingArgsWithOwnedPixels =
+		options.inputMode === 'remotion-shared-memory'
+			? encodingArgs.some(([flag]) => flag === '-vf')
+				? encodingArgs.map((args) =>
+						args[0] === '-vf' ? ['-vf', `copy,${args[1]}`] : args,
+					)
+				: [...encodingArgs, ['-vf', 'copy']]
+			: encodingArgs;
+
 	const ffmpegArgs = [
-		['-r', options.fps],
-		...[
-			['-f', 'image2pipe'],
-			['-s', `${options.width}x${options.height}`],
-			// If scale is very small (like 0.1), FFMPEG cannot figure out the image
-			// format on it's own and we need to hint the format
-			['-vcodec', options.imageFormat === 'jpeg' ? 'mjpeg' : 'png'],
-			['-i', '-'],
-		],
-		...generateFfmpegArgs({
-			hasPreencoded: false,
-			proResProfileName,
-			pixelFormat,
-			x264Preset: options.x264Preset,
-			gopSize: options.gopSize,
-			codec,
-			crf: options.crf,
-			videoBitrate: options.videoBitrate,
-			encodingMaxRate: options.encodingMaxRate,
-			encodingBufferSize: options.encodingBufferSize,
-			colorSpace: options.colorSpace,
-			hardwareAcceleration: resolvedHardwareAcceleration,
-			indent: options.indent,
-			logLevel: options.logLevel,
-		}),
+		...(options.inputMode === 'remotion-shared-memory'
+			? [
+					['-nostdin'],
+					['-xerror'],
+					['-nofind_stream_info'],
+					['-threads:v', '1'],
+					['-f', 'remotionshm'],
+					['-video_size', `${options.width}x${options.height}`],
+					['-framerate', fpsAsFraction(options.fps)],
+					['-control_fd', '3'],
+					['-ack_fd', '4'],
+					options.remotionSharedMemoryPoolDirectory === null
+						? null
+						: ['-pool_dir', options.remotionSharedMemoryPoolDirectory],
+					['-i', 'remotion'],
+				]
+			: [
+					['-r', options.fps],
+					['-f', 'image2pipe'],
+					['-s', `${options.width}x${options.height}`],
+					// If scale is very small (like 0.1), FFMPEG cannot figure out the image
+					// format on its own and we need to hint the format.
+					['-vcodec', options.imageFormat === 'jpeg' ? 'mjpeg' : 'png'],
+					['-i', '-'],
+				]),
+		...encodingArgsWithOwnedPixels,
+		options.inputMode === 'remotion-shared-memory'
+			? ['-fps_mode', 'passthrough']
+			: null,
 
 		'-y',
 		options.outputLocation,
@@ -164,7 +285,18 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		logLevel: options.logLevel,
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: options.signal,
+		options:
+			options.inputMode === 'remotion-shared-memory'
+				? {stdio: ['ignore', 'pipe', 'pipe', 'pipe', 'pipe']}
+				: undefined,
 	});
+	const remotionSharedMemory =
+		options.inputMode === 'remotion-shared-memory'
+			? createRemotionSharedMemoryFfmpegBridge({
+					control: task.stdio[3] as Writable,
+					acknowledgements: task.stdio[4] as Readable,
+				})
+			: null;
 
 	let ffmpegOutput = '';
 	task.stderr?.on('data', (data: Buffer) => {
@@ -198,5 +330,46 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		}
 	});
 
-	return {task, getLogs: () => ffmpegOutput, getExitStatus: () => exitCode};
+	return {
+		task,
+		getLogs: () => ffmpegOutput,
+		getExitStatus: () => exitCode,
+		writeFrame: async ({
+			frame,
+			pts,
+		}: {
+			frame: Buffer | RemotionRawFrame;
+			pts: number;
+		}) => {
+			if (remotionSharedMemory) {
+				if (Buffer.isBuffer(frame)) {
+					throw new Error('Expected a Remotion shared-memory frame.');
+				}
+
+				return remotionSharedMemory.writeFrame({frame, pts});
+			}
+
+			if (!Buffer.isBuffer(frame)) {
+				throw new Error('Expected an encoded image frame.');
+			}
+
+			if (!task.stdin) {
+				throw new Error('FFmpeg stdin is not available.');
+			}
+
+			await writeWithBackpressure({data: frame, writable: task.stdin});
+			return {waitForAck: Promise.resolve()};
+		},
+		finishInput: async () => {
+			if (remotionSharedMemory) {
+				await remotionSharedMemory.finish();
+				return;
+			}
+
+			task.stdin?.end();
+		},
+		abortInput: (error: Error) => {
+			remotionSharedMemory?.fail(error);
+		},
+	};
 };
