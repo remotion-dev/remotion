@@ -65,13 +65,7 @@ export const Modals: React.FC<{
 		}) => {
 			const confirmed = await confirm({
 				title: 'Add Element Library',
-				message: (
-					<ElementLibraryAddConfirmation
-						displayName={displayName}
-						origin={origin}
-						url={url}
-					/>
-				),
+				message: <ElementLibraryAddConfirmation origin={origin} url={url} />,
 				confirmLabel: 'Add Element Library',
 				cancelLabel: 'Cancel',
 			});
