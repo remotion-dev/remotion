@@ -15,6 +15,7 @@ import {
 import {ElementLibraryModal} from './ElementLibraryModal';
 import {FixComputedValueModal} from './FixComputedValueModal';
 import {GenerateWithAgentModal} from './GenerateWithAgentModal';
+import {HtmlInCanvasUnavailableModal} from './HtmlInCanvasUnavailableModal';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -292,6 +293,10 @@ export const Modals: React.FC<{
 			) : null}
 			{modalContextType && modalContextType.type === 'wrap-refactor' ? (
 				<WrapRefactorModal state={modalContextType} />
+			) : null}
+			{modalContextType &&
+			modalContextType.type === 'html-in-canvas-unavailable' ? (
+				<HtmlInCanvasUnavailableModal state={modalContextType} />
 			) : null}
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher
