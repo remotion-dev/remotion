@@ -114,7 +114,7 @@ export const ElementInstallFallbackModal: React.FC<{
 							key={installFailureCount}
 							aria-hidden="true"
 							className={`${styles.dragCallout} ${
-								installFailureCount > 1 ? styles.dragCalloutWiggle : ''
+								installFailureCount > 1 ? styles.dragCalloutScale : ''
 							}`}
 						>
 							<svg

@@ -104,27 +104,24 @@
 	line-height: 1.15;
 }
 
-.dragCalloutWiggle {
-	animation: drag-callout-wiggle 400ms ease-in-out;
+.dragCalloutScale {
+	animation: drag-callout-scale 300ms ease-in-out;
+	transform-origin: 4px 18px;
 }
 
-@keyframes drag-callout-wiggle {
+@keyframes drag-callout-scale {
 	0%,
 	100% {
-		transform: translateX(0) rotate(0deg);
+		transform: scale(1);
 	}
 
-	25% {
-		transform: translateX(-3px) rotate(-2deg);
-	}
-
-	75% {
-		transform: translateX(3px) rotate(2deg);
+	50% {
+		transform: scale(1.04);
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.dragCalloutWiggle {
+	.dragCalloutScale {
 		animation: none;
 	}
 }
