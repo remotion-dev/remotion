@@ -66,6 +66,7 @@ import {parentTransformOrigin} from './fixtures/parent-transform-origin';
 import {pitchShiftAudio} from './fixtures/pitch-shift-audio';
 import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
+import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
@@ -128,6 +129,7 @@ export const Root: React.FC = () => {
 			<Composition {...multiLevelTransformOrigins} />
 			<Composition {...threeLevelTransformOrigins} />
 			<Composition {...pixelTransformOrigin} />
+			<Composition {...positionedSvg} />
 			<Composition {...complexNestedSvg} />
 			<Composition {...threeDoverflow} />
 			<Composition {...threeDTransformOutOfBounds} />
