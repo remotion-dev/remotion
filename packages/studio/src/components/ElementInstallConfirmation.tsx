@@ -263,7 +263,17 @@ export const ElementLibraryAddConfirmation: React.FC<{
 	readonly url: string;
 }> = ({origin, url}) => {
 	return (
-		<p style={{margin: 0, overflowWrap: 'anywhere'}}>
+		<p
+			style={{
+				color: LIGHT_TEXT,
+				fontFamily: 'sans-serif',
+				fontSize: 13,
+				fontWeight: 400,
+				lineHeight: 1.5,
+				margin: 0,
+				overflowWrap: 'anywhere',
+			}}
+		>
 			{origin.replace(/^https?:\/\//, '')} wants to add{' '}
 			{url.replace(/^https?:\/\//, '')} as an Element library.
 		</p>
