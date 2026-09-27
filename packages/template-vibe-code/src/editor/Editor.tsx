@@ -26,6 +26,7 @@ import { useLayers } from "./hooks/use-layers";
 import { usePlaybackStore } from "./hooks/use-playback";
 import { usePreviewHost } from "./hooks/use-preview-host";
 import { findCompositionFile, getCompositions } from "./model/compositions";
+import { getKeyframedProps } from "./model/keyframes";
 import { getSequencePropStatuses } from "./model/layers";
 import { toCodemodProject, type ProjectFiles } from "./model/project";
 import { EditorContext, type EditorContextValue } from "./state/editor-context";
@@ -234,12 +235,36 @@ export const Editor: React.FC<{
   const compositionHeight =
     composition?.height ?? activeComposition?.height ?? 1080;
 
+  // The animated props of the layers, for the keyframe rows of the timeline.
+  const keyframedProps = useMemo(
+    () =>
+      getKeyframedProps({
+        layers,
+        project,
+        videoConfig: {
+          width: compositionWidth,
+          height: compositionHeight,
+          fps: compositionFps,
+          durationInFrames: compositionDurationInFrames,
+        },
+      }),
+    [
+      compositionDurationInFrames,
+      compositionFps,
+      compositionHeight,
+      compositionWidth,
+      layers,
+      project,
+    ],
+  );
+
   const actions = useEditorActions({
     context: {
       state,
       entryPoint,
       host,
       layers,
+      keyframedProps,
       compositions,
       compositionFile,
       activeComposition,
@@ -321,6 +346,7 @@ export const Editor: React.FC<{
     hostError,
     playback,
     layers,
+    keyframedProps,
     project,
     compositions,
     compositionFile,

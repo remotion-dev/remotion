@@ -1,12 +1,8 @@
-import {
-	canMoveKeyframesWithoutCollisions,
-	moveKeyframesInPropStatus,
-} from '@remotion/studio-shared';
+import {CanvasInternals} from '@remotion/canvas';
 import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	DragOverrideValue,
 	InteractivitySchema,
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -23,12 +19,9 @@ import {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
 import {
-	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
-	resolveKeyframeSourceFrame,
 } from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
@@ -43,6 +36,13 @@ import {
 	type TimelineSelectionInteraction,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+
+const {
+	canMoveCanvasKeyframes,
+	getBoundedKeyframeDragDelta,
+	getCanvasKeyframeMove,
+	getMovedCanvasKeyframeOverride,
+} = CanvasInternals;
 
 type TimelineKeyframeDragTargetBase = {
 	readonly displayFrame: number;
@@ -355,27 +355,6 @@ const groupTargets = (targets: readonly TimelineKeyframeDragTarget[]) => {
 	return [...groups.values()];
 };
 
-const getMoveForTarget = (
-	target: TimelineKeyframeDragTarget,
-	delta: number,
-) => ({
-	fromFrame: target.sourceFrame,
-	toFrame: resolveKeyframeSourceFrame(
-		target.sourceFrame +
-			delta *
-				getKeyframePlaybackRate(target.propStatus, target.keyframePlaybackRate),
-		target.propStatus,
-	),
-});
-
-const getMovesForGroup = ({
-	group,
-	delta,
-}: {
-	readonly group: readonly TimelineKeyframeDragTarget[];
-	readonly delta: number;
-}) => group.map((target) => getMoveForTarget(target, delta));
-
 const canMoveTimelineKeyframeDragTargets = ({
 	targets,
 	delta,
@@ -383,43 +362,9 @@ const canMoveTimelineKeyframeDragTargets = ({
 	readonly targets: readonly TimelineKeyframeDragTarget[];
 	readonly delta: number;
 }) =>
-	groupTargets(targets).every((group) => {
-		const [first] = group;
-		if (!first) {
-			return true;
-		}
-
-		return canMoveKeyframesWithoutCollisions({
-			status: first.propStatus,
-			moves: getMovesForGroup({group, delta}),
-		});
-	});
-
-const makeMovedKeyframedDragOverride = ({
-	group,
-	delta,
-}: {
-	readonly group: readonly TimelineKeyframeDragTarget[];
-	readonly delta: number;
-}): DragOverrideValue => {
-	const [first] = group;
-	if (!first) {
-		throw new Error('Expected a keyframe drag target');
-	}
-
-	const movedStatus = moveKeyframesInPropStatus({
-		status: first.propStatus,
-		moves: getMovesForGroup({group, delta}),
-	});
-	if (movedStatus.status !== 'keyframed') {
-		throw new Error('Expected keyframed status');
-	}
-
-	return {
-		type: 'keyframed',
-		status: movedStatus,
-	};
-};
+	groupTargets(targets).every((group) =>
+		canMoveCanvasKeyframes({targets: group, delta}),
+	);
 
 const applyDragOverrides = ({
 	delta,
@@ -442,7 +387,7 @@ const applyDragOverrides = ({
 			continue;
 		}
 
-		const override = makeMovedKeyframedDragOverride({group, delta});
+		const override = getMovedCanvasKeyframeOverride({targets: group, delta});
 		if (first.type === 'sequence') {
 			setDragOverrides(first.nodePath, first.fieldKey, override);
 			continue;
@@ -735,7 +680,7 @@ export const useTimelineKeyframeDrag = ({
 							fileName: target.fileName,
 							nodePath: target.nodePath,
 							fieldKey: target.fieldKey,
-							...getMoveForTarget(target, lastDelta),
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					effectKeyframes: targets
@@ -751,7 +696,7 @@ export const useTimelineKeyframeDrag = ({
 							nodePath: target.nodePath,
 							effectIndex: target.effectIndex,
 							fieldKey: target.fieldKey,
-							...getMoveForTarget(target, lastDelta),
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					setPropStatuses,
@@ -1011,7 +956,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							fileName: target.fileName,
 							nodePath: target.nodePath,
 							fieldKey: target.fieldKey,
-							...getMoveForTarget(target, lastDelta),
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					effectKeyframes: targets
@@ -1027,7 +972,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							nodePath: target.nodePath,
 							effectIndex: target.effectIndex,
 							fieldKey: target.fieldKey,
-							...getMoveForTarget(target, lastDelta),
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					setPropStatuses,

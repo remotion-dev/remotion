@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {normalizeFontWeightForKeyframe} from '../components/Timeline/normalize-font-weight-for-keyframe';
+import {normalizeFontWeightForKeyframe} from '../keyframe-value';
 
 test('normalizes font weights before keyframing', () => {
 	expect(normalizeFontWeightForKeyframe(650)).toBe(650);
