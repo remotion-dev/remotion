@@ -234,7 +234,10 @@ type ComponentWithoutReservedProps<
 		? unknown
 		: never);
 
-type AutomaticWrapperReservedKey = keyof InteractiveBaseProps | 'controls';
+type AutomaticWrapperReservedKey =
+	| keyof InteractiveBaseProps
+	| keyof InteractivePremountProps
+	| 'controls';
 
 type CroppingWrapperReservedKey =
 	| AutomaticWrapperReservedKey
@@ -270,13 +273,15 @@ type EveryPropsBranchAcceptsStyle<Props> = [Props] extends [never]
 		? false
 		: true;
 
-type ComponentAcceptingStyle<Component extends React.ElementType> =
-	ComponentWithoutReservedProps<Component, CroppingWrapperReservedKey> &
-		(EveryPropsBranchAcceptsStyle<
-			React.ComponentPropsWithoutRef<Component>
-		> extends true
-			? unknown
-			: never);
+type ComponentAcceptingStyle<
+	Component extends React.ElementType,
+	ReservedKey extends PropertyKey,
+> = ComponentWithoutReservedProps<Component, ReservedKey> &
+	(EveryPropsBranchAcceptsStyle<
+		React.ComponentPropsWithoutRef<Component>
+	> extends true
+		? unknown
+		: never);
 
 type WithSchema = {
 	<S extends InteractivitySchema, Component extends React.ElementType>(
@@ -287,7 +292,7 @@ type WithSchema = {
 			>,
 			'Component' | 'supportsEffects'
 		> & {
-			readonly Component: ComponentWithoutReservedProps<
+			readonly Component: ComponentAcceptingStyle<
 				Component,
 				AutomaticWrapperReservedKey
 			>;
@@ -295,7 +300,11 @@ type WithSchema = {
 			readonly defaultSequenceName?: string;
 			readonly wrapInSequence: true;
 		},
-	): React.FC<React.ComponentPropsWithRef<Component> & InteractiveBaseProps>;
+	): React.FC<
+		React.ComponentPropsWithRef<Component> &
+			InteractiveBaseProps &
+			InteractivePremountProps
+	>;
 	<S extends InteractivitySchema, Component extends React.ElementType>(
 		options: Omit<
 			WithInteractivitySchemaOptions<
@@ -304,7 +313,10 @@ type WithSchema = {
 			>,
 			'Component' | 'supportsEffects'
 		> & {
-			readonly Component: ComponentAcceptingStyle<Component>;
+			readonly Component: ComponentAcceptingStyle<
+				Component,
+				CroppingWrapperReservedKey
+			>;
 			readonly defaultDurationInFrames?: number;
 			readonly defaultSequenceName?: string;
 			readonly wrapInSequence: {readonly cropping: true};
@@ -312,6 +324,7 @@ type WithSchema = {
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
 			InteractiveBaseProps &
+			InteractivePremountProps &
 			InteractiveCropProps
 	>;
 	<S extends InteractivitySchema, Props extends object>(
@@ -359,7 +372,8 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	type ComponentWrappedInSequenceProps = React.ComponentProps<
 		typeof Component
 	> &
-		InteractiveBaseProps & {
+		InteractiveBaseProps &
+		InteractivePremountProps & {
 			readonly controls: SequenceControls | undefined;
 		};
 	const ComponentWrappedInSequence = forwardRef<
@@ -377,6 +391,10 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			name,
 			showInTimeline,
 			controls,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			...componentProps
 		} = props;
 		const {
@@ -390,12 +408,36 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			readonly style?: React.CSSProperties;
 			readonly [key: string]: unknown;
 		};
+		const resolvedDurationInFrames =
+			durationInFrames ?? defaultDurationInFrames;
+		const {
+			effectivePremountFor,
+			effectivePostmountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			premountingActive,
+			postmountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames: resolvedDurationInFrames,
+				playbackRate,
+				loop,
+			}),
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'opacity',
+		});
 		const croppedStyle = useCropStyle({
 			cropLeft: cropping ? cropLeft : undefined,
 			cropRight: cropping ? cropRight : undefined,
 			cropTop: cropping ? cropTop : undefined,
 			cropBottom: cropping ? cropBottom : undefined,
-			style: cropping ? (style ?? null) : null,
+			style: cropping ? premountingStyle : null,
 			componentName,
 		});
 		const propsForComponent = cropping
@@ -403,27 +445,36 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					...componentPropsWithoutCropping,
 					style: croppedStyle ?? undefined,
 				}
-			: componentProps;
+			: {
+					...componentProps,
+					style: premountingStyle ?? undefined,
+				};
 
 		return (
-			<SequenceWithoutSchema
-				layout="none"
-				durationInFrames={durationInFrames ?? defaultDurationInFrames}
-				from={from}
-				trimBefore={trimBefore}
-				playbackRate={playbackRate}
-				loop={loop}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? defaultSequenceName ?? componentName}
-				showInTimeline={showInTimeline}
-				controls={controls}
-			>
-				{React.createElement(Component, {
-					...propsForComponent,
-					ref,
-				} as React.ComponentProps<typeof Component>)}
-			</SequenceWithoutSchema>
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<SequenceWithoutSchema
+					layout="none"
+					durationInFrames={resolvedDurationInFrames}
+					from={from}
+					trimBefore={trimBefore}
+					playbackRate={playbackRate}
+					loop={loop}
+					freeze={freeze}
+					hidden={hidden}
+					name={name ?? defaultSequenceName ?? componentName}
+					showInTimeline={showInTimeline}
+					controls={controls}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+				>
+					{React.createElement(Component, {
+						...propsForComponent,
+						ref,
+					} as React.ComponentProps<typeof Component>)}
+				</SequenceWithoutSchema>
+			</Freeze>
 		);
 	});
 	const Wrapped = withInteractivitySchema({
@@ -433,6 +484,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		schema: {
 			...schema,
 			...baseSchema,
+			...premountSchema,
 			...(cropping ? cropSchema : {}),
 		},
 		supportsEffects: false,
@@ -440,7 +492,10 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	addSequenceStackTraces(Wrapped);
 
 	return Wrapped as React.FC<
-		React.ComponentProps<typeof Component> & InteractiveBaseProps
+		React.ComponentProps<typeof Component> &
+			InteractiveBaseProps &
+			InteractivePremountProps &
+			InteractiveCropProps
 	>;
 };
 

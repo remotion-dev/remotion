@@ -48,18 +48,19 @@ Use `installationMode: 'component-owned-sequence'` when Studio interactivity doe
 - Canvas-based Elements where individual outlines cannot be passed to Studio
 - Single-image overlays where the image itself cannot be edited
 
-Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The user gets one timeline layer that they can trim. To make it movable on the canvas, include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) and apply the `style` prop to the visual root. The implementation does not appear as separate editable layers.
+Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. To make it movable on the canvas, include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema). The implementation does not appear as separate editable layers.
 
 Use `defaultDurationInFrames` to preserve a component-owned default duration and `defaultSequenceName` when the friendly default timeline label should differ from `componentName`.
 
-If the Element accepts a `style` prop and applies it to its visual root, use `wrapInSequence: {cropping: true}` to also expose crop controls. If it needs premounting, effects, cropping elsewhere, or custom timeline behavior, omit `wrapInSequence` and use the [manual wrapping pattern](/docs/studio/make-component-interactive#manual-wrapping).
+Use `wrapInSequence: {cropping: true}` to also expose crop controls. Omit `wrapInSequence` only when the Element needs effects, coordinates multiple visual roots or implements custom timeline behavior.
 
 When `wrapInSequence` is enabled:
 
-- `Interactive.withSchema()` adds [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), the timing props and a `<Sequence layout="none">` automatically.
-- The cropping configuration also adds [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and merges the crop style into the `style` passed to the component.
+- `Interactive.withSchema()` adds [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), the corresponding props and a `<Sequence layout="none">` automatically.
+- Premounting defaults to `0` frames in v4 and one second in v5. Pass `premountFor={0}` to opt out of the v5 default.
+- The wrapper merges the incoming `style` with active premounting or postmounting styles. The cropping configuration additionally adds [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and merges the crop style last.
 - Pass `style` to the rendered element. Studio discovers its outline automatically. Set the dimensions in the component because Element metadata does not pass them as props.
-- Frame-dependent animation inside the component respects `from`, `trimBefore`, `durationInFrames`, `playbackRate`, `loop`, and `freeze` because the generated Sequence is outside it.
+- Frame-dependent animation inside the component respects `from`, `trimBefore`, `durationInFrames`, `playbackRate`, `loop`, and `freeze` because the generated Sequence is outside it. Its local time is frozen at the first or last frame while premounted or postmounted.
 - If the inner component accepts a React ref, refs passed to the exported component are forwarded directly to it.
 
 Export the schema-enabled component directly, without another forwarding wrapper.
