@@ -12,6 +12,7 @@ import {
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
+	type WaveformVolume,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
@@ -62,8 +63,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		readonly loopWidth: number;
 	} | null;
 	readonly playbackRate: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: WaveformVolume;
 	readonly muted: boolean;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
@@ -78,7 +78,6 @@ const TimelineVideoInfoSegment: React.FC<{
 	tiledLoop,
 	playbackRate,
 	volume,
-	doesVolumeChange,
 	muted,
 	frozenMediaFrame,
 	extendLastFrame,
@@ -490,7 +489,6 @@ const TimelineVideoInfoSegment: React.FC<{
 						tiledLoop?.displayDurationInFrames ?? durationInFrames
 					}
 					volume={volume}
-					doesVolumeChange={doesVolumeChange}
 					muted={muted}
 					playbackRate={playbackRate}
 					loopDisplay={tiledLoop?.loopDisplay}
@@ -543,8 +541,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly mediaFrameAtSequenceZero: number | null;
 	readonly sequenceFrameOffset: number;
 	readonly playbackRate: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: WaveformVolume;
 	readonly muted: boolean;
 	readonly marginLeft: number;
 	readonly loopDisplay: LoopDisplay | undefined;
@@ -561,7 +558,6 @@ const TimelineVideoInfoInner: React.FC<{
 	sequenceFrameOffset,
 	playbackRate,
 	volume,
-	doesVolumeChange,
 	muted,
 	marginLeft,
 	loopDisplay,
@@ -622,16 +618,13 @@ const TimelineVideoInfoInner: React.FC<{
 			return volume;
 		}
 
-		const values = volume.split(',');
-		return values
-			.slice(
-				Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
-				Math.min(
-					values.length,
-					Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
-				),
-			)
-			.join(',');
+		return volume.slice(
+			Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
+			Math.min(
+				volume.length,
+				Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
+			),
+		);
 	};
 
 	return (
@@ -648,7 +641,6 @@ const TimelineVideoInfoInner: React.FC<{
 					tiledLoop={tiledLoop}
 					playbackRate={playbackRate}
 					volume={volume}
-					doesVolumeChange={doesVolumeChange}
 					muted={muted}
 					frozenMediaFrame={frozenMediaFrame}
 					extendLastFrame={extendLastFrame}
@@ -670,7 +662,6 @@ const TimelineVideoInfoInner: React.FC<{
 							segment.displayOffsetInFrames - loopDisplayOffsetInFrames,
 							segment.durationInFrames,
 						)}
-						doesVolumeChange={doesVolumeChange}
 						muted={muted}
 						frozenMediaFrame={frozenMediaFrame}
 						extendLastFrame={extendLastFrame}

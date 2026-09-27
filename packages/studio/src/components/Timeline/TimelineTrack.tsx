@@ -69,6 +69,8 @@ const TimelineTrackUnmemoized: React.FC<{
 						track.connectedCompositions ?? emptyConnectedCompositions
 					}
 					nodePathInfo={track.nodePathInfo}
+					keyframeDisplayOffset={track.keyframeDisplayOffset}
+					keyframePlaybackRate={track.keyframePlaybackRate}
 					sequenceFrameOffset={track.sequenceFrameOffset}
 				/>
 			</div>

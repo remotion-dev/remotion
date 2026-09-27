@@ -15,6 +15,7 @@ import type {
 	CanvasCaptureData,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	NodeWrapper,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -287,11 +288,28 @@ export type ModalState =
 			};
 	  }
 	| {
+			type: 'precompose-refactor';
+			targets: {
+				fileName: string;
+				displayName: string | null;
+				line: number | null;
+			}[];
+	  }
+	| {
 			type: 'generate-with-agent';
 			location: {
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'wrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+			wrapper: NodeWrapper;
 	  }
 	| {
 			type: 'quick-switcher';

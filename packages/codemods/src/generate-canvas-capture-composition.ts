@@ -165,9 +165,26 @@ export const generateCanvasCaptureComposition = ({
 		[],
 	);
 
-	const customCursor = movements.find((movement) =>
-		customCursorRegex.test(movement.cursor),
-	)?.cursor;
+	const customCursors: string[] = [];
+	const customCursorKeyframes = movements.reduce<
+		Array<{readonly frame: number; readonly value: number}>
+	>((keyframes, movement) => {
+		if (!customCursorRegex.test(movement.cursor)) {
+			return keyframes;
+		}
+
+		let cursorIndex = customCursors.indexOf(movement.cursor);
+		if (cursorIndex === -1) {
+			cursorIndex = customCursors.length;
+			customCursors.push(movement.cursor);
+		}
+
+		if (keyframes.at(-1)?.value !== cursorIndex) {
+			keyframes.push({frame: movement.frame, value: cursorIndex});
+		}
+
+		return keyframes;
+	}, []);
 	const cursorProp =
 		cursorKeyframes.length === 1
 			? `cursor={${serialize(cursorKeyframes[0].value)}}`
@@ -187,6 +204,31 @@ export const generateCanvasCaptureComposition = ({
 						extrapolateRight: 'clamp',
 					},
 				)}`;
+	const customCursorProp =
+		customCursorKeyframes.length === 0
+			? ''
+			: customCursorKeyframes.length === 1
+				? `\t\t\t\tcustomCursor={${serialize(customCursors[0])}}\n`
+				: `\t\t\t\tcustomCursor={${serializeArray(
+						customCursors,
+						5,
+					)}[interpolate(
+					frame,
+					${serializeArray(
+						customCursorKeyframes.map((keyframe) => keyframe.frame),
+						5,
+					)},
+					${serializeArray(
+						customCursorKeyframes.map((keyframe) => keyframe.value),
+						5,
+					)},
+					{
+						easing: Easing.step1,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)]}
+`;
 	const scale =
 		scaleKeyframes.length === 1
 			? serialize(scaleKeyframes[0].value)
@@ -260,7 +302,7 @@ export const ${previewComponentName} = () => {
 			/>
 			<MacOSCursor
 				${cursorProp}
-${customCursor === undefined ? '' : `\t\t\t\tcustomCursor={${serialize(customCursor)}}\n`}				style={{
+${customCursorProp}				style={{
 					position: 'absolute',
 					left: 0,
 					top: 0,

@@ -4,7 +4,7 @@ import {
 	parseTranslateWithUnits,
 	serializeTranslate,
 	serializeTranslateWithUnits,
-} from '../components/Timeline/timeline-translate-utils';
+} from '../translate-value';
 
 test('parseTranslate normalizes floating point noise', () => {
 	expect(parseTranslate('10.020000000000001px 30.240000000000002px')).toEqual([

@@ -538,7 +538,6 @@ const CanvasImageInner = forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
-			trimAfter,
 			loop,
 			freeze,
 			premountFor,
@@ -588,8 +587,6 @@ const CanvasImageInner = forwardRef<
 			from: from ?? 0,
 			durationInFrames: resolveSequenceDuration({
 				durationInFrames,
-				trimBefore,
-				trimAfter,
 				playbackRate: undefined,
 				loop,
 			}),
@@ -615,9 +612,8 @@ const CanvasImageInner = forwardRef<
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
-					trimAfter={trimAfter}
 					loop={loop}
-					durationInFrames={durationInFrames ?? Infinity}
+					durationInFrames={durationInFrames}
 					freeze={freeze}
 					hidden={hidden}
 					showInTimeline={showInTimeline ?? true}

@@ -95,22 +95,26 @@ Set a static volume (0 to 1):
 <Video src={staticFile("video.mp4")} volume={0.5} />
 ```
 
-Or use a callback for dynamic volume based on the current frame:
+Use `useCurrentFrame()` and `interpolate()` for keyframed volume:
 
 ```tsx
-import { interpolate } from "remotion";
+import { interpolate, useCurrentFrame } from "remotion";
 
+const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
 
 return (
   <Video
     src={staticFile("video.mp4")}
-    volume={(f) =>
-      interpolate(f, [0, 1 * fps], [0, 1], { extrapolateRight: "clamp" })
-    }
+    volume={interpolate(frame, [0, 1 * fps], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    })}
   />
 );
 ```
+
+With Studio interactivity enabled, these keyframes can be edited and are shown as a volume curve in the timeline. A callback is still supported when the curve should be procedural or relative to the start of the media.
 
 Use `muted` to silence the video entirely:
 

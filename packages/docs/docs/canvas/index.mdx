@@ -132,6 +132,8 @@ The Canvas exposes the [`controls`](/docs/canvas/create-canvas-controller#sequen
 
 While a value is being dragged, [`controller.overrides`](/docs/canvas/create-canvas-controller#overrides) previews it on the canvas immediately. Persist the final value when the gesture ends, then clear the override.
 
+Pass [`onSequencePropsChange`](/docs/canvas/canvas#onsequencepropschange) to `<Canvas>` to let users move elements by dragging their outlines or pressing the arrow keys. The Canvas previews the movement itself and reports the final `style.translate` values to the callback. With [`getSequencePropStatuses`](/docs/canvas/canvas#getsequencepropstatuses), it respects how the source is written: computed values cannot be moved and keyframed values receive a keyframe.
+
 ## APIs
 
 import {TableOfContents} from './table-of-contents';

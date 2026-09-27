@@ -376,7 +376,6 @@ export const MapPolygon = (props: MapPolygonProps) => {
 		name,
 		showInTimeline,
 		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 	} = props;
@@ -392,8 +391,6 @@ export const MapPolygon = (props: MapPolygonProps) => {
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -410,7 +407,6 @@ export const MapPolygon = (props: MapPolygonProps) => {
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}

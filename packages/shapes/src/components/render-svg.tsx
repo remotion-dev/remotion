@@ -45,7 +45,6 @@ const RenderSvgWithTiming = ({
 	styleWhilePostmounted,
 	from,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -80,8 +79,6 @@ const RenderSvgWithTiming = ({
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -98,7 +95,6 @@ const RenderSvgWithTiming = ({
 				layout="none"
 				from={from}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				freeze={freeze}
@@ -142,7 +138,6 @@ export const RenderSvg = ({
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -299,7 +294,6 @@ export const RenderSvg = ({
 			styleWhilePostmounted={styleWhilePostmounted}
 			from={from}
 			trimBefore={trimBefore}
-			trimAfter={trimAfter}
 			playbackRate={playbackRate}
 			loop={loop}
 			freeze={freeze}

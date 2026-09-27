@@ -48,6 +48,8 @@ export const Loop: React.FC<LoopProps> & {
 	const {durationInFrames: compDuration} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
+	const playbackRateValue = playbackRate ?? 1;
+	const iterationDurationInFrames = durationInFrames / playbackRateValue;
 	const loopStartFrame = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -56,7 +58,8 @@ export const Loop: React.FC<LoopProps> & {
 		(parentSequence?.cumulatedNegativeFrom ?? 0) / parentPlaybackRate;
 	const endFrame =
 		loopStartFrame +
-		Math.min(compDuration, durationInFrames * times) / parentPlaybackRate;
+		Math.min(compDuration, iterationDurationInFrames * times) /
+			parentPlaybackRate;
 
 	validateDurationInFrames(durationInFrames, {
 		component: 'of the <Loop /> component',
@@ -81,10 +84,10 @@ export const Loop: React.FC<LoopProps> & {
 		);
 	}
 
-	const maxTimes = Math.ceil(compDuration / durationInFrames);
+	const maxTimes = Math.ceil(compDuration / iterationDurationInFrames);
 	const actualTimes = Math.min(maxTimes, times);
-	const maxFrame = durationInFrames * (actualTimes - 1);
-	const loopsElapsed = currentFrame / durationInFrames;
+	const maxFrame = iterationDurationInFrames * (actualTimes - 1);
+	const loopsElapsed = currentFrame / iterationDurationInFrames;
 	const nearestIteration = Math.round(loopsElapsed);
 	// Fractional durations and nested playback rates can put an exact loop
 	// boundary a few floating-point units before the next iteration.
@@ -98,16 +101,18 @@ export const Loop: React.FC<LoopProps> & {
 			isAtBoundary ? nearestIteration : Math.floor(loopsElapsed),
 		),
 	);
-	const start = isAtBoundary ? currentFrame : iteration * durationInFrames;
+	const start = isAtBoundary
+		? currentFrame
+		: iteration * iterationDurationInFrames;
 	const from = Math.max(0, Math.min(start, maxFrame));
 
 	const loopDisplay: LoopDisplay = useMemo(() => {
 		return {
-			numberOfTimes: Math.min(compDuration / durationInFrames, times),
+			numberOfTimes: Math.min(compDuration / iterationDurationInFrames, times),
 			startOffset: -from,
-			durationInFrames,
+			durationInFrames: iterationDurationInFrames,
 		};
-	}, [compDuration, durationInFrames, from, times]);
+	}, [compDuration, from, iterationDurationInFrames, times]);
 
 	const loopContext: LoopContextType = useMemo(() => {
 		return {

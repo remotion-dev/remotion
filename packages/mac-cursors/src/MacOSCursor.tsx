@@ -64,7 +64,6 @@ const MacOSCursorInner: React.FC<
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -95,8 +94,6 @@ const MacOSCursorInner: React.FC<
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -113,7 +110,6 @@ const MacOSCursorInner: React.FC<
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}

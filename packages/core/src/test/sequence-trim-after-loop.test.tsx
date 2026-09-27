@@ -45,64 +45,63 @@ const renderFrame = ({
 	);
 };
 
-test('trimAfter uses the child clock and the earliest end wins', () => {
+test('durationInFrames uses the child clock', () => {
 	const content = (durationInFrames: number) => (
 		<Sequence
 			layout="none"
 			from={5}
 			trimBefore={10}
-			trimAfter={18}
 			playbackRate={2}
 			durationInFrames={durationInFrames}
 		>
 			<Clock label="clock" />
 		</Sequence>
 	);
-	const view = render(renderFrame({frame: 4, children: content(10)}));
+	const view = render(renderFrame({frame: 4, children: content(8)}));
 
 	expect(view.container.textContent).toBe('');
-	view.rerender(renderFrame({frame: 5, children: content(10)}));
+	view.rerender(renderFrame({frame: 5, children: content(8)}));
 	expect(view.container.textContent).toBe(
 		'clock: frame 10, duration 18, iteration none, period none',
 	);
-	view.rerender(renderFrame({frame: 8, children: content(10)}));
+	view.rerender(renderFrame({frame: 8, children: content(8)}));
 	expect(view.container.textContent).toBe(
 		'clock: frame 16, duration 18, iteration none, period none',
 	);
-	view.rerender(renderFrame({frame: 9, children: content(10)}));
+	view.rerender(renderFrame({frame: 9, children: content(8)}));
 	expect(view.container.textContent).toBe('');
 
-	view.rerender(renderFrame({frame: 6, children: content(2)}));
+	view.rerender(renderFrame({frame: 5, children: content(2)}));
 	expect(view.container.textContent).toBe(
-		'clock: frame 12, duration 14, iteration none, period none',
+		'clock: frame 10, duration 12, iteration none, period none',
 	);
-	view.rerender(renderFrame({frame: 7, children: content(2)}));
+	view.rerender(renderFrame({frame: 6, children: content(2)}));
 	expect(view.container.textContent).toBe('');
 });
 
-test('loop repeats the trimmed range and exposes a partial final iteration', () => {
+test('loop repeats durationInFrames and exposes a partial final iteration', () => {
 	const content = (
-		<Sequence
-			layout="none"
-			from={3}
-			trimBefore={10}
-			trimAfter={16}
-			playbackRate={2}
-			durationInFrames={8}
-			loop
-		>
-			<Clock label="clock" />
+		<Sequence layout="none" from={3} durationInFrames={8}>
+			<Sequence
+				layout="none"
+				trimBefore={10}
+				playbackRate={2}
+				durationInFrames={6}
+				loop
+			>
+				<Clock label="clock" />
+			</Sequence>
 		</Sequence>
 	);
 	const view = render(renderFrame({frame: 2, children: content}));
 
 	expect(view.container.textContent).toBe('');
 	for (const [frame, expected] of [
-		[3, 'clock: frame 10, duration 16, iteration 0, period 3'],
-		[5, 'clock: frame 14, duration 16, iteration 0, period 3'],
-		[6, 'clock: frame 10, duration 16, iteration 1, period 3'],
-		[9, 'clock: frame 10, duration 14, iteration 2, period 3'],
-		[10, 'clock: frame 12, duration 14, iteration 2, period 3'],
+		[3, 'clock: frame 10, duration 16, iteration 0, period 6'],
+		[5, 'clock: frame 14, duration 16, iteration 0, period 6'],
+		[6, 'clock: frame 10, duration 16, iteration 1, period 6'],
+		[9, 'clock: frame 10, duration 14, iteration 2, period 6'],
+		[10, 'clock: frame 12, duration 14, iteration 2, period 6'],
 	] as const) {
 		view.rerender(renderFrame({frame, children: content}));
 		expect(view.container.textContent).toBe(expected);
@@ -110,7 +109,7 @@ test('loop repeats the trimmed range and exposes a partial final iteration', () 
 
 	view.rerender(renderFrame({frame: 5, children: content}));
 	expect(view.container.textContent).toBe(
-		'clock: frame 14, duration 16, iteration 0, period 3',
+		'clock: frame 14, duration 16, iteration 0, period 6',
 	);
 	view.rerender(renderFrame({frame: 11, children: content}));
 	expect(view.container.textContent).toBe('');
@@ -119,7 +118,7 @@ test('loop repeats the trimmed range and exposes a partial final iteration', () 
 test('loop respects nested playback rates and a parent cutting an iteration short', () => {
 	const fractionalBoundary = (
 		<Sequence layout="none" playbackRate={0.3} durationInFrames={20}>
-			<Sequence layout="none" trimAfter={1} loop>
+			<Sequence layout="none" durationInFrames={1} loop>
 				<Clock label="fractional" />
 			</Sequence>
 		</Sequence>
@@ -131,7 +130,7 @@ test('loop respects nested playback rates and a parent cutting an iteration shor
 
 	const parentCutoff = (
 		<Sequence layout="none" durationInFrames={7}>
-			<Sequence layout="none" trimAfter={4} loop>
+			<Sequence layout="none" durationInFrames={4} loop>
 				<Clock label="cutoff" />
 			</Sequence>
 		</Sequence>
@@ -149,7 +148,7 @@ test('a frame read outside a looping Sequence keeps the parent clock', () => {
 	const ParentClock = () => {
 		const frame = useCurrentFrame();
 		return (
-			<Sequence layout="none" trimAfter={20} loop>
+			<Sequence layout="none" durationInFrames={20} loop>
 				<div>parent frame {frame}</div>
 			</Sequence>
 		);
@@ -169,18 +168,16 @@ test('Sequence loop matches Loop and timed wrappers forward the props', () => {
 			<Loop durationInFrames={5} times={3} layout="none">
 				<Clock label="Loop" />
 			</Loop>
-			<Sequence layout="none" trimAfter={5} durationInFrames={15} loop>
-				<Clock label="Sequence" />
+			<Sequence layout="none" durationInFrames={15}>
+				<Sequence layout="none" durationInFrames={5} loop>
+					<Clock label="Sequence" />
+				</Sequence>
 			</Sequence>
-			<AbsoluteFill
-				from={2}
-				trimBefore={4}
-				trimAfter={6}
-				durationInFrames={5}
-				loop
-			>
-				<Clock label="AbsoluteFill" />
-			</AbsoluteFill>
+			<Sequence from={2} durationInFrames={5}>
+				<AbsoluteFill trimBefore={4} durationInFrames={2} loop>
+					<Clock label="AbsoluteFill" />
+				</AbsoluteFill>
+			</Sequence>
 		</>
 	);
 	const view = render(renderFrame({frame: 5, children: content}));
@@ -196,8 +193,10 @@ test('Sequence loop matches Loop and timed wrappers forward the props', () => {
 
 	const series = (
 		<Series>
-			<Series.Sequence layout="none" durationInFrames={5} trimAfter={2} loop>
-				<Clock label="first" />
+			<Series.Sequence layout="none" durationInFrames={5}>
+				<Sequence layout="none" durationInFrames={2} loop>
+					<Clock label="first" />
+				</Sequence>
 			</Series.Sequence>
 			<Series.Sequence layout="none" durationInFrames={3}>
 				<Clock label="second" />

@@ -8,7 +8,7 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/canvas/canvas">
 					<strong>{'<Canvas>'}</strong>
-					<div>Preview a composition with optional selection outlines</div>
+					<div>Preview a composition with selectable, movable outlines</div>
 				</TOCItem>
 				<TOCItem link="/docs/canvas/create-canvas-controller">
 					<strong>createCanvasController()</strong>

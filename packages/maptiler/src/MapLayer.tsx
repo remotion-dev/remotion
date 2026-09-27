@@ -147,7 +147,6 @@ export const MapLayer = ({
 	from,
 	durationInFrames,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -169,8 +168,6 @@ export const MapLayer = ({
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -189,7 +186,6 @@ export const MapLayer = ({
 				from={from}
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				freeze={freeze}

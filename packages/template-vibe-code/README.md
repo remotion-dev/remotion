@@ -3,7 +3,7 @@
 A Remotion template that turns the browser into a motion graphics editor: write React code, watch it compile instantly, and edit the result on the canvas, in the timeline and in the inspector — no backend, no bundler process.
 
 - **Live compilation** – the project is compiled in a Web Worker with [`@remotion/browser-bundler`](https://www.remotion.dev/docs/browser-bundler) and hot-swapped with Fast Refresh, so component state survives edits.
-- **Canvas** – [`@remotion/canvas`](https://www.remotion.dev/docs/canvas) renders the composition with selection outlines. Click a layer on the canvas or in the timeline to select it. Switch to “Interact” mode to use the composition’s own buttons and inputs.
+- **Canvas** – [`@remotion/canvas`](https://www.remotion.dev/docs/canvas) renders the composition with selection outlines. Click a layer on the canvas or in the timeline to select it, drag it to move it (it snaps to the edges and center of the composition, Shift locks the axis, ⌘ disables snapping) or nudge it with the arrow keys. Switch to “Interact” mode to use the composition’s own buttons and inputs.
 - **Timeline** – every mounted sequence shows up as a track. Drag a track to change its `from`, drag its edges to trim `durationInFrames`, split it at the playhead, duplicate, reorder, wrap and delete. In/out points, zoomable ruler, scrubbing.
 - **Inspector** – edits props of the selected element directly in the source using [`@remotion/codemods`](https://www.remotion.dev/docs/codemods): position, scale, rotation, opacity, colors, typography, text content, timing and more. Values that are animated with `interpolate()` or computed in code are shown as such. Composition metadata (size, fps, duration) and `defaultProps` are editable too.
 - **Code editor** – Monaco with multiple files, tabs, compiler diagnostics and “Reveal in code” from any layer.
@@ -65,6 +65,8 @@ The browser bundler records where every JSX element was written, and the Canvas 
 ### Live previews
 
 Dragging a value in the inspector or a track in the timeline does not rewrite the source on every pointer move. The editor previews the value on the canvas with [`controller.overrides`](https://www.remotion.dev/docs/canvas/create-canvas-controller#overrides) and writes it with a codemod once the gesture ends. The preview stays in place until the recompiled project is running, so the canvas never flashes the old value.
+
+Moving an outline on the canvas works the same way, but the Canvas owns the gesture: it previews `style.translate` while dragging and reports the final values through the [`onSequencePropsChange`](https://www.remotion.dev/docs/canvas/canvas#onsequencepropschange) prop. The editor writes them with `updateMultipleNodeProps()` in one undoable step and releases the previews once the new bundle runs. Before a move starts, the Canvas asks the editor through [`getSequencePropStatuses`](https://www.remotion.dev/docs/canvas/canvas#getsequencepropstatuses) how the position is written: a position animated with `interpolate()` gets a keyframe at the playhead via `updateNodeKeyframes()`, and a position computed in code cannot be moved.
 
 ## Commands
 

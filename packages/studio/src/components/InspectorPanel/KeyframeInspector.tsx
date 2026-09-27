@@ -33,8 +33,8 @@ import {
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
 import {
-	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
+	getKeyframePlaybackRate,
 	getKeyframeSourceFrame,
 } from '../Timeline/get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
@@ -47,11 +47,11 @@ import {
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
 import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorQuickActionsSection,
 	InspectorBackAction,
 	InspectorDetailRow,
-	InspectorQuickAction,
 	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
 } from './common';
 import {clampInspectorKeyframeDisplayFrame} from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
@@ -538,9 +538,12 @@ export const KeyframeInspector: React.FC<{
 			</InspectorBackAction>
 			<KeyframeEasingNavigator
 				currentSelection={selection}
-				includeEasings={canEditEasingForInterpolationFunction(
-					details.propStatus.interpolationFunction,
-				)}
+				includeEasings={
+					details.field.fieldSchema.type !== 'boolean' &&
+					canEditEasingForInterpolationFunction(
+						details.propStatus.interpolationFunction,
+					)
+				}
 				keyframes={details.propStatus.keyframes.map((keyframe) => ({
 					...keyframe,
 					frame:

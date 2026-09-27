@@ -2,11 +2,11 @@ import React, {useCallback} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
-	Internals,
+	type HtmlInCanvasOnPaint,
 	Interactive,
 	type InteractiveBaseProps,
 	type InteractivitySchema,
-	type HtmlInCanvasOnPaint,
+	Internals,
 	type SequenceControls,
 	useCurrentFrame,
 	useVideoConfig,
@@ -18,6 +18,7 @@ export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps & {
 	readonly height: number;
 	readonly shutterAngle?: number;
 	readonly samples?: number;
+	readonly disabled?: boolean;
 };
 
 const htmlInCanvasMotionBlurSchema = {
@@ -41,6 +42,11 @@ const htmlInCanvasMotionBlurSchema = {
 		description: 'Samples',
 		hiddenFromList: false,
 		keyframable: false,
+	},
+	disabled: {
+		type: 'boolean',
+		default: false,
+		description: 'Disabled',
 	},
 } as const satisfies InteractivitySchema;
 
@@ -73,10 +79,12 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
+	const content = <Freeze frame={sampleFrame}>{children}</Freeze>;
+	const isRepresentativeSample = index === Math.floor(count / 2);
 
 	return (
 		<div
-			aria-hidden={index !== Math.floor(count / 2)}
+			aria-hidden={!isRepresentativeSample}
 			// Each sample has its own paint record so it can be captured separately.
 			{...{drawable: ''}}
 			style={{
@@ -85,10 +93,16 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				width,
 				height,
 				isolation: 'isolate',
-				pointerEvents: index === Math.floor(count / 2) ? 'auto' : 'none',
+				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			<Freeze frame={sampleFrame}>{children}</Freeze>
+			{isRepresentativeSample ? (
+				content
+			) : (
+				<Internals.DisableSequenceRegistrationProvider>
+					{content}
+				</Internals.DisableSequenceRegistrationProvider>
+			)}
 		</div>
 	);
 };
@@ -103,10 +117,10 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	height,
 	shutterAngle = 180,
 	samples = 8,
+	disabled = false,
 	from,
 	durationInFrames,
 	trimBefore,
-	trimAfter,
 	playbackRate,
 	loop,
 	freeze,
@@ -134,7 +148,8 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 		);
 	}
 
-	const actualSamples = shutterAngle === 0 ? 1 : samples;
+	// Keep the first sample mounted when blur is disabled so the canvas stays visible.
+	const actualSamples = disabled || shutterAngle === 0 ? 1 : samples;
 	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
 	const firstFrame = trimBefore ?? 0;
 	const visibleDuration = Math.max(
@@ -142,8 +157,6 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 		Math.min(
 			Internals.resolveSequenceDuration({
 				durationInFrames,
-				trimBefore,
-				trimAfter,
 				playbackRate,
 				loop,
 			}),
@@ -224,7 +237,6 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			from={from}
 			durationInFrames={durationInFrames}
 			trimBefore={trimBefore}
-			trimAfter={trimAfter}
 			playbackRate={playbackRate}
 			loop={loop}
 			freeze={freeze}

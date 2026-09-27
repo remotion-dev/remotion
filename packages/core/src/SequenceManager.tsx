@@ -51,6 +51,18 @@ export const SequenceManagerRefContext =
 
 export const SequenceRegistrationContext = React.createContext(false);
 
+export const DisableSequenceRegistrationContext = React.createContext(false);
+
+export const DisableSequenceRegistrationProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return React.createElement(
+		DisableSequenceRegistrationContext.Provider,
+		{value: true},
+		children,
+	);
+};
+
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
 };

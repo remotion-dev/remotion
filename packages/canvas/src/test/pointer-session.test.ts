@@ -3,7 +3,7 @@ import {
 	observePointerRelease,
 	type PointerSessionEndReason,
 	startCapturedPointerSession,
-} from '../helpers/pointer-session';
+} from '../pointer-session';
 
 class CaptureTarget extends EventTarget {
 	private readonly capturedPointers = new Set<number>();

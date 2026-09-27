@@ -31,6 +31,26 @@ test('parses static and keyframed sequence prop clipboard data', () => {
 				type: 'sequence-prop',
 				version: 1,
 				remotionClipboard: 'sequence-prop',
+				key: 'disabled',
+				fieldType: 'boolean',
+				param: {type: 'static', value: true},
+			}),
+		),
+	).toEqual({
+		type: 'sequence-prop',
+		version: 1,
+		remotionClipboard: 'sequence-prop',
+		key: 'disabled',
+		fieldType: 'boolean',
+		param: {type: 'static', value: true},
+	});
+
+	expect(
+		parseSequencePropClipboardData(
+			JSON.stringify({
+				type: 'sequence-prop',
+				version: 1,
+				remotionClipboard: 'sequence-prop',
 				key: 'style.rotate',
 				fieldType: 'rotation-css',
 				param: {
@@ -57,20 +77,7 @@ test('parses static and keyframed sequence prop clipboard data', () => {
 	});
 });
 
-test('rejects incompatible and unsupported sequence prop clipboard data', () => {
-	expect(
-		parseSequencePropClipboardData(
-			JSON.stringify({
-				type: 'sequence-prop',
-				version: 1,
-				remotionClipboard: 'sequence-prop',
-				key: 'style.rotate',
-				fieldType: 'boolean',
-				param: {type: 'static', value: true},
-			}),
-		),
-	).toBe(null);
-
+test('rejects unsupported sequence prop clipboard versions', () => {
 	expect(
 		parseSequencePropClipboardDataResult(
 			JSON.stringify({

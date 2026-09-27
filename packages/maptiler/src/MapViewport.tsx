@@ -552,7 +552,6 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		durationInFrames,
 		from,
 		trimBefore,
-		trimAfter,
 		playbackRate,
 		loop,
 		freeze,
@@ -580,8 +579,6 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		from: from ?? 0,
 		durationInFrames: Internals.resolveSequenceDuration({
 			durationInFrames,
-			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 		}),
@@ -600,7 +597,6 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 				durationInFrames={durationInFrames}
 				from={from}
 				trimBefore={trimBefore}
-				trimAfter={trimAfter}
 				playbackRate={playbackRate}
 				loop={loop}
 				freeze={freeze}

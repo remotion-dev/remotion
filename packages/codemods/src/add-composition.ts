@@ -22,7 +22,7 @@ import {
 export type AddCompositionOptions<Project extends CodemodProject> =
 	CompositionTarget & {
 		project: Project;
-		component: {importName: string; importPath: string};
+		component: {importName: string; importPath: string | null};
 		metadata: CompositionMetadata;
 		folder?: FolderReference;
 	};
@@ -46,6 +46,37 @@ export const addComposition = <Project extends CodemodProject>({
 	const filePath = findProjectFile({project, filePath: compositionFile});
 	const input = project.files[filePath];
 	const ast = parseAst(input);
+	if (
+		component.importPath === null &&
+		!ast.program.body.some((statement) => {
+			const declaration =
+				statement.type === 'ExportNamedDeclaration' ||
+				statement.type === 'ExportDefaultDeclaration'
+					? statement.declaration
+					: statement;
+			if (
+				declaration?.type === 'FunctionDeclaration' ||
+				declaration?.type === 'ClassDeclaration'
+			) {
+				return declaration.id?.name === component.importName;
+			}
+
+			return (
+				declaration?.type === 'VariableDeclaration' &&
+				declaration.declarations.some(
+					(item) =>
+						item.id.type === 'Identifier' &&
+						item.id.name === component.importName &&
+						item.init !== null,
+				)
+			);
+		})
+	) {
+		throw new Error(
+			`Component "${component.importName}" is not declared in ${compositionFile}`,
+		);
+	}
+
 	const snapshots = captureImportSnapshots(ast);
 	const tag = ensureNamedImport({
 		ast,
@@ -53,12 +84,15 @@ export const addComposition = <Project extends CodemodProject>({
 		sourcePath: 'remotion',
 		localName: 'Composition',
 	});
-	const componentName = ensureNamedImport({
-		ast,
-		importedName: component.importName,
-		sourcePath: component.importPath,
-		localName: component.importName,
-	});
+	const componentName =
+		component.importPath === null
+			? component.importName
+			: ensureNamedImport({
+					ast,
+					importedName: component.importName,
+					sourcePath: component.importPath,
+					localName: component.importName,
+				});
 	const b = recast.types.builders;
 	const insertion = b.jsxElement(
 		b.jsxOpeningElement(

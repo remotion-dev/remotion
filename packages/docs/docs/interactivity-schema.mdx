@@ -37,7 +37,7 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 ### `Interactive.baseSchema`
 
-Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`trimAfter`](/docs/sequence#trimafter), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
 ### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
 
@@ -261,6 +261,8 @@ The label shown in Remotion Studio.
 Controls whether the field can be animated with keyframes.
 
 Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate` and `color` fields.
+
+Boolean fields use hold keyframes: their value changes at the next keyframe without blending. Boolean keyframes are available from <AvailableFrom v="4.0.530" inline />.
 
 `array` and `font-family` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
 

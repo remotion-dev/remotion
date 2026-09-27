@@ -1,5 +1,9 @@
 "use client";
 
+import type {
+  CanvasSequencePropChange,
+  CanvasSequencePropStatusResolver,
+} from "@remotion/canvas";
 import { resolveCompositionComponent } from "@remotion/codemods";
 import React, {
   useCallback,
@@ -22,6 +26,7 @@ import { useLayers } from "./hooks/use-layers";
 import { usePlaybackStore } from "./hooks/use-playback";
 import { usePreviewHost } from "./hooks/use-preview-host";
 import { findCompositionFile, getCompositions } from "./model/compositions";
+import { getSequencePropStatuses } from "./model/layers";
 import { toCodemodProject, type ProjectFiles } from "./model/project";
 import { EditorContext, type EditorContextValue } from "./state/editor-context";
 import {
@@ -131,11 +136,30 @@ export const Editor: React.FC<{
     (event: PreviewKeyEvent) => shortcutHandlerRef.current(event),
     [],
   );
+  // The actions are created below, after the host they operate on exists.
+  const sequencePropsChangeHandlerRef = useRef<
+    (changes: readonly CanvasSequencePropChange[]) => void
+  >(() => undefined);
+  const onPreviewSequencePropsChange = useCallback(
+    (changes: readonly CanvasSequencePropChange[]) =>
+      sequencePropsChangeHandlerRef.current(changes),
+    [],
+  );
+  const sequencePropStatusResolverRef =
+    useRef<CanvasSequencePropStatusResolver>(() => null);
+  const getPreviewSequencePropStatuses =
+    useCallback<CanvasSequencePropStatusResolver>(
+      (nodePathInfo, keys) =>
+        sequencePropStatusResolverRef.current(nodePathInfo, keys),
+      [],
+    );
 
   const { host, error: hostError } = usePreviewHost({
     iframeRef,
     onError: onPreviewError,
     onKeyDown: onPreviewKeyDown,
+    onSequencePropsChange: onPreviewSequencePropsChange,
+    getSequencePropStatuses: getPreviewSequencePropStatuses,
   });
   const playback = usePlaybackStore({ host, onError: onPreviewError });
   const composition = useSyncExternalStore(
@@ -234,6 +258,22 @@ export const Editor: React.FC<{
     playback,
     context: { state, host, layers, compositions, fps: compositionFps },
   });
+  sequencePropsChangeHandlerRef.current = (changes) => {
+    void actions.commitSequencePropChanges(changes);
+  };
+  // The canvas asks before a move starts; analyze the files the edit applies to.
+  sequencePropStatusResolverRef.current = (nodePathInfo, keys) =>
+    getSequencePropStatuses({
+      project,
+      nodePathInfo,
+      keys,
+      videoConfig: {
+        width: compositionWidth,
+        height: compositionHeight,
+        fps: compositionFps,
+        durationInFrames: compositionDurationInFrames,
+      },
+    });
 
   // Previewed values are released once the preview runs the committed source
   // or the compilation failed, so they never linger over stale output.

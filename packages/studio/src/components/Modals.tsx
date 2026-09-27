@@ -25,6 +25,7 @@ import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
 import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
+import {PrecomposeRefactorModal} from './PrecomposeRefactorModal';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
@@ -34,6 +35,7 @@ import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {TranscriptionModalWithOptionalWhisper} from './Transcription/TranscriptionModalWithOptionalWhisper';
 import {VideoMattingModalWithOptionalPackage} from './VideoMatting/VideoMattingModalWithOptionalPackage';
+import {WrapRefactorModal} from './WrapRefactorModal';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
@@ -282,8 +284,14 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}
+			{modalContextType && modalContextType.type === 'precompose-refactor' && (
+				<PrecomposeRefactorModal state={modalContextType} />
+			)}
 			{modalContextType && modalContextType.type === 'generate-with-agent' ? (
 				<GenerateWithAgentModal state={modalContextType} />
+			) : null}
+			{modalContextType && modalContextType.type === 'wrap-refactor' ? (
+				<WrapRefactorModal state={modalContextType} />
 			) : null}
 			{modalContextType && modalContextType.type === 'quick-switcher' && (
 				<QuickSwitcher

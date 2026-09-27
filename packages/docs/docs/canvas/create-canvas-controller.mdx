@@ -72,6 +72,8 @@ Passing an unchanged mapping is a no-op, so the function may be called from a `t
 
 Preview prop values on mounted sequences without changing the source. Overrides are applied to sequences that have a `nodePathInfo`, so register node paths first. They are kept while the composition stays mounted and are not persisted; write the final value to the source, for example with [`updateNodeProps()`](/docs/codemods/update-node-props), and clear the override once the update has been applied.
 
+The Canvas sets overrides itself while an outline is being [moved](/docs/canvas/canvas#onsequencepropschange) and leaves them in place for you to clear after persisting.
+
 #### set()
 
 `set(nodePathInfo, key, value)` overrides one prop of the sequence identified by `nodePathInfo`, a `SequenceNodePathInfo` from a track or a selection item. `key` is a key of the element's interactivity schema in dot notation, such as `'style.translate'`, `'from'` or `'durationInFrames'`.

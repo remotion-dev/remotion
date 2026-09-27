@@ -61,6 +61,7 @@ import {
 	TimelineSelectAllKeybindings,
 	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
+import {TimelineRippleEditHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
@@ -544,9 +545,11 @@ const MemoizedTimelineInner = React.memo(TimelineInner);
 export const Timeline: React.FC = () => {
 	return (
 		<TimelineTickFormatProvider>
-			<TimelineSequenceMediaDurationDragLimitsProvider>
-				<MemoizedTimelineInner />
-			</TimelineSequenceMediaDurationDragLimitsProvider>
+			<TimelineRippleEditHighlightProvider>
+				<TimelineSequenceMediaDurationDragLimitsProvider>
+					<MemoizedTimelineInner />
+				</TimelineSequenceMediaDurationDragLimitsProvider>
+			</TimelineRippleEditHighlightProvider>
 		</TimelineTickFormatProvider>
 	);
 };

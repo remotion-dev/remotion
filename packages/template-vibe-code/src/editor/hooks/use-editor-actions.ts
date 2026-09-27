@@ -3,6 +3,7 @@
 import {
   getCanvasSelectionItemKey,
   type CanvasSelectionInteraction,
+  type CanvasSequencePropChange,
   type SequenceNodePathInfo,
 } from "@remotion/canvas";
 import {
@@ -20,6 +21,8 @@ import {
   setCompositionDefaultProps,
   splitSequences,
   updateCompositionMetadata,
+  updateMultipleNodeProps,
+  updateNodeKeyframes,
   updateNodeProps,
   wrapNode,
   type CodemodElement,
@@ -27,6 +30,8 @@ import {
   type CodemodResult,
   type CodemodValue,
   type CompositionMetadata,
+  type NodeKeyframeUpdate,
+  type NodePropChange,
   type NodeReference,
   type SequencePropUpdate,
 } from "@remotion/codemods";
@@ -485,6 +490,156 @@ export const ${componentName}: React.FC = () => {
         );
         if (!ok) {
           clearPreview(layer);
+        }
+
+        return ok;
+      },
+      /**
+       * Writes the values of a canvas gesture, such as dragging outlines, to
+       * the source. The canvas keeps previewing them until `releasePreviews`.
+       */
+      commitSequencePropChanges: async (
+        changes: readonly CanvasSequencePropChange[],
+      ) => {
+        const controller = ref.current.host?.controller;
+        const videoConfig = {
+          width: ref.current.compositionWidth,
+          height: ref.current.compositionHeight,
+          fps: ref.current.compositionFps,
+          durationInFrames: ref.current.compositionDurationInFrames,
+        };
+        // Static values of one node are written together; a keyframed value
+        // receives a keyframe at the frame the canvas reported.
+        const nodeChanges = new Map<
+          string,
+          {
+            node: NodeReference;
+            nodePathInfo: SequenceNodePathInfo;
+            schema: InteractivitySchema;
+            updates: SequencePropUpdate[];
+            keyframes: NodeKeyframeUpdate[];
+          }
+        >();
+        for (const change of changes) {
+          const item = {
+            type: "sequence" as const,
+            nodePathInfo: change.nodePathInfo,
+          };
+          const node = getNodeReference(item);
+          if (!node) {
+            controller?.overrides.clear(change.nodePathInfo);
+            continue;
+          }
+
+          const key = getCanvasSelectionItemKey(item);
+          const nodeChange = nodeChanges.get(key) ?? {
+            node,
+            nodePathInfo: change.nodePathInfo,
+            schema: change.schema,
+            updates: [],
+            keyframes: [],
+          };
+          nodeChanges.set(key, nodeChange);
+          if (change.type === "keyframe") {
+            nodeChange.keyframes.push({
+              key: change.key,
+              operation: {
+                type: "add",
+                frame: change.frame,
+                value: change.value,
+              },
+            });
+          } else {
+            nodeChange.updates.push({
+              key: change.key,
+              value: change.value,
+              defaultValue: change.defaultValue,
+            });
+          }
+        }
+
+        if (nodeChanges.size === 0) {
+          return false;
+        }
+
+        const release = () => {
+          for (const { nodePathInfo } of nodeChanges.values()) {
+            pendingPreviews.delete(
+              getCanvasSelectionItemKey({ type: "sequence", nodePathInfo }),
+            );
+            controller?.overrides.clear(nodePathInfo);
+          }
+        };
+
+        for (const [key, { nodePathInfo }] of nodeChanges) {
+          pendingPreviews.set(key, nodePathInfo);
+        }
+
+        const ok = await applyCodemod(
+          async (project) => {
+            let current = project;
+            const touched = new Set<string>();
+            const collect = (result: CodemodResult) => {
+              current = applyCodemodChanges(current, result.changes);
+              for (const change of result.changes) {
+                touched.add(change.filePath);
+              }
+            };
+
+            const staticChanges = [...nodeChanges.values()].filter(
+              ({ updates }) => updates.length > 0,
+            );
+            if (staticChanges.length > 0) {
+              collect(
+                updateMultipleNodeProps({
+                  project: current,
+                  changes: staticChanges.map(
+                    ({ node, schema, updates }): NodePropChange => ({
+                      node,
+                      schema,
+                      updates,
+                      videoConfig,
+                    }),
+                  ),
+                }),
+              );
+            }
+
+            for (const { node, schema, keyframes } of nodeChanges.values()) {
+              if (keyframes.length > 0) {
+                collect(
+                  await updateNodeKeyframes({
+                    project: current,
+                    node,
+                    updates: keyframes,
+                    schema,
+                    videoConfig,
+                  }),
+                );
+              }
+            }
+
+            // One change per file, from the input project to the final contents.
+            return {
+              changes: [...touched].flatMap((filePath) => {
+                const previousContents = project.files[filePath] ?? null;
+                const nextContents = current.files[filePath] ?? null;
+                return previousContents === nextContents
+                  ? []
+                  : [{ filePath, previousContents, nextContents }];
+              }),
+            };
+          },
+          {
+            onApplied: (changed) => {
+              if (!changed) {
+                release();
+              }
+            },
+          },
+        );
+        if (!ok) {
+          release();
         }
 
         return ok;

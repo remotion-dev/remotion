@@ -57,7 +57,7 @@ let lastTooltipHiddenAt: number | null = null;
 const TOOLTIP_SKIP_DELAY_WINDOW = 300;
 
 export const ActionTooltip: React.FC<{
-	readonly label: string;
+	readonly label: React.ReactNode;
 	readonly shortcut: string | null;
 	/** Hover delay in milliseconds. Pass null to show immediately. */
 	readonly delay: number | null;

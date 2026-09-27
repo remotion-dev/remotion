@@ -74,15 +74,11 @@ Moves the blurred content on its parent timeline. Default: `0`.
 
 ### `durationInFrames?`
 
-Limits how long the blurred content appears on its parent timeline, starting at `from`. By default, it lasts until the composition ends.
+Selects how many child frames are shown, starting at `trimBefore`. The blurred content occupies `durationInFrames / playbackRate` frames in its parent timeline. By default, it lasts until the composition ends.
 
 ### `trimBefore?`
 
 Skips the beginning of the content without moving its `from` position. Default: `0`.
-
-### `trimAfter?`
-
-Ends the content at this child frame, unless `durationInFrames` ends it earlier. The frame is measured in the same clock as `trimBefore`.
 
 ### `playbackRate?`
 
@@ -90,7 +86,7 @@ Changes how quickly the child frames advance. Default: `1`. The motion blur samp
 
 ### `loop?`
 
-Repeats the range from `trimBefore` up to `trimAfter`. Set a finite `trimAfter` when enabling `loop`. `durationInFrames` can limit the total time the loop appears. Default: `false`.
+Repeats the range selected by `trimBefore` and `durationInFrames`. Set a finite `durationInFrames` when enabling `loop`. Default: `false`.
 
 See [Timing and trimming](/docs/timing) for how these props combine.
 
@@ -98,6 +94,11 @@ See [Timing and trimming](/docs/timing) for how these props combine.
 
 How many snapshots are averaged. Default: `8`, min: `1`, max: `64`.  
 Higher values make the blur smoother but cost more work during preview and rendering.
+
+### `disabled?`<AvailableFrom v="4.0.530" />
+
+Disable motion blur while keeping the content inside `<HtmlInCanvas>`. Default: `false`.
+When `true`, the component captures one sample at the current frame. You can keyframe this prop in Remotion Studio to turn motion blur on or off without remounting the canvas.
 
 ### `shutterAngle?`
 

@@ -76,7 +76,6 @@ const {
 export {orderOutlinesForRendering};
 
 export {
-	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getSelectedOutline3DRotationDragValues,
@@ -84,10 +83,6 @@ export {
 	getSelectedOutlineCropDragChanges,
 	getSelectedOutlineCropDragValues,
 	getSelectedOutlineCropFollowingTransformOrigin,
-	getSelectedOutlineDragChanges,
-	getSelectedOutlineDragValues,
-	getSelectedOutlineKeyboardNudgeDelta,
-	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
 	getSelectedOutlineRotationDragValues,
@@ -97,7 +92,6 @@ export {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
-	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	selectedOutlineUvSnapThresholdPx,
 	snapSelectedOutlineRotationDeltaDegrees,
@@ -115,7 +109,6 @@ export {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
-export {selectedOutlineDragThresholdPx} from './selected-outline-types';
 
 const getEffectiveCropValue = ({
 	activeSchema,
@@ -536,6 +529,7 @@ const calculateOutlineTargets = ({
 							propStatus,
 							clientId: connectedClientId,
 							fieldDefault: fieldSchema.default,
+							runtimeValue: runtimeValues[translateFieldKey],
 							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
 								propStatus,

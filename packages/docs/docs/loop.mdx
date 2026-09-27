@@ -35,15 +35,17 @@ You can nest loops within each other and they will cascade.
 
 [Many components](/docs/timing) accept a [`loop`](/docs/timing#loop-repeat-an-item) nowadays.
 
-It is useful if you want to mix it with other props such as `trimAfter` or `playbackRate`.
+It is useful if you want to mix it with other props such as `trimBefore` or `playbackRate`.
 
 ```tsx twoslash
 // @include: example-BlueSquare
 import {Sequence} from 'remotion';
 // ---cut---
 const WithSequence = () => (
-  <Sequence trimAfter={50} durationInFrames={150} loop>
-    <BlueSquare />
+  <Sequence durationInFrames={150}>
+    <Sequence durationInFrames={50} loop>
+      <BlueSquare />
+    </Sequence>
   </Sequence>
 );
 ```
@@ -192,5 +194,6 @@ const Child = () => {
 
 ## See also
 
+- [Order of operations](/docs/timing#order-of-operations)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/loop/index.tsx)
 - [`<Sequence>`](/docs/sequence)

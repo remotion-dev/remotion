@@ -1,11 +1,11 @@
 import {expect, test} from 'bun:test';
-import type {SelectedOutline} from '../components/selected-outline-geometry';
+import type {CanvasOutline} from '../outline-geometry';
 import {
-	findSelectedOutlineSnap,
-	getSelectedOutlineSnapTargets,
-	type SelectedOutlineSnapTarget,
-} from '../components/selected-outline-snap';
-import type {Guide} from '../state/editor-guides';
+	findCanvasOutlineSnap,
+	getCanvasOutlineSnapTargets,
+	type CanvasOutlineSnapGuide,
+	type CanvasOutlineSnapTarget,
+} from '../outline-snap';
 
 const makeOutline = ({
 	height,
@@ -19,7 +19,7 @@ const makeOutline = ({
 	readonly scale?: number;
 	readonly top: number;
 	readonly width: number;
-}): SelectedOutline => {
+}): CanvasOutline => {
 	const right = left + width;
 	const bottom = top + height;
 
@@ -38,17 +38,17 @@ const makeOutline = ({
 };
 
 const getTargets = (
-	guides: readonly Guide[] = [],
-): readonly SelectedOutlineSnapTarget[] => {
-	return getSelectedOutlineSnapTargets({
+	guides: readonly CanvasOutlineSnapGuide[] = [],
+): readonly CanvasOutlineSnapTarget[] => {
+	return getCanvasOutlineSnapTargets({
 		compositionHeight: 600,
 		compositionWidth: 1000,
 		guides,
 	});
 };
 
-test('selected outlines snap to the horizontal and vertical canvas center', () => {
-	const result = findSelectedOutlineSnap({
+test('outlines snap to the horizontal and vertical canvas center', () => {
+	const result = findCanvasOutlineSnap({
 		allowX: true,
 		allowY: true,
 		deltaX: 0,
@@ -66,8 +66,8 @@ test('selected outlines snap to the horizontal and vertical canvas center', () =
 	]);
 });
 
-test('selected outlines snap their edges to canvas edges', () => {
-	const result = findSelectedOutlineSnap({
+test('outlines snap their edges to canvas edges', () => {
+	const result = findCanvasOutlineSnap({
 		allowX: true,
 		allowY: true,
 		deltaX: 0,
@@ -86,7 +86,7 @@ test('selected outlines snap their edges to canvas edges', () => {
 });
 
 test('snap threshold is measured in screen pixels', () => {
-	const result = findSelectedOutlineSnap({
+	const result = findCanvasOutlineSnap({
 		allowX: true,
 		allowY: true,
 		deltaX: 0,
@@ -106,23 +106,11 @@ test('snap threshold is measured in screen pixels', () => {
 });
 
 test('visible guides become snap targets for item edges and centers', () => {
-	const guides: Guide[] = [
-		{
-			compositionId: 'comp',
-			id: 'vertical-guide',
-			orientation: 'vertical',
-			position: 300,
-			show: true,
-		},
-		{
-			compositionId: 'comp',
-			id: 'hidden-guide',
-			orientation: 'horizontal',
-			position: 240,
-			show: false,
-		},
+	const guides: CanvasOutlineSnapGuide[] = [
+		{orientation: 'vertical', position: 300, show: true},
+		{orientation: 'horizontal', position: 240, show: false},
 	];
-	const result = findSelectedOutlineSnap({
+	const result = findCanvasOutlineSnap({
 		allowX: true,
 		allowY: true,
 		deltaX: 0,
@@ -140,7 +128,7 @@ test('visible guides become snap targets for item edges and centers', () => {
 });
 
 test('axis lock prevents snapping along the locked axis', () => {
-	const result = findSelectedOutlineSnap({
+	const result = findCanvasOutlineSnap({
 		allowX: false,
 		allowY: true,
 		deltaX: 0,
@@ -158,7 +146,7 @@ test('axis lock prevents snapping along the locked axis', () => {
 });
 
 test('full-canvas selections prefer center snap when edges tie', () => {
-	const result = findSelectedOutlineSnap({
+	const result = findCanvasOutlineSnap({
 		allowX: true,
 		allowY: true,
 		deltaX: 0,

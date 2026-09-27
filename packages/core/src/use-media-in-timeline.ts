@@ -1,4 +1,4 @@
-import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {useCallback, useContext, useMemo} from 'react';
 import {
 	Html5MediaTrimContext,
 	useMediaStartsAt,
@@ -20,21 +20,9 @@ import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
 
-const didWarn: {[key: string]: boolean} = {};
-const warnOnce = (message: string) => {
-	if (didWarn[message]) {
-		return;
-	}
-
-	// eslint-disable-next-line no-console
-	console.warn(message);
-	didWarn[message] = true;
-};
-
 export const useBasicMediaInTimeline = ({
 	volume,
 	mediaVolume,
-	mediaType,
 	src,
 	displayName,
 	trimBefore,
@@ -48,7 +36,6 @@ export const useBasicMediaInTimeline = ({
 }: {
 	volume: VolumeProp | undefined;
 	mediaVolume: number;
-	mediaType: 'audio' | 'video' | 'image';
 	src: string | undefined;
 	displayName: string | null;
 	trimBefore: number | undefined;
@@ -66,8 +53,6 @@ export const useBasicMediaInTimeline = ({
 
 	const parentSequence = useContext(SequenceContext);
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
-
-	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 
 	const duration = getTimelineDuration({
 		compositionDurationInFrames: sequenceDurationInFrames,
@@ -116,14 +101,6 @@ export const useBasicMediaInTimeline = ({
 		mediaVolume,
 		sequencePlaybackRate,
 	]);
-
-	useEffect(() => {
-		if (typeof volume === 'number' && volume !== initialVolume) {
-			warnOnce(
-				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/audio/volume`,
-			);
-		}
-	}, [initialVolume, mediaType, src, volume]);
 
 	const doesVolumeChange = typeof volume === 'function';
 
@@ -215,7 +192,6 @@ export const useMediaInTimeline = ({
 	} = useBasicMediaInTimeline({
 		volume: loopContext && typeof volume === 'function' ? undefined : volume,
 		mediaVolume,
-		mediaType,
 		src,
 		displayName,
 		trimAfter: undefined,

@@ -2,7 +2,10 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {Html5MediaTrimContext} from '../audio/use-audio-frame.js';
-import {calculateMediaDuration} from '../calculate-media-duration.js';
+import {
+	calculateMediaDuration,
+	getMediaTrimAfter,
+} from '../calculate-media-duration.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Loop} from '../loop/index.js';
 import {usePreload} from '../prefetch.js';
@@ -15,6 +18,7 @@ import {
 	resolveTrimProps,
 	validateMediaTrimProps,
 } from '../validate-start-from-props.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {DurationsContext} from './duration-state.js';
 import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
 import {VideoForPreview} from './VideoForPreview.js';
@@ -35,6 +39,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		endAt,
 		trimBefore,
 		trimAfter,
+		durationInFrames,
 		name,
 		pauseWhenBuffering,
 		_remotionInternalStack,
@@ -83,17 +88,29 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		durations[getAbsoluteSrc(props.src)];
 
 	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+	if (durationInFrames !== undefined) {
+		validateDurationInFrames(durationInFrames, {
+			component: 'of the <Html5Video /> component',
+			allowFloats: true,
+		});
+	}
+
 	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
 		startFrom,
 		endAt,
 		trimBefore,
 		trimAfter,
 	});
+	const effectiveTrimAfter = getMediaTrimAfter({
+		durationInFrames,
+		trimAfter: trimAfterValue,
+		trimBefore: trimBeforeValue,
+	});
 
 	// An explicit trim end defines the loop before metadata has loaded. Waiting
 	// for metadata would leave the media unmounted when seeking into later loops.
 	const loopDuration =
-		trimAfterValue ??
+		effectiveTrimAfter ??
 		(durationFetched === undefined ? undefined : durationFetched * fps);
 	if (loop && loopDuration !== undefined) {
 		if (!Number.isFinite(loopDuration)) {
@@ -110,7 +127,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		return (
 			<Loop
 				durationInFrames={calculateMediaDuration({
-					trimAfter: trimAfterValue,
+					trimAfter: effectiveTrimAfter,
 					mediaDurationInFrames: loopDuration,
 					playbackRate: props.playbackRate ?? 1,
 					trimBefore: trimBeforeValue,
@@ -131,7 +148,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (
 		typeof trimBeforeValue !== 'undefined' ||
-		typeof trimAfterValue !== 'undefined'
+		typeof effectiveTrimAfter !== 'undefined'
 	) {
 		return (
 			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
@@ -140,10 +157,10 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					from={0 - (trimBeforeValue ?? 0)}
 					showInTimeline={false}
 					durationInFrames={
-						trimAfterValue === undefined
+						effectiveTrimAfter === undefined
 							? undefined
 							: (trimBeforeValue ?? 0) +
-								(trimAfterValue - (trimBeforeValue ?? 0)) /
+								(effectiveTrimAfter - (trimBeforeValue ?? 0)) /
 									(props.playbackRate ?? 1)
 					}
 					name={name}

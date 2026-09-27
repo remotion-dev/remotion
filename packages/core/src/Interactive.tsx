@@ -84,7 +84,6 @@ export type InteractiveBaseProps = Pick<
 	| 'durationInFrames'
 	| 'from'
 	| 'trimBefore'
-	| 'trimAfter'
 	| 'playbackRate'
 	| 'loop'
 	| 'freeze'
@@ -250,7 +249,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			styleWhilePremounted,
 			styleWhilePostmounted,
 			trimBefore,
-			trimAfter,
 			playbackRate,
 			loop,
 			freeze,
@@ -280,8 +278,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			from: from ?? 0,
 			durationInFrames: resolveSequenceDuration({
 				durationInFrames,
-				trimBefore,
-				trimAfter,
 				playbackRate,
 				loop,
 			}),
@@ -313,10 +309,9 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
-					trimAfter={trimAfter}
 					playbackRate={playbackRate}
 					loop={loop}
-					durationInFrames={durationInFrames ?? Infinity}
+					durationInFrames={durationInFrames}
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? displayName}

@@ -6,12 +6,17 @@ import {
   type TimelineTrackData,
 } from "@remotion/canvas";
 import {
+  getNodeProps,
   getNodes,
   type CodemodProject,
   type CodemodNode,
   type NodeReference,
 } from "@remotion/codemods";
-import type { SequencePropsSubscriptionKey } from "remotion";
+import type {
+  CanUpdateSequencePropStatus,
+  SequencePropsSubscriptionKey,
+  VideoConfigValues,
+} from "remotion";
 
 export type Layer = {
   track: TimelineTrackData;
@@ -137,6 +142,34 @@ export const getNodeReference = (
   }
 
   return { filePath: absolutePath, nodePath };
+};
+
+/**
+ * How the props of a sequence are written in the source, for the Canvas to
+ * decide what can be moved. `null` when the sequence has no source node or the
+ * file cannot be analyzed.
+ */
+export const getSequencePropStatuses = ({
+  project,
+  nodePathInfo,
+  keys,
+  videoConfig,
+}: {
+  project: CodemodProject;
+  nodePathInfo: SequenceNodePathInfo;
+  keys: readonly string[];
+  videoConfig: VideoConfigValues;
+}): Record<string, CanUpdateSequencePropStatus> | null => {
+  const node = getNodeReference({ type: "sequence", nodePathInfo });
+  if (!node) {
+    return null;
+  }
+
+  try {
+    return getNodeProps({ project, node, keys: [...keys], videoConfig }).props;
+  } catch {
+    return null;
+  }
 };
 
 /** Two JSX elements that are children of the same parent element. */

@@ -18,7 +18,10 @@ export type CanvasSelectableOutline = {
 	readonly keyframeDisplayOffset: number;
 	readonly keyframePlaybackRate: number;
 	readonly key: string;
+	/** The identity used for selection and hover, from the resolver. */
 	readonly nodePathInfo: SequenceNodePathInfo;
+	/** The source node registered with `setSequenceNodePaths()`, which overrides require. */
+	readonly registeredNodePathInfo: SequenceNodePathInfo | null;
 	readonly sequence: TSequence;
 };
 
@@ -84,6 +87,7 @@ export const getCanvasSelectableOutlines = ({
 					keyframePlaybackRate: track.keyframePlaybackRate,
 					key: getCanvasSequenceSelectionKey(nodePathInfo),
 					nodePathInfo,
+					registeredNodePathInfo: track.nodePathInfo,
 					sequence,
 				},
 			];

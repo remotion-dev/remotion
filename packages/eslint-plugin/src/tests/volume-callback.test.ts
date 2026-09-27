@@ -77,10 +77,7 @@ export const Re = () => {
   );
 }
           `,
-	],
-	invalid: [
-		{
-			code: `
+		`
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -91,14 +88,7 @@ export const Re = () => {
   );
 }
       `,
-			errors: [
-				{
-					messageId: 'VolumeCallback',
-				},
-			],
-		},
-		{
-			code: `
+		`
 import {Html5Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -109,14 +99,7 @@ export const Re = () => {
   );
 }
       `,
-			errors: [
-				{
-					messageId: 'VolumeCallback',
-				},
-			],
-		},
-		{
-			code: `
+		`
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -127,11 +110,6 @@ export const Re = () => {
   );
 }
       `,
-			errors: [
-				{
-					messageId: 'VolumeCallback',
-				},
-			],
-		},
 	],
+	invalid: [],
 });

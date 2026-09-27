@@ -12,6 +12,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {getKeyframeLocalFrame} from './get-timeline-keyframes';
+import {roundToDecimalPlaces} from './timeline-field-utils';
 import {TimelineFieldValue} from './TimelineSchemaField';
 
 const valuesEqual = (left: unknown, right: unknown): boolean => {
@@ -44,7 +45,7 @@ export const TimelineKeyframedValue: React.FC<{
 			status: propStatus,
 		});
 		if (typeof raw === 'number') {
-			return Math.round(raw * 100) / 100;
+			return roundToDecimalPlaces(raw, 2);
 		}
 
 		return raw;
@@ -60,13 +61,18 @@ export const TimelineKeyframedValue: React.FC<{
 	);
 
 	const effectiveValue = useMemo(() => {
-		return Internals.getEffectiveVisualModeValue({
+		const raw = Internals.getEffectiveVisualModeValue({
 			propStatus: fakeStatus,
 			dragOverrideValue,
 			frame: getKeyframeLocalFrame(sourceFrame, propStatus),
 			defaultValue: field.fieldSchema.default,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
+		if (typeof raw === 'number') {
+			return roundToDecimalPlaces(raw, 2);
+		}
+
+		return raw;
 	}, [
 		dragOverrideValue,
 		fakeStatus,

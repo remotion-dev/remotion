@@ -11,6 +11,7 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
@@ -28,6 +29,7 @@ const sequencePropShortcuts = [
 	{action: 'selectRotateProp', fieldKey: 'style.rotate'},
 	{action: 'selectScaleProp', fieldKey: 'style.scale'},
 	{action: 'selectOpacityProp', fieldKey: 'style.opacity'},
+	{action: 'selectVolumeProp', fieldKey: 'volume'},
 ] as const satisfies readonly {
 	readonly action: StudioKeyboardShortcutAction;
 	readonly fieldKey: string;
@@ -43,6 +45,7 @@ export const GlobalKeybindings: React.FC = () => {
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setEditorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {setEditorShowPixelGrid} = useContext(EditorShowPixelGridContext);
 	const {editorShowRulers, setEditorShowRulers} = useContext(
 		EditorShowRulersContext,
 	);
@@ -82,9 +85,20 @@ export const GlobalKeybindings: React.FC = () => {
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
+		const pixelGrid = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'togglePixelGrid',
+			callback: (event) => {
+				if (!event.repeat) setEditorShowPixelGrid((current) => !current);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
 		return () => {
 			outlines?.unregister();
 			rulers.unregister();
+			pixelGrid.unregister();
 		};
 	}, [
 		keybindings,
@@ -93,6 +107,7 @@ export const GlobalKeybindings: React.FC = () => {
 		editorShowRulers,
 		editorShowGuides,
 		setEditorShowOutlines,
+		setEditorShowPixelGrid,
 		setEditorShowRulers,
 		setEditorShowGuides,
 	]);

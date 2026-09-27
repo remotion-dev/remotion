@@ -79,7 +79,7 @@ export const CanvasOrLoading: React.FC<{
 		}
 
 		const route = getRoute();
-		if (route === '') {
+		if (route === '' || route === '/') {
 			return (
 				<div style={container} className="css-reset">
 					<div style={welcomeLabel}>Select a composition to get started.</div>

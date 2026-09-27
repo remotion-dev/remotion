@@ -1,12 +1,12 @@
-import {
-	CanvasInternals,
-	getCanvasSelectionItemKey,
-	useCanvasSelection,
-} from '@remotion/canvas';
 import type {
 	CanvasSelectionInteraction,
 	CanvasSelectionItem,
 	CanvasSelectionSnapshot,
+} from '@remotion/canvas';
+import {
+	CanvasInternals,
+	getCanvasSelectionItemKey,
+	useCanvasSelection,
 } from '@remotion/canvas';
 import {
 	canEditEasingForInterpolationFunction,
@@ -656,7 +656,11 @@ const getTimelineTreeNodeCanEditEasing = ({
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly propStatuses: PropStatuses;
 }) => {
-	if (node.kind !== 'field' || node.field === null) {
+	if (
+		node.kind !== 'field' ||
+		node.field === null ||
+		node.field.fieldSchema.type === 'boolean'
+	) {
 		return false;
 	}
 

@@ -88,7 +88,6 @@ mock.module('remotion', () => {
 				durationInFrames: {},
 				from: {},
 				trimBefore: {},
-				trimAfter: {},
 				loop: {},
 				freeze: {},
 				hidden: {},
