@@ -97,7 +97,16 @@ export const Modals: React.FC<{
 						`Could not add Element Library: ${result.reason}`,
 						4000,
 					);
+					return;
 				}
+
+				const parsedUrl = new URL(url);
+				const pathname = parsedUrl.pathname.replace(/\/$/, '');
+				setSelectedModal({
+					type: 'element-library',
+					name: displayName ?? `${parsedUrl.host}${pathname}`,
+					url,
+				});
 			} catch (error) {
 				showNotification(
 					`Could not add Element Library: ${(error as Error).message}`,
@@ -105,7 +114,7 @@ export const Modals: React.FC<{
 				);
 			}
 		},
-		[confirm, previewServerState],
+		[confirm, previewServerState, setSelectedModal],
 	);
 
 	useEffect(() => {
