@@ -101,6 +101,12 @@ const addKeyframeToPropStatus = ({
 		return {
 			status: 'keyframed',
 			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
+			...(status.keyframePlaybackRateAdjustment === undefined
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							status.keyframePlaybackRateAdjustment,
+					}),
 			interpolationFunction: getKeyframeInterpolationFunction({
 				schema,
 				key: fieldKey,

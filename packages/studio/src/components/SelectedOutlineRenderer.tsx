@@ -266,7 +266,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			))}
 			{outlinesForRendering.map((outline) => {
 				const target = targetsByKey.get(outline.key);
-				const pathDrag = target?.selected
+				const pathDrag = target?.containsSelection
 					? (getLatestOutlineTargetByKey(outline.key)?.pathDrag ?? null)
 					: null;
 				return outline.path !== null && pathDrag !== null ? (

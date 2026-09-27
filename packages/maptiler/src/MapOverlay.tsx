@@ -132,6 +132,7 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -141,7 +142,7 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 	ref,
 ) => {
 	const {map} = useContext(MapTilerContext);
-	const refForOutline = useRef<HTMLDivElement>(null);
+	const elementRef = useRef<HTMLDivElement>(null);
 	const point = map?.project([longitude, latitude]);
 	const horizontalAnchor = anchor.includes('left')
 		? 0
@@ -154,7 +155,7 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 			? -100
 			: -50;
 
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 	const {
 		effectivePremountFor,
@@ -166,7 +167,11 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: {opacity, ...style},
@@ -181,20 +186,20 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<MapOverlay>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
 				<div
-					ref={refForOutline}
+					ref={elementRef}
 					style={{
 						left: (point?.x ?? 0) + offsetX,
 						opacity,

@@ -115,7 +115,7 @@ export const InspectorLocationCopy: React.FC<{
 							variant={null}
 							onClick={onCopy}
 							renderAction={renderCopyAction}
-							title="Copy context for agents"
+							aria-label="Copy context for agents"
 						/>
 					) : null}
 				</div>

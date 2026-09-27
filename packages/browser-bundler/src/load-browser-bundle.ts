@@ -14,7 +14,10 @@ export const loadBrowserBundle = ({bundle}: {bundle: BrowserBundle}): FC => {
 		);
 	}
 
-	const scope = createBrowserModuleScope(null);
+	const scope = createBrowserModuleScope({
+		additionalModules: null,
+		addSourceLocations: false,
+	});
 	scope.evaluate(bundle.code);
 	return scope.getRoot();
 };

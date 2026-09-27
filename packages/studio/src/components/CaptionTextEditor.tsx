@@ -231,7 +231,7 @@ export const CaptionTextEditor: React.FC<{
 										style={{height: 16, width: 16}}
 									/>
 								)}
-								title={pageBreakTitle}
+								aria-label={pageBreakTitle}
 								variant={null}
 							/>
 						</div>

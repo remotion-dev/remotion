@@ -220,7 +220,6 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 				type="button"
 				style={interactiveStyle}
-				title={`Easing from frame ${fromFrame} to ${toFrame}`}
 				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
 				onPointerDown={selectable ? onPointerDown : undefined}
 			>

@@ -6,13 +6,13 @@ crumb: '@remotion/cli'
 sidebar_label: 'ffprobe'
 ---
 
-_available since v4.0_
+# npx remotion ffprobe<AvailableFrom v="4.0" />
 
 In order to use `ffprobe` without having to directly install it, Remotion provides it via `npx remotion ffprobe`.
 
 Note that in order to keep the binary size small, the FFprobe binary only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes. A binary from the 7.1 release line of FFprobe is used.
 
-# Example
+## Example
 
 ```bash
 npx remotion ffprobe your_video.mp4

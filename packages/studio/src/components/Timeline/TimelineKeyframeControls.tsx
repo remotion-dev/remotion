@@ -40,6 +40,7 @@ import {
 	hasKeyframeAtSourceFrame,
 } from './get-keyframe-navigation';
 import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 	getTimelineKeyframes,
@@ -365,6 +366,8 @@ const getAddChange = (
 ): AddSequenceKeyframeChange | AddEffectKeyframeChange | null => {
 	if (
 		target.propStatus.status === 'computed' ||
+		(target.propStatus.status === 'static' &&
+			target.propStatus.canKeyframe === false) ||
 		!isSchemaFieldKeyframable({schema: target.schema, key: target.fieldKey}) ||
 		hasTargetKeyframeAtCurrentFrame(target)
 	) {
@@ -374,8 +377,9 @@ const getAddChange = (
 	const value = getCurrentKeyframeValue({
 		propStatus: target.propStatus,
 		jsxFrame:
-			target.sourceFrame +
-			(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0),
+			(target.sourceFrame +
+				(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0)) /
+			(target.propStatus.keyframePlaybackRateAdjustment ?? 1),
 		defaultValue: target.defaultValue,
 		dragOverrideValue: target.dragOverrideValue,
 	});
@@ -550,7 +554,7 @@ export const TimelineKeyframeControls: React.FC<{
 }) => {
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const setFrame = Internals.Timeline.useTimelineSeekFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -634,10 +638,12 @@ export const TimelineKeyframeControls: React.FC<{
 		selected: propertySelected,
 	});
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema,
-		key: fieldKey,
-	});
+	const keyframable =
+		!(propStatus.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema,
+			key: fieldKey,
+		});
 	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		canUseKeyframeOperations() &&
@@ -718,7 +724,7 @@ export const TimelineKeyframeControls: React.FC<{
 
 	const seekToDisplayFrame = useCallback(
 		(frame: number, direction: 'fit-left' | 'fit-right') => {
-			setFrame((current) => {
+			seekFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
@@ -729,7 +735,7 @@ export const TimelineKeyframeControls: React.FC<{
 				frame,
 			});
 		},
-		[setFrame, videoConfig.durationInFrames, videoConfig.id],
+		[seekFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 
 	const onPrevious = useCallback(
@@ -823,7 +829,11 @@ export const TimelineKeyframeControls: React.FC<{
 						type: 'keyframe' as const,
 						nodePathInfo: target.nodePathInfo,
 						frame:
-							target.sourceFrame / target.keyframePlaybackRate +
+							target.sourceFrame /
+								getKeyframePlaybackRate(
+									target.propStatus,
+									target.keyframePlaybackRate,
+								) +
 							target.keyframeDisplayOffset,
 					})),
 					{reveal: true},
@@ -892,7 +902,6 @@ export const TimelineKeyframeControls: React.FC<{
 				disabled={previousDisabled}
 				onPointerDown={previousDisabled ? undefined : onPrevious}
 				aria-label="Go to previous keyframe"
-				title="Previous keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
@@ -908,7 +917,6 @@ export const TimelineKeyframeControls: React.FC<{
 				aria-label={
 					hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'
 				}
-				title={hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'}
 			>
 				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
 			</button>
@@ -918,7 +926,6 @@ export const TimelineKeyframeControls: React.FC<{
 				disabled={nextDisabled}
 				onPointerDown={nextDisabled ? undefined : onNext}
 				aria-label="Go to next keyframe"
-				title="Next keyframe"
 			>
 				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 					<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />

@@ -377,6 +377,7 @@ export const MapPolygon = (props: MapPolygonProps) => {
 		showInTimeline,
 		trimBefore,
 		playbackRate,
+		loop,
 	} = props;
 
 	const {
@@ -388,7 +389,11 @@ export const MapPolygon = (props: MapPolygonProps) => {
 		postmountingActive,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -403,6 +408,7 @@ export const MapPolygon = (props: MapPolygonProps) => {
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}

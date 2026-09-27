@@ -10,6 +10,7 @@ import type {
 	CanvasOutlineTarget,
 } from './outline-geometry';
 import {getCanvasOutlinePoint} from './outline-geometry';
+import {getCanvasOutlineNodes} from './outline-nodes';
 
 const rectToPoints = (
 	elementRect: DOMRect,
@@ -321,22 +322,10 @@ const getPathOutline = ({
 
 const getElementOutlinePoints = (
 	element: Element,
+	elementRect: DOMRect,
 	containerRect: DOMRect,
-	includeOutsideContainer: boolean,
 ): CanvasOutline['points'] | null => {
-	const elementRect = element.getBoundingClientRect();
-
 	if (elementRect.width === 0 && elementRect.height === 0) {
-		return null;
-	}
-
-	if (
-		!includeOutsideContainer &&
-		(elementRect.right <= containerRect.left ||
-			elementRect.left >= containerRect.right ||
-			elementRect.bottom <= containerRect.top ||
-			elementRect.top >= containerRect.bottom)
-	) {
 		return null;
 	}
 
@@ -392,17 +381,94 @@ export const measureCanvasOutlineTargets = (
 	resetBoxQuadsCache();
 	const containerRect = container.getBoundingClientRect();
 	const outlines: CanvasOutline[] = [];
+	const rects = new Map<Element | Text, DOMRect>();
+	const geometry = new Map<
+		Element,
+		Pick<CanvasOutline, 'dimensions' | 'path'> & {
+			uncroppedPoints: CanvasOutline['points'];
+		}
+	>();
 
 	for (const target of targets) {
-		const element = target.ref.current;
-		if (element === null) {
+		const nodes = getCanvasOutlineNodes(target.ref);
+		let left = Infinity;
+		let top = Infinity;
+		let right = -Infinity;
+		let bottom = -Infinity;
+		const measurableNodes: (Element | Text)[] = [];
+		for (const node of nodes) {
+			let rect = rects.get(node);
+			if (rect === undefined) {
+				if (node.nodeType === 3) {
+					const range = node.ownerDocument.createRange();
+					range.selectNodeContents(node);
+					rect = range.getBoundingClientRect();
+				} else {
+					rect = (node as Element).getBoundingClientRect();
+				}
+
+				rects.set(node, rect);
+			}
+
+			if (rect.width === 0 && rect.height === 0) {
+				continue;
+			}
+
+			measurableNodes.push(node);
+			left = Math.min(left, rect.left);
+			top = Math.min(top, rect.top);
+			right = Math.max(right, rect.right);
+			bottom = Math.max(bottom, rect.bottom);
+		}
+
+		if (
+			measurableNodes.length === 0 ||
+			(!target.includeOutsideContainer &&
+				(right <= containerRect.left ||
+					left >= containerRect.right ||
+					bottom <= containerRect.top ||
+					top >= containerRect.bottom))
+		) {
 			continue;
+		}
+
+		if (measurableNodes.length !== 1 || measurableNodes[0].nodeType !== 1) {
+			const groupPoints: CanvasOutline['points'] = [
+				{x: left - containerRect.left, y: top - containerRect.top},
+				{x: right - containerRect.left, y: top - containerRect.top},
+				{x: right - containerRect.left, y: bottom - containerRect.top},
+				{x: left - containerRect.left, y: bottom - containerRect.top},
+			];
+			outlines.push({
+				key: target.key,
+				points: groupPoints,
+				uncroppedPoints: groupPoints,
+				dimensions: null,
+				path: null,
+			});
+			continue;
+		}
+
+		const element = measurableNodes[0] as Element;
+		const cached = geometry.get(element);
+		if (cached) {
+			outlines.push({
+				...cached,
+				key: target.key,
+				points: cropCanvasOutlinePoints(cached.uncroppedPoints, target.crop),
+			});
+			continue;
+		}
+
+		const elementRect = rects.get(element);
+		if (elementRect === undefined) {
+			throw new Error('Expected a measured outline element');
 		}
 
 		const uncroppedPoints = getElementOutlinePoints(
 			element,
+			elementRect,
 			containerRect,
-			target.includeOutsideContainer,
 		);
 		if (uncroppedPoints === null) {
 			continue;
@@ -415,8 +481,7 @@ export const measureCanvasOutlineTargets = (
 			? getPathOutline({element, containerRect})
 			: null;
 
-		outlines.push({
-			key: target.key,
+		const measured = {
 			dimensions:
 				(typeof HTMLElement !== 'undefined' &&
 					element instanceof HTMLElement) ||
@@ -432,9 +497,10 @@ export const measureCanvasOutlineTargets = (
 							}
 						: null,
 			uncroppedPoints,
-			points,
 			path,
-		});
+		};
+		geometry.set(element, measured);
+		outlines.push({...measured, key: target.key, points});
 	}
 
 	return outlines;

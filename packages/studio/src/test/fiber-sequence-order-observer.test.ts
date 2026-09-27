@@ -1,9 +1,9 @@
 import {afterEach, expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/canvas';
 import {Internals} from 'remotion';
-import {
-	collectCommitOrderFromFiber,
-	installFiberCommitOrderObserver,
-} from '../helpers/install-fiber-sequence-order-observer';
+
+const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =
+	CanvasInternals;
 
 type TestFiber = {
 	child: TestFiber | null;
@@ -11,6 +11,9 @@ type TestFiber = {
 	memoizedProps: unknown;
 	sibling: TestFiber | null;
 	type: unknown;
+	tag: number | null;
+	stateNode: unknown;
+	memoizedState: unknown;
 };
 
 const makeFiber = ({
@@ -32,6 +35,9 @@ const makeFiber = ({
 		memoizedProps: props,
 		sibling: null,
 		type,
+		tag: null,
+		stateNode: null,
+		memoizedState: null,
 	};
 };
 
@@ -107,6 +113,7 @@ test('collects sequence, composition, and folder order per manager', () => {
 	};
 
 	expect(collectCommitOrderFromFiber(root)).toEqual({
+		outlineCount: 0,
 		sequenceManagers: [
 			{managerId: 'sequences', sequenceIds: ['left', 'right']},
 		],

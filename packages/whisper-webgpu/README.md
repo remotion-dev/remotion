@@ -1,6 +1,6 @@
 # @remotion/whisper-webgpu
 
-Transcribe audio in the browser or Node.js using Whisper and WebGPU
+Transcribe audio in the browser using Whisper and WebGPU
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/whisper-webgpu.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/whisper-webgpu?minimal=true)
 

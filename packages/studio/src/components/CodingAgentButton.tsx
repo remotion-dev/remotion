@@ -88,7 +88,6 @@ export const CodingAgentButton: React.FC<{
 			}}
 			size={size}
 			style={style}
-			title={`${label} ${defaultCodingAgent.nameWithType}`}
 		>
 			<CodingAgentIcon
 				codingAgentId={defaultCodingAgent.id}

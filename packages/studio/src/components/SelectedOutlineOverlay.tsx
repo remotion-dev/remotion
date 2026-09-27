@@ -55,10 +55,7 @@ import {
 } from './selected-outline-types';
 import {SelectedOutlineKeyboardControls} from './SelectedOutlineKeyboardControls';
 import {SelectedOutlineRenderer} from './SelectedOutlineRenderer';
-import {
-	getKeyframeDisplayOffset,
-	getKeyframeSourceFrame,
-} from './Timeline/get-timeline-keyframes';
+import {getKeyframeDisplayOffset} from './Timeline/get-timeline-keyframes';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -79,7 +76,6 @@ const {
 export {orderOutlinesForRendering};
 
 export {
-	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getSelectedOutline3DRotationDragValues,
@@ -87,10 +83,6 @@ export {
 	getSelectedOutlineCropDragChanges,
 	getSelectedOutlineCropDragValues,
 	getSelectedOutlineCropFollowingTransformOrigin,
-	getSelectedOutlineDragChanges,
-	getSelectedOutlineDragValues,
-	getSelectedOutlineKeyboardNudgeDelta,
-	getSelectedOutlineKeyboardNudgeDeltas,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
 	getSelectedOutlineRotationDragValues,
@@ -100,7 +92,6 @@ export {
 	getSelectedOutlineScaleEdgeInfo,
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
-	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,
 	selectedOutlineUvSnapThresholdPx,
 	snapSelectedOutlineRotationDeltaDegrees,
@@ -118,7 +109,6 @@ export {
 	getSequencesWithSelectableOutlines,
 	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
-export {selectedOutlineDragThresholdPx} from './selected-outline-types';
 
 const getEffectiveCropValue = ({
 	activeSchema,
@@ -305,12 +295,7 @@ const calculateOutlineTargets = ({
 			keyframeDisplayOffset,
 			keyframePlaybackRate,
 		});
-		const sourceFrame = getKeyframeSourceFrame({
-			displayFrame: targetTimelinePosition,
-			keyframeDisplayOffset: nodeKeyframeDisplayOffset,
-			keyframePlaybackRate,
-			propStatus: firstKeyframedStatus ?? null,
-		});
+
 		const dragOverrides = getDragOverrides(nodePath) ?? {};
 		const runtimeValues = controls
 			? (runtimeValuesByStore.get(controls.runtimeValues) ??
@@ -322,7 +307,9 @@ const calculateOutlineTargets = ({
 					currentRuntimeValueDotNotation: runtimeValues,
 					dragOverrides,
 					propStatus: nodePropStatuses,
-					frame: sourceFrame,
+					frame:
+						(targetTimelinePosition - keyframeDisplayOffset) *
+						keyframePlaybackRate,
 				})
 			: null;
 		const cropValues = {
@@ -330,7 +317,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.left,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -338,7 +327,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.right,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -346,7 +337,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.top,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -354,7 +347,9 @@ const calculateOutlineTargets = ({
 				activeSchema,
 				dragOverrides,
 				fieldKey: cropFieldKeys.bottom,
-				frame: sourceFrame,
+				frame:
+					(targetTimelinePosition - keyframeDisplayOffset) *
+					keyframePlaybackRate,
 				propStatuses: nodePropStatuses,
 				runtimeValues,
 			}),
@@ -385,7 +380,9 @@ const calculateOutlineTargets = ({
 							propStatus: transformOriginPropStatus ?? null,
 							dragOverrideValue: dragOverrides[transformOriginFieldKey],
 							defaultValue: transformOriginFieldSchema.default,
-							frame: sourceFrame,
+							frame:
+								(targetTimelinePosition - keyframeDisplayOffset) *
+								keyframePlaybackRate,
 							shouldResortToDefaultValueIfUndefined: true,
 						}) ?? transformOriginFieldSchema.default,
 					)
@@ -450,20 +447,10 @@ const calculateOutlineTargets = ({
 					runtimeValue: runtimeValues[fieldKey],
 				}),
 			);
-		const transformOriginSourceFrame =
-			selectedTransformOriginInfo?.displayFrame === null ||
-			selectedTransformOriginInfo?.displayFrame === undefined
-				? sourceFrame
-				: getKeyframeSourceFrame({
-						displayFrame: selectedTransformOriginInfo.displayFrame,
-						propStatus: transformOriginPropStatus ?? null,
-						keyframeDisplayOffset: getKeyframeDisplayOffset({
-							propStatus: transformOriginPropStatus ?? null,
-							keyframeDisplayOffset,
-							keyframePlaybackRate,
-						}),
-						keyframePlaybackRate,
-					});
+		const transformOriginLocalFrame =
+			((selectedTransformOriginInfo?.displayFrame ?? targetTimelinePosition) -
+				keyframeDisplayOffset) *
+			keyframePlaybackRate;
 		const canTransformOriginStatus =
 			transformOriginPropStatus?.status === 'static' ||
 			(transformOriginPropStatus?.status === 'keyframed' &&
@@ -497,12 +484,25 @@ const calculateOutlineTargets = ({
 					previewInteractive &&
 					controls !== null &&
 					pathFieldSchema?.type === 'svg-path' &&
-					pathPropStatus?.status === 'static' &&
-					typeof pathPropStatus.codeValue === 'string'
+					((pathPropStatus?.status === 'static' &&
+						typeof pathPropStatus.codeValue === 'string') ||
+						(pathPropStatus?.status === 'keyframed' &&
+							pathFieldSchema.keyframable !== false &&
+							pathPropStatus.interpolationFunction === 'interpolatePaths'))
 						? {
 								clientId: connectedClientId,
 								nodePath,
+								propStatus: pathPropStatus,
 								schema: controls.schema,
+								sourceFrame: {
+									displayFrame: targetTimelinePosition,
+									keyframeDisplayOffset: getKeyframeDisplayOffset({
+										propStatus: pathPropStatus,
+										keyframeDisplayOffset,
+										keyframePlaybackRate,
+									}),
+									keyframePlaybackRate,
+								},
 							}
 						: null,
 				canCrop: previewInteractive && controls !== null && cropFields !== null,
@@ -529,6 +529,7 @@ const calculateOutlineTargets = ({
 							propStatus,
 							clientId: connectedClientId,
 							fieldDefault: fieldSchema.default,
+							runtimeValue: runtimeValues[translateFieldKey],
 							keyframePlaybackRate,
 							keyframeDisplayOffset: getKeyframeDisplayOffset({
 								propStatus,
@@ -606,7 +607,7 @@ const calculateOutlineTargets = ({
 									propStatus: transformOriginPropStatus ?? null,
 									dragOverrideValue: dragOverrides[transformOriginFieldKey],
 									defaultValue: transformOriginFieldSchema.default,
-									frame: transformOriginSourceFrame,
+									frame: transformOriginLocalFrame,
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? transformOriginFieldSchema.default,
 							),
@@ -620,7 +621,7 @@ const calculateOutlineTargets = ({
 												rotationFieldSchema?.type === 'rotation-css'
 													? rotationFieldSchema.default
 													: '0deg',
-											frame: transformOriginSourceFrame,
+											frame: transformOriginLocalFrame,
 											shouldResortToDefaultValueIfUndefined: true,
 										}) ?? '0deg')
 									: '0deg',
@@ -636,7 +637,7 @@ const calculateOutlineTargets = ({
 													scaleFieldSchema?.type === 'scale'
 														? scaleFieldSchema.default
 														: 1,
-												frame: transformOriginSourceFrame,
+												frame: transformOriginLocalFrame,
 												shouldResortToDefaultValueIfUndefined: true,
 											}) ?? 1,
 										)
@@ -660,7 +661,7 @@ const calculateOutlineTargets = ({
 									propStatus,
 									dragOverrideValue: dragOverrides[translateFieldKey],
 									defaultValue: fieldSchema.default,
-									frame: transformOriginSourceFrame,
+									frame: transformOriginLocalFrame,
 									shouldResortToDefaultValueIfUndefined: true,
 								}) ?? fieldSchema.default,
 							),

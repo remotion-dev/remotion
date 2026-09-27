@@ -69,6 +69,7 @@ test('all named annotations expose text, font, border, and seed controls', () =>
 		expect(keys(schema)).toContain('style.borderWidth');
 		expect(keys(schema)).toContain('style.borderStyle');
 		expect(keys(schema)).toContain('style.borderColor');
+		expect(schema.loop).toBe(Internals.baseSchema.loop);
 		expect(schema.seed).not.toHaveProperty('keyframable', false);
 	}
 });

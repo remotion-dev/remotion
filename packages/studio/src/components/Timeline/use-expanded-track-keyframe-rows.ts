@@ -83,7 +83,11 @@ const getNodeCanEditEasing = ({
 	nodePath: Parameters<typeof getNodeKeyframes>[0]['nodePath'];
 	propStatuses: Parameters<typeof getNodeKeyframes>[0]['propStatuses'];
 }) => {
-	if (node.kind !== 'field' || node.field === null) {
+	if (
+		node.kind !== 'field' ||
+		node.field === null ||
+		node.field.fieldSchema.type === 'boolean'
+	) {
 		return false;
 	}
 

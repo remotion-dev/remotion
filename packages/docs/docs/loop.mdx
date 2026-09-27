@@ -7,12 +7,12 @@ crumb: 'API'
 
 import {LoopExamples, BlueSquare} from '../components/LoopExamples/LoopExamples';
 
+# &lt;Loop&gt;<AvailableFrom v="2.5.0" />
+
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
-
-<AvailableFrom v="2.5.0" />
 
 The `<Loop />` component allows you to quickly lay out an animation so it repeats itself.
 
@@ -29,9 +29,26 @@ const MyComp = () => {
 };
 ```
 
-:::note
-Good to know: You can nest loops within each other and they will cascade.
-:::
+You can nest loops within each other and they will cascade.
+
+## New alternative: `loop` prop
+
+[Many components](/docs/timing) accept a [`loop`](/docs/timing#loop-repeat-an-item) nowadays.
+
+It is useful if you want to mix it with other props such as `trimBefore` or `playbackRate`.
+
+```tsx twoslash
+// @include: example-BlueSquare
+import {Sequence} from 'remotion';
+// ---cut---
+const WithSequence = () => (
+  <Sequence durationInFrames={150}>
+    <Sequence durationInFrames={50} loop>
+      <BlueSquare />
+    </Sequence>
+  </Sequence>
+);
+```
 
 ## API
 
@@ -177,5 +194,6 @@ const Child = () => {
 
 ## See also
 
+- [Order of operations](/docs/timing#order-of-operations)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/loop/index.tsx)
 - [`<Sequence>`](/docs/sequence)

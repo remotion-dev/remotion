@@ -1,8 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
+	addElement,
+	applyCodemodChanges,
 	CodemodsInternals,
-	type InsertJsxElementCodemodEnvironment,
+	getNodes,
+	type CodemodEnvironment,
 	type ResolvedCompositionComponent,
 	type ResolvedCompositionComponentWithFile,
 } from '@remotion/codemods';
@@ -15,6 +18,7 @@ import type {SequenceNodePath} from 'remotion';
 import {svgMarkupToJsx} from './svg-to-jsx';
 
 const {
+	createElementFromInsertable,
 	insertJsxElementIntoComposition: insertJsxElementIntoCompositionCodemod,
 	resolveCompositionComponent: resolveCompositionComponentCodemod,
 	resolveCompositionComponentWithFile:
@@ -24,7 +28,7 @@ const {
 const makeCodemodEnvironment = (
 	remotionRoot: string,
 	sourceFileOverrides: ReadonlyMap<string, string> | null,
-): InsertJsxElementCodemodEnvironment => ({
+): CodemodEnvironment => ({
 	dirname: path.dirname,
 	extname: path.extname,
 	fileExists: (fileName) =>
@@ -80,7 +84,7 @@ export const resolveCompositionComponent = ({
 		environment: makeCodemodEnvironment(remotionRoot, null),
 	});
 
-export const insertJsxElementIntoComposition = ({
+export const insertJsxElementIntoComposition = async ({
 	remotionRoot,
 	compositionFile,
 	compositionId,
@@ -112,22 +116,81 @@ export const insertJsxElementIntoComposition = ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 	insertedNodePath: SequenceNodePath | null;
-}> =>
-	insertJsxElementIntoCompositionCodemod({
+}> => {
+	const environment = makeCodemodEnvironment(remotionRoot, sourceFileOverrides);
+	const sequence =
+		wrapInSequence === null
+			? null
+			: {
+					dimensions: wrapInSequence.dimensions,
+					durationInFrames: wrapInSequence.durationInFrames ?? null,
+					from: wrapInSequence.from,
+					name: wrapInSequence.name,
+					position: wrapInSequence.position,
+				};
+	// SVG markup and compositions need the file-system aware pipeline.
+	if (element.type === 'svg' || element.type === 'composition') {
+		return insertJsxElementIntoCompositionCodemod({
+			compositionFile,
+			compositionId,
+			element,
+			environment,
+			from,
+			prettierConfigOverride,
+			wrapInSequence: sequence,
+		});
+	}
+
+	const codemodElement = createElementFromInsertable({
+		element,
+		from,
+		wrapInSequence: sequence,
+	});
+	const location = await resolveCompositionComponentWithFileCodemod({
 		compositionFile,
 		compositionId,
-		element,
-		environment: makeCodemodEnvironment(remotionRoot, sourceFileOverrides),
-		from,
-		prettierConfigOverride,
-		wrapInSequence:
-			wrapInSequence === null
-				? null
-				: {
-						dimensions: wrapInSequence.dimensions,
-						durationInFrames: wrapInSequence.durationInFrames ?? null,
-						from: wrapInSequence.from,
-						name: wrapInSequence.name,
-						position: wrapInSequence.position,
-					},
+		environment,
 	});
+	if (!location.canAddSequence) {
+		throw new Error(
+			'Cannot insert JSX element into this composition component',
+		);
+	}
+
+	const oldContents = await environment.readFile(location.fileName);
+	const project = {
+		rootDir: remotionRoot,
+		files: {[location.fileName]: oldContents},
+	};
+	const result = addElement({
+		project,
+		element: codemodElement,
+		target: {
+			type: 'component',
+			filePath: location.fileName,
+			exportName: location.exportName,
+		},
+		prettierConfigOverride,
+	});
+	const nextProject = applyCodemodChanges(project, result.changes);
+	const insertedNode = getNodes({
+		project: nextProject,
+		filePath: location.fileName,
+	}).find(
+		(node) =>
+			JSON.stringify(node.nodePath) ===
+			JSON.stringify(result.insertedNode.nodePath),
+	);
+
+	return {
+		fileName: location.fileName,
+		source: location.source,
+		oldContents,
+		output: nextProject.files[location.fileName],
+		logLine: insertedNode?.location?.line ?? 1,
+		nodePathRemappings: result.nodePathRemappings.map(
+			({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+		),
+		insertedNodePath: result.insertedNode.nodePath,
+	};
+};

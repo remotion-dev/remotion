@@ -8,7 +8,7 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/canvas/canvas">
 					<strong>{'<Canvas>'}</strong>
-					<div>Preview a composition with optional selection outlines</div>
+					<div>Preview a composition with selectable, movable outlines</div>
 				</TOCItem>
 				<TOCItem link="/docs/canvas/create-canvas-controller">
 					<strong>createCanvasController()</strong>
@@ -41,6 +41,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/canvas/get-canvas-sequence-node-path-info">
 					<strong>getCanvasSequenceNodePathInfo()</strong>
 					<div>Resolve a timeline track's selection identity</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-sequence-source-location">
+					<strong>getCanvasSequenceSourceLocation()</strong>
+					<div>Find where a timeline track's JSX element was written</div>
 				</TOCItem>
 				<TOCItem link="/docs/canvas/get-canvas-selection-item-key">
 					<strong>getCanvasSelectionItemKey()</strong>

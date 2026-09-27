@@ -26,6 +26,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -333,7 +334,11 @@ const AnimatedImageInner = ({
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop: sequenceProps.loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -372,7 +377,7 @@ const AnimatedImageInner = ({
 				layout="none"
 				from={from ?? 0}
 				playbackRate={playbackRate}
-				durationInFrames={durationInFrames ?? Infinity}
+				durationInFrames={durationInFrames}
 				name="<AnimatedImage>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
 				controls={controls}
@@ -382,7 +387,6 @@ const AnimatedImageInner = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				{...sequenceProps}
-				outlineRef={actualRef}
 			>
 				<AnimatedImageContent
 					{...animatedImageProps}

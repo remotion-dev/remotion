@@ -1,4 +1,4 @@
-import React, {forwardRef, useCallback, useRef} from 'react';
+import React, {forwardRef, useCallback} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
@@ -21,6 +21,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -84,6 +85,7 @@ export type InteractiveBaseProps = Pick<
 	| 'from'
 	| 'trimBefore'
 	| 'playbackRate'
+	| 'loop'
 	| 'freeze'
 	| 'hidden'
 	| 'name'
@@ -191,7 +193,7 @@ const interactiveSvgPathElementSchema = {
 		type: 'svg-path',
 		default: undefined,
 		description: 'Path',
-		keyframable: false,
+		keyframable: true,
 	},
 } as const satisfies InteractivitySchema;
 
@@ -248,6 +250,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			styleWhilePostmounted,
 			trimBefore,
 			playbackRate,
+			loop,
 			freeze,
 			hidden,
 			name,
@@ -273,7 +276,11 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -289,10 +296,8 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			style: premountingStyle,
 			componentName: displayName,
 		});
-		const refForOutline = useRef<ElementType | null>(null);
 		const callbackRef = useCallback(
 			(element: ElementType | null) => {
-				refForOutline.current = element;
 				setRef(ref, element);
 			},
 			[ref],
@@ -305,14 +310,14 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 					from={from ?? 0}
 					trimBefore={trimBefore}
 					playbackRate={playbackRate}
-					durationInFrames={durationInFrames ?? Infinity}
+					loop={loop}
+					durationInFrames={durationInFrames}
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? displayName}
 					showInTimeline={showInTimeline ?? true}
 					controls={controls}
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
-					outlineRef={refForOutline}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}

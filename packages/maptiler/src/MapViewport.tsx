@@ -553,6 +553,7 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		from,
 		trimBefore,
 		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -576,7 +577,11 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -593,6 +598,7 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 				from={from}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}

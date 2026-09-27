@@ -287,6 +287,8 @@ jobs:
           bun run checkskills
       - name: Test CI planning contract
         run: bun test ./.github/scripts/ci.test.ts
+      - name: Check docs version headings
+        run: bun .github/scripts/check-docs-available-from.ts
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     needs: affected

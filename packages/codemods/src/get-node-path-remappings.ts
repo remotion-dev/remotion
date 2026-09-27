@@ -9,16 +9,31 @@ export type CapturedJsxNodePath = {
 	node: JSXOpeningElement;
 	nodePath: SequenceNodePath;
 	signature: string;
+	// The opening element of the closest enclosing JSX element, if any.
+	parentNode: JSXOpeningElement | null;
 };
 
 export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 	const captured: CapturedJsxNodePath[] = [];
 	recast.visit(ast, {
 		visitJSXOpeningElement(path) {
+			let parentNode: JSXOpeningElement | null = null;
+			// Skip the JSXElement that owns this opening element.
+			let ancestor = path.parentPath?.parentPath ?? null;
+			while (ancestor) {
+				if (ancestor.node?.type === 'JSXElement') {
+					parentNode = ancestor.node.openingElement as JSXOpeningElement;
+					break;
+				}
+
+				ancestor = ancestor.parentPath;
+			}
+
 			captured.push({
 				node: path.node as JSXOpeningElement,
 				nodePath: getNodePathForRecastPath(path, ast),
 				signature: recast.prettyPrint(path.node as JSXOpeningElement).code,
+				parentNode,
 			});
 			return this.traverse(path);
 		},

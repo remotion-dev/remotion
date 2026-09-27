@@ -1,10 +1,5 @@
 {
-	"include": [
-		"./src/**/*",
-		"./pages/index.tsx",
-		"./pages/player.tsx",
-		"./pages/browser-bundler.tsx"
-	],
+	"include": ["./src/**/*", "./pages/index.tsx", "./pages/player.tsx"],
 	"compilerOptions": {
 		"strict": true,
 		"esModuleInterop": true,
@@ -25,16 +20,7 @@
 	},
 	"references": [
 		{
-			"path": "../browser-bundler"
-		},
-		{
-			"path": "../canvas"
-		},
-		{
 			"path": "../player"
-		},
-		{
-			"path": "../codemods"
 		},
 		{
 			"path": "../google-fonts"

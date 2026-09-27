@@ -80,7 +80,6 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			type="button"
 			style={style}
-			title={`Keyframe at frame ${frame}`}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
 		>

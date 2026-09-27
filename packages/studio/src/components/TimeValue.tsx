@@ -175,11 +175,6 @@ export const TimeValue: React.FC = () => {
 					onClick={toggleTickFormat}
 					aria-label="Show timeline ticks as frames"
 					aria-pressed={showFrames}
-					title={
-						showFrames
-							? 'Show timeline ticks as timecode'
-							: 'Show timeline ticks as frames'
-					}
 				>
 					{frame}
 				</button>

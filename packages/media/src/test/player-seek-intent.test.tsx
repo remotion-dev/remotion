@@ -58,15 +58,41 @@ test('Player distinguishes playback catch-up while buffering from explicit seeks
 		await waitFor(() => draws > before && !timeline!.isBuffering());
 		expect(findLargestCanvas(container).toDataURL()).not.toBe(target);
 
+		// A forward jump while playback is running is navigation, not catch-up.
+		ref.current!.play();
+		await waitFor(() => ref.current!.isPlaying() && !timeline!.isBuffering());
+		const revisionBeforeForwardSeek = timeline!.seek!.revision.current;
+		const configuredBeforeForwardSeek = configurations.mock.calls.length;
+		before = draws;
+		ref.current!.seekTo(240);
+		await waitFor(
+			() =>
+				draws > before &&
+				ref.current!.getCurrentFrame() >= 240 &&
+				!timeline!.isBuffering(),
+		);
+		expect(timeline!.seek!.revision.current).toBe(
+			revisionBeforeForwardSeek + 1,
+		);
+		expect(configurations.mock.calls.length).toBeGreaterThan(
+			configuredBeforeForwardSeek,
+		);
+		expect(findLargestCanvas(container).toDataURL()).not.toBe(target);
+		before = draws;
+		ref.current!.seekTo(0);
+		await waitFor(() => draws > before && !timeline!.isBuffering());
+
 		// Another layer blocks the clock. A missed playback update still must
 		// consume the existing iterator, not guess intent from the time gap.
 		foreignBuffer = bufferState!.delayPlayback();
-		ref.current!.play();
 		await waitFor(() => ref.current!.isPlaying() && timeline!.isBuffering());
 		const configuredBeforeCatchup = configurations.mock.calls.length;
 		const revision = timeline!.seek!.revision.current;
 		before = draws;
-		timeline!.setFrame((frames) => ({...frames, [Object.keys(frames)[0]]: 60}));
+		timeline!.setFrameWithoutSeek((frames) => ({
+			...frames,
+			[Object.keys(frames)[0]]: 60,
+		}));
 		await waitFor(
 			() =>
 				draws > before && findLargestCanvas(container).toDataURL() === target,

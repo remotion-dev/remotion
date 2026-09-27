@@ -278,7 +278,7 @@ export const ModelManager = <Model extends string>({
 							<div key={model.name} role="listitem" style={modelRow}>
 								<ModelsIcon aria-hidden color={LIGHT_TEXT} style={modelIcon} />
 								<span style={modelName}>{model.name}</span>
-								<span style={status} title={modelStatus}>
+								<span role="group" style={status} aria-label={modelStatus}>
 									{modelStatus}
 								</span>
 								{cached ? (
@@ -300,7 +300,6 @@ export const ModelManager = <Model extends string>({
 									>
 										<InlineAction
 											aria-label={`Remove ${model.name}`}
-											title=""
 											disabled={actionInProgress}
 											onClick={() => remove(model.name)}
 											renderAction={renderRemoveIcon}
@@ -316,7 +315,6 @@ export const ModelManager = <Model extends string>({
 									>
 										<InlineAction
 											aria-label={`Download ${model.name}`}
-											title=""
 											disabled={cachedModels === null || actionInProgress}
 											onClick={() => downloadModel(model.name)}
 											renderAction={renderDownloadIcon}

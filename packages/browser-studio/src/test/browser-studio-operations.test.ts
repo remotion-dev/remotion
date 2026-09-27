@@ -1,9 +1,10 @@
 import {expect, test} from 'bun:test';
 import {
-	addSolid,
+	addElement,
 	applyCodemodChanges,
 	CodemodsInternals,
-	getJsxNodes,
+	createElement,
+	getNodes,
 } from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
@@ -15,18 +16,27 @@ import type {VirtualProject} from '../types';
 
 const {basicCaptionsElementSource} = CodemodsInternals;
 
+const solid = createElement({
+	component: 'Solid',
+	importPath: 'remotion',
+	props: {
+		width: 1280,
+		height: 720,
+		color: 'gray',
+		style: {position: 'absolute'},
+	},
+});
+
 const insertSolid = (
 	project: VirtualProject,
 	compositionFile = '/project/src/Composition.tsx',
 ) => {
 	return applyCodemodChanges(
 		project,
-		addSolid({
+		addElement({
 			project,
-			compositionFile,
-			compositionId: 'MyComp',
-			width: 1280,
-			height: 720,
+			element: solid,
+			target: {type: 'composition', compositionFile, compositionId: 'MyComp'},
 		}).changes,
 	);
 };
@@ -70,10 +80,10 @@ test('adds a Solid to the blank Browser Studio project', () => {
 	expect(composition).toContain(
 		'import { CalculateMetadataFunction, Composition, Solid } from "remotion";',
 	);
-	expect(composition).toContain(
-		'<Solid width={1280} height={720} color="gray"',
+	expect(composition).toMatch(
+		/<Solid\s+width=\{1280\}\s+height=\{720\}\s+color="gray"/,
 	);
-	expect(composition).toContain("style={{position: 'absolute'}}");
+	expect(composition).toMatch(/position: ["']absolute["']/);
 	expect(project.files['/project/src/Composition.tsx']).not.toContain('<Solid');
 });
 
@@ -83,28 +93,36 @@ test('adds multiple Solids without duplicating the import', () => {
 	const composition = twice.files['/project/src/Composition.tsx'];
 
 	expect(composition.match(/\bSolid\b/g)).toHaveLength(3);
-	expect(composition.match(/<Solid /g)).toHaveLength(2);
+	expect(composition.match(/<Solid\s/g)).toHaveLength(2);
 });
 
 test('adds a Solid at a timeline frame', () => {
 	const project = createBlankTemplateProject();
 	const updated = applyCodemodChanges(
 		project,
-		addSolid({
+		addElement({
 			project,
-			compositionFile: '/project/src/Composition.tsx',
-			compositionId: 'MyComp',
-			from: 42,
-			width: 1280,
-			height: 720,
-			position: {x: 100, y: 50},
+			element: createElement({
+				component: 'Sequence',
+				importPath: 'remotion',
+				props: {
+					from: 42,
+					style: {position: 'absolute', translate: '100px 50px'},
+				},
+				children: [solid],
+			}),
+			target: {
+				type: 'composition',
+				compositionFile: '/project/src/Composition.tsx',
+				compositionId: 'MyComp',
+			},
 		}).changes,
 	);
 	const composition = updated.files['/project/src/Composition.tsx'];
 
-	expect(composition).toContain('<Sequence from={42}');
-	expect(composition).toContain("translate: '100px 50px'");
-	expect(composition).toContain('<Solid width={1280} height={720}');
+	expect(composition).toMatch(/<Sequence\s+from=\{42\}/);
+	expect(composition).toContain('translate: "100px 50px"');
+	expect(composition).toMatch(/<Solid\s+width=\{1280\}\s+height=\{720\}/);
 });
 
 test('resolves an imported composition component', async () => {
@@ -129,8 +147,8 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	expect(updated.files['/project/src/index.tsx']).toBe(
 		project.files['/project/src/index.tsx'],
 	);
-	expect(updated.files['/project/src/MyComponent.tsx']).toContain(
-		'<Solid width={1280}',
+	expect(updated.files['/project/src/MyComponent.tsx']).toMatch(
+		/<Solid\s+width=\{1280\}/,
 	);
 
 	let currentProject = project;
@@ -161,7 +179,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		},
 	});
 
-	const result = await operations.insertSolid({
+	const result = await operations.insertCompositionElement({
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,
@@ -196,23 +214,25 @@ registerRoot(Root);
 `,
 		},
 	};
-	const result = addSolid({
+	const result = addElement({
 		project,
-		compositionFile: '/project/src/index.tsx',
-		compositionId: 'MyComp',
-		width: 1280,
-		height: 720,
+		element: solid,
+		target: {
+			type: 'composition',
+			compositionFile: '/project/src/index.tsx',
+			compositionId: 'MyComp',
+		},
 	});
 	const updated = applyCodemodChanges(project, result.changes);
 	const {nodePathRemappings} = result;
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
-		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid} from 'remotion';",
+		"import {AbsoluteFill, Composition, registerRoot, Solid as Solid2} from 'remotion';",
 	);
-	expect(output).not.toContain('<RemotionSequence>');
+	expect(output).not.toContain('<Sequence');
 	expect(output).toContain('<AbsoluteFill />');
-	expect(output).toContain('<RemotionSolid width={1280}');
+	expect(output).toMatch(/<Solid2\s+width=\{1280\}/);
 	expect(nodePathRemappings).toHaveLength(2);
 	expect(nodePathRemappings).toEqual(
 		expect.arrayContaining([
@@ -270,7 +290,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	}
 
 	events.length = 0;
-	const result = await operations.insertSolid({
+	const result = await operations.insertCompositionElement({
 		compositionFile: fileName,
 		compositionId: 'MyComp',
 		from: null,
@@ -511,7 +531,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		resolveDependencies: null,
 	});
 
-	const result = await operations.insertSolid({
+	const result = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		from: 1.5,
@@ -864,7 +884,7 @@ registerRoot(Root);`,
 		throw new Error('Expected sequence props subscription to succeed');
 	}
 
-	const failure = await operations.splitJsxSequence({
+	const failure = await operations.splitSequences({
 		sequences: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -881,7 +901,7 @@ registerRoot(Root);`,
 	});
 	expect(currentProject.files[fileName]).toBe(initialContents);
 
-	const splitResult = await operations.splitJsxSequence({
+	const splitResult = await operations.splitSequences({
 		sequences: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -950,14 +970,14 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 		files: {[fileName]: initialContents},
 	};
 	const {operations, getProject} = makeOperationsForProject(project);
-	const nodePath = getJsxNodes({project, filePath: fileName}).find(
+	const nodePath = getNodes({project, filePath: fileName}).find(
 		({tagName}) => tagName === 'AbsoluteFill',
 	)?.nodePath;
 	if (!nodePath) {
 		throw new Error('Expected an AbsoluteFill node');
 	}
 
-	const result = await operations.wrapJsxNode({
+	const result = await operations.wrapNode({
 		fileName,
 		nodePath,
 		wrapper: 'Sequence',
@@ -1017,7 +1037,7 @@ registerRoot(Root);`,
 		throw new Error('Expected sequence props subscription to succeed');
 	}
 
-	const failure = await operations.duplicateJsxNode({
+	const failure = await operations.duplicateNodes({
 		nodes: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -1033,7 +1053,7 @@ registerRoot(Root);`,
 	});
 	expect(getProject().files[fileName]).toBe(initialContents);
 
-	const result = await operations.duplicateJsxNode({
+	const result = await operations.duplicateNodes({
 		nodes: [
 			{
 				fileName: 'src/Composition.tsx',
@@ -1583,10 +1603,13 @@ export const Root = () => {
 
 	const result = await operations.applyCodemod({
 		codemod: {
-			type: 'move-composition-to-folder',
-			idToMove: 'MyComp',
-			folderName: 'target-folder',
-			parentName: null,
+			type: 'move-composition-or-folder',
+			source: {type: 'composition', compositionId: 'MyComp'},
+			destination: {
+				type: 'folder',
+				folderName: 'target-folder',
+				parentName: null,
+			},
 		},
 		dryRun: false,
 		undoRedoNavigation: null,
@@ -1953,7 +1976,13 @@ export const Comp = () => (
 		effectConfig: {color: 'red'},
 		clientId: 'browser-studio',
 	});
-	expect(addResult).toEqual({success: true});
+	expect(addResult).toEqual({
+		success: true,
+		insertedEffect: {
+			effectIndex: 2,
+			nodePath: expect.any(Array),
+		},
+	});
 	expect(currentProject.files[fileName]).toContain('tint({');
 	expect(currentProject.files['/project/package.json']).toContain(
 		'"@remotion/effects": "4.0.514"',

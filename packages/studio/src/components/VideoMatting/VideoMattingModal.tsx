@@ -253,7 +253,9 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 					<Button
 						disabled={!canSubmit}
 						onClick={submit}
-						title={support.type === 'unsupported' ? support.message : undefined}
+						aria-label={
+							support.type === 'unsupported' ? support.message : undefined
+						}
 						style={{
 							...buttonStyle,
 							backgroundColor: canSubmit
@@ -317,7 +319,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 								<Combobox
 									values={modelOptions}
 									selectedId={model}
-									title="Model"
+									aria-label="Model"
 									style={controlStyle}
 								/>
 							</div>
@@ -337,7 +339,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 								<Combobox
 									values={audioOptions}
 									selectedId={audio}
-									title="Audio"
+									aria-label="Audio"
 									style={controlStyle}
 								/>
 							</div>
@@ -348,7 +350,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 								<Combobox
 									values={qualityOptions}
 									selectedId={String(videoBitrate)}
-									title="Video quality"
+									aria-label="Video quality"
 									style={controlStyle}
 								/>
 							</div>

@@ -14,6 +14,8 @@ import {
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
 import type {SelectedOutlinePathDragTarget} from './selected-outline-types';
+import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
+import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 
 type PathPointRole = 'end' | 'cp1' | 'cp2' | 'cp' | 'reflected-cp';
@@ -302,7 +304,24 @@ export const SelectedOutlinePathPoints: React.FC<{
 		const startX = event.clientX;
 		const startY = event.clientY;
 		const originalD = serializeInstructions(instructions);
+		const sourceFrame = resolveKeyframeSourceFrame(
+			pathDrag.sourceFrame,
+			pathDrag.propStatus,
+		);
 		let lastD = originalD;
+		const updatePathOverride = (value: string) => {
+			setDragOverrides(
+				pathDrag.nodePath,
+				'd',
+				pathDrag.propStatus.status === 'keyframed'
+					? Internals.makeKeyframedDragOverride({
+							status: pathDrag.propStatus,
+							frame: sourceFrame,
+							value,
+						})
+					: Internals.makeStaticDragOverride(value),
+			);
+		};
 
 		startCapturedPointerSession({
 			event,
@@ -318,11 +337,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 				if (localDeltaX === 0 && localDeltaY === 0) {
 					if (lastD !== originalD) {
 						lastD = originalD;
-						setDragOverrides(
-							pathDrag.nodePath,
-							'd',
-							Internals.makeStaticDragOverride(originalD),
-						);
+						updatePathOverride(originalD);
 					}
 
 					return;
@@ -452,11 +467,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 				}
 
 				lastD = nextD;
-				setDragOverrides(
-					pathDrag.nodePath,
-					'd',
-					Internals.makeStaticDragOverride(nextD),
-				);
+				updatePathOverride(nextD);
 			},
 			onEnd: (reason, endEvent) => {
 				onDraggingChange(false);
@@ -465,24 +476,38 @@ export const SelectedOutlinePathPoints: React.FC<{
 					return;
 				}
 
-				saveSequenceProps({
-					changes: [
-						{
-							fileName: pathDrag.nodePath.absolutePath,
-							nodePath: pathDrag.nodePath,
-							fieldKey: 'd',
-							value: lastD,
-							defaultValue: null,
-							schema: pathDrag.schema,
-						},
-					],
-					addedKeyframes: null,
-					movedKeyframes: null,
-					setPropStatuses,
-					clientId: pathDrag.clientId,
-					undoLabel: 'Edit path point',
-					redoLabel: 'Edit path point back',
-				})
+				const promise =
+					pathDrag.propStatus.status === 'keyframed'
+						? callAddSequenceKeyframe({
+								fileName: pathDrag.nodePath.absolutePath,
+								nodePath: pathDrag.nodePath,
+								fieldKey: 'd',
+								sourceFrame,
+								value: lastD,
+								schema: pathDrag.schema,
+								setPropStatuses,
+								clientId: pathDrag.clientId,
+							})
+						: saveSequenceProps({
+								changes: [
+									{
+										fileName: pathDrag.nodePath.absolutePath,
+										nodePath: pathDrag.nodePath,
+										fieldKey: 'd',
+										value: lastD,
+										defaultValue: null,
+										schema: pathDrag.schema,
+									},
+								],
+								addedKeyframes: null,
+								movedKeyframes: null,
+								setPropStatuses,
+								clientId: pathDrag.clientId,
+								undoLabel: 'Edit path point',
+								redoLabel: 'Edit path point back',
+							});
+
+				promise
 					.catch((error) => {
 						showNotification(
 							`Could not save path: ${error instanceof Error ? error.message : String(error)}`,
@@ -517,7 +542,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 						fill="transparent"
 						pointerEvents="all"
 						onPointerDown={(event) => onPointPointerDown(event, point)}
-						style={{cursor: 'pointer'}}
+						style={{cursor: 'default'}}
 					/>
 					<circle
 						cx={point.x}

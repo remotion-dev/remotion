@@ -1,11 +1,26 @@
 import fs from 'fs';
 import assert from 'node:assert';
 import {expect, test} from '@playwright/test';
-import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {
+	getAllSchemaKeys,
+	type SubscribeToSequencePropsRequest,
+} from '@remotion/studio-shared';
 import {NoReactInternals} from 'remotion/no-react';
 import {apiCall} from './api-call.mts';
 import {newVideoFile} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
+
+const subscribeToSequenceProps = async (
+	request: SubscribeToSequencePropsRequest,
+) => {
+	const response = await apiCall('/api/subscribe-to-sequence-props', {
+		requests: [request],
+	});
+	assert(response.success);
+	const subscription = response.data.results[0];
+	assert(subscription);
+	return subscription;
+};
 
 test.describe('node-path cache for stale source maps', () => {
 	let originalContent: string;
@@ -51,23 +66,31 @@ test.describe('node-path cache for stale source maps', () => {
 		const videoLineIndex = lines.findIndex((l) => l.includes('<Video'));
 		expect(videoLineIndex).toBeGreaterThan(-1);
 		const videoLine = videoLineIndex + 1; // 1-indexed
+		const videoConfigValues = {
+			durationInFrames: 100,
+			fps: 30,
+			height: 1080,
+			width: 1920,
+		};
 
 		// 1. Initial subscription → resolves line to AST nodePath and caches it
-		const result1 = await apiCall('/api/subscribe-to-sequence-props', {
+		const result1 = await subscribeToSequenceProps({
 			fileName: 'src/NewVideo.tsx',
 			line: videoLine,
 			column: 0,
 			nodePath: null,
 			componentIdentity: 'dev.remotion.media.Video',
 			effects: [],
+			assetKeys: [],
 			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
 			clientId: 'e2e-cache-test-1',
+			videoConfigValues,
 		});
 		expect(result1.success).toBe(true);
 		assert(result1.success);
-		expect(result1.data.status.canUpdate).toBe(true);
-		assert(result1.data.status.canUpdate);
-		expect(result1.data.success && result1.data.nodePath).toBeTruthy();
+		expect(result1.status.canUpdate).toBe(true);
+		assert(result1.status.canUpdate);
+		expect(result1.nodePath).toBeTruthy();
 
 		// 2. Simulate prettier wrapping the return in parentheses,
 		//    shifting <Video> down by one line.
@@ -88,26 +111,26 @@ test.describe('node-path cache for stale source maps', () => {
 		// 3. Subscribe again with the ORIGINAL (stale) line number.
 		//    Without the cache, this would fail because the tag is no longer on this line.
 		//    With the cache, the previously resolved nodePath is reused.
-		const result2 = await apiCall('/api/subscribe-to-sequence-props', {
+		const result2 = await subscribeToSequenceProps({
 			fileName: 'src/NewVideo.tsx',
 			line: videoLine, // stale line number
 			column: 0,
 			nodePath: null,
 			componentIdentity: 'dev.remotion.media.Video',
 			keys: getAllSchemaKeys(NoReactInternals.sequenceSchema),
+			assetKeys: [],
 			effects: [],
 			clientId: 'e2e-cache-test-2',
+			videoConfigValues,
 		});
 		expect(result2.success).toBe(true);
 		assert(result2.success);
-		expect(result2.data.status.canUpdate).toBe(true);
-		assert(result2.data.status.canUpdate);
-		expect(result2.data.success && result2.data.nodePath).toBeTruthy();
+		expect(result2.status.canUpdate).toBe(true);
+		assert(result2.status.canUpdate);
+		expect(result2.nodePath).toBeTruthy();
 
 		// The nodePath should be the same — both refer to the same <Video> element
-		expect(result2.data.success && result2.data.nodePath).toEqual(
-			result1.data.success && result1.data.nodePath,
-		);
+		expect(result2.nodePath).toEqual(result1.nodePath);
 
 		fs.writeFileSync(newVideoFile, originalContent);
 
@@ -119,29 +142,29 @@ test.describe('node-path cache for stale source maps', () => {
 		expect(identityVideoLineIndex).toBeGreaterThan(-1);
 		const identityVideoLine = identityVideoLineIndex + 1;
 
-		const identityResult = await apiCall('/api/subscribe-to-sequence-props', {
+		const identityResult = await subscribeToSequenceProps({
 			fileName: 'src/NewVideo.tsx',
 			line: identityVideoLine,
 			column: 0,
 			nodePath: null,
 			componentIdentity: 'dev.remotion.media.Video',
 			keys: ['debugOverlay'],
+			assetKeys: [],
 			effects: [],
 			clientId: 'e2e-identity-mismatch-1',
+			videoConfigValues,
 		});
 		expect(identityResult.success).toBe(true);
 		assert(identityResult.success);
-		expect(identityResult.data.success).toBe(true);
-		assert(identityResult.data.success);
-		expect(identityResult.data.status.canUpdate).toBe(true);
-		assert(identityResult.data.status.canUpdate);
-		expect(identityResult.data.status.props.debugOverlay).toEqual({
+		expect(identityResult.status.canUpdate).toBe(true);
+		assert(identityResult.status.canUpdate);
+		expect(identityResult.status.props.debugOverlay).toEqual({
 			status: 'static',
 			codeValue: true,
 			keyframeDisplayOffsetAdjustment: null,
 		});
 
-		const staleNodePath = identityResult.data.nodePath.nodePath;
+		const staleNodePath = identityResult.nodePath.nodePath;
 		const wrappedInSequence = identityContent.replace(
 			'return <Video src={src} debugOverlay />;',
 			'return (\n\t\t<Sequence>\n\t\t\t<Video src={src} debugOverlay />\n\t\t</Sequence>\n\t);',
@@ -157,27 +180,27 @@ test.describe('node-path cache for stale source maps', () => {
 		const wrappedVideoLine = wrappedVideoLineIndex + 1;
 		expect(wrappedVideoLine).not.toBe(identityVideoLine);
 
-		const reconnectResult = await apiCall('/api/subscribe-to-sequence-props', {
+		const reconnectResult = await subscribeToSequenceProps({
 			fileName: 'src/NewVideo.tsx',
 			line: wrappedVideoLine,
 			column: 0,
 			nodePath: staleNodePath,
 			componentIdentity: 'dev.remotion.media.Video',
 			keys: ['debugOverlay'],
+			assetKeys: [],
 			effects: [],
 			clientId: 'e2e-identity-mismatch-2',
+			videoConfigValues,
 		});
 		expect(reconnectResult.success).toBe(true);
 		assert(reconnectResult.success);
-		expect(reconnectResult.data.success).toBe(true);
-		assert(reconnectResult.data.success);
-		expect(reconnectResult.data.status.canUpdate).toBe(true);
-		assert(reconnectResult.data.status.canUpdate);
-		expect(reconnectResult.data.status.props.debugOverlay).toEqual({
+		expect(reconnectResult.status.canUpdate).toBe(true);
+		assert(reconnectResult.status.canUpdate);
+		expect(reconnectResult.status.props.debugOverlay).toEqual({
 			status: 'static',
 			codeValue: true,
 			keyframeDisplayOffsetAdjustment: null,
 		});
-		expect(reconnectResult.data.nodePath.nodePath).not.toEqual(staleNodePath);
+		expect(reconnectResult.nodePath.nodePath).not.toEqual(staleNodePath);
 	});
 });

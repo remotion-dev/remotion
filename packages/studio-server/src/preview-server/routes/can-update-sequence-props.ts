@@ -13,17 +13,10 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import {
-	CodemodsInternals,
-	getJsxNodeProps,
-	getJsxNodes,
-} from '@remotion/codemods';
+import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
-import {
-	isKeyframeInterpolationFunction,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropsResponseTrue,
@@ -443,7 +436,11 @@ const getInterpolationMetadata = (
 			}
 
 			const extrapolateType = getExtrapolateType(value);
-			if (!extrapolateType) {
+			if (
+				!extrapolateType ||
+				(interpolationFunction === 'interpolatePaths' &&
+					extrapolateType === 'identity')
+			) {
 				return null;
 			}
 
@@ -469,7 +466,7 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'output') {
-			if (interpolationFunction === 'interpolateColors') {
+			if (interpolationFunction !== 'interpolate') {
 				return null;
 			}
 
@@ -484,7 +481,7 @@ const getInterpolationMetadata = (
 
 		if (key === 'outputType') {
 			if (
-				interpolationFunction === 'interpolateColors' ||
+				interpolationFunction !== 'interpolate' ||
 				getInterpolateOutputType(value) === null
 			) {
 				return null;
@@ -517,6 +514,7 @@ const getInterpolationKeyframes = (
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
 			keyframeDisplayOffsetAdjustment: number | null;
+			keyframePlaybackRateAdjustment: number;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -559,14 +557,18 @@ const getInterpolationKeyframes = (
 	}
 
 	const callExpression = node as CallExpression;
-	if (
-		callExpression.callee.type !== 'Identifier' ||
-		!isKeyframeInterpolationFunction(callExpression.callee.name)
-	) {
+	if (callExpression.callee.type !== 'Identifier') {
 		return undefined;
 	}
 
-	const interpolationFunction = callExpression.callee.name;
+	const interpolationFunction =
+		CodemodsInternals.getKeyframeInterpolationFunctionForCallee({
+			ast,
+			callee: callExpression.callee,
+		});
+	if (interpolationFunction === null) {
+		return undefined;
+	}
 
 	const frameArg = callExpression.arguments[0];
 	const inputArg = callExpression.arguments[1];
@@ -643,6 +645,7 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
+		keyframePlaybackRateAdjustment: frameDisplayOffset.playbackRateAdjustment,
 		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
 			? frameDisplayOffset.adjustment
 			: null,
@@ -785,12 +788,14 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	let current: recast.types.NodePath | null = startPath;
 	let hasSeenControlledElement = false;
 	let hasEnclosingElement = false;
 	let adjustment = 0;
+	let playbackRateAdjustment = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
 		if (
@@ -820,18 +825,35 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 					defaultValue: 0,
 					videoConfigValues,
 				});
-				if (from === null || trimBefore === null) {
+				const playbackRate = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'playbackRate',
+					defaultValue: 1,
+					videoConfigValues,
+				});
+				if (
+					from === null ||
+					trimBefore === null ||
+					playbackRate === null ||
+					!Number.isFinite(playbackRate) ||
+					playbackRate <= 0
+				) {
 					return null;
 				}
 
-				adjustment -= from - trimBefore;
+				// Walk from the controlled element back to the hook's scope.
+				// A sequence maps parent time to (parent - from) * rate + trimBefore.
+				adjustment = (adjustment + trimBefore) / playbackRate - from;
+				playbackRateAdjustment /= playbackRate;
 			}
 		}
 
 		current = current.parentPath;
 	}
 
-	return current ? {adjustment, hasEnclosingElement} : null;
+	return current
+		? {adjustment, playbackRateAdjustment, hasEnclosingElement}
+		: null;
 };
 
 type ResolvedCurrentFrameExpression = {
@@ -972,6 +994,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	if (node.type === 'TSAsExpression') {
@@ -1024,6 +1047,12 @@ export const getComputedStatus = (
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframeDisplayOffsetAdjustment:
 			interpolation.keyframeDisplayOffsetAdjustment,
+		...(interpolation.keyframePlaybackRateAdjustment === 1
+			? {}
+			: {
+					keyframePlaybackRateAdjustment:
+						interpolation.keyframePlaybackRateAdjustment,
+				}),
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
@@ -1324,7 +1353,7 @@ export const resolveSequencePropsNodePathsFromFilename = ({
 		action: 'read',
 	});
 	const fileContents = readFileSync(absolutePath, 'utf-8');
-	const nodes = getJsxNodes({
+	const nodes = getNodes({
 		project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
 		filePath: absolutePath,
 	});
@@ -1358,7 +1387,7 @@ export const computeSequencePropsStatusFromContent = ({
 	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	try {
-		return getJsxNodeProps({
+		return getNodeProps({
 			project: {rootDir: '/', files: {'source.tsx': fileContents}},
 			node: {filePath: 'source.tsx', nodePath},
 			componentIdentity,

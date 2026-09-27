@@ -15,6 +15,7 @@ import type {
 	CanvasCaptureData,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	NodeWrapper,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -33,6 +34,8 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
+import type {useTimelineSelection} from '../components/Timeline/TimelineSelection';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -136,8 +139,9 @@ export type SvgImportDialogState = {
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
-	nodePath: SequencePropsSubscriptionKey;
+	nodePathInfo: SequenceNodePathInfo;
 	clientId: string;
+	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 };
 
 export type AssetSelectionModalState = {
@@ -284,11 +288,28 @@ export type ModalState =
 			};
 	  }
 	| {
+			type: 'precompose-refactor';
+			targets: {
+				fileName: string;
+				displayName: string | null;
+				line: number | null;
+			}[];
+	  }
+	| {
 			type: 'generate-with-agent';
 			location: {
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'wrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+			wrapper: NodeWrapper;
 	  }
 	| {
 			type: 'quick-switcher';

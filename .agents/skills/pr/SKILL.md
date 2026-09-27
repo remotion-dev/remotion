@@ -6,7 +6,7 @@ description: Open a pull request for the current feature
 Ensure we are not on the main branch, make a branch if necessary.  
 Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If one exists, update it with local changes.
 
-Keep agent-authored test, fixture, and snapshot changes out of the PR unless the user explicitly requested test changes. Review the diff for this without removing pre-existing user changes.
+Keep new agent-authored tests, including new test cases in existing files, out of the PR unless the user explicitly requested them. Updates to existing tests, fixtures, and snapshots are allowed when needed for the change. Review the diff and preserve pre-existing user changes.
 
 If the changes add a Remotion Element, read the [Element contribution guide](../../../packages/docs/elements/contributing.mdx) before continuing.
 

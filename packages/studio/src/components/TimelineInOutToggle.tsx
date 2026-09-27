@@ -308,7 +308,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				dismissOnClick
 			>
 				<ControlButton
-					title=""
 					aria-label="In point"
 					aria-description="Right click to clear"
 					aria-keyshortcuts={
@@ -334,7 +333,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				dismissOnClick
 			>
 				<ControlButton
-					title=""
 					aria-label="Out point"
 					aria-description="Right click to clear"
 					aria-keyshortcuts={

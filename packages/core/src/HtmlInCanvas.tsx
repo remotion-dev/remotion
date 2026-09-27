@@ -31,6 +31,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -355,6 +356,8 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
+		// captureElementImage() only accepts immediate children of the layout canvas.
+		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
 	};
 /* eslint-enable react/require-default-props */
 
@@ -365,6 +368,7 @@ type HtmlInCanvasContentProps = {
 	readonly height: number;
 	readonly effects: EffectsProp;
 	readonly children: React.ReactNode;
+	readonly canvasSiblings: React.ReactNode | null;
 	readonly onPaint: HtmlInCanvasOnPaint | undefined;
 	readonly onInit: HtmlInCanvasOnInit | undefined;
 	readonly pixelDensity: HtmlInCanvasPixelDensity | undefined;
@@ -382,6 +386,7 @@ const HtmlInCanvasContent = forwardRef<
 			height,
 			effects,
 			children,
+			canvasSiblings,
 			onPaint,
 			onInit,
 			pixelDensity,
@@ -581,14 +586,18 @@ const HtmlInCanvasContent = forwardRef<
 						});
 					}
 
-					await runEffectChain({
-						state: chainState.get(canvasWidth, canvasHeight)!,
-						source: paintTarget,
-						effects: effectsRef.current,
-						output: paintTarget,
-						width: canvasWidth,
-						height: canvasHeight,
-					});
+					// `null` once unmounted, e.g. when an async `onPaint` resolves late.
+					const state = chainState.get(canvasWidth, canvasHeight);
+					if (state) {
+						await runEffectChain({
+							state,
+							source: paintTarget,
+							effects: effectsRef.current,
+							output: paintTarget,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+					}
 				} finally {
 					elImage.close();
 				}
@@ -712,6 +721,7 @@ const HtmlInCanvasContent = forwardRef<
 					<div ref={divRef} style={innerStyle}>
 						{children}
 					</div>
+					{canvasSiblings}
 				</canvas>
 			</HtmlInCanvasAncestorContext.Provider>
 		);
@@ -735,6 +745,7 @@ const HtmlInCanvasInner = forwardRef<
 			onPaint,
 			onInit,
 			pixelDensity,
+			_remotionInternalCanvasSiblings,
 			controls,
 			style,
 			cropLeft,
@@ -775,7 +786,11 @@ const HtmlInCanvasInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: sequenceProps.from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate: sequenceProps.playbackRate,
+				loop: sequenceProps.loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -801,7 +816,6 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
-					outlineRef={actualRef}
 					{...sequenceProps}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
@@ -816,6 +830,7 @@ const HtmlInCanvasInner = forwardRef<
 						onPaint={onPaint}
 						onInit={onInit}
 						pixelDensity={pixelDensity}
+						canvasSiblings={_remotionInternalCanvasSiblings ?? null}
 						controls={controls}
 						style={croppedStyle ?? undefined}
 					>

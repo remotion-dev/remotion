@@ -128,7 +128,7 @@ export const AgentPrompt: React.FC<{
 								onClick={() => copy(installCommand, markInstallCopied)}
 								renderAction={renderInstallCopy}
 								style={copyAction}
-								title="Copy command"
+								aria-label="Copy command"
 								variant={null}
 							/>
 						</div>
@@ -179,7 +179,7 @@ export const AgentPrompt: React.FC<{
 					onClick={() => copy(prompt, markPromptCopied)}
 					renderAction={renderPromptCopy}
 					style={copyAction}
-					title="Copy prompt"
+					aria-label="Copy prompt"
 					variant={null}
 				/>
 			</div>

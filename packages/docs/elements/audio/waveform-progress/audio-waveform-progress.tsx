@@ -195,9 +195,9 @@ const AudioWaveformProgressInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
+		const elementRef = useRef<HTMLDivElement>(null);
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -206,10 +206,9 @@ const AudioWaveformProgressInner = forwardRef<
 				controls={controls}
 				durationInFrames={durationInFrames}
 				name={name ?? 'Audio waveform progress'}
-				outlineRef={outlineRef}
 			>
 				<div
-					ref={outlineRef}
+					ref={elementRef}
 					style={{
 						boxSizing: 'border-box',
 						height: 300,

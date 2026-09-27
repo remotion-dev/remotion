@@ -515,7 +515,7 @@ export const TimelineEffectItem: React.FC<{
 			outerHeight={null}
 		>
 			<div style={labelContainerStyle}>
-				<span title={label} style={labelStyle}>
+				<span role="group" aria-label={label} style={labelStyle}>
 					{label}
 				</span>
 				<TimelineExpandArrowButton

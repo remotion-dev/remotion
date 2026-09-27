@@ -177,12 +177,7 @@ export const getUpgradeCommand = (manager: PackageManager) => {
 };
 
 export const getDevCommand = (manager: PackageManager, template: Template) => {
-	if (
-		template.cliId === 'react-router' ||
-		template.cliId === 'next' ||
-		template.cliId === 'next-no-tailwind' ||
-		template.cliId === 'next-pages-dir'
-	) {
+	if (template.cliId === 'react-router' || template.cliId === 'next') {
 		return `${getRunCommand(manager)} dev`;
 	}
 

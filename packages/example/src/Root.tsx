@@ -89,6 +89,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasMotionBlurExample,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -249,6 +250,7 @@ import {
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LayoutNoneOutlines} from './LayoutNoneOutlines';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
@@ -1242,6 +1244,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-motion-blur"
+						component={HtmlInCanvasMotionBlurExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={76}
+					/>
 					<Composition
 						id="html-in-canvas-changing-size"
 						component={HtmlInCanvasDemo}
@@ -3105,6 +3115,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={2340}
+				/>
+				<Composition
+					id="layout-none-outlines"
+					component={LayoutNoneOutlines}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
 				/>
 				<Composition
 					id="fast-updates"

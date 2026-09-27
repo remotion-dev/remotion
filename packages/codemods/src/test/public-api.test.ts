@@ -1,10 +1,42 @@
 import {expect, test} from 'bun:test';
 import {
-	addSolid,
+	addElement,
 	applyCodemodChanges,
-	deleteJsxNodes,
+	createElement,
+	deleteNodes,
 	type CodemodProject,
 } from '../index';
+
+const solid = createElement({
+	component: 'Solid',
+	importPath: 'remotion',
+	props: {width: 1280, height: 720, color: 'gray'},
+});
+
+const addSolid = ({
+	project,
+	compositionFile,
+	compositionId,
+	from,
+}: {
+	project: CodemodProject;
+	compositionFile: string;
+	compositionId: string;
+	from?: number;
+}) =>
+	addElement({
+		project,
+		element:
+			from === undefined
+				? solid
+				: createElement({
+						component: 'Sequence',
+						importPath: 'remotion',
+						props: {from},
+						children: [solid],
+					}),
+		target: {type: 'composition', compositionFile, compositionId},
+	});
 
 const makeProject = () => ({
 	entryPoint: 'src/index.ts',
@@ -31,14 +63,12 @@ export const Video2 = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	},
 });
 
-test('addSolid() immutably updates a virtual project', () => {
+test('addElement() immutably updates a virtual project', () => {
 	const project = makeProject();
 	const result = addSolid({
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'Demo',
-		height: 720,
 		project,
-		width: 1280,
 	});
 	const updated = applyCodemodChanges(project, result.changes);
 
@@ -59,25 +89,21 @@ test('addSolid() immutably updates a virtual project', () => {
 	]);
 });
 
-test('deleteJsxNodes() deletes nodes from multiple files', async () => {
+test('deleteNodes() deletes nodes from multiple files', async () => {
 	const project = makeProject();
 	const first = addSolid({
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'Demo',
-		height: 720,
 		project,
-		width: 1280,
 	});
 	const afterFirst = applyCodemodChanges(project, first.changes);
 	const second = addSolid({
 		compositionFile: 'src/Root2.tsx',
 		compositionId: 'Demo2',
-		height: 720,
 		project: afterFirst,
-		width: 1280,
 	});
 	const afterSecond = applyCodemodChanges(afterFirst, second.changes);
-	const result = await deleteJsxNodes({
+	const result = await deleteNodes({
 		nodes: [first.insertedNode, second.insertedNode],
 		project: afterSecond,
 	});
@@ -91,20 +117,18 @@ test('deleteJsxNodes() deletes nodes from multiple files', async () => {
 	]);
 });
 
-test('deleteJsxNodes() deletes the Sequence wrapper identified by a node path', async () => {
+test('deleteNodes() deletes the Sequence wrapper identified by a node path', async () => {
 	const project = makeProject();
 	const added = addSolid({
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'Demo',
 		from: 10,
-		height: 720,
 		project,
-		width: 1280,
 	});
 	const afterAdd = applyCodemodChanges(project, added.changes);
 	const sourceWithSolid = afterAdd.files['src/Video.tsx'];
 	expect(sourceWithSolid).toContain('<Sequence from={10}');
-	const result = await deleteJsxNodes({
+	const result = await deleteNodes({
 		nodes: [
 			{
 				filePath: `/${added.insertedNode.filePath}`,

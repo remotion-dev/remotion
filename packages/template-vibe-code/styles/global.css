@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --radius: 0.5rem;
+
+  /* Editor dark theme */
+  --background: #0b0d12;
+  --background-elevated: #12151c;
+  --background-panel: #0f1218;
+  --background-editor: #0d1017;
+  --foreground: #e6e8ee;
+  --primary: #0b84f3;
+  --primary-hover: #0a75d9;
+  --primary-foreground: #ffffff;
+  --secondary: #1c2130;
+  --secondary-foreground: #e6e8ee;
+  --muted: #161a23;
+  --muted-foreground: #8b93a7;
+  --muted-foreground-dim: #5c6478;
+  --accent: #1f2637;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #fca5a5;
+  --border: #232937;
+  --border-dim: #1a1f2b;
+  --input: #0f1218;
+  --ring: #2f3a55;
+  --popover: #141821;
+  --popover-foreground: #e6e8ee;
+  --selection: #4f6bff;
+  --selection-dim: #2a3565;
+  --warning: #f59e0b;
+  --success: #22c55e;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-background-panel: var(--background-panel);
+  --color-background-editor: var(--background-editor);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-foreground-dim: var(--muted-foreground-dim);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-dim: var(--border-dim);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-selection: var(--selection);
+  --color-selection-dim: var(--selection-dim);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a3040;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Number fields in the inspector can be scrubbed by dragging their label. */
+.scrub-label {
+  cursor: ew-resize;
+  user-select: none;
+}

@@ -19,15 +19,14 @@ Websites can provide [Elements](/elements) to a Studio either using drag-and-dro
 <Step>1</Step> Create an Element payload with [`createElementPayload()`](/docs/studio-protocol/create-element-payload).<br />
 <Step>2</Step> Put it on a drag event with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data), or send a signal to a Studio using [`installInStudio()`](/docs/studio-protocol/install-in-studio).
 
+| Method                                                         | Benefits                                                                                  | Tradeoffs                                                                                       |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)    | The user chooses the exact Studio tab, timeline position, and canvas position.            | Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
+| [Installation dialog](/docs/studio-protocol/install-in-studio) | The requesting website is shown. Remotion attempts to bring the Studio to the foreground. | Always the most recently focused Studio is taken.                                               |
 
-| Method                                                                                              | Benefits                                                                                                        | Tradeoffs                                                                                                                                        |
-| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [Drag-and-drop](/docs/studio-protocol/set-studio-drag-data)                                         | The user chooses the exact Studio tab, timeline position, and canvas position.                                  | Studio labels the source as [unverified](/docs/studio-protocol/security#confirmation-boundary). |
-| [Installation dialog](/docs/studio-protocol/install-in-studio)                                     | The requesting website is shown.  Remotion attempts to bring the Studio to the foreground. | Always the most recently focused Studio is taken.                                         |
+### Adding an Element Library
 
-### Adding Element catalogs
-
-Using [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) you can request to add an element library to the Studio.
+Using [`addElementLibraryToStudio()`](/docs/studio-protocol/add-element-library-to-studio) you can request to add an Element Library to the Studio.
 
 ### Previewing Elements
 
@@ -49,4 +48,4 @@ Learn about the [confirmation and origin policy](/docs/studio-protocol/security)
 
 ## See also
 
-- [Integrating a component library with Studio](/docs/studio-protocol/component-library-integration)
+- [Integrating an Element Library with Studio](/docs/studio-protocol/component-library-integration)

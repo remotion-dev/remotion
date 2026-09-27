@@ -174,7 +174,6 @@ export const SkillSettingsRow: React.FC<{
 				>
 					<InlineAction
 						aria-label={`Remove ${skill.name}`}
-						title=""
 						disabled={skillAction !== null}
 						onClick={() => removeSkill(skill.name)}
 						renderAction={renderRemoveAction}
@@ -190,7 +189,6 @@ export const SkillSettingsRow: React.FC<{
 				>
 					<InlineAction
 						aria-label={`Install ${skill.name}`}
-						title=""
 						disabled={skillAction !== null}
 						onClick={() => installSkill(skill.name)}
 						renderAction={renderInstallAction}
@@ -269,7 +267,7 @@ export const SkillsSettings: React.FC = () => {
 							variant={null}
 							onClick={onCopy}
 							renderAction={renderCopyAction}
-							title="Copy install command"
+							aria-label="Copy install command"
 						/>
 					</div>
 				</div>

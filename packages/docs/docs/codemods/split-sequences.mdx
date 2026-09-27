@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # splitSequences()<AvailableFrom v="4.0.528" />
 
-Splits supported timing elements into two adjacent JSX elements.
+Splits supported timing elements into two adjacent nodes.
 
 :::warning
 
@@ -15,10 +15,10 @@ _Draft API_: This API is experimental and may change.
 :::
 
 ```ts twoslash title="split-sequences.ts"
-import {splitSequences, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+import {splitSequences, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
 const result = await splitSequences({
   project,
@@ -76,4 +76,4 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/split-sequences.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

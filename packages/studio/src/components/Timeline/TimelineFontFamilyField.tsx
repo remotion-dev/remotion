@@ -729,7 +729,7 @@ export const TimelineFontFamilyField: React.FC<{
 		<>
 			<button
 				ref={buttonRef}
-				title={field.key}
+				aria-label={field.key}
 				tabIndex={tabIndex}
 				type="button"
 				style={style}
@@ -748,7 +748,8 @@ export const TimelineFontFamilyField: React.FC<{
 				onMouseLeave={() => setHovered(false)}
 			>
 				<div
-					title={selected.label}
+					role="group"
+					aria-label={selected.label}
 					style={{...triggerLabel, ...selectedPreviewStyle}}
 				>
 					{selected.label}

@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-canvas-get-canvas-sequence-source-location.png
+title: getCanvasSequenceSourceLocation()
+crumb: '@remotion/canvas'
+---
+
+# getCanvasSequenceSourceLocation()<AvailableFrom v="4.0.529" />
+
+Returns where the JSX element of a timeline track was written, if the bundler recorded it. Use it to look up the source node of a mounted sequence, for example with [`getNodes()`](/docs/codemods/get-nodes) from [`@remotion/codemods`](/docs/codemods), and pass the result to [`controller.setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths).
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts twoslash title="resolve-node-paths.ts"
+// @moduleResolution: bundler
+import type {CanvasController} from '@remotion/canvas';
+import type {CodemodProject} from '@remotion/codemods';
+declare const controller: CanvasController;
+declare const project: CodemodProject;
+// ---cut---
+import {getCanvasSequenceSourceLocation} from '@remotion/canvas';
+import {getNodes} from '@remotion/codemods';
+import type {SequencePropsSubscriptionKey} from 'remotion';
+
+export const resolveNodePaths = () => {
+  const nodePaths: Record<string, SequencePropsSubscriptionKey> = {};
+  for (const track of controller.timeline.getSnapshot()) {
+    const overrideId = track.sequence.controls?.overrideId;
+    const location = getCanvasSequenceSourceLocation(track);
+    if (!overrideId || !location) {
+      continue;
+    }
+
+    const node = getNodes({project, filePath: location.fileName}).find(
+      (candidate) =>
+        candidate.location?.line === location.line &&
+        candidate.location.column === location.column,
+    );
+    if (node) {
+      nodePaths[overrideId] = {
+        absolutePath: node.filePath,
+        nodePath: node.nodePath,
+        sequenceKeys: [],
+        effectKeys: [],
+        videoConfigValues: track.sequence.controls?.videoConfigValues ?? null,
+      };
+    }
+  }
+
+  controller.setSequenceNodePaths(nodePaths);
+};
+```
+
+Source locations are available for projects compiled with [`createBrowserBundler()`](/docs/browser-bundler/create-browser-bundler) using [`enableFastRefresh`](/docs/browser-bundler/create-browser-bundler#enablefastrefresh) and executed with [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime). Other bundlers do not record them, and the function returns `null`.
+
+The function reads the mounted sequence's current location. After applying a Fast Refresh update that moved elements, call it again instead of caching the result.
+
+## Parameter
+
+### track
+
+A `TimelineTrackData` from [`controller.timeline`](/docs/canvas/create-canvas-controller#timeline).
+
+## Return value
+
+A `CanvasSequenceSourceLocation`, or `null` if the location is unknown.
+
+### fileName
+
+The path of the file the JSX element was compiled from, as seen by the bundler. For a virtual project, this is the project-relative path with a leading slash, such as `/src/Video.tsx`.
+
+### line
+
+The 1-based line of the JSX element.
+
+### column
+
+The 0-based column of the JSX element. This matches the `location` of [`getNodes()`](/docs/codemods/get-nodes).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`createCanvasController()`](/docs/canvas/create-canvas-controller)
+- [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info)
+- [`getNodes()`](/docs/codemods/get-nodes)

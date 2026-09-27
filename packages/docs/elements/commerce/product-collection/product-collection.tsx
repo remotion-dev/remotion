@@ -44,7 +44,7 @@ const ProductCardInner = forwardRef<
 	HTMLDivElement,
 	ProductCardProps & {readonly controls: SequenceControls | undefined}
 >(({controls, count, index, label, name, style, ...sequenceProps}, ref) => {
-	const outlineRef = useRef<HTMLDivElement>(null);
+	const elementRef = useRef<HTMLDivElement>(null);
 	const frame = useCurrentFrame();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
@@ -101,7 +101,7 @@ const ProductCardInner = forwardRef<
 		extrapolateRight: 'clamp',
 	});
 
-	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 	return (
 		<Sequence
@@ -109,7 +109,6 @@ const ProductCardInner = forwardRef<
 			{...sequenceProps}
 			controls={controls}
 			name={name ?? '<ProductCard>'}
-			outlineRef={outlineRef}
 		>
 			<div
 				style={{
@@ -128,7 +127,7 @@ const ProductCardInner = forwardRef<
 				}}
 			>
 				<div
-					ref={outlineRef}
+					ref={elementRef}
 					style={{
 						...style,
 						backgroundColor: '#ffffff',

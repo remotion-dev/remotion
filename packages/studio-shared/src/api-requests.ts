@@ -414,15 +414,13 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
-export type SubscribeToSequencePropsBatchRequest =
-	SubscribeToSequencePropsRequest & {
-		requests?: SubscribeToSequencePropsRequest[];
-	};
+export type SubscribeToSequencePropsBatchRequest = {
+	requests: SubscribeToSequencePropsRequest[];
+};
 
-export type SubscribeToSequencePropsBatchResponse =
-	SubscribeToSequencePropsResponse & {
-		results: SubscribeToSequencePropsResponse[];
-	};
+export type SubscribeToSequencePropsBatchResponse = {
+	results: SubscribeToSequencePropsResponse[];
+};
 
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
@@ -442,6 +440,7 @@ export type GoogleFontSourceEdit = {
 };
 
 export type SaveSequencePropSourceEdit =
+	| {type: 'playback-rate'}
 	| {
 			type: 'google-font';
 			font: GoogleFontSourceEdit;
@@ -517,7 +516,6 @@ export type SaveSequencePropsResult = {
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
 			results: SaveSequencePropsResult[];
 	  }
 	| {
@@ -581,6 +579,10 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			insertedEffect: {
+				effectIndex: number;
+				nodePath: SequencePropsSubscriptionKey['nodePath'];
+			};
 	  }
 	| {
 			success: false;
@@ -740,6 +742,7 @@ export type AddKeyframesRequest = {
 
 export type AddKeyframesResponse = {
 	success: true;
+	nodePathMutation: SequenceNodePathMutation | null;
 };
 
 export type KeyframeSettings =
@@ -848,16 +851,16 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodesRequestItem = {
+export type DeleteNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodesRequest = {
-	nodes: DeleteJsxNodesRequestItem[];
+export type DeleteNodesRequest = {
+	nodes: DeleteNodesRequestItem[];
 };
 
-export type DeleteJsxNodesResponse =
+export type DeleteNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -868,16 +871,16 @@ export type DeleteJsxNodesResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequestItem = {
+export type DuplicateNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DuplicateJsxNodeRequest = {
-	nodes: DuplicateJsxNodeRequestItem[];
+export type DuplicateNodesRequest = {
+	nodes: DuplicateNodesRequestItem[];
 };
 
-export type DuplicateJsxNodeResponse =
+export type DuplicateNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -888,17 +891,21 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+export type NodeWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
 
-export type WrapJsxNodeRequest = {
+export type WrapNodeRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
-	wrapper: JsxWrapper | null;
+	wrapper: NodeWrapper | null;
 	width: number | null;
 	height: number | null;
 };
 
-export type WrapJsxNodeResponse =
+export type WrapNodeResponse =
 	| {
 			success: true;
 			canWrap: boolean;
@@ -907,18 +914,47 @@ export type WrapJsxNodeResponse =
 	  }
 	| {success: false; reason: string; stack: string};
 
-export type SplitJsxSequenceRequestItem = {
+export type PrecomposeJsxNodesRequestItem = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type PrecomposeJsxNodesRequest = {
+	nodes: PrecomposeJsxNodesRequestItem[];
+	compositionFile: string;
+	compositionId: string;
+	existingCompositionIds: string[];
+	metadata: {
+		width: number;
+		height: number;
+		fps: number;
+		durationInFrames: number;
+	};
+	dryRun: boolean;
+};
+
+export type PrecomposeJsxNodesResponse =
+	| {
+			success: true;
+			canPrecompose: boolean;
+			reason: string | null;
+			nodePathMutation: SequenceNodePathMutation | null;
+			newCompositionId: string | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type SplitSequencesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
 };
 
-export type SplitJsxSequenceRequest = {
-	sequences: SplitJsxSequenceRequestItem[];
+export type SplitSequencesRequest = {
+	sequences: SplitSequencesRequestItem[];
 };
 
-export type SplitJsxSequenceResponse =
+export type SplitSequencesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -1021,14 +1057,14 @@ export type InsertableCompositionElementPosition = {
 	y: number;
 };
 
-export type InsertJsxElementRequest = {
+export type InsertCompositionElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
 };
 
-export type InsertJsxElementResponse =
+export type InsertCompositionElementResponse =
 	| {
 			success: true;
 			insertedNodePath: Pick<
@@ -1248,6 +1284,7 @@ export type ConfigUpdate =
 	| {
 			setter: string;
 			type: 'delete';
+			value?: string;
 	  }
 	| {
 			setter: string;
@@ -1451,18 +1488,19 @@ export type ApiRoutes = {
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-nodes': ReqAndRes<
-		DeleteJsxNodesRequest,
-		DeleteJsxNodesResponse
+	'/api/delete-nodes': ReqAndRes<DeleteNodesRequest, DeleteNodesResponse>;
+	'/api/duplicate-nodes': ReqAndRes<
+		DuplicateNodesRequest,
+		DuplicateNodesResponse
 	>;
-	'/api/duplicate-jsx-node': ReqAndRes<
-		DuplicateJsxNodeRequest,
-		DuplicateJsxNodeResponse
+	'/api/precompose-jsx-nodes': ReqAndRes<
+		PrecomposeJsxNodesRequest,
+		PrecomposeJsxNodesResponse
 	>;
-	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
-	'/api/split-jsx-sequence': ReqAndRes<
-		SplitJsxSequenceRequest,
-		SplitJsxSequenceResponse
+	'/api/wrap-node': ReqAndRes<WrapNodeRequest, WrapNodeResponse>;
+	'/api/split-sequences': ReqAndRes<
+		SplitSequencesRequest,
+		SplitSequencesResponse
 	>;
 	'/api/split-video-from-audio': ReqAndRes<
 		SplitVideoFromAudioRequest,
@@ -1476,9 +1514,9 @@ export type ApiRoutes = {
 		ReplaceVideoSourceRequest,
 		ReplaceVideoSourceResponse
 	>;
-	'/api/insert-jsx-element': ReqAndRes<
-		InsertJsxElementRequest,
-		InsertJsxElementResponse
+	'/api/insert-composition-element': ReqAndRes<
+		InsertCompositionElementRequest,
+		InsertCompositionElementResponse
 	>;
 	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
 		ConvertFigmaClipboardToSvgRequest,

@@ -170,6 +170,10 @@ code {
 	padding: 0;
 }
 
+.theme-code-block {
+	box-shadow: none;
+}
+
 .code-container code {
 	font-family: inherit;
 	font-size: 15px;

@@ -414,7 +414,7 @@ const RenderButtonInner: React.FC<{
 	const segments = useMemo((): SegmentedButtonSegment[] => {
 		return [
 			{
-				ariaLabel: renderLabel,
+				ariaLabel: showRenderLabel ? tooltip : renderLabel,
 				buttonId: 'render-modal-button',
 				disabled: false,
 				idleColor: WHITE_ALPHA_80,
@@ -445,7 +445,6 @@ const RenderButtonInner: React.FC<{
 					controlSize === 'compact'
 						? compactMainSegmentStyle
 						: defaultMainSegmentStyle,
-				title: showRenderLabel ? tooltip : null,
 				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
@@ -463,7 +462,6 @@ const RenderButtonInner: React.FC<{
 					controlSize === 'compact'
 						? compactDropdownSegmentStyle
 						: defaultDropdownSegmentStyle,
-				title: 'Select render type',
 				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
@@ -505,11 +503,7 @@ const RenderButtonInner: React.FC<{
 				onClick={() => openServerRenderModal(true)}
 				type="button"
 			/>
-			<SegmentedButton
-				segments={segments}
-				style={segmentedButtonStyle}
-				title={showRenderLabel ? tooltip : null}
-			/>
+			<SegmentedButton segments={segments} style={segmentedButtonStyle} />
 		</>
 	);
 };

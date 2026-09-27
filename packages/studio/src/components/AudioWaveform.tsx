@@ -8,11 +8,10 @@ import {
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
+import {BLACK_ALPHA_60, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {resolveStudioColor} from '../helpers/resolve-studio-color';
 import {getStudioPixelRatio} from '../helpers/studio-pixel-ratio';
-import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
 
@@ -31,18 +30,14 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	flexShrink: 0,
+	position: 'relative',
+	zIndex: 1,
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
+	pointerEvents: 'none',
 	position: 'absolute',
-};
-
-const parseVolume = (volume: string | number): WaveformVolume => {
-	if (typeof volume === 'number') {
-		return volume;
-	}
-
-	return volume.split(',').map((v) => Number(v));
+	zIndex: 0,
 };
 
 const AudioWaveformInner: React.FC<{
@@ -53,8 +48,7 @@ const AudioWaveformInner: React.FC<{
 	readonly durationInFrames: number;
 	readonly displayOffsetInFrames: number;
 	readonly displayDurationInFrames: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: WaveformVolume;
 	readonly muted: boolean;
 	readonly playbackRate: number;
 	readonly loopDisplay: LoopDisplay | undefined;
@@ -68,7 +62,6 @@ const AudioWaveformInner: React.FC<{
 	displayDurationInFrames,
 	visualizationWidth,
 	volume,
-	doesVolumeChange,
 	muted,
 	playbackRate,
 	loopDisplay,
@@ -87,9 +80,16 @@ const AudioWaveformInner: React.FC<{
 
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
-	const shouldRenderVolumeOverlay =
-		doesVolumeChange && typeof volume === 'string';
-	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
+	const shouldRenderVolumeOverlay = typeof volume !== 'number';
+	const visualizationMaxVolume = useMemo(() => {
+		if (typeof volume === 'number') {
+			return Math.max(1, volume);
+		}
+
+		return volume.reduce((highest, value) => {
+			return Number.isFinite(value) ? Math.max(highest, value) : highest;
+		}, 1);
+	}, [volume]);
 	const visibleVolume = useMemo((): WaveformVolume => {
 		if (muted) {
 			return 0;
@@ -98,9 +98,9 @@ const AudioWaveformInner: React.FC<{
 		return getVisibleWaveformVolume({
 			displayDurationInFrames,
 			displayOffsetInFrames,
-			volume: parsedVolume,
+			volume,
 		});
-	}, [displayDurationInFrames, displayOffsetInFrames, muted, parsedVolume]);
+	}, [displayDurationInFrames, displayOffsetInFrames, muted, volume]);
 
 	// Layout effect so that a cache hit sets the peaks synchronously and the
 	// waveform is painted on the very first frame after mounting.
@@ -177,7 +177,7 @@ const AudioWaveformInner: React.FC<{
 	}, [height, portionPeaks, visibleVolume, visualizationWidth]);
 
 	useLayoutEffect(() => {
-		if (!shouldRenderVolumeOverlay) {
+		if (!shouldRenderVolumeOverlay || !peaks) {
 			return;
 		}
 
@@ -201,31 +201,50 @@ const AudioWaveformInner: React.FC<{
 		volumeCanvasElement.style.height = h / pixelRatio + 'px';
 
 		context.clearRect(0, 0, w, h);
-		if (!Array.isArray(visibleVolume)) {
+		if (
+			!Array.isArray(visibleVolume) ||
+			visibleVolume.length === 0 ||
+			drawingWidth <= 0 ||
+			h <= 0
+		) {
 			return;
 		}
 
 		context.beginPath();
-		context.moveTo(0, h);
-		visibleVolume.forEach((v, index) => {
-			const x =
-				visibleVolume.length <= 1
-					? 0
-					: (index / (visibleVolume.length - 1)) * drawingWidth;
-			const y = (1 - v) * (h - TIMELINE_BORDER * 2 * pixelRatio) + pixelRatio;
-			if (index === 0) {
-				context.moveTo(x, y);
-			} else {
-				context.lineTo(x, y);
-			}
-		});
-		context.strokeStyle = resolveStudioColor(
-			WHITE_ALPHA_70,
+		context.moveTo(0, 0);
+		// The canvas only spans the virtualized range. Sampling by its physical
+		// width keeps drawing work bounded to the visible part of the timeline.
+		const numberOfPoints = Math.max(2, Math.ceil(drawingWidth));
+		for (let point = 0; point < numberOfPoints; point++) {
+			const progress = point / (numberOfPoints - 1);
+			const volumeIndex = progress * (visibleVolume.length - 1);
+			const leftIndex = Math.floor(volumeIndex);
+			const rightIndex = Math.ceil(volumeIndex);
+			const leftVolume = visibleVolume[leftIndex] ?? 1;
+			const rightVolume = visibleVolume[rightIndex] ?? leftVolume;
+			const interpolatedVolume =
+				leftVolume + (rightVolume - leftVolume) * (volumeIndex - leftIndex);
+			const x = progress * drawingWidth;
+			const unclampedY = (1 - interpolatedVolume / visualizationMaxVolume) * h;
+			const y = Math.max(0, Math.min(h, unclampedY));
+			context.lineTo(x, y);
+		}
+
+		context.lineTo(drawingWidth, 0);
+		context.closePath();
+		context.fillStyle = resolveStudioColor(
+			BLACK_ALPHA_60,
 			getComputedStyle(volumeCanvasElement),
 		);
-		context.lineWidth = pixelRatio;
-		context.stroke();
-	}, [height, shouldRenderVolumeOverlay, visibleVolume, visualizationWidth]);
+		context.fill();
+	}, [
+		height,
+		peaks,
+		shouldRenderVolumeOverlay,
+		visualizationMaxVolume,
+		visibleVolume,
+		visualizationWidth,
+	]);
 
 	if (error) {
 		return null;
@@ -237,10 +256,10 @@ const AudioWaveformInner: React.FC<{
 
 	return (
 		<div style={getContainerStyle(height)}>
-			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
 			{shouldRenderVolumeOverlay ? (
 				<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
 			) : null}
+			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
 		</div>
 	);
 };

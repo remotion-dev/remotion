@@ -39,7 +39,10 @@ export type BufferingState = Readonly<{
 export type SetTimelineContextValue = {
 	// Null in rendering and thumbnails, which do not publish preview seek intent.
 	seek: TimelineSeek | null;
-	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
+	// Playback and persistence only. Navigation must use seek.seekFrame.
+	setFrameWithoutSeek: (
+		u: React.SetStateAction<Record<string, number>>,
+	) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 	setBuffering: (buffering: boolean) => void;
 	subscribePlaying: (listener: (state: PlayingState) => void) => () => void;
@@ -58,7 +61,7 @@ const missingSetTimelineContext = (): never => {
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	seek: null,
-	setFrame: missingSetTimelineContext,
+	setFrameWithoutSeek: missingSetTimelineContext,
 	setPlaying: missingSetTimelineContext,
 	setBuffering: missingSetTimelineContext,
 	subscribePlaying: () => () => undefined,
@@ -168,7 +171,7 @@ export const TimelineContextProvider: React.FC<{
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
-			setFrame,
+			setFrameWithoutSeek: setFrame,
 			seek,
 			setPlaying: (updater) => {
 				const current = playingStore.store.getSnapshot().playing;

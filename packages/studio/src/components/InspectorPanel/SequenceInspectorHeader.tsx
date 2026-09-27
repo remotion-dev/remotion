@@ -150,7 +150,7 @@ export const SequenceInspectorHeader: React.FC<{
 					<InspectorQuickAction
 						disabled={false}
 						style={defaultCursor}
-						title="Open component docs"
+						aria-label="Open component docs"
 						onClick={openDocumentationLink}
 					>
 						{componentName}

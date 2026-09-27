@@ -187,6 +187,7 @@ export const MenuSubItem: React.FC<{
 	return (
 		<div
 			ref={ref}
+			aria-label={typeof label === 'string' ? label : undefined}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
@@ -201,13 +202,7 @@ export const MenuSubItem: React.FC<{
 						<Spacing x={1} />
 					</>
 				) : null}
-				<div
-					style={labelStyle}
-					{...{title: typeof label === 'string' ? label : undefined}}
-				>
-					{label}
-				</div>{' '}
-				<Spacing x={2} />
+				<div style={labelStyle}>{label}</div> <Spacing x={2} />
 				{subMenu ? <CaretRight /> : null}
 				{keyHint && !areKeyboardShortcutsDisabled() ? (
 					<span style={keyHintCss}>{keyHint}</span>

@@ -57,13 +57,6 @@ export const getCodemodLogMessage = (
 		return `Deleted composition "${codemod.idToDelete}"`;
 	}
 
-	if (codemod.type === 'move-composition-to-folder') {
-		const destination = codemod.folderName
-			? `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`
-			: 'to root';
-		return `Moved composition "${codemod.idToMove}" ${destination}`;
-	}
-
 	if (codemod.type === 'move-composition-or-folder') {
 		const source =
 			codemod.source.type === 'composition'
@@ -127,19 +120,6 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		return {
 			undoMessage: `↩️  Duplication of ${label}`,
 			redoMessage: `↪️  Duplication of ${label}`,
-			entryType: codemod.type,
-		};
-	}
-
-	if (codemod.type === 'move-composition-to-folder') {
-		const destination =
-			codemod.folderName === null
-				? 'to root'
-				: `into folder "${getFolderPath(codemod.parentName, codemod.folderName)}"`;
-		const label = `composition "${codemod.idToMove}" ${destination}`;
-		return {
-			undoMessage: `↩️  Move of ${label}`,
-			redoMessage: `↪️  Move of ${label}`,
 			entryType: codemod.type,
 		};
 	}

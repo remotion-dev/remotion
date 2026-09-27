@@ -40,11 +40,11 @@ test('sequence wrappers cascade playback rates while preserving sequence and loo
 		);
 
 	expect(render(12)).toContain('<span>6</span>');
-	expect(render(19)).toContain('<span>27</span>');
-	expect(render(20)).toBe('<span>0</span>');
-	expect(render(24)).toBe('<span>8</span>');
-	expect(render(25)).toBe('<span>0</span>');
-	expect(render(29)).toBe('<span>8</span>');
+	expect(render(19)).toContain('<span>3</span>');
+	expect(render(20)).toBe('');
+	expect(render(24)).toBe('');
+	expect(render(25)).toBe('');
+	expect(render(29)).toBe('');
 	expect(render(30)).toBe('');
 });
 

@@ -1,8 +1,0 @@
-{
-	"extends": ["//"],
-	"tasks": {
-		"make": {
-			"outputs": ["public/browser-bundler-preview.js"]
-		}
-	}
-}

@@ -28,7 +28,7 @@ The current Remotion version can be found in `packages/core/src/version.ts`. The
 
 ## Test changes
 
-Do not add or modify tests, test fixtures, or snapshots unless the user explicitly asks for test changes. Feature work, bug fixes, refactors, and PR preparation do not imply permission to write tests. Keep agent-authored test changes out of PRs unless explicitly requested, and preserve pre-existing user changes.
+Do not add new tests, including new test cases in existing files, unless the user explicitly asks for them. Edit or remove existing tests, fixtures, and snapshots as needed for feature work, bug fixes, refactors, and PR preparation. Preserve pre-existing user changes.
 
 Running existing tests for validation is allowed.
 

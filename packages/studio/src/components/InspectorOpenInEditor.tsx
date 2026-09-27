@@ -244,7 +244,6 @@ export const InspectorOpenInEditor: React.FC<{
 				),
 				segmentId: 'default-editor',
 				style: mainSegmentStyle,
-				title: showTooltips ? '' : `Open in ${defaultAppName}`,
 				tooltipLabel: showTooltips ? `Open in ${defaultAppName}` : null,
 				type: 'action',
 			},
@@ -262,7 +261,6 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'another-app',
 				selectedId: null,
 				style: dropdownSegmentStyle,
-				title: showTooltips ? '' : 'Open in another app',
 				tooltipLabel: showTooltips ? 'Open in another app' : null,
 				type: 'menu',
 				values: menuItems,
@@ -289,5 +287,5 @@ export const InspectorOpenInEditor: React.FC<{
 		return null;
 	}
 
-	return <SegmentedButton segments={segments} style={null} title={null} />;
+	return <SegmentedButton segments={segments} style={null} />;
 };

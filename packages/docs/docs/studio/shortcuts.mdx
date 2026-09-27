@@ -48,6 +48,7 @@ You can also press <kbd>?</kbd> to open this tab.
 | `selectOpacityProp`             | `T`                                        | Select the `style.opacity` property                                                    |
 | `selectRotateProp`              | `R`                                        | Select the `style.rotate` property                                                     |
 | `selectScaleProp`               | `S`                                        | Select the `style.scale` property                                                      |
+| `selectVolumeProp`              | `V`                                        | Select the `volume` property <AvailableFrom v="4.0.530" inline />                      |
 | `duplicateSequences`            | `Cmd/Ctrl+D`                               | Duplicate selected sequences                                                           |
 | `splitSequences`                | `Cmd/Ctrl+Shift+D`                         | Split eligible selected sequences at the playhead <AvailableFrom v="4.0.527" inline /> |
 | `copyEffectsAndValues`          | `Cmd/Ctrl+C`                               | Copy selected effects or property values                                               |
@@ -94,6 +95,7 @@ Config.setKeyboardShortcuts({
   toggleLoop: {key: 'y'},
   quickSwitcher: {key: 'p', commandOrControl: true},
   toggleSnapping: {key: 's', shift: true},
+  selectVolumeProp: {key: 'v', shift: true},
   render: null,
 });
 ```

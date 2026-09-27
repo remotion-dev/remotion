@@ -114,17 +114,18 @@ export const useAbsoluteTimelinePosition = (): number => {
 	return useTimelinePositionFromContext(state);
 };
 
-export const useTimelineSetFrame = (): ((
+// Playback and frame persistence only. Navigation must use useTimelineSeekFrame.
+export const useTimelineSetFrameWithoutSeek = (): ((
 	u: React.SetStateAction<Record<string, number>>,
 ) => void) => {
-	const {setFrame} = useContext(SetTimelineContext);
-	return setFrame;
+	const {setFrameWithoutSeek} = useContext(SetTimelineContext);
+	return setFrameWithoutSeek;
 };
 
-// Explicit navigation only. Playback and frame persistence must use setFrame.
+// Explicit navigation only. Rendering and thumbnails have no seek revision.
 export const useTimelineSeekFrame = () => {
-	const {seek, setFrame} = useContext(SetTimelineContext);
-	return seek?.setFrame ?? setFrame;
+	const {seek, setFrameWithoutSeek} = useContext(SetTimelineContext);
+	return seek?.seekFrame ?? setFrameWithoutSeek;
 };
 
 export {usePlaying} from './use-playing.js';

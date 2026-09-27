@@ -19,7 +19,6 @@ import {
 	getKeyframeInterpolationFunctionForSchemaField,
 	getKeyframeOutputTypeForSchemaField,
 	HOLD_KEYFRAME_EASING,
-	isKeyframeInterpolationFunction,
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	LINEAR_KEYFRAME_EASING,
@@ -62,6 +61,8 @@ import {
 	findEffectsAttr,
 } from './sequence-props/can-update-effect-props';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
+import {ensureNamedImport} from './sequence-props/imports';
+import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {parseAst} from './sequence-props/parse-ast';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
 import {
@@ -109,6 +110,7 @@ const getOpeningElementSourceEdit = ({
 
 	const start = recastLocToOffset(input, openingElement.loc.start);
 	const printed = printJsxOpeningElement({
+		compactLiteralProps: false,
 		originalAttributeSources,
 		openingElement: openingElement as never,
 		input,
@@ -406,6 +408,7 @@ type InterpolateKeyframe = {
 };
 
 type InterpolateExpression = {
+	interpolationFunction: KeyframeInterpolationFunction;
 	callee: ExpressionKind;
 	input: ExpressionKind | SpreadElementKind;
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
@@ -428,20 +431,26 @@ const getSupportedCallArgument = (
 
 const getInterpolationExpression = (
 	node: Expression,
+	ast: File,
 	videoConfigValues: VideoConfigIdentifierValues,
 ): InterpolateExpression | null => {
 	if (node.type === 'TSAsExpression') {
 		return getInterpolationExpression(
 			node.expression as Expression,
+			ast,
 			videoConfigValues,
 		);
 	}
 
-	if (
-		node.type !== 'CallExpression' ||
-		node.callee.type !== 'Identifier' ||
-		!isKeyframeInterpolationFunction(node.callee.name)
-	) {
+	if (node.type !== 'CallExpression' || node.callee.type !== 'Identifier') {
+		return null;
+	}
+
+	const interpolationFunction = getKeyframeInterpolationFunctionForCallee({
+		ast,
+		callee: node.callee,
+	});
+	if (interpolationFunction === null) {
 		return null;
 	}
 
@@ -505,6 +514,7 @@ const getInterpolationExpression = (
 	}
 
 	return {
+		interpolationFunction,
 		callee: node.callee as unknown as ExpressionKind,
 		input: frameArg,
 		extraArgs,
@@ -1064,6 +1074,7 @@ const validateOutput = (output: InterpolateOutputOption | undefined) => {
 };
 
 const updateKeyframeSettings = ({
+	ast,
 	expression,
 	clamping,
 	posterize,
@@ -1080,18 +1091,29 @@ const updateKeyframeSettings = ({
 	posterize: number | undefined;
 	output: InterpolateOutputOption | undefined;
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 }): ExpressionKind => {
 	validatePosterize(posterize);
 	validateOutput(output);
 
-	const existing = getInterpolationExpression(expression, videoConfigValues);
+	const existing = getInterpolationExpression(
+		expression,
+		ast,
+		videoConfigValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot update keyframe settings on non-keyframed value');
 	}
 
-	const calleeName =
-		existing.callee.type === 'Identifier' ? existing.callee.name : null;
-	const isColorInterpolation = calleeName === 'interpolateColors';
+	const isColorInterpolation =
+		existing.interpolationFunction === 'interpolateColors';
+	if (
+		existing.interpolationFunction === 'interpolatePaths' &&
+		(clamping?.left === 'identity' || clamping?.right === 'identity')
+	) {
+		throw new Error('Cannot use identity extrapolation for path keyframes');
+	}
+
 	const extraArgs = [...existing.extraArgs];
 	const existingOptions = extraArgs[0];
 	if (existingOptions && existingOptions.type !== 'ObjectExpression') {
@@ -1124,7 +1146,15 @@ const updateKeyframeSettings = ({
 		});
 	}
 
-	if (!isColorInterpolation && output !== undefined) {
+	if (existing.interpolationFunction === 'interpolatePaths') {
+		setOptionsProperty({options, propertyName: 'output', value: null});
+		setOptionsProperty({options, propertyName: 'outputType', value: null});
+	}
+
+	if (
+		existing.interpolationFunction === 'interpolate' &&
+		output !== undefined
+	) {
 		setOptionsProperty({
 			options,
 			propertyName: 'output',
@@ -1152,6 +1182,7 @@ const updateKeyframeSettings = ({
 };
 
 const updateKeyframeEasing = ({
+	ast,
 	expression,
 	segmentIndex,
 	easing,
@@ -1161,8 +1192,13 @@ const updateKeyframeEasing = ({
 	segmentIndex: number;
 	easing: KeyframeEasing;
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 }): {expression: ExpressionKind; needsEasingImport: boolean} => {
-	const existing = getInterpolationExpression(expression, videoConfigValues);
+	const existing = getInterpolationExpression(
+		expression,
+		ast,
+		videoConfigValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot update easing on non-keyframed value');
 	}
@@ -1258,6 +1294,7 @@ const noIntroducedIdentifiers: IntroducedKeyframeIdentifiers = {
 };
 
 const addKeyframe = ({
+	ast,
 	expression,
 	key,
 	frame,
@@ -1271,22 +1308,24 @@ const addKeyframe = ({
 	value: unknown;
 	schema: InteractivitySchema | null;
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (!isSchemaFieldKeyframable({schema, key})) {
 		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
 	}
 
-	const existing = getInterpolationExpression(expression, videoConfigValues);
+	const existing = getInterpolationExpression(
+		expression,
+		ast,
+		videoConfigValues,
+	);
 	const newOutput = parseValueExpression(value);
 
 	if (existing) {
 		const defaultEasing = isSchemaFieldHoldOnly({schema, key})
 			? HOLD_KEYFRAME_EASING
 			: LINEAR_KEYFRAME_EASING;
-		const existingCalleeName =
-			existing.callee.type === 'Identifier'
-				? (existing.callee.name as KeyframeInterpolationFunction)
-				: 'interpolate';
+		const existingCalleeName = existing.interpolationFunction;
 		const schemaCalleeName = getKeyframeInterpolationFunctionForSchemaField({
 			schema,
 			key,
@@ -1333,7 +1372,10 @@ const addKeyframe = ({
 
 		return {
 			expression: createInterpolateExpression({
-				callee: b.identifier(nextCalleeName),
+				callee:
+					nextCalleeName === existingCalleeName
+						? existing.callee
+						: b.identifier(nextCalleeName),
 				input: existing.input,
 				extraArgs: updatedExtraArgs,
 				keyframes: nextKeyframes,
@@ -1405,6 +1447,7 @@ const addKeyframe = ({
 };
 
 const removeKeyframe = ({
+	ast,
 	expression,
 	frame,
 	videoConfigValues,
@@ -1413,9 +1456,14 @@ const removeKeyframe = ({
 	expression: Expression;
 	frame: number;
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 	valueWhenLastKeyframeDeleted: unknown | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
-	const existing = getInterpolationExpression(expression, videoConfigValues);
+	const existing = getInterpolationExpression(
+		expression,
+		ast,
+		videoConfigValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot remove keyframe from non-interpolated expression');
 	}
@@ -1463,6 +1511,7 @@ const removeKeyframe = ({
 };
 
 const moveKeyframes = ({
+	ast,
 	expression,
 	moves,
 	videoConfigValues,
@@ -1473,8 +1522,13 @@ const moveKeyframes = ({
 		toFrame: number;
 	}[];
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 }): ExpressionKind => {
-	const existing = getInterpolationExpression(expression, videoConfigValues);
+	const existing = getInterpolationExpression(
+		expression,
+		ast,
+		videoConfigValues,
+	);
 	if (!existing) {
 		throw new Error('Cannot move keyframe in non-interpolated expression');
 	}
@@ -1550,6 +1604,7 @@ const moveKeyframes = ({
 };
 
 const applyKeyframeOperation = ({
+	ast,
 	expression,
 	key,
 	operation,
@@ -1561,9 +1616,11 @@ const applyKeyframeOperation = ({
 	operation: KeyframeOperation;
 	schema: InteractivitySchema | null;
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
-		return addKeyframe({
+		const result = addKeyframe({
+			ast,
 			expression,
 			key,
 			frame: operation.frame,
@@ -1571,11 +1628,27 @@ const applyKeyframeOperation = ({
 			schema,
 			videoConfigValues,
 		});
+		if (
+			result.introduced.calleeName === 'interpolatePaths' &&
+			result.expression.type === 'CallExpression'
+		) {
+			result.expression.callee = b.identifier(
+				ensureNamedImport({
+					ast,
+					importedName: 'interpolatePaths',
+					sourcePath: '@remotion/paths',
+					localName: 'interpolatePaths',
+				}),
+			);
+		}
+
+		return result;
 	}
 
 	if (operation.type === 'settings') {
 		return {
 			expression: updateKeyframeSettings({
+				ast,
 				expression,
 				clamping: operation.clamping,
 				posterize: operation.posterize,
@@ -1597,6 +1670,7 @@ const applyKeyframeOperation = ({
 		}
 
 		const updated = updateKeyframeEasing({
+			ast,
 			expression,
 			segmentIndex: operation.segmentIndex,
 			easing: operation.easing,
@@ -1614,6 +1688,7 @@ const applyKeyframeOperation = ({
 	if (operation.type === 'move') {
 		return {
 			expression: moveKeyframes({
+				ast,
 				expression,
 				moves: operation.moves,
 				videoConfigValues,
@@ -1623,6 +1698,7 @@ const applyKeyframeOperation = ({
 	}
 
 	return removeKeyframe({
+		ast,
 		expression,
 		frame: operation.frame,
 		videoConfigValues,
@@ -1759,6 +1835,7 @@ const getInitialValueForMissingProp = ({
 };
 
 const shouldRemovePropAfterKeyframeOperation = ({
+	ast,
 	expression,
 	key,
 	operation,
@@ -1770,12 +1847,17 @@ const shouldRemovePropAfterKeyframeOperation = ({
 	operation: KeyframeOperation;
 	schema: InteractivitySchema | null;
 	videoConfigValues: VideoConfigIdentifierValues;
+	ast: File;
 }) => {
 	if (operation.type !== 'remove' || !schema) {
 		return false;
 	}
 
-	const existing = getInterpolationExpression(expression, videoConfigValues);
+	const existing = getInterpolationExpression(
+		expression,
+		ast,
+		videoConfigValues,
+	);
 	if (!existing || existing.keyframes.length !== 1) {
 		return false;
 	}
@@ -2072,6 +2154,7 @@ export const updateSequenceKeyframesAst = ({
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
+			ast,
 			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
@@ -2081,6 +2164,7 @@ export const updateSequenceKeyframesAst = ({
 		newValueStrings.push(recast.print(nextExpression).code);
 		if (
 			shouldRemovePropAfterKeyframeOperation({
+				ast,
 				expression: prop.expression,
 				key: update.key,
 				operation: update.operation,
@@ -2093,7 +2177,7 @@ export const updateSequenceKeyframesAst = ({
 			prop.setExpression(nextExpression);
 		}
 
-		if (introduced.calleeName) {
+		if (introduced.calleeName && introduced.calleeName !== 'interpolatePaths') {
 			requiredImports.add(introduced.calleeName);
 		}
 
@@ -2276,6 +2360,7 @@ export const updateEffectKeyframesAst = ({
 		});
 		oldValueStrings.push(recast.print(prop.expression).code);
 		const {expression: nextExpression, introduced} = applyKeyframeOperation({
+			ast,
 			expression: prop.expression,
 			key: update.key,
 			operation: update.operation,
@@ -2285,6 +2370,7 @@ export const updateEffectKeyframesAst = ({
 		newValueStrings.push(recast.print(nextExpression).code);
 		if (
 			shouldRemovePropAfterKeyframeOperation({
+				ast,
 				expression: prop.expression,
 				key: update.key,
 				operation: update.operation,
@@ -2297,7 +2383,7 @@ export const updateEffectKeyframesAst = ({
 			prop.setExpression(nextExpression);
 		}
 
-		if (introduced.calleeName) {
+		if (introduced.calleeName && introduced.calleeName !== 'interpolatePaths') {
 			requiredImports.add(introduced.calleeName);
 		}
 

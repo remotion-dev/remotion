@@ -1,81 +1,81 @@
-If the video being created is a multi-scene video, it should be structured in a special way.
-Create a new folder and put each scene in a separate file.
+# Multi-scene videos
+
+Put each substantial scene in its own component and file.  
+Register those components as [connected compositions](connected-compositions.md) so each scene has an editable Studio timeline.
+
+Use `<TransitionSeries>` when the scenes may have transitions.  
+Install `@remotion/transitions` if it is missing.  
+Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
+
+Example:
 
 ```tsx
-// SceneA.tsx
-export const SceneA: React.FC = () => {
- return // ...
-}
-```
-
-```tsx
-// SceneB.tsx
-export const SceneB: React.FC = () => {
-  return // ...
-} 
-```
-
-Install `@remotion/transitions` if not yet available:
-
-```
-npx remotion add @remotion/transitions
-```
-
 // MyVideo.tsx
-```tsx
 import {TransitionSeries} from '@remotion/transitions';
+import {OpeningScene} from './OpeningScene';
+import {FeatureScene} from './FeatureScene';
 
-const MyVideo: React.FC = () => {
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneA">
-        <SceneA />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneB">
-        <SceneB />
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  )
-}
+export const MyVideo = () => (
+  <TransitionSeries>
+    <TransitionSeries.Sequence
+      name="Opening"
+      durationInFrames={90}
+    >
+      <OpeningScene />
+    </TransitionSeries.Sequence>
+    <TransitionSeries.Sequence
+      name="Feature"
+      durationInFrames={120}
+    >
+      <FeatureScene />
+    </TransitionSeries.Sequence>
+  </TransitionSeries>
+);
 ```
 
-It could also make sense to register each scene individually in the root file so it can be edited there.
-If a composition with the same component is registered, one can double click the sequence in the main composition and jump to that composition.
+Register the same scene components, plus the parent video, in the root:
 
 ```tsx
-export const Root: React.FC = () => {
-  return (
-    <>
-      <Folder id="MyVideo-Scenes">
-        <Composition
-          id="Scene1"
-          component={Scene1}
-          durationInFrames={5 * fps}
-          fps={30}
-          width={1920}
-          height={1080}
-        />
-        <Composition
-          id="Scene2"
-          component={Scene2}
-          durationInFrames={5 * fps}
-          fps={30}
-          width={1920}
-          height={1080}
-        /> 
-      </Folder>
+// Root.tsx
+import {Composition, Folder} from 'remotion';
+import {OpeningScene} from './OpeningScene';
+import {FeatureScene} from './FeatureScene';
+import {MyVideo} from './MyVideo';
+
+export const RemotionRoot = () => (
+  <>
+    <Folder name="MyVideo-Scenes">
       <Composition
-        id="MyVideo"
-        component={MyVideo}
-        durationInFrames={10 * fps}
-        fps={30}
+        id="Opening"
+        component={OpeningScene}
         width={1920}
         height={1080}
-      /> 
-    </>
-  )
-}
+        fps={30}
+        durationInFrames={90}
+      />
+      <Composition
+        id="Feature"
+        component={FeatureScene}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={120}
+      />
+    </Folder>
+    <Composition
+      id="MyVideo"
+      component={MyVideo}
+      width={1920}
+      height={1080}
+      fps={30}
+      durationInFrames={210}
+    />
+  </>
+);
 ```
 
-This allows the user to trim the start and end of the durations visually and add [transitions](./transitions.md) later.
-Prefer inlining the `durationInFrames` values, because only then they are editable. It's okay if the value is redundant.
+Keep each scene's standalone metadata and `defaultProps` consistent with how it is used in the main video.
+
+With no transition, this example needs a 210-frame main composition. If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
+
+Use `<Series>` for consecutive scenes that do not need transitions. Use `<Sequence>` for scenes placed independently on the parent timeline.

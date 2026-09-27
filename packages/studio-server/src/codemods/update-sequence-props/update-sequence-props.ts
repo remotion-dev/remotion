@@ -1,5 +1,5 @@
 import {
-	updateMultipleJsxNodeProps,
+	updateMultipleNodeProps,
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
@@ -44,7 +44,7 @@ export const updateMultipleSequenceProps = ({
 	prettierConfigOverride: PrettierConfigOverride;
 }): Promise<UpdateMultipleSequencePropsResult> => {
 	return Promise.resolve().then(() => {
-		const result = updateMultipleJsxNodeProps({
+		const result = updateMultipleNodeProps({
 			project: {files: {'source.tsx': input}, rootDir: '/'},
 			changes: changes.map(
 				({nodePath, updates, schema, videoConfigValues}) => ({

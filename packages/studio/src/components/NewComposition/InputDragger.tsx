@@ -20,7 +20,7 @@ import {
 import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
+type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'title'> & {
 	readonly onValueChange: (newVal: number, source: 'input' | 'drag') => void;
 	readonly onValueChangeEnd?: (
 		newVal: number,
@@ -826,7 +826,6 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			aria-label={props['aria-label']}
-			title={props.title}
 			className={'__remotion_input_dragger'}
 			style={
 				buttonStyle

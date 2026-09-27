@@ -115,7 +115,7 @@ const ThumbnailFn = <
 	frameRef.current = timelineState.frame;
 	const setTimelineContext: SetTimelineContextValue = useMemo(() => {
 		return {
-			setFrame: () => undefined,
+			setFrameWithoutSeek: () => undefined,
 			seek: null,
 			setPlaying: () => undefined,
 			setBuffering: (buffering) => {

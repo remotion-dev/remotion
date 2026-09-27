@@ -80,7 +80,7 @@ export const TimelineColorField: React.FC<{
 				<button
 					type="button"
 					style={setButtonStyle}
-					title={`Set ${field.description ?? field.key} to gray`}
+					aria-label={`Set ${field.description ?? field.key} to gray`}
 					onClick={() => onChangeComplete(DEFAULT_SET_COLOR)}
 				>
 					Set
@@ -100,7 +100,7 @@ export const TimelineColorField: React.FC<{
 				height={SWATCH_HEIGHT}
 				disabled={false}
 				name={field.key}
-				title={currentValue}
+				aria-label={currentValue}
 			/>
 		</span>
 	);

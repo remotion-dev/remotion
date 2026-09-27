@@ -28,7 +28,7 @@ export const QueueJobError: React.FC<{
 			onClick={onClick}
 			type="button"
 			style={errorStyle}
-			title={error.message}
+			aria-label={error.message}
 		>
 			{error.message}
 		</button>

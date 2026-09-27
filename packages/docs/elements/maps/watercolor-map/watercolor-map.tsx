@@ -168,7 +168,7 @@ const WatercolorMapContent: React.FC<{
 	readonly destinationLabel: string;
 	readonly origin: Coordinates;
 	readonly originLabel: string;
-	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
+	readonly elementRef: React.RefObject<HTMLDivElement | null>;
 	readonly routeColor: string;
 	readonly routeWidth: number;
 	readonly style: React.CSSProperties | undefined;
@@ -177,7 +177,7 @@ const WatercolorMapContent: React.FC<{
 	destinationLabel,
 	origin,
 	originLabel,
-	outlineRef,
+	elementRef,
 	routeColor,
 	routeWidth,
 	style,
@@ -256,7 +256,7 @@ const WatercolorMapContent: React.FC<{
 
 	return (
 		<div
-			ref={outlineRef}
+			ref={elementRef}
 			style={{
 				backgroundColor: '#e6ec88',
 				height,
@@ -424,8 +424,8 @@ const WatercolorMapInner = forwardRef<
 		},
 		ref,
 	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		const elementRef = useRef<HTMLDivElement>(null);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -433,14 +433,13 @@ const WatercolorMapInner = forwardRef<
 				{...sequenceProps}
 				controls={controls}
 				name={name ?? 'Watercolor map'}
-				outlineRef={outlineRef}
 			>
 				<WatercolorMapContent
 					destination={destination}
 					destinationLabel={destinationLabel}
 					origin={origin}
 					originLabel={originLabel}
-					outlineRef={outlineRef}
+					elementRef={elementRef}
 					routeColor={routeColor}
 					routeWidth={routeWidth}
 					style={style}

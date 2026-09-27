@@ -157,34 +157,10 @@ const wrapWholePage = (): WrappedPage => {
 	content.style.width = `${initialSize.width}px`;
 	content.style.height = `${initialSize.height}px`;
 
-	const pendingNodes = new Set<Node>();
-	let moveFrame: number | null = null;
-	const observer = new MutationObserver((records) => {
-		for (const record of records) {
-			for (const node of record.addedNodes) {
-				if (node === canvas || node.parentNode !== body) {
-					continue;
-				}
-
-				pendingNodes.add(node);
-			}
-		}
-
-		if (pendingNodes.size > 0 && moveFrame === null) {
-			// Yield before moving nodes so page observers cannot keep the same microtask checkpoint alive.
-			moveFrame = requestAnimationFrame(() => {
-				moveFrame = null;
-				for (const node of pendingNodes) {
-					if (node.parentNode === body) {
-						content.appendChild(node);
-					}
-				}
-
-				pendingNodes.clear();
-			});
-		}
-	});
-	observer.observe(body, {childList: true});
+	// Leave nodes which are added to <body> while recording in place. Frameworks
+	// use this pattern for portals and keep <body> as the expected parent. Moving
+	// such a node into `content` makes a later framework-owned removal throw a
+	// NotFoundError because the node is no longer a child of <body>.
 
 	return {
 		canvas,
@@ -212,12 +188,6 @@ const wrapWholePage = (): WrappedPage => {
 			return size;
 		},
 		restore: () => {
-			observer.disconnect();
-			if (moveFrame !== null) {
-				cancelAnimationFrame(moveFrame);
-			}
-
-			pendingNodes.clear();
 			while (content.firstChild) {
 				body.insertBefore(content.firstChild, canvas);
 			}

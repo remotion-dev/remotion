@@ -72,12 +72,6 @@ export type RecastCodemod =
 			idToDelete: string;
 	  }
 	| {
-			type: 'move-composition-to-folder';
-			idToMove: string;
-			folderName: string | null;
-			parentName: string | null;
-	  }
-	| {
 			type: 'move-composition-or-folder';
 			source: CompositionOrFolder;
 			destination:

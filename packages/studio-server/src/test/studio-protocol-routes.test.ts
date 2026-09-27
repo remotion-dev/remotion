@@ -349,7 +349,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 	}
 });
 
-test('delivers an Element catalog request without changing config before confirmation', async () => {
+test('delivers an Element Library request without changing config before confirmation', async () => {
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const focusedUrls: string[] = [];
@@ -429,7 +429,7 @@ test('delivers an Element catalog request without changing config before confirm
 		}
 
 		const origin = `http://127.0.0.1:${address.port}`;
-		const requestOrigin = 'https://catalog.example.com';
+		const requestOrigin = 'https://library.example.com';
 		const preflight = await fetch(
 			`${origin}/api/studio-protocol/element-library`,
 			{method: 'OPTIONS', headers: {Origin: requestOrigin}},
@@ -459,13 +459,13 @@ test('delivers an Element catalog request without changing config before confirm
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
 			targetId,
-			url: 'https://new.example.com/catalog',
-			displayName: '  New catalog  ',
+			url: 'https://new.example.com/library',
+			displayName: '  New library  ',
 		};
 
 		for (const invalidBody of [
 			{...body, protocolVersion: 2},
-			{...body, url: 'file:///tmp/catalog'},
+			{...body, url: 'file:///tmp/library'},
 			{...body, displayName: '  '},
 		]) {
 			const invalidResponse = await fetch(
@@ -513,8 +513,8 @@ test('delivers an Element catalog request without changing config before confirm
 		expect(deliveredEvents).toEqual([
 			{
 				type: 'element-library-add-request',
-				url: 'https://new.example.com/catalog',
-				displayName: 'New catalog',
+				url: 'https://new.example.com/library',
+				displayName: 'New library',
 				origin: requestOrigin,
 			},
 		]);

@@ -5,6 +5,7 @@ import {useBreakpoint} from '../helpers/use-breakpoint';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
+import {CanvasTabs} from './CanvasTabs';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
@@ -27,6 +28,13 @@ const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	flex: 1,
+	minHeight: 0,
+};
+
+const canvasPanel: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
 	minHeight: 0,
 };
 
@@ -89,6 +97,9 @@ const TopPanelInner: React.FC<{
 		() => ({
 			flex: 1,
 			display: 'flex',
+			minHeight: 0,
+			overflow: 'hidden',
+			position: 'relative',
 			paddingTop: rulersAreVisible ? RULER_WIDTH : 0,
 			paddingLeft: rulersAreVisible ? RULER_WIDTH : 0,
 		}),
@@ -150,8 +161,11 @@ const TopPanelInner: React.FC<{
 								orientation="vertical"
 							>
 								<SplitterElement sticky={null} type="flexer">
-									<div ref={drawRef} style={canvasContainerStyle}>
-										<CanvasIfSizeIsAvailable />
+									<div style={canvasPanel}>
+										<CanvasTabs />
+										<div ref={drawRef} style={canvasContainerStyle}>
+											<CanvasIfSizeIsAvailable />
+										</div>
 									</div>
 								</SplitterElement>
 								{actualStateRight === 'expanded' ? (

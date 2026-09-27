@@ -25,7 +25,11 @@ test('Should correctly separate discriminated union for layout', () => {
 		propStatuses: {},
 		getDragOverrides: () => ({}),
 	});
-	expect(schemaFields?.map((s) => s.key)).toEqual(['playbackRate', 'layout']);
+	expect(schemaFields?.map((s) => s.key)).toEqual([
+		'playbackRate',
+		'loop',
+		'layout',
+	]);
 });
 
 test('Should expose absolute-fill variant fields when active', () => {
@@ -46,6 +50,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual([
 		'playbackRate',
+		'loop',
 		'style.transformOrigin',
 		'style.translate',
 		'style.scale',

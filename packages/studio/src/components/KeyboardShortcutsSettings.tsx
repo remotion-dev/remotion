@@ -475,7 +475,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 											<span style={actionCell}>
 												<InlineDropdown
 													renderAction={(color) => <CaretDown color={color} />}
-													title={`Actions for ${shortcut.action}`}
+													aria-label={`Actions for ${shortcut.action}`}
 													values={shortcutMenuItems}
 													variant="compact"
 												/>

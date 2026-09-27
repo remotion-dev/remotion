@@ -1,9 +1,9 @@
 ---
 name: web-renderer-test
-description: Add or update web renderer tests when the user explicitly requests test changes.
+description: Add explicitly requested web renderer tests or update existing ones for implementation changes.
 ---
 
-Use this skill only when the user explicitly requests web renderer test changes.
+Use this skill to update existing web renderer tests when needed for implementation changes. Add new tests only when the user explicitly requests them.
 
 The web renderer is in `packages/web-renderer` and the test suite is in `packages/web-renderer/src/test`.
 

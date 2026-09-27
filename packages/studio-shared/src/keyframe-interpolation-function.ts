@@ -7,6 +7,7 @@ import type {
 export const keyframeInterpolationFunctions = [
 	'interpolate',
 	'interpolateColors',
+	'interpolatePaths',
 ] as const;
 
 export type KeyframeInterpolationFunction =
@@ -17,7 +18,7 @@ export type KeyframeInterpolationFunction =
 const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	array: false,
 	asset: false,
-	boolean: false,
+	boolean: true,
 	'remotion-captions': false,
 	color: true,
 	enum: true,
@@ -28,7 +29,7 @@ const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	'rotation-css': true,
 	'rotation-degrees': true,
 	scale: true,
-	'svg-path': false,
+	'svg-path': true,
 	'text-content': false,
 	'transform-origin': true,
 	translate: true,
@@ -43,7 +44,7 @@ type KeyframeInterpolationStrategy =
 const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	array: 'unsupported',
 	asset: 'unsupported',
-	boolean: 'unsupported',
+	boolean: 'interpolate',
 	'remotion-captions': 'unsupported',
 	color: 'interpolateColors',
 	enum: 'interpolate',
@@ -54,7 +55,7 @@ const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	'rotation-css': 'interpolate',
 	'rotation-degrees': 'infer',
 	scale: 'interpolate',
-	'svg-path': 'unsupported',
+	'svg-path': 'interpolatePaths',
 	'text-content': 'unsupported',
 	'transform-origin': 'interpolate',
 	translate: 'interpolate',
@@ -91,6 +92,7 @@ const KEYFRAME_FIELD_TYPE_OUTPUT_TYPE = {
 const KEYFRAME_INTERPOLATION_EASING_SUPPORT = {
 	interpolate: true,
 	interpolateColors: true,
+	interpolatePaths: true,
 } as const satisfies Record<KeyframeInterpolationFunction, boolean>;
 
 export const isKeyframeInterpolationFunction = (
@@ -165,6 +167,7 @@ export const isSchemaFieldHoldOnly = ({
 }): boolean => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
 	return (
+		(field?.type === 'boolean' && field.keyframable !== false) ||
 		(field?.type === 'enum' && field.keyframable === true) ||
 		(field?.type === 'number' &&
 			field.integer === true &&

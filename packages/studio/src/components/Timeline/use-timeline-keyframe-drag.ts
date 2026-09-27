@@ -25,6 +25,7 @@ import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
 import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 	resolveKeyframeSourceFrame,
@@ -360,7 +361,9 @@ const getMoveForTarget = (
 ) => ({
 	fromFrame: target.sourceFrame,
 	toFrame: resolveKeyframeSourceFrame(
-		target.sourceFrame + delta * target.keyframePlaybackRate,
+		target.sourceFrame +
+			delta *
+				getKeyframePlaybackRate(target.propStatus, target.keyframePlaybackRate),
 		target.propStatus,
 	),
 });

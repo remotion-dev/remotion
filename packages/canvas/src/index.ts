@@ -4,15 +4,24 @@ export const CanvasInternals = internals;
 export {Canvas} from './canvas';
 export type {CanvasProps} from './canvas';
 export {createCanvasController, useCanvasController} from './canvas-controller';
-export type {CanvasController} from './canvas-controller';
+export type {
+	CanvasController,
+	CanvasOverridesController,
+} from './canvas-controller';
 export {
 	createCanvasHoverController,
 	useCanvasHover,
 	useCanvasSequenceHover,
 } from './hover';
 export type {CanvasHover, CanvasHoverController} from './hover';
-export {getCanvasSequenceNodePathInfo} from './sequence-node-path';
-export type {CanvasSequenceNodePathResolver} from './sequence-node-path';
+export {
+	getCanvasSequenceNodePathInfo,
+	getCanvasSequenceSourceLocation,
+} from './sequence-node-path';
+export type {
+	CanvasSequenceNodePathResolver,
+	CanvasSequenceSourceLocation,
+} from './sequence-node-path';
 export {
 	createCanvasSelectionController,
 	getCanvasSelectionItemKey,
@@ -28,6 +37,11 @@ export type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from './get-timeline-sequence-sort-key';
+export type {
+	CanvasSequencePropChange,
+	CanvasSequencePropsChangeHandler,
+	CanvasSequencePropStatusResolver,
+} from './sequence-props-change';
 export type {
 	CanvasOutline,
 	CanvasOutlinePoint,
@@ -45,4 +59,27 @@ export type {
 	CanvasOutlineLayoutTarget,
 	TimelineLoopDisplay,
 	TimelineTrackWithOriginalTimings,
+	PointerSessionEndReason,
+	ParsedTranslate,
+	ParsedTranslateWithUnits,
+	TranslateUnit,
+	KeyframeSourceFrame,
+	CanvasOutlineSnapAxis,
+	CanvasOutlineSnapEdge,
+	CanvasOutlineSnapGuide,
+	CanvasOutlineSnapPoint,
+	CanvasOutlineSnapResult,
+	CanvasOutlineSnapTarget,
+	CanvasOutlineSnapTargetType,
+	CanvasOutlineDragChange,
+	CanvasOutlineKeyframedDragChange,
+	CanvasOutlineNudgeDirection,
+	CanvasOutlineStaticDragChange,
+	CanvasOutlineTranslateDragEnd,
+	CanvasOutlineTranslateDragSnapping,
+	CanvasOutlineTranslateDragState,
+	CanvasOutlineTranslatePropStatus,
+	CanvasOutlineTranslateSession,
+	CanvasOutlineTranslateTarget,
+	SetCanvasDragOverrides,
 } from './canvas-internals';

@@ -295,24 +295,6 @@ test('formats precise log messages for all codemods', () => {
 		},
 		{
 			codemod: {
-				type: 'move-composition-to-folder',
-				idToMove: 'MoveMe',
-				folderName: 'Shared',
-				parentName: 'Parent',
-			},
-			expected: 'Moved composition "MoveMe" into folder "Parent/Shared"',
-		},
-		{
-			codemod: {
-				type: 'move-composition-to-folder',
-				idToMove: 'MoveMe',
-				folderName: null,
-				parentName: null,
-			},
-			expected: 'Moved composition "MoveMe" to root',
-		},
-		{
-			codemod: {
 				type: 'move-composition-or-folder',
 				source: {type: 'composition', compositionId: 'MoveMe'},
 				destination: {
@@ -611,10 +593,13 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 			getHandlerOptions({
 				input: {
 					codemod: {
-						type: 'move-composition-to-folder',
-						idToMove: 'NestedA',
-						folderName: 'Shared',
-						parentName: 'Other',
+						type: 'move-composition-or-folder',
+						source: {type: 'composition', compositionId: 'NestedA'},
+						destination: {
+							type: 'folder',
+							folderName: 'Shared',
+							parentName: 'Other',
+						},
 					} satisfies RecastCodemod,
 					dryRun: false,
 					undoRedoNavigation: null,
@@ -637,7 +622,7 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 			contents.indexOf('id="NestedA"'),
 		);
 		expect(getUndoStack()[0].description.undoMessage).toBe(
-			'↩️  Move of composition "NestedA" into folder "Other/Shared"',
+			'↩️  Move of composition "NestedA"',
 		);
 
 		const undoResponse = await undoHandler(
@@ -675,10 +660,9 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 			getHandlerOptions({
 				input: {
 					codemod: {
-						type: 'move-composition-to-folder',
-						idToMove: 'NestedA',
-						folderName: null,
-						parentName: null,
+						type: 'move-composition-or-folder',
+						source: {type: 'composition', compositionId: 'NestedA'},
+						destination: {type: 'root'},
 					} satisfies RecastCodemod,
 					dryRun: false,
 					undoRedoNavigation: null,
@@ -701,7 +685,7 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 			contents.indexOf('id="NestedA"'),
 		);
 		expect(getUndoStack()[0].description.undoMessage).toBe(
-			'↩️  Move of composition "NestedA" to root',
+			'↩️  Move of composition "NestedA"',
 		);
 
 		const undoResponse = await undoHandler(

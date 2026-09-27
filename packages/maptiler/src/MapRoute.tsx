@@ -241,15 +241,15 @@ const MapRouteDrawing = ({
 
 const MapRouteBounds = ({
 	feature,
-	refForOutline,
+	boundsRef,
 }: {
 	readonly feature: MapRouteFeature;
-	readonly refForOutline: RefObject<HTMLDivElement | null>;
+	readonly boundsRef: RefObject<HTMLDivElement | null>;
 }) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={refForOutline} />;
+		return <div ref={boundsRef} />;
 	}
 
 	const points = feature.geometry.coordinates.map(([longitude, latitude]) =>
@@ -262,7 +262,7 @@ const MapRouteBounds = ({
 
 	return (
 		<div
-			ref={refForOutline}
+			ref={boundsRef}
 			style={{
 				height: bottom - top,
 				left,
@@ -294,6 +294,7 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 		postmountFor,
 		trimBefore,
 		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -302,9 +303,9 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 	},
 	ref,
 ) => {
-	const refForOutline = useRef<HTMLDivElement>(null);
+	const boundsRef = useRef<HTMLDivElement>(null);
 
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
+	useImperativeHandle(ref, () => boundsRef.current as HTMLDivElement, []);
 
 	const {
 		effectivePremountFor,
@@ -315,7 +316,11 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 		postmountingActive,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -330,13 +335,13 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? `<${feature.properties.name}>`}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -351,7 +356,7 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 					/>
-					<MapRouteBounds feature={feature} refForOutline={refForOutline} />
+					<MapRouteBounds feature={feature} boundsRef={boundsRef} />
 				</>
 			</Sequence>
 		</Freeze>

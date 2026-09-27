@@ -25,11 +25,8 @@ export type Template = {
 	longerDescription: string;
 	cliId:
 		| 'hello-world'
-		| 'javascript'
 		| 'blank'
 		| 'next'
-		| 'next-no-tailwind'
-		| 'next-pages-dir'
 		| 'react-router'
 		| 'three'
 		| 'still'
@@ -161,55 +158,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		previewLabel: 'Live Demo',
 	},
 	{
-		homePageLabel: 'Next.js (No Tailwind)',
-		shortName: 'Next.js (No Tailwind)',
-		org: 'remotion-dev',
-		repoName: 'template-next-app-dir',
-		description: 'SaaS template for video generation apps',
-		longerDescription:
-			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
-		promoVideo: {
-			width: 1280,
-			height: 720,
-			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
-		},
-		cliId: 'next-no-tailwind' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL: 'https://next.remotion.dev',
-		templateInMonorepo: 'template-next-app',
-		previewLabel: 'Live Demo',
-		allowEnableTailwind: false,
-		contributedBy: null,
-		showStackblitz: true,
-	},
-	{
-		homePageLabel: 'Next.js (Pages dir)',
-		shortName: 'Next.js (Pages dir)',
-		org: 'remotion-dev',
-		repoName: 'template-next-pages-dir',
-		description: 'SaaS template for video generation apps',
-		longerDescription:
-			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
-		promoVideo: {
-			width: 1280,
-			height: 720,
-			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
-		},
-		cliId: 'next-pages-dir' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL: 'https://next.remotion.dev',
-		previewLabel: 'Live Demo',
-		templateInMonorepo: 'template-next-pages',
-		allowEnableTailwind: false,
-		contributedBy: null,
-		showStackblitz: true,
-	},
-
-	{
 		homePageLabel: 'Recorder',
 		shortName: 'Recorder',
 		org: 'remotion-dev',
@@ -256,31 +204,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: false,
 		contributedBy: 'ASchwad',
 		showStackblitz: false,
-	},
-	{
-		homePageLabel: 'JavaScript',
-		shortName: 'Hello World (JavaScript)',
-		org: 'remotion-dev',
-		repoName: 'template-helloworld-javascript',
-		description: 'The default starter template in plain JS',
-		longerDescription:
-			'The Hello World template, but in plain JavaScript. Recommended for people who detest TypeScript.',
-		promoVideo: {
-			muxId: 'dRIuc00f8QWnKedM8GBGPqXJWqU01DPJFgPTHpJgixxas',
-			width: 1920,
-			height: 1080,
-		},
-		cliId: 'javascript' as const,
-		type: 'video' as const,
-		defaultBranch: 'main',
-		featuredOnHomePage: null,
-		previewURL:
-			'https://template-helloworld-javascript.vercel.app/?/HelloWorld',
-		previewLabel: null,
-		templateInMonorepo: 'template-javascript',
-		allowEnableTailwind: true,
-		contributedBy: null,
-		showStackblitz: true,
 	},
 	{
 		homePageLabel: 'Render Server (Express.js)',

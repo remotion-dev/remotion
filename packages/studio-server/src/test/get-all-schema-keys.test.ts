@@ -38,6 +38,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'from',
 			'trimBefore',
 			'playbackRate',
+			'loop',
 			'freeze',
 		].sort(),
 	);

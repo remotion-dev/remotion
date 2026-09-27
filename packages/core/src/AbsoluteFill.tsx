@@ -1,4 +1,4 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback} from 'react';
 import {
 	AbsoluteFillElement,
 	type AbsoluteFillElementProps,
@@ -21,6 +21,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import {usePremounting} from './use-premounting.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
@@ -63,11 +64,9 @@ const setRef = <ElementType,>(
 const AbsoluteFillWithTiming: React.FC<
 	AbsoluteFillProps & {
 		readonly controls: SequenceControls | undefined;
-		readonly outlineRef: React.RefObject<HTMLDivElement | null>;
 	}
 > = ({
 	ref: callbackRef,
-	outlineRef: refForOutline,
 	from,
 	premountFor,
 	postmountFor,
@@ -75,6 +74,7 @@ const AbsoluteFillWithTiming: React.FC<
 	styleWhilePostmounted,
 	trimBefore,
 	playbackRate,
+	loop,
 	freeze,
 	durationInFrames,
 	hidden,
@@ -95,7 +95,11 @@ const AbsoluteFillWithTiming: React.FC<
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: divProps.style ?? null,
@@ -110,15 +114,15 @@ const AbsoluteFillWithTiming: React.FC<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
-				durationInFrames={durationInFrames ?? Infinity}
+				durationInFrames={durationInFrames}
 				hidden={hidden}
 				name={name ?? '<AbsoluteFill>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
 				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/absolute-fill"
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -147,6 +151,7 @@ const AbsoluteFillInner: React.FC<
 	styleWhilePostmounted,
 	trimBefore,
 	playbackRate,
+	loop,
 	freeze,
 	durationInFrames,
 	hidden,
@@ -158,10 +163,8 @@ const AbsoluteFillInner: React.FC<
 	...divProps
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
-	const refForOutline = useRef<HTMLDivElement | null>(null);
 	const callbackRef = useCallback(
 		(element: HTMLDivElement | null) => {
-			refForOutline.current = element;
 			setRef(ref, element);
 		},
 		[ref],
@@ -179,7 +182,6 @@ const AbsoluteFillInner: React.FC<
 		<AbsoluteFillWithTiming
 			{...divProps}
 			ref={callbackRef}
-			outlineRef={refForOutline}
 			from={from}
 			premountFor={premountFor}
 			postmountFor={postmountFor}
@@ -187,6 +189,7 @@ const AbsoluteFillInner: React.FC<
 			styleWhilePostmounted={styleWhilePostmounted}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
+			loop={loop}
 			freeze={freeze}
 			durationInFrames={durationInFrames}
 			hidden={hidden}

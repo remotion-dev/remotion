@@ -1,6 +1,6 @@
 # @remotion/video-matting
 
-Separate a video into a base layer and transparent foreground in the browser and Node.js
+Separate a video into a base layer and transparent foreground in the browser
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/video-matting.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/video-matting?minimal=true)
 

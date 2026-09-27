@@ -58,7 +58,7 @@ const SpinningTextWheelInner = forwardRef<
 	) => {
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
-		const outlineRef = useRef<HTMLDivElement>(null);
+		const elementRef = useRef<HTMLDivElement>(null);
 		const values = items
 			.split('\n')
 			.map((item) => item.trim())
@@ -86,7 +86,7 @@ const SpinningTextWheelInner = forwardRef<
 			...callerContentStyle
 		} = callerStyle ?? {};
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
 
 		return (
 			<Sequence
@@ -94,7 +94,6 @@ const SpinningTextWheelInner = forwardRef<
 				{...sequenceProps}
 				controls={controls}
 				name={name ?? '<SpinningTextWheel>'}
-				outlineRef={outlineRef}
 			>
 				<div
 					style={{
@@ -108,7 +107,7 @@ const SpinningTextWheelInner = forwardRef<
 					}}
 				>
 					<div
-						ref={outlineRef}
+						ref={elementRef}
 						style={{
 							height: 200,
 							maskImage:

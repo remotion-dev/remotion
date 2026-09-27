@@ -138,6 +138,7 @@ export const CaptionInspector: React.FC<{
 									/>
 									<InlineAction
 										aria-label="Import captions"
+										aria-description={importTooltip}
 										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 										disabled={isImporting}
 										onClick={openCaptionSelection}
@@ -149,13 +150,16 @@ export const CaptionInspector: React.FC<{
 												style={{height: 14, width: 14}}
 											/>
 										)}
-										title={importTooltip}
 										variant={null}
 									/>
 								</>
 							)}
 							{readOnly ? (
-								<div style={readOnlyStatus} title={readOnlyTitle ?? undefined}>
+								<div
+									role="group"
+									style={readOnlyStatus}
+									aria-label={readOnlyTitle ?? undefined}
+								>
 									Read only
 								</div>
 							) : null}

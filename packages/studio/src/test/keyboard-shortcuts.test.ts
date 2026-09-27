@@ -35,6 +35,7 @@ test('includes main-row and numeric-keypad zoom-in shortcuts', () => {
 		{key: '+', shift: true},
 		{key: '+'},
 	]);
+	expect(defaultKeyboardShortcuts.selectVolumeProp).toEqual([{key: 'v'}]);
 });
 
 test('matches shortcut modifiers', () => {

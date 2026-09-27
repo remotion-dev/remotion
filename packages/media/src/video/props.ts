@@ -42,6 +42,9 @@ type MandatoryVideoProps = {
 
 type OuterVideoProps = {
 	trimBefore: number | undefined;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter: number | undefined;
 };
 
@@ -60,6 +63,9 @@ type OptionalVideoProps = {
 	audioStreamIndex: number;
 	disallowFallbackToOffthreadVideo: boolean;
 	fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	toneFrequency: number;

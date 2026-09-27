@@ -1,12 +1,12 @@
-import {
-	CanvasInternals,
-	getCanvasSelectionItemKey,
-	useCanvasSelection,
-} from '@remotion/canvas';
 import type {
 	CanvasSelectionInteraction,
 	CanvasSelectionItem,
 	CanvasSelectionSnapshot,
+} from '@remotion/canvas';
+import {
+	CanvasInternals,
+	getCanvasSelectionItemKey,
+	useCanvasSelection,
 } from '@remotion/canvas';
 import {
 	canEditEasingForInterpolationFunction,
@@ -29,7 +29,10 @@ import {
 	type GetEffectDragOverrides,
 	type PropStatuses,
 } from 'remotion';
-import {canUseKeyframeOperations} from '../../helpers/browser-studio-operations';
+import {
+	canUseEffectOperations,
+	canUseKeyframeOperations,
+} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -653,7 +656,11 @@ const getTimelineTreeNodeCanEditEasing = ({
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly propStatuses: PropStatuses;
 }) => {
-	if (node.kind !== 'field' || node.field === null) {
+	if (
+		node.kind !== 'field' ||
+		node.field === null ||
+		node.field.fieldSchema.type === 'boolean'
+	) {
 		return false;
 	}
 
@@ -984,6 +991,7 @@ export const TimelineSelectionProvider: React.FC<{
 		(previewServerState.type === 'connected' ||
 			window.remotion_isReadOnlyStudio);
 	const keyframeOperationsAvailable = canUseKeyframeOperations();
+	const effectOperationsAvailable = canUseEffectOperations();
 	const selectionController = useCanvasSelectionController();
 	const selectionState = useCanvasSelection(selectionController);
 	const selectionScope = useRef<string | null>(null);
@@ -1018,8 +1026,9 @@ export const TimelineSelectionProvider: React.FC<{
 			canSelect &&
 			(!window.remotion_isReadOnlyStudio ||
 				keyframeOperationsAvailable ||
+				(effectOperationsAvailable && item.type === 'sequence-effect') ||
 				item.type === 'sequence'),
-		[canSelect, keyframeOperationsAvailable],
+		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
 	);
 
 	const availableSelectionState =

@@ -1,17 +1,33 @@
 import type {SVGProps} from 'react';
 import React from 'react';
-import {CURRENT_COLOR, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {
+	CURRENT_COLOR,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_06,
+} from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 
 const style: React.CSSProperties = {
 	appearance: 'none',
 	border: 'none',
-	backgroundColor: TRANSPARENT,
-	color: WHITE,
-	cursor: 'pointer',
+	borderRadius: 4,
+	cursor: 'default',
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: WHITE_ALPHA_06,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 };
 
 export const CancelIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
@@ -32,7 +48,14 @@ export const CancelButton: React.FC<
 > = ({onPress, ...props}) => {
 	const {tabIndex} = useZIndex();
 	return (
-		<button tabIndex={tabIndex} style={style} type="button" onClick={onPress}>
+		<button
+			aria-label="Close dialog"
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+			tabIndex={tabIndex}
+			style={style}
+			type="button"
+			onClick={onPress}
+		>
 			<CancelIcon {...props} />
 		</button>
 	);

@@ -51,13 +51,14 @@ export const getSequenceSplitMenuItem = ({
 		id: 'split-sequence',
 		label: (
 			<span
+				role="group"
 				style={{
 					fontFamily: 'inherit',
 					fontSize: 'inherit',
 					lineHeight: 'inherit',
 					color: 'inherit',
 				}}
-				title={disabledReason ?? 'Split at the playhead'}
+				aria-label={disabledReason ?? 'Split at the playhead'}
 			>
 				Split clip
 			</span>

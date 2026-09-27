@@ -98,7 +98,7 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 
 	expect(
 		await addElementLibraryToStudioWithDependencies(
-			{url: 'https://catalog.example.com', displayName: '  Catalog  '},
+			{url: 'https://library.example.com', displayName: '  Library  '},
 			{...dependencies, fetchFn},
 		),
 	).toEqual({
@@ -120,15 +120,15 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 		protocol: 'remotion-studio-protocol',
 		protocolVersion: 1,
 		targetId: 'focused-target',
-		url: 'https://catalog.example.com/',
-		displayName: 'Catalog',
+		url: 'https://library.example.com/',
+		displayName: 'Library',
 	});
 });
 
 test('returns an actionable result when no Studio is running', async () => {
 	const requests: string[] = [];
 	const result = await addElementLibraryToStudioWithDependencies(
-		{url: 'https://catalog.example.com', displayName: null},
+		{url: 'https://library.example.com', displayName: null},
 		{
 			...dependencies,
 			fetchFn: (input) => {
@@ -152,8 +152,8 @@ test('returns an actionable result when no Studio is running', async () => {
 test('validates the request before probing localhost', async () => {
 	for (const request of [
 		{url: '/relative', displayName: null},
-		{url: 'file:///tmp/catalog', displayName: null},
-		{url: 'https://catalog.example.com', displayName: '  '},
+		{url: 'file:///tmp/library', displayName: null},
+		{url: 'https://library.example.com', displayName: '  '},
 	]) {
 		let requestCount = 0;
 		const result = await addElementLibraryToStudioWithDependencies(request, {
@@ -169,7 +169,7 @@ test('validates the request before probing localhost', async () => {
 
 	let probes = 0;
 	const unsupportedOrigin = await addElementLibraryToStudioWithDependencies(
-		{url: 'https://catalog.example.com', displayName: null},
+		{url: 'https://library.example.com', displayName: null},
 		{
 			...dependencies,
 			pageOrigin: 'http://elements.example.com',
@@ -188,7 +188,7 @@ test('validates the request before probing localhost', async () => {
 
 test('distinguishes an old Studio from one without a focused target', async () => {
 	const oldStudio = await addElementLibraryToStudioWithDependencies(
-		{url: 'https://catalog.example.com', displayName: null},
+		{url: 'https://library.example.com', displayName: null},
 		{
 			...dependencies,
 			ports: [3000],
@@ -217,7 +217,7 @@ test('distinguishes an old Studio from one without a focused target', async () =
 		targetId: 'unused',
 	});
 	const noTarget = await addElementLibraryToStudioWithDependencies(
-		{url: 'https://catalog.example.com', displayName: null},
+		{url: 'https://library.example.com', displayName: null},
 		{
 			...dependencies,
 			ports: [3000],
@@ -243,7 +243,7 @@ test('distinguishes an old Studio from one without a focused target', async () =
 test('maps structured server errors and malformed responses', async () => {
 	const run = (response: Response) =>
 		addElementLibraryToStudioWithDependencies(
-			{url: 'https://catalog.example.com', displayName: null},
+			{url: 'https://library.example.com', displayName: null},
 			{
 				...dependencies,
 				ports: [3000],

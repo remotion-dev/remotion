@@ -103,6 +103,34 @@ describe('Composition-validation render should throw with invalid props', () => 
 			);
 		});
 	});
+	describe('Throw with invalid loop props', () => {
+		test('loop must be boolean and requires a finite durationInFrames', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence
+								loop={'true' as unknown as boolean}
+								durationInFrames={30}
+							/>
+						</WrapSequenceContext>,
+					),
+				/The "loop" prop of <Sequence \/> must be a boolean, but is of type string./,
+			);
+
+			for (const durationInFrames of [undefined, Infinity]) {
+				expectToThrow(
+					() =>
+						render(
+							<WrapSequenceContext>
+								<Sequence loop durationInFrames={durationInFrames} />
+							</WrapSequenceContext>,
+						),
+					/requires a finite "durationInFrames" prop/,
+				);
+			}
+		});
+	});
 	describe('Throw with invalid freeze props', () => {
 		test('It should throw if "freeze" prop is not a number', () => {
 			expectToThrow(

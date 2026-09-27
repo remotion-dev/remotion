@@ -1,3 +1,4 @@
+import {interpolatePaths} from '@remotion/paths';
 import React, {useLayoutEffect} from 'react';
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
@@ -9,6 +10,8 @@ import {FastRefreshProvider} from './FastRefreshProvider';
 import {injectCSS} from './helpers/inject-css';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
 import {CompositionListProvider} from './state/composition-list';
+
+Internals.setInterpolatePaths(interpolatePaths);
 
 declare global {
 	interface Window {

@@ -302,7 +302,7 @@ export const ElementLibraryAddConfirmation: React.FC<{
 }> = ({displayName, origin, url}) => {
 	return (
 		<div style={container}>
-			<dl style={metadataStyle} aria-label="Catalog details">
+			<dl style={metadataStyle} aria-label="Element Library details">
 				{displayName === null ? null : (
 					<div style={metadataRowStyle}>
 						<dt style={metadataTermStyle}>Display name</dt>
@@ -314,7 +314,7 @@ export const ElementLibraryAddConfirmation: React.FC<{
 					<dd style={metadataDescriptionStyle}>{origin}</dd>
 				</div>
 				<div style={metadataRowStyle}>
-					<dt style={metadataTermStyle}>Catalog URL</dt>
+					<dt style={metadataTermStyle}>Element Library URL</dt>
 					<dd style={metadataDescriptionStyle}>
 						<code style={codeStyle}>{url}</code>
 					</dd>
@@ -324,7 +324,7 @@ export const ElementLibraryAddConfirmation: React.FC<{
 			<div style={warningStyle}>
 				<WarningTriangle style={warningIconStyle} />
 				<p style={warningDescriptionStyle}>
-					This adds the catalog to{' '}
+					This adds the Element Library to{' '}
 					<strong style={browseElementsStyle}>Browse Elements</strong> when
 					nothing is selected on the canvas. It is saved in{' '}
 					<code style={codeStyle}>remotion.config.ts</code>.

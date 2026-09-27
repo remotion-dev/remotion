@@ -155,7 +155,7 @@ export const SizeSelector: React.FC = () => {
 
 	return (
 		<TimelineCombobox
-			title={accessibilityLabel}
+			aria-label={accessibilityLabel}
 			tooltipDelay={800}
 			selectedId={selectedId}
 			values={items}

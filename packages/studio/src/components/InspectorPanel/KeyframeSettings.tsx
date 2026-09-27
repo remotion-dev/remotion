@@ -42,19 +42,22 @@ const labelForExtrapolate = (value: ExtrapolateType) =>
 const getExtrapolateValues = (
 	onSelect: (value: ExtrapolateType) => void,
 	disabled: boolean,
+	allowIdentity: boolean,
 ): ComboboxValue[] => {
-	return extrapolateOptions.map((value) => ({
-		type: 'item',
-		id: value,
-		keyHint: null,
-		label: labelForExtrapolate(value),
-		leftItem: null,
-		disabled,
-		onClick: () => onSelect(value),
-		quickSwitcherLabel: null,
-		subMenu: null,
-		value,
-	}));
+	return extrapolateOptions
+		.filter((value) => allowIdentity || value !== 'identity')
+		.map((value) => ({
+			type: 'item',
+			id: value,
+			keyHint: null,
+			label: labelForExtrapolate(value),
+			leftItem: null,
+			disabled,
+			onClick: () => onSelect(value),
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value,
+		}));
 };
 
 const outputOptions = [
@@ -91,8 +94,10 @@ export const KeyframeSettings: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatus} = update;
 	const [posterize, setPosterize] = useState(propStatus.posterize ?? 0);
-	const canEditInterpolationSettings =
-		propStatus.interpolationFunction === 'interpolate';
+	const canEditExtrapolation =
+		propStatus.interpolationFunction === 'interpolate' ||
+		propStatus.interpolationFunction === 'interpolatePaths';
+	const canEditOutput = propStatus.interpolationFunction === 'interpolate';
 	const disabled = previewServerState.type !== 'connected';
 
 	useEffect(() => {
@@ -146,13 +151,14 @@ export const KeyframeSettings: React.FC<{
 		}) => {
 			save({
 				type: 'settings',
-				clamping: canEditInterpolationSettings ? {left, right} : undefined,
-				output: canEditInterpolationSettings ? output : undefined,
+				clamping: canEditExtrapolation ? {left, right} : undefined,
+				output: canEditOutput ? output : undefined,
 				posterize: nextPosterize <= 0 ? undefined : nextPosterize,
 			});
 		},
 		[
-			canEditInterpolationSettings,
+			canEditExtrapolation,
+			canEditOutput,
 			propStatus.clamping.left,
 			propStatus.clamping.right,
 			propStatus.output,
@@ -174,12 +180,12 @@ export const KeyframeSettings: React.FC<{
 		[saveSettings],
 	);
 	const leftValues = useMemo(
-		() => getExtrapolateValues(onSelectLeft, disabled),
-		[disabled, onSelectLeft],
+		() => getExtrapolateValues(onSelectLeft, disabled, canEditOutput),
+		[canEditOutput, disabled, onSelectLeft],
 	);
 	const rightValues = useMemo(
-		() => getExtrapolateValues(onSelectRight, disabled),
-		[disabled, onSelectRight],
+		() => getExtrapolateValues(onSelectRight, disabled, canEditOutput),
+		[canEditOutput, disabled, onSelectRight],
 	);
 	const outputValues = useMemo(
 		() => getOutputValues(onSelectOutput, disabled),
@@ -208,13 +214,13 @@ export const KeyframeSettings: React.FC<{
 			sectionId="keyframe-settings"
 		>
 			<div style={keyframeSettingsContainer}>
-				{canEditInterpolationSettings ? (
+				{canEditExtrapolation ? (
 					<>
 						<InspectorDetailRow label="Extrapolate left">
 							<Combobox
 								values={leftValues}
 								selectedId={propStatus.clamping.left}
-								title="Extrapolate left"
+								aria-label="Extrapolate left"
 								style={comboStyle}
 								size="small"
 							/>
@@ -223,21 +229,23 @@ export const KeyframeSettings: React.FC<{
 							<Combobox
 								values={rightValues}
 								selectedId={propStatus.clamping.right}
-								title="Extrapolate right"
-								style={comboStyle}
-								size="small"
-							/>
-						</InspectorDetailRow>
-						<InspectorDetailRow label="Output">
-							<Combobox
-								values={outputValues}
-								selectedId={propStatus.output ?? 'linear'}
-								title="Output"
+								aria-label="Extrapolate right"
 								style={comboStyle}
 								size="small"
 							/>
 						</InspectorDetailRow>
 					</>
+				) : null}
+				{canEditOutput ? (
+					<InspectorDetailRow label="Output">
+						<Combobox
+							values={outputValues}
+							selectedId={propStatus.output ?? 'linear'}
+							aria-label="Output"
+							style={comboStyle}
+							size="small"
+						/>
+					</InspectorDetailRow>
 				) : null}
 				<InspectorDetailRow label="Posterize">
 					<InputDragger

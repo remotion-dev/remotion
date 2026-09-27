@@ -164,6 +164,24 @@ const makeDefaultGlobalCSS = () => {
     transition: color 0.2s ease-in-out;
   }
 
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar {
+    height: 0;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  @-moz-document url-prefix() {
+    .__remotion-horizontal-scrollbar.__remotion-canvas-tabs {
+      scrollbar-width: none;
+    }
+
+    .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover {
+      scrollbar-width: thin;
+    }
+  }
+
   ${makeHoverableCSS()}
   `.trim();
 };

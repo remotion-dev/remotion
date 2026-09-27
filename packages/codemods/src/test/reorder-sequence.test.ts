@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {getJsxNodes} from '../get-jsx-nodes';
+import {getNodes} from '../get-nodes';
 import {reorderSequence} from '../reorder-sequence';
 import {lineColumnToNodePath} from './node-path-test-utils';
 
@@ -17,7 +17,7 @@ const sequenceContaining = (input: string, search: string) => {
 	}
 
 	const sourceBeforeOpening = input.slice(0, openingOffset).split('\n');
-	const nodePath = getJsxNodes({
+	const nodePath = getNodes({
 		project: {rootDir: '/', files: {'/test.tsx': input}},
 		filePath: '/test.tsx',
 	}).find(

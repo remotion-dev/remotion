@@ -848,7 +848,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox"
 					src={iframeSrc ?? 'about:blank'}
 					style={iframeStyle}
-					title="Remotion Studio"
+					aria-label="Remotion Studio"
 				/>
 			) : null}
 			{state.status === 'compiling' && iframeHtml === null ? (

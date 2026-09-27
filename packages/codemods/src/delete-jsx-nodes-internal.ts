@@ -524,7 +524,7 @@ const applySourceEdits = ({
 	return output;
 };
 
-export const deleteJsxNodes = ({
+export const deleteNodes = ({
 	input,
 	nodePaths,
 }: {

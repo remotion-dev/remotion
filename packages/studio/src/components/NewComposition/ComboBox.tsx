@@ -12,6 +12,7 @@ import {
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
+import {Checkmark} from '../../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {COMPACT_CONTROL_ROW_HEIGHT, Spacing} from '../layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from '../Menu/is-menu-item';
@@ -113,14 +114,14 @@ export const Combobox: React.FC<{
 	readonly values: ComboboxValue[];
 	readonly selectedId: string | number;
 	readonly style?: React.CSSProperties;
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly size?: ComboboxSize;
 	readonly unhoveredIconColor?: string;
 }> = ({
 	values,
 	selectedId,
 	style: customStyle,
-	title,
+	'aria-label': ariaLabel,
 	size: controlSize = 'default',
 	unhoveredIconColor = LIGHT_TEXT,
 }) => {
@@ -308,7 +309,7 @@ export const Combobox: React.FC<{
 		<>
 			<button
 				ref={ref}
-				title={title}
+				aria-label={ariaLabel}
 				tabIndex={tabIndex}
 				type="button"
 				style={style}
@@ -316,7 +317,8 @@ export const Combobox: React.FC<{
 			>
 				{selected ? (
 					<div
-						title={
+						role="group"
+						aria-label={
 							typeof selected.label === 'string' ? selected.label : undefined
 						}
 						style={selectedLabelStyle}
@@ -342,9 +344,13 @@ export const Combobox: React.FC<{
 											values={values}
 											onHide={onHide}
 											leaveLeftSpace
-											preselectIndex={values.findIndex(
-												(v) => selected && v.id === selected.id,
-											)}
+											preselectIndex={
+												selected &&
+												React.isValidElement(selected.leftItem) &&
+												selected.leftItem.type === Checkmark
+													? values.findIndex((v) => v.id === selected.id)
+													: false
+											}
 											topItemCanBeUnselected={false}
 											fixedHeight={derivedMaxHeight}
 										/>

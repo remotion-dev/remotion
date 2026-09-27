@@ -7,7 +7,7 @@ import {
 	insertJsxElementIntoComposition,
 	resolveCompositionComponent,
 } from '../helpers/resolve-composition-component';
-import {insertJsxElementHandler} from '../preview-server/routes/insert-jsx-element';
+import {insertCompositionElementHandler} from '../preview-server/routes/insert-composition-element';
 import {lineContainingToNodePath} from './test-utils';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
@@ -954,9 +954,9 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, Solid as RemotionSolid} from 'remotion';",
+			"import {AbsoluteFill, Solid as Solid2} from 'remotion';",
 		);
-		expect(result.output).toContain('<RemotionSolid');
+		expect(result.output).toContain('<Solid2');
 		expect(result.output).toContain('width={1920}');
 		expect(result.output).toContain('height={1080}');
 		expect(result.output).toContain("position: 'absolute'");
@@ -1146,7 +1146,7 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
+			"import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';",
 		);
 		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
@@ -1213,7 +1213,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, staticFile, CanvasImage} from 'remotion';",
+			"import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
@@ -1271,7 +1271,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		});
 
 		expect(result.output).toContain(
-			"import {AbsoluteFill, staticFile, AnimatedImage} from 'remotion';",
+			"import {AbsoluteFill, AnimatedImage, staticFile} from 'remotion';",
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
@@ -1995,7 +1995,7 @@ test('rejects inserting a composition whose component is not exported', async ()
 		const targetFile = path.join(tempDir, 'Target.tsx');
 		await fs.writeFile(targetFile, targetContents);
 
-		const response = await insertJsxElementHandler({
+		const response = await insertCompositionElementHandler({
 			input: {
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
@@ -2189,7 +2189,7 @@ test('rejects array payloads for resolved composition props', async () => {
 test('rejects composition insertion requests that traverse out of the project root', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
-		const response = await insertJsxElementHandler({
+		const response = await insertCompositionElementHandler({
 			input: {
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',

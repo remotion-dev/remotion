@@ -8,7 +8,7 @@ import type {
 import {Internals} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {splitJsxSequence} from '../split-jsx-sequence-api';
+import {splitSequences as splitSequencesApi} from '../split-sequences-api';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -78,6 +78,15 @@ export const getTimelineSequenceSplitEligibility = ({
 		return {
 			canSplit: false,
 			reason: 'Series.Sequence clips cannot be split from source',
+		};
+	}
+
+	// `trimBefore` is both where playback starts and where the loop restarts,
+	// so the right half could not resume mid-cycle.
+	if (sequence.loopDisplay) {
+		return {
+			canSplit: false,
+			reason: 'Looping sequences cannot be split',
 		};
 	}
 
@@ -164,7 +173,7 @@ export const splitTimelineSequencesFromSource = ({
 		splitFrame: number;
 	}>;
 }): Promise<boolean> => {
-	return splitJsxSequence({
+	return splitSequencesApi({
 		sequences: sequences.map(({nodePathInfo, splitFrame}) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 			return {

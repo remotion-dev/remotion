@@ -1,4 +1,4 @@
-import type {InsertJsxElementRequest} from '@remotion/studio-shared';
+import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -61,6 +61,7 @@ import {
 	TimelineSelectAllKeybindings,
 	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
+import {TimelineRippleEditHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
 import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
@@ -157,7 +158,7 @@ const TimelineContextMenuArea: React.FC<{
 
 		setIsAddingSolid(true);
 		try {
-			const request: InsertJsxElementRequest = {
+			const request: InsertCompositionElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -169,8 +170,8 @@ const TimelineContextMenuArea: React.FC<{
 				},
 			};
 			const result = browserStudioOperations
-				? await browserStudioOperations.insertSolid(request)
-				: await callApi('/api/insert-jsx-element', request);
+				? await browserStudioOperations.insertCompositionElement(request)
+				: await callApi('/api/insert-composition-element', request);
 
 			if (result.success) {
 				return;
@@ -544,9 +545,11 @@ const MemoizedTimelineInner = React.memo(TimelineInner);
 export const Timeline: React.FC = () => {
 	return (
 		<TimelineTickFormatProvider>
-			<TimelineSequenceMediaDurationDragLimitsProvider>
-				<MemoizedTimelineInner />
-			</TimelineSequenceMediaDurationDragLimitsProvider>
+			<TimelineRippleEditHighlightProvider>
+				<TimelineSequenceMediaDurationDragLimitsProvider>
+					<MemoizedTimelineInner />
+				</TimelineSequenceMediaDurationDragLimitsProvider>
+			</TimelineRippleEditHighlightProvider>
 		</TimelineTickFormatProvider>
 	);
 };

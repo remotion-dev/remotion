@@ -64,9 +64,6 @@
 		"testbrowserstudio": {
 			"dependsOn": ["@remotion/browser-studio#make"]
 		},
-		"testbrowserbundler": {
-			"dependsOn": ["^make"]
-		},
 		"testlayoututils": {
 			"dependsOn": ["@remotion/layout-utils#make"]
 		},

@@ -1,11 +1,16 @@
 import type React from 'react';
-import {useCallback, useContext, useEffect} from 'react';
+import {useCallback, useContext, useEffect, useRef} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getKeysToExpand} from '../helpers/create-folder-tree';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
-import {getNavigationWindow, getRoute, pushUrl} from '../helpers/url-state';
+import {
+	closedAllCanvasTabsStorageKey,
+	getNavigationWindow,
+	getRoute,
+	pushUrl,
+} from '../helpers/url-state';
 import {
 	CompositionListContext,
 	compositionListRenderedRef,
@@ -16,12 +21,20 @@ import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 import {useSelectAsset} from './use-select-asset';
 import {useStaticFiles} from './use-static-files';
 
+const pendingCompositionSelectionEvent =
+	'remotion-pending-composition-selection';
+
+export const selectCompositionWhenReady = (id: string) => {
+	pushUrl(`/${id}`);
+	window.dispatchEvent(new Event(pendingCompositionSelectionEvent));
+};
+
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	// A supplied frame is explicit navigation (for example, opening a nested
 	// composition at its sequence's frame). Plain selection does not seek.
-	const setFrame = Internals.Timeline.useTimelineSeekFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 
 	return useCallback(
 		(
@@ -38,7 +51,7 @@ export const useSelectComposition = () => {
 
 			explorerSidebarTabs.current?.selectCompositionPanel();
 			if (frame !== null) {
-				setFrame((current) => ({...current, [c.id]: frame}));
+				seekFrame((current) => ({...current, [c.id]: frame}));
 			}
 
 			setCanvasContent({type: 'composition', compositionId: c.id});
@@ -61,7 +74,7 @@ export const useSelectComposition = () => {
 				});
 			}
 		},
-		[setCanvasContent, setCompositionFoldersExpanded, setFrame],
+		[setCanvasContent, setCompositionFoldersExpanded, seekFrame],
 	);
 };
 
@@ -74,6 +87,18 @@ export const InitialCompositionLoader: React.FC = () => {
 	const selectComposition = useSelectComposition();
 	const selectAsset = useSelectAsset();
 	const staticFiles = useStaticFiles();
+	const hasShownCanvasContent = useRef(
+		(() => {
+			try {
+				return (
+					getRoute() === '/' &&
+					sessionStorage.getItem(closedAllCanvasTabsStorageKey) === '1'
+				);
+			} catch {
+				return false;
+			}
+		})(),
+	);
 
 	useEffect(() => {
 		const canvasContentFromUrl = deriveCanvasContentFromUrl();
@@ -85,6 +110,7 @@ export const InitialCompositionLoader: React.FC = () => {
 			);
 
 		if (canvasContent) {
+			hasShownCanvasContent.current = true;
 			// If the URL points to a different composition than the one currently
 			// displayed, switch to it. This handles the case where the URL is
 			// updated externally (e.g. after duplicating a composition).
@@ -115,6 +141,7 @@ export const InitialCompositionLoader: React.FC = () => {
 				(c) => c.id === canvasContentFromUrl.compositionId,
 			);
 			if (exists) {
+				hasShownCanvasContent.current = true;
 				selectComposition(exists, false);
 				return;
 			}
@@ -124,11 +151,13 @@ export const InitialCompositionLoader: React.FC = () => {
 		}
 
 		if (canvasContentFromUrl && canvasContentFromUrl.type === 'asset') {
+			hasShownCanvasContent.current = true;
 			selectAsset(canvasContentFromUrl.asset);
 			return;
 		}
 
 		if (canvasContentFromUrl && canvasContentFromUrl.type === 'output') {
+			hasShownCanvasContent.current = true;
 			setCanvasContent(canvasContentFromUrl);
 			return;
 		}
@@ -137,7 +166,12 @@ export const InitialCompositionLoader: React.FC = () => {
 			return;
 		}
 
-		if (compositions.length > 0 && !window.remotion_isReadOnlyStudio) {
+		if (
+			compositions.length > 0 &&
+			!window.remotion_isReadOnlyStudio &&
+			!hasShownCanvasContent.current
+		) {
+			hasShownCanvasContent.current = true;
 			selectComposition(compositions[0], true);
 		} else {
 			setCompositionListState('ready');
@@ -155,8 +189,9 @@ export const InitialCompositionLoader: React.FC = () => {
 		const onchange = () => {
 			const newCanvas = deriveCanvasContentFromUrl();
 			if (newCanvas && newCanvas.type === 'composition') {
-				const newComp = getRoute().substring(1);
-				const exists = compositions.find((c) => c.id === newComp);
+				const exists = compositions.find(
+					(c) => c.id === newCanvas.compositionId,
+				);
 				if (exists) {
 					selectComposition(exists, false);
 				}
@@ -181,8 +216,12 @@ export const InitialCompositionLoader: React.FC = () => {
 
 		const navigationWindow = getNavigationWindow();
 		navigationWindow.addEventListener('popstate', onchange);
+		window.addEventListener(pendingCompositionSelectionEvent, onchange);
 
-		return () => navigationWindow.removeEventListener('popstate', onchange);
+		return () => {
+			navigationWindow.removeEventListener('popstate', onchange);
+			window.removeEventListener(pendingCompositionSelectionEvent, onchange);
+		};
 	}, [
 		compositions,
 		selectAsset,

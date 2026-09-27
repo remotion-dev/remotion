@@ -20,10 +20,10 @@ const container: React.CSSProperties = {
 };
 
 export const InfoBubble: React.FC<{
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly children: React.ReactNode;
 	readonly horizontalAlignment?: 'left' | 'right';
-}> = ({title, children, horizontalAlignment = 'left'}) => {
+}> = ({'aria-label': ariaLabel, children, horizontalAlignment = 'left'}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -134,7 +134,7 @@ export const InfoBubble: React.FC<{
 				ref={ref}
 				tabIndex={tabIndex}
 				style={style}
-				title={title}
+				aria-label={ariaLabel}
 				type="button"
 			>
 				<svg style={icon} viewBox="0 0 512 512">
