@@ -65,6 +65,18 @@ export const ElementInstallFallbackModal: React.FC<{
 				event.preventDefault();
 				onClose();
 			}}
+			onClick={(event) => {
+				const bounds = event.currentTarget.getBoundingClientRect();
+				const clickedOutside =
+					event.clientX < bounds.left ||
+					event.clientX > bounds.right ||
+					event.clientY < bounds.top ||
+					event.clientY > bounds.bottom;
+
+				if (clickedOutside) {
+					onClose();
+				}
+			}}
 		>
 			<div className={styles.content}>
 				<button
