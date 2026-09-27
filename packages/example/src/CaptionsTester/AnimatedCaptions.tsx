@@ -1,6 +1,6 @@
 import type {Caption, TikTokPage} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
-import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
+import React, {useMemo} from 'react';
 import {
 	AbsoluteFill,
 	Interactive,
@@ -119,11 +119,9 @@ type AnimatedCaptionsProps = InteractiveBaseProps &
 		readonly captions: Caption[];
 	};
 
-const AnimatedCaptionsInner = forwardRef<
-	HTMLDivElement,
+const AnimatedCaptionsInner: React.FC<
 	AnimatedCaptionsProps & {readonly controls: SequenceControls | undefined}
->(({captions, controls, name, style, ...sequenceProps}, ref) => {
-	const elementRef = useRef<HTMLDivElement>(null);
+> = ({captions, controls, name, style, ...sequenceProps}) => {
 	const {fps} = useVideoConfig();
 	const pages = useMemo(() => {
 		return createTikTokStyleCaptions({
@@ -132,11 +130,8 @@ const AnimatedCaptionsInner = forwardRef<
 		}).pages;
 	}, [captions]);
 
-	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
 	return (
 		<Sequence
-			ref={elementRef}
 			{...sequenceProps}
 			name={name ?? '<AnimatedCaptions>'}
 			style={style}
@@ -170,7 +165,7 @@ const AnimatedCaptionsInner = forwardRef<
 			})}
 		</Sequence>
 	);
-});
+};
 
 export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,

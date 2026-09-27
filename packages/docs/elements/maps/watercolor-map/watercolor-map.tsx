@@ -1,5 +1,5 @@
 import {fontFamily, loadFont} from '@remotion/google-fonts/Lora';
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
 	Easing,
 	Img,
@@ -168,7 +168,6 @@ const WatercolorMapContent: React.FC<{
 	readonly destinationLabel: string;
 	readonly origin: Coordinates;
 	readonly originLabel: string;
-	readonly elementRef: React.RefObject<HTMLDivElement | null>;
 	readonly routeColor: string;
 	readonly routeWidth: number;
 	readonly style: React.CSSProperties | undefined;
@@ -177,7 +176,6 @@ const WatercolorMapContent: React.FC<{
 	destinationLabel,
 	origin,
 	originLabel,
-	elementRef,
 	routeColor,
 	routeWidth,
 	style,
@@ -256,7 +254,6 @@ const WatercolorMapContent: React.FC<{
 
 	return (
 		<div
-			ref={elementRef}
 			style={{
 				backgroundColor: '#e6ec88',
 				height,
@@ -405,49 +402,39 @@ const WatercolorMapContent: React.FC<{
 	);
 };
 
-const WatercolorMapInner = forwardRef<
-	HTMLDivElement,
+const WatercolorMapInner: React.FC<
 	WatercolorMapProps & {readonly controls: SequenceControls | undefined}
->(
-	(
-		{
-			controls,
-			destination = [8.5417, 47.3769],
-			destinationLabel = 'Zurich',
-			name,
-			origin = [-118.2437, 34.0522],
-			originLabel = 'Los Angeles',
-			routeColor = '#ff0041',
-			routeWidth = 18,
-			style,
-			...sequenceProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...sequenceProps}
-				controls={controls}
-				name={name ?? 'Watercolor map'}
-			>
-				<WatercolorMapContent
-					destination={destination}
-					destinationLabel={destinationLabel}
-					origin={origin}
-					originLabel={originLabel}
-					elementRef={elementRef}
-					routeColor={routeColor}
-					routeWidth={routeWidth}
-					style={style}
-				/>
-			</Sequence>
-		);
-	},
-);
+> = ({
+	controls,
+	destination = [8.5417, 47.3769],
+	destinationLabel = 'Zurich',
+	name,
+	origin = [-118.2437, 34.0522],
+	originLabel = 'Los Angeles',
+	routeColor = '#ff0041',
+	routeWidth = 18,
+	style,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			controls={controls}
+			name={name ?? 'Watercolor map'}
+		>
+			<WatercolorMapContent
+				destination={destination}
+				destinationLabel={destinationLabel}
+				origin={origin}
+				originLabel={originLabel}
+				routeColor={routeColor}
+				routeWidth={routeWidth}
+				style={style}
+			/>
+		</Sequence>
+	);
+};
 
 export const WatercolorMap = Interactive.withSchema({
 	Component: WatercolorMapInner,

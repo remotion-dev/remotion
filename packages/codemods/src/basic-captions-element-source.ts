@@ -2,7 +2,7 @@ import {parseAst} from './sequence-props/parse-ast';
 
 export const basicCaptionsElementSource = `import type {Caption} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
-import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
+import React, {useMemo} from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -106,66 +106,56 @@ const basicCaptionsSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const BasicCaptionsInner = forwardRef<
-	HTMLDivElement,
+const BasicCaptionsInner: React.FC<
 	BasicCaptionsProps & {readonly controls: SequenceControls | undefined}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = 2000,
-			controls,
-			durationInFrames,
-			from,
-			height = 220,
-			name,
-			playbackRate = 1,
-			style,
-			trimBefore,
-			width = 900,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? 'Basic captions'}
-				from={from}
-				durationInFrames={durationInFrames}
-				trimBefore={trimBefore}
+> = ({
+	captions,
+	combineTokensWithinMilliseconds = 2000,
+	controls,
+	durationInFrames,
+	from,
+	height = 220,
+	name,
+	playbackRate = 1,
+	style,
+	trimBefore,
+	width = 900,
+	...interactiveProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...interactiveProps}
+			controls={controls}
+			name={name ?? 'Basic captions'}
+			from={from}
+			durationInFrames={durationInFrames}
+			trimBefore={trimBefore}
+		>
+			<div
+				style={{
+					alignItems: 'center',
+					display: 'flex',
+					justifyContent: 'center',
+					position: 'absolute',
+					bottom: 120,
+					left: '50%',
+					transform: 'translateX(-50%)',
+					width,
+					height,
+					...style,
+				}}
 			>
-				<div
-					ref={elementRef}
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						justifyContent: 'center',
-						position: 'absolute',
-						bottom: 120,
-						left: '50%',
-						transform: 'translateX(-50%)',
-						width,
-						height,
-						...style,
-					}}
-				>
-					<BasicCaptionsContent
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						playbackRate={playbackRate}
-						trimBefore={trimBefore ?? 0}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<BasicCaptionsContent
+					captions={captions}
+					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					playbackRate={playbackRate}
+					trimBefore={trimBefore ?? 0}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 export const BasicCaptions = Interactive.withSchema({
 	Component: BasicCaptionsInner,

@@ -373,161 +373,154 @@ const getTransformStyle = ({
 	});
 };
 
-const ExtrudeDivInner = React.forwardRef<
-	HTMLDivElement,
+const ExtrudeDivInner: React.FC<
 	ExtrudeDivProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			children,
-			width = 200,
-			height = 100,
-			depth = 40,
-			cornerRadius = 0,
-			backFace,
-			style,
-			translationX = 0,
-			translationY = 0,
-			translationZ = 0,
-			rotationX = 0,
-			rotationY = 0,
-			rotationZ = 0,
-			scaleX = 1,
-			scaleY = 1,
-			scaleZ = 1,
-			topFace,
-			bottomFace,
-			durationInFrames,
-			from,
-			trimBefore,
-			trimAfter,
-			loop,
-			freeze,
-			hidden,
-			name,
-			showInTimeline,
-			controls,
-		},
-		ref,
-	) => {
-		const parentTransform = useTransformations();
-		const parentCenterPoint = React.useContext(CenterPointContext);
-		const localTranslate = style?.translate;
-		const localScale = style?.scale;
-		const localRotate = style?.rotate;
-		const localTransformOrigin = style?.transformOrigin;
-		const localTransform = React.useMemo(() => {
-			return getTransformStyle({
-				height,
-				rotate: localRotate,
-				rotationX,
-				rotationY,
-				rotationZ,
-				scale: localScale,
-				scaleX,
-				scaleY,
-				scaleZ,
-				transformOrigin: localTransformOrigin,
-				translate: localTranslate,
-				translationX,
-				translationY,
-				translationZ,
-				width,
-			});
-		}, [
+> = ({
+	children,
+	width = 200,
+	height = 100,
+	depth = 40,
+	cornerRadius = 0,
+	backFace,
+	style,
+	translationX = 0,
+	translationY = 0,
+	translationZ = 0,
+	rotationX = 0,
+	rotationY = 0,
+	rotationZ = 0,
+	scaleX = 1,
+	scaleY = 1,
+	scaleZ = 1,
+	topFace,
+	bottomFace,
+	durationInFrames,
+	from,
+	trimBefore,
+	trimAfter,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
+	const parentTransform = useTransformations();
+	const parentCenterPoint = React.useContext(CenterPointContext);
+	const localTranslate = style?.translate;
+	const localScale = style?.scale;
+	const localRotate = style?.rotate;
+	const localTransformOrigin = style?.transformOrigin;
+	const localTransform = React.useMemo(() => {
+		return getTransformStyle({
 			height,
-			localRotate,
-			localScale,
-			localTransformOrigin,
-			localTranslate,
+			rotate: localRotate,
 			rotationX,
 			rotationY,
 			rotationZ,
+			scale: localScale,
 			scaleX,
 			scaleY,
 			scaleZ,
+			transformOrigin: localTransformOrigin,
+			translate: localTranslate,
 			translationX,
 			translationY,
 			translationZ,
 			width,
-		]);
-		const combinedTransform = React.useMemo(() => {
-			return reduceMatrices([parentTransform, localTransform]);
-		}, [localTransform, parentTransform]);
-		const combinedCenterPoint = React.useMemo(() => {
-			return transformPoint({matrix: localTransform, point: parentCenterPoint});
-		}, [localTransform, parentCenterPoint]);
-		const frontFace = isBacksideVisible(combinedTransform);
+		});
+	}, [
+		height,
+		localRotate,
+		localScale,
+		localTransformOrigin,
+		localTranslate,
+		rotationX,
+		rotationY,
+		rotationZ,
+		scaleX,
+		scaleY,
+		scaleZ,
+		translationX,
+		translationY,
+		translationZ,
+		width,
+	]);
+	const combinedTransform = React.useMemo(() => {
+		return reduceMatrices([parentTransform, localTransform]);
+	}, [localTransform, parentTransform]);
+	const combinedCenterPoint = React.useMemo(() => {
+		return transformPoint({matrix: localTransform, point: parentCenterPoint});
+	}, [localTransform, parentCenterPoint]);
+	const frontFace = isBacksideVisible(combinedTransform);
 
-		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				trimAfter={trimAfter}
-				loop={loop}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				name={name ?? '<ExtrudeDiv>'}
-				showInTimeline={showInTimeline ?? true}
-				controls={controls ?? undefined}
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
-			>
-				<TransformContext.Provider value={combinedTransform}>
-					<CenterPointContext.Provider value={combinedCenterPoint}>
-						<RectProvider
-							height={height}
-							width={width}
-							cornerRadius={cornerRadius}
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			trimAfter={trimAfter}
+			loop={loop}
+			durationInFrames={durationInFrames ?? Infinity}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? '<ExtrudeDiv>'}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls ?? undefined}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
+		>
+			<TransformContext.Provider value={combinedTransform}>
+				<CenterPointContext.Provider value={combinedCenterPoint}>
+					<RectProvider
+						height={height}
+						width={width}
+						cornerRadius={cornerRadius}
+					>
+						<div
+							style={{
+								...style,
+								width,
+								height,
+								position: 'relative',
+								transform:
+									depth === 0
+										? makeMatrix3dTransform(combinedTransform)
+										: undefined,
+								transformOrigin: undefined,
+								translate: undefined,
+								rotate: undefined,
+								scale: undefined,
+							}}
 						>
-							<div
-								ref={ref}
-								style={{
-									...style,
-									width,
-									height,
-									position: 'relative',
-									transform:
-										depth === 0
-											? makeMatrix3dTransform(combinedTransform)
-											: undefined,
-									transformOrigin: undefined,
-									translate: undefined,
-									rotate: undefined,
-									scale: undefined,
-								}}
-							>
-								{depth > 0 ? <DivExtrusion depth={depth} /> : children}
-								{depth === 0 ? null : !frontFace ? (
-									<Face type="front" depth={depth}>
-										{children}
-									</Face>
-								) : (
-									<Face type="back" depth={depth}>
-										{backFace}
-									</Face>
-								)}
-								{topFace ? (
-									<TopSide depth={depth} width={width} height={height}>
-										{topFace}
-									</TopSide>
-								) : null}
-								{bottomFace ? (
-									<BottomSide depth={depth} width={width} height={height}>
-										{bottomFace}
-									</BottomSide>
-								) : null}
-							</div>
-						</RectProvider>
-					</CenterPointContext.Provider>
-				</TransformContext.Provider>
-			</Sequence>
-		);
-	},
-);
+							{depth > 0 ? <DivExtrusion depth={depth} /> : children}
+							{depth === 0 ? null : !frontFace ? (
+								<Face type="front" depth={depth}>
+									{children}
+								</Face>
+							) : (
+								<Face type="back" depth={depth}>
+									{backFace}
+								</Face>
+							)}
+							{topFace ? (
+								<TopSide depth={depth} width={width} height={height}>
+									{topFace}
+								</TopSide>
+							) : null}
+							{bottomFace ? (
+								<BottomSide depth={depth} width={width} height={height}>
+									{bottomFace}
+								</BottomSide>
+							) : null}
+						</div>
+					</RectProvider>
+				</CenterPointContext.Provider>
+			</TransformContext.Provider>
+		</Sequence>
+	);
+};
 
 ExtrudeDivInner.displayName = '<ExtrudeDiv>';
 
