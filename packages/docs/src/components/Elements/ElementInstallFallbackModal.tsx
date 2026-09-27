@@ -123,7 +123,7 @@ export const ElementInstallFallbackModal: React.FC<{
 								viewBox="0 0 59 37"
 							>
 								<path
-									d="M5 25C18 26.354 36 22 54 5"
+									d="M5 18C18 13.304 36 8.5 54 5"
 									stroke="currentColor"
 									strokeLinecap="round"
 									strokeWidth="4"
