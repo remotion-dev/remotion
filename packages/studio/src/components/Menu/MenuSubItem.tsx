@@ -7,6 +7,7 @@ import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
+import {KeyboardShortcutLabel} from '../KeyboardShortcutLabel';
 import {Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
 import {MENU_ITEM_CLASSNAME} from './is-menu-item';
@@ -205,7 +206,7 @@ export const MenuSubItem: React.FC<{
 				<div style={labelStyle}>{label}</div> <Spacing x={2} />
 				{subMenu ? <CaretRight /> : null}
 				{keyHint && !areKeyboardShortcutsDisabled() ? (
-					<span style={keyHintCss}>{keyHint}</span>
+					<KeyboardShortcutLabel shortcut={keyHint} style={keyHintCss} />
 				) : null}
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(

@@ -17,6 +17,7 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineDropdown} from '../InlineDropdown';
+import {KeyboardShortcutLabel} from '../KeyboardShortcutLabel';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import type {QuickSwitcherMode} from './NoResults';
 
@@ -97,7 +98,10 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 				{showShortcut &&
 				!areKeyboardShortcutsDisabled() &&
 				quickSwitcherShortcut !== '' ? (
-					<span style={shortcutLabel}>{quickSwitcherShortcut}</span>
+					<KeyboardShortcutLabel
+						shortcut={quickSwitcherShortcut}
+						style={shortcutLabel}
+					/>
 				) : null}
 			</button>
 			<ActionTooltip
