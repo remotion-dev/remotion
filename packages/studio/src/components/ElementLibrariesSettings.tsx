@@ -38,9 +38,10 @@ const addLibraryHeading: React.CSSProperties = {
 	padding: '4px 16px',
 };
 
-const discoverLibrariesRow: React.CSSProperties = {
+const addLibraryActions: React.CSSProperties = {
 	display: 'flex',
-	padding: '0 16px 12px',
+	gap: 8,
+	padding: '4px 16px',
 };
 
 const libraryRow: React.CSSProperties = {
@@ -114,6 +115,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const [busy, setBusy] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
+	const [isAddByUrlVisible, setIsAddByUrlVisible] = useState(false);
 	const libraries = (studioRuntimeConfig?.elementLibraries ?? []).filter(
 		(library) => library.url !== REMOTION_ELEMENTS_URL,
 	);
@@ -212,11 +214,6 @@ export const ElementLibrariesSettings: React.FC = () => {
 			<p style={description}>
 				Add libraries to browse their elements in Studio.
 			</p>
-			<div style={discoverLibrariesRow}>
-				<Button onClick={discoverThirdPartyElements} size="compact">
-					Discover third-party Elements
-				</Button>
-			</div>
 			<div role="list" aria-label="Element Libraries">
 				<div role="listitem" style={libraryRow}>
 					<BrowseElementsIcon
@@ -289,43 +286,55 @@ export const ElementLibrariesSettings: React.FC = () => {
 				))}
 			</div>
 			<h3 style={addLibraryHeading}>Add new library</h3>
-			<div style={inputRow}>
-				<RemotionInput
-					aria-label="Element Library URL"
-					placeholder="https://example.com/elements"
-					status="ok"
-					rightAlign={false}
-					style={input}
-					value={url}
-					onChange={(event) => setUrl(event.target.value)}
-				/>
-				<RemotionInput
-					aria-label="Element Library name"
-					placeholder="Name (optional)"
-					status="ok"
-					rightAlign={false}
-					style={input}
-					value={displayName}
-					onChange={(event) => setDisplayName(event.target.value)}
-				/>
-			</div>
-			<div style={inputRow}>
-				<Button
-					disabled={!canSave || normalizedUrl === null || duplicate}
-					onClick={addLibrary}
-					size="compact"
-				>
-					{busy === 'add' ? 'Adding…' : '+ Add Element Library'}
+			<div style={addLibraryActions}>
+				<Button onClick={discoverThirdPartyElements} size="compact">
+					Explore libraries
+				</Button>
+				<Button onClick={() => setIsAddByUrlVisible(true)} size="compact">
+					Add by URL
 				</Button>
 			</div>
-			{duplicate ? (
-				<div style={message}>
-					<ValidationMessage
-						align="flex-start"
-						type="warning"
-						message="This library is already added."
-					/>
-				</div>
+			{isAddByUrlVisible ? (
+				<>
+					<div style={inputRow}>
+						<RemotionInput
+							aria-label="Element Library URL"
+							placeholder="https://example.com/elements"
+							status="ok"
+							rightAlign={false}
+							style={input}
+							value={url}
+							onChange={(event) => setUrl(event.target.value)}
+						/>
+						<RemotionInput
+							aria-label="Element Library name"
+							placeholder="Name (optional)"
+							status="ok"
+							rightAlign={false}
+							style={input}
+							value={displayName}
+							onChange={(event) => setDisplayName(event.target.value)}
+						/>
+					</div>
+					<div style={inputRow}>
+						<Button
+							disabled={!canSave || normalizedUrl === null || duplicate}
+							onClick={addLibrary}
+							size="compact"
+						>
+							{busy === 'add' ? 'Adding…' : '+ Add Element Library'}
+						</Button>
+					</div>
+					{duplicate ? (
+						<div style={message}>
+							<ValidationMessage
+								align="flex-start"
+								type="warning"
+								message="This library is already added."
+							/>
+						</div>
+					) : null}
+				</>
 			) : null}
 			{error ? (
 				<div style={message}>
