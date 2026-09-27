@@ -43,7 +43,7 @@ const addLibraryHeading: React.CSSProperties = {
 const addLibraryActions: React.CSSProperties = {
 	display: 'flex',
 	gap: 8,
-	padding: '4px 16px',
+	padding: '4px 16px 4px 8px',
 };
 
 const addLibraryButtonContent: React.CSSProperties = {
