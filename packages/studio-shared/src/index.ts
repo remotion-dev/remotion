@@ -202,6 +202,7 @@ export type {
 export type {
 	ApplyVisualControlCodemod,
 	CompositionOrFolder,
+	NewCompositionAsset,
 	RecastCodemod,
 } from './codemods';
 export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
@@ -437,3 +438,4 @@ export {
 export {isUrl} from './url';
 
 export {emptyCompositionComponent} from './empty-composition-component';
+export {assetCompositionComponent} from './asset-composition-component';

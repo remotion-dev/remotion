@@ -2,7 +2,9 @@ import type {StudioKeyboardShortcutAction} from '@remotion/studio-shared';
 import type React from 'react';
 import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {pickColor} from '../helpers/pick-color';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
@@ -41,6 +43,7 @@ const hasOwnProperty = (obj: object, key: string) =>
 export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setCheckerboard} = useContext(CheckerboardContext);
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -228,6 +231,30 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
+		const newComposition = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'newComposition',
+			callback: () => {
+				if (
+					getBrowserStudioOperations() === null &&
+					(window.remotion_isReadOnlyStudio ||
+						previewServerState.type !== 'connected')
+				) {
+					return;
+				}
+
+				setSelectedModal({
+					type: 'new-comp',
+					folderName: null,
+					parentName: null,
+					stack: null,
+					canvasCapture: null,
+				});
+			},
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+			preventDefault: true,
+		});
 		const cmdIKey = getStudioAskAIEnabled()
 			? keybindings.registerKeybinding({
 					event: 'keydown',
@@ -348,6 +375,7 @@ export const GlobalKeybindings: React.FC = () => {
 			questionMark.unregister();
 			cmdKKey.unregister();
 			cmdSKey.unregister();
+			newComposition.unregister();
 			cmdIKey?.unregister();
 			colorPicker?.unregister();
 			pageDown.unregister();
@@ -361,6 +389,7 @@ export const GlobalKeybindings: React.FC = () => {
 		setCheckerboard,
 		setEditorSnapping,
 		setSelectedModal,
+		previewServerState.type,
 		navigateToNextComposition,
 		navigateToPreviousComposition,
 	]);

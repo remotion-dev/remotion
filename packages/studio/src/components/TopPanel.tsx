@@ -1,7 +1,6 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {useMobileLayout} from '../helpers/mobile-layout';
-import {useBreakpoint} from '../helpers/use-breakpoint';
+import {useResponsiveSidebarStatus} from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
@@ -40,30 +39,6 @@ const canvasPanel: React.CSSProperties = {
 
 const MAX_SIDEBAR_WIDTH = 350;
 const MIN_SIDEBAR_WIDTH = 250;
-
-export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
-	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
-	const isMobileLayout = useMobileLayout();
-	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
-
-	const actualStateLeft = useMemo((): 'expanded' | 'collapsed' => {
-		if (isMobileLayout) {
-			return 'collapsed';
-		}
-
-		if (sidebarCollapsedStateLeft === 'collapsed') {
-			return 'collapsed';
-		}
-
-		if (sidebarCollapsedStateLeft === 'expanded') {
-			return 'expanded';
-		}
-
-		return responsiveLeftStatus;
-	}, [isMobileLayout, sidebarCollapsedStateLeft, responsiveLeftStatus]);
-
-	return actualStateLeft;
-};
 
 const TopPanelInner: React.FC<{
 	readonly readOnlyStudio: boolean;

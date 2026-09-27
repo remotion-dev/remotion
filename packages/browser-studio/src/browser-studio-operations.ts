@@ -47,6 +47,7 @@ import {
 	type StudioElementPayload,
 } from '@remotion/studio-protocol';
 import {
+	assetCompositionComponent,
 	emptyCompositionComponent,
 	getAllSchemaKeys,
 	getRequiredPackageForEffectImportPath,
@@ -446,7 +447,13 @@ const applyCompositionCodemod = ({
 				{
 					filePath: componentFilePath,
 					previousContents: null,
-					nextContents: emptyCompositionComponent(codemod.componentName),
+					nextContents:
+						codemod.asset === null
+							? emptyCompositionComponent(codemod.componentName)
+							: assetCompositionComponent({
+									asset: codemod.asset,
+									componentName: codemod.componentName,
+								}),
 				},
 			]);
 		}
