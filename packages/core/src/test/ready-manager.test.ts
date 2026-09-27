@@ -66,7 +66,7 @@ describe('Ready Manager tests', () => {
 		clearTimeout(timeout);
 	});
 
-	test('delayRender timeout cannot be negative', async () => {
+	test('explicit timeoutInMilliseconds is not reduced by the Puppeteer buffer', async () => {
 		const scope: DelayRenderScope = {
 			remotion_attempt: 1,
 			remotion_delayRenderHandles: [],
@@ -92,8 +92,7 @@ describe('Ready Manager tests', () => {
 
 		await new Promise((resolve) => setTimeout(resolve, 10));
 
-		expect(scope.remotion_cancelledError).toContain(
-			'was called but not cleared after 0ms',
-		);
+		// With explicit timeout of 1000ms, the render should NOT be cancelled after 10ms
+		expect(scope.remotion_cancelledError).toBeUndefined();
 	});
 });
