@@ -167,6 +167,7 @@ export type TranscriptionModalState = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		premountFor: number | null;
 	} | null;
 };
 

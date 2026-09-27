@@ -9,6 +9,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 	type InteractiveBaseProps,
+	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
@@ -16,6 +17,7 @@ import {
 } from 'remotion';
 
 type BasicCaptionsProps = InteractiveBaseProps &
+	InteractivePremountProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'from' | 'durationInFrames' | 'trimBefore' | 'width' | 'height'> & {
 		readonly captions: Caption[];
@@ -79,6 +81,7 @@ const BasicCaptionsContent: React.FC<{
 const basicCaptionsSchema = {
 	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
+	...Interactive.premountSchema,
 	width: {
 		type: 'number',
 		min: 1,
@@ -124,7 +127,6 @@ const BasicCaptionsInner: React.FC<
 }) => {
 	return (
 		<Sequence
-			layout="none"
 			{...interactiveProps}
 			controls={controls}
 			name={name ?? 'Basic captions'}

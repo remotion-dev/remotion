@@ -73,6 +73,7 @@ export const Comp = () => (
 					nodePath: lineContainingToNodePath(current, tag),
 					captions,
 					durationInFrames,
+					premountFor: 30,
 				},
 				entryPoint,
 				remotionRoot,
@@ -142,6 +143,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 			},
 		],
 		durationInFrames: 30,
+		premountFor: 30,
 	});
 
 	expect(output).toContain('<>');
@@ -184,6 +186,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 		nodePath: lineContainingToNodePath(input, '<Audio'),
 		captions,
 		durationInFrames: 30,
+		premountFor: 30,
 		importPath: localElement.importPath,
 	});
 	const second = insertBasicCaptions({
@@ -191,6 +194,7 @@ export const Comp = () => <Audio src="voice.mp3" />;`;
 		nodePath: lineContainingToNodePath(first.output, '<Audio'),
 		captions,
 		durationInFrames: 30,
+		premountFor: 30,
 		importPath: localElement.importPath,
 	});
 	expect(second.output.match(/<BasicCaptions captions/g)).toHaveLength(2);

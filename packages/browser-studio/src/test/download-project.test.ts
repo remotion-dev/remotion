@@ -39,6 +39,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 			position: null,
 		},
 		from: null,
+		premountFor: null,
 	});
 	expect(insertResult.success).toBe(true);
 

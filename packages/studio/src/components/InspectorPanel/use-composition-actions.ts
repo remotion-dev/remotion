@@ -75,7 +75,7 @@ export const useCompositionActions = () => {
 		currentCompositionId !== null &&
 		compositionFile !== null;
 	const canInsertAsset = canShowInsertAsset && !isAddingAsset;
-	const canShowInsertComposition = canShowInsertAsset;
+	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
 		previewInteractive &&
@@ -99,6 +99,7 @@ export const useCompositionActions = () => {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
+				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -218,7 +219,8 @@ export const useCompositionActions = () => {
 			if (
 				!canInsertComposition ||
 				currentCompositionId === null ||
-				compositionFile === null
+				compositionFile === null ||
+				videoConfig === null
 			) {
 				return;
 			}
@@ -244,6 +246,7 @@ export const useCompositionActions = () => {
 					compositionFile,
 					compositionId: currentCompositionId,
 					dropPosition: null,
+					fps: videoConfig.fps,
 					from: null,
 					preferCompositionStart: null,
 				});
@@ -263,6 +266,7 @@ export const useCompositionActions = () => {
 			canInsertComposition,
 			compositionFile,
 			currentCompositionId,
+			videoConfig,
 		],
 	);
 

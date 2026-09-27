@@ -4,13 +4,25 @@ import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {
-	insertJsxElementIntoComposition,
+	insertJsxElementIntoComposition as insertJsxElementIntoCompositionInternal,
 	resolveCompositionComponent,
 } from '../helpers/resolve-composition-component';
 import {insertCompositionElementHandler} from '../preview-server/routes/insert-composition-element';
 import {lineContainingToNodePath} from './test-utils';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
+
+const insertJsxElementIntoComposition = (
+	input: Omit<
+		Parameters<typeof insertJsxElementIntoCompositionInternal>[0],
+		'premountFor'
+	> & {premountFor?: number | null},
+) => {
+	return insertJsxElementIntoCompositionInternal({
+		...input,
+		premountFor: input.premountFor ?? null,
+	});
+};
 
 test('resolves a statically imported composition component', async () => {
 	const location = await resolveCompositionComponent({
@@ -2010,6 +2022,7 @@ test('rejects inserting a composition whose component is not exported', async ()
 					position: null,
 				},
 				from: null,
+				premountFor: null,
 			},
 			entryPoint: path.join(tempDir, 'Root.tsx'),
 			remotionRoot: tempDir,
@@ -2204,6 +2217,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 					position: null,
 				},
 				from: null,
+				premountFor: null,
 			},
 			entryPoint: path.join(tempDir, 'Root.tsx'),
 			remotionRoot: tempDir,
