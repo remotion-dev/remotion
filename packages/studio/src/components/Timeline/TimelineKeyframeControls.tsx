@@ -23,6 +23,7 @@ import {
 	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {ActionTooltip} from '../ActionTooltip';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {
 	callAddKeyframes,
@@ -844,6 +845,9 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const diamondColor = hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT;
+	const toggleKeyframeLabel = hasKeyframeAtCurrentFrame
+		? 'Remove keyframe'
+		: 'Add keyframe';
 
 	return (
 		<div
@@ -853,41 +857,66 @@ export const TimelineKeyframeControls: React.FC<{
 					: controlsContainerStyle
 			}
 		>
-			<button
-				type="button"
-				style={previousStyle}
-				disabled={previousDisabled}
-				onPointerDown={previousDisabled ? undefined : onPrevious}
-				aria-label="Go to previous keyframe"
+			<ActionTooltip
+				label="Previous keyframe"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+				triggerStyle={{
+					visibility: showNavigationButtons ? 'visible' : 'hidden',
+				}}
 			>
-				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
-					<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
-				</svg>
-			</button>
-			<button
-				type="button"
-				style={diamondStyle}
-				disabled={!canToggleKeyframe || !clientId}
-				onPointerDown={
-					canToggleKeyframe && clientId ? onToggleKeyframe : undefined
-				}
-				aria-label={
-					hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'
-				}
+				<button
+					type="button"
+					style={previousStyle}
+					disabled={previousDisabled}
+					onPointerDown={previousDisabled ? undefined : onPrevious}
+					aria-label="Previous keyframe"
+				>
+					<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
+						<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
+					</svg>
+				</button>
+			</ActionTooltip>
+			<ActionTooltip
+				label={toggleKeyframeLabel}
+				shortcut={null}
+				delay={800}
+				dismissOnClick
 			>
-				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
-			</button>
-			<button
-				type="button"
-				style={nextStyle}
-				disabled={nextDisabled}
-				onPointerDown={nextDisabled ? undefined : onNext}
-				aria-label="Go to next keyframe"
+				<button
+					type="button"
+					style={diamondStyle}
+					disabled={!canToggleKeyframe || !clientId}
+					onPointerDown={
+						canToggleKeyframe && clientId ? onToggleKeyframe : undefined
+					}
+					aria-label={toggleKeyframeLabel}
+				>
+					<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
+				</button>
+			</ActionTooltip>
+			<ActionTooltip
+				label="Next keyframe"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+				triggerStyle={{
+					visibility: showNavigationButtons ? 'visible' : 'hidden',
+				}}
 			>
-				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
-					<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />
-				</svg>
-			</button>
+				<button
+					type="button"
+					style={nextStyle}
+					disabled={nextDisabled}
+					onPointerDown={nextDisabled ? undefined : onNext}
+					aria-label="Next keyframe"
+				>
+					<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
+						<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />
+					</svg>
+				</button>
+			</ActionTooltip>
 		</div>
 	);
 };
