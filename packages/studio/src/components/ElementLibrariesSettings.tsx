@@ -1,7 +1,9 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {BookIcon} from '../icons/book';
 import {BrowseElementsIcon} from '../icons/browse-elements';
+import {LinkIcon} from '../icons/link';
 import {TrashIcon} from '../icons/trash';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
@@ -42,6 +44,18 @@ const addLibraryActions: React.CSSProperties = {
 	display: 'flex',
 	gap: 8,
 	padding: '4px 16px',
+};
+
+const addLibraryButtonContent: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	gap: 6,
+};
+
+const addLibraryButtonIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 12,
+	width: 12,
 };
 
 const libraryRow: React.CSSProperties = {
@@ -287,10 +301,28 @@ export const ElementLibrariesSettings: React.FC = () => {
 			</div>
 			<h3 style={addLibraryHeading}>Add new library</h3>
 			<div style={addLibraryActions}>
-				<Button onClick={discoverThirdPartyElements} size="compact">
+				<Button
+					onClick={discoverThirdPartyElements}
+					size="compact"
+					buttonContainerStyle={addLibraryButtonContent}
+				>
+					<BookIcon
+						aria-hidden
+						color={CURRENT_COLOR}
+						style={addLibraryButtonIcon}
+					/>
 					Explore libraries
 				</Button>
-				<Button onClick={() => setIsAddByUrlVisible(true)} size="compact">
+				<Button
+					onClick={() => setIsAddByUrlVisible(true)}
+					size="compact"
+					buttonContainerStyle={addLibraryButtonContent}
+				>
+					<LinkIcon
+						aria-hidden
+						color={CURRENT_COLOR}
+						style={addLibraryButtonIcon}
+					/>
 					Add by URL
 				</Button>
 			</div>
