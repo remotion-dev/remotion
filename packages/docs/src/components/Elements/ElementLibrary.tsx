@@ -10,6 +10,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
@@ -21,7 +22,6 @@ import {
 	type ElementCategory,
 } from './element-library-data';
 import {ELEMENT_PREVIEW_BACKGROUND} from './ElementPreviewComposition';
-import {InlineStudioButton} from './InlineStudioButton';
 import styles from './ElementLibrary.module.css';
 
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
@@ -220,15 +220,17 @@ const ElementCard: React.FC<{
 				</div>
 			</a>
 			<div aria-live="polite" className={styles.installAction}>
-				<InlineStudioButton
+				<BlueButton
 					aria-label={`${installButtonLabel} – ${definition.displayName}`}
-					icon={null}
+					fullWidth={false}
 					loading={isInstalling}
 					onClick={installElement}
+					size="sm"
+					style={{padding: '5px 8px'}}
 					title="Install in the most recently focused Remotion Studio"
 				>
 					{installButtonLabel}
-				</InlineStudioButton>
+				</BlueButton>
 			</div>
 		</li>
 	);

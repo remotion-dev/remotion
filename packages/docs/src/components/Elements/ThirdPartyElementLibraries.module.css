@@ -91,6 +91,11 @@
 	outline-offset: -2px;
 }
 
+.addAction {
+	position: relative;
+	z-index: 1;
+}
+
 .loadingStatus,
 .successStatus,
 .errorStatus {

@@ -31,7 +31,7 @@
 .installAction {
 	position: absolute;
 	top: calc(100cqi * 9 / 16 - 12px);
-	left: 12px;
+	right: 12px;
 	transform: translateY(calc(-100% + 16px));
 	font-size: 0.75rem;
 	line-height: 1.25;

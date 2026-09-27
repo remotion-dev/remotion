@@ -3,7 +3,7 @@ import {
 	type AddElementLibraryToStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {useCallback, useId, useState} from 'react';
-import {InlineStudioButton} from './InlineStudioButton';
+import {BlueButton} from '../../../components/layout/Button';
 import {
 	thirdPartyElementLibraries,
 	type ThirdPartyElementLibrary,
@@ -109,16 +109,20 @@ const ThirdPartyElementLibraryItem: React.FC<{
 							{library.displayName}
 						</a>
 					</h3>
-					<InlineStudioButton
+					<BlueButton
+						aria-busy={isLoading}
 						aria-describedby={addState.type === 'idle' ? undefined : statusId}
 						aria-label={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						icon="+"
+						className={styles.addAction}
+						fullWidth={false}
 						loading={isLoading}
 						onClick={addToStudio}
+						size="sm"
+						style={{padding: '5px 8px'}}
 						title={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
@@ -126,7 +130,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 						}
 					>
 						Add to Studio
-					</InlineStudioButton>
+					</BlueButton>
 				</div>
 				{status}
 			</div>
