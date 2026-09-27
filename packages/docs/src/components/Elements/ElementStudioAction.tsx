@@ -51,9 +51,9 @@ export const ElementStudioAction: React.FC<{
 				<div
 					aria-label="Drag into Studio"
 					className={styles.dragHandle}
+					data-tooltip="Drag into Studio"
 					draggable
 					onDragStart={onDragStart}
-					title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
 				>
 					<span aria-hidden="true" className={styles.dragHandleIcon}>
 						⠿

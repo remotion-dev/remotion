@@ -13,6 +13,7 @@
 }
 
 .dragHandle {
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -27,6 +28,32 @@
 	color: white;
 	cursor: grab;
 	user-select: none;
+}
+
+.dragHandle::after {
+	position: absolute;
+	bottom: calc(100% + 4px);
+	right: 0;
+	z-index: 1;
+	max-width: calc(100vw - 16px);
+	padding: 6px 8px;
+	border-radius: 6px;
+	background: #15181b;
+	box-shadow: 0 -2px 8px rgb(0 0 0 / 50%);
+	color: rgb(255 255 255 / 90%);
+	content: attr(data-tooltip);
+	font-size: 12px;
+	line-height: 16px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0s linear 800ms;
+	visibility: hidden;
+	white-space: nowrap;
+}
+
+.dragHandle:hover::after {
+	opacity: 1;
+	visibility: visible;
 }
 
 .dragHandle:hover {
