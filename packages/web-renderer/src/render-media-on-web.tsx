@@ -329,6 +329,33 @@ const internalRenderMediaOnWeb = async <
 	const needsCrop =
 		encodedDimensions.width !== sourceDimensions.width ||
 		encodedDimensions.height !== sourceDimensions.height;
+	if (needsCrop && codec) {
+		const croppedPixelsOnRight =
+			sourceDimensions.width - encodedDimensions.width;
+		const croppedPixelsOnBottom =
+			sourceDimensions.height - encodedDimensions.height;
+		const croppedEdges = [
+			croppedPixelsOnRight > 0
+				? `${croppedPixelsOnRight} ${croppedPixelsOnRight === 1 ? 'pixel was' : 'pixels were'} removed from the right edge`
+				: null,
+			croppedPixelsOnBottom > 0
+				? `${croppedPixelsOnBottom} ${croppedPixelsOnBottom === 1 ? 'pixel was' : 'pixels were'} removed from the bottom edge`
+				: null,
+		].filter(Boolean);
+		const codecName =
+			codec === 'h264'
+				? 'H.264'
+				: codec === 'h265'
+					? 'H.265'
+					: codec === 'av1'
+						? 'AV1'
+						: codec.toUpperCase();
+		Internals.Log.warn(
+			{logLevel, tag: '@remotion/web-renderer'},
+			`The output was cropped from ${sourceDimensions.width}×${sourceDimensions.height} to ${encodedDimensions.width}×${encodedDimensions.height} because ${codecName} requires even dimensions. ${croppedEdges.join(' and ')}. Use even output dimensions to avoid cropping.`,
+		);
+	}
+
 	const realFrameRange = getRealFrameRange(
 		resolved.durationInFrames,
 		frameRange,
