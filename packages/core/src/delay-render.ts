@@ -85,7 +85,7 @@ export const delayRenderInternal = ({
 		const explicitTimeout = options?.timeoutInMilliseconds;
 		const timeoutToUse =
 			explicitTimeout !== undefined
-? Math.max(1, explicitTimeout)
+				? Math.max(1, explicitTimeout)
 				: Math.max(
 						0,
 						(scope.remotion_puppeteerTimeout ?? defaultTimeout) - 2000,
