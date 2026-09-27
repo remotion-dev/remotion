@@ -24,13 +24,23 @@ export const ElementStudioAction: React.FC<{
 	showDragHandle,
 	title,
 }) => {
+	const onDragStart = (event: React.DragEvent<HTMLElement>) => {
+		setStudioDragData({
+			dataTransfer: event.dataTransfer,
+			payload,
+		});
+		setElementDragImage(event.dataTransfer, posterRef.current);
+	};
+
 	return (
 		<div className={styles.studioAction}>
 			<BlueButton
 				className={showDragHandle ? styles.buttonWithDragHandle : undefined}
+				draggable={showDragHandle}
 				fullWidth
 				loading={loading}
 				onClick={onClick}
+				onDragStart={showDragHandle ? onDragStart : undefined}
 				size="sm"
 				style={{padding: '7px 12px'}}
 				title={title}
@@ -42,13 +52,7 @@ export const ElementStudioAction: React.FC<{
 					aria-label="Drag into Studio"
 					className={styles.dragHandle}
 					draggable
-					onDragStart={(event) => {
-						setStudioDragData({
-							dataTransfer: event.dataTransfer,
-							payload,
-						});
-						setElementDragImage(event.dataTransfer, posterRef.current);
-					}}
+					onDragStart={onDragStart}
 					title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
 				>
 					<span aria-hidden="true" className={styles.dragHandleIcon}>
