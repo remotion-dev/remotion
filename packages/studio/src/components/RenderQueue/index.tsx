@@ -15,6 +15,7 @@ const errorExplanation: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
+	userSelect: 'none',
 };
 
 const explainer: React.CSSProperties = {

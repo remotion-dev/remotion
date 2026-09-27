@@ -29,6 +29,7 @@ const sourceContainer: React.CSSProperties = {
 
 const lineNumberColumn: React.CSSProperties = {
 	flexShrink: 0,
+	userSelect: 'none',
 	width: 60,
 };
 
