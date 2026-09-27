@@ -6,14 +6,17 @@ crumb: 'Remotion Studio'
 
 # Make a component interactive<AvailableFrom v="4.0.530" />
 
-Interactive components can be selected in the Remotion Studio timeline and can expose editable props.
+Interactive components can be selected and edited in the Remotion Studio.
 
-If you only need an editable HTML or SVG element, use [`Interactive`](/docs/interactive). For a custom component, wrap it with [`Interactive.withSchema()`](/docs/interactive-with-schema).
-For code that remains editable after visual changes, follow [Interactivity best practices](/docs/studio/interactivity-best-practices).
+Remotion's default components are already interactive.
+
+To make your component interactive too, wrap it with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+For guidance on how to structure markup well to keep it interactive, follow [Interactivity best practices](/docs/studio/interactivity-best-practices).
 
 ## Create the component
 
-The component only needs to render its content. It does not need to render a [`<Sequence>`](/docs/sequence) or accept internal control props.
+Create any component. Make sure it accepts `style`.
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
@@ -48,6 +51,8 @@ export const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', p
 
 An [`InteractivitySchema`](/docs/interactivity-schema) describes which component props the Studio may edit.
 
+[`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) is added automatically - it includes things like `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name` and `showInTimeline`.
+
 Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and applies it to the rendered element.
 
 ```tsx twoslash title="Badge.tsx"
@@ -71,11 +76,9 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-`Interactive.baseSchema` is added automatically when `wrapInSequence` is enabled.
-
 ### Caption fields<AvailableFrom v="4.0.500" />
 
-Add [`Interactive.captionsSchema`](/docs/interactive#interactivecaptionsschema) when the component accepts [`Caption[]`](/docs/captions/caption) data:
+Add [`Interactive.captionsSchema`](/docs/interactive#interactivecaptionsschema) when the component accepts [`captions: Caption[]`](/docs/captions/caption) data:
 
 ```ts twoslash title="Captions.tsx"
 import {Interactive, type InteractivitySchema} from 'remotion';
@@ -85,11 +88,11 @@ const captionsSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-Studio can edit caption text when the prop is a direct JSX array literal, such as `captions={[...]}`. Variables, imports, computed expressions, and `satisfies` expressions are read-only.
+Captions will become editable in the Studio.
 
-## Make the component interactive<AvailableFrom v="4.0.530" />
+## Turn on interactivity
 
-Pass `wrapInSequence: true` to add the timeline registration and timing behavior automatically:
+Call `Interactive.withSchema()` to link the schema to the component.
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
@@ -145,13 +148,32 @@ export const Badge = Interactive.withSchema({
 });
 ```
 
-The returned component accepts the component's own props and the common timing props from [`<Sequence>`](/docs/sequence), including `from`, `durationInFrames`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name` and `showInTimeline`.
+## Enable cropping<AvailableFrom v="4.0.530" />
 
-The wrapper uses `<Sequence layout="none">`, so Studio discovers the rendered element automatically.
+If your component accepts `style` and passes it through, you can make a component croppable using `wrapInSequence: {cropping: true}`.
 
-If the inner component supports a React ref, the returned component forwards refs directly to it.
+```tsx title="Badge.tsx"
+export const Badge = Interactive.withSchema({
+  Component: BadgeInner,
+  componentName: '<Badge>',
+  schema: badgeSchema,
+  wrapInSequence: {cropping: true},
+});
+```
+
+This adds [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and `crop*` props on the returned component.
+
+```tsx title="MyComp.tsx"
+<Badge cropLeft={0.2} cropBottom={0.1}>
+  Sale
+</Badge>
+```
 
 ## Use the component
+
+You can now use the component regularly.
+
+In the Studio, it will render an outline and its props become editable.
 
 ```tsx title="MyComp.tsx"
 import {AbsoluteFill} from 'remotion';
@@ -167,39 +189,6 @@ export const MyComp = () => {
   );
 };
 ```
-
-The component now has a timeline row, inherits the common `<Sequence>` props and exposes `color`, `padding` and transform controls in the Studio.
-
-## Enable cropping<AvailableFrom v="4.0.530" />
-
-If the component accepts a `style` prop and applies it to its visual root, pass `{cropping: true}` instead of `true`:
-
-```tsx title="Badge.tsx"
-export const Badge = Interactive.withSchema({
-  Component: BadgeInner,
-  componentName: '<Badge>',
-  schema: badgeSchema,
-  wrapInSequence: {cropping: true},
-});
-```
-
-This adds [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and exposes `cropLeft`, `cropRight`, `cropTop` and `cropBottom` on the returned component. Each value is a ratio from `0` to `1` of the corresponding width or height.
-
-```tsx title="MyComp.tsx"
-<Badge cropLeft={0.2} cropBottom={0.1}>
-  Sale
-</Badge>
-```
-
-The generated `<Sequence>` still uses `layout="none"`. The wrapper applies cropping by merging a CSS `clipPath` into the `style` passed to the component. While cropping is applied, this replaces an existing inline `style.clipPath`.
-
-## Manual wrapping
-
-Omit `wrapInSequence` when the component needs to render and configure its own `<Sequence>`, for example to support premounting, effects, cropping that cannot be applied to the visual root, or custom timeline behavior.
-
-In this advanced form, include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), accept the injected [`SequenceControls`](/docs/sequence#controls) prop and forward it unchanged to the component's `<Sequence>`. Also forward every prop represented by `Interactive.baseSchema` to that Sequence, and set `supportsEffects` to `true` or `false` in the `Interactive.withSchema()` options.
-
-For premounting, also include [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), accept [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) and forward those props to the Sequence. For cropping on an absolute-fill Sequence, include [`Interactive.cropSchema`](/docs/interactive#interactivecropschema), accept [`InteractiveCropProps`](/docs/interactive#interactivecropprops) and forward the crop props to the Sequence.
 
 ## See also
 
