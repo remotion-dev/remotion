@@ -165,7 +165,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			const {target} = result;
 			setInstallStatus({
 				type: 'success',
-				message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
+				message:
+					target.compositionId === null
+						? `Sent to ${target.projectName ?? 'Remotion Studio'}. Confirm the installation destination in Studio.`
+						: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
 			});
 		}
 
@@ -275,11 +278,17 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										onClick={installElement}
 										size="sm"
 										style={{padding: '7px 12px'}}
-										title="Install in the most recently focused Remotion Studio"
+										title={
+											isEmbeddedInStudio
+												? 'Use this Element in Studio'
+												: 'Install in the most recently focused Remotion Studio'
+										}
 									>
 										{installStatus.type === 'installing'
 											? 'Finding Studio…'
-											: 'Install in Studio'}
+											: isEmbeddedInStudio
+												? 'Use'
+												: 'Install in Studio'}
 									</BlueButton>
 									{isEmbeddedInStudio === false ? (
 										<div

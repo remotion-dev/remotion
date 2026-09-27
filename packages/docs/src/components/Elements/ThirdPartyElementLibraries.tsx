@@ -3,6 +3,7 @@ import {
 	type AddElementLibraryToStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {useCallback, useId, useState} from 'react';
+import {InlineStudioButton} from './InlineStudioButton';
 import {
 	thirdPartyElementLibraries,
 	type ThirdPartyElementLibrary,
@@ -108,36 +109,24 @@ const ThirdPartyElementLibraryItem: React.FC<{
 							{library.displayName}
 						</a>
 					</h3>
-					<button
+					<InlineStudioButton
 						aria-describedby={addState.type === 'idle' ? undefined : statusId}
 						aria-label={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						aria-busy={isLoading}
-						className={styles.addAction}
-						disabled={isLoading}
+						icon="+"
+						loading={isLoading}
 						onClick={addToStudio}
 						title={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						type="button"
 					>
-						{isLoading ? (
-							'…'
-						) : (
-							<>
-								<span aria-hidden="true" className={styles.addActionIcon}>
-									+
-								</span>
-								Add to Studio
-							</>
-						)}
-						<span aria-hidden="true" className={styles.touchTarget} />
-					</button>
+						Add to Studio
+					</InlineStudioButton>
 				</div>
 				{status}
 			</div>

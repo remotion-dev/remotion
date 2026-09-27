@@ -1190,8 +1190,8 @@ export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
 	createdAt: number;
-	compositionFile: string;
-	compositionId: string;
+	compositionFile: string | null;
+	compositionId: string | null;
 	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;

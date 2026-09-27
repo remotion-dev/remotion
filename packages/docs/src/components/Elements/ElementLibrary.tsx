@@ -1,6 +1,15 @@
-import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {BlueButton} from '../../../components/layout/Button';
+import {
+	installInStudio,
+	isInsideStudio,
+	setStudioDragData,
+} from '@remotion/studio-protocol';
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
@@ -12,6 +21,7 @@ import {
 	type ElementCategory,
 } from './element-library-data';
 import {ELEMENT_PREVIEW_BACKGROUND} from './ElementPreviewComposition';
+import {InlineStudioButton} from './InlineStudioButton';
 import styles from './ElementLibrary.module.css';
 
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
@@ -38,9 +48,10 @@ const usePrefersReducedMotion = () => {
 
 const ElementCard: React.FC<{
 	readonly definition: ElementDefinition;
+	readonly isEmbeddedInStudio: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCode: string;
-}> = ({definition, prefersReducedMotion, sourceCode}) => {
+}> = ({definition, isEmbeddedInStudio, prefersReducedMotion, sourceCode}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
@@ -124,7 +135,7 @@ const ElementCard: React.FC<{
 				return;
 			}
 
-			setWasSentToStudio(true);
+			setWasSentToStudio(!isEmbeddedInStudio);
 
 			if (window.location.origin === 'https://www.remotion.dev') {
 				navigator.sendBeacon(
@@ -144,10 +155,14 @@ const ElementCard: React.FC<{
 	};
 
 	const installButtonLabel = isInstalling
-		? 'Finding Studio…'
+		? isEmbeddedInStudio
+			? 'Using…'
+			: 'Finding Studio…'
 		: wasSentToStudio
 			? 'Sent to Studio'
-			: 'Install in Studio';
+			: isEmbeddedInStudio
+				? 'Use'
+				: 'Install in Studio';
 
 	return (
 		<li
@@ -205,17 +220,15 @@ const ElementCard: React.FC<{
 				</div>
 			</a>
 			<div aria-live="polite" className={styles.installAction}>
-				<BlueButton
+				<InlineStudioButton
 					aria-label={`${installButtonLabel} – ${definition.displayName}`}
-					fullWidth={false}
+					icon={null}
 					loading={isInstalling}
 					onClick={installElement}
-					size="sm"
-					style={{padding: '5px 8px'}}
 					title="Install in the most recently focused Remotion Studio"
 				>
 					{installButtonLabel}
-				</BlueButton>
+				</InlineStudioButton>
 			</div>
 		</li>
 	);
@@ -223,9 +236,15 @@ const ElementCard: React.FC<{
 
 const ElementGrid: React.FC<{
 	readonly definitions: readonly ElementDefinition[];
+	readonly isEmbeddedInStudio: boolean;
 	readonly prefersReducedMotion: boolean;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
-}> = ({definitions, prefersReducedMotion, sourceCodeBySlug}) => {
+}> = ({
+	definitions,
+	isEmbeddedInStudio,
+	prefersReducedMotion,
+	sourceCodeBySlug,
+}) => {
 	return (
 		// The Algolia recordExtractor must remove this subtree before extracting records.
 		// This marker requires explicit crawler configuration; it is not built in.
@@ -246,6 +265,7 @@ const ElementGrid: React.FC<{
 					<ElementCard
 						key={definition.slug}
 						definition={definition}
+						isEmbeddedInStudio={isEmbeddedInStudio}
 						prefersReducedMotion={prefersReducedMotion}
 						sourceCode={sourceCode}
 					/>
@@ -261,6 +281,11 @@ export const ElementLibrary: React.FC<{
 }> = ({category, sourceCodeBySlug}) => {
 	const sections = getElementLibrarySections(category);
 	const prefersReducedMotion = usePrefersReducedMotion();
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
 
 	return (
 		<div className={styles.library}>
@@ -274,6 +299,7 @@ export const ElementLibrary: React.FC<{
 						>
 							<ElementGrid
 								definitions={section.definitions}
+								isEmbeddedInStudio={isEmbeddedInStudio}
 								prefersReducedMotion={prefersReducedMotion}
 								sourceCodeBySlug={sourceCodeBySlug}
 							/>
@@ -294,6 +320,7 @@ export const ElementLibrary: React.FC<{
 						</h2>
 						<ElementGrid
 							definitions={section.definitions}
+							isEmbeddedInStudio={isEmbeddedInStudio}
 							prefersReducedMotion={prefersReducedMotion}
 							sourceCodeBySlug={sourceCodeBySlug}
 						/>
