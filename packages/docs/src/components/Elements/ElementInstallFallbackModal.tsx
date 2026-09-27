@@ -101,7 +101,7 @@ export const ElementInstallFallbackModal: React.FC<{
 				</p>
 				<div className={styles.installAction}>
 					<ElementStudioAction
-						buttonLabel="Install"
+						buttonLabel={installFailureCount > 1 ? 'Oops!' : 'Install'}
 						loading={isInstalling}
 						onClick={onInstall}
 						payload={payload}
