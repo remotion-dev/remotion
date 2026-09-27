@@ -43,7 +43,7 @@ const addLibraryHeading: React.CSSProperties = {
 const addLibraryActions: React.CSSProperties = {
 	display: 'flex',
 	gap: 8,
-	padding: '4px 16px 4px 8px',
+	padding: '4px 16px 4px 6px',
 };
 
 const addLibraryButtonContent: React.CSSProperties = {
@@ -54,8 +54,8 @@ const addLibraryButtonContent: React.CSSProperties = {
 
 const addLibraryButtonIcon: React.CSSProperties = {
 	flexShrink: 0,
-	height: 12,
-	width: 12,
+	height: 14,
+	width: 14,
 };
 
 const libraryRow: React.CSSProperties = {
@@ -303,7 +303,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 			<div style={addLibraryActions}>
 				<Button
 					onClick={discoverThirdPartyElements}
-					size="compact"
+					size="default"
 					buttonContainerStyle={addLibraryButtonContent}
 				>
 					<BookIcon
@@ -315,7 +315,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 				</Button>
 				<Button
 					onClick={() => setIsAddByUrlVisible(true)}
-					size="compact"
+					size="default"
 					buttonContainerStyle={addLibraryButtonContent}
 				>
 					<LinkIcon
