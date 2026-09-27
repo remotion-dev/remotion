@@ -1,4 +1,9 @@
-import React, {useLayoutEffect, useRef} from 'react';
+import React, {useCallback, useContext, useLayoutEffect, useRef} from 'react';
+import {GearIcon} from '../icons/gear';
+import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
+import type {RenderInlineAction} from './InlineAction';
+import {InlineAction} from './InlineAction';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -24,6 +29,19 @@ export const ElementLibraryModal: React.FC<{
 	readonly url: string;
 }> = ({name, url}) => {
 	const iframeRef = useRef<HTMLIFrameElement>(null);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const openElementSettings = useCallback(() => {
+		setSelectedModal({
+			type: 'settings',
+			initialStudioPane: 'elements',
+			initialTab: 'studio',
+			initialPublicLicenseKey:
+				window.remotion_renderDefaults?.publicLicenseKey ?? null,
+		});
+	}, [setSelectedModal]);
+	const renderGearIcon: RenderInlineAction = useCallback((color) => {
+		return <GearIcon color={color} height={16} width={16} />;
+	}, []);
 
 	useLayoutEffect(() => {
 		const iframe = iframeRef.current;
@@ -42,7 +60,24 @@ export const ElementLibraryModal: React.FC<{
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
-			<ModalHeader title={name} />
+			<ModalHeader
+				title={name}
+				rightAction={
+					<ActionTooltip
+						label="Configure Element Libraries"
+						shortcut={null}
+						delay={800}
+						dismissOnClick
+					>
+						<InlineAction
+							aria-label="Configure Element Libraries"
+							onClick={openElementSettings}
+							renderAction={renderGearIcon}
+							variant={null}
+						/>
+					</ActionTooltip>
+				}
+			/>
 			<iframe
 				ref={iframeRef}
 				allow="local-network-access; loopback-network"

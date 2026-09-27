@@ -1,6 +1,7 @@
 import {
 	addElementLibraryToStudioWithDependencies,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeAddElementLibraryRequest,
 } from './add-element-library-to-studio';
 import {
 	makeBrowserStudioUrl,
@@ -128,6 +129,7 @@ export const StudioProtocolInternals = {
 	parseDragData,
 	parseStudioElementPayload,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeAddElementLibraryRequest,
 	parseStudioProtocolIframeInstallRequest,
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,

@@ -1,4 +1,8 @@
-import React, {useContext, useEffect} from 'react';
+import {
+	StudioProtocolInternals,
+	type AddElementLibraryToStudioResult,
+} from '@remotion/studio-protocol';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
@@ -49,6 +53,66 @@ export const Modals: React.FC<{
 	const canRender = previewServerState.type === 'connected';
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const confirm = useConfirmationDialog();
+	const requestElementLibraryAddition = useCallback(
+		async ({
+			displayName,
+			origin,
+			url,
+		}: {
+			readonly displayName: string | null;
+			readonly origin: string;
+			readonly url: string;
+		}) => {
+			const confirmed = await confirm({
+				title: 'Add Element Library',
+				message: (
+					<ElementLibraryAddConfirmation
+						displayName={displayName}
+						origin={origin}
+						url={url}
+					/>
+				),
+				confirmLabel: 'Add Element Library',
+				cancelLabel: 'Cancel',
+			});
+			if (!confirmed) {
+				return;
+			}
+
+			if (previewServerState.type !== 'connected') {
+				showNotification(
+					'Could not add Element Library: Studio disconnected',
+					4000,
+				);
+				return;
+			}
+
+			try {
+				const result = await callApi('/api/update-config', {
+					clientId: previewServerState.clientId,
+					updates: [
+						{
+							setter: 'addElementLibrary',
+							type: 'set',
+							value: displayName === null ? {url} : {url, displayName},
+						},
+					],
+				});
+				if (!result.success) {
+					showNotification(
+						`Could not add Element Library: ${result.reason}`,
+						4000,
+					);
+				}
+			} catch (error) {
+				showNotification(
+					`Could not add Element Library: ${(error as Error).message}`,
+					4000,
+				);
+			}
+		},
+		[confirm, previewServerState],
+	);
 
 	useEffect(() => {
 		if (isBrowserStudio) {
@@ -62,6 +126,7 @@ export const Modals: React.FC<{
 
 			setSelectedModal({
 				type: 'settings',
+				initialStudioPane: null,
 				initialTab: 'license',
 				initialPublicLicenseKey: event.licenseKey,
 			});
@@ -78,60 +143,103 @@ export const Modals: React.FC<{
 				return;
 			}
 
-			(async () => {
-				const confirmed = await confirm({
-					title: 'Add Element Library',
-					message: (
-						<ElementLibraryAddConfirmation
-							displayName={event.displayName}
-							origin={event.origin}
-							url={event.url}
-						/>
-					),
-					confirmLabel: 'Add Element Library',
-					cancelLabel: 'Cancel',
-				});
-				if (!confirmed) {
-					return;
-				}
-
-				if (previewServerState.type !== 'connected') {
-					showNotification(
-						'Could not add Element Library: Studio disconnected',
-						4000,
-					);
-					return;
-				}
-
-				try {
-					const result = await callApi('/api/update-config', {
-						clientId: previewServerState.clientId,
-						updates: [
-							{
-								setter: 'addElementLibrary',
-								type: 'set',
-								value:
-									event.displayName === null
-										? {url: event.url}
-										: {url: event.url, displayName: event.displayName},
-							},
-						],
-					});
-					if (!result.success) {
-						showNotification(
-							`Could not add Element Library: ${result.reason}`,
-							4000,
-						);
-					}
-				} catch (error) {
-					showNotification(
-						`Could not add Element Library: ${(error as Error).message}`,
-						4000,
-					);
-				}
-			})();
+			requestElementLibraryAddition(event);
 		});
-	}, [confirm, isBrowserStudio, previewServerState, subscribeToEvent]);
+	}, [isBrowserStudio, requestElementLibraryAddition, subscribeToEvent]);
+
+	useEffect(() => {
+		if (isBrowserStudio) {
+			return;
+		}
+
+		const onMessage = (event: MessageEvent) => {
+			const elementLibrary = document.querySelector<HTMLIFrameElement>(
+				'iframe[data-remotion-element-library]',
+			);
+			if (
+				event.source !== elementLibrary?.contentWindow ||
+				!StudioProtocolInternals.isAllowedStudioProtocolPageOrigin(event.origin)
+			) {
+				return;
+			}
+
+			const request =
+				StudioProtocolInternals.parseStudioProtocolIframeAddElementLibraryRequest(
+					event.data,
+				);
+			const responsePort = event.ports[0];
+			if (request === null || responsePort === undefined) {
+				return;
+			}
+
+			let normalizedUrl: string | null = null;
+			try {
+				const parsedUrl = new URL(request.url);
+				if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+					normalizedUrl = parsedUrl.href;
+				}
+			} catch {
+				// The response below explains that the URL is invalid.
+			}
+
+			const displayName = request.displayName?.trim() ?? null;
+			const canAddLibrary =
+				previewServerState.type === 'connected' && !readOnlyStudio;
+			const result: AddElementLibraryToStudioResult =
+				normalizedUrl === null
+					? {
+							success: false,
+							code: 'invalid-url',
+							message:
+								'The Element Library URL must be an absolute HTTP or HTTPS URL.',
+						}
+					: displayName === ''
+						? {
+								success: false,
+								code: 'invalid-display-name',
+								message: 'The Element Library display name must not be empty.',
+							}
+						: !canAddLibrary
+							? {
+									success: false,
+									code: 'no-configurable-target',
+									message:
+										'Focus a writable Remotion Studio tab, then try again.',
+								}
+							: {
+									success: true,
+									status: 'awaiting-confirmation',
+									target: {
+										projectName: window.remotion_projectName,
+										studioOrigin: window.location.origin,
+										studioVersion: window.remotion_version,
+									},
+								};
+
+			const timeout = window.setTimeout(() => responsePort.close(), 1000);
+			responsePort.onmessage = () => {
+				window.clearTimeout(timeout);
+				responsePort.close();
+				if (result.success && normalizedUrl !== null) {
+					requestElementLibraryAddition({
+						displayName,
+						origin: event.origin,
+						url: normalizedUrl,
+					});
+				}
+			};
+
+			responsePort.postMessage(result);
+		};
+
+		window.addEventListener('message', onMessage);
+		return () => window.removeEventListener('message', onMessage);
+	}, [
+		isBrowserStudio,
+		previewServerState.type,
+		readOnlyStudio,
+		requestElementLibraryAddition,
+	]);
 
 	return (
 		<>
@@ -183,7 +291,8 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'settings' ? (
 				<SettingsModal
-					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+					key={`${modalContextType.initialTab}-${modalContextType.initialStudioPane}-${modalContextType.initialPublicLicenseKey}`}
+					initialStudioPane={modalContextType.initialStudioPane}
 					initialTab={modalContextType.initialTab}
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>

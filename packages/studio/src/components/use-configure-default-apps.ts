@@ -9,6 +9,7 @@ export const useConfigureDefaultApps = (): (() => void) | null => {
 	const configureDefaultApps = useCallback(() => {
 		setSelectedModal({
 			type: 'settings',
+			initialStudioPane: null,
 			initialTab: 'apps',
 			initialPublicLicenseKey:
 				window.remotion_renderDefaults?.publicLicenseKey ?? null,

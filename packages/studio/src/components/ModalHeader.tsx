@@ -28,9 +28,10 @@ const icon: React.CSSProperties = {
 };
 
 export const ModalHeader: React.FC<{
+	readonly rightAction?: React.ReactNode;
 	readonly title: string;
 	readonly onClose?: () => void;
-}> = ({title, onClose}) => {
+}> = ({rightAction, title, onClose}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const onPress = useCallback(() => {
@@ -41,6 +42,7 @@ export const ModalHeader: React.FC<{
 		<div style={container}>
 			<div style={titleStyle}>{title}</div>
 			<Flex />
+			{rightAction}
 			<CancelButton style={icon} onPress={onClose ?? onPress} />
 		</div>
 	);

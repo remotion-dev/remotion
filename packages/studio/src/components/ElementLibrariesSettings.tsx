@@ -3,6 +3,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {BrowseElementsIcon} from '../icons/browse-elements';
 import {TrashIcon} from '../icons/trash';
+import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
 import {callApi} from './call-api';
@@ -14,6 +15,7 @@ import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
 const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
+const THIRD_PARTY_ELEMENTS_URL = 'https://www.remotion.dev/elements/libraries';
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
@@ -34,6 +36,11 @@ const addLibraryHeading: React.CSSProperties = {
 	...sectionHeader,
 	margin: '12px 0 0',
 	padding: '4px 16px',
+};
+
+const discoverLibrariesRow: React.CSSProperties = {
+	display: 'flex',
+	padding: '0 16px 12px',
 };
 
 const libraryRow: React.CSSProperties = {
@@ -99,6 +106,7 @@ const trashIcon: React.CSSProperties = {
 };
 
 export const ElementLibrariesSettings: React.FC = () => {
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {studioRuntimeConfig} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [url, setUrl] = useState('');
@@ -191,12 +199,24 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const renderTrash = useCallback((color: string) => {
 		return <TrashIcon color={color} style={trashIcon} />;
 	}, []);
+	const discoverThirdPartyElements = useCallback(() => {
+		setSelectedModal({
+			type: 'element-library',
+			name: 'Third-party Elements',
+			url: THIRD_PARTY_ELEMENTS_URL,
+		});
+	}, [setSelectedModal]);
 
 	return (
 		<section style={container}>
 			<p style={description}>
 				Add libraries to browse their elements in Studio.
 			</p>
+			<div style={discoverLibrariesRow}>
+				<Button onClick={discoverThirdPartyElements} size="compact">
+					Discover third-party Elements
+				</Button>
+			</div>
 			<div role="list" aria-label="Element Libraries">
 				<div role="listitem" style={libraryRow}>
 					<BrowseElementsIcon
