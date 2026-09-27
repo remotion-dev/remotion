@@ -64,8 +64,63 @@
 }
 
 .installAction {
-	width: min(100%, 260px);
+	display: flex;
+	width: 100%;
+	align-items: center;
+	gap: 14px;
 	margin-top: 20px;
+}
+
+.installAction > :first-child {
+	width: min(260px, calc(100% - 128px));
+	flex: none;
+}
+
+.dragCallout {
+	display: flex;
+	min-width: 0;
+	align-items: center;
+	color: var(--text-color);
+	pointer-events: none;
+}
+
+.dragCalloutLine {
+	display: block;
+	width: 46px;
+	height: 22px;
+	flex: none;
+}
+
+.dragCalloutLabel {
+	width: 68px;
+	font-family: 'GTPlanar';
+	font-size: 15px;
+	line-height: 1.15;
+}
+
+.dragCalloutWiggle {
+	animation: drag-callout-wiggle 400ms ease-in-out;
+}
+
+@keyframes drag-callout-wiggle {
+	0%,
+	100% {
+		transform: translateX(0) rotate(0deg);
+	}
+
+	25% {
+		transform: translateX(-3px) rotate(-2deg);
+	}
+
+	75% {
+		transform: translateX(3px) rotate(2deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dragCalloutWiggle {
+		animation: none;
+	}
 }
 
 .hint,

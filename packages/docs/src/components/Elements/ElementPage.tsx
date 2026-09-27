@@ -46,6 +46,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		type: 'idle',
 	});
 	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
+	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
@@ -144,11 +145,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			});
 			if (!result.success) {
 				setInstallStatus({type: 'idle'});
+				setInstallFailureCount((count) => count + 1);
 				setIsInstallFallbackOpen(true);
 				return;
 			}
 
 			setIsInstallFallbackOpen(false);
+			setInstallFailureCount(0);
 			if (isEmbeddedInStudio) {
 				setInstallStatus({type: 'idle'});
 			} else {
@@ -162,6 +165,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			}
 		} catch {
 			setInstallStatus({type: 'idle'});
+			setInstallFailureCount((count) => count + 1);
 			setIsInstallFallbackOpen(true);
 		}
 	}, [assetPayload, definition.slug, elementPayload, isEmbeddedInStudio]);
@@ -261,7 +265,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									onClick={installElement}
 									payload={elementPayload}
 									posterRef={posterRef}
-									showDragCallout
 									showDragHandle={isEmbeddedInStudio === false}
 									title={
 										isEmbeddedInStudio
@@ -372,9 +375,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			</aside>
 			{elementPayload === null || sourceCode === undefined ? null : (
 				<ElementInstallFallbackModal
+					installFailureCount={installFailureCount}
 					isInstalling={installStatus.type === 'installing'}
 					isOpen={isInstallFallbackOpen}
-					onClose={() => setIsInstallFallbackOpen(false)}
+					onClose={() => {
+						setIsInstallFallbackOpen(false);
+						setInstallFailureCount(0);
+					}}
 					onInstall={installElement}
 					payload={elementPayload}
 					posterRef={posterRef}

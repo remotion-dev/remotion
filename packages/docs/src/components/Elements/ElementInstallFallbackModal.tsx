@@ -5,6 +5,7 @@ import {ElementStudioAction} from './ElementStudioAction';
 import styles from './ElementInstallFallbackModal.module.css';
 
 export const ElementInstallFallbackModal: React.FC<{
+	readonly installFailureCount: number;
 	readonly isInstalling: boolean;
 	readonly isOpen: boolean;
 	readonly onClose: () => void;
@@ -13,6 +14,7 @@ export const ElementInstallFallbackModal: React.FC<{
 	readonly posterRef: RefObject<HTMLImageElement | null>;
 	readonly sourceCode: string;
 }> = ({
+	installFailureCount,
 	isInstalling,
 	isOpen,
 	onClose,
@@ -66,6 +68,10 @@ export const ElementInstallFallbackModal: React.FC<{
 				onClose();
 			}}
 			onClick={(event) => {
+				if (event.target !== event.currentTarget) {
+					return;
+				}
+
 				const bounds = event.currentTarget.getBoundingClientRect();
 				const clickedOutside =
 					event.clientX < bounds.left ||
@@ -100,10 +106,37 @@ export const ElementInstallFallbackModal: React.FC<{
 						onClick={onInstall}
 						payload={payload}
 						posterRef={posterRef}
-						showDragCallout={false}
 						showDragHandle
 						title="Install in the most recently focused Remotion Studio"
 					/>
+					{installFailureCount > 0 ? (
+						<div
+							key={installFailureCount}
+							aria-hidden="true"
+							className={`${styles.dragCallout} ${
+								installFailureCount > 1 ? styles.dragCalloutWiggle : ''
+							}`}
+						>
+							<svg
+								className={styles.dragCalloutLine}
+								fill="none"
+								viewBox="0 0 160 77"
+							>
+								<path
+									d="M5 154.5C51 121 79 81 69 5"
+									stroke="currentColor"
+									strokeLinecap="round"
+									strokeWidth="11"
+									transform="matrix(0 -1 1 0 0 77)"
+								/>
+							</svg>
+							<span className={styles.dragCalloutLabel}>
+								Drag into
+								<br />
+								Studio
+							</span>
+						</div>
+					) : null}
 				</div>
 				<p className={styles.hint}>
 					Not working? Drag the button into your Studio instead.

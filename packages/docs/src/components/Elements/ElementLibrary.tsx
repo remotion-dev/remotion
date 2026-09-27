@@ -47,6 +47,7 @@ const ElementCard: React.FC<{
 	const [playbackFailed, setPlaybackFailed] = useState(false);
 	const [isInstalling, setIsInstalling] = useState(false);
 	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
+	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
@@ -110,17 +111,20 @@ const ElementCard: React.FC<{
 				fallbackPayload: assetPayload === null ? undefined : elementPayload,
 			});
 			if (!result.success) {
+				setInstallFailureCount((count) => count + 1);
 				setIsInstallFallbackOpen(true);
 				return;
 			}
 
 			setIsInstallFallbackOpen(false);
+			setInstallFailureCount(0);
 			if (window.location.origin === 'https://www.remotion.dev') {
 				navigator.sendBeacon(
 					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
 				);
 			}
 		} catch {
+			setInstallFailureCount((count) => count + 1);
 			setIsInstallFallbackOpen(true);
 		} finally {
 			setIsInstalling(false);
@@ -196,9 +200,13 @@ const ElementCard: React.FC<{
 				</BlueButton>
 			</div>
 			<ElementInstallFallbackModal
+				installFailureCount={installFailureCount}
 				isInstalling={isInstalling}
 				isOpen={isInstallFallbackOpen}
-				onClose={() => setIsInstallFallbackOpen(false)}
+				onClose={() => {
+					setIsInstallFallbackOpen(false);
+					setInstallFailureCount(0);
+				}}
 				onInstall={installElement}
 				payload={elementPayload}
 				posterRef={posterRef}
