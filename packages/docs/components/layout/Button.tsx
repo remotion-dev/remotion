@@ -44,11 +44,7 @@ export const Button: React.FC<Props> = (props) => {
 	return (
 		<button
 			type="button"
-			className={
-				className
-					? `${styles.buttoncontainer} ${className}`
-					: styles.buttoncontainer
-			}
+			className={`${styles.buttoncontainer} ${size === 'sm' ? styles.buttonSmall : ''}${className ? ` ${className}` : ''}`}
 			disabled={actualDisabled}
 			{...other}
 			aria-busy={loading}

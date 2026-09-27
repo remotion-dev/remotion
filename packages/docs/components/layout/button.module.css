@@ -37,6 +37,12 @@
 	height: 20px;
 }
 
+.buttonSmall .spinner {
+	width: 14px;
+	height: 14px;
+	opacity: 0.65;
+}
+
 .buttoncontainer:not([disabled]):hover {
 	background-color: var(--hover-color) !important;
 }
