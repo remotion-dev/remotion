@@ -115,6 +115,7 @@ import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
+import {useSequenceChangeSpeedMenuItem} from './use-sequence-change-speed-menu-item';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 import {useTimelineSequenceHasExpandableContent} from './use-timeline-expanded-tree';
 
@@ -1234,6 +1235,14 @@ const TimelineSequenceItemInner: React.FC<{
 			{reveal: true},
 		);
 	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
+	const changeSpeedMenuItem = useSequenceChangeSpeedMenuItem({
+		nodePath,
+		propStatusesForOverride,
+		sequence,
+		sequenceFrameOffset,
+		setPropStatuses,
+		validatedSource: validatedLocation?.source ?? null,
+	});
 
 	const getContextMenuItems = useCallback(() => {
 		if (assetContextMenu !== null) {
@@ -1311,6 +1320,7 @@ const TimelineSequenceItemInner: React.FC<{
 			sequence,
 			sourceActions: isStudioInteractivityEnabled()
 				? [
+						...(changeSpeedMenuItem ? [changeSpeedMenuItem] : []),
 						...(nodePathInfo?.supportsEffects
 							? [
 									{
@@ -1396,6 +1406,7 @@ const TimelineSequenceItemInner: React.FC<{
 		canConfigureApps,
 		canOpenInEditor,
 		canRenameThisSequence,
+		changeSpeedMenuItem,
 		codingAgentInfo,
 		deleteDisabled,
 		disableInteractivityDisabled,

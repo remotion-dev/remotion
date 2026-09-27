@@ -95,6 +95,7 @@ import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
+import {useSequenceChangeSpeedMenuItem} from './use-sequence-change-speed-menu-item';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const {
@@ -966,6 +967,14 @@ const TimelineSequenceInner: React.FC<{
 			})),
 		);
 	}, [deleteTimelineItems, previewInteractive, selectedSequenceNodePathInfos]);
+	const changeSpeedMenuItem = useSequenceChangeSpeedMenuItem({
+		nodePath,
+		propStatusesForOverride,
+		sequence: s,
+		sequenceFrameOffset,
+		setPropStatuses,
+		validatedSource: validatedLocation?.source ?? null,
+	});
 	const onDisableSequenceInteractivity = useCallback(() => {
 		if (
 			disableInteractivityDisabled ||
@@ -1065,6 +1074,7 @@ const TimelineSequenceInner: React.FC<{
 			sequence: s,
 			sourceActions: isStudioInteractivityEnabled()
 				? [
+						...(changeSpeedMenuItem ? [changeSpeedMenuItem] : []),
 						...(splitMenuItem ? [splitMenuItem] : []),
 						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 					]
@@ -1073,6 +1083,7 @@ const TimelineSequenceInner: React.FC<{
 	}, [
 		assetContextMenu,
 		canOpenInEditor,
+		changeSpeedMenuItem,
 		canConfigureApps,
 		codingAgentInfo,
 		deleteDisabled,

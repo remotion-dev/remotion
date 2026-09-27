@@ -144,6 +144,29 @@ export type AddEffectModalState = {
 	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 };
 
+export type ChangeSpeedKeyframeTiming = 'maintain-timing' | 'follow-footage';
+
+export type ChangeSpeedModalState = {
+	type: 'change-speed';
+	displayName: string;
+	fps: number;
+	hasAudio: boolean;
+	hasEditableKeyframes: boolean;
+	initialPlaybackRate: number;
+	initialPreservePitch: boolean;
+	mediaDurationInFrames: number;
+	pitchCanBeChanged: boolean;
+	pitchDescription: string | null;
+	sequencePlaybackRate: number;
+	sourceStartInFrames: number;
+	timelineDurationInFrames: number;
+	onApply: (options: {
+		playbackRate: number;
+		preservePitch: boolean;
+		keyframeTiming: ChangeSpeedKeyframeTiming;
+	}) => Promise<void>;
+};
+
 export type AssetSelectionModalState = {
 	readonly type: 'asset-selection';
 	readonly assetType: 'audio' | 'video' | 'image';
@@ -337,6 +360,7 @@ export type ModalState =
 	  }
 	| ElementInstallModalState
 	| AddEffectModalState
+	| ChangeSpeedModalState
 	| AssetSelectionModalState
 	| TranscriptionModalState
 	| VideoMattingModalState

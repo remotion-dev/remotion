@@ -6,6 +6,7 @@ import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
 import {callApi} from './call-api';
+import {ChangeSpeedModal} from './ChangeSpeedModal';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {
@@ -324,6 +325,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (
 				<EffectPickerModal state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'change-speed' && (
+				<ChangeSpeedModal state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
