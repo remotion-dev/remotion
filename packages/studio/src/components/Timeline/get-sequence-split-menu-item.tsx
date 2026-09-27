@@ -11,6 +11,8 @@ export const getSequenceSplitMenuItem = ({
 	sequence,
 	propStatuses,
 	splitFrame,
+	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	canEditSource,
 	hasMultipleSelection,
 }: {
@@ -20,6 +22,8 @@ export const getSequenceSplitMenuItem = ({
 		| Record<string, CanUpdateSequencePropStatus>
 		| undefined;
 	readonly splitFrame: number;
+	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 	readonly canEditSource: boolean;
 	readonly hasMultipleSelection: boolean;
 }): ComboboxValue | null => {
@@ -77,7 +81,7 @@ export const getSequenceSplitMenuItem = ({
 			// Keep the frame used to enable the menu item, even during playback.
 			splitTimelineSequenceFromSource({
 				nodePathInfo: eligibility.nodePathInfo,
-				splitFrame,
+				splitFrame: (splitFrame - keyframeDisplayOffset) * keyframePlaybackRate,
 			}).catch(() => undefined);
 		},
 	};
