@@ -144,7 +144,6 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	isProduction: boolean;
 	muted: boolean;
 	scale: number;
-	resizeToEvenDimensions: boolean;
 	sampleRate: number;
 	allowHtmlInCanvas: boolean;
 	metadata: MetadataTags | null;
@@ -196,7 +195,6 @@ const internalRenderMediaOnWeb = async <
 	licenseKey,
 	muted,
 	scale,
-	resizeToEvenDimensions,
 	isProduction,
 	sampleRate,
 	allowHtmlInCanvas,
@@ -323,11 +321,14 @@ const internalRenderMediaOnWeb = async <
 		height: resolved.height,
 		scale,
 		codec: videoEnabled ? codec : null,
-		resizeToEvenDimensions,
 	});
+	const sourceDimensions = {
+		width: Math.ceil(resolved.width * scale),
+		height: Math.ceil(resolved.height * scale),
+	};
 	const needsResize =
-		encodedDimensions.width !== Math.round(resolved.width * scale) ||
-		encodedDimensions.height !== Math.round(resolved.height * scale);
+		encodedDimensions.width !== sourceDimensions.width ||
+		encodedDimensions.height !== sourceDimensions.height;
 	const realFrameRange = getRealFrameRange(
 		resolved.durationInFrames,
 		frameRange,
@@ -475,10 +476,8 @@ const internalRenderMediaOnWeb = async <
 							typeof videoBitrate === 'number'
 								? videoBitrate
 								: getQualityForWebRendererQuality(videoBitrate),
-						sizeChangeBehavior: 'deny',
-						...(needsResize
-							? {transform: {...encodedDimensions, fit: 'fill' as const}}
-							: {}),
+						sizeChangeBehavior: needsResize ? 'fill' : 'deny',
+						...(needsResize ? {transform: encodedDimensions} : {}),
 						hardwareAcceleration,
 						latencyMode: 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
@@ -630,8 +629,8 @@ const internalRenderMediaOnWeb = async <
 					frameToEncode = validateVideoFrame({
 						originalFrame: videoFrame,
 						returnedFrame,
-						expectedWidth: Math.round(resolved.width * scale),
-						expectedHeight: Math.round(resolved.height * scale),
+						expectedWidth: sourceDimensions.width,
+						expectedHeight: sourceDimensions.height,
 						expectedTimestamp: timestamp,
 					});
 					await waitForPageResponsiveness();
@@ -848,7 +847,6 @@ export const renderMediaOnWeb = <
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
-				resizeToEvenDimensions: options.resizeToEvenDimensions ?? false,
 				isProduction: options.isProduction ?? true,
 				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,

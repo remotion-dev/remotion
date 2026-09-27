@@ -6,21 +6,36 @@ export const getEncodedDimensions = ({
 	height,
 	scale,
 	codec,
-	resizeToEvenDimensions,
 }: {
 	width: number;
 	height: number;
 	scale: number;
 	codec: WebRendererVideoCodec | null;
-	resizeToEvenDimensions: boolean;
 }) => {
-	const scaledWidth = Math.round(width * scale);
-	const scaledHeight = Math.round(height * scale);
-	const roundToEven =
-		resizeToEvenDimensions && (codec === 'h264' || codec === 'h265');
+	const shouldHaveEvenDimensions =
+		codec === 'h264' || codec === 'h265' || codec === 'av1';
+	if (!shouldHaveEvenDimensions) {
+		return {
+			width: Math.ceil(width * scale),
+			height: Math.ceil(height * scale),
+		};
+	}
+
+	// Keep this calculation aligned with validateEvenDimensionsWithCodec() in
+	// @remotion/renderer so client-side and server-side renders behave the same.
+	let heightWithEvenDimensions = height;
+	while (Math.round(heightWithEvenDimensions * scale) % 2 !== 0) {
+		heightWithEvenDimensions--;
+	}
+
+	let widthWithEvenDimensions = width;
+	while (Math.round(widthWithEvenDimensions * scale) % 2 !== 0) {
+		widthWithEvenDimensions--;
+	}
+
 	return {
-		width: roundToEven ? Math.ceil(scaledWidth / 2) * 2 : scaledWidth,
-		height: roundToEven ? Math.ceil(scaledHeight / 2) * 2 : scaledHeight,
+		width: Math.round(widthWithEvenDimensions * scale),
+		height: Math.round(heightWithEvenDimensions * scale),
 	};
 };
 

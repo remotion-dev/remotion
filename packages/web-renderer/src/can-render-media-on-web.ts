@@ -41,7 +41,6 @@ export const canRenderMediaOnWeb = async (
 		height: options.height,
 		scale,
 		codec: videoCodec,
-		resizeToEvenDimensions: options.resizeToEvenDimensions ?? false,
 	});
 
 	const resolvedVideoBitrate =
