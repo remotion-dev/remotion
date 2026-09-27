@@ -97,7 +97,7 @@ export const ElementInstallFallbackModal: React.FC<{
 					Use this element
 				</h3>
 				<p className={styles.description}>
-					Open a Remotion Studio and click below to import the Element.
+					Open a Remotion Studio, then click below.
 				</p>
 				<div className={styles.installAction}>
 					<ElementStudioAction
