@@ -7,11 +7,13 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
+import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
 import {installRequiredPackages} from '../../helpers/install-required-package';
+import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
 import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
 import {MotionBlurIcon} from '../../icons/motion-blur';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -35,21 +37,99 @@ const htmlInCanvasComponentIdentities = new Set([
 
 export const SequenceWrapAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TimelineTrackData['sequence'];
+	readonly track: TimelineTrackData;
 	readonly sourceActionsDisabled: boolean;
 	readonly sourceLocation: {
 		readonly source: string;
 		readonly line: number;
 	};
-}> = ({nodePathInfo, sequence, sourceActionsDisabled, sourceLocation}) => {
+}> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {width, height} = useVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const {sequence} = track;
 	const nodePathKey = JSON.stringify(nodePathInfo.sequenceSubscriptionKey);
 	const sequenceStack = sequence.getStack();
 	const eligibilityKey = JSON.stringify([nodePathKey, sequenceStack]);
 	const [busy, setBusy] = useState(false);
 	const [eligibleNodeKey, setEligibleNodeKey] = useState<string | null>(null);
+	const timing = useMemo(() => {
+		const selectedNodePathKey = timelineSequenceNodePathToKey(
+			nodePathInfo.sequenceSubscriptionKey,
+		);
+		const matchingTracks = calculateTimeline({
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+		}).filter(
+			(candidate) =>
+				candidate.nodePathInfo !== null &&
+				timelineSequenceNodePathToKey(
+					candidate.nodePathInfo.sequenceSubscriptionKey,
+				) === selectedNodePathKey,
+		);
+		const timings = matchingTracks.map((candidate) => {
+			const from = Math.max(
+				0,
+				candidate.localStart +
+					(candidate.sequence.from - candidate.cascadedStart) *
+						candidate.keyframePlaybackRate,
+			);
+			return {
+				from,
+				durationInFrames:
+					candidate.sequence.duration * candidate.keyframePlaybackRate,
+				trimBefore: from,
+			};
+		});
+		const firstTiming = timings[0];
+		if (
+			!firstTiming ||
+			!Number.isFinite(firstTiming.from) ||
+			!Number.isFinite(firstTiming.durationInFrames) ||
+			firstTiming.durationInFrames <= 0
+		) {
+			return null;
+		}
+
+		for (const candidate of timings.slice(1)) {
+			if (
+				!Number.isFinite(candidate.from) ||
+				!Number.isFinite(candidate.durationInFrames) ||
+				candidate.durationInFrames <= 0
+			) {
+				return null;
+			}
+
+			const fromTolerance =
+				Number.EPSILON *
+				Math.max(1, Math.abs(firstTiming.from), Math.abs(candidate.from)) *
+				16;
+			const durationTolerance =
+				Number.EPSILON *
+				Math.max(
+					1,
+					Math.abs(firstTiming.durationInFrames),
+					Math.abs(candidate.durationInFrames),
+				) *
+				16;
+			if (
+				Math.abs(firstTiming.from - candidate.from) > fromTolerance ||
+				Math.abs(firstTiming.durationInFrames - candidate.durationInFrames) >
+					durationTolerance
+			) {
+				return null;
+			}
+		}
+
+		return firstTiming;
+	}, [
+		nodePathInfo.sequenceSubscriptionKey,
+		overrideIdToNodePathMappings,
+		sequences,
+	]);
 	const wouldNestAtRuntime = useMemo(() => {
 		const sequencesById = new Map(
 			sequences.map((registeredSequence) => [
@@ -99,7 +179,7 @@ export const SequenceWrapAction: React.FC<{
 	}, [sequence.id, sequences]);
 
 	useEffect(() => {
-		if (sourceActionsDisabled || wouldNestAtRuntime) {
+		if (sourceActionsDisabled || wouldNestAtRuntime || timing === null) {
 			setEligibleNodeKey(null);
 			return;
 		}
@@ -115,6 +195,7 @@ export const SequenceWrapAction: React.FC<{
 			wrapper: null,
 			width: null,
 			height: null,
+			timing: null,
 		})
 			.then((eligibility) => {
 				if (!cancelled) {
@@ -134,7 +215,13 @@ export const SequenceWrapAction: React.FC<{
 		return () => {
 			cancelled = true;
 		};
-	}, [eligibilityKey, nodePathKey, sourceActionsDisabled, wouldNestAtRuntime]);
+	}, [
+		eligibilityKey,
+		nodePathKey,
+		sourceActionsDisabled,
+		timing,
+		wouldNestAtRuntime,
+	]);
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
@@ -142,6 +229,7 @@ export const SequenceWrapAction: React.FC<{
 				busy ||
 				sourceActionsDisabled ||
 				wouldNestAtRuntime ||
+				timing === null ||
 				eligibleNodeKey !== eligibilityKey
 			) {
 				return;
@@ -167,6 +255,7 @@ export const SequenceWrapAction: React.FC<{
 					wrapper: null,
 					width: null,
 					height: null,
+					timing: null,
 				});
 				if (!eligibility.success) {
 					showNotification(eligibility.reason, 4000);
@@ -202,6 +291,7 @@ export const SequenceWrapAction: React.FC<{
 					wrapper,
 					width,
 					height,
+					timing,
 				});
 				if (!result.success) {
 					showNotification(result.reason, 4000);
@@ -223,6 +313,7 @@ export const SequenceWrapAction: React.FC<{
 			setSelectedModal,
 			sourceActionsDisabled,
 			sourceLocation,
+			timing,
 			width,
 			wouldNestAtRuntime,
 		],
@@ -231,6 +322,7 @@ export const SequenceWrapAction: React.FC<{
 	if (
 		sourceActionsDisabled ||
 		eligibleNodeKey !== eligibilityKey ||
+		timing === null ||
 		wouldNestAtRuntime
 	) {
 		return null;

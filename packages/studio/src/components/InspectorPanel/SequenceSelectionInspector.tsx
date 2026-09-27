@@ -365,7 +365,7 @@ const SequenceSourceQuickActions: React.FC<{
 			{mediaSequence === null ? (
 				<SequenceWrapAction
 					nodePathInfo={selection.nodePathInfo}
-					sequence={track.sequence}
+					track={track}
 					sourceActionsDisabled={sourceActionsDisabled}
 					sourceLocation={validatedLocation}
 				/>
