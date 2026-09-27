@@ -108,7 +108,7 @@ export const InspectorLocationCopy: React.FC<{
 						locationType={null}
 						contextForAgents={contextForAgents}
 						location={openInEditorLocation}
-						showTooltips={false}
+						showTooltips
 					/>
 					{contextForAgents ? (
 						<InlineAction
