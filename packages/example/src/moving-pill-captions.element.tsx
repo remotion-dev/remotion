@@ -13,19 +13,15 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type MovingPillCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
+type MovingPillCaptionsProps = InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
@@ -45,7 +41,6 @@ const defaultWidth = 682;
 const defaultHeight = 252;
 
 const movingPillCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -377,19 +372,12 @@ const MovingPillCaptionsContent: React.FC<{
 	);
 };
 
-const MovingPillCaptionsInner: React.FC<
-	MovingPillCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
+const MovingPillCaptionsInner: React.FC<MovingPillCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	controls,
 	height = defaultHeight,
-	name,
 	style,
 	width = defaultWidth,
-	...interactiveProps
 }) => {
 	const [fontLoaded, setFontLoaded] = useState(false);
 
@@ -404,28 +392,21 @@ const MovingPillCaptionsInner: React.FC<
 	}, []);
 
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<MovingPillCaptions>'}
+		<div
+			style={{
+				height,
+				marginInline: 'auto',
+				width,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					height,
-					marginInline: 'auto',
-					width,
-					...style,
-				}}
-			>
-				<MovingPillCaptionsContent
-					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
-				/>
-			</div>
-		</Sequence>
+			<MovingPillCaptionsContent
+				captionAreaWidth={width ?? null}
+				captions={captions}
+				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+				fontLoaded={fontLoaded}
+			/>
+		</div>
 	);
 };
 
@@ -433,7 +414,7 @@ const MovingPillCaptionsLayer = Interactive.withSchema({
 	Component: MovingPillCaptionsInner,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsProps>;
+	wrapInSequence: true,
+});
 
 export const MovingPillCaptions = MovingPillCaptionsLayer;

@@ -12,30 +12,25 @@ import React, {
 import {
 	Easing,
 	Interactive,
-	Sequence,
 	interpolate,
 	useBufferState,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
-type MapFlyoverLayerProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly destination?: readonly [number, number];
-		readonly destinationLabel?: string;
-		readonly lineWidth?: number;
-		readonly origin?: readonly [number, number];
-		readonly originLabel?: string;
-		readonly routeColor?: string;
-	};
+type MapFlyoverLayerProps = InteractiveTransformProps & {
+	readonly destination?: readonly [number, number];
+	readonly destinationLabel?: string;
+	readonly lineWidth?: number;
+	readonly origin?: readonly [number, number];
+	readonly originLabel?: string;
+	readonly routeColor?: string;
+};
 
 const mapFlyoverSchema = {
-	...Interactive.baseSchema,
 	origin: {
 		type: 'array',
 		item: {type: 'number', step: 0.0001},
@@ -603,43 +598,32 @@ const MapFlyoverContent: React.FC<{
 	);
 };
 
-const MapFlyoverLayerInner: React.FC<
-	MapFlyoverLayerProps & {readonly controls: SequenceControls | undefined}
-> = ({
-	controls,
+const MapFlyoverLayerInner: React.FC<MapFlyoverLayerProps> = ({
 	destination = [139.6917, 35.6895],
 	destinationLabel = 'Tokyo',
 	lineWidth = 24,
-	name,
 	origin = [-0.1276, 51.5072],
 	originLabel = 'London',
 	routeColor = '#ff5c4d',
 	style,
-	...sequenceProps
 }) => {
 	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? 'A-to-B Map Flyover'}
-		>
-			<MapFlyoverContent
-				destination={destination}
-				destinationLabel={destinationLabel}
-				lineWidth={lineWidth}
-				origin={origin}
-				originLabel={originLabel}
-				routeColor={routeColor}
-				style={style ?? null}
-			/>
-		</Sequence>
+		<MapFlyoverContent
+			destination={destination}
+			destinationLabel={destinationLabel}
+			lineWidth={lineWidth}
+			origin={origin}
+			originLabel={originLabel}
+			routeColor={routeColor}
+			style={style ?? null}
+		/>
 	);
 };
 
 export const MapFlyover = Interactive.withSchema({
 	Component: MapFlyoverLayerInner,
 	componentName: '<MapFlyover>',
+	defaultSequenceName: 'A-to-B Map Flyover',
 	schema: mapFlyoverSchema,
-	supportsEffects: false,
-}) as React.FC<MapFlyoverLayerProps>;
+	wrapInSequence: true,
+});

@@ -22,7 +22,7 @@ import {
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
-import {Sequence} from './Sequence.js';
+import {Sequence, SequenceWithoutSchema} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {usePremounting} from './use-premounting.js';
@@ -218,13 +218,230 @@ const setRef = <ElementType,>(
 	}
 };
 
-const withSchema = <S extends InteractivitySchema, Props extends object>(
-	options: WithInteractivitySchemaOptions<S, Props>,
-): React.ComponentType<Props> => {
-	const Wrapped = withInteractivitySchema(options);
+type NonIntrinsicComponent<Component extends React.ElementType> = Component &
+	React.ComponentType<React.ComponentProps<Component>>;
+
+type KeysOfUnion<Props> = Props extends unknown ? keyof Props : never;
+
+type ComponentWithoutReservedProps<
+	Component extends React.ElementType,
+	ReservedKey extends PropertyKey,
+> = NonIntrinsicComponent<Component> &
+	(Extract<
+		KeysOfUnion<React.ComponentPropsWithoutRef<Component>>,
+		ReservedKey
+	> extends never
+		? unknown
+		: never);
+
+type AutomaticWrapperReservedKey = keyof InteractiveBaseProps | 'controls';
+
+type CroppingWrapperReservedKey =
+	| AutomaticWrapperReservedKey
+	| keyof InteractiveCropProps;
+
+type IsAny<Value> = 0 extends 1 & Value ? true : false;
+
+type StyleMemberAcceptsCssProperties<Style> =
+	IsAny<Style> extends true
+		? true
+		: Style extends unknown
+			? [Style] extends [null | undefined]
+				? false
+				: Exclude<keyof React.CSSProperties, keyof Style> extends never
+					? React.CSSProperties extends Style
+						? true
+						: false
+					: false
+			: never;
+
+type StyleAcceptsCssProperties<Style> =
+	true extends StyleMemberAcceptsCssProperties<Style> ? true : false;
+
+type PropsBranchAcceptsStyle<Props> = Props extends unknown
+	? 'style' extends keyof Props
+		? StyleAcceptsCssProperties<Props[Extract<'style', keyof Props>]>
+		: false
+	: never;
+
+type EveryPropsBranchAcceptsStyle<Props> = [Props] extends [never]
+	? false
+	: false extends PropsBranchAcceptsStyle<Props>
+		? false
+		: true;
+
+type ComponentAcceptingStyle<Component extends React.ElementType> =
+	ComponentWithoutReservedProps<Component, CroppingWrapperReservedKey> &
+		(EveryPropsBranchAcceptsStyle<
+			React.ComponentPropsWithoutRef<Component>
+		> extends true
+			? unknown
+			: never);
+
+type WithSchema = {
+	<S extends InteractivitySchema, Component extends React.ElementType>(
+		options: Omit<
+			WithInteractivitySchemaOptions<
+				S,
+				React.ComponentPropsWithoutRef<Component>
+			>,
+			'Component' | 'supportsEffects'
+		> & {
+			readonly Component: ComponentWithoutReservedProps<
+				Component,
+				AutomaticWrapperReservedKey
+			>;
+			readonly defaultDurationInFrames?: number;
+			readonly defaultSequenceName?: string;
+			readonly wrapInSequence: true;
+		},
+	): React.FC<React.ComponentPropsWithRef<Component> & InteractiveBaseProps>;
+	<S extends InteractivitySchema, Component extends React.ElementType>(
+		options: Omit<
+			WithInteractivitySchemaOptions<
+				S,
+				React.ComponentPropsWithoutRef<Component>
+			>,
+			'Component' | 'supportsEffects'
+		> & {
+			readonly Component: ComponentAcceptingStyle<Component>;
+			readonly defaultDurationInFrames?: number;
+			readonly defaultSequenceName?: string;
+			readonly wrapInSequence: {readonly cropping: true};
+		},
+	): React.FC<
+		React.ComponentPropsWithRef<Component> &
+			InteractiveBaseProps &
+			InteractiveCropProps
+	>;
+	<S extends InteractivitySchema, Props extends object>(
+		options: WithInteractivitySchemaOptions<S, Props> & {
+			readonly wrapInSequence?: false;
+		},
+	): React.ComponentType<Props>;
+};
+
+type WithSchemaImplementationOptions = Omit<
+	WithInteractivitySchemaOptions<InteractivitySchema, object>,
+	'Component'
+> & {
+	readonly Component: React.ComponentType<object>;
+	readonly defaultDurationInFrames?: number;
+	readonly defaultSequenceName?: string;
+	readonly wrapInSequence?: false | true | {readonly cropping: true};
+};
+
+const withSchema: WithSchema = (untypedOptions: unknown) => {
+	const options = untypedOptions as WithSchemaImplementationOptions;
+	if (!options.wrapInSequence) {
+		const ManualWrapped = withInteractivitySchema(
+			options as WithInteractivitySchemaOptions<InteractivitySchema, object>,
+		);
+		addSequenceStackTraces(ManualWrapped);
+
+		return ManualWrapped as React.FC<
+			React.ComponentProps<typeof ManualWrapped>
+		>;
+	}
+
+	const {
+		Component,
+		componentName,
+		defaultDurationInFrames,
+		defaultSequenceName,
+		schema,
+		wrapInSequence: _,
+		...rest
+	} = options;
+	const cropping =
+		typeof options.wrapInSequence === 'object' &&
+		options.wrapInSequence.cropping;
+	type ComponentWrappedInSequenceProps = React.ComponentProps<
+		typeof Component
+	> &
+		InteractiveBaseProps & {
+			readonly controls: SequenceControls | undefined;
+		};
+	const ComponentWrappedInSequence = forwardRef<
+		unknown,
+		ComponentWrappedInSequenceProps
+	>((props, ref) => {
+		const {
+			durationInFrames,
+			from,
+			trimBefore,
+			playbackRate,
+			loop,
+			freeze,
+			hidden,
+			name,
+			showInTimeline,
+			controls,
+			...componentProps
+		} = props;
+		const {
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style,
+			...componentPropsWithoutCropping
+		} = componentProps as InteractiveCropProps & {
+			readonly style?: React.CSSProperties;
+			readonly [key: string]: unknown;
+		};
+		const croppedStyle = useCropStyle({
+			cropLeft: cropping ? cropLeft : undefined,
+			cropRight: cropping ? cropRight : undefined,
+			cropTop: cropping ? cropTop : undefined,
+			cropBottom: cropping ? cropBottom : undefined,
+			style: cropping ? (style ?? null) : null,
+			componentName,
+		});
+		const propsForComponent = cropping
+			? {
+					...componentPropsWithoutCropping,
+					style: croppedStyle ?? undefined,
+				}
+			: componentProps;
+
+		return (
+			<SequenceWithoutSchema
+				layout="none"
+				durationInFrames={durationInFrames ?? defaultDurationInFrames}
+				from={from}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? defaultSequenceName ?? componentName}
+				showInTimeline={showInTimeline}
+				controls={controls}
+			>
+				{React.createElement(Component, {
+					...propsForComponent,
+					ref,
+				} as React.ComponentProps<typeof Component>)}
+			</SequenceWithoutSchema>
+		);
+	});
+	const Wrapped = withInteractivitySchema({
+		...rest,
+		Component: ComponentWrappedInSequence,
+		componentName: defaultSequenceName ?? componentName,
+		schema: {
+			...schema,
+			...baseSchema,
+			...(cropping ? cropSchema : {}),
+		},
+		supportsEffects: false,
+	});
 	addSequenceStackTraces(Wrapped);
 
-	return Wrapped;
+	return Wrapped as React.FC<
+		React.ComponentProps<typeof Component> & InteractiveBaseProps
+	>;
 };
 
 const makeInteractiveElement = <Tag extends InteractiveTag>(

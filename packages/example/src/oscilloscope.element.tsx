@@ -7,26 +7,21 @@ import {
 import React from 'react';
 import {
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
-type AudioOscilloscopeProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly amplitude?: number;
-		readonly audioSrc?: string;
-		readonly lineColor?: string;
-		readonly lineWidth?: number;
-		readonly windowInSeconds?: number;
-	};
+type AudioOscilloscopeProps = InteractiveTransformProps & {
+	readonly amplitude?: number;
+	readonly audioSrc?: string;
+	readonly lineColor?: string;
+	readonly lineWidth?: number;
+	readonly windowInSeconds?: number;
+};
 
 const audioOscilloscopeSchema = {
-	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
 		assetType: 'audio',
@@ -141,41 +136,30 @@ const AudioOscilloscopeContent: React.FC<{
 	);
 };
 
-const AudioOscilloscopeInner: React.FC<
-	AudioOscilloscopeProps & {readonly controls: SequenceControls | undefined}
-> = ({
+const AudioOscilloscopeInner: React.FC<AudioOscilloscopeProps> = ({
 	amplitude = 2,
 	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-	controls,
 	lineColor = '#55e6ff',
 	lineWidth = 6,
-	name,
 	style,
 	windowInSeconds = 0.35,
-	...sequenceProps
 }) => {
 	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? 'Audio oscilloscope'}
-		>
-			<AudioOscilloscopeContent
-				amplitude={amplitude}
-				audioSrc={audioSrc}
-				lineColor={lineColor}
-				lineWidth={lineWidth}
-				style={style}
-				windowInSeconds={windowInSeconds}
-			/>
-		</Sequence>
+		<AudioOscilloscopeContent
+			amplitude={amplitude}
+			audioSrc={audioSrc}
+			lineColor={lineColor}
+			lineWidth={lineWidth}
+			style={style}
+			windowInSeconds={windowInSeconds}
+		/>
 	);
 };
 
 export const AudioOscilloscope = Interactive.withSchema({
 	Component: AudioOscilloscopeInner,
 	componentName: '<AudioOscilloscope>',
+	defaultSequenceName: 'Audio oscilloscope',
 	schema: audioOscilloscopeSchema,
-	supportsEffects: false,
-}) as React.FC<AudioOscilloscopeProps>;
+	wrapInSequence: true,
+});

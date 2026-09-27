@@ -4,13 +4,10 @@ import {
 	Easing,
 	Img,
 	Interactive,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
 loadFont('normal', {
@@ -20,16 +17,14 @@ loadFont('normal', {
 
 export const productCollectionDurationInFrames = 150;
 
-type ProductCardProps = InteractiveBaseProps &
-	Omit<InteractiveTransformProps, 'style'> & {
-		readonly count: number;
-		readonly index: number;
-		readonly label: string;
-		readonly style: React.CSSProperties | null;
-	};
+type ProductCardProps = Omit<InteractiveTransformProps, 'style'> & {
+	readonly count: number;
+	readonly index: number;
+	readonly label: string;
+	readonly style: React.CSSProperties | null;
+};
 
 const productCardSchema = {
-	...Interactive.baseSchema,
 	label: {
 		type: 'text-content',
 		default: 'A',
@@ -40,9 +35,12 @@ const productCardSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const ProductCardInner: React.FC<
-	ProductCardProps & {readonly controls: SequenceControls | undefined}
-> = ({controls, count, index, label, name, style, ...sequenceProps}) => {
+const ProductCardInner: React.FC<ProductCardProps> = ({
+	count,
+	index,
+	label,
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
@@ -100,82 +98,75 @@ const ProductCardInner: React.FC<
 	});
 
 	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? '<ProductCard>'}
+		<div
+			style={{
+				height: 560,
+				left: 300,
+				top: 40,
+				opacity: visibility * entryProgress,
+				position: 'absolute',
+				rotate: `${rotation}deg`,
+				scale: cardScale * (0.86 + entryProgress * 0.14),
+				transform: 'perspective(100px)',
+				translate: `${x}px ${y}px`,
+				width: 300,
+				willChange: 'transform, opacity',
+				zIndex: 100 - Math.round(distanceFromCenter * 20),
+			}}
 		>
 			<div
 				style={{
-					height: 560,
-					left: 300,
-					top: 40,
-					opacity: visibility * entryProgress,
-					position: 'absolute',
-					rotate: `${rotation}deg`,
-					scale: cardScale * (0.86 + entryProgress * 0.14),
-					transform: 'perspective(100px)',
-					translate: `${x}px ${y}px`,
-					width: 300,
-					willChange: 'transform, opacity',
-					zIndex: 100 - Math.round(distanceFromCenter * 20),
+					...style,
+					backgroundColor: '#ffffff',
+					borderRadius: 6,
+					boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
+					boxSizing: 'border-box',
+					color: '#1d1d19',
+					display: 'flex',
+					flexDirection: 'column',
+					height: '100%',
+					overflow: 'hidden',
+					width: '100%',
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Card label"
 					style={{
-						...style,
-						backgroundColor: '#ffffff',
-						borderRadius: 6,
-						boxShadow: '0 2px 6px rgba(29, 29, 25, 0.12)',
-						boxSizing: 'border-box',
-						color: '#1d1d19',
+						alignItems: 'center',
+						color: '#ffffff',
 						display: 'flex',
-						flexDirection: 'column',
+						fontFamily: 'sans-serif',
+						fontSize: 160,
+						fontWeight: 900,
 						height: '100%',
+						justifyContent: 'center',
+						letterSpacing: -8,
 						overflow: 'hidden',
-						width: '100%',
+						position: 'relative',
+						textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
 					}}
 				>
-					<Interactive.Div
-						name="Card label"
+					<Img
+						alt=""
+						name="Card background"
+						showInTimeline={false}
+						src={
+							index === 1
+								? 'https://remotion.media/transition-bg-pink.jpg'
+								: 'https://remotion.media/transition-bg-blue.jpg'
+						}
 						style={{
-							alignItems: 'center',
-							color: '#ffffff',
-							display: 'flex',
-							fontFamily: 'sans-serif',
-							fontSize: 160,
-							fontWeight: 900,
+							filter: index === 2 ? 'hue-rotate(-65deg)' : 'none',
 							height: '100%',
-							justifyContent: 'center',
-							letterSpacing: -8,
-							overflow: 'hidden',
-							position: 'relative',
-							textShadow: '0 4px 30px rgba(0, 0, 0, 0.55)',
+							objectFit: 'cover',
+							position: 'absolute',
+							width: '100%',
 						}}
-					>
-						<Img
-							alt=""
-							name="Card background"
-							showInTimeline={false}
-							src={
-								index === 1
-									? 'https://remotion.media/transition-bg-pink.jpg'
-									: 'https://remotion.media/transition-bg-blue.jpg'
-							}
-							style={{
-								filter: index === 2 ? 'hue-rotate(-65deg)' : 'none',
-								height: '100%',
-								objectFit: 'cover',
-								position: 'absolute',
-								width: '100%',
-							}}
-						/>
-						<div style={{position: 'relative'}}>{label}</div>
-					</Interactive.Div>
-				</div>
+					/>
+					<div style={{position: 'relative'}}>{label}</div>
+				</Interactive.Div>
 			</div>
-		</Sequence>
+		</div>
 	);
 };
 
@@ -183,8 +174,8 @@ const ProductCard = Interactive.withSchema({
 	Component: ProductCardInner,
 	componentName: '<ProductCard>',
 	schema: productCardSchema,
-	supportsEffects: false,
-}) as React.FC<ProductCardProps>;
+	wrapInSequence: true,
+});
 
 export const ProductCollection = () => {
 	const frame = useCurrentFrame();

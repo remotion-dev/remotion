@@ -11,27 +11,18 @@ Wraps a React component so Remotion Studio can expose its props as timeline cont
 
 Use it when you build a component that should behave like [`<Sequence>`](/docs/sequence), [`<Solid>`](/docs/solid) or [`<CanvasImage>`](/docs/canvasimage): The component appears in the timeline, can expose editable controls and can receive saved values from the Studio.
 
-## Example
+## Automatic wrapping example<AvailableFrom v="4.0.530" />
 
 ```tsx twoslash title="Circle.tsx"
 import type React from 'react';
-import {
-  Interactive,
-  Sequence,
-  type InteractiveBaseProps,
-  type InteractiveTransformProps,
-  type SequenceControls,
-  type InteractivitySchema,
-} from 'remotion';
+import {Interactive, type InteractiveTransformProps, type InteractivitySchema} from 'remotion';
 
-type CircleProps = InteractiveBaseProps &
-  InteractiveTransformProps & {
+type CircleProps = InteractiveTransformProps & {
   readonly radius?: number;
   readonly color?: string;
 };
 
 const circleSchema = {
-  ...Interactive.baseSchema,
   radius: {
     type: 'number',
     min: 1,
@@ -48,49 +39,29 @@ const circleSchema = {
   ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const CircleInner: React.FC<
-	CircleProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
-	radius = 80,
-	color = '#0b84ff',
-	name,
-	style,
-	controls,
-	...sequenceProps
-}) => {
-	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			name={name ?? '<Circle>'}
-			controls={controls}
-		>
-			<div
-				style={{
-					...style,
-					width: radius * 2,
-					height: radius * 2,
-					borderRadius: '50%',
-					backgroundColor: color,
-				}}
-			/>
-		</Sequence>
-	);
+const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', style}) => {
+  return (
+    <div
+      style={{
+        ...style,
+        width: radius * 2,
+        height: radius * 2,
+        borderRadius: '50%',
+        backgroundColor: color,
+      }}
+    />
+  );
 };
 
 export const Circle = Interactive.withSchema({
   Component: CircleInner,
   componentName: '<Circle>',
   schema: circleSchema,
-  supportsEffects: false,
+  wrapInSequence: true,
 });
 ```
 
-The exported `Circle` component only accepts `CircleProps`. The `controls` prop is passed by `Interactive.withSchema()` to the inner component and should be forwarded unchanged to the [`<Sequence>`](/docs/sequence) that represents the component in the timeline. It also preserves the outer component's source location for Studio edits.
-
-With `<Sequence layout="none">`, the Studio discovers the rendered element automatically.
+The exported `Circle` component accepts `CircleProps` and the common timing props from [`<Sequence>`](/docs/sequence). The wrapper registers the component in the timeline and preserves its source location for Studio edits.
 
 ## API
 
@@ -104,34 +75,81 @@ Call `Interactive.withSchema()` with an options object.
 
 The component to wrap.
 
-It must accept its public props plus `controls`.
+With automatic wrapping, it only needs to accept its own public props. It must not declare `controls` or any of the common timing props because the wrapper owns those props. When cropping is enabled, it must also accept a `style` prop and apply it to its visual root, and it must not declare the crop props itself. Without automatic wrapping, it must accept `controls`.
+
+### `componentName`
+
+The component name used by Studio and in validation messages. Automatic wrapping also uses it as the default timeline label.
+
+### `defaultDurationInFrames?`<AvailableFrom v="4.0.530" />
+
+Sets the default Sequence duration when automatic wrapping is enabled and no `durationInFrames` prop is passed.
+
+### `defaultSequenceName?`<AvailableFrom v="4.0.530" />
+
+Overrides the default timeline label when automatic wrapping is enabled. An explicit [`name`](/docs/sequence#name) prop still takes precedence.
 
 ### `controls`
 
 The control state created by `Interactive.withSchema()`.
 
-Forward it to the `<Sequence>` that registers the component in the timeline.
+When manually wrapping the component, forward it to the `<Sequence>` that registers the component in the timeline. It is not passed to `Component` when `wrapInSequence` is enabled.
 
 ### `schema`
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
 
-As a rule, include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) in every schema passed to `Interactive.withSchema()` so standard timeline controls remain available.
+With automatic wrapping, [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) is added automatically. With `wrapInSequence: {cropping: true}`, [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) is added as well.
 
-Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls. Use [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) with `InteractiveCropProps` to opt the component into crop controls.
+When manually wrapping the component, include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls. Use [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) with `InteractiveCropProps` to opt the component into crop controls.
 For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
+
+### `wrapInSequence?`<AvailableFrom v="4.0.530" />
+
+Set to `true` to wrap `Component` in `<Sequence layout="none">`, add `Interactive.baseSchema` and expose the common timing props on the returned component.
+
+Default: `false`. Omit it when `Component` renders its own [`<Sequence>`](/docs/sequence), for example to configure premounting, effects, cropping that cannot be applied to the visual root, or custom timeline behavior.
+
+#### `cropping`
+
+Set `wrapInSequence` to `{cropping: true}` to additionally add `Interactive.cropSchema` and expose `cropLeft`, `cropRight`, `cropTop` and `cropBottom` on the returned component. Each value is a ratio from `0` to `1` of the corresponding width or height: `0` leaves the edge unchanged and `1` crops it fully.
+
+The wrapper converts these props to a CSS `clipPath` and merges it into the `style` passed to `Component`. While cropping is applied, this replaces an existing inline `style.clipPath`. The generated [`<Sequence>`](/docs/sequence) keeps `layout="none"`.
+
+```tsx twoslash title="Circle.tsx"
+import type React from 'react';
+import {Interactive, type InteractiveTransformProps} from 'remotion';
+
+const CircleInner: React.FC<InteractiveTransformProps> = ({style}) => <div style={style} />;
+const circleSchema = {};
+// ---cut---
+export const Circle = Interactive.withSchema({
+  Component: CircleInner,
+  componentName: '<Circle>',
+  schema: circleSchema,
+  wrapInSequence: {cropping: true},
+});
+```
+
+For cropping to be visible, `Component` must accept `style` and apply it to its visual root.
 
 ### `supportsEffects`
 
-Set to `true` if this component supports an `effects` prop. Otherwise, set it to `false`.
+Required when manually wrapping a component. Set to `true` if the component supports an `effects` prop. Otherwise, set it to `false`.
+
+Omit it when automatic wrapping is enabled. Components that support effects need to render their own `<Sequence>`.
 
 ### Return value
 
-Returns a component with the public props of `Component`.
+Returns a component with the public props of `Component`. With automatic wrapping, the common timing props from [`<Sequence>`](/docs/sequence) are also included. The cropping configuration additionally includes [`InteractiveCropProps`](/docs/interactive#interactivecropprops).
+
+### Ref forwarding<AvailableFrom v="4.0.530" />
+
+If `Component` accepts a ref, automatic wrapping preserves its ref type and forwards the ref directly to `Component`.
 
 ## Behavior
 
-During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` renders the component with the original props.
+During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` uses the original editable values. Automatic wrapping still applies timing, and the cropping configuration consumes the crop props and passes their computed result through `style`.
 
 In editable Studio sessions, it reads the current prop values, applies timeline overrides and passes the merged props to the inner component.
 

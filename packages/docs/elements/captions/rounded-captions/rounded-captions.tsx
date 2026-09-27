@@ -7,21 +7,16 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type RoundedCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
+type RoundedCaptionsProps = InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
-		readonly playbackRate: number | null;
 		readonly combineTokensWithinMilliseconds: number | null;
 	};
 
@@ -35,7 +30,6 @@ const horizontalPadding = 22;
 const borderRadius = 20;
 
 const roundedCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -71,16 +65,12 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 
 const RoundedCaptionsContent: React.FC<{
 	readonly captions: Caption[];
-	readonly playbackRate: number;
-	readonly trimBefore: number;
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
 	readonly width: number;
 	readonly height: number;
 }> = ({
 	captions,
-	playbackRate,
-	trimBefore,
 	combineTokensWithinMilliseconds,
 	fontLoaded,
 	width,
@@ -96,9 +86,7 @@ const RoundedCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	// The Sequence frame already includes trimBefore; only elapsed frames speed up.
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
+	const currentTimeMs = (frame / fps) * 1000;
 	const page = pages.find(
 		(candidate) =>
 			currentTimeMs >= candidate.startMs &&
@@ -205,21 +193,12 @@ const RoundedCaptionsContent: React.FC<{
 	);
 };
 
-const RoundedCaptionsInner: React.FC<
-	RoundedCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
+const RoundedCaptionsInner: React.FC<RoundedCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds,
-	controls,
 	height = defaultHeight,
-	name,
-	playbackRate,
 	style,
-	trimBefore,
 	width = defaultWidth,
-	...interactiveProps
 }) => {
 	const [fontLoaded, setFontLoaded] = useState(false);
 
@@ -230,38 +209,28 @@ const RoundedCaptionsInner: React.FC<
 	}, []);
 
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<RoundedCaptions>'}
-			trimBefore={trimBefore}
+		<div
+			style={{
+				alignItems: 'center',
+				display: 'flex',
+				justifyContent: 'center',
+				marginInline: 'auto',
+				width,
+				height,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					justifyContent: 'center',
-					marginInline: 'auto',
-					width,
-					height,
-					...style,
-				}}
-			>
-				<RoundedCaptionsContent
-					captions={captions}
-					combineTokensWithinMilliseconds={
-						combineTokensWithinMilliseconds ??
-						defaultCombineTokensWithinMilliseconds
-					}
-					fontLoaded={fontLoaded}
-					playbackRate={playbackRate ?? 1}
-					trimBefore={trimBefore ?? 0}
-					width={width}
-					height={height}
-				/>
-			</div>
-		</Sequence>
+			<RoundedCaptionsContent
+				captions={captions}
+				combineTokensWithinMilliseconds={
+					combineTokensWithinMilliseconds ??
+					defaultCombineTokensWithinMilliseconds
+				}
+				fontLoaded={fontLoaded}
+				width={width}
+				height={height}
+			/>
+		</div>
 	);
 };
 
@@ -269,5 +238,5 @@ export const RoundedCaptions = Interactive.withSchema({
 	Component: RoundedCaptionsInner,
 	componentName: '<RoundedCaptions>',
 	schema: roundedCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<RoundedCaptionsProps>;
+	wrapInSequence: true,
+});

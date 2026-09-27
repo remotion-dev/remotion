@@ -13,22 +13,17 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type MovingPillCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
+type MovingPillCaptionsProps = InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
-		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -45,7 +40,6 @@ const defaultWidth = 682;
 const defaultHeight = 252;
 
 const movingPillCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -330,15 +324,11 @@ const MovingPillCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
-	readonly playbackRate: number;
-	readonly trimBefore: number;
 }> = ({
 	captionAreaWidth,
 	captions,
 	combineTokensWithinMilliseconds,
 	fontLoaded,
-	playbackRate,
-	trimBefore,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -350,8 +340,7 @@ const MovingPillCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
+	const currentTimeMs = (frame / fps) * 1000;
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
@@ -371,21 +360,12 @@ const MovingPillCaptionsContent: React.FC<{
 	);
 };
 
-const MovingPillCaptionsInner: React.FC<
-	MovingPillCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
+const MovingPillCaptionsInner: React.FC<MovingPillCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	controls,
 	height = defaultHeight,
-	name,
-	playbackRate = 1,
 	style,
-	trimBefore,
 	width = defaultWidth,
-	...interactiveProps
 }) => {
 	const [fontLoaded, setFontLoaded] = useState(false);
 
@@ -400,31 +380,21 @@ const MovingPillCaptionsInner: React.FC<
 	}, []);
 
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<MovingPillCaptions>'}
-			trimBefore={trimBefore}
+		<div
+			style={{
+				height,
+				marginInline: 'auto',
+				width,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					height,
-					marginInline: 'auto',
-					width,
-					...style,
-				}}
-			>
-				<MovingPillCaptionsContent
-					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
-					playbackRate={playbackRate}
-					trimBefore={trimBefore ?? 0}
-				/>
-			</div>
-		</Sequence>
+			<MovingPillCaptionsContent
+				captionAreaWidth={width ?? null}
+				captions={captions}
+				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+				fontLoaded={fontLoaded}
+			/>
+		</div>
 	);
 };
 
@@ -432,7 +402,7 @@ const MovingPillCaptionsLayer = Interactive.withSchema({
 	Component: MovingPillCaptionsInner,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsProps>;
+	wrapInSequence: true,
+});
 
 export const MovingPillCaptions = MovingPillCaptionsLayer;

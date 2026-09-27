@@ -7,22 +7,17 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type PoppingWordCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
+type PoppingWordCaptionsProps = InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
-		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -36,7 +31,6 @@ const defaultWidth = 682;
 const defaultHeight = 252;
 
 const poppingWordCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -236,15 +230,11 @@ const PoppingWordCaptionsContent: React.FC<{
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
-	readonly playbackRate: number;
-	readonly trimBefore: number;
 }> = ({
 	captionAreaWidth,
 	captions,
 	combineTokensWithinMilliseconds,
 	fontLoaded,
-	playbackRate,
-	trimBefore,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -256,8 +246,7 @@ const PoppingWordCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
+	const currentTimeMs = (frame / fps) * 1000;
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
@@ -277,21 +266,12 @@ const PoppingWordCaptionsContent: React.FC<{
 	);
 };
 
-const PoppingWordCaptionsInner: React.FC<
-	PoppingWordCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
+const PoppingWordCaptionsInner: React.FC<PoppingWordCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	controls,
 	height = defaultHeight,
-	name,
-	playbackRate = 1,
 	style,
-	trimBefore,
 	width = defaultWidth,
-	...interactiveProps
 }) => {
 	const [fontLoaded, setFontLoaded] = useState(false);
 
@@ -306,31 +286,21 @@ const PoppingWordCaptionsInner: React.FC<
 	}, []);
 
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<PoppingWordCaptions>'}
-			trimBefore={trimBefore}
+		<div
+			style={{
+				height,
+				marginInline: 'auto',
+				width,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					height,
-					marginInline: 'auto',
-					width,
-					...style,
-				}}
-			>
-				<PoppingWordCaptionsContent
-					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
-					playbackRate={playbackRate}
-					trimBefore={trimBefore ?? 0}
-				/>
-			</div>
-		</Sequence>
+			<PoppingWordCaptionsContent
+				captionAreaWidth={width ?? null}
+				captions={captions}
+				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+				fontLoaded={fontLoaded}
+			/>
+		</div>
 	);
 };
 
@@ -338,7 +308,7 @@ const PoppingWordCaptionsLayer = Interactive.withSchema({
 	Component: PoppingWordCaptionsInner,
 	componentName: '<PoppingWordCaptions>',
 	schema: poppingWordCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<PoppingWordCaptionsProps>;
+	wrapInSequence: true,
+});
 
 export const PoppingWordCaptions = PoppingWordCaptionsLayer;

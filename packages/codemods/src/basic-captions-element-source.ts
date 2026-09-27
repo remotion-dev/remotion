@@ -5,30 +5,23 @@ import {createTikTokStyleCaptions} from '@remotion/captions';
 import React, {useMemo} from 'react';
 import {
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type BasicCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
-	Pick<SequenceProps, 'from' | 'durationInFrames' | 'trimBefore' | 'width' | 'height'> & {
+type BasicCaptionsProps = InteractiveTransformProps &
+	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
-		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
 const BasicCaptionsContent: React.FC<{
 	readonly captions: Caption[];
-	readonly playbackRate: number;
-	readonly trimBefore: number;
 	readonly combineTokensWithinMilliseconds: number;
-}> = ({captions, playbackRate, trimBefore, combineTokensWithinMilliseconds}) => {
+}> = ({captions, combineTokensWithinMilliseconds}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -39,9 +32,7 @@ const BasicCaptionsContent: React.FC<{
 			}).pages,
 		[captions, combineTokensWithinMilliseconds],
 	);
-	// The Sequence frame already includes trimBefore; only elapsed frames speed up.
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
+	const currentTimeMs = (frame / fps) * 1000;
 	const page = pages.find(
 		(candidate) =>
 			currentTimeMs >= candidate.startMs &&
@@ -77,7 +68,6 @@ const BasicCaptionsContent: React.FC<{
 };
 
 const basicCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -106,63 +96,43 @@ const basicCaptionsSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const BasicCaptionsInner: React.FC<
-	BasicCaptionsProps & {readonly controls: SequenceControls | undefined}
-> = ({
+const BasicCaptionsInner: React.FC<BasicCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = 2000,
-	controls,
-	durationInFrames,
-	from,
 	height = 220,
-	name,
-	playbackRate = 1,
 	style,
-	trimBefore,
 	width = 900,
-	...interactiveProps
 }) => {
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? 'Basic captions'}
-			from={from}
-			durationInFrames={durationInFrames}
-			trimBefore={trimBefore}
+		<div
+			style={{
+				alignItems: 'center',
+				display: 'flex',
+				justifyContent: 'center',
+				position: 'absolute',
+				bottom: 120,
+				left: '50%',
+				transform: 'translateX(-50%)',
+				width,
+				height,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					justifyContent: 'center',
-					position: 'absolute',
-					bottom: 120,
-					left: '50%',
-					transform: 'translateX(-50%)',
-					width,
-					height,
-					...style,
-				}}
-			>
-				<BasicCaptionsContent
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					playbackRate={playbackRate}
-					trimBefore={trimBefore ?? 0}
-				/>
-			</div>
-		</Sequence>
+			<BasicCaptionsContent
+				captions={captions}
+				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+			/>
+		</div>
 	);
 };
 
 export const BasicCaptions = Interactive.withSchema({
 	Component: BasicCaptionsInner,
 	componentName: '<BasicCaptions>',
+	defaultSequenceName: 'Basic captions',
 	schema: basicCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<BasicCaptionsProps>;
+	wrapInSequence: true,
+});
 `;
 
 export const getBasicCaptionsElementFile = ({

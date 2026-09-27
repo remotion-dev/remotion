@@ -3,25 +3,20 @@ import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
 import React from 'react';
 import {
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
-type MirroredAudioSpectrumProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly audioSrc?: string;
-		readonly barColor?: string;
-		readonly numberOfBars?: number;
-		readonly sensitivity?: number;
-	};
+type MirroredAudioSpectrumProps = InteractiveTransformProps & {
+	readonly audioSrc?: string;
+	readonly barColor?: string;
+	readonly numberOfBars?: number;
+	readonly sensitivity?: number;
+};
 
 const mirroredAudioSpectrumSchema = {
-	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
 		assetType: 'audio',
@@ -125,39 +120,28 @@ const MirroredAudioSpectrumContent: React.FC<{
 	);
 };
 
-const MirroredAudioSpectrumInner: React.FC<
-	MirroredAudioSpectrumProps & {readonly controls: SequenceControls | undefined}
-> = ({
+const MirroredAudioSpectrumInner: React.FC<MirroredAudioSpectrumProps> = ({
 	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 	barColor = '#2563eb',
-	controls,
-	name,
 	numberOfBars = 65,
 	sensitivity = 1.5,
 	style,
-	...sequenceProps
 }) => {
 	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? 'Mirrored audio spectrum'}
-		>
-			<MirroredAudioSpectrumContent
-				audioSrc={audioSrc}
-				barColor={barColor}
-				numberOfBars={numberOfBars}
-				sensitivity={sensitivity}
-				style={style}
-			/>
-		</Sequence>
+		<MirroredAudioSpectrumContent
+			audioSrc={audioSrc}
+			barColor={barColor}
+			numberOfBars={numberOfBars}
+			sensitivity={sensitivity}
+			style={style}
+		/>
 	);
 };
 
 export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumInner,
 	componentName: '<MirroredAudioSpectrum>',
+	defaultSequenceName: 'Mirrored audio spectrum',
 	schema: mirroredAudioSpectrumSchema,
-	supportsEffects: false,
-}) as React.FC<MirroredAudioSpectrumProps>;
+	wrapInSequence: true,
+});
