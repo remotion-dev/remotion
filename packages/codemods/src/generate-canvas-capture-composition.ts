@@ -288,6 +288,7 @@ export const ${previewComponentName} = () => {
 	return (
 		<AbsoluteFill
 			durationInFrames={${durationInFrames}}
+			premountFor={${fps}}
 			style={{
 				width: ${videoWidth},
 				height: ${videoHeight},

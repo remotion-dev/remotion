@@ -183,6 +183,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,
+		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -294,6 +295,7 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		compositionFile: fileName,
 		compositionId: 'MyComp',
 		from: null,
+		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -420,6 +422,7 @@ registerRoot(Root);`,
 		fileName: 'src/Composition.tsx',
 		nodePath: subscription.nodePath.nodePath,
 		durationInFrames: 20,
+		premountFor: 30,
 		captions: [
 			{
 				text: ' Hello',
@@ -484,6 +487,7 @@ registerRoot(Root);`,
 		fileName: 'src/Composition.tsx',
 		nodePath: currentSubscription.nodePath.nodePath,
 		durationInFrames: 20,
+		premountFor: 30,
 		captions: [
 			{
 				text: ' Again',
@@ -535,6 +539,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		from: 1.5,
+		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,

@@ -140,6 +140,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			position: null,
 		},
 		from: null,
+		premountFor: null,
 	});
 	if (!insertResult.success) {
 		throw new Error(insertResult.reason);
@@ -574,6 +575,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 12,
+		premountFor: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -636,6 +638,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		element,
 		expectedFileState: null,
 		from: null,
+		premountFor: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: null,
@@ -730,6 +733,7 @@ const makeElementAssetFixture = () => {
 				},
 				expectedFileState: null,
 				from: null,
+				premountFor: null,
 				overwriteExisting: false,
 				position: null,
 				undoRedoNavigation: null,
@@ -871,6 +875,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: null,
+		premountFor: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: {
@@ -991,6 +996,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 30,
+		premountFor: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -1080,6 +1086,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			},
 			expectedFileState: null,
 			from: 30,
+			premountFor: null,
 			overwriteExisting: false,
 			position: {x: 24, y: 48},
 			undoRedoNavigation: null,
@@ -1188,6 +1195,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 			type: 'asset',
 		},
 		from: 12,
+		premountFor: null,
 	});
 	if (!result.success) {
 		throw new Error(result.reason);
@@ -1224,6 +1232,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 			type: 'svg',
 		},
 		from: null,
+		premountFor: null,
 	});
 
 	expect(result).toMatchObject({

@@ -100,7 +100,9 @@ const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
 	return null;
 };
 
-const transitionSeriesOverlaySchema = {} satisfies InteractivitySchema;
+const transitionSeriesOverlaySchema = {
+	...Internals.premountSchema,
+} satisfies InteractivitySchema;
 
 const SeriesOverlay = Interactive.withSchema({
 	Component: SeriesOverlayInner as unknown as React.ComponentType<
@@ -311,6 +313,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly children: React.ReactNode;
 			readonly index: number;
 			readonly controls: SequenceControls | null | undefined;
+			readonly premountFor: number | undefined;
+			readonly postmountFor: number | undefined;
+			readonly styleWhilePremounted: React.CSSProperties | undefined;
+			readonly styleWhilePostmounted: React.CSSProperties | undefined;
 		};
 
 		type RenderState = {
@@ -342,6 +348,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 						controls={info.controls ?? undefined}
 						layout="absolute-fill"
+						premountFor={info.premountFor}
+						postmountFor={info.postmountFor}
+						styleWhilePremounted={info.styleWhilePremounted}
+						styleWhilePostmounted={info.styleWhilePostmounted}
 					>
 						{info.children}
 					</SequenceWithoutSchema>
@@ -478,6 +488,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							children: overlayProps.children,
 							index: i,
 							controls: overlayProps.controls,
+							premountFor: overlayProps.premountFor,
+							postmountFor: overlayProps.postmountFor,
+							styleWhilePremounted: overlayProps.styleWhilePremounted,
+							styleWhilePostmounted: overlayProps.styleWhilePostmounted,
 						};
 
 						return renderNext({

@@ -44,6 +44,8 @@ const audioProps = [
 	'src',
 	'from',
 	'durationInFrames',
+	'premountFor',
+	'postmountFor',
 	'trimBefore',
 	'trimAfter',
 	'playbackRate',
