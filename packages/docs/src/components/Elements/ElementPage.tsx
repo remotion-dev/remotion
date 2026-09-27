@@ -284,11 +284,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 												: 'Install in the most recently focused Remotion Studio'
 										}
 									>
-										{installStatus.type === 'installing'
-											? 'Finding Studio…'
-											: isEmbeddedInStudio
-												? 'Use'
-												: 'Install in Studio'}
+										Use
 									</BlueButton>
 									{isEmbeddedInStudio === false ? (
 										<div
@@ -349,8 +345,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										<li>
 											<InlineStep>3</InlineStep>
 											<span>
-												Return here and click <strong>Install in Studio</strong>{' '}
-												again.
+												Return here and click <strong>Use</strong> again.
 											</span>
 										</li>
 									</ol>

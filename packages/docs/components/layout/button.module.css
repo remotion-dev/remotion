@@ -1,4 +1,5 @@
 .buttoncontainer {
+	position: relative;
 	border-radius: 8px;
 	font-weight: bold;
 	appearance: none;
@@ -11,6 +12,29 @@
 	align-items: center;
 	justify-content: center;
 	transition: background-color 0.1s;
+}
+
+.buttonContent {
+	display: inline-flex;
+	align-items: center;
+}
+
+.buttonContentLoading {
+	opacity: 0;
+}
+
+.spinnerOverlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.spinner {
+	display: block;
+	width: 20px;
+	height: 20px;
 }
 
 .buttoncontainer:not([disabled]):hover {
