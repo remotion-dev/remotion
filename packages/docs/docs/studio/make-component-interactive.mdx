@@ -17,12 +17,12 @@ The component only needs to render its content. It does not need to render a [`<
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
-import type {InteractiveTransformProps} from 'remotion';
 
-type BadgeProps = InteractiveTransformProps & {
+type BadgeProps = {
   readonly children?: React.ReactNode;
   readonly color?: string;
   readonly padding?: number;
+  readonly style?: React.CSSProperties;
 };
 
 export const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', padding = 16, style}) => {
@@ -93,12 +93,13 @@ Pass `wrapInSequence: true` to add the timeline registration and timing behavior
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
-import {Interactive, type InteractiveTransformProps, type InteractivitySchema} from 'remotion';
+import {Interactive, type InteractivitySchema} from 'remotion';
 
-type BadgeProps = InteractiveTransformProps & {
+type BadgeProps = {
   readonly children?: React.ReactNode;
   readonly color?: string;
   readonly padding?: number;
+  readonly style?: React.CSSProperties;
 };
 
 const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', padding = 16, style}) => {
