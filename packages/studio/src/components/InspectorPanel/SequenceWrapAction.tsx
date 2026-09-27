@@ -13,7 +13,6 @@ import type {
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
 import {installRequiredPackages} from '../../helpers/install-required-package';
-import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
 import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
 import {MotionBlurIcon} from '../../icons/motion-blur';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -24,6 +23,7 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
+import {getHtmlInCanvasWrapperTiming} from './get-html-in-canvas-wrapper-timing';
 
 type HtmlInCanvasWrapper = Extract<
 	NodeWrapper,
@@ -56,80 +56,22 @@ export const SequenceWrapAction: React.FC<{
 	const eligibilityKey = JSON.stringify([nodePathKey, sequenceStack]);
 	const [busy, setBusy] = useState(false);
 	const [eligibleNodeKey, setEligibleNodeKey] = useState<string | null>(null);
-	const timing = useMemo(() => {
-		const selectedNodePathKey = timelineSequenceNodePathToKey(
+	const timing = useMemo(
+		() =>
+			getHtmlInCanvasWrapperTiming({
+				tracks: calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}),
+				sequenceSubscriptionKey: nodePathInfo.sequenceSubscriptionKey,
+			}),
+		[
 			nodePathInfo.sequenceSubscriptionKey,
-		);
-		const matchingTracks = calculateTimeline({
+			overrideIdToNodePathMappings,
 			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-		}).filter(
-			(candidate) =>
-				candidate.nodePathInfo !== null &&
-				timelineSequenceNodePathToKey(
-					candidate.nodePathInfo.sequenceSubscriptionKey,
-				) === selectedNodePathKey,
-		);
-		const timings = matchingTracks.map((candidate) => {
-			const from = Math.max(
-				0,
-				candidate.localStart +
-					(candidate.sequence.from - candidate.cascadedStart) *
-						candidate.keyframePlaybackRate,
-			);
-			return {
-				from,
-				durationInFrames:
-					candidate.sequence.duration * candidate.keyframePlaybackRate,
-				trimBefore: from,
-			};
-		});
-		const firstTiming = timings[0];
-		if (
-			!firstTiming ||
-			!Number.isFinite(firstTiming.from) ||
-			!Number.isFinite(firstTiming.durationInFrames) ||
-			firstTiming.durationInFrames <= 0
-		) {
-			return null;
-		}
-
-		for (const candidate of timings.slice(1)) {
-			if (
-				!Number.isFinite(candidate.from) ||
-				!Number.isFinite(candidate.durationInFrames) ||
-				candidate.durationInFrames <= 0
-			) {
-				return null;
-			}
-
-			const fromTolerance =
-				Number.EPSILON *
-				Math.max(1, Math.abs(firstTiming.from), Math.abs(candidate.from)) *
-				16;
-			const durationTolerance =
-				Number.EPSILON *
-				Math.max(
-					1,
-					Math.abs(firstTiming.durationInFrames),
-					Math.abs(candidate.durationInFrames),
-				) *
-				16;
-			if (
-				Math.abs(firstTiming.from - candidate.from) > fromTolerance ||
-				Math.abs(firstTiming.durationInFrames - candidate.durationInFrames) >
-					durationTolerance
-			) {
-				return null;
-			}
-		}
-
-		return firstTiming;
-	}, [
-		nodePathInfo.sequenceSubscriptionKey,
-		overrideIdToNodePathMappings,
-		sequences,
-	]);
+		],
+	);
+	const timingIsNull = timing === null;
 	const wouldNestAtRuntime = useMemo(() => {
 		const sequencesById = new Map(
 			sequences.map((registeredSequence) => [
@@ -179,7 +121,7 @@ export const SequenceWrapAction: React.FC<{
 	}, [sequence.id, sequences]);
 
 	useEffect(() => {
-		if (sourceActionsDisabled || wouldNestAtRuntime || timing === null) {
+		if (sourceActionsDisabled || wouldNestAtRuntime || timingIsNull) {
 			setEligibleNodeKey(null);
 			return;
 		}
@@ -219,7 +161,7 @@ export const SequenceWrapAction: React.FC<{
 		eligibilityKey,
 		nodePathKey,
 		sourceActionsDisabled,
-		timing,
+		timingIsNull,
 		wouldNestAtRuntime,
 	]);
 
