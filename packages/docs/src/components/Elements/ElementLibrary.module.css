@@ -46,6 +46,12 @@
 	pointer-events: auto;
 }
 
+@media (hover: none), (pointer: coarse) {
+	.installAction {
+		display: none;
+	}
+}
+
 .library .card {
 	display: flex;
 	height: 100%;
