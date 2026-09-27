@@ -87,7 +87,7 @@
 
 .dragCalloutLine {
 	position: absolute;
-	top: 6px;
+	top: 0;
 	left: 0;
 	width: 47px;
 	height: 30px;
