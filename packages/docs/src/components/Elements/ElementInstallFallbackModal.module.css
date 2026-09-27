@@ -67,12 +67,12 @@
 	display: flex;
 	width: 100%;
 	align-items: center;
-	gap: 14px;
+	gap: 8px;
 	margin-top: 20px;
 }
 
 .installAction > :first-child {
-	width: min(258px, calc(100% - 134px));
+	width: min(258px, calc(100% - 128px));
 	flex: none;
 }
 
