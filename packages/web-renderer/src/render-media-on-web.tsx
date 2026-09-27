@@ -316,12 +316,19 @@ const internalRenderMediaOnWeb = async <
 		compositionWidth: composition.width ?? null,
 	});
 
-	const dimensions = getEncodedDimensions({
+	const encodedDimensions = getEncodedDimensions({
 		width: resolved.width,
 		height: resolved.height,
 		scale,
 		codec: videoEnabled ? codec : null,
 	});
+	const sourceDimensions = {
+		width: Math.ceil(resolved.width * scale),
+		height: Math.ceil(resolved.height * scale),
+	};
+	const needsCrop =
+		encodedDimensions.width !== sourceDimensions.width ||
+		encodedDimensions.height !== sourceDimensions.height;
 	const realFrameRange = getRealFrameRange(
 		resolved.durationInFrames,
 		frameRange,
@@ -332,8 +339,8 @@ const internalRenderMediaOnWeb = async <
 	}
 
 	using scaffold = createScaffold({
-		width: dimensions.compositionWidth,
-		height: dimensions.compositionHeight,
+		width: resolved.width,
+		height: resolved.height,
 		fps: resolved.fps,
 		durationInFrames: resolved.durationInFrames,
 		Component: composition.component,
@@ -470,6 +477,17 @@ const internalRenderMediaOnWeb = async <
 								? videoBitrate
 								: getQualityForWebRendererQuality(videoBitrate),
 						sizeChangeBehavior: 'deny',
+						...(needsCrop
+							? {
+									transform: {
+										crop: {
+											left: 0,
+											top: 0,
+											...encodedDimensions,
+										},
+									},
+								}
+							: {}),
 						hardwareAcceleration,
 						latencyMode: 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
@@ -591,13 +609,7 @@ const internalRenderMediaOnWeb = async <
 					logLevel,
 					internalState,
 					onlyBackgroundClipText: false,
-					cutout: new DOMRect(
-						0,
-						0,
-						dimensions.compositionWidth,
-						dimensions.compositionHeight,
-					),
-					outputSize: dimensions,
+					cutout: new DOMRect(0, 0, resolved.width, resolved.height),
 					htmlInCanvasContext,
 					onHtmlInCanvasLayerOutcome: htmlInCanvasContext
 						? onHtmlInCanvasLayerOutcome
@@ -627,8 +639,8 @@ const internalRenderMediaOnWeb = async <
 					frameToEncode = validateVideoFrame({
 						originalFrame: videoFrame,
 						returnedFrame,
-						expectedWidth: dimensions.width,
-						expectedHeight: dimensions.height,
+						expectedWidth: sourceDimensions.width,
+						expectedHeight: sourceDimensions.height,
 						expectedTimestamp: timestamp,
 					});
 					await waitForPageResponsiveness();

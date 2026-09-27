@@ -94,7 +94,7 @@ For H.264, H.265, and AV1, the scaled output dimensions are automatically adjust
 This uses the same scale-aware calculation as server-side rendering.
 For example, a `1200 × 675` composition at `scale: 1` produces a `1200 × 674` video.
 
-The composition is rendered at the adjusted dimensions. In the example above, [`useVideoConfig()`](/docs/use-video-config) returns a height of `674`, and `onFrame` receives a `1200 × 674` frame.
+The composition dimensions and [`useVideoConfig()`](/docs/use-video-config) values remain unchanged. After `onFrame`, excess pixels on the right and bottom edges are cropped without stretching the frame.
 Pass the same `scale` to [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web) when checking support.
 
 ### `onProgress?`

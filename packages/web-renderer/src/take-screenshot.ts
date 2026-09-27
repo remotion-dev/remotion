@@ -23,7 +23,6 @@ export const createLayer = async ({
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
 	waitForPageResponsiveness,
-	outputSize,
 }: {
 	element: HTMLElement | SVGElement;
 	scale: number;
@@ -34,10 +33,9 @@ export const createLayer = async ({
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
-	outputSize: {width: number; height: number} | null;
 }) => {
-	const scaledWidth = outputSize?.width ?? Math.ceil(cutout.width * scale);
-	const scaledHeight = outputSize?.height ?? Math.ceil(cutout.height * scale);
+	const scaledWidth = Math.ceil(cutout.width * scale);
+	const scaledHeight = Math.ceil(cutout.height * scale);
 
 	if (
 		!onlyBackgroundClipText &&
