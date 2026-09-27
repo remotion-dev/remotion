@@ -845,8 +845,8 @@ export const InspectorSequenceSection: React.FC<{
 	const transform3DActionLabel = automaticallyEnabled3DTransform
 		? '3D controls are required by the current transform values'
 		: show3DTransformControls
-			? 'Hide 3D transform controls'
-			: 'Show 3D transform controls';
+			? 'Hide 3D controls'
+			: 'Show 3D controls';
 	const transform3DAction = (
 		<ActionTooltip
 			label={transform3DActionLabel}

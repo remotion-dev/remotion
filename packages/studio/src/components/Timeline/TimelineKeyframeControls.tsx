@@ -901,7 +901,7 @@ export const TimelineKeyframeControls: React.FC<{
 			}
 		>
 			<ActionTooltip
-				label="Go to previous keyframe"
+				label="Previous keyframe"
 				shortcut={null}
 				delay={800}
 				dismissOnClick
@@ -914,7 +914,7 @@ export const TimelineKeyframeControls: React.FC<{
 					style={previousStyle}
 					disabled={previousDisabled}
 					onPointerDown={previousDisabled ? undefined : onPrevious}
-					aria-label="Go to previous keyframe"
+					aria-label="Previous keyframe"
 				>
 					<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 						<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
@@ -940,7 +940,7 @@ export const TimelineKeyframeControls: React.FC<{
 				</button>
 			</ActionTooltip>
 			<ActionTooltip
-				label="Go to next keyframe"
+				label="Next keyframe"
 				shortcut={null}
 				delay={800}
 				dismissOnClick
@@ -953,7 +953,7 @@ export const TimelineKeyframeControls: React.FC<{
 					style={nextStyle}
 					disabled={nextDisabled}
 					onPointerDown={nextDisabled ? undefined : onNext}
-					aria-label="Go to next keyframe"
+					aria-label="Next keyframe"
 				>
 					<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
 						<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />
