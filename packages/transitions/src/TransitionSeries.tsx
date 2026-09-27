@@ -671,23 +671,41 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						);
 					};
 
-					const nextProgress = next
-						? next.props.timing.getProgress({
-								frame:
-									frame -
-									actualStartFrame -
-									timelineDurationInFrames +
-									next.props.timing.getDurationInFrames({fps}),
-								fps,
-							})
-						: null;
+					const nextDuration =
+						next?.props.timing.getDurationInFrames({fps}) ?? null;
+					const nextTransitionFrame =
+						nextDuration === null
+							? null
+							: frame -
+								actualStartFrame -
+								timelineDurationInFrames +
+								nextDuration;
+					const nextProgress =
+						next &&
+						nextTransitionFrame !== null &&
+						nextDuration !== null &&
+						nextTransitionFrame >= 0 &&
+						nextTransitionFrame < nextDuration
+							? next.props.timing.getProgress({
+									frame: nextTransitionFrame,
+									fps,
+								})
+							: null;
 
-					const prevProgress = prev
-						? prev.props.timing.getProgress({
-								frame: frame - actualStartFrame,
-								fps,
-							})
-						: null;
+					const prevDuration =
+						prev?.props.timing.getDurationInFrames({fps}) ?? null;
+					const prevTransitionFrame = prev ? frame - actualStartFrame : null;
+					const prevProgress =
+						prev &&
+						prevTransitionFrame !== null &&
+						prevDuration !== null &&
+						prevTransitionFrame >= 0 &&
+						prevTransitionFrame < prevDuration
+							? prev.props.timing.getProgress({
+									frame: prevTransitionFrame,
+									fps,
+								})
+							: null;
 
 					if (
 						next &&
