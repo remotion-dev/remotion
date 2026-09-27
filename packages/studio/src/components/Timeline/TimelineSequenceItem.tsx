@@ -1260,6 +1260,8 @@ const TimelineSequenceItemInner: React.FC<{
 			sequence,
 			propStatuses: propStatusesForOverride,
 			splitFrame: getCurrentFrame(),
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
 			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
 			hasMultipleSelection: selected && selectedItems.length > 1,
 		});
@@ -1400,6 +1402,8 @@ const TimelineSequenceItemInner: React.FC<{
 		duplicateDisabled,
 		editorInfo,
 		isProgrammaticallyDuplicated,
+		keyframeDisplayOffset,
+		keyframePlaybackRate,
 		mediaSrc,
 		nodePath,
 		nodePathInfo,
