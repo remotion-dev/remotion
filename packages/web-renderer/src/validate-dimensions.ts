@@ -16,6 +16,8 @@ export const getEncodedDimensions = ({
 		codec === 'h264' || codec === 'h265' || codec === 'av1';
 	if (!shouldHaveEvenDimensions) {
 		return {
+			compositionWidth: width,
+			compositionHeight: height,
 			width: Math.ceil(width * scale),
 			height: Math.ceil(height * scale),
 		};
@@ -34,6 +36,8 @@ export const getEncodedDimensions = ({
 	}
 
 	return {
+		compositionWidth: widthWithEvenDimensions,
+		compositionHeight: heightWithEvenDimensions,
 		width: Math.round(widthWithEvenDimensions * scale),
 		height: Math.round(heightWithEvenDimensions * scale),
 	};

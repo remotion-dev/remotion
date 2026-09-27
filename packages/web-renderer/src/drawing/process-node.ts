@@ -140,6 +140,7 @@ export const processNode = async ({
 			scale,
 			onlyBackgroundClipText: false,
 			waitForPageResponsiveness,
+			outputSize: null,
 		});
 		if (waitForPageResponsiveness !== null) {
 			await waitForPageResponsiveness();

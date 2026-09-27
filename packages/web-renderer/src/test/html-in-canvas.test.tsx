@@ -160,6 +160,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 			onlyBackgroundClipText: false,
 			scale: 1,
 			waitForPageResponsiveness: null,
+			outputSize: null,
 		});
 
 		expect(drawElementImage).not.toHaveBeenCalled();

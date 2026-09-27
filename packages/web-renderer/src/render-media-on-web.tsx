@@ -316,19 +316,12 @@ const internalRenderMediaOnWeb = async <
 		compositionWidth: composition.width ?? null,
 	});
 
-	const encodedDimensions = getEncodedDimensions({
+	const dimensions = getEncodedDimensions({
 		width: resolved.width,
 		height: resolved.height,
 		scale,
 		codec: videoEnabled ? codec : null,
 	});
-	const sourceDimensions = {
-		width: Math.ceil(resolved.width * scale),
-		height: Math.ceil(resolved.height * scale),
-	};
-	const needsResize =
-		encodedDimensions.width !== sourceDimensions.width ||
-		encodedDimensions.height !== sourceDimensions.height;
 	const realFrameRange = getRealFrameRange(
 		resolved.durationInFrames,
 		frameRange,
@@ -339,8 +332,8 @@ const internalRenderMediaOnWeb = async <
 	}
 
 	using scaffold = createScaffold({
-		width: resolved.width,
-		height: resolved.height,
+		width: dimensions.compositionWidth,
+		height: dimensions.compositionHeight,
 		fps: resolved.fps,
 		durationInFrames: resolved.durationInFrames,
 		Component: composition.component,
@@ -476,8 +469,7 @@ const internalRenderMediaOnWeb = async <
 							typeof videoBitrate === 'number'
 								? videoBitrate
 								: getQualityForWebRendererQuality(videoBitrate),
-						sizeChangeBehavior: needsResize ? 'fill' : 'deny',
-						...(needsResize ? {transform: encodedDimensions} : {}),
+						sizeChangeBehavior: 'deny',
 						hardwareAcceleration,
 						latencyMode: 'quality',
 						keyFrameInterval: keyframeIntervalInSeconds,
@@ -599,7 +591,13 @@ const internalRenderMediaOnWeb = async <
 					logLevel,
 					internalState,
 					onlyBackgroundClipText: false,
-					cutout: new DOMRect(0, 0, resolved.width, resolved.height),
+					cutout: new DOMRect(
+						0,
+						0,
+						dimensions.compositionWidth,
+						dimensions.compositionHeight,
+					),
+					outputSize: dimensions,
 					htmlInCanvasContext,
 					onHtmlInCanvasLayerOutcome: htmlInCanvasContext
 						? onHtmlInCanvasLayerOutcome
@@ -629,8 +627,8 @@ const internalRenderMediaOnWeb = async <
 					frameToEncode = validateVideoFrame({
 						originalFrame: videoFrame,
 						returnedFrame,
-						expectedWidth: sourceDimensions.width,
-						expectedHeight: sourceDimensions.height,
+						expectedWidth: dimensions.width,
+						expectedHeight: dimensions.height,
 						expectedTimestamp: timestamp,
 					});
 					await waitForPageResponsiveness();
