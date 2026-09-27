@@ -373,6 +373,16 @@ export const ElementInstallConfirmation: React.FC<{
 		() => makeSourceControlsVisible(request.element.sourceCode),
 		[request.element.sourceCode],
 	);
+	const currentDestination = useMemo(() => {
+		if (request.compositionFile === null || request.compositionId === null) {
+			return null;
+		}
+
+		return {
+			compositionFile: request.compositionFile,
+			compositionId: request.compositionId,
+		};
+	}, [request.compositionFile, request.compositionId]);
 	const config = Internals.useUnsafeVideoConfig();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -658,6 +668,23 @@ export const ElementInstallConfirmation: React.FC<{
 			return;
 		}
 
+		const destination =
+			mode === 'current-composition'
+				? currentDestination === null
+					? null
+					: {
+							type: 'current-composition' as const,
+							compositionFile: currentDestination.compositionFile,
+							compositionId: currentDestination.compositionId,
+						}
+				: {
+						type: 'new-composition' as const,
+						compositionFile: selectedPlan.compositionFile,
+					};
+		if (destination === null) {
+			return;
+		}
+
 		let canceled = false;
 		(async () => {
 			let candidate = requestedName ?? elementBaseName;
@@ -665,17 +692,7 @@ export const ElementInstallConfirmation: React.FC<{
 			while (true) {
 				const result = await prepareElementInstall({
 					installationName: candidate,
-					destination:
-						mode === 'current-composition'
-							? {
-									type: 'current-composition',
-									compositionFile: request.compositionFile,
-									compositionId: request.compositionId,
-								}
-							: {
-									type: 'new-composition',
-									compositionFile: selectedPlan.compositionFile,
-								},
+					destination,
 					element: request.element,
 				});
 				if (canceled) return;
@@ -747,6 +764,7 @@ export const ElementInstallConfirmation: React.FC<{
 		elementBaseName,
 		requestedName,
 		mode,
+		currentDestination,
 		refreshPlan,
 		request,
 		selectedPlan,
@@ -774,7 +792,7 @@ export const ElementInstallConfirmation: React.FC<{
 					? !activePlan.expectedFileState.exists
 					: requestedName !== null))) &&
 		(mode === 'current-composition'
-			? currentPlan !== null
+			? currentPlan !== null && currentDestination !== null
 			: newCompositionValuesAreValid &&
 				folderTargetIsReady &&
 				selectedNewCompositionPlan !== null);
@@ -784,17 +802,24 @@ export const ElementInstallConfirmation: React.FC<{
 			return;
 		}
 
+		const destination =
+			mode === 'new-composition'
+				? {
+						compositionFile: selectedPlan.compositionFile,
+						compositionId: newCompositionId,
+					}
+				: currentDestination;
+		if (destination === null) {
+			return;
+		}
+
 		setSubmitting(true);
 		const installed = await insertElement({
 			installationName: overwriteExisting
 				? (existingDestination?.name ?? installationName)
 				: installationName,
-			compositionFile:
-				mode === 'new-composition'
-					? selectedPlan.compositionFile
-					: request.compositionFile,
-			compositionId:
-				mode === 'new-composition' ? newCompositionId : request.compositionId,
+			compositionFile: destination.compositionFile,
+			compositionId: destination.compositionId,
 			element: request.element,
 			// The insert operation revalidates this even if the name preflight is pending.
 			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
@@ -844,6 +869,7 @@ export const ElementInstallConfirmation: React.FC<{
 		installationName,
 		overwriteExisting,
 		canSubmit,
+		currentDestination,
 		folderSymbolicatedStack,
 		mode,
 		newCompositionCodemod,
@@ -943,7 +969,7 @@ export const ElementInstallConfirmation: React.FC<{
 						</div>
 					</div>
 
-					{currentPlan === null ? (
+					{currentPlan === null && request.compositionId !== null ? (
 						<div style={warningStyle} role="status">
 							<WarningTriangle style={warningIconStyle} />
 							<p style={warningDescriptionStyle}>

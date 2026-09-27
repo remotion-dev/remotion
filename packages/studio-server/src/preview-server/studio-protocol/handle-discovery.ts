@@ -51,14 +51,8 @@ const getLiveStudioTarget = (requestId: string) => {
 const isElementRequestTarget = (
 	target: ElementInstallTarget | null,
 ): target is ElementInstallTarget & {
-	readonly compositionFile: string;
-	readonly compositionId: string;
 	readonly lastFocusedAt: number;
-} =>
-	target !== null &&
-	target.compositionFile !== null &&
-	target.compositionId !== null &&
-	target.lastFocusedAt !== null;
+} => target !== null && target.lastFocusedAt !== null;
 
 const getProject = ({
 	gitSource,
