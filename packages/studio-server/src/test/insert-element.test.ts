@@ -512,6 +512,8 @@ test('invalidates a new-composition install after an external component edit', a
 			'ElementScene.tsx',
 		);
 		expect(getUndoStack()).toHaveLength(1);
+		// Wait for fs.watchFile to establish its polling baseline before editing.
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		writeFileSync(
 			componentFile,
 			`${readFileSync(componentFile, 'utf-8')}\n// External edit\n`,
