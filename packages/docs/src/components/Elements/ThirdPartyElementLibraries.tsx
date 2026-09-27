@@ -122,7 +122,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 						loading={isLoading}
 						onClick={addToStudio}
 						size="sm"
-						style={{padding: '5px 8px'}}
+						style={{fontSize: '0.75rem', lineHeight: 1.25, padding: '5px 8px'}}
 						title={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
