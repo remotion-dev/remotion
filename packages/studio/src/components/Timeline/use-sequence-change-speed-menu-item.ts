@@ -64,48 +64,28 @@ export const useSequenceChangeSpeedMenuItem = ({
 					: sequence.type === 'audio' || sequence.type === 'video'
 						? sequence.playbackRate
 						: 1,
-			toneFrequency:
-				typeof values.toneFrequency === 'number' ? values.toneFrequency : 1,
 			trimAfter: typeof values.trimAfter === 'number' ? values.trimAfter : null,
 			trimBefore: typeof values.trimBefore === 'number' ? values.trimBefore : 0,
 		}),
 		isEqual: (first, second) =>
 			first.loop === second.loop &&
 			first.playbackRate === second.playbackRate &&
-			first.toneFrequency === second.toneFrequency &&
 			first.trimAfter === second.trimAfter &&
 			first.trimBefore === second.trimBefore,
 	});
 
 	const isMedia = sequence.type === 'audio' || sequence.type === 'video';
+	const supportsSpeedChange =
+		sequence.controls?.schema.playbackRate !== undefined;
 	const playbackRateStatus = propStatusesForOverride?.playbackRate;
 	const durationStatus = propStatusesForOverride?.durationInFrames;
 	const trimAfterStatus = propStatusesForOverride?.trimAfter;
-	const toneFrequencyStatus = propStatusesForOverride?.toneFrequency;
-	const explicitToneFrequency =
-		toneFrequencyStatus?.status === 'static' &&
-		typeof toneFrequencyStatus.codeValue === 'number'
-			? toneFrequencyStatus.codeValue
-			: null;
-	const toneFollowsSpeed =
-		explicitToneFrequency !== null &&
-		!isClose(runtimeValues.playbackRate, 1) &&
-		isClose(explicitToneFrequency, runtimeValues.playbackRate);
-	const hasCustomPitch =
-		!isClose(runtimeValues.toneFrequency, 1) && !toneFollowsSpeed;
-	const pitchCanBeChanged =
-		toneFrequencyStatus?.status === 'static' && !hasCustomPitch;
-	const pitchDescription = hasCustomPitch
-		? `Custom pitch (${runtimeValues.toneFrequency.toFixed(2)}×) will be kept.`
-		: toneFrequencyStatus?.status !== 'static'
-			? 'Pitch is computed and will not be changed.'
-			: null;
 	const trimAfterCanBeUpdated =
 		runtimeValues.trimAfter === null || trimAfterStatus?.status === 'static';
 	const canChangeSpeed = Boolean(
-		isMedia &&
+		supportsSpeedChange &&
 		video &&
-		mediaMetadata &&
+		(!isMedia || mediaMetadata) &&
 		Number.isFinite(sequence.duration) &&
 		sequence.duration > 0 &&
 		!runtimeValues.loop &&
@@ -122,9 +102,7 @@ export const useSequenceChangeSpeedMenuItem = ({
 	const onChangeSpeed = useCallback(() => {
 		if (
 			!canChangeSpeed ||
-			!isMedia ||
 			!video ||
-			!mediaMetadata ||
 			!nodePath ||
 			!validatedSource ||
 			!sequence.controls ||
@@ -133,12 +111,24 @@ export const useSequenceChangeSpeedMenuItem = ({
 			return;
 		}
 
-		const sourceStartInFrames = getTimelineMediaStartFrame({
-			startMediaFrom: sequence.startMediaFrom,
-			mediaFrameAtSequenceZero: sequence.mediaFrameAtSequenceZero,
-			sequenceFrameOffset,
-			playbackRate: runtimeValues.playbackRate,
-		});
+		const registeredSequence = sequencesRef.current.find(
+			(candidate) => candidate.id === sequence.id,
+		);
+		if (!registeredSequence) {
+			return;
+		}
+
+		const contentStartInFrames = isMedia
+			? getTimelineMediaStartFrame({
+					startMediaFrom: sequence.startMediaFrom,
+					mediaFrameAtSequenceZero: sequence.mediaFrameAtSequenceZero,
+					sequenceFrameOffset,
+					playbackRate: runtimeValues.playbackRate,
+				})
+			: sequenceFrameOffset;
+		const parentPlaybackRate = isMedia
+			? sequence.sequencePlaybackRate
+			: sequence.sequencePlaybackRate / runtimeValues.playbackRate;
 		const samplePlaybackRate = isClose(runtimeValues.playbackRate, 1)
 			? 2
 			: runtimeValues.playbackRate * 1.01;
@@ -153,29 +143,24 @@ export const useSequenceChangeSpeedMenuItem = ({
 		const hasEditableKeyframes =
 			keyframeChanges.sequenceKeyframes.length > 0 ||
 			keyframeChanges.effectKeyframes.length > 0;
-		const initialPreservePitch = !toneFollowsSpeed;
 		const {clientId} = previewServerState;
 		const {schema} = sequence.controls;
-		const {duration: timelineDurationInFrames, sequencePlaybackRate} = sequence;
+		const {duration: timelineDurationInFrames} = sequence;
+		const durationInParentFrames = registeredSequence.duration;
 
 		setSelectedModal({
 			type: 'change-speed',
+			contentStartInFrames,
 			displayName: sequence.displayName,
 			fps: video.fps,
-			hasAudio:
-				sequence.type === 'audio' || mediaMetadata.hasAudioTrack !== false,
 			hasEditableKeyframes,
 			initialPlaybackRate: runtimeValues.playbackRate,
-			initialPreservePitch,
-			mediaDurationInFrames: mediaMetadata.duration * video.fps,
-			pitchCanBeChanged,
-			pitchDescription,
-			sequencePlaybackRate,
-			sourceStartInFrames,
+			mediaDurationInFrames:
+				isMedia && mediaMetadata ? mediaMetadata.duration * video.fps : null,
+			parentPlaybackRate,
 			timelineDurationInFrames,
-			onApply: async ({playbackRate, preservePitch, keyframeTiming}) => {
-				const sourceSpanInFrames =
-					timelineDurationInFrames * sequencePlaybackRate * playbackRate;
+			onApply: async ({playbackRate, keyframeTiming}) => {
+				const durationInFrames = durationInParentFrames * playbackRate;
 				const speedChanged = !isClose(playbackRate, runtimeValues.playbackRate);
 				const changes: SaveSequencePropChange[] = speedChanged
 					? [
@@ -187,7 +172,7 @@ export const useSequenceChangeSpeedMenuItem = ({
 								defaultValue: JSON.stringify(1),
 								schema,
 								sourceEdit:
-									keyframeTiming === 'follow-footage'
+									keyframeTiming === 'follow-content'
 										? ({type: 'playback-rate'} as const)
 										: undefined,
 							},
@@ -195,7 +180,7 @@ export const useSequenceChangeSpeedMenuItem = ({
 								fileName: validatedSource,
 								nodePath,
 								fieldKey: 'durationInFrames',
-								value: sourceSpanInFrames,
+								value: durationInFrames,
 								defaultValue: null,
 								schema,
 							},
@@ -206,35 +191,21 @@ export const useSequenceChangeSpeedMenuItem = ({
 											fileName: validatedSource,
 											nodePath,
 											fieldKey: 'trimAfter',
-											value: runtimeValues.trimBefore + sourceSpanInFrames,
+											value: runtimeValues.trimBefore + durationInFrames,
 											defaultValue: null,
 											schema,
 										},
 									]),
 						]
 					: [];
-				if (pitchCanBeChanged) {
-					const nextToneFrequency = preservePitch ? 1 : playbackRate;
-					if (!isClose(nextToneFrequency, runtimeValues.toneFrequency)) {
-						changes.push({
-							fileName: validatedSource,
-							nodePath,
-							fieldKey: 'toneFrequency',
-							value: nextToneFrequency,
-							defaultValue: JSON.stringify(1),
-							schema,
-						});
-					}
-				}
-
 				await saveSequenceProps({
 					addedKeyframes: null,
 					movedKeyframes: null,
 					changes,
 					setPropStatuses,
 					clientId,
-					undoLabel: 'Change clip speed',
-					redoLabel: 'Change clip speed again',
+					undoLabel: 'Change speed',
+					redoLabel: 'Change speed again',
 				});
 			},
 		});
@@ -244,8 +215,6 @@ export const useSequenceChangeSpeedMenuItem = ({
 		mediaMetadata,
 		nodePath,
 		overrideIdToNodePathMappings,
-		pitchCanBeChanged,
-		pitchDescription,
 		previewServerState,
 		propStatusesRef,
 		runtimeValues,
@@ -254,12 +223,11 @@ export const useSequenceChangeSpeedMenuItem = ({
 		sequencesRef,
 		setPropStatuses,
 		setSelectedModal,
-		toneFollowsSpeed,
 		validatedSource,
 		video,
 	]);
 
-	return isMedia
+	return supportsSpeedChange
 		? {
 				type: 'item',
 				id: 'change-speed',

@@ -7,7 +7,6 @@ import type {
 } from '../state/modals';
 import {SetSelectedModalContext} from '../state/modals';
 import {Button} from './Button';
-import {Checkbox} from './Checkbox';
 import {Flex, Row} from './layout';
 import {ModalButton} from './ModalButton';
 import {getMaxModalWidth} from './ModalContainer';
@@ -60,17 +59,6 @@ const descriptionStyle: React.CSSProperties = {
 	margin: '0 0 8px',
 };
 
-const checkboxLabelStyle: React.CSSProperties = {
-	alignItems: 'center',
-	color: LIGHT_TEXT,
-	cursor: 'default',
-	display: 'flex',
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	gap: 8,
-	lineHeight: '20px',
-};
-
 const validationStyle: React.CSSProperties = {
 	padding: '4px 16px 0',
 };
@@ -86,55 +74,41 @@ export const ChangeSpeedModal: React.FC<{
 	const [speedPercent, setSpeedPercent] = useState(() =>
 		String(state.initialPlaybackRate * 100),
 	);
-	const [preservePitch, setPreservePitch] = useState(
-		state.initialPreservePitch,
-	);
 	const [keyframeTiming, setKeyframeTiming] =
-		useState<ChangeSpeedKeyframeTiming>('follow-footage');
+		useState<ChangeSpeedKeyframeTiming>('follow-content');
 	const [submitting, setSubmitting] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
 	const playbackRate = Number(speedPercent) / 100;
-	const sourceSpanInFrames =
-		state.timelineDurationInFrames * state.sequencePlaybackRate * playbackRate;
-	const sourceEndInFrames = state.sourceStartInFrames + sourceSpanInFrames;
+	const contentSpanInFrames =
+		state.timelineDurationInFrames * state.parentPlaybackRate * playbackRate;
+	const contentEndInFrames = state.contentStartInFrames + contentSpanInFrames;
 
 	const validationMessage = useMemo(() => {
-		if (!Number.isFinite(playbackRate) || playbackRate < 0.1) {
-			return 'Enter a speed of at least 10%.';
+		if (!Number.isFinite(playbackRate) || playbackRate < 0.01) {
+			return 'Enter a speed of at least 1%.';
 		}
 
-		if (
-			state.hasAudio &&
-			state.pitchCanBeChanged &&
-			!preservePitch &&
-			playbackRate > 2
-		) {
-			return 'Pitch can follow speed up to 200%. Preserve pitch or enter a lower speed.';
+		if (state.mediaDurationInFrames === null) {
+			return null;
 		}
 
-		if (state.sourceStartInFrames < 0) {
+		if (state.contentStartInFrames < 0) {
 			return 'The clip starts before the beginning of the source media.';
 		}
 
 		if (
-			!Number.isFinite(sourceEndInFrames) ||
-			sourceEndInFrames > state.mediaDurationInFrames + 0.0001
+			!Number.isFinite(contentEndInFrames) ||
+			contentEndInFrames > state.mediaDurationInFrames + 0.0001
 		) {
 			const availableSeconds = Math.max(
 				0,
-				(state.mediaDurationInFrames - state.sourceStartInFrames) / state.fps,
+				(state.mediaDurationInFrames - state.contentStartInFrames) / state.fps,
 			);
-			return `This speed needs ${formatMediaDuration(sourceSpanInFrames / state.fps)} of source media, but only ${formatMediaDuration(availableSeconds)} is available.`;
+			return `This speed needs ${formatMediaDuration(contentSpanInFrames / state.fps)} of source media, but only ${formatMediaDuration(availableSeconds)} is available.`;
 		}
 
 		return null;
-	}, [
-		playbackRate,
-		preservePitch,
-		sourceEndInFrames,
-		sourceSpanInFrames,
-		state,
-	]);
+	}, [contentEndInFrames, contentSpanInFrames, playbackRate, state]);
 
 	const dismiss = useCallback(() => {
 		if (!submitting) {
@@ -150,7 +124,7 @@ export const ChangeSpeedModal: React.FC<{
 		setSubmitting(true);
 		setSaveError(null);
 		try {
-			await state.onApply({playbackRate, preservePitch, keyframeTiming});
+			await state.onApply({playbackRate, keyframeTiming});
 			setSelectedModal(null);
 		} catch (error) {
 			setSaveError((error as Error).message);
@@ -159,15 +133,14 @@ export const ChangeSpeedModal: React.FC<{
 	}, [
 		keyframeTiming,
 		playbackRate,
-		preservePitch,
 		setSelectedModal,
 		state,
 		submitting,
 		validationMessage,
 	]);
 
-	const sourceRange = Number.isFinite(sourceEndInFrames)
-		? `${formatMediaDuration(state.sourceStartInFrames / state.fps)} – ${formatMediaDuration(sourceEndInFrames / state.fps)}`
+	const contentRange = Number.isFinite(contentEndInFrames)
+		? `${formatMediaDuration(state.contentStartInFrames / state.fps)} – ${formatMediaDuration(contentEndInFrames / state.fps)}`
 		: '—';
 	const speedChanged = !isClose(playbackRate, state.initialPlaybackRate);
 
@@ -189,7 +162,7 @@ export const ChangeSpeedModal: React.FC<{
 									autoFocus
 									disabled={submitting}
 									id="change-speed-percentage"
-									min={10}
+									min={1}
 									onChange={(event) => setSpeedPercent(event.target.value)}
 									rightAlign
 									status={validationMessage === null ? 'ok' : 'error'}
@@ -212,9 +185,13 @@ export const ChangeSpeedModal: React.FC<{
 						</div>
 					</div>
 					<div style={optionRow}>
-						<div style={label}>Source range</div>
+						<div style={label}>
+							{state.mediaDurationInFrames === null
+								? 'Child range'
+								: 'Source range'}
+						</div>
 						<div style={rightRow}>
-							<span style={valueStyle}>{sourceRange}</span>
+							<span style={valueStyle}>{contentRange}</span>
 						</div>
 					</div>
 					{validationMessage ? (
@@ -226,25 +203,6 @@ export const ChangeSpeedModal: React.FC<{
 							/>
 						</div>
 					) : null}
-					{state.hasAudio ? (
-						<div style={sectionStyle}>
-							<label style={checkboxLabelStyle}>
-								<Checkbox
-									checked={preservePitch}
-									disabled={!state.pitchCanBeChanged || submitting}
-									name="preserve-pitch"
-									onChange={(event) => setPreservePitch(event.target.checked)}
-								/>
-								Preserve pitch
-							</label>
-							<p style={descriptionStyle}>
-								{state.pitchDescription ??
-									(preservePitch
-										? 'Keep the original pitch while changing speed.'
-										: 'Let pitch rise or fall with the playback speed.')}
-							</p>
-						</div>
-					) : null}
 					{state.hasEditableKeyframes ? (
 						<div
 							aria-label="Keyframe timing"
@@ -253,18 +211,18 @@ export const ChangeSpeedModal: React.FC<{
 						>
 							<p style={descriptionStyle}>Keyframe timing</p>
 							<RadioButton
-								checked={keyframeTiming === 'follow-footage'}
+								checked={keyframeTiming === 'follow-content'}
 								disabled={submitting}
-								onClick={() => setKeyframeTiming('follow-footage')}
+								onClick={() => setKeyframeTiming('follow-content')}
 							>
-								Follow footage — move keyframes with source content
+								Follow content — move keyframes with the child clock
 							</RadioButton>
 							<RadioButton
 								checked={keyframeTiming === 'maintain-timing'}
 								disabled={submitting}
 								onClick={() => setKeyframeTiming('maintain-timing')}
 							>
-								Maintain timing — keep keyframes at timeline times
+								Maintain timing — keep keyframes at parent timeline times
 							</RadioButton>
 						</div>
 					) : null}
@@ -286,9 +244,7 @@ export const ChangeSpeedModal: React.FC<{
 						</Button>
 						<ModalButton
 							disabled={
-								submitting ||
-								validationMessage !== null ||
-								(!speedChanged && preservePitch === state.initialPreservePitch)
+								submitting || validationMessage !== null || !speedChanged
 							}
 							onClick={apply}
 						>

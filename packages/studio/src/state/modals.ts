@@ -144,25 +144,20 @@ export type AddEffectModalState = {
 	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 };
 
-export type ChangeSpeedKeyframeTiming = 'maintain-timing' | 'follow-footage';
+export type ChangeSpeedKeyframeTiming = 'maintain-timing' | 'follow-content';
 
 export type ChangeSpeedModalState = {
 	type: 'change-speed';
+	contentStartInFrames: number;
 	displayName: string;
 	fps: number;
-	hasAudio: boolean;
 	hasEditableKeyframes: boolean;
 	initialPlaybackRate: number;
-	initialPreservePitch: boolean;
-	mediaDurationInFrames: number;
-	pitchCanBeChanged: boolean;
-	pitchDescription: string | null;
-	sequencePlaybackRate: number;
-	sourceStartInFrames: number;
+	mediaDurationInFrames: number | null;
+	parentPlaybackRate: number;
 	timelineDurationInFrames: number;
 	onApply: (options: {
 		playbackRate: number;
-		preservePitch: boolean;
 		keyframeTiming: ChangeSpeedKeyframeTiming;
 	}) => Promise<void>;
 };
