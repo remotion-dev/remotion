@@ -1,9 +1,14 @@
 .studioAction {
+	position: relative;
 	display: flex;
 	align-items: stretch;
 	width: 100%;
 	border-radius: 8px;
 	background: var(--blue-underlay);
+}
+
+.studioActionWithCallout {
+	margin-bottom: 68px;
 }
 
 .studioAction .buttonWithDragHandle {
@@ -67,4 +72,32 @@
 .dragHandleIcon {
 	font-size: 1.5rem;
 	line-height: 1;
+}
+
+.dragCallout {
+	position: absolute;
+	top: calc(100% + 1px);
+	right: 20px;
+	width: 31px;
+	height: 64px;
+	color: var(--text-color);
+	pointer-events: none;
+}
+
+.dragCalloutLine {
+	display: block;
+	width: 31px;
+	height: 64px;
+	overflow: visible;
+}
+
+.dragCalloutLabel {
+	position: absolute;
+	top: 32px;
+	right: 38px;
+	width: max-content;
+	font-family: 'GTPlanar';
+	font-size: 15px;
+	line-height: 1.2;
+	white-space: nowrap;
 }

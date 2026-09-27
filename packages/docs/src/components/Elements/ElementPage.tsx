@@ -261,6 +261,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									onClick={installElement}
 									payload={elementPayload}
 									posterRef={posterRef}
+									showDragCallout
 									showDragHandle={isEmbeddedInStudio === false}
 									title={
 										isEmbeddedInStudio

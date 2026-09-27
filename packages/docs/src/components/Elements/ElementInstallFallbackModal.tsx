@@ -100,6 +100,7 @@ export const ElementInstallFallbackModal: React.FC<{
 						onClick={onInstall}
 						payload={payload}
 						posterRef={posterRef}
+						showDragCallout={false}
 						showDragHandle
 						title="Install in the most recently focused Remotion Studio"
 					/>
