@@ -118,8 +118,9 @@ export const ElementInstallFallbackModal: React.FC<{
 						type="button"
 					>
 						copy the code
-					</button>
-					.<span aria-live="polite">{hasCopied ? ' Copied.' : null}</span>
+					</button>{' '}
+					and create a new file.
+					<span aria-live="polite">{hasCopied ? ' Copied.' : null}</span>
 				</p>
 			</div>
 		</dialog>,
