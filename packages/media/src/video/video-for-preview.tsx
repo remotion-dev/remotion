@@ -29,6 +29,7 @@ import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
 import type {
 	FallbackOffthreadVideoProps,
+	MaxCanvasSinkFrameSize,
 	NativeVideoProps,
 	VideoObjectFit,
 } from './props';
@@ -75,6 +76,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly credentials: RequestCredentials | undefined;
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
@@ -109,6 +111,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	credentials,
 	requestInit,
 	objectFit: objectFitProp,
+	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
@@ -180,6 +183,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
+
+	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
+	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
@@ -306,6 +312,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
+				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -475,6 +482,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
+		// Compare the numbers, so that a new object with the same size does not
+		// recreate the player.
+		maxCanvasSinkFrameSize?.width,
+		maxCanvasSinkFrameSize?.height,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

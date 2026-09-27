@@ -24,6 +24,10 @@ export type VideoObjectFit =
 	| 'none'
 	| 'scale-down';
 
+export type MaxCanvasSinkFrameSize =
+	| {width: number; height?: number}
+	| {width?: number; height: number};
+
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
@@ -80,6 +84,7 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
+	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
 };

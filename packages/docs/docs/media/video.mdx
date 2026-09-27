@@ -319,6 +319,41 @@ export const MyComposition = () => {
 The CSS property `object-fit` is not supported.
 :::
 
+### `maxCanvasSinkFrameSize?`<AvailableFrom v="4.0.530" />
+
+Limits the size of the frames that are drawn during the preview, in pixels. Pass a `width`, a `height` or both. By default, the frames have the size of the video.
+
+The frames keep the aspect ratio of the video, fit within the size and are never upscaled. They get scaled up to the size of the `<canvas>` when drawn, so the layout does not change.
+
+Smaller frames use less memory, which helps when a large video is shown small. The video is still decoded at full size, and rendering is not affected.
+
+For example, use [`useCurrentScale()`](/docs/use-current-scale) to pick a size:
+
+```tsx twoslash title="Smaller frames when the preview is zoomed out"
+import {useCurrentScale} from 'remotion';
+import {Video} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  const scale = useCurrentScale();
+  const width = scale > 0.5 ? 1920 : scale > 0.25 ? 960 : 480;
+
+  return <Video src="https://remotion.media/video.mp4" maxCanvasSinkFrameSize={{width}} />;
+};
+```
+
+In the preview, [`onVideoFrame`](#onvideoframe) receives the smaller frames, and [`effects`](#effects) receive them scaled up to the size of the `<canvas>`.
+
+Changing the numbers re-initializes the video, so prefer a few fixed sizes over a value that changes on every resize. Passing a new object with the same numbers does not.
+
+#### `width?`
+
+The maximum width of the frames.
+
+#### `height?`
+
+The maximum height of the frames.
+
 ### `loop?`
 
 Makes the video loop indefinitely.

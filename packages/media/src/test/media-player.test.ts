@@ -65,6 +65,7 @@ const makeAudioPlayer = (
 		tagType,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 		onError,
 	});
 };
@@ -195,6 +196,7 @@ test('dispose should immediately unblock a pending playback catch-up', async () 
 		tagType: 'video',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 		onError: null,
 	});
 
