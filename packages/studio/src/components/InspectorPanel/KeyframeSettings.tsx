@@ -1,4 +1,8 @@
-import type {KeyframeSettings as KeyframeSettingsValue} from '@remotion/studio-shared';
+import {
+	getCanvasKeyframeSettings,
+	getCanvasKeyframeSettingsChange,
+	type CanvasKeyframeSettings,
+} from '@remotion/canvas';
 import React, {
 	useCallback,
 	useContext,
@@ -29,35 +33,26 @@ const keyframeSettingsContainer: React.CSSProperties = {
 	paddingBottom: 0,
 };
 
-const extrapolateOptions = [
-	'extend',
-	'clamp',
-	'identity',
-	'wrap',
-] as const satisfies ExtrapolateType[];
-
 const labelForExtrapolate = (value: ExtrapolateType) =>
 	value[0].toUpperCase() + value.slice(1);
 
 const getExtrapolateValues = (
+	extrapolateTypes: readonly ExtrapolateType[],
 	onSelect: (value: ExtrapolateType) => void,
 	disabled: boolean,
-	allowIdentity: boolean,
 ): ComboboxValue[] => {
-	return extrapolateOptions
-		.filter((value) => allowIdentity || value !== 'identity')
-		.map((value) => ({
-			type: 'item',
-			id: value,
-			keyHint: null,
-			label: labelForExtrapolate(value),
-			leftItem: null,
-			disabled,
-			onClick: () => onSelect(value),
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value,
-		}));
+	return extrapolateTypes.map((value) => ({
+		type: 'item',
+		id: value,
+		keyHint: null,
+		label: labelForExtrapolate(value),
+		leftItem: null,
+		disabled,
+		onClick: () => onSelect(value),
+		quickSwitcherLabel: null,
+		subMenu: null,
+		value,
+	}));
 };
 
 const outputOptions = [
@@ -93,29 +88,37 @@ export const KeyframeSettings: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatus} = update;
-	const [posterize, setPosterize] = useState(propStatus.posterize ?? 0);
-	const canEditExtrapolation =
-		propStatus.interpolationFunction === 'interpolate' ||
-		propStatus.interpolationFunction === 'interpolatePaths';
-	const canEditOutput = propStatus.interpolationFunction === 'interpolate';
+	const settings = useMemo(
+		() => getCanvasKeyframeSettings(propStatus),
+		[propStatus],
+	);
+	const [posterize, setPosterize] = useState(settings.posterize ?? 0);
 	const disabled = previewServerState.type !== 'connected';
 
 	useEffect(() => {
-		setPosterize(propStatus.posterize ?? 0);
-	}, [propStatus.posterize]);
+		setPosterize(settings.posterize ?? 0);
+	}, [settings.posterize]);
 
-	const save = useCallback(
-		(settings: KeyframeSettingsValue) => {
+	const saveSettings = useCallback(
+		(next: Partial<CanvasKeyframeSettings>) => {
 			if (previewServerState.type !== 'connected') {
 				return;
 			}
+
+			const {operation} = getCanvasKeyframeSettingsChange({
+				nodePathInfo: update.nodePathInfo,
+				schema: update.schema,
+				key: update.fieldKey,
+				propStatus,
+				settings: {...settings, ...next},
+			});
 
 			if (update.type === 'sequence') {
 				callUpdateSequenceKeyframeSettings({
 					fileName: update.fileName,
 					nodePath: update.nodePath,
 					fieldKey: update.fieldKey,
-					settings,
+					settings: operation,
 					schema: update.schema,
 					setPropStatuses,
 					clientId: previewServerState.clientId,
@@ -128,64 +131,44 @@ export const KeyframeSettings: React.FC<{
 				nodePath: update.nodePath,
 				effectIndex: update.effectIndex,
 				fieldKey: update.fieldKey,
-				settings,
+				settings: operation,
 				schema: update.schema,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
 			}).catch(() => undefined);
 		},
-		[previewServerState, setPropStatuses, update],
-	);
-
-	const saveSettings = useCallback(
-		({
-			left = propStatus.clamping.left,
-			output = propStatus.output ?? 'linear',
-			posterize: nextPosterize = propStatus.posterize ?? 0,
-			right = propStatus.clamping.right,
-		}: {
-			readonly left?: ExtrapolateType;
-			readonly output?: InterpolateOutputOption;
-			readonly posterize?: number;
-			readonly right?: ExtrapolateType;
-		}) => {
-			save({
-				type: 'settings',
-				clamping: canEditExtrapolation ? {left, right} : undefined,
-				output: canEditOutput ? output : undefined,
-				posterize: nextPosterize <= 0 ? undefined : nextPosterize,
-			});
-		},
-		[
-			canEditExtrapolation,
-			canEditOutput,
-			propStatus.clamping.left,
-			propStatus.clamping.right,
-			propStatus.output,
-			propStatus.posterize,
-			save,
-		],
+		[previewServerState, propStatus, setPropStatuses, settings, update],
 	);
 
 	const onSelectLeft = useCallback(
-		(left: ExtrapolateType) => saveSettings({left}),
-		[saveSettings],
+		(left: ExtrapolateType) => {
+			if (settings.clamping) {
+				saveSettings({clamping: {...settings.clamping, left}});
+			}
+		},
+		[saveSettings, settings.clamping],
 	);
 	const onSelectRight = useCallback(
-		(right: ExtrapolateType) => saveSettings({right}),
-		[saveSettings],
+		(right: ExtrapolateType) => {
+			if (settings.clamping) {
+				saveSettings({clamping: {...settings.clamping, right}});
+			}
+		},
+		[saveSettings, settings.clamping],
 	);
 	const onSelectOutput = useCallback(
 		(output: InterpolateOutputOption) => saveSettings({output}),
 		[saveSettings],
 	);
 	const leftValues = useMemo(
-		() => getExtrapolateValues(onSelectLeft, disabled, canEditOutput),
-		[canEditOutput, disabled, onSelectLeft],
+		() =>
+			getExtrapolateValues(settings.extrapolateTypes, onSelectLeft, disabled),
+		[disabled, onSelectLeft, settings.extrapolateTypes],
 	);
 	const rightValues = useMemo(
-		() => getExtrapolateValues(onSelectRight, disabled, canEditOutput),
-		[canEditOutput, disabled, onSelectRight],
+		() =>
+			getExtrapolateValues(settings.extrapolateTypes, onSelectRight, disabled),
+		[disabled, onSelectRight, settings.extrapolateTypes],
 	);
 	const outputValues = useMemo(
 		() => getOutputValues(onSelectOutput, disabled),
@@ -214,12 +197,12 @@ export const KeyframeSettings: React.FC<{
 			sectionId="keyframe-settings"
 		>
 			<div style={keyframeSettingsContainer}>
-				{canEditExtrapolation ? (
+				{settings.clamping ? (
 					<>
 						<InspectorDetailRow label="Extrapolate left">
 							<Combobox
 								values={leftValues}
-								selectedId={propStatus.clamping.left}
+								selectedId={settings.clamping.left}
 								aria-label="Extrapolate left"
 								style={comboStyle}
 								size="small"
@@ -228,7 +211,7 @@ export const KeyframeSettings: React.FC<{
 						<InspectorDetailRow label="Extrapolate right">
 							<Combobox
 								values={rightValues}
-								selectedId={propStatus.clamping.right}
+								selectedId={settings.clamping.right}
 								aria-label="Extrapolate right"
 								style={comboStyle}
 								size="small"
@@ -236,11 +219,11 @@ export const KeyframeSettings: React.FC<{
 						</InspectorDetailRow>
 					</>
 				) : null}
-				{canEditOutput ? (
+				{settings.output ? (
 					<InspectorDetailRow label="Output">
 						<Combobox
 							values={outputValues}
-							selectedId={propStatus.output ?? 'linear'}
+							selectedId={settings.output}
 							aria-label="Output"
 							style={comboStyle}
 							size="small"

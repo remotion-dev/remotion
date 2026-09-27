@@ -21,7 +21,11 @@ const getEasingIndexToRemove = ({
 	return removedKeyframeIndex;
 };
 
-const removeKeyframeFromPropStatus = ({
+/**
+ * The status of a prop after removing the keyframe at `frame`. Removing the
+ * last keyframe leaves a static prop.
+ */
+export const removeKeyframeFromPropStatus = ({
 	status,
 	frame,
 	valueWhenLastKeyframeDeleted,

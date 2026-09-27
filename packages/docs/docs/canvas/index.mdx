@@ -140,6 +140,8 @@ Props animated with `interpolate()` are reported as `keyframed` by [`getNodeProp
 
 [`getCanvasKeyframes()`](/docs/canvas/get-canvas-keyframes) places the keyframes of a prop on the timeline. [`getCanvasKeyframeToggle()`](/docs/canvas/get-canvas-keyframe-toggle) describes a keyframe button at the playhead and returns the change that adds or removes a keyframe there, while [`getCanvasPropValueAtFrame()`](/docs/canvas/get-canvas-prop-value-at-frame) reads the animated value for an inspector. [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag) moves keyframes with the pointer, previewing the result through `controller.overrides`. Every edit is a `CanvasKeyframeChange` whose `operation` you pass to [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes).
 
+Between two keyframes, [`getCanvasKeyframeEasingSegments()`](/docs/canvas/get-canvas-keyframe-easing-segments) describes the segments a timeline can draw and select, and [`getCanvasKeyframeEasingChange()`](/docs/canvas/get-canvas-keyframe-easing-change) sets the easing of one, with `canvasKeyframeEasingPresets` for a picker. [`getCanvasKeyframeSettings()`](/docs/canvas/get-canvas-keyframe-settings) and [`getCanvasKeyframeSettingsChange()`](/docs/canvas/get-canvas-keyframe-settings-change) read and write the extrapolation, `output` mode and `posterize` of the interpolation. [`getCanvasKeyframeChangeOverride()`](/docs/canvas/get-canvas-keyframe-change-override) turns any change into an override, so the canvas shows it before the source is updated.
+
 ## APIs
 
 import {TableOfContents} from './table-of-contents';

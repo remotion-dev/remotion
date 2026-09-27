@@ -52,11 +52,28 @@ export {
 export type {
 	CanvasKeyframe,
 	CanvasKeyframeChange,
+	CanvasKeyframeClamping,
+	CanvasKeyframeEasing,
 	CanvasKeyframeOperation,
 	CanvasKeyframeToggle,
 	CanvasKeyframeTrack,
 } from './keyframes';
 export type {CanvasKeyframeMove} from './keyframe-move';
+export {
+	canvasKeyframeEasingPresets,
+	getCanvasKeyframeEasingChange,
+	getCanvasKeyframeEasingSegments,
+} from './keyframe-easing';
+export type {
+	CanvasKeyframeEasingPreset,
+	CanvasKeyframeEasingSegment,
+} from './keyframe-easing';
+export {
+	getCanvasKeyframeSettings,
+	getCanvasKeyframeSettingsChange,
+} from './keyframe-settings';
+export type {CanvasKeyframeSettings} from './keyframe-settings';
+export {getCanvasKeyframeChangeOverride} from './keyframe-override';
 export {startCanvasKeyframeDrag} from './keyframe-drag';
 export type {
 	CanvasKeyframeDragEnd,

@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  canvasKeyframeEasingPresets,
   getCanvasSelectionItemKey,
   startCanvasKeyframeDrag,
   useCanvasSelection,
   useCanvasSequenceHover,
   type CanvasKeyframeDragTarget,
+  type CanvasKeyframeEasingSegment,
   type CanvasSelectionInteraction,
 } from "@remotion/canvas";
 import { getNodeProps } from "@remotion/codemods";
@@ -27,12 +29,20 @@ import React, {
   useRef,
   useState,
 } from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { usePlaybackFrame } from "../../hooks/use-playback";
 import { getErrorMessage } from "../../hooks/use-preview-host";
 import {
   findKeyframedProp,
+  getEasingSelectionItem,
   getKeyframeSelectionItem,
+  getSelectedEasings,
   getSelectedKeyframes,
   type KeyframedProp,
   type KeyframeSelectionItem,
@@ -50,6 +60,7 @@ import {
 import { clamp, formatTimecode } from "../../model/values";
 import { useEditor } from "../../state/editor-context";
 import { fallbackSelectionController } from "../../state/fallback-selection";
+import { EasingCurve } from "../EasingCurve";
 import { LayerContextMenu } from "../Inspector/LayerActions";
 import { KeyframeDiamond } from "../KeyframeDiamond";
 import { ToolbarButton } from "../TopBar";
@@ -345,6 +356,96 @@ const TrackRow = memo(function TrackRow({
   );
 });
 
+/**
+ * The line between two keyframes. Clicking it selects the segment so the
+ * inspector can edit its easing; the context menu applies a preset directly.
+ */
+const EasingSegment: React.FC<{
+  readonly prop: KeyframedProp;
+  readonly segment: CanvasKeyframeEasingSegment;
+  readonly label: string;
+  readonly pxPerFrame: number;
+  readonly selectedKeys: ReadonlySet<string>;
+  readonly keyframeDrag: KeyframeDragState | null;
+}> = ({ prop, segment, label, pxPerFrame, selectedKeys, keyframeDrag }) => {
+  const { host, actions } = useEditor();
+  const item = getEasingSelectionItem(prop, segment);
+  const selected = selectedKeys.has(getCanvasSelectionItemKey(item));
+  // The line follows the dragged keyframes at its ends.
+  const shift = (frame: number) =>
+    keyframeDrag?.keys.has(
+      getCanvasSelectionItemKey(getKeyframeSelectionItem(prop, frame)),
+    )
+      ? frame + keyframeDrag.delta
+      : frame;
+  const from = shift(segment.fromFrame);
+  const to = shift(segment.toFrame);
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={`${label} easing from frame ${segment.fromFrame} to ${segment.toFrame}`}
+          aria-pressed={selected}
+          className="group/easing absolute top-1/2 flex h-3 -translate-y-1/2 items-center px-1"
+          style={{
+            left: Math.min(from, to) * pxPerFrame,
+            width: Math.abs(to - from) * pxPerFrame,
+          }}
+          onPointerDown={(event) => {
+            if (event.button !== 0) {
+              return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            actions.selectKeyframes([item], {
+              shiftKey: event.shiftKey,
+              toggleKey: event.metaKey || event.ctrlKey,
+            });
+          }}
+        >
+          <div
+            className={cn(
+              "h-0.5 w-full rounded-full",
+              selected
+                ? "bg-primary"
+                : "bg-border group-hover/easing:bg-muted-foreground",
+            )}
+          />
+        </button>
+      </ContextMenuTrigger>
+      <ContextMenuContent
+        onCloseAutoFocus={(event) => event.preventDefault()}
+        className="min-w-[160px]"
+      >
+        {canvasKeyframeEasingPresets.map((preset) => (
+          <ContextMenuItem
+            key={preset.id}
+            onSelect={() => {
+              // A preset from the menu of a selected segment applies to the
+              // whole selection, like in the Studio.
+              const selectedEasings = getSelectedEasings(
+                host?.controller.selection.getSnapshot().selectedItems ?? [],
+              );
+              void actions.applyEasing(
+                selected && selectedEasings.length > 0
+                  ? selectedEasings
+                  : [item],
+                preset.easing,
+              );
+            }}
+          >
+            <EasingCurve easing={preset.easing} width={18} height={14} />
+            {preset.label}
+          </ContextMenuItem>
+        ))}
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+};
+
 /** A row with the keyframes of one animated prop, below its layer. */
 const KeyframeRow = memo(function KeyframeRow({
   prop,
@@ -392,6 +493,17 @@ const KeyframeRow = memo(function KeyframeRow({
         style={{ width: durationInFrames * pxPerFrame }}
         data-track-area
       >
+        {prop.easingSegments.map((segment) => (
+          <EasingSegment
+            key={segment.segmentIndex}
+            prop={prop}
+            segment={segment}
+            label={label}
+            pxPerFrame={pxPerFrame}
+            selectedKeys={selectedKeys}
+            keyframeDrag={keyframeDrag}
+          />
+        ))}
         {prop.keyframes.map((keyframe) => {
           if (keyframe.frame < 0 || keyframe.frame >= durationInFrames) {
             return null;
@@ -848,7 +960,8 @@ export const Timeline: React.FC = () => {
         <span className="flex-1" />
         <span className="text-muted-foreground-dim hidden font-mono text-[10px] lg:inline">
           Drag a layer to move it · drag its edges to trim · drag keyframes to
-          retime them · ⌥ + scroll to zoom
+          retime them · click between keyframes to edit the easing · ⌥ + scroll
+          to zoom
         </span>
         <ToolbarButton
           size="icon-xs"

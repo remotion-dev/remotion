@@ -1,14 +1,12 @@
 import type {
 	CanUpdateSequencePropsResponse,
-	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusEasing,
+	CanUpdateSequencePropStatusKeyframed,
 } from 'remotion';
 import type {KeyframeSettings} from './api-requests';
 import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
 
-type KeyframeEasing = Extract<
-	CanUpdateSequencePropStatus,
-	{status: 'keyframed'}
->['easing'][number];
+type KeyframeEasing = CanUpdateSequencePropStatusEasing;
 
 const updateEasing = ({
 	easing,
@@ -36,14 +34,11 @@ const updateEasing = ({
 	return nextEasing;
 };
 
-const applySettingsToStatus = (
-	status: CanUpdateSequencePropStatus | undefined,
+/** The keyframed status of a prop after an easing or settings update. */
+export const applyKeyframeSettingsToStatus = (
+	status: CanUpdateSequencePropStatusKeyframed,
 	settings: KeyframeSettings,
-): CanUpdateSequencePropStatus => {
-	if (!status || status.status !== 'keyframed') {
-		throw new Error('Expected keyframed status');
-	}
-
+): CanUpdateSequencePropStatusKeyframed => {
 	return {
 		...status,
 		...(settings.type === 'settings' && settings.clamping
@@ -86,7 +81,7 @@ export const optimisticUpdateSequenceKeyframeSettings = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: applySettingsToStatus(status, settings),
+			[fieldKey]: applyKeyframeSettingsToStatus(status, settings),
 		},
 	};
 };
@@ -128,7 +123,7 @@ export const optimisticUpdateEffectKeyframeSettings = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: applySettingsToStatus(status, settings),
+			[fieldKey]: applyKeyframeSettingsToStatus(status, settings),
 		},
 	};
 

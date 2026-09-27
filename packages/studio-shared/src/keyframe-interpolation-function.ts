@@ -158,6 +158,18 @@ export const isSchemaFieldKeyframable = ({
 	return isInteractivitySchemaFieldKeyframable(field);
 };
 
+export const isInteractivitySchemaFieldHoldOnly = (
+	field: InteractivitySchemaField | undefined,
+): boolean => {
+	return (
+		(field?.type === 'boolean' && field.keyframable !== false) ||
+		(field?.type === 'enum' && field.keyframable === true) ||
+		(field?.type === 'number' &&
+			field.integer === true &&
+			field.keyframable !== false)
+	);
+};
+
 export const isSchemaFieldHoldOnly = ({
 	schema,
 	key,
@@ -165,13 +177,8 @@ export const isSchemaFieldHoldOnly = ({
 	schema: InteractivitySchema | null;
 	key: string;
 }): boolean => {
-	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return (
-		(field?.type === 'boolean' && field.keyframable !== false) ||
-		(field?.type === 'enum' && field.keyframable === true) ||
-		(field?.type === 'number' &&
-			field.integer === true &&
-			field.keyframable !== false)
+	return isInteractivitySchemaFieldHoldOnly(
+		schema ? findFieldInSchema(schema, key) : undefined,
 	);
 };
 
