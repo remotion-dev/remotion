@@ -188,7 +188,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
-import {VideoTesting} from './VideoTesting';
+import {VideoTesting, VideoTestingFrameAccuracy} from './VideoTesting';
 import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
@@ -1210,6 +1210,14 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						codec: 'mp4' as const,
 					}}
+				/>
+				<Composition
+					id="video-testing-frame-accuracy"
+					component={VideoTestingFrameAccuracy}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-mp4-offthread"
