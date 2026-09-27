@@ -2,6 +2,7 @@ import type {CanUpdateSequencePropStatus, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
+	getSequenceSourceSplitFrame,
 	getTimelineSequenceSplitEligibility,
 	splitTimelineSequenceFromSource,
 } from './split-selected-timeline-item';
@@ -81,7 +82,11 @@ export const getSequenceSplitMenuItem = ({
 			// Keep the frame used to enable the menu item, even during playback.
 			splitTimelineSequenceFromSource({
 				nodePathInfo: eligibility.nodePathInfo,
-				splitFrame: (splitFrame - keyframeDisplayOffset) * keyframePlaybackRate,
+				splitFrame: getSequenceSourceSplitFrame({
+					timelineFrame: splitFrame,
+					keyframeDisplayOffset,
+					keyframePlaybackRate,
+				}),
 			}).catch(() => undefined);
 		},
 	};

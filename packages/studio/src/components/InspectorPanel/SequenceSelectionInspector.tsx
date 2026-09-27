@@ -23,6 +23,7 @@ import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
 import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
+	getSequenceSourceSplitFrame,
 	getTimelineSequenceSplitEligibility,
 	splitTimelineSequenceFromSource,
 } from '../Timeline/split-selected-timeline-item';
@@ -92,9 +93,13 @@ const SplitSequenceQuickAction: React.FC<{
 
 		splitTimelineSequenceFromSource({
 			nodePathInfo: eligibility.nodePathInfo,
-			splitFrame: timelinePosition,
+			splitFrame: getSequenceSourceSplitFrame({
+				timelineFrame: timelinePosition,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
 		}).catch(() => undefined);
-	}, [canSplit, eligibility, timelinePosition]);
+	}, [canSplit, eligibility, timelinePosition, track]);
 	const disabledReason = !isStudioInteractivityEnabled()
 		? 'Studio is read-only'
 		: sequencePropStatuses === undefined
