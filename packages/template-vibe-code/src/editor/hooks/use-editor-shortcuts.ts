@@ -172,6 +172,15 @@ export const useEditorShortcuts = ({
         case "Backspace":
         case "Delete": {
           if (event.repeat) return true;
+          if (
+            host?.controller.selection
+              .getSnapshot()
+              .selectedItems.some((item) => item.type === "keyframe")
+          ) {
+            void actions.deleteSelectedKeyframes();
+            return true;
+          }
+
           const selectedNodes = getSelectedNodes(host, layers);
           if (selectedNodes.length > 0) {
             void actions.deleteNodes(selectedNodes);

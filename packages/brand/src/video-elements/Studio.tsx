@@ -1635,206 +1635,192 @@ const Timeline: React.FC<{
 	);
 };
 
-const StudioInner = React.forwardRef<
-	HTMLDivElement,
+const StudioInner: React.FC<
 	StudioProps & {readonly controls: SequenceControls | undefined}
->(
-	(
+> = ({
+	compositionName,
+	compositionWidth,
+	compositionHeight,
+	content,
+	controls,
+	durationInFrames,
+	from,
+	freeze,
+	frame,
+	hidden,
+	name,
+	responsivenessProgress,
+	showInTimeline,
+	showTimelineZoom,
+	timelineOffset,
+	trimAfter,
+	trimBefore,
+	loop,
+	viewportHeight,
+	viewportWidth,
+}) => {
+	const {height: videoHeight, fps} = useVideoConfig();
+	const height = viewportHeight ?? videoHeight;
+	const width = viewportWidth;
+	const topPanelHeight = Math.round(
+		(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
+	);
+	const timelineHeight = height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
+	const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
+	const leftSidebarWidth = Math.min(
+		350,
+		Math.round(width * LEFT_SIDEBAR_RATIO),
+	);
+	const rightSidebarWidth = Math.min(
+		350,
+		Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
+	);
+	const sidebarProgress = interpolate(
+		responsivenessProgress,
+		[0, 0.2],
+		[0, 1],
 		{
-			compositionName,
-			compositionWidth,
-			compositionHeight,
-			content,
-			controls,
-			durationInFrames,
-			from,
-			freeze,
-			frame,
-			hidden,
-			name,
-			responsivenessProgress,
-			showInTimeline,
-			showTimelineZoom,
-			timelineOffset,
-			trimAfter,
-			trimBefore,
-			loop,
-			viewportHeight,
-			viewportWidth,
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
 		},
-		ref,
-	) => {
-		const elementRef = React.useRef<HTMLDivElement>(null);
-		React.useImperativeHandle(
-			ref,
-			() => elementRef.current as HTMLDivElement,
-			[],
-		);
-		const {height: videoHeight, fps} = useVideoConfig();
-		const height = viewportHeight ?? videoHeight;
-		const width = viewportWidth;
-		const topPanelHeight = Math.round(
-			(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
-		);
-		const timelineHeight =
-			height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
-		const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
-		const leftSidebarWidth = Math.min(
-			350,
-			Math.round(width * LEFT_SIDEBAR_RATIO),
-		);
-		const rightSidebarWidth = Math.min(
-			350,
-			Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
-		);
-		const sidebarProgress = interpolate(
-			responsivenessProgress,
-			[0, 0.2],
-			[0, 1],
-			{
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			},
-		);
-		const leftSidebarOccupiedWidth =
-			(leftSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
-		const rightSidebarOccupiedWidth =
-			(rightSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
-		const canvasWidth = Math.max(
-			17,
-			width - leftSidebarOccupiedWidth - rightSidebarOccupiedWidth,
-		);
+	);
+	const leftSidebarOccupiedWidth =
+		(leftSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
+	const rightSidebarOccupiedWidth =
+		(rightSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
+	const canvasWidth = Math.max(
+		17,
+		width - leftSidebarOccupiedWidth - rightSidebarOccupiedWidth,
+	);
 
-		return (
-			<Sequence
-				controls={controls}
-				durationInFrames={durationInFrames}
-				freeze={freeze}
-				from={from ?? 0}
-				hidden={hidden}
-				layout="none"
-				name={name ?? '<Studio>'}
-				showInTimeline={showInTimeline ?? true}
-				trimAfter={trimAfter}
-				trimBefore={trimBefore}
-				loop={loop}
+	return (
+		<Sequence
+			controls={controls}
+			durationInFrames={durationInFrames}
+			freeze={freeze}
+			from={from ?? 0}
+			hidden={hidden}
+			layout="none"
+			name={name ?? '<Studio>'}
+			showInTimeline={showInTimeline ?? true}
+			trimAfter={trimAfter}
+			trimBefore={trimBefore}
+			loop={loop}
+		>
+			<div
+				style={{
+					backgroundColor: BACKGROUND,
+					color: WHITE,
+					display: 'flex',
+					flexDirection: 'column',
+					fontFamily: 'Arial, Helvetica, sans-serif',
+					fontSize: 13,
+					fontWeight: 400,
+					height,
+					left: 0,
+					lineHeight: 1.5,
+					overflow: 'hidden',
+					position: 'absolute',
+					top: 0,
+					width,
+				}}
 			>
-				<div
-					ref={elementRef}
-					style={{
-						backgroundColor: BACKGROUND,
-						color: WHITE,
-						display: 'flex',
-						flexDirection: 'column',
-						fontFamily: 'Arial, Helvetica, sans-serif',
-						fontSize: 13,
-						fontWeight: 400,
-						height,
-						left: 0,
-						lineHeight: 1.5,
-						overflow: 'hidden',
-						position: 'absolute',
-						top: 0,
-						width,
-					}}
-				>
-					<MenuToolbar
-						compositionName={compositionName}
-						responsivenessProgress={responsivenessProgress}
-					/>
-					<div style={{height: topPanelHeight, width}}>
-						<div style={{display: 'flex', height: canvasRowHeight, width}}>
+				<MenuToolbar
+					compositionName={compositionName}
+					responsivenessProgress={responsivenessProgress}
+				/>
+				<div style={{height: topPanelHeight, width}}>
+					<div style={{display: 'flex', height: canvasRowHeight, width}}>
+						<div
+							style={{
+								flexShrink: 0,
+								height: canvasRowHeight,
+								overflow: 'hidden',
+								position: 'relative',
+								width: leftSidebarOccupiedWidth,
+							}}
+						>
 							<div
 								style={{
-									flexShrink: 0,
+									display: 'flex',
 									height: canvasRowHeight,
-									overflow: 'hidden',
-									position: 'relative',
-									width: leftSidebarOccupiedWidth,
+									left: 0,
+									position: 'absolute',
+									translate: `${-sidebarProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
+									width: leftSidebarWidth + SPLITTER_SIZE,
 								}}
 							>
-								<div
-									style={{
-										display: 'flex',
-										height: canvasRowHeight,
-										left: 0,
-										position: 'absolute',
-										translate: `${-sidebarProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
-										width: leftSidebarWidth + SPLITTER_SIZE,
-									}}
-								>
-									<div style={{width: leftSidebarWidth}}>
-										<LeftSidebar />
-									</div>
-									<Interactive.Div
-										name="Left sidebar splitter"
-										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
-									/>
+								<div style={{width: leftSidebarWidth}}>
+									<LeftSidebar />
 								</div>
+								<Interactive.Div
+									name="Left sidebar splitter"
+									style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+								/>
 							</div>
-							<PreviewCanvas
-								canvasHeight={canvasRowHeight}
-								canvasWidth={canvasWidth}
-								compositionHeight={compositionHeight}
-								compositionWidth={compositionWidth}
-								content={content}
-								durationInFrames={durationInFrames}
-								frame={frame}
-							/>
+						</div>
+						<PreviewCanvas
+							canvasHeight={canvasRowHeight}
+							canvasWidth={canvasWidth}
+							compositionHeight={compositionHeight}
+							compositionWidth={compositionWidth}
+							content={content}
+							durationInFrames={durationInFrames}
+							frame={frame}
+						/>
+						<div
+							style={{
+								flexShrink: 0,
+								height: canvasRowHeight,
+								overflow: 'hidden',
+								position: 'relative',
+								width: rightSidebarOccupiedWidth,
+							}}
+						>
 							<div
 								style={{
-									flexShrink: 0,
+									display: 'flex',
 									height: canvasRowHeight,
-									overflow: 'hidden',
-									position: 'relative',
-									width: rightSidebarOccupiedWidth,
+									left: 0,
+									position: 'absolute',
+									width: rightSidebarWidth + SPLITTER_SIZE,
 								}}
 							>
-								<div
-									style={{
-										display: 'flex',
-										height: canvasRowHeight,
-										left: 0,
-										position: 'absolute',
-										width: rightSidebarWidth + SPLITTER_SIZE,
-									}}
-								>
-									<Interactive.Div
-										name="Right sidebar splitter"
-										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+								<Interactive.Div
+									name="Right sidebar splitter"
+									style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+								/>
+								<div style={{width: rightSidebarWidth}}>
+									<RightSidebar
+										compositionHeight={compositionHeight}
+										compositionName={compositionName}
+										compositionWidth={compositionWidth}
+										durationInFrames={durationInFrames}
+										fps={fps}
 									/>
-									<div style={{width: rightSidebarWidth}}>
-										<RightSidebar
-											compositionHeight={compositionHeight}
-											compositionName={compositionName}
-											compositionWidth={compositionWidth}
-											durationInFrames={durationInFrames}
-											fps={fps}
-										/>
-									</div>
 								</div>
 							</div>
 						</div>
-						<PreviewToolbar responsivenessProgress={responsivenessProgress} />
 					</div>
-					<Interactive.Div
-						name="Timeline splitter"
-						style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
-					/>
-					<Timeline
-						durationInFrames={durationInFrames}
-						fps={fps}
-						frame={frame}
-						height={timelineHeight}
-						showZoom={showTimelineZoom}
-						timelineOffset={timelineOffset}
-						width={width}
-					/>
+					<PreviewToolbar responsivenessProgress={responsivenessProgress} />
 				</div>
-			</Sequence>
-		);
-	},
-);
+				<Interactive.Div
+					name="Timeline splitter"
+					style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
+				/>
+				<Timeline
+					durationInFrames={durationInFrames}
+					fps={fps}
+					frame={frame}
+					height={timelineHeight}
+					showZoom={showTimelineZoom}
+					timelineOffset={timelineOffset}
+					width={width}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 StudioInner.displayName = '<Studio>';
 

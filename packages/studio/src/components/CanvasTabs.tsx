@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
 	useState,
@@ -32,6 +33,7 @@ import {CompositionListContext} from '../state/composition-list';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {useAssetContextMenuItems} from './asset-context-menu';
+import {canvasTabsRef} from './CanvasTabsRef';
 import {
 	getCompositionDragPreviewMetadata,
 	parseCompositionDragData,
@@ -502,6 +504,33 @@ export const CanvasTabs: React.FC = () => {
 	const previousTabKeys = useRef(tabs.map(getTabKey));
 	const activeTabKey = canvasContent === null ? null : getTabKey(canvasContent);
 	const previousActiveTabKey = useRef<string | null>(null);
+
+	useImperativeHandle(
+		canvasTabsRef,
+		() => ({
+			openTabs: (contents) => {
+				setTabs((current) => {
+					const keys = new Set(current.map(getTabKey));
+					const next = [...current];
+					for (const content of contents) {
+						const key = getTabKey(content);
+						if (!keys.has(key)) {
+							keys.add(key);
+							next.push(content);
+						}
+					}
+
+					if (next.length === current.length) {
+						return current;
+					}
+
+					previousTabKeys.current = next.map(getTabKey);
+					return next;
+				});
+			},
+		}),
+		[],
+	);
 
 	useLayoutEffect(() => {
 		const keys = tabs.map(getTabKey);

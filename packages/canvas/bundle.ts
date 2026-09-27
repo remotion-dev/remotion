@@ -5,7 +5,13 @@ if (process.env.NODE_ENV !== 'production') {
 	throw new Error('This script must be run using NODE_ENV=production');
 }
 
-const external = ['@remotion/player', 'react', 'react-dom', 'remotion'];
+const external = [
+	'@remotion/player',
+	'@remotion/studio-shared',
+	'react',
+	'react-dom',
+	'remotion',
+];
 
 console.time('Generated.');
 const esmOutput = await build({

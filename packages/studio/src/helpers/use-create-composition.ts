@@ -1,5 +1,6 @@
 import type {
 	CanvasCaptureData,
+	NewCompositionAsset,
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
@@ -33,11 +34,14 @@ const toPascalCase = (value: string) => {
 
 export const getUniqueCompositionName = (
 	compositions: _InternalTypes['AnyComposition'][],
+	preferredName: string | null,
 ) => {
+	const baseName =
+		preferredName === null ? 'NewComposition' : toPascalCase(preferredName);
 	let counter = 1;
 
 	while (true) {
-		const name = counter === 1 ? 'NewComposition' : `NewComposition${counter}`;
+		const name = counter === 1 ? baseName : `${baseName}${counter}`;
 		const err = validateCompositionName(name, compositions);
 		if (!err) {
 			return name;
@@ -56,6 +60,7 @@ export const useCreateComposition = ({
 	selectedFrameRate,
 	size,
 	canvasCapture,
+	asset,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
 	durationInFrames: number;
@@ -73,6 +78,7 @@ export const useCreateComposition = ({
 		readonly videoHeight: number;
 		readonly videoWidth: number;
 	} | null;
+	asset: NewCompositionAsset | null;
 }) => {
 	const selectComposition = useSelectComposition();
 	const compositionId = slugifyName(newId);
@@ -98,6 +104,7 @@ export const useCreateComposition = ({
 	const codemod: RecastCodemod = useMemo(() => {
 		return {
 			type: 'new-composition',
+			asset,
 			newDurationInFrames: Number(durationInFrames),
 			newFps: Number(selectedFrameRate),
 			newHeight: Number(size.height),
@@ -119,6 +126,7 @@ export const useCreateComposition = ({
 						},
 		};
 	}, [
+		asset,
 		canvasCapture,
 		componentName,
 		compositionId,

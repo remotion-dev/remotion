@@ -25,6 +25,7 @@ test('previews and creates a Canvas Capture with both files in undo history', as
 	const request: Parameters<typeof operations.applyCodemod>[0] = {
 		codemod: {
 			type: 'new-composition',
+			asset: null,
 			newId: 'Capture',
 			componentName: 'Capture',
 			componentImportPath: './Capture',
@@ -879,6 +880,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		newComposition: {
 			codemod: {
 				type: 'new-composition',
+				asset: null,
 				newId: 'ElementScene',
 				componentName: 'ElementScene',
 				componentImportPath: './ElementScene',

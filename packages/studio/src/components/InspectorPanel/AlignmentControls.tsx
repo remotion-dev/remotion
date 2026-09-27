@@ -10,6 +10,7 @@ import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
 import {AlignLeftIcon} from '../../icons/align-left';
 import {AlignRightIcon} from '../../icons/align-right';
 import {AlignTopIcon} from '../../icons/align-top';
+import {ActionTooltip} from '../ActionTooltip';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
@@ -63,13 +64,15 @@ const AlignmentButton: React.FC<{
 	readonly disabled: boolean;
 }> = ({onClick, 'aria-label': ariaLabel, Icon, disabled}) => {
 	return (
-		<InlineAction
-			variant={null}
-			aria-label={ariaLabel}
-			onClick={onClick}
-			renderAction={(color) => <Icon style={iconStyle} color={color} />}
-			disabled={disabled}
-		/>
+		<ActionTooltip label={ariaLabel} shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				variant={null}
+				aria-label={ariaLabel}
+				onClick={onClick}
+				renderAction={(color) => <Icon style={iconStyle} color={color} />}
+				disabled={disabled}
+			/>
+		</ActionTooltip>
 	);
 };
 

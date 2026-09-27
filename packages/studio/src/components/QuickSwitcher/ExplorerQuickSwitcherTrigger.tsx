@@ -14,6 +14,7 @@ import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../../helpers/use-keyboard-shortcut-label';
 import {EllipsisIcon} from '../../icons/ellipsis';
 import {SetSelectedModalContext} from '../../state/modals';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineDropdown} from '../InlineDropdown';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -99,13 +100,20 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 					<span style={shortcutLabel}>{quickSwitcherShortcut}</span>
 				) : null}
 			</button>
-			<InlineDropdown
-				variant={null}
-				aria-label={moreActionsTitle}
-				renderAction={renderMoreActions}
-				getItems={getActions}
-				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-			/>
+			<ActionTooltip
+				label="More actions"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+			>
+				<InlineDropdown
+					variant={null}
+					aria-label={moreActionsTitle}
+					renderAction={renderMoreActions}
+					getItems={getActions}
+					className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+				/>
+			</ActionTooltip>
 		</div>
 	);
 };

@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
 import {CURRENT_COLOR} from '../../../helpers/colors';
+import {ActionTooltip} from '../../ActionTooltip';
 import type {RenderInlineAction} from '../../InlineAction';
 import {InlineAction} from '../../InlineAction';
 
@@ -23,10 +24,13 @@ export const SchemaResetButton: React.FC<{
 	}, []);
 
 	return (
-		<InlineAction
-			renderAction={renderAction}
-			onClick={onClick}
-			variant={null}
-		/>
+		<ActionTooltip label="Reset" shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+				aria-label="Reset"
+			/>
+		</ActionTooltip>
 	);
 };

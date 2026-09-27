@@ -529,6 +529,7 @@ export const ElementInstallConfirmation: React.FC<{
 		valid: newCompositionValuesAreValid,
 		widthValidationMessage,
 	} = useCreateComposition({
+		asset: null,
 		canvasCapture: null,
 		compositions,
 		durationInFrames: newCompositionValues.durationInFrames,

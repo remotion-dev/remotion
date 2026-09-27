@@ -13,6 +13,12 @@ export type ApplyVisualControlCodemod = {
 	changes: VisualControlChange[];
 };
 
+export type NewCompositionAsset = {
+	type: 'audio' | 'image' | 'video';
+	src: string;
+	durationInFrames: number;
+};
+
 export type CompositionOrFolder =
 	| {
 			type: 'composition';
@@ -27,6 +33,7 @@ export type CompositionOrFolder =
 export type RecastCodemod =
 	| {
 			type: 'new-composition';
+			asset: NewCompositionAsset | null;
 			newId: string;
 			componentName: string;
 			componentImportPath: string;

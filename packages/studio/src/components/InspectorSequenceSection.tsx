@@ -27,6 +27,7 @@ import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
+import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
@@ -807,63 +808,83 @@ export const InspectorSequenceSection: React.FC<{
 		validatedLocation.source,
 	]);
 
+	const borderRadiusActionLabel =
+		borderRadiusConversion === null
+			? borderRadiusUsesShorthand
+				? 'A static border radius is required to use individual corners'
+				: 'All four corners must have the same static value'
+			: borderRadiusUsesShorthand
+				? 'Use individual corner radii'
+				: 'Use one border radius value';
 	const borderRadiusAction = borderRadiusGroup ? (
-		<InlineAction
-			variant={null}
-			disabled={
-				borderRadiusConversion === null ||
-				previewServerState.type !== 'connected'
-			}
-			onClick={onConvertBorderRadius}
-			aria-label={
-				borderRadiusConversion === null
-					? borderRadiusUsesShorthand
-						? 'A static border radius is required to use individual corners'
-						: 'All four corners must have the same static value'
-					: borderRadiusUsesShorthand
-						? 'Use individual corner radii'
-						: 'Use one border radius value'
-			}
-			renderAction={(color) =>
-				borderRadiusUsesShorthand ? (
-					<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
-				) : (
-					<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
-				)
-			}
-		/>
+		<ActionTooltip
+			label={borderRadiusActionLabel}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineAction
+				variant={null}
+				disabled={
+					borderRadiusConversion === null ||
+					previewServerState.type !== 'connected'
+				}
+				onClick={onConvertBorderRadius}
+				aria-label={borderRadiusActionLabel}
+				renderAction={(color) =>
+					borderRadiusUsesShorthand ? (
+						<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
+					) : (
+						<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
+					)
+				}
+			/>
+		</ActionTooltip>
 	) : null;
 
+	const transform3DActionLabel = automaticallyEnabled3DTransform
+		? '3D controls are required by the current transform values'
+		: show3DTransformControls
+			? 'Hide 3D controls'
+			: 'Show 3D controls';
 	const transform3DAction = (
-		<InlineAction
-			variant={null}
-			disabled={automaticallyEnabled3DTransform}
-			onClick={onToggle3DTransform}
-			aria-label={
-				automaticallyEnabled3DTransform
-					? '3D controls are required by the current transform values'
-					: show3DTransformControls
-						? 'Hide 3D transform controls'
-						: 'Show 3D transform controls'
-			}
-			hoveredColor={show3DTransformControls ? BLUE : undefined}
-			unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
-			renderAction={(color) => (
-				<CubeIcon color={color} style={transform3DToggleIcon} />
-			)}
-		/>
+		<ActionTooltip
+			label={transform3DActionLabel}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineAction
+				variant={null}
+				disabled={automaticallyEnabled3DTransform}
+				onClick={onToggle3DTransform}
+				aria-label={transform3DActionLabel}
+				hoveredColor={show3DTransformControls ? BLUE : undefined}
+				unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
+				renderAction={(color) => (
+					<CubeIcon color={color} style={transform3DToggleIcon} />
+				)}
+			/>
+		</ActionTooltip>
 	);
 
 	const effectsHeader = (
 		<CollapsibleInspectorSectionHeader
 			action={
-				<InlineAction
-					variant={null}
-					disabled={!canAddEffect}
-					onClick={onAddEffect}
-					aria-label={canAddEffect ? 'Add effect' : undefined}
-					renderAction={(color) => <Plus color={color} style={plusIcon} />}
-				/>
+				<ActionTooltip
+					label="Add effect"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineAction
+						variant={null}
+						disabled={!canAddEffect}
+						onClick={onAddEffect}
+						aria-label="Add effect"
+						renderAction={(color) => <Plus color={color} style={plusIcon} />}
+					/>
+				</ActionTooltip>
 			}
 			expanded={effectsExpanded}
 			label="Effects"

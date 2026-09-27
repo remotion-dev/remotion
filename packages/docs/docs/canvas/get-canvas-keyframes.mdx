@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-canvas-get-canvas-keyframes.png
+title: getCanvasKeyframes()
+crumb: '@remotion/canvas'
+---
+
+# getCanvasKeyframes()<AvailableFrom v="4.0.530" />
+
+Places the keyframes of a prop on the composition timeline. Use it to draw keyframe markers in a timeline row.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx twoslash title="KeyframeRow.tsx"
+// @moduleResolution: bundler
+import {getCanvasKeyframes, type TimelineTrackData} from '@remotion/canvas';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+declare const track: TimelineTrackData;
+declare const propStatus: CanUpdateSequencePropStatus;
+declare const pixelsPerFrame: number;
+// ---cut---
+export const KeyframeRow = () => {
+  const keyframes = getCanvasKeyframes({track, propStatus});
+  return (
+    <div style={{position: 'relative'}}>
+      {keyframes.map((keyframe) => (
+        <div
+          key={keyframe.frame}
+          style={{position: 'absolute', left: keyframe.frame * pixelsPerFrame}}
+        >
+          ◆
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+A prop animated with `interpolate()` stores its keyframes in the frame clock of that expression. A sequence that starts later than frame 0, a nested `<Sequence>` or a `playbackRate` shift and stretch those frames on the composition timeline. This function applies the timing of the track so the markers line up with the playhead.
+
+## Parameters
+
+An object with the following properties:
+
+### track
+
+The `TimelineTrackData` of the sequence from [`controller.timeline`](/docs/canvas/create-canvas-controller#timeline). Only `keyframeDisplayOffset` and `keyframePlaybackRate` are read.
+
+### propStatus
+
+How the prop is written in the source, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it. `null` or a status other than `'keyframed'` yields no keyframes.
+
+## Return value
+
+An array of `CanvasKeyframe` objects with `frame` in composition frames and `value`, ordered like the keyframes of the source. Frames may be fractional or lie outside the composition.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframeToggle()`](/docs/canvas/get-canvas-keyframe-toggle)
+- [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag)
+- [`getCanvasKeyframeSourceFrame()`](/docs/canvas/get-canvas-keyframe-source-frame)

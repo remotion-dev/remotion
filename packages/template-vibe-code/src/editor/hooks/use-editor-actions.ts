@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  getCanvasKeyframeToggle,
   getCanvasSelectionItemKey,
+  type CanvasKeyframeChange,
   type CanvasSelectionInteraction,
   type CanvasSequencePropChange,
   type SequenceNodePathInfo,
@@ -44,6 +46,13 @@ import type {
 } from "@/preview/bridge";
 import type { CompositionInfo } from "../model/compositions";
 import { formatSource } from "../model/format";
+import {
+  findKeyframedProp,
+  getKeyframeSelectionItem,
+  getSelectedKeyframes,
+  type KeyframedProp,
+  type KeyframeSelectionItem,
+} from "../model/keyframes";
 import { areSiblingNodes, getNodeReference, type Layer } from "../model/layers";
 import { filesAreEqual, getFileName, toCodemodProject } from "../model/project";
 import { resolveProjectPathInput } from "@/lib/project-paths";
@@ -62,6 +71,7 @@ type ActionContext = {
   entryPoint: string;
   host: PreviewHost | null;
   layers: Layer[];
+  keyframedProps: KeyframedProp[];
   compositions: CompositionInfo[];
   compositionFile: string | null;
   activeComposition: CompositionInfo | null;
@@ -196,6 +206,166 @@ export const useEditorActions = ({
         notifyError(error);
         return Promise.resolve(false);
       }
+    };
+
+    type NodeChange = {
+      node: NodeReference;
+      nodePathInfo: SequenceNodePathInfo;
+      schema: InteractivitySchema;
+      updates: SequencePropUpdate[];
+      keyframes: NodeKeyframeUpdate[];
+    };
+
+    // Groups the props and keyframes of a canvas gesture by source node, so
+    // each node is rewritten once.
+    const groupNodeChanges = (
+      changes: readonly (CanvasSequencePropChange | CanvasKeyframeChange)[],
+    ) => {
+      const controller = ref.current.host?.controller;
+      const nodeChanges = new Map<string, NodeChange>();
+      for (const change of changes) {
+        const item = {
+          type: "sequence" as const,
+          nodePathInfo: change.nodePathInfo,
+        };
+        const node = getNodeReference(item);
+        if (!node) {
+          controller?.overrides.clear(change.nodePathInfo);
+          continue;
+        }
+
+        const key = getCanvasSelectionItemKey(item);
+        const nodeChange = nodeChanges.get(key) ?? {
+          node,
+          nodePathInfo: change.nodePathInfo,
+          schema: change.schema,
+          updates: [],
+          keyframes: [],
+        };
+        nodeChanges.set(key, nodeChange);
+        if ("operation" in change) {
+          nodeChange.keyframes.push({
+            key: change.key,
+            operation: change.operation,
+          });
+        } else if (change.type === "keyframe") {
+          nodeChange.keyframes.push({
+            key: change.key,
+            operation: {
+              type: "add",
+              frame: change.frame,
+              value: change.value,
+            },
+          });
+        } else {
+          nodeChange.updates.push({
+            key: change.key,
+            value: change.value,
+            defaultValue: change.defaultValue,
+          });
+        }
+      }
+
+      return nodeChanges;
+    };
+
+    /**
+     * Writes grouped node changes to the source in one undoable step. The
+     * canvas keeps previewing the values until `releasePreviews`.
+     */
+    const commitNodeChanges = async (nodeChanges: Map<string, NodeChange>) => {
+      if (nodeChanges.size === 0) {
+        return false;
+      }
+
+      const controller = ref.current.host?.controller;
+      const videoConfig = {
+        width: ref.current.compositionWidth,
+        height: ref.current.compositionHeight,
+        fps: ref.current.compositionFps,
+        durationInFrames: ref.current.compositionDurationInFrames,
+      };
+      const release = () => {
+        for (const { nodePathInfo } of nodeChanges.values()) {
+          pendingPreviews.delete(
+            getCanvasSelectionItemKey({ type: "sequence", nodePathInfo }),
+          );
+          controller?.overrides.clear(nodePathInfo);
+        }
+      };
+
+      for (const [key, { nodePathInfo }] of nodeChanges) {
+        pendingPreviews.set(key, nodePathInfo);
+      }
+
+      const ok = await applyCodemod(
+        async (project) => {
+          let current = project;
+          const touched = new Set<string>();
+          const collect = (result: CodemodResult) => {
+            current = applyCodemodChanges(current, result.changes);
+            for (const change of result.changes) {
+              touched.add(change.filePath);
+            }
+          };
+
+          const staticChanges = [...nodeChanges.values()].filter(
+            ({ updates }) => updates.length > 0,
+          );
+          if (staticChanges.length > 0) {
+            collect(
+              updateMultipleNodeProps({
+                project: current,
+                changes: staticChanges.map(
+                  ({ node, schema, updates }): NodePropChange => ({
+                    node,
+                    schema,
+                    updates,
+                    videoConfig,
+                  }),
+                ),
+              }),
+            );
+          }
+
+          for (const { node, schema, keyframes } of nodeChanges.values()) {
+            if (keyframes.length > 0) {
+              collect(
+                await updateNodeKeyframes({
+                  project: current,
+                  node,
+                  updates: keyframes,
+                  schema,
+                  videoConfig,
+                }),
+              );
+            }
+          }
+
+          // One change per file, from the input project to the final contents.
+          return {
+            changes: [...touched].flatMap((filePath) => {
+              const previousContents = project.files[filePath] ?? null;
+              const nextContents = current.files[filePath] ?? null;
+              return previousContents === nextContents
+                ? []
+                : [{ filePath, previousContents, nextContents }];
+            }),
+          };
+        },
+        {
+          onApplied: (changed) => {
+            if (!changed) {
+              release();
+            }
+          },
+        },
+      );
+      if (!ok) {
+        release();
+      }
+
+      return ok;
     };
 
     const setZoom = (zoom: PreviewZoom) => {
@@ -498,151 +668,85 @@ export const ${componentName}: React.FC = () => {
        * Writes the values of a canvas gesture, such as dragging outlines, to
        * the source. The canvas keeps previewing them until `releasePreviews`.
        */
-      commitSequencePropChanges: async (
+      commitSequencePropChanges: (
         changes: readonly CanvasSequencePropChange[],
-      ) => {
-        const controller = ref.current.host?.controller;
-        const videoConfig = {
-          width: ref.current.compositionWidth,
-          height: ref.current.compositionHeight,
-          fps: ref.current.compositionFps,
-          durationInFrames: ref.current.compositionDurationInFrames,
-        };
-        // Static values of one node are written together; a keyframed value
-        // receives a keyframe at the frame the canvas reported.
-        const nodeChanges = new Map<
-          string,
-          {
-            node: NodeReference;
-            nodePathInfo: SequenceNodePathInfo;
-            schema: InteractivitySchema;
-            updates: SequencePropUpdate[];
-            keyframes: NodeKeyframeUpdate[];
-          }
-        >();
-        for (const change of changes) {
-          const item = {
-            type: "sequence" as const,
-            nodePathInfo: change.nodePathInfo,
-          };
-          const node = getNodeReference(item);
-          if (!node) {
-            controller?.overrides.clear(change.nodePathInfo);
-            continue;
-          }
-
-          const key = getCanvasSelectionItemKey(item);
-          const nodeChange = nodeChanges.get(key) ?? {
-            node,
-            nodePathInfo: change.nodePathInfo,
-            schema: change.schema,
-            updates: [],
-            keyframes: [],
-          };
-          nodeChanges.set(key, nodeChange);
-          if (change.type === "keyframe") {
-            nodeChange.keyframes.push({
-              key: change.key,
-              operation: {
-                type: "add",
-                frame: change.frame,
-                value: change.value,
-              },
-            });
-          } else {
-            nodeChange.updates.push({
-              key: change.key,
-              value: change.value,
-              defaultValue: change.defaultValue,
-            });
-          }
+      ) => commitNodeChanges(groupNodeChanges(changes)),
+      /**
+       * Adds, removes or moves keyframes in the source. Moved keyframes stay
+       * previewed on the canvas until `releasePreviews`.
+       */
+      commitKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) =>
+        commitNodeChanges(groupNodeChanges(changes)),
+      /** Removes the keyframes that are selected on the timeline. */
+      deleteSelectedKeyframes: () => {
+        const { host, keyframedProps, compositionDurationInFrames } =
+          ref.current;
+        if (!host) {
+          return Promise.resolve(false);
         }
 
-        if (nodeChanges.size === 0) {
-          return false;
-        }
-
-        const release = () => {
-          for (const { nodePathInfo } of nodeChanges.values()) {
-            pendingPreviews.delete(
-              getCanvasSelectionItemKey({ type: "sequence", nodePathInfo }),
-            );
-            controller?.overrides.clear(nodePathInfo);
+        const layers = new Map<string, Layer>();
+        const changes = getSelectedKeyframes(
+          host.controller.selection.getSnapshot().selectedItems,
+        ).flatMap((item): CanvasKeyframeChange[] => {
+          const prop = findKeyframedProp(keyframedProps, item);
+          if (!prop) {
+            return [];
           }
-        };
 
-        for (const [key, { nodePathInfo }] of nodeChanges) {
-          pendingPreviews.set(key, nodePathInfo);
+          const { change } = getCanvasKeyframeToggle({
+            nodePathInfo: prop.layer.nodePathInfo,
+            track: prop.layer.track,
+            schema: prop.schema,
+            key: prop.key,
+            propStatus: prop.propStatus,
+            frame: item.frame,
+            durationInFrames: compositionDurationInFrames,
+          });
+          if (change?.operation.type !== "remove") {
+            return [];
+          }
+
+          layers.set(
+            getCanvasSelectionItemKey(prop.layer.selectionItem),
+            prop.layer,
+          );
+          return [change];
+        });
+        if (changes.length === 0) {
+          return Promise.resolve(false);
         }
 
-        const ok = await applyCodemod(
-          async (project) => {
-            let current = project;
-            const touched = new Set<string>();
-            const collect = (result: CodemodResult) => {
-              current = applyCodemodChanges(current, result.changes);
-              for (const change of result.changes) {
-                touched.add(change.filePath);
-              }
-            };
-
-            const staticChanges = [...nodeChanges.values()].filter(
-              ({ updates }) => updates.length > 0,
-            );
-            if (staticChanges.length > 0) {
-              collect(
-                updateMultipleNodeProps({
-                  project: current,
-                  changes: staticChanges.map(
-                    ({ node, schema, updates }): NodePropChange => ({
-                      node,
-                      schema,
-                      updates,
-                      videoConfig,
-                    }),
-                  ),
-                }),
-              );
-            }
-
-            for (const { node, schema, keyframes } of nodeChanges.values()) {
-              if (keyframes.length > 0) {
-                collect(
-                  await updateNodeKeyframes({
-                    project: current,
-                    node,
-                    updates: keyframes,
-                    schema,
-                    videoConfig,
-                  }),
-                );
-              }
-            }
-
-            // One change per file, from the input project to the final contents.
-            return {
-              changes: [...touched].flatMap((filePath) => {
-                const previousContents = project.files[filePath] ?? null;
-                const nextContents = current.files[filePath] ?? null;
-                return previousContents === nextContents
-                  ? []
-                  : [{ filePath, previousContents, nextContents }];
-              }),
-            };
-          },
-          {
-            onApplied: (changed) => {
-              if (!changed) {
-                release();
-              }
-            },
-          },
+        // The layers of the removed keyframes stay selected.
+        host.controller.selection.setSelectedItems(
+          [...layers.values()].map((layer) => layer.selectionItem),
         );
-        if (!ok) {
-          release();
+        return commitNodeChanges(groupNodeChanges(changes));
+      },
+      selectKeyframes: (
+        items: readonly KeyframeSelectionItem[],
+        interaction: CanvasSelectionInteraction | null,
+      ) => {
+        const { host, keyframedProps } = ref.current;
+        if (!host) {
+          return;
         }
 
-        return ok;
+        const [item] = items;
+        if (interaction === null || !item || items.length > 1) {
+          host.controller.selection.setSelectedItems(items);
+          return;
+        }
+
+        host.controller.selection.select(
+          item,
+          interaction,
+          keyframedProps.flatMap((prop) =>
+            prop.keyframes.map((keyframe) =>
+              getKeyframeSelectionItem(prop, keyframe.frame),
+            ),
+          ),
+        );
       },
       /** Called once the preview shows the committed source again. */
       releasePreviews: () => {

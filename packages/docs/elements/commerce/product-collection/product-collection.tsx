@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
 	Easing,
 	Img,
@@ -40,11 +40,9 @@ const productCardSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const ProductCardInner = forwardRef<
-	HTMLDivElement,
+const ProductCardInner: React.FC<
 	ProductCardProps & {readonly controls: SequenceControls | undefined}
->(({controls, count, index, label, name, style, ...sequenceProps}, ref) => {
-	const elementRef = useRef<HTMLDivElement>(null);
+> = ({controls, count, index, label, name, style, ...sequenceProps}) => {
 	const frame = useCurrentFrame();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
@@ -101,8 +99,6 @@ const ProductCardInner = forwardRef<
 		extrapolateRight: 'clamp',
 	});
 
-	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
 	return (
 		<Sequence
 			layout="none"
@@ -127,7 +123,6 @@ const ProductCardInner = forwardRef<
 				}}
 			>
 				<div
-					ref={elementRef}
 					style={{
 						...style,
 						backgroundColor: '#ffffff',
@@ -182,7 +177,7 @@ const ProductCardInner = forwardRef<
 			</div>
 		</Sequence>
 	);
-});
+};
 
 const ProductCard = Interactive.withSchema({
 	Component: ProductCardInner,

@@ -1,16 +1,6 @@
 import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
-import {
-	forwardRef,
-	useContext,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-	type ForwardRefRenderFunction,
-	type RefObject,
-} from 'react';
+import {useContext, useEffect, useMemo, useState, type FC} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -308,17 +298,13 @@ const MapRegionDrawing = ({
 	return null;
 };
 
-const MapRegionBounds = ({
+const MapRegionBounds: FC<{readonly feature: MapRegionFeature}> = ({
 	feature,
-	boundsRef,
-}: {
-	readonly feature: MapRegionFeature;
-	readonly boundsRef: RefObject<HTMLDivElement | null>;
 }) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={boundsRef} />;
+		return <div />;
 	}
 
 	const points = feature.geometry.coordinates
@@ -331,7 +317,6 @@ const MapRegionBounds = ({
 
 	return (
 		<div
-			ref={boundsRef}
 			style={{
 				height: bottom - top,
 				left,
@@ -346,38 +331,28 @@ const MapRegionBounds = ({
 	);
 };
 
-const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapRegionProps
-> = (
-	{
-		feature,
-		fill = 0,
-		fillColor,
-		glow = 0.72,
-		id,
-		progress = 1,
-		strokeColor = '#8f1712',
-		strokeWidth = 9,
-		durationInFrames,
-		from,
-		premountFor,
-		postmountFor,
-		trimBefore,
-		playbackRate,
-		loop,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-	},
-	ref,
-) => {
-	const boundsRef = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => boundsRef.current as HTMLDivElement, []);
-
+const MapRegionInner: FC<MapRegionProps> = ({
+	feature,
+	fill = 0,
+	fillColor,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#8f1712',
+	strokeWidth = 9,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -429,14 +404,12 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 					/>
-					<MapRegionBounds feature={feature} boundsRef={boundsRef} />
+					<MapRegionBounds feature={feature} />
 				</>
 			</Sequence>
 		</Freeze>
 	);
 };
-
-const MapRegionInner = forwardRef(MapRegionRefForwardingFunction);
 
 export const MapRegion = Interactive.withSchema({
 	Component: MapRegionInner,

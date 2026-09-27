@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@remotion/player": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {

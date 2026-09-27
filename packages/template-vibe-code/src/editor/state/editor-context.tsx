@@ -7,6 +7,7 @@ import type { PreviewHost } from "@/preview/bridge";
 import type { EditorActions } from "../hooks/use-editor-actions";
 import type { PlaybackStore } from "../hooks/use-playback";
 import type { CompositionInfo } from "../model/compositions";
+import type { KeyframedProp } from "../model/keyframes";
 import type { Layer } from "../model/layers";
 import type { EditorAction, EditorState } from "./editor-store";
 
@@ -20,6 +21,8 @@ export type EditorContextValue = {
   hostError: string | null;
   playback: PlaybackStore;
   layers: Layer[];
+  /** The props of the layers that are animated with `interpolate()`. */
+  keyframedProps: KeyframedProp[];
   project: CodemodProject;
   compositions: CompositionInfo[];
   compositionFile: string | null;

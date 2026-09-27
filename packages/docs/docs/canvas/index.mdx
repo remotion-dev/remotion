@@ -134,6 +134,12 @@ While a value is being dragged, [`controller.overrides`](/docs/canvas/create-can
 
 Pass [`onSequencePropsChange`](/docs/canvas/canvas#onsequencepropschange) to `<Canvas>` to let users move elements by dragging their outlines or pressing the arrow keys. The Canvas previews the movement itself and reports the final `style.translate` values to the callback. With [`getSequencePropStatuses`](/docs/canvas/canvas#getsequencepropstatuses), it respects how the source is written: computed values cannot be moved and keyframed values receive a keyframe.
 
+## Keyframes<AvailableFrom v="4.0.530" />
+
+Props animated with `interpolate()` are reported as `keyframed` by [`getNodeProps()`](/docs/codemods/get-node-props). The package converts between the frame clock of the interpolation and the composition timeline, so a timeline can show and edit those keyframes like the Remotion Studio does.
+
+[`getCanvasKeyframes()`](/docs/canvas/get-canvas-keyframes) places the keyframes of a prop on the timeline. [`getCanvasKeyframeToggle()`](/docs/canvas/get-canvas-keyframe-toggle) describes a keyframe button at the playhead and returns the change that adds or removes a keyframe there, while [`getCanvasPropValueAtFrame()`](/docs/canvas/get-canvas-prop-value-at-frame) reads the animated value for an inspector. [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag) moves keyframes with the pointer, previewing the result through `controller.overrides`. Every edit is a `CanvasKeyframeChange` whose `operation` you pass to [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes).
+
 ## APIs
 
 import {TableOfContents} from './table-of-contents';
