@@ -72,7 +72,7 @@ Passing an unchanged mapping is a no-op, so the function may be called from a `t
 
 Preview prop values on mounted sequences without changing the source. Overrides are applied to sequences that have a `nodePathInfo`, so register node paths first. They are kept while the composition stays mounted and are not persisted; write the final value to the source, for example with [`updateNodeProps()`](/docs/codemods/update-node-props), and clear the override once the update has been applied.
 
-The Canvas sets overrides itself while an outline is being [moved](/docs/canvas/canvas#onsequencepropschange), and [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag) sets them while keyframes are dragged. Both leave them in place for you to clear after persisting.
+The Canvas sets overrides itself while an outline is being [moved](/docs/canvas/canvas#onsequencepropschange), and [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag) sets them while keyframes are dragged. Both leave them in place for you to clear after persisting. [`getCanvasKeyframeChangeOverride()`](/docs/canvas/get-canvas-keyframe-change-override) computes the value that previews any other keyframe change, such as a new easing.
 
 #### set()
 

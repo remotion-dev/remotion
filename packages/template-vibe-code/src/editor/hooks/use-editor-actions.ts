@@ -1,9 +1,11 @@
 "use client";
 
 import {
+  getCanvasKeyframeChangeOverride,
   getCanvasKeyframeToggle,
   getCanvasSelectionItemKey,
   type CanvasKeyframeChange,
+  type CanvasKeyframeEasing,
   type CanvasSelectionInteraction,
   type CanvasSequencePropChange,
   type SequenceNodePathInfo,
@@ -38,7 +40,10 @@ import {
   type SequencePropUpdate,
 } from "@remotion/codemods";
 import { useMemo, useRef } from "react";
-import type { InteractivitySchema } from "remotion";
+import type {
+  CanUpdateSequencePropStatus,
+  InteractivitySchema,
+} from "remotion";
 import type {
   PreviewHost,
   PreviewRenderRequest,
@@ -48,8 +53,11 @@ import type { CompositionInfo } from "../model/compositions";
 import { formatSource } from "../model/format";
 import {
   findKeyframedProp,
+  getEasingChanges,
+  getEasingSelectionItem,
   getKeyframeSelectionItem,
   getSelectedKeyframes,
+  type EasingSelectionItem,
   type KeyframedProp,
   type KeyframeSelectionItem,
 } from "../model/keyframes";
@@ -368,6 +376,55 @@ export const useEditorActions = ({
       return ok;
     };
 
+    /**
+     * Shows keyframe changes on the canvas before they are written, e.g.
+     * while an easing curve is being dragged. Changes of the same prop are
+     * applied on top of each other.
+     */
+    const previewKeyframeChanges = (
+      changes: readonly CanvasKeyframeChange[],
+    ) => {
+      const controller = ref.current.host?.controller;
+      if (!controller) {
+        return;
+      }
+
+      const statuses = new Map<string, CanUpdateSequencePropStatus>();
+      for (const change of changes) {
+        const sequenceKey = getCanvasSelectionItemKey({
+          type: "sequence",
+          nodePathInfo: change.nodePathInfo,
+        });
+        const propKey = `${sequenceKey}\0${change.key}`;
+        const propStatus =
+          statuses.get(propKey) ??
+          ref.current.keyframedProps.find(
+            (prop) =>
+              prop.key === change.key &&
+              getCanvasSelectionItemKey(prop.layer.selectionItem) ===
+                sequenceKey,
+          )?.propStatus;
+        if (!propStatus) {
+          continue;
+        }
+
+        const override = getCanvasKeyframeChangeOverride({
+          propStatus,
+          change,
+        });
+        if (override === null) {
+          continue;
+        }
+
+        if (override.type === "keyframed") {
+          statuses.set(propKey, override.status);
+        }
+
+        controller.overrides.set(change.nodePathInfo, change.key, override);
+        pendingPreviews.set(sequenceKey, change.nodePathInfo);
+      }
+    };
+
     const setZoom = (zoom: PreviewZoom) => {
       dispatch({ type: "set-playback", patch: { zoom } });
     };
@@ -677,6 +734,38 @@ export const ${componentName}: React.FC = () => {
        */
       commitKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) =>
         commitNodeChanges(groupNodeChanges(changes)),
+      previewKeyframeChanges,
+      /** Drops the previews of keyframe changes without writing them. */
+      cancelKeyframePreviews: (changes: readonly CanvasKeyframeChange[]) => {
+        const controller = ref.current.host?.controller;
+        for (const { nodePathInfo } of changes) {
+          pendingPreviews.delete(
+            getCanvasSelectionItemKey({ type: "sequence", nodePathInfo }),
+          );
+          controller?.overrides.clear(nodePathInfo);
+        }
+      },
+      /**
+       * Shows keyframe changes on the canvas right away and writes them to
+       * the source, e.g. an easing preset or interpolation settings.
+       */
+      applyKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) => {
+        previewKeyframeChanges(changes);
+        return commitNodeChanges(groupNodeChanges(changes));
+      },
+      /** Gives the easing segments the same easing. */
+      applyEasing: (
+        items: readonly EasingSelectionItem[],
+        easing: CanvasKeyframeEasing,
+      ) => {
+        const changes = getEasingChanges({
+          items,
+          keyframedProps: ref.current.keyframedProps,
+          easing,
+        });
+        previewKeyframeChanges(changes);
+        return commitNodeChanges(groupNodeChanges(changes));
+      },
       /** Removes the keyframes that are selected on the timeline. */
       deleteSelectedKeyframes: () => {
         const { host, keyframedProps, compositionDurationInFrames } =
@@ -723,8 +812,13 @@ export const ${componentName}: React.FC = () => {
         );
         return commitNodeChanges(groupNodeChanges(changes));
       },
+      /**
+       * Selects keyframes and easing segments. With an interaction, Shift
+       * selects the range between the anchor and the item along the keyframe
+       * rows, where segments sit between their keyframes.
+       */
       selectKeyframes: (
-        items: readonly KeyframeSelectionItem[],
+        items: readonly (KeyframeSelectionItem | EasingSelectionItem)[],
         interaction: CanvasSelectionInteraction | null,
       ) => {
         const { host, keyframedProps } = ref.current;
@@ -742,9 +836,15 @@ export const ${componentName}: React.FC = () => {
           item,
           interaction,
           keyframedProps.flatMap((prop) =>
-            prop.keyframes.map((keyframe) =>
-              getKeyframeSelectionItem(prop, keyframe.frame),
-            ),
+            prop.keyframes.flatMap((keyframe, index) => {
+              const segment = prop.easingSegments.find(
+                (candidate) => candidate.segmentIndex === index,
+              );
+              return [
+                getKeyframeSelectionItem(prop, keyframe.frame),
+                ...(segment ? [getEasingSelectionItem(prop, segment)] : []),
+              ];
+            }),
           ),
         );
       },

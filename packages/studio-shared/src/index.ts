@@ -319,6 +319,7 @@ export {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	getKeyframeOutputTypeForSchemaField,
+	isInteractivitySchemaFieldHoldOnly,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldHoldOnly,
@@ -409,6 +410,7 @@ export {
 
 export type {VisualControlChange} from './codemods';
 export {
+	addKeyframeToPropStatus,
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
 } from './optimistic-add-keyframe';
@@ -417,6 +419,7 @@ export {
 	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
+	removeKeyframeFromPropStatus,
 } from './optimistic-delete-keyframe';
 export {
 	canMoveKeyframesWithoutCollisions,
@@ -428,6 +431,7 @@ export {
 export {optimisticUpdateForEffectPropStatuses} from './optimistic-update-for-effect-prop-statuses';
 export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {
+	applyKeyframeSettingsToStatus,
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,
 } from './optimistic-update-keyframe-settings';

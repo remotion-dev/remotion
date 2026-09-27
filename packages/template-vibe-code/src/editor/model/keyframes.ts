@@ -1,7 +1,12 @@
 import {
+  getCanvasKeyframeEasingChange,
+  getCanvasKeyframeEasingSegments,
   getCanvasKeyframes,
   getCanvasSelectionItemKey,
   type CanvasKeyframe,
+  type CanvasKeyframeChange,
+  type CanvasKeyframeEasing,
+  type CanvasKeyframeEasingSegment,
   type CanvasSelectionItem,
   type SequenceNodePathInfo,
 } from "@remotion/canvas";
@@ -24,6 +29,8 @@ export type KeyframedProp = {
   propStatus: CanUpdateSequencePropStatusKeyframed;
   /** The keyframes placed on the composition timeline. */
   keyframes: CanvasKeyframe[];
+  /** The spans between the keyframes whose easing can be edited. */
+  easingSegments: CanvasKeyframeEasingSegment[];
   /** Identifies the prop in the Canvas selection, e.g. for its keyframes. */
   nodePathInfo: SequenceNodePathInfo;
 };
@@ -31,6 +38,11 @@ export type KeyframedProp = {
 export type KeyframeSelectionItem = Extract<
   CanvasSelectionItem,
   { type: "keyframe" }
+>;
+
+export type EasingSelectionItem = Extract<
+  CanvasSelectionItem,
+  { type: "easing" }
 >;
 
 /**
@@ -53,6 +65,17 @@ export const getKeyframeSelectionItem = (
   type: "keyframe",
   nodePathInfo: prop.nodePathInfo,
   frame,
+});
+
+export const getEasingSelectionItem = (
+  prop: Pick<KeyframedProp, "nodePathInfo">,
+  segment: CanvasKeyframeEasingSegment,
+): EasingSelectionItem => ({
+  type: "easing",
+  nodePathInfo: prop.nodePathInfo,
+  fromFrame: segment.fromFrame,
+  toFrame: segment.toFrame,
+  segmentIndex: segment.segmentIndex,
 });
 
 const getKeyframedPropKey = (prop: Pick<KeyframedProp, "nodePathInfo">) =>
@@ -110,6 +133,12 @@ export const getKeyframedProps = ({
           schema,
           propStatus,
           keyframes: getCanvasKeyframes({ track: layer.track, propStatus }),
+          easingSegments: getCanvasKeyframeEasingSegments({
+            track: layer.track,
+            schema,
+            key,
+            propStatus,
+          }),
           nodePathInfo,
         },
       ];
@@ -124,11 +153,43 @@ export const getSelectedKeyframes = (
     (item): item is KeyframeSelectionItem => item.type === "keyframe",
   );
 
-/** Finds the keyframed prop a selected keyframe belongs to. */
+export const getSelectedEasings = (
+  selectedItems: readonly CanvasSelectionItem[],
+): EasingSelectionItem[] =>
+  selectedItems.filter(
+    (item): item is EasingSelectionItem => item.type === "easing",
+  );
+
+/** Finds the keyframed prop a selected keyframe or easing segment belongs to. */
 export const findKeyframedProp = (
   props: readonly KeyframedProp[],
-  item: KeyframeSelectionItem,
+  item: Pick<KeyframedProp, "nodePathInfo">,
 ): KeyframedProp | null => {
-  const key = getKeyframedPropKey({ nodePathInfo: item.nodePathInfo });
+  const key = getKeyframedPropKey(item);
   return props.find((prop) => getKeyframedPropKey(prop) === key) ?? null;
 };
+
+/** The changes that give the selected easing segments the same easing. */
+export const getEasingChanges = ({
+  items,
+  keyframedProps,
+  easing,
+}: {
+  items: readonly EasingSelectionItem[];
+  keyframedProps: readonly KeyframedProp[];
+  easing: CanvasKeyframeEasing;
+}): CanvasKeyframeChange[] =>
+  items.flatMap((item) => {
+    const prop = findKeyframedProp(keyframedProps, item);
+    const change =
+      prop &&
+      getCanvasKeyframeEasingChange({
+        nodePathInfo: prop.layer.nodePathInfo,
+        schema: prop.schema,
+        key: prop.key,
+        propStatus: prop.propStatus,
+        segmentIndex: item.segmentIndex,
+        easing,
+      });
+    return change ? [change] : [];
+  });
