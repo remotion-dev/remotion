@@ -244,6 +244,7 @@ test('formats precise log messages for all codemods', () => {
 		{
 			codemod: {
 				type: 'new-composition',
+				asset: null,
 				canvasCapture: null,
 				newId: 'FreshVideo',
 				componentName: 'FreshVideo',
@@ -725,6 +726,7 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 				input: {
 					codemod: {
 						type: 'new-composition',
+						asset: null,
 						canvasCapture: null,
 						newId: 'FreshVideo',
 						componentName: 'FreshVideo',
@@ -823,6 +825,7 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 				input: {
 					codemod: {
 						type: 'new-composition',
+						asset: null,
 						canvasCapture: {
 							videoFileName: 'capture.mp4',
 							videoHeight: 1080,

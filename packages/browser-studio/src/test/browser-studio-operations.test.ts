@@ -1400,6 +1400,7 @@ test('creates a composition with a component file in the root file', async () =>
 
 	const codemod = {
 		type: 'new-composition' as const,
+		asset: null,
 		newId: 'FreshComp',
 		componentName: 'FreshComp',
 		componentImportPath: './FreshComp',
@@ -1456,6 +1457,7 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 	const result = await operations.applyCodemod({
 		codemod: {
 			type: 'new-composition',
+			asset: null,
 			newId: 'CanvasComp',
 			componentName: 'CanvasComp',
 			componentImportPath: './CanvasComp',

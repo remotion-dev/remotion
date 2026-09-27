@@ -21,7 +21,10 @@ import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {emptyCompositionComponent} from '@remotion/studio-shared';
+import {
+	assetCompositionComponent,
+	emptyCompositionComponent,
+} from '@remotion/studio-shared';
 import {resolveFileInsideProject} from '../helpers/resolve-file-inside-project';
 import {checkIfTypeScriptFile} from '../preview-server/routes/can-update-default-props';
 
@@ -115,7 +118,13 @@ export const applyCodemodToFile = async ({
 				{
 					filePath: componentFilePath,
 					previousContents: null,
-					nextContents: emptyCompositionComponent(codeMod.componentName),
+					nextContents:
+						codeMod.asset === null
+							? emptyCompositionComponent(codeMod.componentName)
+							: assetCompositionComponent({
+									asset: codeMod.asset,
+									componentName: codeMod.componentName,
+								}),
 				},
 			],
 		};

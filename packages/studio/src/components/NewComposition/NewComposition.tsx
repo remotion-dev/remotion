@@ -468,7 +468,7 @@ const NewCompositionLoaded: React.FC<{
 		durationInFrames: initialDimensions.durationInFrames,
 		folder: {folderName, parentName, stack},
 		fps: initialDimensions.fps,
-		id: getUniqueCompositionName(compositions),
+		id: getUniqueCompositionName(compositions, null),
 		size: {
 			height: initialDimensions.height,
 			width: initialDimensions.width,
@@ -491,6 +491,7 @@ const NewCompositionLoaded: React.FC<{
 		valid,
 		widthValidationMessage,
 	} = useCreateComposition({
+		asset: null,
 		compositions,
 		durationInFrames: values.durationInFrames,
 		folderName: values.folder.folderName,

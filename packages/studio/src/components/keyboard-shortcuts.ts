@@ -54,6 +54,7 @@ export const defaultKeyboardShortcuts: Record<
 	togglePixelGrid: [{key: 'p', shift: true}],
 	previousComposition: [{key: 'PageUp'}],
 	nextComposition: [{key: 'PageDown'}],
+	newComposition: [{key: 'n'}],
 	showKeyboardShortcuts: [{key: '?', shift: true}],
 	quickSwitcher: [{key: 'k', commandOrControl: true}],
 	render: [{key: 'r', shift: false}],
@@ -147,6 +148,7 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 		shortcuts: [
 			shortcut('Previous composition', 'previousComposition'),
 			shortcut('Next composition', 'nextComposition'),
+			shortcut('New composition', 'newComposition'),
 			shortcut('Render, unless a sequence or prop is selected', 'render'),
 			shortcut(
 				'Checkerboard, unless a sequence or prop is selected',

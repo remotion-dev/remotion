@@ -66,6 +66,7 @@ export const getFileMenu = ({
 	editorId,
 	previewServerState,
 	setSelectedModal,
+	newCompositionShortcut,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
@@ -73,6 +74,7 @@ export const getFileMenu = ({
 	editorId: EditorPickerId | null;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
+	newCompositionShortcut: string | null;
 }) => {
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
@@ -96,7 +98,7 @@ export const getFileMenu = ({
 						});
 					},
 					type: 'item' as const,
-					keyHint: null,
+					keyHint: newCompositionShortcut,
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'New composition...',
@@ -371,6 +373,7 @@ const useMenuStructureBase = ({
 	const {defaultEditorId, defaultEditorName} = openInApps;
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const resetZoomShortcut = useKeyboardShortcutLabel('resetZoom');
+	const newCompositionShortcut = useKeyboardShortcutLabel('newComposition');
 	const toggleSnappingShortcut = useKeyboardShortcutLabel('toggleSnapping');
 	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
 	const pixelGridShortcut = useKeyboardShortcutLabel('togglePixelGrid');
@@ -525,6 +528,9 @@ const useMenuStructureBase = ({
 				editorName: defaultEditorName,
 				previewServerState: type,
 				setSelectedModal,
+				newCompositionShortcut: keyboardShortcutsDisabled
+					? null
+					: newCompositionShortcut || null,
 			}),
 			{
 				id: 'view' as const,
@@ -1214,6 +1220,7 @@ const useMenuStructureBase = ({
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
+		newCompositionShortcut,
 		defaultEditorId,
 		defaultEditorName,
 		openInApps,

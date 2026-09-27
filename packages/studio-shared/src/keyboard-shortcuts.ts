@@ -19,6 +19,7 @@ export const studioKeyboardShortcutActions = [
 	'togglePixelGrid',
 	'previousComposition',
 	'nextComposition',
+	'newComposition',
 	'showKeyboardShortcuts',
 	'quickSwitcher',
 	'render',
