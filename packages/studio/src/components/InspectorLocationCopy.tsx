@@ -3,6 +3,7 @@ import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-so
 import {formatContextForAgents} from '../helpers/format-file-location';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
@@ -111,12 +112,19 @@ export const InspectorLocationCopy: React.FC<{
 						showTooltips
 					/>
 					{contextForAgents ? (
-						<InlineAction
-							variant={null}
-							onClick={onCopy}
-							renderAction={renderCopyAction}
-							aria-label="Copy context for agents"
-						/>
+						<ActionTooltip
+							label="Copy context for agents"
+							shortcut={null}
+							delay={800}
+							dismissOnClick
+						>
+							<InlineAction
+								variant={null}
+								onClick={onCopy}
+								renderAction={renderCopyAction}
+								aria-label="Copy context for agents"
+							/>
+						</ActionTooltip>
 					) : null}
 				</div>
 			) : null}
