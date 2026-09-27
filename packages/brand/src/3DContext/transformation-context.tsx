@@ -127,45 +127,43 @@ const make3DTransform = <ValueKey extends string>({
 		[valueKey]: schemaField,
 	} as const satisfies InteractivitySchema;
 
-	const Inner = React.forwardRef<never, TransformInnerProps<ValueKey>>(
-		(rawProps, _ref) => {
-			const props = rawProps as TransformInnerProps<ValueKey>;
-			const {
-				children,
-				durationInFrames,
-				from,
-				trimBefore,
-				trimAfter,
-				loop,
-				freeze,
-				hidden,
-				name,
-				showInTimeline,
-				controls,
-			} = props;
-			const value = props[valueKey] ?? defaultValue;
-			const transform = useMemo(() => makeTransform(value), [value]);
+	const Inner: React.FC<TransformInnerProps<ValueKey>> = (rawProps) => {
+		const props = rawProps as TransformInnerProps<ValueKey>;
+		const {
+			children,
+			durationInFrames,
+			from,
+			trimBefore,
+			trimAfter,
+			loop,
+			freeze,
+			hidden,
+			name,
+			showInTimeline,
+			controls,
+		} = props;
+		const value = props[valueKey] ?? defaultValue;
+		const transform = useMemo(() => makeTransform(value), [value]);
 
-			return (
-				<Sequence
-					layout="none"
-					from={from ?? 0}
-					trimBefore={trimBefore}
-					trimAfter={trimAfter}
-					loop={loop}
-					durationInFrames={durationInFrames ?? Infinity}
-					freeze={freeze}
-					hidden={hidden}
-					name={name ?? componentName}
-					showInTimeline={showInTimeline ?? true}
-					controls={controls ?? undefined}
-					_remotionInternalDocumentationLink={transformDocumentationLink}
-				>
-					<NewTransform transform={transform}>{children}</NewTransform>
-				</Sequence>
-			);
-		},
-	);
+		return (
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+				loop={loop}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? componentName}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls ?? undefined}
+				_remotionInternalDocumentationLink={transformDocumentationLink}
+			>
+				<NewTransform transform={transform}>{children}</NewTransform>
+			</Sequence>
+		);
+	};
 
 	Inner.displayName = componentName;
 

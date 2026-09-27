@@ -3,14 +3,7 @@ import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Figtree';
 import {fitTextOnNLines, measureText} from '@remotion/layout-utils';
 import {createRoundedTextBox} from '@remotion/rounded-text-box';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
@@ -212,75 +205,65 @@ const RoundedCaptionsContent: React.FC<{
 	);
 };
 
-const RoundedCaptionsInner = forwardRef<
-	HTMLDivElement,
+const RoundedCaptionsInner: React.FC<
 	RoundedCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			playbackRate,
-			style,
-			trimBefore,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
+> = ({
+	captions,
+	combineTokensWithinMilliseconds,
+	controls,
+	height = defaultHeight,
+	name,
+	playbackRate,
+	style,
+	trimBefore,
+	width = defaultWidth,
+	...interactiveProps
+}) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
 
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => setFontLoaded(true))
+			.catch((error) => cancelRender(error));
+	}, []);
 
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => setFontLoaded(true))
-				.catch((error) => cancelRender(error));
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<RoundedCaptions>'}
-				trimBefore={trimBefore}
+	return (
+		<Sequence
+			layout="none"
+			{...interactiveProps}
+			controls={controls}
+			name={name ?? '<RoundedCaptions>'}
+			trimBefore={trimBefore}
+		>
+			<div
+				style={{
+					alignItems: 'center',
+					display: 'flex',
+					justifyContent: 'center',
+					marginInline: 'auto',
+					width,
+					height,
+					...style,
+				}}
 			>
-				<div
-					ref={elementRef}
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						justifyContent: 'center',
-						marginInline: 'auto',
-						width,
-						height,
-						...style,
-					}}
-				>
-					<RoundedCaptionsContent
-						captions={captions}
-						combineTokensWithinMilliseconds={
-							combineTokensWithinMilliseconds ??
-							defaultCombineTokensWithinMilliseconds
-						}
-						fontLoaded={fontLoaded}
-						playbackRate={playbackRate ?? 1}
-						trimBefore={trimBefore ?? 0}
-						width={width}
-						height={height}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<RoundedCaptionsContent
+					captions={captions}
+					combineTokensWithinMilliseconds={
+						combineTokensWithinMilliseconds ??
+						defaultCombineTokensWithinMilliseconds
+					}
+					fontLoaded={fontLoaded}
+					playbackRate={playbackRate ?? 1}
+					trimBefore={trimBefore ?? 0}
+					width={width}
+					height={height}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 export const RoundedCaptions = Interactive.withSchema({
 	Component: RoundedCaptionsInner,

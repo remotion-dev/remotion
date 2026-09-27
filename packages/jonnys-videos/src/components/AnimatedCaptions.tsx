@@ -4,10 +4,8 @@ import {glow} from '@remotion/effects/glow';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Audio} from '@remotion/media';
 import React, {
-	forwardRef,
 	useCallback,
 	useEffect,
-	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -438,10 +436,9 @@ const FetchedAnimatedCaptions: React.FC<{
 	);
 };
 
-const AnimatedCaptionsInner = forwardRef<
-	HTMLDivElement,
+const AnimatedCaptionsInner: React.FC<
 	AnimatedCaptionsProps & {readonly controls: SequenceControls | undefined}
->((props, ref) => {
+> = (props) => {
 	const {
 		captions,
 		captionsSrc,
@@ -450,10 +447,6 @@ const AnimatedCaptionsInner = forwardRef<
 		voiceoverSrc,
 		...interactiveProps
 	} = props;
-	const elementRef = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
 	return (
 		<Sequence
 			layout="none"
@@ -461,7 +454,7 @@ const AnimatedCaptionsInner = forwardRef<
 			controls={controls}
 			name={name ?? '<AnimatedCaptions>'}
 		>
-			<AbsoluteFill ref={elementRef}>
+			<AbsoluteFill>
 				{captions ? (
 					<AnimatedCaptionsContent
 						captions={captions}
@@ -476,7 +469,7 @@ const AnimatedCaptionsInner = forwardRef<
 			</AbsoluteFill>
 		</Sequence>
 	);
-});
+};
 
 export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,

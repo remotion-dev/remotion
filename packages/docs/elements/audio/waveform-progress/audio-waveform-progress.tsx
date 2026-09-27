@@ -1,12 +1,6 @@
 import {Audio} from '@remotion/media';
 import {getWaveformPortion, useWindowedAudioData} from '@remotion/media-utils';
-import React, {
-	forwardRef,
-	useId,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-} from 'react';
+import React, {useId, useMemo} from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -173,64 +167,53 @@ const AudioWaveformProgressContent: React.FC<{
 	);
 };
 
-const AudioWaveformProgressInner = forwardRef<
-	HTMLDivElement,
+const AudioWaveformProgressInner: React.FC<
 	AudioWaveformProgressProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			amplitude = 1,
-			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			barGap = 5,
-			controls,
-			durationInFrames = 271,
-			name,
-			numberOfBars = 64,
-			playedColor = '#2563eb',
-			style,
-			unplayedColor = '#cbd5e1',
-			...sequenceProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...sequenceProps}
-				controls={controls}
-				durationInFrames={durationInFrames}
-				name={name ?? 'Audio waveform progress'}
+> = ({
+	amplitude = 1,
+	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	barGap = 5,
+	controls,
+	durationInFrames = 271,
+	name,
+	numberOfBars = 64,
+	playedColor = '#2563eb',
+	style,
+	unplayedColor = '#cbd5e1',
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			controls={controls}
+			durationInFrames={durationInFrames}
+			name={name ?? 'Audio waveform progress'}
+		>
+			<div
+				style={{
+					boxSizing: 'border-box',
+					height: 300,
+					width: 900,
+					...style,
+				}}
 			>
-				<div
-					ref={elementRef}
-					style={{
-						boxSizing: 'border-box',
-						height: 300,
-						width: 900,
-						...style,
-					}}
-				>
-					<AudioWaveformProgressContent
-						key={`${audioSrc}-${durationInFrames}`}
-						amplitude={amplitude}
-						audioSrc={audioSrc}
-						barGap={barGap}
-						durationInFrames={durationInFrames}
-						numberOfBars={numberOfBars}
-						playedColor={playedColor}
-						unplayedColor={unplayedColor}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<AudioWaveformProgressContent
+					key={`${audioSrc}-${durationInFrames}`}
+					amplitude={amplitude}
+					audioSrc={audioSrc}
+					barGap={barGap}
+					durationInFrames={durationInFrames}
+					numberOfBars={numberOfBars}
+					playedColor={playedColor}
+					unplayedColor={unplayedColor}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 export const AudioWaveformProgress = Interactive.withSchema({
 	Component: AudioWaveformProgressInner,

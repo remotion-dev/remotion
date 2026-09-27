@@ -80,7 +80,7 @@ The inner component receives a `controls` prop from `Interactive.withSchema()`.
 Forward it unchanged to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline. Forwarding it also allows the Studio to associate the timeline item with the outer component's source location.
 
 ```tsx twoslash title="Badge.tsx"
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import type React from 'react';
 import {
   Interactive,
   Sequence,
@@ -115,53 +115,42 @@ const badgeSchema = {
   ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 // ---cut---
-const BadgeInner = forwardRef<
-  HTMLDivElement,
-  BadgeProps & {
-    readonly controls: SequenceControls | undefined;
-  }
->(
-  (
-    {
-      children,
-      color = '#0b84ff',
-      padding = 16,
-      style,
-      name,
-      controls,
-      ...sequenceProps
-    },
-    ref,
-  ) => {
-    const elementRef = useRef<HTMLDivElement>(null);
-
-    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-    return (
-      <Sequence
-        layout="none"
-        {...sequenceProps}
-        name={name ?? '<Badge>'}
-        controls={controls}
-      >
-        <div
-          ref={elementRef}
-          style={{
-            ...style,
-            display: 'inline-flex',
-            borderRadius: 999,
-            backgroundColor: color,
-            color: 'white',
-            fontWeight: 700,
-            padding,
-          }}
-        >
-          {children}
-        </div>
-      </Sequence>
-    );
-  },
-);
+const BadgeInner: React.FC<
+	BadgeProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
+	children,
+	color = '#0b84ff',
+	padding = 16,
+	style,
+	name,
+	controls,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			name={name ?? '<Badge>'}
+			controls={controls}
+		>
+			<div
+				style={{
+					...style,
+					display: 'inline-flex',
+					borderRadius: 999,
+					backgroundColor: color,
+					color: 'white',
+					fontWeight: 700,
+					padding,
+				}}
+			>
+				{children}
+			</div>
+		</Sequence>
+	);
+};
 ```
 
 The exported component should not expose `controls` as a public prop.
@@ -171,7 +160,7 @@ With `<Sequence layout="none">`, the Studio discovers the rendered element autom
 ## Wrap the component
 
 ```tsx twoslash title="Badge.tsx"
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import type React from 'react';
 import {
   Interactive,
   Sequence,
@@ -206,53 +195,42 @@ const badgeSchema = {
   ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const BadgeInner = forwardRef<
-  HTMLDivElement,
-  BadgeProps & {
-    readonly controls: SequenceControls | undefined;
-  }
->(
-  (
-    {
-      children,
-      color = '#0b84ff',
-      padding = 16,
-      style,
-      name,
-      controls,
-      ...sequenceProps
-    },
-    ref,
-  ) => {
-    const elementRef = useRef<HTMLDivElement>(null);
-
-    useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-    return (
-      <Sequence
-        layout="none"
-        {...sequenceProps}
-        name={name ?? '<Badge>'}
-        controls={controls}
-      >
-        <div
-          ref={elementRef}
-          style={{
-            ...style,
-            display: 'inline-flex',
-            borderRadius: 999,
-            backgroundColor: color,
-            color: 'white',
-            fontWeight: 700,
-            padding,
-          }}
-        >
-          {children}
-        </div>
-      </Sequence>
-    );
-  },
-);
+const BadgeInner: React.FC<
+	BadgeProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
+	children,
+	color = '#0b84ff',
+	padding = 16,
+	style,
+	name,
+	controls,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			name={name ?? '<Badge>'}
+			controls={controls}
+		>
+			<div
+				style={{
+					...style,
+					display: 'inline-flex',
+					borderRadius: 999,
+					backgroundColor: color,
+					color: 'white',
+					fontWeight: 700,
+					padding,
+				}}
+			>
+				{children}
+			</div>
+		</Sequence>
+	);
+};
 // ---cut---
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,

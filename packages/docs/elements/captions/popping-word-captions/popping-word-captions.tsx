@@ -2,14 +2,7 @@ import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
 import {fitText} from '@remotion/layout-utils';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
@@ -284,74 +277,62 @@ const PoppingWordCaptionsContent: React.FC<{
 	);
 };
 
-const PoppingWordCaptionsInner = forwardRef<
-	HTMLDivElement,
+const PoppingWordCaptionsInner: React.FC<
 	PoppingWordCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			playbackRate = 1,
-			style,
-			trimBefore,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
+> = ({
+	captions,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	controls,
+	height = defaultHeight,
+	name,
+	playbackRate = 1,
+	style,
+	trimBefore,
+	width = defaultWidth,
+	...interactiveProps
+}) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
 
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
 
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => {
-					setFontLoaded(true);
-				})
-				.catch((error) => {
-					cancelRender(
-						error instanceof Error ? error : new Error(String(error)),
-					);
-				});
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<PoppingWordCaptions>'}
-				trimBefore={trimBefore}
+	return (
+		<Sequence
+			layout="none"
+			{...interactiveProps}
+			controls={controls}
+			name={name ?? '<PoppingWordCaptions>'}
+			trimBefore={trimBefore}
+		>
+			<div
+				style={{
+					height,
+					marginInline: 'auto',
+					width,
+					...style,
+				}}
 			>
-				<div
-					ref={elementRef}
-					style={{
-						height,
-						marginInline: 'auto',
-						width,
-						...style,
-					}}
-				>
-					<PoppingWordCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-						playbackRate={playbackRate}
-						trimBefore={trimBefore ?? 0}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<PoppingWordCaptionsContent
+					captionAreaWidth={width ?? null}
+					captions={captions}
+					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					fontLoaded={fontLoaded}
+					playbackRate={playbackRate}
+					trimBefore={trimBefore ?? 0}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 const PoppingWordCaptionsLayer = Interactive.withSchema({
 	Component: PoppingWordCaptionsInner,

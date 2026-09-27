@@ -3,9 +3,7 @@ import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
 import {fitText} from '@remotion/layout-utils';
 import React, {
-	forwardRef,
 	useEffect,
-	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -379,69 +377,57 @@ const MovingPillCaptionsContent: React.FC<{
 	);
 };
 
-const MovingPillCaptionsInner = forwardRef<
-	HTMLDivElement,
+const MovingPillCaptionsInner: React.FC<
 	MovingPillCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			style,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
+> = ({
+	captions,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	controls,
+	height = defaultHeight,
+	name,
+	style,
+	width = defaultWidth,
+	...interactiveProps
+}) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
 
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
 
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => {
-					setFontLoaded(true);
-				})
-				.catch((error) => {
-					cancelRender(
-						error instanceof Error ? error : new Error(String(error)),
-					);
-				});
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<MovingPillCaptions>'}
+	return (
+		<Sequence
+			layout="none"
+			{...interactiveProps}
+			controls={controls}
+			name={name ?? '<MovingPillCaptions>'}
+		>
+			<div
+				style={{
+					height,
+					marginInline: 'auto',
+					width,
+					...style,
+				}}
 			>
-				<div
-					ref={elementRef}
-					style={{
-						height,
-						marginInline: 'auto',
-						width,
-						...style,
-					}}
-				>
-					<MovingPillCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<MovingPillCaptionsContent
+					captionAreaWidth={width ?? null}
+					captions={captions}
+					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					fontLoaded={fontLoaded}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 const MovingPillCaptionsLayer = Interactive.withSchema({
 	Component: MovingPillCaptionsInner,

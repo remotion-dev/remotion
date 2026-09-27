@@ -4,7 +4,7 @@ import {
 	getWaveformPortion,
 	useWindowedAudioData,
 } from '@remotion/media-utils';
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -74,18 +74,9 @@ const AudioOscilloscopeContent: React.FC<{
 	readonly audioSrc: string;
 	readonly lineColor: string;
 	readonly lineWidth: number;
-	readonly elementRef: React.RefObject<HTMLDivElement | null>;
 	readonly style: AudioOscilloscopeProps['style'];
 	readonly windowInSeconds: number;
-}> = ({
-	amplitude,
-	audioSrc,
-	lineColor,
-	lineWidth,
-	elementRef,
-	style,
-	windowInSeconds,
-}) => {
+}> = ({amplitude, audioSrc, lineColor, lineWidth, style, windowInSeconds}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -116,7 +107,6 @@ const AudioOscilloscopeContent: React.FC<{
 
 	return (
 		<div
-			ref={elementRef}
 			style={{
 				boxSizing: 'border-box',
 				height: 300,
@@ -151,48 +141,37 @@ const AudioOscilloscopeContent: React.FC<{
 	);
 };
 
-const AudioOscilloscopeInner = forwardRef<
-	HTMLDivElement,
+const AudioOscilloscopeInner: React.FC<
 	AudioOscilloscopeProps & {readonly controls: SequenceControls | undefined}
->(
-	(
-		{
-			amplitude = 2,
-			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			controls,
-			lineColor = '#2563eb',
-			lineWidth = 6,
-			name,
-			style,
-			windowInSeconds = 0.35,
-			...sequenceProps
-		},
-		ref,
-	) => {
-		const elementRef = useRef<HTMLDivElement>(null);
-
-		useImperativeHandle(ref, () => elementRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...sequenceProps}
-				controls={controls}
-				name={name ?? 'Audio oscilloscope'}
-			>
-				<AudioOscilloscopeContent
-					amplitude={amplitude}
-					audioSrc={audioSrc}
-					lineColor={lineColor}
-					lineWidth={lineWidth}
-					elementRef={elementRef}
-					style={style}
-					windowInSeconds={windowInSeconds}
-				/>
-			</Sequence>
-		);
-	},
-);
+> = ({
+	amplitude = 2,
+	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	controls,
+	lineColor = '#2563eb',
+	lineWidth = 6,
+	name,
+	style,
+	windowInSeconds = 0.35,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			controls={controls}
+			name={name ?? 'Audio oscilloscope'}
+		>
+			<AudioOscilloscopeContent
+				amplitude={amplitude}
+				audioSrc={audioSrc}
+				lineColor={lineColor}
+				lineWidth={lineWidth}
+				style={style}
+				windowInSeconds={windowInSeconds}
+			/>
+		</Sequence>
+	);
+};
 
 export const AudioOscilloscope = Interactive.withSchema({
 	Component: AudioOscilloscopeInner,
