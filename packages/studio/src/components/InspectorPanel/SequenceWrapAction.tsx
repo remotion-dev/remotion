@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
+import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
@@ -22,6 +23,7 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
+import {getHtmlInCanvasWrapperTiming} from './get-html-in-canvas-wrapper-timing';
 
 type HtmlInCanvasWrapper = Extract<
 	NodeWrapper,
@@ -35,21 +37,41 @@ const htmlInCanvasComponentIdentities = new Set([
 
 export const SequenceWrapAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TimelineTrackData['sequence'];
+	readonly track: TimelineTrackData;
 	readonly sourceActionsDisabled: boolean;
 	readonly sourceLocation: {
 		readonly source: string;
 		readonly line: number;
 	};
-}> = ({nodePathInfo, sequence, sourceActionsDisabled, sourceLocation}) => {
+}> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {width, height} = useVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const {sequence} = track;
 	const nodePathKey = JSON.stringify(nodePathInfo.sequenceSubscriptionKey);
 	const sequenceStack = sequence.getStack();
 	const eligibilityKey = JSON.stringify([nodePathKey, sequenceStack]);
 	const [busy, setBusy] = useState(false);
 	const [eligibleNodeKey, setEligibleNodeKey] = useState<string | null>(null);
+	const timing = useMemo(
+		() =>
+			getHtmlInCanvasWrapperTiming({
+				tracks: calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}),
+				sequenceSubscriptionKey: nodePathInfo.sequenceSubscriptionKey,
+			}),
+		[
+			nodePathInfo.sequenceSubscriptionKey,
+			overrideIdToNodePathMappings,
+			sequences,
+		],
+	);
+	const timingIsNull = timing === null;
 	const wouldNestAtRuntime = useMemo(() => {
 		const sequencesById = new Map(
 			sequences.map((registeredSequence) => [
@@ -99,7 +121,7 @@ export const SequenceWrapAction: React.FC<{
 	}, [sequence.id, sequences]);
 
 	useEffect(() => {
-		if (sourceActionsDisabled || wouldNestAtRuntime) {
+		if (sourceActionsDisabled || wouldNestAtRuntime || timingIsNull) {
 			setEligibleNodeKey(null);
 			return;
 		}
@@ -115,6 +137,7 @@ export const SequenceWrapAction: React.FC<{
 			wrapper: null,
 			width: null,
 			height: null,
+			timing: null,
 		})
 			.then((eligibility) => {
 				if (!cancelled) {
@@ -134,7 +157,13 @@ export const SequenceWrapAction: React.FC<{
 		return () => {
 			cancelled = true;
 		};
-	}, [eligibilityKey, nodePathKey, sourceActionsDisabled, wouldNestAtRuntime]);
+	}, [
+		eligibilityKey,
+		nodePathKey,
+		sourceActionsDisabled,
+		timingIsNull,
+		wouldNestAtRuntime,
+	]);
 
 	const onWrap = useCallback(
 		async (wrapper: HtmlInCanvasWrapper) => {
@@ -142,6 +171,7 @@ export const SequenceWrapAction: React.FC<{
 				busy ||
 				sourceActionsDisabled ||
 				wouldNestAtRuntime ||
+				timing === null ||
 				eligibleNodeKey !== eligibilityKey
 			) {
 				return;
@@ -167,6 +197,7 @@ export const SequenceWrapAction: React.FC<{
 					wrapper: null,
 					width: null,
 					height: null,
+					timing: null,
 				});
 				if (!eligibility.success) {
 					showNotification(eligibility.reason, 4000);
@@ -202,6 +233,7 @@ export const SequenceWrapAction: React.FC<{
 					wrapper,
 					width,
 					height,
+					timing,
 				});
 				if (!result.success) {
 					showNotification(result.reason, 4000);
@@ -223,6 +255,7 @@ export const SequenceWrapAction: React.FC<{
 			setSelectedModal,
 			sourceActionsDisabled,
 			sourceLocation,
+			timing,
 			width,
 			wouldNestAtRuntime,
 		],
@@ -231,6 +264,7 @@ export const SequenceWrapAction: React.FC<{
 	if (
 		sourceActionsDisabled ||
 		eligibleNodeKey !== eligibilityKey ||
+		timing === null ||
 		wouldNestAtRuntime
 	) {
 		return null;

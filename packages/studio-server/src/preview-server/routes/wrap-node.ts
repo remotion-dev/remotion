@@ -18,7 +18,7 @@ import {
 } from './source-file-write-queue';
 
 export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
-	input: {fileName, nodePath, wrapper, width, height},
+	input: {fileName, nodePath, wrapper, width, height, timing},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -58,7 +58,11 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 							: 'remotion',
 					props:
 						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
-							? {width: width ?? 0, height: height ?? 0}
+							? {
+									width: width ?? 0,
+									height: height ?? 0,
+									...(timing ?? {}),
+								}
 							: {},
 				}),
 			});

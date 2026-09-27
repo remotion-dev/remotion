@@ -903,6 +903,11 @@ export type WrapNodeRequest = {
 	wrapper: NodeWrapper | null;
 	width: number | null;
 	height: number | null;
+	timing: {
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 };
 
 export type WrapNodeResponse =
