@@ -1,4 +1,4 @@
-import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
+import {CanvasInternals} from '@remotion/canvas';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -35,17 +35,11 @@ import {
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
 import {
-	getNextKeyframeDisplayFrame,
-	getPreviousKeyframeDisplayFrame,
-	hasKeyframeAtSourceFrame,
-} from './get-keyframe-navigation';
-import {
 	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
-import {normalizeFontWeightForKeyframe} from './normalize-font-weight-for-keyframe';
 import {ensureFrameIsInViewport} from './timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
@@ -55,6 +49,14 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
+
+const {
+	getCanvasKeyframeValueToAdd,
+	getNextKeyframeDisplayFrame,
+	getPreviousKeyframeDisplayFrame,
+	hasKeyframeAtSourceFrame,
+	isCanvasKeyframablePropStatus,
+} = CanvasInternals;
 
 const NAV_BUTTON_SIZE = 14;
 const INSPECTOR_NAV_BUTTON_WIDTH = NAV_BUTTON_SIZE / 2;
@@ -365,34 +367,25 @@ const getAddChange = (
 	target: KeyframeControlTarget,
 ): AddSequenceKeyframeChange | AddEffectKeyframeChange | null => {
 	if (
-		target.propStatus.status === 'computed' ||
-		(target.propStatus.status === 'static' &&
-			target.propStatus.canKeyframe === false) ||
-		!isSchemaFieldKeyframable({schema: target.schema, key: target.fieldKey}) ||
+		!isCanvasKeyframablePropStatus({
+			propStatus: target.propStatus,
+			schema: target.schema,
+			key: target.fieldKey,
+		}) ||
 		hasTargetKeyframeAtCurrentFrame(target)
 	) {
 		return null;
 	}
 
-	const value = getCurrentKeyframeValue({
+	const value = getCanvasKeyframeValueToAdd({
 		propStatus: target.propStatus,
-		jsxFrame:
-			(target.sourceFrame +
-				(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0)) /
-			(target.propStatus.keyframePlaybackRateAdjustment ?? 1),
+		schema: target.schema,
+		key: target.fieldKey,
+		sourceFrame: target.sourceFrame,
 		defaultValue: target.defaultValue,
 		dragOverrideValue: target.dragOverrideValue,
 	});
 	if (value === null) {
-		return null;
-	}
-
-	const fieldSchema = target.schema[target.fieldKey];
-	const normalizedValue =
-		fieldSchema?.type === 'font-weight'
-			? normalizeFontWeightForKeyframe(value)
-			: value;
-	if (normalizedValue === null) {
 		return null;
 	}
 
@@ -401,7 +394,7 @@ const getAddChange = (
 		nodePath: target.nodePath,
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
-		value: normalizedValue,
+		value,
 		schema: target.schema,
 	};
 
@@ -446,40 +439,6 @@ const hasEffectIndex = <T extends object>(
 ): change is T & {readonly effectIndex: number} => {
 	return 'effectIndex' in change;
 };
-
-function getCurrentKeyframeValue({
-	propStatus,
-	jsxFrame,
-	defaultValue,
-	dragOverrideValue,
-}: {
-	propStatus: CanUpdateSequencePropStatus;
-	jsxFrame: number;
-	defaultValue: unknown;
-	dragOverrideValue: DragOverrideValue | undefined;
-}): unknown | null {
-	if (isKeyframedStatus(propStatus)) {
-		return Internals.getEffectiveVisualModeValue({
-			propStatus,
-			dragOverrideValue,
-			frame: jsxFrame,
-			defaultValue,
-			shouldResortToDefaultValueIfUndefined: true,
-		});
-	}
-
-	if (propStatus.status === 'static') {
-		return Internals.getEffectiveVisualModeValue({
-			propStatus,
-			dragOverrideValue,
-			frame: jsxFrame,
-			defaultValue,
-			shouldResortToDefaultValueIfUndefined: true,
-		});
-	}
-
-	return null;
-}
 
 export const shouldShowTimelineKeyframeControls = ({
 	propStatus,
@@ -638,13 +597,11 @@ export const TimelineKeyframeControls: React.FC<{
 		selected: propertySelected,
 	});
 
-	const keyframable =
-		!(propStatus.status === 'static' && propStatus.canKeyframe === false) &&
-		isSchemaFieldKeyframable({
-			schema,
-			key: fieldKey,
-		});
-	const canAddKeyframe = keyframable;
+	const canAddKeyframe = isCanvasKeyframablePropStatus({
+		propStatus,
+		schema,
+		key: fieldKey,
+	});
 	const canToggleKeyframe =
 		canUseKeyframeOperations() &&
 		propStatus.status !== 'computed' &&

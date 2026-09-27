@@ -16,14 +16,25 @@ export const FieldRow: React.FC<{
   readonly label: React.ReactNode;
   readonly children: React.ReactNode;
   readonly badge?: React.ReactNode;
+  /**
+   * Keyframe controls shown before the label. Pass `null` to reserve the
+   * column so rows without controls stay aligned.
+   */
+  readonly keyframe?: React.ReactNode;
   readonly className?: string;
-}> = ({ label, children, badge, className }) => (
+}> = ({ label, children, badge, keyframe, className }) => (
   <div
     className={cn(
-      "grid grid-cols-[88px_minmax(0,1fr)] items-center gap-2",
+      "grid items-center gap-2",
+      keyframe === undefined
+        ? "grid-cols-[88px_minmax(0,1fr)]"
+        : "grid-cols-[34px_minmax(0,64px)_minmax(0,1fr)]",
       className,
     )}
   >
+    {keyframe === undefined ? null : (
+      <div className="flex h-7 items-center">{keyframe}</div>
+    )}
     <div className="text-muted-foreground min-w-0 truncate text-[11px]">
       {label}
     </div>
@@ -40,7 +51,7 @@ export const StatusBadge: React.FC<{
   <span
     title={
       status === "keyframed"
-        ? "This value is animated with interpolate(). Edit the keyframes in the code."
+        ? "This value is animated with interpolate(). Editing it writes a keyframe at the playhead."
         : "This value is computed in code and cannot be edited here."
     }
     className={cn(

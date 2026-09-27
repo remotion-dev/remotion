@@ -100,6 +100,25 @@ export {
 } from './keyframe-frames';
 export type {KeyframeSourceFrame} from './keyframe-frames';
 export {
+	getNextKeyframeDisplayFrame,
+	getPreviousKeyframeDisplayFrame,
+	hasKeyframeAtSourceFrame,
+} from './keyframe-navigation';
+export {
+	getCanvasKeyframeValueAtSourceFrame,
+	getCanvasKeyframeValueToAdd,
+	isCanvasKeyframablePropStatus,
+	normalizeFontWeightForKeyframe,
+} from './keyframe-value';
+export {
+	canMoveCanvasKeyframes,
+	getBoundedKeyframeDragDelta,
+	getCanvasKeyframeMove,
+	getMovedCanvasKeyframeOverride,
+	getMovedCanvasKeyframeStatus,
+} from './keyframe-move';
+export type {CanvasKeyframeMoveTarget} from './keyframe-move';
+export {
 	canvasOutlineSnapThresholdPx,
 	findCanvasOutlineSnap,
 	getCanvasOutlineSnapTargets,

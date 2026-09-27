@@ -50,6 +50,30 @@ export const TableOfContents: React.FC = () => {
 					<strong>getCanvasSelectionItemKey()</strong>
 					<div>Compare selection items by identity</div>
 				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframes">
+					<strong>getCanvasKeyframes()</strong>
+					<div>Place the keyframes of a prop on the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-toggle">
+					<strong>getCanvasKeyframeToggle()</strong>
+					<div>Add, remove and navigate keyframes at a frame</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/start-canvas-keyframe-drag">
+					<strong>startCanvasKeyframeDrag()</strong>
+					<div>Move keyframes along the timeline with the pointer</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-prop-value-at-frame">
+					<strong>getCanvasPropValueAtFrame()</strong>
+					<div>Read the value of a prop at a frame from the source</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-source-frame">
+					<strong>getCanvasKeyframeSourceFrame()</strong>
+					<div>Convert a composition frame to the interpolation clock</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-display-frame">
+					<strong>getCanvasKeyframeDisplayFrame()</strong>
+					<div>Convert an interpolation frame to the composition</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

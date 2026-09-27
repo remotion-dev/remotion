@@ -42,6 +42,26 @@ export type {
 	CanvasSequencePropsChangeHandler,
 	CanvasSequencePropStatusResolver,
 } from './sequence-props-change';
+export {
+	getCanvasKeyframeDisplayFrame,
+	getCanvasKeyframes,
+	getCanvasKeyframeSourceFrame,
+	getCanvasKeyframeToggle,
+	getCanvasPropValueAtFrame,
+} from './keyframes';
+export type {
+	CanvasKeyframe,
+	CanvasKeyframeChange,
+	CanvasKeyframeOperation,
+	CanvasKeyframeToggle,
+	CanvasKeyframeTrack,
+} from './keyframes';
+export type {CanvasKeyframeMove} from './keyframe-move';
+export {startCanvasKeyframeDrag} from './keyframe-drag';
+export type {
+	CanvasKeyframeDragEnd,
+	CanvasKeyframeDragTarget,
+} from './keyframe-drag';
 export type {
 	CanvasOutline,
 	CanvasOutlinePoint,

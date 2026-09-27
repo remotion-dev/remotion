@@ -2,11 +2,16 @@
 
 import {
   getCanvasSelectionItemKey,
+  startCanvasKeyframeDrag,
   useCanvasSelection,
   useCanvasSequenceHover,
+  type CanvasKeyframeDragTarget,
+  type CanvasSelectionInteraction,
 } from "@remotion/canvas";
 import { getNodeProps } from "@remotion/codemods";
 import {
+  ChevronDownIcon,
+  ChevronRightIcon,
   FilmIcon,
   ImageIcon,
   LayersIcon,
@@ -26,20 +31,33 @@ import { cn } from "@/lib/utils";
 import { usePlaybackFrame } from "../../hooks/use-playback";
 import { getErrorMessage } from "../../hooks/use-preview-host";
 import {
+  findKeyframedProp,
+  getKeyframeSelectionItem,
+  getSelectedKeyframes,
+  type KeyframedProp,
+  type KeyframeSelectionItem,
+} from "../../model/keyframes";
+import {
   getLayerLabel,
   getNodeReference,
   type Layer,
 } from "../../model/layers";
-import { getLayerSchema, hasTimingProps } from "../../model/schemas";
+import {
+  getFieldLabel,
+  getLayerSchema,
+  hasTimingProps,
+} from "../../model/schemas";
 import { clamp, formatTimecode } from "../../model/values";
 import { useEditor } from "../../state/editor-context";
 import { fallbackSelectionController } from "../../state/fallback-selection";
 import { LayerContextMenu } from "../Inspector/LayerActions";
+import { KeyframeDiamond } from "../KeyframeDiamond";
 import { ToolbarButton } from "../TopBar";
 
 const LABEL_WIDTH = 220;
 const RULER_HEIGHT = 26;
 const ROW_HEIGHT = 30;
+const KEYFRAME_ROW_HEIGHT = 22;
 const EDGE_WIDTH = 7;
 
 const playbackRateComponentIdentities = new Set([
@@ -58,6 +76,13 @@ type DragState = {
   // live, so the bar is drawn from these values instead of the live track.
   startFrom: number;
   startDuration: number;
+};
+
+// The keyframes being dragged are drawn shifted by the previewed delta; the
+// source keeps the original frames until the move is committed.
+type KeyframeDragState = {
+  keys: ReadonlySet<string>;
+  delta: number;
 };
 
 const getTickInterval = (pxPerFrame: number, fps: number) => {
@@ -126,6 +151,8 @@ const TrackRow = memo(function TrackRow({
   durationInFrames,
   selected,
   drag,
+  keyframeRows,
+  onToggleKeyframeRows,
   onPointerDownBar,
 }: {
   readonly layer: Layer;
@@ -134,6 +161,9 @@ const TrackRow = memo(function TrackRow({
   readonly durationInFrames: number;
   readonly selected: boolean;
   readonly drag: DragState | null;
+  /** Whether the layer has animated props and whether their rows are shown. */
+  readonly keyframeRows: "none" | "expanded" | "collapsed";
+  readonly onToggleKeyframeRows: (layer: Layer) => void;
   readonly onPointerDownBar: (
     event: React.PointerEvent,
     layer: Layer,
@@ -187,7 +217,7 @@ const TrackRow = memo(function TrackRow({
             "bg-background-panel border-border-dim sticky left-0 z-20 flex shrink-0 items-center gap-1.5 border-r border-b pr-2 text-xs",
             selected && "bg-[#141a2a]",
           )}
-          style={{ width: LABEL_WIDTH, paddingLeft: 10 + depth * 14 }}
+          style={{ width: LABEL_WIDTH, paddingLeft: 6 + depth * 14 }}
           onClick={select}
           onDoubleClick={() => {
             if (layer.source) {
@@ -199,6 +229,30 @@ const TrackRow = memo(function TrackRow({
             }
           }}
         >
+          {keyframeRows === "none" ? (
+            <span className="size-3 shrink-0" />
+          ) : (
+            <button
+              type="button"
+              className="text-muted-foreground-dim hover:text-foreground flex size-3 shrink-0 items-center justify-center"
+              aria-label={
+                keyframeRows === "expanded"
+                  ? "Hide keyframes"
+                  : "Show keyframes"
+              }
+              aria-expanded={keyframeRows === "expanded"}
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleKeyframeRows(layer);
+              }}
+            >
+              {keyframeRows === "expanded" ? (
+                <ChevronDownIcon className="size-3" />
+              ) : (
+                <ChevronRightIcon className="size-3" />
+              )}
+            </button>
+          )}
           <TypeIcon layer={layer} />
           <span
             className={cn(
@@ -291,10 +345,97 @@ const TrackRow = memo(function TrackRow({
   );
 });
 
+/** A row with the keyframes of one animated prop, below its layer. */
+const KeyframeRow = memo(function KeyframeRow({
+  prop,
+  pxPerFrame,
+  durationInFrames,
+  selectedKeys,
+  keyframeDrag,
+  onPointerDownKeyframe,
+}: {
+  readonly prop: KeyframedProp;
+  readonly pxPerFrame: number;
+  readonly durationInFrames: number;
+  readonly selectedKeys: ReadonlySet<string>;
+  readonly keyframeDrag: KeyframeDragState | null;
+  readonly onPointerDownKeyframe: (
+    event: React.PointerEvent<HTMLButtonElement>,
+    prop: KeyframedProp,
+    frame: number,
+  ) => void;
+}) {
+  const { actions } = useEditor();
+  const label = getFieldLabel(prop.key, prop.field);
+  const layerSelected = selectedKeys.has(
+    getCanvasSelectionItemKey(prop.layer.selectionItem),
+  );
+
+  return (
+    <div
+      role="row"
+      className={cn("flex", layerSelected && "bg-selection-dim/20")}
+      style={{ height: KEYFRAME_ROW_HEIGHT }}
+    >
+      <div
+        className="bg-background-panel border-border-dim text-muted-foreground-dim sticky left-0 z-20 flex shrink-0 items-center gap-1.5 border-r border-b pr-2 text-[10px]"
+        style={{
+          width: LABEL_WIDTH,
+          paddingLeft: 24 + (prop.layer.track.depth + 1) * 14,
+        }}
+      >
+        <KeyframeDiamond filled size={7} />
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+      </div>
+      <div
+        className="border-border-dim relative min-w-0 flex-1 border-b"
+        style={{ width: durationInFrames * pxPerFrame }}
+        data-track-area
+      >
+        {prop.keyframes.map((keyframe) => {
+          if (keyframe.frame < 0 || keyframe.frame >= durationInFrames) {
+            return null;
+          }
+
+          const itemKey = getCanvasSelectionItemKey(
+            getKeyframeSelectionItem(prop, keyframe.frame),
+          );
+          const dragging = keyframeDrag?.keys.has(itemKey) === true;
+          const frame = keyframe.frame + (dragging ? keyframeDrag.delta : 0);
+          const selected = selectedKeys.has(itemKey);
+          return (
+            <button
+              key={keyframe.frame}
+              type="button"
+              aria-label={`${label} keyframe at frame ${keyframe.frame}`}
+              aria-pressed={selected}
+              className={cn(
+                "absolute top-1/2 flex size-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center",
+                selected || dragging
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+                dragging ? "cursor-grabbing" : "cursor-grab",
+              )}
+              style={{ left: frame * pxPerFrame }}
+              onPointerDown={(event) =>
+                onPointerDownKeyframe(event, prop, keyframe.frame)
+              }
+              onDoubleClick={() => actions.seek(keyframe.frame)}
+            >
+              <KeyframeDiamond filled size={10} />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+});
+
 export const Timeline: React.FC = () => {
   const {
     host,
     layers,
+    keyframedProps,
     composition,
     playback,
     actions,
@@ -307,6 +448,12 @@ export const Timeline: React.FC = () => {
   const [zoom, setZoom] = useState(1);
   const [drag, setDrag] = useState<DragState | null>(null);
   const dragRef = useRef<DragState | null>(null);
+  const [keyframeDrag, setKeyframeDrag] = useState<KeyframeDragState | null>(
+    null,
+  );
+  const [collapsedLayers, setCollapsedLayers] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const durationInFrames = composition?.durationInFrames ?? 1;
   const fps = composition?.fps ?? 30;
   const basePxPerFrame = Math.max(
@@ -337,6 +484,34 @@ export const Timeline: React.FC = () => {
     () => new Set(selection.selectedItems.map(getCanvasSelectionItemKey)),
     [selection.selectedItems],
   );
+  const keyframedPropsByLayer = useMemo(() => {
+    const byLayer = new Map<string, KeyframedProp[]>();
+    for (const prop of keyframedProps) {
+      const key = getCanvasSelectionItemKey(prop.layer.selectionItem);
+      byLayer.set(key, [...(byLayer.get(key) ?? []), prop]);
+    }
+
+    return byLayer;
+  }, [keyframedProps]);
+  const getVisibleKeyframeRows = (layer: Layer): KeyframedProp[] => {
+    const key = getCanvasSelectionItemKey(layer.selectionItem);
+    return collapsedLayers.has(key)
+      ? []
+      : (keyframedPropsByLayer.get(key) ?? []);
+  };
+  const toggleKeyframeRows = useCallback((layer: Layer) => {
+    const key = getCanvasSelectionItemKey(layer.selectionItem);
+    setCollapsedLayers((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+
+      return next;
+    });
+  }, []);
 
   const frameFromClientX = useCallback(
     (clientX: number) => {
@@ -540,6 +715,99 @@ export const Timeline: React.FC = () => {
     [actions, project, pxPerFrame],
   );
 
+  // Selecting and dragging keyframes follows the Studio: a click selects on
+  // release, dragging a selected keyframe moves the whole selection, and
+  // Shift / Command extend the selection without dragging it.
+  const keyframedPropsRef = useRef(keyframedProps);
+  keyframedPropsRef.current = keyframedProps;
+  const onPointerDownKeyframe = useCallback(
+    (
+      event: React.PointerEvent<HTMLButtonElement>,
+      prop: KeyframedProp,
+      frame: number,
+    ) => {
+      if (event.button !== 0 || !host) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      const interaction: CanvasSelectionInteraction = {
+        shiftKey: event.shiftKey,
+        toggleKey: event.metaKey || event.ctrlKey,
+      };
+      const item = getKeyframeSelectionItem(prop, frame);
+      const itemKey = getCanvasSelectionItemKey(item);
+      const selectedKeyframes = getSelectedKeyframes(
+        host.controller.selection.getSnapshot().selectedItems,
+      );
+      const selected = selectedKeyframes.some(
+        (keyframe) => getCanvasSelectionItemKey(keyframe) === itemKey,
+      );
+      const modifier = interaction.shiftKey || interaction.toggleKey;
+      const dragExistingSelection = selected && !modifier;
+      const selectOnRelease = !selected && !modifier;
+      if (modifier) {
+        actions.selectKeyframes([item], interaction);
+      }
+
+      const keyframesToDrag: KeyframeSelectionItem[] =
+        dragExistingSelection && selectedKeyframes.length > 0
+          ? selectedKeyframes
+          : [item];
+      const targets = keyframesToDrag.flatMap(
+        (keyframe): CanvasKeyframeDragTarget[] => {
+          const target = findKeyframedProp(keyframedPropsRef.current, keyframe);
+          return target
+            ? [
+                {
+                  nodePathInfo: target.layer.nodePathInfo,
+                  track: target.layer.track,
+                  schema: target.schema,
+                  key: target.key,
+                  propStatus: target.propStatus,
+                  frame: keyframe.frame,
+                },
+              ]
+            : [];
+        },
+      );
+      const dragKeys = new Set(keyframesToDrag.map(getCanvasSelectionItemKey));
+
+      startCanvasKeyframeDrag({
+        event,
+        captureTarget: event.currentTarget,
+        targets,
+        pixelsPerFrame: pxPerFrame,
+        durationInFrames,
+        overrides: host.controller.overrides,
+        onDragStart: null,
+        onDragMove: (delta) => setKeyframeDrag({ keys: dragKeys, delta }),
+        onDragEnd: ({ changes, delta, dragged, released }) => {
+          setKeyframeDrag(null);
+          if (changes.length === 0) {
+            if (!dragged && released && selectOnRelease) {
+              actions.selectKeyframes([item], interaction);
+            }
+
+            return;
+          }
+
+          // The selection follows the moved keyframes.
+          actions.selectKeyframes(
+            keyframesToDrag.map((keyframe) => ({
+              ...keyframe,
+              frame: keyframe.frame + delta,
+            })),
+            null,
+          );
+          void actions.commitKeyframeChanges(changes);
+        },
+      });
+    },
+    [actions, durationInFrames, host, pxPerFrame],
+  );
+
   const ticks = useMemo(() => {
     const interval = getTickInterval(pxPerFrame, fps);
     const result: { frame: number; label: string; major: boolean }[] = [];
@@ -559,7 +827,13 @@ export const Timeline: React.FC = () => {
     return null;
   }
 
-  const contentHeight = RULER_HEIGHT + layers.length * ROW_HEIGHT;
+  const contentHeight = layers.reduce(
+    (height, layer) =>
+      height +
+      ROW_HEIGHT +
+      getVisibleKeyframeRows(layer).length * KEYFRAME_ROW_HEIGHT,
+    RULER_HEIGHT,
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -573,7 +847,8 @@ export const Timeline: React.FC = () => {
         </span>
         <span className="flex-1" />
         <span className="text-muted-foreground-dim hidden font-mono text-[10px] lg:inline">
-          Drag a layer to move it · drag its edges to trim · ⌥ + scroll to zoom
+          Drag a layer to move it · drag its edges to trim · drag keyframes to
+          retime them · ⌥ + scroll to zoom
         </span>
         <ToolbarButton
           size="icon-xs"
@@ -709,20 +984,42 @@ export const Timeline: React.FC = () => {
                 : "Waiting for the preview…"}
             </div>
           ) : null}
-          {layers.map((layer, index) => (
-            <TrackRow
-              key={layer.track.sequence.id}
-              layer={layer}
-              index={index}
-              pxPerFrame={pxPerFrame}
-              durationInFrames={durationInFrames}
-              selected={selectedKeys.has(
-                getCanvasSelectionItemKey(layer.selectionItem),
-              )}
-              drag={drag}
-              onPointerDownBar={onPointerDownBar}
-            />
-          ))}
+          {layers.map((layer, index) => {
+            const layerKey = getCanvasSelectionItemKey(layer.selectionItem);
+            const hasKeyframeRows = keyframedPropsByLayer.has(layerKey);
+            return (
+              <React.Fragment key={layer.track.sequence.id}>
+                <TrackRow
+                  layer={layer}
+                  index={index}
+                  pxPerFrame={pxPerFrame}
+                  durationInFrames={durationInFrames}
+                  selected={selectedKeys.has(layerKey)}
+                  drag={drag}
+                  keyframeRows={
+                    !hasKeyframeRows
+                      ? "none"
+                      : collapsedLayers.has(layerKey)
+                        ? "collapsed"
+                        : "expanded"
+                  }
+                  onToggleKeyframeRows={toggleKeyframeRows}
+                  onPointerDownBar={onPointerDownBar}
+                />
+                {getVisibleKeyframeRows(layer).map((prop) => (
+                  <KeyframeRow
+                    key={prop.key}
+                    prop={prop}
+                    pxPerFrame={pxPerFrame}
+                    durationInFrames={durationInFrames}
+                    selectedKeys={selectedKeys}
+                    keyframeDrag={keyframeDrag}
+                    onPointerDownKeyframe={onPointerDownKeyframe}
+                  />
+                ))}
+              </React.Fragment>
+            );
+          })}
           {inFrame !== null && inFrame > 0 ? (
             <div
               className="pointer-events-none absolute top-0 z-20 bg-black/45"
