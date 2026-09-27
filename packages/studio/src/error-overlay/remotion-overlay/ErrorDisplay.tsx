@@ -66,6 +66,7 @@ const actionRow: React.CSSProperties = {
 	flexWrap: 'wrap',
 	marginLeft: 4,
 	marginTop: -10,
+	userSelect: 'none',
 };
 
 const codingAgentButton: React.CSSProperties = {
