@@ -128,11 +128,4 @@
 	.content {
 		padding: 16px;
 	}
-
-	.libraryRow button {
-		height: 36px;
-		padding-right: 11px;
-		padding-left: 9px;
-		font-size: 1rem;
-	}
 }
