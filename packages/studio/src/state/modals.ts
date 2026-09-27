@@ -312,6 +312,10 @@ export type ModalState =
 			wrapper: NodeWrapper;
 	  }
 	| {
+			type: 'html-in-canvas-unavailable';
+			action: 'effects' | 'motion-blur';
+	  }
+	| {
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
