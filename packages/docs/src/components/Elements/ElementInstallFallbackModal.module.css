@@ -61,7 +61,6 @@
 
 .description {
 	margin: 12px 0 0;
-	color: var(--ifm-color-emphasis-800);
 }
 
 .installAction {
@@ -76,7 +75,6 @@
 
 .copyHint {
 	margin-top: 8px;
-	color: var(--ifm-color-emphasis-700);
 }
 
 .copyButton {
@@ -87,6 +85,5 @@
 	color: var(--ifm-link-color);
 	cursor: pointer;
 	font: inherit;
-	text-decoration: underline;
-	text-underline-offset: 2px;
+	text-decoration: none;
 }
