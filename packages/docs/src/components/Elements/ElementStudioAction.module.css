@@ -1,0 +1,43 @@
+.studioAction {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	border-radius: 8px;
+	background: var(--blue-underlay);
+}
+
+.studioAction .buttonWithDragHandle {
+	border-top-right-radius: 0;
+	border-right-width: 0;
+	border-bottom-right-radius: 0;
+}
+
+.dragHandle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	min-height: 46px;
+	flex: none;
+	border: 2px solid black;
+	border-bottom-width: 4px;
+	border-left: 1px solid rgb(0 0 0 / 30%);
+	border-radius: 0 8px 8px 0;
+	background: transparent;
+	color: white;
+	cursor: grab;
+	user-select: none;
+}
+
+.dragHandle:hover {
+	background: rgb(0 0 0 / 8%);
+}
+
+.dragHandle:active {
+	cursor: grabbing;
+}
+
+.dragHandleIcon {
+	font-size: 1.5rem;
+	line-height: 1;
+}

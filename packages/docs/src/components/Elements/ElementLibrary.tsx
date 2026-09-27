@@ -11,6 +11,7 @@ import {
 	getElementLibrarySections,
 	type ElementCategory,
 } from './element-library-data';
+import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ELEMENT_PREVIEW_BACKGROUND} from './ElementPreviewComposition';
 import styles from './ElementLibrary.module.css';
 
@@ -45,6 +46,7 @@ const ElementCard: React.FC<{
 	const [isPointerOver, setIsPointerOver] = useState(false);
 	const [playbackFailed, setPlaybackFailed] = useState(false);
 	const [isInstalling, setIsInstalling] = useState(false);
+	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
 	const posterRef = useRef<HTMLImageElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
@@ -108,23 +110,18 @@ const ElementCard: React.FC<{
 				fallbackPayload: assetPayload === null ? undefined : elementPayload,
 			});
 			if (!result.success) {
-				// eslint-disable-next-line no-alert
-				window.alert(result.message);
+				setIsInstallFallbackOpen(true);
 				return;
 			}
 
+			setIsInstallFallbackOpen(false);
 			if (window.location.origin === 'https://www.remotion.dev') {
 				navigator.sendBeacon(
 					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
 				);
 			}
-		} catch (error) {
-			// eslint-disable-next-line no-alert
-			window.alert(
-				error instanceof Error
-					? error.message
-					: 'Could not install this Element in Studio.',
-			);
+		} catch {
+			setIsInstallFallbackOpen(true);
 		} finally {
 			setIsInstalling(false);
 		}
@@ -198,6 +195,15 @@ const ElementCard: React.FC<{
 					Use
 				</BlueButton>
 			</div>
+			<ElementInstallFallbackModal
+				isInstalling={isInstalling}
+				isOpen={isInstallFallbackOpen}
+				onClose={() => setIsInstallFallbackOpen(false)}
+				onInstall={installElement}
+				payload={elementPayload}
+				posterRef={posterRef}
+				sourceCode={sourceCode}
+			/>
 		</li>
 	);
 };

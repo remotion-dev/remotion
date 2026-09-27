@@ -1,0 +1,92 @@
+.dialog {
+	width: min(440px, calc(100vw - 32px));
+	max-width: none;
+	margin: auto;
+	padding: 0;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 14px;
+	background: var(--ifm-background-surface-color);
+	box-shadow: 0 24px 70px rgb(0 0 0 / 35%);
+	color: var(--ifm-font-color-base);
+}
+
+.dialog::backdrop {
+	background: rgb(0 0 0 / 45%);
+	backdrop-filter: blur(2px);
+}
+
+.content {
+	position: relative;
+	padding: 24px;
+}
+
+.closeButton {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	display: flex;
+	width: 32px;
+	height: 32px;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--ifm-color-emphasis-700);
+	cursor: pointer;
+	font: inherit;
+	font-size: 1.5rem;
+	line-height: 1;
+}
+
+.closeButton:hover {
+	background: var(--ifm-color-emphasis-100);
+}
+
+.closeButton:focus-visible,
+.copyButton:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.title {
+	margin: 0;
+	padding-right: 32px;
+	font-size: 1.25rem;
+}
+
+.description {
+	margin: 12px 0 0;
+	color: var(--ifm-color-emphasis-800);
+	line-height: 1.5;
+}
+
+.installAction {
+	width: min(100%, 260px);
+	margin-top: 20px;
+}
+
+.hint,
+.copyHint {
+	margin: 16px 0 0;
+	font-size: 0.875rem;
+	line-height: 1.5;
+}
+
+.copyHint {
+	margin-top: 8px;
+	color: var(--ifm-color-emphasis-700);
+}
+
+.copyButton {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--ifm-link-color);
+	cursor: pointer;
+	font: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
