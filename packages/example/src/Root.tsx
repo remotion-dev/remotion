@@ -46,7 +46,6 @@ import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
 import {UnsymbolicatedErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
-import {EvenDimensionCropTest} from './EvenDimensionCropTest';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
@@ -789,14 +788,6 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="regression-testing">
-				<Composition
-					id="even-dimension-crop-test"
-					component={EvenDimensionCropTest}
-					width={1200}
-					height={675}
-					fps={30}
-					durationInFrames={30}
-				/>
 				<Composition
 					id="suspense-loading-indicator-test"
 					lazyComponent={async () => {
