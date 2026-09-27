@@ -18,6 +18,8 @@
 .content {
 	position: relative;
 	padding: 24px;
+	font-size: 0.875rem;
+	line-height: 1.5;
 }
 
 .closeButton {
@@ -53,13 +55,13 @@
 .title {
 	margin: 0;
 	padding-right: 32px;
-	font-size: 1.25rem;
+	font-size: inherit;
+	line-height: inherit;
 }
 
 .description {
 	margin: 12px 0 0;
 	color: var(--ifm-color-emphasis-800);
-	line-height: 1.5;
 }
 
 .installAction {
@@ -70,8 +72,6 @@
 .hint,
 .copyHint {
 	margin: 16px 0 0;
-	font-size: 0.875rem;
-	line-height: 1.5;
 }
 
 .copyHint {
