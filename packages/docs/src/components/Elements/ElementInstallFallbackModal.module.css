@@ -3,8 +3,8 @@
 	max-width: none;
 	margin: auto;
 	padding: 0;
-	border: 1px solid var(--ifm-color-emphasis-300);
-	border-radius: 14px;
+	border: 0;
+	border-radius: 8px;
 	background: var(--ifm-background-surface-color);
 	box-shadow: 0 24px 70px rgb(0 0 0 / 35%);
 	color: var(--ifm-font-color-base);
