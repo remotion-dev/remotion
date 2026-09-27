@@ -34,10 +34,7 @@ type ElementPageProps = {
 	readonly sourceCode?: string;
 };
 
-type InstallStatus =
-	| {type: 'idle'}
-	| {type: 'installing'}
-	| {type: 'success'; message: string};
+type InstallStatus = {type: 'idle'} | {type: 'installing'} | {type: 'success'};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -155,14 +152,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			if (isEmbeddedInStudio) {
 				setInstallStatus({type: 'idle'});
 			} else {
-				const {target} = result;
-				setInstallStatus({
-					type: 'success',
-					message:
-						target.compositionId === null
-							? `Sent to ${target.projectName ?? 'Remotion Studio'}. Confirm the installation destination in Studio.`
-							: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
-				});
+				setInstallStatus({type: 'success'});
 			}
 
 			if (window.location.origin === 'https://www.remotion.dev') {
@@ -264,7 +254,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						<>
 							<div className={styles.actionRow}>
 								<ElementStudioAction
-									buttonLabel="Use"
+									buttonLabel={
+										installStatus.type === 'success' ? 'Sent to Studio' : 'Use'
+									}
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
 									payload={elementPayload}
@@ -288,19 +280,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{installStatus.type !== 'idle' &&
-							(installStatus.type !== 'installing' || isInstallHintVisible) ? (
-								<p
-									aria-live="polite"
-									className={
-										installStatus.type === 'installing'
-											? styles.installingStatus
-											: styles.successStatus
-									}
-								>
-									{installStatus.type === 'installing'
-										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
-										: installStatus.message}
+							{installStatus.type === 'installing' && isInstallHintVisible ? (
+								<p aria-live="polite" className={styles.installingStatus}>
+									If your browser prompts you, allow local network access so
+									this page can find Remotion Studio.
 								</p>
 							) : null}
 						</>

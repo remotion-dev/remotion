@@ -101,18 +101,10 @@
 	gap: 10px;
 }
 
-.installingStatus,
-.successStatus {
-	margin: 12px 0 0;
-	font-size: 0.875rem;
-}
-
 .installingStatus {
+	margin: 12px 0 0;
 	color: var(--ifm-color-emphasis-700);
-}
-
-.successStatus {
-	color: var(--ifm-color-success-dark);
+	font-size: 0.875rem;
 }
 
 .details {
