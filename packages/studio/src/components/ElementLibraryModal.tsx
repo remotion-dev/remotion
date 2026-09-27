@@ -64,7 +64,7 @@ export const ElementLibraryModal: React.FC<{
 				title={name}
 				rightAction={
 					<ActionTooltip
-						label="Configure Element Libraries"
+						label="Configure Elements"
 						shortcut={null}
 						delay={800}
 						dismissOnClick
