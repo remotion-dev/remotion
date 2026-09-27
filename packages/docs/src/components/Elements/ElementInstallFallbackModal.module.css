@@ -72,26 +72,31 @@
 }
 
 .installAction > :first-child {
-	width: min(260px, calc(100% - 128px));
+	width: min(258px, calc(100% - 134px));
 	flex: none;
 }
 
 .dragCallout {
-	display: flex;
-	min-width: 0;
-	align-items: center;
+	position: relative;
+	width: 120px;
+	height: 46px;
+	flex: none;
 	color: var(--text-color);
 	pointer-events: none;
 }
 
 .dragCalloutLine {
-	display: block;
-	width: 46px;
-	height: 22px;
-	flex: none;
+	position: absolute;
+	top: 6px;
+	left: 0;
+	width: 47px;
+	height: 30px;
 }
 
 .dragCalloutLabel {
+	position: absolute;
+	top: 0;
+	left: 52px;
 	width: 68px;
 	font-family: 'GTPlanar';
 	font-size: 15px;

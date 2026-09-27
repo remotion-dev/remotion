@@ -120,14 +120,14 @@ export const ElementInstallFallbackModal: React.FC<{
 							<svg
 								className={styles.dragCalloutLine}
 								fill="none"
-								viewBox="0 0 160 77"
+								viewBox="0 0 59 37"
 							>
 								<path
-									d="M5 154.5C51 121 79 81 69 5"
+									d="M5.00003 5C5.00002 36.5 16 44 32.0002 54"
 									stroke="currentColor"
 									strokeLinecap="round"
-									strokeWidth="11"
-									transform="matrix(0 -1 1 0 0 77)"
+									strokeWidth="4"
+									transform="matrix(0 1 -1 0 59 0)"
 								/>
 							</svg>
 							<span className={styles.dragCalloutLabel}>
