@@ -109,12 +109,12 @@ export const ElementInstallFallbackModal: React.FC<{
 						showDragHandle
 						title="Install in the most recently focused Remotion Studio"
 					/>
-					{installFailureCount > 0 ? (
+					{installFailureCount > 1 ? (
 						<div
 							key={installFailureCount}
 							aria-hidden="true"
 							className={`${styles.dragCallout} ${
-								installFailureCount > 1 ? styles.dragCalloutScale : ''
+								installFailureCount > 2 ? styles.dragCalloutScale : ''
 							}`}
 						>
 							<svg
