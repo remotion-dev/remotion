@@ -123,11 +123,10 @@ export const ElementInstallFallbackModal: React.FC<{
 								viewBox="0 0 59 37"
 							>
 								<path
-									d="M5.00003 5C5.00002 36.5 16 44 32.0002 54"
+									d="M5 25C20 26.041 40 10 54 5"
 									stroke="currentColor"
 									strokeLinecap="round"
 									strokeWidth="4"
-									transform="matrix(0 1 -1 0 59 0)"
 								/>
 							</svg>
 							<span className={styles.dragCalloutLabel}>
