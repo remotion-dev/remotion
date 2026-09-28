@@ -3,16 +3,18 @@ import type {
 	AddEffectKeyframeResponse,
 	AddEffectRequest,
 	AddEffectResponse,
+	AddCompositionRequest,
+	AddFolderRequest,
 	AddKeyframesRequest,
 	AddKeyframesResponse,
 	AddSequenceKeyframeRequest,
 	AddSequenceKeyframeResponse,
-	ApplyCodemodRequest,
-	ApplyCodemodResponse,
 	BatchUpdateKeyframeSettingsRequest,
 	BatchUpdateKeyframeSettingsResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	CompositionEditResponse,
+	DeleteCompositionRequest,
 	DeleteNodesRequest,
 	DeleteNodesResponse,
 	DeleteKeyframesRequest,
@@ -27,6 +29,7 @@ import type {
 	FindInFileResponse,
 	DuplicateEffectRequest,
 	DuplicateEffectResponse,
+	DuplicateCompositionRequest,
 	PrecomposeJsxNodesRequest,
 	PrecomposeJsxNodesResponse,
 	DuplicateNodesRequest,
@@ -38,15 +41,18 @@ import type {
 	InsertElementRequest,
 	InsertElementResponse,
 	InstallPackageRequest,
-	UndoRedoNavigation,
 	InstallableElement,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
+	MoveCompositionRequest,
+	MoveFolderRequest,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
 	RedoResponse,
+	RenameCompositionRequest,
+	RenameFolderRequest,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
 	ReorderEffectRequest,
@@ -59,7 +65,6 @@ import type {
 	SaveEffectPropsResponse,
 	SaveMultipleEffectPropsRequest,
 	SaveMultipleEffectPropsResponse,
-	SimpleDiff,
 	SplitSequencesRequest,
 	SplitSequencesResponse,
 	SplitVideoFromAudioRequest,
@@ -77,35 +82,19 @@ import type {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
+	UpdateCompositionMetadataRequest,
 	UpdateEffectKeyframeSettingsRequest,
 	UpdateEffectKeyframeSettingsResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
+	UnwrapFolderRequest,
 } from './api-requests';
-import type {RecastCodemod} from './codemods';
 import type {EventSourceEvent} from './event-source-event';
 
 export type WriteStaticFileRequest = {
 	contents: string | ArrayBuffer;
 	filePath: string;
 };
-
-export type DuplicateCompositionRequest = {
-	codemod: Extract<RecastCodemod, {type: 'duplicate-composition'}>;
-	dryRun: boolean;
-	undoRedoNavigation: UndoRedoNavigation | null;
-};
-
-export type DuplicateCompositionResponse =
-	| {
-			success: true;
-			diff: SimpleDiff;
-	  }
-	| {
-			success: false;
-			reason: string;
-			stack: string;
-	  };
 
 export type BrowserStudioKeyframeOperations = {
 	addEffectKeyframe: (
@@ -173,7 +162,13 @@ export type BrowserStudioOperations = {
 		element: InstallableElement;
 		sourceOrigin: string | null;
 	} | null;
-	applyCodemod: (request: ApplyCodemodRequest) => Promise<ApplyCodemodResponse>;
+	addComposition: (
+		request: AddCompositionRequest,
+	) => Promise<CompositionEditResponse>;
+	addFolder: (request: AddFolderRequest) => Promise<CompositionEditResponse>;
+	deleteComposition: (
+		request: DeleteCompositionRequest,
+	) => Promise<CompositionEditResponse>;
 	deleteNodes: (request: DeleteNodesRequest) => Promise<DeleteNodesResponse>;
 	deleteStaticFile: (
 		request: DeleteStaticFileRequest,
@@ -187,7 +182,7 @@ export type BrowserStudioOperations = {
 	) => Promise<DownloadRemoteAssetResponse>;
 	duplicateComposition: (
 		request: DuplicateCompositionRequest,
-	) => Promise<DuplicateCompositionResponse>;
+	) => Promise<CompositionEditResponse>;
 	precomposeJsxNodes: (
 		request: PrecomposeJsxNodesRequest,
 	) => Promise<PrecomposeJsxNodesResponse>;
@@ -208,11 +203,27 @@ export type BrowserStudioOperations = {
 	insertCompositionElement: (
 		request: InsertCompositionElementRequest,
 	) => Promise<InsertCompositionElementResponse>;
+	moveComposition: (
+		request: MoveCompositionRequest,
+	) => Promise<CompositionEditResponse>;
+	moveFolder: (request: MoveFolderRequest) => Promise<CompositionEditResponse>;
 	keyframes: BrowserStudioKeyframeOperations;
 	packageInstallation: BrowserStudioPackageInstallationOperations;
 	prepareElementInstall: (
 		request: PrepareElementInstallRequest,
 	) => Promise<PrepareElementInstallResponse>;
+	renameComposition: (
+		request: RenameCompositionRequest,
+	) => Promise<CompositionEditResponse>;
+	renameFolder: (
+		request: RenameFolderRequest,
+	) => Promise<CompositionEditResponse>;
+	unwrapFolder: (
+		request: UnwrapFolderRequest,
+	) => Promise<CompositionEditResponse>;
+	updateCompositionMetadata: (
+		request: UpdateCompositionMetadataRequest,
+	) => Promise<CompositionEditResponse>;
 	redo: () => Promise<RedoResponse>;
 	renameStaticFile: (
 		request: RenameStaticFileRequest,

@@ -14,16 +14,14 @@ import type {
 	InsertElementRequest,
 	InsertElementResponse,
 } from '@remotion/studio-shared';
-import {
-	applyCodemodToFile,
-	resolveFilePathFromSymbolicatedStack,
-} from '../../codemods/apply-codemod-to-file';
+import {addCompositionToFile} from '../../codemods/add-composition-to-file';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {
 	assertNoSymlinks,
 	openFileForWritingWithoutSymlinks,
 } from '../../helpers/open-file-for-writing-without-symlinks';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
 import {getProjectInfo} from '../project-info';
@@ -170,17 +168,19 @@ export const insertElementHandler: ApiHandler<
 			let sourceFileOverrides: ReadonlyMap<string, string> | null = null;
 
 			if (newComposition !== null) {
-				if (newComposition.codemod.newId !== compositionId) {
+				if (newComposition.options.newId !== compositionId) {
 					throw new Error(
 						'New composition ID does not match installation target',
 					);
 				}
 
 				const registrationFilePath = newComposition.symbolicatedStack
-					? resolveFilePathFromSymbolicatedStack(
+					?.originalFileName
+					? resolveFileInsideProject({
 							remotionRoot,
-							newComposition.symbolicatedStack,
-						)
+							fileName: newComposition.symbolicatedStack.originalFileName,
+							action: 'add a composition to',
+						}).absolutePath
 					: (await getProjectInfo(remotionRoot, entryPoint)).rootFile;
 				if (registrationFilePath === null) {
 					throw new Error('Cannot find file for composition in project');
@@ -197,7 +197,7 @@ export const insertElementHandler: ApiHandler<
 
 				const componentFilePath = path.join(
 					path.dirname(registrationFilePath),
-					`${newComposition.codemod.componentName}.tsx`,
+					`${newComposition.options.componentName}.tsx`,
 				);
 				if (existsSync(componentFilePath)) {
 					throw new Error(
@@ -212,9 +212,9 @@ export const insertElementHandler: ApiHandler<
 					registrationFilePath,
 					'utf-8',
 				);
-				const codemodResult = await applyCodemodToFile({
+				const codemodResult = await addCompositionToFile({
 					filePath: registrationFilePath,
-					codeMod: newComposition.codemod,
+					options: newComposition.options,
 				});
 				const registrationFileNewContents =
 					codemodResult.changes.find(

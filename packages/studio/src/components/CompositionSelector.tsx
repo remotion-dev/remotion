@@ -26,9 +26,8 @@ import {
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
-import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
-import {applyCodemod} from './RenderQueue/actions';
+import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
 export const useCompositionNavigation = () => {
@@ -334,37 +333,30 @@ export const CompositionSelector: React.FC = () => {
 			event.stopPropagation();
 			stopCompositionListAutoScroll();
 			setRootDragHovered(false);
-			const notification = showNotification(
-				`Moving ${dragData.item.type === 'composition' ? dragData.item.compositionId : dragData.item.folderName}...`,
-				null,
-			);
 			const controller = new AbortController();
 
 			try {
-				const result = await applyCodemod({
-					codemod: {
-						type: 'move-composition-or-folder',
-						source: dragData.item,
-						destination: {type: 'root'},
-					},
-					dryRun: false,
-					signal: controller.signal,
+				const source = dragData.item;
+				const common = {
+					destination: {type: 'root'} as const,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
 					undoRedoNavigation: null,
-				});
-
-				if (result.success) {
-					notification.dismiss();
-				} else {
-					notification.replaceContent(result.reason, 4000);
-				}
-			} catch (err) {
-				notification.replaceContent(
-					err instanceof Error ? err.message : String(err),
-					4000,
-				);
-			}
+				};
+				await (source.type === 'composition'
+					? moveComposition(
+							{...common, compositionId: source.compositionId},
+							controller.signal,
+						)
+					: moveFolder(
+							{
+								...common,
+								folderName: source.folderName,
+								parentName: source.parentName,
+							},
+							controller.signal,
+						));
+			} catch {}
 		},
 		[stopCompositionListAutoScroll],
 	);

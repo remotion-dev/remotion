@@ -27,7 +27,11 @@ import type {
 	SequencePropsSubscriptionKey,
 	VideoConfigValues,
 } from 'remotion';
-import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {
+	CompositionDestination,
+	NewCompositionOptions,
+	VisualControlChange,
+} from './codemods';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
@@ -313,26 +317,78 @@ export type UndoRedoNavigation = {
 	redoRoute: string;
 };
 
-export type ApplyCodemodRequest = {
-	codemod: RecastCodemod;
-	dryRun: boolean;
+type CompositionEditRequest = {
 	symbolicatedStack: SymbolicatedStackFrame | null;
 	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
-export type SimpleDiff = {
-	additions: number;
-	deletions: number;
+export type AddCompositionRequest = CompositionEditRequest & {
+	options: NewCompositionOptions;
 };
 
-export type ApplyCodemodResponse =
+export type DuplicateCompositionRequest = CompositionEditRequest & {
+	idToDuplicate: string;
+	newId: string;
+	newHeight: number | null;
+	newWidth: number | null;
+	newFps: number | null;
+	newDurationInFrames: number | null;
+	tag: 'Still' | 'Composition';
+};
+
+export type RenameCompositionRequest = CompositionEditRequest & {
+	idToRename: string;
+	newId: string;
+};
+
+export type UpdateCompositionMetadataRequest = CompositionEditRequest & {
+	idToUpdate: string;
+	newDurationInFrames: number | null;
+	newFps: number | null;
+	newHeight: number | null;
+	newWidth: number | null;
+};
+
+export type DeleteCompositionRequest = CompositionEditRequest & {
+	idToDelete: string;
+};
+
+export type MoveCompositionRequest = CompositionEditRequest & {
+	compositionId: string;
+	destination: CompositionDestination;
+};
+
+export type AddFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type RenameFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	newName: string;
+};
+
+export type UnwrapFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type MoveFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	destination: CompositionDestination;
+};
+
+export type CompositionEditResponse =
 	| {
 			success: true;
-			diff: SimpleDiff;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
 			reason: string;
+			stack: string;
 	  };
 
 export type DeleteStaticFileRequest = {
@@ -1153,7 +1209,7 @@ export type InsertElementRequest = {
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
 	newComposition: {
-		codemod: Extract<RecastCodemod, {type: 'new-composition'}>;
+		options: NewCompositionOptions;
 		symbolicatedStack: SymbolicatedStackFrame | null;
 	} | null;
 };
@@ -1563,7 +1619,34 @@ export type ApiRoutes = {
 		RemoveRemotionSkillRequest,
 		GetRemotionSkillsInfoResponse
 	>;
-	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
+	'/api/add-composition': ReqAndRes<
+		AddCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/duplicate-composition': ReqAndRes<
+		DuplicateCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/rename-composition': ReqAndRes<
+		RenameCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/update-composition-metadata': ReqAndRes<
+		UpdateCompositionMetadataRequest,
+		CompositionEditResponse
+	>;
+	'/api/delete-composition': ReqAndRes<
+		DeleteCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/move-composition': ReqAndRes<
+		MoveCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/add-folder': ReqAndRes<AddFolderRequest, CompositionEditResponse>;
+	'/api/rename-folder': ReqAndRes<RenameFolderRequest, CompositionEditResponse>;
+	'/api/unwrap-folder': ReqAndRes<UnwrapFolderRequest, CompositionEditResponse>;
+	'/api/move-folder': ReqAndRes<MoveFolderRequest, CompositionEditResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
 	'/api/delete-static-file': ReqAndRes<
 		DeleteStaticFileRequest,

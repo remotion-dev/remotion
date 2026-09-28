@@ -8,9 +8,11 @@ export const makeBrowserStudioOperations = (
 	overrides: Partial<BrowserStudioOperations>,
 ): BrowserStudioOperations => {
 	return {
-		applyCodemod: () => unusedOperation('applyCodemod'),
+		addComposition: () => unusedOperation('addComposition'),
+		addFolder: () => unusedOperation('addFolder'),
 		consumeInitialElement: () => null,
 		deleteNodes: () => unusedOperation('deleteNodes'),
+		deleteComposition: () => unusedOperation('deleteComposition'),
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
 		downloadRemoteAsset: () => unusedOperation('downloadRemoteAsset'),
 		downloadProject: () => unusedOperation('downloadProject'),
@@ -34,6 +36,8 @@ export const makeBrowserStudioOperations = (
 		getFileSource: () => unusedOperation('getFileSource'),
 		insertElement: () => unusedOperation('insertElement'),
 		insertCompositionElement: () => unusedOperation('insertCompositionElement'),
+		moveComposition: () => unusedOperation('moveComposition'),
+		moveFolder: () => unusedOperation('moveFolder'),
 		keyframes: {
 			addEffectKeyframe: () => unusedOperation('keyframes'),
 			addKeyframes: () => unusedOperation('keyframes'),
@@ -48,6 +52,8 @@ export const makeBrowserStudioOperations = (
 			installPackages: () => unusedOperation('packageInstallation'),
 		},
 		prepareElementInstall: () => unusedOperation('prepareElementInstall'),
+		renameComposition: () => unusedOperation('renameComposition'),
+		renameFolder: () => unusedOperation('renameFolder'),
 		redo: () => unusedOperation('redo'),
 		renameStaticFile: () => unusedOperation('renameStaticFile'),
 		reorderSequence: () => unusedOperation('reorderSequence'),
@@ -64,6 +70,9 @@ export const makeBrowserStudioOperations = (
 		unsubscribeFromSequenceProps: () =>
 			unusedOperation('unsubscribeFromSequenceProps'),
 		updateDefaultProps: () => unusedOperation('updateDefaultProps'),
+		updateCompositionMetadata: () =>
+			unusedOperation('updateCompositionMetadata'),
+		unwrapFolder: () => unusedOperation('unwrapFolder'),
 		writeStaticFile: () => unusedOperation('writeStaticFile'),
 		...overrides,
 	};

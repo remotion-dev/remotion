@@ -5,11 +5,22 @@ import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
 import {addKeyframesHandler} from './routes/add-keyframes';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
-import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
+import {
+	addCompositionHandler,
+	addFolderHandler,
+	deleteCompositionHandler,
+	duplicateCompositionHandler,
+	moveCompositionHandler,
+	moveFolderHandler,
+	renameCompositionHandler,
+	renameFolderHandler,
+	unwrapFolderHandler,
+	updateCompositionMetadataHandler,
+} from './routes/composition-edits';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
 import {
@@ -105,7 +116,16 @@ export const allApiRoutes: {
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/apply-visual-control-change': applyVisualControlHandler,
-	'/api/apply-codemod': applyCodemodHandler,
+	'/api/add-composition': addCompositionHandler,
+	'/api/duplicate-composition': duplicateCompositionHandler,
+	'/api/rename-composition': renameCompositionHandler,
+	'/api/update-composition-metadata': updateCompositionMetadataHandler,
+	'/api/delete-composition': deleteCompositionHandler,
+	'/api/move-composition': moveCompositionHandler,
+	'/api/add-folder': addFolderHandler,
+	'/api/rename-folder': renameFolderHandler,
+	'/api/unwrap-folder': unwrapFolderHandler,
+	'/api/move-folder': moveFolderHandler,
 	'/api/subscribe-to-default-props': subscribeToDefaultProps,
 	'/api/unsubscribe-from-default-props': unsubscribeFromDefaultProps,
 	'/api/subscribe-to-sequence-props': subscribeToSequenceProps,

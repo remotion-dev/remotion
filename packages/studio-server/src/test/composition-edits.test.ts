@@ -8,18 +8,27 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import type {RecastCodemod} from '@remotion/studio-shared';
-import {applyCodemodToFile} from '../codemods/apply-codemod-to-file';
+import {renameFolder, updateCompositionMetadata} from '@remotion/codemods';
+import type {
+	CompositionEditResponse,
+	SymbolicatedStackFrame,
+	UndoRedoNavigation,
+} from '@remotion/studio-shared';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
 } from '../file-watcher';
+import type {ApiHandler} from '../preview-server/api-types';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {
-	applyCodemodHandler,
-	getCodemodLogMessage,
-} from '../preview-server/routes/apply-codemod';
 import {applyVisualControlHandler} from '../preview-server/routes/apply-visual-control-change';
+import {
+	addCompositionHandler,
+	addFolderHandler,
+	deleteCompositionHandler,
+	duplicateCompositionHandler,
+	moveCompositionHandler,
+	renameCompositionHandler,
+} from '../preview-server/routes/composition-edits';
 import {redoHandler} from '../preview-server/routes/redo';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
@@ -95,7 +104,7 @@ const clearUndoRedoStacks = () => {
 	(getRedoStack() as unknown as unknown[]).length = 0;
 };
 
-test('folder codemods do not run Prettier after applying source edits', async () => {
+test('folder edits do not run Prettier after applying source edits', () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const filePath = path.join(remotionRoot, 'Root.tsx');
 	const input = `import {Folder} from 'remotion';
@@ -106,14 +115,11 @@ export const Root = () => <Folder name="Before" />;
 
 	try {
 		writeFileSync(filePath, input);
-		const output = await applyCodemodToFile({
-			filePath,
-			codeMod: {
-				type: 'rename-folder',
-				folderName: 'Before',
-				parentName: null,
-				newName: 'After',
-			},
+		const output = renameFolder({
+			project: {rootDir: remotionRoot, files: {[filePath]: input}},
+			compositionFile: filePath,
+			folder: {name: 'Before', parentName: null},
+			newName: 'After',
 		});
 
 		expect(output.changes[0].nextContents).toBe(
@@ -124,7 +130,7 @@ export const Root = () => <Folder name="Before" />;
 	}
 });
 
-test('metadata codemods do not run Prettier after applying source edits', async () => {
+test('metadata edits do not run Prettier after applying source edits', () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const filePath = path.join(remotionRoot, 'Root.tsx');
 	const input = `import {Composition} from 'remotion';
@@ -134,15 +140,14 @@ export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 
 	try {
 		writeFileSync(filePath, input);
-		const output = await applyCodemodToFile({
-			filePath,
-			codeMod: {
-				type: 'update-composition-metadata',
-				idToUpdate: 'Comp',
-				newDurationInFrames: 90,
-				newFps: null,
-				newHeight: 1080,
-				newWidth: 1920,
+		const output = updateCompositionMetadata({
+			project: {rootDir: remotionRoot, files: {[filePath]: input}},
+			compositionFile: filePath,
+			compositionId: 'Comp',
+			metadata: {
+				durationInFrames: 90,
+				height: 1080,
+				width: 1920,
 			},
 		});
 
@@ -151,38 +156,6 @@ export const Root=()=> <Composition id='Comp' width = { WIDTH }/>;
 const untouched  =  { value : "keep" };
 export const Root=()=> <Composition id='Comp' width = {1920} durationInFrames={90} height={1080}/>;
 `);
-	} finally {
-		rmSync(remotionRoot, {recursive: true, force: true});
-	}
-});
-
-test('visual-control codemods do not run Prettier after applying source edits', async () => {
-	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
-	const filePath = path.join(remotionRoot, 'Root.tsx');
-	const input = `const untouched  =  { value : "keep" };
-export const Root=()=> visualControl('opacity', OPACITY);
-`;
-
-	try {
-		writeFileSync(filePath, input);
-		const output = await applyCodemodToFile({
-			filePath,
-			codeMod: {
-				type: 'apply-visual-control',
-				changes: [
-					{
-						id: 'opacity',
-						newValueSerialized: '0.5',
-						newValueIsUndefined: false,
-						enumPaths: [],
-					},
-				],
-			},
-		});
-
-		expect(output.changes[0].nextContents).toBe(
-			input.replace('OPACITY', '0.5'),
-		);
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
@@ -239,150 +212,6 @@ export const Root=()=> visualControl('opacity', OPACITY);
 	}
 });
 
-test('formats precise log messages for all codemods', () => {
-	const testCases: {codemod: RecastCodemod; expected: string}[] = [
-		{
-			codemod: {
-				type: 'new-composition',
-				asset: null,
-				canvasCapture: null,
-				newId: 'FreshVideo',
-				componentName: 'FreshVideo',
-				componentImportPath: './FreshVideo',
-				folderName: 'Shared',
-				parentName: 'Parent',
-				newDurationInFrames: 150,
-				newFps: 30,
-				newHeight: 1080,
-				newWidth: 1920,
-			},
-			expected: 'Created composition "FreshVideo" in folder "Parent/Shared"',
-		},
-		{
-			codemod: {
-				type: 'duplicate-composition',
-				idToDuplicate: 'Original',
-				newId: 'Copy',
-				newDurationInFrames: null,
-				newFps: null,
-				newHeight: null,
-				newWidth: null,
-				tag: 'Composition',
-			},
-			expected: 'Duplicated composition "Original" to "Copy"',
-		},
-		{
-			codemod: {
-				type: 'rename-composition',
-				idToRename: 'Original',
-				newId: 'Renamed',
-			},
-			expected: 'Renamed composition "Original" to "Renamed"',
-		},
-		{
-			codemod: {
-				type: 'update-composition-metadata',
-				idToUpdate: 'Original',
-				newDurationInFrames: null,
-				newFps: null,
-				newHeight: null,
-				newWidth: 1920,
-			},
-			expected: 'Updated metadata of composition "Original"',
-		},
-		{
-			codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
-			expected: 'Deleted composition "DeleteMe"',
-		},
-		{
-			codemod: {
-				type: 'move-composition-or-folder',
-				source: {type: 'composition', compositionId: 'MoveMe'},
-				destination: {
-					type: 'before',
-					target: {type: 'folder', folderName: 'Shared', parentName: null},
-				},
-			},
-			expected: 'Moved composition "MoveMe"',
-		},
-		{
-			codemod: {
-				type: 'move-composition-or-folder',
-				source: {
-					type: 'folder',
-					folderName: 'Shared',
-					parentName: 'Parent',
-				},
-				destination: {type: 'root'},
-			},
-			expected: 'Moved folder "Parent/Shared"',
-		},
-		{
-			codemod: {
-				type: 'rename-folder',
-				folderName: 'Old',
-				parentName: 'Parent',
-				newName: 'New',
-			},
-			expected: 'Renamed folder "Parent/Old" to "Parent/New"',
-		},
-		{
-			codemod: {
-				type: 'new-folder',
-				folderName: 'New',
-				parentName: 'Parent',
-			},
-			expected: 'Created folder "Parent/New"',
-		},
-		{
-			codemod: {
-				type: 'delete-folder',
-				folderName: 'DeleteMe',
-				parentName: 'Parent',
-			},
-			expected: 'Deleted folder "Parent/DeleteMe"',
-		},
-		{
-			codemod: {
-				type: 'apply-visual-control',
-				changes: [
-					{
-						id: 'opacity',
-						newValueSerialized: '0.5',
-						newValueIsUndefined: false,
-						enumPaths: [],
-					},
-				],
-			},
-			expected: 'Updated visual control "opacity"',
-		},
-		{
-			codemod: {
-				type: 'apply-visual-control',
-				changes: [
-					{
-						id: 'opacity',
-						newValueSerialized: '0.5',
-						newValueIsUndefined: false,
-						enumPaths: [],
-					},
-					{
-						id: 'scale',
-						newValueSerialized: '2',
-						newValueIsUndefined: false,
-						enumPaths: [],
-					},
-				],
-			},
-			expected: 'Updated visual controls "opacity", "scale"',
-		},
-	];
-
-	for (const {codemod, expected} of testCases) {
-		expect(getCodemodLogMessage(codemod)).toBe(expected);
-	}
-});
-
 const getHandlerOptions = <T>({
 	input,
 	entryPoint,
@@ -412,16 +241,25 @@ const getHandlerOptions = <T>({
 	getDefaultEditor: () => null,
 });
 
-const runCompositionCodemodUndoRedoTest = async ({
-	codemod,
+type CompositionEditRequest = {
+	symbolicatedStack: SymbolicatedStackFrame | null;
+	undoRedoNavigation: UndoRedoNavigation | null;
+};
+
+const runCompositionEditUndoRedoTest = async <
+	Request extends CompositionEditRequest,
+>({
+	handler,
+	request,
 	assertApplied,
 	expectedUndoMessage,
 	expectedLogMessage,
 }: {
-	codemod: RecastCodemod;
+	handler: ApiHandler<Request, CompositionEditResponse>;
+	request: Request;
 	assertApplied: (contents: string) => void;
 	expectedUndoMessage: string;
-	expectedLogMessage?: string;
+	expectedLogMessage: string | null;
 }) => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -443,12 +281,10 @@ const runCompositionCodemodUndoRedoTest = async ({
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
 		writeFileSync(entryPoint, rootContents);
 
-		const applyResponse = await applyCodemodHandler(
+		const applyResponse = await handler(
 			getHandlerOptions({
 				input: {
-					codemod,
-					dryRun: false,
-					undoRedoNavigation: null,
+					...request,
 					symbolicatedStack: {
 						originalFunctionName: null,
 						originalFileName: 'Root.tsx',
@@ -499,23 +335,31 @@ const runCompositionCodemodUndoRedoTest = async ({
 	}
 };
 
-test('applyCodemodHandler pushes composition deletions to undo and redo stacks', async () => {
-	await runCompositionCodemodUndoRedoTest({
-		codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
+test('deleteCompositionHandler pushes composition deletions to undo and redo stacks', async () => {
+	await runCompositionEditUndoRedoTest({
+		handler: deleteCompositionHandler,
+		request: {
+			idToDelete: 'DeleteMe',
+			undoRedoNavigation: null,
+			symbolicatedStack: null,
+		},
 		assertApplied: (contents) => {
 			expect(contents).not.toContain('id="DeleteMe"');
 			expect(contents).toContain('id="KeepMe"');
 		},
 		expectedUndoMessage: '↩️  Deletion of composition "DeleteMe"',
+		expectedLogMessage: null,
 	});
 });
 
-test('applyCodemodHandler logs composition renames and pushes them to the undo and redo stacks', async () => {
-	await runCompositionCodemodUndoRedoTest({
-		codemod: {
-			type: 'rename-composition',
+test('renameCompositionHandler logs composition renames and pushes them to the undo and redo stacks', async () => {
+	await runCompositionEditUndoRedoTest({
+		handler: renameCompositionHandler,
+		request: {
 			idToRename: 'DeleteMe',
 			newId: 'Renamed',
+			undoRedoNavigation: null,
+			symbolicatedStack: null,
 		},
 		assertApplied: (contents) => {
 			expect(contents).not.toContain('id="DeleteMe"');
@@ -527,11 +371,11 @@ test('applyCodemodHandler logs composition renames and pushes them to the undo a
 	});
 });
 
-test('applyCodemodHandler pushes composition and still duplications to undo and redo stacks', async () => {
+test('duplicateCompositionHandler pushes composition and still duplications to undo and redo stacks', async () => {
 	for (const tag of ['Composition', 'Still'] as const) {
-		await runCompositionCodemodUndoRedoTest({
-			codemod: {
-				type: 'duplicate-composition',
+		await runCompositionEditUndoRedoTest({
+			handler: duplicateCompositionHandler,
+			request: {
 				idToDuplicate: 'DeleteMe',
 				newId: 'Duplicated',
 				newDurationInFrames: 120,
@@ -539,6 +383,8 @@ test('applyCodemodHandler pushes composition and still duplications to undo and 
 				newHeight: null,
 				newWidth: null,
 				tag,
+				undoRedoNavigation: null,
+				symbolicatedStack: null,
 			},
 			assertApplied: (contents) => {
 				expect(contents).toContain('id="DeleteMe"');
@@ -553,26 +399,30 @@ test('applyCodemodHandler pushes composition and still duplications to undo and 
 			},
 			expectedUndoMessage:
 				'↩️  Duplication of composition "DeleteMe" to "Duplicated"',
+			expectedLogMessage: null,
 		});
 	}
 });
 
-test('applyCodemodHandler pushes folder creations to undo and redo stacks', async () => {
-	await runCompositionCodemodUndoRedoTest({
-		codemod: {
-			type: 'new-folder',
+test('addFolderHandler pushes folder creations to undo and redo stacks', async () => {
+	await runCompositionEditUndoRedoTest({
+		handler: addFolderHandler,
+		request: {
 			folderName: 'FreshFolder',
 			parentName: null,
+			undoRedoNavigation: null,
+			symbolicatedStack: null,
 		},
 		assertApplied: (contents) => {
 			expect(contents).toContain('<Folder name="FreshFolder" />');
 			expect(contents).toContain('id="KeepMe"');
 		},
 		expectedUndoMessage: '↩️  Creation of folder "FreshFolder"',
+		expectedLogMessage: null,
 	});
 });
 
-test('applyCodemodHandler pushes composition moves to undo and redo stacks', async () => {
+test('moveCompositionHandler pushes composition moves to undo and redo stacks', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -590,19 +440,15 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
 		writeFileSync(entryPoint, folderRootContents);
 
-		const applyResponse = await applyCodemodHandler(
+		const applyResponse = await moveCompositionHandler(
 			getHandlerOptions({
 				input: {
-					codemod: {
-						type: 'move-composition-or-folder',
-						source: {type: 'composition', compositionId: 'NestedA'},
-						destination: {
-							type: 'folder',
-							folderName: 'Shared',
-							parentName: 'Other',
-						},
-					} satisfies RecastCodemod,
-					dryRun: false,
+					compositionId: 'NestedA',
+					destination: {
+						type: 'folder',
+						folderName: 'Shared',
+						parentName: 'Other',
+					},
 					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
@@ -618,6 +464,11 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 		);
 
 		expect(applyResponse.success).toBe(true);
+		if (!applyResponse.success) {
+			throw new Error(applyResponse.reason);
+		}
+
+		expect(applyResponse.nodePathMutation).not.toBeNull();
 		const contents = readFileSync(entryPoint, 'utf-8');
 		expect(contents.indexOf('id="NestedB"')).toBeLessThan(
 			contents.indexOf('id="NestedA"'),
@@ -639,7 +490,7 @@ test('applyCodemodHandler pushes composition moves to undo and redo stacks', asy
 	}
 });
 
-test('applyCodemodHandler pushes composition moves to root to undo and redo stacks', async () => {
+test('moveCompositionHandler pushes composition moves to root to undo and redo stacks', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -657,15 +508,11 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
 		writeFileSync(entryPoint, folderRootContents);
 
-		const applyResponse = await applyCodemodHandler(
+		const applyResponse = await moveCompositionHandler(
 			getHandlerOptions({
 				input: {
-					codemod: {
-						type: 'move-composition-or-folder',
-						source: {type: 'composition', compositionId: 'NestedA'},
-						destination: {type: 'root'},
-					} satisfies RecastCodemod,
-					dryRun: false,
+					compositionId: 'NestedA',
+					destination: {type: 'root'},
 					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
@@ -681,6 +528,11 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 		);
 
 		expect(applyResponse.success).toBe(true);
+		if (!applyResponse.success) {
+			throw new Error(applyResponse.reason);
+		}
+
+		expect(applyResponse.nodePathMutation).not.toBeNull();
 		const contents = readFileSync(entryPoint, 'utf-8');
 		expect(contents.indexOf('id="NestedB"')).toBeLessThan(
 			contents.indexOf('id="NestedA"'),
@@ -702,7 +554,7 @@ test('applyCodemodHandler pushes composition moves to root to undo and redo stac
 	}
 });
 
-test('applyCodemodHandler creates new composition files with undo and redo', async () => {
+test('addCompositionHandler creates new composition files with undo and redo', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -721,11 +573,10 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 		const componentFile = path.join(remotionRoot, 'FreshVideo.tsx');
 		writeFileSync(entryPoint, rootContents);
 
-		const applyResponse = await applyCodemodHandler(
+		const applyResponse = await addCompositionHandler(
 			getHandlerOptions({
 				input: {
-					codemod: {
-						type: 'new-composition',
+					options: {
 						asset: null,
 						canvasCapture: null,
 						newId: 'FreshVideo',
@@ -737,8 +588,7 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 						newFps: 30,
 						newHeight: 1080,
 						newWidth: 1920,
-					} satisfies RecastCodemod,
-					dryRun: false,
+					},
 					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
@@ -801,7 +651,7 @@ test('applyCodemodHandler creates new composition files with undo and redo', asy
 	}
 });
 
-test('applyCodemodHandler creates an interactive Canvas Capture composition', async () => {
+test('addCompositionHandler creates an interactive Canvas Capture composition', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -820,11 +670,10 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 		const componentFile = path.join(remotionRoot, 'FreshCapture.tsx');
 		writeFileSync(entryPoint, rootContents);
 
-		const applyResponse = await applyCodemodHandler(
+		const applyResponse = await addCompositionHandler(
 			getHandlerOptions({
 				input: {
-					codemod: {
-						type: 'new-composition',
+					options: {
 						asset: null,
 						canvasCapture: {
 							videoFileName: 'capture.mp4',
@@ -863,8 +712,7 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 						newFps: 30,
 						newHeight: 720,
 						newWidth: 1280,
-					} satisfies RecastCodemod,
-					dryRun: false,
+					},
 					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
