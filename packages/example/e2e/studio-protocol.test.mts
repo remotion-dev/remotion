@@ -905,6 +905,10 @@ const CloseupPlaceholder = () => {
 		await expect
 			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
 			.toContain(protocolLibraryUrl);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await browseElements.click();
 		await expect(
@@ -937,6 +941,10 @@ const CloseupPlaceholder = () => {
 				{timeout: 30_000},
 			)
 			.toBe(1);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);
