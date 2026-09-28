@@ -7,7 +7,10 @@ export const getExtensionOfFilename = (
 		return null;
 	}
 
-	const filenameArr = pathNormalize(filename).split('.');
+	// Only the last path segment can have an extension: the dots in
+	// `my.project/frames` or `../frames` belong to folders.
+	const segments = pathNormalize(filename).split(/[/\\]/);
+	const filenameArr = segments[segments.length - 1].split('.');
 
 	const hasExtension = filenameArr.length >= 2;
 	const filenameArrLength = filenameArr.length;

@@ -11,6 +11,7 @@ import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
 import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {DEFAULT_JPEG_QUALITY} from './jpeg-quality';
 import {logLevels} from './log-level';
@@ -52,6 +53,7 @@ export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 
 export const BrowserSafeApis = {
+	getExtensionOfFilename,
 	getFileExtensionFromCodec,
 	validCodecs,
 	validAudioCodecs,

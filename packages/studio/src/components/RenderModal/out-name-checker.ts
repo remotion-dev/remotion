@@ -60,8 +60,11 @@ const isValidOutName = ({
 	stillImageFormat: StillImageFormat | null;
 	separateAudioTo: string | null;
 }): void => {
-	const extension = outName.substring(outName.lastIndexOf('.') + 1);
-	const prefix = outName.substring(0, outName.lastIndexOf('.'));
+	const extension = BrowserSafeApis.getExtensionOfFilename(outName);
+	const prefix =
+		extension === null
+			? outName
+			: outName.substring(0, outName.length - extension.length - 1);
 
 	const map = BrowserSafeApis.defaultFileExtensionMap[codec];
 
@@ -93,7 +96,7 @@ const isValidOutName = ({
 		BrowserSafeApis.validateOutputFilename({
 			codec,
 			audioCodecSetting: audioCodec ?? null,
-			extension,
+			extension: extension ?? '',
 			preferLossless: false,
 			separateAudioTo,
 		});
@@ -116,16 +119,16 @@ const isValidOutName = ({
 	if (
 		renderMode === 'still' &&
 		stillImageFormat &&
-		!isValidStillExtension(extension, stillImageFormat)
+		!isValidStillExtension(extension ?? '', stillImageFormat)
 	) {
 		throw new Error(
-			`The extension ${extension} is not supported for still image format ${stillImageFormat}`,
+			`The extension ${extension ?? ''} is not supported for still image format ${stillImageFormat}`,
 		);
 	}
 
 	if (renderMode === 'sequence') {
-		if (outName.includes('.')) {
-			throw new Error('Folder names must not contain a dot');
+		if (extension !== null) {
+			throw new Error('The image sequence folder must not have an extension');
 		}
 	}
 };
