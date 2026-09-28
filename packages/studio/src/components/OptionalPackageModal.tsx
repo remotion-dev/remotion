@@ -24,7 +24,7 @@ const panelStyle: React.CSSProperties = {
 };
 
 const contentStyle: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 	lineHeight: 1.5,
@@ -34,7 +34,7 @@ const contentStyle: React.CSSProperties = {
 };
 
 const codeStyle: React.CSSProperties = {
-	color: 'inherit',
+	color: WHITE,
 	fontFamily: 'monospace',
 	fontSize: 'inherit',
 };
