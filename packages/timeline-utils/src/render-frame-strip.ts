@@ -111,6 +111,7 @@ export const drawSlot = ({
 	fromSeconds,
 	devicePixelRatio,
 	frameHeight,
+	horizontalOffset,
 }: {
 	frame: VideoFrame;
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
@@ -121,6 +122,7 @@ export const drawSlot = ({
 	fromSeconds: number;
 	devicePixelRatio: number;
 	frameHeight: number;
+	horizontalOffset?: number;
 }) => {
 	const durationOfOneFrame = getDurationOfOneFrame({
 		visualizationWidth,
@@ -132,13 +134,24 @@ export const drawSlot = ({
 	const relativeTimestamp = timestamp - fromSeconds * WEBCODECS_TIMESCALE;
 	const frameIndex = relativeTimestamp / durationOfOneFrame;
 	const thumbnailWidth = frame.displayWidth / devicePixelRatio;
-	const left = frameIndex * thumbnailWidth;
+	const idealLeft = frameIndex * thumbnailWidth;
+	const idealRight = idealLeft + thumbnailWidth;
+	// When the canvas is aligned to the device-pixel grid, use the same absolute
+	// grid for both edges so adjacent thumbnails neither shimmer nor leave seams.
+	const left =
+		horizontalOffset === undefined
+			? idealLeft
+			: Math.floor(idealLeft + horizontalOffset) - horizontalOffset;
+	const right =
+		horizontalOffset === undefined
+			? idealRight
+			: Math.floor(idealRight + horizontalOffset) - horizontalOffset;
 
 	ctx.drawImage(
 		frame,
 		left,
 		0,
-		thumbnailWidth,
+		right - left,
 		frame.displayHeight / devicePixelRatio,
 	);
 	filledSlots.set(timestamp, frame.timestamp);
@@ -153,6 +166,7 @@ export const fillWithCachedFrames = ({
 	fromSeconds,
 	devicePixelRatio,
 	frameHeight,
+	horizontalOffset,
 }: {
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 	naturalWidth: number;
@@ -162,6 +176,7 @@ export const fillWithCachedFrames = ({
 	fromSeconds: number;
 	devicePixelRatio: number;
 	frameHeight: number;
+	horizontalOffset?: number;
 }) => {
 	const prefix = getFrameDatabaseKeyPrefix(src);
 	const keys = Array.from(frameDatabase.keys()).filter((k) =>
@@ -212,6 +227,7 @@ export const fillWithCachedFrames = ({
 			fromSeconds,
 			devicePixelRatio,
 			frameHeight,
+			horizontalOffset,
 		});
 	}
 };
@@ -225,6 +241,7 @@ export const fillFrameWhereItFits = ({
 	fromSeconds,
 	devicePixelRatio,
 	frameHeight,
+	horizontalOffset,
 }: {
 	frame: VideoFrame;
 	filledSlots: Map<number, number | undefined>;
@@ -234,6 +251,7 @@ export const fillFrameWhereItFits = ({
 	fromSeconds: number;
 	devicePixelRatio: number;
 	frameHeight: number;
+	horizontalOffset?: number;
 }) => {
 	const slots = Array.from(filledSlots.keys());
 
@@ -261,6 +279,7 @@ export const fillFrameWhereItFits = ({
 			fromSeconds,
 			devicePixelRatio,
 			frameHeight,
+			horizontalOffset,
 		});
 	}
 };
