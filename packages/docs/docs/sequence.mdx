@@ -409,7 +409,7 @@ The eye icon in the Studio timeline toggles this prop and persists it to your so
 
 ## Adding a ref
 
-You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from version `v3.2.13` on, if the sequence does not use `layout="none"`. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
 import {useRef} from 'react';
@@ -426,10 +426,6 @@ const MyComp = () => {
   );
 };
 ```
-
-Refs require the wrapper element created by `layout="absolute-fill"`. A `<Sequence layout="none">` rejects refs because it does not render a wrapper element.
-
-A ref passed to a component returned by [`Interactive.withSchema()`](/docs/interactive-with-schema) is forwarded to the original component, if it accepts one.
 
 ## Note for `@remotion/three`
 
