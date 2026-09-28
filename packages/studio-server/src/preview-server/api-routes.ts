@@ -1,7 +1,9 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
+import {addCompositionHandler} from './routes/add-composition';
 import {addEffectHandler} from './routes/add-effect';
 import {addEffectKeyframeHandler} from './routes/add-effect-keyframe';
+import {addFolderHandler} from './routes/add-folder';
 import {addKeyframesHandler} from './routes/add-keyframes';
 import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
@@ -9,18 +11,6 @@ import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
-import {
-	addCompositionHandler,
-	addFolderHandler,
-	deleteCompositionHandler,
-	duplicateCompositionHandler,
-	moveCompositionHandler,
-	moveFolderHandler,
-	renameCompositionHandler,
-	renameFolderHandler,
-	unwrapFolderHandler,
-	updateCompositionMetadataHandler,
-} from './routes/composition-edits';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
 import {
@@ -28,11 +18,13 @@ import {
 	openInCodingAgentHandler,
 } from './routes/default-coding-agent';
 import {getDefaultEditorInfoHandler} from './routes/default-editor';
+import {deleteCompositionHandler} from './routes/delete-composition';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
 import {deleteNodesHandler} from './routes/delete-nodes';
 import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
+import {duplicateCompositionHandler} from './routes/duplicate-composition';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateNodesHandler} from './routes/duplicate-nodes';
 import {findInFileHandler} from './routes/find-in-file';
@@ -45,6 +37,8 @@ import {
 } from './routes/install-remotion-skill';
 import {invalidateBundleHandler} from './routes/invalidate-bundle';
 import {logStudioErrorHandler} from './routes/log-studio-error';
+import {moveCompositionHandler} from './routes/move-composition';
+import {moveFolderHandler} from './routes/move-folder';
 import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
@@ -59,6 +53,8 @@ import {registerClientRenderHandler} from './routes/register-client-render';
 import {getReleaseNotesHandler} from './routes/release-notes';
 import {remotionSkillsInfoHandler} from './routes/remotion-skills-info';
 import {handleRemoveRender} from './routes/remove-render';
+import {renameCompositionHandler} from './routes/rename-composition';
+import {renameFolderHandler} from './routes/rename-folder';
 import {renameStaticFileHandler} from './routes/rename-static-file';
 import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
@@ -78,7 +74,9 @@ import {unregisterClientRenderHandler} from './routes/unregister-client-render';
 import {unsubscribeFromDefaultProps} from './routes/unsubscribe-from-default-props';
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
 import {unsubscribeFromSequenceProps} from './routes/unsubscribe-from-sequence-props';
+import {unwrapFolderHandler} from './routes/unwrap-folder';
 import {handleUpdate} from './routes/update-available';
+import {updateCompositionMetadataHandler} from './routes/update-composition-metadata';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';

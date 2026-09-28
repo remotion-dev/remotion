@@ -20,16 +20,14 @@ import {
 } from '../file-watcher';
 import type {ApiHandler} from '../preview-server/api-types';
 import {setLiveEventsListener} from '../preview-server/live-events';
+import {addCompositionHandler} from '../preview-server/routes/add-composition';
+import {addFolderHandler} from '../preview-server/routes/add-folder';
 import {applyVisualControlHandler} from '../preview-server/routes/apply-visual-control-change';
-import {
-	addCompositionHandler,
-	addFolderHandler,
-	deleteCompositionHandler,
-	duplicateCompositionHandler,
-	moveCompositionHandler,
-	renameCompositionHandler,
-} from '../preview-server/routes/composition-edits';
+import {deleteCompositionHandler} from '../preview-server/routes/delete-composition';
+import {duplicateCompositionHandler} from '../preview-server/routes/duplicate-composition';
+import {moveCompositionHandler} from '../preview-server/routes/move-composition';
 import {redoHandler} from '../preview-server/routes/redo';
+import {renameCompositionHandler} from '../preview-server/routes/rename-composition';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
 
