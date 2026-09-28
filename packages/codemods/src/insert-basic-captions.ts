@@ -22,6 +22,7 @@ import {
 	getEndOfLine,
 	getIndentationUnit,
 	getLineIndent,
+	getSourceFormattingConfig,
 	indentContinuationLines,
 } from './source-style';
 
@@ -141,7 +142,81 @@ export const insertBasicCaptions = ({
 		copiedAttributes.push(`premountFor={${premountFor}}`);
 	}
 
-	const elementSource = `<${captionsLocalName} captions={${JSON.stringify(captions, null, 2)}} ${copiedAttributes.join(' ')} />`;
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride,
+	});
+	const trailingComma =
+		prettierConfigOverride?.trailingComma !== 'none' &&
+		prettierConfigOverride?.trailingComma !== false;
+	const singleLineElement = `<${captionsLocalName} captions={[]}${copiedAttributes.length === 0 ? '' : ` ${copiedAttributes.join(' ')}`} />`;
+	const captionLines = captions.flatMap((caption, captionIndex) => {
+		const doubleQuotedText = JSON.stringify(caption.text);
+		const singleQuotedText = `'${doubleQuotedText
+			.slice(1, -1)
+			.replaceAll('\\"', '"')
+			.replaceAll("'", "\\'")}'`;
+		const singleQuotes = caption.text.match(/'/g)?.length ?? 0;
+		const doubleQuotes = caption.text.match(/"/g)?.length ?? 0;
+		const text =
+			singleQuotes === doubleQuotes
+				? formattingConfig.quote === 'single'
+					? singleQuotedText
+					: doubleQuotedText
+				: singleQuotes < doubleQuotes
+					? singleQuotedText
+					: doubleQuotedText;
+		const properties = [
+			`text: ${text}`,
+			`startMs: ${JSON.stringify(caption.startMs)}`,
+			`endMs: ${JSON.stringify(caption.endMs)}`,
+			`timestampMs: ${JSON.stringify(caption.timestampMs)}`,
+			`confidence: ${JSON.stringify(caption.confidence)}`,
+			...(caption.pageBreakAfter === undefined
+				? []
+				: [`pageBreakAfter: ${caption.pageBreakAfter}`]),
+		];
+		return [
+			'{',
+			...properties.map((property, propertyIndex) =>
+				indentInsertedJsx({
+					indent: formattingConfig.indentationUnit,
+					insertion: `${property}${
+						propertyIndex < properties.length - 1 || trailingComma ? ',' : ''
+					}`,
+				}),
+			),
+			`}${captionIndex < captions.length - 1 || trailingComma ? ',' : ''}`,
+		].map((line) =>
+			indentInsertedJsx({
+				indent: formattingConfig.indentationUnit,
+				insertion: line,
+			}),
+		);
+	});
+	const multilineElementLines = [
+		`<${captionsLocalName}`,
+		'captions={[',
+		...captionLines,
+		']}',
+		...copiedAttributes,
+		'/>',
+	];
+	const elementSource =
+		captions.length === 0 &&
+		!singleLineElement.includes('\n') &&
+		singleLineElement.length <= formattingConfig.printWidth
+			? singleLineElement
+			: multilineElementLines
+					.map((line, index) =>
+						index === 0 || index === multilineElementLines.length - 1
+							? line
+							: indentInsertedJsx({
+									indent: formattingConfig.indentationUnit,
+									insertion: line,
+								}),
+					)
+					.join(formattingConfig.endOfLine);
 	const parsedElement = parseAst(`const element = (${elementSource});`).program
 		.body[0];
 	if (
