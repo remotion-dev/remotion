@@ -15,7 +15,7 @@ import {
 	type WaveformVolume,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
@@ -84,7 +84,7 @@ const TimelineVideoInfoSegment: React.FC<{
 }) => {
 	const {fps} = useVideoConfig();
 	const resolvedSrc = Internals.usePreload(src);
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 	const mediaStartFrame =
@@ -97,30 +97,30 @@ const TimelineVideoInfoSegment: React.FC<{
 		sourceOffsetInFrames * playbackRate;
 
 	// for rendering frames
-	useEffect(() => {
-		if (error) {
+	useLayoutEffect(() => {
+		const {current: canvas} = ref;
+		if (!canvas) {
 			return;
 		}
 
-		const {current} = ref;
-		if (!current) {
+		const ctx = canvas.getContext('2d');
+		if (!ctx) {
+			return;
+		}
+
+		if (error) {
+			ctx.resetTransform();
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			return;
 		}
 
 		const controller = new AbortController();
 		const pixelRatio = getStudioPixelRatio();
 
-		const canvas = document.createElement('canvas');
 		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
 		canvas.height = Math.ceil(TIMELINE_LAYER_FILMSTRIP_HEIGHT * pixelRatio);
 		canvas.style.width = canvas.width / pixelRatio + 'px';
 		canvas.style.height = canvas.height / pixelRatio + 'px';
-		const ctx = canvas.getContext('2d');
-		if (!ctx) {
-			return;
-		}
-
-		current.appendChild(canvas);
 
 		const drawRepeatedFrame = (frame: VideoFrame) => {
 			const thumbnailWidth = Math.max(1, frame.displayWidth);
@@ -174,10 +174,7 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			if (cachedFrame) {
 				drawRepeatedFrame(cachedFrame);
-
-				return () => {
-					current.removeChild(canvas);
-				};
+				return;
 			}
 
 			extractFrames({
@@ -234,7 +231,6 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			return () => {
 				controller.abort();
-				current.removeChild(canvas);
 			};
 		}
 
@@ -245,7 +241,6 @@ const TimelineVideoInfoSegment: React.FC<{
 		targetCanvas.height = canvas.height;
 		const targetCtx = tiledLoop ? targetCanvas.getContext('2d') : ctx;
 		if (!targetCtx) {
-			current.removeChild(canvas);
 			return;
 		}
 
@@ -315,9 +310,7 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			// Don't extract frames if all slots are filled
 			if (unfilled.length === 0) {
-				return () => {
-					current.removeChild(canvas);
-				};
+				return;
 			}
 		}
 
@@ -434,7 +427,6 @@ const TimelineVideoInfoSegment: React.FC<{
 
 		return () => {
 			controller.abort();
-			current.removeChild(canvas);
 		};
 	}, [
 		durationInFrames,
@@ -475,7 +467,9 @@ const TimelineVideoInfoSegment: React.FC<{
 
 	return (
 		<div style={segmentStyle}>
-			<div ref={ref} style={filmstripStyle} />
+			<div style={filmstripStyle}>
+				<canvas ref={ref} />
+			</div>
 			<div style={audioStyle}>
 				<AudioWaveform
 					src={src}
