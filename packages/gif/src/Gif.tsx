@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
 	Freeze,
 	Internals,
 	Interactive,
 	Sequence,
+	useDelayRender,
 	useRemotionEnvironment,
+	useVideoConfig,
 	type EffectsProp,
 	type InteractiveBaseProps,
 	type InteractiveCropProps,
@@ -13,9 +15,12 @@ import {
 	type SequenceControls,
 	type InteractivitySchema,
 } from 'remotion';
+import {getGifDurationInSeconds} from './get-gif-duration-in-seconds';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
+import {getGifCacheKey} from './request-init';
+import {resolveGifSource} from './resolve-gif-source';
 
 const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
@@ -156,8 +161,92 @@ const GifInner = ({
 	);
 };
 
+const GifWithIntrinsicDuration = (
+	props: GifProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	const {fps} = useVideoConfig();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {src, requestInit, trimBefore} = props;
+	const onErrorRef = useRef(props.onError);
+	onErrorRef.current = props.onError;
+	const requestInitRef = useRef(requestInit);
+	requestInitRef.current = requestInit;
+	const [handle] = useState(() =>
+		delayRender(`Finding duration of <Gif src="${src}" />`, {
+			timeoutInMilliseconds: props.delayRenderTimeoutInMilliseconds,
+		}),
+	);
+	const [durationInFrames, setDurationInFrames] = useState<number | null>(null);
+	const [failed, setFailed] = useState(false);
+
+	useEffect(() => {
+		let cancelled = false;
+		getGifDurationInSeconds(src, {requestInit: requestInitRef.current})
+			.then((duration) => {
+				if (!cancelled) {
+					setDurationInFrames(Math.ceil(duration * fps) - (trimBefore ?? 0));
+				}
+			})
+			.catch((error) => {
+				if (cancelled) {
+					return;
+				}
+
+				if (onErrorRef.current) {
+					onErrorRef.current(error);
+					setFailed(true);
+				} else {
+					cancelRender(error);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
+	}, [cancelRender, continueRender, fps, handle, src, trimBefore]);
+
+	useEffect(() => {
+		if (durationInFrames !== null || failed) {
+			continueRender(handle);
+		}
+	}, [continueRender, durationInFrames, failed, handle]);
+
+	if (durationInFrames === null || failed) {
+		return null;
+	}
+
+	return <GifInner {...props} durationInFrames={durationInFrames} />;
+};
+
+const GifComponent = (
+	props: GifProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	if (props.loop && props.durationInFrames === undefined) {
+		const resolvedSrc = resolveGifSource(props.src);
+		const cacheKey = getGifCacheKey({
+			resolvedSrc,
+			requestInit: props.requestInit,
+		});
+		return (
+			<GifWithIntrinsicDuration
+				{...props}
+				key={`${cacheKey}-${props.trimBefore ?? 0}`}
+			/>
+		);
+	}
+
+	return <GifInner {...props} />;
+};
+
 export const Gif = Interactive.withSchema({
-	Component: GifInner,
+	Component: GifComponent,
 	componentName: '<Gif>',
 	componentIdentity: 'dev.remotion.gif.Gif',
 	schema: gifSchema,

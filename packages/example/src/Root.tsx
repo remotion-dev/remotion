@@ -106,6 +106,7 @@ import {
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -3066,6 +3067,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={240}
+			/>
+			<Composition
+				id="intrinsic-duration-loop-testbed"
+				component={IntrinsicDurationLoopTestbed}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
 			/>
 			<Composition
 				id="sequence-playback-rate-keyframes"
