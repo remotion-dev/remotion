@@ -175,16 +175,19 @@ You can now use the component regularly.
 In the Studio, it will render an outline and its props become editable.
 
 ```tsx title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Badge} from './Badge';
 
 export const MyComp = () => {
   return (
-    <AbsoluteFill>
-      <Badge from={30} durationInFrames={90} premountFor={30} color="#ff5c7a" style={{translate: '120px 80px'}}>
-        Sale
-      </Badge>
-    </AbsoluteFill>
+    <Badge
+      from={30}
+      durationInFrames={90}
+      premountFor={30}
+      color="#ff5c7a"
+      style={{translate: '120px 80px'}}
+    >
+      Sale
+    </Badge>
   );
 };
 ```
