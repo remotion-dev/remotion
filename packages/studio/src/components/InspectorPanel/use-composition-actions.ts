@@ -203,6 +203,7 @@ export const useCompositionActions = () => {
 			invocationTimestamp: Date.now(),
 			assetSelection: {
 				initialQuery: '',
+				fileTypes: null,
 				onSelectFile: () => {
 					onFilesSelected().catch(() => undefined);
 				},

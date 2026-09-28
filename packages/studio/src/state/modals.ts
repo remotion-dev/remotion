@@ -151,6 +151,7 @@ export type AssetSelectionModalState = {
 	readonly invocationTimestamp: number;
 	readonly assetSelection: {
 		readonly initialQuery: string;
+		readonly fileTypes: null;
 		readonly onSelectFile: () => void;
 		readonly onSelected: (asset: StaticFile) => void;
 	};
@@ -323,6 +324,11 @@ export type ModalState =
 			invocationTimestamp: number;
 			assetSelection: {
 				initialQuery: string;
+				fileTypes: {
+					extensions: string[];
+					description: string;
+					importLabel: string;
+				} | null;
 				onSelectFile: () => void;
 				onSelected: (asset: StaticFile) => void;
 			} | null;
