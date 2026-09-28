@@ -244,7 +244,7 @@ type CompositionEditRequest = {
 	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
-const runCompositionEditUndoRedoTest = async <
+const expectCompositionEditUndoRedo = async <
 	Request extends CompositionEditRequest,
 >({
 	handler,
@@ -334,7 +334,7 @@ const runCompositionEditUndoRedoTest = async <
 };
 
 test('deleteCompositionHandler pushes composition deletions to undo and redo stacks', async () => {
-	await runCompositionEditUndoRedoTest({
+	await expectCompositionEditUndoRedo({
 		handler: deleteCompositionHandler,
 		request: {
 			idToDelete: 'DeleteMe',
@@ -351,7 +351,7 @@ test('deleteCompositionHandler pushes composition deletions to undo and redo sta
 });
 
 test('renameCompositionHandler logs composition renames and pushes them to the undo and redo stacks', async () => {
-	await runCompositionEditUndoRedoTest({
+	await expectCompositionEditUndoRedo({
 		handler: renameCompositionHandler,
 		request: {
 			idToRename: 'DeleteMe',
@@ -371,7 +371,7 @@ test('renameCompositionHandler logs composition renames and pushes them to the u
 
 test('duplicateCompositionHandler pushes composition and still duplications to undo and redo stacks', async () => {
 	for (const tag of ['Composition', 'Still'] as const) {
-		await runCompositionEditUndoRedoTest({
+		await expectCompositionEditUndoRedo({
 			handler: duplicateCompositionHandler,
 			request: {
 				idToDuplicate: 'DeleteMe',
@@ -403,7 +403,7 @@ test('duplicateCompositionHandler pushes composition and still duplications to u
 });
 
 test('addFolderHandler pushes folder creations to undo and redo stacks', async () => {
-	await runCompositionEditUndoRedoTest({
+	await expectCompositionEditUndoRedo({
 		handler: addFolderHandler,
 		request: {
 			folderName: 'FreshFolder',

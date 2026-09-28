@@ -17,10 +17,7 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalButton} from '../ModalButton';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	hasResolvedStack,
-	useResolvedStack,
-} from '../Timeline/use-resolved-stack';
+import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
 type ApplyCompositionEditAction = (options: {
 	signal: AbortSignal;
@@ -133,23 +130,6 @@ export const CompositionEditFooter: React.FC<{
 		setSelectedModal,
 		symbolicatedStack,
 	]);
-
-	useEffect(() => {
-		if (!stack) {
-			return;
-		}
-
-		if (!hasResolvedStack(stack)) {
-			return;
-		}
-
-		if (!symbolicatedStack) {
-			showNotification(
-				`${errorNotification}: Could not resolve the source location of this item`,
-				3000,
-			);
-		}
-	}, [errorNotification, fallbackToRootFile, stack, symbolicatedStack]);
 
 	const disabled =
 		!valid || submitting || (symbolicatedStack === null && !fallbackToRootFile);
