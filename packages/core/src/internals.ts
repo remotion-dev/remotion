@@ -80,6 +80,7 @@ import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
+import {useIsInsideNonPremountFreeze} from './freeze.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {
 	getEffectiveVisualModeValue,
@@ -330,6 +331,7 @@ export const Internals = {
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
+	useIsInsideNonPremountFreeze,
 	useMediaAudioState,
 	evaluateVolume,
 	getAbsoluteSrc,
