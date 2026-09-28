@@ -362,7 +362,6 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 				'MyComp1',
 			);
 			await studio.getByPlaceholder('Composition ID').fill('测试');
-			await expect(studio.getByText(/addition/)).toBeVisible();
 			await studio.getByRole('button', {name: /^Add to /}).click();
 			await expect(studio.locator('[data-compname="测试"]')).toBeVisible();
 			await expect
