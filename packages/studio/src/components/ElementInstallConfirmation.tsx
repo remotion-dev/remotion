@@ -275,7 +275,8 @@ export const ElementLibraryAddConfirmation: React.FC<{
 			}}
 		>
 			{origin.replace(/^https?:\/\//, '')} wants to add{' '}
-			{url.replace(/^https?:\/\//, '')} as an Element library.
+			{url.replace(/^https?:\/\//, '')} as an Element library to{' '}
+			{window.remotion_projectName ?? 'this Studio project'}.
 		</p>
 	);
 };

@@ -66,7 +66,7 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 				jsonResponse(
 					descriptor({
 						addElementLibrary: true,
-						lastFocusedAt: now - 200,
+						lastFocusedAt: now - 700_000,
 						projectName: 'Older',
 						targetId: 'older-target',
 					}),
@@ -79,7 +79,7 @@ test('requests confirmation in the most recently focused compatible Studio', asy
 				jsonResponse(
 					descriptor({
 						addElementLibrary: true,
-						lastFocusedAt: now - 100,
+						lastFocusedAt: now - 600_000,
 						projectName: 'Focused project',
 						targetId: 'focused-target',
 					}),

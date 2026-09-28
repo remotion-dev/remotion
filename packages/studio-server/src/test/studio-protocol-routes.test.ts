@@ -120,7 +120,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				clientId: 'focused-studio-tab',
 				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
 				compositionId: 'Main',
-				lastFocusedAt: Date.now(),
+				lastFocusedAt: Date.now() - 10 * 60 * 1000,
 				readOnly: false,
 				studioUrl: 'http://localhost:3000/Main',
 			});
