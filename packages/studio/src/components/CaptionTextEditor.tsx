@@ -9,6 +9,7 @@ import {
 } from '../helpers/colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {EnterIcon} from '../icons/enter';
+import {ActionTooltip} from './ActionTooltip';
 import {InlineAction} from './InlineAction';
 import {RemotionInput} from './NewComposition/RemInput';
 
@@ -215,25 +216,36 @@ export const CaptionTextEditor: React.FC<{
 								}}
 								value={caption.text}
 							/>
-							<InlineAction
-								aria-pressed={hasPageBreakAfter}
-								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-								disabled={readOnly}
-								onClick={() => {
-									updatePageBreakAfter(index, !hasPageBreakAfter);
-									commitPending();
-								}}
-								renderAction={(color) => (
-									<EnterIcon
-										aria-hidden="true"
-										color={hasPageBreakAfter ? BLUE : color}
-										focusable="false"
-										style={{height: 16, width: 16}}
-									/>
-								)}
-								aria-label={pageBreakTitle}
-								variant={null}
-							/>
+							<ActionTooltip
+								label={
+									hasPageBreakAfter
+										? 'Remove break after this'
+										: 'Break after this'
+								}
+								shortcut={null}
+								delay={800}
+								dismissOnClick
+							>
+								<InlineAction
+									aria-pressed={hasPageBreakAfter}
+									className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+									disabled={readOnly}
+									onClick={() => {
+										updatePageBreakAfter(index, !hasPageBreakAfter);
+										commitPending();
+									}}
+									renderAction={(color) => (
+										<EnterIcon
+											aria-hidden="true"
+											color={hasPageBreakAfter ? BLUE : color}
+											focusable="false"
+											style={{height: 16, width: 16}}
+										/>
+									)}
+									aria-label={pageBreakTitle}
+									variant={null}
+								/>
+							</ActionTooltip>
 						</div>
 					);
 				})}
