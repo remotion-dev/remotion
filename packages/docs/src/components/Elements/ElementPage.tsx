@@ -297,9 +297,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						<p className={styles.description}>{description}</p>
 						{definition.category === 'captions' ? (
 							<p className={styles.description} style={{marginTop: 8}}>
-								Have captions?{' '}
 								<a href="/elements/captions/#importing-captions-into-studio">
-									Import captions from JSON or SRT in Studio.
+									How to use caption elements
 								</a>
 							</p>
 						) : null}
