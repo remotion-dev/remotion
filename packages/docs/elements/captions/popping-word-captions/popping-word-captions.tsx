@@ -285,5 +285,4 @@ export const PoppingWordCaptions = Interactive.withSchema({
 	Component: PoppingWordCaptionsContent,
 	componentName: '<PoppingWordCaptions>',
 	schema: poppingWordCaptionsSchema,
-	wrapInSequence: true,
 });

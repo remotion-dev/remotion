@@ -9,8 +9,8 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderRadiusSchema,
-	captionsSchema,
 	borderSchema,
+	captionsSchema,
 	cropSchema,
 	premountSchema,
 	sequenceSchema,
@@ -22,8 +22,8 @@ import {
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
-import {Sequence, SequenceWithoutSchema} from './Sequence.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
+import {Sequence, SequenceWithoutSchema} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {usePremounting} from './use-premounting.js';
 import {
@@ -234,7 +234,7 @@ type ComponentWithoutReservedProps<
 		? unknown
 		: never);
 
-type AutomaticWrapperReservedKey =
+type WithSchemaReservedKey =
 	| keyof InteractiveBaseProps
 	| keyof InteractiveCropProps
 	| keyof InteractivePremountProps
@@ -291,10 +291,9 @@ type WithSchema = {
 		> & {
 			readonly Component: ComponentAcceptingStyle<
 				Component,
-				AutomaticWrapperReservedKey
+				WithSchemaReservedKey
 			>;
 			readonly defaultDurationInFrames?: number;
-			readonly wrapInSequence: true;
 		},
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
@@ -311,23 +310,26 @@ type WithSchema = {
 
 type WithSchemaImplementationOptions = Omit<
 	WithInteractivitySchemaOptions<InteractivitySchema, object>,
-	'Component'
+	'Component' | 'supportsEffects'
 > & {
 	readonly Component: React.ComponentType<object>;
 	readonly defaultDurationInFrames?: number;
-	readonly wrapInSequence?: false | true;
+	readonly supportsEffects?: boolean;
+	readonly wrapInSequence?: false;
 };
 
 const withSchema: WithSchema = (untypedOptions: unknown) => {
 	const options = untypedOptions as WithSchemaImplementationOptions;
-	if (!options.wrapInSequence) {
-		const ManualWrapped = withInteractivitySchema(
+	// `supportsEffects` was required by the previous API, where the component
+	// owned its Sequence. Keep that behavior for existing callers.
+	if ('supportsEffects' in options || options.wrapInSequence === false) {
+		const LegacyWrapped = withInteractivitySchema(
 			options as WithInteractivitySchemaOptions<InteractivitySchema, object>,
 		);
-		addSequenceStackTraces(ManualWrapped);
+		addSequenceStackTraces(LegacyWrapped);
 
-		return ManualWrapped as React.FC<
-			React.ComponentProps<typeof ManualWrapped>
+		return LegacyWrapped as React.FC<
+			React.ComponentProps<typeof LegacyWrapped>
 		>;
 	}
 

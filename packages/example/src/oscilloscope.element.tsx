@@ -140,5 +140,4 @@ export const AudioOscilloscope = Interactive.withSchema({
 	Component: AudioOscilloscopeContent,
 	componentName: '<AudioOscilloscope>',
 	schema: audioOscilloscopeSchema,
-	wrapInSequence: true,
 });

@@ -594,5 +594,4 @@ export const MapFlyover = Interactive.withSchema({
 	Component: MapFlyoverContent,
 	componentName: '<MapFlyover>',
 	schema: mapFlyoverSchema,
-	wrapInSequence: true,
 });

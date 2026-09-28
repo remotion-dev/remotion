@@ -305,19 +305,15 @@ Render separate elements if one version should have effects and another should n
 
 ## Making your own component interactive
 
-When using `Interactive.withSchema()`, set `wrapInSequence: true`. This adds `Interactive.baseSchema`, `Interactive.premountSchema` and `Interactive.cropSchema`, wraps the component in `<Sequence layout="none">` and exposes standard timeline, mounting and cropping controls. The component must accept a `style?: React.CSSProperties` prop and apply it to its visual root so the wrapper can apply premounting and crop styles.
+`Interactive.withSchema()` adds `Interactive.baseSchema`, `Interactive.premountSchema` and `Interactive.cropSchema`, wraps the component in `<Sequence layout="none">` and exposes standard timeline, mounting and cropping controls. The component must accept a `style?: React.CSSProperties` prop and apply it to its visual root so the wrapper can apply premounting and crop styles.
 
-Use `defaultDurationInFrames` when the generated Sequence needs a default duration.
+Use `defaultDurationInFrames` when the wrapped component needs a default duration.
 
-Automatic wrapping exposes `InteractivePremountProps`: `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. In v5, it defaults to one second (`fps` frames); pass `premountFor={0}` to opt out. `postmountFor` defaults to `0`.
+The wrapper exposes `InteractivePremountProps`: `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. In v5, it defaults to one second (`fps` frames); pass `premountFor={0}` to opt out. `postmountFor` defaults to `0`.
 
 It also exposes `InteractiveCropProps`: `cropLeft`, `cropRight`, `cropTop` and `cropBottom`. The wrapper merges the premounting and crop styles into the component's `style`.
 
-If the wrapped component accepts a React ref, automatic wrapping forwards refs directly to it.
-
-Omit `wrapInSequence` only when the component needs to render its own `<Sequence>` for effects, multiple visual roots or custom timeline behavior. In that case, include `Interactive.baseSchema`; forward `durationInFrames`, `from`, `trimBefore`, `playbackRate`, `loop`, `freeze`, `hidden`, `name`, `showInTimeline` and the injected `controls` prop to the `<Sequence>`; and set `supportsEffects` to `true` or `false` in the `Interactive.withSchema()` options.
-
-If a manual wrapper also exposes premounting, include `Interactive.premountSchema`, accept `InteractivePremountProps` and implement those props in its Sequence behavior. For manual cropping on an absolute-fill Sequence, include `Interactive.cropSchema`, accept `InteractiveCropProps` and forward the crop props to the Sequence.
+If the wrapped component accepts a React ref, the wrapper forwards refs directly to it.
 
 To make a custom userland component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)

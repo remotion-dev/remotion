@@ -142,5 +142,4 @@ export const SpinningTextWheel = Interactive.withSchema({
 	Component: SpinningTextWheelInner,
 	componentName: '<SpinningTextWheel>',
 	schema: spinningTextWheelSchema,
-	wrapInSequence: true,
 });

@@ -69,11 +69,11 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-[`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) is added automatically - it includes things like `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name` and `showInTimeline`.
+`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), which provides props such as `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name` and `showInTimeline`.
 
-[`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) is also added automatically, it allows for [premounting](/docs/player/premounting) components.
+It also includes [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), allowing the component to be [premounted](/docs/player/premounting).
 
-[`Interactive.cropSchema`](/docs/interactive#interactivecropschema) is added automatically as well, allowing the component to be cropped from any side.
+It includes [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) as well, allowing the component to be cropped from any side.
 
 Include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) to allow 2D and 3D transformations.
 
@@ -145,7 +145,6 @@ export const Badge = Interactive.withSchema({
   Component: BadgeInner,
   componentName: '<Badge>',
   schema: badgeSchema,
-  wrapInSequence: true,
 });
 ```
 

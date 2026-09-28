@@ -379,5 +379,4 @@ export const MovingPillCaptions = Interactive.withSchema({
 	Component: MovingPillCaptionsContent,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
-	wrapInSequence: true,
 });

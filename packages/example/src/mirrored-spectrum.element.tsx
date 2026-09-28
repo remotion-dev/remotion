@@ -124,5 +124,4 @@ export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumContent,
 	componentName: '<MirroredAudioSpectrum>',
 	schema: mirroredAudioSpectrumSchema,
-	wrapInSequence: true,
 });

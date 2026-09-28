@@ -174,7 +174,6 @@ const ProductCard = Interactive.withSchema({
 	Component: ProductCardInner,
 	componentName: '<ProductCard>',
 	schema: productCardSchema,
-	wrapInSequence: true,
 });
 
 export const ProductCollection = () => {

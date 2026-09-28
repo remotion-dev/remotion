@@ -212,5 +212,4 @@ export const RoundedCaptions = Interactive.withSchema({
 	Component: RoundedCaptionsContent,
 	componentName: '<RoundedCaptions>',
 	schema: roundedCaptionsSchema,
-	wrapInSequence: true,
 });

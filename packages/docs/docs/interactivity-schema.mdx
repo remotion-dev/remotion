@@ -19,7 +19,6 @@ This schema is not a Zod schema. Use [Zod schemas](/docs/schemas) for [`<Composi
 import {Interactive, type InteractivitySchema} from 'remotion';
 
 export const titleCardSchema = {
-  ...Interactive.baseSchema,
   ...Interactive.transformSchema,
   tint: {
     type: 'color',
@@ -39,6 +38,8 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and uses it for its [`<Sequence>`](/docs/sequence).
+
 ### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
 
 A `captions` field for components that accept [`Caption[]`](/docs/captions/caption) data. It enables the captions inspector and is not keyframable.
@@ -51,9 +52,9 @@ Transform-related style props: `style.transformOrigin`, `style.translate`, `styl
 
 ### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
 
-Crop props inherited from an absolute-fill [`<Sequence>`](/docs/sequence): [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
+Controls for cropping a component from each edge: [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
 
-Use this fragment to opt a custom component into crop controls. The component must apply the crop props to its rendered element or forward them to an absolute-fill `<Sequence>`.
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and applies the crop through the component's `style` prop.
 
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
@@ -84,6 +85,8 @@ When `style.borderRadius` is a number or contains one to four pixel values, the 
 ### `Interactive.premountSchema`
 
 Mounting props: `premountFor` and `postmountFor`.
+
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment and uses the props for its [`<Sequence>`](/docs/sequence).
 
 These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
 

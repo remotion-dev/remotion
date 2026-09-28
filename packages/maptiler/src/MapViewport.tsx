@@ -535,5 +535,4 @@ export const MapViewport: ComponentType<MapViewportProps> =
 		Component: MapViewportContent,
 		componentName: '<MapViewport>',
 		schema: mapViewportSchema,
-		wrapInSequence: true,
 	});

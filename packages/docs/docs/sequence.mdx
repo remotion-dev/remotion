@@ -312,12 +312,6 @@ Gives the sequence a specific `style={{width: width}}` style and overrides `widt
 
 You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
 
-### `controls?`<AvailableFrom v="4.0.501" />
-
-The control state created by [`Interactive.withSchema()`](/docs/interactive-with-schema).
-
-When [making a custom component interactive](/docs/studio/make-component-interactive) with a manually rendered `<Sequence>`, forward `controls` unchanged from the inner component. Do not create this object manually. With automatic wrapping, [`Interactive.withSchema()`](/docs/interactive-with-schema) handles this automatically.
-
 ### `layout?`
 
 Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
@@ -435,7 +429,7 @@ const MyComp = () => {
 
 Refs require the wrapper element created by `layout="absolute-fill"`. A `<Sequence layout="none">` rejects refs because it does not render a wrapper element.
 
-When [`Interactive.withSchema()`](/docs/interactive-with-schema) creates a layout-none Sequence automatically, a ref is forwarded to the inner component instead of the generated Sequence, if the inner component accepts one.
+A ref passed to a component returned by [`Interactive.withSchema()`](/docs/interactive-with-schema) is forwarded to the original component, if it accepts one.
 
 ## Note for `@remotion/three`
 

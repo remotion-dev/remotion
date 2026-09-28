@@ -243,5 +243,4 @@ export const WordHighlightCaptions = Interactive.withSchema({
 	Component: WordHighlightCaptionsContent,
 	componentName: '<WordHighlightCaptions>',
 	schema: wordHighlightCaptionsSchema,
-	wrapInSequence: true,
 });

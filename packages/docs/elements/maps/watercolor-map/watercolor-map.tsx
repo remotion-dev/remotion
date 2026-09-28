@@ -393,5 +393,4 @@ export const WatercolorMap = Interactive.withSchema({
 	Component: WatercolorMapContent,
 	componentName: '<WatercolorMap>',
 	schema: watercolorMapSchema,
-	wrapInSequence: true,
 });

@@ -83,5 +83,4 @@ export const SocialSafeZones = Interactive.withSchema({
 	Component: SocialSafeZonesInner,
 	componentName: '<SocialSafeZones>',
 	schema: socialSafeZonesSchema,
-	wrapInSequence: true,
 });

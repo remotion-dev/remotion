@@ -54,7 +54,6 @@ export const Circle = Interactive.withSchema({
   Component: CircleInner,
   componentName: '<Circle>',
   schema: circleSchema,
-  wrapInSequence: true,
 });
 ```
 
@@ -80,50 +79,35 @@ The component name used by Studio and in validation messages.
 
 ### `defaultDurationInFrames?`<AvailableFrom v="4.0.530" />
 
-Sets the default Sequence duration when automatic wrapping is enabled and no `durationInFrames` prop is passed.
-
-### `controls`
-
-The control state created by `Interactive.withSchema()`.
+Sets the default [`<Sequence>`](/docs/sequence) duration when no `durationInFrames` prop is passed.
 
 ### `schema`
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
 
-With automatic wrapping, [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) and [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) are added automatically.
+`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) and [`Interactive.cropSchema`](/docs/interactive#interactivecropschema).
 
-When manually wrapping the component, include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls. Add [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) with [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) or [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) with [`InteractiveCropProps`](/docs/interactive#interactivecropprops) when the custom wrapper implements those behaviors itself.
+Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component should expose transform controls.
+
 For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
-
-### `wrapInSequence?`<AvailableFrom v="4.0.530" />
-
-Set to `true` to wrap `Component` in `<Sequence layout="none">`, add `Interactive.baseSchema`, `Interactive.premountSchema` and `Interactive.cropSchema`, and expose the common timing, premounting and cropping props on the returned component.
-
-Default: `false`. Omit it only when `Component` renders its own [`<Sequence>`](/docs/sequence), for example to support effects, coordinate multiple visual roots or implement custom timeline behavior.
-
-Automatic wrapping exposes [`InteractivePremountProps`](/docs/interactive#interactivepremountprops): `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. From [v5.0](/docs/5-0-migration), it defaults to one second (`fps` frames). Pass `premountFor={0}` to opt out. `postmountFor` defaults to `0`.
-
-It also exposes [`InteractiveCropProps`](/docs/interactive#interactivecropprops): `cropLeft`, `cropRight`, `cropTop` and `cropBottom`. Each value is a ratio from `0` to `1` of the corresponding width or height: `0` leaves the edge unchanged and `1` crops it fully.
-
-The wrapper merges the incoming component `style`, the active premounting or postmounting style, and then the crop style before passing it to `Component`. The crop `clipPath` therefore replaces an earlier inline `style.clipPath`. The generated [`<Sequence>`](/docs/sequence) keeps `layout="none"`.
-
-### `supportsEffects`
-
-Required when manually wrapping a component. Set to `true` if the component supports an `effects` prop. Otherwise, set it to `false`.
-
-Omit it when automatic wrapping is enabled. Components that support effects need to render their own `<Sequence>`.
 
 ### Return value
 
-Returns a component with the public props of `Component`. With automatic wrapping, the common timing props from [`<Sequence>`](/docs/sequence), [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) and [`InteractiveCropProps`](/docs/interactive#interactivecropprops) are also included.
+Returns a component with the public props of `Component`, the common [timing props](/docs/timing), [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) and [`InteractiveCropProps`](/docs/interactive#interactivecropprops).
+
+The premount props are `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. From [v5.0](/docs/5-0-migration), it defaults to one second (`fps` frames). Pass `premountFor={0}` to opt out. `postmountFor` defaults to `0`.
+
+The cropping props are `cropLeft`, `cropRight`, `cropTop` and `cropBottom`. Each value is a ratio from `0` to `1` of the corresponding width or height: `0` leaves the edge unchanged and `1` crops it fully.
+
+The returned component merges the incoming `style`, the active premounting or postmounting style, and then the crop style before passing it to `Component`. The crop `clipPath` therefore replaces an earlier inline `style.clipPath`. It renders `Component` inside a [`<Sequence layout="none">`](/docs/sequence).
 
 ### Ref forwarding<AvailableFrom v="4.0.530" />
 
-If `Component` accepts a ref, automatic wrapping preserves its ref type and forwards the ref directly to `Component`.
+If `Component` accepts a ref, the returned component preserves its ref type and forwards the ref directly to `Component`.
 
 ## Behavior
 
-During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` uses the original editable values. Automatic wrapping still applies timing and cropping. In the Player and Studio, it also applies premounting and postmounting styles and freezes the component at its first or last local frame while it is premounted or postmounted. Premounting and postmounting do not apply during rendering.
+During rendering, in the Player and in read-only Studio sessions, `Interactive.withSchema()` uses the original editable values and applies timing and cropping. In the Player and Studio, it also applies premounting and postmounting styles and freezes the component at its first or last local frame while it is premounted or postmounted. Premounting and postmounting do not apply during rendering.
 
 In editable Studio sessions, it reads the current prop values, applies timeline overrides and passes the merged props to the inner component.
 
@@ -131,7 +115,7 @@ In editable Studio sessions, it reads the current prop values, applies timeline 
 
 <CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
-Rendering support depends on the wrapped component. Editing timeline controls requires an editable Remotion Studio session.
+Rendering support depends on `Component`. Editing timeline controls requires an editable Remotion Studio session.
 
 ## See also
 
