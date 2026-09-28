@@ -1,17 +1,16 @@
-import {Map as MapTilerMap, MapStyle, type MapOptions} from '@maptiler/sdk';
-import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
+import {MapStyle, Map as MapTilerMap, type MapOptions} from '@maptiler/sdk';
 import '@maptiler/sdk/style.css';
+import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	Interactive,
-	Freeze,
-	Sequence,
-	Internals,
+	useDelayRender,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
 	type InteractivePremountProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
-	useDelayRender,
 } from 'remotion';
 import {MapTilerContext} from './MapTilerContext';
 
@@ -36,7 +35,9 @@ export type MapViewportMapOptions = Omit<
 export type MapAdministrativeBorders = 'all' | 'country-only' | 'none';
 
 export type MapViewportProps = InteractiveBaseProps &
-	InteractivePremountProps & {
+	InteractiveCropProps &
+	InteractivePremountProps &
+	InteractiveTransformProps & {
 		readonly apiKey: string | null;
 		readonly backgroundColor?: string;
 		readonly bearing?: number;
@@ -84,6 +85,8 @@ const stripStyleLayers = ({
 };
 
 const mapViewportSchema = {
+	// Keep the existing inspector field order. Interactive.withSchema() adds
+	// these fields again without changing their insertion position.
 	...Interactive.baseSchema,
 	...Interactive.premountSchema,
 	centerLongitude: {
@@ -207,13 +210,20 @@ const MissingApiKey = () => {
 	);
 };
 
-const MapViewportContent: FC<
-	MapViewportProps & {
-		readonly premountingStyle: CSSProperties | null;
-	}
-> = ({
+type MapViewportContentProps = Omit<
+	MapViewportProps,
+	| keyof InteractiveBaseProps
+	| keyof InteractiveCropProps
+	| keyof InteractivePremountProps
+	| keyof InteractiveTransformProps
+	| 'controls'
+> & {
+	readonly style?: CSSProperties;
+};
+
+const MapViewportContent: FC<MapViewportContentProps> = ({
 	apiKey,
-	premountingStyle,
+	style,
 	backgroundColor = '#dfe7e2',
 	bearing = 0,
 	centerLatitude = 0,
@@ -500,7 +510,7 @@ const MapViewportContent: FC<
 				inset: 0,
 				overflow: 'hidden',
 				position: 'absolute',
-				...premountingStyle,
+				...style,
 			}}
 		>
 			{apiKey ? (
@@ -523,75 +533,10 @@ const MapViewportContent: FC<
 	);
 };
 
-const MapViewportInner: FC<MapViewportProps> = ({
-	durationInFrames,
-	from,
-	trimBefore,
-	playbackRate,
-	loop,
-	freeze,
-	hidden,
-	name,
-	showInTimeline,
-	controls,
-	premountFor,
-	postmountFor,
-	styleWhilePremounted,
-	styleWhilePostmounted,
-	...props
-}) => {
-	const {
-		effectivePremountFor,
-		effectivePostmountFor,
-		freezeFrame,
-		isPremountingOrPostmounting,
-		premountingActive,
-		postmountingActive,
-		premountingStyle,
-	} = Internals.usePremounting({
-		from: from ?? 0,
-		durationInFrames: Internals.resolveSequenceDuration({
-			durationInFrames,
-			playbackRate,
-			loop,
-		}),
-		premountFor: premountFor ?? null,
-		postmountFor: postmountFor ?? null,
-		style: null,
-		styleWhilePremounted: styleWhilePremounted ?? null,
-		styleWhilePostmounted: styleWhilePostmounted ?? null,
-		hideWhilePremounted: 'opacity',
-	});
-
-	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
-			<Sequence
-				layout="none"
-				durationInFrames={durationInFrames}
-				from={from}
-				trimBefore={trimBefore}
-				playbackRate={playbackRate}
-				loop={loop}
-				freeze={freeze}
-				hidden={hidden}
-				showInTimeline={showInTimeline}
-				controls={controls}
-				name={name ?? '<MapViewport>'}
-				_remotionInternalPremountDisplay={effectivePremountFor || null}
-				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
-				_remotionInternalIsPremounting={premountingActive}
-				_remotionInternalIsPostmounting={postmountingActive}
-			>
-				<MapViewportContent {...props} premountingStyle={premountingStyle} />
-			</Sequence>
-		</Freeze>
-	);
-};
-
 export const MapViewport: ComponentType<MapViewportProps> =
 	Interactive.withSchema({
-		Component: MapViewportInner,
+		Component: MapViewportContent,
 		componentName: '<MapViewport>',
 		schema: mapViewportSchema,
-		supportsEffects: false,
+		wrapInSequence: true,
 	});

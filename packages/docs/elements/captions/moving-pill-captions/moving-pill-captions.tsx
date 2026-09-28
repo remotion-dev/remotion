@@ -13,22 +13,17 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type MovingPillCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
+type MovingPillCaptionsProps = InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
-		readonly playbackRate?: number;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
@@ -45,7 +40,6 @@ const defaultWidth = 682;
 const defaultHeight = 252;
 
 const movingPillCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -71,7 +65,6 @@ const movingPillCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -325,67 +318,12 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const MovingPillCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-	readonly playbackRate: number;
-	readonly trimBefore: number;
-}> = ({
-	captionAreaWidth,
-	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-	playbackRate,
-	trimBefore,
-}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const pages = useMemo(
-		() =>
-			createTikTokStyleCaptions({
-				captions,
-				combineTokensWithinMilliseconds,
-			}).pages,
-		[captions, combineTokensWithinMilliseconds],
-	);
-	const currentTimeMs =
-		((trimBefore + (frame - trimBefore) * playbackRate) / fps) * 1000;
-	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
-	const page = pages[activePageIndex];
-
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
-	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			fps={fps}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
-	);
-};
-
-const MovingPillCaptionsInner: React.FC<
-	MovingPillCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
+const MovingPillCaptionsContent: React.FC<MovingPillCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	controls,
 	height = defaultHeight,
-	name,
-	playbackRate = 1,
 	style,
-	trimBefore,
 	width = defaultWidth,
-	...interactiveProps
 }) => {
 	const [fontLoaded, setFontLoaded] = useState(false);
 
@@ -399,40 +337,46 @@ const MovingPillCaptionsInner: React.FC<
 			});
 	}, []);
 
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
+	const currentTimeMs = (frame / fps) * 1000;
+	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
+	const page = pages[activePageIndex];
+
 	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<MovingPillCaptions>'}
-			trimBefore={trimBefore}
+		<div
+			style={{
+				height,
+				marginInline: 'auto',
+				width,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					height,
-					marginInline: 'auto',
-					width,
-					...style,
-				}}
-			>
-				<MovingPillCaptionsContent
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
 					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
-					playbackRate={playbackRate}
-					trimBefore={trimBefore ?? 0}
+					currentTimeMs={currentTimeMs}
+					fps={fps}
+					page={page}
+					pageIndex={activePageIndex}
 				/>
-			</div>
-		</Sequence>
+			) : null}
+		</div>
 	);
 };
 
-const MovingPillCaptionsLayer = Interactive.withSchema({
-	Component: MovingPillCaptionsInner,
+export const MovingPillCaptions = Interactive.withSchema({
+	Component: MovingPillCaptionsContent,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsProps>;
-
-export const MovingPillCaptions = MovingPillCaptionsLayer;
+	wrapInSequence: true,
+});
