@@ -1337,7 +1337,16 @@ const getPrecompositionPlan = ({
 			}
 
 			const key = attribute.name.name;
-			if (!['name', 'from', 'durationInFrames', 'layout'].includes(key)) {
+			if (
+				![
+					'name',
+					'from',
+					'durationInFrames',
+					'layout',
+					'premountFor',
+					'postmountFor',
+				].includes(key)
+			) {
 				throw new Error('The selected sequence has unsupported props');
 			}
 

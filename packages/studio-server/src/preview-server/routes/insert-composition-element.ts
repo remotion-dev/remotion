@@ -221,7 +221,7 @@ export const insertCompositionElementHandler: ApiHandler<
 	InsertCompositionElementRequest,
 	InsertCompositionElementResponse
 > = ({
-	input: {compositionFile, compositionId, element, from},
+	input: {compositionFile, compositionId, element, from, premountFor},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -233,6 +233,13 @@ export const insertCompositionElementHandler: ApiHandler<
 				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
 			) {
 				throw new Error('from must be a non-negative integer');
+			}
+
+			if (
+				premountFor !== null &&
+				(!Number.isInteger(premountFor) || premountFor < 0)
+			) {
+				throw new Error('premountFor must be a non-negative integer');
 			}
 
 			const elementLabel = getElementLabel(element);
@@ -256,6 +263,7 @@ export const insertCompositionElementHandler: ApiHandler<
 				compositionId,
 				element,
 				from,
+				premountFor,
 				prettierConfigOverride: null,
 				sourceFileOverrides: null,
 			});

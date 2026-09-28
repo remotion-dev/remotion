@@ -30,7 +30,10 @@ export const shortcutGroups: ShortcutGroup[] = [
       { keys: ["X"], description: "Clear in / out" },
       { keys: ["⌘ A"], description: "Select all layers" },
       { keys: ["Esc"], description: "Clear selection" },
-      { keys: ["⌫"], description: "Delete selected layers or keyframes" },
+      {
+        keys: ["⌫"],
+        description: "Delete selected layers or keyframes, reset easings",
+      },
       { keys: ["⌘ D"], description: "Duplicate selected layers" },
       { keys: ["⌘ ⇧ D"], description: "Split selected layers at playhead" },
       { keys: ["⌥ ↑", "⌥ ↓"], description: "Move layer up / down" },

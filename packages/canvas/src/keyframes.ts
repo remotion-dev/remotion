@@ -1,4 +1,11 @@
-import type {CanUpdateSequencePropStatus, InteractivitySchema} from 'remotion';
+import type {
+	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusEasing,
+	ExtrapolateType,
+	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputOption,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {
 	SequenceNodePathInfo,
@@ -34,6 +41,15 @@ export type CanvasKeyframe = {
 	readonly value: unknown;
 };
 
+/** The easing between two adjacent keyframes, as `interpolate()` accepts it. */
+export type CanvasKeyframeEasing = CanUpdateSequencePropStatusEasing;
+
+/** The `extrapolateLeft` and `extrapolateRight` options of an interpolation. */
+export type CanvasKeyframeClamping = {
+	readonly left: ExtrapolateType;
+	readonly right: ExtrapolateType;
+};
+
 /**
  * An edit of the keyframes of one prop. The frames are in the clock of the
  * interpolation, as `updateNodeKeyframes()` from @remotion/codemods expects.
@@ -54,16 +70,31 @@ export type CanvasKeyframeOperation =
 	| {
 			readonly type: 'move';
 			readonly moves: CanvasKeyframeMove[];
+	  }
+	| {
+			/** Sets the easing of the segment between two adjacent keyframes. */
+			readonly type: 'easing';
+			readonly segmentIndex: number;
+			readonly easing: CanvasKeyframeEasing;
+	  }
+	| {
+			/** Writes the interpolation options. `undefined` leaves `clamping` and `output` unchanged and removes `posterize`. */
+			readonly type: 'settings';
+			readonly clamping: CanvasKeyframeClamping | undefined;
+			readonly posterize: number | undefined;
+			readonly output: InterpolateOutputOption | undefined;
 	  };
 
-export type CanvasKeyframeChange = {
+export type CanvasKeyframeChange<
+	Operation extends CanvasKeyframeOperation = CanvasKeyframeOperation,
+> = {
 	/** The registered source node of the sequence. */
 	readonly nodePathInfo: SequenceNodePathInfo;
 	/** The interactivity schema key in dot notation, e.g. `style.opacity`. */
 	readonly key: string;
 	/** The interactivity schema of the element, for the codemods. */
 	readonly schema: InteractivitySchema;
-	readonly operation: CanvasKeyframeOperation;
+	readonly operation: Operation;
 };
 
 /** The keyframes of a prop, placed on the composition timeline. */
@@ -127,11 +158,18 @@ export const getCanvasKeyframeDisplayFrame = ({
 	);
 };
 
+/** The schema field of a key in dot notation, including fields of enum variants. */
+export const getSchemaField = (
+	schema: InteractivitySchema,
+	key: string,
+): InteractivitySchemaField | undefined =>
+	Internals.getFlatSchemaWithAllKeys(schema)[key];
+
 const getSchemaFieldDefault = (
 	schema: InteractivitySchema,
 	key: string,
 ): unknown => {
-	const field = Internals.getFlatSchemaWithAllKeys(schema)[key];
+	const field = getSchemaField(schema, key);
 	return field !== undefined && 'default' in field ? field.default : undefined;
 };
 

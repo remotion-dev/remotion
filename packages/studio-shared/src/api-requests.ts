@@ -903,6 +903,11 @@ export type WrapNodeRequest = {
 	wrapper: NodeWrapper | null;
 	width: number | null;
 	height: number | null;
+	timing: {
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 };
 
 export type WrapNodeResponse =
@@ -985,6 +990,7 @@ export type InsertBasicCaptionsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	durationInFrames: number | null;
+	premountFor: number | null;
 	captions: {
 		text: string;
 		startMs: number;
@@ -1062,6 +1068,7 @@ export type InsertCompositionElementRequest = {
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	premountFor: number | null;
 };
 
 export type InsertCompositionElementResponse =
@@ -1141,6 +1148,7 @@ export type InsertElementRequest = {
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
+	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
@@ -1190,8 +1198,8 @@ export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
 	createdAt: number;
-	compositionFile: string;
-	compositionId: string;
+	compositionFile: string | null;
+	compositionId: string | null;
 	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;

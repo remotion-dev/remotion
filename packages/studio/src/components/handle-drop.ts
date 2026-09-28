@@ -123,6 +123,7 @@ export const handleDrop = async ({
 			compositionFile,
 			compositionId,
 			dropPosition,
+			fps,
 			from,
 			preferCompositionStart,
 		});
@@ -164,6 +165,7 @@ export const handleDrop = async ({
 			compositionFile,
 			compositionId,
 			dropPosition,
+			fps,
 			from,
 			preferCompositionStart,
 		});

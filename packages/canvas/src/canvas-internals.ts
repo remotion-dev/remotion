@@ -118,6 +118,13 @@ export {
 	getMovedCanvasKeyframeStatus,
 } from './keyframe-move';
 export type {CanvasKeyframeMoveTarget} from './keyframe-move';
+export {getSchemaField} from './keyframes';
+export {
+	canEditKeyframeEasing,
+	getKeyframeSegmentEasing,
+	getKeyframeSegments,
+} from './keyframe-easing';
+export type {KeyframeSegment} from './keyframe-easing';
 export {
 	canvasOutlineSnapThresholdPx,
 	findCanvasOutlineSnap,

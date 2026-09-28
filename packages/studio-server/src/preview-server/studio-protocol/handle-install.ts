@@ -33,10 +33,6 @@ const deliverElementInstall = ({
 	readonly origin: string;
 	readonly target: NonNullable<ReturnType<typeof getElementInstallTarget>>;
 }): boolean => {
-	if (target.compositionFile === null || target.compositionId === null) {
-		return false;
-	}
-
 	const installRequest: ElementInstallRequest = {
 		id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
 		clientId: target.clientId,

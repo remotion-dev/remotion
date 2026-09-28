@@ -161,6 +161,7 @@ const insertIntoProject = async ({
 		element: createElementFromInsertable({
 			element: request.element,
 			from: request.from,
+			premountFor: request.premountFor,
 			wrapInSequence,
 		}),
 		target: {
@@ -1546,6 +1547,7 @@ export const createBrowserStudioOperations = ({
 		wrapper,
 		width,
 		height,
+		timing,
 	}) => {
 		try {
 			const project = getProject();
@@ -1573,7 +1575,11 @@ export const createBrowserStudioOperations = ({
 							: 'remotion',
 					props:
 						wrapper === 'HtmlInCanvas' || wrapper === 'HtmlInCanvasMotionBlur'
-							? {width: width ?? 0, height: height ?? 0}
+							? {
+									width: width ?? 0,
+									height: height ?? 0,
+									...(timing ?? {}),
+								}
 							: {},
 				}),
 			});
@@ -2192,6 +2198,7 @@ export const createBrowserStudioOperations = ({
 		nodePath,
 		captions,
 		durationInFrames,
+		premountFor,
 	}) => {
 		try {
 			const project = getProject();
@@ -2205,6 +2212,7 @@ export const createBrowserStudioOperations = ({
 				nodePath,
 				captions,
 				durationInFrames,
+				premountFor,
 				importPath: elementFile.importPath,
 			});
 			const nodePathMutation = controller.applyMutation({
@@ -2601,6 +2609,7 @@ export const createBrowserStudioOperations = ({
 							type: 'component',
 						},
 						from: componentOwnsSequence ? request.from : null,
+						premountFor: request.premountFor,
 					},
 					wrapInSequence: componentOwnsSequence
 						? null

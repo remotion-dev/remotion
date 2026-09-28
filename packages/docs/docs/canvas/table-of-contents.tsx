@@ -62,6 +62,26 @@ export const TableOfContents: React.FC = () => {
 					<strong>startCanvasKeyframeDrag()</strong>
 					<div>Move keyframes along the timeline with the pointer</div>
 				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-easing-segments">
+					<strong>getCanvasKeyframeEasingSegments()</strong>
+					<div>Describe the segments between keyframes on the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-easing-change">
+					<strong>getCanvasKeyframeEasingChange()</strong>
+					<div>Set the easing between two keyframes</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-settings">
+					<strong>getCanvasKeyframeSettings()</strong>
+					<div>Read the extrapolation, output and posterize options</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-settings-change">
+					<strong>getCanvasKeyframeSettingsChange()</strong>
+					<div>Write the interpolation options of a keyframed prop</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-change-override">
+					<strong>getCanvasKeyframeChangeOverride()</strong>
+					<div>Show a keyframe change before the source is updated</div>
+				</TOCItem>
 				<TOCItem link="/docs/canvas/get-canvas-prop-value-at-frame">
 					<strong>getCanvasPropValueAtFrame()</strong>
 					<div>Read the value of a prop at a frame from the source</div>

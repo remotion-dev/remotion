@@ -963,6 +963,7 @@ const createSequenceWrappedElement = ({
 	durationInFrames,
 	from,
 	name,
+	premountFor,
 	position,
 	sequenceLocalName,
 }: {
@@ -971,6 +972,7 @@ const createSequenceWrappedElement = ({
 	durationInFrames: number | null;
 	from: number | null;
 	name: string | null;
+	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	sequenceLocalName: string;
 }): namedTypes.JSXElement => {
@@ -979,6 +981,9 @@ const createSequenceWrappedElement = ({
 			recast.types.builders.jsxIdentifier(sequenceLocalName),
 			[
 				...(from === null ? [] : [createNumberAttribute('from', from)]),
+				...(premountFor === null
+					? []
+					: [createNumberAttribute('premountFor', premountFor)]),
 				...(name === null ? [] : [createStringAttribute('name', name)]),
 				...(dimensions !== null
 					? [
@@ -1005,12 +1010,14 @@ const createSvgElement = async ({
 	from,
 	interactiveLocalName,
 	markup,
+	premountFor,
 	position,
 }: {
 	environment: CodemodEnvironment;
 	from: number | null;
 	interactiveLocalName: string;
 	markup: string;
+	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 }): Promise<namedTypes.JSXElement> => {
 	const svgElement = await environment.svgMarkupToJsx(markup);
@@ -1018,6 +1025,10 @@ const createSvgElement = async ({
 	svgElement.openingElement.attributes = attributes;
 	if (from !== null) {
 		attributes.push(createNumberAttribute('from', from));
+	}
+
+	if (premountFor !== null) {
+		attributes.push(createNumberAttribute('premountFor', premountFor));
 	}
 
 	const styleAttribute = attributes.find(
@@ -2089,12 +2100,14 @@ const createInsertableJsxElement = ({
 	element,
 	environment,
 	from,
+	premountFor,
 }: {
 	ast: File;
 	destinationFileName: string;
 	element: PipelineInsertableElement;
 	environment: CodemodEnvironment;
 	from: number | null;
+	premountFor: number | null;
 }): Promise<namedTypes.JSXElement> => {
 	if (element.type === 'svg') {
 		return createSvgElement({
@@ -2102,6 +2115,7 @@ const createInsertableJsxElement = ({
 			from,
 			interactiveLocalName: ensureInteractiveImport(ast),
 			markup: element.markup,
+			premountFor,
 			position: element.position,
 		});
 	}
@@ -2130,6 +2144,7 @@ export const insertJsxElementIntoComposition = async ({
 	element,
 	environment,
 	from,
+	premountFor,
 	prettierConfigOverride,
 	wrapInSequence,
 }: {
@@ -2138,6 +2153,7 @@ export const insertJsxElementIntoComposition = async ({
 	element: InsertableCompositionElement;
 	environment: CodemodEnvironment;
 	from: number | null;
+	premountFor: number | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence: {
 		dimensions: {width: number; height: number} | null;
@@ -2166,6 +2182,13 @@ export const insertJsxElementIntoComposition = async ({
 		(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
 	) {
 		throw new Error('from must be a non-negative integer');
+	}
+
+	if (
+		premountFor !== null &&
+		(!Number.isInteger(premountFor) || premountFor < 0)
+	) {
+		throw new Error('premountFor must be a non-negative integer');
 	}
 
 	if (
@@ -2227,6 +2250,7 @@ export const insertJsxElementIntoComposition = async ({
 		element,
 		environment,
 		from,
+		premountFor: sequenceWrapper === null ? premountFor : null,
 	});
 	const finalElementToInsert = sequenceWrapper
 		? createSequenceWrappedElement({
@@ -2235,6 +2259,7 @@ export const insertJsxElementIntoComposition = async ({
 				durationInFrames: sequenceWrapper.durationInFrames ?? null,
 				from: sequenceWrapper.from,
 				name: sequenceWrapper.name,
+				premountFor,
 				position: sequenceWrapper.position,
 				sequenceLocalName: ensureSequenceImport(ast),
 			})
@@ -2320,6 +2345,7 @@ export const insertJsxElementIntoProjectWithNodePathRemappings = async ({
 			svgMarkupToJsx,
 		}),
 		from: request.from,
+		premountFor: request.premountFor,
 		prettierConfigOverride: null,
 		wrapInSequence,
 	});

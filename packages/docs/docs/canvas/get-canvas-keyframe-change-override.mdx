@@ -1,0 +1,66 @@
+---
+image: /generated/articles-docs-canvas-get-canvas-keyframe-change-override.png
+title: getCanvasKeyframeChangeOverride()
+crumb: '@remotion/canvas'
+---
+
+# getCanvasKeyframeChangeOverride()<AvailableFrom v="4.0.530" />
+
+Shows a keyframe change on the canvas before the source is updated. It returns how the prop is written after the change, as a value for [`controller.overrides`](/docs/canvas/create-canvas-controller#overrides). Use it to preview an easing while its curve is being dragged, or to apply a preset without waiting for the bundler.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx twoslash title="apply-change.ts"
+// @moduleResolution: bundler
+import {
+  getCanvasKeyframeChangeOverride,
+  type CanvasController,
+  type CanvasKeyframeChange,
+} from '@remotion/canvas';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+declare const controller: CanvasController;
+declare const propStatus: CanUpdateSequencePropStatus;
+declare const persist: (change: CanvasKeyframeChange) => Promise<void>;
+// ---cut---
+export const applyChange = async (change: CanvasKeyframeChange) => {
+  const override = getCanvasKeyframeChangeOverride({propStatus, change});
+  if (override) {
+    controller.overrides.set(change.nodePathInfo, change.key, override);
+  }
+
+  await persist(change);
+  controller.overrides.clear(change.nodePathInfo);
+};
+```
+
+Clear the override once the composition renders the updated source. Until then, the canvas shows the change even though the source has not caught up, like after [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag).
+
+## Parameters
+
+An object with the following properties:
+
+### propStatus
+
+How the prop is written in the source before the change, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it.
+
+### change
+
+The `CanvasKeyframeChange` to preview, from [`getCanvasKeyframeEasingChange()`](/docs/canvas/get-canvas-keyframe-easing-change), [`getCanvasKeyframeSettingsChange()`](/docs/canvas/get-canvas-keyframe-settings-change), [`getCanvasKeyframeToggle()`](/docs/canvas/get-canvas-keyframe-toggle) or [`startCanvasKeyframeDrag()`](/docs/canvas/start-canvas-keyframe-drag). Every operation is supported: `add`, `remove`, `move`, `easing` and `settings`.
+
+## Return value
+
+A `DragOverrideValue`: `{type: 'keyframed', status}` with the keyframed status after the operation, or `{type: 'static', value}` when removing the last keyframe leaves a static prop. `null` when the operation does not apply to the prop, for example an `easing` of a prop that is not keyframed.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`controller.overrides`](/docs/canvas/create-canvas-controller#overrides)
+- [`getCanvasKeyframeEasingChange()`](/docs/canvas/get-canvas-keyframe-easing-change)
+- [`getCanvasKeyframeSettingsChange()`](/docs/canvas/get-canvas-keyframe-settings-change)

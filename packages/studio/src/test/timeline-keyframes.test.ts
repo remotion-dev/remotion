@@ -8,7 +8,6 @@ import {Internals, type PropStatuses} from 'remotion';
 import {getInspectorKeyframeSourceFrame} from '../components/InspectorPanel/keyframe-inspector-frame';
 import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
-import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
 import {
 	getKeyframeDisplayOffset,
 	getTimelineKeyframes,
@@ -479,23 +478,6 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 	).toEqual([
 		{frame: 10, value: '0px 0px'},
 		{frame: 20, value: '500px 0px'},
-	]);
-});
-
-test('timeline easing segments connect adjacent display keyframes', () => {
-	const status: CanUpdateSequencePropStatusKeyframed = {
-		...makeKeyframedStatus(),
-		keyframes: [
-			{frame: 0, value: 2},
-			{frame: 30, value: 3},
-			{frame: 60, value: 4},
-		],
-		easing: [{type: 'linear'}, {type: 'linear'}],
-	};
-
-	expect(getTimelineEasingSegments(getTimelineKeyframes(status, 30))).toEqual([
-		{fromFrame: 30, toFrame: 60, segmentIndex: 0},
-		{fromFrame: 60, toFrame: 90, segmentIndex: 1},
 	]);
 });
 

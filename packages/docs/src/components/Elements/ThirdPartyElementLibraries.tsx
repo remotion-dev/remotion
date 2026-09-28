@@ -3,6 +3,7 @@ import {
 	type AddElementLibraryToStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {useCallback, useId, useState} from 'react';
+import {BlueButton} from '../../../components/layout/Button';
 import {
 	thirdPartyElementLibraries,
 	type ThirdPartyElementLibrary,
@@ -108,36 +109,28 @@ const ThirdPartyElementLibraryItem: React.FC<{
 							{library.displayName}
 						</a>
 					</h3>
-					<button
+					<BlueButton
+						aria-busy={isLoading}
 						aria-describedby={addState.type === 'idle' ? undefined : statusId}
 						aria-label={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						aria-busy={isLoading}
 						className={styles.addAction}
-						disabled={isLoading}
+						fullWidth={false}
+						loading={isLoading}
 						onClick={addToStudio}
+						size="sm"
+						style={{fontSize: '0.75rem', lineHeight: 1.25, padding: '5px 8px'}}
 						title={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						type="button"
 					>
-						{isLoading ? (
-							'…'
-						) : (
-							<>
-								<span aria-hidden="true" className={styles.addActionIcon}>
-									+
-								</span>
-								Add to Studio
-							</>
-						)}
-						<span aria-hidden="true" className={styles.touchTarget} />
-					</button>
+						Add to Studio
+					</BlueButton>
 				</div>
 				{status}
 			</div>

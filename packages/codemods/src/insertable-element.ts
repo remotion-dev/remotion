@@ -62,10 +62,12 @@ const toCodemodValue = (value: unknown): CodemodValue => {
 export const createElementFromInsertable = ({
 	element,
 	from,
+	premountFor,
 	wrapInSequence,
 }: {
 	element: InsertableCompositionElement;
 	from: number | null;
+	premountFor: number | null;
 	wrapInSequence: InsertableSequenceWrapper | null;
 }): CodemodElement => {
 	if (element.type === 'svg' || element.type === 'composition') {
@@ -74,6 +76,13 @@ export const createElementFromInsertable = ({
 
 	if (from !== null && (!Number.isInteger(from) || from < 0)) {
 		throw new Error('from must be a non-negative integer');
+	}
+
+	if (
+		premountFor !== null &&
+		(!Number.isInteger(premountFor) || premountFor < 0)
+	) {
+		throw new Error('premountFor must be a non-negative integer');
 	}
 
 	if (
@@ -182,7 +191,9 @@ export const createElementFromInsertable = ({
 	}
 
 	if (sequence === null) {
-		return inner;
+		return premountFor === null
+			? inner
+			: inner.withProp('premountFor', premountFor);
 	}
 
 	return createElement({
@@ -190,6 +201,7 @@ export const createElementFromInsertable = ({
 		importPath: 'remotion',
 		props: {
 			...(sequence.from === null ? {} : {from: sequence.from}),
+			...(premountFor === null ? {} : {premountFor}),
 			...(sequence.name === null ? {} : {name: sequence.name}),
 			...(sequence.dimensions === null
 				? {}
