@@ -66,6 +66,11 @@ export type StudioProtocolAddElementLibraryRequest = {
 	readonly displayName: string | null;
 };
 
+export type StudioProtocolIframeAddElementLibraryRequest = Omit<
+	StudioProtocolAddElementLibraryRequest,
+	'targetId'
+>;
+
 const studioProtocolAddElementLibraryRequestSchema = z.object({
 	operation: z.literal('add-element-library'),
 	protocol: z.literal('remotion-studio-protocol'),
@@ -126,7 +131,7 @@ export const parseStudioProtocolAddElementLibraryRequest = (
 
 export const parseStudioProtocolIframeAddElementLibraryRequest = (
 	value: unknown,
-): Omit<StudioProtocolAddElementLibraryRequest, 'targetId'> | null => {
+): StudioProtocolIframeAddElementLibraryRequest | null => {
 	const parsed = z.safeParse(
 		studioProtocolIframeAddElementLibraryRequestSchema,
 		value,
@@ -321,13 +326,9 @@ export const addElementLibraryToStudioWithDependencies = async (
 	);
 };
 
-const addElementLibraryToParentStudio = ({
-	displayName,
-	url,
-}: {
-	readonly displayName: string | null;
-	readonly url: string;
-}): Promise<AddElementLibraryToStudioResult | null> => {
+const addElementLibraryToParentStudio = (
+	request: StudioProtocolIframeAddElementLibraryRequest,
+): Promise<AddElementLibraryToStudioResult | null> => {
 	if (
 		typeof window === 'undefined' ||
 		window.parent === window ||
@@ -358,17 +359,7 @@ const addElementLibraryToParentStudio = ({
 			resolve(response.data);
 		};
 
-		window.parent.postMessage(
-			{
-				operation: 'add-element-library',
-				protocol: 'remotion-studio-protocol',
-				protocolVersion: 1,
-				url,
-				displayName,
-			},
-			'*',
-			[channel.port2],
-		);
+		window.parent.postMessage(request, '*', [channel.port2]);
 	});
 };
 
@@ -376,17 +367,32 @@ export const addElementLibraryToStudio = async ({
 	displayName,
 	url,
 }: AddElementLibraryToStudioInput): Promise<AddElementLibraryToStudioResult> => {
-	const normalizedDisplayName = displayName ?? null;
-	const parentResult = await addElementLibraryToParentStudio({
-		displayName: normalizedDisplayName,
-		url,
-	});
-	if (parentResult !== null) {
-		return parentResult;
+	if (typeof url === 'string') {
+		try {
+			const parsedUrl = new URL(url);
+			const normalizedDisplayName = displayName?.trim() ?? null;
+			if (
+				(parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') &&
+				normalizedDisplayName !== ''
+			) {
+				const parentResult = await addElementLibraryToParentStudio({
+					operation: 'add-element-library',
+					protocol: 'remotion-studio-protocol',
+					protocolVersion: 1,
+					url: parsedUrl.href,
+					displayName: normalizedDisplayName,
+				});
+				if (parentResult !== null) {
+					return parentResult;
+				}
+			}
+		} catch {
+			// The shared validation below returns the public invalid URL result.
+		}
 	}
 
 	return addElementLibraryToStudioWithDependencies(
-		{displayName: normalizedDisplayName, url},
+		{displayName: displayName ?? null, url},
 		{
 			fetchFn: fetch,
 			now: Date.now,

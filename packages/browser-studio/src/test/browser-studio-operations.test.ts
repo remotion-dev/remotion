@@ -988,6 +988,7 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 		wrapper: 'Sequence',
 		width: null,
 		height: null,
+		timing: null,
 	});
 	expect(result.success).toBe(true);
 	expect(getProject().files[fileName]).toContain('<Sequence>');

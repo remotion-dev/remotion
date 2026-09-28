@@ -903,6 +903,11 @@ export type WrapNodeRequest = {
 	wrapper: NodeWrapper | null;
 	width: number | null;
 	height: number | null;
+	timing: {
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 };
 
 export type WrapNodeResponse =
@@ -1193,8 +1198,8 @@ export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
 	createdAt: number;
-	compositionFile: string;
-	compositionId: string;
+	compositionFile: string | null;
+	compositionId: string | null;
 	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;

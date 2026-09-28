@@ -31,15 +31,12 @@
 .installAction {
 	position: absolute;
 	top: calc(100cqi * 9 / 16 - 12px);
-	left: 12px;
+	right: 12px;
 	transform: translateY(calc(-100% + 16px));
 	font-size: 0.75rem;
 	line-height: 1.25;
 	opacity: 0;
 	pointer-events: none;
-	transition:
-		transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
-		opacity 200ms ease;
 }
 
 .cardItem:hover .installAction,
@@ -49,14 +46,9 @@
 	pointer-events: auto;
 }
 
-.installAction button:focus-visible {
-	outline: 2px solid var(--ifm-color-primary);
-	outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
+@media (hover: none), (pointer: coarse) {
 	.installAction {
-		transition: none;
+		display: none;
 	}
 }
 

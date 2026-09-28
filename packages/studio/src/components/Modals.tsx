@@ -151,10 +151,6 @@ export const Modals: React.FC<{
 	}, [isBrowserStudio, requestElementLibraryAddition, subscribeToEvent]);
 
 	useEffect(() => {
-		if (isBrowserStudio) {
-			return;
-		}
-
 		const onMessage = (event: MessageEvent) => {
 			const elementLibrary = document.querySelector<HTMLIFrameElement>(
 				'iframe[data-remotion-element-library]',
@@ -187,7 +183,9 @@ export const Modals: React.FC<{
 
 			const displayName = request.displayName?.trim() ?? null;
 			const canAddLibrary =
-				previewServerState.type === 'connected' && !readOnlyStudio;
+				!isBrowserStudio &&
+				!readOnlyStudio &&
+				previewServerState.type === 'connected';
 			const result: AddElementLibraryToStudioResult =
 				normalizedUrl === null
 					? {
@@ -206,8 +204,7 @@ export const Modals: React.FC<{
 							? {
 									success: false,
 									code: 'no-configurable-target',
-									message:
-										'Focus a writable Remotion Studio tab, then try again.',
+									message: 'Open a writable Remotion Studio, then try again.',
 								}
 							: {
 									success: true,

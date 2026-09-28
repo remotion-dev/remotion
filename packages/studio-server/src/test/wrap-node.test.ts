@@ -48,6 +48,11 @@ export const Comp = () => {
 				wrapper: 'HtmlInCanvas',
 				width: 2560,
 				height: 1248,
+				timing: {
+					from: 10,
+					durationInFrames: 30,
+					trimBefore: 10,
+				},
 			},
 			entryPoint,
 			remotionRoot,
@@ -69,7 +74,13 @@ export const Comp = () => {
 		expect(result.success).toBe(true);
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
 			[
-				'        <HtmlInCanvas width={2560} height={1248}>',
+				'        <HtmlInCanvas',
+				'            width={2560}',
+				'            height={1248}',
+				'            from={10}',
+				'            durationInFrames={30}',
+				'            trimBefore={10}',
+				'        >',
 				'            <AbsoluteFill',
 				'                style={{width: 2560, height: 1248}}',
 				'            >',
