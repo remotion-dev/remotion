@@ -1,0 +1,155 @@
+#!/usr/bin/env bun
+
+import {randomUUID} from 'node:crypto';
+import {cpSync, mkdirSync, readFileSync} from 'node:fs';
+import {basename, dirname, join, relative} from 'node:path';
+import {
+	addTailwindRootCss,
+	addTailwindToConfig,
+} from './packages/create-video/src/add-tailwind';
+import {createPublicFolder} from './packages/create-video/src/create-public-folder';
+import {patchPackageJson} from './packages/create-video/src/patch-package-json';
+import {patchReadmeMd} from './packages/create-video/src/patch-readme';
+import {FEATURED_TEMPLATES} from './packages/create-video/src/templates';
+
+const repositoryRoot = import.meta.dir;
+const agentPluginRoot = join(repositoryRoot, 'packages', 'agent-plugin');
+
+const run = (command: string[], cwd = repositoryRoot) => {
+	const result = Bun.spawnSync(command, {
+		cwd,
+		stdin: 'inherit',
+		stdout: 'inherit',
+		stderr: 'inherit',
+	});
+
+	if (result.exitCode !== 0) {
+		throw new Error(`Command failed: ${command.join(' ')}`);
+	}
+};
+
+console.log('Building the current repository state...');
+run(['bunx', 'turbo', 'run', 'make', '--no-update-notifier']);
+
+console.log('\nBuilding agent skills...');
+run(['bun', 'run', 'build'], agentPluginRoot);
+
+const projectRoot = join('/tmp', `remotion-video-${randomUUID().slice(0, 8)}`);
+mkdirSync(projectRoot);
+const listedFiles = Bun.spawnSync(
+	[
+		'git',
+		'ls-files',
+		'--cached',
+		'--others',
+		'--exclude-standard',
+		'--',
+		'packages/template-blank',
+	],
+	{cwd: repositoryRoot},
+);
+
+if (listedFiles.exitCode !== 0) {
+	throw new Error(listedFiles.stderr.toString());
+}
+
+for (const file of listedFiles.stdout.toString().trim().split('\n')) {
+	if (file === '') {
+		continue;
+	}
+
+	const relativePath = relative('packages/template-blank', file);
+	const destination = join(projectRoot, relativePath);
+	mkdirSync(dirname(destination), {recursive: true});
+	cpSync(join(repositoryRoot, file), destination, {dereference: true});
+}
+
+const blankTemplate = FEATURED_TEMPLATES.find(
+	(template) => template.cliId === 'blank',
+);
+if (!blankTemplate) {
+	throw new Error('Could not find the blank create-video template.');
+}
+
+addTailwindToConfig(projectRoot);
+addTailwindRootCss(projectRoot);
+createPublicFolder(projectRoot);
+patchReadmeMd(projectRoot, 'npm', blankTemplate);
+
+const currentVersion = JSON.parse(
+	readFileSync(
+		join(repositoryRoot, 'packages', 'core', 'package.json'),
+		'utf8',
+	),
+).version as string;
+
+patchPackageJson({
+	projectRoot,
+	projectName: basename(projectRoot),
+	latestRemotionVersion: currentVersion,
+	packageManager: 'npm',
+	addTailwind: true,
+});
+
+const gitInit = Bun.spawnSync(['git', 'init', '--quiet'], {
+	cwd: projectRoot,
+	stderr: 'inherit',
+});
+if (gitInit.exitCode === 0) {
+	Bun.spawnSync(['git', 'add', '--all'], {cwd: projectRoot});
+	Bun.spawnSync(
+		['git', 'commit', '--quiet', '-m', 'Create new Remotion video'],
+		{
+			cwd: projectRoot,
+		},
+	);
+	Bun.spawnSync(['git', 'branch', '-M', 'main'], {cwd: projectRoot});
+}
+
+console.log('\nInstalling the freshly built agent skills...');
+run(
+	[
+		'npx',
+		'-y',
+		'--loglevel=error',
+		'skills@1.5.26',
+		'add',
+		agentPluginRoot,
+		'--yes',
+	],
+	projectRoot,
+);
+
+console.log('\nInstalling npm dependencies...');
+run(['npm', 'i'], projectRoot);
+
+console.log('\nLinking the freshly built Remotion packages...');
+run(
+	[
+		'npm',
+		'link',
+		'--no-save',
+		join(repositoryRoot, 'packages', 'core'),
+		join(repositoryRoot, 'packages', 'cli'),
+		join(repositoryRoot, 'packages', 'eslint-config-flat'),
+		join(repositoryRoot, 'packages', 'tailwind-v4'),
+	],
+	projectRoot,
+);
+
+console.log(`\nNew Remotion project ready at ${projectRoot}`);
+process.chdir(projectRoot);
+
+if (process.stdin.isTTY && process.stdout.isTTY) {
+	console.log('Opening a shell in the new project. Run `exit` to return.\n');
+	const shell = process.env.SHELL ?? '/bin/sh';
+	const result = Bun.spawnSync([shell, '-l'], {
+		cwd: projectRoot,
+		stdin: 'inherit',
+		stdout: 'inherit',
+		stderr: 'inherit',
+	});
+	process.exit(result.exitCode);
+}
+
+console.log(`Run: cd ${projectRoot}`);
