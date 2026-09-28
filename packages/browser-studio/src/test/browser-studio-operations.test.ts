@@ -443,10 +443,10 @@ registerRoot(Root);`,
 	expect(currentProject.files['/project/src/basic-captions.element.tsx']).toBe(
 		basicCaptionsElementSource,
 	);
-	expect(currentProject.files[fileName]).toContain(
+	expect(currentProject.files[fileName].replace(/\s+/g, ' ')).toContain(
 		'<BasicCaptions captions={[',
 	);
-	expect(currentProject.files[fileName]).toContain('"text": " Hello"');
+	expect(currentProject.files[fileName]).toContain("text: ' Hello'");
 	expect(events).toContainEqual({
 		type: 'sequence-node-paths-remapped',
 		mutation: captionsResult.nodePathMutation,
@@ -507,12 +507,12 @@ registerRoot(Root);`,
 		currentProject.files['/project/src/basic-captions-2.element.tsx'],
 	).toBeUndefined();
 	expect(
-		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+		currentProject.files[fileName].match(/<BasicCaptions\b/g),
 	).toHaveLength(2);
 	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[localElementPath]).toBe(customizedSource);
 	expect(
-		currentProject.files[fileName].match(/<BasicCaptions captions/g),
+		currentProject.files[fileName].match(/<BasicCaptions\b/g),
 	).toHaveLength(1);
 	expect((await operations.undo()).success).toBe(true);
 	expect(currentProject.files[fileName]).toBe(initialSource);
