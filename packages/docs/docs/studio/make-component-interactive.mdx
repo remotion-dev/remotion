@@ -73,11 +73,13 @@ const badgeSchema = {
 
 [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) is also added automatically, it allows for [premounting](/docs/player/premounting) components.
 
+[`Interactive.cropSchema`](/docs/interactive#interactivecropschema) is added automatically as well, allowing the component to be cropped from any side.
+
 Include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) to allow 2D and 3D transformations.
 
 ### Caption fields<AvailableFrom v="4.0.500" />
 
-Include [`Interactive.captionsSchema`](/docs/interactive#interactivecaptionsschema) when the component accepts [`captions: Caption[]`](/docs/captions/caption) data:
+Include [`Interactive.captionsSchema`](/docs/interactivity-schema#interactivecaptionsschema) when the component accepts [`captions: Caption[]`](/docs/captions/caption) data:
 
 ```ts twoslash title="Captions.tsx"
 import {Interactive, type InteractivitySchema} from 'remotion';
@@ -147,27 +149,6 @@ export const Badge = Interactive.withSchema({
 });
 ```
 
-## Enable cropping<AvailableFrom v="4.0.530" />
-
-To make the component croppable, use `wrapInSequence: {cropping: true}`.
-
-```tsx title="Badge.tsx"
-export const Badge = Interactive.withSchema({
-  Component: BadgeInner,
-  componentName: '<Badge>',
-  schema: badgeSchema,
-  wrapInSequence: {cropping: true},
-});
-```
-
-This adds [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and `crop*` props on the returned component.
-
-```tsx title="MyComp.tsx"
-<Badge cropLeft={0.2} cropBottom={0.1}>
-  Sale
-</Badge>
-```
-
 ## Use the component
 
 You can now use the component regularly.
@@ -179,13 +160,7 @@ import {Badge} from './Badge';
 
 export const MyComp = () => {
   return (
-    <Badge
-      from={30}
-      durationInFrames={90}
-      premountFor={30}
-      color="#ff5c7a"
-      style={{translate: '120px 80px'}}
-    >
+    <Badge from={30} durationInFrames={90} premountFor={30} color="#ff5c7a" cropLeft={0.2} style={{translate: '120px 80px'}}>
       Sale
     </Badge>
   );

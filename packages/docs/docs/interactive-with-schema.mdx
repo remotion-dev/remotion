@@ -62,7 +62,7 @@ export const Circle = Interactive.withSchema({
 });
 ```
 
-The exported `Circle` component accepts `CircleProps`, the common timing props and [`InteractivePremountProps`](/docs/interactive#interactivepremountprops). The wrapper registers the component in the timeline and preserves its source location for Studio edits.
+The exported `Circle` component accepts `CircleProps`, the common timing props, [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) and [`InteractiveCropProps`](/docs/interactive#interactivecropprops). The wrapper registers the component in the timeline and preserves its source location for Studio edits.
 
 ## API
 
@@ -76,7 +76,7 @@ Call `Interactive.withSchema()` with an options object.
 
 The component to wrap.
 
-With automatic wrapping, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root. The wrapper uses this prop for premounting, postmounting and cropping. It must not declare `controls`, the common timing props or premounting props because the wrapper owns those props. With `wrapInSequence: {cropping: true}`, it must not declare the crop props either. Without automatic wrapping, it must accept `controls`.
+With automatic wrapping, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root. The wrapper uses this prop for premounting, postmounting and cropping. It must not declare `controls`, the common timing props, premounting props or crop props because the wrapper owns those props. Without automatic wrapping, it must accept `controls`.
 
 ### `componentName`
 
@@ -96,45 +96,22 @@ When manually wrapping the component, forward it to the `<Sequence>` that regist
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
 
-With automatic wrapping, [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) and [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) are added automatically. With `wrapInSequence: {cropping: true}`, [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) is added as well.
+With automatic wrapping, [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) and [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) are added automatically.
 
 When manually wrapping the component, include [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for Sequence-like timeline props. Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and should expose transform controls. Add [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) with [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) or [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) with [`InteractiveCropProps`](/docs/interactive#interactivecropprops) when the custom wrapper implements those behaviors itself.
 For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
 
 ### `wrapInSequence?`<AvailableFrom v="4.0.530" />
 
-Set to `true` to wrap `Component` in `<Sequence layout="none">`, add `Interactive.baseSchema` and `Interactive.premountSchema`, and expose the common timing and premounting props on the returned component.
+Set to `true` to wrap `Component` in `<Sequence layout="none">`, add `Interactive.baseSchema`, `Interactive.premountSchema` and `Interactive.cropSchema`, and expose the common timing, premounting and cropping props on the returned component.
 
 Default: `false`. Omit it only when `Component` renders its own [`<Sequence>`](/docs/sequence), for example to support effects, coordinate multiple visual roots or implement custom timeline behavior.
 
-Both automatic wrapping forms expose [`InteractivePremountProps`](/docs/interactive#interactivepremountprops): `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. From [v5.0](/docs/5-0-migration), it defaults to one second (`fps` frames). Pass `premountFor={0}` to opt out. `postmountFor` defaults to `0`.
+Automatic wrapping exposes [`InteractivePremountProps`](/docs/interactive#interactivepremountprops): `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. From [v5.0](/docs/5-0-migration), it defaults to one second (`fps` frames). Pass `premountFor={0}` to opt out. `postmountFor` defaults to `0`.
 
-#### `cropping`
-
-Set `wrapInSequence` to `{cropping: true}` to additionally add `Interactive.cropSchema` and expose `cropLeft`, `cropRight`, `cropTop` and `cropBottom` on the returned component. Each value is a ratio from `0` to `1` of the corresponding width or height: `0` leaves the edge unchanged and `1` crops it fully.
+It also exposes [`InteractiveCropProps`](/docs/interactive#interactivecropprops): `cropLeft`, `cropRight`, `cropTop` and `cropBottom`. Each value is a ratio from `0` to `1` of the corresponding width or height: `0` leaves the edge unchanged and `1` crops it fully.
 
 The wrapper merges the incoming component `style`, the active premounting or postmounting style, and then the crop style before passing it to `Component`. The crop `clipPath` therefore replaces an earlier inline `style.clipPath`. The generated [`<Sequence>`](/docs/sequence) keeps `layout="none"`.
-
-```tsx twoslash title="Circle.tsx"
-import type React from 'react';
-import {Interactive} from 'remotion';
-
-type CircleProps = {
-  readonly style?: React.CSSProperties;
-};
-
-const CircleInner: React.FC<CircleProps> = ({style}) => <div style={style} />;
-const circleSchema = {};
-// ---cut---
-export const Circle = Interactive.withSchema({
-  Component: CircleInner,
-  componentName: '<Circle>',
-  schema: circleSchema,
-  wrapInSequence: {cropping: true},
-});
-```
-
-For cropping to be visible, `Component` must accept `style` and apply it to its visual root.
 
 ### `supportsEffects`
 
@@ -144,7 +121,7 @@ Omit it when automatic wrapping is enabled. Components that support effects need
 
 ### Return value
 
-Returns a component with the public props of `Component`. With automatic wrapping, the common timing props from [`<Sequence>`](/docs/sequence) and [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) are also included. The cropping configuration additionally includes [`InteractiveCropProps`](/docs/interactive#interactivecropprops).
+Returns a component with the public props of `Component`. With automatic wrapping, the common timing props from [`<Sequence>`](/docs/sequence), [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) and [`InteractiveCropProps`](/docs/interactive#interactivecropprops) are also included.
 
 ### Ref forwarding<AvailableFrom v="4.0.530" />
 

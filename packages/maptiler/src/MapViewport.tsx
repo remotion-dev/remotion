@@ -6,6 +6,7 @@ import {
 	Interactive,
 	useDelayRender,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
 	type InteractivePremountProps,
 	type InteractivitySchema,
 	type SequenceControls,
@@ -33,6 +34,7 @@ export type MapViewportMapOptions = Omit<
 export type MapAdministrativeBorders = 'all' | 'country-only' | 'none';
 
 export type MapViewportProps = InteractiveBaseProps &
+	InteractiveCropProps &
 	InteractivePremountProps & {
 		readonly apiKey: string | null;
 		readonly backgroundColor?: string;
@@ -208,7 +210,10 @@ const MissingApiKey = () => {
 
 type MapViewportContentProps = Omit<
 	MapViewportProps,
-	keyof InteractiveBaseProps | keyof InteractivePremountProps | 'controls'
+	| keyof InteractiveBaseProps
+	| keyof InteractiveCropProps
+	| keyof InteractivePremountProps
+	| 'controls'
 > & {
 	readonly style?: CSSProperties;
 };
