@@ -1,9 +1,9 @@
 import {
 	addFrameToCache,
 	aspectRatioCache,
+	drawSlot,
 	ensureSlots,
 	extractFrames,
-	fillFrameWhereItFits,
 	fillWithCachedFrames,
 	frameDatabase,
 	getAspectRatioFromCache,
@@ -321,6 +321,7 @@ const TimelineVideoInfoSegment: React.FC<{
 			}
 		}
 
+		let slotsToExtract: number[] = [];
 		extractFrames({
 			repeatLastFrame: extendLastFrame,
 			timestampsInSeconds: ({
@@ -351,12 +352,15 @@ const TimelineVideoInfoSegment: React.FC<{
 				});
 				repeatTarget();
 
-				return Array.from(filledSlots.keys())
-					.filter((timestamp) => filledSlots.get(timestamp) === undefined)
-					.map((timestamp) => timestamp / WEBCODECS_TIMESCALE);
+				slotsToExtract = Array.from(filledSlots.keys()).filter(
+					(timestamp) => filledSlots.get(timestamp) === undefined,
+				);
+				return slotsToExtract.map(
+					(timestamp) => timestamp / WEBCODECS_TIMESCALE,
+				);
 			},
 			src: resolvedSrc,
-			onVideoSample: (sample) => {
+			onVideoSample: (sample, requestedIndex) => {
 				let frame: VideoFrame | undefined;
 				try {
 					frame = sample.toVideoFrame();
@@ -388,13 +392,19 @@ const TimelineVideoInfoSegment: React.FC<{
 						aspectRatio: aspectRatio.current,
 						frameHeight: canvas.height,
 					});
-					fillFrameWhereItFits({
+					const timestamp = slotsToExtract[requestedIndex];
+					if (timestamp === undefined) {
+						throw new Error('No filmstrip slot for extracted frame');
+					}
+
+					drawSlot({
 						ctx: targetCtx,
 						filledSlots,
 						visualizationWidth: targetWidth,
 						frame: transformed,
 						segmentDuration: toSeconds - fromSeconds,
 						fromSeconds,
+						timestamp,
 						devicePixelRatio: 1,
 						frameHeight: canvas.height,
 					});

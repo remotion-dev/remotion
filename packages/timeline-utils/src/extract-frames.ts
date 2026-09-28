@@ -23,7 +23,7 @@ export type ExtractFramesTimestampsInSecondsFn = (
 export type ExtractFramesProps = {
 	src: string;
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
-	onVideoSample: (sample: VideoSample) => void;
+	onVideoSample: (sample: VideoSample, requestedIndex: number) => void;
 	signal?: AbortSignal;
 	repeatLastFrame?: boolean;
 };
@@ -120,7 +120,9 @@ export async function extractFrames({
 		const sampleIterator = sink.samplesAtTimestamps(timestamps);
 
 		try {
+			let requestedIndex = 0;
 			for await (const videoSample of sampleIterator) {
+				const currentIndex = requestedIndex++;
 				if (signal?.aborted) {
 					videoSample?.close();
 					break;
@@ -130,7 +132,7 @@ export async function extractFrames({
 					continue;
 				}
 
-				onVideoSample(videoSample);
+				onVideoSample(videoSample, currentIndex);
 			}
 		} finally {
 			// When input.dispose() causes the iterator to throw InputDisposedError,

@@ -7,7 +7,7 @@ import {
 } from './frame-database';
 import {
 	ensureSlots,
-	fillFrameWhereItFits,
+	drawSlot,
 	fillWithCachedFrames,
 	WEBCODECS_TIMESCALE,
 } from './render-frame-strip';
@@ -92,6 +92,7 @@ export const renderFrameStripToCanvas = async ({
 		}
 	}
 
+	let slotsToExtract: number[] = [];
 	await extractFrames({
 		src,
 		signal,
@@ -108,11 +109,12 @@ export const renderFrameStripToCanvas = async ({
 				frameHeight,
 			});
 
-			return Array.from(filledSlots.keys()).map(
-				(timestamp) => timestamp / WEBCODECS_TIMESCALE,
+			slotsToExtract = Array.from(filledSlots.keys()).filter(
+				(timestamp) => filledSlots.get(timestamp) === undefined,
 			);
+			return slotsToExtract.map((timestamp) => timestamp / WEBCODECS_TIMESCALE);
 		},
-		onVideoSample: (sample) => {
+		onVideoSample: (sample, requestedIndex) => {
 			let frame: VideoFrame | undefined;
 			try {
 				frame = sample.toVideoFrame();
@@ -143,13 +145,19 @@ export const renderFrameStripToCanvas = async ({
 					frameHeight,
 				});
 
-				fillFrameWhereItFits({
+				const timestamp = slotsToExtract[requestedIndex];
+				if (timestamp === undefined) {
+					throw new Error('No filmstrip slot for extracted frame');
+				}
+
+				drawSlot({
 					ctx,
 					filledSlots,
 					visualizationWidth: naturalWidth,
 					frame: transformed,
 					segmentDuration,
 					fromSeconds,
+					timestamp,
 					devicePixelRatio,
 					frameHeight,
 				});
