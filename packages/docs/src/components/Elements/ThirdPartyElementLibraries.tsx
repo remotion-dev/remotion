@@ -1,8 +1,9 @@
 import {
 	addElementLibraryToStudio,
+	isInsideStudio,
 	type AddElementLibraryToStudioErrorCode,
 } from '@remotion/studio-protocol';
-import React, {useCallback, useId, useState} from 'react';
+import React, {useCallback, useId, useLayoutEffect, useState} from 'react';
 import {
 	thirdPartyElementLibraries,
 	type ThirdPartyElementLibrary,
@@ -20,9 +21,10 @@ type AddState =
 	  };
 
 const ThirdPartyElementLibraryItem: React.FC<{
+	readonly isEmbeddedInStudio: boolean;
 	readonly library: ThirdPartyElementLibrary;
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
-}> = ({library, requestLibraryAddition}) => {
+}> = ({isEmbeddedInStudio, library, requestLibraryAddition}) => {
 	const [addState, setAddState] = useState<AddState>({type: 'idle'});
 	const statusId = useId();
 	const isLoading = addState.type === 'loading';
@@ -103,7 +105,7 @@ const ThirdPartyElementLibraryItem: React.FC<{
 							className={styles.libraryLink}
 							href={library.browseUrl}
 							rel="noreferrer"
-							target="_blank"
+							target={isEmbeddedInStudio ? '_self' : '_blank'}
 						>
 							{library.displayName}
 						</a>
@@ -148,12 +150,19 @@ const ThirdPartyElementLibraryItem: React.FC<{
 export const ThirdPartyElementLibraryList: React.FC<{
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
 }> = ({requestLibraryAddition}) => {
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
+
 	return (
 		<div className={styles.library}>
 			<ul className={styles.list} role="list">
 				{thirdPartyElementLibraries.map((library) => (
 					<ThirdPartyElementLibraryItem
 						key={library.libraryUrl}
+						isEmbeddedInStudio={isEmbeddedInStudio}
 						library={library}
 						requestLibraryAddition={requestLibraryAddition}
 					/>
