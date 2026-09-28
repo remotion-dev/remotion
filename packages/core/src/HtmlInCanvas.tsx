@@ -268,34 +268,19 @@ export const getHtmlInCanvasUnsupportedMessage = (): string => {
 		browser = 'Safari';
 	}
 
-	if (chromiumVersion && Number(chromiumVersion) < 149) {
-		return `HTML in Canvas is unavailable in ${browser} ${chromiumVersion}. It requires a Chromium-based browser running version 149 or newer. Update your browser.`;
+	if (chromiumVersion && Number(chromiumVersion) >= 149) {
+		const flagUrl =
+			browser === 'Microsoft Edge'
+				? 'edge://flags/#canvas-draw-element'
+				: 'chrome://flags/#canvas-draw-element';
+		return `HTML in Canvas is unavailable. Enable Canvas Draw Element at ${flagUrl} and fully restart ${browser}.`;
 	}
 
-	if (!chromiumVersion) {
-		return `HTML in Canvas is unavailable in ${browser}. Use Chrome 149 or newer, enable Canvas Draw Element at chrome://flags/#canvas-draw-element, and restart Chrome.`;
+	if (chromiumVersion) {
+		return `HTML in Canvas is not supported in ${browser} ${chromiumVersion}. Use a Chromium-based browser running version 149 or newer.`;
 	}
 
-	const canvas = document.createElement('canvas');
-	const ctx = canvas.getContext('2d');
-	const missingApis = [
-		typeof ctx?.drawElementImage !== 'function' &&
-			'CanvasRenderingContext2D.drawElementImage()',
-		typeof canvas.requestPaint !== 'function' && 'canvas.requestPaint()',
-		typeof canvas.captureElementImage !== 'function' &&
-			'canvas.captureElementImage()',
-		!('transferControlToOffscreen' in HTMLCanvasElement.prototype) &&
-			'canvas.transferControlToOffscreen()',
-	].filter(Boolean);
-	const flagUrl =
-		browser === 'Microsoft Edge'
-			? 'edge://flags/#canvas-draw-element'
-			: 'chrome://flags/#canvas-draw-element';
-	if (missingApis.length === 0) {
-		return `HTML in Canvas is unavailable in ${browser} ${chromiumVersion}. Check that Canvas Draw Element is enabled at ${flagUrl}, then fully restart the browser.`;
-	}
-
-	return `HTML in Canvas is unavailable in ${browser} ${chromiumVersion}: ${missingApis.join(', ')} ${missingApis.length === 1 ? 'is' : 'are'} missing. Check that Canvas Draw Element is enabled at ${flagUrl}, then fully restart the browser.`;
+	return `HTML in Canvas is not supported in ${browser}. Use Chrome 149 or newer.`;
 };
 
 export type HtmlInCanvasOnPaint = (
