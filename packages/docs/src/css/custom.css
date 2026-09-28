@@ -76,6 +76,42 @@ h6 {
 	margin-bottom: 0.75rem;
 }
 
+/* The Elements library is also browsed inside Studio's iframe. */
+.studio-elements-embed .theme-announcement-bar,
+.studio-elements-embed .theme-doc-footer,
+.studio-elements-embed .pagination-nav {
+	display: none;
+}
+
+.elements-embed-breadcrumbs {
+	display: flex;
+}
+
+.studio-elements-embed .elements-embed-breadcrumbs {
+	display: none;
+}
+
+@media (min-width: 997px) {
+	.studio-elements-embed {
+		--ifm-navbar-height: 0px;
+	}
+
+	html:has(.studio-elements-embed) {
+		scroll-padding-top: 0;
+	}
+
+	.studio-elements-embed .navbar {
+		display: none;
+	}
+}
+
+@media (max-width: 996px) {
+	/* Keep the mobile sidebar toggle so categories remain navigable. */
+	.studio-elements-embed .navbar__items--right {
+		display: none;
+	}
+}
+
 .elements-sidebar-root > .menu__list {
 	padding-left: 0;
 }
