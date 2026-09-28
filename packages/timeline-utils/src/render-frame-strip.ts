@@ -1,3 +1,4 @@
+import {snapCanvasPositionToDevicePixel} from './device-pixel-alignment';
 import type {FrameDatabaseKey} from './frame-database';
 import {
 	frameDatabase,
@@ -122,7 +123,7 @@ export const drawSlot = ({
 	fromSeconds: number;
 	devicePixelRatio: number;
 	frameHeight: number;
-	horizontalOffset?: number;
+	horizontalOffset: number;
 }) => {
 	const durationOfOneFrame = getDurationOfOneFrame({
 		visualizationWidth,
@@ -138,14 +139,14 @@ export const drawSlot = ({
 	const idealRight = idealLeft + thumbnailWidth;
 	// When the canvas is aligned to the device-pixel grid, use the same absolute
 	// grid for both edges so adjacent thumbnails neither shimmer nor leave seams.
-	const left =
-		horizontalOffset === undefined
-			? idealLeft
-			: Math.floor(idealLeft + horizontalOffset) - horizontalOffset;
-	const right =
-		horizontalOffset === undefined
-			? idealRight
-			: Math.floor(idealRight + horizontalOffset) - horizontalOffset;
+	const left = snapCanvasPositionToDevicePixel({
+		horizontalOffset,
+		position: idealLeft,
+	});
+	const right = snapCanvasPositionToDevicePixel({
+		horizontalOffset,
+		position: idealRight,
+	});
 
 	ctx.drawImage(
 		frame,
@@ -176,7 +177,7 @@ export const fillWithCachedFrames = ({
 	fromSeconds: number;
 	devicePixelRatio: number;
 	frameHeight: number;
-	horizontalOffset?: number;
+	horizontalOffset: number;
 }) => {
 	const prefix = getFrameDatabaseKeyPrefix(src);
 	const keys = Array.from(frameDatabase.keys()).filter((k) =>
@@ -251,7 +252,7 @@ export const fillFrameWhereItFits = ({
 	fromSeconds: number;
 	devicePixelRatio: number;
 	frameHeight: number;
-	horizontalOffset?: number;
+	horizontalOffset: number;
 }) => {
 	const slots = Array.from(filledSlots.keys());
 

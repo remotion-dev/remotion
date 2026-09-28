@@ -12,6 +12,7 @@ import {
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
+	snapCanvasPositionToDevicePixel,
 	type WaveformVolume,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
@@ -137,9 +138,14 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			clearCanvas();
 			for (let x = 0; x < canvas.width; x += thumbnailWidth) {
-				const left = Math.floor(x + horizontalOffset) - horizontalOffset;
-				const right =
-					Math.floor(x + thumbnailWidth + horizontalOffset) - horizontalOffset;
+				const left = snapCanvasPositionToDevicePixel({
+					horizontalOffset,
+					position: x,
+				});
+				const right = snapCanvasPositionToDevicePixel({
+					horizontalOffset,
+					position: x + thumbnailWidth,
+				});
 				ctx.drawImage(frame, left, 0, right - left, canvas.height);
 			}
 		};

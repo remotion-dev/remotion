@@ -38,14 +38,14 @@ export const drawBars = ({
 	peaks,
 	volume,
 	width,
-	horizontalOffset = 0,
+	horizontalOffset,
 }: {
 	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly peaks: Float32Array;
 	readonly color: string;
 	readonly volume: WaveformVolume;
 	readonly width: number;
-	readonly horizontalOffset?: number;
+	readonly horizontalOffset: number;
 }) => {
 	const ctx = canvas.getContext('2d');
 
