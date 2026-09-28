@@ -593,7 +593,6 @@ const MapFlyoverContent: React.FC<MapFlyoverLayerProps> = ({
 export const MapFlyover = Interactive.withSchema({
 	Component: MapFlyoverContent,
 	componentName: '<MapFlyover>',
-	defaultSequenceName: 'A-to-B Map Flyover',
 	schema: mapFlyoverSchema,
 	wrapInSequence: true,
 });

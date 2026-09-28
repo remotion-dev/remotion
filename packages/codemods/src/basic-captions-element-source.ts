@@ -115,7 +115,6 @@ const basicCaptionsSchema = {
 export const BasicCaptions = Interactive.withSchema({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
-	defaultSequenceName: 'Basic captions',
 	schema: basicCaptionsSchema,
 	wrapInSequence: true,
 });

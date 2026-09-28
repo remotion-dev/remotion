@@ -197,7 +197,6 @@ export const AudioWaveformProgress = Interactive.withSchema({
 	Component: AudioWaveformProgressInner,
 	componentName: '<AudioWaveformProgress>',
 	defaultDurationInFrames: 271,
-	defaultSequenceName: 'Audio waveform progress',
 	schema: audioWaveformProgressSchema,
 	wrapInSequence: true,
 });

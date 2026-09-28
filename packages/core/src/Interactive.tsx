@@ -297,7 +297,6 @@ type WithSchema = {
 				AutomaticWrapperReservedKey
 			>;
 			readonly defaultDurationInFrames?: number;
-			readonly defaultSequenceName?: string;
 			readonly wrapInSequence: true;
 		},
 	): React.FC<
@@ -318,7 +317,6 @@ type WithSchema = {
 				CroppingWrapperReservedKey
 			>;
 			readonly defaultDurationInFrames?: number;
-			readonly defaultSequenceName?: string;
 			readonly wrapInSequence: {readonly cropping: true};
 		},
 	): React.FC<
@@ -340,7 +338,6 @@ type WithSchemaImplementationOptions = Omit<
 > & {
 	readonly Component: React.ComponentType<object>;
 	readonly defaultDurationInFrames?: number;
-	readonly defaultSequenceName?: string;
 	readonly wrapInSequence?: false | true | {readonly cropping: true};
 };
 
@@ -361,7 +358,6 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		Component,
 		componentName,
 		defaultDurationInFrames,
-		defaultSequenceName,
 		schema,
 		wrapInSequence: _,
 		...rest
@@ -461,7 +457,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					loop={loop}
 					freeze={freeze}
 					hidden={hidden}
-					name={name ?? defaultSequenceName ?? componentName}
+					name={name ?? componentName}
 					showInTimeline={showInTimeline}
 					controls={controls}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
@@ -480,7 +476,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	const Wrapped = withInteractivitySchema({
 		...rest,
 		Component: ComponentWrappedInSequence,
-		componentName: defaultSequenceName ?? componentName,
+		componentName,
 		schema: {
 			...schema,
 			...baseSchema,

@@ -82,7 +82,6 @@ const SocialSafeZonesInner: React.FC<SocialSafeZonesProps> = ({
 export const SocialSafeZones = Interactive.withSchema({
 	Component: SocialSafeZonesInner,
 	componentName: '<SocialSafeZones>',
-	defaultSequenceName: 'Social Safe Zones',
 	schema: socialSafeZonesSchema,
 	wrapInSequence: true,
 });

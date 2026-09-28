@@ -307,7 +307,7 @@ Render separate elements if one version should have effects and another should n
 
 When using `Interactive.withSchema()`, set `wrapInSequence: true`. This adds `Interactive.baseSchema` and `Interactive.premountSchema`, wraps the component in `<Sequence layout="none">` and exposes standard timeline and mounting controls. The component must accept a `style?: React.CSSProperties` prop and apply it to its visual root so the wrapper can apply premounting styles.
 
-Use `defaultDurationInFrames` when the generated Sequence needs a default duration, and `defaultSequenceName` when its friendly default timeline label should differ from `componentName`.
+Use `defaultDurationInFrames` when the generated Sequence needs a default duration.
 
 To also expose crop controls, set `wrapInSequence: {cropping: true}`. This adds `Interactive.cropSchema` and crop props automatically. The generated Sequence remains `layout="none"`; the wrapper merges the premounting and crop styles into the component's `style`.
 
