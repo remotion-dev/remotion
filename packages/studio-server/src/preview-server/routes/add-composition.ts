@@ -47,6 +47,7 @@ export const addCompositionHandler: ApiHandler<
 			const result = await addCompositionToFile({
 				filePath,
 				options: request.options,
+				remotionRoot,
 			});
 			for (const change of result.changes) {
 				const currentContents = existsSync(change.filePath)

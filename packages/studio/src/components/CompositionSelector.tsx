@@ -26,6 +26,7 @@ import {
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
@@ -343,7 +344,7 @@ export const CompositionSelector: React.FC = () => {
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
 					undoRedoNavigation: null,
 				};
-				await (source.type === 'composition'
+				const result = await (source.type === 'composition'
 					? moveComposition(
 							{...common, compositionId: source.compositionId},
 							controller.signal,
@@ -356,7 +357,15 @@ export const CompositionSelector: React.FC = () => {
 							},
 							controller.signal,
 						));
-			} catch {}
+				if (!result.success) {
+					showNotification(result.reason, 4000);
+				}
+			} catch (error) {
+				showNotification(
+					error instanceof Error ? error.message : String(error),
+					4000,
+				);
+			}
 		},
 		[stopCompositionListAutoScroll],
 	);

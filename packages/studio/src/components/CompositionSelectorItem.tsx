@@ -56,6 +56,7 @@ import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {showNotification} from './Notifications/NotificationCenter';
 import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -621,6 +622,7 @@ export const CompositionSelectorItem: React.FC<{
 						));
 
 				if (!result.success) {
+					showNotification(result.reason, 4000);
 					return;
 				}
 
@@ -631,7 +633,12 @@ export const CompositionSelectorItem: React.FC<{
 				) {
 					toggleFolder(item.folderName, item.parentName);
 				}
-			} catch {}
+			} catch (error) {
+				showNotification(
+					error instanceof Error ? error.message : String(error),
+					4000,
+				);
+			}
 		},
 		[item, toggleFolder],
 	);

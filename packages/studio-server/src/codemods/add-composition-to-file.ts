@@ -16,9 +16,11 @@ import {checkIfTypeScriptFile} from '../preview-server/routes/can-update-default
 export const addCompositionToFile = async ({
 	filePath,
 	options,
+	remotionRoot,
 }: {
 	filePath: string;
 	options: NewCompositionOptions;
+	remotionRoot: string;
 }): Promise<CodemodResult> => {
 	checkIfTypeScriptFile(filePath);
 	const input = await readFile(filePath, 'utf-8');
@@ -28,7 +30,7 @@ export const addCompositionToFile = async ({
 	);
 	if (existsSync(componentFilePath)) {
 		throw new Error(
-			`Cannot create ${componentFilePath} because it already exists`,
+			`Cannot create ${path.relative(remotionRoot, componentFilePath)} because it already exists`,
 		);
 	}
 

@@ -215,6 +215,7 @@ export const insertElementHandler: ApiHandler<
 				const codemodResult = await addCompositionToFile({
 					filePath: registrationFilePath,
 					options: newComposition.options,
+					remotionRoot,
 				});
 				const registrationFileNewContents =
 					codemodResult.changes.find(
