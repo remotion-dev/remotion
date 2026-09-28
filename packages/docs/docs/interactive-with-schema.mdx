@@ -5,13 +5,9 @@ title: Interactive.withSchema()
 crumb: 'API'
 ---
 
-# Interactive.withSchema()<AvailableFrom v="4.0.479" />
+# Interactive.withSchema()<AvailableFrom v="4.0.530" />
 
-Wraps a React component so Remotion Studio can expose its props as timeline controls.
-
-Use it when you build a component that should behave like [`<Sequence>`](/docs/sequence), [`<Solid>`](/docs/solid) or [`<CanvasImage>`](/docs/canvasimage): The component appears in the timeline, can expose editable controls and can receive saved values from the Studio.
-
-## Automatic wrapping example<AvailableFrom v="4.0.530" />
+Wraps a React component so Remotion Studio shows it as interactive.
 
 ```tsx twoslash title="Circle.tsx"
 import type React from 'react';
@@ -62,7 +58,7 @@ export const Circle = Interactive.withSchema({
 });
 ```
 
-The exported `Circle` component accepts `CircleProps`, the common timing props, [`InteractivePremountProps`](/docs/interactive#interactivepremountprops) and [`InteractiveCropProps`](/docs/interactive#interactivecropprops). The wrapper registers the component in the timeline and preserves its source location for Studio edits.
+The exported `Circle` component accepts `CircleProps`, [timing props](/docs/timing), [premount props](/docs/interactive#interactivepremountprops) and [cropping props](/docs/interactive#interactivecropprops).
 
 ## API
 
@@ -70,17 +66,17 @@ The exported `Circle` component accepts `CircleProps`, the common timing props, 
 import {Interactive} from 'remotion';
 ```
 
-Call `Interactive.withSchema()` with an options object.
+The options for `Interactive.withSchema()` are:
 
 ### `Component`
 
 The component to wrap.
 
-With automatic wrapping, it must accept a `style?: React.CSSProperties` prop and apply it to its visual root. The wrapper uses this prop for premounting, postmounting and cropping. It must not declare `controls`, the common timing props, premounting props or crop props because the wrapper owns those props. Without automatic wrapping, it must accept `controls`.
+It must accept a `style?: React.CSSProperties` prop and apply it to its visual root.
 
 ### `componentName`
 
-The component name used by Studio and in validation messages. Automatic wrapping also uses it as the default timeline label.
+The component name used by Studio and in validation messages.
 
 ### `defaultDurationInFrames?`<AvailableFrom v="4.0.530" />
 
@@ -89,8 +85,6 @@ Sets the default Sequence duration when automatic wrapping is enabled and no `du
 ### `controls`
 
 The control state created by `Interactive.withSchema()`.
-
-When manually wrapping the component, forward it to the `<Sequence>` that registers the component in the timeline. It is not passed to `Component` when `wrapInSequence` is enabled.
 
 ### `schema`
 
