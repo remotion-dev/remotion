@@ -48,13 +48,13 @@ Use `installationMode: 'component-owned-sequence'` when Studio interactivity doe
 - Canvas-based Elements where individual outlines cannot be passed to Studio
 - Single-image overlays where the image itself cannot be edited
 
-Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema). The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. To make it movable on the canvas, include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema). The implementation does not appear as separate editable layers.
+Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. The implementation does not appear as separate editable layers.
 
 Use `defaultDurationInFrames` to preserve a component-owned default duration.
 
 `Interactive.withSchema()`:
 
-- Adds [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), [`Interactive.cropSchema`](/docs/interactive#interactivecropschema), the corresponding props and a `<Sequence layout="none">`.
+- Supplies [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), [`Interactive.cropSchema`](/docs/interactive#interactivecropschema), [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema), the corresponding props and a `<Sequence layout="none">`.
 - Premounting defaults to `0` frames in v4 and one second in v5. Pass `premountFor={0}` to opt out of the v5 default.
 - The wrapper merges the incoming `style` with active premounting or postmounting styles and the crop style last.
 - Pass `style` to the rendered element. Studio discovers its outline automatically. Set the dimensions in the component because Element metadata does not pass them as props.
@@ -63,7 +63,7 @@ Use `defaultDurationInFrames` to preserve a component-owned default duration.
 
 Export the schema-enabled component directly, without another forwarding wrapper.
 
-Check in Studio that the exported instance appears as one layer and can be trimmed. If it includes `Interactive.transformSchema`, also check that it can be moved. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for a gallery preview.
+Check in Studio that the exported instance appears as one layer, can be trimmed and can be moved. Do not use `component-owned-sequence` only to remove markup. Do not add padding only for a gallery preview.
 
 ## Initial props
 
@@ -89,7 +89,7 @@ Animate properties within the Element, such as translation, scale, and opacity; 
 
 Elements are source-code copies designed for direct editing, not managed dependencies. Expose useful Studio controls in the Element's `Interactive` schema, but there is no need to mirror every implementation detail as a public prop.
 
-Use [`Interactive.withSchema()`](/docs/interactive-with-schema) when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+Use [`Interactive.withSchema()`](/docs/interactive-with-schema) with `wrapInSequence: true` when useful controls can make the Element easier to edit. Controls should meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
 
 Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
 

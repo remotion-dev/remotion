@@ -305,7 +305,7 @@ Render separate elements if one version should have effects and another should n
 
 ## Making your own component interactive
 
-`Interactive.withSchema()` adds `Interactive.baseSchema`, `Interactive.premountSchema` and `Interactive.cropSchema`, wraps the component in `<Sequence layout="none">` and exposes standard timeline, mounting and cropping controls. The component must accept a `style?: React.CSSProperties` prop and apply it to its visual root so the wrapper can apply premounting and crop styles.
+Use `Interactive.withSchema()` and set `wrapInSequence: true`. It supplies `Interactive.baseSchema`, `Interactive.premountSchema`, `Interactive.cropSchema` and `Interactive.transformSchema`, wraps the component in `<Sequence layout="none">` and exposes standard timeline, mounting, cropping and transform controls. The component must accept a `style?: React.CSSProperties` prop and apply it to its visual root so the wrapper can apply premounting and crop styles.
 
 Use `defaultDurationInFrames` when the wrapped component needs a default duration.
 

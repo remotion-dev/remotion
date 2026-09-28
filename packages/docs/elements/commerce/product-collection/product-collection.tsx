@@ -32,7 +32,6 @@ const productCardSchema = {
 	},
 	count: {type: 'hidden'},
 	index: {type: 'hidden'},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const ProductCardInner: React.FC<ProductCardProps> = ({
@@ -174,6 +173,7 @@ const ProductCard = Interactive.withSchema({
 	Component: ProductCardInner,
 	componentName: '<ProductCard>',
 	schema: productCardSchema,
+	wrapInSequence: true,
 });
 
 export const ProductCollection = () => {

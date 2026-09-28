@@ -16,10 +16,9 @@ This schema is not a Zod schema. Use [Zod schemas](/docs/schemas) for [`<Composi
 ## Example
 
 ```ts twoslash title="schema.ts"
-import {Interactive, type InteractivitySchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 
 export const titleCardSchema = {
-  ...Interactive.transformSchema,
   tint: {
     type: 'color',
     default: '#ffffff',
@@ -49,6 +48,8 @@ This schema fragment is headless: it does not render an element or add layout, t
 ### `Interactive.transformSchema`
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
+
+[`Interactive.withSchema()`](/docs/interactive-with-schema) includes this fragment.
 
 ### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
 

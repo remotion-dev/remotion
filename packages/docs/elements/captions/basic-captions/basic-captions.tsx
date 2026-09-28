@@ -46,7 +46,6 @@ const basicCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
@@ -115,4 +114,5 @@ export const BasicCaptions = Interactive.withSchema({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
+	wrapInSequence: true,
 });

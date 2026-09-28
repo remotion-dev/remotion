@@ -65,7 +65,6 @@ const movingPillCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -379,4 +378,5 @@ export const MovingPillCaptions = Interactive.withSchema({
 	Component: MovingPillCaptionsContent,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
+	wrapInSequence: true,
 });

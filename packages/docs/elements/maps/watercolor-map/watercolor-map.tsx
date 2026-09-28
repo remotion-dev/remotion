@@ -75,7 +75,6 @@ const watercolorMapSchema = {
 		description: 'Route width',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const getZoom = (origin: Coordinates, destination: Coordinates) => {
@@ -393,4 +392,5 @@ export const WatercolorMap = Interactive.withSchema({
 	Component: WatercolorMapContent,
 	componentName: '<WatercolorMap>',
 	schema: watercolorMapSchema,
+	wrapInSequence: true,
 });

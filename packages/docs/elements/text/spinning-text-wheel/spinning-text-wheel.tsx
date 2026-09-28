@@ -46,7 +46,6 @@ const spinningTextWheelSchema = {
 		...Interactive.textSchema['style.lineHeight'],
 		default: 1,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const SpinningTextWheelInner: React.FC<SpinningTextWheelProps> = ({
@@ -142,4 +141,5 @@ export const SpinningTextWheel = Interactive.withSchema({
 	Component: SpinningTextWheelInner,
 	componentName: '<SpinningTextWheel>',
 	schema: spinningTextWheelSchema,
+	wrapInSequence: true,
 });

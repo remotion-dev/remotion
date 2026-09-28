@@ -56,7 +56,6 @@ const poppingWordCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -285,4 +284,5 @@ export const PoppingWordCaptions = Interactive.withSchema({
 	Component: PoppingWordCaptionsContent,
 	componentName: '<PoppingWordCaptions>',
 	schema: poppingWordCaptionsSchema,
+	wrapInSequence: true,
 });

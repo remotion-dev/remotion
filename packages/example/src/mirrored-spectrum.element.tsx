@@ -48,7 +48,6 @@ const mirroredAudioSpectrumSchema = {
 		description: 'Sensitivity',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const MirroredAudioSpectrumContent: React.FC<MirroredAudioSpectrumProps> = ({
@@ -124,4 +123,5 @@ export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumContent,
 	componentName: '<MirroredAudioSpectrum>',
 	schema: mirroredAudioSpectrumSchema,
+	wrapInSequence: true,
 });

@@ -65,7 +65,6 @@ const audioWaveformProgressSchema = {
 		description: 'Amplitude',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const AudioWaveformProgressContent: React.FC<{
@@ -198,4 +197,5 @@ export const AudioWaveformProgress = Interactive.withSchema({
 	componentName: '<AudioWaveformProgress>',
 	defaultDurationInFrames: 271,
 	schema: audioWaveformProgressSchema,
+	wrapInSequence: true,
 });

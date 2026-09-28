@@ -61,7 +61,6 @@ const audioOscilloscopeSchema = {
 		description: 'Time window in seconds',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const AudioOscilloscopeContent: React.FC<AudioOscilloscopeProps> = ({
@@ -140,4 +139,5 @@ export const AudioOscilloscope = Interactive.withSchema({
 	Component: AudioOscilloscopeContent,
 	componentName: '<AudioOscilloscope>',
 	schema: audioOscilloscopeSchema,
+	wrapInSequence: true,
 });

@@ -73,7 +73,6 @@ const mapFlyoverSchema = {
 		description: 'Route width',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const unwrapLongitude = (longitude: number, reference: number) => {
@@ -594,4 +593,5 @@ export const MapFlyover = Interactive.withSchema({
 	Component: MapFlyoverContent,
 	componentName: '<MapFlyover>',
 	schema: mapFlyoverSchema,
+	wrapInSequence: true,
 });

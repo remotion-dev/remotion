@@ -12,8 +12,8 @@ To make your component interactive too, wrap it with [`Interactive.withSchema()`
 
 ## Create the component
 
-Create any component. Make sure it accepts `style` and passes it on to its visual root.
-Styles for transforming, premounting, and cropping will be applied.
+Create any component. Make sure it accepts `style` and passes it on to its visual root.<br />
+Styles for transforming, premounting, and cropping will be injected.
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
@@ -49,7 +49,7 @@ export const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', p
 Define an [`InteractivitySchema`](/docs/interactivity-schema) to declare the props that may be interactively edited.
 
 ```tsx twoslash title="Badge.tsx"
-import {Interactive, type InteractivitySchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 
 const badgeSchema = {
   color: {
@@ -65,17 +65,10 @@ const badgeSchema = {
     description: 'Padding',
     hiddenFromList: false,
   },
-  ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 ```
 
-`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), which provides props such as `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name` and `showInTimeline`.
-
-It also includes [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), allowing the component to be [premounted](/docs/player/premounting).
-
-It includes [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) as well, allowing the component to be cropped from any side.
-
-Include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) to allow 2D and 3D transformations.
+`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema), which provide props such as `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name`, `premountFor`, `postmountFor`, `showInTimeline`, `cropLeft`, `cropTop`, `cropRight` and `cropBottom`.
 
 ### Caption fields<AvailableFrom v="4.0.500" />
 
@@ -138,13 +131,13 @@ const badgeSchema = {
     description: 'Padding',
     hiddenFromList: false,
   },
-  ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,
   componentName: '<Badge>',
   schema: badgeSchema,
+  wrapInSequence: true,
 });
 ```
 

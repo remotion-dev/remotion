@@ -53,7 +53,6 @@ const wordHighlightCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -243,4 +242,5 @@ export const WordHighlightCaptions = Interactive.withSchema({
 	Component: WordHighlightCaptionsContent,
 	componentName: '<WordHighlightCaptions>',
 	schema: wordHighlightCaptionsSchema,
+	wrapInSequence: true,
 });

@@ -294,6 +294,7 @@ type WithSchema = {
 				WithSchemaReservedKey
 			>;
 			readonly defaultDurationInFrames?: number;
+			readonly wrapInSequence: true;
 		},
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
@@ -315,14 +316,12 @@ type WithSchemaImplementationOptions = Omit<
 	readonly Component: React.ComponentType<object>;
 	readonly defaultDurationInFrames?: number;
 	readonly supportsEffects?: boolean;
-	readonly wrapInSequence?: false;
+	readonly wrapInSequence?: false | true;
 };
 
 const withSchema: WithSchema = (untypedOptions: unknown) => {
 	const options = untypedOptions as WithSchemaImplementationOptions;
-	// `supportsEffects` was required by the previous API, where the component
-	// owned its Sequence. Keep that behavior for existing callers.
-	if ('supportsEffects' in options || options.wrapInSequence === false) {
+	if (!options.wrapInSequence) {
 		const LegacyWrapped = withInteractivitySchema(
 			options as WithInteractivitySchemaOptions<InteractivitySchema, object>,
 		);
@@ -448,6 +447,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		componentName,
 		schema: {
 			...schema,
+			...transformSchema,
 			...baseSchema,
 			...premountSchema,
 			...cropSchema,

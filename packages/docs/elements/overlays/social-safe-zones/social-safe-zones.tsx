@@ -21,7 +21,6 @@ const socialSafeZonesSchema = {
 			tiktok: {},
 		},
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const SocialSafeZonesInner: React.FC<SocialSafeZonesProps> = ({
@@ -83,4 +82,5 @@ export const SocialSafeZones = Interactive.withSchema({
 	Component: SocialSafeZonesInner,
 	componentName: '<SocialSafeZones>',
 	schema: socialSafeZonesSchema,
+	wrapInSequence: true,
 });

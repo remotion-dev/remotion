@@ -33,7 +33,6 @@ const circleSchema = {
     default: '#0b84ff',
     description: 'Color',
   },
-  ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const CircleInner: React.FC<CircleProps> = ({radius = 80, color = '#0b84ff', style}) => {
@@ -54,6 +53,7 @@ export const Circle = Interactive.withSchema({
   Component: CircleInner,
   componentName: '<Circle>',
   schema: circleSchema,
+  wrapInSequence: true,
 });
 ```
 
@@ -85,11 +85,13 @@ Sets the default [`<Sequence>`](/docs/sequence) duration when no `durationInFram
 
 An [`InteractivitySchema`](/docs/interactivity-schema) that describes which props are editable in Remotion Studio.
 
-`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) and [`Interactive.cropSchema`](/docs/interactive#interactivecropschema).
-
-Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component should expose transform controls.
+`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema).
 
 For reliable source updates, follow [Interactivity best practices](/docs/studio/interactivity-best-practices): Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated layout props or `transform` strings.
+
+### `wrapInSequence`<AvailableFrom v="4.0.530" />
+
+Set this to `true`.
 
 ### Return value
 

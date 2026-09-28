@@ -109,13 +109,13 @@ const basicCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 export const BasicCaptions = Interactive.withSchema({
 	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
+	wrapInSequence: true,
 });
 `;
 

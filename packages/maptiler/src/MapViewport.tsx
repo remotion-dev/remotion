@@ -8,6 +8,7 @@ import {
 	type InteractiveBaseProps,
 	type InteractiveCropProps,
 	type InteractivePremountProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -35,7 +36,8 @@ export type MapAdministrativeBorders = 'all' | 'country-only' | 'none';
 
 export type MapViewportProps = InteractiveBaseProps &
 	InteractiveCropProps &
-	InteractivePremountProps & {
+	InteractivePremountProps &
+	InteractiveTransformProps & {
 		readonly apiKey: string | null;
 		readonly backgroundColor?: string;
 		readonly bearing?: number;
@@ -213,6 +215,7 @@ type MapViewportContentProps = Omit<
 	| keyof InteractiveBaseProps
 	| keyof InteractiveCropProps
 	| keyof InteractivePremountProps
+	| keyof InteractiveTransformProps
 	| 'controls'
 > & {
 	readonly style?: CSSProperties;
@@ -535,4 +538,5 @@ export const MapViewport: ComponentType<MapViewportProps> =
 		Component: MapViewportContent,
 		componentName: '<MapViewport>',
 		schema: mapViewportSchema,
+		wrapInSequence: true,
 	});

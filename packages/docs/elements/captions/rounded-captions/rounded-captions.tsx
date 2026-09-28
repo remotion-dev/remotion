@@ -55,7 +55,6 @@ const roundedCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -212,4 +211,5 @@ export const RoundedCaptions = Interactive.withSchema({
 	Component: RoundedCaptionsContent,
 	componentName: '<RoundedCaptions>',
 	schema: roundedCaptionsSchema,
+	wrapInSequence: true,
 });
