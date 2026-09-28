@@ -68,7 +68,12 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-`Interactive.withSchema()` includes [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema), which provide props such as `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name`, `premountFor`, `postmountFor`, `showInTimeline`, `cropLeft`, `cropTop`, `cropRight` and `cropBottom`.
+`Interactive.withSchema()` includes these schemas:
+
+- [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+- [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema): [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor).
+- [`Interactive.cropSchema`](/docs/interactive#interactivecropschema): [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
+- [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema): [`style.transformOrigin`](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin), [`style.translate`](/docs/transforms#translate), [`style.scale`](/docs/transforms#scale), [`style.rotate`](/docs/transforms#rotate) and [`style.opacity`](/docs/transforms#opacity).
 
 ### Caption fields<AvailableFrom v="4.0.500" />
 

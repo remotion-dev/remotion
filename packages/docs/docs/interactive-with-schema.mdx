@@ -91,7 +91,9 @@ For reliable source updates, follow [Interactivity best practices](/docs/studio/
 
 ### `wrapInSequence`<AvailableFrom v="4.0.530" />
 
-Set this to `true`.
+Wraps the component in a [`<Sequence>`](/docs/sequence) automatically.
+Set this to `true`, unless you already have components which handle wrapping in a `<Sequence>` manually.
+If set to false, you need to manually forward all props.
 
 ### Return value
 
