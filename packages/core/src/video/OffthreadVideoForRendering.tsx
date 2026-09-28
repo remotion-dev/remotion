@@ -55,7 +55,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
 	audioStreamIndex,
-	preservePitch: _preservePitch,
+	preservePitch,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -129,6 +129,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			toneFrequency,
 			audioStartFrame,
 			audioStreamIndex,
+			preservePitch: preservePitch ?? true,
 		});
 
 		return () => unregisterRenderAsset(id);
@@ -146,6 +147,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		audioStartFrame,
 		sequencePlaybackRate,
 		audioStreamIndex,
+		preservePitch,
 	]);
 
 	const currentTime = useMemo(() => {

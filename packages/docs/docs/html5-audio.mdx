@@ -138,7 +138,7 @@ Controls whether the audio pitch is preserved when [`playbackRate`](#playbackrat
 
 Accepts `true`, `false`, or `undefined`. Default: `true`, matching the browser default for [`HTMLMediaElement.preservesPitch`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/preservesPitch).
 
-`preservePitch` only affects preview playback. During server-side rendering, [`playbackRate`](#playbackrate) always preserves the audio pitch, regardless of this prop. Use [`toneFrequency`](/docs/audio/pitch) to change the pitch during server-side rendering.
+`preservePitch` affects both preview playback and server-side rendering: setting it to `false` allows the pitch to shift (instead of staying constant) when [`playbackRate`](#playbackrate) is not `1`. Use [`toneFrequency`](/docs/audio/pitch) to change the pitch independently of `playbackRate`.
 
 ### `muted?`<AvailableFrom v="2.0.0"/>
 

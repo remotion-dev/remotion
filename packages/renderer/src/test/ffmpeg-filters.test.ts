@@ -17,6 +17,7 @@ const baseAsset: MediaAsset = {
 	id: '1',
 	playbackRate: 1,
 	toneFrequency: 1,
+	preservePitch: true,
 	audioStartFrame: 0,
 	audioStreamIndex: 0,
 };
@@ -58,6 +59,37 @@ test('Should create a basic filter correctly', () => {
 		actualTrimLeft: 0,
 		filter:
 			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:6666666.666666667us[a0]',
+		pad_end: null,
+		pad_start: null,
+	});
+});
+
+test('preservePitch: false uses asetrate/aresample instead of atempo', () => {
+	expect(
+		stringifyFfmpegFilter({
+			fps: 30,
+			asset: {
+				...baseAsset,
+				duration: 200,
+				playbackRate: 2,
+				preservePitch: false,
+			},
+			channels: 1,
+			assetDuration: 10,
+			chunkLengthInSeconds: 3.3333,
+			trimLeftOffset: 0,
+			trimRightOffset: 0,
+			forSeamlessAacConcatenation: false,
+			volume: flattenVolumeArray(baseAsset.volume),
+			indent: false,
+			logLevel: 'info',
+			presentationTimeOffsetInSeconds: 0,
+			sampleRate: 48000,
+		}),
+	).toEqual({
+		actualTrimLeft: 0,
+		filter:
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,asetrate=48000*2,aresample=48000,atrim=0us:5000000us[a0]',
 		pad_end: null,
 		pad_start: null,
 	});
@@ -338,6 +370,7 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 					startInVideo: 0,
 					playbackRate: 16,
 					toneFrequency: 1,
+					preservePitch: true,
 					audioStartFrame: 0,
 					audioStreamIndex: 0,
 				},
