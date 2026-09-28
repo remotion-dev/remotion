@@ -293,7 +293,6 @@ type WithSchema = {
 				Component,
 				WithSchemaReservedKey
 			>;
-			readonly defaultDurationInFrames?: number;
 			readonly wrapInSequence: true;
 		},
 	): React.FC<
@@ -314,7 +313,6 @@ type WithSchemaImplementationOptions = Omit<
 	'Component' | 'supportsEffects'
 > & {
 	readonly Component: React.ComponentType<object>;
-	readonly defaultDurationInFrames?: number;
 	readonly supportsEffects?: boolean;
 	readonly wrapInSequence?: false | true;
 };
@@ -335,7 +333,6 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	const {
 		Component,
 		componentName,
-		defaultDurationInFrames,
 		schema,
 		wrapInSequence: _,
 		...rest
@@ -380,8 +377,6 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			readonly style?: React.CSSProperties;
 			readonly [key: string]: unknown;
 		};
-		const resolvedDurationInFrames =
-			durationInFrames ?? defaultDurationInFrames;
 		const {
 			effectivePremountFor,
 			effectivePostmountFor,
@@ -393,7 +388,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		} = usePremounting({
 			from: from ?? 0,
 			durationInFrames: resolveSequenceDuration({
-				durationInFrames: resolvedDurationInFrames,
+				durationInFrames,
 				playbackRate,
 				loop,
 			}),
@@ -417,7 +412,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 				<SequenceWithoutSchema
 					layout="none"
-					durationInFrames={resolvedDurationInFrames}
+					durationInFrames={durationInFrames}
 					from={from}
 					trimBefore={trimBefore}
 					playbackRate={playbackRate}

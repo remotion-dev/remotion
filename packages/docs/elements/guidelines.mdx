@@ -50,8 +50,6 @@ Use `installationMode: 'component-owned-sequence'` when Studio interactivity doe
 
 Wrap the exported component with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The user gets one timeline layer that they can trim. The component must accept a `style` prop and apply it to its visual root. The implementation does not appear as separate editable layers.
 
-Use `defaultDurationInFrames` to preserve a component-owned default duration.
-
 `Interactive.withSchema()`:
 
 - Supplies [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema), [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema), [`Interactive.cropSchema`](/docs/interactive#interactivecropschema), [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema), the corresponding props and a `<Sequence layout="none">`.
