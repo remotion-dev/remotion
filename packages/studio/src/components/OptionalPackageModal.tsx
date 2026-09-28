@@ -18,6 +18,9 @@ type InstallState =
 
 const panelStyle: React.CSSProperties = {
 	width: 'min(520px, calc(100vw - 40px))',
+	maxHeight: 'calc(100vh - 40px)',
+	display: 'flex',
+	flexDirection: 'column',
 };
 
 const contentStyle: React.CSSProperties = {
@@ -26,6 +29,8 @@ const contentStyle: React.CSSProperties = {
 	fontSize: 14,
 	lineHeight: 1.5,
 	padding: 16,
+	minHeight: 0,
+	overflowY: 'auto',
 };
 
 const codeStyle: React.CSSProperties = {
@@ -101,9 +106,18 @@ export const useOptionalPackageInstalled = (packageName: string) => {
 export const OptionalPackageModal: React.FC<{
 	readonly ariaLabel: string;
 	readonly children: React.ReactNode;
+	readonly installButtonText: string;
+	readonly installMessage: React.ReactNode | null;
 	readonly packageName: string;
 	readonly title: string;
-}> = ({ariaLabel, children, packageName, title}) => {
+}> = ({
+	ariaLabel,
+	children,
+	installButtonText,
+	installMessage,
+	packageName,
+	title,
+}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const installed = useOptionalPackageInstalled(packageName);
 	const [installState, setInstallState] = useState<InstallState>({
@@ -150,14 +164,18 @@ export const OptionalPackageModal: React.FC<{
 					</div>
 				) : (
 					<>
-						This requires installing{' '}
-						{packageNames.map((name, index) => (
-							<React.Fragment key={name}>
-								{index > 0 ? ' and ' : null}
-								<code style={codeStyle}>{name}</code>
-							</React.Fragment>
-						))}
-						. Continue?
+						{installMessage ?? (
+							<>
+								This requires installing{' '}
+								{packageNames.map((name, index) => (
+									<React.Fragment key={name}>
+										{index > 0 ? ' and ' : null}
+										<code style={codeStyle}>{name}</code>
+									</React.Fragment>
+								))}
+								. Continue?
+							</>
+						)}
 						{installState.type === 'error' ? (
 							<div style={errorStyle}>{installState.error.message}</div>
 						) : null}
@@ -172,7 +190,7 @@ export const OptionalPackageModal: React.FC<{
 					</Button>
 					<Spacing x={1} />
 					<ModalButton disabled={busy} onClick={install} autoFocus>
-						{installState.type === 'error' ? 'Retry' : 'Continue'}
+						{installState.type === 'error' ? 'Retry' : installButtonText}
 					</ModalButton>
 				</Row>
 			</ModalFooterContainer>
