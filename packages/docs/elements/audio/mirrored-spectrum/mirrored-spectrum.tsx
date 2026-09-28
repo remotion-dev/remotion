@@ -51,13 +51,13 @@ const mirroredAudioSpectrumSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const MirroredAudioSpectrumContent: React.FC<{
-	readonly audioSrc: string;
-	readonly barColor: string;
-	readonly numberOfBars: number;
-	readonly sensitivity: number;
-	readonly style: MirroredAudioSpectrumProps['style'];
-}> = ({audioSrc, barColor, numberOfBars, sensitivity, style}) => {
+const MirroredAudioSpectrumInner: React.FC<MirroredAudioSpectrumProps> = ({
+	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	barColor = '#2563eb',
+	numberOfBars = 65,
+	sensitivity = 1.5,
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -117,24 +117,6 @@ const MirroredAudioSpectrumContent: React.FC<{
 				/>
 			))}
 		</div>
-	);
-};
-
-const MirroredAudioSpectrumInner: React.FC<MirroredAudioSpectrumProps> = ({
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-	barColor = '#2563eb',
-	numberOfBars = 65,
-	sensitivity = 1.5,
-	style,
-}) => {
-	return (
-		<MirroredAudioSpectrumContent
-			audioSrc={audioSrc}
-			barColor={barColor}
-			numberOfBars={numberOfBars}
-			sensitivity={sensitivity}
-			style={style}
-		/>
 	);
 };
 

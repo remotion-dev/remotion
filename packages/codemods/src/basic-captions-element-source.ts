@@ -18,10 +18,13 @@ type BasicCaptionsProps = InteractiveTransformProps &
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-const BasicCaptionsContent: React.FC<{
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-}> = ({captions, combineTokensWithinMilliseconds}) => {
+const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
+	captions,
+	combineTokensWithinMilliseconds = 2000,
+	height = 220,
+	style,
+	width = 900,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -39,30 +42,43 @@ const BasicCaptionsContent: React.FC<{
 			currentTimeMs < candidate.startMs + candidate.durationMs,
 	);
 
-	if (!page) {
-		return null;
-	}
-
 	return (
 		<div
 			style={{
-				backgroundColor: 'rgba(64, 64, 64, 0.75)',
-				color: '#ffffff',
-				display: '-webkit-box',
-				fontFamily: 'Arial, Helvetica, sans-serif',
-				fontSize: 64,
-				fontWeight: 400,
-				lineHeight: 1.2,
-				overflow: 'hidden',
-				padding: '14px 22px',
-				textAlign: 'center',
-				textWrap: 'balance',
-				WebkitBoxOrient: 'vertical',
-				WebkitLineClamp: 2,
-				whiteSpace: 'pre-wrap',
+				alignItems: 'center',
+				display: 'flex',
+				justifyContent: 'center',
+				position: 'absolute',
+				bottom: 120,
+				left: '50%',
+				transform: 'translateX(-50%)',
+				width,
+				height,
+				...style,
 			}}
 		>
-			{page.text.trim()}
+			{page ? (
+				<div
+					style={{
+						backgroundColor: 'rgba(64, 64, 64, 0.75)',
+						color: '#ffffff',
+						display: '-webkit-box',
+						fontFamily: 'Arial, Helvetica, sans-serif',
+						fontSize: 64,
+						fontWeight: 400,
+						lineHeight: 1.2,
+						overflow: 'hidden',
+						padding: '14px 22px',
+						textAlign: 'center',
+						textWrap: 'balance',
+						WebkitBoxOrient: 'vertical',
+						WebkitLineClamp: 2,
+						whiteSpace: 'pre-wrap',
+					}}
+				>
+					{page.text.trim()}
+				</div>
+			) : null}
 		</div>
 	);
 };
@@ -96,38 +112,8 @@ const basicCaptionsSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const BasicCaptionsInner: React.FC<BasicCaptionsProps> = ({
-	captions,
-	combineTokensWithinMilliseconds = 2000,
-	height = 220,
-	style,
-	width = 900,
-}) => {
-	return (
-		<div
-			style={{
-				alignItems: 'center',
-				display: 'flex',
-				justifyContent: 'center',
-				position: 'absolute',
-				bottom: 120,
-				left: '50%',
-				transform: 'translateX(-50%)',
-				width,
-				height,
-				...style,
-			}}
-		>
-			<BasicCaptionsContent
-				captions={captions}
-				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-			/>
-		</div>
-	);
-};
-
 export const BasicCaptions = Interactive.withSchema({
-	Component: BasicCaptionsInner,
+	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	defaultSequenceName: 'Basic captions',
 	schema: basicCaptionsSchema,

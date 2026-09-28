@@ -158,21 +158,13 @@ const getTiles = ({
 	return tiles;
 };
 
-const WatercolorMapContent: React.FC<{
-	readonly destination: Coordinates;
-	readonly destinationLabel: string;
-	readonly origin: Coordinates;
-	readonly originLabel: string;
-	readonly routeColor: string;
-	readonly routeWidth: number;
-	readonly style: React.CSSProperties | undefined;
-}> = ({
-	destination,
-	destinationLabel,
-	origin,
-	originLabel,
-	routeColor,
-	routeWidth,
+const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
+	destination = [8.5417, 47.3769],
+	destinationLabel = 'Zurich',
+	origin = [-118.2437, 34.0522],
+	originLabel = 'Los Angeles',
+	routeColor = '#ff0041',
+	routeWidth = 18,
 	style,
 }) => {
 	const frame = useCurrentFrame();
@@ -397,30 +389,8 @@ const WatercolorMapContent: React.FC<{
 	);
 };
 
-const WatercolorMapInner: React.FC<WatercolorMapProps> = ({
-	destination = [8.5417, 47.3769],
-	destinationLabel = 'Zurich',
-	origin = [-118.2437, 34.0522],
-	originLabel = 'Los Angeles',
-	routeColor = '#ff0041',
-	routeWidth = 18,
-	style,
-}) => {
-	return (
-		<WatercolorMapContent
-			destination={destination}
-			destinationLabel={destinationLabel}
-			origin={origin}
-			originLabel={originLabel}
-			routeColor={routeColor}
-			routeWidth={routeWidth}
-			style={style}
-		/>
-	);
-};
-
 export const WatercolorMap = Interactive.withSchema({
-	Component: WatercolorMapInner,
+	Component: WatercolorMapContent,
 	componentName: '<WatercolorMap>',
 	defaultSequenceName: 'Watercolor map',
 	schema: watercolorMapSchema,

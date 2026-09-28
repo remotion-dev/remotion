@@ -184,47 +184,7 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const WordHighlightCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-}> = ({
-	captionAreaWidth,
-	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const pages = useMemo(
-		() =>
-			createTikTokStyleCaptions({
-				captions,
-				combineTokensWithinMilliseconds,
-			}).pages,
-		[captions, combineTokensWithinMilliseconds],
-	);
-	const currentTimeMs = (frame / fps) * 1000;
-	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
-	const page = pages[activePageIndex];
-
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
-	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
-	);
-};
-
-const WordHighlightCaptionsInner: React.FC<WordHighlightCaptionsProps> = ({
+const WordHighlightCaptionsContent: React.FC<WordHighlightCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 	height = defaultHeight,
@@ -243,6 +203,20 @@ const WordHighlightCaptionsInner: React.FC<WordHighlightCaptionsProps> = ({
 			});
 	}, []);
 
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
+	const currentTimeMs = (frame / fps) * 1000;
+	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
+	const page = pages[activePageIndex];
+
 	return (
 		<div
 			style={{
@@ -252,21 +226,22 @@ const WordHighlightCaptionsInner: React.FC<WordHighlightCaptionsProps> = ({
 				...style,
 			}}
 		>
-			<WordHighlightCaptionsContent
-				captionAreaWidth={width ?? null}
-				captions={captions}
-				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-				fontLoaded={fontLoaded}
-			/>
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
+					captionAreaWidth={width ?? null}
+					currentTimeMs={currentTimeMs}
+					page={page}
+					pageIndex={activePageIndex}
+				/>
+			) : null}
 		</div>
 	);
 };
 
-const WordHighlightCaptionsLayer = Interactive.withSchema({
-	Component: WordHighlightCaptionsInner,
+export const WordHighlightCaptions = Interactive.withSchema({
+	Component: WordHighlightCaptionsContent,
 	componentName: '<WordHighlightCaptions>',
 	schema: wordHighlightCaptionsSchema,
 	wrapInSequence: true,
 });
-
-export const WordHighlightCaptions = WordHighlightCaptionsLayer;

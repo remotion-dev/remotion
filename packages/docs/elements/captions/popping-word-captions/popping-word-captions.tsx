@@ -225,48 +225,7 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const PoppingWordCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-}> = ({
-	captionAreaWidth,
-	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const pages = useMemo(
-		() =>
-			createTikTokStyleCaptions({
-				captions,
-				combineTokensWithinMilliseconds,
-			}).pages,
-		[captions, combineTokensWithinMilliseconds],
-	);
-	const currentTimeMs = (frame / fps) * 1000;
-	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
-	const page = pages[activePageIndex];
-
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
-	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			fps={fps}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
-	);
-};
-
-const PoppingWordCaptionsInner: React.FC<PoppingWordCaptionsProps> = ({
+const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 	height = defaultHeight,
@@ -285,6 +244,20 @@ const PoppingWordCaptionsInner: React.FC<PoppingWordCaptionsProps> = ({
 			});
 	}, []);
 
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
+	const currentTimeMs = (frame / fps) * 1000;
+	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
+	const page = pages[activePageIndex];
+
 	return (
 		<div
 			style={{
@@ -294,21 +267,23 @@ const PoppingWordCaptionsInner: React.FC<PoppingWordCaptionsProps> = ({
 				...style,
 			}}
 		>
-			<PoppingWordCaptionsContent
-				captionAreaWidth={width ?? null}
-				captions={captions}
-				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-				fontLoaded={fontLoaded}
-			/>
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
+					captionAreaWidth={width ?? null}
+					currentTimeMs={currentTimeMs}
+					fps={fps}
+					page={page}
+					pageIndex={activePageIndex}
+				/>
+			) : null}
 		</div>
 	);
 };
 
-const PoppingWordCaptionsLayer = Interactive.withSchema({
-	Component: PoppingWordCaptionsInner,
+export const PoppingWordCaptions = Interactive.withSchema({
+	Component: PoppingWordCaptionsContent,
 	componentName: '<PoppingWordCaptions>',
 	schema: poppingWordCaptionsSchema,
 	wrapInSequence: true,
 });
-
-export const PoppingWordCaptions = PoppingWordCaptionsLayer;

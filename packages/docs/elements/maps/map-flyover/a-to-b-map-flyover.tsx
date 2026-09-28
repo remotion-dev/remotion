@@ -271,21 +271,13 @@ const projectFlyoverRoute = (
 	};
 };
 
-const MapFlyoverContent: React.FC<{
-	readonly destination: readonly [number, number];
-	readonly destinationLabel: string;
-	readonly lineWidth: number;
-	readonly origin: readonly [number, number];
-	readonly originLabel: string;
-	readonly routeColor: string;
-	readonly style: React.CSSProperties | null;
-}> = ({
-	destination,
-	destinationLabel,
-	lineWidth,
-	origin,
-	originLabel,
-	routeColor,
+const MapFlyoverContent: React.FC<MapFlyoverLayerProps> = ({
+	destination = [139.6917, 35.6895],
+	destinationLabel = 'Tokyo',
+	lineWidth = 24,
+	origin = [-0.1276, 51.5072],
+	originLabel = 'London',
+	routeColor = '#ff5c4d',
 	style,
 }) => {
 	const frame = useCurrentFrame();
@@ -598,30 +590,8 @@ const MapFlyoverContent: React.FC<{
 	);
 };
 
-const MapFlyoverLayerInner: React.FC<MapFlyoverLayerProps> = ({
-	destination = [139.6917, 35.6895],
-	destinationLabel = 'Tokyo',
-	lineWidth = 24,
-	origin = [-0.1276, 51.5072],
-	originLabel = 'London',
-	routeColor = '#ff5c4d',
-	style,
-}) => {
-	return (
-		<MapFlyoverContent
-			destination={destination}
-			destinationLabel={destinationLabel}
-			lineWidth={lineWidth}
-			origin={origin}
-			originLabel={originLabel}
-			routeColor={routeColor}
-			style={style ?? null}
-		/>
-	);
-};
-
 export const MapFlyover = Interactive.withSchema({
-	Component: MapFlyoverLayerInner,
+	Component: MapFlyoverContent,
 	componentName: '<MapFlyover>',
 	defaultSequenceName: 'A-to-B Map Flyover',
 	schema: mapFlyoverSchema,

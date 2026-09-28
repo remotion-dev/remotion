@@ -64,14 +64,14 @@ const audioOscilloscopeSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const AudioOscilloscopeContent: React.FC<{
-	readonly amplitude: number;
-	readonly audioSrc: string;
-	readonly lineColor: string;
-	readonly lineWidth: number;
-	readonly style: AudioOscilloscopeProps['style'];
-	readonly windowInSeconds: number;
-}> = ({amplitude, audioSrc, lineColor, lineWidth, style, windowInSeconds}) => {
+const AudioOscilloscopeContent: React.FC<AudioOscilloscopeProps> = ({
+	amplitude = 2,
+	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	lineColor = '#55e6ff',
+	lineWidth = 6,
+	style,
+	windowInSeconds = 0.35,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -136,28 +136,8 @@ const AudioOscilloscopeContent: React.FC<{
 	);
 };
 
-const AudioOscilloscopeInner: React.FC<AudioOscilloscopeProps> = ({
-	amplitude = 2,
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-	lineColor = '#55e6ff',
-	lineWidth = 6,
-	style,
-	windowInSeconds = 0.35,
-}) => {
-	return (
-		<AudioOscilloscopeContent
-			amplitude={amplitude}
-			audioSrc={audioSrc}
-			lineColor={lineColor}
-			lineWidth={lineWidth}
-			style={style}
-			windowInSeconds={windowInSeconds}
-		/>
-	);
-};
-
 export const AudioOscilloscope = Interactive.withSchema({
-	Component: AudioOscilloscopeInner,
+	Component: AudioOscilloscopeContent,
 	componentName: '<AudioOscilloscope>',
 	defaultSequenceName: 'Audio oscilloscope',
 	schema: audioOscilloscopeSchema,

@@ -331,48 +331,7 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const MovingPillCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-}> = ({
-	captionAreaWidth,
-	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const pages = useMemo(
-		() =>
-			createTikTokStyleCaptions({
-				captions,
-				combineTokensWithinMilliseconds,
-			}).pages,
-		[captions, combineTokensWithinMilliseconds],
-	);
-	const currentTimeMs = frameToMilliseconds(frame, fps);
-	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
-	const page = pages[activePageIndex];
-
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
-	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			fps={fps}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
-	);
-};
-
-const MovingPillCaptionsInner: React.FC<MovingPillCaptionsProps> = ({
+const MovingPillCaptionsContent: React.FC<MovingPillCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 	height = defaultHeight,
@@ -391,6 +350,20 @@ const MovingPillCaptionsInner: React.FC<MovingPillCaptionsProps> = ({
 			});
 	}, []);
 
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const pages = useMemo(
+		() =>
+			createTikTokStyleCaptions({
+				captions,
+				combineTokensWithinMilliseconds,
+			}).pages,
+		[captions, combineTokensWithinMilliseconds],
+	);
+	const currentTimeMs = frameToMilliseconds(frame, fps);
+	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
+	const page = pages[activePageIndex];
+
 	return (
 		<div
 			style={{
@@ -400,21 +373,23 @@ const MovingPillCaptionsInner: React.FC<MovingPillCaptionsProps> = ({
 				...style,
 			}}
 		>
-			<MovingPillCaptionsContent
-				captionAreaWidth={width ?? null}
-				captions={captions}
-				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-				fontLoaded={fontLoaded}
-			/>
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
+					captionAreaWidth={width ?? null}
+					currentTimeMs={currentTimeMs}
+					fps={fps}
+					page={page}
+					pageIndex={activePageIndex}
+				/>
+			) : null}
 		</div>
 	);
 };
 
-const MovingPillCaptionsLayer = Interactive.withSchema({
-	Component: MovingPillCaptionsInner,
+export const MovingPillCaptions = Interactive.withSchema({
+	Component: MovingPillCaptionsContent,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
 	wrapInSequence: true,
 });
-
-export const MovingPillCaptions = MovingPillCaptionsLayer;

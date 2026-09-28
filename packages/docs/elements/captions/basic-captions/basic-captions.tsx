@@ -49,10 +49,13 @@ const basicCaptionsSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const BasicCaptionsContent: React.FC<{
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-}> = ({captions, combineTokensWithinMilliseconds}) => {
+const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
+	captions,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	height = defaultHeight,
+	style,
+	width = defaultWidth,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -70,41 +73,6 @@ const BasicCaptionsContent: React.FC<{
 			currentTimeMs < candidate.startMs + candidate.durationMs,
 	);
 
-	if (!page) {
-		return null;
-	}
-
-	return (
-		<div
-			style={{
-				backgroundColor: 'rgba(64, 64, 64, 0.75)',
-				color: '#ffffff',
-				display: '-webkit-box',
-				fontFamily: 'Arial, Helvetica, sans-serif',
-				fontSize: 64,
-				fontWeight: 400,
-				lineHeight: 1.2,
-				overflow: 'hidden',
-				padding: '14px 22px',
-				textAlign: 'center',
-				textWrap: 'balance',
-				WebkitBoxOrient: 'vertical',
-				WebkitLineClamp: 2,
-				whiteSpace: 'pre-wrap',
-			}}
-		>
-			{page.text.trim()}
-		</div>
-	);
-};
-
-const BasicCaptionsInner: React.FC<BasicCaptionsProps> = ({
-	captions,
-	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	height = defaultHeight,
-	style,
-	width = defaultWidth,
-}) => {
 	return (
 		<div
 			style={{
@@ -117,19 +85,35 @@ const BasicCaptionsInner: React.FC<BasicCaptionsProps> = ({
 				...style,
 			}}
 		>
-			<BasicCaptionsContent
-				captions={captions}
-				combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-			/>
+			{page ? (
+				<div
+					style={{
+						backgroundColor: 'rgba(64, 64, 64, 0.75)',
+						color: '#ffffff',
+						display: '-webkit-box',
+						fontFamily: 'Arial, Helvetica, sans-serif',
+						fontSize: 64,
+						fontWeight: 400,
+						lineHeight: 1.2,
+						overflow: 'hidden',
+						padding: '14px 22px',
+						textAlign: 'center',
+						textWrap: 'balance',
+						WebkitBoxOrient: 'vertical',
+						WebkitLineClamp: 2,
+						whiteSpace: 'pre-wrap',
+					}}
+				>
+					{page.text.trim()}
+				</div>
+			) : null}
 		</div>
 	);
 };
 
-const BasicCaptionsLayer = Interactive.withSchema({
-	Component: BasicCaptionsInner,
+export const BasicCaptions = Interactive.withSchema({
+	Component: BasicCaptionsContent,
 	componentName: '<BasicCaptions>',
 	schema: basicCaptionsSchema,
 	wrapInSequence: true,
 });
-
-export const BasicCaptions = BasicCaptionsLayer;

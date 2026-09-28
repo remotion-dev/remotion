@@ -63,19 +63,24 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-const RoundedCaptionsContent: React.FC<{
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-	readonly width: number;
-	readonly height: number;
-}> = ({
+const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
-	width,
-	height,
+	combineTokensWithinMilliseconds: providedCombineTokensWithinMilliseconds,
+	height = defaultHeight,
+	style,
+	width = defaultWidth,
 }) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => setFontLoaded(true))
+			.catch((error) => cancelRender(error));
+	}, []);
+
+	const combineTokensWithinMilliseconds =
+		providedCombineTokensWithinMilliseconds ??
+		defaultCombineTokensWithinMilliseconds;
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -143,71 +148,6 @@ const RoundedCaptionsContent: React.FC<{
 		};
 	}, [fontLoaded, height, page, width]);
 
-	if (!layout) {
-		return null;
-	}
-
-	return (
-		<div
-			style={{
-				position: 'relative',
-				width: layout.boundingBox.width,
-				height: layout.boundingBox.height,
-				flexShrink: 0,
-			}}
-		>
-			<svg
-				viewBox={layout.boundingBox.viewBox}
-				style={{
-					position: 'absolute',
-					left: 0,
-					top: 0,
-					width: layout.boundingBox.width,
-					height: layout.boundingBox.height,
-					overflow: 'visible',
-				}}
-			>
-				<path fill="#ffffff" d={layout.d} />
-			</svg>
-			<div style={{position: 'relative'}}>
-				{layout.lines.map((line, index) => (
-					<div
-						// eslint-disable-next-line react/no-array-index-key
-						key={index}
-						style={{
-							color: '#000000',
-							fontFamily,
-							fontSize: layout.fontSize,
-							fontWeight,
-							lineHeight,
-							paddingInline: horizontalPadding,
-							textAlign: 'center',
-							whiteSpace: 'pre',
-						}}
-					>
-						{line}
-					</div>
-				))}
-			</div>
-		</div>
-	);
-};
-
-const RoundedCaptionsInner: React.FC<RoundedCaptionsProps> = ({
-	captions,
-	combineTokensWithinMilliseconds,
-	height = defaultHeight,
-	style,
-	width = defaultWidth,
-}) => {
-	const [fontLoaded, setFontLoaded] = useState(false);
-
-	useEffect(() => {
-		waitUntilDone()
-			.then(() => setFontLoaded(true))
-			.catch((error) => cancelRender(error));
-	}, []);
-
 	return (
 		<div
 			style={{
@@ -220,22 +160,56 @@ const RoundedCaptionsInner: React.FC<RoundedCaptionsProps> = ({
 				...style,
 			}}
 		>
-			<RoundedCaptionsContent
-				captions={captions}
-				combineTokensWithinMilliseconds={
-					combineTokensWithinMilliseconds ??
-					defaultCombineTokensWithinMilliseconds
-				}
-				fontLoaded={fontLoaded}
-				width={width}
-				height={height}
-			/>
+			{layout ? (
+				<div
+					style={{
+						position: 'relative',
+						width: layout.boundingBox.width,
+						height: layout.boundingBox.height,
+						flexShrink: 0,
+					}}
+				>
+					<svg
+						viewBox={layout.boundingBox.viewBox}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: layout.boundingBox.width,
+							height: layout.boundingBox.height,
+							overflow: 'visible',
+						}}
+					>
+						<path fill="#ffffff" d={layout.d} />
+					</svg>
+					<div style={{position: 'relative'}}>
+						{layout.lines.map((line, index) => (
+							<div
+								// eslint-disable-next-line react/no-array-index-key
+								key={index}
+								style={{
+									color: '#000000',
+									fontFamily,
+									fontSize: layout.fontSize,
+									fontWeight,
+									lineHeight,
+									paddingInline: horizontalPadding,
+									textAlign: 'center',
+									whiteSpace: 'pre',
+								}}
+							>
+								{line}
+							</div>
+						))}
+					</div>
+				</div>
+			) : null}
 		</div>
 	);
 };
 
 export const RoundedCaptions = Interactive.withSchema({
-	Component: RoundedCaptionsInner,
+	Component: RoundedCaptionsContent,
 	componentName: '<RoundedCaptions>',
 	schema: roundedCaptionsSchema,
 	wrapInSequence: true,
