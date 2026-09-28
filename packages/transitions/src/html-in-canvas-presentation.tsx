@@ -1,7 +1,7 @@
 import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
-	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	getHtmlInCanvasUnsupportedMessage,
 	HtmlInCanvas,
 	Internals,
 	useDelayRender,
@@ -30,7 +30,7 @@ export const HtmlInCanvasPresentation = <
 	readonly effects?: EffectsProp;
 }) => {
 	if (!HtmlInCanvas.isSupported()) {
-		throw new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE);
+		throw new Error(getHtmlInCanvasUnsupportedMessage());
 	}
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);

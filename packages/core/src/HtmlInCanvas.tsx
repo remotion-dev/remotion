@@ -244,9 +244,59 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	return cachedSupport;
 };
 
-/** Shown when {@link isHtmlInCanvasSupported} is false: APIs are absent (old Chrome and/or flag off). */
+/** Generic fallback for consumers that cannot inspect the current browser. */
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
-	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
+	'HTML in Canvas requires Chrome 149 or newer with Canvas Draw Element enabled at chrome://flags/#canvas-draw-element.';
+
+export const getHtmlInCanvasUnsupportedMessage = (): string => {
+	if (typeof document === 'undefined') {
+		return `HTML in Canvas is unavailable because there is no browser document. ${HTML_IN_CANVAS_UNSUPPORTED_MESSAGE}`;
+	}
+
+	const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent;
+	const chromiumVersion = userAgent.match(/(?:Chrome|Chromium)\/(\d+)/)?.[1];
+	let browser = 'this browser';
+	if (userAgent.includes('Edg/')) {
+		browser = 'Microsoft Edge';
+	} else if (userAgent.includes('Chromium/')) {
+		browser = 'Chromium';
+	} else if (chromiumVersion) {
+		browser = 'Chrome';
+	} else if (userAgent.includes('Firefox/')) {
+		browser = 'Firefox';
+	} else if (userAgent.includes('Safari/')) {
+		browser = 'Safari';
+	}
+
+	if (chromiumVersion && Number(chromiumVersion) < 149) {
+		return `HTML in Canvas is unavailable in ${browser} ${chromiumVersion}. It requires a Chromium-based browser running version 149 or newer. Update your browser.`;
+	}
+
+	if (!chromiumVersion) {
+		return `HTML in Canvas is unavailable in ${browser}. Use Chrome 149 or newer, enable Canvas Draw Element at chrome://flags/#canvas-draw-element, and restart Chrome.`;
+	}
+
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+	const missingApis = [
+		typeof ctx?.drawElementImage !== 'function' &&
+			'CanvasRenderingContext2D.drawElementImage()',
+		typeof canvas.requestPaint !== 'function' && 'canvas.requestPaint()',
+		typeof canvas.captureElementImage !== 'function' &&
+			'canvas.captureElementImage()',
+		!('transferControlToOffscreen' in HTMLCanvasElement.prototype) &&
+			'canvas.transferControlToOffscreen()',
+	].filter(Boolean);
+	const flagUrl =
+		browser === 'Microsoft Edge'
+			? 'edge://flags/#canvas-draw-element'
+			: 'chrome://flags/#canvas-draw-element';
+	if (missingApis.length === 0) {
+		return `HTML in Canvas is unavailable in ${browser} ${chromiumVersion}. Check that Canvas Draw Element is enabled at ${flagUrl}, then fully restart the browser.`;
+	}
+
+	return `HTML in Canvas is unavailable in ${browser} ${chromiumVersion}: ${missingApis.join(', ')} ${missingApis.length === 1 ? 'is' : 'are'} missing. Check that Canvas Draw Element is enabled at ${flagUrl}, then fully restart the browser.`;
+};
 
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
@@ -415,7 +465,7 @@ const HtmlInCanvasContent = forwardRef<
 			onPaint === undefined && onInit === undefined;
 
 		if (!isHtmlInCanvasSupported()) {
-			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
+			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
