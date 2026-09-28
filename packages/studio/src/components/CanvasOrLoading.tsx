@@ -196,49 +196,56 @@ const WelcomeActions: React.FC = () => {
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 		>
-			<div style={welcomeActions}>
-				{leftSidebarStatus === 'collapsed' && compositions.length > 0 ? (
-					<InspectorQuickAction
-						disabled={false}
-						onClick={openComposition}
-						renderIcon={(color) => (
-							<SearchIcon color={color} style={inspectorActionIconStyle} />
-						)}
-					>
-						Open composition
-					</InspectorQuickAction>
-				) : null}
-				<InspectorQuickAction
-					disabled={!canMutateProject}
-					onClick={newComposition}
-					renderIcon={(color) => (
-						<FilmIcon color={color} style={inspectorActionIconStyle} />
-					)}
-				>
-					New composition
-				</InspectorQuickAction>
-				<InspectorQuickAction
-					disabled={!canMutateProject}
-					onClick={importAsset}
-					renderIcon={(color) => (
-						<UploadIcon color={color} style={inspectorActionIconStyle} />
-					)}
-				>
-					Import asset
-				</InspectorQuickAction>
-				<InspectorQuickAction
-					disabled={false}
-					onClick={browseElements}
-					renderIcon={(color) => (
-						<BrowseElementsIcon
-							color={color}
-							style={inspectorActionIconStyle}
-						/>
-					)}
-				>
-					Browse Elements
-				</InspectorQuickAction>
-			</div>
+			{canMutateProject ||
+			(leftSidebarStatus === 'collapsed' && compositions.length > 0) ? (
+				<div style={welcomeActions}>
+					{leftSidebarStatus === 'collapsed' && compositions.length > 0 ? (
+						<InspectorQuickAction
+							disabled={false}
+							onClick={openComposition}
+							renderIcon={(color) => (
+								<SearchIcon color={color} style={inspectorActionIconStyle} />
+							)}
+						>
+							Open composition
+						</InspectorQuickAction>
+					) : null}
+					{canMutateProject ? (
+						<>
+							<InspectorQuickAction
+								disabled={false}
+								onClick={newComposition}
+								renderIcon={(color) => (
+									<FilmIcon color={color} style={inspectorActionIconStyle} />
+								)}
+							>
+								New composition
+							</InspectorQuickAction>
+							<InspectorQuickAction
+								disabled={false}
+								onClick={importAsset}
+								renderIcon={(color) => (
+									<UploadIcon color={color} style={inspectorActionIconStyle} />
+								)}
+							>
+								Import asset
+							</InspectorQuickAction>
+							<InspectorQuickAction
+								disabled={false}
+								onClick={browseElements}
+								renderIcon={(color) => (
+									<BrowseElementsIcon
+										color={color}
+										style={inspectorActionIconStyle}
+									/>
+								)}
+							>
+								Browse Elements
+							</InspectorQuickAction>
+						</>
+					) : null}
+				</div>
+			) : null}
 		</div>
 	);
 };

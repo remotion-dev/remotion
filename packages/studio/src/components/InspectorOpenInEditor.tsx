@@ -149,7 +149,11 @@ export const InspectorOpenInEditor: React.FC<{
 			gitSourceDisabled: location === null,
 			onConfigureApps: configureDefaultApps,
 			onCopyPath:
-				locationType === 'folder' && location?.source ? copyPath : undefined,
+				locationType === 'folder' &&
+				location?.source &&
+				!window.remotion_isReadOnlyStudio
+					? copyPath
+					: undefined,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
