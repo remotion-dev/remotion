@@ -22,6 +22,7 @@ const style: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	padding: 3,
 	...hoverableStyle({
 		idleBackground: TRANSPARENT,
 		hoverBackground: WHITE_ALPHA_06,

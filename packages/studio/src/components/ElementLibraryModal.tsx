@@ -73,7 +73,7 @@ export const ElementLibraryModal: React.FC<{
 							aria-label="Configure Element Libraries"
 							onClick={openElementSettings}
 							renderAction={renderGearIcon}
-							variant={null}
+							variant="modal-header"
 						/>
 					</ActionTooltip>
 				}
