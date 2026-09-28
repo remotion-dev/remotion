@@ -16,7 +16,6 @@ import {
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
 
-const STUDIO_PROTOCOL_FOCUS_MAX_AGE = 5 * 60 * 1000;
 export const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 250;
 
 const requestInstallTarget = ({
@@ -39,7 +38,6 @@ const getLiveStudioTarget = (requestId: string) => {
 		target === null ||
 		now - target.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE ||
 		target.lastFocusedAt === null ||
-		now - target.lastFocusedAt >= STUDIO_PROTOCOL_FOCUS_MAX_AGE ||
 		target.readOnly
 	) {
 		return null;

@@ -1,4 +1,3 @@
-import {expect, test} from '@playwright/test';
 import type {ChildProcess} from 'node:child_process';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
@@ -6,6 +5,7 @@ import {createServer} from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {expect, test} from '@playwright/test';
 import {remotionBin} from './constants.mts';
 
 const waitForUrl = async (url: string, process: ChildProcess) => {
@@ -889,7 +889,7 @@ const CloseupPlaceholder = () => {
 		).toBeVisible();
 		await expect(
 			addLibraryDialog.getByText(
-				`${senderUrl.replace(/^https?:\/\//, '')} wants to add ${protocolLibraryUrl.replace(/^https?:\/\//, '')} as an Element library.`,
+				`${senderUrl.replace(/^https?:\/\//, '')} wants to add ${protocolLibraryUrl.replace(/^https?:\/\//, '')} as an Element library to ${path.basename(temporaryProject)}.`,
 				{exact: true},
 			),
 		).toBeVisible();

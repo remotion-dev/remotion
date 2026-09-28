@@ -65,7 +65,11 @@ export const getElementInstallTarget = (requestId: string | null) => {
 			continue;
 		}
 
-		if (requestId !== null && currentTarget.requestId !== requestId) {
+		if (
+			(requestId !== null && currentTarget.requestId !== requestId) ||
+			currentTarget.lastFocusedAt === null ||
+			currentTarget.readOnly
+		) {
 			continue;
 		}
 
