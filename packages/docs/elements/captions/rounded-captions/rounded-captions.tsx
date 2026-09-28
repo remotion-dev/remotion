@@ -15,14 +15,13 @@ import {
 } from 'remotion';
 
 type RoundedCaptionsProps = InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds: number | null;
 	};
 
 const defaultCombineTokensWithinMilliseconds = 2000;
 const defaultWidth = 900;
-const defaultHeight = 220;
 const fontWeight = '700';
 const maxFontSize = 64;
 const lineHeight = 1.5;
@@ -37,14 +36,6 @@ const roundedCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -65,7 +56,6 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds: providedCombineTokensWithinMilliseconds,
-	height = defaultHeight,
 	style,
 	width = defaultWidth,
 }) => {
@@ -114,7 +104,7 @@ const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 				maxBoxWidth: Math.max(1, width - horizontalPadding * 2),
 				fontFamily,
 				fontWeight,
-				maxFontSize: Math.min(maxFontSize, height / (maxLines * lineHeight)),
+				maxFontSize,
 				validateFontIsLoaded: true,
 			}),
 		);
@@ -145,7 +135,7 @@ const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 				borderRadius,
 			}),
 		};
-	}, [fontLoaded, height, page, width]);
+	}, [fontLoaded, page, width]);
 
 	return (
 		<div
@@ -153,9 +143,8 @@ const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 				alignItems: 'center',
 				display: 'flex',
 				justifyContent: 'center',
-				marginInline: 'auto',
 				width,
-				height,
+				height: '100%',
 				...style,
 			}}
 		>
