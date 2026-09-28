@@ -356,7 +356,10 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'elevenlabs/index',
 			},
-			items: ['elevenlabs/elevenlabs-transcript-to-captions'],
+			items: [
+				'elevenlabs/elevenlabs-transcript-to-captions',
+				'elevenlabs/detect-elevenlabs-transcript-format',
+			],
 		},
 		{
 			type: 'category',
@@ -585,7 +588,10 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'openai-whisper/index',
 			},
-			items: ['openai-whisper/openai-whisper-api-to-captions'],
+			items: [
+				'openai-whisper/openai-whisper-api-to-captions',
+				'openai-whisper/is-openai-whisper-transcript',
+			],
 		},
 		{
 			type: 'category',

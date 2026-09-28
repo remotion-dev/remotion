@@ -41,7 +41,7 @@ test.each([
 	{
 		name: 'non-array JSON',
 		value: '{}',
-		error: 'Expected a Remotion Caption[] JSON array',
+		error: 'Unsupported JSON shape',
 	},
 	{
 		name: 'missing field',
