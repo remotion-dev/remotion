@@ -3,7 +3,6 @@ import path from 'node:path';
 import type {GitSource} from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
-import type {ElementInstallTarget} from '../element-install-state';
 import {
 	ELEMENT_INSTALL_TARGET_MAX_AGE,
 	getElementInstallTarget,
@@ -45,12 +44,6 @@ const getLiveStudioTarget = (requestId: string) => {
 
 	return target;
 };
-
-const isElementRequestTarget = (
-	target: ElementInstallTarget | null,
-): target is ElementInstallTarget & {
-	readonly lastFocusedAt: number;
-} => target !== null && target.lastFocusedAt !== null;
 
 const getProject = ({
 	gitSource,
@@ -105,7 +98,7 @@ export const handleStudioProtocolDiscovery = ({
 		setTimeout(() => {
 			const now = Date.now();
 			const target = getLiveStudioTarget(requestId);
-			const installTarget = isElementRequestTarget(target) ? target : null;
+			const installTarget = target;
 			const issuedInstallTarget =
 				installTarget === null
 					? null

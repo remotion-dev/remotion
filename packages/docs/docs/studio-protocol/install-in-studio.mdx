@@ -11,10 +11,7 @@ Sends an Element payload to the containing Remotion Studio, or discovers a recen
 ## Example
 
 ```ts twoslash title="install-element.ts"
-import {
-  createElementPayload,
-  installInStudio,
-} from '@remotion/studio-protocol';
+import {createElementPayload, installInStudio} from '@remotion/studio-protocol';
 
 const elementSourceCode = `
 export const MyElement = () => {
@@ -45,6 +42,10 @@ An installation request provides a one-click flow and shows the requesting websi
 
 When [the library](/docs/studio-protocol/component-library-integration) is embedded in Studio, the containing Studio is selected. Otherwise, local Studio ports are probed and the most recently focused compatible Studio is used. Also offer drag-and-drop with [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) when possible so the user can choose a specific Studio tab, timeline position, and canvas position.
 
+### Installing without a selected composition<AvailableFrom v="4.0.530" />
+
+A writable Studio can receive installation requests without a selected composition. The confirmation dialog defaults to New composition. This works both from an embedded Element Library and from an external website.
+
 ## Arguments
 
 ### payload
@@ -57,7 +58,7 @@ Returns a promise with a discriminated union.
 
 ### success
 
-Indicates whether the request reached the exact selected Studio tab. The returned composition is the context for the request; the final destination is chosen in Studio.
+Indicates whether the request reached the exact selected Studio tab. The installation destination is chosen in Studio.
 
 ### status
 
@@ -65,7 +66,27 @@ On success, the value is `"awaiting-confirmation"`. Studio is showing or queuing
 
 ### target
 
-On success, contains the project name, contextual composition ID, Studio origin, and Studio version.
+On success, identifies the Studio that received the request.
+
+#### projectName
+
+The project name, or `null` if unavailable.
+
+#### studioOrigin
+
+The origin of the Studio that received the request.
+
+#### studioVersion
+
+The Remotion version running in that Studio.
+
+#### ~~compositionId~~
+
+:::info Deprecated
+Deprecated since <AvailableFrom v="4.0.530" inline />. Use `projectName` or `studioOrigin` to identify the receiving Studio. The installation destination is chosen in Studio.
+:::
+
+Retained for compatibility. Contains the composition ID at the time of the request, or `null` when no composition is selected. It does not identify the final installation destination.
 
 ### code
 
@@ -89,7 +110,7 @@ A human-readable failure message. Use `code` for application logic.
 
 ## Discovery
 
-When called outside Studio, ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and contextual composition.
+When called outside Studio, ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token for that Studio tab.
 
 ## Supported origins
 

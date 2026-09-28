@@ -17,7 +17,7 @@ const descriptor = ({
 	projectName,
 	targetId,
 }: {
-	readonly compositionId: string;
+	readonly compositionId: string | null;
 	readonly lastFocusedAt: number;
 	readonly projectName: string;
 	readonly targetId: string;
@@ -57,7 +57,7 @@ const dependencies = {
 test('delivers the payload when a newer Studio advertises an unknown capability', async () => {
 	const requests: Array<{url: string; options?: RequestInit}> = [];
 	const newestStudio = descriptor({
-		compositionId: 'Main',
+		compositionId: null,
 		lastFocusedAt: 400_000,
 		projectName: 'Newest project',
 		targetId: 'newest-target',
@@ -113,7 +113,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 		status: 'awaiting-confirmation',
 		target: {
 			projectName: 'Newest project',
-			compositionId: 'Main',
+			compositionId: null,
 			studioOrigin: 'http://localhost:3001',
 			studioVersion: '4.0.502',
 		},

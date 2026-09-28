@@ -7,6 +7,9 @@ export type StudioProtocolTarget = {
 };
 
 export type StudioProtocolInstallTarget = StudioProtocolTarget & {
+	/**
+	 * @deprecated The installation destination is chosen in Studio. Use the opaque target id to request installation instead.
+	 */
 	readonly compositionId: string | null;
 };
 
