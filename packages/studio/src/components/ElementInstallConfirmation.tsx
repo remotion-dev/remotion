@@ -657,6 +657,14 @@ export const ElementInstallConfirmation: React.FC<{
 			return;
 		}
 
+		if (mode === 'current-composition' && request.compositionFile === null) {
+			return;
+		}
+
+		if (mode === 'current-composition' && request.compositionId === null) {
+			return;
+		}
+
 		let canceled = false;
 		(async () => {
 			let candidate = requestedName ?? elementBaseName;
@@ -668,8 +676,8 @@ export const ElementInstallConfirmation: React.FC<{
 						mode === 'current-composition'
 							? {
 									type: 'current-composition',
-									compositionFile: request.compositionFile,
-									compositionId: request.compositionId,
+									compositionFile: request.compositionFile!,
+									compositionId: request.compositionId!,
 								}
 							: {
 									type: 'new-composition',
@@ -783,6 +791,14 @@ export const ElementInstallConfirmation: React.FC<{
 			return;
 		}
 
+		if (mode === 'current-composition' && request.compositionFile === null) {
+			return;
+		}
+
+		if (mode === 'current-composition' && request.compositionId === null) {
+			return;
+		}
+
 		setSubmitting(true);
 		const installed = await insertElement({
 			installationName: overwriteExisting
@@ -791,9 +807,9 @@ export const ElementInstallConfirmation: React.FC<{
 			compositionFile:
 				mode === 'new-composition'
 					? selectedPlan.compositionFile
-					: request.compositionFile,
+					: request.compositionFile!,
 			compositionId:
-				mode === 'new-composition' ? newCompositionId : request.compositionId,
+				mode === 'new-composition' ? newCompositionId : request.compositionId!,
 			element: request.element,
 			// The insert operation revalidates this even if the name preflight is pending.
 			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
@@ -936,7 +952,7 @@ export const ElementInstallConfirmation: React.FC<{
 						</div>
 					</div>
 
-					{currentPlan === null ? (
+					{currentPlan === null && request.compositionId !== null ? (
 						<div style={warningStyle} role="status">
 							<WarningTriangle style={warningIconStyle} />
 							<p style={warningDescriptionStyle}>

@@ -7,6 +7,7 @@ import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
+import {ElementInstallController} from './ElementInstallController';
 import {ExplorerPanel} from './ExplorerPanel';
 import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
@@ -113,6 +114,7 @@ const TopPanelInner: React.FC<{
 			readOnlyStudio={readOnlyStudio}
 		>
 			<div style={container}>
+				<ElementInstallController />
 				<div style={row}>
 					<SplitterContainer
 						minFlex={0.15}

@@ -7,7 +7,7 @@ export type StudioProtocolTarget = {
 };
 
 export type StudioProtocolInstallTarget = StudioProtocolTarget & {
-	readonly compositionId: string;
+	readonly compositionId: string | null;
 };
 
 export type StudioProtocolInstallCapability = {
@@ -66,7 +66,7 @@ const installTargetSchema = z.looseObject({
 	id: z.string().check(z.minLength(1)),
 	expiresAt: z.number(),
 	lastFocusedAt: z.number(),
-	compositionId: z.string().check(z.minLength(1)),
+	compositionId: z.nullable(z.string().check(z.minLength(1))),
 });
 const installCapabilitySchema = z.looseObject({
 	type: z.literal('install-element'),
