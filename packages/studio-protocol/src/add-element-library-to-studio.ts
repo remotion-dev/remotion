@@ -100,7 +100,21 @@ const addElementLibraryToStudioResultSchema = z.union([
 	}),
 	z.object({
 		success: z.literal(false),
-		code: z.literal('no-configurable-target'),
+		code: z.enum([
+			'invalid-url',
+			'invalid-display-name',
+			'unsupported-origin',
+			'no-compatible-studio',
+			'studio-upgrade-required',
+			'no-configurable-target',
+			'unsupported-protocol',
+			'invalid-response',
+			'target-expired',
+			'no-config-file',
+			'request-rejected',
+			'request-timed-out',
+			'network-error',
+		]),
 		message: z.string(),
 	}),
 ]);

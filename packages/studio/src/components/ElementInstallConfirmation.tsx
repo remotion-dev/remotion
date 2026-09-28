@@ -97,28 +97,6 @@ const sectionTitleStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-const metadataStyle: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	gap: 8,
-	margin: 0,
-};
-
-const metadataRowStyle: React.CSSProperties = {
-	display: 'grid',
-	gridTemplateColumns: '120px minmax(0, 1fr)',
-	alignItems: 'baseline',
-	gap: 12,
-};
-
-const metadataTermStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	fontWeight: 500,
-	lineHeight: 1.5,
-};
-
 const metadataDescriptionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
@@ -146,13 +124,6 @@ const requestSourceDescriptionStyle: React.CSSProperties = {
 const unverifiedRequestSourceStyle: React.CSSProperties = {
 	...requestSourceDescriptionStyle,
 	color: WARNING_COLOR,
-};
-
-const codeStyle: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'monospace',
-	fontSize: 13,
-	lineHeight: 1.5,
 };
 
 const overwriteStyle: React.CSSProperties = {
@@ -207,14 +178,6 @@ const warningDescriptionStyle: React.CSSProperties = {
 	fontSize: 13,
 	fontWeight: 400,
 	lineHeight: 1.5,
-};
-
-const browseElementsStyle: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'inherit',
-	fontSize: 'inherit',
-	fontWeight: 600,
-	lineHeight: 'inherit',
 };
 
 const sourceDetailsStyle: React.CSSProperties = {
@@ -296,41 +259,24 @@ const makeSourceControlsVisible = (sourceCode: string) => {
 };
 
 export const ElementLibraryAddConfirmation: React.FC<{
-	readonly displayName: string | null;
 	readonly origin: string;
 	readonly url: string;
-}> = ({displayName, origin, url}) => {
+}> = ({origin, url}) => {
 	return (
-		<div style={container}>
-			<dl style={metadataStyle} aria-label="Element Library details">
-				{displayName === null ? null : (
-					<div style={metadataRowStyle}>
-						<dt style={metadataTermStyle}>Display name</dt>
-						<dd style={metadataDescriptionStyle}>{displayName}</dd>
-					</div>
-				)}
-				<div style={metadataRowStyle}>
-					<dt style={metadataTermStyle}>Request source</dt>
-					<dd style={metadataDescriptionStyle}>{origin}</dd>
-				</div>
-				<div style={metadataRowStyle}>
-					<dt style={metadataTermStyle}>Element Library URL</dt>
-					<dd style={metadataDescriptionStyle}>
-						<code style={codeStyle}>{url}</code>
-					</dd>
-				</div>
-			</dl>
-
-			<div style={warningStyle}>
-				<WarningTriangle style={warningIconStyle} />
-				<p style={warningDescriptionStyle}>
-					This adds the Element Library to{' '}
-					<strong style={browseElementsStyle}>Browse Elements</strong> when
-					nothing is selected on the canvas. It is saved in{' '}
-					<code style={codeStyle}>remotion.config.ts</code>.
-				</p>
-			</div>
-		</div>
+		<p
+			style={{
+				color: LIGHT_TEXT,
+				fontFamily: 'sans-serif',
+				fontSize: 13,
+				fontWeight: 400,
+				lineHeight: 1.5,
+				margin: 0,
+				overflowWrap: 'anywhere',
+			}}
+		>
+			{origin.replace(/^https?:\/\//, '')} wants to add{' '}
+			{url.replace(/^https?:\/\//, '')} as an Element library.
+		</p>
 	);
 };
 

@@ -1,8 +1,11 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {CURRENT_COLOR, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {BookIcon} from '../icons/book';
 import {BrowseElementsIcon} from '../icons/browse-elements';
+import {LinkIcon} from '../icons/link';
 import {TrashIcon} from '../icons/trash';
+import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
 import {Button} from './Button';
 import {callApi} from './call-api';
@@ -14,6 +17,7 @@ import {useSettings} from './SettingsContext';
 import {Spinner} from './Spinner';
 
 const REMOTION_ELEMENTS_URL = 'https://www.remotion.dev/elements';
+const THIRD_PARTY_ELEMENTS_URL = 'https://www.remotion.dev/elements/libraries';
 
 const container: React.CSSProperties = {
 	alignSelf: 'flex-start',
@@ -34,6 +38,24 @@ const addLibraryHeading: React.CSSProperties = {
 	...sectionHeader,
 	margin: '12px 0 0',
 	padding: '4px 16px',
+};
+
+const addLibraryActions: React.CSSProperties = {
+	display: 'flex',
+	gap: 8,
+	padding: '4px 16px 4px 6px',
+};
+
+const addLibraryButtonContent: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	gap: 6,
+};
+
+const addLibraryButtonIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 14,
+	width: 14,
 };
 
 const libraryRow: React.CSSProperties = {
@@ -99,6 +121,7 @@ const trashIcon: React.CSSProperties = {
 };
 
 export const ElementLibrariesSettings: React.FC = () => {
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {studioRuntimeConfig} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [url, setUrl] = useState('');
@@ -106,6 +129,7 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const [busy, setBusy] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [hoveredUrl, setHoveredUrl] = useState<string | null>(null);
+	const [isAddByUrlVisible, setIsAddByUrlVisible] = useState(false);
 	const libraries = (studioRuntimeConfig?.elementLibraries ?? []).filter(
 		(library) => library.url !== REMOTION_ELEMENTS_URL,
 	);
@@ -191,6 +215,13 @@ export const ElementLibrariesSettings: React.FC = () => {
 	const renderTrash = useCallback((color: string) => {
 		return <TrashIcon color={color} style={trashIcon} />;
 	}, []);
+	const discoverThirdPartyElements = useCallback(() => {
+		setSelectedModal({
+			type: 'element-library',
+			name: 'Third-party Elements',
+			url: THIRD_PARTY_ELEMENTS_URL,
+		});
+	}, [setSelectedModal]);
 
 	return (
 		<section style={container}>
@@ -269,43 +300,73 @@ export const ElementLibrariesSettings: React.FC = () => {
 				))}
 			</div>
 			<h3 style={addLibraryHeading}>Add new library</h3>
-			<div style={inputRow}>
-				<RemotionInput
-					aria-label="Element Library URL"
-					placeholder="https://example.com/elements"
-					status="ok"
-					rightAlign={false}
-					style={input}
-					value={url}
-					onChange={(event) => setUrl(event.target.value)}
-				/>
-				<RemotionInput
-					aria-label="Element Library name"
-					placeholder="Name (optional)"
-					status="ok"
-					rightAlign={false}
-					style={input}
-					value={displayName}
-					onChange={(event) => setDisplayName(event.target.value)}
-				/>
-			</div>
-			<div style={inputRow}>
+			<div style={addLibraryActions}>
 				<Button
-					disabled={!canSave || normalizedUrl === null || duplicate}
-					onClick={addLibrary}
-					size="compact"
+					onClick={discoverThirdPartyElements}
+					size="default"
+					buttonContainerStyle={addLibraryButtonContent}
 				>
-					{busy === 'add' ? 'Adding…' : '+ Add Element Library'}
+					<BookIcon
+						aria-hidden
+						color={CURRENT_COLOR}
+						style={addLibraryButtonIcon}
+					/>
+					Explore libraries
+				</Button>
+				<Button
+					onClick={() => setIsAddByUrlVisible(true)}
+					size="default"
+					buttonContainerStyle={addLibraryButtonContent}
+				>
+					<LinkIcon
+						aria-hidden
+						color={CURRENT_COLOR}
+						style={addLibraryButtonIcon}
+					/>
+					Add by URL
 				</Button>
 			</div>
-			{duplicate ? (
-				<div style={message}>
-					<ValidationMessage
-						align="flex-start"
-						type="warning"
-						message="This library is already added."
-					/>
-				</div>
+			{isAddByUrlVisible ? (
+				<>
+					<div style={inputRow}>
+						<RemotionInput
+							aria-label="Element Library URL"
+							placeholder="https://example.com/elements"
+							status="ok"
+							rightAlign={false}
+							style={input}
+							value={url}
+							onChange={(event) => setUrl(event.target.value)}
+						/>
+						<RemotionInput
+							aria-label="Element Library name"
+							placeholder="Name (optional)"
+							status="ok"
+							rightAlign={false}
+							style={input}
+							value={displayName}
+							onChange={(event) => setDisplayName(event.target.value)}
+						/>
+					</div>
+					<div style={inputRow}>
+						<Button
+							disabled={!canSave || normalizedUrl === null || duplicate}
+							onClick={addLibrary}
+							size="compact"
+						>
+							{busy === 'add' ? 'Adding…' : '+ Add Element Library'}
+						</Button>
+					</div>
+					{duplicate ? (
+						<div style={message}>
+							<ValidationMessage
+								align="flex-start"
+								type="warning"
+								message="This library is already added."
+							/>
+						</div>
+					) : null}
+				</>
 			) : null}
 			{error ? (
 				<div style={message}>

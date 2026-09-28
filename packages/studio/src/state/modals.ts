@@ -253,6 +253,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
+			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'

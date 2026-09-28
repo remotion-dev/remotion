@@ -65,13 +65,7 @@ export const Modals: React.FC<{
 		}) => {
 			const confirmed = await confirm({
 				title: 'Add Element Library',
-				message: (
-					<ElementLibraryAddConfirmation
-						displayName={displayName}
-						origin={origin}
-						url={url}
-					/>
-				),
+				message: <ElementLibraryAddConfirmation origin={origin} url={url} />,
 				confirmLabel: 'Add Element Library',
 				cancelLabel: 'Cancel',
 			});
@@ -103,7 +97,16 @@ export const Modals: React.FC<{
 						`Could not add Element Library: ${result.reason}`,
 						4000,
 					);
+					return;
 				}
+
+				const parsedUrl = new URL(url);
+				const pathname = parsedUrl.pathname.replace(/\/$/, '');
+				setSelectedModal({
+					type: 'element-library',
+					name: displayName ?? `${parsedUrl.host}${pathname}`,
+					url,
+				});
 			} catch (error) {
 				showNotification(
 					`Could not add Element Library: ${(error as Error).message}`,
@@ -111,7 +114,7 @@ export const Modals: React.FC<{
 				);
 			}
 		},
-		[confirm, previewServerState],
+		[confirm, previewServerState, setSelectedModal],
 	);
 
 	useEffect(() => {
@@ -126,6 +129,7 @@ export const Modals: React.FC<{
 
 			setSelectedModal({
 				type: 'settings',
+				initialStudioPane: null,
 				initialTab: 'license',
 				initialPublicLicenseKey: event.licenseKey,
 			});
@@ -167,32 +171,61 @@ export const Modals: React.FC<{
 				return;
 			}
 
+			let normalizedUrl: string | null = null;
+			try {
+				const parsedUrl = new URL(request.url);
+				if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+					normalizedUrl = parsedUrl.href;
+				}
+			} catch {
+				// The response below explains that the URL is invalid.
+			}
+
+			const displayName = request.displayName?.trim() ?? null;
 			const canAddLibrary =
 				!isBrowserStudio &&
 				!readOnlyStudio &&
 				previewServerState.type === 'connected';
-			const result: AddElementLibraryToStudioResult = canAddLibrary
-				? {
-						success: true,
-						status: 'awaiting-confirmation',
-						target: {
-							projectName: window.remotion_projectName,
-							studioOrigin: window.location.origin,
-							studioVersion: window.remotion_version,
-						},
-					}
-				: {
-						success: false,
-						code: 'no-configurable-target',
-						message: 'Open a writable Remotion Studio, then try again.',
-					};
+			const result: AddElementLibraryToStudioResult =
+				normalizedUrl === null
+					? {
+							success: false,
+							code: 'invalid-url',
+							message:
+								'The Element Library URL must be an absolute HTTP or HTTPS URL.',
+						}
+					: displayName === ''
+						? {
+								success: false,
+								code: 'invalid-display-name',
+								message: 'The Element Library display name must not be empty.',
+							}
+						: !canAddLibrary
+							? {
+									success: false,
+									code: 'no-configurable-target',
+									message: 'Open a writable Remotion Studio, then try again.',
+								}
+							: {
+									success: true,
+									status: 'awaiting-confirmation',
+									target: {
+										projectName: window.remotion_projectName,
+										studioOrigin: window.location.origin,
+										studioVersion: window.remotion_version,
+									},
+								};
 
 			const timeout = window.setTimeout(() => responsePort.close(), 1000);
 			responsePort.onmessage = () => {
 				window.clearTimeout(timeout);
 				responsePort.close();
-				if (canAddLibrary) {
-					requestElementLibraryAddition({...request, origin: event.origin});
+				if (result.success && normalizedUrl !== null) {
+					requestElementLibraryAddition({
+						displayName,
+						origin: event.origin,
+						url: normalizedUrl,
+					});
 				}
 			};
 
@@ -258,7 +291,8 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'settings' ? (
 				<SettingsModal
-					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+					key={`${modalContextType.initialTab}-${modalContextType.initialStudioPane}-${modalContextType.initialPublicLicenseKey}`}
+					initialStudioPane={modalContextType.initialStudioPane}
 					initialTab={modalContextType.initialTab}
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>
