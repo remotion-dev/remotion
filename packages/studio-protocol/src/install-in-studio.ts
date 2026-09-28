@@ -35,6 +35,9 @@ export type InstallInStudioResult =
 			readonly status: 'awaiting-confirmation';
 			readonly target: {
 				readonly projectName: string | null;
+				/**
+				 * @deprecated The installation destination is chosen in Studio. Use projectName or studioOrigin to identify the receiving Studio instead.
+				 */
 				readonly compositionId: string | null;
 				readonly studioOrigin: string;
 				readonly studioVersion: string;
