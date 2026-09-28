@@ -137,6 +137,16 @@ run(
 	projectRoot,
 );
 
+if (gitInit.exitCode === 0) {
+	Bun.spawnSync(['git', 'add', '--all'], {cwd: projectRoot});
+	Bun.spawnSync(
+		['git', 'commit', '--quiet', '-m', 'Install dependencies and agent skills'],
+		{
+			cwd: projectRoot,
+		},
+	);
+}
+
 console.log(`\nNew Remotion project ready at ${projectRoot}`);
 process.chdir(projectRoot);
 
