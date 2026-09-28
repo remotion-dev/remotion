@@ -6,17 +6,14 @@ crumb: 'Remotion Studio'
 
 # Make a component interactive<AvailableFrom v="4.0.530" />
 
-Interactive components can be selected and edited in the Remotion Studio.
-
-Remotion's default components are already interactive.
+Remotion's default components are already interactive, meaning they can be selected and edited in the Studio.
 
 To make your component interactive too, wrap it with [`Interactive.withSchema()`](/docs/interactive-with-schema).
 
-For guidance on how to structure markup well to keep it interactive, follow [Interactivity best practices](/docs/studio/interactivity-best-practices).
-
 ## Create the component
 
-Create any component. Make sure it accepts `style` and applies it to its visual root. Automatic wrapping uses it for premounting, postmounting and cropping.
+Create any component. Make sure it accepts `style` and passes it on to its visual root.
+Styles for transforming, premounting, and cropping will be applied.
 
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
@@ -49,11 +46,7 @@ export const BadgeInner: React.FC<BadgeProps> = ({children, color = '#0b84ff', p
 
 ## Create a schema
 
-An [`InteractivitySchema`](/docs/interactivity-schema) describes which component props the Studio may edit.
-
-[`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) is added automatically - it includes things like `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name` and `showInTimeline`. [`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) is also added automatically.
-
-Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if the component accepts a `style` prop and applies it to the rendered element.
+Define an [`InteractivitySchema`](/docs/interactivity-schema) to declare the props that may be interactively edited.
 
 ```tsx twoslash title="Badge.tsx"
 import {Interactive, type InteractivitySchema} from 'remotion';
@@ -76,9 +69,15 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
+[`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) is added automatically - it includes things like `from`, `durationInFrames`, `trimBefore`, `freeze`, `playbackRate`, `name` and `showInTimeline`.
+
+[`Interactive.premountSchema`](/docs/interactive#interactivepremountschema) is also added automatically, it allows for [premounting](/docs/player/premounting) components.
+
+Include [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) to allow 2D and 3D transformations.
+
 ### Caption fields<AvailableFrom v="4.0.500" />
 
-Add [`Interactive.captionsSchema`](/docs/interactive#interactivecaptionsschema) when the component accepts [`captions: Caption[]`](/docs/captions/caption) data:
+Include [`Interactive.captionsSchema`](/docs/interactive#interactivecaptionsschema) when the component accepts [`captions: Caption[]`](/docs/captions/caption) data:
 
 ```ts twoslash title="Captions.tsx"
 import {Interactive, type InteractivitySchema} from 'remotion';
@@ -147,8 +146,6 @@ export const Badge = Interactive.withSchema({
   wrapInSequence: true,
 });
 ```
-
-The returned component accepts [`InteractivePremountProps`](/docs/interactive#interactivepremountprops): `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`. In v4, `premountFor` defaults to `0`. From [v5.0](/docs/5-0-migration), it defaults to one second. Pass `premountFor={0}` to opt out. See [Premounting](/docs/player/premounting) for details.
 
 ## Enable cropping<AvailableFrom v="4.0.530" />
 
