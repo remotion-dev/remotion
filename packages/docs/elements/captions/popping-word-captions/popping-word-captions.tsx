@@ -16,7 +16,7 @@ import {
 } from 'remotion';
 
 type PoppingWordCaptionsProps = InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
@@ -28,7 +28,6 @@ const highlightColor = '#2563eb';
 const activeWordScale = 1.03;
 const defaultCombineTokensWithinMilliseconds = 800;
 const defaultWidth = 682;
-const defaultHeight = 252;
 
 const poppingWordCaptionsSchema = {
 	...Interactive.captionsSchema,
@@ -38,14 +37,6 @@ const poppingWordCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -227,7 +218,6 @@ const CaptionPage: React.FC<{
 const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	height = defaultHeight,
 	style,
 	width = defaultWidth,
 }) => {
@@ -260,8 +250,7 @@ const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
 	return (
 		<div
 			style={{
-				height,
-				marginInline: 'auto',
+				height: '100%',
 				width,
 				...style,
 			}}

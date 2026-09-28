@@ -14,7 +14,7 @@ import {
 } from 'remotion';
 
 type WordHighlightCaptionsProps = InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
@@ -25,7 +25,6 @@ const textColor = '#ffffff';
 const highlightColor = '#2563eb';
 const defaultCombineTokensWithinMilliseconds = 800;
 const defaultWidth = 682;
-const defaultHeight = 252;
 
 const wordHighlightCaptionsSchema = {
 	...Interactive.captionsSchema,
@@ -35,14 +34,6 @@ const wordHighlightCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -186,7 +177,6 @@ const CaptionPage: React.FC<{
 const WordHighlightCaptionsContent: React.FC<WordHighlightCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	height = defaultHeight,
 	style,
 	width = defaultWidth,
 }) => {
@@ -219,8 +209,7 @@ const WordHighlightCaptionsContent: React.FC<WordHighlightCaptionsProps> = ({
 	return (
 		<div
 			style={{
-				height,
-				marginInline: 'auto',
+				height: '100%',
 				width,
 				...style,
 			}}

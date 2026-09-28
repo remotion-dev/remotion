@@ -11,14 +11,13 @@ import {
 } from 'remotion';
 
 type BasicCaptionsProps = InteractiveTransformProps &
-	Pick<SequenceProps, 'width' | 'height'> & {
+	Pick<SequenceProps, 'width'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
 const defaultCombineTokensWithinMilliseconds = 2000;
 const defaultWidth = 900;
-const defaultHeight = 220;
 
 const basicCaptionsSchema = {
 	...Interactive.captionsSchema,
@@ -28,14 +27,6 @@ const basicCaptionsSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Caption area width',
-		hiddenFromList: false,
-	},
-	height: {
-		type: 'number',
-		min: 1,
-		step: 1,
-		default: undefined,
-		description: 'Caption area height',
 		hiddenFromList: false,
 	},
 	combineTokensWithinMilliseconds: {
@@ -51,7 +42,6 @@ const basicCaptionsSchema = {
 const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	captions,
 	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	height = defaultHeight,
 	style,
 	width = defaultWidth,
 }) => {
@@ -78,9 +68,8 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 				alignItems: 'center',
 				display: 'flex',
 				justifyContent: 'center',
-				marginInline: 'auto',
 				width,
-				height,
+				height: '100%',
 				...style,
 			}}
 		>
