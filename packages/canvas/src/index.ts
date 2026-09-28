@@ -8,6 +8,7 @@ export type {
 	CanvasController,
 	CanvasOverridesController,
 } from './canvas-controller';
+export type {CanvasSequenceNodePathRemapping} from './sequence-node-path-remapping';
 export {
 	createCanvasHoverController,
 	useCanvasHover,

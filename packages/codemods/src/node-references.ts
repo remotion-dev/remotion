@@ -1,7 +1,10 @@
 import type {SequenceNodePath} from 'remotion';
 import type {CodemodProject, CodemodResult} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
-import {captureJsxNodePaths} from './get-node-path-remappings';
+import {
+	captureJsxNodePaths,
+	type CapturedJsxNodePath,
+} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
 import {parseAst} from './sequence-props/parse-ast';
 
@@ -75,6 +78,13 @@ export const getNodeEditResult = ({
 	};
 };
 
+const isUnchangedNode = (
+	node: CapturedJsxNodePath,
+	next: CapturedJsxNodePath,
+): boolean =>
+	JSON.stringify(node.nodePath) === JSON.stringify(next.nodePath) &&
+	node.signature === next.signature;
+
 // Props, effects, and keyframe edits preserve JSX traversal order. Hooks and
 // statements they insert can still change the paths of every node in a function.
 export const getUnchangedStructureRemappings = ({
@@ -92,15 +102,72 @@ export const getUnchangedStructureRemappings = ({
 
 	return before.flatMap((node, index) => {
 		const next = after[index];
+		return isUnchangedNode(node, next)
+			? []
+			: [{oldNodePath: node.nodePath, newNodePath: next.nodePath}];
+	});
+};
+
+// Registration edits insert, remove, or move whole JSX subtrees while the
+// remaining nodes keep their document order.
+export const getSubtreeEditRemappings = ({
+	before,
+	after,
+	subtrees,
+}: {
+	before: CapturedJsxNodePath[];
+	after: CapturedJsxNodePath[];
+	// Matched separately from the remaining nodes. A subtree without `before`
+	// nodes was inserted, a subtree without `after` nodes was removed.
+	subtrees: {before: ReadonlySet<object>; after: ReadonlySet<object>}[];
+}): NodeSourceEdit['nodePathRemappings'] => {
+	const remainingBefore = before.filter(
+		({node}) => !subtrees.some((subtree) => subtree.before.has(node)),
+	);
+	const remainingAfter = after.filter(
+		({node}) => !subtrees.some((subtree) => subtree.after.has(node)),
+	);
+	if (remainingBefore.length !== remainingAfter.length) {
+		throw new Error(
+			'Could not remap JSX nodes after editing the registrations',
+		);
+	}
+
+	const pairs: {
+		node: CapturedJsxNodePath | null;
+		next: CapturedJsxNodePath | null;
+	}[] = remainingBefore.map((node, index) => ({
+		node,
+		next: remainingAfter[index],
+	}));
+	for (const subtree of subtrees) {
+		const nodes = before.filter(({node}) => subtree.before.has(node));
+		const nextNodes = after.filter(({node}) => subtree.after.has(node));
 		if (
-			JSON.stringify(node.nodePath) === JSON.stringify(next.nodePath) &&
-			node.signature === next.signature
+			nodes.length > 0 &&
+			nextNodes.length > 0 &&
+			nodes.length !== nextNodes.length
 		) {
-			return [];
+			throw new Error(
+				'Could not remap JSX nodes after editing the registrations',
+			);
 		}
 
-		return [{oldNodePath: node.nodePath, newNodePath: next.nodePath}];
-	});
+		for (let i = 0; i < Math.max(nodes.length, nextNodes.length); i++) {
+			pairs.push({node: nodes[i] ?? null, next: nextNodes[i] ?? null});
+		}
+	}
+
+	return pairs.flatMap(({node, next}) =>
+		node !== null && next !== null && isUnchangedNode(node, next)
+			? []
+			: [
+					{
+						oldNodePath: node?.nodePath ?? null,
+						newNodePath: next?.nodePath ?? null,
+					},
+				],
+	);
 };
 
 export const getUpdatedNodeReference = ({

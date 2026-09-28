@@ -13,28 +13,38 @@ import {
 import {
   addComposition,
   addElement,
+  addFolder,
   applyCodemodChanges,
   createElement,
   deleteComposition,
   deleteNodes as deleteNodesCodemod,
   duplicateComposition,
   duplicateNodes as duplicateNodesCodemod,
+  moveComposition,
+  moveFolder,
   renameComposition,
+  renameFolder,
   reorderNode as reorderNodeCodemod,
   resolveCompositionComponent,
   setCompositionDefaultProps,
   splitSequences,
+  unwrapFolder,
   updateCompositionMetadata,
   updateMultipleNodeProps,
   updateNodeKeyframes,
   updateNodeProps,
   wrapNode,
   type CodemodElement,
+  type CodemodNodeResult,
   type CodemodProject,
   type CodemodResult,
   type CodemodValue,
+  type CompositionDestination,
   type CompositionMetadata,
+  type CompositionTreeItem,
+  type FolderReference,
   type NodeKeyframeUpdate,
+  type NodePathRemapping,
   type NodePropChange,
   type NodeReference,
   type SequencePropUpdate,
@@ -61,7 +71,12 @@ import {
   type KeyframedProp,
   type KeyframeSelectionItem,
 } from "../model/keyframes";
-import { areSiblingNodes, getNodeReference, type Layer } from "../model/layers";
+import {
+  areSiblingNodes,
+  chainNodePathRemappings,
+  getNodeReference,
+  type Layer,
+} from "../model/layers";
 import { filesAreEqual, getFileName, toCodemodProject } from "../model/project";
 import { resolveProjectPathInput } from "@/lib/project-paths";
 import type { PlaybackStore } from "./use-playback";
@@ -119,13 +134,22 @@ export const useEditorActions = ({
 
     const getProject = () => toCodemodProject(ref.current.state.files);
 
+    /**
+     * Applies a codemod as one undoable edit. Node-path remappings of the
+     * result are handed to the Canvas, which applies them together with the
+     * Fast Refresh update of the compiled source, so the selection and the
+     * layer list keep pointing at the same elements.
+     */
     const applyCodemod = async (
-      run: (project: CodemodProject) => Promise<CodemodResult> | CodemodResult,
+      run: (
+        project: CodemodProject,
+      ) =>
+        | Promise<CodemodResult | CodemodNodeResult>
+        | CodemodResult
+        | CodemodNodeResult,
       {
-        clearSelection = false,
         onApplied,
       }: {
-        clearSelection?: boolean;
         onApplied?: (changed: boolean) => void;
       } = {},
     ) => {
@@ -145,8 +169,10 @@ export const useEditorActions = ({
 
         const changed = !filesAreEqual(project.files, files);
         dispatch({ type: "set-files", files, coalesceKey: null });
-        if (clearSelection) {
-          ref.current.host?.controller.selection.clear();
+        if (changed && "nodePathRemappings" in result) {
+          ref.current.host?.controller.queueSequenceNodePathRemappings(
+            result.nodePathRemappings,
+          );
         }
 
         onApplied?.(changed);
@@ -310,8 +336,10 @@ export const useEditorActions = ({
         async (project) => {
           let current = project;
           const touched = new Set<string>();
-          const collect = (result: CodemodResult) => {
+          const remappings: NodePathRemapping[][] = [];
+          const collect = (result: CodemodNodeResult) => {
             current = applyCodemodChanges(current, result.changes);
+            remappings.push(result.nodePathRemappings);
             for (const change of result.changes) {
               touched.add(change.filePath);
             }
@@ -359,6 +387,7 @@ export const useEditorActions = ({
                 ? []
                 : [{ filePath, previousContents, nextContents }];
             }),
+            nodePathRemappings: chainNodePathRemappings(remappings),
           };
         },
         {
@@ -569,38 +598,31 @@ export const ${componentName}: React.FC = () => {
         ref.current.host?.controller.selection.clear();
       },
 
-      // Layers
+      // Layers. The selection follows the edited nodes through the node-path
+      // remappings of each result.
       deleteNodes: (nodes: NodeReference[]) =>
-        applyCodemod((project) => deleteNodesCodemod({ project, nodes }), {
-          clearSelection: true,
-        }),
+        applyCodemod((project) => deleteNodesCodemod({ project, nodes })),
       duplicateNodes: (nodes: NodeReference[]) =>
-        applyCodemod((project) => duplicateNodesCodemod({ project, nodes }), {
-          clearSelection: true,
-        }),
+        applyCodemod((project) => duplicateNodesCodemod({ project, nodes })),
       splitNodesAtPlayhead: (nodes: NodeReference[]) => {
         const frame = currentFrame();
-        return applyCodemod(
-          (project) =>
-            splitSequences({
-              project,
-              splits: nodes.map((node) => ({ node, frame })),
-            }),
-          { clearSelection: true },
+        return applyCodemod((project) =>
+          splitSequences({
+            project,
+            splits: nodes.map((node) => ({ node, frame })),
+          }),
         );
       },
       wrapNode: (node: NodeReference, wrapper: "Sequence" | "AbsoluteFill") =>
-        applyCodemod(
-          (project) =>
-            wrapNode({
-              project,
-              node,
-              wrapper: createElement({
-                component: wrapper,
-                importPath: "remotion",
-              }),
+        applyCodemod((project) =>
+          wrapNode({
+            project,
+            node,
+            wrapper: createElement({
+              component: wrapper,
+              importPath: "remotion",
             }),
-          { clearSelection: true },
+          }),
         ),
       reorderNode: (node: NodeReference, direction: "up" | "down") => {
         const siblings = ref.current.layers
@@ -627,15 +649,13 @@ export const ${componentName}: React.FC = () => {
           return Promise.resolve(false);
         }
 
-        return applyCodemod(
-          (project) =>
-            reorderNodeCodemod({
-              project,
-              node,
-              target,
-              position: direction === "up" ? "before" : "after",
-            }),
-          { clearSelection: true },
+        return applyCodemod((project) =>
+          reorderNodeCodemod({
+            project,
+            node,
+            target,
+            position: direction === "up" ? "before" : "after",
+          }),
         );
       },
       updateNodeProps: (
@@ -1014,7 +1034,10 @@ export const ${componentName}: React.FC = () => {
 
         return ok;
       },
-      addComposition: async (compositionId: string) => {
+      addComposition: async (
+        compositionId: string,
+        folder: FolderReference | null,
+      ) => {
         const { compositionFile, compositions, state } = ref.current;
         if (!compositionFile) {
           return false;
@@ -1080,6 +1103,7 @@ export const ${componentName}: React.FC = () => {
               fps: 30,
               durationInFrames: 150,
             },
+            folder: folder ?? undefined,
           });
           const files = {
             ...applyCodemodChanges(project, result.changes).files,
@@ -1096,6 +1120,79 @@ export const ${componentName}: React.FC = () => {
           notifyError(error);
           return false;
         }
+      },
+      /**
+       * Moves a composition or folder within the registration file: into a
+       * folder, to the root, or before or after another registration.
+       */
+      moveRegistration: (
+        item: CompositionTreeItem,
+        destination: CompositionDestination,
+      ) => {
+        const { compositionFile } = ref.current;
+        if (!compositionFile) {
+          return Promise.resolve(false);
+        }
+
+        return applyCodemod((project) =>
+          item.type === "composition"
+            ? moveComposition({
+                project,
+                compositionFile,
+                compositionId: item.compositionId,
+                destination,
+              })
+            : moveFolder({
+                project,
+                compositionFile,
+                folder: { name: item.name, parentName: item.parentName },
+                destination,
+              }),
+        );
+      },
+      addFolder: (name: string, parentName: string | null) => {
+        const { compositionFile } = ref.current;
+        if (!compositionFile || name.trim() === "") {
+          return Promise.resolve(false);
+        }
+
+        return applyCodemod((project) =>
+          addFolder({
+            project,
+            compositionFile,
+            folder: { name: name.trim(), parentName },
+          }),
+        );
+      },
+      renameFolder: (folder: FolderReference, newName: string) => {
+        const { compositionFile } = ref.current;
+        if (
+          !compositionFile ||
+          newName.trim() === "" ||
+          newName.trim() === folder.name
+        ) {
+          return Promise.resolve(false);
+        }
+
+        return applyCodemod((project) =>
+          renameFolder({
+            project,
+            compositionFile,
+            folder,
+            newName: newName.trim(),
+          }),
+        );
+      },
+      /** Removes a folder element; the registrations inside it stay. */
+      deleteFolder: (folder: FolderReference) => {
+        const { compositionFile } = ref.current;
+        if (!compositionFile) {
+          return Promise.resolve(false);
+        }
+
+        return applyCodemod((project) =>
+          unwrapFolder({ project, compositionFile, folder }),
+        );
       },
       setDefaultProps: (
         compositionId: string,

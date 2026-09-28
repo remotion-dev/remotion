@@ -12,5 +12,9 @@
 		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}, {"path": "../player"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../player"},
+		{"path": "../studio-shared"}
+	]
 }

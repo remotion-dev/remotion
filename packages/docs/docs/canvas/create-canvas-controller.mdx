@@ -68,6 +68,39 @@ Afterwards, the affected tracks carry a `nodePathInfo` with that `sequenceSubscr
 
 Passing an unchanged mapping is a no-op, so the function may be called from a `timeline` subscription. Call it again after the source changed. [`getCanvasSequenceSourceLocation()`](/docs/canvas/get-canvas-sequence-source-location) shows how to derive the mapping from the compiled source locations.
 
+### queueSequenceNodePathRemappings()<AvailableFrom v="4.0.530" />
+
+`queueSequenceNodePathRemappings(remappings)` hands the Canvas the `nodePathRemappings` that a mutation of [`@remotion/codemods`](/docs/codemods#node-references) returned. `remappings` is an array of `{filePath, oldNodePath, newNodePath}` entries, where `filePath` matches the `absolutePath` of the registered node paths. A `null` old path is an insertion, a `null` new path a removal.
+
+Queue the remappings when you apply the edit to your project. The Canvas commits them when the next Fast Refresh update starts, immediately before React commits the refreshed tree, so the registered node paths and the [selection](#selection) never pair the new elements with the old paths. Studio's bundler, Browser Studio and [`createBrowserBundleRuntime()`](/docs/browser-bundler/create-browser-bundle-runtime#applybundle) dispatch that event. Call `queueSequenceNodePathRemappings()` once per edit; the remappings of one edit are not chained with each other, only with those of earlier edits.
+
+```tsx twoslash title="Applying an edit"
+// @moduleResolution: bundler
+import type {CanvasController} from '@remotion/canvas';
+import {
+  applyCodemodChanges,
+  deleteNodes,
+  type CodemodProject,
+  type NodeReference,
+} from '@remotion/codemods';
+declare const controller: CanvasController;
+declare const project: CodemodProject;
+declare const nodes: NodeReference[];
+declare const compile: (project: CodemodProject) => void;
+// ---cut---
+export const removeNodes = async () => {
+  const result = await deleteNodes({project, nodes});
+  controller.queueSequenceNodePathRemappings(result.nodePathRemappings);
+  compile(applyCodemodChanges(project, result.changes));
+};
+```
+
+Selected items whose node was removed leave the selection, other selected items follow their node to its new path. Override IDs belong to mounted instances, which Fast Refresh keeps at paths that still exist after the edit; a registered node path therefore only follows its node when its old path disappeared. Hover is cleared. Registering the resolved mapping again with [`setSequenceNodePaths()`](#setsequencenodepaths) after the compilation confirms the result and covers edits that produced no remappings.
+
+### remapSequenceNodePaths()<AvailableFrom v="4.0.530" />
+
+`remapSequenceNodePaths(remappings)` applies the remappings of one edit right away instead of queueing them. Use it when you swap the mounted tree yourself, in the same task as the swap.
+
 ### overrides<AvailableFrom v="4.0.529" />
 
 Preview prop values on mounted sequences without changing the source. Overrides are applied to sequences that have a `nodePathInfo`, so register node paths first. They are kept while the composition stays mounted and are not persisted; write the final value to the source, for example with [`updateNodeProps()`](/docs/codemods/update-node-props), and clear the override once the update has been applied.

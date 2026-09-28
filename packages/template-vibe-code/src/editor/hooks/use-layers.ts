@@ -20,7 +20,9 @@ const noopSubscribe = () => () => {};
  * The source locations reported by the preview refer to the files that were
  * compiled last, so everything is resolved against `compiledProject`. While
  * an edit is being compiled, the layers keep describing what the preview
- * shows; they catch up as soon as the new bundle is running.
+ * shows. Codemod edits hand their node-path remappings to the Canvas, which
+ * applies them in the same commit as the Fast Refresh update; this
+ * registration confirms them and covers edits made in the code panel.
  */
 export const useLayers = ({
   host,

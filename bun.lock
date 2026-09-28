@@ -154,6 +154,7 @@
       "name": "@remotion/browser-bundler",
       "version": "4.0.529",
       "dependencies": {
+        "@remotion/studio-shared": "workspace:*",
         "@rspack/browser": "2.1.1",
         "react-refresh": "0.18.0",
         "remotion": "workspace:*",

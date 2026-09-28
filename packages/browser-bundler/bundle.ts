@@ -40,6 +40,7 @@ const output = await build({
 	target: 'browser',
 	define,
 	external: [
+		'@remotion/studio-shared',
 		'@rspack/browser',
 		'react',
 		'react-dom',

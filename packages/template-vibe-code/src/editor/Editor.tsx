@@ -25,7 +25,7 @@ import { useEditorShortcuts } from "./hooks/use-editor-shortcuts";
 import { useLayers } from "./hooks/use-layers";
 import { usePlaybackStore } from "./hooks/use-playback";
 import { usePreviewHost } from "./hooks/use-preview-host";
-import { findCompositionFile, getCompositions } from "./model/compositions";
+import { findCompositionFile, getRegistrations } from "./model/compositions";
 import { getKeyframedProps } from "./model/keyframes";
 import { getSequencePropStatuses } from "./model/layers";
 import { toCodemodProject, type ProjectFiles } from "./model/project";
@@ -46,8 +46,7 @@ export const Editor: React.FC<{
   const [state, dispatch] = useReducer(editorReducer, initialFiles, (files) => {
     const project = toCodemodProject(files);
     const compositionFile = findCompositionFile(project);
-    const compositions = getCompositions(project, compositionFile);
-    const first = compositions[0];
+    const first = getRegistrations(project, compositionFile).compositions[0];
     let activeFile = compositionFile;
     if (first && compositionFile) {
       try {
@@ -77,10 +76,11 @@ export const Editor: React.FC<{
     () => findCompositionFile(project),
     [project],
   );
-  const compositions = useMemo(
-    () => getCompositions(project, compositionFile),
+  const registrations = useMemo(
+    () => getRegistrations(project, compositionFile),
     [compositionFile, project],
   );
+  const { compositions } = registrations;
   const activeComposition = useMemo(
     () =>
       compositions.find(
@@ -348,6 +348,7 @@ export const Editor: React.FC<{
     layers,
     keyframedProps,
     project,
+    registrations,
     compositions,
     compositionFile,
     mainFile,

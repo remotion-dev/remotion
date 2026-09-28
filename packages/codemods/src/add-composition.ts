@@ -1,7 +1,6 @@
 import type {JSXElement} from '@babel/types';
 import * as recast from 'recast';
-import type {CodemodProject, CodemodResult} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
+import type {CodemodProject} from './codemod-project';
 import {
 	type CompositionTarget,
 	type CompositionMetadata,
@@ -9,7 +8,9 @@ import {
 	assertNewCompositionId,
 	validateMetadata,
 } from './composition-editing';
+import {getRegistrationInsertionResult} from './folder-editing';
 import {findProjectFile} from './internals';
+import type {CodemodInsertionResult} from './node-references';
 import {getRegistrationInsertionSourceEdit} from './registration-source-edits';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -34,7 +35,7 @@ export const addComposition = <Project extends CodemodProject>({
 	component,
 	metadata,
 	folder,
-}: AddCompositionOptions<Project>): CodemodResult => {
+}: AddCompositionOptions<Project>): CodemodInsertionResult => {
 	assertNewCompositionId({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (!/^[A-Z_$][\w$]*$/.test(component.importName)) {
@@ -133,9 +134,11 @@ export const addComposition = <Project extends CodemodProject>({
 			}),
 		],
 	});
-	parseAst(output);
-	return getCodemodResult({
+	return getRegistrationInsertionResult({
 		project,
-		edits: [{filePath, nextContents: output}],
+		filePath,
+		input,
+		output,
+		inserted: {type: 'composition', compositionId},
 	});
 };

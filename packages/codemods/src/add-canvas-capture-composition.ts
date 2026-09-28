@@ -1,11 +1,7 @@
 import type {JSXElement} from '@babel/types';
 import type {CanvasCaptureData} from '@remotion/studio-shared';
 import * as recast from 'recast';
-import {
-	getCodemodResult,
-	type CodemodProject,
-	type CodemodResult,
-} from './codemod-project';
+import type {CodemodProject} from './codemod-project';
 import {
 	assertNewCompositionId,
 	validateMetadata,
@@ -13,8 +9,10 @@ import {
 	type CompositionMetadata,
 	type FolderReference,
 } from './composition-editing';
+import {getRegistrationInsertionResult} from './folder-editing';
 import {generateCanvasCaptureComposition} from './generate-canvas-capture-composition';
 import {findProjectFile} from './internals';
+import type {CodemodInsertionResult} from './node-references';
 import {getRegistrationInsertionSourceEdit} from './registration-source-edits';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -47,7 +45,7 @@ export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 	metadata,
 	folder,
 	capture,
-}: AddCanvasCaptureCompositionOptions<Project>): CodemodResult => {
+}: AddCanvasCaptureCompositionOptions<Project>): CodemodInsertionResult => {
 	assertNewCompositionId({project, compositionFile, compositionId});
 	validateMetadata(metadata);
 	if (!/^[A-Z_$][\w$]*$/.test(component.importName)) {
@@ -111,13 +109,23 @@ export const addCanvasCaptureComposition = <Project extends CodemodProject>({
 		...metadata,
 		...capture,
 	});
-	parseAst(output);
 	parseAst(componentSource);
-	return getCodemodResult({
+	const result = getRegistrationInsertionResult({
 		project,
-		edits: [
-			{filePath, nextContents: output},
-			{filePath: component.filePath, nextContents: componentSource},
-		],
+		filePath,
+		input,
+		output,
+		inserted: {type: 'last-child', folder: folder ?? null},
 	});
+	return {
+		...result,
+		changes: [
+			...result.changes,
+			{
+				filePath: component.filePath,
+				previousContents: null,
+				nextContents: componentSource,
+			},
+		],
+	};
 };
