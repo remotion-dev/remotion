@@ -16,6 +16,8 @@ export const BACKGROUND_HEX = 'var(--remotion-studio-background)';
 export const BACKGROUND__TRANSPARENT =
 	'var(--remotion-studio-background-transparent)';
 export const INPUT_BACKGROUND = 'var(--remotion-studio-input-background)';
+export const TAB_HOVER_BACKGROUND =
+	'var(--remotion-studio-tab-hover-background)';
 export const LIGHT_COLOR = 'var(--remotion-studio-light-color)';
 export const SELECTED_BACKGROUND = 'var(--remotion-studio-white-alpha-15)';
 export const LIGHT_TEXT = 'var(--remotion-studio-light-text)';

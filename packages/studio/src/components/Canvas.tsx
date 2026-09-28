@@ -233,10 +233,6 @@ export const Canvas: React.FC<{
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const previewServerClientId =
-		previewServerState.type === 'connected'
-			? previewServerState.clientId
-			: null;
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [compositionDropPreview, setCompositionDropPreview] =
 		useState<CompositionDropPreview | null>(null);
@@ -267,7 +263,10 @@ export const Canvas: React.FC<{
 		compositionId: currentCompositionId,
 	});
 	const canReceiveElementInstallRequest =
-		previewServerClientId !== null && !window.remotion_isReadOnlyStudio;
+		previewServerState.type === 'connected' &&
+		!window.remotion_isReadOnlyStudio &&
+		currentCompositionId !== null &&
+		compositionFile !== null;
 	const canInsertIntoCurrentComposition =
 		canReceiveElementInstallRequest &&
 		compositionComponentInfo?.canAddSequence === true;
@@ -1101,6 +1100,7 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
+						fps: config.fps,
 						html: figmaHtml,
 					});
 				} finally {
@@ -1121,6 +1121,7 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
+						fps: config.fps,
 						markup: svgMarkup,
 					});
 				} finally {

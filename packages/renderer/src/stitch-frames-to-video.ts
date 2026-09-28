@@ -18,6 +18,7 @@ import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {finalizeFastStart} from './finalize-fast-start';
 import {findRemotionRoot} from './find-closest-package-json';
+import {getCpuCount} from './get-cpu-count';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getFastStartMuxer} from './get-fast-start-muxer';
@@ -27,6 +28,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makeMetadataArgs} from './make-metadata-args';
+import {getMaxLambdaMemory} from './memory/from-lambda-env';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
@@ -427,6 +429,8 @@ const innerStitchFramesToVideo = async (
 			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent,
 			logLevel,
+			cpuCount: getCpuCount(),
+			lambdaMemoryInBytes: getMaxLambdaMemory(),
 		}),
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],

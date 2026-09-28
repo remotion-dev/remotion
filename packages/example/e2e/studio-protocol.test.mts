@@ -888,19 +888,10 @@ const CloseupPlaceholder = () => {
 			addLibraryDialog.getByText('Add Element Library', {exact: true}),
 		).toBeVisible();
 		await expect(
-			addLibraryDialog.getByText(senderUrl, {exact: true}),
-		).toBeVisible();
-		await expect(
-			addLibraryDialog.getByText(protocolLibraryUrl, {exact: true}),
-		).toBeVisible();
-		const libraryDetails = addLibraryDialog.getByLabel(
-			'Element Library details',
-		);
-		await expect(
-			libraryDetails.getByText('Display name', {exact: true}),
-		).toBeVisible();
-		await expect(
-			libraryDetails.getByText('Protocol Library', {exact: true}),
+			addLibraryDialog.getByText(
+				`${senderUrl.replace(/^https?:\/\//, '')} wants to add ${protocolLibraryUrl.replace(/^https?:\/\//, '')} as an Element library to ${path.basename(temporaryProject)}.`,
+				{exact: true},
+			),
 		).toBeVisible();
 		await expect(decoyStudioPage.getByText('Add Element Library')).toHaveCount(
 			0,
@@ -914,6 +905,10 @@ const CloseupPlaceholder = () => {
 		await expect
 			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
 			.toContain(protocolLibraryUrl);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await browseElements.click();
 		await expect(
@@ -946,6 +941,10 @@ const CloseupPlaceholder = () => {
 				{timeout: 30_000},
 			)
 			.toBe(1);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);

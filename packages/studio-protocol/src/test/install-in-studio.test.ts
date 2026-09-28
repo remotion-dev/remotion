@@ -58,7 +58,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 	const requests: Array<{url: string; options?: RequestInit}> = [];
 	const newestStudio = descriptor({
 		compositionId: null,
-		lastFocusedAt: 950_000,
+		lastFocusedAt: 400_000,
 		projectName: 'Newest project',
 		targetId: 'newest-target',
 	});
@@ -70,7 +70,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 				jsonResponse(
 					descriptor({
 						compositionId: 'Older',
-						lastFocusedAt: 900_000,
+						lastFocusedAt: 300_000,
 						projectName: 'Older project',
 						targetId: 'older-target',
 					}),

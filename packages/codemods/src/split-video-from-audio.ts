@@ -44,6 +44,8 @@ const audioProps = [
 	'src',
 	'from',
 	'durationInFrames',
+	'premountFor',
+	'postmountFor',
 	'trimBefore',
 	'trimAfter',
 	'playbackRate',
@@ -478,6 +480,7 @@ export const splitVideoFromAudio = ({
 		children: [],
 	};
 	const audioSource = printInsertedJsx({
+		compactLiteralProps: false,
 		element: audioElement as never,
 		input,
 		originalAttributeSources,

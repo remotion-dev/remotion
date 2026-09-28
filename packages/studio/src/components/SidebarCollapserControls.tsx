@@ -13,11 +13,11 @@ import {
 	useKeyboardShortcutAriaKeyShortcuts,
 	useKeyboardShortcutLabel,
 } from '../helpers/use-keyboard-shortcut-label';
+import {useResponsiveSidebarStatus} from '../helpers/use-responsive-sidebar-status';
 import {SidebarContext} from '../state/sidebar';
 import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {useResponsiveSidebarStatus} from './TopPanel';
 
 const style: React.CSSProperties = {
 	width: 16,

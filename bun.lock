@@ -239,6 +239,7 @@
       "version": "4.0.529",
       "dependencies": {
         "@remotion/player": "workspace:*",
+        "@remotion/studio-shared": "workspace:*",
         "remotion": "workspace:*",
       },
       "devDependencies": {
@@ -734,6 +735,7 @@
       "version": "4.0.529",
       "dependencies": {
         "@remotion/captions": "workspace:*",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
@@ -1430,6 +1432,7 @@
       "version": "4.0.529",
       "dependencies": {
         "@remotion/captions": "workspace:*",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
@@ -1862,8 +1865,10 @@
         "@remotion/canvas": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/codemods": "workspace:*",
+        "@remotion/elevenlabs": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-utils": "workspace:*",
+        "@remotion/openai-whisper": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",

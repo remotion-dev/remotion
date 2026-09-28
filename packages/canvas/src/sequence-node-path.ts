@@ -14,7 +14,7 @@ export type CanvasSequenceSourceLocation = {
 	fileName: string;
 	/** 1-based line of the JSX element. */
 	line: number;
-	/** 0-based column of the JSX element, matching `getJsxNodes()` from @remotion/codemods. */
+	/** 0-based column of the JSX element, matching `getNodes()` from @remotion/codemods. */
 	column: number;
 };
 

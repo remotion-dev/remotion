@@ -108,6 +108,7 @@ import {
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
+	trimAfterField,
 	transformSchema,
 	type AssetFieldSchema,
 	type ArrayFieldSchema,
@@ -148,6 +149,7 @@ import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
 } from './RenderAssetManager.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
@@ -180,6 +182,7 @@ import {SequenceWithoutSchema} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
+	DisableSequenceRegistrationProvider,
 	makeSequencePropsSubscriptionKey,
 	SequenceManager,
 	SequenceManagerProvider,
@@ -347,6 +350,7 @@ export const Internals = {
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
 	SequenceRegistrationContext,
+	DisableSequenceRegistrationProvider,
 	CommitOrderInternals,
 	SequenceOutlineInternals,
 	SequenceOutlineContext,
@@ -375,6 +379,7 @@ export const Internals = {
 	SequenceContext,
 	PremountContext,
 	usePremounting,
+	resolveSequenceDuration,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
@@ -492,6 +497,7 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	trimAfterField,
 	resolveSequenceCrop,
 	useCropStyle,
 } as const;

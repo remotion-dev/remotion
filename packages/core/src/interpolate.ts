@@ -54,7 +54,7 @@ type TransformOriginAxisValue = {
 };
 
 type NumericTuple = readonly [number, ...number[]];
-type InterpolateOutputValue = number | string | readonly number[];
+type InterpolateOutputValue = number | string | boolean | readonly number[];
 type WidenNumericTuple<T extends readonly number[]> = {
 	readonly [Key in keyof T]: number;
 };
@@ -989,7 +989,7 @@ const interpolateFontWeight = ({
 	});
 };
 
-const interpolateDiscreteString = ({
+const interpolateDiscreteValue = <Value extends string | boolean>({
 	input,
 	inputRange,
 	outputRange,
@@ -997,9 +997,9 @@ const interpolateDiscreteString = ({
 }: {
 	input: number;
 	inputRange: readonly number[];
-	outputRange: readonly string[];
+	outputRange: readonly Value[];
 	options: InterpolateOptions | undefined;
-}): string => {
+}): Value => {
 	if (inputRange.length === 1) {
 		return outputRange[0];
 	}
@@ -1016,7 +1016,9 @@ const interpolateDiscreteString = ({
 			}) !== Easing.step1
 		) {
 			throw new TypeError(
-				'Non-numeric strings can only be interpolated using Easing.step1',
+				typeof outputRange[0] === 'boolean'
+					? 'Booleans can only be interpolated using Easing.step1'
+					: 'Non-numeric strings can only be interpolated using Easing.step1',
 			);
 		}
 	}
@@ -1032,7 +1034,9 @@ const interpolateDiscreteString = ({
 	if (resolvedInput < inputMin) {
 		if (options?.extrapolateLeft === 'identity') {
 			throw new TypeError(
-				'extrapolateLeft: "identity" is not supported for non-numeric strings',
+				typeof outputRange[0] === 'boolean'
+					? 'extrapolateLeft: "identity" is not supported for booleans'
+					: 'extrapolateLeft: "identity" is not supported for non-numeric strings',
 			);
 		}
 
@@ -1049,7 +1053,9 @@ const interpolateDiscreteString = ({
 	if (resolvedInput > inputMax) {
 		if (options?.extrapolateRight === 'identity') {
 			throw new TypeError(
-				'extrapolateRight: "identity" is not supported for non-numeric strings',
+				typeof outputRange[0] === 'boolean'
+					? 'extrapolateRight: "identity" is not supported for booleans'
+					: 'extrapolateRight: "identity" is not supported for non-numeric strings',
 			);
 		}
 
@@ -1257,6 +1263,12 @@ export function interpolate(
 	outputRange: readonly string[],
 	options?: InterpolateOptions,
 ): string;
+export function interpolate(
+	input: number,
+	inputRange: readonly number[],
+	outputRange: readonly boolean[],
+	options?: InterpolateOptions,
+): boolean;
 export function interpolate<const Tuple extends NumericTuple>(
 	input: number,
 	inputRange: readonly number[],
@@ -1272,15 +1284,15 @@ export function interpolate(
 export function interpolate(
 	input: number,
 	inputRange: readonly number[],
-	outputRange: readonly (number | string | readonly number[])[],
+	outputRange: readonly InterpolateOutputValue[],
 	options?: InterpolateOptions,
-): number | string | readonly number[];
+): number | string | boolean | readonly number[];
 export function interpolate(
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly InterpolateOutputValue[],
 	options?: InterpolateOptions,
-): number | string | readonly number[] {
+): number | string | boolean | readonly number[] {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
 	}
@@ -1320,6 +1332,23 @@ export function interpolate(
 	}
 
 	const outputType = options?.outputType;
+	if (outputRange.some((output) => typeof output === 'boolean')) {
+		if (!outputRange.every((output) => typeof output === 'boolean')) {
+			throw new TypeError('Boolean outputRange must contain only booleans');
+		}
+
+		if (outputType !== undefined) {
+			throw new TypeError('Boolean outputRange cannot use outputType');
+		}
+
+		return interpolateDiscreteValue({
+			input,
+			inputRange,
+			outputRange,
+			options,
+		});
+	}
+
 	if (outputType === 'font-weight') {
 		if (
 			!outputRange.every(
@@ -1384,7 +1413,7 @@ export function interpolate(
 				throw error;
 			}
 
-			return interpolateDiscreteString({
+			return interpolateDiscreteValue({
 				input,
 				inputRange,
 				outputRange,

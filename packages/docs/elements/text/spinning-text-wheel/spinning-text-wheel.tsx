@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/google-fonts/MonaSans';
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -39,138 +39,127 @@ const spinningTextWheelSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const SpinningTextWheelInner = forwardRef<
-	HTMLDivElement,
+const SpinningTextWheelInner: React.FC<
 	InteractiveSpinningTextWheelProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			callerStyle,
-			controls,
-			items = 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
-			name,
-			style,
-			...sequenceProps
+> = ({
+	callerStyle,
+	controls,
+	items = 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
+	name,
+	style,
+	...sequenceProps
+}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const values = items
+		.split('\n')
+		.map((item) => item.trim())
+		.filter(Boolean);
+	const progress = spring({
+		fps,
+		frame,
+		config: {
+			mass: 10,
+			damping: 200,
+			stiffness: 200,
 		},
-		ref,
-	) => {
-		const frame = useCurrentFrame();
-		const {fps} = useVideoConfig();
-		const outlineRef = useRef<HTMLDivElement>(null);
-		const values = items
-			.split('\n')
-			.map((item) => item.trim())
-			.filter(Boolean);
-		const progress = spring({
-			fps,
-			frame,
-			config: {
-				mass: 10,
-				damping: 200,
-				stiffness: 200,
-			},
-			durationInFrames: 90,
-			durationRestThreshold: 0.0001,
-		});
-		const rotation = interpolate(progress, [0, 1], [1, 0]);
-		const {
-			rotate: callerRotate,
-			scale: callerScale,
-			transform: callerTransform,
-			transformBox: callerTransformBox,
-			transformOrigin: callerTransformOrigin,
-			transformStyle: callerTransformStyle,
-			translate: callerTranslate,
-			...callerContentStyle
-		} = callerStyle ?? {};
+		durationInFrames: 90,
+		durationRestThreshold: 0.0001,
+	});
+	const rotation = interpolate(progress, [0, 1], [1, 0]);
+	const {
+		rotate: callerRotate,
+		scale: callerScale,
+		transform: callerTransform,
+		transformBox: callerTransformBox,
+		transformOrigin: callerTransformOrigin,
+		transformStyle: callerTransformStyle,
+		translate: callerTranslate,
+		...callerContentStyle
+	} = callerStyle ?? {};
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...sequenceProps}
-				controls={controls}
-				name={name ?? '<SpinningTextWheel>'}
-				outlineRef={outlineRef}
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			controls={controls}
+			name={name ?? '<SpinningTextWheel>'}
+		>
+			<div
+				style={{
+					rotate: callerRotate,
+					scale: callerScale,
+					transform: callerTransform,
+					transformBox: callerTransformBox,
+					transformOrigin: callerTransformOrigin,
+					transformStyle: callerTransformStyle,
+					translate: callerTranslate,
+				}}
 			>
 				<div
 					style={{
-						rotate: callerRotate,
-						scale: callerScale,
-						transform: callerTransform,
-						transformBox: callerTransformBox,
-						transformOrigin: callerTransformOrigin,
-						transformStyle: callerTransformStyle,
-						translate: callerTranslate,
+						height: 200,
+						maskImage:
+							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
+						overflow: 'hidden',
+						WebkitMaskImage:
+							'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
+						perspective: 10000,
+						position: 'relative',
+						width: 400,
+						...style,
+						...callerContentStyle,
 					}}
 				>
-					<div
-						ref={outlineRef}
-						style={{
-							height: 200,
-							maskImage:
-								'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
-							overflow: 'hidden',
-							WebkitMaskImage:
-								'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
-							perspective: 10000,
-							position: 'relative',
-							width: 400,
-							...style,
-							...callerContentStyle,
-						}}
-					>
-						{values.map((value, index) => {
-							const wheelIndex = index / values.length + rotation;
-							const angle = wheelIndex * Math.PI * 2;
-							const rotateX = wheelIndex * 360;
+					{values.map((value, index) => {
+						const wheelIndex = index / values.length + rotation;
+						const angle = wheelIndex * Math.PI * 2;
+						const rotateX = wheelIndex * 360;
 
-							return (
+						return (
+							<div
+								key={`${index}-${value}`}
+								style={{
+									alignItems: 'center',
+									backfaceVisibility: 'hidden',
+									display: 'flex',
+									height: '100%',
+									justifyContent: 'center',
+									left: 0,
+									opacity:
+										index === 0
+											? interpolate(progress, [0.88, 1], [0.28, 1], {
+													extrapolateLeft: 'clamp',
+													extrapolateRight: 'clamp',
+												})
+											: 0.28,
+									position: 'absolute',
+									top: 0,
+									perspective: 1000,
+									transform: `translateZ(${Math.cos(angle) * 100}px) translateY(${Math.sin(angle) * 100}px) rotateX(${rotateX}deg)`,
+									width: '100%',
+								}}
+							>
 								<div
-									key={`${index}-${value}`}
 									style={{
-										alignItems: 'center',
 										backfaceVisibility: 'hidden',
-										display: 'flex',
-										height: '100%',
-										justifyContent: 'center',
-										left: 0,
-										opacity:
-											index === 0
-												? interpolate(progress, [0.88, 1], [0.28, 1], {
-														extrapolateLeft: 'clamp',
-														extrapolateRight: 'clamp',
-													})
-												: 0.28,
-										position: 'absolute',
-										top: 0,
-										perspective: 1000,
-										transform: `translateZ(${Math.cos(angle) * 100}px) translateY(${Math.sin(angle) * 100}px) rotateX(${rotateX}deg)`,
+										textAlign: 'center',
+										transform: `rotateX(${-rotateX}deg)`,
 										width: '100%',
 									}}
 								>
-									<div
-										style={{
-											backfaceVisibility: 'hidden',
-											textAlign: 'center',
-											transform: `rotateX(${-rotateX}deg)`,
-											width: '100%',
-										}}
-									>
-										{value}
-									</div>
+									{value}
 								</div>
-							);
-						})}
-					</div>
+							</div>
+						);
+					})}
 				</div>
-			</Sequence>
-		);
-	},
-);
+			</div>
+		</Sequence>
+	);
+};
 
 const InteractiveSpinningTextWheel = Interactive.withSchema({
 	Component: SpinningTextWheelInner,

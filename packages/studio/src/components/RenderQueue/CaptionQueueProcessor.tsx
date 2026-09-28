@@ -133,6 +133,7 @@ export const CaptionQueueProcessor: React.FC = () => {
 						fileName: job.target.fileName,
 						nodePath: job.target.nodePath.nodePath,
 						durationInFrames: job.target.durationInFrames,
+						premountFor: job.target.premountFor,
 						captions,
 					};
 					const browserStudioOperations = getBrowserStudioOperations();

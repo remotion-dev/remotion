@@ -10,6 +10,7 @@ export const studioCssVariables = `
   --remotion-studio-background: rgb(31,36,40);
   --remotion-studio-background-transparent: rgba(31,36,40, 0);
   --remotion-studio-input-background: #2f363d;
+  --remotion-studio-tab-hover-background: #232629;
   --remotion-studio-light-color: #ddd;
   --remotion-studio-light-text: #A6A7A9;
   --remotion-studio-ruler-color: #808080;

@@ -31,6 +31,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -585,14 +586,18 @@ const HtmlInCanvasContent = forwardRef<
 						});
 					}
 
-					await runEffectChain({
-						state: chainState.get(canvasWidth, canvasHeight)!,
-						source: paintTarget,
-						effects: effectsRef.current,
-						output: paintTarget,
-						width: canvasWidth,
-						height: canvasHeight,
-					});
+					// `null` once unmounted, e.g. when an async `onPaint` resolves late.
+					const state = chainState.get(canvasWidth, canvasHeight);
+					if (state) {
+						await runEffectChain({
+							state,
+							source: paintTarget,
+							effects: effectsRef.current,
+							output: paintTarget,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+					}
 				} finally {
 					elImage.close();
 				}
@@ -781,7 +786,11 @@ const HtmlInCanvasInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: sequenceProps.from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate: sequenceProps.playbackRate,
+				loop: sequenceProps.loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -807,7 +816,6 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
-					outlineRef={actualRef}
 					{...sequenceProps}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}

@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
 	applyCodemodChanges,
-	getJsxNodes,
-	updateJsxNodeKeyframes,
-	updateJsxNodeProps,
+	getNodes,
+	updateNodeKeyframes,
+	updateNodeProps,
 } from '../index';
 import {getChangedContents} from './get-changed-contents';
 
@@ -38,8 +38,8 @@ export const Video = () => {
 `);
 			const filePath = 'src/Video.tsx';
 			const project = {rootDir: '/', files: {[filePath]: input}};
-			const [node] = getJsxNodes({project, filePath});
-			const changed = updateJsxNodeProps({
+			const [node] = getNodes({project, filePath});
+			const changed = updateNodeProps({
 				project,
 				node,
 				props: {title: 'Hello'},
@@ -50,7 +50,7 @@ export const Video = () => {
 			expect(getChangedContents(changed, filePath)).toBe(expected);
 			const afterChange = applyCodemodChanges(project, changed.changes);
 
-			const repeated = updateJsxNodeProps({
+			const repeated = updateNodeProps({
 				project: afterChange,
 				node: changed.updatedNode,
 				props: {title: 'Hello'},
@@ -58,7 +58,7 @@ export const Video = () => {
 			const afterRepeat = applyCodemodChanges(afterChange, repeated.changes);
 			expect(afterRepeat.files[filePath]).toBe(expected);
 
-			const animated = await updateJsxNodeKeyframes({
+			const animated = await updateNodeKeyframes({
 				project: afterRepeat,
 				node: repeated.updatedNode,
 				updates: [

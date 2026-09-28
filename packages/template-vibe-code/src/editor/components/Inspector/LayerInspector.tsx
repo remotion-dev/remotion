@@ -1,9 +1,20 @@
 "use client";
 
-import { getJsxNodeProps, type SequencePropUpdate } from "@remotion/codemods";
-import { RotateCcwIcon } from "lucide-react";
+import {
+  getCanvasKeyframeSourceFrame,
+  getCanvasKeyframeToggle,
+  getCanvasPropValueAtFrame,
+} from "@remotion/canvas";
+import { getNodeProps, type SequencePropUpdate } from "@remotion/codemods";
+import { ChevronLeftIcon, ChevronRightIcon, RotateCcwIcon } from "lucide-react";
 import React, { useMemo } from "react";
+import type {
+  CanUpdateSequencePropStatus,
+  InteractivitySchema,
+} from "remotion";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { usePlaybackFrame } from "../../hooks/use-playback";
 import { getFileName } from "../../model/project";
 import {
   getLayerLabel,
@@ -28,6 +39,7 @@ import {
   serializeTranslate,
 } from "../../model/values";
 import { useEditor } from "../../state/editor-context";
+import { KeyframeDiamond } from "../KeyframeDiamond";
 import { LayerActionBar } from "./LayerActions";
 import {
   BooleanField,
@@ -40,7 +52,91 @@ import {
 } from "./fields";
 
 type VisibleField = ReturnType<typeof getVisibleFields>[number];
-type PropStatus = ReturnType<typeof getJsxNodeProps>["props"][string];
+type PropStatus = ReturnType<typeof getNodeProps>["props"][string];
+
+const keyframeNavButtonClass =
+  "text-muted-foreground-dim hover:text-foreground disabled:hover:text-muted-foreground-dim flex h-5 w-2 items-center justify-center disabled:opacity-30";
+
+/**
+ * Previous / add-or-remove / next keyframe buttons of a prop. Only this leaf
+ * follows the playhead, so the inspector does not re-render on every frame.
+ */
+const KeyframeControls: React.FC<{
+  readonly layer: Layer;
+  readonly fieldKey: string;
+  readonly schema: InteractivitySchema;
+  readonly status: CanUpdateSequencePropStatus;
+}> = ({ layer, fieldKey, schema, status }) => {
+  const { actions, playback, composition } = useEditor();
+  const frame = usePlaybackFrame(playback);
+  const toggle = getCanvasKeyframeToggle({
+    nodePathInfo: layer.nodePathInfo,
+    track: layer.track,
+    schema,
+    key: fieldKey,
+    propStatus: status,
+    frame,
+    durationInFrames: composition?.durationInFrames ?? 1,
+  });
+  const keyframed = status.status === "keyframed";
+  if (!keyframed && !toggle.keyframable) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center">
+      <button
+        type="button"
+        className={cn(keyframeNavButtonClass, !keyframed && "invisible")}
+        disabled={toggle.previousFrame === null}
+        aria-label="Go to previous keyframe"
+        onClick={() => {
+          if (toggle.previousFrame !== null) {
+            actions.seek(toggle.previousFrame);
+          }
+        }}
+      >
+        <ChevronLeftIcon className="size-2.5" />
+      </button>
+      <button
+        type="button"
+        className={cn(
+          "flex size-4 items-center justify-center rounded disabled:opacity-30",
+          toggle.hasKeyframe
+            ? "text-primary"
+            : "text-muted-foreground hover:text-foreground",
+        )}
+        disabled={toggle.change === null}
+        aria-label={toggle.hasKeyframe ? "Remove keyframe" : "Add keyframe"}
+        title={
+          toggle.hasKeyframe
+            ? "Remove the keyframe at the playhead"
+            : "Add a keyframe at the playhead"
+        }
+        onClick={() => {
+          if (toggle.change !== null) {
+            void actions.commitKeyframeChanges([toggle.change]);
+          }
+        }}
+      >
+        <KeyframeDiamond filled={toggle.hasKeyframe} />
+      </button>
+      <button
+        type="button"
+        className={cn(keyframeNavButtonClass, !keyframed && "invisible")}
+        disabled={toggle.nextFrame === null}
+        aria-label="Go to next keyframe"
+        onClick={() => {
+          if (toggle.nextFrame !== null) {
+            actions.seek(toggle.nextFrame);
+          }
+        }}
+      >
+        <ChevronRightIcon className="size-2.5" />
+      </button>
+    </div>
+  );
+};
 
 // Radix Select items cannot have an empty string as value.
 const defaultOption = "__default__";
@@ -59,57 +155,200 @@ const fontWeights = [
   "900",
 ];
 
+type PropFieldEditorProps = {
+  readonly fieldKey: string;
+  readonly field: VisibleField["field"];
+  /** The value written in the source, or `undefined` when the prop is not set. */
+  readonly codeValue: unknown;
+  readonly badge: React.ReactNode;
+  readonly keyframe: React.ReactNode;
+  readonly onCommit: (value: unknown) => void;
+  /** Shows a value on the canvas while it is being dragged. */
+  readonly onPreview: (values: Record<string, unknown>) => void;
+  readonly onCancelPreview: () => void;
+};
+
 const PropEditor: React.FC<{
+  readonly layer: Layer;
+  readonly schema: InteractivitySchema;
   readonly fieldKey: string;
   readonly field: VisibleField["field"];
   readonly status: PropStatus | undefined;
   readonly onUpdate: (updates: SequencePropUpdate[]) => void;
-  /** Shows a value on the canvas while it is being dragged. */
   readonly onPreview: (values: Record<string, unknown>) => void;
   readonly onCancelPreview: () => void;
-}> = ({ fieldKey, field, status, onUpdate, onPreview, onCancelPreview }) => {
+}> = ({
+  layer,
+  schema,
+  fieldKey,
+  field,
+  status,
+  onUpdate,
+  onPreview,
+  onCancelPreview,
+}) => {
   const label = getFieldLabel(fieldKey, field);
-  const ariaLabel = label;
-  const preview = (value: unknown) => onPreview({ [fieldKey]: value });
 
-  if (status && status.status !== "static") {
+  if (status?.status === "computed") {
     return (
-      <FieldRow label={label}>
+      <FieldRow label={label} keyframe={null}>
         <div className="text-muted-foreground-dim flex h-7 flex-1 items-center truncate font-mono text-[11px]">
-          {status.status === "keyframed" ? "interpolate(…)" : "expression"}
+          expression
         </div>
-        <StatusBadge status={status.status} />
+        <StatusBadge status="computed" />
       </FieldRow>
+    );
+  }
+
+  const keyframe =
+    status === undefined ? null : (
+      <KeyframeControls
+        layer={layer}
+        fieldKey={fieldKey}
+        schema={schema}
+        status={status}
+      />
+    );
+
+  if (status?.status === "keyframed") {
+    return (
+      <KeyframedPropEditor
+        layer={layer}
+        schema={schema}
+        fieldKey={fieldKey}
+        field={field}
+        status={status}
+        keyframe={keyframe}
+        onPreview={onPreview}
+        onCancelPreview={onCancelPreview}
+      />
     );
   }
 
   const codeValue = status?.status === "static" ? status.codeValue : undefined;
   const schemaDefault = "default" in field ? field.default : undefined;
   const defaultValue = schemaDefault === undefined ? null : schemaDefault;
-  const isSet = codeValue !== undefined;
-  const commit = (value: unknown) =>
-    onUpdate([{ key: fieldKey, value, defaultValue }]);
-  const reset = isSet ? (
-    <Button
-      variant="ghost"
-      size="icon-xs"
-      aria-label={`Reset ${label}`}
-      title="Reset to default"
-      onClick={() =>
-        onUpdate([{ key: fieldKey, value: undefined, defaultValue: null }])
-      }
-    >
-      <RotateCcwIcon />
-    </Button>
-  ) : (
-    <span className="size-6 shrink-0" />
+  const reset =
+    codeValue === undefined ? (
+      <span className="size-6 shrink-0" />
+    ) : (
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        aria-label={`Reset ${label}`}
+        title="Reset to default"
+        onClick={() =>
+          onUpdate([{ key: fieldKey, value: undefined, defaultValue: null }])
+        }
+      >
+        <RotateCcwIcon />
+      </Button>
+    );
+
+  return (
+    <PropFieldEditor
+      fieldKey={fieldKey}
+      field={field}
+      codeValue={codeValue}
+      badge={reset}
+      keyframe={keyframe}
+      onCommit={(value) => onUpdate([{ key: fieldKey, value, defaultValue }])}
+      onPreview={onPreview}
+      onCancelPreview={onCancelPreview}
+    />
   );
+};
+
+/**
+ * Edits an animated prop at the playhead: the field shows the interpolated
+ * value of the current frame and committing a value writes a keyframe there.
+ */
+const KeyframedPropEditor: React.FC<{
+  readonly layer: Layer;
+  readonly schema: InteractivitySchema;
+  readonly fieldKey: string;
+  readonly field: VisibleField["field"];
+  readonly status: Extract<PropStatus, { status: "keyframed" }>;
+  readonly keyframe: React.ReactNode;
+  readonly onPreview: (values: Record<string, unknown>) => void;
+  readonly onCancelPreview: () => void;
+}> = ({
+  layer,
+  schema,
+  fieldKey,
+  field,
+  status,
+  keyframe,
+  onPreview,
+  onCancelPreview,
+}) => {
+  const { actions, playback } = useEditor();
+  const frame = usePlaybackFrame(playback);
+  const value = getCanvasPropValueAtFrame({
+    track: layer.track,
+    schema,
+    key: fieldKey,
+    propStatus: status,
+    frame,
+  });
+
+  return (
+    <PropFieldEditor
+      fieldKey={fieldKey}
+      field={field}
+      codeValue={value ?? undefined}
+      badge={<StatusBadge status="keyframed" />}
+      keyframe={keyframe}
+      onCommit={(next) => {
+        // A scrub that ends where it started only releases the preview.
+        if (next === undefined || next === value) {
+          onCancelPreview();
+          return;
+        }
+
+        void actions.commitKeyframeChanges([
+          {
+            nodePathInfo: layer.nodePathInfo,
+            key: fieldKey,
+            schema,
+            operation: {
+              type: "add",
+              frame: getCanvasKeyframeSourceFrame({
+                track: layer.track,
+                propStatus: status,
+                frame,
+              }),
+              value: next,
+            },
+          },
+        ]);
+      }}
+      onPreview={onPreview}
+      onCancelPreview={onCancelPreview}
+    />
+  );
+};
+
+const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
+  fieldKey,
+  field,
+  codeValue,
+  badge,
+  keyframe,
+  onCommit: commit,
+  onPreview,
+  onCancelPreview,
+}) => {
+  const label = getFieldLabel(fieldKey, field);
+  const ariaLabel = label;
+  const preview = (value: unknown) => onPreview({ [fieldKey]: value });
+  const schemaDefault = "default" in field ? field.default : undefined;
 
   switch (field.type) {
     case "number": {
       const current = parseNumber(codeValue);
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={ariaLabel}
             value={current}
@@ -131,7 +370,7 @@ const PropEditor: React.FC<{
 
     case "boolean":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <BooleanField
             ariaLabel={ariaLabel}
             value={
@@ -147,7 +386,7 @@ const PropEditor: React.FC<{
     case "translate": {
       const current = parseTranslate(codeValue ?? schemaDefault);
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={`${label} X`}
             value={current.x}
@@ -180,7 +419,7 @@ const PropEditor: React.FC<{
 
     case "scale":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={ariaLabel}
             value={parseScale(codeValue ?? schemaDefault)}
@@ -196,7 +435,7 @@ const PropEditor: React.FC<{
 
     case "rotation-css":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={ariaLabel}
             value={parseRotation(codeValue ?? schemaDefault)}
@@ -211,7 +450,7 @@ const PropEditor: React.FC<{
 
     case "rotation-degrees":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={ariaLabel}
             value={parseNumber(codeValue ?? schemaDefault) ?? 0}
@@ -228,7 +467,7 @@ const PropEditor: React.FC<{
 
     case "color":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <ColorField
             ariaLabel={ariaLabel}
             value={typeof codeValue === "string" ? codeValue : ""}
@@ -243,7 +482,12 @@ const PropEditor: React.FC<{
 
     case "text-content":
       return (
-        <FieldRow label={label} badge={reset} className="items-start">
+        <FieldRow
+          label={label}
+          badge={badge}
+          keyframe={keyframe}
+          className="items-start"
+        >
           <TextField
             ariaLabel={ariaLabel}
             multiline
@@ -256,7 +500,7 @@ const PropEditor: React.FC<{
 
     case "font-weight":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <SelectField
             ariaLabel={ariaLabel}
             value={codeValue === undefined ? defaultOption : String(codeValue)}
@@ -282,7 +526,7 @@ const PropEditor: React.FC<{
 
     case "enum":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <SelectField
             ariaLabel={ariaLabel}
             value={
@@ -301,7 +545,7 @@ const PropEditor: React.FC<{
     case "transform-origin":
     case "asset":
       return (
-        <FieldRow label={label} badge={reset}>
+        <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <TextField
             ariaLabel={ariaLabel}
             mono={field.type === "asset"}
@@ -336,9 +580,9 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
 
     let visible = getVisibleFields(schema);
     const keys = visible.map(({ key }) => key);
-    let props: ReturnType<typeof getJsxNodeProps>["props"] | null = null;
+    let props: ReturnType<typeof getNodeProps>["props"] | null = null;
     try {
-      props = getJsxNodeProps({
+      props = getNodeProps({
         project,
         node,
         keys,
@@ -367,7 +611,7 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
       if (variantFields.length > 0) {
         visible = [...visible, ...variantFields];
         try {
-          const extra = getJsxNodeProps({
+          const extra = getNodeProps({
             project,
             node,
             keys: variantFields.map((item) => item.key),
@@ -462,6 +706,8 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
           {items.map(({ key, field }) => (
             <PropEditor
               key={key}
+              layer={layer}
+              schema={schema ?? {}}
               fieldKey={key}
               field={field}
               status={statuses?.[key]}

@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/canvas';
 import {
 	Internals,
 	type DragOverrideValue,
@@ -8,6 +9,8 @@ import {
 } from 'remotion';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {getTimelineKeyframes} from './get-timeline-keyframes';
+
+const {canEditKeyframeEasing} = CanvasInternals;
 
 const hasOverride = (
 	overrides: Record<string, DragOverrideValue>,
@@ -173,4 +176,41 @@ export const getNodeHasKeyframes = ({
 		effectStatus.type === 'can-update-effect' &&
 		effectStatus.props?.[node.field.key]?.status === 'keyframed'
 	);
+};
+
+/** Whether the row of a field shows easing segments between its keyframes. */
+export const getNodeCanEditEasing = ({
+	node,
+	nodePath,
+	propStatuses,
+}: {
+	node: TimelineTreeNode;
+	nodePath: SequencePropsSubscriptionKey;
+	propStatuses: PropStatuses;
+}): boolean => {
+	if (node.kind !== 'field' || node.field === null) {
+		return false;
+	}
+
+	if (node.field.kind === 'sequence-field') {
+		return canEditKeyframeEasing({
+			field: node.field.fieldSchema,
+			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath)?.[
+				node.field.key
+			],
+		});
+	}
+
+	const effectStatus = Internals.getEffectPropStatusesCtx({
+		propStatuses,
+		nodePath,
+		effectIndex: node.field.effectIndex,
+	});
+	return canEditKeyframeEasing({
+		field: node.field.fieldSchema,
+		propStatus:
+			effectStatus.type === 'can-update-effect'
+				? effectStatus.props[node.field.key]
+				: null,
+	});
 };

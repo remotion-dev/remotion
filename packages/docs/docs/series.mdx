@@ -62,7 +62,9 @@ A `<Series.Sequence />` component accepts the following props:
 
 ### `durationInFrames?`
 
-For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display.
+For how many frames of the child timeline the sequence should be displayed. Children are unmounted if they are not within the time range of display. The next sequence starts after `durationInFrames / playbackRate` frames.
+
+To loop within a series scene, put a looping `<Sequence>` inside `<Series.Sequence>`.
 
 Only the last `<Series.Sequence />` instance is allowed to have `Infinity` as a duration, all previous one must have a positive integer.
 
@@ -81,8 +83,9 @@ Trims frames from the beginning without changing where the sequence starts. See 
 
 ### `playbackRate?`<AvailableFrom v="4.0.528" />
 
-Changes the speed of the children. Defaults to `1` and must remain constant across frames. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
-The sequence's duration and the next sequence's start remain unchanged. Setting `playbackRate` on `<Series>` speeds up the whole series, including transitions between its sequences.
+Changes the speed of the children. Defaults to `1` and must remain constant across frames. The next sequence starts after `durationInFrames / playbackRate` frames. See [`playbackRate`](/docs/sequence#playbackrate) on [`<Sequence>`](/docs/sequence).
+
+Setting `playbackRate` on `<Series>` speeds up the whole series, including transitions between its sequences.
 
 ### `freeze?`<AvailableFrom v="4.0.476" />
 

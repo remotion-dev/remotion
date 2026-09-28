@@ -6,11 +6,13 @@ import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {getCpuCount} from './get-cpu-count';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
+import {getMaxLambdaMemory} from './memory/from-lambda-env';
 import type {ColorSpace} from './options/color-space';
 import type {X264Preset} from './options/x264-preset';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -129,6 +131,8 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent: options.indent,
 			logLevel: options.logLevel,
+			cpuCount: getCpuCount(),
+			lambdaMemoryInBytes: getMaxLambdaMemory(),
 		}),
 
 		'-y',

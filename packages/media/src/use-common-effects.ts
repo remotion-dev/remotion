@@ -97,17 +97,8 @@ export const useCommonEffects = ({
 			return;
 		}
 
-		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
-	}, [trimBefore, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
-	}, [trimAfter, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+		mediaPlayer.setTrimRange(trimBefore, trimAfter, currentTimeRef.current);
+	}, [trimAfter, trimBefore, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;

@@ -1,8 +1,10 @@
 import {
 	addElementLibraryToStudio,
+	isInsideStudio,
 	type AddElementLibraryToStudioErrorCode,
 } from '@remotion/studio-protocol';
-import React, {useCallback, useId, useState} from 'react';
+import React, {useCallback, useId, useLayoutEffect, useState} from 'react';
+import {BlueButton} from '../../../components/layout/Button';
 import {
 	thirdPartyElementLibraries,
 	type ThirdPartyElementLibrary,
@@ -20,9 +22,10 @@ type AddState =
 	  };
 
 const ThirdPartyElementLibraryItem: React.FC<{
+	readonly isEmbeddedInStudio: boolean;
 	readonly library: ThirdPartyElementLibrary;
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
-}> = ({library, requestLibraryAddition}) => {
+}> = ({isEmbeddedInStudio, library, requestLibraryAddition}) => {
 	const [addState, setAddState] = useState<AddState>({type: 'idle'});
 	const statusId = useId();
 	const isLoading = addState.type === 'loading';
@@ -103,41 +106,33 @@ const ThirdPartyElementLibraryItem: React.FC<{
 							className={styles.libraryLink}
 							href={library.browseUrl}
 							rel="noreferrer"
-							target="_blank"
+							target={isEmbeddedInStudio ? '_self' : '_blank'}
 						>
 							{library.displayName}
 						</a>
 					</h3>
-					<button
+					<BlueButton
+						aria-busy={isLoading}
 						aria-describedby={addState.type === 'idle' ? undefined : statusId}
 						aria-label={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						aria-busy={isLoading}
 						className={styles.addAction}
-						disabled={isLoading}
+						fullWidth={false}
+						loading={isLoading}
 						onClick={addToStudio}
+						size="sm"
+						style={{fontSize: '0.75rem', lineHeight: 1.25, padding: '5px 8px'}}
 						title={
 							isLoading
 								? `Adding ${library.displayName} to Studio`
 								: `Add ${library.displayName} to Studio`
 						}
-						type="button"
 					>
-						{isLoading ? (
-							'…'
-						) : (
-							<>
-								<span aria-hidden="true" className={styles.addActionIcon}>
-									+
-								</span>
-								Add to Studio
-							</>
-						)}
-						<span aria-hidden="true" className={styles.touchTarget} />
-					</button>
+						Add to Studio
+					</BlueButton>
 				</div>
 				{status}
 			</div>
@@ -148,12 +143,19 @@ const ThirdPartyElementLibraryItem: React.FC<{
 export const ThirdPartyElementLibraryList: React.FC<{
 	readonly requestLibraryAddition: typeof addElementLibraryToStudio;
 }> = ({requestLibraryAddition}) => {
+	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState(false);
+
+	useLayoutEffect(() => {
+		setIsEmbeddedInStudio(isInsideStudio());
+	}, []);
+
 	return (
 		<div className={styles.library}>
 			<ul className={styles.list} role="list">
 				{thirdPartyElementLibraries.map((library) => (
 					<ThirdPartyElementLibraryItem
 						key={library.libraryUrl}
+						isEmbeddedInStudio={isEmbeddedInStudio}
 						library={library}
 						requestLibraryAddition={requestLibraryAddition}
 					/>

@@ -2,14 +2,7 @@ import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
 import {fitText} from '@remotion/layout-utils';
-import React, {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
 	cancelRender,
 	Interactive,
@@ -242,75 +235,62 @@ const WordHighlightCaptionsContent: React.FC<{
 	);
 };
 
-const WordHighlightCaptionsInner = forwardRef<
-	HTMLDivElement,
+const WordHighlightCaptionsInner: React.FC<
 	WordHighlightCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			playbackRate = 1,
-			style,
-			trimBefore,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-		const [fontLoaded, setFontLoaded] = useState(false);
+> = ({
+	captions,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	controls,
+	height = defaultHeight,
+	name,
+	playbackRate = 1,
+	style,
+	trimBefore,
+	width = defaultWidth,
+	...interactiveProps
+}) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
 
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
 
-		useEffect(() => {
-			waitUntilDone()
-				.then(() => {
-					setFontLoaded(true);
-				})
-				.catch((error) => {
-					cancelRender(
-						error instanceof Error ? error : new Error(String(error)),
-					);
-				});
-		}, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<WordHighlightCaptions>'}
-				trimBefore={trimBefore}
-				outlineRef={outlineRef}
+	return (
+		<Sequence
+			layout="none"
+			{...interactiveProps}
+			controls={controls}
+			name={name ?? '<WordHighlightCaptions>'}
+			trimBefore={trimBefore}
+		>
+			<div
+				style={{
+					height,
+					marginInline: 'auto',
+					width,
+					...style,
+				}}
 			>
-				<div
-					ref={outlineRef}
-					style={{
-						height,
-						marginInline: 'auto',
-						width,
-						...style,
-					}}
-				>
-					<WordHighlightCaptionsContent
-						captionAreaWidth={width ?? null}
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						fontLoaded={fontLoaded}
-						playbackRate={playbackRate}
-						trimBefore={trimBefore ?? 0}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<WordHighlightCaptionsContent
+					captionAreaWidth={width ?? null}
+					captions={captions}
+					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					fontLoaded={fontLoaded}
+					playbackRate={playbackRate}
+					trimBefore={trimBefore ?? 0}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 const WordHighlightCaptionsLayer = Interactive.withSchema({
 	Component: WordHighlightCaptionsInner,

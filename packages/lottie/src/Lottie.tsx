@@ -182,6 +182,7 @@ export const Lottie = ({
 	from,
 	durationInFrames,
 	trimBefore,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -203,7 +204,11 @@ export const Lottie = ({
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate: undefined,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -218,6 +223,7 @@ export const Lottie = ({
 				from={from}
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<Lottie>'}
@@ -227,7 +233,11 @@ export const Lottie = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				<LottieContent {...props} style={premountingStyle ?? undefined} />
+				<LottieContent
+					{...props}
+					loop={loop}
+					style={premountingStyle ?? undefined}
+				/>
 			</Sequence>
 		</Freeze>
 	);

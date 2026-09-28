@@ -11,7 +11,7 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineRotationDragOverrides,
+	clearSelectedOutlineDragOverrides,
 	getSelectedOutline3DRotationDragValues,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
@@ -244,7 +244,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 					lastValues,
 				});
 				if (changes.length === 0) {
-					clearSelectedOutlineRotationDragOverrides({
+					clearSelectedOutlineDragOverrides({
 						clearDragOverrides,
 						dragStates,
 					});
@@ -288,7 +288,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						);
 					})
 					.finally(() => {
-						clearSelectedOutlineRotationDragOverrides({
+						clearSelectedOutlineDragOverrides({
 							clearDragOverrides,
 							dragStates,
 						});

@@ -148,6 +148,7 @@ export const MapLayer = ({
 	durationInFrames,
 	trimBefore,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -165,7 +166,11 @@ export const MapLayer = ({
 		postmountingActive,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -182,6 +187,7 @@ export const MapLayer = ({
 				durationInFrames={durationInFrames}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline ?? false}

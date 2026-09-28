@@ -1,4 +1,3 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_40} from '../../helpers/colors';
@@ -12,7 +11,7 @@ import {
 	inputDraggerContainerStyle,
 } from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {applyCodemod} from '../RenderQueue/actions';
+import {updateCompositionMetadata} from '../RenderQueue/actions';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorDetailRow} from './common';
 import {
@@ -362,22 +361,19 @@ export const CompositionMetadata: React.FC<{
 				};
 				return values;
 			}, {} as PendingCompositionMetadata);
-			const codemod: RecastCodemod = {
-				type: 'update-composition-metadata',
-				idToUpdate: compositionId,
-				newDurationInFrames: newValues.durationInFrames ?? null,
-				newFps: newValues.fps ?? null,
-				newHeight: newValues.height ?? null,
-				newWidth: newValues.width ?? null,
-			};
 			setPendingValues((pending) => ({...pending, ...optimisticValues}));
-			applyCodemod({
-				codemod,
-				dryRun: false,
-				signal: new AbortController().signal,
-				symbolicatedStack,
-				undoRedoNavigation: null,
-			})
+			updateCompositionMetadata(
+				{
+					idToUpdate: compositionId,
+					newDurationInFrames: newValues.durationInFrames ?? null,
+					newFps: newValues.fps ?? null,
+					newHeight: newValues.height ?? null,
+					newWidth: newValues.width ?? null,
+					symbolicatedStack,
+					undoRedoNavigation: null,
+				},
+				new AbortController().signal,
+			)
 				.then((result) => {
 					if (!result.success) {
 						for (const field of changedFields) {

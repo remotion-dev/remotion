@@ -1,16 +1,6 @@
 import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
-import {
-	forwardRef,
-	useContext,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-	type ForwardRefRenderFunction,
-	type RefObject,
-} from 'react';
+import {useContext, useEffect, useMemo, useState, type FC} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -239,17 +229,11 @@ const MapRouteDrawing = ({
 	return null;
 };
 
-const MapRouteBounds = ({
-	feature,
-	refForOutline,
-}: {
-	readonly feature: MapRouteFeature;
-	readonly refForOutline: RefObject<HTMLDivElement | null>;
-}) => {
+const MapRouteBounds: FC<{readonly feature: MapRouteFeature}> = ({feature}) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={refForOutline} />;
+		return <div />;
 	}
 
 	const points = feature.geometry.coordinates.map(([longitude, latitude]) =>
@@ -262,7 +246,6 @@ const MapRouteBounds = ({
 
 	return (
 		<div
-			ref={refForOutline}
 			style={{
 				height: bottom - top,
 				left,
@@ -277,35 +260,26 @@ const MapRouteBounds = ({
 	);
 };
 
-const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapRouteProps
-> = (
-	{
-		feature,
-		glow = 0.72,
-		id,
-		progress = 1,
-		strokeColor = '#006cff',
-		strokeWidth = 9,
-		durationInFrames,
-		from,
-		premountFor,
-		postmountFor,
-		trimBefore,
-		playbackRate,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-	},
-	ref,
-) => {
-	const refForOutline = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
+const MapRouteInner: FC<MapRouteProps> = ({
+	feature,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#006cff',
+	strokeWidth = 9,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -315,7 +289,11 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 		postmountingActive,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -330,13 +308,13 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? `<${feature.properties.name}>`}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -351,14 +329,12 @@ const MapRouteRefForwardingFunction: ForwardRefRenderFunction<
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 					/>
-					<MapRouteBounds feature={feature} refForOutline={refForOutline} />
+					<MapRouteBounds feature={feature} />
 				</>
 			</Sequence>
 		</Freeze>
 	);
 };
-
-const MapRouteInner = forwardRef(MapRouteRefForwardingFunction);
 
 export const MapRoute = Interactive.withSchema({
 	Component: MapRouteInner,

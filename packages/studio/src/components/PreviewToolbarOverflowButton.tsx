@@ -8,6 +8,7 @@ import {EllipsisIcon} from '../icons/ellipsis';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
@@ -46,6 +47,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	const fullscreenShortcut = useKeyboardShortcutLabel('enterFullscreen');
 	const loopShortcut = useKeyboardShortcutLabel('toggleLoop');
 	const outlinesShortcut = useKeyboardShortcutLabel('toggleOutlines');
+	const pixelGridShortcut = useKeyboardShortcutLabel('togglePixelGrid');
 	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
@@ -56,6 +58,9 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	);
 	const {editorShowRulers, setEditorShowRulers} = useContext(
 		EditorShowRulersContext,
+	);
+	const {editorShowPixelGrid, setEditorShowPixelGrid} = useContext(
+		EditorShowPixelGridContext,
 	);
 	const {
 		items: previewSizeItems,
@@ -199,6 +204,20 @@ export const PreviewToolbarOverflowButton: React.FC<{
 			});
 		}
 
+		if (showCanvasViewControls) {
+			items.push({
+				type: 'item',
+				id: 'pixel-grid',
+				label: 'Pixel Grid',
+				value: 'pixel-grid',
+				onClick: () => setEditorShowPixelGrid((current) => !current),
+				keyHint: keyboardShortcutsDisabled ? null : pixelGridShortcut || null,
+				leftItem: editorShowPixelGrid ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
+		}
+
 		if (showFullscreen) {
 			items.push({
 				type: 'item',
@@ -235,11 +254,14 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		editorShowGuides,
 		editorShowOutlines,
 		outlinesShortcut,
+		pixelGridShortcut,
 		editorShowRulers,
+		editorShowPixelGrid,
 		setCheckerboard,
 		setEditorShowGuides,
 		setEditorShowOutlines,
 		setEditorShowRulers,
+		setEditorShowPixelGrid,
 		setLoop,
 		zoomable,
 		keyboardShortcutsDisabled,

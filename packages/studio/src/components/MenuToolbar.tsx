@@ -10,7 +10,7 @@ import {
 	useKeyboardShortcutAriaKeyShortcuts,
 	useKeyboardShortcutLabel,
 } from '../helpers/use-keyboard-shortcut-label';
-import {useMenuStructure} from '../helpers/use-menu-structure';
+import {useToolbarMenuStructure} from '../helpers/use-menu-structure';
 import {SearchIcon} from '../icons/search';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
@@ -23,6 +23,11 @@ import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {SettingsButton} from './SettingsButton';
 import {SidebarCollapserControl} from './SidebarCollapserControls';
+import {
+	CompositionToolbarMenuItem,
+	FileToolbarMenuItem,
+	MobileToolbarMenuItem,
+} from './ToolbarMenuItems';
 import {UndoRedoButtons} from './UndoRedoButtons';
 
 const row: React.CSSProperties = {
@@ -50,7 +55,7 @@ const menuItems: React.CSSProperties = {
 
 export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+}> = React.memo(({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -113,11 +118,10 @@ export const MenuToolbar: React.FC<{
 		setSelected(null);
 	}, []);
 
-	const structure = useMenuStructure(closeMenu, readOnlyStudio);
+	const structure = useToolbarMenuStructure(closeMenu, readOnlyStudio);
 
-	const menus = useMemo(() => {
-		return structure.map((s) => s.id);
-	}, [structure]);
+	const menuIdsKey = structure.map((s) => s.id).join('|');
+	const menus = useMemo(() => menuIdsKey.split('|') as MenuId[], [menuIdsKey]);
 
 	const onPreviousMenu = useCallback(() => {
 		setSelected((s) => {
@@ -203,18 +207,54 @@ export const MenuToolbar: React.FC<{
 				)}
 				<div style={menuItems}>
 					{structure.map((s) => {
+						const props = {
+							selected: selected === s.id,
+							onItemSelected: itemClicked,
+							onItemHovered: itemHovered,
+							onItemQuit,
+							onPreviousMenu,
+							onNextMenu,
+						};
+						if (mobileLayout) {
+							return (
+								<MobileToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						if (s.id === 'file') {
+							return (
+								<FileToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						if (s.id === 'composition') {
+							return (
+								<CompositionToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
 						return (
 							<MenuItem
 								key={s.id}
-								selected={selected === s.id}
-								onItemSelected={itemClicked}
-								onItemHovered={itemHovered}
+								{...props}
 								id={s.id}
 								label={s.label}
-								onItemQuit={onItemQuit}
 								menu={s}
-								onPreviousMenu={onPreviousMenu}
-								onNextMenu={onNextMenu}
 								leaveLeftPadding={s.leaveLeftPadding}
 							/>
 						);
@@ -231,4 +271,4 @@ export const MenuToolbar: React.FC<{
 			</div>
 		</Row>
 	);
-};
+});

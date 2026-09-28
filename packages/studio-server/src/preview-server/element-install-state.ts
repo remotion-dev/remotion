@@ -2,7 +2,6 @@ import {randomUUID} from 'node:crypto';
 
 export const ELEMENT_INSTALL_TARGET_MAX_AGE = 5000;
 export const STUDIO_PROTOCOL_TARGET_MAX_AGE = 4000;
-export const STUDIO_PROTOCOL_FOCUS_MAX_AGE = 5 * 60 * 1000;
 
 export type ElementInstallTarget = {
 	requestId: string | null;
@@ -66,7 +65,11 @@ export const getElementInstallTarget = (requestId: string | null) => {
 			continue;
 		}
 
-		if (requestId !== null && currentTarget.requestId !== requestId) {
+		if (
+			(requestId !== null && currentTarget.requestId !== requestId) ||
+			currentTarget.lastFocusedAt === null ||
+			currentTarget.readOnly
+		) {
 			continue;
 		}
 
@@ -142,8 +145,6 @@ export const consumeStudioProtocolTarget = ({
 	}
 
 	if (
-		current.lastFocusedAt === null ||
-		now - current.lastFocusedAt >= STUDIO_PROTOCOL_FOCUS_MAX_AGE ||
 		current.compositionFile !== issued.target.compositionFile ||
 		current.compositionId !== issued.target.compositionId
 	) {

@@ -12,16 +12,16 @@ const drawableBySvg = new WeakMap<
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color} = getComputedStyle(svg);
 
-	const originalTransform = svg.style.transform;
-	const originalTransformOrigin = svg.style.transformOrigin;
-	const originalMarginLeft = svg.style.marginLeft;
-	const originalMarginRight = svg.style.marginRight;
-	const originalMarginTop = svg.style.marginTop;
-	const originalMarginBottom = svg.style.marginBottom;
-	const originalFill = svg.style.fill;
-	const originalColor = svg.style.color;
+	const originalStyle = svg.getAttribute('style');
 
+	// Position and transforms are applied by the canvas renderer. Remove them
+	// from the serialized SVG so they are not applied again inside its viewport.
+	svg.style.position = 'static';
+	svg.style.inset = 'auto';
 	svg.style.transform = 'none';
+	svg.style.translate = 'none';
+	svg.style.scale = 'none';
+	svg.style.rotate = 'none';
 	svg.style.transformOrigin = '';
 	// Margins were already included in the positioning calculation,
 	// so we need to remove them to avoid double counting.
@@ -36,14 +36,12 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
-	svg.style.marginLeft = originalMarginLeft;
-	svg.style.marginRight = originalMarginRight;
-	svg.style.marginTop = originalMarginTop;
-	svg.style.marginBottom = originalMarginBottom;
-	svg.style.transform = originalTransform;
-	svg.style.transformOrigin = originalTransformOrigin;
-	svg.style.fill = originalFill;
-	svg.style.color = originalColor;
+	if (originalStyle === null) {
+		svg.removeAttribute('style');
+	} else {
+		svg.setAttribute('style', originalStyle);
+	}
+
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const fontStyleKey = embeddedFontStyle?.cacheKey ?? null;
 	const cached = drawableBySvg.get(svg);

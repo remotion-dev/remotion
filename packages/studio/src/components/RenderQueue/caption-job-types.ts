@@ -29,6 +29,7 @@ export type AddCaptionJobParams = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		premountFor: number | null;
 	} | null;
 	model: WhisperWebGpuModel;
 	language: string | null;

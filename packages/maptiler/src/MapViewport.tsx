@@ -1,19 +1,7 @@
 import {Map as MapTilerMap, MapStyle, type MapOptions} from '@maptiler/sdk';
-import type {
-	ComponentType,
-	CSSProperties,
-	ForwardRefRenderFunction,
-	ReactNode,
-} from 'react';
+import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
 import '@maptiler/sdk/style.css';
-import {
-	forwardRef,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -219,41 +207,36 @@ const MissingApiKey = () => {
 	);
 };
 
-const MapViewportContentRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
+const MapViewportContent: FC<
 	MapViewportProps & {
 		readonly premountingStyle: CSSProperties | null;
 	}
-> = (
-	{
-		apiKey,
-		premountingStyle,
-		backgroundColor = '#dfe7e2',
-		bearing = 0,
-		centerLatitude = 0,
-		centerLongitude = 0,
-		children,
-		language,
-		mapOptions,
-		mapStyle = MapStyle.BASIC,
-		onMapReady,
-		paddingBottom = 0,
-		paddingLeft = 0,
-		paddingRight = 0,
-		paddingTop = 0,
-		pitch = 0,
-		projection,
-		showLabels = true,
-		administrativeBorders = 'all',
-		terrain = false,
-		terrainExaggeration = 1,
-		zoom = 4,
-	},
-	ref,
-) => {
+> = ({
+	apiKey,
+	premountingStyle,
+	backgroundColor = '#dfe7e2',
+	bearing = 0,
+	centerLatitude = 0,
+	centerLongitude = 0,
+	children,
+	language,
+	mapOptions,
+	mapStyle = MapStyle.BASIC,
+	onMapReady,
+	paddingBottom = 0,
+	paddingLeft = 0,
+	paddingRight = 0,
+	paddingTop = 0,
+	pitch = 0,
+	projection,
+	showLabels = true,
+	administrativeBorders = 'all',
+	terrain = false,
+	terrainExaggeration = 1,
+	zoom = 4,
+}) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<MapTilerMap | null>(null);
-	const viewportRef = useRef<HTMLDivElement>(null);
 	const initialCameraRef = useRef({
 		bearing,
 		centerLatitude,
@@ -291,8 +274,6 @@ const MapViewportContentRefForwardingFunction: ForwardRefRenderFunction<
 		() => ({cameraRevision, map, styleRevision}),
 		[cameraRevision, map, styleRevision],
 	);
-
-	useImperativeHandle(ref, () => viewportRef.current as HTMLDivElement, []);
 
 	useEffect(() => {
 		if (!apiKey) {
@@ -514,7 +495,6 @@ const MapViewportContentRefForwardingFunction: ForwardRefRenderFunction<
 
 	return (
 		<div
-			ref={viewportRef}
 			style={{
 				backgroundColor,
 				inset: 0,
@@ -543,29 +523,23 @@ const MapViewportContentRefForwardingFunction: ForwardRefRenderFunction<
 	);
 };
 
-const MapViewportContent = forwardRef(MapViewportContentRefForwardingFunction);
-const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapViewportProps
-> = (
-	{
-		durationInFrames,
-		from,
-		trimBefore,
-		playbackRate,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-		premountFor,
-		postmountFor,
-		styleWhilePremounted,
-		styleWhilePostmounted,
-		...props
-	},
-	ref,
-) => {
+const MapViewportInner: FC<MapViewportProps> = ({
+	durationInFrames,
+	from,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	...props
+}) => {
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -576,7 +550,11 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -593,6 +571,7 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 				from={from}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}
@@ -603,17 +582,11 @@ const MapViewportRefForwardingFunction: ForwardRefRenderFunction<
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				<MapViewportContent
-					{...props}
-					ref={ref}
-					premountingStyle={premountingStyle}
-				/>
+				<MapViewportContent {...props} premountingStyle={premountingStyle} />
 			</Sequence>
 		</Freeze>
 	);
 };
-
-const MapViewportInner = forwardRef(MapViewportRefForwardingFunction);
 
 export const MapViewport: ComponentType<MapViewportProps> =
 	Interactive.withSchema({

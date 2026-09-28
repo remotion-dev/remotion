@@ -74,7 +74,7 @@ export const getPlaybackRateKeyframeChanges = ({
 	for (const sequence of sequences) {
 		let ancestorId: string | null = sequence.id;
 		let belongsToRoot = false;
-		let descendantOffset = 0;
+		const descendantAncestors: TSequence[] = [];
 		while (ancestorId !== null) {
 			if (ancestorId === root.id) {
 				belongsToRoot = true;
@@ -86,7 +86,10 @@ export const getPlaybackRateKeyframeChanges = ({
 				break;
 			}
 
-			descendantOffset += ancestor.from - (ancestor.trimBefore ?? 0);
+			if (ancestor.id !== sequence.id) {
+				descendantAncestors.push(ancestor);
+			}
+
 			ancestorId = ancestor.parent;
 		}
 
@@ -99,6 +102,17 @@ export const getPlaybackRateKeyframeChanges = ({
 			? overrideIdsToNodePaths[overrideId]
 			: undefined;
 		if (!descendantNodePath) {
+			continue;
+		}
+
+		const rootElementPath = nodePath.nodePath.slice(0, -1);
+		if (
+			sequence.id !== root.id &&
+			(descendantNodePath.absolutePath !== nodePath.absolutePath ||
+				!rootElementPath.every(
+					(segment, index) => descendantNodePath.nodePath[index] === segment,
+				))
+		) {
 			continue;
 		}
 
@@ -125,13 +139,17 @@ export const getPlaybackRateKeyframeChanges = ({
 			effectIndex: number | null,
 		) => {
 			const adjustment = target.status.keyframeDisplayOffsetAdjustment ?? 0;
-			// The adjustment includes the timing offsets between this element and
-			// the useCurrentFrame() binding. Remove the descendant offsets to find
-			// the edited element's start in that binding's source clock.
-			const anchor =
-				sequence.id === root.id
-					? root.from - adjustment
-					: -adjustment - descendantOffset;
+			const rateAdjustment = target.status.keyframePlaybackRateAdjustment ?? 1;
+			let frameAtRootStart =
+				sequence.id === root.id ? root.from : (root.trimBefore ?? 0);
+			for (const ancestor of [...descendantAncestors].reverse()) {
+				frameAtRootStart =
+					(frameAtRootStart - ancestor.from) *
+						(ancestor.sequencePlaybackRate ?? 1) +
+					(ancestor.trimBefore ?? 0);
+			}
+
+			const anchor = frameAtRootStart * rateAdjustment - adjustment;
 			if (!Number.isFinite(anchor)) {
 				return;
 			}
@@ -181,7 +199,17 @@ export const getPlaybackRateKeyframeChanges = ({
 				nodePath: target.nodePath,
 				fieldKey: target.fieldKey,
 				effectIndex,
-				status: {...target.status, keyframes: nextKeyframes},
+				status: {
+					...target.status,
+					keyframes: nextKeyframes,
+					...(sequence.id === root.id
+						? {}
+						: {
+								keyframePlaybackRateAdjustment: rateAdjustment * ratio,
+								keyframeDisplayOffsetAdjustment:
+									adjustment * ratio + anchor * (ratio - 1),
+							}),
+				},
 			});
 			if (effectIndex === null) {
 				sequenceKeyframes.push(...moves);

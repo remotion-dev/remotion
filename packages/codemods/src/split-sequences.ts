@@ -1,24 +1,24 @@
 import type {CodemodProject} from './codemod-project';
-import type {DuplicateJsxNodesResult} from './duplicate-jsx-nodes';
-import {getJsxNodeProps} from './get-jsx-node-props';
-import {getJsxNodes} from './get-jsx-nodes';
+import type {DuplicateNodesResult} from './duplicate-nodes';
+import {getNodeProps} from './get-node-props';
+import {getNodes} from './get-nodes';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
 	getInsertedNodeReferences,
-	type JsxNodeReference,
+	type NodeReference,
 } from './node-references';
 import {splitJsxSequences} from './split-jsx-sequence';
 
 export type SplitSequencesOptions<Project extends CodemodProject> = {
 	project: Project;
-	splits: {node: JsxNodeReference; frame: number; sequenceKeys?: string[]}[];
+	splits: {node: NodeReference; frame: number; sequenceKeys?: string[]}[];
 };
 
 export const splitSequences = async <Project extends CodemodProject>({
 	project,
 	splits,
-}: SplitSequencesOptions<Project>): Promise<DuplicateJsxNodesResult> => {
+}: SplitSequencesOptions<Project>): Promise<DuplicateNodesResult> => {
 	if (splits.length === 0) {
 		throw new Error('Expected at least one sequence to split');
 	}
@@ -27,7 +27,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 	for (const split of splits) {
 		const filePath = findProjectFile({project, filePath: split.node.filePath});
 		if (split.sequenceKeys === undefined) {
-			const target = getJsxNodes({project, filePath}).find(
+			const target = getNodes({project, filePath}).find(
 				(node) =>
 					JSON.stringify(node.nodePath) === JSON.stringify(split.node.nodePath),
 			);
@@ -42,7 +42,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 				);
 			}
 
-			const status = getJsxNodeProps({
+			const status = getNodeProps({
 				project,
 				node: split.node,
 				keys: ['from', 'durationInFrames', 'trimBefore'],

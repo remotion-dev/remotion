@@ -65,6 +65,7 @@ const MacOSCursorInner: React.FC<
 	styleWhilePostmounted,
 	trimBefore,
 	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -77,7 +78,6 @@ const MacOSCursorInner: React.FC<
 				? resolveCursor(customCursor)
 				: null
 			: resolveCursor(cursor);
-	const refForOutline = React.useRef<SVGSVGElement | null>(null);
 	const width = resolved?.width ?? undefined;
 	const height = resolved?.height ?? undefined;
 	const currentScale = useCurrentScale({dontThrowIfOutsideOfRemotion: true});
@@ -92,7 +92,11 @@ const MacOSCursorInner: React.FC<
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -107,13 +111,13 @@ const MacOSCursorInner: React.FC<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<MacOSCursor>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -121,7 +125,6 @@ const MacOSCursorInner: React.FC<
 			>
 				{resolved ? (
 					<svg
-						ref={refForOutline}
 						className={className}
 						width={width}
 						height={height}

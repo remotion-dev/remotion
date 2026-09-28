@@ -17,6 +17,10 @@ import {CanvasOutlineOverlay} from './canvas-outline-overlay';
 import {installFiberCommitOrderObserver} from './install-fiber-sequence-order-observer';
 import type {CanvasSequenceNodePathResolver} from './sequence-node-path';
 import {getCanvasSequenceNodePathInfo} from './sequence-node-path';
+import type {
+	CanvasSequencePropsChangeHandler,
+	CanvasSequencePropStatusResolver,
+} from './sequence-props-change';
 import {useSyncExternalStore} from './use-sync-external-store';
 
 export type CanvasProps<
@@ -28,6 +32,18 @@ export type CanvasProps<
 	readonly showOutlines?: boolean;
 	/** Use the same resolver for your layer list and canvas selection. */
 	readonly resolveSequenceNodePathInfo?: CanvasSequenceNodePathResolver;
+	/**
+	 * Enables moving selected outlines by dragging them or pressing the arrow
+	 * keys. Called with the resulting prop values once a gesture ends; the
+	 * values stay previewed through `controller.overrides` until you clear them.
+	 */
+	readonly onSequencePropsChange?: CanvasSequencePropsChangeHandler;
+	/**
+	 * How the props of a sequence are written in the source. Computed values
+	 * cannot be moved, keyframed values receive a keyframe at the current frame.
+	 * Without it, every value is treated as a static value.
+	 */
+	readonly getSequencePropStatuses?: CanvasSequencePropStatusResolver;
 };
 
 // Rendered inside the Player so the controller can reach the Visual Mode
@@ -54,6 +70,8 @@ const CanvasFn = <
 		controller,
 		showOutlines = false,
 		resolveSequenceNodePathInfo = getCanvasSequenceNodePathInfo,
+		onSequencePropsChange,
+		getSequencePropStatuses,
 		...playerProps
 	}: CanvasProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
@@ -92,11 +110,19 @@ const CanvasFn = <
 					<CanvasOutlineOverlay
 						controller={controller}
 						resolveSequenceNodePathInfo={resolveSequenceNodePathInfo}
+						onSequencePropsChange={onSequencePropsChange ?? null}
+						getSequencePropStatuses={getSequencePropStatuses ?? null}
 					/>
 				) : null}
 			</>
 		),
-		[controller, resolveSequenceNodePathInfo, showOutlines],
+		[
+			controller,
+			getSequencePropStatuses,
+			onSequencePropsChange,
+			resolveSequenceNodePathInfo,
+			showOutlines,
+		],
 	);
 
 	return React.createElement(

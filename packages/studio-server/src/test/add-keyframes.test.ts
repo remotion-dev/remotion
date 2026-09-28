@@ -2,21 +2,27 @@ import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {captureJsxNodePaths} from '../codemods/get-node-path-remappings';
+import {parseAst} from '../codemods/parse-ast';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {addKeyframes} from '../preview-server/routes/add-keyframes';
+import {
+	addKeyframes,
+	addKeyframesHandler,
+} from '../preview-server/routes/add-keyframes';
 import {
 	clearUndoStackForTests,
 	getUndoStack,
 	popRedo,
 	popUndo,
 } from '../preview-server/undo-stack';
-import {lineColumnToNodePath} from './test-utils';
+import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const input = `import {tint} from '@remotion/effects/tint';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
@@ -158,6 +164,138 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 			route: null,
 		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(output);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});
+
+test('first keyframe in a concise-arrow component remaps its JSX node path for the next edit', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const events: EventSourceEvent[] = [];
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: (event) => events.push(event),
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-element-color-keyframe-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const source = `import {Interactive, Sequence} from 'remotion';
+
+const ColorCardInner = ({color, controls, durationInFrames, name}) => (
+  <Sequence controls={controls} durationInFrames={durationInFrames} name={name} style={{backgroundColor: color}} />
+);
+const ColorCard = Interactive.withSchema({
+  Component: ColorCardInner,
+  componentName: '<ColorCard>',
+  schema: {color: {type: 'color', default: '#ffffff'}},
+  supportsEffects: false,
+});
+export const Target = () => (
+  <ColorCard color="#ffffff" durationInFrames={60} name="Color card" />
+);
+`;
+	const schema = {
+		color: {type: 'color', default: '#ffffff'},
+	} as const satisfies InteractivitySchema;
+	const oldPath = lineContainingToNodePath(source, '<ColorCard color=');
+	const nodePath = {
+		absolutePath: filePath,
+		assetKeys: [],
+		effectKeys: [],
+		nodePath: oldPath,
+		sequenceKeys: ['color'],
+		videoConfigValues: null,
+	};
+	const handlerContext = {
+		binariesDirectory: null,
+		configFile: null,
+		entryPoint: filePath,
+		getDefaultCodingAgent: () => null,
+		getDefaultEditor: () => null,
+		logLevel: 'error' as const,
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: dir,
+		remotionRoot: dir,
+		request: {} as never,
+		response: {} as never,
+	};
+
+	try {
+		writeFileSync(filePath, source);
+		const first = await addKeyframesHandler({
+			...handlerContext,
+			input: {
+				clientId: 'test-client',
+				effectKeyframes: [],
+				sequenceKeyframes: [
+					{
+						fileName,
+						nodePath,
+						key: 'color',
+						frame: 0,
+						value: JSON.stringify('#ffffff'),
+						schema,
+					},
+				],
+			},
+		});
+		const mutation = first.nodePathMutation;
+		if (!mutation) {
+			throw new Error('Expected a JSX node path mutation');
+		}
+
+		const remapping = mutation.files[0].remappings.find(
+			(entry) => JSON.stringify(entry.oldNodePath) === JSON.stringify(oldPath),
+		);
+		if (!remapping?.newNodePath) {
+			throw new Error('The ColorCard invocation was not remapped');
+		}
+
+		expect(events).toContainEqual({
+			type: 'sequence-node-paths-remapped',
+			mutation,
+		});
+		const afterFirst = readFileSync(filePath, 'utf-8');
+		const colorCardNode = captureJsxNodePaths(parseAst(afterFirst)).at(-1);
+		if (!colorCardNode) {
+			throw new Error('ColorCard invocation missing after first keyframe');
+		}
+
+		expect(remapping.newNodePath).toEqual(colorCardNode.nodePath);
+		const second = await addKeyframesHandler({
+			...handlerContext,
+			input: {
+				clientId: 'test-client',
+				effectKeyframes: [],
+				sequenceKeyframes: [
+					{
+						fileName,
+						nodePath: {...nodePath, nodePath: remapping.newNodePath},
+						key: 'color',
+						frame: 30,
+						value: JSON.stringify('#ff0000'),
+						schema,
+					},
+				],
+			},
+		});
+		expect(second.success).toBe(true);
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toContain("['#ffffff', '#ff0000']");
+		expect(output).toContain('[0, 30]');
 	} finally {
 		clearUndoStackForTests();
 		cleanupLiveEvents();

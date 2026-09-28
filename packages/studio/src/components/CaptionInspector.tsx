@@ -14,7 +14,7 @@ import {parseCaptionFile} from './parse-caption-file';
 
 const importTooltip = `Import captions
 
-Supports Remotion Caption[] JSON. Files are processed locally.`;
+Supports Remotion Caption[] JSON, SRT, ElevenLabs Speech-to-Text and segmented JSON, and OpenAI Whisper verbose JSON. Files are processed locally.`;
 
 const readOnlyStatus: React.CSSProperties = {
 	color: LIGHT_TEXT,
@@ -107,12 +107,20 @@ export const CaptionInspector: React.FC<{
 			mode: 'assets',
 			invocationTimestamp: Date.now(),
 			assetSelection: {
-				initialQuery: 'type:json',
+				initialQuery: '',
 				onSelectFile: () => fileInput.current?.click(),
 				onSelected: (asset) => {
 					return importCaptions({
 						fileName: asset.name,
-						contents: fetch(asset.src).then((response) => response.text()),
+						contents: fetch(asset.src).then((response) => {
+							if (!response.ok) {
+								throw new Error(
+									`Could not read asset (HTTP ${response.status}). Check that the file is available.`,
+								);
+							}
+
+							return response.text();
+						}),
 					}).catch(() => undefined);
 				},
 			},
@@ -130,7 +138,7 @@ export const CaptionInspector: React.FC<{
 								<>
 									<input
 										ref={fileInput}
-										accept=".json"
+										accept=".json,.srt"
 										aria-label="Import captions file"
 										hidden
 										onChange={onFileSelected}

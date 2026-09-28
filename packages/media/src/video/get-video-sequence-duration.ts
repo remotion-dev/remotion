@@ -1,4 +1,24 @@
-import {Internals} from 'remotion';
+export const getMediaTrimAfter = ({
+	durationInFrames,
+	trimAfter,
+	trimBefore,
+}: {
+	readonly durationInFrames: number | undefined;
+	readonly trimAfter: number | undefined;
+	readonly trimBefore: number | undefined;
+}) => {
+	const durationAsTrimAfter =
+		durationInFrames === undefined
+			? undefined
+			: (trimBefore ?? 0) + durationInFrames;
+	if (durationAsTrimAfter === undefined) {
+		return trimAfter;
+	}
+
+	return trimAfter === undefined
+		? durationAsTrimAfter
+		: Math.min(trimAfter, durationAsTrimAfter);
+};
 
 export const getVideoSequenceDuration = ({
 	durationInFrames,
@@ -13,16 +33,14 @@ export const getVideoSequenceDuration = ({
 	readonly trimAfter: number | undefined;
 	readonly trimBefore: number | undefined;
 }) => {
-	if (loop || trimAfter === undefined) {
-		return durationInFrames;
+	if (loop) {
+		return undefined;
 	}
 
-	const trimmedDuration = Internals.calculateMediaDuration({
-		trimAfter,
-		trimBefore,
-		playbackRate,
-		mediaDurationInFrames: Infinity,
-	});
-
-	return Math.min(durationInFrames ?? Infinity, trimmedDuration);
+	const trimDuration =
+		trimAfter === undefined ? Infinity : trimAfter - (trimBefore ?? 0);
+	const contentDuration = Math.min(durationInFrames ?? Infinity, trimDuration);
+	return contentDuration === Infinity
+		? undefined
+		: contentDuration / playbackRate;
 };

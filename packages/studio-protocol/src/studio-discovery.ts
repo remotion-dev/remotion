@@ -54,7 +54,6 @@ export type StudioProtocolDiscoveryDependencies = {
 export const studioProtocolProbePorts = [
 	3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009,
 ];
-export const focusedStudioMaxAge = 5 * 60 * 1000;
 const requestTimeout = 2_000;
 
 const targetSchema = z.looseObject({

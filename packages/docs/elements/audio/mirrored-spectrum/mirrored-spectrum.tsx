@@ -1,6 +1,6 @@
 import {Audio} from '@remotion/media';
 import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -60,10 +60,9 @@ const MirroredAudioSpectrumContent: React.FC<{
 	readonly audioSrc: string;
 	readonly barColor: string;
 	readonly numberOfBars: number;
-	readonly outlineRef: React.RefObject<HTMLDivElement | null>;
 	readonly sensitivity: number;
 	readonly style: MirroredAudioSpectrumProps['style'];
-}> = ({audioSrc, barColor, numberOfBars, outlineRef, sensitivity, style}) => {
+}> = ({audioSrc, barColor, numberOfBars, sensitivity, style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -95,7 +94,6 @@ const MirroredAudioSpectrumContent: React.FC<{
 
 	return (
 		<div
-			ref={outlineRef}
 			style={{
 				alignItems: 'center',
 				boxSizing: 'border-box',
@@ -127,46 +125,35 @@ const MirroredAudioSpectrumContent: React.FC<{
 	);
 };
 
-const MirroredAudioSpectrumInner = forwardRef<
-	HTMLDivElement,
+const MirroredAudioSpectrumInner: React.FC<
 	MirroredAudioSpectrumProps & {readonly controls: SequenceControls | undefined}
->(
-	(
-		{
-			audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-			barColor = '#2563eb',
-			controls,
-			name,
-			numberOfBars = 65,
-			sensitivity = 1.5,
-			style,
-			...sequenceProps
-		},
-		ref,
-	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...sequenceProps}
-				controls={controls}
-				name={name ?? 'Mirrored audio spectrum'}
-				outlineRef={outlineRef}
-			>
-				<MirroredAudioSpectrumContent
-					audioSrc={audioSrc}
-					barColor={barColor}
-					numberOfBars={numberOfBars}
-					outlineRef={outlineRef}
-					sensitivity={sensitivity}
-					style={style}
-				/>
-			</Sequence>
-		);
-	},
-);
+> = ({
+	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	barColor = '#2563eb',
+	controls,
+	name,
+	numberOfBars = 65,
+	sensitivity = 1.5,
+	style,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			controls={controls}
+			name={name ?? 'Mirrored audio spectrum'}
+		>
+			<MirroredAudioSpectrumContent
+				audioSrc={audioSrc}
+				barColor={barColor}
+				numberOfBars={numberOfBars}
+				sensitivity={sensitivity}
+				style={style}
+			/>
+		</Sequence>
+	);
+};
 
 export const MirroredAudioSpectrum = Interactive.withSchema({
 	Component: MirroredAudioSpectrumInner,

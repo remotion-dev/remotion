@@ -6,7 +6,7 @@ crumb: '@remotion/canvas'
 
 # getCanvasSequenceSourceLocation()<AvailableFrom v="4.0.529" />
 
-Returns where the JSX element of a timeline track was written, if the bundler recorded it. Use it to look up the source node of a mounted sequence, for example with [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) from [`@remotion/codemods`](/docs/codemods), and pass the result to [`controller.setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths).
+Returns where the JSX element of a timeline track was written, if the bundler recorded it. Use it to look up the source node of a mounted sequence, for example with [`getNodes()`](/docs/codemods/get-nodes) from [`@remotion/codemods`](/docs/codemods), and pass the result to [`controller.setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths).
 
 :::warning
 
@@ -22,7 +22,7 @@ declare const controller: CanvasController;
 declare const project: CodemodProject;
 // ---cut---
 import {getCanvasSequenceSourceLocation} from '@remotion/canvas';
-import {getJsxNodes} from '@remotion/codemods';
+import {getNodes} from '@remotion/codemods';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 
 export const resolveNodePaths = () => {
@@ -34,7 +34,7 @@ export const resolveNodePaths = () => {
       continue;
     }
 
-    const node = getJsxNodes({project, filePath: location.fileName}).find(
+    const node = getNodes({project, filePath: location.fileName}).find(
       (candidate) =>
         candidate.location?.line === location.line &&
         candidate.location.column === location.column,
@@ -78,7 +78,7 @@ The 1-based line of the JSX element.
 
 ### column
 
-The 0-based column of the JSX element. This matches the `location` of [`getJsxNodes()`](/docs/codemods/get-jsx-nodes).
+The 0-based column of the JSX element. This matches the `location` of [`getNodes()`](/docs/codemods/get-nodes).
 
 ## Compatibility
 
@@ -88,4 +88,4 @@ The 0-based column of the JSX element. This matches the `location` of [`getJsxNo
 
 - [`createCanvasController()`](/docs/canvas/create-canvas-controller)
 - [`getCanvasSequenceNodePathInfo()`](/docs/canvas/get-canvas-sequence-node-path-info)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

@@ -7,7 +7,6 @@ import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
-	focusedStudioMaxAge,
 	getInstallCapability,
 	isAbortError,
 	studioProtocolProbePorts,
@@ -243,11 +242,7 @@ export const installInStudioWithDependencies = async (
 	const installable = supportedStudios
 		.filter(({capability}) => {
 			const {target} = capability;
-			return (
-				target !== null &&
-				target.expiresAt > now &&
-				now - target.lastFocusedAt < focusedStudioMaxAge
-			);
+			return target !== null && target.expiresAt > now;
 		})
 		.sort((a, b) => {
 			const focusDifference =

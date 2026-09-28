@@ -75,9 +75,7 @@ test(
 		const initialState = await tab.evaluateHandle(async () => {
 			for (let attempt = 0; attempt < 100; attempt++) {
 				if (
-					document.body.textContent?.includes(
-						'Select a composition to get started.',
-					) &&
+					document.body.textContent?.includes('New composition') &&
 					window.location.search === ''
 				) {
 					return 'ready';

@@ -510,6 +510,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fallbackOffthreadVideoProps?.pauseWhenBuffering ?? false
 				}
 				trimAfter={trimAfterValue}
+				durationInFrames={undefined}
 				trimBefore={trimBeforeValue}
 				useWebAudioApi={fallbackOffthreadVideoProps?.useWebAudioApi ?? false}
 				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}

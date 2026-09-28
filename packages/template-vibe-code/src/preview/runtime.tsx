@@ -3,7 +3,12 @@ import {
   createBrowserCompositionObserver,
   type BrowserComposition,
 } from "@remotion/browser-bundler/runtime";
-import { Canvas, createCanvasController } from "@remotion/canvas";
+import {
+  Canvas,
+  createCanvasController,
+  type CanvasSequencePropsChangeHandler,
+  type CanvasSequencePropStatusResolver,
+} from "@remotion/canvas";
 import type { PlayerRef } from "@remotion/player";
 import {
   canRenderMediaOnWeb,
@@ -81,7 +86,15 @@ const PreviewApp: React.FC<{
   readonly store: PreviewStore;
   readonly controller: ReturnType<typeof createCanvasController>;
   readonly onReady: (revision: number) => void;
-}> = ({ store, controller, onReady }) => {
+  readonly onSequencePropsChange: CanvasSequencePropsChangeHandler;
+  readonly getSequencePropStatuses: CanvasSequencePropStatusResolver;
+}> = ({
+  store,
+  controller,
+  onReady,
+  onSequencePropsChange,
+  getSequencePropStatuses,
+}) => {
   const state = useSyncExternalStore(
     store.subscribe,
     store.getState,
@@ -159,6 +172,8 @@ const PreviewApp: React.FC<{
           ref={setPlayer}
           controller={controller}
           showOutlines={options.showOutlines}
+          onSequencePropsChange={onSequencePropsChange}
+          getSequencePropStatuses={getSequencePropStatuses}
           component={composition.component}
           inputProps={composition.props}
           compositionWidth={composition.width}
@@ -219,6 +234,8 @@ const isEditableTarget = (target: EventTarget | null) =>
 export const createPreviewHost: CreatePreviewHost = ({
   onError,
   onKeyDown,
+  onSequencePropsChange,
+  getSequencePropStatuses,
 }) => {
   const container = document.getElementById("preview-root");
   if (!container) {
@@ -276,7 +293,13 @@ export const createPreviewHost: CreatePreviewHost = ({
     onUncaughtError: reportError,
   });
   root.render(
-    <PreviewApp store={store} controller={controller} onReady={onReady} />,
+    <PreviewApp
+      store={store}
+      controller={controller}
+      onReady={onReady}
+      onSequencePropsChange={onSequencePropsChange}
+      getSequencePropStatuses={getSequencePropStatuses}
+    />,
   );
 
   const observer = createBrowserCompositionObserver({

@@ -61,7 +61,7 @@ export const still = async (
 		);
 		Log.error(
 			{indent: false, logLevel},
-			'   npx remotion render [entry-point] [composition-name] [out-name]',
+			'   npx remotion render [entry-point] [composition-id] [out-name]',
 		);
 		Log.error(
 			{indent: false, logLevel},

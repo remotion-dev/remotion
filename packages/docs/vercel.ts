@@ -141,6 +141,12 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/motion-blur', '/docs/motion-blur', {permanent: false}),
+		routes.redirect('/docs/motion-blur-guide', '/docs/motion-blur', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/motion-blur-guide.md', '/docs/motion-blur.md', {
+			permanent: true,
+		}),
 		routes.redirect('/noise', '/docs/noise', {permanent: false}),
 		routes.redirect(
 			'/docs/get-audio-duration',

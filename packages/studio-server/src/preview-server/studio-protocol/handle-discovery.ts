@@ -5,7 +5,6 @@ import {getProjectName} from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
 import {
 	ELEMENT_INSTALL_TARGET_MAX_AGE,
-	STUDIO_PROTOCOL_FOCUS_MAX_AGE,
 	getElementInstallTarget,
 	issueStudioProtocolTarget,
 } from '../element-install-state';
@@ -38,7 +37,6 @@ const getLiveStudioTarget = (requestId: string) => {
 		target === null ||
 		now - target.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE ||
 		target.lastFocusedAt === null ||
-		now - target.lastFocusedAt >= STUDIO_PROTOCOL_FOCUS_MAX_AGE ||
 		target.readOnly
 	) {
 		return null;

@@ -120,7 +120,7 @@ test('discovers a focused Studio without a composition and delivers one install 
 				clientId: 'focused-studio-tab',
 				compositionFile: null,
 				compositionId: null,
-				lastFocusedAt: Date.now(),
+				lastFocusedAt: Date.now() - 10 * 60 * 1000,
 				readOnly: false,
 				studioUrl: 'http://localhost:3000',
 			});

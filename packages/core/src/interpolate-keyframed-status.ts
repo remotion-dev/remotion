@@ -15,6 +15,7 @@ import type {
 type InterpolateKeyframedStatusResult =
 	| number
 	| string
+	| boolean
 	| readonly number[]
 	| null;
 
@@ -144,7 +145,7 @@ export const interpolateKeyframedStatus = ({
 		return interpolate(
 			frame,
 			inputRange,
-			outputs as (number | string | number[])[],
+			outputs as (number | string | boolean | number[])[],
 			{
 				easing: easing.map((e) =>
 					easingToFn({easing: e, forceSpringAllowTail}),

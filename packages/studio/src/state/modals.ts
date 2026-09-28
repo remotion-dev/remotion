@@ -15,6 +15,7 @@ import type {
 	CanvasCaptureData,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	NodeWrapper,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -166,6 +167,7 @@ export type TranscriptionModalState = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		premountFor: number | null;
 	} | null;
 };
 
@@ -251,6 +253,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
+			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'
@@ -287,11 +290,32 @@ export type ModalState =
 			};
 	  }
 	| {
+			type: 'precompose-refactor';
+			targets: {
+				fileName: string;
+				displayName: string | null;
+				line: number | null;
+			}[];
+	  }
+	| {
 			type: 'generate-with-agent';
 			location: {
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'wrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+			wrapper: NodeWrapper;
+	  }
+	| {
+			type: 'html-in-canvas-unavailable';
+			action: 'effects' | 'motion-blur';
 	  }
 	| {
 			type: 'quick-switcher';

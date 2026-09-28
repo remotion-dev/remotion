@@ -33,7 +33,11 @@ const getEasingIndexToDuplicate = ({
 	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
 };
 
-const addKeyframeToPropStatus = ({
+/**
+ * The status of a prop after adding a keyframe: a keyframed prop gets the
+ * keyframe inserted or replaced, a static prop becomes keyframed.
+ */
+export const addKeyframeToPropStatus = ({
 	status,
 	fieldKey,
 	frame,
@@ -101,6 +105,12 @@ const addKeyframeToPropStatus = ({
 		return {
 			status: 'keyframed',
 			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
+			...(status.keyframePlaybackRateAdjustment === undefined
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							status.keyframePlaybackRateAdjustment,
+					}),
 			interpolationFunction: getKeyframeInterpolationFunction({
 				schema,
 				key: fieldKey,

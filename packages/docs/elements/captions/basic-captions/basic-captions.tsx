@@ -1,6 +1,6 @@
 import type {Caption} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
-import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
+import React, {useMemo} from 'react';
 import {
 	Interactive,
 	Sequence,
@@ -113,63 +113,51 @@ const BasicCaptionsContent: React.FC<{
 	);
 };
 
-const BasicCaptionsInner = forwardRef<
-	HTMLDivElement,
+const BasicCaptionsInner: React.FC<
 	BasicCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(
-	(
-		{
-			captions,
-			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-			controls,
-			height = defaultHeight,
-			name,
-			playbackRate = 1,
-			style,
-			trimBefore,
-			width = defaultWidth,
-			...interactiveProps
-		},
-		ref,
-	) => {
-		const outlineRef = useRef<HTMLDivElement>(null);
-
-		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-		return (
-			<Sequence
-				layout="none"
-				{...interactiveProps}
-				controls={controls}
-				name={name ?? '<BasicCaptions>'}
-				trimBefore={trimBefore}
-				outlineRef={outlineRef}
+> = ({
+	captions,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	controls,
+	height = defaultHeight,
+	name,
+	playbackRate = 1,
+	style,
+	trimBefore,
+	width = defaultWidth,
+	...interactiveProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...interactiveProps}
+			controls={controls}
+			name={name ?? '<BasicCaptions>'}
+			trimBefore={trimBefore}
+		>
+			<div
+				style={{
+					alignItems: 'center',
+					display: 'flex',
+					justifyContent: 'center',
+					marginInline: 'auto',
+					width,
+					height,
+					...style,
+				}}
 			>
-				<div
-					ref={outlineRef}
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						justifyContent: 'center',
-						marginInline: 'auto',
-						width,
-						height,
-						...style,
-					}}
-				>
-					<BasicCaptionsContent
-						captions={captions}
-						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-						playbackRate={playbackRate}
-						trimBefore={trimBefore ?? 0}
-					/>
-				</div>
-			</Sequence>
-		);
-	},
-);
+				<BasicCaptionsContent
+					captions={captions}
+					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					playbackRate={playbackRate}
+					trimBefore={trimBefore ?? 0}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 const BasicCaptionsLayer = Interactive.withSchema({
 	Component: BasicCaptionsInner,

@@ -1,16 +1,6 @@
 import type {GeoJSONSource} from '@maptiler/sdk';
 import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
-import {
-	forwardRef,
-	useContext,
-	useEffect,
-	useImperativeHandle,
-	useMemo,
-	useRef,
-	useState,
-	type ForwardRefRenderFunction,
-	type RefObject,
-} from 'react';
+import {useContext, useEffect, useMemo, useState, type FC} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -308,17 +298,13 @@ const MapRegionDrawing = ({
 	return null;
 };
 
-const MapRegionBounds = ({
+const MapRegionBounds: FC<{readonly feature: MapRegionFeature}> = ({
 	feature,
-	refForOutline,
-}: {
-	readonly feature: MapRegionFeature;
-	readonly refForOutline: RefObject<HTMLDivElement | null>;
 }) => {
 	const {map} = useContext(MapTilerContext);
 
 	if (!map) {
-		return <div ref={refForOutline} />;
+		return <div />;
 	}
 
 	const points = feature.geometry.coordinates
@@ -331,7 +317,6 @@ const MapRegionBounds = ({
 
 	return (
 		<div
-			ref={refForOutline}
 			style={{
 				height: bottom - top,
 				left,
@@ -346,37 +331,28 @@ const MapRegionBounds = ({
 	);
 };
 
-const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapRegionProps
-> = (
-	{
-		feature,
-		fill = 0,
-		fillColor,
-		glow = 0.72,
-		id,
-		progress = 1,
-		strokeColor = '#8f1712',
-		strokeWidth = 9,
-		durationInFrames,
-		from,
-		premountFor,
-		postmountFor,
-		trimBefore,
-		playbackRate,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-	},
-	ref,
-) => {
-	const refForOutline = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
+const MapRegionInner: FC<MapRegionProps> = ({
+	feature,
+	fill = 0,
+	fillColor,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#8f1712',
+	strokeWidth = 9,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -386,7 +362,11 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 		postmountingActive,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: null,
@@ -401,13 +381,13 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? `<${feature.properties.name}>`}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -424,14 +404,12 @@ const MapRegionRefForwardingFunction: ForwardRefRenderFunction<
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 					/>
-					<MapRegionBounds feature={feature} refForOutline={refForOutline} />
+					<MapRegionBounds feature={feature} />
 				</>
 			</Sequence>
 		</Freeze>
 	);
 };
-
-const MapRegionInner = forwardRef(MapRegionRefForwardingFunction);
 
 export const MapRegion = Interactive.withSchema({
 	Component: MapRegionInner,

@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import React from 'react';
 import {
 	CanvasImage,
 	Interactive,
@@ -29,26 +29,19 @@ const socialSafeZonesSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const SocialSafeZonesInner = forwardRef<
-	HTMLDivElement,
+const SocialSafeZonesInner: React.FC<
 	SocialSafeZonesProps & {
 		readonly controls: SequenceControls | undefined;
 	}
->(({controls, name, platform = 'instagram', style, ...sequenceProps}, ref) => {
-	const outlineRef = useRef<HTMLDivElement>(null);
-
-	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
+> = ({controls, name, platform = 'instagram', style, ...sequenceProps}) => {
 	return (
 		<Sequence
 			layout="none"
 			{...sequenceProps}
 			controls={controls}
 			name={name ?? 'Social Safe Zones'}
-			outlineRef={outlineRef}
 		>
 			<div
-				ref={outlineRef}
 				style={{
 					...style,
 					height: 1920,
@@ -97,7 +90,7 @@ const SocialSafeZonesInner = forwardRef<
 			</div>
 		</Sequence>
 	);
-});
+};
 
 export const SocialSafeZones = Interactive.withSchema({
 	Component: SocialSafeZonesInner,

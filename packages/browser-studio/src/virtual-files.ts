@@ -1,5 +1,8 @@
 import {getBrowserReactRefreshVirtualFiles} from '@remotion/browser-bundler/compiler';
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from '@remotion/studio-shared';
 
 export const browserStudioVirtualFilePaths = {
 	browserRequireShim: '/__remotion_browser_studio__/browser-require-shim.js',
@@ -33,6 +36,7 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
   const originalPerformReactRefresh = RemotionRefreshRuntime.performReactRefresh;
   RemotionRefreshRuntime.__remotionReactRefreshWrapped = true;
   RemotionRefreshRuntime.performReactRefresh = () => {
+    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
     const result = originalPerformReactRefresh();
     if (result !== null) {
       window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));

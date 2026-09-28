@@ -1,7 +1,12 @@
-import type {
-	CanvasOutlineCrop,
-	CanvasOutlineLayoutTarget,
-	CanvasSelectableOutline,
+import {
+	CanvasInternals,
+	type CanvasOutlineCrop,
+	type CanvasOutlineLayoutTarget,
+	type CanvasOutlineTranslateDragState,
+	type CanvasOutlineTranslatePropStatus,
+	type CanvasOutlineTranslateSession,
+	type CanvasOutlineTranslateTarget,
+	type CanvasSelectableOutline,
 } from '@remotion/canvas';
 import type {
 	CanUpdateSequencePropStatus,
@@ -127,16 +132,11 @@ export type SelectedOutlineCropDragTarget = {
 	} | null;
 };
 
-export type SelectedOutlineDragTarget = {
-	readonly propStatus:
-		| CanUpdateSequencePropStatusStatic
-		| CanUpdateSequencePropStatusKeyframed;
+// The Studio knows how every translate prop is written, so the source status
+// is always available and the changes are saved through its connected client.
+export type SelectedOutlineDragTarget = CanvasOutlineTranslateTarget & {
+	readonly propStatus: CanvasOutlineTranslatePropStatus;
 	readonly clientId: string;
-	readonly fieldDefault: string | undefined;
-	readonly keyframeDisplayOffset: number;
-	readonly keyframePlaybackRate: number;
-	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: InteractivitySchema;
 };
 
 export type SelectedOutlineTransformOriginDragTarget = {
@@ -198,15 +198,8 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly transformOriginValue: string;
 };
 
-export type SelectedOutlineDragState = {
-	readonly defaultValue: string | null;
-	readonly key: string;
-	readonly sourceFrame: number;
-	readonly startX: number;
-	readonly startY: number;
-	readonly startZ: number | null;
-	readonly target: SelectedOutlineDragTarget;
-};
+export type SelectedOutlineDragState =
+	CanvasOutlineTranslateDragState<SelectedOutlineDragTarget>;
 
 export type SelectedOutlineScaleDragState = {
 	readonly defaultValue: string | null;
@@ -230,11 +223,10 @@ export type SelectedOutlineRotationDragState = {
 
 export type SequenceWithSelectedOutline = CanvasSelectableOutline;
 
-export const translateFieldKey = 'style.translate';
+export const {canvasTranslateFieldKey: translateFieldKey} = CanvasInternals;
 export const scaleFieldKey = 'style.scale';
 export const rotateFieldKey = 'style.rotate';
 export const transformOriginFieldKey = 'style.transformOrigin';
-export const selectedOutlineDragThresholdPx = 4;
 
 export const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
@@ -245,10 +237,5 @@ export const outlineContainer: React.CSSProperties = {
 
 export const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
-export type SelectedOutlineKeyboardNudgeSession = {
-	readonly dragStates: readonly SelectedOutlineDragState[];
-	readonly clientId: string;
-	deltaX: number;
-	deltaY: number;
-	lastValues: ReadonlyMap<string, string>;
-};
+export type SelectedOutlineKeyboardNudgeSession =
+	CanvasOutlineTranslateSession<SelectedOutlineDragTarget>;

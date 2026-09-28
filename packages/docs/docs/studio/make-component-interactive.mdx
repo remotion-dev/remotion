@@ -15,9 +15,9 @@ For code that remains editable after visual changes, follow [Interactivity best 
 
 An [`InteractivitySchema`](/docs/interactivity-schema) describes which props the Studio may edit.
 
-Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
+Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for props inherited from [`<Sequence>`](/docs/sequence), such as [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`playbackRate`](/docs/sequence#playbackrate), [`loop`](/docs/sequence#loop), [`durationInFrames`](/docs/sequence#durationinframes), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
-As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming and visibility controls remain available.
+As a rule, include `Interactive.baseSchema` in every schema passed to `Interactive.withSchema()` so trimming, looping and visibility controls remain available. Forward all of these props to the `<Sequence>` your component renders.
 
 Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if your component accepts a `style` prop and applies it to the rendered element.
 
@@ -80,7 +80,7 @@ The inner component receives a `controls` prop from `Interactive.withSchema()`.
 Forward it unchanged to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline. Forwarding it also allows the Studio to associate the timeline item with the outer component's source location.
 
 ```tsx twoslash title="Badge.tsx"
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import type React from 'react';
 import {
   Interactive,
   Sequence,
@@ -115,64 +115,52 @@ const badgeSchema = {
   ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 // ---cut---
-const BadgeInner = forwardRef<
-  HTMLDivElement,
-  BadgeProps & {
-    readonly controls: SequenceControls | undefined;
-  }
->(
-  (
-    {
-      children,
-      color = '#0b84ff',
-      padding = 16,
-      style,
-      name,
-      controls,
-      ...sequenceProps
-    },
-    ref,
-  ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
-
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-    return (
-      <Sequence
-        layout="none"
-        {...sequenceProps}
-        name={name ?? '<Badge>'}
-        controls={controls}
-        outlineRef={outlineRef}
-      >
-        <div
-          ref={outlineRef}
-          style={{
-            ...style,
-            display: 'inline-flex',
-            borderRadius: 999,
-            backgroundColor: color,
-            color: 'white',
-            fontWeight: 700,
-            padding,
-          }}
-        >
-          {children}
-        </div>
-      </Sequence>
-    );
-  },
-);
+const BadgeInner: React.FC<
+	BadgeProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
+	children,
+	color = '#0b84ff',
+	padding = 16,
+	style,
+	name,
+	controls,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			name={name ?? '<Badge>'}
+			controls={controls}
+		>
+			<div
+				style={{
+					...style,
+					display: 'inline-flex',
+					borderRadius: 999,
+					backgroundColor: color,
+					color: 'white',
+					fontWeight: 700,
+					padding,
+				}}
+			>
+				{children}
+			</div>
+		</Sequence>
+	);
+};
 ```
 
 The exported component should not expose `controls` as a public prop.
 
-Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
+With `<Sequence layout="none">`, the Studio discovers the rendered element automatically.
 
 ## Wrap the component
 
 ```tsx twoslash title="Badge.tsx"
-import React, {forwardRef, useImperativeHandle, useRef} from 'react';
+import type React from 'react';
 import {
   Interactive,
   Sequence,
@@ -207,54 +195,42 @@ const badgeSchema = {
   ...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const BadgeInner = forwardRef<
-  HTMLDivElement,
-  BadgeProps & {
-    readonly controls: SequenceControls | undefined;
-  }
->(
-  (
-    {
-      children,
-      color = '#0b84ff',
-      padding = 16,
-      style,
-      name,
-      controls,
-      ...sequenceProps
-    },
-    ref,
-  ) => {
-    const outlineRef = useRef<HTMLDivElement>(null);
-
-    useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
-
-    return (
-      <Sequence
-        layout="none"
-        {...sequenceProps}
-        name={name ?? '<Badge>'}
-        controls={controls}
-        outlineRef={outlineRef}
-      >
-        <div
-          ref={outlineRef}
-          style={{
-            ...style,
-            display: 'inline-flex',
-            borderRadius: 999,
-            backgroundColor: color,
-            color: 'white',
-            fontWeight: 700,
-            padding,
-          }}
-        >
-          {children}
-        </div>
-      </Sequence>
-    );
-  },
-);
+const BadgeInner: React.FC<
+	BadgeProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({
+	children,
+	color = '#0b84ff',
+	padding = 16,
+	style,
+	name,
+	controls,
+	...sequenceProps
+}) => {
+	return (
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			name={name ?? '<Badge>'}
+			controls={controls}
+		>
+			<div
+				style={{
+					...style,
+					display: 'inline-flex',
+					borderRadius: 999,
+					backgroundColor: color,
+					color: 'white',
+					fontWeight: 700,
+					padding,
+				}}
+			>
+				{children}
+			</div>
+		</Sequence>
+	);
+};
 // ---cut---
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,

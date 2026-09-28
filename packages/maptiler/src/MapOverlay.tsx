@@ -1,11 +1,4 @@
-import {
-	forwardRef,
-	useContext,
-	useImperativeHandle,
-	useRef,
-	type ForwardRefRenderFunction,
-	type ReactNode,
-} from 'react';
+import {useContext, type FC, type ReactNode} from 'react';
 import {
 	Interactive,
 	Freeze,
@@ -109,39 +102,33 @@ const mapOverlaySchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
-	HTMLDivElement,
-	MapOverlayProps
-> = (
-	{
-		anchor = 'center',
-		children,
-		latitude,
-		longitude,
-		offsetX = 0,
-		offsetY = 0,
-		opacity = 1,
-		rotation = 0,
-		rotationAlignment = 'viewport',
-		style,
-		durationInFrames,
-		from,
-		premountFor,
-		postmountFor,
-		styleWhilePremounted,
-		styleWhilePostmounted,
-		trimBefore,
-		playbackRate,
-		freeze,
-		hidden,
-		name,
-		showInTimeline,
-		controls,
-	},
-	ref,
-) => {
+const MapOverlayInner: FC<MapOverlayProps> = ({
+	anchor = 'center',
+	children,
+	latitude,
+	longitude,
+	offsetX = 0,
+	offsetY = 0,
+	opacity = 1,
+	rotation = 0,
+	rotationAlignment = 'viewport',
+	style,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
 	const {map} = useContext(MapTilerContext);
-	const refForOutline = useRef<HTMLDivElement>(null);
 	const point = map?.project([longitude, latitude]);
 	const horizontalAnchor = anchor.includes('left')
 		? 0
@@ -154,8 +141,6 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 			? -100
 			: -50;
 
-	useImperativeHandle(ref, () => refForOutline.current as HTMLDivElement, []);
-
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -166,7 +151,11 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: {opacity, ...style},
@@ -181,20 +170,19 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 				from={from ?? 0}
 				trimBefore={trimBefore}
 				playbackRate={playbackRate}
+				loop={loop}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<MapOverlay>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				outlineRef={refForOutline}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
 				<div
-					ref={refForOutline}
 					style={{
 						left: (point?.x ?? 0) + offsetX,
 						opacity,
@@ -213,8 +201,6 @@ const MapOverlayRefForwardingFunction: ForwardRefRenderFunction<
 		</Freeze>
 	);
 };
-
-const MapOverlayInner = forwardRef(MapOverlayRefForwardingFunction);
 
 export const MapOverlay = Interactive.withSchema({
 	Component: MapOverlayInner,

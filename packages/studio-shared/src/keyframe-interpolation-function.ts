@@ -18,7 +18,7 @@ export type KeyframeInterpolationFunction =
 const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	array: false,
 	asset: false,
-	boolean: false,
+	boolean: true,
 	'remotion-captions': false,
 	color: true,
 	enum: true,
@@ -44,7 +44,7 @@ type KeyframeInterpolationStrategy =
 const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	array: 'unsupported',
 	asset: 'unsupported',
-	boolean: 'unsupported',
+	boolean: 'interpolate',
 	'remotion-captions': 'unsupported',
 	color: 'interpolateColors',
 	enum: 'interpolate',
@@ -158,6 +158,18 @@ export const isSchemaFieldKeyframable = ({
 	return isInteractivitySchemaFieldKeyframable(field);
 };
 
+export const isInteractivitySchemaFieldHoldOnly = (
+	field: InteractivitySchemaField | undefined,
+): boolean => {
+	return (
+		(field?.type === 'boolean' && field.keyframable !== false) ||
+		(field?.type === 'enum' && field.keyframable === true) ||
+		(field?.type === 'number' &&
+			field.integer === true &&
+			field.keyframable !== false)
+	);
+};
+
 export const isSchemaFieldHoldOnly = ({
 	schema,
 	key,
@@ -165,12 +177,8 @@ export const isSchemaFieldHoldOnly = ({
 	schema: InteractivitySchema | null;
 	key: string;
 }): boolean => {
-	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return (
-		(field?.type === 'enum' && field.keyframable === true) ||
-		(field?.type === 'number' &&
-			field.integer === true &&
-			field.keyframable !== false)
+	return isInteractivitySchemaFieldHoldOnly(
+		schema ? findFieldInSchema(schema, key) : undefined,
 	);
 };
 

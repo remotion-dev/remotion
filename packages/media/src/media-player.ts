@@ -641,22 +641,13 @@ export class MediaPlayer {
 		});
 	}
 
-	public async setTrimBefore(
+	public async setTrimRange(
 		trimBefore: number | undefined,
-		unloopedTimeInSeconds: number,
-	): Promise<void> {
-		if (this.trimBefore !== trimBefore) {
-			this.trimBefore = trimBefore;
-			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
-		}
-	}
-
-	public async setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
 	): Promise<void> {
-		if (this.trimAfter !== trimAfter) {
+		if (this.trimBefore !== trimBefore || this.trimAfter !== trimAfter) {
+			this.trimBefore = trimBefore;
 			this.trimAfter = trimAfter;
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');

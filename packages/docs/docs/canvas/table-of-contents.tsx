@@ -8,7 +8,7 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/canvas/canvas">
 					<strong>{'<Canvas>'}</strong>
-					<div>Preview a composition with optional selection outlines</div>
+					<div>Preview a composition with selectable, movable outlines</div>
 				</TOCItem>
 				<TOCItem link="/docs/canvas/create-canvas-controller">
 					<strong>createCanvasController()</strong>
@@ -49,6 +49,50 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/canvas/get-canvas-selection-item-key">
 					<strong>getCanvasSelectionItemKey()</strong>
 					<div>Compare selection items by identity</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframes">
+					<strong>getCanvasKeyframes()</strong>
+					<div>Place the keyframes of a prop on the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-toggle">
+					<strong>getCanvasKeyframeToggle()</strong>
+					<div>Add, remove and navigate keyframes at a frame</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/start-canvas-keyframe-drag">
+					<strong>startCanvasKeyframeDrag()</strong>
+					<div>Move keyframes along the timeline with the pointer</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-easing-segments">
+					<strong>getCanvasKeyframeEasingSegments()</strong>
+					<div>Describe the segments between keyframes on the timeline</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-easing-change">
+					<strong>getCanvasKeyframeEasingChange()</strong>
+					<div>Set the easing between two keyframes</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-settings">
+					<strong>getCanvasKeyframeSettings()</strong>
+					<div>Read the extrapolation, output and posterize options</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-settings-change">
+					<strong>getCanvasKeyframeSettingsChange()</strong>
+					<div>Write the interpolation options of a keyframed prop</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-change-override">
+					<strong>getCanvasKeyframeChangeOverride()</strong>
+					<div>Show a keyframe change before the source is updated</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-prop-value-at-frame">
+					<strong>getCanvasPropValueAtFrame()</strong>
+					<div>Read the value of a prop at a frame from the source</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-source-frame">
+					<strong>getCanvasKeyframeSourceFrame()</strong>
+					<div>Convert a composition frame to the interpolation clock</div>
+				</TOCItem>
+				<TOCItem link="/docs/canvas/get-canvas-keyframe-display-frame">
+					<strong>getCanvasKeyframeDisplayFrame()</strong>
+					<div>Convert an interpolation frame to the composition</div>
 				</TOCItem>
 			</Grid>
 		</div>

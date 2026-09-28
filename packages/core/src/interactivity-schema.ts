@@ -611,6 +611,21 @@ export const trimBeforeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+export const trimAfterField = {
+	type: 'number',
+	default: undefined,
+	min: 1,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies InteractivitySchemaField;
+
+export const loopField = {
+	type: 'boolean',
+	default: false,
+	description: 'Loop',
+	keyframable: false,
+} as const satisfies InteractivitySchemaField;
+
 export const freezeField = {
 	type: 'number',
 	default: null,
@@ -633,16 +648,19 @@ export const baseSchema = {
 	from: fromField,
 	trimBefore: trimBeforeField,
 	playbackRate: playbackRateField,
+	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
 	showInTimeline: showInTimelineField,
 } as const satisfies InteractivitySchema;
 
+// For static images: speed does not change what they show.
 export const baseSchemaWithoutPlaybackRate = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
+	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,
@@ -666,6 +684,7 @@ export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
 	trimBefore: trimBeforeField,
 	playbackRate: playbackRateField,
+	loop: loopField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,

@@ -7,7 +7,7 @@ crumb: '@remotion/canvas'
 
 # &lt;Canvas&gt;<AvailableFrom v="4.0.527" />
 
-Renders a Remotion composition using [`<Player>`](/docs/player/player), registers its timeline tracks, and optionally overlays selection outlines.
+Renders a Remotion composition using [`<Player>`](/docs/player/player), registers its timeline tracks, and optionally overlays selection outlines that can be dragged to move elements.
 
 Unlike a plain `<Player>`, the Canvas enables the interactivity of the mounted elements: each track exposes its [`controls`](/docs/canvas/create-canvas-controller#sequencecontrols) and the controller can [preview prop values](/docs/canvas/create-canvas-controller#overrides) without changing the source.
 
@@ -50,6 +50,52 @@ A [`CanvasController`](/docs/canvas/create-canvas-controller) shared with your t
 Whether to draw hover and selection outlines over the composition. Default: `false`. When enabled, pointer events select outlines instead of reaching interactive controls inside the composition. Set it to `false` for an interaction mode that lets users operate those controls.
 
 Clicking empty canvas space or pressing Escape while the overlay is focused clears selection. Shift-click selects a range; Command-click on macOS or Ctrl-click elsewhere toggles an item.
+
+### onSequencePropsChange?<AvailableFrom v="4.0.530" />
+
+Enables moving elements on the canvas. Dragging a selected outline moves every selected element; the arrow keys nudge the selection by one pixel, ten with Shift, while the overlay is focused. Shift locks a drag to the dominant axis. The moved elements snap to the edges and the center of the composition, unless Command or Ctrl is held.
+
+While the gesture is in progress, the new `style.translate` values are previewed through [`controller.overrides`](/docs/canvas/create-canvas-controller#overrides). When the gesture ends with a changed value, the callback receives one `CanvasSequencePropChange` per moved source node with `nodePathInfo`, the schema `key`, the `value` and the element's `schema`. A change with `type: 'static'` also carries the schema `defaultValue`; write it with [`updateNodeProps()`](/docs/codemods/update-node-props). A change with `type: 'keyframe'` carries the `frame` at which to add a keyframe with [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes); it is reported for props that [`getSequencePropStatuses`](#getsequencepropstatuses) describes as keyframed. Clear the overrides once the update is applied; until then, the canvas keeps showing the new position.
+
+```tsx twoslash title="Persisting a move"
+// @moduleResolution: bundler
+import type {CanvasController, CanvasSequencePropChange} from '@remotion/canvas';
+declare const controller: CanvasController;
+declare const persist: (change: CanvasSequencePropChange) => Promise<void>;
+// ---cut---
+export const onSequencePropsChange = async (changes: readonly CanvasSequencePropChange[]) => {
+  for (const change of changes) {
+    await persist(change);
+    controller.overrides.clear(change.nodePathInfo);
+  }
+};
+```
+
+Elements can be moved when they expose a `style.translate` field in their [`controls`](/docs/canvas/create-canvas-controller#sequencecontrols) and their source node is registered with [`setSequenceNodePaths()`](/docs/canvas/create-canvas-controller#setsequencenodepaths). Without the callback, outlines can be selected but not moved.
+
+### getSequencePropStatuses?<AvailableFrom v="4.0.530" />
+
+A `CanvasSequencePropStatusResolver` called with a `SequenceNodePathInfo` and the schema keys about to be edited, before a move starts. Return how those props are written in the source, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report them, or `null` if the source is unknown.
+
+A prop with `status: 'computed'` cannot be moved: the outline is selected but does not follow the pointer, like in the Remotion Studio. A `status: 'keyframed'` prop that uses `interpolate()` is moved by adding a keyframe at the current frame, and the gesture is previewed with the existing keyframes in place. A `status: 'static'` prop starts from its `codeValue`.
+
+By default, the source is unknown: every prop starts from the runtime value of the mounted element and is reported as a static change.
+
+```tsx twoslash title="Reading the source"
+// @moduleResolution: bundler
+import type {CanvasSequencePropStatusResolver} from '@remotion/canvas';
+import {getNodeProps, type CodemodProject} from '@remotion/codemods';
+declare const project: CodemodProject;
+// ---cut---
+export const getSequencePropStatuses: CanvasSequencePropStatusResolver = (nodePathInfo, keys) => {
+  const {absolutePath, nodePath} = nodePathInfo.sequenceSubscriptionKey;
+  return getNodeProps({
+    project,
+    node: {filePath: absolutePath, nodePath},
+    keys: [...keys],
+  }).props;
+};
+```
 
 ### resolveSequenceNodePathInfo?
 

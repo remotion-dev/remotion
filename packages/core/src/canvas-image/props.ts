@@ -40,9 +40,4 @@ export type CanvasImageProps = CanvasImageSequenceProps &
 		 * @deprecated For internal use only.
 		 */
 		readonly _remotionInternalCropComponentName?: string;
-		/**
-		 * A React ref pointing to the element that Remotion Studio should use for
-		 * drawing the selection outline in the preview.
-		 */
-		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	};

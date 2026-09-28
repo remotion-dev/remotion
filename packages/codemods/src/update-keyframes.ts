@@ -110,6 +110,7 @@ const getOpeningElementSourceEdit = ({
 
 	const start = recastLocToOffset(input, openingElement.loc.start);
 	const printed = printJsxOpeningElement({
+		compactLiteralProps: false,
 		originalAttributeSources,
 		openingElement: openingElement as never,
 		input,
