@@ -39,6 +39,7 @@ import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
 import {getCurrentTime} from './get-current-time.js';
+import {getAnimatedImageDurationInSeconds} from './get-duration-in-seconds.js';
 import type {
 	AnimatedImageCanvasProps,
 	AnimatedImageProps,
@@ -399,8 +400,94 @@ const AnimatedImageInner = ({
 	);
 };
 
+const AnimatedImageWithIntrinsicDuration = (
+	props: AnimatedImageProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	const {fps} = useVideoConfig();
+	const {delayRender, continueRender} = useDelayRender();
+	const {src, requestInit, trimBefore} = props;
+	const requestInitRef = useRef(requestInit);
+	requestInitRef.current = requestInit;
+	const onErrorRef = useRef(props.onError);
+	onErrorRef.current = props.onError;
+	const [handle] = useState(() =>
+		delayRender(`Finding duration of <AnimatedImage src="${src}" />`),
+	);
+	const [durationInFrames, setDurationInFrames] = useState<number | null>(null);
+	const [failed, setFailed] = useState(false);
+
+	useEffect(() => {
+		const controller = new AbortController();
+		let cancelled = false;
+		getAnimatedImageDurationInSeconds({
+			resolvedSrc: resolveAnimatedImageSource(src),
+			signal: controller.signal,
+			requestInit: requestInitRef.current,
+			contentType: null,
+		})
+			.then((duration) => {
+				if (!cancelled) {
+					setDurationInFrames(Math.ceil(duration * fps) - (trimBefore ?? 0));
+				}
+			})
+			.catch((error) => {
+				if (cancelled) {
+					return;
+				}
+
+				if (onErrorRef.current) {
+					onErrorRef.current(error);
+					setFailed(true);
+				} else {
+					cancelRender(error);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+			controller.abort();
+			continueRender(handle);
+		};
+	}, [continueRender, fps, handle, src, trimBefore]);
+
+	useEffect(() => {
+		if (durationInFrames !== null || failed) {
+			continueRender(handle);
+		}
+	}, [continueRender, durationInFrames, failed, handle]);
+
+	if (durationInFrames === null || failed) {
+		return null;
+	}
+
+	return <AnimatedImageInner {...props} durationInFrames={durationInFrames} />;
+};
+
+const AnimatedImageComponent = (
+	props: AnimatedImageProps & {
+		readonly controls?: SequenceControls | undefined;
+		readonly ref?: React.Ref<HTMLCanvasElement>;
+	},
+) => {
+	if (props.loop && props.durationInFrames === undefined) {
+		const resolvedSrc = resolveAnimatedImageSource(props.src);
+		const requestInitKey = serializeRequestInit(props.requestInit);
+		return (
+			<AnimatedImageWithIntrinsicDuration
+				{...props}
+				key={`${resolvedSrc}-${requestInitKey}-${props.trimBefore ?? 0}`}
+			/>
+		);
+	}
+
+	return <AnimatedImageInner {...props} />;
+};
+
 export const AnimatedImage = withInteractivitySchema({
-	Component: AnimatedImageInner,
+	Component: AnimatedImageComponent,
 	componentName: '<AnimatedImage>',
 	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
 	schema: animatedImageSchema,
