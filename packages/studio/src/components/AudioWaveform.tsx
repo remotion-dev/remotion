@@ -8,6 +8,7 @@ import {
 import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
+import {alignCanvasToDevicePixels} from '../helpers/align-canvas-to-device-pixels';
 import {BLACK_ALPHA_60, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
 import {resolveStudioColor} from '../helpers/resolve-studio-color';
@@ -155,14 +156,13 @@ const AudioWaveformInner: React.FC<{
 		}
 
 		const pixelRatio = getStudioPixelRatio();
-		const h = Math.ceil(height * pixelRatio);
-		const w = Math.ceil(visualizationWidth * pixelRatio);
+		const {horizontalOffset} = alignCanvasToDevicePixels({
+			canvas: canvasElement,
+			cssHeight: height,
+			cssWidth: visualizationWidth,
+			pixelRatio,
+		});
 		const drawingWidth = visualizationWidth * pixelRatio;
-
-		canvasElement.width = w;
-		canvasElement.height = h;
-		canvasElement.style.width = w / pixelRatio + 'px';
-		canvasElement.style.height = h / pixelRatio + 'px';
 
 		drawBars({
 			canvas: canvasElement,
@@ -173,6 +173,7 @@ const AudioWaveformInner: React.FC<{
 			),
 			volume: visibleVolume,
 			width: drawingWidth,
+			horizontalOffset,
 		});
 	}, [height, portionPeaks, visibleVolume, visualizationWidth]);
 
@@ -187,18 +188,21 @@ const AudioWaveformInner: React.FC<{
 		}
 
 		const pixelRatio = getStudioPixelRatio();
-		const h = Math.ceil(height * pixelRatio);
-		const w = Math.ceil(visualizationWidth * pixelRatio);
+		const {
+			height: h,
+			horizontalOffset,
+			width: w,
+		} = alignCanvasToDevicePixels({
+			canvas: volumeCanvasElement,
+			cssHeight: height,
+			cssWidth: visualizationWidth,
+			pixelRatio,
+		});
 		const drawingWidth = visualizationWidth * pixelRatio;
 		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
 		}
-
-		volumeCanvasElement.width = w;
-		volumeCanvasElement.height = h;
-		volumeCanvasElement.style.width = w / pixelRatio + 'px';
-		volumeCanvasElement.style.height = h / pixelRatio + 'px';
 
 		context.clearRect(0, 0, w, h);
 		if (
@@ -210,6 +214,7 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
+		context.setTransform(1, 0, 0, 1, horizontalOffset, 0);
 		context.beginPath();
 		context.moveTo(0, 0);
 		// The canvas only spans the virtualized range. Sampling by its physical
