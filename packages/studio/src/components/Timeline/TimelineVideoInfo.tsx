@@ -116,20 +116,11 @@ const TimelineVideoInfoSegment: React.FC<{
 
 		const controller = new AbortController();
 		const pixelRatio = getStudioPixelRatio();
-		const containerLeft =
-			canvas.parentElement?.getBoundingClientRect().left ?? 0;
-		const containerLeftInPixels = containerLeft * pixelRatio;
-		// Keep the canvas origin on a device pixel and compensate while drawing,
-		// so unchanged thumbnails rasterize identically after a fractional trim.
-		const subpixelOffset =
-			containerLeftInPixels - Math.floor(containerLeftInPixels);
 
-		canvas.width = Math.ceil(visualizationWidth * pixelRatio + subpixelOffset);
+		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
 		canvas.height = Math.ceil(TIMELINE_LAYER_FILMSTRIP_HEIGHT * pixelRatio);
 		canvas.style.width = canvas.width / pixelRatio + 'px';
 		canvas.style.height = canvas.height / pixelRatio + 'px';
-		canvas.style.transform = `translateX(${-subpixelOffset / pixelRatio}px)`;
-		ctx.setTransform(1, 0, 0, 1, subpixelOffset, 0);
 
 		const drawRepeatedFrame = (frame: VideoFrame) => {
 			const thumbnailWidth = Math.max(1, frame.displayWidth);
