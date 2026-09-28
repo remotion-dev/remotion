@@ -478,7 +478,7 @@ export const ElementInstallConfirmation: React.FC<{
 	}, [folderCompositionFile, newPlan, request.element, selectedFolderStack]);
 
 	const {
-		codemod: newCompositionCodemod,
+		options: newCompositionOptions,
 		compositionId: newCompositionId,
 		heightValidationMessage,
 		nameValidationMessage,
@@ -786,7 +786,7 @@ export const ElementInstallConfirmation: React.FC<{
 			newComposition:
 				mode === 'new-composition'
 					? {
-							codemod: newCompositionCodemod,
+							options: newCompositionOptions,
 							symbolicatedStack:
 								selectedFolderStack === null ? null : folderSymbolicatedStack,
 						}
@@ -818,7 +818,7 @@ export const ElementInstallConfirmation: React.FC<{
 		currentDestination,
 		folderSymbolicatedStack,
 		mode,
-		newCompositionCodemod,
+		newCompositionOptions,
 		newCompositionId,
 		onClose,
 		request,

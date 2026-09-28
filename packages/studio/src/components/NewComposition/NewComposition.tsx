@@ -31,9 +31,9 @@ import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
-import {CodemodFooter} from './CodemodFooter';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 import {getNewCompositionDefaults} from './get-new-composition-defaults';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
@@ -483,7 +483,6 @@ const NewCompositionLoaded: React.FC<{
 	}, []);
 
 	const {
-		codemod,
 		compositionId,
 		createComposition,
 		heightValidationMessage,
@@ -569,22 +568,20 @@ const NewCompositionLoaded: React.FC<{
 					/>
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={null}
 						errorNotification="Could not create composition"
 						genericSubmitLabel="Add to root file"
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
-						codemod={codemod}
 						stack={values.folder.stack}
 						valid={valid}
 						onSuccess={null}
-						applyCodemod={({signal, symbolicatedStack}) =>
+						applyEdit={({signal, symbolicatedStack}) =>
 							createCanvasCaptureComposition({
 								signal,
 								symbolicatedStack,
 							})
 						}
-						applyCodemodForPreview={null}
 						fallbackToRootFile
 					/>
 				</ModalFooterContainer>

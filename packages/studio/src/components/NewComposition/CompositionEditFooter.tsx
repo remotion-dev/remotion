@@ -1,6 +1,5 @@
 import type {
-	ApplyCodemodResponse,
-	RecastCodemod,
+	CompositionEditResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import React, {
@@ -11,34 +10,27 @@ import React, {
 	useState,
 } from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {SetSelectedModalContext} from '../../state/modals';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalButton} from '../ModalButton';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {applyCodemod as applyCodemodApi} from '../RenderQueue/actions';
-import {
-	hasResolvedStack,
-	useResolvedStack,
-} from '../Timeline/use-resolved-stack';
-import type {CodemodStatus} from './DiffPreview';
-import {CodemodDiffPreview} from './DiffPreview';
+import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
-type ApplyCodemodAction = (options: {
+type ApplyCompositionEditAction = (options: {
 	signal: AbortSignal;
 	symbolicatedStack: SymbolicatedStackFrame | null;
-}) => Promise<ApplyCodemodResponse>;
+}) => Promise<CompositionEditResponse>;
 
-const CodemodFooterPresentation: React.FC<{
-	readonly codemodStatus: CodemodStatus;
+const CompositionEditFooterPresentation: React.FC<{
 	readonly disabled: boolean;
 	readonly genericSubmitLabel: string;
 	readonly relativeFilePath: string | null;
 	readonly submitLabel: (options: {relativeRootPath: string}) => string;
 	readonly trigger: () => void;
 }> = ({
-	codemodStatus,
 	disabled,
 	genericSubmitLabel,
 	relativeFilePath,
@@ -47,7 +39,9 @@ const CodemodFooterPresentation: React.FC<{
 }) => {
 	return (
 		<Row align="center">
-			<CodemodDiffPreview status={codemodStatus} />
+			<span style={{color: LIGHT_TEXT, fontSize: 13, lineHeight: 1.2}}>
+				This will edit your codebase.
+			</span>
 			<Flex />
 			<Spacing block x={2} />
 			<ModalButton onClick={trigger} disabled={disabled}>
@@ -60,9 +54,8 @@ const CodemodFooterPresentation: React.FC<{
 	);
 };
 
-export const CodemodFooter: React.FC<{
+export const CompositionEditFooter: React.FC<{
 	readonly valid: boolean;
-	readonly codemod: RecastCodemod;
 	readonly stack: string | null;
 	readonly loadingNotification: React.ReactNode | null;
 	readonly errorNotification: string;
@@ -70,10 +63,8 @@ export const CodemodFooter: React.FC<{
 	readonly submitLabel: (options: {relativeRootPath: string}) => string;
 	readonly onSuccess: (() => void) | null;
 	readonly fallbackToRootFile?: boolean;
-	readonly applyCodemod: ApplyCodemodAction;
-	readonly applyCodemodForPreview: ApplyCodemodAction | null;
+	readonly applyEdit: ApplyCompositionEditAction;
 }> = ({
-	codemod,
 	stack,
 	valid,
 	loadingNotification,
@@ -82,14 +73,10 @@ export const CodemodFooter: React.FC<{
 	submitLabel,
 	onSuccess,
 	fallbackToRootFile = false,
-	applyCodemod,
-	applyCodemodForPreview,
+	applyEdit,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const [codemodStatus, setCanApplyCodemod] = useState<CodemodStatus>({
-		type: 'loading',
-	});
 
 	const resolvedLocation = useResolvedStack(stack);
 	const symbolicatedStack = useMemo(
@@ -107,7 +94,7 @@ export const CodemodFooter: React.FC<{
 				? null
 				: showNotification(loadingNotification, null);
 
-		applyCodemod({
+		applyEdit({
 			symbolicatedStack,
 			signal: new AbortController().signal,
 		})
@@ -136,7 +123,7 @@ export const CodemodFooter: React.FC<{
 				}
 			});
 	}, [
-		applyCodemod,
+		applyEdit,
 		errorNotification,
 		loadingNotification,
 		onSuccess,
@@ -144,105 +131,8 @@ export const CodemodFooter: React.FC<{
 		symbolicatedStack,
 	]);
 
-	const getCanApplyCodemod = useCallback(
-		async (signal: AbortSignal) => {
-			const res = applyCodemodForPreview
-				? await applyCodemodForPreview({signal, symbolicatedStack})
-				: await applyCodemodApi({
-						codemod,
-						dryRun: true,
-						symbolicatedStack,
-						signal,
-						undoRedoNavigation: null,
-					});
-
-			if (res.success) {
-				setCanApplyCodemod({type: 'success', diff: res.diff});
-			} else {
-				setCanApplyCodemod({
-					type: 'fail',
-					error: res.reason,
-				});
-			}
-		},
-		[applyCodemodForPreview, codemod, symbolicatedStack],
-	);
-
-	useEffect(() => {
-		if (!stack) {
-			if (fallbackToRootFile) {
-				const rootFileAbortController = new AbortController();
-				let rootFileAborted = false;
-				getCanApplyCodemod(rootFileAbortController.signal)
-					.then(() => undefined)
-					.catch((err) => {
-						if (rootFileAborted) {
-							return;
-						}
-
-						showNotification(
-							`${errorNotification}: ${(err as Error).message}`,
-							3000,
-						);
-					});
-
-				return () => {
-					rootFileAborted = true;
-					rootFileAbortController.abort();
-				};
-			}
-
-			setCanApplyCodemod({
-				type: 'fail',
-				error: 'Could not determine where this item is defined',
-			});
-			return;
-		}
-
-		if (!hasResolvedStack(stack)) {
-			return;
-		}
-
-		if (!symbolicatedStack) {
-			setCanApplyCodemod({
-				type: 'fail',
-				error: 'Could not resolve the source location of this item',
-			});
-			return;
-		}
-
-		const abortController = new AbortController();
-		let aborted = false;
-		getCanApplyCodemod(abortController.signal)
-			.then(() => undefined)
-			.catch((err) => {
-				if (aborted) {
-					return;
-				}
-
-				showNotification(
-					`${errorNotification}: ${(err as Error).message}`,
-					3000,
-				);
-			});
-
-		return () => {
-			aborted = true;
-			abortController.abort();
-		};
-	}, [
-		errorNotification,
-		fallbackToRootFile,
-		getCanApplyCodemod,
-		stack,
-		symbolicatedStack,
-	]);
-
 	const disabled =
-		!valid ||
-		submitting ||
-		(symbolicatedStack === null && !fallbackToRootFile) ||
-		codemodStatus.type !== 'success';
+		!valid || submitting || (symbolicatedStack === null && !fallbackToRootFile);
 
 	const {registerKeybinding} = useKeybinding();
 
@@ -268,8 +158,7 @@ export const CodemodFooter: React.FC<{
 	}, [disabled, registerKeybinding, trigger, valid]);
 
 	return (
-		<CodemodFooterPresentation
-			codemodStatus={codemodStatus}
+		<CompositionEditFooterPresentation
 			disabled={disabled}
 			genericSubmitLabel={genericSubmitLabel}
 			relativeFilePath={relativeFilePath}

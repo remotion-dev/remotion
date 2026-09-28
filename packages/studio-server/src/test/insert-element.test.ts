@@ -476,8 +476,7 @@ test('invalidates a new-composition install after an external component edit', a
 			position: null,
 			undoRedoNavigation: null,
 			newComposition: {
-				codemod: {
-					type: 'new-composition',
+				options: {
 					asset: null,
 					newId: 'ElementScene',
 					componentName: 'ElementScene',

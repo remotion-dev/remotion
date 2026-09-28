@@ -1,4 +1,3 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
@@ -15,11 +14,11 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {CodemodFooter} from './CodemodFooter';
+import {duplicateComposition} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
-import {duplicateComposition} from './duplicate-composition-api';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
@@ -190,16 +189,15 @@ const DuplicateCompositionLoaded: React.FC<{
 		compWidthErrMessage === null &&
 		compHeightErrMessage === null;
 
-	const codemod: RecastCodemod = useMemo(() => {
+	const duplicateRequest = useMemo(() => {
 		return {
-			type: 'duplicate-composition',
 			idToDuplicate: resolved.result.id,
 			newDurationInFrames: hadDurationDefined ? Number(durationInFrames) : null,
 			newFps: hadFpsDefined ? Number(selectedFrameRate) : null,
 			newHeight: hadDimensionsDefined ? Number(size.height) : null,
 			newWidth: hadDimensionsDefined ? Number(size.width) : null,
 			newId,
-			tag: type === 'still' ? 'Still' : 'Composition',
+			tag: type === 'still' ? ('Still' as const) : ('Composition' as const),
 		};
 	}, [
 		durationInFrames,
@@ -367,35 +365,26 @@ const DuplicateCompositionLoaded: React.FC<{
 					) : null}
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={'Duplicating...'}
 						errorNotification={'Could not duplicate composition'}
 						genericSubmitLabel={'Duplicate'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
-						codemod={codemod}
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={onDuplicateSuccess}
-						applyCodemod={({signal, symbolicatedStack}) =>
-							duplicateComposition({
-								codemod,
-								dryRun: false,
-								signal,
-								symbolicatedStack,
-								undoRedoNavigation: {
-									undoRoute: getRoute(),
-									redoRoute: `/${newId}`,
+						applyEdit={({signal, symbolicatedStack}) =>
+							duplicateComposition(
+								{
+									...duplicateRequest,
+									symbolicatedStack,
+									undoRedoNavigation: {
+										undoRoute: getRoute(),
+										redoRoute: `/${newId}`,
+									},
 								},
-							})
-						}
-						applyCodemodForPreview={({signal, symbolicatedStack}) =>
-							duplicateComposition({
-								codemod,
-								dryRun: true,
 								signal,
-								symbolicatedStack,
-								undoRedoNavigation: null,
-							})
+							)
 						}
 					/>
 				</ModalFooterContainer>

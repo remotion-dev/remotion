@@ -1,5 +1,4 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useRef} from 'react';
+import React, {useCallback, useContext, useRef} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getRoute, pushUrl} from '../../helpers/url-state';
@@ -12,8 +11,8 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {applyCodemod} from '../RenderQueue/actions';
-import {CodemodFooter} from './CodemodFooter';
+import {deleteComposition} from '../RenderQueue/actions';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 
 const content: React.CSSProperties = {
@@ -39,13 +38,6 @@ const DeleteCompositionLoaded: React.FC<{
 	const navigationAfterDelete = useRef<
 		_InternalTypes['AnyComposition'] | null | undefined
 	>(undefined);
-
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'delete-composition',
-			idToDelete: compositionId,
-		};
-	}, [compositionId]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -82,18 +74,17 @@ const DeleteCompositionLoaded: React.FC<{
 					remain in your code.
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						errorNotification={`Could not delete composition`}
 						loadingNotification={'Deleting'}
 						genericSubmitLabel={`Delete`}
 						submitLabel={({relativeRootPath}) =>
 							`Delete from ${relativeRootPath}`
 						}
-						codemod={codemod}
 						stack={compositionStack}
 						valid
 						onSuccess={onSuccess}
-						applyCodemod={({signal, symbolicatedStack}) => {
+						applyEdit={({signal, symbolicatedStack}) => {
 							const currentRoute = getRoute();
 							const currentCanvasContent = deriveCanvasContentFromUrl();
 							const isSelected =
@@ -104,21 +95,22 @@ const DeleteCompositionLoaded: React.FC<{
 								: undefined;
 							navigationAfterDelete.current = fallback;
 
-							return applyCodemod({
-								codemod,
-								dryRun: false,
+							return deleteComposition(
+								{
+									idToDelete: compositionId,
+									symbolicatedStack,
+									undoRedoNavigation:
+										fallback === undefined
+											? null
+											: {
+													undoRoute: currentRoute,
+													redoRoute:
+														fallback === null ? '/' : `/${fallback.id}`,
+												},
+								},
 								signal,
-								symbolicatedStack,
-								undoRedoNavigation:
-									fallback === undefined
-										? null
-										: {
-												undoRoute: currentRoute,
-												redoRoute: fallback === null ? '/' : `/${fallback.id}`,
-											},
-							});
+							);
 						}}
-						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

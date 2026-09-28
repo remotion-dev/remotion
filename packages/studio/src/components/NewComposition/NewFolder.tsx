@@ -1,10 +1,8 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -21,8 +19,8 @@ import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
-import {applyCodemod} from '../RenderQueue/actions';
-import {CodemodFooter} from './CodemodFooter';
+import {addFolder} from '../RenderQueue/actions';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
@@ -91,14 +89,6 @@ export const NewFolder: React.FC<{
 		? validateNewFolderName({folders, newName: folderName, parentName})
 		: 'Enter a name containing letters or numbers.';
 	const valid = folderNameErrMessage === null;
-
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'new-folder',
-			folderName,
-			parentName,
-		};
-	}, [folderName, parentName]);
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -174,26 +164,26 @@ export const NewFolder: React.FC<{
 					</div>
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={'Creating folder...'}
 						errorNotification={'Could not create folder'}
 						genericSubmitLabel={'Add to root file'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
-						codemod={codemod}
 						stack={stack}
 						valid={valid}
 						onSuccess={onSuccess}
 						fallbackToRootFile
-						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
-								codemod,
-								dryRun: false,
+						applyEdit={({signal, symbolicatedStack}) =>
+							addFolder(
+								{
+									folderName,
+									parentName,
+									symbolicatedStack,
+									undoRedoNavigation: null,
+								},
 								signal,
-								symbolicatedStack,
-								undoRedoNavigation: null,
-							})
+							)
 						}
-						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

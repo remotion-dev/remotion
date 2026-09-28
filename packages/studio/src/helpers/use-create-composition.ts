@@ -1,13 +1,13 @@
 import type {
 	CanvasCaptureData,
 	NewCompositionAsset,
-	RecastCodemod,
+	NewCompositionOptions,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {useSelectComposition} from '../components/InitialCompositionLoader';
-import {applyCodemod} from '../components/RenderQueue/actions';
+import {addComposition} from '../components/RenderQueue/actions';
 import {slugifyName} from './slugify-name';
 import {getRoute} from './url-state';
 import {
@@ -101,9 +101,8 @@ export const useCreateComposition = ({
 		return validateCompositionDimension('Height', size.height);
 	}, [size.height]);
 
-	const codemod: RecastCodemod = useMemo(() => {
+	const options: NewCompositionOptions = useMemo(() => {
 		return {
-			type: 'new-composition',
 			asset,
 			newDurationInFrames: Number(durationInFrames),
 			newFps: Number(selectedFrameRate),
@@ -151,16 +150,17 @@ export const useCreateComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
-			const result = await applyCodemod({
-				codemod,
-				dryRun: false,
-				signal,
-				symbolicatedStack,
-				undoRedoNavigation: {
-					undoRoute: getRoute(),
-					redoRoute: `/${compositionId}`,
+			const result = await addComposition(
+				{
+					options,
+					symbolicatedStack,
+					undoRedoNavigation: {
+						undoRoute: getRoute(),
+						redoRoute: `/${compositionId}`,
+					},
 				},
-			});
+				signal,
+			);
 
 			if (result.success) {
 				selectComposition(
@@ -175,11 +175,11 @@ export const useCreateComposition = ({
 
 			return result;
 		},
-		[codemod, compositionId, folderName, parentName, selectComposition],
+		[compositionId, folderName, options, parentName, selectComposition],
 	);
 
 	return {
-		codemod,
+		options,
 		compositionId,
 		createComposition,
 		heightValidationMessage,
