@@ -191,6 +191,12 @@ export const fillWithCachedFrames = ({
 			continue;
 		}
 
+		if (
+			bestDistance > Math.max(MAX_TIME_DEVIATION, frame.frame.duration ?? 0)
+		) {
+			continue;
+		}
+
 		const alreadyFilled = filledSlots.get(timestamp);
 		if (
 			alreadyFilled &&
@@ -213,11 +219,6 @@ export const fillWithCachedFrames = ({
 			devicePixelRatio,
 			frameHeight,
 		});
-		// A distant cached frame can be shown while loading, but the slot still
-		// needs its actual frame. Otherwise a trim change can keep old thumbnails.
-		if (bestDistance > MAX_TIME_DEVIATION) {
-			filledSlots.set(timestamp, undefined);
-		}
 	}
 };
 
