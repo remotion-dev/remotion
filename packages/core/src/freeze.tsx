@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {createContext, useContext, useMemo} from 'react';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {useTimelineContext} from './timeline-position-state.js';
@@ -11,7 +11,13 @@ type FreezeProps = {
 	readonly frame: number;
 	readonly children: React.ReactNode;
 	readonly active?: boolean | ((f: number) => boolean);
+	readonly _remotionInternalIsPremounting?: boolean;
 };
+
+const NonPremountFreezeContext = createContext(false);
+
+export const useIsInsideNonPremountFreeze = () =>
+	useContext(NonPremountFreezeContext);
 
 /*
  * @description Freezes its children at the specified frame when rendering videos.
@@ -21,6 +27,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 	frame: frameToFreeze,
 	children,
 	active = true,
+	_remotionInternalIsPremounting = false,
 }) => {
 	const frame = useCurrentFrame();
 	const videoConfig = useVideoConfig();
@@ -61,6 +68,7 @@ export const Freeze: React.FC<FreezeProps> = ({
 
 	const timelineContext = useTimelineContext();
 	const sequenceContext = useContext(SequenceContext);
+	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
 
 	const relativeFrom = sequenceContext?.relativeFrom ?? 0;
 	const playbackRate = sequenceContext?.playbackRate ?? 1;
@@ -103,10 +111,17 @@ export const Freeze: React.FC<FreezeProps> = ({
 	}, [sequenceContext, isActive]);
 
 	return (
-		<TimelineContext.Provider value={timelineValue}>
-			<SequenceContext.Provider value={newSequenceContext}>
-				{children}
-			</SequenceContext.Provider>
-		</TimelineContext.Provider>
+		<NonPremountFreezeContext.Provider
+			value={
+				isInsideNonPremountFreeze ||
+				(Boolean(isActive) && !_remotionInternalIsPremounting)
+			}
+		>
+			<TimelineContext.Provider value={timelineValue}>
+				<SequenceContext.Provider value={newSequenceContext}>
+					{children}
+				</SequenceContext.Provider>
+			</TimelineContext.Provider>
+		</NonPremountFreezeContext.Provider>
 	);
 };

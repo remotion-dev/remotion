@@ -872,7 +872,11 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	});
 
 	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
 			<SequenceInner
 				ref={ref}
 				from={from}
