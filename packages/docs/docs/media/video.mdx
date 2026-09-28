@@ -321,11 +321,13 @@ The CSS property `object-fit` is not supported.
 
 ### `maxCanvasSinkFrameSize?`<AvailableFrom v="4.0.530" />
 
-Limits the size of the frames that are drawn during the preview, in pixels. Pass a `width`, a `height` or both. By default, the frames have the size of the video.
+Sets the maximum size of frames output by [Mediabunny](/docs/mediabunny) in Studio and Player previews. Pass a `width`, a `height`, or both, in pixels. Mediabunny keeps the video's aspect ratio and does not upscale it, so the actual frame size can be smaller than these limits.
 
-The frames keep the aspect ratio of the video, fit within the size and are never upscaled. They get scaled up to the size of the `<canvas>` when drawn, so the layout does not change.
+For example, `{width: 960}` produces 960 × 540 frames from a 1920 × 1080 video. A 640 × 360 video stays at 640 × 360. Without this prop, Mediabunny outputs frames at the video's original size.
 
-Smaller frames use less memory, which helps when a large video is shown small. The video is still decoded at full size, and rendering is not affected.
+The `<canvas>` keeps its original dimensions and scales the frames up when drawing them. [`effects`](#effects) run at the canvas dimensions, while [`onVideoFrame`](#onvideoframe) receives the frames output by Mediabunny.
+
+Smaller frames use less memory when a large video is shown small. The video is still decoded at full size, and rendering is not affected.
 
 For example, use [`useCurrentScale()`](/docs/use-current-scale) to pick a size:
 
@@ -342,17 +344,15 @@ export const MyComposition = () => {
 };
 ```
 
-In the preview, [`onVideoFrame`](#onvideoframe) receives the smaller frames, and [`effects`](#effects) receive them scaled up to the size of the `<canvas>`.
-
-Changing the numbers re-initializes the video, so prefer a few fixed sizes over a value that changes on every resize. Passing a new object with the same numbers does not.
+Changing either limit recreates the preview player, so prefer a few fixed sizes over a value that changes on every resize. Passing a new object with the same limits does not recreate it.
 
 #### `width?`
 
-The maximum width of the frames.
+The maximum width of a frame output by Mediabunny, in pixels.
 
 #### `height?`
 
-The maximum height of the frames.
+The maximum height of a frame output by Mediabunny, in pixels.
 
 ### `loop?`
 
