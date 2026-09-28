@@ -12,6 +12,7 @@ import {
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
+	type ExtractFramesProps,
 	type WaveformVolume,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
@@ -46,6 +47,35 @@ const filmstripContainerStyle: React.CSSProperties = {
 };
 
 const MAX_FROZEN_FRAME_CACHE_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+
+const extractFramesWithRetry = async (props: ExtractFramesProps) => {
+	for (let attempt = 0; attempt < 3; attempt++) {
+		if (props.signal?.aborted) {
+			return;
+		}
+
+		try {
+			await extractFrames(props);
+			return;
+		} catch (error) {
+			if (props.signal?.aborted) {
+				return;
+			}
+
+			if (
+				!(error instanceof Error) ||
+				error.name !== 'EncodingError' ||
+				attempt === 2
+			) {
+				throw error;
+			}
+
+			await new Promise<void>((resolve) => {
+				setTimeout(resolve, (attempt + 1) * 150);
+			});
+		}
+	}
+};
 
 const TimelineVideoInfoSegment: React.FC<{
 	readonly src: string;
@@ -180,7 +210,7 @@ const TimelineVideoInfoSegment: React.FC<{
 				};
 			}
 
-			extractFrames({
+			extractFramesWithRetry({
 				repeatLastFrame: extendLastFrame,
 				timestampsInSeconds: ({
 					track,
@@ -229,7 +259,9 @@ const TimelineVideoInfoSegment: React.FC<{
 				},
 				signal: controller.signal,
 			}).catch((e: unknown) => {
-				setError(e as Error);
+				if (!controller.signal.aborted) {
+					setError(e as Error);
+				}
 			});
 
 			return () => {
@@ -322,7 +354,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		}
 
 		let slotsToExtract: number[] = [];
-		extractFrames({
+		extractFramesWithRetry({
 			repeatLastFrame: extendLastFrame,
 			timestampsInSeconds: ({
 				track,
@@ -439,7 +471,9 @@ const TimelineVideoInfoSegment: React.FC<{
 				repeatTarget();
 			})
 			.catch((e: unknown) => {
-				setError(e as Error);
+				if (!controller.signal.aborted) {
+					setError(e as Error);
+				}
 			});
 
 		return () => {
