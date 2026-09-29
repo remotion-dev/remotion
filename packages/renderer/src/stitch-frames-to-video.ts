@@ -1,6 +1,7 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
+import {getAacPrimingInputArgs} from './aac-priming';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
@@ -410,7 +411,19 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : ['-an'],
+		audio && !separateAudioTo
+			? [
+					...getAacPrimingInputArgs({
+						audioCodec: resolvedAudioCodec,
+						sampleRate,
+						outputExtension,
+					}),
+					'-i',
+					audio,
+					'-c:a',
+					'copy',
+				]
+			: ['-an'],
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],
