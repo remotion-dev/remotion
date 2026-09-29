@@ -3,24 +3,50 @@ import {SidebarContext} from '../state/sidebar';
 import {useMobileLayout} from './mobile-layout';
 import {useBreakpoint} from './use-breakpoint';
 
-export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
-	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
+export const SIDEBAR_RESPONSIVE_BREAKPOINT = 1200;
+
+export const useResponsiveSidebarStatus = (
+	side: 'left' | 'right',
+): 'collapsed' | 'expanded' => {
+	const {
+		rightSidebarTemporaryExpansion,
+		sidebarCollapsedStateLeft,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const isMobileLayout = useMobileLayout();
-	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
+	const responsiveStatus = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT)
+		? 'collapsed'
+		: 'expanded';
+	const collapsedState =
+		side === 'left' ? sidebarCollapsedStateLeft : sidebarCollapsedStateRight;
 
 	return useMemo((): 'expanded' | 'collapsed' => {
+		if (side === 'left' && isMobileLayout) {
+			return 'collapsed';
+		}
+
+		if (collapsedState === 'collapsed') {
+			return 'collapsed';
+		}
+
+		if (collapsedState === 'expanded') {
+			return 'expanded';
+		}
+
+		if (side === 'right' && rightSidebarTemporaryExpansion) {
+			return 'expanded';
+		}
+
 		if (isMobileLayout) {
 			return 'collapsed';
 		}
 
-		if (sidebarCollapsedStateLeft === 'collapsed') {
-			return 'collapsed';
-		}
-
-		if (sidebarCollapsedStateLeft === 'expanded') {
-			return 'expanded';
-		}
-
-		return responsiveLeftStatus;
-	}, [isMobileLayout, responsiveLeftStatus, sidebarCollapsedStateLeft]);
+		return responsiveStatus;
+	}, [
+		collapsedState,
+		isMobileLayout,
+		responsiveStatus,
+		rightSidebarTemporaryExpansion,
+		side,
+	]);
 };

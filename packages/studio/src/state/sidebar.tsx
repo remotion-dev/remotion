@@ -1,37 +1,34 @@
 import React, {createContext, useMemo, useState} from 'react';
-import {useMobileLayout} from '../helpers/mobile-layout';
 
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
-type RightSidebarCollapsedState = Exclude<SidebarCollapsedState, 'responsive'>;
 
 type Context = {
+	rightSidebarTemporaryExpansion: boolean;
+	setRightSidebarTemporaryExpansion: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	sidebarCollapsedDuringDrag: Sidebars | null;
 	setSidebarCollapsedDuringDrag: (side: Sidebars | null) => void;
 	sidebarCollapsedStateLeft: SidebarCollapsedState;
 	setSidebarCollapsedState: (options: {
 		left: null | React.SetStateAction<SidebarCollapsedState>;
-		right: null | React.SetStateAction<RightSidebarCollapsedState>;
+		right: null | React.SetStateAction<SidebarCollapsedState>;
 	}) => void;
-	sidebarCollapsedStateRight: RightSidebarCollapsedState;
+	sidebarCollapsedStateRight: SidebarCollapsedState;
 };
 
 type Sidebars = 'left' | 'right';
 
 const storageKey = (sidebar: Sidebars) => {
 	if (sidebar === 'right') {
-		return 'remotion.sidebarRightCollapsing';
+		return 'remotion.sidebarRightCollapsing.v2';
 	}
 
-	return 'remotion.sidebarCollapsing';
+	return 'remotion.sidebarCollapsing.v2';
 };
 
-const getSavedCollapsedStateLeft = (
-	isMobileLayout = false,
-): SidebarCollapsedState => {
+const getSavedCollapsedStateLeft = (): SidebarCollapsedState => {
 	const state = window.localStorage.getItem(storageKey('left'));
-	if (isMobileLayout) {
-		return 'collapsed';
-	}
 
 	if (state === 'collapsed') {
 		return 'collapsed';
@@ -44,20 +41,18 @@ const getSavedCollapsedStateLeft = (
 	return 'responsive';
 };
 
-const getSavedCollapsedStateRight = (
-	isMobileLayout = false,
-): RightSidebarCollapsedState => {
+const getSavedCollapsedStateRight = (): SidebarCollapsedState => {
 	const state = window.localStorage.getItem(storageKey('right'));
-
-	if (isMobileLayout) {
-		return 'collapsed';
-	}
 
 	if (state === 'expanded') {
 		return 'expanded';
 	}
 
-	return 'collapsed';
+	if (state === 'collapsed') {
+		return 'collapsed';
+	}
+
+	return 'responsive';
 };
 
 const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
@@ -65,44 +60,53 @@ const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
 };
 
 export const SidebarContext = createContext<Context>({
+	rightSidebarTemporaryExpansion: false,
+	setRightSidebarTemporaryExpansion: () => undefined,
 	sidebarCollapsedDuringDrag: null,
 	setSidebarCollapsedDuringDrag: () => undefined,
-	sidebarCollapsedStateLeft: 'collapsed',
+	sidebarCollapsedStateLeft: 'responsive',
 	setSidebarCollapsedState: () => {
 		throw new Error('sidebar collapsed state');
 	},
-	sidebarCollapsedStateRight: 'collapsed',
+	sidebarCollapsedStateRight: 'responsive',
 });
 
 type SidebarState = {
 	left: SidebarCollapsedState;
-	right: RightSidebarCollapsedState;
+	right: SidebarCollapsedState;
 };
 
 export const SidebarContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const isMobileLayout = useMobileLayout();
 	const [sidebarCollapsedState, setSidebarCollapsedState] =
 		useState<SidebarState>(() => ({
-			left: getSavedCollapsedStateLeft(isMobileLayout),
-			right: getSavedCollapsedStateRight(isMobileLayout),
+			left: getSavedCollapsedStateLeft(),
+			right: getSavedCollapsedStateRight(),
 		}));
 
 	const [sidebarCollapsedDuringDrag, setSidebarCollapsedDuringDrag] =
 		useState<Sidebars | null>(null);
+	const [rightSidebarTemporaryExpansion, setRightSidebarTemporaryExpansion] =
+		useState(false);
 
 	const value: Context = useMemo(() => {
 		return {
+			rightSidebarTemporaryExpansion,
+			setRightSidebarTemporaryExpansion,
 			sidebarCollapsedDuringDrag,
 			setSidebarCollapsedDuringDrag,
 			sidebarCollapsedStateLeft: sidebarCollapsedState.left,
 			sidebarCollapsedStateRight: sidebarCollapsedState.right,
 			setSidebarCollapsedState: (options: {
 				left: null | React.SetStateAction<SidebarCollapsedState>;
-				right: null | React.SetStateAction<RightSidebarCollapsedState>;
+				right: null | React.SetStateAction<SidebarCollapsedState>;
 			}) => {
 				const {left, right} = options;
+				if (right !== null) {
+					setRightSidebarTemporaryExpansion(false);
+				}
+
 				setSidebarCollapsedState((f) => {
 					const copied = {...f};
 					if (left) {
@@ -123,7 +127,11 @@ export const SidebarContextProvider: React.FC<{
 				});
 			},
 		};
-	}, [sidebarCollapsedState, sidebarCollapsedDuringDrag]);
+	}, [
+		rightSidebarTemporaryExpansion,
+		sidebarCollapsedState,
+		sidebarCollapsedDuringDrag,
+	]);
 
 	return (
 		<SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
