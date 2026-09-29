@@ -936,6 +936,18 @@ export const InspectorSequenceSection: React.FC<{
 		);
 	};
 
+	const captionsInspector = inlineCaptions ? (
+		<InlineCaptionInspector
+			captions={inlineCaptions}
+			controls={sequence.controls}
+			expanded={captionsExpanded}
+			nodePath={nodePathInfo.sequenceSubscriptionKey}
+			onToggle={() => toggleAdditionalSection('captions')}
+			readOnlyStudio={readOnlyStudio}
+			validatedLocation={validatedLocation}
+		/>
+	) : null;
+
 	if (
 		controlRows.length === 0 &&
 		!showEffectsSection &&
@@ -956,37 +968,29 @@ export const InspectorSequenceSection: React.FC<{
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
 						{controlGroupsWithoutLayout.map((group) => (
-							<InspectorSection
-								key={group.id}
-								header={renderControlGroupHeader(group)}
-							>
-								{isControlGroupExpanded(group) ? (
-									group.id === 'transforms' ? (
-										<Transform3DModeContext.Provider
-											value={show3DTransformControls}
-										>
-											{renderTransformControls()}
-											{group.rows.map(renderRow)}
-										</Transform3DModeContext.Provider>
-									) : (
-										group.rows.map(renderRow)
-									)
-								) : null}
-							</InspectorSection>
+							<React.Fragment key={group.id}>
+								{group.id === 'transforms' ? captionsInspector : null}
+								<InspectorSection header={renderControlGroupHeader(group)}>
+									{isControlGroupExpanded(group) ? (
+										group.id === 'transforms' ? (
+											<Transform3DModeContext.Provider
+												value={show3DTransformControls}
+											>
+												{renderTransformControls()}
+												{group.rows.map(renderRow)}
+											</Transform3DModeContext.Provider>
+										) : (
+											group.rows.map(renderRow)
+										)
+									) : null}
+								</InspectorSection>
+							</React.Fragment>
 						))}
 					</TimelineSelectionOrderProvider>
 				) : null}
-				{inlineCaptions ? (
-					<InlineCaptionInspector
-						captions={inlineCaptions}
-						controls={sequence.controls}
-						expanded={captionsExpanded}
-						nodePath={nodePathInfo.sequenceSubscriptionKey}
-						onToggle={() => toggleAdditionalSection('captions')}
-						readOnlyStudio={readOnlyStudio}
-						validatedLocation={validatedLocation}
-					/>
-				) : null}
+				{controlGroupsWithoutLayout.every((group) => group.id !== 'transforms')
+					? captionsInspector
+					: null}
 				{showEffectsSection ? (
 					<InspectorSection header={effectsHeader}>
 						{effectRows.length > 0 ? (
