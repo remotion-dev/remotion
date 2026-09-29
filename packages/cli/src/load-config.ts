@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {BundlerInternals} from '@remotion/bundler';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 
 export type PreparedConfigFile = {
 	code: string;
@@ -71,6 +72,13 @@ export const executeConfigFile = ({code, remotionRoot}: PreparedConfigFile) => {
 		// Execute the contents of the config file
 		// eslint-disable-next-line no-eval
 		eval(str);
+
+		if (
+			'webcontainer' in process.versions &&
+			BrowserSafeApis.options.rspackOption.getConfigValue() === true
+		) {
+			BrowserSafeApis.options.rspackOption.setConfig(false);
+		}
 	} finally {
 		if (isMainThread) {
 			process.chdir(currentCwd);
