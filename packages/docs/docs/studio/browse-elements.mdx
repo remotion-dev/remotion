@@ -9,19 +9,45 @@ crumb: 'Remotion Studio'
 
 ## Open Browse Elements
 
-In an editable Studio project, open Browse Elements from either:
-
-- the welcome canvas when no composition is selected
-- the **Actions** section in the right inspector when a composition is selected
-
-<img src="/img/browse-elements-entry-points.png" alt="Browse Elements on the Studio welcome canvas and in the Actions section of the inspector" />
-
-Choose an Element and click **Use**. Studio asks you to confirm before adding the Element's source code to your project.
+<div style={{display: 'flex', flexWrap: 'wrap', gap: 24}}>
+  <section style={{display: 'flex', flex: '1 1 300px', flexDirection: 'column'}}>
+    <h3>No composition selected</h3>
+    <p>
+      Select <strong>Browse Elements</strong> on the welcome canvas.
+    </p>
+    <img src="https://remotion.media/elements/studio/browse-elements-welcome-compact.webp" alt="Browse Elements on the Studio welcome canvas" style={{marginTop: 'auto', width: '100%'}} />
+  </section>
+  <section style={{display: 'flex', flex: '1 1 300px', flexDirection: 'column'}}>
+    <h3>Composition selected</h3>
+    <p>
+      Select <strong>Browse Elements</strong> in the <strong>Actions</strong> section of the right inspector.
+    </p>
+    <img src="https://remotion.media/elements/studio/browse-elements-actions.webp" alt="Browse Elements in the Actions section of the Studio inspector" style={{marginTop: 'auto', width: '100%'}} />
+  </section>
+</div>
 
 ## Add more libraries
 
+### In Studio
+
 Use the **Configure Elements** gear in the library window to manage Element Libraries. If additional libraries are configured, you can also choose **Manage…** from the Browse Elements menu.
 
-Adding an Element Library makes its Elements available to browse. It does not install any Element into your project.
+<img src="https://remotion.media/elements/studio/browse-elements-libraries.webp" alt="Element Libraries and Manage option in the Browse Elements menu" style={{maxWidth: '450px', width: '100%'}} />
 
-See the available [third-party Element Libraries](/elements/libraries).
+### In `remotion.config.ts`
+
+Add an Element Library with [`Config.addElementLibrary()`](/docs/config#addelementlibrary):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.addElementLibrary({
+  url: 'https://example.com/elements',
+  displayName: 'Acme Elements',
+});
+```
+
+## See also
+
+- [Remotion Elements](/elements)
+- [Third-party Element Libraries](/elements/libraries)
