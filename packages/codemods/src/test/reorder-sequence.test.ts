@@ -91,14 +91,20 @@ export const Comp=()=>{
 		{
 			oldNodePath: sequenceContaining(input, "name='a'"),
 			newNodePath: sequenceContaining(output, "name='a'"),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
 			oldNodePath: sequenceContaining(input, "name='b'"),
 			newNodePath: sequenceContaining(output, "name='b'"),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
 			oldNodePath: sequenceContaining(input, "name='c'"),
 			newNodePath: sequenceContaining(output, "name='c'"),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 	]);
 });

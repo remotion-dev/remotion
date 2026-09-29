@@ -164,6 +164,12 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			remappings: file.remappings.map((remapping) => ({
 				oldNodePath: remapping.newNodePath,
 				newNodePath: remapping.oldNodePath,
+				...(remapping.newJsxName === undefined
+					? {}
+					: {oldJsxName: remapping.newJsxName}),
+				...(remapping.oldJsxName === undefined
+					? {}
+					: {newJsxName: remapping.oldJsxName}),
 			})),
 		})),
 	);
@@ -204,10 +210,10 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		{
 			absolutePath: '/project/src/Composition.tsx',
 			remappings: expect.arrayContaining([
-				{
+				expect.objectContaining({
 					oldNodePath: insertResult.insertedNodePath.nodePath,
 					newNodePath: null,
-				},
+				}),
 			]),
 		},
 	]);

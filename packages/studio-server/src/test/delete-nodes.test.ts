@@ -146,14 +146,20 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 					{
 						oldNodePath: lineColumnToNodePath(interactiveSiblings, 6),
 						newNodePath: null,
+						oldJsxName: 'Interactive.Div',
+						newJsxName: null,
 					},
 					{
 						oldNodePath: lineColumnToNodePath(interactiveSiblings, 7),
 						newNodePath: lineColumnToNodePath(output, 6),
+						oldJsxName: 'Interactive.Div',
+						newJsxName: 'Interactive.Div',
 					},
 					{
 						oldNodePath: lineColumnToNodePath(interactiveSiblings, 8),
 						newNodePath: lineColumnToNodePath(output, 7),
+						oldJsxName: 'Interactive.Div',
+						newJsxName: 'Interactive.Div',
 					},
 				],
 			},
@@ -188,14 +194,20 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 					{
 						oldNodePath: null,
 						newNodePath: lineColumnToNodePath(interactiveSiblings, 6),
+						oldJsxName: null,
+						newJsxName: 'Interactive.Div',
 					},
 					{
 						oldNodePath: lineColumnToNodePath(output, 6),
 						newNodePath: lineColumnToNodePath(interactiveSiblings, 7),
+						oldJsxName: 'Interactive.Div',
+						newJsxName: 'Interactive.Div',
 					},
 					{
 						oldNodePath: lineColumnToNodePath(output, 7),
 						newNodePath: lineColumnToNodePath(interactiveSiblings, 8),
+						oldJsxName: 'Interactive.Div',
+						newJsxName: 'Interactive.Div',
 					},
 				],
 			},

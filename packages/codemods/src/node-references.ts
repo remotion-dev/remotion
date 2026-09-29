@@ -1,3 +1,4 @@
+import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import type {CodemodProject, CodemodResult} from './codemod-project';
 import {getCodemodResult} from './codemod-project';
@@ -10,10 +11,8 @@ export type NodeReference = {
 	nodePath: SequenceNodePath;
 };
 
-export type NodePathRemapping = {
+export type NodePathRemapping = SequenceNodePathRemapping & {
 	filePath: string;
-	oldNodePath: SequenceNodePath | null;
-	newNodePath: SequenceNodePath | null;
 };
 
 export type CodemodNodeResult = CodemodResult & {
@@ -27,10 +26,7 @@ export type CodemodInsertionResult = CodemodNodeResult & {
 export type NodeSourceEdit = {
 	filePath: string;
 	output: string;
-	nodePathRemappings: {
-		oldNodePath: SequenceNodePath | null;
-		newNodePath: SequenceNodePath | null;
-	}[];
+	nodePathRemappings: SequenceNodePathRemapping[];
 };
 
 export const getInsertedNodeReferences = (

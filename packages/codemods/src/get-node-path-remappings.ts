@@ -8,6 +8,7 @@ import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 export type CapturedJsxNodePath = {
 	node: JSXOpeningElement;
 	nodePath: SequenceNodePath;
+	jsxName: string;
 	signature: string;
 	// The opening element of the closest enclosing JSX element, if any.
 	parentNode: JSXOpeningElement | null;
@@ -32,6 +33,7 @@ export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 			captured.push({
 				node: path.node as JSXOpeningElement,
 				nodePath: getNodePathForRecastPath(path, ast),
+				jsxName: recast.prettyPrint(path.node.name).code,
 				signature: recast.prettyPrint(path.node as JSXOpeningElement).code,
 				parentNode,
 			});
@@ -63,26 +65,31 @@ export const getNodePathRemappings = ({
 	});
 
 	const {ast: finalAst} = getReadOnlySourceSnapshot(output);
-	const finalNodePaths: SequenceNodePath[] = [];
+	const finalNodes: Array<{nodePath: SequenceNodePath; jsxName: string}> = [];
 	recast.visit(finalAst, {
 		visitJSXOpeningElement(path) {
-			finalNodePaths.push(getNodePathForRecastPath(path, finalAst));
+			finalNodes.push({
+				nodePath: getNodePathForRecastPath(path, finalAst),
+				jsxName: recast.prettyPrint(path.node.name).code,
+			});
 			return this.traverse(path);
 		},
 	});
 
-	if (nodesAfterMutation.length !== finalNodePaths.length) {
+	if (nodesAfterMutation.length !== finalNodes.length) {
 		throw new Error('Could not map JSX node paths after modifying JSX nodes');
 	}
 
 	const finalNodePathByNode = new Map<JSXOpeningElement, SequenceNodePath>();
+	const finalJsxNameByNode = new Map<JSXOpeningElement, string>();
 	for (let i = 0; i < nodesAfterMutation.length; i++) {
-		finalNodePathByNode.set(nodesAfterMutation[i], finalNodePaths[i]);
+		finalNodePathByNode.set(nodesAfterMutation[i], finalNodes[i].nodePath);
+		finalJsxNameByNode.set(nodesAfterMutation[i], finalNodes[i].jsxName);
 	}
 
 	const capturedNodes = new Set(captured.map(({node}) => node));
 	const nodePathRemappings: SequenceNodePathRemapping[] = captured.flatMap(
-		({node, nodePath, signature}) => {
+		({node, nodePath, jsxName, signature}) => {
 			const newNodePath = finalNodePathByNode.get(node) ?? null;
 			if (
 				newNodePath !== null &&
@@ -92,7 +99,17 @@ export const getNodePathRemappings = ({
 				return [];
 			}
 
-			return [{oldNodePath: nodePath, newNodePath}];
+			return [
+				{
+					oldNodePath: nodePath,
+					newNodePath,
+					oldJsxName: jsxName,
+					newJsxName:
+						newNodePath === null
+							? null
+							: (finalJsxNameByNode.get(node) ?? null),
+				},
+			];
 		},
 	);
 
@@ -106,7 +123,12 @@ export const getNodePathRemappings = ({
 			throw new Error('Could not map inserted JSX node path');
 		}
 
-		nodePathRemappings.push({oldNodePath: null, newNodePath});
+		nodePathRemappings.push({
+			oldNodePath: null,
+			newNodePath,
+			oldJsxName: null,
+			newJsxName: finalJsxNameByNode.get(node) ?? null,
+		});
 	}
 
 	return {finalNodePathByNode, nodePathRemappings};

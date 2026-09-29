@@ -118,6 +118,12 @@ test('JSX structure routes broadcast and return node path mutations before writi
 			remappings: file.remappings.map((remapping) => ({
 				oldNodePath: remapping.newNodePath,
 				newNodePath: remapping.oldNodePath,
+				...(remapping.newJsxName === undefined
+					? {}
+					: {oldJsxName: remapping.newJsxName}),
+				...(remapping.oldJsxName === undefined
+					? {}
+					: {newJsxName: remapping.oldJsxName}),
 			})),
 		}));
 
