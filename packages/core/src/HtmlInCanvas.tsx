@@ -467,8 +467,10 @@ const defaultOnPaint = ({
 	canvas,
 	element,
 	elementImage,
+	nestedCanvasScale,
 }: Omit<HtmlInCanvasOnPaintParams, 'canvas'> & {
 	readonly canvas: HtmlInCanvasPaintTarget;
+	readonly nestedCanvasScale: number;
 }) => {
 	const ctx = canvas.getContext('2d');
 	if (!ctx) {
@@ -476,7 +478,18 @@ const defaultOnPaint = ({
 	}
 
 	ctx.reset();
-	const transform = ctx.drawElementImage(elementImage, 0, 0);
+	// Affected Chrome versions shrink captured child canvases by the display DPR.
+	// Compensate in the destination rectangle on each paint, leaving their bitmaps intact.
+	const transform =
+		nestedCanvasScale === 1
+			? ctx.drawElementImage(elementImage, 0, 0)
+			: ctx.drawElementImage(
+					elementImage,
+					0,
+					0,
+					elementImage.width * nestedCanvasScale,
+					elementImage.height * nestedCanvasScale,
+				);
 	element.style.transform = transform.toString();
 };
 
@@ -588,19 +601,6 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
-		const correctedNestedCanvasesRef = useRef(
-			new WeakMap<
-				HTMLCanvasElement,
-				{
-					sourceWidth: number;
-					sourceHeight: number;
-					correctedWidth: number;
-					correctedHeight: number;
-					originalStyleWidth: string;
-					originalStyleHeight: string;
-				}
-			>(),
-		);
 
 		const onPaintCb = useCallback(async () => {
 			const element = divRef.current;
@@ -631,100 +631,6 @@ const HtmlInCanvasContent = forwardRef<
 				const handle = delayRender('onPaint');
 				const needsNestedCanvasCorrection =
 					window.devicePixelRatio > 1 && (await hasNestedCanvasScalingBug());
-				for (const childCanvas of element.querySelectorAll('canvas')) {
-					const corrected = correctedNestedCanvasesRef.current.get(childCanvas);
-					if (!needsNestedCanvasCorrection && !corrected) {
-						continue;
-					}
-
-					const stillCorrected =
-						corrected?.correctedWidth === childCanvas.width &&
-						corrected.correctedHeight === childCanvas.height;
-					const sourceWidth = stillCorrected
-						? corrected.sourceWidth
-						: childCanvas.width;
-					const sourceHeight = stillCorrected
-						? corrected.sourceHeight
-						: childCanvas.height;
-
-					// Video canvases start at the browser's 300×150 default and
-					// receive their real size when the first frame is decoded.
-					if (
-						needsNestedCanvasCorrection &&
-						!corrected &&
-						sourceWidth === 300 &&
-						sourceHeight === 150 &&
-						!childCanvas.hasAttribute('width') &&
-						!childCanvas.hasAttribute('height')
-					) {
-						continue;
-					}
-
-					const targetWidth = needsNestedCanvasCorrection
-						? Math.round(sourceWidth * window.devicePixelRatio)
-						: sourceWidth;
-					const targetHeight = needsNestedCanvasCorrection
-						? Math.round(sourceHeight * window.devicePixelRatio)
-						: sourceHeight;
-					const originalStyleWidth =
-						corrected?.originalStyleWidth ?? childCanvas.style.width;
-					const originalStyleHeight =
-						corrected?.originalStyleHeight ?? childCanvas.style.height;
-					if (
-						targetWidth !== childCanvas.width ||
-						targetHeight !== childCanvas.height
-					) {
-						const context = childCanvas.getContext('2d');
-						if (
-							!context ||
-							childCanvas.width === 0 ||
-							childCanvas.height === 0
-						) {
-							continue;
-						}
-
-						const copy = document.createElement('canvas');
-						copy.width = childCanvas.width;
-						copy.height = childCanvas.height;
-						const copyContext = copy.getContext('2d');
-						if (!copyContext) {
-							continue;
-						}
-
-						copyContext.drawImage(childCanvas, 0, 0);
-						if (needsNestedCanvasCorrection && !corrected) {
-							// Keep the CSS box unchanged when it is sized by the bitmap.
-							const computedStyle = window.getComputedStyle(childCanvas);
-							if (!childCanvas.style.width) {
-								childCanvas.style.width = computedStyle.width;
-							}
-
-							if (!childCanvas.style.height) {
-								childCanvas.style.height = computedStyle.height;
-							}
-						}
-
-						childCanvas.width = targetWidth;
-						childCanvas.height = targetHeight;
-						context.drawImage(copy, 0, 0, targetWidth, targetHeight);
-					}
-
-					if (needsNestedCanvasCorrection) {
-						correctedNestedCanvasesRef.current.set(childCanvas, {
-							sourceWidth,
-							sourceHeight,
-							correctedWidth: targetWidth,
-							correctedHeight: targetHeight,
-							originalStyleWidth,
-							originalStyleHeight,
-						});
-					} else if (corrected) {
-						childCanvas.style.width = corrected.originalStyleWidth;
-						childCanvas.style.height = corrected.originalStyleHeight;
-						correctedNestedCanvasesRef.current.delete(childCanvas);
-					}
-				}
-
 				if (!initializedRef.current) {
 					const currentOnInit = onInitRef.current;
 					if (!currentOnInit) {
@@ -828,6 +734,9 @@ const HtmlInCanvasContent = forwardRef<
 							element,
 							elementImage: elImage,
 							pixelDensity: resolvedPixelDensity,
+							nestedCanvasScale: needsNestedCanvasCorrection
+								? window.devicePixelRatio
+								: 1,
 						});
 					}
 
