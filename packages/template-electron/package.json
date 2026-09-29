@@ -45,7 +45,7 @@
     "@types/web": "0.0.166",
     "@vitejs/plugin-react": "4.3.4",
     "electron": "40.8.5",
-    "eslint": "9.19.0",
+    "eslint": "9.39.5",
     "prettier": "3.8.1",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
