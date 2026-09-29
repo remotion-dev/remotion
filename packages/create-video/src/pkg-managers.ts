@@ -62,7 +62,7 @@ export const selectPackageManager = (): PackageManager => {
 
 export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm i`;
+		return `npm i --loglevel=error`;
 	}
 
 	if (manager === 'yarn') {
