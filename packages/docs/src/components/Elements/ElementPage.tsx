@@ -3,6 +3,7 @@ import {
 	installInStudio,
 	isInsideStudio,
 	StudioProtocolInternals,
+	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {
 	useCallback,
@@ -14,12 +15,12 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
+import {InlineStep} from '../../../components/InlineStep';
 import {PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {createElementPayloadFromDefinition} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
-import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ElementPreview} from './ElementPreview';
 import {
 	ElementPreviewComposition,
@@ -34,7 +35,11 @@ type ElementPageProps = {
 	readonly sourceCode?: string;
 };
 
-type InstallStatus = {type: 'idle'} | {type: 'installing'} | {type: 'success'};
+type InstallStatus =
+	| {type: 'idle'}
+	| {type: 'installing'}
+	| {type: 'success'; message: string}
+	| {type: 'error'; code: InstallInStudioErrorCode | null; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -45,8 +50,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
-	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
-	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
@@ -144,18 +147,25 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				fallbackPayload: assetPayload === null ? undefined : elementPayload,
 			});
 			if (!result.success) {
-				setInstallStatus({type: 'idle'});
-				setInstallFailureCount((count) => count + 1);
-				setIsInstallFallbackOpen(true);
+				setInstallStatus({
+					type: 'error',
+					code: result.code,
+					message: result.message,
+				});
 				return;
 			}
 
-			setIsInstallFallbackOpen(false);
-			setInstallFailureCount(0);
 			if (isEmbeddedInStudio) {
 				setInstallStatus({type: 'idle'});
 			} else {
-				setInstallStatus({type: 'success'});
+				const {target} = result;
+				setInstallStatus({
+					type: 'success',
+					message:
+						target.compositionId === null
+							? `Sent to ${target.projectName ?? 'Remotion Studio'}. Confirm the installation destination in Studio.`
+							: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
+				});
 			}
 
 			if (window.location.origin === 'https://www.remotion.dev') {
@@ -164,9 +174,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				);
 			}
 		} catch {
-			setInstallStatus({type: 'idle'});
-			setInstallFailureCount((count) => count + 1);
-			setIsInstallFallbackOpen(true);
+			setInstallStatus({
+				type: 'error',
+				code: null,
+				message: 'Could not connect to Remotion Studio. Please try again.',
+			});
 		}
 	}, [assetPayload, definition.slug, elementPayload, isEmbeddedInStudio]);
 
@@ -284,10 +296,57 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{installStatus.type === 'installing' && isInstallHintVisible ? (
-								<p aria-live="polite" className={styles.installingStatus}>
-									If your browser prompts you, allow local network access so
-									this page can find Remotion Studio.
+							{installStatus.type === 'error' &&
+							(installStatus.code === 'no-compatible-studio' ||
+								installStatus.code === 'no-installable-target') ? (
+								<div aria-live="polite" className={styles.studioGuidance}>
+									<p className={styles.studioGuidanceTitle}>
+										{installStatus.code === 'no-installable-target'
+											? 'Focus Remotion Studio'
+											: 'Connect to Remotion Studio'}
+									</p>
+									<ol className={styles.studioGuidanceSteps} role="list">
+										<li>
+											<InlineStep>1</InlineStep>
+											<span>
+												{installStatus.code === 'no-installable-target' ? (
+													<>
+														Open and focus{' '}
+														<a href="/docs/studio">Remotion Studio</a>.
+													</>
+												) : (
+													<>
+														Open your Remotion project, or{' '}
+														<a href="/docs/">create a new one</a>, and{' '}
+														<a href="/docs/studio">start Studio</a>.
+													</>
+												)}
+											</span>
+										</li>
+										<li>
+											<InlineStep>2</InlineStep>
+											<span>
+												Return here and click <strong>Use</strong> again.
+											</span>
+										</li>
+									</ol>
+								</div>
+							) : installStatus.type !== 'idle' &&
+							  (installStatus.type !== 'installing' ||
+									isInstallHintVisible) ? (
+								<p
+									aria-live="polite"
+									className={
+										installStatus.type === 'installing'
+											? styles.installingStatus
+											: installStatus.type === 'success'
+												? styles.successStatus
+												: styles.errorStatus
+									}
+								>
+									{installStatus.type === 'installing'
+										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
+										: installStatus.message}
 								</p>
 							) : null}
 						</>
@@ -373,21 +432,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					) : null}
 				</div>
 			</aside>
-			{elementPayload === null || sourceCode === undefined ? null : (
-				<ElementInstallFallbackModal
-					installFailureCount={installFailureCount}
-					isInstalling={installStatus.type === 'installing'}
-					isOpen={isInstallFallbackOpen}
-					onClose={() => {
-						setIsInstallFallbackOpen(false);
-						setInstallFailureCount(0);
-					}}
-					onInstall={installElement}
-					payload={elementPayload}
-					posterRef={posterRef}
-					sourceCode={sourceCode}
-				/>
-			)}
 		</div>
 	);
 };

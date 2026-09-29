@@ -259,7 +259,7 @@ export const installInStudioWithDependencies = async (
 	if (!selected || selectedTarget === null || selectedTarget === undefined) {
 		return failure(
 			'no-installable-target',
-			'Focus a Remotion Studio that is not read-only, then try again.',
+			'Focus Remotion Studio, then try again.',
 		);
 	}
 

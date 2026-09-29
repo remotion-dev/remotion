@@ -4,13 +4,13 @@ import {
 } from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import {
-	type FC,
 	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
+	type FC,
 } from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
@@ -192,8 +192,7 @@ export const ElementInstallRequestHandler: FC = () => {
 				: {
 						success: false,
 						code: 'no-installable-target',
-						message:
-							'Open a Remotion Studio that is not read-only, then try again.',
+						message: 'Focus Remotion Studio, then try again.',
 					};
 
 			const timeout = window.setTimeout(() => responsePort.close(), 1000);
