@@ -23,7 +23,12 @@ test('Gif exposes background, border, and crop controls', () => {
 	expect('cropRight' in gifSchema).toBe(true);
 	expect('cropTop' in gifSchema).toBe(true);
 	expect('cropBottom' in gifSchema).toBe(true);
-	expect(gifSchema.loop).toBe(Internals.baseSchema.loop);
+	expect(gifSchema.loop).toEqual({
+		type: 'boolean',
+		default: false,
+		description: 'Loop',
+		keyframable: false,
+	});
 });
 
 class MockWorker {

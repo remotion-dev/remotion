@@ -66,7 +66,6 @@ const seriesSequenceSchema = {
 	freeze: Interactive.baseSchema.freeze,
 	trimBefore: Interactive.sequenceSchema.trimBefore,
 	playbackRate: Interactive.sequenceSchema.playbackRate,
-	loop: {type: 'hidden'},
 	layout: Interactive.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 

@@ -38,6 +38,12 @@ export type GifProps = InteractiveBaseProps &
  */
 export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
+	loop: {
+		type: 'boolean',
+		default: false,
+		description: 'Loop',
+		keyframable: false,
+	},
 	...Internals.premountSchema,
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,

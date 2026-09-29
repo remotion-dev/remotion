@@ -156,7 +156,6 @@ const transitionSeriesSequenceSchema = {
 	freeze: Internals.freezeField,
 	trimBefore: Internals.sequenceSchema.trimBefore,
 	playbackRate: Internals.sequenceSchema.playbackRate,
-	loop: {type: 'hidden'},
 	layout: Internals.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 
