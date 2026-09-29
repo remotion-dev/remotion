@@ -33,9 +33,12 @@ Fetch its source code from https://www.remotion.dev/elements/captions/basic-capt
 
 ## Displaying captions alongside video content
 
-Put the captions next to the video so they stay in sync. Inline the captions
-directly in the `captions` prop; if they were transcribed to a JSON file, copy
-its contents into the prop.
+Put the captions next to the video so they stay in sync. The Caption editor
+writes back to the array literal on the selected `<BasicCaptions>` source node,
+so inline the captions directly in its `captions` prop. Passing a variable or
+component prop such as `captions={captions}` leaves no source array for the
+editor to update. If the captions were transcribed to a JSON file, copy its
+contents into the prop.
 
 Give the caption area a width and position it over the video. In this
 1920px-wide composition, the 900px caption area is centered by translating it
