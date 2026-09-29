@@ -96,7 +96,6 @@ export const NewTransform: React.FC<{
 };
 
 type TransformBaseProps = InteractiveBaseProps & {
-	readonly loop?: boolean;
 	readonly children: React.ReactNode;
 };
 

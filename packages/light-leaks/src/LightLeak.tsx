@@ -23,7 +23,6 @@ export type LightLeakProps = InteractiveBaseProps &
 	InteractivePremountProps &
 	Pick<SequenceProps, 'width' | 'height'> &
 	Pick<AbsoluteFillLayout, 'className'> & {
-		readonly loop?: boolean;
 		readonly seed?: number;
 		readonly hueShift?: number;
 	};

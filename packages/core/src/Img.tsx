@@ -69,7 +69,6 @@ export type ImgProps = NativeImgProps & {
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
-	readonly loop?: boolean;
 } & Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
 	InteractivePremountProps;

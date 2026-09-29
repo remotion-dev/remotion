@@ -20,7 +20,6 @@ import {useMapPremounting} from './use-map-premounting';
 export type MapPointProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<PointLayerOptions, 'layerId' | 'sourceId'> & {
-		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 		readonly layerId: string;
 		readonly sourceId?: string;

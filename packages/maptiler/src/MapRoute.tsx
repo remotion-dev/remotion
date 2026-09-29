@@ -23,7 +23,6 @@ export type MapRouteFeature = {
 
 type MapRouteProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
-		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 		readonly feature: MapRouteFeature;
 		readonly glow?: number;

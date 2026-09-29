@@ -15,7 +15,6 @@ import {
 
 export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 	InteractivePremountProps & {
-		readonly loop?: boolean;
 		readonly children: React.ReactNode;
 		readonly width: number;
 		readonly height: number;

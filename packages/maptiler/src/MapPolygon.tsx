@@ -38,7 +38,6 @@ export type MapPolygonProps = InteractiveBaseProps &
 		PolygonLayerOptions,
 		'data' | 'fillOpacity' | 'layerId' | 'outlinePosition' | 'sourceId'
 	> & {
-		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 		readonly data: MapPolygonData;
 		readonly fillOpacity?: number | PolygonLayerOptions['fillOpacity'];

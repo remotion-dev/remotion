@@ -17,7 +17,6 @@ import {doesReactSupportTransformOriginProperty} from '../utils/does-react-suppo
 
 type ShapeSequenceProps = InteractiveBaseProps &
 	InteractivePremountProps & {
-		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 	};
 

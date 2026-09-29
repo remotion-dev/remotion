@@ -33,7 +33,6 @@ import {Rotations} from './Rotations';
 
 type LabelProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
-		readonly loop?: boolean;
 		readonly children: string;
 	};
 

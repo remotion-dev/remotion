@@ -81,7 +81,6 @@ export const studioReferenceSchema = z.object({
 export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 
 export type StudioProps = InteractiveBaseProps & {
-	readonly loop?: boolean;
 	readonly compositionName: string;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;

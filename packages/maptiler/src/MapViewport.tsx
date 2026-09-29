@@ -38,7 +38,6 @@ export type MapViewportProps = InteractiveBaseProps &
 	InteractiveCropProps &
 	InteractivePremountProps &
 	InteractiveTransformProps & {
-		readonly loop?: boolean;
 		readonly apiKey: string | null;
 		readonly backgroundColor?: string;
 		readonly bearing?: number;
@@ -217,7 +216,6 @@ type MapViewportContentProps = Omit<
 	| keyof InteractiveCropProps
 	| keyof InteractivePremountProps
 	| keyof InteractiveTransformProps
-	| 'loop'
 	| 'controls'
 > & {
 	readonly style?: CSSProperties;

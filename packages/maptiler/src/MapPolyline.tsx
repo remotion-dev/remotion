@@ -31,7 +31,6 @@ export type MapPolylineData = MapPolylineFeature | PolylineLayerOptions['data'];
 export type MapPolylineProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<PolylineLayerOptions, 'data' | 'layerId' | 'sourceId'> & {
-		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 		readonly data: MapPolylineData;
 		readonly layerId: string;
