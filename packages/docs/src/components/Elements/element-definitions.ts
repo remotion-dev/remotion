@@ -242,7 +242,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
