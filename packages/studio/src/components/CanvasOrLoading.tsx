@@ -55,6 +55,11 @@ const welcomeActions: React.CSSProperties = {
 	width: 220,
 };
 
+const welcomeLabel: React.CSSProperties = {
+	...loaderLabel,
+	textAlign: 'center',
+};
+
 const WelcomeActions: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -245,7 +250,9 @@ const WelcomeActions: React.FC = () => {
 						</>
 					) : null}
 				</div>
-			) : null}
+			) : (
+				<div style={welcomeLabel}>Select a composition to get started.</div>
+			)}
 		</div>
 	);
 };
