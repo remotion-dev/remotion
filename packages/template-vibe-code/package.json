@@ -52,7 +52,7 @@
 		"@types/react": "19.2.7",
 		"@types/react-dom": "19.2.3",
 		"esbuild": "0.28.1",
-		"eslint": "9.19.0",
+		"eslint": "9.39.5",
 		"postcss": "8.5.23",
 		"prettier": "3.8.1",
 		"tailwindcss": "4.2.0",
