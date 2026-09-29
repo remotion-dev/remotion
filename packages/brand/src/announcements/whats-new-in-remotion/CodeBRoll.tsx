@@ -1,8 +1,10 @@
 import {getThemeColors} from '@code-hike/lighter';
 import {highlight} from 'codehike/code';
 import React, {useEffect, useState} from 'react';
+import type {InteractivitySchema} from 'remotion';
 import {
 	AbsoluteFill,
+	Interactive,
 	Sequence,
 	interpolate,
 	useCurrentFrame,
@@ -15,6 +17,7 @@ import {CodeTransition} from './CodeTransition';
 const THEME = 'github-light';
 
 type CodeBRollProps = {
+	readonly style?: React.CSSProperties;
 	readonly code: string;
 	/** Previous code for transition animation. Default: none */
 	readonly previousCode?: string;
@@ -24,11 +27,12 @@ type CodeBRollProps = {
 	readonly topExplainer?: string;
 };
 
-export const CodeBRoll: React.FC<CodeBRollProps> = ({
+const CodeBRollInner: React.FC<CodeBRollProps> = ({
 	code,
 	previousCode,
 	lang = 'tsx',
 	topExplainer = '',
+	style,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -71,6 +75,7 @@ export const CodeBRoll: React.FC<CodeBRollProps> = ({
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
 				}),
+				...style,
 			}}
 		>
 			<ThemeProvider themeColors={data.themeColors}>
@@ -98,3 +103,21 @@ export const CodeBRoll: React.FC<CodeBRollProps> = ({
 		</AbsoluteFill>
 	);
 };
+
+const codeBRollSchema = {
+	code: {type: 'text-content', default: '', description: 'Code'},
+	previousCode: {
+		type: 'text-content',
+		default: '',
+		description: 'Previous code',
+	},
+	lang: {type: 'text-content', default: 'tsx', description: 'Language'},
+	topExplainer: {type: 'text-content', default: '', description: 'Heading'},
+} as const satisfies InteractivitySchema;
+
+export const CodeBRoll = Interactive.withSchema({
+	Component: CodeBRollInner,
+	componentName: '<CodeBRoll>',
+	schema: codeBRollSchema,
+	wrapInSequence: true,
+});

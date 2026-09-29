@@ -1,4 +1,5 @@
 import {Audio} from '@remotion/media';
+import type {InteractivitySchema} from 'remotion';
 import {
 	AbsoluteFill,
 	continueRender,
@@ -31,18 +32,20 @@ const loadFont = async () => {
 loadFont();
 
 type NumberedChapterProps = {
+	readonly style?: React.CSSProperties;
 	chapterNumber: number;
 	chapterTitle: string;
 };
 
-export const NumberedChapter: React.FC<NumberedChapterProps> = ({
+const NumberedChapterInner: React.FC<NumberedChapterProps> = ({
 	chapterNumber,
 	chapterTitle,
+	style,
 }) => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill style={style}>
 			<Audio
 				name="Chapter chime"
 				from={30}
@@ -112,3 +115,28 @@ export const NumberedChapter: React.FC<NumberedChapterProps> = ({
 		</AbsoluteFill>
 	);
 };
+
+const numberedChapterSchema = {
+	chapterNumber: {
+		type: 'number',
+		default: 1,
+		min: 1,
+		step: 1,
+		integer: true,
+		hiddenFromList: false,
+		keyframable: false,
+		description: 'Chapter number',
+	},
+	chapterTitle: {
+		type: 'text-content',
+		default: '',
+		description: 'Chapter title',
+	},
+} as const satisfies InteractivitySchema;
+
+export const NumberedChapter = Interactive.withSchema({
+	Component: NumberedChapterInner,
+	componentName: '<NumberedChapter>',
+	schema: numberedChapterSchema,
+	wrapInSequence: true,
+});

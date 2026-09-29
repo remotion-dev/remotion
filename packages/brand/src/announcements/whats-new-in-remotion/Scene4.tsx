@@ -11,14 +11,6 @@ import {
 import {assetUrl} from './assets';
 import {CodeBRoll} from './CodeBRoll';
 
-const VERCEL_CODE = `
-const { sandboxFilePath } = await renderMediaOnVercel({
-  sandbox,
-  compositionId: 'MyComp',
-  inputProps: { title: 'Hello World' },
-});
-`.trim();
-
 export const Scene4: React.FC = () => {
 	const frame = useCurrentFrame();
 
@@ -232,7 +224,11 @@ export const Scene4: React.FC = () => {
 				layout="none"
 			>
 				<CodeBRoll
-					code={VERCEL_CODE}
+					code={`const { sandboxFilePath } = await renderMediaOnVercel({
+  sandbox,
+  compositionId: 'MyComp',
+  inputProps: { title: 'Hello World' },
+});`}
 					lang="ts"
 					topExplainer="renderMediaOnVercel()"
 				/>

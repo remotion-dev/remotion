@@ -11,25 +11,6 @@ import {assetUrl} from './assets';
 import {CodeBRoll} from './CodeBRoll';
 import {NumberedChapter} from './NumberedChapter';
 
-const CODE_BEFORE = `
-import { Config } from "@remotion/cli/config";
-import { enableTailwind } from "@remotion/tailwind-v4";
-
-Config.setVideoImageFormat("jpeg");
-Config.setOverwriteOutput(true);
-Config.overrideWebpackConfig(enableTailwind);
-`.trim();
-
-const CODE_AFTER = `
-import { Config } from "@remotion/cli/config";
-import { enableTailwind } from "@remotion/tailwind-v4";
-
-Config.setVideoImageFormat("jpeg");
-Config.setOverwriteOutput(true);
-Config.overrideWebpackConfig(enableTailwind);
-Config.setExperimentalRspackEnabled(true);
-`.trim();
-
 export const Scene8: React.FC = () => {
 	const frame = useCurrentFrame();
 
@@ -105,8 +86,19 @@ export const Scene8: React.FC = () => {
 				layout="none"
 			>
 				<CodeBRoll
-					code={CODE_AFTER}
-					previousCode={CODE_BEFORE}
+					code={`import { Config } from "@remotion/cli/config";
+import { enableTailwind } from "@remotion/tailwind-v4";
+
+Config.setVideoImageFormat("jpeg");
+Config.setOverwriteOutput(true);
+Config.overrideWebpackConfig(enableTailwind);
+Config.setExperimentalRspackEnabled(true);`}
+					previousCode={`import { Config } from "@remotion/cli/config";
+import { enableTailwind } from "@remotion/tailwind-v4";
+
+Config.setVideoImageFormat("jpeg");
+Config.setOverwriteOutput(true);
+Config.overrideWebpackConfig(enableTailwind);`}
 					lang="ts"
 					topExplainer="remotion.config.ts"
 				/>

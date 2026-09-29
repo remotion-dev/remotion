@@ -1,4 +1,5 @@
 import React from 'react';
+import type {InteractivitySchema} from 'remotion';
 import {Easing, Img, Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {assetUrl} from './assets';
 
@@ -44,9 +45,10 @@ const LinkedInIcon: React.FC<{readonly height: number}> = ({height}) => (
 	</svg>
 );
 
-export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
-	platform,
-}) => {
+const EndCardInner: React.FC<{
+	readonly platform: EndCardPlatform;
+	readonly style?: React.CSSProperties;
+}> = ({platform, style}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -63,6 +65,7 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 				position: 'absolute',
 				right: 0,
 				top: 0,
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -343,3 +346,20 @@ export const EndCard: React.FC<{readonly platform: EndCardPlatform}> = ({
 		</Interactive.Div>
 	);
 };
+
+const endCardSchema = {
+	platform: {
+		type: 'enum',
+		default: 'youtube',
+		variants: {youtube: {}, x: {}, linkedin: {}},
+		keyframable: false,
+		description: 'Platform',
+	},
+} as const satisfies InteractivitySchema;
+
+export const EndCard = Interactive.withSchema({
+	Component: EndCardInner,
+	componentName: '<EndCard>',
+	schema: endCardSchema,
+	wrapInSequence: true,
+});
