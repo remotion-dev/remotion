@@ -3,6 +3,8 @@ import path from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {BundlerInternals} from '@remotion/bundler';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {Log} from './log';
+import {parsedCli} from './parsed-cli';
 
 export type PreparedConfigFile = {
 	code: string;
@@ -78,6 +80,15 @@ export const executeConfigFile = ({code, remotionRoot}: PreparedConfigFile) => {
 			BrowserSafeApis.options.rspackOption.getConfigValue() === true
 		) {
 			BrowserSafeApis.options.rspackOption.setConfig(false);
+			Log.warn(
+				{
+					indent: false,
+					logLevel: BrowserSafeApis.options.logLevelOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+				},
+				'Rspack is currently disabled in WebContainers. Falling back to Webpack.',
+			);
 		}
 	} finally {
 		if (isMainThread) {
