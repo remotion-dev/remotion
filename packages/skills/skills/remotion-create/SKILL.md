@@ -43,9 +43,16 @@ npm i
 Keep the scaffold and add React Markup.
 Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
 
+## Is this a timeline of clips?
+
+If the video arranges multiple video or audio clips on a timeline, follow
+[Video editing](../remotion-markup/video-editing.md) before writing the
+timeline. Give every clip that should be edited independently its own authored
+JSX node.
+
 ## Is this a multi-scene video?
 
-If this is a video with multiple subsequence videos, follow guidance at [Multi-scene videos](../remotion-markup/multi-scene-video.md).
+If this is a video with multiple subsequent scenes, follow guidance at [Multi-scene videos](../remotion-markup/multi-scene-video.md).
 
 ## Interactivity Best Practices
 

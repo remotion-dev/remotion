@@ -13,6 +13,35 @@ By writing Remotion markup in a specific way, the Remotion Studio is able to rec
 
 If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
 
+## Give every independently editable item its own JSX node
+
+The Studio edits the JSX source node that created an item. If multiple runtime
+items come from the same JSX node, they share one source-editing target.
+
+For every clip, scene, layer or sequence that should be editable on its own,
+write a separate JSX node and keep its editable props on that node. This applies
+to built-in media components, `<Sequence>`, `<Series.Sequence>`,
+`<TransitionSeries.Sequence>` and custom components.
+
+For example, author an editable timeline like this:
+
+```tsx title="Separate source nodes"
+<Series>
+  <Series.Sequence name="Introduction" durationInFrames={90}>
+    <Introduction />
+  </Series.Sequence>
+  <Series.Sequence name="Demo" durationInFrames={150}>
+    <Demo />
+  </Series.Sequence>
+</Series>
+```
+
+A `.map()` or another programmatic loop would create both runtime sequences
+from one JSX source node. That is appropriate for repeated output that is
+intentionally controlled as one template, such as visualization bars or
+particles. It is not appropriate when the instances need independent names,
+timing, ordering, deletion or duplication in the Studio.
+
 ## Make an HTML element interactive using `Interactive`
 
 Every HTML and SVG element (except `<Img>`, it already is interactive) such as `<div>` can be turned interactive using `Interactive`:

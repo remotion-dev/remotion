@@ -3,6 +3,13 @@
 Put each substantial scene in its own component and file.  
 Register those components as [connected compositions](connected-compositions.md) so each scene has an editable Studio timeline.
 
+Treat the parent timeline as an editable document: Author every scene that
+should be edited independently as a separate `<Sequence>`, `<Series.Sequence>`
+or `<TransitionSeries.Sequence>` JSX node. Keep its `name` and
+`durationInFrames` inline so the node has its own source-editing target.
+Programmatic rendering is suitable only when the generated scenes are
+intentionally controlled as one source template.
+
 Use `<TransitionSeries>` when the scenes may have transitions.  
 Install `@remotion/transitions` if it is missing.  
 Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
