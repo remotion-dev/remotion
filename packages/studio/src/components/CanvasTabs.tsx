@@ -462,7 +462,7 @@ const CanvasTab: React.FC<{
 					event.stopPropagation();
 					onClose();
 				}}
-				renderAction={() => <CancelIcon height={20} width={20} />}
+				renderAction={() => <CancelIcon height={16} width={16} />}
 				style={closeStyle}
 				variant={null}
 			/>
