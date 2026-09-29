@@ -1,18 +1,16 @@
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
+	Easing,
+	Img,
+	Interactive,
 	Sequence,
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 import {assetUrl} from './assets';
-import {SILENCES} from './Composition';
-import {ImageBRoll} from './ImageBRoll';
 import {NumberedChapter} from './NumberedChapter';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
-
-const FILE = 'whats3.mov';
 
 const SFX_URLS = [
 	'https://remotion.media/whip.wav',
@@ -37,18 +35,12 @@ const SfxUrlList: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
-	const LINE_HEIGHT = 160;
-	const SCROLL_SPEED = 40; // pixels per second
-
-	const scrollY = -(frame / fps) * SCROLL_SPEED;
-
-	const FADE_HEIGHT = 200;
-
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white', overflow: 'hidden'}}>
-			<div
+			<Interactive.Div
+				name="Scrolling sound effect URLs"
 				style={{
-					transform: `translateY(${scrollY}px)`,
+					translate: interpolate(frame, [0, fps], ['0px 0px', '0px -40px']),
 					padding: '80px 40px',
 				}}
 			>
@@ -60,7 +52,7 @@ const SfxUrlList: React.FC = () => {
 							fontSize: 38,
 							fontWeight: 500,
 							color: '#333',
-							height: LINE_HEIGHT,
+							height: 160,
 							display: 'flex',
 							alignItems: 'center',
 							whiteSpace: 'nowrap',
@@ -73,11 +65,11 @@ const SfxUrlList: React.FC = () => {
 						{url.replace('https://', '')}
 					</div>
 				))}
-			</div>
+			</Interactive.Div>
 			{/* Top fade mask */}
 			<AbsoluteFill
 				style={{
-					height: FADE_HEIGHT,
+					height: 200,
 					bottom: 'auto',
 					background:
 						'linear-gradient(to bottom, white, rgba(255, 255, 255, 0))',
@@ -87,7 +79,7 @@ const SfxUrlList: React.FC = () => {
 			{/* Bottom fade mask */}
 			<AbsoluteFill
 				style={{
-					height: FADE_HEIGHT,
+					height: 200,
 					top: 'auto',
 					background: 'linear-gradient(to top, white, rgba(255, 255, 255, 0))',
 					pointerEvents: 'none',
@@ -98,41 +90,166 @@ const SfxUrlList: React.FC = () => {
 };
 
 export const Scene3: React.FC = () => {
-	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
-
-	// Combine progress from both overlays to shift background
-	const overlay1Progress = useSlideInProgress({startAt: 0.5});
-	const overlay2Progress = useSlideInProgress({
-		startAt: 590 / fps,
-		slideInDuration: 1,
-		holdDuration: 3.5,
-		slideOutDuration: 1,
-	});
-	const combinedProgress = Math.max(overlay1Progress, overlay2Progress);
-	const videoX = interpolate(combinedProgress, [0, 1], [0, -20]);
+	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill style={{transform: `translateX(${videoX}%)`}}>
+			<Interactive.Div
+				name="Presenter position"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					translate: interpolate(
+						frame,
+						[15, 45, 150, 180, 590, 620, 725, 755],
+						[
+							'0% 0px',
+							'-20% 0px',
+							'-20% 0px',
+							'0% 0px',
+							'0% 0px',
+							'-20% 0px',
+							'-20% 0px',
+							'0% 0px',
+						],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+								Easing.linear,
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<Video
-					src={assetUrl(FILE)}
-					trimBefore={trimBefore}
-					trimAfter={trimAfter}
+					name="Presenter video"
+					src={assetUrl('whats3.mov')}
+					trimBefore={69}
+					trimAfter={1335}
 				/>
-			</AbsoluteFill>
-			<SlideInOverlay startAt={0.5}>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Chapter panel"
+				style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: '60%',
+					width: '40%',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
+					backgroundColor: 'white',
+					translate: interpolate(
+						frame,
+						[15, 45, 150, 180],
+						['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<NumberedChapter chapterNumber={2} chapterTitle="Sound Effects" />
-			</SlideInOverlay>
-			<Sequence from={440} durationInFrames={Math.round(4 * fps)} layout="none">
-				<ImageBRoll src="sfx-screenshot.png" />
+			</Interactive.Div>
+			<Sequence
+				name="Sound effects website"
+				from={440}
+				durationInFrames={120}
+				layout="none"
+			>
+				<Interactive.Div
+					name="sfx-screenshot background"
+					style={{
+						position: 'absolute',
+						inset: 0,
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						backgroundColor: 'white',
+						opacity: interpolate(frame, [440, 446, 554, 560], [0, 1, 1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}}
+				>
+					<Interactive.Div
+						name="B-roll zoom"
+						style={{
+							height: '100%',
+							transformOrigin: 'top center',
+							scale: interpolate(frame, [440, 560], [1, 1.15], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+						}}
+					>
+						<Img
+							name="sfx-screenshot"
+							src={assetUrl('sfx-screenshot.png')}
+							style={{
+								height: '100%',
+								objectFit: 'contain',
+								translate: interpolate(
+									frame,
+									[440, 560],
+									['0px 0%', '0px -15%'],
+									{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+								),
+							}}
+						/>
+					</Interactive.Div>
+				</Interactive.Div>
 			</Sequence>
-			<Sequence from={590} layout="none">
-				<SlideInOverlay startAt={0}>
+			<Sequence name="Sound effects URLs" from={590} layout="none">
+				<Interactive.Div
+					name="Details panel"
+					style={{
+						position: 'absolute',
+						top: 0,
+						bottom: 0,
+						left: '60%',
+						width: '40%',
+						display: 'flex',
+						flexDirection: 'column',
+						overflow: 'hidden',
+						backgroundColor: 'white',
+						translate: interpolate(
+							frame,
+							[590, 620, 725, 755],
+							['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+							{
+								easing: [
+									Easing.out(Easing.cubic),
+									Easing.linear,
+									Easing.in(Easing.cubic),
+								],
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
+					}}
+				>
 					<SfxUrlList />
-				</SlideInOverlay>
+				</Interactive.Div>
 			</Sequence>
 		</AbsoluteFill>
 	);

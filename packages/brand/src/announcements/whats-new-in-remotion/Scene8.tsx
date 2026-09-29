@@ -1,12 +1,15 @@
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Sequence, interpolate, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	Sequence,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {assetUrl} from './assets';
 import {CodeBRoll} from './CodeBRoll';
-import {SILENCES} from './Composition';
 import {NumberedChapter} from './NumberedChapter';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
-
-const FILE = 'whats8.mov';
 
 const CODE_BEFORE = `
 import { Config } from "@remotion/cli/config";
@@ -28,32 +31,83 @@ Config.setExperimentalRspackEnabled(true);
 `.trim();
 
 export const Scene8: React.FC = () => {
-	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
-
-	const overlayProgress = useSlideInProgress({startAt: 0.5, holdDuration: 2.5});
-	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
+	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill style={{transform: `translateX(${videoX}%)`}}>
+			<Interactive.Div
+				name="Presenter position"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['0% 0px', '-20% 0px', '-20% 0px', '0% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<Video
-					src={assetUrl(FILE)}
-					trimBefore={trimBefore}
-					trimAfter={trimAfter}
+					name="Presenter video"
+					src={assetUrl('whats8.mov')}
+					trimBefore={81}
+					trimAfter={870}
 				/>
-			</AbsoluteFill>
-			<SlideInOverlay startAt={0.5} holdDuration={2.5}>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Chapter panel"
+				style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: '60%',
+					width: '40%',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
+					backgroundColor: 'white',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<NumberedChapter chapterNumber={7} chapterTitle="Rspack" />
-			</SlideInOverlay>
-			<Sequence from={180} durationInFrames={Math.round(4 * fps)} layout="none">
+			</Interactive.Div>
+			<Sequence
+				name="Rspack configuration"
+				from={180}
+				durationInFrames={120}
+				layout="none"
+			>
 				<CodeBRoll
 					code={CODE_AFTER}
 					previousCode={CODE_BEFORE}
 					lang="ts"
-					durationSeconds={4}
 					topExplainer="remotion.config.ts"
 				/>
 			</Sequence>
