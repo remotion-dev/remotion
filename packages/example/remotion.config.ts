@@ -15,6 +15,6 @@ Config.addElementLibrary({
 	displayName: 'Remocn',
 });
 Config.addElementLibrary({
-	url: 'http://localhost:3318/elements',
+	url: 'http://localhost:3002/elements',
 	displayName: 'Local Elements',
 });
