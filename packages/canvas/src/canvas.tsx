@@ -1,6 +1,5 @@
 import type {PlayerProps, PlayerRef} from '@remotion/player';
 import {Player, PlayerInternals} from '@remotion/player';
-import {REACT_REFRESH_STARTED_EVENT} from '@remotion/studio-shared';
 import type {RefObject} from 'react';
 import React, {
 	forwardRef,
@@ -104,9 +103,9 @@ const CanvasFn = <
 		}
 
 		const commit = () => internals.commitQueuedSequenceNodePathRemappings();
-		window.addEventListener(REACT_REFRESH_STARTED_EVENT, commit);
+		window.addEventListener(Internals.REACT_REFRESH_STARTED_EVENT, commit);
 		return () =>
-			window.removeEventListener(REACT_REFRESH_STARTED_EVENT, commit);
+			window.removeEventListener(Internals.REACT_REFRESH_STARTED_EVENT, commit);
 	}, [internals]);
 	// React Refresh (used by Browser Studio) or React DevTools must have
 	// registered the renderer before this commit. Install before the commit hook

@@ -1,7 +1,3 @@
-import {
-	REACT_REFRESH_FINISHED_EVENT,
-	REACT_REFRESH_STARTED_EVENT,
-} from '@remotion/studio-shared';
 import type {FC} from 'react';
 import {Internals} from 'remotion';
 import {createBrowserModuleScope} from './browser-module-scope';
@@ -191,9 +187,13 @@ export const createBrowserBundleRuntime = (): BrowserBundleRuntime => {
 
 					// Authoring UIs such as <Canvas> commit queued source-node remappings
 					// on the started event, in the same task as the refreshed tree.
-					window.dispatchEvent(new Event(REACT_REFRESH_STARTED_EVENT));
+					window.dispatchEvent(
+						new Event(Internals.REACT_REFRESH_STARTED_EVENT),
+					);
 					if (refresh.performReactRefresh() !== null) {
-						window.dispatchEvent(new Event(REACT_REFRESH_FINISHED_EVENT));
+						window.dispatchEvent(
+							new Event(Internals.REACT_REFRESH_FINISHED_EVENT),
+						);
 					}
 				}
 
