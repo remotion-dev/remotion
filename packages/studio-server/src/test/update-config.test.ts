@@ -15,6 +15,7 @@ import {
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	askAIEnabled: false,
 	bufferStateDelayInMilliseconds: null,
+	canvasTabsEnabled: true,
 	configFileStudioSettings: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,

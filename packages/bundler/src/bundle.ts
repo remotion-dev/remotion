@@ -461,6 +461,7 @@ export const internalBundle = async (
 		studioRuntimeConfig: {
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			canvasTabsEnabled: true,
 			defaultCodingAgent: null,
 			defaultEditor: null,
 			interactivityEnabled: actualArgs.interactivityEnabled,

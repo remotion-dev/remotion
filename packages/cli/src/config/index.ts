@@ -143,6 +143,7 @@ const {
 	publicLicenseKeyOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
 	numberOfSharedAudioTagsOption,
@@ -234,6 +235,12 @@ declare global {
 		 * @default true
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
+		/**
+		 * Enable the tabs above the Remotion Studio canvas.
+		 * @param enabled Boolean whether to show the canvas tabs
+		 * @default true
+		 */
+		readonly setCanvasTabsEnabled: (enabled: boolean) => void;
 		/**
 		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
 		 * @default false
@@ -783,6 +790,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
+	setCanvasTabsEnabled: canvasTabsOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
