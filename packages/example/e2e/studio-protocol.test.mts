@@ -1,3 +1,4 @@
+import {expect, test} from '@playwright/test';
 import type {ChildProcess} from 'node:child_process';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
@@ -5,7 +6,6 @@ import {createServer} from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {expect, test} from '@playwright/test';
 import {remotionBin} from './constants.mts';
 
 const waitForUrl = async (url: string, process: ChildProcess) => {
@@ -324,7 +324,13 @@ const CloseupPlaceholder = () => {
 			studioPage.getByRole('button', {name: '45', exact: true}),
 		).toBeVisible();
 
-		await studioPage.locator('[data-sidebar-toggle="right"]').click();
+		const expandRightSidebar = studioPage.getByRole('button', {
+			name: 'Expand right sidebar',
+		});
+		if (await expandRightSidebar.isVisible()) {
+			await expandRightSidebar.click();
+		}
+
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
 		});
