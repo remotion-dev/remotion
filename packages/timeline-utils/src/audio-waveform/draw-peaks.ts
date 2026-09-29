@@ -2,6 +2,7 @@ import {parseColor} from './parse-color';
 
 const CLIPPING_COLOR = '#FF7F50';
 const WAVEFORM_HEIGHT_SCALE = 0.8;
+const MIN_VISIBLE_DECIBELS = -37;
 
 export type WaveformVolume = number | readonly number[];
 
@@ -90,9 +91,15 @@ export const drawBars = ({
 
 		const barVolume = getVolumeAtBar({barIndex, numBars, volume});
 		const scaledPeak = peak * barVolume;
+		const decibelPeak =
+			scaledPeak <= 0 ? MIN_VISIBLE_DECIBELS : 20 * Math.log10(scaledPeak);
+		const visualPeak = Math.max(
+			0,
+			(decibelPeak - MIN_VISIBLE_DECIBELS) / -MIN_VISIBLE_DECIBELS,
+		);
 		const halfBar = Math.max(
 			0,
-			Math.min(height / 2, scaledPeak * fullScaleHalfBar),
+			Math.min(height / 2, visualPeak * fullScaleHalfBar),
 		);
 		if (halfBar === 0) continue;
 
