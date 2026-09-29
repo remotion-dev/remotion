@@ -31,7 +31,68 @@ const getCaptionPatches = ({
 	previous: Caption[];
 	next: Caption[];
 }): CaptionPatch[] | null => {
-	if (previous.length !== next.length) {
+	if (previous.length !== next.length && previous.length + 1 !== next.length) {
+		return null;
+	}
+
+	if (previous.length + 1 === next.length) {
+		for (const [index, before] of previous.entries()) {
+			if (
+				serializeCaptions(previous.slice(0, index)) !==
+					serializeCaptions(next.slice(0, index)) ||
+				serializeCaptions(previous.slice(index + 1)) !==
+					serializeCaptions(next.slice(index + 2))
+			) {
+				continue;
+			}
+
+			const after = next[index];
+			const inserted = next[index + 1];
+			if (!after || !inserted) {
+				return null;
+			}
+
+			const changes: CaptionPatch['changes'] = {};
+			if (before.text !== after.text) {
+				changes.text = after.text;
+			}
+
+			if (before.startMs !== after.startMs) {
+				changes.startMs = after.startMs;
+			}
+
+			if (before.endMs !== after.endMs) {
+				changes.endMs = after.endMs;
+			}
+
+			if (before.timestampMs !== after.timestampMs) {
+				changes.timestampMs = after.timestampMs;
+			}
+
+			if (before.confidence !== after.confidence) {
+				changes.confidence = after.confidence;
+			}
+
+			if (Boolean(before.pageBreakAfter) !== Boolean(after.pageBreakAfter)) {
+				changes.pageBreakAfter = Boolean(after.pageBreakAfter);
+			}
+
+			return [
+				{
+					index,
+					before: {
+						...before,
+						pageBreakAfter: before.pageBreakAfter ?? null,
+					},
+					changes,
+					insertAfter: {
+						...inserted,
+						pageBreakAfter: inserted.pageBreakAfter ?? null,
+					},
+				},
+			];
+		}
+
 		return null;
 	}
 
@@ -59,6 +120,7 @@ const getCaptionPatches = ({
 					pageBreakAfter: before.pageBreakAfter ?? null,
 				},
 				changes,
+				insertAfter: null,
 			});
 		}
 	}

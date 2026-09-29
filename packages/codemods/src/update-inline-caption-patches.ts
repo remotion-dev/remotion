@@ -162,17 +162,18 @@ const getSourceValueRange = ({
 	};
 };
 
-const getPropertyInsertionReplacements = ({
+const getObjectSourceRange = ({
 	input,
 	caption,
-	key,
-	value,
 }: {
 	input: string;
 	caption: ObjectExpression;
-	key: CaptionKey;
-	value: string | number | boolean | null;
-}): SourceReplacement[] => {
+}): {
+	start: number;
+	end: number;
+	lastPropertyKey: string;
+	lastPropertyValue: {start: number; end: number};
+} => {
 	const firstProperty = caption.properties.find(
 		(property): property is ObjectProperty =>
 			property.type === 'ObjectProperty',
@@ -201,11 +202,38 @@ const getPropertyInsertionReplacements = ({
 		property: lastProperty,
 		key: lastPropertyKey,
 	});
-	const openingBrace = input.lastIndexOf('{', firstPropertyValue.start);
+	const start = input.lastIndexOf('{', firstPropertyValue.start);
 	const closingBrace = input.indexOf('}', lastPropertyValue.end);
-	if (openingBrace === -1 || closingBrace === -1) {
-		throw new Error(`Could not locate caption ${key} in the source file`);
+	if (start === -1 || closingBrace === -1) {
+		throw new Error('Could not locate a caption in the source file');
 	}
+
+	return {
+		start,
+		end: closingBrace + 1,
+		lastPropertyKey,
+		lastPropertyValue,
+	};
+};
+
+const getPropertyInsertionReplacements = ({
+	input,
+	caption,
+	key,
+	value,
+}: {
+	input: string;
+	caption: ObjectExpression;
+	key: CaptionKey;
+	value: string | number | boolean | null;
+}): SourceReplacement[] => {
+	const {
+		start: openingBrace,
+		end,
+		lastPropertyKey,
+		lastPropertyValue,
+	} = getObjectSourceRange({input, caption});
+	const closingBrace = end - 1;
 
 	const objectSource = input.slice(openingBrace, closingBrace + 1);
 	if (!objectSource.includes('\n')) {
@@ -274,7 +302,10 @@ const updateCaption = ({
 	}
 
 	const changedKeys = Object.keys(patch.changes);
-	if (changedKeys.length === 0 || !changedKeys.every(isCaptionKey)) {
+	if (
+		(changedKeys.length === 0 && patch.insertAfter === null) ||
+		!changedKeys.every(isCaptionKey)
+	) {
 		throw new Error('Caption patches must change at least one caption field');
 	}
 
@@ -388,6 +419,72 @@ export const updateInlineCaptionPatches = ({
 		const result = updateCaption({input, caption, patch});
 		changedFields.push(result.changedFields);
 		replacements.push(...result.replacements);
+
+		if (patch.insertAfter !== null) {
+			const current = getStaticCaption(caption);
+			if (
+				current.pageBreakAfter !== null &&
+				patch.insertAfter.pageBreakAfter === null
+			) {
+				throw new Error(
+					'An inserted caption must preserve an existing pageBreakAfter field',
+				);
+			}
+
+			const insertedCaption = updateCaption({
+				input,
+				caption,
+				patch: {
+					index: patch.index + 1,
+					before: patch.before,
+					changes: {
+						text: patch.insertAfter.text,
+						startMs: patch.insertAfter.startMs,
+						endMs: patch.insertAfter.endMs,
+						timestampMs: patch.insertAfter.timestampMs,
+						confidence: patch.insertAfter.confidence,
+						...(patch.insertAfter.pageBreakAfter === null
+							? {}
+							: {pageBreakAfter: patch.insertAfter.pageBreakAfter}),
+					},
+					insertAfter: null,
+				},
+			});
+			const {start: captionStart, end: captionEnd} = getObjectSourceRange({
+				input,
+				caption,
+			});
+			const arrayLocation = captionsAttribute.value.expression.loc;
+			if (!arrayLocation) {
+				throw new Error('Could not locate the inline caption to insert after');
+			}
+
+			const captionSource = input.slice(captionStart, captionEnd);
+			const insertedSource = insertedCaption.replacements
+				.sort((a, b) => b.start - a.start)
+				.reduce((currentSource, replacement) => {
+					const start = replacement.start - captionStart;
+					const end = replacement.end - captionStart;
+					return (
+						currentSource.slice(0, start) +
+						replacement.value +
+						currentSource.slice(end)
+					);
+				}, captionSource);
+			const closingLineStart = input.lastIndexOf('\n', captionEnd - 1) + 1;
+			const indentation =
+				input.slice(closingLineStart, captionEnd - 1).match(/^\s*/)?.[0] ?? '';
+			const arrayIsMultiline =
+				arrayLocation.start.line !== arrayLocation.end.line;
+			const hasTrailingComma = input[captionEnd] === ',';
+			replacements.push({
+				start: captionEnd + (hasTrailingComma ? 1 : 0),
+				end: captionEnd + (hasTrailingComma ? 1 : 0),
+				value: arrayIsMultiline
+					? `${hasTrailingComma ? '' : ','}\n${indentation}${insertedSource},`
+					: `${hasTrailingComma ? '' : ','} ${insertedSource},`,
+			});
+		}
 	}
 
 	const output = replacements
