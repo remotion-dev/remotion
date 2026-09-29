@@ -36,7 +36,6 @@ const getLiveStudioTarget = (requestId: string) => {
 	if (
 		target === null ||
 		now - target.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE ||
-		target.lastFocusedAt === null ||
 		target.readOnly
 	) {
 		return null;
@@ -109,7 +108,7 @@ export const handleStudioProtocolDiscovery = ({
 							target: installTarget,
 						});
 			const issuedLicenseKeyTarget =
-				target === null
+				target === null || target.lastFocusedAt === null
 					? null
 					: issueStudioProtocolTarget({
 							now,
@@ -118,7 +117,7 @@ export const handleStudioProtocolDiscovery = ({
 							target,
 						});
 			const issuedElementLibraryTarget =
-				target === null
+				target === null || target.lastFocusedAt === null
 					? null
 					: issueStudioProtocolTarget({
 							now,

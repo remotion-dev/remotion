@@ -249,14 +249,20 @@ export const installInStudioWithDependencies = async (
 		})
 		.sort((a, b) => {
 			const focusDifference =
-				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
+				(b.capability.target!.lastFocusedAt ?? 0) -
+				(a.capability.target!.lastFocusedAt ?? 0);
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
 	const selected = installable[0];
 	const selectedTarget = selected?.capability.target;
-	if (!selected || selectedTarget === null || selectedTarget === undefined) {
+	if (
+		!selected ||
+		selectedTarget === null ||
+		selectedTarget === undefined ||
+		(selectedTarget.lastFocusedAt === null && installable.length > 1)
+	) {
 		return failure(
 			'no-installable-target',
 			'Focus a Remotion Studio that is not read-only, then try again.',
