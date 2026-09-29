@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio"
 	},
 	"name": "@remotion/studio",
-	"version": "4.0.528",
+	"version": "4.0.529",
 	"description": "APIs for interacting with the Remotion Studio",
 	"main": "dist",
 	"scripts": {
@@ -37,6 +37,8 @@
 		"@jridgewell/trace-mapping": "0.3.31",
 		"@remotion/canvas": "workspace:*",
 		"@remotion/captions": "workspace:*",
+		"@remotion/elevenlabs": "workspace:*",
+		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/paths": "workspace:*",

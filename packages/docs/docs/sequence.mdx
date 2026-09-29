@@ -190,7 +190,9 @@ From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
 ### `durationInFrames?`
 
-For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display. By default it will be `Infinity` to avoid limit the duration of the sequence.
+For how many frames of the child timeline the sequence should be displayed, starting at [`trimBefore`](#trimbefore). By default it will be `Infinity` to avoid limiting the duration of the sequence.
+
+The sequence occupies `durationInFrames / playbackRate` frames in its parent. When `loop` is enabled, `durationInFrames` is the loop length and the sequence repeats until its parent ends.
 
 ### `trimBefore?`<AvailableFrom v="4.0.482" />
 
@@ -216,13 +218,42 @@ export const MyVideo = () => {
 
 In the example above, `Child` mounts at composition frame `30` and receives frame `15`.
 
+### `loop?`
+
+Repeats the child range selected by [`trimBefore`](#trimbefore) and [`durationInFrames`](#durationinframes) until the parent ends. Default: `false`.
+
+Requires a finite `durationInFrames`, because a sequence has no intrinsic duration.
+Each cycle lasts `durationInFrames / playbackRate` frames in the parent timeline.
+Wrap it in an outer `<Sequence>` to set a finite total duration.
+
+```tsx twoslash title="MyVideo.tsx"
+import {Sequence, useCurrentFrame} from 'remotion';
+
+const Child = () => <div>{useCurrentFrame()}</div>;
+
+// ---cut---
+export const MyVideo = () => {
+  return (
+    <Sequence durationInFrames={90}>
+      <Sequence trimBefore={30} playbackRate={2} durationInFrames={30} loop>
+        <Child />
+      </Sequence>
+    </Sequence>
+  );
+};
+```
+
+In the example above, `Child` receives frames `30` through `59` in a cycle of `15` composition frames, repeated six times.
+
+[`Loop.useLoop()`](/docs/loop#useloop) returns the current iteration inside a looping sequence.
+To repeat a duration measured in the parent timeline, use [`<Loop>`](/docs/loop).
+
 ### `playbackRate?`<AvailableFrom v="4.0.528" />
 
 Changes the speed of the children, including their animations and media. Default: `1`.
 Use `2` for double speed or `0.5` for half speed. The value must be positive and finite, and must remain constant across frames.
 
-`from` and `durationInFrames` are measured in the parent timeline. Changing `playbackRate` does not change when the sequence mounts or unmounts.
-`trimBefore` is measured in the children's frames and is applied after the speed change:
+`durationInFrames` and `trimBefore` are measured in the child timeline, so changing `playbackRate` changes the mounted duration.
 
 ```tsx twoslash title="MyVideo.tsx"
 import {Sequence, useCurrentFrame} from 'remotion';
@@ -237,7 +268,7 @@ export const MyVideo = () => (
 ```
 
 At composition frame `30`, `Child` receives frame `10`. At frame `40`, it receives frame `30`: `(40 - 30) * 2 + 10`.
-The sequence remains visible through composition frame `89`.
+The sequence remains visible through composition frame `59`.
 
 Nested playback rates multiply. A sequence with `playbackRate={2}` inside one with `playbackRate={0.5}` plays at the original speed.
 A media component's own `playbackRate` also multiplies with its parent sequences' rates.
@@ -280,12 +311,6 @@ Gives the sequence a specific `style={{width: width}}` style and overrides `widt
 ### `name?`
 
 You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
-
-### `controls?`<AvailableFrom v="4.0.501" />
-
-The control state created by [`Interactive.withSchema()`](/docs/interactive-with-schema).
-
-When [making a custom component interactive](/docs/studio/make-component-interactive), forward `controls` unchanged from the inner component to the `<Sequence>` that represents it in the timeline. Do not create this object manually.
 
 ### `layout?`
 
@@ -334,26 +359,13 @@ export const MyVideo = () => {
 };
 ```
 
-### `outlineRef?`<AvailableFrom v="4.0.479" />
+### ~~`outlineRef?`~~<AvailableFrom v="4.0.479" />
 
-A React ref pointing to the element that the Remotion Studio should use for drawing the selection outline in the preview.
+:::info Deprecated
+Remotion Studio discovers selection outlines automatically. Remove this prop.
+:::
 
-By default, the Studio outlines the wrapper created by `<Sequence>`. If you use `layout="none"`, no wrapper exists, so pass `outlineRef` to make the rendered element selectable in the preview.
-
-```tsx twoslash title="MyVideo.tsx"
-import {useRef} from 'react';
-import {Sequence} from 'remotion';
-
-export const MyVideo = () => {
-  const outlineRef = useRef<HTMLDivElement>(null);
-
-  return (
-    <Sequence layout="none" outlineRef={outlineRef}>
-      <div ref={outlineRef}>Selectable in the Studio preview</div>
-    </Sequence>
-  );
-};
-```
+By default, the Studio outlines the wrapper created by `<Sequence>`. With `layout="none"`, it outlines the rendered element or the bounds of multiple rendered roots.
 
 ### `style?`<AvailableFrom v="3.0.27"/>
 
@@ -397,7 +409,7 @@ The eye icon in the Studio timeline toggles this prop and persists it to your so
 
 ## Adding a ref
 
-You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Sequence>` from version `v3.2.13` on, if the sequence does not use `layout="none"`. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
 import {useRef} from 'react';

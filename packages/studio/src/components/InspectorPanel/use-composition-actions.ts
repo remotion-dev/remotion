@@ -1,4 +1,4 @@
-import type {InsertJsxElementRequest} from '@remotion/studio-shared';
+import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
@@ -75,7 +75,7 @@ export const useCompositionActions = () => {
 		currentCompositionId !== null &&
 		compositionFile !== null;
 	const canInsertAsset = canShowInsertAsset && !isAddingAsset;
-	const canShowInsertComposition = canShowInsertAsset;
+	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
 	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
 		previewInteractive &&
@@ -95,10 +95,11 @@ export const useCompositionActions = () => {
 
 		setIsAddingSolid(true);
 		try {
-			const request: InsertJsxElementRequest = {
+			const request: InsertCompositionElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
+				premountFor: videoConfig.fps,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -107,8 +108,8 @@ export const useCompositionActions = () => {
 				},
 			};
 			const result = browserStudioOperations
-				? await browserStudioOperations.insertSolid(request)
-				: await callApi('/api/insert-jsx-element', request);
+				? await browserStudioOperations.insertCompositionElement(request)
+				: await callApi('/api/insert-composition-element', request);
 
 			if (result.success) {
 				return;
@@ -202,6 +203,7 @@ export const useCompositionActions = () => {
 			invocationTimestamp: Date.now(),
 			assetSelection: {
 				initialQuery: '',
+				fileTypes: null,
 				onSelectFile: () => {
 					onFilesSelected().catch(() => undefined);
 				},
@@ -218,7 +220,8 @@ export const useCompositionActions = () => {
 			if (
 				!canInsertComposition ||
 				currentCompositionId === null ||
-				compositionFile === null
+				compositionFile === null ||
+				videoConfig === null
 			) {
 				return;
 			}
@@ -244,6 +247,7 @@ export const useCompositionActions = () => {
 					compositionFile,
 					compositionId: currentCompositionId,
 					dropPosition: null,
+					fps: videoConfig.fps,
 					from: null,
 					preferCompositionStart: null,
 				});
@@ -263,6 +267,7 @@ export const useCompositionActions = () => {
 			canInsertComposition,
 			compositionFile,
 			currentCompositionId,
+			videoConfig,
 		],
 	);
 

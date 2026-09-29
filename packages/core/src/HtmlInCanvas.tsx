@@ -31,6 +31,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
@@ -344,9 +345,44 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	return cachedSupport;
 };
 
-/** Shown when {@link isHtmlInCanvasSupported} is false: APIs are absent (old Chrome and/or flag off). */
+/** Generic fallback for consumers that cannot inspect the current browser. */
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
-	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
+	'HTML in Canvas requires Chrome 149 or newer with Canvas Draw Element enabled at chrome://flags/#canvas-draw-element.';
+
+export const getHtmlInCanvasUnsupportedMessage = (): string => {
+	if (typeof document === 'undefined') {
+		return `HTML in Canvas is unavailable because there is no browser document. ${HTML_IN_CANVAS_UNSUPPORTED_MESSAGE}`;
+	}
+
+	const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent;
+	const chromiumVersion = userAgent.match(/(?:Chrome|Chromium)\/(\d+)/)?.[1];
+	let browser = 'this browser';
+	if (userAgent.includes('Edg/')) {
+		browser = 'Microsoft Edge';
+	} else if (userAgent.includes('Chromium/')) {
+		browser = 'Chromium';
+	} else if (chromiumVersion) {
+		browser = 'Chrome';
+	} else if (userAgent.includes('Firefox/')) {
+		browser = 'Firefox';
+	} else if (userAgent.includes('Safari/')) {
+		browser = 'Safari';
+	}
+
+	if (chromiumVersion && Number(chromiumVersion) >= 149) {
+		const flagUrl =
+			browser === 'Microsoft Edge'
+				? 'edge://flags/#canvas-draw-element'
+				: 'chrome://flags/#canvas-draw-element';
+		return `HTML in Canvas is unavailable. Enable Canvas Draw Element at ${flagUrl} and fully restart ${browser}.`;
+	}
+
+	if (chromiumVersion) {
+		return `HTML in Canvas is not supported in ${browser} ${chromiumVersion}. Use a Chromium-based browser running version 149 or newer.`;
+	}
+
+	return `HTML in Canvas is not supported in ${browser}. Use Chrome 149 or newer.`;
+};
 
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
@@ -515,7 +551,7 @@ const HtmlInCanvasContent = forwardRef<
 			onPaint === undefined && onInit === undefined;
 
 		if (!isHtmlInCanvasSupported()) {
-			cancelRender(new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE));
+			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
@@ -795,14 +831,18 @@ const HtmlInCanvasContent = forwardRef<
 						});
 					}
 
-					await runEffectChain({
-						state: chainState.get(canvasWidth, canvasHeight)!,
-						source: paintTarget,
-						effects: effectsRef.current,
-						output: paintTarget,
-						width: canvasWidth,
-						height: canvasHeight,
-					});
+					// `null` once unmounted, e.g. when an async `onPaint` resolves late.
+					const state = chainState.get(canvasWidth, canvasHeight);
+					if (state) {
+						await runEffectChain({
+							state,
+							source: paintTarget,
+							effects: effectsRef.current,
+							output: paintTarget,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+					}
 				} finally {
 					elImage.close();
 				}
@@ -991,7 +1031,11 @@ const HtmlInCanvasInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: sequenceProps.from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate: sequenceProps.playbackRate,
+				loop: sequenceProps.loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -1009,7 +1053,11 @@ const HtmlInCanvasInner = forwardRef<
 		});
 
 		return (
-			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
+			>
 				<Sequence
 					layout="none"
 					durationInFrames={durationInFrames}
@@ -1017,7 +1065,6 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
-					outlineRef={actualRef}
 					{...sequenceProps}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}

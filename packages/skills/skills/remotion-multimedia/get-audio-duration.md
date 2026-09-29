@@ -44,13 +44,18 @@ const duration = await getAudioDuration(staticFile("audio.mp3"));
 
 ## In Node.js and Bun
 
-Use `FileSource` instead of `UrlSource`:
+Use `FilePathSource` instead of `UrlSource` to read a file from disk:
 
 ```tsx
-import { Input, ALL_FORMATS, FileSource } from "mediabunny";
+import { Input, ALL_FORMATS, FilePathSource } from "mediabunny";
 
 const input = new Input({
   formats: ALL_FORMATS,
-  source: new FileSource(file), // File object from input or drag-drop
+  source: new FilePathSource("audio.mp3"),
 });
+
+const durationInSeconds = await input.computeDuration();
+input.dispose(); // Closes the file handle
 ```
+
+For a `File` from a file input or drag and drop, use `new BlobSource(file)` instead.

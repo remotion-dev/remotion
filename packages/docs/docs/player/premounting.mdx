@@ -106,60 +106,7 @@ Premounting only applies in the Player and Studio, not during rendering. A paren
 `premountFor` is also available on [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries).  
 It is not yet possible to premount a whole [`<Series>`](/docs/series) or [`<TransitionSeries>`](/docs/transitions/transitionseries).
 
-## Custom premount component
-
-Premounting can also be implemented yourself with the public Remotion APIs.  
-Use the following component like you would `<Sequence>`:
-
-```tsx twoslash title="PremountedSequence.tsx"
-import React, {forwardRef, useMemo} from 'react';
-import {Freeze, Sequence, SequenceProps, useCurrentFrame, useRemotionEnvironment} from 'remotion';
-
-export type PremountedSequenceProps = SequenceProps & {
-  premountFor: number;
-};
-
-const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  {
-    premountFor: number;
-  } & SequenceProps
-> = ({premountFor, ...props}, ref) => {
-  const frame = useCurrentFrame();
-
-  if (props.layout === 'none') {
-    throw new Error('`<Premount>` does not support layout="none"');
-  }
-
-  const env = useRemotionEnvironment();
-
-  const {style: passedStyle, from = 0, ...otherProps} = props;
-  const active = frame < from && frame >= from - premountFor && !env.isRendering;
-
-  const style: React.CSSProperties = useMemo(() => {
-    return {
-      ...passedStyle,
-      opacity: active ? 0 : 1,
-      // @ts-ignore Only in the docs - it will not give a type error in a Remotion project
-      pointerEvents: active ? 'none' : (passedStyle?.pointerEvents ?? 'auto'),
-    };
-  }, [active, passedStyle]);
-
-  return (
-    <Freeze frame={from} active={active}>
-      <Sequence ref={ref} name={`<PremountedSequence premountFor={${premountFor}}>`} from={from} style={style} {...otherProps} />
-    </Freeze>
-  );
-};
-
-export const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
-```
-
-:::note
-One caveat of this custom component: In a premounted sequence, the native buffer state can still be triggered.  
-It is your task to disable triggering the native buffer state (e.g. set [`pauseWhenBuffering`](/docs/media/video#pausewhenbuffering) to `false`) when in a premounted sequence.
-You can achieve this for example by using a React context.
-:::
+For custom components, see [Make a component interactive](/docs/studio/make-component-interactive).
 
 ## Usage together with the buffer state
 

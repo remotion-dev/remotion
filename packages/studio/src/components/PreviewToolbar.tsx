@@ -16,14 +16,13 @@ import {FullScreenToggle} from './FullscreenToggle';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
-import {OutlineToggle} from './OutlineToggle';
 import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManager';
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
 import {PreviewToolbarOverflowButton} from './PreviewToolbarOverflowButton';
+import {PreviewViewOptionsDropdown} from './PreviewViewOptionsDropdown';
 import {RenderButton} from './RenderButton';
-import {RulersAndGuidesToggle} from './RulersAndGuidesToggle';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
@@ -169,19 +168,19 @@ export const PreviewToolbar: React.FC<{
 			{isVideoComposition && !isMobileLayout ? (
 				<>
 					<Spacing x={2} />
-					{playPause}
-					<Spacing x={2} />
 					<PreviewToolbarControl>
 						<LoopToggle loop={loop} setLoop={setLoop} />
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
-					<Spacing x={2} />
+					<Spacing x={1} />
 					<PreviewToolbarControl>
 						<TimelineInOutPointToggle />
 					</PreviewToolbarControl>
-					<Spacing x={2} />
+					<Spacing x={3} />
+					{playPause}
+					<Spacing x={3} />
 				</>
 			) : null}
 			{showCanvasViewControls ? (
@@ -191,21 +190,18 @@ export const PreviewToolbar: React.FC<{
 							<CheckboardToggle />
 						</PreviewToolbarControl>
 					)}
-					{isMobileLayout || !showCompositionControls ? null : (
-						<PreviewToolbarControl>
-							<OutlineToggle />
-						</PreviewToolbarControl>
-					)}
-					{isMobileLayout ? null : (
-						<PreviewToolbarControl>
-							<RulersAndGuidesToggle showGuides={showCompositionControls} />
-						</PreviewToolbarControl>
-					)}
 					{readOnlyStudio ||
 					isMobileLayout ||
 					!showCompositionControls ? null : (
 						<PreviewToolbarControl>
 							<SnappingToggle />
+						</PreviewToolbarControl>
+					)}
+					{isMobileLayout ? null : (
+						<PreviewToolbarControl>
+							<PreviewViewOptionsDropdown
+								showCompositionControls={showCompositionControls}
+							/>
 						</PreviewToolbarControl>
 					)}
 				</>

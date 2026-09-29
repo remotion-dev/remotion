@@ -17,6 +17,7 @@ import {
 } from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 } from './get-timeline-keyframes';
@@ -335,7 +336,11 @@ export const getKeyframeClipboardDataFromSelections = ({
 		keyframes: keyframes.map((keyframe) => {
 			return {
 				frameOffset:
-					(keyframe.frame - firstFrame) / firstResolved.keyframePlaybackRate,
+					(keyframe.frame - firstFrame) /
+					getKeyframePlaybackRate(
+						firstResolved.propStatus,
+						firstResolved.keyframePlaybackRate,
+					),
 				value: keyframe.value,
 			};
 		}),

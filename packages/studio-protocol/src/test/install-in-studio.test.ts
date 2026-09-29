@@ -17,7 +17,7 @@ const descriptor = ({
 	projectName,
 	targetId,
 }: {
-	readonly compositionId: string;
+	readonly compositionId: string | null;
 	readonly lastFocusedAt: number;
 	readonly projectName: string;
 	readonly targetId: string;
@@ -57,8 +57,8 @@ const dependencies = {
 test('delivers the payload when a newer Studio advertises an unknown capability', async () => {
 	const requests: Array<{url: string; options?: RequestInit}> = [];
 	const newestStudio = descriptor({
-		compositionId: 'Main',
-		lastFocusedAt: 950_000,
+		compositionId: null,
+		lastFocusedAt: 400_000,
 		projectName: 'Newest project',
 		targetId: 'newest-target',
 	});
@@ -70,7 +70,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 				jsonResponse(
 					descriptor({
 						compositionId: 'Older',
-						lastFocusedAt: 900_000,
+						lastFocusedAt: 300_000,
 						projectName: 'Older project',
 						targetId: 'older-target',
 					}),
@@ -113,7 +113,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 		status: 'awaiting-confirmation',
 		target: {
 			projectName: 'Newest project',
-			compositionId: 'Main',
+			compositionId: null,
 			studioOrigin: 'http://localhost:3001',
 			studioVersion: '4.0.502',
 		},
@@ -280,8 +280,7 @@ test('distinguishes a compatible Studio without an installable target', async ()
 	).toEqual({
 		success: false,
 		code: 'no-installable-target',
-		message:
-			'Focus a composition in a Remotion Studio that is not read-only, then try again.',
+		message: 'Focus a Remotion Studio that is not read-only, then try again.',
 	});
 });
 
@@ -298,7 +297,7 @@ test('returns an actionable result when no Studio is running', async () => {
 	expect(result).toEqual({
 		success: false,
 		code: 'no-compatible-studio',
-		message: 'Start Remotion Studio and open a composition, then try again.',
+		message: 'Start Remotion Studio, then try again.',
 	});
 	expect(requests).toEqual([
 		'http://localhost:3000/api/studio-protocol',
@@ -321,7 +320,7 @@ test('ignores a non-Studio development server on a probed port', async () => {
 	expect(result).toEqual({
 		success: false,
 		code: 'no-compatible-studio',
-		message: 'Start Remotion Studio and open a composition, then try again.',
+		message: 'Start Remotion Studio, then try again.',
 	});
 });
 
@@ -393,7 +392,7 @@ test('keeps the generic result when permission is not definitively denied', asyn
 		expect(result).toEqual({
 			success: false,
 			code: 'no-compatible-studio',
-			message: 'Start Remotion Studio and open a composition, then try again.',
+			message: 'Start Remotion Studio, then try again.',
 		});
 	}
 });

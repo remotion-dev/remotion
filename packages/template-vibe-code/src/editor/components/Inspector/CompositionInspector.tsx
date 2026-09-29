@@ -142,6 +142,7 @@ export const CompositionInspector: React.FC = () => {
             integer
             unit="px"
             disabled={!metadataIsStatic}
+            onCancel={null}
             onCommit={(width) =>
               width !== null &&
               void actions.updateCompositionMetadata(id, { width })
@@ -156,6 +157,7 @@ export const CompositionInspector: React.FC = () => {
             integer
             unit="px"
             disabled={!metadataIsStatic}
+            onCancel={null}
             onCommit={(height) =>
               height !== null &&
               void actions.updateCompositionMetadata(id, { height })
@@ -171,6 +173,7 @@ export const CompositionInspector: React.FC = () => {
                 min={1}
                 max={240}
                 disabled={activeComposition.fps === null}
+                onCancel={null}
                 onCommit={(fps) =>
                   fps !== null &&
                   void actions.updateCompositionMetadata(id, { fps })
@@ -185,6 +188,7 @@ export const CompositionInspector: React.FC = () => {
                 integer
                 unit="f"
                 disabled={activeComposition.durationInFrames === null}
+                onCancel={null}
                 onCommit={(durationInFrames) =>
                   durationInFrames !== null &&
                   void actions.updateCompositionMetadata(id, {

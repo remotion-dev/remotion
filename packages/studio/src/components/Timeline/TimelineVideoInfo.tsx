@@ -12,11 +12,14 @@ import {
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
+	snapCanvasPositionToDevicePixel,
+	type WaveformVolume,
 	WEBCODECS_TIMESCALE,
 } from '@remotion/timeline-utils';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
+import {alignCanvasToDevicePixels} from '../../helpers/align-canvas-to-device-pixels';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
@@ -62,8 +65,7 @@ const TimelineVideoInfoSegment: React.FC<{
 		readonly loopWidth: number;
 	} | null;
 	readonly playbackRate: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: WaveformVolume;
 	readonly muted: boolean;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
@@ -78,14 +80,13 @@ const TimelineVideoInfoSegment: React.FC<{
 	tiledLoop,
 	playbackRate,
 	volume,
-	doesVolumeChange,
 	muted,
 	frozenMediaFrame,
 	extendLastFrame,
 }) => {
 	const {fps} = useVideoConfig();
 	const resolvedSrc = Internals.usePreload(src);
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 	const mediaStartFrame =
@@ -98,37 +99,54 @@ const TimelineVideoInfoSegment: React.FC<{
 		sourceOffsetInFrames * playbackRate;
 
 	// for rendering frames
-	useEffect(() => {
-		if (error) {
+	useLayoutEffect(() => {
+		const {current: canvas} = ref;
+		if (!canvas) {
 			return;
 		}
 
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const controller = new AbortController();
-		const pixelRatio = getStudioPixelRatio();
-
-		const canvas = document.createElement('canvas');
-		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
-		canvas.height = Math.ceil(TIMELINE_LAYER_FILMSTRIP_HEIGHT * pixelRatio);
-		canvas.style.width = canvas.width / pixelRatio + 'px';
-		canvas.style.height = canvas.height / pixelRatio + 'px';
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
 		}
 
-		current.appendChild(canvas);
+		if (error) {
+			ctx.resetTransform();
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			return;
+		}
+
+		const controller = new AbortController();
+		const pixelRatio = getStudioPixelRatio();
+		const {horizontalOffset} = alignCanvasToDevicePixels({
+			canvas,
+			cssHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+			cssWidth: visualizationWidth,
+			pixelRatio,
+		});
+		ctx.setTransform(1, 0, 0, 1, horizontalOffset, 0);
+
+		const clearCanvas = () => {
+			ctx.save();
+			ctx.resetTransform();
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.restore();
+		};
 
 		const drawRepeatedFrame = (frame: VideoFrame) => {
 			const thumbnailWidth = Math.max(1, frame.displayWidth);
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			clearCanvas();
 			for (let x = 0; x < canvas.width; x += thumbnailWidth) {
-				ctx.drawImage(frame, x, 0, thumbnailWidth, canvas.height);
+				const left = snapCanvasPositionToDevicePixel({
+					horizontalOffset,
+					position: x,
+				});
+				const right = snapCanvasPositionToDevicePixel({
+					horizontalOffset,
+					position: x + thumbnailWidth,
+				});
+				ctx.drawImage(frame, left, 0, right - left, canvas.height);
 			}
 		};
 
@@ -175,10 +193,7 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			if (cachedFrame) {
 				drawRepeatedFrame(cachedFrame);
-
-				return () => {
-					current.removeChild(canvas);
-				};
+				return;
 			}
 
 			extractFrames({
@@ -235,23 +250,26 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			return () => {
 				controller.abort();
-				current.removeChild(canvas);
 			};
 		}
 
 		const targetCanvas = tiledLoop ? document.createElement('canvas') : canvas;
-		targetCanvas.width = tiledLoop
-			? Math.max(1, Math.ceil(tiledLoop.loopWidth * pixelRatio))
-			: canvas.width;
-		targetCanvas.height = canvas.height;
+		if (tiledLoop) {
+			targetCanvas.width = Math.max(
+				1,
+				Math.ceil(tiledLoop.loopWidth * pixelRatio),
+			);
+			targetCanvas.height = canvas.height;
+		}
+
 		const targetCtx = tiledLoop ? targetCanvas.getContext('2d') : ctx;
 		if (!targetCtx) {
-			current.removeChild(canvas);
 			return;
 		}
 
 		// desired-timestamp -> filled-timestamp
 		const filledSlots = new Map<number, number | undefined>();
+		const frameDrawOffset = tiledLoop ? 0 : horizontalOffset;
 
 		const {fromSeconds, toSeconds} = times;
 		// Keep the time-to-pixel scale independent of the integer canvas backing size.
@@ -284,7 +302,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					0,
 				]),
 			);
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			clearCanvas();
 			ctx.fillStyle = pattern;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 		};
@@ -308,6 +326,7 @@ const TimelineVideoInfoSegment: React.FC<{
 				fromSeconds,
 				devicePixelRatio: 1,
 				frameHeight: canvas.height,
+				horizontalOffset: frameDrawOffset,
 			});
 			repeatTarget();
 			const unfilled = Array.from(filledSlots.keys()).filter(
@@ -316,9 +335,7 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			// Don't extract frames if all slots are filled
 			if (unfilled.length === 0) {
-				return () => {
-					current.removeChild(canvas);
-				};
+				return;
 			}
 		}
 
@@ -349,6 +366,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					fromSeconds,
 					devicePixelRatio: 1,
 					frameHeight: canvas.height,
+					horizontalOffset: frameDrawOffset,
 				});
 				repeatTarget();
 
@@ -398,6 +416,7 @@ const TimelineVideoInfoSegment: React.FC<{
 						fromSeconds,
 						devicePixelRatio: 1,
 						frameHeight: canvas.height,
+						horizontalOffset: frameDrawOffset,
 					});
 					repeatTarget();
 				} catch (e) {
@@ -426,6 +445,7 @@ const TimelineVideoInfoSegment: React.FC<{
 					fromSeconds,
 					devicePixelRatio: 1,
 					frameHeight: canvas.height,
+					horizontalOffset: frameDrawOffset,
 				});
 				repeatTarget();
 			})
@@ -435,7 +455,6 @@ const TimelineVideoInfoSegment: React.FC<{
 
 		return () => {
 			controller.abort();
-			current.removeChild(canvas);
 		};
 	}, [
 		durationInFrames,
@@ -476,7 +495,9 @@ const TimelineVideoInfoSegment: React.FC<{
 
 	return (
 		<div style={segmentStyle}>
-			<div ref={ref} style={filmstripStyle} />
+			<div style={filmstripStyle}>
+				<canvas ref={ref} />
+			</div>
 			<div style={audioStyle}>
 				<AudioWaveform
 					src={src}
@@ -490,7 +511,6 @@ const TimelineVideoInfoSegment: React.FC<{
 						tiledLoop?.displayDurationInFrames ?? durationInFrames
 					}
 					volume={volume}
-					doesVolumeChange={doesVolumeChange}
 					muted={muted}
 					playbackRate={playbackRate}
 					loopDisplay={tiledLoop?.loopDisplay}
@@ -543,8 +563,7 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly mediaFrameAtSequenceZero: number | null;
 	readonly sequenceFrameOffset: number;
 	readonly playbackRate: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: WaveformVolume;
 	readonly muted: boolean;
 	readonly marginLeft: number;
 	readonly loopDisplay: LoopDisplay | undefined;
@@ -561,7 +580,6 @@ const TimelineVideoInfoInner: React.FC<{
 	sequenceFrameOffset,
 	playbackRate,
 	volume,
-	doesVolumeChange,
 	muted,
 	marginLeft,
 	loopDisplay,
@@ -622,16 +640,13 @@ const TimelineVideoInfoInner: React.FC<{
 			return volume;
 		}
 
-		const values = volume.split(',');
-		return values
-			.slice(
-				Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
-				Math.min(
-					values.length,
-					Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
-				),
-			)
-			.join(',');
+		return volume.slice(
+			Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
+			Math.min(
+				volume.length,
+				Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
+			),
+		);
 	};
 
 	return (
@@ -648,7 +663,6 @@ const TimelineVideoInfoInner: React.FC<{
 					tiledLoop={tiledLoop}
 					playbackRate={playbackRate}
 					volume={volume}
-					doesVolumeChange={doesVolumeChange}
 					muted={muted}
 					frozenMediaFrame={frozenMediaFrame}
 					extendLastFrame={extendLastFrame}
@@ -670,7 +684,6 @@ const TimelineVideoInfoInner: React.FC<{
 							segment.displayOffsetInFrames - loopDisplayOffsetInFrames,
 							segment.durationInFrames,
 						)}
-						doesVolumeChange={doesVolumeChange}
 						muted={muted}
 						frozenMediaFrame={frozenMediaFrame}
 						extendLastFrame={extendLastFrame}

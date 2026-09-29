@@ -2,6 +2,8 @@ import React, {useContext} from 'react';
 import {createPortal} from 'react-dom';
 import {BLACK_ALPHA_85, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {renderFrame} from '../../state/render-frame';
+import {useZIndex} from '../../state/z-index';
+import {getPortal} from '../Menu/portals';
 import {TimelineTickFormatContext} from './TimelineTickFormatProvider';
 
 export type TimelineTrimTooltipState = {
@@ -32,6 +34,7 @@ export const TimelineTrimTooltip: React.FC<{
 	readonly fps: number;
 }> = ({state, fps}) => {
 	const {showFrames} = useContext(TimelineTickFormatContext);
+	const {currentZIndex} = useZIndex();
 	const delta = Math.round(state.deltaFrames);
 	const edge = Math.max(0, Math.round(state.edgeFrame));
 	const format = (frame: number) =>
@@ -60,6 +63,6 @@ export const TimelineTrimTooltip: React.FC<{
 			<div>{deltaLabel}</div>
 			<div style={{color: LIGHT_TEXT}}>{edgeLabel}</div>
 		</div>,
-		document.body,
+		getPortal(currentZIndex),
 	);
 };

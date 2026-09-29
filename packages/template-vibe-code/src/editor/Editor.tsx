@@ -1,5 +1,9 @@
 "use client";
 
+import type {
+  CanvasSequencePropChange,
+  CanvasSequencePropStatusResolver,
+} from "@remotion/canvas";
 import { resolveCompositionComponent } from "@remotion/codemods";
 import React, {
   useCallback,
@@ -22,6 +26,8 @@ import { useLayers } from "./hooks/use-layers";
 import { usePlaybackStore } from "./hooks/use-playback";
 import { usePreviewHost } from "./hooks/use-preview-host";
 import { findCompositionFile, getCompositions } from "./model/compositions";
+import { getKeyframedProps } from "./model/keyframes";
+import { getSequencePropStatuses } from "./model/layers";
 import { toCodemodProject, type ProjectFiles } from "./model/project";
 import { EditorContext, type EditorContextValue } from "./state/editor-context";
 import {
@@ -63,6 +69,10 @@ export const Editor: React.FC<{
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const project = useMemo(() => toCodemodProject(state.files), [state.files]);
+  const compiledProject = useMemo(
+    () => (state.appliedFiles ? toCodemodProject(state.appliedFiles) : project),
+    [project, state.appliedFiles],
+  );
   const compositionFile = useMemo(
     () => findCompositionFile(project),
     [project],
@@ -127,11 +137,30 @@ export const Editor: React.FC<{
     (event: PreviewKeyEvent) => shortcutHandlerRef.current(event),
     [],
   );
+  // The actions are created below, after the host they operate on exists.
+  const sequencePropsChangeHandlerRef = useRef<
+    (changes: readonly CanvasSequencePropChange[]) => void
+  >(() => undefined);
+  const onPreviewSequencePropsChange = useCallback(
+    (changes: readonly CanvasSequencePropChange[]) =>
+      sequencePropsChangeHandlerRef.current(changes),
+    [],
+  );
+  const sequencePropStatusResolverRef =
+    useRef<CanvasSequencePropStatusResolver>(() => null);
+  const getPreviewSequencePropStatuses =
+    useCallback<CanvasSequencePropStatusResolver>(
+      (nodePathInfo, keys) =>
+        sequencePropStatusResolverRef.current(nodePathInfo, keys),
+      [],
+    );
 
   const { host, error: hostError } = usePreviewHost({
     iframeRef,
     onError: onPreviewError,
     onKeyDown: onPreviewKeyDown,
+    onSequencePropsChange: onPreviewSequencePropsChange,
+    getSequencePropStatuses: getPreviewSequencePropStatuses,
   });
   const playback = usePlaybackStore({ host, onError: onPreviewError });
   const composition = useSyncExternalStore(
@@ -139,7 +168,7 @@ export const Editor: React.FC<{
     () => host?.getSnapshot().composition ?? null,
     () => null,
   );
-  const layers = useLayers({ host, project, mainFile });
+  const layers = useLayers({ host, compiledProject });
 
   const selection = useMemo(
     () =>
@@ -206,12 +235,36 @@ export const Editor: React.FC<{
   const compositionHeight =
     composition?.height ?? activeComposition?.height ?? 1080;
 
+  // The animated props of the layers, for the keyframe rows of the timeline.
+  const keyframedProps = useMemo(
+    () =>
+      getKeyframedProps({
+        layers,
+        project,
+        videoConfig: {
+          width: compositionWidth,
+          height: compositionHeight,
+          fps: compositionFps,
+          durationInFrames: compositionDurationInFrames,
+        },
+      }),
+    [
+      compositionDurationInFrames,
+      compositionFps,
+      compositionHeight,
+      compositionWidth,
+      layers,
+      project,
+    ],
+  );
+
   const actions = useEditorActions({
     context: {
       state,
       entryPoint,
       host,
       layers,
+      keyframedProps,
       compositions,
       compositionFile,
       activeComposition,
@@ -230,6 +283,32 @@ export const Editor: React.FC<{
     playback,
     context: { state, host, layers, compositions, fps: compositionFps },
   });
+  sequencePropsChangeHandlerRef.current = (changes) => {
+    void actions.commitSequencePropChanges(changes);
+  };
+  // The canvas asks before a move starts; analyze the files the edit applies to.
+  sequencePropStatusResolverRef.current = (nodePathInfo, keys) =>
+    getSequencePropStatuses({
+      project,
+      nodePathInfo,
+      keys,
+      videoConfig: {
+        width: compositionWidth,
+        height: compositionHeight,
+        fps: compositionFps,
+        durationInFrames: compositionDurationInFrames,
+      },
+    });
+
+  // Previewed values are released once the preview runs the committed source
+  // or the compilation failed, so they never linger over stale output.
+  const previewUpToDate = state.appliedFiles === state.files;
+  const compileFailed = state.compile.type === "error";
+  useEffect(() => {
+    if (previewUpToDate || compileFailed) {
+      actions.releasePreviews();
+    }
+  }, [actions, compileFailed, previewUpToDate]);
 
   useEffect(() => {
     if (state.notices.length === 0) {
@@ -267,6 +346,7 @@ export const Editor: React.FC<{
     hostError,
     playback,
     layers,
+    keyframedProps,
     project,
     compositions,
     compositionFile,

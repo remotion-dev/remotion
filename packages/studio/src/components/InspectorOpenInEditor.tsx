@@ -149,7 +149,11 @@ export const InspectorOpenInEditor: React.FC<{
 			gitSourceDisabled: location === null,
 			onConfigureApps: configureDefaultApps,
 			onCopyPath:
-				locationType === 'folder' && location?.source ? copyPath : undefined,
+				locationType === 'folder' &&
+				location?.source &&
+				!window.remotion_isReadOnlyStudio
+					? copyPath
+					: undefined,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -251,7 +255,7 @@ export const InspectorOpenInEditor: React.FC<{
 
 		if (menuItems.length > 0) {
 			result.push({
-				ariaLabel: 'Open in another app',
+				ariaLabel: 'Open in...',
 				buttonId: null,
 				disabled: false,
 				idleColor: LIGHT_TEXT,
@@ -261,7 +265,7 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'another-app',
 				selectedId: null,
 				style: dropdownSegmentStyle,
-				tooltipLabel: showTooltips ? 'Open in another app' : null,
+				tooltipLabel: showTooltips ? 'Open in...' : null,
 				type: 'menu',
 				values: menuItems,
 			});

@@ -83,6 +83,10 @@ const element: InsertElementRequest['element'] = {
 	sourceCode: incomingElementSource,
 };
 
+type InsertElementTestRequest = Omit<InsertElementRequest, 'premountFor'> & {
+	premountFor?: number | null;
+};
+
 const makeFixture = () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-element-'));
 	const outsideRoot = mkdtempSync(
@@ -121,14 +125,14 @@ const makeFixture = () => {
 		addNewClientListener: () => () => undefined,
 	});
 
-	const callHandlerWithInput = (input: InsertElementRequest) => {
+	const callHandlerWithInput = (input: InsertElementTestRequest) => {
 		return insertElementHandler({
 			binariesDirectory: null,
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
-			input,
+			input: {...input, premountFor: input.premountFor ?? null},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -282,7 +286,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 );
 `,
 			};
-			const request: InsertElementRequest = {
+			const request: InsertElementTestRequest = {
 				installationName: null,
 				compositionFile: 'Root.tsx',
 				compositionId: 'target',
@@ -472,8 +476,8 @@ test('invalidates a new-composition install after an external component edit', a
 			position: null,
 			undoRedoNavigation: null,
 			newComposition: {
-				codemod: {
-					type: 'new-composition',
+				options: {
+					asset: null,
 					newId: 'ElementScene',
 					componentName: 'ElementScene',
 					componentImportPath: './ElementScene',
@@ -511,6 +515,8 @@ test('invalidates a new-composition install after an external component edit', a
 			'ElementScene.tsx',
 		);
 		expect(getUndoStack()).toHaveLength(1);
+		// Wait for fs.watchFile to establish its polling baseline before editing.
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		writeFileSync(
 			componentFile,
 			`${readFileSync(componentFile, 'utf-8')}\n// External edit\n`,
@@ -752,7 +758,7 @@ test('installs independent named copies into the same and another composition', 
 			compositionSource.replace('id="target"', 'id="interview"'),
 		);
 
-		const input: InsertElementRequest = {
+		const input: InsertElementTestRequest = {
 			installationName: 'speaker-name',
 			compositionFile: 'Root.tsx',
 			compositionId: 'target',

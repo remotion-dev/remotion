@@ -100,7 +100,9 @@ const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
 	return null;
 };
 
-const transitionSeriesOverlaySchema = {} satisfies InteractivitySchema;
+const transitionSeriesOverlaySchema = {
+	...Internals.premountSchema,
+} satisfies InteractivitySchema;
 
 const SeriesOverlay = Interactive.withSchema({
 	Component: SeriesOverlayInner as unknown as React.ComponentType<
@@ -154,6 +156,7 @@ const transitionSeriesSequenceSchema = {
 	freeze: Internals.freezeField,
 	trimBefore: Internals.sequenceSchema.trimBefore,
 	playbackRate: Internals.sequenceSchema.playbackRate,
+	loop: {type: 'hidden'},
 	layout: Internals.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 
@@ -310,6 +313,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly children: React.ReactNode;
 			readonly index: number;
 			readonly controls: SequenceControls | null | undefined;
+			readonly premountFor: number | undefined;
+			readonly postmountFor: number | undefined;
+			readonly styleWhilePremounted: React.CSSProperties | undefined;
+			readonly styleWhilePostmounted: React.CSSProperties | undefined;
 		};
 
 		type RenderState = {
@@ -341,6 +348,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 						controls={info.controls ?? undefined}
 						layout="absolute-fill"
+						premountFor={info.premountFor}
+						postmountFor={info.postmountFor}
+						styleWhilePremounted={info.styleWhilePremounted}
+						styleWhilePostmounted={info.styleWhilePostmounted}
 					>
 						{info.children}
 					</SequenceWithoutSchema>
@@ -477,6 +488,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							children: overlayProps.children,
 							index: i,
 							controls: overlayProps.controls,
+							premountFor: overlayProps.premountFor,
+							postmountFor: overlayProps.postmountFor,
+							styleWhilePremounted: overlayProps.styleWhilePremounted,
+							styleWhilePostmounted: overlayProps.styleWhilePostmounted,
 						};
 
 						return renderNext({
@@ -563,6 +578,14 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			return React.cloneElement(castedChildAgain, {
 				_remotionInternalRender: (resolvedProps) => {
 					const durationInFramesProp = resolvedProps.durationInFrames;
+					const timelineDurationInFrames =
+						durationInFramesProp / (resolvedProps.playbackRate ?? 1);
+					if ((resolvedProps as {readonly loop?: boolean}).loop) {
+						throw new Error(
+							'<TransitionSeries.Sequence> does not accept `loop`. Put a looping <Sequence> inside the <TransitionSeries.Sequence> instead.',
+						);
+					}
+
 					const debugInfo = `index = ${i}, duration = ${durationInFramesProp}`;
 					const {
 						durationInFrames,
@@ -616,7 +639,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 					let actualStartFrame = currentStartFrame + resolvedTransitionOffsets;
 
-					resolvedStartFrame += durationInFramesProp + offset;
+					resolvedStartFrame += timelineDurationInFrames + offset;
 
 					// Handle the case where the first item is a transition
 					if (actualStartFrame < 0) {
@@ -628,7 +651,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					// the live Studio override instead of the original JSX value.
 					const nextSequenceDurations = [
 						...sequenceDurations,
-						durationInFramesProp,
+						timelineDurationInFrames,
 					];
 
 					// Validate: check if a preceding overlay extends beyond this sequence
@@ -641,9 +664,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 						const framesAfterCut =
 							lastOverlay.halfDuration + lastOverlay.overlayOffset;
-						if (framesAfterCut > durationInFramesProp) {
+						if (framesAfterCut > timelineDurationInFrames) {
 							throw new TypeError(
-								`A <TransitionSeries.Overlay /> extends beyond the next sequence. The overlay needs ${framesAfterCut} frames after the cut, but the next sequence is only ${durationInFramesProp} frames long.`,
+								`A <TransitionSeries.Overlay /> extends beyond the next sequence. The overlay needs ${framesAfterCut} frames after the cut, but the next sequence is only ${timelineDurationInFrames} frames long.`,
 							);
 						}
 					}
@@ -662,43 +685,63 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						);
 					};
 
-					const nextProgress = next
-						? next.props.timing.getProgress({
-								frame:
-									frame -
-									actualStartFrame -
-									durationInFrames +
-									next.props.timing.getDurationInFrames({fps}),
-								fps,
-							})
-						: null;
+					const nextDuration =
+						next?.props.timing.getDurationInFrames({fps}) ?? null;
+					const nextTransitionFrame =
+						nextDuration === null
+							? null
+							: frame -
+								actualStartFrame -
+								timelineDurationInFrames +
+								nextDuration;
+					const nextProgress =
+						next &&
+						nextTransitionFrame !== null &&
+						nextDuration !== null &&
+						nextTransitionFrame >= 0 &&
+						nextTransitionFrame < nextDuration
+							? next.props.timing.getProgress({
+									frame: nextTransitionFrame,
+									fps,
+								})
+							: null;
 
-					const prevProgress = prev
-						? prev.props.timing.getProgress({
-								frame: frame - actualStartFrame,
-								fps,
-							})
-						: null;
+					const prevDuration =
+						prev?.props.timing.getDurationInFrames({fps}) ?? null;
+					const prevTransitionFrame = prev ? frame - actualStartFrame : null;
+					const prevProgress =
+						prev &&
+						prevTransitionFrame !== null &&
+						prevDuration !== null &&
+						prevTransitionFrame >= 0 &&
+						prevTransitionFrame < prevDuration
+							? prev.props.timing.getProgress({
+									frame: prevTransitionFrame,
+									fps,
+								})
+							: null;
 
 					if (
 						next &&
-						durationInFramesProp < next.props.timing.getDurationInFrames({fps})
+						timelineDurationInFrames <
+							next.props.timing.getDurationInFrames({fps})
 					) {
 						throw new Error(
 							`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the next <TransitionSeries.Transition />. The transition is ${next.props.timing.getDurationInFrames(
 								{fps},
-							)} frames long, but the sequence is only ${durationInFramesProp} frames long (${debugInfo})`,
+							)} frames long, but the sequence is only ${timelineDurationInFrames} frames long (${debugInfo})`,
 						);
 					}
 
 					if (
 						prev &&
-						durationInFramesProp < prev.props.timing.getDurationInFrames({fps})
+						timelineDurationInFrames <
+							prev.props.timing.getDurationInFrames({fps})
 					) {
 						throw new Error(
 							`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the previous <TransitionSeries.Transition />. The transition is ${prev.props.timing.getDurationInFrames(
 								{fps},
-							)} frames long, but the sequence is only ${durationInFramesProp} frames long (${debugInfo})`,
+							)} frames long, but the sequence is only ${timelineDurationInFrames} frames long (${debugInfo})`,
 						);
 					}
 

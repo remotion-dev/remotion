@@ -2,9 +2,7 @@ import Head from '@docusaurus/Head';
 import {
 	installInStudio,
 	isInsideStudio,
-	setStudioDragData,
 	StudioProtocolInternals,
-	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {
 	useCallback,
@@ -16,20 +14,18 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
-import {InlineStep} from '../../../components/InlineStep';
-import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {
-	createElementPayloadFromDefinition,
-	setElementDragImage,
-} from './element-drag-data';
+import {createElementPayloadFromDefinition} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
+import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ElementPreview} from './ElementPreview';
 import {
 	ElementPreviewComposition,
 	getElementPreviewDimensions,
 } from './ElementPreviewComposition';
+import {ElementStudioAction} from './ElementStudioAction';
 import styles from './ElementPage.module.css';
 
 type ElementPageProps = {
@@ -38,11 +34,7 @@ type ElementPageProps = {
 	readonly sourceCode?: string;
 };
 
-type InstallStatus =
-	| {type: 'idle'}
-	| {type: 'installing'}
-	| {type: 'success'; message: string}
-	| {type: 'error'; code: InstallInStudioErrorCode; message: string};
+type InstallStatus = {type: 'idle'} | {type: 'installing'} | {type: 'success'};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -53,6 +45,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
+	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
+	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
@@ -142,37 +136,37 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		}
 
 		setIsInstallHintVisible(false);
-		if (!isEmbeddedInStudio) {
-			setInstallStatus({type: 'installing'});
-		}
+		setInstallStatus({type: 'installing'});
 
-		const result = await installInStudio({
-			payload: assetPayload ?? elementPayload,
-			fallbackPayload: assetPayload === null ? undefined : elementPayload,
-		});
-		if (!result.success) {
-			setInstallStatus({
-				type: 'error',
-				code: result.code,
-				message: result.message,
+		try {
+			const result = await installInStudio({
+				payload: assetPayload ?? elementPayload,
+				fallbackPayload: assetPayload === null ? undefined : elementPayload,
 			});
-			return;
-		}
+			if (!result.success) {
+				setInstallStatus({type: 'idle'});
+				setInstallFailureCount((count) => count + 1);
+				setIsInstallFallbackOpen(true);
+				return;
+			}
 
-		if (isEmbeddedInStudio) {
+			setIsInstallFallbackOpen(false);
+			setInstallFailureCount(0);
+			if (isEmbeddedInStudio) {
+				setInstallStatus({type: 'idle'});
+			} else {
+				setInstallStatus({type: 'success'});
+			}
+
+			if (window.location.origin === 'https://www.remotion.dev') {
+				navigator.sendBeacon(
+					`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
+				);
+			}
+		} catch {
 			setInstallStatus({type: 'idle'});
-		} else {
-			const {target} = result;
-			setInstallStatus({
-				type: 'success',
-				message: `Sent to ${target.projectName ?? 'Remotion Studio'} (currently ${target.compositionId}). Confirm the installation destination in Studio.`,
-			});
-		}
-
-		if (window.location.origin === 'https://www.remotion.dev') {
-			navigator.sendBeacon(
-				`https://www.remotion.pro/api/track/element-install-request?slug=${encodeURIComponent(definition.slug)}`,
-			);
+			setInstallFailureCount((count) => count + 1);
+			setIsInstallFallbackOpen(true);
 		}
 	}, [assetPayload, definition.slug, elementPayload, isEmbeddedInStudio]);
 
@@ -263,50 +257,21 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
-								<div className={styles.studioAction}>
-									<BlueButton
-										className={
-											isEmbeddedInStudio === false
-												? styles.installButtonWithDragHandle
-												: undefined
-										}
-										fullWidth
-										loading={installStatus.type === 'installing'}
-										onClick={installElement}
-										size="sm"
-										style={{padding: '7px 12px'}}
-										title="Install in the most recently focused Remotion Studio"
-									>
-										{installStatus.type === 'installing'
-											? 'Finding Studio…'
-											: 'Install in Studio'}
-									</BlueButton>
-									{isEmbeddedInStudio === false ? (
-										<div
-											aria-label="Drag into Studio"
-											className={styles.dragHandle}
-											draggable
-											onDragStart={(event) => {
-												setStudioDragData({
-													dataTransfer: event.dataTransfer,
-													payload: elementPayload,
-												});
-												setElementDragImage(
-													event.dataTransfer,
-													posterRef.current,
-												);
-											}}
-											title="Drag into your Studio browser tab to choose where the element is placed on the canvas or timeline"
-										>
-											<span
-												aria-hidden="true"
-												className={styles.dragHandleIcon}
-											>
-												⠿
-											</span>
-										</div>
-									) : null}
-								</div>
+								<ElementStudioAction
+									buttonLabel={
+										installStatus.type === 'success' ? 'Sent to Studio' : 'Use'
+									}
+									loading={installStatus.type === 'installing'}
+									onClick={installElement}
+									payload={elementPayload}
+									posterRef={posterRef}
+									showDragHandle={isEmbeddedInStudio === false}
+									title={
+										isEmbeddedInStudio
+											? 'Use this Element in Studio'
+											: 'Install in the most recently focused Remotion Studio'
+									}
+								/>
 								{isBrowserStudioActionVisible ? (
 									<PlainButton
 										fullWidth
@@ -319,49 +284,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{installStatus.type === 'error' &&
-							installStatus.code === 'no-compatible-studio' ? (
-								<div aria-live="polite" className={styles.studioGuidance}>
-									<p className={styles.studioGuidanceTitle}>
-										Connect to Remotion Studio
-									</p>
-									<ol className={styles.studioGuidanceSteps} role="list">
-										<li>
-											<InlineStep>1</InlineStep>
-											<span>
-												Open your Remotion project, or{' '}
-												<a href="/docs/">create a new one</a>.
-											</span>
-										</li>
-										<li>
-											<InlineStep>2</InlineStep>
-											<span>Start Studio and open a composition.</span>
-										</li>
-										<li>
-											<InlineStep>3</InlineStep>
-											<span>
-												Return here and click <strong>Install in Studio</strong>{' '}
-												again.
-											</span>
-										</li>
-									</ol>
-								</div>
-							) : installStatus.type !== 'idle' &&
-							  (installStatus.type !== 'installing' ||
-									isInstallHintVisible) ? (
-								<p
-									aria-live="polite"
-									className={
-										installStatus.type === 'installing'
-											? styles.installingStatus
-											: installStatus.type === 'success'
-												? styles.successStatus
-												: styles.errorStatus
-									}
-								>
-									{installStatus.type === 'installing'
-										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
-										: installStatus.message}
+							{installStatus.type === 'installing' && isInstallHintVisible ? (
+								<p aria-live="polite" className={styles.installingStatus}>
+									If your browser prompts you, allow local network access so
+									this page can find Remotion Studio.
 								</p>
 							) : null}
 						</>
@@ -371,9 +297,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						<p className={styles.description}>{description}</p>
 						{definition.category === 'captions' ? (
 							<p className={styles.description} style={{marginTop: 8}}>
-								Have captions?{' '}
 								<a href="/elements/captions/#importing-captions-into-studio">
-									Import Remotion Caption[] JSON from Studio.
+									How to use caption elements
 								</a>
 							</p>
 						) : null}
@@ -447,6 +372,21 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					) : null}
 				</div>
 			</aside>
+			{elementPayload === null || sourceCode === undefined ? null : (
+				<ElementInstallFallbackModal
+					installFailureCount={installFailureCount}
+					isInstalling={installStatus.type === 'installing'}
+					isOpen={isInstallFallbackOpen}
+					onClose={() => {
+						setIsInstallFallbackOpen(false);
+						setInstallFailureCount(0);
+					}}
+					onInstall={installElement}
+					payload={elementPayload}
+					posterRef={posterRef}
+					sourceCode={sourceCode}
+				/>
+			)}
 		</div>
 	);
 };

@@ -66,6 +66,7 @@ const seriesSequenceSchema = {
 	freeze: Interactive.baseSchema.freeze,
 	trimBefore: Interactive.sequenceSchema.trimBefore,
 	playbackRate: Interactive.sequenceSchema.playbackRate,
+	loop: {type: 'hidden'},
 	layout: Interactive.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 
@@ -198,6 +199,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 			return React.cloneElement(castedElement, {
 				_remotionInternalRender: (resolvedProps, ref) => {
 					const durationInFramesProp = resolvedProps.durationInFrames;
+					const timelineDurationInFrames =
+						durationInFramesProp / (resolvedProps.playbackRate ?? 1);
+					if ((resolvedProps as {readonly loop?: boolean}).loop) {
+						throw new Error(
+							'<Series.Sequence> does not accept `loop`. Put a looping <Sequence> inside the <Series.Sequence> instead.',
+						);
+					}
+
 					const {
 						durationInFrames: _durationInFrames,
 						children: sequenceChildren,
@@ -216,7 +225,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 					});
 
 					const currentStartFrame = startFrame + offset;
-					const nextStartFrame = startFrame + durationInFramesProp + offset;
+					const nextStartFrame = startFrame + timelineDurationInFrames + offset;
 
 					return (
 						<>

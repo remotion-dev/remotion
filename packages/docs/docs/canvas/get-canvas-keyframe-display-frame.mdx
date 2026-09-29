@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-canvas-get-canvas-keyframe-display-frame.png
+title: getCanvasKeyframeDisplayFrame()
+crumb: '@remotion/canvas'
+---
+
+# getCanvasKeyframeDisplayFrame()<AvailableFrom v="4.0.530" />
+
+Converts a frame of a prop's `interpolate()` expression to a composition frame. It is the inverse of [`getCanvasKeyframeSourceFrame()`](/docs/canvas/get-canvas-keyframe-source-frame).
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts twoslash title="seek-to-keyframe.ts"
+// @moduleResolution: bundler
+import {getCanvasKeyframeDisplayFrame, type TimelineTrackData} from '@remotion/canvas';
+import type {CanUpdateSequencePropStatus} from 'remotion';
+declare const track: TimelineTrackData;
+declare const propStatus: CanUpdateSequencePropStatus;
+declare const seek: (frame: number) => void;
+// ---cut---
+export const seekToKeyframe = (sourceFrame: number) => {
+  seek(getCanvasKeyframeDisplayFrame({track, propStatus, sourceFrame}));
+};
+```
+
+## Parameters
+
+An object with the following properties:
+
+### track
+
+The `TimelineTrackData` of the sequence from [`controller.timeline`](/docs/canvas/create-canvas-controller#timeline). Only `keyframeDisplayOffset` and `keyframePlaybackRate` are read.
+
+### propStatus
+
+How the prop is written in the source, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it, or `null`.
+
+### sourceFrame
+
+A frame in the clock of the interpolation, for example the `frame` of a keyframe in a `'keyframed'` prop status.
+
+## Return value
+
+The composition frame at which the keyframe applies. It may be fractional when the sequence has a `playbackRate`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframeSourceFrame()`](/docs/canvas/get-canvas-keyframe-source-frame)
+- [`getCanvasKeyframes()`](/docs/canvas/get-canvas-keyframes)

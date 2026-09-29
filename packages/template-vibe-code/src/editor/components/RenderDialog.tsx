@@ -174,6 +174,7 @@ export const RenderDialog: React.FC = () => {
                   min={0}
                   max={composition.durationInFrames - 1}
                   integer
+                  onCancel={null}
                   onCommit={(value) => setFrame(value ?? 0)}
                 />
               </FieldRow>

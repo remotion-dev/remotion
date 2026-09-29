@@ -105,9 +105,10 @@ const elementsIconContainer: React.CSSProperties = {
 };
 
 export const SettingsModal: React.FC<{
+	readonly initialStudioPane: 'elements' | 'general' | null;
 	readonly initialTab: SettingsTab;
 	readonly initialPublicLicenseKey: string | null;
-}> = ({initialPublicLicenseKey, initialTab}) => {
+}> = ({initialPublicLicenseKey, initialStudioPane, initialTab}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setPublicLicenseKey} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -144,7 +145,7 @@ export const SettingsModal: React.FC<{
 	const safeInitialTab = getSafeSettingsTab(initialTab, availableTabs);
 	const [tab, setTab] = useState<SettingsTab>(safeInitialTab);
 	const [studioPane, setStudioPane] = useState<'general' | 'elements'>(
-		'general',
+		initialStudioPane ?? 'general',
 	);
 	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([safeInitialTab]);
 	const [packagesFooterContainer, setPackagesFooterContainer] =

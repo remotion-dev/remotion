@@ -37,14 +37,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getNodeReference, type Layer } from "../../model/layers";
-import { getSchemaForTag, hasTimingProps } from "../../model/schemas";
+import { getLayerSchema, hasTimingProps } from "../../model/schemas";
 import { useEditor } from "../../state/editor-context";
 import { ToolbarButton } from "../TopBar";
 
 export const useLayerCommands = (layer: Layer) => {
   const { actions } = useEditor();
   const node = getNodeReference(layer.selectionItem);
-  const schema = layer.source ? getSchemaForTag(layer.source.tagName) : null;
+  const schema = getLayerSchema(layer);
   const source = layer.source;
 
   return {

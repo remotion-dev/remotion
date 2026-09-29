@@ -9,7 +9,8 @@ import type { BrowserBundle } from "@remotion/browser-bundler";
 import type { BrowserComposition } from "@remotion/browser-bundler/runtime";
 import type {
   CanvasController,
-  CanvasSequenceNodePathResolver,
+  CanvasSequencePropChange,
+  CanvasSequencePropStatusResolver,
 } from "@remotion/canvas";
 import type { PlayerRef } from "@remotion/player";
 import type {
@@ -29,7 +30,6 @@ export type PreviewOptions = {
   playbackRate: number;
   inFrame: number | null;
   outFrame: number | null;
-  resolveSequenceNodePathInfo: CanvasSequenceNodePathResolver | null;
 };
 
 export type PreviewCompositionSelection = {
@@ -112,6 +112,13 @@ export type PreviewHost = {
 export type CreatePreviewHost = (callbacks: {
   onError: (message: string) => void;
   onKeyDown: (event: PreviewKeyEvent) => boolean;
+  /**
+   * The user moved outlines on the canvas. The values are previewed through
+   * `controller.overrides` until the editor clears them.
+   */
+  onSequencePropsChange: (changes: readonly CanvasSequencePropChange[]) => void;
+  /** How the props are written in the source; decides what can be moved. */
+  getSequencePropStatuses: CanvasSequencePropStatusResolver;
 }) => PreviewHost;
 
 declare global {

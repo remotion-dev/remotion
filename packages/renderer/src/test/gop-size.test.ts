@@ -26,6 +26,8 @@ test('passes GOP size to FFmpeg', () => {
 		hardwareAcceleration: 'disable',
 		indent: false,
 		logLevel: 'info',
+		cpuCount: 4,
+		lambdaMemoryInBytes: null,
 	});
 
 	expect(args.flat()).toContain('-g');
@@ -60,6 +62,8 @@ test('passes GOP size to all non-GIF video codecs', () => {
 			hardwareAcceleration: 'disable',
 			indent: false,
 			logLevel: 'info',
+			cpuCount: 4,
+			lambdaMemoryInBytes: null,
 		});
 
 		expect(args.flat()).toContain('-g');

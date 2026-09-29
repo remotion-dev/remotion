@@ -265,7 +265,10 @@ export const audioIteratorManager = ({
 			logLevel,
 			originalUnloopedMediaTimestamp: buffer.buffer.timestamp,
 			sourceOffsetInSeconds: buffer.sourceOffsetInSeconds,
-			sourceDurationInSeconds: buffer.sourceDurationInSeconds,
+			sourceDurationInSeconds: Math.min(
+				buffer.sourceDurationInSeconds,
+				sequenceEndTime - buffer.timelineTimestamp,
+			),
 		});
 
 		drawDebugOverlay();
@@ -565,7 +568,8 @@ export const audioIteratorManager = ({
 			currentSeek.sequenceOffset === sequenceOffset &&
 			currentSeek.sequenceDurationInFrames === sequenceDurationInFrames &&
 			currentSeek.loop === loop &&
-			currentSeek.fps === fps
+			currentSeek.fps === fps &&
+			(muted || (audioBufferIterator && !audioBufferIterator.isDestroyed()))
 		) {
 			return;
 		}
@@ -672,8 +676,21 @@ export const audioIteratorManager = ({
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
 		getTotalAudioScheduledInSeconds: () => totalAudioScheduledInSeconds,
 		setMuted: (newMuted: boolean) => {
+			if (muted === newMuted) {
+				return;
+			}
+
 			muted = newMuted;
 			gainNode.gain.value = muted ? 0 : currentVolume;
+			if (muted) {
+				audioBufferIterator?.destroy();
+				audioBufferIterator = null;
+				currentAnchor = null;
+				unblockCurrentDelayHandle();
+			}
+
+			// An unmute at the same frame still needs a fresh iterator.
+			currentSeek = null;
 		},
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);

@@ -15,10 +15,10 @@ _Draft API_: This API is experimental and may change.
 :::
 
 ```ts twoslash title="detach-audio.ts"
-import {detachAudio, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+import {detachAudio, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
 const result = await detachAudio({
   project,
@@ -28,7 +28,7 @@ const result = await detachAudio({
 console.log(result);
 ```
 
-Supports recognized Remotion video imports. The audio element uses the same source and copies supported playback and timing props. This edits JSX; it does not extract or write an audio file.
+Supports recognized Remotion video imports. The audio element uses the same source and copies supported playback and timing props. This edits source code; it does not extract or write an audio file.
 
 ## Options
 
@@ -38,7 +38,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 ### node
 
-A [`JsxNodeReference`](/docs/codemods#node-references) from [`getJsxNodes()`](/docs/codemods/get-jsx-nodes) or a previous operation. It contains `filePath` and `nodePath`.
+A [`NodeReference`](/docs/codemods#node-references) from [`getNodes()`](/docs/codemods/get-nodes) or a previous operation. It contains `filePath` and `nodePath`.
 
 ## Return value
 
@@ -72,4 +72,4 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/detach-audio.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

@@ -52,6 +52,9 @@ export type LayoutSettings = {
 
 export type EditorState = {
   files: ProjectFiles;
+  // The files of the last bundle that was applied to the preview. The
+  // mounted sequences report source locations from these files.
+  appliedFiles: ProjectFiles | null;
   savedFiles: ProjectFiles;
   past: ProjectFiles[];
   future: ProjectFiles[];
@@ -93,6 +96,7 @@ export type EditorAction =
   | { type: "select-composition"; compositionId: string | null }
   | { type: "set-props-override"; props: Record<string, unknown> | null }
   | { type: "set-compile"; compile: CompileStatus }
+  | { type: "set-applied-files"; files: ProjectFiles }
   | { type: "set-warnings"; warnings: string[] }
   | { type: "set-runtime-error"; message: string | null }
   | { type: "set-playback"; patch: Partial<PlaybackSettings> }
@@ -122,6 +126,7 @@ export const createInitialState = ({
   activeFile: string | null;
 }): EditorState => ({
   files,
+  appliedFiles: null,
   savedFiles: files,
   past: [],
   future: [],
@@ -267,6 +272,8 @@ export const editorReducer = (
 
     case "set-compile":
       return { ...state, compile: action.compile };
+    case "set-applied-files":
+      return { ...state, appliedFiles: action.files };
 
     case "set-warnings":
       return { ...state, warnings: action.warnings };

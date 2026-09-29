@@ -27,7 +27,11 @@ import type {
 	SequencePropsSubscriptionKey,
 	VideoConfigValues,
 } from 'remotion';
-import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {
+	CompositionDestination,
+	NewCompositionOptions,
+	VisualControlChange,
+} from './codemods';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
@@ -313,26 +317,78 @@ export type UndoRedoNavigation = {
 	redoRoute: string;
 };
 
-export type ApplyCodemodRequest = {
-	codemod: RecastCodemod;
-	dryRun: boolean;
+type CompositionEditRequest = {
 	symbolicatedStack: SymbolicatedStackFrame | null;
 	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
-export type SimpleDiff = {
-	additions: number;
-	deletions: number;
+export type AddCompositionRequest = CompositionEditRequest & {
+	options: NewCompositionOptions;
 };
 
-export type ApplyCodemodResponse =
+export type DuplicateCompositionRequest = CompositionEditRequest & {
+	idToDuplicate: string;
+	newId: string;
+	newHeight: number | null;
+	newWidth: number | null;
+	newFps: number | null;
+	newDurationInFrames: number | null;
+	tag: 'Still' | 'Composition';
+};
+
+export type RenameCompositionRequest = CompositionEditRequest & {
+	idToRename: string;
+	newId: string;
+};
+
+export type UpdateCompositionMetadataRequest = CompositionEditRequest & {
+	idToUpdate: string;
+	newDurationInFrames: number | null;
+	newFps: number | null;
+	newHeight: number | null;
+	newWidth: number | null;
+};
+
+export type DeleteCompositionRequest = CompositionEditRequest & {
+	idToDelete: string;
+};
+
+export type MoveCompositionRequest = CompositionEditRequest & {
+	compositionId: string;
+	destination: CompositionDestination;
+};
+
+export type AddFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type RenameFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	newName: string;
+};
+
+export type UnwrapFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type MoveFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	destination: CompositionDestination;
+};
+
+export type CompositionEditResponse =
 	| {
 			success: true;
-			diff: SimpleDiff;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
 			reason: string;
+			stack: string;
 	  };
 
 export type DeleteStaticFileRequest = {
@@ -440,6 +496,7 @@ export type GoogleFontSourceEdit = {
 };
 
 export type SaveSequencePropSourceEdit =
+	| {type: 'playback-rate'}
 	| {
 			type: 'google-font';
 			font: GoogleFontSourceEdit;
@@ -741,6 +798,7 @@ export type AddKeyframesRequest = {
 
 export type AddKeyframesResponse = {
 	success: true;
+	nodePathMutation: SequenceNodePathMutation | null;
 };
 
 export type KeyframeSettings =
@@ -849,16 +907,16 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodesRequestItem = {
+export type DeleteNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodesRequest = {
-	nodes: DeleteJsxNodesRequestItem[];
+export type DeleteNodesRequest = {
+	nodes: DeleteNodesRequestItem[];
 };
 
-export type DeleteJsxNodesResponse =
+export type DeleteNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -869,16 +927,16 @@ export type DeleteJsxNodesResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequestItem = {
+export type DuplicateNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DuplicateJsxNodeRequest = {
-	nodes: DuplicateJsxNodeRequestItem[];
+export type DuplicateNodesRequest = {
+	nodes: DuplicateNodesRequestItem[];
 };
 
-export type DuplicateJsxNodeResponse =
+export type DuplicateNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -889,17 +947,26 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type JsxWrapper = 'AbsoluteFill' | 'Sequence' | 'HtmlInCanvas';
+export type NodeWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
 
-export type WrapJsxNodeRequest = {
+export type WrapNodeRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
-	wrapper: JsxWrapper | null;
+	wrapper: NodeWrapper | null;
 	width: number | null;
 	height: number | null;
+	timing: {
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
 };
 
-export type WrapJsxNodeResponse =
+export type WrapNodeResponse =
 	| {
 			success: true;
 			canWrap: boolean;
@@ -908,18 +975,47 @@ export type WrapJsxNodeResponse =
 	  }
 	| {success: false; reason: string; stack: string};
 
-export type SplitJsxSequenceRequestItem = {
+export type PrecomposeJsxNodesRequestItem = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type PrecomposeJsxNodesRequest = {
+	nodes: PrecomposeJsxNodesRequestItem[];
+	compositionFile: string;
+	compositionId: string;
+	existingCompositionIds: string[];
+	metadata: {
+		width: number;
+		height: number;
+		fps: number;
+		durationInFrames: number;
+	};
+	dryRun: boolean;
+};
+
+export type PrecomposeJsxNodesResponse =
+	| {
+			success: true;
+			canPrecompose: boolean;
+			reason: string | null;
+			nodePathMutation: SequenceNodePathMutation | null;
+			newCompositionId: string | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type SplitSequencesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
 };
 
-export type SplitJsxSequenceRequest = {
-	sequences: SplitJsxSequenceRequestItem[];
+export type SplitSequencesRequest = {
+	sequences: SplitSequencesRequestItem[];
 };
 
-export type SplitJsxSequenceResponse =
+export type SplitSequencesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
@@ -950,6 +1046,7 @@ export type InsertBasicCaptionsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	durationInFrames: number | null;
+	premountFor: number | null;
 	captions: {
 		text: string;
 		startMs: number;
@@ -1022,14 +1119,15 @@ export type InsertableCompositionElementPosition = {
 	y: number;
 };
 
-export type InsertJsxElementRequest = {
+export type InsertCompositionElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
+	premountFor: number | null;
 };
 
-export type InsertJsxElementResponse =
+export type InsertCompositionElementResponse =
 	| {
 			success: true;
 			insertedNodePath: Pick<
@@ -1106,11 +1204,12 @@ export type InsertElementRequest = {
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
+	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
 	newComposition: {
-		codemod: Extract<RecastCodemod, {type: 'new-composition'}>;
+		options: NewCompositionOptions;
 		symbolicatedStack: SymbolicatedStackFrame | null;
 	} | null;
 };
@@ -1155,8 +1254,8 @@ export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
 	createdAt: number;
-	compositionFile: string;
-	compositionId: string;
+	compositionFile: string | null;
+	compositionId: string | null;
 	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
@@ -1453,18 +1552,19 @@ export type ApiRoutes = {
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-nodes': ReqAndRes<
-		DeleteJsxNodesRequest,
-		DeleteJsxNodesResponse
+	'/api/delete-nodes': ReqAndRes<DeleteNodesRequest, DeleteNodesResponse>;
+	'/api/duplicate-nodes': ReqAndRes<
+		DuplicateNodesRequest,
+		DuplicateNodesResponse
 	>;
-	'/api/duplicate-jsx-node': ReqAndRes<
-		DuplicateJsxNodeRequest,
-		DuplicateJsxNodeResponse
+	'/api/precompose-jsx-nodes': ReqAndRes<
+		PrecomposeJsxNodesRequest,
+		PrecomposeJsxNodesResponse
 	>;
-	'/api/wrap-jsx-node': ReqAndRes<WrapJsxNodeRequest, WrapJsxNodeResponse>;
-	'/api/split-jsx-sequence': ReqAndRes<
-		SplitJsxSequenceRequest,
-		SplitJsxSequenceResponse
+	'/api/wrap-node': ReqAndRes<WrapNodeRequest, WrapNodeResponse>;
+	'/api/split-sequences': ReqAndRes<
+		SplitSequencesRequest,
+		SplitSequencesResponse
 	>;
 	'/api/split-video-from-audio': ReqAndRes<
 		SplitVideoFromAudioRequest,
@@ -1478,9 +1578,9 @@ export type ApiRoutes = {
 		ReplaceVideoSourceRequest,
 		ReplaceVideoSourceResponse
 	>;
-	'/api/insert-jsx-element': ReqAndRes<
-		InsertJsxElementRequest,
-		InsertJsxElementResponse
+	'/api/insert-composition-element': ReqAndRes<
+		InsertCompositionElementRequest,
+		InsertCompositionElementResponse
 	>;
 	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
 		ConvertFigmaClipboardToSvgRequest,
@@ -1519,7 +1619,34 @@ export type ApiRoutes = {
 		RemoveRemotionSkillRequest,
 		GetRemotionSkillsInfoResponse
 	>;
-	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
+	'/api/add-composition': ReqAndRes<
+		AddCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/duplicate-composition': ReqAndRes<
+		DuplicateCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/rename-composition': ReqAndRes<
+		RenameCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/update-composition-metadata': ReqAndRes<
+		UpdateCompositionMetadataRequest,
+		CompositionEditResponse
+	>;
+	'/api/delete-composition': ReqAndRes<
+		DeleteCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/move-composition': ReqAndRes<
+		MoveCompositionRequest,
+		CompositionEditResponse
+	>;
+	'/api/add-folder': ReqAndRes<AddFolderRequest, CompositionEditResponse>;
+	'/api/rename-folder': ReqAndRes<RenameFolderRequest, CompositionEditResponse>;
+	'/api/unwrap-folder': ReqAndRes<UnwrapFolderRequest, CompositionEditResponse>;
+	'/api/move-folder': ReqAndRes<MoveFolderRequest, CompositionEditResponse>;
 	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
 	'/api/delete-static-file': ReqAndRes<
 		DeleteStaticFileRequest,

@@ -1,5 +1,8 @@
 import {useContext, useLayoutEffect, useRef} from 'react';
-import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
+import {
+	getFrameInKeyframedStatusClock,
+	resolveDragOverrideValue,
+} from '../get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
 import type {RuntimeValueStore} from '../runtime-value-store.js';
@@ -91,7 +94,7 @@ const resolvePropStatusOverrides = (
 		if (status.status === 'keyframed') {
 			const value = interpolateKeyframedStatus({
 				forceSpringAllowTail: null,
-				frame,
+				frame: getFrameInKeyframedStatusClock({frame, status}),
 				status,
 			});
 			if (value !== null) {

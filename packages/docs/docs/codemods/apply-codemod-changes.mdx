@@ -9,12 +9,12 @@ crumb: '@remotion/codemods'
 Applies the file changes returned by a codemod to an in-memory project. The input project remains unchanged.
 
 ```ts twoslash title="apply-changes.ts"
-import {applyCodemodChanges, updateJsxNodeProps, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+import {applyCodemodChanges, updateNodeProps, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 
-const result = updateJsxNodeProps({
+const result = updateNodeProps({
   project,
   node,
   props: {'style.opacity': 0.5},

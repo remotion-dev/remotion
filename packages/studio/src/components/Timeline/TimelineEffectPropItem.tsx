@@ -27,6 +27,7 @@ import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {
+	getKeyframeLocalFrame,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 } from './get-timeline-keyframes';
@@ -373,7 +374,7 @@ export const TimelineEffectPropValue: React.FC<{
 		propStatus,
 		dragOverrideValue,
 		defaultValue: field.fieldSchema.default,
-		frame: sourceFrame,
+		frame: getKeyframeLocalFrame(sourceFrame, propStatus),
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -490,10 +491,12 @@ export const TimelineEffectPropItem: React.FC<{
 		return overrides[field.key];
 	}, [getEffectDragOverrides, nodePath, field.effectIndex, field.key]);
 
-	const keyframable = isSchemaFieldKeyframable({
-		schema: field.effectSchema,
-		key: field.key,
-	});
+	const keyframable =
+		!(propStatus?.status === 'static' && propStatus.canKeyframe === false) &&
+		isSchemaFieldKeyframable({
+			schema: field.effectSchema,
+			key: field.key,
+		});
 	const keyframeControls =
 		propStatus !== null &&
 		(keyframeControlsMode === 'inspector'

@@ -1,5 +1,8 @@
 import {getBrowserReactRefreshVirtualFiles} from '@remotion/browser-bundler/compiler';
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from '@remotion/studio-shared';
 
 export const browserStudioVirtualFilePaths = {
 	browserRequireShim: '/__remotion_browser_studio__/browser-require-shim.js',
@@ -33,6 +36,7 @@ if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
   const originalPerformReactRefresh = RemotionRefreshRuntime.performReactRefresh;
   RemotionRefreshRuntime.__remotionReactRefreshWrapped = true;
   RemotionRefreshRuntime.performReactRefresh = () => {
+    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
     const result = originalPerformReactRefresh();
     if (result !== null) {
       window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
@@ -54,7 +58,6 @@ Internals.setComponentIdentityResolver((component) => {
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
 const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
 
 const originalCreateElement = React.createElement;
 
@@ -75,14 +78,11 @@ export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
           typeof source.fileName === 'string' &&
           typeof source.lineNumber === 'number' &&
           typeof source.columnNumber === 'number'
-            ? 'Error\\n    at browserStudioOriginal (' +
-              browserStudioOriginalSourcePrefix +
-              encodeURIComponent(source.fileName) +
-              ':' +
-              source.lineNumber +
-              ':' +
-              source.columnNumber +
-              ')'
+            ? Internals.makeOriginalSourceStack({
+                fileName: source.fileName,
+                lineNumber: source.lineNumber,
+                columnNumber: source.columnNumber,
+              })
             : new Error().stack;
         const newProps = props?.[internalStackProp]
           ? {...props}

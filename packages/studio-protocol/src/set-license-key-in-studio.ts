@@ -4,7 +4,6 @@ import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
-	focusedStudioMaxAge,
 	getSetLicenseKeyCapability,
 	isAbortError,
 	studioProtocolProbePorts,
@@ -128,11 +127,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	const configurable = supportedStudios
 		.filter(({capability}) => {
 			const {target} = capability;
-			return (
-				target !== null &&
-				target.expiresAt > now &&
-				now - target.lastFocusedAt < focusedStudioMaxAge
-			);
+			return target !== null && target.expiresAt > now;
 		})
 		.sort((a, b) => {
 			const focusDifference =

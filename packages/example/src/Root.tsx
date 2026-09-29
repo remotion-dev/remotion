@@ -106,6 +106,7 @@ import {
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -188,7 +189,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
-import {VideoTesting} from './VideoTesting';
+import {VideoTesting, VideoTestingFrameAccuracy} from './VideoTesting';
 import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
@@ -250,6 +251,7 @@ import {
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
+import {LayoutNoneOutlines} from './LayoutNoneOutlines';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
@@ -1209,6 +1211,14 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						codec: 'mp4' as const,
 					}}
+				/>
+				<Composition
+					id="video-testing-frame-accuracy"
+					component={VideoTestingFrameAccuracy}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="video-testing-mp4-offthread"
@@ -3059,6 +3069,14 @@ export const Index: React.FC = () => {
 				durationInFrames={240}
 			/>
 			<Composition
+				id="intrinsic-duration-loop-testbed"
+				component={IntrinsicDurationLoopTestbed}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
 				id="sequence-playback-rate-keyframes"
 				component={SequencePlaybackRateKeyframes}
 				width={1440}
@@ -3114,6 +3132,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={2340}
+				/>
+				<Composition
+					id="layout-none-outlines"
+					component={LayoutNoneOutlines}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
 				/>
 				<Composition
 					id="fast-updates"

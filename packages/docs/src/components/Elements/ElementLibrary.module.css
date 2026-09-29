@@ -23,7 +23,33 @@
 }
 
 .cardItem {
+	position: relative;
+	container-type: inline-size;
 	min-width: 0;
+}
+
+.installAction {
+	position: absolute;
+	top: calc(100cqi * 9 / 16 - 12px);
+	right: 12px;
+	transform: translateY(calc(-100% + 16px));
+	font-size: 0.75rem;
+	line-height: 1.25;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.cardItem:hover .installAction,
+.installAction:has(button:focus-visible) {
+	transform: translateY(-100%);
+	opacity: 1;
+	pointer-events: auto;
+}
+
+@media (hover: none), (pointer: coarse) {
+	.installAction {
+		display: none;
+	}
 }
 
 .library .card {

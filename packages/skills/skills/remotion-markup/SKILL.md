@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.528
+version: 4.0.529
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -203,6 +203,29 @@ Useful for components whose internal clock should start later:
 <Sequence trimBefore={10 * fps} {/* ... */} />
 ```
 
+### `trimAfter`
+
+Ends the internal clock at a frame. Measured in the same clock as `trimBefore`, so the layer lasts `(trimAfter - trimBefore) / playbackRate` frames in the timeline unless `durationInFrames` is shorter:
+
+```tsx
+// Play the footage from second 2 to second 5
+<Video trimBefore={2 * fps} trimAfter={5 * fps} {/* ... */} />
+
+// Children see frames `10 * fps` through `15 * fps - 1`
+<Sequence trimBefore={10 * fps} trimAfter={15 * fps} {/* ... */} />
+```
+
+### `loop`
+
+Repeats the range between `trimBefore` and `trimAfter`. `durationInFrames` sets the total length. `<Video>` and `<Audio>` may omit `trimAfter` and loop the whole file; other layers need `trimAfter` because they have no intrinsic end:
+
+```tsx
+<Video loop durationInFrames={20 * fps} {/* ... */} />
+<Sequence trimAfter={2 * fps} durationInFrames={20 * fps} loop {/* ... */} />
+```
+
+`<Img>`, `<CanvasImage>`, `<Solid>` and shapes do not support `loop` because their output does not change over time.
+
 ### Fallback
 
 If a component does not support these props, wrap it in`<Sequence>` from `remotion`, which has them.
@@ -225,6 +248,10 @@ See [multi-scene-video.md](multi-scene-video.md) if planning to make a video wit
 ## Connected compositions
 
 When a scene or group of layers deserves its own editable timeline, follow [connected-compositions.md](connected-compositions.md). Prefer this structure for substantial scenes in a multi-scene video.
+
+For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, render one direct instance of it as the only child of a `<Sequence>`, `<Series.Sequence>`, or `<TransitionSeries.Sequence>`, and register that same component reference with a unique `<Composition>` in the root. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
+
+The extracted component may return a fragment; do not add a DOM wrapper. Preserve sibling order, props, keys, conditional rendering, dimensions, appearance, and timing. Trace values used by the selected markup: move their derivations only when the same scope and lifecycle are preserved, otherwise pass them as props. In particular, moving `useCurrentFrame()` or `useVideoConfig()` across a sequence boundary can change its result; pass the parent value when needed. If the selection or a behavior-preserving connected composition is unclear, ask for clarification instead of guessing.
 
 ## Voiceover
 

@@ -1,15 +1,14 @@
-import {
-	CanvasInternals,
-	getCanvasSelectionItemKey,
-	useCanvasSelection,
-} from '@remotion/canvas';
 import type {
 	CanvasSelectionInteraction,
 	CanvasSelectionItem,
 	CanvasSelectionSnapshot,
 } from '@remotion/canvas';
 import {
-	canEditEasingForInterpolationFunction,
+	CanvasInternals,
+	getCanvasSelectionItemKey,
+	useCanvasSelection,
+} from '@remotion/canvas';
+import {
 	stringifySequenceExpandedRowKey,
 	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
@@ -60,7 +59,6 @@ import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
 	TIMELINE_PADDING,
-	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -72,8 +70,11 @@ import {
 	type GetIsExpanded,
 } from '../ExpandedTracksProvider';
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
-import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
-import {getTimelineEasingSegments} from './get-timeline-easing-segments';
+import {
+	getNodeCanEditEasing,
+	getNodeHasKeyframes,
+	getNodeKeyframes,
+} from './get-node-keyframes';
 import {getCurrentFrame} from './imperative-state';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
@@ -94,6 +95,7 @@ const {
 	EMPTY_CANVAS_SELECTION,
 	getCanvasSelectionAfterInteraction,
 	getCanvasSequenceSelectionKey,
+	getKeyframeSegments,
 	useCanvasSelectionController,
 } = CanvasInternals;
 
@@ -647,49 +649,6 @@ export const getSelectableTimelineSequenceSelections = (
 	});
 };
 
-const getTimelineTreeNodeCanEditEasing = ({
-	node,
-	nodePathInfo,
-	propStatuses,
-}: {
-	readonly node: TimelineTreeNode;
-	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly propStatuses: PropStatuses;
-}) => {
-	if (node.kind !== 'field' || node.field === null) {
-		return false;
-	}
-
-	if (node.field.kind === 'sequence-field') {
-		const sequencePropStatus = Internals.getPropStatusesCtx(
-			propStatuses,
-			nodePathInfo.sequenceSubscriptionKey,
-		)?.[node.field.key];
-		return (
-			sequencePropStatus?.status === 'keyframed' &&
-			canEditEasingForInterpolationFunction(
-				sequencePropStatus.interpolationFunction,
-			)
-		);
-	}
-
-	const effectStatus = Internals.getEffectPropStatusesCtx({
-		propStatuses,
-		nodePath: nodePathInfo.sequenceSubscriptionKey,
-		effectIndex: node.field.effectIndex,
-	});
-	const effectPropStatus =
-		effectStatus.type === 'can-update-effect'
-			? effectStatus.props[node.field.key]
-			: null;
-	return (
-		effectPropStatus?.status === 'keyframed' &&
-		canEditEasingForInterpolationFunction(
-			effectPropStatus.interpolationFunction,
-		)
-	);
-};
-
 export const getSelectableTimelineItems = ({
 	getDragOverrides,
 	getEffectDragOverrides,
@@ -782,12 +741,12 @@ export const getSelectableTimelineItems = ({
 						frame: keyframe.frame,
 					}),
 				);
-				const easingSelections = getTimelineTreeNodeCanEditEasing({
+				const easingSelections = getNodeCanEditEasing({
 					node,
-					nodePathInfo,
+					nodePath: nodePathInfo.sequenceSubscriptionKey,
 					propStatuses,
 				})
-					? getTimelineEasingSegments(keyframes).map(
+					? getKeyframeSegments(keyframes).map(
 							(segment): TimelineSelection => ({
 								type: 'easing',
 								nodePathInfo: node.nodePathInfo,

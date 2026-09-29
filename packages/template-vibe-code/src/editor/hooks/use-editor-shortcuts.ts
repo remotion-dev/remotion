@@ -4,6 +4,7 @@ import { getCanvasSelectionItemKey } from "@remotion/canvas";
 import { useCallback, useEffect, useRef } from "react";
 import type { PreviewHost, PreviewKeyEvent } from "@/preview/bridge";
 import type { CompositionInfo } from "../model/compositions";
+import { getSelectedEasings } from "../model/keyframes";
 import { getNodeReference, type Layer } from "../model/layers";
 import type { EditorState } from "../state/editor-store";
 import type { EditorActions } from "./use-editor-actions";
@@ -172,6 +173,20 @@ export const useEditorShortcuts = ({
         case "Backspace":
         case "Delete": {
           if (event.repeat) return true;
+          const selectedItems =
+            host?.controller.selection.getSnapshot().selectedItems ?? [];
+          if (selectedItems.some((item) => item.type === "keyframe")) {
+            void actions.deleteSelectedKeyframes();
+            return true;
+          }
+
+          // Like in the Studio, deleting an easing segment makes it linear.
+          const selectedEasings = getSelectedEasings(selectedItems);
+          if (selectedEasings.length > 0) {
+            void actions.applyEasing(selectedEasings, { type: "linear" });
+            return true;
+          }
+
           const selectedNodes = getSelectedNodes(host, layers);
           if (selectedNodes.length > 0) {
             void actions.deleteNodes(selectedNodes);

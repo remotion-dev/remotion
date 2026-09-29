@@ -10,6 +10,7 @@ import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premou
 import {roundTo4Digits} from './helpers/round-to-4-digits';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
+import type {MaxCanvasSinkFrameSize} from './video/props';
 import {
 	createVideoIterator,
 	type VideoIterator,
@@ -55,6 +56,7 @@ export const videoIteratorManager = async ({
 	getIsLooping,
 	getEffects,
 	getEffectChainState,
+	maxCanvasSinkFrameSize,
 }: {
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -71,6 +73,7 @@ export const videoIteratorManager = async ({
 		width: number,
 		height: number,
 	) => EffectChainState | null;
+	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 }) => {
 	let videoIteratorsCreated = 0;
 	let videoFrameIterator: VideoIterator | null = null;
@@ -84,14 +87,26 @@ export const videoIteratorManager = async ({
 		lastDrawnFrame = null;
 	};
 
+	const displayWidth = await videoTrack.getDisplayWidth();
+	const displayHeight = await videoTrack.getDisplayHeight();
 	if (canvas) {
-		const displayWidth = await videoTrack.getDisplayWidth();
-		const displayHeight = await videoTrack.getDisplayHeight();
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
 		}
 	}
+
+	const maxWidth = maxCanvasSinkFrameSize?.width ?? Infinity;
+	const maxHeight = maxCanvasSinkFrameSize?.height ?? Infinity;
+	// Only pass the side that limits the size, Mediabunny derives the other one
+	// from the aspect ratio. Never upscale. 'fill' stretches over the rounding of
+	// the derived side instead of leaving a semi-transparent edge.
+	const frameSize =
+		maxWidth / displayWidth < Math.min(1, maxHeight / displayHeight)
+			? {width: maxWidth, fit: 'fill' as const}
+			: maxHeight < displayHeight
+				? {height: maxHeight, fit: 'fill' as const}
+				: {};
 
 	const canvasSink = new CanvasSink(videoTrack, {
 		// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
@@ -100,7 +115,11 @@ export const videoIteratorManager = async ({
 		poolSize: 3,
 		fit: 'contain',
 		alpha: true,
+		...frameSize,
 	});
+
+	// Effects expect a source with the size of the output.
+	let upscaledFrame: OffscreenCanvas | null = null;
 
 	const prewarmedVideoIteratorCache =
 		makePrewarmedVideoIteratorCache(canvasSink);
@@ -114,9 +133,33 @@ export const videoIteratorManager = async ({
 				chainState &&
 				canvas instanceof HTMLCanvasElement
 			) {
+				let source: CanvasImageSource = frame.canvas;
+				if (
+					frame.canvas.width !== canvas.width ||
+					frame.canvas.height !== canvas.height
+				) {
+					if (
+						!upscaledFrame ||
+						upscaledFrame.width !== canvas.width ||
+						upscaledFrame.height !== canvas.height
+					) {
+						upscaledFrame = new OffscreenCanvas(canvas.width, canvas.height);
+					}
+					const upscaledContext = upscaledFrame.getContext('2d')!;
+					upscaledContext.clearRect(0, 0, canvas.width, canvas.height);
+					upscaledContext.drawImage(
+						frame.canvas,
+						0,
+						0,
+						canvas.width,
+						canvas.height,
+					);
+					source = upscaledFrame;
+				}
+
 				await runEffectChain({
 					state: chainState,
-					source: frame.canvas,
+					source,
 					effects,
 					output: canvas,
 					width: canvas.width,

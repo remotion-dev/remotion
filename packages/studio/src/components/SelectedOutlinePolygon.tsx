@@ -10,11 +10,6 @@ import {
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {isMac} from '../helpers/is-mac';
-import {
-	isPointerSessionRelease,
-	startCapturedPointerSession,
-	type PointerSessionEndReason,
-} from '../helpers/pointer-session';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
@@ -29,26 +24,19 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	applySelectedOutlineDragAxisLock,
 	clearSelectedOutlineDragOverrides,
-	getSelectedOutlineDragChanges,
-	getSelectedOutlineDragStates,
-	getSelectedOutlineDragValues,
-	isSelectedOutlineDragPastThreshold,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
-	findSelectedOutlineSnap,
 	getSelectedOutlineSnapTargets,
 	type SelectedOutlineSnapPoint,
 } from './selected-outline-snap';
-import {
-	translateFieldKey,
-	type SelectedOutlineDragTarget,
-	type SelectedOutlineLayoutTarget,
-	type SelectedOutlineTarget,
+import type {
+	SelectedOutlineDragTarget,
+	SelectedOutlineLayoutTarget,
+	SelectedOutlineTarget,
 } from './selected-outline-types';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
@@ -61,7 +49,12 @@ import type {
 } from './Timeline/TimelineSelection';
 import {useTimelineSelection} from './Timeline/TimelineSelection';
 
-const {CanvasOutlinePolygon, handleCanvasOutlinePointerDown} = CanvasInternals;
+const {
+	CanvasOutlinePolygon,
+	getCanvasOutlineTranslateDragStates,
+	handleCanvasOutlinePointerDown,
+	startCanvasOutlineTranslateDrag,
+} = CanvasInternals;
 
 export const SELECTED_OUTLINE_KEY_ATTR =
 	'data-remotion-studio-selected-outline-key';
@@ -201,8 +194,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				return;
 			}
 
-			const startPointerX = event.clientX;
-			const startPointerY = event.clientY;
 			const dragTargets = dragExistingSelection
 				? getAllDragTargets()
 				: drag === null
@@ -216,231 +207,109 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				return;
 			}
 
-			const dragStates = getSelectedOutlineDragStates({
-				dragTargets,
-				getDragOverrides,
-				timelinePosition: getCurrentFrame(),
-			});
-			const dragOutlines = dragExistingSelection
-				? getAllDragOutlines()
-				: [outline];
 			const [{clientId}] = dragTargets;
-			let lastValues = new Map<string, string>();
-			let currentPointerX = startPointerX;
-			let currentPointerY = startPointerY;
-			let axisLocked = false;
-			let dragStarted = false;
-			let snappingDisabled =
-				!temporaryTranslate && (event.metaKey || event.ctrlKey);
-			let snapTargets: ReturnType<typeof getSelectedOutlineSnapTargets> | null =
-				null;
+			startCanvasOutlineTranslateDrag({
+				event,
+				captureTarget: event.currentTarget,
+				dragStates: getCanvasOutlineTranslateDragStates({
+					dragTargets,
+					getDragOverrides,
+					timelinePosition: getCurrentFrame(),
+				}),
+				scale,
+				snapping: editorSnapping
+					? {
+							outlines: dragExistingSelection
+								? getAllDragOutlines()
+								: [outline],
+							getTargets: () =>
+								getSelectedOutlineSnapTargets({
+									compositionHeight,
+									compositionWidth,
+									guides:
+										editorShowGuides && canvasContent?.type === 'composition'
+											? guidesList.filter(
+													(guide) =>
+														guide.compositionId === canvasContent.compositionId,
+												)
+											: [],
+								}),
+							onSnapPointsChange,
+							// Command already means "translate" in rotation mode.
+							modifierDisablesSnapping: !temporaryTranslate,
+						}
+					: null,
+				setDragOverrides,
+				clearDragOverrides,
+				onDragStart: () => {
+					onDraggingChange(true);
+					forceSpecificCursor('default');
+				},
+				onDragEnd: ({changes, dragged, released, session}) => {
+					dragAwareDoubleClick.endPointerGesture(dragged);
+					if (dragged) {
+						stopForcingSpecificCursor();
+						onDraggingChange(false);
+					}
 
-			const updateDragOverrides = () => {
-				const screenDeltaX = currentPointerX - startPointerX;
-				const screenDeltaY = currentPointerY - startPointerY;
-				if (!dragStarted) {
-					if (
-						!isSelectedOutlineDragPastThreshold({
-							deltaX: screenDeltaX,
-							deltaY: screenDeltaY,
-						})
-					) {
+					if (changes.length === 0) {
+						if (deferSelection && !dragged && released) {
+							onSelect(target.selection, interaction);
+						}
+
 						return;
 					}
 
-					dragStarted = true;
-					onDraggingChange(true);
-					forceSpecificCursor('default');
-				}
+					const staticChanges = changes.filter(
+						(change): change is SelectedOutlineStaticDragChange =>
+							change.type === 'static',
+					);
+					const keyframedChanges = changes.filter(
+						(change): change is SelectedOutlineKeyframedDragChange =>
+							change.type === 'keyframed',
+					);
 
-				const axisLockedDirection = axisLocked
-					? Math.abs(screenDeltaX) >= Math.abs(screenDeltaY)
-						? 'horizontal'
-						: 'vertical'
-					: null;
-				const dragDelta = applySelectedOutlineDragAxisLock({
-					deltaX: screenDeltaX / scale,
-					deltaY: screenDeltaY / scale,
-					axisLocked,
-				});
-				let {deltaX, deltaY} = dragDelta;
-
-				if (editorSnapping && !snappingDisabled) {
-					snapTargets ??= getSelectedOutlineSnapTargets({
-						compositionHeight,
-						compositionWidth,
-						guides:
-							editorShowGuides && canvasContent?.type === 'composition'
-								? guidesList.filter(
-										(guide) =>
-											guide.compositionId === canvasContent.compositionId,
-									)
-								: [],
-					});
-					const snapResult = findSelectedOutlineSnap({
-						allowX: axisLockedDirection !== 'vertical',
-						allowY: axisLockedDirection !== 'horizontal',
-						deltaX,
-						deltaY,
-						outlines: dragOutlines,
-						scale,
-						targets: snapTargets,
-					});
-
-					if (snapResult.snapOffsetX !== null) {
-						deltaX += snapResult.snapOffsetX;
-					}
-
-					if (snapResult.snapOffsetY !== null) {
-						deltaY += snapResult.snapOffsetY;
-					}
-
-					onSnapPointsChange(snapResult.activeSnapPoints);
-				} else {
-					onSnapPointsChange([]);
-				}
-
-				lastValues = getSelectedOutlineDragValues({
-					dragStates,
-					deltaX,
-					deltaY,
-				});
-				for (const dragState of dragStates) {
-					const value = lastValues.get(dragState.key);
-					if (value === undefined) {
-						throw new Error('Expected drag value to be available');
-					}
-
-					if (dragState.target.propStatus.status === 'keyframed') {
-						setDragOverrides(
-							dragState.target.nodePath,
-							translateFieldKey,
-							Internals.makeKeyframedDragOverride({
-								status: dragState.target.propStatus,
-								frame: dragState.sourceFrame,
-								value,
-							}),
-						);
-					} else {
-						setDragOverrides(
-							dragState.target.nodePath,
-							translateFieldKey,
-							Internals.makeStaticDragOverride(value),
-						);
-					}
-				}
-			};
-
-			const onPointerMove = (moveEvent: PointerEvent) => {
-				moveEvent.preventDefault();
-				currentPointerX = moveEvent.clientX;
-				currentPointerY = moveEvent.clientY;
-				axisLocked = moveEvent.shiftKey;
-				snappingDisabled =
-					!temporaryTranslate && (moveEvent.metaKey || moveEvent.ctrlKey);
-				updateDragOverrides();
-			};
-
-			const onKeyChange = (keyEvent: KeyboardEvent) => {
-				if (keyEvent.key !== 'Shift') {
-					return;
-				}
-
-				const nextAxisLocked = keyEvent.type === 'keydown';
-				if (nextAxisLocked === axisLocked) {
-					return;
-				}
-
-				axisLocked = nextAxisLocked;
-				updateDragOverrides();
-			};
-
-			const onPointerUp = (
-				reason: PointerSessionEndReason,
-				endEvent: PointerEvent | null,
-			) => {
-				dragAwareDoubleClick.endPointerGesture(dragStarted);
-				window.removeEventListener('keydown', onKeyChange);
-				window.removeEventListener('keyup', onKeyChange);
-				if (dragStarted) {
-					stopForcingSpecificCursor();
-					onSnapPointsChange([]);
-					onDraggingChange(false);
-				}
-
-				const changes = getSelectedOutlineDragChanges({
-					dragStates,
-					lastValues,
-				});
-
-				if (changes.length === 0) {
-					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-					if (
-						deferSelection &&
-						!dragStarted &&
-						isPointerSessionRelease(reason, endEvent)
-					) {
-						onSelect(target.selection, interaction);
-					}
-
-					return;
-				}
-
-				const staticChanges = changes.filter(
-					(change): change is SelectedOutlineStaticDragChange =>
-						change.type === 'static',
-				);
-				const keyframedChanges = changes.filter(
-					(change): change is SelectedOutlineKeyframedDragChange =>
-						change.type === 'keyframed',
-				);
-
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId,
-								undoLabel:
-									changes.length > 1
-										? 'Move selected sequences'
-										: 'Move sequence',
-								redoLabel:
-									changes.length > 1
-										? 'Move selected sequences back'
-										: 'Move sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId,
-					}),
-				])
-					.catch((err) => {
-						showNotification(
-							`Could not save sequence props: ${
-								err instanceof Error ? err.message : String(err)
-							}`,
-							4000,
-						);
-					})
-					.finally(() => {
-						clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-					});
-			};
-
-			startCapturedPointerSession({
-				event,
-				captureTarget: event.currentTarget,
-				onMove: onPointerMove,
-				onEnd: onPointerUp,
+					Promise.all([
+						staticChanges.length > 0
+							? saveSequenceProps({
+									changes: staticChanges,
+									addedKeyframes: null,
+									movedKeyframes: null,
+									setPropStatuses,
+									clientId,
+									undoLabel:
+										changes.length > 1
+											? 'Move selected sequences'
+											: 'Move sequence',
+									redoLabel:
+										changes.length > 1
+											? 'Move selected sequences back'
+											: 'Move sequence back',
+								})
+							: Promise.resolve(),
+						callAddKeyframes({
+							sequenceKeyframes: keyframedChanges,
+							effectKeyframes: [],
+							setPropStatuses,
+							clientId,
+						}),
+					])
+						.catch((err) => {
+							showNotification(
+								`Could not save sequence props: ${
+									err instanceof Error ? err.message : String(err)
+								}`,
+								4000,
+							);
+						})
+						.finally(() => {
+							clearSelectedOutlineDragOverrides({
+								clearDragOverrides,
+								dragStates: session.dragStates,
+							});
+						});
+				},
 			});
-			window.addEventListener('keydown', onKeyChange);
-			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			canvasContent,

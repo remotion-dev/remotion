@@ -7,7 +7,6 @@ import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
-	focusedStudioMaxAge,
 	getInstallCapability,
 	isAbortError,
 	studioProtocolProbePorts,
@@ -36,7 +35,10 @@ export type InstallInStudioResult =
 			readonly status: 'awaiting-confirmation';
 			readonly target: {
 				readonly projectName: string | null;
-				readonly compositionId: string;
+				/**
+				 * @deprecated The installation destination is chosen in Studio. Use projectName or studioOrigin to identify the receiving Studio instead.
+				 */
+				readonly compositionId: string | null;
 				readonly studioOrigin: string;
 				readonly studioVersion: string;
 			};
@@ -90,7 +92,7 @@ const installInStudioResultSchema = z.union([
 		status: z.literal('awaiting-confirmation'),
 		target: z.object({
 			projectName: z.nullable(z.string()),
-			compositionId: z.string(),
+			compositionId: z.nullable(z.string()),
 			studioOrigin: z.string(),
 			studioVersion: z.string(),
 		}),
@@ -216,7 +218,7 @@ export const installInStudioWithDependencies = async (
 
 		return failure(
 			'no-compatible-studio',
-			'Start Remotion Studio and open a composition, then try again.',
+			'Start Remotion Studio, then try again.',
 		);
 	}
 
@@ -243,11 +245,7 @@ export const installInStudioWithDependencies = async (
 	const installable = supportedStudios
 		.filter(({capability}) => {
 			const {target} = capability;
-			return (
-				target !== null &&
-				target.expiresAt > now &&
-				now - target.lastFocusedAt < focusedStudioMaxAge
-			);
+			return target !== null && target.expiresAt > now;
 		})
 		.sort((a, b) => {
 			const focusDifference =
@@ -261,7 +259,7 @@ export const installInStudioWithDependencies = async (
 	if (!selected || selectedTarget === null || selectedTarget === undefined) {
 		return failure(
 			'no-installable-target',
-			'Focus a composition in a Remotion Studio that is not read-only, then try again.',
+			'Focus a Remotion Studio that is not read-only, then try again.',
 		);
 	}
 

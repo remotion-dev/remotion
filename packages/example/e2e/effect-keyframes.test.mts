@@ -159,10 +159,7 @@ test.describe('effect keyframes', () => {
 			.toMatch(/interpolate\(\s*frame,\s*\[0,\s*30,\s*40,\s*60,\s*89\]/);
 
 		// Single-keyframe deletion also selects the property, even at the playhead.
-		await page
-			.getByRole('button', {name: 'Go to next keyframe'})
-			.last()
-			.click();
+		await page.getByRole('button', {name: 'Next keyframe'}).last().click();
 		await page
 			.getByRole('button', {name: 'Select keyframe at frame 30', exact: true})
 			.click();
@@ -176,10 +173,7 @@ test.describe('effect keyframes', () => {
 		await expect(opacity).toHaveCount(2);
 
 		// Removing from the keyframe inspector has the same result.
-		await page
-			.getByRole('button', {name: 'Go to next keyframe'})
-			.last()
-			.click();
+		await page.getByRole('button', {name: 'Next keyframe'}).last().click();
 		await page
 			.getByRole('button', {name: 'Select keyframe at frame 40', exact: true})
 			.click();
@@ -196,10 +190,7 @@ test.describe('effect keyframes', () => {
 		await expect(opacity).toHaveCount(2);
 
 		// The timeline's keyframe toggle also keeps the property selected.
-		await page
-			.getByRole('button', {name: 'Go to next keyframe'})
-			.last()
-			.click();
+		await page.getByRole('button', {name: 'Next keyframe'}).last().click();
 		await page
 			.getByRole('button', {name: 'Remove keyframe', exact: true})
 			.last()

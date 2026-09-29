@@ -30,5 +30,4 @@ export const roundedCaptionsInitialProps = {
 	playbackRate: 1,
 	combineTokensWithinMilliseconds: 2000,
 	width: 900,
-	height: 220,
 } satisfies ComponentProps<typeof RoundedCaptions>;

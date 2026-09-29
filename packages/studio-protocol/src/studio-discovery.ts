@@ -7,7 +7,10 @@ export type StudioProtocolTarget = {
 };
 
 export type StudioProtocolInstallTarget = StudioProtocolTarget & {
-	readonly compositionId: string;
+	/**
+	 * @deprecated The installation destination is chosen in Studio. Use the opaque target id to request installation instead.
+	 */
+	readonly compositionId: string | null;
 };
 
 export type StudioProtocolInstallCapability = {
@@ -54,7 +57,6 @@ export type StudioProtocolDiscoveryDependencies = {
 export const studioProtocolProbePorts = [
 	3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009,
 ];
-export const focusedStudioMaxAge = 5 * 60 * 1000;
 const requestTimeout = 2_000;
 
 const targetSchema = z.looseObject({
@@ -66,7 +68,7 @@ const installTargetSchema = z.looseObject({
 	id: z.string().check(z.minLength(1)),
 	expiresAt: z.number(),
 	lastFocusedAt: z.number(),
-	compositionId: z.string().check(z.minLength(1)),
+	compositionId: z.nullable(z.string().check(z.minLength(1))),
 });
 const installCapabilitySchema = z.looseObject({
 	type: z.literal('install-element'),

@@ -15,7 +15,10 @@ import {
 	callAddSequenceKeyframe,
 } from '../Timeline/call-add-keyframe';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
-import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
+import {
+	getKeyframePlaybackRate,
+	getKeyframeDisplayOffset,
+} from '../Timeline/get-timeline-keyframes';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -234,12 +237,17 @@ export const EasingInspector: React.FC<{
 
 			const sourceFrame =
 				(timelinePosition - easingKeyframeDisplayOffset) *
-				track.keyframePlaybackRate;
+				getKeyframePlaybackRate(
+					easingUpdate.propStatus,
+					track.keyframePlaybackRate,
+				);
 			const value = Internals.getEffectiveVisualModeValue({
 				propStatus: easingUpdate.propStatus,
 				dragOverrideValue: easingDetails.dragOverrideValue,
 				defaultValue: easingDetails.defaultValue,
-				frame: sourceFrame,
+				frame:
+					(timelinePosition - track.keyframeDisplayOffset) *
+					track.keyframePlaybackRate,
 				shouldResortToDefaultValueIfUndefined: true,
 			});
 			const keyframeSelection = {
@@ -306,7 +314,11 @@ export const EasingInspector: React.FC<{
 						keyframes={easingUpdate.propStatus.keyframes.map((keyframe) => ({
 							...keyframe,
 							frame:
-								keyframe.frame / track.keyframePlaybackRate +
+								keyframe.frame /
+									getKeyframePlaybackRate(
+										easingUpdate.propStatus,
+										track.keyframePlaybackRate,
+									) +
 								easingKeyframeDisplayOffset,
 						}))}
 						nodePathInfo={selection.nodePathInfo}

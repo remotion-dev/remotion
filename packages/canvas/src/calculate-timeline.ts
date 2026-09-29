@@ -79,8 +79,25 @@ export const calculateTimeline = ({
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	compositions?: readonly _InternalTypes['AnyComposition'][];
 }): TimelineTrackData[] => {
+	const registeredSequencesById = new Map(
+		sequences.map((sequence) => [sequence.id, sequence]),
+	);
+	// Nested renderers can unregister a child after its parent during navigation.
+	const completeSequences = sequences.filter((sequence) => {
+		let parentId = sequence.parent;
+		while (parentId !== null) {
+			const parent = registeredSequencesById.get(parentId);
+			if (!parent) {
+				return false;
+			}
+
+			parentId = parent.parent;
+		}
+
+		return true;
+	});
 	const sortedSequences = sortItemsByCommitOrder(
-		sequences,
+		completeSequences,
 		(sequence) => sequence.timelineOrder,
 	);
 	const tracks: TimelineTrackWithOriginalTimings[] = [];

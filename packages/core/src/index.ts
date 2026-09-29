@@ -170,6 +170,7 @@ export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
 export {
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	getHtmlInCanvasUnsupportedMessage,
 	HtmlInCanvas,
 	isHtmlInCanvasSupported,
 	type HtmlInCanvasOnInit,

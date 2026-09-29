@@ -1,4 +1,8 @@
 // Shared with Remotion Studio through CanvasInternals on the package root.
+export {
+	collectCommitOrderFromFiber,
+	installFiberCommitOrderObserver,
+} from './install-fiber-sequence-order-observer';
 export {calculateTimeline} from './calculate-timeline';
 export {useIsCanvasSequenceHovered} from './hover';
 export type {
@@ -68,3 +72,100 @@ export {
 export {sortItemsByCommitOrder} from './sort-by-commit-order';
 export {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';
 export {useCanvasRuntimeValueSnapshots} from './use-runtime-value-snapshots';
+export {
+	isPointerSessionRelease,
+	observePointerRelease,
+	startCapturedPointerSession,
+	startDeferredCapturedPointerSession,
+} from './pointer-session';
+export type {PointerSessionEndReason} from './pointer-session';
+export {
+	parseTranslate,
+	parseTranslateWithUnits,
+	serializeTranslate,
+	serializeTranslateWithUnits,
+} from './translate-value';
+export type {
+	ParsedTranslate,
+	ParsedTranslateWithUnits,
+	TranslateUnit,
+} from './translate-value';
+export {
+	getKeyframeDisplayOffset,
+	getKeyframeLocalFrame,
+	getKeyframePlaybackRate,
+	getKeyframeSourceFrame,
+	getTimelineKeyframes,
+	resolveKeyframeSourceFrame,
+} from './keyframe-frames';
+export type {KeyframeSourceFrame} from './keyframe-frames';
+export {
+	getNextKeyframeDisplayFrame,
+	getPreviousKeyframeDisplayFrame,
+	hasKeyframeAtSourceFrame,
+} from './keyframe-navigation';
+export {
+	getCanvasKeyframeValueAtSourceFrame,
+	getCanvasKeyframeValueToAdd,
+	isCanvasKeyframablePropStatus,
+	normalizeFontWeightForKeyframe,
+} from './keyframe-value';
+export {
+	canMoveCanvasKeyframes,
+	getBoundedKeyframeDragDelta,
+	getCanvasKeyframeMove,
+	getMovedCanvasKeyframeOverride,
+	getMovedCanvasKeyframeStatus,
+} from './keyframe-move';
+export type {CanvasKeyframeMoveTarget} from './keyframe-move';
+export {getSchemaField} from './keyframes';
+export {
+	canEditKeyframeEasing,
+	getKeyframeSegmentEasing,
+	getKeyframeSegments,
+} from './keyframe-easing';
+export type {KeyframeSegment} from './keyframe-easing';
+export {
+	canvasOutlineSnapThresholdPx,
+	findCanvasOutlineSnap,
+	getCanvasOutlineSnapTargets,
+} from './outline-snap';
+export type {
+	CanvasOutlineSnapAxis,
+	CanvasOutlineSnapEdge,
+	CanvasOutlineSnapGuide,
+	CanvasOutlineSnapPoint,
+	CanvasOutlineSnapResult,
+	CanvasOutlineSnapTarget,
+	CanvasOutlineSnapTargetType,
+} from './outline-snap';
+export {CanvasOutlineSnapLines} from './canvas-outline-snap-lines';
+export {
+	applyCanvasOutlineDragAxisLock,
+	applyCanvasOutlineTranslateDelta,
+	canvasOutlineDragThresholdPx,
+	canvasTranslateFieldKey,
+	clearCanvasOutlineDragOverrides,
+	createCanvasOutlineTranslateSession,
+	getCanvasOutlineNudgeDelta,
+	getCanvasOutlineNudgeDeltas,
+	getCanvasOutlineNudgeDirection,
+	getCanvasOutlineTranslateDragChanges,
+	getCanvasOutlineTranslateDragStates,
+	getCanvasOutlineTranslateDragValues,
+	isCanvasOutlineDragPastThreshold,
+	startCanvasOutlineTranslateDrag,
+} from './outline-translate-drag';
+export type {
+	CanvasOutlineDragChange,
+	CanvasOutlineKeyframedDragChange,
+	CanvasOutlineNudgeDirection,
+	CanvasOutlineStaticDragChange,
+	CanvasOutlineTranslateDragEnd,
+	CanvasOutlineTranslateDragSnapping,
+	CanvasOutlineTranslateDragState,
+	CanvasOutlineTranslatePropStatus,
+	CanvasOutlineTranslateSession,
+	CanvasOutlineTranslateTarget,
+	SetCanvasDragOverrides,
+} from './outline-translate-drag';

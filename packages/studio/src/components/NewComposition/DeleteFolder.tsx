@@ -1,11 +1,10 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback} from 'react';
 import {getFolderId} from '../../helpers/get-folder-id';
 import {inlineCodeSnippet} from '../Menu/styles';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
-import {applyCodemod} from '../RenderQueue/actions';
-import {CodemodFooter} from './CodemodFooter';
+import {unwrapFolder} from '../RenderQueue/actions';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 
 const content: React.CSSProperties = {
@@ -20,14 +19,6 @@ export const DeleteFolder: React.FC<{
 	readonly parentName: string | null;
 	readonly stack: string | null;
 }> = ({folderName, parentName, stack}) => {
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'delete-folder',
-			folderName,
-			parentName,
-		};
-	}, [folderName, parentName]);
-
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
 	}, []);
@@ -47,27 +38,27 @@ export const DeleteFolder: React.FC<{
 					The compositions and nested folders inside it will stay in your code.
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						errorNotification={`Could not delete folder`}
 						loadingNotification={'Deleting folder'}
 						genericSubmitLabel={`Delete`}
 						submitLabel={({relativeRootPath}) =>
 							`Delete from ${relativeRootPath}`
 						}
-						codemod={codemod}
 						stack={stack}
 						valid
 						onSuccess={null}
-						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
-								codemod,
-								dryRun: false,
+						applyEdit={({signal, symbolicatedStack}) =>
+							unwrapFolder(
+								{
+									folderName,
+									parentName,
+									symbolicatedStack,
+									undoRedoNavigation: null,
+								},
 								signal,
-								symbolicatedStack,
-								undoRedoNavigation: null,
-							})
+							)
 						}
-						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

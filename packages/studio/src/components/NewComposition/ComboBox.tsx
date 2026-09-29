@@ -12,6 +12,7 @@ import {
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
+import {Checkmark} from '../../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {COMPACT_CONTROL_ROW_HEIGHT, Spacing} from '../layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from '../Menu/is-menu-item';
@@ -343,9 +344,13 @@ export const Combobox: React.FC<{
 											values={values}
 											onHide={onHide}
 											leaveLeftSpace
-											preselectIndex={values.findIndex(
-												(v) => selected && v.id === selected.id,
-											)}
+											preselectIndex={
+												selected &&
+												React.isValidElement(selected.leftItem) &&
+												selected.leftItem.type === Checkmark
+													? values.findIndex((v) => v.id === selected.id)
+													: false
+											}
 											topItemCanBeUnselected={false}
 											fixedHeight={derivedMaxHeight}
 										/>

@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # deleteEffects()<AvailableFrom v="4.0.528" />
 
-Deletes selected effects from one or more JSX nodes.
+Deletes selected effects from one or more nodes.
 
 :::warning
 
@@ -28,7 +28,7 @@ const result = await deleteEffects({
 console.log(result);
 ```
 
-Indices of later effects shift after deletion. Read effects again with [`getJsxNodeProps()`](/docs/codemods/get-jsx-node-props) before using old effect indices. Imports are preserved.
+Indices of later effects shift after deletion. Read effects again with [`getNodeProps()`](/docs/codemods/get-node-props) before using old effect indices. Imports are preserved.
 
 The `effects` attribute must contain an inline array. An attribute followed by a JSX spread is rejected because the spread may override it.
 
@@ -45,10 +45,10 @@ A non-empty array of effect references to remove. References may span files and 
 Set `effectIndex: null` to remove the entire `effects` attribute from a node, including spread entries in its inline array. The node must have at least one effect. Selecting every effect individually also removes the attribute when its array becomes empty.
 
 ```ts twoslash title="delete-all-effects.ts"
-import {deleteEffects, type CodemodProject, type JsxNodeReference} from '@remotion/codemods';
+import {deleteEffects, type CodemodProject, type NodeReference} from '@remotion/codemods';
 
 declare const project: CodemodProject;
-declare const node: JsxNodeReference;
+declare const node: NodeReference;
 // ---cut---
 const result = await deleteEffects({
   project,
@@ -100,4 +100,4 @@ Throws or rejects when the target cannot be resolved, the requested edit is unsu
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/delete-effects.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

@@ -97,17 +97,8 @@ export const useCommonEffects = ({
 			return;
 		}
 
-		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
-	}, [trimBefore, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
-	}, [trimAfter, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+		mediaPlayer.setTrimRange(trimBefore, trimAfter, currentTimeRef.current);
+	}, [trimAfter, trimBefore, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -218,6 +209,8 @@ export const useCommonEffects = ({
 		player: MediaPlayer;
 		time: number;
 		revision: number | null;
+		isPremounting: boolean;
+		muted: boolean;
 	} | null>(null);
 
 	useLayoutEffect(() => {
@@ -230,12 +223,20 @@ export const useCommonEffects = ({
 		if (
 			previous?.player === mediaPlayer &&
 			previous.time === currentTime &&
-			previous.revision === revision
+			previous.revision === revision &&
+			previous.isPremounting === isPremounting &&
+			previous.muted === effectiveMuted
 		) {
 			return;
 		}
 
-		lastRequest.current = {player: mediaPlayer, time: currentTime, revision};
+		lastRequest.current = {
+			player: mediaPlayer,
+			time: currentTime,
+			revision,
+			isPremounting,
+			muted: effectiveMuted,
+		};
 		mediaPlayer
 			.seekTo(currentTime, revision === null ? null : {revision, playing})
 			.catch(() => {
@@ -247,6 +248,8 @@ export const useCommonEffects = ({
 		);
 	}, [
 		currentTime,
+		effectiveMuted,
+		isPremounting,
 		logLevel,
 		mediaPlayerReady,
 		label,

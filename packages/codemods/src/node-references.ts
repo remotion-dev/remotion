@@ -5,23 +5,23 @@ import {captureJsxNodePaths} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
 import {parseAst} from './sequence-props/parse-ast';
 
-export type JsxNodeReference = {
+export type NodeReference = {
 	filePath: string;
 	nodePath: SequenceNodePath;
 };
 
-export type JsxNodePathRemapping = {
+export type NodePathRemapping = {
 	filePath: string;
 	oldNodePath: SequenceNodePath | null;
 	newNodePath: SequenceNodePath | null;
 };
 
 export type CodemodNodeResult = CodemodResult & {
-	nodePathRemappings: JsxNodePathRemapping[];
+	nodePathRemappings: NodePathRemapping[];
 };
 
 export type CodemodInsertionResult = CodemodNodeResult & {
-	insertedNode: JsxNodeReference;
+	insertedNode: NodeReference;
 };
 
 export type NodeSourceEdit = {
@@ -34,8 +34,8 @@ export type NodeSourceEdit = {
 };
 
 export const getInsertedNodeReferences = (
-	remappings: JsxNodePathRemapping[],
-): JsxNodeReference[] => {
+	remappings: NodePathRemapping[],
+): NodeReference[] => {
 	const inserted = remappings.flatMap(({filePath, oldNodePath, newNodePath}) =>
 		oldNodePath === null && newNodePath !== null
 			? [{filePath, nodePath: newNodePath}]
@@ -109,9 +109,9 @@ export const getUpdatedNodeReference = ({
 	nodePathRemappings,
 }: {
 	project: CodemodProject;
-	node: JsxNodeReference;
-	nodePathRemappings: JsxNodePathRemapping[];
-}): JsxNodeReference => {
+	node: NodeReference;
+	nodePathRemappings: NodePathRemapping[];
+}): NodeReference => {
 	const filePath = findProjectFile({project, filePath: node.filePath});
 	const remapping = nodePathRemappings.find(
 		(entry) =>
@@ -130,7 +130,7 @@ export const groupNodeReferencesByFile = ({
 	nodes,
 }: {
 	project: CodemodProject;
-	nodes: JsxNodeReference[];
+	nodes: NodeReference[];
 }) => {
 	if (nodes.length === 0) {
 		throw new Error('Expected at least one JSX node');

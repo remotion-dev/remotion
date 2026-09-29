@@ -64,7 +64,7 @@ test('requests confirmation in the most recently focused Studio project', async 
 			return Promise.resolve(
 				jsonResponse(
 					descriptor({
-						lastFocusedAt: now - 200,
+						lastFocusedAt: now - 700_000,
 						projectName: 'Older',
 						targetId: 'older-target',
 					}),
@@ -76,7 +76,7 @@ test('requests confirmation in the most recently focused Studio project', async 
 			return Promise.resolve(
 				jsonResponse(
 					descriptor({
-						lastFocusedAt: now - 100,
+						lastFocusedAt: now - 600_000,
 						projectName: 'Focused project',
 						targetId: 'focused-target',
 					}),

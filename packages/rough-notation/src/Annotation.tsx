@@ -370,6 +370,7 @@ const makeAnnotationComponent = ({
 		styleWhilePostmounted,
 		trimBefore,
 		playbackRate,
+		loop,
 		freeze,
 		hidden,
 		name,
@@ -392,7 +393,6 @@ const makeAnnotationComponent = ({
 		const annotation = useMemo(() => {
 			return createAnnotation();
 		}, []);
-		const outlineRef = React.useRef<HTMLSpanElement | null>(null);
 		const config = (
 			disabled ? {type: 'none'} : {...configProps, type}
 		) as AnnotationConfig;
@@ -422,7 +422,11 @@ const makeAnnotationComponent = ({
 			premountingStyle,
 		} = Internals.usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: Internals.resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: null,
@@ -437,6 +441,7 @@ const makeAnnotationComponent = ({
 					from={from ?? 0}
 					trimBefore={trimBefore}
 					playbackRate={playbackRate}
+					loop={loop}
 					durationInFrames={durationInFrames ?? Infinity}
 					freeze={freeze}
 					hidden={hidden}
@@ -444,14 +449,12 @@ const makeAnnotationComponent = ({
 					showInTimeline={showInTimeline ?? true}
 					controls={controls}
 					_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
-					outlineRef={outlineRef}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
 					<span
-						ref={outlineRef}
 						style={{
 							display: 'inline-block',
 							position: 'relative',

@@ -183,6 +183,20 @@ export const DisableInteractivityProvider: React.FC<{
 	);
 };
 
+// Authoring surfaces outside the Studio, such as @remotion/canvas, opt into
+// populating `controls` and applying Visual Mode overrides.
+const EnableInteractivityContext = createContext(false);
+
+export const EnableInteractivityProvider: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	return React.createElement(
+		EnableInteractivityContext.Provider,
+		{value: true},
+		children,
+	);
+};
+
 export const withInteractivitySchema = <
 	S extends InteractivitySchema,
 	Props extends object,
@@ -207,9 +221,10 @@ export const withInteractivitySchema = <
 		const env = useRemotionEnvironment();
 		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 		const disableInteractivity = useContext(DisableInteractivityContext);
+		const enableInteractivity = useContext(EnableInteractivityContext);
 
 		if (
-			!env.isStudio ||
+			(!env.isStudio && !enableInteractivity) ||
 			env.isRendering ||
 			!canUseRemotionHooks ||
 			disableInteractivity
