@@ -1,6 +1,6 @@
 ---
 name: writing-docs
-description: Edit Remotion user documentation when explicitly requested, or maintain the API reference for public API changes.
+description: Automatically update API references and flag other user-facing documentation that should be updated.
 ---
 
 # Writing Remotion Documentation
@@ -9,9 +9,11 @@ Documentation lives in `packages/docs/docs` as `.mdx` files.
 
 ## Scope
 
-Outside the API reference linked from `/docs/api`, do not create or edit user-facing documentation unless the user explicitly requested documentation work. Do not infer a docs request from a feature, bug fix, refactor, or code review.
+For feature work, bug fixes, refactors, and code reviews, assess whether existing user-facing documentation is affected.
 
-The API reference is the exception: when public API behavior or types change, creating or updating the relevant API reference pages, sidebar entries, and `/docs/api` index is welcome without a separate request.
+When public API behavior or types change, automatically create or update the relevant API reference pages, sidebar entries, and `/docs/api` index. This does not require a separate docs request.
+
+For other user-facing documentation, do not create or edit pages unless the user explicitly requested documentation work. Do not silently ignore documentation impact: finish the requested work, then include a note beginning with `Docs should be updated:`. Name the specific pages or sections and describe the information that should change. Do not stop to ask for permission unless documentation is necessary to complete the requested task.
 
 Loading this skill provides writing guidance; it does not by itself authorize broader user-facing documentation changes.
 
