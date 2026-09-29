@@ -1,13 +1,23 @@
 ---
 name: writing-docs
-description: Guides for writing and editing Remotion documentation. Use when adding docs pages, editing MDX files in packages/docs, or writing documentation content.
+description: Edit Remotion user documentation when explicitly requested, or maintain the API reference for public API changes.
 ---
 
 # Writing Remotion Documentation
 
 Documentation lives in `packages/docs/docs` as `.mdx` files.
 
+## Scope
+
+Outside the API reference linked from `/docs/api`, do not create or edit user-facing documentation unless the user explicitly requested documentation work. Do not infer a docs request from a feature, bug fix, refactor, or code review.
+
+The API reference is the exception: when public API behavior or types change, creating or updating the relevant API reference pages, sidebar entries, and `/docs/api` index is welcome without a separate request.
+
+Loading this skill provides writing guidance; it does not by itself authorize broader user-facing documentation changes.
+
 ## Adding a new page
+
+Only add a page when the scope above permits it.
 
 1. Create a new `.mdx` file in `packages/docs/docs`
 2. Add the document to `packages/docs/sidebars.ts`
