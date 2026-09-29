@@ -161,7 +161,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				const {target} = result;
 				setInstallStatus({
 					type: 'success',
-					message: `Sent to ${target.projectName ?? 'Remotion Studio'}. Confirm the installation destination in Studio.`,
+					message: `Sent to Remotion Studio${target.projectName === null ? '' : ` (${target.projectName})`}. Confirm the installation destination in Studio.`,
 				});
 			}
 
