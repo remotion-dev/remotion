@@ -465,7 +465,7 @@ export const TemplateModalContent: React.FC<{
 							>
 								<div className="flex flex-row items-center pt-1 pb-1 align-middle pr-4">
 									<div className="w-6 h-9 mr-3 inline-flex items-center justify-center">
-										<Triangle className="h-6" />
+										<Triangle className="h-5" />
 									</div>
 									Try online{' '}
 									<span className="whitespace-pre text-[var(--light-text-color)]">
