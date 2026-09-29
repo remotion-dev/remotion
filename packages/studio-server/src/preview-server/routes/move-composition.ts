@@ -96,7 +96,12 @@ export const moveCompositionHandler: ApiHandler<
 				absolutePath,
 				remappings: result.nodePathRemappings
 					.filter((remapping) => remapping.filePath === absolutePath)
-					.map(({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath})),
+					.map(({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+						oldNodePath,
+						newNodePath,
+						oldJsxName,
+						newJsxName,
+					})),
 			}));
 			const nodePathMutation =
 				mutationFiles.length === 0

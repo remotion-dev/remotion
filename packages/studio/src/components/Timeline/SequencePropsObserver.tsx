@@ -107,19 +107,24 @@ export const SequencePropsObserver = () => {
 					}
 
 					// Prop statuses follow source nodes to their new paths. Override IDs
-					// normally follow React's runtime instances, which may be reused at an
-					// old path. If the old path has no runtime replacement, move its mapping
-					// to the new source path and resubscribe without remounting the instance.
-					const runtimeNodePathIsSource = file.remappings.some(
+					// normally follow React's runtime instances, which may be reused when the
+					// same JSX component takes over an old path. A different component remounts,
+					// so move the old mapping with its source node and resubscribe instead.
+					const runtimeNodePathSource = file.remappings.find(
 						(item) =>
 							item.oldNodePath !== null &&
 							JSON.stringify(item.oldNodePath) === previousNodePathString,
 					);
-					const runtimeNodePathIsDestination = file.remappings.some(
+					const runtimeNodePathDestination = file.remappings.find(
 						(item) =>
 							item.newNodePath !== null &&
 							JSON.stringify(item.newNodePath) === previousNodePathString,
 					);
+					const replacementComponentMatches =
+						runtimeNodePathSource?.oldJsxName === undefined ||
+						runtimeNodePathDestination?.newJsxName === undefined ||
+						runtimeNodePathSource.oldJsxName ===
+							runtimeNodePathDestination.newJsxName;
 					const runtimeNodePathWasInserted = file.remappings.some(
 						(item) =>
 							item.oldNodePath === null &&
@@ -133,11 +138,14 @@ export const SequencePropsObserver = () => {
 							JSON.stringify(item.oldNodePath) === previousNodePathString &&
 							JSON.stringify(item.newNodePath) === previousNodePathString,
 					);
-					if (runtimeNodePathIsSource) {
-						runtimeNodePathExists = runtimeNodePathIsDestination;
+					if (runtimeNodePathSource) {
+						runtimeNodePathExists = Boolean(
+							runtimeNodePathDestination && replacementComponentMatches,
+						);
 						runtimeNodePathNeedsRefresh =
-							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
-					} else if (runtimeNodePathIsDestination) {
+							runtimeNodePathExists &&
+							(runtimeNodePathWasInserted || runtimeNodePathWasUpdated);
+					} else if (runtimeNodePathDestination) {
 						runtimeNodePathExists = true;
 						runtimeNodePathNeedsRefresh =
 							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;

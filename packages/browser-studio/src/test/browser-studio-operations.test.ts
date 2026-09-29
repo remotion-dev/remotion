@@ -311,14 +311,14 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		{
 			absolutePath: fileName,
 			remappings: expect.arrayContaining([
-				{
+				expect.objectContaining({
 					oldNodePath: subscription.nodePath.nodePath,
 					newNodePath: expect.any(Array),
-				},
-				{
+				}),
+				expect.objectContaining({
 					oldNodePath: null,
 					newNodePath: expect.any(Array),
-				},
+				}),
 			]),
 		},
 	]);

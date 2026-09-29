@@ -161,14 +161,20 @@ test('splitJsxSequence remaps following JSX siblings', async () => {
 		{
 			oldNodePath: lineContainingToNodePath(input, 'name="split"'),
 			newNodePath: lineContainingToNodePath(output, 'name="split"'),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
 			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
 			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
 			oldNodePath: null,
 			newNodePath: lineContainingToNodePath(output, 'from={30}'),
+			oldJsxName: null,
+			newJsxName: 'Sequence',
 		},
 	]);
 });

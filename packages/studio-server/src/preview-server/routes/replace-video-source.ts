@@ -50,7 +50,12 @@ export const replaceVideoSourceHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {logLine} = result;
 			const nodePathRemappings = result.nodePathRemappings.map(
-				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+				({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: nodePathRemappings}],

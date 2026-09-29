@@ -65,7 +65,12 @@ export const splitSequencesHandler: ApiHandler<
 					const output = result.changes[0]?.nextContents ?? fileContents;
 					const {nodeLabels, logLines} = result.editDetails[0];
 					const nodePathRemappings = result.nodePathRemappings.map(
-						({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+						({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+							oldNodePath,
+							newNodePath,
+							oldJsxName,
+							newJsxName,
+						}),
 					);
 
 					return {

@@ -174,7 +174,12 @@ const insertIntoProject = async ({
 		filePath: result.insertedNode.filePath,
 		insertedNodePath: result.insertedNode.nodePath,
 		nodePathRemappings: result.nodePathRemappings.map(
-			({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+			({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+				oldNodePath,
+				newNodePath,
+				oldJsxName,
+				newJsxName,
+			}),
 		),
 	};
 };
@@ -189,7 +194,12 @@ const getNodePathMutationFiles = (result: CodemodNodeResult) =>
 		absolutePath,
 		remappings: result.nodePathRemappings
 			.filter(({filePath}) => filePath === absolutePath)
-			.map(({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath})),
+			.map(({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+				oldNodePath,
+				newNodePath,
+				oldJsxName,
+				newJsxName,
+			})),
 	}));
 
 const getStructuredError = (error: unknown) => ({
