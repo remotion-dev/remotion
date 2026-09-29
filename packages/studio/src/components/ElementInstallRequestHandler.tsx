@@ -4,13 +4,13 @@ import {
 } from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import {
-	type FC,
 	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
+	type FC,
 } from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
@@ -192,8 +192,7 @@ export const ElementInstallRequestHandler: FC = () => {
 				: {
 						success: false,
 						code: 'no-installable-target',
-						message:
-							'Open a Remotion Studio that is not read-only, then try again.',
+						message: 'Focus Remotion Studio, then try again.',
 					};
 
 			const timeout = window.setTimeout(() => responsePort.close(), 1000);
@@ -293,7 +292,16 @@ export const ElementInstallRequestHandler: FC = () => {
 	}, [activeRequest, pendingRequests]);
 
 	const closeElementInstallDialog = useCallback(() => {
-		setSelectedModal(null);
+		setSelectedModal((modal) =>
+			modal?.type === 'element-install' ? null : modal,
+		);
+		setActiveRequest(null);
+	}, [setSelectedModal]);
+
+	const cancelElementInstallDialog = useCallback(() => {
+		setSelectedModal((modal) =>
+			modal?.type === 'element-install' ? modal.library : modal,
+		);
 		setActiveRequest(null);
 	}, [setSelectedModal]);
 
@@ -373,16 +381,22 @@ export const ElementInstallRequestHandler: FC = () => {
 					(source.type === 'browser-studio-link' && source.origin === null);
 				const currentPlan =
 					currentPreflight?.success === true ? currentPreflight.plan : null;
-				setSelectedModal({
+				setSelectedModal((modal) => ({
 					type: 'element-install',
 					currentPlan,
+					library:
+						activeRequest.source.type === 'studio-protocol' &&
+						modal?.type === 'element-library'
+							? modal
+							: null,
 					missingPackages,
 					newPlan: newPreflight.plan,
+					onCancel: cancelElementInstallDialog,
 					onClose: closeElementInstallDialog,
 					request: activeRequest,
 					sourceIsUnverified,
 					sourceLabel,
-				});
+				}));
 			} catch (error) {
 				if (canceled) {
 					return;
@@ -402,7 +416,12 @@ export const ElementInstallRequestHandler: FC = () => {
 		return () => {
 			canceled = true;
 		};
-	}, [activeRequest, closeElementInstallDialog, setSelectedModal]);
+	}, [
+		activeRequest,
+		cancelElementInstallDialog,
+		closeElementInstallDialog,
+		setSelectedModal,
+	]);
 
 	return null;
 };

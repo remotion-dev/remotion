@@ -1,4 +1,3 @@
-import {expect, test} from '@playwright/test';
 import type {ChildProcess} from 'node:child_process';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
@@ -6,6 +5,7 @@ import {createServer} from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {expect, test} from '@playwright/test';
 import {remotionBin} from './constants.mts';
 
 const waitForUrl = async (url: string, process: ChildProcess) => {
@@ -403,11 +403,10 @@ const CloseupPlaceholder = () => {
 		});
 		await expect(dialog).toBeVisible();
 		await dialog.getByRole('button', {name: 'Cancel'}).click();
-		expect(fs.existsSync(installedAsset)).toBe(false);
-		await browseElements.click();
-		await expect(externalLibraryItem).toBeVisible();
-		await externalLibraryItem.click();
+		await expect(dialog).toHaveCount(0);
 		await expect(elementsIframe).toBeVisible();
+		expect(externalLibraryRequests).toHaveLength(1);
+		expect(fs.existsSync(installedAsset)).toBe(false);
 		await installInStudio.click();
 		await expect(dialog).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
@@ -453,9 +452,10 @@ const CloseupPlaceholder = () => {
 		await expect(
 			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
 		).toHaveCount(0);
-		await expect(elementsIframe).toHaveCount(0);
+		await expect(elementsIframe).toBeVisible();
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
+		await expect(elementsIframe).toHaveCount(0);
 		await expect(
 			studioPage
 				.getByRole('group', {name: 'Inspector source location'})

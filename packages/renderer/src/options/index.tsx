@@ -9,6 +9,7 @@ import {binariesDirectoryOption} from './binaries-directory';
 import {browserOption} from './browser';
 import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
+import {canvasTabsOption} from './canvas-tabs';
 import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {concurrencyOption} from './concurrency';
@@ -166,6 +167,7 @@ export const allOptions = {
 	askAIOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	framesOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,

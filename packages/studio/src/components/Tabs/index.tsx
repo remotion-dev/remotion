@@ -15,6 +15,8 @@ const tabsContainer: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
+export const TAB_HEIGHT = 27;
+
 export const Tabs: React.FC<{
 	readonly children: React.ReactNode;
 	readonly style?: React.CSSProperties;
@@ -33,7 +35,7 @@ const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	padding: 3,
-	height: 34,
+	height: TAB_HEIGHT,
 	paddingLeft: 10,
 	display: 'flex',
 	flexDirection: 'row',

@@ -669,6 +669,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,
 					publicLicenseKey: null,
+					canvasTabsEnabled: true,
 					configFileStudioSettings: null,
 				},
 				studioServerCommand: null,

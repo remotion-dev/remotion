@@ -1,33 +1,40 @@
-import {
-	setStudioDragData,
-	type StudioElementPayload,
-} from '@remotion/studio-protocol';
+import {setStudioDragData} from '@remotion/studio-protocol';
 import React, {type RefObject} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
-import {setElementDragImage} from './element-drag-data';
+import type {ElementDefinition} from './element-definitions';
+import {
+	createElementPayloadFromDefinition,
+	setElementDragImage,
+} from './element-drag-data';
 import styles from './ElementStudioAction.module.css';
 
 export const ElementStudioAction: React.FC<{
 	readonly buttonLabel: string;
+	readonly definition: ElementDefinition;
 	readonly loading: boolean;
 	readonly onClick: () => void;
-	readonly payload: StudioElementPayload;
 	readonly posterRef: RefObject<HTMLImageElement | null>;
 	readonly showDragHandle: boolean;
+	readonly sourceCode: string;
 	readonly title: string;
 }> = ({
 	buttonLabel,
+	definition,
 	loading,
 	onClick,
-	payload,
 	posterRef,
 	showDragHandle,
+	sourceCode,
 	title,
 }) => {
 	const onDragStart = (event: React.DragEvent<HTMLElement>) => {
 		setStudioDragData({
 			dataTransfer: event.dataTransfer,
-			payload,
+			payload: createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+				installAssets: false,
+			}),
 		});
 		setElementDragImage(event.dataTransfer, posterRef.current);
 	};

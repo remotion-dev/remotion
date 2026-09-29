@@ -6,7 +6,11 @@ export type StudioProtocolTarget = {
 	readonly lastFocusedAt: number;
 };
 
-export type StudioProtocolInstallTarget = StudioProtocolTarget & {
+export type StudioProtocolInstallTarget = Omit<
+	StudioProtocolTarget,
+	'lastFocusedAt'
+> & {
+	readonly lastFocusedAt: number | null;
 	/**
 	 * @deprecated The installation destination is chosen in Studio. Use the opaque target id to request installation instead.
 	 */
@@ -67,7 +71,7 @@ const targetSchema = z.looseObject({
 const installTargetSchema = z.looseObject({
 	id: z.string().check(z.minLength(1)),
 	expiresAt: z.number(),
-	lastFocusedAt: z.number(),
+	lastFocusedAt: z.nullable(z.number()),
 	compositionId: z.nullable(z.string().check(z.minLength(1))),
 });
 const installCapabilitySchema = z.looseObject({

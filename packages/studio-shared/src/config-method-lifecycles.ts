@@ -23,6 +23,7 @@ export const configMethodLifecycles = {
 	setBufferStateDelayInMilliseconds: 'runtime',
 	setBundleOutDir: 'runtime',
 	setCachingEnabled: 'runtime',
+	setCanvasTabsEnabled: 'runtime',
 	setChromeMode: 'runtime',
 	setChromiumDarkMode: 'runtime',
 	setChromiumDisableWebSecurity: 'runtime',

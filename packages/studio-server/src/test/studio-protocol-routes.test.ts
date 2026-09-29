@@ -103,7 +103,7 @@ const sendUnfinishedOversizedInstallRequest = (
 	});
 };
 
-test('discovers a focused Studio without a composition and delivers one install request over HTTP', async () => {
+test('discovers a sole unfocused Studio without a composition and delivers one install request over HTTP', async () => {
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const liveEventsServer: LiveEventsServer = {
@@ -120,7 +120,7 @@ test('discovers a focused Studio without a composition and delivers one install 
 				clientId: 'focused-studio-tab',
 				compositionFile: null,
 				compositionId: null,
-				lastFocusedAt: Date.now() - 10 * 60 * 1000,
+				lastFocusedAt: null,
 				readOnly: false,
 				studioUrl: 'http://localhost:3000',
 			});
@@ -204,12 +204,18 @@ test('discovers a focused Studio without a composition and delivers one install 
 					target: {
 						id: string;
 						compositionId: string | null;
+						lastFocusedAt: number | null;
 					};
 				},
 			];
 		};
 		const installTarget = descriptor.capabilities[0].target;
 		expect(installTarget.compositionId).toBe(null);
+		expect(installTarget.lastFocusedAt).toBe(null);
+		expect(descriptor.capabilities.slice(1)).toMatchObject([
+			{target: null},
+			{target: null},
+		]);
 
 		const installBody = {
 			operation: 'install-element',

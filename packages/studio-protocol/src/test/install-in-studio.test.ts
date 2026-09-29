@@ -18,7 +18,7 @@ const descriptor = ({
 	targetId,
 }: {
 	readonly compositionId: string | null;
-	readonly lastFocusedAt: number;
+	readonly lastFocusedAt: number | null;
 	readonly projectName: string;
 	readonly targetId: string;
 }) => ({
@@ -70,7 +70,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 				jsonResponse(
 					descriptor({
 						compositionId: 'Older',
-						lastFocusedAt: 300_000,
+						lastFocusedAt: null,
 						projectName: 'Older project',
 						targetId: 'older-target',
 					}),
@@ -280,7 +280,7 @@ test('distinguishes a compatible Studio without an installable target', async ()
 	).toEqual({
 		success: false,
 		code: 'no-installable-target',
-		message: 'Focus a Remotion Studio that is not read-only, then try again.',
+		message: 'Focus Remotion Studio, then try again.',
 	});
 });
 
@@ -496,7 +496,7 @@ test('returns a structured error when the selected target expired', async () => 
 				jsonResponse(
 					descriptor({
 						compositionId: 'Main',
-						lastFocusedAt: 950_000,
+						lastFocusedAt: null,
 						projectName: 'Project',
 						targetId: 'expired-target',
 					}),
