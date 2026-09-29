@@ -3,13 +3,20 @@ import {SidebarContext} from '../state/sidebar';
 import {useMobileLayout} from './mobile-layout';
 import {useBreakpoint} from './use-breakpoint';
 
+export const SIDEBAR_RESPONSIVE_BREAKPOINT = 1200;
+
 export const useResponsiveSidebarStatus = (
 	side: 'left' | 'right',
 ): 'collapsed' | 'expanded' => {
-	const {sidebarCollapsedStateLeft, sidebarCollapsedStateRight} =
-		useContext(SidebarContext);
+	const {
+		rightSidebarTemporaryExpansion,
+		sidebarCollapsedStateLeft,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const isMobileLayout = useMobileLayout();
-	const responsiveStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
+	const responsiveStatus = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT)
+		? 'collapsed'
+		: 'expanded';
 	const collapsedState =
 		side === 'left' ? sidebarCollapsedStateLeft : sidebarCollapsedStateRight;
 
@@ -26,10 +33,20 @@ export const useResponsiveSidebarStatus = (
 			return 'expanded';
 		}
 
+		if (side === 'right' && rightSidebarTemporaryExpansion) {
+			return 'expanded';
+		}
+
 		if (isMobileLayout) {
 			return 'collapsed';
 		}
 
 		return responsiveStatus;
-	}, [collapsedState, isMobileLayout, responsiveStatus, side]);
+	}, [
+		collapsedState,
+		isMobileLayout,
+		responsiveStatus,
+		rightSidebarTemporaryExpansion,
+		side,
+	]);
 };

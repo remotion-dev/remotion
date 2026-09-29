@@ -1,6 +1,10 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {useResponsiveSidebarStatus} from '../helpers/use-responsive-sidebar-status';
+import {useBreakpoint} from '../helpers/use-breakpoint';
+import {
+	SIDEBAR_RESPONSIVE_BREAKPOINT,
+	useResponsiveSidebarStatus,
+} from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
@@ -46,9 +50,15 @@ const TopPanelInner: React.FC<{
 	readonly drawRef: React.Ref<HTMLDivElement>;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
-	const {setSidebarCollapsedState, setSidebarCollapsedDuringDrag} =
-		useContext(SidebarContext);
+	const {
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		setSidebarCollapsedDuringDrag,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT);
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
@@ -76,8 +86,23 @@ const TopPanelInner: React.FC<{
 	}, [setSidebarCollapsedState]);
 
 	const onCollapseRight = useCallback(() => {
+		if (
+			isNarrowLayout &&
+			rightSidebarTemporaryExpansion &&
+			sidebarCollapsedStateRight === 'responsive'
+		) {
+			setRightSidebarTemporaryExpansion(false);
+			return;
+		}
+
 		setSidebarCollapsedState({left: null, right: 'collapsed'});
-	}, [setSidebarCollapsedState]);
+	}, [
+		isNarrowLayout,
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+	]);
 
 	return (
 		<ObserveDefaultProps

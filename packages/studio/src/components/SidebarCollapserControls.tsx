@@ -5,6 +5,7 @@ import {
 	TRANSPARENT,
 	WHITE_ALPHA_80,
 } from '../helpers/colors';
+import {useBreakpoint} from '../helpers/use-breakpoint';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -13,7 +14,10 @@ import {
 	useKeyboardShortcutAriaKeyShortcuts,
 	useKeyboardShortcutLabel,
 } from '../helpers/use-keyboard-shortcut-label';
-import {useResponsiveSidebarStatus} from '../helpers/use-responsive-sidebar-status';
+import {
+	SIDEBAR_RESPONSIVE_BREAKPOINT,
+	useResponsiveSidebarStatus,
+} from '../helpers/use-responsive-sidebar-status';
 import {SidebarContext} from '../state/sidebar';
 import {ActionTooltip} from './ActionTooltip';
 import {ContextMenu} from './ContextMenu';
@@ -35,12 +39,15 @@ export const SidebarCollapserControl: React.FC<{
 	readonly side: 'left' | 'right';
 }> = ({side}) => {
 	const {
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
 		setSidebarCollapsedState,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		sidebarCollapsedDuringDrag,
 	} = useContext(SidebarContext);
 	const keybindings = useKeybinding();
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT);
 	const leftSidebarStatus = useResponsiveSidebarStatus('left');
 	const rightSidebarStatus = useResponsiveSidebarStatus('right');
 
@@ -92,6 +99,15 @@ export const SidebarCollapserControl: React.FC<{
 	}, [leftSidebarStatus, setSidebarCollapsedState]);
 
 	const toggleRight = useCallback(() => {
+		if (
+			isNarrowLayout &&
+			rightSidebarTemporaryExpansion &&
+			sidebarCollapsedStateRight === 'responsive'
+		) {
+			setRightSidebarTemporaryExpansion(false);
+			return;
+		}
+
 		setSidebarCollapsedState({
 			right: (s) => {
 				if (s === 'responsive') {
@@ -102,10 +118,25 @@ export const SidebarCollapserControl: React.FC<{
 			},
 			left: null,
 		});
-	}, [rightSidebarStatus, setSidebarCollapsedState]);
+	}, [
+		isNarrowLayout,
+		rightSidebarStatus,
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+	]);
 
 	const toggleBoth = useCallback(() => {
 		if (rightSidebarStatus === leftSidebarStatus) {
+			const closeTemporaryRightSidebar =
+				isNarrowLayout &&
+				rightSidebarTemporaryExpansion &&
+				sidebarCollapsedStateRight === 'responsive';
+			if (closeTemporaryRightSidebar) {
+				setRightSidebarTemporaryExpansion(false);
+			}
+
 			setSidebarCollapsedState({
 				left: (s) => {
 					if (s === 'responsive') {
@@ -114,15 +145,17 @@ export const SidebarCollapserControl: React.FC<{
 
 					return s === 'collapsed' ? 'expanded' : 'collapsed';
 				},
-				right: (s) => {
-					if (s === 'responsive') {
-						return rightSidebarStatus === 'collapsed'
-							? 'expanded'
-							: 'collapsed';
-					}
+				right: closeTemporaryRightSidebar
+					? null
+					: (s) => {
+							if (s === 'responsive') {
+								return rightSidebarStatus === 'collapsed'
+									? 'expanded'
+									: 'collapsed';
+							}
 
-					return s === 'collapsed' ? 'expanded' : 'collapsed';
-				},
+							return s === 'collapsed' ? 'expanded' : 'collapsed';
+						},
 			});
 		} else if (rightSidebarStatus === 'expanded') {
 			toggleRight();
@@ -130,9 +163,13 @@ export const SidebarCollapserControl: React.FC<{
 			toggleLeft();
 		}
 	}, [
+		isNarrowLayout,
 		leftSidebarStatus,
 		rightSidebarStatus,
+		rightSidebarTemporaryExpansion,
+		setRightSidebarTemporaryExpansion,
 		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
 		toggleLeft,
 		toggleRight,
 	]);

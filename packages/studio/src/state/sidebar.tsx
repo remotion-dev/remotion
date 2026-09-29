@@ -3,6 +3,10 @@ import React, {createContext, useMemo, useState} from 'react';
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
 
 type Context = {
+	rightSidebarTemporaryExpansion: boolean;
+	setRightSidebarTemporaryExpansion: React.Dispatch<
+		React.SetStateAction<boolean>
+	>;
 	sidebarCollapsedDuringDrag: Sidebars | null;
 	setSidebarCollapsedDuringDrag: (side: Sidebars | null) => void;
 	sidebarCollapsedStateLeft: SidebarCollapsedState;
@@ -56,6 +60,8 @@ const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
 };
 
 export const SidebarContext = createContext<Context>({
+	rightSidebarTemporaryExpansion: false,
+	setRightSidebarTemporaryExpansion: () => undefined,
 	sidebarCollapsedDuringDrag: null,
 	setSidebarCollapsedDuringDrag: () => undefined,
 	sidebarCollapsedStateLeft: 'responsive',
@@ -81,9 +87,13 @@ export const SidebarContextProvider: React.FC<{
 
 	const [sidebarCollapsedDuringDrag, setSidebarCollapsedDuringDrag] =
 		useState<Sidebars | null>(null);
+	const [rightSidebarTemporaryExpansion, setRightSidebarTemporaryExpansion] =
+		useState(false);
 
 	const value: Context = useMemo(() => {
 		return {
+			rightSidebarTemporaryExpansion,
+			setRightSidebarTemporaryExpansion,
 			sidebarCollapsedDuringDrag,
 			setSidebarCollapsedDuringDrag,
 			sidebarCollapsedStateLeft: sidebarCollapsedState.left,
@@ -93,6 +103,10 @@ export const SidebarContextProvider: React.FC<{
 				right: null | React.SetStateAction<SidebarCollapsedState>;
 			}) => {
 				const {left, right} = options;
+				if (right !== null) {
+					setRightSidebarTemporaryExpansion(false);
+				}
+
 				setSidebarCollapsedState((f) => {
 					const copied = {...f};
 					if (left) {
@@ -113,7 +127,11 @@ export const SidebarContextProvider: React.FC<{
 				});
 			},
 		};
-	}, [sidebarCollapsedState, sidebarCollapsedDuringDrag]);
+	}, [
+		rightSidebarTemporaryExpansion,
+		sidebarCollapsedState,
+		sidebarCollapsedDuringDrag,
+	]);
 
 	return (
 		<SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
