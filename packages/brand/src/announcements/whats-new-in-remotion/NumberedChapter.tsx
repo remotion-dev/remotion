@@ -45,7 +45,14 @@ const NumberedChapterInner: React.FC<NumberedChapterProps> = ({
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={style}>
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'white',
+				justifyContent: 'center',
+				alignItems: 'center',
+				...style,
+			}}
+		>
 			<Audio
 				name="Chapter chime"
 				from={30}
@@ -53,43 +60,35 @@ const NumberedChapterInner: React.FC<NumberedChapterProps> = ({
 				volume={0.05}
 			/>
 
-			<AbsoluteFill
+			<Interactive.Div
+				name="Chapter number"
 				style={{
-					backgroundColor: 'white',
+					height: 120,
+					width: 120,
+					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
+					color: 'white',
+					backgroundColor: '#4290f5',
+					fontSize: 50,
+					fontWeight: 700,
+					borderRadius: '50%',
+					fontFamily: 'Variable',
+					fontFeatureSettings: "'ss03' 1",
+					scale: interpolate(frame, [30, 40], [0, 1], {
+						easing: Easing.spring({damping: 200}),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					translate: interpolate(frame, [37, 47], ['0px 0px', '0px -50px'], {
+						easing: Easing.spring({damping: 200}),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 				}}
 			>
-				<Interactive.Div
-					name="Chapter number"
-					style={{
-						height: 120,
-						width: 120,
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						color: 'white',
-						backgroundColor: '#4290f5',
-						fontSize: 50,
-						fontWeight: 700,
-						borderRadius: '50%',
-						fontFamily: 'Variable',
-						fontFeatureSettings: "'ss03' 1",
-						scale: interpolate(frame, [30, 40], [0, 1], {
-							easing: Easing.spring({damping: 200}),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-						translate: interpolate(frame, [37, 47], ['0px 0px', '0px -50px'], {
-							easing: Easing.spring({damping: 200}),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-					}}
-				>
-					{chapterNumber}
-				</Interactive.Div>
-			</AbsoluteFill>
+				{chapterNumber}
+			</Interactive.Div>
 			<AbsoluteFill
 				style={{
 					justifyContent: 'center',
