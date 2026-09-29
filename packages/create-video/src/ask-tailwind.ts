@@ -5,7 +5,7 @@ export const askTailwind = async () => {
 		type: 'toggle',
 		name: 'answer',
 		message: 'Add TailwindCSS?',
-		initial: true,
+		initial: false,
 		active: 'Yes',
 		inactive: 'No',
 	});
