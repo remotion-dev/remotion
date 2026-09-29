@@ -20,7 +20,6 @@ import {MovingPillCaptionsComposition} from './MovingPillCaptionsComposition';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {SequencePlaybackRateE2e} from './SequencePlaybackRateE2e';
-import {TimelineMultiSelectResizeFlickerComposition} from './TimelineMultiSelectResizeFlicker';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
@@ -211,7 +210,6 @@ export const E2eTestRoot: React.FC = () => {
 				fps={30}
 				durationInFrames={90}
 			/>
-			<TimelineMultiSelectResizeFlickerComposition />
 			<Composition
 				id="interactive-html-elements"
 				component={InteractiveHtmlElements}
