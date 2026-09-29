@@ -26,7 +26,7 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
-import {Sequence} from '../Sequence.js';
+import {Sequence, type SequenceProps} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {usePremounting} from '../use-premounting.js';
@@ -261,6 +261,7 @@ const SolidOuter = forwardRef<
 	SolidProps & {
 		readonly controls: SequenceControls | undefined;
 	} & InteractiveBaseProps &
+		Pick<SequenceProps, 'loop'> &
 		InteractivePremountProps
 >(
 	(

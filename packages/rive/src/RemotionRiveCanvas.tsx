@@ -63,8 +63,7 @@ type RemotionRiveCanvasOwnProps = {
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
-	InteractiveBaseProps &
-	InteractivePremountProps &
+	InteractiveBaseProps & {readonly loop?: boolean} & InteractivePremountProps &
 	InteractiveCropProps;
 
 export type RiveCanvasRef = {

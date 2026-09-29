@@ -29,10 +29,11 @@ import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 export type AbsoluteFillProps = Omit<
 	AbsoluteFillElementProps,
-	keyof InteractiveBaseProps
+	keyof InteractiveBaseProps | 'loop'
 > &
 	InteractiveBaseProps &
 	InteractivePremountProps & {
+		readonly loop?: boolean;
 		/**
 		 * @deprecated For internal use only
 		 */

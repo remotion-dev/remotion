@@ -23,6 +23,7 @@ export type MapRegionFeature = {
 
 type MapRegionProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 		readonly feature: MapRegionFeature;
 		readonly fill?: number;

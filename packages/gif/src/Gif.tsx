@@ -24,8 +24,9 @@ import {resolveGifSource} from './resolve-gif-source';
 
 const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
-export type GifProps = InteractiveBaseProps &
-	InteractiveCropProps &
+export type GifProps = InteractiveBaseProps & {
+	readonly loop?: boolean;
+} & InteractiveCropProps &
 	InteractivePremountProps &
 	InteractiveTransformProps &
 	RemotionGifProps & {

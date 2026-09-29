@@ -58,6 +58,7 @@ type ExtrudeDivProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	ExtrudeDivTransformProps &
 	ExtrudeDivOptionalProps & {
+		readonly loop?: boolean;
 		readonly children: React.ReactNode;
 	};
 

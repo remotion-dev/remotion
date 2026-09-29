@@ -12,6 +12,7 @@ import {MapTilerContext} from './MapTilerContext';
 
 export type MapLayerProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly loop?: boolean;
 		readonly beforeId?: string;
 		readonly layer: LayerSpecification;
 	};

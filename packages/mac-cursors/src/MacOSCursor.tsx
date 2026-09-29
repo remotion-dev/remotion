@@ -17,6 +17,7 @@ import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps &
 	InteractivePremountProps & {
+		readonly loop?: boolean;
 		readonly cursor?: string;
 		readonly customCursor?: string;
 		readonly className?: string;

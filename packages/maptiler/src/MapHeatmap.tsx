@@ -20,6 +20,7 @@ import {useMapPremounting} from './use-map-premounting';
 export type MapHeatmapProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> &
 	Omit<HeatmapLayerOptions, 'layerId' | 'sourceId'> & {
+		readonly loop?: boolean;
 		readonly controls?: SequenceControls;
 		readonly layerId: string;
 		readonly sourceId?: string;

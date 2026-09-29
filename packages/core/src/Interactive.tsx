@@ -85,7 +85,6 @@ export type InteractiveBaseProps = Pick<
 	| 'from'
 	| 'trimBefore'
 	| 'playbackRate'
-	| 'loop'
 	| 'freeze'
 	| 'hidden'
 	| 'name'
@@ -107,8 +106,9 @@ export type InteractivePremountProps = Pick<
 	| 'styleWhilePostmounted'
 >;
 
-type InteractiveManagedProps = InteractiveBaseProps &
-	InteractiveCropProps &
+type InteractiveManagedProps = InteractiveBaseProps & {
+	readonly loop?: boolean;
+} & InteractiveCropProps &
 	InteractivePremountProps;
 
 type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
@@ -236,6 +236,7 @@ type ComponentWithoutReservedProps<
 
 type WithSchemaReservedKey =
 	| keyof InteractiveBaseProps
+	| 'loop'
 	| keyof InteractiveCropProps
 	| keyof InteractivePremountProps
 	| 'controls';
@@ -297,8 +298,9 @@ type WithSchema = {
 		},
 	): React.FC<
 		React.ComponentPropsWithRef<Component> &
-			InteractiveBaseProps &
-			InteractivePremountProps &
+			InteractiveBaseProps & {
+				readonly loop?: boolean;
+			} & InteractivePremountProps &
 			InteractiveCropProps
 	>;
 	<S extends InteractivitySchema, Props extends object>(
@@ -340,8 +342,9 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 	type ComponentWrappedInSequenceProps = React.ComponentProps<
 		typeof Component
 	> &
-		InteractiveBaseProps &
-		InteractivePremountProps &
+		InteractiveBaseProps & {
+			readonly loop?: boolean;
+		} & InteractivePremountProps &
 		InteractiveCropProps & {
 			readonly controls: SequenceControls | undefined;
 		};
@@ -453,8 +456,9 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 
 	return Wrapped as React.FC<
 		React.ComponentProps<typeof Component> &
-			InteractiveBaseProps &
-			InteractivePremountProps &
+			InteractiveBaseProps & {
+				readonly loop?: boolean;
+			} & InteractivePremountProps &
 			InteractiveCropProps
 	>;
 };

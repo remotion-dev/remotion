@@ -26,6 +26,7 @@ export type MapOverlayAnchor =
 export type MapOverlayProps = InteractiveBaseProps &
 	InteractivePremountProps &
 	InteractiveTransformProps & {
+		readonly loop?: boolean;
 		readonly anchor?: MapOverlayAnchor;
 		readonly children?: ReactNode;
 		readonly controls?: SequenceControls;

@@ -37,8 +37,7 @@ type SharedAnnotationComponentProps = Readonly<
 
 type AnnotationInteractiveProps<Config> = SharedAnnotationComponentProps &
 	Readonly<Config> &
-	InteractiveBaseProps &
-	InteractivePremountProps;
+	InteractiveBaseProps & {readonly loop?: boolean} & InteractivePremountProps;
 
 export type HighlightProps = AnnotationInteractiveProps<HighlightConfig>;
 export type UnderlineProps = AnnotationInteractiveProps<UnderlineConfig>;
@@ -52,8 +51,9 @@ export type CircleProps = AnnotationInteractiveProps<
 >;
 
 type InternalAnnotationProps = SharedAnnotationComponentProps &
-	InteractiveBaseProps &
-	InteractivePremountProps & {
+	InteractiveBaseProps & {
+		readonly loop?: boolean;
+	} & InteractivePremountProps & {
 		readonly color?: string;
 		readonly strokeWidth?: number;
 		readonly padding?: Partial<Padding>;

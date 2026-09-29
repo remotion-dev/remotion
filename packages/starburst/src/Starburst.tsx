@@ -21,6 +21,7 @@ export type StarburstProps = InteractiveBaseProps &
 	InteractivePremountProps &
 	Pick<SequenceProps, 'width' | 'height'> &
 	Pick<AbsoluteFillLayout, 'className'> & {
+		readonly loop?: boolean;
 		readonly rays: number;
 		readonly colors: readonly string[];
 		readonly rotation?: number;

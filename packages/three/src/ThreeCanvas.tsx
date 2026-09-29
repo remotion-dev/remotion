@@ -22,10 +22,11 @@ import {validateDimension} from './validate';
 
 export type ThreeCanvasProps = Omit<
 	React.ComponentProps<typeof Canvas>,
-	keyof InteractiveBaseProps
+	keyof InteractiveBaseProps | 'loop'
 > &
 	InteractiveBaseProps &
 	InteractivePremountProps & {
+		readonly loop?: boolean;
 		readonly width: number;
 		readonly height: number;
 		readonly children: React.ReactNode;

@@ -116,6 +116,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 type AnimatedCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
+		readonly loop?: boolean;
 		readonly captions: Caption[];
 	};
 

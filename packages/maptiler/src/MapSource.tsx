@@ -17,6 +17,7 @@ import {MapTilerContext} from './MapTilerContext';
 
 export type MapSourceProps = InteractiveBaseProps &
 	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly loop?: boolean;
 		readonly children?: ReactNode;
 		readonly id: string;
 		readonly source: SourceSpecification;

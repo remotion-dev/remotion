@@ -384,6 +384,7 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 	InteractiveCropProps &
 	Omit<AbsoluteFillLayout, 'layout'> & {
 		readonly durationInFrames?: number;
+		readonly loop?: boolean;
 		readonly width: number;
 		readonly height: number;
 		readonly effects?: EffectsProp;

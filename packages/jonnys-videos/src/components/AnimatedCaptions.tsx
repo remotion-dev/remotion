@@ -35,6 +35,7 @@ import {
 export const CAPTIONS_HEIGHT = 360;
 
 type AnimatedCaptionsProps = InteractiveBaseProps & {
+	readonly loop?: boolean;
 	readonly captions: Caption[] | null;
 	readonly captionsSrc: string | null;
 	readonly voiceoverSrc: string | null;
