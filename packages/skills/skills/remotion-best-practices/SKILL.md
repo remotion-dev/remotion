@@ -79,7 +79,7 @@ The preview also has a more intuitive rendering interface, so consider using it 
 npx remotion render
 ```
 
-For more options, see [Rendering](../remotion-render/SKILL.md).
+For more options, see [Rendering](./remotion-render/SKILL.md).
 
 For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
 
