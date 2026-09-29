@@ -1,8 +1,16 @@
 #!/usr/bin/env bun
 
 import {randomUUID} from 'node:crypto';
-import {cpSync, mkdirSync, readFileSync} from 'node:fs';
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	readFileSync,
+	readdirSync,
+	writeFileSync,
+} from 'node:fs';
 import {basename, dirname, join, relative} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {
 	addTailwindRootCss,
 	addTailwindToConfig,
@@ -11,6 +19,7 @@ import {createPublicFolder} from './packages/create-video/src/create-public-fold
 import {patchPackageJson} from './packages/create-video/src/patch-package-json';
 import {patchReadmeMd} from './packages/create-video/src/patch-readme';
 import {FEATURED_TEMPLATES} from './packages/create-video/src/templates';
+import {localPackageRootKey} from './packages/studio-server/src/helpers/get-local-package-override';
 
 const repositoryRoot = import.meta.dir;
 const agentPluginRoot = join(repositoryRoot, 'packages', 'agent-plugin');
@@ -91,6 +100,50 @@ patchPackageJson({
 	addTailwind: true,
 });
 
+const localPackageOverrides: Record<string, string> = {};
+const packagesRoot = join(repositoryRoot, 'packages');
+for (const directory of readdirSync(packagesRoot)) {
+	const packageDirectory = join(packagesRoot, directory);
+	const packageJsonPath = join(packageDirectory, 'package.json');
+	if (!existsSync(packageJsonPath)) {
+		continue;
+	}
+
+	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+	if (
+		packageJson.private ||
+		(packageJson.name !== 'remotion' &&
+			!packageJson.name?.startsWith('@remotion/'))
+	) {
+		continue;
+	}
+
+	localPackageOverrides[packageJson.name] = pathToFileURL(
+		packageDirectory,
+	).href;
+}
+
+const projectPackageJsonPath = join(projectRoot, 'package.json');
+const projectPackageJson = JSON.parse(
+	readFileSync(projectPackageJsonPath, 'utf8'),
+);
+for (const dependencyType of ['dependencies', 'devDependencies'] as const) {
+	for (const dependency of Object.keys(
+		projectPackageJson[dependencyType] ?? {},
+	)) {
+		const localPackageOverride = localPackageOverrides[dependency];
+		if (localPackageOverride) {
+			projectPackageJson[dependencyType][dependency] = localPackageOverride;
+		}
+	}
+}
+
+projectPackageJson[localPackageRootKey] = repositoryRoot;
+writeFileSync(
+	projectPackageJsonPath,
+	JSON.stringify(projectPackageJson, null, 2),
+);
+
 const gitInit = Bun.spawnSync(['git', 'init', '--quiet'], {
 	cwd: projectRoot,
 	stderr: 'inherit',
@@ -122,20 +175,6 @@ run(
 
 console.log('\nInstalling npm dependencies...');
 run(['npm', 'i'], projectRoot);
-
-console.log('\nLinking the freshly built Remotion packages...');
-run(
-	[
-		'npm',
-		'link',
-		'--no-save',
-		join(repositoryRoot, 'packages', 'core'),
-		join(repositoryRoot, 'packages', 'cli'),
-		join(repositoryRoot, 'packages', 'eslint-config-flat'),
-		join(repositoryRoot, 'packages', 'tailwind-v4'),
-	],
-	projectRoot,
-);
 
 if (gitInit.exitCode === 0) {
 	Bun.spawnSync(['git', 'add', '--all'], {cwd: projectRoot});
