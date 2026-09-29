@@ -5,6 +5,7 @@ import {
   createBrowserBundler,
 } from "@remotion/browser-bundler";
 import { useCallback, useEffect, useRef } from "react";
+import { BASE_PATH } from "@/lib/base-path";
 import type {
   PreviewCompositionSelection,
   PreviewHost,
@@ -71,7 +72,7 @@ export const useCompiler = ({
         enableFastRefresh: true,
         // Served from public/compiler, see scripts/build-preview.mjs.
         workerUrl: new URL(
-          "/compiler/browser-bundler-worker.js",
+          `${BASE_PATH}/compiler/browser-bundler-worker.js`,
           window.location.origin,
         ),
         onProgress: ({ loadedBytes, totalBytes }) => {

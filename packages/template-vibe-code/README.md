@@ -108,6 +108,17 @@ npx remotion upgrade
 
 The compiler's Web Worker and WebAssembly binary are copied to `public/compiler` by `scripts/build-preview.mjs` and loaded from there (see `workerUrl` in `src/editor/hooks/use-compiler.ts`), so they do not go through the Next.js bundler and both Turbopack and webpack work.
 
+### Static export
+
+Set `STATIC_EXPORT_BASE_PATH` to export the editor as static files into `out/`, for example to host it on a static file server or under a path of an existing site:
+
+```bash
+STATIC_EXPORT_BASE_PATH=/ npm run build          # served at the root
+STATIC_EXPORT_BASE_PATH=/editor npm run build    # served under /editor
+```
+
+The starter project is embedded at build time and edits stay in memory. Only the `*.static.tsx` route files in `src/app` are part of the export, so the page and the `/api/project` route that read the project from disk are left out. Serve the files with the `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers described below; `next.config.mjs` cannot set headers for a static export. This is how [remotion.dev/experimental_sdk](https://www.remotion.dev/experimental_sdk) is deployed.
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).

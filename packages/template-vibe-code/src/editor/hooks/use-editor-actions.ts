@@ -78,6 +78,7 @@ import {
   type Layer,
 } from "../model/layers";
 import { filesAreEqual, getFileName, toCodemodProject } from "../model/project";
+import { BASE_PATH } from "@/lib/base-path";
 import { resolveProjectPathInput } from "@/lib/project-paths";
 import type { PlaybackStore } from "./use-playback";
 import { getErrorMessage } from "./use-preview-host";
@@ -571,7 +572,7 @@ export const ${componentName}: React.FC = () => {
           (file) => !(file in files),
         );
         try {
-          const response = await fetch("/api/project", {
+          const response = await fetch(`${BASE_PATH}/api/project`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ files, deleted }),
