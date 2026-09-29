@@ -145,6 +145,7 @@ export const videoIteratorManager = async ({
 					) {
 						upscaledFrame = new OffscreenCanvas(canvas.width, canvas.height);
 					}
+
 					const upscaledContext = upscaledFrame.getContext('2d')!;
 					upscaledContext.clearRect(0, 0, canvas.width, canvas.height);
 					upscaledContext.drawImage(
