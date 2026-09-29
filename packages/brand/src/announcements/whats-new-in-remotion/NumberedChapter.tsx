@@ -89,8 +89,16 @@ const NumberedChapterInner: React.FC<NumberedChapterProps> = ({
 			>
 				{chapterNumber}
 			</Interactive.Div>
-			<AbsoluteFill
+			<Interactive.H2
+				name="Chapter title"
 				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
 					justifyContent: 'center',
 					alignItems: 'center',
 					fontFamily: 'GT Planar',
@@ -106,11 +114,12 @@ const NumberedChapterInner: React.FC<NumberedChapterProps> = ({
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
+					margin: 0,
 					marginTop: 15,
 				}}
 			>
-				<Interactive.H2 name="Chapter title">{chapterTitle}</Interactive.H2>
-			</AbsoluteFill>
+				{chapterTitle}
+			</Interactive.H2>
 		</AbsoluteFill>
 	);
 };
