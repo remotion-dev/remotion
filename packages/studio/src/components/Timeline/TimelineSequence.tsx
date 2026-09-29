@@ -1,5 +1,6 @@
 import {CanvasInternals} from '@remotion/canvas';
 import type {TimelineTrackData} from '@remotion/canvas';
+import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {WaveformVolume} from '@remotion/timeline-utils';
 import React, {
 	useCallback,
@@ -9,7 +10,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {_InternalTypes, TSequence} from 'remotion';
+import type {
+	_InternalTypes,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
@@ -106,81 +111,89 @@ const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
 
-type RippleEditHighlightEdge = 'left' | 'right';
+type TimelineEdgeHighlightEdge = 'left' | 'right';
 
-type RippleEditHighlight = {
-	readonly sequenceId: TSequence['id'];
-	readonly edge: RippleEditHighlightEdge;
+type TimelineEdgeHighlight = {
+	readonly nodePathKey: string;
+	readonly edge: TimelineEdgeHighlightEdge;
 };
 
-const TimelineRippleEditHighlightContext = React.createContext<{
+const TimelineEdgeHighlightContext = React.createContext<{
 	readonly register: (
-		sequenceId: TSequence['id'],
+		nodePathKey: string,
 		listener: React.Dispatch<
-			React.SetStateAction<RippleEditHighlightEdge | null>
+			React.SetStateAction<TimelineEdgeHighlightEdge | null>
 		>,
 	) => () => void;
-	readonly setHighlight: (highlight: RippleEditHighlight | null) => void;
+	readonly setHighlights: (
+		highlights: readonly TimelineEdgeHighlight[],
+	) => void;
 } | null>(null);
 
-export const TimelineRippleEditHighlightProvider: React.FC<{
+export const TimelineEdgeHighlightProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	// Keep the context value stable so highlighting one boundary does not
-	// re-render every timeline sequence through a context broadcast.
+	// Keep the context value stable so highlighting boundaries does not re-render
+	// every timeline sequence through a context broadcast.
 	const value = useMemo(() => {
-		let highlight: RippleEditHighlight | null = null;
+		let highlights = new Map<string, TimelineEdgeHighlightEdge>();
 		const listeners = new Map<
-			TSequence['id'],
-			React.Dispatch<React.SetStateAction<RippleEditHighlightEdge | null>>
+			string,
+			Set<
+				React.Dispatch<React.SetStateAction<TimelineEdgeHighlightEdge | null>>
+			>
 		>();
 
 		return {
 			register: (
-				sequenceId: TSequence['id'],
+				nodePathKey: string,
 				listener: React.Dispatch<
-					React.SetStateAction<RippleEditHighlightEdge | null>
+					React.SetStateAction<TimelineEdgeHighlightEdge | null>
 				>,
 			) => {
-				listeners.set(sequenceId, listener);
-				if (highlight?.sequenceId === sequenceId) {
-					listener(highlight.edge);
-				}
+				const listenersForNodePath = listeners.get(nodePathKey) ?? new Set();
+				listenersForNodePath.add(listener);
+				listeners.set(nodePathKey, listenersForNodePath);
+				listener(highlights.get(nodePathKey) ?? null);
 
 				return () => {
-					if (listeners.get(sequenceId) === listener) {
-						listeners.delete(sequenceId);
+					const currentListeners = listeners.get(nodePathKey);
+					currentListeners?.delete(listener);
+					if (currentListeners?.size === 0) {
+						listeners.delete(nodePathKey);
 					}
 				};
 			},
-			setHighlight: (nextHighlight: RippleEditHighlight | null) => {
-				if (
-					highlight?.sequenceId === nextHighlight?.sequenceId &&
-					highlight?.edge === nextHighlight?.edge
-				) {
-					return;
+			setHighlights: (nextHighlights: readonly TimelineEdgeHighlight[]) => {
+				const nextHighlightMap = new Map(
+					nextHighlights.map((highlight) => [
+						highlight.nodePathKey,
+						highlight.edge,
+					]),
+				);
+				const changedNodePathKeys = new Set([
+					...highlights.keys(),
+					...nextHighlightMap.keys(),
+				]);
+				for (const nodePathKey of changedNodePathKeys) {
+					const previousEdge = highlights.get(nodePathKey) ?? null;
+					const nextEdge = nextHighlightMap.get(nodePathKey) ?? null;
+					if (previousEdge !== nextEdge) {
+						for (const listener of listeners.get(nodePathKey) ?? []) {
+							listener(nextEdge);
+						}
+					}
 				}
 
-				const previousHighlight = highlight;
-				highlight = nextHighlight;
-				if (
-					previousHighlight &&
-					previousHighlight.sequenceId !== nextHighlight?.sequenceId
-				) {
-					listeners.get(previousHighlight.sequenceId)?.(null);
-				}
-
-				if (nextHighlight) {
-					listeners.get(nextHighlight.sequenceId)?.(nextHighlight.edge);
-				}
+				highlights = nextHighlightMap;
 			},
 		};
 	}, []);
 
 	return (
-		<TimelineRippleEditHighlightContext.Provider value={value}>
+		<TimelineEdgeHighlightContext.Provider value={value}>
 			{children}
-		</TimelineRippleEditHighlightContext.Provider>
+		</TimelineEdgeHighlightContext.Provider>
 	);
 };
 
@@ -578,28 +591,28 @@ const TimelineSequenceInner: React.FC<{
 	const overrideIdToNodePathMappingsRef = useContext(
 		OverrideIdToNodePathMappingsRefContext,
 	);
+	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const renderWindow = useContext(TimelineViewportContext);
 	const mediaDurationDragLimitsRegistry = useContext(
 		TimelineSequenceMediaDurationDragLimitsContext,
 	);
-	const rippleEditHighlightController = useContext(
-		TimelineRippleEditHighlightContext,
-	);
+	const edgeHighlightController = useContext(TimelineEdgeHighlightContext);
 	const dragAwareDoubleClick = useMemo(
 		() => createDragAwareDoubleClickTracker(),
 		[],
 	);
-	const [activeTrimEdge, setActiveTrimEdge] = useState<'left' | 'right' | null>(
-		null,
-	);
-	const [rippleEditHighlightEdge, setRippleEditHighlightEdge] =
-		useState<RippleEditHighlightEdge | null>(null);
+	const [activeTrimEdge, setActiveTrimEdge] =
+		useState<TimelineEdgeHighlightEdge | null>(null);
 	useEffect(() => {
-		return rippleEditHighlightController?.register(
-			s.id,
-			setRippleEditHighlightEdge,
+		if (!nodePath) {
+			return;
+		}
+
+		return edgeHighlightController?.register(
+			stringifySequenceSubscriptionKey(nodePath),
+			setActiveTrimEdge,
 		);
-	}, [rippleEditHighlightController, s.id]);
+	}, [edgeHighlightController, nodePath]);
 	const cascadingSequenceComponentIdentity = isCascadingSequence(s)
 		? s.controls?.componentIdentity
 		: null;
@@ -624,44 +637,73 @@ const TimelineSequenceInner: React.FC<{
 		};
 	}, [cascadingSequenceComponentIdentity, s.id, s.parent, sequences]);
 	const startEdgeDrag = useCallback(
-		(edge: 'left' | 'right', highlightAdjacent: boolean) => {
-			setActiveTrimEdge(edge);
-			if (!highlightAdjacent) {
-				rippleEditHighlightController?.setHighlight(null);
+		(
+			edge: 'left' | 'right',
+			highlightAdjacent: boolean,
+			targetNodePaths: readonly SequencePropsSubscriptionKey[],
+		) => {
+			if (targetNodePaths.length === 0) {
+				edgeHighlightController?.setHighlights([]);
 				return;
 			}
 
-			const adjacent =
-				edge === 'left'
-					? adjacentCascadingSequences.previous
-					: adjacentCascadingSequences.next;
-			rippleEditHighlightController?.setHighlight(
-				adjacent
-					? {
-							sequenceId: adjacent.id,
-							edge: edge === 'left' ? 'right' : 'left',
-						}
-					: null,
+			const highlights = new Map<string, TimelineEdgeHighlightEdge>();
+			for (const targetNodePath of targetNodePaths) {
+				highlights.set(stringifySequenceSubscriptionKey(targetNodePath), edge);
+			}
+
+			if (highlightAdjacent) {
+				const adjacent =
+					edge === 'left'
+						? adjacentCascadingSequences.previous
+						: adjacentCascadingSequences.next;
+				const adjacentOverrideId = adjacent?.controls?.overrideId;
+				const adjacentNodePath = adjacentOverrideId
+					? overrideIdToNodePathMappingsRef.current[adjacentOverrideId]
+					: null;
+				if (adjacentNodePath) {
+					const adjacentNodePathKey =
+						stringifySequenceSubscriptionKey(adjacentNodePath);
+					if (!highlights.has(adjacentNodePathKey)) {
+						highlights.set(
+							adjacentNodePathKey,
+							edge === 'left' ? 'right' : 'left',
+						);
+					}
+				}
+			}
+
+			edgeHighlightController?.setHighlights(
+				[...highlights].map(([nodePathKey, highlightEdge]) => ({
+					nodePathKey,
+					edge: highlightEdge,
+				})),
 			);
 		},
-		[adjacentCascadingSequences, rippleEditHighlightController],
+		[
+			adjacentCascadingSequences,
+			overrideIdToNodePathMappingsRef,
+			edgeHighlightController,
+		],
 	);
 	const startLeftEdgeDrag = useCallback(
-		(mode: 'ripple' | 'source-only' | 'self-trim') =>
-			startEdgeDrag('left', mode === 'ripple'),
+		(
+			mode: 'ripple' | 'source-only' | 'self-trim',
+			targetNodePaths: readonly SequencePropsSubscriptionKey[],
+		) => startEdgeDrag('left', mode === 'ripple', targetNodePaths),
 		[startEdgeDrag],
 	);
 	const startRightEdgeDrag = useCallback(
-		() => startEdgeDrag('right', true),
+		(targetNodePaths: readonly SequencePropsSubscriptionKey[]) =>
+			startEdgeDrag('right', true, targetNodePaths),
 		[startEdgeDrag],
 	);
 	const endEdgeDrag = useCallback(
 		(wasDragged: boolean) => {
-			setActiveTrimEdge(null);
-			rippleEditHighlightController?.setHighlight(null);
+			edgeHighlightController?.setHighlights([]);
 			dragAwareDoubleClick.endPointerGesture(wasDragged);
 		},
-		[dragAwareDoubleClick, rippleEditHighlightController],
+		[dragAwareDoubleClick, edgeHighlightController],
 	);
 
 	const mediaMetadata = useMediaMetadata(
@@ -736,7 +778,6 @@ const TimelineSequenceInner: React.FC<{
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const propStatusesForOverride = useMemo(() => {
 		return nodePath
 			? Internals.getPropStatusesCtx(propStatuses, nodePath)
@@ -1403,7 +1444,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
-			activeTrimEdge={activeTrimEdge ?? rippleEditHighlightEdge}
+			activeTrimEdge={activeTrimEdge}
 			displayDurationInFrames={displayDurationInFrames}
 			premount={visibleLayout.premount}
 			postmount={visibleLayout.postmount}
