@@ -11,6 +11,7 @@ type Options = {
 	tmp: boolean;
 	yes: boolean;
 	'no-tailwind': boolean;
+	tailwind: boolean | undefined;
 	help: boolean;
 };
 
@@ -30,7 +31,7 @@ export const isTmpFlagSelected = () => parsed.tmp;
 
 export const isYesFlagSelected = () => parsed.yes;
 
-export const isNoTailwindFlagSelected = () => parsed['no-tailwind'];
+export const isNoTailwindFlagSelected = () => parsed.tailwind === false;
 
 export const isHelpFlagSelected = () => parsed.help;
 
