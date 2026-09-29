@@ -293,7 +293,16 @@ export const ElementInstallRequestHandler: FC = () => {
 	}, [activeRequest, pendingRequests]);
 
 	const closeElementInstallDialog = useCallback(() => {
-		setSelectedModal(null);
+		setSelectedModal((modal) =>
+			modal?.type === 'element-install' ? null : modal,
+		);
+		setActiveRequest(null);
+	}, [setSelectedModal]);
+
+	const cancelElementInstallDialog = useCallback(() => {
+		setSelectedModal((modal) =>
+			modal?.type === 'element-install' ? modal.library : modal,
+		);
 		setActiveRequest(null);
 	}, [setSelectedModal]);
 
@@ -373,16 +382,22 @@ export const ElementInstallRequestHandler: FC = () => {
 					(source.type === 'browser-studio-link' && source.origin === null);
 				const currentPlan =
 					currentPreflight?.success === true ? currentPreflight.plan : null;
-				setSelectedModal({
+				setSelectedModal((modal) => ({
 					type: 'element-install',
 					currentPlan,
+					library:
+						activeRequest.source.type === 'studio-protocol' &&
+						modal?.type === 'element-library'
+							? modal
+							: null,
 					missingPackages,
 					newPlan: newPreflight.plan,
+					onCancel: cancelElementInstallDialog,
 					onClose: closeElementInstallDialog,
 					request: activeRequest,
 					sourceIsUnverified,
 					sourceLabel,
-				});
+				}));
 			} catch (error) {
 				if (canceled) {
 					return;
@@ -402,7 +417,12 @@ export const ElementInstallRequestHandler: FC = () => {
 		return () => {
 			canceled = true;
 		};
-	}, [activeRequest, closeElementInstallDialog, setSelectedModal]);
+	}, [
+		activeRequest,
+		cancelElementInstallDialog,
+		closeElementInstallDialog,
+		setSelectedModal,
+	]);
 
 	return null;
 };
