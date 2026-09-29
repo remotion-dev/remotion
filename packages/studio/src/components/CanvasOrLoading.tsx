@@ -59,7 +59,7 @@ const WelcomeActions: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {compositions} = useContext(Internals.CompositionManager);
-	const leftSidebarStatus = useResponsiveSidebarStatus();
+	const leftSidebarStatus = useResponsiveSidebarStatus('left');
 	const selectAsset = useSelectAsset();
 	const staticFiles = useStaticFiles();
 	const canMutateProject =

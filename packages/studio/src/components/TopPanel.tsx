@@ -46,24 +46,14 @@ const TopPanelInner: React.FC<{
 	readonly drawRef: React.Ref<HTMLDivElement>;
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
-	const {
-		setSidebarCollapsedState,
-		sidebarCollapsedStateRight,
-		setSidebarCollapsedDuringDrag,
-	} = useContext(SidebarContext);
+	const {setSidebarCollapsedState, setSidebarCollapsedDuringDrag} =
+		useContext(SidebarContext);
 	const rulersAreVisible = useIsRulerVisible();
 
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
-	const actualStateLeft = useResponsiveSidebarStatus();
-
-	const actualStateRight = useMemo((): 'expanded' | 'collapsed' => {
-		if (sidebarCollapsedStateRight === 'collapsed') {
-			return 'collapsed';
-		}
-
-		return 'expanded';
-	}, [sidebarCollapsedStateRight]);
+	const actualStateLeft = useResponsiveSidebarStatus('left');
+	const actualStateRight = useResponsiveSidebarStatus('right');
 	useEffect(() => {
 		onMounted();
 	}, [onMounted]);

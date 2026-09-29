@@ -16,8 +16,10 @@ import {
 import {useResponsiveSidebarStatus} from '../helpers/use-responsive-sidebar-status';
 import {SidebarContext} from '../state/sidebar';
 import {ActionTooltip} from './ActionTooltip';
+import {ContextMenu} from './ContextMenu';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {getSidebarMenuItems} from './sidebar-menu-items';
 
 const style: React.CSSProperties = {
 	width: 16,
@@ -34,11 +36,13 @@ export const SidebarCollapserControl: React.FC<{
 }> = ({side}) => {
 	const {
 		setSidebarCollapsedState,
+		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		sidebarCollapsedDuringDrag,
 	} = useContext(SidebarContext);
 	const keybindings = useKeybinding();
-	const leftSidebarStatus = useResponsiveSidebarStatus();
+	const leftSidebarStatus = useResponsiveSidebarStatus('left');
+	const rightSidebarStatus = useResponsiveSidebarStatus('right');
 
 	const leftIcon = useCallback(
 		(color: string): React.CSSProperties => {
@@ -65,13 +69,13 @@ export const SidebarCollapserControl: React.FC<{
 				position: 'absolute',
 				borderLeft: '1px solid ' + color,
 				background:
-					sidebarCollapsedStateRight === 'expanded' &&
+					rightSidebarStatus === 'expanded' &&
 					sidebarCollapsedDuringDrag !== 'right'
 						? color
 						: TRANSPARENT,
 			};
 		},
-		[sidebarCollapsedStateRight, sidebarCollapsedDuringDrag],
+		[rightSidebarStatus, sidebarCollapsedDuringDrag],
 	);
 
 	const toggleLeft = useCallback(() => {
@@ -89,13 +93,19 @@ export const SidebarCollapserControl: React.FC<{
 
 	const toggleRight = useCallback(() => {
 		setSidebarCollapsedState({
-			right: (s) => (s === 'collapsed' ? 'expanded' : 'collapsed'),
+			right: (s) => {
+				if (s === 'responsive') {
+					return rightSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed';
+				}
+
+				return s === 'collapsed' ? 'expanded' : 'collapsed';
+			},
 			left: null,
 		});
-	}, [setSidebarCollapsedState]);
+	}, [rightSidebarStatus, setSidebarCollapsedState]);
 
 	const toggleBoth = useCallback(() => {
-		if (sidebarCollapsedStateRight === leftSidebarStatus) {
+		if (rightSidebarStatus === leftSidebarStatus) {
 			setSidebarCollapsedState({
 				left: (s) => {
 					if (s === 'responsive') {
@@ -104,19 +114,48 @@ export const SidebarCollapserControl: React.FC<{
 
 					return s === 'collapsed' ? 'expanded' : 'collapsed';
 				},
-				right: (s) => (s === 'collapsed' ? 'expanded' : 'collapsed'),
+				right: (s) => {
+					if (s === 'responsive') {
+						return rightSidebarStatus === 'collapsed'
+							? 'expanded'
+							: 'collapsed';
+					}
+
+					return s === 'collapsed' ? 'expanded' : 'collapsed';
+				},
 			});
-		} else if (sidebarCollapsedStateRight === 'expanded') {
+		} else if (rightSidebarStatus === 'expanded') {
 			toggleRight();
 		} else if (leftSidebarStatus === 'expanded') {
 			toggleLeft();
 		}
 	}, [
 		leftSidebarStatus,
+		rightSidebarStatus,
 		setSidebarCollapsedState,
-		sidebarCollapsedStateRight,
 		toggleLeft,
 		toggleRight,
+	]);
+
+	const getSidebarContextMenuItems = useCallback(() => {
+		return getSidebarMenuItems({
+			side,
+			state:
+				side === 'left'
+					? sidebarCollapsedStateLeft
+					: sidebarCollapsedStateRight,
+			onStateChange: (state) => {
+				setSidebarCollapsedState({
+					left: side === 'left' ? state : null,
+					right: side === 'right' ? state : null,
+				});
+			},
+		});
+	}, [
+		setSidebarCollapsedState,
+		side,
+		sidebarCollapsedStateLeft,
+		sidebarCollapsedStateRight,
 	]);
 
 	useEffect(() => {
@@ -164,8 +203,8 @@ export const SidebarCollapserControl: React.FC<{
 	const ariaShortcut = useKeyboardShortcutAriaKeyShortcuts(action);
 	const shortcutsDisabled = areKeyboardShortcutsDisabled();
 	const expanded =
-		(side === 'left' ? leftSidebarStatus : sidebarCollapsedStateRight) ===
-			'expanded' && sidebarCollapsedDuringDrag !== side;
+		(side === 'left' ? leftSidebarStatus : rightSidebarStatus) === 'expanded' &&
+		sidebarCollapsedDuringDrag !== side;
 	const label = `${expanded ? 'Collapse' : 'Expand'} ${side} sidebar`;
 
 	const colorStyle = useCallback((color: string): React.CSSProperties => {
@@ -197,7 +236,7 @@ export const SidebarCollapserControl: React.FC<{
 		[colorStyle, rightIcon],
 	);
 
-	return (
+	const control = (
 		<ActionTooltip
 			label={label}
 			shortcut={shortcutsDisabled ? null : shortcut}
@@ -217,5 +256,14 @@ export const SidebarCollapserControl: React.FC<{
 				}
 			/>
 		</ActionTooltip>
+	);
+
+	return (
+		<ContextMenu
+			getItems={getSidebarContextMenuItems}
+			style={{display: 'flex'}}
+		>
+			{control}
+		</ContextMenu>
 	);
 };
