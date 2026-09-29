@@ -34,13 +34,54 @@ For achieving multimedia tasks in the browser, such as trimming, cropping videos
 
 By structuring the Remotion markup well, we can allow users to interactively change things in the Studio and write back to code. If relevant: [Interactivity Best Practices](./remotion-interactivity/SKILL.md)
 
-## Rendering
+## Open the preview
 
-For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
+If the user asks to "make" a video, "create" a video, etc.
+Don't render the video by default unless they are very explicit. They want to instead see an interactive preview.
+Start the preview server after building the composition:
 
-## Opening Remotion Studio
+### If you have an in-app browser
+
+If you are e.g. Codex, GitHub Copilot or any other desktop agent with an in-app browser, run:
+
+```bash
+npx remotion studio --no-open
+```
+
+This will start a long-running process and print the server URL for the preview.  
+If the server is already started, it will print the URL.
+You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
+
+:::note
+The Studio supports WebMCP tools.
+:::
+
+### If you do not have an in-app browser
+
+This will open the Studio in the browser or-refocus it if it is already open.
+
+```bash
+npx remotion studio
+```
+
+### More options
 
 To launch a project in Remotion Studio, open its exact local URL, or configure Studio CLI flags, load [Remotion Studio](./remotion-studio/SKILL.md).
+
+## Render the video
+
+Only render if the user is very explicit in asking for it.  
+E.g. "Render the video", "Export", "Give me the MP4".
+
+The preview also has a more intuitive rendering interface, so consider using it instead of the command line for rendering.
+
+```
+npx remotion render
+```
+
+For more options, see [Rendering](../remotion-render/SKILL.md).
+
+For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
 
 ## Captions
 
