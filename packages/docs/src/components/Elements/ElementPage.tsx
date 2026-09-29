@@ -253,7 +253,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
 									posterRef={posterRef}
-									showDragHandle={isEmbeddedInStudio === false}
+									showDragHandle={
+										isEmbeddedInStudio === false ||
+										(installStatus.type === 'error' &&
+											installStatus.code === 'no-installable-target')
+									}
 									sourceCode={sourceCode}
 									title={
 										isEmbeddedInStudio
@@ -277,36 +281,43 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							(installStatus.code === 'no-compatible-studio' ||
 								installStatus.code === 'no-installable-target') ? (
 								<div aria-live="polite" className={styles.studioGuidance}>
-									<p className={styles.studioGuidanceTitle}>
-										{installStatus.code === 'no-installable-target'
-											? 'Focus Remotion Studio'
-											: 'Connect to Remotion Studio'}
-									</p>
-									<ol className={styles.studioGuidanceSteps} role="list">
-										<li>
-											<InlineStep>1</InlineStep>
-											<span>
-												{installStatus.code === 'no-installable-target' ? (
-													<>
-														Open and focus{' '}
-														<a href="/docs/studio">Remotion Studio</a>.
-													</>
-												) : (
-													<>
+									{installStatus.code === 'no-installable-target' ? (
+										<>
+											<p className={styles.studioGuidanceTitle}>
+												No installation destination found
+											</p>
+											<p className={styles.studioGuidanceText}>
+												Drag the <strong>Use</strong> button above into your
+												open <a href="/docs/studio">Remotion Studio</a> instead.
+											</p>
+											<p className={styles.studioGuidanceText}>
+												Or focus a destination in Studio, then click{' '}
+												<strong>Use</strong> again.
+											</p>
+										</>
+									) : (
+										<>
+											<p className={styles.studioGuidanceTitle}>
+												Connect to Remotion Studio
+											</p>
+											<ol className={styles.studioGuidanceSteps} role="list">
+												<li>
+													<InlineStep>1</InlineStep>
+													<span>
 														Open your Remotion project, or{' '}
 														<a href="/docs/">create a new one</a>, and{' '}
 														<a href="/docs/studio">start Studio</a>.
-													</>
-												)}
-											</span>
-										</li>
-										<li>
-											<InlineStep>2</InlineStep>
-											<span>
-												Return here and click <strong>Use</strong> again.
-											</span>
-										</li>
-									</ol>
+													</span>
+												</li>
+												<li>
+													<InlineStep>2</InlineStep>
+													<span>
+														Return here and click <strong>Use</strong> again.
+													</span>
+												</li>
+											</ol>
+										</>
+									)}
 								</div>
 							) : installStatus.type !== 'idle' &&
 							  (installStatus.type !== 'installing' ||
