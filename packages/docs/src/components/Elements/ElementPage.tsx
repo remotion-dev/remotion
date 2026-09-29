@@ -2,6 +2,7 @@ import Head from '@docusaurus/Head';
 import {
 	isInsideStudio,
 	StudioProtocolInternals,
+	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
 import React, {
 	useCallback,
@@ -13,6 +14,7 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
+import {InlineStep} from '../../../components/InlineStep';
 import {PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
@@ -21,7 +23,6 @@ import {
 	installElementInStudio,
 } from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
-import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ElementPreview} from './ElementPreview';
 import {
 	ElementPreviewComposition,
@@ -36,7 +37,11 @@ type ElementPageProps = {
 	readonly sourceCode?: string;
 };
 
-type InstallStatus = {type: 'idle'} | {type: 'installing'} | {type: 'success'};
+type InstallStatus =
+	| {type: 'idle'}
+	| {type: 'installing'}
+	| {type: 'success'; message: string}
+	| {type: 'error'; code: InstallInStudioErrorCode | null; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -47,8 +52,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
-	const [isInstallFallbackOpen, setIsInstallFallbackOpen] = useState(false);
-	const [installFailureCount, setInstallFailureCount] = useState(0);
 	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
 	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
@@ -119,18 +122,22 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		try {
 			const result = await installElementInStudio({definition, sourceCode});
 			if (!result.success) {
-				setInstallStatus({type: 'idle'});
-				setInstallFailureCount((count) => count + 1);
-				setIsInstallFallbackOpen(true);
+				setInstallStatus({
+					type: 'error',
+					code: result.code,
+					message: result.message,
+				});
 				return;
 			}
 
-			setIsInstallFallbackOpen(false);
-			setInstallFailureCount(0);
 			if (isEmbeddedInStudio) {
 				setInstallStatus({type: 'idle'});
 			} else {
-				setInstallStatus({type: 'success'});
+				const {target} = result;
+				setInstallStatus({
+					type: 'success',
+					message: `Sent to Remotion Studio${target.projectName === null ? '' : ` (${target.projectName})`}. Confirm the installation destination in Studio.`,
+				});
 			}
 
 			if (window.location.origin === 'https://www.remotion.dev') {
@@ -139,9 +146,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				);
 			}
 		} catch {
-			setInstallStatus({type: 'idle'});
-			setInstallFailureCount((count) => count + 1);
-			setIsInstallFallbackOpen(true);
+			setInstallStatus({
+				type: 'error',
+				code: null,
+				message: 'Could not connect to Remotion Studio. Please try again.',
+			});
 		}
 	}, [definition, isEmbeddedInStudio, sourceCode]);
 
@@ -244,7 +253,11 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
 									posterRef={posterRef}
-									showDragHandle={isEmbeddedInStudio === false}
+									showDragHandle={
+										isEmbeddedInStudio === false ||
+										(installStatus.type === 'error' &&
+											installStatus.code === 'no-installable-target')
+									}
 									sourceCode={sourceCode}
 									title={
 										isEmbeddedInStudio
@@ -264,10 +277,64 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									</PlainButton>
 								) : null}
 							</div>
-							{installStatus.type === 'installing' && isInstallHintVisible ? (
-								<p aria-live="polite" className={styles.installingStatus}>
-									If your browser prompts you, allow local network access so
-									this page can find Remotion Studio.
+							{installStatus.type === 'error' &&
+							(installStatus.code === 'no-compatible-studio' ||
+								installStatus.code === 'no-installable-target') ? (
+								<div aria-live="polite" className={styles.studioGuidance}>
+									{installStatus.code === 'no-installable-target' ? (
+										<>
+											<p className={styles.studioGuidanceTitle}>
+												No installation destination found
+											</p>
+											<p className={styles.studioGuidanceText}>
+												Drag the <strong>Use</strong> button above into your
+												open <a href="/docs/studio">Remotion Studio</a> instead.
+											</p>
+											<p className={styles.studioGuidanceText}>
+												Or focus a destination in Studio, then click{' '}
+												<strong>Use</strong> again.
+											</p>
+										</>
+									) : (
+										<>
+											<p className={styles.studioGuidanceTitle}>
+												Connect to Remotion Studio
+											</p>
+											<ol className={styles.studioGuidanceSteps} role="list">
+												<li>
+													<InlineStep>1</InlineStep>
+													<span>
+														Open your Remotion project, or{' '}
+														<a href="/docs/">create a new one</a>, and{' '}
+														<a href="/docs/studio">start Studio</a>.
+													</span>
+												</li>
+												<li>
+													<InlineStep>2</InlineStep>
+													<span>
+														Return here and click <strong>Use</strong> again.
+													</span>
+												</li>
+											</ol>
+										</>
+									)}
+								</div>
+							) : installStatus.type !== 'idle' &&
+							  (installStatus.type !== 'installing' ||
+									isInstallHintVisible) ? (
+								<p
+									aria-live="polite"
+									className={
+										installStatus.type === 'installing'
+											? styles.installingStatus
+											: installStatus.type === 'success'
+												? styles.successStatus
+												: styles.errorStatus
+									}
+								>
+									{installStatus.type === 'installing'
+										? 'If your browser prompts you, allow local network access so this page can find Remotion Studio.'
+										: installStatus.message}
 								</p>
 							) : null}
 						</>
@@ -352,21 +419,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					) : null}
 				</div>
 			</aside>
-			{sourceCode ? (
-				<ElementInstallFallbackModal
-					definition={definition}
-					installFailureCount={installFailureCount}
-					isInstalling={installStatus.type === 'installing'}
-					isOpen={isInstallFallbackOpen}
-					onClose={() => {
-						setIsInstallFallbackOpen(false);
-						setInstallFailureCount(0);
-					}}
-					onInstall={installElement}
-					posterRef={posterRef}
-					sourceCode={sourceCode}
-				/>
-			) : null}
 		</div>
 	);
 };
