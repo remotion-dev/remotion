@@ -31,18 +31,48 @@ Alternatives are available at [Remotion Captions Elements](https://www.remotion.
 
 Fetch its source code from https://www.remotion.dev/elements/captions/basic-captions.md and copy the `basic-captions.tsx` file into the project unchanged.
 
-## Inlining captions
+## Displaying captions alongside video content
 
-Inline the captions directly in the `captions` prop. Do not fetch them from a JSON file.  
-If the captions were transcribed to a JSON file, copy its contents into the prop:
+Put the captions next to the video so they stay in sync. The Caption editor
+writes back to the array literal on the selected `<BasicCaptions>` source node,
+so inline the captions directly in its `captions` prop. Passing a variable or
+component prop such as `captions={captions}` leaves no source array for the
+editor to update. If the captions were transcribed to a JSON file, copy its
+contents into the prop.
+
+Give the caption area a width and position it over the video. In this
+1920px-wide composition, the 900px caption area is centered by translating it
+`(1920 - 900) / 2 = 510` pixels from the left:
 
 ```tsx
+import { Video } from "@remotion/media";
+import { Composition, staticFile } from "remotion";
 import { BasicCaptions } from "./basic-captions";
+
+export const MyComposition: React.FC = () => {
+  return (
+    <Composition
+      id="MyComposition"
+      component={MyComponent}
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+  );
+};
 
 export const MyComponent: React.FC = () => {
   return (
     <>
+      <Video name="Camera footage" src={staticFile("video.mp4")} />
       <BasicCaptions
+        width={900}
+        style={{
+          position: "absolute",
+          bottom: 120,
+          translate: "510px 0px",
+        }}
         captions={[
           {
             text: "Hello",
@@ -70,25 +100,3 @@ If a caption has `pageBreakAfter: true`, the current page ends after that captio
 ## White-space preservation
 
 The captions are whitespace sensitive. You should include spaces in the `text` field before each word.
-
-## Display captions alongside video content
-
-By default, put the captions alongside the video content, so the captions are in sync.  
-Transcribe each video separately and inline its captions next to it.
-
-```tsx
-<AbsoluteFill>
-  <Video src={staticFile("video123.mp4")} />
-  <BasicCaptions
-    captions={[
-      {
-        text: "Hello",
-        startMs: 0,
-        endMs: 400,
-        timestampMs: 200,
-        confidence: null,
-      },
-    ]}
-  />
-</AbsoluteFill>
-```

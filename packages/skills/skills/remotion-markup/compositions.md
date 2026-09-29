@@ -7,13 +7,65 @@ metadata:
 
 A `<Composition>` defines the component, width, height, fps and duration of a renderable video.
 
+## Source-editable registrations
+
+Give each composition or still that should be edited independently in the
+Studio its own authored JSX node. Use a JSX string literal for `id`, and keep
+its metadata and editable default values directly on that node.
+
+Programmatic registration is suitable when the generated compositions are
+intentionally controlled as one source template and do not need to be
+reordered, duplicated, deleted or edited individually in the Studio.
+
+```tsx
+type Props = {
+  readonly title: string;
+};
+
+export const MyComposition = ({title}: Props) => <h1>{title}</h1>;
+
+export const RemotionRoot = () => {
+  return (
+    <>
+      <Composition
+        id="Launch"
+        component={MyComposition}
+        durationInFrames={180}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{title: 'Launch'}}
+      />
+      <Composition
+        id="Recap"
+        component={MyComposition}
+        durationInFrames={240}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{title: 'Recap'}}
+      />
+    </>
+  );
+};
+```
+
+Both registrations can reuse the same component. Keeping them as separate JSX
+nodes gives each one its own source-editing target.
+
 ## Default Props and scaffold metadata
 
 Pass `defaultProps` to provide initial values for your component.  
 Values must be JSON-serializable (`Date`, `Map`, `Set`, and `staticFile()` are supported).
 Use `defaultProps` for composition-wide values that should be visible and editable before the video renders.
 
+Keep data owned by a child editor on that child's JSX node. For example,
+captions that should remain editable in the Caption editor belong as an inline
+array on `<BasicCaptions>`, not in composition `defaultProps` or a component
+prop. See [Displaying captions](../remotion-captions/display-captions.md).
+
 For Studio editing, keep `defaultProps` as an inline object literal on `<Composition>` or `<Still>`.
+Keep values that should be written back directly in the object instead of deriving them from a loop variable.
 Do not store it in a variable, import it, spread it, create it with a helper, or wrap it in `satisfies`.
 When scaffolding, keep the component and `<Composition>` registration in the same file so `width`, `height`, `fps`, `durationInFrames`, and `defaultProps` are visible next to the code that uses them.
 Use `type` declarations for props rather than `interface` to ensure `defaultProps` type safety.
