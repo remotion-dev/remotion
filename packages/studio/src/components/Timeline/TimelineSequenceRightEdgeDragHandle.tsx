@@ -1402,7 +1402,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly timelineDurationInFrames: number;
 	readonly initialEdgeFrame: number;
 	readonly fps: number;
-	readonly onDragStart: (mode: 'ripple' | 'source-only' | 'self-trim') => void;
+	readonly onDragStart: (
+		mode: 'ripple' | 'source-only' | 'self-trim',
+		targetNodePaths: readonly SequencePropsSubscriptionKey[],
+	) => void;
 	readonly onDragEnd: (wasDragged: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
@@ -1616,7 +1619,10 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			stopPointerSessionRef.current?.();
-			onDragStart(mode);
+			onDragStart(
+				mode,
+				targets.map((target) => target.nodePath),
+			);
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
@@ -2163,7 +2169,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly timelineDurationInFrames: number;
 	readonly initialEdgeFrame: number;
 	readonly fps: number;
-	readonly onDragStart: () => void;
+	readonly onDragStart: (
+		targetNodePaths: readonly SequencePropsSubscriptionKey[],
+	) => void;
 	readonly onDragEnd: (wasDragged: boolean) => void;
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly selected: boolean;
@@ -2363,7 +2371,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			const initialTimelineEdge = latestRef.current.initialEdgeFrame;
 
 			stopPointerSessionRef.current?.();
-			onDragStart();
+			onDragStart(targets.map((target) => target.nodePath));
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
