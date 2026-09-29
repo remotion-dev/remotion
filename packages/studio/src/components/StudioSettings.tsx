@@ -54,6 +54,7 @@ const initialSettings: ConfigFileStudioSettings = {
 	maxTimelineTracks: null,
 	numberOfSharedAudioTags: null,
 	rspack: null,
+	canvasTabsEnabled: null,
 };
 
 const ConfigNumber = ({
@@ -178,6 +179,7 @@ export const StudioSettings: React.FC = () => {
 			),
 			update('setRspack', settings.rspack),
 			update('setInteractivityEnabled', settings.interactivityEnabled),
+			update('setCanvasTabsEnabled', settings.canvasTabsEnabled),
 			update('setLogLevel', settings.logLevel),
 		].filter((item) => editedSetters.has(item.setter));
 
@@ -279,6 +281,22 @@ export const StudioSettings: React.FC = () => {
 							changeSetting(
 								'askAIEnabled',
 								'setAskAIEnabled',
+								event.target.checked ? null : false,
+							)
+						}
+					/>
+				</div>
+			</label>
+			<label style={optionRow}>
+				<div style={label}>Tabs above Canvas</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={settings.canvasTabsEnabled !== false}
+						name="Tabs above Canvas"
+						onChange={(event) =>
+							changeSetting(
+								'canvasTabsEnabled',
+								'setCanvasTabsEnabled',
 								event.target.checked ? null : false,
 							)
 						}
