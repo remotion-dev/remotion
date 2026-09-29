@@ -490,7 +490,10 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'loop', value: true, defaultValue: false}],
-		schema: NoReactInternals.sequenceSchema,
+		schema: {
+			...NoReactInternals.sequenceSchema,
+			loop: {type: 'boolean', default: false},
+		},
 		prettierConfigOverride: null,
 	});
 

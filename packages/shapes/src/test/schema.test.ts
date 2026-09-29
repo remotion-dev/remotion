@@ -1,5 +1,4 @@
 import {expect, test} from 'bun:test';
-import {Internals} from 'remotion';
 import {makeShapeSchema} from '../components/schema';
 
 test('adds a fill control to shape schemas', () => {
@@ -13,5 +12,4 @@ test('adds a fill control to shape schemas', () => {
 	expect('style.borderWidth' in schema).toBe(true);
 	expect('style.borderStyle' in schema).toBe(true);
 	expect('style.borderColor' in schema).toBe(true);
-	expect(schema.loop).toBe(Internals.baseSchema.loop);
 });
