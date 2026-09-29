@@ -144,7 +144,6 @@ const RoundedCaptionsContent: React.FC<RoundedCaptionsProps> = ({
 				display: 'flex',
 				justifyContent: 'center',
 				width,
-				height: '100%',
 				...style,
 			}}
 		>

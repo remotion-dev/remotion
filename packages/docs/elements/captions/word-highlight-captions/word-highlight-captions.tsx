@@ -209,7 +209,6 @@ const WordHighlightCaptionsContent: React.FC<WordHighlightCaptionsProps> = ({
 	return (
 		<div
 			style={{
-				height: '100%',
 				width,
 				...style,
 			}}

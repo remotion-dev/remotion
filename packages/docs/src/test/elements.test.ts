@@ -631,9 +631,7 @@ describe('Element preview definitions', () => {
 		const adaptiveDefinition = getElementDefinition(
 			'backgrounds/paper-texture',
 		);
-		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
-			'Adapts to composition',
-		);
+		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe('Flexible');
 		expect(getElementPreviewDimensions(adaptiveDefinition)).toEqual({
 			height: 1080,
 			width: 1920,

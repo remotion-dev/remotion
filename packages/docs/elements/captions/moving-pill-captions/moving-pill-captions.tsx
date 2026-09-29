@@ -344,7 +344,6 @@ const MovingPillCaptionsContent: React.FC<MovingPillCaptionsProps> = ({
 	return (
 		<div
 			style={{
-				height: '100%',
 				width,
 				...style,
 			}}
