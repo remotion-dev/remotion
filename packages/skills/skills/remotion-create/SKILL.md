@@ -43,6 +43,9 @@ npm i
 Keep the scaffold and add React Markup.
 Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
 
+Before writing the root that registers `<Composition>` or `<Still>` elements,
+follow [Compositions and stills](../remotion-markup/compositions.md).
+
 ## Is this a timeline of clips?
 
 If the video arranges multiple video or audio clips on a timeline, follow

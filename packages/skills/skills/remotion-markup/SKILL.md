@@ -23,11 +23,12 @@ Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
 
-The Studio edits the JSX source node that created an item. Author every clip,
-scene, layer and sequence that should be editable independently as its own JSX
-node, with its editable props inline. Programmatic loops are suitable when the
-generated instances are intentionally controlled as one source template, not
-when users need to edit the instances separately.
+The Studio edits the JSX source node that created an item. Author every
+composition registration, clip, scene, layer and sequence that should be
+editable independently as its own JSX node, with its editable props inline.
+Programmatic loops are suitable when the generated instances are intentionally
+controlled as one source template, not when users need to edit the instances
+separately.
 
 ```tsx
 import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
@@ -365,9 +366,9 @@ When needing to detect and trim silent segments from video or audio files, load 
 
 See [calculate-metadata.md](calculate-metadata.md) for dynamically set composition duration, dimensions, and props.
 
-## Advanced compositions
+## Compositions and stills
 
-See [compositions.md](compositions.md) for how to define stills, folders, default props and for how to nest compositions. For Studio navigation into a scene's own timeline, use [connected compositions](connected-compositions.md).
+Before registering `<Composition>` or `<Still>` elements, read [compositions.md](compositions.md) for source-editable registrations, folders, default props and nesting. For Studio navigation into a scene's own timeline, use [connected compositions](connected-compositions.md).
 
 ## Advanced sequencing
 

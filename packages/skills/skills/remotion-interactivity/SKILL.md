@@ -18,10 +18,11 @@ If the markup is too complex for the Studio to make it interactive, then the val
 The Studio edits the JSX source node that created an item. If multiple runtime
 items come from the same JSX node, they share one source-editing target.
 
-For every clip, scene, layer or sequence that should be editable on its own,
-write a separate JSX node and keep its editable props on that node. This applies
-to built-in media components, `<Sequence>`, `<Series.Sequence>`,
-`<TransitionSeries.Sequence>` and custom components.
+For every composition registration, clip, scene, layer or sequence that should
+be editable on its own, write a separate JSX node and keep its editable props
+on that node. This applies to `<Composition>`, `<Still>`, built-in media
+components, `<Sequence>`, `<Series.Sequence>`, `<TransitionSeries.Sequence>`
+and custom components.
 
 For example, author an editable timeline like this:
 
@@ -36,11 +37,12 @@ For example, author an editable timeline like this:
 </Series>
 ```
 
-A `.map()` or another programmatic loop would create both runtime sequences
+A `.map()` or another programmatic loop would create multiple runtime items
 from one JSX source node. That is appropriate for repeated output that is
 intentionally controlled as one template, such as visualization bars or
-particles. It is not appropriate when the instances need independent names,
-timing, ordering, deletion or duplication in the Studio.
+particles. It is not appropriate when the instances need independent IDs or
+names, props, metadata, timing, ordering, deletion or duplication in the
+Studio.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -249,7 +251,7 @@ If possible, use `scale`, `rotate` and `translate` instead because only they are
 
 ## Keep composition metadata inline
 
-When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and `defaultProps` inline and make no type assertions.
+When scaffolding a composition, use a JSX string literal for `id`, keep `width`, `height`, `fps`, `durationInFrames` and `defaultProps` inline and make no type assertions.
 
 The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or `<Still>`.
 
