@@ -1,25 +1,25 @@
-import type {StudioElementPayload} from '@remotion/studio-protocol';
 import React, {type RefObject, useEffect, useId, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
+import type {ElementDefinition} from './element-definitions';
 import {ElementStudioAction} from './ElementStudioAction';
 import styles from './ElementInstallFallbackModal.module.css';
 
 export const ElementInstallFallbackModal: React.FC<{
+	readonly definition: ElementDefinition;
 	readonly installFailureCount: number;
 	readonly isInstalling: boolean;
 	readonly isOpen: boolean;
 	readonly onClose: () => void;
 	readonly onInstall: () => void;
-	readonly payload: StudioElementPayload;
 	readonly posterRef: RefObject<HTMLImageElement | null>;
 	readonly sourceCode: string;
 }> = ({
+	definition,
 	installFailureCount,
 	isInstalling,
 	isOpen,
 	onClose,
 	onInstall,
-	payload,
 	posterRef,
 	sourceCode,
 }) => {
@@ -102,11 +102,12 @@ export const ElementInstallFallbackModal: React.FC<{
 				<div className={styles.installAction}>
 					<ElementStudioAction
 						buttonLabel={installFailureCount > 1 ? 'Oops!' : 'Install'}
+						definition={definition}
 						loading={isInstalling}
 						onClick={onInstall}
-						payload={payload}
 						posterRef={posterRef}
 						showDragHandle
+						sourceCode={sourceCode}
 						title="Install in the most recently focused Remotion Studio"
 					/>
 					{installFailureCount > 1 ? (
