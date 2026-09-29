@@ -250,7 +250,6 @@ const PoppingWordCaptionsContent: React.FC<PoppingWordCaptionsProps> = ({
 	return (
 		<div
 			style={{
-				height: '100%',
 				width,
 				...style,
 			}}

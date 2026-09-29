@@ -69,7 +69,6 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 				display: 'flex',
 				justifyContent: 'center',
 				width,
-				height: '100%',
 				...style,
 			}}
 		>
@@ -78,17 +77,13 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 					style={{
 						backgroundColor: 'rgba(64, 64, 64, 0.75)',
 						color: '#ffffff',
-						display: '-webkit-box',
 						fontFamily: 'Arial, Helvetica, sans-serif',
 						fontSize: 64,
 						fontWeight: 400,
 						lineHeight: 1.2,
-						overflow: 'hidden',
 						padding: '14px 22px',
 						textAlign: 'center',
 						textWrap: 'balance',
-						WebkitBoxOrient: 'vertical',
-						WebkitLineClamp: 2,
 						whiteSpace: 'pre-wrap',
 					}}
 				>
