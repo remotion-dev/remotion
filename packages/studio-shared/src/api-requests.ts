@@ -533,6 +533,14 @@ export type CaptionPatch = {
 		confidence: number | null;
 		pageBreakAfter: boolean | null;
 	};
+	insertAfter: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+		pageBreakAfter: boolean | null;
+	} | null;
 	changes: Partial<{
 		text: string;
 		startMs: number;
