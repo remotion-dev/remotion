@@ -5,30 +5,19 @@ Using the connected compositions pattern, a group of layers can get their own St
 Use connected composition when a section has its own layers or timing, will be reused, or would be easier to edit and preview on its own.
 
 1. Put the scene's markup in a named React component. Multiple internal layers and sequences can live inside it.
-2. Render exactly one direct instance of that component inside a `<Sequence>`, `<Series.Sequence>`, or `<TransitionSeries.Sequence>` in the parent.
+2. Prefer making the component interactive with `Interactive.withSchema({wrapInSequence: true})`, following [Remotion Interactivity](../remotion-interactivity/SKILL.md). Render the exported component directly in the parent with inline timing and editable props. It does not need an additional `<Sequence>` to connect to its registration. For consecutive scenes or transitions, render one direct instance as the only child of a `<Series.Sequence>` or `<TransitionSeries.Sequence>`. An explicit `<Sequence>` remains useful for components that do not handle timing or need dimension overrides.
 3. Register the **same component reference** with `<Composition component={...}>` in the root. Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
 
 ```tsx
 // MyVideo.tsx
-import {Series} from 'remotion';
-import {OpeningScene} from './OpeningScene';
-import {FeatureScene} from './FeatureScene';
+import {Chapter} from './Chapter';
 
+// Chapter is the exported Interactive.withSchema({wrapInSequence: true}) component.
 export const MyVideo = () => (
-  <Series>
-    <Series.Sequence
-      name="Opening"
-      durationInFrames={90}
-    >
-      <OpeningScene />
-    </Series.Sequence>
-    <Series.Sequence
-      name="Feature"
-      durationInFrames={120}
-    >
-      <FeatureScene />
-    </Series.Sequence>
-  </Series>
+  <>
+    <Chapter name="Opening" durationInFrames={90} title="Introduction" />
+    <Chapter name="Feature" from={90} durationInFrames={120} title="New features" />
+  </>
 );
 ```
 
@@ -36,27 +25,19 @@ export const MyVideo = () => (
 // Root.tsx
 import {Composition, Folder} from 'remotion';
 import {MyVideo} from './MyVideo';
-import {OpeningScene} from './OpeningScene';
-import {FeatureScene} from './FeatureScene';
+import {Chapter} from './Chapter';
 
 export const RemotionRoot = () => (
   <>
     <Folder name="MyVideo-Scenes">
       <Composition
-        id="Opening"
-        component={OpeningScene}
-        width={1920}
-        height={1080}
-        fps={30}
-        durationInFrames={90}
-      />
-      <Composition
-        id="Feature"
-        component={FeatureScene}
+        id="Chapter"
+        component={Chapter}
         width={1920}
         height={1080}
         fps={30}
         durationInFrames={120}
+        defaultProps={{title: 'Introduction'}}
       />
     </Folder>
     <Composition
@@ -72,7 +53,7 @@ export const RemotionRoot = () => (
 ```
 
 Studio replaces the layers with a reference to the connected composition in the timeline.
-Double-clicking a sequence with one connected composition opens it at the corresponding frame.
+Double-clicking a timeline item with one connected composition opens it at the corresponding frame.
 Editing the shared component changes both views.
 
 If the scene takes props, pass the intended values in the parent and use matching `defaultProps` on its standalone registration; registration does not automatically copy the parent's props.

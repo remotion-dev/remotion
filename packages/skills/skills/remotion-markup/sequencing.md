@@ -5,89 +5,34 @@ metadata:
   tags: sequence, series, timing, delay, trim
 ---
 
-Use `<Sequence>` to delay when an element appears in the timeline.
+Prefer timing props directly on built-in interactive components and custom
+components made with `Interactive.withSchema({wrapInSequence: true})`. Avoid
+wrapping a single timing-capable component in a redundant `<Sequence>`.
+
+See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for creating
+schema-wrapped components and [connected compositions](connected-compositions.md)
+for registering them with their own Studio timelines.
 
 ```tsx
-const Main = () => {
-  return (
-    <AbsoluteFill>
-      <Background />
-      <AbsoluteFill>
-        <Sequence name="Title" from={30} durationInFrames={60} layout="none">
-          <Title />
-        </Sequence>
-        <Sequence
-          name="Subtitle"
-          from={60}
-          durationInFrames={60}
-          layout="none"
-        >
-          <Subtitle />
-        </Sequence>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-}
-
-export const Title = () => {
-  const frame = useCurrentFrame();
-
-  return (
-    <Interactive.Div
-      name="Label"
-      style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
-          extrapolateRight: "clamp",
-          extrapolateLeft: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
-        }),
-        fontSize: 88
-      }}
-    >
-      Title
-    </Interactive.Div>
-  );
-};
-
-export const Subtitle = () => {
-  const frame = useCurrentFrame();
-
-  return (
-    <Interactive.Div
-      name="Subtitle"
-      style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
-          extrapolateRight: "clamp",
-          extrapolateLeft: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
-        }),
-        fontSize: 32
-      }}
-    >
-      Subtitle
-    </Interactive.Div>
-  );
-};
+// Title and Subtitle are exported with Interactive.withSchema({wrapInSequence: true}).
+<AbsoluteFill>
+  <Title name="Title" from={30} durationInFrames={60} />
+  <Subtitle name="Subtitle" from={60} durationInFrames={60} />
+</AbsoluteFill>
 ```
 
-This will by default wrap the component in an absolute fill element.  
-If the items should not be wrapped, use the `layout` prop:
-
-```tsx
-<Sequence layout="none">
-  <Title />
-</Sequence>
-```
+Use an explicit `<Sequence>` when multiple siblings need one shared clock,
+when overriding dimensions for descendants, or when the child does not accept
+timing props. Its default layout adds an absolutely positioned fill element;
+use `layout="none"` when no layout wrapper is needed.
 
 ## Premounting
 
-This loads the component in the timeline before it is actually played.  
-Always premount any `<Sequence>`!
+Use `premountFor` when media or expensive content needs preparation before it
+becomes visible. Pass it directly to a timing-capable component:
 
 ```tsx
-<Sequence premountFor={1 * fps}>
-  <Title />
-</Sequence>
+<Title from={60} durationInFrames={90} premountFor={30} />
 ```
 
 ## Series
@@ -146,12 +91,8 @@ Sequences can be nested for complex timing:
 ```tsx
 <Sequence from={0} durationInFrames={120}>
   <Background />
-  <Sequence from={15} durationInFrames={90} layout="none">
-    <Title />
-  </Sequence>
-  <Sequence from={45} durationInFrames={60} layout="none">
-    <Subtitle />
-  </Sequence>
+  <Title from={15} durationInFrames={90} />
+  <Subtitle from={45} durationInFrames={60} />
 </Sequence>
 ```
 

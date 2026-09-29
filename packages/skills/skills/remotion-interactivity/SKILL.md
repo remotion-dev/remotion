@@ -13,6 +13,118 @@ By writing Remotion markup in a specific way, the Remotion Studio is able to rec
 
 If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
 
+## Prefer interactive components with their own timelines
+
+Use `Interactive.withSchema({wrapInSequence: true})` for custom scenes, cards,
+titles, and other visual components whose props should be editable per instance.
+Expose meaningful content and appearance controls in an `InteractivitySchema`.
+Keep decorative implementation details inside the component.
+
+The component must accept `style` and forward it to one visual root. Keep a
+shared root when transforms, cropping, or opacity should affect all its layers.
+Flatten redundant inner wrappers when their styles can move onto an existing
+element without changing layout or animation.
+
+```tsx title="Chapter.tsx"
+import type React from 'react';
+import {AbsoluteFill, Interactive, type InteractivitySchema} from 'remotion';
+
+type ChapterProps = {
+  readonly title: string;
+  readonly style?: React.CSSProperties;
+};
+
+const ChapterInner: React.FC<ChapterProps> = ({title, style}) => (
+  <AbsoluteFill
+    style={{
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'white',
+      fontSize: 64,
+      ...style,
+    }}
+  >
+    {title}
+  </AbsoluteFill>
+);
+
+const chapterSchema = {
+  title: {type: 'text-content', default: '', description: 'Title'},
+} as const satisfies InteractivitySchema;
+
+export const Chapter = Interactive.withSchema({
+  Component: ChapterInner,
+  componentName: '<Chapter>',
+  schema: chapterSchema,
+  wrapInSequence: true,
+});
+```
+
+Forwarding the injected `style` inside the component is required; keep editable
+styles inline at the component's call site.
+
+### Register reusable components as connected compositions
+
+Register substantial scenes and reusable components with their own layers or
+animation as standalone compositions. Studio calls these **connected
+compositions**: they can be opened in their own timeline while sharing the same
+component implementation with the parent video.
+
+Register the same exported component reference that the parent renders. For the
+example above, use `component={Chapter}`, not `ChapterInner` or an inline wrapper.
+With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
+
+```tsx title="Root.tsx"
+import {Composition} from 'remotion';
+import {Chapter} from './Chapter';
+
+export const RemotionRoot = () => (
+  <Composition
+    id="Chapter"
+    component={Chapter}
+    width={1920}
+    height={1080}
+    fps={30}
+    durationInFrames={90}
+    defaultProps={{title: 'Introduction'}}
+  />
+);
+```
+
+Choose a unique ID, representative inline defaults, and dimensions, fps, and
+duration suitable for previewing the component. Registration defaults do not
+automatically copy props from a parent instance. See
+[connected compositions](../remotion-markup/connected-compositions.md) for
+registration and extraction details.
+
+### Put timing directly on the component
+
+Avoid a separate `<Sequence>` around one component that already accepts timing
+props. Built-in interactive components and custom components made with
+`wrapInSequence: true` can receive `name`, `from`, `durationInFrames`,
+`trimBefore`, `playbackRate`, and `premountFor` directly.
+
+```tsx
+<Chapter
+  name="Opening chapter"
+  from={30}
+  durationInFrames={90}
+  title="Introduction"
+/>
+```
+
+When removing a redundant sequence, move its timing and name to the child.
+Preserve any existing child timing; do not overwrite or double-apply offsets.
+A `useCurrentFrame()` call inside the component reads its local frame, while a
+style expression at the call site still uses the caller's frame. Preserve that
+distinction when moving animation styles.
+
+Keep a `<Sequence>` when it provides shared timing for multiple siblings,
+overrides dimensions for `useVideoConfig()`, or wraps a component that does not
+handle timing. Keep `<Series.Sequence>` for consecutive layout and
+`<TransitionSeries.Sequence>` for transitions; direct `from` props do not
+replace those behaviors.
+
 ## Give every independently editable item its own JSX node
 
 The Studio edits the JSX source node that created an item. If multiple runtime
@@ -84,9 +196,9 @@ Avoid computed names, hardcode them.
   </Interactive.Div>
   <Img name="Avatar" src="https://remotion.media/image.jpeg" />
   <Video name="Background" src="https://remotion.media/video.mp4" />
-  <Sequence name="Title">
+  <Interactive.Div name="Title">
     Launch day
-  </Sequence>
+  </Interactive.Div>
 </>
 ```
 
