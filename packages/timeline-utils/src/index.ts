@@ -14,6 +14,10 @@ export {
 	emitWaveformProgress,
 } from './audio-waveform/waveform-peak-processor';
 export {clampTimestampsToDuration} from './clamp-timestamps-to-duration';
+export {
+	getDevicePixelAlignedCanvasLayout,
+	snapCanvasPositionToDevicePixel,
+} from './device-pixel-alignment';
 export {extractFrames} from './extract-frames';
 export type {
 	ExtractFramesProps,

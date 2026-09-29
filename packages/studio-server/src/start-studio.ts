@@ -192,7 +192,7 @@ export const startStudio = async ({
 	if (result.type === 'already-running') {
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
-			`Already running on port ${result.port}.`,
+			`Already running at http://localhost:${result.port}`,
 		);
 		const res = await maybeOpenBrowser({
 			browserArgs,

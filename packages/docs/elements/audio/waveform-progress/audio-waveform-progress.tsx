@@ -3,27 +3,22 @@ import {getWaveformPortion, useWindowedAudioData} from '@remotion/media-utils';
 import React, {useId, useMemo} from 'react';
 import {
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
-type AudioWaveformProgressProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly amplitude?: number;
-		readonly audioSrc?: string;
-		readonly barGap?: number;
-		readonly numberOfBars?: number;
-		readonly playedColor?: string;
-		readonly unplayedColor?: string;
-	};
+type AudioWaveformProgressProps = InteractiveTransformProps & {
+	readonly amplitude?: number;
+	readonly audioSrc?: string;
+	readonly barGap?: number;
+	readonly numberOfBars?: number;
+	readonly playedColor?: string;
+	readonly unplayedColor?: string;
+};
 
 const audioWaveformProgressSchema = {
-	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
 		assetType: 'audio',
@@ -70,14 +65,12 @@ const audioWaveformProgressSchema = {
 		description: 'Amplitude',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const AudioWaveformProgressContent: React.FC<{
 	readonly amplitude: number;
 	readonly audioSrc: string;
 	readonly barGap: number;
-	readonly durationInFrames: number;
 	readonly numberOfBars: number;
 	readonly playedColor: string;
 	readonly unplayedColor: string;
@@ -85,13 +78,12 @@ const AudioWaveformProgressContent: React.FC<{
 	amplitude,
 	audioSrc,
 	barGap,
-	durationInFrames,
 	numberOfBars,
 	playedColor,
 	unplayedColor,
 }) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
+	const {durationInFrames, fps} = useVideoConfig();
 	const durationInSeconds = durationInFrames / fps;
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
 		fps,
@@ -167,51 +159,36 @@ const AudioWaveformProgressContent: React.FC<{
 	);
 };
 
-const AudioWaveformProgressInner: React.FC<
-	AudioWaveformProgressProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
+const AudioWaveformProgressInner: React.FC<AudioWaveformProgressProps> = ({
 	amplitude = 1,
 	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 	barGap = 5,
-	controls,
-	durationInFrames = 271,
-	name,
 	numberOfBars = 64,
 	playedColor = '#2563eb',
 	style,
 	unplayedColor = '#cbd5e1',
-	...sequenceProps
 }) => {
+	const {durationInFrames} = useVideoConfig();
+
 	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			durationInFrames={durationInFrames}
-			name={name ?? 'Audio waveform progress'}
+		<div
+			style={{
+				boxSizing: 'border-box',
+				height: 300,
+				width: 900,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					boxSizing: 'border-box',
-					height: 300,
-					width: 900,
-					...style,
-				}}
-			>
-				<AudioWaveformProgressContent
-					key={`${audioSrc}-${durationInFrames}`}
-					amplitude={amplitude}
-					audioSrc={audioSrc}
-					barGap={barGap}
-					durationInFrames={durationInFrames}
-					numberOfBars={numberOfBars}
-					playedColor={playedColor}
-					unplayedColor={unplayedColor}
-				/>
-			</div>
-		</Sequence>
+			<AudioWaveformProgressContent
+				key={`${audioSrc}-${durationInFrames}`}
+				amplitude={amplitude}
+				audioSrc={audioSrc}
+				barGap={barGap}
+				numberOfBars={numberOfBars}
+				playedColor={playedColor}
+				unplayedColor={unplayedColor}
+			/>
+		</div>
 	);
 };
 
@@ -219,5 +196,5 @@ export const AudioWaveformProgress = Interactive.withSchema({
 	Component: AudioWaveformProgressInner,
 	componentName: '<AudioWaveformProgress>',
 	schema: audioWaveformProgressSchema,
-	supportsEffects: false,
-}) as React.FC<AudioWaveformProgressProps>;
+	wrapInSequence: true,
+});

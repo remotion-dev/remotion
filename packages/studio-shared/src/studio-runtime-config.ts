@@ -16,6 +16,7 @@ export type ConfigFileStudioSettings = {
 	readonly maxTimelineTracks: number | null;
 	readonly numberOfSharedAudioTags: number | null;
 	readonly rspack: boolean | null;
+	readonly canvasTabsEnabled: boolean | null;
 };
 
 export type StudioElementLibrary = {
@@ -34,5 +35,6 @@ export type StudioRuntimeConfig = {
 	readonly defaultCodingAgent: DefaultCodingAgent | null;
 	readonly defaultEditor: BuiltInEditor | 'custom' | null;
 	readonly publicLicenseKey: string | null;
+	readonly canvasTabsEnabled: boolean | null;
 	readonly configFileStudioSettings: ConfigFileStudioSettings | null;
 };

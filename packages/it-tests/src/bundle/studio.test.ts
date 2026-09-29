@@ -101,7 +101,9 @@ Config.overrideWebpackConfig((config) => {
 			});
 
 			expect(exitCode).toBe(0);
-			expect(output).toContain(`Already running on port ${address.port}.`);
+			expect(output).toContain(
+				`Already running at http://localhost:${address.port}`,
+			);
 			expect(output).not.toContain('Bundler override ran');
 			expect(output).not.toContain('Built in');
 		} finally {

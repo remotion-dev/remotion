@@ -7,18 +7,25 @@ import {ElementLibrary} from '@site/src/components/Elements/ElementLibrary';
 
 # Captions
 
-## Importing captions into Studio<AvailableFrom v="4.0.521" />
-
-<div>
-<Step>1</Step> Install an Element from below.
-</div>
-<div>
-<Step>2</Step> Select its caption layer in Studio.
-</div>
-<div>
-<Step>3</Step> In the Captions inspector, click <kbd>Import</kbd> and choose a Remotion [`Caption[]`](/docs/captions/caption) JSON, SRT, ElevenLabs Speech-to-Text or segmented JSON, or OpenAI Whisper verbose JSON file.
-</div>
-
-<AvailableFrom v="4.0.530" /> Studio detects the format and converts it locally. Timed words retain word-level timing; exports with only timed segments produce segment-level captions. Invalid or unsupported files show an error and leave existing captions unchanged. You can choose a local file or a public asset.
-
 <ElementLibrary category="captions" />
+
+## How to use
+
+### Transcribing in the Studio
+
+<Step>1</Step> Select a video or audio.<br/>
+<Step>2</Step> Click <kbd>Generate captions</kbd> in the inspector.<br/>
+<Step>3</Step> Confirm installation and generate captions. <br/>
+
+### Importing captions into Studio<AvailableFrom v="4.0.521" />
+
+<Step>1</Step> Install an Element from below.<br/>
+<Step>2</Step> Select its caption layer in Studio.<br/>
+<Step>3</Step> In the Captions inspector, click <kbd>Import</kbd> and choose a file. <br/>
+
+Supported formats:
+
+- Remotion [`Caption[]`](/docs/captions/caption) JSON
+- SRT
+- ElevenLabs Speech-to-Text or segmented JSON
+- OpenAI Whisper JSON transcript (verbose mode must be on)

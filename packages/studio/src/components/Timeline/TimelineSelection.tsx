@@ -61,8 +61,11 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {SIDEBAR_RESPONSIVE_BREAKPOINT} from '../../helpers/use-responsive-sidebar-status';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
+import {SidebarContext} from '../../state/sidebar';
 import {useZIndex} from '../../state/z-index';
 import {
 	ExpandedTracksGetterContext,
@@ -941,6 +944,9 @@ export const TimelineSelectionProvider: React.FC<{
 	const timelineSelectionScope =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
+	const {setRightSidebarTemporaryExpansion, sidebarCollapsedStateRight} =
+		useContext(SidebarContext);
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT);
 	const canSelect =
 		isStudioSelectionEnabled() &&
 		(previewServerState.type === 'connected' ||
@@ -991,6 +997,31 @@ export const TimelineSelectionProvider: React.FC<{
 			? selectionState
 			: EMPTY_TIMELINE_SELECTION_STATE;
 	const availableSelectedItems = availableSelectionState.selectedItems;
+	const previousSelectedSequenceKeys = useRef<ReadonlySet<string>>(new Set());
+	useEffect(() => {
+		const selectedSequenceKeys = new Set(
+			availableSelectedItems
+				.filter((item) => item.type === 'sequence')
+				.map(getTimelineSelectionKey),
+		);
+		const sequenceWasSelected = [...selectedSequenceKeys].some(
+			(key) => !previousSelectedSequenceKeys.current.has(key),
+		);
+		previousSelectedSequenceKeys.current = selectedSequenceKeys;
+
+		if (
+			sequenceWasSelected &&
+			isNarrowLayout &&
+			sidebarCollapsedStateRight === 'responsive'
+		) {
+			setRightSidebarTemporaryExpansion(true);
+		}
+	}, [
+		availableSelectedItems,
+		isNarrowLayout,
+		setRightSidebarTemporaryExpansion,
+		sidebarCollapsedStateRight,
+	]);
 	const getAvailableSelectionState = useCallback(
 		() =>
 			selectionScope.current === timelineSelectionScope

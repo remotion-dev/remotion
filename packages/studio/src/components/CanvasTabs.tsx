@@ -50,7 +50,8 @@ import {
 	getDraggedRenderOutputCanvasContent,
 	RENDER_OUTPUT_TAB_DRAG_MIME_TYPE,
 } from './RenderQueue/use-render-output-file-drag';
-import {Tab, Tabs} from './Tabs';
+import {useSettings} from './SettingsContext';
+import {TAB_HEIGHT, Tab, Tabs} from './Tabs';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {useOpenInMenuApps} from './use-open-in-menu-apps';
 import {useSelectAsset} from './use-select-asset';
@@ -147,7 +148,7 @@ const loadTabs = (): CanvasContent[] => {
 const container: React.CSSProperties = {
 	backgroundColor: TIMELINE_BACKGROUND_COLOR,
 	flexShrink: 0,
-	height: 34,
+	height: TAB_HEIGHT,
 	overflowX: 'auto',
 	overflowY: 'hidden',
 	overscrollBehaviorX: 'none',
@@ -490,6 +491,8 @@ const CanvasTab: React.FC<{
 };
 
 export const CanvasTabs: React.FC = () => {
+	const {studioRuntimeConfig} = useSettings();
+	const canvasTabsEnabled = studioRuntimeConfig?.canvasTabsEnabled ?? true;
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -873,7 +876,7 @@ export const CanvasTabs: React.FC = () => {
 		[],
 	);
 
-	if (tabs.length === 0) {
+	if (!canvasTabsEnabled || tabs.length === 0) {
 		return null;
 	}
 

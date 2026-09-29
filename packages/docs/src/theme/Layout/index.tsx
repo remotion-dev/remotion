@@ -1,10 +1,16 @@
-import {useHistory} from '@docusaurus/router';
+import {useHistory, useLocation} from '@docusaurus/router';
 import type {WrapperProps} from '@docusaurus/types';
 import '@remotion/promo-pages/dist/tailwind.css';
+import {isInsideStudio} from '@remotion/studio-protocol';
 import Layout from '@theme-original/Layout';
 import type LayoutType from '@theme/Layout';
 import {useCrawlChatSidePanel} from 'crawlchat-client';
-import React, {useEffect, type ReactNode} from 'react';
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useState,
+	type ReactNode,
+} from 'react';
 
 type Props = WrapperProps<typeof LayoutType>;
 
@@ -17,7 +23,10 @@ const CRAWLCHAT_SCRIPT_ID = 'crawlchat-script';
 // a second time ("Identifier 'CrawlChatEmbed' has already been declared").
 const useCrawlChatScript = () => {
 	useEffect(() => {
-		if (document.getElementById(CRAWLCHAT_SCRIPT_ID)) {
+		if (
+			document.body.classList.contains('studio-elements-embed') ||
+			document.getElementById(CRAWLCHAT_SCRIPT_ID)
+		) {
 			return;
 		}
 
@@ -42,6 +51,26 @@ const LayoutWithCrawlChat = (props: Props): ReactNode => {
 };
 
 const LayoutWrapper = (props: Props): ReactNode => {
+	const {pathname} = useLocation();
+	const [isStudioElementsEmbed, setIsStudioElementsEmbed] = useState(false);
+
+	useLayoutEffect(() => {
+		// Client-side navigation drops the iframe's ?remotion-studio=true parameter.
+		const isEmbedded =
+			isInsideStudio() &&
+			(pathname === '/elements' || pathname.startsWith('/elements/'));
+		document.body.classList.toggle('studio-elements-embed', isEmbedded);
+		setIsStudioElementsEmbed(isEmbedded);
+
+		return () => {
+			document.body.classList.remove('studio-elements-embed');
+		};
+	}, [pathname]);
+
+	if (isStudioElementsEmbed) {
+		return <Layout {...props} noFooter />;
+	}
+
 	return <LayoutWithCrawlChat {...props} />;
 };
 

@@ -1,5 +1,6 @@
 import {
 	createElementPayload,
+	installInStudio,
 	type StudioElementPayload,
 } from '@remotion/studio-protocol';
 import type {ElementDefinition} from './element-definitions';
@@ -34,6 +35,32 @@ export const createElementPayloadFromDefinition = ({
 		installationMode: definition.installationMode,
 		slug: definition.slug,
 		sourceCode,
+	});
+};
+
+export const installElementInStudio = ({
+	definition,
+	sourceCode,
+}: {
+	readonly definition: ElementDefinition;
+	readonly sourceCode: string;
+}) => {
+	const elementPayload = createElementPayloadFromDefinition({
+		definition,
+		sourceCode,
+		installAssets: false,
+	});
+	if (definition.assets.length === 0) {
+		return installInStudio({payload: elementPayload});
+	}
+
+	return installInStudio({
+		payload: createElementPayloadFromDefinition({
+			definition,
+			sourceCode,
+			installAssets: true,
+		}),
+		fallbackPayload: elementPayload,
 	});
 };
 

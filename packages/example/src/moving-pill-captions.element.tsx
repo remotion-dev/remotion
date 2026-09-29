@@ -13,19 +13,15 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
-	Sequence,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 	type SequenceProps,
 } from 'remotion';
 
-type MovingPillCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps &
+type MovingPillCaptionsProps = InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
@@ -45,7 +41,6 @@ const defaultWidth = 682;
 const defaultHeight = 252;
 
 const movingPillCaptionsSchema = {
-	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
@@ -71,7 +66,6 @@ const movingPillCaptionsSchema = {
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
@@ -336,17 +330,25 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const MovingPillCaptionsContent: React.FC<{
-	readonly captionAreaWidth: number | null;
-	readonly captions: Caption[];
-	readonly combineTokensWithinMilliseconds: number;
-	readonly fontLoaded: boolean;
-}> = ({
-	captionAreaWidth,
+const MovingPillCaptionsContent: React.FC<MovingPillCaptionsProps> = ({
 	captions,
-	combineTokensWithinMilliseconds,
-	fontLoaded,
+	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+	height = defaultHeight,
+	style,
+	width = defaultWidth,
 }) => {
+	const [fontLoaded, setFontLoaded] = useState(false);
+
+	useEffect(() => {
+		waitUntilDone()
+			.then(() => {
+				setFontLoaded(true);
+			})
+			.catch((error) => {
+				cancelRender(error instanceof Error ? error : new Error(String(error)));
+			});
+	}, []);
+
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -361,79 +363,32 @@ const MovingPillCaptionsContent: React.FC<{
 	const activePageIndex = getActivePageIndex(pages, currentTimeMs);
 	const page = pages[activePageIndex];
 
-	if (!fontLoaded || !page) {
-		return null;
-	}
-
 	return (
-		<CaptionPage
-			key={`${activePageIndex}-${page.startMs}`}
-			captionAreaWidth={captionAreaWidth}
-			currentTimeMs={currentTimeMs}
-			fps={fps}
-			page={page}
-			pageIndex={activePageIndex}
-		/>
-	);
-};
-
-const MovingPillCaptionsInner: React.FC<
-	MovingPillCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({
-	captions,
-	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-	controls,
-	height = defaultHeight,
-	name,
-	style,
-	width = defaultWidth,
-	...interactiveProps
-}) => {
-	const [fontLoaded, setFontLoaded] = useState(false);
-
-	useEffect(() => {
-		waitUntilDone()
-			.then(() => {
-				setFontLoaded(true);
-			})
-			.catch((error) => {
-				cancelRender(error instanceof Error ? error : new Error(String(error)));
-			});
-	}, []);
-
-	return (
-		<Sequence
-			layout="none"
-			{...interactiveProps}
-			controls={controls}
-			name={name ?? '<MovingPillCaptions>'}
+		<div
+			style={{
+				height,
+				marginInline: 'auto',
+				width,
+				...style,
+			}}
 		>
-			<div
-				style={{
-					height,
-					marginInline: 'auto',
-					width,
-					...style,
-				}}
-			>
-				<MovingPillCaptionsContent
+			{fontLoaded && page ? (
+				<CaptionPage
+					key={`${activePageIndex}-${page.startMs}`}
 					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
+					currentTimeMs={currentTimeMs}
+					fps={fps}
+					page={page}
+					pageIndex={activePageIndex}
 				/>
-			</div>
-		</Sequence>
+			) : null}
+		</div>
 	);
 };
 
-const MovingPillCaptionsLayer = Interactive.withSchema({
-	Component: MovingPillCaptionsInner,
+export const MovingPillCaptions = Interactive.withSchema({
+	Component: MovingPillCaptionsContent,
 	componentName: '<MovingPillCaptions>',
 	schema: movingPillCaptionsSchema,
-	supportsEffects: false,
-}) as React.FC<MovingPillCaptionsProps>;
-
-export const MovingPillCaptions = MovingPillCaptionsLayer;
+	wrapInSequence: true,
+});

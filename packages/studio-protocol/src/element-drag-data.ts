@@ -308,9 +308,11 @@ const isJsonCompatibleValue = (
 	}
 
 	seen.add(value);
+	// Plain objects from another realm have a different Object.prototype.
+	const prototype = Object.getPrototypeOf(value);
 	const valid = Array.isArray(value)
 		? value.every((item) => isJsonCompatibleValue(item, seen))
-		: Object.getPrototypeOf(value) === Object.prototype &&
+		: (prototype === null || Object.getPrototypeOf(prototype) === null) &&
 			Object.values(value).every((item) => isJsonCompatibleValue(item, seen));
 	seen.delete(value);
 	return valid;

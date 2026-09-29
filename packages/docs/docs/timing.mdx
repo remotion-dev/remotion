@@ -126,7 +126,7 @@ export const MyComposition = () => (
 ```
 
 To set a finite total duration for a loop, wrap it in an outer item with `durationInFrames`.
-[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) may omit `durationInFrames` because they have an intrinsic duration.
+When `loop` is set, [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Lottie>`](/docs/lottie/lottie), [`<Gif>`](/docs/gif/gif), and [`<AnimatedImage>`](/docs/animatedimage) may omit `durationInFrames`. The intrinsic duration after `trimBefore` then defines the loop range.
 
 ## Order of operations
 

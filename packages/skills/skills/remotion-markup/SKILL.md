@@ -23,6 +23,12 @@ Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
 
+The Studio edits the JSX source node that created an item. Author every clip,
+scene, layer and sequence that should be editable independently as its own JSX
+node, with its editable props inline. Programmatic loops are suitable when the
+generated instances are intentionally controlled as one source template, not
+when users need to edit the instances separately.
+
 ```tsx
 import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
 
@@ -109,6 +115,9 @@ export const MyComposition = () => {
   );
 };
 ```
+
+If the composition is primarily a timeline of video or audio clips, read
+[video-editing.md](video-editing.md) before choosing its source structure.
 
 ## Example scene
 
@@ -264,10 +273,6 @@ See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embe
 ## Embedding Audio
 
 See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
-
-## Video editing
-
-See [video-editing.md](video-editing.md) for structuring editable video timelines in Remotion Studio.
 
 ## Cropping
 

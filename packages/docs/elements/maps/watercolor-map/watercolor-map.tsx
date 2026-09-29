@@ -4,15 +4,12 @@ import {
 	Easing,
 	Img,
 	Interactive,
-	Sequence,
 	interpolate,
 	spring,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
 loadFont('normal', {
@@ -26,18 +23,16 @@ const TILE_BASE_URL =
 
 type Coordinates = readonly [longitude: number, latitude: number];
 
-type WatercolorMapProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly destination?: Coordinates;
-		readonly destinationLabel?: string;
-		readonly origin?: Coordinates;
-		readonly originLabel?: string;
-		readonly routeColor?: string;
-		readonly routeWidth?: number;
-	};
+type WatercolorMapProps = InteractiveTransformProps & {
+	readonly destination?: Coordinates;
+	readonly destinationLabel?: string;
+	readonly origin?: Coordinates;
+	readonly originLabel?: string;
+	readonly routeColor?: string;
+	readonly routeWidth?: number;
+};
 
 const watercolorMapSchema = {
-	...Interactive.baseSchema,
 	origin: {
 		type: 'array',
 		item: {type: 'number', step: 0.0001},
@@ -80,7 +75,6 @@ const watercolorMapSchema = {
 		description: 'Route width',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const getZoom = (origin: Coordinates, destination: Coordinates) => {
@@ -163,21 +157,13 @@ const getTiles = ({
 	return tiles;
 };
 
-const WatercolorMapContent: React.FC<{
-	readonly destination: Coordinates;
-	readonly destinationLabel: string;
-	readonly origin: Coordinates;
-	readonly originLabel: string;
-	readonly routeColor: string;
-	readonly routeWidth: number;
-	readonly style: React.CSSProperties | undefined;
-}> = ({
-	destination,
-	destinationLabel,
-	origin,
-	originLabel,
-	routeColor,
-	routeWidth,
+const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
+	destination = [8.5417, 47.3769],
+	destinationLabel = 'Zurich',
+	origin = [-118.2437, 34.0522],
+	originLabel = 'Los Angeles',
+	routeColor = '#ff0041',
+	routeWidth = 18,
 	style,
 }) => {
 	const frame = useCurrentFrame();
@@ -402,43 +388,9 @@ const WatercolorMapContent: React.FC<{
 	);
 };
 
-const WatercolorMapInner: React.FC<
-	WatercolorMapProps & {readonly controls: SequenceControls | undefined}
-> = ({
-	controls,
-	destination = [8.5417, 47.3769],
-	destinationLabel = 'Zurich',
-	name,
-	origin = [-118.2437, 34.0522],
-	originLabel = 'Los Angeles',
-	routeColor = '#ff0041',
-	routeWidth = 18,
-	style,
-	...sequenceProps
-}) => {
-	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? 'Watercolor map'}
-		>
-			<WatercolorMapContent
-				destination={destination}
-				destinationLabel={destinationLabel}
-				origin={origin}
-				originLabel={originLabel}
-				routeColor={routeColor}
-				routeWidth={routeWidth}
-				style={style}
-			/>
-		</Sequence>
-	);
-};
-
 export const WatercolorMap = Interactive.withSchema({
-	Component: WatercolorMapInner,
+	Component: WatercolorMapContent,
 	componentName: '<WatercolorMap>',
 	schema: watercolorMapSchema,
-	supportsEffects: false,
-}) as React.FC<WatercolorMapProps>;
+	wrapInSequence: true,
+});

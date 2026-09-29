@@ -266,6 +266,18 @@ Config.setInteractivityEnabled(false);
 
 The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-interactivity` will take precedence over this option.
 
+## `setCanvasTabsEnabled()`<AvailableFrom v="4.0.530" />
+
+Show or hide the tabs above the canvas in the Studio. The tabs are shown by default.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setCanvasTabsEnabled(false);
+```
+
+The [command line flag](/docs/cli/studio#--disable-canvas-tabs) `--disable-canvas-tabs` will take precedence over this option.
+
 ## `setDefaultEditor()`<AvailableFrom v="4.0.503" />
 
 <Options id="editor" />

@@ -3,25 +3,20 @@ import {useWindowedAudioData, visualizeAudio} from '@remotion/media-utils';
 import React from 'react';
 import {
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
-	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
-type MirroredAudioSpectrumProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
-		readonly audioSrc?: string;
-		readonly barColor?: string;
-		readonly numberOfBars?: number;
-		readonly sensitivity?: number;
-	};
+type MirroredAudioSpectrumProps = InteractiveTransformProps & {
+	readonly audioSrc?: string;
+	readonly barColor?: string;
+	readonly numberOfBars?: number;
+	readonly sensitivity?: number;
+};
 
 const mirroredAudioSpectrumSchema = {
-	...Interactive.baseSchema,
 	audioSrc: {
 		type: 'asset',
 		assetType: 'audio',
@@ -53,16 +48,15 @@ const mirroredAudioSpectrumSchema = {
 		description: 'Sensitivity',
 		hiddenFromList: false,
 	},
-	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const MirroredAudioSpectrumContent: React.FC<{
-	readonly audioSrc: string;
-	readonly barColor: string;
-	readonly numberOfBars: number;
-	readonly sensitivity: number;
-	readonly style: MirroredAudioSpectrumProps['style'];
-}> = ({audioSrc, barColor, numberOfBars, sensitivity, style}) => {
+const MirroredAudioSpectrumContent: React.FC<MirroredAudioSpectrumProps> = ({
+	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	barColor = '#0b84f3',
+	numberOfBars = 65,
+	sensitivity = 1.5,
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
@@ -125,39 +119,9 @@ const MirroredAudioSpectrumContent: React.FC<{
 	);
 };
 
-const MirroredAudioSpectrumInner: React.FC<
-	MirroredAudioSpectrumProps & {readonly controls: SequenceControls | undefined}
-> = ({
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-	barColor = '#0b84f3',
-	controls,
-	name,
-	numberOfBars = 65,
-	sensitivity = 1.5,
-	style,
-	...sequenceProps
-}) => {
-	return (
-		<Sequence
-			layout="none"
-			{...sequenceProps}
-			controls={controls}
-			name={name ?? 'Mirrored audio spectrum'}
-		>
-			<MirroredAudioSpectrumContent
-				audioSrc={audioSrc}
-				barColor={barColor}
-				numberOfBars={numberOfBars}
-				sensitivity={sensitivity}
-				style={style}
-			/>
-		</Sequence>
-	);
-};
-
 export const MirroredAudioSpectrum = Interactive.withSchema({
-	Component: MirroredAudioSpectrumInner,
+	Component: MirroredAudioSpectrumContent,
 	componentName: '<MirroredAudioSpectrum>',
 	schema: mirroredAudioSpectrumSchema,
-	supportsEffects: false,
-}) as React.FC<MirroredAudioSpectrumProps>;
+	wrapInSequence: true,
+});

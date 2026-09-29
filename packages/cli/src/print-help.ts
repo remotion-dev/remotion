@@ -65,6 +65,7 @@ const studioOptions = options([
 	'disable-git-source',
 	'audio-latency-hint',
 	'disable-keyboard-shortcuts',
+	'disable-canvas-tabs',
 	'disable-interactivity',
 	'allow-html-in-canvas',
 	'editor',
