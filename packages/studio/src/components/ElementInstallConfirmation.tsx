@@ -311,6 +311,7 @@ export const ElementInstallConfirmation: React.FC<{
 		currentPlan,
 		missingPackages,
 		newPlan,
+		onCancel,
 		onClose,
 		request,
 		sourceIsUnverified,
@@ -834,9 +835,9 @@ export const ElementInstallConfirmation: React.FC<{
 
 	const cancel = useCallback(() => {
 		if (!submitting) {
-			onClose();
+			onCancel();
 		}
-	}, [onClose, submitting]);
+	}, [onCancel, submitting]);
 
 	const destinationOptions = useMemo(
 		() => [

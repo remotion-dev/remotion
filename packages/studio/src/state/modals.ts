@@ -196,11 +196,19 @@ export type ElementInstallPlan = {
 	readonly filePath: string;
 };
 
+export type ElementLibraryModalState = {
+	readonly type: 'element-library';
+	readonly name: string;
+	readonly url: string;
+};
+
 export type ElementInstallModalState = {
 	readonly type: 'element-install';
 	readonly currentPlan: ElementInstallPlan | null;
 	readonly missingPackages: string[];
 	readonly newPlan: ElementInstallPlan;
+	readonly library: ElementLibraryModalState | null;
+	readonly onCancel: () => void;
 	readonly onClose: () => void;
 	readonly request: ElementInstallRequest;
 	readonly sourceIsUnverified: boolean;
@@ -337,11 +345,7 @@ export type ModalState =
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
-	| {
-			type: 'element-library';
-			name: string;
-			url: string;
-	  }
+	| ElementLibraryModalState
 	| ElementInstallModalState
 	| AddEffectModalState
 	| AssetSelectionModalState

@@ -241,6 +241,13 @@ export const Modals: React.FC<{
 		requestElementLibraryAddition,
 	]);
 
+	const library =
+		modalContextType?.type === 'element-library'
+			? modalContextType
+			: modalContextType?.type === 'element-install'
+				? modalContextType.library
+				: null;
+
 	return (
 		<>
 			{modalContextType && modalContextType.type === 'new-comp' && (
@@ -422,15 +429,20 @@ export const Modals: React.FC<{
 					state={modalContextType}
 				/>
 			) : null}
-			{modalContextType && modalContextType.type === 'element-library' && (
+			{library === null ? null : (
 				<ElementLibraryModal
-					name={modalContextType.name}
-					url={modalContextType.url}
+					name={library.name}
+					url={library.url}
+					installState={
+						modalContextType?.type === 'element-install'
+							? modalContextType
+							: null
+					}
 				/>
 			)}
-			{modalContextType && modalContextType.type === 'element-install' && (
+			{modalContextType?.type === 'element-install' && library === null ? (
 				<ElementInstallConfirmation state={modalContextType} />
-			)}
+			) : null}
 			{modalContextType && modalContextType.type === 'add-effect' && (
 				<EffectPickerModal state={modalContextType} />
 			)}

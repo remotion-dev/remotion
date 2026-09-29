@@ -1,7 +1,11 @@
 import React, {useCallback, useContext, useLayoutEffect, useRef} from 'react';
 import {GearIcon} from '../icons/gear';
-import {SetSelectedModalContext} from '../state/modals';
+import {
+	type ElementInstallModalState,
+	SetSelectedModalContext,
+} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
+import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
@@ -27,7 +31,8 @@ const iframeStyle: React.CSSProperties = {
 export const ElementLibraryModal: React.FC<{
 	readonly name: string;
 	readonly url: string;
-}> = ({name, url}) => {
+	readonly installState: ElementInstallModalState | null;
+}> = ({name, url, installState}) => {
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const openElementSettings = useCallback(() => {
@@ -85,6 +90,9 @@ export const ElementLibraryModal: React.FC<{
 				style={iframeStyle}
 				aria-label={`${name} library`}
 			/>
+			{installState === null ? null : (
+				<ElementInstallConfirmation state={installState} />
+			)}
 		</DismissableModal>
 	);
 };
