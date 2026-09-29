@@ -1,9 +1,10 @@
-import {installInStudio, setStudioDragData} from '@remotion/studio-protocol';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {setStudioDragData} from '@remotion/studio-protocol';
+import React, {useEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {
 	createElementPayloadFromDefinition,
+	installElementInStudio,
 	setElementDragImage,
 } from './element-drag-data';
 import {
@@ -52,26 +53,6 @@ const ElementCard: React.FC<{
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const shouldPlay =
 		!prefersReducedMotion && !playbackFailed && (isFocused || isPointerOver);
-	const elementPayload = useMemo(
-		() =>
-			createElementPayloadFromDefinition({
-				definition,
-				sourceCode,
-				installAssets: false,
-			}),
-		[definition, sourceCode],
-	);
-	const assetPayload = useMemo(
-		() =>
-			definition.assets.length === 0
-				? null
-				: createElementPayloadFromDefinition({
-						definition,
-						sourceCode,
-						installAssets: true,
-					}),
-		[definition, sourceCode],
-	);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -106,10 +87,7 @@ const ElementCard: React.FC<{
 	const installElement = async () => {
 		setIsInstalling(true);
 		try {
-			const result = await installInStudio({
-				payload: assetPayload ?? elementPayload,
-				fallbackPayload: assetPayload === null ? undefined : elementPayload,
-			});
+			const result = await installElementInStudio({definition, sourceCode});
 			if (!result.success) {
 				setInstallFailureCount((count) => count + 1);
 				setIsInstallFallbackOpen(true);
@@ -149,7 +127,11 @@ const ElementCard: React.FC<{
 				onDragStart={(event) => {
 					setStudioDragData({
 						dataTransfer: event.dataTransfer,
-						payload: elementPayload,
+						payload: createElementPayloadFromDefinition({
+							definition,
+							sourceCode,
+							installAssets: false,
+						}),
 					});
 					setElementDragImage(event.dataTransfer, posterRef.current);
 				}}
@@ -200,6 +182,7 @@ const ElementCard: React.FC<{
 				</BlueButton>
 			</div>
 			<ElementInstallFallbackModal
+				definition={definition}
 				installFailureCount={installFailureCount}
 				isInstalling={isInstalling}
 				isOpen={isInstallFallbackOpen}
@@ -208,7 +191,6 @@ const ElementCard: React.FC<{
 					setInstallFailureCount(0);
 				}}
 				onInstall={installElement}
-				payload={elementPayload}
 				posterRef={posterRef}
 				sourceCode={sourceCode}
 			/>

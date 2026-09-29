@@ -1,6 +1,5 @@
 import Head from '@docusaurus/Head';
 import {
-	installInStudio,
 	isInsideStudio,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
@@ -17,7 +16,10 @@ import React, {
 import {PlainButton} from '../../../components/layout/Button';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {createElementPayloadFromDefinition} from './element-drag-data';
+import {
+	createElementPayloadFromDefinition,
+	installElementInStudio,
+} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementInstallFallbackModal} from './ElementInstallFallbackModal';
 import {ElementPreview} from './ElementPreview';
@@ -58,30 +60,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
-
-	const elementPayload = useMemo(() => {
-		if (!sourceCode) {
-			return null;
-		}
-
-		return createElementPayloadFromDefinition({
-			definition,
-			sourceCode,
-			installAssets: false,
-		});
-	}, [definition, sourceCode]);
-
-	const assetPayload = useMemo(() => {
-		if (!sourceCode || definition.assets.length === 0) {
-			return null;
-		}
-
-		return createElementPayloadFromDefinition({
-			definition,
-			sourceCode,
-			installAssets: true,
-		});
-	}, [definition, sourceCode]);
 
 	useLayoutEffect(() => {
 		setIsEmbeddedInStudio(isInsideStudio());
@@ -131,7 +109,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	}, []);
 
 	const installElement = useCallback(async () => {
-		if (elementPayload === null) {
+		if (!sourceCode) {
 			return;
 		}
 
@@ -139,10 +117,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		setInstallStatus({type: 'installing'});
 
 		try {
-			const result = await installInStudio({
-				payload: assetPayload ?? elementPayload,
-				fallbackPayload: assetPayload === null ? undefined : elementPayload,
-			});
+			const result = await installElementInStudio({definition, sourceCode});
 			if (!result.success) {
 				setInstallStatus({type: 'idle'});
 				setInstallFailureCount((count) => count + 1);
@@ -168,18 +143,22 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			setInstallFailureCount((count) => count + 1);
 			setIsInstallFallbackOpen(true);
 		}
-	}, [assetPayload, definition.slug, elementPayload, isEmbeddedInStudio]);
+	}, [definition, isEmbeddedInStudio, sourceCode]);
 
 	const openInBrowserStudio = useCallback(() => {
-		if (elementPayload === null) {
+		if (!sourceCode) {
 			return;
 		}
 
 		StudioProtocolInternals.openInBrowserStudio({
 			endpoint: null,
-			payload: elementPayload,
+			payload: createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+				installAssets: false,
+			}),
 		});
-	}, [elementPayload]);
+	}, [definition, sourceCode]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -254,18 +233,19 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				className={styles.actionsColumn}
 			>
 				<div>
-					{elementPayload === null ? null : (
+					{sourceCode ? (
 						<>
 							<div className={styles.actionRow}>
 								<ElementStudioAction
 									buttonLabel={
 										installStatus.type === 'success' ? 'Sent to Studio' : 'Use'
 									}
+									definition={definition}
 									loading={installStatus.type === 'installing'}
 									onClick={installElement}
-									payload={elementPayload}
 									posterRef={posterRef}
 									showDragHandle={isEmbeddedInStudio === false}
+									sourceCode={sourceCode}
 									title={
 										isEmbeddedInStudio
 											? 'Use this Element in Studio'
@@ -291,7 +271,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								</p>
 							) : null}
 						</>
-					)}
+					) : null}
 
 					<div className={styles.details}>
 						<p className={styles.description}>{description}</p>
@@ -373,8 +353,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					) : null}
 				</div>
 			</aside>
-			{elementPayload === null || sourceCode === undefined ? null : (
+			{sourceCode ? (
 				<ElementInstallFallbackModal
+					definition={definition}
 					installFailureCount={installFailureCount}
 					isInstalling={installStatus.type === 'installing'}
 					isOpen={isInstallFallbackOpen}
@@ -383,11 +364,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						setInstallFailureCount(0);
 					}}
 					onInstall={installElement}
-					payload={elementPayload}
 					posterRef={posterRef}
 					sourceCode={sourceCode}
 				/>
-			)}
+			) : null}
 		</div>
 	);
 };
