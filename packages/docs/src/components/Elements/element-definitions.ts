@@ -269,7 +269,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -295,7 +295,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -321,7 +321,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -347,7 +347,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -374,7 +374,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -603,7 +603,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -627,7 +627,7 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
@@ -709,7 +709,7 @@ const elementImplementations = [
 		},
 		safeArea: 120,
 		initialProps: null,
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
