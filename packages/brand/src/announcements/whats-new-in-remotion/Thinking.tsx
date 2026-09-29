@@ -1,4 +1,4 @@
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 import {MESSAGES} from './messages';
 
 const SPINNER_CHARS = ['·', '✻', '✽', '✶', '✳', '✢'];
@@ -26,9 +26,10 @@ export const Thinking: React.FC<ThinkingProps> = ({index}) => {
 	const highlightIndex = Math.floor(frame / framesPerHighlight) % text.length;
 
 	return (
-		<div
+		<Interactive.Div
+			name="Agent thinking indicator"
 			style={{
-				color: BASE_COLOR,
+				color: '#D47556',
 				fontSize: 38,
 				fontFamily: 'monospace',
 				fontWeight: 500,
@@ -46,6 +47,6 @@ export const Thinking: React.FC<ThinkingProps> = ({index}) => {
 					{char}
 				</span>
 			))}
-		</div>
+		</Interactive.Div>
 	);
 };

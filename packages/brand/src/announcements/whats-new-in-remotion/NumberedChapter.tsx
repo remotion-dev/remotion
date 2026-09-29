@@ -3,9 +3,10 @@ import {
 	AbsoluteFill,
 	continueRender,
 	delayRender,
-	spring,
+	Easing,
+	Interactive,
+	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {assetUrl} from './assets';
 
@@ -38,28 +39,16 @@ export const NumberedChapter: React.FC<NumberedChapterProps> = ({
 	chapterNumber,
 	chapterTitle,
 }) => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
-
-	const delay = fps;
-
-	const jump1 = spring({
-		fps,
-		frame: frame - delay,
-		config: {damping: 200},
-		durationInFrames: 10,
-	});
-
-	const jump2 = spring({
-		fps,
-		frame: frame - delay - 7,
-		config: {damping: 200},
-		durationInFrames: 10,
-	});
 
 	return (
 		<AbsoluteFill>
-			<Audio from={30} src={assetUrl('chime.mp3')} volume={0.05} />
+			<Audio
+				name="Chapter chime"
+				from={30}
+				src={assetUrl('chime.mp3')}
+				volume={0.05}
+			/>
 
 			<AbsoluteFill
 				style={{
@@ -68,7 +57,8 @@ export const NumberedChapter: React.FC<NumberedChapterProps> = ({
 					alignItems: 'center',
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Chapter number"
 					style={{
 						height: 120,
 						width: 120,
@@ -76,18 +66,26 @@ export const NumberedChapter: React.FC<NumberedChapterProps> = ({
 						justifyContent: 'center',
 						alignItems: 'center',
 						color: 'white',
-						backgroundColor: BLUE,
+						backgroundColor: '#4290f5',
 						fontSize: 50,
 						fontWeight: 700,
 						borderRadius: '50%',
 						fontFamily: 'Variable',
 						fontFeatureSettings: "'ss03' 1",
-						scale: String(jump1),
-						translate: `0 ${-jump2 * 50}px`,
+						scale: interpolate(frame, [30, 40], [0, 1], {
+							easing: Easing.spring({damping: 200}),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						translate: interpolate(frame, [37, 47], ['0px 0px', '0px -50px'], {
+							easing: Easing.spring({damping: 200}),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
 					}}
 				>
 					{chapterNumber}
-				</div>
+				</Interactive.Div>
 			</AbsoluteFill>
 			<AbsoluteFill
 				style={{
@@ -96,12 +94,20 @@ export const NumberedChapter: React.FC<NumberedChapterProps> = ({
 					fontFamily: 'GT Planar',
 					fontWeight: 500,
 					fontSize: 46,
-					translate: `0 ${-jump2 * 100 + 150}px`,
-					opacity: jump2,
+					translate: interpolate(frame, [37, 47], ['0px 150px', '0px 50px'], {
+						easing: Easing.spring({damping: 200}),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					opacity: interpolate(frame, [37, 47], [0, 1], {
+						easing: Easing.spring({damping: 200}),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					marginTop: 15,
 				}}
 			>
-				<h2>{chapterTitle}</h2>
+				<Interactive.H2 name="Chapter title">{chapterTitle}</Interactive.H2>
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

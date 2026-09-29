@@ -18,10 +18,6 @@ type CodeBRollProps = {
 	readonly code: string;
 	/** Previous code for transition animation. Default: none */
 	readonly previousCode?: string;
-	/** Duration in seconds. Default: 4 */
-	readonly durationSeconds?: number;
-	/** Fade in/out duration in seconds. Default: 0.2 */
-	readonly fadeDuration?: number;
 	/** Language for syntax highlighting. Default: "tsx" */
 	readonly lang?: string;
 	/** Top explainer text. Default: "" */
@@ -31,23 +27,11 @@ type CodeBRollProps = {
 export const CodeBRoll: React.FC<CodeBRollProps> = ({
 	code,
 	previousCode,
-	durationSeconds = 4,
-	fadeDuration = 0.2,
 	lang = 'tsx',
 	topExplainer = '',
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-
-	const duration = Math.round(durationSeconds * fps);
-	const fade = fadeDuration * fps;
-
-	const opacity = interpolate(
-		frame,
-		[0, fade, duration - fade, duration],
-		[0, 1, 1, 0],
-		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-	);
 
 	const [data, setData] = useState<{
 		highlighted: Awaited<ReturnType<typeof highlight>>;
@@ -80,7 +64,15 @@ export const CodeBRoll: React.FC<CodeBRollProps> = ({
 	const transitionDelay = data.previousHighlighted ? Math.round(fps) : 0;
 
 	return (
-		<AbsoluteFill style={{opacity}}>
+		<AbsoluteFill
+			name="Code example fade"
+			style={{
+				opacity: interpolate(frame, [0, 6, 114, 120], [0, 1, 1, 0], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+			}}
+		>
 			<ThemeProvider themeColors={data.themeColors}>
 				<AbsoluteFill style={{backgroundColor: data.themeColors.background}}>
 					{data.previousHighlighted &&

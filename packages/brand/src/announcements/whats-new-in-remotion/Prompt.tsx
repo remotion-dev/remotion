@@ -2,8 +2,8 @@ import {Audio} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Easing,
+	Interactive,
 	interpolate,
-	spring,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -12,7 +12,6 @@ import {Thinking} from './Thinking';
 
 const TYPING_DURATION_SECONDS = 2;
 const TYPING_DELAY_SECONDS = 0.5;
-const THINKING_FADE_SECONDS = 0.15;
 const CURSOR_BLINK_FRAMES = 16;
 const FONT_SIZE = 38;
 const CHAR_WIDTH = 23;
@@ -50,40 +49,20 @@ const Cursor: React.FC<{frame: number}> = ({frame}) => {
 };
 
 export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
-	const rawFrame = useCurrentFrame();
+	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const frame = Math.floor(rawFrame / POSTERIZE_FRAMES) * POSTERIZE_FRAMES;
+	const typingAnimationFrame =
+		Math.floor(frame / POSTERIZE_FRAMES) * POSTERIZE_FRAMES;
 
 	const delayFrames = TYPING_DELAY_SECONDS * fps;
 	const typingFrames = TYPING_DURATION_SECONDS * fps;
 	const framesPerChar = typingFrames / prompt.length;
-	const typingFrame = Math.max(0, frame - delayFrames);
+	const typingFrame = Math.max(0, typingAnimationFrame - delayFrames);
 	const typedChars = Math.min(
 		prompt.length,
 		Math.floor(typingFrame / framesPerChar),
 	);
 	const typedText = prompt.slice(0, typedChars);
-
-	const typingEndFrame = delayFrames + typingFrames;
-	const thinkingFadeFrames = THINKING_FADE_SECONDS * fps;
-	const thinkingOpacity = interpolate(
-		frame,
-		[typingEndFrame, typingEndFrame + thinkingFadeFrames],
-		[0, 1],
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-			easing: Easing.in(Easing.ease),
-		},
-	);
-
-	const enterProgress = spring({
-		frame,
-		fps,
-		config: {damping: 200},
-	});
-	const translateY = interpolate(enterProgress, [0, 1], [400, 0]);
-	const scale = interpolate(enterProgress, [0, 1], [0.9, 1]);
 
 	const fullTextWithPrefix = '❯ ' + prompt;
 	const charsPerLine = Math.floor(CONTENT_WIDTH / CHAR_WIDTH);
@@ -100,30 +79,46 @@ export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
 				paddingBottom: 80,
 			}}
 		>
-			<Audio src={assetUrl('prompt-sfx.wav')} volume={0.3} />
-			<div
+			<Audio
+				name="Prompt typing sound"
+				src={assetUrl('prompt-sfx.wav')}
+				volume={0.3}
+			/>
+			<Interactive.Div
+				name="Agent prompt card"
 				style={{
 					backgroundColor: '#292C34',
 					padding: '32px 56px',
 					boxShadow:
 						'0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2)',
-					width: BOX_WIDTH,
+					width: 1300,
 					height: totalHeight,
 					textAlign: 'left',
-					transform: `translateY(${translateY}px) scale(${scale})`,
+					translate: interpolate(frame, [0, 23], ['0px 400px', '0px 0px'], {
+						easing: Easing.spring({damping: 200, allowTail: true}),
+						posterize: 3,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'extend',
+					}),
+					scale: interpolate(frame, [0, 23], [0.9, 1], {
+						easing: Easing.spring({damping: 200, allowTail: true}),
+						posterize: 3,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'extend',
+					}),
 				}}
 			>
 				<span
 					style={{
 						color: 'white',
-						fontSize: FONT_SIZE,
+						fontSize: 38,
 						fontFamily: 'monospace',
 						fontWeight: 500,
 					}}
 				>
 					❯ {typedText}
 				</span>
-				<Cursor frame={frame} />
+				<Cursor frame={typingAnimationFrame} />
 				<div
 					style={{
 						height: 4,
@@ -131,10 +126,19 @@ export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
 						marginTop: 24,
 					}}
 				/>
-				<div style={{opacity: thinkingOpacity}}>
+				<div
+					style={{
+						opacity: interpolate(frame, [2.5 * fps, 2.65 * fps], [0, 1], {
+							easing: Easing.in(Easing.ease),
+							posterize: 3,
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}}
+				>
 					<Thinking index={thinkingIndex} />
 				</div>
-			</div>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };
