@@ -76,6 +76,7 @@ export const patchPackageJson = (
 			dependencies: newDependenciesWithTailwind,
 			devDependencies: newDevDependencies,
 			scripts: newScripts,
+			...(addTailwind ? {sideEffects: ['*.css']} : {}),
 		},
 		undefined,
 		2,
