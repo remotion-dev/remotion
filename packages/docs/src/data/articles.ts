@@ -7815,6 +7815,15 @@ export const articles = [
 		slug: 'studio/api',
 	},
 	{
+		id: 'studio/browse-elements',
+		title: 'Browse Elements in Studio',
+		relativePath: 'docs/studio/browse-elements.mdx',
+		compId: 'articles-docs-studio-browse-elements',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/browse-elements',
+	},
+	{
 		id: 'studio/delete-static-file',
 		title: 'deleteStaticFile()',
 		relativePath: 'docs/studio/delete-static-file.mdx',
