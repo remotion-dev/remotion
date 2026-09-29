@@ -3,7 +3,6 @@ import {
 	AbsoluteFill,
 	Easing,
 	Interactive,
-	Sequence,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
@@ -79,30 +78,26 @@ export const Scene8: React.FC = () => {
 			>
 				<NumberedChapter chapterNumber={7} chapterTitle="Rspack" />
 			</Interactive.Div>
-			<Sequence
+			<CodeBRoll
 				name="Rspack configuration"
 				from={180}
 				durationInFrames={120}
-				layout="none"
-			>
-				<CodeBRoll
-					code={`import { Config } from "@remotion/cli/config";
+				code={`import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "@remotion/tailwind-v4";
 
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
 Config.overrideWebpackConfig(enableTailwind);
 Config.setExperimentalRspackEnabled(true);`}
-					previousCode={`import { Config } from "@remotion/cli/config";
+				previousCode={`import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "@remotion/tailwind-v4";
 
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
 Config.overrideWebpackConfig(enableTailwind);`}
-					lang="ts"
-					topExplainer="remotion.config.ts"
-				/>
-			</Sequence>
+				lang="ts"
+				topExplainer="remotion.config.ts"
+			/>
 		</AbsoluteFill>
 	);
 };

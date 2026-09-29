@@ -217,22 +217,18 @@ export const Scene4: React.FC = () => {
 					</Interactive.Div>
 				</Interactive.Div>
 			</Sequence>
-			<Sequence
+			<CodeBRoll
 				name="Vercel code example"
 				from={920}
 				durationInFrames={120}
-				layout="none"
-			>
-				<CodeBRoll
-					code={`const { sandboxFilePath } = await renderMediaOnVercel({
+				code={`const { sandboxFilePath } = await renderMediaOnVercel({
   sandbox,
   compositionId: 'MyComp',
   inputProps: { title: 'Hello World' },
 });`}
-					lang="ts"
-					topExplainer="renderMediaOnVercel()"
-				/>
-			</Sequence>
+				lang="ts"
+				topExplainer="renderMediaOnVercel()"
+			/>
 			<Sequence name="YouTube tutorial" from={1040} layout="none">
 				<AbsoluteFill
 					style={{
