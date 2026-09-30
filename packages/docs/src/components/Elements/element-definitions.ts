@@ -71,8 +71,11 @@ import {
 
 export type ElementPreviewLayout = 'composition' | 'vertical';
 
+export type ElementCheckerboardTheme = 'light' | 'dark';
+
 export type ElementPreviewMetadata = {
 	readonly backgroundColor?: string;
+	readonly checkerboardTheme: ElementCheckerboardTheme;
 	readonly previewLayout: ElementPreviewLayout;
 	readonly posterUrl:
 		| `/elements/${string}-preview.png`
@@ -152,6 +155,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-oscilloscope-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/audio-oscilloscope-preview.mp4',
 		},
@@ -183,6 +187,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-waveform-progress-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/audio-waveform-progress-preview.mp4',
 		},
@@ -214,6 +219,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/audio-mirrored-spectrum-preview.mp4',
 		},
@@ -240,6 +246,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
 		},
@@ -267,6 +274,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
 		},
@@ -293,6 +301,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
 		},
@@ -319,6 +328,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-moving-waves-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-moving-waves-preview.mp4',
 		},
@@ -345,6 +355,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-moving-zigzags-preview.mp4',
 		},
@@ -372,6 +383,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
 		},
@@ -399,6 +411,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-basic-captions-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-basic-captions-preview.mp4',
 		},
@@ -431,6 +444,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-rounded-captions-preview-694426c4-721c-484f-8a33-79f21d54da5d.mp4',
 		},
@@ -462,6 +476,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-moving-pill-captions-preview.mp4',
 		},
@@ -492,6 +507,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-popping-word-captions-preview.mp4',
 		},
@@ -522,6 +538,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/captions-word-highlight-captions-preview.mp4',
 		},
@@ -548,6 +565,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-collection-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-collection-preview.mp4',
 		},
@@ -577,6 +595,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/commerce-product-discount-callout-preview.mp4',
 		},
@@ -602,6 +621,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/commerce-shine-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/commerce-shine-preview.mp4',
 		},
 		safeArea: 0,
@@ -626,6 +646,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/commerce-tear-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/commerce-tear-preview.mp4',
 		},
 		safeArea: 0,
@@ -651,6 +672,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
 		},
@@ -676,6 +698,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/data-line-chart-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/data-line-chart-preview.mp4',
 		},
 		safeArea: 0,
@@ -707,6 +730,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-number-counter-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/data-number-counter-preview.mp4',
 		},
@@ -733,6 +757,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/data-pie-chart-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/data-pie-chart-preview.mp4',
 		},
 		safeArea: 0,
@@ -759,6 +784,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/data-vertical-bar-chart-preview.mp4',
 		},
@@ -786,6 +812,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/layouts-picture-in-picture-transition-preview.mp4',
 		},
@@ -813,6 +840,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/layouts-slide-to-split-screen-preview.mp4',
 		},
@@ -842,6 +870,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
 		},
 		safeArea: 0,
@@ -871,6 +900,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/maps-watercolor-map-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/maps-watercolor-map-preview.mp4',
 		},
@@ -897,6 +927,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
 		},
@@ -924,6 +955,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
@@ -951,6 +983,7 @@ const elementImplementations = [
 			previewLayout: 'vertical',
 			posterUrl:
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-social-safe-zones-preview.mp4',
 		},
@@ -977,6 +1010,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-news-article-highlight-preview.mp4',
 		},
@@ -1001,6 +1035,7 @@ const elementImplementations = [
 		posterFrame: 15,
 		preview: {
 			backgroundColor: '#20262f',
+			checkerboardTheme: 'dark',
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.png',
@@ -1031,6 +1066,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-on-screen-messages-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/storytelling-on-screen-messages-preview.mp4',
 		},
@@ -1058,6 +1094,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/storytelling-polaroid-pictures-preview.mp4',
 		},
@@ -1088,6 +1125,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-circle-marker-preview.mp4',
 		},
@@ -1117,6 +1155,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
 		},
 		safeArea: 120,
@@ -1143,6 +1182,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-spinning-text-wheel-preview.mp4',
 		},
@@ -1173,6 +1213,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/text-strike-through-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/text-strike-through-preview.mp4',
 		},
@@ -1202,6 +1243,7 @@ const elementImplementations = [
 		preview: {
 			previewLayout: 'composition',
 			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
 		},
 		safeArea: 120,
@@ -1227,6 +1269,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/youtube-youtube-comment-highlight-preview.mp4',
 		},
@@ -1254,6 +1297,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
@@ -1293,6 +1337,7 @@ const elementImplementations = [
 			previewLayout: 'composition',
 			posterUrl:
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.png',
+			checkerboardTheme: 'light',
 			videoUrl:
 				'https://remotion.media/elements/youtube-youtube-subscribe-nudge-preview.mp4',
 		},

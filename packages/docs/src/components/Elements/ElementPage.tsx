@@ -194,6 +194,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				<div className={styles.previewAndSource}>
 					<ElementPreview
 						backgroundColor={definition.preview.backgroundColor ?? null}
+						checkerboardTheme={definition.preview.checkerboardTheme}
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
 						elementHeight={definition.elementHeight}
