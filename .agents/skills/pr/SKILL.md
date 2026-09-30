@@ -3,51 +3,35 @@ name: pr
 description: Open a pull request for the current feature
 ---
 
-Ensure we are not on the main branch, make a branch if necessary.  
-Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If one exists, update it with local changes.
+Ensure we are not on the main branch; make a branch if necessary.
 
 Keep new agent-authored tests, including new test cases in existing files, out of the PR unless the user explicitly requested them. Updates to existing tests, fixtures, and snapshots are allowed when needed for the change. Review the diff and preserve pre-existing user changes.
 
 If the changes add a Remotion Element, read the [Element contribution guide](../../../packages/docs/elements/contributing.mdx) before continuing.
 
-Run Oxfmt on the files or package directories affected by the current change. Pass their actual paths; do not assume that the repository root has a `src` directory. Include relevant root-level files, and do not format unrelated packages or the whole repository.
+Use [`scripts/pr-workflow.ts`](scripts/pr-workflow.ts) for the repeatable PR steps. Pass every changed file explicitly with `--file`, including relevant root-level files. Pass only Oxfmt-supported changed files with `--format`; do not format unrelated packages or the whole repository. If none are supported, omit `--format`.
 
 For example:
 
 ```
-bunx oxfmt <changed-file-or-package-directory>... --write
+bun .agents/skills/pr/scripts/pr-workflow.ts prepare \
+  --file packages/example/src/Example.tsx \
+  --format packages/example/src/Example.tsx
 ```
 
-If none of the changed files are supported by Oxfmt, skip this step. Inspect any formatter changes before committing.
+`prepare` formats the listed files, runs `bun run build` and `bun run stylecheck`, checks the changed-file list, and prints timings and `REVIEWED_DIFF`. Inspect the full diff and the contents of untracked files, including formatter changes, before publishing. If anything changes afterward, run `prepare` and review again.
 
-Then run
+Choose the PR title according to the [`pr-name`](../pr-name/SKILL.md) skill. Write the PR body to a temporary Markdown file in the system temp directory. If the work is tied to a GitHub issue, include a closing keyword such as `Closes #1234`, preserving the issue number or URL the user provided.
 
 ```
-bun run build
-bun run stylecheck
+bun .agents/skills/pr/scripts/pr-workflow.ts publish \
+  --file packages/example/src/Example.tsx \
+  --reviewed <REVIEWED_DIFF> \
+  --title 'Internal testbed: Describe the change' \
+  --body-file /tmp/remotion-pr-body.md
 ```
 
-to ensure we compile and CI linting/formatting passes.
-
-Commit the changes once. The title of the PR must be according to the [`pr-name`](../pr-name/SKILL.md) skill.
-
-Push the changes to the remote branch once, using `git push -u origin HEAD`.
-
-Never force push, unless users asks for it.
-
-Use the `gh` CLI to create a pull request and use the same format as above for the title.
-
-When creating the PR, do not pass the PR body inline through a shell command (for example, avoid `--body "..."` or heredocs in `bash`). Instead:
-
-1. Write the PR body to a temporary Markdown file in the system temp directory (for example `/tmp/remotion-pr-body.md`, or a unique file created under `/tmp`).
-   - If the current work was started from, fixes, or is otherwise tied to a GitHub issue, include a closing keyword in the PR body such as `Closes #1234` or `Closes https://github.com/owner/repo/issues/1234`. Preserve the issue number or URL from the user's original request if they provided one.
-2. Create the PR with `gh pr create --title "<title>" --body-file <path-to-temp-md-file>`.
-
-Example:
-
-```bash
-gh pr create --title '`@remotion/package`: Add feature' --body-file /tmp/remotion-pr-body.md
-```
+`publish` verifies the reviewed diff, checks for an existing PR, commits once, pushes once with `git push -u origin HEAD`, and creates a PR with `gh pr create --body-file` if needed. It preserves an existing PR's title and body. Never force push unless the user asks. If publishing stops after a commit or push, inspect the branch and PR before retrying so those operations are not repeated blindly.
 
 ## Link directly changed website pages
 
