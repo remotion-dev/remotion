@@ -9,7 +9,7 @@ import {
   type CanvasKeyframeEasingSegment,
   type CanvasSelectionItem,
   type SequenceNodePathInfo,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { getNodeProps, type CodemodProject } from "@remotion/codemods";
 import type {
   CanUpdateSequencePropStatusKeyframed,

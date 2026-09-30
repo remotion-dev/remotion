@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-sdk-get-canvas-keyframe-settings.png
+title: getCanvasKeyframeSettings()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasKeyframeSettings()<AvailableFrom v="4.0.530" />
+
+Reads the [`interpolate()`](/docs/interpolate) options of a keyframed prop that an editor can change: the extrapolation, the `output` mode and `posterize`. It also tells which options apply to the interpolation function of the prop.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx twoslash title="InterpolationSettings.tsx"
+// @moduleResolution: bundler
+import {getCanvasKeyframeSettings} from '@remotion/sdk';
+import type {CanUpdateSequencePropStatusKeyframed} from 'remotion';
+declare const propStatus: CanUpdateSequencePropStatusKeyframed;
+// ---cut---
+export const InterpolationSettings = () => {
+  const settings = getCanvasKeyframeSettings(propStatus);
+  return (
+    <>
+      {settings.clamping ? (
+        <select value={settings.clamping.left}>
+          {settings.extrapolateTypes.map((type) => (
+            <option key={type}>{type}</option>
+          ))}
+        </select>
+      ) : null}
+      <input type="number" value={settings.posterize ?? ''} />
+    </>
+  );
+};
+```
+
+## Parameters
+
+### propStatus
+
+The `'keyframed'` prop status of the prop, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it.
+
+## Return value
+
+A `CanvasKeyframeSettings` object with the following properties.
+
+### clamping
+
+The `extrapolateLeft` and `extrapolateRight` options as `{left, right}`: how the value behaves before the first and after the last keyframe. `null` when the interpolation function has no extrapolation options, as `interpolateColors()` does not.
+
+### extrapolateTypes
+
+The `ExtrapolateType` values the prop accepts: `'extend'`, `'clamp'`, `'identity'` and `'wrap'` for `interpolate()`, without `'identity'` for `interpolatePaths()`. Empty when `clamping` is `null`.
+
+### posterize
+
+The `posterize` option: the animation is sampled every `posterize` frames. `null` when the value changes on every frame.
+
+### output
+
+The `output` option, `'linear'` or `'perceptual-scale'`. `null` when the interpolation function has no output modes; only `interpolate()` has them.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframeSettingsChange()`](/docs/sdk/get-canvas-keyframe-settings-change)
+- [`interpolate()`](/docs/interpolate)

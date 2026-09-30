@@ -1,6 +1,6 @@
 "use client";
 
-import { getCanvasSelectionItemKey } from "@remotion/canvas";
+import { getCanvasSelectionItemKey } from "@remotion/sdk";
 import { useCallback, useEffect, useRef } from "react";
 import type { PreviewHost, PreviewKeyEvent } from "@/preview/bridge";
 import type { CompositionInfo } from "../model/compositions";

@@ -183,7 +183,7 @@ export const DisableInteractivityProvider: React.FC<{
 	);
 };
 
-// Authoring surfaces outside the Studio, such as @remotion/canvas, opt into
+// Authoring surfaces outside the Studio, such as @remotion/sdk, opt into
 // populating `controls` and applying Visual Mode overrides.
 const EnableInteractivityContext = createContext(false);
 

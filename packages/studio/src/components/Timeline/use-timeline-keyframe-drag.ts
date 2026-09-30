@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {

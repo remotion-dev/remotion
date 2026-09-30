@@ -1,5 +1,5 @@
-import {CanvasInternals} from '@remotion/canvas';
-import type {TimelineTrackData} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
+import type {TimelineTrackData} from '@remotion/sdk';
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {WaveformVolume} from '@remotion/timeline-utils';
 import React, {

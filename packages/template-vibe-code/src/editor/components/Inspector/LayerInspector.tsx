@@ -4,7 +4,7 @@ import {
   getCanvasKeyframeSourceFrame,
   getCanvasKeyframeToggle,
   getCanvasPropValueAtFrame,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { getNodeProps, type SequencePropUpdate } from "@remotion/codemods";
 import { ChevronLeftIcon, ChevronRightIcon, RotateCcwIcon } from "lucide-react";
 import React, { useMemo } from "react";

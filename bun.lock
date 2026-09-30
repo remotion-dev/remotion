@@ -234,8 +234,8 @@
         "react-dom": ">=16.8.0",
       },
     },
-    "packages/canvas": {
-      "name": "@remotion/canvas",
+    "packages/sdk": {
+      "name": "@remotion/sdk",
       "version": "4.0.530",
       "dependencies": {
         "@remotion/player": "workspace:*",
@@ -585,7 +585,7 @@
         "@remotion/browser-bundler": "workspace:*",
         "@remotion/browser-studio": "workspace:*",
         "@remotion/bundler": "workspace:*",
-        "@remotion/canvas": "workspace:*",
+        "@remotion/sdk": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
@@ -1863,7 +1863,7 @@
       "version": "4.0.530",
       "dependencies": {
         "@jridgewell/trace-mapping": "0.3.31",
-        "@remotion/canvas": "workspace:*",
+        "@remotion/sdk": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/codemods": "workspace:*",
         "@remotion/elevenlabs": "workspace:*",
@@ -2651,7 +2651,7 @@
         "@radix-ui/react-tabs": "1.1.13",
         "@radix-ui/react-tooltip": "1.2.8",
         "@remotion/browser-bundler": "workspace:*",
-        "@remotion/canvas": "workspace:*",
+        "@remotion/sdk": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/codemods": "workspace:*",
         "@remotion/player": "workspace:*",
@@ -4547,7 +4547,7 @@
 
     "@remotion/bundler": ["@remotion/bundler@workspace:packages/bundler"],
 
-    "@remotion/canvas": ["@remotion/canvas@workspace:packages/canvas"],
+    "@remotion/sdk": ["@remotion/sdk@workspace:packages/sdk"],
 
     "@remotion/canvas-capture-extension": ["@remotion/canvas-capture-extension@workspace:packages/canvas-capture-extension"],
 
@@ -10691,9 +10691,9 @@
 
     "@remotion/bundler/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
-    "@remotion/canvas/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
+    "@remotion/sdk/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
 
-    "@remotion/canvas/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
+    "@remotion/sdk/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
     "@remotion/canvas-capture-extension/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
 
