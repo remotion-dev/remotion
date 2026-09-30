@@ -22,6 +22,27 @@ npm i
 
 Replace `my-video` with a suitable project name.
 
+## Open the preview before building the video
+
+As soon as the project can run, start Studio and open its preview in the browser before writing or changing the composition. For a new project, do this immediately after scaffolding and installing dependencies. For an existing project, do it before editing the video. Keep Studio running while you work so the user can see changes and steer.
+
+In Cursor, run Studio without `--no-open` so it opens the browser automatically:
+
+```bash
+npx remotion studio
+```
+
+In other agent clients, you can use the same command, or use `--no-open` if you will open the URL in an in-app browser:
+
+```bash
+npx remotion studio --no-open
+```
+
+This will start a long-running process and print the server URL for the preview.
+If the server is already started, it will print the URL.
+If you use `--no-open`, open the exact printed URL in the in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If you cannot open it there, run Studio without `--no-open`.
+You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
+
 ## Designing a video
 
 Keep the scaffold and add React Markup.
@@ -38,19 +59,6 @@ By structuring the React Markup following [Remotion Interactivity Best Practices
 ## TailwindCSS
 
 If Tailwind is requested, see [tailwind.md](tailwind.md) for using TailwindCSS in Remotion.
-
-## Open the preview
-
-Start the preview server after building the composition:
-
-```bash
-npx remotion studio --no-open
-```
-
-This will start a long-running process and print the server URL for the preview.  
-If the server is already started, it will print the URL.
-If an in-harness browser is available, open it there.
-You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 ## Render the video
 

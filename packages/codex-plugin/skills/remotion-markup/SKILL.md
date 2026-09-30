@@ -345,12 +345,21 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and 
 
 ## Previewing markup
 
+In Cursor, run Studio without `--no-open` so it opens the browser automatically:
+
+```bash
+npx remotion studio
 ```
+
+In other agent clients, you can use the same command, or use `--no-open` if you will open the URL in an in-app browser:
+
+```bash
 npx remotion studio --no-open
 ```
 
 This will start a long-running process and print the server URL for the preview.  
 If server is already started, it will print the URL.
+If you use `--no-open`, open the exact printed URL in the in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If you cannot open it there, run Studio without `--no-open`.
 You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 ## Optional: one-frame render check
