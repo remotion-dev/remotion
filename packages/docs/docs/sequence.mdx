@@ -12,37 +12,60 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-By using a sequence, you can time-shift the display of your components or parts of your animation in the video.
+`<Sequence>` is the base component for placing content on the timeline. It provides timing props such as `from`, `durationInFrames` and `trimBefore`.
+
+To give a custom component these props, wrap it with [`Interactive.withSchema()`](/docs/interactive-with-schema) and set `wrapInSequence: true`. The wrapper uses `<Sequence>` internally, so you can set timing on the component itself:
 
 ```tsx twoslash title="MyTrailer.tsx"
+import type React from 'react';
+import {Interactive, useVideoConfig} from 'remotion';
+
+const IntroInner: React.FC<{style?: React.CSSProperties}> = ({style}) => (
+  <div style={style}>Intro</div>
+);
+
+export const Intro = Interactive.withSchema({
+  Component: IntroInner,
+  componentName: '<Intro>',
+  schema: {},
+  wrapInSequence: true,
+});
+
+export const MyTrailer = () => {
+  const {fps} = useVideoConfig();
+  return <Intro durationInFrames={30} premountFor={fps} />;
+};
+```
+
+`<Intro>` appears from frame 0 through frame 29. It also accepts other [timing props](/docs/timing), such as `from` and `playbackRate`.
+
+## Using `<Sequence>` directly
+
+Use `<Sequence>` to time a group of elements or content that does not expose timing props:
+
+```tsx twoslash title="SequenceExample.tsx"
 import {Sequence} from 'remotion';
 
-export const Intro = () => <></>;
-export const Clip = () => <></>;
-export const Outro = () => <></>;
-
-// ---cut---
-
-const MyTrailer = () => {
+const SequenceExample = () => {
   return (
     <>
       <Sequence durationInFrames={30}>
-        <Intro />
+        <div>Intro</div>
       </Sequence>
       <Sequence from={30} durationInFrames={30}>
-        <Clip />
+        <div>Clip</div>
       </Sequence>
       <Sequence from={60}>
-        <Outro />
+        <div>Outro</div>
       </Sequence>
     </>
   );
 };
 ```
 
-- `<Intro>` will show from frame 0–29.
-- `<Clip>` will show from frame 30 until frame 59.
-- `<Outro>` will show from frame 60 until the end of the composition.
+- Intro shows from frame 0–29.
+- Clip shows from frame 30 through frame 59.
+- Outro shows from frame 60 until the end of the composition.
 
 All children of a `<Sequence>` that call [`useCurrentFrame()`](/docs/use-current-frame) will receive a value that is shifted by [`from`](#from).
 
@@ -179,7 +202,7 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 
 ## Props
 
-The Sequence component is a high order component and accepts, besides children, the following props:
+`<Sequence>` accepts children and the following props. Custom components wrapped with `Interactive.withSchema({wrapInSequence: true})` receive the timing props; see the [`Interactive.withSchema()` API](/docs/interactive-with-schema) for the complete set.
 
 ### `from?`
 
