@@ -32,7 +32,6 @@ media, interactive components, `<Sequence>`, `<Series.Sequence>`,
 timed components nested inside scenes. Premount the parent timeline item too
 when a nested item needs to mount before the parent starts. A component without
 `premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
-See [Premounting](sequencing.md#premounting) for the `layout="none"` constraint.
 
 The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
 Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
