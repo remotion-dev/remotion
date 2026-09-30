@@ -29,6 +29,12 @@ const tooltip: React.CSSProperties = {
 	zIndex: 2147483647,
 };
 
+// `.css-reset *` sets font-size and line-height on descendants
+const line: React.CSSProperties = {
+	fontSize: 11,
+	lineHeight: '14px',
+};
+
 export const TimelineTrimTooltip: React.FC<{
 	readonly state: TimelineTrimTooltipState;
 	readonly fps: number;
@@ -57,11 +63,12 @@ export const TimelineTrimTooltip: React.FC<{
 	return createPortal(
 		<div
 			aria-hidden="true"
+			className="css-reset"
 			style={{...tooltip, left, top, width: tooltipWidth}}
 			data-remotion-timeline-trim-tooltip="true"
 		>
-			<div>{deltaLabel}</div>
-			<div style={{color: LIGHT_TEXT}}>{edgeLabel}</div>
+			<div style={line}>{deltaLabel}</div>
+			<div style={{...line, color: LIGHT_TEXT}}>{edgeLabel}</div>
 		</div>,
 		getPortal(currentZIndex),
 	);

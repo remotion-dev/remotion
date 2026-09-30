@@ -130,29 +130,19 @@ export const Scene2: React.FC = () => {
 					</Interactive.Div>
 				</Interactive.Div>
 			</Sequence>
-			<Sequence
+			<Prompt
 				name="Agent prompt"
 				from={655}
 				durationInFrames={111}
-				layout="none"
-			>
-				<Interactive.Div
-					name="Light leak prompt"
-					style={{
-						position: 'absolute',
-						inset: 0,
-						opacity: interpolate(frame, [760, 766], [1, 0], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-					}}
-				>
-					<Prompt
-						prompt="Add a Light Leak transition between scenes"
-						thinkingIndex={5}
-					/>
-				</Interactive.Div>
-			</Sequence>
+				style={{
+					opacity: interpolate(frame, [760, 766], [1, 0], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+				}}
+				prompt="Add a Light Leak transition between scenes"
+				thinkingIndex={5}
+			/>
 			<Sequence name="Light leak variations" from={240} durationInFrames={180}>
 				<Interactive.Div
 					name="Light leak grid fade"

@@ -4,6 +4,7 @@ import {CodeTransitionDemo} from './CodeTransitionDemo';
 import type {MyCompositionProps} from './Composition';
 import {MyComposition, MyCompositionSchema} from './Composition';
 import './index.css';
+import {NumberedChapter} from './NumberedChapter';
 import {Scene1} from './Scene1';
 import {Scene2} from './Scene2';
 import {Scene3} from './Scene3';
@@ -138,6 +139,15 @@ export const WhatsNewInRemotion: React.FC = () => {
 				fps={30}
 				width={1920}
 				height={1080}
+			/>
+			<Composition
+				id="WhatsNew-NumberedChapter"
+				component={NumberedChapter}
+				durationInFrames={150}
+				fps={30}
+				width={768}
+				height={1080}
+				defaultProps={{chapterNumber: 1, chapterTitle: 'Light Leaks'}}
 			/>
 		</>
 	);

@@ -1,3 +1,4 @@
+import type {InteractivitySchema} from 'remotion';
 import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 import {MESSAGES} from './messages';
 
@@ -6,10 +7,11 @@ const BASE_COLOR = '#D47556';
 const HIGHLIGHT_COLOR = '#E08468';
 
 export type ThinkingProps = {
+	readonly style?: React.CSSProperties;
 	index: number;
 };
 
-export const Thinking: React.FC<ThinkingProps> = ({index}) => {
+const ThinkingInner: React.FC<ThinkingProps> = ({index, style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 
@@ -34,6 +36,7 @@ export const Thinking: React.FC<ThinkingProps> = ({index}) => {
 				fontFamily: 'monospace',
 				fontWeight: 500,
 				marginTop: 24,
+				...style,
 			}}
 		>
 			{spinnerChar}{' '}
@@ -50,3 +53,23 @@ export const Thinking: React.FC<ThinkingProps> = ({index}) => {
 		</Interactive.Div>
 	);
 };
+
+const thinkingSchema = {
+	index: {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		integer: true,
+		hiddenFromList: false,
+		keyframable: false,
+		description: 'Message index',
+	},
+} as const satisfies InteractivitySchema;
+
+export const Thinking = Interactive.withSchema({
+	Component: ThinkingInner,
+	componentName: '<Thinking>',
+	schema: thinkingSchema,
+	wrapInSequence: true,
+});

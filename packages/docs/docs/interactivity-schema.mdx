@@ -105,6 +105,26 @@ Shows an on/off control.
 
 Shows a color control. The value is a CSS color string.
 
+### `text-content`
+
+Shows a text control for a string prop, such as a title.
+
+Remotion Studio can edit a string literal, such as `title="Hello"`. Other expressions are shown as read-only.
+
+Text content fields are not keyframable.
+
+```ts twoslash title="schema.ts"
+import type {InteractivitySchema} from 'remotion';
+
+export const schema = {
+  title: {
+    type: 'text-content',
+    default: '',
+    description: 'Title',
+  },
+} as const satisfies InteractivitySchema;
+```
+
 ### `asset`
 
 Shows a control for selecting an asset source.
@@ -133,6 +153,12 @@ export const schema = {
 Shows a font family control. The value is a CSS font family string.
 
 When choosing a Google Font in Studio, Remotion adds the matching `loadFont()` call from `@remotion/google-fonts` to the composition file.
+
+### `font-weight`
+
+Shows a font weight control. The value is a number such as `700` or a CSS font weight string such as `"bold"`.
+
+Keyframes are written as [`interpolate()`](/docs/interpolate) calls with [`outputType: 'font-weight'`](/docs/interpolate#outputtype).
 
 ### `enum`
 
@@ -240,6 +266,12 @@ start: {
 
 `innerScale` is optional. When present, Remotion Studio draws a second ellipse using the same center, width, height and rotation multiplied by that numeric field.
 
+### `svg-path`
+
+Shows an SVG path control. The value is an SVG path string, as used by the `d` attribute.
+
+Keyframes are written as [`interpolatePaths()`](/docs/paths/interpolate-paths) calls from `@remotion/paths`.
+
 ### `hidden`
 
 Keeps a field in the schema without rendering a visible control.
@@ -264,11 +296,11 @@ The label shown in Remotion Studio.
 
 Controls whether the field can be animated with keyframes.
 
-Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate` and `color` fields.
+Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate`, `color`, `font-weight` and `svg-path` fields.
 
 Boolean fields use hold keyframes: their value changes at the next keyframe without blending. Boolean keyframes are available from <AvailableFrom v="4.0.530" inline />.
 
-`array` and `font-family` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+`array`, `asset`, `font-family`, `text-content` and `remotion-captions` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
 
 `enum` fields are not keyframable by default. From <AvailableFrom v="4.0.509" inline />, set `keyframable: true` to enable hold keyframes. Remotion Studio generates [`Easing.step1`](/docs/easing#step1) segments because enum values cannot be blended.
 
