@@ -6,13 +6,10 @@ import {
 	type VirtualProject,
 } from '@remotion/browser-studio';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 
 declare const __BROWSER_STUDIO_WORKSPACE_COMMIT__: string;
-
-const experimentalNoticeStorageKey =
-	'remotion-browser-studio-experimental-notice-acknowledged';
 
 const page: React.CSSProperties = {
 	backgroundColor: '#111111',
@@ -120,32 +117,8 @@ const getInitialElementState = (): InitialElementState => {
 const BrowserStudioContent: React.FC = () => {
 	const [initialElementState] = useState(getInitialElementState);
 	const [projectState, setProjectState] = useState(getInitialProjectState);
-	const [noticeAcknowledged, setNoticeAcknowledged] = useState(() => {
-		try {
-			return (
-				window.localStorage.getItem(experimentalNoticeStorageKey) === 'true'
-			);
-		} catch {
-			return false;
-		}
-	});
-	const [noticeKeyboardNavigation, setNoticeKeyboardNavigation] =
-		useState(false);
-	const noticeRef = useRef<HTMLDialogElement>(null);
-	const noticeButtonRef = useRef<HTMLButtonElement>(null);
 	const loadingRepoUrl =
 		projectState.type === 'loading' ? projectState.repoUrl : null;
-
-	useEffect(() => {
-		const dialog = noticeRef.current;
-		if (!dialog || noticeAcknowledged) {
-			return;
-		}
-
-		dialog.showModal();
-		noticeButtonRef.current?.focus();
-		return () => dialog.close();
-	}, [noticeAcknowledged]);
 
 	useEffect(() => {
 		if (initialElementState.type === 'none') {
@@ -194,128 +167,6 @@ const BrowserStudioContent: React.FC = () => {
 
 	if (initialElementState.type === 'invalid') {
 		return <div style={fallback}>Invalid Browser Studio payload.</div>;
-	}
-
-	if (!noticeAcknowledged) {
-		return (
-			<div style={{...loadingBackdrop, boxSizing: 'border-box'}}>
-				<style>{`
-					.experimental-notice.css-reset,
-					.experimental-notice.css-reset * {
-						font-size: 16px;
-						line-height: 1.5;
-						color: white;
-						font-family: Arial, Helvetica, sans-serif;
-						background: transparent;
-						box-sizing: border-box;
-					}
-					.experimental-notice .experimental-notice-copy,
-					.experimental-notice .experimental-notice-copy * {
-						font-size: 14px;
-						color: #a6a7a9;
-					}
-					.experimental-notice-control {
-						cursor: default;
-					}
-					@media (hover: hover) {
-						.experimental-notice .experimental-notice-link:hover {
-							color: white;
-						}
-					}
-					.experimental-notice-control:focus {
-						outline: none;
-						box-shadow: none;
-					}
-					.experimental-notice[data-keyboard-navigation="true"] .experimental-notice-control:focus-visible {
-						box-shadow: inset 1px 1px #555, inset -1px -1px #555,
-							inset 1px -1px #555, inset -1px 1px #555;
-					}
-				`}</style>
-				<dialog
-					ref={noticeRef}
-					className="experimental-notice css-reset"
-					aria-labelledby="experimental-notice-title"
-					aria-describedby="experimental-notice-description"
-					data-keyboard-navigation={noticeKeyboardNavigation}
-					onCancel={(event) => event.preventDefault()}
-					onKeyDown={(event) => {
-						if (event.key === 'Tab') {
-							setNoticeKeyboardNavigation(true);
-						}
-					}}
-					style={{
-						...loadingDialog,
-						backgroundColor: 'rgb(31, 36, 40)',
-						maxHeight: 'calc(100dvh - 48px)',
-						width: 'calc(100vw - 48px)',
-					}}
-				>
-					<h1
-						id="experimental-notice-title"
-						style={{fontSize: 18, fontWeight: 600, margin: 0}}
-					>
-						Browser Studio is experimental
-					</h1>
-					<div
-						id="experimental-notice-description"
-						className="experimental-notice-copy"
-					>
-						<p>
-							This is a playground for trying Remotion’s editing features.
-							Projects aren’t saved between visits, and AI interaction isn’t
-							available here as it is in the{' '}
-							<a
-								className="experimental-notice-control experimental-notice-link"
-								href="https://www.remotion.dev/docs/studio/studio"
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								regular Remotion Studio
-							</a>
-							.
-						</p>
-						<p>
-							To keep working on your project, use{' '}
-							<strong>Download project</strong> and continue locally.
-						</p>
-					</div>
-					<div
-						style={{display: 'flex', justifyContent: 'flex-end', marginTop: 20}}
-					>
-						<button
-							ref={noticeButtonRef}
-							className="experimental-notice-control"
-							onClick={() => {
-								try {
-									window.localStorage.setItem(
-										experimentalNoticeStorageKey,
-										'true',
-									);
-								} catch {
-									// Still allow experimenting when browser storage is unavailable.
-								}
-
-								setNoticeAcknowledged(true);
-							}}
-							style={{
-								appearance: 'none',
-								backgroundColor: '#0b84f3',
-								border: 0,
-								borderRadius: 6,
-								color: 'white',
-								fontSize: 14,
-								margin: 0,
-								minWidth: 64,
-								padding: 10,
-							}}
-							type="button"
-						>
-							OK
-						</button>
-					</div>
-				</dialog>
-			</div>
-		);
 	}
 
 	if (projectState.type !== 'ready') {
@@ -415,6 +266,7 @@ const BrowserStudioContent: React.FC = () => {
 			}
 			project={projectState.project}
 			readOnly={false}
+			showExperimentalNotice
 			remotionPackageSource={{
 				baseUrl: new URL(
 					`/__remotion_browser_studio_workspace__/commits/${__BROWSER_STUDIO_WORKSPACE_COMMIT__}/`,
