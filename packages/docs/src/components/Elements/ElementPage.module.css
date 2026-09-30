@@ -98,7 +98,40 @@
 .actionRow {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+}
+
+.browserStudioAction {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	min-height: 32px;
+	margin-top: 24px;
+	padding: 4px 0;
+	border: 0;
+	appearance: none;
+	background: transparent;
+	color: var(--ifm-color-emphasis-800);
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.5;
+}
+
+.browserStudioAction svg {
+	flex: none;
+}
+
+.browserStudioAction:hover {
+	color: var(--ifm-color-primary);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.browserStudioAction:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
 }
 
 .studioGuidance {
@@ -289,6 +322,13 @@
 	.actionsColumn .contributorList {
 		align-items: stretch;
 		flex-direction: column;
+	}
+}
+
+@media (pointer: coarse) {
+	.browserStudioAction {
+		min-height: 48px;
+		padding: 8px;
 	}
 }
 
