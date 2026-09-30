@@ -23,6 +23,7 @@ import {localPackageRootKey} from './packages/studio-server/src/helpers/get-loca
 
 const repositoryRoot = import.meta.dir;
 const agentPluginRoot = join(repositoryRoot, 'packages', 'agent-plugin');
+const useOldVersion = process.argv.includes('--old');
 
 const run = (command: string[], cwd = repositoryRoot) => {
 	const result = Bun.spawnSync(command, {
@@ -37,8 +38,10 @@ const run = (command: string[], cwd = repositoryRoot) => {
 	}
 };
 
-console.log('Building the current repository state...');
-run(['bunx', 'turbo', 'run', 'make', '--no-update-notifier']);
+if (!useOldVersion) {
+	console.log('Building the current repository state...');
+	run(['bunx', 'turbo', 'run', 'make', '--no-update-notifier']);
+}
 
 console.log('\nBuilding agent skills...');
 run(['bun', 'run', 'build'], agentPluginRoot);
@@ -91,58 +94,79 @@ const currentVersion = JSON.parse(
 		'utf8',
 	),
 ).version as string;
+let remotionVersion = currentVersion;
+if (useOldVersion) {
+	const publishedVersions = Bun.spawnSync(
+		['npm', 'view', 'remotion', 'versions', '--json'],
+		{cwd: repositoryRoot},
+	);
+	if (publishedVersions.exitCode !== 0) {
+		throw new Error(publishedVersions.stderr.toString());
+	}
+
+	const stableVersions = (
+		JSON.parse(publishedVersions.stdout.toString()) as string[]
+	).filter((version) => /^\d+\.\d+\.\d+$/.test(version));
+	if (stableVersions.length < 2) {
+		throw new Error('Could not find two published stable Remotion versions.');
+	}
+
+	remotionVersion = stableVersions[stableVersions.length - 2];
+	console.log(`Using the previous stable Remotion release: ${remotionVersion}`);
+}
 
 patchPackageJson({
 	projectRoot,
 	projectName: basename(projectRoot),
-	latestRemotionVersion: currentVersion,
+	latestRemotionVersion: remotionVersion,
 	packageManager: 'npm',
 	addTailwind: true,
 });
 
-const localPackageOverrides: Record<string, string> = {};
-const packagesRoot = join(repositoryRoot, 'packages');
-for (const directory of readdirSync(packagesRoot)) {
-	const packageDirectory = join(packagesRoot, directory);
-	const packageJsonPath = join(packageDirectory, 'package.json');
-	if (!existsSync(packageJsonPath)) {
-		continue;
+if (!useOldVersion) {
+	const localPackageOverrides: Record<string, string> = {};
+	const packagesRoot = join(repositoryRoot, 'packages');
+	for (const directory of readdirSync(packagesRoot)) {
+		const packageDirectory = join(packagesRoot, directory);
+		const packageJsonPath = join(packageDirectory, 'package.json');
+		if (!existsSync(packageJsonPath)) {
+			continue;
+		}
+
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+		if (
+			packageJson.private ||
+			(packageJson.name !== 'remotion' &&
+				!packageJson.name?.startsWith('@remotion/'))
+		) {
+			continue;
+		}
+
+		localPackageOverrides[packageJson.name] =
+			pathToFileURL(packageDirectory).href;
 	}
 
-	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-	if (
-		packageJson.private ||
-		(packageJson.name !== 'remotion' &&
-			!packageJson.name?.startsWith('@remotion/'))
-	) {
-		continue;
-	}
-
-	localPackageOverrides[packageJson.name] = pathToFileURL(
-		packageDirectory,
-	).href;
-}
-
-const projectPackageJsonPath = join(projectRoot, 'package.json');
-const projectPackageJson = JSON.parse(
-	readFileSync(projectPackageJsonPath, 'utf8'),
-);
-for (const dependencyType of ['dependencies', 'devDependencies'] as const) {
-	for (const dependency of Object.keys(
-		projectPackageJson[dependencyType] ?? {},
-	)) {
-		const localPackageOverride = localPackageOverrides[dependency];
-		if (localPackageOverride) {
-			projectPackageJson[dependencyType][dependency] = localPackageOverride;
+	const projectPackageJsonPath = join(projectRoot, 'package.json');
+	const projectPackageJson = JSON.parse(
+		readFileSync(projectPackageJsonPath, 'utf8'),
+	);
+	for (const dependencyType of ['dependencies', 'devDependencies'] as const) {
+		for (const dependency of Object.keys(
+			projectPackageJson[dependencyType] ?? {},
+		)) {
+			const localPackageOverride = localPackageOverrides[dependency];
+			if (localPackageOverride) {
+				projectPackageJson[dependencyType][dependency] = localPackageOverride;
+			}
 		}
 	}
-}
 
-projectPackageJson[localPackageRootKey] = repositoryRoot;
-writeFileSync(
-	projectPackageJsonPath,
-	JSON.stringify(projectPackageJson, null, 2),
-);
+	projectPackageJson[localPackageRootKey] = repositoryRoot;
+	writeFileSync(
+		projectPackageJsonPath,
+		JSON.stringify(projectPackageJson, null, 2),
+	);
+}
 
 const gitInit = Bun.spawnSync(['git', 'init', '--quiet'], {
 	cwd: projectRoot,
@@ -162,7 +186,7 @@ if (gitInit.exitCode === 0) {
 console.log('\nInstalling the freshly built agent skills...');
 run(
 	[
-		'npx',
+		'bunx',
 		'-y',
 		'--loglevel=error',
 		'skills@1.5.26',
