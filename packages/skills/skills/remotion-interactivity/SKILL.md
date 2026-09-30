@@ -201,10 +201,6 @@ handle timing. Keep `<Series.Sequence>` for consecutive layout and
 `<TransitionSeries.Sequence>` for transitions; direct `from` props do not
 replace those behaviors.
 
-Studio prioritizes the active child scene over an equal-sized outer `<Series>`
-or `<TransitionSeries>` when clicking the canvas. Keep the outer series visible
-in the timeline so it can still be selected there when needed.
-
 ## Give every independently editable item its own JSX node
 
 The Studio edits the JSX source node that created an item. If multiple runtime
