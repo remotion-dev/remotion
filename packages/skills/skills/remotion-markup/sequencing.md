@@ -44,33 +44,6 @@ the timed component, including `<Audio>`, `<Video>`, interactive components,
 Premount parent timeline items as well when a nested item must mount before the
 parent starts. The composition cannot premount before frame 0.
 
-`<Sequence layout="none">` cannot use `premountFor`. If it only wraps one
-timing-capable component, remove the wrapper and put its timing and
-`premountFor={fps}` directly on that component. Otherwise, use the default
-sequence layout so the parent can premount.
-
-For example, time a music bed directly on `<Audio>`:
-
-```tsx
-<Audio
-  name="Music bed"
-  src={staticFile("music.mp3")}
-  from={392}
-  loop
-  premountFor={fps}
-  volume={interpolate(frame, [392, 420, 6150, 6158], [0, 0.14, 0.14, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  })}
-/>
-```
-
-Here the volume reaches zero at frame 6158 and stays there. Omit
-`durationInFrames`: with `loop`, it sets the range to repeat rather than the
-total clip length. The silent audio remains in the timeline until the parent
-ends. Use an outer timed item only when the looping clip itself must end at an
-exact frame.
-
 ## TransitionSeries
 
 Use `<TransitionSeries>` for consecutive scenes that may need transitions. Without a transition, the scenes play without overlap. Use `<Series>` from `remotion` when transitions are not needed.
