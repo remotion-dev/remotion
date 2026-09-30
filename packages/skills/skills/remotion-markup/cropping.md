@@ -6,6 +6,8 @@ It allows for interactively dragging the components and adapting the outlines in
 The following components support `crop*` props:
 
 - `<Sequence>` from `remotion`, when `layout="absolute-fill"`
+- `<Interactive.*>` HTML and SVG elements from `remotion`
+- Custom components made with `Interactive.withSchema({wrapInSequence: true})` from `remotion`, when their `style` prop is forwarded to the visual root
 - `<CanvasImage>` from `remotion`
 - `<Img>` from `remotion`
 - `<AnimatedImage>` from `remotion`
