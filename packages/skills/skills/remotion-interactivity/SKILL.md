@@ -25,37 +25,66 @@ shared root when transforms, cropping, or opacity should affect all its layers.
 Flatten redundant inner wrappers when their styles can move onto an existing
 element without changing layout or animation.
 
-```tsx title="Chapter.tsx"
+```tsx title="LowerThird.tsx"
 import type React from 'react';
-import {AbsoluteFill, Interactive, type InteractivitySchema} from 'remotion';
+import {Interactive, type InteractivitySchema} from 'remotion';
 
-type ChapterProps = {
-  readonly title: string;
+type LowerThirdProps = {
+  readonly children: string;
+  readonly accentColor: string;
   readonly style?: React.CSSProperties;
 };
 
-const ChapterInner: React.FC<ChapterProps> = ({title, style}) => (
-  <AbsoluteFill
-    style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'white',
-      fontSize: 64,
-      ...style,
-    }}
-  >
-    {title}
-  </AbsoluteFill>
-);
+const LowerThirdInner: React.FC<LowerThirdProps> = ({
+  children,
+  accentColor,
+  style,
+}) => {
+  return (
+    <Interactive.Div
+      style={{
+        position: 'absolute',
+        left: 80,
+        bottom: 80,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: '20px 32px',
+        color: 'black',
+        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontSize: 48,
+        fontWeight: 600,
+        ...style,
+      }}
+    >
+      <div
+        style={{
+          width: 8,
+          alignSelf: 'stretch',
+          borderRadius: 4,
+          backgroundColor: accentColor,
+        }}
+      />
+      {children}
+    </Interactive.Div>
+  );
+};
 
-const chapterSchema = {
-  title: {type: 'text-content', default: '', description: 'Title'},
+const lowerThirdSchema = {
+  children: {type: 'text-content', default: '', description: 'Text'},
+  accentColor: {
+    type: 'color',
+    default: '#0b84f3',
+    description: 'Accent color',
+  },
 } as const satisfies InteractivitySchema;
 
-export const Chapter = Interactive.withSchema({
-  Component: ChapterInner,
-  componentName: '<Chapter>',
-  schema: chapterSchema,
+export const LowerThird = Interactive.withSchema({
+  Component: LowerThirdInner,
+  componentName: '<LowerThird>',
+  schema: lowerThirdSchema,
   wrapInSequence: true,
 });
 ```
@@ -113,22 +142,25 @@ compositions**: they can be opened in their own timeline while sharing the same
 component implementation with the parent video.
 
 Register the same exported component reference that the parent renders. For the
-example above, use `component={Chapter}`, not `ChapterInner` or an inline wrapper.
+example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
 With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
 
 ```tsx title="Root.tsx"
 import {Composition} from 'remotion';
-import {Chapter} from './Chapter';
+import {LowerThird} from './LowerThird';
 
 export const RemotionRoot = () => (
   <Composition
-    id="Chapter"
-    component={Chapter}
-    width={1920}
-    height={1080}
+    id="LowerThird"
+    component={LowerThird}
+    width={1280}
+    height={720}
     fps={30}
-    durationInFrames={90}
-    defaultProps={{title: 'Introduction'}}
+    durationInFrames={30}
+    defaultProps={{
+      children: 'Jane Doe, Product Designer',
+      accentColor: '#0b84f3',
+    }}
   />
 );
 ```
@@ -147,12 +179,14 @@ props. Built-in interactive components and custom components made with
 `trimBefore`, `playbackRate`, and `premountFor` directly.
 
 ```tsx
-<Chapter
-  name="Opening chapter"
+<LowerThird
+  name="Lower third"
   from={30}
   durationInFrames={90}
-  title="Introduction"
-/>
+  accentColor="#0b84f3"
+>
+  Jane Doe, Product Designer
+</LowerThird>
 ```
 
 When removing a redundant sequence, move its timing and name to the child.
