@@ -47,7 +47,7 @@ export const MyComp = () => {
 
 ## 2D effect with `onPaint`
 
-`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM. Current Chromium synchronizes the element's geometry automatically.
+`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM.
 
 ```tsx
 import {
