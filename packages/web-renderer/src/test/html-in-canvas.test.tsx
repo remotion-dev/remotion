@@ -151,6 +151,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 					drawElementImage: typeof drawElementImage;
 				},
 				layoutCanvas: outerLayoutCanvas,
+				wasDrawable: false,
 			},
 			internalState,
 			logLevel: 'error',

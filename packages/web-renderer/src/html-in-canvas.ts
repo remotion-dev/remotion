@@ -5,7 +5,7 @@ type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 		dy: number,
 		dwidth: number,
 		dheight: number,
-	) => DOMMatrix;
+	) => DOMMatrix | void;
 };
 
 type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
@@ -26,18 +26,20 @@ export const supportsNativeHtmlInCanvas = (): boolean => {
 
 export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
 	return Array.from(element.querySelectorAll('canvas')).some(
-		(canvas) => (canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true,
+		(canvas) =>
+			(canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true ||
+			canvas.getAttribute('content') === 'drawable',
 	);
 };
 
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
 	ctx: Canvas2DWithDrawElement;
+	wasDrawable: boolean;
 };
 
 /**
- * Sets up a persistent layoutsubtree canvas that wraps the scaffold div.
- * The div becomes a direct child of the canvas, which is required for drawElementImage.
+ * Sets up a persistent drawable canvas that wraps the scaffold div.
  * Must be called once before rendering begins; the canvas stays in the DOM for the
  * lifetime of the render.
  */
@@ -59,6 +61,7 @@ export const setupHtmlInCanvas = ({
 	const layoutCanvas = document.createElement(
 		'canvas',
 	) as HTMLCanvasWithLayoutSubtree;
+	layoutCanvas.setAttribute('content', 'drawable');
 	layoutCanvas.layoutSubtree = true;
 
 	layoutCanvas.width = width;
@@ -85,11 +88,13 @@ export const setupHtmlInCanvas = ({
 		return null;
 	}
 
+	const wasDrawable = div.hasAttribute('drawable');
+	div.setAttribute('drawable', '');
 	wrapper.removeChild(div);
 	layoutCanvas.appendChild(div);
 	wrapper.appendChild(layoutCanvas);
 
-	return {layoutCanvas, ctx: maybeCtx};
+	return {layoutCanvas, ctx: maybeCtx, wasDrawable};
 };
 
 const waitForPaint = (
@@ -153,8 +158,11 @@ export const teardownHtmlInCanvas = ({
 	wrapper: HTMLDivElement;
 	div: HTMLDivElement;
 }) => {
-	const {layoutCanvas} = htmlInCanvasContext;
+	const {layoutCanvas, wasDrawable} = htmlInCanvasContext;
 	layoutCanvas.removeChild(div);
 	wrapper.removeChild(layoutCanvas);
 	wrapper.appendChild(div);
+	if (!wasDrawable) {
+		div.removeAttribute('drawable');
+	}
 };

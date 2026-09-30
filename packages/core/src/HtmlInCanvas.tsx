@@ -41,9 +41,28 @@ import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
-// WebGPU's `copyElementImageToTexture` is omitted — `GPUQueue` is not in
+// WebGPU's `drawElementImageToTexture` is omitted — `GPUQueue` is not in
 // lib.dom.d.ts and would require pulling in `@webgpu/types`.
 declare global {
+	interface DrawElementImageOptions {
+		preserveElementGeometry?: boolean;
+	}
+
+	interface WebGLCopyElementImageConfig {
+		sx?: GLfloat;
+		sy?: GLfloat;
+		swidth?: GLfloat;
+		sheight?: GLfloat;
+		width?: GLsizei;
+		height?: GLsizei;
+	}
+
+	interface UpdateElementGeometryOptions {
+		preserveHitTestOrder?: boolean;
+		clip?: DOMRectInit;
+		canvasTransform?: DOMMatrixInit;
+	}
+
 	interface ElementImage {
 		readonly width: number;
 		readonly height: number;
@@ -55,14 +74,16 @@ declare global {
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 		drawElementImage(
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -71,7 +92,8 @@ declare global {
 			sheight: number,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -82,7 +104,8 @@ declare global {
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 	}
 
 	interface OffscreenCanvasRenderingContext2D {
@@ -90,14 +113,16 @@ declare global {
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 		drawElementImage(
 			element: Element | ElementImage,
 			dx: number,
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -106,7 +131,8 @@ declare global {
 			sheight: number,
 			dx: number,
 			dy: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -117,11 +143,22 @@ declare global {
 			dy: number,
 			dwidth: number,
 			dheight: number,
-		): DOMMatrix;
+			options?: DrawElementImageOptions,
+		): DOMMatrix | void;
 	}
 
 	// Augmenting the base interface applies to both WebGL1 and WebGL2.
 	interface WebGLRenderingContextBase {
+		texElementSubImage2D(
+			target: GLenum,
+			level: GLint,
+			xoffset: GLint,
+			yoffset: GLint,
+			element: Element | ElementImage,
+			config?: WebGLCopyElementImageConfig,
+		): void;
+
+		// Older Chromium builds expose texElementImage2D during the migration.
 		texElementImage2D(
 			target: GLenum,
 			level: GLint,
@@ -173,14 +210,29 @@ declare global {
 	}
 
 	interface HTMLCanvasElement {
+		content: string;
 		layoutSubtree?: boolean;
 		onpaint: ((this: HTMLCanvasElement, ev: Event) => unknown) | null;
 		requestPaint?(): void;
 		captureElementImage(element: Element): ElementImage;
+		updateElementGeometry(
+			element: Element | ElementImage,
+			options?: UpdateElementGeometryOptions,
+		): void;
+		clearElementGeometry(element: Element | ElementImage): void;
+		getElementTransform(element: Element): DOMMatrix;
 		getElementTransform(
 			element: Element | ElementImage,
 			drawTransform: DOMMatrix,
 		): DOMMatrix;
+	}
+
+	interface OffscreenCanvas {
+		updateElementGeometry(
+			element: Element | ElementImage,
+			options?: UpdateElementGeometryOptions,
+		): void;
+		clearElementGeometry(element: Element | ElementImage): void;
 	}
 }
 
@@ -376,7 +428,10 @@ const defaultOnPaint = ({
 
 	ctx.reset();
 	const transform = ctx.drawElementImage(elementImage, 0, 0);
-	element.style.transform = transform.toString();
+	if (transform) {
+		// Older Chromium requires manual geometry synchronization.
+		element.style.transform = transform.toString();
+	}
 };
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
@@ -660,7 +715,9 @@ const HtmlInCanvasContent = forwardRef<
 				throw new Error('Canvas not found');
 			}
 
+			placeholder.setAttribute('content', 'drawable');
 			placeholder.layoutSubtree = true;
+			divRef.current?.setAttribute('drawable', '');
 
 			const paintTarget = usesDirectLayoutCanvas
 				? placeholder

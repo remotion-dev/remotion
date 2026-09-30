@@ -38,7 +38,9 @@ export const HtmlInCanvasChangingSize: React.FC = () => {
 						canvas.width,
 						canvas.height,
 					);
-					element.style.transform = transform.toString();
+					if (transform) {
+						element.style.transform = transform.toString();
+					}
 					const {data: pixels} = ctx.getImageData(
 						0,
 						0,

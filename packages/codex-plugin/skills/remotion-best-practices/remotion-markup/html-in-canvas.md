@@ -47,7 +47,7 @@ export const MyComp = () => {
 
 ## 2D effect with `onPaint`
 
-`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM, and assign the returned transform to `element.style.transform` so DOM selection still aligns with the painted output.
+`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM. Current Chromium synchronizes the element's geometry automatically; older versions return a transform that must be assigned to `element.style.transform`.
 
 ```tsx
 import {
@@ -73,7 +73,9 @@ export const Blur = () => {
       ctx.reset();
       ctx.filter = `blur(${blurPx}px)`;
       const transform = ctx.drawElementImage(elementImage, 0, 0);
-      element.style.transform = transform.toString();
+      if (transform) {
+        element.style.transform = transform.toString();
+      }
     },
     [frame, fps],
   );
@@ -98,28 +100,7 @@ export const Blur = () => {
 
 ## WebGL effects
 
-For WebGL, set up the context, program, and texture in `onInit` and return a cleanup function. Inside `onPaint`, upload the captured DOM with `gl.texElementImage2D(...)` and draw.
-
-```tsx
-const onInit: HtmlInCanvasOnInit = useCallback(({ canvas }) => {
-  const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true });
-  if (!gl) {
-    throw new Error(
-      "WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.",
-    );
-  }
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  // compile program, create texture, set up VAO...
-  return () => {
-    // delete program, texture, buffers...
-  };
-}, []);
-
-const onPaint: HtmlInCanvasOnPaint = useCallback(({ elementImage }) => {
-  gl.texElementImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, elementImage);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-}, []);
-```
+For WebGL, set up the context, program, and texture in `onInit` and return a cleanup function. Allocate the texture with `gl.texImage2D(..., null)` when `elementImage` changes size. Inside `onPaint`, upload with `gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, elementImage)` and draw. Older Chromium versions only expose `gl.texElementImage2D()`; use it when the new method is absent.
 
 For a fully working minimal example, see https://github.com/remotion-dev/remotion/blob/main/packages/docs/components/demos/HtmlInCanvasDocsDemoWebGL.tsx.
 

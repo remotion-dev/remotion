@@ -36,7 +36,9 @@ export const HtmlInCanvasDocsDemo2DBlur: React.FC = () => {
 			ctx.reset();
 			ctx.filter = `blur(${blurPx}px)`;
 			const transform = ctx.drawElementImage(elementImage, 0, 0);
-			element.style.transform = transform.toString();
+			if (transform) {
+				element.style.transform = transform.toString();
+			}
 		},
 		[frame, fps],
 	);

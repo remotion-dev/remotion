@@ -137,8 +137,10 @@ const wrapWholePage = (): WrappedPage => {
 	const minimumSize = getWholePageSize();
 	const canvas = document.createElement('canvas') as HtmlInCanvasElement;
 	const content = document.createElement('div');
+	canvas.setAttribute('content', 'drawable');
 	canvas.layoutSubtree = true;
 	canvas.setAttribute('layoutsubtree', '');
+	content.setAttribute('drawable', '');
 	canvas.style.display = 'block';
 	canvas.style.position = 'relative';
 	content.style.position = 'absolute';
