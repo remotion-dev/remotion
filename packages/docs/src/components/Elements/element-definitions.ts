@@ -51,6 +51,8 @@ import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-l
 import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
+import {speedLinesInitialProps} from '../../../elements/storytelling/speed-lines/initial-props';
+import {SpeedLines} from '../../../elements/storytelling/speed-lines/speed-lines';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
@@ -70,6 +72,7 @@ import {
 export type ElementPreviewLayout = 'composition' | 'vertical';
 
 export type ElementPreviewMetadata = {
+	readonly backgroundColor?: string;
 	readonly previewLayout: ElementPreviewLayout;
 	readonly posterUrl:
 		| `/elements/${string}-preview.png`
@@ -980,6 +983,33 @@ const elementImplementations = [
 		safeArea: 0,
 		initialProps: null,
 		installationMode: 'wrapped',
+		width: 1920,
+	},
+	{
+		slug: 'storytelling/speed-lines',
+		assets: [],
+		installationProps: null,
+		component: SpeedLines,
+		contributors: [],
+		description: 'A burst of animated radial speed lines around a subject.',
+		dependencies: [],
+		durationInFrames: 45,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 15,
+		preview: {
+			backgroundColor: '#20262f',
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.png',
+			videoUrl:
+				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.mp4',
+		},
+		safeArea: 0,
+		initialProps: speedLinesInitialProps as ElementInitialProps,
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	{
