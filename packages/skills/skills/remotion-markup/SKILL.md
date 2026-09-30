@@ -349,8 +349,7 @@ Other items need `durationInFrames` to define the loop range:
 <Interactive.Div durationInFrames={2 * fps} loop {/* ... */} />
 ```
 
-Put timing and volume directly on `<Audio>` rather than wrapping one audio
-track in a `<Sequence>`.
+Put timing and volume directly on `<Audio>`.
 
 `<Img>`, `<CanvasImage>`, `<Solid>` and shapes do not support `loop` because their output does not change over time.
 
