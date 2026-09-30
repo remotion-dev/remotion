@@ -47,11 +47,22 @@ Register the same scene components, plus the parent video, in the root:
 import {Composition, Folder} from 'remotion';
 import {OpeningScene} from './OpeningScene';
 import {FeatureScene} from './FeatureScene';
+import {ChapterElement} from './ChapterElement';
 import {MyVideo} from './MyVideo';
 
 export const RemotionRoot = () => (
   <>
-    <Folder name="MyVideo-Scenes">
+    <Folder name="Elements">
+      <Composition
+        id="ChapterElement"
+        component={ChapterElement}
+        width={1920}
+        height={1080}
+        fps={30}
+        durationInFrames={60}
+      />
+    </Folder>
+    <Folder name="Scenes">
       <Composition
         id="Opening"
         component={OpeningScene}
@@ -83,6 +94,8 @@ export const RemotionRoot = () => (
 
 Keep each scene's standalone metadata and `defaultProps` consistent with how it is used in the main video.
 
-With no transition, this example needs a 210-frame main composition. If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
+With no transition, this example needs a 210-frame main composition.  
+If you add a transition, account for its overlap in the main duration; see [transitions](transitions.md).
 
-Use `<Series>` for consecutive scenes that do not need transitions. For independently placed scenes, prefer components made with `Interactive.withSchema({wrapInSequence: true})` and put `from` and `durationInFrames` directly on each instance. Avoid an extra `<Sequence>` unless it supplies shared timing, dimension overrides, or timing for a component that does not support it.
+Use `<Series>` for consecutive scenes that do not need transitions.  
+For independently placed scenes, prefer components made with `Interactive.withSchema({wrapInSequence: true})` and put `from` and `durationInFrames` directly on each instance.
