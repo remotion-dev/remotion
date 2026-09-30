@@ -226,6 +226,7 @@ export const CubeWave: React.FC = () => {
 				}}
 			>
 				<RiseText
+					name="Depth &"
 					text="Depth &"
 					start={18}
 					stagger={2}
@@ -240,6 +241,7 @@ export const CubeWave: React.FC = () => {
 					}}
 				/>
 				<RiseText
+					name="dimension."
 					text="dimension."
 					start={24}
 					stagger={2}
@@ -281,7 +283,13 @@ export const CubeWave: React.FC = () => {
 					<Spec label="WAVE" value="0.5 Hz · 1 bar" start={50} />
 				</div>
 			</div>
-			<ChapterTag index="06" title="Dimension" color={colors.ink} start={20} />
+			<ChapterTag
+				name="Dimension chapter tag"
+				index="06"
+				title="Dimension"
+				color={colors.ink}
+				start={20}
+			/>
 		</AbsoluteFill>
 	);
 };

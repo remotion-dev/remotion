@@ -50,7 +50,11 @@ export const Intro: React.FC = () => {
 						}),
 					}}
 				>
-					<Typewriter text="MOTION DESIGN PORTFOLIO — 2026" start={18} />
+					<Typewriter
+						name="Intro eyebrow copy"
+						text="MOTION DESIGN PORTFOLIO — 2026"
+						start={18}
+					/>
 				</Interactive.Div>
 				<div
 					style={{
@@ -60,6 +64,7 @@ export const Intro: React.FC = () => {
 					}}
 				>
 					<RiseText
+						name="Motion"
 						text="Motion"
 						start={14}
 						stagger={3}

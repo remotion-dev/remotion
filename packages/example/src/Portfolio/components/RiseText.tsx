@@ -1,5 +1,11 @@
 import React from 'react';
-import {Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractivitySchema,
+} from 'remotion';
 
 const enterEase = Easing.bezier(0.16, 1, 0.3, 1);
 const exitEase = Easing.bezier(0.7, 0, 0.84, 0);
@@ -15,7 +21,7 @@ type Props = {
 };
 
 // Letters rise out of a mask one by one, and optionally sink back into it.
-export const RiseText: React.FC<Props> = ({
+const RiseTextInner: React.FC<Props> = ({
 	text,
 	start,
 	stagger = 3,
@@ -27,7 +33,9 @@ export const RiseText: React.FC<Props> = ({
 	const frame = useCurrentFrame();
 
 	return (
-		<span style={{display: 'inline-flex', overflow: 'hidden', ...style}}>
+		<Interactive.Span
+			style={{display: 'inline-flex', overflow: 'hidden', ...style}}
+		>
 			{Array.from(text).map((char, i) => {
 				const enterStart = start + i * stagger;
 				const enter = interpolate(
@@ -67,6 +75,37 @@ export const RiseText: React.FC<Props> = ({
 					</span>
 				);
 			})}
-		</span>
+		</Interactive.Span>
 	);
 };
+
+const riseTextSchema = {
+	text: {type: 'text-content', default: '', description: 'Text'},
+	start: {
+		type: 'number',
+		default: 0,
+		hiddenFromList: false,
+		description: 'Start frame',
+	},
+	stagger: {
+		type: 'number',
+		default: 3,
+		min: 0,
+		hiddenFromList: false,
+		description: 'Frames between letters',
+	},
+	duration: {
+		type: 'number',
+		default: 22,
+		min: 1,
+		hiddenFromList: false,
+		description: 'Rise duration',
+	},
+} as const satisfies InteractivitySchema;
+
+export const RiseText = Interactive.withSchema({
+	Component: RiseTextInner,
+	componentName: '<RiseText>',
+	schema: riseTextSchema,
+	wrapInSequence: true,
+});

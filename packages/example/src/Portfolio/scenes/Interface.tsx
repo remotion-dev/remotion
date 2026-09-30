@@ -897,6 +897,7 @@ export const Interface: React.FC = () => {
 				}}
 			>
 				<RiseText
+					name="Interfaces"
 					text="Interfaces"
 					start={12}
 					stagger={2}
@@ -911,6 +912,7 @@ export const Interface: React.FC = () => {
 					}}
 				/>
 				<RiseText
+					name="that feel"
 					text="that feel"
 					start={18}
 					stagger={2}
@@ -925,6 +927,7 @@ export const Interface: React.FC = () => {
 					}}
 				/>
 				<RiseText
+					name="alive."
 					text="alive."
 					start={24}
 					stagger={3}
@@ -995,6 +998,7 @@ export const Interface: React.FC = () => {
 				<Cursor />
 			</Interactive.Div>
 			<ChapterTag
+				name="Interface chapter tag"
 				index="04"
 				title="Interface"
 				color={colors.paper}

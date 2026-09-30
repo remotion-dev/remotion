@@ -1,18 +1,25 @@
 import React from 'react';
-import {interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractivitySchema,
+} from 'remotion';
 
 type Props = {
 	readonly text: string;
 	readonly start: number;
 	readonly charsPerFrame?: number;
 	readonly cursorColor?: string;
+	readonly style?: React.CSSProperties;
 };
 
-export const Typewriter: React.FC<Props> = ({
+const TypewriterInner: React.FC<Props> = ({
 	text,
 	start,
 	charsPerFrame = 1,
-	cursorColor = 'currentColor',
+	cursorColor = '#F3EFE6',
+	style,
 }) => {
 	const frame = useCurrentFrame();
 	const typed = Math.floor(
@@ -27,7 +34,7 @@ export const Typewriter: React.FC<Props> = ({
 	const cursorVisible = isTyping || Math.floor(frame / 8) % 2 === 0;
 
 	return (
-		<span style={{whiteSpace: 'pre'}}>
+		<Interactive.Span style={{whiteSpace: 'pre', ...style}}>
 			{text.slice(0, typed)}
 			<span
 				style={{
@@ -40,6 +47,31 @@ export const Typewriter: React.FC<Props> = ({
 					opacity: frame >= start && cursorVisible ? 1 : 0,
 				}}
 			/>
-		</span>
+		</Interactive.Span>
 	);
 };
+
+const typewriterSchema = {
+	text: {type: 'text-content', default: '', description: 'Text'},
+	start: {
+		type: 'number',
+		default: 0,
+		hiddenFromList: false,
+		description: 'Start frame',
+	},
+	charsPerFrame: {
+		type: 'number',
+		default: 1,
+		min: 0.1,
+		hiddenFromList: false,
+		description: 'Characters per frame',
+	},
+	cursorColor: {type: 'color', default: '#F3EFE6', description: 'Cursor color'},
+} as const satisfies InteractivitySchema;
+
+export const Typewriter = Interactive.withSchema({
+	Component: TypewriterInner,
+	componentName: '<Typewriter>',
+	schema: typewriterSchema,
+	wrapInSequence: true,
+});

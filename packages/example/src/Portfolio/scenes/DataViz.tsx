@@ -294,6 +294,7 @@ export const DataViz: React.FC = () => {
 				}}
 			>
 				<RiseText
+					name="Data,"
 					text="Data,"
 					start={14}
 					style={{
@@ -307,6 +308,7 @@ export const DataViz: React.FC = () => {
 					}}
 				/>
 				<RiseText
+					name="in motion."
 					text="in motion."
 					start={20}
 					stagger={2}
@@ -480,6 +482,7 @@ export const DataViz: React.FC = () => {
 				</div>
 			</Interactive.Div>
 			<ChapterTag
+				name="Data visualization chapter tag"
 				index="03"
 				title="Data visualization"
 				color={colors.ink}
