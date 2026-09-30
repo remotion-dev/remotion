@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	COMMIT_ORDER_EVENT,
@@ -15,6 +15,7 @@ import type {
 	GetEffectDragOverrides,
 	PropStatuses,
 } from './use-schema.js';
+import {useSyncExternalStore} from './use-sync-external-store.js';
 import type {VideoConfigValues} from './video-config.js';
 
 const useIsomorphicLayoutEffect =
@@ -33,7 +34,7 @@ export type SequenceManagerRef = {
 
 export type SequenceNodePath = Array<string | number>;
 
-export const SequenceManager = React.createContext<SequenceManagerContext>({
+const defaultSequenceManager: SequenceManagerContext = {
 	registerSequence: () => {
 		throw new Error('SequenceManagerContext not initialized');
 	},
@@ -42,7 +43,51 @@ export const SequenceManager = React.createContext<SequenceManagerContext>({
 		throw new Error('SequenceManagerContext not initialized');
 	},
 	sequences: [],
+};
+
+type SequenceManagerActions = Pick<
+	SequenceManagerContext,
+	'registerSequence' | 'updateSequence' | 'unregisterSequence'
+>;
+
+export const SequenceManagerActionsContext =
+	React.createContext<SequenceManagerActions>({
+		registerSequence: defaultSequenceManager.registerSequence,
+		updateSequence: defaultSequenceManager.updateSequence,
+		unregisterSequence: defaultSequenceManager.unregisterSequence,
+	});
+
+export const SequenceManager = React.createContext(defaultSequenceManager);
+const NativeSequenceManagerProvider = SequenceManager.Provider;
+const SequenceManagerProviderWithActions: React.FC<
+	React.ProviderProps<SequenceManagerContext>
+> = ({value, children}) => {
+	const actions = useMemo<SequenceManagerActions>(
+		() => ({
+			registerSequence: value.registerSequence,
+			updateSequence: value.updateSequence,
+			unregisterSequence: value.unregisterSequence,
+		}),
+		[value.registerSequence, value.updateSequence, value.unregisterSequence],
+	);
+	return (
+		<SequenceManagerActionsContext.Provider value={actions}>
+			<NativeSequenceManagerProvider value={value}>
+				{children}
+			</NativeSequenceManagerProvider>
+		</SequenceManagerActionsContext.Provider>
+	);
+};
+
+// Keep custom SequenceManager.Provider trees in sync with the stable actions
+// context while preserving the legacy reactive sequence-list context.
+Object.defineProperty(SequenceManager, 'Provider', {
+	value: SequenceManagerProviderWithActions,
 });
+
+export const useSequenceManagerSequences = (): TSequence[] => {
+	return useContext(SequenceManager).sequences;
+};
 
 export const SequenceManagerRefContext =
 	React.createContext<SequenceManagerRef>({
@@ -76,6 +121,64 @@ export type VisualModeDragOverrides = {
 	getEffectDragOverrides: GetEffectDragOverrides;
 };
 
+type DragOverridesSubscription = {
+	manager: SequenceManagerActions;
+	subscribe: (key: string | null, listener: () => void) => () => void;
+	getSnapshot: (key: string | null) => Record<string, DragOverrideValue>;
+	subscribeEffects: (key: string | null, listener: () => void) => () => void;
+	getEffectSnapshot: (
+		key: string | null,
+	) => Record<string, Record<string, DragOverrideValue>>;
+};
+
+export const VisualModeDragOverridesSubscriptionContext =
+	React.createContext<DragOverridesSubscription | null>(null);
+
+type ActiveFromDragOverrideKeys = {
+	manager: SequenceManagerActions;
+	keys: ReadonlySet<string>;
+};
+
+const ActiveFromDragOverrideKeysContext =
+	React.createContext<ActiveFromDragOverrideKeys | null>(null);
+
+const SequenceManagerScopeProviders: React.FC<{
+	readonly children: React.ReactNode;
+	readonly dragOverridesSubscription: Omit<
+		DragOverridesSubscription,
+		'manager'
+	>;
+	readonly fromKeys: ReadonlySet<string>;
+}> = ({children, dragOverridesSubscription, fromKeys}) => {
+	const manager = useContext(SequenceManagerActionsContext);
+	const scopedDragOverridesSubscription = useMemo<DragOverridesSubscription>(
+		() => ({...dragOverridesSubscription, manager}),
+		[dragOverridesSubscription, manager],
+	);
+	const activeFromDragOverrideKeys = useMemo<ActiveFromDragOverrideKeys>(
+		() => ({manager, keys: fromKeys}),
+		[fromKeys, manager],
+	);
+	return (
+		<ActiveFromDragOverrideKeysContext.Provider
+			value={activeFromDragOverrideKeys}
+		>
+			<VisualModeDragOverridesSubscriptionContext.Provider
+				value={scopedDragOverridesSubscription}
+			>
+				{children}
+			</VisualModeDragOverridesSubscriptionContext.Provider>
+		</ActiveFromDragOverrideKeysContext.Provider>
+	);
+};
+
+const emptyDragOverrides: Record<string, DragOverrideValue> = {};
+const emptyFromOverrideKeys: ReadonlySet<string> = new Set();
+const emptyEffectDragOverrides: Record<
+	string,
+	Record<string, DragOverrideValue>
+> = {};
+
 export type SequencePropsStatusRemapping = {
 	previousNodePath: SequencePropsSubscriptionKey;
 	nodePath: SequencePropsSubscriptionKey | null;
@@ -107,6 +210,24 @@ export type VisualModeSetters = {
 	) => void;
 	remapPropStatuses: (
 		remappings: readonly SequencePropsStatusRemapping[],
+	) => void;
+};
+
+export type VisualModeBatchSetters = {
+	setDragOverridesBatch: (
+		overrides: readonly {
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly key: string;
+			readonly value: DragOverrideValue;
+		}[],
+	) => void;
+	setEffectDragOverridesBatch: (
+		overrides: readonly {
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly effectIndex: number;
+			readonly key: string;
+			readonly value: DragOverrideValue;
+		}[],
 	) => void;
 };
 
@@ -176,6 +297,86 @@ export const VisualModeDragOverridesContext =
 		},
 	});
 
+/* eslint-disable react-hooks/rules-of-hooks */
+export const useDragOverridesForNodePath = (
+	nodePath: SequencePropsSubscriptionKey | null,
+): Record<string, DragOverrideValue> => {
+	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
+	const manager = useContext(SequenceManagerActionsContext);
+	const scopedSubscription =
+		subscription?.manager === manager ? subscription : null;
+	// Legacy providers only supply VisualModeDragOverridesContext. Its presence is
+	// fixed for the lifetime of a mounted tree.
+	const legacy =
+		scopedSubscription === null
+			? useContext(VisualModeDragOverridesContext)
+			: null;
+	const key =
+		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
+	const subscribe = useCallback(
+		(listener: () => void) =>
+			scopedSubscription?.subscribe(key, listener) ?? (() => undefined),
+		[key, scopedSubscription],
+	);
+	const getSnapshot = useCallback(
+		() => scopedSubscription?.getSnapshot(key) ?? emptyDragOverrides,
+		[key, scopedSubscription],
+	);
+	const overrides = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	return legacy !== null && nodePath !== null
+		? legacy.getDragOverrides(nodePath)
+		: overrides;
+};
+
+export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
+	const snapshot = useContext(ActiveFromDragOverrideKeysContext);
+	const manager = useContext(SequenceManagerActionsContext);
+	return snapshot?.manager === manager ? snapshot.keys : emptyFromOverrideKeys;
+};
+
+export const useEffectDragOverridesForNodePath = (
+	nodePath: SequencePropsSubscriptionKey | null,
+	effectCount: number,
+): Record<string, Record<string, DragOverrideValue>> => {
+	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
+	const manager = useContext(SequenceManagerActionsContext);
+	const scopedSubscription =
+		subscription?.manager === manager ? subscription : null;
+	// Legacy providers only supply VisualModeDragOverridesContext. Its presence is
+	// fixed for the lifetime of a mounted tree.
+	const legacy =
+		scopedSubscription === null
+			? useContext(VisualModeDragOverridesContext)
+			: null;
+	const key =
+		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
+	const subscribe = useCallback(
+		(listener: () => void) =>
+			scopedSubscription?.subscribeEffects(key, listener) ?? (() => undefined),
+		[key, scopedSubscription],
+	);
+	const getSnapshot = useCallback(
+		() =>
+			scopedSubscription?.getEffectSnapshot(key) ?? emptyEffectDragOverrides,
+		[key, scopedSubscription],
+	);
+	const overrides = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	if (legacy !== null && nodePath !== null) {
+		const legacyOverrides: Record<
+			string,
+			Record<string, DragOverrideValue>
+		> = {};
+		for (let index = 0; index < effectCount; index++) {
+			legacyOverrides[index] = legacy.getEffectDragOverrides(nodePath, index);
+		}
+
+		return legacyOverrides;
+	}
+
+	return overrides;
+};
+/* eslint-enable react-hooks/rules-of-hooks */
+
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setDragOverrides: () => {
 		throw new Error('VisualModeSettersContext not initialized');
@@ -196,6 +397,9 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 });
+
+export const VisualModeBatchSettersContext =
+	React.createContext<VisualModeBatchSetters | null>(null);
 
 export type SequencePropsSubscriptionKey = {
 	absolutePath: string;
@@ -223,67 +427,272 @@ export const SequenceManagerProvider: React.FC<{
 	const [sequences, setSequences] = useState<TSequence[]>([]);
 	const sequencesRef = useRef(sequences);
 	sequencesRef.current = sequences;
-	const [dragOverrides, setControlOverrides] = useState<DragOverrides>({});
-	const controlOverridesRef = useRef(dragOverrides);
-	controlOverridesRef.current = dragOverrides;
+	const [dragOverrideState, setDragOverrideState] = useState(() => ({
+		overrides: {} as DragOverrides,
+		fromKeys: new Set<string>(),
+	}));
+	const dragOverrides = dragOverrideState.overrides;
+	const dragOverridesStore = useRef({
+		snapshot: dragOverrides,
+		listeners: new Map<string, Set<() => void>>(),
+	});
 	const [effectDragOverridesState, setEffectDragOverridesState] =
 		useState<EffectDragOverrides>({});
+	const effectDragOverridesStore = useRef({
+		snapshot: effectDragOverridesState,
+		byNode: new Map<
+			string,
+			Record<string, Record<string, DragOverrideValue>>
+		>(),
+		listeners: new Map<string, Set<() => void>>(),
+	});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
 	const propStatusesRef = useRef(propStatuses);
 	propStatusesRef.current = propStatuses;
+
+	const setDragOverridesBatch = useCallback(
+		(
+			overrides: readonly {
+				readonly nodePath: SequencePropsSubscriptionKey;
+				readonly key: string;
+				readonly value: DragOverrideValue;
+			}[],
+		) => {
+			setDragOverrideState((prevState) => {
+				const prev = prevState.overrides;
+				let next: DragOverrides | null = null;
+				let nextFromKeys = prevState.fromKeys;
+				for (const {nodePath, key, value} of overrides) {
+					const mapKey = makeSequencePropsSubscriptionKey(nodePath);
+					const existing = (next ?? prev)[mapKey]?.[key];
+					if (
+						existing === value ||
+						(existing?.type === 'static' &&
+							value.type === 'static' &&
+							Object.is(existing.value, value.value))
+					) {
+						continue;
+					}
+
+					if (next === null) {
+						next = {...prev};
+					}
+
+					if (next[mapKey] === prev[mapKey]) {
+						next[mapKey] = {...prev[mapKey]};
+					}
+
+					next[mapKey][key] = value;
+					if (key === 'from' && !nextFromKeys.has(mapKey)) {
+						nextFromKeys = new Set(nextFromKeys);
+						nextFromKeys.add(mapKey);
+					}
+				}
+
+				return next === null
+					? prevState
+					: {overrides: next, fromKeys: nextFromKeys};
+			});
+		},
+		[],
+	);
 
 	const setDragOverrides = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
 			key: string,
 			value: DragOverrideValue,
-		) => {
-			setControlOverrides((prev) => ({
-				...prev,
-				[makeSequencePropsSubscriptionKey(nodePath)]: {
-					...prev[makeSequencePropsSubscriptionKey(nodePath)],
-					[key]: value,
-				},
-			}));
+		) => setDragOverridesBatch([{nodePath, key, value}]),
+		[setDragOverridesBatch],
+	);
+
+	const subscribeDragOverrides = useCallback(
+		(key: string | null, listener: () => void) => {
+			if (key === null) {
+				return () => undefined;
+			}
+
+			let listeners = dragOverridesStore.current.listeners.get(key);
+			if (!listeners) {
+				listeners = new Set();
+				dragOverridesStore.current.listeners.set(key, listeners);
+			}
+
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+				if (listeners.size === 0) {
+					dragOverridesStore.current.listeners.delete(key);
+				}
+			};
 		},
 		[],
 	);
+	const getDragOverridesSnapshot = useCallback((key: string | null) => {
+		return key === null
+			? emptyDragOverrides
+			: (dragOverridesStore.current.snapshot[key] ?? emptyDragOverrides);
+	}, []);
+	useIsomorphicLayoutEffect(() => {
+		const previous = dragOverridesStore.current.snapshot;
+		dragOverridesStore.current.snapshot = dragOverrides;
+		for (const key of new Set([
+			...Object.keys(previous),
+			...Object.keys(dragOverrides),
+		])) {
+			if (previous[key] !== dragOverrides[key]) {
+				for (const listener of dragOverridesStore.current.listeners.get(key) ??
+					[]) {
+					listener();
+				}
+			}
+		}
+	}, [dragOverrides]);
+	const subscribeEffectDragOverrides = useCallback(
+		(key: string | null, listener: () => void) => {
+			if (key === null) {
+				return () => undefined;
+			}
+
+			let listeners = effectDragOverridesStore.current.listeners.get(key);
+			if (!listeners) {
+				listeners = new Set();
+				effectDragOverridesStore.current.listeners.set(key, listeners);
+			}
+
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+				if (listeners.size === 0) {
+					effectDragOverridesStore.current.listeners.delete(key);
+				}
+			};
+		},
+		[],
+	);
+	const getEffectDragOverridesSnapshot = useCallback((key: string | null) => {
+		return key === null
+			? emptyEffectDragOverrides
+			: (effectDragOverridesStore.current.byNode.get(key) ??
+					emptyEffectDragOverrides);
+	}, []);
+	useIsomorphicLayoutEffect(() => {
+		const previous = effectDragOverridesStore.current.snapshot;
+		const byNode = new Map(effectDragOverridesStore.current.byNode);
+		const changedNodes = new Set<string>();
+		for (const flatKey of new Set([
+			...Object.keys(previous),
+			...Object.keys(effectDragOverridesState),
+		])) {
+			if (previous[flatKey] === effectDragOverridesState[flatKey]) {
+				continue;
+			}
+
+			const separator = flatKey.lastIndexOf('.effects.');
+			if (separator === -1) {
+				throw new Error('Invalid effect drag override key');
+			}
+
+			const nodeKey = flatKey.slice(0, separator);
+			const effectIndex = flatKey.slice(separator + '.effects.'.length);
+			if (!changedNodes.has(nodeKey)) {
+				byNode.set(nodeKey, {...byNode.get(nodeKey)});
+				changedNodes.add(nodeKey);
+			}
+
+			const next = byNode.get(nodeKey)!;
+			if (effectDragOverridesState[flatKey] === undefined) {
+				delete next[effectIndex];
+			} else {
+				next[effectIndex] = effectDragOverridesState[flatKey];
+			}
+		}
+
+		for (const nodeKey of changedNodes) {
+			if (Object.keys(byNode.get(nodeKey)!).length === 0) {
+				byNode.delete(nodeKey);
+			}
+		}
+
+		effectDragOverridesStore.current.snapshot = effectDragOverridesState;
+		effectDragOverridesStore.current.byNode = byNode;
+		for (const nodeKey of changedNodes) {
+			for (const listener of effectDragOverridesStore.current.listeners.get(
+				nodeKey,
+			) ?? []) {
+				listener();
+			}
+		}
+	}, [effectDragOverridesState]);
 
 	const clearDragOverrides = useCallback(
 		(nodePath: SequencePropsSubscriptionKey) => {
-			setControlOverrides((prev) => {
+			setDragOverrideState((prevState) => {
+				const prev = prevState.overrides;
 				const key = makeSequencePropsSubscriptionKey(nodePath);
 				if (!prev[key]) {
-					return prev;
+					return prevState;
 				}
 
 				const next = {...prev};
 				delete next[key];
-				return next;
+				const nextFromKeys = prevState.fromKeys.has(key)
+					? new Set(prevState.fromKeys)
+					: prevState.fromKeys;
+				nextFromKeys.delete(key);
+				return {overrides: next, fromKeys: nextFromKeys};
 			});
 		},
 		[],
 	);
 
+	const setEffectDragOverridesBatch = useCallback(
+		(
+			overrides: readonly {
+				readonly nodePath: SequencePropsSubscriptionKey;
+				readonly effectIndex: number;
+				readonly key: string;
+				readonly value: DragOverrideValue;
+			}[],
+		) => {
+			setEffectDragOverridesState((prev) => {
+				let next: EffectDragOverrides | null = null;
+				for (const {nodePath, effectIndex, key, value} of overrides) {
+					const mapKey = effectDragOverridesKey(nodePath, effectIndex);
+					const existing = (next ?? prev)[mapKey]?.[key];
+					if (
+						existing === value ||
+						(existing?.type === 'static' &&
+							value.type === 'static' &&
+							Object.is(existing.value, value.value))
+					) {
+						continue;
+					}
+
+					if (next === null) {
+						next = {...prev};
+					}
+
+					if (next[mapKey] === prev[mapKey]) {
+						next[mapKey] = {...prev[mapKey]};
+					}
+
+					next[mapKey][key] = value;
+				}
+
+				return next ?? prev;
+			});
+		},
+		[],
+	);
 	const setEffectDragOverrides = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
 			effectIndex: number,
 			key: string,
 			value: DragOverrideValue,
-		) => {
-			setEffectDragOverridesState((prev) => {
-				const mapKey = effectDragOverridesKey(nodePath, effectIndex);
-				return {
-					...prev,
-					[mapKey]: {
-						...prev[mapKey],
-						[key]: value,
-					},
-				};
-			});
-		},
-		[],
+		) => setEffectDragOverridesBatch([{nodePath, effectIndex, key, value}]),
+		[setEffectDragOverridesBatch],
 	);
 
 	const clearEffectDragOverrides = useCallback(
@@ -449,6 +858,22 @@ export const SequenceManagerProvider: React.FC<{
 			unregisterSequence,
 		};
 	}, [registerSequence, sequences, unregisterSequence, updateSequence]);
+	const dragOverridesSubscription = useMemo<
+		Omit<DragOverridesSubscription, 'manager'>
+	>(
+		() => ({
+			subscribe: subscribeDragOverrides,
+			getSnapshot: getDragOverridesSnapshot,
+			subscribeEffects: subscribeEffectDragOverrides,
+			getEffectSnapshot: getEffectDragOverridesSnapshot,
+		}),
+		[
+			getDragOverridesSnapshot,
+			getEffectDragOverridesSnapshot,
+			subscribeDragOverrides,
+			subscribeEffectDragOverrides,
+		],
+	);
 
 	const getDragOverrides = useCallback(
 		(nodePath: SequencePropsSubscriptionKey) => {
@@ -498,19 +923,32 @@ export const SequenceManagerProvider: React.FC<{
 		setPropStatuses,
 		remapPropStatuses,
 	]);
+	const batchSettersContext = useMemo<VisualModeBatchSetters>(
+		() => ({setDragOverridesBatch, setEffectDragOverridesBatch}),
+		[setDragOverridesBatch, setEffectDragOverridesBatch],
+	);
 
 	const providers = (
 		<SequenceManagerRefContext.Provider value={sequencesRef}>
 			<SequenceManager.Provider value={sequenceContext}>
 				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
 					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-						<VisualModeDragOverridesContext.Provider
-							value={dragOverridesContext}
+						<SequenceManagerScopeProviders
+							dragOverridesSubscription={dragOverridesSubscription}
+							fromKeys={dragOverrideState.fromKeys}
 						>
-							<VisualModeSettersContext.Provider value={settersContext}>
-								{children}
-							</VisualModeSettersContext.Provider>
-						</VisualModeDragOverridesContext.Provider>
+							<VisualModeDragOverridesContext.Provider
+								value={dragOverridesContext}
+							>
+								<VisualModeSettersContext.Provider value={settersContext}>
+									<VisualModeBatchSettersContext.Provider
+										value={batchSettersContext}
+									>
+										{children}
+									</VisualModeBatchSettersContext.Provider>
+								</VisualModeSettersContext.Provider>
+							</VisualModeDragOverridesContext.Provider>
+						</SequenceManagerScopeProviders>
 					</VisualModePropStatusesContext.Provider>
 				</VisualModePropStatusesRefContext.Provider>
 			</SequenceManager.Provider>

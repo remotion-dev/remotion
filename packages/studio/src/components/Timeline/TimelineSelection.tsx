@@ -17,6 +17,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -101,6 +102,18 @@ const {
 	getKeyframeSegments,
 	useCanvasSelectionController,
 } = CanvasInternals;
+
+const emptyDragOverrideSnapshot = {};
+const getDragOverrideSnapshot = (overrides: Record<string, unknown>): object =>
+	Object.keys(overrides).length === 0 ? emptyDragOverrideSnapshot : overrides;
+
+type SelectableTrackCache = {
+	readonly track: TimelineTrackData;
+	readonly expanded: boolean;
+	readonly dragOverride: object | null;
+	readonly effectOverrides: readonly object[];
+	readonly items: TimelineSelection[];
+};
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
 export const TIMELINE_EXPANDED_SELECTED_BACKGROUND = BACKGROUND;
@@ -652,6 +665,115 @@ export const getSelectableTimelineSequenceSelections = (
 	});
 };
 
+const getSelectableTimelineItemsForTrack = ({
+	getDragOverrides,
+	getEffectDragOverrides,
+	getIsExpanded,
+	propStatuses,
+	selectedRowKeys,
+	track,
+	timelinePosition,
+}: {
+	readonly getDragOverrides: GetDragOverrides;
+	readonly getEffectDragOverrides: GetEffectDragOverrides;
+	readonly getIsExpanded: GetIsExpanded;
+	readonly propStatuses: PropStatuses;
+	readonly selectedRowKeys: ReadonlySet<string>;
+	readonly track: TimelineTrackData;
+	readonly timelinePosition: number;
+}): TimelineSelection[] => {
+	const {nodePathInfo} = track;
+	if (nodePathInfo === null) {
+		return [];
+	}
+
+	const sequenceSelection = getTimelineSelectionFromNodePathInfo(nodePathInfo);
+	if (sequenceSelection === null) {
+		return [];
+	}
+
+	if (!getIsExpanded(nodePathInfo)) {
+		return [sequenceSelection];
+	}
+
+	const tree = buildTimelineTree({
+		sequence: track.sequence,
+		nodePathInfo,
+		getDragOverrides,
+		getEffectDragOverrides,
+		propStatuses,
+		includeTextContent: false,
+		includeSourceControls: false,
+		runtimeValues: null,
+	});
+	const filteredTree = filterTimelineExpandedTree({
+		nodes: tree,
+		shouldShowNode: (node) =>
+			isTimelineExpandedNodeSelected({
+				nodePathInfo: node.nodePathInfo,
+				selectedRowKeys,
+			}) ||
+			getNodeHasKeyframes({
+				node,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				propStatuses,
+				getDragOverrides,
+				getEffectDragOverrides,
+			}),
+	});
+	const visibleTreeRows = flattenVisibleTreeNodes({
+		nodes: filteredTree,
+		getIsExpanded,
+	});
+
+	return [
+		sequenceSelection,
+		...visibleTreeRows.flatMap(({node}): TimelineSelection[] => {
+			const rowSelection = getTimelineSelectionFromNodePathInfo(
+				node.nodePathInfo,
+			);
+			if (rowSelection === null) {
+				return [];
+			}
+
+			const keyframes = getNodeKeyframes({
+				node,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				propStatuses,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+				getDragOverrides,
+				getEffectDragOverrides,
+				timelinePosition,
+			});
+			const keyframeSelections = keyframes.map(
+				(keyframe): TimelineSelection => ({
+					type: 'keyframe',
+					nodePathInfo: node.nodePathInfo,
+					frame: keyframe.frame,
+				}),
+			);
+			const easingSelections = getNodeCanEditEasing({
+				node,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				propStatuses,
+			})
+				? getKeyframeSegments(keyframes).map(
+						(segment): TimelineSelection => ({
+							type: 'easing',
+							nodePathInfo: node.nodePathInfo,
+							fromFrame: segment.fromFrame,
+							toFrame: segment.toFrame,
+							segmentIndex: segment.segmentIndex,
+						}),
+					)
+				: [];
+
+			return [rowSelection, ...easingSelections, ...keyframeSelections];
+		}),
+	];
+};
+
 export const getSelectableTimelineItems = ({
 	getDragOverrides,
 	getEffectDragOverrides,
@@ -670,100 +792,17 @@ export const getSelectableTimelineItems = ({
 	readonly timelinePosition: number;
 }): TimelineSelection[] => {
 	const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
-
-	return timeline.flatMap((track): TimelineSelection[] => {
-		const {nodePathInfo} = track;
-		if (nodePathInfo === null) {
-			return [];
-		}
-
-		const sequenceSelection =
-			getTimelineSelectionFromNodePathInfo(nodePathInfo);
-		if (sequenceSelection === null) {
-			return [];
-		}
-
-		if (!getIsExpanded(nodePathInfo)) {
-			return [sequenceSelection];
-		}
-
-		const tree = buildTimelineTree({
-			sequence: track.sequence,
-			nodePathInfo,
+	return timeline.flatMap((track) =>
+		getSelectableTimelineItemsForTrack({
 			getDragOverrides,
 			getEffectDragOverrides,
-			propStatuses,
-			includeTextContent: false,
-			includeSourceControls: false,
-			runtimeValues: null,
-		});
-		const filteredTree = filterTimelineExpandedTree({
-			nodes: tree,
-			shouldShowNode: (node) =>
-				isTimelineExpandedNodeSelected({
-					nodePathInfo: node.nodePathInfo,
-					selectedRowKeys,
-				}) ||
-				getNodeHasKeyframes({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-					getDragOverrides,
-					getEffectDragOverrides,
-				}),
-		});
-		const visibleTreeRows = flattenVisibleTreeNodes({
-			nodes: filteredTree,
 			getIsExpanded,
-		});
-
-		return [
-			sequenceSelection,
-			...visibleTreeRows.flatMap(({node}): TimelineSelection[] => {
-				const rowSelection = getTimelineSelectionFromNodePathInfo(
-					node.nodePathInfo,
-				);
-				if (rowSelection === null) {
-					return [];
-				}
-
-				const keyframes = getNodeKeyframes({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-					keyframePlaybackRate: track.keyframePlaybackRate,
-					getDragOverrides,
-					getEffectDragOverrides,
-					timelinePosition,
-				});
-				const keyframeSelections = keyframes.map(
-					(keyframe): TimelineSelection => ({
-						type: 'keyframe',
-						nodePathInfo: node.nodePathInfo,
-						frame: keyframe.frame,
-					}),
-				);
-				const easingSelections = getNodeCanEditEasing({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-				})
-					? getKeyframeSegments(keyframes).map(
-							(segment): TimelineSelection => ({
-								type: 'easing',
-								nodePathInfo: node.nodePathInfo,
-								fromFrame: segment.fromFrame,
-								toFrame: segment.toFrame,
-								segmentIndex: segment.segmentIndex,
-							}),
-						)
-					: [];
-
-				return [rowSelection, ...easingSelections, ...keyframeSelections];
-			}),
-		];
-	});
+			propStatuses,
+			selectedRowKeys,
+			track,
+			timelinePosition,
+		}),
+	);
 };
 
 export const getTimelineSequenceSelectionKey = getCanvasSequenceSelectionKey;
@@ -908,26 +947,138 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
-	const selectableItems = useMemo(
-		() =>
-			getSelectableTimelineItems({
-				getDragOverrides,
-				getEffectDragOverrides,
-				getIsExpanded,
-				propStatuses,
-				selectedItems,
-				timeline,
-				timelinePosition: getCurrentFrame(),
-			}),
-		[
-			getDragOverrides,
-			getEffectDragOverrides,
-			getIsExpanded,
+	const previousSelectionRef = useRef<{
+		readonly timeline: readonly TimelineTrackData[];
+		readonly propStatuses: PropStatuses;
+		readonly selectedItems: readonly TimelineSelection[];
+		readonly getIsExpanded: GetIsExpanded;
+		readonly timelinePosition: number;
+		readonly items: TimelineSelection[];
+		readonly byId: Map<string, SelectableTrackCache>;
+		readonly expandedEntries: readonly SelectableTrackCache[];
+	} | null>(null);
+	const selection = useMemo(() => {
+		const previous = previousSelectionRef.current;
+		const timelinePosition = getCurrentFrame();
+		if (
+			previous !== null &&
+			previous.timeline === timeline &&
+			previous.propStatuses === propStatuses &&
+			previous.selectedItems === selectedItems &&
+			previous.getIsExpanded === getIsExpanded &&
+			previous.timelinePosition === timelinePosition &&
+			previous.expandedEntries.every((entry) => {
+				const nodePath = entry.track.nodePathInfo?.sequenceSubscriptionKey;
+				if (nodePath === undefined) {
+					return false;
+				}
+
+				return (
+					entry.dragOverride ===
+						getDragOverrideSnapshot(getDragOverrides(nodePath)) &&
+					entry.effectOverrides.every(
+						(value, index) =>
+							value ===
+							getDragOverrideSnapshot(getEffectDragOverrides(nodePath, index)),
+					)
+				);
+			})
+		) {
+			return previous;
+		}
+
+		const invalidateAll =
+			previous === null ||
+			previous.propStatuses !== propStatuses ||
+			previous.selectedItems !== selectedItems ||
+			previous.getIsExpanded !== getIsExpanded ||
+			previous.timelinePosition !== timelinePosition;
+		const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
+		const byId = new Map<string, SelectableTrackCache>();
+		const expandedEntries: SelectableTrackCache[] = [];
+		let changed = previous === null || previous.timeline !== timeline;
+		const items: TimelineSelection[] = [];
+
+		for (const track of timeline) {
+			const nodePath = track.nodePathInfo?.sequenceSubscriptionKey ?? null;
+			const expanded =
+				track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
+			let dragOverride: object | null = null;
+			if (expanded && nodePath !== null) {
+				dragOverride = getDragOverrideSnapshot(getDragOverrides(nodePath));
+			}
+
+			const effectOverrides =
+				expanded && nodePath !== null
+					? track.sequence.effects.map((_, index) =>
+							getDragOverrideSnapshot(getEffectDragOverrides(nodePath, index)),
+						)
+					: [];
+			const old = previous?.byId.get(track.sequence.id);
+			const canReuse =
+				!invalidateAll &&
+				old?.track === track &&
+				old.expanded === expanded &&
+				(!expanded ||
+					(old.dragOverride === dragOverride &&
+						old.effectOverrides.length === effectOverrides.length &&
+						old.effectOverrides.every(
+							(value, index) => value === effectOverrides[index],
+						)));
+			const trackItems = canReuse
+				? old.items
+				: getSelectableTimelineItemsForTrack({
+						getDragOverrides,
+						getEffectDragOverrides,
+						getIsExpanded,
+						propStatuses,
+						selectedRowKeys,
+						track,
+						timelinePosition,
+					});
+			if (!canReuse) {
+				changed = true;
+			}
+
+			const entry: SelectableTrackCache = {
+				track,
+				expanded,
+				dragOverride,
+				effectOverrides,
+				items: trackItems,
+			};
+			byId.set(track.sequence.id, entry);
+			if (expanded) {
+				expandedEntries.push(entry);
+			}
+
+			for (const item of trackItems) {
+				items.push(item);
+			}
+		}
+
+		return {
+			timeline,
 			propStatuses,
 			selectedItems,
-			timeline,
-		],
-	);
+			getIsExpanded,
+			timelinePosition,
+			byId,
+			expandedEntries,
+			items: changed ? items : previous!.items,
+		};
+	}, [
+		getDragOverrides,
+		getEffectDragOverrides,
+		getIsExpanded,
+		propStatuses,
+		selectedItems,
+		timeline,
+	]);
+	useLayoutEffect(() => {
+		previousSelectionRef.current = selection;
+	}, [selection]);
+	const selectableItems = selection.items;
 
 	return (
 		<TimelineSelectionOrderProvider items={selectableItems}>

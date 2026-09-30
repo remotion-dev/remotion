@@ -61,6 +61,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 	const paddingEnd =
 		TIMELINE_ITEM_BORDER_BOTTOM +
 		(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0);
+	const previousRowsRef = useRef<readonly TimelineVirtualRow[]>([]);
 
 	const layout = useMemo(() => {
 		const siblingIndexes = new Array<number>(timeline.length);
@@ -93,13 +94,21 @@ export const TimelineVirtualizationProvider: React.FC<{
 			offsets[index + 1] = offsets[index] + trackHeights[index];
 		}
 
-		const rows = timeline.map(
-			(track, index): TimelineVirtualRow => ({
-				afterDropLineOffset: offsets[subtreeEndIndexes[index]] - offsets[index],
-				siblingIndex: siblingIndexes[index],
-				track,
-			}),
-		);
+		const rows = timeline.map((track, index): TimelineVirtualRow => {
+			const afterDropLineOffset =
+				offsets[subtreeEndIndexes[index]] - offsets[index];
+			const siblingIndex = siblingIndexes[index];
+			const previous = previousRowsRef.current[index];
+			if (
+				previous?.track === track &&
+				previous.afterDropLineOffset === afterDropLineOffset &&
+				previous.siblingIndex === siblingIndex
+			) {
+				return previous;
+			}
+
+			return {afterDropLineOffset, siblingIndex, track};
+		});
 		const rootTrackIndexes = new Map<string, number>();
 		for (let index = 0; index < timeline.length; index++) {
 			const {nodePathInfo} = timeline[index];
@@ -117,6 +126,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 			tracksEnd: offsets[offsets.length - 1],
 		};
 	}, [paddingStart, timeline, trackHeights]);
+	useLayoutEffect(() => {
+		previousRowsRef.current = layout.rows;
+	}, [layout.rows]);
 
 	const selectedTrackIndexes = useMemo(() => {
 		const indexes = new Set<number>();

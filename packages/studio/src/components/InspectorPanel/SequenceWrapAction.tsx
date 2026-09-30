@@ -46,7 +46,7 @@ export const SequenceWrapAction: React.FC<{
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {width, height} = useVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
