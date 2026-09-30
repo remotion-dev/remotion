@@ -1002,8 +1002,10 @@ const elementImplementations = [
 		preview: {
 			backgroundColor: '#20262f',
 			previewLayout: 'composition',
-			posterUrl: '/elements/storytelling-speed-lines-preview.png',
-			videoUrl: '/elements/storytelling-speed-lines-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.png',
+			videoUrl:
+				'https://remotion.media/elements/storytelling-speed-lines-preview-589e0765-d9d0-4d46-bcff-86e7bcf79c05.mp4',
 		},
 		safeArea: 0,
 		initialProps: speedLinesInitialProps as ElementInitialProps,
