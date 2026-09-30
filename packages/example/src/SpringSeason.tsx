@@ -41,7 +41,7 @@ export const SpringSeason = () => {
 	return (
 		<AbsoluteFill>
 			{new Array(5).fill(true).map((_, index) => {
-				return <SpringSeasonLogo index={index} />;
+				return <SpringSeasonLogo key={index} index={index} />;
 			})}
 		</AbsoluteFill>
 	);
