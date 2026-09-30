@@ -118,10 +118,6 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
-	readonly _remotionInternalTimelineOrderWithinParent?: number | null;
-	/**
-	 * @deprecated For internal use only.
-	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -173,8 +169,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalSingleChildComponent: singleChildComponent,
-		_remotionInternalTimelineOrderWithinParent:
-			timelineOrderWithinParent = null,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
@@ -622,7 +616,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					premountDisplay: premountDisplay ?? null,
 					showInTimeline,
 					timelineOrder: null,
-					timelineOrderWithinParent,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
@@ -652,7 +645,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				premountDisplay: premountDisplay ?? null,
 				showInTimeline,
 				timelineOrder: null,
-				timelineOrderWithinParent,
 				src: isMedia.data.src,
 				getStack: () => stackRef.current,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
@@ -679,7 +671,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			type: 'sequence',
 			showInTimeline,
 			timelineOrder: null,
-			timelineOrderWithinParent,
 			loopDisplay: resolvedLoopDisplay,
 			getStack: () => stackRef.current,
 			premountDisplay: premountDisplay ?? null,
@@ -716,7 +707,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaFrameAtSequenceZero,
 		frozenMediaFrame,
 		singleChildComponent,
-		timelineOrderWithinParent,
 	]);
 	useSequenceRegistration({
 		getSequence:

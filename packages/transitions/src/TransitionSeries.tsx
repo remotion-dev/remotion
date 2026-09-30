@@ -1,5 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
@@ -244,6 +245,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	const flattedChildren = useMemo(() => {
 		return flattenChildren(children);
 	}, [children]);
+	const hasOverlay = flattedChildren.some(
+		(child) => React.isValidElement(child) && child.type === SeriesOverlay,
+	);
+	const [overlayContainer, setOverlayContainer] =
+		useState<HTMLDivElement | null>(null);
 
 	const drawIfSynced = useCallback((index: number) => {
 		const prevImage = prevImageRef?.current?.[index];
@@ -317,6 +323,23 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly styleWhilePremounted: React.CSSProperties | undefined;
 			readonly styleWhilePostmounted: React.CSSProperties | undefined;
 		};
+		const renderOverlay = (info: OverlayRender) => (
+			<SequenceWithoutSchema
+				key={`overlay-${info.index}`}
+				from={Math.round(info.overlayFrom)}
+				durationInFrames={info.durationInFrames}
+				name="<TS.Overlay>"
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
+				controls={info.controls ?? undefined}
+				layout="absolute-fill"
+				premountFor={info.premountFor}
+				postmountFor={info.postmountFor}
+				styleWhilePremounted={info.styleWhilePremounted}
+				styleWhilePostmounted={info.styleWhilePostmounted}
+			>
+				{info.children}
+			</SequenceWithoutSchema>
+		);
 
 		type RenderState = {
 			readonly index: number;
@@ -338,24 +361,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			} = state;
 
 			if (i === flattedChildren.length) {
-				return overlayRenders.map((info) => (
-					<SequenceWithoutSchema
-						key={`overlay-${info.index}`}
-						from={Math.round(info.overlayFrom)}
-						durationInFrames={info.durationInFrames}
-						name="<TS.Overlay>"
-						_remotionInternalTimelineOrderWithinParent={info.index}
-						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
-						controls={info.controls ?? undefined}
-						layout="absolute-fill"
-						premountFor={info.premountFor}
-						postmountFor={info.postmountFor}
-						styleWhilePremounted={info.styleWhilePremounted}
-						styleWhilePostmounted={info.styleWhilePostmounted}
-					>
-						{info.children}
-					</SequenceWithoutSchema>
-				));
+				return overlayContainer === null
+					? overlayRenders.map(renderOverlay)
+					: null;
 			}
 
 			const child = flattedChildren[i];
@@ -477,8 +485,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							}
 						}
 
-						// Store overlay info for deferred rendering and validate the other
-						// side once the next sequence has resolved its interactive props.
+						// Store overlay info to validate the other side once the next
+						// sequence has resolved its interactive props.
 						const overlayRender: OverlayRender = {
 							cutPoint,
 							overlayFrom,
@@ -494,10 +502,22 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							styleWhilePostmounted: overlayProps.styleWhilePostmounted,
 						};
 
-						return renderNext({
+						const rest = renderNext({
 							overlayRenders: [...overlayRenders, overlayRender],
 							pendingOverlayValidation: true,
 						});
+						return overlayContainer === null ? (
+							rest
+						) : (
+							<>
+								{createPortal(
+									renderOverlay(overlayRender),
+									overlayContainer,
+									`overlay-${i}`,
+								)}
+								{rest}
+							</>
+						);
 					},
 				});
 			}
@@ -538,7 +558,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										from={transitionFrom}
 										durationInFrames={transitionDuration}
 										name="<TS.Transition>"
-										_remotionInternalTimelineOrderWithinParent={i}
 										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 										controls={transitionProps.controls ?? undefined}
 										layout="none"
@@ -598,7 +617,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					} = resolvedProps as InternalSeriesSequenceProps & {from: never};
 					const propsForSequence = {
 						...passedProps,
-						_remotionInternalTimelineOrderWithinParent: i,
 						_remotionInternalSingleChildComponent:
 							Internals.getSingleChildComponent(sequenceChildren),
 					};
@@ -942,10 +960,23 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			sequenceDurations: [],
 			pendingOverlayValidation: false,
 		});
-	}, [flattedChildren, fps, frame, onPrevElementImage, onNextElementImage]);
+	}, [
+		flattedChildren,
+		fps,
+		frame,
+		onPrevElementImage,
+		onNextElementImage,
+		overlayContainer,
+	]);
 
-	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{childrenValue}</>;
+	return (
+		<>
+			{childrenValue}
+			{hasOverlay ? (
+				<div ref={setOverlayContainer} style={{display: 'contents'}} />
+			) : null}
+		</>
+	);
 };
 
 /*
