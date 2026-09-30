@@ -8,7 +8,6 @@ import {
 	interpolate,
 	interpolateColors,
 	random,
-	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 import {ChapterTag} from '../components/ChapterTag';
@@ -1003,25 +1002,25 @@ export const Interface: React.FC = () => {
 			/>
 			<Audio
 				name="Toggle click"
-				src={staticFile('portfolio/sfx/mouse-click.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/mouse-click.wav"
 				from={TOGGLE_CLICK}
 				volume={0.8}
 			/>
 			<Audio
 				name="Toggle switch"
-				src={staticFile('portfolio/sfx/switch.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/switch.wav"
 				from={TOGGLE_CLICK + 2}
 				volume={0.5}
 			/>
 			<Audio
 				name="Publish click"
-				src={staticFile('portfolio/sfx/mouse-click.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/mouse-click.wav"
 				from={PUBLISH_CLICK}
 				volume={0.8}
 			/>
 			<Audio
 				name="Toast ding"
-				src={staticFile('portfolio/sfx/ding.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/ding.wav"
 				from={148}
 				volume={0.22}
 			/>

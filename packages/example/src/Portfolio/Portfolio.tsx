@@ -6,7 +6,7 @@ import {
 } from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
 import React from 'react';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {Grain} from './components/Grain';
 import {Hud} from './components/Hud';
 import {LightLeakOverlay} from './components/LightLeakOverlay';
@@ -121,36 +121,36 @@ export const Portfolio: React.FC = () => {
 			<Hud />
 			<Audio
 				name="Music"
-				src={staticFile('portfolio/music.wav')}
+				src="https://remotion.media/portfolio-reel/v1/music.wav"
 				volume={0.6}
 			/>
 			<Audio
 				name="Whoosh — slab wipe"
-				src={staticFile('portfolio/sfx/whoosh.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
 				from={384}
 				volume={0.6}
 			/>
 			<Audio
 				name="Whoosh — circle reveal"
-				src={staticFile('portfolio/sfx/whoosh.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
 				from={564}
 				volume={0.5}
 			/>
 			<Audio
 				name="Whoosh — slide"
-				src={staticFile('portfolio/sfx/whoosh.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
 				from={744}
 				volume={0.5}
 			/>
 			<Audio
 				name="Whip — blinds"
-				src={staticFile('portfolio/sfx/whip.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/whip.wav"
 				from={1164}
 				volume={0.45}
 			/>
 			<Audio
 				name="Whoosh — slab wipe 2"
-				src={staticFile('portfolio/sfx/whoosh.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
 				from={1344}
 				volume={0.6}
 			/>

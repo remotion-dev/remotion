@@ -5,7 +5,6 @@ import {
 	Easing,
 	Interactive,
 	interpolate,
-	staticFile,
 	useCurrentFrame,
 } from 'remotion';
 import {RiseText} from '../components/RiseText';
@@ -194,7 +193,7 @@ export const Intro: React.FC = () => {
 			</Interactive.Div>
 			<Audio
 				name="Dot zoom whoosh"
-				src={staticFile('portfolio/sfx/whoosh.wav')}
+				src="https://remotion.media/portfolio-reel/v1/sfx/whoosh.wav"
 				from={128}
 				volume={0.55}
 			/>
