@@ -41,7 +41,7 @@ For rendering, you don't need to do anything — see [Rendering](#rendering) bel
 ```tsx twoslash title="MyComp.tsx"
 import {HtmlInCanvas, type HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage}) => {
+const onPaint: HtmlInCanvasOnPaint = ({canvas, elementImage}) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Failed to acquire 2D context');
@@ -49,8 +49,7 @@ const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage}) => {
 
   ctx.reset();
   ctx.filter = 'blur(8px)';
-  const transform = ctx.drawElementImage(elementImage, 0, 0);
-  element.style.transform = transform.toString();
+  ctx.drawElementImage(elementImage, 0, 0);
 };
 
 export const MyComp: React.FC = () => {

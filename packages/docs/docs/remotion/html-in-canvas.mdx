@@ -83,7 +83,7 @@ If this callback is omitted, the children are painted using a `2d` context.
 ```tsx twoslash title="Simple example"
 import {HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage, pixelDensity}) => {
+const onPaint: HtmlInCanvasOnPaint = ({canvas, elementImage, pixelDensity}) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Failed to acquire 2D context');
@@ -91,8 +91,7 @@ const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage, pixelDensi
 
   ctx.reset();
   ctx.filter = `blur(${10 * pixelDensity}px)`;
-  const transform = ctx.drawElementImage(elementImage, 0, 0);
-  element.style.transform = transform.toString();
+  ctx.drawElementImage(elementImage, 0, 0);
 };
 ```
 
@@ -108,7 +107,7 @@ You should paint to this canvas.
 #### `element`
 
 The inner [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement) that wraps `children`.  
-You should apply the return value of [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) to this element's `style.transform` property.
+The browser synchronizes its position and hit testing when you call `drawElementImage()`.
 
 #### `elementImage`
 
@@ -150,7 +149,7 @@ From <AvailableFrom v="4.0.528" inline />, it also inherits [`premountFor`](/doc
 ### `ref?`
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<HtmlInCanvas />`.  
-It is attached to the layout [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement) — the canvas that hosts the laid-out subtree (`layoutSubtree`).
+It is attached to the [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement) that hosts the drawable subtree.
 
 If you use TypeScript, type the ref with `HTMLCanvasElement`:
 
@@ -173,8 +172,8 @@ export const Example: React.FC = () => {
 
 ### 2D
 
-Call [`drawElementImage()`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) on the 2D context to draw `elementImage` into the bitmap.  
-HTML-in-canvas recommends that you use the return value and assign it to `element.style.transform`, so that the original DOM element matches the transform, so that selection still works.
+Call [`drawElementImage()`](https://github.com/WICG/html-in-canvas#idl-changes) on the 2D context to draw `elementImage` into the bitmap.
+The browser updates the element's position and hit testing automatically.
 
 For 2D, you usually do not need `onInit`.
 
@@ -199,7 +198,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
   const {width, height, fps} = useVideoConfig();
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({canvas, element, elementImage, pixelDensity}) => {
+    ({canvas, elementImage, pixelDensity}) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         throw new Error('Failed to acquire 2D context');
@@ -212,8 +211,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
 
       ctx.reset();
       ctx.filter = `blur(${blurPx * pixelDensity}px)`;
-      const transform = ctx.drawElementImage(elementImage, 0, 0);
-      element.style.transform = transform.toString();
+      ctx.drawElementImage(elementImage, 0, 0);
     },
     [frame, fps],
   );
@@ -242,7 +240,8 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
 Do all setup in [`onInit`](#oninit) such as getting the WebGL context and compiling the shader.  
 `onInit` must return a cleanup function that destroys the resources that were created in `onInit`.
 
-Use [`texElementImage2D`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) to turn the `elementImage` into a texture.
+Use [`texElementSubImage2D`](https://github.com/WICG/html-in-canvas#idl-changes) to upload `elementImage` into a preallocated texture. Older Chromium versions expose `texElementImage2D` instead.
+WebGL does not update the DOM element's hit testing geometry automatically. If the content needs to remain interactive, call `canvas.updateElementGeometry(element, {canvasTransform})` with a transform matching where your shader draws it.
 
 <Demo type="html-in-canvas-webgl" />
 
@@ -268,6 +267,8 @@ type GlState = {
   uTex: WebGLUniformLocation | null;
   uTime: WebGLUniformLocation | null;
   texture: WebGLTexture;
+  textureWidth: number;
+  textureHeight: number;
   vao: WebGLVertexArrayObject;
 };
 
@@ -366,7 +367,16 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
     gl.enableVertexAttribArray(locUv);
     gl.vertexAttribPointer(locUv, 2, gl.FLOAT, false, 16, 8);
 
-    gpuRef.current = {gl, program, uTex, uTime, texture, vao};
+    gpuRef.current = {
+      gl,
+      program,
+      uTex,
+      uTime,
+      texture,
+      textureWidth: 0,
+      textureHeight: 0,
+      vao,
+    };
 
     return () => {
       gl.deleteProgram(program);
@@ -390,14 +400,39 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, gpu.texture);
-      gl.texElementImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        elementImage,
-      );
+      if (typeof gl.texElementSubImage2D === 'function') {
+        const imageWidth = Math.max(1, Math.ceil(elementImage.width));
+        const imageHeight = Math.max(1, Math.ceil(elementImage.height));
+        if (
+          gpu.textureWidth !== imageWidth ||
+          gpu.textureHeight !== imageHeight
+        ) {
+          gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA8,
+            imageWidth,
+            imageHeight,
+            0,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            null,
+          );
+          gpu.textureWidth = imageWidth;
+          gpu.textureHeight = imageHeight;
+        }
+
+        gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, elementImage);
+      } else {
+        gl.texElementImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          elementImage,
+        );
+      }
 
       if (gpu.uTex) {
         gl.uniform1i(gpu.uTex, 0);
@@ -439,7 +474,8 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 
 Use [`onInit`](#oninit) to get a WebGPU context, to request a GPU and to compile shaders.  
 `onInit` must return a cleanup function that destroys the resources that were created in `onInit`.  
-In `onPaint`, draw the `elementImage` to the canvas using [`copyElementImageToTexture`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents).
+In `onPaint`, upload `elementImage` using [`drawElementImageToTexture`](https://github.com/WICG/html-in-canvas#idl-changes). Older Chromium versions expose `copyElementImageToTexture` instead.
+WebGPU also requires `canvas.updateElementGeometry(element, {canvasTransform})` when the drawn content needs hit testing.
 
 <Demo type="html-in-canvas-webgpu" />
 
@@ -490,6 +526,13 @@ type GpuDevice = {
   queue: {
     submit(c: unknown[]): void;
     writeBuffer(b: GpuBuffer, offset: number, data: BufferSource): void;
+    drawElementImageToTexture?(
+      source: {source: Element | ElementImage},
+      destination: {
+        texture: GpuTexture;
+        size: {width: number; height: number};
+      },
+    ): void;
     copyElementImageToTexture(
       source: Element | ElementImage,
       width: number,
@@ -697,12 +740,19 @@ export const HtmlInCanvasComposeWebGPU: React.FC = () => {
       const {device, context, pipeline, texture, bindGroup, uniformBuffer} =
         gpu;
 
-      device.queue.copyElementImageToTexture(
-        elementImage,
-        gpu.width,
-        gpu.height,
-        {texture},
-      );
+      if (device.queue.drawElementImageToTexture) {
+        device.queue.drawElementImageToTexture(
+          {source: elementImage},
+          {texture, size: {width: gpu.width, height: gpu.height}},
+        );
+      } else {
+        device.queue.copyElementImageToTexture(
+          elementImage,
+          gpu.width,
+          gpu.height,
+          {texture},
+        );
+      }
 
       const uniforms = new Float32Array([time, 0, gpu.width, gpu.height]);
       device.queue.writeBuffer(uniformBuffer, 0, uniforms);

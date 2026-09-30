@@ -1287,6 +1287,17 @@ export const startContent = () => {
 					`${getContainerLabel(recordingFormat)} ready. Open it in Browser Studio, Convert, or download it.`,
 				);
 			} catch (error) {
+				// eslint-disable-next-line no-console -- Surface stop failures in the page DevTools console.
+				console.error(
+					'[Remotion Canvas Capture] Failed to stop recording',
+					{
+						format: recordingFormat,
+						outputSize,
+						scale,
+						target: selectedTarget?.type,
+					},
+					error,
+				);
 				setStatus(error instanceof Error ? error.message : String(error), true);
 			} finally {
 				capture = null;
@@ -1603,6 +1614,11 @@ export const startContent = () => {
 
 			action()
 				.catch((error) => {
+					// eslint-disable-next-line no-console -- Surface unexpected control errors in the page DevTools console.
+					console.error(
+						`[Remotion Canvas Capture] Failed to ${state.recording ? 'stop' : 'start'} recording`,
+						error,
+					);
 					setStatus(
 						error instanceof Error ? error.message : String(error),
 						true,

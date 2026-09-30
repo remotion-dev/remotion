@@ -19,7 +19,7 @@ export const HtmlInCanvasChangingSize: React.FC = () => {
 			<HtmlInCanvas
 				width={size}
 				height={size}
-				onPaint={({canvas, elementImage, element}) => {
+				onPaint={({canvas, elementImage}) => {
 					const ctx = canvas.getContext('2d', {willReadFrequently: true});
 					if (!ctx) {
 						throw new Error(
@@ -31,14 +31,7 @@ export const HtmlInCanvasChangingSize: React.FC = () => {
 					//    what makes the effect impossible in pure HTML/CSS — we need
 					//    actual sampled pixel data from the rendered subtree.
 					ctx.reset();
-					const transform = ctx.drawElementImage(
-						elementImage,
-						0,
-						0,
-						canvas.width,
-						canvas.height,
-					);
-					element.style.transform = transform.toString();
+					ctx.drawElementImage(elementImage, 0, 0, canvas.width, canvas.height);
 					const {data: pixels} = ctx.getImageData(
 						0,
 						0,
