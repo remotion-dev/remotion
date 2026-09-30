@@ -107,7 +107,7 @@
 
 @container element-library (min-width: 600px) {
 	.grid {
-		grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 320px));
 		gap: 24px;
 	}
 
@@ -120,11 +120,8 @@
 	}
 }
 
-@container element-library (min-width: 900px) {
+@container element-library (min-width: 858px) {
 	.grid {
-		grid-template-columns: repeat(
-			auto-fill,
-			minmax(calc((100% - 48px) / 3), 1fr)
-		);
+		grid-template-columns: repeat(3, minmax(0, 320px));
 	}
 }
