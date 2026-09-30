@@ -65,7 +65,10 @@ export const getCompositionMenuItems = ({
 		root: window.remotion_cwd,
 	});
 	const openCompositionInEditorDisabled =
-		!defaultEditorId || !composition || !canOpenInEditor || !resolvedLocation;
+		!defaultEditorId ||
+		!composition ||
+		!canOpenInEditor ||
+		!resolvedLocation?.source;
 	const openComponentInEditorDisabled =
 		openCompositionInEditorDisabled || !resolvedLocation?.source;
 	const gitSourceName = window.remotion_gitSource
@@ -74,7 +77,8 @@ export const getCompositionMenuItems = ({
 	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 	const defaultOpenInName =
 		defaultOpenInTarget === 'editor' ? defaultEditorName : gitSourceName;
-	const openCompositionInGitSourceDisabled = !composition || !resolvedLocation;
+	const openCompositionInGitSourceDisabled =
+		!composition || !resolvedLocation?.source;
 	const openComponentInGitSourceDisabled =
 		openCompositionInGitSourceDisabled ||
 		!resolvedLocation?.source ||
@@ -258,6 +262,7 @@ export const getCompositionMenuItems = ({
 					keyHint: null,
 					label: 'Open composition in...',
 					leftItem: null,
+					disabled: !resolvedLocation?.source,
 					onClick: () => undefined,
 					quickSwitcherLabel: 'Composition',
 					subMenu: {
@@ -304,6 +309,7 @@ export const getCompositionMenuItems = ({
 					keyHint: null,
 					label: 'Open component in...',
 					leftItem: null,
+					disabled: !resolvedLocation?.source,
 					onClick: () => undefined,
 					quickSwitcherLabel: 'Component',
 					subMenu: {
