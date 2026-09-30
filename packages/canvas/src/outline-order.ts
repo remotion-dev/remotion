@@ -1,7 +1,9 @@
 import type {CanvasOutline} from './outline-geometry';
 
 export type CanvasOutlineOrderTarget = {
-	readonly sequence: CanvasOutlineSequenceParent;
+	readonly sequence: CanvasOutlineSequenceParent & {
+		readonly controls?: {readonly componentIdentity: string | null} | null;
+	};
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
 };
@@ -219,21 +221,25 @@ const orderOutlineGroup = ({
 
 	const addAncestorConstraint = ({
 		ancestor,
+		ancestorIsSeries,
 		descendant,
 		descendantContainsSelection,
 		equivalentHitArea,
 	}: {
 		readonly ancestor: CanvasOutline;
+		readonly ancestorIsSeries: boolean;
 		readonly descendant: CanvasOutline;
 		readonly descendantContainsSelection: boolean;
 		readonly equivalentHitArea: boolean;
 	}) => {
-		// Usually, children should be above parents so nested elements are directly
-		// selectable. If an unselected child has the same hit area as its parent, put
-		// it below the parent so the wrapper can be selected. Once the child or
-		// one of its properties is selected, keep it above the parent so it remains
-		// directly draggable.
-		if (equivalentHitArea && !descendantContainsSelection) {
+		// Equal-sized children normally sit below their parent so the wrapper can
+		// be selected. Series and TransitionSeries only arrange their children, so
+		// their active scene should receive a canvas click instead.
+		if (
+			equivalentHitArea &&
+			!descendantContainsSelection &&
+			!ancestorIsSeries
+		) {
 			addEdge(descendant, ancestor, null);
 		} else {
 			addEdge(ancestor, descendant, null);
@@ -258,8 +264,14 @@ const orderOutlineGroup = ({
 		while (parentId !== null) {
 			const ancestor = outlineBySequenceId.get(parentId);
 			if (ancestor !== undefined) {
+				const ancestorComponentIdentity = targetsByKey.get(ancestor.key)
+					?.sequence.controls?.componentIdentity;
 				addAncestorConstraint({
 					ancestor,
+					ancestorIsSeries:
+						ancestorComponentIdentity === 'dev.remotion.remotion.Series' ||
+						ancestorComponentIdentity ===
+							'dev.remotion.transitions.TransitionSeries',
 					descendant,
 					descendantContainsSelection:
 						(descendantTarget?.selected ?? false) ||

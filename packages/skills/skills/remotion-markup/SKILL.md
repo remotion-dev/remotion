@@ -24,10 +24,6 @@ Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
 Prefer `Interactive.withSchema({wrapInSequence: true})` for custom visual components
 with editable props, and register reusable scenes as connected compositions.
-For a multi-scene video, set `showInTimeline={false}` on the structural
-`<TransitionSeries>` parent when its child sequences should be selected by
-clicking the canvas. The child sequences remain visible and selectable in the
-timeline. See [Multi-scene videos](multi-scene-video.md).
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
 Give every timed component that supports `premountFor` one second of premounting:
 `premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to

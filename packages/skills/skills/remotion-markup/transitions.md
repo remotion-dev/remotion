@@ -17,9 +17,9 @@ Set `premountFor={fps}` on every `<TransitionSeries.Sequence>` and
 timed children inside those items as well. `<TransitionSeries.Transition>`
 does not accept `premountFor`.
 
-For a multi-scene timeline, set `showInTimeline={false}` on the outer
-`<TransitionSeries>` so clicking a full-frame scene selects its sequence
-instead of the full-frame container. The child sequence rows stay visible.
+For a multi-scene timeline, keep the outer `<TransitionSeries>` visible in the
+timeline. Studio favors the active scene sequence when the two have the same
+full-frame canvas outline.
 
 Children are absolutely positioned.
 
@@ -35,7 +35,7 @@ npx remotion add @remotion/transitions
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 
-<TransitionSeries showInTimeline={false}>
+<TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
     <SceneA />
   </TransitionSeries.Sequence>
@@ -79,7 +79,7 @@ const LightLeakOverlay: React.FC = () => {
   );
 };
 
-<TransitionSeries showInTimeline={false}>
+<TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
     <SceneA />
   </TransitionSeries.Sequence>
@@ -123,7 +123,7 @@ const LightLeakOverlay: React.FC = () => {
   );
 };
 
-<TransitionSeries showInTimeline={false}>
+<TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
     <SceneA />
   </TransitionSeries.Sequence>

@@ -114,7 +114,7 @@ Use `<TransitionSeries>` when the timeline needs transitions or overlays.
 Preserve the same one-source-node-per-clip structure:
 
 ```tsx
-<TransitionSeries name="Video timeline" showInTimeline={false}>
+<TransitionSeries name="Video timeline">
   <TransitionSeries.Sequence name="Opening" durationInFrames={78} premountFor={fps}>
     <Video
       src="https://remotion.media/video.mp4"

@@ -78,7 +78,7 @@ Use `<TransitionSeries>` for consecutive scenes that may need transitions. Witho
 ```tsx
 import { TransitionSeries } from "@remotion/transitions";
 
-<TransitionSeries showInTimeline={false}>
+<TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={45} premountFor={fps}>
     <Intro />
   </TransitionSeries.Sequence>

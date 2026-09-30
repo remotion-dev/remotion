@@ -13,11 +13,8 @@ intentionally controlled as one source template.
 Use `<TransitionSeries>` when the scenes may have transitions.  
 Install `@remotion/transitions` if it is missing.  
 Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
-Set `showInTimeline={false}` on the outer `<TransitionSeries>` when it is only
-a structural container. Otherwise its full-frame canvas outline competes with
-the active scene's full-frame outline and may receive clicks. This hides only
-the container row; the scene sequences remain in the timeline and selectable
-on the canvas.
+Keep the outer `<TransitionSeries>` visible in the timeline. Studio favors its
+active scene sequence when both have the same full-frame canvas outline.
 
 Example:
 
@@ -32,7 +29,7 @@ export const MyVideo = () => {
   const {fps} = useVideoConfig();
 
   return (
-    <TransitionSeries showInTimeline={false}>
+    <TransitionSeries>
       <TransitionSeries.Sequence
         name="Opening"
         durationInFrames={90}

@@ -201,12 +201,9 @@ handle timing. Keep `<Series.Sequence>` for consecutive layout and
 `<TransitionSeries.Sequence>` for transitions; direct `from` props do not
 replace those behaviors.
 
-When an outer `<TransitionSeries>` only organizes full-frame scenes, set
-`showInTimeline={false}` on that parent. Studio puts a full-frame parent outline
-above an unselected child with the same hit area, so clicking the canvas would
-otherwise select the container instead of the active scene sequence. Hiding
-the parent row removes its canvas outline while keeping child sequences
-visible and selectable in the timeline.
+Studio prioritizes the active child scene over an equal-sized outer `<Series>`
+or `<TransitionSeries>` when clicking the canvas. Keep the outer series visible
+in the timeline so it can still be selected there when needed.
 
 ## Give every independently editable item its own JSX node
 
