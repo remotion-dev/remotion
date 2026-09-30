@@ -1,13 +1,23 @@
 import {starburst} from '@remotion/effects/starburst';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+} from 'remotion';
 
-export const RotatingStarburst: React.FC = () => {
+const RotatingStarburstInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const {height, width} = useVideoConfig();
 
 	return (
 		<Solid
+			style={style}
 			color="#dff4ff"
 			width={width}
 			height={height}
@@ -22,3 +32,10 @@ export const RotatingStarburst: React.FC = () => {
 		/>
 	);
 };
+
+export const RotatingStarburst = Interactive.withSchema({
+	Component: RotatingStarburstInner,
+	componentName: '<RotatingStarburst>',
+	schema: {},
+	wrapInSequence: true,
+});

@@ -1,6 +1,12 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
@@ -31,7 +37,7 @@ const springEasing = Easing.spring({
 	stiffness: 100,
 });
 
-export const LineChart: React.FC = () => {
+const LineChartInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 	const latestValueProgress =
 		frame >= 70
@@ -70,6 +76,7 @@ export const LineChart: React.FC = () => {
 				justifyContent: 'center',
 				padding: 160,
 				width: '100%',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -235,3 +242,10 @@ export const LineChart: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const LineChart = Interactive.withSchema({
+	Component: LineChartInner,
+	componentName: '<LineChart>',
+	schema: {},
+	wrapInSequence: true,
+});

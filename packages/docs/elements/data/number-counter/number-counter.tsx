@@ -1,13 +1,19 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['800'],
 });
 
-export const NumberCounter: React.FC = () => {
+const NumberCounterInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	const progress = interpolate(frame, [0, 90], [0, 1], {
@@ -34,9 +40,17 @@ export const NumberCounter: React.FC = () => {
 				fontVariantNumeric: 'tabular-nums',
 				letterSpacing: '-0.03em',
 				lineHeight: 1,
+				...style,
 			}}
 		>
 			{current.toLocaleString('en-US')}
 		</Interactive.Div>
 	);
 };
+
+export const NumberCounter = Interactive.withSchema({
+	Component: NumberCounterInner,
+	componentName: '<NumberCounter>',
+	schema: {},
+	wrapInSequence: true,
+});

@@ -1,13 +1,19 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['500', '700'],
 });
 
-export const NameLowerThird: React.FC = () => {
+const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -21,6 +27,7 @@ export const NameLowerThird: React.FC = () => {
 				height: 132,
 				boxSizing: 'border-box',
 				fontFamily: 'Inter',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -84,3 +91,10 @@ export const NameLowerThird: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const NameLowerThird = Interactive.withSchema({
+	Component: NameLowerThirdInner,
+	componentName: '<NameLowerThird>',
+	schema: {},
+	wrapInSequence: true,
+});

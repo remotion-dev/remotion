@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 const getHighlightProgress = (frame: number, highlightIndex: number) => {
@@ -39,7 +40,9 @@ const getWordProgress = (phraseProgress: number, wordIndex: number) => {
 	);
 };
 
-export const NewsArticleHighlight: React.FC = () => {
+const NewsArticleHighlightInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const firstHighlightProgress = getHighlightProgress(frame, 0);
 	const secondHighlightProgress = getHighlightProgress(frame, 1);
@@ -51,6 +54,7 @@ export const NewsArticleHighlight: React.FC = () => {
 				display: 'flex',
 				justifyContent: 'center',
 				overflow: 'hidden',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -179,3 +183,10 @@ export const NewsArticleHighlight: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const NewsArticleHighlight = Interactive.withSchema({
+	Component: NewsArticleHighlightInner,
+	componentName: '<NewsArticleHighlight>',
+	schema: {},
+	wrapInSequence: true,
+});

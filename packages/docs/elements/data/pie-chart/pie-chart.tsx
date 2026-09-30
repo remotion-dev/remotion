@@ -1,6 +1,12 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
@@ -134,7 +140,7 @@ const LegendItem: React.FC<{
 	);
 };
 
-export const PieChart: React.FC = () => {
+const PieChartInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 	const revealAngle = interpolate(frame, [8, 60], [0, 360], {
 		easing: Easing.inOut(Easing.cubic),
@@ -155,6 +161,7 @@ export const PieChart: React.FC = () => {
 				justifyContent: 'center',
 				padding: 56,
 				width: '100%',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -251,3 +258,10 @@ export const PieChart: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const PieChart = Interactive.withSchema({
+	Component: PieChartInner,
+	componentName: '<PieChart>',
+	schema: {},
+	wrapInSequence: true,
+});

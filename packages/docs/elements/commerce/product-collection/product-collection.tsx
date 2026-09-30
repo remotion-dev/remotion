@@ -176,7 +176,9 @@ const ProductCard = Interactive.withSchema({
 	wrapInSequence: true,
 });
 
-export const ProductCollection = () => {
+const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -242,6 +244,7 @@ export const ProductCollection = () => {
 				),
 				width: 900,
 				willChange: 'transform, opacity',
+				...style,
 			}}
 		>
 			<ProductCard
@@ -268,3 +271,10 @@ export const ProductCollection = () => {
 		</Interactive.Div>
 	);
 };
+
+export const ProductCollection = Interactive.withSchema({
+	Component: ProductCollectionInner,
+	componentName: '<ProductCollection>',
+	schema: {},
+	wrapInSequence: true,
+});

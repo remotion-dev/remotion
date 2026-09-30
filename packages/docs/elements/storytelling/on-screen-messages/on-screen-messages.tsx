@@ -1,12 +1,21 @@
 import {fontFamily, loadFont} from '@remotion/google-fonts/Inter';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import React from 'react';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['400'],
 });
 
-export const OnScreenMessages = () => {
+const OnScreenMessagesInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -47,6 +56,7 @@ export const OnScreenMessages = () => {
 					paddingTop: 90,
 					position: 'relative',
 					width: 1260,
+					...style,
 				}}
 			>
 				<Interactive.Div
@@ -152,3 +162,10 @@ export const OnScreenMessages = () => {
 		</>
 	);
 };
+
+export const OnScreenMessages = Interactive.withSchema({
+	Component: OnScreenMessagesInner,
+	componentName: '<OnScreenMessages>',
+	schema: {},
+	wrapInSequence: true,
+});

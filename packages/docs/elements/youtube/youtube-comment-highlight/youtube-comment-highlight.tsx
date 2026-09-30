@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -13,7 +14,9 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-export const YouTubeCommentHighlight: React.FC = () => {
+const YouTubeCommentHighlightInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -24,6 +27,7 @@ export const YouTubeCommentHighlight: React.FC = () => {
 				perspectiveOrigin: '50% 50%',
 				position: 'relative',
 				width: 1120,
+				...style,
 			}}
 		>
 			<div
@@ -218,3 +222,10 @@ export const YouTubeCommentHighlight: React.FC = () => {
 		</div>
 	);
 };
+
+export const YouTubeCommentHighlight = Interactive.withSchema({
+	Component: YouTubeCommentHighlightInner,
+	componentName: '<YouTubeCommentHighlight>',
+	schema: {},
+	wrapInSequence: true,
+});

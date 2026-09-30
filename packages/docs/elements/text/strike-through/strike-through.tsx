@@ -1,14 +1,21 @@
 import {loadFont} from '@remotion/google-fonts/CormorantGaramond';
 import {StrikeThrough} from '@remotion/rough-notation';
 import React from 'react';
-import {Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	weights: ['700'],
 	subsets: ['latin'],
 });
 
-export const StrikeThroughText: React.FC = () => {
+const StrikeThroughTextInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -24,6 +31,7 @@ export const StrikeThroughText: React.FC = () => {
 				lineHeight: 1.1,
 				color: '#171717',
 				fontFamily,
+				...style,
 			}}
 		>
 			<div>
@@ -44,3 +52,10 @@ export const StrikeThroughText: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const StrikeThroughText = Interactive.withSchema({
+	Component: StrikeThroughTextInner,
+	componentName: '<StrikeThroughText>',
+	schema: {},
+	wrapInSequence: true,
+});

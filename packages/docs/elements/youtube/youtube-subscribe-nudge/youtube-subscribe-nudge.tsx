@@ -8,6 +8,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -15,14 +16,17 @@ loadFont('normal', {
 	weights: ['500', '600', '700', '800'],
 });
 
-export const YouTubeSubscribeNudge: React.FC<{
-	readonly clickSrc?: string;
-	readonly dingSrc?: string;
-	readonly avatarSrc?: string;
-}> = ({
+const YouTubeSubscribeNudgeInner: React.FC<
+	InteractiveTransformProps & {
+		readonly clickSrc?: string;
+		readonly dingSrc?: string;
+		readonly avatarSrc?: string;
+	}
+> = ({
 	clickSrc = mouseClick,
 	dingSrc = ding,
 	avatarSrc = 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+	style,
 }) => {
 	const frame = useCurrentFrame();
 
@@ -32,6 +36,7 @@ export const YouTubeSubscribeNudge: React.FC<{
 				height: 240,
 				position: 'relative',
 				width: 760,
+				...style,
 			}}
 		>
 			<Audio
@@ -397,3 +402,10 @@ export const YouTubeSubscribeNudge: React.FC<{
 		</div>
 	);
 };
+
+export const YouTubeSubscribeNudge = Interactive.withSchema({
+	Component: YouTubeSubscribeNudgeInner,
+	componentName: '<YouTubeSubscribeNudge>',
+	schema: {},
+	wrapInSequence: true,
+});
