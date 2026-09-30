@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/rough-notation",
-	"version": "4.0.530",
+	"version": "4.0.531",
 	"description": "Rough annotation primitives for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
