@@ -102,7 +102,7 @@ const makeOpenPreviewClientSpecific = () => {
 			? 'Open the exact URL in the Codex in-app browser. If the in-app browser is not available, keep the preview server running and provide the URL to the user.'
 			: "Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor. If no browser tool is available, keep the preview server running and provide the URL to the user.";
 
-	const browserSection = `Always pass \`--no-open\` so the system browser is not opened:
+	const browserSection = `To start the preview server by default without opening the system browser, pass \`--no-open\`:
 
 \`\`\`bash
 npx remotion studio --no-open
