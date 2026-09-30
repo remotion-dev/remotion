@@ -63,6 +63,48 @@ export const Chapter = Interactive.withSchema({
 Forwarding the injected `style` inside the component is required; keep editable
 styles inline at the component's call site.
 
+### Choose schema fields
+
+Each key in the schema is a prop that Studio can read and edit at the call site.
+Props that are not in the schema still work, but are not editable in Studio.
+Keys may use dot notation, such as `style.color`.
+
+| Type | Use for | Keyframable |
+| --- | --- | --- |
+| `text-content` | Text, such as a title | No |
+| `number` | Numbers, with optional `min`, `max`, `step`, `integer` | Yes |
+| `boolean` | On/off switches | Yes (hold) |
+| `color` | CSS color strings | Yes |
+| `enum` | A choice between `variants`, each with its own nested schema | Opt-in (hold) |
+| `array` | Lists of numbers, colors, enums and more | No |
+| `asset` | Media sources, with optional `assetType` | No |
+| `font-family` | CSS font family | No |
+| `font-weight` | Font weight | Yes |
+| `translate`, `scale`, `rotation-css`, `rotation-degrees`, `transform-origin` | Transforms | Yes |
+| `uv-coordinate` | A normalized `[x, y]` point on the element | Yes |
+| `svg-path` | SVG path data | Yes |
+| `remotion-captions` | `Caption[]` data | No |
+| `hidden` | A value kept out of the controls | — |
+
+Every field needs a `default` and should have a `description`, which Studio shows as the label.
+Set `keyframable: false` to show a static control.
+
+Expose content and per-instance appearance, such as the text and an accent color.
+Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `wrapInSequence: true` already adds them.
+
+To make CSS properties of the root editable per instance, spread the built-in schema fragments:
+
+```tsx
+const cardSchema = {
+  ...Interactive.textSchema, // style.color, style.fontSize, style.fontWeight, ...
+  ...Interactive.backgroundSchema, // style.backgroundColor
+  ...Interactive.borderRadiusSchema, // style.borderRadius, ...
+} as const satisfies InteractivitySchema;
+```
+
+Also available: `Interactive.borderSchema`, and `Interactive.captionsSchema` for components that accept captions.
+See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
+
 ### Register reusable components as connected compositions
 
 Register substantial scenes and reusable components with their own layers or
