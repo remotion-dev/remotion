@@ -38,6 +38,10 @@ cd my-video
 npm i
 ```
 
+## Open the preview before building the video
+
+As soon as the project can run, open [Remotion Studio](../remotion-studio/SKILL.md) in the browser before writing or changing the composition. For a new project, do this immediately after scaffolding and installing dependencies. For an existing project, do it before editing the video. Keep Studio running while you work so the user can see changes as they appear and steer the result.
+
 ## Designing a video
 
 Keep the scaffold and add React Markup.
