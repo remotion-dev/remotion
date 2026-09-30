@@ -269,5 +269,6 @@ export type BrowserStudioOperations = {
 declare global {
 	interface Window {
 		remotion_browserStudio?: BrowserStudioOperations;
+		remotion_showBrowserStudioExperimentalNotice: boolean | null;
 	}
 }
