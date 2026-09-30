@@ -97,25 +97,34 @@ const makeOpenPreviewClientSpecific = () => {
 		);
 	}
 
-	const openInstruction =
+	const browserSection =
 		client === 'codex'
-			? 'Open the exact URL in the Codex in-app browser. If the in-app browser is not available, keep the preview server running and provide the URL to the user.'
-			: "Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor. If no browser tool is available, keep the preview server running and provide the URL to the user.";
-
-	const browserSection = `To start the preview server by default without opening the system browser, pass \`--no-open\`:
+			? `To start the preview server by default without opening the system browser, pass \`--no-open\`:
 
 \`\`\`bash
 npx remotion studio --no-open
 \`\`\`
 
-This will start a long-running process and print the server URL for the preview.  
+This will start a long-running process and print the server URL for the preview.
 If the server is already started, it will print the URL.
-${openInstruction}
+Open the exact URL in the Codex in-app browser. Verify that Studio loads. Once a composition exists, verify that its video preview loads. If the in-app browser is not available, keep the preview server running and provide the URL to the user.
 You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
 
 :::note
 The Studio supports WebMCP tools.
 :::
+
+`
+			: `Run Studio without \`--no-open\` so it opens the browser automatically:
+
+\`\`\`bash
+npx remotion studio
+\`\`\`
+
+This will start a long-running process and print the server URL for the preview.
+If the server is already started, it will print the URL and refocus the browser.
+Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor. Verify that Studio loads. If no browser tool is available, keep the preview server running and provide the URL to the user.
+You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
 
 `;
 
