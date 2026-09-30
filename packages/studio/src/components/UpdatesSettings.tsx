@@ -103,6 +103,12 @@ const releaseNotesTitle: React.CSSProperties = {
 	width: '100%',
 };
 
+const releaseNotesTitleLink: React.CSSProperties = {
+	...text,
+	cursor: 'pointer',
+	textDecoration: 'none',
+};
+
 const commands: {
 	[key in UpdateAvailableResponse['packageManager']]: string;
 } = {
@@ -202,10 +208,17 @@ const RenderedReleaseNotes: React.FC<{
 	return (
 		<>
 			<div style={releaseNotesTitle}>
-				v{release.version}
-				{formattedReleaseDate === null
-					? null
-					: ` \u2013\u00a0${formattedReleaseDate}`}
+				<a
+					style={releaseNotesTitleLink}
+					href={`https://github.com/remotion-dev/remotion/releases/tag/v${release.version}`}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					v{release.version}
+					{formattedReleaseDate === null
+						? null
+						: ` \u2013\u00a0${formattedReleaseDate}`}
+				</a>
 			</div>
 			{document === null ? (
 				<div style={text}>
@@ -450,7 +463,16 @@ export const UpdatesSettings: React.FC = () => {
 				releaseNotes.latestVersion === info.latestVersion ? (
 					releaseNotes.releases.length === 0 ? (
 						<>
-							<div style={releaseNotesTitle}>v{info.latestVersion}</div>
+							<div style={releaseNotesTitle}>
+								<a
+									style={releaseNotesTitleLink}
+									href={`https://github.com/remotion-dev/remotion/releases/tag/v${info.latestVersion}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									v{info.latestVersion}
+								</a>
+							</div>
 							<div style={text}>
 								Release notes could not be loaded.{' '}
 								<a
