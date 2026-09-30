@@ -181,6 +181,7 @@ export const Generative: React.FC = () => {
 				}}
 			>
 				<RiseText
+					name="Generative"
 					text="Generative"
 					start={10}
 					stagger={2}
@@ -195,6 +196,7 @@ export const Generative: React.FC = () => {
 					}}
 				/>
 				<RiseText
+					name="systems."
 					text="systems."
 					start={18}
 					stagger={2}
@@ -231,6 +233,7 @@ export const Generative: React.FC = () => {
 				<Readout />
 			</div>
 			<ChapterTag
+				name="Generative chapter tag"
 				index="05"
 				title="Generative"
 				color={colors.paper}

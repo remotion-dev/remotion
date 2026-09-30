@@ -215,6 +215,7 @@ export const ShapeMorph: React.FC = () => {
 				}}
 			>
 				<RiseText
+					name="Shape"
 					text="Shape"
 					start={16}
 					stagger={3}
@@ -229,6 +230,7 @@ export const ShapeMorph: React.FC = () => {
 					}}
 				/>
 				<RiseText
+					name="& path."
 					text="& path."
 					start={24}
 					stagger={3}
@@ -370,6 +372,7 @@ export const ShapeMorph: React.FC = () => {
 				<div style={{opacity: 0.55}}>{pad(forms.indexOf(form) + 1)} / 06</div>
 			</div>
 			<ChapterTag
+				name="Shape & path chapter tag"
 				index="02"
 				title="Shape & path"
 				color={colors.paper}

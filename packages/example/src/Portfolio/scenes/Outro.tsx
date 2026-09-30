@@ -11,16 +11,6 @@ import {BEAT, colors, mono, sans, serif} from '../theme';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
-const lineStyle: React.CSSProperties = {
-	fontFamily: sans,
-	fontWeight: 800,
-	fontSize: 236,
-	lineHeight: 0.78,
-	letterSpacing: '-0.05em',
-	color: colors.paper,
-	paddingTop: 16,
-};
-
 export const Outro: React.FC = () => {
 	const frame = useCurrentFrame();
 	const sinceBeat = (frame - 15) % BEAT;
@@ -51,12 +41,22 @@ export const Outro: React.FC = () => {
 					}}
 				>
 					<RiseText
+						name="Let’s make"
 						text="Let’s make"
 						start={16}
 						stagger={2}
-						style={lineStyle}
+						style={{
+							fontFamily: sans,
+							fontWeight: 800,
+							fontSize: 236,
+							lineHeight: 0.78,
+							letterSpacing: '-0.05em',
+							color: colors.paper,
+							paddingTop: 16,
+						}}
 					/>
 					<RiseText
+						name="something"
 						text="something"
 						start={24}
 						stagger={2}
@@ -73,7 +73,21 @@ export const Outro: React.FC = () => {
 						}}
 					/>
 					<div style={{display: 'flex', alignItems: 'flex-end'}}>
-						<RiseText text="move" start={34} stagger={3} style={lineStyle} />
+						<RiseText
+							name="move"
+							text="move"
+							start={34}
+							stagger={3}
+							style={{
+								fontFamily: sans,
+								fontWeight: 800,
+								fontSize: 236,
+								lineHeight: 0.78,
+								letterSpacing: '-0.05em',
+								color: colors.paper,
+								paddingTop: 16,
+							}}
+						/>
 						<Interactive.Div
 							name="Dot"
 							style={{

@@ -57,7 +57,8 @@ const FlipText: React.FC<{
 						style={{
 							display: 'inline-block',
 							transformOrigin: '50% 100%',
-							transform: `translateY(${hop}px) rotateX(${flip}deg)`,
+							translate: `0px ${hop}px`,
+							rotate: `x ${flip}deg`,
 							opacity: interpolate(
 								frame,
 								[enterAt, enterAt + 3],
@@ -354,11 +355,19 @@ export const KineticType: React.FC = () => {
 						WORDS
 					</Interactive.Div>
 					<RiseText
+						name="THAT"
 						text="THAT"
 						start={15}
 						stagger={2}
 						duration={14}
-						style={wordStyle}
+						style={{
+							fontFamily: sans,
+							fontWeight: 900,
+							fontSize: 232,
+							lineHeight: 0.84,
+							letterSpacing: '-0.045em',
+							color: colors.ink,
+						}}
 					/>
 					<FlipText text="MOVE" start={30} hops={[75, 90, 105]} />
 					<div style={{position: 'relative', marginTop: -8}}>
@@ -435,6 +444,7 @@ export const KineticType: React.FC = () => {
 					<BeatMeter />
 				</Interactive.Div>
 				<ChapterTag
+					name="Kinetic type chapter tag"
 					index="01"
 					title="Kinetic type"
 					color={colors.ink}
