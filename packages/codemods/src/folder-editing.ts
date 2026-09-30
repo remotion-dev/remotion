@@ -3,10 +3,21 @@ import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
 import type {FolderReference} from './composition-editing';
 import {getMoveTreeItemSourceEdits} from './folder-source-edits';
-import {captureJsxNodePaths} from './get-node-path-remappings';
-import {findProjectFile} from './internals';
-import {getNodeEditResult} from './node-references';
 import {
+	captureJsxNodePaths,
+	collectJsxSubtree,
+	requireCapturedNodePath,
+} from './get-node-path-remappings';
+import {findProjectFile} from './internals';
+import {
+	getNodeEditResult,
+	getSubtreeEditRemappings,
+	type CodemodInsertionResult,
+	type CodemodNodeResult,
+	type NodeReference,
+} from './node-references';
+import {
+	findRegistrationRoot,
 	getCompositionIdFromJSXElement,
 	getFolderNameFromJSXElement,
 } from './registration-source-edits';
@@ -88,6 +99,64 @@ export const requireTreeItem = (
 	return matches[0];
 };
 
+// The result of inserting one registration element. The element is located in
+// the output by its ID or folder reference, or as the last element appended to
+// the folder or the registration root.
+export const getRegistrationInsertionResult = ({
+	project,
+	filePath,
+	input,
+	output,
+	inserted,
+}: {
+	project: CodemodProject;
+	filePath: string;
+	input: string;
+	output: string;
+	inserted:
+		| CompositionTreeItem
+		| {type: 'last-child'; folder: FolderReference | null};
+}): CodemodInsertionResult => {
+	const before = captureJsxNodePaths(parseAst(input));
+	const nextAst = parseAst(output);
+	const after = captureJsxNodePaths(nextAst);
+	let element: JSXElement;
+	if (inserted.type === 'last-child') {
+		const root = findRegistrationRoot({ast: nextAst, folder: inserted.folder});
+		const last = root.children.findLast(
+			(child): child is JSXElement => child.type === 'JSXElement',
+		);
+		if (!last) {
+			throw new Error('Could not locate the inserted registration');
+		}
+
+		element = last;
+	} else {
+		element = requireTreeItem(getTreeEntries({ast: nextAst}), inserted).node;
+	}
+
+	const nodePathRemappings = getSubtreeEditRemappings({
+		before,
+		after,
+		subtrees: [
+			{
+				before: new Set(),
+				after: collectJsxSubtree(after, element.openingElement),
+			},
+		],
+	});
+	return {
+		...getNodeEditResult({
+			project,
+			edits: [{filePath, output, nodePathRemappings}],
+		}),
+		insertedNode: {
+			filePath,
+			nodePath: requireCapturedNodePath(after, element.openingElement),
+		},
+	};
+};
+
 export const moveTreeItem = <Project extends CodemodProject>({
 	project,
 	compositionFile,
@@ -98,12 +167,13 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	compositionFile: string;
 	source: CompositionTreeItem;
 	destination: CompositionDestination;
-}) => {
+}): CodemodNodeResult & {updatedNode: NodeReference} => {
 	const filePath = findProjectFile({project, filePath: compositionFile});
 	const input = project.files[filePath];
 	const ast = parseAst(input);
 	const entries = getTreeEntries({ast});
 	const entry = requireTreeItem(entries, source);
+	const before = captureJsxNodePaths(ast);
 	const target =
 		destination.type === 'root'
 			? null
@@ -150,7 +220,14 @@ export const moveTreeItem = <Project extends CodemodProject>({
 		((destination.type === 'folder' || destination.type === 'root') &&
 			entry.parentName === destinationParentName)
 	) {
-		return {changes: [], nodePathRemappings: []};
+		return {
+			changes: [],
+			nodePathRemappings: [],
+			updatedNode: {
+				filePath,
+				nodePath: requireCapturedNodePath(before, entry.node.openingElement),
+			},
+		};
 	}
 
 	if (!entry.directJsxChild)
@@ -182,51 +259,26 @@ export const moveTreeItem = <Project extends CodemodProject>({
 					parentName: destinationParentName,
 				},
 	);
-	const before = captureJsxNodePaths(ast);
 	const after = captureJsxNodePaths(nextAst);
-	const beforeMovedNodes = new Set<object>([entry.node.openingElement]);
-	const afterMovedNodes = new Set<object>([movedEntry.node.openingElement]);
-	for (const captured of before) {
-		if (
-			captured.parentNode !== null &&
-			beforeMovedNodes.has(captured.parentNode)
-		) {
-			beforeMovedNodes.add(captured.node);
-		}
-	}
-
-	for (const captured of after) {
-		if (
-			captured.parentNode !== null &&
-			afterMovedNodes.has(captured.parentNode)
-		) {
-			afterMovedNodes.add(captured.node);
-		}
-	}
-
-	const beforeMoved = before.filter(({node}) => beforeMovedNodes.has(node));
-	const afterMoved = after.filter(({node}) => afterMovedNodes.has(node));
-	const beforeUnmoved = before.filter(({node}) => !beforeMovedNodes.has(node));
-	const afterUnmoved = after.filter(({node}) => !afterMovedNodes.has(node));
-	if (
-		beforeMoved.length !== afterMoved.length ||
-		beforeUnmoved.length !== afterUnmoved.length
-	) {
-		throw new Error('Could not remap JSX nodes after moving a tree item');
-	}
-
-	const nodePathRemappings = [
-		...beforeMoved.map((node, index) => ({node, next: afterMoved[index]})),
-		...beforeUnmoved.map((node, index) => ({node, next: afterUnmoved[index]})),
-	].flatMap(({node, next}) =>
-		JSON.stringify(node.nodePath) === JSON.stringify(next.nodePath) &&
-		node.signature === next.signature
-			? []
-			: [{oldNodePath: node.nodePath, newNodePath: next.nodePath}],
-	);
-
-	return getNodeEditResult({
-		project,
-		edits: [{filePath, output: nextContents, nodePathRemappings}],
+	const nodePathRemappings = getSubtreeEditRemappings({
+		before,
+		after,
+		subtrees: [
+			{
+				before: collectJsxSubtree(before, entry.node.openingElement),
+				after: collectJsxSubtree(after, movedEntry.node.openingElement),
+			},
+		],
 	});
+
+	return {
+		...getNodeEditResult({
+			project,
+			edits: [{filePath, output: nextContents, nodePathRemappings}],
+		}),
+		updatedNode: {
+			filePath,
+			nodePath: requireCapturedNodePath(after, movedEntry.node.openingElement),
+		},
+	};
 };

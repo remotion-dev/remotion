@@ -123,9 +123,11 @@ A reference identifies source, not a particular rendered instance. Editing a com
 
 ### Keeping references after edits
 
-Node mutations return `nodePathRemappings`. Each entry contains `filePath`, `oldNodePath`, and `newNodePath`. Apply a mapping once to references from the input project, matching both the file and old path. A `null` old path means insertion; a `null` new path means removal. An omitted reference keeps its path.
+Node and registration mutations return `nodePathRemappings`. Each entry contains `filePath`, `oldNodePath`, and `newNodePath`. Apply a mapping once to references from the input project, matching both the file and old path. A `null` old path means insertion; a `null` new path means removal. An omitted reference keeps its path.
 
-Use `insertedNode`, `insertedNodes`, or `updatedNode` when returned instead of trying to reconstruct a path. Adding hooks, duplicating elements, or changing wrappers can move other nodes as well. After manual source changes or composition-tree edits, discover nodes again.
+Use `insertedNode`, `insertedNodes`, or `updatedNode` when returned instead of trying to reconstruct a path. Adding hooks, duplicating elements, changing wrappers, or moving registrations can move other nodes as well. After manual source changes, discover nodes again.
+
+Editors that keep mounted sequences attached to their source nodes, such as [`<Canvas>`](/docs/canvas/canvas), accept these mappings through [`queueSequenceNodePathRemappings()`](/docs/canvas/create-canvas-controller#queuesequencenodepathremappings).
 
 ## Effect references<AvailableFrom v="4.0.528" />
 
@@ -155,7 +157,7 @@ The next source, or `null` if the file was deleted.
 
 ### nodePathRemappings<AvailableFrom v="4.0.528" />
 
-Node, effect, and keyframe mutations return these mappings in addition to the shared result. See [node references](#node-references).
+Node, effect, keyframe, and registration mutations return these mappings in addition to the shared result. Registration mutations return them since <AvailableFrom v="4.0.530" inline />. See [node references](#node-references).
 
 ## Applying changes
 

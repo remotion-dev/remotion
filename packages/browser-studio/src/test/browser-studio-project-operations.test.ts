@@ -409,7 +409,19 @@ test('duplicates compositions as an undoable project mutation', async () => {
 	};
 
 	const result = await operations.duplicateComposition(request);
-	expect(result).toEqual({success: true, nodePathMutation: null});
+	if (!result.success || result.nodePathMutation === null) {
+		throw new Error('Expected the duplicate to remap node paths');
+	}
+
+	// The copy is inserted after the original; the copied registration is new.
+	expect(result.nodePathMutation.files).toEqual([
+		{
+			absolutePath: '/project/src/Composition.tsx',
+			remappings: expect.arrayContaining([
+				{oldNodePath: null, newNodePath: expect.any(Array)},
+			]),
+		},
+	]);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'id="MyCompCopy"',
 	);
@@ -418,9 +430,18 @@ test('duplicates compositions as an undoable project mutation', async () => {
 		'width={1920}',
 	);
 
-	expect(await operations.undo()).toEqual({
+	const undoResult = await operations.undo();
+	expect(undoResult).toEqual({
 		success: true,
-		nodePathMutation: null,
+		nodePathMutation: expect.objectContaining({
+			files: result.nodePathMutation.files.map((file) => ({
+				absolutePath: file.absolutePath,
+				remappings: file.remappings.map((remapping) => ({
+					oldNodePath: remapping.newNodePath,
+					newNodePath: remapping.oldNodePath,
+				})),
+			})),
+		}),
 		route: '/MyComp',
 	});
 	expect(project.files['/project/src/Composition.tsx']).toBe(
@@ -428,7 +449,9 @@ test('duplicates compositions as an undoable project mutation', async () => {
 	);
 	expect(await operations.redo()).toEqual({
 		success: true,
-		nodePathMutation: null,
+		nodePathMutation: expect.objectContaining({
+			files: result.nodePathMutation.files,
+		}),
 		route: '/MyCompCopy',
 	});
 	expect(project.files['/project/src/Composition.tsx']).toContain(

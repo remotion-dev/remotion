@@ -17,6 +17,11 @@ import {
 	createCanvasSelectionController,
 	type CanvasSelectionController,
 } from './selection';
+import {
+	remapCanvasSelection,
+	remapOverrideIdToNodePaths,
+	type CanvasSequenceNodePathRemapping,
+} from './sequence-node-path-remapping';
 
 type VisualModeSetters = React.ContextType<
 	typeof Internals.VisualModeSettersContext
@@ -48,6 +53,22 @@ export type CanvasController = {
 	readonly setSequenceNodePaths: (
 		nodePaths: Record<string, SequencePropsSubscriptionKey>,
 	) => void;
+	/**
+	 * Queue the `nodePathRemappings` of a source edit. They are applied when
+	 * the next Fast Refresh update starts, immediately before React commits the
+	 * refreshed tree, so registered node paths and the selection never pair the
+	 * new elements with the old paths.
+	 */
+	readonly queueSequenceNodePathRemappings: (
+		remappings: readonly CanvasSequenceNodePathRemapping[],
+	) => void;
+	/**
+	 * Apply the remappings of one source edit to the registered node paths and
+	 * the selection right away, for hosts that swap the mounted tree themselves.
+	 */
+	readonly remapSequenceNodePaths: (
+		remappings: readonly CanvasSequenceNodePathRemapping[],
+	) => void;
 };
 
 type CanvasControllerInternals = {
@@ -58,6 +79,7 @@ type CanvasControllerInternals = {
 		readonly subscribe: (listener: () => void) => () => void;
 	};
 	readonly setVisualModeSetters: (setters: VisualModeSetters | null) => void;
+	readonly commitQueuedSequenceNodePathRemappings: () => void;
 };
 
 const controllerInternals = new WeakMap<
@@ -92,6 +114,9 @@ export const createCanvasController = (): CanvasController => {
 	let sequences: TSequence[] = [];
 	let nodePaths: OverrideIdToNodePaths = {};
 	let visualModeSetters: VisualModeSetters | null = null;
+	// One entry per source edit: the remappings of an edit must not be chained
+	// with each other, only with those of earlier edits.
+	let queuedRemappings: (readonly CanvasSequenceNodePathRemapping[])[] = [];
 	const timelineListeners = new Set<() => void>();
 	const nodePathListeners = new Set<() => void>();
 
@@ -113,6 +138,41 @@ export const createCanvasController = (): CanvasController => {
 		);
 	};
 
+	const setNodePaths = (nextNodePaths: OverrideIdToNodePaths) => {
+		nodePaths = nextNodePaths;
+		for (const listener of nodePathListeners) {
+			listener();
+		}
+
+		recalculateTimeline();
+	};
+
+	const selection = createCanvasSelectionController();
+	const hover = createCanvasHoverController();
+	const remapSequenceNodePaths = (
+		remappings: readonly CanvasSequenceNodePathRemapping[],
+	) => {
+		if (remappings.length === 0) {
+			return;
+		}
+
+		const nextNodePaths = remapOverrideIdToNodePaths(nodePaths, remappings);
+		if (nextNodePaths !== null) {
+			setNodePaths(nextNodePaths);
+		}
+
+		const nextSelection = remapCanvasSelection(
+			selection.getSnapshot(),
+			remappings,
+		);
+		if (nextSelection !== null) {
+			selection.setSnapshot(nextSelection);
+		}
+
+		// Hover keys embed node paths; the pointer restores it on the next move.
+		hover.clear(null);
+	};
+
 	const controller: CanvasController = {
 		timeline: {
 			getSnapshot: () => timelineSnapshot,
@@ -121,8 +181,8 @@ export const createCanvasController = (): CanvasController => {
 				return () => timelineListeners.delete(listener);
 			},
 		},
-		selection: createCanvasSelectionController(),
-		hover: createCanvasHoverController(),
+		selection,
+		hover,
 		overrides: {
 			set: (nodePathInfo, key, value) => {
 				visualModeSetters?.setDragOverrides(
@@ -142,13 +202,14 @@ export const createCanvasController = (): CanvasController => {
 				return;
 			}
 
-			nodePaths = {...nextNodePaths};
-			for (const listener of nodePathListeners) {
-				listener();
-			}
-
-			recalculateTimeline();
+			setNodePaths({...nextNodePaths});
 		},
+		queueSequenceNodePathRemappings: (remappings) => {
+			if (remappings.length > 0) {
+				queuedRemappings.push(remappings);
+			}
+		},
+		remapSequenceNodePaths,
 	};
 
 	controllerInternals.set(controller, {
@@ -170,6 +231,13 @@ export const createCanvasController = (): CanvasController => {
 		},
 		setVisualModeSetters: (setters) => {
 			visualModeSetters = setters;
+		},
+		commitQueuedSequenceNodePathRemappings: () => {
+			const pending = queuedRemappings;
+			queuedRemappings = [];
+			for (const remappings of pending) {
+				remapSequenceNodePaths(remappings);
+			}
 		},
 	});
 

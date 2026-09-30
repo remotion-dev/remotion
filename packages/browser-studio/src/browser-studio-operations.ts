@@ -36,7 +36,6 @@ import {
 	updateNodeProps,
 	type CodemodFileChange,
 	type CodemodNodeResult,
-	type CodemodResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
 	type InsertableSequenceWrapper,
@@ -391,7 +390,7 @@ const getAddCompositionResult = ({
 	project: VirtualProject;
 	compositionFile: string;
 	options: NewCompositionOptions;
-}): CodemodResult => {
+}): CodemodNodeResult => {
 	const componentFilePath = `${dirname(compositionFile)}/${options.componentName}.tsx`;
 	if (project.files[componentFilePath] !== undefined) {
 		throw new Error(
@@ -428,6 +427,7 @@ const getAddCompositionResult = ({
 
 	const result = addCompositionCodemod(composition);
 	return {
+		...result,
 		changes: [
 			...result.changes,
 			{
@@ -635,16 +635,14 @@ export const createBrowserStudioOperations = ({
 	}: {
 		fileName: string;
 		project: VirtualProject;
-		result: CodemodResult | CodemodNodeResult;
+		result: CodemodNodeResult;
 		undoRedoNavigation: UndoRedoNavigation | null;
 	}) => {
-		const nodePathMutationFiles =
-			'nodePathRemappings' in result ? getNodePathMutationFiles(result) : null;
 		return controller.applyMutation({
 			undoRedoNavigation,
 			timelineSelection: null,
 			fileName,
-			nodePathMutationFiles,
+			nodePathMutationFiles: getNodePathMutationFiles(result),
 			mutate: (current) => applyCodemodChanges(current, result.changes),
 		});
 	};

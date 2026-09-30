@@ -86,17 +86,15 @@ export const getFolderNameFromJSXElement = (
 	return null;
 };
 
-export const getRegistrationInsertionSourceEdit = ({
-	input,
+// The element registrations are appended to: the folder, or the JSX returned
+// by the component that registers compositions.
+export const findRegistrationRoot = ({
 	ast,
-	insertion,
 	folder,
 }: {
-	input: string;
 	ast: File;
-	insertion: JSXElement;
 	folder: FolderReference | null;
-}): SourceEdit => {
+}): JSXElement | JSXFragment => {
 	let root: JSXElement | JSXFragment | null = null;
 	if (folder) {
 		const folders: string[] = [];
@@ -223,6 +221,21 @@ export const getRegistrationInsertionSourceEdit = ({
 		root = roots[0];
 	}
 
+	return root;
+};
+
+export const getRegistrationInsertionSourceEdit = ({
+	input,
+	ast,
+	insertion,
+	folder,
+}: {
+	input: string;
+	ast: File;
+	insertion: JSXElement;
+	folder: FolderReference | null;
+}): SourceEdit => {
+	const root = findRegistrationRoot({ast, folder});
 	return getInsertionRootSourceEdit({
 		input,
 		insertion: printInsertedJsx({

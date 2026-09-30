@@ -94,6 +94,19 @@ const CanvasFn = <
 	useEffect(() => {
 		return () => internals.clear();
 	}, [internals]);
+	// Studio's bundler, Browser Studio and the browser bundler runtime dispatch
+	// this event before React Refresh schedules the refreshed tree. Committing
+	// the queued remappings here renders the new elements with their new paths.
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		const commit = () => internals.commitQueuedSequenceNodePathRemappings();
+		window.addEventListener(Internals.REACT_REFRESH_STARTED_EVENT, commit);
+		return () =>
+			window.removeEventListener(Internals.REACT_REFRESH_STARTED_EVENT, commit);
+	}, [internals]);
 	// React Refresh (used by Browser Studio) or React DevTools must have
 	// registered the renderer before this commit. Install before the commit hook
 	// fires so the initial outline nodes are discovered as well.
