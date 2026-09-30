@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'bun:test';
+import {describe, expect, mock, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import {createRequire} from 'module';
 import path from 'path';
@@ -24,9 +24,14 @@ import {
 	getElementDefinition,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
-import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 import {Seo} from '../components/Seo';
+
+// Docusaurus generates this alias at build time. These checks only inspect SSR markup.
+mock.module('@docusaurus/Link', () => ({
+	default: ({to, ...props}: React.ComponentProps<'a'> & {to: string}) =>
+		React.createElement('a', {...props, href: to}),
+}));
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -297,7 +302,9 @@ describe('Element Library', () => {
 		).toThrow('Missing source pages: missing/source.');
 	});
 
-	test('renders cards and filters the real category entry points', () => {
+	test('renders cards and filters the real category entry points', async () => {
+		const {ElementLibrary} =
+			await import('../components/Elements/ElementLibrary');
 		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
 		const overviewMarkup = renderToStaticMarkup(
 			React.createElement(ElementLibrary, {

@@ -24,6 +24,22 @@ const fasterConfig = isVercel
 const showGitLastUpdate =
 	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
 
+// Apply the class before the server-rendered layout is parsed so the docs
+// navigation cannot appear for one frame before React hydrates.
+const studioElementsEmbedScript = `
+(() => {
+	const pathname = window.location.pathname;
+	const isElementsPage =
+		pathname === '/elements' || pathname.startsWith('/elements/');
+	const isInsideStudio =
+		new URLSearchParams(window.location.search).get('remotion-studio') ===
+			'true' || window.parent !== window;
+
+	if (isElementsPage && isInsideStudio) {
+		document.body.classList.add('studio-elements-embed');
+	}
+})();`;
+
 const config: Config = {
 	title: 'Remotion | Make videos programmatically',
 	tagline: 'Make videos programmatically',
@@ -348,6 +364,17 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		() => ({
+			name: 'mark-studio-elements-embed-before-paint',
+			injectHtmlTags: () => ({
+				preBodyTags: [
+					{
+						tagName: 'script',
+						innerHTML: studioElementsEmbedScript,
+					},
+				],
+			}),
+		}),
 		// MapLibre's worker fallback uses a dynamic URL even when setWorkerUrl() is called.
 		() => ({
 			name: 'ignore-maplibre-worker-warning',
