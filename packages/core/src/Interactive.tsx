@@ -437,7 +437,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? componentName}
-					showInTimeline={showInTimeline}
+					showInTimeline={isCurrentComposition ? false : showInTimeline}
 					controls={controls}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}

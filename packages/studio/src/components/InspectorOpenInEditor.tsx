@@ -116,7 +116,9 @@ export const InspectorOpenInEditor: React.FC<{
 		defaultOpenInTarget === 'git-source'
 			? 'GitHub'
 			: (defaultEditorName ?? 'default editor');
-	const canOpenDefault = location !== null && defaultOpenInTarget !== null;
+	const canOpenDefault = Boolean(
+		location?.source && defaultOpenInTarget !== null,
+	);
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
@@ -138,7 +140,7 @@ export const InspectorOpenInEditor: React.FC<{
 		const items = getOpenInMenuItems({
 			canOpenDesktopApps: canConfigureApps,
 			codingAgentInfo,
-			editorDisabled: location === null || !canOpenInEditor,
+			editorDisabled: !location?.source || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: defaultEditorId,
@@ -146,7 +148,7 @@ export const InspectorOpenInEditor: React.FC<{
 			fileManagerDisabled:
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
-			gitSourceDisabled: location === null,
+			gitSourceDisabled: !location?.source,
 			onConfigureApps: configureDefaultApps,
 			onCopyPath:
 				locationType === 'folder' &&
@@ -257,7 +259,7 @@ export const InspectorOpenInEditor: React.FC<{
 			result.push({
 				ariaLabel: 'Open in...',
 				buttonId: null,
-				disabled: false,
+				disabled: !location?.source && !contextForAgents,
 				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: true,
 				onOpenChange: null,
@@ -274,10 +276,12 @@ export const InspectorOpenInEditor: React.FC<{
 		return result;
 	}, [
 		canOpenDefault,
+		contextForAgents,
 		defaultAppName,
 		defaultEditorId,
 		defaultOpenInTarget,
 		label,
+		location,
 		menuItems,
 		onOpenDefault,
 		showTooltips,

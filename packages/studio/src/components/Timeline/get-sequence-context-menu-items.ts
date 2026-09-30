@@ -260,14 +260,14 @@ export const getSequenceContextMenuItems = ({
 	const openInMenuItems = getOpenInMenuItems({
 		canOpenDesktopApps: onConfigureApps !== null,
 		codingAgentInfo,
-		editorDisabled: !canOpenInEditor || !originalLocation,
+		editorDisabled: !canOpenInEditor || !originalLocation?.source,
 		editorInfo,
 		excludeCodingAgentId: null,
 		excludeEditorId: defaultEditorId,
 		excludeGitSource: defaultOpenInTarget === 'git-source',
 		fileManagerDisabled: !originalLocation?.source,
 		folder: false,
-		gitSourceDisabled: !originalLocation,
+		gitSourceDisabled: !originalLocation?.source,
 		onConfigureApps,
 		onOpenInCodingAgent: openInCodingAgentWithContext,
 		onOpenInEditor: openInEditor,
@@ -298,7 +298,7 @@ export const getSequenceContextMenuItems = ({
 					keyHint: null,
 					label: `Open in ${defaultOpenInName}`,
 					leftItem: null,
-					disabled: !originalLocation,
+					disabled: !originalLocation?.source,
 					onClick: () => {
 						if (defaultOpenInTarget === 'editor') {
 							openInEditor(null);
@@ -322,7 +322,7 @@ export const getSequenceContextMenuItems = ({
 					keyHint: null,
 					label: 'Open in...',
 					leftItem: null,
-					disabled: false,
+					disabled: !originalLocation?.source,
 					onClick: () => undefined,
 					quickSwitcherLabel: null,
 					subMenu: {
