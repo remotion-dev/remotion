@@ -150,11 +150,6 @@ Use `loop` to loop the audio indefinitely:
 
 Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
 
-With `loop`, `durationInFrames` on `<Audio>` selects the range to repeat; it
-does not set the total playback length. Use an outer timed item only when the
-looping clip itself must end at an exact frame. For audio that does not loop,
-put `durationInFrames` directly on `<Audio>` to cap it.
-
 Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
 
 - `"repeat"`: Frame count resets to 0 each loop (default)
