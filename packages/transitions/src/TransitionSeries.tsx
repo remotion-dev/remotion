@@ -1,5 +1,6 @@
 import type {FC, PropsWithChildren} from 'react';
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
@@ -101,6 +102,7 @@ const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
 };
 
 const transitionSeriesOverlaySchema = {
+	hidden: Internals.sequenceSchema.hidden,
 	...Internals.premountSchema,
 } satisfies InteractivitySchema;
 
@@ -244,6 +246,11 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	const flattedChildren = useMemo(() => {
 		return flattenChildren(children);
 	}, [children]);
+	const hasOverlay = flattedChildren.some(
+		(child) => React.isValidElement(child) && child.type === SeriesOverlay,
+	);
+	const [overlayContainer, setOverlayContainer] =
+		useState<HTMLDivElement | null>(null);
 
 	const drawIfSynced = useCallback((index: number) => {
 		const prevImage = prevImageRef?.current?.[index];
@@ -312,11 +319,30 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly children: React.ReactNode;
 			readonly index: number;
 			readonly controls: SequenceControls | null | undefined;
+			readonly hidden: boolean | undefined;
 			readonly premountFor: number | undefined;
 			readonly postmountFor: number | undefined;
 			readonly styleWhilePremounted: React.CSSProperties | undefined;
 			readonly styleWhilePostmounted: React.CSSProperties | undefined;
 		};
+		const renderOverlay = (info: OverlayRender) => (
+			<SequenceWithoutSchema
+				key={`overlay-${info.index}`}
+				from={Math.round(info.overlayFrom)}
+				durationInFrames={info.durationInFrames}
+				name="<TS.Overlay>"
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
+				controls={info.controls ?? undefined}
+				hidden={info.hidden}
+				layout="absolute-fill"
+				premountFor={info.premountFor}
+				postmountFor={info.postmountFor}
+				styleWhilePremounted={info.styleWhilePremounted}
+				styleWhilePostmounted={info.styleWhilePostmounted}
+			>
+				{info.children}
+			</SequenceWithoutSchema>
+		);
 
 		type RenderState = {
 			readonly index: number;
@@ -338,23 +364,9 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			} = state;
 
 			if (i === flattedChildren.length) {
-				return overlayRenders.map((info) => (
-					<SequenceWithoutSchema
-						key={`overlay-${info.index}`}
-						from={Math.round(info.overlayFrom)}
-						durationInFrames={info.durationInFrames}
-						name="<TS.Overlay>"
-						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
-						controls={info.controls ?? undefined}
-						layout="absolute-fill"
-						premountFor={info.premountFor}
-						postmountFor={info.postmountFor}
-						styleWhilePremounted={info.styleWhilePremounted}
-						styleWhilePostmounted={info.styleWhilePostmounted}
-					>
-						{info.children}
-					</SequenceWithoutSchema>
-				));
+				return overlayContainer === null
+					? overlayRenders.map(renderOverlay)
+					: null;
 			}
 
 			const child = flattedChildren[i];
@@ -476,8 +488,8 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							}
 						}
 
-						// Store overlay info for deferred rendering and validate the other
-						// side once the next sequence has resolved its interactive props.
+						// Store overlay info to validate the other side once the next
+						// sequence has resolved its interactive props.
 						const overlayRender: OverlayRender = {
 							cutPoint,
 							overlayFrom,
@@ -487,16 +499,30 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							children: overlayProps.children,
 							index: i,
 							controls: overlayProps.controls,
+							hidden: overlayProps.hidden,
 							premountFor: overlayProps.premountFor,
 							postmountFor: overlayProps.postmountFor,
 							styleWhilePremounted: overlayProps.styleWhilePremounted,
 							styleWhilePostmounted: overlayProps.styleWhilePostmounted,
 						};
 
-						return renderNext({
+						const rest = renderNext({
 							overlayRenders: [...overlayRenders, overlayRender],
 							pendingOverlayValidation: true,
 						});
+						// Register the overlay in source order while keeping its DOM at the end.
+						return overlayContainer === null ? (
+							rest
+						) : (
+							<>
+								{createPortal(
+									renderOverlay(overlayRender),
+									overlayContainer,
+									`overlay-${i}`,
+								)}
+								{rest}
+							</>
+						);
 					},
 				});
 			}
@@ -939,10 +965,23 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			sequenceDurations: [],
 			pendingOverlayValidation: false,
 		});
-	}, [flattedChildren, fps, frame, onPrevElementImage, onNextElementImage]);
+	}, [
+		flattedChildren,
+		fps,
+		frame,
+		onPrevElementImage,
+		onNextElementImage,
+		overlayContainer,
+	]);
 
-	// eslint-disable-next-line react/jsx-no-useless-fragment
-	return <>{childrenValue}</>;
+	return (
+		<>
+			{childrenValue}
+			{hasOverlay ? (
+				<div ref={setOverlayContainer} style={{display: 'contents'}} />
+			) : null}
+		</>
+	);
 };
 
 /*

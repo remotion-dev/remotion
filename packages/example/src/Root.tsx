@@ -3036,7 +3036,7 @@ export const Index: React.FC = () => {
 					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
 				/>
 				<Composition
-					id="video-editing-cascading"
+					id="video-editing-transition-series"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}
