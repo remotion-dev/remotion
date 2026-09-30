@@ -506,6 +506,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							overlayRenders: [...overlayRenders, overlayRender],
 							pendingOverlayValidation: true,
 						});
+						// Register the overlay in source order while keeping its DOM at the end.
 						return overlayContainer === null ? (
 							rest
 						) : (
