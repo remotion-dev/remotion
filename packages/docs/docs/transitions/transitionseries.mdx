@@ -121,10 +121,11 @@ The overlay does [not shorten](#duration-of-a-transitionseries) the timeline —
 The overlay is centered on the cut point by default: half the duration before the cut, half after.  
 Children animate independently — no progress context is provided.
 
-Takes two props:
+Relevant props:
 
 - `durationInFrames`: How long the overlay is visible. Must be a positive integer.
 - `offset?`: Shifts the overlay relative to the center of the cut point. Positive values shift right (later), negative values shift left (earlier). Default: `0`. Must be a finite integer.
+- `hidden?`: Hides the overlay without changing the duration of the series. Default: `false`. You can also toggle this in the Studio timeline.
 
 The overlay must not extend before frame 0 or beyond the duration of the adjacent sequences.
 

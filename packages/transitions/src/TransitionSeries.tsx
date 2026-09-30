@@ -102,6 +102,7 @@ const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
 };
 
 const transitionSeriesOverlaySchema = {
+	hidden: Internals.sequenceSchema.hidden,
 	...Internals.premountSchema,
 } satisfies InteractivitySchema;
 
@@ -318,6 +319,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly children: React.ReactNode;
 			readonly index: number;
 			readonly controls: SequenceControls | null | undefined;
+			readonly hidden: boolean | undefined;
 			readonly premountFor: number | undefined;
 			readonly postmountFor: number | undefined;
 			readonly styleWhilePremounted: React.CSSProperties | undefined;
@@ -331,6 +333,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				name="<TS.Overlay>"
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 				controls={info.controls ?? undefined}
+				hidden={info.hidden}
 				layout="absolute-fill"
 				premountFor={info.premountFor}
 				postmountFor={info.postmountFor}
@@ -496,6 +499,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							children: overlayProps.children,
 							index: i,
 							controls: overlayProps.controls,
+							hidden: overlayProps.hidden,
 							premountFor: overlayProps.premountFor,
 							postmountFor: overlayProps.postmountFor,
 							styleWhilePremounted: overlayProps.styleWhilePremounted,
