@@ -43,7 +43,11 @@ export const getTimelineSequenceSortKey = (
 	tracks: TimelineTrackData[],
 	sequenceRanks: Map<string, number>,
 ): string => {
-	const rank = sequenceRanks.get(track.sequence.id) ?? 0;
+	// Keep source order in the timeline even when a sibling paints later.
+	const rank =
+		track.sequence.timelineOrderWithinParent ??
+		sequenceRanks.get(track.sequence.id) ??
+		0;
 	const id = String(rank).padStart(6, '0');
 	if (!track.sequence.parent) {
 		return id;

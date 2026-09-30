@@ -134,6 +134,8 @@ export type TSequence = {
 	parent: string | null;
 	showInTimeline: boolean;
 	timelineOrder: number | null;
+	/** Source order among siblings when paint order must differ. */
+	timelineOrderWithinParent?: number | null;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
 	premountDisplay: number | null;

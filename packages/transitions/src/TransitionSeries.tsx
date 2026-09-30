@@ -344,6 +344,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						from={Math.round(info.overlayFrom)}
 						durationInFrames={info.durationInFrames}
 						name="<TS.Overlay>"
+						_remotionInternalTimelineOrderWithinParent={info.index}
 						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 						controls={info.controls ?? undefined}
 						layout="absolute-fill"
@@ -537,6 +538,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										from={transitionFrom}
 										durationInFrames={transitionDuration}
 										name="<TS.Transition>"
+										_remotionInternalTimelineOrderWithinParent={i}
 										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 										controls={transitionProps.controls ?? undefined}
 										layout="none"
@@ -596,6 +598,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					} = resolvedProps as InternalSeriesSequenceProps & {from: never};
 					const propsForSequence = {
 						...passedProps,
+						_remotionInternalTimelineOrderWithinParent: i,
 						_remotionInternalSingleChildComponent:
 							Internals.getSingleChildComponent(sequenceChildren),
 					};
