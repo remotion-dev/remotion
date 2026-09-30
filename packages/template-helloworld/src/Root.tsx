@@ -8,23 +8,6 @@ import { Title } from "./HelloWorld/Title";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      <Composition
-        // You can take the "id" to render a video:
-        // bunx remotion render HelloWorld
-        id="HelloWorld"
-        component={HelloWorld}
-        durationInFrames={150}
-        fps={30}
-        width={1920}
-        height={1080}
-        // You can override these props for each render:
-        // https://www.remotion.dev/docs/parametrized-rendering
-        defaultProps={{
-          titleText: "Welcome to Remotion",
-          titleColor: "#000000",
-        }}
-      />
-
       <Folder name="Elements">
         <Composition
           id="Logo"
@@ -51,6 +34,23 @@ export const RemotionRoot: React.FC = () => {
           }}
         />
       </Folder>
+      <Composition
+        // You can take the "id" to render a video:
+        // bunx remotion render HelloWorld
+        id="HelloWorld"
+        component={HelloWorld}
+        durationInFrames={150}
+        fps={30}
+        width={1920}
+        height={1080}
+        // You can override these props for each render:
+        // https://www.remotion.dev/docs/parametrized-rendering
+        defaultProps={{
+          titleText: "Welcome to Remotion",
+          titleColor: "#000000",
+        }}
+      />
+
     </>
   );
 };
