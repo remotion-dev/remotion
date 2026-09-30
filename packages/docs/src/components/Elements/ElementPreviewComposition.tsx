@@ -93,11 +93,14 @@ export const ElementPreviewComposition: React.FC<{
 export const ElementAssetComposition: React.FC<{
 	readonly slug: string;
 }> = ({slug}) => {
-	const definition = getElementDefinition(slug);
+	const definition: ElementDefinition = getElementDefinition(slug);
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
+			style={{
+				backgroundColor:
+					definition.preview.backgroundColor ?? ELEMENT_PREVIEW_BACKGROUND,
+			}}
 			showInTimeline={false}
 		>
 			<ElementPreviewComposition definition={definition} />

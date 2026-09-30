@@ -6,6 +6,7 @@ import {useHtmlInCanvasDocsDemoBranch} from '../../../components/demos/useHtmlIn
 import type {ElementPreviewLayout} from './element-definitions';
 
 type ElementPreviewProps = {
+	readonly backgroundColor: string | null;
 	readonly component: ComponentType<Record<string, never>>;
 	readonly durationInFrames: number;
 	readonly elementHeight: number | null;
@@ -49,6 +50,7 @@ const HtmlInCanvasElementPreview: React.FC<{
 };
 
 export const ElementPreview: React.FC<ElementPreviewProps> = ({
+	backgroundColor,
 	component,
 	durationInFrames,
 	elementHeight,
@@ -78,7 +80,10 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 				backgroundSize: '32px 32px',
 			}
 		: {backgroundColor: lightPreviewBackground};
-	let previewBackgroundStyle = transparencyBackgroundStyle;
+	let previewBackgroundStyle =
+		checkerboard && backgroundColor !== null
+			? {backgroundColor}
+			: transparencyBackgroundStyle;
 	let verticalBackgroundStyle: React.CSSProperties | null = null;
 
 	if (previewLayout === 'vertical') {
@@ -112,7 +117,9 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 
 	const transparencyLabel = checkerboard
 		? 'Use light preview background'
-		: 'Show transparency as checkerboard';
+		: backgroundColor === null
+			? 'Show transparency as checkerboard'
+			: 'Use dark preview background';
 
 	return (
 		<div
