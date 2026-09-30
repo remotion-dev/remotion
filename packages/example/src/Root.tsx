@@ -167,8 +167,8 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
-import './style.css';
 import {SvgFilter} from './SvgFilter';
+import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -195,6 +195,7 @@ import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
+import {WhatsNewRoot} from './WhatsNew/Root';
 import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
 // @ts-expect-error no types
 import styles from './styles.module.scss';
@@ -463,6 +464,9 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Folder name="WhatsNew">
+				<WhatsNewRoot />
+			</Folder>
 			<Composition
 				id="AnimatedBarChart"
 				component={BarChart}
