@@ -9,7 +9,7 @@
 	"homepage": "https://www.remotion.dev",
 	"scripts": {
 		"dev": "node scripts/build-preview.mjs && next dev",
-		"build": "node scripts/build-preview.mjs && next build",
+		"build": "node scripts/build-preview.mjs && next build && node scripts/prune-compiler-duplicates.mjs",
 		"start": "next start",
 		"build-preview": "node scripts/build-preview.mjs",
 		"lint": "eslint . && tsc --noEmit",

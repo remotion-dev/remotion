@@ -106,7 +106,7 @@ npx remotion upgrade
 
 `npm run build` creates a production build. Saving to disk is disabled outside of development — the editor still works as an in-memory playground.
 
-The compiler's Web Worker and WebAssembly binary are copied to `public/compiler` by `scripts/build-preview.mjs` and loaded from there (see `workerUrl` in `src/editor/hooks/use-compiler.ts`), so they do not go through the Next.js bundler and both Turbopack and webpack work.
+The compiler's Web Worker and WebAssembly binary are copied to `public/compiler` by `scripts/build-preview.mjs` and loaded from there (see `workerUrl` in `src/editor/hooks/use-compiler.ts`), so they do not go through the Next.js bundler and both Turbopack and webpack work. Turbopack still emits a second copy of them into `.next/static/media` because `@remotion/browser-bundler` references them as a fallback; `scripts/prune-compiler-duplicates.mjs` removes those 32 MB after `next build`.
 
 ### Static export
 
