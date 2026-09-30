@@ -43,6 +43,10 @@ import {
 	type TimelineTrackWithDisplayGroup,
 } from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
+import {
+	filterTimelineTrackContents,
+	getTimelineDisplayRows,
+} from './timeline-track-groups';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
 import {TimelineInOutDragHandler} from './TimelineInOutDragHandler';
@@ -330,8 +334,8 @@ const TimelineInner: React.FC = () => {
 	// instance without recalculating the timeline or losing its instance index.
 	const collapsed = useMemo(() => {
 		const seenDisplayGroups = new Set<string>();
-		return filtered.filter((track) => {
-			if (track.displayGroup === null) {
+		return filterTimelineTrackContents(filtered, sequences).filter((track) => {
+			if (track.sequence.timelineTrack || track.displayGroup === null) {
 				return true;
 			}
 
@@ -342,7 +346,7 @@ const TimelineInner: React.FC = () => {
 			seenDisplayGroups.add(track.displayGroup.key);
 			return true;
 		});
-	}, [filtered]);
+	}, [filtered, sequences]);
 
 	const {visibleTracks, value: layerChildrenValue} = useTimelineLayerChildren(
 		collapsed,
@@ -442,14 +446,21 @@ const TimelineInner: React.FC = () => {
 	]);
 
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
-	const shown = useMemo(() => {
-		return maxTimelineTracks !== null &&
-			visibleTracks.length > maxTimelineTracks
-			? visibleTracks.slice(0, maxTimelineTracks)
-			: visibleTracks;
-	}, [visibleTracks, maxTimelineTracks]);
+	const displayRows = useMemo(
+		() => getTimelineDisplayRows(visibleTracks),
+		[visibleTracks],
+	);
+	const shownRows = useMemo(() => {
+		return maxTimelineTracks !== null && displayRows.length > maxTimelineTracks
+			? displayRows.slice(0, maxTimelineTracks)
+			: displayRows;
+	}, [displayRows, maxTimelineTracks]);
+	const shown = useMemo(
+		() => shownRows.flatMap((row) => row.items ?? [row.track]),
+		[shownRows],
+	);
 
-	const hasBeenCut = visibleTracks.length > shown.length;
+	const hasBeenCut = displayRows.length > shownRows.length;
 
 	return (
 		<TimelineContextMenuArea>
@@ -477,7 +488,7 @@ const TimelineInner: React.FC = () => {
 						<TimelineVirtualizationProvider
 							hasBeenCut={hasBeenCut}
 							isStill={isStill}
-							timeline={shown}
+							timeline={shownRows}
 						>
 							{isStudioInteractivityEnabled() ? (
 								<TimelineSelectAllKeybindings timeline={shown} />

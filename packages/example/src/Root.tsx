@@ -307,6 +307,7 @@ import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
+import {TrackPrototype} from './TrackPrototype';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';
 import {
@@ -3027,6 +3028,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="video-editing">
+				<Composition
+					id="track-prototype"
+					component={TrackPrototype}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={240}
+				/>
 				<Composition
 					id="hour-long-timeline"
 					component={HourLongTimelineTestbed}

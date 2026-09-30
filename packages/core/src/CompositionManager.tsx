@@ -10,6 +10,7 @@ import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
+import type {TimelineTrackItem} from './Track.js';
 import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<
@@ -134,6 +135,7 @@ export type TSequence = {
 	parent: string | null;
 	showInTimeline: boolean;
 	timelineOrder: number | null;
+	timelineTrack?: TimelineTrackItem;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
 	premountDisplay: number | null;

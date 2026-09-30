@@ -262,6 +262,7 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 			name="<Series>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 			{...props}
+			_remotionInternalTimelineTrack={{role: 'container', anchor: null}}
 		>
 			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
 		</Sequence>

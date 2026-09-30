@@ -18,6 +18,10 @@ import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
+	TIMELINE_PACKED_TRACK_HEIGHT,
+	type TimelineDisplayRow,
+} from './timeline-track-groups';
+import {
 	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
@@ -30,6 +34,7 @@ export type TimelineVirtualRow = {
 	readonly afterDropLineOffset: number;
 	readonly siblingIndex: number;
 	readonly track: TimelineTrackWithDisplayGroup;
+	readonly items: readonly TimelineTrackWithDisplayGroup[] | null;
 };
 
 type TimelineVirtualizationContextValue = {
@@ -54,9 +59,24 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly hasBeenCut: boolean;
 	readonly isStill: boolean;
-	readonly timeline: readonly TimelineTrackWithDisplayGroup[];
+	readonly timeline: readonly TimelineDisplayRow[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
-	const trackHeights = useTimelineTrackHeights({timeline});
+	const representativeTracks = useMemo(
+		() => timeline.map((row) => row.track),
+		[timeline],
+	);
+	const individualHeights = useTimelineTrackHeights({
+		timeline: representativeTracks,
+	});
+	const trackHeights = useMemo(
+		() =>
+			timeline.map((row, index) =>
+				row.items === null
+					? individualHeights[index]
+					: TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM,
+			),
+		[individualHeights, timeline],
+	);
 	const {consumeRevealRequest, revealRequest, selectedItems} =
 		useTimelineSelection();
 	const paddingStart = isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT;
@@ -73,7 +93,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		const siblingCounts = new Map<number | null, number>();
 
 		for (let index = 0; index < timeline.length; index++) {
-			const {depth} = timeline[index];
+			const {depth} = timeline[index].track;
 			while (
 				openTracks.length > 0 &&
 				openTracks[openTracks.length - 1].depth >= depth
@@ -96,20 +116,24 @@ export const TimelineVirtualizationProvider: React.FC<{
 		}
 
 		const rows = timeline.map(
-			(track, index): TimelineVirtualRow => ({
+			({track, items}, index): TimelineVirtualRow => ({
 				afterDropLineOffset: offsets[subtreeEndIndexes[index]] - offsets[index],
 				siblingIndex: siblingIndexes[index],
 				track,
+				items,
 			}),
 		);
 		const rootTrackIndexes = new Map<string, number>();
 		for (let index = 0; index < timeline.length; index++) {
-			const {nodePathInfo} = timeline[index];
-			if (nodePathInfo !== null) {
-				rootTrackIndexes.set(
-					getTimelineSequenceSelectionKey(nodePathInfo),
-					index,
-				);
+			for (const {nodePathInfo} of timeline[index].items ?? [
+				timeline[index].track,
+			]) {
+				if (nodePathInfo !== null) {
+					rootTrackIndexes.set(
+						getTimelineSequenceSelectionKey(nodePathInfo),
+						index,
+					);
+				}
 			}
 		}
 
@@ -145,10 +169,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 		(index: number) => trackHeightsRef.current[index] ?? 0,
 		[],
 	);
-	const getItemKey = useCallback(
-		(index: number) => timelineRef.current[index]?.sequence.id ?? index,
-		[],
-	);
+	const getItemKey = useCallback((index: number) => {
+		const row = timelineRef.current[index];
+		return row?.items
+			? (row.track.sequence.timelineTrack?.id ?? index)
+			: (row?.track.sequence.id ?? index);
+	}, []);
 	const rangeExtractor = useCallback(
 		(range: Range) => {
 			const indexes = new Set(defaultRangeExtractor(range));
