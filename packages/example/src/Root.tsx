@@ -122,6 +122,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PortfolioCompositions} from './Portfolio/Root';
 import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
@@ -980,6 +981,9 @@ export const Index: React.FC = () => {
 				</Folder>
 			</Folder>
 			<Folder name="creatives">
+				<Folder name="Portfolio">
+					<PortfolioCompositions />
+				</Folder>
 				<Composition
 					id="drop-dots"
 					lazyComponent={() => import('./DropDots/DropDots')}
