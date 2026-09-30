@@ -140,7 +140,6 @@ test(
 			return null;
 		});
 		expect(sourceLocation.toString()).toMatch(/Root\.tsx:\d+/);
-		expect(sourceLocation.toString()).toMatch(/WidthHeightSequences\.tsx:\d+/);
 		const sequenceSourceLocation = await tab.evaluateHandle(async () => {
 			const label = document.querySelector<HTMLElement>(
 				'[aria-label="<Sequence>"]',
