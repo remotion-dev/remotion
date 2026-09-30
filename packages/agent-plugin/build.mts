@@ -87,17 +87,7 @@ const makeOpenPreviewClientSpecific = () => {
 	}
 
 	const currentInstructions = readFileSync(remotionSkill, 'utf8');
-	const previewInstruction = [
-		'Instead of rendering the video, consider starting the preview server for faster iteration:',
-		'Start the preview server after building the composition:',
-	].find((instruction) => currentInstructions.includes(instruction));
-	if (!previewInstruction) {
-		throw new Error(
-			'Could not find a remotion-best-practices preview instruction',
-		);
-	}
-
-	const browserSectionStart = '### If you have an in-app browser';
+	const browserSectionStart = '### If you are using Cursor';
 	const browserSectionEnd = '### More options';
 	const startIndex = currentInstructions.indexOf(browserSectionStart);
 	const endIndex = currentInstructions.indexOf(browserSectionEnd);
@@ -130,12 +120,7 @@ The Studio supports WebMCP tools.
 `;
 
 	const instructions =
-		currentInstructions
-			.slice(0, startIndex)
-			.replace(
-				previewInstruction,
-				'After creating or updating the video, start the preview server by default:',
-			) +
+		currentInstructions.slice(0, startIndex) +
 		browserSection +
 		currentInstructions.slice(endIndex);
 
