@@ -149,9 +149,6 @@ Use `loop` to loop the audio indefinitely:
 ```
 
 Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
-For a looping music bed whose volume fades to zero and stays there, this
-avoids an extra sequence while producing the intended audible end. The silent
-audio remains in the timeline until its parent ends.
 
 With `loop`, `durationInFrames` on `<Audio>` selects the range to repeat; it
 does not set the total playback length. Use an outer timed item only when the
