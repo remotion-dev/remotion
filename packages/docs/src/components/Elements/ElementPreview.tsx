@@ -4,13 +4,13 @@ import React, {useMemo, useState, type ComponentType} from 'react';
 import {AbsoluteFill} from 'remotion';
 import {useHtmlInCanvasDocsDemoBranch} from '../../../components/demos/useHtmlInCanvasDocsDemoBranch';
 import type {
-	ElementCheckerboardTheme,
+	ElementBackgroundTheme,
 	ElementPreviewLayout,
 } from './element-definitions';
+import {ELEMENT_PREVIEW_DARK_BACKGROUND} from './ElementPreviewComposition';
 
 type ElementPreviewProps = {
-	readonly backgroundColor: string | null;
-	readonly checkerboardTheme: ElementCheckerboardTheme;
+	readonly backgroundTheme: ElementBackgroundTheme;
 	readonly component: ComponentType<Record<string, never>>;
 	readonly durationInFrames: number;
 	readonly elementHeight: number | null;
@@ -24,7 +24,6 @@ type ElementPreviewProps = {
 const previewHeight = 1080;
 const previewWidth = 1920;
 const lightPreviewBackground = '#f5f6f7';
-const darkPreviewBackground = '#202124';
 const checkerboardBackgrounds = {
 	light:
 		'conic-gradient(rgba(0, 0, 0, 0.1) 25%, transparent 0 50%, rgba(0, 0, 0, 0.1) 0 75%, transparent 0)',
@@ -58,8 +57,7 @@ const HtmlInCanvasElementPreview: React.FC<{
 };
 
 export const ElementPreview: React.FC<ElementPreviewProps> = ({
-	backgroundColor,
-	checkerboardTheme,
+	backgroundTheme,
 	component,
 	durationInFrames,
 	elementHeight,
@@ -83,16 +81,16 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 		);
 	}, [component, htmlInCanvasFallbackVideoUrl]);
 	const previewBackgroundColor =
-		backgroundColor ??
-		(checkerboardTheme === 'dark'
-			? darkPreviewBackground
-			: lightPreviewBackground);
+		backgroundTheme === 'dark'
+			? ELEMENT_PREVIEW_DARK_BACKGROUND
+			: lightPreviewBackground;
 	const transparencyBackgroundStyle: React.CSSProperties = checkerboard
 		? {
 				backgroundColor:
-					backgroundColor ??
-					(checkerboardTheme === 'dark' ? darkPreviewBackground : 'white'),
-				backgroundImage: checkerboardBackgrounds[checkerboardTheme],
+					backgroundTheme === 'dark'
+						? ELEMENT_PREVIEW_DARK_BACKGROUND
+						: 'white',
+				backgroundImage: checkerboardBackgrounds[backgroundTheme],
 				backgroundSize: '32px 32px',
 			}
 		: {backgroundColor: previewBackgroundColor};
@@ -129,7 +127,7 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	}
 
 	const transparencyLabel = checkerboard
-		? `Use ${checkerboardTheme} preview background`
+		? `Use ${backgroundTheme} preview background`
 		: 'Show transparency as checkerboard';
 
 	return (

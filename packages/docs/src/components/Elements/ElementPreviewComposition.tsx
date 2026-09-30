@@ -4,6 +4,7 @@ import type {ElementDefinition} from './element-definitions';
 import {getElementDefinition} from './element-utils';
 
 export const ELEMENT_PREVIEW_BACKGROUND = '#eef1f4';
+export const ELEMENT_PREVIEW_DARK_BACKGROUND = '#20262f';
 
 export const getElementPreviewDimensions = (definition: ElementDefinition) => {
 	const hasElementDimensions =
@@ -99,7 +100,9 @@ export const ElementAssetComposition: React.FC<{
 		<AbsoluteFill
 			style={{
 				backgroundColor:
-					definition.preview.backgroundColor ?? ELEMENT_PREVIEW_BACKGROUND,
+					definition.preview.backgroundTheme === 'dark'
+						? ELEMENT_PREVIEW_DARK_BACKGROUND
+						: ELEMENT_PREVIEW_BACKGROUND,
 			}}
 			showInTimeline={false}
 		>
