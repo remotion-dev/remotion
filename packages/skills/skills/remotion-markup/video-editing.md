@@ -49,7 +49,7 @@ props. `from={0}` may be omitted:
 ```
 
 - `from` is the clip's absolute start frame in its parent timeline.
-- `durationInFrames` is how many frames the clip remains visible.
+- `durationInFrames` is how many source frames are shown, starting at `trimBefore`. At the default `playbackRate`, this is how long the clip remains visible.
 - `trimBefore` is how many source frames are skipped before playback begins.
 - Keep `name`, `from`, `durationInFrames` and `trimBefore` inline on each clip.
 - Import `<Video>` from `@remotion/media`.
