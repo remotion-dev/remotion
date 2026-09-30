@@ -351,12 +351,7 @@ Other items need `durationInFrames` to define the loop range:
 ```
 
 Put timing and volume directly on `<Audio>` rather than wrapping one audio
-track in a `<Sequence>`. If a looping track's volume is clamped to zero after
-its intended end, a direct `<Audio>` needs no outer sequence; its silent tail
-remains in the timeline until the parent ends. With `loop`, `durationInFrames`
-sets the range to repeat, not the total clip length. Use an outer timed item
-only when the looping clip itself must end at an exact frame. A non-looping
-`<Audio>` can take `from` and `durationInFrames` directly.
+track in a `<Sequence>`.
 
 `<Img>`, `<CanvasImage>`, `<Solid>` and shapes do not support `loop` because their output does not change over time.
 
