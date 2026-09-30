@@ -323,6 +323,9 @@ export type ModalState =
 			wrapper: NodeWrapper;
 	  }
 	| {
+			type: 'browser-studio-experimental-notice';
+	  }
+	| {
 			type: 'html-in-canvas-unavailable';
 			action: 'effects' | 'motion-blur';
 	  }

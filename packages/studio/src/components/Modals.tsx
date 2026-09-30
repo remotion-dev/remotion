@@ -9,6 +9,7 @@ import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
 import {AssetSelectorModal} from './AssetSelectorModal';
+import {BrowserStudioExperimentalNotice} from './BrowserStudioExperimentalNotice';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
@@ -250,6 +251,9 @@ export const Modals: React.FC<{
 
 	return (
 		<>
+			{modalContextType?.type === 'browser-studio-experimental-notice' ? (
+				<BrowserStudioExperimentalNotice />
+			) : null}
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition
 					folderName={modalContextType.folderName}
