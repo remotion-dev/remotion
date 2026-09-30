@@ -15,6 +15,12 @@ export type CompositionInfo = {
   line: number | null;
   /** The enclosing folders as a slash-separated path, `null` at the root. */
   folderPath: string | null;
+  /**
+   * Whether the element is written directly inside another element or
+   * fragment. `moveComposition()` and `moveFolder()` can only move and target
+   * such elements, not ones returned from a function or a `.map()` callback.
+   */
+  movable: boolean;
   width: number | null;
   height: number | null;
   fps: number | null;
@@ -26,6 +32,8 @@ export type FolderInfo = FolderReference & {
   filePath: string;
   node: NodeReference;
   line: number | null;
+  /** See `CompositionInfo.movable`. */
+  movable: boolean;
 };
 
 export type RegistrationTreeItem =
@@ -185,6 +193,8 @@ export const getRegistrations = (
       const children = parent?.children ?? registrations.tree;
       const folderPath = parent ? getFolderPath(parent.folder) : null;
       const reference = { filePath: node.filePath, nodePath: node.nodePath };
+      // A JSX child's path ends in [..., "children", index, "openingElement"].
+      const movable = node.nodePath.at(-3) === "children";
       if (tagName === "Folder") {
         const { props } = getNodeProps({ project, node, keys: ["name"] });
         const name = readStatic(props, "name", isString);
@@ -198,6 +208,7 @@ export const getRegistrations = (
           filePath: node.filePath,
           node: reference,
           line: node.location?.line ?? null,
+          movable,
         };
         const item = { type: "folder" as const, folder, children: [] };
         foldersByPath.set(JSON.stringify(node.nodePath), item);
@@ -230,6 +241,7 @@ export const getRegistrations = (
         node: reference,
         line: node.location?.line ?? null,
         folderPath,
+        movable,
         width: readStatic(props, "width", isNumber),
         height: readStatic(props, "height", isNumber),
         fps: readStatic(props, "fps", isNumber),

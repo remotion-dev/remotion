@@ -102,6 +102,11 @@ const getItemParentName = (item: RegistrationTreeItem) =>
     ? item.composition.folderPath
     : item.folder.parentName;
 
+// The codemods can only move elements that are written directly inside another
+// element or fragment, and only relative to such elements.
+const isMovable = (item: RegistrationTreeItem) =>
+  item.type === "composition" ? item.composition.movable : item.folder.movable;
+
 /** Whether `folderPath` is the folder `candidate` or one of its descendants. */
 const isInsideFolder = (
   folderPath: string | null,
@@ -155,9 +160,14 @@ const MoveToMenu: React.FC<{
   const parentName = getItemParentName(item);
   const destinations = folders.filter(
     (folder) =>
+      folder.movable &&
       getFolderPath(folder) !== parentName &&
       !isInsideFolder(getFolderPath(folder), item),
   );
+
+  if (!isMovable(item)) {
+    return null;
+  }
 
   return (
     <ContextMenuSub>
@@ -209,9 +219,11 @@ const getRowDragProps = (item: RegistrationTreeItem, tree: TreeContext) => {
     return ratio < 0.5 ? "before" : "after";
   };
 
-  // An item cannot be dropped on itself or inside its own folder subtree.
+  // An item cannot be dropped on itself, inside its own folder subtree, or
+  // relative to an element the codemods cannot address.
   const canDrop = () =>
     tree.dragging !== null &&
+    isMovable(item) &&
     getItemKey(tree.dragging) !== key &&
     !isInsideFolder(
       item.type === "folder"
@@ -223,7 +235,7 @@ const getRowDragProps = (item: RegistrationTreeItem, tree: TreeContext) => {
   return {
     dropPosition,
     props: {
-      draggable: true,
+      draggable: isMovable(item),
       onDragStart: (event: React.DragEvent) => {
         event.stopPropagation();
         event.dataTransfer.effectAllowed = "move";
@@ -578,7 +590,20 @@ const RegistrationTree: React.FC<{
     creating,
     setDragging,
     setDropTarget,
-    setCreating,
+    // The input for a new registration is rendered among the folder's
+    // children, so the folder has to be expanded to show it.
+    setCreating: (next) => {
+      const parentName = next?.parentName ?? null;
+      if (parentName !== null && collapsed.has(parentName)) {
+        setCollapsed((previous) => {
+          const expanded = new Set(previous);
+          expanded.delete(parentName);
+          return expanded;
+        });
+      }
+
+      setCreating(next);
+    },
     toggleCollapsed: (folderPath) =>
       setCollapsed((previous) => {
         const next = new Set(previous);
