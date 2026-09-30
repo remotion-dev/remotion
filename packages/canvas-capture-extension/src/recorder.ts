@@ -77,7 +77,7 @@ type DrawElementImage = {
 		dy: number,
 		dWidth?: number,
 		dHeight?: number,
-	): DOMMatrix;
+	): void;
 };
 
 export type HtmlInCanvasElement = HTMLCanvasElement & {

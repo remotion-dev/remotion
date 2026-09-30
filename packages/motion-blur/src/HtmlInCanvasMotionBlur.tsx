@@ -204,11 +204,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 						? elementImage
 						: layoutCanvas.captureElementImage(sampleElement);
 				try {
-					const sampleTransform = context.drawElementImage(image, 0, 0);
-					if (sampleTransform && index === Math.floor(actualSamples / 2)) {
-						(sampleElement as HTMLElement).style.transform =
-							sampleTransform.toString();
-					}
+					context.drawElementImage(image, 0, 0);
 				} finally {
 					if (index !== 0) {
 						image.close();

@@ -75,7 +75,7 @@ declare global {
 			dx: number,
 			dy: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			dx: number,
@@ -83,7 +83,7 @@ declare global {
 			dwidth: number,
 			dheight: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -93,7 +93,7 @@ declare global {
 			dx: number,
 			dy: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -105,7 +105,7 @@ declare global {
 			dwidth: number,
 			dheight: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 	}
 
 	interface OffscreenCanvasRenderingContext2D {
@@ -114,7 +114,7 @@ declare global {
 			dx: number,
 			dy: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			dx: number,
@@ -122,7 +122,7 @@ declare global {
 			dwidth: number,
 			dheight: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -132,7 +132,7 @@ declare global {
 			dx: number,
 			dy: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 		drawElementImage(
 			element: Element | ElementImage,
 			sx: number,
@@ -144,7 +144,7 @@ declare global {
 			dwidth: number,
 			dheight: number,
 			options?: DrawElementImageOptions,
-		): DOMMatrix | void;
+		): void;
 	}
 
 	// Augmenting the base interface applies to both WebGL1 and WebGL2.
@@ -221,10 +221,6 @@ declare global {
 		): void;
 		clearElementGeometry(element: Element | ElementImage): void;
 		getElementTransform(element: Element): DOMMatrix;
-		getElementTransform(
-			element: Element | ElementImage,
-			drawTransform: DOMMatrix,
-		): DOMMatrix;
 	}
 
 	interface OffscreenCanvas {
@@ -416,7 +412,6 @@ const resizePaintTarget = ({
 
 const defaultOnPaint = ({
 	canvas,
-	element,
 	elementImage,
 }: Omit<HtmlInCanvasOnPaintParams, 'canvas'> & {
 	readonly canvas: HtmlInCanvasPaintTarget;
@@ -427,11 +422,7 @@ const defaultOnPaint = ({
 	}
 
 	ctx.reset();
-	const transform = ctx.drawElementImage(elementImage, 0, 0);
-	if (transform) {
-		// Older Chromium requires manual geometry synchronization.
-		element.style.transform = transform.toString();
-	}
+	ctx.drawElementImage(elementImage, 0, 0);
 };
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */

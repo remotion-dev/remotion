@@ -83,7 +83,7 @@ If this callback is omitted, the children are painted using a `2d` context.
 ```tsx twoslash title="Simple example"
 import {HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage, pixelDensity}) => {
+const onPaint: HtmlInCanvasOnPaint = ({canvas, elementImage, pixelDensity}) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Failed to acquire 2D context');
@@ -91,10 +91,7 @@ const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage, pixelDensi
 
   ctx.reset();
   ctx.filter = `blur(${10 * pixelDensity}px)`;
-  const transform = ctx.drawElementImage(elementImage, 0, 0);
-  if (transform) {
-    element.style.transform = transform.toString();
-  }
+  ctx.drawElementImage(elementImage, 0, 0);
 };
 ```
 
@@ -110,7 +107,7 @@ You should paint to this canvas.
 #### `element`
 
 The inner [`HTMLDivElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDivElement) that wraps `children`.  
-Current Chromium synchronizes its position and hit testing when you call `drawElementImage()`. Older versions return a matrix that you should apply to `element.style.transform`.
+The browser synchronizes its position and hit testing when you call `drawElementImage()`.
 
 #### `elementImage`
 
@@ -176,7 +173,7 @@ export const Example: React.FC = () => {
 ### 2D
 
 Call [`drawElementImage()`](https://github.com/WICG/html-in-canvas#idl-changes) on the 2D context to draw `elementImage` into the bitmap.
-Current Chromium updates the element's position and hit testing automatically. Older versions return a transform that must be assigned to `element.style.transform` for selection and input to follow the drawing.
+The browser updates the element's position and hit testing automatically.
 
 For 2D, you usually do not need `onInit`.
 
@@ -201,7 +198,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
   const {width, height, fps} = useVideoConfig();
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({canvas, element, elementImage, pixelDensity}) => {
+    ({canvas, elementImage, pixelDensity}) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         throw new Error('Failed to acquire 2D context');
@@ -214,10 +211,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
 
       ctx.reset();
       ctx.filter = `blur(${blurPx * pixelDensity}px)`;
-      const transform = ctx.drawElementImage(elementImage, 0, 0);
-      if (transform) {
-        element.style.transform = transform.toString();
-      }
+      ctx.drawElementImage(elementImage, 0, 0);
     },
     [frame, fps],
   );

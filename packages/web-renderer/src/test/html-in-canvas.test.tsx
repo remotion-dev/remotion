@@ -11,7 +11,7 @@ import {backgroundColor} from './fixtures/background-color';
 test('uses the DOM composer by default', async () => {
 	const contextPrototype =
 		CanvasRenderingContext2D.prototype as CanvasRenderingContext2D & {
-			drawElementImage?: () => DOMMatrix;
+			drawElementImage?: () => void;
 		};
 	const originalDrawElementImage = Object.getOwnPropertyDescriptor(
 		contextPrototype,
@@ -23,7 +23,7 @@ test('uses the DOM composer by default', async () => {
 	);
 	Object.defineProperty(contextPrototype, 'drawElementImage', {
 		configurable: true,
-		value: () => new DOMMatrix(),
+		value: () => undefined,
 	});
 	Object.defineProperty(HTMLCanvasElement.prototype, 'requestPaint', {
 		configurable: true,

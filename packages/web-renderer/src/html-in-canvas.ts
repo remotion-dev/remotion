@@ -5,7 +5,7 @@ type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 		dy: number,
 		dwidth: number,
 		dheight: number,
-	) => DOMMatrix | void;
+	) => void;
 };
 
 type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
