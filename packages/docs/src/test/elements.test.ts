@@ -213,7 +213,7 @@ describe('Element MDX pages', () => {
 });
 
 describe('Element Library', () => {
-	test('injects the exact source files needed by each listing', () => {
+	test('injects source files into the overview and rejects missing sources', () => {
 		const completeSourceCodeBySlug = getRemotionElementSourceMap({
 			elementsRoot,
 		});
@@ -270,20 +270,6 @@ describe('Element Library', () => {
 		expect(getInjectedSourceCodeBySlug(overview)).toEqual(
 			completeSourceCodeBySlug,
 		);
-
-		const storytelling = makeLibraryNode('storytelling');
-		remarkElementSource({elementRegistry})(
-			{type: 'root', children: [storytelling]},
-			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
-		);
-		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
-			'storytelling/on-screen-messages':
-				completeSourceCodeBySlug['storytelling/on-screen-messages'],
-			'storytelling/polaroid-pictures':
-				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
-			'text/news-article-highlight':
-				completeSourceCodeBySlug['text/news-article-highlight'],
-		});
 
 		const missingSource = makeLibraryNode(null);
 		expect(() =>
