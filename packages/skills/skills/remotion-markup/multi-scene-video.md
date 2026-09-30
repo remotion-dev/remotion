@@ -13,8 +13,6 @@ intentionally controlled as one source template.
 Use `<TransitionSeries>` when the scenes may have transitions.  
 Install `@remotion/transitions` if it is missing.  
 Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
-Keep the outer `<TransitionSeries>` visible in the timeline. Studio favors its
-active scene sequence when both have the same full-frame canvas outline.
 
 Example:
 
