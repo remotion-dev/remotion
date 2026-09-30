@@ -87,17 +87,7 @@ const makeOpenPreviewClientSpecific = () => {
 	}
 
 	const currentInstructions = readFileSync(remotionSkill, 'utf8');
-	const previewInstruction = [
-		'Instead of rendering the video, consider starting the preview server for faster iteration:',
-		'Start the preview server after building the composition:',
-	].find((instruction) => currentInstructions.includes(instruction));
-	if (!previewInstruction) {
-		throw new Error(
-			'Could not find a remotion-best-practices preview instruction',
-		);
-	}
-
-	const browserSectionStart = '### If you have an in-app browser';
+	const browserSectionStart = '### If you are using Cursor';
 	const browserSectionEnd = '### More options';
 	const startIndex = currentInstructions.indexOf(browserSectionStart);
 	const endIndex = currentInstructions.indexOf(browserSectionEnd);
@@ -107,12 +97,9 @@ const makeOpenPreviewClientSpecific = () => {
 		);
 	}
 
-	const openInstruction =
+	const browserSection =
 		client === 'codex'
-			? 'Open the exact URL in the Codex in-app browser. If the in-app browser is not available, keep the preview server running and provide the URL to the user.'
-			: "Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor. If no browser tool is available, keep the preview server running and provide the URL to the user.";
-
-	const browserSection = `Always pass \`--no-open\` so the system browser is not opened:
+			? `Always pass \`--no-open\` so the system browser is not opened:
 
 \`\`\`bash
 npx remotion studio --no-open
@@ -120,22 +107,28 @@ npx remotion studio --no-open
 
 This will start a long-running process and print the server URL for the preview.  
 If the server is already started, it will print the URL.
-${openInstruction}
+Open the exact URL in the Codex in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If the in-app browser is not available, keep the preview server running and provide the URL to the user.
 You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
 
 :::note
 The Studio supports WebMCP tools.
 :::
 
+`
+			: `Run Studio without \`--no-open\` so it opens the browser automatically:
+
+\`\`\`bash
+npx remotion studio
+\`\`\`
+
+This will start a long-running process and print the server URL for the preview.  
+If the server is already started, it will print the URL and refocus the browser.
+You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
+
 `;
 
 	const instructions =
-		currentInstructions
-			.slice(0, startIndex)
-			.replace(
-				previewInstruction,
-				'After creating or updating the video, start the preview server by default:',
-			) +
+		currentInstructions.slice(0, startIndex) +
 		browserSection +
 		currentInstructions.slice(endIndex);
 
