@@ -99,15 +99,15 @@ const makeOpenPreviewClientSpecific = () => {
 
 	const browserSection =
 		client === 'codex'
-			? `Always pass \`--no-open\` so the system browser is not opened:
+			? `To start the preview server by default without opening the system browser, pass \`--no-open\`:
 
 \`\`\`bash
 npx remotion studio --no-open
 \`\`\`
 
-This will start a long-running process and print the server URL for the preview.  
+This will start a long-running process and print the server URL for the preview.
 If the server is already started, it will print the URL.
-Open the exact URL in the Codex in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If the in-app browser is not available, keep the preview server running and provide the URL to the user.
+Open the exact URL in the Codex in-app browser. Verify that Studio loads. Once a composition exists, verify that its video preview loads. If the in-app browser is not available, keep the preview server running and provide the URL to the user.
 You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
 
 :::note
@@ -121,8 +121,9 @@ The Studio supports WebMCP tools.
 npx remotion studio
 \`\`\`
 
-This will start a long-running process and print the server URL for the preview.  
+This will start a long-running process and print the server URL for the preview.
 If the server is already started, it will print the URL and refocus the browser.
+Open the exact URL in the agent client's available browser, such as the integrated browser in GitHub Copilot (VS Code) or Cursor. Verify that Studio loads. If no browser tool is available, keep the preview server running and provide the URL to the user.
 You can visit a specific composition by navigating to \`/[composition-id]\`, for example \`http://localhost:3000/MapAnimation\`.
 
 `;
