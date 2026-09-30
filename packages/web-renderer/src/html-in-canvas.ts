@@ -1,3 +1,5 @@
+import {withResolvers} from './with-resolvers';
+
 type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 	drawElementImage: (
 		element: Element,
@@ -8,9 +10,12 @@ type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 	) => void;
 };
 
-type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
+export type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
 	layoutSubtree?: boolean;
 	requestPaint?: () => void;
+	captureElementImage?: (
+		element: Element,
+	) => Transferable & {close: () => void};
 };
 
 export const supportsNativeHtmlInCanvas = (): boolean => {
@@ -34,7 +39,7 @@ export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
 
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
-	ctx: Canvas2DWithDrawElement;
+	ctx: Canvas2DWithDrawElement | null;
 	wasDrawable: boolean;
 };
 
@@ -77,13 +82,6 @@ export const setupHtmlInCanvas = ({
 	// inherited visibility:hidden can suppress the internal snapshot.
 	layoutCanvas.style.visibility = 'visible';
 
-	const maybeCtx = layoutCanvas.getContext(
-		'2d',
-	) as Canvas2DWithDrawElement | null;
-	if (!maybeCtx || typeof maybeCtx.drawElementImage !== 'function') {
-		return null;
-	}
-
 	if (typeof layoutCanvas.requestPaint !== 'function') {
 		return null;
 	}
@@ -94,15 +92,31 @@ export const setupHtmlInCanvas = ({
 	layoutCanvas.appendChild(div);
 	wrapper.appendChild(layoutCanvas);
 
-	return {layoutCanvas, ctx: maybeCtx, wasDrawable};
+	return {layoutCanvas, ctx: null, wasDrawable};
 };
 
-const waitForPaint = (
+export const waitForPaint = (
 	layoutCanvas: HTMLCanvasWithLayoutSubtree,
+	signal: AbortSignal | null = null,
 ): Promise<void> => {
-	return new Promise((resolve) => {
-		layoutCanvas.addEventListener('paint', () => resolve(), {once: true});
-		layoutCanvas.requestPaint!();
+	const {promise, resolve, reject} = withResolvers<void>();
+	const painted = () => resolve();
+	const aborted = () => reject(new Error('renderMediaOnWeb() was cancelled'));
+	if (signal?.aborted) {
+		aborted();
+	} else {
+		layoutCanvas.addEventListener('paint', painted, {once: true});
+		signal?.addEventListener('abort', aborted, {once: true});
+		try {
+			layoutCanvas.requestPaint!();
+		} catch (error) {
+			reject(error);
+		}
+	}
+
+	return promise.finally(() => {
+		layoutCanvas.removeEventListener('paint', painted);
+		signal?.removeEventListener('abort', aborted);
 	});
 };
 
@@ -124,7 +138,16 @@ export const drawWithHtmlInCanvas = async ({
 	scaledWidth: number;
 	scaledHeight: number;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
-	const {ctx, layoutCanvas} = htmlInCanvasContext;
+	const {layoutCanvas} = htmlInCanvasContext;
+	// Delay acquiring a context so video exports can transfer this canvas to a worker.
+	const ctx =
+		htmlInCanvasContext.ctx ??
+		(layoutCanvas.getContext('2d') as Canvas2DWithDrawElement | null);
+	if (!ctx) {
+		throw new Error('Could not get HTML-in-canvas context');
+	}
+
+	htmlInCanvasContext.ctx = ctx;
 
 	if (
 		layoutCanvas.width !== scaledWidth ||
