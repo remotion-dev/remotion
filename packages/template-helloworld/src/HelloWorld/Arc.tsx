@@ -7,8 +7,8 @@ const getCircumferenceOfArc = (rx: number, ry: number) => {
 
 const rx = 135;
 const ry = 300;
-const cx = 960;
-const cy = 540;
+const cx = 315;
+const cy = 315;
 const arcLength = getCircumferenceOfArc(rx, ry);
 const strokeWidth = 30;
 
@@ -17,7 +17,7 @@ export const Arc: React.FC<{
   color1: string;
   color2: string;
 }> = ({ rotation, color1, color2 }) => {
-  const { width, height, fps } = useVideoConfig();
+  const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
   const progress = interpolate(frame, [0, fps], [0, 1], {
     easing: Easing.spring({ damping: 100, mass: 0.5 }),
@@ -30,9 +30,11 @@ export const Arc: React.FC<{
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox="0 0 630 630"
       style={{
         position: "absolute",
+        width: "100%",
+        height: "100%",
         rotate: `${rotation * progress}deg`,
       }}
     >

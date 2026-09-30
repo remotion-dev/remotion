@@ -24,7 +24,12 @@ const LogoInner: React.FC<LogoProps> = ({ logoColor1, logoColor2, style }) => {
     <Interactive.Div
       style={{
         position: "absolute",
-        inset: 0,
+        left: "50%",
+        top: "50%",
+        width: 500,
+        height: 500,
+        marginLeft: -250,
+        marginTop: -250,
         scale: interpolate(frame, [0, fps], [0, 1], {
           easing: Easing.spring({ mass: 0.5 }),
           output: "perceptual-scale",

@@ -5,7 +5,7 @@ export const Atom: React.FC<{
   color1: string;
   color2: string;
 }> = ({ color1, color2 }) => {
-  const { width, height, fps } = useVideoConfig();
+  const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
   // Each SVG ID must be unique to not conflict with each other
@@ -13,9 +13,11 @@ export const Atom: React.FC<{
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox="0 0 630 630"
       style={{
         position: "absolute",
+        width: "100%",
+        height: "100%",
         scale: interpolate(frame, [0, fps], [0, 1], {
           easing: Easing.spring({ damping: 100, mass: 0.5 }),
           output: "perceptual-scale",
@@ -32,8 +34,8 @@ export const Atom: React.FC<{
       </defs>
       <circle
         r={70}
-        cx={width / 2}
-        cy={height / 2}
+        cx={315}
+        cy={315}
         fill={`url(#${gradientId})`}
       />
     </svg>
