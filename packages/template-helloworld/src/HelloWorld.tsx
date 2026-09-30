@@ -12,15 +12,11 @@ import { Title } from "./HelloWorld/Title";
 export type HelloWorldProps = {
   readonly titleText: string;
   readonly titleColor: string;
-  readonly logoColor1: string;
-  readonly logoColor2: string;
 };
 
 export const HelloWorld: React.FC<HelloWorldProps> = ({
   titleText,
   titleColor,
-  logoColor1,
-  logoColor2,
 }) => {
   const frame = useCurrentFrame();
   const { durationInFrames, fps } = useVideoConfig();
@@ -44,8 +40,8 @@ export const HelloWorld: React.FC<HelloWorldProps> = ({
         <Logo
           name="Remotion logo"
           premountFor={fps}
-          logoColor1={logoColor1}
-          logoColor2={logoColor2}
+          logoColor1="#91EAE4"
+          logoColor2="#86A8E7"
           style={{
             translate: interpolate(frame, [25, 55], ["0px 0px", "0px -150px"], {
               easing: Easing.spring({ damping: 100 }),

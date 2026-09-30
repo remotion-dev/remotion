@@ -22,8 +22,6 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           titleText: "Welcome to Remotion",
           titleColor: "#000000",
-          logoColor1: "#91EAE4",
-          logoColor2: "#86A8E7",
         }}
       />
 
