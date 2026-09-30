@@ -15,10 +15,10 @@ for registering them with their own Studio timelines.
 
 ```tsx
 // Title and Subtitle are exported with Interactive.withSchema({wrapInSequence: true}).
-<AbsoluteFill>
+<>
   <Title name="Title" from={30} durationInFrames={60} />
   <Subtitle name="Subtitle" from={60} durationInFrames={60} />
-</AbsoluteFill>
+</>
 ```
 
 Use an explicit `<Sequence>` when multiple siblings need one shared clock,
