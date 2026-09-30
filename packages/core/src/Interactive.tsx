@@ -28,7 +28,6 @@ import {
 import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence, SequenceWithoutSchema} from './Sequence.js';
-import {SequenceContext} from './SequenceContext.js';
 import {useCropStyle} from './use-crop-style.js';
 import {usePremounting} from './use-premounting.js';
 import {
@@ -355,18 +354,15 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		ComponentWrappedInSequenceProps
 	>((props, ref) => {
 		const {canvasContent, compositions} = useContext(CompositionManager);
-		const parentSequence = useContext(SequenceContext);
 		// The render callback runs after the exported wrapper has been initialized.
 		// eslint-disable-next-line @typescript-eslint/no-use-before-define
 		const componentIdentity = resolveComponentIdentity(Wrapped);
-		const isCurrentComposition =
-			parentSequence === null &&
-			compositions.some(
-				(composition) =>
-					canvasContent?.type === 'composition' &&
-					composition.id === canvasContent.compositionId &&
-					composition.componentFromProps === componentIdentity,
-			);
+		const isCurrentComposition = compositions.some(
+			(composition) =>
+				canvasContent?.type === 'composition' &&
+				composition.id === canvasContent.compositionId &&
+				composition.componentFromProps === componentIdentity,
+		);
 		const {
 			durationInFrames,
 			from,
