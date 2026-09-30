@@ -1,3 +1,4 @@
+import Link from '@docusaurus/Link';
 import {setStudioDragData} from '@remotion/studio-protocol';
 import React, {useEffect, useRef, useState} from 'react';
 import {BlueButton} from '../../../components/layout/Button';
@@ -115,10 +116,10 @@ const ElementCard: React.FC<{
 			onPointerEnter={activateFromPointer}
 			onPointerLeave={() => setIsPointerOver(false)}
 		>
-			<a
+			<Link
 				className={styles.card}
 				draggable
-				href={getElementDocumentationUrl(definition)}
+				to={getElementDocumentationUrl(definition)}
 				onBlur={() => setIsFocused(false)}
 				onFocus={() => {
 					setPlaybackFailed(false);
@@ -167,7 +168,7 @@ const ElementCard: React.FC<{
 				<div className={styles.content}>
 					<span className={styles.title}>{definition.displayName}</span>
 				</div>
-			</a>
+			</Link>
 			<div aria-live="polite" className={styles.installAction}>
 				<BlueButton
 					aria-label={`Use – ${definition.displayName}`}
