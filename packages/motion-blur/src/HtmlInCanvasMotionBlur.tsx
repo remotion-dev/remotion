@@ -88,8 +88,9 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 	return (
 		<div
 			aria-hidden={!isRepresentativeSample}
-			// Each sample has its own paint record so it can be captured separately.
-			{...{drawable: ''}}
+			// The first sample is captured through HtmlInCanvas's drawable root.
+			// Only its canvas siblings need separate drawable paint records.
+			{...(index === 0 ? {} : {drawable: ''})}
 			style={{
 				position: 'absolute',
 				inset: 0,
