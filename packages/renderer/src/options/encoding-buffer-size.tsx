@@ -17,7 +17,8 @@ export const encodingBufferSizeOption = {
 	description: () => (
 		<>
 			The value for the <code>-bufsize</code> flag of FFmpeg. Should be used in
-			conjunction with the encoding max rate flag.
+			conjunction with the encoding max rate flag. With the VP8, VP9 and AV1
+			codecs, a video bitrate must also be set.
 		</>
 	),
 	ssrName: 'encodingBufferSize' as const,
