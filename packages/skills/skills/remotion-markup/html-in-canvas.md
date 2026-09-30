@@ -47,7 +47,7 @@ export const MyComp = () => {
 
 ## 2D effect with `onPaint`
 
-`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM. Current Chromium synchronizes the element's geometry automatically; older versions return a transform that must be assigned to `element.style.transform`.
+`onPaint` runs whenever the content updates. Call `ctx.drawElementImage(elementImage, 0, 0)` to draw the captured DOM. Current Chromium synchronizes the element's geometry automatically.
 
 ```tsx
 import {
@@ -64,7 +64,7 @@ export const Blur = () => {
   const { width, height, fps } = useVideoConfig();
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({ canvas, element, elementImage }) => {
+    ({ canvas, elementImage }) => {
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Failed to acquire 2D context");
 
@@ -72,10 +72,7 @@ export const Blur = () => {
 
       ctx.reset();
       ctx.filter = `blur(${blurPx}px)`;
-      const transform = ctx.drawElementImage(elementImage, 0, 0);
-      if (transform) {
-        element.style.transform = transform.toString();
-      }
+      ctx.drawElementImage(elementImage, 0, 0);
     },
     [frame, fps],
   );
