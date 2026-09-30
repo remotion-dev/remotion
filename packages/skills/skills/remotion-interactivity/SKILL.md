@@ -98,22 +98,22 @@ Each key in the schema is a prop that Studio can read and edit at the call site.
 Props that are not in the schema still work, but are not editable in Studio.
 Keys may use dot notation, such as `style.color`.
 
-| Type | Use for | Keyframable |
-| --- | --- | --- |
-| `text-content` | Text, such as a title | No |
-| `number` | Numbers, with optional `min`, `max`, `step`, `integer` | Yes |
-| `boolean` | On/off switches | Yes (hold) |
-| `color` | CSS color strings | Yes |
-| `enum` | A choice between `variants`, each with its own nested schema | Opt-in (hold) |
-| `array` | Lists of numbers, colors, enums and more | No |
-| `asset` | Media sources, with optional `assetType` | No |
-| `font-family` | CSS font family | No |
-| `font-weight` | Font weight | Yes |
-| `translate`, `scale`, `rotation-css`, `rotation-degrees`, `transform-origin` | Transforms | Yes |
-| `uv-coordinate` | A normalized `[x, y]` point on the element | Yes |
-| `svg-path` | SVG path data | Yes |
-| `remotion-captions` | `Caption[]` data | No |
-| `hidden` | A value kept out of the controls | — |
+| Type                                                                         | Use for                                                      | Keyframable   |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
+| `text-content`                                                               | Text, such as a title                                        | No            |
+| `number`                                                                     | Numbers, with optional `min`, `max`, `step`, `integer`       | Yes           |
+| `boolean`                                                                    | On/off switches                                              | Yes (hold)    |
+| `color`                                                                      | CSS color strings                                            | Yes           |
+| `enum`                                                                       | A choice between `variants`, each with its own nested schema | Opt-in (hold) |
+| `array`                                                                      | Lists of numbers, colors, enums and more                     | No            |
+| `asset`                                                                      | Media sources, with optional `assetType`                     | No            |
+| `font-family`                                                                | CSS font family                                              | No            |
+| `font-weight`                                                                | Font weight                                                  | Yes           |
+| `translate`, `scale`, `rotation-css`, `rotation-degrees`, `transform-origin` | Transforms                                                   | Yes           |
+| `uv-coordinate`                                                              | A normalized `[x, y]` point on the element                   | Yes           |
+| `svg-path`                                                                   | SVG path data                                                | Yes           |
+| `remotion-captions`                                                          | `Caption[]` data                                             | No            |
+| `hidden`                                                                     | A value kept out of the controls                             | —             |
 
 Every field needs a `default` and should have a `description`, which Studio shows as the label.
 Set `keyframable: false` to show a static control.

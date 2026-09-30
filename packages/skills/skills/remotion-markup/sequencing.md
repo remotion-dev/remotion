@@ -8,6 +8,8 @@ metadata:
 Prefer timing props directly on built-in interactive components and custom
 components made with `Interactive.withSchema({wrapInSequence: true})`.  
 Avoid wrapping a single timing-capable component in a redundant `<Sequence>`.
+Put `name`, `from`, `durationInFrames`, `loop`, `volume`, and `premountFor`
+directly on `<Audio>` whenever their combination gives the intended timing.
 
 See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for creating
 schema-wrapped components and [connected compositions](connected-compositions.md)
@@ -16,8 +18,8 @@ for registering them with their own Studio timelines.
 ```tsx
 // Title and Subtitle are exported with Interactive.withSchema({wrapInSequence: true}).
 <>
-  <Title name="Title" from={30} durationInFrames={60} />
-  <Subtitle name="Subtitle" from={60} durationInFrames={60} />
+  <Title name="Title" from={30} durationInFrames={60} premountFor={fps} />
+  <Subtitle name="Subtitle" from={60} durationInFrames={60} premountFor={fps} />
 </>
 ```
 
@@ -28,14 +30,19 @@ use `layout="none"` when no layout wrapper is needed.
 
 ## Premounting
 
-Use `premountFor` when media or expensive content needs preparation before it
-becomes visible. Pass it directly to a timing-capable component:
+Set `premountFor={fps}` on every timed component that supports the prop, using
+`fps` from `useVideoConfig()`. This mounts it one second before its start in
+Studio, allowing media and other content to prepare. Put the prop directly on
+the timed component, including `<Audio>`, `<Video>`, interactive components,
+`<Sequence>`, `<Series.Sequence>`, `<TransitionSeries.Sequence>`, and
+`<TransitionSeries.Overlay>`:
 
 ```tsx
-<Title from={60} durationInFrames={90} premountFor={30} />
+<Title from={60} durationInFrames={90} premountFor={fps} />
 ```
 
-Note that parent sequences may also need premounting, otherwise there is no effect.
+Premount parent timeline items as well when a nested item must mount before the
+parent starts. The composition cannot premount before frame 0.
 
 ## TransitionSeries
 
@@ -45,13 +52,13 @@ Use `<TransitionSeries>` for consecutive scenes that may need transitions. Witho
 import { TransitionSeries } from "@remotion/transitions";
 
 <TransitionSeries>
-  <TransitionSeries.Sequence durationInFrames={45}>
+  <TransitionSeries.Sequence durationInFrames={45} premountFor={fps}>
     <Intro />
   </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence durationInFrames={60}>
+  <TransitionSeries.Sequence durationInFrames={60} premountFor={fps}>
     <MainContent />
   </TransitionSeries.Sequence>
-  <TransitionSeries.Sequence durationInFrames={30}>
+  <TransitionSeries.Sequence durationInFrames={30} premountFor={fps}>
     <Outro />
   </TransitionSeries.Sequence>
 </TransitionSeries>;

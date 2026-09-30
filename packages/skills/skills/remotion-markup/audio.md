@@ -145,8 +145,10 @@ Reverse playback is not supported.
 Use `loop` to loop the audio indefinitely:
 
 ```tsx
-<Audio src={staticFile("audio.mp3")} loop />
+<Audio src={staticFile("audio.mp3")} loop premountFor={fps} />
 ```
+
+Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
 
 Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
 
