@@ -44,7 +44,7 @@
     "@types/react-dom": "19.2.3",
     "@types/web": "0.0.166",
     "@vitejs/plugin-react": "4.3.4",
-    "electron": "41.10.6",
+    "electron": "40.10.2",
     "eslint": "9.39.5",
     "prettier": "3.8.1",
     "tailwindcss": "4.2.1",
