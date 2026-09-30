@@ -167,7 +167,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 		expect(outcome).toEqual({
 			native: false,
 			reason:
-				'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture is unsupported, so the built-in DOM composer is used.',
+				'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture requires Chrome 157 or newer, so the built-in DOM composer is used.',
 			shouldWarn: false,
 		});
 	} finally {

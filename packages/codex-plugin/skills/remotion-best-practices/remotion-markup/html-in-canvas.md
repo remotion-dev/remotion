@@ -7,7 +7,7 @@ Give the user a notice.
 
 ## Nesting
 
-Do not nest `<HtmlInCanvas>` components. Remotion rejects nesting because Chrome does not reliably render nested HTML-in-canvas subtrees.
+Nest `<HtmlInCanvas>` components only when `HtmlInCanvas.isNestingSupported()` returns `true` (Chrome 157 or newer with HTML-in-canvas enabled). Older browsers reject nesting.
 
 ## Enabling WebGL during renders
 

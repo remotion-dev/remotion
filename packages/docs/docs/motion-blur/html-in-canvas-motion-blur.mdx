@@ -109,7 +109,7 @@ Samples outside the composition are clamped to its first or last frame.
 
 ## Nested HTML-in-canvas caveat
 
-Nested [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components are currently unsupported, so children of `<HtmlInCanvasMotionBlur>` cannot contain another `<HtmlInCanvas>` component or vice versa.
+Children of `<HtmlInCanvasMotionBlur>` can contain another [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, or vice versa, in Chrome 157 or newer with HTML-in-canvas enabled. Check [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) before nesting them.
 
 ## Compatibility
 
