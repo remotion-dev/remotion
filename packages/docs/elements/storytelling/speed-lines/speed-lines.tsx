@@ -38,7 +38,7 @@ const SpeedLinesInner: React.FC<SpeedLinesProps> = ({
 	});
 
 	return (
-		<AbsoluteFill style={style}>
+		<AbsoluteFill style={style} showInTimeline={false}>
 			<AbsoluteFill
 				name="Speed lines fade"
 				style={{
