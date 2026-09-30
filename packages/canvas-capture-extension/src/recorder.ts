@@ -307,6 +307,12 @@ const addFrame = (recording: RecordingState, canvas: OffscreenCanvas) => {
 			recording.encodingError = error;
 			recording.pendingFrame?.close();
 			recording.pendingFrame = null;
+			// eslint-disable-next-line no-console -- Surface encoder failures in the page DevTools console.
+			console.error(
+				'[Remotion Canvas Capture] Failed to encode a frame',
+				{frameCount: recording.frameCount},
+				error,
+			);
 			throw error;
 		} finally {
 			recording.isEncodingFrame = false;

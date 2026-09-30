@@ -441,7 +441,14 @@ export class PageCapture {
 		try {
 			this.#draw();
 		} catch (error) {
-			this.#paintError = error;
+			if (this.#paintError === null) {
+				// eslint-disable-next-line no-console -- Surface capture failures in the page DevTools console.
+				console.error(
+					'[Remotion Canvas Capture] Failed to paint a frame',
+					error,
+				);
+				this.#paintError = error;
+			}
 		}
 	};
 }
