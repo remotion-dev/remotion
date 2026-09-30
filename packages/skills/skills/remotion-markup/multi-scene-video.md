@@ -13,31 +13,43 @@ intentionally controlled as one source template.
 Use `<TransitionSeries>` when the scenes may have transitions.  
 Install `@remotion/transitions` if it is missing.  
 Give each sequence an inline `durationInFrames` value so Studio can edit its timing.
+Set `showInTimeline={false}` on the outer `<TransitionSeries>` when it is only
+a structural container. Otherwise its full-frame canvas outline competes with
+the active scene's full-frame outline and may receive clicks. This hides only
+the container row; the scene sequences remain in the timeline and selectable
+on the canvas.
 
 Example:
 
 ```tsx
 // MyVideo.tsx
 import {TransitionSeries} from '@remotion/transitions';
+import {useVideoConfig} from 'remotion';
 import {OpeningScene} from './OpeningScene';
 import {FeatureScene} from './FeatureScene';
 
-export const MyVideo = () => (
-  <TransitionSeries>
-    <TransitionSeries.Sequence
-      name="Opening"
-      durationInFrames={90}
-    >
-      <OpeningScene />
-    </TransitionSeries.Sequence>
-    <TransitionSeries.Sequence
-      name="Feature"
-      durationInFrames={120}
-    >
-      <FeatureScene />
-    </TransitionSeries.Sequence>
-  </TransitionSeries>
-);
+export const MyVideo = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <TransitionSeries showInTimeline={false}>
+      <TransitionSeries.Sequence
+        name="Opening"
+        durationInFrames={90}
+        premountFor={fps}
+      >
+        <OpeningScene />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
+        name="Feature"
+        durationInFrames={120}
+        premountFor={fps}
+      >
+        <FeatureScene />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
 ```
 
 Register the same scene components, plus the parent video, in the root:

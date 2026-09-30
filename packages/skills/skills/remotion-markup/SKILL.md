@@ -24,21 +24,35 @@ Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
 Prefer `Interactive.withSchema({wrapInSequence: true})` for custom visual components
 with editable props, and register reusable scenes as connected compositions.
+For a multi-scene video, set `showInTimeline={false}` on the structural
+`<TransitionSeries>` parent when its child sequences should be selected by
+clicking the canvas. The child sequences remain visible and selectable in the
+timeline. See [Multi-scene videos](multi-scene-video.md).
 Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
+Give every timed component that supports `premountFor` one second of premounting:
+`premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
+media, interactive components, `<Sequence>`, `<Series.Sequence>`,
+`<TransitionSeries.Sequence>`, and `<TransitionSeries.Overlay>`, including
+timed components nested inside scenes. Premount the parent timeline item too
+when a nested item needs to mount before the parent starts. A component without
+`premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
+See [Premounting](sequencing.md#premounting) for the `layout="none"` constraint.
 
 The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
 Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
 separately.
 
 ```tsx
-import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
+import { useCurrentFrame, useVideoConfig, Easing, interpolate, Interactive } from "remotion";
 
 export const FadeIn = () => {
   const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
 
   return (
     <Interactive.Div
       name="Title"
+      premountFor={fps}
       style={{
         opacity: interpolate(frame, [0, 2 * fps], [0, 1], {
           extrapolateRight: "clamp",
@@ -99,19 +113,22 @@ Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile, CanvasImage, AnimatedImage } from "remotion";
+import { staticFile, CanvasImage, AnimatedImage, useVideoConfig } from "remotion";
 
 export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
   return (
     <>
-      <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
-      <Audio src={staticFile("audio.mp3")} />
+      <Video src={staticFile("video.mp4")} premountFor={fps} style={{ opacity: 0.5 }} />
+      <Audio src={staticFile("audio.mp3")} premountFor={fps} />
       <CanvasImage
         src={staticFile("logo.png")}
+        premountFor={fps}
         style={{ width: 100, height: 100 }}
       />
-      <Video src="https://remotion.media/video.mp4" />
-      <AnimatedImage src={staticFile('nyancat.gif')} />
+      <Video src="https://remotion.media/video.mp4" premountFor={fps} />
+      <AnimatedImage src={staticFile('nyancat.gif')} premountFor={fps} />
     </>
   );
 };
@@ -142,6 +159,7 @@ export const MyScene = () => {
       <Video
         name="Background"
         src="https://remotion.media/video.mp4"
+        premountFor={fps}
         objectFit="cover"
         style={{
           position: "absolute",
@@ -152,6 +170,7 @@ export const MyScene = () => {
       <LowerThird
         name="Lower third"
         from={1 * fps}
+        premountFor={fps}
         accentColor="#0b84f3"
         style={{
           opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
@@ -271,6 +290,10 @@ export const RemotionRoot: React.FC = () => {
 
 The following timing props are supported by built-in components (`<AbsoluteFill>`, `<Interactive.*>`, `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more).
 Custom components made with `Interactive.withSchema({wrapInSequence: true})` accept them too, see [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
+Set `premountFor={fps}` on these timed items when they support it, including
+items starting at frame 0. At frame 0, the composition has no earlier frames
+to premount into; the prop still keeps the same one-second default if the item
+is moved later.
 
 ### `from`
 
@@ -331,7 +354,13 @@ Other items need `durationInFrames` to define the loop range:
 <Interactive.Div durationInFrames={2 * fps} loop {/* ... */} />
 ```
 
-To limit the total length of a loop, wrap it in an outer item with `durationInFrames`.
+Put timing and volume directly on `<Audio>` rather than wrapping one audio
+track in a `<Sequence>`. If a looping track's volume is clamped to zero after
+its intended end, a direct `<Audio>` needs no outer sequence; its silent tail
+remains in the timeline until the parent ends. With `loop`, `durationInFrames`
+sets the range to repeat, not the total clip length. Use an outer timed item
+only when the looping clip itself must end at an exact frame. A non-looping
+`<Audio>` can take `from` and `durationInFrames` directly.
 
 `<Img>`, `<CanvasImage>`, `<Solid>` and shapes do not support `loop` because their output does not change over time.
 
