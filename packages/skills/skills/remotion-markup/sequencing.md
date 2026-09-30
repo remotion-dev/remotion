@@ -37,12 +37,12 @@ becomes visible. Pass it directly to a timing-capable component:
 
 Note that parent sequences may also need premounting, otherwise there is no effect.
 
-## Series
+## TransitionSeries
 
-Use `<TransitionSeries>` when elements should play one after another without overlap.
+Use `<TransitionSeries>` for consecutive scenes that may need transitions. Without a transition, the scenes play without overlap. Use `<Series>` from `remotion` when transitions are not needed.
 
 ```tsx
-import { TransitionSeries } from "remotion";
+import { TransitionSeries } from "@remotion/transitions";
 
 <TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={45}>
