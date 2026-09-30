@@ -1,22 +1,27 @@
 import { useState } from "react";
-import { random, useVideoConfig } from "remotion";
+import { Easing, interpolate, random, useCurrentFrame, useVideoConfig } from "remotion";
 
 export const Atom: React.FC<{
-  scale: number;
   color1: string;
   color2: string;
-}> = ({ scale, color1, color2 }) => {
-  const config = useVideoConfig();
+}> = ({ color1, color2 }) => {
+  const { width, height, fps } = useVideoConfig();
+  const frame = useCurrentFrame();
 
   // Each SVG ID must be unique to not conflict with each other
   const [gradientId] = useState(() => String(random(null)));
 
   return (
     <svg
-      viewBox={`0 0 ${config.width} ${config.height}`}
+      viewBox={`0 0 ${width} ${height}`}
       style={{
         position: "absolute",
-        transform: `scale(${scale})`,
+        scale: interpolate(frame, [0, fps], [0, 1], {
+          easing: Easing.spring({ damping: 100, mass: 0.5 }),
+          output: "perceptual-scale",
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
       }}
     >
       <defs>
@@ -27,8 +32,8 @@ export const Atom: React.FC<{
       </defs>
       <circle
         r={70}
-        cx={config.width / 2}
-        cy={config.height / 2}
+        cx={width / 2}
+        cy={height / 2}
         fill={`url(#${gradientId})`}
       />
     </svg>

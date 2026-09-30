@@ -1,85 +1,71 @@
 import {
-  AbsoluteFill,
+  Easing,
+  Interactive,
   interpolate,
-  spring,
   useCurrentFrame,
   useVideoConfig,
+  type InteractivitySchema,
 } from "remotion";
+import type React from "react";
 import { Arc } from "./Arc";
 import { Atom } from "./Atom";
 
 export type LogoProps = {
   readonly logoColor1: string;
   readonly logoColor2: string;
+  readonly style?: React.CSSProperties;
 };
 
-export const Logo: React.FC<LogoProps> = ({
-  logoColor1: color1,
-  logoColor2: color2,
-}) => {
-  const videoConfig = useVideoConfig();
+const LogoInner: React.FC<LogoProps> = ({ logoColor1, logoColor2, style }) => {
+  const { durationInFrames, fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  const development = spring({
-    config: {
-      damping: 100,
-      mass: 0.5,
-    },
-    fps: videoConfig.fps,
-    frame,
-  });
-
-  const rotationDevelopment = spring({
-    config: {
-      damping: 100,
-      mass: 0.5,
-    },
-    fps: videoConfig.fps,
-    frame,
-  });
-
-  const scale = spring({
-    frame,
-    config: {
-      mass: 0.5,
-    },
-    fps: videoConfig.fps,
-  });
-
-  const logoRotation = interpolate(
-    frame,
-    [0, videoConfig.durationInFrames],
-    [0, 360],
-  );
-
   return (
-    <AbsoluteFill
+    <Interactive.Div
       style={{
-        transform: `scale(${scale}) rotate(${logoRotation}deg)`,
+        position: "absolute",
+        inset: 0,
+        scale: interpolate(frame, [0, fps], [0, 1], {
+          easing: Easing.spring({ mass: 0.5 }),
+          output: "perceptual-scale",
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
+        rotate: interpolate(frame, [0, durationInFrames], ["0deg", "360deg"], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        }),
+        ...style,
       }}
     >
       <Arc
-        rotateProgress={rotationDevelopment}
-        progress={development}
         rotation={30}
-        color1={color1}
-        color2={color2}
+        color1={logoColor1}
+        color2={logoColor2}
       />
       <Arc
-        rotateProgress={rotationDevelopment}
         rotation={90}
-        progress={development}
-        color1={color1}
-        color2={color2}
+        color1={logoColor1}
+        color2={logoColor2}
       />
       <Arc
-        rotateProgress={rotationDevelopment}
         rotation={-30}
-        progress={development}
-        color1={color1}
-        color2={color2}
+        color1={logoColor1}
+        color2={logoColor2}
       />
-      <Atom scale={rotationDevelopment} color1={color1} color2={color2} />
-    </AbsoluteFill>
+      <Atom color1={logoColor1} color2={logoColor2} />
+    </Interactive.Div>
   );
 };
+
+const logoSchema = {
+  logoColor1: { type: "color", default: "#91EAE4", description: "First logo color" },
+  logoColor2: { type: "color", default: "#86A8E7", description: "Second logo color" },
+} as const satisfies InteractivitySchema;
+
+export const Logo = Interactive.withSchema({
+  Component: LogoInner,
+  componentName: "<Logo>",
+  schema: logoSchema,
+  wrapInSequence: true,
+});

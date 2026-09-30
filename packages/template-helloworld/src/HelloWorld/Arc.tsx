@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { random, useVideoConfig } from "remotion";
+import { Easing, interpolate, random, useCurrentFrame, useVideoConfig } from "remotion";
 
 const getCircumferenceOfArc = (rx: number, ry: number) => {
   return Math.PI * 2 * Math.sqrt((rx * rx + ry * ry) / 2);
@@ -13,13 +13,17 @@ const arcLength = getCircumferenceOfArc(rx, ry);
 const strokeWidth = 30;
 
 export const Arc: React.FC<{
-  progress: number;
   rotation: number;
-  rotateProgress: number;
   color1: string;
   color2: string;
-}> = ({ progress, rotation, rotateProgress, color1, color2 }) => {
-  const { width, height } = useVideoConfig();
+}> = ({ rotation, color1, color2 }) => {
+  const { width, height, fps } = useVideoConfig();
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, fps], [0, 1], {
+    easing: Easing.spring({ damping: 100, mass: 0.5 }),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // Each svg Id must be unique to not conflict with each other
   const [gradientId] = useState(() => String(random(null)));
@@ -29,7 +33,7 @@ export const Arc: React.FC<{
       viewBox={`0 0 ${width} ${height}`}
       style={{
         position: "absolute",
-        transform: `rotate(${rotation * rotateProgress}deg)`,
+        rotate: `${rotation * progress}deg`,
       }}
     >
       <defs>
