@@ -65,6 +65,7 @@ const packagesToPublish: {
 	name: string;
 	hasLicense: boolean;
 	hasTsgoBuild: boolean;
+	hasPrepublishOnly: boolean;
 	packagePath: string;
 }[] = [];
 let foundOnlyPackage = false;
@@ -105,7 +106,8 @@ for (const dir of dirs) {
 		dir,
 		name: packageJson.name,
 		hasLicense: packageJson.license?.includes('LICENSE.md') === true,
-		hasTsgoBuild: packageJson.scripts?.make?.includes('tsgo -d') === true,
+		hasTsgoBuild: /\btsgo\b/.test(packageJson.scripts?.make ?? ''),
+		hasPrepublishOnly: typeof packageJson.scripts?.prepublishOnly === 'string',
 		packagePath,
 	});
 }
@@ -124,7 +126,7 @@ if (!listOnly) {
 		const preflightResults = await Promise.allSettled(
 			packagesToPublish
 				.filter(({hasTsgoBuild}) => hasTsgoBuild)
-				.map(({dir, name, hasLicense, packagePath}) =>
+				.map(({dir, name, hasLicense, hasPrepublishOnly, packagePath}) =>
 					p(async () => {
 						const licensePath = path.join(packagePath, 'LICENSE.md');
 						const copiedLicense = hasLicense && !existsSync(licensePath);
@@ -136,6 +138,11 @@ if (!listOnly) {
 						}
 
 						try {
+							// Publishing a tarball skips prepublishOnly, so run it before packing.
+							if (hasPrepublishOnly) {
+								await $`bun run prepublishOnly`.cwd(packagePath);
+							}
+
 							await $`bun pm pack --destination ${stagingDir} --quiet`.cwd(
 								packagePath,
 							);
@@ -151,7 +158,7 @@ if (!listOnly) {
 							const distDir = path.join(stagingDir, 'package', 'dist');
 							const jsFiles = existsSync(distDir)
 								? readdirSync(distDir, {recursive: true}).filter((file) =>
-										file.endsWith('.js'),
+										/\.(c|m)?js$/.test(file),
 									)
 								: [];
 							if (jsFiles.length === 0) {
