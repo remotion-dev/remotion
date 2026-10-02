@@ -1538,19 +1538,19 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation !== null &&
 		durationCanResize &&
 		(!isMedia || Boolean(s.loopDisplay) || mediaDurationDragLimits !== null);
+	const isFirstCascadingSequence =
+		isCascadingSequence(s) && adjacentCascadingSequences.previous === null;
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(adjacentCascadingSequences.previous
-			? previousCascadingSequenceCanResize
-			: (isCascadingSequence(s) || fromCanUpdate) &&
-				durationCanUpdate &&
-				trimBeforeCanUpdate);
+		(isFirstCascadingSequence
+			? trimBeforeCanUpdate
+			: adjacentCascadingSequences.previous
+				? previousCascadingSequenceCanResize
+				: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
 	const canShowSecondaryLeftEdgeAction =
-		(isMedia ||
-			(isCascadingSequence(s) &&
-				adjacentCascadingSequences.previous !== null)) &&
+		(isMedia || (isCascadingSequence(s) && !isFirstCascadingSequence)) &&
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
@@ -1616,6 +1616,7 @@ const TimelineSequenceInner: React.FC<{
 								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
 								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 								edgeEnabled={showLeftEdgeDragHandle}
+								edgeMode={isFirstCascadingSequence ? 'source-only' : 'ripple'}
 								secondaryAction={secondaryLeftEdgeAction}
 								nodePathInfo={nodePathInfo}
 								windowWidth={windowWidth}
