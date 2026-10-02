@@ -682,13 +682,134 @@ const getJsxBooleanAttribute = ({
 	return defaultValue;
 };
 
+const getJsxFrom = ({
+	jsxPath,
+	ast,
+	videoConfigValues,
+}: {
+	jsxPath: recast.types.NodePath;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	const element = jsxPath.value as JSXElement;
+	if (
+		getJsxComponentIdentity({ast, jsxElement: element.openingElement}) !==
+		'dev.remotion.remotion.Series.Sequence'
+	) {
+		return getJsxNumericAttribute({
+			openingElement: element.openingElement,
+			name: 'from',
+			defaultValue: 0,
+			videoConfigValues,
+		});
+	}
+
+	let {parentPath} = jsxPath;
+	while (parentPath && parentPath.value.type !== 'JSXElement') {
+		parentPath = parentPath.parentPath;
+	}
+
+	const parent = parentPath?.value as JSXElement | undefined;
+	if (
+		!parent ||
+		getJsxComponentIdentity({ast, jsxElement: parent.openingElement}) !==
+			'dev.remotion.remotion.Series' ||
+		parent.openingElement.attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXSpreadAttribute' ||
+				(attribute.type === 'JSXAttribute' &&
+					attribute.name.type === 'JSXIdentifier' &&
+					attribute.name.name === 'children'),
+		)
+	) {
+		return null;
+	}
+
+	// Series derives each start from the preceding siblings, including their
+	// offsets and playback rates. Unknown children must keep the runtime value.
+	const children = [...parent.children].reverse();
+	let start = 0;
+	while (children.length > 0) {
+		const child = children.pop()!;
+		if (child.type === 'JSXText' && child.value.trim() === '') {
+			continue;
+		}
+
+		if (child.type === 'JSXFragment') {
+			children.push(...[...child.children].reverse());
+			continue;
+		}
+
+		if (
+			child.type === 'JSXExpressionContainer' &&
+			(child.expression.type === 'JSXEmptyExpression' ||
+				child.expression.type === 'NullLiteral' ||
+				child.expression.type === 'BooleanLiteral')
+		) {
+			continue;
+		}
+
+		if (
+			child.type !== 'JSXElement' ||
+			getJsxComponentIdentity({ast, jsxElement: child.openingElement}) !==
+				'dev.remotion.remotion.Series.Sequence'
+		) {
+			return null;
+		}
+
+		const offset = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'offset',
+			defaultValue: 0,
+			videoConfigValues,
+		});
+		if (offset === null) {
+			return null;
+		}
+
+		start += offset;
+		if (child === element) {
+			return Number.isFinite(start) ? start : null;
+		}
+
+		const duration = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'durationInFrames',
+			defaultValue: NaN,
+			videoConfigValues,
+		});
+		const rate = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'playbackRate',
+			defaultValue: 1,
+			videoConfigValues,
+		});
+		if (
+			duration === null ||
+			!Number.isFinite(duration) ||
+			duration <= 0 ||
+			rate === null ||
+			!Number.isFinite(rate) ||
+			rate <= 0
+		) {
+			return null;
+		}
+
+		start += duration / rate;
+	}
+
+	return null;
+};
+
 const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	startPath,
 	endPath,
+	ast,
 	videoConfigValues,
 }: {
 	startPath: recast.types.NodePath;
 	endPath: recast.types.NodePath;
+	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
@@ -717,10 +838,9 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 				hasEnclosingElement = true;
 				// Sequence-backed built-ins and userland components can both shift
 				// their children, so the prop names are the semantic boundary.
-				const from = getJsxNumericAttribute({
-					openingElement: currentNode.openingElement,
-					name: 'from',
-					defaultValue: 0,
+				const from = getJsxFrom({
+					jsxPath: current,
+					ast,
 					videoConfigValues,
 				});
 				const trimBefore = getJsxNumericAttribute({
@@ -769,9 +889,11 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 
 const getDefaultFrameDisplayOffsetAdjustment = ({
 	jsxPath,
+	ast,
 	videoConfigValues,
 }: {
 	jsxPath: recast.types.NodePath;
+	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	adjustment: number;
@@ -831,6 +953,7 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: jsxPath,
 		endPath: functionPath,
+		ast,
 		videoConfigValues,
 	});
 	return result ? {...result, canKeyframe: true} : null;
@@ -998,6 +1121,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	const frameDisplayOffset = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: nodePath,
 		endPath: resolved.bindingScopePath,
+		ast,
 		videoConfigValues,
 	});
 	if (frameDisplayOffset === null) {
@@ -1267,6 +1391,7 @@ export const retimeSequenceKeyframes = ({
 			const clock = getFrameDisplayOffsetAdjustmentBetweenPaths({
 				startPath: rootPath,
 				endPath: resolved.bindingScopePath,
+				ast,
 				videoConfigValues,
 			});
 			if (!clock) {
@@ -2122,6 +2247,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	const defaultKeyframeDisplayOffsetAdjustment =
 		getDefaultFrameDisplayOffsetAdjustment({
 			jsxPath,
+			ast,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
