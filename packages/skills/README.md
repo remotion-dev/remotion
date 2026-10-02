@@ -18,8 +18,6 @@ You are also offered the option to add skills when you create a new Remotion pro
 bun create video
 ```
 
-Choosing to add skills during setup installs them in the project's `.agents/skills` directory and links `.claude/skills` to that directory. This makes the same skills available to agents that read `.agents/skills` and to Claude Code, without an agent selection prompt.
-
 For more information, see the [Remotion Agent Skills documentation](https://www.remotion.dev/docs/ai/skills).
 
 ## Available skills
