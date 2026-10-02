@@ -187,13 +187,13 @@ export const CaptionTextEditor: React.FC<{
 					((caption.endMs - caption.startMs) * splitIndex) /
 						caption.text.length,
 			);
-			const afterText = caption.text.slice(splitIndex);
+			const afterText = caption.text.slice(splitIndex).trimStart();
 			const {pageBreakAfter, ...captionWithoutPageBreak} = caption;
 			const nextCaptions = [
 				...currentCaptions.slice(0, index),
 				{
 					...captionWithoutPageBreak,
-					text: caption.text.slice(0, splitIndex),
+					text: caption.text.slice(0, splitIndex).trimEnd(),
 					endMs: splitTimestamp,
 					timestampMs:
 						caption.timestampMs === null
@@ -203,7 +203,7 @@ export const CaptionTextEditor: React.FC<{
 				},
 				{
 					...captionWithoutPageBreak,
-					text: afterText.startsWith(' ') ? afterText : ` ${afterText}`,
+					text: ` ${afterText}`,
 					startMs: splitTimestamp,
 					timestampMs:
 						caption.timestampMs === null
