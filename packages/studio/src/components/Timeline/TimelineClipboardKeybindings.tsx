@@ -29,6 +29,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
 import {hasClipboardImage} from '../../helpers/clipboard-images';
 import {hasClipboardSvgMarkup} from '../../helpers/clipboard-svg';
+import {copyText} from '../../helpers/copy-text';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	areKeyboardShortcutsDisabled,
@@ -709,14 +710,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						return;
 					}
 
-					navigator.clipboard
-						.writeText(makeClipboardText(payload))
-						.catch((err) => {
-							showNotification(
-								`Could not copy keyframe: ${(err as Error).message}`,
-								2000,
-							);
-						});
+					copyText(makeClipboardText(payload)).catch((err) => {
+						showNotification(
+							`Could not copy keyframe: ${(err as Error).message}`,
+							2000,
+						);
+					});
 					return;
 				}
 
@@ -745,8 +744,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						return;
 					}
 
-					navigator.clipboard
-						.writeText(makeClipboardText(payload))
+					copyText(makeClipboardText(payload))
 						.then(() => {
 							showNotification('Copied easing to clipboard', 1000);
 						})
@@ -785,8 +783,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						return;
 					}
 
-					navigator.clipboard
-						.writeText(makeClipboardText(payload))
+					copyText(makeClipboardText(payload))
 						.then(() => {
 							showNotification('Copied property value', 1000);
 						})
@@ -825,8 +822,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						return;
 					}
 
-					navigator.clipboard
-						.writeText(makeClipboardText(payload))
+					copyText(makeClipboardText(payload))
 						.then(() => {
 							showNotification('Copied effect prop to clipboard', 1000);
 						})
@@ -866,8 +862,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				}
 
 				e.preventDefault();
-				navigator.clipboard
-					.writeText(makeClipboardText(effectClipboardData.payload))
+				copyText(makeClipboardText(effectClipboardData.payload))
 					.then(() => {
 						showNotification(
 							effectClipboardData.payload.effects.length === 1

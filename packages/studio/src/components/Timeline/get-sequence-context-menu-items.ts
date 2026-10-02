@@ -6,6 +6,7 @@ import type {
 } from '@remotion/studio-shared';
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {copyText} from '../../helpers/copy-text';
 import {formatContextForAgents} from '../../helpers/format-file-location';
 import {
 	getDefaultOpenInTarget,
@@ -411,8 +412,7 @@ export const getSequenceContextMenuItems = ({
 							return;
 						}
 
-						navigator.clipboard
-							.writeText(svg.outerHTML)
+						copyText(svg.outerHTML)
 							.then(() => {
 								showNotification('Copied SVG to clipboard', 1000);
 							})
