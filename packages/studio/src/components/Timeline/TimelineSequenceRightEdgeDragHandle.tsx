@@ -1925,6 +1925,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		width: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
 		cursor,
 		background: TRANSPARENT,
+		pointerEvents: 'auto',
 	};
 	const trimBeforeStyle: React.CSSProperties = {
 		...baseStyle,
@@ -1932,6 +1933,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		width: edgeEnabled ? 'min(10px, 12.5%)' : 'min(14px, 25%)',
 		cursor: trimBeforeCursor,
 		background: TRANSPARENT,
+		pointerEvents: 'auto',
 	};
 
 	return (
@@ -1943,6 +1945,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					aria-label="Drag to trim start"
 					style={edgeStyle}
 					onPointerDown={onPointerDown}
+					onClick={(e) => e.stopPropagation()}
 				/>
 			) : null}
 			{secondaryAction ? (
@@ -1957,6 +1960,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					data-trim-mode={secondaryAction}
 					style={trimBeforeStyle}
 					onPointerDown={onPointerDown}
+					onClick={(e) => e.stopPropagation()}
 				/>
 			) : null}
 			{trimTooltip === null ? null : (
@@ -2696,6 +2700,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 				aria-label="Drag to change duration"
 				style={style}
 				onPointerDown={onPointerDown}
+				onClick={(e) => e.stopPropagation()}
 			/>
 			{trimTooltip === null ? null : (
 				<TimelineTrimTooltip state={trimTooltip} fps={fps} />

@@ -1421,7 +1421,7 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation !== null &&
 		trimBeforeCanUpdate &&
 		(isMedia || durationCanUpdate) &&
-		(visibleLayout?.width ?? 0) >= MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
+		(visibleLayout?.media?.width ?? 0) >= MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH;
 	const secondaryLeftEdgeAction = canShowSecondaryLeftEdgeAction
 		? isMedia
 			? 'source-only'
@@ -1462,25 +1462,36 @@ const TimelineSequenceInner: React.FC<{
 			edgeDragHandles={
 				<>
 					{(showLeftEdgeDragHandle || secondaryLeftEdgeAction) &&
-					visibleLayout.leftEdgeVisible &&
+					visibleLayout.media?.offset === 0 &&
 					negativeStartWidth === 0 &&
 					nodePathInfo &&
 					validatedLocation ? (
-						<TimelineSequenceLeftEdgeDragHandle
-							cursor={`${timelineTrimEdgeCursor}, ew-resize`}
-							trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
-							edgeEnabled={showLeftEdgeDragHandle}
-							secondaryAction={secondaryLeftEdgeAction}
-							nodePathInfo={nodePathInfo}
-							windowWidth={windowWidth}
-							timelineDurationInFrames={video.durationInFrames ?? 1}
-							initialEdgeFrame={s.from}
-							fps={video.fps}
-							onDragStart={startLeftEdgeDrag}
-							onDragEnd={endEdgeDrag}
-							onSelect={onSelect}
-							selected={selected}
-						/>
+						<div
+							style={{
+								position: 'absolute',
+								left: visibleLayout.media.left,
+								width: visibleLayout.media.width,
+								top: 0,
+								bottom: 0,
+								pointerEvents: 'none',
+							}}
+						>
+							<TimelineSequenceLeftEdgeDragHandle
+								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
+								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
+								edgeEnabled={showLeftEdgeDragHandle}
+								secondaryAction={secondaryLeftEdgeAction}
+								nodePathInfo={nodePathInfo}
+								windowWidth={windowWidth}
+								timelineDurationInFrames={video.durationInFrames ?? 1}
+								initialEdgeFrame={s.from}
+								fps={video.fps}
+								onDragStart={startLeftEdgeDrag}
+								onDragEnd={endEdgeDrag}
+								onSelect={onSelect}
+								selected={selected}
+							/>
+						</div>
 					) : null}
 					{showRightEdgeDragHandle &&
 					visibleLayout.rightEdgeVisible &&
