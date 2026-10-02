@@ -114,7 +114,7 @@ const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
 
-type TimelineEdgeHighlightEdge = 'left' | 'right';
+type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
 type TimelineEdgeHighlight = {
 	readonly nodePathKey: string;
@@ -616,8 +616,10 @@ const TimelineSequenceInner: React.FC<{
 		() => createDragAwareDoubleClickTracker(),
 		[],
 	);
-	const [activeTrimEdge, setActiveTrimEdge] =
+	const [activeEdgeHighlight, setActiveEdgeHighlight] =
 		useState<TimelineEdgeHighlightEdge | null>(null);
+	const activeTrimEdge =
+		activeEdgeHighlight === 'source-only' ? 'left' : activeEdgeHighlight;
 	useEffect(() => {
 		if (!nodePath) {
 			return;
@@ -625,7 +627,7 @@ const TimelineSequenceInner: React.FC<{
 
 		return edgeHighlightController?.register(
 			stringifySequenceSubscriptionKey(nodePath),
-			setActiveTrimEdge,
+			setActiveEdgeHighlight,
 		);
 	}, [edgeHighlightController, nodePath]);
 	const cascadingSequenceComponentIdentity = isCascadingSequence(s)
@@ -653,7 +655,7 @@ const TimelineSequenceInner: React.FC<{
 	}, [cascadingSequenceComponentIdentity, s.id, s.parent, sequences]);
 	const startEdgeDrag = useCallback(
 		(
-			edge: 'left' | 'right',
+			edge: TimelineEdgeHighlightEdge,
 			highlightAdjacent: boolean,
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
 		) => {
@@ -705,7 +707,12 @@ const TimelineSequenceInner: React.FC<{
 		(
 			mode: 'ripple' | 'source-only' | 'self-trim',
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
-		) => startEdgeDrag('left', mode === 'ripple', targetNodePaths),
+		) =>
+			startEdgeDrag(
+				mode === 'source-only' ? 'source-only' : 'left',
+				mode === 'ripple',
+				targetNodePaths,
+			),
 		[startEdgeDrag],
 	);
 	const startRightEdgeDrag = useCallback(
@@ -1361,7 +1368,8 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const mediaOutline = (() => {
 		if (
-			activeTrimEdge === null ||
+			activeEdgeHighlight === null ||
+			activeEdgeHighlight === 'source-only' ||
 			(s.type !== 'audio' && s.type !== 'video') ||
 			s.loopDisplay ||
 			s.frozenFrame !== null ||
