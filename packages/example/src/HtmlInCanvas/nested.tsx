@@ -1,3 +1,5 @@
+import {invert} from '@remotion/effects/invert';
+import {wave} from '@remotion/effects/wave';
 import {Video} from '@remotion/media';
 import React from 'react';
 import {
@@ -10,10 +12,6 @@ import {
 
 export const HtmlInCanvasNested: React.FC = () => {
 	const frame = useCurrentFrame();
-	const markerX = interpolate(frame, [0, 149], [24, 388], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
 
 	if (!HtmlInCanvas.isNestingSupported()) {
 		return (
@@ -92,7 +90,12 @@ export const HtmlInCanvasNested: React.FC = () => {
 				>
 					OUTER CANVAS MISSING
 				</div>
-				<HtmlInCanvas width={1120} height={520} name="Outer canvas">
+				<HtmlInCanvas
+					width={1120}
+					height={520}
+					name="Outer canvas"
+					effects={[invert({})]}
+				>
 					<div
 						style={{
 							width: 1120,
@@ -114,7 +117,7 @@ export const HtmlInCanvasNested: React.FC = () => {
 								letterSpacing: 1,
 							}}
 						>
-							<span>OUTER CANVAS · CYAN BORDER</span>
+							<span>OUTER CANVAS · INVERT EFFECT</span>
 							<span style={{color: '#83e8ff'}}>FRAME {frame}</span>
 						</div>
 						<div style={{display: 'flex', gap: 24}}>
@@ -130,6 +133,16 @@ export const HtmlInCanvasNested: React.FC = () => {
 									width={500}
 									height={330}
 									name="Nested video canvas"
+									effects={[
+										wave({
+											amplitude: interpolate(frame, [10, 122], [8, 60], {
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											}),
+
+											wavelength: 180,
+										}),
+									]}
 								>
 									<div
 										style={{
@@ -154,7 +167,7 @@ export const HtmlInCanvasNested: React.FC = () => {
 												lineHeight: '42px',
 											}}
 										>
-											INNER A · VIDEO · YELLOW BORDER
+											VIDEO CANVAS · WAVE EFFECT
 										</div>
 										<div
 											style={{position: 'relative', width: 500, height: 330}}
@@ -199,76 +212,6 @@ export const HtmlInCanvasNested: React.FC = () => {
 									</div>
 								</HtmlInCanvas>
 							</div>
-							<div
-								style={{
-									width: 500,
-									height: 330,
-									background:
-										'repeating-linear-gradient(45deg, #ff3b72 0 16px, #300b28 16px 32px)',
-								}}
-							>
-								<HtmlInCanvas
-									width={500}
-									height={330}
-									name="Nested graphics canvas"
-								>
-									<div
-										style={{
-											width: 500,
-											height: 330,
-											boxSizing: 'border-box',
-											border: '5px solid #b4ff5c',
-											backgroundColor: '#181038',
-										}}
-									>
-										<div
-											style={{
-												height: 42,
-												paddingLeft: 14,
-												backgroundColor: '#131922',
-												fontSize: 20,
-												fontWeight: 900,
-												lineHeight: '42px',
-											}}
-										>
-											INNER B · GRAPHICS · LIME BORDER
-										</div>
-										<div
-											style={{
-												position: 'relative',
-												width: 490,
-												height: 278,
-												background: 'linear-gradient(135deg, #29145d, #0d1731)',
-											}}
-										>
-											<div
-												style={{
-													position: 'absolute',
-													left: markerX,
-													top: 66,
-													width: 92,
-													height: 92,
-													borderRadius: '50%',
-													backgroundColor: '#b4ff5c',
-													boxShadow: '0 0 35px #b4ff5caa',
-												}}
-											/>
-											<div
-												style={{
-													position: 'absolute',
-													bottom: 20,
-													left: 24,
-													fontSize: 30,
-													fontWeight: 900,
-													color: '#fff',
-												}}
-											>
-												FRAME {frame} / MOVING DOT
-											</div>
-										</div>
-									</div>
-								</HtmlInCanvas>
-							</div>
 						</div>
 					</div>
 				</HtmlInCanvas>
@@ -284,10 +227,10 @@ export const HtmlInCanvasNested: React.FC = () => {
 				}}
 			>
 				<div>
-					PASS: cyan, yellow and lime borders; video timecode and dot advance.
+					PASS: outer colors invert; the nested video ripples as frames advance.
 				</div>
 				<div style={{color: '#ff6aa5'}}>
-					FAIL: any hot pink shows through a canvas or the video.
+					FAIL: striped gaps or VIDEO MISSING text show through.
 				</div>
 			</div>
 		</AbsoluteFill>
