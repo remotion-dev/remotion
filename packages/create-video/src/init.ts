@@ -248,7 +248,7 @@ export const init = async () => {
 	Log.info('To render a video, run:');
 	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
-	Log.info('Links to get you started:');
+	Log.info('See the documentation:');
 	Log.info(
 		' ' +
 			chalk.blue(
