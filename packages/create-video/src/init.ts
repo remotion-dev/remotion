@@ -215,6 +215,18 @@ export const init = async () => {
 		}
 	}
 
+	Log.info('Installing dependencies...');
+	let installedDependencies = true;
+	try {
+		await execa.command(getInstallCommand(pkgManager), {
+			cwd: projectRoot,
+			stdio: 'inherit',
+		});
+	} catch (e) {
+		installedDependencies = false;
+		Log.error('Error installing dependencies:', e);
+	}
+
 	if (!isInsideGitRepo) {
 		await getGitStatus(projectRoot);
 	}
@@ -237,13 +249,16 @@ export const init = async () => {
 		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
 	}
 
-	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	if (!installedDependencies) {
+		Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	}
+
 	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run:');
 	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
 	Log.info('');
-	Log.info('Links to get you started:');
+	Log.info('See the documentation:');
 	Log.info(
 		' ' +
 			chalk.blue(
@@ -251,16 +266,6 @@ export const init = async () => {
 					text: 'remotion.dev/docs',
 					url: 'https://www.remotion.dev/docs',
 					fallback: 'https://www.remotion.dev/docs',
-				}),
-			),
-	);
-	Log.info(
-		' ' +
-			chalk.blue(
-				makeHyperlink({
-					text: 'remotion.dev/prompts',
-					url: 'https://www.remotion.dev/prompts',
-					fallback: 'https://www.remotion.dev/prompts',
 				}),
 			),
 	);
