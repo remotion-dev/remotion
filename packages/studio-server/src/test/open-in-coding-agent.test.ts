@@ -18,24 +18,40 @@ import {
 } from '../helpers/coding-agent-registry';
 
 test('constructs macOS coding agent launch commands', () => {
+	const chatGPT = {
+		applicationPath: '/Applications/ChatGPT.app',
+		id: 'codex',
+		launchMode: 'direct',
+		name: 'ChatGPT',
+		nameWithType: 'ChatGPT',
+		platform: 'darwin',
+		terminal: null,
+	} as const;
+
 	expect(
 		getCodingAgentLaunchCommand({
-			codingAgent: {
-				applicationPath: '/Applications/ChatGPT.app',
-				id: 'codex',
-				launchMode: 'direct',
-				name: 'Codex',
-				nameWithType: 'Codex',
-				platform: 'darwin',
-				terminal: null,
-			},
+			codingAgent: chatGPT,
 			projectPath: '/Users/test/My Project',
 		}),
 	).toEqual({
-		command: '/Applications/ChatGPT.app/Contents/Resources/codex',
-		args: ['app', '/Users/test/My Project'],
+		command: 'open',
+		args: ['codex://new?path=%2FUsers%2Ftest%2FMy+Project'],
 		cwd: null,
 	});
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: chatGPT,
+			projectPath: '/Users/test/My Project',
+			prompt: null,
+		}),
+	).toEqual([
+		{
+			command: 'open',
+			args: ['codex://new?path=%2FUsers%2Ftest%2FMy+Project'],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
 
 	expect(
 		getCodingAgentLaunchCommand({
@@ -181,8 +197,8 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 				applicationPath: '/Applications/ChatGPT.app',
 				id: 'codex',
 				launchMode: 'direct',
-				name: 'Codex',
-				nameWithType: 'Codex',
+				name: 'ChatGPT',
+				nameWithType: 'ChatGPT',
 				platform: 'darwin',
 				terminal: null,
 			},
