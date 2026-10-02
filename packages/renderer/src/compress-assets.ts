@@ -6,18 +6,14 @@
 import type {AudioOrVideoAsset} from 'remotion/no-react';
 
 export const compressAsset = (
-	previousRenderAssets:
-		| AudioOrVideoAsset[]
-		| ReadonlyMap<string, AudioOrVideoAsset>,
+	previousRenderAssets: ReadonlyMap<string, AudioOrVideoAsset>,
 	newRenderAsset: AudioOrVideoAsset,
 ): AudioOrVideoAsset => {
 	if (newRenderAsset.src.length < 400) {
 		return newRenderAsset;
 	}
 
-	const assetWithSameSrc = Array.isArray(previousRenderAssets)
-		? previousRenderAssets.find((a) => a.src === newRenderAsset.src)
-		: previousRenderAssets.get(newRenderAsset.src);
+	const assetWithSameSrc = previousRenderAssets.get(newRenderAsset.src);
 	if (!assetWithSameSrc) {
 		return newRenderAsset;
 	}
