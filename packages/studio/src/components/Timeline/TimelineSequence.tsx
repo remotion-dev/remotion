@@ -1393,7 +1393,7 @@ const TimelineSequenceInner: React.FC<{
 
 	const showRightBorderRadius =
 		visibleLayout?.rightEdgeVisible === true &&
-		(endsAtContainerBoundary || endsAtNaturalMediaDuration);
+		(s.autoDuration || endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
