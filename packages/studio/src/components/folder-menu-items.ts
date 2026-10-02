@@ -2,6 +2,7 @@ import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {copyText} from '../helpers/copy-text';
 import {
 	formatContextForAgents,
 	formatFileLocation,
@@ -87,7 +88,7 @@ export const getFolderMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+				copyText(contextForAgents).catch((err) => {
 					showNotification(
 						`Could not copy to clipboard: ${(err as Error).message}`,
 						1000,
@@ -111,8 +112,7 @@ export const getFolderMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard
-					.writeText(fileLocation)
+				copyText(fileLocation)
 					.then(() => {
 						showNotification('Copied file location to clipboard', 1000);
 					})
@@ -226,8 +226,7 @@ export const getFolderMenuItems = ({
 			leftItem: null,
 			onClick: () => {
 				closeMenu();
-				navigator.clipboard
-					.writeText(folderId)
+				copyText(folderId)
 					.then(() => {
 						showNotification('Copied to clipboard', 1000);
 					})

@@ -6,6 +6,7 @@ import type {
 } from '@remotion/studio-shared';
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {copyText} from '../../helpers/copy-text';
 import {formatContextForAgents} from '../../helpers/format-file-location';
 import {
 	getDefaultOpenInTarget,
@@ -120,6 +121,7 @@ const copyImageToClipboard = async (element: Element): Promise<void> => {
 };
 
 export const getMultiSequenceContextMenuItems = ({
+	getContextForAgents,
 	deleteDisabled,
 	duplicateDisabled,
 	splitDisabled,
@@ -127,6 +129,7 @@ export const getMultiSequenceContextMenuItems = ({
 	onDuplicateSelectedSequences,
 	onSplitSelectedSequences,
 }: {
+	readonly getContextForAgents: () => Promise<string | null>;
 	readonly deleteDisabled: boolean;
 	readonly duplicateDisabled: boolean;
 	readonly splitDisabled: boolean;
@@ -135,6 +138,11 @@ export const getMultiSequenceContextMenuItems = ({
 	readonly onSplitSelectedSequences: () => void;
 }): ComboboxValue[] => {
 	return [
+		getCopyContextForAgentsMenuItem({contextForAgents: getContextForAgents}),
+		{
+			type: 'divider',
+			id: 'copy-context-for-agents-divider',
+		},
 		{
 			type: 'item',
 			id: 'duplicate-selected-sequences',
@@ -404,8 +412,7 @@ export const getSequenceContextMenuItems = ({
 							return;
 						}
 
-						navigator.clipboard
-							.writeText(svg.outerHTML)
+						copyText(svg.outerHTML)
 							.then(() => {
 								showNotification('Copied SVG to clipboard', 1000);
 							})
