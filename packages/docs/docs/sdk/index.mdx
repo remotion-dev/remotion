@@ -118,6 +118,8 @@ export const Editor = () => {
 
 The timeline contains registered [`<Sequence>`](/docs/sequence) and other sequence tracks from the mounted composition. The Canvas does not edit source files or provide timeline controls; your interface owns those actions.
 
+For a timeline reorder gesture, [`getCanvasSequenceReorderSelection()`](/docs/sdk/get-canvas-sequence-reorder-selection) chooses the dragged sequence group. [`getCanvasSequenceReorderInsertionIndex()`](/docs/sdk/get-canvas-sequence-reorder-insertion-index) identifies valid drop positions. Persist the result with [`reorderNodes()`](/docs/codemods/reorder-nodes).
+
 ## Selection identity
 
 The built-in [`getCanvasSequenceNodePathInfo()`](/docs/sdk/get-canvas-sequence-node-path-info) uses a source identity when available. Otherwise it falls back to a mounted sequence ID, which can change after a remount.

@@ -1,5 +1,5 @@
-import {CanvasInternals} from '@remotion/sdk';
 import type {TimelineTrackData} from '@remotion/sdk';
+import {CanvasInternals} from '@remotion/sdk';
 import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {WaveformVolume} from '@remotion/timeline-utils';
 import React, {
@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import type {
 	_InternalTypes,
+	ResolvedStackLocation,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
@@ -38,6 +39,7 @@ import {getTimelineSequenceLayout} from '../../helpers/get-timeline-sequence-lay
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
+import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_LAYER_HEIGHT_AUDIO,
@@ -295,6 +297,7 @@ const TimelineSequenceNegativeStart = React.memo(
 
 const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
+	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly displayDurationInFrames: number;
 	readonly premount: {readonly left: number; readonly width: number} | null;
@@ -324,6 +327,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 }> = ({
 	s,
 	activeTrimEdge,
+	annotationLocation,
 	displayDurationInFrames,
 	premount,
 	postmount,
@@ -506,6 +510,11 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		<div
 			ref={ref}
 			role="group"
+			{...getSequenceAnnotationAttributes({
+				sequence: s,
+				location: annotationLocation,
+				surface: 'layer',
+			})}
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
 			aria-label={s.displayName}
@@ -1036,135 +1045,145 @@ const TimelineSequenceInner: React.FC<{
 		setPropStatuses,
 		validatedLocation?.source,
 	]);
-	const getContextMenuItems = useCallback(() => {
-		if (assetContextMenu !== null) {
-			return assetContextMenu;
-		}
+	const getContextMenuItems = useCallback(
+		(event: MouseEvent) => {
+			const contextMenuTarget =
+				event.target instanceof Element
+					? event.target.closest<HTMLElement>(`[${TIMELINE_MARQUEE_ITEM_ATTR}]`)
+					: null;
+			if (assetContextMenu !== null) {
+				return assetContextMenu;
+			}
 
-		if (selectable && !selected) {
-			onSelect({shiftKey: false, toggleKey: false});
-		}
+			if (selectable && !selected) {
+				onSelect({shiftKey: false, toggleKey: false});
+			}
 
-		if (selectedSequenceNodePathInfos !== null) {
-			return getMultiSequenceContextMenuItems({
-				getContextForAgents: () =>
-					getSequencesContextForAgents({
-						nodePathInfos: selectedSequenceNodePathInfos,
-						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-						sequences,
-					}),
-				deleteDisabled: !previewInteractive,
-				duplicateDisabled: !previewInteractive,
-				splitDisabled: !previewInteractive,
-				onDeleteSelectedSequences,
-				onDuplicateSelectedSequences,
-				onSplitSelectedSequences,
+			if (selectedSequenceNodePathInfos !== null) {
+				return getMultiSequenceContextMenuItems({
+					getContextForAgents: () =>
+						getSequencesContextForAgents({
+							nodePathInfos: selectedSequenceNodePathInfos,
+							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							sequences,
+						}),
+					deleteDisabled: !previewInteractive,
+					duplicateDisabled: !previewInteractive,
+					splitDisabled: !previewInteractive,
+					onDeleteSelectedSequences,
+					onDuplicateSelectedSequences,
+					onSplitSelectedSequences,
+				});
+			}
+
+			const splitMenuItem = getSequenceSplitMenuItem({
+				nodePathInfo,
+				sequence: s,
+				propStatuses: propStatusesForOverride,
+				splitFrame: getCurrentFrame(),
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
-		}
 
-		const splitMenuItem = getSequenceSplitMenuItem({
-			nodePathInfo,
-			sequence: s,
-			propStatuses: propStatusesForOverride,
-			splitFrame: getCurrentFrame(),
-			keyframeDisplayOffset,
-			keyframePlaybackRate,
-			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
-			hasMultipleSelection: selected && selectedItems.length > 1,
-		});
+			const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
+				clientId:
+					previewInteractive && previewServerState.type === 'connected'
+						? previewServerState.clientId
+						: null,
+				nodePath,
+				propStatusesForOverride,
+				sequence: s,
+				sequenceFrameOffset,
+				setPropStatuses,
+				timelinePosition: getCurrentFrame(),
+				validatedSource: validatedLocation?.source ?? null,
+			});
 
-		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
-			clientId:
-				previewInteractive && previewServerState.type === 'connected'
-					? previewServerState.clientId
-					: null,
-			nodePath,
-			propStatusesForOverride,
-			sequence: s,
-			sequenceFrameOffset,
-			setPropStatuses,
-			timelinePosition: getCurrentFrame(),
-			validatedSource: validatedLocation?.source ?? null,
-		});
-
-		return getSequenceContextMenuItems({
-			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
+			return getSequenceContextMenuItems(
+				{
+					assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
+					canOpenInEditor,
+					codingAgentInfo,
+					copyImageElement: null,
+					deleteDisabled,
+					disableInteractivityDisabled,
+					duplicateDisabled,
+					editorInfo,
+					includeSourceEditItems: isStudioInteractivityEnabled(),
+					isProgrammaticallyDuplicated,
+					onConfigureApps: canConfigureApps
+						? () => {
+								setSelectedModal({
+									type: 'settings',
+									initialStudioPane: null,
+									initialTab: 'apps',
+									initialPublicLicenseKey:
+										window.remotion_renderDefaults?.publicLicenseKey ?? null,
+								});
+							}
+						: null,
+					onDeleteSequenceFromSource,
+					onDisableSequenceInteractivity,
+					onDuplicateSequenceFromSource,
+					openInCodingAgent,
+					openInEditor,
+					originalLocation,
+					selectAsset,
+					sequence: s,
+					sourceActions: isStudioInteractivityEnabled()
+						? [
+								...(splitMenuItem ? [splitMenuItem] : []),
+								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+							]
+						: [],
+				},
+				contextMenuTarget,
+			);
+		},
+		[
+			assetContextMenu,
 			canOpenInEditor,
+			canConfigureApps,
 			codingAgentInfo,
-			copyImageElement: null,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
-			includeSourceEditItems: isStudioInteractivityEnabled(),
 			isProgrammaticallyDuplicated,
-			onConfigureApps: canConfigureApps
-				? () => {
-						setSelectedModal({
-							type: 'settings',
-							initialStudioPane: null,
-							initialTab: 'apps',
-							initialPublicLicenseKey:
-								window.remotion_renderDefaults?.publicLicenseKey ?? null,
-						});
-					}
-				: null,
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
+			mediaSrc,
+			nodePath,
+			nodePathInfo,
+			onSelect,
 			onDeleteSequenceFromSource,
+			onDeleteSelectedSequences,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
+			onDuplicateSelectedSequences,
+			onSplitSelectedSequences,
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
+			overrideIdToNodePathMappingsRef,
+			previewInteractive,
+			previewServerState,
+			propStatusesForOverride,
+			s,
 			selectAsset,
-			sequence: s,
-			sourceActions: isStudioInteractivityEnabled()
-				? [
-						...(splitMenuItem ? [splitMenuItem] : []),
-						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
-					]
-				: [],
-		});
-	}, [
-		assetContextMenu,
-		canOpenInEditor,
-		canConfigureApps,
-		codingAgentInfo,
-		deleteDisabled,
-		disableInteractivityDisabled,
-		duplicateDisabled,
-		editorInfo,
-		isProgrammaticallyDuplicated,
-		keyframeDisplayOffset,
-		keyframePlaybackRate,
-		mediaSrc,
-		nodePath,
-		nodePathInfo,
-		onSelect,
-		onDeleteSequenceFromSource,
-		onDeleteSelectedSequences,
-		onDisableSequenceInteractivity,
-		onDuplicateSequenceFromSource,
-		onDuplicateSelectedSequences,
-		onSplitSelectedSequences,
-		openInCodingAgent,
-		openInEditor,
-		originalLocation,
-		overrideIdToNodePathMappingsRef,
-		previewInteractive,
-		previewServerState,
-		propStatusesForOverride,
-		s,
-		selectAsset,
-		selectable,
-		selected,
-		selectedItems.length,
-		selectedSequenceNodePathInfos,
-		sequenceFrameOffset,
-		sequences,
-		setPropStatuses,
-		setSelectedModal,
-		validatedLocation?.source,
-	]);
+			selectable,
+			selected,
+			selectedItems.length,
+			selectedSequenceNodePathInfos,
+			sequenceFrameOffset,
+			sequences,
+			setPropStatuses,
+			setSelectedModal,
+			validatedLocation?.source,
+		],
+	);
 	const {frozenFrame} = s;
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
@@ -1462,6 +1481,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
+			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
 			displayDurationInFrames={displayDurationInFrames}
 			premount={visibleLayout.premount}
@@ -1482,7 +1502,8 @@ const TimelineSequenceInner: React.FC<{
 				<>
 					{(showLeftEdgeDragHandle || secondaryLeftEdgeAction) &&
 					visibleLayout.media?.offset === 0 &&
-					negativeStartWidth === 0 &&
+					// Keep the captured handle mounted when a trim crosses frame zero.
+					(negativeStartWidth === 0 || activeTrimEdge === 'left') &&
 					nodePathInfo &&
 					validatedLocation ? (
 						<div

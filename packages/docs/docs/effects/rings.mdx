@@ -22,13 +22,13 @@ It uses the same band controls as [`lines()`](/docs/effects/lines), but radiates
 
 ```tsx twoslash title="MyComp.tsx"
 import {rings} from '@remotion/effects/rings';
-import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
+import {Solid, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={1280}
         height={720}
@@ -42,7 +42,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

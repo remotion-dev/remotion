@@ -13,16 +13,16 @@ The [`<Audio />`](/docs/media/audio) and [`<Video />`](/docs/media/video) tags s
 Use them together to select a section of the source.
 
 ```tsx twoslash {8} title="MyComp.tsx"
-import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
+import {staticFile, useVideoConfig} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyComposition = () => {
   const {fps} = useVideoConfig();
 
   return (
-    <AbsoluteFill>
+    <>
       <Video src={staticFile('video.mp4')} trimBefore={2 * fps} durationInFrames={2 * fps} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

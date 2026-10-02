@@ -20,7 +20,7 @@ import {
 	renameComposition,
 	renameFolder,
 	reorderEffect,
-	reorderNode,
+	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences,
@@ -220,16 +220,16 @@ test('insert media and components, reorder copies, and delete nodes across files
 		(node) => node.filePath === filePath,
 	)!;
 	const afterDuplicate = applyCodemodChanges(afterAdd, duplicated.changes);
-	const reordered = await reorderNode({
+	const reordered = await reorderNodes({
 		project: afterDuplicate,
-		node: copiedTitle,
+		nodes: [copiedTitle],
 		target: added.insertedNode,
 		position: 'before',
 	});
 	const afterReorder = applyCodemodChanges(afterDuplicate, reordered.changes);
 	const updatedCopy = updateNodeProps({
 		project: afterReorder,
-		node: reordered.updatedNode,
+		node: reordered.updatedNodes[0],
 		props: {text: 'Copied title'},
 	});
 	expect(
@@ -576,9 +576,9 @@ test('reject unsupported expressions and invalid edits atomically', async () => 
 		}),
 	).rejects.toThrow();
 	await expect(
-		reorderNode({
+		reorderNodes({
 			project,
-			node,
+			nodes: [node],
 			target: findNode(project, 'Composition', compositionFile),
 			position: 'before',
 		}),

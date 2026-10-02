@@ -292,6 +292,22 @@ export const isHtmlInCanvasSupported = (): boolean => {
 	return cachedSupport;
 };
 
+const MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS = 157;
+
+export const isHtmlInCanvasNestingSupported = (): boolean => {
+	if (!isHtmlInCanvasSupported() || typeof navigator === 'undefined') {
+		return false;
+	}
+
+	const chromeVersion = navigator.userAgent.match(
+		/(?:Chrome|Chromium)\/(\d+)/,
+	)?.[1];
+	return (
+		chromeVersion !== undefined &&
+		Number(chromeVersion) >= MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS
+	);
+};
+
 /** Generic fallback for consumers that cannot inspect the current browser. */
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
 	'HTML in Canvas requires Chrome 149 or newer with Canvas Draw Element enabled at chrome://flags/#canvas-draw-element.';
@@ -480,9 +496,9 @@ const HtmlInCanvasContent = forwardRef<
 			HtmlInCanvasAncestorContext,
 		);
 		assertHtmlInCanvasDimensions(width, height);
-		if (isInsideAncestorHtmlInCanvas) {
+		if (isInsideAncestorHtmlInCanvas && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
-				'<HtmlInCanvas> components cannot be nested. Chrome does not reliably render nested HTML-in-canvas subtrees. Consider merging the effects into one <HtmlInCanvas> if you can.',
+				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`,
 			);
 		}
 
@@ -960,10 +976,12 @@ const HtmlInCanvasWrapped = withInteractivitySchema({
 
 export const HtmlInCanvas = Object.assign(HtmlInCanvasWrapped, {
 	isSupported: isHtmlInCanvasSupported,
+	isNestingSupported: isHtmlInCanvasNestingSupported,
 }) as React.ForwardRefExoticComponent<
 	HtmlInCanvasProps & React.RefAttributes<HTMLCanvasElement>
 > & {
 	readonly isSupported: typeof isHtmlInCanvasSupported;
+	readonly isNestingSupported: typeof isHtmlInCanvasNestingSupported;
 };
 
 HtmlInCanvas.displayName = 'HtmlInCanvas';

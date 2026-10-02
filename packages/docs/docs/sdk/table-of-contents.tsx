@@ -50,6 +50,14 @@ export const TableOfContents: React.FC = () => {
 					<strong>getCanvasSelectionItemKey()</strong>
 					<div>Compare selection items by identity</div>
 				</TOCItem>
+				<TOCItem link="/docs/sdk/get-canvas-sequence-reorder-selection">
+					<strong>getCanvasSequenceReorderSelection()</strong>
+					<div>Choose the sequence group when a drag starts</div>
+				</TOCItem>
+				<TOCItem link="/docs/sdk/get-canvas-sequence-reorder-insertion-index">
+					<strong>getCanvasSequenceReorderInsertionIndex()</strong>
+					<div>Locate a group drop in the sibling list</div>
+				</TOCItem>
 				<TOCItem link="/docs/sdk/get-canvas-keyframes">
 					<strong>getCanvasKeyframes()</strong>
 					<div>Place the keyframes of a prop on the timeline</div>

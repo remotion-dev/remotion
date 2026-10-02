@@ -21,18 +21,17 @@ The tint respects the source's alpha mask, so transparent regions are left untou
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {tint} from '@remotion/effects/tint';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[tint({color: '#1ec8ff', amount: 0.7})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

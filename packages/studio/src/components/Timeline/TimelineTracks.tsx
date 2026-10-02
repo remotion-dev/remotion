@@ -26,7 +26,7 @@ const TimelineTracksInner: React.FC<{
 	}, []);
 
 	return (
-		<div style={timelineStyle}>
+		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
 			<div style={{...content, height: tracksEnd}}>
 				{virtualItems.map((virtualItem) => (
 					<div

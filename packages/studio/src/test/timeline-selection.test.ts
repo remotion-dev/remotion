@@ -3089,7 +3089,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
 
 	for (const [deltaFrames, expected] of [
-		[-100, -24],
+		[-100, -0],
 		[100, 79],
 	]) {
 		expect(

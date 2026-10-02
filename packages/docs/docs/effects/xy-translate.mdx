@@ -21,18 +21,17 @@ It can be applied to components such as [`<Video>`](/docs/media/video), [`<HtmlI
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {xyTranslate} from '@remotion/effects/translate';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[xyTranslate({x: 120, y: 80})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

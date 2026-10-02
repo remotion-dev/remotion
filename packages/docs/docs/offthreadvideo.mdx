@@ -20,13 +20,13 @@ For new video usage, prefer [`<Video>`](/docs/media/video) from [`@remotion/medi
 ## Example
 
 ```tsx twoslash
-import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+import {OffthreadVideo, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -34,13 +34,13 @@ export const MyVideo = () => {
 You can load a video from an URL as well:
 
 ```tsx twoslash
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {OffthreadVideo} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo src="https://remotion.media/BigBuckBunny.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -69,14 +69,14 @@ The video will play the range from `00:02:00` to `00:04:00`, meaning the video w
 For exact behavior, see [Timing and trimming](/docs/timing).
 
 ```tsx twoslash
-import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+import {OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo src={staticFile('video.webm')} trimBefore={60} durationInFrames={60} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -112,27 +112,27 @@ If set to `false` (_default_), frames will be extracted as bitmap (BMP), which i
 Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/audio/volume) guide to learn how to use it.
 
 ```tsx twoslash title="Example using static volume"
-import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+import {OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo volume={0.5} src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
-import {AbsoluteFill, interpolate, staticFile, OffthreadVideo} from 'remotion';
+import {interpolate, staticFile, OffthreadVideo} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -150,14 +150,14 @@ Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"`
 You can pass any style you can pass to a native HTML element. Keep in mind that during rendering, `<OffthreadVideo>` renders an [`<Img>`](/docs/img) tag, but a `<video>` tag is used during preview.
 
 ```tsx twoslash
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img src={staticFile('video.webm')} style={{height: 720, width: 1280}} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -185,14 +185,14 @@ Controls the speed of the video. `1` is the default and means regular speed, `0.
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
 ```tsx twoslash title="Example of a video playing twice as fast"
-import {AbsoluteFill, OffthreadVideo, staticFile} from 'remotion';
+import {OffthreadVideo, staticFile} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo playbackRate={2} src={staticFile('video.webm')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -214,13 +214,13 @@ Accepts `true`, `false`, or `undefined`. Default: `true`, matching the browser d
 You can drop the audio of the video by adding a `muted` prop:
 
 ```tsx twoslash title="Example of a muted video"
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {OffthreadVideo} from 'remotion';
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo muted src="https://remotion.media/BigBuckBunny.mp4" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -255,14 +255,14 @@ Prior to Remotion 4.0.117, tone mapping was always disabled, and the `toneMapped
 Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
-import {AbsoluteFill, OffthreadVideo} from 'remotion';
+import {OffthreadVideo} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <OffthreadVideo audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

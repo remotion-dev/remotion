@@ -22,13 +22,13 @@ Use this component when you specifically need direct HTML5 audio behavior or fal
 [Put an audio file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -42,25 +42,25 @@ Selects this many source frames starting at `trimBefore`. The audio occupies `du
 Allows you to control the volume of the audio in it's entirety or frame by frame. Read the page on [using audio](/docs/using-audio) to learn more.
 
 ```tsx twoslash title="Setting a static volume"
-import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio volume={0.5} src={staticFile('background.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
 
 ```tsx twoslash title="Changing the volume over time"
-import {AbsoluteFill, Html5Audio, interpolate, staticFile} from 'remotion';
+import {Html5Audio, interpolate, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -85,13 +85,13 @@ By passing `durationInFrames={60}`, the audio plays for 60 source frames.
 The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio src={staticFile('audio.mp3')} trimBefore={60} durationInFrames={60} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -117,13 +117,13 @@ You can use the `playbackRate` prop to control the speed of the audio. `1` is th
 While Remotion doesn't limit the range of possible playback speeds, in development mode the [`HTMLMediaElement.playbackRate`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/playbackRate) API is used which throws errors on extreme values. At the time of writing, Google Chrome throws an exception if the playback rate is below `0.0625` or above `16`.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, staticFile} from 'remotion';
+import {Html5Audio, staticFile} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio src={staticFile('audio.mp3')} playbackRate={2} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -145,14 +145,14 @@ Accepts `true`, `false`, or `undefined`. Default: `true`, matching the browser d
 The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, staticFile, useCurrentFrame} from 'remotion';
+import {Html5Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio src={staticFile('audio.mp3')} muted={frame < 30} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -166,14 +166,14 @@ A name and that will be shown as the label of the sequence in the timeline of th
 You can use the `loop` prop to loop audio.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio, staticFile, useCurrentFrame} from 'remotion';
+import {Html5Audio, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio loop src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -191,14 +191,14 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 Select the audio stream to use. The default is `0`.
 
 ```tsx twoslash
-import {AbsoluteFill, Html5Audio} from 'remotion';
+import {Html5Audio} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Html5Audio audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

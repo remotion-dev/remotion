@@ -5,31 +5,40 @@ import {
 	getUpdatedNodeReference,
 	type NodeReference,
 } from './node-references';
-import {reorderSequence} from './reorder-sequence';
+import {reorderSequences} from './reorder-sequence';
 
-export type ReorderNodeOptions<Project extends CodemodProject> = {
+export type ReorderNodesOptions<Project extends CodemodProject> = {
 	project: Project;
-	node: NodeReference;
+	nodes: readonly NodeReference[];
 	target: NodeReference;
 	position: 'before' | 'after';
 };
 
-export const reorderNode = async <Project extends CodemodProject>({
+export const reorderNodes = async <Project extends CodemodProject>({
 	project,
-	node,
+	nodes,
 	target,
 	position,
-}: ReorderNodeOptions<Project>) => {
-	const filePath = findProjectFile({project, filePath: node.filePath});
-	if (filePath !== findProjectFile({project, filePath: target.filePath})) {
+}: ReorderNodesOptions<Project>) => {
+	if (nodes.length === 0) {
+		throw new Error('Expected at least one JSX node to reorder');
+	}
+
+	const filePath = findProjectFile({project, filePath: target.filePath});
+	if (
+		nodes.some(
+			(node) =>
+				filePath !== findProjectFile({project, filePath: node.filePath}),
+		)
+	) {
 		throw new Error(
 			'JSX nodes must be siblings in the same file to reorder them',
 		);
 	}
 
-	const edit = await reorderSequence({
+	const edit = await reorderSequences({
 		input: project.files[filePath],
-		sourceNodePath: node.nodePath,
+		sourceNodePaths: nodes.map((node) => node.nodePath),
 		targetNodePath: target.nodePath,
 		position,
 	});
@@ -44,6 +53,8 @@ export const reorderNode = async <Project extends CodemodProject>({
 				logLine: edit.logLine,
 			},
 		],
-		updatedNode: getUpdatedNodeReference({project, ...result, node}),
+		updatedNodes: nodes.map((node) =>
+			getUpdatedNodeReference({project, ...result, node}),
+		),
 	};
 };
