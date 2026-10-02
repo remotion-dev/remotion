@@ -32,13 +32,11 @@ const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	flexShrink: 0,
 	position: 'relative',
-	zIndex: 1,
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	position: 'absolute',
-	zIndex: 0,
 };
 
 const AudioWaveformInner: React.FC<{

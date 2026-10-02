@@ -64,6 +64,7 @@ import {
 import {TimelineEdgeHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
+import {TimelineSnapIndicatorProvider} from './TimelineSnapIndicator';
 import {
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
@@ -628,7 +629,9 @@ export const Timeline: React.FC = () => {
 	return (
 		<TimelineEdgeHighlightProvider>
 			<TimelineSequenceMediaDurationDragLimitsProvider>
-				<MemoizedTimelineInner />
+				<TimelineSnapIndicatorProvider>
+					<MemoizedTimelineInner />
+				</TimelineSnapIndicatorProvider>
 			</TimelineSequenceMediaDurationDragLimitsProvider>
 		</TimelineEdgeHighlightProvider>
 	);
