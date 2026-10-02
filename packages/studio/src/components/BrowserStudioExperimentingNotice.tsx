@@ -12,6 +12,7 @@ import {ModalButton} from './ModalButton';
 import {getMaxModalWidth, ModalContainer} from './ModalContainer';
 import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
+import {WarningTriangle} from './NewComposition/ValidationMessage';
 
 export const experimentalNoticeStorageKey =
 	'remotion-browser-studio-experimental-notice-acknowledged';
@@ -53,7 +54,7 @@ const buttonTextStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-export const BrowserStudioExperimentalNotice: React.FC = () => {
+export const BrowserStudioExperimentingNotice: React.FC = () => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [keyboardNavigation, setKeyboardNavigation] = useState(false);
 
@@ -83,32 +84,98 @@ export const BrowserStudioExperimentalNotice: React.FC = () => {
 				}
 			`}</style>
 			<ModalContainer
-				ariaLabel="Browser Studio is experimental"
+				ariaLabel="Before you start"
 				onEscape={onClose}
 				onOutsideClick={onClose}
 				panelStyle={panelStyle}
 			>
-				<ModalHeader title="Browser Studio is experimental" onClose={onClose} />
+				<ModalHeader title="Before you start" onClose={onClose} />
 				<div style={{padding: 16, minHeight: 0, overflowY: 'auto'}}>
 					<p style={{...bodyTextStyle, margin: '0 0 12px'}}>
-						This is a playground for trying Remotion’s editing features.
-						Projects aren’t saved between visits, and AI interaction isn’t
-						available here as it is in the{' '}
 						<a
 							className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-							href="https://www.remotion.dev/docs/studio"
+							href="https://remotion.dev/docs/studio/remotion-dev-new"
 							rel="noopener noreferrer"
 							style={linkStyle}
 							target="_blank"
 						>
-							regular Remotion Studio
-						</a>
-						.
+							remotion.dev/new
+						</a>{' '}
+						is a playground for experimenting with Remotion.
+					</p>
+					<p
+						style={{
+							...bodyTextStyle,
+							margin: '0 0 12px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+					>
+						<WarningTriangle
+							aria-hidden
+							style={{
+								width: 14,
+								height: 14,
+								flexShrink: 0,
+								fill: LIGHT_TEXT,
+							}}
+						/>
+						<span style={bodyTextStyle}>
+							Projects aren’t saved between visits.
+						</span>
+					</p>
+					<p
+						style={{
+							...bodyTextStyle,
+							margin: '0 0 12px',
+							display: 'flex',
+							alignItems: 'flex-start',
+							gap: 8,
+						}}
+					>
+						<WarningTriangle
+							aria-hidden
+							style={{
+								width: 14,
+								height: 14,
+								marginTop: 3.5,
+								flexShrink: 0,
+								fill: LIGHT_TEXT,
+							}}
+						/>
+						<span style={bodyTextStyle}>
+							You can’t edit code or use an agent.
+						</span>
+					</p>
+					<p
+						style={{
+							...bodyTextStyle,
+							margin: '0 0 12px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+					>
+						<WarningTriangle
+							aria-hidden
+							style={{
+								width: 14,
+								height: 14,
+								flexShrink: 0,
+								fill: LIGHT_TEXT,
+							}}
+						/>
+						<span style={bodyTextStyle}>
+							Only browser rendering is available.
+						</span>
 					</p>
 					<p style={{...bodyTextStyle, margin: 0}}>
 						To keep working on your project, use{' '}
-						<strong style={bodyTextStyle}>Download project</strong> and continue
-						locally.
+						<strong style={{...bodyTextStyle, fontWeight: 'bold'}}>
+							Download project
+						</strong>{' '}
+						and continue locally.
 					</p>
 				</div>
 				<ModalFooterContainer style={{minWidth: 0, flex: 'none'}}>
