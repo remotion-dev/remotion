@@ -16,7 +16,7 @@ type BasicCaptionsProps = InteractiveTransformProps &
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-const defaultCombineTokensWithinMilliseconds = 2000;
+const defaultCombineTokensWithinMilliseconds = 3000;
 const defaultWidth = 900;
 
 const basicCaptionsSchema = {
