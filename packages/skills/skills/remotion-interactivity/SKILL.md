@@ -141,6 +141,10 @@ animation as standalone compositions. Studio calls these **connected
 compositions**: they can be opened in their own timeline while sharing the same
 component implementation with the parent video.
 
+Define required styles and load fonts inside the component so it works without
+its parent. See
+[parent independence](../remotion-markup/connected-compositions.md#make-the-component-independent-of-its-parent).
+
 Register the same exported component reference that the parent renders. For the
 example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
 With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
