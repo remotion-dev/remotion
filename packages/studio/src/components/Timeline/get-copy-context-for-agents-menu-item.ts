@@ -20,18 +20,17 @@ export const getCopyContextForAgentsMenuItem = ({
 				return;
 			}
 
-			const copied =
+			copyText(
 				typeof contextForAgents === 'string'
-					? copyText(contextForAgents)
+					? contextForAgents
 					: contextForAgents().then((context) => {
 							if (!context) {
 								throw new Error('No source location found');
 							}
 
-							return copyText(context);
-						});
-
-			copied.catch((err) => {
+							return context;
+						}),
+			).catch((err) => {
 				showNotification(
 					`Could not copy to clipboard: ${(err as Error).message}`,
 					2000,
