@@ -165,7 +165,7 @@ export const init = async () => {
 			: await askTailwind()
 		: false;
 
-	const shouldInstallSkills = isYesFlagSelected() ? false : await askSkills();
+	const skillsInstallation = isYesFlagSelected() ? null : await askSkills();
 
 	const pkgManager = selectPackageManager();
 	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
@@ -208,8 +208,8 @@ export const init = async () => {
 		await getGitStatus(projectRoot);
 	}
 
-	if (shouldInstallSkills) {
-		await installSkills(projectRoot);
+	if (skillsInstallation !== null) {
+		await installSkills(projectRoot, skillsInstallation);
 	}
 
 	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
