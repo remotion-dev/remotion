@@ -1331,10 +1331,89 @@ const TimelineSequenceInner: React.FC<{
 	const parentSequence = sequences.find(
 		(candidate) => candidate.id === s.parent,
 	);
+	const parentStart = parentSequence
+		? getTimelineVisibleStart(parentSequence, sequences)
+		: 0;
 	const parentEnd = parentSequence
 		? getTimelineVisibleStart(parentSequence, sequences) +
 			getTimelineVisibleDuration(parentSequence, sequences)
 		: video.durationInFrames;
+	const frameIncrement =
+		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+	const mediaOutline = (() => {
+		if (
+			(s.type !== 'audio' && s.type !== 'video') ||
+			s.loopDisplay ||
+			s.frozenFrame !== null ||
+			s.frozenMediaFrame !== null ||
+			mediaMetadata === null ||
+			!Number.isFinite(mediaMetadata.duration) ||
+			naturalMediaDuration === null ||
+			!Number.isFinite(naturalMediaDuration) ||
+			!Number.isFinite(frameIncrement) ||
+			frameIncrement <= 0
+		) {
+			return null;
+		}
+
+		const playbackRate = s.playbackRate * s.sequencePlaybackRate;
+		const trimmedBefore = Math.max(0, mediaStartFrame / playbackRate);
+		const trimmedAfter = Math.max(
+			0,
+			naturalMediaDuration - displayDurationInFrames,
+		);
+		if (trimmedBefore < 0.5 && trimmedAfter < 0.5) {
+			return null;
+		}
+
+		const start = Math.max(parentStart, 0, s.from - trimmedBefore);
+		const end = Math.min(
+			parentEnd,
+			video.durationInFrames,
+			s.from + displayDurationInFrames + trimmedAfter,
+		);
+		const leftWidth = Math.max(0, s.from - start) * frameIncrement;
+		const rightStart = s.from + displayDurationInFrames;
+		const rightWidth = Math.max(0, end - rightStart) * frameIncrement;
+		if (leftWidth === 0 && rightWidth === 0) {
+			return null;
+		}
+
+		return (
+			<>
+				{leftWidth > 0 ? (
+					<div
+						aria-hidden="true"
+						style={{
+							position: 'absolute',
+							left: start * frameIncrement,
+							width: leftWidth,
+							height: getTimelineLayerHeight(s.type),
+							border: `2px solid ${WHITE}`,
+							borderRight: 0,
+							borderRadius: '2px 0 0 2px',
+							pointerEvents: 'none',
+						}}
+					/>
+				) : null}
+				{rightWidth > 0 ? (
+					<div
+						aria-hidden="true"
+						style={{
+							position: 'absolute',
+							left: rightStart * frameIncrement,
+							width: rightWidth,
+							height: getTimelineLayerHeight(s.type),
+							border: `2px solid ${WHITE}`,
+							borderLeft: 0,
+							borderRadius: '0 2px 2px 0',
+							pointerEvents: 'none',
+						}}
+					/>
+				) : null}
+			</>
+		);
+	})();
 	const endsAtContainerBoundary =
 		Math.ceil(s.from + displayDurationInFrames) >=
 		Math.ceil(Math.min(parentEnd, video.durationInFrames));
@@ -1447,11 +1526,9 @@ const TimelineSequenceInner: React.FC<{
 		: null;
 
 	if ((maxMediaDuration === null && !s.loopDisplay) || visibleLayout === null) {
-		return null;
+		return mediaOutline;
 	}
 
-	const frameIncrement =
-		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const mediaDisplayOffsetInFrames = visibleLayout.media
 		? visibleLayout.media.offset / frameIncrement
 		: 0;
@@ -1602,10 +1679,15 @@ const TimelineSequenceInner: React.FC<{
 		</TimelineSequenceCurrentFrame>
 	);
 
-	return previewConnected || window.remotion_isReadOnlyStudio ? (
-		<ContextMenu getItems={getContextMenuItems}>{sequence}</ContextMenu>
-	) : (
-		sequence
+	return (
+		<>
+			{mediaOutline}
+			{previewConnected || window.remotion_isReadOnlyStudio ? (
+				<ContextMenu getItems={getContextMenuItems}>{sequence}</ContextMenu>
+			) : (
+				sequence
+			)}
+		</>
 	);
 };
 
