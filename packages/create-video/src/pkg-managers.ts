@@ -80,6 +80,8 @@ export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'nub') {
 		return `nub install`;
 	}
+
+	throw new TypeError('unknown package manager');
 };
 
 const getStartCommand = (manager: PackageManager) => {

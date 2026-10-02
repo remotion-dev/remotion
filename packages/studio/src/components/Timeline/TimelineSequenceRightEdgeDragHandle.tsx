@@ -1211,7 +1211,11 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		const trimsMedia =
 			originalSequence.type === 'audio' || originalSequence.type === 'video';
-		if (trimBeforeOnly && !trimsMedia) {
+		if (
+			trimBeforeOnly &&
+			!trimsMedia &&
+			!isCascadingSequence(originalSequence)
+		) {
 			return null;
 		}
 
@@ -1285,10 +1289,11 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
 			const runtimeValues = controls.runtimeValues.getSnapshot();
-			const trimBeforeStatus = Internals.getPropStatusesCtx(
+			const sequencePropStatuses = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
-			)?.trimBefore;
+			);
+			const trimBeforeStatus = sequencePropStatuses?.trimBefore;
 			const ownTrimBefore =
 				trimBeforeStatus?.status === 'static' &&
 				typeof trimBeforeStatus.codeValue === 'number'
@@ -1300,7 +1305,12 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				sequence: originalSequence,
 				runtimeValues,
 			});
-			const runtimeDuration = runtimeValues.durationInFrames;
+			const durationStatus = sequencePropStatuses?.durationInFrames;
+			const runtimeDuration =
+				durationStatus?.status === 'static' &&
+				typeof durationStatus.codeValue === 'number'
+					? durationStatus.codeValue
+					: runtimeValues.durationInFrames;
 			targets.set(key, {
 				parentPlaybackRate: getParentSequencePlaybackRate(
 					originalSequence,
@@ -1567,6 +1577,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly cursor: string;
 	readonly trimBeforeCursor: string;
 	readonly edgeEnabled: boolean;
+	readonly edgeMode: 'ripple' | 'source-only';
 	readonly secondaryAction: 'source-only' | 'self-trim' | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
@@ -1584,6 +1595,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	cursor,
 	trimBeforeCursor,
 	edgeEnabled,
+	edgeMode,
 	secondaryAction,
 	nodePathInfo,
 	windowWidth,
@@ -2041,7 +2053,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		...baseStyle,
 		left: -LEFT_EDGE_HANDLE_OUTSET,
 		width: `calc(${LEFT_EDGE_HANDLE_OUTSET}px + min(${LEFT_EDGE_HANDLE_INSET}px, 12.5%))`,
-		cursor,
+		cursor: edgeMode === 'source-only' ? trimBeforeCursor : cursor,
 		background: TRANSPARENT,
 		pointerEvents: 'auto',
 	};
@@ -2060,7 +2072,12 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 				<div
 					role="separator"
 					aria-orientation="vertical"
-					aria-label="Drag to trim start"
+					aria-label={
+						edgeMode === 'source-only'
+							? 'Drag to adjust source start'
+							: 'Drag to trim start'
+					}
+					data-trim-mode={edgeMode}
 					style={edgeStyle}
 					onPointerDown={onPointerDown}
 					onClick={(e) => e.stopPropagation()}
