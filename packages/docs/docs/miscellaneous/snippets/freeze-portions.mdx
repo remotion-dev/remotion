@@ -13,7 +13,17 @@ import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const CounterInner: React.FC<{style?: React.CSSProperties}> = ({style}) => {
   return (
-    <div className="flex h-full justify-center items-center text-6xl" style={style}>
+    <div
+      style={{
+        alignItems: 'center',
+        color: 'white',
+        display: 'flex',
+        fontSize: 60,
+        height: '100%',
+        justifyContent: 'center',
+        ...style,
+      }}
+    >
       {useCurrentFrame()}
     </div>
   );
