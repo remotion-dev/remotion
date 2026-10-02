@@ -371,6 +371,7 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 			logLevel: params.logLevel,
 			isStill: true,
 			isProduction: params.isProduction ?? true,
+			idempotencyKey: `cloud-still:${bucketName}:${renderId}`,
 		}),
 	]);
 
