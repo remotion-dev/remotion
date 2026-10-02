@@ -79,7 +79,7 @@ export const FreezePortion: React.FC = () => {
 
   const from = useMemo(() => {
     if (activeFreeze) {
-      return 0;
+      return activeFreeze.from;
     }
 
     if (nextFreeze) {
