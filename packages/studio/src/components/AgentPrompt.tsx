@@ -66,10 +66,11 @@ const skillRowContainer: React.CSSProperties = {
 const skillError: React.CSSProperties = {marginTop: 10};
 
 export const AgentPrompt: React.FC<{
+	readonly action: React.ReactNode;
 	readonly availableText: string;
 	readonly promptDetails: string;
 	readonly skillId: string;
-}> = ({availableText, promptDetails, skillId}) => {
+}> = ({action, availableText, promptDetails, skillId}) => {
 	const {codingAgentInfo, remotionSkillsInfo, skillActionError} = useSettings();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const skill = remotionSkillsInfo?.skills.find(({name}) => name === skillId);
@@ -150,14 +151,15 @@ export const AgentPrompt: React.FC<{
 						? availableText
 						: `Then ${availableText.toLowerCase()}`}
 				</div>
-				{hasCodingAgent ? (
-					<CodingAgentButton
-						label="Open in"
-						prompt={prompt}
-						size="compact"
-						style={null}
-					/>
-				) : null}
+				{action ??
+					(hasCodingAgent ? (
+						<CodingAgentButton
+							label="Open in"
+							prompt={prompt}
+							size="compact"
+							style={null}
+						/>
+					) : null)}
 			</div>
 			<div style={commandField}>
 				<pre style={code}>
