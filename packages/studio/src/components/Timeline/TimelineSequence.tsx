@@ -114,7 +114,7 @@ const NEGATIVE_START_BORDER_WIDTH = 1;
 const EDGE_DRAG_HIGHLIGHT_WIDTH = 12;
 const MIN_SECONDARY_LEFT_EDGE_ACTION_WIDTH = 32;
 
-type TimelineEdgeHighlightEdge = 'left' | 'right';
+type TimelineEdgeHighlightEdge = 'left' | 'right' | 'source-only';
 
 type TimelineEdgeHighlight = {
 	readonly nodePathKey: string;
@@ -616,8 +616,10 @@ const TimelineSequenceInner: React.FC<{
 		() => createDragAwareDoubleClickTracker(),
 		[],
 	);
-	const [activeTrimEdge, setActiveTrimEdge] =
+	const [activeEdgeHighlight, setActiveEdgeHighlight] =
 		useState<TimelineEdgeHighlightEdge | null>(null);
+	const activeTrimEdge =
+		activeEdgeHighlight === 'source-only' ? 'left' : activeEdgeHighlight;
 	useEffect(() => {
 		if (!nodePath) {
 			return;
@@ -625,7 +627,7 @@ const TimelineSequenceInner: React.FC<{
 
 		return edgeHighlightController?.register(
 			stringifySequenceSubscriptionKey(nodePath),
-			setActiveTrimEdge,
+			setActiveEdgeHighlight,
 		);
 	}, [edgeHighlightController, nodePath]);
 	const cascadingSequenceComponentIdentity = isCascadingSequence(s)
@@ -653,7 +655,7 @@ const TimelineSequenceInner: React.FC<{
 	}, [cascadingSequenceComponentIdentity, s.id, s.parent, sequences]);
 	const startEdgeDrag = useCallback(
 		(
-			edge: 'left' | 'right',
+			edge: TimelineEdgeHighlightEdge,
 			highlightAdjacent: boolean,
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
 		) => {
@@ -705,7 +707,12 @@ const TimelineSequenceInner: React.FC<{
 		(
 			mode: 'ripple' | 'source-only' | 'self-trim',
 			targetNodePaths: readonly SequencePropsSubscriptionKey[],
-		) => startEdgeDrag('left', mode === 'ripple', targetNodePaths),
+		) =>
+			startEdgeDrag(
+				mode === 'source-only' ? 'source-only' : 'left',
+				mode === 'ripple',
+				targetNodePaths,
+			),
 		[startEdgeDrag],
 	);
 	const startRightEdgeDrag = useCallback(
@@ -1350,10 +1357,99 @@ const TimelineSequenceInner: React.FC<{
 	const parentSequence = sequences.find(
 		(candidate) => candidate.id === s.parent,
 	);
+	const parentStart = parentSequence
+		? getTimelineVisibleStart(parentSequence, sequences)
+		: 0;
 	const parentEnd = parentSequence
-		? getTimelineVisibleStart(parentSequence, sequences) +
-			getTimelineVisibleDuration(parentSequence, sequences)
+		? parentStart + getTimelineVisibleDuration(parentSequence, sequences)
 		: video.durationInFrames;
+	const frameIncrement =
+		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+	const isMedia = s.type === 'audio' || s.type === 'video';
+	const trimOutline = (() => {
+		if (
+			activeEdgeHighlight === null ||
+			activeEdgeHighlight === 'source-only' ||
+			s.loopDisplay ||
+			s.frozenFrame !== null ||
+			!Number.isFinite(frameIncrement) ||
+			frameIncrement <= 0
+		) {
+			return null;
+		}
+
+		if (isMedia && s.frozenMediaFrame !== null) {
+			return null;
+		}
+
+		const trimmedBefore = Math.max(
+			0,
+			isMedia
+				? mediaStartFrame / (s.playbackRate * s.sequencePlaybackRate)
+				: (s.trimBefore ?? 0) / s.sequencePlaybackRate,
+		);
+		const trimmedAfter =
+			isMedia &&
+			naturalMediaDuration !== null &&
+			Number.isFinite(naturalMediaDuration)
+				? Math.max(0, naturalMediaDuration - displayDurationInFrames)
+				: 0;
+		if (!Number.isFinite(trimmedBefore)) {
+			return null;
+		}
+
+		if (trimmedBefore < 0.5 && trimmedAfter < 0.5) {
+			return null;
+		}
+
+		const start = Math.max(parentStart, 0, s.from - trimmedBefore);
+		const end = Math.min(
+			parentEnd,
+			video.durationInFrames,
+			s.from + displayDurationInFrames + trimmedAfter,
+		);
+		const leftWidth = Math.max(0, s.from - start) * frameIncrement;
+		const rightStart = s.from + displayDurationInFrames;
+		const rightWidth = Math.max(0, end - rightStart) * frameIncrement;
+		if (leftWidth === 0 && rightWidth === 0) {
+			return null;
+		}
+
+		return (
+			<>
+				{leftWidth > 0 ? (
+					<div
+						aria-hidden="true"
+						style={{
+							position: 'absolute',
+							left: start * frameIncrement,
+							width: leftWidth,
+							height: getTimelineLayerHeight(s.type),
+							border: `2px solid ${WHITE}`,
+							borderRight: 0,
+							borderRadius: '2px 0 0 2px',
+							pointerEvents: 'none',
+						}}
+					/>
+				) : null}
+				{rightWidth > 0 ? (
+					<div
+						aria-hidden="true"
+						style={{
+							position: 'absolute',
+							left: rightStart * frameIncrement,
+							width: rightWidth,
+							height: getTimelineLayerHeight(s.type),
+							border: `2px solid ${WHITE}`,
+							borderLeft: 0,
+							borderRadius: '0 2px 2px 0',
+							pointerEvents: 'none',
+						}}
+					/>
+				) : null}
+			</>
+		);
+	})();
 	const endsAtContainerBoundary =
 		Math.ceil(s.from + displayDurationInFrames) >=
 		Math.ceil(Math.min(parentEnd, video.durationInFrames));
@@ -1370,7 +1466,6 @@ const TimelineSequenceInner: React.FC<{
 		Number.isFinite(durationInFramesCodeValue)
 			? durationInFramesCodeValue
 			: null;
-	const isMedia = s.type === 'audio' || s.type === 'video';
 	const mediaDurationDragLimits = isMedia
 		? getTimelineSequenceMediaDurationDragLimits({
 				cascadedStart,
@@ -1442,17 +1537,19 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation !== null &&
 		durationCanResize &&
 		(!isMedia || Boolean(s.loopDisplay) || mediaDurationDragLimits !== null);
+	const isFirstCascadingSequence =
+		isCascadingSequence(s) && adjacentCascadingSequences.previous === null;
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(adjacentCascadingSequences.previous
-			? previousCascadingSequenceCanResize
-			: (isCascadingSequence(s) || fromCanUpdate) &&
-				durationCanUpdate &&
-				trimBeforeCanUpdate);
+		(isFirstCascadingSequence
+			? trimBeforeCanUpdate
+			: adjacentCascadingSequences.previous
+				? previousCascadingSequenceCanResize
+				: fromCanUpdate && durationCanUpdate && trimBeforeCanUpdate);
 	const canShowSecondaryLeftEdgeAction =
-		(isMedia || isCascadingSequence(s)) &&
+		(isMedia || (isCascadingSequence(s) && !isFirstCascadingSequence)) &&
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
@@ -1466,11 +1563,9 @@ const TimelineSequenceInner: React.FC<{
 		: null;
 
 	if ((maxMediaDuration === null && !s.loopDisplay) || visibleLayout === null) {
-		return null;
+		return trimOutline;
 	}
 
-	const frameIncrement =
-		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const mediaDisplayOffsetInFrames = visibleLayout.media
 		? visibleLayout.media.offset / frameIncrement
 		: 0;
@@ -1520,6 +1615,7 @@ const TimelineSequenceInner: React.FC<{
 								cursor={`${timelineTrimEdgeCursor}, ew-resize`}
 								trimBeforeCursor={`${timelineLeftEdgeCursor}, e-resize`}
 								edgeEnabled={showLeftEdgeDragHandle}
+								edgeMode={isFirstCascadingSequence ? 'source-only' : 'ripple'}
 								secondaryAction={secondaryLeftEdgeAction}
 								nodePathInfo={nodePathInfo}
 								windowWidth={windowWidth}
@@ -1623,10 +1719,15 @@ const TimelineSequenceInner: React.FC<{
 		</TimelineSequenceCurrentFrame>
 	);
 
-	return previewConnected || window.remotion_isReadOnlyStudio ? (
-		<ContextMenu getItems={getContextMenuItems}>{sequence}</ContextMenu>
-	) : (
-		sequence
+	return (
+		<>
+			{trimOutline}
+			{previewConnected || window.remotion_isReadOnlyStudio ? (
+				<ContextMenu getItems={getContextMenuItems}>{sequence}</ContextMenu>
+			) : (
+				sequence
+			)}
+		</>
 	);
 };
 
