@@ -9,7 +9,7 @@ import {
   type CanvasKeyframeDragTarget,
   type CanvasKeyframeEasingSegment,
   type CanvasSelectionInteraction,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { getNodeProps } from "@remotion/codemods";
 import {
   ChevronDownIcon,

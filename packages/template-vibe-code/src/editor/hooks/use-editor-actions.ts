@@ -9,7 +9,7 @@ import {
   type CanvasSelectionInteraction,
   type CanvasSequencePropChange,
   type SequenceNodePathInfo,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import {
   addComposition,
   addElement,

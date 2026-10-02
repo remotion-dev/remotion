@@ -1,5 +1,5 @@
-import {CanvasInternals} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,

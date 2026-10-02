@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';

@@ -1,0 +1,153 @@
+---
+image: /generated/articles-docs-sdk-index.png
+sidebar_label: Overview
+title: '@remotion/sdk'
+crumb: '@remotion/sdk'
+---
+
+# @remotion/sdk<AvailableFrom v="4.0.527" />
+
+Build a composition preview and layer list for a Remotion authoring interface. The package combines [`<Player>`](/docs/player/player) playback with registered sequence data, selection, and synchronized hover.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+## Installation
+
+<Installation pkg="@remotion/sdk" />
+
+Install [`@remotion/player`](/docs/player/installation) as well. Keep the Remotion packages on the same version.
+
+## Basic example
+
+Pass the same controller to [`<Canvas>`](/docs/sdk/canvas) and your layer list. `showOutlines` enables hover and selection on the composition.
+
+```tsx title="Editor.tsx"
+import {
+  Canvas,
+  getCanvasSelectionItemKey,
+  getCanvasSequenceNodePathInfo,
+  useCanvasController,
+  useCanvasSelection,
+  useCanvasSequenceHover,
+  type CanvasSelectionItem,
+  type TimelineTrackData,
+} from '@remotion/sdk';
+import {useSyncExternalStore} from 'react';
+import {Video} from './Video';
+
+const Layer = ({
+  track,
+  controller,
+  items,
+  selectedKeys,
+}: {
+  track: TimelineTrackData;
+  controller: ReturnType<typeof useCanvasController>;
+  items: CanvasSelectionItem[];
+  selectedKeys: Set<string>;
+}) => {
+  const nodePathInfo = getCanvasSequenceNodePathInfo(track);
+  const item: CanvasSelectionItem = {type: 'sequence', nodePathInfo};
+  const key = getCanvasSelectionItemKey(item);
+  const {hovered, onPointerEnter, onPointerLeave} = useCanvasSequenceHover(
+    controller.hover,
+    nodePathInfo,
+    'timeline',
+  );
+
+  return (
+    <button
+      aria-pressed={selectedKeys.has(key)}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onClick={(event) => controller.selection.select(
+        item,
+        {shiftKey: event.shiftKey, toggleKey: event.metaKey || event.ctrlKey},
+        items,
+      )}
+    >
+      {hovered ? '● ' : ''}{track.sequence.displayName ?? track.sequence.type}
+    </button>
+  );
+};
+
+export const Editor = () => {
+  const controller = useCanvasController();
+  const tracks = useSyncExternalStore(
+    controller.timeline.subscribe,
+    controller.timeline.getSnapshot,
+    controller.timeline.getSnapshot,
+  );
+  const selection = useCanvasSelection(controller.selection);
+  const items: CanvasSelectionItem[] = tracks.map((track) => ({
+    type: 'sequence',
+    nodePathInfo: getCanvasSequenceNodePathInfo(track),
+  }));
+  const selectedKeys = new Set(selection.selectedItems.map(getCanvasSelectionItemKey));
+
+  return (
+    <>
+      <Canvas
+        controller={controller}
+        showOutlines
+        component={Video}
+        compositionWidth={1920}
+        compositionHeight={1080}
+        durationInFrames={150}
+        fps={30}
+      />
+      <div>
+        {tracks.map((track) => (
+          <Layer
+            key={track.sequence.id}
+            track={track}
+            controller={controller}
+            items={items}
+            selectedKeys={selectedKeys}
+          />
+        ))}
+      </div>
+    </>
+  );
+};
+```
+
+The timeline contains registered [`<Sequence>`](/docs/sequence) and other sequence tracks from the mounted composition. The Canvas does not edit source files or provide timeline controls; your interface owns those actions.
+
+## Selection identity
+
+The built-in [`getCanvasSequenceNodePathInfo()`](/docs/sdk/get-canvas-sequence-node-path-info) uses a source identity when available. Otherwise it falls back to a mounted sequence ID, which can change after a remount.
+
+If your editor has the source code, register the source node of each sequence with [`setSequenceNodePaths()`](/docs/sdk/create-canvas-controller#setsequencenodepaths). For projects compiled with [`@remotion/browser-bundler`](/docs/browser-bundler), [`getCanvasSequenceSourceLocation()`](/docs/sdk/get-canvas-sequence-source-location) returns the file and position of each sequence's JSX element, which [`getNodes()`](/docs/codemods/get-nodes) maps to a node path. Alternatively, pass a custom `resolveSequenceNodePathInfo` to `<Canvas>` and use the same resolver for layer items. Return `null` for tracks that should not be selectable.
+
+An outline requires a registered DOM element. A `<Sequence layout="none">` has no outline of its own.
+
+## Editing
+
+The Canvas exposes the [`controls`](/docs/sdk/create-canvas-controller#sequencecontrols) of each mounted element: its interactivity schema and current prop values. Use them to build an inspector, and write changes to the source with [`@remotion/codemods`](/docs/codemods).
+
+While a value is being dragged, [`controller.overrides`](/docs/sdk/create-canvas-controller#overrides) previews it on the canvas immediately. Persist the final value when the gesture ends, then clear the override.
+
+Pass [`onSequencePropsChange`](/docs/sdk/canvas#onsequencepropschange) to `<Canvas>` to let users move elements by dragging their outlines or pressing the arrow keys. The Canvas previews the movement itself and reports the final `style.translate` values to the callback. With [`getSequencePropStatuses`](/docs/sdk/canvas#getsequencepropstatuses), it respects how the source is written: computed values cannot be moved and keyframed values receive a keyframe.
+
+## Keyframes<AvailableFrom v="4.0.530" />
+
+Props animated with `interpolate()` are reported as `keyframed` by [`getNodeProps()`](/docs/codemods/get-node-props). The package converts between the frame clock of the interpolation and the composition timeline, so a timeline can show and edit those keyframes like the Remotion Studio does.
+
+[`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes) places the keyframes of a prop on the timeline. [`getCanvasKeyframeToggle()`](/docs/sdk/get-canvas-keyframe-toggle) describes a keyframe button at the playhead and returns the change that adds or removes a keyframe there, while [`getCanvasPropValueAtFrame()`](/docs/sdk/get-canvas-prop-value-at-frame) reads the animated value for an inspector. [`startCanvasKeyframeDrag()`](/docs/sdk/start-canvas-keyframe-drag) moves keyframes with the pointer, previewing the result through `controller.overrides`. Every edit is a `CanvasKeyframeChange` whose `operation` you pass to [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes).
+
+Between two keyframes, [`getCanvasKeyframeEasingSegments()`](/docs/sdk/get-canvas-keyframe-easing-segments) describes the segments a timeline can draw and select, and [`getCanvasKeyframeEasingChange()`](/docs/sdk/get-canvas-keyframe-easing-change) sets the easing of one, with `canvasKeyframeEasingPresets` for a picker. [`getCanvasKeyframeSettings()`](/docs/sdk/get-canvas-keyframe-settings) and [`getCanvasKeyframeSettingsChange()`](/docs/sdk/get-canvas-keyframe-settings-change) read and write the extrapolation, `output` mode and `posterize` of the interpolation. [`getCanvasKeyframeChangeOverride()`](/docs/sdk/get-canvas-keyframe-change-override) turns any change into an override, so the canvas shows it before the source is updated.
+
+## APIs
+
+import {TableOfContents} from './table-of-contents';
+
+<TableOfContents />
+
+## License
+
+[Remotion License](/docs/license)

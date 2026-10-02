@@ -3,7 +3,7 @@
 import type {
   CanvasSequencePropChange,
   CanvasSequencePropStatusResolver,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH } from "@/lib/base-path";
 import type { PreviewHost, PreviewKeyEvent } from "@/preview/bridge";

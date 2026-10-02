@@ -127,7 +127,7 @@ Node and registration mutations return `nodePathRemappings`. Each entry contains
 
 Use `insertedNode`, `insertedNodes`, or `updatedNode` when returned instead of trying to reconstruct a path. Adding hooks, duplicating elements, changing wrappers, or moving registrations can move other nodes as well. After manual source changes, discover nodes again.
 
-Editors that keep mounted sequences attached to their source nodes, such as [`<Canvas>`](/docs/canvas/canvas), accept these mappings through [`queueSequenceNodePathRemappings()`](/docs/canvas/create-canvas-controller#queuesequencenodepathremappings).
+Editors that keep mounted sequences attached to their source nodes, such as [`<Canvas>`](/docs/sdk/canvas), accept these mappings through [`queueSequenceNodePathRemappings()`](/docs/sdk/create-canvas-controller#queuesequencenodepathremappings).
 
 ## Effect references<AvailableFrom v="4.0.528" />
 

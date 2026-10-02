@@ -2,7 +2,7 @@ import {
 	getCanvasKeyframeSettings,
 	getCanvasKeyframeSettingsChange,
 	type CanvasKeyframeSettings,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,

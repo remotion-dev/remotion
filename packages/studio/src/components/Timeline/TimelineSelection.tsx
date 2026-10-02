@@ -2,12 +2,12 @@ import type {
 	CanvasSelectionInteraction,
 	CanvasSelectionItem,
 	CanvasSelectionSnapshot,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import {
 	CanvasInternals,
 	getCanvasSelectionItemKey,
 	useCanvasSelection,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import {
 	stringifySequenceExpandedRowKey,
 	type SequenceNodePathMutation,

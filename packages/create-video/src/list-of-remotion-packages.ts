@@ -10,7 +10,7 @@ export const listOfRemotionPackages = [
 	'@remotion/bundler',
 	'@remotion/browser-bundler',
 	'@remotion/browser-studio',
-	'@remotion/canvas',
+	'@remotion/sdk',
 	'@remotion/claude-code-plugin',
 	'@remotion/cli',
 	'@remotion/cloudrun',

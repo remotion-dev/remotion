@@ -1,6 +1,6 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 
-export type {PointerSessionEndReason} from '@remotion/canvas';
+export type {PointerSessionEndReason} from '@remotion/sdk';
 
 export const {
 	isPointerSessionRelease,
