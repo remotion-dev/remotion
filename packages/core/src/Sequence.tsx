@@ -16,7 +16,7 @@ import type {
 } from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {getStackForControls} from './enable-sequence-stack-traces.js';
-import {Freeze} from './freeze.js';
+import {Freeze, useIsInsideNonPremountFreeze} from './freeze.js';
 import {getSequenceBoundaryTolerance} from './get-sequence-boundary-tolerance.js';
 import {
 	sequenceSchema,
@@ -553,6 +553,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const controlsComponentIdentity = controls?.componentIdentity;
 	const controlsComponentName = controls?.componentName;
 	const controlsVideoConfigValues = controls?.videoConfigValues;
+	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
+	const autoDuration =
+		controlsComponentIdentity === 'dev.remotion.remotion.Series' &&
+		durationInFrames === undefined &&
+		!loop &&
+		registeredFrozenFrame === null &&
+		!isInsideNonPremountFreeze &&
+		!hidden;
 	const effectRuntimeValues = useMemo(
 		() =>
 			(
@@ -664,6 +672,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			sequencePlaybackRate: playbackRate,
 			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
+			...(autoDuration ? {autoDuration: true} : {}),
 			id,
 			displayName: timelineClipName,
 			documentationLink: resolvedDocumentationLink,
@@ -689,6 +698,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		parentSequence?.id,
 		actualDurationInFrames,
+		autoDuration,
 		from,
 		registeredTrimBefore,
 		showInTimeline,

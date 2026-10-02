@@ -987,7 +987,12 @@ export const getTimelineSequenceDurationDragTargets = ({
 			);
 			const initialDuration = mediaDurationDragLimits
 				? mediaDurationDragLimits.initialDuration * track.keyframePlaybackRate
-				: originalSequence.duration;
+				: originalSequence.autoDuration
+					? (track.sequence.from +
+							track.sequence.duration -
+							track.cascadedStart) *
+						track.keyframePlaybackRate
+					: originalSequence.duration;
 			const constrainedMaximumDuration = Math.min(
 				mediaDurationDragLimits
 					? mediaDurationDragLimits.maximumDuration * track.keyframePlaybackRate
@@ -1185,10 +1190,14 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					sequences,
 				),
 				fileName: nodePath.absolutePath,
-				initialDuration:
-					isSeriesSequence(originalSequence) ||
-					typeof runtimeDuration !== 'number' ||
-					!Number.isFinite(runtimeDuration)
+				initialDuration: originalSequence.autoDuration
+					? (track.sequence.from +
+							track.sequence.duration -
+							track.cascadedStart) *
+						track.keyframePlaybackRate
+					: isSeriesSequence(originalSequence) ||
+						  typeof runtimeDuration !== 'number' ||
+						  !Number.isFinite(runtimeDuration)
 						? originalSequence.duration
 						: runtimeDuration / playbackRate,
 				initialFrom: positionField === 'from' ? originalSequence.from : 0,

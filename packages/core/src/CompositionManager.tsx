@@ -128,6 +128,8 @@ export type TSequence = {
 	from: number;
 	trimBefore: number | null;
 	duration: number;
+	/** Infer the timeline display duration from children without changing playback. */
+	readonly autoDuration?: boolean | null;
 	id: string;
 	displayName: string;
 	documentationLink: string | null;

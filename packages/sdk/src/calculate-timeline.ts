@@ -17,6 +17,7 @@ type SequenceTiming = {
 	loopOwner: TSequence | null;
 	mediaIterationStart: number;
 	hasConnectedCompositionAncestor: boolean;
+	isFrozen: boolean;
 };
 
 export const calculateTimeline = ({
@@ -101,6 +102,20 @@ export const calculateTimeline = ({
 	const sequencesById = new Map(
 		sortedSequences.map((sequence) => [sequence.id, sequence]),
 	);
+	const childrenByParentId = new Map<string, TSequence[]>();
+	for (const sequence of sortedSequences) {
+		if (sequence.parent === null) {
+			continue;
+		}
+
+		const siblings = childrenByParentId.get(sequence.parent);
+		if (siblings) {
+			siblings.push(sequence);
+		} else {
+			childrenByParentId.set(sequence.parent, [sequence]);
+		}
+	}
+
 	const timingsById = new Map<string, SequenceTiming>();
 	const getTiming = (sequence: TSequence): SequenceTiming => {
 		const cached = timingsById.get(sequence.id);
@@ -163,6 +178,8 @@ export const calculateTimeline = ({
 				? connectedCompositionsBySequenceId.has(parent.id) ||
 					parentTiming!.hasConnectedCompositionAncestor
 				: false,
+			isFrozen:
+				sequence.frozenFrame !== null || (parentTiming?.isFrozen ?? false),
 		};
 		timingsById.set(sequence.id, timing);
 		return timing;
@@ -184,6 +201,26 @@ export const calculateTimeline = ({
 		} = timing;
 		const cascadedStartWithTrim =
 			cascadedStart - (sequence.trimBefore ?? 0) / sequencePlaybackRate;
+		let displayDuration = visibleDuration;
+		if (
+			sequence.autoDuration &&
+			!timing.isFrozen &&
+			timing.loopOwner === null
+		) {
+			// Keep runtime timings intact: capping the parent would change child
+			// clocks and mounting. Only the container's displayed bar is shortened.
+			let end = visibleStart;
+			for (const child of childrenByParentId.get(sequence.id) ?? []) {
+				end = Math.max(
+					end,
+					getTiming(child).cascadedStart +
+						child.duration / sequencePlaybackRate,
+				);
+			}
+
+			displayDuration = Math.min(visibleDuration, end - visibleStart);
+		}
+
 		let loopDisplay: TimelineLoopDisplay | undefined;
 		if (
 			sequence.loopDisplay ||
@@ -240,7 +277,7 @@ export const calculateTimeline = ({
 					sequence.postmountDisplay === null
 						? null
 						: sequence.postmountDisplay / parentPlaybackRate,
-				duration: visibleDuration,
+				duration: displayDuration,
 				loopDisplay,
 			},
 			depth: timing.depth,
