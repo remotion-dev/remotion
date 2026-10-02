@@ -70,6 +70,7 @@ export const WrapRefactorModal: React.FC<{readonly state: State}> = ({
 				</div>
 				{canSuggestAgent ? (
 					<AgentPrompt
+						action={null}
 						availableText="You can wrap it using an agent:"
 						promptDetails={` Wrap ${target} in <${state.wrapper}> from '${wrapperImportPath}'`}
 						skillId="remotion-markup"
