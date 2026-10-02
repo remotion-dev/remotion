@@ -1,7 +1,7 @@
 import type {Caption} from '@remotion/captions';
 import {lut} from '@remotion/effects/lut';
 import {vignette} from '@remotion/effects/vignette';
-import {Video, Audio} from '@remotion/media';
+import {Audio, Video} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Composition,
@@ -16,8 +16,8 @@ import {rollerSkiAsset} from './assets';
 import {BasicCaptions} from './basic-captions';
 import {RollerSkiBlueprint} from './blueprint/RollerSkiBlueprint';
 import {
-	closingThoughtsBeforeCaptions,
 	closingThoughtsAfterCaptions,
+	closingThoughtsBeforeCaptions,
 } from './closing-thoughts-captions';
 import {outdoorLut, studioLut} from './color-grade';
 import {IntroLowerThird} from './IntroLowerThird';
@@ -1350,6 +1350,10 @@ const RollerSkiRoughCut: React.FC = () => {
 						objectFit="cover"
 						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
+						volume={interpolate(frame, [2697, 2896], [1, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})}
 					/>
 					<BasicCaptions
 						name="Climbing the incline captions"
