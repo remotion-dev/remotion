@@ -12,13 +12,13 @@ crumb: 'API'
 Use it when a regular element should be selectable and draggable in the preview:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>Hello World</Interactive.Div>
-    </AbsoluteFill>
+    </>
   );
 };
 ```

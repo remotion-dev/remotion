@@ -59,14 +59,14 @@ You can however opt into a higher backing resolution for the following component
 To support the `scale` option during a render, pass [`usePixelDensity()`](/docs/use-pixel-density), which resolves to the render `scale`:
 
 ```tsx twoslash title="Supporting scale in the render"
-import {AbsoluteFill, Solid, usePixelDensity} from 'remotion';
+import {Solid, usePixelDensity} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const pixelDensity = usePixelDensity();
   return (
-    <AbsoluteFill>
+    <>
       <Solid color="#3344ff" width={1920} height={1080} pixelDensity={pixelDensity} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

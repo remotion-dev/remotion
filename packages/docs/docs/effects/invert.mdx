@@ -21,15 +21,14 @@ Use it for negative-color looks, x-ray style passes, or as a preprocessing step 
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {invert} from '@remotion/effects/invert';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src="https://remotion.media/video.mp4" effects={[invert({amount: 1})]} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

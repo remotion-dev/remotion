@@ -21,18 +21,17 @@ Use it when you want a dedicated black-and-white pass whose order can be control
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {grayscale} from '@remotion/effects/grayscale';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[grayscale({amount: 1})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

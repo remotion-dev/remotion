@@ -21,13 +21,12 @@ Use it when you want a printed-dot look while still controlling effect order thr
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {halftone} from '@remotion/effects/halftone';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -40,7 +39,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -48,13 +47,12 @@ export const MyComp: React.FC = () => {
 To preserve the original color of each sampled grid cell, set `colorMode` to `'source'`:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {halftone} from '@remotion/effects/halftone';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -67,7 +65,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
