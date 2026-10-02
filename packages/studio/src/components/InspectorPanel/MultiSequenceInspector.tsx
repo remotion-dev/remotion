@@ -60,7 +60,7 @@ export const MultiSequenceInspector: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({selections, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,

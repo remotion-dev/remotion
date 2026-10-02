@@ -124,7 +124,7 @@ export const componentOrNullIfLazy = <Props,>(
 const TimelineSequenceObserverComponent: React.FC<{
 	readonly onTimelineSequenceChange: TimelineSequenceObserver;
 }> = ({onTimelineSequenceChange}) => {
-	const {sequences} = React.useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 
 	useEffect(() => {
 		onTimelineSequenceChange(sequences);

@@ -1,73 +1,22 @@
 import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
-import {getConnectedCompositions} from './get-connected-compositions';
-import {
-	getParentSequencePlaybackRate,
-	getCascadedStart,
-	getCascadedStartWithTrim,
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-} from './get-sequence-visible-range';
-import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import type {
 	TimelineTrackData,
 	TimelineTrackWithOriginalTimings,
 	TimelineLoopDisplay,
 } from './get-timeline-sequence-sort-key';
-import {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
 import {sortItemsByCommitOrder} from './sort-by-commit-order';
 import {timelineSequenceNodePathToKey} from './timeline-sequence-node-path-to-key';
 
-const getInheritedLoopDisplay = (
-	sequence: TSequence,
-	sequences: TSequence[],
-): TimelineLoopDisplay | undefined => {
-	let owner: TSequence | undefined = sequence;
-	while (owner && !owner.loopDisplay) {
-		const parentId: string | null = owner.parent;
-		owner = sequences.find((candidate) => candidate.id === parentId);
-	}
-
-	if (!owner?.loopDisplay) return undefined;
-
-	const parentRate = getParentSequencePlaybackRate(owner, sequences);
-	const durationInFrames = owner.loopDisplay.durationInFrames / parentRate;
-	const iterationStart = getCascadedStart(owner, sequences);
-	let mediaIterationStart = iterationStart;
-	let descendant = sequence;
-	while (descendant.id !== owner.id) {
-		mediaIterationStart = Math.max(
-			mediaIterationStart,
-			getCascadedStart(descendant, sequences),
-		);
-		const parentId = descendant.parent;
-		descendant = sequences.find((candidate) => candidate.id === parentId)!;
-	}
-
-	const origin =
-		mediaIterationStart + owner.loopDisplay.startOffset / parentRate;
-	let start = Math.max(0, origin);
-	let end = origin + durationInFrames * owner.loopDisplay.numberOfTimes;
-	if (owner.parent) {
-		const parent = sequences.find(
-			(candidate) => candidate.id === owner.parent,
-		)!;
-		const parentStart = getTimelineVisibleStart(parent, sequences);
-		start = Math.max(start, parentStart);
-		end = Math.min(
-			end,
-			parentStart + getTimelineVisibleDuration(parent, sequences),
-		);
-	}
-
-	const visibleStart = getTimelineVisibleStart(sequence, sequences);
-
-	return {
-		durationInFrames,
-		numberOfTimes: Math.max(0, end - start) / durationInFrames,
-		startOffset: start - visibleStart,
-		phaseOffsetInFrames: (start - origin) % durationInFrames,
-		mediaOffsetInFrames: visibleStart - mediaIterationStart,
-	};
+type SequenceTiming = {
+	parentPlaybackRate: number;
+	sequencePlaybackRate: number;
+	cascadedStart: number;
+	visibleStart: number;
+	visibleDuration: number;
+	depth: number;
+	loopOwner: TSequence | null;
+	mediaIterationStart: number;
+	hasConnectedCompositionAncestor: boolean;
 };
 
 export const calculateTimeline = ({
@@ -83,19 +32,24 @@ export const calculateTimeline = ({
 		sequences.map((sequence) => [sequence.id, sequence]),
 	);
 	// Nested renderers can unregister a child after its parent during navigation.
-	const completeSequences = sequences.filter((sequence) => {
-		let parentId = sequence.parent;
-		while (parentId !== null) {
-			const parent = registeredSequencesById.get(parentId);
-			if (!parent) {
-				return false;
-			}
-
-			parentId = parent.parent;
+	const completenessById = new Map<string, boolean>();
+	const hasCompleteAncestors = (sequence: TSequence): boolean => {
+		if (sequence.parent === null) {
+			return true;
 		}
 
-		return true;
-	});
+		const cached = completenessById.get(sequence.id);
+		if (cached !== undefined) {
+			return cached;
+		}
+
+		const parent = registeredSequencesById.get(sequence.parent);
+		const complete = parent !== undefined && hasCompleteAncestors(parent);
+		completenessById.set(sequence.id, complete);
+		return complete;
+	};
+
+	const completeSequences = sequences.filter(hasCompleteAncestors);
 	const sortedSequences = sortItemsByCommitOrder(
 		completeSequences,
 		(sequence) => sequence.timelineOrder,
@@ -110,51 +64,160 @@ export const calculateTimeline = ({
 		string,
 		readonly _InternalTypes['AnyComposition'][]
 	>();
+	const compositionsByComponent = new Map<
+		unknown,
+		_InternalTypes['AnyComposition'][]
+	>();
+	for (const composition of compositions) {
+		const component = composition.componentFromProps;
+		if (
+			component === null ||
+			component === undefined ||
+			(typeof component === 'number' && Number.isNaN(component))
+		) {
+			continue;
+		}
+
+		const connectedCompositions = compositionsByComponent.get(component);
+		if (connectedCompositions) {
+			connectedCompositions.push(composition);
+		} else {
+			compositionsByComponent.set(component, [composition]);
+		}
+	}
+
 	for (const sequence of sortedSequences) {
-		const connectedCompositions = getConnectedCompositions({
-			compositions,
-			singleChildComponent: sequence.singleChildComponent,
-		});
-		if (connectedCompositions.length > 0) {
-			connectedCompositionsBySequenceId.set(sequence.id, connectedCompositions);
+		const connectedCompositions = compositionsByComponent.get(
+			sequence.singleChildComponent,
+		);
+		if (connectedCompositions) {
+			connectedCompositionsBySequenceId.set(
+				sequence.id,
+				connectedCompositions.slice(),
+			);
 		}
 	}
 
 	const sequencesById = new Map(
 		sortedSequences.map((sequence) => [sequence.id, sequence]),
 	);
-	const timelineSequences = sortedSequences.filter((sequence) => {
-		let parentId = sequence.parent;
-		while (parentId !== null) {
-			if (connectedCompositionsBySequenceId.has(parentId)) {
-				return false;
-			}
-
-			parentId = sequencesById.get(parentId)?.parent ?? null;
+	const timingsById = new Map<string, SequenceTiming>();
+	const getTiming = (sequence: TSequence): SequenceTiming => {
+		const cached = timingsById.get(sequence.id);
+		if (cached) {
+			return cached;
 		}
 
-		return true;
-	});
+		const parent =
+			sequence.parent === null ? null : sequencesById.get(sequence.parent);
+		if (sequence.parent !== null && !parent) {
+			throw new TypeError('Parent not found for sequence ' + sequence.id);
+		}
+
+		const parentTiming = parent ? getTiming(parent) : null;
+		// Timing and nesting helpers historically treat an empty parent ID as a
+		// root, while playback rate and inherited loop lookup still resolve it.
+		const timingParent = sequence.parent ? parentTiming! : null;
+		const parentPlaybackRate = parent
+			? parent.sequencePlaybackRate * parentTiming!.parentPlaybackRate
+			: 1;
+		const sequencePlaybackRate =
+			parentPlaybackRate * sequence.sequencePlaybackRate;
+		const cascadedStart = timingParent
+			? timingParent.cascadedStart +
+				(sequence.from - (parent!.trimBefore ?? 0)) / parentPlaybackRate
+			: sequence.from;
+		const visibleStart = timingParent
+			? Math.max(timingParent.visibleStart, Math.max(0, cascadedStart))
+			: Math.max(0, cascadedStart);
+		const end = cascadedStart + sequence.duration / parentPlaybackRate;
+		const visibleDuration = Math.max(
+			0,
+			(timingParent
+				? Math.min(
+						end,
+						timingParent.visibleStart + timingParent.visibleDuration,
+					)
+				: end) - visibleStart,
+		);
+		const loopOwner = sequence.loopDisplay
+			? sequence
+			: (parentTiming?.loopOwner ?? null);
+		const mediaIterationStart = sequence.loopDisplay
+			? cascadedStart
+			: parentTiming?.loopOwner
+				? Math.max(parentTiming.mediaIterationStart, cascadedStart)
+				: cascadedStart;
+		const timing: SequenceTiming = {
+			parentPlaybackRate,
+			sequencePlaybackRate,
+			cascadedStart,
+			visibleStart,
+			visibleDuration,
+			depth: timingParent
+				? timingParent.depth + (parent!.showInTimeline ? 1 : 0)
+				: 0,
+			loopOwner,
+			mediaIterationStart,
+			hasConnectedCompositionAncestor: parent
+				? connectedCompositionsBySequenceId.has(parent.id) ||
+					parentTiming!.hasConnectedCompositionAncestor
+				: false,
+		};
+		timingsById.set(sequence.id, timing);
+		return timing;
+	};
+
+	const timelineSequences = sortedSequences.filter(
+		(sequence) => !getTiming(sequence).hasConnectedCompositionAncestor,
+	);
 
 	for (let i = 0; i < timelineSequences.length; i++) {
 		const sequence = timelineSequences[i];
-		const cascadedStart = getCascadedStart(sequence, sortedSequences);
-		const cascadedStartWithTrim = getCascadedStartWithTrim(
-			sequence,
-			sortedSequences,
-		);
-		const parentPlaybackRate = getParentSequencePlaybackRate(
-			sequence,
-			sortedSequences,
-		);
-		const sequencePlaybackRate =
-			parentPlaybackRate * sequence.sequencePlaybackRate;
+		const timing = getTiming(sequence);
+		const {
+			cascadedStart,
+			parentPlaybackRate,
+			sequencePlaybackRate,
+			visibleStart,
+			visibleDuration,
+		} = timing;
+		const cascadedStartWithTrim =
+			cascadedStart - (sequence.trimBefore ?? 0) / sequencePlaybackRate;
+		let loopDisplay: TimelineLoopDisplay | undefined;
+		if (
+			sequence.loopDisplay ||
+			sequence.type === 'audio' ||
+			sequence.type === 'video'
+		) {
+			const owner = timing.loopOwner;
+			if (owner?.loopDisplay) {
+				const ownerTiming = getTiming(owner);
+				const durationInFrames =
+					owner.loopDisplay.durationInFrames / ownerTiming.parentPlaybackRate;
+				const origin =
+					timing.mediaIterationStart +
+					owner.loopDisplay.startOffset / ownerTiming.parentPlaybackRate;
+				let start = Math.max(0, origin);
+				let end = origin + durationInFrames * owner.loopDisplay.numberOfTimes;
+				if (owner.parent) {
+					const parentTiming = getTiming(sequencesById.get(owner.parent)!);
+					start = Math.max(start, parentTiming.visibleStart);
+					end = Math.min(
+						end,
+						parentTiming.visibleStart + parentTiming.visibleDuration,
+					);
+				}
 
-		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
-		const visibleDuration = getTimelineVisibleDuration(
-			sequence,
-			sortedSequences,
-		);
+				loopDisplay = {
+					durationInFrames,
+					numberOfTimes: Math.max(0, end - start) / durationInFrames,
+					startOffset: start - visibleStart,
+					phaseOffsetInFrames: (start - origin) % durationInFrames,
+					mediaOffsetInFrames: visibleStart - timing.mediaIterationStart,
+				};
+			}
+		}
 
 		const overrideId = sequence.controls?.overrideId ?? null;
 		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
@@ -178,14 +241,9 @@ export const calculateTimeline = ({
 						? null
 						: sequence.postmountDisplay / parentPlaybackRate,
 				duration: visibleDuration,
-				loopDisplay:
-					sequence.loopDisplay ||
-					sequence.type === 'audio' ||
-					sequence.type === 'video'
-						? getInheritedLoopDisplay(sequence, sortedSequences)
-						: undefined,
+				loopDisplay,
 			},
-			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
+			depth: timing.depth,
 			cascadedStart,
 			localStart: sequence.from,
 			cascadedDuration: sequence.duration,
@@ -212,13 +270,28 @@ export const calculateTimeline = ({
 		sequenceRanks.set(tracks[i].sequence.id, i);
 	}
 
+	const tracksById = new Map(tracks.map((track) => [track.sequence.id, track]));
+	const sortKeysById = new Map<string, string>();
+	const getSortKey = (track: TimelineTrackWithOriginalTimings): string => {
+		const cached = sortKeysById.get(track.sequence.id);
+		if (cached !== undefined) {
+			return cached;
+		}
+
+		const rank = sequenceRanks.get(track.sequence.id) ?? 0;
+		const id = String(rank).padStart(6, '0');
+		const parent = track.sequence.parent
+			? tracksById.get(track.sequence.parent)
+			: null;
+		const key = parent ? `${getSortKey(parent)}-${id}` : id;
+		sortKeysById.set(track.sequence.id, key);
+		return key;
+	};
+
 	const sortedTracks: TimelineTrackData[] = tracks
-		.sort((a, b) => {
-			const sortKeyA = getTimelineSequenceSortKey(a, tracks, sequenceRanks);
-			const sortKeyB = getTimelineSequenceSortKey(b, tracks, sequenceRanks);
-			return sortKeyA.localeCompare(sortKeyB);
-		})
-		.map((track) => {
+		.map((track) => ({track, sortKey: getSortKey(track)}))
+		.sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+		.map(({track}) => {
 			const {cascadedDuration, ...cleanTrack} = track;
 			return cleanTrack;
 		});

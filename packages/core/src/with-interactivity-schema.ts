@@ -28,7 +28,7 @@ import {
 import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
-	VisualModeDragOverridesContext,
+	useDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 } from './SequenceManager.js';
 import {useCurrentFrame} from './use-current-frame.js';
@@ -242,8 +242,6 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const {propStatuses} = useContext(VisualModePropStatusesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {getDragOverrides} = useContext(VisualModeDragOverridesContext);
-		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const frame = useCurrentFrame();
@@ -306,6 +304,8 @@ export const withInteractivitySchema = <
 		const nodePath = env.isReadOnlyStudio
 			? null
 			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const dragOverrides = useDragOverridesForNodePath(nodePath);
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -366,7 +366,7 @@ export const withInteractivitySchema = <
 			return computeEffectiveSchemaValuesDotNotation({
 				schema: schemaWithSequenceName,
 				currentValue: currentRuntimeValueDotNotation,
-				overrideValues: nodePath === null ? {} : getDragOverrides(nodePath),
+				overrideValues: dragOverrides,
 				propStatus:
 					nodePath === null
 						? undefined
@@ -375,7 +375,7 @@ export const withInteractivitySchema = <
 			});
 		}, [
 			currentRuntimeValueDotNotation,
-			getDragOverrides,
+			dragOverrides,
 			nodePath,
 			propStatuses,
 			frame,

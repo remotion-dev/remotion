@@ -116,7 +116,7 @@ export const GlobalKeybindings: React.FC = () => {
 	]);
 
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,

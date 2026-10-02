@@ -13,6 +13,7 @@ import React, {
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
+	DragOverrideValue,
 	InteractivitySchema,
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -247,6 +248,50 @@ export type TimelineSequenceFromDragTarget = {
 	readonly initialFrom: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly sequenceKeyframes: TimelineSequenceKeyframeDragTarget[];
+};
+
+type DragOverrideUpdate = {
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly key: string;
+	readonly value: DragOverrideValue;
+};
+
+type EffectDragOverrideUpdate = DragOverrideUpdate & {
+	readonly effectIndex: number;
+};
+
+const queueStaticDragOverrideIfChanged = ({
+	updates,
+	previousValues,
+	nodePath,
+	key,
+	value,
+	initialValue,
+}: {
+	readonly updates: DragOverrideUpdate[];
+	readonly previousValues: Map<string, Map<string, number>>;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly key: string;
+	readonly value: number;
+	readonly initialValue: number;
+}) => {
+	const nodeKey = stringifySequenceSubscriptionKey(nodePath);
+	const previousForNode = previousValues.get(nodeKey);
+	const previousValue = previousForNode?.get(key);
+	if (
+		previousValue === value ||
+		(previousValue === undefined && value === initialValue)
+	) {
+		return;
+	}
+
+	if (previousForNode) {
+		previousForNode.set(key, value);
+	} else {
+		previousValues.set(nodeKey, new Map([[key, value]]));
+	}
+
+	updates.push({nodePath, key, value: Internals.makeStaticDragOverride(value)});
 };
 
 const shiftKeyframedStatus = ({
@@ -1427,6 +1472,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -1443,6 +1489,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		lastPreviewDeltaFrames: number;
+		previousPreviewValues: Map<string, Map<string, number>>;
+		lastTooltipDelta: number | null;
 		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
@@ -1456,6 +1505,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
+		batchSetters,
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
@@ -1467,6 +1517,7 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
+		batchSetters,
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
@@ -1626,6 +1677,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				lastPreviewDeltaFrames: 0,
+				previousPreviewValues: new Map(),
+				lastTooltipDelta: null,
 				didMove: false,
 				pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 				pointerId: e.pointerId,
@@ -1661,6 +1715,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 					dragState.didMove = true;
 				}
 
+				if (
+					deltaFrames === dragState.lastPreviewDeltaFrames &&
+					(!dragState.didMove ||
+						draggedTarget === undefined ||
+						dragState.lastTooltipDelta !== null)
+				) {
+					return;
+				}
+
+				dragState.lastPreviewDeltaFrames = deltaFrames;
+
+				const updates: DragOverrideUpdate[] = [];
 				for (const target of dragState.targets) {
 					if (target.ripplePrevious) {
 						const previous = target.ripplePrevious;
@@ -1670,16 +1736,20 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 							maximumDuration: previous.maximumDuration,
 							minimumDuration: previous.minimumDuration,
 						});
-						latestRef.current.setDragOverrides(
-							previous.nodePath,
-							previous.endField.fieldKey,
-							Internals.makeStaticDragOverride(
-								getTimelineSequenceEndFieldValue({
-									endField: previous.endField,
-									durationInFrames: nextDuration,
-								}),
-							),
-						);
+						queueStaticDragOverrideIfChanged({
+							updates,
+							previousValues: dragState.previousPreviewValues,
+							nodePath: previous.nodePath,
+							key: previous.endField.fieldKey,
+							value: getTimelineSequenceEndFieldValue({
+								endField: previous.endField,
+								durationInFrames: nextDuration,
+							}),
+							initialValue: getTimelineSequenceEndFieldValue({
+								endField: previous.endField,
+								durationInFrames: previous.initialDuration,
+							}),
+						});
 						continue;
 					}
 
@@ -1697,28 +1767,49 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						dragState.mode !== 'source-only' &&
 						target.positionField !== null
 					) {
-						latestRef.current.setDragOverrides(
-							target.nodePath,
-							target.positionField,
-							Internals.makeStaticDragOverride(nextValues.from),
-						);
+						queueStaticDragOverrideIfChanged({
+							updates,
+							previousValues: dragState.previousPreviewValues,
+							nodePath: target.nodePath,
+							key: target.positionField,
+							value: nextValues.from,
+							initialValue: target.initialFrom,
+						});
 					}
 
 					if (dragState.mode !== 'source-only') {
-						latestRef.current.setDragOverrides(
-							target.nodePath,
-							'durationInFrames',
-							Internals.makeStaticDragOverride(
-								nextValues.durationInFrames * target.playbackRate,
-							),
-						);
+						queueStaticDragOverrideIfChanged({
+							updates,
+							previousValues: dragState.previousPreviewValues,
+							nodePath: target.nodePath,
+							key: 'durationInFrames',
+							value: nextValues.durationInFrames * target.playbackRate,
+							initialValue: target.initialDuration * target.playbackRate,
+						});
 					}
 
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						'trimBefore',
-						Internals.makeStaticDragOverride(nextValues.trimBefore),
-					);
+					queueStaticDragOverrideIfChanged({
+						updates,
+						previousValues: dragState.previousPreviewValues,
+						nodePath: target.nodePath,
+						key: 'trimBefore',
+						value: nextValues.trimBefore,
+						initialValue: target.initialTrimBefore,
+					});
+				}
+
+				if (updates.length > 0) {
+					if (latestRef.current.batchSetters) {
+						latestRef.current.batchSetters.setDragOverridesBatch(updates);
+					} else {
+						for (const update of updates) {
+							latestRef.current.setDragOverrides(
+								update.nodePath,
+								update.key,
+								update.value,
+							);
+						}
+					}
 				}
 
 				if (dragState.didMove && draggedTarget) {
@@ -1756,15 +1847,18 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						(draggedTarget.positionField === null && ripplePrevious === null)
 							? 0
 							: appliedDelta;
-					setTrimTooltip({
-						deltaFrames: appliedDelta,
-						edgeFrame: initialTimelineEdge + edgeDelta,
-						x:
-							initialEdgeClientX +
-							(edgeDelta / draggedTarget.parentPlaybackRate) *
-								dragState.pxPerFrame,
-						y: initialEdgeClientY,
-					});
+					if (dragState.lastTooltipDelta !== appliedDelta) {
+						dragState.lastTooltipDelta = appliedDelta;
+						setTrimTooltip({
+							deltaFrames: appliedDelta,
+							edgeFrame: initialTimelineEdge + edgeDelta,
+							x:
+								initialEdgeClientX +
+								(edgeDelta / draggedTarget.parentPlaybackRate) *
+									dragState.pxPerFrame,
+							y: initialEdgeClientY,
+						});
+					}
 				}
 			};
 
@@ -1894,6 +1988,7 @@ export const useTimelineSequenceFromDrag = ({
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
 	} = useContext(Internals.VisualModeSettersContext);
+	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -1909,6 +2004,7 @@ export const useTimelineSequenceFromDrag = ({
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		lastPreviewDeltaFrames: number;
 		didMove: boolean;
 		pxPerFrame: number;
 		targets: readonly TimelineSequenceFromDragTarget[];
@@ -1918,6 +2014,7 @@ export const useTimelineSequenceFromDrag = ({
 		nodePathInfo,
 		setPropStatuses,
 		setDragOverrides,
+		batchSetters,
 		clearDragOverrides,
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
@@ -1930,6 +2027,7 @@ export const useTimelineSequenceFromDrag = ({
 		nodePathInfo,
 		setPropStatuses,
 		setDragOverrides,
+		batchSetters,
 		clearDragOverrides,
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
@@ -2055,6 +2153,7 @@ export const useTimelineSequenceFromDrag = ({
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				lastPreviewDeltaFrames: 0,
 				didMove: false,
 				pxPerFrame,
 				targets,
@@ -2081,7 +2180,7 @@ export const useTimelineSequenceFromDrag = ({
 						targets: dragState.targets,
 					});
 					dragState.latestDeltaFrames = deltaFrames;
-					if (deltaFrames !== 0) {
+					if (deltaFrames !== 0 && !dragState.didMove) {
 						// The bar can be removed when it leaves the visible timeline.
 						// Capture only after a real drag starts so clicks and double-clicks
 						// remain targeted at the bar.
@@ -2089,21 +2188,29 @@ export const useTimelineSequenceFromDrag = ({
 						dragState.didMove = true;
 					}
 
+					if (deltaFrames === dragState.lastPreviewDeltaFrames) {
+						return;
+					}
+
+					dragState.lastPreviewDeltaFrames = deltaFrames;
+					const updates: DragOverrideUpdate[] = [];
+					const effectUpdates: EffectDragOverrideUpdate[] = [];
+
 					for (const target of dragState.targets) {
 						const nextFrom = getTimelineSequenceFromDragValue({
 							initialFrom: target.initialFrom,
 							deltaFrames: deltaFrames * target.parentPlaybackRate,
 						});
-						latestRef.current.setDragOverrides(
-							target.nodePath,
-							'from',
-							Internals.makeStaticDragOverride(nextFrom),
-						);
+						updates.push({
+							nodePath: target.nodePath,
+							key: 'from',
+							value: Internals.makeStaticDragOverride(nextFrom),
+						});
 						for (const keyframeTarget of target.sequenceKeyframes) {
-							latestRef.current.setDragOverrides(
-								keyframeTarget.nodePath,
-								keyframeTarget.fieldKey,
-								{
+							updates.push({
+								nodePath: keyframeTarget.nodePath,
+								key: keyframeTarget.fieldKey,
+								value: {
 									type: 'keyframed',
 									status: shiftKeyframedStatus({
 										status: keyframeTarget.status,
@@ -2112,15 +2219,15 @@ export const useTimelineSequenceFromDrag = ({
 										isDescendant: keyframeTarget.isDescendant,
 									}),
 								},
-							);
+							});
 						}
 
 						for (const keyframeTarget of target.effectKeyframes) {
-							latestRef.current.setEffectDragOverrides(
-								keyframeTarget.nodePath,
-								keyframeTarget.effectIndex,
-								keyframeTarget.fieldKey,
-								{
+							effectUpdates.push({
+								nodePath: keyframeTarget.nodePath,
+								effectIndex: keyframeTarget.effectIndex,
+								key: keyframeTarget.fieldKey,
+								value: {
 									type: 'keyframed',
 									status: shiftKeyframedStatus({
 										status: keyframeTarget.status,
@@ -2129,7 +2236,36 @@ export const useTimelineSequenceFromDrag = ({
 										isDescendant: keyframeTarget.isDescendant,
 									}),
 								},
+							});
+						}
+					}
+
+					if (latestRef.current.batchSetters) {
+						latestRef.current.batchSetters.setDragOverridesBatch(updates);
+					} else {
+						for (const update of updates) {
+							latestRef.current.setDragOverrides(
+								update.nodePath,
+								update.key,
+								update.value,
 							);
+						}
+					}
+
+					if (effectUpdates.length > 0) {
+						if (latestRef.current.batchSetters) {
+							latestRef.current.batchSetters.setEffectDragOverridesBatch(
+								effectUpdates,
+							);
+						} else {
+							for (const update of effectUpdates) {
+								latestRef.current.setEffectDragOverrides(
+									update.nodePath,
+									update.effectIndex,
+									update.key,
+									update.value,
+								);
+							}
 						}
 					}
 				},
@@ -2191,6 +2327,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -2210,6 +2347,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	const dragStateRef = useRef<{
 		initialClientX: number;
 		latestDeltaFrames: number;
+		lastPreviewDeltaFrames: number;
+		previousPreviewValues: Map<string, Map<string, number>>;
+		lastTooltipDelta: number | null;
 		didMove: boolean;
 		pxPerFrame: number;
 		pointerId: number;
@@ -2224,6 +2364,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
+		batchSetters,
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
@@ -2236,6 +2377,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		initialEdgeFrame,
 		setPropStatuses,
 		setDragOverrides,
+		batchSetters,
 		clearDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
@@ -2375,6 +2517,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			dragStateRef.current = {
 				initialClientX: e.clientX,
 				latestDeltaFrames: 0,
+				lastPreviewDeltaFrames: 0,
+				previousPreviewValues: new Map(),
+				lastTooltipDelta: null,
 				didMove: false,
 				pxPerFrame: canCalculateDelta ? pxPerFrame : 1,
 				pointerId: e.pointerId,
@@ -2404,6 +2549,18 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 					dragState.didMove = true;
 				}
 
+				if (
+					deltaFrames === dragState.lastPreviewDeltaFrames &&
+					(!dragState.didMove ||
+						draggedTarget === undefined ||
+						dragState.lastTooltipDelta !== null)
+				) {
+					return;
+				}
+
+				dragState.lastPreviewDeltaFrames = deltaFrames;
+
+				const updates: DragOverrideUpdate[] = [];
 				for (const target of dragState.targets) {
 					const previewValue = getTimelineSequenceDurationDragValue({
 						initialDuration: target.initialDuration,
@@ -2412,16 +2569,34 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 						minimumDuration: target.minimumDuration,
 					});
 
-					latestRef.current.setDragOverrides(
-						target.nodePath,
-						target.endField.fieldKey,
-						Internals.makeStaticDragOverride(
-							getTimelineSequenceEndFieldValue({
-								endField: target.endField,
-								durationInFrames: previewValue,
-							}),
-						),
-					);
+					queueStaticDragOverrideIfChanged({
+						updates,
+						previousValues: dragState.previousPreviewValues,
+						nodePath: target.nodePath,
+						key: target.endField.fieldKey,
+						value: getTimelineSequenceEndFieldValue({
+							endField: target.endField,
+							durationInFrames: previewValue,
+						}),
+						initialValue: getTimelineSequenceEndFieldValue({
+							endField: target.endField,
+							durationInFrames: target.initialDuration,
+						}),
+					});
+				}
+
+				if (updates.length > 0) {
+					if (latestRef.current.batchSetters) {
+						latestRef.current.batchSetters.setDragOverridesBatch(updates);
+					} else {
+						for (const update of updates) {
+							latestRef.current.setDragOverrides(
+								update.nodePath,
+								update.key,
+								update.value,
+							);
+						}
+					}
 				}
 
 				if (dragState.didMove && draggedTarget) {
@@ -2434,15 +2609,18 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 					const appliedDelta =
 						(previewValue - draggedTarget.initialDuration) /
 						draggedTarget.parentPlaybackRate;
-					setTrimTooltip({
-						deltaFrames: appliedDelta,
-						edgeFrame: initialTimelineEdge + appliedDelta,
-						x:
-							initialEdgeClientX +
-							(appliedDelta / draggedTarget.parentPlaybackRate) *
-								dragState.pxPerFrame,
-						y: initialEdgeClientY,
-					});
+					if (dragState.lastTooltipDelta !== appliedDelta) {
+						dragState.lastTooltipDelta = appliedDelta;
+						setTrimTooltip({
+							deltaFrames: appliedDelta,
+							edgeFrame: initialTimelineEdge + appliedDelta,
+							x:
+								initialEdgeClientX +
+								(appliedDelta / draggedTarget.parentPlaybackRate) *
+									dragState.pxPerFrame,
+							y: initialEdgeClientY,
+						});
+					}
 				}
 			};
 
