@@ -166,7 +166,7 @@ export const CaptionTextEditor: React.FC<{
 			`[data-caption-index="${index}"]`,
 		);
 		input?.focus();
-		input?.setSelectionRange(0, 0);
+		input?.setSelectionRange(1, 1);
 		input?.scrollIntoView({block: 'nearest'});
 	}, [captions]);
 
@@ -187,6 +187,7 @@ export const CaptionTextEditor: React.FC<{
 					((caption.endMs - caption.startMs) * splitIndex) /
 						caption.text.length,
 			);
+			const afterText = caption.text.slice(splitIndex);
 			const {pageBreakAfter, ...captionWithoutPageBreak} = caption;
 			const nextCaptions = [
 				...currentCaptions.slice(0, index),
@@ -202,7 +203,7 @@ export const CaptionTextEditor: React.FC<{
 				},
 				{
 					...captionWithoutPageBreak,
-					text: caption.text.slice(splitIndex),
+					text: afterText.startsWith(' ') ? afterText : ` ${afterText}`,
 					startMs: splitTimestamp,
 					timestampMs:
 						caption.timestampMs === null
