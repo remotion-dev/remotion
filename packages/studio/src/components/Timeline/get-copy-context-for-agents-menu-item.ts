@@ -1,3 +1,4 @@
+import {copyText} from '../../helpers/copy-text';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 
@@ -15,31 +16,27 @@ export const getCopyContextForAgentsMenuItem = ({
 		leftItem: null,
 		disabled: !contextForAgents,
 		onClick: () => {
-			const pendingContext =
-				typeof contextForAgents === 'function'
-					? contextForAgents()
-					: Promise.resolve(contextForAgents);
+			if (!contextForAgents) {
+				return;
+			}
 
-			// Passing a pending Blob keeps the write tied to the click, which
-			// browsers require even if the context is resolved afterwards.
-			navigator.clipboard
-				.write([
-					new ClipboardItem({
-						'text/plain': pendingContext.then((context) => {
+			const copied =
+				typeof contextForAgents === 'string'
+					? copyText(contextForAgents)
+					: contextForAgents().then((context) => {
 							if (!context) {
 								throw new Error('No source location found');
 							}
 
-							return new Blob([context], {type: 'text/plain'});
-						}),
-					}),
-				])
-				.catch((err) => {
-					showNotification(
-						`Could not copy to clipboard: ${(err as Error).message}`,
-						2000,
-					);
-				});
+							return copyText(context);
+						});
+
+			copied.catch((err) => {
+				showNotification(
+					`Could not copy to clipboard: ${(err as Error).message}`,
+					2000,
+				);
+			});
 		},
 		quickSwitcherLabel: null,
 		subMenu: null,

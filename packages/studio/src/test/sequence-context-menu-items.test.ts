@@ -23,10 +23,6 @@ const originalNavigatorDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
 	'navigator',
 );
-const originalClipboardItemDescriptor = Object.getOwnPropertyDescriptor(
-	globalThis,
-	'ClipboardItem',
-);
 
 afterEach(() => {
 	if (originalWindowDescriptor) {
@@ -39,16 +35,6 @@ afterEach(() => {
 		Object.defineProperty(globalThis, 'navigator', originalNavigatorDescriptor);
 	} else {
 		Reflect.deleteProperty(globalThis, 'navigator');
-	}
-
-	if (originalClipboardItemDescriptor) {
-		Object.defineProperty(
-			globalThis,
-			'ClipboardItem',
-			originalClipboardItemDescriptor,
-		);
-	} else {
-		Reflect.deleteProperty(globalThis, 'ClipboardItem');
 	}
 });
 
@@ -108,28 +94,14 @@ test('finds direct and nested elements that can copy a frame', () => {
 	expect(findCopyableFrameElement(null)).toBeNull();
 });
 
-test('copy context menu items write their agent context to the clipboard', async () => {
-	class TestClipboardItem {
-		readonly items: Record<string, Promise<Blob>>;
-
-		constructor(items: Record<string, Promise<Blob>>) {
-			this.items = items;
-		}
-	}
-
-	const copiedTexts: Promise<string>[] = [];
-	Object.defineProperty(globalThis, 'ClipboardItem', {
-		configurable: true,
-		value: TestClipboardItem,
-	});
+test('copy context menu items write their agent context to the clipboard', () => {
+	const copiedTexts: string[] = [];
 	Object.defineProperty(globalThis, 'navigator', {
 		configurable: true,
 		value: {
 			clipboard: {
-				write: (clipboardItems: TestClipboardItem[]) => {
-					copiedTexts.push(
-						clipboardItems[0].items['text/plain'].then((blob) => blob.text()),
-					);
+				writeText: (text: string) => {
+					copiedTexts.push(text);
 					return Promise.resolve();
 				},
 			},
@@ -144,9 +116,7 @@ test('copy context menu items write their agent context to the clipboard', async
 	}
 
 	item.onClick('copy-context-for-agents', null);
-	expect(await Promise.all(copiedTexts)).toEqual([
-		'Property "style.opacity" in src/Video.tsx:10',
-	]);
+	expect(copiedTexts).toEqual(['Property "style.opacity" in src/Video.tsx:10']);
 });
 
 test('the file manager entry is only shown on macOS', () => {
