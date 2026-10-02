@@ -46,6 +46,7 @@ import {
 	type TimelineSequenceEffectKeyframeDragTarget,
 	type TimelineSequenceKeyframeDragTarget,
 } from './get-keyframed-sequence-drag-targets';
+import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -214,7 +215,7 @@ export type TimelineSequenceEndField = {
 	readonly playbackRate: number;
 };
 
-export type TimelineSequenceDurationDragTarget = {
+type TimelineSequenceDurationDragTargetBase = {
 	readonly parentPlaybackRate: number;
 	readonly fileName: string;
 	readonly initialDuration: number;
@@ -224,6 +225,13 @@ export type TimelineSequenceDurationDragTarget = {
 	readonly schema: InteractivitySchema;
 	readonly endField: TimelineSequenceEndField;
 };
+
+export type TimelineSequenceDurationDragTarget =
+	| TimelineSequenceDurationDragTargetBase
+	| (TimelineSequenceDurationDragTargetBase & {
+			readonly naturalDuration: number;
+			readonly initiallyExplicit: boolean;
+	  });
 
 export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly parentPlaybackRate: number;
@@ -711,7 +719,13 @@ export const getTimelineSequenceDurationDragChanges = ({
 			minimumDuration: target.minimumDuration,
 		});
 
-		if (nextValue === target.initialDuration) {
+		const restoreInferredDuration =
+			'naturalDuration' in target && nextValue === target.naturalDuration;
+		if (
+			deltaFrames === 0 ||
+			(restoreInferredDuration && !target.initiallyExplicit) ||
+			(!restoreInferredDuration && nextValue === target.initialDuration)
+		) {
 			return [];
 		}
 
@@ -720,10 +734,12 @@ export const getTimelineSequenceDurationDragChanges = ({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
 				fieldKey: target.endField.fieldKey,
-				value: getTimelineSequenceEndFieldValue({
-					endField: target.endField,
-					durationInFrames: nextValue,
-				}),
+				value: restoreInferredDuration
+					? undefined
+					: getTimelineSequenceEndFieldValue({
+							endField: target.endField,
+							durationInFrames: nextValue,
+						}),
 				defaultValue: null,
 				schema: target.schema,
 			},
@@ -802,7 +818,14 @@ const getTimelineSequenceFromDragResult = ({
 	return {
 		deltaFrames: clampedDelta,
 		snapFrame:
-			closestSnap && closestSnap.deltaFrames === clampedDelta ? 0 : null,
+			snappingEnabled &&
+			targets.some(
+				(target) =>
+					target.canSnapToTimelineStart &&
+					target.initialTimelineStart + clampedDelta === 0,
+			)
+				? 0
+				: null,
 	};
 };
 
@@ -1024,13 +1047,49 @@ export const getTimelineSequenceDurationDragTargets = ({
 			);
 			const initialDuration = mediaDurationDragLimits
 				? mediaDurationDragLimits.initialDuration * track.keyframePlaybackRate
-				: originalSequence.duration;
+				: originalSequence.autoDuration
+					? (track.sequence.from +
+							track.sequence.duration -
+							track.cascadedStart) *
+						track.keyframePlaybackRate
+					: originalSequence.duration;
+			const naturalDuration = getTimelineSequenceNaturalDuration({
+				sequence: originalSequence,
+				sequences,
+			});
+			let parentDurationLimit = Infinity;
+			if (naturalDuration !== null) {
+				let ancestor: TSequence | undefined = originalSequence;
+				while (ancestor) {
+					const parentId: string | null = ancestor.parent;
+					ancestor = sequences.find((candidate) => candidate.id === parentId);
+					if (ancestor) {
+						const parentTrack = tracks.find(
+							(candidate) => candidate.sequence.id === parentId,
+						);
+						if (parentTrack) {
+							parentDurationLimit = Math.min(
+								parentDurationLimit,
+								(parentTrack.cascadedStart +
+									ancestor.duration / parentTrack.keyframePlaybackRate -
+									track.cascadedStart) *
+									track.keyframePlaybackRate,
+							);
+						}
+					}
+				}
+			}
+
 			const constrainedMaximumDuration = Math.min(
 				mediaDurationDragLimits
 					? mediaDurationDragLimits.maximumDuration * track.keyframePlaybackRate
 					: Infinity,
 				(timelineDurationInFrames - track.cascadedStart) *
 					track.keyframePlaybackRate,
+				naturalDuration !== null && naturalDuration >= minimumDuration
+					? naturalDuration
+					: Infinity,
+				parentDurationLimit,
 			);
 			const maximumDuration = isMedia
 				? Math.max(minimumDuration, initialDuration, constrainedMaximumDuration)
@@ -1044,6 +1103,9 @@ export const getTimelineSequenceDurationDragTargets = ({
 				fileName: nodePath.absolutePath,
 				initialDuration,
 				maximumDuration,
+				...(naturalDuration !== null && maximumDuration === naturalDuration
+					? {naturalDuration, initiallyExplicit: !originalSequence.autoDuration}
+					: {}),
 				// A negative start needs enough duration to retain one visible frame.
 				minimumDuration,
 				nodePath,
@@ -1232,10 +1294,14 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					sequences,
 				),
 				fileName: nodePath.absolutePath,
-				initialDuration:
-					isSeriesSequence(originalSequence) ||
-					typeof runtimeDuration !== 'number' ||
-					!Number.isFinite(runtimeDuration)
+				initialDuration: originalSequence.autoDuration
+					? (track.sequence.from +
+							track.sequence.duration -
+							track.cascadedStart) *
+						track.keyframePlaybackRate
+					: isSeriesSequence(originalSequence) ||
+						  typeof runtimeDuration !== 'number' ||
+						  !Number.isFinite(runtimeDuration)
 						? originalSequence.duration
 						: runtimeDuration / playbackRate,
 				initialFrom: positionField === 'from' ? originalSequence.from : 0,
@@ -2227,15 +2293,20 @@ export const useTimelineSequenceFromDrag = ({
 					}
 
 					const dx = moveEvent.clientX - dragState.initialClientX;
+					const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
 					const {deltaFrames, snapFrame} = getTimelineSequenceFromDragResult({
 						timelineDurationInFrames,
-						deltaFrames: Math.round(dx / dragState.pxPerFrame),
+						deltaFrames: pointerDeltaFrames,
 						pxPerFrame: dragState.pxPerFrame,
 						snappingEnabled: latestRef.current.editorSnapping,
 						targets: dragState.targets,
 					});
 					dragState.latestDeltaFrames = deltaFrames;
-					if (deltaFrames !== 0 && !dragState.didMove) {
+					if (
+						!dragState.didMove &&
+						(deltaFrames !== 0 ||
+							(snapFrame !== null && pointerDeltaFrames !== 0))
+					) {
 						// The bar can be removed when it leaves the visible timeline.
 						// Capture only after a real drag starts so clicks and double-clicks
 						// remain targeted at the bar.
@@ -2386,6 +2457,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
+	const updateSnapFrameRef = useContext(TimelineSnapIndicatorContext);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -2428,6 +2500,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		overrideIdToNodePathMappings,
 		onDragEnd,
 		onSelect,
+		updateSnapFrameRef,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -2441,6 +2514,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 		overrideIdToNodePathMappings,
 		onDragEnd,
 		onSelect,
+		updateSnapFrameRef,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -2451,6 +2525,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 
 		dragStateRef.current = null;
 		setTrimTooltip(null);
+		latestRef.current.updateSnapFrameRef?.current(null);
 		latestRef.current.onDragEnd(dragState.didMove);
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
@@ -2667,6 +2742,12 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 					const appliedDelta =
 						(previewValue - draggedTarget.initialDuration) /
 						draggedTarget.parentPlaybackRate;
+					updateSnapFrameRef?.current(
+						'naturalDuration' in draggedTarget &&
+							previewValue === draggedTarget.naturalDuration
+							? initialTimelineEdge + appliedDelta
+							: null,
+					);
 					if (dragState.lastTooltipDelta !== appliedDelta) {
 						dragState.lastTooltipDelta = appliedDelta;
 						setTrimTooltip({
@@ -2729,6 +2810,7 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			sequencesRef,
 			timelineDurationInFrames,
 			windowWidth,
+			updateSnapFrameRef,
 		],
 	);
 
