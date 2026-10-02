@@ -305,6 +305,10 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly leftEdgeVisible: boolean;
 	readonly negativeStartClipped: boolean;
 	readonly style: React.CSSProperties;
+	readonly marqueeHorizontalBounds: {
+		readonly cropLeft: number;
+		readonly width: number;
+	} | null;
 	readonly children: React.ReactNode;
 	readonly edgeDragHandles: React.ReactNode;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
@@ -326,6 +330,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	leftEdgeVisible,
 	negativeStartClipped,
 	style,
+	marqueeHorizontalBounds,
 	children,
 	edgeDragHandles,
 	nodePathInfo,
@@ -342,7 +347,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
-	useTimelineMarqueeSelectableItem(selectionItem, ref);
+	useTimelineMarqueeSelectableItem(selectionItem, ref, marqueeHorizontalBounds);
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -1280,6 +1285,10 @@ const TimelineSequenceInner: React.FC<{
 			height: '100%',
 		};
 	}, [visibleLayout]);
+	const marqueeHorizontalBounds = useMemo(
+		() => ({cropLeft: visibleLayout?.cropLeft ?? 0, width}),
+		[visibleLayout?.cropLeft, width],
+	);
 	const showLeftBorderRadius =
 		visibleLayout?.leftEdgeVisible === true &&
 		localStart >= 0 &&
@@ -1452,6 +1461,7 @@ const TimelineSequenceInner: React.FC<{
 			leftEdgeVisible={visibleLayout.leftEdgeVisible}
 			negativeStartClipped={negativeStartClipped}
 			style={style}
+			marqueeHorizontalBounds={marqueeHorizontalBounds}
 			nodePathInfo={nodePathInfo}
 			sequenceFrameOffset={sequenceFrameOffset}
 			fromCanUpdate={fromCanUpdate}
