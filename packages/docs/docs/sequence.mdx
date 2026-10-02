@@ -5,13 +5,6 @@ title: <Sequence>
 crumb: 'API'
 ---
 
-import {SequenceForwardExample} from '../components/SequenceExamples/SequenceForward';
-
-```twoslash include example
-const BlueSquare: React.FC = () => <div></div>
-// - BlueSquare
-```
-
 `<Sequence>` is the base component for placing content on the timeline. It provides timing props such as `from`, `durationInFrames` and `trimBefore`.
 
 These components use the same timing props:
@@ -26,9 +19,13 @@ These components use the same timing props:
 
 See [Timing and trimming](/docs/timing) for examples of using these props directly on components.
 
+## Make a component inherit from Sequence
+
+Wrap a custom component with [`Interactive.withSchema()`](/docs/interactive-with-schema) to give it the timing props listed below. You can then set those props directly on the component, and Studio shows it as a single timeline layer. See the linked API page for an example.
+
 ## Using `<Sequence>` directly
 
-Use `<Sequence>` to time a group of elements or content that does not expose timing props:
+Use `<Sequence>` when timing a group of elements or a component without timing props. You may also see it in older Remotion code.
 
 ```tsx twoslash title="SequenceExample.tsx"
 import {Sequence} from 'remotion';
@@ -84,104 +81,6 @@ By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](
 
 You can nest sequences within each other and they will cascade.  
 For example, a sequence that starts at frame 60 which is inside a sequence that starts at frame 30 will have it's children start at frame 90.
-
-## Examples
-
-All the examples below are based on the following animation of a blue square:
-
-<SequenceForwardExample type="base" />
-
-<br />
-
-```tsx twoslash title="MyVideo.tsx"
-// @include: example-BlueSquare
-// ---cut---
-const MyVideo = () => {
-  return <BlueSquare />;
-};
-```
-
-### Delay
-
-If you would like to delay the content by say 30 frames, you can wrap it in <br/> `<Sequence from={30}>`.
-
-<SequenceForwardExample type="delay" />
-<br />
-
-```tsx twoslash title="delay.tsx"
-// @include: example-BlueSquare
-import {Sequence} from 'remotion';
-// ---cut---
-const MyVideo = () => {
-  return (
-    <Sequence from={30}>
-      <BlueSquare />
-    </Sequence>
-  );
-};
-```
-
-### Trim end
-
-Wrap your component in a `<Sequence>` with a finite `durationInFrames` prop to make it unmount after the duration has passed.
-
-<SequenceForwardExample type="clip" />
-<br />
-
-```tsx twoslash title="trim-end.tsx"
-// @include: example-BlueSquare
-import {Sequence} from 'remotion';
-// ---cut---
-const ClipExample: React.FC = () => {
-  return (
-    <Sequence durationInFrames={45}>
-      <BlueSquare />
-    </Sequence>
-  );
-};
-```
-
-### Trim start
-
-Pass `trimBefore` to trim the beginning of the content.
-The animation has already progressed by 15 frames when the content appears.
-
-<SequenceForwardExample type="trim-start" />
-<br />
-
-```tsx title="trim-start.tsx"
-const TrimStartExample: React.FC = () => {
-  return (
-    <Sequence trimBefore={15}>
-      <BlueSquare />
-    </Sequence>
-  );
-};
-```
-
-### Trim and delay
-
-Wrap the content in two `<Sequence>`'s.  
-To the inner one, pass a negative start value `from={-15}` to trim away the first 15 frames of the content.  
-To the outer one we pass a positive value `from={30}` to then shift it forwards by 30 frames.
-
-<SequenceForwardExample type="trim-and-delay" />
-<br />
-
-```tsx twoslash title="trim-and-delay.tsx"
-// @include: example-BlueSquare
-import {Sequence} from 'remotion';
-// ---cut---
-const TrimAndDelayExample: React.FC = () => {
-  return (
-    <Sequence from={30}>
-      <Sequence from={-15}>
-        <BlueSquare />
-      </Sequence>
-    </Sequence>
-  );
-};
-```
 
 ## Props
 
