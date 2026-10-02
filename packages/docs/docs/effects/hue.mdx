@@ -19,15 +19,14 @@ A hue rotation effect that can be applied to canvas-based components such as [`<
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {hue} from '@remotion/effects/hue';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src="https://remotion.media/video.mp4" effects={[hue({degrees: 120})]} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

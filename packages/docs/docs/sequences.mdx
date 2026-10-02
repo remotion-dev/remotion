@@ -7,7 +7,7 @@ crumb: 'The power of React'
 ---
 
 ```twoslash include example
-import {interpolate, useCurrentFrame, AbsoluteFill} from 'remotion'
+import {interpolate, useCurrentFrame} from 'remotion'
 
 const Title: React.FC<{title: string}> = ({title}) => {
     const frame = useCurrentFrame()
@@ -25,7 +25,7 @@ React components allow us to encapsulate video logic and reuse the same visuals 
 Consider a title - to make it reusable, factor it out into its own component:
 
 ```tsx twoslash title="MyComposition.tsx"
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
 const Title: React.FC<{title: string}> = ({title}) => {
   const frame = useCurrentFrame();
@@ -40,9 +40,9 @@ const Title: React.FC<{title: string}> = ({title}) => {
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Title title="Hello World" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -58,14 +58,14 @@ import {Sequence} from 'remotion';
 
 export const MyVideo = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Sequence durationInFrames={40}>
         <Title title="Hello" />
       </Sequence>
       <Sequence from={40}>
         <Title title="World" />
       </Sequence>
-    </AbsoluteFill>
+    </>
   );
 };
 ```
