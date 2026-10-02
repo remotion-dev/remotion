@@ -585,6 +585,34 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	};
 };
 
+const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
+	target,
+	deltaFrames,
+	trimBeforeOnly,
+}: {
+	readonly target: TimelineSequenceLeftEdgeDragTarget;
+	readonly deltaFrames: number;
+	readonly trimBeforeOnly: boolean;
+}) => {
+	const localDeltaFrames = deltaFrames * target.parentPlaybackRate;
+	// Only trims that started inside the parent are constrained to its start.
+	// Source-only and cascading trims do not change `from`.
+	const clampedDeltaFrames =
+		!trimBeforeOnly && target.positionField !== null && target.initialFrom >= 0
+			? Math.max(-target.initialFrom, localDeltaFrames)
+			: localDeltaFrames;
+
+	return getTimelineSequenceLeftEdgeDragValues({
+		initialDuration: target.initialDuration,
+		initialFrom: target.initialFrom,
+		initialTrimBefore: target.initialTrimBefore,
+		deltaFrames: clampedDeltaFrames,
+		playbackRate: target.playbackRate,
+		minimumDuration: target.minimumDuration,
+		trimBeforeOnly,
+	});
+};
+
 export const getTimelineSequenceLeftEdgeDragChanges = ({
 	targets,
 	deltaFrames,
@@ -620,13 +648,9 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 					];
 		}
 
-		const nextValues = getTimelineSequenceLeftEdgeDragValues({
-			initialDuration: target.initialDuration,
-			initialFrom: target.initialFrom,
-			initialTrimBefore: target.initialTrimBefore,
-			deltaFrames: deltaFrames * target.parentPlaybackRate,
-			playbackRate: target.playbackRate,
-			minimumDuration: target.minimumDuration,
+		const nextValues = getTimelineSequenceLeftEdgeDragValuesForTarget({
+			target,
+			deltaFrames,
 			trimBeforeOnly,
 		});
 		const changes: SaveSequencePropChange[] = [];
@@ -759,14 +783,22 @@ export const getTimelineSequenceFromDragDelta = ({
 	}
 
 	const minimumDelta = Math.max(
-		...targets.map((target) => target.minimumDeltaFrames),
+		...targets.map((target) =>
+			Math.max(
+				target.minimumDeltaFrames,
+				target.initialFrom >= 0
+					? -target.initialFrom / target.parentPlaybackRate
+					: -Infinity,
+			),
+		),
 	);
 	const maximumDelta = Math.min(
 		...targets.map(
 			(target) => timelineDurationInFrames - 1 - target.initialTimelineStart,
 		),
 	);
-	// Clamp the shared delta after snapping so every selected track retains a frame.
+	// Keep selected clips inside their parents unless they started before them,
+	// while retaining a visible frame and preserving their relative positions.
 	return Math.max(
 		minimumDelta,
 		Math.min(maximumDelta, closestSnap?.deltaFrames ?? deltaFrames),
@@ -1753,13 +1785,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 						continue;
 					}
 
-					const nextValues = getTimelineSequenceLeftEdgeDragValues({
-						initialDuration: target.initialDuration,
-						initialFrom: target.initialFrom,
-						initialTrimBefore: target.initialTrimBefore,
-						deltaFrames: deltaFrames * target.parentPlaybackRate,
-						playbackRate: target.playbackRate,
-						minimumDuration: target.minimumDuration,
+					const nextValues = getTimelineSequenceLeftEdgeDragValuesForTarget({
+						target,
+						deltaFrames,
 						trimBeforeOnly: dragState.mode === 'source-only',
 					});
 
@@ -1826,13 +1854,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 							(nextDuration - ripplePrevious.initialDuration) /
 							ripplePrevious.parentPlaybackRate;
 					} else {
-						const values = getTimelineSequenceLeftEdgeDragValues({
-							initialDuration: draggedTarget.initialDuration,
-							initialFrom: draggedTarget.initialFrom,
-							initialTrimBefore: draggedTarget.initialTrimBefore,
+						const values = getTimelineSequenceLeftEdgeDragValuesForTarget({
+							target: draggedTarget,
 							deltaFrames,
-							playbackRate: draggedTarget.playbackRate,
-							minimumDuration: draggedTarget.minimumDuration,
 							trimBeforeOnly: dragState.mode === 'source-only',
 						});
 						appliedDelta =
