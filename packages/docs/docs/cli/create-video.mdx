@@ -36,6 +36,7 @@ Enable non-interactive mode. All prompts are skipped with sensible defaults.
 Requires a template flag and a directory argument.
 
 When used:
+
 - TailwindCSS is installed if the template supports it (disable with `--no-tailwind`)
 - Agent skills are not installed
 - The editor is not opened
@@ -51,7 +52,7 @@ Alias for `--yes`.
 
 ### `--no-tailwind`<AvailableFrom v="4.0.439" />
 
-When combined with `--yes`, skip installing TailwindCSS. Without `--yes`, this flag has no effect because TailwindCSS is offered interactively.
+Skip automatic TailwindCSS installation for supported templates. Works with or without `--yes` and does not change templates with their own TailwindCSS setup.
 
 ```bash
 npx create-video --yes --blank --no-tailwind my-video
