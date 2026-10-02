@@ -216,10 +216,16 @@ export const init = async () => {
 	}
 
 	Log.info('Installing dependencies...');
-	await execa.command(getInstallCommand(pkgManager), {
-		cwd: projectRoot,
-		stdio: 'inherit',
-	});
+	let installedDependencies = true;
+	try {
+		await execa.command(getInstallCommand(pkgManager), {
+			cwd: projectRoot,
+			stdio: 'inherit',
+		});
+	} catch (e) {
+		installedDependencies = false;
+		Log.error('Error installing dependencies:', e);
+	}
 
 	if (!isInsideGitRepo) {
 		await getGitStatus(projectRoot);
@@ -241,6 +247,10 @@ export const init = async () => {
 	Log.info('Get started by running:');
 	if (cdToFolder !== '') {
 		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
+	}
+
+	if (!installedDependencies) {
+		Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
 	}
 
 	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
