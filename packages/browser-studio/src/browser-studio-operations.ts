@@ -1588,6 +1588,7 @@ export const createBrowserStudioOperations = ({
 					node: {filePath: sequence.fileName, nodePath: sequence.nodePath},
 					frame: sequence.splitFrame,
 					sequenceKeys: sequence.sequenceKeys,
+					videoConfig: sequence.videoConfigValues ?? undefined,
 				})),
 			});
 			const nodePathMutation = controller.applyMutation({
