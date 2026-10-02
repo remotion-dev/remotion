@@ -1361,8 +1361,7 @@ const TimelineSequenceInner: React.FC<{
 		? getTimelineVisibleStart(parentSequence, sequences)
 		: 0;
 	const parentEnd = parentSequence
-		? getTimelineVisibleStart(parentSequence, sequences) +
-			getTimelineVisibleDuration(parentSequence, sequences)
+		? parentStart + getTimelineVisibleDuration(parentSequence, sequences)
 		: video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
