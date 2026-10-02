@@ -264,7 +264,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
  * Experimental motion blur that averages separately captured HTML-in-canvas
  * snapshots of the children at fractional frames. Preview requires Chrome with
  * the experimental HTML-in-canvas flag enabled. Nested HtmlInCanvas components
- * are currently unsupported.
+ * require Chrome 157 or newer.
  */
 export const HtmlInCanvasMotionBlur = Interactive.withSchema<
 	typeof htmlInCanvasMotionBlurSchema,

@@ -336,7 +336,7 @@ test('<HtmlInCanvas> throws when nested', () => {
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
 		),
-	).toThrow('<HtmlInCanvas> components cannot be nested.');
+	).toThrow('Nested <HtmlInCanvas> components require Chrome 157 or newer');
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {

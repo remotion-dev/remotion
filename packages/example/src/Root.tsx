@@ -90,6 +90,7 @@ import {
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
 	HtmlInCanvasMotionBlurExample,
+	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -1262,6 +1263,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-nested"
+						component={HtmlInCanvasNested}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={150}
+					/>
 					<Composition
 						id="html-in-canvas-motion-blur"
 						component={HtmlInCanvasMotionBlurExample}
