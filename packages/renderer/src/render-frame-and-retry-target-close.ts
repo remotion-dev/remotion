@@ -15,13 +15,14 @@ import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {NextFrameToRender} from './next-frame-to-render';
 import type {Pool} from './pool';
 import {renderFrame} from './render-frame';
-import type {FrameAndAssets, OnArtifact} from './render-frames';
+import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import type {BrowserReplacer} from './replace-browser';
 
 export const renderFrameAndRetryTargetClose = async ({
 	retriesLeft,
 	attempt,
 	assets,
+	assetIndex,
 	imageFormat,
 	binariesDirectory,
 	cancelSignal,
@@ -66,6 +67,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	scale: number;
 	countType: CountType;
 	assets: FrameAndAssets[];
+	assetIndex: AssetIndex;
 	framesToRender: number[];
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
@@ -118,6 +120,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				allFramesAndExtraFrames,
 				attempt,
 				assets,
+				assetIndex,
 				binariesDirectory,
 				cancelSignal,
 				countType,
@@ -198,6 +201,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				retriesLeft: actualRetriesLeft,
 				attempt: attempt + 1,
 				assets,
+				assetIndex,
 				imageFormat,
 				binariesDirectory,
 				cancelSignal,
@@ -255,6 +259,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			retriesLeft: retriesLeft - 1,
 			attempt: attempt + 1,
 			assets,
+			assetIndex,
 			binariesDirectory,
 			cancelSignal,
 			composition,
