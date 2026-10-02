@@ -1017,6 +1017,7 @@ export type SplitSequencesRequestItem = {
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	splitFrame: number;
+	videoConfigValues: VideoConfigValues | null;
 };
 
 export type SplitSequencesRequest = {

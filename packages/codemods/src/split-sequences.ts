@@ -1,3 +1,4 @@
+import type {VideoConfigValues} from 'remotion';
 import type {CodemodProject} from './codemod-project';
 import type {DuplicateNodesResult} from './duplicate-nodes';
 import {getNodeProps} from './get-node-props';
@@ -12,7 +13,12 @@ import {splitJsxSequences} from './split-jsx-sequence';
 
 export type SplitSequencesOptions<Project extends CodemodProject> = {
 	project: Project;
-	splits: {node: NodeReference; frame: number; sequenceKeys?: string[]}[];
+	splits: {
+		node: NodeReference;
+		frame: number;
+		sequenceKeys?: string[];
+		videoConfig?: VideoConfigValues;
+	}[];
 };
 
 export const splitSequences = async <Project extends CodemodProject>({
@@ -46,6 +52,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 				project,
 				node: split.node,
 				keys: ['from', 'durationInFrames', 'trimBefore'],
+				videoConfig: split.videoConfig,
 			});
 			if (
 				Object.values(status.props).some((prop) => prop.status !== 'static')
@@ -74,7 +81,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 			filePath,
 			...(await splitJsxSequences({
 				input: project.files[filePath],
-				splits: group.map(({node, frame, sequenceKeys}) => ({
+				splits: group.map(({node, frame, sequenceKeys, videoConfig}) => ({
 					nodePath: node.nodePath,
 					splitFrame: frame,
 					sequenceKeys: sequenceKeys ?? [
@@ -82,6 +89,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 						'durationInFrames',
 						'trimBefore',
 					],
+					videoConfigValues: videoConfig ?? null,
 				})),
 			})),
 		})),

@@ -55,10 +55,11 @@ export const splitSequencesHandler: ApiHandler<
 							rootDir: remotionRoot,
 						},
 						splits: fileSequences.map(
-							({nodePath, sequenceKeys, splitFrame}) => ({
+							({nodePath, sequenceKeys, splitFrame, videoConfigValues}) => ({
 								node: {filePath: absolutePath, nodePath},
 								sequenceKeys,
 								frame: splitFrame,
+								videoConfig: videoConfigValues ?? undefined,
 							}),
 						),
 					});

@@ -196,6 +196,7 @@ export const splitTimelineSequencesFromSource = ({
 				nodePath: nodePath.nodePath,
 				sequenceKeys: nodePath.sequenceKeys,
 				splitFrame,
+				videoConfigValues: nodePath.videoConfigValues,
 			};
 		}),
 	})
