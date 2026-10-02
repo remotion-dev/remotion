@@ -32,6 +32,8 @@ export const MyComposition = () => {
 Remote URLs are also supported:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio src="https://remotion.media/audio.mp3" />
 ```
 
@@ -40,16 +42,18 @@ Multiple audio tracks can be layered by adding multiple `<Audio>` components.
 
 ## Trimming
 
-Use `trimBefore` and `trimAfter` to remove portions of the audio. Values are in frames.
+Use `trimBefore` to skip the beginning of the audio and `durationInFrames` to end it early. Values are in frames.
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 const { fps } = useVideoConfig();
 
 return (
   <Audio
     src={staticFile("audio.mp3")}
     trimBefore={2 * fps} // Skip the first 2 seconds
-    trimAfter={10 * fps} // End at the 10 second mark
+    durationInFrames={8 * fps} // Play 8 seconds, until the 10 second mark
   />
 );
 ```
@@ -78,12 +82,15 @@ The audio will start playing after 1 second.
 Set a static volume (0 to 1):
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio src={staticFile("audio.mp3")} volume={0.5} />
 ```
 
 Use `useCurrentFrame()` and `interpolate()` for keyframed volume:
 
 ```tsx
+import { Audio } from "@remotion/media";
 import { interpolate, useCurrentFrame } from "remotion";
 
 const frame = useCurrentFrame();
@@ -105,6 +112,8 @@ With Studio interactivity enabled, these keyframes can be edited and are shown a
 The `volume` prop also accepts a callback for procedural or media-relative volume. The callback frame starts at 0 when the audio begins to play, not at the composition frame:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio
   src={staticFile("audio.mp3")}
   volume={(mediaFrame) => interpolate(mediaFrame, [0, 30], [0, 1])}
@@ -116,6 +125,8 @@ The `volume` prop also accepts a callback for procedural or media-relative volum
 Use `muted` to silence the audio. It can be set dynamically:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
 
@@ -132,6 +143,8 @@ return (
 Use `playbackRate` to change the playback speed:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 // 2x speed
 <Audio src={staticFile("audio.mp3")} playbackRate={2} />
 // Half speed
@@ -145,8 +158,12 @@ Reverse playback is not supported.
 Use `loop` to loop the audio indefinitely:
 
 ```tsx
-<Audio src={staticFile("audio.mp3")} loop />
+import { Audio } from "@remotion/media";
+
+<Audio src={staticFile("audio.mp3")} loop premountFor={fps} />
 ```
+
+Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
 
 Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
 
@@ -154,6 +171,8 @@ Use `loopVolumeCurveBehavior` to control how the frame count behaves when loopin
 - `"extend"`: Frame count continues incrementing
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio
   src={staticFile("audio.mp3")}
   loop
@@ -167,6 +186,8 @@ Use `loopVolumeCurveBehavior` to control how the frame count behaves when loopin
 Use `toneFrequency` to adjust the pitch without affecting speed. Values range from 0.01 to 2:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio
   src={staticFile("audio.mp3")}
   toneFrequency={1.5} // Higher pitch

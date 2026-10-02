@@ -165,6 +165,11 @@ export type FrameAndAssets = {
 	inlineAudioAssets: InlineAudioAsset[];
 };
 
+export type AssetIndex = {
+	firstAssetBySrc: Map<string, AudioOrVideoAsset>;
+	firstArtifactFrameByFilename: Map<string, number>;
+};
+
 type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
@@ -372,6 +377,10 @@ const innerRenderFrames = async ({
 	});
 
 	const assets: FrameAndAssets[] = [];
+	const assetIndex: AssetIndex = {
+		firstAssetBySrc: new Map(),
+		firstArtifactFrameByFilename: new Map(),
+	};
 	const stoppedSignal = {stopped: false};
 	cancelSignal?.(() => {
 		stoppedSignal.stopped = true;
@@ -421,6 +430,7 @@ const innerRenderFrames = async ({
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
 				assets,
+				assetIndex,
 				binariesDirectory,
 				cancelSignal,
 				composition,

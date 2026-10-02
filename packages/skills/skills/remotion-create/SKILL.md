@@ -1,7 +1,7 @@
 ---
 name: remotion-create
 description: Create a new Remotion video
-version: 4.0.530
+version: 4.0.532
 ---
 
 These are instructions for making a new Remotion project and composition.  
@@ -37,6 +37,10 @@ npx create-video@latest --yes --blank --no-tailwind my-video
 cd my-video
 npm i
 ```
+
+## Open the preview before building the video
+
+As soon as the project can run, open [Remotion Studio](../remotion-studio/SKILL.md) in the browser before writing or changing the composition. For a new project, do this immediately after scaffolding and installing dependencies. For an existing project, do it before editing the video. Keep Studio running while you work so the user can see changes as they appear and steer the result.
 
 ## Designing a video
 

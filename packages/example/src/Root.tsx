@@ -90,6 +90,7 @@ import {
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
 	HtmlInCanvasMotionBlurExample,
+	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -122,6 +123,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PortfolioCompositions} from './Portfolio/Root';
 import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
@@ -166,8 +168,8 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
-import './style.css';
 import {SvgFilter} from './SvgFilter';
+import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -194,6 +196,7 @@ import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
+import {WhatsNewRoot} from './WhatsNew/Root';
 import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
 // @ts-expect-error no types
 import styles from './styles.module.scss';
@@ -229,6 +232,7 @@ import {
 	issue10468DefaultProps,
 	issue5758DefaultProps,
 } from './AudioTesting/Issue10468';
+import {VolumeHoldCurveComposition} from './AudioTesting/VolumeHoldCurve';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -462,6 +466,9 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Folder name="WhatsNew">
+				<WhatsNewRoot />
+			</Folder>
 			<Composition
 				id="AnimatedBarChart"
 				component={BarChart}
@@ -980,6 +987,9 @@ export const Index: React.FC = () => {
 				</Folder>
 			</Folder>
 			<Folder name="creatives">
+				<Folder name="Portfolio">
+					<PortfolioCompositions />
+				</Folder>
 				<Composition
 					id="drop-dots"
 					lazyComponent={() => import('./DropDots/DropDots')}
@@ -1253,6 +1263,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-nested"
+						component={HtmlInCanvasNested}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={150}
+					/>
 					<Composition
 						id="html-in-canvas-motion-blur"
 						component={HtmlInCanvasMotionBlurExample}
@@ -1787,6 +1805,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="audio-tests">
+				<VolumeHoldCurveComposition />
 				<Composition
 					id="complex-sounds"
 					component={ComplexSounds}
@@ -3028,7 +3047,7 @@ export const Index: React.FC = () => {
 					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
 				/>
 				<Composition
-					id="video-editing-cascading"
+					id="video-editing-transition-series"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}

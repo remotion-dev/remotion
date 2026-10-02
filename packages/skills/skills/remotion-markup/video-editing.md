@@ -20,10 +20,19 @@ Choose the timeline structure based on the editing behavior:
 - Use `<TransitionSeries>` when consecutive clips also need transitions or
   overlays.
 
+Use `const {fps} = useVideoConfig()` in the enclosing composition and set
+`premountFor={fps}` on each timed clip, sequence, and overlay that supports it.
+When a clip is inside a series sequence, premount both the sequence and clip.
+For trims and other timing props expressed in seconds, use that same `fps`
+directly in each clip's JSX, for example `trimBefore={4 * fps}`. Do not use a
+separate fixed `FPS` constant: Studio must be able to update each clip's source
+expression when the user trims or splits it.
+
 ## Independently positioned clips
 
-Place every `<Video>` directly in the composition and hardcode its timing
-props. `from={0}` may be omitted:
+Place every `<Video>` directly in the composition and write its timing props
+on the JSX node. Use literal frame counts when they are already known;
+`from={0}` may be omitted:
 
 ```tsx
 <Video
@@ -31,6 +40,7 @@ props. `from={0}` may be omitted:
   src="https://remotion.media/video.mp4"
   trimBefore={0}
   durationInFrames={78}
+  premountFor={fps}
 />
 <Video
   name="Interview"
@@ -38,6 +48,7 @@ props. `from={0}` may be omitted:
   trimBefore={12}
   from={78}
   durationInFrames={66}
+  premountFor={fps}
 />
 <Video
   name="Closing"
@@ -45,11 +56,12 @@ props. `from={0}` may be omitted:
   trimBefore={72}
   from={144}
   durationInFrames={90}
+  premountFor={fps}
 />
 ```
 
 - `from` is the clip's absolute start frame in its parent timeline.
-- `durationInFrames` is how many frames the clip remains visible.
+- `durationInFrames` is how many source frames are shown, starting at `trimBefore`. At the default `playbackRate`, this is how long the clip remains visible.
 - `trimBefore` is how many source frames are skipped before playback begins.
 - Keep `name`, `from`, `durationInFrames` and `trimBefore` inline on each clip.
 - Import `<Video>` from `@remotion/media`.
@@ -64,22 +76,25 @@ transitions:
 
 ```tsx
 <Series>
-  <Series.Sequence name="Opening" durationInFrames={78}>
+  <Series.Sequence name="Opening" durationInFrames={78} premountFor={fps}>
     <Video
       src="https://remotion.media/video.mp4"
       trimBefore={0}
+      premountFor={fps}
     />
   </Series.Sequence>
-  <Series.Sequence name="Interview" durationInFrames={66}>
+  <Series.Sequence name="Interview" durationInFrames={66} premountFor={fps}>
     <Video
       src="https://remotion.media/video.webm"
       trimBefore={12}
+      premountFor={fps}
     />
   </Series.Sequence>
-  <Series.Sequence name="Closing" durationInFrames={90}>
+  <Series.Sequence name="Closing" durationInFrames={90} premountFor={fps}>
     <Video
       src="https://remotion.media/video.mp4"
       trimBefore={72}
+      premountFor={fps}
     />
   </Series.Sequence>
 </Series>
@@ -93,7 +108,7 @@ Keep every sequence as a separate JSX node with a hardcoded `name` and
 `durationInFrames`. The child may also be a custom clip or scene component:
 
 ```tsx
-<Series.Sequence name="Product demo" durationInFrames={150}>
+<Series.Sequence name="Product demo" durationInFrames={150} premountFor={fps}>
   <ProductDemo />
 </Series.Sequence>
 ```
@@ -105,20 +120,22 @@ Preserve the same one-source-node-per-clip structure:
 
 ```tsx
 <TransitionSeries name="Video timeline">
-  <TransitionSeries.Sequence name="Opening" durationInFrames={78}>
+  <TransitionSeries.Sequence name="Opening" durationInFrames={78} premountFor={fps}>
     <Video
       src="https://remotion.media/video.mp4"
       trimBefore={0}
+      premountFor={fps}
     />
   </TransitionSeries.Sequence>
   <TransitionSeries.Transition
     presentation={fade()}
     timing={linearTiming({durationInFrames: 12})}
   />
-  <TransitionSeries.Sequence name="Interview" durationInFrames={66}>
+  <TransitionSeries.Sequence name="Interview" durationInFrames={66} premountFor={fps}>
     <Video
       src="https://remotion.media/video.webm"
       trimBefore={12}
+      premountFor={fps}
     />
   </TransitionSeries.Sequence>
 </TransitionSeries>

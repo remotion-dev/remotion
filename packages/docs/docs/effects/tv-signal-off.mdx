@@ -21,12 +21,12 @@ The effect generates color bars, calibration blocks, and a grayscale ramp. The s
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage
         src={staticFile('image.png')}
         width={1280}
@@ -38,7 +38,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

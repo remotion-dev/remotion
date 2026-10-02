@@ -37,7 +37,8 @@ export const getCreateVideoHelp = () => {
 		}),
 		formatOption({
 			flag: '--no-tailwind',
-			description: 'Skip installing TailwindCSS when used with --yes.',
+			description:
+				'Skip automatic TailwindCSS installation for supported templates.',
 		}),
 		formatOption({
 			flag: '--tmp',

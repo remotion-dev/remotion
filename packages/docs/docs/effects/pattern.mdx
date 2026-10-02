@@ -21,12 +21,12 @@ Use it to create wallpaper, contact sheets, tiled backgrounds, or staggered bric
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, staticFile} from 'remotion';
 import {pattern} from '@remotion/effects/pattern';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img
         src={staticFile('logo.png')}
         effects={[
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

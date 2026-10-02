@@ -384,8 +384,8 @@ export const discoverAvailableCodingAgents = async (
 						applicationPath,
 						id,
 						launchMode: 'direct',
-						name: definition.name,
-						nameWithType: definition.nameWithType,
+						name: id === 'codex' ? 'ChatGPT' : definition.name,
+						nameWithType: id === 'codex' ? 'ChatGPT' : definition.nameWithType,
 						platform,
 						terminal: null,
 					});
@@ -443,15 +443,17 @@ export const getCodingAgentLaunchCommand = ({
 }): {command: string; args: string[]; cwd: string | null} => {
 	if (codingAgent.platform === 'darwin') {
 		switch (codingAgent.id) {
-			case 'codex':
+			case 'codex': {
+				const deepLink = new URL('codex://new');
+				deepLink.searchParams.set('path', projectPath);
+
 				return {
-					command: path.posix.join(
-						codingAgent.applicationPath,
-						'Contents/Resources/codex',
-					),
-					args: ['app', projectPath],
+					command: 'open',
+					args: [deepLink.toString()],
 					cwd: null,
 				};
+			}
+
 			case 'cursor':
 				return {
 					command: path.posix.join(

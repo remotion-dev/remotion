@@ -22,13 +22,13 @@ Each line color is composited over the source.
 
 ```tsx twoslash title="MyComp.tsx"
 import {lines} from '@remotion/effects/lines';
-import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
+import {Solid, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={1280}
         height={720}
@@ -43,7 +43,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

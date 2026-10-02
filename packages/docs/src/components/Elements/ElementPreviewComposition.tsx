@@ -4,6 +4,7 @@ import type {ElementDefinition} from './element-definitions';
 import {getElementDefinition} from './element-utils';
 
 export const ELEMENT_PREVIEW_BACKGROUND = '#eef1f4';
+export const ELEMENT_PREVIEW_DARK_BACKGROUND = '#20262f';
 
 export const getElementPreviewDimensions = (definition: ElementDefinition) => {
 	const hasElementDimensions =
@@ -93,11 +94,16 @@ export const ElementPreviewComposition: React.FC<{
 export const ElementAssetComposition: React.FC<{
 	readonly slug: string;
 }> = ({slug}) => {
-	const definition = getElementDefinition(slug);
+	const definition: ElementDefinition = getElementDefinition(slug);
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
+			style={{
+				backgroundColor:
+					definition.preview.backgroundTheme === 'dark'
+						? ELEMENT_PREVIEW_DARK_BACKGROUND
+						: ELEMENT_PREVIEW_BACKGROUND,
+			}}
 			showInTimeline={false}
 		>
 			<ElementPreviewComposition definition={definition} />

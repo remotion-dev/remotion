@@ -70,51 +70,25 @@ type RecordingState = {
 	isFinalizing: boolean;
 };
 
-export type HtmlInCanvasElementImage = {
-	readonly width: number;
-	readonly height: number;
-	close: () => void;
-};
-
-type DrawElementImageSource = Element | HtmlInCanvasElementImage;
-
 type DrawElementImage = {
 	(
-		element: DrawElementImageSource,
+		element: Element,
 		dx: number,
 		dy: number,
 		dWidth?: number,
 		dHeight?: number,
-	): DOMMatrix;
-	(
-		element: DrawElementImageSource,
-		sx: number,
-		sy: number,
-		sWidth: number,
-		sHeight: number,
-		dx: number,
-		dy: number,
-		dWidth?: number,
-		dHeight?: number,
-	): DOMMatrix;
+	): void;
 };
 
 export type HtmlInCanvasElement = HTMLCanvasElement & {
 	layoutSubtree?: boolean;
 	requestPaint?: () => void;
-	captureElementImage?: (element: Element) => HtmlInCanvasElementImage;
 };
 
 export type HtmlInCanvasRenderingContext2D = CanvasRenderingContext2D & {
 	drawElementImage?: DrawElementImage;
 	reset?: () => void;
 };
-
-export type HtmlInCanvasOffscreenRenderingContext2D =
-	OffscreenCanvasRenderingContext2D & {
-		drawElementImage?: DrawElementImage;
-		reset?: () => void;
-	};
 
 type CanvasCaptureRecorderOptions = {
 	readonly format: CaptureFormat;
@@ -139,23 +113,18 @@ export const isHtmlInCanvasAvailable = () => {
 	const captureContext =
 		typeof OffscreenCanvas === 'undefined'
 			? null
-			: (new OffscreenCanvas(2, 2).getContext(
-					'2d',
-				) as HtmlInCanvasOffscreenRenderingContext2D | null);
+			: new OffscreenCanvas(2, 2).getContext('2d');
 
 	return (
 		typeof canvas.requestPaint === 'function' &&
-		typeof canvas.captureElementImage === 'function' &&
 		typeof context?.drawElementImage === 'function' &&
-		typeof captureContext?.drawElementImage === 'function' &&
+		captureContext !== null &&
 		typeof VideoFrame !== 'undefined'
 	);
 };
 
 export const resetCanvas = (
-	context:
-		| HtmlInCanvasRenderingContext2D
-		| HtmlInCanvasOffscreenRenderingContext2D,
+	context: HtmlInCanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	canvas: HTMLCanvasElement | OffscreenCanvas,
 ) => {
 	if (typeof context.reset === 'function') {
@@ -307,6 +276,12 @@ const addFrame = (recording: RecordingState, canvas: OffscreenCanvas) => {
 			recording.encodingError = error;
 			recording.pendingFrame?.close();
 			recording.pendingFrame = null;
+			// eslint-disable-next-line no-console -- Surface encoder failures in the page DevTools console.
+			console.error(
+				'[Remotion Canvas Capture] Failed to encode a frame',
+				{frameCount: recording.frameCount},
+				error,
+			);
 			throw error;
 		} finally {
 			recording.isEncodingFrame = false;

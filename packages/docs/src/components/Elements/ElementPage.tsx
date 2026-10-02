@@ -193,6 +193,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			<section aria-label="Preview" className={styles.previewColumn}>
 				<div className={styles.previewAndSource}>
 					<ElementPreview
+						backgroundTheme={definition.preview.backgroundTheme}
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
 						elementHeight={definition.elementHeight}

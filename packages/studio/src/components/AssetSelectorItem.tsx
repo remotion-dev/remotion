@@ -255,7 +255,7 @@ const AssetFolderItem: React.FC<{
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			paddingLeft: 4 + level * 8,
+			paddingLeft: 12 + (level - 1) * 11,
 			...hoverableStyle({
 				idleBackground: TRANSPARENT,
 				hoverBackground: WHITE_ALPHA_06,
@@ -600,7 +600,7 @@ const AssetSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 12 + level * 11,
 		};
 	}, [level, selected]);
 

@@ -24,7 +24,7 @@ import {
 	renameComposition as renameCompositionCodemod,
 	renameFolder as renameFolderCodemod,
 	reorderEffect as reorderEffectCodemod,
-	reorderNode,
+	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences as splitSequencesCodemod,
@@ -36,7 +36,6 @@ import {
 	updateNodeProps,
 	type CodemodFileChange,
 	type CodemodNodeResult,
-	type CodemodResult,
 	type CompositionDestination,
 	type EffectKeyframeUpdate,
 	type InsertableSequenceWrapper,
@@ -391,7 +390,7 @@ const getAddCompositionResult = ({
 	project: VirtualProject;
 	compositionFile: string;
 	options: NewCompositionOptions;
-}): CodemodResult => {
+}): CodemodNodeResult => {
 	const componentFilePath = `${dirname(compositionFile)}/${options.componentName}.tsx`;
 	if (project.files[componentFilePath] !== undefined) {
 		throw new Error(
@@ -428,6 +427,7 @@ const getAddCompositionResult = ({
 
 	const result = addCompositionCodemod(composition);
 	return {
+		...result,
 		changes: [
 			...result.changes,
 			{
@@ -635,16 +635,14 @@ export const createBrowserStudioOperations = ({
 	}: {
 		fileName: string;
 		project: VirtualProject;
-		result: CodemodResult | CodemodNodeResult;
+		result: CodemodNodeResult;
 		undoRedoNavigation: UndoRedoNavigation | null;
 	}) => {
-		const nodePathMutationFiles =
-			'nodePathRemappings' in result ? getNodePathMutationFiles(result) : null;
 		return controller.applyMutation({
 			undoRedoNavigation,
 			timelineSelection: null,
 			fileName,
-			nodePathMutationFiles,
+			nodePathMutationFiles: getNodePathMutationFiles(result),
 			mutate: (current) => applyCodemodChanges(current, result.changes),
 		});
 	};
@@ -1590,6 +1588,7 @@ export const createBrowserStudioOperations = ({
 					node: {filePath: sequence.fileName, nodePath: sequence.nodePath},
 					frame: sequence.splitFrame,
 					sequenceKeys: sequence.sequenceKeys,
+					videoConfig: sequence.videoConfigValues ?? undefined,
 				})),
 			});
 			const nodePathMutation = controller.applyMutation({
@@ -1872,7 +1871,7 @@ export const createBrowserStudioOperations = ({
 
 	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
 		fileName,
-		sourceNodePath,
+		sourceNodePaths,
 		targetNodePath,
 		position,
 	}) => {
@@ -1882,9 +1881,12 @@ export const createBrowserStudioOperations = ({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNode({
+			const result = await reorderNodes({
 				project,
-				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
+				nodes: sourceNodePaths.map((sourceNodePath) => ({
+					filePath: absolutePath,
+					nodePath: sourceNodePath.nodePath,
+				})),
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
 				position,
 			});

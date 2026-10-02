@@ -27,6 +27,6 @@ export const basicCaptionsInitialProps = {
 			confidence: null,
 		},
 	],
-	combineTokensWithinMilliseconds: 2000,
+	combineTokensWithinMilliseconds: 3000,
 	width: 900,
 } satisfies ComponentProps<typeof BasicCaptions>;

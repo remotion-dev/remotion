@@ -44,6 +44,34 @@ export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 	return captured;
 };
 
+// The opening elements of a JSX element and its descendants. Relies on the
+// captured nodes being in document order, so parents precede their children.
+export const collectJsxSubtree = (
+	captured: CapturedJsxNodePath[],
+	root: JSXOpeningElement,
+): Set<JSXOpeningElement> => {
+	const nodes = new Set<JSXOpeningElement>([root]);
+	for (const {node, parentNode} of captured) {
+		if (parentNode !== null && nodes.has(parentNode)) {
+			nodes.add(node);
+		}
+	}
+
+	return nodes;
+};
+
+export const requireCapturedNodePath = (
+	captured: CapturedJsxNodePath[],
+	node: JSXOpeningElement,
+): SequenceNodePath => {
+	const match = captured.find((entry) => entry.node === node);
+	if (!match) {
+		throw new Error('Could not locate the JSX node after editing the source');
+	}
+
+	return match.nodePath;
+};
+
 export const getNodePathRemappings = ({
 	ast,
 	captured,

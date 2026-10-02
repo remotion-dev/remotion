@@ -32,13 +32,11 @@ const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	flexShrink: 0,
 	position: 'relative',
-	zIndex: 1,
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
 	position: 'absolute',
-	zIndex: 0,
 };
 
 const AudioWaveformInner: React.FC<{
@@ -219,20 +217,40 @@ const AudioWaveformInner: React.FC<{
 		context.moveTo(0, 0);
 		// The canvas only spans the virtualized range. Sampling by its physical
 		// width keeps drawing work bounded to the visible part of the timeline.
-		const numberOfPoints = Math.max(2, Math.ceil(drawingWidth));
+		const numberOfPoints = Math.min(
+			visibleVolume.length,
+			Math.max(1, Math.ceil(drawingWidth)),
+		);
 		for (let point = 0; point < numberOfPoints; point++) {
-			const progress = point / (numberOfPoints - 1);
-			const volumeIndex = progress * (visibleVolume.length - 1);
-			const leftIndex = Math.floor(volumeIndex);
-			const rightIndex = Math.ceil(volumeIndex);
-			const leftVolume = visibleVolume[leftIndex] ?? 1;
-			const rightVolume = visibleVolume[rightIndex] ?? leftVolume;
-			const interpolatedVolume =
-				leftVolume + (rightVolume - leftVolume) * (volumeIndex - leftIndex);
-			const x = progress * drawingWidth;
-			const unclampedY = (1 - interpolatedVolume / visualizationMaxVolume) * h;
+			const volumeIndex = Math.floor(
+				(point / numberOfPoints) * visibleVolume.length,
+			);
+			const nextVolumeIndex = Math.floor(
+				((point + 1) / numberOfPoints) * visibleVolume.length,
+			);
+			const firstFrame = Math.max(0, Math.floor(displayOffsetInFrames));
+			const x = Math.max(
+				0,
+				((firstFrame + volumeIndex - displayOffsetInFrames) /
+					displayDurationInFrames) *
+					drawingWidth,
+			);
+			const nextX =
+				point === numberOfPoints - 1
+					? drawingWidth
+					: Math.min(
+							drawingWidth,
+							((firstFrame + nextVolumeIndex - displayOffsetInFrames) /
+								displayDurationInFrames) *
+								drawingWidth,
+						);
+			const unclampedY =
+				(1 - (visibleVolume[volumeIndex] ?? 1) / visualizationMaxVolume) * h;
 			const y = Math.max(0, Math.min(h, unclampedY));
+			// Volume samples apply for one frame. Keep each value until the next
+			// frame boundary instead of blending a hold into a diagonal ramp.
 			context.lineTo(x, y);
+			context.lineTo(nextX, y);
 		}
 
 		context.lineTo(drawingWidth, 0);
@@ -243,6 +261,8 @@ const AudioWaveformInner: React.FC<{
 		);
 		context.fill();
 	}, [
+		displayDurationInFrames,
+		displayOffsetInFrames,
 		height,
 		peaks,
 		shouldRenderVolumeOverlay,

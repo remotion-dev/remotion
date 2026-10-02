@@ -31,7 +31,7 @@
 			"path": "./packages/browser-studio"
 		},
 		{
-			"path": "./packages/canvas"
+			"path": "./packages/sdk"
 		},
 		{
 			"path": "./packages/cloudrun"

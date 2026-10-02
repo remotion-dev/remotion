@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.530
+version: 4.0.532
 ---
 
 ## Preserve user changes
@@ -38,11 +38,19 @@ By structuring the Remotion markup well, we can allow users to interactively cha
 
 If the user asks to "make" a video, "create" a video, etc.
 Don't render the video by default unless they are very explicit. They want to instead see an interactive preview.
-Start the preview server after building the composition:
+As soon as the project can run, start Studio and open the preview in the browser before building or editing the composition. Keep it open while you work so the user can watch progress and steer.
 
-### If you have an in-app browser
+### If you are using Cursor
 
-If you are e.g. Codex, GitHub Copilot or any other desktop agent with an in-app browser, run:
+Run Studio without `--no-open` so it opens the browser automatically:
+
+```bash
+npx remotion studio
+```
+
+### If you are using another agent client with an in-app browser
+
+You can use the command above to let Studio open the browser, or run:
 
 ```bash
 npx remotion studio --no-open
@@ -50,6 +58,7 @@ npx remotion studio --no-open
 
 This will start a long-running process and print the server URL for the preview.  
 If the server is already started, it will print the URL.
+If you use `--no-open`, open the exact printed URL in the in-app browser and verify that Studio loads. Once a composition exists, verify that its video preview loads. If you cannot open it there, run Studio without `--no-open`.
 You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 :::note
@@ -58,7 +67,7 @@ The Studio supports WebMCP tools.
 
 ### If you do not have an in-app browser
 
-This will open the Studio in the browser or-refocus it if it is already open.
+This will open the Studio in the browser or refocus it if it is already open.
 
 ```bash
 npx remotion studio

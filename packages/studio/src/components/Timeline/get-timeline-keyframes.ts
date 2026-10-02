@@ -1,6 +1,6 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 
-export type {KeyframeSourceFrame} from '@remotion/canvas';
+export type {KeyframeSourceFrame} from '@remotion/sdk';
 
 export const {
 	getKeyframeDisplayOffset,

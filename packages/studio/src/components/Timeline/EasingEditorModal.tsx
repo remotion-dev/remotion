@@ -1,7 +1,7 @@
 import {
 	canvasKeyframeEasingPresets,
 	type CanvasKeyframeEasingPreset,
-} from '@remotion/canvas';
+} from '@remotion/sdk';
 import {HOLD_KEYFRAME_EASING} from '@remotion/studio-shared';
 import React, {
 	useCallback,

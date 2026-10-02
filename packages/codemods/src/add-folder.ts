@@ -1,9 +1,13 @@
 import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
 import type {FolderReference} from './composition-editing';
-import {getTreeEntries, requireTreeItem} from './folder-editing';
+import {
+	getRegistrationInsertionResult,
+	getTreeEntries,
+	requireTreeItem,
+} from './folder-editing';
 import {findProjectFile} from './internals';
+import type {CodemodInsertionResult} from './node-references';
 import {getRegistrationInsertionSourceEdit} from './registration-source-edits';
 import {ensureNamedImport} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -23,7 +27,7 @@ export const addFolder = <Project extends CodemodProject>({
 	project,
 	compositionFile,
 	folder,
-}: AddFolderOptions<Project>) => {
+}: AddFolderOptions<Project>): CodemodInsertionResult => {
 	if (!folder.name || folder.name.includes('/')) {
 		throw new Error('Folder names must be non-empty and cannot contain /');
 	}
@@ -92,9 +96,11 @@ export const addFolder = <Project extends CodemodProject>({
 			}),
 		],
 	});
-	parseAst(nextContents);
-	return getCodemodResult({
+	return getRegistrationInsertionResult({
 		project,
-		edits: [{filePath, nextContents}],
+		filePath,
+		input,
+		output: nextContents,
+		inserted: {type: 'folder', ...folder},
 	});
 };

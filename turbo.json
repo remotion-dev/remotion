@@ -108,6 +108,17 @@
 				"@remotion/brand#bundle",
 				"@remotion/example#bundle-testbed"
 			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-vibe-code/next.config.mjs",
+				"$TURBO_ROOT$/packages/template-vibe-code/package.json",
+				"$TURBO_ROOT$/packages/template-vibe-code/postcss.config.mjs",
+				"$TURBO_ROOT$/packages/template-vibe-code/public/preview.html",
+				"$TURBO_ROOT$/packages/template-vibe-code/scripts/**",
+				"$TURBO_ROOT$/packages/template-vibe-code/src/**",
+				"$TURBO_ROOT$/packages/template-vibe-code/styles/**",
+				"$TURBO_ROOT$/packages/template-vibe-code/tsconfig.json"
+			],
 			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
 			"env": [
 				"REMOTION_DOCS_DISABLE_TWOSLASH",

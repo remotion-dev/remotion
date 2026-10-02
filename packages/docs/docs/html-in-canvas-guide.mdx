@@ -41,7 +41,7 @@ For rendering, you don't need to do anything — see [Rendering](#rendering) bel
 ```tsx twoslash title="MyComp.tsx"
 import {HtmlInCanvas, type HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage}) => {
+const onPaint: HtmlInCanvasOnPaint = ({canvas, elementImage}) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Failed to acquire 2D context');
@@ -49,8 +49,7 @@ const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage}) => {
 
   ctx.reset();
   ctx.filter = 'blur(8px)';
-  const transform = ctx.drawElementImage(elementImage, 0, 0);
-  element.style.transform = transform.toString();
+  ctx.drawElementImage(elementImage, 0, 0);
 };
 
 export const MyComp: React.FC = () => {
@@ -101,13 +100,15 @@ You can also build your own — see [Making a custom HTML-in-canvas presentation
 HTML-in-canvas is only available in Chrome 149 and later with the `chrome://flags/#canvas-draw-element` flag enabled.  
 The API is unstable - Chrome may change the API or even remove it in the future.
 
-Nesting [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components is not supported and throws an error. If you need to combine multiple effects, merge them into a single `onPaint` callback.
+Nesting [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components requires Chrome 157 or newer with HTML-in-canvas enabled. See [Nested HTML-in-canvas](#nested-html-in-canvas).
 
 ## Rendering
 
 From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455), render is supported locally via [`npx remotion render`](/docs/cli/render) and Studio, on [Lambda](/docs/lambda), on [Vercel](/docs/vercel) and through [server-side rendering](/docs/ssr) APIs.
 
 We compiled a version of Chrome and made it the default, and enabled the flag for you.
+
+Nested `<HtmlInCanvas>` components are currently intended for preview and client-side rendering. Remotion's server-side browser is Chrome 149, so server-side rendering does not support nesting yet.
 
 If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
 
@@ -127,7 +128,7 @@ If your machine has no GPU, we recommend `--gl=swangle` instead (default on Lamb
 
 ## AI agents
 
-Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and the [no-nesting rule](#limitations).
+Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and [nesting support](#nested-html-in-canvas).
 
 Install them with:
 
@@ -139,11 +140,11 @@ npx skills add remotion-dev/skills
 
 Not directly related, but [`@remotion/web-renderer`](/docs/client-side-rendering/html-in-canvas) can also use this technology to capture frames.
 
-This is opt-in because the mode cannot capture compositions containing [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas): that would create a nested HTML-in-canvas subtree.
+This is opt-in. In Chrome versions earlier than 157, compositions containing [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) use the built-in DOM composer because native capture would create a nested HTML-in-canvas subtree.
 
 ## Nested HTML-in-canvas
 
-Nesting `<HtmlInCanvas>` components is unsupported in preview, client-side rendering, and server-side rendering.
+Nesting `<HtmlInCanvas>` components is supported for preview and client-side rendering in Chrome 157 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Older versions throw an error. Server-side rendering does not support nesting yet.
 
 ## See also
 

@@ -1,4 +1,5 @@
 import {Audio} from '@remotion/media';
+import type {InteractivitySchema} from 'remotion';
 import {
 	AbsoluteFill,
 	Easing,
@@ -21,6 +22,7 @@ const LINE_HEIGHT = 54;
 const POSTERIZE_FRAMES = 3;
 
 export type PromptProps = {
+	readonly style?: React.CSSProperties;
 	prompt: string;
 	thinkingIndex: number;
 };
@@ -48,7 +50,7 @@ const Cursor: React.FC<{frame: number}> = ({frame}) => {
 	);
 };
 
-export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
+const PromptInner: React.FC<PromptProps> = ({prompt, thinkingIndex, style}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const typingAnimationFrame =
@@ -77,6 +79,7 @@ export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
 				justifyContent: 'flex-end',
 				alignItems: 'center',
 				paddingBottom: 80,
+				...style,
 			}}
 		>
 			<Audio
@@ -142,3 +145,24 @@ export const Prompt: React.FC<PromptProps> = ({prompt, thinkingIndex}) => {
 		</AbsoluteFill>
 	);
 };
+
+const promptSchema = {
+	prompt: {type: 'text-content', default: '', description: 'Prompt'},
+	thinkingIndex: {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		integer: true,
+		hiddenFromList: false,
+		keyframable: false,
+		description: 'Thinking message index',
+	},
+} as const satisfies InteractivitySchema;
+
+export const Prompt = Interactive.withSchema({
+	Component: PromptInner,
+	componentName: '<Prompt>',
+	schema: promptSchema,
+	wrapInSequence: true,
+});

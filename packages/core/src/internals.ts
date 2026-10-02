@@ -138,6 +138,10 @@ import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {PremountContext} from './PremountContext.js';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from './react-refresh-event.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -188,7 +192,10 @@ import {
 	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	useActiveFromDragOverrideKeys,
+	useSequenceManagerSequences,
 	SequenceRegistrationContext,
+	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
@@ -346,11 +353,14 @@ export const Internals = {
 	CompositionSetters,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	useActiveFromDragOverrideKeys,
+	useSequenceManagerSequences,
 	SequenceRegistrationContext,
 	DisableSequenceRegistrationProvider,
 	CommitOrderInternals,
@@ -429,6 +439,8 @@ export const Internals = {
 	useTimelineSetFrameWithoutSeek,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
+	REACT_REFRESH_STARTED_EVENT,
+	REACT_REFRESH_FINISHED_EVENT,
 	addSequenceStackTraces,
 	useMediaStartsAt,
 	BufferingProvider,

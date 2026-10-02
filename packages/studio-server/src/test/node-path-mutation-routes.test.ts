@@ -144,7 +144,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 				clientId: 'initiating-client',
 				fileName,
 				position: 'after',
-				sourceNodePath: subscriptionKey('name="a"'),
+				sourceNodePaths: [subscriptionKey('name="a"')],
 				targetNodePath: subscriptionKey('name="c"'),
 			},
 		});
@@ -202,6 +202,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 						nodePath: lineContainingToNodePath(before, 'name="c"'),
 						sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 						splitFrame: 30,
+						videoConfigValues: null,
 					},
 				],
 			},

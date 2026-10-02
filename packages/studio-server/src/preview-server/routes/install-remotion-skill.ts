@@ -68,8 +68,8 @@ const changeRemotionSkill = async ({
 				? ['add', `remotion-dev/skills@${skill}`, '--yes']
 				: ['remove', ...(removingGlobally ? ['--global'] : []), skill, '--yes'];
 		const args = useBunx
-			? ['--silent', 'skills@1.5.26', ...commandArgs]
-			: ['--yes', '--loglevel=error', 'skills@1.5.26', ...commandArgs];
+			? ['--silent', 'skills@1.7.0', ...commandArgs]
+			: ['--yes', '--loglevel=error', 'skills@1.7.0', ...commandArgs];
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray(`╭─  ${executable} ${args.join(' ')}`),

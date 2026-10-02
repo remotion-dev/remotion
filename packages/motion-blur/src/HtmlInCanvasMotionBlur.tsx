@@ -88,8 +88,9 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 	return (
 		<div
 			aria-hidden={!isRepresentativeSample}
-			// Each sample has its own paint record so it can be captured separately.
-			{...{drawable: ''}}
+			// The first sample is captured through HtmlInCanvas's drawable root.
+			// Only its canvas siblings need separate drawable paint records.
+			{...(index === 0 ? {} : {drawable: ''})}
 			style={{
 				position: 'absolute',
 				inset: 0,
@@ -203,11 +204,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 						? elementImage
 						: layoutCanvas.captureElementImage(sampleElement);
 				try {
-					const sampleTransform = context.drawElementImage(image, 0, 0);
-					if (index === Math.floor(actualSamples / 2)) {
-						(sampleElement as HTMLElement).style.transform =
-							sampleTransform.toString();
-					}
+					context.drawElementImage(image, 0, 0);
 				} finally {
 					if (index !== 0) {
 						image.close();
@@ -267,7 +264,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
  * Experimental motion blur that averages separately captured HTML-in-canvas
  * snapshots of the children at fractional frames. Preview requires Chrome with
  * the experimental HTML-in-canvas flag enabled. Nested HtmlInCanvas components
- * are currently unsupported.
+ * require Chrome 157 or newer.
  */
 export const HtmlInCanvasMotionBlur = Interactive.withSchema<
 	typeof htmlInCanvasMotionBlurSchema,

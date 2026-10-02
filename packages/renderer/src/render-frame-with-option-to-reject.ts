@@ -17,10 +17,9 @@ import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
-import type {FrameAndAssets, OnArtifact} from './render-frames';
+import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import {seekToFrame} from './seek-to-frame';
 import {takeFrame} from './take-frame';
-import {truthy} from './truthy';
 
 export const renderFrameWithOptionToReject = async ({
 	reject,
@@ -42,6 +41,7 @@ export const renderFrameWithOptionToReject = async ({
 	scale,
 	countType,
 	assets,
+	assetIndex,
 	framesToRender,
 	onArtifact,
 	onDownload,
@@ -80,6 +80,7 @@ export const renderFrameWithOptionToReject = async ({
 	scale: number;
 	countType: CountType;
 	assets: FrameAndAssets[];
+	assetIndex: AssetIndex;
 	framesToRender: number[];
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
@@ -194,16 +195,6 @@ export const renderFrameWithOptionToReject = async ({
 		await onFrameBuffer(buffer, frame);
 	}
 
-	const onlyAvailableAssets = assets.filter(truthy);
-
-	const previousAudioRenderAssets = onlyAvailableAssets
-		.map((a) => a.audioAndVideoAssets)
-		.flat(2);
-
-	const previousArtifactAssets = onlyAvailableAssets
-		.map((a) => a.artifactAssets)
-		.flat(2);
-
 	const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
 	const artifactAssets = onlyArtifact({
 		assets: collectedAssets,
@@ -211,21 +202,22 @@ export const renderFrameWithOptionToReject = async ({
 	});
 
 	for (const artifact of artifactAssets) {
-		for (const previousArtifact of previousArtifactAssets) {
-			if (artifact.filename === previousArtifact.filename) {
-				return Promise.reject(
-					new Error(
-						`An artifact with output "${artifact.filename}" was already registered at frame ${previousArtifact.frame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
-					),
-				);
-			}
+		const previousFrame = assetIndex.firstArtifactFrameByFilename.get(
+			artifact.filename,
+		);
+		if (previousFrame !== undefined) {
+			return Promise.reject(
+				new Error(
+					`An artifact with output "${artifact.filename}" was already registered at frame ${previousFrame}, but now registered again at frame ${artifact.frame}. Artifacts must have unique names. https://remotion.dev/docs/artifacts`,
+				),
+			);
 		}
 
 		onArtifact?.(artifact);
 	}
 
 	const compressedAssets = audioAndVideoAssets.map((asset) => {
-		return compressAsset(previousAudioRenderAssets, asset);
+		return compressAsset(assetIndex.firstAssetBySrc, asset);
 	});
 
 	const inlineAudioAssets = onlyInlineAudio(collectedAssets);
@@ -243,6 +235,20 @@ export const renderFrameWithOptionToReject = async ({
 		}),
 		inlineAudioAssets,
 	});
+	for (const asset of compressedAssets) {
+		if (asset.src.length >= 400 && !assetIndex.firstAssetBySrc.has(asset.src)) {
+			assetIndex.firstAssetBySrc.set(asset.src, asset);
+		}
+	}
+
+	for (const artifact of artifactAssets) {
+		if (!assetIndex.firstArtifactFrameByFilename.has(artifact.filename)) {
+			assetIndex.firstArtifactFrameByFilename.set(
+				artifact.filename,
+				artifact.frame,
+			);
+		}
+	}
 
 	for (const renderAsset of compressedAssets) {
 		downloadAndMapAssetsToFileUrl({

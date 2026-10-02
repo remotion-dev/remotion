@@ -15,7 +15,7 @@ Use [`staticFile()`](/docs/staticfile) to reference an `.srt` file in your `publ
 
 ```tsx twoslash title="Importing captions from .srt"
 import {useState, useEffect, useCallback} from 'react';
-import {AbsoluteFill, staticFile, useDelayRender} from 'remotion';
+import {staticFile, useDelayRender} from 'remotion';
 import {parseSrt} from '@remotion/captions';
 import type {Caption} from '@remotion/captions';
 
@@ -44,7 +44,7 @@ export const MyComponent: React.FC = () => {
     return null;
   }
 
-  return <AbsoluteFill>{/* Use captions here */}</AbsoluteFill>;
+  return <>{/* Use captions here */}</>;
 };
 ```
 

@@ -185,13 +185,35 @@ export const HtmlInCanvasPresentation = <
 
 		const canvas = canvasRef.current;
 		if (!canvas) {
+			return;
+		}
+
+		if (canvas.getAttribute('content') !== 'drawable') {
+			canvas.setAttribute('content', 'drawable');
+		}
+
+		if (canvas.layoutSubtree !== true) {
+			canvas.layoutSubtree = true;
+		}
+
+		const firstChild = canvas.firstElementChild;
+		if (firstChild && !firstChild.hasAttribute('drawable')) {
+			firstChild.setAttribute('drawable', '');
+		}
+	});
+
+	useLayoutEffect(() => {
+		if (passThrough) {
+			return;
+		}
+
+		const canvas = canvasRef.current;
+		if (!canvas) {
 			throw new Error('Canvas not found');
 		}
 
-		canvas.layoutSubtree = true;
-
 		const onPaint = () => {
-			const firstChild = canvas.firstChild as HTMLElement;
+			const firstChild = canvas.firstElementChild;
 			const captureCanvas = captureCanvasRef.current;
 			const captureContext = captureContextRef.current;
 

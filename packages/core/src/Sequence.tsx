@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
+	createContext,
 	forwardRef,
 	useCallback,
 	useContext,
@@ -16,7 +17,7 @@ import type {
 } from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {getStackForControls} from './enable-sequence-stack-traces.js';
-import {Freeze} from './freeze.js';
+import {Freeze, useIsInsideNonPremountFreeze} from './freeze.js';
 import {getSequenceBoundaryTolerance} from './get-sequence-boundary-tolerance.js';
 import {
 	sequenceSchema,
@@ -50,6 +51,8 @@ import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
+
+const SeriesContentVisibilityContext = createContext(true);
 
 const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 type EffectDefinitionsWithRuntimeValues =
@@ -553,6 +556,25 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const controlsComponentIdentity = controls?.componentIdentity;
 	const controlsComponentName = controls?.componentName;
 	const controlsVideoConfigValues = controls?.videoConfigValues;
+	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
+	const canInferDuration =
+		(controlsComponentIdentity === 'dev.remotion.remotion.Series' ||
+			controlsComponentIdentity ===
+				'dev.remotion.transitions.TransitionSeries') &&
+		!loop &&
+		registeredFrozenFrame === null &&
+		!isInsideNonPremountFreeze &&
+		!hidden;
+	const autoDuration = canInferDuration && durationInFrames === undefined;
+	const isSeriesChild =
+		controlsComponentIdentity === 'dev.remotion.remotion.Series.Sequence' ||
+		controlsComponentIdentity ===
+			'dev.remotion.transitions.TransitionSeries.Sequence' ||
+		controlsComponentIdentity ===
+			'dev.remotion.transitions.TransitionSeries.Transition' ||
+		controlsComponentIdentity ===
+			'dev.remotion.transitions.TransitionSeries.Overlay';
+	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
 	const effectRuntimeValues = useMemo(
 		() =>
 			(
@@ -664,6 +686,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			sequencePlaybackRate: playbackRate,
 			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
+			...(autoDuration ? {autoDuration: true} : {}),
+			...(canInferDuration ? {canInferDuration: true} : {}),
+			...(isSeriesChild ? {unclippedDuration: effectiveDurationInFrames} : {}),
 			id,
 			displayName: timelineClipName,
 			documentationLink: resolvedDocumentationLink,
@@ -689,6 +714,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		parentSequence?.id,
 		actualDurationInFrames,
+		autoDuration,
+		canInferDuration,
+		isSeriesChild,
+		effectiveDurationInFrames,
 		from,
 		registeredTrimBefore,
 		showInTimeline,
@@ -726,7 +755,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		durationInFrames: effectiveDurationInFrames,
 	});
 	const content =
-		frameInParent - from < -boundaryTolerance
+		!seriesContentVisible || frameInParent - from < -boundaryTolerance
 			? null
 			: frameInParent - endThreshold >= -boundaryTolerance
 				? null
@@ -799,18 +828,33 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		) : null;
 	}
 
+	// Retain resolved scene registrations so Studio can recover the natural end
+	// even when seeking past an explicit wrapper trim. Scene contents stay hidden.
+	const retainSeriesRegistration = env.isStudio && canInferDuration;
+	const sequenceContent =
+		loopedContent === null ? (
+			retainSeriesRegistration ? (
+				children
+			) : null
+		) : other.layout === 'none' ? (
+			loopedContent
+		) : (
+			<AbsoluteFillElement
+				ref={sequenceRef}
+				style={defaultStyle}
+				className={other.className}
+			>
+				{loopedContent}
+			</AbsoluteFillElement>
+		);
 	const sequence = (
 		<SequenceContext.Provider value={contextValue}>
-			{loopedContent === null ? null : other.layout === 'none' ? (
-				loopedContent
+			{retainSeriesRegistration ? (
+				<SeriesContentVisibilityContext.Provider value={content !== null}>
+					{sequenceContent}
+				</SeriesContentVisibilityContext.Provider>
 			) : (
-				<AbsoluteFillElement
-					ref={sequenceRef}
-					style={defaultStyle}
-					className={other.className}
-				>
-					{loopedContent}
-				</AbsoluteFillElement>
+				sequenceContent
 			)}
 		</SequenceContext.Provider>
 	);

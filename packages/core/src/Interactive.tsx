@@ -1,9 +1,13 @@
-import React, {forwardRef, useCallback} from 'react';
+import React, {forwardRef, useCallback, useContext} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
 } from './CompositionManager.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {CompositionManager} from './CompositionManagerContext.js';
+import {
+	addSequenceStackTraces,
+	resolveComponentIdentity,
+} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {
 	backgroundSchema,
@@ -349,6 +353,16 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		unknown,
 		ComponentWrappedInSequenceProps
 	>((props, ref) => {
+		const {canvasContent, compositions} = useContext(CompositionManager);
+		// The render callback runs after the exported wrapper has been initialized.
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		const componentIdentity = resolveComponentIdentity(Wrapped);
+		const isCurrentComposition = compositions.some(
+			(composition) =>
+				canvasContent?.type === 'composition' &&
+				composition.id === canvasContent.compositionId &&
+				composition.componentFromProps === componentIdentity,
+		);
 		const {
 			durationInFrames,
 			from,
@@ -411,6 +425,9 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 		return (
 			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 				<SequenceWithoutSchema
+					_remotionInternalSingleChildComponent={
+						isCurrentComposition ? null : componentIdentity
+					}
 					layout="none"
 					durationInFrames={durationInFrames}
 					from={from}
@@ -420,7 +437,7 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 					freeze={freeze}
 					hidden={hidden}
 					name={name ?? componentName}
-					showInTimeline={showInTimeline}
+					showInTimeline={isCurrentComposition ? false : showInTimeline}
 					controls={controls}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}

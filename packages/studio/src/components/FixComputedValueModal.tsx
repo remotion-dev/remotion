@@ -171,6 +171,7 @@ export const FixComputedValueModal: React.FC<{
 					</div>
 				)}
 				<AgentPrompt
+					action={null}
 					availableText="Use this prompt to make this value editable:"
 					promptDetails={promptDetails}
 					skillId="remotion-interactivity"
