@@ -14,6 +14,31 @@ Use connected composition when a section has its own layers or timing, will be r
 3. Register the **same component reference** with `<Composition component={...}>` in the root.
    Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
 
+## Make the component independent of its parent
+
+A connected composition must work when opened on its own. Its parent is not
+mounted in that view, so do not rely on inherited parent styles, context
+providers, or side effects that run only when the parent mounts.
+
+Set required inherited styles, such as `fontFamily`, `fontWeight`, `color`, and
+`lineHeight`, on the component's own root or text elements. For example, a
+parent's `<AbsoluteFill style={{fontFamily}}>...</AbsoluteFill>` does not supply
+the font when the child composition is opened separately.
+Load custom fonts in the component's module or a shared font module it imports;
+setting `fontFamily` alone does not load a font. See [Google fonts](google-fonts.md)
+and [local fonts](local-fonts.md).
+
+If appearance or data should vary per instance, pass it through explicit props
+and provide matching `defaultProps` on the standalone registration. When
+extracting existing markup, carry over the inherited styles and dependencies
+that it needs to preserve its appearance.
+
+Verify the connected composition by opening it directly in a fresh Studio
+preview before opening the parent. Check that its fonts and appearance match
+its intended parent use without depending on the parent having mounted first.
+
+## Example
+
 ```tsx
 // Chapter.tsx
 import type React from 'react';
@@ -40,6 +65,8 @@ const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
+        color: 'black',
+        fontFamily: 'Helvetica, Arial, sans-serif',
         ...style,
       }}
     >

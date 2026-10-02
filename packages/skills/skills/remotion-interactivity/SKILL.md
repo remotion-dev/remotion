@@ -141,6 +141,13 @@ animation as standalone compositions. Studio calls these **connected
 compositions**: they can be opened in their own timeline while sharing the same
 component implementation with the parent video.
 
+The component must work independently: define required styles such as
+`fontFamily` inside it and load its fonts without relying on the parent mounting.
+Do not depend on inherited parent styles, parent-only context providers, or
+parent mount side effects. Pass configurable values as explicit props with
+matching registration defaults. See
+[parent independence](../remotion-markup/connected-compositions.md#make-the-component-independent-of-its-parent).
+
 Register the same exported component reference that the parent renders. For the
 example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
 With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
