@@ -231,6 +231,7 @@ import {
 	issue10468DefaultProps,
 	issue5758DefaultProps,
 } from './AudioTesting/Issue10468';
+import {VolumeHoldCurveComposition} from './AudioTesting/VolumeHoldCurve';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -1795,6 +1796,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="audio-tests">
+				<VolumeHoldCurveComposition />
 				<Composition
 					id="complex-sounds"
 					component={ComplexSounds}
