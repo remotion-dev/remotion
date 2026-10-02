@@ -479,13 +479,7 @@ type TimelineSelectionContextValue = {
 		item: TimelineSelection,
 		getRect: () => DOMRect | null,
 	) => () => void;
-	readonly getMarqueeSelection: (
-		marqueeRect: TimelineMarqueeRect,
-		lockedSelectionKind: TimelineMarqueeSelectionKind | null,
-	) => {
-		readonly lockedSelectionKind: TimelineMarqueeSelectionKind | null;
-		readonly selectedItems: readonly TimelineSelection[];
-	};
+	readonly getMarqueeSelectionCandidates: () => readonly TimelineMarqueeSelectionCandidate[];
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
 	readonly remapSelectionNodePaths: (
 		mutations: readonly SequenceNodePathMutation[],
@@ -503,10 +497,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	selectItem: () => undefined,
 	selectItems: () => undefined,
 	registerMarqueeSelectableItem: () => () => undefined,
-	getMarqueeSelection: () => ({
-		lockedSelectionKind: null,
-		selectedItems: [],
-	}),
+	getMarqueeSelectionCandidates: () => [],
 	containsSelection: () => false,
 	remapSelectionNodePaths: () => undefined,
 	clearSelection: () => undefined,
@@ -1352,44 +1343,22 @@ export const TimelineSelectionProvider: React.FC<{
 		[],
 	);
 
-	const getMarqueeSelectionForRect = useCallback(
-		(
-			marqueeRect: TimelineMarqueeRect,
-			lockedSelectionKind: TimelineMarqueeSelectionKind | null,
-		) => {
-			const candidates = [...marqueeSelectableItems.current.values()]
-				.sort((a, b) => a.order - b.order)
-				.flatMap((candidate): TimelineMarqueeSelectionCandidate[] => {
-					if (!canSelectItem(candidate.item)) {
-						return [];
-					}
+	const getMarqueeSelectionCandidates = useCallback(() => {
+		return [...marqueeSelectableItems.current.values()]
+			.sort((a, b) => a.order - b.order)
+			.flatMap((candidate): TimelineMarqueeSelectionCandidate[] => {
+				if (!canSelectItem(candidate.item)) {
+					return [];
+				}
 
-					const rect = candidate.getRect();
-					if (rect === null) {
-						return [];
-					}
+				const rect = candidate.getRect();
+				if (rect === null) {
+					return [];
+				}
 
-					return [
-						{
-							item: candidate.item,
-							rect: {
-								bottom: rect.bottom,
-								left: rect.left,
-								right: rect.right,
-								top: rect.top,
-							},
-						},
-					];
-				});
-
-			return getTimelineMarqueeSelection({
-				candidates,
-				lockedSelectionKind,
-				marqueeRect,
+				return [{item: candidate.item, rect}];
 			});
-		},
-		[canSelectItem],
-	);
+	}, [canSelectItem]);
 
 	const clearSelection = useCallback(() => {
 		selectionScope.current = null;
@@ -1493,7 +1462,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
-			getMarqueeSelection: getMarqueeSelectionForRect,
+			getMarqueeSelectionCandidates,
 			containsSelection,
 			remapSelectionNodePaths,
 			clearSelection,
@@ -1508,7 +1477,7 @@ export const TimelineSelectionProvider: React.FC<{
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
-			getMarqueeSelectionForRect,
+			getMarqueeSelectionCandidates,
 			containsSelection,
 			remapSelectionNodePaths,
 			clearSelection,
@@ -1572,7 +1541,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelection, selectedItems, selectItems} =
+	const {canSelect, getMarqueeSelectionCandidates, selectedItems, selectItems} =
 		useTimelineSelection();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
@@ -1635,6 +1604,26 @@ export const useTimelineMarqueeSelection = () => {
 			let lastClientY = event.clientY;
 			const extendSelection = event.metaKey || event.ctrlKey;
 			const selectionBeforeMarquee = selectedItems;
+			// Keep content-space bounds for this drag even after virtualization
+			// unmounts an item. Refresh mounted items as scrolling reveals them.
+			const candidates = new Map<string, TimelineMarqueeSelectionCandidate>();
+			const refreshCandidates = () => {
+				const scrollLeft = scrollable?.scrollLeft ?? 0;
+				const scrollTop = verticalScroll?.scrollTop ?? 0;
+				for (const candidate of getMarqueeSelectionCandidates()) {
+					candidates.set(getTimelineSelectionKey(candidate.item), {
+						item: candidate.item,
+						rect: {
+							left: candidate.rect.left + scrollLeft,
+							right: candidate.rect.right + scrollLeft,
+							top: candidate.rect.top + scrollTop,
+							bottom: candidate.rect.bottom + scrollTop,
+						},
+					});
+				}
+			};
+
+			refreshCandidates();
 
 			const updateSelection = (clientX: number, clientY: number) => {
 				lastClientX = clientX;
@@ -1693,7 +1682,19 @@ export const useTimelineMarqueeSelection = () => {
 					startX: anchorX,
 					startY: anchorY,
 				});
-				const nextSelection = getMarqueeSelection(rect, lockedSelectionKind);
+				refreshCandidates();
+				const scrollLeft = scrollable?.scrollLeft ?? 0;
+				const scrollTop = verticalScroll?.scrollTop ?? 0;
+				const nextSelection = getTimelineMarqueeSelection({
+					candidates: [...candidates.values()],
+					lockedSelectionKind,
+					marqueeRect: {
+						left: rect.left + scrollLeft,
+						right: rect.right + scrollLeft,
+						top: rect.top + scrollTop,
+						bottom: rect.bottom + scrollTop,
+					},
+				});
 				lockedSelectionKind = nextSelection.lockedSelectionKind;
 				setMarqueeRect({
 					bottom: Math.min(rect.bottom, bounds.bottom),
@@ -1763,7 +1764,7 @@ export const useTimelineMarqueeSelection = () => {
 		},
 		[
 			canSelect,
-			getMarqueeSelection,
+			getMarqueeSelectionCandidates,
 			isHighestContext,
 			selectedItems,
 			selectItems,
@@ -1776,6 +1777,7 @@ export const useTimelineMarqueeSelection = () => {
 export const useTimelineMarqueeSelectableItem = (
 	item: TimelineSelection | null,
 	ref: React.RefObject<Element | null>,
+	horizontalBounds: {readonly cropLeft: number; readonly width: number} | null,
 ) => {
 	const selectionContext = useContext(TimelineRowSelectionContext);
 	if (selectionContext === null) {
@@ -1791,11 +1793,22 @@ export const useTimelineMarqueeSelectableItem = (
 			return;
 		}
 
-		return registerMarqueeSelectableItem(
-			item,
-			() => ref.current?.getBoundingClientRect() ?? null,
-		);
-	}, [item, ref, registerMarqueeSelectableItem]);
+		return registerMarqueeSelectableItem(item, () => {
+			const rect = ref.current?.getBoundingClientRect() ?? null;
+			if (rect === null || horizontalBounds === null) {
+				return rect;
+			}
+
+			// Sequence bars are cropped to the horizontal render window. Hit-test
+			// the full sequence so scrolling does not change its selectable bounds.
+			return new DOMRect(
+				rect.left - horizontalBounds.cropLeft,
+				rect.top,
+				horizontalBounds.width,
+				rect.height,
+			);
+		});
+	}, [horizontalBounds, item, ref, registerMarqueeSelectableItem]);
 };
 
 export const useTimelineRowSelection = (
