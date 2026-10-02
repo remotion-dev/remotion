@@ -555,7 +555,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const controlsVideoConfigValues = controls?.videoConfigValues;
 	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
 	const autoDuration =
-		controlsComponentIdentity === 'dev.remotion.remotion.Series' &&
+		(controlsComponentIdentity === 'dev.remotion.remotion.Series' ||
+			controlsComponentIdentity ===
+				'dev.remotion.transitions.TransitionSeries') &&
 		durationInFrames === undefined &&
 		!loop &&
 		registeredFrozenFrame === null &&

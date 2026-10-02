@@ -89,6 +89,12 @@ The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>
 `layout="none"` is deprecated and throws from Remotion 5.0.0 on.  
 Transition scenes must stay absolutely positioned. Remove the `layout` prop or keep the default `absolute-fill`. See the [v5 migration guide](/docs/5-0-migration).
 
+#### `durationInFrames?`<AvailableFrom v="4.0.533" />
+
+Limits how long the entire `<TransitionSeries>` is rendered, using the same behavior as [`<Sequence durationInFrames>`](/docs/sequence#durationinframes). It does not change the durations of its scenes or transitions.
+
+By default, the wrapper lasts until the end of its parent sequence or composition. In the Studio, its timeline bar ends at the latest child end, accounting for transition overlaps, offsets, and playback rates. Resizing the wrapper writes an explicit `durationInFrames`; removing it restores the inferred bar length.
+
 ### `<TransitionSeries.Sequence>`
 
 Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`playbackRate`](/docs/sequence#playbackrate), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style), [`showInTimeline`](/docs/sequence#showintimeline), [`freeze`](/docs/sequence#freeze), [`premountFor`](/docs/sequence#premountfor) and [`postmountFor`](/docs/sequence#postmountfor) props from [`<Sequence>`](/docs/sequence).
