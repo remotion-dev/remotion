@@ -214,7 +214,7 @@ export const calculateTimeline = ({
 				end = Math.max(
 					end,
 					getTiming(child).cascadedStart +
-						child.duration / sequencePlaybackRate,
+						(child.unclippedDuration ?? child.duration) / sequencePlaybackRate,
 				);
 			}
 

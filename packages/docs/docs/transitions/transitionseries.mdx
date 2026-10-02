@@ -93,7 +93,7 @@ Transition scenes must stay absolutely positioned. Remove the `layout` prop or k
 
 Limits how long the entire `<TransitionSeries>` is rendered, using the same behavior as [`<Sequence durationInFrames>`](/docs/sequence#durationinframes). It does not change the durations of its scenes or transitions.
 
-By default, the wrapper lasts until the end of its parent sequence or composition. In the Studio, its timeline bar ends at the latest child end, accounting for transition overlaps, offsets, and playback rates. Resizing the wrapper writes an explicit `durationInFrames`; removing it restores the inferred bar length.
+By default, the wrapper lasts until the end of its parent sequence or composition. In the Studio, its timeline bar ends at the latest child end, accounting for transition overlaps, offsets, and playback rates. Dragging the wrapper’s right edge before that end writes an explicit `durationInFrames`. Dragging it to or beyond that end clamps the edge there and removes `durationInFrames` on release, restoring the inferred bar length.
 
 ### `<TransitionSeries.Sequence>`
 
