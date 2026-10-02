@@ -3,6 +3,8 @@
 import {
   canvasKeyframeEasingPresets,
   getCanvasSelectionItemKey,
+  getCanvasSequenceReorderInsertionIndex,
+  getCanvasSequenceReorderSelection,
   startCanvasKeyframeDrag,
   useCanvasSelection,
   useCanvasSequenceHover,
@@ -11,6 +13,7 @@ import {
   type CanvasSelectionInteraction,
 } from "@remotion/sdk";
 import { getNodeProps } from "@remotion/codemods";
+import type { NodeReference } from "@remotion/codemods";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -48,6 +51,7 @@ import {
   type KeyframeSelectionItem,
 } from "../../model/keyframes";
 import {
+  areSiblingNodes,
   getLayerLabel,
   getNodeReference,
   type Layer,
@@ -87,6 +91,13 @@ type DragState = {
   // live, so the bar is drawn from these values instead of the live track.
   startFrom: number;
   startDuration: number;
+};
+
+type ReorderDragState = {
+  nodes: NodeReference[];
+  sourceKeys: string[];
+  targetId: string | null;
+  position: "before" | "after" | null;
 };
 
 // The keyframes being dragged are drawn shifted by the previewed delta; the
@@ -163,8 +174,13 @@ const TrackRow = memo(function TrackRow({
   selected,
   drag,
   keyframeRows,
+  reorderDropPosition,
   onToggleKeyframeRows,
   onPointerDownBar,
+  onDragStartLabel,
+  onDragOverLabel,
+  onDropLabel,
+  onDragEndLabel,
 }: {
   readonly layer: Layer;
   readonly index: number;
@@ -174,12 +190,17 @@ const TrackRow = memo(function TrackRow({
   readonly drag: DragState | null;
   /** Whether the layer has animated props and whether their rows are shown. */
   readonly keyframeRows: "none" | "expanded" | "collapsed";
+  readonly reorderDropPosition: "before" | "after" | null;
   readonly onToggleKeyframeRows: (layer: Layer) => void;
   readonly onPointerDownBar: (
     event: React.PointerEvent,
     layer: Layer,
     mode: DragState["mode"],
   ) => void;
+  readonly onDragStartLabel: (event: React.DragEvent, layer: Layer) => void;
+  readonly onDragOverLabel: (event: React.DragEvent, layer: Layer) => void;
+  readonly onDropLabel: (event: React.DragEvent, layer: Layer) => void;
+  readonly onDragEndLabel: () => void;
 }) {
   const { host, actions } = useEditor();
   const { hovered, onPointerEnter, onPointerLeave } = useCanvasSequenceHover(
@@ -226,9 +247,15 @@ const TrackRow = memo(function TrackRow({
         <div
           className={cn(
             "bg-background-panel border-border-dim sticky left-0 z-20 flex shrink-0 items-center gap-1.5 border-r border-b pr-2 text-xs",
+            layer.source && "cursor-grab",
             selected && "bg-[#141a2a]",
           )}
           style={{ width: LABEL_WIDTH, paddingLeft: 6 + depth * 14 }}
+          draggable={layer.source !== null}
+          onDragStart={(event) => onDragStartLabel(event, layer)}
+          onDragOver={(event) => onDragOverLabel(event, layer)}
+          onDrop={(event) => onDropLabel(event, layer)}
+          onDragEnd={onDragEndLabel}
           onClick={select}
           onDoubleClick={() => {
             if (layer.source) {
@@ -282,6 +309,14 @@ const TrackRow = memo(function TrackRow({
             >
               no source
             </span>
+          ) : null}
+          {reorderDropPosition ? (
+            <div
+              className={cn(
+                "bg-primary pointer-events-none absolute right-0 left-0 h-0.5",
+                reorderDropPosition === "before" ? "top-0" : "bottom-0",
+              )}
+            />
           ) : null}
         </div>
         <div
@@ -560,6 +595,7 @@ export const Timeline: React.FC = () => {
   const [zoom, setZoom] = useState(1);
   const [drag, setDrag] = useState<DragState | null>(null);
   const dragRef = useRef<DragState | null>(null);
+  const [reorderDrag, setReorderDrag] = useState<ReorderDragState | null>(null);
   const [keyframeDrag, setKeyframeDrag] = useState<KeyframeDragState | null>(
     null,
   );
@@ -624,6 +660,182 @@ export const Timeline: React.FC = () => {
       return next;
     });
   }, []);
+
+  const onDragStartLabel = useCallback(
+    (event: React.DragEvent, layer: Layer) => {
+      if (!layer.source || !host) {
+        event.preventDefault();
+        return;
+      }
+
+      const selected = getCanvasSequenceReorderSelection({
+        draggedItem: layer.selectionItem,
+        selectedItems: host.controller.selection.getSnapshot().selectedItems,
+      });
+      const sourceLayers = selected.map((info) =>
+        layers.find(
+          (candidate) =>
+            getCanvasSelectionItemKey(candidate.selectionItem) ===
+            getCanvasSelectionItemKey({ type: "sequence", nodePathInfo: info }),
+        ),
+      );
+      if (
+        sourceLayers.some(
+          (sourceLayer) =>
+            !sourceLayer?.source ||
+            sourceLayer.nodePathInfo.numberOfSequencesWithThisNodePath !== 1 ||
+            !areSiblingNodes(sourceLayer.source, layer.source!),
+        )
+      ) {
+        event.preventDefault();
+        actions.notifyError(
+          new Error("Selected clips must be unique JSX siblings to reorder."),
+        );
+        return;
+      }
+
+      const nodes = sourceLayers.map((sourceLayer) =>
+        getNodeReference(sourceLayer!.selectionItem),
+      );
+      if (nodes.some((node) => node === null)) {
+        event.preventDefault();
+        return;
+      }
+
+      if (sourceLayers.length > 1) {
+        const orderedLayers = sourceLayers
+          .map((sourceLayer) => sourceLayer!)
+          .sort((left, right) => layers.indexOf(left) - layers.indexOf(right));
+        const dragImage = document.createElement("div");
+        Object.assign(dragImage.style, {
+          backgroundColor: "#141a2a",
+          boxShadow: "0 4px 16px #0008",
+          color: "#fff",
+          fontFamily: "Arial, Helvetica, sans-serif",
+          fontSize: "12px",
+          left: "0",
+          pointerEvents: "none",
+          position: "fixed",
+          top: "0",
+          width: `${LABEL_WIDTH}px`,
+          zIndex: "2147483647",
+        });
+        for (const selectedLayer of orderedLayers) {
+          const row = document.createElement("div");
+          row.textContent = getLayerLabel(selectedLayer);
+          Object.assign(row.style, {
+            alignItems: "center",
+            borderBottom: "1px solid #ffffff24",
+            boxSizing: "border-box",
+            display: "flex",
+            height: `${ROW_HEIGHT}px`,
+            overflow: "hidden",
+            paddingLeft: `${6 + selectedLayer.track.depth * 14}px`,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          });
+          dragImage.appendChild(row);
+        }
+
+        document.body.appendChild(dragImage);
+        const labelRect = event.currentTarget.getBoundingClientRect();
+        event.dataTransfer.setDragImage(
+          dragImage,
+          event.clientX - labelRect.left,
+          orderedLayers.indexOf(layer) * ROW_HEIGHT + event.clientY - labelRect.top,
+        );
+        requestAnimationFrame(() => dragImage.remove());
+      }
+
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("application/x-remotion-layer-reorder", "move");
+      setReorderDrag({
+        nodes: nodes as NodeReference[],
+        sourceKeys: sourceLayers.map((sourceLayer) =>
+          getCanvasSelectionItemKey(sourceLayer!.selectionItem),
+        ),
+        targetId: null,
+        position: null,
+      });
+    },
+    [actions, host, layers],
+  );
+
+  const onDragOverLabel = useCallback(
+    (event: React.DragEvent, layer: Layer) => {
+      if (!reorderDrag || !layer.source) {
+        return;
+      }
+
+      const siblings = layers.filter(
+        (candidate) =>
+          candidate.source && areSiblingNodes(candidate.source, layer.source!),
+      );
+      const sourceIndexes = reorderDrag.nodes.map((node) =>
+        siblings.findIndex(
+          (candidate) =>
+            JSON.stringify(candidate.source?.nodePath) ===
+            JSON.stringify(node.nodePath),
+        ),
+      );
+      const targetIndex = siblings.indexOf(layer);
+      const position =
+        event.clientY < event.currentTarget.getBoundingClientRect().top + 15
+          ? "before"
+          : "after";
+      if (
+        sourceIndexes.some((index) => index === -1) ||
+        getCanvasSequenceReorderInsertionIndex({
+          sourceIndexes,
+          targetIndex,
+          position,
+        }) === null
+      ) {
+        setReorderDrag((current) =>
+          current?.targetId === null
+            ? current
+            : current && { ...current, targetId: null, position: null },
+        );
+        return;
+      }
+
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+      setReorderDrag((current) =>
+        current?.targetId === layer.track.sequence.id &&
+        current.position === position
+          ? current
+          : current && {
+              ...current,
+              targetId: layer.track.sequence.id,
+              position,
+            },
+      );
+    },
+    [layers, reorderDrag],
+  );
+
+  const onDropLabel = useCallback(
+    (event: React.DragEvent, layer: Layer) => {
+      if (
+        !reorderDrag ||
+        !layer.source ||
+        reorderDrag.targetId !== layer.track.sequence.id ||
+        reorderDrag.position === null
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      void actions.reorderNodes(
+        reorderDrag.nodes,
+        layer.source,
+        reorderDrag.position,
+      );
+      setReorderDrag(null);
+    },
+    [actions, reorderDrag],
+  );
 
   const frameFromClientX = useCallback(
     (clientX: number) => {
@@ -1109,6 +1321,11 @@ export const Timeline: React.FC = () => {
                   durationInFrames={durationInFrames}
                   selected={selectedKeys.has(layerKey)}
                   drag={drag}
+                  reorderDropPosition={
+                    reorderDrag?.targetId === layer.track.sequence.id
+                      ? reorderDrag.position
+                      : null
+                  }
                   keyframeRows={
                     !hasKeyframeRows
                       ? "none"
@@ -1118,6 +1335,10 @@ export const Timeline: React.FC = () => {
                   }
                   onToggleKeyframeRows={toggleKeyframeRows}
                   onPointerDownBar={onPointerDownBar}
+                  onDragStartLabel={onDragStartLabel}
+                  onDragOverLabel={onDragOverLabel}
+                  onDropLabel={onDropLabel}
+                  onDragEndLabel={() => setReorderDrag(null)}
                 />
                 {getVisibleKeyframeRows(layer).map((prop) => (
                   <KeyframeRow

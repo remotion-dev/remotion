@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {reorderNode} from '@remotion/codemods';
+import {reorderNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderSequenceRequest,
@@ -24,13 +24,13 @@ import {
 export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceRequest,
 	ReorderSequenceResponse
-> = ({
-	input: {fileName, sourceNodePath, targetNodePath, position, clientId},
-	remotionRoot,
-	logLevel,
-}) => {
+> = ({input, remotionRoot, logLevel}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
+			const {fileName, targetNodePath, position, clientId} = input;
+			const sourceNodePaths =
+				input.sourceNodePaths ??
+				(input.sourceNodePath ? [input.sourceNodePath] : []);
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
 				`[reorder-sequence] Received request for fileName="${fileName}" position=${position}`,
@@ -43,9 +43,12 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = await reorderNode({
+			const result = await reorderNodes({
 				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
-				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
+				nodes: sourceNodePaths.map((sourceNodePath) => ({
+					filePath: absolutePath,
+					nodePath: sourceNodePath.nodePath,
+				})),
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
 				position,
 			});

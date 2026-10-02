@@ -24,7 +24,7 @@ import {
 	renameComposition as renameCompositionCodemod,
 	renameFolder as renameFolderCodemod,
 	reorderEffect as reorderEffectCodemod,
-	reorderNode,
+	reorderNodes,
 	resolveCompositionComponent,
 	setCompositionDefaultProps,
 	splitSequences as splitSequencesCodemod,
@@ -1868,21 +1868,25 @@ export const createBrowserStudioOperations = ({
 		});
 	};
 
-	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
-		fileName,
-		sourceNodePath,
-		targetNodePath,
-		position,
-	}) => {
+	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async (
+		request,
+	) => {
 		try {
+			const {fileName, targetNodePath, position} = request;
+			const sourceNodePaths =
+				request.sourceNodePaths ??
+				(request.sourceNodePath ? [request.sourceNodePath] : []);
 			const project = getProject();
 			const absolutePath = findProjectFile({
 				filePath: fileName,
 				project,
 			});
-			const result = await reorderNode({
+			const result = await reorderNodes({
 				project,
-				node: {filePath: absolutePath, nodePath: sourceNodePath.nodePath},
+				nodes: sourceNodePaths.map((sourceNodePath) => ({
+					filePath: absolutePath,
+					nodePath: sourceNodePath.nodePath,
+				})),
 				target: {filePath: absolutePath, nodePath: targetNodePath.nodePath},
 				position,
 			});

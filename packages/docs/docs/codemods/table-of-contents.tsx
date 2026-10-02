@@ -115,6 +115,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>reorderNode()</strong>
 				<div>Moves a node before or after a sibling.</div>
 			</TOCItem>
+			<TOCItem link="/docs/codemods/reorder-nodes">
+				<strong>reorderNodes()</strong>
+				<div>Moves JSX siblings as one ordered group.</div>
+			</TOCItem>
 			<TOCItem link="/docs/codemods/resolve-composition-component">
 				<strong>resolveCompositionComponent()</strong>
 				<div>

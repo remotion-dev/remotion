@@ -58,7 +58,12 @@ export {
 	type DuplicateNodesOptions,
 	type DuplicateNodesResult,
 } from './duplicate-nodes';
-export {reorderNode, type ReorderNodeOptions} from './reorder-node';
+export {
+	reorderNode,
+	reorderNodes,
+	type ReorderNodeOptions,
+	type ReorderNodesOptions,
+} from './reorder-node';
 export {splitSequences, type SplitSequencesOptions} from './split-sequences';
 export {detachAudio, type DetachAudioOptions} from './detach-audio';
 export type {

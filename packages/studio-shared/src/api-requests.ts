@@ -694,11 +694,13 @@ export type ReorderSequencePosition = 'before' | 'after';
 
 export type ReorderSequenceRequest = {
 	fileName: string;
-	sourceNodePath: SequencePropsSubscriptionKey;
 	targetNodePath: SequencePropsSubscriptionKey;
 	position: ReorderSequencePosition;
 	clientId: string;
-};
+} & (
+	| {sourceNodePaths: SequencePropsSubscriptionKey[]; sourceNodePath?: never}
+	| {sourceNodePath: SequencePropsSubscriptionKey; sourceNodePaths?: never}
+);
 
 export type ReorderSequenceResponse =
 	| {

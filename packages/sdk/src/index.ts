@@ -34,6 +34,10 @@ export type {
 	CanvasSelectionInteraction,
 	CanvasSelectionSnapshot,
 } from './selection';
+export {
+	getCanvasSequenceReorderInsertionIndex,
+	getCanvasSequenceReorderSelection,
+} from './sequence-reorder';
 export type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
