@@ -137,41 +137,7 @@ export const getMultiSequenceContextMenuItems = ({
 	readonly onSplitSelectedSequences: () => void;
 }): ComboboxValue[] => {
 	return [
-		{
-			type: 'item',
-			id: 'copy-context-for-agents',
-			keyHint: null,
-			label: 'Copy context for agents',
-			leftItem: null,
-			disabled: false,
-			onClick: () => {
-				// Passing a pending Blob keeps the write tied to the click, which
-				// browsers require even though the context is resolved afterwards.
-				navigator.clipboard
-					.write([
-						new ClipboardItem({
-							'text/plain': getContextForAgents().then((contextForAgents) => {
-								if (!contextForAgents) {
-									throw new Error(
-										'No source location found for the selected sequences',
-									);
-								}
-
-								return new Blob([contextForAgents], {type: 'text/plain'});
-							}),
-						}),
-					])
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${(err as Error).message}`,
-							2000,
-						);
-					});
-			},
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: 'copy-context-for-agents',
-		},
+		getCopyContextForAgentsMenuItem({contextForAgents: getContextForAgents}),
 		{
 			type: 'divider',
 			id: 'copy-context-for-agents-divider',

@@ -4,7 +4,8 @@ import {showNotification} from '../Notifications/NotificationCenter';
 export const getCopyContextForAgentsMenuItem = ({
 	contextForAgents,
 }: {
-	readonly contextForAgents: string | null;
+	// Pass a function to only resolve the context once the item is clicked.
+	readonly contextForAgents: string | null | (() => Promise<string | null>);
 }): ComboboxValue => {
 	return {
 		type: 'item',
@@ -14,16 +15,31 @@ export const getCopyContextForAgentsMenuItem = ({
 		leftItem: null,
 		disabled: !contextForAgents,
 		onClick: () => {
-			if (!contextForAgents) {
-				return;
-			}
+			const pendingContext =
+				typeof contextForAgents === 'function'
+					? contextForAgents()
+					: Promise.resolve(contextForAgents);
 
-			navigator.clipboard.writeText(contextForAgents).catch((err) => {
-				showNotification(
-					`Could not copy to clipboard: ${(err as Error).message}`,
-					1000,
-				);
-			});
+			// Passing a pending Blob keeps the write tied to the click, which
+			// browsers require even if the context is resolved afterwards.
+			navigator.clipboard
+				.write([
+					new ClipboardItem({
+						'text/plain': pendingContext.then((context) => {
+							if (!context) {
+								throw new Error('No source location found');
+							}
+
+							return new Blob([context], {type: 'text/plain'});
+						}),
+					}),
+				])
+				.catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						2000,
+					);
+				});
 		},
 		quickSwitcherLabel: null,
 		subMenu: null,
