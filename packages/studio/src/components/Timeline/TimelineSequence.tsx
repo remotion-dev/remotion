@@ -1548,7 +1548,9 @@ const TimelineSequenceInner: React.FC<{
 				durationCanUpdate &&
 				trimBeforeCanUpdate);
 	const canShowSecondaryLeftEdgeAction =
-		(isMedia || isCascadingSequence(s)) &&
+		(isMedia ||
+			(isCascadingSequence(s) &&
+				adjacentCascadingSequences.previous !== null)) &&
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
