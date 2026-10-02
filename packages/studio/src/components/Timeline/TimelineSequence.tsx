@@ -1041,21 +1041,20 @@ const TimelineSequenceInner: React.FC<{
 		}
 
 		if (selectedSequenceNodePathInfos !== null) {
-			return getSequencesContextForAgents({
-				nodePathInfos: selectedSequenceNodePathInfos,
-				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-				sequences,
-			}).then((contextForAgents) =>
-				getMultiSequenceContextMenuItems({
-					contextForAgents,
-					deleteDisabled: !previewInteractive,
-					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive,
-					onDeleteSelectedSequences,
-					onDuplicateSelectedSequences,
-					onSplitSelectedSequences,
-				}),
-			);
+			return getMultiSequenceContextMenuItems({
+				getContextForAgents: () =>
+					getSequencesContextForAgents({
+						nodePathInfos: selectedSequenceNodePathInfos,
+						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+						sequences,
+					}),
+				deleteDisabled: !previewInteractive,
+				duplicateDisabled: !previewInteractive,
+				splitDisabled: !previewInteractive,
+				onDeleteSelectedSequences,
+				onDuplicateSelectedSequences,
+				onSplitSelectedSequences,
+			});
 		}
 
 		const splitMenuItem = getSequenceSplitMenuItem({
