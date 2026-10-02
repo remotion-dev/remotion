@@ -9,7 +9,7 @@ With the following snippet, two portions of a sequence are frozen and resumed af
 
 ```tsx twoslash
 import React, {useMemo} from 'react';
-import {Freeze, Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const CounterInner: React.FC<{style?: React.CSSProperties}> = ({style}) => {
   return (
@@ -83,12 +83,11 @@ export const FreezePortion: React.FC = () => {
   }, [activeFreeze, freezes, nextFreeze]);
 
   return (
-    <Freeze
-      frame={activeFreeze ? activeFreeze.frame : 0}
-      active={Boolean(activeFreeze)}
-    >
-      <Counter from={from} premountFor={fps} />
-    </Freeze>
+    <Counter
+      from={from}
+      freeze={activeFreeze ? activeFreeze.frame : null}
+      premountFor={fps}
+    />
   );
 };
 ```
