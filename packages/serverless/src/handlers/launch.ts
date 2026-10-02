@@ -866,6 +866,7 @@ export const launchHandler = async <Provider extends CloudProvider>({
 			logLevel: params.logLevel,
 			isStill: false,
 			isProduction: params.isProduction ?? true,
+			idempotencyKey: `cloud-render:${params.bucketName}:${params.renderId}`,
 		});
 
 		if (!params.webhook || webhookInvoked) {
