@@ -1366,30 +1366,39 @@ const TimelineSequenceInner: React.FC<{
 		: video.durationInFrames;
 	const frameIncrement =
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
-	const mediaOutline = (() => {
+	const isMedia = s.type === 'audio' || s.type === 'video';
+	const trimOutline = (() => {
 		if (
 			activeEdgeHighlight === null ||
 			activeEdgeHighlight === 'source-only' ||
-			(s.type !== 'audio' && s.type !== 'video') ||
 			s.loopDisplay ||
 			s.frozenFrame !== null ||
-			s.frozenMediaFrame !== null ||
-			mediaMetadata === null ||
-			!Number.isFinite(mediaMetadata.duration) ||
-			naturalMediaDuration === null ||
-			!Number.isFinite(naturalMediaDuration) ||
 			!Number.isFinite(frameIncrement) ||
 			frameIncrement <= 0
 		) {
 			return null;
 		}
 
-		const playbackRate = s.playbackRate * s.sequencePlaybackRate;
-		const trimmedBefore = Math.max(0, mediaStartFrame / playbackRate);
-		const trimmedAfter = Math.max(
+		if (isMedia && s.frozenMediaFrame !== null) {
+			return null;
+		}
+
+		const trimmedBefore = Math.max(
 			0,
-			naturalMediaDuration - displayDurationInFrames,
+			isMedia
+				? mediaStartFrame / (s.playbackRate * s.sequencePlaybackRate)
+				: (s.trimBefore ?? 0) / s.sequencePlaybackRate,
 		);
+		const trimmedAfter =
+			isMedia &&
+			naturalMediaDuration !== null &&
+			Number.isFinite(naturalMediaDuration)
+				? Math.max(0, naturalMediaDuration - displayDurationInFrames)
+				: 0;
+		if (!Number.isFinite(trimmedBefore)) {
+			return null;
+		}
+
 		if (trimmedBefore < 0.5 && trimmedAfter < 0.5) {
 			return null;
 		}
@@ -1458,7 +1467,6 @@ const TimelineSequenceInner: React.FC<{
 		Number.isFinite(durationInFramesCodeValue)
 			? durationInFramesCodeValue
 			: null;
-	const isMedia = s.type === 'audio' || s.type === 'video';
 	const mediaDurationDragLimits = isMedia
 		? getTimelineSequenceMediaDurationDragLimits({
 				cascadedStart,
@@ -1554,7 +1562,7 @@ const TimelineSequenceInner: React.FC<{
 		: null;
 
 	if ((maxMediaDuration === null && !s.loopDisplay) || visibleLayout === null) {
-		return mediaOutline;
+		return trimOutline;
 	}
 
 	const mediaDisplayOffsetInFrames = visibleLayout.media
@@ -1711,7 +1719,7 @@ const TimelineSequenceInner: React.FC<{
 
 	return (
 		<>
-			{mediaOutline}
+			{trimOutline}
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
 				<ContextMenu getItems={getContextMenuItems}>{sequence}</ContextMenu>
 			) : (
