@@ -36,6 +36,7 @@ import {
 	isPointerSessionRelease,
 	startDeferredCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {getSequenceAnnotationAttributes} from '../../helpers/sequence-annotation';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -1236,215 +1237,225 @@ const TimelineSequenceItemInner: React.FC<{
 		);
 	}, [canRotate, nodePathInfo, selectItem, setManuallyEnabled]);
 
-	const getContextMenuItems = useCallback(() => {
-		if (assetContextMenu !== null) {
-			return assetContextMenu;
-		}
+	const getContextMenuItems = useCallback(
+		(event: MouseEvent) => {
+			const contextMenuTarget =
+				event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+			if (assetContextMenu !== null) {
+				return assetContextMenu;
+			}
 
-		if (selectable && !selected) {
-			onSelect({shiftKey: false, toggleKey: false});
-		}
+			if (selectable && !selected) {
+				onSelect({shiftKey: false, toggleKey: false});
+			}
 
-		if (selectedSequenceNodePathInfos !== null) {
-			return getMultiSequenceContextMenuItems({
-				getContextForAgents: () =>
-					getSequencesContextForAgents({
-						nodePathInfos: selectedSequenceNodePathInfos,
-						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-						sequences: sequencesRef.current,
-					}),
-				deleteDisabled: !previewInteractive,
-				duplicateDisabled: !previewInteractive,
-				splitDisabled: !previewInteractive,
-				onDeleteSelectedSequences,
-				onDuplicateSelectedSequences,
-				onSplitSelectedSequences,
+			if (selectedSequenceNodePathInfos !== null) {
+				return getMultiSequenceContextMenuItems({
+					getContextForAgents: () =>
+						getSequencesContextForAgents({
+							nodePathInfos: selectedSequenceNodePathInfos,
+							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+							sequences: sequencesRef.current,
+						}),
+					deleteDisabled: !previewInteractive,
+					duplicateDisabled: !previewInteractive,
+					splitDisabled: !previewInteractive,
+					onDeleteSelectedSequences,
+					onDuplicateSelectedSequences,
+					onSplitSelectedSequences,
+				});
+			}
+
+			const splitMenuItem = getSequenceSplitMenuItem({
+				nodePathInfo,
+				sequence,
+				propStatuses: propStatusesForOverride,
+				splitFrame: getCurrentFrame(),
+				keyframeDisplayOffset,
+				keyframePlaybackRate,
+				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
-		}
 
-		const splitMenuItem = getSequenceSplitMenuItem({
-			nodePathInfo,
-			sequence,
-			propStatuses: propStatusesForOverride,
-			splitFrame: getCurrentFrame(),
-			keyframeDisplayOffset,
-			keyframePlaybackRate,
-			canEditSource: previewInteractive && Boolean(validatedLocation?.source),
-			hasMultipleSelection: selected && selectedItems.length > 1,
-		});
+			const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
+				clientId:
+					previewInteractive && previewServerState.type === 'connected'
+						? previewServerState.clientId
+						: null,
+				nodePath,
+				propStatusesForOverride,
+				sequence,
+				sequenceFrameOffset,
+				setPropStatuses,
+				timelinePosition: getCurrentFrame(),
+				validatedSource: validatedLocation?.source ?? null,
+			});
 
-		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
-			clientId:
-				previewInteractive && previewServerState.type === 'connected'
-					? previewServerState.clientId
-					: null,
-			nodePath,
-			propStatusesForOverride,
-			sequence,
-			sequenceFrameOffset,
-			setPropStatuses,
-			timelinePosition: getCurrentFrame(),
-			validatedSource: validatedLocation?.source ?? null,
-		});
-
-		return getSequenceContextMenuItems({
-			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
+			return getSequenceContextMenuItems(
+				{
+					assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
+					canOpenInEditor,
+					codingAgentInfo,
+					copyImageElement: null,
+					deleteDisabled,
+					disableInteractivityDisabled,
+					duplicateDisabled,
+					editorInfo,
+					includeSourceEditItems: isStudioInteractivityEnabled(),
+					isProgrammaticallyDuplicated,
+					onConfigureApps: canConfigureApps
+						? () => {
+								setSelectedModal({
+									type: 'settings',
+									initialStudioPane: null,
+									initialTab: 'apps',
+									initialPublicLicenseKey:
+										window.remotion_renderDefaults?.publicLicenseKey ?? null,
+								});
+							}
+						: null,
+					onDeleteSequenceFromSource,
+					onDisableSequenceInteractivity,
+					onDuplicateSequenceFromSource,
+					openInCodingAgent,
+					openInEditor,
+					originalLocation,
+					selectAsset,
+					sequence,
+					sourceActions: isStudioInteractivityEnabled()
+						? [
+								...(nodePathInfo?.supportsEffects
+									? [
+											{
+												type: 'item' as const,
+												id: 'add-effect',
+												keyHint: null,
+												label: 'Add effect...',
+												leftItem: null,
+												disabled: !canAddEffect,
+												onClick: onAddEffect,
+												quickSwitcherLabel: null,
+												subMenu: null,
+												value: 'add-effect',
+											},
+										]
+									: []),
+								...(canCrop
+									? [
+											{
+												type: 'item' as const,
+												id: 'crop',
+												keyHint: null,
+												label: isProgrammaticallyDuplicated
+													? 'Crop all'
+													: 'Crop',
+												leftItem: null,
+												disabled: false,
+												onClick: onCrop,
+												quickSwitcherLabel: null,
+												subMenu: null,
+												value: 'crop',
+											},
+										]
+									: []),
+								...(canRotate
+									? [
+											{
+												type: 'item' as const,
+												id: 'rotate',
+												keyHint: null,
+												label: isProgrammaticallyDuplicated
+													? 'Rotate all'
+													: 'Rotate',
+												leftItem: null,
+												disabled: false,
+												onClick: onRotate,
+												quickSwitcherLabel: null,
+												subMenu: null,
+												value: 'rotate',
+											},
+										]
+									: []),
+								...(canCrop || canRotate
+									? [
+											{
+												type: 'divider' as const,
+												id: 'transform-controls-divider',
+											},
+										]
+									: []),
+								{
+									type: 'item' as const,
+									id: 'rename-sequence',
+									keyHint: null,
+									label: 'Rename...',
+									leftItem: null,
+									disabled: !canRenameThisSequence,
+									onClick: () => {
+										onRenameSequence();
+									},
+									quickSwitcherLabel: null,
+									subMenu: null,
+									value: 'rename-sequence',
+								},
+								...(splitMenuItem ? [splitMenuItem] : []),
+								...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
+							]
+						: [],
+				},
+				contextMenuTarget,
+			);
+		},
+		[
+			assetContextMenu,
+			canAddEffect,
+			canCrop,
+			canRotate,
+			canConfigureApps,
 			canOpenInEditor,
+			canRenameThisSequence,
 			codingAgentInfo,
-			copyImageElement: null,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
-			includeSourceEditItems: isStudioInteractivityEnabled(),
 			isProgrammaticallyDuplicated,
-			onConfigureApps: canConfigureApps
-				? () => {
-						setSelectedModal({
-							type: 'settings',
-							initialStudioPane: null,
-							initialTab: 'apps',
-							initialPublicLicenseKey:
-								window.remotion_renderDefaults?.publicLicenseKey ?? null,
-						});
-					}
-				: null,
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
+			mediaSrc,
+			nodePath,
+			nodePathInfo,
+			onAddEffect,
+			onCrop,
+			onRotate,
 			onDeleteSequenceFromSource,
+			onDeleteSelectedSequences,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
+			onDuplicateSelectedSequences,
+			onSplitSelectedSequences,
+			onRenameSequence,
+			onSelect,
 			openInCodingAgent,
 			openInEditor,
 			originalLocation,
+			overrideIdToNodePathMappingsRef,
+			previewInteractive,
+			previewServerState,
+			propStatusesForOverride,
 			selectAsset,
+			selectable,
+			selected,
+			selectedItems.length,
+			selectedSequenceNodePathInfos,
 			sequence,
-			sourceActions: isStudioInteractivityEnabled()
-				? [
-						...(nodePathInfo?.supportsEffects
-							? [
-									{
-										type: 'item' as const,
-										id: 'add-effect',
-										keyHint: null,
-										label: 'Add effect...',
-										leftItem: null,
-										disabled: !canAddEffect,
-										onClick: onAddEffect,
-										quickSwitcherLabel: null,
-										subMenu: null,
-										value: 'add-effect',
-									},
-								]
-							: []),
-						...(canCrop
-							? [
-									{
-										type: 'item' as const,
-										id: 'crop',
-										keyHint: null,
-										label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
-										leftItem: null,
-										disabled: false,
-										onClick: onCrop,
-										quickSwitcherLabel: null,
-										subMenu: null,
-										value: 'crop',
-									},
-								]
-							: []),
-						...(canRotate
-							? [
-									{
-										type: 'item' as const,
-										id: 'rotate',
-										keyHint: null,
-										label: isProgrammaticallyDuplicated
-											? 'Rotate all'
-											: 'Rotate',
-										leftItem: null,
-										disabled: false,
-										onClick: onRotate,
-										quickSwitcherLabel: null,
-										subMenu: null,
-										value: 'rotate',
-									},
-								]
-							: []),
-						...(canCrop || canRotate
-							? [
-									{
-										type: 'divider' as const,
-										id: 'transform-controls-divider',
-									},
-								]
-							: []),
-						{
-							type: 'item' as const,
-							id: 'rename-sequence',
-							keyHint: null,
-							label: 'Rename...',
-							leftItem: null,
-							disabled: !canRenameThisSequence,
-							onClick: () => {
-								onRenameSequence();
-							},
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'rename-sequence',
-						},
-						...(splitMenuItem ? [splitMenuItem] : []),
-						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
-					]
-				: [],
-		});
-	}, [
-		assetContextMenu,
-		canAddEffect,
-		canCrop,
-		canRotate,
-		canConfigureApps,
-		canOpenInEditor,
-		canRenameThisSequence,
-		codingAgentInfo,
-		deleteDisabled,
-		disableInteractivityDisabled,
-		duplicateDisabled,
-		editorInfo,
-		isProgrammaticallyDuplicated,
-		keyframeDisplayOffset,
-		keyframePlaybackRate,
-		mediaSrc,
-		nodePath,
-		nodePathInfo,
-		onAddEffect,
-		onCrop,
-		onRotate,
-		onDeleteSequenceFromSource,
-		onDeleteSelectedSequences,
-		onDisableSequenceInteractivity,
-		onDuplicateSequenceFromSource,
-		onDuplicateSelectedSequences,
-		onSplitSelectedSequences,
-		onRenameSequence,
-		onSelect,
-		openInCodingAgent,
-		openInEditor,
-		originalLocation,
-		overrideIdToNodePathMappingsRef,
-		previewInteractive,
-		previewServerState,
-		propStatusesForOverride,
-		selectAsset,
-		selectable,
-		selected,
-		selectedItems.length,
-		selectedSequenceNodePathInfos,
-		sequence,
-		sequenceFrameOffset,
-		sequencesRef,
-		setSelectedModal,
-		setPropStatuses,
-		validatedLocation?.source,
-	]);
+			sequenceFrameOffset,
+			sequencesRef,
+			setSelectedModal,
+			setPropStatuses,
+			validatedLocation?.source,
+		],
+	);
 	const canDropEffect =
 		canMutateEffects &&
 		nodePath !== null &&
@@ -1626,14 +1637,26 @@ const TimelineSequenceItemInner: React.FC<{
 		trackRow
 	);
 
+	const annotatedTrackRow = (
+		<div
+			{...getSequenceAnnotationAttributes({
+				sequence,
+				location: originalLocation,
+				surface: 'track',
+			})}
+		>
+			{reorderableTrackRow}
+		</div>
+	);
+
 	return (
 		<>
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
 				<ContextMenu getItems={getContextMenuItems}>
-					{reorderableTrackRow}
+					{annotatedTrackRow}
 				</ContextMenu>
 			) : (
-				reorderableTrackRow
+				annotatedTrackRow
 			)}
 			{previewConnected &&
 			isStudioInteractivityEnabled() &&
