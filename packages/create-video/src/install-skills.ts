@@ -16,7 +16,7 @@ export const installSkills = async (projectRoot: string) => {
 				'add',
 				'remotion-dev/skills',
 				'--agent',
-				'codex',
+				'universal',
 				'--yes',
 			],
 			{
@@ -27,7 +27,9 @@ export const installSkills = async (projectRoot: string) => {
 	} catch (e) {
 		Log.error('Error installing skills:', e);
 		Log.error('You can install them manually by running:');
-		Log.error('  npx skills@1.7.0 add remotion-dev/skills --agent codex --yes');
+		Log.error(
+			'  npx skills@1.7.0 add remotion-dev/skills --agent universal --yes',
+		);
 		return;
 	}
 
