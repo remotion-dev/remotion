@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {LIGHT_TEXT, TRANSPARENT, WARNING_COLOR, WHITE} from '../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -92,8 +92,16 @@ export const BrowserStudioExperimentingNotice: React.FC = () => {
 				<ModalHeader title="Before you start" onClose={onClose} />
 				<div style={{padding: 16, minHeight: 0, overflowY: 'auto'}}>
 					<p style={{...bodyTextStyle, margin: '0 0 12px'}}>
-						remotion.dev/new is a playground for experimenting with Remotion’s
-						editing features.
+						<a
+							className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+							href="https://remotion.dev/docs/studio/remotion-dev-new"
+							rel="noopener noreferrer"
+							style={linkStyle}
+							target="_blank"
+						>
+							remotion.dev/new
+						</a>{' '}
+						is a playground for experimenting with Remotion.
 					</p>
 					<p
 						style={{
@@ -110,12 +118,12 @@ export const BrowserStudioExperimentingNotice: React.FC = () => {
 								width: 14,
 								height: 14,
 								flexShrink: 0,
-								fill: WARNING_COLOR,
+								fill: LIGHT_TEXT,
 							}}
 						/>
-						<strong style={{...bodyTextStyle, fontWeight: 'bold'}}>
+						<span style={bodyTextStyle}>
 							Projects aren’t saved between visits.
-						</strong>
+						</span>
 					</p>
 					<p
 						style={{
@@ -133,21 +141,11 @@ export const BrowserStudioExperimentingNotice: React.FC = () => {
 								height: 14,
 								marginTop: 3.5,
 								flexShrink: 0,
-								fill: WARNING_COLOR,
+								fill: LIGHT_TEXT,
 							}}
 						/>
 						<span style={bodyTextStyle}>
-							AI interaction requires the{' '}
-							<a
-								className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-								href="https://www.remotion.dev/docs/studio"
-								rel="noopener noreferrer"
-								style={linkStyle}
-								target="_blank"
-							>
-								local Remotion Studio
-							</a>
-							.
+							You can’t edit code or use an agent.
 						</span>
 					</p>
 					<p
@@ -165,11 +163,11 @@ export const BrowserStudioExperimentingNotice: React.FC = () => {
 								width: 14,
 								height: 14,
 								flexShrink: 0,
-								fill: WARNING_COLOR,
+								fill: LIGHT_TEXT,
 							}}
 						/>
 						<span style={bodyTextStyle}>
-							Only browser rendering is available here.
+							Only browser rendering is available.
 						</span>
 					</p>
 					<p style={{...bodyTextStyle, margin: 0}}>
