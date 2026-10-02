@@ -384,8 +384,8 @@ export const discoverAvailableCodingAgents = async (
 						applicationPath,
 						id,
 						launchMode: 'direct',
-						name: definition.name,
-						nameWithType: definition.nameWithType,
+						name: id === 'codex' ? 'ChatGPT' : definition.name,
+						nameWithType: id === 'codex' ? 'ChatGPT' : definition.nameWithType,
 						platform,
 						terminal: null,
 					});
@@ -443,15 +443,17 @@ export const getCodingAgentLaunchCommand = ({
 }): {command: string; args: string[]; cwd: string | null} => {
 	if (codingAgent.platform === 'darwin') {
 		switch (codingAgent.id) {
-			case 'codex':
+			case 'codex': {
+				const deepLink = new URL('codex://new');
+				deepLink.searchParams.set('path', projectPath);
+
 				return {
-					command: path.posix.join(
-						codingAgent.applicationPath,
-						'Contents/Resources/codex',
-					),
-					args: ['app', projectPath],
+					command: 'open',
+					args: [deepLink.toString()],
 					cwd: null,
 				};
+			}
+
 			case 'cursor':
 				return {
 					command: path.posix.join(
@@ -570,23 +572,6 @@ export const getCodingAgentLaunchCommands = ({
 	projectPath: string;
 	prompt: string | null;
 }): readonly CodingAgentLaunchCommand[] => {
-	if (codingAgent.platform === 'darwin' && codingAgent.id === 'codex') {
-		const deepLink = new URL('codex://new');
-		deepLink.searchParams.set('path', projectPath);
-		if (prompt !== null) {
-			deepLink.searchParams.set('prompt', prompt);
-		}
-
-		return [
-			{
-				command: 'open',
-				args: [deepLink.toString()],
-				cwd: null,
-				waitForExit: false,
-			},
-		];
-	}
-
 	const defaultCommand = {
 		...getCodingAgentLaunchCommand({codingAgent, projectPath}),
 		waitForExit: false,
@@ -595,13 +580,26 @@ export const getCodingAgentLaunchCommands = ({
 	if (
 		prompt === null ||
 		codingAgent.platform !== 'darwin' ||
-		codingAgent.id === 'copilot' ||
-		codingAgent.id === 'codex'
+		codingAgent.id === 'copilot'
 	) {
 		return [defaultCommand];
 	}
 
 	switch (codingAgent.id) {
+		case 'codex': {
+			const deepLink = new URL('codex://new');
+			deepLink.searchParams.set('path', projectPath);
+			deepLink.searchParams.set('prompt', prompt);
+			return [
+				{
+					command: 'open',
+					args: [deepLink.toString()],
+					cwd: null,
+					waitForExit: false,
+				},
+			];
+		}
+
 		case 'cursor': {
 			const deepLink = new URL('cursor://anysphere.cursor-deeplink/prompt');
 			deepLink.searchParams.set('text', prompt);
