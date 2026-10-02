@@ -111,6 +111,8 @@ Samples outside the composition are clamped to its first or last frame.
 
 Children of `<HtmlInCanvasMotionBlur>` can contain another [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) component, or vice versa, in Chrome 157 or newer with HTML-in-canvas enabled. Check [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) before nesting them.
 
+Remotion's bundled server-side browser is currently Chrome 149. Rendering nested components on the server requires a Chrome 157 or newer executable.
+
 ## Compatibility
 
 <CompatibilityTable chrome firefox={false} safari={false} nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />

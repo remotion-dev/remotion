@@ -108,6 +108,8 @@ From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455
 
 We compiled a version of Chrome and made it the default, and enabled the flag for you.
 
+The bundled browser is currently Chrome 149, so these server-side rendering options do not yet support nested `<HtmlInCanvas>` components by default. To render nested components locally or with the server-side APIs, provide a Chrome 157 or newer executable through [`--browser-executable`](/docs/cli/render#--browser-executable) or [`browserExecutable`](/docs/renderer/render-media#browserexecutable). Preview and client-side rendering can use Chrome 157 or newer installed on your machine.
+
 If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
 
 ```bash
@@ -142,7 +144,7 @@ This is opt-in. In Chrome versions earlier than 157, compositions containing [`<
 
 ## Nested HTML-in-canvas
 
-Nesting `<HtmlInCanvas>` components is supported in Chrome 157 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Older versions throw an error.
+Nesting `<HtmlInCanvas>` components is supported in Chrome 157 or newer with HTML-in-canvas enabled. Use [`HtmlInCanvas.isNestingSupported()`](/docs/remotion/html-in-canvas#htmlincanvasisnestingsupported) to check at runtime. Older versions throw an error. Remotion's bundled browser is currently Chrome 149, so nested components need a separate Chrome 157 or newer executable for server-side rendering.
 
 ## See also
 
