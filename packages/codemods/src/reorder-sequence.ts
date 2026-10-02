@@ -43,8 +43,7 @@ const getJsxChildrenParent = (
 	return null;
 };
 
-/* eslint-disable require-await -- Keep the formatter-era Promise API. */
-export const reorderSequences = async ({
+export const reorderSequences = ({
 	input,
 	sourceNodePaths,
 	targetNodePath,
@@ -54,20 +53,13 @@ export const reorderSequences = async ({
 	sourceNodePaths: readonly SequenceNodePath[];
 	targetNodePath: SequenceNodePath;
 	position: ReorderSequencePosition;
-	// Kept optional for compatibility with callers from before source edits
-	// replaced the full-file formatting pass.
-	formatFile?: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}): Promise<{
+}): {
 	output: string;
 	formatted: boolean;
 	sequenceLabel: string;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
-}> => {
+} => {
 	if (sourceNodePaths.length === 0) {
 		throw new Error('Cannot reorder an empty selection');
 	}
@@ -112,11 +104,7 @@ export const reorderSequences = async ({
 	}
 
 	if (selectedElements.has(targetElement)) {
-		throw new Error(
-			sourceElements.length === 1
-				? 'Cannot reorder sequence: source and target are identical'
-				: 'Cannot reorder sequences relative to a selected sequence',
-		);
+		throw new Error('Cannot reorder sequences relative to a selected sequence');
 	}
 
 	const {children} = targetParent;
@@ -187,20 +175,3 @@ export const reorderSequences = async ({
 		nodePathRemappings,
 	};
 };
-
-export const reorderSequence = (options: {
-	input: string;
-	sourceNodePath: SequenceNodePath;
-	targetNodePath: SequenceNodePath;
-	position: ReorderSequencePosition;
-	formatFile?: (input: {
-		contents: string;
-		prettierConfigOverride: Record<string, unknown> | null;
-	}) => Promise<{output: string; formatted: boolean}>;
-	prettierConfigOverride?: Record<string, unknown> | null;
-}) =>
-	reorderSequences({
-		...options,
-		sourceNodePaths: [options.sourceNodePath],
-	});
-/* eslint-enable require-await */

@@ -24,13 +24,13 @@ import {
 export const reorderSequenceHandler: ApiHandler<
 	ReorderSequenceRequest,
 	ReorderSequenceResponse
-> = ({input, remotionRoot, logLevel}) => {
+> = ({
+	input: {fileName, sourceNodePaths, targetNodePath, position, clientId},
+	remotionRoot,
+	logLevel,
+}) => {
 	return withSourceFileWriteQueue(async () => {
 		try {
-			const {fileName, targetNodePath, position, clientId} = input;
-			const sourceNodePaths =
-				input.sourceNodePaths ??
-				(input.sourceNodePath ? [input.sourceNodePath] : []);
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
 				`[reorder-sequence] Received request for fileName="${fileName}" position=${position}`,

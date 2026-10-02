@@ -1868,14 +1868,13 @@ export const createBrowserStudioOperations = ({
 		});
 	};
 
-	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async (
-		request,
-	) => {
+	const reorderSequence: BrowserStudioOperations['reorderSequence'] = async ({
+		fileName,
+		sourceNodePaths,
+		targetNodePath,
+		position,
+	}) => {
 		try {
-			const {fileName, targetNodePath, position} = request;
-			const sourceNodePaths =
-				request.sourceNodePaths ??
-				(request.sourceNodePath ? [request.sourceNodePath] : []);
 			const project = getProject();
 			const absolutePath = findProjectFile({
 				filePath: fileName,
