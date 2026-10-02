@@ -1,4 +1,4 @@
-import {lstatSync, mkdirSync, readlinkSync, symlinkSync} from 'node:fs';
+import {lstatSync, mkdirSync, realpathSync, symlinkSync} from 'node:fs';
 import path from 'node:path';
 import execa from 'execa';
 import {Log} from './log';
@@ -33,14 +33,22 @@ export const installSkills = async (projectRoot: string) => {
 		return;
 	}
 
+	const agentsSkills = path.join(projectRoot, '.agents', 'skills');
 	const claudeSkills = path.join(projectRoot, '.claude', 'skills');
 	const existing = lstatSync(claudeSkills, {throwIfNoEntry: false});
 
 	if (existing) {
-		if (
-			!existing.isSymbolicLink() ||
-			readlinkSync(claudeSkills) !== '../.agents/skills'
-		) {
+		let pointsToAgentsSkills = false;
+		if (existing.isSymbolicLink()) {
+			try {
+				pointsToAgentsSkills =
+					realpathSync(claudeSkills) === realpathSync(agentsSkills);
+			} catch {
+				// An existing link with a missing target must be preserved.
+			}
+		}
+
+		if (!pointsToAgentsSkills) {
 			Log.warn(
 				'Could not link .claude/skills to .agents/skills because .claude/skills already exists.',
 			);
@@ -51,7 +59,11 @@ export const installSkills = async (projectRoot: string) => {
 
 	try {
 		mkdirSync(path.dirname(claudeSkills), {recursive: true});
-		symlinkSync('../.agents/skills', claudeSkills, 'dir');
+		symlinkSync(
+			process.platform === 'win32' ? agentsSkills : '../.agents/skills',
+			claudeSkills,
+			process.platform === 'win32' ? 'junction' : 'dir',
+		);
 	} catch (e) {
 		Log.warn('Could not link .claude/skills to .agents/skills:', e);
 	}
