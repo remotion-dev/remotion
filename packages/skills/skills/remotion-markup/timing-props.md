@@ -1,5 +1,9 @@
 ## Delaying, trimming
 
+In the component that renders these items, get `const {fps} = useVideoConfig()`.
+Use this `fps` for seconds-to-frames expressions on the JSX node, rather than
+a fixed FPS constant.
+
 The following timing props are supported by built-in components (`<AbsoluteFill>`, `<Interactive.*>`, `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more).
 Custom components made with `Interactive.withSchema({wrapInSequence: true})` accept them too, see [Prefer interactive components with their own timelines](../remotion-interactivity/SKILL.md#prefer-interactive-components-with-their-own-timelines).
 Set `premountFor={fps}` on these timed items when they support it, including
