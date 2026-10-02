@@ -120,6 +120,7 @@ const copyImageToClipboard = async (element: Element): Promise<void> => {
 };
 
 export const getMultiSequenceContextMenuItems = ({
+	contextForAgents,
 	deleteDisabled,
 	duplicateDisabled,
 	splitDisabled,
@@ -127,6 +128,7 @@ export const getMultiSequenceContextMenuItems = ({
 	onDuplicateSelectedSequences,
 	onSplitSelectedSequences,
 }: {
+	readonly contextForAgents: string | null;
 	readonly deleteDisabled: boolean;
 	readonly duplicateDisabled: boolean;
 	readonly splitDisabled: boolean;
@@ -135,6 +137,11 @@ export const getMultiSequenceContextMenuItems = ({
 	readonly onSplitSelectedSequences: () => void;
 }): ComboboxValue[] => {
 	return [
+		getCopyContextForAgentsMenuItem({contextForAgents}),
+		{
+			type: 'divider',
+			id: 'copy-context-for-agents-divider',
+		},
 		{
 			type: 'item',
 			id: 'duplicate-selected-sequences',

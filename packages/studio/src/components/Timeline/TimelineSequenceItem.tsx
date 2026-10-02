@@ -81,6 +81,7 @@ import {
 	getSequenceContextMenuItems,
 } from './get-sequence-context-menu-items';
 import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
+import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
@@ -1245,14 +1246,21 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		if (selectedSequenceNodePathInfos !== null) {
-			return getMultiSequenceContextMenuItems({
-				deleteDisabled: !previewInteractive,
-				duplicateDisabled: !previewInteractive,
-				splitDisabled: !previewInteractive,
-				onDeleteSelectedSequences,
-				onDuplicateSelectedSequences,
-				onSplitSelectedSequences,
-			});
+			return getSequencesContextForAgents({
+				nodePathInfos: selectedSequenceNodePathInfos,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+				sequences: sequencesRef.current,
+			}).then((contextForAgents) =>
+				getMultiSequenceContextMenuItems({
+					contextForAgents,
+					deleteDisabled: !previewInteractive,
+					duplicateDisabled: !previewInteractive,
+					splitDisabled: !previewInteractive,
+					onDeleteSelectedSequences,
+					onDuplicateSelectedSequences,
+					onSplitSelectedSequences,
+				}),
+			);
 		}
 
 		const splitMenuItem = getSequenceSplitMenuItem({
@@ -1422,6 +1430,7 @@ const TimelineSequenceItemInner: React.FC<{
 		openInCodingAgent,
 		openInEditor,
 		originalLocation,
+		overrideIdToNodePathMappingsRef,
 		previewInteractive,
 		previewServerState,
 		propStatusesForOverride,
@@ -1432,6 +1441,7 @@ const TimelineSequenceItemInner: React.FC<{
 		selectedSequenceNodePathInfos,
 		sequence,
 		sequenceFrameOffset,
+		sequencesRef,
 		setSelectedModal,
 		setPropStatuses,
 		validatedLocation?.source,
