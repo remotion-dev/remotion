@@ -626,7 +626,7 @@ export const ${componentName}: React.FC = () => {
             }),
           }),
         ),
-      reorderNode: (node: NodeReference, direction: "up" | "down") => {
+      moveSelectedNodesOneStep: (node: NodeReference, direction: "up" | "down") => {
         const draggedLayer = ref.current.layers.find(
           (layer) =>
             layer.source?.filePath === node.filePath &&

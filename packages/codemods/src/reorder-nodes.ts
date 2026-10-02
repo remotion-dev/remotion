@@ -14,13 +14,6 @@ export type ReorderNodesOptions<Project extends CodemodProject> = {
 	position: 'before' | 'after';
 };
 
-export type ReorderNodeOptions<Project extends CodemodProject> = {
-	project: Project;
-	node: NodeReference;
-	target: NodeReference;
-	position: 'before' | 'after';
-};
-
 export const reorderNodes = async <Project extends CodemodProject>({
 	project,
 	nodes,
@@ -64,19 +57,4 @@ export const reorderNodes = async <Project extends CodemodProject>({
 			getUpdatedNodeReference({project, ...result, node}),
 		),
 	};
-};
-
-export const reorderNode = async <Project extends CodemodProject>({
-	project,
-	node,
-	target,
-	position,
-}: ReorderNodeOptions<Project>) => {
-	const result = await reorderNodes({
-		project,
-		nodes: [node],
-		target,
-		position,
-	});
-	return {...result, updatedNode: result.updatedNodes[0]};
 };

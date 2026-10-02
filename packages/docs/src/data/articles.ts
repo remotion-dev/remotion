@@ -1810,15 +1810,6 @@ export const articles = [
 		slug: 'codemods/reorder-effect',
 	},
 	{
-		id: 'codemods/reorder-node',
-		title: 'reorderNode()',
-		relativePath: 'docs/codemods/reorder-node.mdx',
-		compId: 'articles-docs-codemods-reorder-node',
-		crumb: '@remotion/codemods',
-		noAi: false,
-		slug: 'codemods/reorder-node',
-	},
-	{
 		id: 'codemods/reorder-nodes',
 		title: 'reorderNodes()',
 		relativePath: 'docs/codemods/reorder-nodes.mdx',

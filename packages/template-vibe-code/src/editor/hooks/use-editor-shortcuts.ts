@@ -138,7 +138,7 @@ export const useEditorShortcuts = ({
         if (key === "ArrowUp" || key === "ArrowDown") {
           const [node] = getSelectedNodes(host, layers);
           if (node) {
-            void actions.reorderNode(node, key === "ArrowUp" ? "up" : "down");
+            void actions.moveSelectedNodesOneStep(node, key === "ArrowUp" ? "up" : "down");
           }
 
           return true;
