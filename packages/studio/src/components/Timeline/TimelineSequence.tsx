@@ -1482,7 +1482,8 @@ const TimelineSequenceInner: React.FC<{
 				<>
 					{(showLeftEdgeDragHandle || secondaryLeftEdgeAction) &&
 					visibleLayout.media?.offset === 0 &&
-					negativeStartWidth === 0 &&
+					// Keep the captured handle mounted when a trim crosses frame zero.
+					(negativeStartWidth === 0 || activeTrimEdge === 'left') &&
 					nodePathInfo &&
 					validatedLocation ? (
 						<div

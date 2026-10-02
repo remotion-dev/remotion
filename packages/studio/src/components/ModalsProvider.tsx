@@ -2,7 +2,7 @@ import React, {useMemo, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import type {ModalState, SetSelectedModalContextType} from '../state/modals';
 import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
-import {experimentalNoticeStorageKey} from './BrowserStudioExperimentalNotice';
+import {experimentalNoticeStorageKey} from './BrowserStudioExperimentingNotice';
 
 export const ModalsProvider: React.FC<{
 	readonly children: React.ReactNode;
