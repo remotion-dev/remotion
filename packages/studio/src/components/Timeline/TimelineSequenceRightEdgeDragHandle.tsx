@@ -802,7 +802,14 @@ const getTimelineSequenceFromDragResult = ({
 	return {
 		deltaFrames: clampedDelta,
 		snapFrame:
-			closestSnap && closestSnap.deltaFrames === clampedDelta ? 0 : null,
+			snappingEnabled &&
+			targets.some(
+				(target) =>
+					target.canSnapToTimelineStart &&
+					target.initialTimelineStart + clampedDelta === 0,
+			)
+				? 0
+				: null,
 	};
 };
 
@@ -2219,15 +2226,20 @@ export const useTimelineSequenceFromDrag = ({
 					}
 
 					const dx = moveEvent.clientX - dragState.initialClientX;
+					const pointerDeltaFrames = Math.round(dx / dragState.pxPerFrame);
 					const {deltaFrames, snapFrame} = getTimelineSequenceFromDragResult({
 						timelineDurationInFrames,
-						deltaFrames: Math.round(dx / dragState.pxPerFrame),
+						deltaFrames: pointerDeltaFrames,
 						pxPerFrame: dragState.pxPerFrame,
 						snappingEnabled: latestRef.current.editorSnapping,
 						targets: dragState.targets,
 					});
 					dragState.latestDeltaFrames = deltaFrames;
-					if (deltaFrames !== 0 && !dragState.didMove) {
+					if (
+						!dragState.didMove &&
+						(deltaFrames !== 0 ||
+							(snapFrame !== null && pointerDeltaFrames !== 0))
+					) {
 						// The bar can be removed when it leaves the visible timeline.
 						// Capture only after a real drag starts so clicks and double-clicks
 						// remain targeted at the bar.
