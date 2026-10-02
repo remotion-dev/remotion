@@ -64,7 +64,6 @@ import {
 import {TimelineEdgeHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
-import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
 import {
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
@@ -627,12 +626,10 @@ const MemoizedTimelineInner = React.memo(TimelineInner);
 
 export const Timeline: React.FC = () => {
 	return (
-		<TimelineTickFormatProvider>
-			<TimelineEdgeHighlightProvider>
-				<TimelineSequenceMediaDurationDragLimitsProvider>
-					<MemoizedTimelineInner />
-				</TimelineSequenceMediaDurationDragLimitsProvider>
-			</TimelineEdgeHighlightProvider>
-		</TimelineTickFormatProvider>
+		<TimelineEdgeHighlightProvider>
+			<TimelineSequenceMediaDurationDragLimitsProvider>
+				<MemoizedTimelineInner />
+			</TimelineSequenceMediaDurationDragLimitsProvider>
+		</TimelineEdgeHighlightProvider>
 	);
 };
