@@ -1342,6 +1342,7 @@ const TimelineSequenceInner: React.FC<{
 		(windowWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
 	const mediaOutline = (() => {
 		if (
+			activeTrimEdge === null ||
 			(s.type !== 'audio' && s.type !== 'video') ||
 			s.loopDisplay ||
 			s.frozenFrame !== null ||
