@@ -67,6 +67,7 @@ import {
 	getKeyframePlaybackRate,
 } from './get-timeline-keyframes';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
+import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
 import {getTimelineSequenceVisibleLayout} from './get-timeline-sequence-visible-layout';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
@@ -1382,6 +1383,12 @@ const TimelineSequenceInner: React.FC<{
 			return null;
 		}
 
+		const naturalSequenceDuration = originalSequence
+			? getTimelineSequenceNaturalDuration({
+					sequence: originalSequence,
+					sequences,
+				})
+			: null;
 		const trimmedBefore = Math.max(
 			0,
 			isMedia
@@ -1393,7 +1400,15 @@ const TimelineSequenceInner: React.FC<{
 			naturalMediaDuration !== null &&
 			Number.isFinite(naturalMediaDuration)
 				? Math.max(0, naturalMediaDuration - displayDurationInFrames)
-				: 0;
+				: naturalSequenceDuration !== null
+					? Math.max(
+							0,
+							cascadedStart +
+								naturalSequenceDuration / keyframePlaybackRate -
+								s.from -
+								displayDurationInFrames,
+						)
+					: 0;
 		if (!Number.isFinite(trimmedBefore)) {
 			return null;
 		}

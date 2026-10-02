@@ -46,6 +46,7 @@ import {
 	type TimelineSequenceEffectKeyframeDragTarget,
 	type TimelineSequenceKeyframeDragTarget,
 } from './get-keyframed-sequence-drag-targets';
+import {getTimelineSequenceNaturalDuration} from './get-timeline-sequence-natural-duration';
 import {
 	saveSequenceProps,
 	type SaveSequencePropChange,
@@ -1052,65 +1053,42 @@ export const getTimelineSequenceDurationDragTargets = ({
 							track.cascadedStart) *
 						track.keyframePlaybackRate
 					: originalSequence.duration;
-			const isSeriesContainer =
-				controls.componentIdentity === 'dev.remotion.remotion.Series' ||
-				controls.componentIdentity ===
-					'dev.remotion.transitions.TransitionSeries';
-			let canRestoreInferredDuration =
-				isSeriesContainer && originalSequence.canInferDuration === true;
+			const naturalDuration = getTimelineSequenceNaturalDuration({
+				sequence: originalSequence,
+				sequences,
+			});
 			let parentDurationLimit = Infinity;
-			let ancestor: TSequence | undefined = originalSequence;
-			while (ancestor && canRestoreInferredDuration) {
-				if (ancestor.loopDisplay || ancestor.frozenFrame !== null) {
-					canRestoreInferredDuration = false;
-				}
-
-				const parentId: string | null = ancestor.parent;
-				ancestor = sequences.find((candidate) => candidate.id === parentId);
-				if (ancestor) {
-					const parentTrack = tracks.find(
-						(candidate) => candidate.sequence.id === parentId,
-					);
-					if (parentTrack) {
-						parentDurationLimit = Math.min(
-							parentDurationLimit,
-							(parentTrack.cascadedStart +
-								ancestor.duration / parentTrack.keyframePlaybackRate -
-								track.cascadedStart) *
-								track.keyframePlaybackRate,
+			if (naturalDuration !== null) {
+				let ancestor: TSequence | undefined = originalSequence;
+				while (ancestor) {
+					const parentId: string | null = ancestor.parent;
+					ancestor = sequences.find((candidate) => candidate.id === parentId);
+					if (ancestor) {
+						const parentTrack = tracks.find(
+							(candidate) => candidate.sequence.id === parentId,
 						);
+						if (parentTrack) {
+							parentDurationLimit = Math.min(
+								parentDurationLimit,
+								(parentTrack.cascadedStart +
+									ancestor.duration / parentTrack.keyframePlaybackRate -
+									track.cascadedStart) *
+									track.keyframePlaybackRate,
+							);
+						}
 					}
 				}
 			}
 
-			const children = sequences.filter(
-				(child) => child.parent === originalSequence.id,
-			);
-			const naturalDuration =
-				canRestoreInferredDuration &&
-				children.length > 0 &&
-				children.every(
-					(child) =>
-						child.unclippedDuration !== null &&
-						child.unclippedDuration !== undefined,
-				)
-					? Math.max(
-							...children.map(
-								(child) =>
-									(child.from -
-										(originalSequence.trimBefore ?? 0) +
-										(child.unclippedDuration ?? 0)) /
-									originalSequence.sequencePlaybackRate,
-							),
-						)
-					: Infinity;
 			const constrainedMaximumDuration = Math.min(
 				mediaDurationDragLimits
 					? mediaDurationDragLimits.maximumDuration * track.keyframePlaybackRate
 					: Infinity,
 				(timelineDurationInFrames - track.cascadedStart) *
 					track.keyframePlaybackRate,
-				naturalDuration >= minimumDuration ? naturalDuration : Infinity,
+				naturalDuration !== null && naturalDuration >= minimumDuration
+					? naturalDuration
+					: Infinity,
 				parentDurationLimit,
 			);
 			const maximumDuration = isMedia
@@ -1125,8 +1103,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 				fileName: nodePath.absolutePath,
 				initialDuration,
 				maximumDuration,
-				...(Number.isFinite(naturalDuration) &&
-				maximumDuration === naturalDuration
+				...(naturalDuration !== null && maximumDuration === naturalDuration
 					? {naturalDuration, initiallyExplicit: !originalSequence.autoDuration}
 					: {}),
 				// A negative start needs enough duration to retain one visible frame.
