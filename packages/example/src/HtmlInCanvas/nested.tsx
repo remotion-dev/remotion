@@ -136,12 +136,16 @@ export const HtmlInCanvasNested: React.FC = () => {
 											width: 500,
 											height: 330,
 											backgroundColor: '#ff3b72',
-											boxSizing: 'border-box',
-											border: '5px solid #ffc247',
+											position: 'relative',
 										}}
 									>
 										<div
 											style={{
+												position: 'absolute',
+												top: 5,
+												left: 5,
+												right: 5,
+												zIndex: 2,
 												height: 42,
 												paddingLeft: 14,
 												backgroundColor: '#131922',
@@ -153,7 +157,7 @@ export const HtmlInCanvasNested: React.FC = () => {
 											INNER A · VIDEO · YELLOW BORDER
 										</div>
 										<div
-											style={{position: 'relative', width: 490, height: 278}}
+											style={{position: 'relative', width: 500, height: 330}}
 										>
 											<div
 												style={{
@@ -178,11 +182,20 @@ export const HtmlInCanvasNested: React.FC = () => {
 													left: 0,
 													top: 0,
 													zIndex: 1,
-													width: 490,
-													height: 278,
+													width: 500,
+													height: 330,
 												}}
 											/>
 										</div>
+										<div
+											style={{
+												position: 'absolute',
+												inset: 0,
+												zIndex: 3,
+												boxSizing: 'border-box',
+												border: '5px solid #ffc247',
+											}}
+										/>
 									</div>
 								</HtmlInCanvas>
 							</div>
