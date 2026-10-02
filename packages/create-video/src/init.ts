@@ -215,6 +215,12 @@ export const init = async () => {
 		}
 	}
 
+	Log.info('Installing dependencies...');
+	await execa.command(getInstallCommand(pkgManager), {
+		cwd: projectRoot,
+		stdio: 'inherit',
+	});
+
 	if (!isInsideGitRepo) {
 		await getGitStatus(projectRoot);
 	}
@@ -237,7 +243,6 @@ export const init = async () => {
 		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
 	}
 
-	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
 	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
 	Log.info('');
 	Log.info('To render a video, run:');
@@ -251,16 +256,6 @@ export const init = async () => {
 					text: 'remotion.dev/docs',
 					url: 'https://www.remotion.dev/docs',
 					fallback: 'https://www.remotion.dev/docs',
-				}),
-			),
-	);
-	Log.info(
-		' ' +
-			chalk.blue(
-				makeHyperlink({
-					text: 'remotion.dev/prompts',
-					url: 'https://www.remotion.dev/prompts',
-					fallback: 'https://www.remotion.dev/prompts',
 				}),
 			),
 	);
