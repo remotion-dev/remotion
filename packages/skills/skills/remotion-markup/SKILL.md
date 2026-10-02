@@ -17,10 +17,9 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
-`trimBefore`, `durationInFrames`, and `premountFor`. Do not define a separate
-`const FPS = 30` for these props. Keeping the expression on the JSX node, such
-as `trimBefore={4 * fps}`, lets Studio edit the timing and keeps it correct if
-the composition frame rate changes.
+`trimBefore`, `durationInFrames`, and `premountFor`. Keeping the expression on
+the JSX node, such as `trimBefore={4 * fps}`, lets Studio edit the timing and
+keeps it correct if the composition frame rate changes.
 
 Drive animations using `useCurrentFrame()` and `interpolate()`.  
 CSS `transition` or `animation` will not render correctly, they need to refactored.  
