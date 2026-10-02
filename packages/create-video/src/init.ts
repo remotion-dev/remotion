@@ -5,7 +5,6 @@ import execa from 'execa';
 import {addTailwindRootCss, addTailwindToConfig} from './add-tailwind';
 import {createYarnYmlFile} from './add-yarn2-support';
 import {askSkills} from './ask-skills';
-import {askTailwind} from './ask-tailwind';
 import {createPublicFolder} from './create-public-folder';
 import {degit} from './degit';
 import {getCreateVideoHelp} from './help';
@@ -160,11 +159,8 @@ export const init = async () => {
 		onError: Log.warn,
 	});
 
-	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
-		? isYesFlagSelected()
-			? !isNoTailwindFlagSelected()
-			: await askTailwind()
-		: false;
+	const shouldOverrideTailwind =
+		selectedTemplate.allowEnableTailwind && !isNoTailwindFlagSelected();
 
 	const shouldInstallSkills = isYesFlagSelected() ? false : await askSkills();
 
