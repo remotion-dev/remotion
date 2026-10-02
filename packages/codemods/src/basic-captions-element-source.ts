@@ -20,7 +20,7 @@ type BasicCaptionsProps = InteractiveTransformProps &
 
 const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	captions,
-	combineTokensWithinMilliseconds = 2000,
+	combineTokensWithinMilliseconds = 3000,
 	style,
 	width = 900,
 }) => {
@@ -95,7 +95,7 @@ const basicCaptionsSchema = {
 		type: 'number',
 		min: 0,
 		step: 50,
-		default: 2000,
+		default: 3000,
 		description: 'Time between caption pages',
 		hiddenFromList: false,
 	},
