@@ -1,3 +1,7 @@
+import {
+	getCanvasSequenceReorderInsertionIndex,
+	getCanvasSequenceReorderSelection,
+} from '@remotion/sdk';
 import {type ReorderSequencePosition} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -113,6 +117,7 @@ import {
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
+import {useTimelineVirtualization} from './TimelineVirtualization';
 import {useAssetTimelineContextMenu} from './use-asset-timeline-context-menu';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
@@ -142,9 +147,9 @@ const effectDropHighlight: React.CSSProperties = {
 };
 
 type SequenceReorderDragData = {
-	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly nodePathKey: string;
-	readonly siblingIndex: number;
+	readonly sourceNodePaths: readonly SequencePropsSubscriptionKey[];
+	readonly sourceNodePathKeys: readonly string[];
+	readonly siblingIndexes: readonly number[];
 	readonly parentId: string | null;
 	readonly fileName: string;
 };
@@ -293,16 +298,6 @@ const sequenceReorderAfterLine: React.CSSProperties = {
 	top: -1,
 };
 
-const getDestinationIndex = ({
-	fromIndex,
-	insertionIndex,
-}: {
-	readonly fromIndex: number;
-	readonly insertionIndex: number;
-}) => {
-	return insertionIndex > fromIndex ? insertionIndex - 1 : insertionIndex;
-};
-
 type SequenceDropTarget =
 	| {
 			readonly type: 'valid';
@@ -315,6 +310,7 @@ type SequenceDropTarget =
 	  };
 
 type SequencePointerDropTarget = {
+	readonly nodePathKey: string | null;
 	readonly getDropTarget: (
 		clientY: number,
 		dragData: SequenceReorderDragData,
@@ -398,6 +394,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const canMutateEffects =
 		previewConnected && isStudioSelectionEnabled() && canUseEffectOperations();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
+	const {rows: timelineRows} = useTimelineVirtualization();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
@@ -610,7 +607,7 @@ const TimelineSequenceItemInner: React.FC<{
 				};
 			}
 
-			if (dragData.nodePathKey === nodePathKey) {
+			if (dragData.sourceNodePathKeys.includes(nodePathKey)) {
 				return {
 					type: 'invalid',
 					reason: 'Drop onto another sequence to reorder.',
@@ -641,13 +638,13 @@ const TimelineSequenceItemInner: React.FC<{
 
 			const rect = element.getBoundingClientRect();
 			const before = clientY < rect.top + rect.height / 2;
-			const insertionIndex = before ? siblingIndex : siblingIndex + 1;
-			const toIndex = getDestinationIndex({
-				fromIndex: dragData.siblingIndex,
-				insertionIndex,
+			const insertionIndex = getCanvasSequenceReorderInsertionIndex({
+				sourceIndexes: dragData.siblingIndexes,
+				targetIndex: siblingIndex,
+				position: before ? 'before' : 'after',
 			});
 
-			if (toIndex === dragData.siblingIndex) {
+			if (insertionIndex === null) {
 				return {
 					type: 'invalid',
 					reason: 'This sequence is already in that position.',
@@ -684,7 +681,7 @@ const TimelineSequenceItemInner: React.FC<{
 			try {
 				const result = await reorderSequence({
 					fileName: validatedLocation.source,
-					sourceNodePath: dropTarget.dragData.nodePath,
+					sourceNodePaths: [...dropTarget.dragData.sourceNodePaths],
 					targetNodePath: nodePath,
 					position: dropTarget.position,
 					clientId: previewServerState.clientId,
@@ -712,6 +709,7 @@ const TimelineSequenceItemInner: React.FC<{
 		}
 
 		const pointerDropTarget: SequencePointerDropTarget = {
+			nodePathKey,
 			getDropTarget: getSequenceDropTarget,
 			reorder: (dropTarget) => {
 				reorderSequenceFromPointer(dropTarget).catch(() => undefined);
@@ -726,6 +724,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		canHandleSequenceDrag,
 		getSequenceDropTarget,
+		nodePathKey,
 		reorderSequenceFromPointer,
 	]);
 
@@ -749,20 +748,62 @@ const TimelineSequenceItemInner: React.FC<{
 				) ||
 				!canReorderSequence ||
 				!nodePath ||
+				!nodePathInfo ||
 				!nodePathKey ||
-				!validatedLocation?.source
+				!validatedLocation?.source ||
+				isTimelineSelectionModifierEvent(e)
 			) {
 				return;
 			}
 
 			stopSequencePointerSession.current?.();
 
+			const selectedNodePathInfos = getCanvasSequenceReorderSelection({
+				draggedItem: {type: 'sequence', nodePathInfo},
+				selectedItems,
+			});
+			const sourceRows = selectedNodePathInfos.map((info) => {
+				const key = Internals.makeSequencePropsSubscriptionKey(
+					info.sequenceSubscriptionKey,
+				);
+				return timelineRows.find(
+					(row) =>
+						row.track.nodePathInfo !== null &&
+						Internals.makeSequencePropsSubscriptionKey(
+							row.track.nodePathInfo.sequenceSubscriptionKey,
+						) === key,
+				);
+			});
+			if (
+				sourceRows.some(
+					(row, index) =>
+						!row ||
+						row.track.sequence.parent !== parentId ||
+						selectedNodePathInfos[index].numberOfSequencesWithThisNodePath !==
+							1 ||
+						selectedNodePathInfos[index].sequenceSubscriptionKey
+							.absolutePath !== nodePath.absolutePath,
+				)
+			) {
+				return;
+			}
+
+			const orderedSourceRows = sourceRows
+				.map((row) => row!)
+				.sort((left, right) => left.siblingIndex - right.siblingIndex);
+
 			const dragData: SequenceReorderDragData = {
 				fileName: validatedLocation.source,
-				nodePath,
-				nodePathKey,
+				sourceNodePaths: selectedNodePathInfos.map(
+					(info) => info.sequenceSubscriptionKey,
+				),
+				sourceNodePathKeys: selectedNodePathInfos.map((info) =>
+					Internals.makeSequencePropsSubscriptionKey(
+						info.sequenceSubscriptionKey,
+					),
+				),
 				parentId,
-				siblingIndex,
+				siblingIndexes: sourceRows.map((row) => row!.siblingIndex),
 			};
 			const sourceElement = e.currentTarget;
 			const sourceRect = sourceElement.getBoundingClientRect();
@@ -834,21 +875,71 @@ const TimelineSequenceItemInner: React.FC<{
 						document.body.style.userSelect = 'none';
 						document.body.style.webkitUserSelect = 'none';
 
-						dragPreview = sourceElement.cloneNode(true) as HTMLDivElement;
+						const renderedRows = new Map(
+							[...sequencePointerDropTargets].flatMap(([element, target]) =>
+								target.nodePathKey
+									? [[target.nodePathKey, element] as const]
+									: [],
+							),
+						);
+						dragPreview = document.createElement('div');
 						dragPreview.setAttribute('aria-hidden', 'true');
 						dragPreview.setAttribute(
 							'data-remotion-sequence-reorder-preview',
 							'true',
 						);
-						dragPreview.removeAttribute('data-remotion-sequence-reorder-row');
+						let draggedRowOffset = 0;
+						let previewHeight = 0;
+						for (const row of orderedSourceRows) {
+							const key = Internals.makeSequencePropsSubscriptionKey(
+								row.track.nodePathInfo!.sequenceSubscriptionKey,
+							);
+							const renderedRow = renderedRows.get(key);
+							const rowHeight =
+								renderedRow?.getBoundingClientRect().height ??
+								sourceRect.height;
+							const previewRow = renderedRow
+								? (renderedRow.cloneNode(true) as HTMLDivElement)
+								: document.createElement('div');
+							previewRow.removeAttribute('data-remotion-sequence-reorder-row');
+							if (!renderedRow) {
+								previewRow.textContent =
+									row.track.sequence.displayName ||
+									row.track.sequence.controls?.componentName ||
+									'<Sequence>';
+								Object.assign(previewRow.style, {
+									alignItems: 'center',
+									backgroundColor: '#20242c',
+									color: WHITE,
+									display: 'flex',
+									fontFamily: 'Arial, Helvetica, sans-serif',
+									fontSize: '12px',
+									paddingLeft: '12px',
+								});
+							}
+
+							Object.assign(previewRow.style, {
+								boxSizing: 'border-box',
+								height: `${rowHeight}px`,
+								width: '100%',
+							});
+							if (row.track.sequence.id === sequence.id) {
+								draggedRowOffset = previewHeight;
+							}
+
+							previewHeight += rowHeight;
+							dragPreview.appendChild(previewRow);
+						}
+
 						Object.assign(dragPreview.style, {
-							height: `${sourceRect.height}px`,
+							display: 'flex',
+							flexDirection: 'column',
 							left: `${sourceRect.left}px`,
 							margin: '0',
 							opacity: '0.8',
 							pointerEvents: 'none',
 							position: 'fixed',
-							top: `${sourceRect.top}px`,
+							top: `${sourceRect.top - draggedRowOffset}px`,
 							width: `${sourceRect.width}px`,
 							zIndex: '2147483647',
 						});
@@ -893,8 +984,11 @@ const TimelineSequenceItemInner: React.FC<{
 			isStill,
 			nodePath,
 			nodePathKey,
+			nodePathInfo,
 			parentId,
-			siblingIndex,
+			selectedItems,
+			sequence.id,
+			timelineRows,
 			validatedLocation?.source,
 		],
 	);

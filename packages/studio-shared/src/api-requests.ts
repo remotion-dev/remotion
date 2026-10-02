@@ -694,7 +694,7 @@ export type ReorderSequencePosition = 'before' | 'after';
 
 export type ReorderSequenceRequest = {
 	fileName: string;
-	sourceNodePath: SequencePropsSubscriptionKey;
+	sourceNodePaths: SequencePropsSubscriptionKey[];
 	targetNodePath: SequencePropsSubscriptionKey;
 	position: ReorderSequencePosition;
 	clientId: string;

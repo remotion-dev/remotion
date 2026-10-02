@@ -1658,21 +1658,21 @@ registerRoot(Root);`,
 
 	const identicalFailure = await operations.reorderSequence({
 		fileName: 'src/Composition.tsx',
-		sourceNodePath: firstNodePath,
+		sourceNodePaths: [firstNodePath],
 		targetNodePath: firstNodePath,
 		position: 'after',
 		clientId: 'browser-studio',
 	});
 	expect(identicalFailure).toMatchObject({
 		success: false,
-		reason: 'Cannot reorder sequence: source and target are identical',
+		reason: 'Cannot reorder sequences relative to a selected sequence',
 		stack: expect.any(String),
 	});
 	expect(getProject().files[fileName]).toBe(initialContents);
 
 	const result = await operations.reorderSequence({
 		fileName: 'src/Composition.tsx',
-		sourceNodePath: firstNodePath,
+		sourceNodePaths: [firstNodePath],
 		targetNodePath: secondNodePath,
 		position: 'after',
 		clientId: 'browser-studio',
