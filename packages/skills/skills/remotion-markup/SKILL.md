@@ -305,9 +305,8 @@ When a scene or group of layers deserves its own editable timeline, follow [conn
 
 For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.withSchema({wrapInSequence: true})`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
 
-Preserve required inherited styles, including `fontFamily`, inside the extracted
-component. Make its font loading and other dependencies independent of the
-parent, following [parent independence](connected-compositions.md#make-the-component-independent-of-its-parent).
+Carry inherited styles such as `fontFamily` and font loading into the extracted
+component; see [parent independence](connected-compositions.md#make-the-component-independent-of-its-parent).
 
 ## Voiceover
 
