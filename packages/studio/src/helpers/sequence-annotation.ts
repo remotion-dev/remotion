@@ -12,9 +12,8 @@ export const getSequenceAnnotationMetadata = ({
 		layer: (
 			sequence.displayName ||
 			sequence.controls?.componentName ||
-			sequence.id
+			'Layer'
 		).slice(0, 128),
-		sequenceId: sequence.id.slice(0, 128),
 		...(Number.isFinite(sequence.from) ? {from: sequence.from} : {}),
 		...(Number.isFinite(sequence.duration)
 			? {duration: sequence.duration}
@@ -53,7 +52,6 @@ export const getSequenceAnnotationAttributes = ({
 	return {
 		'data-remotion-annotation-surface': surface,
 		'data-remotion-layer': metadata.layer,
-		'data-remotion-sequence-id': metadata.sequenceId,
 		'data-remotion-sequence-type': sequence.type,
 		'data-remotion-from': metadata.from,
 		'data-remotion-duration': metadata.duration,
