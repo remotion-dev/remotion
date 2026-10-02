@@ -570,6 +570,23 @@ export const getCodingAgentLaunchCommands = ({
 	projectPath: string;
 	prompt: string | null;
 }): readonly CodingAgentLaunchCommand[] => {
+	if (codingAgent.platform === 'darwin' && codingAgent.id === 'codex') {
+		const deepLink = new URL('codex://new');
+		deepLink.searchParams.set('path', projectPath);
+		if (prompt !== null) {
+			deepLink.searchParams.set('prompt', prompt);
+		}
+
+		return [
+			{
+				command: 'open',
+				args: [deepLink.toString()],
+				cwd: null,
+				waitForExit: false,
+			},
+		];
+	}
+
 	const defaultCommand = {
 		...getCodingAgentLaunchCommand({codingAgent, projectPath}),
 		waitForExit: false,
@@ -578,26 +595,13 @@ export const getCodingAgentLaunchCommands = ({
 	if (
 		prompt === null ||
 		codingAgent.platform !== 'darwin' ||
-		codingAgent.id === 'copilot'
+		codingAgent.id === 'copilot' ||
+		codingAgent.id === 'codex'
 	) {
 		return [defaultCommand];
 	}
 
 	switch (codingAgent.id) {
-		case 'codex': {
-			const deepLink = new URL('codex://new');
-			deepLink.searchParams.set('path', projectPath);
-			deepLink.searchParams.set('prompt', prompt);
-			return [
-				{
-					command: 'open',
-					args: [deepLink.toString()],
-					cwd: null,
-					waitForExit: false,
-				},
-			];
-		}
-
 		case 'cursor': {
 			const deepLink = new URL('cursor://anysphere.cursor-deeplink/prompt');
 			deepLink.searchParams.set('text', prompt);
