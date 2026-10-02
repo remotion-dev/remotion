@@ -20,18 +20,21 @@
 		"@remotion/captions": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/effects": "workspace:*",
+		"@remotion/google-fonts": "workspace:*",
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"three": "catalog:"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-flat": "workspace:*",
 		"@typescript/native-preview": "catalog:",
 		"@types/react": "catalog:",
+		"@types/three": "catalog:",
 		"@types/web": "catalog:",
 		"eslint": "catalog:"
 	},
