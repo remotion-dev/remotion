@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import type {
+	CustomSequenceOutline,
 	LoopDisplay,
 	SequenceControls,
 	SequenceRegistrationControls,
@@ -140,6 +141,8 @@ export type SequencePropsWithoutDuration = {
 	 * Remove this prop.
 	 */
 	readonly outlineRef?: React.RefObject<Element | null> | null;
+	/** @deprecated For internal use only. */
+	readonly _remotionInternalCustomOutlineRef?: React.RefObject<CustomSequenceOutline | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -173,6 +176,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
 		outlineRef: passedRefForOutline,
+		_remotionInternalCustomOutlineRef: customOutlineRef,
 		cropLeft,
 		cropRight,
 		cropTop,
@@ -619,6 +623,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
+					customOutlineRef: customOutlineRef ?? null,
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
 					singleChildComponent: singleChildComponent ?? null,
@@ -652,6 +657,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				volume: isMedia.data.volumes,
 				muted: isMedia.data.muted,
 				refForOutline: refForOutline ?? null,
+				customOutlineRef: customOutlineRef ?? null,
 				isInsideSeries,
 				frozenFrame: registeredFrozenFrame,
 				frozenMediaFrame,
@@ -679,6 +685,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			effectRuntimeValues,
 			refForOutline: refForOutline ?? null,
+			customOutlineRef: customOutlineRef ?? null,
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
 			singleChildComponent: singleChildComponent ?? null,
@@ -701,6 +708,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,
+		customOutlineRef,
 		isInsideSeries,
 		registeredFrozenFrame,
 		startMediaFrom,

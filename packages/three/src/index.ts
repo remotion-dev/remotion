@@ -1,4 +1,5 @@
 export {ThreeCanvas, ThreeCanvasProps} from './ThreeCanvas';
+export {InteractiveThree} from './InteractiveThree';
 import type {UseOffthreadVideoTextureOptions as UseOffthreadVideoTextureOptionsType} from './use-offthread-video-texture';
 import {useOffthreadVideoTexture as useOffthreadVideoTextureType} from './use-offthread-video-texture';
 import type {UseVideoTextureOptions as UseVideoTextureOptionsType} from './use-video-texture';

@@ -173,13 +173,18 @@ export const TimelineScaleField: React.FC<{
 	const {getScaleLockState, setScaleLockState} = useContext(ScaleLockContext);
 	const transform3DMode = useContext(Transform3DModeContext);
 
+	const dimensions =
+		field.fieldSchema.type === 'scale'
+			? (field.fieldSchema.dimensions ?? 2)
+			: 2;
 	const [codeX, codeY, codeZ] = useMemo(
-		() => NoReactInternals.parseScaleValue(effectiveValue),
-		[effectiveValue],
+		() => NoReactInternals.parseScaleValue(effectiveValue, dimensions),
+		[dimensions, effectiveValue],
 	);
 	const show3D = transform3DMode || codeZ !== 1;
 
-	const defaultLinked = codeX === codeY;
+	const defaultLinked =
+		codeX === codeY && (dimensions === 2 || codeY === codeZ);
 	const linked = getScaleLockState({
 		nodePath: scaleLockNodePath,
 		fieldKey: field.key,
@@ -218,9 +223,20 @@ export const TimelineScaleField: React.FC<{
 
 	const serialize = useCallback(
 		(x: number, y: number, z = dragZ ?? codeZ) => {
-			return NoReactInternals.serializeScaleValue([x, y, z]);
+			return NoReactInternals.serializeScaleValue([x, y, z], dimensions);
 		},
-		[codeZ, dragZ],
+		[codeZ, dimensions, dragZ],
+	);
+	const serializeLinkedXY = useCallback(
+		(x: number, y: number) => {
+			if (!linked || dimensions === 2) {
+				return serialize(x, y);
+			}
+
+			const factor = codeX === 0 ? 1 : x / codeX;
+			return serialize(x, y, codeZ * factor);
+		},
+		[codeX, codeZ, dimensions, linked, serialize],
 	);
 
 	const onXChange = useCallback(
@@ -237,7 +253,7 @@ export const TimelineScaleField: React.FC<{
 				});
 				setDragX(newX);
 				setDragY(newY);
-				onDragValueChange(serialize(newX, newY));
+				onDragValueChange(serializeLinkedXY(newX, newY));
 				return;
 			}
 
@@ -254,6 +270,7 @@ export const TimelineScaleField: React.FC<{
 			min,
 			onDragValueChange,
 			serialize,
+			serializeLinkedXY,
 		],
 	);
 
@@ -269,7 +286,7 @@ export const TimelineScaleField: React.FC<{
 						max,
 					})
 				: [newVal, dragY ?? codeY];
-			const newScale = serialize(newX, newY);
+			const newScale = serializeLinkedXY(newX, newY);
 
 			const clearDragState = () => {
 				dragStartRef.current = null;
@@ -295,7 +312,7 @@ export const TimelineScaleField: React.FC<{
 			onDragEnd,
 			onSave,
 			propStatus,
-			serialize,
+			serializeLinkedXY,
 		],
 	);
 
@@ -316,7 +333,7 @@ export const TimelineScaleField: React.FC<{
 						max,
 					})
 				: [parsed, dragY ?? codeY];
-			const newScale = serialize(newX, newY);
+			const newScale = serializeLinkedXY(newX, newY);
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
 				setDragX(newX);
 				setDragY(newY);
@@ -328,7 +345,17 @@ export const TimelineScaleField: React.FC<{
 				});
 			}
 		},
-		[codeX, codeY, dragY, linked, max, min, onSave, propStatus, serialize],
+		[
+			codeX,
+			codeY,
+			dragY,
+			linked,
+			max,
+			min,
+			onSave,
+			propStatus,
+			serializeLinkedXY,
+		],
 	);
 
 	const onYChange = useCallback(
@@ -345,7 +372,7 @@ export const TimelineScaleField: React.FC<{
 				});
 				setDragX(newX);
 				setDragY(newY);
-				onDragValueChange(serialize(newX, newY));
+				onDragValueChange(serializeLinkedXY(newX, newY));
 				return;
 			}
 
@@ -362,6 +389,7 @@ export const TimelineScaleField: React.FC<{
 			min,
 			onDragValueChange,
 			serialize,
+			serializeLinkedXY,
 		],
 	);
 
@@ -377,7 +405,7 @@ export const TimelineScaleField: React.FC<{
 						max,
 					})
 				: [dragX ?? codeX, newVal];
-			const newScale = serialize(newX, newY);
+			const newScale = serializeLinkedXY(newX, newY);
 
 			const clearDragState = () => {
 				dragStartRef.current = null;
@@ -403,7 +431,7 @@ export const TimelineScaleField: React.FC<{
 			onDragEnd,
 			onSave,
 			propStatus,
-			serialize,
+			serializeLinkedXY,
 		],
 	);
 
@@ -424,7 +452,7 @@ export const TimelineScaleField: React.FC<{
 						max,
 					})
 				: [dragX ?? codeX, parsed];
-			const newScale = serialize(newX, newY);
+			const newScale = serializeLinkedXY(newX, newY);
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
 				setDragX(newX);
 				setDragY(newY);
@@ -436,7 +464,17 @@ export const TimelineScaleField: React.FC<{
 				});
 			}
 		},
-		[codeX, codeY, dragX, linked, max, min, onSave, propStatus, serialize],
+		[
+			codeX,
+			codeY,
+			dragX,
+			linked,
+			max,
+			min,
+			onSave,
+			propStatus,
+			serializeLinkedXY,
+		],
 	);
 
 	const onToggleLink = useCallback(() => {
@@ -446,18 +484,33 @@ export const TimelineScaleField: React.FC<{
 			linked: !linked,
 		});
 	}, [field.key, linked, scaleLockNodePath, setScaleLockState]);
+	const getValuesForZ = useCallback(
+		(newZ: number): readonly [number, number, number] => {
+			if (!linked || dimensions === 2) {
+				return [dragX ?? codeX, dragY ?? codeY, newZ];
+			}
+
+			const factor = codeZ === 0 ? 1 : newZ / codeZ;
+			return [codeX * factor, codeY * factor, newZ];
+		},
+		[codeX, codeY, codeZ, dimensions, dragX, dragY, linked],
+	);
 
 	const onZChange = useCallback(
 		(newVal: number) => {
-			setDragZ(newVal);
-			onDragValueChange(serialize(dragX ?? codeX, dragY ?? codeY, newVal));
+			const [newX, newY, newZ] = getValuesForZ(newVal);
+			setDragX(newX);
+			setDragY(newY);
+			setDragZ(newZ);
+			onDragValueChange(serialize(newX, newY, newZ));
 		},
-		[codeX, codeY, dragX, dragY, onDragValueChange, serialize],
+		[getValuesForZ, onDragValueChange, serialize],
 	);
 
 	const onZChangeEnd = useCallback(
 		(newVal: number) => {
-			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, newVal);
+			const [newX, newY, newZ] = getValuesForZ(newVal);
+			const newScale = serialize(newX, newY, newZ);
 			const clearDragState = () => {
 				dragStartRef.current = null;
 				setDragX(null);
@@ -472,16 +525,7 @@ export const TimelineScaleField: React.FC<{
 				clearDragState();
 			}
 		},
-		[
-			codeX,
-			codeY,
-			dragX,
-			dragY,
-			onDragEnd,
-			onSave,
-			propStatus.codeValue,
-			serialize,
-		],
+		[getValuesForZ, onDragEnd, onSave, propStatus.codeValue, serialize],
 	);
 
 	const onZTextChange = useCallback(
@@ -491,13 +535,20 @@ export const TimelineScaleField: React.FC<{
 				return;
 			}
 
-			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, parsed);
+			const [newX, newY, newZ] = getValuesForZ(parsed);
+			const newScale = serialize(newX, newY, newZ);
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
-				setDragZ(parsed);
-				onSave(newScale).finally(() => setDragZ(null));
+				setDragX(newX);
+				setDragY(newY);
+				setDragZ(newZ);
+				onSave(newScale).finally(() => {
+					setDragX(null);
+					setDragY(null);
+					setDragZ(null);
+				});
 			}
 		},
-		[codeX, codeY, dragX, dragY, onSave, propStatus.codeValue, serialize],
+		[getValuesForZ, onSave, propStatus.codeValue, serialize],
 	);
 
 	return (
