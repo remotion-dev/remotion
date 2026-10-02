@@ -1204,10 +1204,11 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
 			const runtimeValues = controls.runtimeValues.getSnapshot();
-			const trimBeforeStatus = Internals.getPropStatusesCtx(
+			const sequencePropStatuses = Internals.getPropStatusesCtx(
 				propStatuses,
 				nodePath,
-			)?.trimBefore;
+			);
+			const trimBeforeStatus = sequencePropStatuses?.trimBefore;
 			const ownTrimBefore =
 				trimBeforeStatus?.status === 'static' &&
 				typeof trimBeforeStatus.codeValue === 'number'
@@ -1219,7 +1220,12 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				sequence: originalSequence,
 				runtimeValues,
 			});
-			const runtimeDuration = runtimeValues.durationInFrames;
+			const durationStatus = sequencePropStatuses?.durationInFrames;
+			const runtimeDuration =
+				durationStatus?.status === 'static' &&
+				typeof durationStatus.codeValue === 'number'
+					? durationStatus.codeValue
+					: runtimeValues.durationInFrames;
 			targets.set(key, {
 				parentPlaybackRate: getParentSequencePlaybackRate(
 					originalSequence,
