@@ -14,6 +14,7 @@ import {
 } from './sequence-outline.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
+import {TimelineTrackContext} from './Track.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useSequenceRegistration} from './use-sequence-registration.js';
 import {useVideoConfig} from './use-video-config.js';
@@ -169,6 +170,7 @@ export const useMediaInTimeline = ({
 	muted: boolean;
 }) => {
 	const parentSequence = useContext(SequenceContext);
+	const timelineTrack = useContext(TimelineTrackContext);
 	const mediaTrimBefore = useContext(Html5MediaTrimContext);
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const {durationInFrames} = useVideoConfig();
@@ -274,6 +276,15 @@ export const useMediaInTimeline = ({
 
 		return {
 			effectRuntimeValues: null,
+			...(timelineTrack
+				? {
+						timelineTrack: {
+							...timelineTrack,
+							role: 'clip' as const,
+							anchor: null,
+						},
+					}
+				: {}),
 			type: mediaType,
 			src,
 			id,
@@ -306,6 +317,7 @@ export const useMediaInTimeline = ({
 	}, [
 		duration,
 		id,
+		timelineTrack,
 		parentSequence,
 		src,
 		volumes,

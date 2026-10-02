@@ -18,6 +18,7 @@ import type {
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	BLACK,
 	BLUE,
 	TIMELINE_AUDIO_GRADIENT,
 	TIMELINE_BACKGROUND_COLOR,
@@ -28,6 +29,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_20,
 	WHITE_ALPHA_50,
+	WARNING_COLOR,
 } from '../../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../../helpers/drag-aware-double-click';
 import {
@@ -70,6 +72,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
+import {TIMELINE_PACKED_TRACK_HEIGHT} from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
@@ -401,8 +404,15 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		return {
 			...style,
 			background: negativeStart ? TRANSPARENT : sequenceBackground,
+			boxShadow: s.timelineTrack
+				? `inset 0 0 0 ${selected || containsSelection ? 2 : 1}px ${selected || containsSelection ? WHITE : WHITE_ALPHA_20}`
+				: style.boxShadow,
 			opacity:
-				activeTrimEdge !== null || selected || containsSelection || isAsset
+				activeTrimEdge !== null ||
+				selected ||
+				containsSelection ||
+				isAsset ||
+				s.timelineTrack
 					? 1
 					: 0.75,
 		};
@@ -414,6 +424,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		selected,
 		sequenceBackground,
 		style,
+		s.timelineTrack,
 	]);
 
 	const content = (
@@ -456,7 +467,32 @@ const TimelineSequenceCurrentFrame: React.FC<{
 
 			{children}
 
-			{s.type !== 'audio' &&
+			{s.timelineTrack ? (
+				<div
+					style={{
+						position: 'absolute',
+						left: 5 + negativeStartEnd + (premount?.width ?? 0),
+						right: 4,
+						bottom: 1,
+						fontSize: 11,
+						lineHeight: '15px',
+						color: s.timelineTrack.role === 'overlay' ? BLACK : WHITE,
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+						pointerEvents: 'none',
+					}}
+				>
+					{s.timelineTrack.role === 'transition'
+						? 'Transition'
+						: s.timelineTrack.role === 'overlay'
+							? 'Overlay'
+							: s.displayName}
+				</div>
+			) : null}
+
+			{!s.timelineTrack &&
+			s.type !== 'audio' &&
 			s.type !== 'video' &&
 			s.type !== 'image' &&
 			s.loopDisplay === undefined &&
@@ -503,6 +539,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			style={actualStyle}
 			aria-label={s.displayName}
+			data-track-item={s.timelineTrack?.role}
 			onPointerDownCapture={onPointerDownCapture}
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onClick={onClick ?? undefined}
@@ -1378,26 +1415,47 @@ const TimelineSequenceInner: React.FC<{
 		(endsAtContainerBoundary || endsAtNaturalMediaDuration);
 
 	const style: React.CSSProperties = useMemo(() => {
+		const role = s.timelineTrack?.role;
+		const isEffect = role === 'transition' || role === 'overlay';
 		return {
 			background:
-				s.type === 'audio'
-					? TIMELINE_AUDIO_GRADIENT
-					: s.type === 'video'
-						? TIMELINE_VIDEO_GRADIENT
-						: BLUE,
+				role === 'transition'
+					? `repeating-linear-gradient(135deg, ${BLUE} 0 5px, ${WHITE_ALPHA_20} 5px 7px), ${BLUE}`
+					: role === 'overlay'
+						? WARNING_COLOR
+						: s.type === 'audio'
+							? TIMELINE_AUDIO_GRADIENT
+							: s.type === 'video'
+								? TIMELINE_VIDEO_GRADIENT
+								: BLUE,
 			borderTopLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderBottomLeftRadius: showLeftBorderRadius ? 2 : 0,
 			borderTopRightRadius: showRightBorderRadius ? 2 : 0,
 			borderBottomRightRadius: showRightBorderRadius ? 2 : 0,
 			position: 'absolute',
-			height: getTimelineLayerHeight(s.type),
+			isolation: s.timelineTrack ? 'isolate' : undefined,
+			height: isEffect
+				? 16
+				: s.timelineTrack
+					? TIMELINE_PACKED_TRACK_HEIGHT
+					: getTimelineLayerHeight(s.type),
+			top: s.timelineTrack ? 0 : undefined,
+			boxShadow: s.timelineTrack
+				? `inset 0 0 0 1px ${WHITE_ALPHA_20}`
+				: undefined,
 			marginLeft: visibleLayout?.marginLeft ?? 0,
 			width: visibleLayout?.width ?? 0,
 			color: WHITE,
 			// Edge handles extend outside the layer; media is clipped separately.
 			overflow: 'visible',
 		};
-	}, [s.type, showLeftBorderRadius, showRightBorderRadius, visibleLayout]);
+	}, [
+		s.type,
+		s.timelineTrack,
+		showLeftBorderRadius,
+		showRightBorderRadius,
+		visibleLayout,
+	]);
 
 	const showRightEdgeDragHandle =
 		isTimelineSequenceDurationDraggable(s) &&

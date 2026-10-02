@@ -43,6 +43,7 @@ import {SequenceContext} from './SequenceContext.js';
 import {SequenceRegistrationContext} from './SequenceManager.js';
 import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {useTimelinePosition} from './timeline-position-state.js';
+import {TimelineTrackContext, type TimelineTrackItem} from './Track.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -91,6 +92,13 @@ export type SequencePropsWithoutDuration = {
 	readonly hidden?: boolean;
 	readonly controls?: SequenceControls;
 	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
+	/**
+	 * @deprecated For internal use only.
+	 */
+	readonly _remotionInternalTimelineTrack?: Pick<
+		TimelineTrackItem,
+		'role' | 'anchor'
+	>;
 	/**
 	 * @deprecated For internal use only.
 	 */
@@ -165,6 +173,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		hidden = false,
 		controls,
 		_remotionInternalEffects,
+		_remotionInternalTimelineTrack: timelineTrackItem,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
@@ -185,6 +194,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
+	const timelineTrack = useContext(TimelineTrackContext);
+	const timelineTrackRole =
+		timelineTrackItem?.role ?? (showInTimeline ? 'clip' : 'container');
 	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
 	const cumulativePlaybackRate = parentPlaybackRate * playbackRate;
 	const cumulatedFrom = parentSequence
@@ -596,9 +608,19 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		]);
 
 	const getSequenceForRegistration = useCallback((): TSequence => {
+		const trackRegistration = timelineTrack
+			? {
+					timelineTrack: {
+						...timelineTrack,
+						role: timelineTrackRole,
+						anchor: timelineTrackItem?.anchor ?? null,
+					},
+				}
+			: {};
 		if (isMedia) {
 			if (isMedia.type === 'image') {
 				return {
+					...trackRegistration,
 					sequencePlaybackRate: playbackRate,
 					type: 'image',
 					controls: registrationControls,
@@ -626,6 +648,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			}
 
 			return {
+				...trackRegistration,
 				type: isMedia.type,
 				sequencePlaybackRate: playbackRate,
 				controls: registrationControls,
@@ -660,6 +683,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 
 		return {
+			...trackRegistration,
 			from,
 			sequencePlaybackRate: playbackRate,
 			trimBefore: registeredTrimBefore,
@@ -685,6 +709,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		id,
+		timelineTrack,
+		timelineTrackRole,
+		timelineTrackItem?.anchor,
 		timelineClipName,
 		playbackRate,
 		parentSequence?.id,
@@ -799,7 +826,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		) : null;
 	}
 
-	const sequence = (
+	const sequenceContent = (
 		<SequenceContext.Provider value={contextValue}>
 			{loopedContent === null ? null : other.layout === 'none' ? (
 				loopedContent
@@ -814,6 +841,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			)}
 		</SequenceContext.Provider>
 	);
+	const sequence =
+		timelineTrack === null || timelineTrackRole === 'container' ? (
+			sequenceContent
+		) : (
+			<TimelineTrackContext.Provider value={null}>
+				{sequenceContent}
+			</TimelineTrackContext.Provider>
+		);
 
 	return shouldDiscoverOutline ? (
 		<SequenceOrderMarker

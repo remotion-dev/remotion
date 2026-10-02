@@ -331,6 +331,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 				from={Math.round(info.overlayFrom)}
 				durationInFrames={info.durationInFrames}
 				name="<TS.Overlay>"
+				_remotionInternalTimelineTrack={{
+					role: 'overlay',
+					anchor: info.cutPoint,
+				}}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 				controls={info.controls ?? undefined}
 				hidden={info.hidden}
@@ -563,6 +567,10 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										from={transitionFrom}
 										durationInFrames={transitionDuration}
 										name="<TS.Transition>"
+										_remotionInternalTimelineTrack={{
+											role: 'transition',
+											anchor: null,
+										}}
 										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
 										controls={transitionProps.controls ?? undefined}
 										layout="none"
@@ -1020,6 +1028,7 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 			}
 			{...otherProps}
 			controls={controls ?? undefined}
+			_remotionInternalTimelineTrack={{role: 'container', anchor: null}}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
 		</Sequence>

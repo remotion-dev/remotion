@@ -1,5 +1,6 @@
 import React from 'react';
 import {BACKGROUND} from '../../helpers/colors';
+import {TimelinePackedTrackName} from './TimelinePackedTrack';
 import {TimelineSequenceItem} from './TimelineSequenceItem';
 import {
 	type TimelineVirtualRow,
@@ -18,6 +19,9 @@ const TimelineListTrack: React.FC<{
 	readonly row: TimelineVirtualRow;
 }> = React.memo(({row}) => {
 	const {afterDropLineOffset, siblingIndex, track} = row;
+	if (row.items !== null) {
+		return <TimelinePackedTrackName items={row.items} />;
+	}
 
 	return (
 		<TimelineSequenceItem

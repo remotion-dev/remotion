@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
+import {TimelinePackedTrack} from './TimelinePackedTrack';
 import {TimelineTrack} from './TimelineTrack';
 import {useTimelineVirtualization} from './TimelineVirtualization';
 
@@ -39,7 +40,11 @@ const TimelineTracksInner: React.FC<{
 							top: virtualItem.start,
 						}}
 					>
-						<TimelineTrack track={rows[virtualItem.index].track} />
+						{rows[virtualItem.index].items === null ? (
+							<TimelineTrack track={rows[virtualItem.index].track} />
+						) : (
+							<TimelinePackedTrack items={rows[virtualItem.index].items!} />
+						)}
 					</div>
 				))}
 			</div>
