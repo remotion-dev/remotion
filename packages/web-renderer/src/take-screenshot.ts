@@ -13,6 +13,20 @@ export type HtmlInCanvasLayerOutcome =
 	| {native: true}
 	| {native: false; reason: string; shouldWarn: boolean};
 
+export const getHtmlInCanvasFallbackReason = (
+	element: HTMLElement,
+): string | null => {
+	if (containsUrlMaskImage(element)) {
+		return 'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.';
+	}
+
+	if (containsLayoutSubtreeCanvas(element)) {
+		return 'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture is unsupported, so the built-in DOM composer is used.';
+	}
+
+	return null;
+};
+
 export const createLayer = async ({
 	element,
 	scale,
@@ -43,18 +57,11 @@ export const createLayer = async ({
 		htmlInCanvasContext &&
 		onHtmlInCanvasLayerOutcome
 	) {
-		if (containsUrlMaskImage(element)) {
+		const fallbackReason = getHtmlInCanvasFallbackReason(element);
+		if (fallbackReason) {
 			onHtmlInCanvasLayerOutcome({
 				native: false,
-				reason:
-					'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.',
-				shouldWarn: false,
-			});
-		} else if (containsLayoutSubtreeCanvas(element)) {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture is unsupported, so the built-in DOM composer is used.',
+				reason: fallbackReason,
 				shouldWarn: false,
 			});
 		} else {
