@@ -32,6 +32,8 @@ export const MyComposition = () => {
 Remote URLs are also supported:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio src="https://remotion.media/audio.mp3" />
 ```
 
@@ -43,6 +45,8 @@ Multiple audio tracks can be layered by adding multiple `<Audio>` components.
 Use `trimBefore` and `trimAfter` to remove portions of the audio. Values are in frames.
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 const { fps } = useVideoConfig();
 
 return (
@@ -78,12 +82,15 @@ The audio will start playing after 1 second.
 Set a static volume (0 to 1):
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio src={staticFile("audio.mp3")} volume={0.5} />
 ```
 
 Or use a callback for dynamic volume based on the current frame:
 
 ```tsx
+import { Audio } from "@remotion/media";
 import { interpolate } from "remotion";
 
 const { fps } = useVideoConfig();
@@ -105,6 +112,8 @@ The value of `f` starts at 0 when the audio begins to play, not the composition 
 Use `muted` to silence the audio. It can be set dynamically:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
 
@@ -121,6 +130,8 @@ return (
 Use `playbackRate` to change the playback speed:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 // 2x speed
 <Audio src={staticFile("audio.mp3")} playbackRate={2} />
 // Half speed
@@ -134,6 +145,8 @@ Reverse playback is not supported.
 Use `loop` to loop the audio indefinitely:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio src={staticFile("audio.mp3")} loop />
 ```
 
@@ -143,6 +156,8 @@ Use `loopVolumeCurveBehavior` to control how the frame count behaves when loopin
 - `"extend"`: Frame count continues incrementing
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio
   src={staticFile("audio.mp3")}
   loop
@@ -156,6 +171,8 @@ Use `loopVolumeCurveBehavior` to control how the frame count behaves when loopin
 Use `toneFrequency` to adjust the pitch without affecting speed. Values range from 0.01 to 2:
 
 ```tsx
+import { Audio } from "@remotion/media";
+
 <Audio
   src={staticFile("audio.mp3")}
   toneFrequency={1.5} // Higher pitch

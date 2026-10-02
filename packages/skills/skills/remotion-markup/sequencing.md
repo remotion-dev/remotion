@@ -9,7 +9,7 @@ Prefer timing props directly on built-in interactive components and custom
 components made with `Interactive.withSchema({wrapInSequence: true})`.  
 Avoid wrapping a single timing-capable component in a redundant `<Sequence>`.
 Put `name`, `from`, `durationInFrames`, `loop`, `volume`, and `premountFor`
-directly on `<Audio>` whenever their combination gives the intended timing.
+directly on `<Audio>` from `@remotion/media` whenever their combination gives the intended timing.
 
 See [Remotion Interactivity](../remotion-interactivity/SKILL.md) for creating
 schema-wrapped components and [connected compositions](connected-compositions.md)
