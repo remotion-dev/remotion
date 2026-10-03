@@ -107,6 +107,7 @@ export const calculateAssetPositions = (
 					toneFrequency: asset.toneFrequency,
 					audioStartFrame: asset.audioStartFrame,
 					audioStreamIndex: asset.audioStreamIndex,
+					preservePitch: asset.preservePitch,
 				};
 				assets.push(openAsset);
 				openAssets.set(asset.id, openAsset);
