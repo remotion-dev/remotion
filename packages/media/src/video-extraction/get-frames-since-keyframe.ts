@@ -14,7 +14,7 @@ import {Internals} from 'remotion';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
 import {getDurationOrCompute} from '../get-duration-or-compute';
 import {resolveAudioTrack} from '../helpers/resolve-audio-track';
-import {isNetworkError} from '../is-type-of-error';
+import {isHttpError, isNetworkError} from '../is-type-of-error';
 import {getMaxSourceCacheSize} from '../max-cache-size';
 import type {MediaRequestInit} from '../request-init';
 import {resolveRequestInit} from '../request-init';
@@ -51,6 +51,10 @@ const getFormatOrNullOrNetworkError = async (
 	try {
 		return await input.getFormat();
 	} catch (err) {
+		if (isHttpError(err as Error)) {
+			throw err;
+		}
+
 		if (isNetworkError(err as Error)) {
 			return 'network-error';
 		}

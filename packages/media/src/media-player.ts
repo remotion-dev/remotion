@@ -22,7 +22,7 @@ import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {acquireSharedInput} from './get-shared-input';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
-import {isNetworkError} from './is-type-of-error';
+import {isHttpError, isNetworkError} from './is-type-of-error';
 import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
 import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
@@ -314,7 +314,7 @@ export class MediaPlayer {
 
 				const err = error as Error;
 
-				if (isNetworkError(err)) {
+				if (isNetworkError(err) || isHttpError(err)) {
 					throw error;
 				}
 
