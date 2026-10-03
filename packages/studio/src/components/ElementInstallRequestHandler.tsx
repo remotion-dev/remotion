@@ -23,7 +23,7 @@ import {
 	enqueueElementInstallRequest,
 	subscribeToElementInstallRequests,
 } from './element-install-request';
-import {getElementPositionForDrop, getFromForDrop} from './import-assets';
+import {getElementPositionForDrop} from './import-assets';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -228,13 +228,7 @@ export const ElementInstallRequestHandler: FC = () => {
 			const requestWithDefaults = shouldAddCompositionDefaults
 				? {
 						...request,
-						from:
-							request.from ??
-							getFromForDrop({
-								durationInFrames: request.element.durationInFrames,
-								from: getCurrentFrame(),
-								preferCompositionStart: true,
-							}),
+						from: request.from ?? getCurrentFrame(),
 						position:
 							request.position ??
 							getElementPositionForDrop({
