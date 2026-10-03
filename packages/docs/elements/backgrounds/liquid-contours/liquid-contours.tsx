@@ -1,13 +1,21 @@
 import {liquidContours} from '@remotion/effects/liquid-contours';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+} from 'remotion';
 
-export const LiquidContours: React.FC = () => {
+const LiquidContoursInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 	const {height, width} = useVideoConfig();
 
 	return (
 		<Solid
+			style={style}
 			color="#dff4ff"
 			width={width}
 			height={height}
@@ -21,3 +29,10 @@ export const LiquidContours: React.FC = () => {
 		/>
 	);
 };
+
+export const LiquidContours = Interactive.withSchema({
+	Component: LiquidContoursInner,
+	componentName: '<LiquidContours>',
+	schema: {},
+	wrapInSequence: true,
+});

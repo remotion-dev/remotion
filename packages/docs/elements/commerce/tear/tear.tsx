@@ -2,18 +2,21 @@ import {scale} from '@remotion/effects/scale';
 import {tear} from '@remotion/effects/tear';
 import React from 'react';
 import {
+	Interactive,
 	CanvasImage,
 	Easing,
 	HtmlInCanvas,
 	interpolate,
 	useCurrentFrame,
+	type InteractiveTransformProps,
 } from 'remotion';
 
-export const Tear: React.FC = () => {
+const TearInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<HtmlInCanvas
+			style={style}
 			effects={[
 				scale({
 					scale: 0.75,
@@ -64,3 +67,10 @@ export const Tear: React.FC = () => {
 		</HtmlInCanvas>
 	);
 };
+
+export const Tear = Interactive.withSchema({
+	Component: TearInner,
+	componentName: '<Tear>',
+	schema: {},
+	wrapInSequence: true,
+});

@@ -1,4 +1,5 @@
 import {fontFamily, loadFont} from '@remotion/google-fonts/Caveat';
+import React from 'react';
 import {
 	Easing,
 	Img,
@@ -6,6 +7,7 @@ import {
 	interpolate,
 	useCurrentFrame,
 	useVideoConfig,
+	type InteractiveTransformProps,
 } from 'remotion';
 
 loadFont('normal', {
@@ -13,7 +15,9 @@ loadFont('normal', {
 	subsets: ['latin'],
 });
 
-export const PolaroidPictures = () => {
+const PolaroidPicturesInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
@@ -41,6 +45,7 @@ export const PolaroidPictures = () => {
 				),
 				width: 1480,
 				willChange: 'transform',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -500,3 +505,10 @@ export const PolaroidPictures = () => {
 		</div>
 	);
 };
+
+export const PolaroidPictures = Interactive.withSchema({
+	Component: PolaroidPicturesInner,
+	componentName: '<PolaroidPictures>',
+	schema: {},
+	wrapInSequence: true,
+});

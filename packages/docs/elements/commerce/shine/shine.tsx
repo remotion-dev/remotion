@@ -2,17 +2,20 @@ import {scale} from '@remotion/effects/scale';
 import {shine} from '@remotion/effects/shine';
 import React from 'react';
 import {
+	Interactive,
 	CanvasImage,
 	HtmlInCanvas,
 	interpolate,
 	useCurrentFrame,
+	type InteractiveTransformProps,
 } from 'remotion';
 
-export const Shine: React.FC = () => {
+const ShineInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<HtmlInCanvas
+			style={style}
 			effects={[
 				scale({scale: 0.75}),
 				shine({
@@ -41,3 +44,10 @@ export const Shine: React.FC = () => {
 		</HtmlInCanvas>
 	);
 };
+
+export const Shine = Interactive.withSchema({
+	Component: ShineInner,
+	componentName: '<Shine>',
+	schema: {},
+	wrapInSequence: true,
+});

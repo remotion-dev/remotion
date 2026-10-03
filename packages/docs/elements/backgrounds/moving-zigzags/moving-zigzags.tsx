@@ -1,13 +1,20 @@
 import {zigzag} from '@remotion/effects/zigzag';
 import React from 'react';
-import {Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+} from 'remotion';
 
-export const MovingZigzags: React.FC = () => {
+const MovingZigzagsInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
 		<Solid
+			style={style}
 			color="#dff4ff"
 			width={width}
 			height={height}
@@ -26,3 +33,10 @@ export const MovingZigzags: React.FC = () => {
 		/>
 	);
 };
+
+export const MovingZigzags = Interactive.withSchema({
+	Component: MovingZigzagsInner,
+	componentName: '<MovingZigzags>',
+	schema: {},
+	wrapInSequence: true,
+});

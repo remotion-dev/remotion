@@ -1,6 +1,12 @@
 import {loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const {fontFamily} = loadFont('normal', {
 	subsets: ['latin'],
@@ -163,7 +169,9 @@ const Bar: React.FC<{
 	);
 };
 
-export const VerticalBarChart: React.FC = () => {
+const VerticalBarChartInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	return (
 		<Interactive.Div
 			name="Background"
@@ -176,6 +184,7 @@ export const VerticalBarChart: React.FC = () => {
 				justifyContent: 'center',
 				padding: 56,
 				width: '100%',
+				...style,
 			}}
 		>
 			<Interactive.Div
@@ -242,3 +251,10 @@ export const VerticalBarChart: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const VerticalBarChart = Interactive.withSchema({
+	Component: VerticalBarChartInner,
+	componentName: '<VerticalBarChart>',
+	schema: {},
+	wrapInSequence: true,
+});

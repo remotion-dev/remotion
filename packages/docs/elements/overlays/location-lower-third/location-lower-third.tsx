@@ -1,9 +1,17 @@
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	type InteractiveTransformProps,
+} from 'remotion';
 
 const location = 'Berlin, Germany';
 
-export const LocationLowerThird: React.FC = () => {
+const LocationLowerThirdInner: React.FC<InteractiveTransformProps> = ({
+	style,
+}) => {
 	const frame = useCurrentFrame();
 	return (
 		<Interactive.Div
@@ -14,6 +22,7 @@ export const LocationLowerThird: React.FC = () => {
 				height: 138,
 				boxSizing: 'border-box',
 				fontFamily: 'Arial, Helvetica, sans-serif',
+				...style,
 			}}
 		>
 			<Interactive.Svg
@@ -152,3 +161,10 @@ export const LocationLowerThird: React.FC = () => {
 		</Interactive.Div>
 	);
 };
+
+export const LocationLowerThird = Interactive.withSchema({
+	Component: LocationLowerThirdInner,
+	componentName: '<LocationLowerThird>',
+	schema: {},
+	wrapInSequence: true,
+});

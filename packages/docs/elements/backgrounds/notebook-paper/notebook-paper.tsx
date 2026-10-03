@@ -1,13 +1,19 @@
 import {gridlines} from '@remotion/effects/gridlines';
 import {paper} from '@remotion/effects/paper';
 import React from 'react';
-import {Solid, useVideoConfig} from 'remotion';
+import {
+	Interactive,
+	Solid,
+	useVideoConfig,
+	type InteractiveTransformProps,
+} from 'remotion';
 
-export const NotebookPaper: React.FC = () => {
+const NotebookPaperInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const {height, width} = useVideoConfig();
 
 	return (
 		<Solid
+			style={style}
 			color={'#ffffff'}
 			width={width}
 			height={height}
@@ -34,3 +40,10 @@ export const NotebookPaper: React.FC = () => {
 		/>
 	);
 };
+
+export const NotebookPaper = Interactive.withSchema({
+	Component: NotebookPaperInner,
+	componentName: '<NotebookPaper>',
+	schema: {},
+	wrapInSequence: true,
+});
