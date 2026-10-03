@@ -18,6 +18,7 @@ const makeHtml = ({
 		importMap,
 		publicPath,
 		staticHash,
+		outputHash: null,
 		editorName: null,
 		inputProps: null,
 		remotionRoot: '/project',
