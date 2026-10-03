@@ -421,6 +421,7 @@ export const internalBundle = async (
 	const html = indexHtml({
 		importMap: null,
 		staticHash,
+		outputHash: null,
 		publicPath,
 		editorName: null,
 		inputProps: null,
