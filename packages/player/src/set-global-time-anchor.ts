@@ -2,6 +2,11 @@ import {Internals, type LogLevel} from 'remotion';
 
 export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
 
+const pendingAnchorShifts = new WeakMap<
+	{value: number},
+	{anchor: number; rate: number; time: number}
+>();
+
 export const setGlobalTimeAnchor = ({
 	audioContext,
 	audioSyncAnchor,
@@ -23,11 +28,49 @@ export const setGlobalTimeAnchor = ({
 	const {outputLatency} = audioContext;
 	const safeOutputLatency = outputLatency === 0 ? 0.3 : outputLatency;
 	const latency = audioContext.baseLatency + safeOutputLatency;
+	const allowedShift = ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT + latency;
+	const isRunning = audioContext.state === 'running';
 
-	// Skip small shifts to avoid audio glitches from frame-quantized re-anchoring
-	if (Math.abs(shift) < ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT + latency && !force) {
+	if ((shift >= 0 || !isRunning) && Math.abs(shift) < allowedShift && !force) {
+		pendingAnchorShifts.delete(audioSyncAnchor);
 		return false;
 	}
+
+	// Ignore frame jitter and temporary stalls, but recover sustained audio-clock lag.
+	if (
+		shift < 0 &&
+		isRunning &&
+		-shift < Math.max(allowedShift, 0.3) &&
+		!force
+	) {
+		const tolerance =
+			ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT /
+			Math.max(1, Math.abs(globalPlaybackRate));
+		if (Math.abs(shift) < tolerance) {
+			pendingAnchorShifts.delete(audioSyncAnchor);
+			return false;
+		}
+
+		const pending = pendingAnchorShifts.get(audioSyncAnchor);
+		if (
+			!pending ||
+			pending.anchor !== audioSyncAnchor.value ||
+			pending.rate !== globalPlaybackRate
+		) {
+			pendingAnchorShifts.set(audioSyncAnchor, {
+				anchor: audioSyncAnchor.value,
+				rate: globalPlaybackRate,
+				time: audioContext.currentTime,
+			});
+			return false;
+		}
+
+		if (audioContext.currentTime - pending.time < 0.2) {
+			return false;
+		}
+	}
+
+	pendingAnchorShifts.delete(audioSyncAnchor);
 
 	// If force is true, but shift is zero, no change is needed
 	if (Math.abs(shift) < Number.EPSILON) {
