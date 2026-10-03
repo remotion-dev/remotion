@@ -15,7 +15,7 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {InlineStep} from '../../../components/InlineStep';
-import {PlainButton} from '../../../components/layout/Button';
+import {ExternalLinkIcon} from '../../theme/DocBreadcrumbs/icons';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {
@@ -54,8 +54,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	});
 	const [isInstallHintVisible, setIsInstallHintVisible] = useState(false);
 	const [isSourceVisible, setIsSourceVisible] = useState(false);
-	const [isBrowserStudioActionVisible, setIsBrowserStudioActionVisible] =
-		useState(false);
 	const [isEmbeddedInStudio, setIsEmbeddedInStudio] = useState<boolean | null>(
 		null,
 	);
@@ -78,38 +76,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		}, 1000);
 		return () => window.clearTimeout(timeout);
 	}, [installStatus.type]);
-
-	useEffect(() => {
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (
-				event.repeat ||
-				!event.altKey ||
-				!event.shiftKey ||
-				event.ctrlKey ||
-				event.metaKey ||
-				event.code !== 'KeyB'
-			) {
-				return;
-			}
-
-			const {target} = event;
-			if (
-				target instanceof HTMLElement &&
-				(target.isContentEditable ||
-					target.tagName === 'INPUT' ||
-					target.tagName === 'SELECT' ||
-					target.tagName === 'TEXTAREA')
-			) {
-				return;
-			}
-
-			event.preventDefault();
-			setIsBrowserStudioActionVisible(true);
-		};
-
-		window.addEventListener('keydown', onKeyDown);
-		return () => window.removeEventListener('keydown', onKeyDown);
-	}, []);
 
 	const installElement = useCallback(async () => {
 		if (!sourceCode) {
@@ -266,17 +232,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: 'Install in the most recently focused Remotion Studio'
 									}
 								/>
-								{isBrowserStudioActionVisible ? (
-									<PlainButton
-										fullWidth
-										loading={false}
-										onClick={openInBrowserStudio}
-										size="sm"
-										style={{padding: '7px 12px'}}
-									>
-										Open in Browser Studio
-									</PlainButton>
-								) : null}
 							</div>
 							{installStatus.type === 'error' &&
 							(installStatus.code === 'no-compatible-studio' ||
@@ -417,6 +372,17 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								))}
 							</div>
 						</div>
+					) : null}
+					{sourceCode ? (
+						<button
+							aria-label="Try this Element in Browser Studio in a new tab"
+							className={styles.browserStudioAction}
+							onClick={openInBrowserStudio}
+							type="button"
+						>
+							Try in Browser Studio
+							<ExternalLinkIcon />
+						</button>
 					) : null}
 				</div>
 			</aside>
