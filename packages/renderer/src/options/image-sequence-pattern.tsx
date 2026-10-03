@@ -19,6 +19,13 @@ export const imageSequencePatternOption = {
 	docLink: null,
 	type: 'string' as string | null,
 	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				value: commandLine[cliFlag] as string,
+				source: 'cli',
+			};
+		}
+
 		if (currentImageSequencePattern !== null) {
 			return {
 				value: currentImageSequencePattern,
@@ -27,8 +34,8 @@ export const imageSequencePatternOption = {
 		}
 
 		return {
-			value: commandLine[cliFlag] as string,
-			source: 'cli',
+			value: null,
+			source: 'default',
 		};
 	},
 	setConfig: (pattern: string | null) => {
