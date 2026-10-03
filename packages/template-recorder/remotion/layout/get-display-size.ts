@@ -24,6 +24,10 @@ const getMaxHeight = ({
     return threeFifths;
   }
 
+  if (canvasLayout === "portrait") {
+    return Math.min(withoutSafeAreas, canvasSize.height * 0.45);
+  }
+
   return withoutSafeAreas;
 };
 
