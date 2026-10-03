@@ -20,4 +20,10 @@ export const thirdPartyElementLibraries = [
 		libraryUrl: 'https://lexingtonthemes.com/remotion/free-templates',
 		displayName: 'Lexington Themes',
 	},
+	{
+		bannerUrl: null,
+		browseUrl: 'https://snapcn.dev/docs/components',
+		catalogUrl: 'https://snapcn.dev/docs/components',
+		displayName: 'snapcn',
+	},
 ] as const satisfies readonly ThirdPartyElementLibrary[];
