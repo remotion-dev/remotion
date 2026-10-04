@@ -4,6 +4,7 @@ import React, {
 	forwardRef,
 	useCallback,
 	useContext,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -526,6 +527,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
+	const currentFrame =
+		registeredFrozenFrame ??
+		(absoluteFrame - currentSequenceStart) * cumulativePlaybackRate;
+	const currentFrameRef = useRef(currentFrame);
+	useLayoutEffect(() => {
+		currentFrameRef.current = currentFrame;
+	}, [currentFrame]);
+	const getCurrentFrame = useCallback(() => currentFrameRef.current, []);
 	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
 		parentSequence?.cumulatedNegativeFrom ?? 0;
@@ -640,6 +649,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					timelineOrder: null,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
+					getCurrentFrame,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
@@ -669,6 +679,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				timelineOrder: null,
 				src: isMedia.data.src,
 				getStack: () => stackRef.current,
+				getCurrentFrame,
 				startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
 				mediaFrameAtSequenceZero,
 				volume: isMedia.data.volumes,
@@ -698,6 +709,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			timelineOrder: null,
 			loopDisplay: resolvedLoopDisplay,
 			getStack: () => stackRef.current,
+			getCurrentFrame,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: registrationControls,
@@ -710,6 +722,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		id,
+		getCurrentFrame,
 		timelineClipName,
 		playbackRate,
 		parentSequence?.id,

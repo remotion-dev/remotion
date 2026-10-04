@@ -133,6 +133,7 @@ export const InlineCaptionInspector: React.FC<{
 	readonly controls: SequenceRegistrationControls;
 	readonly expanded: boolean;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly onCaptionsRendered: () => void;
 	readonly onToggle: () => void;
 	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
@@ -141,6 +142,7 @@ export const InlineCaptionInspector: React.FC<{
 	controls,
 	expanded,
 	nodePath,
+	onCaptionsRendered,
 	onToggle,
 	readOnlyStudio,
 	validatedLocation,
@@ -175,6 +177,12 @@ export const InlineCaptionInspector: React.FC<{
 		setDraftCaptions(captions);
 		clearDragOverrides(nodePath);
 	}, [captions, clearDragOverrides, nodePath, runtimeSignature]);
+
+	useEffect(() => {
+		if (expanded) {
+			onCaptionsRendered();
+		}
+	}, [draftCaptions, expanded, onCaptionsRendered]);
 
 	const updateCaptions = useCallback(
 		(nextCaptions: Caption[]) => {

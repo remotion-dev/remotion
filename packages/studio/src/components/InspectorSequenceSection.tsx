@@ -42,6 +42,7 @@ import {
 	getBorderRadiusConversion,
 	getBorderRadiusConversionChanges,
 } from './Timeline/border-radius-representation';
+import {getCurrentFps, getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
 	getTimelineAssetLinkInfo,
@@ -312,6 +313,7 @@ export const InspectorSequenceSection: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly keyframePlaybackRate: number;
+	readonly sequenceFrameOffset: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
@@ -320,6 +322,7 @@ export const InspectorSequenceSection: React.FC<{
 	nodePathInfo,
 	keyframeDisplayOffset,
 	keyframePlaybackRate,
+	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
 	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
@@ -348,6 +351,14 @@ export const InspectorSequenceSection: React.FC<{
 		inspectorRevealItemKey === selectedEffectKey
 			? (inspectorRevealRequest?.token ?? null)
 			: null;
+	const captionsInspectorRef = useRef<HTMLDivElement>(null);
+	const handledCaptionSelection = useRef<readonly TimelineSelection[] | null>(
+		null,
+	);
+	const pendingCaptionScroll = useRef<{
+		readonly selection: readonly TimelineSelection[];
+		readonly index: number;
+	} | null>(null);
 	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
 	const scrolledInspectorRevealToken = useRef<number | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
@@ -736,11 +747,86 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
-	const inlineCaptions = hasCaptionsSchema
-		? Array.isArray(runtimeValues.captions)
-			? (runtimeValues.captions as Caption[])
-			: []
-		: null;
+	const inlineCaptions = useMemo(
+		() =>
+			hasCaptionsSchema
+				? Array.isArray(runtimeValues.captions)
+					? (runtimeValues.captions as Caption[])
+					: []
+				: null,
+		[hasCaptionsSchema, runtimeValues.captions],
+	);
+	useEffect(() => {
+		if (handledCaptionSelection.current === selectedItems) {
+			return;
+		}
+
+		pendingCaptionScroll.current = null;
+		if (
+			selectedItems.length !== 1 ||
+			selectedItems[0].type !== 'sequence' ||
+			getTimelineSequenceSelectionKey(selectedItems[0].nodePathInfo) !==
+				sequenceKey ||
+			inlineCaptions === null
+		) {
+			handledCaptionSelection.current = selectedItems;
+			return;
+		}
+
+		if (inlineCaptions.length === 0) {
+			return;
+		}
+
+		handledCaptionSelection.current = selectedItems;
+		const sequenceFrame =
+			sequence.getCurrentFrame?.() ??
+			sequence.frozenFrame ??
+			(getCurrentFrame() - sequence.from) * sequence.sequencePlaybackRate +
+				sequenceFrameOffset;
+		const timeMs = (sequenceFrame / getCurrentFps()) * 1000;
+		const index = inlineCaptions.findIndex(
+			(caption) => caption.startMs <= timeMs && caption.endMs > timeMs,
+		);
+		if (index === -1) {
+			return;
+		}
+
+		pendingCaptionScroll.current = {selection: selectedItems, index};
+		setAdditionalSectionExpanded('captions', true);
+	}, [
+		inlineCaptions,
+		selectedItems,
+		sequence,
+		sequenceFrameOffset,
+		sequenceKey,
+		setAdditionalSectionExpanded,
+	]);
+
+	const revealPendingCaption = useCallback(() => {
+		const pending = pendingCaptionScroll.current;
+		if (
+			!captionsExpanded ||
+			pending === null ||
+			pending.selection !== selectedItems
+		) {
+			return;
+		}
+
+		const input = captionsInspectorRef.current?.querySelector<HTMLInputElement>(
+			`[data-caption-index="${pending.index}"]`,
+		);
+		if (!input) {
+			return;
+		}
+
+		input.scrollIntoView({block: 'center'});
+		pendingCaptionScroll.current = null;
+	}, [captionsExpanded, selectedItems]);
+
+	useEffect(() => {
+		revealPendingCaption();
+	}, [inlineCaptions, revealPendingCaption]);
+
 	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
@@ -937,15 +1023,18 @@ export const InspectorSequenceSection: React.FC<{
 	};
 
 	const captionsInspector = inlineCaptions ? (
-		<InlineCaptionInspector
-			captions={inlineCaptions}
-			controls={sequence.controls}
-			expanded={captionsExpanded}
-			nodePath={nodePathInfo.sequenceSubscriptionKey}
-			onToggle={() => toggleAdditionalSection('captions')}
-			readOnlyStudio={readOnlyStudio}
-			validatedLocation={validatedLocation}
-		/>
+		<div key={sequenceKey} ref={captionsInspectorRef}>
+			<InlineCaptionInspector
+				captions={inlineCaptions}
+				controls={sequence.controls}
+				expanded={captionsExpanded}
+				nodePath={nodePathInfo.sequenceSubscriptionKey}
+				onCaptionsRendered={revealPendingCaption}
+				onToggle={() => toggleAdditionalSection('captions')}
+				readOnlyStudio={readOnlyStudio}
+				validatedLocation={validatedLocation}
+			/>
+		</div>
 	) : null;
 
 	if (
