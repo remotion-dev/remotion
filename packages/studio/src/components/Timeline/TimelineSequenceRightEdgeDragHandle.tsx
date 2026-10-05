@@ -1042,7 +1042,8 @@ export const getTimelineSequenceDurationDragTargets = ({
 			}
 
 			const minimumDuration = Math.max(
-				1 - originalSequence.from,
+				(track.sequence.from + 1 - track.cascadedStart) *
+					track.keyframePlaybackRate,
 				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
 			);
 			const initialDuration = mediaDurationDragLimits
@@ -1106,7 +1107,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 				...(naturalDuration !== null && maximumDuration === naturalDuration
 					? {naturalDuration, initiallyExplicit: !originalSequence.autoDuration}
 					: {}),
-				// A negative start needs enough duration to retain one visible frame.
+				// Include frames hidden by ancestors and retain one visible timeline frame.
 				minimumDuration,
 				nodePath,
 				schema: controls.schema,
