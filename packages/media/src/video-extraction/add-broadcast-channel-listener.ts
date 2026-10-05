@@ -35,10 +35,12 @@ export type MessageFromMainTab =
 	| {
 			type: 'response-network-error';
 			id: string;
+			error: {name: string; message: string; stack: string | null} | null;
 	  }
 	| {
 			type: 'response-unknown-container-format';
 			id: string;
+			error: {name: string; message: string; stack: string | null} | null;
 	  }
 	| {
 			type: 'main-tab-ready';
@@ -155,25 +157,26 @@ export const addBroadcastChannelListener = () => {
 						return;
 					}
 
-					if (result.type === 'network-error') {
-						const networkErrorResponse: MessageFromMainTab = {
-							type: 'response-network-error',
+					if (
+						result.type === 'network-error' ||
+						result.type === 'unknown-container-format'
+					) {
+						const mediaErrorResponse: MessageFromMainTab = {
+							type:
+								result.type === 'network-error'
+									? 'response-network-error'
+									: 'response-unknown-container-format',
 							id: data.id,
+							error: result.error
+								? {
+										name: result.error.name,
+										message: result.error.message,
+										stack: result.error.stack ?? null,
+									}
+								: null,
 						};
 
-						window.remotion_broadcastChannel!.postMessage(networkErrorResponse);
-						return;
-					}
-
-					if (result.type === 'unknown-container-format') {
-						const unknownContainerFormatResponse: MessageFromMainTab = {
-							type: 'response-unknown-container-format',
-							id: data.id,
-						};
-
-						window.remotion_broadcastChannel!.postMessage(
-							unknownContainerFormatResponse,
-						);
+						window.remotion_broadcastChannel!.postMessage(mediaErrorResponse);
 						return;
 					}
 
