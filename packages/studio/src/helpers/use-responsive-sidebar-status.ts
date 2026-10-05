@@ -3,7 +3,10 @@ import {SidebarContext} from '../state/sidebar';
 import {useMobileLayout} from './mobile-layout';
 import {useBreakpoint} from './use-breakpoint';
 
-export const SIDEBAR_RESPONSIVE_BREAKPOINT = 1200;
+export const SIDEBAR_RESPONSIVE_BREAKPOINTS = {
+	left: 1000,
+	right: 800,
+};
 
 export const useResponsiveSidebarStatus = (
 	side: 'left' | 'right',
@@ -14,7 +17,7 @@ export const useResponsiveSidebarStatus = (
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 	const isMobileLayout = useMobileLayout();
-	const responsiveStatus = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT)
+	const responsiveStatus = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS[side])
 		? 'collapsed'
 		: 'expanded';
 	const collapsedState =

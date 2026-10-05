@@ -64,7 +64,7 @@ import {
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {SIDEBAR_RESPONSIVE_BREAKPOINT} from '../../helpers/use-responsive-sidebar-status';
+import {SIDEBAR_RESPONSIVE_BREAKPOINTS} from '../../helpers/use-responsive-sidebar-status';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
 import {SidebarContext} from '../../state/sidebar';
 import {useZIndex} from '../../state/z-index';
@@ -1090,7 +1090,7 @@ export const TimelineSelectionProvider: React.FC<{
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const {setRightSidebarTemporaryExpansion, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
-	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINT);
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
 	const canSelect =
 		isStudioSelectionEnabled() &&
 		(previewServerState.type === 'connected' ||
