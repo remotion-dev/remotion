@@ -14,7 +14,7 @@ import {
 	type SequencePropClipboardData,
 } from '@remotion/studio-shared';
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {memo, useContext, useEffect} from 'react';
 import {
 	Internals,
 	type OverrideIdToNodePaths,
@@ -649,7 +649,7 @@ export const getPasteEffectPropTarget = ({
 	};
 };
 
-export const TimelineClipboardKeybindings: React.FC = () => {
+const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const canSelect = useTimelineSelectionCanSelect();
@@ -1451,3 +1451,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 	return null;
 };
+
+export const TimelineClipboardKeybindings = memo(
+	TimelineClipboardKeybindingsUnmemoized,
+);
