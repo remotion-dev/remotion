@@ -70,9 +70,7 @@ export const getRemotionSkillsInfo = ({
 
 	return {
 		studioServerStartedByAgent: Boolean(
-			process.env.CODEX_THREAD_ID ||
-			process.env.CURSOR_AGENT ||
-			process.env.CLAUDECODE === '1',
+			process.env.CURSOR_AGENT || process.env.CLAUDECODE === '1',
 		),
 		remotionUpgradeSkillAvailable: isSkillAvailable('remotion-upgrade'),
 		remotionInteractivitySkillAvailable: isSkillAvailable(

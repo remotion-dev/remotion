@@ -59,7 +59,9 @@ export const ServerDisconnected: React.FC = () => {
 	const annotationTarget = useRef<HTMLDivElement>(null);
 	const canAnnotate = getCodexAnnotation() !== null;
 	const isInAgent =
-		canAnnotate || remotionSkillsInfo?.studioServerStartedByAgent;
+		('oai' in window && Boolean(window.oai)) ||
+		('oai' in document && Boolean(document.oai)) ||
+		remotionSkillsInfo?.studioServerStartedByAgent;
 	const restartSkill = isInAgent
 		? (['remotion-studio', 'remotion-best-practices'].find((skillName) =>
 				remotionSkillsInfo?.skills.some(
