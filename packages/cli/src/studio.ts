@@ -1,4 +1,4 @@
-import {existsSync} from 'node:fs';
+import {existsSync, readdirSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
@@ -26,7 +26,6 @@ import {getInputProps} from './get-input-props';
 import {getRenderDefaults} from './get-render-defaults';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
-import {remotionSkillNames} from './remotion-skill-names';
 import {
 	addJob,
 	cancelJob,
@@ -100,9 +99,10 @@ export const studioCommand = async (
 
 	const projectSkills = path.join(remotionRoot, '.claude', 'skills');
 	const globalSkills = path.join(homedir(), '.claude', 'skills');
-	if (projectSkills !== globalSkills) {
-		const shadowedSkills = remotionSkillNames.filter(
+	if (projectSkills !== globalSkills && existsSync(projectSkills)) {
+		const shadowedSkills = readdirSync(projectSkills).filter(
 			(name) =>
+				name.startsWith('remotion-') &&
 				existsSync(path.join(projectSkills, name, 'SKILL.md')) &&
 				existsSync(path.join(globalSkills, name, 'SKILL.md')),
 		);
