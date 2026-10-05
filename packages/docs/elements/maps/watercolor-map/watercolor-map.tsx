@@ -1,11 +1,11 @@
-import {fontFamily, loadFont} from '@remotion/google-fonts/Lora';
+import {loadFont} from '@remotion/google-fonts/Lora';
 import React from 'react';
 import {
+	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
 	interpolate,
-	spring,
 	useCurrentFrame,
 	useVideoConfig,
 	type InteractiveTransformProps,
@@ -167,7 +167,7 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps, height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 	const zoom = getZoom(origin, destination);
 	const worldSize = TILE_SIZE * 2 ** zoom;
 	const projectedOrigin = projectCoordinates(origin, zoom);
@@ -182,12 +182,16 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 		destinationX += worldSize;
 	}
 
-	const travelEnd = Math.max(41, durationInFrames - 70);
-	const travelProgress = interpolate(frame, [40, travelEnd], [0, 1], {
-		easing: Easing.inOut(Easing.ease),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const travelProgress = interpolate(
+		frame,
+		[durationInFrames * 0.2, durationInFrames * 0.65],
+		[0, 1],
+		{
+			easing: Easing.inOut(Easing.ease),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 	const centerX = interpolate(
 		travelProgress,
 		[0, 1],
@@ -212,26 +216,6 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 	);
 	const routeArcHeight = Math.min(400, height * 0.37, routeDistance * 0.35);
 	const routePath = `M ${originX} ${originY} Q ${(originX + destinationScreenX) / 2} ${(originY + destinationScreenY) / 2 - routeArcHeight} ${destinationScreenX} ${destinationScreenY}`;
-	const originLabelOpacity =
-		1 -
-		spring({
-			fps,
-			frame: frame - 40,
-			config: {damping: 200},
-			durationInFrames: 20,
-		});
-	const destinationMarkerScale = spring({
-		fps,
-		frame: frame - travelEnd - 3,
-		config: {damping: 200},
-		durationInFrames: 20,
-	});
-	const destinationLabelOpacity = spring({
-		fps,
-		frame: frame - travelEnd,
-		config: {damping: 200},
-		durationInFrames: 20,
-	});
 	const tiles = getTiles({centerX, centerY, height, width, zoom});
 	const originLabelIsAbove =
 		originY > 120 && (originY > height - 120 || origin[1] > destination[1]);
@@ -240,13 +224,11 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 		(destinationScreenY > height - 120 || destination[1] >= origin[1]);
 
 	return (
-		<div
+		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: '#e6ec88',
-				height,
 				overflow: 'hidden',
-				position: 'absolute',
-				width,
 				...style,
 			}}
 		>
@@ -272,104 +254,185 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 					height,
 					inset: 0,
 					overflow: 'visible',
-					pointerEvents: 'none',
 					position: 'absolute',
 					width,
 				}}
 			>
-				<path
+				<Interactive.Path
+					name="Route outline"
 					d={routePath}
 					fill="none"
 					pathLength={1}
 					stroke="white"
 					strokeDasharray={1}
-					strokeDashoffset={1 - travelProgress}
+					strokeDashoffset={interpolate(
+						frame,
+						[
+							durationInFrames * 0.2,
+							durationInFrames * 0.425,
+							durationInFrames * 0.65,
+						],
+						[1, 0.5, 0],
+						{
+							easing: [Easing.ease, Easing.out(Easing.ease)],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					)}
 					strokeLinecap="round"
 					strokeWidth={routeWidth + 24}
 				/>
-				<path
+				<Interactive.Path
+					name="Route"
 					d={routePath}
 					fill="none"
 					pathLength={1}
 					stroke={routeColor}
 					strokeDasharray={1}
-					strokeDashoffset={1 - travelProgress}
+					strokeDashoffset={interpolate(
+						frame,
+						[
+							durationInFrames * 0.2,
+							durationInFrames * 0.425,
+							durationInFrames * 0.65,
+						],
+						[1, 0.5, 0],
+						{
+							easing: [Easing.ease, Easing.out(Easing.ease)],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					)}
 					strokeLinecap="round"
 					strokeWidth={routeWidth}
 				/>
 			</svg>
 			<div
 				style={{
-					backgroundColor: routeColor,
-					border: '12px solid white',
-					borderRadius: '50%',
-					boxSizing: 'border-box',
-					height: 60,
 					left: originX,
 					position: 'absolute',
 					top: originY,
 					translate: '-50% -50%',
-					width: 60,
 				}}
-			/>
+			>
+				<Interactive.Div
+					name="Origin marker"
+					style={{
+						backgroundColor: routeColor,
+						border: '12px solid white',
+						borderRadius: '50%',
+						boxSizing: 'border-box',
+						height: 60,
+						translate: '0px 0px',
+						width: 60,
+					}}
+				/>
+			</div>
 			<div
 				style={{
-					backgroundColor: routeColor,
-					border: '12px solid white',
-					borderRadius: '50%',
-					boxSizing: 'border-box',
-					height: 60,
 					left: destinationScreenX,
 					position: 'absolute',
-					scale: destinationMarkerScale,
 					top: destinationScreenY,
 					translate: '-50% -50%',
-					width: 60,
 				}}
-			/>
+			>
+				<Interactive.Div
+					name="Destination marker"
+					style={{
+						backgroundColor: routeColor,
+						border: '12px solid white',
+						borderRadius: '50%',
+						boxSizing: 'border-box',
+						height: 60,
+						scale: interpolate(
+							frame,
+							[durationInFrames * 0.665, durationInFrames * 0.765],
+							[0, 1],
+							{
+								easing: Easing.spring({damping: 200}),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
+						translate: '0px 0px',
+						width: 60,
+					}}
+				/>
+			</div>
 			<div
 				style={{
-					backgroundColor: 'white',
-					borderRadius: 32,
-					boxShadow: '0 0 30px white',
-					color: '#182026',
-					fontFamily,
-					fontSize: 40,
-					fontWeight: 700,
 					left: originX,
-					opacity: originLabelOpacity,
-					padding: '14px 36px',
-					pointerEvents: 'none',
 					position: 'absolute',
 					top: originY,
 					translate: `-50% ${originLabelIsAbove ? '-145%' : '45%'}`,
-					whiteSpace: 'nowrap',
 				}}
 			>
-				{originLabel}
+				<Interactive.Div
+					name="Origin label"
+					style={{
+						backgroundColor: 'white',
+						borderRadius: 32,
+						boxShadow: '0 0 30px white',
+						color: '#182026',
+						fontFamily: 'Lora',
+						fontSize: 40,
+						fontWeight: 700,
+						opacity: interpolate(
+							frame,
+							[durationInFrames * 0.2, durationInFrames * 0.3],
+							[1, 0],
+							{
+								easing: Easing.spring({damping: 200}),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
+						padding: '14px 36px',
+						translate: '0px 0px',
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{originLabel}
+				</Interactive.Div>
 			</div>
 			<div
 				style={{
-					backgroundColor: 'white',
-					borderRadius: 32,
-					boxShadow: '0 0 30px white',
-					color: '#182026',
-					fontFamily,
-					fontSize: 40,
-					fontWeight: 700,
 					left: destinationScreenX,
-					opacity: destinationLabelOpacity,
-					padding: '14px 36px',
-					pointerEvents: 'none',
 					position: 'absolute',
 					top: destinationScreenY,
 					translate: `-50% ${destinationLabelIsAbove ? '-145%' : '45%'}`,
-					whiteSpace: 'nowrap',
 				}}
 			>
-				{destinationLabel}
+				<Interactive.Div
+					name="Destination label"
+					style={{
+						backgroundColor: 'white',
+						borderRadius: 32,
+						boxShadow: '0 0 30px white',
+						color: '#182026',
+						fontFamily: 'Lora',
+						fontSize: 40,
+						fontWeight: 700,
+						opacity: interpolate(
+							frame,
+							[durationInFrames * 0.65, durationInFrames * 0.75],
+							[0, 1],
+							{
+								easing: Easing.spring({damping: 200}),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
+						padding: '14px 36px',
+						translate: '0px 0px',
+						whiteSpace: 'nowrap',
+					}}
+				>
+					{destinationLabel}
+				</Interactive.Div>
 			</div>
-			<div
+			<Interactive.Div
+				name="Map attribution"
 				style={{
 					backgroundColor: 'rgba(255, 255, 255, 0.82)',
 					borderRadius: 4,
@@ -384,8 +447,8 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 			>
 				Map tiles by Stamen Design, under CC BY 3.0 · Data by OpenStreetMap,
 				under CC BY-SA
-			</div>
-		</div>
+			</Interactive.Div>
+		</AbsoluteFill>
 	);
 };
 
