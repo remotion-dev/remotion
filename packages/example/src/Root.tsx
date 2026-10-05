@@ -341,10 +341,12 @@ import {
 import {InteractivePaths} from './VisualModeTests/InteractivePaths';
 import {Issue9170} from './VisualModeTests/Issue9170';
 import {KeyframeDeleteFlash} from './VisualModeTests/KeyframeDeleteFlash';
+import {OneFrameTrimRepro} from './VisualModeTests/OneFrameTrimRepro';
 import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
 import {SequenceDurationInterpolation} from './VisualModeTests/SequenceDurationInterpolation';
 import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
+import {TimelineMinimumDurationRepro} from './VisualModeTests/TimelineMinimumDurationRepro';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -3102,6 +3104,22 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="timeline-minimum-duration-repro"
+					component={TimelineMinimumDurationRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="one-frame-trim-repro"
+					component={OneFrameTrimRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
 				<Composition
 					id="SourceSubscriptionChurn"
 					component={SourceSubscriptionChurn}

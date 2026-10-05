@@ -1930,6 +1930,113 @@ test('Timeline duration drag uses the declared duration for negative from values
 	).toEqual([]);
 });
 
+test.each([
+	{
+		name: 'negative ancestor start',
+		parentFrom: -30,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 31,
+	},
+	{
+		name: 'positive child start under a negative ancestor',
+		parentFrom: -30,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 0,
+		childFrom: 10,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 21,
+	},
+	{
+		name: 'ancestor trimBefore',
+		parentFrom: 0,
+		parentPlaybackRate: 1,
+		parentTrimBefore: 30,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 31,
+	},
+	{
+		name: 'sped-up ancestor',
+		parentFrom: -30,
+		parentPlaybackRate: 2,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 1,
+		expectedDurationInFrames: 62,
+	},
+	{
+		name: 'sped-up ancestor with a slowed-down child',
+		parentFrom: -30,
+		parentPlaybackRate: 2,
+		parentTrimBefore: 0,
+		childFrom: 0,
+		childPlaybackRate: 0.5,
+		expectedDurationInFrames: 31,
+	},
+])('Timeline duration drag retains one visible frame: $name', (scenario) => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const parent = makeTimelineSequence({
+		schema,
+		id: 'parent',
+		overrideId: 'parent',
+		from: scenario.parentFrom,
+		duration: 300,
+		trimBefore: scenario.parentTrimBefore,
+		sequencePlaybackRate: scenario.parentPlaybackRate,
+	});
+	const child = makeTimelineSequence({
+		schema,
+		id: 'child',
+		overrideId: 'child',
+		parentId: parent.id,
+		from: scenario.childFrom,
+		duration: 60 * scenario.parentPlaybackRate,
+		sequencePlaybackRate: scenario.childPlaybackRate,
+	});
+	const overrideIdsToNodePaths = {child: nodePath};
+	const targets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		draggedSequenceMediaDurationDragLimits: null,
+		selectedSequenceMediaDurationDragLimits: null,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [parent, child],
+		overrideIdsToNodePaths,
+		propStatuses: makeDurationPropStatuses([nodePath]),
+		timelineDurationInFrames: 600,
+	});
+	const changes = getTimelineSequenceDurationDragChanges({
+		targets: targets ?? [],
+		deltaFrames: -1000,
+	});
+
+	expect(changes.map(({fieldKey, value}) => ({fieldKey, value}))).toEqual([
+		{
+			fieldKey: 'durationInFrames',
+			value: scenario.expectedDurationInFrames,
+		},
+	]);
+
+	const resizedTracks = calculateTimeline({
+		sequences: [
+			parent,
+			{
+				...child,
+				duration: Number(changes[0].value) / child.sequencePlaybackRate,
+			},
+		],
+		overrideIdsToNodePaths,
+	});
+	expect(
+		resizedTracks.find((track) => track.sequence.id === child.id)?.sequence
+			.duration,
+	).toBe(1);
+});
+
 test('Timeline duration drag clamps to the composition end', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
