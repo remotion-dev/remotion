@@ -20,6 +20,9 @@ export type FallbackHtml5AudioProps = {
 export type AudioProps = {
 	src: string;
 	trimBefore?: number;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter?: number;
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;

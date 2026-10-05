@@ -6,12 +6,9 @@ import React, {
 	useState,
 } from 'react';
 import {createPortal} from 'react-dom';
-import {
-	TIMELINE_BACKGROUND_COLOR,
-	WHITE_ALPHA_10,
-	WHITE_ALPHA_90,
-} from '../helpers/colors';
+import {TIMELINE_BACKGROUND_COLOR, WHITE_ALPHA_90} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
+import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {getPortal} from './Menu/portals';
 import {SHADOW_TOWARDS_TOP} from './Menu/styles';
 
@@ -43,11 +40,8 @@ const labelStyle: React.CSSProperties = {
 
 const shortcutStyle: React.CSSProperties = {
 	...labelStyle,
-	backgroundColor: WHITE_ALPHA_10,
-	borderRadius: 3,
-	padding: '0 4px',
-	minWidth: 16,
-	textAlign: 'center',
+	backgroundColor: 'transparent',
+	opacity: 0.6,
 	whiteSpace: 'nowrap',
 	flexShrink: 0,
 };
@@ -57,7 +51,7 @@ let lastTooltipHiddenAt: number | null = null;
 const TOOLTIP_SKIP_DELAY_WINDOW = 300;
 
 export const ActionTooltip: React.FC<{
-	readonly label: string;
+	readonly label: React.ReactNode;
 	readonly shortcut: string | null;
 	/** Hover delay in milliseconds. Pass null to show immediately. */
 	readonly delay: number | null;
@@ -239,7 +233,11 @@ export const ActionTooltip: React.FC<{
 							}}
 						>
 							<span style={labelStyle}>{label}</span>
-							{shortcut ? <kbd style={shortcutStyle}>{shortcut}</kbd> : null}
+							{shortcut ? (
+								<kbd style={shortcutStyle}>
+									<KeyboardShortcutLabel shortcut={shortcut} style={null} />
+								</kbd>
+							) : null}
 						</div>,
 						getPortal(currentZIndex),
 					)

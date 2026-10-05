@@ -1,8 +1,10 @@
 import {getThemeColors} from '@code-hike/lighter';
 import {highlight} from 'codehike/code';
 import React, {useEffect, useState} from 'react';
+import type {InteractivitySchema} from 'remotion';
 import {
 	AbsoluteFill,
+	Interactive,
 	Sequence,
 	interpolate,
 	useCurrentFrame,
@@ -15,39 +17,25 @@ import {CodeTransition} from './CodeTransition';
 const THEME = 'github-light';
 
 type CodeBRollProps = {
+	readonly style?: React.CSSProperties;
 	readonly code: string;
 	/** Previous code for transition animation. Default: none */
 	readonly previousCode?: string;
-	/** Duration in seconds. Default: 4 */
-	readonly durationSeconds?: number;
-	/** Fade in/out duration in seconds. Default: 0.2 */
-	readonly fadeDuration?: number;
 	/** Language for syntax highlighting. Default: "tsx" */
 	readonly lang?: string;
 	/** Top explainer text. Default: "" */
 	readonly topExplainer?: string;
 };
 
-export const CodeBRoll: React.FC<CodeBRollProps> = ({
+const CodeBRollInner: React.FC<CodeBRollProps> = ({
 	code,
 	previousCode,
-	durationSeconds = 4,
-	fadeDuration = 0.2,
 	lang = 'tsx',
 	topExplainer = '',
+	style,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-
-	const duration = Math.round(durationSeconds * fps);
-	const fade = fadeDuration * fps;
-
-	const opacity = interpolate(
-		frame,
-		[0, fade, duration - fade, duration],
-		[0, 1, 1, 0],
-		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-	);
 
 	const [data, setData] = useState<{
 		highlighted: Awaited<ReturnType<typeof highlight>>;
@@ -80,7 +68,16 @@ export const CodeBRoll: React.FC<CodeBRollProps> = ({
 	const transitionDelay = data.previousHighlighted ? Math.round(fps) : 0;
 
 	return (
-		<AbsoluteFill style={{opacity}}>
+		<AbsoluteFill
+			name="Code example fade"
+			style={{
+				opacity: interpolate(frame, [0, 6, 114, 120], [0, 1, 1, 0], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+				...style,
+			}}
+		>
 			<ThemeProvider themeColors={data.themeColors}>
 				<AbsoluteFill style={{backgroundColor: data.themeColors.background}}>
 					{data.previousHighlighted &&
@@ -106,3 +103,21 @@ export const CodeBRoll: React.FC<CodeBRollProps> = ({
 		</AbsoluteFill>
 	);
 };
+
+const codeBRollSchema = {
+	code: {type: 'text-content', default: '', description: 'Code'},
+	previousCode: {
+		type: 'text-content',
+		default: '',
+		description: 'Previous code',
+	},
+	lang: {type: 'text-content', default: 'tsx', description: 'Language'},
+	topExplainer: {type: 'text-content', default: '', description: 'Heading'},
+} as const satisfies InteractivitySchema;
+
+export const CodeBRoll = Interactive.withSchema({
+	Component: CodeBRollInner,
+	componentName: '<CodeBRoll>',
+	schema: codeBRollSchema,
+	wrapInSequence: true,
+});

@@ -1,5 +1,8 @@
 import {useContext, useLayoutEffect, useRef} from 'react';
-import {resolveDragOverrideValue} from '../get-effective-visual-mode-value.js';
+import {
+	getFrameInKeyframedStatusClock,
+	resolveDragOverrideValue,
+} from '../get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
 import type {RuntimeValueStore} from '../runtime-value-store.js';
@@ -10,7 +13,7 @@ import type {
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
-	VisualModeDragOverridesContext,
+	useEffectDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
@@ -25,6 +28,8 @@ import type {
 	EffectDescriptor,
 	EffectDefinition,
 } from './effect-types.js';
+
+const emptyDragOverrides: Record<string, DragOverrideValue> = {};
 
 const mergeOverrides = ({
 	descriptor,
@@ -91,7 +96,7 @@ const resolvePropStatusOverrides = (
 		if (status.status === 'keyframed') {
 			const value = interpolateKeyframedStatus({
 				forceSpringAllowTail: null,
-				frame,
+				frame: getFrameInKeyframedStatusClock({frame, status}),
 				status,
 			});
 			if (value !== null) {
@@ -217,7 +222,6 @@ export const useMemoizedEffects = ({
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
-	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 	const frame = useCurrentFrame();
 
 	const {overrideIdToNodePathMappings} = useContext(
@@ -229,6 +233,10 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const effectDragOverrides = useEffectDragOverridesForNodePath(
+		nodePath,
+		effects.length,
+	);
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
@@ -248,7 +256,7 @@ export const useMemoizedEffects = ({
 			effectStatus.type === 'can-update-effect'
 				? resolvePropStatusOverrides(effectStatus.props, frame)
 				: null;
-		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
+		const dragOverridesMap = effectDragOverrides[index] ?? emptyDragOverrides;
 		const dragOverrides =
 			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
 

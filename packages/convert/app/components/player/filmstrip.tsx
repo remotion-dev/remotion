@@ -395,6 +395,7 @@ export const Filmstrip: React.FC<{
 			width: canvasWidth,
 			frameHeight: FILMSTRIP_HEIGHT,
 			devicePixelRatio: window.devicePixelRatio,
+			horizontalOffset: 0,
 			signal: controller.signal,
 		}).catch(() => undefined);
 

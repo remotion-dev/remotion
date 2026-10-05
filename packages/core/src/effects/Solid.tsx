@@ -25,6 +25,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
@@ -280,6 +281,7 @@ const SolidOuter = forwardRef<
 			styleWhilePostmounted,
 			trimBefore,
 			playbackRate,
+			loop,
 			freeze,
 			hidden,
 			showInTimeline,
@@ -310,7 +312,11 @@ const SolidOuter = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -328,12 +334,17 @@ const SolidOuter = forwardRef<
 		});
 
 		return (
-			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
+			>
 				<Sequence
 					layout="none"
 					from={from}
 					trimBefore={trimBefore}
 					playbackRate={playbackRate}
+					loop={loop}
 					freeze={freeze}
 					hidden={hidden}
 					showInTimeline={showInTimeline}
@@ -341,7 +352,6 @@ const SolidOuter = forwardRef<
 					_remotionInternalEffects={memoizedEffectDefinitions}
 					durationInFrames={durationInFrames}
 					name={name ?? '<Solid>'}
-					outlineRef={actualRef}
 					_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
 					{...props}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}

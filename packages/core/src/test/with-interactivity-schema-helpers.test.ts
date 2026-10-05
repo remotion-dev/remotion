@@ -20,6 +20,7 @@ import {
 	captionsSchema,
 	cropSchema,
 	extendSchemaWithSequenceName,
+	loopField,
 	premountSchema,
 	sequenceCropSchema,
 	sequencePremountSchema,
@@ -152,6 +153,11 @@ test('baseSchema exposes common timeline fields', () => {
 			'playbackRate',
 		].sort(),
 	);
+	for (const schema of [imgSchema, canvasImageSchema, solidSchema]) {
+		expect('loop' in schema).toBe(false);
+	}
+
+	expect(animatedImageSchema.loop).toBe(loopField);
 });
 
 test('pixelDensity is exposed only by canvas-backed component schemas', () => {

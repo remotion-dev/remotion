@@ -113,9 +113,24 @@ test('refreshes prop statuses for inserted and in-place updated nodes', () => {
 			{
 				absolutePath,
 				remappings: [
-					{oldNodePath: [...originalPath], newNodePath: [...originalPath]},
-					{oldNodePath: [...insertedPath], newNodePath: [...shiftedPath]},
-					{oldNodePath: null, newNodePath: [...insertedPath]},
+					{
+						oldNodePath: [...originalPath],
+						newNodePath: [...originalPath],
+						oldJsxName: 'Card',
+						newJsxName: 'Card',
+					},
+					{
+						oldNodePath: [...insertedPath],
+						newNodePath: [...shiftedPath],
+						oldJsxName: 'Card',
+						newJsxName: 'Card',
+					},
+					{
+						oldNodePath: null,
+						newNodePath: [...insertedPath],
+						oldJsxName: null,
+						newJsxName: 'Card',
+					},
 				],
 			},
 		],
@@ -176,7 +191,99 @@ test('refreshes prop statuses for inserted and in-place updated nodes', () => {
 	}
 });
 
-test('keeps the selected sequence selected after its node path changes', () => {
+test('moves an override when a different JSX component takes over its old path', () => {
+	const absolutePath = '/project/src/Composition.tsx';
+	const originalCaptionsPath = ['body', 3] as const;
+	const movedCaptionsPath = ['body', 5] as const;
+	const originalNodePath: SequencePropsSubscriptionKey = {
+		absolutePath,
+		effectKeys: [],
+		nodePath: [...originalCaptionsPath],
+		sequenceKeys: ['captions', 'from', 'durationInFrames', 'trimBefore'],
+		videoConfigValues: null,
+	};
+	const movedNodePath: SequencePropsSubscriptionKey = {
+		...originalNodePath,
+		nodePath: [...movedCaptionsPath],
+	};
+	const refreshedOverrideIds: string[] = [];
+	const setOverrideCalls: Array<{
+		overrideId: string;
+		nodePath: SequencePropsSubscriptionKey | null;
+	}> = [];
+	const unsubscribeRefresh = subscribeToSequencePropsRefresh(
+		'captions-override',
+		() => refreshedOverrideIds.push('captions-override'),
+	);
+
+	queueSequenceNodePathMutation({
+		mutationId: 'different-component-at-old-path-test',
+		timelineSelection: null,
+		files: [
+			{
+				absolutePath,
+				remappings: [
+					{
+						oldNodePath: [...originalCaptionsPath],
+						newNodePath: [...movedCaptionsPath],
+						oldJsxName: 'BasicCaptions',
+						newJsxName: 'BasicCaptions',
+					},
+					{
+						oldNodePath: null,
+						newNodePath: [...originalCaptionsPath],
+						oldJsxName: null,
+						newJsxName: 'Video',
+					},
+				],
+			},
+		],
+	});
+
+	try {
+		render(
+			<ObserverTestProviders
+				values={{
+					fastRefresh: {
+						fastRefreshes: 1,
+						manualRefreshes: 0,
+						increaseManualRefreshes: () => undefined,
+					},
+					expandedTracksSetter: {
+						expandParentTracks: () => undefined,
+						toggleTrack: () => undefined,
+						migrateExpandedTracksForSubscriptionKey: () => undefined,
+					} as never,
+					overrideIdsGetter: {
+						overrideIdToNodePathMappings: {
+							'captions-override': originalNodePath,
+						},
+					},
+					overrideIdsSetter: {
+						setOverrideIdToNodePath: (overrideId, nodePath) =>
+							setOverrideCalls.push({overrideId, nodePath}),
+					},
+					propStatusesRef: {current: {}},
+					visualModeSetters: {
+						remapPropStatuses: () => undefined,
+						setPropStatuses: () => undefined,
+					} as never,
+				}}
+			>
+				<SequencePropsObserver />
+			</ObserverTestProviders>,
+		);
+
+		expect(setOverrideCalls).toEqual([
+			{overrideId: 'captions-override', nodePath: movedNodePath},
+		]);
+		expect(refreshedOverrideIds).toEqual(['captions-override']);
+	} finally {
+		unsubscribeRefresh();
+	}
+});
+
+test('remaps selection and refreshes the subscription after a JSX node path changes', () => {
 	const absolutePath = '/project/src/BarChart.tsx';
 	const originalNodePath: SequencePropsSubscriptionKey = {
 		absolutePath,
@@ -185,6 +292,10 @@ test('keeps the selected sequence selected after its node path changes', () => {
 		sequenceKeys: ['hidden', 'name'],
 		videoConfigValues: null,
 	};
+	const refreshedOverrideIds: string[] = [];
+	const unsubscribeRefresh = subscribeToSequencePropsRefresh('card', () =>
+		refreshedOverrideIds.push('card'),
+	);
 	const selectionRef: {
 		current: ReturnType<typeof useTimelineSelection> | null;
 	} = {current: null};
@@ -206,7 +317,9 @@ test('keeps the selected sequence selected after its node path changes', () => {
 					toggleTrack: () => undefined,
 					migrateExpandedTracksForSubscriptionKey: () => undefined,
 				} as never,
-				overrideIdsGetter: {overrideIdToNodePathMappings: {}},
+				overrideIdsGetter: {
+					overrideIdToNodePathMappings: {card: originalNodePath},
+				},
 				overrideIdsSetter: {setOverrideIdToNodePath: () => undefined},
 				propStatusesRef: {current: {}},
 				visualModeSetters: {
@@ -240,18 +353,17 @@ test('keeps the selected sequence selected after its node path changes', () => {
 		]);
 	});
 
-	queueSequenceNodePathMutation({
-		mutationId: 'reorder-selection-test',
-		timelineSelection: null,
-		files: [
-			{
-				absolutePath,
-				remappings: [
-					{oldNodePath: ['body', 0], newNodePath: ['body', 1]},
-					{oldNodePath: ['body', 1], newNodePath: ['body', 0]},
-				],
-			},
-		],
+	act(() => {
+		queueSequenceNodePathMutation({
+			mutationId: 'reorder-selection-test',
+			timelineSelection: null,
+			files: [
+				{
+					absolutePath,
+					remappings: [{oldNodePath: ['body', 0], newNodePath: ['body', 1]}],
+				},
+			],
+		});
 	});
 	rendered.rerender(renderTree(1));
 
@@ -262,4 +374,6 @@ test('keeps the selected sequence selected after its node path changes', () => {
 					.sequenceSubscriptionKey.nodePath
 			: null,
 	).toEqual(['body', 1]);
+	expect(refreshedOverrideIds).toEqual(['card']);
+	unsubscribeRefresh();
 });

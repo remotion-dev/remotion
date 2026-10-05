@@ -21,23 +21,12 @@ const LottieContent = ({
 	animationData,
 	className,
 	direction,
-	loop,
-	playbackRate,
 	style,
 	onAnimationLoaded,
 	renderer,
 	preserveAspectRatio,
 	assetsPath,
 }: LottieProps) => {
-	if (typeof animationData !== 'object') {
-		throw new Error(
-			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/docs/lottie/lottie#example for more information.',
-		);
-	}
-
-	validatePlaybackRate(playbackRate);
-	validateLoop(loop);
-
 	const animationRef = useRef<AnimationItem | null>(null);
 	const currentFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -84,9 +73,8 @@ const LottieContent = ({
 			// We can work around it by seeking twice, initially.
 			if (currentFrameRef.current) {
 				const frameToSet = getLottieFrame({
-					currentFrame: currentFrameRef.current * (playbackRate ?? 1),
+					currentFrame: currentFrameRef.current,
 					direction,
-					loop,
 					totalFrames: animation.totalFrames,
 				});
 				animationRef.current?.goToAndStop(Math.max(0, frameToSet - 1), true);
@@ -109,8 +97,6 @@ const LottieContent = ({
 		assetsPath,
 		direction,
 		handle,
-		loop,
-		playbackRate,
 		preserveAspectRatio,
 		renderer,
 		continueRender,
@@ -123,21 +109,14 @@ const LottieContent = ({
 	}, [direction]);
 
 	useEffect(() => {
-		if (animationRef.current && playbackRate) {
-			animationRef.current.setSpeed(playbackRate);
-		}
-	}, [playbackRate]);
-
-	useEffect(() => {
 		if (!animationRef.current) {
 			return;
 		}
 
 		const {totalFrames} = animationRef.current;
 		const frameToSet = getLottieFrame({
-			currentFrame: frame * (playbackRate ?? 1),
+			currentFrame: frame,
 			direction,
-			loop,
 			totalFrames,
 		});
 
@@ -173,15 +152,18 @@ const LottieContent = ({
 				img.href.baseVal as string,
 			);
 		});
-	}, [direction, frame, loop, playbackRate, delayRender, continueRender]);
+	}, [direction, frame, delayRender, continueRender]);
 
 	return <div ref={containerRef} className={className} style={style} />;
 };
 
 export const Lottie = ({
+	animationData,
 	from,
 	durationInFrames,
 	trimBefore,
+	playbackRate,
+	loop,
 	freeze,
 	hidden,
 	name,
@@ -193,6 +175,24 @@ export const Lottie = ({
 	style,
 	...props
 }: LottieProps) => {
+	if (typeof animationData !== 'object' || animationData === null) {
+		throw new Error(
+			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/docs/lottie/lottie#example for more information.',
+		);
+	}
+
+	validatePlaybackRate(playbackRate);
+	validateLoop(loop);
+
+	// Match lottie-web's totalFrames so an implicit loop ends at the asset boundary.
+	const sequenceDurationInFrames =
+		loop && durationInFrames === undefined
+			? Math.floor(
+					animationData.op -
+						(typeof animationData.ip === 'number' ? animationData.ip : 0),
+				) - (trimBefore ?? 0)
+			: durationInFrames;
+
 	const {
 		effectivePremountFor,
 		effectivePostmountFor,
@@ -203,7 +203,11 @@ export const Lottie = ({
 		premountingStyle,
 	} = Internals.usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames: sequenceDurationInFrames,
+			playbackRate,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -216,8 +220,10 @@ export const Lottie = ({
 			<Sequence
 				layout="none"
 				from={from}
-				durationInFrames={durationInFrames}
+				durationInFrames={sequenceDurationInFrames}
 				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
 				freeze={freeze}
 				hidden={hidden}
 				name={name ?? '<Lottie>'}
@@ -227,7 +233,11 @@ export const Lottie = ({
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 			>
-				<LottieContent {...props} style={premountingStyle ?? undefined} />
+				<LottieContent
+					{...props}
+					animationData={animationData}
+					style={premountingStyle ?? undefined}
+				/>
 			</Sequence>
 		</Freeze>
 	);

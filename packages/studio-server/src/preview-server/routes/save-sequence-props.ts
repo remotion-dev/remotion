@@ -172,6 +172,9 @@ export const convertSequencePropEditToCodemodChange = (
 				key: edit.key,
 				value: edit.value,
 				defaultValue: edit.defaultValue,
+				...(edit.sourceEdit?.type === 'playback-rate'
+					? {retimeKeyframes: true}
+					: {}),
 				googleFont:
 					edit.sourceEdit?.type === 'google-font' ? edit.sourceEdit.font : null,
 				clipboardParam:

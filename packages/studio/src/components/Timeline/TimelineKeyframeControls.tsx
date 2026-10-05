@@ -1,4 +1,4 @@
-import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -23,6 +23,7 @@ import {
 	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {ActionTooltip} from '../ActionTooltip';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {
 	callAddKeyframes,
@@ -35,16 +36,11 @@ import {
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
 import {
-	getNextKeyframeDisplayFrame,
-	getPreviousKeyframeDisplayFrame,
-	hasKeyframeAtSourceFrame,
-} from './get-keyframe-navigation';
-import {
+	getKeyframePlaybackRate,
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
 	getTimelineKeyframes,
 } from './get-timeline-keyframes';
-import {normalizeFontWeightForKeyframe} from './normalize-font-weight-for-keyframe';
 import {ensureFrameIsInViewport} from './timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeTracks} from './TimelineKeyframeTracksContext';
@@ -54,6 +50,14 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './TimelineSelection';
+
+const {
+	getCanvasKeyframeValueToAdd,
+	getNextKeyframeDisplayFrame,
+	getPreviousKeyframeDisplayFrame,
+	hasKeyframeAtSourceFrame,
+	isCanvasKeyframablePropStatus,
+} = CanvasInternals;
 
 const NAV_BUTTON_SIZE = 14;
 const INSPECTOR_NAV_BUTTON_WIDTH = NAV_BUTTON_SIZE / 2;
@@ -364,31 +368,25 @@ const getAddChange = (
 	target: KeyframeControlTarget,
 ): AddSequenceKeyframeChange | AddEffectKeyframeChange | null => {
 	if (
-		target.propStatus.status === 'computed' ||
-		!isSchemaFieldKeyframable({schema: target.schema, key: target.fieldKey}) ||
+		!isCanvasKeyframablePropStatus({
+			propStatus: target.propStatus,
+			schema: target.schema,
+			key: target.fieldKey,
+		}) ||
 		hasTargetKeyframeAtCurrentFrame(target)
 	) {
 		return null;
 	}
 
-	const value = getCurrentKeyframeValue({
+	const value = getCanvasKeyframeValueToAdd({
 		propStatus: target.propStatus,
-		jsxFrame:
-			target.sourceFrame +
-			(target.propStatus.keyframeDisplayOffsetAdjustment ?? 0),
+		schema: target.schema,
+		key: target.fieldKey,
+		sourceFrame: target.sourceFrame,
 		defaultValue: target.defaultValue,
 		dragOverrideValue: target.dragOverrideValue,
 	});
 	if (value === null) {
-		return null;
-	}
-
-	const fieldSchema = target.schema[target.fieldKey];
-	const normalizedValue =
-		fieldSchema?.type === 'font-weight'
-			? normalizeFontWeightForKeyframe(value)
-			: value;
-	if (normalizedValue === null) {
 		return null;
 	}
 
@@ -397,7 +395,7 @@ const getAddChange = (
 		nodePath: target.nodePath,
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
-		value: normalizedValue,
+		value,
 		schema: target.schema,
 	};
 
@@ -442,40 +440,6 @@ const hasEffectIndex = <T extends object>(
 ): change is T & {readonly effectIndex: number} => {
 	return 'effectIndex' in change;
 };
-
-function getCurrentKeyframeValue({
-	propStatus,
-	jsxFrame,
-	defaultValue,
-	dragOverrideValue,
-}: {
-	propStatus: CanUpdateSequencePropStatus;
-	jsxFrame: number;
-	defaultValue: unknown;
-	dragOverrideValue: DragOverrideValue | undefined;
-}): unknown | null {
-	if (isKeyframedStatus(propStatus)) {
-		return Internals.getEffectiveVisualModeValue({
-			propStatus,
-			dragOverrideValue,
-			frame: jsxFrame,
-			defaultValue,
-			shouldResortToDefaultValueIfUndefined: true,
-		});
-	}
-
-	if (propStatus.status === 'static') {
-		return Internals.getEffectiveVisualModeValue({
-			propStatus,
-			dragOverrideValue,
-			frame: jsxFrame,
-			defaultValue,
-			shouldResortToDefaultValueIfUndefined: true,
-		});
-	}
-
-	return null;
-}
 
 export const shouldShowTimelineKeyframeControls = ({
 	propStatus,
@@ -634,11 +598,11 @@ export const TimelineKeyframeControls: React.FC<{
 		selected: propertySelected,
 	});
 
-	const keyframable = isSchemaFieldKeyframable({
+	const canAddKeyframe = isCanvasKeyframablePropStatus({
+		propStatus,
 		schema,
 		key: fieldKey,
 	});
-	const canAddKeyframe = keyframable;
 	const canToggleKeyframe =
 		canUseKeyframeOperations() &&
 		propStatus.status !== 'computed' &&
@@ -823,7 +787,11 @@ export const TimelineKeyframeControls: React.FC<{
 						type: 'keyframe' as const,
 						nodePathInfo: target.nodePathInfo,
 						frame:
-							target.sourceFrame / target.keyframePlaybackRate +
+							target.sourceFrame /
+								getKeyframePlaybackRate(
+									target.propStatus,
+									target.keyframePlaybackRate,
+								) +
 							target.keyframeDisplayOffset,
 					})),
 					{reveal: true},
@@ -877,6 +845,9 @@ export const TimelineKeyframeControls: React.FC<{
 	);
 
 	const diamondColor = hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT;
+	const toggleKeyframeLabel = hasKeyframeAtCurrentFrame
+		? 'Remove keyframe'
+		: 'Add keyframe';
 
 	return (
 		<div
@@ -886,41 +857,66 @@ export const TimelineKeyframeControls: React.FC<{
 					: controlsContainerStyle
 			}
 		>
-			<button
-				type="button"
-				style={previousStyle}
-				disabled={previousDisabled}
-				onPointerDown={previousDisabled ? undefined : onPrevious}
-				aria-label="Go to previous keyframe"
+			<ActionTooltip
+				label="Previous keyframe"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+				triggerStyle={{
+					visibility: showNavigationButtons ? 'visible' : 'hidden',
+				}}
 			>
-				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
-					<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
-				</svg>
-			</button>
-			<button
-				type="button"
-				style={diamondStyle}
-				disabled={!canToggleKeyframe || !clientId}
-				onPointerDown={
-					canToggleKeyframe && clientId ? onToggleKeyframe : undefined
-				}
-				aria-label={
-					hasKeyframeAtCurrentFrame ? 'Remove keyframe' : 'Add keyframe'
-				}
+				<button
+					type="button"
+					style={previousStyle}
+					disabled={previousDisabled}
+					onPointerDown={previousDisabled ? undefined : onPrevious}
+					aria-label="Previous keyframe"
+				>
+					<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
+						<path d="M7 1.5L3 5L7 8.5Z" fill={LIGHT_GRAY} />
+					</svg>
+				</button>
+			</ActionTooltip>
+			<ActionTooltip
+				label={toggleKeyframeLabel}
+				shortcut={null}
+				delay={800}
+				dismissOnClick
 			>
-				<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
-			</button>
-			<button
-				type="button"
-				style={nextStyle}
-				disabled={nextDisabled}
-				onPointerDown={nextDisabled ? undefined : onNext}
-				aria-label="Go to next keyframe"
+				<button
+					type="button"
+					style={diamondStyle}
+					disabled={!canToggleKeyframe || !clientId}
+					onPointerDown={
+						canToggleKeyframe && clientId ? onToggleKeyframe : undefined
+					}
+					aria-label={toggleKeyframeLabel}
+				>
+					<TimelineKeyframeDiamondIcon color={diamondColor} size={12} />
+				</button>
+			</ActionTooltip>
+			<ActionTooltip
+				label="Next keyframe"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+				triggerStyle={{
+					visibility: showNavigationButtons ? 'visible' : 'hidden',
+				}}
 			>
-				<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
-					<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />
-				</svg>
-			</button>
+				<button
+					type="button"
+					style={nextStyle}
+					disabled={nextDisabled}
+					onPointerDown={nextDisabled ? undefined : onNext}
+					aria-label="Next keyframe"
+				>
+					<svg width="14" height="14" viewBox="0 0 10 10" style={svgStyle}>
+						<path d="M3 1.5L7 5L3 8.5Z" fill={LIGHT_GRAY} />
+					</svg>
+				</button>
+			</ActionTooltip>
 		</div>
 	);
 };

@@ -7,7 +7,7 @@ import {
 	type UpdateEffectPropsResult,
 } from './effect-operations';
 import {type EffectReference, getEffectSource} from './effect-references';
-import {getJsxNodeProps} from './get-jsx-node-props';
+import {getNodeProps} from './get-node-props';
 import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
@@ -51,7 +51,7 @@ export const updateEffectProps = async <Project extends CodemodProject>({
 		throw new Error('Expected at least one effect prop');
 	}
 
-	const status = getJsxNodeProps({
+	const status = getNodeProps({
 		project,
 		node: effect,
 		keys: [],

@@ -1,0 +1,94 @@
+---
+image: /generated/articles-docs-sdk-get-canvas-keyframe-settings-change.png
+title: getCanvasKeyframeSettingsChange()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasKeyframeSettingsChange()<AvailableFrom v="4.0.530" />
+
+Returns the change that writes the [`interpolate()`](/docs/interpolate) options of a keyframed prop: the extrapolation, the `output` mode and `posterize`.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx twoslash title="PosterizeField.tsx"
+// @moduleResolution: bundler
+import {
+  getCanvasKeyframeSettings,
+  getCanvasKeyframeSettingsChange,
+  type CanvasKeyframeChange,
+  type SequenceNodePathInfo,
+} from '@remotion/sdk';
+import type {
+  CanUpdateSequencePropStatusKeyframed,
+  InteractivitySchema,
+} from 'remotion';
+declare const nodePathInfo: SequenceNodePathInfo;
+declare const schema: InteractivitySchema;
+declare const propStatus: CanUpdateSequencePropStatusKeyframed;
+declare const persist: (change: CanvasKeyframeChange) => void;
+// ---cut---
+export const PosterizeField = () => {
+  const settings = getCanvasKeyframeSettings(propStatus);
+  return (
+    <input
+      type="number"
+      min={0}
+      value={settings.posterize ?? 0}
+      onChange={(event) => {
+        const posterize = Number(event.target.value);
+        persist(
+          getCanvasKeyframeSettingsChange({
+            nodePathInfo,
+            schema,
+            key: 'style.opacity',
+            propStatus,
+            settings: {...settings, posterize: posterize > 0 ? posterize : null},
+          }),
+        );
+      }}
+    />
+  );
+};
+```
+
+## Parameters
+
+An object with the following properties:
+
+### nodePathInfo
+
+The `SequenceNodePathInfo` of the sequence, from a track or a selection item. It is passed through to the returned change.
+
+### schema
+
+The interactivity schema of the element, from [`track.sequence.controls`](/docs/sdk/create-canvas-controller#sequencecontrols).
+
+### key
+
+The schema key of the prop in dot notation, for example `'style.opacity'`.
+
+### propStatus
+
+The `'keyframed'` prop status of the prop, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it.
+
+### settings
+
+The `CanvasKeyframeSettings` to write. Take the object returned by [`getCanvasKeyframeSettings()`](/docs/sdk/get-canvas-keyframe-settings) and replace the values that changed. Options the interpolation function does not have are left as they are, and a `posterize` of `null` or `0` removes the option. Only offer the `extrapolateTypes` of the settings: `interpolatePaths()` rejects `'identity'`.
+
+## Return value
+
+A `CanvasKeyframeChange` whose `operation` is `{type: 'settings', clamping, posterize, output}`. Persist it with [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes) like the changes of [`getCanvasKeyframeToggle()`](/docs/sdk/get-canvas-keyframe-toggle#change), and pass it to [`getCanvasKeyframeChangeOverride()`](/docs/sdk/get-canvas-keyframe-change-override) to show the result on the canvas right away.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframeSettings()`](/docs/sdk/get-canvas-keyframe-settings)
+- [`getCanvasKeyframeEasingChange()`](/docs/sdk/get-canvas-keyframe-easing-change)
+- [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes)

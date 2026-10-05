@@ -1,6 +1,9 @@
 import {useContext, useEffect, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	DisableSequenceRegistrationContext,
+	SequenceManagerActionsContext,
+} from './SequenceManager.js';
 
 export const useSequenceRegistration = ({
 	getSequence,
@@ -9,12 +12,14 @@ export const useSequenceRegistration = ({
 	getSequence: (() => TSequence) | null;
 	id: string;
 }) => {
-	const {registerSequence, unregisterSequence, updateSequence} =
-		useContext(SequenceManager);
+	const {registerSequence, unregisterSequence, updateSequence} = useContext(
+		SequenceManagerActionsContext,
+	);
+	const registrationDisabled = useContext(DisableSequenceRegistrationContext);
 	const getSequenceRef = useRef(getSequence);
 	getSequenceRef.current = getSequence;
 	const lastRegisteredGetterRef = useRef<(() => TSequence) | null>(null);
-	const registrationEnabled = getSequence !== null;
+	const registrationEnabled = getSequence !== null && !registrationDisabled;
 
 	useEffect(() => {
 		if (!registrationEnabled) {
@@ -37,6 +42,7 @@ export const useSequenceRegistration = ({
 
 	useEffect(() => {
 		if (
+			registrationDisabled ||
 			getSequence === null ||
 			updateSequence === null ||
 			lastRegisteredGetterRef.current === getSequence
@@ -46,5 +52,5 @@ export const useSequenceRegistration = ({
 
 		updateSequence(getSequence());
 		lastRegisteredGetterRef.current = getSequence;
-	}, [getSequence, updateSequence]);
+	}, [getSequence, registrationDisabled, updateSequence]);
 };

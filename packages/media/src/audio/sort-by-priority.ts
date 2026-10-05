@@ -16,6 +16,7 @@ const CONCURRENCY = 1;
 
 const waiters: Waiter[] = [];
 let running = 0;
+let horizonTimer: ReturnType<typeof setTimeout> | null = null;
 let runningEntry: {
 	waiter: Waiter;
 	cancel: () => void;
@@ -23,6 +24,11 @@ let runningEntry: {
 } | null = null;
 
 export const processNext = (): void => {
+	if (horizonTimer !== null) {
+		clearTimeout(horizonTimer);
+		horizonTimer = null;
+	}
+
 	if (running >= CONCURRENCY) {
 		if (runningEntry?.waiter.getPriority() === null) {
 			// Running entry went stale: free its slot so a fresh waiter can run
@@ -72,7 +78,13 @@ export const processNext = (): void => {
 	}
 
 	if (bestPriority > 2) {
-		// more than 2 seconds time, let's not do it yet!
+		// Wake when the closest waiter enters the scheduling horizon. Premounted
+		// content can stay frozen for longer than two seconds, so it may not get
+		// another frame update before becoming active.
+		horizonTimer = setTimeout(
+			processNext,
+			Math.max(1, Math.ceil((bestPriority - 2) * 1000)),
+		);
 		return;
 	}
 

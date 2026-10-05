@@ -9,7 +9,7 @@ import {
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
-test('previews and creates a Canvas Capture with both files in undo history', async () => {
+test('creates a Canvas Capture with both files in undo history', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project = initialProject;
 	const operations = createBrowserStudioOperations({
@@ -22,9 +22,9 @@ test('previews and creates a Canvas Capture with both files in undo history', as
 		},
 		resolveDependencies: null,
 	});
-	const request: Parameters<typeof operations.applyCodemod>[0] = {
-		codemod: {
-			type: 'new-composition',
+	const request: Parameters<typeof operations.addComposition>[0] = {
+		options: {
+			asset: null,
 			newId: 'Capture',
 			componentName: 'Capture',
 			componentImportPath: './Capture',
@@ -48,20 +48,14 @@ test('previews and creates a Canvas Capture with both files in undo history', as
 				},
 			},
 		},
-		dryRun: true,
 		undoRedoNavigation: null,
 		symbolicatedStack: null,
 	};
-	const preview = await operations.applyCodemod(request);
-	if (!preview.success) {
-		throw new Error(preview.reason);
+	const result = await operations.addComposition(request);
+	if (!result.success) {
+		throw new Error(result.reason);
 	}
 
-	expect(preview.diff.additions).toBeGreaterThan(0);
-	expect(project).toBe(initialProject);
-	expect(await operations.applyCodemod({...request, dryRun: false})).toEqual(
-		preview,
-	);
 	expect(project.files['/project/src/Root.tsx']).toContain('<Capture />');
 	expect(project.files['/project/src/Root.tsx']).toMatch(
 		/from ["']\.\/Capture["']/,
@@ -75,9 +69,7 @@ test('previews and creates a Canvas Capture with both files in undo history', as
 	expect(project.files).toEqual(initialProject.files);
 	expect((await operations.redo()).success).toBe(true);
 	expect(project.files).toEqual(createdProject.files);
-	expect(
-		await operations.applyCodemod({...request, dryRun: false}),
-	).toMatchObject({
+	expect(await operations.addComposition(request)).toMatchObject({
 		success: false,
 		reason: expect.stringContaining('already exists'),
 	});
@@ -129,7 +121,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		}),
 	).toEqual({lineNumber: 14, columnNumber: 7});
 
-	const insertResult = await operations.insertSolid({
+	const insertResult = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -139,6 +131,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			position: null,
 		},
 		from: null,
+		premountFor: null,
 	});
 	if (!insertResult.success) {
 		throw new Error(insertResult.reason);
@@ -171,6 +164,12 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			remappings: file.remappings.map((remapping) => ({
 				oldNodePath: remapping.newNodePath,
 				newNodePath: remapping.oldNodePath,
+				...(remapping.newJsxName === undefined
+					? {}
+					: {oldJsxName: remapping.newJsxName}),
+				...(remapping.oldJsxName === undefined
+					? {}
+					: {newJsxName: remapping.oldJsxName}),
 			})),
 		})),
 	);
@@ -194,7 +193,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		throw new Error('Expected the inserted Solid to have a node path');
 	}
 
-	const deleteResult = await operations.deleteJsxNodes({
+	const deleteResult = await operations.deleteNodes({
 		nodes: [
 			{
 				fileName: '/project/src/Composition.tsx',
@@ -211,10 +210,10 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		{
 			absolutePath: '/project/src/Composition.tsx',
 			remappings: expect.arrayContaining([
-				{
+				expect.objectContaining({
 					oldNodePath: insertResult.insertedNodePath.nodePath,
 					newNodePath: null,
-				},
+				}),
 			]),
 		},
 	]);
@@ -381,7 +380,7 @@ test('downloads CORS-enabled remote assets and rejects failed cross-origin fetch
 	}
 });
 
-test('previews and duplicates compositions as an undoable project mutation', async () => {
+test('duplicates compositions as an undoable project mutation', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project = initialProject;
 	const operations = createBrowserStudioOperations({
@@ -394,41 +393,35 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 		},
 		resolveDependencies: null,
 	});
-	const request = {
+	const request: Parameters<typeof operations.duplicateComposition>[0] = {
 		undoRedoNavigation: {
 			undoRoute: '/MyComp',
 			redoRoute: '/MyCompCopy',
 		},
-		codemod: {
-			type: 'duplicate-composition' as const,
-			idToDuplicate: 'MyComp',
-			newDurationInFrames: 120,
-			newFps: 24,
-			newHeight: 1080,
-			newId: 'MyCompCopy',
-			newWidth: 1920,
-			tag: 'Composition' as const,
-		},
+		symbolicatedStack: null,
+		idToDuplicate: 'MyComp',
+		newDurationInFrames: 120,
+		newFps: 24,
+		newHeight: 1080,
+		newId: 'MyCompCopy',
+		newWidth: 1920,
+		tag: 'Composition',
 	};
 
-	const preview = await operations.duplicateComposition({
-		...request,
-		dryRun: true,
-		undoRedoNavigation: null,
-	});
-	expect(preview.success).toBe(true);
-	if (!preview.success) {
-		throw new Error(preview.reason);
+	const result = await operations.duplicateComposition(request);
+	if (!result.success || result.nodePathMutation === null) {
+		throw new Error('Expected the duplicate to remap node paths');
 	}
 
-	expect(preview.diff.additions).toBeGreaterThan(0);
-	expect(project).toBe(initialProject);
-
-	const result = await operations.duplicateComposition({
-		...request,
-		dryRun: false,
-	});
-	expect(result).toEqual(preview);
+	// The copy is inserted after the original; the copied registration is new.
+	expect(result.nodePathMutation.files).toEqual([
+		{
+			absolutePath: '/project/src/Composition.tsx',
+			remappings: expect.arrayContaining([
+				{oldNodePath: null, newNodePath: expect.any(Array)},
+			]),
+		},
+	]);
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'id="MyCompCopy"',
 	);
@@ -437,9 +430,18 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 		'width={1920}',
 	);
 
-	expect(await operations.undo()).toEqual({
+	const undoResult = await operations.undo();
+	expect(undoResult).toEqual({
 		success: true,
-		nodePathMutation: null,
+		nodePathMutation: expect.objectContaining({
+			files: result.nodePathMutation.files.map((file) => ({
+				absolutePath: file.absolutePath,
+				remappings: file.remappings.map((remapping) => ({
+					oldNodePath: remapping.newNodePath,
+					newNodePath: remapping.oldNodePath,
+				})),
+			})),
+		}),
 		route: '/MyComp',
 	});
 	expect(project.files['/project/src/Composition.tsx']).toBe(
@@ -447,7 +449,9 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 	);
 	expect(await operations.redo()).toEqual({
 		success: true,
-		nodePathMutation: null,
+		nodePathMutation: expect.objectContaining({
+			files: result.nodePathMutation.files,
+		}),
 		route: '/MyCompCopy',
 	});
 	expect(project.files['/project/src/Composition.tsx']).toContain(
@@ -457,12 +461,11 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 
 	const failure = await operations.duplicateComposition({
 		...request,
-		codemod: {...request.codemod, idToDuplicate: 'Missing'},
-		dryRun: false,
+		idToDuplicate: 'Missing',
 	});
 	expect(failure).toMatchObject({
 		success: false,
-		reason: 'Could not find composition "Missing" to duplicate',
+		reason: 'Could not find composition "Missing"',
 		stack: expect.any(String),
 	});
 	expect(project.files['/project/src/Composition.tsx']).toBe(
@@ -471,8 +474,8 @@ test('previews and duplicates compositions as an undoable project mutation', asy
 
 	const stillResult = await operations.duplicateComposition({
 		...request,
-		codemod: {...request.codemod, newId: 'MyStill', tag: 'Still'},
-		dryRun: false,
+		newId: 'MyStill',
+		tag: 'Still',
 	});
 	expect(stillResult.success).toBe(true);
 	const stillSource =
@@ -573,6 +576,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 12,
+		premountFor: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -635,6 +639,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		element,
 		expectedFileState: null,
 		from: null,
+		premountFor: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: null,
@@ -729,6 +734,7 @@ const makeElementAssetFixture = () => {
 				},
 				expectedFileState: null,
 				from: null,
+				premountFor: null,
 				overwriteExisting: false,
 				position: null,
 				undoRedoNavigation: null,
@@ -870,6 +876,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: null,
+		premountFor: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: {
@@ -877,8 +884,8 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 			redoRoute: '/ElementScene',
 		},
 		newComposition: {
-			codemod: {
-				type: 'new-composition',
+			options: {
+				asset: null,
 				newId: 'ElementScene',
 				componentName: 'ElementScene',
 				componentImportPath: './ElementScene',
@@ -989,6 +996,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 30,
+		premountFor: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -1078,6 +1086,7 @@ test('rejects contradictory component-owned Element initial props', async () => 
 			},
 			expectedFileState: null,
 			from: 30,
+			premountFor: null,
 			overwriteExisting: false,
 			position: {x: 24, y: 48},
 			undoRedoNavigation: null,
@@ -1173,7 +1182,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 		},
 		resolveDependencies: null,
 	});
-	const result = await operations.insertJsxElement({
+	const result = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1186,6 +1195,7 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 			type: 'asset',
 		},
 		from: 12,
+		premountFor: null,
 	});
 	if (!result.success) {
 		throw new Error(result.reason);
@@ -1213,7 +1223,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 		},
 		resolveDependencies: null,
 	});
-	const result = await operations.insertJsxElement({
+	const result = await operations.insertCompositionElement({
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		element: {
@@ -1222,6 +1232,7 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 			type: 'svg',
 		},
 		from: null,
+		premountFor: null,
 	});
 
 	expect(result).toMatchObject({

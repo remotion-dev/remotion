@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-sdk-get-canvas-sequence-reorder-selection.png
+title: getCanvasSequenceReorderSelection()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasSequenceReorderSelection()<AvailableFrom v="4.0.533" />
+
+Returns the sequences to move when a timeline drag starts. Dragging a selected sequence moves the entire sequence selection. Dragging an unselected sequence moves only that sequence.
+
+```ts twoslash title="get-reorder-selection.ts"
+import {
+  getCanvasSequenceReorderSelection,
+  type CanvasSelectionItem,
+} from '@remotion/sdk';
+
+declare const draggedItem: Extract<CanvasSelectionItem, {type: 'sequence'}>;
+declare const selectedItems: CanvasSelectionItem[];
+
+const nodePathInfos = getCanvasSequenceReorderSelection({
+  draggedItem,
+  selectedItems,
+});
+```
+
+The result follows the order of `selectedItems`. A source edit can sort the returned nodes by their JSX order. If the selection contains another item type, only `draggedItem` is returned.
+
+## Options
+
+### draggedItem
+
+The sequence where the drag began.
+
+### selectedItems
+
+The current selection, such as `controller.selection.getSnapshot().selectedItems`.
+
+## Return value
+
+An array of `SequenceNodePathInfo` values to move.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasSequenceReorderInsertionIndex()`](/docs/sdk/get-canvas-sequence-reorder-insertion-index)
+- [`getCanvasSelectionItemKey()`](/docs/sdk/get-canvas-selection-item-key)
+- [`reorderNodes()`](/docs/codemods/reorder-nodes)

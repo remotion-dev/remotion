@@ -20,7 +20,9 @@ export const getFrameInKeyframedStatusClock = ({
 }: {
 	readonly frame: number;
 	readonly status: CanUpdateSequencePropStatusKeyframed;
-}) => frame - (status.keyframeDisplayOffsetAdjustment ?? 0);
+}) =>
+	frame * (status.keyframePlaybackRateAdjustment ?? 1) -
+	(status.keyframeDisplayOffsetAdjustment ?? 0);
 
 export const resolveDragOverrideValue = ({
 	dragOverrideValue,

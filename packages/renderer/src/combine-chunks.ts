@@ -237,6 +237,8 @@ export const internalCombineChunks = async ({
 			cancelSignal,
 			metadata,
 			numberOfGifLoops,
+			audioCodec: resolvedAudioCodec,
+			sampleRate,
 		});
 		onProgress({totalProgress: 1, frames: numberOfFrames});
 		rmSync(filelistDir, {recursive: true});

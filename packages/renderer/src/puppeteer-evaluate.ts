@@ -154,7 +154,9 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 				),
 				chunk: null,
 			});
-			page.close();
+			// The browser may get closed before the page is, which rejects
+			// this with "Target closed". Unhandled, that ends the process.
+			page.close().catch(() => undefined);
 			throw err;
 		}
 

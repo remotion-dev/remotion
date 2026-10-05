@@ -179,8 +179,8 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 
 	return (
 		<div
+			className="elements-embed-breadcrumbs"
 			style={{
-				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'space-between',
 				gap: '1rem',

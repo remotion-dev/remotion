@@ -46,7 +46,7 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-Similarly, you can use [`trimAfter`](/docs/media/video#trimafter) to trim the end of the video.
+Use [`durationInFrames`](/docs/media/video#durationinframes) to select how many source frames should play.
 
 ```tsx twoslash
 import React from 'react';
@@ -54,7 +54,7 @@ import {Video} from '@remotion/media';
 import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} trimBefore={60} trimAfter={120} />;
+  return <Video src={staticFile('video.mp4')} trimBefore={60} durationInFrames={60} />;
 };
 ```
 
@@ -157,7 +157,7 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-To learn how looping interacts with `trimBefore` and `trimAfter`, see [Timing and trimming](/docs/timing).
+To learn how looping interacts with `trimBefore` and `durationInFrames`, see [Timing and trimming](/docs/timing).
 
 ## GIFs
 

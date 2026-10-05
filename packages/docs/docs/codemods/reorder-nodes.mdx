@@ -1,0 +1,79 @@
+---
+image: /generated/articles-docs-codemods-reorder-nodes.png
+title: 'reorderNodes()'
+crumb: '@remotion/codemods'
+---
+
+# reorderNodes()<AvailableFrom v="4.0.533" />
+
+Moves one or more JSX nodes as a group before or after a sibling. The moved nodes keep their source order. For ordinary `<Sequence>` siblings, this changes stacking order. For `<Series.Sequence>` and `<TransitionSeries.Sequence>` siblings, it also changes their calculated timing.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="reorder-nodes.ts"
+import {reorderNodes, type CodemodProject, type NodeReference} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const first: NodeReference;
+declare const second: NodeReference;
+declare const target: NodeReference;
+
+const result = await reorderNodes({
+  project,
+  nodes: [first, second],
+  target,
+  position: 'before',
+});
+
+console.log(result.changes);
+```
+
+All moved nodes and the target must be direct JSX siblings in the same file. A target in the moved group is invalid. The edit is atomic, so an invalid node leaves the input project unchanged.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### nodes
+
+A nonempty array of [`NodeReference`](/docs/codemods#node-references) values for the nodes to move. Their array order does not affect the result.
+
+### target
+
+The sibling node to position the group relative to.
+
+### position
+
+Either `'before'` or `'after'`.
+
+## Return value
+
+### changes
+
+An array of file changes. This operation changes one file.
+
+### nodePathRemappings
+
+The mappings from old to new JSX node paths. Apply them to references and selections from the input project.
+
+### updatedNodes
+
+References to the moved nodes in the output project, in the order passed in `nodes`.
+
+### editDetails
+
+The source location and label for the edit.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`getNodes()`](/docs/codemods/get-nodes)

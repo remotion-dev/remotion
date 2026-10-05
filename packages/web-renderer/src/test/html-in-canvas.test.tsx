@@ -11,7 +11,7 @@ import {backgroundColor} from './fixtures/background-color';
 test('uses the DOM composer by default', async () => {
 	const contextPrototype =
 		CanvasRenderingContext2D.prototype as CanvasRenderingContext2D & {
-			drawElementImage?: () => DOMMatrix;
+			drawElementImage?: () => void;
 		};
 	const originalDrawElementImage = Object.getOwnPropertyDescriptor(
 		contextPrototype,
@@ -23,7 +23,7 @@ test('uses the DOM composer by default', async () => {
 	);
 	Object.defineProperty(contextPrototype, 'drawElementImage', {
 		configurable: true,
-		value: () => new DOMMatrix(),
+		value: () => undefined,
 	});
 	Object.defineProperty(HTMLCanvasElement.prototype, 'requestPaint', {
 		configurable: true,
@@ -151,6 +151,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 					drawElementImage: typeof drawElementImage;
 				},
 				layoutCanvas: outerLayoutCanvas,
+				wasDrawable: false,
 			},
 			internalState,
 			logLevel: 'error',
@@ -166,7 +167,7 @@ test('does not create a nested HTML-in-canvas capture', async () => {
 		expect(outcome).toEqual({
 			native: false,
 			reason:
-				'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture is unsupported, so the built-in DOM composer is used.',
+				'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture requires Chrome 157 or newer, so the built-in DOM composer is used.',
 			shouldWarn: false,
 		});
 	} finally {

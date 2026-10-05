@@ -1,30 +1,43 @@
 "use client";
 
+import type {
+  CanvasSequencePropChange,
+  CanvasSequencePropStatusResolver,
+} from "@remotion/sdk";
 import { useEffect, useRef, useState } from "react";
+import { BASE_PATH } from "@/lib/base-path";
 import type { PreviewHost, PreviewKeyEvent } from "@/preview/bridge";
 
 export const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
 /**
- * Loads /preview.html into the iframe and connects to the preview host that
+ * Loads preview.html into the iframe and connects to the preview host that
  * the iframe exposes on its window.
  */
 export const usePreviewHost = ({
   iframeRef,
   onError,
   onKeyDown,
+  onSequencePropsChange,
+  getSequencePropStatuses,
 }: {
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
   onError: (message: string) => void;
   onKeyDown: (event: PreviewKeyEvent) => boolean;
+  onSequencePropsChange: (changes: readonly CanvasSequencePropChange[]) => void;
+  getSequencePropStatuses: CanvasSequencePropStatusResolver;
 }) => {
   const [host, setHost] = useState<PreviewHost | null>(null);
   const [error, setError] = useState<string | null>(null);
   const onErrorRef = useRef(onError);
   const onKeyDownRef = useRef(onKeyDown);
+  const onSequencePropsChangeRef = useRef(onSequencePropsChange);
+  const getSequencePropStatusesRef = useRef(getSequencePropStatuses);
   onErrorRef.current = onError;
   onKeyDownRef.current = onKeyDown;
+  onSequencePropsChangeRef.current = onSequencePropsChange;
+  getSequencePropStatusesRef.current = getSequencePropStatuses;
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -71,6 +84,10 @@ export const usePreviewHost = ({
           created = createPreviewHost({
             onError: (message) => onErrorRef.current(message),
             onKeyDown: (event) => onKeyDownRef.current(event),
+            onSequencePropsChange: (changes) =>
+              onSequencePropsChangeRef.current(changes),
+            getSequencePropStatuses: (nodePathInfo, keys) =>
+              getSequencePropStatusesRef.current(nodePathInfo, keys),
           });
           window.clearTimeout(timeout);
           setHost(created);
@@ -90,7 +107,7 @@ export const usePreviewHost = ({
 
     iframe.addEventListener("load", onLoad);
     iframe.addEventListener("error", onIframeError);
-    iframe.src = "/preview.html";
+    iframe.src = `${BASE_PATH}/preview.html`;
 
     return () => {
       disposed = true;

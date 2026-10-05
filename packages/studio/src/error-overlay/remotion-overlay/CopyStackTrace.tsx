@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {Button} from '../../components/Button';
+import {copyText} from '../../helpers/copy-text';
 
 export const CopyStackTrace: React.FC<{
 	readonly errorText: string;
@@ -9,8 +10,7 @@ export const CopyStackTrace: React.FC<{
 	);
 
 	const handleCopyToClipboard = useCallback(() => {
-		navigator.clipboard
-			.writeText(errorText)
+		copyText(errorText)
 			.then(() => {
 				setCopyState('copied');
 				setTimeout(() => setCopyState('idle'), 2000);

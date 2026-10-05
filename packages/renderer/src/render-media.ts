@@ -710,15 +710,19 @@ const internalRenderMediaRaw = async ({
 				let timeOfLastFrame = Date.now();
 				const renderFramesProc = internalRenderFrames({
 					composition,
-					onFrameUpdate: (frame: number, frameIndex: number) => {
+					onFrameUpdate: (
+						frame: number,
+						frameIndex: number,
+						timeToRenderInMilliseconds: number,
+					) => {
 						renderedFrames = frame;
 
 						const now = Date.now();
-						const timeToRenderInMilliseconds = now - timeOfLastFrame;
+						const timeSinceLastFrame = now - timeOfLastFrame;
 						timeOfLastFrame = now;
 
 						// Track recent frame timings (at most 50)
-						recentFrameTimings.push(timeToRenderInMilliseconds);
+						recentFrameTimings.push(timeSinceLastFrame);
 						if (recentFrameTimings.length > MAX_RECENT_FRAME_TIMINGS) {
 							recentFrameTimings.shift();
 						}

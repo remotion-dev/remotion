@@ -107,7 +107,7 @@ test('isSchemaFieldKeyframable rejects explicitly disabled fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'playbackRate'})).toBe(false);
 });
 
-test('isSchemaFieldKeyframable rejects boolean fields', () => {
+test('boolean fields are keyframable and hold-only', () => {
 	const schema = {
 		loop: {
 			type: 'boolean',
@@ -115,7 +115,8 @@ test('isSchemaFieldKeyframable rejects boolean fields', () => {
 		},
 	} satisfies InteractivitySchema;
 
-	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(false);
+	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(true);
+	expect(isSchemaFieldHoldOnly({schema, key: 'loop'})).toBe(true);
 });
 
 test('isSchemaFieldKeyframable rejects font-family fields', () => {
@@ -169,7 +170,7 @@ test('isSchemaFieldKeyframable rejects asset fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'src'})).toBe(false);
 });
 
-test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
+test('boolean fields in enum variants are keyframable and hold-only', () => {
 	const schema = {
 		layout: {
 			type: 'enum',
@@ -186,7 +187,8 @@ test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
 		},
 	} satisfies InteractivitySchema;
 
-	expect(isSchemaFieldKeyframable({schema, key: 'horizontal'})).toBe(false);
+	expect(isSchemaFieldKeyframable({schema, key: 'horizontal'})).toBe(true);
+	expect(isSchemaFieldHoldOnly({schema, key: 'horizontal'})).toBe(true);
 });
 
 test('isSchemaFieldKeyframable finds keyframable fields in enum variants', () => {

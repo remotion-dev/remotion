@@ -39,9 +39,15 @@ test('Should compress and uncompress assets', () => {
 	].flat(1);
 
 	const onlyAudioAndVideo = onlyAudioAndVideoAssets(uncompressed);
+	const firstAssetBySrc = new Map<string, AudioOrVideoAsset>();
 
-	const compressedAssets = onlyAudioAndVideo.map((asset, i) => {
-		return compressAsset(onlyAudioAndVideo.slice(0, i), asset);
+	const compressedAssets = onlyAudioAndVideo.map((asset) => {
+		const compressed = compressAsset(firstAssetBySrc, asset);
+		if (!firstAssetBySrc.has(compressed.src)) {
+			firstAssetBySrc.set(compressed.src, compressed);
+		}
+
+		return compressed;
 	});
 
 	expect(compressedAssets[0].src).toBe(String('x').repeat(1000));
@@ -107,8 +113,14 @@ test('Should uncompress correctly when multiple assets share the same id and fra
 		},
 	];
 
-	const compressed = assets.map((asset, i) => {
-		return compressAsset(assets.slice(0, i), asset);
+	const firstAssetBySrc = new Map<string, AudioOrVideoAsset>();
+	const compressed = assets.map((asset) => {
+		const compressedAsset = compressAsset(firstAssetBySrc, asset);
+		if (!firstAssetBySrc.has(compressedAsset.src)) {
+			firstAssetBySrc.set(compressedAsset.src, compressedAsset);
+		}
+
+		return compressedAsset;
 	});
 
 	expect(compressed[0].src).toBe(longSrc);

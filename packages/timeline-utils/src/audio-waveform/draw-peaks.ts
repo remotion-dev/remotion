@@ -2,6 +2,7 @@ import {parseColor} from './parse-color';
 
 const CLIPPING_COLOR = '#FF7F50';
 const WAVEFORM_HEIGHT_SCALE = 0.8;
+const MIN_VISIBLE_DECIBELS = -37;
 
 export type WaveformVolume = number | readonly number[];
 
@@ -38,12 +39,14 @@ export const drawBars = ({
 	peaks,
 	volume,
 	width,
+	horizontalOffset,
 }: {
 	readonly canvas: HTMLCanvasElement | OffscreenCanvas;
 	readonly peaks: Float32Array;
 	readonly color: string;
 	readonly volume: WaveformVolume;
 	readonly width: number;
+	readonly horizontalOffset: number;
 }) => {
 	const ctx = canvas.getContext('2d');
 
@@ -58,7 +61,7 @@ export const drawBars = ({
 	// `createImageData(0, h)` / `(w, 0)` throws a DOMException, which
 	// surfaces in Studio's console for compositions with many audio
 	// sequences — some segments are 0 px wide at certain zoom levels.
-	if (w === 0 || height === 0) {
+	if (w === 0 || height === 0 || width <= 0) {
 		return;
 	}
 
@@ -72,18 +75,31 @@ export const drawBars = ({
 	const numBars = width;
 	const fullScaleHalfBar = (height * WAVEFORM_HEIGHT_SCALE) / 2;
 
-	for (let barIndex = 0; barIndex < numBars; barIndex++) {
-		const x = barIndex;
-		if (x >= w) break;
+	for (let x = 0; x < w; x++) {
+		// The canvas may start before its fractionally positioned container so its
+		// bitmap stays device-pixel aligned. Sample from the exact container origin.
+		const barIndex = Math.max(
+			0,
+			Math.min(
+				numBars - Number.EPSILON * Math.max(1, numBars),
+				x - horizontalOffset,
+			),
+		);
 
 		const peakIndex = Math.floor((barIndex / numBars) * peaks.length);
 		const peak = peaks[peakIndex] || 0;
 
 		const barVolume = getVolumeAtBar({barIndex, numBars, volume});
 		const scaledPeak = peak * barVolume;
+		const decibelPeak =
+			scaledPeak <= 0 ? MIN_VISIBLE_DECIBELS : 20 * Math.log10(scaledPeak);
+		const visualPeak = Math.max(
+			0,
+			(decibelPeak - MIN_VISIBLE_DECIBELS) / -MIN_VISIBLE_DECIBELS,
+		);
 		const halfBar = Math.max(
 			0,
-			Math.min(height / 2, scaledPeak * fullScaleHalfBar),
+			Math.min(height / 2, visualPeak * fullScaleHalfBar),
 		);
 		if (halfBar === 0) continue;
 

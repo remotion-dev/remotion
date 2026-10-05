@@ -1,7 +1,4 @@
-import {
-	KEYFRAME_EASING_PRESETS,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -92,7 +89,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			toFrame,
 			segmentIndex,
 		});
-	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
+	useTimelineMarqueeSelectableItem(selectionItem, buttonRef, null);
 	const interactiveStyle = useMemo(
 		() => ({
 			...style,
@@ -158,50 +155,27 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 				});
 			}
 
-			return [
-				{
-					type: 'item',
-					id: 'linear',
-					keyHint: null,
-					label: 'Linear',
-					leftItem: (
-						<EasingPresetPreview
-							color={LIGHT_TEXT}
-							easing={LINEAR_KEYFRAME_EASING}
-							height={18}
-							nonScalingStroke
-							strokeWidth={5}
-							width={18}
-						/>
-					),
-					disabled: previewServerState.type !== 'connected',
-					onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'linear',
-				},
-				...KEYFRAME_EASING_PRESETS.map((preset) => ({
-					type: 'item' as const,
-					id: preset.id,
-					keyHint: null,
-					label: preset.label,
-					leftItem: (
-						<EasingPresetPreview
-							color={LIGHT_TEXT}
-							easing={preset.easing}
-							height={18}
-							nonScalingStroke
-							strokeWidth={5}
-							width={18}
-						/>
-					),
-					disabled: previewServerState.type !== 'connected',
-					onClick: () => updateEasing(preset.easing),
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: preset.id,
-				})),
-			];
+			return canvasKeyframeEasingPresets.map((preset) => ({
+				type: 'item' as const,
+				id: preset.id,
+				keyHint: null,
+				label: preset.label,
+				leftItem: (
+					<EasingPresetPreview
+						color={LIGHT_TEXT}
+						easing={preset.easing}
+						height={18}
+						nonScalingStroke
+						strokeWidth={5}
+						width={18}
+					/>
+				),
+				disabled: previewServerState.type !== 'connected',
+				onClick: () => updateEasing(preset.easing),
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: preset.id,
+			}));
 		},
 		[onSelect, previewServerState.type, selectable, selected, updateEasing],
 	);

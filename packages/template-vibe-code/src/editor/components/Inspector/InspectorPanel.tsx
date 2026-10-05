@@ -3,15 +3,17 @@
 import {
   getCanvasSelectionItemKey,
   useCanvasSelection,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getSelectedNodes } from "../../hooks/use-editor-shortcuts";
+import { getSelectedEasings } from "../../model/keyframes";
 import { getLayerLabel } from "../../model/layers";
 import { useEditor } from "../../state/editor-context";
 import { fallbackSelectionController } from "../../state/fallback-selection";
 import { CompositionInspector } from "./CompositionInspector";
+import { EasingInspector } from "./EasingInspector";
 import { LayerInspector } from "./LayerInspector";
 import { RendersPanel } from "./RendersPanel";
 
@@ -28,6 +30,16 @@ const SelectionInspector: React.FC = () => {
       keys.has(getCanvasSelectionItemKey(layer.selectionItem)),
     );
   }, [layers, selection.selectedItems]);
+  const selectedEasings = getSelectedEasings(selection.selectedItems);
+
+  if (selectedEasings.length > 0) {
+    return (
+      <EasingInspector
+        key={selectedEasings.map(getCanvasSelectionItemKey).join("\n")}
+        items={selectedEasings}
+      />
+    );
+  }
 
   if (selectedLayers.length === 0) {
     return <CompositionInspector />;

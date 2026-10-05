@@ -1,5 +1,9 @@
 "use client";
 
+import type {
+  CanvasSequencePropChange,
+  CanvasSequencePropStatusResolver,
+} from "@remotion/sdk";
 import { resolveCompositionComponent } from "@remotion/codemods";
 import React, {
   useCallback,
@@ -21,7 +25,9 @@ import { useEditorShortcuts } from "./hooks/use-editor-shortcuts";
 import { useLayers } from "./hooks/use-layers";
 import { usePlaybackStore } from "./hooks/use-playback";
 import { usePreviewHost } from "./hooks/use-preview-host";
-import { findCompositionFile, getCompositions } from "./model/compositions";
+import { findCompositionFile, getRegistrations } from "./model/compositions";
+import { getKeyframedProps } from "./model/keyframes";
+import { getSequencePropStatuses } from "./model/layers";
 import { toCodemodProject, type ProjectFiles } from "./model/project";
 import { EditorContext, type EditorContextValue } from "./state/editor-context";
 import {
@@ -40,8 +46,7 @@ export const Editor: React.FC<{
   const [state, dispatch] = useReducer(editorReducer, initialFiles, (files) => {
     const project = toCodemodProject(files);
     const compositionFile = findCompositionFile(project);
-    const compositions = getCompositions(project, compositionFile);
-    const first = compositions[0];
+    const first = getRegistrations(project, compositionFile).compositions[0];
     let activeFile = compositionFile;
     if (first && compositionFile) {
       try {
@@ -71,10 +76,11 @@ export const Editor: React.FC<{
     () => findCompositionFile(project),
     [project],
   );
-  const compositions = useMemo(
-    () => getCompositions(project, compositionFile),
+  const registrations = useMemo(
+    () => getRegistrations(project, compositionFile),
     [compositionFile, project],
   );
+  const { compositions } = registrations;
   const activeComposition = useMemo(
     () =>
       compositions.find(
@@ -131,11 +137,30 @@ export const Editor: React.FC<{
     (event: PreviewKeyEvent) => shortcutHandlerRef.current(event),
     [],
   );
+  // The actions are created below, after the host they operate on exists.
+  const sequencePropsChangeHandlerRef = useRef<
+    (changes: readonly CanvasSequencePropChange[]) => void
+  >(() => undefined);
+  const onPreviewSequencePropsChange = useCallback(
+    (changes: readonly CanvasSequencePropChange[]) =>
+      sequencePropsChangeHandlerRef.current(changes),
+    [],
+  );
+  const sequencePropStatusResolverRef =
+    useRef<CanvasSequencePropStatusResolver>(() => null);
+  const getPreviewSequencePropStatuses =
+    useCallback<CanvasSequencePropStatusResolver>(
+      (nodePathInfo, keys) =>
+        sequencePropStatusResolverRef.current(nodePathInfo, keys),
+      [],
+    );
 
   const { host, error: hostError } = usePreviewHost({
     iframeRef,
     onError: onPreviewError,
     onKeyDown: onPreviewKeyDown,
+    onSequencePropsChange: onPreviewSequencePropsChange,
+    getSequencePropStatuses: getPreviewSequencePropStatuses,
   });
   const playback = usePlaybackStore({ host, onError: onPreviewError });
   const composition = useSyncExternalStore(
@@ -210,12 +235,36 @@ export const Editor: React.FC<{
   const compositionHeight =
     composition?.height ?? activeComposition?.height ?? 1080;
 
+  // The animated props of the layers, for the keyframe rows of the timeline.
+  const keyframedProps = useMemo(
+    () =>
+      getKeyframedProps({
+        layers,
+        project,
+        videoConfig: {
+          width: compositionWidth,
+          height: compositionHeight,
+          fps: compositionFps,
+          durationInFrames: compositionDurationInFrames,
+        },
+      }),
+    [
+      compositionDurationInFrames,
+      compositionFps,
+      compositionHeight,
+      compositionWidth,
+      layers,
+      project,
+    ],
+  );
+
   const actions = useEditorActions({
     context: {
       state,
       entryPoint,
       host,
       layers,
+      keyframedProps,
       compositions,
       compositionFile,
       activeComposition,
@@ -234,6 +283,22 @@ export const Editor: React.FC<{
     playback,
     context: { state, host, layers, compositions, fps: compositionFps },
   });
+  sequencePropsChangeHandlerRef.current = (changes) => {
+    void actions.commitSequencePropChanges(changes);
+  };
+  // The canvas asks before a move starts; analyze the files the edit applies to.
+  sequencePropStatusResolverRef.current = (nodePathInfo, keys) =>
+    getSequencePropStatuses({
+      project,
+      nodePathInfo,
+      keys,
+      videoConfig: {
+        width: compositionWidth,
+        height: compositionHeight,
+        fps: compositionFps,
+        durationInFrames: compositionDurationInFrames,
+      },
+    });
 
   // Previewed values are released once the preview runs the committed source
   // or the compilation failed, so they never linger over stale output.
@@ -281,7 +346,9 @@ export const Editor: React.FC<{
     hostError,
     playback,
     layers,
+    keyframedProps,
     project,
+    registrations,
     compositions,
     compositionFile,
     mainFile,

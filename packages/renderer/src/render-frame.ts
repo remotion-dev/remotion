@@ -12,7 +12,7 @@ import type {
 	RemotionSharedMemoryCapture,
 } from './remotion-shared-memory';
 import {renderFrameWithOptionToReject} from './render-frame-with-option-to-reject';
-import type {FrameAndAssets, OnArtifact} from './render-frames';
+import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 
 export const renderFrame = ({
 	attempt,
@@ -22,6 +22,7 @@ export const renderFrame = ({
 	indent,
 	logLevel,
 	assets,
+	assetIndex,
 	countType,
 	downloadMap,
 	frameDir,
@@ -59,6 +60,7 @@ export const renderFrame = ({
 	scale: number;
 	countType: CountType;
 	assets: FrameAndAssets[];
+	assetIndex: AssetIndex;
 	framesToRender: number[];
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
@@ -110,6 +112,7 @@ export const renderFrame = ({
 			remotionSharedMemory,
 			outputDir,
 			assets,
+			assetIndex,
 			binariesDirectory,
 			cancelSignal,
 			countType,

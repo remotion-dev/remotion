@@ -10,7 +10,8 @@ export const encodingMaxRateOption = {
 	description: () => (
 		<>
 			The value for the <code>-maxrate</code> flag of FFmpeg. Should be used in
-			conjunction with the encoding buffer size flag.
+			conjunction with the encoding buffer size flag. With the VP8, VP9 and AV1
+			codecs, a video bitrate must also be set.
 		</>
 	),
 	ssrName: 'encodingMaxRate' as const,

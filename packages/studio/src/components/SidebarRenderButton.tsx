@@ -18,6 +18,7 @@ import {
 } from '../helpers/hoverable';
 import {ThinRenderIcon} from '../icons/render';
 import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
@@ -131,13 +132,16 @@ export const SidebarRenderButton: React.FC<{
 
 	return (
 		<div className={HOVER_GROUP_REVEAL_CLASS_NAME} style={revealStyle}>
-			<InlineAction
-				renderAction={renderAction}
-				onClick={onClick}
-				variant={null}
-				style={NO_HOVER_BACKGROUND_STYLE}
-				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-			/>
+			<ActionTooltip label="Render" shortcut={null} delay={800} dismissOnClick>
+				<InlineAction
+					renderAction={renderAction}
+					onClick={onClick}
+					variant={null}
+					style={NO_HOVER_BACKGROUND_STYLE}
+					className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+					aria-label="Render"
+				/>
+			</ActionTooltip>
 		</div>
 	);
 };

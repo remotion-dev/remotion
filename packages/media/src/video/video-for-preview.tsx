@@ -1,5 +1,4 @@
 import React, {
-	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
@@ -28,8 +27,10 @@ import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
+import {useMediaPlayerMuted} from '../use-media-player-muted';
 import type {
 	FallbackOffthreadVideoProps,
+	MaxCanvasSinkFrameSize,
 	NativeVideoProps,
 	VideoObjectFit,
 } from './props';
@@ -76,10 +77,10 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly credentials: RequestCredentials | undefined;
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
+	readonly maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -111,10 +112,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	credentials,
 	requestInit,
 	objectFit: objectFitProp,
+	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
-	refForOutline,
 	...props
 }) => {
 	const src = usePreload(unpreloadedSrc);
@@ -138,21 +139,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
-
-	const canvasRefCallback = useCallback(
-		(canvas: HTMLCanvasElement | null) => {
-			canvasRef.current = canvas;
-			refForOutline.current = canvas;
-		},
-		[refForOutline],
-	);
-
-	const fallbackVideoRef = useCallback(
-		(video: HTMLVideoElement | null) => {
-			refForOutline.current = video;
-		},
-		[refForOutline],
-	);
 
 	const [mediaVolume] = useMediaVolumeState();
 
@@ -199,6 +185,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
+	const maxCanvasSinkFrameSizeRef = useRef(maxCanvasSinkFrameSize);
+	maxCanvasSinkFrameSizeRef.current = maxCanvasSinkFrameSize;
+
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
@@ -220,6 +209,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		volume: userPreferredVolume,
 		audioEnabled: true,
 	});
+	const mediaPlayerMuted = useMediaPlayerMuted({
+		muted,
+		volume: userPreferredVolume,
+	});
 
 	const isPlayerBuffering = useBuffering();
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -228,7 +221,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(effectivePlaybackRate);
 	const initialToneFrequency = useRef(toneFrequency);
-	const initialMuted = useRef(effectiveMuted);
+	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(sequenceDurationInFrames);
 	const initialSequenceOffset = useRef(sequenceOffset);
@@ -268,8 +261,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
+		const currentCanvasRef = canvasRef;
 		return () => {
-			const canvas = canvasRef.current;
+			const canvas = currentCanvasRef.current;
 
 			if (
 				!canvas ||
@@ -323,6 +317,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffects: () => effectsRef.current,
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
+				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
 				onError: (error) => {
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError: onErrorRef.current,
@@ -492,6 +487,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
+		// Compare the numbers, so that a new object with the same size does not
+		// recreate the player.
+		maxCanvasSinkFrameSize?.width,
+		maxCanvasSinkFrameSize?.height,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});
@@ -511,7 +510,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		frame,
 		trimBefore,
 		trimAfter,
-		effectiveMuted,
+		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
 		playbackRate: effectivePlaybackRate,
 		toneFrequency,
@@ -574,7 +573,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		return (
 			<Html5Video
 				{...props}
-				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
@@ -601,7 +599,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	return (
 		<canvas
 			{...props}
-			ref={canvasRefCallback}
+			ref={canvasRef}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.

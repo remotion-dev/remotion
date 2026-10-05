@@ -60,6 +60,10 @@ Returns an object with the following properties.
 
 An array of `{filePath, previousContents, nextContents}` file changes. A `null` content value indicates a created or deleted file.
 
+### nodePathRemappings<AvailableFrom v="4.0.530" />
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
 ## Example transformation
 
 ```tsx title="Before"
@@ -88,4 +92,4 @@ Throws when the target cannot be resolved, the requested edit is unsupported, or
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/unwrap-folder.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

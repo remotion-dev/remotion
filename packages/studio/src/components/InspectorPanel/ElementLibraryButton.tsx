@@ -73,6 +73,15 @@ export const ElementLibraryButton: React.FC = () => {
 			'https://www.remotion.dev/elements',
 		);
 	}, [openElementLibrary]);
+	const openElementLibrarySettings = useCallback(() => {
+		setSelectedModal({
+			type: 'settings',
+			initialStudioPane: 'elements',
+			initialTab: 'studio',
+			initialPublicLicenseKey:
+				window.remotion_renderDefaults?.publicLicenseKey ?? null,
+		});
+	}, [setSelectedModal]);
 
 	const elementLibraryDropdownSegments = useMemo<SegmentedButtonSegment[]>(
 		() => [
@@ -135,10 +144,31 @@ export const ElementLibraryButton: React.FC = () => {
 							value: library.url,
 						};
 					}),
+					{
+						id: 'element-library-settings-divider',
+						type: 'divider',
+					},
+					{
+						disabled: false,
+						id: 'manage-element-libraries',
+						keyHint: null,
+						label: 'Manage...',
+						leftItem: null,
+						onClick: openElementLibrarySettings,
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item',
+						value: 'manage-element-libraries',
+					},
 				],
 			},
 		],
-		[elementLibraries, openElementLibrary, openElementsLibrary],
+		[
+			elementLibraries,
+			openElementLibrary,
+			openElementLibrarySettings,
+			openElementsLibrary,
+		],
 	);
 
 	if (elementLibraries.length > 0) {

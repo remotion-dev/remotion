@@ -162,6 +162,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	onCompileStateChange,
 	onProjectChange,
 	remotionPackageSource,
+	showExperimentalNotice = false,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
@@ -669,6 +670,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,
 					publicLicenseKey: null,
+					canvasTabsEnabled: true,
 					configFileStudioSettings: null,
 				},
 				studioServerCommand: null,
@@ -816,6 +818,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		(contentWindow as BrowserStudioContentWindow).remotion_browserStudioHmr =
 			hmrAssetManager.bridge;
 		contentWindow.remotion_browserStudio = browserStudioOperations;
+		contentWindow.remotion_showBrowserStudioExperimentalNotice =
+			showExperimentalNotice;
 		contentDocument.write(iframeHtml);
 		contentDocument.close();
 
@@ -825,6 +829,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				activeContentWindow as BrowserStudioContentWindow
 			).remotion_browserStudioHmr = hmrAssetManager.bridge;
 			activeContentWindow.remotion_browserStudio = browserStudioOperations;
+			activeContentWindow.remotion_showBrowserStudioExperimentalNotice =
+				showExperimentalNotice;
 			activeContentWindow.dispatchEvent(
 				new Event(BROWSER_STUDIO_OPERATIONS_READY_EVENT),
 			);
@@ -835,6 +841,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		iframeHtml,
 		iframeLoaded,
 		iframeSrc,
+		showExperimentalNotice,
 	]);
 
 	return (

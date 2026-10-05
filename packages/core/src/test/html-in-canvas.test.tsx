@@ -15,48 +15,12 @@ import {
 } from '../SequenceManager.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
-class TestDOMMatrix {
-	private readonly scaleX: number;
-	private readonly scaleY: number;
-
-	public constructor(scaleX = 1, scaleY = 1) {
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-	}
-
-	public scale(x: number, y: number) {
-		return new TestDOMMatrix(this.scaleX * x, this.scaleY * y);
-	}
-
-	public multiply(other: TestDOMMatrix) {
-		return new TestDOMMatrix(
-			this.scaleX * other.scaleX,
-			this.scaleY * other.scaleY,
-		);
-	}
-
-	public toString() {
-		return `matrix(${this.scaleX}, 0, 0, ${this.scaleY}, 0, 0)`;
-	}
-}
-
-Object.defineProperty(globalThis, 'DOMMatrix', {
-	configurable: true,
-	value: TestDOMMatrix,
-});
-
 const stub2dContext = () => {
-	let currentTransform = new DOMMatrix();
-
 	return {
 		canvas: null as unknown as HTMLCanvasElement,
-		reset: () => {
-			currentTransform = new DOMMatrix();
-		},
-		scale: (x: number, y: number) => {
-			currentTransform = currentTransform.scale(x, y);
-		},
-		drawElementImage: () => currentTransform,
+		reset: () => undefined,
+		scale: () => undefined,
+		drawElementImage: () => undefined,
 		getImageData: () => ({
 			data: new Uint8ClampedArray(4),
 			width: 1,
@@ -300,7 +264,11 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const canvas = container.querySelector('canvas');
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<HtmlInCanvas> renders internal capture siblings directly in the canvas', () => {
@@ -368,7 +336,7 @@ test('<HtmlInCanvas> throws when nested', () => {
 				</HtmlInCanvas>
 			</SequenceTestWrapper>,
 		),
-	).toThrow('<HtmlInCanvas> components cannot be nested.');
+	).toThrow('Nested <HtmlInCanvas> components require Chrome 157 or newer');
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
@@ -413,7 +381,11 @@ test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	const nextCanvas = container.querySelector('canvas');
 	expect(nextCanvas).not.toBeNull();
 	expect(canvasRef.current).toBe(nextCanvas);
-	expect(registeredSequences[0]?.refForOutline?.current).toBe(nextCanvas);
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
 test('<HtmlInCanvas> can use a higher backing density', async () => {
@@ -480,32 +452,6 @@ test('<HtmlInCanvas> tolerates layout effect re-runs on the same canvas', async 
 	});
 
 	expect(transferControlToOffscreenCalls).toBe(1);
-});
-
-test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
-	const {container} = render(
-		<SequenceTestWrapper onRegisterSequence={() => undefined}>
-			<HtmlInCanvas width={50} height={50} pixelDensity={2}>
-				<div>Test</div>
-			</HtmlInCanvas>
-		</SequenceTestWrapper>,
-	);
-
-	await waitFor(() => {
-		expect(container.querySelector('canvas')?.getAttribute('width')).toBe(
-			'100',
-		);
-	});
-
-	const canvas = container.querySelector('canvas')!;
-	canvas.dispatchEvent(new Event('paint'));
-
-	const htmlInCanvasElement = canvas.querySelector('div');
-	await waitFor(() => {
-		expect(htmlInCanvasElement?.style.transform).toBe(
-			new DOMMatrix().toString(),
-		);
-	});
 });
 
 test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {

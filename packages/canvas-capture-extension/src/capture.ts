@@ -5,7 +5,6 @@ import {
 	CanvasCaptureRecorder,
 	getScaledCanvasSize,
 	type HtmlInCanvasElement,
-	type HtmlInCanvasOffscreenRenderingContext2D,
 	type HtmlInCanvasRenderingContext2D,
 	resetCanvas,
 	syncCanvasSize,
@@ -137,8 +136,10 @@ const wrapWholePage = (): WrappedPage => {
 	const minimumSize = getWholePageSize();
 	const canvas = document.createElement('canvas') as HtmlInCanvasElement;
 	const content = document.createElement('div');
+	canvas.setAttribute('content', 'drawable');
 	canvas.layoutSubtree = true;
 	canvas.setAttribute('layoutsubtree', '');
+	content.setAttribute('drawable', '');
 	canvas.style.display = 'block';
 	canvas.style.position = 'relative';
 	content.style.position = 'absolute';
@@ -157,34 +158,10 @@ const wrapWholePage = (): WrappedPage => {
 	content.style.width = `${initialSize.width}px`;
 	content.style.height = `${initialSize.height}px`;
 
-	const pendingNodes = new Set<Node>();
-	let moveFrame: number | null = null;
-	const observer = new MutationObserver((records) => {
-		for (const record of records) {
-			for (const node of record.addedNodes) {
-				if (node === canvas || node.parentNode !== body) {
-					continue;
-				}
-
-				pendingNodes.add(node);
-			}
-		}
-
-		if (pendingNodes.size > 0 && moveFrame === null) {
-			// Yield before moving nodes so page observers cannot keep the same microtask checkpoint alive.
-			moveFrame = requestAnimationFrame(() => {
-				moveFrame = null;
-				for (const node of pendingNodes) {
-					if (node.parentNode === body) {
-						content.appendChild(node);
-					}
-				}
-
-				pendingNodes.clear();
-			});
-		}
-	});
-	observer.observe(body, {childList: true});
+	// Leave nodes which are added to <body> while recording in place. Frameworks
+	// use this pattern for portals and keep <body> as the expected parent. Moving
+	// such a node into `content` makes a later framework-owned removal throw a
+	// NotFoundError because the node is no longer a child of <body>.
 
 	return {
 		canvas,
@@ -212,12 +189,6 @@ const wrapWholePage = (): WrappedPage => {
 			return size;
 		},
 		restore: () => {
-			observer.disconnect();
-			if (moveFrame !== null) {
-				cancelAnimationFrame(moveFrame);
-			}
-
-			pendingNodes.clear();
 			while (content.firstChild) {
 				body.insertBefore(content.firstChild, canvas);
 			}
@@ -241,7 +212,7 @@ export class PageCapture {
 	readonly #recorder: CanvasCaptureRecorder;
 	readonly #context: HtmlInCanvasRenderingContext2D;
 	readonly #captureCanvas: OffscreenCanvas;
-	readonly #captureContext: HtmlInCanvasOffscreenRenderingContext2D;
+	readonly #captureContext: OffscreenCanvasRenderingContext2D;
 	readonly #matteColors: readonly string[];
 	readonly #resizeObserver: ResizeObserver;
 	#restored = false;
@@ -268,11 +239,7 @@ export class PageCapture {
 		const context = this.#wrapped.canvas.getContext(
 			'2d',
 		) as HtmlInCanvasRenderingContext2D | null;
-		if (
-			!context ||
-			typeof context.drawElementImage !== 'function' ||
-			typeof this.#wrapped.canvas.captureElementImage !== 'function'
-		) {
+		if (!context || typeof context.drawElementImage !== 'function') {
 			this.#wrapped.restore();
 			throw new Error(
 				'The required HTML-in-canvas APIs are unavailable. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.',
@@ -281,17 +248,10 @@ export class PageCapture {
 
 		this.#context = context;
 		this.#captureCanvas = new OffscreenCanvas(2, 2);
-		const captureContext = this.#captureCanvas.getContext(
-			'2d',
-		) as HtmlInCanvasOffscreenRenderingContext2D | null;
-		if (
-			!captureContext ||
-			typeof captureContext.drawElementImage !== 'function'
-		) {
+		const captureContext = this.#captureCanvas.getContext('2d');
+		if (!captureContext) {
 			this.#wrapped.restore();
-			throw new Error(
-				'Could not create an HTML-in-canvas OffscreenCanvas 2D context.',
-			);
+			throw new Error('Could not create an OffscreenCanvas 2D context.');
 		}
 
 		this.#captureContext = captureContext;
@@ -432,44 +392,44 @@ export class PageCapture {
 		this.#context.scale(displayScaleX, displayScaleY);
 		this.#context.drawElementImage!(this.#wrapped.content, 0, 0, width, height);
 
-		const elementImage = this.#wrapped.canvas.captureElementImage!(
-			this.#wrapped.content,
-		);
-		try {
-			resetCanvas(this.#captureContext, this.#captureCanvas);
-			for (const color of this.#matteColors) {
-				this.#captureContext.fillStyle = color;
-				this.#captureContext.fillRect(
-					0,
-					0,
-					this.#captureCanvas.width,
-					this.#captureCanvas.height,
-				);
-			}
-
-			this.#captureContext.drawElementImage!(
-				elementImage,
-				crop.left,
-				crop.top,
-				crop.width,
-				crop.height,
+		resetCanvas(this.#captureContext, this.#captureCanvas);
+		for (const color of this.#matteColors) {
+			this.#captureContext.fillStyle = color;
+			this.#captureContext.fillRect(
 				0,
 				0,
 				this.#captureCanvas.width,
 				this.#captureCanvas.height,
 			);
-
-			this.#recorder.addFrame(this.#captureCanvas);
-		} finally {
-			elementImage.close();
 		}
+
+		this.#captureContext.drawImage(
+			this.#wrapped.canvas,
+			crop.left * displayScaleX,
+			crop.top * displayScaleY,
+			crop.width * displayScaleX,
+			crop.height * displayScaleY,
+			0,
+			0,
+			this.#captureCanvas.width,
+			this.#captureCanvas.height,
+		);
+
+		this.#recorder.addFrame(this.#captureCanvas);
 	};
 
 	#onPaint = () => {
 		try {
 			this.#draw();
 		} catch (error) {
-			this.#paintError = error;
+			if (this.#paintError === null) {
+				// eslint-disable-next-line no-console -- Surface capture failures in the page DevTools console.
+				console.error(
+					'[Remotion Canvas Capture] Failed to paint a frame',
+					error,
+				);
+				this.#paintError = error;
+			}
 		}
 	};
 }

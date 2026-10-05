@@ -15,7 +15,7 @@ export const MyComp = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
+    <>
       <CameraMotionBlur>
         <AbsoluteFill
           style={{
@@ -29,7 +29,7 @@ export const MyComp = () => {
           A
         </AbsoluteFill>
       </CameraMotionBlur>
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -60,11 +60,11 @@ const A: React.FC = () => {
 
 export const MyComp = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CameraMotionBlur>
         <A />
       </CameraMotionBlur>
-    </AbsoluteFill>
+    </>
   );
 };
 ```

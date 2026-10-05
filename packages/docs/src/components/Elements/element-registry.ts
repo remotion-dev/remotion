@@ -143,6 +143,10 @@ export const elementRegistry = {
 		category: 'storytelling',
 		displayName: 'Polaroid Pictures',
 	},
+	'storytelling/speed-lines': {
+		category: 'storytelling',
+		displayName: 'Speed Lines',
+	},
 	'text/news-article-highlight': {
 		category: 'storytelling',
 		displayName: 'News Article Highlight',

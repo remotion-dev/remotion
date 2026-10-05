@@ -25,6 +25,7 @@ test('splits fractional timing without persisting arithmetic noise', async () =>
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 		splitFrame: 1,
+		videoConfigValues: null,
 	});
 	expect(output).toContain('durationInFrames={0.9}');
 	expect(output).toContain('durationInFrames={0.3}');
@@ -60,6 +61,7 @@ test('splits multiple sibling sequences from the same source snapshot', async ()
 			nodePath,
 			sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 			splitFrame: 30,
+			videoConfigValues: null,
 		})),
 	});
 
@@ -97,12 +99,13 @@ test('splitting a sped-up sequence preserves its child clock across a fractional
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames', 'trimBefore', 'playbackRate'],
 		splitFrame: 22.5,
+		videoConfigValues: null,
 	});
 	expect(output.replace(/\s+/g, ' ')).toContain(
-		'from={10} durationInFrames={12.5} trimBefore={5} playbackRate={2}',
+		'from={10} durationInFrames={25} trimBefore={5} playbackRate={2}',
 	);
 	expect(output.replace(/\s+/g, ' ')).toContain(
-		'from={22.5} durationInFrames={37.5} trimBefore={30} playbackRate={2}',
+		'from={22.5} durationInFrames={25} trimBefore={30} playbackRate={2}',
 	);
 });
 
@@ -134,6 +137,7 @@ const split = async (
 		nodePath: lineColumnToNodePath(input, sequenceLine),
 		sequenceKeys,
 		splitFrame,
+		videoConfigValues: null,
 	});
 
 	return output;
@@ -155,20 +159,27 @@ test('splitJsxSequence remaps following JSX siblings', async () => {
 		nodePath: lineContainingToNodePath(input, 'name="split"'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
+		videoConfigValues: null,
 	});
 
 	expect(nodePathRemappings).toEqual([
 		{
 			oldNodePath: lineContainingToNodePath(input, 'name="split"'),
 			newNodePath: lineContainingToNodePath(output, 'name="split"'),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
 			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
 			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+			oldJsxName: 'Sequence',
+			newJsxName: 'Sequence',
 		},
 		{
 			oldNodePath: null,
 			newNodePath: lineContainingToNodePath(output, 'from={30}'),
+			oldJsxName: null,
+			newJsxName: 'Sequence',
 		},
 	]);
 });
@@ -230,6 +241,7 @@ export const Comp = () => {
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
+		videoConfigValues: null,
 	});
 
 	expect(output).toStartWith(
@@ -255,6 +267,7 @@ const keep = { value : true }
 		nodePath: lineContainingToNodePath(input, '<Sequence'),
 		sequenceKeys: sequenceTimingKeys,
 		splitFrame: 30,
+		videoConfigValues: null,
 	});
 
 	expect(output).toBe(`export const Comp = () => <>

@@ -2,7 +2,6 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {Spacing} from './layout';
-import {MenuCompositionName} from './MenuCompositionName';
 import {Spinner} from './Spinner';
 
 const cwd: React.CSSProperties = {
@@ -65,8 +64,7 @@ export const MenuBuildIndicator: React.FC<{
 		<div role="group" style={cwd} aria-label={window.remotion_cwd}>
 			<Spacing x={mobileLayout ? 0.5 : 2} />
 			{window.remotion_projectName}
-			<MenuCompositionName />
-			<Spacing x={1} />
+			<Spacing x={0.5} />
 			<div style={openInEditor}>
 				<InspectorOpenInEditor
 					location={folderLocation}

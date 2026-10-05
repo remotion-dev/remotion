@@ -2,7 +2,9 @@ import type {StudioKeyboardShortcutAction} from '@remotion/studio-shared';
 import type React from 'react';
 import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {calculateTimeline} from '../helpers/calculate-timeline';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {pickColor} from '../helpers/pick-color';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
@@ -11,6 +13,7 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
@@ -28,6 +31,7 @@ const sequencePropShortcuts = [
 	{action: 'selectRotateProp', fieldKey: 'style.rotate'},
 	{action: 'selectScaleProp', fieldKey: 'style.scale'},
 	{action: 'selectOpacityProp', fieldKey: 'style.opacity'},
+	{action: 'selectVolumeProp', fieldKey: 'volume'},
 ] as const satisfies readonly {
 	readonly action: StudioKeyboardShortcutAction;
 	readonly fieldKey: string;
@@ -39,10 +43,12 @@ const hasOwnProperty = (obj: object, key: string) =>
 export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setCheckerboard} = useContext(CheckerboardContext);
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setEditorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {setEditorShowPixelGrid} = useContext(EditorShowPixelGridContext);
 	const {editorShowRulers, setEditorShowRulers} = useContext(
 		EditorShowRulersContext,
 	);
@@ -82,9 +88,20 @@ export const GlobalKeybindings: React.FC = () => {
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
+		const pixelGrid = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'togglePixelGrid',
+			callback: (event) => {
+				if (!event.repeat) setEditorShowPixelGrid((current) => !current);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
 		return () => {
 			outlines?.unregister();
 			rulers.unregister();
+			pixelGrid.unregister();
 		};
 	}, [
 		keybindings,
@@ -93,12 +110,13 @@ export const GlobalKeybindings: React.FC = () => {
 		editorShowRulers,
 		editorShowGuides,
 		setEditorShowOutlines,
+		setEditorShowPixelGrid,
 		setEditorShowRulers,
 		setEditorShowGuides,
 	]);
 
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
@@ -213,6 +231,30 @@ export const GlobalKeybindings: React.FC = () => {
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
+		const newComposition = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'newComposition',
+			callback: () => {
+				if (
+					getBrowserStudioOperations() === null &&
+					(window.remotion_isReadOnlyStudio ||
+						previewServerState.type !== 'connected')
+				) {
+					return;
+				}
+
+				setSelectedModal({
+					type: 'new-comp',
+					folderName: null,
+					parentName: null,
+					stack: null,
+					canvasCapture: null,
+				});
+			},
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+			preventDefault: true,
+		});
 		const cmdIKey = getStudioAskAIEnabled()
 			? keybindings.registerKeybinding({
 					event: 'keydown',
@@ -283,6 +325,7 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setSelectedModal({
 					type: 'settings',
+					initialStudioPane: null,
 					initialTab: 'shortcuts',
 					initialPublicLicenseKey:
 						window.remotion_renderDefaults?.publicLicenseKey ?? null,
@@ -333,6 +376,7 @@ export const GlobalKeybindings: React.FC = () => {
 			questionMark.unregister();
 			cmdKKey.unregister();
 			cmdSKey.unregister();
+			newComposition.unregister();
 			cmdIKey?.unregister();
 			colorPicker?.unregister();
 			pageDown.unregister();
@@ -346,6 +390,7 @@ export const GlobalKeybindings: React.FC = () => {
 		setCheckerboard,
 		setEditorSnapping,
 		setSelectedModal,
+		previewServerState.type,
 		navigateToNextComposition,
 		navigateToPreviousComposition,
 	]);

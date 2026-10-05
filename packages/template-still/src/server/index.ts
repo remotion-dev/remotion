@@ -43,7 +43,7 @@ app.use(
   }),
 );
 
-// The image is rendered when /[CompositionName].[imageformat] is called.
+// The image is rendered when /[CompositionId].[imageformat] is called.
 // Props are passed via query string.
 app.get(
   `/:${Params.compositionname}.:${Params.format}(png|jpe?g)`,

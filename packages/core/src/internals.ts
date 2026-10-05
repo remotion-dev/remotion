@@ -80,6 +80,7 @@ import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
+import {useIsInsideNonPremountFreeze} from './freeze.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {
 	getEffectiveVisualModeValue,
@@ -108,6 +109,7 @@ import {
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
+	trimAfterField,
 	transformSchema,
 	type AssetFieldSchema,
 	type ArrayFieldSchema,
@@ -136,6 +138,10 @@ import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {PremountContext} from './PremountContext.js';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from './react-refresh-event.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -148,6 +154,7 @@ import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
 } from './RenderAssetManager.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
@@ -180,11 +187,15 @@ import {SequenceWithoutSchema} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import type {CannotUpdateSequenceReason} from './SequenceManager.js';
 import {
+	DisableSequenceRegistrationProvider,
 	makeSequencePropsSubscriptionKey,
 	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	useActiveFromDragOverrideKeys,
+	useSequenceManagerSequences,
 	SequenceRegistrationContext,
+	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
@@ -327,6 +338,7 @@ export const Internals = {
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	useIsInsideFreeze: TimelinePosition.useIsInsideFreeze,
+	useIsInsideNonPremountFreeze,
 	useMediaAudioState,
 	evaluateVolume,
 	getAbsoluteSrc,
@@ -341,12 +353,16 @@ export const Internals = {
 	CompositionSetters,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeSettersContext,
 	SequenceManager,
 	SequenceManagerProvider,
 	SequenceManagerRefContext,
+	useActiveFromDragOverrideKeys,
+	useSequenceManagerSequences,
 	SequenceRegistrationContext,
+	DisableSequenceRegistrationProvider,
 	CommitOrderInternals,
 	SequenceOutlineInternals,
 	SequenceOutlineContext,
@@ -375,6 +391,7 @@ export const Internals = {
 	SequenceContext,
 	PremountContext,
 	usePremounting,
+	resolveSequenceDuration,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
@@ -422,6 +439,8 @@ export const Internals = {
 	useTimelineSetFrameWithoutSeek,
 	isIosSafari,
 	WATCH_REMOTION_STATIC_FILES,
+	REACT_REFRESH_STARTED_EVENT,
+	REACT_REFRESH_FINISHED_EVENT,
 	addSequenceStackTraces,
 	useMediaStartsAt,
 	BufferingProvider,
@@ -492,6 +511,7 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	trimAfterField,
 	resolveSequenceCrop,
 	useCropStyle,
 } as const;

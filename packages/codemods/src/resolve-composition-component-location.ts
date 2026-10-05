@@ -319,6 +319,33 @@ const getExportedName = (name: Identifier | StringLiteral) => {
 	return name.type === 'Identifier' ? name.name : name.value;
 };
 
+const findImportedComponent = (file: File, localName: string) => {
+	for (const statement of file.program.body) {
+		if (statement.type !== 'ImportDeclaration') {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers) {
+			if (specifier.local.name !== localName) {
+				continue;
+			}
+
+			if (specifier.type === 'ImportDefaultSpecifier') {
+				return {exportName: 'default' as const, path: statement.source.value};
+			}
+
+			if (specifier.type === 'ImportSpecifier') {
+				return {
+					exportName: getExportedName(specifier.imported),
+					path: statement.source.value,
+				};
+			}
+		}
+	}
+
+	return null;
+};
+
 const resolveDeclaration = ({
 	filePath,
 	exportName,
@@ -378,10 +405,7 @@ const resolveDeclaration = ({
 
 	if (exportName !== 'default') {
 		for (const statement of file.program.body) {
-			if (
-				statement.type !== 'ExportNamedDeclaration' ||
-				statement.source?.type !== 'StringLiteral'
-			) {
+			if (statement.type !== 'ExportNamedDeclaration') {
 				continue;
 			}
 
@@ -393,48 +417,65 @@ const resolveDeclaration = ({
 					continue;
 				}
 
+				if (statement.source?.type === 'StringLiteral') {
+					return resolveDeclaration({
+						filePath: resolveImport({
+							fromFile: filePath,
+							importPath: statement.source.value,
+							project,
+						}),
+						exportName: getExportedName(specifier.local),
+						project,
+						visited,
+					});
+				}
+
+				// Barrel files that import a component and export it separately.
+				const imported = findImportedComponent(
+					file,
+					getExportedName(specifier.local),
+				);
+				if (imported) {
+					return resolveDeclaration({
+						filePath: resolveImport({
+							fromFile: filePath,
+							importPath: imported.path,
+							project,
+						}),
+						exportName: imported.exportName,
+						project,
+						visited,
+					});
+				}
+			}
+		}
+
+		for (const statement of file.program.body) {
+			if (
+				statement.type !== 'ExportAllDeclaration' ||
+				statement.source.type !== 'StringLiteral'
+			) {
+				continue;
+			}
+
+			try {
 				return resolveDeclaration({
 					filePath: resolveImport({
 						fromFile: filePath,
 						importPath: statement.source.value,
 						project,
 					}),
-					exportName: getExportedName(specifier.local),
+					exportName,
 					project,
 					visited,
 				});
+			} catch {
+				// The export may come from another re-exported module.
 			}
 		}
 	}
 
 	throw new Error(`Could not find composition component "${exportName}"`);
-};
-
-const findImportedComponent = (file: File, localName: string) => {
-	for (const statement of file.program.body) {
-		if (statement.type !== 'ImportDeclaration') {
-			continue;
-		}
-
-		for (const specifier of statement.specifiers) {
-			if (specifier.local.name !== localName) {
-				continue;
-			}
-
-			if (specifier.type === 'ImportDefaultSpecifier') {
-				return {exportName: 'default' as const, path: statement.source.value};
-			}
-
-			if (specifier.type === 'ImportSpecifier') {
-				return {
-					exportName: getExportedName(specifier.imported),
-					path: statement.source.value,
-				};
-			}
-		}
-	}
-
-	return null;
 };
 
 const unwrapExpression = (node: Node | null): Node | null => {

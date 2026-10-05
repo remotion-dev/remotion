@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	InteractivitySchema,
@@ -56,10 +56,9 @@ export const getKeyframedSequenceDragTargets = ({
 					(!isDescendant || propStatus.keyframeDisplayOffsetAdjustment !== null)
 						? [
 								{
-									parentPlaybackRate: getParentSequencePlaybackRate(
-										sequence,
-										sequences,
-									),
+									parentPlaybackRate:
+										(propStatus.keyframePlaybackRateAdjustment ?? 1) *
+										getParentSequencePlaybackRate(sequence, sequences),
 									fileName: nodePath.absolutePath,
 									fieldKey,
 									isDescendant,
@@ -88,10 +87,9 @@ export const getKeyframedSequenceDragTargets = ({
 					? [
 							{
 								effectIndex: effectStatus.effectIndex,
-								parentPlaybackRate: getParentSequencePlaybackRate(
-									sequence,
-									sequences,
-								),
+								parentPlaybackRate:
+									(propStatus.keyframePlaybackRateAdjustment ?? 1) *
+									getParentSequencePlaybackRate(sequence, sequences),
 								fileName: nodePath.absolutePath,
 								fieldKey,
 								isDescendant,

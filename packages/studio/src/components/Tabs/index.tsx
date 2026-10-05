@@ -3,9 +3,9 @@ import {
 	BACKGROUND,
 	BLUE,
 	BORDER_TRANSPARENT_2PX,
-	WHITE_ALPHA_06,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	TAB_HOVER_BACKGROUND,
 	WHITE,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
@@ -14,6 +14,8 @@ const tabsContainer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 };
+
+export const TAB_HEIGHT = 27;
 
 export const Tabs: React.FC<{
 	readonly children: React.ReactNode;
@@ -33,7 +35,7 @@ const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	padding: 3,
-	height: 34,
+	height: TAB_HEIGHT,
 	paddingLeft: 10,
 	display: 'flex',
 	flexDirection: 'row',
@@ -64,13 +66,26 @@ export const Tab: React.FC<{
 		setHovered(false);
 	}, []);
 
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (
+				event.target === event.currentTarget &&
+				(event.key === 'Enter' || event.key === ' ')
+			) {
+				event.preventDefault();
+				event.currentTarget.click();
+			}
+		},
+		[],
+	);
+
 	const definiteStyle: React.CSSProperties = useMemo(
 		() => ({
 			...selectorButton,
 			backgroundColor: selected
 				? BACKGROUND
 				: hovered
-					? WHITE_ALPHA_06
+					? TAB_HOVER_BACKGROUND
 					: INPUT_BACKGROUND,
 			color: selected ? WHITE : LIGHT_TEXT,
 			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,
@@ -90,6 +105,7 @@ export const Tab: React.FC<{
 			tabIndex={tabIndex}
 			onPointerLeave={onPointerLeave}
 			onPointerEnter={onPointerEnter}
+			onKeyDown={onKeyDown}
 		>
 			{children}
 		</div>

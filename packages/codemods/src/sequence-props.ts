@@ -7,6 +7,7 @@ import type {
 	JSXOpeningElement,
 	NewExpression,
 	Node,
+	NumericLiteral,
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
@@ -644,22 +645,182 @@ const getJsxNumericAttribute = ({
 	return defaultValue;
 };
 
+const getJsxBooleanAttribute = ({
+	openingElement,
+	name,
+	defaultValue,
+}: {
+	openingElement: JSXOpeningElement;
+	name: string;
+	defaultValue: boolean;
+}): boolean | null => {
+	for (let index = openingElement.attributes.length - 1; index >= 0; index--) {
+		const attribute = openingElement.attributes[index];
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier' ||
+			attribute.name.name !== name
+		) {
+			continue;
+		}
+
+		const {value} = attribute;
+		if (value === null || value === undefined) {
+			return true;
+		}
+
+		if (
+			value.type === 'JSXExpressionContainer' &&
+			value.expression.type === 'BooleanLiteral'
+		) {
+			return value.expression.value;
+		}
+
+		return null;
+	}
+
+	return defaultValue;
+};
+
+const getJsxFrom = ({
+	jsxPath,
+	ast,
+	videoConfigValues,
+}: {
+	jsxPath: recast.types.NodePath;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): number | null => {
+	const element = jsxPath.value as JSXElement;
+	if (
+		getJsxComponentIdentity({ast, jsxElement: element.openingElement}) !==
+		'dev.remotion.remotion.Series.Sequence'
+	) {
+		return getJsxNumericAttribute({
+			openingElement: element.openingElement,
+			name: 'from',
+			defaultValue: 0,
+			videoConfigValues,
+		});
+	}
+
+	let {parentPath} = jsxPath;
+	while (parentPath && parentPath.value.type !== 'JSXElement') {
+		parentPath = parentPath.parentPath;
+	}
+
+	const parent = parentPath?.value as JSXElement | undefined;
+	if (
+		!parent ||
+		getJsxComponentIdentity({ast, jsxElement: parent.openingElement}) !==
+			'dev.remotion.remotion.Series' ||
+		parent.openingElement.attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXSpreadAttribute' ||
+				(attribute.type === 'JSXAttribute' &&
+					attribute.name.type === 'JSXIdentifier' &&
+					attribute.name.name === 'children'),
+		)
+	) {
+		return null;
+	}
+
+	// Series derives each start from the preceding siblings, including their
+	// offsets and playback rates. Unknown children must keep the runtime value.
+	const children = [...parent.children].reverse();
+	let start = 0;
+	while (children.length > 0) {
+		const child = children.pop()!;
+		if (child.type === 'JSXText' && child.value.trim() === '') {
+			continue;
+		}
+
+		if (child.type === 'JSXFragment') {
+			children.push(...[...child.children].reverse());
+			continue;
+		}
+
+		if (
+			child.type === 'JSXExpressionContainer' &&
+			(child.expression.type === 'JSXEmptyExpression' ||
+				child.expression.type === 'NullLiteral' ||
+				child.expression.type === 'BooleanLiteral')
+		) {
+			continue;
+		}
+
+		if (
+			child.type !== 'JSXElement' ||
+			getJsxComponentIdentity({ast, jsxElement: child.openingElement}) !==
+				'dev.remotion.remotion.Series.Sequence'
+		) {
+			return null;
+		}
+
+		const offset = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'offset',
+			defaultValue: 0,
+			videoConfigValues,
+		});
+		if (offset === null) {
+			return null;
+		}
+
+		start += offset;
+		if (child === element) {
+			return Number.isFinite(start) ? start : null;
+		}
+
+		const duration = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'durationInFrames',
+			defaultValue: NaN,
+			videoConfigValues,
+		});
+		const rate = getJsxNumericAttribute({
+			openingElement: child.openingElement,
+			name: 'playbackRate',
+			defaultValue: 1,
+			videoConfigValues,
+		});
+		if (
+			duration === null ||
+			!Number.isFinite(duration) ||
+			duration <= 0 ||
+			rate === null ||
+			!Number.isFinite(rate) ||
+			rate <= 0
+		) {
+			return null;
+		}
+
+		start += duration / rate;
+	}
+
+	return null;
+};
+
 const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	startPath,
 	endPath,
+	ast,
 	videoConfigValues,
 }: {
 	startPath: recast.types.NodePath;
 	endPath: recast.types.NodePath;
+	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	let current: recast.types.NodePath | null = startPath;
 	let hasSeenControlledElement = false;
 	let hasEnclosingElement = false;
 	let adjustment = 0;
+	let playbackRateAdjustment = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
 		if (
@@ -677,10 +838,9 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 				hasEnclosingElement = true;
 				// Sequence-backed built-ins and userland components can both shift
 				// their children, so the prop names are the semantic boundary.
-				const from = getJsxNumericAttribute({
-					openingElement: currentNode.openingElement,
-					name: 'from',
-					defaultValue: 0,
+				const from = getJsxFrom({
+					jsxPath: current,
+					ast,
 					videoConfigValues,
 				});
 				const trimBefore = getJsxNumericAttribute({
@@ -689,27 +849,57 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 					defaultValue: 0,
 					videoConfigValues,
 				});
-				if (from === null || trimBefore === null) {
+				const playbackRate = getJsxNumericAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'playbackRate',
+					defaultValue: 1,
+					videoConfigValues,
+				});
+				const loop = getJsxBooleanAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'loop',
+					defaultValue: false,
+				});
+				if (
+					from === null ||
+					trimBefore === null ||
+					playbackRate === null ||
+					loop === null ||
+					loop ||
+					!Number.isFinite(playbackRate) ||
+					playbackRate <= 0
+				) {
 					return null;
 				}
 
-				adjustment -= from - trimBefore;
+				// Walk from the controlled element back to the hook's scope.
+				// A sequence maps parent time to (parent - from) * rate + trimBefore.
+				adjustment = (adjustment + trimBefore) / playbackRate - from;
+				playbackRateAdjustment /= playbackRate;
 			}
 		}
 
 		current = current.parentPath;
 	}
 
-	return current ? {adjustment, hasEnclosingElement} : null;
+	return current
+		? {adjustment, playbackRateAdjustment, hasEnclosingElement}
+		: null;
 };
 
 const getDefaultFrameDisplayOffsetAdjustment = ({
 	jsxPath,
+	ast,
 	videoConfigValues,
 }: {
 	jsxPath: recast.types.NodePath;
+	ast: File;
 	videoConfigValues: VideoConfigIdentifierValues;
-}): number | null => {
+}): {
+	adjustment: number;
+	playbackRateAdjustment: number;
+	canKeyframe: boolean;
+} | null => {
 	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
 	while (functionPath) {
 		const node = functionPath.value as Node;
@@ -727,15 +917,46 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	if (!functionPath) {
 		// Module-level JSX still has editable static props. There is no local
 		// frame clock to adjust; keyframe insertion validates its own hook scope.
-		return 0;
+		return {adjustment: 0, playbackRateAdjustment: 1, canKeyframe: true};
+	}
+
+	let current: recast.types.NodePath | null = jsxPath;
+	let hasSeenControlledElement = false;
+	while (current && current.value !== functionPath.value) {
+		const currentNode = current.value as Node;
+		if (currentNode.type === 'JSXElement') {
+			if (!hasSeenControlledElement) {
+				hasSeenControlledElement = true;
+			} else {
+				const loop = getJsxBooleanAttribute({
+					openingElement: currentNode.openingElement,
+					name: 'loop',
+					defaultValue: false,
+				});
+				if (loop === null) {
+					return null;
+				}
+
+				if (loop) {
+					return {
+						adjustment: 0,
+						playbackRateAdjustment: 1,
+						canKeyframe: false,
+					};
+				}
+			}
+		}
+
+		current = current.parentPath;
 	}
 
 	const result = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: jsxPath,
 		endPath: functionPath,
+		ast,
 		videoConfigValues,
 	});
-	return result?.adjustment ?? null;
+	return result ? {...result, canKeyframe: true} : null;
 };
 
 type ResolvedCurrentFrameExpression = {
@@ -876,6 +1097,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	videoConfigValues: VideoConfigIdentifierValues;
 }): {
 	readonly adjustment: number;
+	readonly playbackRateAdjustment: number;
 	readonly hasEnclosingElement: boolean;
 } | null => {
 	if (node.type === 'TSAsExpression') {
@@ -899,6 +1121,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	const frameDisplayOffset = getFrameDisplayOffsetAdjustmentBetweenPaths({
 		startPath: nodePath,
 		endPath: resolved.bindingScopePath,
+		ast,
 		videoConfigValues,
 	});
 	if (frameDisplayOffset === null) {
@@ -926,6 +1149,7 @@ const getInterpolationKeyframes = (
 			output: PropOutput;
 			interpolationFunction: PropInterpolationFunction;
 			keyframeDisplayOffsetAdjustment: number | null;
+			keyframePlaybackRateAdjustment: number;
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
@@ -1055,6 +1279,7 @@ const getInterpolationKeyframes = (
 		clamping: metadata.clamping,
 		posterize: metadata.posterize,
 		output: metadata.output,
+		keyframePlaybackRateAdjustment: frameDisplayOffset.playbackRateAdjustment,
 		keyframeDisplayOffsetAdjustment: frameDisplayOffset.hasEnclosingElement
 			? frameDisplayOffset.adjustment
 			: null,
@@ -1076,12 +1301,127 @@ export const getComputedStatus = (
 		interpolationFunction: interpolation.interpolationFunction,
 		keyframeDisplayOffsetAdjustment:
 			interpolation.keyframeDisplayOffsetAdjustment,
+		...(interpolation.keyframePlaybackRateAdjustment === 1
+			? {}
+			: {
+					keyframePlaybackRateAdjustment:
+						interpolation.keyframePlaybackRateAdjustment,
+				}),
 		keyframes: interpolation.keyframes,
 		easing: interpolation.easing,
 		clamping: interpolation.clamping,
 		posterize: interpolation.posterize,
 		output: interpolation.output,
 	};
+};
+
+export const retimeSequenceKeyframes = ({
+	ast,
+	jsxElement,
+	playbackRate,
+	videoConfigValues,
+}: {
+	ast: File;
+	jsxElement: JSXElement;
+	playbackRate: number;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): void => {
+	if (!Number.isFinite(playbackRate) || playbackRate <= 0) {
+		throw new Error('Cannot retime keyframes with an invalid playback rate');
+	}
+
+	const {openingElement} = jsxElement;
+	const previousPlaybackRate = getJsxNumericAttribute({
+		openingElement,
+		name: 'playbackRate',
+		defaultValue: 1,
+		videoConfigValues,
+	});
+	const from = getJsxNumericAttribute({
+		openingElement,
+		name: 'from',
+		defaultValue: 0,
+		videoConfigValues,
+	});
+	if (
+		previousPlaybackRate === null ||
+		!Number.isFinite(previousPlaybackRate) ||
+		from === null ||
+		!Number.isFinite(from) ||
+		previousPlaybackRate <= 0
+	) {
+		// Retiming requires a known source clock, but changing the rate itself
+		// must still work for dynamic timing props and spread attributes.
+		return;
+	}
+
+	if (previousPlaybackRate === playbackRate) {
+		return;
+	}
+
+	const rootPath = findNodePath(ast, openingElement);
+	if (!rootPath) {
+		throw new Error('Could not find the sequence clock');
+	}
+
+	const ratio = previousPlaybackRate / playbackRate;
+	recast.types.visit(jsxElement, {
+		visitCallExpression(p) {
+			const call = p.node as unknown as CallExpression;
+			const interpolation = getInterpolationKeyframes(
+				call,
+				ast,
+				videoConfigValues,
+			);
+			if (!interpolation) {
+				return this.traverse(p);
+			}
+
+			const resolved = resolveCurrentFrameExpression({
+				node: call.arguments[0] as Expression,
+				ast,
+				seenDeclarations: new Set(),
+			});
+			if (!resolved) {
+				return this.traverse(p);
+			}
+
+			// Only outer frame bindings need source edits. A hook inside this
+			// sequence already inherits its changed playback rate at runtime.
+			const clock = getFrameDisplayOffsetAdjustmentBetweenPaths({
+				startPath: rootPath,
+				endPath: resolved.bindingScopePath,
+				ast,
+				videoConfigValues,
+			});
+			if (!clock) {
+				return this.traverse(p);
+			}
+
+			const anchor =
+				from * clock.playbackRateAdjustment -
+				clock.adjustment +
+				resolved.offset;
+			const inputRange = call.arguments[1];
+			if (inputRange.type !== 'ArrayExpression') {
+				return this.traverse(p);
+			}
+
+			inputRange.elements = interpolation.keyframes.map<NumericLiteral>(
+				(keyframe) => {
+					const frame = anchor + (keyframe.frame - anchor) * ratio;
+					const nearestInteger = Math.round(frame);
+					const value =
+						Math.abs(frame - nearestInteger) <=
+						Number.EPSILON * Math.max(1, Math.abs(frame)) * 2
+							? nearestInteger
+							: frame;
+					return {type: 'NumericLiteral', value};
+				},
+			);
+			return false;
+		},
+	});
 };
 
 const getPropsStatus = (
@@ -1907,6 +2247,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	const defaultKeyframeDisplayOffsetAdjustment =
 		getDefaultFrameDisplayOffsetAdjustment({
 			jsxPath,
+			ast,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 	const addDefaultKeyframeDisplayOffsetAdjustment = (
@@ -1920,13 +2261,27 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 			return computedStatus();
 		}
 
-		if (defaultKeyframeDisplayOffsetAdjustment === 0) {
+		if (!defaultKeyframeDisplayOffsetAdjustment.canKeyframe) {
+			return {...status, canKeyframe: false};
+		}
+
+		if (
+			defaultKeyframeDisplayOffsetAdjustment.adjustment === 0 &&
+			defaultKeyframeDisplayOffsetAdjustment.playbackRateAdjustment === 1
+		) {
 			return status;
 		}
 
 		return {
 			...status,
-			keyframeDisplayOffsetAdjustment: defaultKeyframeDisplayOffsetAdjustment,
+			keyframeDisplayOffsetAdjustment:
+				defaultKeyframeDisplayOffsetAdjustment.adjustment,
+			...(defaultKeyframeDisplayOffsetAdjustment.playbackRateAdjustment === 1
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							defaultKeyframeDisplayOffsetAdjustment.playbackRateAdjustment,
+					}),
 		};
 	};
 

@@ -2,22 +2,56 @@ import React, {useCallback} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
-	type HtmlInCanvasProps,
 	type HtmlInCanvasOnPaint,
+	Interactive,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractivitySchema,
+	Internals,
+	type SequenceControls,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 
-export type HtmlInCanvasMotionBlurProps = Pick<
-	HtmlInCanvasProps,
-	'from' | 'durationInFrames' | 'trimBefore' | 'playbackRate'
-> & {
-	readonly children: React.ReactNode;
-	readonly width: number;
-	readonly height: number;
-	readonly shutterAngle?: number;
-	readonly samples?: number;
-};
+export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
+	InteractivePremountProps & {
+		readonly children: React.ReactNode;
+		readonly width: number;
+		readonly height: number;
+		readonly shutterAngle?: number;
+		readonly samples?: number;
+		readonly disabled?: boolean;
+	};
+
+const htmlInCanvasMotionBlurSchema = {
+	...Interactive.baseSchema,
+	...Interactive.premountSchema,
+	shutterAngle: {
+		type: 'number',
+		min: 0,
+		max: 360,
+		step: 1,
+		default: 180,
+		description: 'Shutter angle',
+		hiddenFromList: false,
+	},
+	samples: {
+		type: 'number',
+		min: 1,
+		max: 64,
+		step: 1,
+		integer: true,
+		default: 8,
+		description: 'Samples',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	disabled: {
+		type: 'boolean',
+		default: false,
+		description: 'Disabled',
+	},
+} as const satisfies InteractivitySchema;
 
 type MotionBlurSampleProps = {
 	readonly children: React.ReactNode;
@@ -48,42 +82,60 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 			frame + ((index + 0.5) / count - 0.5) * shutterInFrames,
 		),
 	);
+	const content = <Freeze frame={sampleFrame}>{children}</Freeze>;
+	const isRepresentativeSample = index === Math.floor(count / 2);
 
 	return (
 		<div
-			aria-hidden={index !== Math.floor(count / 2)}
-			// Each sample has its own paint record so it can be captured separately.
-			{...{drawable: ''}}
+			aria-hidden={!isRepresentativeSample}
+			// The first sample is captured through HtmlInCanvas's drawable root.
+			// Only its canvas siblings need separate drawable paint records.
+			{...(index === 0 ? {} : {drawable: ''})}
 			style={{
 				position: 'absolute',
 				inset: 0,
 				width,
 				height,
 				isolation: 'isolate',
-				pointerEvents: index === Math.floor(count / 2) ? 'auto' : 'none',
+				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
-			<Freeze frame={sampleFrame}>{children}</Freeze>
+			{isRepresentativeSample ? (
+				content
+			) : (
+				<Internals.DisableSequenceRegistrationProvider>
+					{content}
+				</Internals.DisableSequenceRegistrationProvider>
+			)}
 		</div>
 	);
 };
 
-/**
- * Experimental motion blur that averages separately captured HTML-in-canvas
- * snapshots of the children at fractional frames. Preview requires Chrome with
- * the experimental HTML-in-canvas flag enabled. Nested HtmlInCanvas components
- * are currently unsupported.
- */
-export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
+const HtmlInCanvasMotionBlurInner: React.FC<
+	HtmlInCanvasMotionBlurProps & {
+		readonly controls: SequenceControls | null | undefined;
+	}
+> = ({
 	children,
 	width,
 	height,
 	shutterAngle = 180,
 	samples = 8,
+	disabled = false,
 	from,
 	durationInFrames,
 	trimBefore,
 	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	premountFor,
+	postmountFor,
+	showInTimeline,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	controls,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
 
@@ -104,13 +156,18 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 		);
 	}
 
-	const actualSamples = shutterAngle === 0 ? 1 : samples;
+	// Keep the first sample mounted when blur is disabled so the canvas stays visible.
+	const actualSamples = disabled || shutterAngle === 0 ? 1 : samples;
 	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
 	const firstFrame = trimBefore ?? 0;
 	const visibleDuration = Math.max(
 		0,
 		Math.min(
-			durationInFrames ?? Infinity,
+			Internals.resolveSequenceDuration({
+				durationInFrames,
+				playbackRate,
+				loop,
+			}),
 			compositionDurationInFrames - (from ?? 0),
 		),
 	);
@@ -147,11 +204,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 						? elementImage
 						: layoutCanvas.captureElementImage(sampleElement);
 				try {
-					const sampleTransform = context.drawElementImage(image, 0, 0);
-					if (index === Math.floor(actualSamples / 2)) {
-						(sampleElement as HTMLElement).style.transform =
-							sampleTransform.toString();
-					}
+					context.drawElementImage(image, 0, 0);
 				} finally {
 					if (index !== 0) {
 						image.close();
@@ -180,6 +233,7 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 	});
 
 	// The root wrapper holds the first sample. The rest must be canvas children.
+	// Reuse HtmlInCanvas's Sequence for the motion blur controls.
 	return (
 		<HtmlInCanvas
 			width={width}
@@ -188,7 +242,16 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 			durationInFrames={durationInFrames}
 			trimBefore={trimBefore}
 			playbackRate={playbackRate}
-			name="<HtmlInCanvasMotionBlur>"
+			loop={loop}
+			freeze={freeze}
+			hidden={hidden}
+			name={name ?? '<HtmlInCanvasMotionBlur>'}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			showInTimeline={showInTimeline}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
+			{...{controls}}
 			onPaint={onPaint}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}
 		>
@@ -196,3 +259,22 @@ export const HtmlInCanvasMotionBlur: React.FC<HtmlInCanvasMotionBlurProps> = ({
 		</HtmlInCanvas>
 	);
 };
+
+/**
+ * Experimental motion blur that averages separately captured HTML-in-canvas
+ * snapshots of the children at fractional frames. Preview requires Chrome with
+ * the experimental HTML-in-canvas flag enabled. Nested HtmlInCanvas components
+ * require Chrome 157 or newer.
+ */
+export const HtmlInCanvasMotionBlur = Interactive.withSchema<
+	typeof htmlInCanvasMotionBlurSchema,
+	HtmlInCanvasMotionBlurProps
+>({
+	Component: HtmlInCanvasMotionBlurInner,
+	componentName: '<HtmlInCanvasMotionBlur>',
+	componentIdentity: 'dev.remotion.motionBlur.HtmlInCanvasMotionBlur',
+	schema: htmlInCanvasMotionBlurSchema,
+	supportsEffects: false,
+});
+
+HtmlInCanvasMotionBlur.displayName = 'HtmlInCanvasMotionBlur';

@@ -24,6 +24,7 @@ export type RenderFrameStripToCanvasOptions = {
 	readonly width: number;
 	readonly frameHeight: number;
 	readonly devicePixelRatio: number;
+	readonly horizontalOffset: number;
 	readonly signal?: AbortSignal;
 };
 
@@ -44,9 +45,11 @@ export const renderFrameStripToCanvas = async ({
 	width,
 	frameHeight,
 	devicePixelRatio,
+	horizontalOffset,
 	signal,
 }: RenderFrameStripToCanvasOptions): Promise<void> => {
-	const naturalWidth = Math.max(1, Math.ceil(width));
+	const drawingWidth = Math.max(1, width);
+	const naturalWidth = Math.max(1, Math.ceil(width + horizontalOffset));
 	const naturalHeight = Math.max(1, Math.ceil(frameHeight));
 	const segmentDuration = toSeconds - fromSeconds;
 
@@ -59,6 +62,7 @@ export const renderFrameStripToCanvas = async ({
 
 	const ctx = getContext(canvas);
 	ctx.clearRect(0, 0, naturalWidth, naturalHeight);
+	ctx.setTransform(1, 0, 0, 1, horizontalOffset, 0);
 
 	const filledSlots = new Map<number, number | undefined>();
 	let aspectRatio = getAspectRatioFromCache(src);
@@ -66,7 +70,7 @@ export const renderFrameStripToCanvas = async ({
 	if (aspectRatio !== null) {
 		ensureSlots({
 			filledSlots,
-			naturalWidth,
+			naturalWidth: drawingWidth,
 			fromSeconds,
 			toSeconds,
 			aspectRatio,
@@ -75,13 +79,14 @@ export const renderFrameStripToCanvas = async ({
 
 		fillWithCachedFrames({
 			ctx,
-			naturalWidth,
+			naturalWidth: drawingWidth,
 			filledSlots,
 			src,
 			segmentDuration,
 			fromSeconds,
 			devicePixelRatio,
 			frameHeight,
+			horizontalOffset,
 		});
 
 		const hasUnfilledSlots = Array.from(filledSlots.values()).some(
@@ -101,7 +106,7 @@ export const renderFrameStripToCanvas = async ({
 
 			ensureSlots({
 				filledSlots,
-				naturalWidth,
+				naturalWidth: drawingWidth,
 				fromSeconds,
 				toSeconds,
 				aspectRatio,
@@ -136,7 +141,7 @@ export const renderFrameStripToCanvas = async ({
 
 				ensureSlots({
 					filledSlots,
-					naturalWidth,
+					naturalWidth: drawingWidth,
 					fromSeconds,
 					toSeconds,
 					aspectRatio,
@@ -146,12 +151,13 @@ export const renderFrameStripToCanvas = async ({
 				fillFrameWhereItFits({
 					ctx,
 					filledSlots,
-					visualizationWidth: naturalWidth,
+					visualizationWidth: drawingWidth,
 					frame: transformed,
 					segmentDuration,
 					fromSeconds,
 					devicePixelRatio,
 					frameHeight,
+					horizontalOffset,
 				});
 			} catch (e) {
 				if (frame) {
@@ -171,12 +177,13 @@ export const renderFrameStripToCanvas = async ({
 
 	fillWithCachedFrames({
 		ctx,
-		naturalWidth,
+		naturalWidth: drawingWidth,
 		filledSlots,
 		src,
 		segmentDuration,
 		fromSeconds,
 		devicePixelRatio,
 		frameHeight,
+		horizontalOffset,
 	});
 };

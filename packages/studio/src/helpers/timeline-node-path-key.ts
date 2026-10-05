@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 

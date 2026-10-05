@@ -59,6 +59,10 @@ const {captions} = parseSrt({input});
 
 The contents of a `.srt` file as a `string`.
 
+### `strict`?<AvailableFrom v="4.0.530" />
+
+Defaults to `false` for compatibility with tolerant parsing. Set to `true` to reject malformed or empty files instead of ignoring unrecognized cues. Strict parsing validates every cue's timestamps (including complete tokens and minute/second ranges), end-before-start errors, and trailing content. Recognized timing-line settings such as `align:start position:0%` or `X1:100 X2:200 Y1:300 Y2:400` are ignored. Errors include cue and line context. Studio imports use strict parsing.
+
 ## Return value
 
 An object with the following properties:

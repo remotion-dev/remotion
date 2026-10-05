@@ -116,7 +116,9 @@ export const InspectorOpenInEditor: React.FC<{
 		defaultOpenInTarget === 'git-source'
 			? 'GitHub'
 			: (defaultEditorName ?? 'default editor');
-	const canOpenDefault = location !== null && defaultOpenInTarget !== null;
+	const canOpenDefault = Boolean(
+		location?.source && defaultOpenInTarget !== null,
+	);
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
@@ -138,7 +140,7 @@ export const InspectorOpenInEditor: React.FC<{
 		const items = getOpenInMenuItems({
 			canOpenDesktopApps: canConfigureApps,
 			codingAgentInfo,
-			editorDisabled: location === null || !canOpenInEditor,
+			editorDisabled: !location?.source || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: defaultEditorId,
@@ -146,10 +148,14 @@ export const InspectorOpenInEditor: React.FC<{
 			fileManagerDisabled:
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
-			gitSourceDisabled: location === null,
+			gitSourceDisabled: !location?.source,
 			onConfigureApps: configureDefaultApps,
 			onCopyPath:
-				locationType === 'folder' && location?.source ? copyPath : undefined,
+				locationType === 'folder' &&
+				location?.source &&
+				!window.remotion_isReadOnlyStudio
+					? copyPath
+					: undefined,
 			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
 				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
@@ -251,9 +257,9 @@ export const InspectorOpenInEditor: React.FC<{
 
 		if (menuItems.length > 0) {
 			result.push({
-				ariaLabel: 'Open in another app',
+				ariaLabel: 'Open in...',
 				buttonId: null,
-				disabled: false,
+				disabled: !location?.source && !contextForAgents,
 				idleColor: LIGHT_TEXT,
 				leaveLeftSpace: true,
 				onOpenChange: null,
@@ -261,7 +267,7 @@ export const InspectorOpenInEditor: React.FC<{
 				segmentId: 'another-app',
 				selectedId: null,
 				style: dropdownSegmentStyle,
-				tooltipLabel: showTooltips ? 'Open in another app' : null,
+				tooltipLabel: showTooltips ? 'Open in...' : null,
 				type: 'menu',
 				values: menuItems,
 			});
@@ -270,10 +276,12 @@ export const InspectorOpenInEditor: React.FC<{
 		return result;
 	}, [
 		canOpenDefault,
+		contextForAgents,
 		defaultAppName,
 		defaultEditorId,
 		defaultOpenInTarget,
 		label,
+		location,
 		menuItems,
 		onOpenDefault,
 		showTooltips,

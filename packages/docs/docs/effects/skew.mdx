@@ -22,17 +22,17 @@ Pixels moved outside the canvas are clipped. Newly uncovered regions are transpa
 
 ```tsx twoslash title="MyComp.tsx"
 import {Video} from '@remotion/media';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {skew} from '@remotion/effects/skew';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src={staticFile('video.mp4')}
         effects={[skew({x: 24, y: 0, origin: [0.25, 0.5]})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

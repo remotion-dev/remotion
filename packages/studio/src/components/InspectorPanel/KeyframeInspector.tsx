@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {
 	canMoveKeyframesWithoutCollisions,
 	moveKeyframesInPropStatus,
@@ -34,6 +35,7 @@ import {
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
 import {
 	getKeyframeDisplayOffset,
+	getKeyframePlaybackRate,
 	getKeyframeSourceFrame,
 } from '../Timeline/get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
@@ -44,13 +46,12 @@ import {
 	type TimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
-import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorQuickActionsSection,
 	InspectorBackAction,
 	InspectorDetailRow,
-	InspectorQuickAction,
 	InspectorMessage,
+	InspectorQuickAction,
+	InspectorQuickActionsSection,
 } from './common';
 import {clampInspectorKeyframeDisplayFrame} from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
@@ -63,6 +64,8 @@ import {
 	selectedContainer,
 } from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
+
+const {canEditKeyframeEasing} = CanvasInternals;
 
 type KeyframeEditorDetails =
 	| {
@@ -537,13 +540,18 @@ export const KeyframeInspector: React.FC<{
 			</InspectorBackAction>
 			<KeyframeEasingNavigator
 				currentSelection={selection}
-				includeEasings={canEditEasingForInterpolationFunction(
-					details.propStatus.interpolationFunction,
-				)}
+				includeEasings={canEditKeyframeEasing({
+					field: details.field.fieldSchema,
+					propStatus: details.propStatus,
+				})}
 				keyframes={details.propStatus.keyframes.map((keyframe) => ({
 					...keyframe,
 					frame:
-						keyframe.frame / details.keyframePlaybackRate +
+						keyframe.frame /
+							getKeyframePlaybackRate(
+								details.propStatus,
+								details.keyframePlaybackRate,
+							) +
 						details.keyframeDisplayOffset,
 				}))}
 				nodePathInfo={selection.nodePathInfo}

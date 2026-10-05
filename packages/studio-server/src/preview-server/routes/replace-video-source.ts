@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {updateJsxNodeProps} from '@remotion/codemods';
+import {updateNodeProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReplaceVideoSourceRequest,
@@ -33,7 +33,7 @@ export const replaceVideoSourceHandler: ApiHandler<
 				action: 'modify',
 			});
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const result = updateJsxNodeProps({
+			const result = updateNodeProps({
 				project: {
 					files: {[absolutePath]: fileContents},
 					rootDir: remotionRoot,
@@ -50,7 +50,12 @@ export const replaceVideoSourceHandler: ApiHandler<
 			const output = result.changes[0]?.nextContents ?? fileContents;
 			const {logLine} = result;
 			const nodePathRemappings = result.nodePathRemappings.map(
-				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+				({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
 			);
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings: nodePathRemappings}],

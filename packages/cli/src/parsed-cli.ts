@@ -53,6 +53,7 @@ const {
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	interactivityOption,
 	imageSequencePatternOption,
 	scaleOption,
@@ -166,6 +167,7 @@ export type CommandLineOptions = {
 	[keyboardShortcutsOption.cliFlag]: TypeOfOption<
 		typeof keyboardShortcutsOption
 	> | null;
+	[canvasTabsOption.cliFlag]: TypeOfOption<typeof canvasTabsOption> | null;
 	[interactivityOption.cliFlag]: TypeOfOption<
 		typeof interactivityOption
 	> | null;
@@ -230,6 +232,7 @@ export const BooleanFlags = [
 	ignoreCertificateErrorsOption.cliFlag,
 	headlessOption.cliFlag,
 	keyboardShortcutsOption.cliFlag,
+	canvasTabsOption.cliFlag,
 	interactivityOption.cliFlag,
 	ipv4Option.cliFlag,
 	beepOnFinishOption.cliFlag,
@@ -258,6 +261,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[ignoreCertificateErrorsOption.cliFlag]: null,
 		[headlessOption.cliFlag]: null,
 		[keyboardShortcutsOption.cliFlag]: null,
+		[canvasTabsOption.cliFlag]: null,
 		[interactivityOption.cliFlag]: null,
 		[ipv4Option.cliFlag]: null,
 		[beepOnFinishOption.cliFlag]: null,

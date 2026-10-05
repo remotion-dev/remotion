@@ -10,6 +10,7 @@ import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
 	getTimelineRowHighlightBackground,
+	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_SELECTED_BACKGROUND,
 } from './TimelineSelection';
 
@@ -129,13 +130,22 @@ export const TimelineRowChrome: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
+				if (
+					shouldSelectTimelineRowOnPointerDown({
+						selected,
+						shiftKey: e.shiftKey,
+						metaKey: e.metaKey,
+						ctrlKey: e.ctrlKey,
+					})
+				) {
+					onSelect({
+						shiftKey: e.shiftKey,
+						toggleKey: e.metaKey || e.ctrlKey,
+					});
+				}
 			}
 		},
-		[onSelect],
+		[onSelect, selected],
 	);
 
 	const onContextMenu = useCallback(

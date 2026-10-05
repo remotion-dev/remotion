@@ -42,6 +42,7 @@ const {
 	askAIOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
 	numberOfSharedAudioTagsOption,
@@ -185,6 +186,9 @@ export const studioCommand = async (
 			publicLicenseKey: publicLicenseKeyOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			canvasTabsEnabled: canvasTabsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			configFileStudioSettings: {
 				askAIEnabled: askAIOption.getConfigValue(),
 				audioLatencyHint: audioLatencyHintOption.getConfigValue(),
@@ -198,6 +202,7 @@ export const studioCommand = async (
 					StudioServerInternals.getConfiguredMaxTimelineTracks(),
 				numberOfSharedAudioTags: numberOfSharedAudioTagsOption.getConfigValue(),
 				rspack: rspackOption.getConfigValue(),
+				canvasTabsEnabled: canvasTabsOption.getConfigValue(),
 			},
 		};
 	};

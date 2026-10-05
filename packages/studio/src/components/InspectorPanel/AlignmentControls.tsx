@@ -10,6 +10,7 @@ import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
 import {AlignLeftIcon} from '../../icons/align-left';
 import {AlignRightIcon} from '../../icons/align-right';
 import {AlignTopIcon} from '../../icons/align-top';
+import {ActionTooltip} from '../ActionTooltip';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
@@ -63,13 +64,15 @@ const AlignmentButton: React.FC<{
 	readonly disabled: boolean;
 }> = ({onClick, 'aria-label': ariaLabel, Icon, disabled}) => {
 	return (
-		<InlineAction
-			variant={null}
-			aria-label={ariaLabel}
-			onClick={onClick}
-			renderAction={(color) => <Icon style={iconStyle} color={color} />}
-			disabled={disabled}
-		/>
+		<ActionTooltip label={ariaLabel} shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				variant={null}
+				aria-label={ariaLabel}
+				onClick={onClick}
+				renderAction={(color) => <Icon style={iconStyle} color={color} />}
+				disabled={disabled}
+			/>
+		</ActionTooltip>
 	);
 };
 
@@ -118,19 +121,6 @@ export const AlignmentControls: React.FC<{
 				propStatuses,
 				nodePath,
 			);
-			const firstKeyframedStatus = Object.values(nodePropStatuses ?? {}).find(
-				(status) => status.status === 'keyframed',
-			);
-			const sourceFrame = getKeyframeSourceFrame({
-				displayFrame: timelinePosition,
-				propStatus: firstKeyframedStatus ?? null,
-				keyframeDisplayOffset: getKeyframeDisplayOffset({
-					propStatus: firstKeyframedStatus ?? null,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-					keyframePlaybackRate: track.keyframePlaybackRate,
-				}),
-				keyframePlaybackRate: track.keyframePlaybackRate,
-			});
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 
 			const activeSchema = getSelectedOutlineActiveSchema({
@@ -138,7 +128,9 @@ export const AlignmentControls: React.FC<{
 				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
-				frame: sourceFrame,
+				frame:
+					(timelinePosition - track.keyframeDisplayOffset) *
+					track.keyframePlaybackRate,
 			});
 
 			const fieldSchema = activeSchema?.[translateFieldKey];
@@ -177,7 +169,9 @@ export const AlignmentControls: React.FC<{
 							propStatus: propStatus as any,
 							dragOverrideValue: dragOverrides[translateFieldKey],
 							defaultValue: fieldSchema.default,
-							frame: sourceFrame,
+							frame:
+								(timelinePosition - track.keyframeDisplayOffset) *
+								track.keyframePlaybackRate,
 							shouldResortToDefaultValueIfUndefined: true,
 						}) ??
 							fieldSchema.default ??
@@ -280,19 +274,6 @@ export const AlignmentControls: React.FC<{
 		propStatuses,
 		renderNodePath,
 	);
-	const firstRenderKeyframedStatus = Object.values(
-		renderNodePropStatuses ?? {},
-	).find((status) => status.status === 'keyframed');
-	const renderSourceFrame = getKeyframeSourceFrame({
-		displayFrame: timelinePosition,
-		propStatus: firstRenderKeyframedStatus ?? null,
-		keyframeDisplayOffset: getKeyframeDisplayOffset({
-			propStatus: firstRenderKeyframedStatus ?? null,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-			keyframePlaybackRate: track.keyframePlaybackRate,
-		}),
-		keyframePlaybackRate: track.keyframePlaybackRate,
-	});
 	const renderDragOverrides = getDragOverrides(renderNodePath) ?? {};
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
@@ -300,7 +281,9 @@ export const AlignmentControls: React.FC<{
 		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
-		frame: renderSourceFrame,
+		frame:
+			(timelinePosition - track.keyframeDisplayOffset) *
+			track.keyframePlaybackRate,
 	});
 
 	const renderFieldSchema = renderActiveSchema?.[translateFieldKey];

@@ -9,7 +9,7 @@ type Options = [];
 type MessageIds = 'VolumeCallback';
 
 const VolumeCallback =
-	'Prefer a callback function for setting the volume: `volume={(f) => interpolate(...)}`. See https://www.remotion.dev/docs/audio/volume';
+	'Deprecated no-op kept for compatibility. Volume can be animated with regular keyframes.';
 
 export default createRule<Options, MessageIds>({
 	name: 'volume-callback',
@@ -26,64 +26,5 @@ export default createRule<Options, MessageIds>({
 		},
 	},
 	defaultOptions: [],
-	create: (context) => {
-		return {
-			JSXAttribute: (node) => {
-				if (node.type !== 'JSXAttribute') {
-					return;
-				}
-				if (node.name.name !== 'volume') {
-					return;
-				}
-				const value = node.value;
-				if (!value || value.type !== 'JSXExpressionContainer') {
-					return;
-				}
-
-				const parent = node.parent;
-				if (!parent) {
-					return;
-				}
-
-				if (parent.type !== 'JSXOpeningElement') {
-					return;
-				}
-				const name = parent.name;
-				if (name.type !== 'JSXIdentifier') {
-					return;
-				}
-				if (
-					name.name !== 'Video' &&
-					name.name !== 'Audio' &&
-					name.name !== 'Html5Video' &&
-					name.name !== 'Html5Audio'
-				) {
-					return;
-				}
-
-				const expression = value.expression;
-				if (!expression) {
-					return;
-				}
-
-				if (expression.type === 'Literal') {
-					return;
-				}
-				if (expression.type === 'ArrowFunctionExpression') {
-					return;
-				}
-				if (expression.type === 'FunctionExpression') {
-					return;
-				}
-				if (expression.type === 'Identifier') {
-					return;
-				}
-
-				context.report({
-					messageId: 'VolumeCallback',
-					node,
-				});
-			},
-		};
-	},
+	create: () => ({}),
 });

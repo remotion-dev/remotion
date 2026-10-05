@@ -88,7 +88,7 @@ test('nested Sequence rates keep decoded video, looping, and scheduled audio in 
 						onVideoFrame={() => trimmedDraws++}
 					/>
 				</Sequence>
-				{frame >= 30 && frame < 120 ? (
+				{frame >= 30 && frame < 75 ? (
 					<Freeze frame={197 + ((((frame - 30) * 2 + 75) * 0.7) % 27)}>
 						<Video
 							src={trimmedSrc}
@@ -144,12 +144,15 @@ test('nested Sequence rates keep decoded video, looping, and scheduled audio in 
 				const previousTrimmedReferenceDraws = trimmedReferenceDraws;
 				playerRef.current!.seekTo(frame);
 				await expect
-					.poll(() => nestedDraws, {timeout: 10_000})
+					.poll(() => nestedDraws, {
+						timeout: 10_000,
+						message: `nested video at frame ${frame}`,
+					})
 					.toBeGreaterThan(previousNestedDraws);
 				await expect
 					.poll(() => referenceDraws, {timeout: 10_000})
 					.toBeGreaterThan(previousReferenceDraws);
-				if (frame >= 30 && frame < 120) {
+				if (frame >= 30 && frame < 75) {
 					await expect
 						.poll(() => trimmedDraws, {timeout: 10_000})
 						.toBeGreaterThan(previousTrimmedDraws);
@@ -171,7 +174,7 @@ test('nested Sequence rates keep decoded video, looping, and scheduled audio in 
 				nested.toDataURL() === reference.toDataURL(),
 				`nested video must match source frame at composition frame ${frame}`,
 			).toBe(true);
-			if (frame >= 30 && frame < 120) {
+			if (frame >= 30 && frame < 75) {
 				const trimmed = container.querySelector<HTMLCanvasElement>(
 					'[data-testid="trimmed-video"]',
 				)!;

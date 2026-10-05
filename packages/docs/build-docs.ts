@@ -150,5 +150,6 @@ await run('build standalone Browser Studio', 'bun', [
 	'build-browser-studio-standalone.ts',
 ]);
 await run('copy convert assets', 'bun', ['copy-convert.ts']);
+await run('copy Vibe Code editor', 'bun', ['copy-experimental-sdk.ts']);
 await run('generate asset manifest', 'bun', ['generate-asset-manifest.ts']);
 await run('count generated pages', 'bun', ['count-pages.ts']);

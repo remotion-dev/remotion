@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,
@@ -230,6 +230,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	return (
 		<svg
 			ref={overlayRef}
+			{...{'oai-annotation-container': ''}}
 			style={outlineContainer}
 			width="100%"
 			height="100%"

@@ -30,7 +30,7 @@ export const insertBasicCaptionsHandler: ApiHandler<
 	InsertBasicCaptionsRequest,
 	InsertBasicCaptionsResponse
 > = ({
-	input: {fileName, nodePath, captions, durationInFrames},
+	input: {fileName, nodePath, captions, durationInFrames, premountFor},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -73,6 +73,7 @@ export const insertBasicCaptionsHandler: ApiHandler<
 				nodePath,
 				captions,
 				durationInFrames,
+				premountFor,
 				importPath: elementFile.importPath,
 			});
 			const nodePathMutation = broadcastSequenceNodePathMutation(

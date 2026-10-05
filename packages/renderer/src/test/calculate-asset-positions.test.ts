@@ -186,7 +186,7 @@ test('A late compressed asset can repeatedly close and reopen', () => {
 	const numFrames = 4000;
 	const sourceStart = 3000;
 	const longSrc = `data:audio/mp3;base64,${'A'.repeat(500)}`;
-	const previousAssets: AudioOrVideoAsset[] = [];
+	const firstAssetBySrc = new Map<string, AudioOrVideoAsset>();
 
 	const frames = new Array(numFrames).fill(true).map((_, frame) => {
 		const uncompressed = [
@@ -209,9 +209,14 @@ test('A late compressed asset can repeatedly close and reopen', () => {
 		}
 
 		const compressed = uncompressed.map((asset) => {
-			return compressAsset(previousAssets, asset);
+			return compressAsset(firstAssetBySrc, asset);
 		});
-		previousAssets.push(...compressed);
+		for (const asset of compressed) {
+			if (asset.src.length >= 400 && !firstAssetBySrc.has(asset.src)) {
+				firstAssetBySrc.set(asset.src, asset);
+			}
+		}
+
 		return compressed;
 	});
 

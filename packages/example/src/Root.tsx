@@ -90,6 +90,7 @@ import {
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
 	HtmlInCanvasMotionBlurExample,
+	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -106,6 +107,7 @@ import {
 } from './HtmlInCanvas';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -121,6 +123,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PortfolioCompositions} from './Portfolio/Root';
 import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
@@ -165,8 +168,8 @@ import {
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
-import './style.css';
 import {SvgFilter} from './SvgFilter';
+import './style.css';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
 import {TextStroke} from './TextStroke';
@@ -188,11 +191,16 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
-import {VideoTesting} from './VideoTesting';
+import {
+	VideoTesting,
+	VideoTestingFrameAccuracy,
+	VideoTestingMediaFrameAccuracy,
+} from './VideoTesting';
 import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
+import {WhatsNewRoot} from './WhatsNew/Root';
 import {ZodV4SchemaTest, zodV4Schema} from './ZodV4SchemaTest';
 // @ts-expect-error no types
 import styles from './styles.module.scss';
@@ -228,6 +236,7 @@ import {
 	issue10468DefaultProps,
 	issue5758DefaultProps,
 } from './AudioTesting/Issue10468';
+import {VolumeHoldCurveComposition} from './AudioTesting/VolumeHoldCurve';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -461,6 +470,9 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Folder name="WhatsNew">
+				<WhatsNewRoot />
+			</Folder>
 			<Composition
 				id="AnimatedBarChart"
 				component={BarChart}
@@ -979,6 +991,9 @@ export const Index: React.FC = () => {
 				</Folder>
 			</Folder>
 			<Folder name="creatives">
+				<Folder name="Portfolio">
+					<PortfolioCompositions />
+				</Folder>
 				<Composition
 					id="drop-dots"
 					lazyComponent={() => import('./DropDots/DropDots')}
@@ -1138,28 +1153,12 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
-					id="video-testing-webm-codec"
-					component={VideoTesting}
+					id="video-testing-media-frame-accuracy"
+					component={VideoTestingMediaFrameAccuracy}
 					width={1080}
-					height={1080}
+					height={540}
 					fps={30}
 					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'webm' as const,
-					}}
-				/>
-				<Composition
-					id="video-testing-mp4-codec"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'mp4' as const,
-					}}
 				/>
 			</Folder>
 			<Folder name="video-tests">
@@ -1212,6 +1211,14 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
+					id="video-testing-frame-accuracy"
+					component={VideoTestingFrameAccuracy}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
 					id="video-testing-mp4-offthread"
 					component={VideoTesting}
 					width={1080}
@@ -1244,6 +1251,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-nested"
+						component={HtmlInCanvasNested}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={150}
+					/>
 					<Composition
 						id="html-in-canvas-motion-blur"
 						component={HtmlInCanvasMotionBlurExample}
@@ -1778,6 +1793,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="audio-tests">
+				<VolumeHoldCurveComposition />
 				<Composition
 					id="complex-sounds"
 					component={ComplexSounds}
@@ -3019,7 +3035,7 @@ export const Index: React.FC = () => {
 					durationInFrames={HOUR_LONG_TIMELINE_DURATION_IN_FRAMES}
 				/>
 				<Composition
-					id="video-editing-cascading"
+					id="video-editing-transition-series"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}
@@ -3058,6 +3074,14 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={240}
+			/>
+			<Composition
+				id="intrinsic-duration-loop-testbed"
+				component={IntrinsicDurationLoopTestbed}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
 			/>
 			<Composition
 				id="sequence-playback-rate-keyframes"

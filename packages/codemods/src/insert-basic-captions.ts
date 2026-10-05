@@ -22,6 +22,7 @@ import {
 	getEndOfLine,
 	getIndentationUnit,
 	getLineIndent,
+	getSourceFormattingConfig,
 	indentContinuationLines,
 } from './source-style';
 
@@ -30,6 +31,7 @@ export const insertBasicCaptions = ({
 	nodePath,
 	captions,
 	durationInFrames,
+	premountFor,
 	importPath = './basic-captions.element',
 	prettierConfigOverride = null,
 }: {
@@ -44,6 +46,7 @@ export const insertBasicCaptions = ({
 		pageBreakAfter?: boolean;
 	}[];
 	durationInFrames: number | null;
+	premountFor: number | null;
 	importPath?: string;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): {
@@ -51,6 +54,13 @@ export const insertBasicCaptions = ({
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
 } => {
+	if (
+		premountFor !== null &&
+		(!Number.isInteger(premountFor) || premountFor < 0)
+	) {
+		throw new Error('premountFor must be a non-negative integer');
+	}
+
 	const ast = parseAst(input);
 	const captured = captureJsxNodePaths(ast);
 	const importSnapshots = captureImportSnapshots(ast);
@@ -105,9 +115,14 @@ export const insertBasicCaptions = ({
 			(attribute) =>
 				attribute.type === 'JSXAttribute' &&
 				attribute.name.type === 'JSXIdentifier' &&
-				['from', 'durationInFrames', 'trimBefore', 'playbackRate'].includes(
-					attribute.name.name,
-				),
+				[
+					'from',
+					'durationInFrames',
+					'trimBefore',
+					'playbackRate',
+					'premountFor',
+					'postmountFor',
+				].includes(attribute.name.name),
 		)
 		.map((attribute) => recast.print(attribute).code);
 	if (
@@ -120,7 +135,88 @@ export const insertBasicCaptions = ({
 		copiedAttributes.push(`durationInFrames={${durationInFrames}}`);
 	}
 
-	const elementSource = `<${captionsLocalName} captions={${JSON.stringify(captions, null, 2)}} ${copiedAttributes.join(' ')} />`;
+	if (
+		premountFor !== null &&
+		!copiedAttributes.some((attribute) => attribute.startsWith('premountFor'))
+	) {
+		copiedAttributes.push(`premountFor={${premountFor}}`);
+	}
+
+	const formattingConfig = getSourceFormattingConfig({
+		input,
+		prettierConfigOverride,
+	});
+	const trailingComma =
+		prettierConfigOverride?.trailingComma !== 'none' &&
+		prettierConfigOverride?.trailingComma !== false;
+	const singleLineElement = `<${captionsLocalName} captions={[]}${copiedAttributes.length === 0 ? '' : ` ${copiedAttributes.join(' ')}`} />`;
+	const captionLines = captions.flatMap((caption, captionIndex) => {
+		const doubleQuotedText = JSON.stringify(caption.text);
+		const singleQuotedText = `'${doubleQuotedText
+			.slice(1, -1)
+			.replaceAll('\\"', '"')
+			.replaceAll("'", "\\'")}'`;
+		const singleQuotes = caption.text.match(/'/g)?.length ?? 0;
+		const doubleQuotes = caption.text.match(/"/g)?.length ?? 0;
+		const text =
+			singleQuotes === doubleQuotes
+				? formattingConfig.quote === 'single'
+					? singleQuotedText
+					: doubleQuotedText
+				: singleQuotes < doubleQuotes
+					? singleQuotedText
+					: doubleQuotedText;
+		const properties = [
+			`text: ${text}`,
+			`startMs: ${JSON.stringify(caption.startMs)}`,
+			`endMs: ${JSON.stringify(caption.endMs)}`,
+			`timestampMs: ${JSON.stringify(caption.timestampMs)}`,
+			`confidence: ${JSON.stringify(caption.confidence)}`,
+			...(caption.pageBreakAfter === undefined
+				? []
+				: [`pageBreakAfter: ${caption.pageBreakAfter}`]),
+		];
+		return [
+			'{',
+			...properties.map((property, propertyIndex) =>
+				indentInsertedJsx({
+					indent: formattingConfig.indentationUnit,
+					insertion: `${property}${
+						propertyIndex < properties.length - 1 || trailingComma ? ',' : ''
+					}`,
+				}),
+			),
+			`}${captionIndex < captions.length - 1 || trailingComma ? ',' : ''}`,
+		].map((line) =>
+			indentInsertedJsx({
+				indent: formattingConfig.indentationUnit,
+				insertion: line,
+			}),
+		);
+	});
+	const multilineElementLines = [
+		`<${captionsLocalName}`,
+		'captions={[',
+		...captionLines,
+		']}',
+		...copiedAttributes,
+		'/>',
+	];
+	const elementSource =
+		captions.length === 0 &&
+		!singleLineElement.includes('\n') &&
+		singleLineElement.length <= formattingConfig.printWidth
+			? singleLineElement
+			: multilineElementLines
+					.map((line, index) =>
+						index === 0 || index === multilineElementLines.length - 1
+							? line
+							: indentInsertedJsx({
+									indent: formattingConfig.indentationUnit,
+									insertion: line,
+								}),
+					)
+					.join(formattingConfig.endOfLine);
 	const parsedElement = parseAst(`const element = (${elementSource});`).program
 		.body[0];
 	if (

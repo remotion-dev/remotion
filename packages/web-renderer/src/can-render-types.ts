@@ -36,6 +36,7 @@ export type CanRenderMediaOnWebOptions = {
 	audioCodec?: WebRendererAudioCodec | null;
 	width: number;
 	height: number;
+	scale?: number;
 	transparent?: boolean;
 	muted?: boolean;
 	videoBitrate?: number | WebRendererQuality;

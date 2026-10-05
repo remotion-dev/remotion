@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame} from 'remotion';
 
 const card: React.CSSProperties = {
@@ -43,7 +43,6 @@ const Siblings: React.FC = () => {
 };
 
 export const LayoutNoneOutlines: React.FC = () => {
-	const outlineRef = useRef<HTMLDivElement | null>(null);
 	return (
 		<AbsoluteFill
 			style={{background: '#0f172a', color: 'white', fontFamily: 'sans-serif'}}
@@ -79,23 +78,6 @@ export const LayoutNoneOutlines: React.FC = () => {
 					</span>
 				</Sequence>
 			</div>
-			<Sequence
-				layout="none"
-				name="Explicit outlineRef wins"
-				outlineRef={outlineRef}
-			>
-				<div
-					ref={outlineRef}
-					style={{...card, left: 720, top: 500, background: '#be185d'}}
-				>
-					Explicit target
-				</div>
-				<div
-					style={{...card, left: 960, top: 500, border: '2px dashed #64748b'}}
-				>
-					Outside outline
-				</div>
-			</Sequence>
 		</AbsoluteFill>
 	);
 };

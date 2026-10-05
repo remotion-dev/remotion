@@ -30,6 +30,7 @@ import type {MediaRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
@@ -94,6 +95,8 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
+	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
@@ -127,6 +130,7 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
+		maxCanvasSinkFrameSize,
 		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
@@ -157,6 +161,7 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
+		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
@@ -197,6 +202,7 @@ export class MediaPlayer {
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
+		this.maxCanvasSinkFrameSize = maxCanvasSinkFrameSize;
 		this.onError = onError;
 
 		if (canvas) {
@@ -386,6 +392,7 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
 			}
 
@@ -641,22 +648,13 @@ export class MediaPlayer {
 		});
 	}
 
-	public async setTrimBefore(
+	public async setTrimRange(
 		trimBefore: number | undefined,
-		unloopedTimeInSeconds: number,
-	): Promise<void> {
-		if (this.trimBefore !== trimBefore) {
-			this.trimBefore = trimBefore;
-			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
-		}
-	}
-
-	public async setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
 	): Promise<void> {
-		if (this.trimAfter !== trimAfter) {
+		if (this.trimBefore !== trimBefore || this.trimAfter !== trimAfter) {
+			this.trimBefore = trimBefore;
 			this.trimAfter = trimAfter;
 			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');

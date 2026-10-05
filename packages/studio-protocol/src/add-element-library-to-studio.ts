@@ -4,7 +4,6 @@ import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
-	focusedStudioMaxAge,
 	getAddElementLibraryCapability,
 	isAbortError,
 	studioProtocolProbePorts,
@@ -66,6 +65,11 @@ export type StudioProtocolAddElementLibraryRequest = {
 	readonly displayName: string | null;
 };
 
+export type StudioProtocolIframeAddElementLibraryRequest = Omit<
+	StudioProtocolAddElementLibraryRequest,
+	'targetId'
+>;
+
 const studioProtocolAddElementLibraryRequestSchema = z.object({
 	operation: z.literal('add-element-library'),
 	protocol: z.literal('remotion-studio-protocol'),
@@ -75,11 +79,60 @@ const studioProtocolAddElementLibraryRequestSchema = z.object({
 	displayName: z.nullable(z.string()),
 });
 
+const studioProtocolIframeAddElementLibraryRequestSchema = z.object({
+	operation: z.literal('add-element-library'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	url: z.string(),
+	displayName: z.nullable(z.string()),
+});
+
+const addElementLibraryToStudioResultSchema = z.union([
+	z.object({
+		success: z.literal(true),
+		status: z.literal('awaiting-confirmation'),
+		target: z.object({
+			projectName: z.nullable(z.string()),
+			studioOrigin: z.string(),
+			studioVersion: z.string(),
+		}),
+	}),
+	z.object({
+		success: z.literal(false),
+		code: z.enum([
+			'invalid-url',
+			'invalid-display-name',
+			'unsupported-origin',
+			'no-compatible-studio',
+			'studio-upgrade-required',
+			'no-configurable-target',
+			'unsupported-protocol',
+			'invalid-response',
+			'target-expired',
+			'no-config-file',
+			'request-rejected',
+			'request-timed-out',
+			'network-error',
+		]),
+		message: z.string(),
+	}),
+]);
+
 export const parseStudioProtocolAddElementLibraryRequest = (
 	value: unknown,
 ): StudioProtocolAddElementLibraryRequest | null => {
 	const parsed = z.safeParse(
 		studioProtocolAddElementLibraryRequestSchema,
+		value,
+	);
+	return parsed.success ? parsed.data : null;
+};
+
+export const parseStudioProtocolIframeAddElementLibraryRequest = (
+	value: unknown,
+): StudioProtocolIframeAddElementLibraryRequest | null => {
+	const parsed = z.safeParse(
+		studioProtocolIframeAddElementLibraryRequestSchema,
 		value,
 	);
 	return parsed.success ? parsed.data : null;
@@ -181,11 +234,7 @@ export const addElementLibraryToStudioWithDependencies = async (
 	const configurable = supportedStudios
 		.filter(({capability}) => {
 			const {target} = capability;
-			return (
-				target !== null &&
-				target.expiresAt > now &&
-				now - target.lastFocusedAt < focusedStudioMaxAge
-			);
+			return target !== null && target.expiresAt > now;
 		})
 		.sort((a, b) => {
 			const focusDifference =
@@ -272,11 +321,72 @@ export const addElementLibraryToStudioWithDependencies = async (
 	);
 };
 
-export const addElementLibraryToStudio = ({
+const addElementLibraryToParentStudio = (
+	request: StudioProtocolIframeAddElementLibraryRequest,
+): Promise<AddElementLibraryToStudioResult | null> => {
+	if (
+		typeof window === 'undefined' ||
+		window.parent === window ||
+		typeof MessageChannel === 'undefined'
+	) {
+		return Promise.resolve(null);
+	}
+
+	return new Promise((resolve) => {
+		const channel = new MessageChannel();
+		const timeout = setTimeout(() => {
+			channel.port1.close();
+			resolve(null);
+		}, 500);
+
+		channel.port1.onmessage = (event) => {
+			const response = z.safeParse(
+				addElementLibraryToStudioResultSchema,
+				event.data,
+			);
+			if (!response.success) {
+				return;
+			}
+
+			clearTimeout(timeout);
+			channel.port1.postMessage(null);
+			channel.port1.onmessage = null;
+			resolve(response.data);
+		};
+
+		window.parent.postMessage(request, '*', [channel.port2]);
+	});
+};
+
+export const addElementLibraryToStudio = async ({
 	displayName,
 	url,
-}: AddElementLibraryToStudioInput): Promise<AddElementLibraryToStudioResult> =>
-	addElementLibraryToStudioWithDependencies(
+}: AddElementLibraryToStudioInput): Promise<AddElementLibraryToStudioResult> => {
+	if (typeof url === 'string') {
+		try {
+			const parsedUrl = new URL(url);
+			const normalizedDisplayName = displayName?.trim() ?? null;
+			if (
+				(parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') &&
+				normalizedDisplayName !== ''
+			) {
+				const parentResult = await addElementLibraryToParentStudio({
+					operation: 'add-element-library',
+					protocol: 'remotion-studio-protocol',
+					protocolVersion: 1,
+					url: parsedUrl.href,
+					displayName: normalizedDisplayName,
+				});
+				if (parentResult !== null) {
+					return parentResult;
+				}
+			}
+		} catch {
+			// The shared validation below returns the public invalid URL result.
+		}
+	}
+
+	return addElementLibraryToStudioWithDependencies(
 		{displayName: displayName ?? null, url},
 		{
 			fetchFn: fetch,
@@ -288,3 +398,4 @@ export const addElementLibraryToStudio = ({
 			ports: studioProtocolProbePorts,
 		},
 	);
+};

@@ -42,7 +42,7 @@ An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project
 
 The project file containing the composition registrations. Registration edits support [`<Composition>`](/docs/composition), [`<Still>`](/docs/still), and [`<Folder>`](/docs/folder) with static IDs or folder names. Aliased and namespace imports from `remotion` are supported.
 
-When `folder` is omitted, the file must have one component containing registrations, or a single JSX component if no registrations exist yet. The first JSX return in the selected component is used; returns in nested functions are ignored.
+When `folder` is omitted, the file must have one component containing registrations, or a single component if no registrations exist yet. The first JSX return in the selected component is used; returns in nested functions are ignored.
 
 ### compositionId
 
@@ -92,6 +92,14 @@ Returns an object with the following properties.
 
 An array containing the registration file's `{filePath, previousContents, nextContents}` change. No component-file change is returned.
 
+### nodePathRemappings<AvailableFrom v="4.0.530" />
+
+An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path indicates an insertion; a `null` new path indicates removal. Apply these mappings to references from the input project. See [node references](/docs/codemods#node-references).
+
+### insertedNode<AvailableFrom v="4.0.530" />
+
+The reference of the inserted registration in the new project.
+
 ## Errors
 
 Throws when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
@@ -104,4 +112,4 @@ Throws when the target cannot be resolved, the requested edit is unsupported, or
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-composition.ts)
 - [`@remotion/codemods`](/docs/codemods)
-- [`getJsxNodes()`](/docs/codemods/get-jsx-nodes)
+- [`getNodes()`](/docs/codemods/get-nodes)

@@ -4,19 +4,25 @@ import {
   type CanvasSelectionItem,
   type SequenceNodePathInfo,
   type TimelineTrackData,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import {
-  getJsxNodes,
+  getNodeProps,
+  getNodes,
   type CodemodProject,
-  type JsxNode,
-  type JsxNodeReference,
+  type CodemodNode,
+  type NodePathRemapping,
+  type NodeReference,
 } from "@remotion/codemods";
-import type { SequencePropsSubscriptionKey } from "remotion";
+import type {
+  CanUpdateSequencePropStatus,
+  SequencePropsSubscriptionKey,
+  VideoConfigValues,
+} from "remotion";
 
 export type Layer = {
   track: TimelineTrackData;
   /** The JSX element in the source code that registers this sequence. */
-  source: JsxNode | null;
+  source: CodemodNode | null;
   nodePathInfo: SequenceNodePathInfo;
   selectionItem: Extract<CanvasSelectionItem, { type: "sequence" }>;
 };
@@ -24,16 +30,16 @@ export type Layer = {
 const getJsxNodesSafe = (
   project: CodemodProject,
   filePath: string,
-  cache: Map<string, JsxNode[]>,
-): JsxNode[] => {
+  cache: Map<string, CodemodNode[]>,
+): CodemodNode[] => {
   const cached = cache.get(filePath);
   if (cached) {
     return cached;
   }
 
-  let nodes: JsxNode[] = [];
+  let nodes: CodemodNode[] = [];
   try {
-    nodes = getJsxNodes({ project, filePath });
+    nodes = getNodes({ project, filePath });
   } catch {
     // Unknown or unparsable file: the layer stays without a source.
   }
@@ -57,7 +63,7 @@ export const resolveSequenceNodePaths = (
   compiledProject: CodemodProject,
 ): Record<string, SequencePropsSubscriptionKey> => {
   const nodePaths: Record<string, SequencePropsSubscriptionKey> = {};
-  const cache = new Map<string, JsxNode[]>();
+  const cache = new Map<string, CodemodNode[]>();
 
   for (const track of tracks) {
     const overrideId = track.sequence.controls?.overrideId;
@@ -104,7 +110,7 @@ export const buildLayers = (
   tracks: readonly TimelineTrackData[],
   project: CodemodProject,
 ): Layer[] => {
-  const cache = new Map<string, JsxNode[]>();
+  const cache = new Map<string, CodemodNode[]>();
 
   return tracks.map((track): Layer => {
     const nodePathInfo = getCanvasSequenceNodePathInfo(track);
@@ -124,9 +130,40 @@ export const buildLayers = (
   });
 };
 
+/**
+ * The remappings of codemods that were applied one after another, expressed
+ * as one mapping from the paths of the first input project. A node that a
+ * later codemod moved again is followed to its final path.
+ */
+export const chainNodePathRemappings = (
+  batches: readonly (readonly NodePathRemapping[])[],
+): NodePathRemapping[] =>
+  batches.reduce<NodePathRemapping[]>((chained, batch) => {
+    const unchained = new Set(batch);
+    const followed = chained.map((entry) => {
+      const { newNodePath } = entry;
+      const next =
+        newNodePath === null
+          ? undefined
+          : batch.find(
+              (candidate) =>
+                candidate.filePath === entry.filePath &&
+                candidate.oldNodePath !== null &&
+                sameNodePath(candidate.oldNodePath, newNodePath),
+            );
+      if (!next) {
+        return entry;
+      }
+
+      unchained.delete(next);
+      return { ...entry, newNodePath: next.newNodePath };
+    });
+    return [...followed, ...unchained];
+  }, []);
+
 export const getNodeReference = (
   item: CanvasSelectionItem,
-): JsxNodeReference | null => {
+): NodeReference | null => {
   if (item.type === "guide") {
     return null;
   }
@@ -139,8 +176,36 @@ export const getNodeReference = (
   return { filePath: absolutePath, nodePath };
 };
 
+/**
+ * How the props of a sequence are written in the source, for the Canvas to
+ * decide what can be moved. `null` when the sequence has no source node or the
+ * file cannot be analyzed.
+ */
+export const getSequencePropStatuses = ({
+  project,
+  nodePathInfo,
+  keys,
+  videoConfig,
+}: {
+  project: CodemodProject;
+  nodePathInfo: SequenceNodePathInfo;
+  keys: readonly string[];
+  videoConfig: VideoConfigValues;
+}): Record<string, CanUpdateSequencePropStatus> | null => {
+  const node = getNodeReference({ type: "sequence", nodePathInfo });
+  if (!node) {
+    return null;
+  }
+
+  try {
+    return getNodeProps({ project, node, keys: [...keys], videoConfig }).props;
+  } catch {
+    return null;
+  }
+};
+
 /** Two JSX elements that are children of the same parent element. */
-export const areSiblingNodes = (a: JsxNodeReference, b: JsxNodeReference) => {
+export const areSiblingNodes = (a: NodeReference, b: NodeReference) => {
   if (a.filePath !== b.filePath || a.nodePath.length !== b.nodePath.length) {
     return false;
   }

@@ -1,4 +1,7 @@
-import type {CompositionOrFolder, RecastCodemod} from '@remotion/studio-shared';
+import type {
+	CompositionDestination,
+	CompositionOrFolder,
+} from '@remotion/studio-shared';
 import type {
 	DragEvent,
 	KeyboardEvent,
@@ -54,7 +57,7 @@ import {getFolderMenuItems} from './folder-menu-items';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {applyCodemod} from './RenderQueue/actions';
+import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {useOpenInMenuApps} from './use-open-in-menu-apps';
@@ -307,7 +310,7 @@ export const CompositionSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 12 + level * 11,
 		};
 	}, [dropPosition, level, selected]);
 
@@ -592,48 +595,47 @@ export const CompositionSelectorItem: React.FC<{
 			destination,
 			dragData,
 		}: {
-			destination: Extract<
-				RecastCodemod,
-				{type: 'move-composition-or-folder'}
-			>['destination'];
+			destination: CompositionDestination;
 			dragData: CompositionSelectorDragData;
 		}) => {
-			const label =
-				dragData.item.type === 'composition'
-					? dragData.item.compositionId
-					: dragData.item.folderName;
-			const notification = showNotification(`Moving ${label}...`, null);
 			try {
-				const result = await applyCodemod({
-					codemod: {
-						type: 'move-composition-or-folder',
-						source: dragData.item,
-						destination,
-					},
-					dryRun: false,
-					signal: new AbortController().signal,
+				const {item: source} = dragData;
+				const {signal} = new AbortController();
+				const common = {
+					destination,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
 					undoRedoNavigation: null,
-				});
+				};
+				const result = await (source.type === 'composition'
+					? moveComposition(
+							{...common, compositionId: source.compositionId},
+							signal,
+						)
+					: moveFolder(
+							{
+								...common,
+								folderName: source.folderName,
+								parentName: source.parentName,
+							},
+							signal,
+						));
 
-				if (result.success) {
-					notification.dismiss();
-				} else {
-					notification.replaceContent(result.reason, 4000);
+				if (!result.success) {
+					showNotification(result.reason, 4000);
+					return;
 				}
 
 				if (
-					result.success &&
 					destination.type === 'folder' &&
 					item.type === 'folder' &&
 					!item.expanded
 				) {
 					toggleFolder(item.folderName, item.parentName);
 				}
-			} catch (err) {
-				notification.replaceContent(
-					err instanceof Error ? err.message : String(err),
+			} catch (error) {
+				showNotification(
+					error instanceof Error ? error.message : String(error),
 					4000,
 				);
 			}

@@ -1,8 +1,18 @@
 import type {AddFolderOptions} from './add-folder';
 import type {CodemodProject} from './codemod-project';
-import {getCodemodResult} from './codemod-project';
 import {getTreeEntries, requireTreeItem} from './folder-editing';
+import {
+	captureJsxNodePaths,
+	requireCapturedNodePath,
+} from './get-node-path-remappings';
 import {findProjectFile} from './internals';
+import {
+	getNodeEditResult,
+	getUnchangedStructureRemappings,
+	getUpdatedNodeReference,
+	type CodemodNodeResult,
+	type NodeReference,
+} from './node-references';
 import {parseAst} from './sequence-props/parse-ast';
 import {
 	applySourceEdits,
@@ -17,13 +27,23 @@ export const renameFolder = <Project extends CodemodProject>({
 	compositionFile,
 	folder,
 	newName,
-}: RenameFolderOptions<Project>) => {
+}: RenameFolderOptions<Project>): CodemodNodeResult & {
+	updatedNode: NodeReference;
+} => {
 	const filePath = findProjectFile({project, filePath: compositionFile});
 	const input = project.files[filePath];
-	const entries = getTreeEntries({ast: parseAst(input)});
+	const ast = parseAst(input);
+	const entries = getTreeEntries({ast});
 	const located = requireTreeItem(entries, {type: 'folder', ...folder});
+	const reference = {
+		filePath,
+		nodePath: requireCapturedNodePath(
+			captureJsxNodePaths(ast),
+			located.node.openingElement,
+		),
+	};
 	if (newName === folder.name) {
-		return {changes: []};
+		return {changes: [], nodePathRemappings: [], updatedNode: reference};
 	}
 
 	if (!newName || newName.includes('/')) {
@@ -59,9 +79,25 @@ export const renameFolder = <Project extends CodemodProject>({
 			}),
 		],
 	});
-	parseAst(nextContents);
-	return getCodemodResult({
+	const result = getNodeEditResult({
 		project,
-		edits: [{filePath, nextContents}],
+		edits: [
+			{
+				filePath,
+				output: nextContents,
+				nodePathRemappings: getUnchangedStructureRemappings({
+					input,
+					output: nextContents,
+				}),
+			},
+		],
 	});
+	return {
+		...result,
+		updatedNode: getUpdatedNodeReference({
+			project,
+			node: reference,
+			nodePathRemappings: result.nodePathRemappings,
+		}),
+	};
 };

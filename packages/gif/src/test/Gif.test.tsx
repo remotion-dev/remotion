@@ -23,6 +23,12 @@ test('Gif exposes background, border, and crop controls', () => {
 	expect('cropRight' in gifSchema).toBe(true);
 	expect('cropTop' in gifSchema).toBe(true);
 	expect('cropBottom' in gifSchema).toBe(true);
+	expect(gifSchema.loop).toEqual({
+		type: 'boolean',
+		default: false,
+		description: 'Loop',
+		keyframable: false,
+	});
 });
 
 class MockWorker {
@@ -228,7 +234,7 @@ test('<Gif> resolves media sources when its origin is opaque', async () => {
 	expect(MockWorker.instances).toBe(0);
 });
 
-test('<Gif> registers its canvas as the outline ref', async () => {
+test('<Gif> registers an automatic canvas outline', async () => {
 	const registeredSequences: RegisteredSequence[] = [];
 	const ref = React.createRef<HTMLCanvasElement>();
 
@@ -242,15 +248,12 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 		</SequenceRegistrationWrapper>,
 	);
 
-	await waitFor(() => {
-		expect(registeredSequences[0]?.refForOutline?.current).toBeInstanceOf(
-			HTMLCanvasElement,
-		);
-	});
-
-	const refForOutline = registeredSequences[0]
-		.refForOutline as React.RefObject<HTMLCanvasElement | null>;
-	expect(ref.current).toBe(refForOutline.current);
+	await waitFor(() => expect(ref.current).toBeInstanceOf(HTMLCanvasElement));
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 test('<Gif> exposes non-keyframable premounting schema fields', () => {
 	expect(gifSchema.premountFor).toMatchObject({keyframable: false});

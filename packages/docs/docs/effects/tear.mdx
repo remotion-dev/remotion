@@ -19,7 +19,7 @@ Tears a canvas-based component along a zigzag seam in any direction. The two pie
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {tear} from '@remotion/effects/tear';
 
@@ -31,12 +31,12 @@ export const MyComp: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[tear({progress, rotation: 20, jaggedness: 20})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

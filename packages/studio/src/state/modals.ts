@@ -15,6 +15,7 @@ import type {
 	CanvasCaptureData,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	NodeWrapper,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -150,6 +151,7 @@ export type AssetSelectionModalState = {
 	readonly invocationTimestamp: number;
 	readonly assetSelection: {
 		readonly initialQuery: string;
+		readonly fileTypes: null;
 		readonly onSelectFile: () => void;
 		readonly onSelected: (asset: StaticFile) => void;
 	};
@@ -166,6 +168,7 @@ export type TranscriptionModalState = {
 		fileName: string;
 		nodePath: SequencePropsSubscriptionKey;
 		durationInFrames: number | null;
+		premountFor: number | null;
 	} | null;
 };
 
@@ -193,11 +196,19 @@ export type ElementInstallPlan = {
 	readonly filePath: string;
 };
 
+export type ElementLibraryModalState = {
+	readonly type: 'element-library';
+	readonly name: string;
+	readonly url: string;
+};
+
 export type ElementInstallModalState = {
 	readonly type: 'element-install';
 	readonly currentPlan: ElementInstallPlan | null;
 	readonly missingPackages: string[];
 	readonly newPlan: ElementInstallPlan;
+	readonly library: ElementLibraryModalState | null;
+	readonly onCancel: () => void;
 	readonly onClose: () => void;
 	readonly request: ElementInstallRequest;
 	readonly sourceIsUnverified: boolean;
@@ -251,6 +262,7 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
+			initialStudioPane: 'elements' | 'general' | null;
 			initialTab:
 				| 'apps'
 				| 'rendering'
@@ -287,6 +299,14 @@ export type ModalState =
 			};
 	  }
 	| {
+			type: 'precompose-refactor';
+			targets: {
+				fileName: string;
+				displayName: string | null;
+				line: number | null;
+			}[];
+	  }
+	| {
 			type: 'generate-with-agent';
 			location: {
 				source: string;
@@ -294,11 +314,32 @@ export type ModalState =
 			} | null;
 	  }
 	| {
+			type: 'wrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+			wrapper: NodeWrapper;
+	  }
+	| {
+			type: 'browser-studio-experimental-notice';
+	  }
+	| {
+			type: 'html-in-canvas-unavailable';
+			action: 'effects' | 'motion-blur';
+	  }
+	| {
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
 			assetSelection: {
 				initialQuery: string;
+				fileTypes: {
+					extensions: string[];
+					description: string;
+					importLabel: string;
+				} | null;
 				onSelectFile: () => void;
 				onSelected: (asset: StaticFile) => void;
 			} | null;
@@ -307,11 +348,7 @@ export type ModalState =
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
-	| {
-			type: 'element-library';
-			name: string;
-			url: string;
-	  }
+	| ElementLibraryModalState
 	| ElementInstallModalState
 	| AddEffectModalState
 	| AssetSelectionModalState

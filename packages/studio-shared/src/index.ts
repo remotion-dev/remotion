@@ -6,14 +6,14 @@ export {
 	AddEffectKeyframeResponse,
 	AddEffectRequest,
 	AddEffectResponse,
+	AddCompositionRequest,
+	AddFolderRequest,
 	AddKeyframesRequest,
 	AddKeyframesResponse,
 	AddRenderRequest,
 	AddSequenceKeyframeRequest,
 	AddSequenceKeyframeResponse,
 	ApiRoutes,
-	ApplyCodemodRequest,
-	ApplyCodemodResponse,
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
 	BatchUpdateEffectKeyframeSettings,
@@ -27,6 +27,7 @@ export {
 	CaptionPatch,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	CompositionEditResponse,
 	ComponentProp,
 	ConvertFigmaClipboardToSvgRequest,
 	ConvertFigmaClipboardToSvgResponse,
@@ -37,9 +38,10 @@ export {
 	DeleteEffectRequest,
 	DeleteEffectRequestItem,
 	DeleteEffectResponse,
-	DeleteJsxNodesRequest,
-	DeleteJsxNodesRequestItem,
-	DeleteJsxNodesResponse,
+	DeleteCompositionRequest,
+	DeleteNodesRequest,
+	DeleteNodesRequestItem,
+	DeleteNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteSequenceKeyframe,
@@ -50,12 +52,16 @@ export {
 	DuplicateEffectRequest,
 	DuplicateEffectRequestItem,
 	DuplicateEffectResponse,
-	DuplicateJsxNodeRequest,
-	DuplicateJsxNodeRequestItem,
-	DuplicateJsxNodeResponse,
-	JsxWrapper,
-	WrapJsxNodeRequest,
-	WrapJsxNodeResponse,
+	DuplicateCompositionRequest,
+	PrecomposeJsxNodesRequest,
+	PrecomposeJsxNodesRequestItem,
+	PrecomposeJsxNodesResponse,
+	DuplicateNodesRequest,
+	DuplicateNodesRequestItem,
+	DuplicateNodesResponse,
+	NodeWrapper,
+	WrapNodeRequest,
+	WrapNodeResponse,
 	EditorPickerId,
 	EffectDefinition,
 	ElementInstallDestination,
@@ -72,6 +78,8 @@ export {
 	GetRemotionSkillsInfoResponse,
 	InstallRemotionSkillRequest,
 	RemoveRemotionSkillRequest,
+	UpgradeRemotionSkillRequest,
+	OpenRemotionSkillRequest,
 	GetReleaseNotesRequest,
 	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,
@@ -82,8 +90,8 @@ export {
 	ReplaceVideoSourceResponse,
 	InsertElementRequest,
 	InsertElementResponse,
-	InsertJsxElementRequest,
-	InsertJsxElementResponse,
+	InsertCompositionElementRequest,
+	InsertCompositionElementResponse,
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
 	InstallableElement,
@@ -92,6 +100,8 @@ export {
 	LogStudioErrorRequest,
 	LogStudioErrorResponse,
 	MoveEffectKeyframe,
+	MoveCompositionRequest,
+	MoveFolderRequest,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	MoveSequenceKeyframe,
@@ -113,6 +123,8 @@ export {
 	ProjectInfoResponse,
 	RedoRequest,
 	RedoResponse,
+	RenameCompositionRequest,
+	RenameFolderRequest,
 	RemoveRenderRequest,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
@@ -136,10 +148,9 @@ export {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
-	SimpleDiff,
-	SplitJsxSequenceRequest,
-	SplitJsxSequenceRequestItem,
-	SplitJsxSequenceResponse,
+	SplitSequencesRequest,
+	SplitSequencesRequestItem,
+	SplitSequencesResponse,
 	SplitVideoFromAudioRequest,
 	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
@@ -158,6 +169,7 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
+	UpdateCompositionMetadataRequest,
 	UpdateConfigRequest,
 	UpdateConfigResponse,
 	UpdateDefaultPropsRequest,
@@ -168,6 +180,7 @@ export {
 	UpdateElementInstallTargetResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
+	UnwrapFolderRequest,
 	type AddEffectKeyframe,
 	type AddSequenceKeyframe,
 	type ConfigUpdate,
@@ -180,8 +193,6 @@ export type {
 	BrowserStudioInstallPackagesResponse,
 	BrowserStudioOperations,
 	BrowserStudioPackageInstallationOperations,
-	DuplicateCompositionRequest,
-	DuplicateCompositionResponse,
 } from './browser-studio-operations';
 export type {
 	CanvasCaptureData,
@@ -197,11 +208,15 @@ export type {
 	SequenceNodePathRemapping,
 } from './sequence-node-path-mutation';
 export type {
-	ApplyVisualControlCodemod,
+	CompositionDestination,
 	CompositionOrFolder,
-	RecastCodemod,
+	NewCompositionAsset,
+	NewCompositionOptions,
 } from './codemods';
-export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
+export {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from './react-refresh-event';
 export {hasSequenceTimingTraits} from './has-sequence-timing-traits';
 export {
 	getConfigFileChangeMessage,
@@ -315,6 +330,7 @@ export {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	getKeyframeOutputTypeForSchemaField,
+	isInteractivitySchemaFieldHoldOnly,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
 	isSchemaFieldHoldOnly,
@@ -405,6 +421,7 @@ export {
 
 export type {VisualControlChange} from './codemods';
 export {
+	addKeyframeToPropStatus,
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
 } from './optimistic-add-keyframe';
@@ -413,6 +430,7 @@ export {
 	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
+	removeKeyframeFromPropStatus,
 } from './optimistic-delete-keyframe';
 export {
 	canMoveKeyframesWithoutCollisions,
@@ -424,6 +442,7 @@ export {
 export {optimisticUpdateForEffectPropStatuses} from './optimistic-update-for-effect-prop-statuses';
 export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {
+	applyKeyframeSettingsToStatus,
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,
 } from './optimistic-update-keyframe-settings';
@@ -434,3 +453,4 @@ export {
 export {isUrl} from './url';
 
 export {emptyCompositionComponent} from './empty-composition-component';
+export {assetCompositionComponent} from './asset-composition-component';

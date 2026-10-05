@@ -11,6 +11,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	keyboardShortcutsEnabled: true,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
+	canvasTabsEnabled: true,
 	configFileStudioSettings: null,
 };
 

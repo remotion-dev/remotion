@@ -9,7 +9,7 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineScaleDragOverrides,
+	clearSelectedOutlineDragOverrides,
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
@@ -189,7 +189,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				});
 
 				if (changes.length === 0) {
-					clearSelectedOutlineScaleDragOverrides({
+					clearSelectedOutlineDragOverrides({
 						clearDragOverrides,
 						dragStates,
 					});
@@ -239,7 +239,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 						);
 					})
 					.finally(() => {
-						clearSelectedOutlineScaleDragOverrides({
+						clearSelectedOutlineDragOverrides({
 							clearDragOverrides,
 							dragStates,
 						});

@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -65,7 +71,15 @@ export const MultiSequenceField: React.FC<{
 			clearDragOverrides(target.nodePath);
 		}
 	}, [clearDragOverrides, targets]);
-	useEffect(() => clear, [clear]);
+	const targetsRef = useRef(targets);
+	targetsRef.current = targets;
+	useEffect(() => {
+		return () => {
+			for (const target of targetsRef.current) {
+				clearDragOverrides(target.nodePath);
+			}
+		};
+	}, [clearDragOverrides]);
 	const preview = useCallback(
 		(nextValues: unknown[]) => {
 			if (!editable) {

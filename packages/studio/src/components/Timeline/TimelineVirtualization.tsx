@@ -18,6 +18,7 @@ import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
+	getTimelineSelectionKey,
 	getTimelineSequenceSelectionKey,
 	type TimelineSelection,
 	useTimelineSelection,
@@ -56,11 +57,13 @@ export const TimelineVirtualizationProvider: React.FC<{
 	readonly timeline: readonly TimelineTrackWithDisplayGroup[];
 }> = ({children, hasBeenCut, isStill, timeline}) => {
 	const trackHeights = useTimelineTrackHeights({timeline});
-	const {revealRequest, selectedItems} = useTimelineSelection();
+	const {consumeRevealRequest, revealRequest, selectedItems} =
+		useTimelineSelection();
 	const paddingStart = isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT;
 	const paddingEnd =
 		TIMELINE_ITEM_BORDER_BOTTOM +
 		(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0);
+	const previousRowsRef = useRef<readonly TimelineVirtualRow[]>([]);
 
 	const layout = useMemo(() => {
 		const siblingIndexes = new Array<number>(timeline.length);
@@ -93,13 +96,21 @@ export const TimelineVirtualizationProvider: React.FC<{
 			offsets[index + 1] = offsets[index] + trackHeights[index];
 		}
 
-		const rows = timeline.map(
-			(track, index): TimelineVirtualRow => ({
-				afterDropLineOffset: offsets[subtreeEndIndexes[index]] - offsets[index],
-				siblingIndex: siblingIndexes[index],
-				track,
-			}),
-		);
+		const rows = timeline.map((track, index): TimelineVirtualRow => {
+			const afterDropLineOffset =
+				offsets[subtreeEndIndexes[index]] - offsets[index];
+			const siblingIndex = siblingIndexes[index];
+			const previous = previousRowsRef.current[index];
+			if (
+				previous?.track === track &&
+				previous.afterDropLineOffset === afterDropLineOffset &&
+				previous.siblingIndex === siblingIndex
+			) {
+				return previous;
+			}
+
+			return {afterDropLineOffset, siblingIndex, track};
+		});
 		const rootTrackIndexes = new Map<string, number>();
 		for (let index = 0; index < timeline.length; index++) {
 			const {nodePathInfo} = timeline[index];
@@ -117,6 +128,9 @@ export const TimelineVirtualizationProvider: React.FC<{
 			tracksEnd: offsets[offsets.length - 1],
 		};
 	}, [paddingStart, timeline, trackHeights]);
+	useLayoutEffect(() => {
+		previousRowsRef.current = layout.rows;
+	}, [layout.rows]);
 
 	const selectedTrackIndexes = useMemo(() => {
 		const indexes = new Set<number>();
@@ -184,14 +198,82 @@ export const TimelineVirtualizationProvider: React.FC<{
 		}
 
 		const key = getSelectionTrackKey(revealRequest.item);
-		const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
+		if (key === null) {
+			consumeRevealRequest(revealRequest.token);
+			return;
+		}
+
+		const selectionKey = getTimelineSelectionKey(revealRequest.item);
 		if (
-			index !== undefined &&
-			virtualizer.getOffsetForIndex(index, 'auto')?.[1] !== 'auto'
+			!selectedItems.some(
+				(item) => getTimelineSelectionKey(item) === selectionKey,
+			)
 		) {
+			consumeRevealRequest(revealRequest.token);
+			return;
+		}
+
+		const index = layout.rootTrackIndexes.get(key);
+		if (index === undefined) {
+			return;
+		}
+
+		const offset = virtualizer.getOffsetForIndex(index, 'auto');
+		if (offset === undefined) {
+			return;
+		}
+
+		if (offset[1] !== 'auto') {
 			virtualizer.scrollToIndex(index, {align: 'center'});
 		}
-	}, [layout.rootTrackIndexes, revealRequest, virtualizer]);
+
+		consumeRevealRequest(revealRequest.token);
+	}, [
+		consumeRevealRequest,
+		layout.rootTrackIndexes,
+		revealRequest,
+		selectedItems,
+		virtualizer,
+	]);
+
+	useEffect(() => {
+		if (revealRequest === null) {
+			return;
+		}
+
+		const scrollElement = timelineVerticalScroll.current;
+		if (scrollElement === null) {
+			return;
+		}
+
+		// A reveal can wait for a row to mount. User scrolling supersedes it.
+		const cancelPendingReveal = () => {
+			consumeRevealRequest(revealRequest.token);
+		};
+
+		const onWheel = (event: WheelEvent) => {
+			if (event.deltaY !== 0) {
+				cancelPendingReveal();
+			}
+		};
+
+		const onPointerDown = (event: PointerEvent) => {
+			if (event.target === scrollElement) {
+				cancelPendingReveal();
+			}
+		};
+
+		scrollElement.addEventListener('wheel', onWheel, {passive: true});
+		scrollElement.addEventListener('touchstart', cancelPendingReveal, {
+			passive: true,
+		});
+		scrollElement.addEventListener('pointerdown', onPointerDown);
+		return () => {
+			scrollElement.removeEventListener('wheel', onWheel);
+			scrollElement.removeEventListener('touchstart', cancelPendingReveal);
+			scrollElement.removeEventListener('pointerdown', onPointerDown);
+		};
+	}, [consumeRevealRequest, revealRequest]);
 
 	const virtualItems = virtualizer.getVirtualItems();
 	const value = useMemo(

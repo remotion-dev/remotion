@@ -1,106 +1,188 @@
-import type {JsxWrapper} from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
-import {CaretDown} from '../../icons/caret';
-import {WrapIcon} from '../../icons/wrap';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
-import type {ComboboxValue} from '../NewComposition/ComboBox';
+import type {NodeWrapper} from '@remotion/studio-shared';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
+import {calculateTimeline} from '../../helpers/calculate-timeline';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
+import {installRequiredPackages} from '../../helpers/install-required-package';
+import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
+import {MotionBlurIcon} from '../../icons/motion-blur';
+import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {SegmentedButton, type SegmentedButtonSegment} from '../SegmentedButton';
-import {wrapJsxNode} from '../wrap-jsx-node-api';
+import {wrapNode} from '../wrap-node-api';
 import {
+	InspectorQuickAction,
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
+import {getHtmlInCanvasWrapperTiming} from './get-html-in-canvas-wrapper-timing';
 
-const wrapperNames: JsxWrapper[] = ['AbsoluteFill', 'Sequence', 'HtmlInCanvas'];
+type HtmlInCanvasWrapper = Extract<
+	NodeWrapper,
+	'HtmlInCanvas' | 'HtmlInCanvasMotionBlur'
+>;
 
-const buttonStyle: React.CSSProperties = {
-	borderRadius: 4,
-	height: 28,
-	margin: '0 4px',
-	width: 'calc(100% - 8px)',
-};
-
-const segmentStyle: React.CSSProperties = {
-	fontSize: 13,
-	gap: 8,
-	justifyContent: 'flex-start',
-	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
-	width: '100%',
-};
-
-const labelStyle: React.CSSProperties = {
-	flex: 1,
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	lineHeight: '18px',
-	minWidth: 0,
-	overflow: 'hidden',
-	textAlign: 'left',
-	textOverflow: 'ellipsis',
-	userSelect: 'none',
-	WebkitUserSelect: 'none',
-	whiteSpace: 'nowrap',
-};
-
-const caretStyle: React.CSSProperties = {
-	display: 'flex',
-	flexShrink: 0,
-	height: 12,
-	width: 12,
-};
+const htmlInCanvasComponentIdentities = new Set([
+	'dev.remotion.remotion.HtmlInCanvas',
+	'dev.remotion.motionBlur.HtmlInCanvasMotionBlur',
+]);
 
 export const SequenceWrapAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly sequence: TimelineTrackData['sequence'];
+	readonly track: TimelineTrackData;
 	readonly sourceActionsDisabled: boolean;
-}> = ({nodePathInfo, sequence, sourceActionsDisabled}) => {
+	readonly sourceLocation: {
+		readonly source: string;
+		readonly line: number;
+	};
+}> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
 	const {width, height} = useVideoConfig();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const sequences = Internals.useSequenceManagerSequences();
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
+	);
+	const {sequence} = track;
 	const nodePathKey = JSON.stringify(nodePathInfo.sequenceSubscriptionKey);
-	const [eligibility, setEligibility] = useState<{
-		canWrap: boolean;
-		canWrapHtmlInCanvas: boolean;
-	} | null>(null);
+	const sequenceStack = sequence.getStack();
+	const eligibilityKey = JSON.stringify([nodePathKey, sequenceStack]);
 	const [busy, setBusy] = useState(false);
+	const [eligibleNodeKey, setEligibleNodeKey] = useState<string | null>(null);
+	const timing = useMemo(
+		() =>
+			getHtmlInCanvasWrapperTiming({
+				tracks: calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}),
+				sequenceSubscriptionKey: nodePathInfo.sequenceSubscriptionKey,
+			}),
+		[
+			nodePathInfo.sequenceSubscriptionKey,
+			overrideIdToNodePathMappings,
+			sequences,
+		],
+	);
+	const timingIsNull = timing === null;
+	const wouldNestAtRuntime = useMemo(() => {
+		const sequencesById = new Map(
+			sequences.map((registeredSequence) => [
+				registeredSequence.id,
+				registeredSequence,
+			]),
+		);
+		let ancestorId: string | null = sequence.id;
+		while (ancestorId !== null) {
+			const ancestor = sequencesById.get(ancestorId);
+			if (!ancestor) {
+				break;
+			}
+
+			if (
+				ancestor.controls?.componentIdentity &&
+				htmlInCanvasComponentIdentities.has(ancestor.controls.componentIdentity)
+			) {
+				return true;
+			}
+
+			ancestorId = ancestor.parent;
+		}
+
+		for (const registeredSequence of sequences) {
+			if (
+				!registeredSequence.controls?.componentIdentity ||
+				!htmlInCanvasComponentIdentities.has(
+					registeredSequence.controls.componentIdentity,
+				)
+			) {
+				continue;
+			}
+
+			let descendantParentId = registeredSequence.parent;
+			while (descendantParentId !== null) {
+				if (descendantParentId === sequence.id) {
+					return true;
+				}
+
+				descendantParentId =
+					sequencesById.get(descendantParentId)?.parent ?? null;
+			}
+		}
+
+		return false;
+	}, [sequence.id, sequences]);
 
 	useEffect(() => {
-		setEligibility(null);
-		if (sourceActionsDisabled) {
+		if (sourceActionsDisabled || wouldNestAtRuntime || timingIsNull) {
+			setEligibleNodeKey(null);
 			return;
 		}
 
 		let cancelled = false;
+		setEligibleNodeKey(null);
 		const nodePath = JSON.parse(
 			nodePathKey,
 		) as SequenceNodePathInfo['sequenceSubscriptionKey'];
-		wrapJsxNode({
+		wrapNode({
 			fileName: nodePath.absolutePath,
 			nodePath: nodePath.nodePath,
 			wrapper: null,
 			width: null,
 			height: null,
+			timing: null,
 		})
-			.then((result) => {
-				if (!cancelled && result.success) {
-					setEligibility({
-						canWrap: result.canWrap,
-						canWrapHtmlInCanvas: result.canWrapHtmlInCanvas,
-					});
+			.then((eligibility) => {
+				if (!cancelled) {
+					setEligibleNodeKey(
+						eligibility.success && eligibility.canWrapHtmlInCanvas
+							? eligibilityKey
+							: null,
+					);
 				}
 			})
-			.catch(() => undefined);
+			.catch(() => {
+				if (!cancelled) {
+					setEligibleNodeKey(null);
+				}
+			});
+
 		return () => {
 			cancelled = true;
 		};
-	}, [nodePathKey, sequence, sourceActionsDisabled]);
+	}, [
+		eligibilityKey,
+		nodePathKey,
+		sourceActionsDisabled,
+		timingIsNull,
+		wouldNestAtRuntime,
+	]);
 
 	const onWrap = useCallback(
-		(wrapper: JsxWrapper) => {
-			if (busy || sourceActionsDisabled || !eligibility?.canWrap) {
+		async (wrapper: HtmlInCanvasWrapper) => {
+			if (
+				busy ||
+				sourceActionsDisabled ||
+				wouldNestAtRuntime ||
+				timing === null ||
+				eligibleNodeKey !== eligibilityKey
+			) {
+				return;
+			}
+
+			if (!isHtmlInCanvasSupported()) {
+				setSelectedModal({
+					type: 'html-in-canvas-unavailable',
+					action:
+						wrapper === 'HtmlInCanvasMotionBlur' ? 'motion-blur' : 'effects',
+				});
 				return;
 			}
 
@@ -108,83 +190,112 @@ export const SequenceWrapAction: React.FC<{
 			const nodePath = JSON.parse(
 				nodePathKey,
 			) as SequenceNodePathInfo['sequenceSubscriptionKey'];
-			wrapJsxNode({
-				fileName: nodePath.absolutePath,
-				nodePath: nodePath.nodePath,
-				wrapper,
-				width,
-				height,
-			})
-				.then((result) => {
-					if (!result.success) {
-						showNotification(result.reason, 4000);
-					}
-				})
-				.catch((error) => {
-					showNotification((error as Error).message, 4000);
-				})
-				.finally(() => setBusy(false));
+			try {
+				const eligibility = await wrapNode({
+					fileName: nodePath.absolutePath,
+					nodePath: nodePath.nodePath,
+					wrapper: null,
+					width: null,
+					height: null,
+					timing: null,
+				});
+				if (!eligibility.success) {
+					showNotification(eligibility.reason, 4000);
+					return;
+				}
+
+				if (!eligibility.canWrap) {
+					setSelectedModal({
+						type: 'wrap-refactor',
+						displayName:
+							sequence.displayName || sequence.controls?.componentName || null,
+						location: sourceLocation,
+						wrapper,
+					});
+					return;
+				}
+
+				if (!eligibility.canWrapHtmlInCanvas) {
+					showNotification('HTML-in-canvas components cannot be nested.', 4000);
+					setEligibleNodeKey(null);
+					return;
+				}
+
+				if (wrapper === 'HtmlInCanvasMotionBlur') {
+					await installRequiredPackages([
+						{name: '@remotion/motion-blur', version: null},
+					]);
+				}
+
+				const result = await wrapNode({
+					fileName: nodePath.absolutePath,
+					nodePath: nodePath.nodePath,
+					wrapper,
+					width,
+					height,
+					timing,
+				});
+				if (!result.success) {
+					showNotification(result.reason, 4000);
+				}
+			} catch (error) {
+				showNotification((error as Error).message, 4000);
+			} finally {
+				setBusy(false);
+			}
 		},
-		[busy, eligibility, height, nodePathKey, sourceActionsDisabled, width],
-	);
-
-	const values = useMemo<ComboboxValue[]>(
-		() =>
-			wrapperNames.map((wrapper) => ({
-				type: 'item',
-				id: wrapper,
-				label: `<${wrapper}>`,
-				value: wrapper,
-				onClick: () => onWrap(wrapper),
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-				disabled:
-					busy ||
-					(wrapper === 'HtmlInCanvas' &&
-						(!eligibility?.canWrapHtmlInCanvas || !isHtmlInCanvasSupported())),
-			})),
-		[busy, eligibility, onWrap],
-	);
-
-	const segments = useMemo<SegmentedButtonSegment[]>(
-		() => [
-			{
-				ariaLabel:
-					nodePathInfo.numberOfSequencesWithThisNodePath > 1
-						? `Wrap all ${nodePathInfo.numberOfSequencesWithThisNodePath} instances of this JSX element`
-						: 'Wrap this JSX element',
-				buttonId: null,
-				disabled: busy,
-				idleColor: LIGHT_TEXT,
-				leaveLeftSpace: false,
-				onOpenChange: null,
-				renderContent: (color) => (
-					<>
-						<span style={largeInspectorActionIconContainerStyle}>
-							<WrapIcon color={color} style={largeInspectorActionIconStyle} />
-						</span>
-						<span style={labelStyle}>Wrap</span>
-						<span style={caretStyle}>
-							<CaretDown color={color} />
-						</span>
-					</>
-				),
-				segmentId: 'wrap',
-				selectedId: null,
-				style: segmentStyle,
-				tooltipLabel: null,
-				type: 'menu',
-				values,
-			},
+		[
+			busy,
+			eligibilityKey,
+			eligibleNodeKey,
+			height,
+			nodePathKey,
+			sequence.controls?.componentName,
+			sequence.displayName,
+			setSelectedModal,
+			sourceActionsDisabled,
+			sourceLocation,
+			timing,
+			width,
+			wouldNestAtRuntime,
 		],
-		[busy, nodePathInfo.numberOfSequencesWithThisNodePath, values],
 	);
 
-	if (!eligibility?.canWrap || sourceActionsDisabled) {
+	if (
+		sourceActionsDisabled ||
+		eligibleNodeKey !== eligibilityKey ||
+		timing === null ||
+		wouldNestAtRuntime
+	) {
 		return null;
 	}
 
-	return <SegmentedButton segments={segments} style={buttonStyle} />;
+	return (
+		<>
+			<InspectorQuickAction
+				disabled={busy || sourceActionsDisabled}
+				iconContainerStyle={largeInspectorActionIconContainerStyle}
+				onClick={() => onWrap('HtmlInCanvas')}
+				renderIcon={(color) => (
+					<HtmlInCanvasIcon
+						color={color}
+						style={largeInspectorActionIconStyle}
+						viewBox="-64 -80 704 704"
+					/>
+				)}
+			>
+				HTML-in-canvas
+			</InspectorQuickAction>
+			<InspectorQuickAction
+				disabled={busy || sourceActionsDisabled}
+				iconContainerStyle={largeInspectorActionIconContainerStyle}
+				onClick={() => onWrap('HtmlInCanvasMotionBlur')}
+				renderIcon={(color) => (
+					<MotionBlurIcon color={color} style={largeInspectorActionIconStyle} />
+				)}
+			>
+				Motion blur
+			</InspectorQuickAction>
+		</>
+	);
 };

@@ -38,29 +38,6 @@ test('adds the pinned Transformers version to AI package installations', () => {
 	}
 });
 
-test('asks before installing Whisper for transcription', () => {
-	window.remotion_installedPackages = [];
-	const {container, getByRole} = render(
-		<ModalsProvider>
-			<TranscriptionModalWithOptionalWhisper
-				state={{
-					type: 'transcribe',
-					src: '/voice.wav',
-					displayName: 'voice.wav',
-					audioStreamIndex: null,
-					requestInit: null,
-					target: null,
-				}}
-			/>
-		</ModalsProvider>,
-	);
-
-	expect(container.textContent).toContain(
-		'This requires installing @remotion/whisper-webgpu and @huggingface/transformers. Continue?',
-	);
-	expect(getByRole('button', {name: 'Continue'})).toBeDefined();
-});
-
 test('uses the same install confirmation for video matting', () => {
 	window.remotion_installedPackages = [];
 	const {container, getByRole} = render(
@@ -113,7 +90,7 @@ test('opens transcription after installing Whisper without restarting', async ()
 			</ModalsProvider>,
 		);
 
-		fireEvent.click(getByRole('button', {name: 'Continue'}));
+		fireEvent.click(getByRole('button', {name: 'Install packages'}));
 		const installing = getByText(
 			`Installing ${WHISPER_WEBGPU_PACKAGE} and ${TRANSFORMERS_PACKAGE}…`,
 		);

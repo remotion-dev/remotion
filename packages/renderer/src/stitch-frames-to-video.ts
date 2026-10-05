@@ -1,6 +1,7 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
+import {getAacPrimingInputArgs} from './aac-priming';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
@@ -18,6 +19,7 @@ import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {finalizeFastStart} from './finalize-fast-start';
 import {findRemotionRoot} from './find-closest-package-json';
+import {getCpuCount} from './get-cpu-count';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getFastStartMuxer} from './get-fast-start-muxer';
@@ -27,6 +29,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makeMetadataArgs} from './make-metadata-args';
+import {getMaxLambdaMemory} from './memory/from-lambda-env';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
@@ -408,7 +411,19 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : ['-an'],
+		audio && !separateAudioTo
+			? [
+					...getAacPrimingInputArgs({
+						audioCodec: resolvedAudioCodec,
+						sampleRate,
+						outputExtension,
+					}),
+					'-i',
+					audio,
+					'-c:a',
+					'copy',
+				]
+			: ['-an'],
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],
@@ -427,6 +442,8 @@ const innerStitchFramesToVideo = async (
 			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent,
 			logLevel,
+			cpuCount: getCpuCount(),
+			lambdaMemoryInBytes: getMaxLambdaMemory(),
 		}),
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],

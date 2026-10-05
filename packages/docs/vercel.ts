@@ -44,6 +44,17 @@ export const config: VercelConfig = {
 		...['/new', '/new/', '/new.html', '/new/index.html'].map((source) =>
 			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
 		),
+		// The Vibe Code editor compiles with the browser bundler, which needs
+		// cross-origin isolation for the editor, its preview iframe and the
+		// compiler worker.
+		routes.header('/experimental_sdk(.*)', browserStudioIsolationHeaders),
+		...[
+			'/experimental_sdk',
+			'/experimental_sdk/',
+			'/experimental_sdk/index.html',
+		].map((source) =>
+			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
+		),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
@@ -141,6 +152,12 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/motion-blur', '/docs/motion-blur', {permanent: false}),
+		routes.redirect('/docs/motion-blur-guide', '/docs/motion-blur', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/motion-blur-guide.md', '/docs/motion-blur.md', {
+			permanent: true,
+		}),
 		routes.redirect('/noise', '/docs/noise', {permanent: false}),
 		routes.redirect(
 			'/docs/get-audio-duration',

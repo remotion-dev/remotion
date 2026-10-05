@@ -8,7 +8,7 @@ import {
 } from './composition-editing';
 import {findJsxElementPathForDeletion} from './delete-jsx-nodes-internal';
 import {formatSerializedValue} from './format-serialized-value';
-import {getJsxNodeProps} from './get-jsx-node-props';
+import {getNodeProps} from './get-node-props';
 import {
 	getNodeEditResult,
 	getUnchangedStructureRemappings,
@@ -16,7 +16,7 @@ import {
 } from './node-references';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {parseAst} from './sequence-props/parse-ast';
-import {updateJsxNodeProps} from './update-jsx-node-props';
+import {updateNodeProps} from './update-node-props';
 
 export type SetCompositionDefaultPropsOptions<Project extends CodemodProject> =
 	CompositionTarget & {
@@ -33,7 +33,7 @@ export const setCompositionDefaultProps = <Project extends CodemodProject>({
 	enumPaths,
 }: SetCompositionDefaultPropsOptions<Project>) => {
 	const node = requireComposition({project, compositionFile, compositionId});
-	const status = getJsxNodeProps({
+	const status = getNodeProps({
 		project,
 		node,
 		keys: ['defaultProps'],
@@ -54,7 +54,7 @@ export const setCompositionDefaultProps = <Project extends CodemodProject>({
 			attr.name.name === 'defaultProps',
 	);
 	if (!attribute || (attribute.type === 'JSXAttribute' && !attribute.value)) {
-		const inserted = updateJsxNodeProps({
+		const inserted = updateNodeProps({
 			project,
 			node,
 			props: {defaultProps: {}},

@@ -38,10 +38,10 @@ test('nested rates scale child clocks, trims and durations within parent-frame w
 	const view = render(content(34));
 	expect(view.container.textContent).toBe('');
 	view.rerender(content(35));
-	expect(view.getByText('Frame 3, duration 13')).toBeTruthy();
+	expect(view.getByText('Frame 3, duration 18')).toBeTruthy();
 	view.rerender(content(44));
-	expect(view.getByText('Frame 12, duration 13')).toBeTruthy();
-	view.rerender(content(45));
+	expect(view.getByText('Frame 12, duration 18')).toBeTruthy();
+	view.rerender(content(50));
 	expect(view.container.textContent).toBe('');
 });
 
@@ -65,12 +65,12 @@ test('slow sequences retain fractional child frames and freeze in the child cloc
 		</WrapSequenceContext>
 	);
 	const view = render(content(11, false));
-	expect(view.getByText('Frame 4.5, duration 14')).toBeTruthy();
+	expect(view.getByText('Frame 4.5, duration 24')).toBeTruthy();
 	view.rerender(content(20, true));
-	expect(view.getByText('Frame 6, duration 14')).toBeTruthy();
-	view.rerender(content(29, true));
-	expect(view.getByText('Frame 6, duration 14')).toBeTruthy();
-	view.rerender(content(30, true));
+	expect(view.getByText('Frame 6, duration 24')).toBeTruthy();
+	view.rerender(content(49, true));
+	expect(view.getByText('Frame 6, duration 24')).toBeTruthy();
+	view.rerender(content(50, true));
 	expect(view.container.textContent).toBe('');
 });
 
@@ -91,7 +91,7 @@ test('parent-evaluated animation keeps the parent clock', () => {
 		</WrapSequenceContext>,
 	);
 	expect(view.getByText('Parent 5')).toBeTruthy();
-	expect(view.getByText('Frame 10, duration 40')).toBeTruthy();
+	expect(view.getByText('Frame 10, duration 20')).toBeTruthy();
 });
 
 test('premount and postmount freeze accelerated descendants at the window boundaries', () => {
@@ -127,11 +127,11 @@ test('premount and postmount freeze accelerated descendants at the window bounda
 		</WrapSequenceContext>
 	);
 	const view = render(content(8));
-	expect(view.getByText('Frame 6, duration 36')).toBeTruthy();
+	expect(view.getByText('Frame 6, duration 16')).toBeTruthy();
 	view.rerender(content(12));
-	expect(view.getByText('Frame 18, duration 36')).toBeTruthy();
+	expect(view.getByText('Frame 12.999999999999996, duration 16')).toBeTruthy();
 	view.rerender(content(15));
-	expect(view.getByText('Frame 33, duration 36')).toBeTruthy();
+	expect(view.container.textContent).toBe('');
 });
 
 test('playbackRate rejects invalid values and animation while allowing a paused static edit', () => {
@@ -154,8 +154,8 @@ test('playbackRate rejects invalid values and animation while allowing a paused 
 	);
 	const view = render(content(5, 1));
 	view.rerender(content(5, 2));
-	expect(view.getByText('Frame 10, duration 40')).toBeTruthy();
+	expect(view.getByText('Frame 10, duration 20')).toBeTruthy();
 	view.rerender(content(6, 2));
-	expect(view.getByText('Frame 12, duration 40')).toBeTruthy();
+	expect(view.getByText('Frame 12, duration 20')).toBeTruthy();
 	expect(() => view.rerender(content(7, 3))).toThrow(/must be constant/);
 });
