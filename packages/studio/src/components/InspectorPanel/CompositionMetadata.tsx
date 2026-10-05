@@ -17,7 +17,7 @@ import {ContextMenu} from '../ContextMenu';
 import {InlineDropdown} from '../InlineDropdown';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
-	InputDragger,
+	InputDraggerWithTextEditing,
 	inputDraggerContainerStyle,
 } from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -33,6 +33,7 @@ import {
 	type PendingCompositionMetadataValue,
 	reconcilePendingCompositionMetadata,
 } from './optimistic-composition-metadata';
+import {parseCompositionDuration} from './parse-composition-duration';
 import {detailsContainer} from './styles';
 
 const compositionMetadataContainer: React.CSSProperties = {
@@ -270,6 +271,22 @@ const CompositionMetadataValue: React.FC<{
 		],
 		[setShowFrames, showFrames],
 	);
+	const textEditing = useMemo(() => {
+		if (field !== 'durationInFrames') {
+			return null;
+		}
+
+		return {
+			format: (newValue: number | string) =>
+				showFrames || fps === null
+					? String(Math.round(Number(newValue)))
+					: formatValue(newValue),
+			parse: (text: string) => parseCompositionDuration(text, fps),
+			hint: '5s · 1:30 · 150f\nTimecode: minutes:seconds.frames',
+			invalidMessage: 'Enter a duration such as 5s, 1:30, or 150f.',
+			onCancel: () => setDragValue(null),
+		};
+	}, [field, formatValue, fps, showFrames]);
 
 	const content =
 		computed || disabled ? (
@@ -277,10 +294,11 @@ const CompositionMetadataValue: React.FC<{
 				<span style={computedValueStyle}>{formatValue(value)}</span>
 			</span>
 		) : (
-			<InputDragger
+			<InputDraggerWithTextEditing
 				aria-label={fieldLabels[field]}
 				buttonStyle={metadataDraggerStyles[field]}
 				type="number"
+				textEditing={textEditing}
 				value={dragValue ?? pendingValue?.value ?? value}
 				disabled={pendingValue !== null}
 				status="ok"
