@@ -227,8 +227,9 @@ export const QuickSwitcherResult: React.FC<{
 
 	const row = (
 		<div
-			ref={ref}
 			key={result.id}
+			ref={ref}
+			data-compname={composition?.id}
 			style={style}
 			onClick={onSelected ?? undefined}
 		>
