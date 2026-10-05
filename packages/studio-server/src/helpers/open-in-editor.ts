@@ -571,6 +571,28 @@ export async function launchEditor(
 		args.unshift(folderToOpen);
 	}
 
+	if (process.platform === 'darwin' && folderToOpen !== null) {
+		const applicationPath = editor.process.match(
+			/^(.*?\.app)\/Contents\//,
+		)?.[1];
+		if (applicationPath && fs.existsSync(applicationPath)) {
+			// Match the CLI's native macOS launch without starting its Node.js wrapper.
+			// -n lets Electron receive the arguments and forward them to a running instance.
+			const opened = await new Promise<boolean>((resolve) => {
+				const proc = child_process.spawn(
+					'open',
+					['-n', '-g', '-a', applicationPath, '--args', ...args],
+					{stdio: 'ignore'},
+				);
+				proc.on('error', () => resolve(false));
+				proc.on('close', (code) => resolve(code === 0));
+			});
+			if (opened) {
+				return true;
+			}
+		}
+	}
+
 	if (_childProcess && isTerminalEditor(editor.command)) {
 		// There's an existing editor process already and it's attached
 		// to the terminal, so go kill it. Otherwise two separate editor
