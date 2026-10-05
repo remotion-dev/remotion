@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {Codec} from './codec';
 import type {supportedAudioCodecs} from './options/audio-codec';
 
@@ -48,7 +49,9 @@ export const defaultFileExtensionMap: {
 		default: 'aac',
 		forAudioCodec: {
 			aac: {
-				possible: ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'],
+				possible: NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+					? ['aac', '3gp', 'm4a', 'm4b']
+					: ['aac', '3gp', 'm4a', 'm4b', 'mpg', 'mpeg'],
 				default: 'aac',
 			},
 			'pcm-16': {

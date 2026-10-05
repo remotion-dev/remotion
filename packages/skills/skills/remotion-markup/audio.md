@@ -91,7 +91,7 @@ Use `useCurrentFrame()` and `interpolate()` for keyframed volume:
 
 ```tsx
 import { Audio } from "@remotion/media";
-import { interpolate, useCurrentFrame } from "remotion";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
@@ -108,17 +108,6 @@ return (
 ```
 
 With Studio interactivity enabled, these keyframes can be edited and are shown as a volume curve in the timeline.
-
-The `volume` prop also accepts a callback for procedural or media-relative volume. The callback frame starts at 0 when the audio begins to play, not at the composition frame:
-
-```tsx
-import { Audio } from "@remotion/media";
-
-<Audio
-  src={staticFile("audio.mp3")}
-  volume={(mediaFrame) => interpolate(mediaFrame, [0, 30], [0, 1])}
-/>
-```
 
 ## Muting
 
@@ -165,19 +154,19 @@ import { Audio } from "@remotion/media";
 
 Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
 
-Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
-
-- `"repeat"`: Frame count resets to 0 each loop (default)
-- `"extend"`: Frame count continues incrementing
-
 ```tsx
 import { Audio } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame } from "remotion";
+
+const frame = useCurrentFrame();
 
 <Audio
   src={staticFile("audio.mp3")}
   loop
-  loopVolumeCurveBehavior="extend"
-  volume={(f) => interpolate(f, [0, 300], [1, 0])} // Fade out over multiple loops
+  volume={interpolate(frame, [0, 300], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  })}
 />
 ```
 

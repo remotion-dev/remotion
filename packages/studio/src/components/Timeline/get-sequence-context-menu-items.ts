@@ -8,13 +8,14 @@ import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {copyText} from '../../helpers/copy-text';
 import {formatContextForAgents} from '../../helpers/format-file-location';
-import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {
 	getDefaultOpenInTarget,
 	getGitSourceName,
 	openGitSource,
 } from '../../helpers/get-git-menu-item';
+import {getVisibleAnnotationTarget} from '../../helpers/request-codex-annotation';
 import {getSequenceAnnotationMetadata} from '../../helpers/sequence-annotation';
+import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -347,69 +348,19 @@ export const getSequenceContextMenuItems = (
 				}
 			: null,
 		getCopyContextForAgentsMenuItem({contextForAgents}),
-		getCodexAnnotation() !== null
-			? {
-					type: 'item' as const,
-					id: 'annotate-layer',
-					keyHint: null,
-					label: 'Annotate with ChatGPT',
-					leftItem: null,
-					disabled: false,
-					onClick: () => {
-						const target = [
-							sequence.refForOutline?.current,
-							contextMenuTarget,
-						].find((element) => {
-							if (!element?.isConnected) {
-								return false;
-							}
-
-							const rect = element.getBoundingClientRect();
-							return (
-								rect.width > 0 &&
-								rect.height > 0 &&
-								rect.bottom > 0 &&
-								rect.right > 0 &&
-								rect.top < window.innerHeight &&
-								rect.left < window.innerWidth
-							);
-						});
-						if (!target) {
-							showNotification(
-								'The annotation target is no longer visible',
-								3000,
-							);
-							return;
-						}
-
-						const annotation = getCodexAnnotation();
-						if (annotation === null) {
-							showNotification('The annotation editor is unavailable', 3000);
-							return;
-						}
-
-						try {
-							const result = annotation.request(target, {
-								metadata: getSequenceAnnotationMetadata({
-									sequence,
-									location: originalLocation,
-								}),
-							});
-							if (!result?.accepted) {
-								showNotification('Could not open the annotation editor', 3000);
-							}
-						} catch (err) {
-							showNotification(
-								`Could not open the annotation editor: ${(err as Error).message}`,
-								3000,
-							);
-						}
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'annotate-layer',
-				}
-			: null,
+		...getAnnotateWithChatGPTMenuItems({
+			id: 'annotate-layer',
+			getTarget: () =>
+				getVisibleAnnotationTarget([
+					sequence.refForOutline?.current,
+					contextMenuTarget,
+				]),
+			initialComment: null,
+			metadata: getSequenceAnnotationMetadata({
+				sequence,
+				location: originalLocation,
+			}),
+		}),
 		assetLinkInfo
 			? {
 					type: 'item' as const,

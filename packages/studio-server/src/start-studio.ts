@@ -124,13 +124,16 @@ export const startStudio = async ({
 		relativePublicDir,
 		remotionRoot,
 	});
-	const hash = crypto.randomBytes(6).toString('hex');
-
 	const outputHashPrefix = '/outputs-';
-	const outputHash = `${outputHashPrefix}${hash}`;
+	const outputHash = `${outputHashPrefix}${crypto.randomBytes(6).toString('hex')}`;
 
+	// Asset URLs must survive restarts, but remain scoped to this project and folder.
 	const staticHashPrefix = '/static-';
-	const staticHash = `${staticHashPrefix}${hash}`;
+	const staticHash = `${staticHashPrefix}${crypto
+		.createHash('sha256')
+		.update(JSON.stringify([remotionRoot, publicDir]))
+		.digest('hex')
+		.slice(0, 12)}`;
 
 	initPublicFolderWatch({
 		publicDir,

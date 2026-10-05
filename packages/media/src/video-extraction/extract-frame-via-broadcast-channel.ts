@@ -25,8 +25,8 @@ export type ExtractFrameViaBroadcastChannelResult =
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
-	| {type: 'network-error'}
-	| {type: 'unknown-container-format'};
+	| {type: 'network-error'; error: Error | null}
+	| {type: 'unknown-container-format'; error: Error | null};
 
 addBroadcastChannelListener();
 
@@ -105,8 +105,8 @@ export const extractFrameViaBroadcastChannel = async ({
 		| {type: 'cannot-decode'; durationInSeconds: number | null}
 		| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 		| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
-		| {type: 'network-error'}
-		| {type: 'unknown-container-format'}
+		| {type: 'network-error'; error: Error | null}
+		| {type: 'unknown-container-format'; error: Error | null}
 	>((resolve, reject) => {
 		const onMessage = (event: MessageEvent) => {
 			const data = event.data as MessageFromMainTab;
@@ -172,17 +172,23 @@ export const extractFrameViaBroadcastChannel = async ({
 				return;
 			}
 
-			if (data.type === 'response-network-error') {
-				resolve({type: 'network-error'});
-				window.remotion_broadcastChannel!.removeEventListener(
-					'message',
-					onMessage,
-				);
-				return;
-			}
+			if (
+				data.type === 'response-network-error' ||
+				data.type === 'response-unknown-container-format'
+			) {
+				const error = data.error ? new Error(data.error.message) : null;
+				if (error && data.error) {
+					error.name = data.error.name;
+					error.stack = data.error.stack ?? undefined;
+				}
 
-			if (data.type === 'response-unknown-container-format') {
-				resolve({type: 'unknown-container-format'});
+				resolve({
+					type:
+						data.type === 'response-network-error'
+							? 'network-error'
+							: 'unknown-container-format',
+					error,
+				});
 				window.remotion_broadcastChannel!.removeEventListener(
 					'message',
 					onMessage,

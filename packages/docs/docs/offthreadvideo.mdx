@@ -111,6 +111,8 @@ If set to `false` (_default_), frames will be extracted as bitmap (BMP), which i
 
 Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/audio/volume) guide to learn how to use it.
 
+The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
+
 ```tsx twoslash title="Example using static volume"
 import {OffthreadVideo, staticFile} from 'remotion';
 
@@ -125,13 +127,15 @@ export const MyComposition = () => {
 ```
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
-import {interpolate, staticFile, OffthreadVideo} from 'remotion';
+import {interpolate, staticFile, OffthreadVideo, useCurrentFrame} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
+  const frame = useCurrentFrame();
+
   return (
     <>
-      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
+      <OffthreadVideo volume={interpolate(frame, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
     </>
   );
 };
@@ -141,9 +145,11 @@ By default, volumes between `0` and `1` are supported, and iOS Safari always set
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
+This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+When wrapped in a [`<Loop>`](/docs/loop), `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
+
+It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
 
 ### `style?`
 

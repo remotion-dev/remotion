@@ -1,3 +1,4 @@
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import type {AudioCodec} from './options/audio-codec';
 
 // libfdk_aac (AAC-LC) prepends 2048 samples of encoder delay ("priming") to
@@ -23,8 +24,12 @@ export const getAacPrimingInputArgs = ({
 	}
 
 	// Only containers with edit lists can carry the shift
-	const extension = outputExtension?.toLowerCase();
-	if (extension !== 'mp4' && extension !== 'mov') {
+	const extension = outputExtension?.toLowerCase() ?? null;
+	if (
+		extension !== 'mp4' &&
+		extension !== 'mov' &&
+		getMp4BrandForExtension(extension) === null
+	) {
 		return [];
 	}
 
