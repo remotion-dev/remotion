@@ -50,7 +50,10 @@ const getVideoConfigValue = ({
 		return null;
 	}
 
-	const binding = videoConfigValues[node.name];
+	const binding =
+		videoConfigValues instanceof Map
+			? videoConfigValues.get(node)
+			: videoConfigValues[node.name];
 	if (binding === undefined) {
 		return null;
 	}

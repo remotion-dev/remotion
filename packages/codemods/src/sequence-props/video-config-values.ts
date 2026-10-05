@@ -1,31 +1,17 @@
-import type {File} from '@babel/types';
+import type {File, Identifier} from '@babel/types';
 import * as recast from 'recast';
 import type {VideoConfigNumericBinding, VideoConfigValues} from 'remotion';
 
-export type VideoConfigIdentifierValues = Record<
-	string,
-	VideoConfigNumericBinding
->;
+export type VideoConfigIdentifierValues =
+	| Map<Identifier, VideoConfigNumericBinding>
+	| Record<string, VideoConfigNumericBinding>;
 
 export const getVideoConfigIdentifiers = ({
 	ast,
 }: {
 	ast: File;
-}): VideoConfigIdentifierValues => {
-	const candidates = new Map<string, VideoConfigNumericBinding>();
-	const otherDeclarations = new Set<string>();
-	const addCandidate = (
-		identifier: string,
-		value: VideoConfigNumericBinding,
-	) => {
-		if (candidates.has(identifier) || otherDeclarations.has(identifier)) {
-			candidates.delete(identifier);
-			otherDeclarations.add(identifier);
-			return;
-		}
-
-		candidates.set(identifier, value);
-	};
+}): Map<Identifier, VideoConfigNumericBinding> => {
+	const candidates = new Map<Identifier, VideoConfigNumericBinding>();
 
 	recast.types.visit(ast, {
 		visitVariableDeclarator(path) {
@@ -62,7 +48,7 @@ export const getVideoConfigIdentifiers = ({
 						continue;
 					}
 
-					addCandidate(property.value.name, {
+					candidates.set(property.value as Identifier, {
 						type: 'video-config',
 						field: configKey,
 					});
@@ -78,10 +64,10 @@ export const getVideoConfigIdentifiers = ({
 						: null;
 
 				if (numericConstant !== null) {
-					addCandidate(id.name, {type: 'constant', value: numericConstant});
-				} else {
-					candidates.delete(id.name);
-					otherDeclarations.add(id.name);
+					candidates.set(id as Identifier, {
+						type: 'constant',
+						value: numericConstant,
+					});
 				}
 			}
 
@@ -89,11 +75,25 @@ export const getVideoConfigIdentifiers = ({
 		},
 	});
 
-	for (const identifier of otherDeclarations) {
-		candidates.delete(identifier);
-	}
+	// Resolve each reference to its declaration. Components may independently
+	// declare the same name, while parameters and other shadowing stay computed.
+	const bindings = new Map<Identifier, VideoConfigNumericBinding>();
+	recast.types.visit(ast, {
+		visitIdentifier(path) {
+			const declarations =
+				path.scope.lookup(path.node.name)?.getBindings()[path.node.name] ?? [];
+			if (declarations.length === 1) {
+				const binding = candidates.get(declarations[0].node as Identifier);
+				if (binding !== undefined) {
+					bindings.set(path.node as Identifier, binding);
+				}
+			}
 
-	return Object.fromEntries(candidates);
+			this.traverse(path);
+		},
+	});
+
+	return bindings;
 };
 
 // Editing uses the current instance's configuration supplied with the mutation.
@@ -104,14 +104,12 @@ export const getVideoConfigIdentifierValues = ({
 	ast: File;
 	videoConfigValues: VideoConfigValues | null;
 }): VideoConfigIdentifierValues =>
-	Object.fromEntries(
-		Object.entries(getVideoConfigIdentifiers({ast})).flatMap(
-			([identifier, binding]) => {
-				if (binding.type === 'constant') return [[identifier, binding]];
-				const value = videoConfigValues?.[binding.field];
-				return value === undefined || !Number.isFinite(value)
-					? []
-					: [[identifier, {type: 'constant', value}]];
-			},
-		),
+	new Map(
+		[...getVideoConfigIdentifiers({ast})].flatMap(([identifier, binding]) => {
+			if (binding.type === 'constant') return [[identifier, binding]];
+			const value = videoConfigValues?.[binding.field];
+			return value === undefined || !Number.isFinite(value)
+				? []
+				: [[identifier, {type: 'constant', value}]];
+		}),
 	);
