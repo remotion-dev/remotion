@@ -13,7 +13,7 @@ export const getAnnotateWithChatGPTMenuItems = ({
 	readonly initialComment: string | null;
 	readonly metadata: Record<string, string | number>;
 }): ComboboxValue[] => {
-	if (getCodexAnnotation() === null) {
+	if (window.remotion_isReadOnlyStudio || getCodexAnnotation() === null) {
 		return [];
 	}
 
