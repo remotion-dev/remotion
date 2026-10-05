@@ -1,6 +1,6 @@
 import type {NodeWrapper} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useState} from 'react';
-import {Internals, isHtmlInCanvasSupported, useVideoConfig} from 'remotion';
+import {Internals, isHtmlInCanvasSupported} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import type {
 	SequenceNodePathInfo,
@@ -11,6 +11,8 @@ import {HtmlInCanvasIcon} from '../../icons/html-in-canvas';
 import {MotionBlurIcon} from '../../icons/motion-blur';
 import {SetSelectedModalContext} from '../../state/modals';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {getCurrentDimensions} from '../Timeline/imperative-state';
 import {wrapNode} from '../wrap-node-api';
 import {
 	InspectorQuickAction,
@@ -38,11 +40,10 @@ export const SequenceWrapAction: React.FC<{
 		readonly line: number;
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
-	const {width, height} = useVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
@@ -63,6 +64,9 @@ export const SequenceWrapAction: React.FC<{
 			}
 
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
+			const {width, height} = getCurrentDimensions();
 			const sequencesById = new Map(
 				sequences.map((registeredSequence) => [
 					registeredSequence.id,
@@ -178,9 +182,8 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
-			height,
 			nodePathInfo.sequenceSubscriptionKey,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			sequence.controls?.componentName,
 			sequence.displayName,
 			sequence.id,
@@ -188,7 +191,6 @@ export const SequenceWrapAction: React.FC<{
 			setSelectedModal,
 			sourceActionsDisabled,
 			sourceLocation,
-			width,
 		],
 	);
 

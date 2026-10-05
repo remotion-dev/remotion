@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useState} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -8,6 +8,11 @@ import {SetSelectedModalContext} from '../../state/modals';
 import {selectCompositionWhenReady} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {precomposeJsxNodes} from '../precompose-jsx-nodes-api';
+import {
+	getCurrentDimensions,
+	getCurrentDuration,
+	getCurrentFps,
+} from '../Timeline/imperative-state';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorQuickAction} from './common';
 
@@ -30,7 +35,6 @@ export const SequencePrecomposeAction: React.FC<{
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
-	const {width, height, fps, durationInFrames} = useVideoConfig();
 	const [busy, setBusy] = useState(false);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const compositionId =
@@ -88,7 +92,11 @@ export const SequencePrecomposeAction: React.FC<{
 			compositionFile,
 			compositionId,
 			existingCompositionIds: compositions.map(({id}) => id),
-			metadata: {width, height, fps, durationInFrames},
+			metadata: {
+				...getCurrentDimensions(),
+				fps: getCurrentFps(),
+				durationInFrames: getCurrentDuration(),
+			},
 		};
 
 		const uniqueSourceNodes =
@@ -135,13 +143,9 @@ export const SequencePrecomposeAction: React.FC<{
 		compositionFile,
 		compositionId,
 		compositions,
-		durationInFrames,
-		fps,
 		hasConnectedComposition,
-		height,
 		setSelectedModal,
 		targets,
-		width,
 	]);
 
 	if (!canChangeSource || hasConnectedComposition || targets.length === 0) {
