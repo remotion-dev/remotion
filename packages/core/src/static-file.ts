@@ -60,7 +60,7 @@ const trimLeadingSlash = (path: string): string => {
 	return path;
 };
 
-const inner = (path: string): string => {
+export const getStaticFileUrl = (path: string): string => {
 	if (typeof window !== 'undefined' && window.remotion_staticBase) {
 		if (path.startsWith(window.remotion_staticBase)) {
 			throw new Error(
@@ -68,7 +68,10 @@ const inner = (path: string): string => {
 			);
 		}
 
-		return `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
+		const src = `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
+		return window.remotion_outputsBase
+			? `${src}?v=${encodeURIComponent(window.remotion_outputsBase)}`
+			: src;
 	}
 
 	return `/${trimLeadingSlash(path)}`;
@@ -140,8 +143,8 @@ export const staticFile = (path: string) => {
 
 	if (typeof window !== 'undefined') {
 		// This lookup is primarily used by Browser Studio, where virtual assets
-		// have blob: URLs. Regular Studio sources are already encoded using the
-		// same per-path-segment encoding as the fallback below.
+		// have blob: URLs. Regular Studio sources include the per-start cache
+		// version and use the same per-path-segment encoding as the fallback below.
 		const matchingStaticFile = window.remotion_staticFiles?.find(
 			(file) => file.name === trimLeadingSlash(path),
 		);
@@ -151,7 +154,7 @@ export const staticFile = (path: string) => {
 	}
 
 	const preprocessed = encodeBySplitting(path);
-	const preparsed = inner(preprocessed);
+	const preparsed = getStaticFileUrl(preprocessed);
 
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;

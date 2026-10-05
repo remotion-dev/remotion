@@ -51,7 +51,9 @@ export const getTimelineAssetSrcFromSchema = (
 
 export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
 	if (src.startsWith(NoReactInternals.FILE_TOKEN)) {
-		const encodedAssetPath = src.slice(NoReactInternals.FILE_TOKEN.length);
+		const encodedAssetPath = src
+			.slice(NoReactInternals.FILE_TOKEN.length)
+			.split('?')[0];
 		let assetPath = encodedAssetPath;
 		try {
 			assetPath = encodedAssetPath.split('/').map(decodeURIComponent).join('/');
@@ -70,7 +72,7 @@ export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
 		typeof window === 'undefined' ? null : window.remotion_staticBase;
 
 	if (staticBase && src.startsWith(staticBase + '/')) {
-		const assetPath = src.slice(staticBase.length + 1);
+		const assetPath = src.slice(staticBase.length + 1).split('?')[0];
 		return {
 			kind: 'local',
 			assetPath: decodeURIComponent(assetPath),

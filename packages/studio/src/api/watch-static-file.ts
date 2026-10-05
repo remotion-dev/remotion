@@ -33,9 +33,13 @@ export const watchStaticFile = (
 		return {cancel: () => undefined};
 	}
 
-	const withoutStaticBase = fileName.startsWith(window.remotion_staticBase)
-		? fileName.replace(window.remotion_staticBase, '')
-		: fileName;
+	const withoutStaticBase =
+		window.remotion_staticBase &&
+		fileName.startsWith(window.remotion_staticBase + '/')
+			? decodeURIComponent(
+					fileName.slice(window.remotion_staticBase.length).split('?')[0],
+				)
+			: fileName;
 	const withoutLeadingSlash = withoutStaticBase.startsWith('/')
 		? withoutStaticBase.slice(1)
 		: withoutStaticBase;

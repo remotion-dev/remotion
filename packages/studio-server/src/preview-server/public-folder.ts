@@ -5,17 +5,21 @@ import type {StaticFile} from 'remotion';
 import {envSupportsFsRecursive} from './env-supports-fs-recursive';
 
 let files: StaticFile[] = [];
+let staticFileCacheBust: string | null = null;
 
 export const initPublicFolderWatch = ({
+	cacheBust,
 	publicDir,
 	onUpdate,
 	staticHash,
 }: {
 	publicDir: string;
 	remotionRoot: string;
+	cacheBust: string | null;
 	onUpdate: () => void;
 	staticHash: string;
 }) => {
+	staticFileCacheBust = cacheBust;
 	fetchFolder({publicDir, staticHash});
 	watchPublicFolder({publicDir, onUpdate, staticHash});
 };
@@ -35,6 +39,9 @@ export const fetchFolder = ({
 	}).map((f) => {
 		return {
 			...f,
+			src: staticFileCacheBust
+				? `${f.src}?v=${encodeURIComponent(staticFileCacheBust)}`
+				: f.src,
 			name: f.name.split(path.sep).join('/'),
 		};
 	});

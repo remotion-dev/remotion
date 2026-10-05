@@ -1,6 +1,7 @@
 // Must keep this file in sync with the one in packages/lambda/src/shared/serialize-props.ts!
 
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {getStaticFileUrl} from './static-file.js';
 
 export type SerializedJSONWithCustomFields = {
 	serializedString: string;
@@ -54,7 +55,7 @@ export const serializeJSONWithSpecialTypes = ({
 					item.startsWith(staticBase)
 				) {
 					customFileUsed = true;
-					return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
+					return `${FILE_TOKEN}${item.replace(staticBase + '/', '').split('?')[0]}`;
 				}
 
 				return value;
@@ -71,7 +72,7 @@ export const serializeJSONWithSpecialTypes = ({
 };
 
 export const resolveFileTokenToUrl = (value: string) => {
-	const encodedName = value.replace(FILE_TOKEN, '');
+	const encodedName = value.replace(FILE_TOKEN, '').split('?')[0];
 	let name = encodedName;
 	try {
 		name = encodedName.split('/').map(decodeURIComponent).join('/');
@@ -86,7 +87,7 @@ export const resolveFileTokenToUrl = (value: string) => {
 		return matchingStaticFile.src;
 	}
 
-	return `${window.remotion_staticBase}/${encodedName}`;
+	return getStaticFileUrl(encodedName);
 };
 
 export const deserializeJSONWithSpecialTypes = <T = Record<string, unknown>>(
