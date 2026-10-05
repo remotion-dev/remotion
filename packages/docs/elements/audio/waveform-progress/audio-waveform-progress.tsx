@@ -11,7 +11,7 @@ import {
 
 type AudioWaveformProgressProps = InteractiveTransformProps & {
 	readonly amplitude?: number;
-	readonly audioSrc?: string;
+	readonly src?: string;
 	readonly barGap?: number;
 	readonly numberOfBars?: number;
 	readonly playedColor?: string;
@@ -19,12 +19,13 @@ type AudioWaveformProgressProps = InteractiveTransformProps & {
 };
 
 const audioWaveformProgressSchema = {
-	audioSrc: {
+	src: {
 		type: 'asset',
 		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-		description: 'Audio source',
+		description: 'Source',
+		keyframable: false,
 	},
 	playedColor: {
 		type: 'color',
@@ -69,26 +70,19 @@ const audioWaveformProgressSchema = {
 
 const AudioWaveformProgressContent: React.FC<{
 	readonly amplitude: number;
-	readonly audioSrc: string;
+	readonly src: string;
 	readonly barGap: number;
 	readonly numberOfBars: number;
 	readonly playedColor: string;
 	readonly unplayedColor: string;
-}> = ({
-	amplitude,
-	audioSrc,
-	barGap,
-	numberOfBars,
-	playedColor,
-	unplayedColor,
-}) => {
+}> = ({amplitude, src, barGap, numberOfBars, playedColor, unplayedColor}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, fps} = useVideoConfig();
 	const durationInSeconds = durationInFrames / fps;
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
 		fps,
 		frame: 0,
-		src: audioSrc,
+		src,
 		windowInSeconds: durationInSeconds,
 	});
 	const gradientId = `audio-waveform-progress-${useId().replaceAll(':', '')}`;
@@ -119,7 +113,7 @@ const AudioWaveformProgressContent: React.FC<{
 
 	return (
 		<>
-			<Audio showInTimeline={false} src={audioSrc} />
+			<Audio showInTimeline={false} src={src} />
 			<svg height={300} viewBox="0 0 900 300" width={900}>
 				<defs>
 					<linearGradient
@@ -161,7 +155,7 @@ const AudioWaveformProgressContent: React.FC<{
 
 const AudioWaveformProgressInner: React.FC<AudioWaveformProgressProps> = ({
 	amplitude = 1,
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	src = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 	barGap = 5,
 	numberOfBars = 64,
 	playedColor = '#2563eb',
@@ -180,9 +174,9 @@ const AudioWaveformProgressInner: React.FC<AudioWaveformProgressProps> = ({
 			}}
 		>
 			<AudioWaveformProgressContent
-				key={`${audioSrc}-${durationInFrames}`}
+				key={`${src}-${durationInFrames}`}
 				amplitude={amplitude}
-				audioSrc={audioSrc}
+				src={src}
 				barGap={barGap}
 				numberOfBars={numberOfBars}
 				playedColor={playedColor}

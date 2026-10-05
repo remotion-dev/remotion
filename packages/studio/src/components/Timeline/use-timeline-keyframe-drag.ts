@@ -242,7 +242,10 @@ const getTimelineKeyframeDragTarget = ({
 		return null;
 	}
 
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const nodePath = {
+		...nodePathInfo.sequenceSubscriptionKey,
+		videoConfigValues: sequence.controls.videoConfigValues,
+	};
 	const fileName = nodePath.absolutePath;
 	const sequenceStatus = getCodeValueForTarget({propStatuses, nodePath});
 	if (!sequenceStatus?.canUpdate) {
@@ -258,7 +261,10 @@ const getTimelineKeyframeDragTarget = ({
 			return null;
 		}
 
-		const effectPropStatus = effectStatus.props[field.fieldKey];
+		const effectPropStatus = Internals.evaluateSourcePropStatuses(
+			effectStatus.props,
+			nodePath.videoConfigValues,
+		)[field.fieldKey];
 		if (effectPropStatus?.status !== 'keyframed') {
 			return null;
 		}
@@ -297,7 +303,10 @@ const getTimelineKeyframeDragTarget = ({
 		};
 	}
 
-	const sequencePropStatus = sequenceStatus.props[field.fieldKey];
+	const sequencePropStatus = Internals.evaluateSourcePropStatuses(
+		sequenceStatus.props,
+		nodePath.videoConfigValues,
+	)[field.fieldKey];
 	if (sequencePropStatus?.status !== 'keyframed') {
 		return null;
 	}

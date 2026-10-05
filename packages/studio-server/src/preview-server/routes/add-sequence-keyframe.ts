@@ -116,7 +116,6 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			nodePath: updatedNodePath,
 			componentIdentity: null,
 			effects: [],
-			videoConfigValues: nodePath.videoConfigValues,
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

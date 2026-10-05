@@ -355,18 +355,18 @@ export const useEditorActions = ({
               updateMultipleNodeProps({
                 project: current,
                 changes: staticChanges.map(
-                  ({ node, schema, updates }): NodePropChange => ({
+                  ({ node, schema, updates, nodePathInfo }): NodePropChange => ({
                     node,
                     schema,
                     updates,
-                    videoConfig,
+                    videoConfig: nodePathInfo.sequenceSubscriptionKey.videoConfigValues ?? videoConfig,
                   }),
                 ),
               }),
             );
           }
 
-          for (const { node, schema, keyframes } of nodeChanges.values()) {
+          for (const { node, schema, keyframes, nodePathInfo } of nodeChanges.values()) {
             if (keyframes.length > 0) {
               collect(
                 await updateNodeKeyframes({
@@ -374,7 +374,7 @@ export const useEditorActions = ({
                   node,
                   updates: keyframes,
                   schema,
-                  videoConfig,
+                  videoConfig: nodePathInfo.sequenceSubscriptionKey.videoConfigValues ?? videoConfig,
                 }),
               );
             }
@@ -770,7 +770,7 @@ export const ${componentName}: React.FC = () => {
               node,
               updates,
               schema: schema ?? undefined,
-              videoConfig: {
+              videoConfig: layer.track.sequence.controls?.videoConfigValues ?? {
                 width: ref.current.compositionWidth,
                 height: ref.current.compositionHeight,
                 fps: ref.current.compositionFps,

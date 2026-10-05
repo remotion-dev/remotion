@@ -1,7 +1,11 @@
 import type {Expression} from '@babel/types';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {VideoConfigNumericExpression} from 'remotion';
+import type {
+	VideoConfigNumericBinding,
+	VideoConfigNumericExpression,
+} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {VideoConfigIdentifierValues} from './video-config-values';
 
 const b = recast.types.builders;
@@ -34,7 +38,7 @@ const getVideoConfigValue = ({
 }: {
 	node: Expression;
 	videoConfigValues: VideoConfigIdentifierValues;
-}): {identifier: string; value: number} | null => {
+}): {identifier: string; binding: VideoConfigNumericBinding} | null => {
 	if (node.type === 'TSAsExpression') {
 		return getVideoConfigValue({
 			node: node.expression as Expression,
@@ -46,12 +50,12 @@ const getVideoConfigValue = ({
 		return null;
 	}
 
-	const value = videoConfigValues[node.name];
-	if (value === undefined || !Number.isFinite(value)) {
+	const binding = videoConfigValues[node.name];
+	if (binding === undefined) {
 		return null;
 	}
 
-	return {identifier: node.name, value};
+	return {identifier: node.name, binding};
 };
 
 export const parseVideoConfigNumericExpression = ({
@@ -94,17 +98,11 @@ export const parseVideoConfigNumericExpression = ({
 			return null;
 		}
 
-		const resolvedValue = minuend.value - subtrahend;
-		if (!Number.isFinite(resolvedValue)) {
-			return null;
-		}
-
 		return {
 			type: 'video-config-subtraction',
 			identifier: minuend.identifier,
-			minuend: minuend.value,
+			binding: minuend.binding,
 			subtrahend,
-			value: resolvedValue,
 		};
 	}
 
@@ -136,18 +134,12 @@ export const parseVideoConfigNumericExpression = ({
 	const multiplier = factorPosition === 'left' ? leftNumber! : rightNumber!;
 	const configValue =
 		factorPosition === 'left' ? rightVideoConfig! : leftVideoConfig!;
-	const value = multiplier * configValue.value;
-	if (!Number.isFinite(value)) {
-		return null;
-	}
-
 	return {
 		type: 'video-config-multiplication',
 		identifier: configValue.identifier,
 		multiplier,
-		multiplicand: configValue.value,
+		binding: configValue.binding,
 		factorPosition,
-		value,
 	};
 };
 
@@ -171,14 +163,25 @@ export const updateVideoConfigNumericExpression = ({
 	}
 
 	if (expression.type === 'video-config-value') {
-		return value === expression.value
+		return value ===
+			NoReactInternals.evaluateSourceNumericValue(expression, null)
 			? b.identifier(expression.identifier)
 			: numericExpression(value);
 	}
 
 	if (expression.type === 'video-config-subtraction') {
-		const subtrahend = expression.minuend - value;
-		if (!Number.isFinite(subtrahend)) {
+		const subtrahend =
+			(expression.binding.type === 'constant'
+				? expression.binding.value
+				: NaN) - value;
+		if (
+			!Number.isFinite(subtrahend) ||
+			(expression.binding.type === 'constant'
+				? expression.binding.value
+				: NaN) -
+				subtrahend !==
+				value
+		) {
 			return numericExpression(value);
 		}
 
@@ -193,8 +196,19 @@ export const updateVideoConfigNumericExpression = ({
 		return numericExpression(value);
 	}
 
-	const multiplier = value / expression.multiplicand;
-	if (!Number.isFinite(multiplier) || multiplier === 0) {
+	const multiplier =
+		value /
+		(expression.binding.type === 'constant' ? expression.binding.value : NaN);
+	// Preserve the expression only if evaluating it reproduces the requested value.
+	if (
+		!Number.isFinite(multiplier) ||
+		multiplier === 0 ||
+		multiplier *
+			(expression.binding.type === 'constant'
+				? expression.binding.value
+				: NaN) !==
+			value
+	) {
 		return numericExpression(value);
 	}
 

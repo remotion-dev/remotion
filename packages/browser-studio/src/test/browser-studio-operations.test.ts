@@ -279,12 +279,6 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -375,12 +369,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -472,12 +460,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!currentSubscription.success) {
 		throw new Error('Expected the updated Video node path');
@@ -878,12 +860,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -1034,12 +1010,6 @@ registerRoot(Root);`,
 		assetKeys: [],
 		effects: [],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription to succeed');
@@ -1128,12 +1098,6 @@ export const Comp = () => {
 		assetKeys: [],
 		effects: [['amount']],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription');
@@ -1639,12 +1603,6 @@ registerRoot(Root);`,
 			assetKeys: [],
 			effects: [],
 			clientId: 'browser-studio',
-			videoConfigValues: {
-				durationInFrames: 60,
-				fps: 30,
-				height: 720,
-				width: 1280,
-			},
 		});
 		if (!subscription.success) {
 			throw new Error('Expected sequence props subscription to succeed');
@@ -1911,12 +1869,6 @@ export const Comp = () => (
 		assetKeys: [],
 		effects: [['amount'], ['amount']],
 		clientId: 'browser-studio',
-		videoConfigValues: {
-			durationInFrames: 60,
-			fps: 30,
-			height: 720,
-			width: 1280,
-		},
 	});
 	if (!subscription.success) {
 		throw new Error('Expected sequence props subscription');

@@ -51,7 +51,7 @@ export const getCanvasSequenceNodePathInfo = (
 				nodePath: ['sequence', track.sequence.id],
 				sequenceKeys: [],
 				effectKeys: [],
-				videoConfigValues: null,
+				videoConfigValues: track.sequence.controls?.videoConfigValues ?? null,
 			},
 			auxiliaryKeys: [],
 			index: 0,

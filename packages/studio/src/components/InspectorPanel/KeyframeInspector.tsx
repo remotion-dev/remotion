@@ -185,7 +185,10 @@ export const KeyframeInspector: React.FC<{
 			return null;
 		}
 
-		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
+		const nodePath = {
+			...selection.nodePathInfo.sequenceSubscriptionKey,
+			videoConfigValues: track.sequence.controls.videoConfigValues,
+		};
 		const {keyframeDisplayOffset, keyframePlaybackRate} = track;
 
 		if (keyframeField.type === 'sequence') {

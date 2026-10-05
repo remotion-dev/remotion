@@ -26,3 +26,6 @@ if (RefreshRuntime.__remotionReactRefreshWrapped === null) {
 		return result;
 	};
 }
+
+window.remotion_performReactRefresh = () =>
+	RefreshRuntime.performReactRefresh();

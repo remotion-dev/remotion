@@ -16,6 +16,7 @@ import {
 import {formatFileLocation} from '../../helpers/format-file-location';
 import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
+import {didUnmountReactApp} from '../react-overlay';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
@@ -99,8 +100,11 @@ export const ErrorDisplay: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const annotationTarget = useRef<HTMLDivElement>(null);
 	const {remotionSkillsInfo} = useSettings();
+	const canShowProjectActions = !didUnmountReactApp();
 	const canAnnotate =
-		!window.remotion_isReadOnlyStudio && getCodexAnnotation() !== null;
+		canShowProjectActions &&
+		!window.remotion_isReadOnlyStudio &&
+		getCodexAnnotation() !== null;
 	const buildErrorLocation = getLocationFromBuildError(display.error);
 	const errorKind = calculateMetadata
 		? 'calculateMetadata'
@@ -240,7 +244,8 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				{stackFrames.length > 0 &&
+				{canShowProjectActions &&
+				stackFrames.length > 0 &&
 				canOpenInEditor &&
 				defaultEditorId &&
 				defaultEditorName ? (
@@ -255,12 +260,14 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				<CodingAgentButton
-					label="Fix with"
-					prompt={fixWithAgentPrompt}
-					size="default"
-					style={codingAgentButton}
-				/>
+				{canShowProjectActions ? (
+					<CodingAgentButton
+						label="Fix with"
+						prompt={fixWithAgentPrompt}
+						size="default"
+						style={codingAgentButton}
+					/>
+				) : null}
 				{canAnnotate ? (
 					<>
 						<ModalButton onClick={onSendToChatGPT}>Send to ChatGPT</ModalButton>
@@ -314,7 +321,11 @@ export const ErrorDisplay: React.FC<{
 								horizontalSpacing={14}
 								lineNumberWidth={lineNumberWidth}
 								defaultFunctionName={'(anonymous function)'}
-								editorId={canOpenInEditor ? defaultEditorId : null}
+								editorId={
+									canShowProjectActions && canOpenInEditor
+										? defaultEditorId
+										: null
+								}
 							/>
 						);
 					})}

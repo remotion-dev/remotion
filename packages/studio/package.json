@@ -95,6 +95,12 @@
 			"module": "./dist/esm/internals.mjs",
 			"import": "./dist/esm/internals.mjs"
 		},
+		"./previewBootstrap": {
+			"types": "./dist/previewBootstrap.d.ts",
+			"require": "./dist/previewBootstrap.js",
+			"module": "./dist/esm/previewBootstrap.mjs",
+			"import": "./dist/esm/previewBootstrap.mjs"
+		},
 		"./previewEntry": {
 			"types": "./dist/previewEntry.d.ts",
 			"require": "./dist/previewEntry.js",
@@ -110,6 +116,9 @@
 			],
 			"internals": [
 				"./dist/internals.d.ts"
+			],
+			"previewBootstrap": [
+				"./dist/previewBootstrap.d.ts"
 			],
 			"previewEntry": [
 				"./dist/previewEntry.d.ts"

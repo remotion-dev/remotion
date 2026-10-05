@@ -48,6 +48,11 @@ await buildPackage({
 			splitting: true,
 		},
 		{
+			path: 'src/previewBootstrap.ts',
+			target: 'browser',
+			splitting: true,
+		},
+		{
 			path: 'src/previewEntry.tsx',
 			target: 'browser',
 			splitting: true,

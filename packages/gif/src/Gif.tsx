@@ -119,6 +119,7 @@ const GifInner = ({
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
 	const gifProps: RemotionGifProps & {

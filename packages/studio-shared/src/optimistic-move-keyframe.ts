@@ -1,7 +1,9 @@
+import type {VideoConfigValues} from 'remotion';
 import type {
 	CanUpdateSequencePropsResponse,
 	CanUpdateSequencePropStatus,
 } from 'remotion';
+import {updateSourcePropStatus} from './update-source-prop-status';
 
 export type OptimisticKeyframeMove = {
 	readonly fieldKey: string;
@@ -163,9 +165,11 @@ export const moveKeyframesInPropStatus = ({
 
 export const optimisticMoveSequenceKeyframes = ({
 	previous,
+	videoConfigValues,
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	keyframes: readonly OptimisticKeyframeMove[];
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
@@ -186,7 +190,12 @@ export const optimisticMoveSequenceKeyframes = ({
 			continue;
 		}
 
-		props[fieldKey] = moveKeyframesInPropStatus({status, moves});
+		props[fieldKey] = updateSourcePropStatus({
+			source: status,
+			videoConfigValues,
+			update: (evaluatedStatus) =>
+				moveKeyframesInPropStatus({status: evaluatedStatus, moves}),
+		});
 	}
 
 	return {
@@ -197,9 +206,11 @@ export const optimisticMoveSequenceKeyframes = ({
 
 export const optimisticMoveEffectKeyframes = ({
 	previous,
+	videoConfigValues,
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	keyframes: readonly (OptimisticKeyframeMove & {effectIndex: number})[];
 }): CanUpdateSequencePropsResponse => {
 	if (!previous.canUpdate) {
@@ -237,7 +248,12 @@ export const optimisticMoveEffectKeyframes = ({
 				continue;
 			}
 
-			props[fieldKey] = moveKeyframesInPropStatus({status, moves});
+			props[fieldKey] = updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					moveKeyframesInPropStatus({status: evaluatedStatus, moves}),
+			});
 		}
 
 		return {

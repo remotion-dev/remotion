@@ -19,6 +19,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -456,7 +457,6 @@ export type SubscribeToSequencePropsRequest = {
 	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
-	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -574,7 +574,7 @@ export type SaveSequencePropsRequest = {
 export type SaveSequencePropsResult = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
-	props: Record<string, CanUpdateSequencePropStatus>;
+	props: Record<string, CanUpdateSequencePropSource>;
 };
 
 export type SaveSequencePropsResponse =

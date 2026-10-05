@@ -1,6 +1,7 @@
 import type {File, JSXElement, JSXFragment, Node} from '@babel/types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {addComposition} from './add-composition';
 import type {CodemodProject} from './codemod-project';
 import {
@@ -26,6 +27,8 @@ import {
 	isPureMathConstant,
 	isPureMathMethod,
 } from './precompose-pure-functions';
+import {getStyleablePrecompositionRoot} from './precompose-styleable-root';
+import {captureJsxAttributeSources, printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {ensureNamedImport, getImportedName} from './sequence-props/imports';
 import {parseAst} from './sequence-props/parse-ast';
@@ -33,8 +36,14 @@ import {
 	applySourceEdits,
 	captureImportSnapshots,
 	getInsertImportSourceEdits,
+	type SourceEdit,
 } from './source-edits';
-import {getEndOfLine, getIndentationUnit, getLineIndent} from './source-style';
+import {
+	getEndOfLine,
+	getIndentationUnit,
+	getLineIndent,
+	getPreferredQuote,
+} from './source-style';
 
 type PrecompositionPlan = {
 	ast: File;
@@ -1582,11 +1591,14 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		compositionFile: registrationFile,
 		compositionId,
 	});
-	const parentMetadata = getNodeProps({
-		project,
-		node: parentComposition,
-		keys: ['width', 'height', 'fps', 'durationInFrames'],
-	}).props;
+	const parentMetadata = NoReactInternals.evaluateSourcePropStatuses(
+		getNodeProps({
+			project,
+			node: parentComposition,
+			keys: ['width', 'height', 'fps', 'durationInFrames'],
+		}).props,
+		null,
+	);
 	for (const key of ['width', 'height', 'fps', 'durationInFrames'] as const) {
 		const value = parentMetadata[key];
 		if (value.status !== 'static' || value.codeValue !== metadata[key]) {
@@ -1670,7 +1682,169 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	occupiedNames.add(name);
 
 	const frameProps = hookProps.filter((prop) => prop.kind === 'frame');
-	const resolvedProps = hookProps
+	const managedProps = new Set([
+		'from',
+		'durationInFrames',
+		'trimBefore',
+		'playbackRate',
+		'loop',
+		'freeze',
+		'hidden',
+		'name',
+		'showInTimeline',
+		'premountFor',
+		'postmountFor',
+		'styleWhilePremounted',
+		'styleWhilePostmounted',
+		'cropLeft',
+		'cropRight',
+		'cropTop',
+		'cropBottom',
+	]);
+	let styleRoot =
+		nodes.length === 1 &&
+		frameProps.length === 0 &&
+		!selectedSequence?.openingElement.attributes.some((attribute) => {
+			if (
+				attribute.type !== 'JSXAttribute' ||
+				attribute.name.name !== 'layout'
+			) {
+				return false;
+			}
+
+			const value =
+				attribute.value?.type === 'JSXExpressionContainer'
+					? attribute.value.expression
+					: attribute.value;
+			return value?.type !== 'StringLiteral' || value.value !== 'absolute-fill';
+		}) &&
+		!hookProps.some(
+			({name: propName}) =>
+				managedProps.has(propName) || ['style', 'controls'].includes(propName),
+		)
+			? getStyleablePrecompositionRoot({ast, children})
+			: null;
+	const rootTimingAttributes = styleRoot?.handlesTiming
+		? styleRoot.element.openingElement.attributes.filter(
+				(attribute) =>
+					attribute.type === 'JSXAttribute' &&
+					attribute.name.type === 'JSXIdentifier' &&
+					managedProps.has(attribute.name.name) &&
+					// Cropping must still see the root's authored clipPath.
+					!attribute.name.name.startsWith('crop'),
+			)
+		: [];
+	let rootDuration: number | null = null;
+	let rootTrimBefore = 0;
+	let rootFrom = 0;
+	for (const attribute of rootTimingAttributes) {
+		if (
+			attribute.type !== 'JSXAttribute' ||
+			attribute.name.type !== 'JSXIdentifier'
+		) {
+			continue;
+		}
+
+		const key = attribute.name.name;
+		if (!['from', 'durationInFrames', 'trimBefore'].includes(key)) {
+			continue;
+		}
+
+		const expression =
+			attribute.value?.type === 'JSXExpressionContainer'
+				? attribute.value.expression
+				: null;
+		if (
+			expression?.type !== 'NumericLiteral' ||
+			!Number.isInteger(expression.value) ||
+			expression.value < 0 ||
+			(key === 'durationInFrames' && expression.value === 0)
+		) {
+			styleRoot = null;
+			break;
+		}
+
+		if (key === 'durationInFrames') {
+			rootDuration = expression.value;
+		} else if (key === 'trimBefore') {
+			rootTrimBefore = expression.value;
+		} else {
+			rootFrom = expression.value;
+		}
+	}
+
+	if (rootDuration === null && (rootFrom !== 0 || rootTrimBefore !== 0)) {
+		styleRoot = null;
+	}
+
+	const styleAttribute = styleRoot?.element.openingElement.attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' && attribute.name.name === 'style',
+	);
+	if (
+		styleAttribute?.type === 'JSXAttribute' &&
+		(styleAttribute.value?.type !== 'JSXExpressionContainer' ||
+			styleAttribute.value.expression.type === 'JSXEmptyExpression')
+	) {
+		styleRoot = null;
+	}
+
+	const contentReferences = new Set<string>();
+	if (styleRoot) {
+		const collectReferences = (node: Node) => {
+			recast.visit(node, {
+				visitJSXAttribute(path) {
+					if (rootTimingAttributes.includes(path.node as never)) {
+						return false;
+					}
+
+					return this.traverse(path);
+				},
+				visitIdentifier(path) {
+					if (
+						isReferenced(
+							path.node as Node,
+							path.parentPath.node as Node,
+							path.parentPath.parentPath?.node as Node | undefined,
+						)
+					) {
+						contentReferences.add(path.node.name);
+					}
+
+					this.traverse(path);
+				},
+			});
+		};
+
+		collectReferences(styleRoot.element);
+		for (const prop of [...derivedProps].reverse()) {
+			if (contentReferences.has(prop.name)) {
+				collectReferences(parseAst(`const ${prop.name} = ${prop.initSource};`));
+			}
+		}
+	}
+
+	const contentDerivedProps = styleRoot
+		? derivedProps.filter((prop) => contentReferences.has(prop.name))
+		: derivedProps;
+	const contentHookProps = styleRoot
+		? hookProps.filter((prop) => contentReferences.has(prop.name))
+		: hookProps;
+	let contentName = `${name}Content`;
+	for (let suffix = 2; occupiedNames.has(contentName); suffix++) {
+		contentName = `${name}Content${suffix}`;
+	}
+
+	occupiedNames.add(contentName);
+	let styleAlias = 'precomposeStyle';
+	for (let suffix = 2; occupiedNames.has(styleAlias); suffix++) {
+		styleAlias = `precomposeStyle${suffix}`;
+	}
+
+	occupiedNames.add(styleAlias);
+	const quote = getPreferredQuote(input, null) === 'single' ? "'" : '"';
+	const styleType = `import(${quote}react${quote}).CSSProperties`;
+	const resolvedProps = contentHookProps
 		.filter((prop) => prop.kind !== 'frame')
 		.map((prop) => {
 			const suffix = prop.name.charAt(0).toUpperCase() + prop.name.slice(1);
@@ -1688,17 +1862,21 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 			occupiedNames.add(standaloneAlias);
 			return {...prop, parentAlias, standaloneAlias};
 		});
-	const destructuredProps = resolvedProps
-		.map(({name: propName, parentAlias}) => `${propName}: ${parentAlias}`)
-		.join(', ');
-	const typedProps = resolvedProps
-		.map(({name: propName}) => `${propName}?: number | null`)
-		.join('; ');
+	const destructuredProps = [
+		...(styleRoot ? [`style: ${styleAlias}`] : []),
+		...resolvedProps.map(
+			({name: propName, parentAlias}) => `${propName}: ${parentAlias}`,
+		),
+	].join(', ');
+	const typedProps = [
+		...(styleRoot ? [`style?: ${styleType}`] : []),
+		...resolvedProps.map(({name: propName}) => `${propName}?: number | null`),
+	].join('; ');
 	const parameters =
-		resolvedProps.length === 0
+		resolvedProps.length === 0 && styleRoot === null
 			? ''
 			: `{${destructuredProps}}${filePath.endsWith('.tsx') ? `: {${typedProps}}` : ''}`;
-	const signature = `export function ${name}(${parameters}) {`;
+	const signature = `${styleRoot ? 'function' : 'export function'} ${styleRoot ? contentName : name}(${parameters}) {`;
 	const valueStatements = [
 		...frameProps.map(
 			({name: propName, hookName}) => `const ${propName} = ${hookName}();`,
@@ -1718,7 +1896,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 				`const ${propName} = ${parentAlias} ?? ${standaloneAlias};`,
 			];
 		}),
-		...derivedProps.map(
+		...contentDerivedProps.map(
 			({name: propName, initSource}) => `const ${propName} = ${initSource};`,
 		),
 	];
@@ -1745,26 +1923,61 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		}
 	}
 
-	const sequenceTag = ensureNamedImport({
-		ast,
-		importedName: 'Sequence',
-		sourcePath: 'remotion',
-		localName: sequenceLocalName,
-	});
+	const sequenceTag = styleRoot
+		? null
+		: ensureNamedImport({
+				ast,
+				importedName: 'Sequence',
+				sourcePath: 'remotion',
+				localName: sequenceLocalName,
+			});
 	const endOfLine = getEndOfLine(input);
 	const unit = getIndentationUnit(input, null);
 	const originalIndent = getLineIndent({input, offset: start});
 	const wrapperName = sequenceName ?? name;
-	const childSource = `<${name}${resolvedProps.map(({name: propName}) => ` ${propName}={${propName}}`).join('')} />`;
+	const movedAttributes = styleRoot ? rootTimingAttributes : [];
+	const childAttributes = movedAttributes.map((attribute) =>
+		input.slice(
+			recastLocToOffset(input, attribute.loc!.start),
+			recastLocToOffset(input, attribute.loc!.end),
+		),
+	);
+	if (
+		styleRoot &&
+		!movedAttributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' && attribute.name.name === 'name',
+		)
+	) {
+		childAttributes.unshift(`name={${JSON.stringify(wrapperName)}}`);
+	}
+
+	if (
+		styleRoot &&
+		!movedAttributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.name === 'premountFor',
+		)
+	) {
+		childAttributes.push(`premountFor={${metadata.fps}}`);
+	}
+
+	childAttributes.push(
+		...resolvedProps.map(({name: propName}) => `${propName}={${propName}}`),
+	);
+	const childSource = `<${name}${childAttributes.map((attribute) => ` ${attribute}`).join('')} />`;
 	const replacementSource = selectedSequence
 		? `${endOfLine}${originalIndent}${unit}${childSource}${endOfLine}${originalIndent}`
-		: [
-				`<${sequenceTag} layout="none" name={${JSON.stringify(wrapperName)}}>`,
-				`${originalIndent}${unit}${childSource}`,
-				`${originalIndent}</${sequenceTag}>`,
-			].join(endOfLine);
+		: styleRoot
+			? childSource
+			: [
+					`<${sequenceTag} layout="none" name={${JSON.stringify(wrapperName)}}>`,
+					`${originalIndent}${unit}${childSource}`,
+					`${originalIndent}</${sequenceTag}>`,
+				].join(endOfLine);
 	const replacementStatement = parseAst(
-		selectedSequence
+		selectedSequence || styleRoot
 			? `const replacement = ${childSource};`
 			: `const replacement = <${sequenceTag} layout="none" name={${JSON.stringify(wrapperName)}}>${childSource}</${sequenceTag}>;`,
 	).program.body[0];
@@ -1777,17 +1990,129 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		throw new Error('Could not create the pre-composed JSX');
 	}
 
+	const componentSourceEdits: SourceEdit[] = [];
+	const additionalSourceEdits: SourceEdit[] = [];
+	let wrapperSource: string | null = null;
+	let wrapperDeclaration: File['program']['body'][number] | null = null;
+	if (styleRoot) {
+		const {openingElement} = styleRoot.element;
+		const originalAttributeSources = captureJsxAttributeSources(openingElement);
+		const b = recast.types.builders;
+		const originalStyle =
+			styleAttribute?.type === 'JSXAttribute' &&
+			styleAttribute.value?.type === 'JSXExpressionContainer'
+				? styleAttribute.value.expression
+				: null;
+		const mergedStyle = b.objectExpression([
+			...(originalStyle?.type === 'ObjectExpression'
+				? originalStyle.properties
+				: originalStyle && originalStyle.type !== 'NullLiteral'
+					? [b.spreadElement(originalStyle as never)]
+					: []),
+			b.spreadElement(b.identifier(styleAlias)),
+		] as never);
+		openingElement.attributes = openingElement.attributes.filter(
+			(attribute) => !movedAttributes.includes(attribute),
+		);
+		if (styleAttribute?.type === 'JSXAttribute') {
+			styleAttribute.value = b.jsxExpressionContainer(mergedStyle) as never;
+			originalAttributeSources.delete(styleAttribute);
+		} else {
+			openingElement.attributes.push(
+				b.jsxAttribute(
+					b.jsxIdentifier('style'),
+					b.jsxExpressionContainer(mergedStyle),
+				) as never,
+			);
+		}
+
+		const rootStart = recastLocToOffset(input, openingElement.loc!.start);
+		const rootIndent = getLineIndent({input, offset: rootStart});
+		const openingSource = printJsxOpeningElement({
+			compactLiteralProps: false,
+			openingElement: openingElement as never,
+			input,
+			originalAttributeSources,
+			prettierConfigOverride: null,
+		});
+		componentSourceEdits.push({
+			start: rootStart - start,
+			end: recastLocToOffset(input, openingElement.loc!.end) - start,
+			replacement: openingSource
+				.split(/\r?\n/)
+				.map((line, index) => (index === 0 ? line : `${rootIndent}${line}`))
+				.join(endOfLine),
+		});
+
+		// A retained Sequence still gates when its children can mount. Premount
+		// that existing container as well, without introducing a new one.
+		if (
+			selectedSequence &&
+			!selectedSequence.openingElement.attributes.some(
+				(attribute) =>
+					attribute.type === 'JSXAttribute' &&
+					attribute.name.name === 'premountFor',
+			)
+		) {
+			const outerOpening = selectedSequence.openingElement;
+			const outerSources = captureJsxAttributeSources(outerOpening);
+			outerOpening.attributes.push(
+				b.jsxAttribute(
+					b.jsxIdentifier('premountFor'),
+					b.jsxExpressionContainer(b.numericLiteral(metadata.fps)),
+				) as never,
+			);
+			const outerStart = recastLocToOffset(input, outerOpening.loc!.start);
+			const outerIndent = getLineIndent({input, offset: outerStart});
+			additionalSourceEdits.push({
+				start: outerStart,
+				end: recastLocToOffset(input, outerOpening.loc!.end),
+				replacement: printJsxOpeningElement({
+					compactLiteralProps: false,
+					openingElement: outerOpening as never,
+					input,
+					originalAttributeSources: outerSources,
+					prettierConfigOverride: null,
+				})
+					.split(/\r?\n/)
+					.map((line, index) => (index === 0 ? line : `${outerIndent}${line}`))
+					.join(endOfLine),
+			});
+		}
+
+		let interactiveLocalName = 'Interactive';
+		for (let suffix = 2; occupiedNames.has(interactiveLocalName); suffix++) {
+			interactiveLocalName = `RemotionInteractive${suffix}`;
+		}
+
+		const interactiveTag = ensureNamedImport({
+			ast,
+			importedName: 'Interactive',
+			sourcePath: 'remotion',
+			localName: interactiveLocalName,
+		});
+		wrapperSource = [
+			`export const ${name} = ${interactiveTag}.withSchema({`,
+			`${unit}Component: ${contentName},`,
+			`${unit}componentName: ${JSON.stringify(`<${name}>`)},`,
+			`${unit}schema: {},`,
+			`${unit}wrapInSequence: true,`,
+			'});',
+		].join(endOfLine);
+		wrapperDeclaration = parseAst(wrapperSource).program.body[0];
+	}
+
 	const declarationStatement = parseAst(
 		`${signature} ${valueStatements.join(' ')} return <></>; }`,
 	).program.body[0];
-	if (
-		declarationStatement.type !== 'ExportNamedDeclaration' ||
-		declarationStatement.declaration?.type !== 'FunctionDeclaration'
-	) {
+	const declaration =
+		declarationStatement.type === 'ExportNamedDeclaration'
+			? declarationStatement.declaration
+			: declarationStatement;
+	if (declaration?.type !== 'FunctionDeclaration') {
 		throw new Error('Could not create the pre-composed component');
 	}
 
-	const {declaration} = declarationStatement;
 	const returnStatement = declaration.body.body.at(-1);
 	if (
 		returnStatement?.type !== 'ReturnStatement' ||
@@ -1796,7 +2121,12 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		throw new Error('Could not create the pre-composed fragment');
 	}
 
-	returnStatement.argument.children = children;
+	if (styleRoot) {
+		returnStatement.argument = styleRoot.element;
+	} else {
+		returnStatement.argument.children = children;
+	}
+
 	if (selectedSequence) {
 		selectedSequence.children = [replacement];
 	} else if (parent === null) {
@@ -1810,6 +2140,10 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	}
 
 	ast.program.body.push(declarationStatement);
+	if (wrapperDeclaration) {
+		ast.program.body.push(wrapperDeclaration);
+	}
+
 	const removableLocalNames = new Set([
 		...frameProps.map(({name: propName}) => propName),
 		...derivedProps.map(({name: propName}) => propName),
@@ -1873,7 +2207,10 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		}
 	}
 
-	const source = input.slice(start, end);
+	const source = applySourceEdits({
+		input: input.slice(start, end),
+		edits: componentSourceEdits,
+	});
 	const sourceLines = source.split(/\r?\n/);
 	if (selectedSequence) {
 		while (sourceLines[0]?.trim() === '') {
@@ -1898,11 +2235,11 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 						: line.trimStart();
 			return withoutOriginalIndent.length === 0
 				? ''
-				: `${unit}${unit}${unit}${withoutOriginalIndent}`;
+				: `${unit}${unit}${styleRoot ? '' : unit}${withoutOriginalIndent}`;
 		})
 		.join(endOfLine);
 	const componentSignature =
-		signature.length <= 80 || resolvedProps.length === 0
+		styleRoot || signature.length <= 80 || resolvedProps.length === 0
 			? signature
 			: filePath.endsWith('.tsx')
 				? [
@@ -1926,24 +2263,31 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 						'}) {',
 					].join(endOfLine);
 	const component = [
-		...(resolvedProps.length > 0 && !filePath.endsWith('.tsx')
+		...((styleRoot || resolvedProps.length > 0) && !filePath.endsWith('.tsx')
 			? [
-					`/** @param {{${resolvedProps.map(({name: propName}) => `${propName}?: number | null`).join(', ')}}} props */`,
+					`/** @param {{${[
+						...(styleRoot ? [`style?: ${styleType}`] : []),
+						...resolvedProps.map(
+							({name: propName}) => `${propName}?: number | null`,
+						),
+					].join(', ')}}} props */`,
 				]
 			: []),
 		componentSignature,
 		...valueStatements.map((statement) => `${unit}${statement}`),
 		`${unit}return (`,
-		`${unit}${unit}<>`,
+		...(styleRoot ? [] : [`${unit}${unit}<>`]),
 		movedSource,
-		`${unit}${unit}</>`,
+		...(styleRoot ? [] : [`${unit}${unit}</>`]),
 		`${unit});`,
 		'}',
+		...(wrapperSource ? ['', wrapperSource] : []),
 	].join(endOfLine);
 	const sourceOutput = applySourceEdits({
 		input,
 		edits: [
 			...unusedLocalEdits,
+			...additionalSourceEdits,
 			{start, end, replacement: replacementSource},
 			{
 				start: input.length,
@@ -2000,7 +2344,11 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		component: {importName: name, importPath},
 		metadata: {
 			...metadata,
-			durationInFrames: sequenceDuration ?? metadata.durationInFrames,
+			durationInFrames:
+				sequenceDuration ??
+				(styleRoot && rootDuration !== null
+					? rootDuration + rootTrimBefore
+					: metadata.durationInFrames),
 		},
 	});
 	const registrationOutput = registrationResult.changes.find(

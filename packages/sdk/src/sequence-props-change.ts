@@ -1,4 +1,4 @@
-import type {CanUpdateSequencePropStatus, InteractivitySchema} from 'remotion';
+import type {CanUpdateSequencePropSource, InteractivitySchema} from 'remotion';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
 type CanvasSequencePropChangeBase = {
@@ -37,4 +37,4 @@ export type CanvasSequencePropsChangeHandler = (
 export type CanvasSequencePropStatusResolver = (
 	nodePathInfo: SequenceNodePathInfo,
 	keys: readonly string[],
-) => Record<string, CanUpdateSequencePropStatus> | null;
+) => Record<string, CanUpdateSequencePropSource> | null;

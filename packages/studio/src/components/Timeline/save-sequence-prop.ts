@@ -181,6 +181,7 @@ export const saveSequenceProps = ({
 	for (const keyframe of keyframesToAdd) {
 		setPropStatuses(keyframe.nodePath, (prev) =>
 			optimisticAddSequenceKeyframe({
+				videoConfigValues: keyframe.nodePath.videoConfigValues,
 				previous: prev,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.sourceFrame,

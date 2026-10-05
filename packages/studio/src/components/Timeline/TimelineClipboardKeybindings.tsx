@@ -15,6 +15,7 @@ import {
 } from '@remotion/studio-shared';
 import type React from 'react';
 import {memo, useContext, useEffect} from 'react';
+import type {VideoConfigValues} from 'remotion';
 import {
 	Internals,
 	type OverrideIdToNodePaths,
@@ -222,13 +223,16 @@ type CopyableEffectStatus = React.ContextType<
 
 const effectStatusToSnapshot = (
 	effect: CopyableEffectStatus,
+	videoConfigValues: VideoConfigValues | null,
 ): EffectClipboardSnapshot | null => {
 	if (effect.importPath === null) {
 		return null;
 	}
 
 	const params: Record<string, EffectClipboardParam> = {};
-	for (const [key, prop] of Object.entries(effect.props)) {
+	for (const [key, prop] of Object.entries(
+		Internals.evaluateSourcePropStatuses(effect.props, videoConfigValues),
+	)) {
 		if (prop.status === 'static' && prop.codeValue === undefined) {
 			continue;
 		}
@@ -290,7 +294,10 @@ export const getSnapshotsFromSelection = ({
 			return null;
 		}
 
-		const snapshot = effectStatusToSnapshot(effect);
+		const snapshot = effectStatusToSnapshot(
+			effect,
+			selection.nodePathInfo.sequenceSubscriptionKey.videoConfigValues,
+		);
 		if (snapshot === null) {
 			return null;
 		}
@@ -452,7 +459,10 @@ export const getEffectPropClipboardDataFromSelection = ({
 		return null;
 	}
 
-	const prop = effect.props[selection.key];
+	const prop = Internals.evaluateSourcePropStatuses(
+		effect.props,
+		selection.nodePathInfo.sequenceSubscriptionKey.videoConfigValues,
+	)[selection.key];
 	if (!prop) {
 		return null;
 	}
@@ -594,7 +604,10 @@ const getPasteEffectPropTargetForSelection = ({
 		type: 'valid',
 		target: {
 			fileName: selection.nodePathInfo.sequenceSubscriptionKey.absolutePath,
-			nodePath: selection.nodePathInfo.sequenceSubscriptionKey,
+			nodePath: {
+				...selection.nodePathInfo.sequenceSubscriptionKey,
+				videoConfigValues: sequence.controls?.videoConfigValues ?? null,
+			},
 			effectIndex: target.effectIndex,
 			fieldKey: target.fieldKey,
 			defaultValue: getDefaultValue(fieldSchema),
@@ -675,11 +688,31 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 			event: 'keydown',
 			action: 'copyEffectsAndValues',
 			callback: (e) => {
-				const {selectedItems} = currentSelection.current;
 				const propStatuses = propStatusesRef.current;
 				const sequences = sequencesRef.current;
 				const overrideIdToNodePathMappings =
 					overrideIdToNodePathMappingsRef.current;
+				const selectedItems = currentSelection.current.selectedItems.map(
+					(selection) => {
+						if (selection.type === 'guide') return selection;
+
+						const track = findTrackForNodePathInfo({
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							nodePathInfo: selection.nodePathInfo,
+						});
+						return track?.nodePathInfo
+							? {
+									...selection,
+									nodePathInfo: {
+										...selection.nodePathInfo,
+										sequenceSubscriptionKey:
+											track.nodePathInfo.sequenceSubscriptionKey,
+									},
+								}
+							: selection;
+					},
+				);
 				if (selectedItems.length === 0) {
 					return;
 				}

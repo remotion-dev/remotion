@@ -1,7 +1,5 @@
-import {reloadUrl} from '../helpers/url-state';
-import {didUnmountReactApp, startReportingRuntimeErrors} from './react-overlay';
+import {startReportingRuntimeErrors} from './react-overlay';
 import {mountRemotionOverlay} from './remotion-overlay';
-import {setErrorsRef} from './remotion-overlay/Overlay';
 
 declare global {
 	const __webpack_hash__: unknown;
@@ -19,11 +17,11 @@ declare global {
 		/**
 		 * The module in question.
 		 */
-		moduleId: number;
+		moduleId: ModuleId;
 		/**
 		 * For errors: the module id owning the accept handler.
 		 */
-		dependencyId?: number | undefined;
+		dependencyId?: ModuleId | undefined;
 		/**
 		 * For declined/accepted/unaccepted: the chain from where the update was propagated.
 		 */
@@ -111,20 +109,6 @@ declare global {
 }
 
 export const startErrorOverlay = () => {
-	startReportingRuntimeErrors(() => {
-		if (__webpack_module__.hot) {
-			__webpack_module__.hot.addStatusHandler((status) => {
-				if (status === 'apply') {
-					if (didUnmountReactApp()) {
-						return reloadUrl();
-					}
-
-					setErrorsRef.current?.setErrors({
-						type: 'clear',
-					});
-				}
-			});
-		}
-	});
+	startReportingRuntimeErrors();
 	mountRemotionOverlay();
 };
