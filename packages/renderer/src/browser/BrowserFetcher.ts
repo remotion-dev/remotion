@@ -29,6 +29,7 @@ import {
 	getChromeDownloadUrl,
 	isAmazonLinux2023,
 	logDownloadUrl,
+	PLAYWRIGHT_CHROMIUM_VERSION,
 	type Platform,
 	TESTED_VERSION,
 } from './get-chrome-download-url';
@@ -97,15 +98,22 @@ export const getExpectedVersion = ({
 
 	// Remotion-patched builds get their own cache marker so an existing stock or
 	// older patched download of the same Chromium version is replaced once.
-	// Every default headless-shell download served from remotion.media is a v3
-	// build; the Playwright/Chrome for Testing fallbacks are stock Chromium.
+	// Remotion builds include the v3 shared-memory patch; the Playwright/Chrome
+	// for Testing fallbacks are stock Chromium.
+	const downloadUrl = getChromeDownloadUrl({
+		platform,
+		version: null,
+		chromeMode,
+	});
 	if (
 		chromeMode === 'headless-shell' &&
-		getChromeDownloadUrl({platform, version: null, chromeMode}).startsWith(
-			'https://remotion.media/',
-		)
+		downloadUrl.startsWith('https://remotion.media/')
 	) {
 		return `${TESTED_VERSION}-remotion-v3`;
+	}
+
+	if (downloadUrl.startsWith('https://playwright.azureedge.net/')) {
+		return PLAYWRIGHT_CHROMIUM_VERSION;
 	}
 
 	return TESTED_VERSION;

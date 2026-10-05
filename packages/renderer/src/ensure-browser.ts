@@ -7,7 +7,6 @@ import {
 	getPlatform,
 	getRevisionInfo,
 	readVersionFile,
-	TESTED_VERSION,
 } from './browser/BrowserFetcher';
 import type {BrowserSafeApis} from './client';
 import {Log} from './logger';
@@ -73,12 +72,17 @@ const internalEnsureBrowserUncapped = async ({
 	}
 
 	if (status.type === 'version-mismatch') {
+		const expectedVersion = getExpectedVersion({
+			version,
+			chromeMode,
+			platform: getPlatform(),
+		});
 		const versionInfo = status.actualVersion
 			? ` (installed: ${status.actualVersion})`
 			: '';
 		Log.info(
 			{indent, logLevel},
-			`This version of Remotion uses Chrome version ${TESTED_VERSION}, but the installed one differs${versionInfo}. Re-downloading.`,
+			`This version of Remotion uses Chrome version ${expectedVersion}, but the installed one differs${versionInfo}. Re-downloading.`,
 		);
 	}
 
