@@ -17,6 +17,7 @@ import {
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
@@ -477,8 +478,8 @@ export const useTimelineKeyframeDrag = ({
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -539,6 +540,8 @@ export const useTimelineKeyframeDrag = ({
 			let lastDelta = 0;
 			const propStatuses = propStatusesRef.current;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
@@ -731,7 +734,7 @@ export const useTimelineKeyframeDrag = ({
 			frame,
 			nodePathInfo,
 			onSelect,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			previewServerState,
 			selectable,
@@ -762,8 +765,8 @@ export const useTimelineEasingKeyframeDrag = ({
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -816,6 +819,8 @@ export const useTimelineEasingKeyframeDrag = ({
 			let lastDelta = 0;
 			const propStatuses = propStatusesRef.current;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
@@ -1005,7 +1010,7 @@ export const useTimelineEasingKeyframeDrag = ({
 			clearDraggedKeyframes,
 			currentSelection,
 			onSelect,
-			overrideIdToNodePathMappings,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			previewServerState,
 			selectable,

@@ -10,7 +10,7 @@ import {getCurrentFrame} from './imperative-state';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
-	useTimelineSelection,
+	useTimelineSelectionCanSelect,
 } from './TimelineSelection';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 
@@ -24,7 +24,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();

@@ -38,6 +38,7 @@ import {
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {pasteEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {callAddKeyframes} from './call-add-keyframe';
 import {callDeleteKeyframes} from './call-delete-keyframe';
 import {
@@ -68,7 +69,7 @@ import {
 } from './sequence-prop-clipboard';
 import {
 	useCurrentTimelineSelectionStateAsRef,
-	useTimelineSelection,
+	useTimelineSelectionCanSelect,
 	type TimelineSelection,
 } from './TimelineSelection';
 import {
@@ -651,15 +652,15 @@ export const getPasteEffectPropTarget = ({
 export const TimelineClipboardKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const confirm = useConfirmationDialog();
 
@@ -677,6 +678,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				const {selectedItems} = currentSelection.current;
 				const propStatuses = propStatusesRef.current;
 				const sequences = sequencesRef.current;
+				const overrideIdToNodePathMappings =
+					overrideIdToNodePathMappingsRef.current;
 				if (selectedItems.length === 0) {
 					return;
 				}
@@ -893,6 +896,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					return;
 				}
 
+				const overrideIdToNodePathMappings =
+					overrideIdToNodePathMappingsRef.current;
 				const effectClipboardData = getEffectClipboardDataFromSelections({
 					selectedItems,
 					propStatuses: propStatusesRef.current,
@@ -986,10 +991,13 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			const {text, envelope} = readClipboardTextAndEffectsEnvelope(
 				e.clipboardData,
 			);
+			const propStatuses = propStatusesRef.current;
+			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
+			const timelinePosition = getCurrentFrame();
 			Promise.resolve()
 				.then(() => {
-					const propStatuses = propStatusesRef.current;
-					const sequences = sequencesRef.current;
 					const keyframeResult = parseKeyframeClipboardDataResult(text);
 					if (keyframeResult.status !== 'invalid') {
 						if (keyframeResult.status === 'unsupported-version') {
@@ -1003,7 +1011,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						const keyframeTarget = getPasteKeyframeTarget({
 							selectedItems,
 							payload: keyframeResult.data,
-							timelinePosition: getCurrentFrame(),
+							timelinePosition,
 							sequences,
 							overrideIdsToNodePaths: overrideIdToNodePathMappings,
 							propStatuses,
@@ -1434,7 +1442,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 		confirm,
 		currentSelection,
 		keybindings,
-		overrideIdToNodePathMappings,
+		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
 		previewServerState,
 		sequencesRef,

@@ -21,6 +21,7 @@ import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {showNotification} from './Notifications/NotificationCenter';
+import {OverrideIdToNodePathMappingsRefContext} from './SequencePropsSubscriptionProvider';
 import {
 	getTimelineSequenceSelectionKey,
 	useCurrentTimelineSelectionStateAsRef,
@@ -118,8 +119,8 @@ export const GlobalKeybindings: React.FC = () => {
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {navigateToNextComposition, navigateToPreviousComposition} =
 		useCompositionNavigation();
@@ -141,7 +142,7 @@ export const GlobalKeybindings: React.FC = () => {
 			);
 			const timeline = calculateTimeline({
 				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 			});
 			const track = timeline.find(
 				(candidate) =>
@@ -178,7 +179,12 @@ export const GlobalKeybindings: React.FC = () => {
 			);
 			return true;
 		},
-		[currentSelection, overrideIdToNodePathMappings, sequencesRef, videoConfig],
+		[
+			currentSelection,
+			overrideIdToNodePathMappingsRef,
+			sequencesRef,
+			videoConfig,
+		],
 	);
 
 	const openRenderModal = useCallback(() => {
