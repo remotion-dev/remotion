@@ -8,8 +8,10 @@ import {
 	WHITE_ALPHA_60,
 } from '../../helpers/colors';
 import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
+import {getSkillPrefix} from '../../helpers/get-skill-prefix';
 import {hoverableStyle} from '../../helpers/hoverable';
 import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
+import {SkillsIcon} from '../../icons/skills';
 import {Button} from '../Button';
 import {useSettings} from '../SettingsContext';
 
@@ -43,6 +45,18 @@ const message: React.CSSProperties = {
 const inlineCode: React.CSSProperties = {
 	fontSize: 16,
 	fontFamily: 'monospace',
+};
+
+const skillCommand: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: 6,
+	verticalAlign: 'middle',
+};
+
+const skillsIcon: React.CSSProperties = {
+	height: 18,
+	width: 18,
 };
 
 const annotationButton: React.CSSProperties = {
@@ -79,15 +93,14 @@ export const ServerDisconnected: React.FC = () => {
 	const {remotionSkillsInfo} = useSettings();
 	const annotationTarget = useRef<HTMLDivElement>(null);
 	const canAnnotate = getCodexAnnotation() !== null;
+	const skillPrefix = getSkillPrefix();
 	const isInAgent =
-		('oai' in window && Boolean(window.oai)) ||
-		('oai' in document && Boolean(document.oai)) ||
-		remotionSkillsInfo?.studioServerStartedByAgent;
+		skillPrefix === '$' || remotionSkillsInfo?.studioServerStartedByAgent;
 	const restartSkill = isInAgent
 		? (remotionSkillsInfo?.studioRestartSkill ?? null)
 		: null;
 	const restartCommand = restartSkill
-		? `/${restartSkill}`
+		? `${skillPrefix}${restartSkill}`
 		: window.remotion_studioServerCommand;
 	const onSendToChatGPT = useCallback(() => {
 		if (restartSkill === null) {
@@ -125,8 +138,16 @@ export const ServerDisconnected: React.FC = () => {
 				The studio server has disconnected. <br />
 				{restartCommand ? (
 					<span>
-						Run <code style={inlineCode}>{restartCommand}</code> to run it
-						again.
+						Run{' '}
+						{restartSkill ? (
+							<span style={skillCommand}>
+								<SkillsIcon color={WHITE} style={skillsIcon} aria-hidden />
+								<span>{restartCommand}</span>
+							</span>
+						) : (
+							<code style={inlineCode}>{restartCommand}</code>
+						)}{' '}
+						to run it again.
 					</span>
 				) : (
 					<span>Fast refresh will not work.</span>
