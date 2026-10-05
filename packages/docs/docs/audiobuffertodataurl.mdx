@@ -29,7 +29,7 @@ The following composition will render a sine tone with a C4 pitch.
 import {audioBufferToDataUrl} from '@remotion/media-utils';
 import {Audio} from '@remotion/media';
 import {useCallback, useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender, interpolate, useVideoConfig} from 'remotion';
+import {cancelRender, continueRender, delayRender, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
 const C4_FREQUENCY = 261.63;
 const sampleRate = 44100;
@@ -37,6 +37,7 @@ const sampleRate = 44100;
 export const OfflineAudioBufferExample: React.FC = () => {
   const [handle] = useState(() => delayRender());
   const [audioBuffer, setAudioBuffer] = useState<string | null>(null);
+  const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const lengthInSeconds = durationInFrames / fps;
 
@@ -73,12 +74,10 @@ export const OfflineAudioBufferExample: React.FC = () => {
     <Audio
       src={audioBuffer}
       durationInFrames={100}
-      volume={(f) =>
-        interpolate(f, [0, 50, 100], [0, 1, 0], {
-          extrapolateLeft: 'clamp',
-          extrapolateRight: 'clamp',
-        })
-      }
+      volume={interpolate(frame, [0, 50, 100], [0, 1, 0], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      })}
     />
   ) : null;
 };
