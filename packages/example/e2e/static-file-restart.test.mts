@@ -6,7 +6,7 @@ import path from 'node:path';
 import {expect, test} from '@playwright/test';
 import {exampleDir, remotionBin} from './constants.mts';
 
-test('static assets survive Studio restarts while replacements bypass old cache keys', async ({
+test('static assets survive Studio restarts and serve replacement files', async ({
 	page,
 }) => {
 	test.setTimeout(120_000);
@@ -110,7 +110,7 @@ registerRoot(Root);
 		await writeFile(path.join(publicDir, assetName), replacement);
 		await start();
 
-		// An already-open Studio can still request its old versioned URL.
+		// An already-open Studio can still request its original asset URL.
 		const oldResponse = await page.request.get(oldUrl);
 		expect(oldResponse.status()).toBe(200);
 		expect(await oldResponse.body()).toEqual(replacement);
@@ -120,8 +120,8 @@ registerRoot(Root);
 		const newUrl = await image.evaluate(
 			(element) => (element as HTMLImageElement).src,
 		);
-		expect(new URL(newUrl).pathname).toBe(new URL(oldUrl).pathname);
-		expect(new URL(newUrl).search).not.toBe(new URL(oldUrl).search);
+		expect(newUrl.endsWith('.png')).toBe(true);
+		expect(newUrl).toBe(oldUrl);
 	} finally {
 		await stop();
 		await rm(fixture, {recursive: true, force: true});

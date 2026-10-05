@@ -135,12 +135,7 @@ export const startStudio = async ({
 		.digest('hex')
 		.slice(0, 12)}`;
 
-	// Previously, restarting Studio changed every asset URL, allowing users to
-	// recover from replaced files or stale browser/media caches. Reuse the random
-	// output namespace as a query version to preserve that behavior for newly
-	// loaded Studios, while stable paths keep old asset URLs valid across restarts.
 	initPublicFolderWatch({
-		cacheBust: outputHash,
 		publicDir,
 		remotionRoot,
 		onUpdate: () => {

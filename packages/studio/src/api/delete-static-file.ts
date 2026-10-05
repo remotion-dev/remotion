@@ -10,12 +10,9 @@ export const deleteStaticFile = async (
 		throw new Error('deleteStaticFile() is only available in the Studio');
 	}
 
-	if (
-		window.remotion_staticBase &&
-		relativePath.startsWith(window.remotion_staticBase + '/')
-	) {
-		relativePath = decodeURIComponent(
-			relativePath.slice(window.remotion_staticBase.length + 1).split('?')[0],
+	if (relativePath.startsWith(window.remotion_staticBase)) {
+		relativePath = relativePath.substring(
+			window.remotion_staticBase.length + 1,
 		);
 	}
 
