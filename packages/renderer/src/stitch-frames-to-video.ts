@@ -1,6 +1,7 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {getAacPrimingInputArgs} from './aac-priming';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
@@ -230,6 +231,22 @@ const innerStitchFramesToVideo = async (
 		getExtensionOfFilename(outputLocation) ??
 		getFileExtensionFromCodec(codec, resolvedAudioCodec)
 	).toLowerCase();
+	if (
+		codec === 'aac' &&
+		(outputExtension === 'mpg' || outputExtension === 'mpeg')
+	) {
+		const message =
+			'AAC output with .mpg or .mpeg extensions is not supported. Use .aac for raw ADTS AAC or .m4a for an MPEG-4 audio container.';
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(message);
+		}
+
+		Log.warn(
+			{indent, logLevel},
+			`${message} Falling back to raw ADTS AAC while keeping the requested filename. This will throw an error in Remotion 5.0.`,
+		);
+	}
+
 	const fastStartMuxer = getFastStartMuxer(outputExtension);
 	// Fast Start reopens its output for an in-place second pass. Keep that work
 	// away from the public output path so Windows file observers cannot lock it.

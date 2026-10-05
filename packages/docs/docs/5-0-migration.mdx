@@ -208,6 +208,12 @@ The following packages stop receiving releases after the 4.x line:
 
 **Required action**: Migrate usages and remove these packages from your dependencies before upgrading. Existing 4.x versions remain available, but no 5.x versions will be published.
 
+## AAC output no longer accepts `.mpg` and `.mpeg`
+
+In Remotion 4.0, audio-only renders with `codec: "aac"` accepted `.mpg` and `.mpeg` filenames, but wrote raw ADTS AAC rather than an MPEG program stream. These extensions now emit a warning in v4 and throw an error in v5.
+
+**Required action**: Change the output filename to `.aac` for raw ADTS AAC or `.m4a` for an MPEG-4 audio container. This applies to local, Lambda, and Cloud Run renders.
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).
