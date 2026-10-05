@@ -12,7 +12,7 @@ import {
 
 const LiquidContoursInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
-	const {height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
 		<AbsoluteFill style={style} showInTimeline={false}>
@@ -24,7 +24,7 @@ const LiquidContoursInner: React.FC<InteractiveTransformProps> = ({style}) => {
 					liquidContours({
 						firstColor: '#dff4ff',
 						secondColor: '#7cc6ff',
-						phase: interpolate(frame, [0, 240], [3.23, 4.23]),
+						phase: interpolate(frame, [0, durationInFrames], [3.23, 4.23]),
 					}),
 				]}
 			/>

@@ -5,6 +5,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
@@ -15,8 +16,9 @@ loadFont('normal', {
 
 const NumberCounterInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
-	const progress = interpolate(frame, [0, 90], [0, 1], {
+	const progress = interpolate(frame, [0, durationInFrames * 0.75], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 		easing: Easing.out(Easing.exp),

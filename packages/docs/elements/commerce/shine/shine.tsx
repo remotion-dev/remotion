@@ -8,11 +8,13 @@ import {
 	HtmlInCanvas,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
 const ShineInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<AbsoluteFill style={style} showInTimeline={false}>
@@ -20,7 +22,7 @@ const ShineInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				effects={[
 					scale({scale: 0.75}),
 					shine({
-						progress: interpolate(frame, [0, 44], [0, 1], {
+						progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						}),

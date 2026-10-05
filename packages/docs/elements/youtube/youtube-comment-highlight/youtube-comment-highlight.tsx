@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
@@ -18,6 +19,7 @@ const YouTubeCommentHighlightInner: React.FC<InteractiveTransformProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<div
@@ -50,7 +52,7 @@ const YouTubeCommentHighlightInner: React.FC<InteractiveTransformProps> = ({
 					transformOrigin: '50% 50%',
 					translate: interpolate(
 						frame,
-						[0, 48, 131, 179],
+						[0, 48, durationInFrames - 49, durationInFrames - 1],
 						['0px 760px', '0px 0px', '0px 0px', '0px 760px'],
 						{
 							easing: [

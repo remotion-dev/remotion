@@ -16,19 +16,24 @@ const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 	const bPanelWidth = width * 0.4;
 	const aPanelWidth = width - bPanelWidth - DIVIDER_WIDTH;
 	const aShift = (width - aPanelWidth) / 2;
-	const splitProgress = interpolate(frame, [20, 52, 98, 130], [0, 1, 1, 0], {
-		easing: [
-			Easing.bezier(0.65, 0, 0.35, 1),
-			Easing.linear,
-			Easing.bezier(0.65, 0, 0.35, 1),
-		],
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const splitProgress = interpolate(
+		frame,
+		[20, 52, durationInFrames - 52, durationInFrames - 20],
+		[0, 1, 1, 0],
+		{
+			easing: [
+				Easing.bezier(0.65, 0, 0.35, 1),
+				Easing.linear,
+				Easing.bezier(0.65, 0, 0.35, 1),
+			],
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 
 	return (
 		<AbsoluteFill

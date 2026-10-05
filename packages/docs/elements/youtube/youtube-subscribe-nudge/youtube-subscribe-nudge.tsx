@@ -8,6 +8,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
@@ -29,6 +30,7 @@ const YouTubeSubscribeNudgeInner: React.FC<
 	style,
 }) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<div
@@ -58,30 +60,40 @@ const YouTubeSubscribeNudgeInner: React.FC<
 			<div
 				style={{
 					height: 240,
-					opacity: interpolate(frame, [0, 24, 104, 119], [0, 1, 1, 0], {
-						easing: [
-							Easing.bezier(0.65, 0, 0.35, 1),
-							Easing.linear,
-							Easing.bezier(0.7, 0, 0.84, 0),
-						],
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					opacity: interpolate(
+						frame,
+						[0, 24, durationInFrames - 16, durationInFrames - 1],
+						[0, 1, 1, 0],
+						{
+							easing: [
+								Easing.bezier(0.65, 0, 0.35, 1),
+								Easing.linear,
+								Easing.bezier(0.7, 0, 0.84, 0),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
 					position: 'relative',
-					scale: interpolate(frame, [0, 24, 104, 119], [0.98, 1, 1, 0.97], {
-						easing: [
-							Easing.bezier(0.65, 0, 0.35, 1),
-							Easing.linear,
-							Easing.bezier(0.7, 0, 0.84, 0),
-						],
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-					}),
+					scale: interpolate(
+						frame,
+						[0, 24, durationInFrames - 16, durationInFrames - 1],
+						[0.98, 1, 1, 0.97],
+						{
+							easing: [
+								Easing.bezier(0.65, 0, 0.35, 1),
+								Easing.linear,
+								Easing.bezier(0.7, 0, 0.84, 0),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+						},
+					),
 					transformOrigin: '50% 50%',
 					translate: interpolate(
 						frame,
-						[0, 24, 104, 119],
+						[0, 24, durationInFrames - 16, durationInFrames - 1],
 						['0px 14px', '0px 0px', '0px 0px', '0px 20px'],
 						{
 							easing: [

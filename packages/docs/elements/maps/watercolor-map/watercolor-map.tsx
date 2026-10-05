@@ -167,7 +167,7 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
-	const {fps, height, width} = useVideoConfig();
+	const {durationInFrames, fps, height, width} = useVideoConfig();
 	const zoom = getZoom(origin, destination);
 	const worldSize = TILE_SIZE * 2 ** zoom;
 	const projectedOrigin = projectCoordinates(origin, zoom);
@@ -182,7 +182,8 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 		destinationX += worldSize;
 	}
 
-	const travelProgress = interpolate(frame, [40, 130], [0, 1], {
+	const travelEnd = Math.max(41, durationInFrames - 70);
+	const travelProgress = interpolate(frame, [40, travelEnd], [0, 1], {
 		easing: Easing.inOut(Easing.ease),
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
@@ -221,13 +222,13 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 		});
 	const destinationMarkerScale = spring({
 		fps,
-		frame: frame - 133,
+		frame: frame - travelEnd - 3,
 		config: {damping: 200},
 		durationInFrames: 20,
 	});
 	const destinationLabelOpacity = spring({
 		fps,
-		frame: frame - 130,
+		frame: frame - travelEnd,
 		config: {damping: 200},
 		durationInFrames: 20,
 	});

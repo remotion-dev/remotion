@@ -5,6 +5,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
@@ -15,6 +16,7 @@ loadFont('normal', {
 
 const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
@@ -32,15 +34,20 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 			}}
 		>
 			<Interactive.Div
-				cropRight={interpolate(frame, [0, 20, 96, 116], [1, 0, 0, 1], {
-					easing: [
-						Easing.bezier(0.65, 0, 0.35, 1),
-						Easing.linear,
-						Easing.bezier(0.65, 0, 0.35, 1),
-					],
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
+				cropRight={interpolate(
+					frame,
+					[0, 20, durationInFrames - 24, durationInFrames - 4],
+					[1, 0, 0, 1],
+					{
+						easing: [
+							Easing.bezier(0.65, 0, 0.35, 1),
+							Easing.linear,
+							Easing.bezier(0.65, 0, 0.35, 1),
+						],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
 				name="Name bar"
 				style={{
 					display: 'flex',
@@ -61,15 +68,20 @@ const NameLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 				Alex Morgan
 			</Interactive.Div>
 			<Interactive.Div
-				cropRight={interpolate(frame, [4, 24, 92, 112], [1, 0, 0, 1], {
-					easing: [
-						Easing.bezier(0.65, 0, 0.35, 1),
-						Easing.linear,
-						Easing.bezier(0.65, 0, 0.35, 1),
-					],
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				})}
+				cropRight={interpolate(
+					frame,
+					[4, 24, durationInFrames - 28, durationInFrames - 8],
+					[1, 0, 0, 1],
+					{
+						easing: [
+							Easing.bezier(0.65, 0, 0.35, 1),
+							Easing.linear,
+							Easing.bezier(0.65, 0, 0.35, 1),
+						],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
 				name="Title bar"
 				style={{
 					display: 'flex',

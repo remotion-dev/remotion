@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
@@ -44,6 +45,7 @@ const NewsArticleHighlightInner: React.FC<InteractiveTransformProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 	const firstHighlightProgress = getHighlightProgress(frame, 0);
 	const secondHighlightProgress = getHighlightProgress(frame, 1);
 
@@ -62,11 +64,16 @@ const NewsArticleHighlightInner: React.FC<InteractiveTransformProps> = ({
 				name="Container"
 				style={{
 					height: 458,
-					opacity: interpolate(frame, [125, 149], [1, 0], {
-						easing: Easing.in(Easing.cubic),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					opacity: interpolate(
+						frame,
+						[durationInFrames - 25, durationInFrames - 1],
+						[1, 0],
+						{
+							easing: Easing.in(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
 					width: 1420,
 					willChange: 'opacity',
 				}}

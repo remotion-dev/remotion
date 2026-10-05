@@ -12,7 +12,7 @@ import {
 
 const PaperTextureInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const frame = useCurrentFrame();
-	const {height, width} = useVideoConfig();
+	const {durationInFrames, height, width} = useVideoConfig();
 
 	return (
 		<AbsoluteFill style={style} showInTimeline={false}>
@@ -24,7 +24,7 @@ const PaperTextureInner: React.FC<InteractiveTransformProps> = ({style}) => {
 					paper({
 						colorFront: 'white',
 						colorBack: 'white',
-						seed: interpolate(frame, [0, 120], [0, 1000], {
+						seed: interpolate(frame, [0, durationInFrames], [0, 1000], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 							posterize: 30,
