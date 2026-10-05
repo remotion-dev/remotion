@@ -61,7 +61,6 @@ import {
 	prespawnFfmpeg,
 	probeRemotionSharedMemoryFfmpegSupport,
 } from './prespawn-ffmpeg';
-import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {
 	isRemotionRawFrame,
@@ -376,28 +375,9 @@ const internalRenderMediaRaw = async ({
 
 	const renderStart = Date.now();
 
-	const {estimatedUsage, freeMemory, hasEnoughMemory} =
-		shouldUseParallelEncoding({
-			height: compositionWithPossibleUnevenDimensions.height,
-			width: compositionWithPossibleUnevenDimensions.width,
-			logLevel,
-		});
 	const parallelEncoding =
-		!disallowParallelEncoding &&
-		hasEnoughMemory &&
-		canUseParallelEncoding(codec);
+		!disallowParallelEncoding && canUseParallelEncoding(codec);
 
-	Log.verbose(
-		{
-			indent,
-			logLevel,
-			tag: 'renderMedia()',
-		},
-		'Free memory:',
-		freeMemory,
-		'Estimated usage parallel encoding',
-		estimatedUsage,
-	);
 	const resolvedConcurrency = resolveConcurrency(concurrency);
 	Log.verbose(
 		{
