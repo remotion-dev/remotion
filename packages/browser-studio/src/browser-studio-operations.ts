@@ -279,7 +279,10 @@ const makeSequencePropsSubscriptionKey = ({
 	JSON.stringify({
 		clientId,
 		fileName,
-		nodePath,
+		nodePath: {
+			absolutePath: nodePath.absolutePath,
+			nodePath: nodePath.nodePath,
+		},
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
@@ -815,7 +818,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: getAllSchemaKeys(mutation.schema),
 			effectKeys: [],
-			videoConfig: mutation.nodePath.videoConfigValues ?? undefined,
 		});
 		const nodePath = {
 			...mutation.nodePath,
@@ -849,7 +851,6 @@ export const createBrowserStudioOperations = ({
 			componentIdentity: null,
 			keys: [],
 			effectKeys: effects,
-			videoConfig: mutation.sequenceNodePath.videoConfigValues ?? undefined,
 		});
 
 		return (
@@ -902,7 +903,6 @@ export const createBrowserStudioOperations = ({
 				keys: request.keys,
 				assetKeys: request.assetKeys,
 				effects: request.effects,
-				videoConfigValues: request.videoConfigValues,
 			});
 		} catch {
 			return {
@@ -928,7 +928,6 @@ export const createBrowserStudioOperations = ({
 					keys: request.keys,
 					assetKeys: request.assetKeys,
 					effectKeys: request.effects,
-					videoConfig: request.videoConfigValues ?? undefined,
 				});
 				const nextEffectChain = nextStatus.effects
 					.map((effect) => (effect.canUpdate ? effect.callee : false))
@@ -1012,7 +1011,6 @@ export const createBrowserStudioOperations = ({
 			effectKeys: Array.from({length: effectIndex + 1}, (_, index) =>
 				index === effectIndex ? getAllSchemaKeys(schema) : [],
 			),
-			videoConfig: sequenceNodePath.videoConfigValues ?? undefined,
 		});
 		return (
 			status.effects[effectIndex] ?? {

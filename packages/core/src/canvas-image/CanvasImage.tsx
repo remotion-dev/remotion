@@ -241,6 +241,7 @@ const CanvasImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);

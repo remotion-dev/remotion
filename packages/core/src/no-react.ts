@@ -1,3 +1,7 @@
+import {
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
+} from './evaluate-source-expressions.js';
 export type {
 	ArtifactAsset,
 	AudioOrVideoAsset,
@@ -54,6 +58,8 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
 	processColor,
 	truthy,
 	validateFps,

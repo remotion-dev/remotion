@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	applyCodemodChanges,
 	canPrecomposeJsxNodes,
@@ -35,7 +36,10 @@ const getStaticPropValue = (
 	node: NodeReference,
 	key: string,
 ) => {
-	const prop = getNodeProps({project, node, keys: [key]}).props[key];
+	const prop = NoReactInternals.evaluateSourcePropStatuses(
+		getNodeProps({project, node, keys: [key]}).props,
+		null,
+	)[key];
 	if (prop.status !== 'static') {
 		throw new Error(`Expected ${key} to be static, got ${prop.status}`);
 	}

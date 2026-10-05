@@ -537,6 +537,7 @@ const HtmlInCanvasContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 
 		// Refs so the paint handler always reads fresh values.

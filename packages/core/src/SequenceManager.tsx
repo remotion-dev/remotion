@@ -15,6 +15,7 @@ import type {
 	GetEffectDragOverrides,
 	PropStatuses,
 } from './use-schema.js';
+import type {SourceNumericValue} from './use-schema.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
 import type {VideoConfigValues} from './video-config.js';
 
@@ -231,12 +232,12 @@ export type VisualModeBatchSetters = {
 	) => void;
 };
 
-export type CanUpdateEffectPropsResponseTrue = {
+export type CanUpdateEffectPropsResponseTrue<Numeric = SourceNumericValue> = {
 	canUpdate: true;
 	callee: string;
 	importPath: string | null;
 	effectIndex: number;
-	props: Record<string, CanUpdateSequencePropStatus>;
+	props: Record<string, CanUpdateSequencePropStatus<Numeric>>;
 };
 
 export type CannotUpdateEffectReason =
@@ -252,14 +253,14 @@ export type CanUpdateEffectPropsResponseFalse = {
 	reason: CannotUpdateEffectReason;
 };
 
-export type CanUpdateEffectPropsResponse =
-	| CanUpdateEffectPropsResponseTrue
+export type CanUpdateEffectPropsResponse<Numeric = SourceNumericValue> =
+	| CanUpdateEffectPropsResponseTrue<Numeric>
 	| CanUpdateEffectPropsResponseFalse;
 
-export type CanUpdateSequencePropsResponseTrue = {
+export type CanUpdateSequencePropsResponseTrue<Numeric = SourceNumericValue> = {
 	canUpdate: true;
-	props: Record<string, CanUpdateSequencePropStatus>;
-	effects: CanUpdateEffectPropsResponse[];
+	props: Record<string, CanUpdateSequencePropStatus<Numeric>>;
+	effects: CanUpdateEffectPropsResponse<Numeric>[];
 };
 
 export type CanUpdateSequencePropsResponseFalse = {
@@ -267,8 +268,8 @@ export type CanUpdateSequencePropsResponseFalse = {
 	reason: CannotUpdateSequenceReason;
 };
 
-export type CanUpdateSequencePropsResponse =
-	| CanUpdateSequencePropsResponseTrue
+export type CanUpdateSequencePropsResponse<Numeric = SourceNumericValue> =
+	| CanUpdateSequencePropsResponseTrue<Numeric>
 	| CanUpdateSequencePropsResponseFalse;
 
 export const makeSequencePropsSubscriptionKey = (
@@ -406,6 +407,7 @@ export type SequencePropsSubscriptionKey = {
 	nodePath: SequenceNodePath;
 	sequenceKeys: string[];
 	effectKeys: string[][];
+	/** Evaluation context of a rendered instance. Never part of source identity. */
 	videoConfigValues: VideoConfigValues | null;
 };
 

@@ -52,7 +52,6 @@ export const splitSequences = async <Project extends CodemodProject>({
 				project,
 				node: split.node,
 				keys: ['from', 'durationInFrames', 'trimBefore'],
-				videoConfig: split.videoConfig,
 			});
 			if (
 				Object.values(status.props).some((prop) => prop.status !== 'static')

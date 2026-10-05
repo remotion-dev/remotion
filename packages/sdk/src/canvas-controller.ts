@@ -102,9 +102,7 @@ const nodePathsAreEqual = (
 		return (
 			nextNodePath !== undefined &&
 			Internals.makeSequencePropsSubscriptionKey(previousNodePath) ===
-				Internals.makeSequencePropsSubscriptionKey(nextNodePath) &&
-			JSON.stringify(previousNodePath.videoConfigValues) ===
-				JSON.stringify(nextNodePath.videoConfigValues)
+				Internals.makeSequencePropsSubscriptionKey(nextNodePath)
 		);
 	});
 };

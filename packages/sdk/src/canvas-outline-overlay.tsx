@@ -97,9 +97,16 @@ const getOverlayTranslateTarget = ({
 
 	// The host knows the source: a computed value cannot be moved and a
 	// keyframed one is moved by inserting a keyframe.
-	const propStatuses =
+	const sourcePropStatuses =
 		getPropStatuses?.(registeredNodePathInfo, [canvasTranslateFieldKey]) ??
 		null;
+	const propStatuses =
+		sourcePropStatuses === null
+			? null
+			: Internals.evaluateSourcePropStatuses(
+					sourcePropStatuses,
+					controls.videoConfigValues,
+				);
 	const propStatus = propStatuses?.[canvasTranslateFieldKey] ?? null;
 	if (
 		propStatus !== null &&
