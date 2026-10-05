@@ -7,6 +7,8 @@ import {
 	FOCUS_BOX_SHADOW,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_40,
+	WHITE_ALPHA_80,
 } from './colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 import {prismVscDarkPlus} from './prism-vsc-dark-plus';
@@ -172,6 +174,15 @@ const makeDefaultGlobalCSS = () => {
     height: 6px;
   }
 
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-track {
+    background: ${WHITE_ALPHA_40};
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-thumb {
+    background: ${WHITE_ALPHA_80};
+    border-radius: 3px;
+  }
+
   @-moz-document url-prefix() {
     .__remotion-horizontal-scrollbar.__remotion-canvas-tabs {
       scrollbar-width: none;
@@ -179,6 +190,7 @@ const makeDefaultGlobalCSS = () => {
 
     .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover {
       scrollbar-width: thin;
+      scrollbar-color: ${WHITE_ALPHA_80} ${WHITE_ALPHA_40};
     }
   }
 
