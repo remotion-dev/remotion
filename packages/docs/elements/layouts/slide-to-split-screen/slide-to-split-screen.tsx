@@ -32,6 +32,7 @@ const SlideToSplitScreenInner: React.FC<InteractiveTransformProps> = ({
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				overflow: 'hidden',
 				...style,
