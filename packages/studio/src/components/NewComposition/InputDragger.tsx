@@ -13,7 +13,6 @@ import {
 } from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
-import {ActionTooltip} from '../ActionTooltip';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -46,7 +45,6 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'title'> & {
 type TextEditing = {
 	readonly format: (value: number | string) => string;
 	readonly parse: (text: string) => number | null;
-	readonly hint: string | null;
 	readonly invalidMessage: string;
 	readonly onCancel: () => void;
 };
@@ -859,49 +857,33 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	}, [inputFallback]);
 
 	if (inputFallback) {
-		const input = (
-			<RemotionInput
-				ref={fallbackRef}
-				autoFocus
-				onKeyDown={onInputKeyDown}
-				onBlur={onBlur}
-				onChange={onInputChange}
-				min={_min}
-				max={_max}
-				step={validationStep}
-				defaultValue={formattedInputValueRef.current?.text ?? value}
-				status={status}
-				rightAlign={rightAlign}
-				small={small}
-				{...props}
-				aria-description={textEditing?.hint ?? props['aria-description']}
-				style={
-					small
-						? {
-								...compactInputDraggerStyle,
-								display: 'block',
-								...inputStyle,
-							}
-						: inputStyle
-				}
-				type="text"
-			/>
-		);
 		return (
 			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
-				{textEditing?.hint ? (
-					<ActionTooltip
-						label={textEditing.hint}
-						shortcut={null}
-						delay={null}
-						dismissOnClick={false}
-						triggerStyle={{display: 'block'}}
-					>
-						{input}
-					</ActionTooltip>
-				) : (
-					input
-				)}
+				<RemotionInput
+					ref={fallbackRef}
+					autoFocus
+					onKeyDown={onInputKeyDown}
+					onBlur={onBlur}
+					onChange={onInputChange}
+					min={_min}
+					max={_max}
+					step={validationStep}
+					defaultValue={formattedInputValueRef.current?.text ?? value}
+					status={status}
+					rightAlign={rightAlign}
+					small={small}
+					{...props}
+					style={
+						small
+							? {
+									...compactInputDraggerStyle,
+									display: 'block',
+									...inputStyle,
+								}
+							: inputStyle
+					}
+					type="text"
+				/>
 			</HigherZIndex>
 		);
 	}
