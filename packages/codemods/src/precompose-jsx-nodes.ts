@@ -1,6 +1,7 @@
 import type {File, JSXElement, JSXFragment, Node} from '@babel/types';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {addComposition} from './add-composition';
 import type {CodemodProject} from './codemod-project';
 import {
@@ -1582,11 +1583,14 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		compositionFile: registrationFile,
 		compositionId,
 	});
-	const parentMetadata = getNodeProps({
-		project,
-		node: parentComposition,
-		keys: ['width', 'height', 'fps', 'durationInFrames'],
-	}).props;
+	const parentMetadata = NoReactInternals.evaluateSourcePropStatuses(
+		getNodeProps({
+			project,
+			node: parentComposition,
+			keys: ['width', 'height', 'fps', 'durationInFrames'],
+		}).props,
+		null,
+	);
 	for (const key of ['width', 'height', 'fps', 'durationInFrames'] as const) {
 		const value = parentMetadata[key];
 		if (value.status !== 'static' || value.codeValue !== metadata[key]) {
