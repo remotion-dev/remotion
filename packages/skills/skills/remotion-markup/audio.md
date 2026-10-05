@@ -87,11 +87,11 @@ import { Audio } from "@remotion/media";
 <Audio src={staticFile("audio.mp3")} volume={0.5} />
 ```
 
-Use `useCurrentFrame()` and `interpolate()` for keyframed volume:
+Animate volume with `useCurrentFrame()` and pass the result of `interpolate()` directly to `volume`. Keep the keyframes inline so Studio can edit them:
 
 ```tsx
 import { Audio } from "@remotion/media";
-import { interpolate, useCurrentFrame } from "remotion";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
 const frame = useCurrentFrame();
 const { fps } = useVideoConfig();
@@ -109,16 +109,29 @@ return (
 
 With Studio interactivity enabled, these keyframes can be edited and are shown as a volume curve in the timeline.
 
-The `volume` prop also accepts a callback for procedural or media-relative volume. The callback frame starts at 0 when the audio begins to play, not at the composition frame:
+`frame` is relative to the component that calls `useCurrentFrame()`: the composition frame at the root, or the local frame inside a `<Sequence>`. Setting `from` on `<Audio>` does not reset this frame. Offset the keyframes to match when the audio starts:
 
 ```tsx
 import { Audio } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
-<Audio
-  src={staticFile("audio.mp3")}
-  volume={(mediaFrame) => interpolate(mediaFrame, [0, 30], [0, 1])}
-/>
+const frame = useCurrentFrame();
+const { fps } = useVideoConfig();
+
+return (
+  <Audio
+    src={staticFile("audio.mp3")}
+    from={1 * fps}
+    premountFor={fps}
+    volume={interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    })}
+  />
+);
 ```
+
+This fades in during the first second of playback. `trimBefore` and `playbackRate` on the audio change the source playback, but do not shift or scale these parent-timeline keyframes. When migrating a volume callback, start the keyframes at the media's first visible frame, where the callback frame started at 0. See [Timing and trimming](https://www.remotion.dev/docs/timing) for how enclosing timing affects `useCurrentFrame()`.
 
 ## Muting
 
@@ -165,21 +178,29 @@ import { Audio } from "@remotion/media";
 
 Put `name`, `from`, `loop`, `volume`, and `premountFor` directly on `<Audio>`.
 
-Use `loopVolumeCurveBehavior` to control how the frame count behaves when looping:
-
-- `"repeat"`: Frame count resets to 0 each loop (default)
-- `"extend"`: Frame count continues incrementing
+Volume keyframes based on the parent component's `frame` continue across media loops. A fade over multiple loops needs no `loopVolumeCurveBehavior`:
 
 ```tsx
 import { Audio } from "@remotion/media";
+import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 
-<Audio
-  src={staticFile("audio.mp3")}
-  loop
-  loopVolumeCurveBehavior="extend"
-  volume={(f) => interpolate(f, [0, 300], [1, 0])} // Fade out over multiple loops
-/>
+const frame = useCurrentFrame();
+const { fps } = useVideoConfig();
+
+return (
+  <Audio
+    src={staticFile("audio.mp3")}
+    loop
+    premountFor={fps}
+    volume={interpolate(frame, [0, 10 * fps], [1, 0], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    })}
+  />
+);
 ```
+
+To repeat the volume envelope each loop, put the component that calls `useCurrentFrame()` inside a looping `<Sequence>` or `<Loop>`. Match its loop duration to the media's played duration, accounting for trimming and playback speed. The media's own `loop` prop does not reset the parent's `frame`.
 
 ## Pitch
 

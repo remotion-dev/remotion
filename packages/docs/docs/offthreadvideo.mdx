@@ -109,7 +109,7 @@ If set to `false` (_default_), frames will be extracted as bitmap (BMP), which i
 
 ### `volume?`
 
-Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [using audio](/docs/audio/volume) guide to learn how to use it.
+Allows you to control the volume for the whole track or change it on a per-frame basis. Refer to the [volume guide](/docs/audio/volume) for keyframes and timing.
 
 ```tsx twoslash title="Example using static volume"
 import {OffthreadVideo, staticFile} from 'remotion';
@@ -125,13 +125,15 @@ export const MyComposition = () => {
 ```
 
 ```tsx twoslash title="Example of a ramp up over 100 frames"
-import {interpolate, staticFile, OffthreadVideo} from 'remotion';
+import {interpolate, staticFile, OffthreadVideo, useCurrentFrame} from 'remotion';
 
 // ---cut---
 export const MyComposition = () => {
+  const frame = useCurrentFrame();
+
   return (
     <>
-      <OffthreadVideo volume={(f) => interpolate(f, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
+      <OffthreadVideo volume={interpolate(frame, [0, 100], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} src={staticFile('video.webm')} />
     </>
   );
 };
@@ -144,6 +146,8 @@ By default, volumes between `0` and `1` are supported, and iOS Safari always set
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and wrapping `OffthreadVideo` in a [`<Loop>`](/docs/loop).
 
 Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+
+This prop only affects callbacks. For the recommended `volume={interpolate(frame, ...)}` pattern, the caller's frame controls the envelope. See [volume across loops](/docs/audio/volume#volume-across-loops).
 
 ### `style?`
 
