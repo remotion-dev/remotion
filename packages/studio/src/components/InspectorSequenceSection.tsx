@@ -352,6 +352,7 @@ export const InspectorSequenceSection: React.FC<{
 			? (inspectorRevealRequest?.token ?? null)
 			: null;
 	const captionsInspectorRef = useRef<HTMLDivElement>(null);
+	const onInitialCaptionScrollRef = useRef<(() => void) | null>(null);
 	const handledCaptionSelection = useRef<readonly TimelineSelection[] | null>(
 		null,
 	);
@@ -756,6 +757,26 @@ export const InspectorSequenceSection: React.FC<{
 				: null,
 		[hasCaptionsSchema, runtimeValues.captions],
 	);
+	const {
+		getCurrentFrame: getCommittedSequenceFrame,
+		frozenFrame: sequenceFrozenFrame,
+		from: sequenceFrom,
+		sequencePlaybackRate,
+	} = sequence;
+	const getSequenceFrame = useCallback(
+		() =>
+			getCommittedSequenceFrame?.() ??
+			sequenceFrozenFrame ??
+			(getCurrentFrame() - sequenceFrom) * sequencePlaybackRate +
+				sequenceFrameOffset,
+		[
+			getCommittedSequenceFrame,
+			sequenceFrozenFrame,
+			sequenceFrom,
+			sequencePlaybackRate,
+			sequenceFrameOffset,
+		],
+	);
 	useEffect(() => {
 		if (handledCaptionSelection.current === selectedItems) {
 			return;
@@ -778,12 +799,7 @@ export const InspectorSequenceSection: React.FC<{
 		}
 
 		handledCaptionSelection.current = selectedItems;
-		const sequenceFrame =
-			sequence.getCurrentFrame?.() ??
-			sequence.frozenFrame ??
-			(getCurrentFrame() - sequence.from) * sequence.sequencePlaybackRate +
-				sequenceFrameOffset;
-		const timeMs = (sequenceFrame / getCurrentFps()) * 1000;
+		const timeMs = (getSequenceFrame() / getCurrentFps()) * 1000;
 		const index = inlineCaptions.findIndex(
 			(caption) => caption.startMs <= timeMs && caption.endMs > timeMs,
 		);
@@ -794,10 +810,9 @@ export const InspectorSequenceSection: React.FC<{
 		pendingCaptionScroll.current = {selection: selectedItems, index};
 		setAdditionalSectionExpanded('captions', true);
 	}, [
+		getSequenceFrame,
 		inlineCaptions,
 		selectedItems,
-		sequence,
-		sequenceFrameOffset,
 		sequenceKey,
 		setAdditionalSectionExpanded,
 	]);
@@ -820,6 +835,7 @@ export const InspectorSequenceSection: React.FC<{
 		}
 
 		input.scrollIntoView({block: 'center'});
+		onInitialCaptionScrollRef.current?.();
 		pendingCaptionScroll.current = null;
 	}, [captionsExpanded, selectedItems]);
 
@@ -1028,8 +1044,10 @@ export const InspectorSequenceSection: React.FC<{
 				captions={inlineCaptions}
 				controls={sequence.controls}
 				expanded={captionsExpanded}
+				getSequenceFrame={getSequenceFrame}
 				nodePath={nodePathInfo.sequenceSubscriptionKey}
 				onCaptionsRendered={revealPendingCaption}
+				onInitialCaptionScrollRef={onInitialCaptionScrollRef}
 				onToggle={() => toggleAdditionalSection('captions')}
 				readOnlyStudio={readOnlyStudio}
 				validatedLocation={validatedLocation}
