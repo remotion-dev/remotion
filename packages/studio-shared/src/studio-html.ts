@@ -7,6 +7,7 @@ import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type StudioHtmlOptions = {
 	staticHash: string;
+	outputHash: string | null;
 	publicPath: string;
 	editorName: string | null;
 	inputProps: object | null;
@@ -44,6 +45,7 @@ export const studioHtml = ({
 	inputProps,
 	envVariables,
 	staticHash,
+	outputHash,
 	remotionRoot,
 	studioServerCommand,
 	renderQueue,
@@ -109,6 +111,7 @@ export const studioHtml = ({
 		<script>window.remotion_previewSampleRate = ${sampleRate};</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
 		<script>window.remotion_staticBase = ${staticBaseValue};</script>
+		<script>window.remotion_outputsBase = ${JSON.stringify(outputHash)};</script>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`

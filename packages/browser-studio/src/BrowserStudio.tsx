@@ -649,6 +649,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				logLevel: 'info',
 				mode: 'dev',
 				numberOfAudioTags: 0,
+				outputHash: null,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
 				publicFiles,
