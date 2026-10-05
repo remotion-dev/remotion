@@ -1,4 +1,4 @@
-import type { CanvasKeyframeEasing } from "@remotion/canvas";
+import type { CanvasKeyframeEasing } from "@remotion/sdk";
 import React, { useMemo } from "react";
 import { Easing } from "remotion";
 import { cn } from "@/lib/utils";

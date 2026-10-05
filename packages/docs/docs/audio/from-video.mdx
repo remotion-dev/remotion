@@ -14,14 +14,14 @@ Audio from [`<Video>`](/docs/media/video), [`<Html5Video>`](/docs/html5-video) a
 The same principles apply as for audio - you may [trim](/docs/audio/trimming), [delay](/docs/audio/delaying), [mute](/docs/audio/muting), [speed up](/docs/audio/speed) and [reduce the volume](/docs/audio/volume) of your videos.
 
 ```tsx twoslash {6} title="MyComp.tsx"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src={staticFile('video.mp4')} playbackRate={2} volume={0.5} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

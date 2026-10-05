@@ -1,4 +1,4 @@
-import {canvasKeyframeEasingPresets} from '@remotion/canvas';
+import {canvasKeyframeEasingPresets} from '@remotion/sdk';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -89,7 +89,7 @@ const TimelineKeyframeEasingLineInteraction: React.FC<
 			toFrame,
 			segmentIndex,
 		});
-	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
+	useTimelineMarqueeSelectableItem(selectionItem, buttonRef, null);
 	const interactiveStyle = useMemo(
 		() => ({
 			...style,

@@ -4,7 +4,7 @@ import {
   type CanvasSelectionItem,
   type SequenceNodePathInfo,
   type TimelineTrackData,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import {
   getNodeProps,
   getNodes,

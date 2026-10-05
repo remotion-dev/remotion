@@ -4,27 +4,17 @@
 
 import {expect, test} from 'bun:test';
 import {
-	getMissedFramesforCodec,
+	getMissedFramesForMediaCodecs,
 	getMissedFramesWithPlaybackrate,
 	getMissedFramesWithTrimApplied,
 } from './test-utils';
 
 test(
-	'should render correct frames from embedded videos - WebM codec video',
+	'should render correct frames from embedded videos',
 	async () => {
-		const missedFrames = await getMissedFramesforCodec('webm', 'codec');
-		expect(missedFrames).toBe(0);
-	},
-	{
-		timeout: 60000,
-	},
-);
-
-test(
-	'should render correct frames from embedded videos - MP4 codec video',
-	async () => {
-		const missedFrames = await getMissedFramesforCodec('mp4', 'codec');
-		expect(missedFrames).toBeLessThanOrEqual(0);
+		const missedFrames = await getMissedFramesForMediaCodecs();
+		expect(missedFrames.webm).toBe(0);
+		expect(missedFrames.mp4).toBe(0);
 	},
 	{
 		timeout: 60000,

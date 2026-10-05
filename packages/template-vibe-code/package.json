@@ -1,6 +1,6 @@
 {
 	"name": "template-vibe-code",
-	"version": "4.0.530",
+	"version": "4.0.532",
 	"description": "Browser-based motion graphics editor: code, preview and edit Remotion compositions live in the browser",
 	"private": true,
 	"repository": {
@@ -26,7 +26,7 @@
 		"@radix-ui/react-tabs": "1.1.13",
 		"@radix-ui/react-tooltip": "1.2.8",
 		"@remotion/browser-bundler": "workspace:*",
-		"@remotion/canvas": "workspace:*",
+		"@remotion/sdk": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/codemods": "workspace:*",
 		"@remotion/player": "workspace:*",
@@ -36,7 +36,7 @@
 		"lucide-react": "0.555.0",
 		"monaco-editor": "0.55.1",
 		"monaco-jsx-syntax-highlight": "1.2.2",
-		"next": "16.3.3",
+		"next": "16.3.6",
 		"react": "19.2.3",
 		"react-dom": "19.2.3",
 		"react-refresh": "0.18.0",

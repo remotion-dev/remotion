@@ -3,7 +3,7 @@
 import type {
   CanvasSequencePropChange,
   CanvasSequencePropStatusResolver,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import { resolveCompositionComponent } from "@remotion/codemods";
 import React, {
   useCallback,

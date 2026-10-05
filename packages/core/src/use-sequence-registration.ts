@@ -2,7 +2,7 @@ import {useContext, useEffect, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
 import {
 	DisableSequenceRegistrationContext,
-	SequenceManager,
+	SequenceManagerActionsContext,
 } from './SequenceManager.js';
 
 export const useSequenceRegistration = ({
@@ -12,8 +12,9 @@ export const useSequenceRegistration = ({
 	getSequence: (() => TSequence) | null;
 	id: string;
 }) => {
-	const {registerSequence, unregisterSequence, updateSequence} =
-		useContext(SequenceManager);
+	const {registerSequence, unregisterSequence, updateSequence} = useContext(
+		SequenceManagerActionsContext,
+	);
 	const registrationDisabled = useContext(DisableSequenceRegistrationContext);
 	const getSequenceRef = useRef(getSequence);
 	getSequenceRef.current = getSequence;

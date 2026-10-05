@@ -1,5 +1,5 @@
-import {CanvasInternals} from '@remotion/canvas';
 import {PlayerInternals} from '@remotion/player';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {
 	useCallback,
 	useContext,
@@ -843,7 +843,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 }) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);

@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import {randomUUID} from 'node:crypto';
+import {tmpdir} from 'node:os';
 import {
 	cpSync,
 	existsSync,
@@ -24,6 +25,7 @@ import {localPackageRootKey} from './packages/studio-server/src/helpers/get-loca
 const repositoryRoot = import.meta.dir;
 const agentPluginRoot = join(repositoryRoot, 'packages', 'agent-plugin');
 const useOldVersion = process.argv.includes('--old');
+const useCreateVideo = process.argv.includes('--create');
 
 const run = (command: string[], cwd = repositoryRoot) => {
 	const result = Bun.spawnSync(command, {
@@ -37,6 +39,24 @@ const run = (command: string[], cwd = repositoryRoot) => {
 		throw new Error(`Command failed: ${command.join(' ')}`);
 	}
 };
+
+if (useCreateVideo) {
+	console.log('Building create-video...');
+	run(['bunx', 'turbo', 'run', 'make', '--filter=create-video', '--no-update-notifier']);
+
+	console.log('\nRunning create-video...');
+	run(
+		[
+			'node',
+			join(repositoryRoot, 'packages', 'create-video', 'bin.js'),
+			'--yes',
+			'--blank',
+			'--tmp',
+		],
+		tmpdir(),
+	);
+	process.exit(0);
+}
 
 if (!useOldVersion) {
 	console.log('Building the current repository state...');

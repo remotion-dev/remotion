@@ -102,12 +102,6 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Scale = options.Scale
 	}
 
-	if options.Codec == "" {
-		internalParams.Codec = "h264"
-	} else {
-		internalParams.Codec = options.Codec
-	}
-
 	if options.MaxRetries == 0 {
 		internalParams.MaxRetries = 1
 	} else {

@@ -1,5 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import {Internals} from 'remotion';
 
 const {collectCommitOrderFromFiber, installFiberCommitOrderObserver} =

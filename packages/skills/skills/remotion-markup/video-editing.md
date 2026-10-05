@@ -23,11 +23,16 @@ Choose the timeline structure based on the editing behavior:
 Use `const {fps} = useVideoConfig()` in the enclosing composition and set
 `premountFor={fps}` on each timed clip, sequence, and overlay that supports it.
 When a clip is inside a series sequence, premount both the sequence and clip.
+For trims and other timing props expressed in seconds, use that same `fps`
+directly in each clip's JSX, for example `trimBefore={4 * fps}`. Do not use a
+separate fixed `FPS` constant: Studio must be able to update each clip's source
+expression when the user trims or splits it.
 
 ## Independently positioned clips
 
-Place every `<Video>` directly in the composition and hardcode its timing
-props. `from={0}` may be omitted:
+Place every `<Video>` directly in the composition and write its timing props
+on the JSX node. Use literal frame counts when they are already known;
+`from={0}` may be omitted:
 
 ```tsx
 <Video

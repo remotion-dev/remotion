@@ -1,6 +1,6 @@
 "use client";
 
-import type { TimelineTrackData } from "@remotion/canvas";
+import type { TimelineTrackData } from "@remotion/sdk";
 import type { CodemodProject } from "@remotion/codemods";
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 import type { PreviewHost } from "@/preview/bridge";

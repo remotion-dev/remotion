@@ -12,14 +12,14 @@ The simplest way is to pass a number between `0` and `1`.
 
 ```tsx twoslash {9} title="MyComp.tsx"
 import {Audio} from '@remotion/media';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <div>Hello World!</div>
       <Audio src={staticFile('audio.mp3')} volume={0.5} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -30,16 +30,16 @@ You can also change volume over time using [`useCurrentFrame()`](/docs/use-curre
 
 ```tsx twoslash {6,11} title="MyComp.tsx"
 import {Audio} from '@remotion/media';
-import {AbsoluteFill, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
   return (
-    <AbsoluteFill>
+    <>
       <Audio src={staticFile('audio.mp3')} volume={interpolate(frame, [0, 1 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

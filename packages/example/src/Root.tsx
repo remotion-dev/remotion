@@ -90,6 +90,7 @@ import {
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
 	HtmlInCanvasMotionBlurExample,
+	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -190,7 +191,11 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
-import {VideoTesting, VideoTestingFrameAccuracy} from './VideoTesting';
+import {
+	VideoTesting,
+	VideoTestingFrameAccuracy,
+	VideoTestingMediaFrameAccuracy,
+} from './VideoTesting';
 import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
@@ -231,6 +236,7 @@ import {
 	issue10468DefaultProps,
 	issue5758DefaultProps,
 } from './AudioTesting/Issue10468';
+import {VolumeHoldCurveComposition} from './AudioTesting/VolumeHoldCurve';
 import {BrowserTest} from './BrowserTest';
 import {
 	CanvasCapturePreview,
@@ -1148,28 +1154,12 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
-					id="video-testing-webm-codec"
-					component={VideoTesting}
+					id="video-testing-media-frame-accuracy"
+					component={VideoTestingMediaFrameAccuracy}
 					width={1080}
-					height={1080}
+					height={540}
 					fps={30}
 					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'webm' as const,
-					}}
-				/>
-				<Composition
-					id="video-testing-mp4-codec"
-					component={VideoTesting}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-					defaultProps={{
-						type: 'codec',
-						codec: 'mp4' as const,
-					}}
 				/>
 			</Folder>
 			<Folder name="video-tests">
@@ -1262,6 +1252,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-nested"
+						component={HtmlInCanvasNested}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={150}
+					/>
 					<Composition
 						id="html-in-canvas-motion-blur"
 						component={HtmlInCanvasMotionBlurExample}
@@ -1796,6 +1794,7 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="audio-tests">
+				<VolumeHoldCurveComposition />
 				<Composition
 					id="complex-sounds"
 					component={ComplexSounds}

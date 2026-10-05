@@ -21,12 +21,12 @@ The effect preserves the source colors and alpha mask. Transparent regions stay 
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Solid} from 'remotion';
+import {Solid} from 'remotion';
 import {burlap} from '@remotion/effects/burlap';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Solid
         width={1280}
         height={720}
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

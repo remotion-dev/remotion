@@ -1,11 +1,4 @@
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import {createContext, useCallback, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import type {
 	OverrideIdToNodePaths,
@@ -48,7 +41,7 @@ export const getReadOnlyOverrideIdToNodePathMappings = (
 export const SequencePropsSubscriptionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const [overrideToNodePathMap, setOverrideIdToNodePathMap] =
 		useState<OverrideIdToNodePaths>({});
 	const readOnlyOverrideToNodePathMap = useMemo(

@@ -198,7 +198,7 @@ const WebMcpSelectionSync: FC<{
 	readonly selectedSequenceRef: MutableRefObject<WebMcpSequence | null>;
 }> = ({currentSelectionRef, selectedSequenceRef}) => {
 	const {selectedItems} = useTimelineSelection();
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -294,7 +294,7 @@ export const WebMcp: FC = () => {
 	const selectComposition = useSelectComposition();
 	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);

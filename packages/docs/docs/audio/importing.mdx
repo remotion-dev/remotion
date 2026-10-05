@@ -13,14 +13,14 @@ import TabItem from '@theme/TabItem';
 Add an [`<Audio/>`](/docs/media/audio) tag to your component to add sound to it.
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src={staticFile('audio.mp3')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -28,14 +28,13 @@ export const MyComposition = () => {
 You can also add remote audio by passing a URL:
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src="https://example.com/audio.mp3" />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

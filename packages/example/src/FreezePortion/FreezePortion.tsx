@@ -1,13 +1,30 @@
 import React, {useMemo} from 'react';
-import {Freeze, Sequence, useCurrentFrame} from 'remotion';
+import {Interactive, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const Counter: React.FC = () => {
+const CounterInner: React.FC<{style?: React.CSSProperties}> = ({style}) => {
 	return (
-		<div className="flex h-full justify-center items-center text-6xl">
+		<div
+			style={{
+				alignItems: 'center',
+				color: 'white',
+				display: 'flex',
+				fontSize: 60,
+				height: '100%',
+				justifyContent: 'center',
+				...style,
+			}}
+		>
 			{useCurrentFrame()}
 		</div>
 	);
 };
+
+export const Counter = Interactive.withSchema({
+	Component: CounterInner,
+	componentName: '<Counter>',
+	schema: {},
+	wrapInSequence: true,
+});
 
 const FREEZES = [
 	{
@@ -36,6 +53,7 @@ const getFreezes = () => {
 };
 
 export const FreezePortion: React.FC = () => {
+	const {fps} = useVideoConfig();
 	const freezes = useMemo(() => {
 		return getFreezes();
 	}, []);
@@ -51,7 +69,7 @@ export const FreezePortion: React.FC = () => {
 
 	const from = useMemo(() => {
 		if (activeFreeze) {
-			return 0;
+			return activeFreeze.from;
 		}
 
 		if (nextFreeze) {
@@ -65,13 +83,10 @@ export const FreezePortion: React.FC = () => {
 	}, [activeFreeze, freezes, nextFreeze]);
 
 	return (
-		<Freeze
-			frame={activeFreeze ? activeFreeze.frame : 0}
-			active={Boolean(activeFreeze)}
-		>
-			<Sequence layout="none" from={from}>
-				<Counter />
-			</Sequence>
-		</Freeze>
+		<Counter
+			from={from}
+			freeze={activeFreeze ? activeFreeze.frame : null}
+			premountFor={fps}
+		/>
 	);
 };

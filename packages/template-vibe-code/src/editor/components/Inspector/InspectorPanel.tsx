@@ -3,7 +3,7 @@
 import {
   getCanvasSelectionItemKey,
   useCanvasSelection,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

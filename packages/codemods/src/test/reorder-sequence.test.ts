@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import {getNodes} from '../get-nodes';
-import {reorderSequence} from '../reorder-sequence';
+import {reorderSequences} from '../reorder-sequence';
 import {lineColumnToNodePath} from './node-path-test-utils';
 
 const sequenceContaining = (input: string, search: string) => {
@@ -53,22 +53,16 @@ export const Comp=()=>{
 }
 `;
 
-test('reorderSequence moves a sequence forward without formatting the file', async () => {
+test('reorderSequences moves a sequence forward without formatting the file', () => {
 	const input = buildInput();
-	let formatCalls = 0;
-	const {output, sequenceLabel, nodePathRemappings} = await reorderSequence({
+	const {output, sequenceLabel, nodePathRemappings} = reorderSequences({
 		input,
-		sourceNodePath: sequenceContaining(input, "name='a'"),
+		sourceNodePaths: [sequenceContaining(input, "name='a'")],
 		targetNodePath: sequenceContaining(input, "name='c'"),
 		position: 'after',
-		formatFile: () => {
-			formatCalls++;
-			throw new Error('Prettier must not be called');
-		},
 	});
 
 	expect(sequenceLabel).toBe('<Sequence>');
-	expect(formatCalls).toBe(0);
 	expect(output).toBe(`import {Sequence} from 'remotion'
 
 const untouched    = {keep:"this spacing"}
@@ -109,11 +103,11 @@ export const Comp=()=>{
 	]);
 });
 
-test('reorderSequence moves a sequence backward', async () => {
+test('reorderSequences moves a sequence backward', () => {
 	const input = buildInput();
-	const {output, sequenceLabel} = await reorderSequence({
+	const {output, sequenceLabel} = reorderSequences({
 		input,
-		sourceNodePath: sequenceContaining(input, "name='c'"),
+		sourceNodePaths: [sequenceContaining(input, "name='c'")],
 		targetNodePath: sequenceContaining(input, "name='a'"),
 		position: 'before',
 	});
@@ -139,7 +133,7 @@ export const Comp=()=>{
 `);
 });
 
-test('reorderSequence preserves CRLF and multiline JSX', async () => {
+test('reorderSequences preserves CRLF and multiline JSX', () => {
 	const input = [
 		'export const Comp = () => (',
 		'  <>',
@@ -154,9 +148,9 @@ test('reorderSequence preserves CRLF and multiline JSX', async () => {
 		'',
 	].join('\r\n');
 
-	const {output} = await reorderSequence({
+	const {output} = reorderSequences({
 		input,
-		sourceNodePath: sequenceContaining(input, 'name="b"'),
+		sourceNodePaths: [sequenceContaining(input, 'name="b"')],
 		targetNodePath: sequenceContaining(input, 'name="c"'),
 		position: 'after',
 	});
@@ -178,13 +172,13 @@ test('reorderSequence preserves CRLF and multiline JSX', async () => {
 	);
 });
 
-test('reorderSequence keeps inline siblings parseable', async () => {
+test('reorderSequences keeps inline siblings parseable', () => {
 	const input =
 		'export const Comp=()=> <><Sequence name="a"/><Sequence name="b"/></>;\n';
 
-	const {output} = await reorderSequence({
+	const {output} = reorderSequences({
 		input,
-		sourceNodePath: sequenceContaining(input, 'name="a"'),
+		sourceNodePaths: [sequenceContaining(input, 'name="a"')],
 		targetNodePath: sequenceContaining(input, 'name="b"'),
 		position: 'after',
 	});
@@ -194,7 +188,7 @@ test('reorderSequence keeps inline siblings parseable', async () => {
 	);
 });
 
-test('reorderSequence rejects sequences with different JSX parents', async () => {
+test('reorderSequences rejects sequences with different JSX parents', () => {
 	const input = `import {Sequence} from 'remotion';
 
 export const Comp = () => {
@@ -209,26 +203,26 @@ export const Comp = () => {
 };
 `;
 
-	await expect(
-		reorderSequence({
+	expect(() =>
+		reorderSequences({
 			input,
-			sourceNodePath: lineColumnToNodePath(input, 7),
+			sourceNodePaths: [lineColumnToNodePath(input, 7)],
 			targetNodePath: lineColumnToNodePath(input, 9),
 			position: 'before',
 		}),
-	).rejects.toThrow(/not JSX siblings/);
+	).toThrow(/not JSX siblings/);
 });
 
-test('reorderSequence rejects identical source and target sequences', async () => {
+test('reorderSequences rejects identical source and target sequences', () => {
 	const input = buildInput();
 	const nodePath = sequenceContaining(input, "name='a'");
 
-	await expect(
-		reorderSequence({
+	expect(() =>
+		reorderSequences({
 			input,
-			sourceNodePath: nodePath,
+			sourceNodePaths: [nodePath],
 			targetNodePath: nodePath,
 			position: 'after',
 		}),
-	).rejects.toThrow(/source and target are identical/);
+	).toThrow(/relative to a selected sequence/);
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { getCanvasSelectionItemKey } from "@remotion/canvas";
+import { getCanvasSelectionItemKey } from "@remotion/sdk";
 import { useCallback, useEffect, useRef } from "react";
 import type { PreviewHost, PreviewKeyEvent } from "@/preview/bridge";
 import type { CompositionInfo } from "../model/compositions";
@@ -138,7 +138,7 @@ export const useEditorShortcuts = ({
         if (key === "ArrowUp" || key === "ArrowDown") {
           const [node] = getSelectedNodes(host, layers);
           if (node) {
-            void actions.reorderNode(node, key === "ArrowUp" ? "up" : "down");
+            void actions.moveSelectedNodesOneStep(node, key === "ArrowUp" ? "up" : "down");
           }
 
           return true;

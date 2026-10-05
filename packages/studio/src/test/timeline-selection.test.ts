@@ -340,9 +340,10 @@ const makeLeftEdgePropStatuses = (
 	nodePaths: readonly SequencePropsSubscriptionKey[],
 	includeTrimBefore = false,
 	includeTimelineRange = true,
+	durationInFramesCodeValues: readonly (number | undefined)[] | null = null,
 ): PropStatuses => {
 	const propStatuses: PropStatuses = {};
-	for (const nodePath of nodePaths) {
+	for (const [index, nodePath] of nodePaths.entries()) {
 		propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)] = {
 			canUpdate: true,
 			props: {
@@ -351,7 +352,7 @@ const makeLeftEdgePropStatuses = (
 							durationInFrames: {
 								status: 'static' as const,
 								keyframeDisplayOffsetAdjustment: null,
-								codeValue: 100,
+								codeValue: durationInFramesCodeValues?.[index],
 							},
 							from: {
 								status: 'static' as const,
@@ -2053,7 +2054,7 @@ test('Timeline edge drags edit durationInFrames in the child clock', () => {
 	).toMatchObject({fieldKey: 'durationInFrames', value: 24});
 });
 
-test('Left edge trim updates durationInFrames in the child clock', () => {
+test('Left edge trim preserves a recent right edge trim in the child clock', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const sequence = makeTimelineSequence({
@@ -2072,7 +2073,7 @@ test('Left edge trim updates durationInFrames in the child clock', () => {
 		selectedItems: [{type: 'sequence', nodePathInfo}],
 		sequences: [sequence],
 		overrideIdsToNodePaths: {override: nodePath},
-		propStatuses: makeLeftEdgePropStatuses([nodePath], true),
+		propStatuses: makeLeftEdgePropStatuses([nodePath], true, true, [16]),
 	});
 
 	expect(
@@ -2082,7 +2083,7 @@ test('Left edge trim updates durationInFrames in the child clock', () => {
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
 		['from', 2],
-		['durationInFrames', 16],
+		['durationInFrames', 12],
 		['trimBefore', 8],
 	]);
 });
@@ -3089,7 +3090,7 @@ test('Timeline from drag applies the same delta to selected sequences', () => {
 	expect(targets?.map((target) => target.initialFrom)).toEqual([0, 10]);
 
 	for (const [deltaFrames, expected] of [
-		[-100, -24],
+		[-100, -0],
 		[100, 79],
 	]) {
 		expect(

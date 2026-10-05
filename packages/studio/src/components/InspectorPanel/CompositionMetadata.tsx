@@ -1,9 +1,19 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {CaretDown} from '../../icons/caret';
+import {Checkmark} from '../../icons/Checkmark';
+import {renderFrame} from '../../state/render-frame';
+import {ContextMenu} from '../ContextMenu';
 import {InlineDropdown} from '../InlineDropdown';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
@@ -12,6 +22,7 @@ import {
 } from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {updateCompositionMetadata} from '../RenderQueue/actions';
+import {TimelineTickFormatContext} from '../Timeline/TimelineTickFormatProvider';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorDetailRow} from './common';
 import {
@@ -196,6 +207,8 @@ const CompositionMetadataValue: React.FC<{
 	readonly value: number;
 }> = ({computed, disabled, field, onSave, pendingValue, value}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
+	const {showFrames, setShowFrames} = useContext(TimelineTickFormatContext);
+	const fps = Internals.useVideo()?.fps ?? null;
 
 	const save = useCallback(
 		(newValue: number) => {
@@ -219,37 +232,80 @@ const CompositionMetadataValue: React.FC<{
 
 			const roundedValue = Math.round(numberValue);
 			if (field === 'durationInFrames') {
+				if (!showFrames && fps !== null) {
+					return renderFrame(roundedValue, fps);
+				}
+
 				return `${roundedValue} ${roundedValue === 1 ? 'frame' : 'frames'}`;
 			}
 
 			return String(roundedValue);
 		},
-		[field],
+		[field, fps, showFrames],
+	);
+	const getTimeFormatItems = useCallback(
+		(): ComboboxValue[] => [
+			{
+				type: 'item',
+				id: 'timecode',
+				label: 'Timecode',
+				value: 'timecode',
+				onClick: () => setShowFrames(false),
+				keyHint: null,
+				leftItem: showFrames ? null : <Checkmark />,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			},
+			{
+				type: 'item',
+				id: 'frames',
+				label: 'Frames',
+				value: 'frames',
+				onClick: () => setShowFrames(true),
+				keyHint: null,
+				leftItem: showFrames ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			},
+		],
+		[setShowFrames, showFrames],
 	);
 
-	return computed || disabled ? (
-		<span style={computedContainerStyle}>
-			<span style={computedValueStyle}>{formatValue(value)}</span>
-		</span>
+	const content =
+		computed || disabled ? (
+			<span style={computedContainerStyle}>
+				<span style={computedValueStyle}>{formatValue(value)}</span>
+			</span>
+		) : (
+			<InputDragger
+				aria-label={fieldLabels[field]}
+				buttonStyle={metadataDraggerStyles[field]}
+				type="number"
+				value={dragValue ?? pendingValue?.value ?? value}
+				disabled={pendingValue !== null}
+				status="ok"
+				onValueChange={setDragValue}
+				onValueChangeEnd={save}
+				onTextChange={() => undefined}
+				min={isFps ? 0.01 : 1}
+				step={isFps ? 0.01 : 1}
+				dragDecimalPlaces={isFps ? 2 : 0}
+				formatter={formatValue}
+				formatterStyle={metadataFormatterStyle}
+				rightAlign
+				style={metadataDraggerStyles[field]}
+			/>
+		);
+
+	return field === 'durationInFrames' ? (
+		<ContextMenu
+			getItems={getTimeFormatItems}
+			style={{display: 'inline-block'}}
+		>
+			{content}
+		</ContextMenu>
 	) : (
-		<InputDragger
-			aria-label={fieldLabels[field]}
-			buttonStyle={metadataDraggerStyles[field]}
-			type="number"
-			value={dragValue ?? pendingValue?.value ?? value}
-			disabled={pendingValue !== null}
-			status="ok"
-			onValueChange={setDragValue}
-			onValueChangeEnd={save}
-			onTextChange={() => undefined}
-			min={isFps ? 0.01 : 1}
-			step={isFps ? 0.01 : 1}
-			dragDecimalPlaces={isFps ? 2 : 0}
-			formatter={formatValue}
-			formatterStyle={metadataFormatterStyle}
-			rightAlign
-			style={metadataDraggerStyles[field]}
-		/>
+		content
 	);
 };
 

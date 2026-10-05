@@ -14,6 +14,19 @@ Use connected composition when a section has its own layers or timing, will be r
 3. Register the **same component reference** with `<Composition component={...}>` in the root.
    Give it a unique `id` and the dimensions, fps, and natural duration needed to preview the scene on its own. A `<Folder>` can keep scene compositions together.
 
+## Make the component independent of its parent
+
+The parent is not mounted when a connected composition opens on its own.
+Define required styles such as `fontFamily` inside the component, and avoid
+parent-only context providers or mount side effects. Load custom fonts in its
+module or a shared module it imports; see [Google fonts](google-fonts.md) and
+[local fonts](local-fonts.md).
+
+When extracting markup, carry over these dependencies. Verify its appearance
+by opening it directly in a fresh Studio preview before opening the parent.
+
+## Example
+
 ```tsx
 // Chapter.tsx
 import type React from 'react';
@@ -40,6 +53,8 @@ const ChapterInner: React.FC<ChapterProps> = ({title, style}) => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
+        color: 'black',
+        fontFamily: 'Helvetica, Arial, sans-serif',
         ...style,
       }}
     >

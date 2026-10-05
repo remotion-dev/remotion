@@ -1,0 +1,155 @@
+---
+image: /generated/articles-docs-sdk-start-canvas-keyframe-drag.png
+title: startCanvasKeyframeDrag()
+crumb: '@remotion/sdk'
+---
+
+# startCanvasKeyframeDrag()<AvailableFrom v="4.0.530" />
+
+Moves keyframes along the timeline with the pointer. Call it from the `pointerdown` handler of a keyframe marker. While the pointer moves, the new positions are previewed on the canvas through [`controller.overrides`](/docs/sdk/create-canvas-controller#overrides); when it is released, the resulting moves are reported for you to persist.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx twoslash title="KeyframeMarker.tsx"
+// @moduleResolution: bundler
+import {
+  startCanvasKeyframeDrag,
+  type CanvasController,
+  type CanvasKeyframeChange,
+  type CanvasKeyframeDragTarget,
+} from '@remotion/sdk';
+declare const controller: CanvasController;
+declare const target: CanvasKeyframeDragTarget;
+declare const pixelsPerFrame: number;
+declare const durationInFrames: number;
+declare const persist: (changes: readonly CanvasKeyframeChange[]) => void;
+// ---cut---
+export const KeyframeMarker = () => {
+  return (
+    <button
+      style={{position: 'absolute', left: target.frame * pixelsPerFrame}}
+      onPointerDown={(event) => {
+        startCanvasKeyframeDrag({
+          event,
+          captureTarget: event.currentTarget,
+          targets: [target],
+          pixelsPerFrame,
+          durationInFrames,
+          overrides: controller.overrides,
+          onDragStart: null,
+          onDragMove: null,
+          onDragEnd: ({changes}) => {
+            if (changes.length > 0) {
+              persist(changes);
+            }
+          },
+        });
+      }}
+    >
+      ◆
+    </button>
+  );
+};
+```
+
+The movement starts after the pointer has travelled 3 pixels and is rounded to whole composition frames. The keyframes stay inside the composition. Dropping a keyframe onto another keyframe of the same prop replaces that keyframe, like in the Remotion Studio.
+
+## Parameters
+
+An object with the following properties:
+
+### event
+
+The `PointerEvent` that starts the gesture. Its `button`, `pointerId` and `clientX` are read.
+
+### captureTarget
+
+The element that captures the pointer for the duration of the gesture, usually the marker that was pressed.
+
+### targets
+
+The keyframes to move, as `CanvasKeyframeDragTarget` objects. Dragging one marker of a multi-selection should pass every selected keyframe.
+
+#### nodePathInfo
+
+The `SequenceNodePathInfo` of the sequence the keyframe belongs to. The overrides are set on it.
+
+#### track
+
+The `TimelineTrackData` of the sequence, for its `keyframeDisplayOffset` and `keyframePlaybackRate`.
+
+#### schema
+
+The interactivity schema of the element, passed through to the reported changes.
+
+#### key
+
+The schema key of the keyframed prop, for example `'style.opacity'`.
+
+#### propStatus
+
+The `'keyframed'` prop status of the prop, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it.
+
+#### frame
+
+The composition frame of the keyframe, as returned by [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes). Targets that do not correspond to a keyframe of the prop are ignored.
+
+### pixelsPerFrame
+
+The width of one composition frame on your timeline.
+
+### durationInFrames
+
+The duration of the composition, which bounds the movement.
+
+### overrides
+
+The [`overrides`](/docs/sdk/create-canvas-controller#overrides) of the `CanvasController` that previews the composition.
+
+### onDragStart
+
+Called once the pointer has moved past the drag threshold, or `null`.
+
+### onDragMove
+
+Called with the previewed movement in composition frames whenever it changes, or `null`. Use it to draw the dragged markers at their new positions. The value is `0` while the move cannot be applied.
+
+### onDragEnd
+
+Called when the pointer is released or the gesture is cancelled, with a `CanvasKeyframeDragEnd` object.
+
+#### changes
+
+One `CanvasKeyframeChange` per prop whose keyframes moved, with a `{type: 'move', moves}` operation in the frame clock of the interpolation. Persist them with [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes) and clear the overrides of each `nodePathInfo` once the update has been applied; until then, the canvas keeps showing the moved keyframes.
+
+The array is empty when the pointer did not move past the threshold, returned to the start, the move cannot be applied or the gesture was cancelled. The overrides are cleared in that case.
+
+#### delta
+
+How far the keyframes moved, in composition frames. Add it to the frames of your selected keyframes to keep them selected.
+
+#### dragged
+
+Whether the pointer moved past the drag threshold. A click without a drag has `dragged: false`; select the marker in that case.
+
+#### released
+
+`false` when the gesture was cancelled, for example because the window lost focus.
+
+## Return value
+
+A function that cancels the gesture.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes)
+- [`getCanvasKeyframeToggle()`](/docs/sdk/get-canvas-keyframe-toggle)
+- [`createCanvasController()`](/docs/sdk/create-canvas-controller)

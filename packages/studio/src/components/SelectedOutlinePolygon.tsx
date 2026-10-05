@@ -1,4 +1,4 @@
-import {CanvasInternals} from '@remotion/canvas';
+import {CanvasInternals} from '@remotion/sdk';
 import React, {useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -10,6 +10,7 @@ import {
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {isMac} from '../helpers/is-mac';
+import type {getSequenceAnnotationAttributes} from '../helpers/sequence-annotation';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
@@ -60,6 +61,9 @@ export const SELECTED_OUTLINE_KEY_ATTR =
 	'data-remotion-studio-selected-outline-key';
 
 const SelectedOutlinePolygonUnmemoized: React.FC<{
+	readonly annotationAttributes: ReturnType<
+		typeof getSequenceAnnotationAttributes
+	> | null;
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly containsSelection: boolean;
@@ -90,6 +94,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly showSelectedOutline: boolean;
 	readonly translateWithCommandKey: boolean;
 }> = ({
+	annotationAttributes,
 	compositionHeight,
 	compositionWidth,
 	containsSelection,
@@ -440,6 +445,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	return (
 		<CanvasOutlinePolygon
 			ref={polygonRef}
+			{...annotationAttributes}
 			{...{
 				[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true',
 				[SELECTED_OUTLINE_KEY_ATTR]: outline.key,

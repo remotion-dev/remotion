@@ -5,7 +5,7 @@ metadata:
   tags: sfx, sound, effect, audio
 ---
 
-To include a sound effect, use the `<Audio>` tag:
+To include a sound effect, use `<Audio>` from `@remotion/media`:
 
 ```tsx
 import { Audio } from "@remotion/media";

@@ -16,14 +16,14 @@ import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getMissingPackages} from '../helpers/install-required-package';
-import {SetSelectedModalContext} from '../state/modals';
+import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {prepareElementInstall} from './element-install-api';
 import {
 	enqueueElementInstallRequest,
 	subscribeToElementInstallRequests,
 } from './element-install-request';
-import {getElementPositionForDrop, getFromForDrop} from './import-assets';
+import {getElementPositionForDrop} from './import-assets';
 import {showNotification} from './Notifications/NotificationCenter';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -34,6 +34,9 @@ export const ElementInstallRequestHandler: FC = () => {
 	);
 	const config = Internals.useUnsafeVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectedModal = useContext(SelectedModalContext);
+	const showingExperimentalNotice =
+		selectedModal?.type === 'browser-studio-experimental-notice';
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
@@ -225,13 +228,7 @@ export const ElementInstallRequestHandler: FC = () => {
 			const requestWithDefaults = shouldAddCompositionDefaults
 				? {
 						...request,
-						from:
-							request.from ??
-							getFromForDrop({
-								durationInFrames: request.element.durationInFrames,
-								from: getCurrentFrame(),
-								preferCompositionStart: true,
-							}),
+						from: request.from ?? getCurrentFrame(),
 						position:
 							request.position ??
 							getElementPositionForDrop({
@@ -251,7 +248,7 @@ export const ElementInstallRequestHandler: FC = () => {
 	}, [config]);
 
 	useEffect(() => {
-		if (!canInstallElement) {
+		if (!canInstallElement || showingExperimentalNotice) {
 			return;
 		}
 
@@ -275,10 +272,19 @@ export const ElementInstallRequestHandler: FC = () => {
 				type: 'browser-studio-link',
 			},
 		});
-	}, [canInstallElement, compositionFile, currentCompositionId]);
+	}, [
+		canInstallElement,
+		compositionFile,
+		currentCompositionId,
+		showingExperimentalNotice,
+	]);
 
 	useEffect(() => {
-		if (activeRequest !== null || pendingRequests.length === 0) {
+		if (
+			activeRequest !== null ||
+			pendingRequests.length === 0 ||
+			showingExperimentalNotice
+		) {
 			return;
 		}
 
@@ -289,7 +295,7 @@ export const ElementInstallRequestHandler: FC = () => {
 
 		setActiveRequest(nextRequest);
 		setPendingRequests(remainingRequests);
-	}, [activeRequest, pendingRequests]);
+	}, [activeRequest, pendingRequests, showingExperimentalNotice]);
 
 	const closeElementInstallDialog = useCallback(() => {
 		setSelectedModal((modal) =>

@@ -6,12 +6,15 @@ import type {
 } from '@remotion/studio-shared';
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {copyText} from '../../helpers/copy-text';
 import {formatContextForAgents} from '../../helpers/format-file-location';
+import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {
 	getDefaultOpenInTarget,
 	getGitSourceName,
 	openGitSource,
 } from '../../helpers/get-git-menu-item';
+import {getSequenceAnnotationMetadata} from '../../helpers/sequence-annotation';
 import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -120,6 +123,7 @@ const copyImageToClipboard = async (element: Element): Promise<void> => {
 };
 
 export const getMultiSequenceContextMenuItems = ({
+	getContextForAgents,
 	deleteDisabled,
 	duplicateDisabled,
 	splitDisabled,
@@ -127,6 +131,7 @@ export const getMultiSequenceContextMenuItems = ({
 	onDuplicateSelectedSequences,
 	onSplitSelectedSequences,
 }: {
+	readonly getContextForAgents: () => Promise<string | null>;
 	readonly deleteDisabled: boolean;
 	readonly duplicateDisabled: boolean;
 	readonly splitDisabled: boolean;
@@ -135,6 +140,11 @@ export const getMultiSequenceContextMenuItems = ({
 	readonly onSplitSelectedSequences: () => void;
 }): ComboboxValue[] => {
 	return [
+		getCopyContextForAgentsMenuItem({contextForAgents: getContextForAgents}),
+		{
+			type: 'divider',
+			id: 'copy-context-for-agents-divider',
+		},
 		{
 			type: 'item',
 			id: 'duplicate-selected-sequences',
@@ -178,53 +188,56 @@ export const getMultiSequenceContextMenuItems = ({
 	];
 };
 
-export const getSequenceContextMenuItems = ({
-	assetLinkInfo,
-	canOpenInEditor,
-	copyImageElement,
-	deleteDisabled,
-	disableInteractivityDisabled,
-	duplicateDisabled,
-	isProgrammaticallyDuplicated,
-	includeSourceEditItems,
-	codingAgentInfo,
-	editorInfo,
-	onConfigureApps,
-	onDeleteSequenceFromSource,
-	onDisableSequenceInteractivity,
-	onDuplicateSequenceFromSource,
-	openInCodingAgent,
-	openInEditor,
-	originalLocation,
-	selectAsset,
-	sequence,
-	sourceActions = [],
-}: {
-	readonly assetLinkInfo: TimelineAssetLinkInfo | null;
-	readonly canOpenInEditor: boolean;
-	readonly copyImageElement: Element | null;
-	readonly deleteDisabled: boolean;
-	readonly disableInteractivityDisabled: boolean;
-	readonly duplicateDisabled: boolean;
-	readonly isProgrammaticallyDuplicated: boolean;
-	readonly includeSourceEditItems: boolean;
-	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
-	readonly editorInfo: GetDefaultEditorInfoResponse | null;
-	readonly onConfigureApps: (() => void) | null;
-	readonly onDeleteSequenceFromSource: () => void;
-	readonly onDisableSequenceInteractivity: () => void;
-	readonly onDuplicateSequenceFromSource: () => void;
-	readonly openInCodingAgent: (
-		codingAgentId: DefaultCodingAgent,
-		codingAgentName: string,
-		contextForAgents: string | null,
-	) => void;
-	readonly openInEditor: (editorId: EditorPickerId | null) => void;
-	readonly originalLocation: ResolvedStackLocation | null;
-	readonly selectAsset: (src: string) => void;
-	readonly sequence: TSequence;
-	readonly sourceActions?: readonly ComboboxValue[];
-}): ComboboxValue[] => {
+export const getSequenceContextMenuItems = (
+	{
+		assetLinkInfo,
+		canOpenInEditor,
+		copyImageElement,
+		deleteDisabled,
+		disableInteractivityDisabled,
+		duplicateDisabled,
+		isProgrammaticallyDuplicated,
+		includeSourceEditItems,
+		codingAgentInfo,
+		editorInfo,
+		onConfigureApps,
+		onDeleteSequenceFromSource,
+		onDisableSequenceInteractivity,
+		onDuplicateSequenceFromSource,
+		openInCodingAgent,
+		openInEditor,
+		originalLocation,
+		selectAsset,
+		sequence,
+		sourceActions = [],
+	}: {
+		readonly assetLinkInfo: TimelineAssetLinkInfo | null;
+		readonly canOpenInEditor: boolean;
+		readonly copyImageElement: Element | null;
+		readonly deleteDisabled: boolean;
+		readonly disableInteractivityDisabled: boolean;
+		readonly duplicateDisabled: boolean;
+		readonly isProgrammaticallyDuplicated: boolean;
+		readonly includeSourceEditItems: boolean;
+		readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
+		readonly editorInfo: GetDefaultEditorInfoResponse | null;
+		readonly onConfigureApps: (() => void) | null;
+		readonly onDeleteSequenceFromSource: () => void;
+		readonly onDisableSequenceInteractivity: () => void;
+		readonly onDuplicateSequenceFromSource: () => void;
+		readonly openInCodingAgent: (
+			codingAgentId: DefaultCodingAgent,
+			codingAgentName: string,
+			contextForAgents: string | null,
+		) => void;
+		readonly openInEditor: (editorId: EditorPickerId | null) => void;
+		readonly originalLocation: ResolvedStackLocation | null;
+		readonly selectAsset: (src: string) => void;
+		readonly sequence: TSequence;
+		readonly sourceActions?: readonly ComboboxValue[];
+	},
+	contextMenuTarget: HTMLElement | null = null,
+): ComboboxValue[] => {
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
 	const installedEditors = editorInfo?.installedEditors ?? [];
@@ -334,6 +347,69 @@ export const getSequenceContextMenuItems = ({
 				}
 			: null,
 		getCopyContextForAgentsMenuItem({contextForAgents}),
+		getCodexAnnotation() !== null
+			? {
+					type: 'item' as const,
+					id: 'annotate-layer',
+					keyHint: null,
+					label: 'Annotate with ChatGPT',
+					leftItem: null,
+					disabled: false,
+					onClick: () => {
+						const target = [
+							sequence.refForOutline?.current,
+							contextMenuTarget,
+						].find((element) => {
+							if (!element?.isConnected) {
+								return false;
+							}
+
+							const rect = element.getBoundingClientRect();
+							return (
+								rect.width > 0 &&
+								rect.height > 0 &&
+								rect.bottom > 0 &&
+								rect.right > 0 &&
+								rect.top < window.innerHeight &&
+								rect.left < window.innerWidth
+							);
+						});
+						if (!target) {
+							showNotification(
+								'The annotation target is no longer visible',
+								3000,
+							);
+							return;
+						}
+
+						const annotation = getCodexAnnotation();
+						if (annotation === null) {
+							showNotification('The annotation editor is unavailable', 3000);
+							return;
+						}
+
+						try {
+							const result = annotation.request(target, {
+								metadata: getSequenceAnnotationMetadata({
+									sequence,
+									location: originalLocation,
+								}),
+							});
+							if (!result?.accepted) {
+								showNotification('Could not open the annotation editor', 3000);
+							}
+						} catch (err) {
+							showNotification(
+								`Could not open the annotation editor: ${(err as Error).message}`,
+								3000,
+							);
+						}
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'annotate-layer',
+				}
+			: null,
 		assetLinkInfo
 			? {
 					type: 'item' as const,
@@ -404,8 +480,7 @@ export const getSequenceContextMenuItems = ({
 							return;
 						}
 
-						navigator.clipboard
-							.writeText(svg.outerHTML)
+						copyText(svg.outerHTML)
 							.then(() => {
 								showNotification('Copied SVG to clipboard', 1000);
 							})

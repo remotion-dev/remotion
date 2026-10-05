@@ -13,7 +13,7 @@ import type {
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
-	VisualModeDragOverridesContext,
+	useEffectDragOverridesForNodePath,
 	VisualModePropStatusesContext,
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
@@ -28,6 +28,8 @@ import type {
 	EffectDescriptor,
 	EffectDefinition,
 } from './effect-types.js';
+
+const emptyDragOverrides: Record<string, DragOverrideValue> = {};
 
 const mergeOverrides = ({
 	descriptor,
@@ -220,7 +222,6 @@ export const useMemoizedEffects = ({
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
-	const {getEffectDragOverrides} = useContext(VisualModeDragOverridesContext);
 	const frame = useCurrentFrame();
 
 	const {overrideIdToNodePathMappings} = useContext(
@@ -232,6 +233,10 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const effectDragOverrides = useEffectDragOverridesForNodePath(
+		nodePath,
+		effects.length,
+	);
 
 	const resolved = effects.map((descriptor, index) => {
 		if (nodePath === null) {
@@ -251,7 +256,7 @@ export const useMemoizedEffects = ({
 			effectStatus.type === 'can-update-effect'
 				? resolvePropStatusOverrides(effectStatus.props, frame)
 				: null;
-		const dragOverridesMap = getEffectDragOverrides(nodePath, index);
+		const dragOverridesMap = effectDragOverrides[index] ?? emptyDragOverrides;
 		const dragOverrides =
 			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
 

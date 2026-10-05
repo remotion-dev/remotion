@@ -4,12 +4,13 @@ import {
   getCanvasKeyframeChangeOverride,
   getCanvasKeyframeToggle,
   getCanvasSelectionItemKey,
+  getCanvasSequenceReorderSelection,
   type CanvasKeyframeChange,
   type CanvasKeyframeEasing,
   type CanvasSelectionInteraction,
   type CanvasSequencePropChange,
   type SequenceNodePathInfo,
-} from "@remotion/canvas";
+} from "@remotion/sdk";
 import {
   addComposition,
   addElement,
@@ -24,7 +25,7 @@ import {
   moveFolder,
   renameComposition,
   renameFolder,
-  reorderNode as reorderNodeCodemod,
+  reorderNodes as reorderNodesCodemod,
   resolveCompositionComponent,
   setCompositionDefaultProps,
   splitSequences,
@@ -625,7 +626,39 @@ export const ${componentName}: React.FC = () => {
             }),
           }),
         ),
-      reorderNode: (node: NodeReference, direction: "up" | "down") => {
+      moveSelectedNodesOneStep: (node: NodeReference, direction: "up" | "down") => {
+        const draggedLayer = ref.current.layers.find(
+          (layer) =>
+            layer.source?.filePath === node.filePath &&
+            JSON.stringify(layer.source.nodePath) ===
+              JSON.stringify(node.nodePath),
+        );
+        const selectedNodePathInfos = draggedLayer
+          ? getCanvasSequenceReorderSelection({
+              draggedItem: draggedLayer.selectionItem,
+              selectedItems:
+                ref.current.host?.controller.selection.getSnapshot()
+                  .selectedItems ?? [],
+            })
+          : [];
+        const nodesToMove = selectedNodePathInfos.map((info) => {
+          const layer = ref.current.layers.find(
+            (candidate) =>
+              getCanvasSelectionItemKey(candidate.selectionItem) ===
+              getCanvasSelectionItemKey({ type: "sequence", nodePathInfo: info }),
+          );
+          return layer?.source &&
+            info.numberOfSequencesWithThisNodePath === 1 &&
+            areSiblingNodes(layer.source, node)
+            ? layer.source
+            : null;
+        });
+        if (nodesToMove.some((selectedNode) => selectedNode === null)) {
+          notify("Selected clips must be unique JSX siblings to reorder.");
+          return Promise.resolve(false);
+        }
+
+        const moving = nodesToMove.length > 0 ? nodesToMove : [node];
         const siblings = ref.current.layers
           .map((layer) => layer.source)
           .filter(
@@ -640,25 +673,41 @@ export const ${componentName}: React.FC = () => {
                   JSON.stringify(source.nodePath),
               ) === index,
           );
-        const index = siblings.findIndex(
-          (sibling) =>
-            JSON.stringify(sibling.nodePath) === JSON.stringify(node.nodePath),
+        const selectedIndexes = moving.map((selectedNode) =>
+          siblings.findIndex(
+            (sibling) =>
+              JSON.stringify(sibling.nodePath) ===
+              JSON.stringify(selectedNode!.nodePath),
+          ),
         );
-        const target = siblings[direction === "up" ? index - 1 : index + 1];
-        if (index === -1 || !target) {
+        const target =
+          siblings[
+            direction === "up"
+              ? Math.min(...selectedIndexes) - 1
+              : Math.max(...selectedIndexes) + 1
+          ];
+        if (selectedIndexes.some((index) => index === -1) || !target) {
           notify("This layer cannot be moved further.");
           return Promise.resolve(false);
         }
 
         return applyCodemod((project) =>
-          reorderNodeCodemod({
+          reorderNodesCodemod({
             project,
-            node,
+            nodes: moving as NodeReference[],
             target,
             position: direction === "up" ? "before" : "after",
           }),
         );
       },
+      reorderNodes: (
+        nodes: NodeReference[],
+        target: NodeReference,
+        position: "before" | "after",
+      ) =>
+        applyCodemod((project) =>
+          reorderNodesCodemod({ project, nodes, target, position }),
+        ),
       updateNodeProps: (
         node: NodeReference,
         updates: SequencePropUpdate[],

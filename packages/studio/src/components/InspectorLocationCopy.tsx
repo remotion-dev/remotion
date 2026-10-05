@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import {copyText} from '../helpers/copy-text';
 import {formatContextForAgents} from '../helpers/format-file-location';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
@@ -71,8 +72,7 @@ export const InspectorLocationCopy: React.FC<{
 				return;
 			}
 
-			navigator.clipboard
-				.writeText(contextForAgents)
+			copyText(contextForAgents)
 				.then(markCopied)
 				.catch((err) => {
 					showNotification(

@@ -7,7 +7,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
@@ -68,7 +68,7 @@ import {
 import {TimelineEdgeHighlightProvider} from './TimelineSequence';
 import {TimelineSequenceMediaDurationDragLimitsProvider} from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineSlider} from './TimelineSlider';
-import {TimelineTickFormatProvider} from './TimelineTickFormatProvider';
+import {TimelineSnapIndicatorProvider} from './TimelineSnapIndicator';
 import {
 	TimelineTimeIndicators,
 	TimelineTimePlaceholders,
@@ -273,7 +273,7 @@ const TimelineContextMenuArea: React.FC<{
 };
 
 const TimelineInner: React.FC = () => {
-	const {sequences} = useContext(Internals.SequenceManager);
+	const sequences = Internals.useSequenceManagerSequences();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -289,30 +289,109 @@ const TimelineInner: React.FC = () => {
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
 	const videoConfigIsNull = videoConfig === null;
+	const previousTimelineRef = useRef<{
+		readonly sequences: TSequence[];
+		readonly overrideIdsToNodePaths: typeof overrideIdToNodePathMappings;
+		readonly compositions: typeof compositions;
+		readonly timeline: TimelineTrackWithDisplayGroup[];
+	} | null>(null);
 
 	const timeline = useMemo((): TimelineTrackWithDisplayGroup[] => {
 		if (videoConfigIsNull) {
 			return [];
 		}
 
-		return addTimelineDisplayGroups(
+		const next = addTimelineDisplayGroups(
 			calculateTimeline({
 				sequences,
 				overrideIdsToNodePaths: overrideIdToNodePathMappings,
 				compositions,
 			}),
 		);
+		const previous = previousTimelineRef.current;
+		if (
+			previous === null ||
+			previous.overrideIdsToNodePaths !== overrideIdToNodePathMappings ||
+			previous.compositions !== compositions
+		) {
+			return next;
+		}
+
+		const previousSequencesById = new Map(
+			previous.sequences.map((sequence) => [sequence.id, sequence]),
+		);
+		const currentSequencesById = new Map(
+			sequences.map((sequence) => [sequence.id, sequence]),
+		);
+		const previousTracksById = new Map(
+			previous.timeline.map((track) => [track.sequence.id, track]),
+		);
+		return next.map((track) => {
+			const oldTrack = previousTracksById.get(track.sequence.id);
+			const currentSource = currentSequencesById.get(track.sequence.id);
+			const oldNodePath = oldTrack?.nodePathInfo;
+			const nodePath = track.nodePathInfo;
+			const oldLoop = oldTrack?.sequence.loopDisplay;
+			const loop = track.sequence.loopDisplay;
+			if (
+				oldTrack === undefined ||
+				currentSource !== previousSequencesById.get(track.sequence.id) ||
+				oldTrack.depth !== track.depth ||
+				oldTrack.cascadedStart !== track.cascadedStart ||
+				oldTrack.localStart !== track.localStart ||
+				oldTrack.keyframeDisplayOffset !== track.keyframeDisplayOffset ||
+				oldTrack.keyframePlaybackRate !== track.keyframePlaybackRate ||
+				oldTrack.sequenceFrameOffset !== track.sequenceFrameOffset ||
+				oldTrack.sequence.from !== track.sequence.from ||
+				oldTrack.sequence.duration !== track.sequence.duration ||
+				oldTrack.sequence.sequencePlaybackRate !==
+					track.sequence.sequencePlaybackRate ||
+				oldTrack.sequence.premountDisplay !== track.sequence.premountDisplay ||
+				oldTrack.sequence.postmountDisplay !==
+					track.sequence.postmountDisplay ||
+				oldTrack.displayGroup?.key !== track.displayGroup?.key ||
+				oldTrack.displayGroup?.numberOfSequences !==
+					track.displayGroup?.numberOfSequences ||
+				(oldNodePath === null) !== (nodePath === null) ||
+				(oldNodePath !== null &&
+					nodePath !== null &&
+					(oldNodePath?.sequenceSubscriptionKey !==
+						nodePath.sequenceSubscriptionKey ||
+						oldNodePath?.index !== nodePath.index ||
+						oldNodePath?.numberOfSequencesWithThisNodePath !==
+							nodePath.numberOfSequencesWithThisNodePath ||
+						oldNodePath?.supportsEffects !== nodePath.supportsEffects)) ||
+				(oldLoop === undefined) !== (loop === undefined) ||
+				(oldLoop !== undefined &&
+					loop !== undefined &&
+					(oldLoop.durationInFrames !== loop.durationInFrames ||
+						oldLoop.numberOfTimes !== loop.numberOfTimes ||
+						oldLoop.startOffset !== loop.startOffset ||
+						oldLoop.phaseOffsetInFrames !== loop.phaseOffsetInFrames ||
+						oldLoop.mediaOffsetInFrames !== loop.mediaOffsetInFrames))
+			) {
+				return track;
+			}
+
+			return oldTrack;
+		});
 	}, [
 		sequences,
 		videoConfigIsNull,
 		overrideIdToNodePathMappings,
 		compositions,
 	]);
+	useLayoutEffect(() => {
+		previousTimelineRef.current = {
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			compositions,
+			timeline,
+		};
+	}, [compositions, overrideIdToNodePathMappings, sequences, timeline]);
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
-	);
+	const activeFromDragOverrideKeys = Internals.useActiveFromDragOverrideKeys();
 	const filtered = useMemo(() => {
 		return timeline.filter((t) => {
 			// Moving outside the composition can reduce the displayed duration to
@@ -320,15 +399,18 @@ const TimelineInner: React.FC = () => {
 			if (
 				t.sequence.showInTimeline &&
 				t.nodePathInfo !== null &&
-				getDragOverrides(t.nodePathInfo.sequenceSubscriptionKey).from !==
-					undefined
+				activeFromDragOverrideKeys.has(
+					Internals.makeSequencePropsSubscriptionKey(
+						t.nodePathInfo.sequenceSubscriptionKey,
+					),
+				)
 			) {
 				return true;
 			}
 
 			return shouldShowTrackInTimeline(t, durationInFrames);
 		});
-	}, [durationInFrames, getDragOverrides, timeline]);
+	}, [activeFromDragOverrideKeys, durationInFrames, timeline]);
 
 	// Keep `filtered` complete so a future toggle can show every programmatic
 	// instance without recalculating the timeline or losing its instance index.
@@ -556,12 +638,12 @@ const MemoizedTimelineInner = React.memo(TimelineInner);
 
 export const Timeline: React.FC = () => {
 	return (
-		<TimelineTickFormatProvider>
-			<TimelineEdgeHighlightProvider>
-				<TimelineSequenceMediaDurationDragLimitsProvider>
+		<TimelineEdgeHighlightProvider>
+			<TimelineSequenceMediaDurationDragLimitsProvider>
+				<TimelineSnapIndicatorProvider>
 					<MemoizedTimelineInner />
-				</TimelineSequenceMediaDurationDragLimitsProvider>
-			</TimelineEdgeHighlightProvider>
-		</TimelineTickFormatProvider>
+				</TimelineSnapIndicatorProvider>
+			</TimelineSequenceMediaDurationDragLimitsProvider>
+		</TimelineEdgeHighlightProvider>
 	);
 };

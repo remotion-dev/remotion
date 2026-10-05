@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.530",
+	"version": "4.0.532",
 	"scripts": {
 		"formatting": "oxfmt src standalone --check",
 		"format": "oxfmt src standalone",
@@ -52,7 +52,7 @@
 		"@remotion/browser-studio": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/captions": "workspace:*",
-		"@remotion/canvas": "workspace:*",
+		"@remotion/sdk": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/cloudrun": "workspace:*",
 		"@remotion/convert": "workspace:*",

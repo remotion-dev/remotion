@@ -5,6 +5,7 @@ import type {
 	AbsoluteFillLayout,
 	LayoutAndStyle,
 	SequenceControls,
+	SequenceProps,
 	SequencePropsWithoutDuration,
 	InteractivitySchema,
 } from 'remotion';
@@ -192,6 +193,7 @@ const SeriesSequence = Interactive.withSchema({
 }) as FC<SeriesSequenceProps>;
 
 const transitionSeriesSchema = {
+	durationInFrames: Internals.sequenceSchema.durationInFrames,
 	name: Internals.sequenceSchema.name,
 	hidden: Internals.sequenceSchema.hidden,
 	showInTimeline: Internals.sequenceSchema.showInTimeline,
@@ -996,14 +998,14 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
  * @description Manages a series of transitions and sequences for advanced animation controls in Remotion projects, handling cases with varying timings and presentations.
  * @see [Documentation](https://www.remotion.dev/docs/transitions/transitionseries)
  */
-const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
+const TransitionSeriesInner: FC<SequenceProps> = (props) => {
 	const {
 		children,
 		name,
 		layout: passedLayout,
 		controls,
 		...otherProps
-	} = props as SequencePropsWithoutDuration & {
+	} = props as SequenceProps & {
 		readonly controls: SequenceControls | null;
 	};
 	const displayName = name ?? '<TransitionSeries>';
@@ -1041,7 +1043,7 @@ const TransitionSeries = Interactive.withSchema({
 	componentIdentity: 'dev.remotion.transitions.TransitionSeries',
 	schema: transitionSeriesSchema,
 	supportsEffects: false,
-}) as FC<SequencePropsWithoutDuration> & {
+}) as FC<SequenceProps> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
 	Overlay: typeof SeriesOverlay;
