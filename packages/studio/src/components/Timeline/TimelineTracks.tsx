@@ -26,7 +26,14 @@ const TimelineTracksInner: React.FC<{
 	}, []);
 
 	return (
-		<div style={timelineStyle} {...{'oai-annotation-container': ''}}>
+		<div
+			style={timelineStyle}
+			data-remotion-timeline-tracks
+			data-remotion-timeline-complete={
+				!hasBeenCut && virtualItems.length === rows.length
+			}
+			{...{'oai-annotation-container': ''}}
+		>
 			<div style={{...content, height: tracksEnd}}>
 				{virtualItems.map((virtualItem) => (
 					<div

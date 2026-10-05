@@ -301,6 +301,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly annotationLocation: ResolvedStackLocation | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly displayDurationInFrames: number;
+	readonly media: {readonly left: number; readonly width: number} | null;
 	readonly premount: {readonly left: number; readonly width: number} | null;
 	readonly postmount: {readonly left: number; readonly width: number} | null;
 	readonly negativeStart: {
@@ -330,6 +331,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	activeTrimEdge,
 	annotationLocation,
 	displayDurationInFrames,
+	media,
 	premount,
 	postmount,
 	negativeStart,
@@ -511,6 +513,8 @@ const TimelineSequenceCurrentFrame: React.FC<{
 		<div
 			ref={ref}
 			role="group"
+			data-remotion-timeline-body-left={media?.left}
+			data-remotion-timeline-body-width={media?.width}
 			{...getSequenceAnnotationAttributes({
 				sequence: s,
 				location: annotationLocation,
@@ -1591,6 +1595,7 @@ const TimelineSequenceInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceCurrentFrame
 			s={s}
+			media={visibleLayout.media}
 			annotationLocation={originalLocation}
 			activeTrimEdge={activeTrimEdge}
 			displayDurationInFrames={displayDurationInFrames}

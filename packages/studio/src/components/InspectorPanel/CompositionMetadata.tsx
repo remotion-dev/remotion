@@ -25,6 +25,7 @@ import {updateCompositionMetadata} from '../RenderQueue/actions';
 import {TimelineTickFormatContext} from '../Timeline/TimelineTickFormatProvider';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorDetailRow} from './common';
+import {getTimelineDurationFromDom} from './get-timeline-duration-from-dom';
 import {
 	acceptPendingCompositionMetadataValue,
 	type CompositionMetadataField,
@@ -170,7 +171,7 @@ const frameRatePresets = [23.976, 24, 25, 29.97, 30, 50, 60] as const;
 const PresetDropdown: React.FC<{
 	readonly disabled: boolean;
 	readonly 'aria-label': string;
-	readonly values: ComboboxValue[];
+	readonly values: ComboboxValue[] | (() => ComboboxValue[]);
 	readonly visible: boolean;
 }> = ({disabled, 'aria-label': ariaLabel, values, visible}) => {
 	const renderAction = useCallback((color: string) => {
@@ -192,7 +193,8 @@ const PresetDropdown: React.FC<{
 				disabled={disabled}
 				renderAction={renderAction}
 				aria-label={ariaLabel}
-				values={values}
+				values={typeof values === 'function' ? undefined : values}
+				getItems={typeof values === 'function' ? values : undefined}
 				variant="compact"
 			/>
 		</div>
@@ -332,6 +334,7 @@ export const CompositionMetadata: React.FC<{
 	readonly stack: string | null;
 }> = ({compositionId, disabled, stack}) => {
 	const video = Internals.useVideo();
+	const {showFrames} = useContext(TimelineTickFormatContext);
 	const resolvedVideoConfig = Internals.useResolvedVideoConfig(compositionId);
 	const resolvedConfig =
 		resolvedVideoConfig?.type === 'success' ||
@@ -614,7 +617,47 @@ export const CompositionMetadata: React.FC<{
 							/>
 						</div>
 					</InspectorDetailRow>
-					<InspectorDetailRow label="Duration">
+					<InspectorDetailRow
+						label={(hovered) => (
+							<div style={metadataLabelControls}>
+								<span style={metadataLabelText}>Duration</span>
+								{disabled || durationIsComputed ? null : (
+									<PresetDropdown
+										disabled={pendingValues.durationInFrames !== undefined}
+										aria-label="Choose duration preset"
+										visible={hovered}
+										values={() => {
+											const timelineEnd = getTimelineDurationFromDom({
+												durationInFrames: video.durationInFrames,
+											});
+
+											return [
+												{
+													type: 'item',
+													id: 'match-timeline',
+													label:
+														timelineEnd === null
+															? 'Match timeline'
+															: `Match timeline (${showFrames ? `${timelineEnd} ${timelineEnd === 1 ? 'frame' : 'frames'}` : renderFrame(timelineEnd, video.fps)})`,
+													value: 'match-timeline',
+													disabled: timelineEnd === null,
+													onClick: () => {
+														if (timelineEnd !== null) {
+															saveMetadata({durationInFrames: timelineEnd});
+														}
+													},
+													keyHint: null,
+													leftItem: null,
+													subMenu: null,
+													quickSwitcherLabel: null,
+												},
+											];
+										}}
+									/>
+								)}
+							</div>
+						)}
+					>
 						<CompositionMetadataValue
 							computed={durationIsComputed}
 							disabled={disabled}
