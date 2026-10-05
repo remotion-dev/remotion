@@ -30,10 +30,7 @@ import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-ca
 import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
-import {
-	ProductCollection,
-	productCollectionDurationInFrames,
-} from '../../../elements/commerce/product-collection/product-collection';
+import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {Shine} from '../../../elements/commerce/shine/shine';
 import {Tear} from '../../../elements/commerce/tear/tear';
@@ -538,7 +535,7 @@ const elementImplementations = [
 		contributors: [],
 		description: 'Three cards which each take center once.',
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
-		durationInFrames: productCollectionDurationInFrames,
+		durationInFrames: 150,
 		elementHeight: 1020,
 		elementWidth: 1020,
 		fps: 30,

@@ -6,6 +6,7 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveTransformProps,
 } from 'remotion';
 
@@ -13,8 +14,6 @@ loadFont('normal', {
 	subsets: ['latin'],
 	weights: ['500', '600', '700'],
 });
-
-export const productCollectionDurationInFrames = 150;
 
 type ProductCardProps = {
 	readonly count: number;
@@ -24,10 +23,11 @@ type ProductCardProps = {
 
 const ProductCard: React.FC<ProductCardProps> = ({count, index, label}) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 	const lastProductIndex = Math.max(0, count - 1);
 	const rawScrollPosition = interpolate(
 		frame,
-		[24, productCollectionDurationInFrames - 28],
+		[24, durationInFrames - 28],
 		[0, lastProductIndex],
 		{
 			extrapolateLeft: 'clamp',
@@ -155,6 +155,7 @@ const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 	style,
 }) => {
 	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
@@ -169,12 +170,7 @@ const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 				left: 60,
 				opacity: interpolate(
 					frame,
-					[
-						0,
-						10,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
+					[0, 10, durationInFrames - 8, durationInFrames - 1],
 					[0, 1, 1, 0],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -186,12 +182,7 @@ const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 				position: 'absolute',
 				scale: interpolate(
 					frame,
-					[
-						0,
-						16,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
+					[0, 16, durationInFrames - 8, durationInFrames - 1],
 					[0.97, 1, 1, 0.98],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -204,12 +195,7 @@ const ProductCollectionInner: React.FC<InteractiveTransformProps> = ({
 				transform: 'perspective(100px)',
 				translate: interpolate(
 					frame,
-					[
-						0,
-						16,
-						productCollectionDurationInFrames - 8,
-						productCollectionDurationInFrames - 1,
-					],
+					[0, 16, durationInFrames - 8, durationInFrames - 1],
 					['0px 30px', '0px 0px', '0px 0px', '0px -20px'],
 					{
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
