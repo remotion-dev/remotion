@@ -58,7 +58,6 @@ import {
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
-import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import type {OnArtifact} from './render-frames';
 import {internalRenderFrames} from './render-frames';
@@ -370,28 +369,9 @@ const internalRenderMediaRaw = ({
 
 	const renderStart = Date.now();
 
-	const {estimatedUsage, freeMemory, hasEnoughMemory} =
-		shouldUseParallelEncoding({
-			height: compositionWithPossibleUnevenDimensions.height,
-			width: compositionWithPossibleUnevenDimensions.width,
-			logLevel,
-		});
 	const parallelEncoding =
-		!disallowParallelEncoding &&
-		hasEnoughMemory &&
-		canUseParallelEncoding(codec);
+		!disallowParallelEncoding && canUseParallelEncoding(codec);
 
-	Log.verbose(
-		{
-			indent,
-			logLevel,
-			tag: 'renderMedia()',
-		},
-		'Free memory:',
-		freeMemory,
-		'Estimated usage parallel encoding',
-		estimatedUsage,
-	);
 	const resolvedConcurrency = resolveConcurrency(concurrency);
 	Log.verbose(
 		{
