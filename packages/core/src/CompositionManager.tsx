@@ -142,6 +142,8 @@ export type TSequence = {
 	timelineOrder: number | null;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
+	/** Read the committed child clock without updating timeline metadata each frame. */
+	getCurrentFrame?: (() => number) | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceRegistrationControls | null;

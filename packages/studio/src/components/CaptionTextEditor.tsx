@@ -29,6 +29,7 @@ const list: React.CSSProperties = {
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
+	backgroundColor: 'var(--remotion-active-caption-background, transparent)',
 	borderBottom: `1px solid ${LINE_COLOR}`,
 	display: 'grid',
 	gap: 8,
@@ -65,7 +66,7 @@ export const CaptionTextEditor: React.FC<{
 	readonly onSave: ((captions: Caption[]) => void) | null;
 	readonly onCancel: (() => void) | null;
 	readonly readOnly: boolean;
-}> = ({captions, onChange, onSave, onCancel, readOnly}) => {
+}> = React.memo(({captions, onChange, onSave, onCancel, readOnly}) => {
 	const listRef = useRef<HTMLDivElement>(null);
 	const cancelledBlurIndexes = useRef(new Set<number>());
 	const dirtyRef = useRef(false);
@@ -234,7 +235,7 @@ export const CaptionTextEditor: React.FC<{
 						: `Add page break after caption ${index + 1}`;
 
 					return (
-						<div key={key} style={row}>
+						<div key={key} data-caption-row-index={index} style={row}>
 							<div style={timing}>
 								{formatMilliseconds(caption.startMs)} →{' '}
 								{formatMilliseconds(caption.endMs)} ms
@@ -330,4 +331,6 @@ export const CaptionTextEditor: React.FC<{
 			</div>
 		</div>
 	);
-};
+});
+
+CaptionTextEditor.displayName = 'CaptionTextEditor';
