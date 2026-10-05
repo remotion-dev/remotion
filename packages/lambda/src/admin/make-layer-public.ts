@@ -69,6 +69,16 @@ const parseSkipFlag = (): AwsRegion[] => {
 
 const makeLayerPublic = async () => {
 	const runtimes: Runtime[] = ['nodejs24.x'];
+	const remotionVersion =
+		process.argv
+			.slice(2)
+			.find((arg) => arg.startsWith('--remotion-version='))
+			?.slice('--remotion-version='.length) ?? VERSION;
+	if (!/^\d+\.\d+\.\d+$/.test(remotionVersion)) {
+		throw new Error(`Invalid Remotion version: ${remotionVersion}`);
+	}
+
+	console.log(`Publishing v24 layers for Remotion ${remotionVersion}`);
 
 	const layers = [
 		'fonts',
@@ -107,7 +117,7 @@ const makeLayerPublic = async () => {
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: getBucketName(region),
-						S3Key: `remotion-layer-${layer}-v23-arm64.zip`,
+						S3Key: `remotion-layer-${layer}-v24-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
@@ -121,7 +131,8 @@ const makeLayerPublic = async () => {
 										? 'Noto Sans (Chinese, Japanese, Korean)'
 										: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
-					Description: VERSION,
+					CompatibleArchitectures: ['arm64'],
+					Description: remotionVersion,
 				}),
 			);
 			await LambdaClientInternals.getLambdaClient(

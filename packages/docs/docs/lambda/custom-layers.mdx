@@ -25,29 +25,29 @@ If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) inst
 
 Consider using our layer options before creating a custom stack:
 
-The following sizes are for the v23 layers with Chromium 157.0.8080.0, used from Remotion v4.0.534. Sizes are uncompressed; 1 MiB is 1,048,576 bytes.
+The following sizes are for the v24 layers with Chromium 157.0.8080.0, used from Remotion v4.0.534. Sizes are uncompressed; 1 MiB is 1,048,576 bytes.
 
 With the default option (`--runtime-preference=cjk` or no option):
 
 | Item         | Size       |
 | ------------ | ---------- |
-| chromium     | 218.65 MiB |
+| chromium     | 188.96 MiB |
 | emoji-google | 4.76 MiB   |
 | fonts        | 1.87 MiB   |
 | cjk          | 14.07 MiB  |
-| Total layers | 239.35 MiB |
+| Total layers | 209.66 MiB |
 
 With the option [`--runtime-preference=apple-emojis`](/docs/lambda/deployfunction#runtimepreference):
 
 | Item         | Size       |
 | ------------ | ---------- |
-| chromium     | 218.65 MiB |
+| chromium     | 188.96 MiB |
 | emoji-apple  | 8.57 MiB   |
 | fonts        | 1.87 MiB   |
-| Total layers | 229.09 MiB |
+| Total layers | 199.40 MiB |
 
-:::warning
-The totals above exclude the function ZIP, which also counts toward the 250 MiB limit. The default layers leave 10.65 MiB for the function; the Apple Emoji layers leave 20.91 MiB. The current function exceeds the remaining space with the default v23 layers, so their deployment requires a size reduction.
+:::note
+The totals above exclude the function ZIP, which also counts toward the 250 MiB limit. The default layers leave 40.34 MiB for the function; the Apple Emoji layers leave 50.60 MiB. Any custom layers also count toward the same limit.
 :::
 
 :::note
