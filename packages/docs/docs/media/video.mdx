@@ -161,8 +161,8 @@ Removes a portion of the video at the end (right side). If `durationInFrames` en
 
 ### `volume?`
 
-Allows you to control the volume of the audio in its entirety or frame by frame.
-Read the [volume guide](/docs/audio/volume) for keyframes and timing.
+Allows you to control the volume of the audio in it's entirety or frame by frame.  
+Read the page on [using audio](/docs/using-audio) to learn more.
 
 ```tsx twoslash title="Setting a static volume"
 import {staticFile} from 'remotion';
@@ -371,8 +371,6 @@ This matches the behavior of [`<Html5Video>`](/docs/html5-video#loop).
 Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
 
 Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
-
-This prop only affects callbacks. For the recommended `volume={interpolate(frame, ...)}` pattern, the caller's frame controls the envelope. See [volume across loops](/docs/audio/volume#volume-across-loops).
 
 ### `showInTimeline?`
 

@@ -95,8 +95,6 @@ Set a static volume (0 to 1):
 <Video src={staticFile("video.mp4")} volume={0.5} />
 ```
 
-Animate volume with `useCurrentFrame()` and pass the result of `interpolate()` directly to `volume`. Keep the keyframes inline so Studio can edit them:
-
 ```tsx
 import { Video } from "@remotion/media";
 import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
@@ -114,12 +112,6 @@ return (
   />
 );
 ```
-
-With Studio interactivity enabled, these keyframes can be edited and are shown as a volume curve in the timeline.
-
-`frame` is relative to the component that calls `useCurrentFrame()`: the composition frame at the root, or the local frame inside a `<Sequence>`. Setting `from` on `<Video>` does not reset this frame. For a video starting at `from={1 * fps}`, fade in with `interpolate(frame, [1 * fps, 2 * fps], [0, 1], {...})`.
-
-`trimBefore` and `playbackRate` on the video change the source playback, but do not shift or scale these parent-timeline keyframes. When migrating a volume callback, start the keyframes at the media's first visible frame, where the callback frame started at 0. See [Timing and trimming](https://www.remotion.dev/docs/timing) for how enclosing timing affects `useCurrentFrame()`.
 
 Use `muted` to silence the video entirely:
 
@@ -148,29 +140,21 @@ Use `loop` to loop the video indefinitely:
 <Video src={staticFile("video.mp4")} loop />
 ```
 
-Volume keyframes based on the parent component's `frame` continue across media loops. A fade over multiple loops needs no `loopVolumeCurveBehavior`:
-
 ```tsx
 import { Video } from "@remotion/media";
-import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { interpolate, staticFile, useCurrentFrame } from "remotion";
 
 const frame = useCurrentFrame();
-const { fps } = useVideoConfig();
 
-return (
-  <Video
-    src={staticFile("video.mp4")}
-    loop
-    premountFor={fps}
-    volume={interpolate(frame, [0, 10 * fps], [1, 0], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    })}
-  />
-);
+<Video
+  src={staticFile("video.mp4")}
+  loop
+  volume={interpolate(frame, [0, 300], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  })}
+/>
 ```
-
-To repeat the volume envelope each loop, put the component that calls `useCurrentFrame()` inside a looping `<Sequence>` or `<Loop>`. Match its loop duration to the media's played duration, accounting for trimming and playback speed. The media's own `loop` prop does not reset the parent's `frame`.
 
 ## Pitch
 

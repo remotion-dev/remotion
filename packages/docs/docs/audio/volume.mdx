@@ -26,7 +26,7 @@ export const MyComposition = () => {
 
 ## Changing volume over time
 
-To animate volume, use [`useCurrentFrame()`](/docs/use-current-frame) and pass the result of [`interpolate()`](/docs/interpolate) directly to `volume`. This is the recommended pattern for audio and video.
+You can also change volume over time using [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate).
 
 ```tsx twoslash {6,11} title="MyComp.tsx"
 import {Audio} from '@remotion/media';
@@ -49,42 +49,3 @@ With [Studio interactivity](/docs/studio/interactivity) enabled, the Studio reco
 Select an audio or video timeline row and press <kbd>V</kbd> to select its `volume` property. <AvailableFrom v="4.0.530" inline />
 
 Note that because values below 0 are not allowed, we need to set the [`extrapolateLeft: 'clamp'`](/docs/interpolate#extrapolateleft) option to ensure no negative values.
-
-## Timing volume keyframes
-
-[`useCurrentFrame()`](/docs/use-current-frame) returns the frame in the component where it is called: the composition frame at the root, or the local frame inside a [`<Sequence>`](/docs/sequence). Setting `from` on the media does not reset the frame used to calculate its props.
-
-For audio starting after 1 second, move the volume keyframes to `[1 * fps, 2 * fps]` to fade in during its first second of playback:
-
-```tsx twoslash {11,14} title="MyComp.tsx"
-import {Audio} from '@remotion/media';
-import {interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-
-export const MyComposition = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-
-  return (
-    <Audio
-      src={staticFile('audio.mp3')}
-      from={1 * fps}
-      trimBefore={2 * fps}
-      premountFor={fps}
-      volume={interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      })}
-    />
-  );
-};
-```
-
-`trimBefore` changes which source frame plays first; it does not move the volume keyframes. Likewise, `playbackRate` on the media changes its playback speed without scaling keyframes evaluated in the parent. An enclosing sequence's [timing props](/docs/timing) affect `useCurrentFrame()` in its children.
-
-When migrating an existing `volume` callback, its frame starts at `0` when the media first becomes visible. If the media's start is visible in the caller's timeline, offset the keyframes by `from`, as above, to preserve the fade timing. If the media has already started when the caller becomes visible, for example due to a negative `from` or an enclosing trim, start the fade at its first visible frame to preserve the callback's timing.
-
-## Volume across loops
-
-With `volume={interpolate(frame, ...)}`, the media's `loop` prop does not reset the caller's `frame`. The volume envelope continues across media loops. [`loopVolumeCurveBehavior`](/docs/media/audio#loopvolumecurvebehavior) only affects callbacks.
-
-To repeat a volume envelope each loop, render the component that calls `useCurrentFrame()` inside a looping [`<Sequence>`](/docs/sequence#loop) or [`<Loop>`](/docs/loop). Match the loop duration to the media's played duration, accounting for trimming and playback speed. To fade across all iterations of an enclosing loop, calculate volume in a component outside that loop and pass the value down.
