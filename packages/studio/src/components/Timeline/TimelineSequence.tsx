@@ -6,6 +6,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -74,6 +75,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
+import {timelineLayerLayoutsRef} from './timeline-refs';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
@@ -1321,6 +1323,20 @@ const TimelineSequenceInner: React.FC<{
 			height: '100%',
 		};
 	}, [visibleLayout]);
+	useLayoutEffect(() => {
+		if (
+			(maxMediaDuration === null && !s.loopDisplay) ||
+			visibleLayout === null
+		) {
+			return;
+		}
+
+		const layouts = timelineLayerLayoutsRef.current;
+		layouts.set(s.id, visibleLayout);
+		return () => {
+			layouts.delete(s.id);
+		};
+	}, [maxMediaDuration, s.id, s.loopDisplay, visibleLayout]);
 	const marqueeHorizontalBounds = useMemo(
 		() => ({cropLeft: visibleLayout?.cropLeft ?? 0, width}),
 		[visibleLayout?.cropLeft, width],
