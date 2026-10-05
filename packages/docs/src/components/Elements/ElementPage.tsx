@@ -14,8 +14,10 @@ import React, {
 	useState,
 	type ReactNode,
 } from 'react';
+import {createPortal} from 'react-dom';
 import {InlineStep} from '../../../components/InlineStep';
 import {ExternalLinkIcon} from '../../theme/DocBreadcrumbs/icons';
+import {Blank} from '../icons/blank';
 import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {
@@ -58,6 +60,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		null,
 	);
 	const posterRef = useRef<HTMLImageElement>(null);
+	const sourceDialogRef = useRef<HTMLDialogElement>(null);
+	const sourceButtonRef = useRef<HTMLButtonElement>(null);
 	const sourceId = useId();
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
@@ -65,6 +69,30 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	useLayoutEffect(() => {
 		setIsEmbeddedInStudio(isInsideStudio());
 	}, []);
+
+	useEffect(() => {
+		if (!isSourceVisible) {
+			return;
+		}
+
+		const dialog = sourceDialogRef.current;
+		if (!dialog) {
+			return;
+		}
+
+		const sourceButton = sourceButtonRef.current;
+		const {overflow} = document.body.style;
+		document.body.style.overflow = 'hidden';
+		dialog.showModal();
+		return () => {
+			if (dialog.open) {
+				dialog.close();
+			}
+
+			document.body.style.overflow = overflow;
+			sourceButton?.focus();
+		};
+	}, [isSourceVisible]);
 
 	useEffect(() => {
 		if (installStatus.type !== 'installing') {
@@ -157,7 +185,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				})}
 			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
-				<div className={styles.previewAndSource}>
+				<div className={styles.previewSurface}>
 					<ElementPreview
 						component={PreviewComponent}
 						durationInFrames={durationInFrames}
@@ -172,34 +200,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						previewLayout={definition.preview.previewLayout}
 						safeArea={definition.safeArea}
 					/>
-					{children ? (
-						<div className={styles.sourceArea}>
-							<div
-								aria-label="Element source code"
-								className={`${styles.sourceViewport} ${
-									isSourceVisible ? '' : styles.sourceViewportCollapsed
-								}`}
-								id={sourceId}
-								inert={!isSourceVisible}
-								role="region"
-							>
-								{children}
-							</div>
-							{isSourceVisible ? null : (
-								<div className={styles.sourceReveal}>
-									<button
-										aria-controls={sourceId}
-										aria-expanded={isSourceVisible}
-										className={styles.sourceToggle}
-										onClick={() => setIsSourceVisible(true)}
-										type="button"
-									>
-										View code
-									</button>
-								</div>
-							)}
-						</div>
-					) : null}
 				</div>
 			</section>
 
@@ -225,11 +225,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											installStatus.code === 'no-installable-target')
 									}
 									sourceCode={sourceCode}
-									title={
-										isEmbeddedInStudio
-											? 'Use this Element in Studio'
-											: 'Install in the most recently focused Remotion Studio'
-									}
 								/>
 							</div>
 							{installStatus.type === 'error' &&
@@ -293,6 +288,45 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								</p>
 							) : null}
 						</>
+					) : null}
+
+					{children || sourceCode ? (
+						<div className={styles.secondaryActions}>
+							{children ? (
+								<button
+									ref={sourceButtonRef}
+									aria-controls={sourceId}
+									aria-haspopup="dialog"
+									className={styles.secondaryAction}
+									onClick={() => setIsSourceVisible(true)}
+									type="button"
+								>
+									<span
+										aria-hidden="true"
+										className={styles.secondaryActionIcon}
+									>
+										<Blank height={16} width={16} />
+									</span>
+									View code
+								</button>
+							) : null}
+							{sourceCode ? (
+								<button
+									aria-label="Try this Element in Browser Studio in a new tab"
+									className={styles.secondaryAction}
+									onClick={openInBrowserStudio}
+									type="button"
+								>
+									<span
+										aria-hidden="true"
+										className={styles.secondaryActionIcon}
+									>
+										<ExternalLinkIcon size={16} />
+									</span>
+									Try in remotion.dev/new
+								</button>
+							) : null}
+						</div>
 					) : null}
 
 					<div className={styles.details}>
@@ -372,19 +406,57 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							</div>
 						</div>
 					) : null}
-					{sourceCode ? (
-						<button
-							aria-label="Try this Element in Browser Studio in a new tab"
-							className={styles.browserStudioAction}
-							onClick={openInBrowserStudio}
-							type="button"
-						>
-							Try in Browser Studio
-							<ExternalLinkIcon />
-						</button>
-					) : null}
 				</div>
 			</aside>
+			{isSourceVisible && children
+				? createPortal(
+						<dialog
+							ref={sourceDialogRef}
+							aria-labelledby={`${sourceId}-title`}
+							className={styles.sourceDialog}
+							id={sourceId}
+							onCancel={(event) => {
+								event.preventDefault();
+								setIsSourceVisible(false);
+							}}
+							onClick={(event) => {
+								if (event.target !== event.currentTarget) {
+									return;
+								}
+
+								const bounds = event.currentTarget.getBoundingClientRect();
+								if (
+									event.clientX < bounds.left ||
+									event.clientX > bounds.right ||
+									event.clientY < bounds.top ||
+									event.clientY > bounds.bottom
+								) {
+									setIsSourceVisible(false);
+								}
+							}}
+						>
+							<div className={styles.sourceDialogHeader}>
+								<h2
+									className={styles.sourceDialogTitle}
+									id={`${sourceId}-title`}
+								>
+									Element source code
+								</h2>
+								<button
+									className={styles.secondaryAction}
+									onClick={() => setIsSourceVisible(false)}
+									type="button"
+								>
+									Close
+								</button>
+							</div>
+							<div className={styles.sourceViewport} tabIndex={0}>
+								{children}
+							</div>
+						</dialog>,
+						document.body,
+					)
+				: null}
 		</div>
 	);
 };
