@@ -31,7 +31,7 @@ export const getDefaultCodingAgentInfoHandler: ApiHandler<
 				const runningDifference =
 					Number(runningCodingAgents.includes(b.id)) -
 					Number(runningCodingAgents.includes(a.id));
-				if (runningDifference !== 0 || !runningCodingAgents.includes(a.id)) {
+				if (runningDifference !== 0) {
 					return runningDifference;
 				}
 
