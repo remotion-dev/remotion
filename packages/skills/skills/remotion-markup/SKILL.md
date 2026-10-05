@@ -340,14 +340,45 @@ When adding motion blur or a movement trail, read [motion-blur.md](motion-blur.m
 
 ## Visual and pixel effects
 
-When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed.  
-Order or preference:
+When adding a visual effect, first identify the element or group it should affect.
+If the target component supports `effects` and a built-in effect below matches the
+request, prefer that effect over a CSS approximation. For example, apply
+`vignette()` directly to a `<Video>`'s `effects` prop when the vignette should
+affect that video.
 
-1. Regular HTML + CSS or other web techniques
-2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
+These components accept `effects` directly:
 
-- A listed effect via [effects.md](effects.md)
-- A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
+| Import from        | Components                                                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `remotion`         | `<Img>`, `<CanvasImage>`, `<AnimatedImage>`, `<Solid>`, `<HtmlInCanvas>`                                                      |
+| `@remotion/media`  | `<Video>`                                                                                                                     |
+| `@remotion/gif`    | `<Gif>`                                                                                                                       |
+| `@remotion/rive`   | `<RemotionRiveCanvas>`                                                                                                        |
+| `@remotion/shapes` | `<Arrow>`, `<Callout>`, `<Circle>`, `<Ellipse>`, `<Heart>`, `<Pie>`, `<Polygon>`, `<Rect>`, `<Spark>`, `<Star>`, `<Triangle>` |
+
+Ordinary HTML elements, `<Interactive.*>` DOM wrappers, `<AbsoluteFill>`, and
+`<Sequence>` do not accept `effects` directly. To apply effects to their content,
+wrap them in `<HtmlInCanvas>` and put the `effects` prop on the wrapper.
+
+For other elements, prefer regular HTML and CSS where suitable. Consider wrapping
+a group in [`<HtmlInCanvas>`](html-in-canvas.md) when post-processing the whole
+group is appropriate and the environment supports it.
+
+Read [effects.md](effects.md) before applying an effect for imports, parameters,
+and setup. It also covers reusable custom effects with `createEffect()` when no
+built-in effect matches.
+
+### Available effects
+
+Built-in effects from `@remotion/effects`:
+
+- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
+- Blur and trails: `blur()`, `lightTrail()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `regionBlur()`, `zoomBlur()`.
+- Lighting: `dropShadow()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
+- Distortion and transforms: `barrelDistortion()`, `chromaticAberration()`, `cornerPin()`, `fisheye()`, `mirror()`, `noiseDisplacement()`, `scale()`, `skew()`, `tile()`, `uvTranslate()`, `wave()`, `xyTranslate()`.
+- Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
+- Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
+- Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
 
 ## 3D content
 
