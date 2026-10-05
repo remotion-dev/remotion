@@ -32,6 +32,7 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	frameRange,
 	compositionDurationInFrames,
 	sampleRate,
+	outputExtension,
 }: {
 	onProgress: CombineChunksOnProgress;
 	codec: ServerlessCodec;
@@ -52,10 +53,16 @@ export const concatVideos = async <Provider extends CloudProvider>({
 	everyNthFrame: number;
 	frameRange: SingleFrameRange | null;
 	sampleRate: number;
+	outputExtension: string | null;
 }) => {
+	// .m4a, .m4b and .3gp need to be muxed into their container, otherwise the
+	// ADTS stream would be uploaded as-is under that name.
+	const extension = RenderInternals.getMp4BrandForExtension(outputExtension)
+		? (outputExtension as string)
+		: RenderInternals.getFileExtensionFromCodec(codec, audioCodec);
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATENATED_TOKEN),
-		`concat.${RenderInternals.getFileExtensionFromCodec(codec, audioCodec)}`,
+		`concat.${extension}`,
 	);
 	const combine = insideFunctionSpecifics.timer('Combine chunks', logLevel);
 

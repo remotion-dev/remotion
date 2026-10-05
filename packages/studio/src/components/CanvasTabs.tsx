@@ -428,6 +428,9 @@ const CanvasTab: React.FC<{
 				triggerStyle={tooltipTriggerStyle}
 			>
 				<span
+					data-annotation-composition-id={
+						tab.type === 'composition' ? tab.compositionId : undefined
+					}
 					style={{...labelStyle, color: selected ? WHITE : LIGHT_TEXT}}
 					onPointerEnter={() => {
 						setTooltipHovered(true);

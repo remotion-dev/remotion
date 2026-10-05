@@ -3,7 +3,7 @@ import {
 	isSchemaFieldKeyframable,
 	optimisticUpdateForEffectPropStatuses,
 } from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusFalse,
@@ -15,14 +15,19 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {formatContextForAgents} from '../../helpers/format-file-location';
+import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {ContextMenu} from '../ContextMenu';
 import {saveEffectProps} from '../effect-operations-api';
+import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {useSettings} from '../SettingsContext';
 import {useEditorOpening} from '../use-default-editor-info';
 import {callAddEffectKeyframe} from './call-add-keyframe';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
@@ -450,6 +455,14 @@ export const TimelineEffectPropItem: React.FC<{
 	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const {remotionSkillsInfo} = useSettings();
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
 	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
 		previewServerState.type === 'connected',
 	);
@@ -592,6 +605,25 @@ export const TimelineEffectPropItem: React.FC<{
 					root: window.remotion_cwd,
 				}),
 			}),
+			...getAnnotateWithChatGPTMenuItems({
+				id: 'annotate-effect-property',
+				getTarget: () => annotationTarget.current,
+				initialComment: markupSkillAvailable ? '$remotion-markup' : null,
+				metadata: {
+					layer: nodePath.nodePath.join('.'),
+					layerKeys: JSON.stringify(nodePath.sequenceKeys),
+					effectIndex: field.effectIndex,
+					effectKeys: JSON.stringify(
+						nodePath.effectKeys[field.effectIndex] ?? [],
+					),
+					property: field.key,
+					source:
+						formatFileLocation({
+							location: validatedLocation,
+							root: window.remotion_cwd,
+						}) ?? validatedLocation.source,
+				},
+			}),
 			{
 				type: 'divider',
 				id: 'copy-context-for-agents-divider',
@@ -609,7 +641,16 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, field.key, onReset, selection, validatedLocation]);
+	}, [
+		canShowReset,
+		field.effectIndex,
+		field.key,
+		markupSkillAvailable,
+		nodePath,
+		onReset,
+		selection,
+		validatedLocation,
+	]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
@@ -662,5 +703,9 @@ export const TimelineEffectPropItem: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
+	return (
+		<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
+			{row}
+		</ContextMenu>
+	);
 };

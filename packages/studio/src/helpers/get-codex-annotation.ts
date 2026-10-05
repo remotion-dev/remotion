@@ -1,9 +1,10 @@
 type CodexAnnotation = {
 	readonly request: (
 		target: Element,
-		options:
-			| {metadata: Record<string, string | number>}
-			| {initialComment: string},
+		options: {
+			metadata?: Record<string, string | number>;
+			initialComment?: string;
+		},
 	) => {accepted: boolean};
 };
 

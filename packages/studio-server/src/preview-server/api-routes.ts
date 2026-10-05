@@ -34,6 +34,7 @@ import {insertElementHandler} from './routes/insert-element';
 import {
 	installRemotionSkillHandler,
 	removeRemotionSkillHandler,
+	upgradeRemotionSkillHandler,
 } from './routes/install-remotion-skill';
 import {invalidateBundleHandler} from './routes/invalidate-bundle';
 import {logStudioErrorHandler} from './routes/log-studio-error';
@@ -51,7 +52,10 @@ import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
 import {getReleaseNotesHandler} from './routes/release-notes';
-import {remotionSkillsInfoHandler} from './routes/remotion-skills-info';
+import {
+	openRemotionSkillHandler,
+	remotionSkillsInfoHandler,
+} from './routes/remotion-skills-info';
 import {handleRemoveRender} from './routes/remove-render';
 import {renameCompositionHandler} from './routes/rename-composition';
 import {renameFolderHandler} from './routes/rename-folder';
@@ -159,6 +163,8 @@ export const allApiRoutes: {
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,
 	'/api/install-remotion-skill': installRemotionSkillHandler,
 	'/api/remove-remotion-skill': removeRemotionSkillHandler,
+	'/api/upgrade-remotion-skill': upgradeRemotionSkillHandler,
+	'/api/open-remotion-skill': openRemotionSkillHandler,
 	'/api/project-info': projectInfoHandler,
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,

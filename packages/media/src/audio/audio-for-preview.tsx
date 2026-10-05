@@ -296,20 +296,12 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						}
 					};
 
-					if (result.type === 'unknown-container-format') {
-						handleError(
-							new Error(`Unknown container format ${preloadedSrc}.`),
-							`Unknown container format for ${preloadedSrc} (Supported formats: https://www.remotion.dev/docs/mediabunny/formats), falling back to <Html5Audio>`,
-						);
-						return;
-					}
-
-					if (result.type === 'network-error') {
-						handleError(
-							new Error(`Network error fetching ${preloadedSrc}.`),
-							`Network error fetching ${preloadedSrc}, falling back to <Html5Audio>`,
-						);
-						return;
+					if (
+						result.type === 'unknown-container-format' ||
+						result.type === 'network-error'
+					) {
+						// The catch below applies onError and the existing fallback policy.
+						throw result.error;
 					}
 
 					if (result.type === 'cannot-decode') {

@@ -116,6 +116,8 @@ Removes a portion of the audio at the end (right side). If `durationInFrames` en
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
 Read the page on [using audio](/docs/using-audio) to learn more.
 
+The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
+
 ```tsx twoslash title="Setting a static volume"
 import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
@@ -218,9 +220,11 @@ export const MyComposition = () => {
 
 ### `loopVolumeCurveBehavior?`
 
-Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+This prop only applies to [`volume`](#volume) callbacks, which are no longer recommended.
 
-Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+When [`loop`](#loop) is enabled, `"repeat"` (default) resets the callback frame to `0` on each iteration, while `"extend"` keeps it increasing across iterations.
+
+It has no effect on numeric `volume` values, including `volume={interpolate(frame, ...)}`.
 
 ### `muted?`
 

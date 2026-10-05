@@ -4,6 +4,7 @@ import type {
 	LogLevel,
 	SingleFrameRange,
 } from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {DownloadBehavior} from '@remotion/serverless-client';
 import {
 	type CloudProvider,
@@ -92,6 +93,7 @@ export const mergeChunksAndFinishRender = async <
 		everyNthFrame: options.everyNthFrame,
 		frameRange: options.frameRange,
 		sampleRate: options.sampleRate,
+		outputExtension: RenderInternals.getExtensionOfFilename(options.key),
 	});
 	const encodingStop = Date.now();
 	options.overallProgress.setTimeToCombine(encodingStop - encodingStart);

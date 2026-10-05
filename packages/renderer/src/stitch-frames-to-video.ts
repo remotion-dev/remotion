@@ -1,6 +1,7 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {getAacPrimingInputArgs} from './aac-priming';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
@@ -23,6 +24,7 @@ import {getCpuCount} from './get-cpu-count';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getFastStartMuxer} from './get-fast-start-muxer';
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -30,6 +32,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makeMetadataArgs} from './make-metadata-args';
 import {getMaxLambdaMemory} from './memory/from-lambda-env';
+import {muxVideoAndAudio} from './mux-video-and-audio';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
@@ -228,6 +231,22 @@ const innerStitchFramesToVideo = async (
 		getExtensionOfFilename(outputLocation) ??
 		getFileExtensionFromCodec(codec, resolvedAudioCodec)
 	).toLowerCase();
+	if (
+		codec === 'aac' &&
+		(outputExtension === 'mpg' || outputExtension === 'mpeg')
+	) {
+		const message =
+			'AAC output with .mpg or .mpeg extensions is not supported. Use .aac for raw ADTS AAC or .m4a for an MPEG-4 audio container.';
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(message);
+		}
+
+		Log.warn(
+			{indent, logLevel},
+			`${message} Falling back to raw ADTS AAC while keeping the requested filename. This will throw an error in Remotion 5.0.`,
+		);
+	}
+
 	const fastStartMuxer = getFastStartMuxer(outputExtension);
 	// Fast Start reopens its output for an in-place second pass. Keep that work
 	// away from the public output path so Windows file observers cannot lock it.
@@ -353,7 +372,32 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		cpSync(audio, outputLocation ?? (tempFile as string));
+		let audioOnlyFile = audio;
+		if (getMp4BrandForExtension(outputExtension)) {
+			// Mux away from the public output path: Fast Start reopens the file
+			// for a second pass, which Windows file observers can lock.
+			audioOnlyFile = path.join(
+				assetsInfo.downloadMap.stitchFrames,
+				`audio-only.${outputExtension}`,
+			);
+			await muxVideoAndAudio({
+				videoOutput: null,
+				audioOutput: audio,
+				output: audioOnlyFile,
+				indent,
+				logLevel,
+				onProgress: () => undefined,
+				binariesDirectory,
+				fps,
+				cancelSignal: cancelSignal ?? undefined,
+				metadata,
+				numberOfGifLoops: null,
+				audioCodec: resolvedAudioCodec,
+				sampleRate,
+			});
+		}
+
+		cpSync(audioOnlyFile, outputLocation ?? (tempFile as string));
 		onProgress?.(Math.round(assetsInfo.chunkLengthInSeconds * fps));
 		deleteDirectory(path.dirname(audio));
 

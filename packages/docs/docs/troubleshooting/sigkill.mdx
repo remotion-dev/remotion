@@ -41,6 +41,10 @@ The last version with improvements is [`v4.0.171`](https://remotion.dev/changelo
 
 Set a lower [`concurrency`](/docs/terminology/concurrency) to open less browser tabs at once and thus less memory.
 
+## Disallow parallel encoding
+
+H.264 and H.265 videos are encoded while frames are still being rendered, so the browser and FFmpeg need memory at the same time. Use [`--disallow-parallel-encoding`](/docs/cli/render#--disallow-parallel-encoding) or [`disallowParallelEncoding`](/docs/renderer/render-media#disallowparallelencoding) to only start encoding once all frames are rendered. This lowers the peak memory usage, but makes rendering slower.
+
 ## Allocate more memory to your system
 
 As a last resort, you can allocate more memory to your system to alleviate the problem.

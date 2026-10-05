@@ -1300,6 +1300,13 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
+	skillsUpdateDetails: {
+		outdatedSkills: {
+			name: string;
+			installedVersion: string | null;
+			reason: 'older-version' | 'missing-version' | 'invalid-version';
+		}[];
+	} | null;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
@@ -1325,9 +1332,22 @@ export type InstallRemotionSkillRequest = {
 export type RemoveRemotionSkillRequest = {
 	skill: string;
 };
+export type UpgradeRemotionSkillRequest = {
+	skill: string;
+};
+export type OpenRemotionSkillRequest = {
+	skill: string;
+	scope: 'project' | 'global';
+};
 export type GetRemotionSkillsInfoResponse = {
 	remotionUpgradeSkillAvailable: boolean;
 	remotionInteractivitySkillAvailable: boolean;
+	installations: {
+		name: string;
+		scope: 'project' | 'global';
+		version: string | null;
+		outdated: boolean;
+	}[];
 	skills: {
 		name: string;
 		installedInProject: boolean;
@@ -1628,6 +1648,11 @@ export type ApiRoutes = {
 		RemoveRemotionSkillRequest,
 		GetRemotionSkillsInfoResponse
 	>;
+	'/api/upgrade-remotion-skill': ReqAndRes<
+		UpgradeRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>;
+	'/api/open-remotion-skill': ReqAndRes<OpenRemotionSkillRequest, void>;
 	'/api/add-composition': ReqAndRes<
 		AddCompositionRequest,
 		CompositionEditResponse
