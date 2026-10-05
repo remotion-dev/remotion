@@ -11,6 +11,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_60,
 } from '../../helpers/colors';
+import {didUnmountReactApp} from '../react-overlay';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
@@ -94,6 +95,7 @@ export const ErrorDisplay: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
 		useEditorOpening(previewServerState.type === 'connected');
+	const canShowProjectActions = !didUnmountReactApp();
 	const stackFrames = useMemo(() => {
 		const withoutReactInternals = display.stackFrames.filter((frame) => {
 			const fileName = `/${frame.originalFileName?.replaceAll('\\', '/') ?? ''}`;
@@ -169,7 +171,8 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				{stackFrames.length > 0 &&
+				{canShowProjectActions &&
+				stackFrames.length > 0 &&
 				canOpenInEditor &&
 				defaultEditorId &&
 				defaultEditorName ? (
@@ -184,12 +187,14 @@ export const ErrorDisplay: React.FC<{
 						<div style={spacer} />
 					</>
 				) : null}
-				<CodingAgentButton
-					label="Fix with"
-					prompt={fixWithAgentPrompt}
-					size="default"
-					style={codingAgentButton}
-				/>
+				{canShowProjectActions ? (
+					<CodingAgentButton
+						label="Fix with"
+						prompt={fixWithAgentPrompt}
+						size="default"
+						style={codingAgentButton}
+					/>
+				) : null}
 				<CopyStackTrace errorText={errorTextForCopy} />
 				<div style={spacer} />
 				<SearchGithubIssues
@@ -237,7 +242,11 @@ export const ErrorDisplay: React.FC<{
 								horizontalSpacing={14}
 								lineNumberWidth={lineNumberWidth}
 								defaultFunctionName={'(anonymous function)'}
-								editorId={canOpenInEditor ? defaultEditorId : null}
+								editorId={
+									canShowProjectActions && canOpenInEditor
+										? defaultEditorId
+										: null
+								}
 							/>
 						);
 					})}

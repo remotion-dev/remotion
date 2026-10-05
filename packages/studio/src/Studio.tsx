@@ -72,6 +72,7 @@ export const Studio: React.FC<{
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
 		injectCSS();
+		window.remotion_studioStartup?.dismiss();
 	}, []);
 
 	return (
