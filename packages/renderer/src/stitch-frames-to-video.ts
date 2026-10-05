@@ -355,12 +355,18 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		const audioOnlyDestination = outputLocation ?? (tempFile as string);
+		let audioOnlyFile = audio;
 		if (getMp4BrandForExtension(outputExtension)) {
+			// Mux away from the public output path: Fast Start reopens the file
+			// for a second pass, which Windows file observers can lock.
+			audioOnlyFile = path.join(
+				assetsInfo.downloadMap.stitchFrames,
+				`audio-only.${outputExtension}`,
+			);
 			await muxVideoAndAudio({
 				videoOutput: null,
 				audioOutput: audio,
-				output: path.resolve(remotionRoot, audioOnlyDestination),
+				output: audioOnlyFile,
 				indent,
 				logLevel,
 				onProgress: () => undefined,
@@ -372,10 +378,9 @@ const innerStitchFramesToVideo = async (
 				audioCodec: resolvedAudioCodec,
 				sampleRate,
 			});
-		} else {
-			cpSync(audio, audioOnlyDestination);
 		}
 
+		cpSync(audioOnlyFile, outputLocation ?? (tempFile as string));
 		onProgress?.(Math.round(assetsInfo.chunkLengthInSeconds * fps));
 		deleteDirectory(path.dirname(audio));
 
