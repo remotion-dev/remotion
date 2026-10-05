@@ -9,6 +9,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_40,
 	WHITE_ALPHA_80,
+	WHITE_ALPHA_90,
 } from './colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 import {prismVscDarkPlus} from './prism-vsc-dark-plus';
@@ -178,9 +179,13 @@ const makeDefaultGlobalCSS = () => {
     background: ${WHITE_ALPHA_40};
   }
 
-  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-thumb {
-    background: ${WHITE_ALPHA_80};
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover::-webkit-scrollbar-thumb {
+    background-color: ${WHITE_ALPHA_80};
     border-radius: 3px;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover::-webkit-scrollbar-thumb:hover {
+    background-color: ${WHITE_ALPHA_90};
   }
 
   @-moz-document url-prefix() {
