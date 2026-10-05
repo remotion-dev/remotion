@@ -164,6 +164,8 @@ Removes a portion of the video at the end (right side). If `durationInFrames` en
 Allows you to control the volume of the audio in it's entirety or frame by frame.  
 Read the page on [using audio](/docs/using-audio) to learn more.
 
+The `volume` prop also accepts a `(frame: number) => number` callback, but this is no longer recommended. Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to calculate a numeric volume instead.
+
 ```tsx twoslash title="Setting a static volume"
 import {staticFile} from 'remotion';
 import {Video} from '@remotion/media';
