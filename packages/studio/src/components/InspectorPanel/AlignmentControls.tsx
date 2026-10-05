@@ -112,7 +112,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 				!track.nodePathInfo ||
 				!track.sequence.controls
 			) {
-				showNotification('Alignment is unavailable for this sequence.', 3000);
+				showNotification('Alignment is unavailable for this sequence.', 1000);
 				return;
 			}
 
@@ -141,7 +141,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 			if (fieldSchema?.type !== 'translate') {
 				showNotification(
 					'This sequence does not support alignment at the current frame.',
-					3000,
+					1000,
 				);
 				return;
 			}
@@ -149,7 +149,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 			if (!isPropStatusDraggable(propStatus)) {
 				showNotification(
 					'Cannot align this sequence because its translate property is not editable.',
-					3000,
+					1000,
 				);
 				return;
 			}
@@ -158,7 +158,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 			if (!ref) {
 				showNotification(
 					'This sequence is not available in the preview for alignment.',
-					3000,
+					1000,
 				);
 				return;
 			}
@@ -169,7 +169,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 			} catch {
 				showNotification(
 					'Could not measure this sequence for alignment.',
-					3000,
+					1000,
 				);
 				return;
 			}
@@ -178,7 +178,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 			if (!width) {
 				showNotification(
 					'Composition dimensions are unavailable for alignment.',
-					3000,
+					1000,
 				);
 				return;
 			}
@@ -187,7 +187,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 			if (compositionRect.width === 0 || compositionRect.height === 0) {
 				showNotification(
 					'The composition preview is not ready for alignment.',
-					3000,
+					1000,
 				);
 				return;
 			}
