@@ -15,19 +15,20 @@ import {
 
 type AudioOscilloscopeProps = InteractiveTransformProps & {
 	readonly amplitude?: number;
-	readonly audioSrc?: string;
+	readonly src?: string;
 	readonly lineColor?: string;
 	readonly lineWidth?: number;
 	readonly windowInSeconds?: number;
 };
 
 const audioOscilloscopeSchema = {
-	audioSrc: {
+	src: {
 		type: 'asset',
 		assetType: 'audio',
 		default:
 			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
-		description: 'Audio source',
+		description: 'Source',
+		keyframable: false,
 	},
 	lineColor: {
 		type: 'color',
@@ -65,7 +66,7 @@ const audioOscilloscopeSchema = {
 
 const AudioOscilloscopeInner: React.FC<AudioOscilloscopeProps> = ({
 	amplitude = 2,
-	audioSrc = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	src = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
 	lineColor = '#2563eb',
 	lineWidth = 6,
 	style,
@@ -76,7 +77,7 @@ const AudioOscilloscopeInner: React.FC<AudioOscilloscopeProps> = ({
 	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
 		fps,
 		frame,
-		src: audioSrc,
+		src,
 		windowInSeconds: 10,
 	});
 	const waveform = audioData
@@ -109,7 +110,7 @@ const AudioOscilloscopeInner: React.FC<AudioOscilloscopeProps> = ({
 				...style,
 			}}
 		>
-			<Audio showInTimeline={false} src={audioSrc} />
+			<Audio showInTimeline={false} src={src} />
 			<svg height={300} viewBox="0 0 900 300" width={900}>
 				<line
 					x1={0}
