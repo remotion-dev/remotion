@@ -8,6 +8,8 @@ import type {ApiHandler, QueueMethods} from './api-types';
 import {parseRequestBody} from './parse-body';
 import {validateSameOrigin} from './validate-same-origin';
 
+const MAX_REQUEST_BODY_BYTES = 10 * 1024 * 1024;
+
 export const handleRequest = async <Req, Res>({
 	remotionRoot,
 	request,
@@ -47,7 +49,9 @@ export const handleRequest = async <Req, Res>({
 	response.writeHead(200);
 
 	try {
-		const body = (await parseRequestBody(request, {maxBytes: null})) as Req;
+		const body = (await parseRequestBody(request, {
+			maxBytes: MAX_REQUEST_BODY_BYTES,
+		})) as Req;
 
 		const outputData = await handler({
 			entryPoint,
